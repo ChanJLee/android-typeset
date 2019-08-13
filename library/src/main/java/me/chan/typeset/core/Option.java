@@ -46,4 +46,20 @@ public class Option {
 	public int getMinHyperLength() {
 		return 6;
 	}
+
+	public int getTolerance() {
+		return 2;
+	}
+
+	public int getDemeritsLine() {
+		return 10;
+	}
+
+	public int getDemeritsFlagged() {
+		return 100;
+	}
+
+	public int getDemeritsFitness() {
+		return 3000;
+	}
 }
