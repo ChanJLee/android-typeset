@@ -20,6 +20,7 @@ import me.chan.typeset.core.Typeset;
 public class TypesetView extends View {
 	private Paint mPaint;
 	private Option mOption;
+	private float mLineWidth;
 	private TypesetAsyncTask mTypesetAsyncTask;
 
 	public TypesetView(Context context) {
@@ -49,6 +50,12 @@ public class TypesetView extends View {
 		mTypesetAsyncTask.execute(text);
 	}
 
+	@Override
+	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+		super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+		mLineWidth = getWidth() - getPaddingLeft() - getPaddingRight();
+	}
+
 	public void release() {
 		mTypesetAsyncTask.cancel(true);
 		mTypesetAsyncTask = null;
@@ -69,14 +76,23 @@ public class TypesetView extends View {
 				throw new IllegalArgumentException("invalid arguments length");
 			}
 
-			float lineLength = getWidth() - getPaddingLeft() - getPaddingRight();
-			if (lineLength <= 0) {
+			if (mLineWidth <= 0) {
 				return null;
 			}
 
 			List<Float> lineLengths = new ArrayList<>();
-			lineLengths.add(lineLength);
-			return Typeset.linkBreak(String.valueOf(charSequences[0]), lineLengths, mOption, mPaint);
+			lineLengths.add(mLineWidth);
+			List<Break> list = null;
+
+			for (int i = 1; i <= 3; ++i) {
+				mOption.setTolerance(i);
+				list = Typeset.linkBreak(String.valueOf(charSequences[0]), lineLengths, mOption, mPaint);
+				if (!list.isEmpty()) {
+					return list;
+				}
+			}
+
+			return list;
 		}
 
 		@Override
