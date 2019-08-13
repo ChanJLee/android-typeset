@@ -18,36 +18,41 @@ public class Typeset {
 	public static List<Break> linkBreak(String content, List<Float> lineLengths, Option option, Paint paint) {
 		List<Break> breaks = new ArrayList<>();
 
-		// create elements
-		List<Element> elements = createElements(content, option, paint);
+		Bundle bundle = new Bundle();
+		bundle.activeNodes = new ArrayList<>();
+		bundle.lineLengths = lineLengths;
+		bundle.option = option;
+		bundle.paint = paint;
+		bundle.sum = new Sum();
 
-		Sum sum = new Sum();
-		List<Node> activeNodes = new ArrayList<>();
-		activeNodes.add(new Node(new Break(), null, null));
-		for (int i = 0; i < elements.size(); ++i) {
-			Element element = elements.get(i);
+		// create elements
+		bundle.elements = createElements(content, bundle);
+
+		bundle.activeNodes.add(new Node(new Break(), null, null));
+		for (int i = 0; i < bundle.elements.size(); ++i) {
+			Element element = bundle.elements.get(i);
 			if (element instanceof Box) {
-				sum.width += element.width;
+				bundle.sum.width += element.width;
 			} else if (element instanceof Glue) {
-				if (i > 0 && elements.get(i - 1) instanceof Box) {
-					mainLoop(element, i, elements);
+				if (i > 0 && bundle.elements.get(i - 1) instanceof Box) {
+					mainLoop(i, bundle);
 				}
 
 				Glue glue = (Glue) element;
-				sum.width += glue.width;
-				sum.shrink += glue.shrink;
-				sum.stretch += glue.stretch;
+				bundle.sum.width += glue.width;
+				bundle.sum.shrink += glue.shrink;
+				bundle.sum.stretch += glue.stretch;
 			} else if (element instanceof Penalty && ((Penalty) element).penalty != option.getInfinity()) {
-				mainLoop(element, i, elements);
+				mainLoop(i, bundle);
 			}
 		}
 
-		if (activeNodes.isEmpty()) {
+		if (bundle.activeNodes.isEmpty()) {
 			return breaks;
 		}
 
 		Node tempNode = null;
-		for (Node node : activeNodes) {
+		for (Node node : bundle.activeNodes) {
 			if (tempNode == null || tempNode.data.demerits >= node.data.demerits) {
 				tempNode = node;
 			}
@@ -62,11 +67,74 @@ public class Typeset {
 		return breaks;
 	}
 
-	private static void mainLoop(Element element, int index, List<Element> elements) {
+	private static void mainLoop(int index, Bundle bundle) {
+		Element element = bundle.elements.get(index);
+		Node active = bundle.activeNodes.get(0);
+		Node next = null;
+		int currentLine = 0;
+		float ratio = 0;
+		Clazz candidates[] = null;
+		while (active != null) {
+			candidates = new Clazz[]{
+					new Clazz(),
+					new Clazz(),
+					new Clazz(),
+					new Clazz(),
+			};
 
+			while (active != null) {
+				next = active.next;
+				currentLine = active.data.line + 1;
+				ratio = computeRatio(index, active.data, currentLine, bundle);
+
+				if (ratio < -1 || (element instanceof Penalty && ((Penalty) element).penalty == -bundle.option.getInfinity())) {
+					removeActiveNode(active, bundle);
+				}
+
+
+			}
+		}
 	}
 
-	private static List<Element> createElements(String content, Option option, Paint paint) {
+	private static void removeActiveNode(Node node, Bundle bundle) {
+		Node prev = node.prev;
+		Node next = node.next;
+		bundle.activeNodes.remove(node);
+
+		if (prev != null) {
+			prev.next = next;
+		}
+
+		if (next != null) {
+			next.prev = prev;
+		}
+	}
+
+	private static float computeRatio(int index, Break active, int currentLine, Bundle bundle) {
+		float width = bundle.sum.width - active.totals.width;
+		float stretch = 0;
+		float shrink = 0;
+		float lineLength = currentLine < bundle.lineLengths.size() ?
+				bundle.lineLengths.get(currentLine) :
+				bundle.lineLengths.get(bundle.lineLengths.size() - 1);
+		Element element = bundle.elements.get(index);
+		if (element instanceof Penalty) {
+			width += element.width;
+		}
+
+		if (width < lineLength) {
+			stretch = bundle.sum.stretch - active.totals.stretch;
+			return stretch > 0 ? (lineLength - width) / stretch : bundle.option.getInfinity();
+		} else if (width > lineLength) {
+			shrink = bundle.sum.shrink - active.totals.shrink;
+			return shrink > 0 ? (lineLength - width) / shrink : bundle.option.getInfinity();
+		}
+
+		// perfect match
+		return 0;
+	}
+
+	private static List<Element> createElements(String content, Bundle bundle) {
 		List<Element> elements = new ArrayList<>();
 		Hypher hypher = Hypher.getInstance();
 		String[] spans = content.split("\\s");
@@ -77,33 +145,42 @@ public class Typeset {
 				continue;
 			}
 
-			if (span.length() < option.getMinHyperLength()) {
-				elements.add(new Box(paint.measureText(span), span));
+			if (span.length() < bundle.option.getMinHyperLength()) {
+				elements.add(new Box(bundle.paint.measureText(span), span));
 				continue;
 			}
 
 			List<String> hyphenated = hypher.hyphenate(span);
 			if (hyphenated.isEmpty() || hyphenated.size() == 1) {
-				elements.add(new Box(paint.measureText(span), span));
+				elements.add(new Box(bundle.paint.measureText(span), span));
 				continue;
 			}
 
 			int size = hyphenated.size();
 			for (int j = 0; j < size; ++j) {
 				String item = hyphenated.get(j);
-				elements.add(new Box(paint.measureText(item), item));
+				elements.add(new Box(bundle.paint.measureText(item), item));
 				if (j != size - 1) {
-					elements.add(new Penalty(option.getHyphenWidth(), option.getHyphenPenalty(), true));
+					elements.add(new Penalty(bundle.option.getHyphenWidth(), bundle.option.getHyphenPenalty(), true));
 				}
 			}
 
 			if (i == spans.length - 1) {
-				elements.add(new Glue(0, option.getInfinity(), 0));
-				elements.add(new Penalty(0, -option.getInfinity(), true));
+				elements.add(new Glue(0, bundle.option.getInfinity(), 0));
+				elements.add(new Penalty(0, -bundle.option.getInfinity(), true));
 			} else {
-				elements.add(new Glue(option.getSpaceWidth(), option.getSpaceStretch(), option.getSpaceShrink()));
+				elements.add(new Glue(bundle.option.getSpaceWidth(), bundle.option.getSpaceStretch(), bundle.option.getSpaceShrink()));
 			}
 		}
 		return elements;
+	}
+
+	public static class Bundle {
+		public List<Float> lineLengths;
+		public Option option;
+		public Paint paint;
+		public Sum sum;
+		public List<Node> activeNodes;
+		public List<Element> elements;
 	}
 }
