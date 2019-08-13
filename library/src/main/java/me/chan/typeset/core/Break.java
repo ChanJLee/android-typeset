@@ -6,6 +6,6 @@ public class Break {
 	public float ratio = 0;
 	public int line = 0;
 	public int fitnessClazz = 0;
-	public Sum totals = new Sum();
-	public Break prev;
+	public Sum totals;
+	public Node prev;
 }

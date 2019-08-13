@@ -7,6 +7,7 @@ public class Option {
 	private float mSpaceWidth = 0;
 	private float mSpaceStretch = 0;
 	private float mSpaceShrink = 0;
+	private int mTolerance;
 
 	public Option(Paint paint) {
 		reset(paint);
@@ -48,7 +49,11 @@ public class Option {
 	}
 
 	public int getTolerance() {
-		return 2;
+		return mTolerance;
+	}
+
+	public void setTolerance(int tolerance) {
+		mTolerance = tolerance;
 	}
 
 	public int getDemeritsLine() {

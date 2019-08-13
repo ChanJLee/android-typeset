@@ -67,6 +67,11 @@ public class Typeset {
 		return breaks;
 	}
 
+	private static final int CLASS_0 = 0;
+	private static final int CLASS_1 = 1;
+	private static final int CLASS_2 = 2;
+	private static final int CLASS_3 = 3;
+
 	private static void mainLoop(int index, Bundle bundle) {
 		Element element = bundle.elements.get(index);
 		Node active = bundle.activeNodes.get(0);
@@ -74,6 +79,7 @@ public class Typeset {
 		int currentLine = 0;
 		float ratio = 0;
 		Clazz candidates[] = null;
+
 		while (active != null) {
 			candidates = new Clazz[]{
 					new Clazz(),
@@ -91,9 +97,128 @@ public class Typeset {
 					removeActiveNode(active, bundle);
 				}
 
+				if (ratio >= -1 && ratio <= bundle.option.getTolerance()) {
+					int currentClass = computeClazz(ratio);
 
+					float demerits = computeDemerits(element, ratio, bundle, active, currentClass);
+
+					// Only store the best candidate for each fitness class
+					if (demerits < candidates[currentClass].demerits) {
+						candidates[currentClass].active = active;
+						candidates[currentClass].demerits = demerits;
+						candidates[currentClass].ratio = ratio;
+					}
+				}
+
+				active = next;
+
+				if (active != null && active.data.line >= currentLine) {
+					break;
+				}
+			}
+
+			Sum tmpSum = computeSum(index, bundle);
+
+			for (int i = 0; i < candidates.length; ++i) {
+				Clazz candidate = candidates[i];
+
+				if (candidate.demerits < bundle.option.getInfinity()) {
+					Break point = new Break();
+					point.position = index;
+					point.demerits = candidate.demerits;
+					point.ratio = candidate.ratio;
+					point.line = candidate.active.data.line + 1;
+					point.fitnessClazz = i;
+					point.totals = tmpSum;
+					point.prev = candidate.active;
+
+					Node node = new Node(point, null, null);
+					if (active != null) {
+						node.prev = active.prev;
+						active.prev.next = node;
+
+						node.next = active;
+						active.prev = node;
+						bundle.activeNodes.add(bundle.activeNodes.indexOf(active) - 1, node);
+					} else {
+						// TODO test
+						bundle.activeNodes.add(node);
+					}
+				}
 			}
 		}
+	}
+
+	// Add width, stretch and shrink values from the current
+	// break point up to the next box or forced penalty.
+	private static Sum computeSum(int index, Bundle bundle) {
+		Sum result = new Sum(bundle.sum);
+		int i = 0;
+
+		for (i = index; i < bundle.elements.size(); i += 1) {
+			Element element = bundle.elements.get(i);
+			if (element instanceof Glue) {
+				Glue glue = (Glue) element;
+				result.width += glue.width;
+				result.stretch += glue.stretch;
+				result.shrink += glue.shrink;
+			} else if (element instanceof Box ||
+					(element instanceof Penalty &&
+							((Penalty) element).penalty == -bundle.option.getInfinity() && i > index)) {
+				break;
+			}
+		}
+		return result;
+	}
+
+	private static int computeClazz(float ratio) {
+		if (ratio < -0.5) {
+			return CLASS_0;
+		} else if (ratio <= 0.5) {
+			return CLASS_1;
+		} else if (ratio <= 1) {
+			return CLASS_2;
+		} else {
+			return CLASS_3;
+		}
+	}
+
+	private static float computeDemerits(Element element, float ratio, Bundle bundle, Node active, int currentClass) {
+		// compute demerits & class
+		float badness = (float) (100 * Math.pow(Math.abs(ratio), 3));
+		float demerits = 0;
+
+		// Positive penalty
+		if (element instanceof Penalty && ((Penalty) element).penalty >= 0) {
+			demerits = (float) (Math.pow(bundle.option.getDemeritsLine() + badness, 2) + Math.pow(((Penalty) element).penalty, 2));
+			// Negative penalty but not a forced break
+		} else if (element instanceof Penalty && ((Penalty) element).penalty != -bundle.option.getInfinity()) {
+			demerits = (float) (Math.pow(bundle.option.getDemeritsLine() + badness, 2) - Math.pow(((Penalty) element).penalty, 2));
+			// All other cases
+		} else {
+			demerits = (float) Math.pow(bundle.option.getDemeritsLine() + badness, 2);
+		}
+
+		if (element instanceof Penalty && bundle.elements.get(active.data.position) instanceof Penalty) {
+			Penalty penalty = (Penalty) element;
+			Penalty activeElement = (Penalty) bundle.elements.get(active.data.position);
+			if (penalty.flag && activeElement.flag) {
+				// TODO
+				demerits += bundle.option.getDemeritsFlagged();
+			}
+		}
+
+		// Add a fitness penalty to the demerits if the fitness classes of two adjacent lines
+		// differ too much.
+		if (Math.abs(currentClass - active.data.fitnessClazz) > 1) {
+			demerits += bundle.option.getDemeritsFitness();
+		}
+
+		// Add the total demerits of the active node to get the total demerits of this candidate node.
+		demerits += active.data.demerits;
+
+
+		return demerits;
 	}
 
 	private static void removeActiveNode(Node node, Bundle bundle) {
