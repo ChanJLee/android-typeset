@@ -9,6 +9,7 @@ import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.view.View;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import me.chan.library.R;
@@ -67,7 +68,15 @@ public class TypesetView extends View {
 			if (charSequences == null || charSequences.length != 0) {
 				throw new IllegalArgumentException("invalid arguments length");
 			}
-			return Typeset.linkbreak(String.valueOf(charSequences[0]), mOption, mPaint);
+
+			float lineLength = getWidth() - getPaddingLeft() - getPaddingRight();
+			if (lineLength <= 0) {
+				return null;
+			}
+
+			List<Float> lineLengths = new ArrayList<>();
+			lineLengths.add(lineLength);
+			return Typeset.linkBreak(String.valueOf(charSequences[0]), lineLengths, mOption, mPaint);
 		}
 
 		@Override
