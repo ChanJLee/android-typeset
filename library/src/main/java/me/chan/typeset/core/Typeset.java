@@ -75,13 +75,9 @@ public class Typeset {
 	private static void mainLoop(int index, Bundle bundle) {
 		Element element = bundle.elements.get(index);
 		Node active = bundle.activeNodes.get(0);
-		Node next = null;
-		int currentLine = 0;
-		float ratio = 0;
-		Clazz candidates[] = null;
 
 		while (active != null) {
-			candidates = new Clazz[]{
+			Clazz[] candidates = new Clazz[]{
 					new Clazz(),
 					new Clazz(),
 					new Clazz(),
@@ -89,9 +85,9 @@ public class Typeset {
 			};
 
 			while (active != null) {
-				next = active.next;
-				currentLine = active.data.line + 1;
-				ratio = computeRatio(index, active.data, currentLine, bundle);
+				Node next = active.next;
+				int currentLine = active.data.line + 1;
+				float ratio = computeRatio(index, active.data, currentLine, bundle);
 
 				if (ratio < -1 || (element instanceof Penalty && ((Penalty) element).penalty == -bundle.option.getInfinity())) {
 					removeActiveNode(active, bundle);
