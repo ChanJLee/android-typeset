@@ -28,7 +28,7 @@ public class Typeset {
 		// create elements
 		bundle.elements = createElements(content, bundle);
 
-		bundle.activeNodes.add(new Node(new Break(), null, null));
+		bundle.activeNodes.add(new Node(new Point(), null, null));
 		for (int i = 0; i < bundle.elements.size(); ++i) {
 			Element element = bundle.elements.get(i);
 			if (element instanceof Box) {
@@ -59,8 +59,11 @@ public class Typeset {
 		}
 
 		while (tempNode != null) {
-			// TODO 确定break的数据类型
-			breaks.add(new Break());
+			Break b = new Break();
+			b.position = tempNode.data.position;
+			b.ratio = tempNode.data.ratio;
+			breaks.add(b);
+			tempNode = tempNode.prev;
 		}
 
 		Collections.reverse(breaks);
@@ -119,7 +122,7 @@ public class Typeset {
 				Clazz candidate = candidates[i];
 
 				if (candidate.demerits < bundle.option.getInfinity()) {
-					Break point = new Break();
+					Point point = new Point();
 					point.position = index;
 					point.demerits = candidate.demerits;
 					point.ratio = candidate.ratio;
@@ -231,8 +234,8 @@ public class Typeset {
 		}
 	}
 
-	private static float computeRatio(int index, Break active, int currentLine, Bundle bundle) {
-		float width = bundle.sum.width - active.totals.width;
+	private static float computeRatio(int index, Point point, int currentLine, Bundle bundle) {
+		float width = bundle.sum.width - point.totals.width;
 		float stretch = 0;
 		float shrink = 0;
 		float lineLength = currentLine < bundle.lineLengths.size() ?
@@ -244,10 +247,10 @@ public class Typeset {
 		}
 
 		if (width < lineLength) {
-			stretch = bundle.sum.stretch - active.totals.stretch;
+			stretch = bundle.sum.stretch - point.totals.stretch;
 			return stretch > 0 ? (lineLength - width) / stretch : bundle.option.getInfinity();
 		} else if (width > lineLength) {
-			shrink = bundle.sum.shrink - active.totals.shrink;
+			shrink = bundle.sum.shrink - point.totals.shrink;
 			return shrink > 0 ? (lineLength - width) / shrink : bundle.option.getInfinity();
 		}
 
