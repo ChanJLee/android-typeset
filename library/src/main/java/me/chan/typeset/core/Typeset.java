@@ -80,12 +80,7 @@ public class Typeset {
 		Node active = bundle.activeNodes.get(0);
 
 		while (active != null) {
-			Clazz[] candidates = new Clazz[]{
-					new Clazz(),
-					new Clazz(),
-					new Clazz(),
-					new Clazz(),
-			};
+			Candidate[] candidates = new Candidate[4];
 
 			while (active != null) {
 				Node next = active.next;
@@ -102,7 +97,10 @@ public class Typeset {
 					float demerits = computeDemerits(element, ratio, bundle, active, currentClass);
 
 					// Only store the best candidate for each fitness class
-					if (demerits < candidates[currentClass].demerits) {
+					if (candidates[currentClass] == null && demerits < candidates[currentClass].demerits) {
+						if (candidates[currentClass] == null) {
+							candidates[currentClass] = new Candidate();
+						}
 						candidates[currentClass].active = active;
 						candidates[currentClass].demerits = demerits;
 						candidates[currentClass].ratio = ratio;
@@ -119,9 +117,9 @@ public class Typeset {
 			Sum tmpSum = computeSum(index, bundle);
 
 			for (int i = 0; i < candidates.length; ++i) {
-				Clazz candidate = candidates[i];
+				Candidate candidate = candidates[i];
 
-				if (candidate.demerits < bundle.option.getInfinity()) {
+				if (candidate != null) {
 					Point point = new Point();
 					point.position = index;
 					point.demerits = candidate.demerits;
@@ -185,7 +183,7 @@ public class Typeset {
 	private static float computeDemerits(Element element, float ratio, Bundle bundle, Node active, int currentClass) {
 		// compute demerits & class
 		float badness = (float) (100 * Math.pow(Math.abs(ratio), 3));
-		float demerits = 0;
+		float demerits;
 
 		// Positive penalty
 		if (element instanceof Penalty && ((Penalty) element).penalty >= 0) {
@@ -202,7 +200,7 @@ public class Typeset {
 			Penalty penalty = (Penalty) element;
 			Penalty activeElement = (Penalty) bundle.elements.get(active.data.position);
 			if (penalty.flag && activeElement.flag) {
-				// TODO
+				// TODO check
 				demerits += bundle.option.getDemeritsFlagged();
 			}
 		}
