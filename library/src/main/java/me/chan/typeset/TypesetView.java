@@ -6,6 +6,7 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.os.AsyncTask;
 import android.support.annotation.Nullable;
+import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.View;
 
@@ -14,7 +15,9 @@ import java.util.List;
 
 import me.chan.library.R;
 import me.chan.typeset.core.Break;
+import me.chan.typeset.core.Line;
 import me.chan.typeset.core.Option;
+import me.chan.typeset.core.Result;
 import me.chan.typeset.core.Typeset;
 
 public class TypesetView extends View {
@@ -45,15 +48,16 @@ public class TypesetView extends View {
 		mTypesetAsyncTask = new TypesetAsyncTask();
 	}
 
+	private CharSequence mText;
+
 	public void setText(CharSequence text) {
-		mTypesetAsyncTask.cancel(true);
-		mTypesetAsyncTask.execute(text);
+		mText = text;
+		invalidate();
 	}
 
 	@Override
 	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
 		super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-		mLineWidth = getWidth() - getPaddingLeft() - getPaddingRight();
 	}
 
 	public void release() {
@@ -64,15 +68,17 @@ public class TypesetView extends View {
 	@Override
 	protected void onDraw(Canvas canvas) {
 		super.onDraw(canvas);
-
-		// TODO
+		if (!TextUtils.isEmpty(mText)) {
+			mLineWidth = getWidth() - getPaddingLeft() - getPaddingRight();
+			mTypesetAsyncTask.execute(mText);
+		}
 	}
 
-	private class TypesetAsyncTask extends AsyncTask<CharSequence, Void, List<Break>> {
+	private class TypesetAsyncTask extends AsyncTask<CharSequence, Void, List<Line>> {
 
 		@Override
-		protected List<Break> doInBackground(CharSequence... charSequences) {
-			if (charSequences == null || charSequences.length != 0) {
+		protected List<Line> doInBackground(CharSequence... charSequences) {
+			if (charSequences == null || charSequences.length != 1) {
 				throw new IllegalArgumentException("invalid arguments length");
 			}
 
@@ -82,21 +88,32 @@ public class TypesetView extends View {
 
 			List<Float> lineLengths = new ArrayList<>();
 			lineLengths.add(mLineWidth);
-			List<Break> list = null;
+			Result result = null;
 
 			for (int i = 1; i <= 3; ++i) {
 				mOption.setTolerance(i);
-				list = Typeset.linkBreak(String.valueOf(charSequences[0]), lineLengths, mOption, mPaint);
-				if (!list.isEmpty()) {
-					return list;
+				result = Typeset.linkBreak(String.valueOf(charSequences[0]), lineLengths, mOption, mPaint);
+				if (!result.breaks.isEmpty()) {
+					break;
 				}
 			}
 
-			return list;
+			int start = 0;
+			List<Line> lines = new ArrayList<>();
+			for (Break b : result.breaks) {
+				int pos = b.position;
+				float ratio = b.ratio;
+
+				for (int i = start; i < result.elements.size(); ++i) {
+
+				}
+			}
+
+			return lines;
 		}
 
 		@Override
-		protected void onPostExecute(List<Break> breaks) {
+		protected void onPostExecute(List<Line> lines) {
 
 		}
 	}
