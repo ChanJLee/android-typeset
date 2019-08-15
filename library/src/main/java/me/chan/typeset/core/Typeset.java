@@ -142,7 +142,9 @@ public class Typeset {
 						bundle.activeNodes.add(bundle.activeNodes.indexOf(active) - 1, node);
 					} else {
 						if (!bundle.activeNodes.isEmpty()) {
-							throw new IllegalArgumentException("active nodes is not empty");
+							Node last = bundle.activeNodes.get(bundle.activeNodes.size() - 1);
+							last.next = node;
+							node.prev = last;
 						}
 						bundle.activeNodes.add(node);
 					}
