@@ -15,8 +15,7 @@ import me.chan.typeset.elements.Penalty;
 
 public class Typeset {
 
-	public static List<Break> linkBreak(String content, List<Float> lineLengths, Option option, Paint paint) {
-		List<Break> breaks = new ArrayList<>();
+	public static Result linkBreak(String content, List<Float> lineLengths, Option option, Paint paint) {
 
 		Bundle bundle = new Bundle();
 		bundle.activeNodes = new ArrayList<>();
@@ -26,9 +25,13 @@ public class Typeset {
 		bundle.sum = new Sum();
 
 		// create elements
-		bundle.elements = createElements(content, bundle);
+		Result result = new Result();
+		bundle.elements = result.elements = createElements(content, bundle);
+		result.breaks = new ArrayList<>();
 
-		bundle.activeNodes.add(new Node(new Point(), null, null));
+		Point point = new Point();
+		point.totals = new Sum();
+		bundle.activeNodes.add(new Node(point, null, null));
 		for (int i = 0; i < bundle.elements.size(); ++i) {
 			Element element = bundle.elements.get(i);
 			if (element instanceof Box) {
@@ -48,7 +51,7 @@ public class Typeset {
 		}
 
 		if (bundle.activeNodes.isEmpty()) {
-			return breaks;
+			return result;
 		}
 
 		Node tempNode = null;
@@ -62,12 +65,12 @@ public class Typeset {
 			Break b = new Break();
 			b.position = tempNode.data.position;
 			b.ratio = tempNode.data.ratio;
-			breaks.add(b);
+			result.breaks.add(b);
 			tempNode = tempNode.prev;
 		}
 
-		Collections.reverse(breaks);
-		return breaks;
+		Collections.reverse(result.breaks);
+		return result;
 	}
 
 	private static final int CLASS_0 = 0;
@@ -77,7 +80,7 @@ public class Typeset {
 
 	private static void mainLoop(int index, Bundle bundle) {
 		Element element = bundle.elements.get(index);
-		Node active = bundle.activeNodes.get(0);
+		Node active = bundle.activeNodes.isEmpty() ? null : bundle.activeNodes.get(0);
 
 		while (active != null) {
 			Candidate[] candidates = new Candidate[4];
@@ -97,7 +100,7 @@ public class Typeset {
 					float demerits = computeDemerits(element, ratio, bundle, active, currentClass);
 
 					// Only store the best candidate for each fitness class
-					if (candidates[currentClass] == null && demerits < candidates[currentClass].demerits) {
+					if (candidates[currentClass] == null || demerits < candidates[currentClass].demerits) {
 						if (candidates[currentClass] == null) {
 							candidates[currentClass] = new Candidate();
 						}
@@ -138,7 +141,9 @@ public class Typeset {
 						active.prev = node;
 						bundle.activeNodes.add(bundle.activeNodes.indexOf(active) - 1, node);
 					} else {
-						// TODO test
+						if (!bundle.activeNodes.isEmpty()) {
+							throw new IllegalArgumentException("active nodes is not empty");
+						}
 						bundle.activeNodes.add(node);
 					}
 				}
@@ -263,28 +268,21 @@ public class Typeset {
 		for (int i = 0; i < spans.length; ++i) {
 			String span = spans[i];
 			if (TextUtils.isEmpty(span)) {
-				// TODO 加入一个glue
-				continue;
-			}
-
-			if (span.length() < bundle.option.getMinHyperLength()) {
-				elements.add(new Box(bundle.paint.measureText(span), span));
 				continue;
 			}
 
 			List<String> hyphenated = hypher.hyphenate(span);
-			if (hyphenated.isEmpty() || hyphenated.size() == 1) {
-				elements.add(new Box(bundle.paint.measureText(span), span));
-				continue;
-			}
-
 			int size = hyphenated.size();
-			for (int j = 0; j < size; ++j) {
-				String item = hyphenated.get(j);
-				elements.add(new Box(bundle.paint.measureText(item), item));
-				if (j != size - 1) {
-					elements.add(new Penalty(bundle.option.getHyphenWidth(), bundle.option.getHyphenPenalty(), true));
+			if (size > 1 && span.length() > bundle.option.getMinHyperLength()) {
+				for (int j = 0; j < size; ++j) {
+					String item = hyphenated.get(j);
+					elements.add(new Box(bundle.paint.measureText(item), item));
+					if (j != size - 1) {
+						elements.add(new Penalty(bundle.option.getHyphenWidth(), bundle.option.getHyphenPenalty(), true));
+					}
 				}
+			} else {
+				elements.add(new Box(bundle.paint.measureText(span), span));
 			}
 
 			if (i == spans.length - 1) {
