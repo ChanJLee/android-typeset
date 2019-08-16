@@ -2,6 +2,7 @@ package me.chan.typeset.core;
 
 import android.graphics.Paint;
 import android.text.TextUtils;
+import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -45,7 +46,7 @@ public class Typeset {
 				bundle.sum.width += glue.width;
 				bundle.sum.shrink += glue.shrink;
 				bundle.sum.stretch += glue.stretch;
-			} else if (element instanceof Penalty && ((Penalty) element).penalty != option.getInfinity()) {
+			} else if (element instanceof Penalty && ((Penalty) element).penalty != option.infinity) {
 				mainLoop(i, bundle);
 			}
 		}
@@ -90,11 +91,11 @@ public class Typeset {
 				int currentLine = active.data.line + 1;
 				float ratio = computeRatio(index, active.data, currentLine, bundle);
 
-				if (ratio < -1 || (element instanceof Penalty && ((Penalty) element).penalty == -bundle.option.getInfinity())) {
+				if (ratio < -1 || (element instanceof Penalty && ((Penalty) element).penalty == -bundle.option.infinity)) {
 					removeActiveNode(active, bundle);
 				}
 
-				if (ratio >= -1 && ratio <= bundle.option.getTolerance()) {
+				if (ratio >= -1 && ratio <= bundle.option.tolerance) {
 					int currentClass = computeClazz(ratio);
 
 					float demerits = computeDemerits(element, ratio, bundle, active, currentClass);
@@ -168,7 +169,7 @@ public class Typeset {
 				result.shrink += glue.shrink;
 			} else if (element instanceof Box ||
 					(element instanceof Penalty &&
-							((Penalty) element).penalty == -bundle.option.getInfinity() && i > index)) {
+							((Penalty) element).penalty == -bundle.option.infinity && i > index)) {
 				break;
 			}
 		}
@@ -194,13 +195,13 @@ public class Typeset {
 
 		// Positive penalty
 		if (element instanceof Penalty && ((Penalty) element).penalty >= 0) {
-			demerits = (float) (Math.pow(bundle.option.getDemeritsLine() + badness, 2) + Math.pow(((Penalty) element).penalty, 2));
+			demerits = (float) (Math.pow(bundle.option.demeritsLine + badness, 2) + Math.pow(((Penalty) element).penalty, 2));
 			// Negative penalty but not a forced break
-		} else if (element instanceof Penalty && ((Penalty) element).penalty != -bundle.option.getInfinity()) {
-			demerits = (float) (Math.pow(bundle.option.getDemeritsLine() + badness, 2) - Math.pow(((Penalty) element).penalty, 2));
+		} else if (element instanceof Penalty && ((Penalty) element).penalty != -bundle.option.infinity) {
+			demerits = (float) (Math.pow(bundle.option.demeritsLine + badness, 2) - Math.pow(((Penalty) element).penalty, 2));
 			// All other cases
 		} else {
-			demerits = (float) Math.pow(bundle.option.getDemeritsLine() + badness, 2);
+			demerits = (float) Math.pow(bundle.option.demeritsLine + badness, 2);
 		}
 
 		if (element instanceof Penalty && bundle.elements.get(active.data.position) instanceof Penalty) {
@@ -208,14 +209,14 @@ public class Typeset {
 			Penalty activeElement = (Penalty) bundle.elements.get(active.data.position);
 			if (penalty.flag && activeElement.flag) {
 				// TODO check
-				demerits += bundle.option.getDemeritsFlagged();
+				demerits += bundle.option.demeritsFlagged;
 			}
 		}
 
 		// Add a fitness penalty to the demerits if the fitness classes of two adjacent lines
 		// differ too much.
 		if (Math.abs(currentClass - active.data.fitnessClazz) > 1) {
-			demerits += bundle.option.getDemeritsFitness();
+			demerits += bundle.option.demeritsFitness;
 		}
 
 		// Add the total demerits of the active node to get the total demerits of this candidate node.
@@ -253,10 +254,10 @@ public class Typeset {
 
 		if (width < lineLength) {
 			stretch = bundle.sum.stretch - point.totals.stretch;
-			return stretch > 0 ? (lineLength - width) / stretch : bundle.option.getInfinity();
+			return stretch > 0 ? (lineLength - width) / stretch : bundle.option.infinity;
 		} else if (width > lineLength) {
 			shrink = bundle.sum.shrink - point.totals.shrink;
-			return shrink > 0 ? (lineLength - width) / shrink : bundle.option.getInfinity();
+			return shrink > 0 ? (lineLength - width) / shrink : bundle.option.infinity;
 		}
 
 		// perfect match
@@ -275,26 +276,35 @@ public class Typeset {
 
 			List<String> hyphenated = hypher.hyphenate(span);
 			int size = hyphenated.size();
-			if (size > 1 && span.length() > bundle.option.getMinHyperLength()) {
+			if (size > 1 && span.length() > bundle.option.minHyperLength) {
 				for (int j = 0; j < size; ++j) {
 					String item = hyphenated.get(j);
+					d("add box: " + item);
 					elements.add(new Box(bundle.paint.measureText(item), item));
 					if (j != size - 1) {
-						elements.add(new Penalty(bundle.option.getHyphenWidth(), bundle.option.getHyphenPenalty(), true));
+						d("add -");
+						elements.add(new Penalty(bundle.option.hyphenWidth, bundle.option.hyphenPenalty, true));
 					}
 				}
 			} else {
+				d("add box: " + span);
 				elements.add(new Box(bundle.paint.measureText(span), span));
 			}
 
 			if (i == spans.length - 1) {
-				elements.add(new Glue(0, bundle.option.getInfinity(), 0));
-				elements.add(new Penalty(0, -bundle.option.getInfinity(), true));
+				d("add <glue penalty>");
+				elements.add(new Glue(0, bundle.option.infinity, 0));
+				elements.add(new Penalty(0, -bundle.option.infinity, true));
 			} else {
-				elements.add(new Glue(bundle.option.getSpaceWidth(), bundle.option.getSpaceStretch(), bundle.option.getSpaceShrink()));
+				d("add <glue>");
+				elements.add(new Glue(bundle.option.spaceWidth, bundle.option.spaceStretch, bundle.option.spaceShrink));
 			}
 		}
 		return elements;
+	}
+
+	private static void d(String msg) {
+		Log.d("Typeset", msg);
 	}
 
 	public static class Bundle {
