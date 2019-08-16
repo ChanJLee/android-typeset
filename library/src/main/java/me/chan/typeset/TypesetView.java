@@ -92,7 +92,7 @@ public class TypesetView extends View {
 
 			for (int i = 1; i <= 3; ++i) {
 				// TODO 计算一个空格大小的tolerance 防止多次measure
-				mOption.setTolerance(i);
+				mOption.tolerance = i;
 				result = Typeset.linkBreak(String.valueOf(charSequences[0]), lineLengths, mOption, mPaint);
 				if (!result.breaks.isEmpty()) {
 					break;
