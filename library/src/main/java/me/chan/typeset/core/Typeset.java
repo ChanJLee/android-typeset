@@ -67,7 +67,7 @@ public class Typeset {
 			b.position = tempNode.data.position;
 			b.ratio = tempNode.data.ratio;
 			result.breaks.add(b);
-			tempNode = tempNode.prev;
+			tempNode = tempNode.data.prev;
 		}
 
 		Collections.reverse(result.breaks);
@@ -122,33 +122,34 @@ public class Typeset {
 
 			for (int i = 0; i < candidates.length; ++i) {
 				Candidate candidate = candidates[i];
+				if (candidate == null) {
+					continue;
+				}
 
-				if (candidate != null) {
-					Point point = new Point();
-					point.position = index;
-					point.demerits = candidate.demerits;
-					point.ratio = candidate.ratio;
-					point.line = candidate.active.data.line + 1;
-					point.fitnessClazz = i;
-					point.totals = tmpSum;
-					point.prev = candidate.active;
+				Point point = new Point();
+				point.position = index;
+				point.demerits = candidate.demerits;
+				point.ratio = candidate.ratio;
+				point.line = candidate.active.data.line + 1;
+				point.fitnessClazz = i;
+				point.totals = tmpSum;
+				point.prev = candidate.active;
 
-					Node node = new Node(point, null, null);
-					if (active != null) {
-						node.prev = active.prev;
-						active.prev.next = node;
+				Node node = new Node(point, null, null);
+				if (active != null) {
+					node.prev = active.prev;
+					active.prev.next = node;
 
-						node.next = active;
-						active.prev = node;
-						bundle.activeNodes.add(bundle.activeNodes.indexOf(active) - 1, node);
-					} else {
-						if (!bundle.activeNodes.isEmpty()) {
-							Node last = bundle.activeNodes.get(bundle.activeNodes.size() - 1);
-							last.next = node;
-							node.prev = last;
-						}
-						bundle.activeNodes.add(node);
+					node.next = active;
+					active.prev = node;
+					bundle.activeNodes.add(bundle.activeNodes.indexOf(active), node);
+				} else {
+					if (!bundle.activeNodes.isEmpty()) {
+						Node last = bundle.activeNodes.get(bundle.activeNodes.size() - 1);
+						last.next = node;
+						node.prev = last;
 					}
+					bundle.activeNodes.add(node);
 				}
 			}
 		}
@@ -158,9 +159,8 @@ public class Typeset {
 	// break point up to the next box or forced penalty.
 	private static Sum computeSum(int index, Bundle bundle) {
 		Sum result = new Sum(bundle.sum);
-		int i = 0;
 
-		for (i = index; i < bundle.elements.size(); i += 1) {
+		for (int i = index; i < bundle.elements.size(); ++i) {
 			Element element = bundle.elements.get(i);
 			if (element instanceof Glue) {
 				Glue glue = (Glue) element;
@@ -195,20 +195,24 @@ public class Typeset {
 
 		// Positive penalty
 		if (element instanceof Penalty && ((Penalty) element).penalty >= 0) {
-			demerits = (float) (Math.pow(bundle.option.demeritsLine + badness, 2) + Math.pow(((Penalty) element).penalty, 2));
+			demerits = (float) (Math.pow(bundle.option.demeritsLine + badness, 2) +
+					Math.pow(((Penalty) element).penalty, 2)
+			);
 			// Negative penalty but not a forced break
 		} else if (element instanceof Penalty && ((Penalty) element).penalty != -bundle.option.infinity) {
-			demerits = (float) (Math.pow(bundle.option.demeritsLine + badness, 2) - Math.pow(((Penalty) element).penalty, 2));
+			demerits = (float) (Math.pow(bundle.option.demeritsLine + badness, 2) -
+					Math.pow(((Penalty) element).penalty, 2));
+			;
 			// All other cases
 		} else {
 			demerits = (float) Math.pow(bundle.option.demeritsLine + badness, 2);
 		}
 
-		if (element instanceof Penalty && bundle.elements.get(active.data.position) instanceof Penalty) {
+		if (element instanceof Penalty &&
+				bundle.elements.get(active.data.position) instanceof Penalty) {
 			Penalty penalty = (Penalty) element;
 			Penalty activeElement = (Penalty) bundle.elements.get(active.data.position);
 			if (penalty.flag && activeElement.flag) {
-				// TODO check
 				demerits += bundle.option.demeritsFlagged;
 			}
 		}
@@ -282,7 +286,7 @@ public class Typeset {
 					d("add box: " + item);
 					elements.add(new Box(bundle.paint.measureText(item), item));
 					if (j != size - 1) {
-						d("add -");
+						d("add <->");
 						elements.add(new Penalty(bundle.option.hyphenWidth, bundle.option.hyphenPenalty, true));
 					}
 				}
