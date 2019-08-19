@@ -8,16 +8,26 @@ import me.chan.typeset.TypesetView;
 
 public class MainActivity extends AppCompatActivity {
 
+	private TypesetView mTypesetView;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 
 		String content = "As with you, so also with us, there are four points of the compass North, South, East, and West.";
-		TypesetView typesetView = findViewById(R.id.view);
-		typesetView.setText(content);
+		mTypesetView = findViewById(R.id.view);
+		mTypesetView.setText(content);
 
 		TextView textView = findViewById(R.id.text);
 		textView.setText(content);
+	}
+
+	@Override
+	protected void onDestroy() {
+		if (mTypesetView != null) {
+			mTypesetView.release();
+		}
+		super.onDestroy();
 	}
 }
