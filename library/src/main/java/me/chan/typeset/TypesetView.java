@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Rect;
 import android.os.AsyncTask;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
@@ -62,14 +63,73 @@ public class TypesetView extends View {
 		mTypesetAsyncTask = null;
 	}
 
+	private Canvas mCanvas;
+
 	@Override
 	protected void onDraw(Canvas canvas) {
 		super.onDraw(canvas);
+		if (mLines != null) {
+			drawLines(canvas);
+			mLines = null;
+			return;
+		}
+
 		if (mTypesetAsyncTask != null && !TextUtils.isEmpty(mText)) {
 			mLineWidth = getWidth() - getPaddingLeft() - getPaddingRight();
 			mTypesetAsyncTask.execute(mText);
 		}
 	}
+
+	private void drawLines(Canvas canvas) {
+		int verticalOffset = 0;
+		for (int lineNum = 0; lineNum < mLines.size(); ++lineNum) {
+			Line line = mLines.get(lineNum);
+			boolean intent = false;
+			int spaces = 0;
+			float totalAdjuatment = 0;
+			float wordSpace = line.ratio * (line.ratio < 0 ? mOption.spaceShrink : mOption.spaceStretch);
+			int integerWordSpace = Math.round(wordSpace);
+			float adjustment = wordSpace - integerWordSpace;
+			int integerAdjustment = (int) (adjustment < 0 ? Math.floor(adjustment) : Math.ceil(adjustment));
+
+			float lineHeightMax = 0;
+			List<String> content = new ArrayList<>();
+			Rect rect = new Rect();
+			float actucalLineLength = 0;
+			for (int i = 0; i < line.elements.size(); ++i) {
+				Element element = line.elements.get(i);
+				if (element instanceof Box) {
+					Box box = (Box) element;
+					content.add(box.mContent);
+					mPaint.getTextBounds(box.mContent, 0, box.mContent.length(), rect);
+					if (rect.height() > lineHeightMax) {
+						lineHeightMax = rect.height();
+					}
+					actucalLineLength += rect.width();
+				} else if (element instanceof Penalty && ((Penalty) element).penalty == mOption.hyphenPenalty && i == line.elements.size() - 1) {
+					String last = content.isEmpty() ? "" : content.get(content.size() - 1);
+					last += "-";
+					actucalLineLength += mOption.hyphenWidth;
+					if (!content.isEmpty()) {
+						content.remove(content.size() - 1);
+					}
+					content.add(last);
+				}
+			}
+
+			verticalOffset += (20 * lineNum + lineHeightMax);
+			float lineLength = lineNum >= lineLengths.size() ? lineLengths.get(lineLengths.size() - 1) : lineLengths.get(lineNum);
+			float space = content.isEmpty() ? 0 : (lineLength - actucalLineLength) / (content.size() - 1);
+			float horizontalOffset = 0;
+			for (String word : content) {
+				float wordSize = mPaint.measureText(word);
+				canvas.drawText(word, horizontalOffset, verticalOffset, mPaint);
+				horizontalOffset += (wordSize + mOption.spaceWidth);
+			}
+		}
+	}
+
+	private List<Float> lineLengths = null;
 
 	private class TypesetAsyncTask extends AsyncTask<CharSequence, Void, List<Line>> {
 
@@ -83,7 +143,7 @@ public class TypesetView extends View {
 				return null;
 			}
 
-			List<Float> lineLengths = new ArrayList<>();
+			lineLengths = new ArrayList<>();
 			lineLengths.add(mLineWidth);
 			Result result = null;
 
@@ -118,59 +178,16 @@ public class TypesetView extends View {
 				lineStart = pos;
 			}
 
+
 			return lines;
 		}
 
 		@Override
 		protected void onPostExecute(List<Line> lines) {
-			for (Line line : lines) {
-				boolean intent = false;
-				int spaces = 0;
-				float totalAdjuatment = 0;
-				float wordSpace = line.ratio * (line.ratio < 0 ? mOption.spaceShrink : mOption.spaceStretch);
-				int integerWordSpace = Math.round(wordSpace);
-				float adjustment = wordSpace - integerWordSpace;
-				int integerAdjustment = (int) (adjustment < 0 ? Math.floor(adjustment) : Math.ceil(adjustment));
-
-				for (int i = 0; i < line.elements.size(); ++i) {
-					Element element = line.elements.get(i);
-					if (element instanceof Box) {
-						Box box = (Box) element;
-						if (TextUtils.isEmpty(box.mContent)) {
-							continue;
-						}
-
-
-					}
-				}
-
-//				// Iterate over the elements in each line and build a temporary array containing just words, spaces, and soft-hyphens.
-//				line.elements.forEach(function(n, index, array) {
-//					// normal boxes
-//					if (n.type == = 'box' && n.value != = '') {
-//						if (tmp.length != = 0 && tmp[tmp.length - 1] != = '&nbsp;') {
-//							tmp[tmp.length - 1] += n.value;
-//						} else {
-//							tmp.push(n.value);
-//						}
-//						// empty boxes (indentation for example)
-//					} else if (n.type == = 'box' && n.value == = '') {
-//						output.push('<span style="margin-left: 30px;"></span>');
-//						// glue inside a line
-//					} else if (n.type == = 'glue' && index != = array.length - 1) {
-//						tmp.push('&nbsp;');
-//						spaces += 1;
-//						// glue at the end of a line
-//					} else if (n.type == = 'glue') {
-//						tmp.push(' ');
-//						// hyphenated word at the end of a line
-//					} else if (n.type == = 'penalty' && n.penalty == = hyphenPenalty && index == = array.length - 1) {
-//						tmp.push('&shy;');
-//						// Remove trailing space at the end of a paragraph
-//					} else if (n.type == = 'penalty' && index == = array.length - 1 && tmp[tmp.length - 1] == = '&nbsp;') {
-//						tmp.pop();
-//					}
-//				}
-			}
+			mLines = lines;
+			invalidate();
 		}
 	}
+
+	private List<Line> mLines;
+}
