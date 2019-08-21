@@ -15,7 +15,7 @@ public class MainActivity extends AppCompatActivity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 
-		String content = "As with you, so also with us, there are four points of the compass North, South, East, and West.";
+		String content = getResources().getString(R.string.test);
 		mTypesetView = findViewById(R.id.view);
 		mTypesetView.setText(content);
 

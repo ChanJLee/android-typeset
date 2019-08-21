@@ -138,7 +138,9 @@ public class Typeset {
 				Node node = new Node(point, null, null);
 				if (active != null) {
 					node.prev = active.prev;
-					active.prev.next = node;
+					if (active.prev != null) {
+						active.prev.next = node;
+					}
 
 					node.next = active;
 					active.prev = node;
