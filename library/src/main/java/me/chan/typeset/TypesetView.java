@@ -22,6 +22,7 @@ import me.chan.typeset.core.Result;
 import me.chan.typeset.core.Typeset;
 import me.chan.typeset.elements.Box;
 import me.chan.typeset.elements.Element;
+import me.chan.typeset.elements.Glue;
 import me.chan.typeset.elements.Penalty;
 
 public class TypesetView extends View {
@@ -95,7 +96,7 @@ public class TypesetView extends View {
 			float lineHeightMax = 0;
 			List<String> content = new ArrayList<>();
 			Rect rect = new Rect();
-			float actucalLineLength = 0;
+			float actualLineLength = 0;
 			for (int i = 0; i < line.elements.size(); ++i) {
 				Element element = line.elements.get(i);
 				if (element instanceof Box) {
@@ -105,28 +106,59 @@ public class TypesetView extends View {
 					if (rect.height() > lineHeightMax) {
 						lineHeightMax = rect.height();
 					}
-					actucalLineLength += rect.width();
-				} else if (element instanceof Penalty && ((Penalty) element).penalty == mOption.hyphenPenalty && i == line.elements.size() - 1) {
-					String last = content.isEmpty() ? "" : content.get(content.size() - 1);
-					last += "-";
-					actucalLineLength += mOption.hyphenWidth;
-					if (!content.isEmpty()) {
-						content.remove(content.size() - 1);
+					actualLineLength += rect.width();
+					for (i += 1; i < line.elements.size(); ++i) {
+						element = line.elements.get(i);
+						if (element instanceof Glue) {
+							i -= 1;
+							break;
+						}
+
+						if (element instanceof Penalty) {
+							if (((Penalty) element).penalty == mOption.hyphenPenalty && i == line.elements.size() - 1) {
+								appendLast(content, "-");
+							}
+							actualLineLength += mOption.hyphenWidth;
+							continue;
+						}
+
+						box = (Box) element;
+						appendLast(content, box.mContent);
+						mPaint.getTextBounds(box.mContent, 0, box.mContent.length(), rect);
+						if (rect.height() > lineHeightMax) {
+							lineHeightMax = rect.height();
+						}
+						actualLineLength += rect.width();
 					}
-					content.add(last);
+				} else if (element instanceof Penalty) {
+					if (((Penalty) element).penalty == mOption.hyphenPenalty && i == line.elements.size() - 1) {
+						appendLast(content, "-");
+					}
+					actualLineLength += mOption.hyphenWidth;
 				}
 			}
 
-			verticalOffset += (20 * lineNum + lineHeightMax);
+			verticalOffset += lineHeightMax;
 			float lineLength = lineNum >= lineLengths.size() ? lineLengths.get(lineLengths.size() - 1) : lineLengths.get(lineNum);
-			float space = content.isEmpty() ? 0 : (lineLength - actucalLineLength) / (content.size() - 1);
+			float space = content.isEmpty() || content.size() == 1? mOption.spaceWidth : (lineLength - actualLineLength) / (content.size() - 1);
 			float horizontalOffset = 0;
 			for (String word : content) {
 				float wordSize = mPaint.measureText(word);
 				canvas.drawText(word, horizontalOffset, verticalOffset, mPaint);
-				horizontalOffset += (wordSize + mOption.spaceWidth);
+				horizontalOffset += (wordSize + space);
 			}
+			verticalOffset += 20;
 		}
+	}
+
+
+	private static void appendLast(List<String> content, String s) {
+		String last = content.isEmpty() ? "" : content.get(content.size() - 1);
+		last += s;
+		if (!content.isEmpty()) {
+			content.remove(content.size() - 1);
+		}
+		content.add(last);
 	}
 
 	private List<Float> lineLengths = null;
