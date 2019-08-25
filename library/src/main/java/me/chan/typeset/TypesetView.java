@@ -125,6 +125,10 @@ public class TypesetView extends View {
 					currentLineWidth += textBound.width();
 				}
 				space = (lineWidth - currentLineWidth) / (lineContent.size() - 1);
+				Log.d("chan_debug", "space: " + space +
+						" shrink: " + (mOption.spaceWidth - mOption.spaceShrink) +
+						" stretch: " + (mOption.spaceWidth + mOption.spaceStretch) +
+						" space: " + mOption.spaceWidth);
 			}
 			verticalOffset += currentLineHeight;
 

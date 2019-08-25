@@ -197,14 +197,11 @@ public class Typeset {
 
 		// Positive penalty
 		if (element instanceof Penalty && ((Penalty) element).penalty >= 0) {
-			demerits = (float) (Math.pow(bundle.option.demeritsLine + badness, 2) +
-					Math.pow(((Penalty) element).penalty, 2)
-			);
+			demerits = (float) (Math.pow(bundle.option.demeritsLine + badness + ((Penalty) element).penalty, 2));
 			// Negative penalty but not a forced break
 		} else if (element instanceof Penalty && ((Penalty) element).penalty != -bundle.option.infinity) {
 			demerits = (float) (Math.pow(bundle.option.demeritsLine + badness, 2) -
 					Math.pow(((Penalty) element).penalty, 2));
-			;
 			// All other cases
 		} else {
 			demerits = (float) Math.pow(bundle.option.demeritsLine + badness, 2);
