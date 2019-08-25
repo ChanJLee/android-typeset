@@ -9,6 +9,7 @@ import android.os.AsyncTask;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
 
 import java.util.ArrayList;
@@ -22,7 +23,6 @@ import me.chan.typeset.core.Result;
 import me.chan.typeset.core.Typeset;
 import me.chan.typeset.elements.Box;
 import me.chan.typeset.elements.Element;
-import me.chan.typeset.elements.Glue;
 import me.chan.typeset.elements.Penalty;
 
 public class TypesetView extends View {
@@ -85,67 +85,53 @@ public class TypesetView extends View {
 		int verticalOffset = 0;
 		for (int lineNum = 0; lineNum < mLines.size(); ++lineNum) {
 			Line line = mLines.get(lineNum);
-			boolean intent = false;
-			int spaces = 0;
-			float totalAdjuatment = 0;
-			float wordSpace = line.ratio * (line.ratio < 0 ? mOption.spaceShrink : mOption.spaceStretch);
-			int integerWordSpace = Math.round(wordSpace);
-			float adjustment = wordSpace - integerWordSpace;
-			int integerAdjustment = (int) (adjustment < 0 ? Math.floor(adjustment) : Math.ceil(adjustment));
 
-			float lineHeightMax = 0;
-			List<String> content = new ArrayList<>();
-			Rect rect = new Rect();
-			float actualLineLength = 0;
+			List<String> lineContent = new ArrayList<>();
 			for (int i = 0; i < line.elements.size(); ++i) {
 				Element element = line.elements.get(i);
 				if (element instanceof Box) {
 					Box box = (Box) element;
-					content.add(box.mContent);
-					mPaint.getTextBounds(box.mContent, 0, box.mContent.length(), rect);
-					if (rect.height() > lineHeightMax) {
-						lineHeightMax = rect.height();
-					}
-					actualLineLength += rect.width();
-					for (i += 1; i < line.elements.size(); ++i) {
-						element = line.elements.get(i);
-						if (element instanceof Glue) {
-							i -= 1;
-							break;
-						}
-
-						if (element instanceof Penalty) {
-							if (((Penalty) element).penalty == mOption.hyphenPenalty && i == line.elements.size() - 1) {
-								appendLast(content, "-");
-							}
-							actualLineLength += mOption.hyphenWidth;
-							continue;
-						}
-
-						box = (Box) element;
-						appendLast(content, box.mContent);
-						mPaint.getTextBounds(box.mContent, 0, box.mContent.length(), rect);
-						if (rect.height() > lineHeightMax) {
-							lineHeightMax = rect.height();
-						}
-						actualLineLength += rect.width();
+					if (i - 1 >= 0 && line.elements.get(i - 1) instanceof Penalty) {
+						appendLast(lineContent, box.content);
+					} else {
+						lineContent.add(box.content);
 					}
 				} else if (element instanceof Penalty) {
 					if (((Penalty) element).penalty == mOption.hyphenPenalty && i == line.elements.size() - 1) {
-						appendLast(content, "-");
+						appendLast(lineContent, "-");
 					}
-					actualLineLength += mOption.hyphenWidth;
 				}
 			}
 
-			verticalOffset += lineHeightMax;
-			float lineLength = lineNum >= lineLengths.size() ? lineLengths.get(lineLengths.size() - 1) : lineLengths.get(lineNum);
-			float space = content.isEmpty() || content.size() == 1? mOption.spaceWidth : (lineLength - actualLineLength) / (content.size() - 1);
+			float lineWidth = lineNum >= lineLengths.size() ?
+					lineLengths.get(lineLengths.size() - 1) : lineLengths.get(lineNum);
+
+			float currentLineWidth = 0;
+			float currentLineHeight = 0;
+			Rect textBound = new Rect();
+			float space = 0;
+			if (lineContent.isEmpty() || lineContent.size() == 1 ||
+					lineNum == mLines.size() - 1) {
+				space = mOption.spaceWidth;
+			} else {
+				currentLineWidth = 0;
+				for (String word : lineContent) {
+					mPaint.getTextBounds(word, 0, word.length(), textBound);
+					if (textBound.height() > currentLineHeight) {
+						currentLineHeight = textBound.height();
+					}
+					currentLineWidth += textBound.width();
+				}
+				space = (lineWidth - currentLineWidth) / (lineContent.size() - 1);
+				Log.d("chan_debug", "space: " + space + " shrink: " + mOption.spaceShrink + " stretch: " + mOption.spaceStretch);
+			}
+			verticalOffset += currentLineHeight;
+
 			float horizontalOffset = 0;
-			for (String word : content) {
-				float wordSize = mPaint.measureText(word);
+			for (String word : lineContent) {
+				mPaint.getTextBounds(word, 0, word.length(), textBound);
 				canvas.drawText(word, horizontalOffset, verticalOffset, mPaint);
-				horizontalOffset += (wordSize + space);
+				horizontalOffset += (textBound.width() + space);
 			}
 			verticalOffset += 20;
 		}
