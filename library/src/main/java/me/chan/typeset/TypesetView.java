@@ -9,7 +9,6 @@ import android.os.AsyncTask;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.View;
 
 import java.util.ArrayList;
@@ -123,7 +122,6 @@ public class TypesetView extends View {
 					currentLineWidth += textBound.width();
 				}
 				space = (lineWidth - currentLineWidth) / (lineContent.size() - 1);
-				Log.d("chan_debug", "space: " + space + " shrink: " + mOption.spaceShrink + " stretch: " + mOption.spaceStretch);
 			}
 			verticalOffset += currentLineHeight;
 
@@ -136,7 +134,6 @@ public class TypesetView extends View {
 			verticalOffset += 20;
 		}
 	}
-
 
 	private static void appendLast(List<String> content, String s) {
 		String last = content.isEmpty() ? "" : content.get(content.size() - 1);
@@ -195,7 +192,6 @@ public class TypesetView extends View {
 				lines.add(line);
 				lineStart = pos;
 			}
-
 
 			return lines;
 		}
