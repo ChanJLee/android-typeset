@@ -6,10 +6,13 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.os.AsyncTask;
+import android.os.SystemClock;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -133,6 +136,7 @@ public class TypesetView extends View {
 			}
 			verticalOffset += 20;
 		}
+		Toast.makeText(getContext(), "used time: " + (SystemClock.elapsedRealtime() - mTimestamp), Toast.LENGTH_LONG).show();
 	}
 
 	private static void appendLast(List<String> content, String s) {
@@ -145,6 +149,7 @@ public class TypesetView extends View {
 	}
 
 	private List<Float> lineLengths = null;
+	private long mTimestamp = 0;
 
 	private class TypesetAsyncTask extends AsyncTask<CharSequence, Void, List<Line>> {
 
@@ -158,6 +163,7 @@ public class TypesetView extends View {
 				return null;
 			}
 
+			mTimestamp = SystemClock.elapsedRealtime();
 			lineLengths = new ArrayList<>();
 			lineLengths.add(mLineWidth);
 			Result result = null;
