@@ -93,7 +93,8 @@ public class TypesetView extends View {
 				Element element = line.elements.get(i);
 				if (element instanceof Box) {
 					Box box = (Box) element;
-					if (i - 1 >= 0 && line.elements.get(i - 1) instanceof Penalty) {
+					if ((i - 1 >= 0 &&
+							(line.elements.get(i - 1) instanceof Penalty || line.elements.get(i - 1) instanceof Box))) {
 						appendLast(lineContent, box.content);
 					} else {
 						lineContent.add(box.content);
