@@ -282,24 +282,19 @@ public class Typeset {
 			if (size > 1 && span.length() > bundle.option.minHyperLength) {
 				for (int j = 0; j < size; ++j) {
 					String item = hyphenated.get(j);
-					d("add box: " + item);
 					elements.add(new Box(bundle.paint.measureText(item), item));
-					if (j != size - 1) {
-						d("add <->");
+					if (j != size - 1 && !item.isEmpty() && item.charAt(item.length() - 1) != '-') {
 						elements.add(new Penalty(bundle.option.hyphenWidth, bundle.option.hyphenPenalty, true));
 					}
 				}
 			} else {
-				d("add box: " + span);
 				elements.add(new Box(bundle.paint.measureText(span), span));
 			}
 
 			if (i == spans.length - 1) {
-				d("add <glue penalty>");
 				elements.add(new Glue(0, bundle.option.infinity, 0));
 				elements.add(new Penalty(0, -bundle.option.infinity, true));
 			} else {
-				d("add <glue>");
 				elements.add(new Glue(bundle.option.spaceWidth, bundle.option.spaceStretch, bundle.option.spaceShrink));
 			}
 		}
