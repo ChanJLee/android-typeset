@@ -111,26 +111,21 @@ public class TypesetView extends View {
 			float currentLineWidth = 0;
 			float currentLineHeight = 0;
 			Rect textBound = new Rect();
-			float space = 0;
-			if (lineContent.isEmpty() || lineContent.size() == 1 ||
-					lineNum == mLines.size() - 1) {
-				space = mOption.spaceWidth;
-			} else {
-				currentLineWidth = 0;
-				for (String word : lineContent) {
-					mPaint.getTextBounds(word, 0, word.length(), textBound);
-					if (textBound.height() > currentLineHeight) {
-						currentLineHeight = textBound.height();
-					}
-					currentLineWidth += textBound.width();
+			for (String word : lineContent) {
+				mPaint.getTextBounds(word, 0, word.length(), textBound);
+				if (textBound.height() > currentLineHeight) {
+					currentLineHeight = textBound.height();
 				}
-				space = (lineWidth - currentLineWidth) / (lineContent.size() - 1);
-				Log.d("chan_debug", "space: " + space +
-						" shrink: " + (mOption.spaceWidth - mOption.spaceShrink) +
-						" stretch: " + (mOption.spaceWidth + mOption.spaceStretch) +
-						" space: " + mOption.spaceWidth);
+				currentLineWidth += textBound.width();
 			}
-			verticalOffset += currentLineHeight;
+
+			boolean defaultSpace = lineContent.isEmpty() || lineContent.size() == 1 || lineNum == mLines.size() - 1;
+			float space = defaultSpace ? mOption.spaceWidth : (lineWidth - currentLineWidth) / (lineContent.size() - 1);
+			Log.d("chan_debug", "space: " + space +
+					" shrink: " + (mOption.spaceWidth - mOption.spaceShrink) +
+					" stretch: " + (mOption.spaceWidth + mOption.spaceStretch) +
+					" space: " + mOption.spaceWidth);
+			verticalOffset += (currentLineHeight);
 
 			float horizontalOffset = 0;
 			for (String word : lineContent) {
@@ -138,6 +133,7 @@ public class TypesetView extends View {
 				canvas.drawText(word, horizontalOffset, verticalOffset, mPaint);
 				horizontalOffset += (textBound.width() + space);
 			}
+
 			verticalOffset += 20;
 		}
 		Toast.makeText(getContext(), "used time: " + (SystemClock.elapsedRealtime() - mTimestamp), Toast.LENGTH_LONG).show();
