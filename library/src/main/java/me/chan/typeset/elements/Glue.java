@@ -10,8 +10,8 @@ public class Glue extends Element {
 	 */
 	public float shrink;
 
-	public Glue(float width, float stretch, float shrink) {
-		super(width);
+	public Glue(float width, int index, float stretch, float shrink) {
+		super(width, index);
 		this.stretch = stretch;
 		this.shrink = shrink;
 	}
