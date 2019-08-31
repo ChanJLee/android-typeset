@@ -37,4 +37,9 @@ public class ExampleUnitTest {
 			System.out.println(i + " len: " + i.length());
 		}
 	}
+
+	@Test
+	public void testStream() {
+
+	}
 }
