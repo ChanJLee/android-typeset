@@ -44,13 +44,4 @@ enum HyphenationPattern {
 		this.rightMin = rightMin;
 		this.patterns = pattern;
 	}
-
-	public static HyphenationPattern lookup(String lang) {
-		try {
-			HyphenationPattern p = HyphenationPattern.valueOf(lang.toUpperCase());
-			return p;
-		} catch (IllegalArgumentException e) {
-			return null;
-		}
-	}
 }
