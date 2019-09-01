@@ -95,6 +95,7 @@ public class Hypher {
 		for (int i = 0; i < wordLength; i++) {
 			points[i] = 0;
 			characterPoints[i] = lowercase.codePointAt(i);
+			System.out.println(characterPoints[i]);
 		}
 
 		TrieNode node, trie = this.mTrie;
