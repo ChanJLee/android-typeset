@@ -10,10 +10,12 @@ public class Penalty implements Element {
 	 * where pi is the mPenalty at xi if ti=‘mPenalty’, otherwise pi= 0;
 	 */
 	private final float mPenalty;
+	private float mWidth;
 
-	public Penalty(float penalty, boolean flag) {
+	public Penalty(float width, float penalty, boolean flag) {
 		this.mPenalty = penalty;
 		this.mFlag = flag;
+		mWidth = width;
 	}
 
 	public boolean isFlag() {
@@ -26,6 +28,6 @@ public class Penalty implements Element {
 
 	@Override
 	public float getWidth() {
-		return 0;
+		return mWidth;
 	}
 }

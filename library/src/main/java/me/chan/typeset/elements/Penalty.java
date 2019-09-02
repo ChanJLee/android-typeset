@@ -10,8 +10,8 @@ public class Penalty extends Element {
 	 */
 	public final float penalty;
 
-	public Penalty(float width, int index, float penalty, boolean flag) {
-		super(width, index);
+	public Penalty(float width, float penalty, boolean flag) {
+		super(width);
 		this.penalty = penalty;
 		this.flag = flag;
 	}
