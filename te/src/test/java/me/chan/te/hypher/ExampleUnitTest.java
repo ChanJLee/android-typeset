@@ -9,6 +9,7 @@ import java.util.List;
 
 import me.chan.te.data.Element;
 import me.chan.te.data.Glue;
+import me.chan.te.data.Lines;
 import me.chan.te.data.Option;
 import me.chan.te.data.Penalty;
 import me.chan.te.parser.TextParser;
@@ -80,5 +81,18 @@ public class ExampleUnitTest {
 		}
 		assertEquals("check last: ", list.get(list.size() - 1).getClass(), Penalty.class);
 		assertEquals("check last - 1: ", list.get(list.size() - 2).getClass(), Glue.class);
+	}
+
+	@Test
+	public void testLines() {
+		Lines lines = new Lines(10);
+		lines.add(1, 20)
+				.add(2, 30);
+
+		assertEquals("check normal width", lines.get(10), 10);
+		assertEquals("check special width", lines.get(1), 20);
+
+		lines.remove(2);
+		assertEquals("check remove", lines.get(2), 10);
 	}
 }
