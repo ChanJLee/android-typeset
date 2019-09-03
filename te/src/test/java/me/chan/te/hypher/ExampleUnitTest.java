@@ -9,7 +9,7 @@ import java.util.List;
 
 import me.chan.te.data.Element;
 import me.chan.te.data.Glue;
-import me.chan.te.data.Lines;
+import me.chan.te.data.LineOptions;
 import me.chan.te.data.Option;
 import me.chan.te.data.Penalty;
 import me.chan.te.parser.TextParser;
@@ -85,14 +85,14 @@ public class ExampleUnitTest {
 
 	@Test
 	public void testLines() {
-		Lines lines = new Lines(10);
-		lines.add(1, 20)
-				.add(2, 30);
+		LineOptions lines = new LineOptions(10);
+		lines.addSpecialWidth(1, 20)
+				.addSpecialWidth(2, 30);
 
-		assertEquals("check normal width", lines.get(10), 10);
-		assertEquals("check special width", lines.get(1), 20);
+		assertEquals("check normal width", lines.getLineWidth(10), 10);
+		assertEquals("check special width", lines.getLineWidth(1), 20);
 
-		lines.remove(2);
-		assertEquals("check remove", lines.get(2), 10);
+		lines.removeSpecialWidth(2);
+		assertEquals("check removeSpecialWidth", lines.getLineWidth(2), 10);
 	}
 }
