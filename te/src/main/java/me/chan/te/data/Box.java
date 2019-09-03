@@ -1,13 +1,39 @@
 package me.chan.te.data;
 
-public class Box<T> implements Element {
+public class Box<Style> implements Element {
 
-	private T mValue;
+	private String mValue;
 	private float mWidth;
+	private Style mStyle;
 
-	public Box(T value, float width) {
+	public Box(String value, float width) {
+		this(value, width, null);
+	}
+
+	public Box(String value, float width, Style style) {
 		mValue = value;
 		mWidth = width;
+		mStyle = style;
+	}
+
+	public void setWidth(float width) {
+		mWidth = width;
+	}
+
+	public String getValue() {
+		return mValue;
+	}
+
+	public void setValue(String value) {
+		mValue = value;
+	}
+
+	public Style getStyle() {
+		return mStyle;
+	}
+
+	public void setStyle(Style style) {
+		mStyle = style;
 	}
 
 	@Override
