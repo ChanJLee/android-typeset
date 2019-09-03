@@ -5,6 +5,7 @@ import android.text.TextUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import me.chan.te.data.Box;
@@ -16,7 +17,8 @@ import me.chan.te.hypher.Hypher;
 
 public class TextParser implements Parser {
 
-	private static final Pattern PATTERN = Pattern.compile("\\p{Z}+");
+	private static final Pattern NEWLINE_PATTERN = Pattern.compile("\n");
+	private static final Pattern BLANK_PATTERN = Pattern.compile("\\p{Z}+");
 	private Hypher mHypher;
 	private Paint mPaint;
 	private Option mOption;
@@ -39,8 +41,18 @@ public class TextParser implements Parser {
 	public List<? extends Element> parser(CharSequence charSequence) {
 
 		List<Element> list = new ArrayList<>();
+		String[] paras = NEWLINE_PATTERN.split(charSequence);
+
+		for (int i = 0; paras != null && i < paras.length; ++i) {
+			handleParas(paras[i], list);
+		}
+
+		return list;
+	}
+
+	private void handleParas(String para, List<Element> list) {
 		List<String> hyphenated = new ArrayList<>();
-		String[] spans = PATTERN.split(charSequence);
+		String[] spans = BLANK_PATTERN.split(para);
 		for (int i = 0; i < spans.length; ++i) {
 			String span = spans[i];
 			if (TextUtils.isEmpty(span)) {
@@ -68,6 +80,5 @@ public class TextParser implements Parser {
 				list.add(new Glue(mSpaceWidth, mSpaceStretch, mSpaceShrink));
 			}
 		}
-		return list;
 	}
 }

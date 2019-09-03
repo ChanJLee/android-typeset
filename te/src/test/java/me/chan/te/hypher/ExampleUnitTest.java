@@ -8,10 +8,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import me.chan.te.data.Element;
+import me.chan.te.data.Glue;
 import me.chan.te.data.Option;
+import me.chan.te.data.Penalty;
 import me.chan.te.parser.TextParser;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 
 /**
  * Example local unit test, which will execute on the development machine (host).
@@ -70,7 +73,12 @@ public class ExampleUnitTest {
 		paint.setTextSize(18);
 		Option option = new Option();
 		TextParser textParser = new TextParser(Hypher.getInstance(), paint, option);
-		List<? extends Element> list = textParser.parser("hello world");
+		List<? extends Element> list = textParser.parser("hello\n\nworld\n\n");
 		assertNotEquals(list.size(), 0);
+		for (Element element : list) {
+			System.out.println(element);
+		}
+		assertEquals("check last: ", list.get(list.size() - 1).getClass(), Penalty.class);
+		assertEquals("check last - 1: ", list.get(list.size() - 2).getClass(), Glue.class);
 	}
 }
