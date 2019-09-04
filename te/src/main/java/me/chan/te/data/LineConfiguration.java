@@ -6,20 +6,24 @@ import java.util.Map;
 /**
  * line options
  */
-public class LineOptions {
+public class LineConfiguration {
 	private int mNormalWidth;
 	private Map<Integer, Integer> mMap = new HashMap<>();
 
-	public LineOptions(int normalWidth) {
+	public LineConfiguration(int normalWidth) {
 		mNormalWidth = normalWidth;
 	}
 
-	public LineOptions addSpecialWidth(int lineNumber, int width) {
+	public void setNormalWidth(int normalWidth) {
+		mNormalWidth = normalWidth;
+	}
+
+	public LineConfiguration addSpecialWidth(int lineNumber, int width) {
 		mMap.put(lineNumber, width);
 		return this;
 	}
 
-	public LineOptions removeSpecialWidth(int lineNumber) {
+	public LineConfiguration removeSpecialWidth(int lineNumber) {
 		mMap.remove(lineNumber);
 		return this;
 	}

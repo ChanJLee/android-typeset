@@ -3,12 +3,14 @@ package me.chan.te.data;
 import java.util.List;
 
 public class Line {
-	public List<? extends Element> mElements;
-	public float mLineHeight;
+	private List<? extends Element> mElements;
+	private float mLineHeight;
+	private float mSpaceWidth;
 
-	public Line(List<? extends Element> elements, float lineHeight) {
+	public Line(List<? extends Element> elements, float lineHeight, float spaceWidth) {
 		mElements = elements;
 		mLineHeight = lineHeight;
+		mSpaceWidth = spaceWidth;
 	}
 
 	public List<? extends Element> getElements() {
@@ -17,5 +19,9 @@ public class Line {
 
 	public float getLineHeight() {
 		return mLineHeight;
+	}
+
+	public float getSpaceWidth() {
+		return mSpaceWidth;
 	}
 }
