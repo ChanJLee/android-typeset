@@ -1,19 +1,21 @@
 package me.chan.te.data;
 
-public class Box<Style> implements Element {
+public class Box<Extra> implements Element {
 
 	private String mValue;
 	private float mWidth;
-	private Style mStyle;
+	private float mHeight;
+	private Extra mExtra;
 
-	public Box(String value, float width) {
-		this(value, width, null);
+	public Box(String value, float width, float height) {
+		this(value, width, height, null);
 	}
 
-	public Box(String value, float width, Style style) {
+	public Box(String value, float width, float height, Extra extra) {
 		mValue = value;
 		mWidth = width;
-		mStyle = style;
+		mHeight = height;
+		mExtra = extra;
 	}
 
 	public void setWidth(float width) {
@@ -28,16 +30,24 @@ public class Box<Style> implements Element {
 		mValue = value;
 	}
 
-	public Style getStyle() {
-		return mStyle;
+	public Extra getExtra() {
+		return mExtra;
 	}
 
-	public void setStyle(Style style) {
-		mStyle = style;
+	public void setExtra(Extra extra) {
+		mExtra = extra;
 	}
 
 	@Override
 	public float getWidth() {
 		return mWidth;
+	}
+
+	public float getHeight() {
+		return mHeight;
+	}
+
+	public boolean canMerge(Box<?> other) {
+		return true;
 	}
 }

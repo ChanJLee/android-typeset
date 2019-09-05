@@ -9,7 +9,7 @@ import java.util.List;
 
 import me.chan.te.data.Element;
 import me.chan.te.data.Glue;
-import me.chan.te.data.LineConfiguration;
+import me.chan.te.data.LineAttributes;
 import me.chan.te.data.Option;
 import me.chan.te.data.Penalty;
 import me.chan.te.parser.TextParser;
@@ -85,7 +85,7 @@ public class ExampleUnitTest {
 
 	@Test
 	public void testLines() {
-		LineConfiguration lines = new LineConfiguration(10);
+		LineAttributes lines = new LineAttributes(10);
 		lines.addSpecialWidth(1, 20)
 				.addSpecialWidth(2, 30);
 
