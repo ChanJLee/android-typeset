@@ -1,20 +1,12 @@
 package me.chan.te.data;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class Paragraph {
-	private List<Line> mLines = new ArrayList<>();
+	private List<Line> mLines;
 
-	public Paragraph(Line... lines) {
-		for (int i = 0; lines != null && i < lines.length; ++i) {
-			mLines.add(lines[i]);
-		}
-	}
-
-	public Paragraph addLine(Line line) {
-		mLines.add(line);
-		return this;
+	public void setLines(List<Line> lines) {
+		mLines = lines;
 	}
 
 	public List<Line> getLines() {

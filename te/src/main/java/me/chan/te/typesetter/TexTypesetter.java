@@ -1,6 +1,7 @@
 package me.chan.te.typesetter;
 
 import android.graphics.Paint;
+import android.graphics.Rect;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -11,7 +12,8 @@ import me.chan.te.data.BreakPoint;
 import me.chan.te.data.Candidate;
 import me.chan.te.data.Element;
 import me.chan.te.data.Glue;
-import me.chan.te.data.LineConfiguration;
+import me.chan.te.data.Line;
+import me.chan.te.data.LineAttributes;
 import me.chan.te.data.Node;
 import me.chan.te.data.Option;
 import me.chan.te.data.Paragraph;
@@ -34,8 +36,33 @@ public class TexTypesetter implements Typesetter {
 	}
 
 	@Override
-	public Paragraph typeset(List<? extends Element> elements, LineConfiguration lineConfiguration) {
+	public Paragraph typeset(List<? extends Element> elements, LineAttributes lineAttributes) {
 		Paragraph paragraph = new Paragraph();
+
+		List<Node> activeNodes = null;
+		for (int i = 0; i < mOption.maxRelayoutTimes &&
+				!Thread.currentThread().isInterrupted(); ++i) {
+			activeNodes = createActiveNodes(elements, lineAttributes, i + 1);
+		}
+
+		if (Thread.currentThread().isInterrupted() ||
+				activeNodes == null ||
+				activeNodes.isEmpty()) {
+			return paragraph;
+		}
+
+		List<BreakPoint> breakPoints = chooseBreakPoints(activeNodes);
+		if (breakPoints.isEmpty()) {
+			return paragraph;
+		}
+
+		List<Line> lines = typesetParagraph(elements, breakPoints, lineAttributes);
+		paragraph.setLines(lines);
+
+		return paragraph;
+	}
+
+	private List<Node> createActiveNodes(List<? extends Element> elements, LineAttributes lineAttributes, float tolerance) {
 		List<Node> activeNodes = new ArrayList<>();
 
 		Point point = new Point();
@@ -43,36 +70,125 @@ public class TexTypesetter implements Typesetter {
 		activeNodes.add(new Node(point, null, null));
 		Sum sum = new Sum();
 
-		for (int i = 0; i < elements.size(); ++i) {
+		for (int i = 0; i < elements.size() && !Thread.currentThread().isInterrupted(); ++i) {
 			Element element = elements.get(i);
 			if (element instanceof Box) {
 				sum.width += element.getWidth();
 			} else if (element instanceof Glue) {
 				if (i > 0 && elements.get(i - 1) instanceof Box) {
-					typesetLine(i, elements, activeNodes, sum, lineConfiguration);
+					typesetLine(i, elements, activeNodes, sum, lineAttributes, tolerance);
 				}
 
 				Glue glue = (Glue) element;
 				sum.width += glue.getWidth();
 				sum.shrink += glue.getShrink();
 				sum.stretch += glue.getStretch();
-			} else if (element instanceof Penalty && ((Penalty) element).getPenalty() != mOption.infinity) {
-				typesetLine(i, elements, activeNodes, sum, lineConfiguration);
+			} else if (element instanceof Penalty &&
+					((Penalty) element).getPenalty() != mOption.infinity) {
+				typesetLine(i, elements, activeNodes, sum, lineAttributes, tolerance);
 			}
 		}
 
-		if (activeNodes.isEmpty()) {
-			return paragraph;
+		return activeNodes;
+	}
+
+	private List<Line> typesetParagraph(List<? extends Element> elements,
+										List<BreakPoint> breakPoints,
+										LineAttributes lineAttributes) {
+		List<Line> lines = new ArrayList<>();
+		int lineStart = 0;
+		for (int i = 1; i < breakPoints.size(); ++i) {
+			BreakPoint breakPoint = breakPoints.get(i);
+			int pos = breakPoint.position;
+			for (int j = lineStart; j != 0 && j < elements.size(); ++j) {
+				Element element = elements.get(j);
+				if (element instanceof Box || (element instanceof Penalty && ((Penalty) element).getPenalty() == -mOption.infinity)) {
+					lineStart = j;
+					break;
+				}
+			}
+
+			List<? extends Element> lineElements = elements.subList(lineStart, pos + 1);
+			lines.add(createLine(i, lineElements, lineAttributes));
+			lineStart = pos;
+		}
+		return lines;
+	}
+
+	private Line createLine(int lineNumber, List<? extends Element> lineElements, LineAttributes lineAttributes) {
+		float lineHeight = 0;
+		float wordWidth = 0;
+		Rect bound = new Rect();
+		int boxCount = 0;
+		int size = lineElements.size();
+		for (int i = 0; i < size; ++i) {
+			Element element = lineElements.get(i);
+			if (!(element instanceof Box)) {
+				continue;
+			}
+
+			++boxCount;
+
+			Box<?> box = (Box<?>) element;
+			if (i + 1 < size && (lineElements.get(i + 1)) instanceof Glue) {
+				wordWidth += box.getWidth();
+				if (lineHeight < box.getHeight()) {
+					lineHeight = box.getHeight();
+				}
+
+				continue;
+			}
+
+			i = mergeBox(box, i + 1, lineElements);
+			String content = box.getValue();
+			mPaint.getTextBounds(content, 0, content.length(), bound);
+			if (lineHeight < bound.height()) {
+				lineHeight = bound.height();
+			}
+			wordWidth += bound.width();
 		}
 
+		float lineWidth = lineAttributes.getLineWidth(lineNumber);
+		return new Line(lineElements,
+				lineHeight,
+				boxCount == 0 ? 0 : (lineWidth - wordWidth) / boxCount);
+	}
+
+	/**
+	 * @param box          当前需要被merge的box
+	 * @param index        merge 开始的位置
+	 * @param lineElements 当前行
+	 * @return 最后一个能被merge的index
+	 */
+	private int mergeBox(Box<?> box, int index, List<? extends Element> lineElements) {
+		int size = lineElements.size();
+		for (; index < size; ++index) {
+			Element element = lineElements.get(index);
+			if (element instanceof Glue) {
+				break;
+			}
+
+			if (element instanceof Box) {
+				Box<?> other = (Box<?>) element;
+				if (!box.canMerge(other)) {
+					break;
+				}
+			}
+		}
+
+		// TODO
+
+		return index == 0 ? 0 : index - 1;
+	}
+
+	private List<BreakPoint> chooseBreakPoints(List<Node> activeNodes) {
+		List<BreakPoint> breaks = new ArrayList<>();
 		Node tempNode = null;
 		for (Node node : activeNodes) {
 			if (tempNode == null || tempNode.data.demerits >= node.data.demerits) {
 				tempNode = node;
 			}
 		}
-
-		List<BreakPoint> breaks = new ArrayList<>();
 
 		while (tempNode != null) {
 			BreakPoint breakPoint = new BreakPoint();
@@ -84,23 +200,22 @@ public class TexTypesetter implements Typesetter {
 
 		Collections.reverse(breaks);
 
-		// TODO 分割没一行
-
-		return paragraph;
+		return breaks;
 	}
 
 	/**
 	 * 对一行进行排版
 	 *
-	 * @param index             当前第几个元素
-	 * @param elements          需要排版的元素
-	 * @param activeNodes       active nodes
-	 * @param sum               sum
-	 * @param lineConfiguration 行配置信息
+	 * @param index          当前第几个元素
+	 * @param elements       需要排版的元素
+	 * @param activeNodes    active nodes
+	 * @param sum            sum
+	 * @param lineAttributes 行配置信息
+	 * @param tolerance      允许的缺陷阈值
 	 */
 	private void typesetLine(int index, List<? extends Element> elements,
 							 List<Node> activeNodes, Sum sum,
-							 LineConfiguration lineConfiguration) {
+							 LineAttributes lineAttributes, float tolerance) {
 		Element element = elements.get(index);
 		Node active = activeNodes.isEmpty() ? null : activeNodes.get(0);
 
@@ -110,13 +225,13 @@ public class TexTypesetter implements Typesetter {
 			while (active != null) {
 				Node next = active.next;
 				int currentLine = active.data.line + 1;
-				float ratio = computeRatio(element, active.data, sum, lineConfiguration.getLineWidth(currentLine));
+				float ratio = computeRatio(element, active.data, sum, lineAttributes.getLineWidth(currentLine));
 
 				if (ratio < -1 || (element instanceof Penalty && ((Penalty) element).getPenalty() == -mOption.infinity)) {
 					removeActiveNode(active, activeNodes);
 				}
 
-				if (ratio >= -1 && ratio <= mOption.tolerance) {
+				if (ratio >= -1 && ratio <= tolerance) {
 					int currentClass = computeClazz(ratio);
 
 					float demerits = computeDemerits(element, elements, ratio, active, currentClass);
@@ -140,40 +255,44 @@ public class TexTypesetter implements Typesetter {
 			}
 
 			Sum tmpSum = computeSum(index, elements, sum);
+			createIfActiveNode(active, index, activeNodes, tmpSum, candidates);
+		}
+	}
 
-			for (int i = 0; i < candidates.length; ++i) {
-				Candidate candidate = candidates[i];
-				if (candidate == null) {
-					continue;
+	private void createIfActiveNode(Node active, int index, List<Node> activeNodes,
+									Sum sum, Candidate[] candidates) {
+		for (int i = 0; i < candidates.length; ++i) {
+			Candidate candidate = candidates[i];
+			if (candidate == null) {
+				continue;
+			}
+
+			Point point = new Point();
+			point.position = index;
+			point.demerits = candidate.demerits;
+			point.ratio = candidate.ratio;
+			point.line = candidate.active.data.line + 1;
+			point.fitnessClazz = i;
+			point.totals = sum;
+			point.prev = candidate.active;
+
+			Node node = new Node(point, null, null);
+			if (active != null) {
+				node.prev = active.prev;
+				if (active.prev != null) {
+					active.prev.next = node;
 				}
 
-				Point point = new Point();
-				point.position = index;
-				point.demerits = candidate.demerits;
-				point.ratio = candidate.ratio;
-				point.line = candidate.active.data.line + 1;
-				point.fitnessClazz = i;
-				point.totals = tmpSum;
-				point.prev = candidate.active;
-
-				Node node = new Node(point, null, null);
-				if (active != null) {
-					node.prev = active.prev;
-					if (active.prev != null) {
-						active.prev.next = node;
-					}
-
-					node.next = active;
-					active.prev = node;
-					activeNodes.add(activeNodes.indexOf(active), node);
-				} else {
-					if (!activeNodes.isEmpty()) {
-						Node last = activeNodes.get(activeNodes.size() - 1);
-						last.next = node;
-						node.prev = last;
-					}
-					activeNodes.add(node);
+				node.next = active;
+				active.prev = node;
+				activeNodes.add(activeNodes.indexOf(active), node);
+			} else {
+				if (!activeNodes.isEmpty()) {
+					Node last = activeNodes.get(activeNodes.size() - 1);
+					last.next = node;
+					node.prev = last;
 				}
+				activeNodes.add(node);
 			}
 		}
 	}
