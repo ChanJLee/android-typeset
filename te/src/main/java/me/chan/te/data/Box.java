@@ -6,6 +6,7 @@ public class Box<Extra> implements Element {
 	private float mWidth;
 	private float mHeight;
 	private Extra mExtra;
+	private boolean mPenalty = false;
 
 	public Box(String value, float width, float height) {
 		this(value, width, height, null);
@@ -47,7 +48,19 @@ public class Box<Extra> implements Element {
 		return mHeight;
 	}
 
+	public void setHeight(float height) {
+		mHeight = height;
+	}
+
 	public boolean canMerge(Box<?> other) {
 		return true;
+	}
+
+	public boolean isPenalty() {
+		return mPenalty;
+	}
+
+	public void setPenalty(boolean penalty) {
+		mPenalty = penalty;
 	}
 }
