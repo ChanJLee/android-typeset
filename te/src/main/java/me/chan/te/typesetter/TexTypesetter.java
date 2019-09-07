@@ -128,18 +128,16 @@ public class TexTypesetter implements Typesetter {
 			}
 
 			++boxCount;
-
-			Box<?> box = (Box<?>) element;
-			if (i + 1 < size && (lineElements.get(i + 1)) instanceof Glue) {
-				wordWidth += box.getWidth();
+			Box<?> box = (Box<?>) lineElements.get(i);
+			i = mergeBox(box, i + 1, lineElements, bound);
+			if (!box.isPenalty()) {
 				if (lineHeight < box.getHeight()) {
 					lineHeight = box.getHeight();
 				}
-
+				wordWidth += box.getWidth();
 				continue;
 			}
 
-			i = mergeBox(box, i + 1, lineElements);
 			String content = box.getValue();
 			mPaint.getTextBounds(content, 0, content.length(), bound);
 			if (lineHeight < bound.height()) {
@@ -155,12 +153,12 @@ public class TexTypesetter implements Typesetter {
 	}
 
 	/**
-	 * @param box          当前需要被merge的box
 	 * @param index        merge 开始的位置
 	 * @param lineElements 当前行
-	 * @return 最后一个能被merge的index
+	 * @param bound        text 宽高信息
+	 * @return 最后一个能被处理的index
 	 */
-	private int mergeBox(Box<?> box, int index, List<? extends Element> lineElements) {
+	private int mergeBox(Box<?> box, int index, List<? extends Element> lineElements, Rect bound) {
 		int size = lineElements.size();
 		for (; index < size; ++index) {
 			Element element = lineElements.get(index);
@@ -171,14 +169,26 @@ public class TexTypesetter implements Typesetter {
 			if (element instanceof Box) {
 				Box<?> other = (Box<?>) element;
 				if (!box.canMerge(other)) {
+					--index;
 					break;
 				}
+
+				box.setValue(box.getValue() + other.getValue());
+				box.setPenalty(true);
+				continue;
+			}
+
+			if (element instanceof Penalty) {
+				if (index != size - 1) {
+					break;
+				}
+
+				box.setValue(box.getValue() + "-");
+				box.setPenalty(true);
 			}
 		}
 
-		// TODO
-
-		return index == 0 ? 0 : index - 1;
+		return index;
 	}
 
 	private List<BreakPoint> chooseBreakPoints(List<Node> activeNodes) {
