@@ -47,7 +47,8 @@ public class TextureView extends View {
 
 	@Override
 	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-		if (mParagraph != null && !mParagraph.getLines().isEmpty()) {
+		if (mParagraph != null && mParagraph.getLines() != null &&
+				!mParagraph.getLines().isEmpty()) {
 			List<Line> lines = mParagraph.getLines();
 			int height = getPaddingTop() + getPaddingBottom();
 			for (int i = 0; i < lines.size(); ++i) {
@@ -69,6 +70,7 @@ public class TextureView extends View {
 	protected void onDraw(Canvas canvas) {
 		super.onDraw(canvas);
 		if (mParagraph == null ||
+				mParagraph.getLines() == null ||
 				mLineAttributes == null ||
 				mPaint == null) {
 			return;

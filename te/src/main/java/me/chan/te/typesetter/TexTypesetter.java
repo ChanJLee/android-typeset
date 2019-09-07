@@ -43,6 +43,9 @@ public class TexTypesetter implements Typesetter {
 		for (int i = 0; i < mOption.maxRelayoutTimes &&
 				!Thread.currentThread().isInterrupted(); ++i) {
 			activeNodes = createActiveNodes(elements, lineAttributes, i + 1);
+			if (!activeNodes.isEmpty()) {
+				break;
+			}
 		}
 
 		if (Thread.currentThread().isInterrupted() ||
