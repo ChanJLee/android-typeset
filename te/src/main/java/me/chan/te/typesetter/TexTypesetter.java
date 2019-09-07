@@ -146,7 +146,7 @@ public class TexTypesetter implements Typesetter {
 			wordWidth += bound.width();
 		}
 
-		float lineWidth = lineAttributes.getLineWidth(lineNumber);
+		float lineWidth = lineAttributes.get(lineNumber).getLineWidth();
 		return new Line(lineElements,
 				lineHeight,
 				boxCount == 0 ? 0 : (lineWidth - wordWidth) / boxCount);
@@ -235,7 +235,7 @@ public class TexTypesetter implements Typesetter {
 			while (active != null) {
 				Node next = active.next;
 				int currentLine = active.data.line + 1;
-				float ratio = computeRatio(element, active.data, sum, lineAttributes.getLineWidth(currentLine));
+				float ratio = computeRatio(element, active.data, sum, lineAttributes.get(currentLine).getLineWidth());
 
 				if (ratio < -1 || (element instanceof Penalty && ((Penalty) element).getPenalty() == -mOption.infinity)) {
 					removeActiveNode(active, activeNodes);

@@ -9,32 +9,27 @@ import java.util.Map;
  * line options
  */
 public class LineAttributes {
-	private int mNormalWidth;
+	private LineAttribute mDefaultAttribute;
 	@SuppressLint("UseSparseArrays")
-	private Map<Integer, Integer> mMap = new HashMap<>();
+	private Map<Integer, LineAttribute> mMap = new HashMap<>();
 
-	public LineAttributes(int normalWidth) {
-		mNormalWidth = normalWidth;
+	public LineAttributes(LineAttribute defaultAttribute) {
+		mDefaultAttribute = defaultAttribute;
 	}
 
-	public void setNormalWidth(int normalWidth) {
-		mNormalWidth = normalWidth;
-	}
-
-	public LineAttributes addSpecialWidth(int lineNumber, int width) {
-		mMap.put(lineNumber, width);
+	public LineAttributes add(int lineNumber, LineAttribute lineAttribute) {
+		mMap.put(lineNumber, lineAttribute);
 		return this;
 	}
 
-	public LineAttributes removeSpecialWidth(int lineNumber) {
+	public void remove(int lineNumber) {
 		mMap.remove(lineNumber);
-		return this;
 	}
 
-	public int getLineWidth(int lineNumber) {
+	public LineAttribute get(int lineNumber) {
 		if (mMap.containsKey(lineNumber)) {
 			return mMap.get(lineNumber);
 		}
-		return mNormalWidth;
+		return mDefaultAttribute;
 	}
 }
