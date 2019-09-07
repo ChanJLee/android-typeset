@@ -9,13 +9,17 @@ import java.util.List;
 
 import me.chan.te.data.Element;
 import me.chan.te.data.Glue;
+import me.chan.te.data.LineAttribute;
 import me.chan.te.data.LineAttributes;
 import me.chan.te.data.Option;
+import me.chan.te.data.Paragraph;
 import me.chan.te.data.Penalty;
 import me.chan.te.parser.TextParser;
+import me.chan.te.typesetter.TexTypesetter;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * Example local unit test, which will execute on the development machine (host).
@@ -84,15 +88,29 @@ public class ExampleUnitTest {
 	}
 
 	@Test
-	public void testLines() {
-		LineAttributes lines = new LineAttributes(10);
-		lines.addSpecialWidth(1, 20)
-				.addSpecialWidth(2, 30);
+	public void testLinesAttributes() {
+		LineAttributes lineAttributes = new LineAttributes(new LineAttribute(10));
+		lineAttributes.add(1, new LineAttribute(20));
+		lineAttributes.add(2, new LineAttribute(30));
 
-		assertEquals("check normal width", lines.getLineWidth(10), 10);
-		assertEquals("check special width", lines.getLineWidth(1), 20);
+		assertEquals(lineAttributes.get(10).getLineWidth(), 10f, 0);
+		assertEquals(lineAttributes.get(1).getLineWidth(), 20f, 0);
 
-		lines.removeSpecialWidth(2);
-		assertEquals("check removeSpecialWidth", lines.getLineWidth(2), 10);
+		lineAttributes.remove(2);
+		assertEquals(lineAttributes.get(2).getLineWidth(), 10f, 0);
+	}
+
+	@Test
+	public void testTypesetter() {
+		LineAttributes lineAttributes = new LineAttributes(new LineAttribute(10));
+
+		Paint paint = new Paint();
+		TexTypesetter texTypesetter = new TexTypesetter(paint, new Option());
+		Option option = new Option();
+		TextParser textParser = new TextParser(Hypher.getInstance(), paint, option);
+		List<? extends Element> list = textParser.parser("hello\n\nworld\n\n");
+		Paragraph paragraph = texTypesetter.typeset(list, lineAttributes);
+		assertNotNull(paragraph);
+		assertNotNull(paragraph.getLines());
 	}
 }
