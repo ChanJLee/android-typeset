@@ -1,1 +1,1 @@
-include ':app', ':library', ':hypher', ':te'
+include ':app', ':te'
