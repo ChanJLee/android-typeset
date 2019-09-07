@@ -138,7 +138,7 @@ public class TexTypesetter implements Typesetter {
 				continue;
 			}
 
-			String content = box.getValue();
+			String content = box.getText();
 			mPaint.getTextBounds(content, 0, content.length(), bound);
 			if (lineHeight < bound.height()) {
 				lineHeight = bound.height();
@@ -173,7 +173,7 @@ public class TexTypesetter implements Typesetter {
 					break;
 				}
 
-				box.setValue(box.getValue() + other.getValue());
+				box.setText(box.getText() + other.getText());
 				box.setPenalty(true);
 				continue;
 			}
@@ -183,7 +183,7 @@ public class TexTypesetter implements Typesetter {
 					break;
 				}
 
-				box.setValue(box.getValue() + "-");
+				box.setText(box.getText() + "-");
 				box.setPenalty(true);
 			}
 		}

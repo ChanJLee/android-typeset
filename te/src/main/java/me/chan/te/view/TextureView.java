@@ -2,6 +2,7 @@ package me.chan.te.view;
 
 import android.content.Context;
 import android.graphics.Canvas;
+import android.graphics.Paint;
 import android.support.annotation.NonNull;
 import android.util.AttributeSet;
 import android.view.View;
@@ -9,7 +10,11 @@ import android.view.View;
 import java.util.List;
 
 import me.chan.te.annotations.Hidden;
+import me.chan.te.data.Box;
+import me.chan.te.data.Element;
+import me.chan.te.data.Gravity;
 import me.chan.te.data.Line;
+import me.chan.te.data.LineAttribute;
 import me.chan.te.data.LineAttributes;
 import me.chan.te.data.Paragraph;
 
@@ -17,6 +22,7 @@ import me.chan.te.data.Paragraph;
 public class TextureView extends View {
 	private Paragraph mParagraph;
 	private LineAttributes mLineAttributes;
+	private Paint mPaint;
 
 	public TextureView(Context context) {
 		super(context);
@@ -30,9 +36,12 @@ public class TextureView extends View {
 		super(context, attrs, defStyleAttr);
 	}
 
-	public void render(@NonNull Paragraph paragraph, @NonNull LineAttributes lineAttributes) {
+	public void render(@NonNull Paragraph paragraph,
+					   @NonNull LineAttributes lineAttributes,
+					   @NonNull Paint paint) {
 		mParagraph = paragraph;
 		mLineAttributes = lineAttributes;
+		mPaint = paint;
 		requestLayout();
 	}
 
@@ -40,7 +49,7 @@ public class TextureView extends View {
 	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
 		if (mParagraph != null && !mParagraph.getLines().isEmpty()) {
 			List<Line> lines = mParagraph.getLines();
-			int height = 0;
+			int height = getPaddingTop() + getPaddingBottom();
 			for (int i = 0; i < lines.size(); ++i) {
 				Line line = lines.get(i);
 				height += line.getLineHeight();
@@ -59,17 +68,43 @@ public class TextureView extends View {
 	@Override
 	protected void onDraw(Canvas canvas) {
 		super.onDraw(canvas);
-		if (mParagraph == null || mLineAttributes == null) {
+		if (mParagraph == null ||
+				mLineAttributes == null ||
+				mPaint == null) {
 			return;
 		}
+
+		float y = getPaddingTop();
+		float width = getWidth();
 
 		List<Line> lines = mParagraph.getLines();
 		for (int i = 0; i < lines.size(); ++i) {
 			Line line = lines.get(i);
+			y += line.getLineHeight();
+			float x = getPaddingLeft();
+			LineAttribute lineAttribute = mLineAttributes.get(i);
+			if (lineAttribute.getGravity() == Gravity.CENTER) {
+				x = (width - lineAttribute.getLineWidth()) / 2f;
+			} else if (lineAttribute.getGravity() == Gravity.RIGHT) {
+				x = (width - lineAttribute.getLineWidth());
+			}
+
+			draw(canvas, line, x, y);
+			y += lineAttribute.getLineSpace();
 		}
 	}
 
-	private void draw(Line line, int x, int y) {
+	private void draw(Canvas canvas, Line line, float x, float y) {
+		List<? extends Element> elements = line.getElements();
+		for (int i = 0; i < elements.size(); ++i) {
+			Element element = elements.get(i);
+			if (!(element instanceof Box)) {
+				continue;
+			}
 
+			Box<?> box = (Box<?>) element;
+			canvas.drawText(box.getText(), x, y, mPaint);
+			x += line.getSpaceWidth();
+		}
 	}
 }
