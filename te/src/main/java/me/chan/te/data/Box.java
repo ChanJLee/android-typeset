@@ -2,18 +2,18 @@ package me.chan.te.data;
 
 public class Box<Extra> implements Element {
 
-	private String mValue;
+	private String mText;
 	private float mWidth;
 	private float mHeight;
 	private Extra mExtra;
 	private boolean mPenalty = false;
 
-	public Box(String value, float width, float height) {
-		this(value, width, height, null);
+	public Box(String text, float width, float height) {
+		this(text, width, height, null);
 	}
 
-	public Box(String value, float width, float height, Extra extra) {
-		mValue = value;
+	public Box(String text, float width, float height, Extra extra) {
+		mText = text;
 		mWidth = width;
 		mHeight = height;
 		mExtra = extra;
@@ -23,12 +23,12 @@ public class Box<Extra> implements Element {
 		mWidth = width;
 	}
 
-	public String getValue() {
-		return mValue;
+	public String getText() {
+		return mText;
 	}
 
-	public void setValue(String value) {
-		mValue = value;
+	public void setText(String text) {
+		mText = text;
 	}
 
 	public Extra getExtra() {
