@@ -30,4 +30,13 @@ public class Penalty implements Element {
 	public float getWidth() {
 		return mWidth;
 	}
+
+	@Override
+	public String toString() {
+		return "Penalty{" +
+				"mFlag=" + mFlag +
+				", mPenalty=" + mPenalty +
+				", mWidth=" + mWidth +
+				'}';
+	}
 }

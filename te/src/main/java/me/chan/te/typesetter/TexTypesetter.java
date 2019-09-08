@@ -20,6 +20,7 @@ import me.chan.te.data.Paragraph;
 import me.chan.te.data.Penalty;
 import me.chan.te.data.Point;
 import me.chan.te.data.Sum;
+import me.chan.te.log.Log;
 
 public class TexTypesetter implements Typesetter {
 	private static final int CLASS_0 = 0;
@@ -242,6 +243,8 @@ public class TexTypesetter implements Typesetter {
 
 				if (ratio < -1 || (element instanceof Penalty && ((Penalty) element).getPenalty() == -mOption.infinity)) {
 					removeActiveNode(active, activeNodes);
+					d("remove active node, size: " + activeNodes.size() +
+							" element: " + element + " index: " + index);
 				}
 
 				if (ratio >= -1 && ratio <= tolerance) {
@@ -268,11 +271,11 @@ public class TexTypesetter implements Typesetter {
 			}
 
 			Sum tmpSum = computeSum(index, elements, sum);
-			createIfActiveNode(active, index, activeNodes, tmpSum, candidates);
+			createIfActiveNode(active, index, element, activeNodes, tmpSum, candidates);
 		}
 	}
 
-	private void createIfActiveNode(Node active, int index, List<Node> activeNodes,
+	private void createIfActiveNode(Node active, int index, Element element, List<Node> activeNodes,
 									Sum sum, Candidate[] candidates) {
 		for (int i = 0; i < candidates.length; ++i) {
 			Candidate candidate = candidates[i];
@@ -307,6 +310,9 @@ public class TexTypesetter implements Typesetter {
 				}
 				activeNodes.add(node);
 			}
+
+			d("add active node, size:" + activeNodes.size() +
+					" element: " + element + " index: " + index);
 		}
 	}
 
@@ -413,5 +419,9 @@ public class TexTypesetter implements Typesetter {
 			}
 		}
 		return result;
+	}
+
+	private static void d(String msg) {
+		Log.d("TexTypesetter", msg);
 	}
 }
