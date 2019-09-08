@@ -7,6 +7,7 @@ public class Box<Extra> implements Element {
 	private float mHeight;
 	private Extra mExtra;
 	private boolean mPenalty = false;
+	private boolean mDoNotDraw = false;
 
 	public Box(String text, float width, float height) {
 		this(text, width, height, null);
@@ -62,6 +63,14 @@ public class Box<Extra> implements Element {
 
 	public void setPenalty(boolean penalty) {
 		mPenalty = penalty;
+	}
+
+	public void setDoNotDraw(boolean doNotDraw) {
+		mDoNotDraw = doNotDraw;
+	}
+
+	public boolean isDoNotDraw() {
+		return mDoNotDraw;
 	}
 
 	@Override

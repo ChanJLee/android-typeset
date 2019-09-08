@@ -113,13 +113,14 @@ public class TexTypesetter implements Typesetter {
 			}
 
 			List<? extends Element> lineElements = elements.subList(lineStart, pos + 1);
-			lines.add(createLine(i, lineElements, lineAttributes));
+			lines.add(createLine(i - 1, lineElements, lineAttributes, i + 1 == breakPoints.size()));
 			lineStart = pos;
 		}
 		return lines;
 	}
 
-	private Line createLine(int lineNumber, List<? extends Element> lineElements, LineAttributes lineAttributes) {
+	private Line createLine(int lineNumber, List<? extends Element> lineElements,
+							LineAttributes lineAttributes, boolean lastLine) {
 		float lineHeight = 0;
 		float wordWidth = 0;
 		Rect bound = new Rect();
@@ -133,36 +134,38 @@ public class TexTypesetter implements Typesetter {
 
 			++boxCount;
 			Box<?> box = (Box<?>) lineElements.get(i);
-			i = mergeBox(box, i + 1, lineElements, bound);
-			if (!box.isPenalty()) {
-				if (lineHeight < box.getHeight()) {
-					lineHeight = box.getHeight();
-				}
-				wordWidth += box.getWidth();
-				continue;
+			i = mergeBox(box, i + 1, lineElements);
+
+			if (box.isPenalty()) {
+				String content = box.getText();
+				mPaint.getTextBounds(content, 0, content.length(), bound);
+				box.setWidth(bound.width());
+				box.setHeight(bound.height());
 			}
 
-			String content = box.getText();
-			mPaint.getTextBounds(content, 0, content.length(), bound);
-			if (lineHeight < bound.height()) {
-				lineHeight = bound.height();
+			if (lineHeight < box.getHeight()) {
+				lineHeight = box.getHeight();
 			}
-			wordWidth += bound.width();
+			wordWidth += box.getWidth();
 		}
 
-		float lineWidth = lineAttributes.get(lineNumber).getLineWidth();
+		float spaceWidth = mOption.spaceWidth;
+		if (boxCount > 1 && !lastLine) {
+			float lineWidth = lineAttributes.get(lineNumber).getLineWidth();
+			spaceWidth = (lineWidth - wordWidth) / (boxCount - 1);
+		}
+
 		return new Line(lineElements,
 				lineHeight,
-				boxCount == 0 ? 0 : (lineWidth - wordWidth) / boxCount);
+				spaceWidth);
 	}
 
 	/**
 	 * @param index        merge 开始的位置
 	 * @param lineElements 当前行
-	 * @param bound        text 宽高信息
 	 * @return 最后一个能被处理的index
 	 */
-	private int mergeBox(Box<?> box, int index, List<? extends Element> lineElements, Rect bound) {
+	private int mergeBox(Box<?> box, int index, List<? extends Element> lineElements) {
 		int size = lineElements.size();
 		for (; index < size; ++index) {
 			Element element = lineElements.get(index);
@@ -177,16 +180,13 @@ public class TexTypesetter implements Typesetter {
 					break;
 				}
 
+				other.setDoNotDraw(true);
 				box.setText(box.getText() + other.getText());
 				box.setPenalty(true);
 				continue;
 			}
 
-			if (element instanceof Penalty) {
-				if (index != size - 1) {
-					break;
-				}
-
+			if (element instanceof Penalty && index == size - 1) {
 				box.setText(box.getText() + "-");
 				box.setPenalty(true);
 			}
