@@ -48,7 +48,7 @@ public class TextureViewTestActivity extends AppCompatActivity {
 					@Override
 					public void run() {
 						mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-						mPaint.setTextSize(18);
+						mPaint.setTextSize(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 16, getResources().getDisplayMetrics()));
 						LineAttribute defaultAttribute = new LineAttribute(textureView.getWidth());
 						mLineAttributes = new LineAttributes(defaultAttribute);
 

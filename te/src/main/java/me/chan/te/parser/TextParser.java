@@ -50,7 +50,7 @@ public class TextParser implements Parser {
 
 			mHypher.hyphenate(span, hyphenated);
 			int size = hyphenated.size();
-			if (size == 0) {
+			if (size == 0 || span.length() < mOption.minHyperLen) {
 				mPaint.getTextBounds(span, 0, span.length(), bound);
 				list.add(new Box<>(span, bound.width(), bound.height()));
 			} else {
@@ -62,6 +62,7 @@ public class TextParser implements Parser {
 						list.add(new Penalty(mHyphenWidth, mOption.hyphenPenalty, true));
 					}
 				}
+				hyphenated.clear();
 			}
 
 			if (i == spans.length - 1) {
