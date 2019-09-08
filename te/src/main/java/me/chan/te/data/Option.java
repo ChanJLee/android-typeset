@@ -7,4 +7,5 @@ public class Option {
 	public float demeritsFlagged = 100;
 	public float demeritsFitness = 3000;
 	public int maxRelayoutTimes = 3;
+	public int minHyperLen = 4;
 }
