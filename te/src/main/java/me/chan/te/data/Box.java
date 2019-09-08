@@ -63,4 +63,15 @@ public class Box<Extra> implements Element {
 	public void setPenalty(boolean penalty) {
 		mPenalty = penalty;
 	}
+
+	@Override
+	public String toString() {
+		return "Box{" +
+				"mText='" + mText + '\'' +
+				", mWidth=" + mWidth +
+				", mHeight=" + mHeight +
+				", mExtra=" + mExtra +
+				", mPenalty=" + mPenalty +
+				'}';
+	}
 }

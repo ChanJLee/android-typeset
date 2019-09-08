@@ -31,4 +31,13 @@ public class Glue implements Element {
 	public float getShrink() {
 		return mShrink;
 	}
+
+	@Override
+	public String toString() {
+		return "Glue{" +
+				"mStretch=" + mStretch +
+				", mShrink=" + mShrink +
+				", mWidth=" + mWidth +
+				'}';
+	}
 }
