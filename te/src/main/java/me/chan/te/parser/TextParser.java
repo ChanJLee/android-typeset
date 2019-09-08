@@ -21,19 +21,11 @@ public class TextParser implements Parser {
 	private Hypher mHypher;
 	private Paint mPaint;
 	private Option mOption;
-	private float mHyphenWidth;
-	private float mSpaceWidth;
-	private float mSpaceStretch;
-	private float mSpaceShrink;
 
 	public TextParser(Hypher hypher, Paint paint, Option option) {
 		mHypher = hypher;
 		mPaint = paint;
 		mOption = option;
-		mHyphenWidth = paint.measureText("-");
-		mSpaceWidth = paint.measureText(" ");
-		mSpaceStretch = (mSpaceWidth * 3) / 6;
-		mSpaceShrink = (mSpaceWidth * 3) / 9;
 	}
 
 	@Override
@@ -59,7 +51,7 @@ public class TextParser implements Parser {
 					mPaint.getTextBounds(item, 0, item.length(), bound);
 					list.add(new Box<>(item, bound.width(), bound.height()));
 					if (j != size - 1 && !item.isEmpty() && item.charAt(item.length() - 1) != '-') {
-						list.add(new Penalty(mHyphenWidth, mOption.hyphenPenalty, true));
+						list.add(new Penalty(mOption.hyphenWidth, mOption.hyphenPenalty, true));
 					}
 				}
 				hyphenated.clear();
@@ -69,7 +61,7 @@ public class TextParser implements Parser {
 				list.add(new Glue(0, mOption.infinity, 0));
 				list.add(new Penalty(0, -mOption.infinity, true));
 			} else {
-				list.add(new Glue(mSpaceWidth, mSpaceStretch, mSpaceShrink));
+				list.add(new Glue(mOption.spaceWidth, mOption.spaceStretch, mOption.spaceShrink));
 			}
 		}
 		return list;

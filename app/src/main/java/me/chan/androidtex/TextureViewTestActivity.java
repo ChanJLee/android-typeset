@@ -48,13 +48,13 @@ public class TextureViewTestActivity extends AppCompatActivity {
 					@Override
 					public void run() {
 						mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-						mPaint.setTextSize(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 16, getResources().getDisplayMetrics()));
+						mPaint.setTextSize(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 14, getResources().getDisplayMetrics()));
 						LineAttribute defaultAttribute = new LineAttribute(textureView.getWidth());
 						mLineAttributes = new LineAttributes(defaultAttribute);
 
 
-						TexTypesetter texTypesetter = new TexTypesetter(mPaint, new Option());
-						Option option = new Option();
+						Option option = new Option(mPaint);
+						TexTypesetter texTypesetter = new TexTypesetter(mPaint, option);
 						TextParser textParser = new TextParser(Hypher.getInstance(), mPaint, option);
 						List<? extends Element> list = textParser.parser(getResources().getString(R.string.test));
 						mParagraph = texTypesetter.typeset(list, mLineAttributes);

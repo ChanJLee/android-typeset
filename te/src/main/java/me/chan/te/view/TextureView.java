@@ -105,6 +105,10 @@ public class TextureView extends View {
 			}
 
 			Box<?> box = (Box<?>) element;
+			if (box.isDoNotDraw()) {
+				continue;
+			}
+
 			canvas.drawText(box.getText(), x, y, mPaint);
 			x += (line.getSpaceWidth() + box.getWidth());
 		}
