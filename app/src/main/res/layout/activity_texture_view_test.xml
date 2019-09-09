@@ -6,6 +6,12 @@
     android:orientation="vertical"
     tools:context=".TextureViewTestActivity">
 
+    <Button
+        android:id="@+id/debug"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="开启调试信息" />
+
     <me.chan.te.view.TextureView
         android:id="@+id/text"
         android:layout_width="match_parent"

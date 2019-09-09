@@ -114,14 +114,19 @@ public class TexTypesetter implements Typesetter {
 			}
 
 			List<? extends Element> lineElements = elements.subList(lineStart, pos + 1);
-			lines.add(createLine(i - 1, lineElements, lineAttributes, i + 1 == breakPoints.size()));
+			lines.add(createLine(
+					i - 1,
+					lineElements,
+					lineAttributes,
+					i + 1 == breakPoints.size(),
+					breakPoint.ratio));
 			lineStart = pos;
 		}
 		return lines;
 	}
 
 	private Line createLine(int lineNumber, List<? extends Element> lineElements,
-							LineAttributes lineAttributes, boolean lastLine) {
+							LineAttributes lineAttributes, boolean lastLine, float ratio) {
 		float lineHeight = 0;
 		float wordWidth = 0;
 		Rect bound = new Rect();
@@ -156,9 +161,12 @@ public class TexTypesetter implements Typesetter {
 			spaceWidth = (lineWidth - wordWidth) / (boxCount - 1);
 		}
 
-		return new Line(lineElements,
+		return new Line(
+				lineElements,
 				lineHeight,
-				spaceWidth);
+				spaceWidth,
+				ratio
+		);
 	}
 
 	/**
