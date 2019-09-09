@@ -1,6 +1,7 @@
 package me.chan.te.data;
 
-import android.graphics.Paint;
+import android.text.Layout;
+import android.text.TextPaint;
 
 public class Option {
 	public float infinity = 1000;
@@ -15,10 +16,10 @@ public class Option {
 	public float spaceStretch;
 	public float spaceShrink;
 
-	public Option(Paint paint) {
+	public Option(TextPaint paint) {
 		hyphenWidth = paint.measureText("-");
-		spaceWidth = paint.measureText("-");
-		spaceStretch = (spaceWidth * 3) / 9;
-		spaceShrink = 0;
+		spaceWidth = Layout.getDesiredWidth(" ", paint);
+		spaceStretch = (spaceWidth * 3) / 6;
+		spaceShrink =  (spaceWidth * 3) / 9;
 	}
 }
