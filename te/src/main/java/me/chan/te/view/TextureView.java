@@ -148,7 +148,6 @@ public class TextureView extends View implements GestureDetector.OnGestureListen
 	private void draw(Canvas canvas, Line line, float x, float y, float lineSpace) {
 		List<? extends Element> elements = line.getElements();
 
-		d("====");
 		for (int i = 0; i < elements.size(); ++i) {
 			Element element = elements.get(i);
 			if (!(element instanceof Box)) {
@@ -165,7 +164,6 @@ public class TextureView extends View implements GestureDetector.OnGestureListen
 				canvas.drawRect(x, (float) Math.ceil(y - line.getLineHeight()), (float) Math.ceil(x + box.getWidth()), y, mDebugPaint);
 			}
 
-			d(box.getText());
 			canvas.drawText(box.getText(), x, y, mPaint);
 			x += (line.getSpaceWidth() + box.getWidth());
 		}
