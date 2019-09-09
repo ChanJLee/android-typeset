@@ -158,6 +158,7 @@ public class TextureView extends View implements GestureDetector.OnGestureListen
 			}
 
 			if (mDebugMode) {
+				mDebugPaint.setColor(Color.GREEN);
 				canvas.drawRect(x, (float) Math.ceil(y - line.getLineHeight()), (float) Math.ceil(x + box.getWidth()), y, mDebugPaint);
 			}
 
@@ -176,7 +177,6 @@ public class TextureView extends View implements GestureDetector.OnGestureListen
 			canvas.drawRect(rect, mDebugPaint);
 			mDebugPaint.setColor(Color.RED);
 			canvas.drawText(ratio, startX, startY, mDebugPaint);
-			mDebugPaint.setColor(Color.GREEN);
 		}
 	}
 
