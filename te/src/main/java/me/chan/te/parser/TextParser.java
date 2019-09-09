@@ -1,7 +1,8 @@
 package me.chan.te.parser;
 
-import android.graphics.Paint;
 import android.graphics.Rect;
+import android.text.Layout;
+import android.text.TextPaint;
 import android.text.TextUtils;
 
 import java.util.ArrayList;
@@ -19,10 +20,10 @@ public class TextParser implements Parser {
 
 	private static final Pattern BLANK_PATTERN = Pattern.compile("\\p{Z}+");
 	private Hypher mHypher;
-	private Paint mPaint;
+	private TextPaint mPaint;
 	private Option mOption;
 
-	public TextParser(Hypher hypher, Paint paint, Option option) {
+	public TextParser(Hypher hypher, TextPaint paint, Option option) {
 		mHypher = hypher;
 		mPaint = paint;
 		mOption = option;
@@ -44,12 +45,12 @@ public class TextParser implements Parser {
 			int size = hyphenated.size();
 			if (size == 0 || span.length() < mOption.minHyperLen) {
 				mPaint.getTextBounds(span, 0, span.length(), bound);
-				list.add(new Box<>(span, bound.width(), bound.height()));
+				list.add(new Box<>(span, Layout.getDesiredWidth(span, mPaint), bound.height()));
 			} else {
 				for (int j = 0; j < size; ++j) {
 					String item = hyphenated.get(j);
 					mPaint.getTextBounds(item, 0, item.length(), bound);
-					list.add(new Box<>(item, bound.width(), bound.height()));
+					list.add(new Box<>(item, Layout.getDesiredWidth(item, mPaint), bound.height()));
 					if (j != size - 1 && !item.isEmpty() && item.charAt(item.length() - 1) != '-') {
 						list.add(new Penalty(mOption.hyphenWidth, mOption.hyphenPenalty, true));
 					}
