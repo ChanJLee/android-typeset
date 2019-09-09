@@ -6,6 +6,7 @@ import android.os.Looper;
 import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.TextPaint;
 import android.util.TypedValue;
 
 import java.util.List;
@@ -47,8 +48,10 @@ public class TextureViewTestActivity extends AppCompatActivity {
 				new Thread(new Runnable() {
 					@Override
 					public void run() {
-						mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-						mPaint.setTextSize(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 14, getResources().getDisplayMetrics()));
+						mPaint = new TextPaint(Paint.ANTI_ALIAS_FLAG);
+						mPaint.setTextAlign(Paint.Align.LEFT);
+						mPaint.setStyle(Paint.Style.FILL_AND_STROKE);
+						mPaint.setTextSize(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 18, getResources().getDisplayMetrics()));
 						LineAttribute defaultAttribute = new LineAttribute(textureView.getWidth());
 						mLineAttributes = new LineAttributes(defaultAttribute);
 
