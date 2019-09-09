@@ -8,6 +8,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.TextPaint;
 import android.util.TypedValue;
+import android.view.View;
 
 import java.util.List;
 
@@ -26,7 +27,7 @@ public class TextureViewTestActivity extends AppCompatActivity {
 	private Handler mHandler;
 	private Paragraph mParagraph;
 	private LineAttributes mLineAttributes;
-	private Paint mPaint;
+	private TextPaint mPaint;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -34,6 +35,12 @@ public class TextureViewTestActivity extends AppCompatActivity {
 		setContentView(R.layout.activity_texture_view_test);
 
 		final TextureView textureView = findViewById(R.id.text);
+		textureView.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				textureView.setDebugMode(!textureView.isDebugMode());
+			}
+		});
 
 		mHandler = new Handler(Looper.getMainLooper()) {
 			@Override

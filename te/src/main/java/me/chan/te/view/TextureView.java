@@ -2,6 +2,7 @@ package me.chan.te.view;
 
 import android.content.Context;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Paint;
 import android.support.annotation.NonNull;
 import android.util.AttributeSet;
@@ -23,6 +24,7 @@ public class TextureView extends View {
 	private Paragraph mParagraph;
 	private LineAttributes mLineAttributes;
 	private Paint mPaint;
+	private Paint mDebugPaint;
 
 	public TextureView(Context context) {
 		super(context);
@@ -43,6 +45,22 @@ public class TextureView extends View {
 		mLineAttributes = lineAttributes;
 		mPaint = paint;
 		requestLayout();
+	}
+
+	private boolean mDebugMode = false;
+
+	public void setDebugMode(boolean enable) {
+		mDebugMode = enable;
+		if (mDebugMode && mDebugPaint == null) {
+			mDebugPaint = new Paint();
+			mDebugPaint.setColor(Color.GREEN);
+			mDebugPaint.setStyle(Paint.Style.FILL);
+		}
+		invalidate();
+	}
+
+	public boolean isDebugMode() {
+		return mDebugMode;
 	}
 
 	@Override
@@ -107,6 +125,10 @@ public class TextureView extends View {
 			Box<?> box = (Box<?>) element;
 			if (box.isDoNotDraw()) {
 				continue;
+			}
+
+			if (mDebugMode) {
+				canvas.drawRect(x, (float) Math.ceil(y - line.getLineHeight()), (float) Math.ceil(x + box.getWidth()), y, mDebugPaint);
 			}
 
 			canvas.drawText(box.getText(), x, y, mPaint);
