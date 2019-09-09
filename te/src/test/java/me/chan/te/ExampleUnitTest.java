@@ -1,6 +1,6 @@
 package me.chan.te.hypher;
 
-import android.graphics.Paint;
+import android.text.TextPaint;
 
 import org.junit.Test;
 
@@ -29,6 +29,11 @@ import static org.junit.Assert.assertNotNull;
 public class ExampleUnitTest {
 	@Test
 	public void addition_isCorrect() {
+		String prefix = "-";
+		if (prefix != null && prefix.length() >= 1) {
+			prefix = prefix.substring(0, prefix.length() - 1);
+		}
+		System.out.println(prefix);
 		assertEquals(4, 2 + 2);
 	}
 
@@ -74,9 +79,9 @@ public class ExampleUnitTest {
 
 	@Test
 	public void testParser() {
-		Paint paint = new Paint();
+		TextPaint paint = new TextPaint();
 		paint.setTextSize(18);
-		Option option = new Option();
+		Option option = new Option(paint);
 		TextParser textParser = new TextParser(Hypher.getInstance(), paint, option);
 		List<? extends Element> list = textParser.parser("hello\n\nworld\n\n");
 		assertNotEquals(list.size(), 0);
@@ -104,9 +109,9 @@ public class ExampleUnitTest {
 	public void testTypesetter() {
 		LineAttributes lineAttributes = new LineAttributes(new LineAttribute(10));
 
-		Paint paint = new Paint();
-		TexTypesetter texTypesetter = new TexTypesetter(paint, new Option());
-		Option option = new Option();
+		TextPaint paint = new TextPaint();
+		Option option = new Option(paint);
+		TexTypesetter texTypesetter = new TexTypesetter(paint, option);
 		TextParser textParser = new TextParser(Hypher.getInstance(), paint, option);
 		List<? extends Element> list = textParser.parser("hello\n\nworld\n\n");
 		Paragraph paragraph = texTypesetter.typeset(list, lineAttributes);

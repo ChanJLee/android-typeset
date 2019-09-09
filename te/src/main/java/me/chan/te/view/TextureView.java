@@ -84,7 +84,9 @@ public class TextureView extends View implements GestureDetector.OnGestureListen
 
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
-		if (!mSelectable || mParagraph == null) {
+		if (!mSelectable ||
+				mParagraph == null ||
+				mParagraph.getLines() == null) {
 			return super.onTouchEvent(event);
 		}
 
@@ -100,7 +102,7 @@ public class TextureView extends View implements GestureDetector.OnGestureListen
 			for (int i = 0; i < lines.size(); ++i) {
 				Line line = lines.get(i);
 				height += line.getLineHeight();
-				height += mLineAttributes.get(i).getLineSpace();
+				height += mLineAttributes.get(i).getLineVerticalSpace();
 			}
 
 			heightMeasureSpec = MeasureSpec.makeMeasureSpec(
@@ -137,7 +139,7 @@ public class TextureView extends View implements GestureDetector.OnGestureListen
 				x = (width - lineAttribute.getLineWidth());
 			}
 
-			float lineSpace = lineAttribute.getLineSpace();
+			float lineSpace = lineAttribute.getLineVerticalSpace();
 			draw(canvas, line, x, y, lineSpace);
 			y += lineSpace;
 		}
@@ -180,6 +182,100 @@ public class TextureView extends View implements GestureDetector.OnGestureListen
 		}
 	}
 
+	private void handleClicked(float x, float y) {
+		if (mParagraph == null || mParagraph.getLines() == null) {
+			return;
+		}
+
+		List<Line> lines = mParagraph.getLines();
+		int size = lines.size();
+		Line targetLine = null;
+		float offsetY = getPaddingTop();
+		int lineNumber = 0;
+		for (; lineNumber < size; ++lineNumber) {
+			Line line = lines.get(lineNumber);
+			float nextOffsetY = offsetY + line.getLineHeight();
+			if (offsetY <= y && y <= nextOffsetY) {
+				targetLine = line;
+				break;
+			}
+
+			offsetY = (nextOffsetY + mLineAttributes.get(lineNumber).getLineVerticalSpace());
+		}
+
+		if (targetLine == null) {
+			return;
+		}
+
+		List<? extends Element> elements = targetLine.getElements();
+		int elementSize = elements.size();
+		float offsetX = getPaddingLeft();
+		Box<?> target = null;
+		for (int i = 0; i < elementSize; ++i) {
+			Element element = elements.get(i);
+			if (!(element instanceof Box)) {
+				continue;
+			}
+
+			Box<?> box = (Box<?>) element;
+			if (box.isDoNotDraw()) {
+				continue;
+			}
+
+			float nextOffsetX = offsetX + box.getWidth();
+			if (offsetX <= x && x <= nextOffsetX) {
+				target = box;
+				break;
+			}
+
+			offsetX = (nextOffsetX + targetLine.getSpaceWidth());
+		}
+
+		if (target == null) {
+			return;
+		}
+
+		if (target.isPenalty()) {
+			handleClickedPenaltyBox(target, lines, lineNumber + 1);
+			return;
+		}
+
+		d("on clicked: " + target.getText());
+	}
+
+	private void handleClickedPenaltyBox(Box<?> current, List<Line> lines, int nextLineNumber) {
+		if (nextLineNumber < 0 || nextLineNumber >= lines.size()) {
+			return;
+		}
+
+		List<? extends Element> elements = lines.get(nextLineNumber).getElements();
+		if (elements == null || elements.isEmpty()) {
+			return;
+		}
+
+		Box<?> suffix = null;
+		for (Element element : elements) {
+			if (!(element instanceof Box)) {
+				continue;
+			}
+
+			Box<?> box = (Box<?>) element;
+			if (box.isDoNotDraw()) {
+				continue;
+			}
+
+			suffix = box;
+			break;
+		}
+
+		String prefix = current.getText();
+		if (prefix != null && prefix.length() >= 1) {
+			prefix = prefix.substring(0, prefix.length() - 1);
+		}
+
+		d("on clicked: " + (prefix + suffix.getText()));
+	}
+
 	@Override
 	public boolean onDown(MotionEvent e) {
 		d("onDown");
@@ -189,6 +285,7 @@ public class TextureView extends View implements GestureDetector.OnGestureListen
 	@Override
 	public void onShowPress(MotionEvent e) {
 		d("onShowPress");
+		handleClicked(e.getX(), e.getY());
 	}
 
 	@Override
