@@ -17,8 +17,8 @@ public class Option {
 
 	public Option(Paint paint) {
 		hyphenWidth = paint.measureText("-");
-		spaceWidth = paint.measureText(" ");
-		spaceStretch = (spaceWidth * 3) / 6;
-		spaceShrink = (spaceWidth * 3) / 9;
+		spaceWidth = paint.measureText("-");
+		spaceStretch = (spaceWidth * 3) / 9;
+		spaceShrink = 0;
 	}
 }
