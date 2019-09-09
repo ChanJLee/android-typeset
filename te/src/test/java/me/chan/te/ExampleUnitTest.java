@@ -1,4 +1,4 @@
-package me.chan.te.hypher;
+package me.chan.te;
 
 import android.text.TextPaint;
 
@@ -14,6 +14,7 @@ import me.chan.te.data.LineAttributes;
 import me.chan.te.data.Option;
 import me.chan.te.data.Paragraph;
 import me.chan.te.data.Penalty;
+import me.chan.te.hypher.Hypher;
 import me.chan.te.parser.TextParser;
 import me.chan.te.typesetter.TexTypesetter;
 
