@@ -1,7 +1,10 @@
 package me.chan.te.data;
 
+import android.support.annotation.NonNull;
+
 public class Box<Extra> implements Element {
 
+	@NonNull
 	private String mText;
 	private float mWidth;
 	private float mHeight;
@@ -9,11 +12,11 @@ public class Box<Extra> implements Element {
 	private boolean mPenalty = false;
 	private boolean mDoNotDraw = false;
 
-	public Box(String text, float width, float height) {
+	public Box(@NonNull String text, float width, float height) {
 		this(text, width, height, null);
 	}
 
-	public Box(String text, float width, float height, Extra extra) {
+	public Box(@NonNull String text, float width, float height, Extra extra) {
 		mText = text;
 		mWidth = width;
 		mHeight = height;
@@ -24,11 +27,12 @@ public class Box<Extra> implements Element {
 		mWidth = width;
 	}
 
+	@NonNull
 	public String getText() {
 		return mText;
 	}
 
-	public void setText(String text) {
+	public void setText(@NonNull String text) {
 		mText = text;
 	}
 

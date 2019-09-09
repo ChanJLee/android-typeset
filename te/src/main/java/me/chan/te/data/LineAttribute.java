@@ -3,16 +3,16 @@ package me.chan.te.data;
 public class LineAttribute {
 	private float mLineWidth;
 	private Gravity mGravity;
-	private int mLineSpace;
+	private int mLineVerticalSpace;
 
 	public LineAttribute(float lineWidth) {
 		this(lineWidth, Gravity.LEFT, 20);
 	}
 
-	public LineAttribute(float lineWidth, Gravity gravity, int lineSpace) {
+	public LineAttribute(float lineWidth, Gravity gravity, int lineVerticalSpace) {
 		mLineWidth = lineWidth;
 		mGravity = gravity;
-		mLineSpace = lineSpace;
+		mLineVerticalSpace = lineVerticalSpace;
 	}
 
 	public float getLineWidth() {
@@ -23,7 +23,7 @@ public class LineAttribute {
 		return mGravity;
 	}
 
-	public int getLineSpace() {
-		return mLineSpace;
+	public int getLineVerticalSpace() {
+		return mLineVerticalSpace;
 	}
 }
