@@ -142,11 +142,12 @@ public class TexTypesetter implements Typesetter {
 			Box<?> box = (Box<?>) lineElements.get(i);
 			i = mergeBox(box, i + 1, lineElements);
 
-			if (box.isPenalty()) {
+			if (box.isDirty()) {
 				String content = box.getText();
 				mPaint.getTextBounds(content, 0, content.length(), bound);
 				box.setWidth(Layout.getDesiredWidth(content, mPaint));
 				box.setHeight(bound.height());
+				box.clear();
 			}
 
 			if (lineHeight < box.getHeight()) {
@@ -190,13 +191,12 @@ public class TexTypesetter implements Typesetter {
 				}
 
 				other.setDoNotDraw(true);
-				box.setText(box.getText() + other.getText());
-				box.setPenalty(true);
+				box.append(other.getText());
 				continue;
 			}
 
 			if (element instanceof Penalty && index == size - 1) {
-				box.setText(box.getText() + "-");
+				box.append("-");
 				box.setPenalty(true);
 			}
 		}

@@ -2,6 +2,8 @@ package me.chan.te.data;
 
 import android.support.annotation.NonNull;
 
+import me.chan.te.annotations.Hidden;
+
 public class Box<Extra> implements Element {
 
 	@NonNull
@@ -11,6 +13,7 @@ public class Box<Extra> implements Element {
 	private Extra mExtra;
 	private boolean mPenalty = false;
 	private boolean mDoNotDraw = false;
+	private boolean mDirty = false;
 
 	public Box(@NonNull String text, float width, float height) {
 		this(text, width, height, null);
@@ -32,8 +35,10 @@ public class Box<Extra> implements Element {
 		return mText;
 	}
 
-	public void setText(@NonNull String text) {
-		mText = text;
+	@Hidden
+	public void append(@NonNull String text) {
+		mText = mText + text;
+		mDirty = true;
 	}
 
 	public Extra getExtra() {
@@ -57,10 +62,12 @@ public class Box<Extra> implements Element {
 		mHeight = height;
 	}
 
+	@Hidden
 	public boolean canMerge(Box<?> other) {
 		return true;
 	}
 
+	@Hidden
 	public boolean isPenalty() {
 		return mPenalty;
 	}
@@ -86,5 +93,15 @@ public class Box<Extra> implements Element {
 				", mExtra=" + mExtra +
 				", mPenalty=" + mPenalty +
 				'}';
+	}
+
+	@Hidden
+	public boolean isDirty() {
+		return mDirty;
+	}
+
+	@Hidden
+	public void clear() {
+		mDirty = false;
 	}
 }
