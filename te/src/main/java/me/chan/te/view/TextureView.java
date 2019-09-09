@@ -184,9 +184,9 @@ public class TextureView extends View implements GestureDetector.OnGestureListen
 		}
 	}
 
-	private void handleClicked(float x, float y) {
+	private boolean handleClicked(float x, float y) {
 		if (mParagraph == null || mParagraph.getLines() == null) {
-			return;
+			return false;
 		}
 
 		List<Line> lines = mParagraph.getLines();
@@ -206,7 +206,7 @@ public class TextureView extends View implements GestureDetector.OnGestureListen
 		}
 
 		if (targetLine == null) {
-			return;
+			return false;
 		}
 
 		List<? extends Element> elements = targetLine.getElements();
@@ -234,25 +234,25 @@ public class TextureView extends View implements GestureDetector.OnGestureListen
 		}
 
 		if (target == null) {
-			return;
+			return false;
 		}
 
 		if (target.isPenalty()) {
-			handleClickedPenaltyBox(target, lines, lineNumber + 1);
-			return;
+			return handleClickedPenaltyBox(target, lines, lineNumber + 1);
 		}
 
 		d("on clicked: " + target.getText());
+		return true;
 	}
 
-	private void handleClickedPenaltyBox(Box<?> current, List<Line> lines, int nextLineNumber) {
+	private boolean handleClickedPenaltyBox(Box<?> current, List<Line> lines, int nextLineNumber) {
 		if (nextLineNumber < 0 || nextLineNumber >= lines.size()) {
-			return;
+			return false;
 		}
 
 		List<? extends Element> elements = lines.get(nextLineNumber).getElements();
 		if (elements == null || elements.isEmpty()) {
-			return;
+			return false;
 		}
 
 		Box<?> suffix = null;
@@ -276,6 +276,7 @@ public class TextureView extends View implements GestureDetector.OnGestureListen
 		}
 
 		d("on clicked: " + (prefix + suffix.getText()));
+		return true;
 	}
 
 	@Override
@@ -285,12 +286,12 @@ public class TextureView extends View implements GestureDetector.OnGestureListen
 
 	@Override
 	public void onShowPress(MotionEvent e) {
-		handleClicked(e.getX(), e.getY());
+		/* do nothing */
 	}
 
 	@Override
 	public boolean onSingleTapUp(MotionEvent e) {
-		return false;
+		return handleClicked(e.getX(), e.getY());
 	}
 
 	@Override
