@@ -35,7 +35,7 @@ public class TextureViewTestActivity extends AppCompatActivity {
 		setContentView(R.layout.activity_texture_view_test);
 
 		final TextureView textureView = findViewById(R.id.text);
-		textureView.setOnClickListener(new View.OnClickListener() {
+		findViewById(R.id.debug).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				textureView.setDebugMode(!textureView.isDebugMode());
