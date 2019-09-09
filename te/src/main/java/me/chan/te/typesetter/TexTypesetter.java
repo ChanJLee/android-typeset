@@ -1,7 +1,8 @@
 package me.chan.te.typesetter;
 
-import android.graphics.Paint;
 import android.graphics.Rect;
+import android.text.Layout;
+import android.text.TextPaint;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -29,9 +30,9 @@ public class TexTypesetter implements Typesetter {
 	private static final int CLASS_3 = 3;
 
 	private Option mOption;
-	private Paint mPaint;
+	private TextPaint mPaint;
 
-	public TexTypesetter(Paint paint, Option option) {
+	public TexTypesetter(TextPaint paint, Option option) {
 		mOption = option;
 		mPaint = paint;
 	}
@@ -139,7 +140,7 @@ public class TexTypesetter implements Typesetter {
 			if (box.isPenalty()) {
 				String content = box.getText();
 				mPaint.getTextBounds(content, 0, content.length(), bound);
-				box.setWidth(bound.width());
+				box.setWidth(Layout.getDesiredWidth(content, mPaint));
 				box.setHeight(bound.height());
 			}
 
