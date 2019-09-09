@@ -35,6 +35,7 @@ public class TextureViewTestActivity extends AppCompatActivity {
 		setContentView(R.layout.activity_texture_view_test);
 
 		final TextureView textureView = findViewById(R.id.text);
+		textureView.setSelectable(true);
 		findViewById(R.id.debug).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
