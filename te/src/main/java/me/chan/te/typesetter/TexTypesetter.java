@@ -376,35 +376,36 @@ public class TexTypesetter implements Typesetter {
 		float badness = (float) (100 * Math.pow(Math.abs(ratio), 3));
 		float demerits;
 
-		// Positive penalty
 		if (element instanceof Penalty && ((Penalty) element).getPenalty() >= 0) {
-			demerits = (float) (Math.pow(mOption.demeritsLine + badness + ((Penalty) element).getPenalty(), 2));
-			// Negative penalty but not a forced break
+			demerits = (float) (
+					Math.pow(mOption.demeritsLine + badness + ((Penalty) element).getPenalty(), 2)
+			);
 		} else if (element instanceof Penalty && ((Penalty) element).getPenalty() != -mOption.infinity) {
-			demerits = (float) (Math.pow(mOption.demeritsLine + badness, 2) -
-					Math.pow(((Penalty) element).getPenalty(), 2));
-			// All other cases
+			demerits = (float) (
+					Math.pow(mOption.demeritsLine + badness, 2) -
+							Math.pow(((Penalty) element).getPenalty(), 2)
+			);
 		} else {
-			demerits = (float) Math.pow(mOption.demeritsLine + badness, 2);
+			demerits = (float) (
+					Math.pow(mOption.demeritsLine + badness, 2)
+			);
 		}
 
-		if (element instanceof Penalty && elements.get(active.data.position) instanceof Penalty) {
+		if (element instanceof Penalty &&
+				elements.get(active.data.position) instanceof Penalty) {
 			Penalty penalty = (Penalty) element;
-			Penalty activeElement = (Penalty) elements.get(active.data.position);
-			if (penalty.isFlag() && activeElement.isFlag()) {
+			Penalty activePenalty = (Penalty) elements.get(active.data.position);
+			if (penalty.isFlag() && activePenalty.isFlag()) {
 				demerits += mOption.demeritsFlagged;
 			}
 		}
 
-		// Add a fitness penalty to the demerits if the fitness classes of two adjacent lines
-		// differ too much.
 		if (Math.abs(currentClass - active.data.fitnessClazz) > 1) {
 			demerits += mOption.demeritsFitness;
 		}
 
-		// Add the total demerits of the active node to get the total demerits of this candidate node.
+		// 叠加total demerits
 		demerits += active.data.demerits;
-
 
 		return demerits;
 	}
