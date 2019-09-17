@@ -12,8 +12,6 @@ public class Box<Extra> implements Element {
 	private float mHeight;
 	private Extra mExtra;
 	private boolean mPenalty = false;
-	private boolean mDoNotDraw = false;
-	private boolean mDirty = false;
 
 	public Box(@NonNull String text, float width, float height) {
 		this(text, width, height, null);
@@ -38,7 +36,6 @@ public class Box<Extra> implements Element {
 	@Hidden
 	public void append(@NonNull String text) {
 		mText = mText + text;
-		mDirty = true;
 	}
 
 	public Extra getExtra() {
@@ -76,14 +73,6 @@ public class Box<Extra> implements Element {
 		mPenalty = penalty;
 	}
 
-	public void setDoNotDraw(boolean doNotDraw) {
-		mDoNotDraw = doNotDraw;
-	}
-
-	public boolean isDoNotDraw() {
-		return mDoNotDraw;
-	}
-
 	@Override
 	public String toString() {
 		return "Box{" +
@@ -93,15 +82,5 @@ public class Box<Extra> implements Element {
 				", mExtra=" + mExtra +
 				", mPenalty=" + mPenalty +
 				'}';
-	}
-
-	@Hidden
-	public boolean isDirty() {
-		return mDirty;
-	}
-
-	@Hidden
-	public void clear() {
-		mDirty = false;
 	}
 }

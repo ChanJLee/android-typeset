@@ -102,6 +102,7 @@ public class TexTypesetter implements Typesetter {
 										LineAttributes lineAttributes) {
 		List<Line> lines = new ArrayList<>();
 		int lineStart = 0;
+		int size = elements.size();
 		for (int i = 1; i < breakPoints.size(); ++i) {
 			BreakPoint breakPoint = breakPoints.get(i);
 			int pos = breakPoint.position;
@@ -113,57 +114,55 @@ public class TexTypesetter implements Typesetter {
 				}
 			}
 
-			List<? extends Element> lineElements = elements.subList(lineStart, pos + 1);
+			int lineEnd = pos + 1;
+			if (lineEnd > size) {
+				lineEnd = size;
+			}
+
 			lines.add(createLine(
-					i - 1,
-					lineElements,
+					elements,
+					lineStart,
+					lineEnd,
 					lineAttributes,
 					i + 1 == breakPoints.size(),
-					breakPoint.ratio));
+					breakPoint.ratio,
+					i - 1));
 			lineStart = pos;
 		}
 		return lines;
 	}
 
-	private Line createLine(int lineNumber, List<? extends Element> lineElements,
-							LineAttributes lineAttributes, boolean lastLine, float ratio) {
+	private Line createLine(List<? extends Element> lineElements, int start, int end,
+							LineAttributes lineAttributes, boolean lastLine, float ratio, int lineNumber) {
 		float lineHeight = 0;
 		float wordWidth = 0;
 		Rect bound = new Rect();
-		int boxCount = 0;
-		int size = lineElements.size();
-		for (int i = 0; i < size; ++i) {
+		List<Box<?>> boxes = new ArrayList<>();
+		for (int i = start; i < end; ++i) {
 			Element element = lineElements.get(i);
 			if (!(element instanceof Box)) {
 				continue;
 			}
 
-			++boxCount;
 			Box<?> box = (Box<?>) lineElements.get(i);
-			i = mergeBox(box, i + 1, lineElements);
-
-			if (box.isDirty()) {
-				String content = box.getText();
-				mPaint.getTextBounds(content, 0, content.length(), bound);
-				box.setWidth(Layout.getDesiredWidth(content, mPaint));
-				box.setHeight(bound.height());
-				box.clear();
-			}
+			i = mergeBox(box, i + 1, end, lineElements, bound);
 
 			if (lineHeight < box.getHeight()) {
 				lineHeight = box.getHeight();
 			}
 			wordWidth += box.getWidth();
+			boxes.add(box);
 		}
 
 		float spaceWidth = mOption.spaceWidth;
+		int boxCount = boxes.size();
 		if (boxCount > 1 && !lastLine) {
 			float lineWidth = lineAttributes.get(lineNumber).getLineWidth();
 			spaceWidth = (lineWidth - wordWidth) / (boxCount - 1);
 		}
 
 		return new Line(
-				lineElements,
+				boxes,
 				lineHeight,
 				spaceWidth,
 				ratio
@@ -171,14 +170,14 @@ public class TexTypesetter implements Typesetter {
 	}
 
 	/**
-	 * @param index        merge 开始的位置
+	 * @param start        merge 开始的位置
 	 * @param lineElements 当前行
 	 * @return 最后一个能被处理的index
 	 */
-	private int mergeBox(Box<?> box, int index, List<? extends Element> lineElements) {
-		int size = lineElements.size();
-		for (; index < size; ++index) {
-			Element element = lineElements.get(index);
+	private int mergeBox(Box<?> box, int start, int end, List<? extends Element> lineElements, Rect bound) {
+		boolean modified = false;
+		for (; start < end; ++start) {
+			Element element = lineElements.get(start);
 			if (element instanceof Glue) {
 				break;
 			}
@@ -186,22 +185,30 @@ public class TexTypesetter implements Typesetter {
 			if (element instanceof Box) {
 				Box<?> other = (Box<?>) element;
 				if (!box.canMerge(other)) {
-					--index;
+					--start;
 					break;
 				}
 
-				other.setDoNotDraw(true);
 				box.append(other.getText());
+				modified = true;
 				continue;
 			}
 
-			if (element instanceof Penalty && index == size - 1) {
+			if (element instanceof Penalty && start == end - 1) {
+				modified = true;
 				box.append("-");
 				box.setPenalty(true);
 			}
 		}
 
-		return index;
+		if (modified) {
+			String content = box.getText();
+			mPaint.getTextBounds(content, 0, content.length(), bound);
+			box.setWidth(Layout.getDesiredWidth(content, mPaint));
+			box.setHeight(bound.height());
+		}
+
+		return start;
 	}
 
 	private List<BreakPoint> chooseBreakPoints(List<Node> activeNodes) {

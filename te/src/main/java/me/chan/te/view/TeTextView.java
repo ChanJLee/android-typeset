@@ -15,7 +15,6 @@ import java.util.List;
 
 import me.chan.te.annotations.Hidden;
 import me.chan.te.data.Box;
-import me.chan.te.data.Element;
 import me.chan.te.data.Gravity;
 import me.chan.te.data.Line;
 import me.chan.te.data.LineAttribute;
@@ -24,21 +23,21 @@ import me.chan.te.data.Paragraph;
 import me.chan.te.log.Log;
 
 @Hidden
-public class TextureView extends View implements GestureDetector.OnGestureListener {
+public class TeTextView extends View implements GestureDetector.OnGestureListener {
 	private Paragraph mParagraph;
 	private LineAttributes mLineAttributes;
 	private Paint mPaint;
 	private Paint mDebugPaint;
 
-	public TextureView(Context context) {
+	public TeTextView(Context context) {
 		super(context);
 	}
 
-	public TextureView(Context context, AttributeSet attrs) {
+	public TeTextView(Context context, AttributeSet attrs) {
 		super(context, attrs);
 	}
 
-	public TextureView(Context context, AttributeSet attrs, int defStyleAttr) {
+	public TeTextView(Context context, AttributeSet attrs, int defStyleAttr) {
 		super(context, attrs, defStyleAttr);
 	}
 
@@ -146,22 +145,19 @@ public class TextureView extends View implements GestureDetector.OnGestureListen
 	}
 
 	private void draw(Canvas canvas, Line line, float x, float y, float lineSpace) {
-		List<? extends Element> elements = line.getElements();
+		List<Box<?>> boxes = line.getBoxes();
 
-		for (int i = 0; i < elements.size(); ++i) {
-			Element element = elements.get(i);
-			if (!(element instanceof Box)) {
-				continue;
-			}
+		if (mDebugMode) {
+			d("=========================");
+		}
 
-			Box<?> box = (Box<?>) element;
-			if (box.isDoNotDraw()) {
-				continue;
-			}
+		for (int i = 0; i < boxes.size(); ++i) {
+			Box<?> box = boxes.get(i);
 
 			if (mDebugMode) {
 				mDebugPaint.setColor(Color.GREEN);
 				canvas.drawRect(x, (float) Math.ceil(y - line.getLineHeight()), (float) Math.ceil(x + box.getWidth()), y, mDebugPaint);
+				d(box.getText());
 			}
 
 			canvas.drawText(box.getText(), x, y, mPaint);
@@ -207,20 +203,13 @@ public class TextureView extends View implements GestureDetector.OnGestureListen
 			return false;
 		}
 
-		List<? extends Element> elements = targetLine.getElements();
-		int elementSize = elements.size();
+		List<Box<?>> boxes = targetLine.getBoxes();
+
+		int boxSize = boxes.size();
 		float offsetX = getPaddingLeft();
 		Box<?> target = null;
-		for (int i = 0; i < elementSize; ++i) {
-			Element element = elements.get(i);
-			if (!(element instanceof Box)) {
-				continue;
-			}
-
-			Box<?> box = (Box<?>) element;
-			if (box.isDoNotDraw()) {
-				continue;
-			}
+		for (int i = 0; i < boxSize; ++i) {
+			Box<?> box = boxes.get(i);
 
 			float nextOffsetX = offsetX + box.getWidth();
 			if (offsetX <= x && x <= nextOffsetX) {
@@ -248,26 +237,12 @@ public class TextureView extends View implements GestureDetector.OnGestureListen
 			return false;
 		}
 
-		List<? extends Element> elements = lines.get(nextLineNumber).getElements();
-		if (elements == null || elements.isEmpty()) {
+		List<Box<?>> boxes = lines.get(nextLineNumber).getBoxes();
+		if (boxes == null || boxes.isEmpty()) {
 			return false;
 		}
 
-		Box<?> suffix = null;
-		for (Element element : elements) {
-			if (!(element instanceof Box)) {
-				continue;
-			}
-
-			Box<?> box = (Box<?>) element;
-			if (box.isDoNotDraw()) {
-				continue;
-			}
-
-			suffix = box;
-			break;
-		}
-
+		Box<?> suffix = boxes.get(0);
 		String prefix = current.getText();
 		if (prefix != null && prefix.length() >= 1) {
 			prefix = prefix.substring(0, prefix.length() - 1);
@@ -309,6 +284,6 @@ public class TextureView extends View implements GestureDetector.OnGestureListen
 	}
 
 	private static void d(String msg) {
-		Log.d("TextureView", msg);
+		Log.d("TeTextView", msg);
 	}
 }
