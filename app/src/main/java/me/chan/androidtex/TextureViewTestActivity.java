@@ -1,11 +1,11 @@
 package me.chan.androidtex;
 
 import android.graphics.Paint;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.text.TextPaint;
 import android.util.TypedValue;
 import android.view.View;
@@ -35,7 +35,7 @@ public class TextureViewTestActivity extends AppCompatActivity {
 		setContentView(R.layout.activity_texture_view_test);
 
 		final TeTextView teTextView = findViewById(R.id.text);
-		teTextView.setSelectable(true);
+		teTextView.setSelectionMode(TeTextView.SELECTION_MODE_CLICK);
 		findViewById(R.id.debug).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {

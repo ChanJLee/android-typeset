@@ -24,10 +24,16 @@ import me.chan.te.log.Log;
 
 @Hidden
 public class TeTextView extends View implements GestureDetector.OnGestureListener {
+	public static final int SELECTION_MODE_NONE = 0;
+	public static final int SELECTION_MODE_CLICK = 1;
+	public static final int SELECTION_MODE_LONG_PRESS = 2;
+
 	private Paragraph mParagraph;
 	private LineAttributes mLineAttributes;
 	private Paint mPaint;
 	private Paint mDebugPaint;
+	private int mSelectionMode = SELECTION_MODE_NONE;
+	private GestureDetector mGestureDetector = null;
 
 	public TeTextView(Context context) {
 		super(context);
@@ -67,28 +73,31 @@ public class TeTextView extends View implements GestureDetector.OnGestureListene
 		return mDebugMode;
 	}
 
-	private boolean mSelectable = false;
-	private GestureDetector mGestureDetector = null;
-
 	public boolean isSelectable() {
-		return mSelectable;
+		return mSelectionMode != SELECTION_MODE_NONE;
 	}
 
-	public void setSelectable(boolean selectable) {
-		mSelectable = selectable;
-		if (mGestureDetector == null) {
-			mGestureDetector = new GestureDetector(getContext(), this);
+	public void setSelectionMode(int mode) {
+		if (mode != SELECTION_MODE_NONE &&
+				mode != SELECTION_MODE_CLICK &&
+				mode != SELECTION_MODE_LONG_PRESS) {
+			throw new IllegalArgumentException("invalid selection mode:" + mode);
 		}
+
+		mSelectionMode = mode;
 	}
 
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
-		if (!mSelectable ||
+		if (!isSelectable() ||
 				mParagraph == null ||
 				mParagraph.getLines() == null) {
 			return super.onTouchEvent(event);
 		}
-
+		if (mGestureDetector == null) {
+			mGestureDetector = new GestureDetector(getContext(), this);
+		}
+		mGestureDetector.setIsLongpressEnabled(mSelectionMode == SELECTION_MODE_LONG_PRESS);
 		return mGestureDetector.onTouchEvent(event);
 	}
 
@@ -244,7 +253,7 @@ public class TeTextView extends View implements GestureDetector.OnGestureListene
 
 		Box<?> suffix = boxes.get(0);
 		String prefix = current.getText();
-		if (prefix != null && prefix.length() >= 1) {
+		if (prefix.length() >= 1) {
 			prefix = prefix.substring(0, prefix.length() - 1);
 		}
 
@@ -264,7 +273,7 @@ public class TeTextView extends View implements GestureDetector.OnGestureListene
 
 	@Override
 	public boolean onSingleTapUp(MotionEvent e) {
-		return handleClicked(e.getX(), e.getY());
+		return mSelectionMode == SELECTION_MODE_CLICK && handleClicked(e.getX(), e.getY());
 	}
 
 	@Override
@@ -274,7 +283,9 @@ public class TeTextView extends View implements GestureDetector.OnGestureListene
 
 	@Override
 	public void onLongPress(MotionEvent e) {
-		/* do nothing */
+		if (mSelectionMode == SELECTION_MODE_LONG_PRESS) {
+			handleClicked(e.getX(), e.getY());
+		}
 	}
 
 	@Override
