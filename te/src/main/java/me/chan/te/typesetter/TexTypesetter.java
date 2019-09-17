@@ -19,7 +19,6 @@ import me.chan.te.data.Node;
 import me.chan.te.data.Option;
 import me.chan.te.data.Paragraph;
 import me.chan.te.data.Penalty;
-import me.chan.te.data.Point;
 import me.chan.te.data.Sum;
 import me.chan.te.log.Log;
 
@@ -70,9 +69,9 @@ public class TexTypesetter implements Typesetter {
 	private List<Node> createActiveNodes(List<? extends Element> elements, LineAttributes lineAttributes, float tolerance) {
 		List<Node> activeNodes = new ArrayList<>();
 
-		Point point = new Point();
-		point.totals = new Sum();
-		activeNodes.add(new Node(point, null, null));
+		Node.Data data = new Node.Data();
+		data.totals = new Sum();
+		activeNodes.add(new Node(data, null, null));
 		Sum sum = new Sum();
 
 		for (int i = 0; i < elements.size() && !Thread.currentThread().isInterrupted(); ++i) {
@@ -299,16 +298,16 @@ public class TexTypesetter implements Typesetter {
 				continue;
 			}
 
-			Point point = new Point();
-			point.position = index;
-			point.demerits = candidate.demerits;
-			point.ratio = candidate.ratio;
-			point.line = candidate.active.data.line + 1;
-			point.fitnessClazz = i;
-			point.totals = sum;
-			point.prev = candidate.active;
+			Node.Data data = new Node.Data();
+			data.position = index;
+			data.demerits = candidate.demerits;
+			data.ratio = candidate.ratio;
+			data.line = candidate.active.data.line + 1;
+			data.fitnessClazz = i;
+			data.totals = sum;
+			data.prev = candidate.active;
 
-			Node node = new Node(point, null, null);
+			Node node = new Node(data, null, null);
 			if (active != null) {
 				node.prev = active.prev;
 				if (active.prev != null) {
@@ -358,8 +357,8 @@ public class TexTypesetter implements Typesetter {
 		}
 	}
 
-	private float computeRatio(Element element, Point point, Sum sum, float lineLength) {
-		float width = sum.width - point.totals.width;
+	private float computeRatio(Element element, Node.Data data, Sum sum, float lineLength) {
+		float width = sum.width - data.totals.width;
 		float stretch = 0;
 		float shrink = 0;
 		if (element instanceof Penalty) {
@@ -367,19 +366,17 @@ public class TexTypesetter implements Typesetter {
 		}
 
 		if (width < lineLength) {
-			stretch = sum.stretch - point.totals.stretch;
+			stretch = sum.stretch - data.totals.stretch;
 			return stretch > 0 ? (lineLength - width) / stretch : mOption.infinity;
 		} else if (width > lineLength) {
-			shrink = sum.shrink - point.totals.shrink;
+			shrink = sum.shrink - data.totals.shrink;
 			return shrink > 0 ? (lineLength - width) / shrink : mOption.infinity;
 		}
 
-		// perfect match
 		return 0;
 	}
 
 	private float computeDemerits(Element element, List<? extends Element> elements, float ratio, Node active, int currentClass) {
-		// compute demerits & class
 		float badness = (float) (100 * Math.pow(Math.abs(ratio), 3));
 		float demerits;
 
@@ -417,8 +414,6 @@ public class TexTypesetter implements Typesetter {
 		return demerits;
 	}
 
-	// Add width, stretch and shrink values from the current
-	// break point up to the next box or forced penalty.
 	private Sum computeSum(int index, List<? extends Element> elements, Sum sum) {
 		Sum result = new Sum(sum);
 
