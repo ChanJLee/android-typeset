@@ -3,20 +3,20 @@ package me.chan.te.data;
 import java.util.List;
 
 public class Line {
-	private List<? extends Element> mElements;
+	private List<Box<?>> mBoxes;
 	private float mLineHeight;
 	private float mSpaceWidth;
 	private float mRatio;
 
-	public Line(List<? extends Element> elements, float lineHeight, float spaceWidth, float ratio) {
-		mElements = elements;
+	public Line(List<Box<?>> boxes, float lineHeight, float spaceWidth, float ratio) {
+		mBoxes = boxes;
 		mLineHeight = lineHeight;
 		mSpaceWidth = spaceWidth;
 		mRatio = ratio;
 	}
 
-	public List<? extends Element> getElements() {
-		return mElements;
+	public List<Box<?>> getBoxes() {
+		return mBoxes;
 	}
 
 	public float getLineHeight() {
