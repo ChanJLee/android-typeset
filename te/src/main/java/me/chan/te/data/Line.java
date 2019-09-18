@@ -3,19 +3,19 @@ package me.chan.te.data;
 import java.util.List;
 
 public class Line {
-	private List<Box<?>> mBoxes;
+	private List<Box> mBoxes;
 	private float mLineHeight;
 	private float mSpaceWidth;
 	private float mRatio;
 
-	public Line(List<Box<?>> boxes, float lineHeight, float spaceWidth, float ratio) {
+	public Line(List<Box> boxes, float lineHeight, float spaceWidth, float ratio) {
 		mBoxes = boxes;
 		mLineHeight = lineHeight;
 		mSpaceWidth = spaceWidth;
 		mRatio = ratio;
 	}
 
-	public List<Box<?>> getBoxes() {
+	public List<Box> getBoxes() {
 		return mBoxes;
 	}
 

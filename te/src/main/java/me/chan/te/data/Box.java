@@ -4,24 +4,18 @@ import android.support.annotation.NonNull;
 
 import me.chan.te.annotations.Hidden;
 
-public class Box<Extra> implements Element {
+public class Box implements Element {
 
 	@NonNull
 	private String mText;
 	private float mWidth;
 	private float mHeight;
-	private Extra mExtra;
 	private boolean mPenalty = false;
 
 	public Box(@NonNull String text, float width, float height) {
-		this(text, width, height, null);
-	}
-
-	public Box(@NonNull String text, float width, float height, Extra extra) {
 		mText = text;
 		mWidth = width;
 		mHeight = height;
-		mExtra = extra;
 	}
 
 	public void setWidth(float width) {
@@ -34,16 +28,13 @@ public class Box<Extra> implements Element {
 	}
 
 	@Hidden
-	public void append(@NonNull String text) {
-		mText = mText + text;
+	public void append(Box other) {
+		mText = mText + other.mText;
 	}
 
-	public Extra getExtra() {
-		return mExtra;
-	}
-
-	public void setExtra(Extra extra) {
-		mExtra = extra;
+	@Hidden
+	public void append(String s) {
+		mText = mText + s;
 	}
 
 	@Override
@@ -60,7 +51,7 @@ public class Box<Extra> implements Element {
 	}
 
 	@Hidden
-	public boolean canMerge(Box<?> other) {
+	public boolean canMerge(Box other) {
 		return true;
 	}
 
@@ -79,7 +70,6 @@ public class Box<Extra> implements Element {
 				"mText='" + mText + '\'' +
 				", mWidth=" + mWidth +
 				", mHeight=" + mHeight +
-				", mExtra=" + mExtra +
 				", mPenalty=" + mPenalty +
 				'}';
 	}
