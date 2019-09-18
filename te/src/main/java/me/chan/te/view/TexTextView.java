@@ -36,8 +36,8 @@ public class TexTextView extends View implements GestureDetector.OnGestureListen
 	private int mSelectionMode = SELECTION_MODE_NONE;
 	private GestureDetector mGestureDetector = null;
 	private OnTextSelectedListener mOnTextSelectedListener;
-	private Box<?> mSelectedBox;
-	private Box<?> mSelectedSuffix;
+	private Box mSelectedBox;
+	private Box mSelectedSuffix;
 
 	public TexTextView(Context context) {
 		super(context);
@@ -158,14 +158,14 @@ public class TexTextView extends View implements GestureDetector.OnGestureListen
 	}
 
 	private void draw(Canvas canvas, Line line, float x, float y, float lineSpace) {
-		List<Box<?>> boxes = line.getBoxes();
+		List<Box> boxes = line.getBoxes();
 
 		if (mDebugMode) {
 			d("=========================");
 		}
 
 		for (int i = 0; i < boxes.size(); ++i) {
-			Box<?> box = boxes.get(i);
+			Box box = boxes.get(i);
 
 			if (mDebugMode) {
 				mDebugPaint.setColor(Color.GREEN);
@@ -216,13 +216,13 @@ public class TexTextView extends View implements GestureDetector.OnGestureListen
 			return false;
 		}
 
-		List<Box<?>> boxes = targetLine.getBoxes();
+		List<Box> boxes = targetLine.getBoxes();
 
 		int boxSize = boxes.size();
 		float offsetX = getPaddingLeft();
-		Box<?> target = null;
+		Box target = null;
 		for (int i = 0; i < boxSize; ++i) {
-			Box<?> box = boxes.get(i);
+			Box box = boxes.get(i);
 
 			float nextOffsetX = offsetX + box.getWidth();
 			if (offsetX <= x && x <= nextOffsetX) {
@@ -249,17 +249,17 @@ public class TexTextView extends View implements GestureDetector.OnGestureListen
 		return true;
 	}
 
-	private boolean handleClickedPenaltyBox(Box<?> current, List<Line> lines, int nextLineNumber) {
+	private boolean handleClickedPenaltyBox(Box current, List<Line> lines, int nextLineNumber) {
 		if (nextLineNumber < 0 || nextLineNumber >= lines.size()) {
 			return false;
 		}
 
-		List<Box<?>> boxes = lines.get(nextLineNumber).getBoxes();
+		List<Box> boxes = lines.get(nextLineNumber).getBoxes();
 		if (boxes == null || boxes.isEmpty()) {
 			return false;
 		}
 
-		Box<?> suffix = boxes.get(0);
+		Box suffix = boxes.get(0);
 		mSelectedBox = current;
 		mSelectedSuffix = suffix;
 		if (mOnTextSelectedListener != null) {
@@ -306,7 +306,7 @@ public class TexTextView extends View implements GestureDetector.OnGestureListen
 	}
 
 	public interface OnTextSelectedListener {
-		void onTextSelected(TexTextView view, Box<?> box, @Nullable Box<?> suffix);
+		void onTextSelected(TexTextView view, Box box, @Nullable Box suffix);
 	}
 
 	private static void d(String msg) {

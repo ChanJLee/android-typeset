@@ -136,14 +136,14 @@ public class TexTypesetter implements Typesetter {
 		float lineHeight = 0;
 		float wordWidth = 0;
 		Rect bound = new Rect();
-		List<Box<?>> boxes = new ArrayList<>();
+		List<Box> boxes = new ArrayList<>();
 		for (int i = start; i < end; ++i) {
 			Element element = lineElements.get(i);
 			if (!(element instanceof Box)) {
 				continue;
 			}
 
-			Box<?> box = (Box<?>) lineElements.get(i);
+			Box box = (Box) lineElements.get(i);
 			i = mergeBox(box, i + 1, end, lineElements, bound);
 
 			if (lineHeight < box.getHeight()) {
@@ -173,7 +173,7 @@ public class TexTypesetter implements Typesetter {
 	 * @param lineElements 当前行
 	 * @return 最后一个能被处理的index
 	 */
-	private int mergeBox(Box<?> box, int start, int end, List<? extends Element> lineElements, Rect bound) {
+	private int mergeBox(Box box, int start, int end, List<? extends Element> lineElements, Rect bound) {
 		boolean modified = false;
 		for (; start < end; ++start) {
 			Element element = lineElements.get(start);
@@ -182,13 +182,13 @@ public class TexTypesetter implements Typesetter {
 			}
 
 			if (element instanceof Box) {
-				Box<?> other = (Box<?>) element;
+				Box other = (Box) element;
 				if (!box.canMerge(other)) {
 					--start;
 					break;
 				}
 
-				box.append(other.getText());
+				box.append(other);
 				modified = true;
 				continue;
 			}
