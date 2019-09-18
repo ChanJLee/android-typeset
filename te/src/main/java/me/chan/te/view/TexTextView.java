@@ -6,6 +6,7 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
@@ -23,7 +24,7 @@ import me.chan.te.data.Paragraph;
 import me.chan.te.log.Log;
 
 @Hidden
-public class TeTextView extends View implements GestureDetector.OnGestureListener {
+public class TexTextView extends View implements GestureDetector.OnGestureListener {
 	public static final int SELECTION_MODE_NONE = 0;
 	public static final int SELECTION_MODE_CLICK = 1;
 	public static final int SELECTION_MODE_LONG_PRESS = 2;
@@ -34,16 +35,19 @@ public class TeTextView extends View implements GestureDetector.OnGestureListene
 	private Paint mDebugPaint;
 	private int mSelectionMode = SELECTION_MODE_NONE;
 	private GestureDetector mGestureDetector = null;
+	private OnTextSelectedListener mOnTextSelectedListener;
+	private Box<?> mSelectedBox;
+	private Box<?> mSelectedSuffix;
 
-	public TeTextView(Context context) {
+	public TexTextView(Context context) {
 		super(context);
 	}
 
-	public TeTextView(Context context, AttributeSet attrs) {
+	public TexTextView(Context context, AttributeSet attrs) {
 		super(context, attrs);
 	}
 
-	public TeTextView(Context context, AttributeSet attrs, int defStyleAttr) {
+	public TexTextView(Context context, AttributeSet attrs, int defStyleAttr) {
 		super(context, attrs, defStyleAttr);
 	}
 
@@ -237,7 +241,11 @@ public class TeTextView extends View implements GestureDetector.OnGestureListene
 			return handleClickedPenaltyBox(target, lines, lineNumber + 1);
 		}
 
-		d("on clicked: " + target.getText());
+		mSelectedBox = target;
+		mSelectedSuffix = null;
+		if (mOnTextSelectedListener != null) {
+			mOnTextSelectedListener.onTextSelected(this, target, null);
+		}
 		return true;
 	}
 
@@ -252,12 +260,11 @@ public class TeTextView extends View implements GestureDetector.OnGestureListene
 		}
 
 		Box<?> suffix = boxes.get(0);
-		String prefix = current.getText();
-		if (prefix.length() >= 1) {
-			prefix = prefix.substring(0, prefix.length() - 1);
+		mSelectedBox = current;
+		mSelectedSuffix = suffix;
+		if (mOnTextSelectedListener != null) {
+			mOnTextSelectedListener.onTextSelected(this, current, suffix);
 		}
-
-		d("on clicked: " + (prefix + suffix.getText()));
 		return true;
 	}
 
@@ -292,6 +299,14 @@ public class TeTextView extends View implements GestureDetector.OnGestureListene
 	public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
 		/* do nothing */
 		return false;
+	}
+
+	public void setOnTextSelectedListener(OnTextSelectedListener onTextSelectedListener) {
+		mOnTextSelectedListener = onTextSelectedListener;
+	}
+
+	public interface OnTextSelectedListener {
+		void onTextSelected(TexTextView view, Box<?> box, @Nullable Box<?> suffix);
 	}
 
 	private static void d(String msg) {

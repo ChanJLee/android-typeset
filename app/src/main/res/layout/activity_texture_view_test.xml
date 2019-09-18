@@ -12,7 +12,7 @@
         android:layout_height="wrap_content"
         android:text="开启调试信息" />
 
-    <me.chan.te.view.TeTextView
+    <me.chan.te.view.TexTextView
         android:id="@+id/text"
         android:layout_width="match_parent"
         android:layout_height="match_parent"

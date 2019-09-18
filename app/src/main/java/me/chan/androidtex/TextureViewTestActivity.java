@@ -20,7 +20,7 @@ import me.chan.te.data.Paragraph;
 import me.chan.te.hypher.Hypher;
 import me.chan.te.parser.TextParser;
 import me.chan.te.typesetter.TexTypesetter;
-import me.chan.te.view.TeTextView;
+import me.chan.te.view.TexTextView;
 
 public class TextureViewTestActivity extends AppCompatActivity {
 
@@ -34,23 +34,23 @@ public class TextureViewTestActivity extends AppCompatActivity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_texture_view_test);
 
-		final TeTextView teTextView = findViewById(R.id.text);
-		teTextView.setSelectionMode(TeTextView.SELECTION_MODE_CLICK);
+		final TexTextView texTextView = findViewById(R.id.text);
+		texTextView.setSelectionMode(TexTextView.SELECTION_MODE_CLICK);
 		findViewById(R.id.debug).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				teTextView.setDebugMode(!teTextView.isDebugMode());
+				texTextView.setDebugMode(!texTextView.isDebugMode());
 			}
 		});
 
 		mHandler = new Handler(Looper.getMainLooper()) {
 			@Override
 			public void handleMessage(Message msg) {
-				teTextView.render(mParagraph, mLineAttributes, mPaint);
+				texTextView.render(mParagraph, mLineAttributes, mPaint);
 			}
 		};
 
-		teTextView.post(new Runnable() {
+		texTextView.post(new Runnable() {
 			@Override
 			public void run() {
 				new Thread(new Runnable() {
@@ -60,7 +60,7 @@ public class TextureViewTestActivity extends AppCompatActivity {
 						mPaint.setTextAlign(Paint.Align.LEFT);
 						mPaint.setStyle(Paint.Style.FILL_AND_STROKE);
 						mPaint.setTextSize(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 18, getResources().getDisplayMetrics()));
-						LineAttribute defaultAttribute = new LineAttribute(teTextView.getWidth());
+						LineAttribute defaultAttribute = new LineAttribute(texTextView.getWidth());
 						mLineAttributes = new LineAttributes(defaultAttribute);
 
 
