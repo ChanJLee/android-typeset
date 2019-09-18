@@ -167,6 +167,19 @@ public class TexTextView extends View implements GestureDetector.OnGestureListen
 		for (int i = 0; i < boxes.size(); ++i) {
 			Box box = boxes.get(i);
 
+			if (box == mSelectedBox || box == mSelectedSuffix) {
+				Paint.FontMetrics fontMetrics = mPaint.getFontMetrics();
+				float left = x;
+				float right = (float) Math.ceil(x + box.getWidth());
+				float top = (float) Math.ceil(y - line.getLineHeight());
+				float bottom = y + fontMetrics.descent * 1.1f;
+				mPaint.setColor(Color.BLUE);
+				canvas.drawRect(left, top, right, bottom, mPaint);
+				mPaint.setColor(Color.WHITE);
+			} else {
+				mPaint.setColor(Color.BLACK);
+			}
+
 			if (mDebugMode) {
 				mDebugPaint.setColor(Color.GREEN);
 				canvas.drawRect(x, (float) Math.ceil(y - line.getLineHeight()), (float) Math.ceil(x + box.getWidth()), y, mDebugPaint);
@@ -246,6 +259,7 @@ public class TexTextView extends View implements GestureDetector.OnGestureListen
 		if (mOnTextSelectedListener != null) {
 			mOnTextSelectedListener.onTextSelected(this, target, null);
 		}
+		invalidate();
 		return true;
 	}
 
@@ -265,6 +279,7 @@ public class TexTextView extends View implements GestureDetector.OnGestureListen
 		if (mOnTextSelectedListener != null) {
 			mOnTextSelectedListener.onTextSelected(this, current, suffix);
 		}
+		invalidate();
 		return true;
 	}
 
@@ -299,6 +314,11 @@ public class TexTextView extends View implements GestureDetector.OnGestureListen
 	public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
 		/* do nothing */
 		return false;
+	}
+
+	public void clearSelected() {
+		mSelectedBox = mSelectedSuffix = null;
+		invalidate();
 	}
 
 	public void setOnTextSelectedListener(OnTextSelectedListener onTextSelectedListener) {
