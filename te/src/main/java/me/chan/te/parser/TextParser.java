@@ -12,7 +12,7 @@ import java.util.regex.Pattern;
 import me.chan.te.data.Box;
 import me.chan.te.data.Element;
 import me.chan.te.data.Glue;
-import me.chan.te.data.Option;
+import me.chan.te.config.Option;
 import me.chan.te.data.Penalty;
 import me.chan.te.hypher.Hypher;
 

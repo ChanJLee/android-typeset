@@ -9,17 +9,13 @@ import java.util.Collections;
 import java.util.List;
 
 import me.chan.te.data.Box;
-import me.chan.te.data.BreakPoint;
-import me.chan.te.data.Candidate;
 import me.chan.te.data.Element;
 import me.chan.te.data.Glue;
 import me.chan.te.data.Line;
-import me.chan.te.data.LineAttributes;
-import me.chan.te.data.Node;
-import me.chan.te.data.Option;
+import me.chan.te.config.LineAttributes;
+import me.chan.te.config.Option;
 import me.chan.te.data.Paragraph;
 import me.chan.te.data.Penalty;
-import me.chan.te.data.Sum;
 import me.chan.te.log.Log;
 
 public class TexTypesetter implements Typesetter {

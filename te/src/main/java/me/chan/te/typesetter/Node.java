@@ -1,4 +1,4 @@
-package me.chan.te.data;
+package me.chan.te.typesetter;
 
 public class Node {
 	public Data data;

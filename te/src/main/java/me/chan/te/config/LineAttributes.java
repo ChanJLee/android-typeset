@@ -1,4 +1,4 @@
-package me.chan.te.data;
+package me.chan.te.config;
 
 import android.annotation.SuppressLint;
 

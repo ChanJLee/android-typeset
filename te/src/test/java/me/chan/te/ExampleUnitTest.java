@@ -9,9 +9,9 @@ import java.util.List;
 
 import me.chan.te.data.Element;
 import me.chan.te.data.Glue;
-import me.chan.te.data.LineAttribute;
-import me.chan.te.data.LineAttributes;
-import me.chan.te.data.Option;
+import me.chan.te.config.LineAttribute;
+import me.chan.te.config.LineAttributes;
+import me.chan.te.config.Option;
 import me.chan.te.data.Paragraph;
 import me.chan.te.data.Penalty;
 import me.chan.te.hypher.Hypher;
