@@ -1,4 +1,6 @@
-package me.chan.te.data;
+package me.chan.te.config;
+
+import me.chan.te.data.Gravity;
 
 public class LineAttribute {
 	private float mLineWidth;

@@ -18,8 +18,8 @@ import me.chan.te.annotations.Hidden;
 import me.chan.te.data.Box;
 import me.chan.te.data.Gravity;
 import me.chan.te.data.Line;
-import me.chan.te.data.LineAttribute;
-import me.chan.te.data.LineAttributes;
+import me.chan.te.config.LineAttribute;
+import me.chan.te.config.LineAttributes;
 import me.chan.te.data.Paragraph;
 import me.chan.te.log.Log;
 
