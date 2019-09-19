@@ -34,7 +34,7 @@ public class TexView extends FrameLayout {
 		super(context, attrs, defStyleAttr);
 
 		RecyclerView recyclerView = new RecyclerView(context);
-		recyclerView.setPadding(10, 10, 10, 10);
+		recyclerView.setPadding(0, 20, 0, 20);
 		recyclerView.setClipToPadding(false);
 		recyclerView.setClipChildren(false);
 		addView(recyclerView, new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
