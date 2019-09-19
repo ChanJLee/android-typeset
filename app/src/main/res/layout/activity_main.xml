@@ -11,4 +11,10 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="测试TextureView" />
+
+    <Button
+        android:id="@+id/button2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="测试全文本" />
 </LinearLayout>

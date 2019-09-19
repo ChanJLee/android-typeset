@@ -17,11 +17,17 @@ public class Option {
 	public float spaceWidth;
 	public float spaceStretch;
 	public float spaceShrink;
+	public float indent;
+	public float lineSpacing;
 
 	public Option(TextPaint paint) {
 		hyphenWidth = paint.measureText("-");
 		spaceWidth = Layout.getDesiredWidth(" ", paint);
 		spaceStretch = (spaceWidth * 3) / 6;
-		spaceShrink =  (spaceWidth * 3) / 9;
+		spaceShrink = (spaceWidth * 3) / 9;
+		// 首行缩进四个空格
+		indent = spaceWidth * 4;
+		// 1.0 倍行间距
+		lineSpacing = (int) (paint.getFontSpacing());
 	}
 }

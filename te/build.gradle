@@ -14,6 +14,8 @@ android {
 
     }
 
+    resourcePrefix "me_chan_te_"
+
     testOptions {
         unitTests.returnDefaultValues = true
     }
