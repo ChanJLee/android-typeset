@@ -46,7 +46,7 @@ public class TextureViewTestActivity extends AppCompatActivity {
 		mHandler = new Handler(Looper.getMainLooper()) {
 			@Override
 			public void handleMessage(Message msg) {
-				texTextView.render(mParagraph, mLineAttributes, mPaint);
+				texTextView.render(mParagraph, mPaint);
 			}
 		};
 

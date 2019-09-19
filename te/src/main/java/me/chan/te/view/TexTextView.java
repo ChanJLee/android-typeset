@@ -30,7 +30,6 @@ public class TexTextView extends View implements GestureDetector.OnGestureListen
 	public static final int SELECTION_MODE_LONG_PRESS = 2;
 
 	private Paragraph mParagraph;
-	private LineAttributes mLineAttributes;
 	private Paint mPaint;
 	private Paint mDebugPaint;
 	private int mSelectionMode = SELECTION_MODE_NONE;
@@ -52,10 +51,8 @@ public class TexTextView extends View implements GestureDetector.OnGestureListen
 	}
 
 	public void render(@NonNull Paragraph paragraph,
-					   @NonNull LineAttributes lineAttributes,
 					   @NonNull Paint paint) {
 		mParagraph = paragraph;
-		mLineAttributes = lineAttributes;
 		mPaint = paint;
 		requestLayout();
 	}
@@ -109,12 +106,13 @@ public class TexTextView extends View implements GestureDetector.OnGestureListen
 	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
 		if (mParagraph != null && mParagraph.getLines() != null &&
 				!mParagraph.getLines().isEmpty()) {
+			LineAttributes lineAttributes = mParagraph.getLineAttributes();
 			List<Line> lines = mParagraph.getLines();
 			int height = getPaddingTop() + getPaddingBottom();
 			for (int i = 0; i < lines.size(); ++i) {
 				Line line = lines.get(i);
 				height += line.getLineHeight();
-				height += mLineAttributes.get(i).getLineVerticalSpace();
+				height += lineAttributes.get(i).getLineVerticalSpace();
 			}
 
 			heightMeasureSpec = MeasureSpec.makeMeasureSpec(
@@ -131,7 +129,6 @@ public class TexTextView extends View implements GestureDetector.OnGestureListen
 		super.onDraw(canvas);
 		if (mParagraph == null ||
 				mParagraph.getLines() == null ||
-				mLineAttributes == null ||
 				mPaint == null) {
 			return;
 		}
@@ -139,12 +136,13 @@ public class TexTextView extends View implements GestureDetector.OnGestureListen
 		float y = getPaddingTop();
 		float width = getWidth();
 
+		LineAttributes lineAttributes = mParagraph.getLineAttributes();
 		List<Line> lines = mParagraph.getLines();
 		for (int i = 0; i < lines.size(); ++i) {
 			Line line = lines.get(i);
 			y += line.getLineHeight();
 			float x = getPaddingLeft();
-			LineAttribute lineAttribute = mLineAttributes.get(i);
+			LineAttribute lineAttribute = lineAttributes.get(i);
 			if (lineAttribute.getGravity() == Gravity.CENTER) {
 				x = (width - lineAttribute.getLineWidth()) / 2f;
 			} else if (lineAttribute.getGravity() == Gravity.RIGHT) {
@@ -209,6 +207,7 @@ public class TexTextView extends View implements GestureDetector.OnGestureListen
 			return false;
 		}
 
+		LineAttributes lineAttributes = mParagraph.getLineAttributes();
 		List<Line> lines = mParagraph.getLines();
 		int size = lines.size();
 		Line targetLine = null;
@@ -222,7 +221,7 @@ public class TexTextView extends View implements GestureDetector.OnGestureListen
 				break;
 			}
 
-			offsetY = (nextOffsetY + mLineAttributes.get(lineNumber).getLineVerticalSpace());
+			offsetY = (nextOffsetY + lineAttributes.get(lineNumber).getLineVerticalSpace());
 		}
 
 		if (targetLine == null) {

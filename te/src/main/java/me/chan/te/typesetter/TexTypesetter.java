@@ -34,7 +34,7 @@ public class TexTypesetter implements Typesetter {
 
 	@Override
 	public Paragraph typeset(List<? extends Element> elements, LineAttributes lineAttributes) {
-		Paragraph paragraph = new Paragraph();
+		Paragraph paragraph = new Paragraph(lineAttributes);
 
 		List<Node> activeNodes = null;
 		for (int i = 0; i < mOption.maxRelayoutTimes &&
