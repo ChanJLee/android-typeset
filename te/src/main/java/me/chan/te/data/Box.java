@@ -1,6 +1,5 @@
 package me.chan.te.data;
 
-import android.graphics.Rect;
 import android.support.annotation.NonNull;
 
 import me.chan.te.annotations.Hidden;
@@ -73,9 +72,5 @@ public class Box implements Element {
 				", mHeight=" + mHeight +
 				", mPenalty=" + mPenalty +
 				'}';
-	}
-
-	public void relayout(Rect bound) {
-
 	}
 }
