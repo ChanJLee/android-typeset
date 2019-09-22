@@ -38,6 +38,7 @@ public class TexTextView extends View implements GestureDetector.OnGestureListen
 	private OnTextSelectedListener mOnTextSelectedListener;
 	private Box mSelectedBox;
 	private Box mSelectedSuffix;
+	private TextPaint mWorkPaint = new TextPaint();
 
 	public TexTextView(Context context) {
 		super(context);
