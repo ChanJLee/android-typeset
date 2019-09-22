@@ -1,8 +1,8 @@
 package me.chan.te.renderer;
 
-import android.graphics.Paint;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextPaint;
 import android.view.View;
 
 import me.chan.te.data.Paragraph;
@@ -17,7 +17,7 @@ class TexViewHolder extends RecyclerView.ViewHolder {
 		mTexTextView = (TexTextView) itemView;
 	}
 
-	public void render(Paragraph paragraph, Paint paint) {
+	public void render(Paragraph paragraph, TextPaint paint) {
 		mTexTextView.render(paragraph, paint);
 	}
 }

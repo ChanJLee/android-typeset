@@ -7,6 +7,7 @@ import android.graphics.Paint;
 import android.graphics.Rect;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.text.TextPaint;
 import android.util.AttributeSet;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
@@ -30,7 +31,7 @@ public class TexTextView extends View implements GestureDetector.OnGestureListen
 	public static final int SELECTION_MODE_LONG_PRESS = 2;
 
 	private Paragraph mParagraph;
-	private Paint mPaint;
+	private TextPaint mPaint;
 	private Paint mDebugPaint;
 	private int mSelectionMode = SELECTION_MODE_NONE;
 	private GestureDetector mGestureDetector = null;
@@ -51,7 +52,7 @@ public class TexTextView extends View implements GestureDetector.OnGestureListen
 	}
 
 	public void render(@NonNull Paragraph paragraph,
-					   @NonNull Paint paint) {
+					   @NonNull TextPaint paint) {
 		mParagraph = paragraph;
 		mPaint = paint;
 		requestLayout();
