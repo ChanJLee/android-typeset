@@ -1,5 +1,7 @@
 package me.chan.te.data;
 
+import android.graphics.Canvas;
+import android.graphics.Paint;
 import android.support.annotation.NonNull;
 
 import me.chan.te.annotations.Hidden;
@@ -72,5 +74,9 @@ public class Box implements Element {
 				", mHeight=" + mHeight +
 				", mPenalty=" + mPenalty +
 				'}';
+	}
+
+	public void draw(Canvas canvas, Paint paint, float x, float y) {
+		canvas.drawText(mText, x, y, paint);
 	}
 }

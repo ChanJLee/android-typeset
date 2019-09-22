@@ -166,18 +166,20 @@ public class TexTextView extends View implements GestureDetector.OnGestureListen
 
 		for (int i = 0; i < boxes.size(); ++i) {
 			Box box = boxes.get(i);
+			TextPaint textPaint = mWorkPaint;
+			mWorkPaint.set(mPaint);
 
 			if (box == mSelectedBox || box == mSelectedSuffix) {
-				Paint.FontMetrics fontMetrics = mPaint.getFontMetrics();
+				Paint.FontMetrics fontMetrics = textPaint.getFontMetrics();
 				float left = x;
 				float right = (float) Math.ceil(x + box.getWidth());
 				float top = (float) Math.ceil(y - line.getLineHeight());
 				float bottom = y + fontMetrics.descent * 1.1f;
-				mPaint.setColor(Color.BLUE);
-				canvas.drawRect(left, top, right, bottom, mPaint);
-				mPaint.setColor(Color.WHITE);
+				textPaint.setColor(Color.BLUE);
+				canvas.drawRect(left, top, right, bottom, textPaint);
+				textPaint.setColor(Color.WHITE);
 			} else {
-				mPaint.setColor(Color.BLACK);
+				textPaint.setColor(Color.BLACK);
 			}
 
 			if (mDebugMode) {
@@ -186,7 +188,7 @@ public class TexTextView extends View implements GestureDetector.OnGestureListen
 				d(box.getText());
 			}
 
-			canvas.drawText(box.getText(), x, y, mPaint);
+			box.draw(canvas, textPaint, x, y);
 			x += (line.getSpaceWidth() + box.getWidth());
 		}
 
