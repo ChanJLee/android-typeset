@@ -1,6 +1,6 @@
 package me.chan.te.typesetter;
 
-import android.graphics.RectF;
+import android.graphics.Rect;
 import android.text.TextPaint;
 
 import java.util.ArrayList;
@@ -26,7 +26,7 @@ public class TexTypesetter implements Typesetter {
 	private Option mOption;
 	private TextPaint mPaint;
 	private TextPaint mWorkPaint = new TextPaint();
-	private RectF mBound = new RectF();
+	private Rect mBound = new Rect();
 
 	public TexTypesetter(TextPaint paint, Option option) {
 		mOption = option;
@@ -103,11 +103,11 @@ public class TexTypesetter implements Typesetter {
 			return glue.getWidth();
 		}
 
-		RectF rectF = getBoxBound((Box) element);
-		return rectF.width();
+		Rect bound = getBoxBound((Box) element);
+		return bound.width();
 	}
 
-	private RectF getBoxBound(Box box) {
+	private Rect getBoxBound(Box box) {
 		TextPaint textPaint = getInternalPaint();
 		box.getBound(textPaint, mBound);
 		return mBound;
@@ -168,7 +168,7 @@ public class TexTypesetter implements Typesetter {
 			Box box = (Box) lineElements.get(i);
 			i = mergeBox(box, i + 1, end, lineElements);
 
-			RectF bound = getBoxBound(box);
+			Rect bound = getBoxBound(box);
 			if (lineHeight < bound.height()) {
 				lineHeight = bound.height();
 			}

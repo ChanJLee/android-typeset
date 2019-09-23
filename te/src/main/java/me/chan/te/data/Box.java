@@ -1,8 +1,7 @@
 package me.chan.te.data;
 
 import android.graphics.Canvas;
-import android.graphics.Paint;
-import android.graphics.RectF;
+import android.graphics.Rect;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.text.Layout;
@@ -41,15 +40,15 @@ public final class Box implements Element {
 		mText = String.valueOf(mText) + s;
 	}
 
-	public void getBound(TextPaint textPaint, RectF bound) {
+	public void getBound(TextPaint textPaint, Rect bound) {
 		if (mDirty) {
 			updateTextPaint(textPaint);
 			mWidth = Layout.getDesiredWidth(mText, textPaint);
-			Paint.FontMetrics fontMetrics = textPaint.getFontMetrics();
-			mHeight = fontMetrics.bottom - fontMetrics.top;
+			textPaint.getTextBounds(String.valueOf(mText), 0, mText.length(), bound);
+			mHeight = bound.height();
 		}
 
-		bound.set(0, 0, mWidth, mHeight);
+		bound.set(0, 0, (int) Math.ceil(mWidth), (int) Math.ceil(mHeight));
 	}
 
 	private void updateTextPaint(TextPaint textPaint) {

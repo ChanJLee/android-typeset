@@ -5,7 +5,6 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
-import android.graphics.RectF;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.text.TextPaint;
@@ -17,11 +16,11 @@ import android.view.View;
 import java.util.List;
 
 import me.chan.te.annotations.Hidden;
+import me.chan.te.config.LineAttribute;
+import me.chan.te.config.LineAttributes;
 import me.chan.te.data.Box;
 import me.chan.te.data.Gravity;
 import me.chan.te.data.Line;
-import me.chan.te.config.LineAttribute;
-import me.chan.te.config.LineAttributes;
 import me.chan.te.data.Paragraph;
 import me.chan.te.log.Log;
 
@@ -40,7 +39,7 @@ public class TexTextView extends View implements GestureDetector.OnGestureListen
 	private Box mSelectedBox;
 	private Box mSelectedSuffix;
 	private TextPaint mWorkPaint = new TextPaint();
-	private RectF mBound = new RectF();
+	private Rect mBound = new Rect();
 
 	public TexTextView(Context context) {
 		super(context);
@@ -64,6 +63,10 @@ public class TexTextView extends View implements GestureDetector.OnGestureListen
 	private boolean mDebugMode = false;
 
 	public void setDebugMode(boolean enable) {
+		if (mDebugMode == enable) {
+			return;
+		}
+
 		mDebugMode = enable;
 		if (mDebugMode && mDebugPaint == null) {
 			mDebugPaint = new Paint();
@@ -249,12 +252,11 @@ public class TexTextView extends View implements GestureDetector.OnGestureListen
 		int boxSize = boxes.size();
 		float offsetX = getPaddingLeft();
 		Box target = null;
-		RectF bound = new RectF();
 		for (int i = 0; i < boxSize; ++i) {
 			Box box = boxes.get(i);
 			TextPaint textPaint = getInternalPaint();
-			box.getBound(textPaint, bound);
-			float nextOffsetX = offsetX + bound.width();
+			float width = getBoxWidth(textPaint, box);
+			float nextOffsetX = offsetX + width;
 			if (offsetX <= x && x <= nextOffsetX) {
 				target = box;
 				break;
