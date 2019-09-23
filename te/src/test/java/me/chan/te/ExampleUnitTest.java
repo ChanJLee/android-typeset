@@ -2,8 +2,15 @@ package me.chan.te;
 
 import android.text.TextPaint;
 
+import org.junit.Assert;
 import org.junit.Test;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,6 +28,7 @@ import me.chan.te.typesetter.TexTypesetter;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Example local unit test, which will execute on the development machine (host).
@@ -29,7 +37,7 @@ import static org.junit.Assert.assertNotNull;
  */
 public class ExampleUnitTest {
 	@Test
-	public void addition_isCorrect() {
+	public void testFoo() {
 		String prefix = "-";
 		if (prefix != null && prefix.length() >= 1) {
 			prefix = prefix.substring(0, prefix.length() - 1);
@@ -118,5 +126,35 @@ public class ExampleUnitTest {
 		Paragraph paragraph = texTypesetter.typeset(list, lineAttributes);
 		assertNotNull(paragraph);
 		assertNotNull(paragraph.getLines());
+	}
+
+	@Test
+	public void testHypherResource() throws IOException {
+		File file = new File("../app/src/main/assets/test_words.txt");
+		System.out.println(file.getAbsolutePath());
+		assertTrue(file.exists());
+
+		int count = 0;
+		BufferedReader bufferedReader = new BufferedReader(
+				new InputStreamReader(new FileInputStream(file)));
+		String line = null;
+		List<String> buffer = new ArrayList<>();
+		Hypher hypher = Hypher.getInstance();
+		long timeStamp = System.currentTimeMillis();
+		while ((line = bufferedReader.readLine()) != null) {
+			++count;
+			assertEquals(buffer.size(), 0);
+			hypher.hyphenate(line, buffer);
+			int size = buffer.size();
+			for (int i = 0; i < size; ++i) {
+				String word = buffer.get(i);
+				Assert.assertFalse(word.isEmpty());
+				Assert.assertFalse(line, word.charAt(word.length() - 1) == '-' && i != size - 1);
+			}
+			System.out.println();
+			buffer.clear();
+		}
+
+		System.out.println("count: " + count + " used time(ms): " + (System.currentTimeMillis() - timeStamp));
 	}
 }

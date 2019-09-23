@@ -130,7 +130,9 @@ public class Hypher {
 		for (int i = 1; i < lenWithPadding - 1; i++) {
 			if (i > this.mLeftMin && i < (lenWithPadding - this.mRightMin) && points[i] % 2 > 0) {
 				int end = first + i - 1;
-				result.add(word.substring(start, end));
+				if (word.charAt(end - 1) != '-') {
+					result.add(word.substring(start, end));
+				}
 				start = end;
 			}
 		}
