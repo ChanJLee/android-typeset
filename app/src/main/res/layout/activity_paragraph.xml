@@ -6,6 +6,12 @@
     android:orientation="vertical"
     tools:context=".ParagraphActivity">
 
+    <Button
+        android:id="@+id/button1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="打开debug模式" />
+
     <me.chan.te.TexView
         android:id="@+id/text"
         android:layout_width="match_parent"

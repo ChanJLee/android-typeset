@@ -53,4 +53,11 @@ public class TexView extends FrameLayout {
 		return mText;
 	}
 
+	public void setDebugMode(boolean debugMode) {
+		mAdapter.setDebugMode(debugMode);
+	}
+
+	public boolean isDebugMode() {
+		return mAdapter.isDebugMode();
+	}
 }

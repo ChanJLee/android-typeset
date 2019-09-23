@@ -39,6 +39,7 @@ public class Adapter extends RecyclerView.Adapter<TexViewHolder> {
 	private Option mOption;
 	private Executor mExecutor = Executors.newSingleThreadExecutor();
 	private Handler mHandler;
+	private boolean mDebugMode;
 
 	public Adapter(Context context) {
 		mLayoutInflater = LayoutInflater.from(context);
@@ -61,7 +62,8 @@ public class Adapter extends RecyclerView.Adapter<TexViewHolder> {
 
 	@Override
 	public void onBindViewHolder(@NonNull TexViewHolder texViewHolder, int position) {
-		texViewHolder.render(mParagraphs.get(position), mTextPaint);
+		texViewHolder.texTextView.setDebugMode(mDebugMode);
+		texViewHolder.texTextView.render(mParagraphs.get(position), mTextPaint);
 	}
 
 	@Override
@@ -109,5 +111,14 @@ public class Adapter extends RecyclerView.Adapter<TexViewHolder> {
 				notifyDataSetChanged();
 			}
 		});
+	}
+
+	public void setDebugMode(boolean debugMode) {
+		mDebugMode = debugMode;
+		notifyDataSetChanged();
+	}
+
+	public boolean isDebugMode() {
+		return mDebugMode;
 	}
 }
