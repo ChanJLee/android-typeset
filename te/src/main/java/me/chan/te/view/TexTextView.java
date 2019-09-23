@@ -5,6 +5,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
+import android.graphics.RectF;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.text.TextPaint;
@@ -39,6 +40,7 @@ public class TexTextView extends View implements GestureDetector.OnGestureListen
 	private Box mSelectedBox;
 	private Box mSelectedSuffix;
 	private TextPaint mWorkPaint = new TextPaint();
+	private RectF mBound = new RectF();
 
 	public TexTextView(Context context) {
 		super(context);
@@ -166,13 +168,13 @@ public class TexTextView extends View implements GestureDetector.OnGestureListen
 
 		for (int i = 0; i < boxes.size(); ++i) {
 			Box box = boxes.get(i);
-			TextPaint textPaint = mWorkPaint;
-			mWorkPaint.set(mPaint);
+			TextPaint textPaint = getInternalPaint();
+			float width = getBoxWidth(textPaint, box);
 
 			if (box == mSelectedBox || box == mSelectedSuffix) {
 				Paint.FontMetrics fontMetrics = textPaint.getFontMetrics();
 				float left = x;
-				float right = (float) Math.ceil(x + box.getWidth());
+				float right = (float) Math.ceil(x + width);
 				float top = (float) Math.ceil(y - line.getLineHeight());
 				float bottom = y + fontMetrics.descent * 1.1f;
 				textPaint.setColor(Color.BLUE);
@@ -184,12 +186,11 @@ public class TexTextView extends View implements GestureDetector.OnGestureListen
 
 			if (mDebugMode) {
 				mDebugPaint.setColor(Color.GREEN);
-				canvas.drawRect(x, (float) Math.ceil(y - line.getLineHeight()), (float) Math.ceil(x + box.getWidth()), y, mDebugPaint);
-				d(box.getText());
+				canvas.drawRect(x, (float) Math.ceil(y - line.getLineHeight()), (float) Math.ceil(x + width), y, mDebugPaint);
 			}
 
 			box.draw(canvas, textPaint, x, y);
-			x += (line.getSpaceWidth() + box.getWidth());
+			x += (line.getSpaceWidth() + width);
 		}
 
 		if (mDebugMode) {
@@ -204,6 +205,17 @@ public class TexTextView extends View implements GestureDetector.OnGestureListen
 			mDebugPaint.setColor(Color.RED);
 			canvas.drawText(ratio, startX, startY, mDebugPaint);
 		}
+	}
+
+	private TextPaint getInternalPaint() {
+		TextPaint textPaint = mWorkPaint;
+		textPaint.set(mPaint);
+		return textPaint;
+	}
+
+	private float getBoxWidth(TextPaint textPaint, Box box) {
+		box.getBound(textPaint, mBound);
+		return mBound.width();
 	}
 
 	private boolean handleClicked(float x, float y) {
@@ -237,10 +249,12 @@ public class TexTextView extends View implements GestureDetector.OnGestureListen
 		int boxSize = boxes.size();
 		float offsetX = getPaddingLeft();
 		Box target = null;
+		RectF bound = new RectF();
 		for (int i = 0; i < boxSize; ++i) {
 			Box box = boxes.get(i);
-
-			float nextOffsetX = offsetX + box.getWidth();
+			TextPaint textPaint = getInternalPaint();
+			box.getBound(textPaint, bound);
+			float nextOffsetX = offsetX + bound.width();
 			if (offsetX <= x && x <= nextOffsetX) {
 				target = box;
 				break;

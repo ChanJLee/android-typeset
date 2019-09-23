@@ -81,7 +81,7 @@ public class Adapter extends RecyclerView.Adapter<TexViewHolder> {
 	private void render(CharSequence charSequence, int width) {
 
 		TexTypesetter texTypesetter = new TexTypesetter(mTextPaint, mOption);
-		TextParser textParser = new TextParser(Hypher.getInstance(), mTextPaint, mOption);
+		TextParser textParser = new TextParser(Hypher.getInstance(), mOption);
 
 		String[] lines = LINE_BREAK_PATTERN.split(charSequence);
 		final List<Paragraph> paragraphs = new ArrayList<>();

@@ -19,7 +19,6 @@ public class Glue implements Element {
 		this.mWidth = width;
 	}
 
-	@Override
 	public float getWidth() {
 		return mWidth;
 	}

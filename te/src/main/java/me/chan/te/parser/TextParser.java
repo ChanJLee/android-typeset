@@ -1,18 +1,15 @@
 package me.chan.te.parser;
 
-import android.graphics.Rect;
-import android.text.Layout;
-import android.text.TextPaint;
 import android.text.TextUtils;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import me.chan.te.config.Option;
 import me.chan.te.data.Box;
 import me.chan.te.data.Element;
 import me.chan.te.data.Glue;
-import me.chan.te.config.Option;
 import me.chan.te.data.Penalty;
 import me.chan.te.hypher.Hypher;
 
@@ -20,12 +17,10 @@ public class TextParser implements Parser {
 
 	private static final Pattern BLANK_PATTERN = Pattern.compile("\\p{Z}+");
 	private Hypher mHypher;
-	private TextPaint mPaint;
 	private Option mOption;
 
-	public TextParser(Hypher hypher, TextPaint paint, Option option) {
+	public TextParser(Hypher hypher, Option option) {
 		mHypher = hypher;
-		mPaint = paint;
 		mOption = option;
 	}
 
@@ -34,7 +29,6 @@ public class TextParser implements Parser {
 		List<Element> list = new ArrayList<>();
 		List<String> hyphenated = new ArrayList<>();
 		String[] spans = BLANK_PATTERN.split(paragraph);
-		Rect bound = new Rect();
 		for (int i = 0; i < spans.length; ++i) {
 			String span = spans[i];
 			if (TextUtils.isEmpty(span)) {
@@ -44,13 +38,11 @@ public class TextParser implements Parser {
 			mHypher.hyphenate(span, hyphenated);
 			int size = hyphenated.size();
 			if (size == 0 || span.length() < mOption.minHyperLen) {
-				mPaint.getTextBounds(span, 0, span.length(), bound);
-				list.add(new Box(span, Layout.getDesiredWidth(span, mPaint), bound.height()));
+				list.add(new Box(span));
 			} else {
 				for (int j = 0; j < size; ++j) {
 					String item = hyphenated.get(j);
-					mPaint.getTextBounds(item, 0, item.length(), bound);
-					list.add(new Box(item, Layout.getDesiredWidth(item, mPaint), bound.height()));
+					list.add(new Box(item));
 					if (j != size - 1 && !item.isEmpty() && item.charAt(item.length() - 1) != '-') {
 						list.add(new Penalty(mOption.hyphenWidth, mOption.hyphenPenalty, true));
 					}
