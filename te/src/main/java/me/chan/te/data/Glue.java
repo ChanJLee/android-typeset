@@ -1,6 +1,6 @@
 package me.chan.te.data;
 
-public class Glue implements Element {
+public final class Glue implements Element {
 
 	/**
 	 * stretchability

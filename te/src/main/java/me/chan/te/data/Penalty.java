@@ -1,6 +1,6 @@
 package me.chan.te.data;
 
-public class Penalty implements Element {
+public final class Penalty implements Element {
 	/**
 	 * where3 = 1 if xi is a flagged mPenalty, otherwise = 0.
 	 */
