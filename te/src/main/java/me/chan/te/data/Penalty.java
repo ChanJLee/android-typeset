@@ -26,7 +26,6 @@ public class Penalty implements Element {
 		return mPenalty;
 	}
 
-	@Override
 	public float getWidth() {
 		return mWidth;
 	}

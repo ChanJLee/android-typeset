@@ -90,7 +90,7 @@ public class ExampleUnitTest {
 		TextPaint paint = new TextPaint();
 		paint.setTextSize(18);
 		Option option = new Option(paint);
-		TextParser textParser = new TextParser(Hypher.getInstance(), paint, option);
+		TextParser textParser = new TextParser(Hypher.getInstance(), option);
 		List<? extends Element> list = textParser.parser("hello\n\nworld\n\n");
 		assertNotEquals(list.size(), 0);
 		for (Element element : list) {
@@ -120,7 +120,7 @@ public class ExampleUnitTest {
 		TextPaint paint = new TextPaint();
 		Option option = new Option(paint);
 		TexTypesetter texTypesetter = new TexTypesetter(paint, option);
-		TextParser textParser = new TextParser(Hypher.getInstance(), paint, option);
+		TextParser textParser = new TextParser(Hypher.getInstance(), option);
 		List<? extends Element> list = textParser.parser("hello\n\nworld\n\n");
 		Paragraph paragraph = texTypesetter.typeset(list, lineAttributes);
 		assertNotNull(paragraph);

@@ -1,19 +1,18 @@
 package me.chan.te.typesetter;
 
-import android.graphics.Rect;
-import android.text.Layout;
+import android.graphics.RectF;
 import android.text.TextPaint;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import me.chan.te.config.LineAttributes;
+import me.chan.te.config.Option;
 import me.chan.te.data.Box;
 import me.chan.te.data.Element;
 import me.chan.te.data.Glue;
 import me.chan.te.data.Line;
-import me.chan.te.config.LineAttributes;
-import me.chan.te.config.Option;
 import me.chan.te.data.Paragraph;
 import me.chan.te.data.Penalty;
 import me.chan.te.log.Log;
@@ -26,6 +25,8 @@ public class TexTypesetter implements Typesetter {
 
 	private Option mOption;
 	private TextPaint mPaint;
+	private TextPaint mWorkPaint = new TextPaint();
+	private RectF mBound = new RectF();
 
 	public TexTypesetter(TextPaint paint, Option option) {
 		mOption = option;
@@ -69,11 +70,10 @@ public class TexTypesetter implements Typesetter {
 		data.totals = new Sum();
 		activeNodes.add(new Node(data, null, null));
 		Sum sum = new Sum();
-
 		for (int i = 0; i < elements.size() && !Thread.currentThread().isInterrupted(); ++i) {
 			Element element = elements.get(i);
 			if (element instanceof Box) {
-				sum.width += element.getWidth();
+				sum.width += getElementWidth(element);
 			} else if (element instanceof Glue) {
 				if (i > 0 && elements.get(i - 1) instanceof Box) {
 					typesetLine(i, elements, activeNodes, sum, lineAttributes, tolerance);
@@ -90,6 +90,33 @@ public class TexTypesetter implements Typesetter {
 		}
 
 		return activeNodes;
+	}
+
+	private float getElementWidth(Element element) {
+		if (element instanceof Penalty) {
+			Penalty penalty = (Penalty) element;
+			return penalty.getWidth();
+		}
+
+		if (element instanceof Glue) {
+			Glue glue = (Glue) element;
+			return glue.getWidth();
+		}
+
+		RectF rectF = getBoxBound((Box) element);
+		return rectF.width();
+	}
+
+	private RectF getBoxBound(Box box) {
+		TextPaint textPaint = getInternalPaint();
+		box.getBound(textPaint, mBound);
+		return mBound;
+	}
+
+	private TextPaint getInternalPaint() {
+		TextPaint textPaint = mWorkPaint;
+		textPaint.set(mPaint);
+		return textPaint;
 	}
 
 	private List<Line> typesetParagraph(List<? extends Element> elements,
@@ -131,7 +158,6 @@ public class TexTypesetter implements Typesetter {
 							LineAttributes lineAttributes, boolean lastLine, float ratio, int lineNumber) {
 		float lineHeight = 0;
 		float wordWidth = 0;
-		Rect bound = new Rect();
 		List<Box> boxes = new ArrayList<>();
 		for (int i = start; i < end; ++i) {
 			Element element = lineElements.get(i);
@@ -140,12 +166,13 @@ public class TexTypesetter implements Typesetter {
 			}
 
 			Box box = (Box) lineElements.get(i);
-			i = mergeBox(box, i + 1, end, lineElements, bound);
+			i = mergeBox(box, i + 1, end, lineElements);
 
-			if (lineHeight < box.getHeight()) {
-				lineHeight = box.getHeight();
+			RectF bound = getBoxBound(box);
+			if (lineHeight < bound.height()) {
+				lineHeight = bound.height();
 			}
-			wordWidth += box.getWidth();
+			wordWidth += bound.width();
 			boxes.add(box);
 		}
 
@@ -169,8 +196,7 @@ public class TexTypesetter implements Typesetter {
 	 * @param lineElements 当前行
 	 * @return 最后一个能被处理的index
 	 */
-	private int mergeBox(Box box, int start, int end, List<? extends Element> lineElements, Rect bound) {
-		boolean modified = false;
+	private int mergeBox(Box box, int start, int end, List<? extends Element> lineElements) {
 		for (; start < end; ++start) {
 			Element element = lineElements.get(start);
 			if (element instanceof Glue) {
@@ -185,22 +211,13 @@ public class TexTypesetter implements Typesetter {
 				}
 
 				box.append(other);
-				modified = true;
 				continue;
 			}
 
 			if (element instanceof Penalty && start == end - 1) {
-				modified = true;
 				box.append("-");
 				box.setPenalty(true);
 			}
-		}
-
-		if (modified) {
-			String content = box.getText();
-			mPaint.getTextBounds(content, 0, content.length(), bound);
-			box.setWidth(Layout.getDesiredWidth(content, mPaint));
-			box.setHeight(bound.height());
 		}
 
 		return start;
@@ -358,7 +375,7 @@ public class TexTypesetter implements Typesetter {
 		float stretch = 0;
 		float shrink = 0;
 		if (element instanceof Penalty) {
-			width += element.getWidth();
+			width += getElementWidth(element);
 		}
 
 		if (width < lineLength) {

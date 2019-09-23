@@ -66,7 +66,7 @@ public class TextureViewTestActivity extends AppCompatActivity {
 
 						Option option = new Option(mPaint);
 						TexTypesetter texTypesetter = new TexTypesetter(mPaint, option);
-						TextParser textParser = new TextParser(Hypher.getInstance(), mPaint, option);
+						TextParser textParser = new TextParser(Hypher.getInstance(), option);
 						List<? extends Element> list = textParser.parser(getResources().getString(R.string.test));
 						mParagraph = texTypesetter.typeset(list, mLineAttributes);
 

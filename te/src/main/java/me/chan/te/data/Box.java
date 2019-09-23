@@ -2,54 +2,60 @@ package me.chan.te.data;
 
 import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.graphics.RectF;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.text.Layout;
+import android.text.TextPaint;
 
 import me.chan.te.annotations.Hidden;
 
-public class Box implements Element {
+public final class Box implements Element {
 
 	@NonNull
-	private String mText;
-	private float mWidth;
-	private float mHeight;
+	private CharSequence mText;
+	private BoxStyle mBoxStyle;
+	private boolean mDirty = true;
 	private boolean mPenalty = false;
+	private float mWidth = 0;
+	private float mHeight = 0;
 
-	public Box(@NonNull String text, float width, float height) {
+	public Box(@NonNull CharSequence text) {
+		this(text, null);
+	}
+
+	public Box(@NonNull CharSequence text, @Nullable BoxStyle boxStyle) {
 		mText = text;
-		mWidth = width;
-		mHeight = height;
-	}
-
-	public void setWidth(float width) {
-		mWidth = width;
-	}
-
-	@NonNull
-	public String getText() {
-		return mText;
+		mBoxStyle = boxStyle;
 	}
 
 	@Hidden
 	public void append(Box other) {
-		mText = mText + other.mText;
+		append(other.mText);
 	}
 
 	@Hidden
-	public void append(String s) {
-		mText = mText + s;
+	public void append(CharSequence s) {
+		// mark as dirty
+		mDirty = true;
+		mText = String.valueOf(mText) + s;
 	}
 
-	@Override
-	public float getWidth() {
-		return mWidth;
+	public void getBound(TextPaint textPaint, RectF bound) {
+		if (mDirty) {
+			updateTextPaint(textPaint);
+			mWidth = Layout.getDesiredWidth(mText, textPaint);
+			Paint.FontMetrics fontMetrics = textPaint.getFontMetrics();
+			mHeight = fontMetrics.bottom - fontMetrics.top;
+		}
+
+		bound.set(0, 0, mWidth, mHeight);
 	}
 
-	public float getHeight() {
-		return mHeight;
-	}
-
-	public void setHeight(float height) {
-		mHeight = height;
+	private void updateTextPaint(TextPaint textPaint) {
+		if (mBoxStyle != null) {
+			mBoxStyle.update(textPaint);
+		}
 	}
 
 	@Hidden
@@ -66,17 +72,8 @@ public class Box implements Element {
 		mPenalty = penalty;
 	}
 
-	@Override
-	public String toString() {
-		return "Box{" +
-				"mText='" + mText + '\'' +
-				", mWidth=" + mWidth +
-				", mHeight=" + mHeight +
-				", mPenalty=" + mPenalty +
-				'}';
-	}
-
-	public void draw(Canvas canvas, Paint paint, float x, float y) {
-		canvas.drawText(mText, x, y, paint);
+	public void draw(Canvas canvas, TextPaint paint, float x, float y) {
+		updateTextPaint(paint);
+		canvas.drawText(String.valueOf(mText), x, y, paint);
 	}
 }
