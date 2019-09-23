@@ -1,7 +1,0 @@
-[1/2] Building CXX object CMakeFiles/te.dir/src/main/cpp/te.cpp.o
-FAILED: /Users/chan/Library/Android/sdk/ndk-bundle/toolchains/llvm/prebuilt/darwin-x86_64/bin/clang++  --target=i686-none-linux-android --gcc-toolchain=/Users/chan/Library/Android/sdk/ndk-bundle/toolchains/x86-4.9/prebuilt/darwin-x86_64 --sysroot=/Users/chan/Library/Android/sdk/ndk-bundle/platforms/android-16/arch-x86  -Dte_EXPORTS -I../../../../src/main/cpp/3rd/skia -isystem /Users/chan/Library/Android/sdk/ndk-bundle/sources/cxx-stl/llvm-libc++/include -isystem /Users/chan/Library/Android/sdk/ndk-bundle/sources/android/support/include -isystem /Users/chan/Library/Android/sdk/ndk-bundle/sources/cxx-stl/llvm-libc++abi/include -g -DANDROID -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mstackrealign -Wa,--noexecstack -Wformat -Werror=format-security -std=c++11 -g -DANDROID -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mstackrealign -Wa,--noexecstack -Wformat -Werror=format-security -std=c++11 -std=c++11 -O0 -fno-limit-debug-info -O0 -fno-limit-debug-info  -fPIC -MD -MT CMakeFiles/te.dir/src/main/cpp/te.cpp.o -MF CMakeFiles/te.dir/src/main/cpp/te.cpp.o.d -o CMakeFiles/te.dir/src/main/cpp/te.cpp.o -c /Users/chan/Downloads/android-typeset/core/src/main/cpp/te.cpp
-/Users/chan/Downloads/android-typeset/core/src/main/cpp/te.cpp:37:11: error: no member named 'setTextSize' in 'SkPaint'
-    paint.setTextSize(10);
-    ~~~~~ ^
-1 error generated.
-ninja: build stopped: subcommand failed.
