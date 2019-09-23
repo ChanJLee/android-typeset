@@ -2,13 +2,13 @@
 
 # TODO
 
-- [ ] 移除getTextBounds
+- [x] 移除getTextBounds
 
-- [ ] 首行退四格
+- [x] 首行退四格
 
-- [ ] 选中单词效果
+- [x] 选中单词效果
 
-- [ ] 选中单词回调
+- [x] 选中单词回调
 
 
 # link
