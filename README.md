@@ -14,5 +14,4 @@
 # link
 
 [test word](https://github.com/dwyl/english-words.git)
-
-[Wikipedia 2014 + Gigaword 5 (6B tokens, 400K vocab, uncased, 300d vectors, 822 MB download)](http://downloads.cs.stanford.edu/nlp/data/wordvecs/glove.6B.zip)
+[测试数据](https://www.520txtba.com/Txt/XiaoShuo-146678.html)
