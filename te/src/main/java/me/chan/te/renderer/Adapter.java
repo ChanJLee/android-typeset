@@ -23,6 +23,7 @@ import me.chan.te.config.LineAttribute;
 import me.chan.te.config.LineAttributes;
 import me.chan.te.config.Option;
 import me.chan.te.data.Element;
+import me.chan.te.data.ElementFactory;
 import me.chan.te.data.Gravity;
 import me.chan.te.data.Paragraph;
 import me.chan.te.hypher.Hypher;
@@ -40,6 +41,7 @@ public class Adapter extends RecyclerView.Adapter<TexViewHolder> {
 	private Executor mExecutor = Executors.newSingleThreadExecutor();
 	private Handler mHandler;
 	private boolean mDebugMode;
+	private ElementFactory mElementFactory = new ElementFactory();
 
 	public Adapter(Context context) {
 		mLayoutInflater = LayoutInflater.from(context);
@@ -99,8 +101,8 @@ public class Adapter extends RecyclerView.Adapter<TexViewHolder> {
 					Gravity.RIGHT,
 					(int) mOption.lineSpacing
 			));
-			List<? extends Element> list = textParser.parser(line);
-			Paragraph paragraph = texTypesetter.typeset(list, lineAttributes);
+			List<? extends Element> list = textParser.parser(line, mElementFactory);
+			Paragraph paragraph = texTypesetter.typeset(list, lineAttributes, mElementFactory);
 			paragraphs.add(paragraph);
 		}
 

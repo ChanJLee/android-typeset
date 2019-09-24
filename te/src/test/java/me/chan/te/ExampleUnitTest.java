@@ -17,6 +17,7 @@ import me.chan.te.config.LineAttribute;
 import me.chan.te.config.LineAttributes;
 import me.chan.te.config.Option;
 import me.chan.te.data.Element;
+import me.chan.te.data.ElementFactory;
 import me.chan.te.data.Glue;
 import me.chan.te.data.Paragraph;
 import me.chan.te.data.Penalty;
@@ -90,8 +91,9 @@ public class ExampleUnitTest {
 		TextPaint paint = new TextPaint();
 		paint.setTextSize(18);
 		Option option = new Option(paint);
+		ElementFactory factory = new ElementFactory();
 		TextParser textParser = new TextParser(Hypher.getInstance(), option);
-		List<? extends Element> list = textParser.parser("hello\n\nworld\n\n");
+		List<? extends Element> list = textParser.parser("hello\n\nworld\n\n", factory);
 		assertNotEquals(list.size(), 0);
 		for (Element element : list) {
 			System.out.println(element);
@@ -116,13 +118,13 @@ public class ExampleUnitTest {
 	@Test
 	public void testTypesetter() {
 		LineAttributes lineAttributes = new LineAttributes(new LineAttribute(10));
-
+		ElementFactory factory = new ElementFactory();
 		TextPaint paint = new TextPaint();
 		Option option = new Option(paint);
 		TexTypesetter texTypesetter = new TexTypesetter(paint, option);
 		TextParser textParser = new TextParser(Hypher.getInstance(), option);
-		List<? extends Element> list = textParser.parser("hello\n\nworld\n\n");
-		Paragraph paragraph = texTypesetter.typeset(list, lineAttributes);
+		List<? extends Element> list = textParser.parser("hello\n\nworld\n\n", factory);
+		Paragraph paragraph = texTypesetter.typeset(list, lineAttributes, factory);
 		assertNotNull(paragraph);
 		assertNotNull(paragraph.getLines());
 	}

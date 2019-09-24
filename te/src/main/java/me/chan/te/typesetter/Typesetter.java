@@ -4,8 +4,9 @@ import java.util.List;
 
 import me.chan.te.data.Element;
 import me.chan.te.config.LineAttributes;
+import me.chan.te.data.ElementFactory;
 import me.chan.te.data.Paragraph;
 
 public interface Typesetter {
-	Paragraph typeset(List<? extends Element> elements, LineAttributes lineAttributes);
+	Paragraph typeset(List<? extends Element> elements, LineAttributes lineAttributes, ElementFactory elementFactory);
 }

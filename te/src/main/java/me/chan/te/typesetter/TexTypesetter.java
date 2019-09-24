@@ -11,6 +11,7 @@ import me.chan.te.config.LineAttributes;
 import me.chan.te.config.Option;
 import me.chan.te.data.Box;
 import me.chan.te.data.Element;
+import me.chan.te.data.ElementFactory;
 import me.chan.te.data.Glue;
 import me.chan.te.data.Line;
 import me.chan.te.data.Paragraph;
@@ -34,7 +35,7 @@ public class TexTypesetter implements Typesetter {
 	}
 
 	@Override
-	public Paragraph typeset(List<? extends Element> elements, LineAttributes lineAttributes) {
+	public Paragraph typeset(List<? extends Element> elements, LineAttributes lineAttributes, ElementFactory factory) {
 		Paragraph paragraph = new Paragraph(lineAttributes);
 
 		List<Node> activeNodes = null;
@@ -57,7 +58,7 @@ public class TexTypesetter implements Typesetter {
 			return paragraph;
 		}
 
-		List<Line> lines = typesetParagraph(elements, breakPoints, lineAttributes);
+		List<Line> lines = typesetParagraph(elements, breakPoints, lineAttributes, factory);
 		paragraph.setLines(lines);
 
 		return paragraph;
@@ -121,7 +122,7 @@ public class TexTypesetter implements Typesetter {
 
 	private List<Line> typesetParagraph(List<? extends Element> elements,
 										List<BreakPoint> breakPoints,
-										LineAttributes lineAttributes) {
+										LineAttributes lineAttributes, ElementFactory factory) {
 		List<Line> lines = new ArrayList<>();
 		int lineStart = 0;
 		int size = elements.size();
@@ -148,25 +149,28 @@ public class TexTypesetter implements Typesetter {
 					lineAttributes,
 					i + 1 == breakPoints.size(),
 					breakPoint.ratio,
-					i - 1));
+					i - 1,
+					factory));
 			lineStart = pos;
 		}
 		return lines;
 	}
 
 	private Line createLine(List<? extends Element> lineElements, int start, int end,
-							LineAttributes lineAttributes, boolean lastLine, float ratio, int lineNumber) {
+							LineAttributes lineAttributes, boolean lastLine, float ratio,
+							int lineNumber, ElementFactory factory) {
 		float lineHeight = 0;
 		float wordWidth = 0;
 		List<Box> boxes = new ArrayList<>();
 		for (int i = start; i < end; ++i) {
 			Element element = lineElements.get(i);
 			if (!(element instanceof Box)) {
+				factory.recycle(element);
 				continue;
 			}
 
 			Box box = (Box) lineElements.get(i);
-			i = mergeBox(box, i + 1, end, lineElements);
+			i = mergeBox(box, i + 1, end, lineElements, factory);
 
 			Rect bound = getBoxBound(box);
 			if (lineHeight < bound.height()) {
@@ -194,12 +198,16 @@ public class TexTypesetter implements Typesetter {
 	/**
 	 * @param start        merge 开始的位置
 	 * @param lineElements 当前行
+	 * @param factory
 	 * @return 最后一个能被处理的index
 	 */
-	private int mergeBox(Box box, int start, int end, List<? extends Element> lineElements) {
+	private int mergeBox(Box box, int start, int end,
+						 List<? extends Element> lineElements,
+						 ElementFactory factory) {
 		for (; start < end; ++start) {
 			Element element = lineElements.get(start);
 			if (element instanceof Glue) {
+				factory.recycle(element);
 				break;
 			}
 
@@ -210,11 +218,13 @@ public class TexTypesetter implements Typesetter {
 					break;
 				}
 
+				factory.recycle(element);
 				box.append(other);
 				continue;
 			}
 
 			if (element instanceof Penalty && start == end - 1) {
+				factory.recycle(element);
 				box.append("-");
 				box.setPenalty(true);
 			}
