@@ -32,7 +32,7 @@ public class ParagraphActivity extends AppCompatActivity {
 				final StringBuilder stringBuilder = new StringBuilder();
 				try {
 					BufferedReader bufferedReader = new BufferedReader(
-							new InputStreamReader(getAssets().open("test.txt"))
+							new InputStreamReader(getAssets().open("书剑恩仇录.txt"))
 					);
 					String line = null;
 					while ((line = bufferedReader.readLine()) != null) {

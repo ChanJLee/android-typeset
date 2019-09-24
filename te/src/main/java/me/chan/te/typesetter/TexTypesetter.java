@@ -17,8 +17,9 @@ import me.chan.te.data.Line;
 import me.chan.te.data.Paragraph;
 import me.chan.te.data.Penalty;
 import me.chan.te.log.Log;
+import me.chan.te.misc.ObjectFactory;
 
-public class TexTypesetter implements Typesetter {
+public class TexTypesetter {
 	private static final int CLASS_0 = 0;
 	private static final int CLASS_1 = 1;
 	private static final int CLASS_2 = 2;
@@ -28,14 +29,17 @@ public class TexTypesetter implements Typesetter {
 	private TextPaint mPaint;
 	private TextPaint mWorkPaint = new TextPaint();
 	private Rect mBound = new Rect();
+	private ObjectFactory<Candidate> mCandidateFactory = new ObjectFactory<>(16);
 
-	public TexTypesetter(TextPaint paint, Option option) {
+	private ElementFactory mElementFactory;
+
+	public TexTypesetter(TextPaint paint, Option option, ElementFactory elementFactory) {
 		mOption = option;
 		mPaint = paint;
+		mElementFactory = elementFactory;
 	}
 
-	@Override
-	public Paragraph typeset(List<? extends Element> elements, LineAttributes lineAttributes, ElementFactory factory) {
+	public Paragraph typeset(List<? extends Element> elements, LineAttributes lineAttributes) {
 		Paragraph paragraph = new Paragraph(lineAttributes);
 
 		List<Node> activeNodes = null;
@@ -58,7 +62,7 @@ public class TexTypesetter implements Typesetter {
 			return paragraph;
 		}
 
-		List<Line> lines = typesetParagraph(elements, breakPoints, lineAttributes, factory);
+		List<Line> lines = typesetParagraph(elements, breakPoints, lineAttributes);
 		paragraph.setLines(lines);
 
 		return paragraph;
@@ -122,7 +126,7 @@ public class TexTypesetter implements Typesetter {
 
 	private List<Line> typesetParagraph(List<? extends Element> elements,
 										List<BreakPoint> breakPoints,
-										LineAttributes lineAttributes, ElementFactory factory) {
+										LineAttributes lineAttributes) {
 		List<Line> lines = new ArrayList<>();
 		int lineStart = 0;
 		int size = elements.size();
@@ -149,8 +153,7 @@ public class TexTypesetter implements Typesetter {
 					lineAttributes,
 					i + 1 == breakPoints.size(),
 					breakPoint.ratio,
-					i - 1,
-					factory));
+					i - 1));
 			lineStart = pos;
 		}
 		return lines;
@@ -158,19 +161,19 @@ public class TexTypesetter implements Typesetter {
 
 	private Line createLine(List<? extends Element> lineElements, int start, int end,
 							LineAttributes lineAttributes, boolean lastLine, float ratio,
-							int lineNumber, ElementFactory factory) {
+							int lineNumber) {
 		float lineHeight = 0;
 		float wordWidth = 0;
 		List<Box> boxes = new ArrayList<>();
 		for (int i = start; i < end; ++i) {
 			Element element = lineElements.get(i);
 			if (!(element instanceof Box)) {
-				factory.recycle(element);
+				mElementFactory.recycle(element);
 				continue;
 			}
 
 			Box box = (Box) lineElements.get(i);
-			i = mergeBox(box, i + 1, end, lineElements, factory);
+			i = mergeBox(box, i + 1, end, lineElements, mElementFactory);
 
 			Rect bound = getBoxBound(box);
 			if (lineHeight < bound.height()) {

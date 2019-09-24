@@ -1,17 +1,12 @@
 package me.chan.te.data;
 
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v4.util.Pools;
-
-import java.util.Queue;
-import java.util.concurrent.ConcurrentLinkedQueue;
+import me.chan.te.misc.ObjectFactory;
 
 public class ElementFactory {
 
-	private Pools.Pool<Box> mBoxPool = new ElementPool<>(10000);
-	private Pools.Pool<Penalty> mPenaltyPool = new ElementPool<>(4000);
-	private Pools.Pool<Glue> mGluePool = new ElementPool<>(10000);
+	private ObjectFactory<Box> mBoxPool = new ObjectFactory<>(10000);
+	private ObjectFactory<Penalty> mPenaltyPool = new ObjectFactory<>(4000);
+	private ObjectFactory<Glue> mGluePool = new ObjectFactory<>(10000);
 
 	public Box obtainBox(CharSequence charSequence) {
 		return obtainBox(charSequence, null);
@@ -33,31 +28,6 @@ public class ElementFactory {
 			mPenaltyPool.release((Penalty) element);
 		} else {
 			mGluePool.release((Glue) element);
-		}
-	}
-
-	private class ElementPool<T> implements Pools.Pool<T> {
-
-		private Queue<T> mQueue;
-		private int mBufferSize;
-
-		ElementPool(int bufferSize) {
-			mQueue = new ConcurrentLinkedQueue<>();
-			mBufferSize = bufferSize;
-		}
-
-		@Nullable
-		@Override
-		public synchronized T acquire() {
-			return mQueue.poll();
-		}
-
-		@Override
-		public boolean release(@NonNull T t) {
-			if (mQueue.size() >= mBufferSize) {
-				return false;
-			}
-			return mQueue.offer(t);
 		}
 	}
 }

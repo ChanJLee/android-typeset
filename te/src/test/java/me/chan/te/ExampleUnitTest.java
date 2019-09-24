@@ -121,10 +121,10 @@ public class ExampleUnitTest {
 		ElementFactory factory = new ElementFactory();
 		TextPaint paint = new TextPaint();
 		Option option = new Option(paint);
-		TexTypesetter texTypesetter = new TexTypesetter(paint, option);
+		TexTypesetter texTypesetter = new TexTypesetter(paint, option, factory);
 		TextParser textParser = new TextParser(Hypher.getInstance(), option);
 		List<? extends Element> list = textParser.parser("hello\n\nworld\n\n", factory);
-		Paragraph paragraph = texTypesetter.typeset(list, lineAttributes, factory);
+		Paragraph paragraph = texTypesetter.typeset(list, lineAttributes);
 		assertNotNull(paragraph);
 		assertNotNull(paragraph.getLines());
 	}
