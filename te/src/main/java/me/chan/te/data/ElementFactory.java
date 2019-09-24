@@ -9,15 +9,19 @@ public class ElementFactory {
 	private ObjectFactory<Glue> mGluePool = new ObjectFactory<>(10000);
 
 	public Box obtainBox(CharSequence charSequence) {
-		return obtainBox(charSequence, null);
+		return obtainBox(charSequence, 0, charSequence.length());
 	}
 
-	public Box obtainBox(CharSequence charSequence, BoxStyle boxStyle) {
+	public Box obtainBox(CharSequence charSequence, int start, int end) {
+		return obtainBox(charSequence, start, end, null);
+	}
+
+	public Box obtainBox(CharSequence charSequence, int start, int end, BoxStyle boxStyle) {
 		Box box = mBoxPool.acquire();
 		if (box == null) {
 			box = new Box();
 		}
-		box.reset(charSequence, boxStyle);
+		box.reset(charSequence, start, end, boxStyle);
 		return box;
 	}
 

@@ -18,35 +18,41 @@ public final class Box implements Element {
 	private boolean mPenalty = false;
 	private float mWidth = 0;
 	private float mHeight = 0;
+	private int mStart;
+	private int mEnd;
 
 	Box() {
 	}
 
-	void reset(@NonNull CharSequence text, @Nullable BoxStyle boxStyle) {
+	void reset(@NonNull CharSequence text, int start, int end, @Nullable BoxStyle boxStyle) {
 		mText = text;
 		mBoxStyle = boxStyle;
 		mDirty = true;
 		mPenalty = false;
 		mWidth = mHeight = 0;
+		mStart = start;
+		mEnd = end;
 	}
 
 	@Hidden
 	public void append(Box other) {
-		append(other.mText);
+		append(other.mText.subSequence(other.mStart, other.mEnd));
 	}
 
 	@Hidden
 	public void append(CharSequence s) {
 		// mark as dirty
 		mDirty = true;
-		mText = String.valueOf(mText) + s;
+		mText = mText.subSequence(mStart, mEnd) + String.valueOf(s);
+		mStart = 0;
+		mEnd = mText.length();
 	}
 
 	public void getBound(TextPaint textPaint, Rect bound) {
 		if (mDirty) {
 			updateTextPaint(textPaint);
-			mWidth = Layout.getDesiredWidth(mText, textPaint);
-			textPaint.getTextBounds(String.valueOf(mText), 0, mText.length(), bound);
+			mWidth = Layout.getDesiredWidth(mText, mStart, mEnd, textPaint);
+			textPaint.getTextBounds(String.valueOf(mText), mStart, mEnd, bound);
 			mHeight = bound.height();
 		}
 
@@ -75,6 +81,20 @@ public final class Box implements Element {
 
 	public void draw(Canvas canvas, TextPaint paint, float x, float y) {
 		updateTextPaint(paint);
-		canvas.drawText(String.valueOf(mText), x, y, paint);
+		canvas.drawText(String.valueOf(mText), mStart, mEnd, x, y, paint);
+	}
+
+	@Override
+	public String toString() {
+		return "Box{" +
+				"mText=" + mText.subSequence(mStart, mEnd) +
+				", mBoxStyle=" + mBoxStyle +
+				", mDirty=" + mDirty +
+				", mPenalty=" + mPenalty +
+				", mWidth=" + mWidth +
+				", mHeight=" + mHeight +
+				", mStart=" + mStart +
+				", mEnd=" + mEnd +
+				'}';
 	}
 }
