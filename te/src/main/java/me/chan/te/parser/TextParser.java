@@ -48,12 +48,14 @@ public class TextParser implements Parser {
 						list.add(new Penalty(mOption.hyphenWidth, mOption.hyphenPenalty, true));
 					}
 				}
-				hyphenated.clear();
 			}
+			hyphenated.clear();
 
-			if (last < end) {
-				list.add(new Glue(mOption.spaceWidth, mOption.spaceStretch, mOption.spaceShrink));
-			}
+			list.add(new Glue(mOption.spaceWidth, mOption.spaceStretch, mOption.spaceShrink));
+		}
+
+		if (!list.isEmpty()) {
+			list.remove(list.size() - 1);
 		}
 
 		list.add(new Glue(0, mOption.infinity, 0));
