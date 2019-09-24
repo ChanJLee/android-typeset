@@ -67,10 +67,10 @@ public class TextureViewTestActivity extends AppCompatActivity {
 
 						Option option = new Option(mPaint);
 						ElementFactory factory = new ElementFactory();
-						TexTypesetter texTypesetter = new TexTypesetter(mPaint, option);
+						TexTypesetter texTypesetter = new TexTypesetter(mPaint, option, factory);
 						TextParser textParser = new TextParser(Hypher.getInstance(), option);
 						List<? extends Element> list = textParser.parser(getResources().getString(R.string.test), factory);
-						mParagraph = texTypesetter.typeset(list, mLineAttributes, factory);
+						mParagraph = texTypesetter.typeset(list, mLineAttributes);
 
 						mHandler.sendEmptyMessage(10);
 					}
