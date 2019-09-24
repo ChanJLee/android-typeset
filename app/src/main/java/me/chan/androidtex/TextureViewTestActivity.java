@@ -16,6 +16,7 @@ import me.chan.te.data.Element;
 import me.chan.te.config.LineAttribute;
 import me.chan.te.config.LineAttributes;
 import me.chan.te.config.Option;
+import me.chan.te.data.ElementFactory;
 import me.chan.te.data.Paragraph;
 import me.chan.te.hypher.Hypher;
 import me.chan.te.parser.TextParser;
@@ -65,10 +66,11 @@ public class TextureViewTestActivity extends AppCompatActivity {
 
 
 						Option option = new Option(mPaint);
+						ElementFactory factory = new ElementFactory();
 						TexTypesetter texTypesetter = new TexTypesetter(mPaint, option);
 						TextParser textParser = new TextParser(Hypher.getInstance(), option);
-						List<? extends Element> list = textParser.parser(getResources().getString(R.string.test));
-						mParagraph = texTypesetter.typeset(list, mLineAttributes);
+						List<? extends Element> list = textParser.parser(getResources().getString(R.string.test), factory);
+						mParagraph = texTypesetter.typeset(list, mLineAttributes, factory);
 
 						mHandler.sendEmptyMessage(10);
 					}

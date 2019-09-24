@@ -7,8 +7,8 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 import me.chan.te.config.Option;
-import me.chan.te.data.Box;
 import me.chan.te.data.Element;
+import me.chan.te.data.ElementFactory;
 import me.chan.te.data.Glue;
 import me.chan.te.data.Penalty;
 import me.chan.te.hypher.Hypher;
@@ -25,7 +25,7 @@ public class TextParser implements Parser {
 	}
 
 	@Override
-	public List<? extends Element> parser(CharSequence paragraph) {
+	public List<? extends Element> parser(CharSequence paragraph, ElementFactory factory) {
 		List<Element> list = new ArrayList<>();
 		List<String> hyphenated = new ArrayList<>();
 		String[] spans = BLANK_PATTERN.split(paragraph);
@@ -38,11 +38,11 @@ public class TextParser implements Parser {
 			mHypher.hyphenate(span, hyphenated);
 			int size = hyphenated.size();
 			if (size == 0 || span.length() < mOption.minHyperLen) {
-				list.add(new Box(span));
+				list.add(factory.obtainBox(span));
 			} else {
 				for (int j = 0; j < size; ++j) {
 					String item = hyphenated.get(j);
-					list.add(new Box(item));
+					list.add(factory.obtainBox(item));
 					if (j != size - 1 && !item.isEmpty() && item.charAt(item.length() - 1) != '-') {
 						list.add(new Penalty(mOption.hyphenWidth, mOption.hyphenPenalty, true));
 					}

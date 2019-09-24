@@ -19,13 +19,15 @@ public final class Box implements Element {
 	private float mWidth = 0;
 	private float mHeight = 0;
 
-	public Box(@NonNull CharSequence text) {
-		this(text, null);
+	Box() {
 	}
 
-	public Box(@NonNull CharSequence text, @Nullable BoxStyle boxStyle) {
+	void reset(@NonNull CharSequence text, @Nullable BoxStyle boxStyle) {
 		mText = text;
 		mBoxStyle = boxStyle;
+		mDirty = true;
+		mPenalty = false;
+		mWidth = mHeight = 0;
 	}
 
 	@Hidden
