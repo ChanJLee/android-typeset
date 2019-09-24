@@ -17,8 +17,8 @@ import me.chan.te.data.Line;
 import me.chan.te.data.Paragraph;
 import me.chan.te.data.Penalty;
 import me.chan.te.log.Log;
-import me.chan.te.misc.ObjectFactory;
 
+// TODO opt memory
 public class TexTypesetter {
 	private static final int CLASS_0 = 0;
 	private static final int CLASS_1 = 1;
@@ -29,7 +29,6 @@ public class TexTypesetter {
 	private TextPaint mPaint;
 	private TextPaint mWorkPaint = new TextPaint();
 	private Rect mBound = new Rect();
-	private ObjectFactory<Candidate> mCandidateFactory = new ObjectFactory<>(16);
 
 	private ElementFactory mElementFactory;
 
