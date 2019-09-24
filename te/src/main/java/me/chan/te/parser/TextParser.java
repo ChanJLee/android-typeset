@@ -1,10 +1,7 @@
 package me.chan.te.parser;
 
-import android.text.TextUtils;
-
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Pattern;
 
 import me.chan.te.config.Option;
 import me.chan.te.data.Element;
@@ -15,7 +12,6 @@ import me.chan.te.hypher.Hypher;
 
 public class TextParser implements Parser {
 
-	private static final Pattern BLANK_PATTERN = Pattern.compile("\\p{Z}+");
 	private Hypher mHypher;
 	private Option mOption;
 
@@ -26,19 +22,24 @@ public class TextParser implements Parser {
 
 	@Override
 	public List<? extends Element> parser(CharSequence paragraph, ElementFactory factory) {
+		int start = 0;
+		int end = paragraph.length();
 		List<Element> list = new ArrayList<>();
 		List<String> hyphenated = new ArrayList<>();
-		String[] spans = BLANK_PATTERN.split(paragraph);
-		for (int i = 0; i < spans.length; ++i) {
-			String span = spans[i];
-			if (TextUtils.isEmpty(span)) {
+
+		for (int i = start; i < end; ++i) {
+			int last = findWord(paragraph, i, end);
+			int first = i;
+			i = skipBlank(paragraph, last, end);
+			int len = last - first;
+			if (len <= 0) {
 				continue;
 			}
 
-			mHypher.hyphenate(span, hyphenated);
+			mHypher.hyphenate(String.valueOf(paragraph), first, len, hyphenated);
 			int size = hyphenated.size();
-			if (size == 0 || span.length() < mOption.minHyperLen) {
-				list.add(factory.obtainBox(span));
+			if (size == 0 || len < mOption.minHyperLen) {
+				list.add(factory.obtainBox(paragraph, first, last));
 			} else {
 				for (int j = 0; j < size; ++j) {
 					String item = hyphenated.get(j);
@@ -50,13 +51,34 @@ public class TextParser implements Parser {
 				hyphenated.clear();
 			}
 
-			if (i == spans.length - 1) {
-				list.add(new Glue(0, mOption.infinity, 0));
-				list.add(new Penalty(0, -mOption.infinity, true));
-			} else {
+			if (last < end) {
 				list.add(new Glue(mOption.spaceWidth, mOption.spaceStretch, mOption.spaceShrink));
 			}
 		}
+
+		list.add(new Glue(0, mOption.infinity, 0));
+		list.add(new Penalty(0, -mOption.infinity, true));
+
 		return list;
+	}
+
+	private int findWord(CharSequence charSequence, int start, int end) {
+		return skip(charSequence, start, end, true);
+	}
+
+	private int skipBlank(CharSequence charSequence, int start, int end) {
+		return skip(charSequence, start, end, false) - 1;
+	}
+
+	private int skip(CharSequence charSequence, int start, int end, boolean untilBlank) {
+		for (; start < end; ++start) {
+			char ch = charSequence.charAt(start);
+			boolean isBlank = ch == ' ' || ch == '\t' ||
+					ch == '\r' || ch == '\n';
+			if (isBlank == untilBlank) {
+				break;
+			}
+		}
+		return start;
 	}
 }
