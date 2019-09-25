@@ -8,10 +8,13 @@ import org.junit.Test;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import me.chan.te.config.LineAttribute;
 import me.chan.te.config.LineAttributes;
@@ -100,6 +103,33 @@ public class ExampleUnitTest {
 		}
 		assertEquals("check last: ", list.get(list.size() - 1).getClass(), Penalty.class);
 		assertEquals("check last - 1: ", list.get(list.size() - 2).getClass(), Glue.class);
+
+
+		list = textParser.parser("triangle", factory);
+		assertNotEquals(list.size(), 0);
+		for (Element element : list) {
+			System.out.println(element);
+		}
+
+		assertEquals("check last: ", list.get(list.size() - 1).getClass(), Penalty.class);
+		assertEquals("check last - 1: ", list.get(list.size() - 2).getClass(), Glue.class);
+	}
+
+	@Test
+	public void testParserWithPenalty() {
+		TextPaint paint = new TextPaint();
+		paint.setTextSize(18);
+		Option option = new Option(paint);
+		ElementFactory factory = new ElementFactory();
+		TextParser textParser = new TextParser(Hypher.getInstance(), option);
+		List<? extends Element> list = textParser.parser("triangle", factory);
+		assertNotEquals(list.size(), 0);
+		for (Element element : list) {
+			System.out.println(element);
+		}
+
+		assertEquals("check last: ", list.get(list.size() - 1).getClass(), Penalty.class);
+		assertEquals("check last - 1: ", list.get(list.size() - 2).getClass(), Glue.class);
 	}
 
 	@Test
@@ -157,5 +187,36 @@ public class ExampleUnitTest {
 		}
 
 		System.out.println("count: " + count + " used time(ms): " + (System.currentTimeMillis() - timeStamp));
+	}
+
+	@Test
+	public void testLinkBreak() throws IOException {
+		File file = new File("../app/src/main/assets/书剑恩仇录.txt");
+		System.out.println(file.getAbsolutePath());
+		assertTrue(file.exists());
+
+		StringBuilder stringBuilder = new StringBuilder();
+		BufferedReader bufferedReader = new BufferedReader(
+				new InputStreamReader(new FileInputStream(file)));
+		String line = null;
+		while ((line = bufferedReader.readLine()) != null) {
+			stringBuilder.append(line)
+					.append("\n");
+		}
+
+		String msg = stringBuilder.toString();
+		long timestamp = System.currentTimeMillis();
+		Pattern pattern = Pattern.compile("\n");
+		String[] spans = pattern.split(msg);
+		System.out.println("pattern split used time: " + (System.currentTimeMillis() - timestamp));
+
+		timestamp = System.currentTimeMillis();
+		int len = msg.length();
+		for (int i = 0; i < len; ++i) {
+			if (msg.charAt(i) == '\n') {
+				continue;
+			}
+		}
+		System.out.println("loop used time: " + (System.currentTimeMillis() - timestamp));
 	}
 }
