@@ -7,6 +7,7 @@ import android.support.annotation.Nullable;
 import android.text.Layout;
 import android.text.TextPaint;
 
+import me.chan.te.annotations.ForUnitTest;
 import me.chan.te.annotations.Hidden;
 
 public final class Box implements Element {
@@ -84,7 +85,13 @@ public final class Box implements Element {
 		canvas.drawText(String.valueOf(mText), mStart, mEnd, x, y, paint);
 	}
 
+	/**
+	 * 只是作为测试用，不要外部调用
+	 *
+	 * @return 当前box内容
+	 */
 	@Hidden
+	@ForUnitTest
 	public CharSequence getContentForDebug() {
 		return mText.subSequence(mStart, mEnd);
 	}
