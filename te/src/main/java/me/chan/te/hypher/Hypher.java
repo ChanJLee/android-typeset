@@ -132,8 +132,8 @@ public class Hypher {
 				int end = first + i - 1;
 				if (word.charAt(end - 1) != '-') {
 					result.add(word.substring(start, end));
+					start = end;
 				}
-				start = end;
 			}
 		}
 

@@ -84,10 +84,15 @@ public final class Box implements Element {
 		canvas.drawText(String.valueOf(mText), mStart, mEnd, x, y, paint);
 	}
 
+	@Hidden
+	public CharSequence getContentForDebug() {
+		return mText.subSequence(mStart, mEnd);
+	}
+
 	@Override
 	public String toString() {
 		return "Box{" +
-				"mText=" + mText.subSequence(mStart, mEnd) +
+				"mText=" + getContentForDebug() +
 				", mBoxStyle=" + mBoxStyle +
 				", mDirty=" + mDirty +
 				", mPenalty=" + mPenalty +
