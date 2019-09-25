@@ -19,6 +19,7 @@ import java.util.regex.Pattern;
 import me.chan.te.config.LineAttribute;
 import me.chan.te.config.LineAttributes;
 import me.chan.te.config.Option;
+import me.chan.te.data.Box;
 import me.chan.te.data.Element;
 import me.chan.te.data.ElementFactory;
 import me.chan.te.data.Glue;
@@ -105,7 +106,7 @@ public class ExampleUnitTest {
 		assertEquals("check last - 1: ", list.get(list.size() - 2).getClass(), Glue.class);
 
 
-		list = textParser.parser("triangle", factory);
+		list = textParser.parser("cross-legged", factory);
 		assertNotEquals(list.size(), 0);
 		for (Element element : list) {
 			System.out.println(element);
@@ -130,6 +131,39 @@ public class ExampleUnitTest {
 
 		assertEquals("check last: ", list.get(list.size() - 1).getClass(), Penalty.class);
 		assertEquals("check last - 1: ", list.get(list.size() - 2).getClass(), Glue.class);
+	}
+
+	@Test
+	public void testParserContent() throws IOException {
+		File file = new File("../app/src/main/assets/书剑恩仇录.txt");
+		System.out.println(file.getAbsolutePath());
+		assertTrue(file.exists());
+
+		BufferedReader bufferedReader = new BufferedReader(
+				new InputStreamReader(new FileInputStream(file)));
+		String line = null;
+		ElementFactory factory = new ElementFactory();
+		TextPaint paint = new TextPaint();
+		Option option = new Option(paint);
+		int lineNumber = 0;
+		TextParser textParser = new TextParser(Hypher.getInstance(), option);
+		while ((line = bufferedReader.readLine()) != null) {
+			++lineNumber;
+			if (line == null || line.length() == 0) {
+				continue;
+			}
+
+			String contentWithoutBlank = line.replaceAll("\\p{Z}+|\\t|\\r|\\n", "");
+			StringBuilder stringBuilder = new StringBuilder();
+			List<? extends Element> list = textParser.parser(line, factory);
+			for (Element element : list) {
+				if (element instanceof Box) {
+					stringBuilder.append(((Box) element).getContentForDebug());
+				}
+			}
+			assertEquals("find exception at line: " + lineNumber,
+					contentWithoutBlank, stringBuilder.toString());
+		}
 	}
 
 	@Test
