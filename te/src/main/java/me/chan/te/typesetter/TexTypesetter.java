@@ -41,7 +41,7 @@ public class TexTypesetter {
 		Paragraph paragraph = new Paragraph(lineAttributes);
 
 		List<Node> activeNodes = null;
-		float tolerance = 1.0f;
+		float tolerance = 0;
 		for (int i = 0; i < mOption.maxRelayoutTimes &&
 				!Thread.currentThread().isInterrupted(); ++i) {
 			tolerance += mOption.stretchRatio;
