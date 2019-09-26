@@ -42,9 +42,11 @@ public class TexTypesetter {
 		Paragraph paragraph = new Paragraph(lineAttributes);
 
 		List<Node> activeNodes = null;
+		float tolerance = 1.0f;
 		for (int i = 0; i < mOption.maxRelayoutTimes &&
 				!Thread.currentThread().isInterrupted(); ++i) {
-			activeNodes = createActiveNodes(elements, lineAttributes, i + 1);
+			tolerance += mOption.stretchRatio;
+			activeNodes = createActiveNodes(elements, lineAttributes, tolerance);
 			if (!activeNodes.isEmpty()) {
 				break;
 			}
@@ -281,13 +283,13 @@ public class TexTypesetter {
 				int currentLine = active.data.line + 1;
 				float ratio = computeRatio(element, active.data, sum, lineAttributes.get(currentLine).getLineWidth());
 
-				if (ratio < -1 || (element instanceof Penalty && ((Penalty) element).getPenalty() == -mOption.infinity)) {
+				if (ratio < mOption.shrinkRatio || (element instanceof Penalty && ((Penalty) element).getPenalty() == -mOption.infinity)) {
 					removeActiveNode(active, activeNodes);
 					d("remove active node, size: " + activeNodes.size() +
 							" element: " + element + " index: " + index);
 				}
 
-				if (ratio >= -1 && ratio <= tolerance) {
+				if (ratio >= mOption.shrinkRatio && ratio <= tolerance) {
 					int currentClass = computeClazz(ratio);
 
 					float demerits = computeDemerits(element, elements, ratio, active, currentClass);
