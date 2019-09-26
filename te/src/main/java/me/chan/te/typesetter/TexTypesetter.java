@@ -239,7 +239,7 @@ public class TexTypesetter {
 		List<BreakPoint> breaks = new ArrayList<>();
 		Node tempNode = null;
 		for (Node node : activeNodes) {
-			if (tempNode == null || tempNode.data.demerits >= node.data.demerits) {
+			if (tempNode == null || tempNode.data.demerits > node.data.demerits) {
 				tempNode = node;
 			}
 		}

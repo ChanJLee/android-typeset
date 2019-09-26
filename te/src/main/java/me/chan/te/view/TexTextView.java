@@ -200,13 +200,13 @@ public class TexTextView extends View implements GestureDetector.OnGestureListen
 			float startX = 0;
 			float startY = y + lineSpace;
 			Rect rect = new Rect();
-			String ratio = String.valueOf(line.getRatio());
-			mDebugPaint.getTextBounds(ratio, 0, ratio.length(), rect);
+			String debugInfo = line.getRatio() + " " + line.getSpaceWidth();
+			mDebugPaint.getTextBounds(debugInfo, 0, debugInfo.length(), rect);
 			mDebugPaint.setColor(Color.BLUE);
 			rect.offset((int) startX, (int) startY);
 			canvas.drawRect(rect, mDebugPaint);
 			mDebugPaint.setColor(Color.RED);
-			canvas.drawText(ratio, startX, startY, mDebugPaint);
+			canvas.drawText(debugInfo, startX, startY, mDebugPaint);
 		}
 	}
 
