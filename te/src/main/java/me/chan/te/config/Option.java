@@ -25,7 +25,8 @@ public class Option {
 	public Option(TextPaint paint) {
 		hyphenWidth = Layout.getDesiredWidth("-", paint);
 		spaceWidth = hyphenWidth;
-		spaceStretch = spaceShrink = spaceWidth * (1 + shrinkRatio);
+		spaceStretch = spaceWidth * 1.1f;
+		spaceShrink = spaceWidth * 0.9f;
 
 		// 首行缩进四个空格
 		indent = spaceWidth * 4;
