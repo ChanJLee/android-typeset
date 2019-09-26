@@ -33,23 +33,4 @@ public class Option {
 		// 1.0 倍行间距
 		lineSpacing = (int) (paint.getFontSpacing());
 	}
-
-	@Override
-	public String toString() {
-		return "Option{" +
-				"infinity=" + infinity +
-				", hyphenPenalty=" + hyphenPenalty +
-				", demeritsLine=" + demeritsLine +
-				", demeritsFlagged=" + demeritsFlagged +
-				", demeritsFitness=" + demeritsFitness +
-				", maxRelayoutTimes=" + maxRelayoutTimes +
-				", minHyperLen=" + minHyperLen +
-				", hyphenWidth=" + hyphenWidth +
-				", spaceWidth=" + spaceWidth +
-				", spaceStretch=" + spaceStretch +
-				", spaceShrink=" + spaceShrink +
-				", indent=" + indent +
-				", lineSpacing=" + lineSpacing +
-				'}';
-	}
 }
