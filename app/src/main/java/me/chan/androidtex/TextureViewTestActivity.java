@@ -17,6 +17,7 @@ import me.chan.te.config.LineAttribute;
 import me.chan.te.config.LineAttributes;
 import me.chan.te.config.Option;
 import me.chan.te.data.ElementFactory;
+import me.chan.te.data.Gravity;
 import me.chan.te.data.Paragraph;
 import me.chan.te.hypher.Hypher;
 import me.chan.te.parser.TextParser;
@@ -61,11 +62,17 @@ public class TextureViewTestActivity extends AppCompatActivity {
 						mPaint.setTextAlign(Paint.Align.LEFT);
 						mPaint.setStyle(Paint.Style.FILL_AND_STROKE);
 						mPaint.setTextSize(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 18, getResources().getDisplayMetrics()));
+						Option option = new Option(mPaint);
 						LineAttribute defaultAttribute = new LineAttribute(texTextView.getWidth());
+						LineAttributes lineAttributes = new LineAttributes(defaultAttribute);
+						lineAttributes.add(0, new LineAttribute(
+								texTextView.getWidth() - option.indent,
+								Gravity.RIGHT,
+								(int) option.lineSpacing
+						));
 						mLineAttributes = new LineAttributes(defaultAttribute);
 
 
-						Option option = new Option(mPaint);
 						ElementFactory factory = new ElementFactory();
 						TexTypesetter texTypesetter = new TexTypesetter(mPaint, option, factory);
 						TextParser textParser = new TextParser(Hypher.getInstance(), option);
