@@ -1,6 +1,5 @@
 package me.chan.te.typesetter;
 
-import android.graphics.Rect;
 import android.text.TextPaint;
 
 import java.util.ArrayList;

@@ -16,5 +16,5 @@ public interface BoxStyle {
 	 * @param other 另外一个style
 	 * @return 是否和Other元素style冲突，如果不冲突，表示其对应的Box可以被合并
 	 */
-	boolean isCoflict(BoxStyle other);
+	boolean isConflict(BoxStyle other);
 }
