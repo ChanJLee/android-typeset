@@ -49,15 +49,16 @@ public final class Box implements Element {
 		mEnd = mText.length();
 	}
 
-	public void getBound(TextPaint textPaint, Rect bound) {
+	public void getBound(TextPaint textPaint, Bound bound) {
 		if (mDirty) {
 			updateTextPaint(textPaint);
 			mWidth = Layout.getDesiredWidth(mText, mStart, mEnd, textPaint);
-			textPaint.getTextBounds(String.valueOf(mText), mStart, mEnd, bound);
-			mHeight = bound.height();
+			textPaint.getTextBounds(String.valueOf(mText), mStart, mEnd, bound.mBound);
+			mHeight = bound.mBound.height();
 		}
 
-		bound.set(0, 0, (int) Math.ceil(mWidth), (int) Math.ceil(mHeight));
+		bound.mWidth = mWidth;
+		bound.mHeight = mHeight;
 	}
 
 	private void updateTextPaint(TextPaint textPaint) {
@@ -108,5 +109,19 @@ public final class Box implements Element {
 				", mStart=" + mStart +
 				", mEnd=" + mEnd +
 				'}';
+	}
+
+	public static class Bound {
+		private Rect mBound = new Rect();
+		private float mHeight;
+		private float mWidth;
+
+		public float getHeight() {
+			return mHeight;
+		}
+
+		public float getWidth() {
+			return mWidth;
+		}
 	}
 }

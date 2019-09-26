@@ -28,7 +28,7 @@ public class TexTypesetter {
 	private Option mOption;
 	private TextPaint mPaint;
 	private TextPaint mWorkPaint = new TextPaint();
-	private Rect mBound = new Rect();
+	private Box.Bound mBound = new Box.Bound();
 
 	private ElementFactory mElementFactory;
 
@@ -107,11 +107,11 @@ public class TexTypesetter {
 			return glue.getWidth();
 		}
 
-		Rect bound = getBoxBound((Box) element);
-		return bound.width();
+		Box.Bound bound = getBoxBound((Box) element);
+		return bound.getWidth();
 	}
 
-	private Rect getBoxBound(Box box) {
+	private Box.Bound getBoxBound(Box box) {
 		TextPaint textPaint = getInternalPaint();
 		box.getBound(textPaint, mBound);
 		return mBound;
@@ -174,11 +174,11 @@ public class TexTypesetter {
 			Box box = (Box) lineElements.get(i);
 			i = mergeBox(box, i + 1, end, lineElements, mElementFactory);
 
-			Rect bound = getBoxBound(box);
-			if (lineHeight < bound.height()) {
-				lineHeight = bound.height();
+			Box.Bound bound = getBoxBound(box);
+			if (lineHeight < bound.getHeight()) {
+				lineHeight = bound.getHeight();
 			}
-			wordWidth += bound.width();
+			wordWidth += bound.getWidth();
 			boxes.add(box);
 		}
 
