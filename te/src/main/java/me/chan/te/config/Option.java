@@ -19,15 +19,36 @@ public class Option {
 	public float spaceShrink;
 	public float indent;
 	public float lineSpacing;
+	public float shrinkRatio = -0.2f;
+	public float stretchRatio = 0.2f;
 
 	public Option(TextPaint paint) {
-		hyphenWidth = paint.measureText("-");
-		spaceWidth = Layout.getDesiredWidth(" ", paint);
-		spaceStretch = spaceShrink = spaceWidth * 0.1f;
+		hyphenWidth = Layout.getDesiredWidth("-", paint);
+		spaceWidth = hyphenWidth;
+		spaceStretch = spaceShrink = spaceWidth * (1 + shrinkRatio);
 
 		// 首行缩进四个空格
 		indent = spaceWidth * 4;
 		// 1.0 倍行间距
 		lineSpacing = (int) (paint.getFontSpacing());
+	}
+
+	@Override
+	public String toString() {
+		return "Option{" +
+				"infinity=" + infinity +
+				", hyphenPenalty=" + hyphenPenalty +
+				", demeritsLine=" + demeritsLine +
+				", demeritsFlagged=" + demeritsFlagged +
+				", demeritsFitness=" + demeritsFitness +
+				", maxRelayoutTimes=" + maxRelayoutTimes +
+				", minHyperLen=" + minHyperLen +
+				", hyphenWidth=" + hyphenWidth +
+				", spaceWidth=" + spaceWidth +
+				", spaceStretch=" + spaceStretch +
+				", spaceShrink=" + spaceShrink +
+				", indent=" + indent +
+				", lineSpacing=" + lineSpacing +
+				'}';
 	}
 }
