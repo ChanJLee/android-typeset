@@ -39,7 +39,7 @@ public class TexTextView extends View implements GestureDetector.OnGestureListen
 	private Box mSelectedBox;
 	private Box mSelectedSuffix;
 	private TextPaint mWorkPaint = new TextPaint();
-	private Rect mBound = new Rect();
+	private Box.Bound mBound = new Box.Bound();
 
 	public TexTextView(Context context) {
 		super(context);
@@ -218,7 +218,7 @@ public class TexTextView extends View implements GestureDetector.OnGestureListen
 
 	private float getBoxWidth(TextPaint textPaint, Box box) {
 		box.getBound(textPaint, mBound);
-		return mBound.width();
+		return mBound.getWidth();
 	}
 
 	private boolean handleClicked(float x, float y) {
