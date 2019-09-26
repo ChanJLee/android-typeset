@@ -3,11 +3,11 @@ package me.chan.te.data;
 public final class Glue implements Element {
 
 	/**
-	 * stretchability
+	 * stretch ability
 	 */
 	private float mStretch;
 	/**
-	 * shrinkability
+	 * shrink ability
 	 */
 	private float mShrink;
 
