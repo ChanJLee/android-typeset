@@ -11,7 +11,7 @@ public class Option {
 	public float demeritsFlagged = 100;
 	// 对应 γ
 	public float demeritsFitness = 3000;
-	public int maxRelayoutTimes = 10;
+	public int maxRelayoutTimes = 30;
 	public int minHyperLen = 4;
 	public float hyphenWidth;
 	public float spaceWidth;

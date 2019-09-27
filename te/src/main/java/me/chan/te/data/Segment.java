@@ -21,9 +21,6 @@ public final class Segment {
 
 	@Override
 	public String toString() {
-		return "Segment{" +
-				"mText=" + mText.subSequence(mStart, mEnd) +
-				", mElements=" + mElements +
-				'}';
+		return String.valueOf(mText.subSequence(mStart, mEnd));
 	}
 }
