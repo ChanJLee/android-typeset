@@ -5,20 +5,22 @@ import android.annotation.SuppressLint;
 import java.util.HashMap;
 import java.util.Map;
 
+import me.chan.te.data.Gravity;
+
 /**
  * line options
  */
 public class LineAttributes {
-	private LineAttribute mDefaultAttribute;
+	private Attribute mDefaultAttribute;
 	@SuppressLint("UseSparseArrays")
-	private Map<Integer, LineAttribute> mMap = new HashMap<>();
+	private Map<Integer, Attribute> mMap = new HashMap<>();
 
-	public LineAttributes(LineAttribute defaultAttribute) {
+	public LineAttributes(Attribute defaultAttribute) {
 		mDefaultAttribute = defaultAttribute;
 	}
 
-	public LineAttributes add(int lineNumber, LineAttribute lineAttribute) {
-		mMap.put(lineNumber, lineAttribute);
+	public LineAttributes add(int lineNumber, Attribute attribute) {
+		mMap.put(lineNumber, attribute);
 		return this;
 	}
 
@@ -26,10 +28,38 @@ public class LineAttributes {
 		mMap.remove(lineNumber);
 	}
 
-	public LineAttribute get(int lineNumber) {
+	public Attribute get(int lineNumber) {
 		if (mMap.containsKey(lineNumber)) {
 			return mMap.get(lineNumber);
 		}
 		return mDefaultAttribute;
+	}
+
+	public static class Attribute {
+		private float mLineWidth;
+		private Gravity mGravity;
+		private int mLineVerticalSpace;
+
+		public Attribute(float lineWidth) {
+			this(lineWidth, Gravity.LEFT, 20);
+		}
+
+		public Attribute(float lineWidth, Gravity gravity, int lineVerticalSpace) {
+			mLineWidth = lineWidth;
+			mGravity = gravity;
+			mLineVerticalSpace = lineVerticalSpace;
+		}
+
+		public float getLineWidth() {
+			return mLineWidth;
+		}
+
+		public Gravity getGravity() {
+			return mGravity;
+		}
+
+		public int getLineVerticalSpace() {
+			return mLineVerticalSpace;
+		}
 	}
 }

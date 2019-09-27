@@ -14,7 +14,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
-import me.chan.te.config.LineAttribute;
 import me.chan.te.config.LineAttributes;
 import me.chan.te.config.Option;
 import me.chan.te.data.Box;
@@ -168,9 +167,9 @@ public class ExampleUnitTest {
 
 	@Test
 	public void testLinesAttributes() {
-		LineAttributes lineAttributes = new LineAttributes(new LineAttribute(10));
-		lineAttributes.add(1, new LineAttribute(20));
-		lineAttributes.add(2, new LineAttribute(30));
+		LineAttributes lineAttributes = new LineAttributes(new LineAttributes.Attribute(10));
+		lineAttributes.add(1, new LineAttributes.Attribute(20));
+		lineAttributes.add(2, new LineAttributes.Attribute(30));
 
 		assertEquals(lineAttributes.get(10).getLineWidth(), 10f, 0);
 		assertEquals(lineAttributes.get(1).getLineWidth(), 20f, 0);
@@ -181,7 +180,7 @@ public class ExampleUnitTest {
 
 	@Test
 	public void testTypesetter() {
-		LineAttributes lineAttributes = new LineAttributes(new LineAttribute(10));
+		LineAttributes lineAttributes = new LineAttributes(new LineAttributes.Attribute(10));
 		ElementFactory factory = new ElementFactory();
 		TextPaint paint = new TextPaint();
 		Option option = new Option(paint);

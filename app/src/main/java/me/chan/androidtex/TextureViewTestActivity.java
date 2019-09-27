@@ -13,7 +13,6 @@ import android.view.View;
 import java.util.List;
 
 import me.chan.te.config.Option;
-import me.chan.te.config.LineAttribute;
 import me.chan.te.config.LineAttributes;
 import me.chan.te.data.ElementFactory;
 import me.chan.te.data.Gravity;
@@ -63,9 +62,9 @@ public class TextureViewTestActivity extends AppCompatActivity {
 						mPaint.setStyle(Paint.Style.FILL_AND_STROKE);
 						mPaint.setTextSize(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 18, getResources().getDisplayMetrics()));
 						Option option = new Option(mPaint);
-						LineAttribute defaultAttribute = new LineAttribute(texTextView.getWidth());
+						LineAttributes.Attribute defaultAttribute = new LineAttributes.Attribute(texTextView.getWidth());
 						LineAttributes lineAttributes = new LineAttributes(defaultAttribute);
-						lineAttributes.add(0, new LineAttribute(
+						lineAttributes.add(0, new LineAttributes.Attribute(
 								texTextView.getWidth() - option.indent,
 								Gravity.RIGHT,
 								(int) option.lineSpacing
