@@ -40,8 +40,12 @@ public class TexTypesetter {
 		mSimpleTypesetter = new SimpleTypesetter(option, paint, mWorkPaint, mBound, elementFactory);
 	}
 
-	public Paragraph typeset(Segment segment, LineAttributes lineAttributes) {
+	public Paragraph typeset(Segment segment, LineAttributes lineAttributes, Policy policy) {
 		Paragraph paragraph = new Paragraph(lineAttributes);
+		if (policy == Policy.FIT) {
+			mSimpleTypesetter.typeset(paragraph, segment, lineAttributes);
+			return paragraph;
+		}
 
 		List<Node> activeNodes = null;
 		float tolerance = 0;
@@ -469,6 +473,17 @@ public class TexTypesetter {
 			}
 		}
 		return result;
+	}
+
+	public enum Policy {
+		/**
+		 * 尽可能的排满一行
+		 */
+		FIT,
+		/**
+		 * 两边对齐
+		 */
+		FILL
 	}
 
 	private static void w(String msg) {

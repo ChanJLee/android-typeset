@@ -76,7 +76,7 @@ public class TextureViewTestActivity extends AppCompatActivity {
 						TexTypesetter texTypesetter = new TexTypesetter(mPaint, option, factory);
 						TextParser textParser = new TextParser(Hypher.getInstance(), option);
 						List<Segment> list = textParser.parser(getResources().getString(R.string.test), factory);
-						mParagraph = texTypesetter.typeset(list.get(0), mLineAttributes);
+						mParagraph = texTypesetter.typeset(list.get(0), mLineAttributes, TexTypesetter.Policy.FILL);
 
 						mHandler.sendEmptyMessage(10);
 					}
