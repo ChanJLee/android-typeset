@@ -10,5 +10,5 @@ import me.chan.te.data.Segment;
 public interface Parser {
 
 	@NonNull
-	List<Segment> parser(CharSequence charSequence, ElementFactory elementFactory);
+	List<Segment> parser(@NonNull CharSequence charSequence, ElementFactory elementFactory);
 }
