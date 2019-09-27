@@ -14,8 +14,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
-import me.chan.te.config.SegmentAttribute;
-import me.chan.te.config.SegmentAttributes;
+import me.chan.te.config.LineAttribute;
+import me.chan.te.config.LineAttributes;
 import me.chan.te.config.Option;
 import me.chan.te.data.Box;
 import me.chan.te.data.Element;
@@ -168,27 +168,27 @@ public class ExampleUnitTest {
 
 	@Test
 	public void testLinesAttributes() {
-		SegmentAttributes segmentAttributes = new SegmentAttributes(new SegmentAttribute(10));
-		segmentAttributes.add(1, new SegmentAttribute(20));
-		segmentAttributes.add(2, new SegmentAttribute(30));
+		LineAttributes lineAttributes = new LineAttributes(new LineAttribute(10));
+		lineAttributes.add(1, new LineAttribute(20));
+		lineAttributes.add(2, new LineAttribute(30));
 
-		assertEquals(segmentAttributes.get(10).getLineWidth(), 10f, 0);
-		assertEquals(segmentAttributes.get(1).getLineWidth(), 20f, 0);
+		assertEquals(lineAttributes.get(10).getLineWidth(), 10f, 0);
+		assertEquals(lineAttributes.get(1).getLineWidth(), 20f, 0);
 
-		segmentAttributes.remove(2);
-		assertEquals(segmentAttributes.get(2).getLineWidth(), 10f, 0);
+		lineAttributes.remove(2);
+		assertEquals(lineAttributes.get(2).getLineWidth(), 10f, 0);
 	}
 
 	@Test
 	public void testTypesetter() {
-		SegmentAttributes segmentAttributes = new SegmentAttributes(new SegmentAttribute(10));
+		LineAttributes lineAttributes = new LineAttributes(new LineAttribute(10));
 		ElementFactory factory = new ElementFactory();
 		TextPaint paint = new TextPaint();
 		Option option = new Option(paint);
 		TexTypesetter texTypesetter = new TexTypesetter(paint, option, factory);
 		TextParser textParser = new TextParser(Hypher.getInstance(), option);
 		List<Segment> segments = textParser.parser("hello\n\nworld\n\n", factory);
-		Paragraph paragraph = texTypesetter.typeset(segments.get(0), segmentAttributes);
+		Paragraph paragraph = texTypesetter.typeset(segments.get(0), lineAttributes);
 		assertNotNull(paragraph);
 		assertNotNull(paragraph.getLines());
 	}

@@ -2,16 +2,16 @@ package me.chan.te.config;
 
 import me.chan.te.data.Gravity;
 
-public class SegmentAttribute {
+public class LineAttribute {
 	private float mLineWidth;
 	private Gravity mGravity;
 	private int mLineVerticalSpace;
 
-	public SegmentAttribute(float lineWidth) {
+	public LineAttribute(float lineWidth) {
 		this(lineWidth, Gravity.LEFT, 20);
 	}
 
-	public SegmentAttribute(float lineWidth, Gravity gravity, int lineVerticalSpace) {
+	public LineAttribute(float lineWidth, Gravity gravity, int lineVerticalSpace) {
 		mLineWidth = lineWidth;
 		mGravity = gravity;
 		mLineVerticalSpace = lineVerticalSpace;
