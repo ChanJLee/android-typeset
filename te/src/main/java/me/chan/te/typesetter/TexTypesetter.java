@@ -44,16 +44,21 @@ public class TexTypesetter {
 		float tolerance = 0;
 		for (int i = 0; i < mOption.maxRelayoutTimes &&
 				!Thread.currentThread().isInterrupted(); ++i) {
-			tolerance += mOption.stretchRatio;
+			tolerance += mOption.stretchStepRatio;
 			activeNodes = createActiveNodes(elements, lineAttributes, tolerance);
 			if (!activeNodes.isEmpty()) {
 				break;
 			}
 		}
 
-		if (Thread.currentThread().isInterrupted() ||
-				activeNodes == null ||
+		if (Thread.currentThread().isInterrupted()) {
+			return paragraph;
+		}
+
+		if (activeNodes == null ||
 				activeNodes.isEmpty()) {
+			w("can not find active nodes");
+			simplicityTypeset(paragraph, elements, lineAttributes);
 			return paragraph;
 		}
 
@@ -68,6 +73,10 @@ public class TexTypesetter {
 		return paragraph;
 	}
 
+	private void simplicityTypeset(Paragraph paragraph, List<? extends Element> elements, LineAttributes lineAttributes) {
+		// TODO
+	}
+
 	private List<Node> createActiveNodes(List<? extends Element> elements, LineAttributes lineAttributes, float tolerance) {
 		List<Node> activeNodes = new ArrayList<>();
 
@@ -75,7 +84,9 @@ public class TexTypesetter {
 		data.totals = new Sum();
 		activeNodes.add(new Node(data, null, null));
 		Sum sum = new Sum();
-		for (int i = 0; i < elements.size() && !Thread.currentThread().isInterrupted(); ++i) {
+		for (int i = 0; i < elements.size() &&
+				!Thread.currentThread().isInterrupted() &&
+				!activeNodes.isEmpty(); ++i) {
 			Element element = elements.get(i);
 			if (element instanceof Box) {
 				sum.width += getElementWidth(element);
@@ -282,13 +293,11 @@ public class TexTypesetter {
 				int currentLine = active.data.line + 1;
 				float ratio = computeRatio(element, active.data, sum, lineAttributes.get(currentLine).getLineWidth());
 
-				if (ratio < mOption.shrinkRatio || (element instanceof Penalty && ((Penalty) element).getPenalty() == -mOption.infinity)) {
+				if (ratio < mOption.minShrinkRatio || (element instanceof Penalty && ((Penalty) element).getPenalty() == -mOption.infinity)) {
 					removeActiveNode(active, activeNodes);
-					d("remove active node, size: " + activeNodes.size() +
-							" element: " + element + " index: " + index);
 				}
 
-				if (ratio >= mOption.shrinkRatio && ratio <= tolerance) {
+				if (ratio >= mOption.minShrinkRatio && ratio <= tolerance) {
 					int currentClass = computeClazz(ratio);
 
 					float demerits = computeDemerits(element, elements, ratio, active, currentClass);
@@ -351,9 +360,6 @@ public class TexTypesetter {
 				}
 				activeNodes.add(node);
 			}
-
-			d("add active node, size:" + activeNodes.size() +
-					" element: " + element + " index: " + index);
 		}
 	}
 
@@ -459,7 +465,7 @@ public class TexTypesetter {
 		return result;
 	}
 
-	private static void d(String msg) {
-		Log.d("TexTypesetter", msg);
+	private static void w(String msg) {
+		Log.w("TexTypesetter", msg);
 	}
 }
