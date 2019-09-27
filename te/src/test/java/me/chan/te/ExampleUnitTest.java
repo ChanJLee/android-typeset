@@ -14,8 +14,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
-import me.chan.te.config.LineAttribute;
-import me.chan.te.config.LineAttributes;
+import me.chan.te.config.SegmentAttribute;
+import me.chan.te.config.SegmentAttributes;
 import me.chan.te.config.Option;
 import me.chan.te.data.Box;
 import me.chan.te.data.Element;
@@ -23,6 +23,7 @@ import me.chan.te.data.ElementFactory;
 import me.chan.te.data.Glue;
 import me.chan.te.data.Paragraph;
 import me.chan.te.data.Penalty;
+import me.chan.te.data.Segment;
 import me.chan.te.hypher.Hypher;
 import me.chan.te.parser.TextParser;
 import me.chan.te.typesetter.TexTypesetter;
@@ -95,21 +96,20 @@ public class ExampleUnitTest {
 		Option option = new Option(paint);
 		ElementFactory factory = new ElementFactory();
 		TextParser textParser = new TextParser(Hypher.getInstance(), option);
-		List<? extends Element> list = textParser.parser("hello\n\nworld\n\n", factory);
+		List<Segment> segments = textParser.parser("hello\n\nworld\n\n", factory);
+		List<? extends Element> list = segments.get(0).getElements();
 		assertNotEquals(list.size(), 0);
-		for (Element element : list) {
-			System.out.println(element);
-		}
 		assertEquals("check last: ", list.get(list.size() - 1).getClass(), Penalty.class);
 		assertEquals("check last - 1: ", list.get(list.size() - 2).getClass(), Glue.class);
 
 
-		list = textParser.parser("cross-legged", factory);
+		segments = textParser.parser("cross-legged", factory);
 		assertNotEquals(list.size(), 0);
 		for (Element element : list) {
 			System.out.println(element);
 		}
 
+		list = segments.get(0).getElements();
 		assertEquals("check last: ", list.get(list.size() - 1).getClass(), Penalty.class);
 		assertEquals("check last - 1: ", list.get(list.size() - 2).getClass(), Glue.class);
 	}
@@ -121,7 +121,8 @@ public class ExampleUnitTest {
 		Option option = new Option(paint);
 		ElementFactory factory = new ElementFactory();
 		TextParser textParser = new TextParser(Hypher.getInstance(), option);
-		List<? extends Element> list = textParser.parser("triangle", factory);
+		List<Segment> segments = textParser.parser("triangle", factory);
+		List<? extends Element> list = segments.get(0).getElements();
 		assertNotEquals(list.size(), 0);
 		for (Element element : list) {
 			System.out.println(element);
@@ -153,7 +154,8 @@ public class ExampleUnitTest {
 
 			String contentWithoutBlank = line.replaceAll("\\p{Z}+|\\t|\\r|\\n", "");
 			StringBuilder stringBuilder = new StringBuilder();
-			List<? extends Element> list = textParser.parser(line, factory);
+			List<Segment> segments = textParser.parser(line, factory);
+			List<? extends Element> list = segments.get(0).getElements();
 			for (Element element : list) {
 				if (element instanceof Box) {
 					stringBuilder.append(((Box) element).getContentForDebug());
@@ -166,27 +168,27 @@ public class ExampleUnitTest {
 
 	@Test
 	public void testLinesAttributes() {
-		LineAttributes lineAttributes = new LineAttributes(new LineAttribute(10));
-		lineAttributes.add(1, new LineAttribute(20));
-		lineAttributes.add(2, new LineAttribute(30));
+		SegmentAttributes segmentAttributes = new SegmentAttributes(new SegmentAttribute(10));
+		segmentAttributes.add(1, new SegmentAttribute(20));
+		segmentAttributes.add(2, new SegmentAttribute(30));
 
-		assertEquals(lineAttributes.get(10).getLineWidth(), 10f, 0);
-		assertEquals(lineAttributes.get(1).getLineWidth(), 20f, 0);
+		assertEquals(segmentAttributes.get(10).getLineWidth(), 10f, 0);
+		assertEquals(segmentAttributes.get(1).getLineWidth(), 20f, 0);
 
-		lineAttributes.remove(2);
-		assertEquals(lineAttributes.get(2).getLineWidth(), 10f, 0);
+		segmentAttributes.remove(2);
+		assertEquals(segmentAttributes.get(2).getLineWidth(), 10f, 0);
 	}
 
 	@Test
 	public void testTypesetter() {
-		LineAttributes lineAttributes = new LineAttributes(new LineAttribute(10));
+		SegmentAttributes segmentAttributes = new SegmentAttributes(new SegmentAttribute(10));
 		ElementFactory factory = new ElementFactory();
 		TextPaint paint = new TextPaint();
 		Option option = new Option(paint);
 		TexTypesetter texTypesetter = new TexTypesetter(paint, option, factory);
 		TextParser textParser = new TextParser(Hypher.getInstance(), option);
-		List<? extends Element> list = textParser.parser("hello\n\nworld\n\n", factory);
-		Paragraph paragraph = texTypesetter.typeset(list, lineAttributes);
+		List<Segment> segments = textParser.parser("hello\n\nworld\n\n", factory);
+		Paragraph paragraph = texTypesetter.typeset(segments.get(0), segmentAttributes);
 		assertNotNull(paragraph);
 		assertNotNull(paragraph.getLines());
 	}

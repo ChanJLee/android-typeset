@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import me.chan.te.config.LineAttributes;
+import me.chan.te.config.SegmentAttributes;
 import me.chan.te.config.Option;
 import me.chan.te.data.Box;
 import me.chan.te.data.Element;
@@ -15,6 +15,7 @@ import me.chan.te.data.Glue;
 import me.chan.te.data.Line;
 import me.chan.te.data.Paragraph;
 import me.chan.te.data.Penalty;
+import me.chan.te.data.Segment;
 import me.chan.te.log.Log;
 
 // TODO opt memory
@@ -37,15 +38,15 @@ public class TexTypesetter {
 		mElementFactory = elementFactory;
 	}
 
-	public Paragraph typeset(List<? extends Element> elements, LineAttributes lineAttributes) {
-		Paragraph paragraph = new Paragraph(lineAttributes);
+	public Paragraph typeset(Segment segment, SegmentAttributes segmentAttributes) {
+		Paragraph paragraph = new Paragraph(segmentAttributes);
 
 		List<Node> activeNodes = null;
 		float tolerance = 0;
 		for (int i = 0; i < mOption.maxRelayoutTimes &&
 				!Thread.currentThread().isInterrupted(); ++i) {
 			tolerance += mOption.stretchStepRatio;
-			activeNodes = createActiveNodes(elements, lineAttributes, tolerance);
+			activeNodes = createActiveNodes(segment, segmentAttributes, tolerance);
 			if (!activeNodes.isEmpty()) {
 				break;
 			}
@@ -58,7 +59,7 @@ public class TexTypesetter {
 		if (activeNodes == null ||
 				activeNodes.isEmpty()) {
 			w("can not find active nodes");
-			simplicityTypeset(paragraph, elements, lineAttributes);
+			simplicityTypeset(paragraph, segment, segmentAttributes);
 			return paragraph;
 		}
 
@@ -67,17 +68,18 @@ public class TexTypesetter {
 			return paragraph;
 		}
 
-		List<Line> lines = typesetParagraph(elements, breakPoints, lineAttributes);
+		List<Line> lines = typesetParagraph(segment, breakPoints, segmentAttributes);
 		paragraph.setLines(lines);
 
 		return paragraph;
 	}
 
-	private void simplicityTypeset(Paragraph paragraph, List<? extends Element> elements, LineAttributes lineAttributes) {
+	private void simplicityTypeset(Paragraph paragraph, Segment segment, SegmentAttributes segmentAttributes) {
 		// TODO
 	}
 
-	private List<Node> createActiveNodes(List<? extends Element> elements, LineAttributes lineAttributes, float tolerance) {
+	private List<Node> createActiveNodes(Segment segment, SegmentAttributes segmentAttributes, float tolerance) {
+		List<? extends Element> elements = segment.getElements();
 		List<Node> activeNodes = new ArrayList<>();
 
 		Node.Data data = new Node.Data();
@@ -92,7 +94,7 @@ public class TexTypesetter {
 				sum.width += getElementWidth(element);
 			} else if (element instanceof Glue) {
 				if (i > 0 && elements.get(i - 1) instanceof Box) {
-					typesetLine(i, elements, activeNodes, sum, lineAttributes, tolerance);
+					typesetLine(i, elements, activeNodes, sum, segmentAttributes, tolerance);
 				}
 
 				Glue glue = (Glue) element;
@@ -101,7 +103,7 @@ public class TexTypesetter {
 				sum.stretch += glue.getStretch();
 			} else if (element instanceof Penalty &&
 					((Penalty) element).getPenalty() != mOption.infinity) {
-				typesetLine(i, elements, activeNodes, sum, lineAttributes, tolerance);
+				typesetLine(i, elements, activeNodes, sum, segmentAttributes, tolerance);
 			}
 		}
 
@@ -135,9 +137,10 @@ public class TexTypesetter {
 		return textPaint;
 	}
 
-	private List<Line> typesetParagraph(List<? extends Element> elements,
+	private List<Line> typesetParagraph(Segment segment,
 										List<BreakPoint> breakPoints,
-										LineAttributes lineAttributes) {
+										SegmentAttributes segmentAttributes) {
+		List<? extends Element> elements = segment.getElements();
 		List<Line> lines = new ArrayList<>();
 		int lineStart = 0;
 		int size = elements.size();
@@ -161,7 +164,7 @@ public class TexTypesetter {
 					elements,
 					lineStart,
 					lineEnd,
-					lineAttributes,
+					segmentAttributes,
 					i + 1 == breakPoints.size(),
 					breakPoint.ratio,
 					i - 1));
@@ -171,7 +174,7 @@ public class TexTypesetter {
 	}
 
 	private Line createLine(List<? extends Element> lineElements, int start, int end,
-							LineAttributes lineAttributes, boolean lastLine, float ratio,
+							SegmentAttributes segmentAttributes, boolean lastLine, float ratio,
 							int lineNumber) {
 		float lineHeight = 0;
 		float wordWidth = 0;
@@ -197,7 +200,7 @@ public class TexTypesetter {
 		float spaceWidth = mOption.spaceWidth;
 		int boxCount = boxes.size();
 		if (boxCount > 1 && !lastLine) {
-			float lineWidth = lineAttributes.get(lineNumber).getLineWidth();
+			float lineWidth = segmentAttributes.get(lineNumber).getLineWidth();
 			spaceWidth = (lineWidth - wordWidth) / (boxCount - 1);
 		}
 
@@ -276,12 +279,12 @@ public class TexTypesetter {
 	 * @param elements       需要排版的元素
 	 * @param activeNodes    active nodes
 	 * @param sum            sum
-	 * @param lineAttributes 行配置信息
+	 * @param segmentAttributes 行配置信息
 	 * @param tolerance      允许的缺陷阈值
 	 */
 	private void typesetLine(int index, List<? extends Element> elements,
 							 List<Node> activeNodes, Sum sum,
-							 LineAttributes lineAttributes, float tolerance) {
+							 SegmentAttributes segmentAttributes, float tolerance) {
 		Element element = elements.get(index);
 		Node active = activeNodes.isEmpty() ? null : activeNodes.get(0);
 
@@ -291,7 +294,7 @@ public class TexTypesetter {
 			while (active != null) {
 				Node next = active.next;
 				int currentLine = active.data.line + 1;
-				float ratio = computeRatio(element, active.data, sum, lineAttributes.get(currentLine).getLineWidth());
+				float ratio = computeRatio(element, active.data, sum, segmentAttributes.get(currentLine).getLineWidth());
 
 				if (ratio < mOption.minShrinkRatio || (element instanceof Penalty && ((Penalty) element).getPenalty() == -mOption.infinity)) {
 					removeActiveNode(active, activeNodes);

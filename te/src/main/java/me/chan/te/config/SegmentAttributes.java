@@ -8,17 +8,17 @@ import java.util.Map;
 /**
  * line options
  */
-public class LineAttributes {
-	private LineAttribute mDefaultAttribute;
+public class SegmentAttributes {
+	private SegmentAttribute mDefaultAttribute;
 	@SuppressLint("UseSparseArrays")
-	private Map<Integer, LineAttribute> mMap = new HashMap<>();
+	private Map<Integer, SegmentAttribute> mMap = new HashMap<>();
 
-	public LineAttributes(LineAttribute defaultAttribute) {
+	public SegmentAttributes(SegmentAttribute defaultAttribute) {
 		mDefaultAttribute = defaultAttribute;
 	}
 
-	public LineAttributes add(int lineNumber, LineAttribute lineAttribute) {
-		mMap.put(lineNumber, lineAttribute);
+	public SegmentAttributes add(int lineNumber, SegmentAttribute segmentAttribute) {
+		mMap.put(lineNumber, segmentAttribute);
 		return this;
 	}
 
@@ -26,7 +26,7 @@ public class LineAttributes {
 		mMap.remove(lineNumber);
 	}
 
-	public LineAttribute get(int lineNumber) {
+	public SegmentAttribute get(int lineNumber) {
 		if (mMap.containsKey(lineNumber)) {
 			return mMap.get(lineNumber);
 		}
