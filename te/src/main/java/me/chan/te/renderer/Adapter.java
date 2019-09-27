@@ -91,7 +91,7 @@ public class Adapter extends RecyclerView.Adapter<TexViewHolder> {
 					Gravity.RIGHT,
 					(int) mOption.lineSpacing
 			));
-			Paragraph paragraph = texTypesetter.typeset(segment, lineAttributes);
+			Paragraph paragraph = texTypesetter.typeset(segment, lineAttributes, TexTypesetter.Policy.FILL);
 			paragraphs.add(paragraph);
 		}
 

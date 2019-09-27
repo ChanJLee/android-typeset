@@ -50,7 +50,7 @@ public class ExampleUnitTest {
 		TexTypesetter texTypesetter = new TexTypesetter(paint, option, factory);
 		TextParser textParser = new TextParser(Hypher.getInstance(), option);
 		List<Segment> segments = textParser.parser("hello\n\nworld\n\n", factory);
-		Paragraph paragraph = texTypesetter.typeset(segments.get(0), lineAttributes);
+		Paragraph paragraph = texTypesetter.typeset(segments.get(0), lineAttributes, TexTypesetter.Policy.FILL);
 		assertNotNull(paragraph);
 		assertNotNull(paragraph.getLines());
 	}
