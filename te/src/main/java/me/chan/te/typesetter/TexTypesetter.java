@@ -31,11 +31,13 @@ public class TexTypesetter {
 	private Box.Bound mBound = new Box.Bound();
 
 	private ElementFactory mElementFactory;
+	private SimpleTypesetter mSimpleTypesetter;
 
 	public TexTypesetter(TextPaint paint, Option option, ElementFactory elementFactory) {
 		mOption = option;
 		mPaint = paint;
 		mElementFactory = elementFactory;
+		mSimpleTypesetter = new SimpleTypesetter(option, paint, mWorkPaint, mBound, elementFactory);
 	}
 
 	public Paragraph typeset(Segment segment, LineAttributes lineAttributes) {
@@ -59,7 +61,7 @@ public class TexTypesetter {
 		if (activeNodes == null ||
 				activeNodes.isEmpty()) {
 			w("can not find active nodes: " + segment);
-			simplicityTypeset(paragraph, segment, lineAttributes);
+			mSimpleTypesetter.typeset(paragraph, segment, lineAttributes);
 			return paragraph;
 		}
 
@@ -72,10 +74,6 @@ public class TexTypesetter {
 		paragraph.setLines(lines);
 
 		return paragraph;
-	}
-
-	private void simplicityTypeset(Paragraph paragraph, Segment segment, LineAttributes lineAttributes) {
-		// TODO
 	}
 
 	private List<Node> createActiveNodes(Segment segment, LineAttributes lineAttributes, float tolerance) {
