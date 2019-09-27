@@ -1,5 +1,7 @@
 package me.chan.te.hypher;
 
+import android.support.annotation.NonNull;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -80,7 +82,8 @@ public class Hypher {
 		return tree;
 	}
 
-	public List<String> hyphenate(String word) {
+	@NonNull
+	public List<String> hyphenate(@NonNull String word) {
 		List<String> result = new ArrayList<>();
 		hyphenate(word, result);
 		return result;
@@ -90,11 +93,11 @@ public class Hypher {
 	 * @param word   word
 	 * @param result hyphenate
 	 */
-	public void hyphenate(String word, List<String> result) {
+	public void hyphenate(@NonNull String word, @NonNull List<String> result) {
 		hyphenate(word, 0, word.length(), result);
 	}
 
-	public void hyphenate(String word, int start, int len, List<String> result) {
+	public void hyphenate(@NonNull String word, int start, int len, @NonNull List<String> result) {
 		if (!result.isEmpty()) {
 			Log.w("hyphenate result is not empty");
 		}

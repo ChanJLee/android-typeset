@@ -28,7 +28,7 @@ public class TextParser implements Parser {
 	public List<Segment> parser(CharSequence charSequence, ElementFactory factory) {
 		List<Segment> segments = new ArrayList<>();
 		int len = charSequence.length();
-		for (int i = 0; i < len; ) {
+		for (int i = skipBlank(charSequence, 0, len); i < len; ) {
 			int last = findNewline(charSequence, i, len);
 			if (i != last) {
 				segments.add(new Segment(charSequence, i, last,
@@ -43,7 +43,7 @@ public class TextParser implements Parser {
 		List<Element> list = new ArrayList<>();
 		List<String> hyphenated = new ArrayList<>();
 
-		for (int i = start; i < end;) {
+		for (int i = start; i < end; ) {
 			int last = findWord(paragraph, i, end);
 			int first = i;
 			i = skipBlank(paragraph, last, end);
