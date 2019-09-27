@@ -12,13 +12,13 @@ import android.view.View;
 
 import java.util.List;
 
-import me.chan.te.data.Element;
-import me.chan.te.config.LineAttribute;
-import me.chan.te.config.LineAttributes;
 import me.chan.te.config.Option;
+import me.chan.te.config.SegmentAttribute;
+import me.chan.te.config.SegmentAttributes;
 import me.chan.te.data.ElementFactory;
 import me.chan.te.data.Gravity;
 import me.chan.te.data.Paragraph;
+import me.chan.te.data.Segment;
 import me.chan.te.hypher.Hypher;
 import me.chan.te.parser.TextParser;
 import me.chan.te.typesetter.TexTypesetter;
@@ -28,7 +28,7 @@ public class TextureViewTestActivity extends AppCompatActivity {
 
 	private Handler mHandler;
 	private Paragraph mParagraph;
-	private LineAttributes mLineAttributes;
+	private SegmentAttributes mSegmentAttributes;
 	private TextPaint mPaint;
 
 	@Override
@@ -63,21 +63,21 @@ public class TextureViewTestActivity extends AppCompatActivity {
 						mPaint.setStyle(Paint.Style.FILL_AND_STROKE);
 						mPaint.setTextSize(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 18, getResources().getDisplayMetrics()));
 						Option option = new Option(mPaint);
-						LineAttribute defaultAttribute = new LineAttribute(texTextView.getWidth());
-						LineAttributes lineAttributes = new LineAttributes(defaultAttribute);
-						lineAttributes.add(0, new LineAttribute(
+						SegmentAttribute defaultAttribute = new SegmentAttribute(texTextView.getWidth());
+						SegmentAttributes segmentAttributes = new SegmentAttributes(defaultAttribute);
+						segmentAttributes.add(0, new SegmentAttribute(
 								texTextView.getWidth() - option.indent,
 								Gravity.RIGHT,
 								(int) option.lineSpacing
 						));
-						mLineAttributes = new LineAttributes(defaultAttribute);
+						mSegmentAttributes = new SegmentAttributes(defaultAttribute);
 
 
 						ElementFactory factory = new ElementFactory();
 						TexTypesetter texTypesetter = new TexTypesetter(mPaint, option, factory);
 						TextParser textParser = new TextParser(Hypher.getInstance(), option);
-						List<? extends Element> list = textParser.parser(getResources().getString(R.string.test), factory);
-						mParagraph = texTypesetter.typeset(list, mLineAttributes);
+						List<Segment> list = textParser.parser(getResources().getString(R.string.test), factory);
+						mParagraph = texTypesetter.typeset(list.get(0), mSegmentAttributes);
 
 						mHandler.sendEmptyMessage(10);
 					}

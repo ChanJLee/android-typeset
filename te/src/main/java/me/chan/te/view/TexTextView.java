@@ -16,8 +16,8 @@ import android.view.View;
 import java.util.List;
 
 import me.chan.te.annotations.Hidden;
-import me.chan.te.config.LineAttribute;
-import me.chan.te.config.LineAttributes;
+import me.chan.te.config.SegmentAttribute;
+import me.chan.te.config.SegmentAttributes;
 import me.chan.te.data.Box;
 import me.chan.te.data.Gravity;
 import me.chan.te.data.Line;
@@ -113,13 +113,13 @@ public class TexTextView extends View implements GestureDetector.OnGestureListen
 	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
 		if (mParagraph != null && mParagraph.getLines() != null &&
 				!mParagraph.getLines().isEmpty()) {
-			LineAttributes lineAttributes = mParagraph.getLineAttributes();
+			SegmentAttributes segmentAttributes = mParagraph.getSegmentAttributes();
 			List<Line> lines = mParagraph.getLines();
 			int height = getPaddingTop() + getPaddingBottom();
 			for (int i = 0; i < lines.size(); ++i) {
 				Line line = lines.get(i);
 				height += line.getLineHeight();
-				height += lineAttributes.get(i).getLineVerticalSpace();
+				height += segmentAttributes.get(i).getLineVerticalSpace();
 			}
 
 			heightMeasureSpec = MeasureSpec.makeMeasureSpec(
@@ -143,20 +143,20 @@ public class TexTextView extends View implements GestureDetector.OnGestureListen
 		float y = getPaddingTop();
 		float width = getWidth();
 
-		LineAttributes lineAttributes = mParagraph.getLineAttributes();
+		SegmentAttributes segmentAttributes = mParagraph.getSegmentAttributes();
 		List<Line> lines = mParagraph.getLines();
 		for (int i = 0; i < lines.size(); ++i) {
 			Line line = lines.get(i);
 			y += line.getLineHeight();
 			float x = getPaddingLeft();
-			LineAttribute lineAttribute = lineAttributes.get(i);
-			if (lineAttribute.getGravity() == Gravity.CENTER) {
-				x = (width - lineAttribute.getLineWidth()) / 2f;
-			} else if (lineAttribute.getGravity() == Gravity.RIGHT) {
-				x = (width - lineAttribute.getLineWidth());
+			SegmentAttribute segmentAttribute = segmentAttributes.get(i);
+			if (segmentAttribute.getGravity() == Gravity.CENTER) {
+				x = (width - segmentAttribute.getLineWidth()) / 2f;
+			} else if (segmentAttribute.getGravity() == Gravity.RIGHT) {
+				x = (width - segmentAttribute.getLineWidth());
 			}
 
-			float lineSpace = lineAttribute.getLineVerticalSpace();
+			float lineSpace = segmentAttribute.getLineVerticalSpace();
 			draw(canvas, line, x, y, lineSpace);
 			y += lineSpace;
 		}
@@ -226,7 +226,7 @@ public class TexTextView extends View implements GestureDetector.OnGestureListen
 			return false;
 		}
 
-		LineAttributes lineAttributes = mParagraph.getLineAttributes();
+		SegmentAttributes segmentAttributes = mParagraph.getSegmentAttributes();
 		List<Line> lines = mParagraph.getLines();
 		int size = lines.size();
 		Line targetLine = null;
@@ -240,7 +240,7 @@ public class TexTextView extends View implements GestureDetector.OnGestureListen
 				break;
 			}
 
-			offsetY = (nextOffsetY + lineAttributes.get(lineNumber).getLineVerticalSpace());
+			offsetY = (nextOffsetY + segmentAttributes.get(lineNumber).getLineVerticalSpace());
 		}
 
 		if (targetLine == null) {

@@ -2,11 +2,11 @@ package me.chan.te.data;
 
 import java.util.List;
 
-import me.chan.te.config.LineAttributes;
+import me.chan.te.config.SegmentAttributes;
 
 public class Paragraph {
 	private List<Line> mLines;
-	private LineAttributes mLineAttributes;
+	private SegmentAttributes mSegmentAttributes;
 
 	public void setLines(List<Line> lines) {
 		mLines = lines;
@@ -16,15 +16,15 @@ public class Paragraph {
 		return mLines;
 	}
 
-	public Paragraph(LineAttributes lineAttributes) {
-		mLineAttributes = lineAttributes;
+	public Paragraph(SegmentAttributes segmentAttributes) {
+		mSegmentAttributes = segmentAttributes;
 	}
 
-	public LineAttributes getLineAttributes() {
-		return mLineAttributes;
+	public SegmentAttributes getSegmentAttributes() {
+		return mSegmentAttributes;
 	}
 
-	public void setLineAttributes(LineAttributes lineAttributes) {
-		mLineAttributes = lineAttributes;
+	public void setSegmentAttributes(SegmentAttributes segmentAttributes) {
+		mSegmentAttributes = segmentAttributes;
 	}
 }
