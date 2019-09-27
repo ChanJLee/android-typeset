@@ -13,8 +13,8 @@ import android.view.View;
 import java.util.List;
 
 import me.chan.te.config.Option;
-import me.chan.te.config.SegmentAttribute;
-import me.chan.te.config.SegmentAttributes;
+import me.chan.te.config.LineAttribute;
+import me.chan.te.config.LineAttributes;
 import me.chan.te.data.ElementFactory;
 import me.chan.te.data.Gravity;
 import me.chan.te.data.Paragraph;
@@ -28,7 +28,7 @@ public class TextureViewTestActivity extends AppCompatActivity {
 
 	private Handler mHandler;
 	private Paragraph mParagraph;
-	private SegmentAttributes mSegmentAttributes;
+	private LineAttributes mLineAttributes;
 	private TextPaint mPaint;
 
 	@Override
@@ -63,21 +63,21 @@ public class TextureViewTestActivity extends AppCompatActivity {
 						mPaint.setStyle(Paint.Style.FILL_AND_STROKE);
 						mPaint.setTextSize(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 18, getResources().getDisplayMetrics()));
 						Option option = new Option(mPaint);
-						SegmentAttribute defaultAttribute = new SegmentAttribute(texTextView.getWidth());
-						SegmentAttributes segmentAttributes = new SegmentAttributes(defaultAttribute);
-						segmentAttributes.add(0, new SegmentAttribute(
+						LineAttribute defaultAttribute = new LineAttribute(texTextView.getWidth());
+						LineAttributes lineAttributes = new LineAttributes(defaultAttribute);
+						lineAttributes.add(0, new LineAttribute(
 								texTextView.getWidth() - option.indent,
 								Gravity.RIGHT,
 								(int) option.lineSpacing
 						));
-						mSegmentAttributes = new SegmentAttributes(defaultAttribute);
+						mLineAttributes = new LineAttributes(defaultAttribute);
 
 
 						ElementFactory factory = new ElementFactory();
 						TexTypesetter texTypesetter = new TexTypesetter(mPaint, option, factory);
 						TextParser textParser = new TextParser(Hypher.getInstance(), option);
 						List<Segment> list = textParser.parser(getResources().getString(R.string.test), factory);
-						mParagraph = texTypesetter.typeset(list.get(0), mSegmentAttributes);
+						mParagraph = texTypesetter.typeset(list.get(0), mLineAttributes);
 
 						mHandler.sendEmptyMessage(10);
 					}
