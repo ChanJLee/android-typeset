@@ -11,7 +11,7 @@ public class Option {
 	public float demeritsFlagged = 100;
 	// 对应 γ
 	public float demeritsFitness = 3000;
-	public int maxRelayoutTimes = 30;
+	public int maxRelayoutTimes = 10;
 	public int minHyperLen = 4;
 	public float hyphenWidth;
 	public float spaceWidth;
@@ -19,8 +19,8 @@ public class Option {
 	public float spaceShrink;
 	public float indent;
 	public float lineSpacing;
-	public float shrinkRatio = -0.2f;
-	public float stretchRatio = 0.2f;
+	public float minShrinkRatio = -0.2f;
+	public float stretchStepRatio = 0.2f;
 
 	public Option(TextPaint paint) {
 		hyphenWidth = Layout.getDesiredWidth("-", paint);
