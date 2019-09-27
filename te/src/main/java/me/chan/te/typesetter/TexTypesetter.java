@@ -58,7 +58,7 @@ public class TexTypesetter {
 
 		if (activeNodes == null ||
 				activeNodes.isEmpty()) {
-			w("can not find active nodes");
+			w("can not find active nodes: " + segment);
 			simplicityTypeset(paragraph, segment, lineAttributes);
 			return paragraph;
 		}
