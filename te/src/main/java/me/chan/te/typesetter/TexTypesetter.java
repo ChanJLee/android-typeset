@@ -197,9 +197,13 @@ public class TexTypesetter {
 
 		float spaceWidth = mOption.spaceWidth;
 		int boxCount = boxes.size();
-		if (boxCount > 1 && !lastLine) {
+		if (boxCount > 1) {
 			float lineWidth = lineAttributes.get(lineNumber).getLineWidth();
 			spaceWidth = (lineWidth - wordWidth) / (boxCount - 1);
+		}
+
+		if (lastLine && spaceWidth > mOption.spaceWidth) {
+			spaceWidth = mOption.spaceWidth;
 		}
 
 		return new Line(
