@@ -16,7 +16,6 @@ import android.view.View;
 import java.util.List;
 
 import me.chan.te.annotations.Hidden;
-import me.chan.te.config.LineAttribute;
 import me.chan.te.config.LineAttributes;
 import me.chan.te.data.Box;
 import me.chan.te.data.Gravity;
@@ -149,14 +148,14 @@ public class TexTextView extends View implements GestureDetector.OnGestureListen
 			Line line = lines.get(i);
 			y += line.getLineHeight();
 			float x = getPaddingLeft();
-			LineAttribute lineAttribute = lineAttributes.get(i);
-			if (lineAttribute.getGravity() == Gravity.CENTER) {
-				x = (width - lineAttribute.getLineWidth()) / 2f;
-			} else if (lineAttribute.getGravity() == Gravity.RIGHT) {
-				x = (width - lineAttribute.getLineWidth());
+			LineAttributes.Attribute attribute = lineAttributes.get(i);
+			if (attribute.getGravity() == Gravity.CENTER) {
+				x = (width - attribute.getLineWidth()) / 2f;
+			} else if (attribute.getGravity() == Gravity.RIGHT) {
+				x = (width - attribute.getLineWidth());
 			}
 
-			float lineSpace = lineAttribute.getLineVerticalSpace();
+			float lineSpace = attribute.getLineVerticalSpace();
 			draw(canvas, line, x, y, lineSpace);
 			y += lineSpace;
 		}

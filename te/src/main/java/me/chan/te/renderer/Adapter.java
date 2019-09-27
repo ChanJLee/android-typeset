@@ -17,7 +17,6 @@ import java.util.concurrent.Executors;
 
 import me.chan.te.R;
 import me.chan.te.config.Option;
-import me.chan.te.config.LineAttribute;
 import me.chan.te.config.LineAttributes;
 import me.chan.te.data.ElementFactory;
 import me.chan.te.data.Gravity;
@@ -85,9 +84,9 @@ public class Adapter extends RecyclerView.Adapter<TexViewHolder> {
 		List<Segment> segments = textParser.parser(charSequence, mElementFactory);
 		final List<Paragraph> paragraphs = new ArrayList<>();
 		for (Segment segment : segments) {
-			LineAttribute defaultAttribute = new LineAttribute(width, Gravity.LEFT, (int) mOption.lineSpacing);
+			LineAttributes.Attribute defaultAttribute = new LineAttributes.Attribute(width, Gravity.LEFT, (int) mOption.lineSpacing);
 			LineAttributes lineAttributes = new LineAttributes(defaultAttribute);
-			lineAttributes.add(0, new LineAttribute(
+			lineAttributes.add(0, new LineAttributes.Attribute(
 					width - mOption.indent,
 					Gravity.RIGHT,
 					(int) mOption.lineSpacing
