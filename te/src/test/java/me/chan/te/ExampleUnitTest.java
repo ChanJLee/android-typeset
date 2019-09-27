@@ -55,8 +55,8 @@ public class ExampleUnitTest {
 		System.out.println(result);
 		assertEquals(result.size(), 3);
 		assertEquals(result.get(0), "tri");
-		assertEquals(result.get(0), "an");
-		assertEquals(result.get(0), "gle");
+		assertEquals(result.get(1), "an");
+		assertEquals(result.get(2), "gle");
 
 		result = new ArrayList<>();
 		Hypher.getInstance().hyphenate("ok", result);
@@ -68,24 +68,36 @@ public class ExampleUnitTest {
 		System.out.println(result);
 		assertEquals(result.size(), 3);
 		assertEquals(result.get(0), "tri");
-		assertEquals(result.get(0), "an");
-		assertEquals(result.get(0), "gle");
+		assertEquals(result.get(1), "an");
+		assertEquals(result.get(2), "gle");
 
 		result = new ArrayList<>();
 		Hypher.getInstance().hyphenate("oktriangle", 0, 2, result);
 		System.out.println(result);
-		assertEquals(result.size(), 3);
-		assertEquals(result.get(0), "tri");
-		assertEquals(result.get(0), "an");
-		assertEquals(result.get(0), "gle");
+		assertEquals(result.size(), 0);
 
 		result = new ArrayList<>();
 		Hypher.getInstance().hyphenate("oktriangleok", 2, "oktriangleok".length() - 4, result);
 		System.out.println(result);
 		assertEquals(result.size(), 3);
 		assertEquals(result.get(0), "tri");
-		assertEquals(result.get(0), "an");
-		assertEquals(result.get(0), "gle");
+		assertEquals(result.get(1), "an");
+		assertEquals(result.get(2), "gle");
+
+		result = new ArrayList<>();
+		Hypher.getInstance().hyphenate("cos-triangleok", result);
+		System.out.println(result);
+		assertEquals(result.size(), 3);
+		assertEquals(result.get(0), "cos-tri");
+		assertEquals(result.get(1), "an");
+		assertEquals(result.get(2), "gleok");
+
+		result = new ArrayList<>();
+		Hypher.getInstance().hyphenate("tri-angleok", result);
+		System.out.println(result);
+		assertEquals(result.size(), 2);
+		assertEquals(result.get(0), "tri-an");
+		assertEquals(result.get(1), "gleok");
 	}
 
 	@Test
