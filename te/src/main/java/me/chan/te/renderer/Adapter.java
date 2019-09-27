@@ -27,7 +27,7 @@ import me.chan.te.parser.TextParser;
 import me.chan.te.typesetter.TexTypesetter;
 
 public class Adapter extends RecyclerView.Adapter<TexViewHolder> {
-	private static final int DEFAULT_TEXT_SIZE = 16;
+	private static final int DEFAULT_TEXT_SIZE = 18;
 
 	private List<Paragraph> mParagraphs;
 	private LayoutInflater mLayoutInflater;
