@@ -197,12 +197,13 @@ public class TexTypesetter {
 
 		float spaceWidth = mOption.spaceWidth;
 		int boxCount = boxes.size();
+		float lineWidth = lineAttributes.get(lineNumber).getLineWidth();
 		if (boxCount > 1) {
-			float lineWidth = lineAttributes.get(lineNumber).getLineWidth();
 			spaceWidth = (lineWidth - wordWidth) / (boxCount - 1);
 		}
 
-		if (lastLine && spaceWidth > mOption.spaceWidth) {
+		// 最后一行如果我能放的下，没必要压缩或者拉伸
+		if (lastLine && (wordWidth + (boxCount - 1) * mOption.spaceWidth) <= lineWidth) {
 			spaceWidth = mOption.spaceWidth;
 		}
 
