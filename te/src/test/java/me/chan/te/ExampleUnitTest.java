@@ -1,8 +1,12 @@
 package me.chan.te;
 
+import android.graphics.Rect;
 import android.text.TextPaint;
 
+import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -24,6 +28,7 @@ import me.chan.te.typesetter.TexTypesetter;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.when;
 
 /**
  * Example local unit test, which will execute on the development machine (host).
@@ -31,14 +36,38 @@ import static org.junit.Assert.assertTrue;
  * @see <a href="http://d.android.com/tools/testing">Testing documentation</a>
  */
 public class ExampleUnitTest {
+	@Mock
+	private Rect mRect;
+
+	@Before
+	public void setup() {
+		MockitoAnnotations.initMocks(this);
+	}
+
 	@Test
-	public void testFoo() {
-		String prefix = "-";
-		if (prefix != null && prefix.length() >= 1) {
-			prefix = prefix.substring(0, prefix.length() - 1);
-		}
-		System.out.println(prefix);
-		assertEquals(4, 2 + 2);
+	public void testBox() {
+		// width 976
+		// text size 13
+		ElementFactory elementFactory = new ElementFactory();
+	}
+
+	@Test
+	public void testMockTextPaint() {
+		TextPaint textPaint = new MockTextPaint();
+		textPaint.setTextSize(18);
+
+		String msg = "hello";
+		textPaint.getTextBounds(msg, 0, msg.length(), mRect);
+
+		// 100 x 100 square for available width and height
+		when(mRect.width()).thenReturn(mRect.right - mRect.left);
+		when(mRect.height()).thenReturn(mRect.bottom - mRect.top);
+
+		assertEquals(mRect.height(), MockTextPaint.MOCK_TEXT_HEIGHT);
+		assertEquals(mRect.width(), MockTextPaint.MOCK_TEXT_SIZE * msg.length());
+
+		msg = "";
+		textPaint.getTextBounds(msg, 0, msg.length(), mRect);
 	}
 
 	@Test

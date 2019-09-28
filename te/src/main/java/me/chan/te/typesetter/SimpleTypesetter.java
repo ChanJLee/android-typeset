@@ -35,12 +35,12 @@ class SimpleTypesetter {
 		List<? extends Element> elements = segment.getElements();
 		int lineNumber = 0;
 		List<Line> lines = new ArrayList<>();
-		int size = elements.size();
-		for (int i = 0; i < size; ) {
-			float width = lineAttributes.get(lineNumber).getLineWidth();
-			i = typesetLine(width, lines, elements, i);
-			++lineNumber;
-		}
+//		int size = elements.size();
+//		for (int i = 0; i < size; ) {
+//			float width = lineAttributes.get(lineNumber).getLineWidth();
+//			i = typesetLine(width, lines, elements, i);
+//			++lineNumber;
+//		}
 		paragraph.setLines(lines);
 	}
 
@@ -69,9 +69,29 @@ class SimpleTypesetter {
 			boxes.add(box);
 		}
 
-
+		// 如果一行是空的，说明当前只能排一个，并且都显示不下
+		if (boxes.isEmpty()) {
+			handleSingleBoxLine(boxes, elements, start, width);
+		} else {
+			start = handleFullLoadLine(boxes, elements, start, width);
+		}
 
 		lines.add(new Line(boxes, lineHeight, spaceWidth, 0));
 		return start;
+	}
+
+	private void handleSingleBoxLine(List<Box> boxes, List<? extends Element> elements, int start, float width) {
+		mWorkPaint.set(mPaint);
+		Box box = (Box) elements.get(start);
+		Box[] children = box.spilt(mWorkPaint, width);
+		if (children != null) {
+			children[0].setPenalty(true);
+			boxes.add(children[0]);
+			box.copy(children[1]);
+		}
+	}
+
+	private int handleFullLoadLine(List<Box> boxes, List<? extends Element> elements, int start, float width) {
+		return start + 1;
 	}
 }

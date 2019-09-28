@@ -13,6 +13,9 @@ public class Option {
 	public float demeritsFitness = 3000;
 	public int maxRelayoutTimes = 30;
 	public int minHyperLen = 4;
+	/**
+	 * 跟随box的text size变化
+	 */
 	public float hyphenWidth;
 	public float spaceWidth;
 	public float spaceStretch;
