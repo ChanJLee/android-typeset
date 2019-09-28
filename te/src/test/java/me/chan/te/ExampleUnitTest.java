@@ -59,7 +59,6 @@ public class ExampleUnitTest {
 		String msg = "hello";
 		textPaint.getTextBounds(msg, 0, msg.length(), mRect);
 
-		// 100 x 100 square for available width and height
 		when(mRect.width()).thenReturn(mRect.right - mRect.left);
 		when(mRect.height()).thenReturn(mRect.bottom - mRect.top);
 
