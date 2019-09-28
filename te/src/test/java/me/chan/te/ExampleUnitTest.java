@@ -6,7 +6,10 @@ import android.text.TextPaint;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -28,7 +31,6 @@ import me.chan.te.typesetter.TexTypesetter;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.when;
 
 /**
  * Example local unit test, which will execute on the development machine (host).
@@ -42,6 +44,21 @@ public class ExampleUnitTest {
 	@Before
 	public void setup() {
 		MockitoAnnotations.initMocks(this);
+		Mockito.doAnswer(new Answer() {
+			@Override
+			public Object answer(InvocationOnMock invocation) throws Throwable {
+				Rect rect = (Rect) invocation.getMock();
+				return rect.right - rect.left;
+			}
+		}).when(mRect).width();
+
+		Mockito.doAnswer(new Answer() {
+			@Override
+			public Object answer(InvocationOnMock invocation) throws Throwable {
+				Rect rect = (Rect) invocation.getMock();
+				return rect.bottom - rect.top;
+			}
+		}).when(mRect).height();
 	}
 
 	@Test
@@ -58,9 +75,6 @@ public class ExampleUnitTest {
 
 		String msg = "hello";
 		textPaint.getTextBounds(msg, 0, msg.length(), mRect);
-
-		when(mRect.width()).thenReturn(mRect.right - mRect.left);
-		when(mRect.height()).thenReturn(mRect.bottom - mRect.top);
 
 		assertEquals(mRect.height(), MockTextPaint.MOCK_TEXT_HEIGHT);
 		assertEquals(mRect.width(), MockTextPaint.MOCK_TEXT_SIZE * msg.length());
