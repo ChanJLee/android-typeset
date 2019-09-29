@@ -65,6 +65,21 @@ public class ExampleUnitTest {
 	}
 
 	@Test
+	public void testMockTextPaint() {
+		TextPaint textPaint = new MockTextPaint();
+		textPaint.setTextSize(18);
+
+		String msg = "hello";
+		textPaint.getTextBounds(msg, 0, msg.length(), mRect);
+
+		assertEquals(mRect.height(), MockTextPaint.MOCK_TEXT_HEIGHT);
+		assertEquals(mRect.width(), MockTextPaint.MOCK_TEXT_SIZE * msg.length());
+
+		msg = "";
+		textPaint.getTextBounds(msg, 0, msg.length(), mRect);
+	}
+
+	@Test
 	public void testBox() {
 		TextPaint textPaint = new MockTextPaint();
 		textPaint.setTextSize(18);
@@ -125,21 +140,6 @@ public class ExampleUnitTest {
 
 		boxes = box2.spilt(textPaint, msg1.length() * MockTextPaint.MOCK_TEXT_SIZE + 1);
 		assertNull(boxes);
-	}
-
-	@Test
-	public void testMockTextPaint() {
-		TextPaint textPaint = new MockTextPaint();
-		textPaint.setTextSize(18);
-
-		String msg = "hello";
-		textPaint.getTextBounds(msg, 0, msg.length(), mRect);
-
-		assertEquals(mRect.height(), MockTextPaint.MOCK_TEXT_HEIGHT);
-		assertEquals(mRect.width(), MockTextPaint.MOCK_TEXT_SIZE * msg.length());
-
-		msg = "";
-		textPaint.getTextBounds(msg, 0, msg.length(), mRect);
 	}
 
 	@Test
