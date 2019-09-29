@@ -4,7 +4,6 @@ import android.graphics.Canvas;
 import android.graphics.Rect;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.text.Layout;
 import android.text.TextPaint;
 
 import me.chan.te.annotations.Hidden;
@@ -20,6 +19,7 @@ public final class Box implements Element {
 	private float mHeight = 0;
 	private int mStart;
 	private int mEnd;
+	private Measurer mMeasurer;
 
 	/**
 	 * @param other other box
@@ -28,11 +28,12 @@ public final class Box implements Element {
 		mText = other.mText;
 		mBoxStyle = other.mBoxStyle;
 		mDirty = other.mDirty;
-		mPenalty = other.mDirty;
+		mPenalty = other.mPenalty;
 		mWidth = other.mWidth;
 		mHeight = other.mHeight;
 		mStart = other.mStart;
 		mEnd = other.mEnd;
+		mMeasurer = other.mMeasurer;
 	}
 
 	@Override
@@ -47,10 +48,12 @@ public final class Box implements Element {
 				mStart == box.mStart &&
 				mEnd == box.mEnd &&
 				mText.equals(box.mText) &&
-				mBoxStyle == ((Box) o).mBoxStyle;
+				mBoxStyle == box.mBoxStyle &&
+				mMeasurer == box.mMeasurer;
 	}
 
-	Box() {
+	Box(Measurer measurer) {
+		mMeasurer = measurer;
 	}
 
 	void reset(@NonNull CharSequence text, int start, int end, @Nullable BoxStyle boxStyle) {
@@ -85,7 +88,7 @@ public final class Box implements Element {
 	private float getWidth(TextPaint textPaint) {
 		if (mDirty) {
 			updateTextPaint(textPaint);
-			mWidth = Layout.getDesiredWidth(mText, mStart, mEnd, textPaint);
+			mWidth = mMeasurer.getDesiredWidth(mText, mStart, mEnd, textPaint);
 		}
 
 		return mWidth;
@@ -142,15 +145,15 @@ public final class Box implements Element {
 			return null;
 		}
 
-		int last = (int) (Math.floor((width / limitWidth) * (mEnd - mStart)) + mStart);
+		int last = (int) (Math.floor((limitWidth / width) * (mEnd - mStart)) + mStart);
 		if (last <= mStart || last >= mEnd) {
 			return null;
 		}
 
-		Box prefix = new Box();
+		Box prefix = new Box(mMeasurer);
 		prefix.copy(this);
 
-		Box suffix = new Box();
+		Box suffix = new Box(mMeasurer);
 		suffix.copy(this);
 
 		prefix.mEnd = last;
@@ -174,5 +177,9 @@ public final class Box implements Element {
 		public float getWidth() {
 			return mWidth;
 		}
+	}
+
+	public interface Measurer {
+		float getDesiredWidth(CharSequence charSequence, int start, int end, TextPaint textPaint);
 	}
 }

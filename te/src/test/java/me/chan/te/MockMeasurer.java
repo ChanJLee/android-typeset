@@ -1,0 +1,13 @@
+package me.chan.te;
+
+import android.text.TextPaint;
+
+import me.chan.te.data.Box;
+
+public class MockMeasurer implements Box.Measurer {
+
+	@Override
+	public float getDesiredWidth(CharSequence charSequence, int start, int end, TextPaint textPaint) {
+		return (end - start) * MockTextPaint.MOCK_TEXT_SIZE;
+	}
+}
