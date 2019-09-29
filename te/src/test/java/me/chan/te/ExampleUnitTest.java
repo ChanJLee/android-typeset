@@ -21,6 +21,7 @@ import java.util.regex.Pattern;
 
 import me.chan.te.config.LineAttributes;
 import me.chan.te.config.Option;
+import me.chan.te.data.Box;
 import me.chan.te.data.ElementFactory;
 import me.chan.te.data.Paragraph;
 import me.chan.te.data.Segment;
@@ -30,7 +31,9 @@ import me.chan.te.typesetter.TexTypesetter;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 /**
  * Example local unit test, which will execute on the development machine (host).
@@ -63,9 +66,65 @@ public class ExampleUnitTest {
 
 	@Test
 	public void testBox() {
+		TextPaint textPaint = new MockTextPaint();
+		textPaint.setTextSize(18);
+
 		// width 976
 		// text size 13
-		ElementFactory elementFactory = new ElementFactory();
+
+		ElementFactory elementFactory = new ElementFactory(new MockMeasurer());
+
+		assertNull(elementFactory.obtainBox(null, 0, 10, null));
+		try {
+			elementFactory.obtainBox(null);
+			fail("obtain null box");
+		} catch (Throwable throwable) {
+
+		}
+
+		String msg1 = "hello world";
+		String msg2 = "hello";
+		Box box1 = elementFactory.obtainBox(msg1);
+		Box box2 = elementFactory.obtainBox(msg2);
+
+		assertEquals(msg1, box1.toString());
+		assertEquals(msg2, box2.toString());
+
+		box2.copy(box1);
+		assertEquals(box2, box1);
+
+		Box[] boxes = box2.spilt(textPaint, msg2.length() * MockTextPaint.MOCK_TEXT_SIZE);
+		assertNotNull(boxes);
+		assertNotNull(boxes[0]);
+		assertNotNull(boxes[1]);
+		assertEquals(boxes[0].toString(), msg2);
+		assertEquals(boxes[1].toString(), msg1.substring(msg2.length()));
+
+		boxes = box2.spilt(textPaint, MockTextPaint.MOCK_TEXT_SIZE);
+		assertNotNull(boxes);
+		assertNotNull(boxes[0]);
+		assertNotNull(boxes[1]);
+		assertEquals(boxes[0].toString(), "h");
+		assertEquals(boxes[1].toString(), msg1.substring(1));
+
+		boxes = box2.spilt(textPaint, MockTextPaint.MOCK_TEXT_SIZE * (msg1.length() - 1));
+		assertNotNull(boxes);
+		assertNotNull(boxes[0]);
+		assertNotNull(boxes[1]);
+		assertEquals(boxes[0].toString(), "hello worl");
+		assertEquals(boxes[1].toString(), "d");
+
+		boxes = box2.spilt(textPaint, -1);
+		assertNull(boxes);
+
+		boxes = box2.spilt(textPaint, 0);
+		assertNull(boxes);
+
+		boxes = box2.spilt(textPaint, msg1.length() * MockTextPaint.MOCK_TEXT_SIZE);
+		assertNull(boxes);
+
+		boxes = box2.spilt(textPaint, msg1.length() * MockTextPaint.MOCK_TEXT_SIZE + 1);
+		assertNull(boxes);
 	}
 
 	@Test
