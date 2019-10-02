@@ -9,9 +9,9 @@ import me.chan.te.config.LineAttributes;
 import me.chan.te.config.Option;
 import me.chan.te.data.Box;
 import me.chan.te.data.Element;
-import me.chan.te.data.ElementFactory;
 import me.chan.te.data.Line;
 import me.chan.te.data.Paragraph;
+import me.chan.te.data.Penalty;
 import me.chan.te.data.Segment;
 
 class SimpleTypesetter {
@@ -19,14 +19,12 @@ class SimpleTypesetter {
 	private TextPaint mPaint;
 	private TextPaint mWorkPaint;
 	private Box.Bound mBound;
-	private ElementFactory mElementFactory;
 
-	public SimpleTypesetter(Option option, TextPaint paint, TextPaint workPaint, Box.Bound bound, ElementFactory elementFactory) {
+	public SimpleTypesetter(Option option, TextPaint paint, TextPaint workPaint, Box.Bound bound) {
 		mOption = option;
 		mPaint = paint;
 		mWorkPaint = workPaint;
 		mBound = bound;
-		mElementFactory = elementFactory;
 	}
 
 	public void typeset(Paragraph paragraph, Segment segment, LineAttributes lineAttributes) {
@@ -35,12 +33,12 @@ class SimpleTypesetter {
 		List<? extends Element> elements = segment.getElements();
 		int lineNumber = 0;
 		List<Line> lines = new ArrayList<>();
-//		int size = elements.size();
-//		for (int i = 0; i < size; ) {
-//			float width = lineAttributes.get(lineNumber).getLineWidth();
-//			i = typesetLine(width, lines, elements, i);
-//			++lineNumber;
-//		}
+		int size = elements.size();
+		for (int i = 0; i < size; ) {
+			float width = lineAttributes.get(lineNumber).getLineWidth();
+			i = typesetLine(width, lines, elements, i);
+			++lineNumber;
+		}
 		paragraph.setLines(lines);
 	}
 
@@ -66,21 +64,29 @@ class SimpleTypesetter {
 			}
 
 			currentLineWidth += (mBound.getWidth() + spaceWidth);
+			if (lineHeight < mBound.getHeight()) {
+				lineHeight = mBound.getHeight();
+			}
 			boxes.add(box);
 		}
 
 		// 如果一行是空的，说明当前只能排一个，并且都显示不下
 		if (boxes.isEmpty()) {
-			handleSingleBoxLine(boxes, elements, start, width);
+			mWorkPaint.set(mPaint);
+			handleSingleBoxLine(boxes, elements, start, width, mBound, mWorkPaint);
+			if (lineHeight < mBound.getHeight()) {
+				lineHeight = mBound.getHeight();
+			}
 		} else {
-			start = handleFullLoadLine(boxes, elements, start, width);
+			start = handleFullLoadLine(elements, start, width, currentLineWidth);
 		}
 
 		lines.add(new Line(boxes, lineHeight, spaceWidth, 0));
 		return start;
 	}
 
-	private void handleSingleBoxLine(List<Box> boxes, List<? extends Element> elements, int start, float width) {
+	private float handleSingleBoxLine(List<Box> boxes, List<? extends Element> elements,
+									  int start, float width, Box.Bound bound, TextPaint textPaint) {
 		mWorkPaint.set(mPaint);
 		Box box = (Box) elements.get(start);
 		Box[] children = box.spilt(mWorkPaint, width);
@@ -89,9 +95,23 @@ class SimpleTypesetter {
 			boxes.add(children[0]);
 			box.copy(children[1]);
 		}
+		box.getBound(textPaint, bound);
+		return bound.getHeight();
 	}
 
-	private int handleFullLoadLine(List<Box> boxes, List<? extends Element> elements, int start, float width) {
-		return start + 1;
+	private int handleFullLoadLine(List<? extends Element> elements, int start,
+								   float width, float currentWidth) {
+		int last = start + 1;
+		Element next = null;
+		if (last < elements.size() &&
+				(next = elements.get(last)) instanceof Penalty &&
+				((Penalty) next).getPenalty() != mOption.infinity &&
+				currentWidth + mOption.hyphenWidth <= width) {
+			Box box = (Box) elements.get(start);
+			box.setPenalty(true);
+			box.append("-");
+			++start;
+		}
+		return start;
 	}
 }
