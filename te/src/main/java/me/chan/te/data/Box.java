@@ -13,10 +13,9 @@ public final class Box implements Element {
 	@NonNull
 	private CharSequence mText;
 	private BoxStyle mBoxStyle;
-	private boolean mDirty = true;
 	private boolean mPenalty = false;
-	private float mWidth = 0;
-	private float mHeight = 0;
+	private float mWidth = -1;
+	private float mHeight = -1;
 	private int mStart;
 	private int mEnd;
 	private Measurer mMeasurer;
@@ -27,7 +26,6 @@ public final class Box implements Element {
 	public void copy(@NonNull Box other) {
 		mText = other.mText;
 		mBoxStyle = other.mBoxStyle;
-		mDirty = other.mDirty;
 		mPenalty = other.mPenalty;
 		mWidth = other.mWidth;
 		mHeight = other.mHeight;
@@ -41,8 +39,7 @@ public final class Box implements Element {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
 		Box box = (Box) o;
-		return mDirty == box.mDirty &&
-				mPenalty == box.mPenalty &&
+		return mPenalty == box.mPenalty &&
 				Float.compare(box.mWidth, mWidth) == 0 &&
 				Float.compare(box.mHeight, mHeight) == 0 &&
 				mStart == box.mStart &&
@@ -59,9 +56,8 @@ public final class Box implements Element {
 	void reset(@NonNull CharSequence text, int start, int end, @Nullable BoxStyle boxStyle) {
 		mText = text;
 		mBoxStyle = boxStyle;
-		mDirty = true;
 		mPenalty = false;
-		mWidth = mHeight = 0;
+		mWidth = mHeight = -1;
 		mStart = start;
 		mEnd = end;
 	}
@@ -74,7 +70,7 @@ public final class Box implements Element {
 	@Hidden
 	public void append(CharSequence s) {
 		// mark as dirty
-		mDirty = true;
+		mWidth = mHeight = -1;
 		mText = mText.subSequence(mStart, mEnd) + String.valueOf(s);
 		mStart = 0;
 		mEnd = mText.length();
@@ -86,7 +82,7 @@ public final class Box implements Element {
 	}
 
 	private float getWidth(TextPaint textPaint) {
-		if (mDirty) {
+		if (mWidth <= 0) {
 			updateTextPaint(textPaint);
 			mWidth = mMeasurer.getDesiredWidth(mText, mStart, mEnd, textPaint);
 		}
@@ -95,7 +91,7 @@ public final class Box implements Element {
 	}
 
 	private float getHeight(TextPaint textPaint, Bound bound) {
-		if (mDirty) {
+		if (mHeight <= 0) {
 			updateTextPaint(textPaint);
 			textPaint.getTextBounds(String.valueOf(mText), mStart, mEnd, bound.mBound);
 			mHeight = bound.mBound.height();
@@ -155,6 +151,9 @@ public final class Box implements Element {
 
 		Box suffix = new Box(mMeasurer);
 		suffix.copy(this);
+
+		prefix.mWidth = prefix.mHeight = -1;
+		suffix.mWidth = suffix.mHeight = -1;
 
 		prefix.mEnd = last;
 		suffix.mStart = last;
