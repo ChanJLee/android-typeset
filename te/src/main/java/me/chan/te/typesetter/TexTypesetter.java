@@ -37,7 +37,7 @@ public class TexTypesetter {
 		mOption = option;
 		mPaint = paint;
 		mElementFactory = elementFactory;
-		mSimpleTypesetter = new SimpleTypesetter(option, paint, mWorkPaint, mBound, elementFactory);
+		mSimpleTypesetter = new SimpleTypesetter(option, paint, mWorkPaint, mBound);
 	}
 
 	public Paragraph typeset(Segment segment, LineAttributes lineAttributes, Policy policy) {
