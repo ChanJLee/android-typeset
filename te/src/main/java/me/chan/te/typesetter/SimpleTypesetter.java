@@ -74,9 +74,7 @@ class SimpleTypesetter {
 		if (boxes.isEmpty()) {
 			mWorkPaint.set(mPaint);
 			handleSingleBoxLine(boxes, elements, start, width, mBound, mWorkPaint);
-			if (lineHeight < mBound.getHeight()) {
-				lineHeight = mBound.getHeight();
-			}
+			lineHeight = mBound.getHeight();
 		} else {
 			start = handleFullLoadLine(elements, start, width, currentLineWidth);
 		}
@@ -85,8 +83,8 @@ class SimpleTypesetter {
 		return start;
 	}
 
-	private float handleSingleBoxLine(List<Box> boxes, List<? extends Element> elements,
-									  int start, float width, Box.Bound bound, TextPaint textPaint) {
+	private void handleSingleBoxLine(List<Box> boxes, List<? extends Element> elements,
+									 int start, float width, Box.Bound bound, TextPaint textPaint) {
 		mWorkPaint.set(mPaint);
 		Box box = (Box) elements.get(start);
 		Box[] children = box.spilt(mWorkPaint, width);
@@ -94,9 +92,11 @@ class SimpleTypesetter {
 			children[0].setPenalty(true);
 			boxes.add(children[0]);
 			box.copy(children[1]);
+			box = children[0];
+		} else {
+			boxes.add(box);
 		}
 		box.getBound(textPaint, bound);
-		return bound.getHeight();
 	}
 
 	private int handleFullLoadLine(List<? extends Element> elements, int start,

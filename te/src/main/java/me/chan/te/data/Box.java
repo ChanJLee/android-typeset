@@ -142,6 +142,11 @@ public final class Box implements Element {
 		}
 
 		int last = (int) (Math.floor((limitWidth / width) * (mEnd - mStart)) + mStart);
+		while (last > mStart && last < mEnd &&
+				mMeasurer.getDesiredWidth(mText, mStart, last, textPaint) > limitWidth) {
+			--last;
+		}
+
 		if (last <= mStart || last >= mEnd) {
 			return null;
 		}
