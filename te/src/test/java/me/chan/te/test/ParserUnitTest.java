@@ -1,4 +1,4 @@
-package me.chan.te;
+package me.chan.te.test;
 
 import android.text.TextPaint;
 
