@@ -24,7 +24,8 @@ import me.chan.te.data.Paragraph;
 import me.chan.te.data.Segment;
 import me.chan.te.hypher.Hypher;
 import me.chan.te.parser.TextParser;
-import me.chan.te.typesetter.TexTypesetter;
+import me.chan.te.typesetter.CoreTypesetter;
+import me.chan.te.typesetter.Typesetter;
 
 public class Adapter extends RecyclerView.Adapter<TexViewHolder> {
 	private static final int DEFAULT_TEXT_SIZE = 18;
@@ -79,7 +80,7 @@ public class Adapter extends RecyclerView.Adapter<TexViewHolder> {
 
 	private void render(CharSequence charSequence, int width) {
 
-		TexTypesetter texTypesetter = new TexTypesetter(mTextPaint, mOption, mElementFactory);
+		CoreTypesetter texTypesetter = new CoreTypesetter(mTextPaint, mOption, mElementFactory);
 		TextParser textParser = new TextParser(Hypher.getInstance(), mOption);
 		List<Segment> segments = textParser.parser(charSequence, mElementFactory);
 		final List<Paragraph> paragraphs = new ArrayList<>();
@@ -91,7 +92,7 @@ public class Adapter extends RecyclerView.Adapter<TexViewHolder> {
 					Gravity.RIGHT,
 					(int) mOption.lineSpacing
 			));
-			Paragraph paragraph = texTypesetter.typeset(segment, lineAttributes, TexTypesetter.Policy.FILL);
+			Paragraph paragraph = texTypesetter.typeset(segment, lineAttributes, Typesetter.Policy.FILL);
 			paragraphs.add(paragraph);
 		}
 
