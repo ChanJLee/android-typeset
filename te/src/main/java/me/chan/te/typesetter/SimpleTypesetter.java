@@ -1,5 +1,6 @@
 package me.chan.te.typesetter;
 
+import android.support.annotation.NonNull;
 import android.text.TextPaint;
 
 import java.util.ArrayList;
@@ -14,21 +15,21 @@ import me.chan.te.data.Paragraph;
 import me.chan.te.data.Penalty;
 import me.chan.te.data.Segment;
 
-class SimpleTypesetter {
+class SimpleTypesetter implements Typesetter {
 	private Option mOption;
 	private TextPaint mPaint;
-	private TextPaint mWorkPaint;
-	private Box.Bound mBound;
+	private TextPaint mWorkPaint = new TextPaint();
+	private Box.Bound mBound = new Box.Bound();
 
-	public SimpleTypesetter(Option option, TextPaint paint, TextPaint workPaint, Box.Bound bound) {
+	SimpleTypesetter(TextPaint paint, Option option) {
 		mOption = option;
 		mPaint = paint;
-		mWorkPaint = workPaint;
-		mBound = bound;
 	}
 
-	public void typeset(Paragraph paragraph, Segment segment,
-						LineAttributes lineAttributes, TexTypesetter.Policy policy) {
+	@NonNull
+	public Paragraph typeset(Segment segment,
+							 LineAttributes lineAttributes, TexTypesetter.Policy policy) {
+		Paragraph paragraph = new Paragraph(lineAttributes);
 		// 一行尽可能的占满尽可能多的字符
 		// 如果如果只显示了一个并且还不足以完美显示，那么无脑折断
 		List<? extends Element> elements = segment.getElements();
@@ -41,6 +42,7 @@ class SimpleTypesetter {
 			++lineNumber;
 		}
 		paragraph.setLines(lines);
+		return paragraph;
 	}
 
 	private int typesetLine(float width, List<Line> lines, List<? extends Element> elements,

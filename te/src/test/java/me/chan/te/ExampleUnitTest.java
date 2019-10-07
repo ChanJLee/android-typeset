@@ -27,7 +27,8 @@ import me.chan.te.data.Paragraph;
 import me.chan.te.data.Segment;
 import me.chan.te.hypher.Hypher;
 import me.chan.te.parser.TextParser;
-import me.chan.te.typesetter.TexTypesetter;
+import me.chan.te.typesetter.CoreTypesetter;
+import me.chan.te.typesetter.Typesetter;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -148,10 +149,10 @@ public class ExampleUnitTest {
 		ElementFactory factory = new ElementFactory();
 		TextPaint paint = new TextPaint();
 		Option option = new Option(paint);
-		TexTypesetter texTypesetter = new TexTypesetter(paint, option, factory);
+		CoreTypesetter texTypesetter = new CoreTypesetter(paint, option, factory);
 		TextParser textParser = new TextParser(Hypher.getInstance(), option);
 		List<Segment> segments = textParser.parser("hello\n\nworld\n\n", factory);
-		Paragraph paragraph = texTypesetter.typeset(segments.get(0), lineAttributes, TexTypesetter.Policy.FILL);
+		Paragraph paragraph = texTypesetter.typeset(segments.get(0), lineAttributes, Typesetter.Policy.FILL);
 		assertNotNull(paragraph);
 		assertNotNull(paragraph.getLines());
 	}

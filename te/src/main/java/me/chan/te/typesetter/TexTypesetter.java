@@ -1,5 +1,6 @@
 package me.chan.te.typesetter;
 
+import android.support.annotation.Nullable;
 import android.text.TextPaint;
 
 import java.util.ArrayList;
@@ -18,8 +19,7 @@ import me.chan.te.data.Penalty;
 import me.chan.te.data.Segment;
 import me.chan.te.log.Log;
 
-// TODO opt memory
-public class TexTypesetter {
+class TexTypesetter implements Typesetter {
 	private static final int CLASS_0 = 0;
 	private static final int CLASS_1 = 1;
 	private static final int CLASS_2 = 2;
@@ -31,26 +31,19 @@ public class TexTypesetter {
 	private Box.Bound mBound = new Box.Bound();
 
 	private ElementFactory mElementFactory;
-	private SimpleTypesetter mSimpleTypesetter;
 
-	public TexTypesetter(TextPaint paint, Option option, ElementFactory elementFactory) {
+	TexTypesetter(TextPaint paint, Option option, ElementFactory elementFactory) {
 		mOption = option;
 		mPaint = paint;
 		mElementFactory = elementFactory;
-		mSimpleTypesetter = new SimpleTypesetter(option, paint, mWorkPaint, mBound);
 	}
 
+	@Nullable
 	public Paragraph typeset(Segment segment, LineAttributes lineAttributes, Policy policy) {
 		Paragraph paragraph = new Paragraph(lineAttributes);
-		if (policy == Policy.FIT) {
-			mSimpleTypesetter.typeset(paragraph, segment, lineAttributes, policy);
-			return paragraph;
-		}
-
 		List<Node> activeNodes = null;
 		float tolerance = 0;
-		for (int i = 0; i < mOption.maxRelayoutTimes &&
-				!Thread.currentThread().isInterrupted(); ++i) {
+		for (int i = 0; i < mOption.maxRelayoutTimes; ++i) {
 			tolerance += mOption.stretchStepRatio;
 			activeNodes = createActiveNodes(segment, lineAttributes, tolerance);
 			if (!activeNodes.isEmpty()) {
@@ -58,20 +51,15 @@ public class TexTypesetter {
 			}
 		}
 
-		if (Thread.currentThread().isInterrupted()) {
-			return paragraph;
-		}
-
 		if (activeNodes == null ||
 				activeNodes.isEmpty()) {
 			w("can not find active nodes: " + segment);
-			mSimpleTypesetter.typeset(paragraph, segment, lineAttributes, policy);
-			return paragraph;
+			return null;
 		}
 
 		List<BreakPoint> breakPoints = chooseBreakPoints(activeNodes);
 		if (breakPoints.isEmpty()) {
-			return paragraph;
+			return null;
 		}
 
 		List<Line> lines = typesetParagraph(segment, breakPoints, lineAttributes);
@@ -88,9 +76,7 @@ public class TexTypesetter {
 		data.totals = new Sum();
 		activeNodes.add(new Node(data, null, null));
 		Sum sum = new Sum();
-		for (int i = 0; i < elements.size() &&
-				!Thread.currentThread().isInterrupted() &&
-				!activeNodes.isEmpty(); ++i) {
+		for (int i = 0; i < elements.size() && !activeNodes.isEmpty(); ++i) {
 			Element element = elements.get(i);
 			if (element instanceof Box) {
 				sum.width += getElementWidth(element);
@@ -473,17 +459,6 @@ public class TexTypesetter {
 			}
 		}
 		return result;
-	}
-
-	public enum Policy {
-		/**
-		 * 尽可能的排满一行
-		 */
-		FIT,
-		/**
-		 * 两边对齐
-		 */
-		FILL
 	}
 
 	private static void w(String msg) {

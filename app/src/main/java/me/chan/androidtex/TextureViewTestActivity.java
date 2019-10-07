@@ -20,7 +20,8 @@ import me.chan.te.data.Paragraph;
 import me.chan.te.data.Segment;
 import me.chan.te.hypher.Hypher;
 import me.chan.te.parser.TextParser;
-import me.chan.te.typesetter.TexTypesetter;
+import me.chan.te.typesetter.CoreTypesetter;
+import me.chan.te.typesetter.Typesetter;
 import me.chan.te.view.TexTextView;
 
 public class TextureViewTestActivity extends AppCompatActivity {
@@ -73,10 +74,10 @@ public class TextureViewTestActivity extends AppCompatActivity {
 
 
 						ElementFactory factory = new ElementFactory();
-						TexTypesetter texTypesetter = new TexTypesetter(mPaint, option, factory);
+						CoreTypesetter texTypesetter = new CoreTypesetter(mPaint, option, factory);
 						TextParser textParser = new TextParser(Hypher.getInstance(), option);
 						List<Segment> list = textParser.parser(getResources().getString(R.string.test), factory);
-						mParagraph = texTypesetter.typeset(list.get(0), mLineAttributes, TexTypesetter.Policy.FILL);
+						mParagraph = texTypesetter.typeset(list.get(0), mLineAttributes, Typesetter.Policy.FILL);
 
 						mHandler.sendEmptyMessage(10);
 					}
