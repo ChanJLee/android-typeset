@@ -17,12 +17,12 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.List;
-import java.util.regex.Pattern;
 
 import me.chan.te.config.LineAttributes;
 import me.chan.te.config.Option;
 import me.chan.te.data.Box;
 import me.chan.te.data.ElementFactory;
+import me.chan.te.data.Line;
 import me.chan.te.data.Paragraph;
 import me.chan.te.data.Segment;
 import me.chan.te.hypher.Hypher;
@@ -144,21 +144,7 @@ public class ExampleUnitTest {
 	}
 
 	@Test
-	public void testTypesetter() {
-		LineAttributes lineAttributes = new LineAttributes(new LineAttributes.Attribute(10));
-		ElementFactory factory = new ElementFactory();
-		TextPaint paint = new TextPaint();
-		Option option = new Option(paint);
-		CoreTypesetter texTypesetter = new CoreTypesetter(paint, option, factory);
-		TextParser textParser = new TextParser(Hypher.getInstance(), option);
-		List<Segment> segments = textParser.parser("hello\n\nworld\n\n", factory);
-		Paragraph paragraph = texTypesetter.typeset(segments.get(0), lineAttributes, Typesetter.Policy.FILL);
-		assertNotNull(paragraph);
-		assertNotNull(paragraph.getLines());
-	}
-
-	@Test
-	public void testLinkBreak() throws IOException {
+	public void testTypesetter() throws IOException {
 		File file = new File("../app/src/main/assets/书剑恩仇录.txt");
 		System.out.println(file.getAbsolutePath());
 		assertTrue(file.exists());
@@ -173,18 +159,33 @@ public class ExampleUnitTest {
 		}
 
 		String msg = stringBuilder.toString();
-		long timestamp = System.currentTimeMillis();
-		Pattern pattern = Pattern.compile("\n");
-		String[] spans = pattern.split(msg);
-		System.out.println("pattern split used time: " + (System.currentTimeMillis() - timestamp));
 
-		timestamp = System.currentTimeMillis();
-		int len = msg.length();
-		for (int i = 0; i < len; ++i) {
-			if (msg.charAt(i) == '\n') {
-				continue;
+		LineAttributes lineAttributes = new LineAttributes(new LineAttributes.Attribute(10));
+		ElementFactory factory = new ElementFactory();
+		TextPaint paint = new TextPaint();
+		Option option = new Option(paint);
+		CoreTypesetter texTypesetter = new CoreTypesetter(paint, option, factory);
+		TextParser textParser = new TextParser(Hypher.getInstance(), option);
+		List<Segment> segments = textParser.parser(msg, factory);
+		stringBuilder = new StringBuilder();
+		for (Segment segment : segments) {
+			Paragraph paragraph = texTypesetter.typeset(segment, lineAttributes, Typesetter.Policy.FILL);
+			assertNotNull(paragraph);
+			assertNotNull(paragraph.getLines());
+
+			for (Line l : paragraph.getLines()) {
+				for (Box box : l.getBoxes()) {
+					String content = box.toString();
+					if (box.isPenalty()) {
+						content = content.substring(0, content.length() - 1);
+					}
+					stringBuilder.append(content);
+				}
 			}
 		}
-		System.out.println("loop used time: " + (System.currentTimeMillis() - timestamp));
+
+		String origin = msg.replaceAll("\\p{Z}+|\\t|\\r|\\n", "");
+		String current = stringBuilder.toString();
+		assertEquals(origin, current);
 	}
 }
