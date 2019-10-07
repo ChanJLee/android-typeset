@@ -43,7 +43,7 @@ public class TexTypesetter {
 	public Paragraph typeset(Segment segment, LineAttributes lineAttributes, Policy policy) {
 		Paragraph paragraph = new Paragraph(lineAttributes);
 		if (policy == Policy.FIT) {
-			mSimpleTypesetter.typeset(paragraph, segment, lineAttributes);
+			mSimpleTypesetter.typeset(paragraph, segment, lineAttributes, policy);
 			return paragraph;
 		}
 
@@ -65,7 +65,7 @@ public class TexTypesetter {
 		if (activeNodes == null ||
 				activeNodes.isEmpty()) {
 			w("can not find active nodes: " + segment);
-			mSimpleTypesetter.typeset(paragraph, segment, lineAttributes);
+			mSimpleTypesetter.typeset(paragraph, segment, lineAttributes, policy);
 			return paragraph;
 		}
 

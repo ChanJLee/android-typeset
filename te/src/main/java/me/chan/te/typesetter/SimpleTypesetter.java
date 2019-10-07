@@ -27,7 +27,8 @@ class SimpleTypesetter {
 		mBound = bound;
 	}
 
-	public void typeset(Paragraph paragraph, Segment segment, LineAttributes lineAttributes) {
+	public void typeset(Paragraph paragraph, Segment segment,
+						LineAttributes lineAttributes, TexTypesetter.Policy policy) {
 		// 一行尽可能的占满尽可能多的字符
 		// 如果如果只显示了一个并且还不足以完美显示，那么无脑折断
 		List<? extends Element> elements = segment.getElements();
@@ -36,13 +37,14 @@ class SimpleTypesetter {
 		int size = elements.size();
 		for (int i = 0; i < size; ) {
 			float width = lineAttributes.get(lineNumber).getLineWidth();
-			i = typesetLine(width, lines, elements, i);
+			i = typesetLine(width, lines, elements, i, policy);
 			++lineNumber;
 		}
 		paragraph.setLines(lines);
 	}
 
-	private int typesetLine(float width, List<Line> lines, List<? extends Element> elements, int start) {
+	private int typesetLine(float width, List<Line> lines, List<? extends Element> elements,
+							int start, TexTypesetter.Policy policy) {
 		List<Box> boxes = new ArrayList<>();
 		int size = elements.size();
 		float lineHeight = 0f;
@@ -79,6 +81,10 @@ class SimpleTypesetter {
 			start = handleFullLoadLine(elements, start, width, currentLineWidth);
 		}
 
+		if (policy == TexTypesetter.Policy.FILL && boxes.size() > 1) {
+			spaceWidth = spaceWidth + (width - currentLineWidth) / (boxes.size() - 1);
+		}
+
 		lines.add(new Line(boxes, lineHeight, spaceWidth, 0));
 		return start;
 	}
@@ -99,8 +105,7 @@ class SimpleTypesetter {
 		box.getBound(textPaint, bound);
 	}
 
-	private int handleFullLoadLine(List<? extends Element> elements, int start,
-								   float width, float currentWidth) {
+	private int handleFullLoadLine(List<? extends Element> elements, int start, float width, float currentWidth) {
 		int last = start + 1;
 		Element next = null;
 		if (last < elements.size() &&
