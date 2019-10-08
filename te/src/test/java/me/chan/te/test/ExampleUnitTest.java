@@ -158,18 +158,23 @@ public class ExampleUnitTest {
 					.append("\n");
 		}
 
-		String msg = stringBuilder.toString();
+		String text = stringBuilder.toString();
 
+		checkContent(text, Typesetter.Policy.FILL);
+		checkContent(text, Typesetter.Policy.FIT);
+	}
+
+	private void checkContent(String text, Typesetter.Policy policy) {
 		LineAttributes lineAttributes = new LineAttributes(new LineAttributes.Attribute(10));
 		ElementFactory factory = new ElementFactory();
 		TextPaint paint = new TextPaint();
 		Option option = new Option(paint);
 		CoreTypesetter texTypesetter = new CoreTypesetter(paint, option, factory);
 		TextParser textParser = new TextParser(Hypher.getInstance(), option);
-		List<Segment> segments = textParser.parser(msg, factory);
-		stringBuilder = new StringBuilder();
+		List<Segment> segments = textParser.parser(text, factory);
+		StringBuilder stringBuilder = new StringBuilder();
 		for (Segment segment : segments) {
-			Paragraph paragraph = texTypesetter.typeset(segment, lineAttributes, Typesetter.Policy.FILL);
+			Paragraph paragraph = texTypesetter.typeset(segment, lineAttributes, policy);
 			assertNotNull(paragraph);
 			assertNotNull(paragraph.getLines());
 
@@ -184,7 +189,7 @@ public class ExampleUnitTest {
 			}
 		}
 
-		String origin = msg.replaceAll("\\p{Z}+|\\t|\\r|\\n", "");
+		String origin = text.replaceAll("\\p{Z}+|\\t|\\r|\\n", "");
 		String current = stringBuilder.toString();
 		assertEquals(origin, current);
 	}
