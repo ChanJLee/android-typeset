@@ -169,7 +169,7 @@ public class ExampleUnitTest {
 		checkContent(text, Typesetter.Policy.FIT, 1080, 540);
 	}
 
-	private void checkContent(String text, Typesetter.Policy policy, float lineWidth, float textSize) {
+	private void checkContent(String text, Typesetter.Policy policy, float lineWidth, int textSize) {
 		LineAttributes lineAttributes = new LineAttributes(new LineAttributes.Attribute(lineWidth));
 		ElementFactory factory = new ElementFactory();
 		MockTextPaint paint = new MockTextPaint();
