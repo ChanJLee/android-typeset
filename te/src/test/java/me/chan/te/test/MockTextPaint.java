@@ -6,24 +6,24 @@ import android.text.TextPaint;
 public class MockTextPaint extends TextPaint {
 	private static final int MOCK_TEXT_SIZE = 13;
 
-	private float mMockTextSize = MOCK_TEXT_SIZE;
+	private int mMockTextSize = MOCK_TEXT_SIZE;
 
-	public float getMockTextSize() {
+	public int getMockTextSize() {
 		return mMockTextSize;
 	}
 
-	public void setMockTextSize(float mockTextSize) {
+	public void setMockTextSize(int mockTextSize) {
 		mMockTextSize = mockTextSize;
 	}
 
-	public float getMockTextHeight() {
-		return mMockTextSize / 2;
+	public int getMockTextHeight() {
+		return (int) (mMockTextSize / 2);
 	}
 
 	@Override
 	public void getTextBounds(String text, int start, int end, Rect bounds) {
 		bounds.left = bounds.top = 0;
-		bounds.right = (int) ((end - start) * mMockTextSize);
-		bounds.bottom = (int) getMockTextHeight();
+		bounds.right = (end - start) * getMockTextSize();
+		bounds.bottom = getMockTextHeight();
 	}
 }
