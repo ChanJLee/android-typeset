@@ -26,9 +26,9 @@ public class CoreTypesetter implements Typesetter {
 		}
 
 		Paragraph paragraph = mTexTypesetter.typeset(segment, lineAttributes, policy);
-		if (paragraph == null) {
-			return mSimpleTypesetter.typeset(segment, lineAttributes, policy);
+		if (paragraph != null) {
+			return paragraph;
 		}
-		return paragraph;
+		return mSimpleTypesetter.typeset(segment, lineAttributes, policy);
 	}
 }
