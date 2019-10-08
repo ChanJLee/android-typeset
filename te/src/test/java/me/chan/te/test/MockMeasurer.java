@@ -8,6 +8,6 @@ public class MockMeasurer implements Box.Measurer {
 
 	@Override
 	public float getDesiredWidth(CharSequence charSequence, int start, int end, TextPaint textPaint) {
-		return (end - start) * MockTextPaint.MOCK_TEXT_SIZE;
+		return (end - start) * ((MockTextPaint) textPaint).getMockTextSize();
 	}
 }

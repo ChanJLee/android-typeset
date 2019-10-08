@@ -1,7 +1,6 @@
 package me.chan.te.test;
 
 import android.graphics.Rect;
-import android.text.TextPaint;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -67,14 +66,14 @@ public class ExampleUnitTest {
 
 	@Test
 	public void testMockTextPaint() {
-		TextPaint textPaint = new MockTextPaint();
+		MockTextPaint textPaint = new MockTextPaint();
 		textPaint.setTextSize(18);
 
 		String msg = "hello";
 		textPaint.getTextBounds(msg, 0, msg.length(), mRect);
 
-		assertEquals(mRect.height(), MockTextPaint.MOCK_TEXT_HEIGHT);
-		assertEquals(mRect.width(), MockTextPaint.MOCK_TEXT_SIZE * msg.length());
+		assertEquals(mRect.height(), textPaint.getMockTextHeight());
+		assertEquals(mRect.width(), textPaint.getMockTextSize() * msg.length());
 
 		msg = "";
 		textPaint.getTextBounds(msg, 0, msg.length(), mRect);
@@ -82,11 +81,8 @@ public class ExampleUnitTest {
 
 	@Test
 	public void testBox() {
-		TextPaint textPaint = new MockTextPaint();
+		MockTextPaint textPaint = new MockTextPaint();
 		textPaint.setTextSize(18);
-
-		// width 976
-		// text size 13
 
 		ElementFactory elementFactory = new ElementFactory(new MockMeasurer());
 
@@ -109,21 +105,21 @@ public class ExampleUnitTest {
 		box2.copy(box1);
 		assertEquals(box2, box1);
 
-		Box[] boxes = box2.spilt(textPaint, msg2.length() * MockTextPaint.MOCK_TEXT_SIZE);
+		Box[] boxes = box2.spilt(textPaint, msg2.length() * textPaint.getMockTextSize());
 		assertNotNull(boxes);
 		assertNotNull(boxes[0]);
 		assertNotNull(boxes[1]);
 		assertEquals(boxes[0].toString(), msg2);
 		assertEquals(boxes[1].toString(), msg1.substring(msg2.length()));
 
-		boxes = box2.spilt(textPaint, MockTextPaint.MOCK_TEXT_SIZE);
+		boxes = box2.spilt(textPaint, textPaint.getMockTextSize());
 		assertNotNull(boxes);
 		assertNotNull(boxes[0]);
 		assertNotNull(boxes[1]);
 		assertEquals(boxes[0].toString(), "h");
 		assertEquals(boxes[1].toString(), msg1.substring(1));
 
-		boxes = box2.spilt(textPaint, MockTextPaint.MOCK_TEXT_SIZE * (msg1.length() - 1));
+		boxes = box2.spilt(textPaint, textPaint.getMockTextSize() * (msg1.length() - 1));
 		assertNotNull(boxes);
 		assertNotNull(boxes[0]);
 		assertNotNull(boxes[1]);
@@ -136,10 +132,10 @@ public class ExampleUnitTest {
 		boxes = box2.spilt(textPaint, 0);
 		assertNull(boxes);
 
-		boxes = box2.spilt(textPaint, msg1.length() * MockTextPaint.MOCK_TEXT_SIZE);
+		boxes = box2.spilt(textPaint, msg1.length() * textPaint.getMockTextSize());
 		assertNull(boxes);
 
-		boxes = box2.spilt(textPaint, msg1.length() * MockTextPaint.MOCK_TEXT_SIZE + 1);
+		boxes = box2.spilt(textPaint, msg1.length() * textPaint.getMockTextSize() + 1);
 		assertNull(boxes);
 	}
 
@@ -160,14 +156,24 @@ public class ExampleUnitTest {
 
 		String text = stringBuilder.toString();
 
-		checkContent(text, Typesetter.Policy.FILL);
-		checkContent(text, Typesetter.Policy.FIT);
+		checkContent(text, Typesetter.Policy.FILL, 1080, 18);
+		checkContent(text, Typesetter.Policy.FIT, 1080, 18);
+
+		checkContent(text, Typesetter.Policy.FILL, 1080, 1);
+		checkContent(text, Typesetter.Policy.FIT, 1080, 1);
+
+		checkContent(text, Typesetter.Policy.FILL, 1080, 1080);
+		checkContent(text, Typesetter.Policy.FIT, 1080, 1080);
+
+		checkContent(text, Typesetter.Policy.FILL, 1080, 540);
+		checkContent(text, Typesetter.Policy.FIT, 1080, 540);
 	}
 
-	private void checkContent(String text, Typesetter.Policy policy) {
-		LineAttributes lineAttributes = new LineAttributes(new LineAttributes.Attribute(10));
+	private void checkContent(String text, Typesetter.Policy policy, float lineWidth, float textSize) {
+		LineAttributes lineAttributes = new LineAttributes(new LineAttributes.Attribute(lineWidth));
 		ElementFactory factory = new ElementFactory();
-		TextPaint paint = new TextPaint();
+		MockTextPaint paint = new MockTextPaint();
+		paint.setMockTextSize(textSize);
 		Option option = new Option(paint);
 		CoreTypesetter texTypesetter = new CoreTypesetter(paint, option, factory);
 		TextParser textParser = new TextParser(Hypher.getInstance(), option);
