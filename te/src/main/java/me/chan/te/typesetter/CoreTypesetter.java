@@ -29,6 +29,9 @@ public class CoreTypesetter implements Typesetter {
 		if (paragraph != null) {
 			return paragraph;
 		}
+		
+		// tex 存在找不到完美解的情况，如果在这种case下
+		// 回归到朴素的排版算法
 		return mSimpleTypesetter.typeset(segment, lineAttributes, policy);
 	}
 }
