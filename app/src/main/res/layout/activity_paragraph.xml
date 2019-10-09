@@ -45,11 +45,13 @@
             android:visibility="gone">
 
             <Button
+                android:id="@+id/button1"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="渲染《书剑恩仇录》" />
 
             <Button
+                android:id="@+id/button2"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="渲染《我是传奇》" />
