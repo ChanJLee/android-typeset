@@ -60,8 +60,8 @@ public class Adapter extends RecyclerView.Adapter<TexViewHolder> {
 
 	@Override
 	public void onBindViewHolder(@NonNull TexViewHolder texViewHolder, int position) {
-		texViewHolder.texTextView.setDebugMode(mDebugMode);
-		texViewHolder.texTextView.render(mParagraphs.get(position), mTextPaint);
+		texViewHolder.mParagraphView.setDebugMode(mDebugMode);
+		texViewHolder.mParagraphView.render(mParagraphs.get(position), mTextPaint);
 	}
 
 	@Override

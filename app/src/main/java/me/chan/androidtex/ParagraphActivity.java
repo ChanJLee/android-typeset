@@ -9,7 +9,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
-import me.chan.te.TexView;
+import me.chan.te.TeView;
 
 public class ParagraphActivity extends AppCompatActivity {
 
@@ -18,11 +18,11 @@ public class ParagraphActivity extends AppCompatActivity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_paragraph);
 
-		final TexView texView = findViewById(R.id.text);
+		final TeView teView = findViewById(R.id.text);
 		findViewById(R.id.debug).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				texView.setDebugMode(!texView.isDebugMode());
+				teView.setDebugMode(!teView.isDebugMode());
 			}
 		});
 
@@ -38,19 +38,19 @@ public class ParagraphActivity extends AppCompatActivity {
 			}
 		});
 
-		render("IAmLegend.txt", texView);
+		render("IAmLegend.txt", teView);
 
 		findViewById(R.id.button1).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				render("TheBookAndTheSword.txt", texView);
+				render("TheBookAndTheSword.txt", teView);
 			}
 		});
 
 		findViewById(R.id.button2).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				render("IAmLegend.txt", texView);
+				render("IAmLegend.txt", teView);
 			}
 		});
 
@@ -63,7 +63,7 @@ public class ParagraphActivity extends AppCompatActivity {
 		});
 	}
 
-	private void render(final String name, final TexView texView) {
+	private void render(final String name, final TeView teView) {
 		new Thread(new Runnable() {
 			@Override
 			public void run() {
@@ -81,7 +81,7 @@ public class ParagraphActivity extends AppCompatActivity {
 					runOnUiThread(new Runnable() {
 						@Override
 						public void run() {
-							texView.setText(stringBuilder.toString());
+							teView.setText(stringBuilder.toString());
 						}
 					});
 				} catch (IOException e) {
