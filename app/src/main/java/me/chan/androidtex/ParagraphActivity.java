@@ -3,6 +3,7 @@ package me.chan.androidtex;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.RadioGroup;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -37,6 +38,32 @@ public class ParagraphActivity extends AppCompatActivity {
 			}
 		});
 
+		render("IAmLegend.txt", texView);
+
+		findViewById(R.id.button1).setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				render("TheBookAndTheSword.txt", texView);
+			}
+		});
+
+		findViewById(R.id.button2).setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				render("IAmLegend.txt", texView);
+			}
+		});
+
+		RadioGroup radioGroup = findViewById(R.id.radio_group);
+		radioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+			@Override
+			public void onCheckedChanged(RadioGroup group, int checkedId) {
+				// TODO
+			}
+		});
+	}
+
+	private void render(final String name, final TexView texView) {
 		new Thread(new Runnable() {
 			@Override
 			public void run() {
@@ -44,7 +71,7 @@ public class ParagraphActivity extends AppCompatActivity {
 				final StringBuilder stringBuilder = new StringBuilder();
 				try {
 					BufferedReader bufferedReader = new BufferedReader(
-							new InputStreamReader(getAssets().open("IAmLegend.txt"))
+							new InputStreamReader(getAssets().open(name))
 					);
 					String line = null;
 					while ((line = bufferedReader.readLine()) != null) {
