@@ -9,7 +9,7 @@ import android.widget.FrameLayout;
 
 import me.chan.te.renderer.Adapter;
 
-public class TexView extends FrameLayout {
+public class TeView extends FrameLayout {
 
 	private Adapter mAdapter;
 	private CharSequence mText;
@@ -22,15 +22,15 @@ public class TexView extends FrameLayout {
 		}
 	};
 
-	public TexView(Context context) {
+	public TeView(Context context) {
 		this(context, null);
 	}
 
-	public TexView(Context context, AttributeSet attrs) {
+	public TeView(Context context, AttributeSet attrs) {
 		this(context, attrs, 0);
 	}
 
-	public TexView(Context context, AttributeSet attrs, int defStyleAttr) {
+	public TeView(Context context, AttributeSet attrs, int defStyleAttr) {
 		super(context, attrs, defStyleAttr);
 
 		RecyclerView recyclerView = new RecyclerView(context);

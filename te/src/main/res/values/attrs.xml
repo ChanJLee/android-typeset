@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <declare-styleable name="me_chan_te_TeView">
+        <attr name="textSize" format="dimension" tools:ignore="ResourceName" />
+        <attr name="gravity" format="enum" tools:ignore="ResourceName">
+            <enum name="fit" value="1" />
+            <enum name="fill" value="2" />
+        </attr>
+        <attr name="wordSelectable" format="boolean" tools:ignore="ResourceName" />
+        <attr name="lineSpace" format="dimension" tools:ignore="ResourceName" />
+        <attr name="textColor" format="color" tools:ignore="ResourceName" />
+    </declare-styleable>
+</resources>

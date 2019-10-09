@@ -24,7 +24,7 @@ import me.chan.te.data.Paragraph;
 import me.chan.te.log.Log;
 
 @Hidden
-public class TexTextView extends View implements GestureDetector.OnGestureListener {
+public class ParagraphView extends View implements GestureDetector.OnGestureListener {
 	public static final int SELECTION_MODE_NONE = 0;
 	public static final int SELECTION_MODE_CLICK = 1;
 	public static final int SELECTION_MODE_LONG_PRESS = 2;
@@ -40,15 +40,15 @@ public class TexTextView extends View implements GestureDetector.OnGestureListen
 	private TextPaint mWorkPaint = new TextPaint();
 	private Box.Bound mBound = new Box.Bound();
 
-	public TexTextView(Context context) {
+	public ParagraphView(Context context) {
 		super(context);
 	}
 
-	public TexTextView(Context context, AttributeSet attrs) {
+	public ParagraphView(Context context, AttributeSet attrs) {
 		super(context, attrs);
 	}
 
-	public TexTextView(Context context, AttributeSet attrs, int defStyleAttr) {
+	public ParagraphView(Context context, AttributeSet attrs, int defStyleAttr) {
 		super(context, attrs, defStyleAttr);
 	}
 
@@ -344,7 +344,7 @@ public class TexTextView extends View implements GestureDetector.OnGestureListen
 	}
 
 	public interface OnTextSelectedListener {
-		void onTextSelected(TexTextView view, Box box, @Nullable Box suffix);
+		void onTextSelected(ParagraphView view, Box box, @Nullable Box suffix);
 	}
 
 	private static void d(String msg) {

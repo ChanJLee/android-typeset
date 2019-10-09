@@ -22,7 +22,7 @@ import me.chan.te.hypher.Hypher;
 import me.chan.te.parser.TextParser;
 import me.chan.te.typesetter.CoreTypesetter;
 import me.chan.te.typesetter.Typesetter;
-import me.chan.te.view.TexTextView;
+import me.chan.te.view.ParagraphView;
 
 public class TextureViewTestActivity extends AppCompatActivity {
 
@@ -36,23 +36,23 @@ public class TextureViewTestActivity extends AppCompatActivity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_texture_view_test);
 
-		final TexTextView texTextView = findViewById(R.id.text);
-		texTextView.setSelectionMode(TexTextView.SELECTION_MODE_CLICK);
+		final ParagraphView paragraphView = findViewById(R.id.text);
+		paragraphView.setSelectionMode(ParagraphView.SELECTION_MODE_CLICK);
 		findViewById(R.id.debug).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				texTextView.setDebugMode(!texTextView.isDebugMode());
+				paragraphView.setDebugMode(!paragraphView.isDebugMode());
 			}
 		});
 
 		mHandler = new Handler(Looper.getMainLooper()) {
 			@Override
 			public void handleMessage(Message msg) {
-				texTextView.render(mParagraph, mPaint);
+				paragraphView.render(mParagraph, mPaint);
 			}
 		};
 
-		texTextView.post(new Runnable() {
+		paragraphView.post(new Runnable() {
 			@Override
 			public void run() {
 				new Thread(new Runnable() {
@@ -63,10 +63,10 @@ public class TextureViewTestActivity extends AppCompatActivity {
 						mPaint.setStyle(Paint.Style.FILL_AND_STROKE);
 						mPaint.setTextSize(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 18, getResources().getDisplayMetrics()));
 						Option option = new Option(mPaint);
-						LineAttributes.Attribute defaultAttribute = new LineAttributes.Attribute(texTextView.getWidth());
+						LineAttributes.Attribute defaultAttribute = new LineAttributes.Attribute(paragraphView.getWidth());
 						LineAttributes lineAttributes = new LineAttributes(defaultAttribute);
 						lineAttributes.add(0, new LineAttributes.Attribute(
-								texTextView.getWidth() - option.indent,
+								paragraphView.getWidth() - option.indent,
 								Gravity.RIGHT,
 								(int) option.lineSpacing
 						));
