@@ -18,10 +18,22 @@ public class ParagraphActivity extends AppCompatActivity {
 		setContentView(R.layout.activity_paragraph);
 
 		final TexView texView = findViewById(R.id.text);
-		findViewById(R.id.button1).setOnClickListener(new View.OnClickListener() {
+		findViewById(R.id.debug).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				texView.setDebugMode(!texView.isDebugMode());
+			}
+		});
+
+		final View container = findViewById(R.id.option_container);
+		findViewById(R.id.option).setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				if (container.getVisibility() == View.VISIBLE) {
+					container.setVisibility(View.GONE);
+				} else {
+					container.setVisibility(View.VISIBLE);
+				}
 			}
 		});
 
@@ -32,7 +44,7 @@ public class ParagraphActivity extends AppCompatActivity {
 				final StringBuilder stringBuilder = new StringBuilder();
 				try {
 					BufferedReader bufferedReader = new BufferedReader(
-							new InputStreamReader(getAssets().open("书剑恩仇录.txt"))
+							new InputStreamReader(getAssets().open("IAmLegend.txt"))
 					);
 					String line = null;
 					while ((line = bufferedReader.readLine()) != null) {

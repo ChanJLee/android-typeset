@@ -95,7 +95,7 @@ public class ParserUnitTest {
 
 	@Test
 	public void testParserRes() throws IOException {
-		File file = new File("../app/src/main/assets/书剑恩仇录.txt");
+		File file = new File("../app/src/main/assets/TheBookAndTheSword.txt");
 		System.out.println(file.getAbsolutePath());
 		assertTrue(file.exists());
 
@@ -134,7 +134,7 @@ public class ParserUnitTest {
 
 	@Test
 	public void testParserFull() throws IOException {
-		File file = new File("../app/src/main/assets/书剑恩仇录.txt");
+		File file = new File("../app/src/main/assets/TheBookAndTheSword.txt");
 		System.out.println(file.getAbsolutePath());
 		assertTrue(file.exists());
 
