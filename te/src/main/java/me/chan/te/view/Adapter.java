@@ -137,7 +137,7 @@ public class Adapter extends RecyclerView.Adapter<TexViewHolder> {
 			LineAttributes.Attribute defaultAttribute = new LineAttributes.Attribute(mWidth, Gravity.LEFT, (int) mOption.lineSpacing);
 			LineAttributes lineAttributes = new LineAttributes(defaultAttribute);
 			lineAttributes.add(0, new LineAttributes.Attribute(
-					mWidth - mOption.indent,
+					mWidth - mOption.indentWidth,
 					Gravity.RIGHT,
 					(int) mOption.lineSpacing
 			));
