@@ -12,6 +12,9 @@
 
 - [x] 实现朴素排版fallback机制
 
+- [ ] option getter
+
+- [ ] te 支持左对齐和两边对齐
 
 # workflow
 
