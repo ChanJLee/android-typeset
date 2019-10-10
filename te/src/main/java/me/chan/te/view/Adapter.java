@@ -1,4 +1,4 @@
-package me.chan.te.renderer;
+package me.chan.te.view;
 
 import android.content.Context;
 import android.os.Handler;
@@ -24,6 +24,9 @@ import me.chan.te.data.Paragraph;
 import me.chan.te.data.Segment;
 import me.chan.te.hypher.Hypher;
 import me.chan.te.parser.TextParser;
+import me.chan.te.source.Source;
+import me.chan.te.source.SourceCloseException;
+import me.chan.te.source.SourceOpenException;
 import me.chan.te.typesetter.CoreTypesetter;
 import me.chan.te.typesetter.Typesetter;
 
@@ -38,6 +41,7 @@ public class Adapter extends RecyclerView.Adapter<TexViewHolder> {
 	private Handler mHandler;
 	private boolean mDebugMode;
 	private ElementFactory mElementFactory = new ElementFactory();
+	private CharSequence mContent;
 
 	public Adapter(Context context) {
 		mLayoutInflater = LayoutInflater.from(context);
@@ -69,17 +73,28 @@ public class Adapter extends RecyclerView.Adapter<TexViewHolder> {
 		return mParagraphs == null ? 0 : mParagraphs.size();
 	}
 
-	public void setText(final CharSequence charSequence, final int width) {
+	public void render(final Source source, final int width) {
 		mExecutor.execute(new Runnable() {
 			@Override
 			public void run() {
-				render(charSequence, width);
+				try {
+					mContent = source.open();
+					render(mContent, width);
+				} catch (SourceOpenException throwable) {
+					// TODO 加入回调
+					throwable.printStackTrace();
+				} finally {
+					try {
+						source.close();
+					} catch (SourceCloseException e) {
+						e.printStackTrace();
+					}
+				}
 			}
 		});
 	}
 
 	private void render(CharSequence charSequence, int width) {
-
 		CoreTypesetter texTypesetter = new CoreTypesetter(mTextPaint, mOption, mElementFactory);
 		TextParser textParser = new TextParser(Hypher.getInstance(), mOption);
 		List<Segment> segments = textParser.parser(charSequence, mElementFactory);

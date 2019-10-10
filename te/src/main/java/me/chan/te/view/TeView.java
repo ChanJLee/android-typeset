@@ -1,26 +1,18 @@
-package me.chan.te;
+package me.chan.te.view;
 
 import android.content.Context;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.widget.FrameLayout;
 
-import me.chan.te.renderer.Adapter;
+import me.chan.te.source.Source;
 
 public class TeView extends FrameLayout {
 
 	private Adapter mAdapter;
-	private CharSequence mText;
-	private Runnable mCmdRunnable = new Runnable() {
-		@Override
-		public void run() {
-			if (mAdapter != null) {
-				mAdapter.setText(mText, getWidth());
-			}
-		}
-	};
 
 	public TeView(Context context) {
 		this(context, null);
@@ -44,13 +36,19 @@ public class TeView extends FrameLayout {
 		recyclerView.setAdapter(mAdapter);
 	}
 
-	public void setText(CharSequence charSequence) {
-		mText = charSequence;
-		post(mCmdRunnable);
-	}
-
-	public CharSequence getText() {
-		return mText;
+	public void setSource(final Source source) {
+		int width = getWidth();
+		if (width <= 0) {
+			getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+				@Override
+				public void onGlobalLayout() {
+					getViewTreeObserver().removeOnGlobalLayoutListener(this);
+					mAdapter.render(source, getWidth());
+				}
+			});
+			return;
+		}
+		mAdapter.render(source, width);
 	}
 
 	public void setDebugMode(boolean debugMode) {
