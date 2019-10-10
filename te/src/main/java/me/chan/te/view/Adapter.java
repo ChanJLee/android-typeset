@@ -43,6 +43,7 @@ public class Adapter extends RecyclerView.Adapter<TexViewHolder> {
 	private boolean mDebugMode;
 	private ElementFactory mElementFactory = new ElementFactory();
 	private CharSequence mContent;
+	private int mWidth = -1;
 	private Parser mParser = new TextParser();
 
 	public Adapter(Context context) {
@@ -75,13 +76,12 @@ public class Adapter extends RecyclerView.Adapter<TexViewHolder> {
 		return mParagraphs == null ? 0 : mParagraphs.size();
 	}
 
-	public void render(final Source source, final int width) {
+	void render(final Source source, final int width) {
 		mExecutor.execute(new Runnable() {
 			@Override
 			public void run() {
 				try {
-					mContent = source.open();
-					render(mContent, width);
+					render(source.open(), width);
 				} catch (SourceOpenException throwable) {
 					// TODO 加入回调
 					throwable.printStackTrace();
@@ -96,7 +96,22 @@ public class Adapter extends RecyclerView.Adapter<TexViewHolder> {
 		});
 	}
 
+	private void refresh() {
+		if (mContent == null || mWidth <= 0) {
+			return;
+		}
+
+		mExecutor.execute(new Runnable() {
+			@Override
+			public void run() {
+				render(mContent, mWidth);
+			}
+		});
+	}
+
 	private void render(CharSequence charSequence, int width) {
+		mContent = charSequence;
+		mWidth = width;
 		CoreTypesetter texTypesetter = new CoreTypesetter(mTextPaint, mOption, mElementFactory);
 		List<Segment> segments = mParser.parser(charSequence, mElementFactory, Hypher.getInstance(), mOption);
 		final List<Paragraph> paragraphs = new ArrayList<>();
@@ -121,16 +136,17 @@ public class Adapter extends RecyclerView.Adapter<TexViewHolder> {
 		});
 	}
 
-	public void setDebugMode(boolean debugMode) {
+	void setDebugMode(boolean debugMode) {
 		mDebugMode = debugMode;
 		notifyDataSetChanged();
 	}
 
-	public boolean isDebugMode() {
+	boolean isDebugMode() {
 		return mDebugMode;
 	}
 
-	public void setParser(Parser parser) {
-
+	void setParser(Parser parser) {
+		mParser = parser;
+		refresh();
 	}
 }
