@@ -57,7 +57,17 @@ public class ParagraphActivity extends AppCompatActivity {
 		radioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
 			@Override
 			public void onCheckedChanged(RadioGroup group, int checkedId) {
-				// TODO
+				if (checkedId == R.id.text_size_9) {
+					teView.setTextSize(9);
+				} else if (checkedId == R.id.text_size_18) {
+					teView.setTextSize(18);
+				} else if (checkedId == R.id.text_size_27) {
+					teView.setTextSize(27);
+				} else if (checkedId == R.id.text_size_45) {
+					teView.setTextSize(45);
+				} else if (checkedId == R.id.text_size_72) {
+					teView.setTextSize(72);
+				}
 			}
 		});
 	}

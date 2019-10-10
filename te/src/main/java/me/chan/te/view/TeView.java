@@ -4,6 +4,7 @@ import android.content.Context;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
+import android.util.TypedValue;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.widget.FrameLayout;
@@ -50,6 +51,22 @@ public class TeView extends FrameLayout {
 			return;
 		}
 		mAdapter.render(source, width);
+	}
+
+	/**
+	 * @param textSize sp unit
+	 */
+	public void setTextSize(float textSize) {
+		setTextSize(TypedValue.COMPLEX_UNIT_SP, textSize);
+	}
+
+	/**
+	 * @param unit     {@link TypedValue#COMPLEX_UNIT_PX} etc
+	 * @param textSize text size
+	 */
+	public void setTextSize(int unit, float textSize) {
+		float px = TypedValue.applyDimension(unit, textSize, getResources().getDisplayMetrics());
+		mAdapter.setTextSize(px);
 	}
 
 	public void setParser(Parser parser) {

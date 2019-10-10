@@ -25,8 +25,12 @@ public class Option {
 	public float minShrinkRatio = -0.2f;
 	public float stretchStepRatio = 0.2f;
 
-	public Option(TextPaint paint) {
-		hyphenWidth = Layout.getDesiredWidth("-", paint);
+	public Option(TextPaint textPaint) {
+		refresh(textPaint);
+	}
+
+	public void refresh(TextPaint textPaint) {
+		hyphenWidth = Layout.getDesiredWidth("-", textPaint);
 		spaceWidth = hyphenWidth;
 		spaceStretch = spaceWidth * 1.1f;
 		spaceShrink = spaceWidth * 0.9f;
@@ -34,6 +38,6 @@ public class Option {
 		// 首行缩进四个空格
 		indent = spaceWidth * 4;
 		// 1.0 倍行间距
-		lineSpacing = (int) (paint.getFontSpacing());
+		lineSpacing = (int) (textPaint.getFontSpacing());
 	}
 }
