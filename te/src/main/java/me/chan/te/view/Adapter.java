@@ -12,17 +12,19 @@ import android.view.ViewGroup;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import me.chan.te.R;
-import me.chan.te.config.Option;
 import me.chan.te.config.LineAttributes;
+import me.chan.te.config.Option;
 import me.chan.te.data.ElementFactory;
 import me.chan.te.data.Gravity;
 import me.chan.te.data.Paragraph;
 import me.chan.te.data.Segment;
 import me.chan.te.hypher.Hypher;
+import me.chan.te.log.Log;
 import me.chan.te.parser.Parser;
 import me.chan.te.parser.TextParser;
 import me.chan.te.source.Source;
@@ -38,13 +40,14 @@ public class Adapter extends RecyclerView.Adapter<TexViewHolder> {
 	private LayoutInflater mLayoutInflater;
 	private TextPaint mTextPaint;
 	private Option mOption;
-	private Executor mExecutor = Executors.newSingleThreadExecutor();
+	private ExecutorService mExecutor = Executors.newSingleThreadExecutor();
 	private Handler mHandler;
 	private boolean mDebugMode;
 	private ElementFactory mElementFactory = new ElementFactory();
 	private CharSequence mContent;
 	private int mWidth = -1;
 	private Parser mParser = new TextParser();
+	private Future<?> mTask;
 
 	public Adapter(Context context) {
 		mLayoutInflater = LayoutInflater.from(context);
@@ -77,14 +80,17 @@ public class Adapter extends RecyclerView.Adapter<TexViewHolder> {
 	}
 
 	void render(final Source source, final int width) {
-		mExecutor.execute(new Runnable() {
+		cancel();
+		mTask = mExecutor.submit(new Runnable() {
 			@Override
 			public void run() {
 				try {
-					render(source.open(), width);
+					mContent = source.open();
+					mWidth = width;
+					refreshInternal();
 				} catch (SourceOpenException throwable) {
-					// TODO 加入回调
-					throwable.printStackTrace();
+					w("source open exception");
+					w(throwable);
 				} finally {
 					try {
 						source.close();
@@ -94,32 +100,44 @@ public class Adapter extends RecyclerView.Adapter<TexViewHolder> {
 				}
 			}
 		});
+		d("render: " + mTask);
 	}
 
 	private void refresh() {
 		if (mContent == null || mWidth <= 0) {
+			w("content or width is invalid, ignore refresh");
 			return;
 		}
 
-		mExecutor.execute(new Runnable() {
+		cancel();
+		mTask = mExecutor.submit(new Runnable() {
 			@Override
 			public void run() {
-				render(mContent, mWidth);
+				refreshInternal();
 			}
 		});
+		d("refresh: " + mTask);
 	}
 
-	private void render(CharSequence charSequence, int width) {
-		mContent = charSequence;
-		mWidth = width;
+	private void cancel() {
+		if (mTask != null) {
+			d("cancel task: " + mTask);
+			mTask.cancel(true);
+		}
+	}
+
+	private synchronized void refreshInternal() {
 		CoreTypesetter texTypesetter = new CoreTypesetter(mTextPaint, mOption, mElementFactory);
-		List<Segment> segments = mParser.parser(charSequence, mElementFactory, Hypher.getInstance(), mOption);
+		List<Segment> segments = mParser.parser(mContent, mElementFactory, Hypher.getInstance(), mOption);
 		final List<Paragraph> paragraphs = new ArrayList<>();
-		for (Segment segment : segments) {
-			LineAttributes.Attribute defaultAttribute = new LineAttributes.Attribute(width, Gravity.LEFT, (int) mOption.lineSpacing);
+		int size = segments.size();
+		final Thread thread = Thread.currentThread();
+		for (int i = 0; i < size && !thread.isInterrupted(); ++i) {
+			Segment segment = segments.get(i);
+			LineAttributes.Attribute defaultAttribute = new LineAttributes.Attribute(mWidth, Gravity.LEFT, (int) mOption.lineSpacing);
 			LineAttributes lineAttributes = new LineAttributes(defaultAttribute);
 			lineAttributes.add(0, new LineAttributes.Attribute(
-					width - mOption.indent,
+					mWidth - mOption.indent,
 					Gravity.RIGHT,
 					(int) mOption.lineSpacing
 			));
@@ -127,11 +145,16 @@ public class Adapter extends RecyclerView.Adapter<TexViewHolder> {
 			paragraphs.add(paragraph);
 		}
 
+		d("is thread interrupt: " + thread.isInterrupted());
+
 		mHandler.post(new Runnable() {
 			@Override
 			public void run() {
-				mParagraphs = paragraphs;
-				notifyDataSetChanged();
+				if (!thread.isInterrupted()) {
+					d("render paragraphs");
+					mParagraphs = paragraphs;
+					notifyDataSetChanged();
+				}
 			}
 		});
 	}
@@ -148,5 +171,28 @@ public class Adapter extends RecyclerView.Adapter<TexViewHolder> {
 	void setParser(Parser parser) {
 		mParser = parser;
 		refresh();
+	}
+
+	void setTextSize(float textSize) {
+		if (mTextPaint.getTextSize() == textSize) {
+			d("text size do not changed, ignore set text size");
+			return;
+		}
+
+		mTextPaint.setTextSize(textSize);
+		mOption.refresh(mTextPaint);
+		refresh();
+	}
+
+	private static void d(String msg) {
+		Log.d("TeCore", msg);
+	}
+
+	private static void w(String msg) {
+		Log.w("TeCore", msg);
+	}
+
+	private static void w(Throwable throwable) {
+		Log.w("TeCore", throwable);
 	}
 }
