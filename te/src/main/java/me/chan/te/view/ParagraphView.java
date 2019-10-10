@@ -39,6 +39,7 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 	private Box mSelectedSuffix;
 	private TextPaint mWorkPaint = new TextPaint();
 	private Box.Bound mBound = new Box.Bound();
+	private boolean mDebugMode = false;
 
 	public ParagraphView(Context context) {
 		super(context);
@@ -52,14 +53,12 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 		super(context, attrs, defStyleAttr);
 	}
 
-	public void render(@NonNull Paragraph paragraph,
-					   @NonNull TextPaint paint) {
+	void render(@NonNull Paragraph paragraph,
+				@NonNull TextPaint paint) {
 		mParagraph = paragraph;
 		mPaint = paint;
 		requestLayout();
 	}
-
-	private boolean mDebugMode = false;
 
 	public void setDebugMode(boolean enable) {
 		if (mDebugMode == enable) {

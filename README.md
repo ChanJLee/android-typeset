@@ -15,7 +15,7 @@
 
 # workflow
 
-source -> parser -> typesetter -> renderer
+source read text -> parse text -> typeset -> render
 
 # link
 

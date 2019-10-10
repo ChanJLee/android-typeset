@@ -17,14 +17,6 @@ public class MainActivity extends AppCompatActivity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 
-		findViewById(R.id.button1).setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				Intent intent = new Intent(v.getContext(), TextureViewTestActivity.class);
-				startActivity(intent);
-			}
-		});
-
 		TextPaint textPaint = new TextPaint();
 		textPaint.setTextSize(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 18, getResources().getDisplayMetrics()));
 		Log.d("chan_debug", Layout.getDesiredWidth("-", textPaint) + "");

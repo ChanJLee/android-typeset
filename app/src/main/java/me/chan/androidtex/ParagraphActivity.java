@@ -1,15 +1,14 @@
 package me.chan.androidtex;
 
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.RadioGroup;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 
-import me.chan.te.TeView;
+import me.chan.te.source.AssertSource;
+import me.chan.te.view.TeView;
 
 public class ParagraphActivity extends AppCompatActivity {
 
@@ -64,30 +63,10 @@ public class ParagraphActivity extends AppCompatActivity {
 	}
 
 	private void render(final String name, final TeView teView) {
-		new Thread(new Runnable() {
-			@Override
-			public void run() {
-
-				final StringBuilder stringBuilder = new StringBuilder();
-				try {
-					BufferedReader bufferedReader = new BufferedReader(
-							new InputStreamReader(getAssets().open(name))
-					);
-					String line = null;
-					while ((line = bufferedReader.readLine()) != null) {
-						stringBuilder.append(line)
-								.append("\n");
-					}
-					runOnUiThread(new Runnable() {
-						@Override
-						public void run() {
-							teView.setText(stringBuilder.toString());
-						}
-					});
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			}
-		}).start();
+		try {
+			teView.setSource(new AssertSource(this, name));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 }
