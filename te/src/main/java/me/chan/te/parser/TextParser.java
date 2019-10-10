@@ -46,14 +46,14 @@ public class TextParser implements Parser {
 
 			hypher.hyphenate(String.valueOf(paragraph), first, len, hyphenated);
 			int size = hyphenated.size();
-			if (size == 0 || len < option.minHyperLen) {
+			if (size == 0 || len < option.MIN_HYPER_LEN) {
 				list.add(factory.obtainBox(paragraph, first, last));
 			} else {
 				for (int j = 0; j < size; ++j) {
 					String item = hyphenated.get(j);
 					list.add(factory.obtainBox(item));
 					if (j != size - 1 && !item.isEmpty() && item.charAt(item.length() - 1) != '-') {
-						list.add(new Penalty(option.hyphenWidth, option.hyphenPenalty, true));
+						list.add(new Penalty(option.hyphenWidth, option.HYPHEN_PENALTY, true));
 					}
 				}
 			}
@@ -66,8 +66,8 @@ public class TextParser implements Parser {
 			list.remove(list.size() - 1);
 		}
 
-		list.add(new Glue(0, option.infinity, 0));
-		list.add(new Penalty(0, -option.infinity, true));
+		list.add(new Glue(0, option.INFINITY, 0));
+		list.add(new Penalty(0, -option.INFINITY, true));
 
 		return list;
 	}

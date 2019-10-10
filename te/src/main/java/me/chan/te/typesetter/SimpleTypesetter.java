@@ -112,7 +112,7 @@ class SimpleTypesetter implements Typesetter {
 		Element next = null;
 		if (last < elements.size() &&
 				(next = elements.get(last)) instanceof Penalty &&
-				((Penalty) next).getPenalty() != mOption.infinity &&
+				((Penalty) next).getPenalty() != mOption.INFINITY &&
 				currentWidth + mOption.hyphenWidth <= width) {
 			Box box = (Box) elements.get(start);
 			box.setPenalty(true);
