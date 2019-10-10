@@ -23,6 +23,7 @@ import me.chan.te.data.Gravity;
 import me.chan.te.data.Paragraph;
 import me.chan.te.data.Segment;
 import me.chan.te.hypher.Hypher;
+import me.chan.te.parser.Parser;
 import me.chan.te.parser.TextParser;
 import me.chan.te.source.Source;
 import me.chan.te.source.SourceCloseException;
@@ -42,6 +43,7 @@ public class Adapter extends RecyclerView.Adapter<TexViewHolder> {
 	private boolean mDebugMode;
 	private ElementFactory mElementFactory = new ElementFactory();
 	private CharSequence mContent;
+	private Parser mParser = new TextParser();
 
 	public Adapter(Context context) {
 		mLayoutInflater = LayoutInflater.from(context);
@@ -96,8 +98,7 @@ public class Adapter extends RecyclerView.Adapter<TexViewHolder> {
 
 	private void render(CharSequence charSequence, int width) {
 		CoreTypesetter texTypesetter = new CoreTypesetter(mTextPaint, mOption, mElementFactory);
-		TextParser textParser = new TextParser(Hypher.getInstance(), mOption);
-		List<Segment> segments = textParser.parser(charSequence, mElementFactory);
+		List<Segment> segments = mParser.parser(charSequence, mElementFactory, Hypher.getInstance(), mOption);
 		final List<Paragraph> paragraphs = new ArrayList<>();
 		for (Segment segment : segments) {
 			LineAttributes.Attribute defaultAttribute = new LineAttributes.Attribute(width, Gravity.LEFT, (int) mOption.lineSpacing);
@@ -127,5 +128,9 @@ public class Adapter extends RecyclerView.Adapter<TexViewHolder> {
 
 	public boolean isDebugMode() {
 		return mDebugMode;
+	}
+
+	public void setParser(Parser parser) {
+
 	}
 }
