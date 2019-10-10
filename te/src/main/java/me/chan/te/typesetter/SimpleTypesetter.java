@@ -46,7 +46,7 @@ class SimpleTypesetter implements Typesetter {
 	}
 
 	private int typesetLine(float width, List<Line> lines, List<? extends Element> elements,
-							int start, TexTypesetter.Policy policy) {
+							int start, Policy policy) {
 		List<Box> boxes = new ArrayList<>();
 		int size = elements.size();
 		float lineHeight = 0f;
@@ -83,7 +83,7 @@ class SimpleTypesetter implements Typesetter {
 			start = handleFullLoadLine(elements, start, width, currentLineWidth);
 		}
 
-		if (policy == TexTypesetter.Policy.FILL && boxes.size() > 1) {
+		if (policy == TexTypesetter.Policy.FILL && boxes.size() > 1 && start != size) {
 			spaceWidth = spaceWidth + (width - currentLineWidth) / (boxes.size() - 1);
 		}
 
