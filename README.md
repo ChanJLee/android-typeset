@@ -10,7 +10,12 @@
 
 - [x] 选中单词回调
 
-- [ ] 实现朴素排版fallback机制
+- [x] 实现朴素排版fallback机制
+
+
+# workflow
+
+source -> parser -> typesetter -> renderer
 
 # link
 

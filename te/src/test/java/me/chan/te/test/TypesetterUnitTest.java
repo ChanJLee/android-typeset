@@ -26,6 +26,8 @@ import me.chan.te.data.Paragraph;
 import me.chan.te.data.Segment;
 import me.chan.te.hypher.Hypher;
 import me.chan.te.parser.TextParser;
+import me.chan.te.test.mock.MockMeasurer;
+import me.chan.te.test.mock.MockTextPaint;
 import me.chan.te.typesetter.CoreTypesetter;
 import me.chan.te.typesetter.Typesetter;
 
@@ -40,7 +42,7 @@ import static org.junit.Assert.fail;
  *
  * @see <a href="http://d.android.com/tools/testing">Testing documentation</a>
  */
-public class ExampleUnitTest {
+public class TypesetterUnitTest {
 	@Mock
 	private Rect mRect;
 

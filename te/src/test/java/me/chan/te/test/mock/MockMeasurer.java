@@ -1,4 +1,4 @@
-package me.chan.te.test;
+package me.chan.te.test.mock;
 
 import android.text.TextPaint;
 
