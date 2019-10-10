@@ -33,24 +33,24 @@ public class ParserUnitTest {
 		paint.setTextSize(18);
 		Option option = new Option(paint);
 		ElementFactory factory = new ElementFactory();
-		TextParser textParser = new TextParser(Hypher.getInstance(), option);
-		List<Segment> segments = textParser.parser("hello\n\nworld\n\n", factory);
+		TextParser textParser = new TextParser();
+		List<Segment> segments = textParser.parser("hello\n\nworld\n\n", factory, Hypher.getInstance(), option);
 		assertEquals(segments.size(), 2);
 
-		segments = textParser.parser("hello\n\nworld\n", factory);
+		segments = textParser.parser("hello\n\nworld\n", factory, Hypher.getInstance(), option);
 		assertEquals(segments.size(), 2);
 
-		segments = textParser.parser("", factory);
+		segments = textParser.parser("", factory, Hypher.getInstance(), option);
 		assertEquals(segments.size(), 0);
 
 		try {
-			textParser.parser(null, factory);
+			textParser.parser(null, factory, Hypher.getInstance(), option);
 			Assert.fail("test parser null string");
 		} catch (Exception e) {
 			/* do nothing */
 		}
 
-		segments = textParser.parser(" hello", factory);
+		segments = textParser.parser(" hello", factory, Hypher.getInstance(), option);
 		assertEquals(segments.size(), 1);
 
 		Segment segment = segments.get(0);
@@ -64,7 +64,7 @@ public class ParserUnitTest {
 		Box box = (Box) list.get(0);
 		assertEquals("check box content: ", box.toString(), "hello");
 
-		segments = textParser.parser(" triangle\n\n\n", factory);
+		segments = textParser.parser(" triangle\n\n\n", factory, Hypher.getInstance(), option);
 		assertEquals(segments.size(), 1);
 
 		segment = segments.get(0);
@@ -106,7 +106,7 @@ public class ParserUnitTest {
 		TextPaint paint = new TextPaint();
 		Option option = new Option(paint);
 		int lineNumber = 0;
-		TextParser textParser = new TextParser(Hypher.getInstance(), option);
+		TextParser textParser = new TextParser();
 		while ((line = bufferedReader.readLine()) != null) {
 			++lineNumber;
 			if (line == null || line.length() == 0) {
@@ -115,7 +115,7 @@ public class ParserUnitTest {
 
 			String contentWithoutBlank = line.replaceAll("\\p{Z}+|\\t|\\r|\\n", "");
 			StringBuilder stringBuilder = new StringBuilder();
-			List<Segment> segments = textParser.parser(line, factory);
+			List<Segment> segments = textParser.parser(line, factory, Hypher.getInstance(), option);
 			if (contentWithoutBlank.isEmpty()) {
 				assertTrue(segments.isEmpty());
 				continue;
@@ -145,14 +145,14 @@ public class ParserUnitTest {
 		TextPaint paint = new TextPaint();
 		Option option = new Option(paint);
 		StringBuilder stringBuilder = new StringBuilder();
-		TextParser textParser = new TextParser(Hypher.getInstance(), option);
+		TextParser textParser = new TextParser();
 		while ((line = bufferedReader.readLine()) != null) {
 			stringBuilder.append(line);
 		}
 
 		String content = stringBuilder.toString();
 		stringBuilder = new StringBuilder();
-		List<Segment> segments = textParser.parser(content, factory);
+		List<Segment> segments = textParser.parser(content, factory, Hypher.getInstance(), option);
 		for (Segment segment : segments) {
 			for (Element element : segment.getElements()) {
 				if (element instanceof Box) {

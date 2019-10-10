@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.widget.FrameLayout;
 
+import me.chan.te.parser.Parser;
 import me.chan.te.source.Source;
 
 public class TeView extends FrameLayout {
@@ -49,6 +50,10 @@ public class TeView extends FrameLayout {
 			return;
 		}
 		mAdapter.render(source, width);
+	}
+
+	public void setParser(Parser parser) {
+		mAdapter.setParser(parser);
 	}
 
 	public void setDebugMode(boolean debugMode) {

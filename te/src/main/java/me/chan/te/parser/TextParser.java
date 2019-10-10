@@ -14,32 +14,24 @@ import me.chan.te.data.Segment;
 import me.chan.te.hypher.Hypher;
 
 public class TextParser implements Parser {
-
-	private Hypher mHypher;
-	private Option mOption;
-
-	public TextParser(Hypher hypher, Option option) {
-		mHypher = hypher;
-		mOption = option;
-	}
-
 	@Override
 	@NonNull
-	public List<Segment> parser(CharSequence charSequence, ElementFactory factory) {
+	public List<Segment> parser(CharSequence charSequence, ElementFactory factory, Hypher hypher, Option option) {
 		List<Segment> segments = new ArrayList<>();
 		int len = charSequence.length();
 		for (int i = skipBlank(charSequence, 0, len); i < len; ) {
 			int last = findNewline(charSequence, i, len);
 			if (i != last) {
 				segments.add(new Segment(charSequence, i, last,
-						parserLine(charSequence, factory, i, last)));
+						parserLine(charSequence, factory, i, last, hypher, option)));
 			}
 			i = skipBlank(charSequence, last, len);
 		}
 		return segments;
 	}
 
-	private List<? extends Element> parserLine(CharSequence paragraph, ElementFactory factory, int start, int end) {
+	private List<? extends Element> parserLine(CharSequence paragraph, ElementFactory factory,
+											   int start, int end, Hypher hypher, Option option) {
 		List<Element> list = new ArrayList<>();
 		List<String> hyphenated = new ArrayList<>();
 
@@ -52,30 +44,30 @@ public class TextParser implements Parser {
 				continue;
 			}
 
-			mHypher.hyphenate(String.valueOf(paragraph), first, len, hyphenated);
+			hypher.hyphenate(String.valueOf(paragraph), first, len, hyphenated);
 			int size = hyphenated.size();
-			if (size == 0 || len < mOption.minHyperLen) {
+			if (size == 0 || len < option.minHyperLen) {
 				list.add(factory.obtainBox(paragraph, first, last));
 			} else {
 				for (int j = 0; j < size; ++j) {
 					String item = hyphenated.get(j);
 					list.add(factory.obtainBox(item));
 					if (j != size - 1 && !item.isEmpty() && item.charAt(item.length() - 1) != '-') {
-						list.add(new Penalty(mOption.hyphenWidth, mOption.hyphenPenalty, true));
+						list.add(new Penalty(option.hyphenWidth, option.hyphenPenalty, true));
 					}
 				}
 			}
 			hyphenated.clear();
 
-			list.add(new Glue(mOption.spaceWidth, mOption.spaceStretch, mOption.spaceShrink));
+			list.add(new Glue(option.spaceWidth, option.spaceStretch, option.spaceShrink));
 		}
 
 		if (!list.isEmpty()) {
 			list.remove(list.size() - 1);
 		}
 
-		list.add(new Glue(0, mOption.infinity, 0));
-		list.add(new Penalty(0, -mOption.infinity, true));
+		list.add(new Glue(0, option.infinity, 0));
+		list.add(new Penalty(0, -option.infinity, true));
 
 		return list;
 	}

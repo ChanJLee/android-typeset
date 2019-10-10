@@ -178,8 +178,8 @@ public class TypesetterUnitTest {
 		paint.setMockTextSize(textSize);
 		Option option = new Option(paint);
 		CoreTypesetter texTypesetter = new CoreTypesetter(paint, option, factory);
-		TextParser textParser = new TextParser(Hypher.getInstance(), option);
-		List<Segment> segments = textParser.parser(text, factory);
+		TextParser textParser = new TextParser();
+		List<Segment> segments = textParser.parser(text, factory, Hypher.getInstance(), option);
 		StringBuilder stringBuilder = new StringBuilder();
 		for (Segment segment : segments) {
 			Paragraph paragraph = texTypesetter.typeset(segment, lineAttributes, policy);
