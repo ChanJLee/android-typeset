@@ -68,11 +68,24 @@ class SimpleTypesetter implements Typesetter {
 				break;
 			}
 
-			currentLineWidth += (mBound.getWidth() + spaceWidth);
+			int prevIndex = start - 1;
+			Element prevElement = null;
+			if (prevIndex >= 0 &&
+					((prevElement = elements.get(prevIndex)) instanceof Penalty) &&
+					((Penalty) (prevElement)).getPenalty() != mOption.INFINITY &&
+					!boxes.isEmpty() &&
+					boxes.get(boxes.size() - 1).canMerge(box)) {
+				Box last = boxes.get(boxes.size() - 1);
+				last.append(box);
+				currentLineWidth += mBound.getWidth();
+			} else {
+				boxes.add(box);
+				currentLineWidth += (mBound.getWidth() + spaceWidth);
+			}
+
 			if (lineHeight < mBound.getHeight()) {
 				lineHeight = mBound.getHeight();
 			}
-			boxes.add(box);
 		}
 
 		// 如果一行是空的，说明当前只能排一个，并且都显示不下
@@ -81,7 +94,7 @@ class SimpleTypesetter implements Typesetter {
 			handleSingleBoxLine(boxes, elements, start, width, mBound, mWorkPaint);
 			lineHeight = mBound.getHeight();
 		} else {
-			start = handleFullLoadLine(elements, start, width, currentLineWidth);
+			start = handleFullLoadLine(elements, start, width, currentLineWidth, boxes);
 		}
 
 		if (breakStrategy == BreakStrategy.BALANCED && boxes.size() > 1 && start != size) {
@@ -108,18 +121,25 @@ class SimpleTypesetter implements Typesetter {
 		box.getBound(textPaint, bound);
 	}
 
-	private int handleFullLoadLine(List<? extends Element> elements, int start, float width, float currentWidth) {
+	private int handleFullLoadLine(List<? extends Element> elements, int start, float width, float currentWidth, List<Box> boxes) {
 		int last = start + 1;
 		Element next;
-		if (last < elements.size() &&
-				(next = elements.get(last)) instanceof Penalty &&
-				((Penalty) next).getPenalty() != mOption.INFINITY &&
+		if (last >= elements.size() ||
+				!((next = elements.get(last)) instanceof Penalty)) {
+			return start;
+		}
+
+		if (((Penalty) next).getPenalty() != mOption.INFINITY &&
 				currentWidth + mOption.getHyphenWidth() <= width) {
-			Box box = (Box) elements.get(start);
+
+			Box box = boxes.get(boxes.size() - 1);
 			box.setPenalty(true);
 			box.append("-");
 			++start;
+		} else {
+			boxes.remove(boxes.size() - 1);
 		}
+
 		return start;
 	}
 }
