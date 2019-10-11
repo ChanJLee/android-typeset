@@ -53,13 +53,13 @@ public class TextParser implements Parser {
 					String item = hyphenated.get(j);
 					list.add(factory.obtainBox(item));
 					if (j != size - 1 && !item.isEmpty() && item.charAt(item.length() - 1) != '-') {
-						list.add(new Penalty(option.hyphenWidth, option.HYPHEN_PENALTY, true));
+						list.add(new Penalty(option.getHyphenWidth(), option.HYPHEN_PENALTY, true));
 					}
 				}
 			}
 			hyphenated.clear();
 
-			list.add(new Glue(option.spaceWidth, option.spaceStretch, option.spaceShrink));
+			list.add(new Glue(option.getSpaceWidth(), option.getSpaceStretch(), option.getSpaceShrink()));
 		}
 
 		if (!list.isEmpty()) {

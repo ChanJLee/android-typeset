@@ -185,7 +185,7 @@ class TexTypesetter implements Typesetter {
 			boxes.add(box);
 		}
 
-		float spaceWidth = mOption.spaceWidth;
+		float spaceWidth = mOption.getSpaceWidth();
 		int boxCount = boxes.size();
 		float lineWidth = lineAttributes.get(lineNumber).getLineWidth();
 		if (boxCount > 1) {
@@ -193,8 +193,8 @@ class TexTypesetter implements Typesetter {
 		}
 
 		// 最后一行如果我能放的下，没必要压缩或者拉伸
-		if (lastLine && (wordWidth + (boxCount - 1) * mOption.spaceWidth) <= lineWidth) {
-			spaceWidth = mOption.spaceWidth;
+		if (lastLine && (wordWidth + (boxCount - 1) * mOption.getSpaceWidth()) <= lineWidth) {
+			spaceWidth = mOption.getSpaceWidth();
 		}
 
 		return new Line(

@@ -137,12 +137,12 @@ public class Adapter extends RecyclerView.Adapter<TexViewHolder> {
 		final Thread thread = Thread.currentThread();
 		for (int i = 0; i < size && !thread.isInterrupted(); ++i) {
 			Segment segment = segments.get(i);
-			LineAttributes.Attribute defaultAttribute = new LineAttributes.Attribute(mWidth, Gravity.LEFT, (int) mOption.lineSpacing);
+			LineAttributes.Attribute defaultAttribute = new LineAttributes.Attribute(mWidth, Gravity.LEFT, (int) mOption.getLineSpacing());
 			LineAttributes lineAttributes = new LineAttributes(defaultAttribute);
 			lineAttributes.add(0, new LineAttributes.Attribute(
-					mWidth - mOption.indentWidth,
+					mWidth - mOption.getIndentWidth(),
 					Gravity.RIGHT,
-					(int) mOption.lineSpacing
+					(int) mOption.getLineSpacing()
 			));
 			Paragraph paragraph = texTypesetter.typeset(segment, lineAttributes, Typesetter.Policy.FILL);
 			paragraphs.add(paragraph);

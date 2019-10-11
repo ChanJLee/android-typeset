@@ -32,6 +32,8 @@ import me.chan.te.typesetter.CoreTypesetter;
 import me.chan.te.typesetter.Typesetter;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -143,7 +145,7 @@ public class TypesetterUnitTest {
 
 	@Test
 	public void testTypesetter() throws IOException {
-		File file = new File("../app/src/main/assets/TheBookandTheSword.txt");
+		File file = new File("../app/src/main/assets/TheBookAndTheSword.txt");
 		System.out.println(file.getAbsolutePath());
 		assertTrue(file.exists());
 
@@ -157,6 +159,7 @@ public class TypesetterUnitTest {
 		}
 
 		String text = stringBuilder.toString();
+		assertNotEquals(text.length(), 0);
 
 		checkContent(text, Typesetter.Policy.FILL, 1080, 18);
 		checkContent(text, Typesetter.Policy.FIT, 1080, 18);
@@ -180,11 +183,14 @@ public class TypesetterUnitTest {
 		CoreTypesetter texTypesetter = new CoreTypesetter(paint, option, factory);
 		TextParser textParser = new TextParser();
 		List<Segment> segments = textParser.parser(text, factory, Hypher.getInstance(), option);
+		assertFalse(segments.isEmpty());
+
 		StringBuilder stringBuilder = new StringBuilder();
 		for (Segment segment : segments) {
 			Paragraph paragraph = texTypesetter.typeset(segment, lineAttributes, policy);
 			assertNotNull(paragraph);
 			assertNotNull(paragraph.getLines());
+			assertFalse(paragraph.getLines().isEmpty());
 
 			for (Line l : paragraph.getLines()) {
 				for (Box box : l.getBoxes()) {
