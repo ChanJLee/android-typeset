@@ -90,6 +90,6 @@ public class TeView extends FrameLayout {
 		 * 简单的左对齐
 		 */
 		SIMPLE,
-		BALANCEED
+		BALANCED
 	}
 }

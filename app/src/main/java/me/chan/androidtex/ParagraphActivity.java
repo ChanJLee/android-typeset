@@ -77,7 +77,7 @@ public class ParagraphActivity extends AppCompatActivity {
 		checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
 			@Override
 			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-				teView.setBreakStrategy(isChecked ? TeView.BreakStrategy.BALANCEED : TeView.BreakStrategy.SIMPLE);
+				teView.setBreakStrategy(isChecked ? TeView.BreakStrategy.BALANCED : TeView.BreakStrategy.SIMPLE);
 			}
 		});
 	}

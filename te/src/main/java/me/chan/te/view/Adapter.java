@@ -48,7 +48,7 @@ public class Adapter extends RecyclerView.Adapter<TexViewHolder> {
 	private int mWidth = -1;
 	private Parser mParser = new TextParser();
 	private Future<?> mTask;
-	private TeView.BreakStrategy mBreakStrategy = TeView.BreakStrategy.BALANCEED;
+	private TeView.BreakStrategy mBreakStrategy = TeView.BreakStrategy.BALANCED;
 
 	public Adapter(Context context) {
 		mLayoutInflater = LayoutInflater.from(context);
@@ -137,7 +137,7 @@ public class Adapter extends RecyclerView.Adapter<TexViewHolder> {
 		int size = segments.size();
 		final Thread thread = Thread.currentThread();
 		Typesetter.Policy policy = null;
-		if (mBreakStrategy == TeView.BreakStrategy.BALANCEED) {
+		if (mBreakStrategy == TeView.BreakStrategy.BALANCED) {
 			policy = Typesetter.Policy.FILL;
 		} else if (mBreakStrategy == TeView.BreakStrategy.SIMPLE) {
 			policy = Typesetter.Policy.FIT;
