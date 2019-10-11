@@ -16,7 +16,7 @@ public class SourceUnitTest {
 
 	@Test
 	public void test() throws IOException {
-		File file = new File("../app/src/main/assets/TheBookandTheSword.txt");
+		File file = new File("../app/src/main/assets/TheBookAndTheSword.txt");
 		FileInputStream fileInputStream = new FileInputStream(file);
 		StreamSource streamSource = new StreamSource(fileInputStream);
 		CharSequence charSequence = null;

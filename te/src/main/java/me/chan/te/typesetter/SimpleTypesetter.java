@@ -50,7 +50,7 @@ class SimpleTypesetter implements Typesetter {
 		List<Box> boxes = new ArrayList<>();
 		int size = elements.size();
 		float lineHeight = 0f;
-		float spaceWidth = mOption.spaceWidth;
+		float spaceWidth = mOption.getSpaceWidth();
 		float currentLineWidth = 0f;
 		for (; start < size; ++start) {
 			Element element = elements.get(start);
@@ -113,7 +113,7 @@ class SimpleTypesetter implements Typesetter {
 		if (last < elements.size() &&
 				(next = elements.get(last)) instanceof Penalty &&
 				((Penalty) next).getPenalty() != mOption.INFINITY &&
-				currentWidth + mOption.hyphenWidth <= width) {
+				currentWidth + mOption.getHyphenWidth() <= width) {
 			Box box = (Box) elements.get(start);
 			box.setPenalty(true);
 			box.append("-");

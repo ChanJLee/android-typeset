@@ -19,51 +19,50 @@ public class Option {
 	/**
 	 * 跟随box的text size变化
 	 */
-	public float hyphenWidth;
-	public float spaceWidth;
-	public float spaceStretch;
-	public float spaceShrink;
-	public float indentWidth;
-	public float lineSpacing;
+	private float mHyphenWidth;
+	private float mSpaceWidth;
+	private float mSpaceStretch;
+	private float mSpaceShrink;
+	private float mIndentWidth;
+	private float mLineSpacing;
 
 	public Option(TextPaint textPaint) {
 		refresh(textPaint);
 	}
 
 	public void refresh(TextPaint textPaint) {
-		hyphenWidth = Layout.getDesiredWidth("-", textPaint);
-		spaceWidth = hyphenWidth;
-		spaceStretch = spaceWidth * 1.1f;
-		spaceShrink = spaceWidth * 0.9f;
+		mHyphenWidth = Layout.getDesiredWidth("-", textPaint);
+		mSpaceWidth = mHyphenWidth;
+		mSpaceStretch = mSpaceWidth * 1.1f;
+		mSpaceShrink = mSpaceWidth * 0.9f;
 
 		// 首行缩进四个空格
-		indentWidth = spaceWidth * 4;
+		mIndentWidth = mSpaceWidth * 4;
 		// 1.0 倍行间距
-		lineSpacing = (int) (textPaint.getFontSpacing());
+		mLineSpacing = (int) (textPaint.getFontSpacing());
 	}
 
-	// TODO call get
 	public float getHyphenWidth() {
-		return hyphenWidth;
+		return mHyphenWidth;
 	}
 
 	public float getSpaceWidth() {
-		return spaceWidth;
+		return mSpaceWidth;
 	}
 
 	public float getSpaceStretch() {
-		return spaceStretch;
+		return mSpaceStretch;
 	}
 
 	public float getSpaceShrink() {
-		return spaceShrink;
+		return mSpaceShrink;
 	}
 
 	public float getIndentWidth() {
-		return indentWidth;
+		return mIndentWidth;
 	}
 
 	public float getLineSpacing() {
-		return lineSpacing;
+		return mLineSpacing;
 	}
 }
