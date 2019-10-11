@@ -22,7 +22,7 @@ public class ParagraphActivity extends AppCompatActivity {
 		setContentView(R.layout.activity_paragraph);
 
 		final TeView teView = findViewById(R.id.text);
-		teView.setTypeface(Typeface.createFromAsset(getAssets(), "Roboto-Light.ttf"));
+		teView.setTypeface(Typeface.createFromAsset(getAssets(), "SourceSerifPro-Regular.ttf"));
 		findViewById(R.id.debug).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
