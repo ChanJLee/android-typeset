@@ -80,4 +80,16 @@ public class TeView extends FrameLayout {
 	public boolean isDebugMode() {
 		return mAdapter.isDebugMode();
 	}
+
+	public void setBreakStrategy(BreakStrategy breakStrategy) {
+		mAdapter.setBreakStrategy(breakStrategy);
+	}
+
+	public enum BreakStrategy {
+		/**
+		 * 简单的左对齐
+		 */
+		SIMPLE,
+		BALANCEED
+	}
 }

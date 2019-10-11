@@ -48,6 +48,7 @@ public class Adapter extends RecyclerView.Adapter<TexViewHolder> {
 	private int mWidth = -1;
 	private Parser mParser = new TextParser();
 	private Future<?> mTask;
+	private TeView.BreakStrategy mBreakStrategy = TeView.BreakStrategy.BALANCEED;
 
 	public Adapter(Context context) {
 		mLayoutInflater = LayoutInflater.from(context);
@@ -135,6 +136,15 @@ public class Adapter extends RecyclerView.Adapter<TexViewHolder> {
 		final List<Paragraph> paragraphs = new ArrayList<>();
 		int size = segments.size();
 		final Thread thread = Thread.currentThread();
+		Typesetter.Policy policy = null;
+		if (mBreakStrategy == TeView.BreakStrategy.BALANCEED) {
+			policy = Typesetter.Policy.FILL;
+		} else if (mBreakStrategy == TeView.BreakStrategy.SIMPLE) {
+			policy = Typesetter.Policy.FIT;
+		} else {
+			throw new IllegalStateException("unknown break strategy");
+		}
+
 		for (int i = 0; i < size && !thread.isInterrupted(); ++i) {
 			Segment segment = segments.get(i);
 			LineAttributes.Attribute defaultAttribute = new LineAttributes.Attribute(mWidth, Gravity.LEFT, (int) mOption.getLineSpacing());
@@ -144,7 +154,7 @@ public class Adapter extends RecyclerView.Adapter<TexViewHolder> {
 					Gravity.RIGHT,
 					(int) mOption.getLineSpacing()
 			));
-			Paragraph paragraph = texTypesetter.typeset(segment, lineAttributes, Typesetter.Policy.FILL);
+			Paragraph paragraph = texTypesetter.typeset(segment, lineAttributes, policy);
 			paragraphs.add(paragraph);
 		}
 
@@ -197,5 +207,10 @@ public class Adapter extends RecyclerView.Adapter<TexViewHolder> {
 
 	private static void w(Throwable throwable) {
 		Log.w("TeCore", throwable);
+	}
+
+	void setBreakStrategy(TeView.BreakStrategy breakStrategy) {
+		mBreakStrategy = breakStrategy;
+		refresh();
 	}
 }
