@@ -53,6 +53,7 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 		super(context, attrs, defStyleAttr);
 	}
 
+	// TODO opt
 	void render(@NonNull Paragraph paragraph,
 				@NonNull TextPaint paint) {
 		mParagraph = paragraph;
@@ -163,10 +164,6 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 	private void draw(Canvas canvas, Line line, float x, float y, float lineSpace) {
 		List<Box> boxes = line.getBoxes();
 
-		if (mDebugMode) {
-			d("=========================");
-		}
-
 		for (int i = 0; i < boxes.size(); ++i) {
 			Box box = boxes.get(i);
 			TextPaint textPaint = getInternalPaint();
@@ -181,8 +178,6 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 				textPaint.setColor(Color.BLUE);
 				canvas.drawRect(left, top, right, bottom, textPaint);
 				textPaint.setColor(Color.WHITE);
-			} else {
-				textPaint.setColor(Color.BLACK);
 			}
 
 			if (mDebugMode) {

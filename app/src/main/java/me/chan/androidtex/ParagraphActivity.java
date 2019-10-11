@@ -1,5 +1,6 @@
 package me.chan.androidtex;
 
+import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -81,6 +82,14 @@ public class ParagraphActivity extends AppCompatActivity {
 			@Override
 			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
 				teView.setBreakStrategy(isChecked ? BreakStrategy.BALANCED : BreakStrategy.SIMPLE);
+			}
+		});
+
+		checkBox = findViewById(R.id.checkbox2);
+		checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+			@Override
+			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+				teView.setTextColor(isChecked ? Color.BLACK : Color.BLUE);
 			}
 		});
 	}
