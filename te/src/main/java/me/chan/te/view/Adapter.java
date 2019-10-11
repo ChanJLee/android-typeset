@@ -110,6 +110,9 @@ public class Adapter extends RecyclerView.Adapter<TexViewHolder> {
 		}
 
 		cancel();
+		mParagraphs = null;
+		notifyDataSetChanged();
+
 		mTask = mExecutor.submit(new Runnable() {
 			@Override
 			public void run() {
