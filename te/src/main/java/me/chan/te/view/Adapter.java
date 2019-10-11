@@ -1,6 +1,7 @@
 package me.chan.te.view;
 
 import android.content.Context;
+import android.graphics.Typeface;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.annotation.NonNull;
@@ -202,6 +203,11 @@ public class Adapter extends RecyclerView.Adapter<TexViewHolder> {
 
 	void setBreakStrategy(BreakStrategy breakStrategy) {
 		mBreakStrategy = breakStrategy;
+		refresh();
+	}
+
+	void setTypeface(Typeface typeface) {
+		mTextPaint.setTypeface(typeface);
 		refresh();
 	}
 }

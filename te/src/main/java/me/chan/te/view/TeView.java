@@ -1,6 +1,7 @@
 package me.chan.te.view;
 
 import android.content.Context;
+import android.graphics.Typeface;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
@@ -84,5 +85,9 @@ public class TeView extends FrameLayout {
 
 	public void setBreakStrategy(BreakStrategy breakStrategy) {
 		mAdapter.setBreakStrategy(breakStrategy);
+	}
+
+	public void setTypeface(Typeface typeface) {
+		mAdapter.setTypeface(typeface);
 	}
 }
