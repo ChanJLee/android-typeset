@@ -30,7 +30,6 @@ public class TeView extends FrameLayout {
 		super(context, attrs, defStyleAttr);
 
 		RecyclerView recyclerView = new RecyclerView(context);
-		recyclerView.setPadding(0, 20, 0, 20);
 		recyclerView.setClipToPadding(false);
 		recyclerView.setClipChildren(false);
 		addView(recyclerView, new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
@@ -89,5 +88,9 @@ public class TeView extends FrameLayout {
 
 	public void setTypeface(Typeface typeface) {
 		mAdapter.setTypeface(typeface);
+	}
+
+	public void setTextColor(int color) {
+		mAdapter.setTextColor(color);
 	}
 }

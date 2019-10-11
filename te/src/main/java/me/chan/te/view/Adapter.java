@@ -36,6 +36,8 @@ import me.chan.te.typesetter.CoreTypesetter;
 
 public class Adapter extends RecyclerView.Adapter<TexViewHolder> {
 	private static final int DEFAULT_TEXT_SIZE = 18;
+	private static final int ACTION_REDRAW = 1;
+	private static final int ACTION_ENABLE_DEBUG = 2;
 
 	private List<Paragraph> mParagraphs;
 	private LayoutInflater mLayoutInflater;
@@ -74,6 +76,27 @@ public class Adapter extends RecyclerView.Adapter<TexViewHolder> {
 	public void onBindViewHolder(@NonNull TexViewHolder texViewHolder, int position) {
 		texViewHolder.mParagraphView.setDebugMode(mDebugMode);
 		texViewHolder.mParagraphView.render(mParagraphs.get(position), mTextPaint);
+	}
+
+	@Override
+	public void onBindViewHolder(@NonNull TexViewHolder holder, int position, @NonNull List<Object> payloads) {
+		if (payloads == null || payloads.isEmpty()) {
+			super.onBindViewHolder(holder, position, payloads);
+			return;
+		}
+
+		Object o = payloads.get(0);
+		if (!(o instanceof Integer)) {
+			super.onBindViewHolder(holder, position, payloads);
+			return;
+		}
+
+		int action = (int) o;
+		if (action == ACTION_ENABLE_DEBUG) {
+			holder.mParagraphView.setDebugMode(mDebugMode);
+		} else if (action == ACTION_REDRAW) {
+			holder.mParagraphView.invalidate();
+		}
 	}
 
 	@Override
@@ -166,7 +189,7 @@ public class Adapter extends RecyclerView.Adapter<TexViewHolder> {
 
 	void setDebugMode(boolean debugMode) {
 		mDebugMode = debugMode;
-		notifyDataSetChanged();
+		redraw(ACTION_ENABLE_DEBUG);
 	}
 
 	boolean isDebugMode() {
@@ -209,5 +232,14 @@ public class Adapter extends RecyclerView.Adapter<TexViewHolder> {
 	void setTypeface(Typeface typeface) {
 		mTextPaint.setTypeface(typeface);
 		refresh();
+	}
+
+	private void redraw(int action) {
+		notifyItemRangeChanged(0, getItemCount(), action);
+	}
+
+	void setTextColor(int color) {
+		mTextPaint.setColor(color);
+		redraw(ACTION_REDRAW);
 	}
 }
