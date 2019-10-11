@@ -10,6 +10,7 @@ import android.widget.RadioGroup;
 import java.io.IOException;
 
 import me.chan.te.source.AssertSource;
+import me.chan.te.text.BreakStrategy;
 import me.chan.te.view.TeView;
 
 public class ParagraphActivity extends AppCompatActivity {
@@ -77,7 +78,7 @@ public class ParagraphActivity extends AppCompatActivity {
 		checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
 			@Override
 			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-				teView.setBreakStrategy(isChecked ? TeView.BreakStrategy.BALANCED : TeView.BreakStrategy.SIMPLE);
+				teView.setBreakStrategy(isChecked ? BreakStrategy.BALANCED : BreakStrategy.SIMPLE);
 			}
 		});
 	}
