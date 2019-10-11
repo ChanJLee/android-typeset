@@ -21,7 +21,7 @@ public class StreamSource implements Source {
 		try {
 			inputStreamReader = new InputStreamReader(mInputStream);
 			bufferedReader = new BufferedReader(inputStreamReader);
-			String line = null;
+			String line;
 			while ((line = bufferedReader.readLine()) != null) {
 				stringBuilder.append(line)
 						.append("\n");

@@ -388,17 +388,15 @@ class TexTypesetter implements Typesetter {
 
 	private float computeRatio(Element element, Node.Data data, Sum sum, float lineLength) {
 		float width = sum.width - data.totals.width;
-		float stretch = 0;
-		float shrink = 0;
 		if (element instanceof Penalty) {
 			width += getElementWidth(element);
 		}
 
 		if (width < lineLength) {
-			stretch = sum.stretch - data.totals.stretch;
+			float stretch = sum.stretch - data.totals.stretch;
 			return stretch > 0 ? (lineLength - width) / stretch : mOption.INFINITY;
 		} else if (width > lineLength) {
-			shrink = sum.shrink - data.totals.shrink;
+			float shrink = sum.shrink - data.totals.shrink;
 			return shrink > 0 ? (lineLength - width) / shrink : mOption.INFINITY;
 		}
 
