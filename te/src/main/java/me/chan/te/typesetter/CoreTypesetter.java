@@ -3,6 +3,7 @@ package me.chan.te.typesetter;
 import android.support.annotation.Nullable;
 import android.text.TextPaint;
 
+import me.chan.te.text.BreakStrategy;
 import me.chan.te.config.LineAttributes;
 import me.chan.te.config.Option;
 import me.chan.te.data.ElementFactory;
@@ -20,18 +21,18 @@ public class CoreTypesetter implements Typesetter {
 
 	@Nullable
 	@Override
-	public Paragraph typeset(Segment segment, LineAttributes lineAttributes, Policy policy) {
-		if (policy == Typesetter.Policy.FIT) {
-			return mSimpleTypesetter.typeset(segment, lineAttributes, policy);
+	public Paragraph typeset(Segment segment, LineAttributes lineAttributes, BreakStrategy breakStrategy) {
+		if (breakStrategy == BreakStrategy.SIMPLE) {
+			return mSimpleTypesetter.typeset(segment, lineAttributes, breakStrategy);
 		}
 
-		Paragraph paragraph = mTexTypesetter.typeset(segment, lineAttributes, policy);
+		Paragraph paragraph = mTexTypesetter.typeset(segment, lineAttributes, breakStrategy);
 		if (paragraph != null) {
 			return paragraph;
 		}
 		
 		// tex 存在找不到完美解的情况，如果在这种case下
 		// 回归到朴素的排版算法
-		return mSimpleTypesetter.typeset(segment, lineAttributes, policy);
+		return mSimpleTypesetter.typeset(segment, lineAttributes, breakStrategy);
 	}
 }

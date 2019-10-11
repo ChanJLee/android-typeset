@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.List;
 
+import me.chan.te.text.BreakStrategy;
 import me.chan.te.config.LineAttributes;
 import me.chan.te.config.Option;
 import me.chan.te.data.Box;
@@ -29,7 +30,6 @@ import me.chan.te.parser.TextParser;
 import me.chan.te.test.mock.MockMeasurer;
 import me.chan.te.test.mock.MockTextPaint;
 import me.chan.te.typesetter.CoreTypesetter;
-import me.chan.te.typesetter.Typesetter;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -161,20 +161,20 @@ public class TypesetterUnitTest {
 		String text = stringBuilder.toString();
 		assertNotEquals(text.length(), 0);
 
-		checkContent(text, Typesetter.Policy.FILL, 1080, 18);
-		checkContent(text, Typesetter.Policy.FIT, 1080, 18);
+		checkContent(text, BreakStrategy.BALANCED, 1080, 18);
+		checkContent(text, BreakStrategy.SIMPLE, 1080, 18);
 
-		checkContent(text, Typesetter.Policy.FILL, 1080, 1);
-		checkContent(text, Typesetter.Policy.FIT, 1080, 1);
+		checkContent(text, BreakStrategy.BALANCED, 1080, 1);
+		checkContent(text, BreakStrategy.SIMPLE, 1080, 1);
 
-		checkContent(text, Typesetter.Policy.FILL, 1080, 1080);
-		checkContent(text, Typesetter.Policy.FIT, 1080, 1080);
+		checkContent(text, BreakStrategy.BALANCED, 1080, 1080);
+		checkContent(text, BreakStrategy.SIMPLE, 1080, 1080);
 
-		checkContent(text, Typesetter.Policy.FILL, 1080, 540);
-		checkContent(text, Typesetter.Policy.FIT, 1080, 540);
+		checkContent(text, BreakStrategy.BALANCED, 1080, 540);
+		checkContent(text, BreakStrategy.SIMPLE, 1080, 540);
 	}
 
-	private void checkContent(String text, Typesetter.Policy policy, float lineWidth, int textSize) {
+	private void checkContent(String text, BreakStrategy breakStrategy, float lineWidth, int textSize) {
 		LineAttributes lineAttributes = new LineAttributes(new LineAttributes.Attribute(lineWidth));
 		ElementFactory factory = new ElementFactory();
 		MockTextPaint paint = new MockTextPaint();
@@ -187,7 +187,7 @@ public class TypesetterUnitTest {
 
 		StringBuilder stringBuilder = new StringBuilder();
 		for (Segment segment : segments) {
-			Paragraph paragraph = texTypesetter.typeset(segment, lineAttributes, policy);
+			Paragraph paragraph = texTypesetter.typeset(segment, lineAttributes, breakStrategy);
 			assertNotNull(paragraph);
 			assertNotNull(paragraph.getLines());
 			assertFalse(paragraph.getLines().isEmpty());

@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.widget.FrameLayout;
 
+import me.chan.te.text.BreakStrategy;
 import me.chan.te.parser.Parser;
 import me.chan.te.source.Source;
 
@@ -83,13 +84,5 @@ public class TeView extends FrameLayout {
 
 	public void setBreakStrategy(BreakStrategy breakStrategy) {
 		mAdapter.setBreakStrategy(breakStrategy);
-	}
-
-	public enum BreakStrategy {
-		/**
-		 * 简单的左对齐
-		 */
-		SIMPLE,
-		BALANCED
 	}
 }
