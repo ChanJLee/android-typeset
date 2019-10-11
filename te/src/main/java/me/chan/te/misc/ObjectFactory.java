@@ -12,6 +12,10 @@ public class ObjectFactory<T> {
 	private int mBufferSize;
 
 	public ObjectFactory(int bufferSize) {
+		if (bufferSize <= 0) {
+			throw new IllegalArgumentException("buffer size must be large than 0");
+		}
+
 		mQueue = new ConcurrentLinkedQueue<>();
 		mBufferSize = bufferSize;
 	}
