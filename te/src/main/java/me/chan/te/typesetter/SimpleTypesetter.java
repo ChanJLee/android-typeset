@@ -110,7 +110,7 @@ class SimpleTypesetter implements Typesetter {
 
 	private int handleFullLoadLine(List<? extends Element> elements, int start, float width, float currentWidth) {
 		int last = start + 1;
-		Element next = null;
+		Element next;
 		if (last < elements.size() &&
 				(next = elements.get(last)) instanceof Penalty &&
 				((Penalty) next).getPenalty() != mOption.INFINITY &&
