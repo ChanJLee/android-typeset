@@ -17,10 +17,11 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 import me.chan.te.R;
+import me.chan.te.text.BreakStrategy;
 import me.chan.te.config.LineAttributes;
 import me.chan.te.config.Option;
 import me.chan.te.data.ElementFactory;
-import me.chan.te.data.Gravity;
+import me.chan.te.text.Gravity;
 import me.chan.te.data.Paragraph;
 import me.chan.te.data.Segment;
 import me.chan.te.hypher.Hypher;
@@ -31,7 +32,6 @@ import me.chan.te.source.Source;
 import me.chan.te.source.SourceCloseException;
 import me.chan.te.source.SourceOpenException;
 import me.chan.te.typesetter.CoreTypesetter;
-import me.chan.te.typesetter.Typesetter;
 
 public class Adapter extends RecyclerView.Adapter<TexViewHolder> {
 	private static final int DEFAULT_TEXT_SIZE = 18;
@@ -48,7 +48,7 @@ public class Adapter extends RecyclerView.Adapter<TexViewHolder> {
 	private int mWidth = -1;
 	private Parser mParser = new TextParser();
 	private Future<?> mTask;
-	private TeView.BreakStrategy mBreakStrategy = TeView.BreakStrategy.BALANCED;
+	private BreakStrategy mBreakStrategy = BreakStrategy.BALANCED;
 
 	public Adapter(Context context) {
 		mLayoutInflater = LayoutInflater.from(context);
@@ -136,15 +136,6 @@ public class Adapter extends RecyclerView.Adapter<TexViewHolder> {
 		final List<Paragraph> paragraphs = new ArrayList<>();
 		int size = segments.size();
 		final Thread thread = Thread.currentThread();
-		Typesetter.Policy policy = null;
-		if (mBreakStrategy == TeView.BreakStrategy.BALANCED) {
-			policy = Typesetter.Policy.FILL;
-		} else if (mBreakStrategy == TeView.BreakStrategy.SIMPLE) {
-			policy = Typesetter.Policy.FIT;
-		} else {
-			throw new IllegalStateException("unknown break strategy");
-		}
-
 		for (int i = 0; i < size && !thread.isInterrupted(); ++i) {
 			Segment segment = segments.get(i);
 			LineAttributes.Attribute defaultAttribute = new LineAttributes.Attribute(mWidth, Gravity.LEFT, (int) mOption.getLineSpacing());
@@ -154,7 +145,7 @@ public class Adapter extends RecyclerView.Adapter<TexViewHolder> {
 					Gravity.RIGHT,
 					(int) mOption.getLineSpacing()
 			));
-			Paragraph paragraph = texTypesetter.typeset(segment, lineAttributes, policy);
+			Paragraph paragraph = texTypesetter.typeset(segment, lineAttributes, mBreakStrategy);
 			paragraphs.add(paragraph);
 		}
 
@@ -209,7 +200,7 @@ public class Adapter extends RecyclerView.Adapter<TexViewHolder> {
 		Log.w("TeCore", throwable);
 	}
 
-	void setBreakStrategy(TeView.BreakStrategy breakStrategy) {
+	void setBreakStrategy(BreakStrategy breakStrategy) {
 		mBreakStrategy = breakStrategy;
 		refresh();
 	}

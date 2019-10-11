@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import me.chan.te.text.BreakStrategy;
 import me.chan.te.config.LineAttributes;
 import me.chan.te.config.Option;
 import me.chan.te.data.Box;
@@ -39,7 +40,7 @@ class TexTypesetter implements Typesetter {
 	}
 
 	@Nullable
-	public Paragraph typeset(Segment segment, LineAttributes lineAttributes, Policy policy) {
+	public Paragraph typeset(Segment segment, LineAttributes lineAttributes, BreakStrategy breakStrategy) {
 		Paragraph paragraph = new Paragraph(lineAttributes);
 		List<Node> activeNodes = null;
 		float tolerance = 0;

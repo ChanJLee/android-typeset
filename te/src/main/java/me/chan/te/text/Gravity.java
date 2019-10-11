@@ -1,4 +1,4 @@
-package me.chan.te.data;
+package me.chan.te.text;
 
 public enum Gravity {
 	LEFT,

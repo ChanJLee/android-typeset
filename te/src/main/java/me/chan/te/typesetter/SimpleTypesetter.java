@@ -6,6 +6,7 @@ import android.text.TextPaint;
 import java.util.ArrayList;
 import java.util.List;
 
+import me.chan.te.text.BreakStrategy;
 import me.chan.te.config.LineAttributes;
 import me.chan.te.config.Option;
 import me.chan.te.data.Box;
@@ -28,7 +29,7 @@ class SimpleTypesetter implements Typesetter {
 
 	@NonNull
 	public Paragraph typeset(Segment segment,
-							 LineAttributes lineAttributes, TexTypesetter.Policy policy) {
+							 LineAttributes lineAttributes, BreakStrategy breakStrategy) {
 		Paragraph paragraph = new Paragraph(lineAttributes);
 		// 一行尽可能的占满尽可能多的字符
 		// 如果如果只显示了一个并且还不足以完美显示，那么无脑折断
@@ -38,7 +39,7 @@ class SimpleTypesetter implements Typesetter {
 		int size = elements.size();
 		for (int i = 0; i < size; ) {
 			float width = lineAttributes.get(lineNumber).getLineWidth();
-			i = typesetLine(width, lines, elements, i, policy);
+			i = typesetLine(width, lines, elements, i, breakStrategy);
 			++lineNumber;
 		}
 		paragraph.setLines(lines);
@@ -46,7 +47,7 @@ class SimpleTypesetter implements Typesetter {
 	}
 
 	private int typesetLine(float width, List<Line> lines, List<? extends Element> elements,
-							int start, Policy policy) {
+							int start, BreakStrategy breakStrategy) {
 		List<Box> boxes = new ArrayList<>();
 		int size = elements.size();
 		float lineHeight = 0f;
@@ -83,7 +84,7 @@ class SimpleTypesetter implements Typesetter {
 			start = handleFullLoadLine(elements, start, width, currentLineWidth);
 		}
 
-		if (policy == TexTypesetter.Policy.FILL && boxes.size() > 1 && start != size) {
+		if (breakStrategy == BreakStrategy.BALANCED && boxes.size() > 1 && start != size) {
 			spaceWidth = spaceWidth + (width - currentLineWidth) / (boxes.size() - 1);
 		}
 

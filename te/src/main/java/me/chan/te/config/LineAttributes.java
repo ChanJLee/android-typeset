@@ -5,7 +5,7 @@ import android.annotation.SuppressLint;
 import java.util.HashMap;
 import java.util.Map;
 
-import me.chan.te.data.Gravity;
+import me.chan.te.text.Gravity;
 
 /**
  * line options
