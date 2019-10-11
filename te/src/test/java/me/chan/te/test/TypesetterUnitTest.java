@@ -2,6 +2,7 @@ package me.chan.te.test;
 
 import android.graphics.Rect;
 
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -196,6 +197,7 @@ public class TypesetterUnitTest {
 				for (Box box : l.getBoxes()) {
 					String content = box.toString();
 					if (box.isPenalty()) {
+						Assert.assertEquals(content.charAt(content.length() - 1), '-');
 						content = content.substring(0, content.length() - 1);
 					}
 					stringBuilder.append(content);
