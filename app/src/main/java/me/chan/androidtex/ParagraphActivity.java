@@ -3,6 +3,8 @@ package me.chan.androidtex;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.RadioGroup;
 
 import java.io.IOException;
@@ -68,6 +70,14 @@ public class ParagraphActivity extends AppCompatActivity {
 				} else if (checkedId == R.id.text_size_72) {
 					teView.setTextSize(72);
 				}
+			}
+		});
+
+		CheckBox checkBox = findViewById(R.id.checkbox);
+		checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+			@Override
+			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+				teView.setBreakStrategy(isChecked ? TeView.BreakStrategy.BALANCEED : TeView.BreakStrategy.SIMPLE);
 			}
 		});
 	}
