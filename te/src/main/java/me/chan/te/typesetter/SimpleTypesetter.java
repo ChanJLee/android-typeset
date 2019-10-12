@@ -53,6 +53,8 @@ class SimpleTypesetter implements Typesetter {
 		float lineHeight = 0f;
 		float spaceWidth = mOption.getSpaceWidth();
 		float currentLineWidth = 0f;
+
+		main:
 		for (; start < size; ++start) {
 			Element element = elements.get(start);
 			if (!(element instanceof Box)) {
@@ -63,25 +65,42 @@ class SimpleTypesetter implements Typesetter {
 			Box box = (Box) element;
 			box.getBound(mWorkPaint, mBound);
 
-			// 排版结束
-			if (currentLineWidth + mBound.getWidth() > width) {
-				break;
+			while (currentLineWidth + mBound.getWidth() > width && (start + 1) < size) {
+				if (!(elements.get(start + 1) instanceof Penalty)) {
+					break;
+				}
+
+
+				Penalty penalty = (Penalty) elements.get(start + 1);
+				if (penalty.getPenalty() == -mOption.INFINITY) {
+					break main;
+				}
+
+				if (penalty.getPenalty() == mOption.INFINITY) {
+					break;
+				}
+
+				start += 2;
+				if (start >= size) {
+					break;
+				}
+
+				if (!(elements.get(start) instanceof Box)) {
+					break;
+				}
+
+				Box next = (Box) elements.get(start);
+				if (!box.canMerge(next)) {
+					break;
+				}
+
+				box.append(next);
 			}
 
-			int prevIndex = start - 1;
-			Element prevElement = null;
-			if (prevIndex >= 0 &&
-					((prevElement = elements.get(prevIndex)) instanceof Penalty) &&
-					((Penalty) (prevElement)).getPenalty() != mOption.INFINITY &&
-					!boxes.isEmpty() &&
-					boxes.get(boxes.size() - 1).canMerge(box)) {
-				Box last = boxes.get(boxes.size() - 1);
-				last.append(box);
-				currentLineWidth += mBound.getWidth();
-			} else {
-				boxes.add(box);
-				currentLineWidth += (mBound.getWidth() + spaceWidth);
-			}
+			box.getBound(mWorkPaint, mBound);
+
+			boxes.add(box);
+			currentLineWidth += (mBound.getWidth() + spaceWidth);
 
 			if (lineHeight < mBound.getHeight()) {
 				lineHeight = mBound.getHeight();
@@ -94,7 +113,7 @@ class SimpleTypesetter implements Typesetter {
 			handleSingleBoxLine(boxes, elements, start, width, mBound, mWorkPaint);
 			lineHeight = mBound.getHeight();
 		} else {
-			start = handleFullLoadLine(elements, start, width, currentLineWidth, boxes);
+			start = handleFullLoadLine(elements, start - 1, width, currentLineWidth, boxes);
 		}
 
 		if (breakStrategy == BreakStrategy.BALANCED && boxes.size() > 1 && start != size) {
