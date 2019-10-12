@@ -89,7 +89,7 @@ public class TypesetterUnitTest {
 		MockTextPaint textPaint = new MockTextPaint();
 		textPaint.setTextSize(18);
 
-		ElementFactory elementFactory = new ElementFactory(new MockMeasurer());
+		ElementFactory elementFactory = new ElementFactory(new MockMeasurer(textPaint));
 
 		assertNull(elementFactory.obtainBox(null, 0, 10, null));
 		try {
@@ -177,8 +177,8 @@ public class TypesetterUnitTest {
 
 	private void checkContent(String text, BreakStrategy breakStrategy, float lineWidth, int textSize) {
 		LineAttributes lineAttributes = new LineAttributes(new LineAttributes.Attribute(lineWidth));
-		ElementFactory factory = new ElementFactory();
 		MockTextPaint paint = new MockTextPaint();
+		ElementFactory factory = new ElementFactory(new MockMeasurer(paint));
 		paint.setMockTextSize(textSize);
 		Option option = new Option(paint);
 		CoreTypesetter texTypesetter = new CoreTypesetter(paint, option, factory);
