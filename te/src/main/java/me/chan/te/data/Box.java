@@ -8,7 +8,7 @@ import android.text.TextPaint;
 
 import me.chan.te.annotations.Hidden;
 
-public final class Box implements Element {
+public final class Box implements Element, Cloneable {
 
 	@NonNull
 	private CharSequence mText;
@@ -32,6 +32,13 @@ public final class Box implements Element {
 		mStart = other.mStart;
 		mEnd = other.mEnd;
 		mMeasurer = other.mMeasurer;
+	}
+
+	@Override
+	public Object clone() {
+		Box copy = new Box(mMeasurer);
+		copy.copy(this);
+		return copy;
 	}
 
 	@Override
