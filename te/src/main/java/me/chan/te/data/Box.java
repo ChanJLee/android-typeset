@@ -8,12 +8,13 @@ import android.text.TextPaint;
 
 import me.chan.te.annotations.Hidden;
 
-public final class Box implements Element {
+public final class Box implements Element, Cloneable {
 
 	@NonNull
 	private CharSequence mText;
 	private BoxStyle mBoxStyle;
 	private boolean mPenalty = false;
+	private boolean mSpilted = false;
 	private float mWidth = -1;
 	private float mHeight = -1;
 	private int mStart;
@@ -32,6 +33,14 @@ public final class Box implements Element {
 		mStart = other.mStart;
 		mEnd = other.mEnd;
 		mMeasurer = other.mMeasurer;
+		mSpilted = other.mSpilted;
+	}
+
+	@Override
+	public Object clone() {
+		Box copy = new Box(mMeasurer);
+		copy.copy(this);
+		return copy;
 	}
 
 	@Override
@@ -46,7 +55,8 @@ public final class Box implements Element {
 				mEnd == box.mEnd &&
 				mText.equals(box.mText) &&
 				mBoxStyle == box.mBoxStyle &&
-				mMeasurer == box.mMeasurer;
+				mMeasurer == box.mMeasurer &&
+				mSpilted == box.mSpilted;
 	}
 
 	Box(Measurer measurer) {
@@ -114,6 +124,14 @@ public final class Box implements Element {
 	@Hidden
 	public boolean isPenalty() {
 		return mPenalty;
+	}
+
+	public boolean isSpilted() {
+		return mSpilted;
+	}
+
+	public void setSpilted(boolean spilted) {
+		mSpilted = spilted;
 	}
 
 	public void setPenalty(boolean penalty) {
