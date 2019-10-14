@@ -194,7 +194,8 @@ public class TypesetterUnitTest {
 			for (Line l : paragraph.getLines()) {
 				for (Box box : l.getBoxes()) {
 					String content = box.toString();
-					if (box.isPenalty() && content.charAt(content.length() - 1) == '-') {
+					if (box.isPenalty()) {
+						Assert.assertEquals(content.charAt(content.length() - 1), '-');
 						content = content.substring(0, content.length() - 1);
 					}
 					stringBuilder.append(content);
