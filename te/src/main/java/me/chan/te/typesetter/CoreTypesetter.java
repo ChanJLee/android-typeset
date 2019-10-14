@@ -16,7 +16,7 @@ public class CoreTypesetter implements Typesetter {
 
 	public CoreTypesetter(TextPaint paint, Option option, ElementFactory elementFactory) {
 		mTexTypesetter = new TexTypesetter(paint, option, elementFactory);
-		mSimpleTypesetter = new SimpleTypesetter(paint, option);
+		mSimpleTypesetter = new SimpleTypesetter(paint, option, elementFactory);
 	}
 
 	@Nullable
@@ -30,7 +30,7 @@ public class CoreTypesetter implements Typesetter {
 		if (paragraph != null) {
 			return paragraph;
 		}
-		
+
 		// tex 存在找不到完美解的情况，如果在这种case下
 		// 回归到朴素的排版算法
 		return mSimpleTypesetter.typeset(segment, lineAttributes, breakStrategy);

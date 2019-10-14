@@ -48,6 +48,10 @@ public class ElementFactory {
 	}
 
 	public void recycle(Element element) {
+		if (element == null) {
+			return;
+		}
+
 		if (element instanceof Box) {
 			mBoxPool.release((Box) element);
 		} else if (element instanceof Penalty) {
