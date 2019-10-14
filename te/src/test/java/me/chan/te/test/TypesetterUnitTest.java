@@ -16,6 +16,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.lang.reflect.Field;
 import java.util.List;
 
 import me.chan.te.text.BreakStrategy;
@@ -145,8 +146,8 @@ public class TypesetterUnitTest {
 	}
 
 	@Test
-	public void testTypesetter() throws IOException {
-		File file = new File("../app/src/main/assets/TheBookAndTheSword.txt");
+	public void testTypesetter() throws IOException, NoSuchFieldException, IllegalAccessException {
+		File file = new File("../app/src/main/assets/simple_txt.txt");
 		System.out.println(file.getAbsolutePath());
 		assertTrue(file.exists());
 
@@ -175,7 +176,7 @@ public class TypesetterUnitTest {
 		checkContent(text, BreakStrategy.BALANCED, 200, 201);
 	}
 
-	private void checkContent(String text, BreakStrategy breakStrategy, float lineWidth, int textSize) {
+	private void checkContent(String text, BreakStrategy breakStrategy, float lineWidth, int textSize) throws NoSuchFieldException, IllegalAccessException {
 		System.out.println("check content, width: " + lineWidth + " text size: " + textSize + " " + breakStrategy);
 
 		LineAttributes lineAttributes = new LineAttributes(new LineAttributes.Attribute(lineWidth));
@@ -183,6 +184,23 @@ public class TypesetterUnitTest {
 		ElementFactory factory = new ElementFactory(new MockMeasurer(paint));
 		paint.setMockTextSize(textSize);
 		Option option = new Option(paint);
+
+		Field field = option.getClass().getDeclaredField("mHyphenWidth");
+		field.setAccessible(true);
+		field.set(option, paint.getMockTextSize());
+		field = option.getClass().getDeclaredField("mSpaceWidth");
+		field.setAccessible(true);
+		field.set(option, paint.getMockTextSize());
+		field = option.getClass().getDeclaredField("mSpaceStretch");
+		field.setAccessible(true);
+		field.set(option, paint.getMockTextSize() * 1.1f);
+		field = option.getClass().getDeclaredField("mSpaceShrink");
+		field.setAccessible(true);
+		field.set(option, paint.getMockTextSize() * 0.9f);
+		field = option.getClass().getDeclaredField("mIndentWidth");
+		field.setAccessible(true);
+		field.set(option, paint.getMockTextSize() * 4);
+
 		CoreTypesetter texTypesetter = new CoreTypesetter(paint, option, factory);
 		TextParser textParser = new TextParser();
 		List<Segment> segments = textParser.parser(text, factory, Hypher.getInstance(), option);
