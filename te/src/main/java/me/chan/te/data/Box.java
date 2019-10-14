@@ -14,6 +14,7 @@ public final class Box implements Element, Cloneable {
 	private CharSequence mText;
 	private BoxStyle mBoxStyle;
 	private boolean mPenalty = false;
+	private boolean mSpilted = false;
 	private float mWidth = -1;
 	private float mHeight = -1;
 	private int mStart;
@@ -32,6 +33,7 @@ public final class Box implements Element, Cloneable {
 		mStart = other.mStart;
 		mEnd = other.mEnd;
 		mMeasurer = other.mMeasurer;
+		mSpilted = other.mSpilted;
 	}
 
 	@Override
@@ -53,7 +55,8 @@ public final class Box implements Element, Cloneable {
 				mEnd == box.mEnd &&
 				mText.equals(box.mText) &&
 				mBoxStyle == box.mBoxStyle &&
-				mMeasurer == box.mMeasurer;
+				mMeasurer == box.mMeasurer &&
+				mSpilted == box.mSpilted;
 	}
 
 	Box(Measurer measurer) {
@@ -121,6 +124,14 @@ public final class Box implements Element, Cloneable {
 	@Hidden
 	public boolean isPenalty() {
 		return mPenalty;
+	}
+
+	public boolean isSpilted() {
+		return mSpilted;
+	}
+
+	public void setSpilted(boolean spilted) {
+		mSpilted = spilted;
 	}
 
 	public void setPenalty(boolean penalty) {
