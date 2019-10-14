@@ -162,18 +162,22 @@ public class TypesetterUnitTest {
 		String text = stringBuilder.toString();
 		assertNotEquals(text.length(), 0);
 
-		checkContent(text, BreakStrategy.SIMPLE, 1080, 18);
-		checkContent(text, BreakStrategy.SIMPLE, 1080, 1);
-		checkContent(text, BreakStrategy.SIMPLE, 1080, 1080);
-		checkContent(text, BreakStrategy.SIMPLE, 1080, 540);
+		checkContent(text, BreakStrategy.SIMPLE, 200, 1);
+		checkContent(text, BreakStrategy.SIMPLE, 200, 18);
+		checkContent(text, BreakStrategy.SIMPLE, 200, 100);
+		checkContent(text, BreakStrategy.SIMPLE, 200, 200);
+		checkContent(text, BreakStrategy.SIMPLE, 200, 201);
 
-		checkContent(text, BreakStrategy.BALANCED, 1080, 18);
-		checkContent(text, BreakStrategy.BALANCED, 1080, 540);
-		checkContent(text, BreakStrategy.BALANCED, 1080, 1);
-		checkContent(text, BreakStrategy.BALANCED, 1080, 1080);
+		checkContent(text, BreakStrategy.BALANCED, 200, 1);
+		checkContent(text, BreakStrategy.BALANCED, 200, 18);
+		checkContent(text, BreakStrategy.BALANCED, 200, 100);
+		checkContent(text, BreakStrategy.BALANCED, 200, 200);
+		checkContent(text, BreakStrategy.BALANCED, 200, 201);
 	}
 
 	private void checkContent(String text, BreakStrategy breakStrategy, float lineWidth, int textSize) {
+		System.out.println("check content, width: " + lineWidth + " text size: " + textSize + " " + breakStrategy);
+
 		LineAttributes lineAttributes = new LineAttributes(new LineAttributes.Attribute(lineWidth));
 		MockTextPaint paint = new MockTextPaint();
 		ElementFactory factory = new ElementFactory(new MockMeasurer(paint));
