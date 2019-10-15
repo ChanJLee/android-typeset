@@ -1,9 +1,7 @@
 package me.chan.te.config;
 
 import android.annotation.SuppressLint;
-
-import java.util.HashMap;
-import java.util.Map;
+import android.support.v4.util.SparseArrayCompat;
 
 import me.chan.te.text.Gravity;
 
@@ -13,7 +11,7 @@ import me.chan.te.text.Gravity;
 public class LineAttributes {
 	private Attribute mDefaultAttribute;
 	@SuppressLint("UseSparseArrays")
-	private Map<Integer, Attribute> mMap = new HashMap<>();
+	private SparseArrayCompat<Attribute> mMap = new SparseArrayCompat<>();
 
 	public LineAttributes(Attribute defaultAttribute) {
 		mDefaultAttribute = defaultAttribute;

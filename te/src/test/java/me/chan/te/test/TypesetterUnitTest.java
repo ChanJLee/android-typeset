@@ -170,6 +170,8 @@ public class TypesetterUnitTest {
 		String text = stringBuilder.toString();
 		assertNotEquals(text.length(), 0);
 
+		long timestamp = System.currentTimeMillis();
+
 		checkContent(text, BreakStrategy.SIMPLE, 200, 1);
 		checkContent(text, BreakStrategy.SIMPLE, 200, 18);
 		checkContent(text, BreakStrategy.SIMPLE, 200, 100);
@@ -181,6 +183,8 @@ public class TypesetterUnitTest {
 		checkContent(text, BreakStrategy.BALANCED, 200, 100);
 		checkContent(text, BreakStrategy.BALANCED, 200, 200);
 		checkContent(text, BreakStrategy.BALANCED, 200, 201);
+
+		System.out.println("used time: " + (System.currentTimeMillis() - timestamp));
 	}
 
 	private void checkContent(String text, BreakStrategy breakStrategy, float lineWidth, int textSize) {
