@@ -78,6 +78,10 @@ class SimpleTypesetter implements Typesetter {
 			mWorkPaint.set(mPaint);
 			Box box = (Box) element;
 			int next = mergeIf(elements, box, start + 1, currentLineWidth, width);
+			if (next == -1) {
+				break;
+			}
+
 			box.getBound(mWorkPaint, mBound);
 
 			// 如果超出当前的长度 那么直接结束
@@ -115,7 +119,6 @@ class SimpleTypesetter implements Typesetter {
 	private int mergeIf(List<? extends Element> elements, Box box,
 						int start, float currentLineWidth, float width) {
 		Box clone = null;
-		int prev = start;
 		for (; start < elements.size(); ++start) {
 			if (!(elements.get(start) instanceof Penalty)) {
 				break;
@@ -128,20 +131,31 @@ class SimpleTypesetter implements Typesetter {
 
 			Box next = (Box) elements.get(start + 1);
 			if (!next.canMerge(box)) {
-				return prev;
+				return -1;
 			}
 
 			if (clone == null) {
 				clone = (Box) box.clone();
 			}
 
-			clone.append(next);
 			clone.getBound(mWorkPaint, mBound);
+			float cloneWidth = mBound.getWidth();
+
+			next.getBound(mWorkPaint, mBound);
+			float nextWidth = mBound.getWidth();
+
 			// 如果超出当前的长度 那么直接结束
-			if (currentLineWidth + mBound.getWidth() > width) {
-				return prev;
+			if (currentLineWidth + cloneWidth + nextWidth > width) {
+				if (currentLineWidth + cloneWidth + mOption.getIndentWidth() <= width) {
+					++start;
+					clone.append("-");
+					clone.setPenalty(true);
+					break;
+				}
+				return -1;
 			}
 
+			clone.append(next);
 			++start;
 		}
 

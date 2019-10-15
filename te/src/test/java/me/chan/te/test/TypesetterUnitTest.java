@@ -18,8 +18,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.List;
 
-import me.chan.te.test.mock.MockOption;
-import me.chan.te.text.BreakStrategy;
 import me.chan.te.config.LineAttributes;
 import me.chan.te.config.Option;
 import me.chan.te.data.Box;
@@ -30,7 +28,9 @@ import me.chan.te.data.Segment;
 import me.chan.te.hypher.Hypher;
 import me.chan.te.parser.TextParser;
 import me.chan.te.test.mock.MockMeasurer;
+import me.chan.te.test.mock.MockOption;
 import me.chan.te.test.mock.MockTextPaint;
+import me.chan.te.text.BreakStrategy;
 import me.chan.te.typesetter.CoreTypesetter;
 
 import static org.junit.Assert.assertEquals;
@@ -147,7 +147,7 @@ public class TypesetterUnitTest {
 
 	@Test
 	public void testTypesetter() throws IOException {
-		File file = new File("../app/src/main/assets/TheBookAndTheSword.txt");
+		File file = new File("../app/src/main/assets/simple_txt.txt");
 		System.out.println(file.getAbsolutePath());
 		assertTrue(file.exists());
 
@@ -163,18 +163,22 @@ public class TypesetterUnitTest {
 		String text = stringBuilder.toString();
 		assertNotEquals(text.length(), 0);
 
-		checkContent(text, BreakStrategy.SIMPLE, 1080, 18);
-		checkContent(text, BreakStrategy.SIMPLE, 1080, 1);
-		checkContent(text, BreakStrategy.SIMPLE, 1080, 1080);
-		checkContent(text, BreakStrategy.SIMPLE, 1080, 540);
+		checkContent(text, BreakStrategy.SIMPLE, 200, 1);
+		checkContent(text, BreakStrategy.SIMPLE, 200, 18);
+		checkContent(text, BreakStrategy.SIMPLE, 200, 100);
+		checkContent(text, BreakStrategy.SIMPLE, 200, 200);
+		checkContent(text, BreakStrategy.SIMPLE, 200, 201);
 
-		checkContent(text, BreakStrategy.BALANCED, 1080, 18);
-		checkContent(text, BreakStrategy.BALANCED, 1080, 540);
-		checkContent(text, BreakStrategy.BALANCED, 1080, 1);
-		checkContent(text, BreakStrategy.BALANCED, 1080, 1080);
+		checkContent(text, BreakStrategy.BALANCED, 200, 1);
+		checkContent(text, BreakStrategy.BALANCED, 200, 18);
+		checkContent(text, BreakStrategy.BALANCED, 200, 100);
+		checkContent(text, BreakStrategy.BALANCED, 200, 200);
+		checkContent(text, BreakStrategy.BALANCED, 200, 201);
 	}
 
 	private void checkContent(String text, BreakStrategy breakStrategy, float lineWidth, int textSize) {
+		System.out.println("check content, width: " + lineWidth + " text size: " + textSize + " " + breakStrategy);
+
 		LineAttributes lineAttributes = new LineAttributes(new LineAttributes.Attribute(lineWidth));
 		MockTextPaint paint = new MockTextPaint();
 		ElementFactory factory = new ElementFactory(new MockMeasurer(paint));
