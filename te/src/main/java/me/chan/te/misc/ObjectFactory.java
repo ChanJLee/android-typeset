@@ -16,7 +16,7 @@ public class ObjectFactory<T> {
 			throw new IllegalArgumentException("buffer size must be large than 0");
 		}
 
-		mQueue = new LinkedBlockingQueue<>();
+		mQueue = new LinkedBlockingQueue<>(bufferSize);
 		mBufferSize = bufferSize;
 	}
 
