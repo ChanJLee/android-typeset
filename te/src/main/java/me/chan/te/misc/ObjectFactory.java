@@ -4,7 +4,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import java.util.Queue;
-import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 public class ObjectFactory<T> {
 
@@ -16,7 +16,7 @@ public class ObjectFactory<T> {
 			throw new IllegalArgumentException("buffer size must be large than 0");
 		}
 
-		mQueue = new ConcurrentLinkedQueue<>();
+		mQueue = new LinkedBlockingQueue<>();
 		mBufferSize = bufferSize;
 	}
 
@@ -25,7 +25,7 @@ public class ObjectFactory<T> {
 		return mQueue.poll();
 	}
 
-	public boolean release(@NonNull T t) {
+	public synchronized boolean release(@NonNull T t) {
 		if (mQueue.size() >= mBufferSize) {
 			return false;
 		}
