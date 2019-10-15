@@ -3,6 +3,7 @@ package me.chan.te.parser;
 import android.support.annotation.NonNull;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 import me.chan.te.config.Option;
@@ -17,7 +18,7 @@ public class TextParser implements Parser {
 	@Override
 	@NonNull
 	public List<Segment> parser(CharSequence charSequence, ElementFactory factory, Hypher hypher, Option option) {
-		List<Segment> segments = new ArrayList<>();
+		List<Segment> segments = new LinkedList<>();
 		int len = charSequence.length();
 		for (int i = skipBlank(charSequence, 0, len); i < len; ) {
 			int last = findNewline(charSequence, i, len);
@@ -32,7 +33,7 @@ public class TextParser implements Parser {
 
 	private List<? extends Element> parserLine(CharSequence paragraph, ElementFactory factory,
 											   int start, int end, Hypher hypher, Option option) {
-		List<Element> list = new ArrayList<>();
+		List<Element> list = new LinkedList<>();
 		List<String> hyphenated = new ArrayList<>();
 
 		for (int i = start; i < end; ) {
