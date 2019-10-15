@@ -16,9 +16,9 @@
 
 - [x] te 支持左对齐和两边对齐
 
-- [ ] 检查typesetter unit test
+- [x] 检查typesetter unit test
 
-- [ ] 检查simple typesetter 渲染异常
+- [x] 检查simple typesetter 渲染异常
 
 # workflow
 
