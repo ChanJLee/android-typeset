@@ -1,20 +1,18 @@
 package me.chan.te.test.mock;
 
-import android.text.TextPaint;
-
 import me.chan.te.config.Option;
 
 public class MockOption extends Option {
-	private TextPaint mTextPaint;
+	private MockTextPaint mTextPaint;
 
-	public MockOption(TextPaint textPaint) {
+	public MockOption(MockTextPaint textPaint) {
 		super(textPaint);
 		mTextPaint = textPaint;
 	}
 
 	@Override
 	public float getHyphenWidth() {
-		return mTextPaint.getTextSize();
+		return mTextPaint.getMockTextSize();
 	}
 
 	@Override
@@ -39,6 +37,6 @@ public class MockOption extends Option {
 
 	@Override
 	public float getLineSpacing() {
-		return 100;
+		return mTextPaint.getMockTextHeight();
 	}
 }
