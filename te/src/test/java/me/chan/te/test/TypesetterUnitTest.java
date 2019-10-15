@@ -184,6 +184,14 @@ public class TypesetterUnitTest {
 		ElementFactory factory = new ElementFactory(new MockMeasurer(paint));
 		paint.setMockTextSize(textSize);
 		Option option = new MockOption(paint);
+
+		Assert.assertNotEquals(option.getHyphenWidth(), 0);
+		Assert.assertNotEquals(option.getIndentWidth(), 0);
+		Assert.assertNotEquals(option.getLineSpacing(), 0);
+		Assert.assertNotEquals(option.getSpaceShrink(), 0);
+		Assert.assertNotEquals(option.getSpaceStretch(), 0);
+		Assert.assertNotEquals(option.getSpaceWidth(), 0);
+
 		CoreTypesetter texTypesetter = new CoreTypesetter(paint, option, factory);
 		TextParser textParser = new TextParser();
 		List<Segment> segments = textParser.parser(text, factory, Hypher.getInstance(), option);
