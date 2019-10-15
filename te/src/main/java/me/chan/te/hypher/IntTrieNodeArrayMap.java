@@ -1,14 +1,13 @@
 package me.chan.te.hypher;
 
-import java.util.HashMap;
-import java.util.Map;
+import android.support.v4.util.SparseArrayCompat;
 
 class IntTrieNodeArrayMap {
 
-	private Map<Integer, TrieNode> mMap = new HashMap<>();
+	private SparseArrayCompat<TrieNode> mMap = new SparseArrayCompat<>();
 
-	TrieNode put(final int key, final TrieNode node) {
-		return mMap.put(key, node);
+	void put(final int key, final TrieNode node) {
+		mMap.put(key, node);
 	}
 
 	TrieNode get(final int key) {

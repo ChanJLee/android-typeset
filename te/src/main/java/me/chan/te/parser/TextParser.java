@@ -33,7 +33,7 @@ public class TextParser implements Parser {
 
 	private List<? extends Element> parserLine(CharSequence paragraph, ElementFactory factory,
 											   int start, int end, Hypher hypher, Option option) {
-		List<Element> list = new LinkedList<>();
+		List<Element> list = new ArrayList<>();
 		List<String> hyphenated = new ArrayList<>();
 
 		for (int i = start; i < end; ) {
