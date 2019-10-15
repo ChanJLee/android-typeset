@@ -108,6 +108,13 @@ public class TypesetterUnitTest {
 		assertEquals(msg1, box1.toString());
 		assertEquals(msg2, box2.toString());
 
+
+		Box.Bound bound = new Box.Bound();
+		box1.getBound(textPaint, bound);
+		assertNotEquals(bound.getWidth(), 0);
+		assertNotEquals(bound.getHeight(), 0);
+
+
 		box2.copy(box1);
 		assertEquals(box2, box1);
 
