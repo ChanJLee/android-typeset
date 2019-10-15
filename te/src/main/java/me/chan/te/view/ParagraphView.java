@@ -262,7 +262,7 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 			return false;
 		}
 
-		if (target.isPenalty() || target.isSpilted()) {
+		if (target.isPenalty() || target.isSplit()) {
 			return handleClickedPenaltyBox(target, lines, lineNumber + 1);
 		}
 

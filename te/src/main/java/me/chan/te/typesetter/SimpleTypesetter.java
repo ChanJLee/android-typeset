@@ -174,7 +174,7 @@ class SimpleTypesetter implements Typesetter {
 		mWorkPaint.set(mPaint);
 		Box[] children = box.spilt(mWorkPaint, width);
 		if (children != null) {
-			children[0].setSpilted(true);
+			children[0].setSplit(true);
 			boxes.add(children[0]);
 			box.copy(children[1]);
 			box = children[0];
