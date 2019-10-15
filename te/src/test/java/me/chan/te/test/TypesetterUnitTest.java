@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.List;
 
+import me.chan.te.test.mock.MockOption;
 import me.chan.te.text.BreakStrategy;
 import me.chan.te.config.LineAttributes;
 import me.chan.te.config.Option;
@@ -178,7 +179,7 @@ public class TypesetterUnitTest {
 		MockTextPaint paint = new MockTextPaint();
 		ElementFactory factory = new ElementFactory(new MockMeasurer(paint));
 		paint.setMockTextSize(textSize);
-		Option option = new Option(paint);
+		Option option = new MockOption(paint);
 		CoreTypesetter texTypesetter = new CoreTypesetter(paint, option, factory);
 		TextParser textParser = new TextParser();
 		List<Segment> segments = textParser.parser(text, factory, Hypher.getInstance(), option);
