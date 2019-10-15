@@ -29,8 +29,9 @@ public class LineAttributes {
 	}
 
 	public Attribute get(int lineNumber) {
-		if (mMap.containsKey(lineNumber)) {
-			return mMap.get(lineNumber);
+		Attribute attribute = mMap.get(lineNumber);
+		if (attribute != null) {
+			return attribute;
 		}
 		return mDefaultAttribute;
 	}

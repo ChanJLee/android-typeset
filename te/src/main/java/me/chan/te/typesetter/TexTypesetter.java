@@ -5,6 +5,7 @@ import android.text.TextPaint;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 
 import me.chan.te.text.BreakStrategy;
@@ -71,7 +72,7 @@ class TexTypesetter implements Typesetter {
 
 	private List<Node> createActiveNodes(Segment segment, LineAttributes lineAttributes, float tolerance) {
 		List<? extends Element> elements = segment.getElements();
-		List<Node> activeNodes = new ArrayList<>();
+		List<Node> activeNodes = new LinkedList<>();
 
 		Node.Data data = new Node.Data();
 		data.totals = new Sum();
