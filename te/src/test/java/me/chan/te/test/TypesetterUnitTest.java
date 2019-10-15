@@ -154,7 +154,7 @@ public class TypesetterUnitTest {
 
 	@Test
 	public void testTypesetter() throws IOException {
-		File file = new File("../app/src/main/assets/simple_txt.txt");
+		File file = new File("../app/src/main/assets/TheBookAndTheSword.txt");
 		System.out.println(file.getAbsolutePath());
 		assertTrue(file.exists());
 

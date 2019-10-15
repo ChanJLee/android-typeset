@@ -47,3 +47,4 @@ ant.properties
 #freeline
 freeline*
 
+*.svg
