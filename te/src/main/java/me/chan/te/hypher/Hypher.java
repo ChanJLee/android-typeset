@@ -32,54 +32,52 @@ public class Hypher {
 	}
 
 	private static TrieNode createTrie(Map<Integer, String> patternObject) {
-		TrieNode t, tree = new TrieNode();
-
+		TrieNode tree = new TrieNode();
 		for (Map.Entry<Integer, String> entry : patternObject.entrySet()) {
 			int key = entry.getKey();
 			String value = entry.getValue();
-			String[] patterns = new String[value.length() / key];
 			for (int i = 0; i + key <= value.length(); i = i + key) {
-				patterns[i / key] = value.substring(i, i + key);
-			}
-			for (String pattern : patterns) {
-				t = tree;
-
-				for (int c = 0; c < pattern.length(); c++) {
-					char chr = pattern.charAt(c);
-					if (Character.isDigit(chr)) {
-						continue;
-					}
-					int codePoint = pattern.codePointAt(c);
-					if (t.codePoint.get(codePoint) == null) {
-						t.codePoint.put(codePoint, new TrieNode());
-					}
-					t = t.codePoint.get(codePoint);
-				}
-
-				IntArrayList list = new IntArrayList();
-				int digitStart = -1;
-				for (int p = 0; p < pattern.length(); p++) {
-					if (Character.isDigit(pattern.charAt(p))) {
-						if (digitStart < 0) {
-							digitStart = p;
-						}
-						if (p == pattern.length() - 1) {
-							// last number in the pattern
-							String number = pattern.substring(digitStart);
-							list.add(Integer.valueOf(number));
-						}
-					} else if (digitStart >= 0) {
-						String number = pattern.substring(digitStart, p);
-						list.add(Integer.valueOf(number));
-						digitStart = -1;
-					} else {
-						list.add(0);
-					}
-				}
-				t.points = list.toArray();
+				createTrie(tree, value, i, i + key);
 			}
 		}
 		return tree;
+	}
+
+	private static void createTrie(TrieNode root, String value, int start, int end) {
+		TrieNode t = root;
+		for (int c = start; c < end; c++) {
+			char chr = value.charAt(c);
+			if (Character.isDigit(chr)) {
+				continue;
+			}
+			int codePoint = value.codePointAt(c);
+			if (t.codePoint.get(codePoint) == null) {
+				t.codePoint.put(codePoint, new TrieNode());
+			}
+			t = t.codePoint.get(codePoint);
+		}
+
+		IntArrayList list = new IntArrayList();
+		int digitStart = -1;
+		for (int p = start; p < end; p++) {
+			if (Character.isDigit(value.charAt(p))) {
+				if (digitStart < 0) {
+					digitStart = p;
+				}
+				if (p == end - 1) {
+					// last number in the pattern
+					String number = value.substring(digitStart, end);
+					list.add(Integer.valueOf(number));
+				}
+			} else if (digitStart >= 0) {
+				String number = value.substring(digitStart, p);
+				list.add(Integer.valueOf(number));
+				digitStart = -1;
+			} else {
+				list.add(0);
+			}
+		}
+		t.points = list.toArray();
 	}
 
 	@NonNull
