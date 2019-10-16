@@ -21,7 +21,6 @@ class SimpleTypesetter implements Typesetter {
 	private Option mOption;
 	private TextPaint mPaint;
 	private TextPaint mWorkPaint = new TextPaint();
-	private Box.Bound mBound = new Box.Bound();
 
 	SimpleTypesetter(TextPaint paint, Option option) {
 		mOption = option;
@@ -79,30 +78,22 @@ class SimpleTypesetter implements Typesetter {
 				break;
 			}
 
-			box.getBound(mWorkPaint, mBound);
-
 			// 如果超出当前的长度 那么直接结束
-			if (currentLineWidth + mBound.getWidth() > width) {
+			if (currentLineWidth + box.getWidth(mWorkPaint) > width) {
 				break;
 			}
 
 			start = next;
-			box.getBound(mWorkPaint, mBound);
 			boxes.add(box);
-			currentLineWidth += (mBound.getWidth() + spaceWidth);
-			if (lineHeight < mBound.getHeight()) {
-				lineHeight = mBound.getHeight();
+			currentLineWidth += (box.getWidth(mWorkPaint) + spaceWidth);
+			if (lineHeight < box.getHeight(mWorkPaint)) {
+				lineHeight = box.getHeight(mWorkPaint);
 			}
 		}
 
 		// 如果一行是空的，说明当前只能排一个，并且都显示不下
 		if (boxes.isEmpty()) {
-			start = spiltIf(elements, start, boxes, mBound, width);
-			lineHeight = mBound.getHeight();
-		}
-
-		if (boxes.isEmpty()) {
-			return start;
+			return spiltIf(lines, elements, start, boxes, width);
 		}
 
 		if (breakStrategy == BreakStrategy.BALANCED && boxes.size() > 1 && start != size) {
@@ -135,11 +126,8 @@ class SimpleTypesetter implements Typesetter {
 				clone = (Box) box.clone();
 			}
 
-			clone.getBound(mWorkPaint, mBound);
-			float cloneWidth = mBound.getWidth();
-
-			next.getBound(mWorkPaint, mBound);
-			float nextWidth = mBound.getWidth();
+			float cloneWidth = clone.getWidth(mWorkPaint);
+			float nextWidth = next.getWidth(mWorkPaint);
 
 			// 如果超出当前的长度 那么直接结束
 			if (currentLineWidth + cloneWidth + nextWidth > width) {
@@ -163,7 +151,7 @@ class SimpleTypesetter implements Typesetter {
 		return start;
 	}
 
-	private int spiltIf(List<? extends Element> elements, int start, List<Box> boxes, Box.Bound bound, float width) {
+	private int spiltIf(List<Line> lines, List<? extends Element> elements, int start, List<Box> boxes, float width) {
 		if (start >= elements.size()) {
 			return start;
 		}
@@ -180,7 +168,8 @@ class SimpleTypesetter implements Typesetter {
 			boxes.add(box);
 			++start;
 		}
-		box.getBound(mWorkPaint, bound);
+
+		lines.add(new Line(boxes, box.getHeight(mWorkPaint), 0, 0));
 		return start;
 	}
 }

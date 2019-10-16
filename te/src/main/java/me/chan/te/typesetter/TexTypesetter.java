@@ -30,7 +30,6 @@ class TexTypesetter implements Typesetter {
 	private Option mOption;
 	private TextPaint mPaint;
 	private TextPaint mWorkPaint = new TextPaint();
-	private Box.Bound mBound = new Box.Bound();
 
 	private ElementFactory mElementFactory;
 
@@ -111,14 +110,12 @@ class TexTypesetter implements Typesetter {
 			return glue.getWidth();
 		}
 
-		Box.Bound bound = getBoxBound((Box) element);
-		return bound.getWidth();
+		return getBoxWidth((Box) element);
 	}
 
-	private Box.Bound getBoxBound(Box box) {
+	private float getBoxWidth(Box box) {
 		TextPaint textPaint = getInternalPaint();
-		box.getBound(textPaint, mBound);
-		return mBound;
+		return box.getWidth(textPaint);
 	}
 
 	private TextPaint getInternalPaint() {
@@ -179,11 +176,10 @@ class TexTypesetter implements Typesetter {
 			Box box = (Box) lineElements.get(i);
 			i = mergeBox(box, i + 1, end, lineElements, mElementFactory);
 
-			Box.Bound bound = getBoxBound(box);
-			if (lineHeight < bound.getHeight()) {
-				lineHeight = bound.getHeight();
+			if (lineHeight < box.getHeight(mWorkPaint)) {
+				lineHeight = box.getHeight(mWorkPaint);
 			}
-			wordWidth += bound.getWidth();
+			wordWidth += box.getWidth(mWorkPaint);
 			boxes.add(box);
 		}
 

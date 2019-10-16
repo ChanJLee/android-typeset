@@ -7,12 +7,14 @@ import android.support.annotation.Nullable;
 import android.text.TextPaint;
 
 import me.chan.te.annotations.Hidden;
+import me.chan.te.misc.ObjectFactory;
 
 public final class Box implements Element, Cloneable {
 
 	private static final int FLAG_NONE = 0;
 	public static final int FLAG_SPILT = 1;
 	public static final int FLAG_PENALTY = 2;
+	private static final ObjectFactory<Rect> REACT_FACTORY = new ObjectFactory<>(5);
 
 	@NonNull
 	private CharSequence mText;
@@ -87,12 +89,7 @@ public final class Box implements Element, Cloneable {
 		mEnd = mText.length();
 	}
 
-	public void getBound(TextPaint textPaint, Bound bound) {
-		bound.mWidth = getWidth(textPaint);
-		bound.mHeight = getHeight(textPaint, bound);
-	}
-
-	private float getWidth(TextPaint textPaint) {
+	public float getWidth(TextPaint textPaint) {
 		if (mWidth <= 0) {
 			updateTextPaint(textPaint);
 			mWidth = mMeasurer.getDesiredWidth(mText, mStart, mEnd, textPaint);
@@ -101,14 +98,28 @@ public final class Box implements Element, Cloneable {
 		return mWidth;
 	}
 
-	private float getHeight(TextPaint textPaint, Bound bound) {
+	public float getHeight(TextPaint textPaint) {
 		if (mHeight <= 0) {
 			updateTextPaint(textPaint);
-			textPaint.getTextBounds(String.valueOf(mText), mStart, mEnd, bound.mBound);
-			mHeight = bound.mBound.height();
+			Rect rect = getRect();
+			textPaint.getTextBounds(String.valueOf(mText), mStart, mEnd, rect);
+			mHeight = rect.height();
+			releaseRect(rect);
 		}
 
 		return mHeight;
+	}
+
+	private static Rect getRect() {
+		Rect rect = REACT_FACTORY.acquire();
+		if (rect == null) {
+			rect = new Rect();
+		}
+		return rect;
+	}
+
+	private static void releaseRect(Rect rect) {
+		REACT_FACTORY.release(rect);
 	}
 
 	private void updateTextPaint(TextPaint textPaint) {
@@ -182,20 +193,6 @@ public final class Box implements Element, Cloneable {
 		boxes[0] = prefix;
 		boxes[1] = suffix;
 		return boxes;
-	}
-
-	public static class Bound {
-		private Rect mBound = new Rect();
-		private float mHeight;
-		private float mWidth;
-
-		public float getHeight() {
-			return mHeight;
-		}
-
-		public float getWidth() {
-			return mWidth;
-		}
 	}
 
 	public interface Measurer {
