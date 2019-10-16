@@ -4,13 +4,13 @@ import android.support.annotation.NonNull;
 import android.text.TextPaint;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 import me.chan.te.config.LineAttributes;
 import me.chan.te.config.Option;
 import me.chan.te.data.Box;
 import me.chan.te.data.Element;
-import me.chan.te.data.ElementFactory;
 import me.chan.te.data.Line;
 import me.chan.te.data.Paragraph;
 import me.chan.te.data.Penalty;
@@ -22,12 +22,10 @@ class SimpleTypesetter implements Typesetter {
 	private TextPaint mPaint;
 	private TextPaint mWorkPaint = new TextPaint();
 	private Box.Bound mBound = new Box.Bound();
-	private ElementFactory mElementFactory;
 
-	SimpleTypesetter(TextPaint paint, Option option, ElementFactory elementFactory) {
+	SimpleTypesetter(TextPaint paint, Option option) {
 		mOption = option;
 		mPaint = paint;
-		mElementFactory = elementFactory;
 	}
 
 	@NonNull
@@ -37,7 +35,7 @@ class SimpleTypesetter implements Typesetter {
 		// 一行尽可能的占满尽可能多的字符
 		// 如果如果只显示了一个并且还不足以完美显示，那么无脑折断
 		List<? extends Element> elements = segment.getElements();
-		List<Line> lines = new ArrayList<>();
+		List<Line> lines = new LinkedList<>();
 		int size = elements.size();
 		for (int i = 0; i < size; ) {
 			float width = lineAttributes.get(lines.size()).getLineWidth();
