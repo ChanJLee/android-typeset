@@ -1,7 +1,6 @@
 package me.chan.te.data;
 
 import android.support.annotation.NonNull;
-import android.text.Layout;
 import android.text.TextPaint;
 
 import me.chan.te.misc.ObjectFactory;
@@ -17,7 +16,7 @@ public class ElementFactory {
 		this(new Box.Measurer() {
 			@Override
 			public float getDesiredWidth(CharSequence charSequence, int start, int end, TextPaint textPaint) {
-				return Layout.getDesiredWidth(charSequence, start, end, textPaint);
+				return textPaint.measureText(charSequence, start, end);
 			}
 		});
 	}
