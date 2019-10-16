@@ -238,7 +238,7 @@ class TexTypesetter implements Typesetter {
 			if (element instanceof Penalty && start == end - 1) {
 				factory.recycle(element);
 				box.append("-");
-				box.setPenalty(true);
+				box.setFlag(Box.FLAG_PENALTY);
 			}
 		}
 

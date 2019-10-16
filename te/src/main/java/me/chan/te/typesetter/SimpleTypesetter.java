@@ -146,7 +146,7 @@ class SimpleTypesetter implements Typesetter {
 				if (currentLineWidth + cloneWidth + mOption.getIndentWidth() <= width) {
 					++start;
 					clone.append("-");
-					clone.setPenalty(true);
+					clone.setFlag(Box.FLAG_PENALTY);
 					break;
 				}
 				return -1;
@@ -172,7 +172,7 @@ class SimpleTypesetter implements Typesetter {
 		mWorkPaint.set(mPaint);
 		Box[] children = box.spilt(mWorkPaint, width);
 		if (children != null) {
-			children[0].setSplit(true);
+			children[0].setFlag(Box.FLAG_SPILT);
 			boxes.add(children[0]);
 			box.copy(children[1]);
 			box = children[0];

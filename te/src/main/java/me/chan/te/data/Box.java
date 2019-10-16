@@ -10,11 +10,14 @@ import me.chan.te.annotations.Hidden;
 
 public final class Box implements Element, Cloneable {
 
+	private static final int FLAG_NONE = 0;
+	public static final int FLAG_SPILT = 1;
+	public static final int FLAG_PENALTY = 2;
+
 	@NonNull
 	private CharSequence mText;
 	private BoxStyle mBoxStyle;
-	private boolean mPenalty = false;
-	private boolean mSplit = false;
+	private int mFlag;
 	private float mWidth = -1;
 	private float mHeight = -1;
 	private int mStart;
@@ -27,13 +30,12 @@ public final class Box implements Element, Cloneable {
 	public void copy(@NonNull Box other) {
 		mText = other.mText;
 		mBoxStyle = other.mBoxStyle;
-		mPenalty = other.mPenalty;
+		mFlag = other.mFlag;
 		mWidth = other.mWidth;
 		mHeight = other.mHeight;
 		mStart = other.mStart;
 		mEnd = other.mEnd;
 		mMeasurer = other.mMeasurer;
-		mSplit = other.mSplit;
 	}
 
 	@Override
@@ -48,15 +50,14 @@ public final class Box implements Element, Cloneable {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
 		Box box = (Box) o;
-		return mPenalty == box.mPenalty &&
+		return mFlag == box.mFlag &&
 				Float.compare(box.mWidth, mWidth) == 0 &&
 				Float.compare(box.mHeight, mHeight) == 0 &&
 				mStart == box.mStart &&
 				mEnd == box.mEnd &&
 				mText.equals(box.mText) &&
 				mBoxStyle == box.mBoxStyle &&
-				mMeasurer == box.mMeasurer &&
-				mSplit == box.mSplit;
+				mMeasurer == box.mMeasurer;
 	}
 
 	Box(Measurer measurer) {
@@ -66,7 +67,7 @@ public final class Box implements Element, Cloneable {
 	void reset(@NonNull CharSequence text, int start, int end, @Nullable BoxStyle boxStyle) {
 		mText = text;
 		mBoxStyle = boxStyle;
-		mPenalty = false;
+		mFlag = FLAG_NONE;
 		mWidth = mHeight = -1;
 		mStart = start;
 		mEnd = end;
@@ -123,19 +124,15 @@ public final class Box implements Element, Cloneable {
 
 	@Hidden
 	public boolean isPenalty() {
-		return mPenalty;
+		return mFlag == FLAG_PENALTY;
 	}
 
 	public boolean isSplit() {
-		return mSplit;
+		return mFlag == FLAG_SPILT;
 	}
 
-	public void setSplit(boolean split) {
-		mSplit = split;
-	}
-
-	public void setPenalty(boolean penalty) {
-		mPenalty = penalty;
+	public void setFlag(int flag) {
+		mFlag = flag;
 	}
 
 	public void draw(Canvas canvas, TextPaint paint, float x, float y) {
