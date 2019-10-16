@@ -159,7 +159,7 @@ public final class Box implements Element, Cloneable {
 			return null;
 		}
 
-		int last = (int) (Math.floor((limitWidth / width) * (mEnd - mStart)) + mStart);
+		int last = (int) ((limitWidth / width) * (mEnd - mStart)) + mStart;
 		while (last > mStart && last < mEnd &&
 				mMeasurer.getDesiredWidth(mText, mStart, last, textPaint) > limitWidth) {
 			--last;

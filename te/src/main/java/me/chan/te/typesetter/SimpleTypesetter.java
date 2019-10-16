@@ -60,7 +60,7 @@ class SimpleTypesetter implements Typesetter {
 			return start;
 		}
 
-		List<Box> boxes = new ArrayList<>();
+		List<Box> boxes = new ArrayList<>(12);
 		float lineHeight = 0f;
 		float spaceWidth = mOption.getSpaceWidth();
 		float currentLineWidth = 0f;
