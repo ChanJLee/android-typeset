@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Typeface;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.SystemClock;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextPaint;
@@ -156,7 +157,11 @@ public class Adapter extends RecyclerView.Adapter<TexViewHolder> {
 
 	private synchronized void refreshInternal() {
 		CoreTypesetter texTypesetter = new CoreTypesetter(mTextPaint, mOption, mElementFactory);
+		long timestamp = SystemClock.elapsedRealtime();
 		List<Segment> segments = mParser.parser(mContent, mElementFactory, Hypher.getInstance(), mOption);
+		d("parse used time: " + (SystemClock.elapsedRealtime() - timestamp));
+		timestamp = SystemClock.elapsedRealtime();
+
 		final List<Paragraph> paragraphs = new ArrayList<>();
 		int size = segments.size();
 		final Thread thread = Thread.currentThread();
@@ -173,6 +178,7 @@ public class Adapter extends RecyclerView.Adapter<TexViewHolder> {
 			paragraphs.add(paragraph);
 		}
 
+		d("typeset used time: " + (SystemClock.elapsedRealtime() - timestamp));
 		d("is thread interrupt: " + thread.isInterrupted());
 
 		mHandler.post(new Runnable() {
