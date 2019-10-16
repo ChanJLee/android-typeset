@@ -131,7 +131,7 @@ class TexTypesetter implements Typesetter {
 										List<BreakPoint> breakPoints,
 										LineAttributes lineAttributes) {
 		List<? extends Element> elements = segment.getElements();
-		List<Line> lines = new ArrayList<>();
+		List<Line> lines = new LinkedList<>();
 		int lineStart = 0;
 		int size = elements.size();
 		for (int i = 1; i < breakPoints.size(); ++i) {
@@ -246,7 +246,7 @@ class TexTypesetter implements Typesetter {
 	}
 
 	private List<BreakPoint> chooseBreakPoints(List<Node> activeNodes) {
-		List<BreakPoint> breaks = new ArrayList<>();
+		List<BreakPoint> breaks = new LinkedList<>();
 		Node tempNode = null;
 		for (Node node : activeNodes) {
 			if (tempNode == null || tempNode.data.demerits > node.data.demerits) {
