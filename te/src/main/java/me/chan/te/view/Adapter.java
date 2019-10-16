@@ -159,7 +159,7 @@ public class Adapter extends RecyclerView.Adapter<TexViewHolder> {
 		CoreTypesetter texTypesetter = new CoreTypesetter(mTextPaint, mOption, mElementFactory);
 		long timestamp = SystemClock.elapsedRealtime();
 		List<Segment> segments = mParser.parser(mContent, mElementFactory, Hypher.getInstance(), mOption);
-		d("parse used time: " + (SystemClock.elapsedRealtime() - timestamp));
+		d("parse used time: " + (SystemClock.elapsedRealtime() - timestamp) + " segments: " + segments.size());
 		timestamp = SystemClock.elapsedRealtime();
 
 		final List<Paragraph> paragraphs = new ArrayList<>();
@@ -178,7 +178,7 @@ public class Adapter extends RecyclerView.Adapter<TexViewHolder> {
 			paragraphs.add(paragraph);
 		}
 
-		d("typeset used time: " + (SystemClock.elapsedRealtime() - timestamp));
+		d("typeset used time: " + (SystemClock.elapsedRealtime() - timestamp) + " paragraph size:" + paragraphs.size());
 		d("is thread interrupt: " + thread.isInterrupted());
 
 		mHandler.post(new Runnable() {
