@@ -152,7 +152,9 @@ public class ParserUnitTest {
 
 		String content = stringBuilder.toString();
 		stringBuilder = new StringBuilder();
+		long timestamp = System.currentTimeMillis();
 		List<Segment> segments = textParser.parser(content, factory, Hypher.getInstance(), option);
+		System.out.println("used time: " + (System.currentTimeMillis() - timestamp));
 		for (Segment segment : segments) {
 			for (Element element : segment.getElements()) {
 				if (element instanceof Box) {

@@ -109,7 +109,7 @@ public class Hypher {
 			for (int j = i; j < lenWithPadding; j++) {
 				int codePoints = UNDER_LINE_CODE_POINT;
 				if (j != 0 && j != lenWithPadding - 1) {
-					codePoints = Character.toLowerCase(word.codePointAt(start + j - 1));
+					codePoints = word.codePointAt(start + j - 1);
 				}
 
 				node = node.codePoint.get(codePoints);
