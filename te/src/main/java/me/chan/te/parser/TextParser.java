@@ -34,7 +34,7 @@ public class TextParser implements Parser {
 	private List<? extends Element> parserLine(CharSequence paragraph, ElementFactory factory,
 											   int start, int end, Hypher hypher, Option option) {
 		List<Element> list = new ArrayList<>();
-		List<String> hyphenated = new ArrayList<>();
+		List<String> hyphenated = new ArrayList<>(10);
 
 		for (int i = start; i < end; ) {
 			int last = findWord(paragraph, i, end);
