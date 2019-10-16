@@ -26,8 +26,10 @@ source read text -> parse text -> typeset -> render
 
 # link
 
-[test word](https://github.com/dwyl/english-words.git)
+[english-words](https://github.com/dwyl/english-words.git)
 
-[测试数据](https://www.520txtba.com/Txt/XiaoShuo-146678.html)
+[the book and the sword](https://www.520txtba.com/Txt/XiaoShuo-146678.html)
 
 [async profiler](https://github.com/jvm-profiling-tools/async-profiler)
+
+[JHyphenator](https://github.com/mfietz/JHyphenator)
