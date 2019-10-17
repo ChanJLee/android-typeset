@@ -21,11 +21,11 @@ public class ObjectFactory<T> {
 	}
 
 	@Nullable
-	public T acquire() {
+	public synchronized T acquire() {
 		return mQueue.poll();
 	}
 
-	public boolean release(@NonNull T t) {
+	public synchronized boolean release(@NonNull T t) {
 		if (mQueue.size() >= mBufferSize) {
 			return false;
 		}

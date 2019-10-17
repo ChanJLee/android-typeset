@@ -1,20 +1,18 @@
 package me.chan.te.data;
 
 import android.graphics.Canvas;
-import android.graphics.Rect;
+import android.graphics.Paint;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.text.TextPaint;
 
 import me.chan.te.annotations.Hidden;
-import me.chan.te.misc.ObjectFactory;
 
 public final class Box implements Element, Cloneable {
 
 	private static final int FLAG_NONE = 0;
 	public static final int FLAG_SPILT = 1;
 	public static final int FLAG_PENALTY = 2;
-	private static final ObjectFactory<Rect> REACT_FACTORY = new ObjectFactory<>(5);
 
 	@NonNull
 	private CharSequence mText;
@@ -100,26 +98,11 @@ public final class Box implements Element, Cloneable {
 
 	public float getHeight(TextPaint textPaint) {
 		if (mHeight <= 0) {
-			updateTextPaint(textPaint);
-			Rect rect = getRect();
-			textPaint.getTextBounds(String.valueOf(mText), mStart, mEnd, rect);
-			mHeight = rect.height();
-			releaseRect(rect);
+			Paint.FontMetrics fontMetrics = textPaint.getFontMetrics();
+			mHeight = fontMetrics.bottom - fontMetrics.top;
 		}
 
 		return mHeight;
-	}
-
-	private static Rect getRect() {
-		Rect rect = REACT_FACTORY.acquire();
-		if (rect == null) {
-			rect = new Rect();
-		}
-		return rect;
-	}
-
-	private static void releaseRect(Rect rect) {
-		REACT_FACTORY.release(rect);
 	}
 
 	private void updateTextPaint(TextPaint textPaint) {
