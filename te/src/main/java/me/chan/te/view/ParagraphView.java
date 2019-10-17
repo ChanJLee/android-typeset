@@ -38,7 +38,6 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 	private Box mSelectedBox;
 	private Box mSelectedSuffix;
 	private TextPaint mWorkPaint = new TextPaint();
-	private Box.Bound mBound = new Box.Bound();
 	private boolean mDebugMode = false;
 
 	public ParagraphView(Context context) {
@@ -167,7 +166,7 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 		for (int i = 0; i < boxes.size(); ++i) {
 			Box box = boxes.get(i);
 			TextPaint textPaint = getInternalPaint();
-			float width = getBoxWidth(textPaint, box);
+			float width = box.getWidth(textPaint);
 
 			if (box == mSelectedBox || box == mSelectedSuffix) {
 				Paint.FontMetrics fontMetrics = textPaint.getFontMetrics();
@@ -209,11 +208,6 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 		return textPaint;
 	}
 
-	private float getBoxWidth(TextPaint textPaint, Box box) {
-		box.getBound(textPaint, mBound);
-		return mBound.getWidth();
-	}
-
 	private boolean handleClicked(float x, float y) {
 		if (mParagraph == null || mParagraph.getLines() == null) {
 			return false;
@@ -248,7 +242,7 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 		for (int i = 0; i < boxSize; ++i) {
 			Box box = boxes.get(i);
 			TextPaint textPaint = getInternalPaint();
-			float width = getBoxWidth(textPaint, box);
+			float width = box.getWidth(textPaint);
 			float nextOffsetX = offsetX + width;
 			if (offsetX <= x && x <= nextOffsetX) {
 				target = box;
