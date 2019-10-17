@@ -1,7 +1,7 @@
 package me.chan.te.data;
 
 import android.graphics.Canvas;
-import android.graphics.Rect;
+import android.graphics.Paint;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.text.TextPaint;
@@ -87,12 +87,7 @@ public final class Box implements Element, Cloneable {
 		mEnd = mText.length();
 	}
 
-	public void getBound(TextPaint textPaint, Bound bound) {
-		bound.mWidth = getWidth(textPaint);
-		bound.mHeight = getHeight(textPaint, bound);
-	}
-
-	private float getWidth(TextPaint textPaint) {
+	public float getWidth(TextPaint textPaint) {
 		if (mWidth <= 0) {
 			updateTextPaint(textPaint);
 			mWidth = mMeasurer.getDesiredWidth(mText, mStart, mEnd, textPaint);
@@ -101,11 +96,9 @@ public final class Box implements Element, Cloneable {
 		return mWidth;
 	}
 
-	private float getHeight(TextPaint textPaint, Bound bound) {
-		if (mHeight <= 0) {
-			updateTextPaint(textPaint);
-			textPaint.getTextBounds(String.valueOf(mText), mStart, mEnd, bound.mBound);
-			mHeight = bound.mBound.height();
+	public float getHeight(TextPaint textPaint) {
+		if (mHeight <= 0 && mMeasurer != null) {
+			mHeight = mMeasurer.getDesiredHeight(mText, mStart, mEnd, textPaint);
 		}
 
 		return mHeight;
@@ -184,21 +177,9 @@ public final class Box implements Element, Cloneable {
 		return boxes;
 	}
 
-	public static class Bound {
-		private Rect mBound = new Rect();
-		private float mHeight;
-		private float mWidth;
-
-		public float getHeight() {
-			return mHeight;
-		}
-
-		public float getWidth() {
-			return mWidth;
-		}
-	}
-
 	public interface Measurer {
 		float getDesiredWidth(CharSequence charSequence, int start, int end, TextPaint textPaint);
+
+		float getDesiredHeight(CharSequence charSequence, int start, int end, TextPaint textPaint);
 	}
 }
