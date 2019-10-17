@@ -97,9 +97,8 @@ public final class Box implements Element, Cloneable {
 	}
 
 	public float getHeight(TextPaint textPaint) {
-		if (mHeight <= 0) {
-			Paint.FontMetrics fontMetrics = textPaint.getFontMetrics();
-			mHeight = fontMetrics.bottom - fontMetrics.top;
+		if (mHeight <= 0 && mMeasurer != null) {
+			mHeight = mMeasurer.getDesiredHeight(mText, mStart, mEnd, textPaint);
 		}
 
 		return mHeight;
@@ -180,5 +179,7 @@ public final class Box implements Element, Cloneable {
 
 	public interface Measurer {
 		float getDesiredWidth(CharSequence charSequence, int start, int end, TextPaint textPaint);
+
+		float getDesiredHeight(CharSequence charSequence, int start, int end, TextPaint textPaint);
 	}
 }
