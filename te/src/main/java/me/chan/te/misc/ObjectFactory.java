@@ -3,8 +3,8 @@ package me.chan.te.misc;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
+import java.util.ArrayDeque;
 import java.util.Queue;
-import java.util.concurrent.LinkedBlockingQueue;
 
 public class ObjectFactory<T> {
 
@@ -16,16 +16,16 @@ public class ObjectFactory<T> {
 			throw new IllegalArgumentException("buffer size must be large than 0");
 		}
 
-		mQueue = new LinkedBlockingQueue<>(bufferSize);
+		mQueue = new ArrayDeque<>(bufferSize);
 		mBufferSize = bufferSize;
 	}
 
 	@Nullable
-	public synchronized T acquire() {
+	public T acquire() {
 		return mQueue.poll();
 	}
 
-	public synchronized boolean release(@NonNull T t) {
+	public boolean release(@NonNull T t) {
 		if (mQueue.size() >= mBufferSize) {
 			return false;
 		}
