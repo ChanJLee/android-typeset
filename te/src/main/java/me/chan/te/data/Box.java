@@ -1,7 +1,6 @@
 package me.chan.te.data;
 
 import android.graphics.Canvas;
-import android.graphics.Paint;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.text.TextPaint;
