@@ -8,7 +8,7 @@ import me.chan.te.misc.ObjectFactory;
 
 public class ElementFactory {
 
-	private ObjectFactory<Box> mBoxPool = new ObjectFactory<>(10000);
+	private ObjectFactory<TextBox> mBoxPool = new ObjectFactory<>(10000);
 	private ObjectFactory<Penalty> mPenaltyPool = new ObjectFactory<>(4000);
 	private ObjectFactory<Glue> mGluePool = new ObjectFactory<>(10000);
 	private Box.Measurer mMeasurer;
@@ -39,9 +39,9 @@ public class ElementFactory {
 			return null;
 		}
 
-		Box box = mBoxPool.acquire();
+		TextBox box = mBoxPool.acquire();
 		if (box == null) {
-			box = new Box(mMeasurer);
+			box = new TextBox(mMeasurer);
 		}
 		box.reset(charSequence, start, end, boxStyle);
 		return box;
@@ -52,8 +52,8 @@ public class ElementFactory {
 			return;
 		}
 
-		if (element instanceof Box) {
-			mBoxPool.release((Box) element);
+		if (element instanceof TextBox) {
+			mBoxPool.release((TextBox) element);
 		} else if (element instanceof Penalty) {
 			mPenaltyPool.release((Penalty) element);
 		} else {
