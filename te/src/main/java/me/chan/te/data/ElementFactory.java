@@ -1,5 +1,6 @@
 package me.chan.te.data;
 
+import android.graphics.Paint;
 import android.support.annotation.NonNull;
 import android.text.Layout;
 import android.text.TextPaint;
@@ -18,6 +19,12 @@ public class ElementFactory {
 			@Override
 			public float getDesiredWidth(CharSequence charSequence, int start, int end, TextPaint textPaint) {
 				return Layout.getDesiredWidth(charSequence, start, end, textPaint);
+			}
+
+			@Override
+			public float getDesiredHeight(CharSequence charSequence, int start, int end, TextPaint textPaint) {
+				Paint.FontMetrics fontMetrics = textPaint.getFontMetrics();
+				return fontMetrics.bottom - fontMetrics.top;
 			}
 		});
 	}

@@ -102,9 +102,8 @@ public final class TextBox extends Box implements Element, Cloneable {
 	}
 
 	public float getHeight(TextPaint textPaint) {
-		if (mHeight <= 0) {
-			Paint.FontMetrics fontMetrics = textPaint.getFontMetrics();
-			mHeight = fontMetrics.bottom - fontMetrics.top;
+		if (mHeight <= 0 && mMeasurer != null) {
+			mHeight = mMeasurer.getDesiredHeight(mText, mStart, mEnd, textPaint);
 		}
 
 		return mHeight;
