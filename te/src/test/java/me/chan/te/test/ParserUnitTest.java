@@ -1,7 +1,5 @@
 package me.chan.te.test;
 
-import android.text.TextPaint;
-
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -22,6 +20,8 @@ import me.chan.te.data.Segment;
 import me.chan.te.data.TextBox;
 import me.chan.te.hypher.Hypher;
 import me.chan.te.parser.TextParser;
+import me.chan.te.test.mock.MockMeasurer;
+import me.chan.te.test.mock.MockTextPaint;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -30,10 +30,10 @@ public class ParserUnitTest {
 
 	@Test
 	public void testBase() {
-		TextPaint paint = new TextPaint();
+		MockTextPaint paint = new MockTextPaint();
 		paint.setTextSize(18);
 		Option option = new Option(paint);
-		ElementFactory factory = new ElementFactory();
+		ElementFactory factory = new ElementFactory(new MockMeasurer(paint));
 		TextParser textParser = new TextParser();
 		List<Segment> segments = textParser.parser("hello\n\nworld\n\n", factory, Hypher.getInstance(), option);
 		assertEquals(segments.size(), 2);
@@ -103,8 +103,8 @@ public class ParserUnitTest {
 		BufferedReader bufferedReader = new BufferedReader(
 				new InputStreamReader(new FileInputStream(file)));
 		String line = null;
-		ElementFactory factory = new ElementFactory();
-		TextPaint paint = new TextPaint();
+		MockTextPaint paint = new MockTextPaint();
+		ElementFactory factory = new ElementFactory(new MockMeasurer(paint));
 		Option option = new Option(paint);
 		int lineNumber = 0;
 		TextParser textParser = new TextParser();
@@ -142,8 +142,8 @@ public class ParserUnitTest {
 		BufferedReader bufferedReader = new BufferedReader(
 				new InputStreamReader(new FileInputStream(file)));
 		String line = null;
-		ElementFactory factory = new ElementFactory();
-		TextPaint paint = new TextPaint();
+		MockTextPaint paint = new MockTextPaint();
+		ElementFactory factory = new ElementFactory(new MockMeasurer(paint));
 		Option option = new Option(paint);
 		StringBuilder stringBuilder = new StringBuilder();
 		TextParser textParser = new TextParser();

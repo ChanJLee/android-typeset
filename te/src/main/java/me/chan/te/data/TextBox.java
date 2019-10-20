@@ -1,12 +1,12 @@
 package me.chan.te.data;
 
 import android.graphics.Canvas;
-import android.graphics.Paint;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.text.TextPaint;
 
 import me.chan.te.annotations.Hidden;
+import me.chan.te.measurer.Measurer;
 
 public final class TextBox extends Box implements Element, Cloneable {
 

@@ -2,9 +2,9 @@ package me.chan.te.test.mock;
 
 import android.text.TextPaint;
 
-import me.chan.te.data.Box;
+import me.chan.te.measurer.Measurer;
 
-public class MockMeasurer implements Box.Measurer {
+public class MockMeasurer implements Measurer {
 	private MockTextPaint mMockTextPaint;
 
 	public MockMeasurer(MockTextPaint paint) {

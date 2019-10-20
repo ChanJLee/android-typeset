@@ -74,10 +74,4 @@ public abstract class Box implements Cloneable, Element {
 
 	@Nullable
 	public abstract Box[] spilt(TextPaint textPaint, float limitWidth);
-
-	public interface Measurer {
-		float getDesiredWidth(CharSequence charSequence, int start, int end, TextPaint textPaint);
-
-		float getDesiredHeight(CharSequence charSequence, int start, int end, TextPaint textPaint);
-	}
 }

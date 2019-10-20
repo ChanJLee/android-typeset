@@ -92,9 +92,9 @@ public class TypesetterUnitTest {
 
 		ElementFactory elementFactory = new ElementFactory(new MockMeasurer(textPaint));
 
-		assertNull(elementFactory.obtainBox(null, 0, 10, null));
+		assertNull(elementFactory.obtainTextBox(null, 0, 10, null));
 		try {
-			elementFactory.obtainBox(null);
+			elementFactory.obtainTextBox(null);
 			fail("obtain null box");
 		} catch (Throwable throwable) {
 
@@ -102,8 +102,8 @@ public class TypesetterUnitTest {
 
 		String msg1 = "hello world";
 		String msg2 = "hello";
-		Box box1 = elementFactory.obtainBox(msg1);
-		Box box2 = elementFactory.obtainBox(msg2);
+		Box box1 = elementFactory.obtainTextBox(msg1);
+		Box box2 = elementFactory.obtainTextBox(msg2);
 
 		assertEquals(msg1, box1.toString());
 		assertEquals(msg2, box2.toString());
