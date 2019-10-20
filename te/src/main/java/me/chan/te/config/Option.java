@@ -5,17 +5,6 @@ import android.text.TextPaint;
 import me.chan.te.measurer.Measurer;
 
 public class Option {
-	public static final float INFINITY = 1000;
-	public static final int HYPHEN_PENALTY = 100;
-	public static final float DEMERITS_LINE = 1;
-	// 对应 α
-	public static final float DEMERITS_FLAGGED = 100;
-	// 对应 γ
-	public static final float DEMERITS_FITNESS = 3000;
-	public static final int MAX_RELAYOUT_TIMES = 30;
-	public static final int MIN_HYPER_LEN = 4;
-	public static final float MIN_SHRINK_RATIO = -0.2f;
-	public static final float STRETCH_STEP_RATIO = 0.2f;
 
 	/**
 	 * 跟随box的text size变化
