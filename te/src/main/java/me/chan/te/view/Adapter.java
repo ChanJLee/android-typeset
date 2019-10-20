@@ -19,6 +19,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 import me.chan.te.R;
+import me.chan.te.measurer.AndroidMeasurer;
 import me.chan.te.text.BreakStrategy;
 import me.chan.te.config.LineAttributes;
 import me.chan.te.config.Option;
@@ -47,7 +48,7 @@ public class Adapter extends RecyclerView.Adapter<TexViewHolder> {
 	private ExecutorService mExecutor = Executors.newSingleThreadExecutor();
 	private Handler mHandler;
 	private boolean mDebugMode;
-	private ElementFactory mElementFactory = new ElementFactory();
+	private ElementFactory mElementFactory;
 	private CharSequence mContent;
 	private int mWidth = -1;
 	private Parser mParser = new TextParser();
@@ -62,9 +63,9 @@ public class Adapter extends RecyclerView.Adapter<TexViewHolder> {
 				DEFAULT_TEXT_SIZE,
 				context.getResources().getDisplayMetrics())
 		);
-
 		mOption = new Option(mTextPaint);
 		mHandler = new Handler(Looper.getMainLooper());
+		mElementFactory = new ElementFactory(new AndroidMeasurer());
 	}
 
 	@NonNull

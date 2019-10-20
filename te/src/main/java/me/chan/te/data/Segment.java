@@ -49,11 +49,11 @@ public final class Segment {
 			hypher.hyphenate(String.valueOf(text), start, end - start, mHyphenated);
 			int size = mHyphenated.size();
 			if (size == 0 || len < Option.MIN_HYPER_LEN) {
-				mElements.add(mElementFactory.obtainBox(text, start, end));
+				mElements.add(mElementFactory.obtainTextBox(text, start, end));
 			} else {
 				for (int j = 0; j < size; ++j) {
 					String item = mHyphenated.get(j);
-					mElements.add(mElementFactory.obtainBox(item));
+					mElements.add(mElementFactory.obtainTextBox(item));
 					if (j != size - 1 && !item.isEmpty() && item.charAt(item.length() - 1) != '-') {
 						mElements.add(new Penalty(option.getHyphenWidth(), Option.HYPHEN_PENALTY, true));
 					}

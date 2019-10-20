@@ -1,10 +1,8 @@
 package me.chan.te.data;
 
-import android.graphics.Paint;
 import android.support.annotation.NonNull;
-import android.text.Layout;
-import android.text.TextPaint;
 
+import me.chan.te.measurer.Measurer;
 import me.chan.te.misc.ObjectFactory;
 
 public class ElementFactory {
@@ -12,36 +10,21 @@ public class ElementFactory {
 	private ObjectFactory<TextBox> mBoxPool = new ObjectFactory<>(10000);
 	private ObjectFactory<Penalty> mPenaltyPool = new ObjectFactory<>(4000);
 	private ObjectFactory<Glue> mGluePool = new ObjectFactory<>(10000);
-	private Box.Measurer mMeasurer;
+	private Measurer mMeasurer;
 
-	public ElementFactory() {
-		this(new Box.Measurer() {
-			@Override
-			public float getDesiredWidth(CharSequence charSequence, int start, int end, TextPaint textPaint) {
-				return Layout.getDesiredWidth(charSequence, start, end, textPaint);
-			}
-
-			@Override
-			public float getDesiredHeight(CharSequence charSequence, int start, int end, TextPaint textPaint) {
-				Paint.FontMetrics fontMetrics = textPaint.getFontMetrics();
-				return fontMetrics.bottom - fontMetrics.top;
-			}
-		});
-	}
-
-	public ElementFactory(Box.Measurer measurer) {
+	public ElementFactory(Measurer measurer) {
 		mMeasurer = measurer;
 	}
 
-	public Box obtainBox(@NonNull CharSequence charSequence) {
-		return obtainBox(charSequence, 0, charSequence.length());
+	public Box obtainTextBox(@NonNull CharSequence charSequence) {
+		return obtainTextBox(charSequence, 0, charSequence.length());
 	}
 
-	public Box obtainBox(@NonNull CharSequence charSequence, int start, int end) {
-		return obtainBox(charSequence, start, end, null);
+	public Box obtainTextBox(@NonNull CharSequence charSequence, int start, int end) {
+		return obtainTextBox(charSequence, start, end, null);
 	}
 
-	public Box obtainBox(@NonNull CharSequence charSequence, int start, int end, BoxStyle boxStyle) {
+	public Box obtainTextBox(@NonNull CharSequence charSequence, int start, int end, BoxStyle boxStyle) {
 		if (charSequence == null) {
 			return null;
 		}
