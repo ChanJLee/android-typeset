@@ -5,6 +5,7 @@ import java.util.List;
 
 import me.chan.te.config.Option;
 import me.chan.te.hypher.Hypher;
+import me.chan.te.typesetter.Typesetter;
 
 public final class Segment {
 	private CharSequence mText;
@@ -29,6 +30,8 @@ public final class Segment {
 	}
 
 	public static class Builder {
+		public static final int MIN_HYPER_LEN = 4;
+
 		private CharSequence mText;
 		private int mStart;
 		private int mEnd;
@@ -48,14 +51,14 @@ public final class Segment {
 			int len = end - start;
 			hypher.hyphenate(String.valueOf(text), start, end - start, mHyphenated);
 			int size = mHyphenated.size();
-			if (size == 0 || len < Option.MIN_HYPER_LEN) {
+			if (size == 0 || len < MIN_HYPER_LEN) {
 				mElements.add(mElementFactory.obtainTextBox(text, start, end));
 			} else {
 				for (int j = 0; j < size; ++j) {
 					String item = mHyphenated.get(j);
 					mElements.add(mElementFactory.obtainTextBox(item));
 					if (j != size - 1 && !item.isEmpty() && item.charAt(item.length() - 1) != '-') {
-						mElements.add(new Penalty(option.getHyphenWidth(), Option.HYPHEN_PENALTY, true));
+						mElements.add(new Penalty(option.getHyphenWidth(), Typesetter.HYPHEN_PENALTY, true));
 					}
 				}
 			}
@@ -69,8 +72,8 @@ public final class Segment {
 				mElements.remove(mElements.size() - 1);
 			}
 
-			mElements.add(new Glue(0, Option.INFINITY, 0));
-			mElements.add(new Penalty(0, -Option.INFINITY, true));
+			mElements.add(new Glue(0, Typesetter.INFINITY, 0));
+			mElements.add(new Penalty(0, -Typesetter.INFINITY, true));
 
 			return new Segment(mText, mStart, mEnd, mElements);
 		}

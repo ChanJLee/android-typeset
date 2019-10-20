@@ -44,8 +44,8 @@ class TexTypesetter implements Typesetter {
 		Paragraph paragraph = new Paragraph(lineAttributes);
 		List<Node> activeNodes = null;
 		float tolerance = 0;
-		for (int i = 0; i < mOption.MAX_RELAYOUT_TIMES; ++i) {
-			tolerance += mOption.STRETCH_STEP_RATIO;
+		for (int i = 0; i < MAX_RELAYOUT_TIMES; ++i) {
+			tolerance += STRETCH_STEP_RATIO;
 			activeNodes = createActiveNodes(segment, lineAttributes, tolerance);
 			if (!activeNodes.isEmpty()) {
 				break;
@@ -91,7 +91,7 @@ class TexTypesetter implements Typesetter {
 				sum.shrink += glue.getShrink();
 				sum.stretch += glue.getStretch();
 			} else if (element instanceof Penalty &&
-					((Penalty) element).getPenalty() != mOption.INFINITY) {
+					((Penalty) element).getPenalty() != INFINITY) {
 				typesetLine(i, elements, activeNodes, sum, lineAttributes, tolerance);
 			}
 		}
@@ -136,7 +136,7 @@ class TexTypesetter implements Typesetter {
 			int pos = breakPoint.position;
 			for (int j = lineStart; j != 0 && j < elements.size(); ++j) {
 				Element element = elements.get(j);
-				if (element instanceof Box || (element instanceof Penalty && ((Penalty) element).getPenalty() == -mOption.INFINITY)) {
+				if (element instanceof Box || (element instanceof Penalty && ((Penalty) element).getPenalty() == -INFINITY)) {
 					lineStart = j;
 					break;
 				}
@@ -287,11 +287,11 @@ class TexTypesetter implements Typesetter {
 				int currentLine = active.data.line + 1;
 				float ratio = computeRatio(element, active.data, sum, lineAttributes.get(currentLine).getLineWidth());
 
-				if (ratio < mOption.MIN_SHRINK_RATIO || (element instanceof Penalty && ((Penalty) element).getPenalty() == -mOption.INFINITY)) {
+				if (ratio < MIN_SHRINK_RATIO || (element instanceof Penalty && ((Penalty) element).getPenalty() == -INFINITY)) {
 					removeActiveNode(active, activeNodes);
 				}
 
-				if (ratio >= mOption.MIN_SHRINK_RATIO && ratio <= tolerance) {
+				if (ratio >= MIN_SHRINK_RATIO && ratio <= tolerance) {
 					int currentClass = computeClazz(ratio);
 
 					float demerits = computeDemerits(element, elements, ratio, active, currentClass);
@@ -391,10 +391,10 @@ class TexTypesetter implements Typesetter {
 
 		if (width < lineLength) {
 			float stretch = sum.stretch - data.totals.stretch;
-			return stretch > 0 ? (lineLength - width) / stretch : mOption.INFINITY;
+			return stretch > 0 ? (lineLength - width) / stretch : INFINITY;
 		} else if (width > lineLength) {
 			float shrink = sum.shrink - data.totals.shrink;
-			return shrink > 0 ? (lineLength - width) / shrink : mOption.INFINITY;
+			return shrink > 0 ? (lineLength - width) / shrink : INFINITY;
 		}
 
 		return 0;
@@ -406,16 +406,16 @@ class TexTypesetter implements Typesetter {
 
 		if (element instanceof Penalty && ((Penalty) element).getPenalty() >= 0) {
 			demerits = (float) (
-					Math.pow(mOption.DEMERITS_LINE + badness + ((Penalty) element).getPenalty(), 2)
+					Math.pow(DEMERITS_LINE + badness + ((Penalty) element).getPenalty(), 2)
 			);
-		} else if (element instanceof Penalty && ((Penalty) element).getPenalty() != -mOption.INFINITY) {
+		} else if (element instanceof Penalty && ((Penalty) element).getPenalty() != -INFINITY) {
 			demerits = (float) (
-					Math.pow(mOption.DEMERITS_LINE + badness, 2) -
+					Math.pow(DEMERITS_LINE + badness, 2) -
 							Math.pow(((Penalty) element).getPenalty(), 2)
 			);
 		} else {
 			demerits = (float) (
-					Math.pow(mOption.DEMERITS_LINE + badness, 2)
+					Math.pow(DEMERITS_LINE + badness, 2)
 			);
 		}
 
@@ -424,12 +424,12 @@ class TexTypesetter implements Typesetter {
 			Penalty penalty = (Penalty) element;
 			Penalty activePenalty = (Penalty) elements.get(active.data.position);
 			if (penalty.isFlag() && activePenalty.isFlag()) {
-				demerits += mOption.DEMERITS_FLAGGED;
+				demerits += DEMERITS_FLAGGED;
 			}
 		}
 
 		if (Math.abs(currentClass - active.data.fitnessClazz) > 1) {
-			demerits += mOption.DEMERITS_FITNESS;
+			demerits += DEMERITS_FITNESS;
 		}
 
 		// 叠加total demerits
@@ -450,7 +450,7 @@ class TexTypesetter implements Typesetter {
 				result.shrink += glue.getShrink();
 			} else if (element instanceof Box ||
 					(element instanceof Penalty &&
-							((Penalty) element).getPenalty() == -mOption.INFINITY && i > index)) {
+							((Penalty) element).getPenalty() == -INFINITY && i > index)) {
 				break;
 			}
 		}
