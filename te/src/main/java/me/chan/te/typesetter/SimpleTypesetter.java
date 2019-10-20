@@ -131,7 +131,7 @@ class SimpleTypesetter implements Typesetter {
 
 			// 如果超出当前的长度 那么直接结束
 			if (currentLineWidth + cloneWidth + nextWidth > width) {
-				if (currentLineWidth + cloneWidth + mOption.getIndentWidth() <= width) {
+				if (currentLineWidth + cloneWidth + mOption.getHyphenWidth() <= width) {
 					++start;
 					clone.append("-");
 					clone.setFlag(Box.FLAG_PENALTY);
