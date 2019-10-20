@@ -30,7 +30,7 @@ public final class Segment {
 	}
 
 	public static class Builder {
-		public static final int MIN_HYPER_LEN = 4;
+		private static final int MIN_HYPER_LEN = 4;
 
 		private CharSequence mText;
 		private int mStart;
