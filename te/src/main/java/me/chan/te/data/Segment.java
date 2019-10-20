@@ -1,6 +1,10 @@
 package me.chan.te.data;
 
+import java.util.ArrayList;
 import java.util.List;
+
+import me.chan.te.config.Option;
+import me.chan.te.hypher.Hypher;
 
 public final class Segment {
 	private CharSequence mText;
@@ -8,7 +12,7 @@ public final class Segment {
 	private int mEnd;
 	private List<? extends Element> mElements;
 
-	public Segment(CharSequence text, int start, int end, List<? extends Element> elements) {
+	private Segment(CharSequence text, int start, int end, List<? extends Element> elements) {
 		mText = text;
 		mStart = start;
 		mEnd = end;
@@ -22,5 +26,53 @@ public final class Segment {
 	@Override
 	public String toString() {
 		return String.valueOf(mText.subSequence(mStart, mEnd));
+	}
+
+	public static class Builder {
+		private CharSequence mText;
+		private int mStart;
+		private int mEnd;
+		private ElementFactory mElementFactory;
+		private List<Element> mElements = new ArrayList<>();
+		private List<String> mHyphenated = new ArrayList<>(10);
+
+		public Builder(CharSequence text, int start, int end, ElementFactory factory) {
+			mText = text;
+			mStart = start;
+			mEnd = end;
+			mElementFactory = factory;
+		}
+
+		// TODO option.getHyphenWidth()
+		public Builder text(Hypher hypher, Option option, CharSequence text, int start, int end) {
+			int len = end - start;
+			hypher.hyphenate(String.valueOf(text), start, end - start, mHyphenated);
+			int size = mHyphenated.size();
+			if (size == 0 || len < Option.MIN_HYPER_LEN) {
+				mElements.add(mElementFactory.obtainBox(text, start, end));
+			} else {
+				for (int j = 0; j < size; ++j) {
+					String item = mHyphenated.get(j);
+					mElements.add(mElementFactory.obtainBox(item));
+					if (j != size - 1 && !item.isEmpty() && item.charAt(item.length() - 1) != '-') {
+						mElements.add(new Penalty(option.getHyphenWidth(), Option.HYPHEN_PENALTY, true));
+					}
+				}
+			}
+			mHyphenated.clear();
+			mElements.add(new Glue(option.getSpaceWidth(), option.getSpaceStretch(), option.getSpaceShrink()));
+			return this;
+		}
+
+		public Segment build() {
+			if (!mElements.isEmpty()) {
+				mElements.remove(mElements.size() - 1);
+			}
+
+			mElements.add(new Glue(0, Option.INFINITY, 0));
+			mElements.add(new Penalty(0, -Option.INFINITY, true));
+
+			return new Segment(mText, mStart, mEnd, mElements);
+		}
 	}
 }

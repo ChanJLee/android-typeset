@@ -19,6 +19,7 @@ import me.chan.te.data.ElementFactory;
 import me.chan.te.data.Glue;
 import me.chan.te.data.Penalty;
 import me.chan.te.data.Segment;
+import me.chan.te.data.TextBox;
 import me.chan.te.hypher.Hypher;
 import me.chan.te.parser.TextParser;
 
@@ -57,7 +58,7 @@ public class ParserUnitTest {
 		List<? extends Element> list = segment.getElements();
 		assertEquals(list.size(), 3);
 
-		assertEquals("check type, index 0", list.get(0).getClass(), Box.class);
+		assertEquals("check type, index 0", list.get(0).getClass(), TextBox.class);
 		assertEquals("check type, index 1", list.get(1).getClass(), Glue.class);
 		assertEquals("check type, index 2", list.get(2).getClass(), Penalty.class);
 
@@ -75,11 +76,11 @@ public class ParserUnitTest {
 			System.out.println(element);
 		}
 
-		assertEquals("check type, index 0", list.get(0).getClass(), Box.class);
+		assertEquals("check type, index 0", list.get(0).getClass(), TextBox.class);
 		assertEquals("check type, index 1", list.get(1).getClass(), Penalty.class);
-		assertEquals("check type, index 2", list.get(2).getClass(), Box.class);
+		assertEquals("check type, index 2", list.get(2).getClass(), TextBox.class);
 		assertEquals("check type, index 3", list.get(3).getClass(), Penalty.class);
-		assertEquals("check type, index 4", list.get(4).getClass(), Box.class);
+		assertEquals("check type, index 4", list.get(4).getClass(), TextBox.class);
 		assertEquals("check type, index 5", list.get(5).getClass(), Glue.class);
 		assertEquals("check type, index 6", list.get(6).getClass(), Penalty.class);
 

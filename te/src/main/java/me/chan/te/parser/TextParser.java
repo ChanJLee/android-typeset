@@ -2,15 +2,11 @@ package me.chan.te.parser;
 
 import android.support.annotation.NonNull;
 
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
 import me.chan.te.config.Option;
-import me.chan.te.data.Element;
 import me.chan.te.data.ElementFactory;
-import me.chan.te.data.Glue;
-import me.chan.te.data.Penalty;
 import me.chan.te.data.Segment;
 import me.chan.te.hypher.Hypher;
 
@@ -23,54 +19,28 @@ public class TextParser implements Parser {
 		for (int i = skipBlank(charSequence, 0, len); i < len; ) {
 			int last = findNewline(charSequence, i, len);
 			if (i != last) {
-				segments.add(new Segment(charSequence, i, last,
-						parserLine(charSequence, factory, i, last, hypher, option)));
+				segments.add(parseSegment(charSequence, factory, i, last, hypher, option));
 			}
 			i = skipBlank(charSequence, last, len);
 		}
 		return segments;
 	}
 
-	private List<? extends Element> parserLine(CharSequence paragraph, ElementFactory factory,
-											   int start, int end, Hypher hypher, Option option) {
-		List<Element> list = new ArrayList<>();
-		List<String> hyphenated = new ArrayList<>(10);
+	private Segment parseSegment(CharSequence paragraph, ElementFactory factory,
+								 int start, int end, Hypher hypher, Option option) {
+		Segment.Builder builder = new Segment.Builder(paragraph, start, end, factory);
 
 		for (int i = start; i < end; ) {
 			int last = findWord(paragraph, i, end);
 			int first = i;
 			i = skipBlank(paragraph, last, end);
-			int len = last - first;
-			if (len <= 0) {
+			if (first == last) {
 				continue;
 			}
 
-			hypher.hyphenate(String.valueOf(paragraph), first, len, hyphenated);
-			int size = hyphenated.size();
-			if (size == 0 || len < option.MIN_HYPER_LEN) {
-				list.add(factory.obtainBox(paragraph, first, last));
-			} else {
-				for (int j = 0; j < size; ++j) {
-					String item = hyphenated.get(j);
-					list.add(factory.obtainBox(item));
-					if (j != size - 1 && !item.isEmpty() && item.charAt(item.length() - 1) != '-') {
-						list.add(new Penalty(option.getHyphenWidth(), option.HYPHEN_PENALTY, true));
-					}
-				}
-			}
-			hyphenated.clear();
-
-			list.add(new Glue(option.getSpaceWidth(), option.getSpaceStretch(), option.getSpaceShrink()));
+			builder.text(hypher, option, paragraph, first, last);
 		}
-
-		if (!list.isEmpty()) {
-			list.remove(list.size() - 1);
-		}
-
-		list.add(new Glue(0, option.INFINITY, 0));
-		list.add(new Penalty(0, -option.INFINITY, true));
-
-		return list;
+		return builder.build();
 	}
 
 	private int findWord(CharSequence charSequence, int start, int end) {
