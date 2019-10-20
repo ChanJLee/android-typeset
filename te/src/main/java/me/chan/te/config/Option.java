@@ -4,6 +4,7 @@ import android.text.TextPaint;
 
 import me.chan.te.measurer.Measurer;
 
+// TODO remove
 public class Option {
 
 	/**
