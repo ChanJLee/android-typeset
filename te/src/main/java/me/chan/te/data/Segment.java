@@ -46,7 +46,6 @@ public final class Segment {
 			mElementFactory = factory;
 		}
 
-		// TODO option.getHyphenWidth()
 		public Builder text(Hypher hypher, Option option, CharSequence text, int start, int end) {
 			int len = end - start;
 			hypher.hyphenate(String.valueOf(text), start, end - start, mHyphenated);
