@@ -20,6 +20,7 @@ import java.util.concurrent.Future;
 
 import me.chan.te.R;
 import me.chan.te.measurer.AndroidMeasurer;
+import me.chan.te.measurer.Measurer;
 import me.chan.te.text.BreakStrategy;
 import me.chan.te.config.LineAttributes;
 import me.chan.te.config.Option;
@@ -53,6 +54,7 @@ public class Adapter extends RecyclerView.Adapter<TexViewHolder> {
 	private int mWidth = -1;
 	private Parser mParser = new TextParser();
 	private Future<?> mTask;
+	private Measurer mMeasurer;
 	private BreakStrategy mBreakStrategy = BreakStrategy.BALANCED;
 
 	public Adapter(Context context) {
@@ -63,7 +65,8 @@ public class Adapter extends RecyclerView.Adapter<TexViewHolder> {
 				DEFAULT_TEXT_SIZE,
 				context.getResources().getDisplayMetrics())
 		);
-		mOption = new Option(mTextPaint);
+		mMeasurer = new AndroidMeasurer();
+		mOption = new Option(mMeasurer, mTextPaint);
 		mHandler = new Handler(Looper.getMainLooper());
 		mElementFactory = new ElementFactory(new AndroidMeasurer());
 	}
@@ -215,7 +218,7 @@ public class Adapter extends RecyclerView.Adapter<TexViewHolder> {
 		}
 
 		mTextPaint.setTextSize(textSize);
-		mOption.refresh(mTextPaint);
+		mOption.refresh(mMeasurer, mTextPaint);
 		refresh();
 	}
 

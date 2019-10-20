@@ -10,7 +10,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.List;
 
-import me.chan.te.config.Option;
 import me.chan.te.data.Box;
 import me.chan.te.data.Element;
 import me.chan.te.data.ElementFactory;
@@ -21,6 +20,7 @@ import me.chan.te.data.TextBox;
 import me.chan.te.hypher.Hypher;
 import me.chan.te.parser.TextParser;
 import me.chan.te.test.mock.MockMeasurer;
+import me.chan.te.test.mock.MockOption;
 import me.chan.te.test.mock.MockTextPaint;
 
 import static org.junit.Assert.assertEquals;
@@ -32,26 +32,26 @@ public class ParserUnitTest {
 	public void testBase() {
 		MockTextPaint paint = new MockTextPaint();
 		paint.setTextSize(18);
-		Option option = new Option(paint);
+		MockOption MockOption = new MockOption(paint);
 		ElementFactory factory = new ElementFactory(new MockMeasurer(paint));
 		TextParser textParser = new TextParser();
-		List<Segment> segments = textParser.parser("hello\n\nworld\n\n", factory, Hypher.getInstance(), option);
+		List<Segment> segments = textParser.parser("hello\n\nworld\n\n", factory, Hypher.getInstance(), MockOption);
 		assertEquals(segments.size(), 2);
 
-		segments = textParser.parser("hello\n\nworld\n", factory, Hypher.getInstance(), option);
+		segments = textParser.parser("hello\n\nworld\n", factory, Hypher.getInstance(), MockOption);
 		assertEquals(segments.size(), 2);
 
-		segments = textParser.parser("", factory, Hypher.getInstance(), option);
+		segments = textParser.parser("", factory, Hypher.getInstance(), MockOption);
 		assertEquals(segments.size(), 0);
 
 		try {
-			textParser.parser(null, factory, Hypher.getInstance(), option);
+			textParser.parser(null, factory, Hypher.getInstance(), MockOption);
 			Assert.fail("test parser null string");
 		} catch (Exception e) {
 			/* do nothing */
 		}
 
-		segments = textParser.parser(" hello", factory, Hypher.getInstance(), option);
+		segments = textParser.parser(" hello", factory, Hypher.getInstance(), MockOption);
 		assertEquals(segments.size(), 1);
 
 		Segment segment = segments.get(0);
@@ -65,7 +65,7 @@ public class ParserUnitTest {
 		Box box = (Box) list.get(0);
 		assertEquals("check box content: ", box.toString(), "hello");
 
-		segments = textParser.parser(" triangle\n\n\n", factory, Hypher.getInstance(), option);
+		segments = textParser.parser(" triangle\n\n\n", factory, Hypher.getInstance(), MockOption);
 		assertEquals(segments.size(), 1);
 
 		segment = segments.get(0);
@@ -105,7 +105,7 @@ public class ParserUnitTest {
 		String line = null;
 		MockTextPaint paint = new MockTextPaint();
 		ElementFactory factory = new ElementFactory(new MockMeasurer(paint));
-		Option option = new Option(paint);
+		MockOption MockOption = new MockOption(paint);
 		int lineNumber = 0;
 		TextParser textParser = new TextParser();
 		while ((line = bufferedReader.readLine()) != null) {
@@ -116,7 +116,7 @@ public class ParserUnitTest {
 
 			String contentWithoutBlank = line.replaceAll("\\p{Z}+|\\t|\\r|\\n", "");
 			StringBuilder stringBuilder = new StringBuilder();
-			List<Segment> segments = textParser.parser(line, factory, Hypher.getInstance(), option);
+			List<Segment> segments = textParser.parser(line, factory, Hypher.getInstance(), MockOption);
 			if (contentWithoutBlank.isEmpty()) {
 				assertTrue(segments.isEmpty());
 				continue;
@@ -144,7 +144,7 @@ public class ParserUnitTest {
 		String line = null;
 		MockTextPaint paint = new MockTextPaint();
 		ElementFactory factory = new ElementFactory(new MockMeasurer(paint));
-		Option option = new Option(paint);
+		MockOption MockOption = new MockOption(paint);
 		StringBuilder stringBuilder = new StringBuilder();
 		TextParser textParser = new TextParser();
 		while ((line = bufferedReader.readLine()) != null) {
@@ -154,7 +154,7 @@ public class ParserUnitTest {
 		String content = stringBuilder.toString();
 		stringBuilder = new StringBuilder();
 		long timestamp = System.currentTimeMillis();
-		List<Segment> segments = textParser.parser(content, factory, Hypher.getInstance(), option);
+		List<Segment> segments = textParser.parser(content, factory, Hypher.getInstance(), MockOption);
 		System.out.println("used time: " + (System.currentTimeMillis() - timestamp));
 		for (Segment segment : segments) {
 			for (Element element : segment.getElements()) {
