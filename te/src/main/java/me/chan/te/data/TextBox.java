@@ -52,8 +52,6 @@ public final class TextBox extends Box implements Element, Cloneable {
 			return false;
 		}
 
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
 		TextBox box = (TextBox) o;
 		return Float.compare(box.mWidth, mWidth) == 0 &&
 				Float.compare(box.mHeight, mHeight) == 0 &&

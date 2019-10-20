@@ -26,7 +26,10 @@ public abstract class Box implements Cloneable, Element {
 
 	@CallSuper
 	public boolean equals(Object o) {
-		if (!super.equals(o)) {
+		if (this == o) {
+			return true;
+		}
+		if (o == null || getClass() != o.getClass()) {
 			return false;
 		}
 
