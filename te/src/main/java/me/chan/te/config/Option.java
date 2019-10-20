@@ -1,7 +1,8 @@
 package me.chan.te.config;
 
-import android.text.Layout;
 import android.text.TextPaint;
+
+import me.chan.te.measurer.Measurer;
 
 public class Option {
 	public static final float INFINITY = 1000;
@@ -26,12 +27,12 @@ public class Option {
 	private float mIndentWidth;
 	private float mLineSpacing;
 
-	public Option(TextPaint textPaint) {
-		refresh(textPaint);
+	public Option(Measurer measurer, TextPaint textPaint) {
+		refresh(measurer, textPaint);
 	}
 
-	public void refresh(TextPaint textPaint) {
-		mHyphenWidth = Layout.getDesiredWidth("-", textPaint);
+	public void refresh(Measurer measurer, TextPaint textPaint) {
+		mHyphenWidth = measurer.getDesiredWidth("-", 0, 1, textPaint);
 		mSpaceWidth = mHyphenWidth;
 		mSpaceStretch = mSpaceWidth * 1.1f;
 		mSpaceShrink = mSpaceWidth * 0.9f;
