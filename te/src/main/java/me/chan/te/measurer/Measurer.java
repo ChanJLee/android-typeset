@@ -6,4 +6,6 @@ public interface Measurer {
 	float getDesiredWidth(CharSequence charSequence, int start, int end, TextPaint textPaint);
 
 	float getDesiredHeight(CharSequence charSequence, int start, int end, TextPaint textPaint);
+
+	float getFontSpacing(TextPaint textPaint);
 }

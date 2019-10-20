@@ -16,4 +16,9 @@ public class AndroidMeasurer implements Measurer {
 		Paint.FontMetrics fontMetrics = textPaint.getFontMetrics();
 		return fontMetrics.bottom - fontMetrics.top;
 	}
+
+	@Override
+	public float getFontSpacing(TextPaint textPaint) {
+		return textPaint.getFontSpacing();
+	}
 }
