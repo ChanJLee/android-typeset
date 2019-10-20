@@ -8,9 +8,9 @@ import java.util.LinkedList;
 import java.util.List;
 
 import me.chan.te.config.LineAttributes;
-import me.chan.te.config.Option;
 import me.chan.te.data.Box;
 import me.chan.te.data.Element;
+import me.chan.te.data.Glue;
 import me.chan.te.data.Line;
 import me.chan.te.data.Paragraph;
 import me.chan.te.data.Penalty;
@@ -18,12 +18,10 @@ import me.chan.te.data.Segment;
 import me.chan.te.text.BreakStrategy;
 
 class SimpleTypesetter implements Typesetter {
-	private Option mOption;
 	private TextPaint mPaint;
 	private TextPaint mWorkPaint = new TextPaint();
 
-	SimpleTypesetter(TextPaint paint, Option option) {
-		mOption = option;
+	SimpleTypesetter(TextPaint paint) {
 		mPaint = paint;
 	}
 
@@ -61,11 +59,17 @@ class SimpleTypesetter implements Typesetter {
 
 		List<Box> boxes = new ArrayList<>(12);
 		float lineHeight = 0f;
-		float spaceWidth = mOption.getSpaceWidth();
 		float currentLineWidth = 0f;
 
 		while (start < size) {
 			Element element = elements.get(start);
+			if (element instanceof Glue) {
+				Glue glue = (Glue) element;
+				currentLineWidth += (breakStrategy == BreakStrategy.BALANCED ? glue.getShrink() : glue.getWidth());
+				++start;
+				continue;
+			}
+
 			if (!(element instanceof Box)) {
 				++start;
 				continue;
@@ -85,7 +89,7 @@ class SimpleTypesetter implements Typesetter {
 
 			start = next;
 			boxes.add(box);
-			currentLineWidth += (box.getWidth(mWorkPaint) + spaceWidth);
+			currentLineWidth += (box.getWidth(mWorkPaint));
 			if (lineHeight < box.getHeight(mWorkPaint)) {
 				lineHeight = box.getHeight(mWorkPaint);
 			}
@@ -96,11 +100,8 @@ class SimpleTypesetter implements Typesetter {
 			return spiltIf(lines, elements, start, boxes, width);
 		}
 
-		if (breakStrategy == BreakStrategy.BALANCED && boxes.size() > 1 && start != size) {
-			spaceWidth = spaceWidth + (width - currentLineWidth) / (boxes.size() - 1);
-		}
 
-		lines.add(new Line(boxes, lineHeight, spaceWidth, 0));
+		lines.add(new Line(boxes, lineHeight, 0));
 		return start;
 	}
 
@@ -108,10 +109,12 @@ class SimpleTypesetter implements Typesetter {
 						int start, float currentLineWidth, float width) {
 		Box clone = null;
 		for (; start < elements.size(); ++start) {
-			if (!(elements.get(start) instanceof Penalty)) {
+			Element element = elements.get(start);
+			if (!(element instanceof Penalty)) {
 				break;
 			}
 
+			Penalty penalty = (Penalty) element;
 			if (start + 1 < elements.size() &&
 					!(elements.get(start + 1) instanceof Box)) {
 				break;
@@ -131,7 +134,7 @@ class SimpleTypesetter implements Typesetter {
 
 			// 如果超出当前的长度 那么直接结束
 			if (currentLineWidth + cloneWidth + nextWidth > width) {
-				if (currentLineWidth + cloneWidth + mOption.getHyphenWidth() <= width) {
+				if (currentLineWidth + cloneWidth + penalty.getPenalty() <= width) {
 					++start;
 					clone.append("-");
 					clone.setFlag(Box.FLAG_PENALTY);
@@ -169,7 +172,7 @@ class SimpleTypesetter implements Typesetter {
 			++start;
 		}
 
-		lines.add(new Line(boxes, box.getHeight(mWorkPaint), 0, 0));
+		lines.add(new Line(boxes, box.getHeight(mWorkPaint), 0));
 		return start;
 	}
 }

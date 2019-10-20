@@ -7,6 +7,7 @@ import android.graphics.Paint;
 import android.graphics.Rect;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.util.SparseArrayCompat;
 import android.text.TextPaint;
 import android.util.AttributeSet;
 import android.view.GestureDetector;
@@ -17,6 +18,7 @@ import java.util.List;
 
 import me.chan.te.annotations.Hidden;
 import me.chan.te.config.LineAttributes;
+import me.chan.te.config.Option;
 import me.chan.te.data.Box;
 import me.chan.te.text.Gravity;
 import me.chan.te.data.Line;
@@ -39,6 +41,8 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 	private Box mSelectedSuffix;
 	private TextPaint mWorkPaint = new TextPaint();
 	private boolean mDebugMode = false;
+	private Option mOption;
+	private SparseArrayCompat<Float> mLineWordSpaces = new SparseArrayCompat<>();
 
 	public ParagraphView(Context context) {
 		super(context);
@@ -54,9 +58,11 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 
 	// TODO opt
 	void render(@NonNull Paragraph paragraph,
-				@NonNull TextPaint paint) {
+				@NonNull TextPaint paint,
+				Option option) {
 		mParagraph = paragraph;
 		mPaint = paint;
+		mOption = option;
 		requestLayout();
 	}
 
@@ -143,7 +149,8 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 
 		LineAttributes lineAttributes = mParagraph.getLineAttributes();
 		List<Line> lines = mParagraph.getLines();
-		for (int i = 0; i < lines.size(); ++i) {
+		int size = lines.size();
+		for (int i = 0; i < size; ++i) {
 			Line line = lines.get(i);
 			y += line.getLineHeight();
 			float x = getPaddingLeft();
@@ -155,13 +162,26 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 			}
 
 			float lineSpace = attribute.getLineVerticalSpace();
-			draw(canvas, line, x, y, lineSpace);
+			draw(canvas, line, x, y, lineSpace, i == size - 1, i, attribute.getLineWidth());
 			y += lineSpace;
 		}
 	}
 
-	private void draw(Canvas canvas, Line line, float x, float y, float lineSpace) {
+	private void draw(Canvas canvas, Line line, float x, float y, float lineSpace,
+					  boolean isLastLine, int lineNumber, float lineWidth) {
 		List<Box> boxes = line.getBoxes();
+		int boxCount = boxes.size();
+		float spaceWidth = mOption.getSpaceWidth();
+		if (boxCount > 1) {
+			spaceWidth = (lineWidth - line.getLineWidth()) / (boxCount - 1);
+		}
+
+		// 最后一行如果我能放的下，没必要压缩或者拉伸
+		if (isLastLine && (line.getLineWidth() + (boxCount - 1) * mOption.getSpaceWidth()) <= lineWidth) {
+			spaceWidth = mOption.getSpaceWidth();
+		}
+
+		mLineWordSpaces.put(lineNumber, spaceWidth);
 
 		for (int i = 0; i < boxes.size(); ++i) {
 			Box box = boxes.get(i);
@@ -185,14 +205,14 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 			}
 
 			box.draw(canvas, textPaint, x, y);
-			x += (line.getSpaceWidth() + width);
+			x += (spaceWidth + width);
 		}
 
 		if (mDebugMode) {
 			float startX = 0;
 			float startY = y + lineSpace;
 			Rect rect = new Rect();
-			String debugInfo = line.getRatio() + " " + line.getSpaceWidth();
+			String debugInfo = line.getRatio() + " " + spaceWidth;
 			mDebugPaint.getTextBounds(debugInfo, 0, debugInfo.length(), rect);
 			mDebugPaint.setColor(Color.BLUE);
 			rect.offset((int) startX, (int) startY);
@@ -235,6 +255,10 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 		}
 
 		List<Box> boxes = targetLine.getBoxes();
+		float spaceWidth = mOption.getSpaceWidth();
+		if (mLineWordSpaces.containsKey(lineNumber)) {
+			spaceWidth = mLineWordSpaces.get(lineNumber);
+		}
 
 		int boxSize = boxes.size();
 		float offsetX = getPaddingLeft();
@@ -249,7 +273,7 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 				break;
 			}
 
-			offsetX = (nextOffsetX + targetLine.getSpaceWidth());
+			offsetX = (nextOffsetX + spaceWidth);
 		}
 
 		if (target == null) {

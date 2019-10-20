@@ -8,9 +8,7 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
-import me.chan.te.text.BreakStrategy;
 import me.chan.te.config.LineAttributes;
-import me.chan.te.config.Option;
 import me.chan.te.data.Box;
 import me.chan.te.data.Element;
 import me.chan.te.data.ElementFactory;
@@ -20,6 +18,7 @@ import me.chan.te.data.Paragraph;
 import me.chan.te.data.Penalty;
 import me.chan.te.data.Segment;
 import me.chan.te.log.Log;
+import me.chan.te.text.BreakStrategy;
 
 class TexTypesetter implements Typesetter {
 	private static final int CLASS_0 = 0;
@@ -27,14 +26,12 @@ class TexTypesetter implements Typesetter {
 	private static final int CLASS_2 = 2;
 	private static final int CLASS_3 = 3;
 
-	private Option mOption;
 	private TextPaint mPaint;
 	private TextPaint mWorkPaint = new TextPaint();
 
 	private ElementFactory mElementFactory;
 
-	TexTypesetter(TextPaint paint, Option option, ElementFactory elementFactory) {
-		mOption = option;
+	TexTypesetter(TextPaint paint, ElementFactory elementFactory) {
 		mPaint = paint;
 		mElementFactory = elementFactory;
 	}
@@ -151,20 +148,14 @@ class TexTypesetter implements Typesetter {
 					elements,
 					lineStart,
 					lineEnd,
-					lineAttributes,
-					i + 1 == breakPoints.size(),
-					breakPoint.ratio,
-					i - 1));
+					breakPoint.ratio));
 			lineStart = pos;
 		}
 		return lines;
 	}
 
-	private Line createLine(List<? extends Element> lineElements, int start, int end,
-							LineAttributes lineAttributes, boolean lastLine, float ratio,
-							int lineNumber) {
+	private Line createLine(List<? extends Element> lineElements, int start, int end, float ratio) {
 		float lineHeight = 0;
-		float wordWidth = 0;
 		List<Box> boxes = new ArrayList<>();
 		for (int i = start; i < end; ++i) {
 			Element element = lineElements.get(i);
@@ -179,26 +170,12 @@ class TexTypesetter implements Typesetter {
 			if (lineHeight < box.getHeight(mWorkPaint)) {
 				lineHeight = box.getHeight(mWorkPaint);
 			}
-			wordWidth += box.getWidth(mWorkPaint);
 			boxes.add(box);
-		}
-
-		float spaceWidth = mOption.getSpaceWidth();
-		int boxCount = boxes.size();
-		float lineWidth = lineAttributes.get(lineNumber).getLineWidth();
-		if (boxCount > 1) {
-			spaceWidth = (lineWidth - wordWidth) / (boxCount - 1);
-		}
-
-		// 最后一行如果我能放的下，没必要压缩或者拉伸
-		if (lastLine && (wordWidth + (boxCount - 1) * mOption.getSpaceWidth()) <= lineWidth) {
-			spaceWidth = mOption.getSpaceWidth();
 		}
 
 		return new Line(
 				boxes,
 				lineHeight,
-				spaceWidth,
 				ratio
 		);
 	}
