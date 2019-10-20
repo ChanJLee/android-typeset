@@ -4,7 +4,9 @@ import android.text.TextPaint;
 
 import me.chan.te.measurer.Measurer;
 
-// TODO remove
+// TODO
+// 对于不同的text size, 空格的参数是一样的
+// 但是 - hyphen不一样
 public class Option {
 
 	/**
