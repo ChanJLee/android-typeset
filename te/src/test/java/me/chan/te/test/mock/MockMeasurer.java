@@ -20,4 +20,9 @@ public class MockMeasurer implements Measurer {
 	public float getDesiredHeight(CharSequence charSequence, int start, int end, TextPaint textPaint) {
 		return mMockTextPaint.getMockTextHeight();
 	}
+
+	@Override
+	public float getFontSpacing(TextPaint textPaint) {
+		return 20;
+	}
 }

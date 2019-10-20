@@ -40,7 +40,7 @@ public class Option {
 		// 首行缩进四个空格
 		mIndentWidth = mSpaceWidth * 4;
 		// 1.0 倍行间距
-		mLineSpacing = (int) (textPaint.getFontSpacing());
+		mLineSpacing = (int) (measurer.getFontSpacing(textPaint));
 	}
 
 	public float getHyphenWidth() {
