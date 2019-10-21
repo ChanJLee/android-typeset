@@ -25,16 +25,22 @@ public class ElementFactory {
 	}
 
 	public Box obtainTextBox(@NonNull CharSequence charSequence, int start, int end, BoxStyle boxStyle) {
-		if (charSequence == null) {
-			return null;
-		}
-
 		TextBox box = mBoxPool.acquire();
 		if (box == null) {
-			box = new TextBox(mMeasurer);
+			return new TextBox(mMeasurer);
 		}
+
 		box.reset(charSequence, start, end, boxStyle);
 		return box;
+	}
+
+	public Glue obtainGlue(float width, float stretch, float shrink) {
+		Glue glue = mGluePool.acquire();
+		if (glue == null) {
+			return new Glue(width, stretch, shrink);
+		}
+		glue.reset(width, stretch, shrink);
+		return glue;
 	}
 
 	public void recycle(Element element) {
