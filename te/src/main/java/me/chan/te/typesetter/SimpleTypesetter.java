@@ -17,6 +17,7 @@ import me.chan.te.data.Penalty;
 import me.chan.te.data.Segment;
 import me.chan.te.text.BreakStrategy;
 
+// TODO element recycle
 class SimpleTypesetter implements Typesetter {
 	private TextPaint mPaint;
 	private TextPaint mWorkPaint = new TextPaint();
@@ -60,6 +61,7 @@ class SimpleTypesetter implements Typesetter {
 		List<Box> boxes = new ArrayList<>(12);
 		float lineHeight = 0f;
 		float currentLineWidth = 0f;
+		float lineWidth = 0f;
 
 		while (start < size) {
 			Element element = elements.get(start);
@@ -89,7 +91,10 @@ class SimpleTypesetter implements Typesetter {
 
 			start = next;
 			boxes.add(box);
-			currentLineWidth += (box.getWidth(mWorkPaint));
+			float boxWidth = box.getWidth(mWorkPaint);
+			currentLineWidth += boxWidth;
+			lineWidth += boxWidth;
+
 			if (lineHeight < box.getHeight(mWorkPaint)) {
 				lineHeight = box.getHeight(mWorkPaint);
 			}
@@ -100,8 +105,7 @@ class SimpleTypesetter implements Typesetter {
 			return spiltIf(lines, elements, start, boxes, width);
 		}
 
-
-		lines.add(new Line(boxes, lineHeight, 0));
+		lines.add(new Line(boxes, lineHeight, lineWidth, 0));
 		return start;
 	}
 
@@ -172,7 +176,7 @@ class SimpleTypesetter implements Typesetter {
 			++start;
 		}
 
-		lines.add(new Line(boxes, box.getHeight(mWorkPaint), 0));
+		lines.add(new Line(boxes, box.getHeight(mWorkPaint), width, 0));
 		return start;
 	}
 }
