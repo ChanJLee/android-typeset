@@ -57,12 +57,12 @@ public final class Segment {
 					String item = mHyphenated.get(j);
 					mElements.add(mElementFactory.obtainTextBox(item));
 					if (j != size - 1 && !item.isEmpty() && item.charAt(item.length() - 1) != '-') {
-						mElements.add(new Penalty(option.getHyphenWidth(), Typesetter.HYPHEN_PENALTY, true));
+						mElements.add(mElementFactory.obtainPenalty(option.getHyphenWidth(), Typesetter.HYPHEN_PENALTY, true));
 					}
 				}
 			}
 			mHyphenated.clear();
-			mElements.add(new Glue(option.getSpaceWidth(), option.getSpaceStretch(), option.getSpaceShrink()));
+			mElements.add(mElementFactory.obtainGlue(option.getSpaceWidth(), option.getSpaceStretch(), option.getSpaceShrink()));
 			return this;
 		}
 
