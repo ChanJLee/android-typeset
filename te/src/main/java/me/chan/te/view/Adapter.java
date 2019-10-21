@@ -80,7 +80,7 @@ public class Adapter extends RecyclerView.Adapter<TexViewHolder> {
 	@Override
 	public void onBindViewHolder(@NonNull TexViewHolder texViewHolder, int position) {
 		texViewHolder.mParagraphView.setDebugMode(mDebugMode);
-		texViewHolder.mParagraphView.render(mParagraphs.get(position), mTextPaint);
+		texViewHolder.mParagraphView.render(mParagraphs.get(position), mTextPaint, mOption);
 	}
 
 	@Override
@@ -160,7 +160,7 @@ public class Adapter extends RecyclerView.Adapter<TexViewHolder> {
 	}
 
 	private synchronized void refreshInternal() {
-		CoreTypesetter texTypesetter = new CoreTypesetter(mTextPaint, mOption, mElementFactory);
+		CoreTypesetter texTypesetter = new CoreTypesetter(mTextPaint, mElementFactory);
 		long timestamp = SystemClock.elapsedRealtime();
 		List<Segment> segments = mParser.parser(mContent, mElementFactory, Hypher.getInstance(), mOption);
 		d("parse used time: " + (SystemClock.elapsedRealtime() - timestamp) + " segments: " + segments.size());

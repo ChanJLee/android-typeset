@@ -157,6 +157,7 @@ class TexTypesetter implements Typesetter {
 	private Line createLine(List<? extends Element> lineElements, int start, int end, float ratio) {
 		float lineHeight = 0;
 		List<Box> boxes = new ArrayList<>();
+		float lineWidth = 0;
 		for (int i = start; i < end; ++i) {
 			Element element = lineElements.get(i);
 			if (!(element instanceof Box)) {
@@ -170,12 +171,15 @@ class TexTypesetter implements Typesetter {
 			if (lineHeight < box.getHeight(mWorkPaint)) {
 				lineHeight = box.getHeight(mWorkPaint);
 			}
+
+			lineWidth += box.getWidth(mWorkPaint);
 			boxes.add(box);
 		}
 
 		return new Line(
 				boxes,
 				lineHeight,
+				lineWidth,
 				ratio
 		);
 	}
