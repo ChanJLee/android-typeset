@@ -43,6 +43,15 @@ public class ElementFactory {
 		return glue;
 	}
 
+	public Penalty obtainPenalty(float width, float penalty, boolean flag) {
+		Penalty p = mPenaltyPool.acquire();
+		if (p == null) {
+			return new Penalty(width, penalty, flag);
+		}
+		p.reset(width, penalty, flag);
+		return p;
+	}
+
 	public void recycle(Element element) {
 		if (element == null) {
 			return;
