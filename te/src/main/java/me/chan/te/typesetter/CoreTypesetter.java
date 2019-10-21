@@ -15,7 +15,7 @@ public class CoreTypesetter implements Typesetter {
 
 	public CoreTypesetter(TextPaint paint, ElementFactory elementFactory) {
 		mTexTypesetter = new TexTypesetter(paint, elementFactory);
-		mSimpleTypesetter = new SimpleTypesetter(paint);
+		mSimpleTypesetter = new SimpleTypesetter(paint, elementFactory);
 	}
 
 	@Nullable

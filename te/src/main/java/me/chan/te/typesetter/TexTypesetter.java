@@ -60,7 +60,7 @@ class TexTypesetter implements Typesetter {
 			return null;
 		}
 
-		List<Line> lines = typesetParagraph(segment, breakPoints, lineAttributes);
+		List<Line> lines = typesetParagraph(segment, breakPoints);
 		paragraph.setLines(lines);
 
 		return paragraph;
@@ -122,8 +122,7 @@ class TexTypesetter implements Typesetter {
 	}
 
 	private List<Line> typesetParagraph(Segment segment,
-										List<BreakPoint> breakPoints,
-										LineAttributes lineAttributes) {
+										List<BreakPoint> breakPoints) {
 		List<? extends Element> elements = segment.getElements();
 		List<Line> lines = new LinkedList<>();
 		int lineStart = 0;

@@ -42,6 +42,8 @@ public class ElementFactory {
 			return;
 		}
 
+		element.release();
+
 		if (element instanceof TextBox) {
 			mBoxPool.release((TextBox) element);
 		} else if (element instanceof Penalty) {
