@@ -40,6 +40,14 @@ public final class TextBox extends Box implements Element, Cloneable {
 	}
 
 	@Override
+	public void release() {
+		mText = null;
+		mBoxStyle = null;
+		mWidth = mHeight = -1;
+		mStart = mEnd = 0;
+	}
+
+	@Override
 	public Object clone() {
 		TextBox copy = new TextBox(mMeasurer);
 		copy.copy(this);

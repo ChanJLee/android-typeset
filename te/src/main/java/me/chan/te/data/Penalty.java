@@ -4,12 +4,12 @@ public final class Penalty implements Element {
 	/**
 	 * where3 = 1 if xi is a flagged mPenalty, otherwise = 0.
 	 */
-	private final boolean mFlag;
+	private boolean mFlag;
 
 	/**
 	 * where pi is the mPenalty at xi if ti=‘mPenalty’, otherwise pi= 0;
 	 */
-	private final float mPenalty;
+	private float mPenalty;
 	private float mWidth;
 
 	public Penalty(float width, float penalty, boolean flag) {
@@ -37,5 +37,16 @@ public final class Penalty implements Element {
 				", mPenalty=" + mPenalty +
 				", mWidth=" + mWidth +
 				'}';
+	}
+
+	@Override
+	public void release() {
+		/* do nothing */
+	}
+
+	public void reset(float width, float penalty, boolean flag) {
+		mWidth = width;
+		mPenalty = penalty;
+		mFlag = false;
 	}
 }

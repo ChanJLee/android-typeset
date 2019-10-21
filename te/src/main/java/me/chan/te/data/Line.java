@@ -5,14 +5,14 @@ import java.util.List;
 public class Line {
 	private List<Box> mBoxes;
 	private float mLineHeight;
-	private float mSpaceWidth;
+	private float mLineWidth;
 	private float mRatio;
 
-	public Line(List<Box> boxes, float lineHeight, float spaceWidth, float ratio) {
+	public Line(List<Box> boxes, float lineHeight, float lineWidth, float ratio) {
 		mBoxes = boxes;
 		mLineHeight = lineHeight;
-		mSpaceWidth = spaceWidth;
 		mRatio = ratio;
+		mLineWidth = lineWidth;
 	}
 
 	public List<Box> getBoxes() {
@@ -23,11 +23,11 @@ public class Line {
 		return mLineHeight;
 	}
 
-	public float getSpaceWidth() {
-		return mSpaceWidth;
-	}
-
 	public float getRatio() {
 		return mRatio;
+	}
+
+	public float getLineWidth() {
+		return mLineWidth;
 	}
 }
