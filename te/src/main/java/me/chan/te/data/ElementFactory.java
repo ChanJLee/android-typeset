@@ -16,31 +16,48 @@ public class ElementFactory {
 		mMeasurer = measurer;
 	}
 
-	public Box obtainTextBox(@NonNull CharSequence charSequence) {
+	public TextBox obtainTextBox(@NonNull CharSequence charSequence) {
 		return obtainTextBox(charSequence, 0, charSequence.length());
 	}
 
-	public Box obtainTextBox(@NonNull CharSequence charSequence, int start, int end) {
+	public TextBox obtainTextBox(@NonNull CharSequence charSequence, int start, int end) {
 		return obtainTextBox(charSequence, start, end, null);
 	}
 
-	public Box obtainTextBox(@NonNull CharSequence charSequence, int start, int end, BoxStyle boxStyle) {
-		if (charSequence == null) {
-			return null;
-		}
-
+	public TextBox obtainTextBox(@NonNull CharSequence charSequence, int start, int end, BoxStyle boxStyle) {
 		TextBox box = mBoxPool.acquire();
 		if (box == null) {
 			box = new TextBox(mMeasurer);
 		}
+
 		box.reset(charSequence, start, end, boxStyle);
 		return box;
+	}
+
+	public Glue obtainGlue(float width, float stretch, float shrink) {
+		Glue glue = mGluePool.acquire();
+		if (glue == null) {
+			return new Glue(width, stretch, shrink);
+		}
+		glue.reset(width, stretch, shrink);
+		return glue;
+	}
+
+	public Penalty obtainPenalty(float width, float penalty, boolean flag) {
+		Penalty p = mPenaltyPool.acquire();
+		if (p == null) {
+			return new Penalty(width, penalty, flag);
+		}
+		p.reset(width, penalty, flag);
+		return p;
 	}
 
 	public void recycle(Element element) {
 		if (element == null) {
 			return;
 		}
+
+		element.release();
 
 		if (element instanceof TextBox) {
 			mBoxPool.release((TextBox) element);

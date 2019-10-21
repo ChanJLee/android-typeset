@@ -3,20 +3,19 @@ package me.chan.te.typesetter;
 import android.support.annotation.Nullable;
 import android.text.TextPaint;
 
-import me.chan.te.text.BreakStrategy;
 import me.chan.te.config.LineAttributes;
-import me.chan.te.config.Option;
 import me.chan.te.data.ElementFactory;
 import me.chan.te.data.Paragraph;
 import me.chan.te.data.Segment;
+import me.chan.te.text.BreakStrategy;
 
 public class CoreTypesetter implements Typesetter {
 	private Typesetter mTexTypesetter;
 	private Typesetter mSimpleTypesetter;
 
-	public CoreTypesetter(TextPaint paint, Option option, ElementFactory elementFactory) {
-		mTexTypesetter = new TexTypesetter(paint, option, elementFactory);
-		mSimpleTypesetter = new SimpleTypesetter(paint, option);
+	public CoreTypesetter(TextPaint paint, ElementFactory elementFactory) {
+		mTexTypesetter = new TexTypesetter(paint, elementFactory);
+		mSimpleTypesetter = new SimpleTypesetter(paint, elementFactory);
 	}
 
 	@Nullable

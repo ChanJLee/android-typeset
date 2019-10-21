@@ -201,7 +201,7 @@ public class TypesetterUnitTest {
 		Assert.assertNotEquals(option.getSpaceStretch(), 0);
 		Assert.assertNotEquals(option.getSpaceWidth(), 0);
 
-		CoreTypesetter texTypesetter = new CoreTypesetter(paint, option, factory);
+		CoreTypesetter texTypesetter = new CoreTypesetter(paint, factory);
 		TextParser textParser = new TextParser();
 		List<Segment> segments = textParser.parser(text, factory, Hypher.getInstance(), option);
 		assertFalse(segments.isEmpty());
