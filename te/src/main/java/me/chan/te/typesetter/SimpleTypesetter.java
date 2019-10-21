@@ -18,13 +18,14 @@ import me.chan.te.data.Penalty;
 import me.chan.te.data.Segment;
 import me.chan.te.text.BreakStrategy;
 
-// TODO element recycle
 class SimpleTypesetter implements Typesetter {
 	private TextPaint mPaint;
 	private TextPaint mWorkPaint = new TextPaint();
+	private ElementFactory mElementFactory;
 
 	SimpleTypesetter(TextPaint paint, ElementFactory elementFactory) {
 		mPaint = paint;
+		mElementFactory = elementFactory;
 	}
 
 	@NonNull
@@ -50,9 +51,11 @@ class SimpleTypesetter implements Typesetter {
 
 		// skip none box
 		for (; start < size; ++start) {
-			if (elements.get(start) instanceof Box) {
+			Element element = elements.get(start);
+			if (element instanceof Box) {
 				break;
 			}
+			mElementFactory.recycle(element);
 		}
 
 		if (start >= size) {
@@ -70,11 +73,13 @@ class SimpleTypesetter implements Typesetter {
 				Glue glue = (Glue) element;
 				currentLineWidth += (breakStrategy == BreakStrategy.BALANCED ? glue.getShrink() : glue.getWidth());
 				++start;
+				mElementFactory.recycle(element);
 				continue;
 			}
 
 			if (!(element instanceof Box)) {
 				++start;
+				mElementFactory.recycle(element);
 				continue;
 			}
 
