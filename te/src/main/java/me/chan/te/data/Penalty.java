@@ -38,4 +38,9 @@ public final class Penalty implements Element {
 				", mWidth=" + mWidth +
 				'}';
 	}
+
+	@Override
+	public void release() {
+		/* do nothing */
+	}
 }

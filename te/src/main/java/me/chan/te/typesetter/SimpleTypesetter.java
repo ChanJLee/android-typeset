@@ -10,6 +10,7 @@ import java.util.List;
 import me.chan.te.config.LineAttributes;
 import me.chan.te.data.Box;
 import me.chan.te.data.Element;
+import me.chan.te.data.ElementFactory;
 import me.chan.te.data.Glue;
 import me.chan.te.data.Line;
 import me.chan.te.data.Paragraph;
@@ -22,7 +23,7 @@ class SimpleTypesetter implements Typesetter {
 	private TextPaint mPaint;
 	private TextPaint mWorkPaint = new TextPaint();
 
-	SimpleTypesetter(TextPaint paint) {
+	SimpleTypesetter(TextPaint paint, ElementFactory elementFactory) {
 		mPaint = paint;
 	}
 

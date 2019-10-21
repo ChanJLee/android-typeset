@@ -39,4 +39,9 @@ public final class Glue implements Element {
 				", mWidth=" + mWidth +
 				'}';
 	}
+
+	@Override
+	public void release() {
+		/* do nothing */
+	}
 }
