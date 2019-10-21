@@ -13,7 +13,7 @@ public final class Glue implements Element {
 
 	private float mWidth;
 
-	public Glue(float width, float stretch, float shrink) {
+	Glue(float width, float stretch, float shrink) {
 		this.mStretch = stretch;
 		this.mShrink = shrink;
 		this.mWidth = width;
@@ -43,5 +43,11 @@ public final class Glue implements Element {
 	@Override
 	public void release() {
 		/* do nothing */
+	}
+
+	public void reset(float width, float stretch, float shrink) {
+		mWidth = width;
+		mStretch = stretch;
+		mShrink = shrink;
 	}
 }
