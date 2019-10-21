@@ -16,18 +16,18 @@ public class ElementFactory {
 		mMeasurer = measurer;
 	}
 
-	public Box obtainTextBox(@NonNull CharSequence charSequence) {
+	public TextBox obtainTextBox(@NonNull CharSequence charSequence) {
 		return obtainTextBox(charSequence, 0, charSequence.length());
 	}
 
-	public Box obtainTextBox(@NonNull CharSequence charSequence, int start, int end) {
+	public TextBox obtainTextBox(@NonNull CharSequence charSequence, int start, int end) {
 		return obtainTextBox(charSequence, start, end, null);
 	}
 
-	public Box obtainTextBox(@NonNull CharSequence charSequence, int start, int end, BoxStyle boxStyle) {
+	public TextBox obtainTextBox(@NonNull CharSequence charSequence, int start, int end, BoxStyle boxStyle) {
 		TextBox box = mBoxPool.acquire();
 		if (box == null) {
-			return new TextBox(mMeasurer);
+			box = new TextBox(mMeasurer);
 		}
 
 		box.reset(charSequence, start, end, boxStyle);

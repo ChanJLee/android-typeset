@@ -206,15 +206,15 @@ class TexTypesetter implements Typesetter {
 					break;
 				}
 
-				factory.recycle(element);
 				box.append(other);
+				factory.recycle(element);
 				continue;
 			}
 
 			if (element instanceof Penalty && start == end - 1) {
-				factory.recycle(element);
 				box.append("-");
 				box.setFlag(Box.FLAG_PENALTY);
+				factory.recycle(element);
 			}
 		}
 
