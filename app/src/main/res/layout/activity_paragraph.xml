@@ -105,7 +105,5 @@
                 android:layout_height="wrap_content"
                 android:text="蓝色字体" />
         </LinearLayout>
-
-
     </FrameLayout>
 </LinearLayout>
