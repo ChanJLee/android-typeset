@@ -6,7 +6,7 @@ public class MockOption extends Option {
 	private MockTextPaint mTextPaint;
 
 	public MockOption(MockTextPaint textPaint) {
-		super(new MockMeasurer(textPaint), textPaint);
+		super(new MockMeasurer(textPaint));
 		mTextPaint = textPaint;
 	}
 

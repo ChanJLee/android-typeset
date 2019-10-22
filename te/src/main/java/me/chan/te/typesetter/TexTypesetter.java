@@ -26,13 +26,9 @@ class TexTypesetter implements Typesetter {
 	private static final int CLASS_2 = 2;
 	private static final int CLASS_3 = 3;
 
-	private TextPaint mPaint;
-	private TextPaint mWorkPaint = new TextPaint();
-
 	private ElementFactory mElementFactory;
 
-	TexTypesetter(TextPaint paint, ElementFactory elementFactory) {
-		mPaint = paint;
+	TexTypesetter(ElementFactory elementFactory) {
 		mElementFactory = elementFactory;
 	}
 
@@ -107,18 +103,7 @@ class TexTypesetter implements Typesetter {
 			return glue.getWidth();
 		}
 
-		return getBoxWidth((Box) element);
-	}
-
-	private float getBoxWidth(Box box) {
-		TextPaint textPaint = getInternalPaint();
-		return box.getWidth(textPaint);
-	}
-
-	private TextPaint getInternalPaint() {
-		TextPaint textPaint = mWorkPaint;
-		textPaint.set(mPaint);
-		return textPaint;
+		return ((Box) element).getWidth();
 	}
 
 	private List<Line> typesetParagraph(Segment segment,
@@ -167,11 +152,11 @@ class TexTypesetter implements Typesetter {
 			Box box = (Box) lineElements.get(i);
 			i = mergeBox(box, i + 1, end, lineElements, mElementFactory);
 
-			if (lineHeight < box.getHeight(mWorkPaint)) {
-				lineHeight = box.getHeight(mWorkPaint);
+			if (lineHeight < box.getHeight()) {
+				lineHeight = box.getHeight();
 			}
 
-			lineWidth += box.getWidth(mWorkPaint);
+			lineWidth += box.getWidth();
 			boxes.add(box);
 		}
 
@@ -212,8 +197,7 @@ class TexTypesetter implements Typesetter {
 			}
 
 			if (element instanceof Penalty && start == end - 1) {
-				box.append("-");
-				box.setFlag(Box.FLAG_PENALTY);
+				box.append((Penalty) element);
 				factory.recycle(element);
 			}
 		}

@@ -186,7 +186,7 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 		for (int i = 0; i < boxes.size(); ++i) {
 			Box box = boxes.get(i);
 			TextPaint textPaint = getInternalPaint();
-			float width = box.getWidth(textPaint);
+			float width = box.getWidth();
 
 			if (box == mSelectedBox || box == mSelectedSuffix) {
 				Paint.FontMetrics fontMetrics = textPaint.getFontMetrics();
@@ -265,8 +265,7 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 		Box target = null;
 		for (int i = 0; i < boxSize; ++i) {
 			Box box = boxes.get(i);
-			TextPaint textPaint = getInternalPaint();
-			float width = box.getWidth(textPaint);
+			float width = box.getWidth();
 			float nextOffsetX = offsetX + width;
 			if (offsetX <= x && x <= nextOffsetX) {
 				target = box;

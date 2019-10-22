@@ -1,7 +1,5 @@
 package me.chan.te.test.mock;
 
-import android.text.TextPaint;
-
 import me.chan.te.measurer.Measurer;
 
 public class MockMeasurer implements Measurer {
@@ -12,17 +10,17 @@ public class MockMeasurer implements Measurer {
 	}
 
 	@Override
-	public float getDesiredWidth(CharSequence charSequence, int start, int end, TextPaint textPaint) {
+	public float getDesiredWidth(CharSequence charSequence, int start, int end) {
 		return (end - start) * mMockTextPaint.getMockTextSize();
 	}
 
 	@Override
-	public float getDesiredHeight(CharSequence charSequence, int start, int end, TextPaint textPaint) {
+	public float getDesiredHeight(CharSequence charSequence, int start, int end) {
 		return mMockTextPaint.getMockTextHeight();
 	}
 
 	@Override
-	public float getFontSpacing(TextPaint textPaint) {
+	public float getFontSpacing() {
 		return 20;
 	}
 }

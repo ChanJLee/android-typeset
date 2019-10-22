@@ -25,12 +25,14 @@ public class ElementFactory {
 	}
 
 	public TextBox obtainTextBox(@NonNull CharSequence charSequence, int start, int end, BoxStyle boxStyle) {
+		float width = mMeasurer.getDesiredWidth(charSequence, start, end);
+		float height = mMeasurer.getDesiredHeight(charSequence, start, end);
 		TextBox box = mBoxPool.acquire();
 		if (box == null) {
-			box = new TextBox(mMeasurer);
+			return new TextBox(charSequence, start, end, width, height, boxStyle);
 		}
 
-		box.reset(charSequence, start, end, boxStyle);
+		box.reset(charSequence, start, end, width, height, boxStyle);
 		return box;
 	}
 
@@ -43,12 +45,12 @@ public class ElementFactory {
 		return glue;
 	}
 
-	public Penalty obtainPenalty(float width, float penalty, boolean flag) {
+	public Penalty obtainPenalty(float width, float height, float penalty, boolean flag) {
 		Penalty p = mPenaltyPool.acquire();
 		if (p == null) {
-			return new Penalty(width, penalty, flag);
+			return new Penalty(width, penalty, height, flag);
 		}
-		p.reset(width, penalty, flag);
+		p.reset(width, height, penalty, flag);
 		return p;
 	}
 

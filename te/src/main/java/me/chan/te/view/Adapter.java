@@ -65,10 +65,10 @@ public class Adapter extends RecyclerView.Adapter<TexViewHolder> {
 				DEFAULT_TEXT_SIZE,
 				context.getResources().getDisplayMetrics())
 		);
-		mMeasurer = new AndroidMeasurer();
-		mOption = new Option(mMeasurer, mTextPaint);
+		mMeasurer = new AndroidMeasurer(mTextPaint);
+		mOption = new Option(mMeasurer);
 		mHandler = new Handler(Looper.getMainLooper());
-		mElementFactory = new ElementFactory(new AndroidMeasurer());
+		mElementFactory = new ElementFactory(mMeasurer);
 	}
 
 	@NonNull
@@ -160,7 +160,7 @@ public class Adapter extends RecyclerView.Adapter<TexViewHolder> {
 	}
 
 	private synchronized void refreshInternal() {
-		CoreTypesetter texTypesetter = new CoreTypesetter(mTextPaint, mElementFactory);
+		CoreTypesetter texTypesetter = new CoreTypesetter(mElementFactory);
 		long timestamp = SystemClock.elapsedRealtime();
 		List<Segment> segments = mParser.parser(mContent, mElementFactory, Hypher.getInstance(), mOption);
 		d("parse used time: " + (SystemClock.elapsedRealtime() - timestamp) + " segments: " + segments.size());
@@ -218,7 +218,7 @@ public class Adapter extends RecyclerView.Adapter<TexViewHolder> {
 		}
 
 		mTextPaint.setTextSize(textSize);
-		mOption.refresh(mMeasurer, mTextPaint);
+		mOption.refresh(mMeasurer);
 		refresh();
 	}
 

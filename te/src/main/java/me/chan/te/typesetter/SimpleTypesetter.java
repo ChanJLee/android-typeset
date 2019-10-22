@@ -1,7 +1,6 @@
 package me.chan.te.typesetter;
 
 import android.support.annotation.NonNull;
-import android.text.TextPaint;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -19,12 +18,9 @@ import me.chan.te.data.Segment;
 import me.chan.te.text.BreakStrategy;
 
 class SimpleTypesetter implements Typesetter {
-	private TextPaint mPaint;
-	private TextPaint mWorkPaint = new TextPaint();
 	private ElementFactory mElementFactory;
 
-	SimpleTypesetter(TextPaint paint, ElementFactory elementFactory) {
-		mPaint = paint;
+	SimpleTypesetter(ElementFactory elementFactory) {
 		mElementFactory = elementFactory;
 	}
 
@@ -83,7 +79,6 @@ class SimpleTypesetter implements Typesetter {
 				continue;
 			}
 
-			mWorkPaint.set(mPaint);
 			Box box = (Box) element;
 			int next = mergeIf(elements, box, start + 1, currentLineWidth, width);
 			if (next == -1) {
@@ -91,18 +86,18 @@ class SimpleTypesetter implements Typesetter {
 			}
 
 			// 如果超出当前的长度 那么直接结束
-			if (currentLineWidth + box.getWidth(mWorkPaint) > width) {
+			if (currentLineWidth + box.getWidth() > width) {
 				break;
 			}
 
 			start = next;
 			boxes.add(box);
-			float boxWidth = box.getWidth(mWorkPaint);
+			float boxWidth = box.getWidth();
 			currentLineWidth += boxWidth;
 			lineWidth += boxWidth;
 
-			if (lineHeight < box.getHeight(mWorkPaint)) {
-				lineHeight = box.getHeight(mWorkPaint);
+			if (lineHeight < box.getHeight()) {
+				lineHeight = box.getHeight();
 			}
 		}
 
@@ -139,15 +134,14 @@ class SimpleTypesetter implements Typesetter {
 				clone = (Box) box.clone();
 			}
 
-			float cloneWidth = clone.getWidth(mWorkPaint);
-			float nextWidth = next.getWidth(mWorkPaint);
+			float cloneWidth = clone.getWidth();
+			float nextWidth = next.getWidth();
 
 			// 如果超出当前的长度 那么直接结束
 			if (currentLineWidth + cloneWidth + nextWidth > width) {
 				if (currentLineWidth + cloneWidth + penalty.getPenalty() <= width) {
 					++start;
-					clone.append("-");
-					clone.setFlag(Box.FLAG_PENALTY);
+					clone.append(penalty);
 					break;
 				}
 				return -1;
@@ -170,8 +164,7 @@ class SimpleTypesetter implements Typesetter {
 		}
 
 		Box box = (Box) elements.get(start);
-		mWorkPaint.set(mPaint);
-		Box[] children = box.spilt(mWorkPaint, width);
+		Box[] children = box.spilt(width);
 		if (children != null) {
 			children[0].setFlag(Box.FLAG_SPILT);
 			boxes.add(children[0]);
@@ -182,7 +175,7 @@ class SimpleTypesetter implements Typesetter {
 			++start;
 		}
 
-		lines.add(new Line(boxes, box.getHeight(mWorkPaint), width, 0));
+		lines.add(new Line(boxes, box.getHeight(), width, 0));
 		return start;
 	}
 }

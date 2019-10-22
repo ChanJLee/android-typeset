@@ -6,19 +6,25 @@ import android.text.TextPaint;
 
 public class AndroidMeasurer implements Measurer {
 
-	@Override
-	public float getDesiredWidth(CharSequence charSequence, int start, int end, TextPaint textPaint) {
-		return Layout.getDesiredWidth(charSequence, start, end, textPaint);
+	private TextPaint mTextPaint;
+
+	public AndroidMeasurer(TextPaint textPaint) {
+		mTextPaint = textPaint;
 	}
 
 	@Override
-	public float getDesiredHeight(CharSequence charSequence, int start, int end, TextPaint textPaint) {
-		Paint.FontMetrics fontMetrics = textPaint.getFontMetrics();
+	public float getDesiredWidth(CharSequence charSequence, int start, int end) {
+		return Layout.getDesiredWidth(charSequence, start, end, mTextPaint);
+	}
+
+	@Override
+	public float getDesiredHeight(CharSequence charSequence, int start, int end) {
+		Paint.FontMetrics fontMetrics = mTextPaint.getFontMetrics();
 		return fontMetrics.bottom - fontMetrics.top;
 	}
 
 	@Override
-	public float getFontSpacing(TextPaint textPaint) {
-		return textPaint.getFontSpacing();
+	public float getFontSpacing() {
+		return mTextPaint.getFontSpacing();
 	}
 }
