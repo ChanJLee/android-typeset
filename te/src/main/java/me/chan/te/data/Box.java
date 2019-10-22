@@ -37,8 +37,6 @@ public abstract class Box implements Cloneable, Element {
 		this.mHeight = other.mHeight;
 	}
 
-	public abstract boolean cloneable();
-
 	public abstract Object clone();
 
 	@CallSuper
