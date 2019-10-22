@@ -131,10 +131,29 @@ public class DataUnitTest {
 		mElementFactory.recycle(box2);
 		msg = "hello";
 		box2 = mElementFactory.obtainTextBox(msg, 0, msg.length(), boxStyle);
+		Assert.assertNotNull(box2);
 		if (prev != box2) {
 			fail("check reference failed");
 		}
 		checkBoxContent(box2, msg);
+
+		box = mElementFactory.obtainTextBox(msg, 1, msg.length(), boxStyle);
+		Assert.assertNotNull(box);
+		checkBoxContent(box, "ello");
+
+		try {
+			mElementFactory.obtainTextBox(msg, -1, msg.length(), boxStyle).toString();
+			fail("check illegal index failed");
+		} catch (Exception e) {
+
+		}
+
+		try {
+			mElementFactory.obtainTextBox(msg, 0, msg.length() + 1, boxStyle).toString();
+			fail("check illegal index failed");
+		} catch (Exception e) {
+
+		}
 	}
 
 	private void checkBoxContent(TextBox box, String msg) {
