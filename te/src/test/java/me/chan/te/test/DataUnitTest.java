@@ -6,6 +6,7 @@ import org.junit.Test;
 
 import me.chan.te.data.ElementFactory;
 import me.chan.te.data.Glue;
+import me.chan.te.data.Penalty;
 import me.chan.te.test.mock.MockMeasurer;
 import me.chan.te.test.mock.MockTextPaint;
 
@@ -32,6 +33,8 @@ public class DataUnitTest {
 	@Test
 	public void testGlue() {
 		Glue glue = mElementFactory.obtainGlue(1, 2, 3);
+		Assert.assertNotNull(glue);
+
 		Assert.assertEquals("check width: ", glue.getWidth(), 1, 0);
 		Assert.assertEquals("check stretch: ", glue.getStretch(), 2, 0);
 		Assert.assertEquals("check shrink: ", glue.getShrink(), 3, 0);
@@ -40,6 +43,8 @@ public class DataUnitTest {
 		mElementFactory.recycle(glue);
 
 		glue = mElementFactory.obtainGlue(4, 5, 6);
+		Assert.assertNotNull(glue);
+
 		if (previous != glue) {
 			Assert.fail("check recycle reference failed");
 		}
@@ -47,5 +52,29 @@ public class DataUnitTest {
 		Assert.assertEquals("check width: ", glue.getWidth(), 4, 0);
 		Assert.assertEquals("check stretch: ", glue.getStretch(), 5, 0);
 		Assert.assertEquals("check shrink: ", glue.getShrink(), 6, 0);
+	}
+
+	@Test
+	public void testPenalty() {
+		Penalty penalty = mElementFactory.obtainPenalty(1, 2, 3, true);
+		Assert.assertNotNull(penalty);
+
+		Assert.assertEquals("check width: ", penalty.getWidth(), 1, 0);
+		Assert.assertEquals("check height: ", penalty.getHeight(), 2, 0);
+		Assert.assertEquals("check penalty: ", penalty.getPenalty(), 3, 0);
+		Assert.assertTrue("check flag", penalty.isFlag());
+
+		Penalty prev = penalty;
+		mElementFactory.recycle(penalty);
+
+		penalty = mElementFactory.obtainPenalty(4, 5, 6, false);
+		if (penalty != prev) {
+			Assert.fail("check recycle reference failed");
+		}
+
+		Assert.assertEquals("check width: ", penalty.getWidth(), 4, 0);
+		Assert.assertEquals("check height: ", penalty.getHeight(), 5, 0);
+		Assert.assertEquals("check penalty: ", penalty.getPenalty(), 6, 0);
+		Assert.assertFalse("check flag", penalty.isFlag());
 	}
 }

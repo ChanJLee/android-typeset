@@ -1,5 +1,7 @@
 package me.chan.te.data;
 
+import me.chan.te.annotations.Hidden;
+
 public final class Glue implements Element {
 
 	/**
@@ -43,6 +45,7 @@ public final class Glue implements Element {
 		/* do nothing */
 	}
 
+	@Hidden
 	public void reset(float width, float stretch, float shrink) {
 		mWidth = width;
 		mStretch = stretch;

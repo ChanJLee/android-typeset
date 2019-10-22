@@ -1,5 +1,7 @@
 package me.chan.te.data;
 
+import me.chan.te.annotations.Hidden;
+
 public final class Penalty implements Element {
 	/**
 	 * where3 = 1 if xi is a flagged mPenalty, otherwise = 0.
@@ -14,10 +16,7 @@ public final class Penalty implements Element {
 	private float mHeight;
 
 	Penalty(float width, float height, float penalty, boolean flag) {
-		mPenalty = penalty;
-		mFlag = flag;
-		mWidth = width;
-		mHeight = height;
+		reset(width, height, penalty, flag);
 	}
 
 	public float getHeight() {
@@ -50,6 +49,7 @@ public final class Penalty implements Element {
 		/* do nothing */
 	}
 
+	@Hidden
 	public void reset(float width, float height, float penalty, boolean flag) {
 		mWidth = width;
 		mHeight = height;
