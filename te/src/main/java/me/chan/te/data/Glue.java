@@ -14,9 +14,7 @@ public final class Glue implements Element {
 	private float mWidth;
 
 	Glue(float width, float stretch, float shrink) {
-		this.mStretch = stretch;
-		this.mShrink = shrink;
-		this.mWidth = width;
+		reset(width, stretch, shrink);
 	}
 
 	public float getWidth() {
