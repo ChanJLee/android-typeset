@@ -165,6 +165,21 @@ public class DataUnitTest {
 
 		checkBoxContent(box1, msg);
 		checkBoxContent(box2, msg);
+
+		StringBuilder stringBuilder = new StringBuilder("hello ");
+		stringBuilder.append("world");
+
+		box2 = mElementFactory.obtainTextBox(stringBuilder.toString());
+		Assert.assertNotNull(box2);
+
+		Assert.assertNotSame(box1, box2);
+
+		Assert.assertEquals(box1, box1);
+		Assert.assertEquals(box2, box2);
+		Assert.assertEquals(box1, box2);
+
+		checkBoxContent(box1, msg);
+		checkBoxContent(box2, msg);
 	}
 
 	private void checkBoxContent(TextBox box, String msg) {
