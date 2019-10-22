@@ -107,7 +107,10 @@ class SimpleTypesetter implements Typesetter {
 			return spiltIf(lines, elements, start, boxes, width);
 		}
 
-		lines.add(new Line(boxes, lineHeight, lineWidth, 0));
+		lines.add(new Line(boxes,
+				lineWidth,
+				lineHeight,
+				0));
 		return start;
 	}
 
@@ -176,7 +179,10 @@ class SimpleTypesetter implements Typesetter {
 			++start;
 		}
 
-		lines.add(new Line(boxes, box.getHeight(), width, 0));
+		lines.add(new Line(boxes,
+				width,
+				box.getHeight(),
+				0));
 		return start;
 	}
 }

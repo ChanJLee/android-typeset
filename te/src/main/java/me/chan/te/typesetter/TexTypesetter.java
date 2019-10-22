@@ -162,8 +162,8 @@ class TexTypesetter implements Typesetter {
 
 		return new Line(
 				boxes,
-				lineHeight,
 				lineWidth,
+				lineHeight,
 				ratio
 		);
 	}

@@ -48,7 +48,7 @@ public class ElementFactory {
 	public Penalty obtainPenalty(float width, float height, float penalty, boolean flag) {
 		Penalty p = mPenaltyPool.acquire();
 		if (p == null) {
-			return new Penalty(width, penalty, height, flag);
+			return new Penalty(width, height, penalty, flag);
 		}
 		p.reset(width, height, penalty, flag);
 		return p;
