@@ -31,11 +31,6 @@ public final class TextBox extends Box implements Element, Cloneable {
 	}
 
 	@Override
-	public boolean cloneable() {
-		return true;
-	}
-
-	@Override
 	public void release() {
 		mText = null;
 		mBoxStyle = null;
