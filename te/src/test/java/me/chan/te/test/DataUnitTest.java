@@ -98,6 +98,8 @@ public class DataUnitTest {
 		String msg = "hello world";
 		TextBox box = mElementFactory.obtainTextBox(msg);
 		Assert.assertNotNull(box);
+		Assert.assertFalse(box.isPenalty());
+		Assert.assertFalse(box.isSplit());
 
 		// check content
 		Assert.assertNull(box.getBoxStyle());
@@ -182,11 +184,48 @@ public class DataUnitTest {
 		checkBoxContent(box2, msg);
 	}
 
+	@Test
+	public void testBoxAppend() {
+		String msg = "hello world";
+		TextBox box = mElementFactory.obtainTextBox(msg);
+		Assert.assertNotNull(box);
+		Assert.assertFalse(box.isPenalty());
+		Assert.assertFalse(box.isSplit());
+
+		Penalty penalty = mElementFactory.obtainPenalty(mMockTextPaint.getMockTextSize(), 2, 3, true);
+		Assert.assertNotNull(penalty);
+
+		box.append(penalty);
+		Assert.assertTrue(box.isPenalty());
+		Assert.assertFalse(box.isSplit());
+
+		checkBoxContent(box, msg + "-");
+
+		msg = "xxxx";
+		mElementFactory.recycle(box);
+		box = mElementFactory.obtainTextBox(msg);
+		Assert.assertNotNull(box);
+		Assert.assertFalse(box.isPenalty());
+		Assert.assertFalse(box.isSplit());
+		checkBoxContent(box, msg);
+
+		penalty = mElementFactory.obtainPenalty(mMockTextPaint.getMockTextSize(), mMockTextPaint.getMockTextHeight() * 2, 3, true);
+		Assert.assertNotNull(penalty);
+		box.append(penalty);
+		Assert.assertTrue(box.isPenalty());
+		Assert.assertFalse(box.isSplit());
+		checkBoxContent(box, msg + "-", mMockTextPaint.getMockTextHeight() * 2);
+	}
+
 	private void checkBoxContent(TextBox box, String msg) {
+		checkBoxContent(box, msg, mMockTextPaint.getMockTextHeight());
+	}
+
+	private void checkBoxContent(TextBox box, String msg, float height) {
 		Assert.assertEquals(msg, box.toString());
 		Assert.assertNotEquals(0, mMockTextPaint.getMockTextHeight(), 0);
 		Assert.assertNotEquals(0, mMockTextPaint.getMockTextSize() * msg.length(), 0);
-		Assert.assertEquals(box.getHeight(), mMockTextPaint.getMockTextHeight(), 0);
+		Assert.assertEquals(box.getHeight(), height, 0);
 		Assert.assertEquals(box.getWidth(), mMockTextPaint.getMockTextSize() * msg.length(), 0);
 	}
 }
