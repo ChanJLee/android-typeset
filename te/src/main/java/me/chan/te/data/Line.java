@@ -8,7 +8,7 @@ public class Line {
 	private float mLineWidth;
 	private float mRatio;
 
-	public Line(List<Box> boxes, float lineHeight, float lineWidth, float ratio) {
+	public Line(List<Box> boxes, float lineWidth, float lineHeight, float ratio) {
 		mBoxes = boxes;
 		mLineHeight = lineHeight;
 		mRatio = ratio;
