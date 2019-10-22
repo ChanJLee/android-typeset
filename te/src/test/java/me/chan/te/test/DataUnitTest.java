@@ -1,33 +1,52 @@
 package me.chan.te.test;
 
+import android.text.TextPaint;
+
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import me.chan.te.data.BoxStyle;
 import me.chan.te.data.ElementFactory;
 import me.chan.te.data.Glue;
 import me.chan.te.data.Penalty;
+import me.chan.te.data.TextBox;
 import me.chan.te.test.mock.MockMeasurer;
 import me.chan.te.test.mock.MockTextPaint;
 
+import static org.junit.Assert.fail;
+
 public class DataUnitTest {
 	private ElementFactory mElementFactory;
+	private MockTextPaint mMockTextPaint;
 
 	@Before
 	public void setup() {
-		MockTextPaint mockTextPaint = new MockTextPaint();
-		MockMeasurer mockMeasurer = new MockMeasurer(mockTextPaint);
+		mMockTextPaint = new MockTextPaint();
+		MockMeasurer mockMeasurer = new MockMeasurer(mMockTextPaint);
 		mElementFactory = new ElementFactory(mockMeasurer);
 
-		Assert.assertNotEquals(mockTextPaint.getMockTextSize(), 0);
-		Assert.assertNotEquals(mockTextPaint.getMockTextHeight(), 0);
+		Assert.assertNotEquals(mMockTextPaint.getMockTextSize(), 0);
+		Assert.assertNotEquals(mMockTextPaint.getMockTextHeight(), 0);
 
 		String hello = "hello";
 		Assert.assertNotEquals(mockMeasurer.getFontSpacing(), 0);
 		Assert.assertEquals("check measure text", mockMeasurer.getDesiredWidth(hello,
-				0, hello.length()), hello.length() * mockTextPaint.getMockTextSize(), 0);
+				0, hello.length()), hello.length() * mMockTextPaint.getMockTextSize(), 0);
 		Assert.assertEquals("check measure text", mockMeasurer.getDesiredWidth(hello,
-				1, 2), mockTextPaint.getMockTextSize(), 0);
+				1, 2), mMockTextPaint.getMockTextSize(), 0);
+
+		try {
+			mElementFactory.obtainTextBox(null, 0, 10, null);
+			fail("obtain null box");
+		} catch (Throwable throwable) {
+		}
+
+		try {
+			mElementFactory.obtainTextBox(null);
+			fail("obtain null box");
+		} catch (Throwable throwable) {
+		}
 	}
 
 	@Test
@@ -68,6 +87,8 @@ public class DataUnitTest {
 		mElementFactory.recycle(penalty);
 
 		penalty = mElementFactory.obtainPenalty(4, 5, 6, false);
+		Assert.assertNotNull(penalty);
+
 		if (penalty != prev) {
 			Assert.fail("check recycle reference failed");
 		}
@@ -76,5 +97,51 @@ public class DataUnitTest {
 		Assert.assertEquals("check height: ", penalty.getHeight(), 5, 0);
 		Assert.assertEquals("check penalty: ", penalty.getPenalty(), 6, 0);
 		Assert.assertFalse("check flag", penalty.isFlag());
+	}
+
+	@Test
+	public void testBoxBase() {
+		String msg = "hello world";
+		TextBox box = mElementFactory.obtainTextBox(msg);
+		Assert.assertNotNull(box);
+
+		// check content
+		Assert.assertNull(box.getBoxStyle());
+		checkBoxContent(box, msg);
+
+		BoxStyle boxStyle = new BoxStyle() {
+			@Override
+			public void update(TextPaint textPaint) {
+
+			}
+
+			@Override
+			public boolean isConflict(BoxStyle other) {
+				return false;
+			}
+		};
+
+		TextBox box2 = mElementFactory.obtainTextBox(msg, 0, msg.length(), boxStyle);
+		Assert.assertNotNull(box2);
+		Assert.assertNotEquals(box, box2);
+		Assert.assertEquals(box2.getBoxStyle(), boxStyle);
+		checkBoxContent(box2, msg);
+
+		TextBox prev = box2;
+		mElementFactory.recycle(box2);
+		msg = "hello";
+		box2 = mElementFactory.obtainTextBox(msg, 0, msg.length(), boxStyle);
+		if (prev != box2) {
+			fail("check reference failed");
+		}
+		checkBoxContent(box2, msg);
+	}
+
+	private void checkBoxContent(TextBox box, String msg) {
+		Assert.assertEquals(msg, box.toString());
+		Assert.assertNotEquals(0, mMockTextPaint.getMockTextHeight(), 0);
+		Assert.assertNotEquals(0, mMockTextPaint.getMockTextSize() * msg.length(), 0);
+		Assert.assertEquals(box.getHeight(), mMockTextPaint.getMockTextHeight(), 0);
+		Assert.assertEquals(box.getWidth(), mMockTextPaint.getMockTextSize() * msg.length(), 0);
 	}
 }
