@@ -12,6 +12,8 @@ public abstract class Box implements Cloneable, Element {
 	private static final int FLAG_NONE = 0;
 	static final int FLAG_PENALTY = 2;
 	public static final int FLAG_SPILT = 1;
+
+	// 检查 equals
 	protected float mWidth;
 	protected float mHeight;
 
@@ -39,17 +41,14 @@ public abstract class Box implements Cloneable, Element {
 
 	public abstract Object clone();
 
-	@CallSuper
+	@Override
 	public boolean equals(Object o) {
-		if (this == o) {
-			return true;
-		}
-		if (o == null || getClass() != o.getClass()) {
-			return false;
-		}
-
-		Box other = (Box) o;
-		return mFlag == other.mFlag;
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		Box box = (Box) o;
+		return Float.compare(box.mWidth, mWidth) == 0 &&
+				Float.compare(box.mHeight, mHeight) == 0 &&
+				mFlag == box.mFlag;
 	}
 
 	public abstract void append(Box other);
