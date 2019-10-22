@@ -63,11 +63,7 @@ public class DataUnitTest {
 
 		glue = mElementFactory.obtainGlue(4, 5, 6);
 		Assert.assertNotNull(glue);
-
-		if (previous != glue) {
-			Assert.fail("check recycle reference failed");
-		}
-
+		Assert.assertSame(previous, glue);
 		Assert.assertEquals("check width: ", glue.getWidth(), 4, 0);
 		Assert.assertEquals("check stretch: ", glue.getStretch(), 5, 0);
 		Assert.assertEquals("check shrink: ", glue.getShrink(), 6, 0);
@@ -89,9 +85,7 @@ public class DataUnitTest {
 		penalty = mElementFactory.obtainPenalty(4, 5, 6, false);
 		Assert.assertNotNull(penalty);
 
-		if (penalty != prev) {
-			Assert.fail("check recycle reference failed");
-		}
+		Assert.assertSame(penalty, prev);
 
 		Assert.assertEquals("check width: ", penalty.getWidth(), 4, 0);
 		Assert.assertEquals("check height: ", penalty.getHeight(), 5, 0);
@@ -132,9 +126,7 @@ public class DataUnitTest {
 		msg = "hello";
 		box2 = mElementFactory.obtainTextBox(msg, 0, msg.length(), boxStyle);
 		Assert.assertNotNull(box2);
-		if (prev != box2) {
-			fail("check reference failed");
-		}
+		Assert.assertSame(prev, box2);
 		checkBoxContent(box2, msg);
 
 		box = mElementFactory.obtainTextBox(msg, 1, msg.length(), boxStyle);
@@ -154,6 +146,25 @@ public class DataUnitTest {
 		} catch (Exception e) {
 
 		}
+	}
+
+	@Test
+	public void testBoxEquals() {
+		String msg = "hello world";
+		TextBox box1 = mElementFactory.obtainTextBox(msg);
+		Assert.assertNotNull(box1);
+
+		TextBox box2 = mElementFactory.obtainTextBox(msg);
+		Assert.assertNotNull(box2);
+
+		Assert.assertNotSame(box1, box2);
+
+		Assert.assertEquals(box1, box1);
+		Assert.assertEquals(box2, box2);
+		Assert.assertEquals(box1, box2);
+
+		checkBoxContent(box1, msg);
+		checkBoxContent(box2, msg);
 	}
 
 	private void checkBoxContent(TextBox box, String msg) {

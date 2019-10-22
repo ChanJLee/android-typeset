@@ -5,6 +5,8 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.text.TextPaint;
 
+import java.util.Objects;
+
 import me.chan.te.annotations.Hidden;
 
 public final class TextBox extends Box implements Element, Cloneable {
@@ -54,17 +56,14 @@ public final class TextBox extends Box implements Element, Cloneable {
 
 	@Override
 	public boolean equals(Object o) {
-		if (!super.equals(o)) {
-			return false;
-		}
-
-		TextBox box = (TextBox) o;
-		return Float.compare(box.mWidth, mWidth) == 0 &&
-				Float.compare(box.mHeight, mHeight) == 0 &&
-				mStart == box.mStart &&
-				mEnd == box.mEnd &&
-				mText.equals(box.mText) &&
-				mBoxStyle == box.mBoxStyle;
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		if (!super.equals(o)) return false;
+		TextBox textBox = (TextBox) o;
+		return mStart == textBox.mStart &&
+				mEnd == textBox.mEnd &&
+				mText.equals(textBox.mText) &&
+				mBoxStyle == textBox.mBoxStyle;
 	}
 
 	void reset(@NonNull CharSequence text, int start, int end, float width, float height, @Nullable BoxStyle boxStyle) {
