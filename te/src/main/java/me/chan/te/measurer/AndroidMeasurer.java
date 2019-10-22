@@ -7,9 +7,18 @@ import android.text.TextPaint;
 public class AndroidMeasurer implements Measurer {
 
 	private TextPaint mTextPaint;
+	private float mFontSpacing;
+	private float mDesiredHeight;
 
 	public AndroidMeasurer(TextPaint textPaint) {
+		refresh(textPaint);
+	}
+
+	public void refresh(TextPaint textPaint) {
 		mTextPaint = textPaint;
+		Paint.FontMetrics fontMetrics = mTextPaint.getFontMetrics();
+		mDesiredHeight = fontMetrics.bottom - fontMetrics.top;
+		mFontSpacing = mTextPaint.getFontSpacing();
 	}
 
 	@Override
@@ -19,12 +28,11 @@ public class AndroidMeasurer implements Measurer {
 
 	@Override
 	public float getDesiredHeight(CharSequence charSequence, int start, int end) {
-		Paint.FontMetrics fontMetrics = mTextPaint.getFontMetrics();
-		return fontMetrics.bottom - fontMetrics.top;
+		return mFontSpacing;
 	}
 
 	@Override
 	public float getFontSpacing() {
-		return mTextPaint.getFontSpacing();
+		return mDesiredHeight;
 	}
 }
