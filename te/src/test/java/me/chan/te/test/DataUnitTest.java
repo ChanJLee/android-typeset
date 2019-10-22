@@ -15,6 +15,8 @@ import me.chan.te.data.TextBox;
 import me.chan.te.test.mock.MockMeasurer;
 import me.chan.te.test.mock.MockTextPaint;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 public class DataUnitTest {
@@ -259,8 +261,19 @@ public class DataUnitTest {
 		Assert.assertNotNull(boxes[0]);
 		Assert.assertNotNull(boxes[1]);
 
+		boxes[0].setFlag(Box.FLAG_SPILT);
 		checkBoxContent(boxes[0], "hello");
 		checkBoxContent(boxes[1], " world");
+		Assert.assertTrue(boxes[0].isSplit());
+
+		Assert.assertEquals(boxes[0].getHeight(), box.getHeight(), 0);
+		Assert.assertEquals(boxes[1].getHeight(), box.getHeight(), 0);
+
+		Box previous = boxes[0];
+		mElementFactory.recycle(boxes[0]);
+		boxes[0] = mElementFactory.obtainTextBox("hello");
+		Assert.assertSame(previous, boxes[0]);
+		Assert.assertFalse(boxes[0].isSplit());
 	}
 
 	private void checkBoxContent(TextBox box, String msg) {
