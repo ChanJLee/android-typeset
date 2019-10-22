@@ -9,7 +9,7 @@ import android.text.TextPaint;
 import me.chan.te.annotations.Hidden;
 
 public abstract class Box implements Cloneable, Element {
-	static final int FLAG_NONE = 0;
+	private static final int FLAG_NONE = 0;
 	static final int FLAG_PENALTY = 2;
 	public static final int FLAG_SPILT = 1;
 	protected float mWidth;
