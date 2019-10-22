@@ -11,6 +11,8 @@ import me.chan.te.annotations.Hidden;
 public abstract class Box implements Cloneable, Element {
 	private static final int FLAG_NONE = 0;
 	static final int FLAG_PENALTY = 2;
+
+	// TODO refactor
 	public static final int FLAG_SPILT = 1;
 
 	// 检查 equals

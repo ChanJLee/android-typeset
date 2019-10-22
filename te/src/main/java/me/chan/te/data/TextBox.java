@@ -146,8 +146,8 @@ public final class TextBox extends Box implements Element, Cloneable {
 			return null;
 		}
 
-		float ratio = (float) Math.floor(limitWidth / width);
-		int last = (int) (ratio * (mEnd - mStart)) + mStart;
+		float ratio = limitWidth / width;
+		int last = (int) Math.floor((ratio * (mEnd - mStart))) + mStart;
 		if (last <= mStart || last >= mEnd) {
 			return null;
 		}
