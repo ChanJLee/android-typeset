@@ -6,6 +6,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import me.chan.te.data.Box;
 import me.chan.te.data.BoxStyle;
 import me.chan.te.data.ElementFactory;
 import me.chan.te.data.Glue;
@@ -215,6 +216,51 @@ public class DataUnitTest {
 		Assert.assertTrue(box.isPenalty());
 		Assert.assertFalse(box.isSplit());
 		checkBoxContent(box, msg + "-", mMockTextPaint.getMockTextHeight() * 2);
+
+		msg = "abc";
+		mElementFactory.recycle(box);
+		box = mElementFactory.obtainTextBox(msg);
+		Assert.assertNotNull(box);
+		Assert.assertFalse(box.isPenalty());
+		Assert.assertFalse(box.isSplit());
+
+		String msg2 = "dcf";
+		Box box2 = mElementFactory.obtainTextBox(msg2);
+		Assert.assertNotNull(box2);
+		Assert.assertFalse(box2.isPenalty());
+		Assert.assertFalse(box2.isSplit());
+
+		box.append(box2);
+		Assert.assertFalse(box.isPenalty());
+		Assert.assertFalse(box.isSplit());
+
+		checkBoxContent(box, msg + msg2);
+		mElementFactory.recycle(box);
+		box = mElementFactory.obtainTextBox(msg);
+		Assert.assertNotNull(box);
+		Assert.assertFalse(box.isPenalty());
+		Assert.assertFalse(box.isSplit());
+		checkBoxContent(box, msg);
+	}
+
+	@Test
+	public void testBoxSpilt() {
+		String msg = "hello world";
+		TextBox box = mElementFactory.obtainTextBox(msg);
+		Assert.assertNotNull(box);
+		Assert.assertFalse(box.isPenalty());
+		Assert.assertFalse(box.isSplit());
+
+		Assert.assertNull(box.spilt(-1));
+		Assert.assertNull(box.spilt((msg.length() + 1) * mMockTextPaint.getMockTextSize()));
+
+		TextBox[] boxes = box.spilt("hello".length() * mMockTextPaint.getMockTextSize());
+		Assert.assertNotNull(boxes);
+		Assert.assertNotNull(boxes[0]);
+		Assert.assertNotNull(boxes[1]);
+
+		checkBoxContent(boxes[0], "hello");
+		checkBoxContent(boxes[1], " world");
 	}
 
 	private void checkBoxContent(TextBox box, String msg) {
@@ -226,6 +272,6 @@ public class DataUnitTest {
 		Assert.assertNotEquals(0, mMockTextPaint.getMockTextHeight(), 0);
 		Assert.assertNotEquals(0, mMockTextPaint.getMockTextSize() * msg.length(), 0);
 		Assert.assertEquals(box.getHeight(), height, 0);
-		Assert.assertEquals(box.getWidth(), mMockTextPaint.getMockTextSize() * msg.length(), 0);
+		Assert.assertEquals(box.getWidth(), mMockTextPaint.getMockTextSize() * msg.length(), 0.1);
 	}
 }
