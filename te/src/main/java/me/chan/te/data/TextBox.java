@@ -46,6 +46,12 @@ public final class TextBox extends Box implements Element, Cloneable {
 		return copy;
 	}
 
+	@Nullable
+	@Hidden
+	public BoxStyle getBoxStyle() {
+		return mBoxStyle;
+	}
+
 	@Override
 	public boolean equals(Object o) {
 		if (!super.equals(o)) {
