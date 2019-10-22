@@ -61,7 +61,7 @@ public abstract class Box implements Cloneable, Element {
 	public abstract boolean canMerge(Box other);
 
 	protected void clearFlag() {
-		mFlag = FLAG_NONE;
+		setFlag(FLAG_NONE);
 	}
 
 	@Hidden

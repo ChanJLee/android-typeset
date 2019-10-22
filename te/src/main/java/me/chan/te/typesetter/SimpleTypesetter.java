@@ -91,6 +91,7 @@ class SimpleTypesetter implements Typesetter {
 			}
 
 			start = next;
+
 			boxes.add(box);
 			float boxWidth = box.getWidth();
 			currentLineWidth += boxWidth;
@@ -139,7 +140,7 @@ class SimpleTypesetter implements Typesetter {
 
 			// 如果超出当前的长度 那么直接结束
 			if (currentLineWidth + cloneWidth + nextWidth > width) {
-				if (currentLineWidth + cloneWidth + penalty.getPenalty() <= width) {
+				if (currentLineWidth + cloneWidth + penalty.getWidth() <= width) {
 					++start;
 					clone.append(penalty);
 					break;
