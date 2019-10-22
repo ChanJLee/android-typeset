@@ -54,7 +54,7 @@ public class Adapter extends RecyclerView.Adapter<TexViewHolder> {
 	private int mWidth = -1;
 	private Parser mParser = new TextParser();
 	private Future<?> mTask;
-	private Measurer mMeasurer;
+	private AndroidMeasurer mMeasurer;
 	private BreakStrategy mBreakStrategy = BreakStrategy.BALANCED;
 
 	public Adapter(Context context) {
@@ -218,6 +218,7 @@ public class Adapter extends RecyclerView.Adapter<TexViewHolder> {
 		}
 
 		mTextPaint.setTextSize(textSize);
+		mMeasurer.refresh(mTextPaint);
 		mOption.refresh(mMeasurer);
 		refresh();
 	}
@@ -241,6 +242,8 @@ public class Adapter extends RecyclerView.Adapter<TexViewHolder> {
 
 	void setTypeface(Typeface typeface) {
 		mTextPaint.setTypeface(typeface);
+		mMeasurer.refresh(mTextPaint);
+		mOption.refresh(mMeasurer);
 		refresh();
 	}
 
