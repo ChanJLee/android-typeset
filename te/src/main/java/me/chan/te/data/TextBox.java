@@ -25,9 +25,9 @@ public final class TextBox extends Box implements Element, Cloneable {
 	 * @param box other box
 	 */
 	public void copy(@NonNull Box box) {
-		super.copy(box);
 		TextBox other = (TextBox) box;
 		reset(other.mText, other.mStart, other.mEnd, other.mWidth, other.mHeight, other.mBoxStyle);
+		super.copy(box);
 	}
 
 	@Override
@@ -146,14 +146,14 @@ public final class TextBox extends Box implements Element, Cloneable {
 			return null;
 		}
 
-		float ratio = (limitWidth / width);
+		float ratio = (float) Math.floor(limitWidth / width);
 		int last = (int) (ratio * (mEnd - mStart)) + mStart;
 		if (last <= mStart || last >= mEnd) {
 			return null;
 		}
 
 		TextBox[] boxes = new TextBox[2];
-		boxes[0] = new TextBox(mText, mStart, last, ratio * mWidth, mHeight, mBoxStyle);
+		boxes[0] = new TextBox(mText, mStart, last, limitWidth, mHeight, mBoxStyle);
 		boxes[1] = new TextBox(mText, last, mEnd, (1 - ratio) * mWidth, mHeight, mBoxStyle);
 		return boxes;
 	}
