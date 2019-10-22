@@ -1,7 +1,7 @@
 package me.chan.te.measurer;
 
 import android.graphics.Paint;
-import android.text.Layout;
+import android.text.BoringLayout;
 import android.text.TextPaint;
 
 public class AndroidMeasurer implements Measurer {
@@ -23,7 +23,7 @@ public class AndroidMeasurer implements Measurer {
 
 	@Override
 	public float getDesiredWidth(CharSequence charSequence, int start, int end) {
-		return Layout.getDesiredWidth(charSequence, start, end, mTextPaint);
+		return BoringLayout.getDesiredWidth(charSequence, start, end, mTextPaint);
 	}
 
 	@Override
