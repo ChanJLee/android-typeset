@@ -6,18 +6,20 @@ import android.support.annotation.Nullable;
 import android.text.TextPaint;
 
 import me.chan.te.annotations.Hidden;
-import me.chan.te.measurer.Measurer;
 
 public final class TextBox extends Box implements Element, Cloneable {
 
 	@NonNull
 	private CharSequence mText;
+	@Nullable
 	private BoxStyle mBoxStyle;
-	private float mWidth = -1;
-	private float mHeight = -1;
 	private int mStart;
 	private int mEnd;
-	private Measurer mMeasurer;
+
+	protected TextBox(@NonNull CharSequence text, int start, int end, float width, float height, @Nullable BoxStyle boxStyle) {
+		super(width, height);
+		reset(text, start, end, width, height, boxStyle);
+	}
 
 	/**
 	 * @param box other box
@@ -25,13 +27,7 @@ public final class TextBox extends Box implements Element, Cloneable {
 	public void copy(@NonNull Box box) {
 		super.copy(box);
 		TextBox other = (TextBox) box;
-		mText = other.mText;
-		mBoxStyle = other.mBoxStyle;
-		mWidth = other.mWidth;
-		mHeight = other.mHeight;
-		mStart = other.mStart;
-		mEnd = other.mEnd;
-		mMeasurer = other.mMeasurer;
+		reset(other.mText, other.mStart, other.mEnd, other.mWidth, other.mHeight, other.mBoxStyle);
 	}
 
 	@Override
@@ -45,11 +41,12 @@ public final class TextBox extends Box implements Element, Cloneable {
 		mBoxStyle = null;
 		mWidth = mHeight = -1;
 		mStart = mEnd = 0;
+		clearFlag();
 	}
 
 	@Override
 	public Object clone() {
-		TextBox copy = new TextBox(mMeasurer);
+		TextBox copy = new TextBox(mText, mStart, mEnd, mWidth, mHeight, mBoxStyle);
 		copy.copy(this);
 		return copy;
 	}
@@ -66,19 +63,15 @@ public final class TextBox extends Box implements Element, Cloneable {
 				mStart == box.mStart &&
 				mEnd == box.mEnd &&
 				mText.equals(box.mText) &&
-				mBoxStyle == box.mBoxStyle &&
-				mMeasurer == box.mMeasurer;
+				mBoxStyle == box.mBoxStyle;
 	}
 
-	TextBox(Measurer measurer) {
-		mMeasurer = measurer;
-	}
-
-	void reset(@NonNull CharSequence text, int start, int end, @Nullable BoxStyle boxStyle) {
+	void reset(@NonNull CharSequence text, int start, int end, float width, float height, @Nullable BoxStyle boxStyle) {
+		clearFlag();
 		mText = text;
 		mBoxStyle = boxStyle;
-		clearFlag();
-		mWidth = mHeight = -1;
+		mWidth = width;
+		mHeight = height;
 		mStart = start;
 		mEnd = end;
 	}
@@ -86,33 +79,31 @@ public final class TextBox extends Box implements Element, Cloneable {
 	@Hidden
 	public void append(Box box) {
 		TextBox other = (TextBox) box;
-		append(other.mText.subSequence(other.mStart, other.mEnd));
-	}
+		mWidth += other.mWidth;
+		mHeight = Math.max(mHeight, other.mHeight);
+		if (mEnd == other.mStart) {
+			mEnd = other.mEnd;
+			return;
+		}
 
-	@Hidden
-	public void append(CharSequence s) {
-		// mark as dirty
-		mWidth = mHeight = -1;
-		mText = mText.subSequence(mStart, mEnd) + String.valueOf(s);
+		mText = String.valueOf(mText.subSequence(mStart, mEnd)) + other.mText.subSequence(other.mStart, other.mEnd);
 		mStart = 0;
 		mEnd = mText.length();
 	}
 
-	public float getWidth(TextPaint textPaint) {
-		if (mWidth <= 0) {
-			updateTextPaint(textPaint);
-			mWidth = mMeasurer.getDesiredWidth(mText, mStart, mEnd, textPaint);
+	@Hidden
+	public void append(Penalty penalty) {
+		if (isPenalty()) {
+			throw new IllegalStateException("set text box penalty twice");
 		}
 
-		return mWidth;
-	}
+		setFlag(FLAG_PENALTY);
+		mWidth += penalty.getWidth();
+		mHeight = Math.max(mHeight, penalty.getHeight());
 
-	public float getHeight(TextPaint textPaint) {
-		if (mHeight <= 0 && mMeasurer != null) {
-			mHeight = mMeasurer.getDesiredHeight(mText, mStart, mEnd, textPaint);
-		}
-
-		return mHeight;
+		mText = mText.subSequence(mStart, mEnd) + "-";
+		mStart = 0;
+		mEnd = mText.length();
 	}
 
 	private void updateTextPaint(TextPaint textPaint) {
@@ -145,41 +136,25 @@ public final class TextBox extends Box implements Element, Cloneable {
 	}
 
 	@Nullable
-	public TextBox[] spilt(TextPaint textPaint, float limitWidth) {
+	public TextBox[] spilt(float limitWidth) {
 		if (limitWidth <= 0) {
 			return null;
 		}
 
-		float width = getWidth(textPaint);
+		float width = getWidth();
 		if (limitWidth > width) {
 			return null;
 		}
 
-		int last = (int) ((limitWidth / width) * (mEnd - mStart)) + mStart;
-		while (last > mStart && last < mEnd &&
-				mMeasurer.getDesiredWidth(mText, mStart, last, textPaint) > limitWidth) {
-			--last;
-		}
-
+		float ratio = (limitWidth / width);
+		int last = (int) (ratio * (mEnd - mStart)) + mStart;
 		if (last <= mStart || last >= mEnd) {
 			return null;
 		}
 
-		TextBox prefix = new TextBox(mMeasurer);
-		prefix.copy(this);
-
-		TextBox suffix = new TextBox(mMeasurer);
-		suffix.copy(this);
-
-		prefix.mWidth = prefix.mHeight = -1;
-		suffix.mWidth = suffix.mHeight = -1;
-
-		prefix.mEnd = last;
-		suffix.mStart = last;
-
 		TextBox[] boxes = new TextBox[2];
-		boxes[0] = prefix;
-		boxes[1] = suffix;
+		boxes[0] = new TextBox(mText, mStart, last, ratio * mWidth, mHeight, mBoxStyle);
+		boxes[1] = new TextBox(mText, last, mEnd, (1 - ratio) * mWidth, mHeight, mBoxStyle);
 		return boxes;
 	}
 }

@@ -92,12 +92,16 @@ public class TypesetterUnitTest {
 
 		ElementFactory elementFactory = new ElementFactory(new MockMeasurer(textPaint));
 
-		assertNull(elementFactory.obtainTextBox(null, 0, 10, null));
+		try {
+			elementFactory.obtainTextBox(null, 0, 10, null);
+			fail("obtain null box");
+		} catch (Throwable throwable) {
+		}
+
 		try {
 			elementFactory.obtainTextBox(null);
 			fail("obtain null box");
 		} catch (Throwable throwable) {
-
 		}
 
 		String msg1 = "hello world";
@@ -109,44 +113,44 @@ public class TypesetterUnitTest {
 		assertEquals(msg2, box2.toString());
 
 
-		assertNotEquals(box1.getWidth(textPaint), 0);
-		assertNotEquals(box1.getHeight(textPaint), 0);
+		assertNotEquals(box1.getWidth(), 0);
+		assertNotEquals(box1.getHeight(), 0);
 
 
 		box2.copy(box1);
 		assertEquals(box2, box1);
 
-		Box[] boxes = box2.spilt(textPaint, msg2.length() * textPaint.getMockTextSize());
+		Box[] boxes = box2.spilt(msg2.length() * textPaint.getMockTextSize());
 		assertNotNull(boxes);
 		assertNotNull(boxes[0]);
 		assertNotNull(boxes[1]);
 		assertEquals(boxes[0].toString(), msg2);
 		assertEquals(boxes[1].toString(), msg1.substring(msg2.length()));
 
-		boxes = box2.spilt(textPaint, textPaint.getMockTextSize());
+		boxes = box2.spilt(textPaint.getMockTextSize());
 		assertNotNull(boxes);
 		assertNotNull(boxes[0]);
 		assertNotNull(boxes[1]);
 		assertEquals(boxes[0].toString(), "h");
 		assertEquals(boxes[1].toString(), msg1.substring(1));
 
-		boxes = box2.spilt(textPaint, textPaint.getMockTextSize() * (msg1.length() - 1));
+		boxes = box2.spilt(textPaint.getMockTextSize() * (msg1.length() - 1));
 		assertNotNull(boxes);
 		assertNotNull(boxes[0]);
 		assertNotNull(boxes[1]);
 		assertEquals(boxes[0].toString(), "hello worl");
 		assertEquals(boxes[1].toString(), "d");
 
-		boxes = box2.spilt(textPaint, -1);
+		boxes = box2.spilt(-1);
 		assertNull(boxes);
 
-		boxes = box2.spilt(textPaint, 0);
+		boxes = box2.spilt(0);
 		assertNull(boxes);
 
-		boxes = box2.spilt(textPaint, msg1.length() * textPaint.getMockTextSize());
+		boxes = box2.spilt(msg1.length() * textPaint.getMockTextSize());
 		assertNull(boxes);
 
-		boxes = box2.spilt(textPaint, msg1.length() * textPaint.getMockTextSize() + 1);
+		boxes = box2.spilt(msg1.length() * textPaint.getMockTextSize() + 1);
 		assertNull(boxes);
 	}
 
@@ -201,7 +205,7 @@ public class TypesetterUnitTest {
 		Assert.assertNotEquals(option.getSpaceStretch(), 0);
 		Assert.assertNotEquals(option.getSpaceWidth(), 0);
 
-		CoreTypesetter texTypesetter = new CoreTypesetter(paint, factory);
+		CoreTypesetter texTypesetter = new CoreTypesetter(factory);
 		TextParser textParser = new TextParser();
 		List<Segment> segments = textParser.parser(text, factory, Hypher.getInstance(), option);
 		assertFalse(segments.isEmpty());

@@ -1,7 +1,5 @@
 package me.chan.te.config;
 
-import android.text.TextPaint;
-
 import me.chan.te.measurer.Measurer;
 
 // TODO
@@ -18,13 +16,15 @@ public class Option {
 	private float mSpaceShrink;
 	private float mIndentWidth;
 	private float mLineSpacing;
+	private float mHyphenHeight;
 
-	public Option(Measurer measurer, TextPaint textPaint) {
-		refresh(measurer, textPaint);
+	public Option(Measurer measurer) {
+		refresh(measurer);
 	}
 
-	public void refresh(Measurer measurer, TextPaint textPaint) {
-		mHyphenWidth = measurer.getDesiredWidth("-", 0, 1, textPaint);
+	public void refresh(Measurer measurer) {
+		mHyphenWidth = measurer.getDesiredWidth("-", 0, 1);
+		mHyphenHeight = measurer.getDesiredHeight("-", 0, 1);
 		mSpaceWidth = mHyphenWidth;
 		mSpaceStretch = mSpaceWidth * 1.1f;
 		mSpaceShrink = mSpaceWidth * 0.9f;
@@ -32,7 +32,7 @@ public class Option {
 		// 首行缩进四个空格
 		mIndentWidth = mSpaceWidth * 4;
 		// 1.0 倍行间距
-		mLineSpacing = (int) (measurer.getFontSpacing(textPaint));
+		mLineSpacing = (int) (measurer.getFontSpacing());
 	}
 
 	public float getHyphenWidth() {
@@ -57,5 +57,9 @@ public class Option {
 
 	public float getLineSpacing() {
 		return mLineSpacing;
+	}
+
+	public float getHyphenHeight() {
+		return mHyphenHeight;
 	}
 }

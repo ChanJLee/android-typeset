@@ -9,8 +9,6 @@ import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
 
-import java.io.UnsupportedEncodingException;
-
 
 public class MainActivity extends AppCompatActivity {
 
@@ -42,36 +40,5 @@ public class MainActivity extends AppCompatActivity {
 				startActivity(intent);
 			}
 		});
-
-		new Thread(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					Log.d("chan_debug", "test lower");
-					test(95, 122, textPaint);
-					Log.d("chan_debug", "test upper");
-					test(65, 90, textPaint);
-					Log.d("chan_debug", "test chinese");
-					test(0x4E00, 0x9FA5, textPaint);
-				} catch (UnsupportedEncodingException e) {
-					e.printStackTrace();
-				}
-			}
-		}).start();
-	}
-
-	private void test(int codePointStart, int codePointEnd, TextPaint textPaint) throws UnsupportedEncodingException {
-		StringBuilder stringBuilder = new StringBuilder();
-		float prev = 0;
-		for (int code = codePointStart; code <= codePointEnd; ++code) {
-			String current = String.valueOf((char) code);
-			float currentLen = Layout.getDesiredWidth(current, textPaint);
-			stringBuilder.append(current);
-			float last = Layout.getDesiredWidth(stringBuilder.toString(), textPaint);
-			if (last - prev != currentLen) {
-				throw new RuntimeException("unexpected char: " + current);
-			}
-			prev = last;
-		}
 	}
 }

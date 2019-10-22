@@ -11,11 +11,17 @@ public final class Penalty implements Element {
 	 */
 	private float mPenalty;
 	private float mWidth;
+	private float mHeight;
 
-	public Penalty(float width, float penalty, boolean flag) {
-		this.mPenalty = penalty;
-		this.mFlag = flag;
+	Penalty(float width, float height, float penalty, boolean flag) {
+		mPenalty = penalty;
+		mFlag = flag;
 		mWidth = width;
+		mHeight = height;
+	}
+
+	public float getHeight() {
+		return mHeight;
 	}
 
 	public boolean isFlag() {
@@ -44,9 +50,10 @@ public final class Penalty implements Element {
 		/* do nothing */
 	}
 
-	public void reset(float width, float penalty, boolean flag) {
+	public void reset(float width, float height, float penalty, boolean flag) {
 		mWidth = width;
+		mHeight = height;
 		mPenalty = penalty;
-		mFlag = false;
+		mFlag = flag;
 	}
 }

@@ -1,7 +1,6 @@
 package me.chan.te.typesetter;
 
 import android.support.annotation.Nullable;
-import android.text.TextPaint;
 
 import me.chan.te.config.LineAttributes;
 import me.chan.te.data.ElementFactory;
@@ -13,9 +12,9 @@ public class CoreTypesetter implements Typesetter {
 	private Typesetter mTexTypesetter;
 	private Typesetter mSimpleTypesetter;
 
-	public CoreTypesetter(TextPaint paint, ElementFactory elementFactory) {
-		mTexTypesetter = new TexTypesetter(paint, elementFactory);
-		mSimpleTypesetter = new SimpleTypesetter(paint, elementFactory);
+	public CoreTypesetter(ElementFactory elementFactory) {
+		mTexTypesetter = new TexTypesetter(elementFactory);
+		mSimpleTypesetter = new SimpleTypesetter(elementFactory);
 	}
 
 	@Nullable
