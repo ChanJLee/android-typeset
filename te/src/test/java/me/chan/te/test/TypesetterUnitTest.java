@@ -21,11 +21,11 @@ import java.util.List;
 import me.chan.te.config.LineAttributes;
 import me.chan.te.config.Option;
 import me.chan.te.data.Box;
-import me.chan.te.data.ElementFactory;
 import me.chan.te.data.Line;
 import me.chan.te.data.Paragraph;
 import me.chan.te.data.Segment;
 import me.chan.te.hypher.Hypher;
+import me.chan.te.measurer.Measurer;
 import me.chan.te.parser.TextParser;
 import me.chan.te.test.mock.MockMeasurer;
 import me.chan.te.test.mock.MockOption;
@@ -123,7 +123,7 @@ public class TypesetterUnitTest {
 
 		LineAttributes lineAttributes = new LineAttributes(new LineAttributes.Attribute(lineWidth));
 		MockTextPaint paint = new MockTextPaint();
-		ElementFactory factory = new ElementFactory(new MockMeasurer(paint));
+		Measurer measurer = new MockMeasurer(paint);
 		paint.setMockTextSize(textSize);
 		Option option = new MockOption(paint);
 
@@ -134,9 +134,9 @@ public class TypesetterUnitTest {
 		Assert.assertNotEquals(option.getSpaceStretch(), 0);
 		Assert.assertNotEquals(option.getSpaceWidth(), 0);
 
-		CoreTypesetter texTypesetter = new CoreTypesetter(factory);
+		CoreTypesetter texTypesetter = new CoreTypesetter();
 		TextParser textParser = new TextParser();
-		List<Segment> segments = textParser.parser(text, factory, Hypher.getInstance(), option);
+		List<Segment> segments = textParser.parser(text, measurer, Hypher.getInstance(), option);
 		assertFalse(segments.isEmpty());
 
 		StringBuilder stringBuilder = new StringBuilder();

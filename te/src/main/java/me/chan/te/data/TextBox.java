@@ -6,10 +6,10 @@ import android.support.annotation.Nullable;
 import android.text.TextPaint;
 
 import me.chan.te.annotations.Hidden;
+import me.chan.te.misc.ObjectFactory;
 
 public final class TextBox extends Box implements Element, Cloneable {
-
-	@NonNull
+	private final static ObjectFactory<TextBox> POOL = new ObjectFactory<>(10000);
 	private CharSequence mText;
 	@Nullable
 	private BoxStyle mBoxStyle;
@@ -32,11 +32,8 @@ public final class TextBox extends Box implements Element, Cloneable {
 
 	@Override
 	public void recycle() {
-		mText = null;
-		mBoxStyle = null;
-		mWidth = mHeight = -1;
-		mStart = mEnd = 0;
-		clearFlag();
+		reset(null, -1, -1, -1, -1, null);
+		POOL.release(this);
 	}
 
 	@Override
@@ -64,7 +61,7 @@ public final class TextBox extends Box implements Element, Cloneable {
 				mBoxStyle == textBox.mBoxStyle;
 	}
 
-	void reset(@NonNull CharSequence text, int start, int end, float width, float height, @Nullable BoxStyle boxStyle) {
+	private void reset(CharSequence text, int start, int end, float width, float height, @Nullable BoxStyle boxStyle) {
 		clearFlag();
 		mText = text;
 		mBoxStyle = boxStyle;
@@ -154,5 +151,15 @@ public final class TextBox extends Box implements Element, Cloneable {
 		boxes[0] = new TextBox(mText, mStart, last, limitWidth, mHeight, mBoxStyle);
 		boxes[1] = new TextBox(mText, last, mEnd, (1 - ratio) * mWidth, mHeight, mBoxStyle);
 		return boxes;
+	}
+
+	public static TextBox obtain(@NonNull CharSequence charSequence, int start, int end,
+								 float width, float height, @Nullable BoxStyle boxStyle) {
+		TextBox box = POOL.acquire();
+		if (box == null) {
+			return new TextBox(charSequence, start, end, width, height, boxStyle);
+		}
+		box.reset(charSequence, start, end, width, height, boxStyle);
+		return box;
 	}
 }

@@ -20,11 +20,9 @@ import java.util.concurrent.Future;
 
 import me.chan.te.R;
 import me.chan.te.measurer.AndroidMeasurer;
-import me.chan.te.measurer.Measurer;
 import me.chan.te.text.BreakStrategy;
 import me.chan.te.config.LineAttributes;
 import me.chan.te.config.Option;
-import me.chan.te.data.ElementFactory;
 import me.chan.te.text.Gravity;
 import me.chan.te.data.Paragraph;
 import me.chan.te.data.Segment;
@@ -49,7 +47,6 @@ public class Adapter extends RecyclerView.Adapter<TexViewHolder> {
 	private ExecutorService mExecutor = Executors.newSingleThreadExecutor();
 	private Handler mHandler;
 	private boolean mDebugMode;
-	private ElementFactory mElementFactory;
 	private CharSequence mContent;
 	private int mWidth = -1;
 	private Parser mParser = new TextParser();
@@ -68,7 +65,6 @@ public class Adapter extends RecyclerView.Adapter<TexViewHolder> {
 		mMeasurer = new AndroidMeasurer(mTextPaint);
 		mOption = new Option(mMeasurer);
 		mHandler = new Handler(Looper.getMainLooper());
-		mElementFactory = new ElementFactory(mMeasurer);
 	}
 
 	@NonNull
@@ -160,9 +156,9 @@ public class Adapter extends RecyclerView.Adapter<TexViewHolder> {
 	}
 
 	private synchronized void refreshInternal() {
-		CoreTypesetter texTypesetter = new CoreTypesetter(mElementFactory);
+		CoreTypesetter texTypesetter = new CoreTypesetter();
 		long timestamp = SystemClock.elapsedRealtime();
-		List<Segment> segments = mParser.parser(mContent, mElementFactory, Hypher.getInstance(), mOption);
+		List<Segment> segments = mParser.parser(mContent, mMeasurer, Hypher.getInstance(), mOption);
 		d("parse used time: " + (SystemClock.elapsedRealtime() - timestamp) + " segments: " + segments.size());
 		timestamp = SystemClock.elapsedRealtime();
 

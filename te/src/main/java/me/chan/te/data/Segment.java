@@ -5,6 +5,7 @@ import java.util.List;
 
 import me.chan.te.config.Option;
 import me.chan.te.hypher.Hypher;
+import me.chan.te.measurer.Measurer;
 import me.chan.te.typesetter.Typesetter;
 
 public final class Segment {
@@ -35,15 +36,15 @@ public final class Segment {
 		private CharSequence mText;
 		private int mStart;
 		private int mEnd;
-		private ElementFactory mElementFactory;
 		private List<Element> mElements = new ArrayList<>();
 		private List<String> mHyphenated = new ArrayList<>(10);
+		private Measurer mMeasurer;
 
-		public Builder(CharSequence text, int start, int end, ElementFactory factory) {
+		public Builder(CharSequence text, int start, int end, Measurer measurer) {
 			mText = text;
 			mStart = start;
 			mEnd = end;
-			mElementFactory = factory;
+			mMeasurer = measurer;
 		}
 
 		public Builder text(Hypher hypher, Option option, CharSequence text, int start, int end) {
@@ -51,12 +52,21 @@ public final class Segment {
 			hypher.hyphenate(String.valueOf(text), start, end - start, mHyphenated);
 			int size = mHyphenated.size();
 			if (size == 0 || len < MIN_HYPER_LEN) {
-				mElements.add(mElementFactory.obtainTextBox(text, start, end));
+				mElements.add(TextBox.obtain(text, start, end,
+						mMeasurer.getDesiredWidth(text, start, end),
+						mMeasurer.getDesiredHeight(text, start, end),
+						null
+				));
 			} else {
 				for (int j = 0; j < size; ++j) {
 					String item = mHyphenated.get(j);
-					mElements.add(mElementFactory.obtainTextBox(item));
-					if (j != size - 1 && !item.isEmpty() && item.charAt(item.length() - 1) != '-') {
+					int itemLen = item.length();
+					mElements.add(TextBox.obtain(item, 0, itemLen,
+							mMeasurer.getDesiredWidth(item, 0, itemLen),
+							mMeasurer.getDesiredHeight(item, 0, itemLen),
+							null
+					));
+					if (j != size - 1 && !item.isEmpty() && item.charAt(itemLen - 1) != '-') {
 						mElements.add(Penalty.obtain(option.getHyphenWidth(), option.getHyphenHeight(), Typesetter.HYPHEN_PENALTY, true));
 					}
 				}

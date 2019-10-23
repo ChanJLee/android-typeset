@@ -12,12 +12,12 @@ import java.util.List;
 
 import me.chan.te.data.Box;
 import me.chan.te.data.Element;
-import me.chan.te.data.ElementFactory;
 import me.chan.te.data.Glue;
 import me.chan.te.data.Penalty;
 import me.chan.te.data.Segment;
 import me.chan.te.data.TextBox;
 import me.chan.te.hypher.Hypher;
+import me.chan.te.measurer.Measurer;
 import me.chan.te.parser.TextParser;
 import me.chan.te.test.mock.MockMeasurer;
 import me.chan.te.test.mock.MockOption;
@@ -33,25 +33,25 @@ public class ParserUnitTest {
 		MockTextPaint paint = new MockTextPaint();
 		paint.setTextSize(18);
 		MockOption MockOption = new MockOption(paint);
-		ElementFactory factory = new ElementFactory(new MockMeasurer(paint));
+		Measurer measurer = new MockMeasurer(paint);
 		TextParser textParser = new TextParser();
-		List<Segment> segments = textParser.parser("hello\n\nworld\n\n", factory, Hypher.getInstance(), MockOption);
+		List<Segment> segments = textParser.parser("hello\n\nworld\n\n", measurer, Hypher.getInstance(), MockOption);
 		assertEquals(segments.size(), 2);
 
-		segments = textParser.parser("hello\n\nworld\n", factory, Hypher.getInstance(), MockOption);
+		segments = textParser.parser("hello\n\nworld\n", measurer, Hypher.getInstance(), MockOption);
 		assertEquals(segments.size(), 2);
 
-		segments = textParser.parser("", factory, Hypher.getInstance(), MockOption);
+		segments = textParser.parser("", measurer, Hypher.getInstance(), MockOption);
 		assertEquals(segments.size(), 0);
 
 		try {
-			textParser.parser(null, factory, Hypher.getInstance(), MockOption);
+			textParser.parser(null, measurer, Hypher.getInstance(), MockOption);
 			Assert.fail("test parser null string");
 		} catch (Exception e) {
 			/* do nothing */
 		}
 
-		segments = textParser.parser(" hello", factory, Hypher.getInstance(), MockOption);
+		segments = textParser.parser(" hello", measurer, Hypher.getInstance(), MockOption);
 		assertEquals(segments.size(), 1);
 
 		Segment segment = segments.get(0);
@@ -65,7 +65,7 @@ public class ParserUnitTest {
 		Box box = (Box) list.get(0);
 		assertEquals("check box content: ", box.toString(), "hello");
 
-		segments = textParser.parser(" triangle\n\n\n", factory, Hypher.getInstance(), MockOption);
+		segments = textParser.parser(" triangle\n\n\n", measurer, Hypher.getInstance(), MockOption);
 		assertEquals(segments.size(), 1);
 
 		segment = segments.get(0);
@@ -104,7 +104,7 @@ public class ParserUnitTest {
 				new InputStreamReader(new FileInputStream(file)));
 		String line = null;
 		MockTextPaint paint = new MockTextPaint();
-		ElementFactory factory = new ElementFactory(new MockMeasurer(paint));
+		Measurer measurer = new MockMeasurer(paint);
 		MockOption MockOption = new MockOption(paint);
 		int lineNumber = 0;
 		TextParser textParser = new TextParser();
@@ -116,7 +116,7 @@ public class ParserUnitTest {
 
 			String contentWithoutBlank = line.replaceAll("\\p{Z}+|\\t|\\r|\\n", "");
 			StringBuilder stringBuilder = new StringBuilder();
-			List<Segment> segments = textParser.parser(line, factory, Hypher.getInstance(), MockOption);
+			List<Segment> segments = textParser.parser(line, measurer, Hypher.getInstance(), MockOption);
 			if (contentWithoutBlank.isEmpty()) {
 				assertTrue(segments.isEmpty());
 				continue;
@@ -143,7 +143,7 @@ public class ParserUnitTest {
 				new InputStreamReader(new FileInputStream(file)));
 		String line = null;
 		MockTextPaint paint = new MockTextPaint();
-		ElementFactory factory = new ElementFactory(new MockMeasurer(paint));
+		Measurer measurer = new MockMeasurer(paint);
 		MockOption MockOption = new MockOption(paint);
 		StringBuilder stringBuilder = new StringBuilder();
 		TextParser textParser = new TextParser();
@@ -154,7 +154,7 @@ public class ParserUnitTest {
 		String content = stringBuilder.toString();
 		stringBuilder = new StringBuilder();
 		long timestamp = System.currentTimeMillis();
-		List<Segment> segments = textParser.parser(content, factory, Hypher.getInstance(), MockOption);
+		List<Segment> segments = textParser.parser(content, measurer, Hypher.getInstance(), MockOption);
 		System.out.println("used time: " + (System.currentTimeMillis() - timestamp));
 		for (Segment segment : segments) {
 			for (Element element : segment.getElements()) {
