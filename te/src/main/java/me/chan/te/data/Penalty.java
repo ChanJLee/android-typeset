@@ -4,17 +4,14 @@ import android.support.annotation.NonNull;
 
 import me.chan.te.misc.ObjectFactory;
 
+/**
+ * 代表添加的'-'符号
+ */
 public final class Penalty implements Element {
 	private final static ObjectFactory<Penalty> POOL = new ObjectFactory<>(4000);
 
-	/**
-	 * where3 = 1 if xi is a flagged mPenalty, otherwise = 0.
-	 */
 	private boolean mFlag;
 
-	/**
-	 * where pi is the mPenalty at xi if ti=‘mPenalty’, otherwise pi= 0;
-	 */
 	private float mPenalty;
 	private float mWidth;
 	private float mHeight;

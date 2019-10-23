@@ -8,6 +8,11 @@ import android.text.TextPaint;
 
 import me.chan.te.annotations.Hidden;
 
+/**
+ * 一个box为排版中的绘制单元
+ * <p>
+ * 比如一个单词，一张图片
+ */
 public abstract class Box implements Cloneable, Element {
 	private static final int FLAG_NONE = 0;
 	static final int FLAG_PENALTY = 2;
@@ -53,10 +58,13 @@ public abstract class Box implements Cloneable, Element {
 				mFlag == box.mFlag;
 	}
 
+	@Hidden
 	public abstract void append(Box other);
 
+	@Hidden
 	public abstract void append(Penalty penalty);
 
+	@Hidden
 	public abstract boolean canMerge(Box other);
 
 	protected void clearFlag() {
@@ -68,14 +76,17 @@ public abstract class Box implements Cloneable, Element {
 		return mFlag == FLAG_PENALTY;
 	}
 
+	@Hidden
 	public boolean isSplit() {
 		return mFlag == FLAG_SPILT;
 	}
 
+	@Hidden
 	public void setFlag(int flag) {
 		mFlag = flag;
 	}
 
+	@Hidden
 	public abstract void draw(Canvas canvas, TextPaint paint, float x, float y);
 
 	public abstract String toString();
