@@ -6,7 +6,7 @@ import android.support.v4.util.SparseArrayCompat;
 import me.chan.te.text.Gravity;
 
 /**
- * line options
+ * 用来获取每一行的属性
  */
 public class LineAttributes {
 	private Attribute mDefaultAttribute;

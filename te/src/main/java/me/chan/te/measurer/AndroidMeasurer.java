@@ -43,7 +43,7 @@ public class AndroidMeasurer implements Measurer {
 	}
 
 	@Override
-	public float getFontSpacing() {
+	public float getLineSpacing() {
 		return mDesiredHeight;
 	}
 }

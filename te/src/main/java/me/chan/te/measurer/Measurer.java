@@ -23,5 +23,5 @@ public interface Measurer {
 	/**
 	 * @return 每行建议间隔
 	 */
-	float getFontSpacing();
+	float getLineSpacing();
 }

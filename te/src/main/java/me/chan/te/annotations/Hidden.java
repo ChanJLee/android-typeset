@@ -7,6 +7,10 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+/**
+ * 用来标记隐藏api，隐藏api未来会在某天修改暴露的接口
+ * 修改可以是删除
+ */
 @Documented
 @Inherited
 @Retention(RetentionPolicy.CLASS)
