@@ -52,7 +52,7 @@ public class DataUnitTest {
 
 	@Test
 	public void testGlue() {
-		Glue glue = mElementFactory.obtainGlue(1, 2, 3);
+		Glue glue = Glue.obtain(1, 2, 3);
 		Assert.assertNotNull(glue);
 
 		Assert.assertEquals("check width: ", glue.getWidth(), 1, 0);
@@ -62,7 +62,7 @@ public class DataUnitTest {
 		Glue previous = glue;
 		mElementFactory.recycle(glue);
 
-		glue = mElementFactory.obtainGlue(4, 5, 6);
+		glue = Glue.obtain(4, 5, 6);
 		Assert.assertNotNull(glue);
 		Assert.assertSame(previous, glue);
 		Assert.assertEquals("check width: ", glue.getWidth(), 4, 0);
