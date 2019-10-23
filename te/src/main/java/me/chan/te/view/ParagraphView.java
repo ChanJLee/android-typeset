@@ -160,13 +160,13 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 			}
 
 			float lineSpace = attribute.getLineVerticalSpace();
-			draw(canvas, line, x, y, lineSpace, i == size - 1, i, attribute.getLineWidth());
+			draw(canvas, line, x, y, lineSpace, i == size - 1, attribute.getLineWidth());
 			y += lineSpace;
 		}
 	}
 
 	private void draw(Canvas canvas, Line line, float x, float y, float lineSpace,
-					  boolean isLastLine, int lineNumber, float lineWidth) {
+					  boolean isLastLine, float lineWidth) {
 		List<Box> boxes = line.getBoxes();
 		int boxCount = boxes.size();
 		float spaceWidth = mOption.getSpaceWidth();
