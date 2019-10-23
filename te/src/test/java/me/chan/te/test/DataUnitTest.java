@@ -8,7 +8,6 @@ import org.junit.Test;
 
 import me.chan.te.data.Box;
 import me.chan.te.data.BoxStyle;
-import me.chan.te.data.ElementFactory;
 import me.chan.te.data.Glue;
 import me.chan.te.data.Penalty;
 import me.chan.te.data.TextBox;
@@ -18,14 +17,12 @@ import me.chan.te.test.mock.MockTextPaint;
 import static org.junit.Assert.fail;
 
 public class DataUnitTest {
-	private ElementFactory mElementFactory;
 	private MockTextPaint mMockTextPaint;
 
 	@Before
 	public void setup() {
 		mMockTextPaint = new MockTextPaint();
 		MockMeasurer mockMeasurer = new MockMeasurer(mMockTextPaint);
-		mElementFactory = new ElementFactory(mockMeasurer);
 
 		Assert.assertNotEquals(mMockTextPaint.getMockTextSize(), 0);
 		Assert.assertNotEquals(mMockTextPaint.getMockTextHeight(), 0);
@@ -38,13 +35,13 @@ public class DataUnitTest {
 				1, 2), mMockTextPaint.getMockTextSize(), 0);
 
 		try {
-			mElementFactory.obtainTextBox(null, 0, 10, null);
+			TextBox.obtain(null, 0, 10, 1, 1, null).toString();
 			fail("obtain null box");
 		} catch (Throwable throwable) {
 		}
 
 		try {
-			mElementFactory.obtainTextBox(null);
+			TextBox.obtain(null, 1, 1, 1, 1, null).toString();
 			fail("obtain null box");
 		} catch (Throwable throwable) {
 		}
@@ -60,7 +57,7 @@ public class DataUnitTest {
 		Assert.assertEquals("check shrink: ", glue.getShrink(), 3, 0);
 
 		Glue previous = glue;
-		mElementFactory.recycle(glue);
+		glue.recycle();
 
 		glue = Glue.obtain(4, 5, 6);
 		Assert.assertNotNull(glue);
@@ -81,7 +78,7 @@ public class DataUnitTest {
 		Assert.assertTrue("check flag", penalty.isFlag());
 
 		Penalty prev = penalty;
-		mElementFactory.recycle(penalty);
+		penalty.recycle();
 
 		penalty = Penalty.obtain(4, 5, 6, false);
 		Assert.assertNotNull(penalty);
@@ -97,7 +94,8 @@ public class DataUnitTest {
 	@Test
 	public void testBoxBase() {
 		String msg = "hello world";
-		TextBox box = mElementFactory.obtainTextBox(msg);
+		TextBox box = TextBox.obtain(msg, 0, msg.length(),
+				mMockTextPaint.getMockTextSize() * msg.length(), mMockTextPaint.getMockTextHeight(), null);
 		Assert.assertNotNull(box);
 		Assert.assertFalse(box.isPenalty());
 		Assert.assertFalse(box.isSplit());
@@ -118,33 +116,33 @@ public class DataUnitTest {
 			}
 		};
 
-		TextBox box2 = mElementFactory.obtainTextBox(msg, 0, msg.length(), boxStyle);
+		TextBox box2 = TextBox.obtain(msg, 0, msg.length(), mMockTextPaint.getMockTextSize() * msg.length(), mMockTextPaint.getMockTextHeight(), boxStyle);
 		Assert.assertNotNull(box2);
 		Assert.assertNotEquals(box, box2);
 		Assert.assertEquals(box2.getBoxStyle(), boxStyle);
 		checkBoxContent(box2, msg);
 
 		TextBox prev = box2;
-		mElementFactory.recycle(box2);
+		box2.recycle();
 		msg = "hello";
-		box2 = mElementFactory.obtainTextBox(msg, 0, msg.length(), boxStyle);
+		box2 = TextBox.obtain(msg, 0, msg.length(), mMockTextPaint.getMockTextSize() * msg.length(), mMockTextPaint.getMockTextHeight(), boxStyle);
 		Assert.assertNotNull(box2);
 		Assert.assertSame(prev, box2);
 		checkBoxContent(box2, msg);
 
-		box = mElementFactory.obtainTextBox(msg, 1, msg.length(), boxStyle);
+		box = TextBox.obtain(msg, 1, msg.length(), mMockTextPaint.getMockTextSize() * (msg.length() - 1), mMockTextPaint.getMockTextHeight(), boxStyle);
 		Assert.assertNotNull(box);
 		checkBoxContent(box, "ello");
 
 		try {
-			mElementFactory.obtainTextBox(msg, -1, msg.length(), boxStyle).toString();
+			TextBox.obtain(msg, -1, msg.length(), 1, 1, boxStyle).toString();
 			fail("check illegal index failed");
 		} catch (Exception e) {
 
 		}
 
 		try {
-			mElementFactory.obtainTextBox(msg, 0, msg.length() + 1, boxStyle).toString();
+			TextBox.obtain(msg, 0, msg.length() + 1, 1, 1, boxStyle).toString();
 			fail("check illegal index failed");
 		} catch (Exception e) {
 
@@ -154,10 +152,10 @@ public class DataUnitTest {
 	@Test
 	public void testBoxEquals() {
 		String msg = "hello world";
-		TextBox box1 = mElementFactory.obtainTextBox(msg);
+		TextBox box1 = TextBox.obtain(msg, 0, msg.length(), mMockTextPaint.getMockTextSize() * msg.length(), mMockTextPaint.getMockTextHeight(), null);
 		Assert.assertNotNull(box1);
 
-		TextBox box2 = mElementFactory.obtainTextBox(msg);
+		TextBox box2 = TextBox.obtain(msg, 0, msg.length(), mMockTextPaint.getMockTextSize() * msg.length(), mMockTextPaint.getMockTextHeight(), null);
 		Assert.assertNotNull(box2);
 
 		Assert.assertNotSame(box1, box2);
@@ -172,7 +170,8 @@ public class DataUnitTest {
 		StringBuilder stringBuilder = new StringBuilder("hello ");
 		stringBuilder.append("world");
 
-		box2 = mElementFactory.obtainTextBox(stringBuilder.toString());
+		msg = stringBuilder.toString();
+		box2 = TextBox.obtain(msg, 0, msg.length(), mMockTextPaint.getMockTextSize() * msg.length(), mMockTextPaint.getMockTextHeight(), null);
 		Assert.assertNotNull(box2);
 
 		Assert.assertNotSame(box1, box2);
@@ -188,7 +187,7 @@ public class DataUnitTest {
 	@Test
 	public void testBoxAppend() {
 		String msg = "hello world";
-		TextBox box = mElementFactory.obtainTextBox(msg);
+		TextBox box = TextBox.obtain(msg, 0, msg.length(), mMockTextPaint.getMockTextSize() * msg.length(), mMockTextPaint.getMockTextHeight(), null);
 		Assert.assertNotNull(box);
 		Assert.assertFalse(box.isPenalty());
 		Assert.assertFalse(box.isSplit());
@@ -203,8 +202,8 @@ public class DataUnitTest {
 		checkBoxContent(box, msg + "-");
 
 		msg = "xxxx";
-		mElementFactory.recycle(box);
-		box = mElementFactory.obtainTextBox(msg);
+		box.recycle();
+		box = TextBox.obtain(msg, 0, msg.length(), mMockTextPaint.getMockTextSize() * msg.length(), mMockTextPaint.getMockTextHeight(), null);
 		Assert.assertNotNull(box);
 		Assert.assertFalse(box.isPenalty());
 		Assert.assertFalse(box.isSplit());
@@ -218,14 +217,14 @@ public class DataUnitTest {
 		checkBoxContent(box, msg + "-", mMockTextPaint.getMockTextHeight() * 2);
 
 		msg = "abc";
-		mElementFactory.recycle(box);
-		box = mElementFactory.obtainTextBox(msg);
+		box.recycle();
+		box = TextBox.obtain(msg, 0, msg.length(), mMockTextPaint.getMockTextSize() * msg.length(), mMockTextPaint.getMockTextHeight(), null);
 		Assert.assertNotNull(box);
 		Assert.assertFalse(box.isPenalty());
 		Assert.assertFalse(box.isSplit());
 
 		String msg2 = "dcf";
-		Box box2 = mElementFactory.obtainTextBox(msg2);
+		Box box2 = TextBox.obtain(msg2, 0, msg2.length(), mMockTextPaint.getMockTextSize() * msg2.length(), mMockTextPaint.getMockTextHeight(), null);
 		Assert.assertNotNull(box2);
 		Assert.assertFalse(box2.isPenalty());
 		Assert.assertFalse(box2.isSplit());
@@ -235,8 +234,8 @@ public class DataUnitTest {
 		Assert.assertFalse(box.isSplit());
 
 		checkBoxContent(box, msg + msg2);
-		mElementFactory.recycle(box);
-		box = mElementFactory.obtainTextBox(msg);
+		box.recycle();
+		box = TextBox.obtain(msg, 0, msg.length(), mMockTextPaint.getMockTextSize() * msg.length(), mMockTextPaint.getMockTextHeight(), null);
 		Assert.assertNotNull(box);
 		Assert.assertFalse(box.isPenalty());
 		Assert.assertFalse(box.isSplit());
@@ -246,7 +245,7 @@ public class DataUnitTest {
 	@Test
 	public void testBoxSpilt() {
 		String msg = "hello world";
-		TextBox box = mElementFactory.obtainTextBox(msg);
+		TextBox box = TextBox.obtain(msg, 0, msg.length(), mMockTextPaint.getMockTextSize() * msg.length(), mMockTextPaint.getMockTextHeight(), null);
 		Assert.assertNotNull(box);
 		Assert.assertFalse(box.isPenalty());
 		Assert.assertFalse(box.isSplit());
@@ -268,8 +267,9 @@ public class DataUnitTest {
 		Assert.assertEquals(boxes[1].getHeight(), box.getHeight(), 0);
 
 		Box previous = boxes[0];
-		mElementFactory.recycle(boxes[0]);
-		boxes[0] = mElementFactory.obtainTextBox("hello");
+		boxes[0].recycle();
+		msg = "hello";
+		boxes[0] = TextBox.obtain(msg, 0, msg.length(), mMockTextPaint.getMockTextSize() * msg.length(), mMockTextPaint.getMockTextHeight(), null);
 		Assert.assertSame(previous, boxes[0]);
 		Assert.assertFalse(boxes[0].isSplit());
 	}

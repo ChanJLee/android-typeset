@@ -6,7 +6,7 @@ import me.chan.te.annotations.Hidden;
 import me.chan.te.misc.ObjectFactory;
 
 public final class Penalty implements Element {
-	private static ObjectFactory<Penalty> POOL = new ObjectFactory<>(4000);
+	private final static ObjectFactory<Penalty> POOL = new ObjectFactory<>(4000);
 
 	/**
 	 * where3 = 1 if xi is a flagged mPenalty, otherwise = 0.
@@ -55,8 +55,7 @@ public final class Penalty implements Element {
 		POOL.release(this);
 	}
 
-	@Hidden
-	public void reset(float width, float height, float penalty, boolean flag) {
+	private void reset(float width, float height, float penalty, boolean flag) {
 		mWidth = width;
 		mHeight = height;
 		mPenalty = penalty;

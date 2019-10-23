@@ -1,7 +1,6 @@
 package me.chan.te.typesetter;
 
 import android.support.annotation.Nullable;
-import android.text.TextPaint;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -11,7 +10,6 @@ import java.util.List;
 import me.chan.te.config.LineAttributes;
 import me.chan.te.data.Box;
 import me.chan.te.data.Element;
-import me.chan.te.data.ElementFactory;
 import me.chan.te.data.Glue;
 import me.chan.te.data.Line;
 import me.chan.te.data.Paragraph;
@@ -25,12 +23,6 @@ class TexTypesetter implements Typesetter {
 	private static final int CLASS_1 = 1;
 	private static final int CLASS_2 = 2;
 	private static final int CLASS_3 = 3;
-
-	private ElementFactory mElementFactory;
-
-	TexTypesetter(ElementFactory elementFactory) {
-		mElementFactory = elementFactory;
-	}
 
 	@Nullable
 	public Paragraph typeset(Segment segment, LineAttributes lineAttributes, BreakStrategy breakStrategy) {
@@ -145,12 +137,12 @@ class TexTypesetter implements Typesetter {
 		for (int i = start; i < end; ++i) {
 			Element element = lineElements.get(i);
 			if (!(element instanceof Box)) {
-				mElementFactory.recycle(element);
+				element.recycle();
 				continue;
 			}
 
 			Box box = (Box) lineElements.get(i);
-			i = mergeBox(box, i + 1, end, lineElements, mElementFactory);
+			i = mergeBox(box, i + 1, end, lineElements);
 
 			if (lineHeight < box.getHeight()) {
 				lineHeight = box.getHeight();
@@ -171,16 +163,14 @@ class TexTypesetter implements Typesetter {
 	/**
 	 * @param start        merge 开始的位置
 	 * @param lineElements 当前行
-	 * @param factory
 	 * @return 最后一个能被处理的index
 	 */
 	private int mergeBox(Box box, int start, int end,
-						 List<? extends Element> lineElements,
-						 ElementFactory factory) {
+						 List<? extends Element> lineElements) {
 		for (; start < end; ++start) {
 			Element element = lineElements.get(start);
 			if (element instanceof Glue) {
-				factory.recycle(element);
+				element.recycle();
 				break;
 			}
 
@@ -192,13 +182,13 @@ class TexTypesetter implements Typesetter {
 				}
 
 				box.append(other);
-				factory.recycle(element);
+				element.recycle();
 				continue;
 			}
 
 			if (element instanceof Penalty && start == end - 1) {
 				box.append((Penalty) element);
-				factory.recycle(element);
+				element.recycle();
 			}
 		}
 

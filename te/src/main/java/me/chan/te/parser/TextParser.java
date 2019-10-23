@@ -6,29 +6,29 @@ import java.util.LinkedList;
 import java.util.List;
 
 import me.chan.te.config.Option;
-import me.chan.te.data.ElementFactory;
 import me.chan.te.data.Segment;
 import me.chan.te.hypher.Hypher;
+import me.chan.te.measurer.Measurer;
 
 public class TextParser implements Parser {
 	@Override
 	@NonNull
-	public List<Segment> parser(CharSequence charSequence, ElementFactory factory, Hypher hypher, Option option) {
+	public List<Segment> parser(CharSequence charSequence, Measurer measurer, Hypher hypher, Option option) {
 		List<Segment> segments = new LinkedList<>();
 		int len = charSequence.length();
 		for (int i = skipBlank(charSequence, 0, len); i < len; ) {
 			int last = findNewline(charSequence, i, len);
 			if (i != last) {
-				segments.add(parseSegment(charSequence, factory, i, last, hypher, option));
+				segments.add(parseSegment(charSequence, measurer, i, last, hypher, option));
 			}
 			i = skipBlank(charSequence, last, len);
 		}
 		return segments;
 	}
 
-	private Segment parseSegment(CharSequence paragraph, ElementFactory factory,
+	private Segment parseSegment(CharSequence paragraph, Measurer measurer,
 								 int start, int end, Hypher hypher, Option option) {
-		Segment.Builder builder = new Segment.Builder(paragraph, start, end, factory);
+		Segment.Builder builder = new Segment.Builder(paragraph, start, end, measurer);
 
 		for (int i = start; i < end; ) {
 			int last = findWord(paragraph, i, end);

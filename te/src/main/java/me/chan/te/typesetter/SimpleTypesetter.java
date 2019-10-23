@@ -9,7 +9,6 @@ import java.util.List;
 import me.chan.te.config.LineAttributes;
 import me.chan.te.data.Box;
 import me.chan.te.data.Element;
-import me.chan.te.data.ElementFactory;
 import me.chan.te.data.Glue;
 import me.chan.te.data.Line;
 import me.chan.te.data.Paragraph;
@@ -18,11 +17,6 @@ import me.chan.te.data.Segment;
 import me.chan.te.text.BreakStrategy;
 
 class SimpleTypesetter implements Typesetter {
-	private ElementFactory mElementFactory;
-
-	SimpleTypesetter(ElementFactory elementFactory) {
-		mElementFactory = elementFactory;
-	}
 
 	@NonNull
 	public Paragraph typeset(Segment segment,
@@ -51,7 +45,7 @@ class SimpleTypesetter implements Typesetter {
 			if (element instanceof Box) {
 				break;
 			}
-			mElementFactory.recycle(element);
+			element.recycle();
 		}
 
 		if (start >= size) {
@@ -69,13 +63,13 @@ class SimpleTypesetter implements Typesetter {
 				Glue glue = (Glue) element;
 				currentLineWidth += (breakStrategy == BreakStrategy.BALANCED ? glue.getShrink() : glue.getWidth());
 				++start;
-				mElementFactory.recycle(element);
+				element.recycle();
 				continue;
 			}
 
 			if (!(element instanceof Box)) {
 				++start;
-				mElementFactory.recycle(element);
+				element.recycle();
 				continue;
 			}
 

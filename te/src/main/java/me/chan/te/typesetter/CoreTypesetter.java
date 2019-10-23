@@ -3,7 +3,6 @@ package me.chan.te.typesetter;
 import android.support.annotation.Nullable;
 
 import me.chan.te.config.LineAttributes;
-import me.chan.te.data.ElementFactory;
 import me.chan.te.data.Paragraph;
 import me.chan.te.data.Segment;
 import me.chan.te.text.BreakStrategy;
@@ -12,9 +11,9 @@ public class CoreTypesetter implements Typesetter {
 	private Typesetter mTexTypesetter;
 	private Typesetter mSimpleTypesetter;
 
-	public CoreTypesetter(ElementFactory elementFactory) {
-		mTexTypesetter = new TexTypesetter(elementFactory);
-		mSimpleTypesetter = new SimpleTypesetter(elementFactory);
+	public CoreTypesetter() {
+		mTexTypesetter = new TexTypesetter();
+		mSimpleTypesetter = new SimpleTypesetter();
 	}
 
 	@Nullable

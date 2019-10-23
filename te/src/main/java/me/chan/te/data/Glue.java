@@ -4,7 +4,7 @@ import me.chan.te.annotations.Hidden;
 import me.chan.te.misc.ObjectFactory;
 
 public final class Glue implements Element {
-	private static ObjectFactory<Glue> POOL = new ObjectFactory<>(10000);
+	private final static ObjectFactory<Glue> POOL = new ObjectFactory<>(10000);
 
 	/**
 	 * stretch ability
@@ -48,8 +48,7 @@ public final class Glue implements Element {
 		POOL.release(this);
 	}
 
-	@Hidden
-	public void reset(float width, float stretch, float shrink) {
+	private void reset(float width, float stretch, float shrink) {
 		mWidth = width;
 		mStretch = stretch;
 		mShrink = shrink;
