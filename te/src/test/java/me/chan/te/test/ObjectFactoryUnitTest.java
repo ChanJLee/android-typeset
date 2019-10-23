@@ -27,12 +27,12 @@ public class ObjectFactoryUnitTest {
 		ObjectFactory<String> objectFactory = new ObjectFactory<>(1);
 		Assert.assertNull(objectFactory.acquire());
 
-		// normal release
+		// normal recycle
 		objectFactory.release("hello");
 		Assert.assertNotNull(objectFactory.acquire());
 		Assert.assertNull(objectFactory.acquire());
 
-		// over release
+		// over recycle
 		objectFactory.release("world");
 		objectFactory.release("hello");
 		Assert.assertEquals(objectFactory.acquire(), "world");

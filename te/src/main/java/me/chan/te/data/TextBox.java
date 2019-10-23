@@ -5,8 +5,6 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.text.TextPaint;
 
-import java.util.Objects;
-
 import me.chan.te.annotations.Hidden;
 
 public final class TextBox extends Box implements Element, Cloneable {
@@ -33,7 +31,7 @@ public final class TextBox extends Box implements Element, Cloneable {
 	}
 
 	@Override
-	public void release() {
+	public void recycle() {
 		mText = null;
 		mBoxStyle = null;
 		mWidth = mHeight = -1;

@@ -1,8 +1,13 @@
 package me.chan.te.data;
 
+import android.support.annotation.NonNull;
+
 import me.chan.te.annotations.Hidden;
+import me.chan.te.misc.ObjectFactory;
 
 public final class Penalty implements Element {
+	private static ObjectFactory<Penalty> POOL = new ObjectFactory<>(4000);
+
 	/**
 	 * where3 = 1 if xi is a flagged mPenalty, otherwise = 0.
 	 */
@@ -15,7 +20,7 @@ public final class Penalty implements Element {
 	private float mWidth;
 	private float mHeight;
 
-	Penalty(float width, float height, float penalty, boolean flag) {
+	private Penalty(float width, float height, float penalty, boolean flag) {
 		reset(width, height, penalty, flag);
 	}
 
@@ -45,8 +50,9 @@ public final class Penalty implements Element {
 	}
 
 	@Override
-	public void release() {
-		/* do nothing */
+	public void recycle() {
+		reset(-1, -1, -1, false);
+		POOL.release(this);
 	}
 
 	@Hidden
@@ -55,5 +61,15 @@ public final class Penalty implements Element {
 		mHeight = height;
 		mPenalty = penalty;
 		mFlag = flag;
+	}
+
+	@NonNull
+	public static Penalty obtain(float width, float height, float penalty, boolean flag) {
+		Penalty p = POOL.acquire();
+		if (p == null) {
+			return new Penalty(width, height, penalty, flag);
+		}
+		p.reset(width, height, penalty, flag);
+		return p;
 	}
 }
