@@ -1,8 +1,10 @@
 package me.chan.te.data;
 
 import me.chan.te.annotations.Hidden;
+import me.chan.te.misc.ObjectFactory;
 
 public final class Glue implements Element {
+	private static ObjectFactory<Glue> POOL = new ObjectFactory<>(10000);
 
 	/**
 	 * stretch ability
@@ -15,7 +17,7 @@ public final class Glue implements Element {
 
 	private float mWidth;
 
-	Glue(float width, float stretch, float shrink) {
+	private Glue(float width, float stretch, float shrink) {
 		reset(width, stretch, shrink);
 	}
 
@@ -42,7 +44,8 @@ public final class Glue implements Element {
 
 	@Override
 	public void recycle() {
-		/* do nothing */
+		reset(-1, -1, -1);
+		POOL.release(this);
 	}
 
 	@Hidden
@@ -50,5 +53,14 @@ public final class Glue implements Element {
 		mWidth = width;
 		mStretch = stretch;
 		mShrink = shrink;
+	}
+
+	public static Glue obtain(float width, float stretch, float shrink) {
+		Glue glue = POOL.acquire();
+		if (glue == null) {
+			return new Glue(width, stretch, shrink);
+		}
+		glue.reset(width, stretch, shrink);
+		return glue;
 	}
 }

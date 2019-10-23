@@ -62,7 +62,7 @@ public final class Segment {
 				}
 			}
 			mHyphenated.clear();
-			mElements.add(mElementFactory.obtainGlue(option.getSpaceWidth(), option.getSpaceStretch(), option.getSpaceShrink()));
+			mElements.add(Glue.obtain(option.getSpaceWidth(), option.getSpaceStretch(), option.getSpaceShrink()));
 			return this;
 		}
 
@@ -71,7 +71,7 @@ public final class Segment {
 				mElements.remove(mElements.size() - 1);
 			}
 
-			mElements.add(new Glue(0, Typesetter.INFINITY, 0));
+			mElements.add(Glue.obtain(0, Typesetter.INFINITY, 0));
 			mElements.add(Penalty.obtain(0, 0, -Typesetter.INFINITY, true));
 
 			return new Segment(mText, mStart, mEnd, mElements);

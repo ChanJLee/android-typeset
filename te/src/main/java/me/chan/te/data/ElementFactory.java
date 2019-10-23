@@ -36,15 +36,6 @@ public class ElementFactory {
 		return box;
 	}
 
-	public Glue obtainGlue(float width, float stretch, float shrink) {
-		Glue glue = mGluePool.acquire();
-		if (glue == null) {
-			return new Glue(width, stretch, shrink);
-		}
-		glue.reset(width, stretch, shrink);
-		return glue;
-	}
-
 	public void recycle(Element element) {
 		if (element == null) {
 			return;
