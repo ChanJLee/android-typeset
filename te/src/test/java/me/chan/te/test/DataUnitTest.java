@@ -28,7 +28,7 @@ public class DataUnitTest {
 		Assert.assertNotEquals(mMockTextPaint.getMockTextHeight(), 0);
 
 		String hello = "hello";
-		Assert.assertNotEquals(mockMeasurer.getFontSpacing(), 0);
+		Assert.assertNotEquals(mockMeasurer.getLineSpacing(), 0);
 		Assert.assertEquals("check measure text", mockMeasurer.getDesiredWidth(hello,
 				0, hello.length()), hello.length() * mMockTextPaint.getMockTextSize(), 0);
 		Assert.assertEquals("check measure text", mockMeasurer.getDesiredWidth(hello,

@@ -20,7 +20,7 @@ public class MockMeasurer implements Measurer {
 	}
 
 	@Override
-	public float getFontSpacing() {
+	public float getLineSpacing() {
 		return 20;
 	}
 }
