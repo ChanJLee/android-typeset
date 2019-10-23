@@ -8,6 +8,9 @@ import me.chan.te.hypher.Hypher;
 import me.chan.te.measurer.Measurer;
 import me.chan.te.typesetter.Typesetter;
 
+/**
+ * 一段文本片段
+ */
 public final class Segment {
 	private CharSequence mText;
 	private int mStart;

@@ -2,6 +2,9 @@ package me.chan.te.data;
 
 import java.util.List;
 
+/**
+ * 绘制行
+ */
 public class Line {
 	private List<Box> mBoxes;
 	private float mLineHeight;

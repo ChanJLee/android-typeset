@@ -1,8 +1,10 @@
 package me.chan.te.data;
 
-import me.chan.te.annotations.Hidden;
 import me.chan.te.misc.ObjectFactory;
 
+/**
+ * 代表一个空格
+ */
 public final class Glue implements Element {
 	private final static ObjectFactory<Glue> POOL = new ObjectFactory<>(10000);
 
