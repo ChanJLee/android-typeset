@@ -7,7 +7,6 @@ import android.graphics.Paint;
 import android.graphics.Rect;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.util.SparseArrayCompat;
 import android.text.TextPaint;
 import android.util.AttributeSet;
 import android.view.GestureDetector;
@@ -20,10 +19,10 @@ import me.chan.te.annotations.Hidden;
 import me.chan.te.config.LineAttributes;
 import me.chan.te.config.Option;
 import me.chan.te.data.Box;
-import me.chan.te.text.Gravity;
 import me.chan.te.data.Line;
 import me.chan.te.data.Paragraph;
 import me.chan.te.log.Log;
+import me.chan.te.text.Gravity;
 
 @Hidden
 public class ParagraphView extends View implements GestureDetector.OnGestureListener {
@@ -42,7 +41,6 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 	private TextPaint mWorkPaint = new TextPaint();
 	private boolean mDebugMode = false;
 	private Option mOption;
-	private SparseArrayCompat<Float> mLineWordSpaces = new SparseArrayCompat<>();
 
 	public ParagraphView(Context context) {
 		super(context);
@@ -181,7 +179,7 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 			spaceWidth = mOption.getSpaceWidth();
 		}
 
-		mLineWordSpaces.put(lineNumber, spaceWidth);
+		line.setSpaceWidth(spaceWidth);
 
 		for (int i = 0; i < boxes.size(); ++i) {
 			Box box = boxes.get(i);
@@ -255,10 +253,7 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 		}
 
 		List<Box> boxes = targetLine.getBoxes();
-		float spaceWidth = mOption.getSpaceWidth();
-		if (mLineWordSpaces.containsKey(lineNumber)) {
-			spaceWidth = mLineWordSpaces.get(lineNumber);
-		}
+		float spaceWidth = targetLine.getSpaceWidth();
 
 		int boxSize = boxes.size();
 		float offsetX = getPaddingLeft();
