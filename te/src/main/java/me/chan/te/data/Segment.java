@@ -40,7 +40,7 @@ public final class Segment {
 		private int mStart;
 		private int mEnd;
 		private List<Element> mElements = new ArrayList<>();
-		private List<String> mHyphenated = new ArrayList<>(10);
+		private List<Integer> mHyphenated = new ArrayList<>(10);
 		private Measurer mMeasurer;
 		private Hypher mHypher;
 		private Option mOption;
@@ -56,7 +56,7 @@ public final class Segment {
 
 		public Builder text(CharSequence text, int start, int end) {
 			int len = end - start;
-			mHypher.hyphenate(String.valueOf(text), start, end - start, mHyphenated);
+			mHypher.hyphenate(text, start, end, mHyphenated);
 			int size = mHyphenated.size();
 			if (size == 0 || len < MIN_HYPER_LEN) {
 				mElements.add(TextBox.obtain(text, start, end,
@@ -66,16 +66,20 @@ public final class Segment {
 				));
 			} else {
 				for (int j = 0; j < size; ++j) {
-					String item = mHyphenated.get(j);
-					int itemLen = item.length();
-					mElements.add(TextBox.obtain(item, 0, itemLen,
-							mMeasurer.getDesiredWidth(item, 0, itemLen),
-							mMeasurer.getDesiredHeight(item, 0, itemLen),
+					int point = mHyphenated.get(j);
+					if (point == start) {
+						continue;
+					}
+
+					mElements.add(TextBox.obtain(text, start, point,
+							mMeasurer.getDesiredWidth(text, start, point),
+							mMeasurer.getDesiredHeight(text, start, point),
 							null
 					));
-					if (j != size - 1 && !item.isEmpty() && item.charAt(itemLen - 1) != '-') {
+					if (j != size - 1 && text.charAt(point - 1) != '-') {
 						mElements.add(Penalty.obtain(mOption.getHyphenWidth(), mOption.getHyphenHeight(), Typesetter.HYPHEN_PENALTY, true));
 					}
+					start = point;
 				}
 			}
 			mHyphenated.clear();
