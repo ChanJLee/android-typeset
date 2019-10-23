@@ -10,6 +10,7 @@ public class Line {
 	private float mLineHeight;
 	private float mLineWidth;
 	private float mRatio;
+	private float mSpaceWidth;
 
 	public Line(List<Box> boxes, float lineWidth, float lineHeight, float ratio) {
 		mBoxes = boxes;
@@ -32,5 +33,13 @@ public class Line {
 
 	public float getLineWidth() {
 		return mLineWidth;
+	}
+
+	public float getSpaceWidth() {
+		return mSpaceWidth;
+	}
+
+	public void setSpaceWidth(float spaceWidth) {
+		mSpaceWidth = spaceWidth;
 	}
 }
