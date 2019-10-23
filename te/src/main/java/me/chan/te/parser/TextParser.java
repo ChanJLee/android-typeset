@@ -19,17 +19,15 @@ public class TextParser implements Parser {
 		for (int i = skipBlank(charSequence, 0, len); i < len; ) {
 			int last = findNewline(charSequence, i, len);
 			if (i != last) {
-				segments.add(parseSegment(charSequence, measurer, i, last, hypher, option));
+				segments.add(parseSegment(charSequence, i, last,
+						new Segment.Builder(charSequence, i, last, measurer, hypher, option)));
 			}
 			i = skipBlank(charSequence, last, len);
 		}
 		return segments;
 	}
 
-	private Segment parseSegment(CharSequence paragraph, Measurer measurer,
-								 int start, int end, Hypher hypher, Option option) {
-		Segment.Builder builder = new Segment.Builder(paragraph, start, end, measurer);
-
+	private Segment parseSegment(CharSequence paragraph, int start, int end, Segment.Builder builder) {
 		for (int i = start; i < end; ) {
 			int last = findWord(paragraph, i, end);
 			int first = i;
@@ -38,7 +36,7 @@ public class TextParser implements Parser {
 				continue;
 			}
 
-			builder.text(hypher, option, paragraph, first, last);
+			builder.text(paragraph, first, last);
 		}
 		return builder.build();
 	}
