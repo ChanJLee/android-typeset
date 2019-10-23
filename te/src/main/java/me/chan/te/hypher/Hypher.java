@@ -86,6 +86,10 @@ public class Hypher {
 			Log.w("hyphenate result is not empty");
 		}
 
+		if (start == end) {
+			return;
+		}
+
 		String word = String.valueOf(text);
 
 		int len = end - start;
