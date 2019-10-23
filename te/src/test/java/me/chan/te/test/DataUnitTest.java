@@ -72,7 +72,7 @@ public class DataUnitTest {
 
 	@Test
 	public void testPenalty() {
-		Penalty penalty = mElementFactory.obtainPenalty(1, 2, 3, true);
+		Penalty penalty = Penalty.obtain(1, 2, 3, true);
 		Assert.assertNotNull(penalty);
 
 		Assert.assertEquals("check width: ", penalty.getWidth(), 1, 0);
@@ -83,7 +83,7 @@ public class DataUnitTest {
 		Penalty prev = penalty;
 		mElementFactory.recycle(penalty);
 
-		penalty = mElementFactory.obtainPenalty(4, 5, 6, false);
+		penalty = Penalty.obtain(4, 5, 6, false);
 		Assert.assertNotNull(penalty);
 
 		Assert.assertSame(penalty, prev);
@@ -193,7 +193,7 @@ public class DataUnitTest {
 		Assert.assertFalse(box.isPenalty());
 		Assert.assertFalse(box.isSplit());
 
-		Penalty penalty = mElementFactory.obtainPenalty(mMockTextPaint.getMockTextSize(), 2, 3, true);
+		Penalty penalty = Penalty.obtain(mMockTextPaint.getMockTextSize(), 2, 3, true);
 		Assert.assertNotNull(penalty);
 
 		box.append(penalty);
@@ -210,7 +210,7 @@ public class DataUnitTest {
 		Assert.assertFalse(box.isSplit());
 		checkBoxContent(box, msg);
 
-		penalty = mElementFactory.obtainPenalty(mMockTextPaint.getMockTextSize(), mMockTextPaint.getMockTextHeight() * 2, 3, true);
+		penalty = Penalty.obtain(mMockTextPaint.getMockTextSize(), mMockTextPaint.getMockTextHeight() * 2, 3, true);
 		Assert.assertNotNull(penalty);
 		box.append(penalty);
 		Assert.assertTrue(box.isPenalty());
