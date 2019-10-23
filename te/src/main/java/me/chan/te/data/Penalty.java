@@ -2,7 +2,6 @@ package me.chan.te.data;
 
 import android.support.annotation.NonNull;
 
-import me.chan.te.annotations.Hidden;
 import me.chan.te.misc.ObjectFactory;
 
 public final class Penalty implements Element {
