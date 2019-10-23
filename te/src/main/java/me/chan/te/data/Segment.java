@@ -39,17 +39,21 @@ public final class Segment {
 		private List<Element> mElements = new ArrayList<>();
 		private List<String> mHyphenated = new ArrayList<>(10);
 		private Measurer mMeasurer;
+		private Hypher mHypher;
+		private Option mOption;
 
-		public Builder(CharSequence text, int start, int end, Measurer measurer) {
+		public Builder(CharSequence text, int start, int end, Measurer measurer, Hypher hypher, Option option) {
 			mText = text;
 			mStart = start;
 			mEnd = end;
 			mMeasurer = measurer;
+			mHypher = hypher;
+			mOption = option;
 		}
 
-		public Builder text(Hypher hypher, Option option, CharSequence text, int start, int end) {
+		public Builder text(CharSequence text, int start, int end) {
 			int len = end - start;
-			hypher.hyphenate(String.valueOf(text), start, end - start, mHyphenated);
+			mHypher.hyphenate(String.valueOf(text), start, end - start, mHyphenated);
 			int size = mHyphenated.size();
 			if (size == 0 || len < MIN_HYPER_LEN) {
 				mElements.add(TextBox.obtain(text, start, end,
@@ -67,12 +71,12 @@ public final class Segment {
 							null
 					));
 					if (j != size - 1 && !item.isEmpty() && item.charAt(itemLen - 1) != '-') {
-						mElements.add(Penalty.obtain(option.getHyphenWidth(), option.getHyphenHeight(), Typesetter.HYPHEN_PENALTY, true));
+						mElements.add(Penalty.obtain(mOption.getHyphenWidth(), mOption.getHyphenHeight(), Typesetter.HYPHEN_PENALTY, true));
 					}
 				}
 			}
 			mHyphenated.clear();
-			mElements.add(Glue.obtain(option.getSpaceWidth(), option.getSpaceStretch(), option.getSpaceShrink()));
+			mElements.add(Glue.obtain(mOption.getSpaceWidth(), mOption.getSpaceStretch(), mOption.getSpaceShrink()));
 			return this;
 		}
 
