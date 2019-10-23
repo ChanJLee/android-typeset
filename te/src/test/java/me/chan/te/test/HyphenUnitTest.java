@@ -21,7 +21,7 @@ public class HyphenUnitTest {
 	@Test
 	public void testBase() {
 		List<String> result = new ArrayList<>();
-		Hypher.getInstance().hyphenate("triangle", result);
+		hyphenate("triangle", result);
 		System.out.println(result);
 		assertEquals(result.size(), 3);
 		assertEquals(result.get(0), "tri");
@@ -29,12 +29,12 @@ public class HyphenUnitTest {
 		assertEquals(result.get(2), "gle");
 
 		result = new ArrayList<>();
-		Hypher.getInstance().hyphenate("ok", result);
+		hyphenate("ok", result);
 		System.out.println(result);
 		assertEquals(result.size(), 0);
 
 		result = new ArrayList<>();
-		Hypher.getInstance().hyphenate("oktriangle", 2, "oktriangle".length() - 2, result);
+		hyphenate("oktriangle", 2, "oktriangle".length() - 2, result);
 		System.out.println(result);
 		assertEquals(result.size(), 3);
 		assertEquals(result.get(0), "tri");
@@ -42,12 +42,12 @@ public class HyphenUnitTest {
 		assertEquals(result.get(2), "gle");
 
 		result = new ArrayList<>();
-		Hypher.getInstance().hyphenate("oktriangle", 0, 2, result);
+		hyphenate("oktriangle", 0, 2, result);
 		System.out.println(result);
 		assertEquals(result.size(), 0);
 
 		result = new ArrayList<>();
-		Hypher.getInstance().hyphenate("oktriangleok", 2, "oktriangleok".length() - 4, result);
+		hyphenate("oktriangleok", 2, "oktriangleok".length() - 4, result);
 		System.out.println(result);
 		assertEquals(result.size(), 3);
 		assertEquals(result.get(0), "tri");
@@ -55,7 +55,7 @@ public class HyphenUnitTest {
 		assertEquals(result.get(2), "gle");
 
 		result = new ArrayList<>();
-		Hypher.getInstance().hyphenate("cos-triangleok", result);
+		hyphenate("cos-triangleok", result);
 		System.out.println(result);
 		assertEquals(result.size(), 3);
 		assertEquals(result.get(0), "cos-tri");
@@ -63,28 +63,21 @@ public class HyphenUnitTest {
 		assertEquals(result.get(2), "gleok");
 
 		result = new ArrayList<>();
-		Hypher.getInstance().hyphenate("tri-angleok", result);
+		hyphenate("tri-angleok", result);
 		System.out.println(result);
 		assertEquals(result.size(), 2);
 		assertEquals(result.get(0), "tri-an");
 		assertEquals(result.get(1), "gleok");
 
 		result = new ArrayList<>();
-		Hypher.getInstance().hyphenate("", result);
+		hyphenate("", result);
 		System.out.println(result);
 		assertEquals(result.size(), 0);
 
 		try {
 			result = new ArrayList<>();
-			Hypher.getInstance().hyphenate(null, result);
+			hyphenate(null, result);
 			Assert.fail("test null string");
-		} catch (Exception e) {
-			/* do nothing */
-		}
-
-		try {
-			Hypher.getInstance().hyphenate("", null);
-			Assert.fail("test null result");
 		} catch (Exception e) {
 			/* do nothing */
 		}
@@ -106,7 +99,7 @@ public class HyphenUnitTest {
 		while ((line = bufferedReader.readLine()) != null) {
 			++count;
 			assertEquals(buffer.size(), 0);
-			hypher.hyphenate(line, buffer);
+			hyphenate(line, buffer);
 			int size = buffer.size();
 			for (int i = 0; i < size; ++i) {
 				String word = buffer.get(i);
@@ -118,5 +111,19 @@ public class HyphenUnitTest {
 		}
 
 		System.out.println("count: " + count + " used time(ms): " + (System.currentTimeMillis() - timeStamp));
+	}
+
+	private void hyphenate(String text, List<String> result) {
+		hyphenate(text, 0, text.length(), result);
+	}
+
+	private void hyphenate(String text, int start, int len, List<String> result) {
+		Hypher hypher = Hypher.getInstance();
+		List<Integer> list = new ArrayList<>();
+		hypher.hyphenate(text, start, start + len, list);
+		for (int p : list) {
+			result.add(text.substring(start, p));
+			start = p;
+		}
 	}
 }

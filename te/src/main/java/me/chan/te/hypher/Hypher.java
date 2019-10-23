@@ -2,13 +2,14 @@ package me.chan.te.hypher;
 
 import android.support.annotation.NonNull;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 import me.chan.te.log.Log;
 
-
+/**
+ * 断字器
+ */
 public class Hypher {
 
 	private static Hypher sInstance;
@@ -80,26 +81,14 @@ public class Hypher {
 		t.points = list.toArray();
 	}
 
-	@NonNull
-	public List<String> hyphenate(@NonNull String word) {
-		List<String> result = new ArrayList<>();
-		hyphenate(word, result);
-		return result;
-	}
-
-	/**
-	 * @param word   word
-	 * @param result hyphenate
-	 */
-	public void hyphenate(@NonNull String word, @NonNull List<String> result) {
-		hyphenate(word, 0, word.length(), result);
-	}
-
-	public void hyphenate(@NonNull String word, int start, int len, @NonNull List<String> result) {
+	public void hyphenate(@NonNull CharSequence text, int start, int end, @NonNull List<Integer> result) {
 		if (!result.isEmpty()) {
 			Log.w("hyphenate result is not empty");
 		}
 
+		String word = String.valueOf(text);
+
+		int len = end - start;
 		int lenWithPadding = len + 2;
 		int[] points = new int[len + 2];
 		TrieNode node, trie = this.mTrie;
@@ -109,7 +98,7 @@ public class Hypher {
 			for (int j = i; j < lenWithPadding; j++) {
 				int codePoints = UNDER_LINE_CODE_POINT;
 				if (j != 0 && j != lenWithPadding - 1) {
-					codePoints = word.codePointAt(start + j - 1);
+					codePoints = word.charAt(start + j - 1);
 				}
 
 				node = node.codePoint.get(codePoints);
@@ -130,16 +119,16 @@ public class Hypher {
 		int last = start + len;
 		for (int i = 1; i < lenWithPadding - 1; i++) {
 			if (i > this.mLeftMin && i < (lenWithPadding - this.mRightMin) && points[i] % 2 > 0) {
-				int end = first + i - 1;
-				if (word.charAt(end - 1) != '-') {
-					result.add(word.substring(start, end));
-					start = end;
+				int point = first + i - 1;
+				if (word.charAt(point - 1) != '-') {
+					result.add(point);
+					start = point;
 				}
 			}
 		}
 
 		if (start < last && last - start != len) {
-			result.add(word.substring(start, last));
+			result.add(last);
 		}
 	}
 }
