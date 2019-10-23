@@ -41,7 +41,7 @@ public final class Glue implements Element {
 	}
 
 	@Override
-	public void release() {
+	public void recycle() {
 		/* do nothing */
 	}
 

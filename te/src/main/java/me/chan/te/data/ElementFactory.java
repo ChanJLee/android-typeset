@@ -45,21 +45,12 @@ public class ElementFactory {
 		return glue;
 	}
 
-	public Penalty obtainPenalty(float width, float height, float penalty, boolean flag) {
-		Penalty p = mPenaltyPool.acquire();
-		if (p == null) {
-			return new Penalty(width, height, penalty, flag);
-		}
-		p.reset(width, height, penalty, flag);
-		return p;
-	}
-
 	public void recycle(Element element) {
 		if (element == null) {
 			return;
 		}
 
-		element.release();
+		element.recycle();
 
 		if (element instanceof TextBox) {
 			mBoxPool.release((TextBox) element);

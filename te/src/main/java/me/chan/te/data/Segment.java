@@ -57,7 +57,7 @@ public final class Segment {
 					String item = mHyphenated.get(j);
 					mElements.add(mElementFactory.obtainTextBox(item));
 					if (j != size - 1 && !item.isEmpty() && item.charAt(item.length() - 1) != '-') {
-						mElements.add(mElementFactory.obtainPenalty(option.getHyphenWidth(), option.getHyphenHeight(), Typesetter.HYPHEN_PENALTY, true));
+						mElements.add(Penalty.obtain(option.getHyphenWidth(), option.getHyphenHeight(), Typesetter.HYPHEN_PENALTY, true));
 					}
 				}
 			}
@@ -72,7 +72,7 @@ public final class Segment {
 			}
 
 			mElements.add(new Glue(0, Typesetter.INFINITY, 0));
-			mElements.add(new Penalty(0, 0, -Typesetter.INFINITY, true));
+			mElements.add(Penalty.obtain(0, 0, -Typesetter.INFINITY, true));
 
 			return new Segment(mText, mStart, mEnd, mElements);
 		}
