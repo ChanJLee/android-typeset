@@ -78,7 +78,7 @@ public final class Segment implements Recyclable {
 
 		public Builder newSegment(CharSequence text, int start, int end) {
 			if (mSegment != null) {
-				throw new IllegalStateException("call build than call new Segment");
+				throw new IllegalStateException("call newSegment twice");
 			}
 
 			mSegment = Segment.obtain(text, start, end);
