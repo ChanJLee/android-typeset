@@ -62,9 +62,7 @@ public final class Segment implements Recyclable {
 		return segment;
 	}
 
-	public static class Builder implements Recyclable {
-		private static final ObjectFactory<Builder> POOL = new ObjectFactory<>(1);
-
+	public static class Builder {
 		private static final int MIN_HYPER_LEN = 4;
 		private List<Integer> mHyphenated = new ArrayList<>(10);
 		private Measurer mMeasurer;
@@ -72,8 +70,19 @@ public final class Segment implements Recyclable {
 		private Option mOption;
 		private Segment mSegment;
 
-		private Builder(Measurer measurer, Hypher hypher, Option option, Segment segment) {
-			reset(measurer, hypher, option, segment);
+		public Builder(Measurer measurer, Hypher hypher, Option option) {
+			mMeasurer = measurer;
+			mHypher = hypher;
+			mOption = option;
+		}
+
+		public Builder newSegment(CharSequence text, int start, int end) {
+			if (mSegment != null) {
+				throw new IllegalStateException("call build than call new Segment");
+			}
+
+			mSegment = Segment.obtain(text, start, end);
+			return this;
 		}
 
 		public Builder text(CharSequence text, int start, int end) {
@@ -121,7 +130,9 @@ public final class Segment implements Recyclable {
 
 			elements.add(Glue.obtain(0, Typesetter.INFINITY, 0));
 			elements.add(Penalty.obtain(0, 0, -Typesetter.INFINITY, true));
-			return mSegment;
+			Segment segment = mSegment;
+			mSegment = null;
+			return segment;
 		}
 
 		private void reset(Measurer measurer, Hypher hypher, Option option, Segment segment) {
@@ -130,22 +141,6 @@ public final class Segment implements Recyclable {
 			mOption = option;
 			mSegment = segment;
 			mHyphenated.clear();
-		}
-
-		@Override
-		public void recycle() {
-			reset(null, null, null, null);
-			POOL.release(this);
-		}
-
-		public static Builder obtain(CharSequence text, int start, int end, Measurer measurer, Hypher hypher, Option option) {
-			Builder builder = POOL.acquire();
-			Segment segment = Segment.obtain(text, start, end);
-			if (builder == null) {
-				return new Builder(measurer, hypher, option, segment);
-			}
-			builder.reset(measurer, hypher, option, segment);
-			return builder;
 		}
 	}
 }
