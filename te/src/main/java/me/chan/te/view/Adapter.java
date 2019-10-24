@@ -108,13 +108,20 @@ public class Adapter extends RecyclerView.Adapter<TexViewHolder> {
 
 	void render(final Source source, final int width) {
 		cancel();
+		final List<Paragraph> prevParagraph = mParagraphs;
+		final List<Segment> prevSegments = mSegments;
+
+		mParagraphs = null;
+		mSegments = null;
+		notifyDataSetChanged();
+
 		mTask = mExecutor.submit(new Runnable() {
 			@Override
 			public void run() {
 				try {
 					mContent = source.open();
 					mWidth = width;
-					refreshInternal();
+					refreshInternal(prevParagraph, prevSegments);
 				} catch (Throwable throwable) {
 					w(throwable);
 				} finally {
@@ -136,13 +143,17 @@ public class Adapter extends RecyclerView.Adapter<TexViewHolder> {
 		}
 
 		cancel();
+		final List<Paragraph> prevParagraph = mParagraphs;
+		final List<Segment> prevSegments = mSegments;
+
 		mParagraphs = null;
+		mSegments = null;
 		notifyDataSetChanged();
 
 		mTask = mExecutor.submit(new Runnable() {
 			@Override
 			public void run() {
-				refreshInternal();
+				refreshInternal(prevParagraph, prevSegments);
 			}
 		});
 		d("refresh: " + mTask);
@@ -155,13 +166,14 @@ public class Adapter extends RecyclerView.Adapter<TexViewHolder> {
 		}
 	}
 
-	private synchronized void refreshInternal() {
-		for (int i = 0; mParagraphs != null && i < mParagraphs.size(); ++i) {
-			mParagraphs.get(i).recycle();
+	private synchronized void refreshInternal(List<Paragraph> prevParagraph,
+											  List<Segment> prevSegments) {
+		for (int i = 0; prevParagraph != null && i < prevParagraph.size(); ++i) {
+			prevParagraph.get(i).recycle();
 		}
 
-		for (int i = 0; mSegments != null && i < mSegments.size(); ++i) {
-			mSegments.get(i).recycle();
+		for (int i = 0; prevSegments != null && i < prevSegments.size(); ++i) {
+			prevSegments.get(i).recycle();
 		}
 
 		CoreTypesetter texTypesetter = new CoreTypesetter();

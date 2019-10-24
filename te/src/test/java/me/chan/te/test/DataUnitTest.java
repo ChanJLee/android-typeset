@@ -8,11 +8,13 @@ import org.junit.Test;
 
 import java.util.List;
 
+import me.chan.te.config.LineAttributes;
 import me.chan.te.data.Box;
 import me.chan.te.data.BoxStyle;
 import me.chan.te.data.Element;
 import me.chan.te.data.Glue;
 import me.chan.te.data.Line;
+import me.chan.te.data.Paragraph;
 import me.chan.te.data.Penalty;
 import me.chan.te.data.Segment;
 import me.chan.te.data.TextBox;
@@ -370,6 +372,29 @@ public class DataUnitTest {
 		Assert.assertNotEquals(line.getLineHeight(), 2, 0);
 		Assert.assertNotEquals(line.getLineWidth(), 3, 0);
 		Assert.assertNotEquals(line.getRatio(), 4, 0);
+	}
+
+	@Test
+	public void testParagraph() {
+		LineAttributes lineAttributes = new LineAttributes(null);
+		Paragraph paragraph = Paragraph.obtain(lineAttributes);
+		Assert.assertNotNull(paragraph);
+		Assert.assertSame(paragraph.getLineAttributes(), lineAttributes);
+		Assert.assertTrue(paragraph.getLines().isEmpty());
+		Assert.assertEquals(paragraph.getLineCount(), 0);
+		Line line = Line.obtain();
+		paragraph.add(line);
+		Assert.assertFalse(paragraph.getLines().isEmpty());
+		Assert.assertSame(line, paragraph.getLines().get(0));
+
+		Paragraph prev = paragraph;
+		paragraph.recycle();
+		paragraph = Paragraph.obtain(lineAttributes);
+		Assert.assertSame(paragraph, prev);
+		Assert.assertNotNull(paragraph);
+		Assert.assertSame(paragraph.getLineAttributes(), lineAttributes);
+		Assert.assertTrue(paragraph.getLines().isEmpty());
+		Assert.assertEquals(paragraph.getLineCount(), 0);
 	}
 
 	private void checkBoxContent(TextBox box, String msg) {
