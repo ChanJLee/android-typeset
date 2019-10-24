@@ -2,8 +2,6 @@ package me.chan.te.typesetter;
 
 import android.support.annotation.NonNull;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 
 import me.chan.te.config.LineAttributes;
@@ -25,17 +23,15 @@ class SimpleTypesetter implements Typesetter {
 		// 一行尽可能的占满尽可能多的字符
 		// 如果如果只显示了一个并且还不足以完美显示，那么无脑折断
 		List<? extends Element> elements = segment.getElements();
-		List<Line> lines = new LinkedList<>();
 		int size = elements.size();
 		for (int i = 0; i < size; ) {
-			float width = lineAttributes.get(lines.size()).getLineWidth();
-			i = typesetLine(width, lines, elements, i, breakStrategy);
+			float width = lineAttributes.get(paragraph.getLineCount()).getLineWidth();
+			i = typesetLine(width, paragraph, elements, i, breakStrategy);
 		}
-		paragraph.setLines(lines);
 		return paragraph;
 	}
 
-	private int typesetLine(float width, List<Line> lines, List<? extends Element> elements,
+	private int typesetLine(float width, Paragraph paragraph, List<? extends Element> elements,
 							int start, BreakStrategy breakStrategy) {
 		int size = elements.size();
 
@@ -95,13 +91,13 @@ class SimpleTypesetter implements Typesetter {
 
 		// 如果一行是空的，说明当前只能排一个，并且都显示不下
 		if (line.isEmpty()) {
-			return spiltIf(lines, elements, start, line, width);
+			return spiltIf(paragraph, elements, start, line, width);
 		}
 
 		line.setLineWidth(lineWidth);
 		line.setLineHeight(lineHeight);
 		line.setRatio(0);
-		lines.add(line);
+		paragraph.add(line);
 		return start;
 	}
 
@@ -153,7 +149,7 @@ class SimpleTypesetter implements Typesetter {
 		return start;
 	}
 
-	private int spiltIf(List<Line> lines, List<? extends Element> elements, int start, Line line, float width) {
+	private int spiltIf(Paragraph paragraph, List<? extends Element> elements, int start, Line line, float width) {
 		if (start >= elements.size()) {
 			return start;
 		}
@@ -173,7 +169,7 @@ class SimpleTypesetter implements Typesetter {
 		line.setLineWidth(width);
 		line.setLineHeight(box.getHeight());
 		line.setRatio(0);
-		lines.add(line);
+		paragraph.add(line);
 		return start;
 	}
 }

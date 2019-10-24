@@ -1,6 +1,6 @@
 package me.chan.te.data;
 
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 import me.chan.te.misc.ObjectFactory;
@@ -11,7 +11,7 @@ import me.chan.te.misc.ObjectFactory;
 public class Line implements Recyclable {
 	private static final ObjectFactory<Line> POOL = new ObjectFactory<>(3000);
 
-	private List<Box> mBoxes = new ArrayList<>(30);
+	private List<Box> mBoxes = new LinkedList<>();
 	private float mLineHeight;
 	private float mLineWidth;
 	private float mRatio;
