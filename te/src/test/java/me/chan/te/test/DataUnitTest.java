@@ -323,7 +323,12 @@ public class DataUnitTest {
 		Assert.assertEquals(segment.getElements().size(), 3);
 		List<? extends Element> elements = segment.getElements();
 		Assert.assertEquals(elements.get(0).getClass(), TextBox.class);
-		// TODO
+
+		TextBox textBox = (TextBox) elements.get(0);
+		Assert.assertEquals(textBox.toString(), "hello");
+
+		Assert.assertEquals(elements.get(1).getClass(), Glue.class);
+		Assert.assertEquals(elements.get(2).getClass(), Penalty.class);
 
 		try {
 			builder.text("dasd", 1, 0);
