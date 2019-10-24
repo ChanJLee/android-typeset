@@ -10,6 +10,7 @@ import me.chan.te.data.Box;
 import me.chan.te.data.BoxStyle;
 import me.chan.te.data.Glue;
 import me.chan.te.data.Penalty;
+import me.chan.te.data.Segment;
 import me.chan.te.data.TextBox;
 import me.chan.te.test.mock.MockMeasurer;
 import me.chan.te.test.mock.MockTextPaint;
@@ -272,6 +273,33 @@ public class DataUnitTest {
 		boxes[0] = TextBox.obtain(msg, 0, msg.length(), mMockTextPaint.getMockTextSize() * msg.length(), mMockTextPaint.getMockTextHeight(), null);
 		Assert.assertSame(previous, boxes[0]);
 		Assert.assertFalse(boxes[0].isSplit());
+	}
+
+	@Test
+	public void testSegment() {
+		String content = "hello";
+		String msg = "hello world";
+		Segment segment = Segment.obtain(msg, 0, content.length());
+		Assert.assertNotNull(segment);
+
+		Assert.assertEquals(segment.toString(), content);
+		Assert.assertNotNull(segment.getElements());
+		Assert.assertTrue(segment.getElements().isEmpty());
+
+		segment.recycle();
+		Segment previous = segment;
+		segment = Segment.obtain(msg, 0, content.length());
+		Assert.assertNotNull(segment);
+
+		Assert.assertEquals(segment.toString(), content);
+		Assert.assertNotNull(segment.getElements());
+		Assert.assertTrue(segment.getElements().isEmpty());
+		Assert.assertSame(previous, segment);
+	}
+
+	@Test
+	public void testSegmentBuilder() {
+
 	}
 
 	private void checkBoxContent(TextBox box, String msg) {
