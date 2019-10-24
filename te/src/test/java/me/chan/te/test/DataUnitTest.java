@@ -323,7 +323,7 @@ public class DataUnitTest {
 		builder.text(msg, 0, msg.length());
 
 		Segment segment = builder.build();
-		Assert.assertTrue(segment.getElements().isEmpty());
+		Assert.assertFalse(segment.getElements().isEmpty());
 		Assert.assertNotNull(segment);
 		Assert.assertEquals(segment.toString(), "h");
 		Assert.assertNotNull(segment.getElements());
