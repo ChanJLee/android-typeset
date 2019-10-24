@@ -115,8 +115,7 @@ public class Adapter extends RecyclerView.Adapter<TexViewHolder> {
 					mContent = source.open();
 					mWidth = width;
 					refreshInternal();
-				} catch (SourceOpenException throwable) {
-					w("source open exception");
+				} catch (Throwable throwable) {
 					w(throwable);
 				} finally {
 					try {

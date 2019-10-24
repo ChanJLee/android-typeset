@@ -42,7 +42,6 @@ public class Paragraph implements Recyclable {
 		for (int i = 0; mLines != null && i < mLines.size(); ++i) {
 			mLines.get(i).recycle();
 		}
-		mLines = null;
 		POOL.release(this);
 	}
 
