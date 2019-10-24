@@ -27,19 +27,22 @@ public class TextParser implements Parser {
 	}
 
 	private Segment parseSegment(CharSequence paragraph, int start, int end, Measurer measurer, Hypher hypher, Option option) {
-		Segment.Builder builder = new Segment.Builder(paragraph, start, end, measurer, hypher, option);
+		Segment.Builder builder = Segment.Builder.obtain(paragraph, start, end, measurer, hypher, option);
+		try {
+			for (int i = start; i < end; ) {
+				int last = findWord(paragraph, i, end);
+				int first = i;
+				i = skipBlank(paragraph, last, end);
+				if (first == last) {
+					continue;
+				}
 
-		for (int i = start; i < end; ) {
-			int last = findWord(paragraph, i, end);
-			int first = i;
-			i = skipBlank(paragraph, last, end);
-			if (first == last) {
-				continue;
+				builder.text(paragraph, first, last);
 			}
-
-			builder.text(paragraph, first, last);
+			return builder.build();
+		} finally {
+			builder.recycle();
 		}
-		return builder.build();
 	}
 
 	private int findWord(CharSequence charSequence, int start, int end) {

@@ -54,9 +54,6 @@ public class Line implements Recyclable {
 
 	@Override
 	public void recycle() {
-		for (int i = 0; mBoxes != null && i < mBoxes.size(); ++i) {
-			mBoxes.get(i).recycle();
-		}
 		reset(null, -1, -1, -1);
 		POOL.release(this);
 	}

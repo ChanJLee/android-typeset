@@ -41,6 +41,7 @@ public class Adapter extends RecyclerView.Adapter<TexViewHolder> {
 	private static final int ACTION_ENABLE_DEBUG = 2;
 
 	private List<Paragraph> mParagraphs;
+	private List<Segment> mSegments;
 	private LayoutInflater mLayoutInflater;
 	private TextPaint mTextPaint;
 	private Option mOption;
@@ -160,9 +161,13 @@ public class Adapter extends RecyclerView.Adapter<TexViewHolder> {
 			mParagraphs.get(i).recycle();
 		}
 
+		for (int i = 0; mSegments != null && i < mSegments.size(); ++i) {
+			mSegments.get(i).recycle();
+		}
+
 		CoreTypesetter texTypesetter = new CoreTypesetter();
 		long timestamp = SystemClock.elapsedRealtime();
-		List<Segment> segments = mParser.parser(mContent, mMeasurer, Hypher.getInstance(), mOption);
+		final List<Segment> segments = mParser.parser(mContent, mMeasurer, Hypher.getInstance(), mOption);
 		d("parse used time: " + (SystemClock.elapsedRealtime() - timestamp) + " segments: " + segments.size());
 		timestamp = SystemClock.elapsedRealtime();
 
@@ -188,11 +193,10 @@ public class Adapter extends RecyclerView.Adapter<TexViewHolder> {
 		mHandler.post(new Runnable() {
 			@Override
 			public void run() {
-				if (!thread.isInterrupted()) {
-					d("render paragraphs");
-					mParagraphs = paragraphs;
-					notifyDataSetChanged();
-				}
+				d("render paragraphs");
+				mParagraphs = paragraphs;
+				mSegments = segments;
+				notifyDataSetChanged();
 			}
 		});
 	}

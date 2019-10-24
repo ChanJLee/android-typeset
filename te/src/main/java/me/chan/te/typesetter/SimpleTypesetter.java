@@ -45,7 +45,6 @@ class SimpleTypesetter implements Typesetter {
 			if (element instanceof Box) {
 				break;
 			}
-			element.recycle();
 		}
 
 		if (start >= size) {
@@ -63,13 +62,11 @@ class SimpleTypesetter implements Typesetter {
 				Glue glue = (Glue) element;
 				currentLineWidth += (breakStrategy == BreakStrategy.BALANCED ? glue.getShrink() : glue.getWidth());
 				++start;
-				element.recycle();
 				continue;
 			}
 
 			if (!(element instanceof Box)) {
 				++start;
-				element.recycle();
 				continue;
 			}
 
