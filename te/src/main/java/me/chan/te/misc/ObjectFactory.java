@@ -5,9 +5,11 @@ import android.support.annotation.Nullable;
 
 import java.util.ArrayDeque;
 import java.util.Queue;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * 对象工厂，用于存储频繁创建与销毁的类对象
+ * TODO 加锁优化
  *
  * @param <T> 存储类型
  */
@@ -15,6 +17,7 @@ public class ObjectFactory<T> {
 
 	private Queue<T> mQueue;
 	private int mBufferSize;
+	private ReentrantLock mReentrantLock = new ReentrantLock();
 
 	/**
 	 * 创建一个对象工厂
@@ -37,7 +40,12 @@ public class ObjectFactory<T> {
 	 */
 	@Nullable
 	public T acquire() {
-		return mQueue.poll();
+		mReentrantLock.lock();
+		try {
+			return mQueue.poll();
+		} finally {
+			mReentrantLock.unlock();
+		}
 	}
 
 	/**
@@ -46,9 +54,14 @@ public class ObjectFactory<T> {
 	 * @param obj 对象
 	 */
 	public void release(@NonNull T obj) {
-		if (mQueue.size() >= mBufferSize) {
-			return;
+		mReentrantLock.lock();
+		try {
+			if (mQueue.size() >= mBufferSize) {
+				return;
+			}
+			mQueue.offer(obj);
+		} finally {
+			mReentrantLock.unlock();
 		}
-		mQueue.offer(obj);
 	}
 }

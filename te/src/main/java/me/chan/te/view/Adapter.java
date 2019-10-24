@@ -156,6 +156,10 @@ public class Adapter extends RecyclerView.Adapter<TexViewHolder> {
 	}
 
 	private synchronized void refreshInternal() {
+		for (int i = 0; mParagraphs != null && i < mParagraphs.size(); ++i) {
+			mParagraphs.get(i).recycle();
+		}
+
 		CoreTypesetter texTypesetter = new CoreTypesetter();
 		long timestamp = SystemClock.elapsedRealtime();
 		List<Segment> segments = mParser.parser(mContent, mMeasurer, Hypher.getInstance(), mOption);
