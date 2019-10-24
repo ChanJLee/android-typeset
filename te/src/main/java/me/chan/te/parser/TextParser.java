@@ -15,34 +15,31 @@ public class TextParser implements Parser {
 	@NonNull
 	public List<Segment> parser(CharSequence charSequence, Measurer measurer, Hypher hypher, Option option) {
 		List<Segment> segments = new LinkedList<>();
+		Segment.Builder builder = new Segment.Builder(measurer, hypher, option);
 		int len = charSequence.length();
 		for (int i = skipBlank(charSequence, 0, len); i < len; ) {
 			int last = findNewline(charSequence, i, len);
 			if (i != last) {
-				segments.add(parseSegment(charSequence, i, last, measurer, hypher, option));
+				segments.add(parseSegment(charSequence, i, last, builder));
 			}
 			i = skipBlank(charSequence, last, len);
 		}
 		return segments;
 	}
 
-	private Segment parseSegment(CharSequence paragraph, int start, int end, Measurer measurer, Hypher hypher, Option option) {
-		Segment.Builder builder = Segment.Builder.obtain(paragraph, start, end, measurer, hypher, option);
-		try {
-			for (int i = start; i < end; ) {
-				int last = findWord(paragraph, i, end);
-				int first = i;
-				i = skipBlank(paragraph, last, end);
-				if (first == last) {
-					continue;
-				}
-
-				builder.text(paragraph, first, last);
+	private Segment parseSegment(CharSequence paragraph, int start, int end, Segment.Builder builder) {
+		builder.newSegment(paragraph, start, end);
+		for (int i = start; i < end; ) {
+			int last = findWord(paragraph, i, end);
+			int first = i;
+			i = skipBlank(paragraph, last, end);
+			if (first == last) {
+				continue;
 			}
-			return builder.build();
-		} finally {
-			builder.recycle();
+
+			builder.text(paragraph, first, last);
 		}
+		return builder.build();
 	}
 
 	private int findWord(CharSequence charSequence, int start, int end) {
