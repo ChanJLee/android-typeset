@@ -137,7 +137,6 @@ class TexTypesetter implements Typesetter {
 		for (int i = start; i < end; ++i) {
 			Element element = lineElements.get(i);
 			if (!(element instanceof Box)) {
-				element.recycle();
 				continue;
 			}
 
@@ -170,7 +169,6 @@ class TexTypesetter implements Typesetter {
 		for (; start < end; ++start) {
 			Element element = lineElements.get(start);
 			if (element instanceof Glue) {
-				element.recycle();
 				break;
 			}
 
@@ -182,13 +180,11 @@ class TexTypesetter implements Typesetter {
 				}
 
 				box.append(other);
-				element.recycle();
 				continue;
 			}
 
 			if (element instanceof Penalty && start == end - 1) {
 				box.append((Penalty) element);
-				element.recycle();
 			}
 		}
 
