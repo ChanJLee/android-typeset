@@ -153,7 +153,11 @@ public class Adapter extends RecyclerView.Adapter<TexViewHolder> {
 		mTask = mExecutor.submit(new Runnable() {
 			@Override
 			public void run() {
-				refreshInternal(prevParagraph, prevSegments);
+				try {
+					refreshInternal(prevParagraph, prevSegments);
+				} catch (Throwable throwable) {
+					w(throwable);
+				}
 			}
 		});
 		d("refresh: " + mTask);
