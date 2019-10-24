@@ -6,13 +6,18 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.List;
+
 import me.chan.te.data.Box;
 import me.chan.te.data.BoxStyle;
+import me.chan.te.data.Element;
 import me.chan.te.data.Glue;
 import me.chan.te.data.Penalty;
 import me.chan.te.data.Segment;
 import me.chan.te.data.TextBox;
+import me.chan.te.hypher.Hypher;
 import me.chan.te.test.mock.MockMeasurer;
+import me.chan.te.test.mock.MockOption;
 import me.chan.te.test.mock.MockTextPaint;
 
 import static org.junit.Assert.fail;
@@ -299,7 +304,33 @@ public class DataUnitTest {
 
 	@Test
 	public void testSegmentBuilder() {
+		Segment.Builder builder = new Segment.Builder(new MockMeasurer(mMockTextPaint), Hypher.getInstance(), new MockOption(mMockTextPaint));
+		builder.newSegment("hello", 0, 1);
+		try {
+			builder.newSegment("hello", 0, 1);
+			fail("test call new segment twice failed");
+		} catch (Throwable throwable) {
 
+		}
+
+		String msg = "hello";
+		builder.text(msg, 0, msg.length());
+
+		Segment segment = builder.build();
+		Assert.assertNotNull(segment);
+		Assert.assertEquals(segment.toString(), "h");
+		Assert.assertNotNull(segment.getElements());
+		Assert.assertEquals(segment.getElements().size(), 3);
+		List<? extends Element> elements = segment.getElements();
+		Assert.assertEquals(elements.get(0).getClass(), TextBox.class);
+		// TODO
+
+		try {
+			builder.text("dasd", 1, 0);
+			fail("test call text after build failed");
+		} catch (Throwable throwable) {
+
+		}
 	}
 
 	private void checkBoxContent(TextBox box, String msg) {
