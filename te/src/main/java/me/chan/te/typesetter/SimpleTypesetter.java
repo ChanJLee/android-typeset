@@ -21,7 +21,7 @@ class SimpleTypesetter implements Typesetter {
 	@NonNull
 	public Paragraph typeset(Segment segment,
 							 LineAttributes lineAttributes, BreakStrategy breakStrategy) {
-		Paragraph paragraph = new Paragraph(lineAttributes);
+		Paragraph paragraph = Paragraph.obtain(lineAttributes);
 		// 一行尽可能的占满尽可能多的字符
 		// 如果如果只显示了一个并且还不足以完美显示，那么无脑折断
 		List<? extends Element> elements = segment.getElements();
@@ -101,7 +101,7 @@ class SimpleTypesetter implements Typesetter {
 			return spiltIf(lines, elements, start, boxes, width);
 		}
 
-		lines.add(new Line(boxes,
+		lines.add(Line.obtain(boxes,
 				lineWidth,
 				lineHeight,
 				0));
@@ -173,7 +173,7 @@ class SimpleTypesetter implements Typesetter {
 			++start;
 		}
 
-		lines.add(new Line(boxes,
+		lines.add(Line.obtain(boxes,
 				width,
 				box.getHeight(),
 				0));
