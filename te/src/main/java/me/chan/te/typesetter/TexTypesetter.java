@@ -26,7 +26,7 @@ class TexTypesetter implements Typesetter {
 
 	@Nullable
 	public Paragraph typeset(Segment segment, LineAttributes lineAttributes, BreakStrategy breakStrategy) {
-		Paragraph paragraph = new Paragraph(lineAttributes);
+		Paragraph paragraph = Paragraph.obtain(lineAttributes);
 		List<Node> activeNodes = null;
 		float tolerance = 0;
 		for (int i = 0; i < MAX_RELAYOUT_TIMES; ++i) {
@@ -152,7 +152,7 @@ class TexTypesetter implements Typesetter {
 			boxes.add(box);
 		}
 
-		return new Line(
+		return Line.obtain(
 				boxes,
 				lineWidth,
 				lineHeight,

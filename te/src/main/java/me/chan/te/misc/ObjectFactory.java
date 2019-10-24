@@ -36,7 +36,7 @@ public class ObjectFactory<T> {
 	 * @return 返回一个对象，当当前对象工厂没有对象存储时，返回null
 	 */
 	@Nullable
-	public synchronized T acquire() {
+	public T acquire() {
 		return mQueue.poll();
 	}
 
@@ -45,7 +45,7 @@ public class ObjectFactory<T> {
 	 *
 	 * @param obj 对象
 	 */
-	public synchronized void release(@NonNull T obj) {
+	public void release(@NonNull T obj) {
 		if (mQueue.size() >= mBufferSize) {
 			return;
 		}
