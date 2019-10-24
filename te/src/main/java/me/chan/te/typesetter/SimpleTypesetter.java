@@ -51,7 +51,7 @@ class SimpleTypesetter implements Typesetter {
 			return start;
 		}
 
-		List<Box> boxes = new ArrayList<>(12);
+		Line line = Line.obtain();
 		float lineHeight = 0f;
 		float currentLineWidth = 0f;
 		float lineWidth = 0f;
@@ -83,7 +83,7 @@ class SimpleTypesetter implements Typesetter {
 
 			start = next;
 
-			boxes.add(box);
+			line.add(box);
 			float boxWidth = box.getWidth();
 			currentLineWidth += boxWidth;
 			lineWidth += boxWidth;
@@ -94,14 +94,14 @@ class SimpleTypesetter implements Typesetter {
 		}
 
 		// 如果一行是空的，说明当前只能排一个，并且都显示不下
-		if (boxes.isEmpty()) {
-			return spiltIf(lines, elements, start, boxes, width);
+		if (line.isEmpty()) {
+			return spiltIf(lines, elements, start, line, width);
 		}
 
-		lines.add(Line.obtain(boxes,
-				lineWidth,
-				lineHeight,
-				0));
+		line.setLineWidth(lineWidth);
+		line.setLineHeight(lineHeight);
+		line.setRatio(0);
+		lines.add(line);
 		return start;
 	}
 
@@ -153,7 +153,7 @@ class SimpleTypesetter implements Typesetter {
 		return start;
 	}
 
-	private int spiltIf(List<Line> lines, List<? extends Element> elements, int start, List<Box> boxes, float width) {
+	private int spiltIf(List<Line> lines, List<? extends Element> elements, int start, Line line, float width) {
 		if (start >= elements.size()) {
 			return start;
 		}
@@ -162,18 +162,18 @@ class SimpleTypesetter implements Typesetter {
 		Box[] children = box.spilt(width);
 		if (children != null) {
 			children[0].setFlag(Box.FLAG_SPILT);
-			boxes.add(children[0]);
+			line.add(children[0]);
 			box.copy(children[1]);
 			box = children[0];
 		} else {
-			boxes.add(box);
+			line.add(box);
 			++start;
 		}
 
-		lines.add(Line.obtain(boxes,
-				width,
-				box.getHeight(),
-				0));
+		line.setLineWidth(width);
+		line.setLineHeight(box.getHeight());
+		line.setRatio(0);
+		lines.add(line);
 		return start;
 	}
 }

@@ -1,5 +1,6 @@
 package me.chan.te.data;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import me.chan.te.misc.ObjectFactory;
@@ -10,22 +11,21 @@ import me.chan.te.misc.ObjectFactory;
 public class Line implements Recyclable {
 	private static final ObjectFactory<Line> POOL = new ObjectFactory<>(3000);
 
-	// TODO list recycle
-	private List<Box> mBoxes;
+	private List<Box> mBoxes = new ArrayList<>(30);
 	private float mLineHeight;
 	private float mLineWidth;
 	private float mRatio;
 	private float mSpaceWidth;
 
-	private Line(List<Box> boxes, float lineWidth, float lineHeight, float ratio) {
-		reset(boxes, lineWidth, lineHeight, ratio);
+	private Line() {
+		reset();
 	}
 
-	private void reset(List<Box> boxes, float lineWidth, float lineHeight, float ratio) {
-		mBoxes = boxes;
-		mLineHeight = lineHeight;
-		mRatio = ratio;
-		mLineWidth = lineWidth;
+	private void reset() {
+		mBoxes.clear();
+		mLineHeight = -1;
+		mRatio = -1;
+		mLineWidth = -1;
 	}
 
 	public List<Box> getBoxes() {
@@ -52,18 +52,38 @@ public class Line implements Recyclable {
 		mSpaceWidth = spaceWidth;
 	}
 
+	public void setLineHeight(float lineHeight) {
+		mLineHeight = lineHeight;
+	}
+
+	public void setLineWidth(float lineWidth) {
+		mLineWidth = lineWidth;
+	}
+
+	public void setRatio(float ratio) {
+		mRatio = ratio;
+	}
+
 	@Override
 	public void recycle() {
-		reset(null, -1, -1, -1);
+		reset();
 		POOL.release(this);
 	}
 
-	public static Line obtain(List<Box> boxes, float lineWidth, float lineHeight, float ratio) {
+	public static Line obtain() {
 		Line line = POOL.acquire();
 		if (line == null) {
-			return new Line(boxes, lineWidth, lineHeight, ratio);
+			return new Line();
 		}
-		line.reset(boxes, lineWidth, lineHeight, ratio);
+		line.reset();
 		return line;
+	}
+
+	public void add(Box box) {
+		mBoxes.add(box);
+	}
+
+	public boolean isEmpty() {
+		return mBoxes.isEmpty();
 	}
 }
