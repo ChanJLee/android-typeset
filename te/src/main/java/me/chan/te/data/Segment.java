@@ -19,21 +19,23 @@ public final class Segment implements Recyclable {
 	private CharSequence mText;
 	private int mStart;
 	private int mEnd;
-	private List<? extends Element> mElements;
+	private List<? extends Element> mElements = new ArrayList<>(30);
 
-	private Segment(CharSequence text, int start, int end, List<? extends Element> elements) {
-		reset(text, start, end, elements);
+	private Segment(CharSequence text, int start, int end) {
+		reset(text, start, end);
 	}
 
 	public List<? extends Element> getElements() {
 		return mElements;
 	}
 
-	private void reset(CharSequence text, int start, int end, List<? extends Element> elements) {
+	private void reset(CharSequence text, int start, int end) {
 		mText = text;
 		mStart = start;
 		mEnd = end;
-		mElements = elements;
+		if (!mElements.isEmpty()) {
+			mElements.clear();
+		}
 	}
 
 	@Override
@@ -43,20 +45,20 @@ public final class Segment implements Recyclable {
 
 	@Override
 	public void recycle() {
-		for (int i = 0; mElements != null && i < mElements.size(); ++i) {
+		for (int i = 0; i < mElements.size(); ++i) {
 			mElements.get(i).recycle();
 		}
-		reset(null, 0, 0, null);
+		reset(null, 0, 0);
 		POOL.release(this);
 	}
 
 	@Hidden
-	public static Segment obtain(CharSequence text, int start, int end, List<? extends Element> elements) {
+	public static Segment obtain(CharSequence text, int start, int end) {
 		Segment segment = POOL.acquire();
 		if (segment == null) {
-			return new Segment(text, start, end, elements);
+			return new Segment(text, start, end);
 		}
-		segment.reset(text, start, end, elements);
+		segment.reset(text, start, end);
 		return segment;
 	}
 
@@ -64,26 +66,24 @@ public final class Segment implements Recyclable {
 		private static final ObjectFactory<Builder> POOL = new ObjectFactory<>(1);
 
 		private static final int MIN_HYPER_LEN = 4;
-
-		private CharSequence mText;
-		private int mStart;
-		private int mEnd;
-		private List<Element> mElements;
 		private List<Integer> mHyphenated = new ArrayList<>(10);
 		private Measurer mMeasurer;
 		private Hypher mHypher;
 		private Option mOption;
+		private Segment mSegment;
 
-		private Builder(CharSequence text, int start, int end, Measurer measurer, Hypher hypher, Option option, List<Element> elements) {
-			reset(text, start, end, measurer, hypher, option, elements);
+		private Builder(Measurer measurer, Hypher hypher, Option option, Segment segment) {
+			reset(measurer, hypher, option, segment);
 		}
 
 		public Builder text(CharSequence text, int start, int end) {
 			int len = end - start;
+			@SuppressWarnings("unchecked")
+			List<Element> elements = (List<Element>) mSegment.getElements();
 			mHypher.hyphenate(text, start, end, mHyphenated);
 			int size = mHyphenated.size();
 			if (size == 0 || len < MIN_HYPER_LEN) {
-				mElements.add(TextBox.obtain(text, start, end,
+				elements.add(TextBox.obtain(text, start, end,
 						mMeasurer.getDesiredWidth(text, start, end),
 						mMeasurer.getDesiredHeight(text, start, end),
 						null
@@ -95,57 +95,56 @@ public final class Segment implements Recyclable {
 						continue;
 					}
 
-					mElements.add(TextBox.obtain(text, start, point,
+					elements.add(TextBox.obtain(text, start, point,
 							mMeasurer.getDesiredWidth(text, start, point),
 							mMeasurer.getDesiredHeight(text, start, point),
 							null
 					));
 					if (j != size - 1 && text.charAt(point - 1) != '-') {
-						mElements.add(Penalty.obtain(mOption.getHyphenWidth(), mOption.getHyphenHeight(), Typesetter.HYPHEN_PENALTY, true));
+						elements.add(Penalty.obtain(mOption.getHyphenWidth(), mOption.getHyphenHeight(), Typesetter.HYPHEN_PENALTY, true));
 					}
 					start = point;
 				}
 			}
 			mHyphenated.clear();
-			mElements.add(Glue.obtain(mOption.getSpaceWidth(), mOption.getSpaceStretch(), mOption.getSpaceShrink()));
+			elements.add(Glue.obtain(mOption.getSpaceWidth(), mOption.getSpaceStretch(), mOption.getSpaceShrink()));
 			return this;
 		}
 
 		public Segment build() {
-			if (!mElements.isEmpty()) {
-				mElements.remove(mElements.size() - 1);
+			@SuppressWarnings("unchecked")
+			List<Element> elements = (List<Element>) mSegment.getElements();
+			if (!elements.isEmpty() && elements.get(elements.size() - 1) instanceof Glue) {
+				// TODO opt
+				elements.remove(elements.size() - 1);
 			}
 
-			mElements.add(Glue.obtain(0, Typesetter.INFINITY, 0));
-			mElements.add(Penalty.obtain(0, 0, -Typesetter.INFINITY, true));
-
-			return Segment.obtain(mText, mStart, mEnd, mElements);
+			elements.add(Glue.obtain(0, Typesetter.INFINITY, 0));
+			elements.add(Penalty.obtain(0, 0, -Typesetter.INFINITY, true));
+			return mSegment;
 		}
 
-		private void reset(CharSequence text, int start, int end, Measurer measurer, Hypher hypher, Option option, List<Element> elements) {
-			mText = text;
-			mStart = start;
-			mEnd = end;
+		private void reset(Measurer measurer, Hypher hypher, Option option, Segment segment) {
 			mMeasurer = measurer;
 			mHypher = hypher;
 			mOption = option;
-			mElements = elements;
+			mSegment = segment;
 			mHyphenated.clear();
 		}
 
 		@Override
 		public void recycle() {
-			reset(null, 0, 0, null, null, null, null);
+			reset(null, null, null, null);
 			POOL.release(this);
 		}
 
 		public static Builder obtain(CharSequence text, int start, int end, Measurer measurer, Hypher hypher, Option option) {
 			Builder builder = POOL.acquire();
-			List<Element> elements = new ArrayList<>(30);
+			Segment segment = Segment.obtain(text, start, end);
 			if (builder == null) {
-				return new Builder(text, start, end, measurer, hypher, option, elements);
+				return new Builder(measurer, hypher, option, segment);
 			}
-			builder.reset(text, start, end, measurer, hypher, option, elements);
+			builder.reset(measurer, hypher, option, segment);
 			return builder;
 		}
 	}
