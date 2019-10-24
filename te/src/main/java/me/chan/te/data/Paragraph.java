@@ -1,5 +1,6 @@
 package me.chan.te.data;
 
+import java.util.LinkedList;
 import java.util.List;
 
 import me.chan.te.config.LineAttributes;
@@ -11,15 +12,15 @@ import me.chan.te.misc.ObjectFactory;
 public class Paragraph implements Recyclable {
 	private static final ObjectFactory<Paragraph> POOL = new ObjectFactory<>(1500);
 
-	private List<Line> mLines;
+	private List<Line> mLines = new LinkedList<>();
 	private LineAttributes mLineAttributes;
-
-	public void setLines(List<Line> lines) {
-		mLines = lines;
-	}
 
 	public List<Line> getLines() {
 		return mLines;
+	}
+
+	public void add(Line line) {
+		mLines.add(line);
 	}
 
 	private Paragraph(LineAttributes lineAttributes) {
@@ -32,6 +33,7 @@ public class Paragraph implements Recyclable {
 
 	private void reset(LineAttributes lineAttributes) {
 		mLineAttributes = lineAttributes;
+		mLines.clear();
 	}
 
 	@Override
@@ -51,5 +53,9 @@ public class Paragraph implements Recyclable {
 		}
 		paragraph.reset(lineAttributes);
 		return paragraph;
+	}
+
+	public int getLineCount() {
+		return mLines.size();
 	}
 }
