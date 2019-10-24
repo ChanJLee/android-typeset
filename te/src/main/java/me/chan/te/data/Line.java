@@ -26,6 +26,7 @@ public class Line implements Recyclable {
 		mLineHeight = -1;
 		mRatio = -1;
 		mLineWidth = -1;
+		mSpaceWidth = -1;
 	}
 
 	public List<Box> getBoxes() {

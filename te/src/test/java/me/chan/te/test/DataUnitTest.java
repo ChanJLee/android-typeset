@@ -12,6 +12,7 @@ import me.chan.te.data.Box;
 import me.chan.te.data.BoxStyle;
 import me.chan.te.data.Element;
 import me.chan.te.data.Glue;
+import me.chan.te.data.Line;
 import me.chan.te.data.Penalty;
 import me.chan.te.data.Segment;
 import me.chan.te.data.TextBox;
@@ -290,6 +291,9 @@ public class DataUnitTest {
 		Assert.assertEquals(segment.toString(), content);
 		Assert.assertNotNull(segment.getElements());
 		Assert.assertTrue(segment.getElements().isEmpty());
+		List<Element> elements = (List<Element>) segment.getElements();
+		elements.add(TextBox.obtain("hello", 0, 1, 1, 1, null));
+		Assert.assertFalse(segment.getElements().isEmpty());
 
 		segment.recycle();
 		Segment previous = segment;
@@ -317,6 +321,7 @@ public class DataUnitTest {
 		builder.text(msg, 0, msg.length());
 
 		Segment segment = builder.build();
+		Assert.assertTrue(segment.getElements().isEmpty());
 		Assert.assertNotNull(segment);
 		Assert.assertEquals(segment.toString(), "h");
 		Assert.assertNotNull(segment.getElements());
@@ -325,7 +330,7 @@ public class DataUnitTest {
 		Assert.assertEquals(elements.get(0).getClass(), TextBox.class);
 
 		TextBox textBox = (TextBox) elements.get(0);
-		Assert.assertEquals(textBox.toString(), "hello");
+		checkBoxContent(textBox, "hello");
 
 		Assert.assertEquals(elements.get(1).getClass(), Glue.class);
 		Assert.assertEquals(elements.get(2).getClass(), Penalty.class);
@@ -336,6 +341,35 @@ public class DataUnitTest {
 		} catch (Throwable throwable) {
 
 		}
+	}
+
+	@Test
+	public void testLine() {
+		Line line = Line.obtain();
+		Assert.assertNotNull(line);
+		Assert.assertNotNull(line.getBoxes());
+		Assert.assertTrue(line.getBoxes().isEmpty());
+		line.setSpaceWidth(1);
+		Assert.assertEquals(line.getSpaceWidth(), 1, 0);
+		line.setLineHeight(2);
+		Assert.assertEquals(line.getLineHeight(), 2, 0);
+		line.setLineWidth(3);
+		Assert.assertEquals(line.getLineWidth(), 3, 0);
+		line.setRatio(4);
+		Assert.assertEquals(line.getRatio(), 4, 0);
+		line.getBoxes().add(TextBox.obtain("hello", 0, 1, 1, 1, null));
+		Assert.assertFalse(line.getBoxes().isEmpty());
+
+		Line prev = line;
+		line.recycle();
+		line = Line.obtain();
+		Assert.assertNotNull(line);
+		Assert.assertSame(prev, line);
+		Assert.assertTrue(line.getBoxes().isEmpty());
+		Assert.assertNotEquals(line.getSpaceWidth(), 1, 0);
+		Assert.assertNotEquals(line.getLineHeight(), 2, 0);
+		Assert.assertNotEquals(line.getLineWidth(), 3, 0);
+		Assert.assertNotEquals(line.getRatio(), 4, 0);
 	}
 
 	private void checkBoxContent(TextBox box, String msg) {
