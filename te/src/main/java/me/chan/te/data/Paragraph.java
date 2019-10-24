@@ -1,6 +1,6 @@
 package me.chan.te.data;
 
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
 
 import me.chan.te.config.LineAttributes;
@@ -12,7 +12,7 @@ import me.chan.te.misc.ObjectFactory;
 public class Paragraph implements Recyclable {
 	private static final ObjectFactory<Paragraph> POOL = new ObjectFactory<>(1500);
 
-	private List<Line> mLines = new LinkedList<>();
+	private List<Line> mLines = new ArrayList<>(30);
 	private LineAttributes mLineAttributes;
 
 	public List<Line> getLines() {
