@@ -6,12 +6,21 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.List;
+
+import me.chan.te.config.LineAttributes;
 import me.chan.te.data.Box;
 import me.chan.te.data.BoxStyle;
+import me.chan.te.data.Element;
 import me.chan.te.data.Glue;
+import me.chan.te.data.Line;
+import me.chan.te.data.Paragraph;
 import me.chan.te.data.Penalty;
+import me.chan.te.data.Segment;
 import me.chan.te.data.TextBox;
+import me.chan.te.hypher.Hypher;
 import me.chan.te.test.mock.MockMeasurer;
+import me.chan.te.test.mock.MockOption;
 import me.chan.te.test.mock.MockTextPaint;
 
 import static org.junit.Assert.fail;
@@ -58,6 +67,9 @@ public class DataUnitTest {
 
 		Glue previous = glue;
 		glue.recycle();
+		Assert.assertEquals("check width: ", glue.getWidth(), -1, 0);
+		Assert.assertEquals("check stretch: ", glue.getStretch(), -1, 0);
+		Assert.assertEquals("check shrink: ", glue.getShrink(), -1, 0);
 
 		glue = Glue.obtain(4, 5, 6);
 		Assert.assertNotNull(glue);
@@ -79,6 +91,10 @@ public class DataUnitTest {
 
 		Penalty prev = penalty;
 		penalty.recycle();
+		Assert.assertEquals("check width: ", penalty.getWidth(), -1, 0);
+		Assert.assertEquals("check height: ", penalty.getHeight(), -1, 0);
+		Assert.assertEquals("check penalty: ", penalty.getPenalty(), -1, 0);
+		Assert.assertFalse("check flag", penalty.isFlag());
 
 		penalty = Penalty.obtain(4, 5, 6, false);
 		Assert.assertNotNull(penalty);
@@ -124,6 +140,10 @@ public class DataUnitTest {
 
 		TextBox prev = box2;
 		box2.recycle();
+		Assert.assertNull(box2.getBoxStyle());
+		Assert.assertEquals(box2.getHeight(), -1, 0);
+		Assert.assertEquals(box2.getWidth(), -1, 0);
+
 		msg = "hello";
 		box2 = TextBox.obtain(msg, 0, msg.length(), mMockTextPaint.getMockTextSize() * msg.length(), mMockTextPaint.getMockTextHeight(), boxStyle);
 		Assert.assertNotNull(box2);
@@ -203,6 +223,9 @@ public class DataUnitTest {
 
 		msg = "xxxx";
 		box.recycle();
+		Assert.assertFalse(box.isPenalty());
+		Assert.assertFalse(box.isSplit());
+
 		box = TextBox.obtain(msg, 0, msg.length(), mMockTextPaint.getMockTextSize() * msg.length(), mMockTextPaint.getMockTextHeight(), null);
 		Assert.assertNotNull(box);
 		Assert.assertFalse(box.isPenalty());
@@ -272,6 +295,134 @@ public class DataUnitTest {
 		boxes[0] = TextBox.obtain(msg, 0, msg.length(), mMockTextPaint.getMockTextSize() * msg.length(), mMockTextPaint.getMockTextHeight(), null);
 		Assert.assertSame(previous, boxes[0]);
 		Assert.assertFalse(boxes[0].isSplit());
+	}
+
+	@Test
+	public void testSegment() {
+		String content = "hello";
+		String msg = "hello world";
+		Segment segment = Segment.obtain(msg, 0, content.length());
+		Assert.assertNotNull(segment);
+
+		Assert.assertEquals(segment.toString(), content);
+		Assert.assertNotNull(segment.getElements());
+		Assert.assertTrue(segment.getElements().isEmpty());
+		List<Element> elements = (List<Element>) segment.getElements();
+		elements.add(TextBox.obtain("hello", 0, 1, 1, 1, null));
+		Assert.assertFalse(segment.getElements().isEmpty());
+
+		segment.recycle();
+		Assert.assertNotNull(segment.getElements());
+		Assert.assertTrue(segment.getElements().isEmpty());
+
+		Segment previous = segment;
+		segment = Segment.obtain(msg, 0, content.length());
+		Assert.assertNotNull(segment);
+
+		Assert.assertEquals(segment.toString(), content);
+		Assert.assertNotNull(segment.getElements());
+		Assert.assertTrue(segment.getElements().isEmpty());
+		Assert.assertSame(previous, segment);
+	}
+
+	@Test
+	public void testSegmentBuilder() {
+		Segment.Builder builder = new Segment.Builder(new MockMeasurer(mMockTextPaint), Hypher.getInstance(), new MockOption(mMockTextPaint));
+		builder.newSegment("hello", 0, 1);
+		try {
+			builder.newSegment("hello", 0, 1);
+			fail("test call new segment twice failed");
+		} catch (Throwable throwable) {
+
+		}
+
+		String msg = "hello";
+		builder.text(msg, 0, msg.length());
+
+		Segment segment = builder.build();
+		Assert.assertFalse(segment.getElements().isEmpty());
+		Assert.assertNotNull(segment);
+		Assert.assertEquals(segment.toString(), "h");
+		Assert.assertNotNull(segment.getElements());
+		Assert.assertEquals(segment.getElements().size(), 3);
+		List<? extends Element> elements = segment.getElements();
+		Assert.assertEquals(elements.get(0).getClass(), TextBox.class);
+
+		TextBox textBox = (TextBox) elements.get(0);
+		checkBoxContent(textBox, "hello");
+
+		Assert.assertEquals(elements.get(1).getClass(), Glue.class);
+		Assert.assertEquals(elements.get(2).getClass(), Penalty.class);
+
+		try {
+			builder.text("dasd", 1, 0);
+			fail("test call text after build failed");
+		} catch (Throwable throwable) {
+
+		}
+	}
+
+	@Test
+	public void testLine() {
+		Line line = Line.obtain();
+		Assert.assertNotNull(line);
+		Assert.assertNotNull(line.getBoxes());
+		Assert.assertTrue(line.getBoxes().isEmpty());
+		line.setSpaceWidth(1);
+		Assert.assertEquals(line.getSpaceWidth(), 1, 0);
+		line.setLineHeight(2);
+		Assert.assertEquals(line.getLineHeight(), 2, 0);
+		line.setLineWidth(3);
+		Assert.assertEquals(line.getLineWidth(), 3, 0);
+		line.setRatio(4);
+		Assert.assertEquals(line.getRatio(), 4, 0);
+		line.getBoxes().add(TextBox.obtain("hello", 0, 1, 1, 1, null));
+		Assert.assertFalse(line.getBoxes().isEmpty());
+
+		Line prev = line;
+		line.recycle();
+		Assert.assertTrue(line.getBoxes().isEmpty());
+		Assert.assertNotEquals(line.getSpaceWidth(), 1, 0);
+		Assert.assertNotEquals(line.getLineHeight(), 2, 0);
+		Assert.assertNotEquals(line.getLineWidth(), 3, 0);
+		Assert.assertNotEquals(line.getRatio(), 4, 0);
+
+		line = Line.obtain();
+		Assert.assertNotNull(line);
+		Assert.assertSame(prev, line);
+		Assert.assertTrue(line.getBoxes().isEmpty());
+		Assert.assertNotEquals(line.getSpaceWidth(), 1, 0);
+		Assert.assertNotEquals(line.getLineHeight(), 2, 0);
+		Assert.assertNotEquals(line.getLineWidth(), 3, 0);
+		Assert.assertNotEquals(line.getRatio(), 4, 0);
+	}
+
+	@Test
+	public void testParagraph() {
+		LineAttributes lineAttributes = new LineAttributes(null);
+		Paragraph paragraph = Paragraph.obtain(lineAttributes);
+		Assert.assertNotNull(paragraph);
+		Assert.assertSame(paragraph.getLineAttributes(), lineAttributes);
+		Assert.assertTrue(paragraph.getLines().isEmpty());
+		Assert.assertEquals(paragraph.getLineCount(), 0);
+		Line line = Line.obtain();
+		paragraph.add(line);
+		Assert.assertFalse(paragraph.getLines().isEmpty());
+		Assert.assertSame(line, paragraph.getLines().get(0));
+
+		Paragraph prev = paragraph;
+		paragraph.recycle();
+		Assert.assertNotNull(paragraph);
+		Assert.assertNull(paragraph.getLineAttributes());
+		Assert.assertTrue(paragraph.getLines().isEmpty());
+		Assert.assertEquals(paragraph.getLineCount(), 0);
+
+		paragraph = Paragraph.obtain(lineAttributes);
+		Assert.assertSame(paragraph, prev);
+		Assert.assertNotNull(paragraph);
+		Assert.assertSame(paragraph.getLineAttributes(), lineAttributes);
+		Assert.assertTrue(paragraph.getLines().isEmpty());
+		Assert.assertEquals(paragraph.getLineCount(), 0);
 	}
 
 	private void checkBoxContent(TextBox box, String msg) {

@@ -15,20 +15,21 @@ public class TextParser implements Parser {
 	@NonNull
 	public List<Segment> parser(CharSequence charSequence, Measurer measurer, Hypher hypher, Option option) {
 		List<Segment> segments = new LinkedList<>();
+		Segment.Builder builder = new Segment.Builder(measurer, hypher, option);
 		int len = charSequence.length();
 		for (int i = skipBlank(charSequence, 0, len); i < len; ) {
 			int last = findNewline(charSequence, i, len);
 			if (i != last) {
-				segments.add(parseSegment(charSequence, i, last, measurer, hypher, option));
+				builder.newSegment(charSequence, i, last);
+				parseSegment(charSequence, i, last, builder);
+				segments.add(builder.build());
 			}
 			i = skipBlank(charSequence, last, len);
 		}
 		return segments;
 	}
 
-	private Segment parseSegment(CharSequence paragraph, int start, int end, Measurer measurer, Hypher hypher, Option option) {
-		Segment.Builder builder = new Segment.Builder(paragraph, start, end, measurer, hypher, option);
-
+	private void parseSegment(CharSequence paragraph, int start, int end, Segment.Builder builder) {
 		for (int i = start; i < end; ) {
 			int last = findWord(paragraph, i, end);
 			int first = i;
@@ -39,7 +40,6 @@ public class TextParser implements Parser {
 
 			builder.text(paragraph, first, last);
 		}
-		return builder.build();
 	}
 
 	private int findWord(CharSequence charSequence, int start, int end) {

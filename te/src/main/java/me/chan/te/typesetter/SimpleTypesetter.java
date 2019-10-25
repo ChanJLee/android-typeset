@@ -2,8 +2,6 @@ package me.chan.te.typesetter;
 
 import android.support.annotation.NonNull;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 
 import me.chan.te.config.LineAttributes;
@@ -21,21 +19,19 @@ class SimpleTypesetter implements Typesetter {
 	@NonNull
 	public Paragraph typeset(Segment segment,
 							 LineAttributes lineAttributes, BreakStrategy breakStrategy) {
-		Paragraph paragraph = new Paragraph(lineAttributes);
+		Paragraph paragraph = Paragraph.obtain(lineAttributes);
 		// 一行尽可能的占满尽可能多的字符
 		// 如果如果只显示了一个并且还不足以完美显示，那么无脑折断
 		List<? extends Element> elements = segment.getElements();
-		List<Line> lines = new LinkedList<>();
 		int size = elements.size();
 		for (int i = 0; i < size; ) {
-			float width = lineAttributes.get(lines.size()).getLineWidth();
-			i = typesetLine(width, lines, elements, i, breakStrategy);
+			float width = lineAttributes.get(paragraph.getLineCount()).getLineWidth();
+			i = typesetLine(width, paragraph, elements, i, breakStrategy);
 		}
-		paragraph.setLines(lines);
 		return paragraph;
 	}
 
-	private int typesetLine(float width, List<Line> lines, List<? extends Element> elements,
+	private int typesetLine(float width, Paragraph paragraph, List<? extends Element> elements,
 							int start, BreakStrategy breakStrategy) {
 		int size = elements.size();
 
@@ -45,14 +41,13 @@ class SimpleTypesetter implements Typesetter {
 			if (element instanceof Box) {
 				break;
 			}
-			element.recycle();
 		}
 
 		if (start >= size) {
 			return start;
 		}
 
-		List<Box> boxes = new ArrayList<>(12);
+		Line line = Line.obtain();
 		float lineHeight = 0f;
 		float currentLineWidth = 0f;
 		float lineWidth = 0f;
@@ -63,13 +58,11 @@ class SimpleTypesetter implements Typesetter {
 				Glue glue = (Glue) element;
 				currentLineWidth += (breakStrategy == BreakStrategy.BALANCED ? glue.getShrink() : glue.getWidth());
 				++start;
-				element.recycle();
 				continue;
 			}
 
 			if (!(element instanceof Box)) {
 				++start;
-				element.recycle();
 				continue;
 			}
 
@@ -86,7 +79,7 @@ class SimpleTypesetter implements Typesetter {
 
 			start = next;
 
-			boxes.add(box);
+			line.add(box);
 			float boxWidth = box.getWidth();
 			currentLineWidth += boxWidth;
 			lineWidth += boxWidth;
@@ -97,14 +90,14 @@ class SimpleTypesetter implements Typesetter {
 		}
 
 		// 如果一行是空的，说明当前只能排一个，并且都显示不下
-		if (boxes.isEmpty()) {
-			return spiltIf(lines, elements, start, boxes, width);
+		if (line.isEmpty()) {
+			return spiltIf(paragraph, elements, start, line, width);
 		}
 
-		lines.add(new Line(boxes,
-				lineWidth,
-				lineHeight,
-				0));
+		line.setLineWidth(lineWidth);
+		line.setLineHeight(lineHeight);
+		line.setRatio(0);
+		paragraph.add(line);
 		return start;
 	}
 
@@ -156,7 +149,7 @@ class SimpleTypesetter implements Typesetter {
 		return start;
 	}
 
-	private int spiltIf(List<Line> lines, List<? extends Element> elements, int start, List<Box> boxes, float width) {
+	private int spiltIf(Paragraph paragraph, List<? extends Element> elements, int start, Line line, float width) {
 		if (start >= elements.size()) {
 			return start;
 		}
@@ -165,18 +158,18 @@ class SimpleTypesetter implements Typesetter {
 		Box[] children = box.spilt(width);
 		if (children != null) {
 			children[0].setFlag(Box.FLAG_SPILT);
-			boxes.add(children[0]);
+			line.add(children[0]);
 			box.copy(children[1]);
 			box = children[0];
 		} else {
-			boxes.add(box);
+			line.add(box);
 			++start;
 		}
 
-		lines.add(new Line(boxes,
-				width,
-				box.getHeight(),
-				0));
+		line.setLineWidth(width);
+		line.setLineHeight(box.getHeight());
+		line.setRatio(0);
+		paragraph.add(line);
 		return start;
 	}
 }

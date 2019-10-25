@@ -93,4 +93,10 @@ public class TeView extends FrameLayout {
 	public void setTextColor(int color) {
 		mAdapter.setTextColor(color);
 	}
+
+	@Override
+	protected void onDetachedFromWindow() {
+		mAdapter.release();
+		super.onDetachedFromWindow();
+	}
 }

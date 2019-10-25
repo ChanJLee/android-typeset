@@ -26,7 +26,6 @@ class TexTypesetter implements Typesetter {
 
 	@Nullable
 	public Paragraph typeset(Segment segment, LineAttributes lineAttributes, BreakStrategy breakStrategy) {
-		Paragraph paragraph = new Paragraph(lineAttributes);
 		List<Node> activeNodes = null;
 		float tolerance = 0;
 		for (int i = 0; i < MAX_RELAYOUT_TIMES; ++i) {
@@ -48,10 +47,7 @@ class TexTypesetter implements Typesetter {
 			return null;
 		}
 
-		List<Line> lines = typesetParagraph(segment, breakPoints);
-		paragraph.setLines(lines);
-
-		return paragraph;
+		return typesetParagraph(segment, breakPoints, lineAttributes);
 	}
 
 	private List<Node> createActiveNodes(Segment segment, LineAttributes lineAttributes, float tolerance) {
@@ -98,10 +94,10 @@ class TexTypesetter implements Typesetter {
 		return ((Box) element).getWidth();
 	}
 
-	private List<Line> typesetParagraph(Segment segment,
-										List<BreakPoint> breakPoints) {
+	private Paragraph typesetParagraph(Segment segment,
+										List<BreakPoint> breakPoints, LineAttributes lineAttributes) {
+		Paragraph paragraph = Paragraph.obtain(lineAttributes);
 		List<? extends Element> elements = segment.getElements();
-		List<Line> lines = new LinkedList<>();
 		int lineStart = 0;
 		int size = elements.size();
 		for (int i = 1; i < breakPoints.size(); ++i) {
@@ -120,24 +116,23 @@ class TexTypesetter implements Typesetter {
 				lineEnd = size;
 			}
 
-			lines.add(createLine(
+			paragraph.add(createLine(
 					elements,
 					lineStart,
 					lineEnd,
 					breakPoint.ratio));
 			lineStart = pos;
 		}
-		return lines;
+		return paragraph;
 	}
 
 	private Line createLine(List<? extends Element> lineElements, int start, int end, float ratio) {
 		float lineHeight = 0;
-		List<Box> boxes = new ArrayList<>();
+		Line line = Line.obtain();
 		float lineWidth = 0;
 		for (int i = start; i < end; ++i) {
 			Element element = lineElements.get(i);
 			if (!(element instanceof Box)) {
-				element.recycle();
 				continue;
 			}
 
@@ -149,15 +144,13 @@ class TexTypesetter implements Typesetter {
 			}
 
 			lineWidth += box.getWidth();
-			boxes.add(box);
+			line.add(box);
 		}
 
-		return new Line(
-				boxes,
-				lineWidth,
-				lineHeight,
-				ratio
-		);
+		line.setLineWidth(lineWidth);
+		line.setLineHeight(lineHeight);
+		line.setRatio(ratio);
+		return line;
 	}
 
 	/**
@@ -170,7 +163,6 @@ class TexTypesetter implements Typesetter {
 		for (; start < end; ++start) {
 			Element element = lineElements.get(start);
 			if (element instanceof Glue) {
-				element.recycle();
 				break;
 			}
 
@@ -182,13 +174,11 @@ class TexTypesetter implements Typesetter {
 				}
 
 				box.append(other);
-				element.recycle();
 				continue;
 			}
 
 			if (element instanceof Penalty && start == end - 1) {
 				box.append((Penalty) element);
-				element.recycle();
 			}
 		}
 
