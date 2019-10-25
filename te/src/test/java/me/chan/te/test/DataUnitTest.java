@@ -22,6 +22,7 @@ import me.chan.te.hypher.Hypher;
 import me.chan.te.test.mock.MockMeasurer;
 import me.chan.te.test.mock.MockOption;
 import me.chan.te.test.mock.MockTextPaint;
+import me.chan.te.typesetter.Sum;
 
 import static org.junit.Assert.fail;
 
@@ -435,5 +436,34 @@ public class DataUnitTest {
 		Assert.assertNotEquals(0, mMockTextPaint.getMockTextSize() * msg.length(), 0);
 		Assert.assertEquals(box.getHeight(), height, 0);
 		Assert.assertEquals(box.getWidth(), mMockTextPaint.getMockTextSize() * msg.length(), 0.1);
+	}
+
+	@Test
+	public void testSum() {
+		Sum sum = Sum.obtain();
+		Assert.assertNotNull(sum);
+
+		sum.width = 1;
+		sum.shrink = 2;
+		sum.stretch = 3;
+
+		Sum o = Sum.obtain(sum);
+		Assert.assertNotSame(o, sum);
+
+		Assert.assertEquals(sum.width, o.width, 0);
+		Assert.assertEquals(sum.shrink, o.shrink, 0);
+		Assert.assertEquals(sum.stretch, o.stretch, 0);
+
+		o.recycle();
+		Assert.assertNotEquals(sum.width, o.width, 0);
+		Assert.assertNotEquals(sum.shrink, o.shrink, 0);
+		Assert.assertNotEquals(sum.stretch, o.stretch, 0);
+		Sum p = o;
+		o = Sum.obtain();
+		Assert.assertSame(o, p);
+
+		Assert.assertNotEquals(sum.width, o.width, 0);
+		Assert.assertNotEquals(sum.shrink, o.shrink, 0);
+		Assert.assertNotEquals(sum.stretch, o.stretch, 0);
 	}
 }

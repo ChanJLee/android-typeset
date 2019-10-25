@@ -55,9 +55,9 @@ class TexTypesetter implements Typesetter {
 		List<Node> activeNodes = new LinkedList<>();
 
 		Node.Data data = new Node.Data();
-		data.totals = new Sum();
+		data.totals = Sum.obtain();
 		activeNodes.add(new Node(data, null, null));
-		Sum sum = new Sum();
+		Sum sum = Sum.obtain();
 		for (int i = 0; i < elements.size() && !activeNodes.isEmpty(); ++i) {
 			Element element = elements.get(i);
 			if (element instanceof Box) {
@@ -95,7 +95,7 @@ class TexTypesetter implements Typesetter {
 	}
 
 	private Paragraph typesetParagraph(Segment segment,
-										List<BreakPoint> breakPoints, LineAttributes lineAttributes) {
+									   List<BreakPoint> breakPoints, LineAttributes lineAttributes) {
 		Paragraph paragraph = Paragraph.obtain(lineAttributes);
 		List<? extends Element> elements = segment.getElements();
 		int lineStart = 0;
@@ -259,11 +259,11 @@ class TexTypesetter implements Typesetter {
 			}
 
 			Sum tmpSum = computeSum(index, elements, sum);
-			createIfActiveNode(active, index, element, activeNodes, tmpSum, candidates);
+			createIfActiveNode(active, index, activeNodes, tmpSum, candidates);
 		}
 	}
 
-	private void createIfActiveNode(Node active, int index, Element element, List<Node> activeNodes,
+	private void createIfActiveNode(Node active, int index, List<Node> activeNodes,
 									Sum sum, Candidate[] candidates) {
 		for (int i = 0; i < candidates.length; ++i) {
 			Candidate candidate = candidates[i];
@@ -383,7 +383,7 @@ class TexTypesetter implements Typesetter {
 	}
 
 	private Sum computeSum(int index, List<? extends Element> elements, Sum sum) {
-		Sum result = new Sum(sum);
+		Sum result = Sum.obtain(sum);
 
 		for (int i = index; i < elements.size(); ++i) {
 			Element element = elements.get(i);
