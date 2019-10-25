@@ -10,7 +10,7 @@ import me.chan.te.misc.ObjectFactory;
  * 已经排版好的段落
  */
 public class Paragraph implements Recyclable {
-	private static final ObjectFactory<Paragraph> POOL = new ObjectFactory<>(1500);
+	private static final ObjectFactory<Paragraph> POOL = new ObjectFactory<>(5000);
 
 	private List<Line> mLines = new ArrayList<>(30);
 	private LineAttributes mLineAttributes;

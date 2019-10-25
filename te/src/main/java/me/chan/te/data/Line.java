@@ -9,7 +9,7 @@ import me.chan.te.misc.ObjectFactory;
  * 绘制行
  */
 public class Line implements Recyclable {
-	private static final ObjectFactory<Line> POOL = new ObjectFactory<>(3000);
+	private static final ObjectFactory<Line> POOL = new ObjectFactory<>(6000);
 
 	private List<Box> mBoxes = new ArrayList<>(150);
 	private float mLineHeight;

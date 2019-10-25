@@ -14,7 +14,7 @@ import me.chan.te.typesetter.Typesetter;
  * 一段文本片段
  */
 public final class Segment implements Recyclable {
-	private static final ObjectFactory<Segment> POOL = new ObjectFactory<>(3000);
+	private static final ObjectFactory<Segment> POOL = new ObjectFactory<>(5000);
 
 	private CharSequence mText;
 	private int mStart;
