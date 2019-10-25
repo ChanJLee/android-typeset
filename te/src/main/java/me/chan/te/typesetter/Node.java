@@ -1,14 +1,45 @@
 package me.chan.te.typesetter;
 
-public class Node {
-	public Data data;
+import me.chan.te.data.Recyclable;
+import me.chan.te.misc.ObjectFactory;
+
+public class Node implements Recyclable {
+	private static final ObjectFactory<Node> POOL = new ObjectFactory<>(5000);
+
+	private Data mData = new Data();
+
 	public Node prev;
 	public Node next;
 
-	public Node(Data data, Node prev, Node next) {
-		this.data = data;
+	private Node(Node prev, Node next) {
 		this.prev = prev;
 		this.next = next;
+	}
+
+	public Data getData() {
+		return mData;
+	}
+
+	@Override
+	public void recycle() {
+		mData.demerits = mData.ratio = mData.line = mData.fitnessClazz = mData.position = 0;
+		if (mData.totals != null) {
+			mData.totals.recycle();
+			mData.totals = null;
+		}
+		mData.prev = null;
+		next = prev = null;
+		POOL.release(this);
+	}
+
+	public static Node obtain(Node prev, Node next) {
+		Node node = POOL.acquire();
+		if (node == null) {
+			return new Node(prev, next);
+		}
+		node.prev = prev;
+		node.next = next;
+		return node;
 	}
 
 	public static class Data {
@@ -19,5 +50,8 @@ public class Node {
 		public int fitnessClazz = 0;
 		public Sum totals;
 		public Node prev;
+
+		private Data() {
+		}
 	}
 }
