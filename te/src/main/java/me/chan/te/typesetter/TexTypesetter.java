@@ -46,16 +46,23 @@ class TexTypesetter implements Typesetter {
 			return null;
 		}
 
-		return typesetParagraph(segment, breakPoints, lineAttributes);
+		Paragraph paragraph = typesetParagraph(segment, breakPoints, lineAttributes);
+		for (Node node : activeNodes) {
+			node.recycle();
+		}
+
+		return paragraph;
 	}
 
 	private List<Node> createActiveNodes(Segment segment, LineAttributes lineAttributes, float tolerance) {
 		List<? extends Element> elements = segment.getElements();
 		List<Node> activeNodes = new LinkedList<>();
 
-		Node.Data data = new Node.Data();
-		data.totals = Sum.obtain();
-		activeNodes.add(new Node(data, null, null));
+		// header
+		Node node = Node.obtain(null, null);
+		node.getData().totals = Sum.obtain();
+		activeNodes.add(node);
+
 		Sum sum = Sum.obtain();
 		for (int i = 0; i < elements.size() && !activeNodes.isEmpty(); ++i) {
 			Element element = elements.get(i);
@@ -187,17 +194,24 @@ class TexTypesetter implements Typesetter {
 		List<BreakPoint> breaks = new LinkedList<>();
 		Node tempNode = null;
 		for (Node node : activeNodes) {
-			if (tempNode == null || tempNode.data.demerits > node.data.demerits) {
+			if (tempNode == null) {
+				tempNode = node;
+				continue;
+			}
+
+			Node.Data data = tempNode.getData();
+			if (data.demerits > data.demerits) {
 				tempNode = node;
 			}
 		}
 
 		while (tempNode != null) {
+			Node.Data data = tempNode.getData();
 			BreakPoint breakPoint = new BreakPoint();
-			breakPoint.position = tempNode.data.position;
-			breakPoint.ratio = tempNode.data.ratio;
+			breakPoint.position = data.position;
+			breakPoint.ratio = data.ratio;
 			breaks.add(breakPoint);
-			tempNode = tempNode.data.prev;
+			tempNode = data.prev;
 		}
 
 		Collections.reverse(breaks);
@@ -226,8 +240,8 @@ class TexTypesetter implements Typesetter {
 
 			while (active != null) {
 				Node next = active.next;
-				int currentLine = active.data.line + 1;
-				float ratio = computeRatio(element, active.data, sum, lineAttributes.get(currentLine).getLineWidth());
+				int currentLine = active.getData().line + 1;
+				float ratio = computeRatio(element, active.getData(), sum, lineAttributes.get(currentLine).getLineWidth());
 
 				if (ratio < MIN_SHRINK_RATIO || (element instanceof Penalty && ((Penalty) element).getPenalty() == -INFINITY)) {
 					removeActiveNode(active, activeNodes);
@@ -251,7 +265,7 @@ class TexTypesetter implements Typesetter {
 
 				active = next;
 
-				if (active != null && active.data.line >= currentLine) {
+				if (active != null && active.getData().line >= currentLine) {
 					break;
 				}
 			}
@@ -270,16 +284,16 @@ class TexTypesetter implements Typesetter {
 				continue;
 			}
 
-			Node.Data data = new Node.Data();
+			Node node = Node.obtain(null, null);
+			Node.Data data = node.getData();
 			data.position = index;
 			data.demerits = candidate.demerits;
 			data.ratio = candidate.ratio;
-			data.line = candidate.active.data.line + 1;
+			data.line = candidate.active.getData().line + 1;
 			data.fitnessClazz = i;
 			data.totals = Sum.obtain(sum);
 			data.prev = candidate.active;
 
-			Node node = new Node(data, null, null);
 			if (active != null) {
 				node.prev = active.prev;
 				if (active.prev != null) {
@@ -363,20 +377,20 @@ class TexTypesetter implements Typesetter {
 		}
 
 		if (element instanceof Penalty &&
-				elements.get(active.data.position) instanceof Penalty) {
+				elements.get(active.getData().position) instanceof Penalty) {
 			Penalty penalty = (Penalty) element;
-			Penalty activePenalty = (Penalty) elements.get(active.data.position);
+			Penalty activePenalty = (Penalty) elements.get(active.getData().position);
 			if (penalty.isFlag() && activePenalty.isFlag()) {
 				demerits += DEMERITS_FLAGGED;
 			}
 		}
 
-		if (Math.abs(currentClass - active.data.fitnessClazz) > 1) {
+		if (Math.abs(currentClass - active.getData().fitnessClazz) > 1) {
 			demerits += DEMERITS_FITNESS;
 		}
 
 		// 叠加total demerits
-		demerits += active.data.demerits;
+		demerits += active.getData().demerits;
 
 		return demerits;
 	}

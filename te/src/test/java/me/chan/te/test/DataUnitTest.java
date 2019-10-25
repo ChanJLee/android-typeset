@@ -22,6 +22,7 @@ import me.chan.te.hypher.Hypher;
 import me.chan.te.test.mock.MockMeasurer;
 import me.chan.te.test.mock.MockOption;
 import me.chan.te.test.mock.MockTextPaint;
+import me.chan.te.typesetter.Node;
 import me.chan.te.typesetter.Sum;
 
 import static org.junit.Assert.fail;
@@ -470,5 +471,20 @@ public class DataUnitTest {
 		Assert.assertNotEquals(sum.getWidth(), o.getWidth(), 0);
 		Assert.assertNotEquals(sum.getShrink(), o.getShrink(), 0);
 		Assert.assertNotEquals(sum.getStretch(), o.getStretch(), 0);
+	}
+
+	@Test
+	public void testNode() {
+		Node node = Node.obtain(null, null);
+		Assert.assertNotNull(node);
+		Assert.assertNull(node.next);
+		Assert.assertNull(node.prev);
+		Assert.assertNotNull(node.getData());
+
+		Node.Data data = node.getData();
+		Assert.assertNull(data.prev);
+		Assert.assertNull(data.totals);
+
+		// TODO
 	}
 }
