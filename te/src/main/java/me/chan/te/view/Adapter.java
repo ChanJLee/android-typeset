@@ -19,20 +19,19 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 import me.chan.te.R;
-import me.chan.te.measurer.AndroidMeasurer;
-import me.chan.te.text.BreakStrategy;
 import me.chan.te.config.LineAttributes;
 import me.chan.te.config.Option;
-import me.chan.te.text.Gravity;
 import me.chan.te.data.Paragraph;
 import me.chan.te.data.Segment;
 import me.chan.te.hypher.Hypher;
 import me.chan.te.log.Log;
+import me.chan.te.measurer.AndroidMeasurer;
 import me.chan.te.parser.Parser;
 import me.chan.te.parser.TextParser;
 import me.chan.te.source.Source;
 import me.chan.te.source.SourceCloseException;
-import me.chan.te.source.SourceOpenException;
+import me.chan.te.text.BreakStrategy;
+import me.chan.te.text.Gravity;
 import me.chan.te.typesetter.CoreTypesetter;
 
 public class Adapter extends RecyclerView.Adapter<TexViewHolder> {
@@ -273,5 +272,23 @@ public class Adapter extends RecyclerView.Adapter<TexViewHolder> {
 	void setTextColor(int color) {
 		mTextPaint.setColor(color);
 		redraw(ACTION_REDRAW);
+	}
+
+	public void release() {
+		d("call release");
+		final List<Paragraph> paragraphs = mParagraphs;
+		final List<Segment> segments = mSegments;
+
+		mParagraphs = null;
+		mSegments = null;
+		notifyDataSetChanged();
+
+		for (int i = 0; paragraphs != null && i < paragraphs.size(); ++i) {
+			paragraphs.get(i).recycle();
+		}
+
+		for (int i = 0; segments != null && i < segments.size(); ++i) {
+			segments.get(i).recycle();
+		}
 	}
 }

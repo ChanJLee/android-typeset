@@ -12,7 +12,7 @@ import me.chan.te.misc.ObjectFactory;
  * 文本元素
  */
 public final class TextBox extends Box implements Element, Cloneable {
-	private final static ObjectFactory<TextBox> POOL = new ObjectFactory<>(10000);
+	private final static ObjectFactory<TextBox> POOL = new ObjectFactory<>(50000);
 	private CharSequence mText;
 	@Nullable
 	private BoxStyle mBoxStyle;

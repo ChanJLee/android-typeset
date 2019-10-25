@@ -8,7 +8,7 @@ import me.chan.te.misc.ObjectFactory;
  * 代表添加的'-'符号
  */
 public final class Penalty implements Element {
-	private final static ObjectFactory<Penalty> POOL = new ObjectFactory<>(4000);
+	private final static ObjectFactory<Penalty> POOL = new ObjectFactory<>(20000);
 
 	private boolean mFlag;
 
