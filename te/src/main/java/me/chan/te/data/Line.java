@@ -1,22 +1,32 @@
 package me.chan.te.data;
 
+import java.util.ArrayList;
 import java.util.List;
+
+import me.chan.te.misc.ObjectFactory;
 
 /**
  * 绘制行
  */
-public class Line {
-	private List<Box> mBoxes;
+public class Line implements Recyclable {
+	private static final ObjectFactory<Line> POOL = new ObjectFactory<>(6000);
+
+	private List<Box> mBoxes = new ArrayList<>(150);
 	private float mLineHeight;
 	private float mLineWidth;
 	private float mRatio;
 	private float mSpaceWidth;
 
-	public Line(List<Box> boxes, float lineWidth, float lineHeight, float ratio) {
-		mBoxes = boxes;
-		mLineHeight = lineHeight;
-		mRatio = ratio;
-		mLineWidth = lineWidth;
+	private Line() {
+		reset();
+	}
+
+	private void reset() {
+		mBoxes.clear();
+		mLineHeight = -1;
+		mRatio = -1;
+		mLineWidth = -1;
+		mSpaceWidth = -1;
 	}
 
 	public List<Box> getBoxes() {
@@ -41,5 +51,40 @@ public class Line {
 
 	public void setSpaceWidth(float spaceWidth) {
 		mSpaceWidth = spaceWidth;
+	}
+
+	public void setLineHeight(float lineHeight) {
+		mLineHeight = lineHeight;
+	}
+
+	public void setLineWidth(float lineWidth) {
+		mLineWidth = lineWidth;
+	}
+
+	public void setRatio(float ratio) {
+		mRatio = ratio;
+	}
+
+	@Override
+	public void recycle() {
+		reset();
+		POOL.release(this);
+	}
+
+	public static Line obtain() {
+		Line line = POOL.acquire();
+		if (line == null) {
+			return new Line();
+		}
+		line.reset();
+		return line;
+	}
+
+	public void add(Box box) {
+		mBoxes.add(box);
+	}
+
+	public boolean isEmpty() {
+		return mBoxes.isEmpty();
 	}
 }

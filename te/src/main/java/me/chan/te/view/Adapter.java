@@ -19,20 +19,19 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 import me.chan.te.R;
-import me.chan.te.measurer.AndroidMeasurer;
-import me.chan.te.text.BreakStrategy;
 import me.chan.te.config.LineAttributes;
 import me.chan.te.config.Option;
-import me.chan.te.text.Gravity;
 import me.chan.te.data.Paragraph;
 import me.chan.te.data.Segment;
 import me.chan.te.hypher.Hypher;
 import me.chan.te.log.Log;
+import me.chan.te.measurer.AndroidMeasurer;
 import me.chan.te.parser.Parser;
 import me.chan.te.parser.TextParser;
 import me.chan.te.source.Source;
 import me.chan.te.source.SourceCloseException;
-import me.chan.te.source.SourceOpenException;
+import me.chan.te.text.BreakStrategy;
+import me.chan.te.text.Gravity;
 import me.chan.te.typesetter.CoreTypesetter;
 
 public class Adapter extends RecyclerView.Adapter<TexViewHolder> {
@@ -41,6 +40,7 @@ public class Adapter extends RecyclerView.Adapter<TexViewHolder> {
 	private static final int ACTION_ENABLE_DEBUG = 2;
 
 	private List<Paragraph> mParagraphs;
+	private List<Segment> mSegments;
 	private LayoutInflater mLayoutInflater;
 	private TextPaint mTextPaint;
 	private Option mOption;
@@ -107,15 +107,21 @@ public class Adapter extends RecyclerView.Adapter<TexViewHolder> {
 
 	void render(final Source source, final int width) {
 		cancel();
+		final List<Paragraph> prevParagraph = mParagraphs;
+		final List<Segment> prevSegments = mSegments;
+
+		mParagraphs = null;
+		mSegments = null;
+		notifyDataSetChanged();
+
 		mTask = mExecutor.submit(new Runnable() {
 			@Override
 			public void run() {
 				try {
 					mContent = source.open();
 					mWidth = width;
-					refreshInternal();
-				} catch (SourceOpenException throwable) {
-					w("source open exception");
+					refreshInternal(prevParagraph, prevSegments);
+				} catch (Throwable throwable) {
 					w(throwable);
 				} finally {
 					try {
@@ -136,13 +142,21 @@ public class Adapter extends RecyclerView.Adapter<TexViewHolder> {
 		}
 
 		cancel();
+		final List<Paragraph> prevParagraph = mParagraphs;
+		final List<Segment> prevSegments = mSegments;
+
 		mParagraphs = null;
+		mSegments = null;
 		notifyDataSetChanged();
 
 		mTask = mExecutor.submit(new Runnable() {
 			@Override
 			public void run() {
-				refreshInternal();
+				try {
+					refreshInternal(prevParagraph, prevSegments);
+				} catch (Throwable throwable) {
+					w(throwable);
+				}
 			}
 		});
 		d("refresh: " + mTask);
@@ -155,10 +169,19 @@ public class Adapter extends RecyclerView.Adapter<TexViewHolder> {
 		}
 	}
 
-	private synchronized void refreshInternal() {
+	private synchronized void refreshInternal(List<Paragraph> prevParagraph,
+											  List<Segment> prevSegments) {
+		for (int i = 0; prevParagraph != null && i < prevParagraph.size(); ++i) {
+			prevParagraph.get(i).recycle();
+		}
+
+		for (int i = 0; prevSegments != null && i < prevSegments.size(); ++i) {
+			prevSegments.get(i).recycle();
+		}
+
 		CoreTypesetter texTypesetter = new CoreTypesetter();
 		long timestamp = SystemClock.elapsedRealtime();
-		List<Segment> segments = mParser.parser(mContent, mMeasurer, Hypher.getInstance(), mOption);
+		final List<Segment> segments = mParser.parser(mContent, mMeasurer, Hypher.getInstance(), mOption);
 		d("parse used time: " + (SystemClock.elapsedRealtime() - timestamp) + " segments: " + segments.size());
 		timestamp = SystemClock.elapsedRealtime();
 
@@ -184,11 +207,10 @@ public class Adapter extends RecyclerView.Adapter<TexViewHolder> {
 		mHandler.post(new Runnable() {
 			@Override
 			public void run() {
-				if (!thread.isInterrupted()) {
-					d("render paragraphs");
-					mParagraphs = paragraphs;
-					notifyDataSetChanged();
-				}
+				d("render paragraphs");
+				mParagraphs = paragraphs;
+				mSegments = segments;
+				notifyDataSetChanged();
 			}
 		});
 	}
@@ -250,5 +272,23 @@ public class Adapter extends RecyclerView.Adapter<TexViewHolder> {
 	void setTextColor(int color) {
 		mTextPaint.setColor(color);
 		redraw(ACTION_REDRAW);
+	}
+
+	public void release() {
+		d("call release");
+		final List<Paragraph> paragraphs = mParagraphs;
+		final List<Segment> segments = mSegments;
+
+		mParagraphs = null;
+		mSegments = null;
+		notifyDataSetChanged();
+
+		for (int i = 0; paragraphs != null && i < paragraphs.size(); ++i) {
+			paragraphs.get(i).recycle();
+		}
+
+		for (int i = 0; segments != null && i < segments.size(); ++i) {
+			segments.get(i).recycle();
+		}
 	}
 }
