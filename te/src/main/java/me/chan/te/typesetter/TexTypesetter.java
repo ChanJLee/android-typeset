@@ -2,7 +2,6 @@ package me.chan.te.typesetter;
 
 import android.support.annotation.Nullable;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -61,16 +60,14 @@ class TexTypesetter implements Typesetter {
 		for (int i = 0; i < elements.size() && !activeNodes.isEmpty(); ++i) {
 			Element element = elements.get(i);
 			if (element instanceof Box) {
-				sum.width += getElementWidth(element);
+				sum.increaseWidth(getElementWidth(element));
 			} else if (element instanceof Glue) {
 				if (i > 0 && elements.get(i - 1) instanceof Box) {
 					typesetLine(i, elements, activeNodes, sum, lineAttributes, tolerance);
 				}
 
 				Glue glue = (Glue) element;
-				sum.width += glue.getWidth();
-				sum.shrink += glue.getShrink();
-				sum.stretch += glue.getStretch();
+				sum.increaseGlue(glue);
 			} else if (element instanceof Penalty &&
 					((Penalty) element).getPenalty() != INFINITY) {
 				typesetLine(i, elements, activeNodes, sum, lineAttributes, tolerance);
@@ -330,16 +327,16 @@ class TexTypesetter implements Typesetter {
 	}
 
 	private float computeRatio(Element element, Node.Data data, Sum sum, float lineLength) {
-		float width = sum.width - data.totals.width;
+		float width = sum.getWidth() - data.totals.getWidth();
 		if (element instanceof Penalty) {
 			width += getElementWidth(element);
 		}
 
 		if (width < lineLength) {
-			float stretch = sum.stretch - data.totals.stretch;
+			float stretch = sum.getStretch() - data.totals.getStretch();
 			return stretch > 0 ? (lineLength - width) / stretch : INFINITY;
 		} else if (width > lineLength) {
-			float shrink = sum.shrink - data.totals.shrink;
+			float shrink = sum.getShrink() - data.totals.getShrink();
 			return shrink > 0 ? (lineLength - width) / shrink : INFINITY;
 		}
 
@@ -391,9 +388,7 @@ class TexTypesetter implements Typesetter {
 			Element element = elements.get(i);
 			if (element instanceof Glue) {
 				Glue glue = (Glue) element;
-				result.width += glue.getWidth();
-				result.stretch += glue.getStretch();
-				result.shrink += glue.getShrink();
+				result.increaseGlue(glue);
 			} else if (element instanceof Box ||
 					(element instanceof Penalty &&
 							((Penalty) element).getPenalty() == -INFINITY && i > index)) {
