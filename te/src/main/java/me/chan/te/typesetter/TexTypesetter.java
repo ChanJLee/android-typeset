@@ -76,6 +76,7 @@ class TexTypesetter implements Typesetter {
 				typesetLine(i, elements, activeNodes, sum, lineAttributes, tolerance);
 			}
 		}
+		sum.recycle();
 
 		return activeNodes;
 	}
@@ -260,6 +261,7 @@ class TexTypesetter implements Typesetter {
 
 			Sum tmpSum = computeSum(index, elements, sum);
 			createIfActiveNode(active, index, activeNodes, tmpSum, candidates);
+			tmpSum.recycle();
 		}
 	}
 
@@ -277,7 +279,7 @@ class TexTypesetter implements Typesetter {
 			data.ratio = candidate.ratio;
 			data.line = candidate.active.data.line + 1;
 			data.fitnessClazz = i;
-			data.totals = sum;
+			data.totals = Sum.obtain(sum);
 			data.prev = candidate.active;
 
 			Node node = new Node(data, null, null);
