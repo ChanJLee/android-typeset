@@ -11,7 +11,7 @@ import android.widget.RadioGroup;
 
 import java.io.IOException;
 
-import me.chan.te.source.AssertSource;
+import me.chan.te.source.AssetsSource;
 import me.chan.te.text.BreakStrategy;
 import me.chan.te.view.TeView;
 
@@ -96,7 +96,7 @@ public class ParagraphActivity extends AppCompatActivity {
 
 	private void render(final String name, final TeView teView) {
 		try {
-			teView.setSource(new AssertSource(this, name));
+			teView.setSource(new AssetsSource(this, name));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
