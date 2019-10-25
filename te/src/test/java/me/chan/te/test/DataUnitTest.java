@@ -443,27 +443,32 @@ public class DataUnitTest {
 		Sum sum = Sum.obtain();
 		Assert.assertNotNull(sum);
 
-		sum.width = 1;
-		sum.shrink = 2;
-		sum.stretch = 3;
+		Glue glue = Glue.obtain(1, 2, 3);
+		sum.increaseGlue(glue);
+		Assert.assertEquals(sum.getWidth(), glue.getWidth(), 0);
+		Assert.assertEquals(sum.getShrink(), glue.getShrink(), 0);
+		Assert.assertEquals(sum.getStretch(), glue.getStretch(), 0);
+
+		sum.increaseWidth(10);
+		Assert.assertEquals(sum.getWidth(), glue.getWidth() + 10, 0);
 
 		Sum o = Sum.obtain(sum);
 		Assert.assertNotSame(o, sum);
 
-		Assert.assertEquals(sum.width, o.width, 0);
-		Assert.assertEquals(sum.shrink, o.shrink, 0);
-		Assert.assertEquals(sum.stretch, o.stretch, 0);
+		Assert.assertEquals(sum.getWidth(), o.getWidth(), 0);
+		Assert.assertEquals(sum.getShrink(), o.getShrink(), 0);
+		Assert.assertEquals(sum.getStretch(), o.getStretch(), 0);
 
 		o.recycle();
-		Assert.assertNotEquals(sum.width, o.width, 0);
-		Assert.assertNotEquals(sum.shrink, o.shrink, 0);
-		Assert.assertNotEquals(sum.stretch, o.stretch, 0);
+		Assert.assertNotEquals(sum.getWidth(), o.getWidth(), 0);
+		Assert.assertNotEquals(sum.getShrink(), o.getShrink(), 0);
+		Assert.assertNotEquals(sum.getStretch(), o.getStretch(), 0);
 		Sum p = o;
 		o = Sum.obtain();
 		Assert.assertSame(o, p);
 
-		Assert.assertNotEquals(sum.width, o.width, 0);
-		Assert.assertNotEquals(sum.shrink, o.shrink, 0);
-		Assert.assertNotEquals(sum.stretch, o.stretch, 0);
+		Assert.assertNotEquals(sum.getWidth(), o.getWidth(), 0);
+		Assert.assertNotEquals(sum.getShrink(), o.getShrink(), 0);
+		Assert.assertNotEquals(sum.getStretch(), o.getStretch(), 0);
 	}
 }
