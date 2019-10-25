@@ -4,6 +4,7 @@
 
 - [ ] 渲染view开发
 - [ ] adapter异常安全保障 
+- [ ] tex typeset cache
 
 # workflow
 
