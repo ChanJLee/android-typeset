@@ -67,6 +67,9 @@ public class DataUnitTest {
 
 		Glue previous = glue;
 		glue.recycle();
+		Assert.assertEquals("check width: ", glue.getWidth(), -1, 0);
+		Assert.assertEquals("check stretch: ", glue.getStretch(), -1, 0);
+		Assert.assertEquals("check shrink: ", glue.getShrink(), -1, 0);
 
 		glue = Glue.obtain(4, 5, 6);
 		Assert.assertNotNull(glue);
@@ -88,6 +91,10 @@ public class DataUnitTest {
 
 		Penalty prev = penalty;
 		penalty.recycle();
+		Assert.assertEquals("check width: ", penalty.getWidth(), -1, 0);
+		Assert.assertEquals("check height: ", penalty.getHeight(), -1, 0);
+		Assert.assertEquals("check penalty: ", penalty.getPenalty(), -1, 0);
+		Assert.assertFalse("check flag", penalty.isFlag());
 
 		penalty = Penalty.obtain(4, 5, 6, false);
 		Assert.assertNotNull(penalty);
@@ -133,6 +140,10 @@ public class DataUnitTest {
 
 		TextBox prev = box2;
 		box2.recycle();
+		Assert.assertNull(box2.getBoxStyle());
+		Assert.assertEquals(box2.getHeight(), -1, 0);
+		Assert.assertEquals(box2.getWidth(), -1, 0);
+
 		msg = "hello";
 		box2 = TextBox.obtain(msg, 0, msg.length(), mMockTextPaint.getMockTextSize() * msg.length(), mMockTextPaint.getMockTextHeight(), boxStyle);
 		Assert.assertNotNull(box2);
@@ -212,6 +223,9 @@ public class DataUnitTest {
 
 		msg = "xxxx";
 		box.recycle();
+		Assert.assertFalse(box.isPenalty());
+		Assert.assertFalse(box.isSplit());
+
 		box = TextBox.obtain(msg, 0, msg.length(), mMockTextPaint.getMockTextSize() * msg.length(), mMockTextPaint.getMockTextHeight(), null);
 		Assert.assertNotNull(box);
 		Assert.assertFalse(box.isPenalty());
@@ -298,6 +312,9 @@ public class DataUnitTest {
 		Assert.assertFalse(segment.getElements().isEmpty());
 
 		segment.recycle();
+		Assert.assertNotNull(segment.getElements());
+		Assert.assertTrue(segment.getElements().isEmpty());
+
 		Segment previous = segment;
 		segment = Segment.obtain(msg, 0, content.length());
 		Assert.assertNotNull(segment);
@@ -364,6 +381,12 @@ public class DataUnitTest {
 
 		Line prev = line;
 		line.recycle();
+		Assert.assertTrue(line.getBoxes().isEmpty());
+		Assert.assertNotEquals(line.getSpaceWidth(), 1, 0);
+		Assert.assertNotEquals(line.getLineHeight(), 2, 0);
+		Assert.assertNotEquals(line.getLineWidth(), 3, 0);
+		Assert.assertNotEquals(line.getRatio(), 4, 0);
+
 		line = Line.obtain();
 		Assert.assertNotNull(line);
 		Assert.assertSame(prev, line);
@@ -389,6 +412,11 @@ public class DataUnitTest {
 
 		Paragraph prev = paragraph;
 		paragraph.recycle();
+		Assert.assertNotNull(paragraph);
+		Assert.assertNull(paragraph.getLineAttributes());
+		Assert.assertTrue(paragraph.getLines().isEmpty());
+		Assert.assertEquals(paragraph.getLineCount(), 0);
+
 		paragraph = Paragraph.obtain(lineAttributes);
 		Assert.assertSame(paragraph, prev);
 		Assert.assertNotNull(paragraph);
