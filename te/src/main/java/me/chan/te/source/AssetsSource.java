@@ -5,13 +5,13 @@ import android.content.res.Resources;
 
 import java.io.IOException;
 
-public class AssertSource extends StreamSource {
+public class AssetsSource extends StreamSource {
 
-	public AssertSource(Context context, String path) throws IOException {
+	public AssetsSource(Context context, String path) throws IOException {
 		this(context.getResources(), path);
 	}
 
-	public AssertSource(Resources resources, String path) throws IOException {
+	public AssetsSource(Resources resources, String path) throws IOException {
 		super(resources.getAssets().open(path));
 	}
 }
