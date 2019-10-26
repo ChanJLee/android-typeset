@@ -1,9 +1,11 @@
 package me.chan.te.typesetter;
 
+import me.chan.te.annotations.Hidden;
 import me.chan.te.data.Glue;
 import me.chan.te.data.Recyclable;
 import me.chan.te.misc.ObjectFactory;
 
+@Hidden
 public class Sum implements Recyclable {
 	private static final ObjectFactory<Sum> POOL = new ObjectFactory<>(2000);
 

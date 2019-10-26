@@ -1,8 +1,10 @@
 package me.chan.te.typesetter;
 
+import me.chan.te.annotations.Hidden;
 import me.chan.te.data.Recyclable;
 import me.chan.te.misc.ObjectFactory;
 
+@Hidden
 public class BreakPoint implements Recyclable {
 	private static final ObjectFactory<BreakPoint> POOL = new ObjectFactory<>(5000);
 
