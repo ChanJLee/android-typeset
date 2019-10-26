@@ -24,7 +24,6 @@ import me.chan.te.test.mock.MockOption;
 import me.chan.te.test.mock.MockTextPaint;
 import me.chan.te.typesetter.BreakPoint;
 import me.chan.te.typesetter.Candidate;
-import me.chan.te.typesetter.Candidates;
 import me.chan.te.typesetter.Node;
 import me.chan.te.typesetter.Sum;
 
@@ -574,11 +573,5 @@ public class DataUnitTest {
 		Assert.assertEquals(candidate.ratio, 4, 0);
 		Assert.assertSame(node, candidate.active);
 		Assert.assertSame(p, candidate);
-	}
-
-	@Test
-	public void testCandidates() {
-		Candidates candidates = Candidates.obtain();
-		// TODO opt
 	}
 }
