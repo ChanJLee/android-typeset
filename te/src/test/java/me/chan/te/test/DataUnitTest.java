@@ -484,7 +484,49 @@ public class DataUnitTest {
 		Node.Data data = node.getData();
 		Assert.assertNull(data.prev);
 		Assert.assertNull(data.totals);
+		Assert.assertEquals(data.position, 0);
+		Assert.assertEquals(data.demerits, 0, 0);
+		Assert.assertEquals(data.ratio, 0, 0);
+		Assert.assertEquals(data.line, -1);
+		Assert.assertEquals(data.fitnessClazz, 0);
 
-		// TODO
+		data.position = 1;
+		data.demerits = 2;
+		data.ratio = 3;
+		data.line = 4;
+		data.fitnessClazz = 5;
+		data.totals = Sum.obtain();
+		data.prev = Node.obtain(null, null);
+
+		node.prev = Node.obtain(null, null);
+		node.next = Node.obtain(null, null);
+
+		node.recycle();
+		Assert.assertNotNull(node);
+		Assert.assertNull(node.next);
+		Assert.assertNull(node.prev);
+		Assert.assertNotNull(node.getData());
+		Assert.assertNull(data.prev);
+		Assert.assertNull(data.totals);
+		Assert.assertEquals(data.position, 0);
+		Assert.assertEquals(data.demerits, 0, 0);
+		Assert.assertEquals(data.ratio, 0, 0);
+		Assert.assertEquals(data.line, -1);
+		Assert.assertEquals(data.fitnessClazz, 0);
+
+		Node previous = node;
+		node = Node.obtain(null, null);
+		Assert.assertSame(previous, node);
+		Assert.assertNotNull(node);
+		Assert.assertNull(node.next);
+		Assert.assertNull(node.prev);
+		Assert.assertNotNull(node.getData());
+		Assert.assertNull(data.prev);
+		Assert.assertNull(data.totals);
+		Assert.assertEquals(data.position, 0);
+		Assert.assertEquals(data.demerits, 0, 0);
+		Assert.assertEquals(data.ratio, 0, 0);
+		Assert.assertEquals(data.line, -1);
+		Assert.assertEquals(data.fitnessClazz, 0);
 	}
 }
