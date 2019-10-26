@@ -22,7 +22,8 @@ public class Node implements Recyclable {
 
 	@Override
 	public void recycle() {
-		mData.demerits = mData.ratio = mData.line = mData.fitnessClazz = mData.position = 0;
+		mData.demerits = mData.ratio = mData.fitnessClazz = mData.position = 0;
+		mData.line = -1;
 		if (mData.totals != null) {
 			mData.totals.recycle();
 			mData.totals = null;
