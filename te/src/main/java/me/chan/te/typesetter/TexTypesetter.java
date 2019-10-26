@@ -256,8 +256,10 @@ class TexTypesetter implements Typesetter {
 					// Only store the best candidate for each fitness class
 					if (candidates[currentClass] == null || demerits < candidates[currentClass].demerits) {
 						if (candidates[currentClass] == null) {
-							candidates[currentClass] = new Candidate();
+							candidates[currentClass] = Candidate.obtain(demerits, ratio, active);
+							continue;
 						}
+
 						candidates[currentClass].active = active;
 						candidates[currentClass].demerits = demerits;
 						candidates[currentClass].ratio = ratio;
@@ -274,6 +276,11 @@ class TexTypesetter implements Typesetter {
 			Sum tmpSum = computeSum(index, elements, sum);
 			createIfActiveNode(active, index, activeNodes, tmpSum, candidates);
 			tmpSum.recycle();
+			for (Candidate candidate : candidates) {
+				if (candidate != null) {
+					candidate.recycle();
+				}
+			}
 		}
 	}
 

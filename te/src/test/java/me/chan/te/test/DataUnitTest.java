@@ -23,6 +23,7 @@ import me.chan.te.test.mock.MockMeasurer;
 import me.chan.te.test.mock.MockOption;
 import me.chan.te.test.mock.MockTextPaint;
 import me.chan.te.typesetter.BreakPoint;
+import me.chan.te.typesetter.Candidate;
 import me.chan.te.typesetter.Node;
 import me.chan.te.typesetter.Sum;
 
@@ -548,5 +549,29 @@ public class DataUnitTest {
 		Assert.assertNotNull(breakPoint);
 		Assert.assertEquals(breakPoint.position, 3);
 		Assert.assertEquals(breakPoint.ratio, 4, 0);
+	}
+
+	@Test
+	public void testCandidate() {
+		Node node = Node.obtain(null, null);
+		Assert.assertNotNull(node);
+		Candidate candidate = Candidate.obtain(1, 2, node);
+		Assert.assertNotNull(candidate);
+		Assert.assertEquals(candidate.demerits, 1, 0);
+		Assert.assertEquals(candidate.ratio, 2, 0);
+		Assert.assertSame(node, candidate.active);
+
+		candidate.recycle();
+		Assert.assertEquals(candidate.demerits, Float.MAX_VALUE, 0);
+		Assert.assertEquals(candidate.ratio, -1, 0);
+		Assert.assertNull(candidate.active);
+
+		Candidate p = candidate;
+		candidate = Candidate.obtain(3, 4, node);
+		Assert.assertNotNull(candidate);
+		Assert.assertEquals(candidate.demerits, 3, 0);
+		Assert.assertEquals(candidate.ratio, 4, 0);
+		Assert.assertSame(node, candidate.active);
+		Assert.assertSame(p, candidate);
 	}
 }
