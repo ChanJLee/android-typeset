@@ -22,6 +22,7 @@ import me.chan.te.hypher.Hypher;
 import me.chan.te.test.mock.MockMeasurer;
 import me.chan.te.test.mock.MockOption;
 import me.chan.te.test.mock.MockTextPaint;
+import me.chan.te.typesetter.BreakPoint;
 import me.chan.te.typesetter.Node;
 import me.chan.te.typesetter.Sum;
 
@@ -528,5 +529,24 @@ public class DataUnitTest {
 		Assert.assertEquals(data.ratio, 0, 0);
 		Assert.assertEquals(data.line, -1);
 		Assert.assertEquals(data.fitnessClazz, 0);
+	}
+
+	@Test
+	public void testBreakPoint() {
+		BreakPoint breakPoint = BreakPoint.obtain(1, 2);
+		Assert.assertNotNull(breakPoint);
+		Assert.assertEquals(breakPoint.position, 1);
+		Assert.assertEquals(breakPoint.ratio, 2, 0);
+
+		breakPoint.recycle();
+		Assert.assertEquals(breakPoint.position, -1);
+		Assert.assertEquals(breakPoint.ratio, -1, 0);
+
+		BreakPoint t = breakPoint;
+		breakPoint = BreakPoint.obtain(3, 4);
+		Assert.assertSame(t, breakPoint);
+		Assert.assertNotNull(breakPoint);
+		Assert.assertEquals(breakPoint.position, 3);
+		Assert.assertEquals(breakPoint.ratio, 4, 0);
 	}
 }
