@@ -51,6 +51,10 @@ class TexTypesetter implements Typesetter {
 			node.recycle();
 		}
 
+		for (BreakPoint breakPoint : breakPoints) {
+			breakPoint.recycle();
+		}
+
 		return paragraph;
 	}
 
@@ -207,10 +211,7 @@ class TexTypesetter implements Typesetter {
 
 		while (tempNode != null) {
 			Node.Data data = tempNode.getData();
-			BreakPoint breakPoint = new BreakPoint();
-			breakPoint.position = data.position;
-			breakPoint.ratio = data.ratio;
-			breaks.add(breakPoint);
+			breaks.add(BreakPoint.obtain(data.position, data.ratio));
 			tempNode = data.prev;
 		}
 
