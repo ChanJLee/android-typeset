@@ -11,7 +11,7 @@ import me.chan.te.text.Gravity;
 public class LineAttributes {
 	private Attribute mDefaultAttribute;
 	@SuppressLint("UseSparseArrays")
-	private SparseArrayCompat<Attribute> mMap = new SparseArrayCompat<>();
+	private SparseArrayCompat<Attribute> mMap = new SparseArrayCompat<>(2000);
 
 	public LineAttributes(Attribute defaultAttribute) {
 		mDefaultAttribute = defaultAttribute;
