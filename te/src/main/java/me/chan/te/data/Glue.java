@@ -23,6 +23,10 @@ public final class Glue implements Element {
 		reset(width, stretch, shrink);
 	}
 
+	public static void clean() {
+		POOL.clean();
+	}
+
 	public float getWidth() {
 		return mWidth;
 	}

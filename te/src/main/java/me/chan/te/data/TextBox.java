@@ -24,6 +24,10 @@ public final class TextBox extends Box implements Element, Cloneable {
 		reset(text, start, end, width, height, boxStyle);
 	}
 
+	public static void clean() {
+		POOL.clean();
+	}
+
 	/**
 	 * @param box other box
 	 */

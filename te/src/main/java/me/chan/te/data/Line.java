@@ -21,6 +21,10 @@ public class Line implements Recyclable {
 		reset();
 	}
 
+	public static void clean() {
+		POOL.clean();
+	}
+
 	private void reset() {
 		mBoxes.clear();
 		mLineHeight = -1;
