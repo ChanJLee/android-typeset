@@ -9,6 +9,8 @@ import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
 
+import me.chan.te.Te;
+
 
 public class MainActivity extends AppCompatActivity {
 
