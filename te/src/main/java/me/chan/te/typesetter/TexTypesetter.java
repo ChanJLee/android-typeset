@@ -203,8 +203,7 @@ class TexTypesetter implements Typesetter {
 				continue;
 			}
 
-			Node.Data data = tempNode.getData();
-			if (data.demerits > data.demerits) {
+			if (tempNode.getData().demerits > node.getData().demerits) {
 				tempNode = node;
 			}
 		}
