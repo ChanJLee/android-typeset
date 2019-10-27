@@ -64,4 +64,13 @@ public class ObjectFactory<T> {
 			mReentrantLock.unlock();
 		}
 	}
+
+	public void clean() {
+		mReentrantLock.lock();
+		try {
+			mQueue.clear();
+		} finally {
+			mReentrantLock.unlock();
+		}
+	}
 }

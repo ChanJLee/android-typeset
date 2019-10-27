@@ -21,6 +21,12 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="打开调试信息" />
+
+        <Button
+            android:id="@+id/gc"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="内存回收" />
     </LinearLayout>
 
     <FrameLayout

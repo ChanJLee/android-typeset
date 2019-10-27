@@ -3,6 +3,7 @@ package me.chan.te.test;
 import org.junit.Assert;
 import org.junit.Test;
 
+import me.chan.te.data.Line;
 import me.chan.te.misc.ObjectFactory;
 
 public class ObjectFactoryUnitTest {
@@ -37,5 +38,17 @@ public class ObjectFactoryUnitTest {
 		objectFactory.release("hello");
 		Assert.assertEquals(objectFactory.acquire(), "world");
 		Assert.assertNull(objectFactory.acquire());
+
+		ObjectFactory<Line> factory = new ObjectFactory<>(1);
+
+		Line line = Line.obtain();
+		Assert.assertNotNull(line);
+
+		factory.release(line);
+		Assert.assertSame(line, factory.acquire());
+
+		factory.release(line);
+		factory.clean();
+		Assert.assertNotSame(line, factory.acquire());
 	}
 }

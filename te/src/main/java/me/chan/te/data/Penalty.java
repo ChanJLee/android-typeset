@@ -51,6 +51,10 @@ public final class Penalty implements Element {
 		POOL.release(this);
 	}
 
+	public static void clean() {
+		POOL.clean();
+	}
+
 	private void reset(float width, float height, float penalty, boolean flag) {
 		mWidth = width;
 		mHeight = height;

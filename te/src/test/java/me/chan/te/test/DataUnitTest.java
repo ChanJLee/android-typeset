@@ -22,6 +22,9 @@ import me.chan.te.hypher.Hypher;
 import me.chan.te.test.mock.MockMeasurer;
 import me.chan.te.test.mock.MockOption;
 import me.chan.te.test.mock.MockTextPaint;
+import me.chan.te.typesetter.BreakPoint;
+import me.chan.te.typesetter.Candidate;
+import me.chan.te.typesetter.Node;
 import me.chan.te.typesetter.Sum;
 
 import static org.junit.Assert.fail;
@@ -443,27 +446,132 @@ public class DataUnitTest {
 		Sum sum = Sum.obtain();
 		Assert.assertNotNull(sum);
 
-		sum.width = 1;
-		sum.shrink = 2;
-		sum.stretch = 3;
+		Glue glue = Glue.obtain(1, 2, 3);
+		sum.increaseGlue(glue);
+		Assert.assertEquals(sum.getWidth(), glue.getWidth(), 0);
+		Assert.assertEquals(sum.getShrink(), glue.getShrink(), 0);
+		Assert.assertEquals(sum.getStretch(), glue.getStretch(), 0);
+
+		sum.increaseWidth(10);
+		Assert.assertEquals(sum.getWidth(), glue.getWidth() + 10, 0);
 
 		Sum o = Sum.obtain(sum);
 		Assert.assertNotSame(o, sum);
 
-		Assert.assertEquals(sum.width, o.width, 0);
-		Assert.assertEquals(sum.shrink, o.shrink, 0);
-		Assert.assertEquals(sum.stretch, o.stretch, 0);
+		Assert.assertEquals(sum.getWidth(), o.getWidth(), 0);
+		Assert.assertEquals(sum.getShrink(), o.getShrink(), 0);
+		Assert.assertEquals(sum.getStretch(), o.getStretch(), 0);
 
 		o.recycle();
-		Assert.assertNotEquals(sum.width, o.width, 0);
-		Assert.assertNotEquals(sum.shrink, o.shrink, 0);
-		Assert.assertNotEquals(sum.stretch, o.stretch, 0);
+		Assert.assertNotEquals(sum.getWidth(), o.getWidth(), 0);
+		Assert.assertNotEquals(sum.getShrink(), o.getShrink(), 0);
+		Assert.assertNotEquals(sum.getStretch(), o.getStretch(), 0);
 		Sum p = o;
 		o = Sum.obtain();
 		Assert.assertSame(o, p);
 
-		Assert.assertNotEquals(sum.width, o.width, 0);
-		Assert.assertNotEquals(sum.shrink, o.shrink, 0);
-		Assert.assertNotEquals(sum.stretch, o.stretch, 0);
+		Assert.assertNotEquals(sum.getWidth(), o.getWidth(), 0);
+		Assert.assertNotEquals(sum.getShrink(), o.getShrink(), 0);
+		Assert.assertNotEquals(sum.getStretch(), o.getStretch(), 0);
+	}
+
+	@Test
+	public void testNode() {
+		Node node = Node.obtain(null, null);
+		Assert.assertNotNull(node);
+		Assert.assertNull(node.next);
+		Assert.assertNull(node.prev);
+		Assert.assertNotNull(node.getData());
+
+		Node.Data data = node.getData();
+		Assert.assertNull(data.prev);
+		Assert.assertNull(data.totals);
+		Assert.assertEquals(data.position, 0);
+		Assert.assertEquals(data.demerits, 0, 0);
+		Assert.assertEquals(data.ratio, 0, 0);
+		Assert.assertEquals(data.line, -1);
+		Assert.assertEquals(data.fitnessClazz, 0);
+
+		data.position = 1;
+		data.demerits = 2;
+		data.ratio = 3;
+		data.line = 4;
+		data.fitnessClazz = 5;
+		data.totals = Sum.obtain();
+		data.prev = Node.obtain(null, null);
+
+		node.prev = Node.obtain(null, null);
+		node.next = Node.obtain(null, null);
+
+		node.recycle();
+		Assert.assertNotNull(node);
+		Assert.assertNull(node.next);
+		Assert.assertNull(node.prev);
+		Assert.assertNotNull(node.getData());
+		Assert.assertNull(data.prev);
+		Assert.assertNull(data.totals);
+		Assert.assertEquals(data.position, 0);
+		Assert.assertEquals(data.demerits, 0, 0);
+		Assert.assertEquals(data.ratio, 0, 0);
+		Assert.assertEquals(data.line, -1);
+		Assert.assertEquals(data.fitnessClazz, 0);
+
+		Node previous = node;
+		node = Node.obtain(null, null);
+		Assert.assertSame(previous, node);
+		Assert.assertNotNull(node);
+		Assert.assertNull(node.next);
+		Assert.assertNull(node.prev);
+		Assert.assertNotNull(node.getData());
+		Assert.assertNull(data.prev);
+		Assert.assertNull(data.totals);
+		Assert.assertEquals(data.position, 0);
+		Assert.assertEquals(data.demerits, 0, 0);
+		Assert.assertEquals(data.ratio, 0, 0);
+		Assert.assertEquals(data.line, -1);
+		Assert.assertEquals(data.fitnessClazz, 0);
+	}
+
+	@Test
+	public void testBreakPoint() {
+		BreakPoint breakPoint = BreakPoint.obtain(1, 2);
+		Assert.assertNotNull(breakPoint);
+		Assert.assertEquals(breakPoint.position, 1);
+		Assert.assertEquals(breakPoint.ratio, 2, 0);
+
+		breakPoint.recycle();
+		Assert.assertEquals(breakPoint.position, -1);
+		Assert.assertEquals(breakPoint.ratio, -1, 0);
+
+		BreakPoint t = breakPoint;
+		breakPoint = BreakPoint.obtain(3, 4);
+		Assert.assertSame(t, breakPoint);
+		Assert.assertNotNull(breakPoint);
+		Assert.assertEquals(breakPoint.position, 3);
+		Assert.assertEquals(breakPoint.ratio, 4, 0);
+	}
+
+	@Test
+	public void testCandidate() {
+		Node node = Node.obtain(null, null);
+		Assert.assertNotNull(node);
+		Candidate candidate = Candidate.obtain(1, 2, node);
+		Assert.assertNotNull(candidate);
+		Assert.assertEquals(candidate.demerits, 1, 0);
+		Assert.assertEquals(candidate.ratio, 2, 0);
+		Assert.assertSame(node, candidate.active);
+
+		candidate.recycle();
+		Assert.assertEquals(candidate.demerits, Float.MAX_VALUE, 0);
+		Assert.assertEquals(candidate.ratio, -1, 0);
+		Assert.assertNull(candidate.active);
+
+		Candidate p = candidate;
+		candidate = Candidate.obtain(3, 4, node);
+		Assert.assertNotNull(candidate);
+		Assert.assertEquals(candidate.demerits, 3, 0);
+		Assert.assertEquals(candidate.ratio, 4, 0);
+		Assert.assertSame(node, candidate.active);
+		Assert.assertSame(p, candidate);
 	}
 }

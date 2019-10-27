@@ -2,7 +2,6 @@ package me.chan.te.typesetter;
 
 import android.support.annotation.Nullable;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -47,35 +46,45 @@ class TexTypesetter implements Typesetter {
 			return null;
 		}
 
-		return typesetParagraph(segment, breakPoints, lineAttributes);
+		Paragraph paragraph = typesetParagraph(segment, breakPoints, lineAttributes);
+		for (Node node : activeNodes) {
+			node.recycle();
+		}
+
+		for (BreakPoint breakPoint : breakPoints) {
+			breakPoint.recycle();
+		}
+
+		return paragraph;
 	}
 
 	private List<Node> createActiveNodes(Segment segment, LineAttributes lineAttributes, float tolerance) {
 		List<? extends Element> elements = segment.getElements();
 		List<Node> activeNodes = new LinkedList<>();
 
-		Node.Data data = new Node.Data();
-		data.totals = Sum.obtain();
-		activeNodes.add(new Node(data, null, null));
+		// header
+		Node node = Node.obtain(null, null);
+		node.getData().totals = Sum.obtain();
+		activeNodes.add(node);
+
 		Sum sum = Sum.obtain();
 		for (int i = 0; i < elements.size() && !activeNodes.isEmpty(); ++i) {
 			Element element = elements.get(i);
 			if (element instanceof Box) {
-				sum.width += getElementWidth(element);
+				sum.increaseWidth(getElementWidth(element));
 			} else if (element instanceof Glue) {
 				if (i > 0 && elements.get(i - 1) instanceof Box) {
 					typesetLine(i, elements, activeNodes, sum, lineAttributes, tolerance);
 				}
 
 				Glue glue = (Glue) element;
-				sum.width += glue.getWidth();
-				sum.shrink += glue.getShrink();
-				sum.stretch += glue.getStretch();
+				sum.increaseGlue(glue);
 			} else if (element instanceof Penalty &&
 					((Penalty) element).getPenalty() != INFINITY) {
 				typesetLine(i, elements, activeNodes, sum, lineAttributes, tolerance);
 			}
 		}
+		sum.recycle();
 
 		return activeNodes;
 	}
@@ -189,17 +198,20 @@ class TexTypesetter implements Typesetter {
 		List<BreakPoint> breaks = new LinkedList<>();
 		Node tempNode = null;
 		for (Node node : activeNodes) {
-			if (tempNode == null || tempNode.data.demerits > node.data.demerits) {
+			if (tempNode == null) {
+				tempNode = node;
+				continue;
+			}
+
+			if (tempNode.getData().demerits > node.getData().demerits) {
 				tempNode = node;
 			}
 		}
 
 		while (tempNode != null) {
-			BreakPoint breakPoint = new BreakPoint();
-			breakPoint.position = tempNode.data.position;
-			breakPoint.ratio = tempNode.data.ratio;
-			breaks.add(breakPoint);
-			tempNode = tempNode.data.prev;
+			Node.Data data = tempNode.getData();
+			breaks.add(BreakPoint.obtain(data.position, data.ratio));
+			tempNode = data.prev;
 		}
 
 		Collections.reverse(breaks);
@@ -228,8 +240,8 @@ class TexTypesetter implements Typesetter {
 
 			while (active != null) {
 				Node next = active.next;
-				int currentLine = active.data.line + 1;
-				float ratio = computeRatio(element, active.data, sum, lineAttributes.get(currentLine).getLineWidth());
+				int currentLine = active.getData().line + 1;
+				float ratio = computeRatio(element, active.getData(), sum, lineAttributes.get(currentLine).getLineWidth());
 
 				if (ratio < MIN_SHRINK_RATIO || (element instanceof Penalty && ((Penalty) element).getPenalty() == -INFINITY)) {
 					removeActiveNode(active, activeNodes);
@@ -243,8 +255,10 @@ class TexTypesetter implements Typesetter {
 					// Only store the best candidate for each fitness class
 					if (candidates[currentClass] == null || demerits < candidates[currentClass].demerits) {
 						if (candidates[currentClass] == null) {
-							candidates[currentClass] = new Candidate();
+							candidates[currentClass] = Candidate.obtain(demerits, ratio, active);
+							continue;
 						}
+
 						candidates[currentClass].active = active;
 						candidates[currentClass].demerits = demerits;
 						candidates[currentClass].ratio = ratio;
@@ -253,13 +267,19 @@ class TexTypesetter implements Typesetter {
 
 				active = next;
 
-				if (active != null && active.data.line >= currentLine) {
+				if (active != null && active.getData().line >= currentLine) {
 					break;
 				}
 			}
 
 			Sum tmpSum = computeSum(index, elements, sum);
 			createIfActiveNode(active, index, activeNodes, tmpSum, candidates);
+			tmpSum.recycle();
+			for (Candidate candidate : candidates) {
+				if (candidate != null) {
+					candidate.recycle();
+				}
+			}
 		}
 	}
 
@@ -271,16 +291,16 @@ class TexTypesetter implements Typesetter {
 				continue;
 			}
 
-			Node.Data data = new Node.Data();
+			Node node = Node.obtain(null, null);
+			Node.Data data = node.getData();
 			data.position = index;
 			data.demerits = candidate.demerits;
 			data.ratio = candidate.ratio;
-			data.line = candidate.active.data.line + 1;
+			data.line = candidate.active.getData().line + 1;
 			data.fitnessClazz = i;
-			data.totals = sum;
+			data.totals = Sum.obtain(sum);
 			data.prev = candidate.active;
 
-			Node node = new Node(data, null, null);
 			if (active != null) {
 				node.prev = active.prev;
 				if (active.prev != null) {
@@ -328,16 +348,16 @@ class TexTypesetter implements Typesetter {
 	}
 
 	private float computeRatio(Element element, Node.Data data, Sum sum, float lineLength) {
-		float width = sum.width - data.totals.width;
+		float width = sum.getWidth() - data.totals.getWidth();
 		if (element instanceof Penalty) {
 			width += getElementWidth(element);
 		}
 
 		if (width < lineLength) {
-			float stretch = sum.stretch - data.totals.stretch;
+			float stretch = sum.getStretch() - data.totals.getStretch();
 			return stretch > 0 ? (lineLength - width) / stretch : INFINITY;
 		} else if (width > lineLength) {
-			float shrink = sum.shrink - data.totals.shrink;
+			float shrink = sum.getShrink() - data.totals.getShrink();
 			return shrink > 0 ? (lineLength - width) / shrink : INFINITY;
 		}
 
@@ -364,20 +384,20 @@ class TexTypesetter implements Typesetter {
 		}
 
 		if (element instanceof Penalty &&
-				elements.get(active.data.position) instanceof Penalty) {
+				elements.get(active.getData().position) instanceof Penalty) {
 			Penalty penalty = (Penalty) element;
-			Penalty activePenalty = (Penalty) elements.get(active.data.position);
+			Penalty activePenalty = (Penalty) elements.get(active.getData().position);
 			if (penalty.isFlag() && activePenalty.isFlag()) {
 				demerits += DEMERITS_FLAGGED;
 			}
 		}
 
-		if (Math.abs(currentClass - active.data.fitnessClazz) > 1) {
+		if (Math.abs(currentClass - active.getData().fitnessClazz) > 1) {
 			demerits += DEMERITS_FITNESS;
 		}
 
 		// 叠加total demerits
-		demerits += active.data.demerits;
+		demerits += active.getData().demerits;
 
 		return demerits;
 	}
@@ -389,9 +409,7 @@ class TexTypesetter implements Typesetter {
 			Element element = elements.get(i);
 			if (element instanceof Glue) {
 				Glue glue = (Glue) element;
-				result.width += glue.getWidth();
-				result.stretch += glue.getStretch();
-				result.shrink += glue.getShrink();
+				result.increaseGlue(glue);
 			} else if (element instanceof Box ||
 					(element instanceof Penalty &&
 							((Penalty) element).getPenalty() == -INFINITY && i > index)) {

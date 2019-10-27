@@ -52,6 +52,10 @@ public final class Segment implements Recyclable {
 		POOL.release(this);
 	}
 
+	public static void clean() {
+		POOL.clean();
+	}
+
 	@Hidden
 	public static Segment obtain(CharSequence text, int start, int end) {
 		Segment segment = POOL.acquire();
