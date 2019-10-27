@@ -15,6 +15,10 @@ public class Paragraph implements Recyclable {
 	private List<Line> mLines = new ArrayList<>(30);
 	private LineAttributes mLineAttributes;
 
+	public static void clean() {
+		POOL.clean();
+	}
+
 	public List<Line> getLines() {
 		return mLines;
 	}

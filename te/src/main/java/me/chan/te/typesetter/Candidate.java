@@ -16,6 +16,10 @@ public class Candidate implements Recyclable {
 		reset(demerits, ratio, active);
 	}
 
+	public static void clean() {
+		POOL.clean();
+	}
+
 	private void reset(float demerits, float ratio, Node active) {
 		this.demerits = demerits;
 		this.ratio = ratio;

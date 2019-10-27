@@ -11,6 +11,7 @@ import android.widget.RadioGroup;
 
 import java.io.IOException;
 
+import me.chan.te.Te;
 import me.chan.te.source.AssetsSource;
 import me.chan.te.text.BreakStrategy;
 import me.chan.te.view.TeView;
@@ -28,6 +29,13 @@ public class ParagraphActivity extends AppCompatActivity {
 			@Override
 			public void onClick(View v) {
 				teView.setDebugMode(!teView.isDebugMode());
+			}
+		});
+
+		findViewById(R.id.gc).setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				Te.clean();
 			}
 		});
 

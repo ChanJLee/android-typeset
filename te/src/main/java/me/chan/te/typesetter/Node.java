@@ -18,6 +18,10 @@ public class Node implements Recyclable {
 		this.next = next;
 	}
 
+	public static void clean() {
+		POOL.clean();
+	}
+
 	public Data getData() {
 		return mData;
 	}

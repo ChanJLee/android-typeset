@@ -16,6 +16,10 @@ public class Sum implements Recyclable {
 	private Sum() {
 	}
 
+	public static void clean() {
+		POOL.clean();
+	}
+
 	@Override
 	public void recycle() {
 		mWidth = mShrink = mStretch = 0;

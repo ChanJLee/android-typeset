@@ -26,6 +26,10 @@ public class BreakPoint implements Recyclable {
 		POOL.release(this);
 	}
 
+	public static void clean() {
+		POOL.clean();
+	}
+
 	public static BreakPoint obtain(int position, float ratio) {
 		BreakPoint breakPoint = POOL.acquire();
 		if (breakPoint == null) {
