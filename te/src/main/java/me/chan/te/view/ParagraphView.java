@@ -160,26 +160,14 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 			}
 
 			float lineSpace = attribute.getLineVerticalSpace();
-			draw(canvas, line, x, y, lineSpace, i == size - 1, attribute.getLineWidth());
+			draw(canvas, line, x, y, lineSpace);
 			y += lineSpace;
 		}
 	}
 
-	private void draw(Canvas canvas, Line line, float x, float y, float lineSpace,
-					  boolean isLastLine, float lineWidth) {
+	private void draw(Canvas canvas, Line line, float x, float y, float lineSpace) {
 		List<Box> boxes = line.getBoxes();
-		int boxCount = boxes.size();
-		float spaceWidth = mOption.getSpaceWidth();
-		if (boxCount > 1) {
-			spaceWidth = (lineWidth - line.getLineWidth()) / (boxCount - 1);
-		}
-
-		// 最后一行如果我能放的下，没必要压缩或者拉伸
-		if (isLastLine && (line.getLineWidth() + (boxCount - 1) * mOption.getSpaceWidth()) <= lineWidth) {
-			spaceWidth = mOption.getSpaceWidth();
-		}
-
-		line.setSpaceWidth(spaceWidth);
+		float spaceWidth = line.getSpaceWidth();
 
 		for (int i = 0; i < boxes.size(); ++i) {
 			Box box = boxes.get(i);

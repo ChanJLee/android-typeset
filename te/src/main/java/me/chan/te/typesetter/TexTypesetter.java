@@ -104,10 +104,15 @@ class TexTypesetter implements Typesetter {
 	}
 
 	private Paragraph typesetParagraph(Segment segment,
-									   List<BreakPoint> breakPoints, LineAttributes lineAttributes) {
+									   List<BreakPoint> breakPoints,
+									   LineAttributes lineAttributes) {
+
 		Paragraph paragraph = Paragraph.obtain(lineAttributes);
 		List<? extends Element> elements = segment.getElements();
 		int lineStart = 0;
+		float lastLineWidth = 0;
+		float lastLineWordSpace = 0;
+		Line lastLine = null;
 		int size = elements.size();
 		for (int i = 1; i < breakPoints.size(); ++i) {
 			BreakPoint breakPoint = breakPoints.get(i);
@@ -125,20 +130,38 @@ class TexTypesetter implements Typesetter {
 				lineEnd = size;
 			}
 
-			paragraph.add(createLine(
+			int lineNumber = paragraph.getLineCount();
+			LineAttributes.Attribute attribute = lineAttributes.get(lineNumber);
+			lastLineWidth = attribute.getLineWidth();
+			lastLineWordSpace = attribute.getWordSpaceWidth();
+			lastLine = createLine(
 					elements,
 					lineStart,
 					lineEnd,
-					breakPoint.ratio));
+					breakPoint.ratio,
+					lastLineWidth,
+					lastLineWordSpace);
+			paragraph.add(lastLine);
 			lineStart = pos;
 		}
+
+		if (lastLine == null) {
+			return paragraph;
+		}
+
+		int boxCount = lastLine.getBoxes().size();
+		if (lastLine.getBoxTotalWidth() + (boxCount - 1) * lastLineWordSpace <= lastLineWidth) {
+			lastLine.setSpaceWidth(lastLineWordSpace);
+		}
+
 		return paragraph;
 	}
 
-	private Line createLine(List<? extends Element> lineElements, int start, int end, float ratio) {
+	private Line createLine(List<? extends Element> lineElements, int start, int end, float ratio,
+							float lineWidth, float wordSpace) {
 		float lineHeight = 0;
 		Line line = Line.obtain();
-		float lineWidth = 0;
+		float boxTotalWidth = 0;
 		for (int i = start; i < end; ++i) {
 			Element element = lineElements.get(i);
 			if (!(element instanceof Box)) {
@@ -152,13 +175,21 @@ class TexTypesetter implements Typesetter {
 				lineHeight = box.getHeight();
 			}
 
-			lineWidth += box.getWidth();
+			boxTotalWidth += box.getWidth();
 			line.add(box);
 		}
 
-		line.setLineWidth(lineWidth);
+		int size = line.getBoxes().size();
+		if (size > 1) {
+			line.setSpaceWidth((lineWidth - boxTotalWidth) / (size - 1));
+		} else {
+			line.setSpaceWidth(wordSpace);
+		}
+
 		line.setLineHeight(lineHeight);
+		line.setBoxTotalWidth(boxTotalWidth);
 		line.setRatio(ratio);
+
 		return line;
 	}
 
@@ -420,6 +451,6 @@ class TexTypesetter implements Typesetter {
 	}
 
 	private static void w(String msg) {
-		Log.w("TexTypesetter", msg);
+		Log.w("TextEngineTexTypesetter", msg);
 	}
 }

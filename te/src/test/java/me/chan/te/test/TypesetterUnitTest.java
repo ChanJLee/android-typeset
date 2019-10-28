@@ -31,6 +31,7 @@ import me.chan.te.test.mock.MockMeasurer;
 import me.chan.te.test.mock.MockOption;
 import me.chan.te.test.mock.MockTextPaint;
 import me.chan.te.text.BreakStrategy;
+import me.chan.te.text.Gravity;
 import me.chan.te.typesetter.CoreTypesetter;
 
 import static org.junit.Assert.assertEquals;
@@ -121,7 +122,7 @@ public class TypesetterUnitTest {
 	private void checkContent(String text, BreakStrategy breakStrategy, float lineWidth, int textSize) {
 		System.out.println("check content, width: " + lineWidth + " text size: " + textSize + " " + breakStrategy);
 
-		LineAttributes lineAttributes = new LineAttributes(new LineAttributes.Attribute(lineWidth));
+		LineAttributes lineAttributes = new LineAttributes(new LineAttributes.Attribute(lineWidth, Gravity.LEFT, 10, 10));
 		MockTextPaint paint = new MockTextPaint();
 		Measurer measurer = new MockMeasurer(paint);
 		paint.setMockTextSize(textSize);

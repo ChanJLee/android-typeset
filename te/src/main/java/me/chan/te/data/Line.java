@@ -13,7 +13,7 @@ public class Line implements Recyclable {
 
 	private List<Box> mBoxes = new ArrayList<>(150);
 	private float mLineHeight;
-	private float mLineWidth;
+	private float mBoxTotalWidth;
 	private float mRatio;
 	private float mSpaceWidth;
 
@@ -29,7 +29,7 @@ public class Line implements Recyclable {
 		mBoxes.clear();
 		mLineHeight = -1;
 		mRatio = -1;
-		mLineWidth = -1;
+		mBoxTotalWidth = -1;
 		mSpaceWidth = -1;
 	}
 
@@ -45,8 +45,8 @@ public class Line implements Recyclable {
 		return mRatio;
 	}
 
-	public float getLineWidth() {
-		return mLineWidth;
+	public float getBoxTotalWidth() {
+		return mBoxTotalWidth;
 	}
 
 	public float getSpaceWidth() {
@@ -61,8 +61,8 @@ public class Line implements Recyclable {
 		mLineHeight = lineHeight;
 	}
 
-	public void setLineWidth(float lineWidth) {
-		mLineWidth = lineWidth;
+	public void setBoxTotalWidth(float boxTotalWidth) {
+		mBoxTotalWidth = boxTotalWidth;
 	}
 
 	public void setRatio(float ratio) {

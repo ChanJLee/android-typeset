@@ -24,14 +24,30 @@ class SimpleTypesetter implements Typesetter {
 		// 如果如果只显示了一个并且还不足以完美显示，那么无脑折断
 		List<? extends Element> elements = segment.getElements();
 		int size = elements.size();
+		float lastLineWordSpace = 0;
+		float lastLineWidth = 0;
 		for (int i = 0; i < size; ) {
-			float width = lineAttributes.get(paragraph.getLineCount()).getLineWidth();
-			i = typesetLine(width, paragraph, elements, i, breakStrategy);
+			LineAttributes.Attribute attribute = lineAttributes.get(paragraph.getLineCount());
+			lastLineWidth = attribute.getLineWidth();
+			lastLineWordSpace = attribute.getWordSpaceWidth();
+			i = typesetLine(lastLineWidth, lastLineWordSpace, paragraph, elements, i, breakStrategy);
 		}
+
+		int lineCount = paragraph.getLineCount();
+		if (breakStrategy == BreakStrategy.SIMPLE || lineCount == 0) {
+			return paragraph;
+		}
+
+		Line lastLine = paragraph.getLines().get(lineCount - 1);
+		List<Box> boxes = lastLine.getBoxes();
+		if (lastLine.getBoxTotalWidth() + (boxes.size() - 1) * lastLineWordSpace <= lastLineWidth) {
+			lastLine.setSpaceWidth(lastLineWordSpace);
+		}
+
 		return paragraph;
 	}
 
-	private int typesetLine(float width, Paragraph paragraph, List<? extends Element> elements,
+	private int typesetLine(float width, float wordSpaceWidth, Paragraph paragraph, List<? extends Element> elements,
 							int start, BreakStrategy breakStrategy) {
 		int size = elements.size();
 
@@ -50,13 +66,13 @@ class SimpleTypesetter implements Typesetter {
 		Line line = Line.obtain();
 		float lineHeight = 0f;
 		float currentLineWidth = 0f;
-		float lineWidth = 0f;
+		float boxTotalWidth = 0f;
 
 		while (start < size) {
 			Element element = elements.get(start);
 			if (element instanceof Glue) {
 				Glue glue = (Glue) element;
-				currentLineWidth += (breakStrategy == BreakStrategy.BALANCED ? glue.getShrink() : glue.getWidth());
+				currentLineWidth += (breakStrategy == BreakStrategy.BALANCED ? glue.getShrink() : wordSpaceWidth);
 				++start;
 				continue;
 			}
@@ -82,7 +98,7 @@ class SimpleTypesetter implements Typesetter {
 			line.add(box);
 			float boxWidth = box.getWidth();
 			currentLineWidth += boxWidth;
-			lineWidth += boxWidth;
+			boxTotalWidth += boxWidth;
 
 			if (lineHeight < box.getHeight()) {
 				lineHeight = box.getHeight();
@@ -94,7 +110,16 @@ class SimpleTypesetter implements Typesetter {
 			return spiltIf(paragraph, elements, start, line, width);
 		}
 
-		line.setLineWidth(lineWidth);
+		if (breakStrategy == BreakStrategy.SIMPLE) {
+			line.setSpaceWidth(wordSpaceWidth);
+		} else {
+			int boxSize = line.getBoxes().size();
+			if (boxSize > 1) {
+				line.setSpaceWidth((width - boxTotalWidth) / (boxSize - 1));
+			}
+		}
+
+		line.setBoxTotalWidth(boxTotalWidth);
 		line.setLineHeight(lineHeight);
 		line.setRatio(0);
 		paragraph.add(line);
@@ -166,7 +191,8 @@ class SimpleTypesetter implements Typesetter {
 			++start;
 		}
 
-		line.setLineWidth(width);
+		line.setSpaceWidth(0);
+		line.setBoxTotalWidth(width);
 		line.setLineHeight(box.getHeight());
 		line.setRatio(0);
 		paragraph.add(line);
