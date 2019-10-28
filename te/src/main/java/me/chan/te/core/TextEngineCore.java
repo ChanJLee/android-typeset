@@ -33,7 +33,9 @@ import me.chan.te.typesetter.Typesetter;
 
 public class TextEngineCore {
 	private static final int DEFAULT_TEXT_SIZE = 18;
-	private static final int MSG_FINISHED = 1;
+	private static final int MSG_START = 1;
+	private static final int MSG_FINISHED = 2;
+	private static final int MSG_FAILURE = 2;
 
 	private TextPaint mTextPaint;
 	private Option mOption;
@@ -92,24 +94,20 @@ public class TextEngineCore {
 	 */
 	public void typeset(final Source source, final int width) {
 		if (width <= 0) {
-			handleError(new IllegalArgumentException("width must be more than 0"));
+			sendMsg(MSG_FAILURE, new IllegalArgumentException("width must be more than 0"));
 			return;
 		}
-
 		cancel();
-
-		if (mListener != null) {
-			mListener.onStart();
-		}
 
 		mTask = mExecutor.submit(new Runnable() {
 			@Override
 			public void run() {
 				try {
+					sendMsg(MSG_START, null);
 					CharSequence content = source.open();
 					typeset(content, width);
 				} catch (Throwable throwable) {
-					handleError(throwable);
+					sendMsg(MSG_FAILURE, throwable);
 				} finally {
 					try {
 						source.close();
@@ -124,7 +122,7 @@ public class TextEngineCore {
 
 	// TODO 异常安全保障
 	private void typeset(final CharSequence content, final int width) {
-		d("typeset, width, " + width +
+		i("typeset, width, " + width +
 				" strategy: " + mBreakStrategy +
 				" text size: " + mTextPaint.getTextSize());
 
@@ -137,7 +135,7 @@ public class TextEngineCore {
 		// parse
 		long timestamp = SystemClock.elapsedRealtime();
 		mSegments = mParser.parser(content, mMeasurer, Hypher.getInstance(), mOption);
-		d("parse used time: " + (SystemClock.elapsedRealtime() - timestamp) + " segments: " + mSegments.size());
+		i("parse used time: " + (SystemClock.elapsedRealtime() - timestamp) + " segments: " + mSegments.size());
 		timestamp = SystemClock.elapsedRealtime();
 
 		mParagraphs = new ArrayList<>();
@@ -152,11 +150,11 @@ public class TextEngineCore {
 			mParagraphs.add(paragraph);
 		}
 
-		d("typeset used time: " + (SystemClock.elapsedRealtime() - timestamp) + " paragraph size:" + mParagraphs.size());
-		d("is thread interrupt: " + thread.isInterrupted());
+		i("typeset used time: " + (SystemClock.elapsedRealtime() - timestamp) + " paragraph size:" + mParagraphs.size());
+		i("is thread interrupt: " + thread.isInterrupted());
 
 		// call listener
-		mHandler.sendEmptyMessage(MSG_FINISHED);
+		sendMsg(MSG_FINISHED, mParagraphs);
 	}
 
 	private LineAttributes createLineAttributes(float width) {
@@ -189,35 +187,43 @@ public class TextEngineCore {
 
 		cancel();
 
-		if (mListener != null) {
-			mListener.onStart();
-		}
-
 		mTask = mExecutor.submit(new Runnable() {
 			@Override
 			public void run() {
 				try {
+					sendMsg(MSG_START, null);
 					typeset(mContent, mWidth);
 				} catch (Throwable throwable) {
-					handleError(throwable);
+					sendMsg(MSG_FAILURE, throwable);
 				}
 			}
 		});
 		d("refresh: " + mTask);
 	}
 
-	private void handleError(Throwable throwable) {
-		if (mListener != null) {
-			mListener.onFailure(throwable);
+	private void sendMsg(int what, Object o) {
+		if (mHandler == null) {
+			return;
 		}
+
+		if (o == null) {
+			mHandler.sendEmptyMessage(what);
+			return;
+		}
+
+		Message message = Message.obtain();
+		message.what = what;
+		message.obj = o;
+		mHandler.sendMessage(message);
 	}
 
 	public void release() {
+		cancel();
 		mListener = null;
 		mParagraphs = null;
 		mSegments = null;
 		mHandler.removeCallbacksAndMessages(null);
-		cancel();
+		mHandler = null;
 	}
 
 	private void cancel() {
@@ -241,6 +247,10 @@ public class TextEngineCore {
 
 	private static void d(String msg) {
 		Log.d("TextEngineCore", msg);
+	}
+
+	private static void i(String msg) {
+		Log.i("TextEngineCore", msg);
 	}
 
 	public void setBreakStrategy(BreakStrategy breakStrategy) {
@@ -268,8 +278,16 @@ public class TextEngineCore {
 		@Override
 		public void handleMessage(Message msg) {
 			d("typeset paragraphs");
-			if (mListener != null) {
-				mListener.onSuccess(mParagraphs);
+			if (mListener == null) {
+				return;
+			}
+
+			if (msg.what == MSG_FINISHED) {
+				mListener.onSuccess((List<Paragraph>) msg.obj);
+			} else if (msg.what == MSG_FAILURE) {
+				mListener.onFailure((Throwable) msg.obj);
+			} else if (msg.what == MSG_START) {
+				mListener.onStart();
 			}
 		}
 	}
