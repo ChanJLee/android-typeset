@@ -2,13 +2,9 @@ package me.chan.te.view;
 
 import android.content.Context;
 import android.graphics.Typeface;
-import android.os.Handler;
-import android.os.Looper;
 import android.os.SystemClock;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
-import android.text.TextPaint;
-import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
@@ -20,14 +16,11 @@ import java.util.concurrent.Future;
 
 import me.chan.te.R;
 import me.chan.te.config.LineAttributes;
-import me.chan.te.config.Option;
 import me.chan.te.data.Paragraph;
 import me.chan.te.data.Segment;
 import me.chan.te.hypher.Hypher;
 import me.chan.te.log.Log;
-import me.chan.te.measurer.AndroidMeasurer;
 import me.chan.te.parser.Parser;
-import me.chan.te.parser.TextParser;
 import me.chan.te.source.Source;
 import me.chan.te.source.SourceCloseException;
 import me.chan.te.text.BreakStrategy;
@@ -35,36 +28,15 @@ import me.chan.te.text.Gravity;
 import me.chan.te.typesetter.CoreTypesetter;
 
 public class Adapter extends RecyclerView.Adapter<TexViewHolder> {
-	private static final int DEFAULT_TEXT_SIZE = 18;
 	private static final int ACTION_REDRAW = 1;
 	private static final int ACTION_ENABLE_DEBUG = 2;
 
-	private List<Paragraph> mParagraphs;
-	private List<Segment> mSegments;
 	private LayoutInflater mLayoutInflater;
-	private TextPaint mTextPaint;
-	private Option mOption;
-	private ExecutorService mExecutor = Executors.newSingleThreadExecutor();
-	private Handler mHandler;
-	private boolean mDebugMode;
-	private CharSequence mContent;
 	private int mWidth = -1;
-	private Parser mParser = new TextParser();
-	private Future<?> mTask;
-	private AndroidMeasurer mMeasurer;
-	private BreakStrategy mBreakStrategy = BreakStrategy.BALANCED;
+	private boolean mDebugMode;
 
 	public Adapter(Context context) {
 		mLayoutInflater = LayoutInflater.from(context);
-		mTextPaint = new TextPaint(TextPaint.ANTI_ALIAS_FLAG);
-		mTextPaint.setTextSize(TypedValue.applyDimension(
-				TypedValue.COMPLEX_UNIT_SP,
-				DEFAULT_TEXT_SIZE,
-				context.getResources().getDisplayMetrics())
-		);
-		mMeasurer = new AndroidMeasurer(mTextPaint);
-		mOption = new Option(mMeasurer);
-		mHandler = new Handler(Looper.getMainLooper());
 	}
 
 	@NonNull
@@ -132,7 +104,7 @@ public class Adapter extends RecyclerView.Adapter<TexViewHolder> {
 				}
 			}
 		});
-		d("render: " + mTask);
+		d("typeset: " + mTask);
 	}
 
 	private void refresh() {
@@ -207,7 +179,7 @@ public class Adapter extends RecyclerView.Adapter<TexViewHolder> {
 		mHandler.post(new Runnable() {
 			@Override
 			public void run() {
-				d("render paragraphs");
+				d("typeset paragraphs");
 				mParagraphs = paragraphs;
 				mSegments = segments;
 				notifyDataSetChanged();
