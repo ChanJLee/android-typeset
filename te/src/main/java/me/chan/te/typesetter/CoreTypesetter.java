@@ -5,6 +5,7 @@ import android.support.annotation.Nullable;
 import me.chan.te.config.LineAttributes;
 import me.chan.te.data.Paragraph;
 import me.chan.te.data.Segment;
+import me.chan.te.log.Log;
 import me.chan.te.text.BreakStrategy;
 
 public class CoreTypesetter implements Typesetter {
@@ -28,6 +29,7 @@ public class CoreTypesetter implements Typesetter {
 			return paragraph;
 		}
 
+		Log.w("use tex algorithm failed, fallback to simple algorithm");
 		// tex 存在找不到完美解的情况，如果在这种case下
 		// 回归到朴素的排版算法
 		return mSimpleTypesetter.typeset(segment, lineAttributes, breakStrategy);

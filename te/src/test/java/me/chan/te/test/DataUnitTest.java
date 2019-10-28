@@ -376,8 +376,8 @@ public class DataUnitTest {
 		Assert.assertEquals(line.getSpaceWidth(), 1, 0);
 		line.setLineHeight(2);
 		Assert.assertEquals(line.getLineHeight(), 2, 0);
-		line.setLineWidth(3);
-		Assert.assertEquals(line.getLineWidth(), 3, 0);
+		line.setBoxTotalWidth(3);
+		Assert.assertEquals(line.getBoxTotalWidth(), 3, 0);
 		line.setRatio(4);
 		Assert.assertEquals(line.getRatio(), 4, 0);
 		line.getBoxes().add(TextBox.obtain("hello", 0, 1, 1, 1, null));
@@ -388,7 +388,7 @@ public class DataUnitTest {
 		Assert.assertTrue(line.getBoxes().isEmpty());
 		Assert.assertNotEquals(line.getSpaceWidth(), 1, 0);
 		Assert.assertNotEquals(line.getLineHeight(), 2, 0);
-		Assert.assertNotEquals(line.getLineWidth(), 3, 0);
+		Assert.assertNotEquals(line.getBoxTotalWidth(), 3, 0);
 		Assert.assertNotEquals(line.getRatio(), 4, 0);
 
 		line = Line.obtain();
@@ -397,7 +397,7 @@ public class DataUnitTest {
 		Assert.assertTrue(line.getBoxes().isEmpty());
 		Assert.assertNotEquals(line.getSpaceWidth(), 1, 0);
 		Assert.assertNotEquals(line.getLineHeight(), 2, 0);
-		Assert.assertNotEquals(line.getLineWidth(), 3, 0);
+		Assert.assertNotEquals(line.getBoxTotalWidth(), 3, 0);
 		Assert.assertNotEquals(line.getRatio(), 4, 0);
 	}
 
