@@ -81,6 +81,9 @@ public class Paragraph implements Recyclable {
 		POOL.clean();
 	}
 
+	/**
+	 * 需要避免多次
+	 */
 	public static class Builder {
 		private static final int MIN_HYPER_LEN = 4;
 		private List<Integer> mHyphenated = new ArrayList<>(10);
