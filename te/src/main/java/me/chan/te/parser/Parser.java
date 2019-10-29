@@ -5,7 +5,7 @@ import android.support.annotation.NonNull;
 import java.util.List;
 
 import me.chan.te.config.Option;
-import me.chan.te.data.Segment;
+import me.chan.te.data.Document;
 import me.chan.te.hypher.Hypher;
 import me.chan.te.measurer.Measurer;
 
@@ -16,8 +16,9 @@ public interface Parser {
 	 * @param measurer     字体测量器
 	 * @param hypher       断字
 	 * @param option       选项
-	 * @return
+	 * @return 文档
+	 * @throws ParseException 解析错误的时候抛出
 	 */
 	@NonNull
-	List<Segment> parse(@NonNull CharSequence charSequence, Measurer measurer, Hypher hypher, Option option);
+	Document parse(@NonNull CharSequence charSequence, Measurer measurer, Hypher hypher, Option option) throws ParseException;
 }

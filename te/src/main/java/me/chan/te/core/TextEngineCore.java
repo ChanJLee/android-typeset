@@ -18,7 +18,6 @@ import java.util.concurrent.Future;
 import me.chan.te.config.LineAttributes;
 import me.chan.te.config.Option;
 import me.chan.te.data.Paragraph;
-import me.chan.te.data.Segment;
 import me.chan.te.hypher.Hypher;
 import me.chan.te.log.Log;
 import me.chan.te.measurer.AndroidMeasurer;

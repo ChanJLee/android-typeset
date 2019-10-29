@@ -1,9 +1,13 @@
 package me.chan.te.parser;
 
-import me.chan.te.data.Segment;
+import me.chan.te.data.Paragraph;
 
 public class PlainTextParserUtils {
-	public static void parse(CharSequence paragraph, int start, int end, Segment.Builder builder) {
+	public static void parse(CharSequence paragraph, int start, int end, Paragraph.Builder builder) {
+		parse(paragraph, start, end, builder, null);
+	}
+
+	public static void parse(CharSequence paragraph, int start, int end, Paragraph.Builder builder, Object extra) {
 		for (int i = start; i < end; ) {
 			int last = findWord(paragraph, i, end);
 			int first = i;
@@ -12,7 +16,7 @@ public class PlainTextParserUtils {
 				continue;
 			}
 
-			builder.text(paragraph, first, last);
+			builder.text(paragraph, first, last, extra);
 		}
 	}
 

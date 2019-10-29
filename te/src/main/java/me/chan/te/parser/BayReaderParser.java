@@ -9,11 +9,10 @@ import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
 import java.io.StringReader;
-import java.util.LinkedList;
-import java.util.List;
 
 import me.chan.te.config.Option;
-import me.chan.te.data.Segment;
+import me.chan.te.data.Document;
+import me.chan.te.data.Paragraph;
 import me.chan.te.hypher.Hypher;
 import me.chan.te.measurer.Measurer;
 
@@ -21,21 +20,17 @@ public class BayReaderParser implements Parser {
 
 	@NonNull
 	@Override
-	public List<Segment> parse(@NonNull CharSequence charSequence, Measurer measurer, Hypher hypher, Option option) {
-		List<Segment> segments = new LinkedList<>();
+	public Document parse(@NonNull CharSequence charSequence, Measurer measurer, Hypher hypher, Option option) throws ParseException {
 		XmlPullParser xmlPullParser = Xml.newPullParser();
 		try {
 			xmlPullParser.setInput(new StringReader((String) charSequence));
-			parse(segments, xmlPullParser, measurer, hypher, option);
-		} catch (XmlPullParserException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
+			return parse(xmlPullParser, measurer, hypher, option);
+		} catch (Throwable e) {
+			throw new ParseException("parse document failed", e);
 		}
-		return segments;
 	}
 
-	private void parse(List<Segment> segments, XmlPullParser parser, Measurer measurer, Hypher hypher, Option option)
+	private Document parse(XmlPullParser parser, Measurer measurer, Hypher hypher, Option option)
 			throws IOException, XmlPullParserException {
 		while (parser.next() != XmlPullParser.END_TAG) {
 			int eventType = parser.getEventType();
@@ -46,18 +41,20 @@ public class BayReaderParser implements Parser {
 			}
 			String name = parser.getName();
 			if (TextUtils.equals("article_content", name)) {
-				parseArticleContent(segments, parser, measurer, hypher, option);
+				return parseArticleContent(parser, measurer, hypher, option);
 			} else {
 				skip(parser);
 			}
 		}
+		return Document.EMPTY;
 	}
 
-	private void parseArticleContent(List<Segment> segments, XmlPullParser parser, Measurer measurer, Hypher hypher, Option option) throws IOException, XmlPullParserException {
-		// TODO add id
+	private Document parseArticleContent(XmlPullParser parser, Measurer measurer, Hypher hypher, Option option) throws IOException, XmlPullParserException {
 		parser.require(XmlPullParser.START_TAG, null, "article_content");
 		String id = parser.getAttributeValue(null, "id");
-		Segment.Builder builder = new Segment.Builder(measurer, hypher, option);
+		Document document = Document.obtain(id);
+
+		Paragraph.Builder builder = new Paragraph.Builder(measurer, hypher, option);
 
 		while (parser.next() != XmlPullParser.END_TAG) {
 			int eventType = parser.getEventType();
@@ -66,19 +63,18 @@ public class BayReaderParser implements Parser {
 			}
 			String name = parser.getName();
 			if (name.equals("para")) {
-				builder.newSegment();
-				parsePara(parser, builder);
-				segments.add(builder.build());
+				document.addParagraph(parsePara(parser, builder));
 			} else {
 				skip(parser);
 			}
 		}
+		return document;
 	}
 
-	private void parsePara(XmlPullParser parser, Segment.Builder builder) throws IOException, XmlPullParserException {
-		// TODO add id
+	private Paragraph parsePara(XmlPullParser parser, Paragraph.Builder builder) throws IOException, XmlPullParserException {
 		parser.require(XmlPullParser.START_TAG, null, "para");
 		String id = parser.getAttributeValue(null, "id");
+		builder.newParagraph(id);
 
 		while (parser.next() != XmlPullParser.END_TAG) {
 			int eventType = parser.getEventType();
@@ -97,9 +93,11 @@ public class BayReaderParser implements Parser {
 				skip(parser);
 			}
 		}
+
+		return builder.build();
 	}
 
-	private void parseImage(XmlPullParser parser, Segment.Builder builder) throws XmlPullParserException, IOException {
+	private void parseImage(XmlPullParser parser, Paragraph.Builder builder) throws XmlPullParserException, IOException {
 		while (parser.next() != XmlPullParser.END_TAG) {
 			int eventType = parser.getEventType();
 			if (eventType != XmlPullParser.START_TAG) {
@@ -123,7 +121,7 @@ public class BayReaderParser implements Parser {
 		}
 	}
 
-	private void parseSubtitle(XmlPullParser parser, Segment.Builder builder) throws XmlPullParserException, IOException {
+	private void parseSubtitle(XmlPullParser parser, Paragraph.Builder builder) throws XmlPullParserException, IOException {
 		parser.require(XmlPullParser.START_TAG, null, "subtitle");
 		String id = parser.getAttributeValue(null, "id");
 		while (parser.next() != XmlPullParser.END_TAG) {
@@ -139,14 +137,12 @@ public class BayReaderParser implements Parser {
 		parser.require(XmlPullParser.END_TAG, null, "subtitle");
 	}
 
-	private void parseSent(XmlPullParser parser, Segment.Builder builder) throws IOException, XmlPullParserException {
+	private void parseSent(XmlPullParser parser, Paragraph.Builder builder) throws IOException, XmlPullParserException {
 		// TODO add id
 		parser.require(XmlPullParser.START_TAG, null, "sent");
 		String id = parser.getAttributeValue(null, "id");
-
 		String text = safeNextText(parser) + " ";
-		PlainTextParserUtils.parse(text, 0, text.length(), builder);
-
+		PlainTextParserUtils.parse(text, 0, text.length(), builder, id);
 		parser.require(XmlPullParser.END_TAG, null, "sent");
 	}
 

@@ -23,7 +23,6 @@ import me.chan.te.config.Option;
 import me.chan.te.data.Box;
 import me.chan.te.data.Line;
 import me.chan.te.data.Paragraph;
-import me.chan.te.data.Segment;
 import me.chan.te.hypher.Hypher;
 import me.chan.te.measurer.Measurer;
 import me.chan.te.parser.TextParser;
