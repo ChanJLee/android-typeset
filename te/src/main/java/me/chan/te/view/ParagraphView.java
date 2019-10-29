@@ -16,8 +16,6 @@ import android.view.View;
 import java.util.List;
 
 import me.chan.te.annotations.Hidden;
-import me.chan.te.config.LineAttributes;
-import me.chan.te.config.Option;
 import me.chan.te.data.Box;
 import me.chan.te.data.Line;
 import me.chan.te.data.Paragraph;
@@ -40,7 +38,7 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 	private Box mSelectedSuffix;
 	private TextPaint mWorkPaint = new TextPaint();
 	private boolean mDebugMode = false;
-	private Option mOption;
+	private float mLineSpaceVertical = 0;
 
 	public ParagraphView(Context context) {
 		super(context);
@@ -57,10 +55,10 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 	// TODO opt
 	void render(@NonNull Paragraph paragraph,
 				@NonNull TextPaint paint,
-				Option option) {
+				float lineSpaceVertical) {
 		mParagraph = paragraph;
 		mPaint = paint;
-		mOption = option;
+		mLineSpaceVertical = lineSpaceVertical;
 		requestLayout();
 	}
 
@@ -100,8 +98,7 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
 		if (!isSelectable() ||
-				mParagraph == null ||
-				mParagraph.getLines() == null) {
+				mParagraph == null) {
 			return super.onTouchEvent(event);
 		}
 		if (mGestureDetector == null) {
@@ -113,15 +110,16 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 
 	@Override
 	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-		if (mParagraph != null && mParagraph.getLines() != null &&
-				!mParagraph.getLines().isEmpty()) {
-			LineAttributes lineAttributes = mParagraph.getLineAttributes();
-			List<Line> lines = mParagraph.getLines();
+		int lineCount = 0;
+		if (mParagraph != null && (lineCount = mParagraph.getLineCount()) != 0) {
 			int height = getPaddingTop() + getPaddingBottom();
-			for (int i = 0; i < lines.size(); ++i) {
-				Line line = lines.get(i);
+			for (int i = 0; i < lineCount; ++i) {
+				Line line = mParagraph.getLine(i);
 				height += line.getLineHeight();
-				height += lineAttributes.get(i).getLineVerticalSpace();
+			}
+
+			if (lineCount > 1) {
+				height += ((lineCount - 1) * mLineSpaceVertical);
 			}
 
 			heightMeasureSpec = MeasureSpec.makeMeasureSpec(
@@ -136,32 +134,27 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 	@Override
 	protected void onDraw(Canvas canvas) {
 		super.onDraw(canvas);
-		if (mParagraph == null ||
-				mParagraph.getLines() == null ||
-				mPaint == null) {
+		int lineCount = 0;
+		if (mParagraph == null || (lineCount = mParagraph.getLineCount()) == 0) {
 			return;
 		}
 
 		float y = getPaddingTop();
 		float width = getWidth();
 
-		LineAttributes lineAttributes = mParagraph.getLineAttributes();
-		List<Line> lines = mParagraph.getLines();
-		int size = lines.size();
-		for (int i = 0; i < size; ++i) {
-			Line line = lines.get(i);
+		for (int i = 0; i < lineCount; ++i) {
+			Line line = mParagraph.getLine(i);
 			y += line.getLineHeight();
 			float x = getPaddingLeft();
-			LineAttributes.Attribute attribute = lineAttributes.get(i);
-			if (attribute.getGravity() == Gravity.CENTER) {
-				x = (width - attribute.getLineWidth()) / 2f;
-			} else if (attribute.getGravity() == Gravity.RIGHT) {
-				x = (width - attribute.getLineWidth());
+			Gravity gravity = line.getGravity();
+			if (gravity == Gravity.CENTER) {
+				x = (width - line.getLineWidth()) / 2f;
+			} else if (gravity == Gravity.RIGHT) {
+				x = (width - line.getLineWidth());
 			}
 
-			float lineSpace = attribute.getLineVerticalSpace();
-			draw(canvas, line, x, y, lineSpace);
-			y += lineSpace;
+			draw(canvas, line, x, y, mLineSpaceVertical);
+			y += mLineSpaceVertical;
 		}
 	}
 
@@ -215,25 +208,23 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 	}
 
 	private boolean handleClicked(float x, float y) {
-		if (mParagraph == null || mParagraph.getLines() == null) {
+		int lineCount = 0;
+		if (mParagraph == null || (lineCount = mParagraph.getLineCount()) == 0) {
 			return false;
 		}
 
-		LineAttributes lineAttributes = mParagraph.getLineAttributes();
-		List<Line> lines = mParagraph.getLines();
-		int size = lines.size();
 		Line targetLine = null;
 		float offsetY = getPaddingTop();
 		int lineNumber = 0;
-		for (; lineNumber < size; ++lineNumber) {
-			Line line = lines.get(lineNumber);
+		for (; lineNumber < lineCount; ++lineNumber) {
+			Line line = mParagraph.getLine(lineNumber);
 			float nextOffsetY = offsetY + line.getLineHeight();
 			if (offsetY <= y && y <= nextOffsetY) {
 				targetLine = line;
 				break;
 			}
 
-			offsetY = (nextOffsetY + lineAttributes.get(lineNumber).getLineVerticalSpace());
+			offsetY = (nextOffsetY + mLineSpaceVertical);
 		}
 
 		if (targetLine == null) {
@@ -263,7 +254,7 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 		}
 
 		if (target.isPenalty() || target.isSplit()) {
-			return handleClickedPenaltyBox(target, lines, lineNumber + 1);
+			return handleClickedPenaltyBox(target, lineNumber + 1);
 		}
 
 		mSelectedBox = target;
@@ -275,12 +266,13 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 		return true;
 	}
 
-	private boolean handleClickedPenaltyBox(Box current, List<Line> lines, int nextLineNumber) {
-		if (nextLineNumber < 0 || nextLineNumber >= lines.size()) {
+	private boolean handleClickedPenaltyBox(Box current, int nextLineNumber) {
+		int lineCount = mParagraph.getLineCount();
+		if (nextLineNumber < 0 || nextLineNumber >= lineCount) {
 			return false;
 		}
 
-		List<Box> boxes = lines.get(nextLineNumber).getBoxes();
+		List<Box> boxes = mParagraph.getLine(nextLineNumber).getBoxes();
 		if (boxes == null || boxes.isEmpty()) {
 			return false;
 		}

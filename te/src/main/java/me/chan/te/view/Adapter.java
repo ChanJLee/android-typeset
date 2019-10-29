@@ -11,8 +11,9 @@ import android.widget.Toast;
 import java.util.List;
 
 import me.chan.te.R;
+import me.chan.te.config.Option;
 import me.chan.te.core.TextEngineCore;
-import me.chan.te.data.Paragraph;
+import me.chan.te.data.Document;
 import me.chan.te.parser.Parser;
 import me.chan.te.source.Source;
 import me.chan.te.text.BreakStrategy;
@@ -24,7 +25,7 @@ public class Adapter extends RecyclerView.Adapter<TexViewHolder> {
 	private LayoutInflater mLayoutInflater;
 	private boolean mDebugMode;
 	private TextEngineCore mTextEngineCore;
-	private List<Paragraph> mParagraphs;
+	private Document mDocument;
 
 	public Adapter(final Context context) {
 		mLayoutInflater = LayoutInflater.from(context);
@@ -32,13 +33,13 @@ public class Adapter extends RecyclerView.Adapter<TexViewHolder> {
 		mTextEngineCore.setListener(new TextEngineCore.Listener() {
 			@Override
 			public void onStart() {
-				mParagraphs = null;
+				mDocument = null;
 				notifyDataSetChanged();
 			}
 
 			@Override
-			public void onSuccess(List<Paragraph> paragraphs) {
-				mParagraphs = paragraphs;
+			public void onSuccess(Document document) {
+				mDocument = document;
 				notifyDataSetChanged();
 			}
 
@@ -59,7 +60,8 @@ public class Adapter extends RecyclerView.Adapter<TexViewHolder> {
 	@Override
 	public void onBindViewHolder(@NonNull TexViewHolder texViewHolder, int position) {
 		texViewHolder.mParagraphView.setDebugMode(mDebugMode);
-		texViewHolder.mParagraphView.render(mParagraphs.get(position), mTextEngineCore.getTextPaint(), mTextEngineCore.getOption());
+		Option option = mTextEngineCore.getOption();
+		texViewHolder.mParagraphView.render(mDocument.getParagraph(position), mTextEngineCore.getTextPaint(), option.getLineSpacing());
 	}
 
 	@Override
@@ -85,7 +87,7 @@ public class Adapter extends RecyclerView.Adapter<TexViewHolder> {
 
 	@Override
 	public int getItemCount() {
-		return mParagraphs == null ? 0 : mParagraphs.size();
+		return mDocument == null ? 0 : mDocument.getParagraphCount();
 	}
 
 	void render(final Source source, final int width) {

@@ -17,6 +17,7 @@ import java.util.concurrent.Future;
 
 import me.chan.te.config.LineAttributes;
 import me.chan.te.config.Option;
+import me.chan.te.data.Document;
 import me.chan.te.data.Paragraph;
 import me.chan.te.hypher.Hypher;
 import me.chan.te.log.Log;
@@ -34,7 +35,7 @@ public class TextEngineCore {
 	private static final int DEFAULT_TEXT_SIZE = 18;
 	private static final int MSG_START = 1;
 	private static final int MSG_FINISHED = 2;
-	private static final int MSG_FAILURE = 2;
+	private static final int MSG_FAILURE = 3;
 
 	private TextPaint mTextPaint;
 	private Option mOption;
@@ -45,8 +46,7 @@ public class TextEngineCore {
 	private int mWidth = 0;
 	private ExecutorService mExecutor = Executors.newSingleThreadExecutor();
 
-	private List<Paragraph> mParagraphs;
-	private List<Segment> mSegments;
+	private Document mDocument;
 	private Future<?> mTask;
 	private BreakStrategy mBreakStrategy = BreakStrategy.BALANCED;
 	private Listener mListener;
@@ -129,31 +129,28 @@ public class TextEngineCore {
 		mContent = content;
 
 		// recycle memory
-		recycle();
+		mDocument.recycle();
 
 		// parse
 		long timestamp = SystemClock.elapsedRealtime();
-		mSegments = mParser.parse(content, mMeasurer, Hypher.getInstance(), mOption);
-		i("parse used time: " + (SystemClock.elapsedRealtime() - timestamp) + " segments: " + mSegments.size());
+		mDocument = mParser.parse(content, mMeasurer, Hypher.getInstance(), mOption);
+		int size = mDocument.getParagraphCount();
+		i("parse used time: " + (SystemClock.elapsedRealtime() - timestamp) + " paragraphs size: " + size);
 		timestamp = SystemClock.elapsedRealtime();
 
-		mParagraphs = new ArrayList<>();
-
 		// typeset
-		int size = mSegments.size();
 		final Thread thread = Thread.currentThread();
 		LineAttributes lineAttributes = createLineAttributes(width);
 		for (int i = 0; i < size && !thread.isInterrupted(); ++i) {
-			Segment segment = mSegments.get(i);
-			Paragraph paragraph = mTypesetter.typeset(segment, lineAttributes, mBreakStrategy);
-			mParagraphs.add(paragraph);
+			Paragraph segment = mDocument.getParagraph(i);
+			mTypesetter.typeset(segment, lineAttributes, mBreakStrategy);
 		}
 
-		i("typeset used time: " + (SystemClock.elapsedRealtime() - timestamp) + " paragraph size:" + mParagraphs.size());
+		i("typeset used time: " + (SystemClock.elapsedRealtime() - timestamp));
 		i("is thread interrupt: " + thread.isInterrupted());
 
 		// call listener
-		sendMsg(MSG_FINISHED, mParagraphs);
+		sendMsg(MSG_FINISHED, mDocument);
 	}
 
 	private LineAttributes createLineAttributes(float width) {
@@ -167,16 +164,6 @@ public class TextEngineCore {
 				mOption.getSpaceWidth()
 		));
 		return lineAttributes;
-	}
-
-	private void recycle() {
-		for (int i = 0; mParagraphs != null && i < mParagraphs.size(); ++i) {
-			mParagraphs.get(i).recycle();
-		}
-
-		for (int i = 0; mSegments != null && i < mSegments.size(); ++i) {
-			mSegments.get(i).recycle();
-		}
 	}
 
 	private void refresh() {
@@ -219,8 +206,7 @@ public class TextEngineCore {
 	public void release() {
 		cancel();
 		mListener = null;
-		mParagraphs = null;
-		mSegments = null;
+		mDocument = null;
 		mHandler.removeCallbacksAndMessages(null);
 		mHandler = null;
 	}
@@ -282,7 +268,7 @@ public class TextEngineCore {
 			}
 
 			if (msg.what == MSG_FINISHED) {
-				mListener.onSuccess((List<Paragraph>) msg.obj);
+				mListener.onSuccess((Document) msg.obj);
 			} else if (msg.what == MSG_FAILURE) {
 				mListener.onFailure((Throwable) msg.obj);
 			} else if (msg.what == MSG_START) {
@@ -300,9 +286,9 @@ public class TextEngineCore {
 		/**
 		 * 成功的时候调用
 		 *
-		 * @param paragraphs 当前的文本
+		 * @param document doc
 		 */
-		void onSuccess(List<Paragraph> paragraphs);
+		void onSuccess(Document document);
 
 		/**
 		 * @param throwable 异常信息
