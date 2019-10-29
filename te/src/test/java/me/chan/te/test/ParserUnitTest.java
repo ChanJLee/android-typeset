@@ -35,23 +35,23 @@ public class ParserUnitTest {
 		MockOption MockOption = new MockOption(paint);
 		Measurer measurer = new MockMeasurer(paint);
 		TextParser textParser = new TextParser();
-		List<Segment> segments = textParser.parser("hello\n\nworld\n\n", measurer, Hypher.getInstance(), MockOption);
+		List<Segment> segments = textParser.parse("hello\n\nworld\n\n", measurer, Hypher.getInstance(), MockOption);
 		assertEquals(segments.size(), 2);
 
-		segments = textParser.parser("hello\n\nworld\n", measurer, Hypher.getInstance(), MockOption);
+		segments = textParser.parse("hello\n\nworld\n", measurer, Hypher.getInstance(), MockOption);
 		assertEquals(segments.size(), 2);
 
-		segments = textParser.parser("", measurer, Hypher.getInstance(), MockOption);
+		segments = textParser.parse("", measurer, Hypher.getInstance(), MockOption);
 		assertEquals(segments.size(), 0);
 
 		try {
-			textParser.parser(null, measurer, Hypher.getInstance(), MockOption);
-			Assert.fail("test parser null string");
+			textParser.parse(null, measurer, Hypher.getInstance(), MockOption);
+			Assert.fail("test parse null string");
 		} catch (Exception e) {
 			/* do nothing */
 		}
 
-		segments = textParser.parser(" hello", measurer, Hypher.getInstance(), MockOption);
+		segments = textParser.parse(" hello", measurer, Hypher.getInstance(), MockOption);
 		assertEquals(segments.size(), 1);
 
 		Segment segment = segments.get(0);
@@ -65,7 +65,7 @@ public class ParserUnitTest {
 		Box box = (Box) list.get(0);
 		assertEquals("check box content: ", box.toString(), "hello");
 
-		segments = textParser.parser(" triangle\n\n\n", measurer, Hypher.getInstance(), MockOption);
+		segments = textParser.parse(" triangle\n\n\n", measurer, Hypher.getInstance(), MockOption);
 		assertEquals(segments.size(), 1);
 
 		segment = segments.get(0);
@@ -116,7 +116,7 @@ public class ParserUnitTest {
 
 			String contentWithoutBlank = line.replaceAll("\\p{Z}+|\\t|\\r|\\n", "");
 			StringBuilder stringBuilder = new StringBuilder();
-			List<Segment> segments = textParser.parser(line, measurer, Hypher.getInstance(), MockOption);
+			List<Segment> segments = textParser.parse(line, measurer, Hypher.getInstance(), MockOption);
 			if (contentWithoutBlank.isEmpty()) {
 				assertTrue(segments.isEmpty());
 				continue;
@@ -154,7 +154,7 @@ public class ParserUnitTest {
 		String content = stringBuilder.toString();
 		stringBuilder = new StringBuilder();
 		long timestamp = System.currentTimeMillis();
-		List<Segment> segments = textParser.parser(content, measurer, Hypher.getInstance(), MockOption);
+		List<Segment> segments = textParser.parse(content, measurer, Hypher.getInstance(), MockOption);
 		System.out.println("used time: " + (System.currentTimeMillis() - timestamp));
 		for (Segment segment : segments) {
 			for (Element element : segment.getElements()) {

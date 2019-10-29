@@ -10,10 +10,13 @@ import me.chan.te.data.Segment;
 import me.chan.te.hypher.Hypher;
 import me.chan.te.measurer.Measurer;
 
+import static me.chan.te.parser.PlainTextParserUtils.findNewline;
+import static me.chan.te.parser.PlainTextParserUtils.skipBlank;
+
 public class TextParser implements Parser {
 	@Override
 	@NonNull
-	public List<Segment> parser(CharSequence charSequence, Measurer measurer, Hypher hypher, Option option) {
+	public List<Segment> parse(CharSequence charSequence, Measurer measurer, Hypher hypher, Option option) {
 		List<Segment> segments = new LinkedList<>();
 		Segment.Builder builder = new Segment.Builder(measurer, hypher, option);
 		int len = charSequence.length();
@@ -21,54 +24,11 @@ public class TextParser implements Parser {
 			int last = findNewline(charSequence, i, len);
 			if (i != last) {
 				builder.newSegment(charSequence, i, last);
-				parseSegment(charSequence, i, last, builder);
+				PlainTextParserUtils.parse(charSequence, i, last, builder);
 				segments.add(builder.build());
 			}
 			i = skipBlank(charSequence, last, len);
 		}
 		return segments;
-	}
-
-	private void parseSegment(CharSequence paragraph, int start, int end, Segment.Builder builder) {
-		for (int i = start; i < end; ) {
-			int last = findWord(paragraph, i, end);
-			int first = i;
-			i = skipBlank(paragraph, last, end);
-			if (first == last) {
-				continue;
-			}
-
-			builder.text(paragraph, first, last);
-		}
-	}
-
-	private int findWord(CharSequence charSequence, int start, int end) {
-		return skip(charSequence, start, end, true);
-	}
-
-	private int skipBlank(CharSequence charSequence, int start, int end) {
-		return skip(charSequence, start, end, false);
-	}
-
-	private int findNewline(CharSequence charSequence, int start, int end) {
-		for (; start < end; ++start) {
-			char ch = charSequence.charAt(start);
-			if (ch == '\n') {
-				break;
-			}
-		}
-		return start;
-	}
-
-	private int skip(CharSequence charSequence, int start, int end, boolean untilBlank) {
-		for (; start < end; ++start) {
-			char ch = charSequence.charAt(start);
-			boolean isBlank = ch == ' ' || ch == '\t' ||
-					ch == '\r' || ch == '\n';
-			if (isBlank == untilBlank) {
-				break;
-			}
-		}
-		return start;
 	}
 }

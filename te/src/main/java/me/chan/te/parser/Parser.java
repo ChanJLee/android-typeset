@@ -19,5 +19,5 @@ public interface Parser {
 	 * @return
 	 */
 	@NonNull
-	List<Segment> parser(@NonNull CharSequence charSequence, Measurer measurer, Hypher hypher, Option option);
+	List<Segment> parse(@NonNull CharSequence charSequence, Measurer measurer, Hypher hypher, Option option);
 }

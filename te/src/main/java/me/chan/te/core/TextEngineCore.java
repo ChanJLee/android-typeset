@@ -134,7 +134,7 @@ public class TextEngineCore {
 
 		// parse
 		long timestamp = SystemClock.elapsedRealtime();
-		mSegments = mParser.parser(content, mMeasurer, Hypher.getInstance(), mOption);
+		mSegments = mParser.parse(content, mMeasurer, Hypher.getInstance(), mOption);
 		i("parse used time: " + (SystemClock.elapsedRealtime() - timestamp) + " segments: " + mSegments.size());
 		timestamp = SystemClock.elapsedRealtime();
 

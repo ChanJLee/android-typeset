@@ -137,7 +137,7 @@ public class TypesetterUnitTest {
 
 		CoreTypesetter texTypesetter = new CoreTypesetter();
 		TextParser textParser = new TextParser();
-		List<Segment> segments = textParser.parser(text, measurer, Hypher.getInstance(), option);
+		List<Segment> segments = textParser.parse(text, measurer, Hypher.getInstance(), option);
 		assertFalse(segments.isEmpty());
 
 		StringBuilder stringBuilder = new StringBuilder();

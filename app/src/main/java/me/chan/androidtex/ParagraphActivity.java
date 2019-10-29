@@ -12,6 +12,8 @@ import android.widget.RadioGroup;
 import java.io.IOException;
 
 import me.chan.te.Te;
+import me.chan.te.parser.BayReaderParser;
+import me.chan.te.parser.TextParser;
 import me.chan.te.source.AssetsSource;
 import me.chan.te.text.BreakStrategy;
 import me.chan.te.view.TeView;
@@ -51,7 +53,12 @@ public class ParagraphActivity extends AppCompatActivity {
 			}
 		});
 
-		render("IAmLegend.txt", teView);
+		teView.setParser(new BayReaderParser());
+		try {
+			teView.setSource(new AssetsSource(this, "bay.xml"));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 
 		findViewById(R.id.button1).setOnClickListener(new View.OnClickListener() {
 			@Override
@@ -104,6 +111,7 @@ public class ParagraphActivity extends AppCompatActivity {
 
 	private void render(final String name, final TeView teView) {
 		try {
+			teView.setParser(new TextParser());
 			teView.setSource(new AssetsSource(this, name));
 		} catch (IOException e) {
 			e.printStackTrace();
