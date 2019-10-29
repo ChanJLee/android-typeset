@@ -40,6 +40,9 @@ public final class Segment implements Recyclable {
 
 	@Override
 	public String toString() {
+		if (mText == null) {
+			return super.toString();
+		}
 		return String.valueOf(mText.subSequence(mStart, mEnd));
 	}
 
@@ -87,6 +90,10 @@ public final class Segment implements Recyclable {
 
 			mSegment = Segment.obtain(text, start, end);
 			return this;
+		}
+
+		public Builder newSegment() {
+			return newSegment(null, 0, 0);
 		}
 
 		public Builder text(CharSequence text, int start, int end) {
