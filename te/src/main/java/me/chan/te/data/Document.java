@@ -37,7 +37,6 @@ public final class Document implements Recyclable {
 		return mParagraphs.size();
 	}
 
-	@Nullable
 	public Paragraph getParagraph(int index) {
 		return mParagraphs.get(index);
 	}

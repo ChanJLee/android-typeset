@@ -16,12 +16,11 @@ import me.chan.te.text.BreakStrategy;
 class SimpleTypesetter implements Typesetter {
 
 	@NonNull
-	public Paragraph typeset(Segment segment,
-							 LineAttributes lineAttributes, BreakStrategy breakStrategy) {
-		Paragraph paragraph = Paragraph.obtain(lineAttributes);
+	public boolean typeset(Paragraph paragraph,
+						   LineAttributes lineAttributes, BreakStrategy breakStrategy) {
 		// 一行尽可能的占满尽可能多的字符
 		// 如果如果只显示了一个并且还不足以完美显示，那么无脑折断
-		List<? extends Element> elements = segment.getElements();
+		List<? extends Element> elements = paragraph.getElements();
 		int size = elements.size();
 		float lastLineWordSpace = 0;
 		float lastLineWidth = 0;
@@ -34,16 +33,16 @@ class SimpleTypesetter implements Typesetter {
 
 		int lineCount = paragraph.getLineCount();
 		if (breakStrategy == BreakStrategy.SIMPLE || lineCount == 0) {
-			return paragraph;
+			return true;
 		}
 
-		Line lastLine = paragraph.getLines().get(lineCount - 1);
+		Line lastLine = paragraph.getLine(lineCount - 1);
 		List<Box> boxes = lastLine.getBoxes();
 		if (lastLine.getBoxTotalWidth() + (boxes.size() - 1) * lastLineWordSpace <= lastLineWidth) {
 			lastLine.setSpaceWidth(lastLineWordSpace);
 		}
 
-		return paragraph;
+		return true;
 	}
 
 	private int typesetLine(float width, float wordSpaceWidth, Paragraph paragraph, List<? extends Element> elements,
@@ -118,10 +117,12 @@ class SimpleTypesetter implements Typesetter {
 			}
 		}
 
-		line.setBoxTotalWidth(boxTotalWidth);
+		float spaceWidth = line.getSpaceWidth();
+
+		line.setLineWidth(boxTotalWidth + spaceWidth * line.getCount());
 		line.setLineHeight(lineHeight);
 		line.setRatio(0);
-		paragraph.add(line);
+		paragraph.addLine(line);
 		return start;
 	}
 
@@ -191,10 +192,10 @@ class SimpleTypesetter implements Typesetter {
 		}
 
 		line.setSpaceWidth(0);
-		line.setBoxTotalWidth(width);
+		line.setLineWidth(width);
 		line.setLineHeight(box.getHeight());
 		line.setRatio(0);
-		paragraph.add(line);
+		paragraph.addLine(line);
 		return start;
 	}
 }

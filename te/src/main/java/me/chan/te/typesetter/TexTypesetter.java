@@ -23,12 +23,12 @@ class TexTypesetter implements Typesetter {
 	private static final int CLASS_3 = 3;
 
 	@Nullable
-	public Paragraph typeset(Segment segment, LineAttributes lineAttributes, BreakStrategy breakStrategy) {
+	public boolean typeset(Paragraph paragraph, LineAttributes lineAttributes, BreakStrategy breakStrategy) {
 		List<Node> activeNodes = null;
 		float tolerance = 0;
 		for (int i = 0; i < MAX_RELAYOUT_TIMES; ++i) {
 			tolerance += STRETCH_STEP_RATIO;
-			activeNodes = createActiveNodes(segment, lineAttributes, tolerance);
+			activeNodes = createActiveNodes(paragraph, lineAttributes, tolerance);
 			if (!activeNodes.isEmpty()) {
 				break;
 			}
@@ -36,16 +36,16 @@ class TexTypesetter implements Typesetter {
 
 		if (activeNodes == null ||
 				activeNodes.isEmpty()) {
-			w("can not find active nodes: " + segment);
-			return null;
+			w("can not find active nodes: " + paragraph);
+			return false;
 		}
 
 		List<BreakPoint> breakPoints = chooseBreakPoints(activeNodes);
 		if (breakPoints.isEmpty()) {
-			return null;
+			return false;
 		}
 
-		Paragraph paragraph = typesetParagraph(segment, breakPoints, lineAttributes);
+		typesetParagraph(paragraph, breakPoints, lineAttributes);
 		for (Node node : activeNodes) {
 			node.recycle();
 		}
@@ -54,11 +54,11 @@ class TexTypesetter implements Typesetter {
 			breakPoint.recycle();
 		}
 
-		return paragraph;
+		return true;
 	}
 
-	private List<Node> createActiveNodes(Segment segment, LineAttributes lineAttributes, float tolerance) {
-		List<? extends Element> elements = segment.getElements();
+	private List<Node> createActiveNodes(Paragraph paragraph, LineAttributes lineAttributes, float tolerance) {
+		List<? extends Element> elements = paragraph.getElements();
 		List<Node> activeNodes = new LinkedList<>();
 
 		// header
@@ -102,12 +102,11 @@ class TexTypesetter implements Typesetter {
 		return ((Box) element).getWidth();
 	}
 
-	private Paragraph typesetParagraph(Segment segment,
+	private Paragraph typesetParagraph(Paragraph paragraph,
 									   List<BreakPoint> breakPoints,
 									   LineAttributes lineAttributes) {
 
-		Paragraph paragraph = Paragraph.obtain(lineAttributes);
-		List<? extends Element> elements = segment.getElements();
+		List<? extends Element> elements = paragraph.getElements();
 		int lineStart = 0;
 		float lastLineWidth = 0;
 		float lastLineWordSpace = 0;
@@ -140,7 +139,7 @@ class TexTypesetter implements Typesetter {
 					breakPoint.ratio,
 					lastLineWidth,
 					lastLineWordSpace);
-			paragraph.add(lastLine);
+			paragraph.addLine(lastLine);
 			lineStart = pos;
 		}
 

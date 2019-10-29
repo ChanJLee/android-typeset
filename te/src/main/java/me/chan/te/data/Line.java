@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import me.chan.te.misc.ObjectFactory;
+import me.chan.te.text.Gravity;
 
 /**
  * 绘制行
@@ -13,9 +14,10 @@ public class Line implements Recyclable {
 
 	private List<Box> mBoxes = new ArrayList<>(150);
 	private float mLineHeight;
-	private float mBoxTotalWidth;
+	private float mLineWidth;
 	private float mRatio;
 	private float mSpaceWidth;
+	private Gravity mGravity = Gravity.LEFT;
 
 	private Line() {
 		reset();
@@ -29,8 +31,12 @@ public class Line implements Recyclable {
 		mBoxes.clear();
 		mLineHeight = -1;
 		mRatio = -1;
-		mBoxTotalWidth = -1;
+		mLineWidth = -1;
 		mSpaceWidth = -1;
+	}
+
+	public Gravity getGravity() {
+		return mGravity;
 	}
 
 	public List<Box> getBoxes() {
@@ -45,10 +51,6 @@ public class Line implements Recyclable {
 		return mRatio;
 	}
 
-	public float getBoxTotalWidth() {
-		return mBoxTotalWidth;
-	}
-
 	public float getSpaceWidth() {
 		return mSpaceWidth;
 	}
@@ -61,8 +63,8 @@ public class Line implements Recyclable {
 		mLineHeight = lineHeight;
 	}
 
-	public void setBoxTotalWidth(float boxTotalWidth) {
-		mBoxTotalWidth = boxTotalWidth;
+	public void setLineWidth(float lineWidth) {
+		mLineWidth = lineWidth;
 	}
 
 	public void setRatio(float ratio) {
@@ -84,11 +86,19 @@ public class Line implements Recyclable {
 		return line;
 	}
 
+	public int getCount() {
+		return mBoxes.size();
+	}
+
 	public void add(Box box) {
 		mBoxes.add(box);
 	}
 
 	public boolean isEmpty() {
 		return mBoxes.isEmpty();
+	}
+
+	public float getLineWidth() {
+		return mLineWidth;
 	}
 }

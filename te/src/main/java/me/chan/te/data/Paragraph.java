@@ -81,6 +81,11 @@ public class Paragraph implements Recyclable {
 		POOL.clean();
 	}
 
+	@Hidden
+	public List<? extends Element> getElements() {
+		return mElements;
+	}
+
 	/**
 	 * 需要避免多次
 	 */
