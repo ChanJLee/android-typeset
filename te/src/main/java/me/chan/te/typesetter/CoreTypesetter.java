@@ -4,7 +4,6 @@ import android.support.annotation.Nullable;
 
 import me.chan.te.config.LineAttributes;
 import me.chan.te.data.Paragraph;
-import me.chan.te.data.Segment;
 import me.chan.te.log.Log;
 import me.chan.te.text.BreakStrategy;
 

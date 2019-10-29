@@ -13,7 +13,6 @@ import me.chan.te.data.Glue;
 import me.chan.te.data.Line;
 import me.chan.te.data.Paragraph;
 import me.chan.te.data.Penalty;
-import me.chan.te.data.Segment;
 import me.chan.te.log.Log;
 import me.chan.te.text.BreakStrategy;
 

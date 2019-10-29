@@ -18,14 +18,15 @@ public final class TextBox extends Box implements Element, Cloneable {
 	private BoxStyle mBoxStyle;
 	private int mStart;
 	private int mEnd;
+	private Object mExtra;
 
-	protected TextBox(@NonNull CharSequence text, int start, int end, float width, float height, @Nullable BoxStyle boxStyle) {
+	protected TextBox(@NonNull CharSequence text, int start, int end, float width, float height, @Nullable BoxStyle boxStyle, Object extra) {
 		super(width, height);
-		reset(text, start, end, width, height, boxStyle);
+		reset(text, start, end, width, height, boxStyle, extra);
 	}
 
-	public static void clean() {
-		POOL.clean();
+	public Object getExtra() {
+		return mExtra;
 	}
 
 	/**
@@ -33,19 +34,19 @@ public final class TextBox extends Box implements Element, Cloneable {
 	 */
 	public void copy(@NonNull Box box) {
 		TextBox other = (TextBox) box;
-		reset(other.mText, other.mStart, other.mEnd, other.mWidth, other.mHeight, other.mBoxStyle);
+		reset(other.mText, other.mStart, other.mEnd, other.mWidth, other.mHeight, other.mBoxStyle, other.mExtra);
 		super.copy(box);
 	}
 
 	@Override
 	public void recycle() {
-		reset(null, -1, -1, -1, -1, null);
+		reset(null, -1, -1, -1, -1, null, null);
 		POOL.release(this);
 	}
 
 	@Override
 	public Object clone() {
-		TextBox copy = new TextBox(mText, mStart, mEnd, mWidth, mHeight, mBoxStyle);
+		TextBox copy = new TextBox(mText, mStart, mEnd, mWidth, mHeight, mBoxStyle, mExtra);
 		copy.copy(this);
 		return copy;
 	}
@@ -68,7 +69,7 @@ public final class TextBox extends Box implements Element, Cloneable {
 				mBoxStyle == textBox.mBoxStyle;
 	}
 
-	private void reset(CharSequence text, int start, int end, float width, float height, @Nullable BoxStyle boxStyle) {
+	private void reset(CharSequence text, int start, int end, float width, float height, @Nullable BoxStyle boxStyle, Object extra) {
 		clearFlag();
 		mText = text;
 		mBoxStyle = boxStyle;
@@ -76,6 +77,7 @@ public final class TextBox extends Box implements Element, Cloneable {
 		mHeight = height;
 		mStart = start;
 		mEnd = end;
+		mExtra = extra;
 	}
 
 	@Hidden
@@ -121,6 +123,10 @@ public final class TextBox extends Box implements Element, Cloneable {
 		}
 
 		TextBox other = (TextBox) box;
+		if (mExtra != other.mExtra) {
+			return false;
+		}
+
 		if (other.mBoxStyle != null && mBoxStyle != null) {
 			return !mBoxStyle.isConflict(other.mBoxStyle);
 		}
@@ -155,18 +161,22 @@ public final class TextBox extends Box implements Element, Cloneable {
 		}
 
 		TextBox[] boxes = new TextBox[2];
-		boxes[0] = new TextBox(mText, mStart, last, limitWidth, mHeight, mBoxStyle);
-		boxes[1] = new TextBox(mText, last, mEnd, (1 - ratio) * mWidth, mHeight, mBoxStyle);
+		boxes[0] = new TextBox(mText, mStart, last, limitWidth, mHeight, mBoxStyle, mExtra);
+		boxes[1] = new TextBox(mText, last, mEnd, (1 - ratio) * mWidth, mHeight, mBoxStyle, mExtra);
 		return boxes;
 	}
 
+	public static void clean() {
+		POOL.clean();
+	}
+
 	public static TextBox obtain(@NonNull CharSequence charSequence, int start, int end,
-								 float width, float height, @Nullable BoxStyle boxStyle) {
+								 float width, float height, @Nullable BoxStyle boxStyle, Object extra) {
 		TextBox box = POOL.acquire();
 		if (box == null) {
-			return new TextBox(charSequence, start, end, width, height, boxStyle);
+			return new TextBox(charSequence, start, end, width, height, boxStyle, extra);
 		}
-		box.reset(charSequence, start, end, width, height, boxStyle);
+		box.reset(charSequence, start, end, width, height, boxStyle, extra);
 		return box;
 	}
 }

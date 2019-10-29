@@ -6,7 +6,6 @@ import java.util.LinkedList;
 import java.util.List;
 
 import me.chan.te.config.Option;
-import me.chan.te.data.Segment;
 import me.chan.te.hypher.Hypher;
 import me.chan.te.measurer.Measurer;
 
