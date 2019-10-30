@@ -2,8 +2,6 @@ package me.chan.te.parser;
 
 import android.support.annotation.NonNull;
 
-import java.util.List;
-
 import me.chan.te.config.Option;
 import me.chan.te.data.Document;
 import me.chan.te.hypher.Hypher;
