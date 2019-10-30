@@ -159,7 +159,7 @@ public class TextEngineCore {
 		LineAttributes lineAttributes = new LineAttributes(defaultAttribute);
 		lineAttributes.add(0, new LineAttributes.Attribute(
 				width - mOption.getIndentWidth(),
-				Gravity.RIGHT,
+				Gravity.LEFT,
 				(int) mOption.getLineSpacing(),
 				mOption.getSpaceWidth()
 		));

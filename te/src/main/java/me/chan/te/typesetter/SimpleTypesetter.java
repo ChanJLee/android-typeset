@@ -12,6 +12,7 @@ import me.chan.te.data.Line;
 import me.chan.te.data.Paragraph;
 import me.chan.te.data.Penalty;
 import me.chan.te.text.BreakStrategy;
+import me.chan.te.text.Gravity;
 
 class SimpleTypesetter implements Typesetter {
 
@@ -22,13 +23,13 @@ class SimpleTypesetter implements Typesetter {
 		// 如果如果只显示了一个并且还不足以完美显示，那么无脑折断
 		List<? extends Element> elements = paragraph.getElements();
 		int size = elements.size();
-		float lastLineWordSpace = 0;
-		float lastLineWidth = 0;
 		for (int i = 0; i < size; ) {
 			LineAttributes.Attribute attribute = lineAttributes.get(paragraph.getLineCount());
-			lastLineWidth = attribute.getLineWidth();
-			lastLineWordSpace = attribute.getWordSpaceWidth();
-			i = typesetLine(lastLineWidth, lastLineWordSpace, paragraph, elements, i, breakStrategy);
+			i = typesetLine(attribute,
+					paragraph,
+					i,
+					breakStrategy
+			);
 		}
 
 		int lineCount = paragraph.getLineCount();
@@ -39,9 +40,13 @@ class SimpleTypesetter implements Typesetter {
 		return true;
 	}
 
-	private int typesetLine(float width, float wordSpaceWidth, Paragraph paragraph, List<? extends Element> elements,
-							int start, BreakStrategy breakStrategy) {
+	private int typesetLine(LineAttributes.Attribute attribute,
+							Paragraph paragraph, int start, BreakStrategy breakStrategy) {
+		List<? extends Element> elements = paragraph.getElements();
 		int size = elements.size();
+		float lineWidth = attribute.getLineWidth();
+		float wordSpaceWidth = attribute.getWordSpaceWidth();
+		Gravity gravity = attribute.getGravity();
 
 		// skip none box
 		for (; start < size; ++start) {
@@ -75,13 +80,13 @@ class SimpleTypesetter implements Typesetter {
 			}
 
 			Box box = (Box) element;
-			int next = mergeIf(elements, box, start + 1, currentLineWidth, width);
+			int next = mergeIf(elements, box, start + 1, currentLineWidth, lineWidth);
 			if (next == -1) {
 				break;
 			}
 
 			// 如果超出当前的长度 那么直接结束
-			if (currentLineWidth + box.getWidth() > width) {
+			if (currentLineWidth + box.getWidth() > lineWidth) {
 				break;
 			}
 
@@ -99,7 +104,7 @@ class SimpleTypesetter implements Typesetter {
 
 		// 如果一行是空的，说明当前只能排一个，并且都显示不下
 		if (line.isEmpty()) {
-			return spiltIf(paragraph, elements, start, line, width);
+			return spiltIf(paragraph, elements, start, line, lineWidth, gravity);
 		}
 
 		if (breakStrategy == BreakStrategy.SIMPLE) {
@@ -107,16 +112,17 @@ class SimpleTypesetter implements Typesetter {
 		} else {
 			int boxSize = line.getBoxes().size();
 			if (boxSize > 1) {
-				line.setSpaceWidth((width - boxTotalWidth) / (boxSize - 1));
+				line.setSpaceWidth((lineWidth - boxTotalWidth) / (boxSize - 1));
 			}
 		}
 
-		if (start == size && (line.getCount() - 1) * wordSpaceWidth < width) {
+		if (start == size && (line.getCount() - 1) * wordSpaceWidth < lineWidth) {
 			line.setSpaceWidth(wordSpaceWidth);
 		}
 
 		line.setLineWidth(currentLineWidth);
 		line.setLineHeight(lineHeight);
+		line.setGravity(gravity);
 		line.setRatio(0);
 		paragraph.addLine(line);
 		return start;
@@ -170,7 +176,7 @@ class SimpleTypesetter implements Typesetter {
 		return start;
 	}
 
-	private int spiltIf(Paragraph paragraph, List<? extends Element> elements, int start, Line line, float width) {
+	private int spiltIf(Paragraph paragraph, List<? extends Element> elements, int start, Line line, float width, Gravity gravity) {
 		if (start >= elements.size()) {
 			return start;
 		}
@@ -191,6 +197,7 @@ class SimpleTypesetter implements Typesetter {
 		line.setLineWidth(width);
 		line.setLineHeight(box.getHeight());
 		line.setRatio(0);
+		line.setGravity(gravity);
 		paragraph.addLine(line);
 		return start;
 	}

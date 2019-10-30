@@ -39,6 +39,7 @@ public class Line implements Recyclable {
 		return mGravity;
 	}
 
+	// TODO
 	public List<Box> getBoxes() {
 		return mBoxes;
 	}
@@ -69,6 +70,10 @@ public class Line implements Recyclable {
 
 	public void setRatio(float ratio) {
 		mRatio = ratio;
+	}
+
+	public void setGravity(Gravity gravity) {
+		mGravity = gravity;
 	}
 
 	@Override
