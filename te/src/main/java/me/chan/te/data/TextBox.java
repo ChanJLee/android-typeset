@@ -171,6 +171,11 @@ public final class TextBox extends Box implements Element, Cloneable {
 	}
 
 	public static TextBox obtain(@NonNull CharSequence charSequence, int start, int end,
+								 float width, float height, @Nullable BoxStyle boxStyle) {
+		return obtain(charSequence, start, end, width, height, boxStyle, null);
+	}
+
+	public static TextBox obtain(@NonNull CharSequence charSequence, int start, int end,
 								 float width, float height, @Nullable BoxStyle boxStyle, Object extra) {
 		TextBox box = POOL.acquire();
 		if (box == null) {

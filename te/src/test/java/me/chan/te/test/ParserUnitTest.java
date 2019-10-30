@@ -11,8 +11,10 @@ import java.io.InputStreamReader;
 import java.util.List;
 
 import me.chan.te.data.Box;
+import me.chan.te.data.Document;
 import me.chan.te.data.Element;
 import me.chan.te.data.Glue;
+import me.chan.te.data.Paragraph;
 import me.chan.te.data.Penalty;
 import me.chan.te.data.TextBox;
 import me.chan.te.hypher.Hypher;
@@ -34,14 +36,14 @@ public class ParserUnitTest {
 		MockOption MockOption = new MockOption(paint);
 		Measurer measurer = new MockMeasurer(paint);
 		TextParser textParser = new TextParser();
-		List<Segment> segments = textParser.parse("hello\n\nworld\n\n", measurer, Hypher.getInstance(), MockOption);
-		assertEquals(segments.size(), 2);
+		Document document = textParser.parse("hello\n\nworld\n\n", measurer, Hypher.getInstance(), MockOption);
+		assertEquals(document.getParagraphCount(), 2);
 
-		segments = textParser.parse("hello\n\nworld\n", measurer, Hypher.getInstance(), MockOption);
-		assertEquals(segments.size(), 2);
+		document = textParser.parse("hello\n\nworld\n", measurer, Hypher.getInstance(), MockOption);
+		assertEquals(document.getParagraphCount(), 2);
 
-		segments = textParser.parse("", measurer, Hypher.getInstance(), MockOption);
-		assertEquals(segments.size(), 0);
+		document = textParser.parse("", measurer, Hypher.getInstance(), MockOption);
+		assertEquals(document.getParagraphCount(), 0);
 
 		try {
 			textParser.parse(null, measurer, Hypher.getInstance(), MockOption);
@@ -50,11 +52,12 @@ public class ParserUnitTest {
 			/* do nothing */
 		}
 
-		segments = textParser.parse(" hello", measurer, Hypher.getInstance(), MockOption);
-		assertEquals(segments.size(), 1);
+		document = textParser.parse(" hello", measurer, Hypher.getInstance(), MockOption);
+		assertEquals(document.getParagraphCount(), 1);
 
-		Segment segment = segments.get(0);
-		List<? extends Element> list = segment.getElements();
+
+		Paragraph paragraph = document.getParagraph(0);
+		List<? extends Element> list = paragraph.getElements();
 		assertEquals(list.size(), 3);
 
 		assertEquals("check type, index 0", list.get(0).getClass(), TextBox.class);
@@ -64,11 +67,11 @@ public class ParserUnitTest {
 		Box box = (Box) list.get(0);
 		assertEquals("check box content: ", box.toString(), "hello");
 
-		segments = textParser.parse(" triangle\n\n\n", measurer, Hypher.getInstance(), MockOption);
-		assertEquals(segments.size(), 1);
+		document = textParser.parse(" triangle\n\n\n", measurer, Hypher.getInstance(), MockOption);
+		assertEquals(document.getParagraphCount(), 1);
 
-		segment = segments.get(0);
-		list = segment.getElements();
+		paragraph = document.getParagraph(0);
+		list = paragraph.getElements();
 		assertEquals(list.size(), 7);
 
 		for (Element element : list) {
@@ -115,13 +118,14 @@ public class ParserUnitTest {
 
 			String contentWithoutBlank = line.replaceAll("\\p{Z}+|\\t|\\r|\\n", "");
 			StringBuilder stringBuilder = new StringBuilder();
-			List<Segment> segments = textParser.parse(line, measurer, Hypher.getInstance(), MockOption);
+			Document document = textParser.parse(line, measurer, Hypher.getInstance(), MockOption);
 			if (contentWithoutBlank.isEmpty()) {
-				assertTrue(segments.isEmpty());
+				Assert.assertEquals(document.getParagraphCount(), 0);
 				continue;
 			}
 
-			List<? extends Element> list = segments.get(0).getElements();
+			Paragraph paragraph = document.getParagraph(0);
+			List<? extends Element> list = paragraph.getElements();
 			for (Element element : list) {
 				if (element instanceof Box) {
 					stringBuilder.append(element);
@@ -153,10 +157,10 @@ public class ParserUnitTest {
 		String content = stringBuilder.toString();
 		stringBuilder = new StringBuilder();
 		long timestamp = System.currentTimeMillis();
-		List<Segment> segments = textParser.parse(content, measurer, Hypher.getInstance(), MockOption);
+		Document document = textParser.parse(content, measurer, Hypher.getInstance(), MockOption);
 		System.out.println("used time: " + (System.currentTimeMillis() - timestamp));
-		for (Segment segment : segments) {
-			for (Element element : segment.getElements()) {
+		for (int i = 0; i < document.getParagraphCount(); ++i) {
+			for (Element element : document.getParagraph(i).getElements()) {
 				if (element instanceof Box) {
 					stringBuilder.append(element);
 				}
