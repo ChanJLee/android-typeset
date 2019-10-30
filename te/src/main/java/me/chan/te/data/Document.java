@@ -11,7 +11,7 @@ public final class Document implements Recyclable {
 	private static final ObjectFactory<Document> POOL = new ObjectFactory<>(8);
 	public final static Document EMPTY = obtain();
 
-	private List<Paragraph> mParagraphs = new ArrayList<>(1024);
+	private List<Paragraph> mParagraphs = new ArrayList<>(512);
 	private Object mExtra;
 
 	private Document(Object extra) {
