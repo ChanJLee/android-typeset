@@ -30,9 +30,10 @@ public class Line implements Recyclable {
 	private void reset() {
 		mBoxes.clear();
 		mLineHeight = -1;
-		mRatio = -1;
 		mLineWidth = -1;
+		mRatio = -1;
 		mSpaceWidth = -1;
+		mGravity = Gravity.LEFT;
 	}
 
 	public Gravity getGravity() {

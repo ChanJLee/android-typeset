@@ -23,6 +23,7 @@ import me.chan.te.measurer.AndroidMeasurer;
 import me.chan.te.test.mock.MockMeasurer;
 import me.chan.te.test.mock.MockOption;
 import me.chan.te.test.mock.MockTextPaint;
+import me.chan.te.text.Gravity;
 import me.chan.te.typesetter.BreakPoint;
 import me.chan.te.typesetter.Candidate;
 import me.chan.te.typesetter.Node;
@@ -317,12 +318,16 @@ public class DataUnitTest {
 		Assert.assertEquals(line.getLineWidth(), 3, 0);
 		line.setRatio(4);
 		Assert.assertEquals(line.getRatio(), 4, 0);
+		Assert.assertSame(line.getGravity(), Gravity.LEFT);
+		line.setGravity(Gravity.CENTER);
+		Assert.assertSame(line.getGravity(), Gravity.CENTER);
 		line.getBoxes().add(TextBox.obtain("hello", 0, 1, 1, 1, null));
 		Assert.assertFalse(line.getBoxes().isEmpty());
 
 		Line prev = line;
 		line.recycle();
 		Assert.assertTrue(line.getBoxes().isEmpty());
+		Assert.assertSame(line.getGravity(), Gravity.LEFT);
 		Assert.assertNotEquals(line.getSpaceWidth(), 1, 0);
 		Assert.assertNotEquals(line.getLineHeight(), 2, 0);
 		Assert.assertNotEquals(line.getLineWidth(), 3, 0);
@@ -332,6 +337,7 @@ public class DataUnitTest {
 		Assert.assertNotNull(line);
 		Assert.assertSame(prev, line);
 		Assert.assertTrue(line.getBoxes().isEmpty());
+		Assert.assertSame(line.getGravity(), Gravity.LEFT);
 		Assert.assertNotEquals(line.getSpaceWidth(), 1, 0);
 		Assert.assertNotEquals(line.getLineHeight(), 2, 0);
 		Assert.assertNotEquals(line.getLineWidth(), 3, 0);
