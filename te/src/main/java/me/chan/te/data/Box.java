@@ -1,7 +1,6 @@
 package me.chan.te.data;
 
 import android.graphics.Canvas;
-import android.support.annotation.CallSuper;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.text.TextPaint;
@@ -14,21 +13,24 @@ import me.chan.te.annotations.Hidden;
  * 比如一个单词，一张图片
  */
 public abstract class Box implements Cloneable, Element {
-	private static final int FLAG_NONE = 0;
+	static final int FLAG_NONE = 0;
 	static final int FLAG_PENALTY = 2;
-
-	// TODO refactor
-	public static final int FLAG_SPILT = 1;
+	static final int FLAG_SPILT = 1;
 
 	// 检查 equals
 	protected float mWidth;
 	protected float mHeight;
-
 	private int mFlag = FLAG_NONE;
+	protected Object mExtra;
 
-	public Box(float width, float height) {
+	public Box(float width, float height, Object extra) {
 		mWidth = width;
 		mHeight = height;
+		mExtra = extra;
+	}
+
+	public Object getExtra() {
+		return mExtra;
 	}
 
 	public float getWidth() {
@@ -39,25 +41,9 @@ public abstract class Box implements Cloneable, Element {
 		return mHeight;
 	}
 
-	@CallSuper
-	public void copy(@NonNull Box other) {
-		this.mFlag = other.mFlag;
-		this.mWidth = other.mWidth;
-		this.mHeight = other.mHeight;
-	}
-
 	public abstract Object clone();
 
-	@Override
-	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
-		Box box = (Box) o;
-		return Float.compare(box.mWidth, mWidth) == 0 &&
-				Float.compare(box.mHeight, mHeight) == 0 &&
-				mFlag == box.mFlag;
-	}
-
+	// TODO drawable不能被append
 	@Hidden
 	public abstract void append(Box other);
 
@@ -91,6 +77,29 @@ public abstract class Box implements Cloneable, Element {
 
 	public abstract String toString();
 
+	public abstract boolean canSpilt();
+
 	@Nullable
-	public abstract Box[] spilt(float limitWidth);
+	public abstract Box spilt(float limitWidth);
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		Box box = (Box) o;
+		return Float.compare(box.mWidth, mWidth) == 0 &&
+				Float.compare(box.mHeight, mHeight) == 0 &&
+				mFlag == box.mFlag &&
+				mExtra == box.mExtra;
+	}
+
+	public final void copy(@NonNull Box other) {
+		this.mFlag = other.mFlag;
+		this.mWidth = other.mWidth;
+		this.mHeight = other.mHeight;
+		this.mExtra = other.mExtra;
+		onCopy(other);
+	}
+
+	protected abstract void onCopy(@NonNull Box other);
 }

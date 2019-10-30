@@ -23,7 +23,6 @@ public class SourceUnitTest {
 		try {
 			charSequence = streamSource.open();
 		} catch (SourceOpenException e) {
-			e.printStackTrace();
 		}
 
 		Assert.assertNotNull(charSequence);
@@ -31,14 +30,12 @@ public class SourceUnitTest {
 		try {
 			streamSource.close();
 		} catch (SourceCloseException e) {
-			e.printStackTrace();
 		}
 
 		try {
 			fileInputStream.read();
 			Assert.fail("test stream close failed");
 		} catch (Throwable throwable) {
-			throwable.printStackTrace();
 		}
 
 		fileInputStream = new MockFileInputStream(file);
@@ -47,7 +44,6 @@ public class SourceUnitTest {
 			streamSource.open();
 			Assert.fail("test read bad file failed");
 		} catch (SourceOpenException e) {
-			e.printStackTrace();
 		}
 	}
 }

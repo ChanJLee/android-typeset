@@ -6,7 +6,7 @@ import me.chan.te.misc.ObjectFactory;
 
 @Hidden
 public class BreakPoint implements Recyclable {
-	private static final ObjectFactory<BreakPoint> POOL = new ObjectFactory<>(5000);
+	private static final ObjectFactory<BreakPoint> POOL = new ObjectFactory<>(512);
 
 	public int position;
 	public float ratio;

@@ -3,7 +3,6 @@ package me.chan.te.typesetter;
 import me.chan.te.text.BreakStrategy;
 import me.chan.te.config.LineAttributes;
 import me.chan.te.data.Paragraph;
-import me.chan.te.data.Segment;
 
 /**
  * 排版器
@@ -21,10 +20,10 @@ public interface Typesetter {
 	float STRETCH_STEP_RATIO = 0.2f;
 
 	/**
-	 * @param segment        文章段落
+	 * @param paragraph      paragraph
 	 * @param lineAttributes 行信息
 	 * @param breakStrategy  {@link BreakStrategy}
-	 * @return 排版好的文章段落
+	 * @return 是否排版成功
 	 */
-	Paragraph typeset(Segment segment, LineAttributes lineAttributes, BreakStrategy breakStrategy);
+	boolean typeset(Paragraph paragraph, LineAttributes lineAttributes, BreakStrategy breakStrategy);
 }

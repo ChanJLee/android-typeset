@@ -13,9 +13,9 @@ import me.chan.te.data.Glue;
 import me.chan.te.data.Line;
 import me.chan.te.data.Paragraph;
 import me.chan.te.data.Penalty;
-import me.chan.te.data.Segment;
 import me.chan.te.log.Log;
 import me.chan.te.text.BreakStrategy;
+import me.chan.te.text.Gravity;
 
 class TexTypesetter implements Typesetter {
 	private static final int CLASS_0 = 0;
@@ -24,12 +24,12 @@ class TexTypesetter implements Typesetter {
 	private static final int CLASS_3 = 3;
 
 	@Nullable
-	public Paragraph typeset(Segment segment, LineAttributes lineAttributes, BreakStrategy breakStrategy) {
+	public boolean typeset(Paragraph paragraph, LineAttributes lineAttributes, BreakStrategy breakStrategy) {
 		List<Node> activeNodes = null;
 		float tolerance = 0;
 		for (int i = 0; i < MAX_RELAYOUT_TIMES; ++i) {
 			tolerance += STRETCH_STEP_RATIO;
-			activeNodes = createActiveNodes(segment, lineAttributes, tolerance);
+			activeNodes = createActiveNodes(paragraph, lineAttributes, tolerance);
 			if (!activeNodes.isEmpty()) {
 				break;
 			}
@@ -37,16 +37,16 @@ class TexTypesetter implements Typesetter {
 
 		if (activeNodes == null ||
 				activeNodes.isEmpty()) {
-			w("can not find active nodes: " + segment);
-			return null;
+			w("can not find active nodes: " + paragraph);
+			return false;
 		}
 
 		List<BreakPoint> breakPoints = chooseBreakPoints(activeNodes);
 		if (breakPoints.isEmpty()) {
-			return null;
+			return false;
 		}
 
-		Paragraph paragraph = typesetParagraph(segment, breakPoints, lineAttributes);
+		typesetParagraph(paragraph, breakPoints, lineAttributes);
 		for (Node node : activeNodes) {
 			node.recycle();
 		}
@@ -55,11 +55,11 @@ class TexTypesetter implements Typesetter {
 			breakPoint.recycle();
 		}
 
-		return paragraph;
+		return true;
 	}
 
-	private List<Node> createActiveNodes(Segment segment, LineAttributes lineAttributes, float tolerance) {
-		List<? extends Element> elements = segment.getElements();
+	private List<Node> createActiveNodes(Paragraph paragraph, LineAttributes lineAttributes, float tolerance) {
+		List<? extends Element> elements = paragraph.getElements();
 		List<Node> activeNodes = new LinkedList<>();
 
 		// header
@@ -103,10 +103,11 @@ class TexTypesetter implements Typesetter {
 		return ((Box) element).getWidth();
 	}
 
-	private Paragraph typesetParagraph(Segment segment,
-									   List<BreakPoint> breakPoints, LineAttributes lineAttributes) {
-		Paragraph paragraph = Paragraph.obtain(lineAttributes);
-		List<? extends Element> elements = segment.getElements();
+	private Paragraph typesetParagraph(Paragraph paragraph,
+									   List<BreakPoint> breakPoints,
+									   LineAttributes lineAttributes) {
+
+		List<? extends Element> elements = paragraph.getElements();
 		int lineStart = 0;
 		int size = elements.size();
 		for (int i = 1; i < breakPoints.size(); ++i) {
@@ -125,40 +126,70 @@ class TexTypesetter implements Typesetter {
 				lineEnd = size;
 			}
 
-			paragraph.add(createLine(
+			int lineNumber = paragraph.getLineCount();
+			LineAttributes.Attribute attribute = lineAttributes.get(lineNumber);
+			paragraph.addLine(createLine(
 					elements,
 					lineStart,
 					lineEnd,
-					breakPoint.ratio));
+					breakPoint.ratio,
+					attribute,
+					i == breakPoints.size() - 1));
 			lineStart = pos;
 		}
+
 		return paragraph;
 	}
 
-	private Line createLine(List<? extends Element> lineElements, int start, int end, float ratio) {
+	/**
+	 * @param elements   排版元素
+	 * @param start      开始位置
+	 * @param end        结束位置
+	 * @param ratio      ratio
+	 * @param isLastLine 是否是最后一行
+	 * @return 行
+	 */
+	private Line createLine(List<? extends Element> elements, int start, int end, float ratio,
+							LineAttributes.Attribute attribute, boolean isLastLine) {
+		float lineWidth = attribute.getLineWidth();
+		float expectWordSpace = attribute.getWordSpaceWidth();
+		Gravity gravity = attribute.getGravity();
 		float lineHeight = 0;
 		Line line = Line.obtain();
-		float lineWidth = 0;
+		float boxTotalWidth = 0;
 		for (int i = start; i < end; ++i) {
-			Element element = lineElements.get(i);
+			Element element = elements.get(i);
 			if (!(element instanceof Box)) {
 				continue;
 			}
 
-			Box box = (Box) lineElements.get(i);
-			i = mergeBox(box, i + 1, end, lineElements);
+			Box box = (Box) elements.get(i);
+			i = mergeBox(box, i + 1, end, elements);
 
 			if (lineHeight < box.getHeight()) {
 				lineHeight = box.getHeight();
 			}
 
-			lineWidth += box.getWidth();
+			boxTotalWidth += box.getWidth();
 			line.add(box);
 		}
 
-		line.setLineWidth(lineWidth);
+		int size = line.getCount();
+		if (size > 1) {
+			line.setSpaceWidth((lineWidth - boxTotalWidth) / (size - 1));
+		} else {
+			line.setSpaceWidth(expectWordSpace);
+		}
+
+		if (isLastLine && boxTotalWidth + expectWordSpace * (size - 1) < lineWidth) {
+			line.setSpaceWidth(expectWordSpace);
+		}
+
+		line.setLineWidth(size > 1 ? boxTotalWidth + line.getSpaceWidth() * (size - 1) : boxTotalWidth);
 		line.setLineHeight(lineHeight);
+		line.setGravity(gravity);
 		line.setRatio(ratio);
+
 		return line;
 	}
 
@@ -420,6 +451,6 @@ class TexTypesetter implements Typesetter {
 	}
 
 	private static void w(String msg) {
-		Log.w("TexTypesetter", msg);
+		Log.w("TextEngineTexTypesetter", msg);
 	}
 }
