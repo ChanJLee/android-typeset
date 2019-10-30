@@ -16,14 +16,13 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.List;
 
 import me.chan.te.config.LineAttributes;
 import me.chan.te.config.Option;
 import me.chan.te.data.Box;
+import me.chan.te.data.Document;
 import me.chan.te.data.Line;
 import me.chan.te.data.Paragraph;
-import me.chan.te.data.Segment;
 import me.chan.te.hypher.Hypher;
 import me.chan.te.measurer.Measurer;
 import me.chan.te.parser.TextParser;
@@ -31,6 +30,7 @@ import me.chan.te.test.mock.MockMeasurer;
 import me.chan.te.test.mock.MockOption;
 import me.chan.te.test.mock.MockTextPaint;
 import me.chan.te.text.BreakStrategy;
+import me.chan.te.text.Gravity;
 import me.chan.te.typesetter.CoreTypesetter;
 
 import static org.junit.Assert.assertEquals;
@@ -66,6 +66,8 @@ public class TypesetterUnitTest {
 				return rect.bottom - rect.top;
 			}
 		}).when(mRect).height();
+
+		Hypher.getInstance();
 	}
 
 	@Test
@@ -121,7 +123,7 @@ public class TypesetterUnitTest {
 	private void checkContent(String text, BreakStrategy breakStrategy, float lineWidth, int textSize) {
 		System.out.println("check content, width: " + lineWidth + " text size: " + textSize + " " + breakStrategy);
 
-		LineAttributes lineAttributes = new LineAttributes(new LineAttributes.Attribute(lineWidth));
+		LineAttributes lineAttributes = new LineAttributes(new LineAttributes.Attribute(lineWidth, Gravity.LEFT, 10, 10));
 		MockTextPaint paint = new MockTextPaint();
 		Measurer measurer = new MockMeasurer(paint);
 		paint.setMockTextSize(textSize);
@@ -136,18 +138,21 @@ public class TypesetterUnitTest {
 
 		CoreTypesetter texTypesetter = new CoreTypesetter();
 		TextParser textParser = new TextParser();
-		List<Segment> segments = textParser.parser(text, measurer, Hypher.getInstance(), option);
-		assertFalse(segments.isEmpty());
+		Document document = textParser.parse(text, measurer, Hypher.getInstance(), option);
+		assertNotEquals(document.getCount(), 0);
 
 		StringBuilder stringBuilder = new StringBuilder();
-		for (Segment segment : segments) {
-			Paragraph paragraph = texTypesetter.typeset(segment, lineAttributes, breakStrategy);
+		for (int i = 0; i < document.getCount(); ++i) {
+			Paragraph paragraph = document.getSegment(i);
+			texTypesetter.typeset(paragraph, lineAttributes, breakStrategy);
 			assertNotNull(paragraph);
-			assertNotNull(paragraph.getLines());
-			assertFalse(paragraph.getLines().isEmpty());
+			assertNotEquals(paragraph.getLineCount(), 0);
 
-			for (Line l : paragraph.getLines()) {
-				for (Box box : l.getBoxes()) {
+			for (int j = 0; j < paragraph.getLineCount(); ++j) {
+				Line l = paragraph.getLine(j);
+
+				for (int x = 0; x < l.getCount(); ++x) {
+					Box box = l.getBox(x);
 					String content = box.toString();
 					if (box.isPenalty()) {
 						Assert.assertEquals(content.charAt(content.length() - 1), '-');

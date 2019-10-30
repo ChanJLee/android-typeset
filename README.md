@@ -6,6 +6,7 @@
 - [ ] adapter异常安全保障 
 - [ ] tex typeset cache
 - [ ] 在系统内存紧张的时候释放资源
+- [ ] box id
 
 # workflow
 

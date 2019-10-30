@@ -4,18 +4,20 @@ import java.util.ArrayList;
 import java.util.List;
 
 import me.chan.te.misc.ObjectFactory;
+import me.chan.te.text.Gravity;
 
 /**
  * 绘制行
  */
 public class Line implements Recyclable {
-	private static final ObjectFactory<Line> POOL = new ObjectFactory<>(6000);
+	private static final ObjectFactory<Line> POOL = new ObjectFactory<>(4096);
 
 	private List<Box> mBoxes = new ArrayList<>(150);
 	private float mLineHeight;
 	private float mLineWidth;
 	private float mRatio;
 	private float mSpaceWidth;
+	private Gravity mGravity = Gravity.LEFT;
 
 	private Line() {
 		reset();
@@ -28,13 +30,14 @@ public class Line implements Recyclable {
 	private void reset() {
 		mBoxes.clear();
 		mLineHeight = -1;
-		mRatio = -1;
 		mLineWidth = -1;
+		mRatio = -1;
 		mSpaceWidth = -1;
+		mGravity = Gravity.LEFT;
 	}
 
-	public List<Box> getBoxes() {
-		return mBoxes;
+	public Gravity getGravity() {
+		return mGravity;
 	}
 
 	public float getLineHeight() {
@@ -43,10 +46,6 @@ public class Line implements Recyclable {
 
 	public float getRatio() {
 		return mRatio;
-	}
-
-	public float getLineWidth() {
-		return mLineWidth;
 	}
 
 	public float getSpaceWidth() {
@@ -69,6 +68,10 @@ public class Line implements Recyclable {
 		mRatio = ratio;
 	}
 
+	public void setGravity(Gravity gravity) {
+		mGravity = gravity;
+	}
+
 	@Override
 	public void recycle() {
 		reset();
@@ -84,11 +87,23 @@ public class Line implements Recyclable {
 		return line;
 	}
 
+	public int getCount() {
+		return mBoxes.size();
+	}
+
 	public void add(Box box) {
 		mBoxes.add(box);
 	}
 
 	public boolean isEmpty() {
 		return mBoxes.isEmpty();
+	}
+
+	public float getLineWidth() {
+		return mLineWidth;
+	}
+
+	public Box getBox(int index) {
+		return mBoxes.get(index);
 	}
 }

@@ -12,40 +12,41 @@ import me.chan.te.misc.ObjectFactory;
  * 文本元素
  */
 public final class TextBox extends Box implements Element, Cloneable {
-	private final static ObjectFactory<TextBox> POOL = new ObjectFactory<>(50000);
+	private final static ObjectFactory<TextBox> POOL = new ObjectFactory<>(51200);
+
 	private CharSequence mText;
 	@Nullable
 	private BoxStyle mBoxStyle;
 	private int mStart;
 	private int mEnd;
 
-	protected TextBox(@NonNull CharSequence text, int start, int end, float width, float height, @Nullable BoxStyle boxStyle) {
-		super(width, height);
-		reset(text, start, end, width, height, boxStyle);
+	protected TextBox(@NonNull CharSequence text, int start, int end, float width, float height, @Nullable BoxStyle boxStyle, Object extra) {
+		super(width, height, extra);
+		reset(text, start, end, width, height, boxStyle, extra);
 	}
 
-	public static void clean() {
-		POOL.clean();
-	}
+	@Override
+	protected void onCopy(@NonNull Box box) {
+		if (!(box instanceof TextBox)) {
+			return;
+		}
 
-	/**
-	 * @param box other box
-	 */
-	public void copy(@NonNull Box box) {
 		TextBox other = (TextBox) box;
-		reset(other.mText, other.mStart, other.mEnd, other.mWidth, other.mHeight, other.mBoxStyle);
-		super.copy(box);
+		mText = other.mText;
+		mStart = other.mStart;
+		mEnd = other.mEnd;
+		mBoxStyle = other.mBoxStyle;
 	}
 
 	@Override
 	public void recycle() {
-		reset(null, -1, -1, -1, -1, null);
+		reset(null, -1, -1, -1, -1, null, null);
 		POOL.release(this);
 	}
 
 	@Override
 	public Object clone() {
-		TextBox copy = new TextBox(mText, mStart, mEnd, mWidth, mHeight, mBoxStyle);
+		TextBox copy = TextBox.obtain(mText, mStart, mEnd, mWidth, mHeight, mBoxStyle, mExtra);
 		copy.copy(this);
 		return copy;
 	}
@@ -68,7 +69,7 @@ public final class TextBox extends Box implements Element, Cloneable {
 				mBoxStyle == textBox.mBoxStyle;
 	}
 
-	private void reset(CharSequence text, int start, int end, float width, float height, @Nullable BoxStyle boxStyle) {
+	private void reset(CharSequence text, int start, int end, float width, float height, @Nullable BoxStyle boxStyle, Object extra) {
 		clearFlag();
 		mText = text;
 		mBoxStyle = boxStyle;
@@ -76,6 +77,7 @@ public final class TextBox extends Box implements Element, Cloneable {
 		mHeight = height;
 		mStart = start;
 		mEnd = end;
+		mExtra = extra;
 	}
 
 	@Hidden
@@ -121,6 +123,10 @@ public final class TextBox extends Box implements Element, Cloneable {
 		}
 
 		TextBox other = (TextBox) box;
+		if (mExtra != other.mExtra) {
+			return false;
+		}
+
 		if (other.mBoxStyle != null && mBoxStyle != null) {
 			return !mBoxStyle.isConflict(other.mBoxStyle);
 		}
@@ -137,8 +143,13 @@ public final class TextBox extends Box implements Element, Cloneable {
 		return String.valueOf(mText.subSequence(mStart, mEnd));
 	}
 
+	@Override
+	public boolean canSpilt() {
+		return true;
+	}
+
 	@Nullable
-	public TextBox[] spilt(float limitWidth) {
+	public TextBox spilt(float limitWidth) {
 		if (limitWidth <= 0) {
 			return null;
 		}
@@ -154,19 +165,29 @@ public final class TextBox extends Box implements Element, Cloneable {
 			return null;
 		}
 
-		TextBox[] boxes = new TextBox[2];
-		boxes[0] = new TextBox(mText, mStart, last, limitWidth, mHeight, mBoxStyle);
-		boxes[1] = new TextBox(mText, last, mEnd, (1 - ratio) * mWidth, mHeight, mBoxStyle);
-		return boxes;
+		TextBox suffix = TextBox.obtain(mText, last, mEnd, (1 - ratio) * mWidth, mHeight, mBoxStyle, mExtra);
+		mEnd = last;
+		mWidth = limitWidth;
+		setFlag(FLAG_SPILT);
+		return suffix;
+	}
+
+	public static void clean() {
+		POOL.clean();
 	}
 
 	public static TextBox obtain(@NonNull CharSequence charSequence, int start, int end,
 								 float width, float height, @Nullable BoxStyle boxStyle) {
+		return obtain(charSequence, start, end, width, height, boxStyle, null);
+	}
+
+	public static TextBox obtain(@NonNull CharSequence charSequence, int start, int end,
+								 float width, float height, @Nullable BoxStyle boxStyle, Object extra) {
 		TextBox box = POOL.acquire();
 		if (box == null) {
-			return new TextBox(charSequence, start, end, width, height, boxStyle);
+			return new TextBox(charSequence, start, end, width, height, boxStyle, extra);
 		}
-		box.reset(charSequence, start, end, width, height, boxStyle);
+		box.reset(charSequence, start, end, width, height, boxStyle, extra);
 		return box;
 	}
 }

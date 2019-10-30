@@ -25,7 +25,7 @@ public class AndroidMeasurer implements Measurer {
 	public void refresh(TextPaint textPaint) {
 		mTextPaint = textPaint;
 		Paint.FontMetrics fontMetrics = mTextPaint.getFontMetrics();
-		mDesiredHeight = fontMetrics.bottom - fontMetrics.top;
+		mDesiredHeight = fontMetrics.descent - fontMetrics.ascent;
 		mFontSpacing = mTextPaint.getFontSpacing();
 	}
 

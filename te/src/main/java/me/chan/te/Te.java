@@ -5,11 +5,13 @@ import android.content.ComponentCallbacks;
 import android.content.res.Configuration;
 
 import me.chan.te.annotations.Hidden;
+import me.chan.te.data.Document;
+import me.chan.te.data.DrawableBox;
+import me.chan.te.data.Figure;
 import me.chan.te.data.Glue;
 import me.chan.te.data.Line;
 import me.chan.te.data.Paragraph;
 import me.chan.te.data.Penalty;
-import me.chan.te.data.Segment;
 import me.chan.te.data.TextBox;
 import me.chan.te.log.Log;
 import me.chan.te.typesetter.BreakPoint;
@@ -45,11 +47,13 @@ public class Te {
 		Line.clean();
 		Paragraph.clean();
 		Penalty.clean();
-		Segment.clean();
 		BreakPoint.clean();
 		Candidate.clean();
 		Node.clean();
 		Sum.clean();
+		Document.clean();
+		Figure.clean();
+		DrawableBox.clean();
 		System.gc();
 	}
 }
