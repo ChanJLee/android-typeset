@@ -25,13 +25,17 @@ public final class TextBox extends Box implements Element, Cloneable {
 		reset(text, start, end, width, height, boxStyle, extra);
 	}
 
-	/**
-	 * @param box other box
-	 */
-	public void copy(@NonNull Box box) {
+	@Override
+	protected void onCopy(@NonNull Box box) {
+		if (!(box instanceof TextBox)) {
+			return;
+		}
+
 		TextBox other = (TextBox) box;
-		reset(other.mText, other.mStart, other.mEnd, other.mWidth, other.mHeight, other.mBoxStyle, other.mExtra);
-		super.copy(box);
+		mText = other.mText;
+		mStart = other.mStart;
+		mEnd = other.mEnd;
+		mBoxStyle = other.mBoxStyle;
 	}
 
 	@Override
@@ -42,7 +46,7 @@ public final class TextBox extends Box implements Element, Cloneable {
 
 	@Override
 	public Object clone() {
-		TextBox copy = new TextBox(mText, mStart, mEnd, mWidth, mHeight, mBoxStyle, mExtra);
+		TextBox copy = TextBox.obtain(mText, mStart, mEnd, mWidth, mHeight, mBoxStyle, mExtra);
 		copy.copy(this);
 		return copy;
 	}

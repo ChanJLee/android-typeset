@@ -11,7 +11,7 @@ public final class Document implements Recyclable {
 	private static final ObjectFactory<Document> POOL = new ObjectFactory<>(8);
 	public final static Document EMPTY = obtain();
 
-	private List<Paragraph> mParagraphs = new ArrayList<>(512);
+	private List<Segment> mSegments = new ArrayList<>(512);
 	private Object mExtra;
 
 	private Document(Object extra) {
@@ -32,20 +32,20 @@ public final class Document implements Recyclable {
 	 *
 	 * @return 段落数目
 	 */
-	public int getParagraphCount() {
-		return mParagraphs.size();
+	public int getCount() {
+		return mSegments.size();
 	}
 
-	public Paragraph getParagraph(int index) {
-		return mParagraphs.get(index);
+	public Segment getSegment(int index) {
+		return mSegments.get(index);
 	}
 
 	@Override
 	public void recycle() {
-		for (Paragraph paragraph : mParagraphs) {
-			paragraph.recycle();
+		for (Segment segment : mSegments) {
+			segment.recycle();
 		}
-		mParagraphs.clear();
+		mSegments.clear();
 		POOL.release(this);
 	}
 
@@ -63,6 +63,6 @@ public final class Document implements Recyclable {
 	}
 
 	public void addParagraph(Paragraph paragraph) {
-		mParagraphs.add(paragraph);
+		mSegments.add(paragraph);
 	}
 }

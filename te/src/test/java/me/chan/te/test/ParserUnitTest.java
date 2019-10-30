@@ -37,13 +37,13 @@ public class ParserUnitTest {
 		Measurer measurer = new MockMeasurer(paint);
 		TextParser textParser = new TextParser();
 		Document document = textParser.parse("hello\n\nworld\n\n", measurer, Hypher.getInstance(), MockOption);
-		assertEquals(document.getParagraphCount(), 2);
+		assertEquals(document.getCount(), 2);
 
 		document = textParser.parse("hello\n\nworld\n", measurer, Hypher.getInstance(), MockOption);
-		assertEquals(document.getParagraphCount(), 2);
+		assertEquals(document.getCount(), 2);
 
 		document = textParser.parse("", measurer, Hypher.getInstance(), MockOption);
-		assertEquals(document.getParagraphCount(), 0);
+		assertEquals(document.getCount(), 0);
 
 		try {
 			textParser.parse(null, measurer, Hypher.getInstance(), MockOption);
@@ -53,10 +53,10 @@ public class ParserUnitTest {
 		}
 
 		document = textParser.parse(" hello", measurer, Hypher.getInstance(), MockOption);
-		assertEquals(document.getParagraphCount(), 1);
+		assertEquals(document.getCount(), 1);
 
 
-		Paragraph paragraph = document.getParagraph(0);
+		Paragraph paragraph = document.getSegment(0);
 		List<? extends Element> list = paragraph.getElements();
 		assertEquals(list.size(), 3);
 
@@ -68,9 +68,9 @@ public class ParserUnitTest {
 		assertEquals("check box content: ", box.toString(), "hello");
 
 		document = textParser.parse(" triangle\n\n\n", measurer, Hypher.getInstance(), MockOption);
-		assertEquals(document.getParagraphCount(), 1);
+		assertEquals(document.getCount(), 1);
 
-		paragraph = document.getParagraph(0);
+		paragraph = document.getSegment(0);
 		list = paragraph.getElements();
 		assertEquals(list.size(), 7);
 
@@ -120,11 +120,11 @@ public class ParserUnitTest {
 			StringBuilder stringBuilder = new StringBuilder();
 			Document document = textParser.parse(line, measurer, Hypher.getInstance(), MockOption);
 			if (contentWithoutBlank.isEmpty()) {
-				Assert.assertEquals(document.getParagraphCount(), 0);
+				Assert.assertEquals(document.getCount(), 0);
 				continue;
 			}
 
-			Paragraph paragraph = document.getParagraph(0);
+			Paragraph paragraph = document.getSegment(0);
 			List<? extends Element> list = paragraph.getElements();
 			for (Element element : list) {
 				if (element instanceof Box) {
@@ -159,8 +159,8 @@ public class ParserUnitTest {
 		long timestamp = System.currentTimeMillis();
 		Document document = textParser.parse(content, measurer, Hypher.getInstance(), MockOption);
 		System.out.println("used time: " + (System.currentTimeMillis() - timestamp));
-		for (int i = 0; i < document.getParagraphCount(); ++i) {
-			for (Element element : document.getParagraph(i).getElements()) {
+		for (int i = 0; i < document.getCount(); ++i) {
+			for (Element element : document.getSegment(i).getElements()) {
 				if (element instanceof Box) {
 					stringBuilder.append(element);
 				}

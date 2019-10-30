@@ -17,6 +17,7 @@ import me.chan.te.config.LineAttributes;
 import me.chan.te.config.Option;
 import me.chan.te.data.Document;
 import me.chan.te.data.Paragraph;
+import me.chan.te.data.Segment;
 import me.chan.te.hypher.Hypher;
 import me.chan.te.log.Log;
 import me.chan.te.measurer.AndroidMeasurer;
@@ -134,7 +135,7 @@ public class TextEngineCore {
 		// parse
 		long timestamp = SystemClock.elapsedRealtime();
 		mDocument = mParser.parse(content, mMeasurer, Hypher.getInstance(), mOption);
-		int size = mDocument.getParagraphCount();
+		int size = mDocument.getCount();
 		i("parse used time: " + (SystemClock.elapsedRealtime() - timestamp) + " paragraphs size: " + size);
 		timestamp = SystemClock.elapsedRealtime();
 
@@ -142,8 +143,10 @@ public class TextEngineCore {
 		final Thread thread = Thread.currentThread();
 		LineAttributes lineAttributes = createLineAttributes(width);
 		for (int i = 0; i < size && !thread.isInterrupted(); ++i) {
-			Paragraph segment = mDocument.getParagraph(i);
-			mTypesetter.typeset(segment, lineAttributes, mBreakStrategy);
+			Segment segment = mDocument.getSegment(i);
+			if (segment instanceof Paragraph) {
+				mTypesetter.typeset((Paragraph) segment, lineAttributes, mBreakStrategy);
+			}
 		}
 
 		i("typeset used time: " + (SystemClock.elapsedRealtime() - timestamp));

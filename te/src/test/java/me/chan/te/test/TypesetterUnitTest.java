@@ -16,7 +16,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.List;
 
 import me.chan.te.config.LineAttributes;
 import me.chan.te.config.Option;
@@ -140,11 +139,11 @@ public class TypesetterUnitTest {
 		CoreTypesetter texTypesetter = new CoreTypesetter();
 		TextParser textParser = new TextParser();
 		Document document = textParser.parse(text, measurer, Hypher.getInstance(), option);
-		assertNotEquals(document.getParagraphCount(), 0);
+		assertNotEquals(document.getCount(), 0);
 
 		StringBuilder stringBuilder = new StringBuilder();
-		for (int i = 0; i < document.getParagraphCount(); ++i) {
-			Paragraph paragraph = document.getParagraph(i);
+		for (int i = 0; i < document.getCount(); ++i) {
+			Paragraph paragraph = document.getSegment(i);
 			texTypesetter.typeset(paragraph, lineAttributes, breakStrategy);
 			assertNotNull(paragraph);
 			assertNotEquals(paragraph.getLineCount(), 0);
