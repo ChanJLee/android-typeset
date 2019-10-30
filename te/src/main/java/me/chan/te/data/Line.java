@@ -10,7 +10,7 @@ import me.chan.te.text.Gravity;
  * 绘制行
  */
 public class Line implements Recyclable {
-	private static final ObjectFactory<Line> POOL = new ObjectFactory<>(6000);
+	private static final ObjectFactory<Line> POOL = new ObjectFactory<>(4096);
 
 	private List<Box> mBoxes = new ArrayList<>(150);
 	private float mLineHeight;

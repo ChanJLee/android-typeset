@@ -6,7 +6,7 @@ import me.chan.te.misc.ObjectFactory;
 
 @Hidden
 public class Node implements Recyclable {
-	private static final ObjectFactory<Node> POOL = new ObjectFactory<>(5000);
+	private static final ObjectFactory<Node> POOL = new ObjectFactory<>(1024);
 
 	private Data mData = new Data();
 
