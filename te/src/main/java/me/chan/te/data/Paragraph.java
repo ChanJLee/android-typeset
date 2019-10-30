@@ -4,7 +4,6 @@ import android.graphics.drawable.Drawable;
 import android.support.annotation.Nullable;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 
 import me.chan.te.annotations.Hidden;
@@ -21,7 +20,7 @@ public class Paragraph implements Recyclable {
 	private static final ObjectFactory<Paragraph> POOL = new ObjectFactory<>(5000);
 
 	private List<Line> mLines = new ArrayList<>(30);
-	private LinkedList<Element> mElements = new LinkedList<>();
+	private List<Element> mElements = new ArrayList<>(5000);
 	private Object mExtra;
 
 	public Paragraph(Object extra) {
@@ -39,15 +38,6 @@ public class Paragraph implements Recyclable {
 
 	public int getLineCount() {
 		return mLines.size();
-	}
-
-	@Override
-	public String toString() {
-		StringBuilder stringBuilder = new StringBuilder();
-		for (Element element : mElements) {
-			stringBuilder.append(element);
-		}
-		return stringBuilder.toString();
 	}
 
 	@Hidden
@@ -195,8 +185,9 @@ public class Paragraph implements Recyclable {
 				throw new IllegalStateException("call newParagraph first");
 			}
 
-			if (!mParagraph.mElements.isEmpty() && mParagraph.mElements.getLast() instanceof Glue) {
-				mParagraph.mElements.removeLast();
+			int elementSize = mParagraph.mElements.size();
+			if (elementSize != 0 && mParagraph.mElements.get(elementSize - 1) instanceof Glue) {
+				mParagraph.mElements.remove(elementSize - 1);
 			}
 
 			mParagraph.mElements.add(Glue.obtain(0, Typesetter.INFINITY, 0));

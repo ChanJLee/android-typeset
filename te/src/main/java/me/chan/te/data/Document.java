@@ -2,7 +2,7 @@ package me.chan.te.data;
 
 import android.support.annotation.Nullable;
 
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
 
 import me.chan.te.misc.ObjectFactory;
@@ -11,7 +11,7 @@ public final class Document implements Recyclable {
 	private static final ObjectFactory<Document> POOL = new ObjectFactory<>(8);
 	public final static Document EMPTY = obtain();
 
-	private List<Paragraph> mParagraphs = new LinkedList<>();
+	private List<Paragraph> mParagraphs = new ArrayList<>(1000);
 	private Object mExtra;
 
 	private Document(Object extra) {

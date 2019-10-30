@@ -182,12 +182,11 @@ class SimpleTypesetter implements Typesetter {
 		}
 
 		Box box = (Box) elements.get(start);
-		Box[] children = box.spilt(width);
-		if (children != null) {
-			children[0].setFlag(Box.FLAG_SPILT);
-			line.add(children[0]);
-			box.copy(children[1]);
-			box = children[0];
+		Box suffix = null;
+		if (box.canSpilt() && (suffix = box.spilt(width)) != null) {
+			List<Element> list = (List<Element>) elements;
+			line.add(box);
+			list.set(start, suffix);
 		} else {
 			line.add(box);
 			++start;

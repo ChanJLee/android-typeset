@@ -274,7 +274,17 @@ public class DataUnitTest {
 	@Test
 	public void testBoxSpilt() {
 		String msg = "hello world";
-		TextBox box = TextBox.obtain(msg, 0, msg.length(), mMockTextPaint.getMockTextSize() * msg.length(), mMockTextPaint.getMockTextHeight(), null);
+		TextBox box = TextBox.obtain(msg, 0, msg.length(), mMockTextPaint.getMockTextSize() * msg.length(), mMockTextPaint.getMockTextHeight(), new BoxStyle() {
+			@Override
+			public void update(TextPaint textPaint) {
+
+			}
+
+			@Override
+			public boolean isConflict(BoxStyle other) {
+				return false;
+			}
+		}, "hah");
 		Assert.assertNotNull(box);
 		Assert.assertFalse(box.isPenalty());
 		Assert.assertFalse(box.isSplit());
@@ -282,25 +292,23 @@ public class DataUnitTest {
 		Assert.assertNull(box.spilt(-1));
 		Assert.assertNull(box.spilt((msg.length() + 1) * mMockTextPaint.getMockTextSize()));
 
-		TextBox[] boxes = box.spilt("hello".length() * mMockTextPaint.getMockTextSize());
-		Assert.assertNotNull(boxes);
-		Assert.assertNotNull(boxes[0]);
-		Assert.assertNotNull(boxes[1]);
+		TextBox suffix = box.spilt("hello".length() * mMockTextPaint.getMockTextSize());
+		Assert.assertNotNull(suffix);
 
-		boxes[0].setFlag(Box.FLAG_SPILT);
-		checkBoxContent(boxes[0], "hello");
-		checkBoxContent(boxes[1], " world");
-		Assert.assertTrue(boxes[0].isSplit());
+		checkBoxContent(box, "hello");
+		checkBoxContent(suffix, " world");
+		Assert.assertTrue(box.isSplit());
+		Assert.assertFalse(suffix.isSplit());
+		Assert.assertEquals(suffix.getHeight(), box.getHeight(), 0);
+		Assert.assertEquals(suffix.getBoxStyle(), box.getBoxStyle());
+		Assert.assertEquals(suffix.getExtra(), box.getExtra());
 
-		Assert.assertEquals(boxes[0].getHeight(), box.getHeight(), 0);
-		Assert.assertEquals(boxes[1].getHeight(), box.getHeight(), 0);
-
-		Box previous = boxes[0];
-		boxes[0].recycle();
+		Box previous = box;
+		box.recycle();
 		msg = "hello";
-		boxes[0] = TextBox.obtain(msg, 0, msg.length(), mMockTextPaint.getMockTextSize() * msg.length(), mMockTextPaint.getMockTextHeight(), null);
-		Assert.assertSame(previous, boxes[0]);
-		Assert.assertFalse(boxes[0].isSplit());
+		box = TextBox.obtain(msg, 0, msg.length(), mMockTextPaint.getMockTextSize() * msg.length(), mMockTextPaint.getMockTextHeight(), null);
+		Assert.assertSame(previous, box);
+		Assert.assertFalse(box.isSplit());
 	}
 
 
@@ -338,7 +346,8 @@ public class DataUnitTest {
 		Assert.assertNotEquals(line.getRatio(), 4, 0);
 
 		line = Line.obtain();
-		boxes = (List<Box>) field.get(line);;
+		boxes = (List<Box>) field.get(line);
+		;
 		Assert.assertNotNull(line);
 		Assert.assertSame(prev, line);
 		Assert.assertTrue(boxes.isEmpty());

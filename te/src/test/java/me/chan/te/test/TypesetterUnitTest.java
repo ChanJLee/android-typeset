@@ -67,6 +67,8 @@ public class TypesetterUnitTest {
 				return rect.bottom - rect.top;
 			}
 		}).when(mRect).height();
+
+		Hypher.getInstance();
 	}
 
 	@Test

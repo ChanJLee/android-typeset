@@ -18,15 +18,10 @@ public final class TextBox extends Box implements Element, Cloneable {
 	private BoxStyle mBoxStyle;
 	private int mStart;
 	private int mEnd;
-	private Object mExtra;
 
 	protected TextBox(@NonNull CharSequence text, int start, int end, float width, float height, @Nullable BoxStyle boxStyle, Object extra) {
-		super(width, height);
+		super(width, height, extra);
 		reset(text, start, end, width, height, boxStyle, extra);
-	}
-
-	public Object getExtra() {
-		return mExtra;
 	}
 
 	/**
@@ -143,8 +138,13 @@ public final class TextBox extends Box implements Element, Cloneable {
 		return String.valueOf(mText.subSequence(mStart, mEnd));
 	}
 
+	@Override
+	public boolean canSpilt() {
+		return true;
+	}
+
 	@Nullable
-	public TextBox[] spilt(float limitWidth) {
+	public TextBox spilt(float limitWidth) {
 		if (limitWidth <= 0) {
 			return null;
 		}
@@ -160,10 +160,11 @@ public final class TextBox extends Box implements Element, Cloneable {
 			return null;
 		}
 
-		TextBox[] boxes = new TextBox[2];
-		boxes[0] = new TextBox(mText, mStart, last, limitWidth, mHeight, mBoxStyle, mExtra);
-		boxes[1] = new TextBox(mText, last, mEnd, (1 - ratio) * mWidth, mHeight, mBoxStyle, mExtra);
-		return boxes;
+		TextBox suffix = TextBox.obtain(mText, last, mEnd, (1 - ratio) * mWidth, mHeight, mBoxStyle, mExtra);
+		mEnd = last;
+		mWidth = limitWidth;
+		setFlag(FLAG_SPILT);
+		return suffix;
 	}
 
 	public static void clean() {
