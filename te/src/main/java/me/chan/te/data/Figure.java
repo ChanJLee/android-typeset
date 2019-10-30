@@ -52,4 +52,8 @@ public class Figure implements Segment, Recyclable {
 		figure.mHeight = height;
 		return figure;
 	}
+
+	public static void clean() {
+		POOL.clean();
+	}
 }

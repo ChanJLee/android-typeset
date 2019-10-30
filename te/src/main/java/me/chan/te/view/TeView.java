@@ -1,11 +1,14 @@
 package me.chan.te.view;
 
 import android.content.Context;
+import android.graphics.Rect;
 import android.graphics.Typeface;
+import android.support.annotation.NonNull;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
 import android.util.TypedValue;
+import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.widget.FrameLayout;
@@ -33,6 +36,13 @@ public class TeView extends FrameLayout {
 		recyclerView.setClipToPadding(false);
 		recyclerView.setClipChildren(false);
 		addView(recyclerView, new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+
+		recyclerView.addItemDecoration(new RecyclerView.ItemDecoration() {
+			@Override
+			public void getItemOffsets(@NonNull Rect outRect, @NonNull View view, @NonNull RecyclerView parent, @NonNull RecyclerView.State state) {
+				outRect.set(0, 0, 0, 50);
+			}
+		});
 
 		recyclerView.setLayoutManager(new LinearLayoutManager(context));
 		mAdapter = new Adapter(context);

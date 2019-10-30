@@ -165,7 +165,10 @@ public class Paragraph implements Recyclable, Segment {
 				throw new IllegalStateException("call newParagraph first");
 			}
 
-			throw new RuntimeException("Stub");
+			List<Element> elements = mParagraph.mElements;
+			elements.add(DrawableBox.obtain(drawable));
+			elements.add(Glue.obtain(mOption.getSpaceWidth(), mOption.getSpaceStretch(), mOption.getSpaceShrink()));
+			return this;
 		}
 
 		public Paragraph build() {

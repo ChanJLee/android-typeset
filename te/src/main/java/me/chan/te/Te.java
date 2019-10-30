@@ -6,6 +6,8 @@ import android.content.res.Configuration;
 
 import me.chan.te.annotations.Hidden;
 import me.chan.te.data.Document;
+import me.chan.te.data.DrawableBox;
+import me.chan.te.data.Figure;
 import me.chan.te.data.Glue;
 import me.chan.te.data.Line;
 import me.chan.te.data.Paragraph;
@@ -50,6 +52,8 @@ public class Te {
 		Node.clean();
 		Sum.clean();
 		Document.clean();
+		Figure.clean();
+		DrawableBox.clean();
 		System.gc();
 	}
 }

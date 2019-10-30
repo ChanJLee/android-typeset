@@ -89,4 +89,8 @@ public class DrawableBox extends Box implements Recyclable {
 		drawableBox.mDrawable = drawable;
 		return drawableBox;
 	}
+
+	public static void clean() {
+		POOL.clean();
+	}
 }
