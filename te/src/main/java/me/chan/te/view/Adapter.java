@@ -14,6 +14,7 @@ import me.chan.te.R;
 import me.chan.te.config.Option;
 import me.chan.te.core.TextEngineCore;
 import me.chan.te.data.Document;
+import me.chan.te.data.Paragraph;
 import me.chan.te.parser.Parser;
 import me.chan.te.source.Source;
 import me.chan.te.text.BreakStrategy;
@@ -62,7 +63,7 @@ public class Adapter extends RecyclerView.Adapter<TexViewHolder> {
 		texViewHolder.mParagraphView.setDebugMode(mDebugMode);
 		Option option = mTextEngineCore.getOption();
 		texViewHolder.mParagraphView.render(
-				mDocument.getParagraph(position),
+				(Paragraph) mDocument.getSegment(position),
 				mTextEngineCore.getTextPaint(),
 				option.getLineSpacing(),
 				option.getIndentWidth());
@@ -91,7 +92,7 @@ public class Adapter extends RecyclerView.Adapter<TexViewHolder> {
 
 	@Override
 	public int getItemCount() {
-		return mDocument == null ? 0 : mDocument.getParagraphCount();
+		return mDocument == null ? 0 : mDocument.getCount();
 	}
 
 	void render(final Source source, final int width) {

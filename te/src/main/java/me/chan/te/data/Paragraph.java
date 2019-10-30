@@ -16,7 +16,7 @@ import me.chan.te.typesetter.Typesetter;
 /**
  * 段落
  */
-public class Paragraph implements Recyclable {
+public class Paragraph implements Recyclable, Segment {
 	private static final ObjectFactory<Paragraph> POOL = new ObjectFactory<>(4096);
 
 	private List<Line> mLines = new ArrayList<>(32);
@@ -158,18 +158,6 @@ public class Paragraph implements Recyclable {
 			mHyphenated.clear();
 			elements.add(Glue.obtain(mOption.getSpaceWidth(), mOption.getSpaceStretch(), mOption.getSpaceShrink()));
 			return this;
-		}
-
-		public Builder image(String url) {
-			return image(url, -1, -1);
-		}
-
-		public Builder image(String url, float width, float height) {
-			if (mParagraph == null) {
-				throw new IllegalStateException("call newParagraph first");
-			}
-
-			throw new RuntimeException("Stub");
 		}
 
 		public Builder drawable(Drawable drawable) {

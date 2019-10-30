@@ -1,7 +1,6 @@
 package me.chan.te.data;
 
 import android.graphics.Canvas;
-import android.support.annotation.CallSuper;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.text.TextPaint;
@@ -44,6 +43,7 @@ public abstract class Box implements Cloneable, Element {
 
 	public abstract Object clone();
 
+	// TODO drawable不能被append
 	@Hidden
 	public abstract void append(Box other);
 
@@ -93,11 +93,13 @@ public abstract class Box implements Cloneable, Element {
 				mExtra == box.mExtra;
 	}
 
-	@CallSuper
-	public void copy(@NonNull Box other) {
+	public final void copy(@NonNull Box other) {
 		this.mFlag = other.mFlag;
 		this.mWidth = other.mWidth;
 		this.mHeight = other.mHeight;
 		this.mExtra = other.mExtra;
+		onCopy(other);
 	}
+
+	protected abstract void onCopy(@NonNull Box other);
 }
