@@ -168,11 +168,11 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 	}
 
 	private void draw(Canvas canvas, Line line, float x, float y, float lineSpace) {
-		List<Box> boxes = line.getBoxes();
 		float spaceWidth = line.getSpaceWidth();
+		int boxSize = line.getCount();
 
-		for (int i = 0; i < boxes.size(); ++i) {
-			Box box = boxes.get(i);
+		for (int i = 0; i < boxSize; ++i) {
+			Box box = line.getBox(i);
 			TextPaint textPaint = getInternalPaint();
 			float width = box.getWidth();
 
@@ -240,14 +240,13 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 			return false;
 		}
 
-		List<Box> boxes = targetLine.getBoxes();
+		int boxSize = targetLine.getCount();
 		float spaceWidth = targetLine.getSpaceWidth();
 
-		int boxSize = boxes.size();
 		float offsetX = getPaddingLeft();
 		Box target = null;
 		for (int i = 0; i < boxSize; ++i) {
-			Box box = boxes.get(i);
+			Box box = targetLine.getBox(i);
 			float width = box.getWidth();
 			float nextOffsetX = offsetX + width;
 			if (offsetX <= x && x <= nextOffsetX) {
@@ -281,12 +280,12 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 			return false;
 		}
 
-		List<Box> boxes = mParagraph.getLine(nextLineNumber).getBoxes();
-		if (boxes == null || boxes.isEmpty()) {
+		Line line = mParagraph.getLine(nextLineNumber);
+		if (line.getCount() == 0) {
 			return false;
 		}
 
-		Box suffix = boxes.get(0);
+		Box suffix = line.getBox(0);
 		mSelectedBox = current;
 		mSelectedSuffix = suffix;
 		if (mOnTextSelectedListener != null) {

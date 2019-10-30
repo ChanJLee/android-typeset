@@ -305,11 +305,14 @@ public class DataUnitTest {
 
 
 	@Test
-	public void testLine() {
+	public void testLine() throws NoSuchFieldException, IllegalAccessException {
 		Line line = Line.obtain();
+		Field field = Line.class.getDeclaredField("mBoxes");
+		field.setAccessible(true);
+		List<Box> boxes = (List<Box>) field.get(line);
 		Assert.assertNotNull(line);
-		Assert.assertNotNull(line.getBoxes());
-		Assert.assertTrue(line.getBoxes().isEmpty());
+		Assert.assertNotNull(boxes);
+		Assert.assertTrue(boxes.isEmpty());
 		line.setSpaceWidth(1);
 		Assert.assertEquals(line.getSpaceWidth(), 1, 0);
 		line.setLineHeight(2);
@@ -321,12 +324,13 @@ public class DataUnitTest {
 		Assert.assertSame(line.getGravity(), Gravity.LEFT);
 		line.setGravity(Gravity.CENTER);
 		Assert.assertSame(line.getGravity(), Gravity.CENTER);
-		line.getBoxes().add(TextBox.obtain("hello", 0, 1, 1, 1, null));
-		Assert.assertFalse(line.getBoxes().isEmpty());
+		boxes.add(TextBox.obtain("hello", 0, 1, 1, 1, null));
+		Assert.assertFalse(boxes.isEmpty());
 
 		Line prev = line;
 		line.recycle();
-		Assert.assertTrue(line.getBoxes().isEmpty());
+		boxes = (List<Box>) field.get(line);
+		Assert.assertTrue(boxes.isEmpty());
 		Assert.assertSame(line.getGravity(), Gravity.LEFT);
 		Assert.assertNotEquals(line.getSpaceWidth(), 1, 0);
 		Assert.assertNotEquals(line.getLineHeight(), 2, 0);
@@ -334,9 +338,10 @@ public class DataUnitTest {
 		Assert.assertNotEquals(line.getRatio(), 4, 0);
 
 		line = Line.obtain();
+		boxes = (List<Box>) field.get(line);;
 		Assert.assertNotNull(line);
 		Assert.assertSame(prev, line);
-		Assert.assertTrue(line.getBoxes().isEmpty());
+		Assert.assertTrue(boxes.isEmpty());
 		Assert.assertSame(line.getGravity(), Gravity.LEFT);
 		Assert.assertNotEquals(line.getSpaceWidth(), 1, 0);
 		Assert.assertNotEquals(line.getLineHeight(), 2, 0);

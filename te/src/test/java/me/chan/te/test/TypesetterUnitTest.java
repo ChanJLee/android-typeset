@@ -149,7 +149,9 @@ public class TypesetterUnitTest {
 
 			for (int j = 0; j < paragraph.getLineCount(); ++j) {
 				Line l = paragraph.getLine(j);
-				for (Box box : l.getBoxes()) {
+
+				for (int x = 0; x < l.getCount(); ++x) {
+					Box box = l.getBox(x);
 					String content = box.toString();
 					if (box.isPenalty()) {
 						Assert.assertEquals(content.charAt(content.length() - 1), '-');

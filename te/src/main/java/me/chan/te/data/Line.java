@@ -40,11 +40,6 @@ public class Line implements Recyclable {
 		return mGravity;
 	}
 
-	// TODO
-	public List<Box> getBoxes() {
-		return mBoxes;
-	}
-
 	public float getLineHeight() {
 		return mLineHeight;
 	}
@@ -106,5 +101,9 @@ public class Line implements Recyclable {
 
 	public float getLineWidth() {
 		return mLineWidth;
+	}
+
+	public Box getBox(int index) {
+		return mBoxes.get(index);
 	}
 }
