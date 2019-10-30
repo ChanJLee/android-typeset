@@ -110,7 +110,7 @@ class SimpleTypesetter implements Typesetter {
 		if (breakStrategy == BreakStrategy.SIMPLE) {
 			line.setSpaceWidth(wordSpaceWidth);
 		} else {
-			int boxSize = line.getBoxes().size();
+			int boxSize = line.getCount();
 			if (boxSize > 1) {
 				line.setSpaceWidth((lineWidth - boxTotalWidth) / (boxSize - 1));
 			}
