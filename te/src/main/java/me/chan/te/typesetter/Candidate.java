@@ -6,7 +6,7 @@ import me.chan.te.misc.ObjectFactory;
 
 @Hidden
 public class Candidate implements Recyclable {
-	private static final ObjectFactory<Candidate> POOL = new ObjectFactory<>(200);
+	private static final ObjectFactory<Candidate> POOL = new ObjectFactory<>(256);
 
 	public float demerits;
 	public Node active;

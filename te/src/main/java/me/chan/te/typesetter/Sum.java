@@ -7,7 +7,7 @@ import me.chan.te.misc.ObjectFactory;
 
 @Hidden
 public class Sum implements Recyclable {
-	private static final ObjectFactory<Sum> POOL = new ObjectFactory<>(2000);
+	private static final ObjectFactory<Sum> POOL = new ObjectFactory<>(1024);
 
 	private float mWidth = 0;
 	private float mStretch = 0;

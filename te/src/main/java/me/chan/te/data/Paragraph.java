@@ -17,10 +17,10 @@ import me.chan.te.typesetter.Typesetter;
  * 段落
  */
 public class Paragraph implements Recyclable {
-	private static final ObjectFactory<Paragraph> POOL = new ObjectFactory<>(5000);
+	private static final ObjectFactory<Paragraph> POOL = new ObjectFactory<>(4096);
 
-	private List<Line> mLines = new ArrayList<>(30);
-	private List<Element> mElements = new ArrayList<>(5000);
+	private List<Line> mLines = new ArrayList<>(32);
+	private List<Element> mElements = new ArrayList<>(512);
 	private Object mExtra;
 
 	public Paragraph(Object extra) {
