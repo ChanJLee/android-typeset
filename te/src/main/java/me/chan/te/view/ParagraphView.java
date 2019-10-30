@@ -39,6 +39,7 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 	private TextPaint mWorkPaint = new TextPaint();
 	private boolean mDebugMode = false;
 	private float mLineSpaceVertical = 0;
+	private float mIntentWidth;
 
 	public ParagraphView(Context context) {
 		super(context);
@@ -55,9 +56,11 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 	// TODO opt
 	void render(@NonNull Paragraph paragraph,
 				@NonNull TextPaint paint,
-				float lineSpaceVertical) {
+				float lineSpaceVertical,
+				float intentWidth) {
 		mParagraph = paragraph;
 		mPaint = paint;
+		mIntentWidth = intentWidth;
 		mLineSpaceVertical = lineSpaceVertical;
 		requestLayout();
 	}
@@ -140,17 +143,23 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 		}
 
 		float y = getPaddingTop();
-		float width = getWidth();
+		float width = getWidth() - getPaddingLeft() - getPaddingRight();
 
 		for (int i = 0; i < lineCount; ++i) {
+			float lineWidth = i == 0 ? width - mIntentWidth : width;
+
 			Line line = mParagraph.getLine(i);
 			y += line.getLineHeight();
 			float x = getPaddingLeft();
+			if (i == 0) {
+				x += mIntentWidth;
+			}
+
 			Gravity gravity = line.getGravity();
 			if (gravity == Gravity.CENTER) {
-				x = (width - line.getLineWidth()) / 2f;
+				x += (lineWidth - line.getLineWidth()) / 2f;
 			} else if (gravity == Gravity.RIGHT) {
-				x = (width - line.getLineWidth());
+				x += (lineWidth - line.getLineWidth());
 			}
 
 			draw(canvas, line, x, y, mLineSpaceVertical);

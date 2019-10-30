@@ -15,6 +15,7 @@ import me.chan.te.data.Paragraph;
 import me.chan.te.data.Penalty;
 import me.chan.te.log.Log;
 import me.chan.te.text.BreakStrategy;
+import me.chan.te.text.Gravity;
 
 class TexTypesetter implements Typesetter {
 	private static final int CLASS_0 = 0;
@@ -108,9 +109,6 @@ class TexTypesetter implements Typesetter {
 
 		List<? extends Element> elements = paragraph.getElements();
 		int lineStart = 0;
-		float lastLineWidth = 0;
-		float lastLineWordSpace = 0;
-		Line lastLine = null;
 		int size = elements.size();
 		for (int i = 1; i < breakPoints.size(); ++i) {
 			BreakPoint breakPoint = breakPoints.get(i);
@@ -130,40 +128,43 @@ class TexTypesetter implements Typesetter {
 
 			int lineNumber = paragraph.getLineCount();
 			LineAttributes.Attribute attribute = lineAttributes.get(lineNumber);
-			lastLineWidth = attribute.getLineWidth();
-			lastLineWordSpace = attribute.getWordSpaceWidth();
-			lastLine = createLine(
+			paragraph.addLine(createLine(
 					elements,
 					lineStart,
 					lineEnd,
 					breakPoint.ratio,
-					lastLineWidth,
-					lastLineWordSpace,
-					i == breakPoints.size() - 1);
-			paragraph.addLine(lastLine);
+					attribute,
+					i == breakPoints.size() - 1));
 			lineStart = pos;
-		}
-
-		if (lastLine == null) {
-			return paragraph;
 		}
 
 		return paragraph;
 	}
 
-	private Line createLine(List<? extends Element> lineElements, int start, int end, float ratio,
-							float lineWidth, float wordSpace, boolean isLastLine) {
+	/**
+	 * @param elements   排版元素
+	 * @param start      开始位置
+	 * @param end        结束位置
+	 * @param ratio      ratio
+	 * @param isLastLine 是否是最后一行
+	 * @return 行
+	 */
+	private Line createLine(List<? extends Element> elements, int start, int end, float ratio,
+							LineAttributes.Attribute attribute, boolean isLastLine) {
+		float lineWidth = attribute.getLineWidth();
+		float expectWordSpace = attribute.getWordSpaceWidth();
+		Gravity gravity = attribute.getGravity();
 		float lineHeight = 0;
 		Line line = Line.obtain();
 		float boxTotalWidth = 0;
 		for (int i = start; i < end; ++i) {
-			Element element = lineElements.get(i);
+			Element element = elements.get(i);
 			if (!(element instanceof Box)) {
 				continue;
 			}
 
-			Box box = (Box) lineElements.get(i);
-			i = mergeBox(box, i + 1, end, lineElements);
+			Box box = (Box) elements.get(i);
+			i = mergeBox(box, i + 1, end, elements);
 
 			if (lineHeight < box.getHeight()) {
 				lineHeight = box.getHeight();
@@ -173,18 +174,20 @@ class TexTypesetter implements Typesetter {
 			line.add(box);
 		}
 
-		int size = line.getBoxes().size();
+		int size = line.getCount();
 		if (size > 1) {
 			line.setSpaceWidth((lineWidth - boxTotalWidth) / (size - 1));
 		} else {
-			line.setSpaceWidth(wordSpace);
+			line.setSpaceWidth(expectWordSpace);
 		}
 
-		if (isLastLine && boxTotalWidth + wordSpace * (size - 1) < lineWidth) {
-			line.setSpaceWidth(wordSpace);
+		if (isLastLine && boxTotalWidth + expectWordSpace * (size - 1) < lineWidth) {
+			line.setSpaceWidth(expectWordSpace);
 		}
 
+		line.setLineWidth(size > 1 ? boxTotalWidth + line.getSpaceWidth() * (size - 1) : boxTotalWidth);
 		line.setLineHeight(lineHeight);
+		line.setGravity(gravity);
 		line.setRatio(ratio);
 
 		return line;

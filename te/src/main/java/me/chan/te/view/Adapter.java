@@ -61,7 +61,11 @@ public class Adapter extends RecyclerView.Adapter<TexViewHolder> {
 	public void onBindViewHolder(@NonNull TexViewHolder texViewHolder, int position) {
 		texViewHolder.mParagraphView.setDebugMode(mDebugMode);
 		Option option = mTextEngineCore.getOption();
-		texViewHolder.mParagraphView.render(mDocument.getParagraph(position), mTextEngineCore.getTextPaint(), option.getLineSpacing());
+		texViewHolder.mParagraphView.render(
+				mDocument.getParagraph(position),
+				mTextEngineCore.getTextPaint(),
+				option.getLineSpacing(),
+				option.getIndentWidth());
 	}
 
 	@Override
