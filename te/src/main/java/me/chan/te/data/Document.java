@@ -8,9 +8,8 @@ import java.util.List;
 import me.chan.te.misc.ObjectFactory;
 
 public final class Document implements Recyclable {
-	public final static Document EMPTY = obtain();
-
 	private static final ObjectFactory<Document> POOL = new ObjectFactory<>(8);
+	public final static Document EMPTY = obtain();
 
 	private List<Paragraph> mParagraphs = new LinkedList<>();
 	private Object mExtra;

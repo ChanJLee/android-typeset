@@ -138,7 +138,8 @@ class TexTypesetter implements Typesetter {
 					lineEnd,
 					breakPoint.ratio,
 					lastLineWidth,
-					lastLineWordSpace);
+					lastLineWordSpace,
+					i == breakPoints.size() - 1);
 			paragraph.addLine(lastLine);
 			lineStart = pos;
 		}
@@ -147,16 +148,11 @@ class TexTypesetter implements Typesetter {
 			return paragraph;
 		}
 
-		int boxCount = lastLine.getBoxes().size();
-		if (lastLine.getBoxTotalWidth() + (boxCount - 1) * lastLineWordSpace <= lastLineWidth) {
-			lastLine.setSpaceWidth(lastLineWordSpace);
-		}
-
 		return paragraph;
 	}
 
 	private Line createLine(List<? extends Element> lineElements, int start, int end, float ratio,
-							float lineWidth, float wordSpace) {
+							float lineWidth, float wordSpace, boolean isLastLine) {
 		float lineHeight = 0;
 		Line line = Line.obtain();
 		float boxTotalWidth = 0;
@@ -184,8 +180,11 @@ class TexTypesetter implements Typesetter {
 			line.setSpaceWidth(wordSpace);
 		}
 
+		if (isLastLine && boxTotalWidth + wordSpace * (size - 1) < lineWidth) {
+			line.setSpaceWidth(wordSpace);
+		}
+
 		line.setLineHeight(lineHeight);
-		line.setBoxTotalWidth(boxTotalWidth);
 		line.setRatio(ratio);
 
 		return line;
