@@ -21,6 +21,7 @@ import java.util.List;
 import me.chan.te.config.LineAttributes;
 import me.chan.te.config.Option;
 import me.chan.te.data.Box;
+import me.chan.te.data.Document;
 import me.chan.te.data.Line;
 import me.chan.te.data.Paragraph;
 import me.chan.te.hypher.Hypher;
@@ -136,17 +137,18 @@ public class TypesetterUnitTest {
 
 		CoreTypesetter texTypesetter = new CoreTypesetter();
 		TextParser textParser = new TextParser();
-		List<Segment> segments = textParser.parse(text, measurer, Hypher.getInstance(), option);
-		assertFalse(segments.isEmpty());
+		Document document = textParser.parse(text, measurer, Hypher.getInstance(), option);
+		assertNotEquals(document.getParagraphCount(), 0);
 
 		StringBuilder stringBuilder = new StringBuilder();
-		for (Segment segment : segments) {
-			Paragraph paragraph = texTypesetter.typeset(segment, lineAttributes, breakStrategy);
+		for (int i = 0; i < document.getParagraphCount(); ++i) {
+			Paragraph paragraph = document.getParagraph(i);
+			texTypesetter.typeset(paragraph, lineAttributes, breakStrategy);
 			assertNotNull(paragraph);
-			assertNotNull(paragraph.getLines());
-			assertFalse(paragraph.getLines().isEmpty());
+			assertNotEquals(paragraph.getLineCount(), 0);
 
-			for (Line l : paragraph.getLines()) {
+			for (int j = 0; j < paragraph.getLineCount(); ++j) {
+				Line l = paragraph.getLine(j);
 				for (Box box : l.getBoxes()) {
 					String content = box.toString();
 					if (box.isPenalty()) {
