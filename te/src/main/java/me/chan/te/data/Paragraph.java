@@ -65,6 +65,7 @@ public class Paragraph implements Recyclable {
 			mElements.get(i).recycle();
 		}
 		mElements.clear();
+		mExtra = null;
 		POOL.release(this);
 	}
 
