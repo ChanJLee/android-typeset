@@ -9,8 +9,6 @@ import android.os.SystemClock;
 import android.text.TextPaint;
 import android.util.TypedValue;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -129,7 +127,9 @@ public class TextEngineCore {
 		mContent = content;
 
 		// recycle memory
-		mDocument.recycle();
+		if (mDocument != null) {
+			mDocument.recycle();
+		}
 
 		// parse
 		long timestamp = SystemClock.elapsedRealtime();

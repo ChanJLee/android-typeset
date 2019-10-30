@@ -36,12 +36,6 @@ class SimpleTypesetter implements Typesetter {
 			return true;
 		}
 
-		Line lastLine = paragraph.getLine(lineCount - 1);
-		List<Box> boxes = lastLine.getBoxes();
-		if (lastLine.getBoxTotalWidth() + (boxes.size() - 1) * lastLineWordSpace <= lastLineWidth) {
-			lastLine.setSpaceWidth(lastLineWordSpace);
-		}
-
 		return true;
 	}
 
@@ -117,9 +111,11 @@ class SimpleTypesetter implements Typesetter {
 			}
 		}
 
-		float spaceWidth = line.getSpaceWidth();
+		if (start == size && (line.getCount() - 1) * wordSpaceWidth < width) {
+			line.setSpaceWidth(wordSpaceWidth);
+		}
 
-		line.setLineWidth(boxTotalWidth + spaceWidth * line.getCount());
+		line.setLineWidth(currentLineWidth);
 		line.setLineHeight(lineHeight);
 		line.setRatio(0);
 		paragraph.addLine(line);
