@@ -85,7 +85,7 @@ public class Paragraph implements Recyclable, Segment {
 	}
 
 	/**
-	 * 需要避免多次
+	 * 需要避免多次创建
 	 */
 	public static class Builder {
 		private static final int MIN_HYPER_LEN = 4;

@@ -5,6 +5,7 @@ import android.content.ComponentCallbacks;
 import android.content.res.Configuration;
 
 import me.chan.te.annotations.Hidden;
+import me.chan.te.text.Background;
 import me.chan.te.text.Document;
 import me.chan.te.data.DrawableBox;
 import me.chan.te.text.Figure;
@@ -14,6 +15,7 @@ import me.chan.te.text.Paragraph;
 import me.chan.te.data.Penalty;
 import me.chan.te.data.TextBox;
 import me.chan.te.log.Log;
+import me.chan.te.text.UnderLine;
 import me.chan.te.typesetter.BreakPoint;
 import me.chan.te.typesetter.Candidate;
 import me.chan.te.typesetter.Node;
@@ -54,6 +56,8 @@ public class Te {
 		Document.clean();
 		Figure.clean();
 		DrawableBox.clean();
+		Background.clean();
+		UnderLine.clean();
 		System.gc();
 	}
 }
