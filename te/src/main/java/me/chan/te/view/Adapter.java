@@ -66,7 +66,8 @@ public class Adapter extends RecyclerView.Adapter<TexViewHolder> {
 				(Paragraph) mDocument.getSegment(position),
 				mTextEngineCore.getTextPaint(),
 				option.getLineSpacing(),
-				option.getIndentWidth());
+				option.getIndentWidth(),
+				mTextEngineCore.getDescent());
 	}
 
 	@Override

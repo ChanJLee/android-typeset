@@ -140,6 +140,8 @@ public class Paragraph implements Recyclable, Segment {
 						mMeasurer.getDesiredWidth(text, start, end),
 						mMeasurer.getDesiredHeight(text, start, end),
 						null,
+						null,
+						null,
 						extra
 				));
 			} else {
@@ -152,6 +154,8 @@ public class Paragraph implements Recyclable, Segment {
 					elements.add(TextBox.obtain(text, start, point,
 							mMeasurer.getDesiredWidth(text, start, point),
 							mMeasurer.getDesiredHeight(text, start, point),
+							null,
+							null,
 							null,
 							extra
 					));

@@ -23,4 +23,9 @@ public class MockMeasurer implements Measurer {
 	public float getLineSpacing() {
 		return 20;
 	}
+
+	@Override
+	public float getDescent() {
+		return 20;
+	}
 }

@@ -12,6 +12,7 @@ public class AndroidMeasurer implements Measurer {
 	private TextPaint mTextPaint;
 	private float mFontSpacing;
 	private float mDesiredHeight;
+	private float mDescent;
 
 	public AndroidMeasurer(TextPaint textPaint) {
 		refresh(textPaint);
@@ -27,6 +28,7 @@ public class AndroidMeasurer implements Measurer {
 		Paint.FontMetrics fontMetrics = mTextPaint.getFontMetrics();
 		mDesiredHeight = fontMetrics.descent - fontMetrics.ascent;
 		mFontSpacing = mTextPaint.getFontSpacing();
+		mDescent = fontMetrics.descent;
 	}
 
 	@Override
@@ -45,5 +47,10 @@ public class AndroidMeasurer implements Measurer {
 	@Override
 	public float getLineSpacing() {
 		return mDesiredHeight;
+	}
+
+	@Override
+	public float getDescent() {
+		return mDescent;
 	}
 }

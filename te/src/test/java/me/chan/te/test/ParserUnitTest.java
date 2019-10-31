@@ -56,7 +56,7 @@ public class ParserUnitTest {
 		assertEquals(document.getCount(), 1);
 
 
-		Paragraph paragraph = document.getSegment(0);
+		Paragraph paragraph = (Paragraph) document.getSegment(0);
 		List<? extends Element> list = paragraph.getElements();
 		assertEquals(list.size(), 3);
 
@@ -70,7 +70,7 @@ public class ParserUnitTest {
 		document = textParser.parse(" triangle\n\n\n", measurer, Hypher.getInstance(), MockOption);
 		assertEquals(document.getCount(), 1);
 
-		paragraph = document.getSegment(0);
+		paragraph = (Paragraph) document.getSegment(0);
 		list = paragraph.getElements();
 		assertEquals(list.size(), 7);
 
@@ -124,7 +124,7 @@ public class ParserUnitTest {
 				continue;
 			}
 
-			Paragraph paragraph = document.getSegment(0);
+			Paragraph paragraph = (Paragraph) document.getSegment(0);
 			List<? extends Element> list = paragraph.getElements();
 			for (Element element : list) {
 				if (element instanceof Box) {
@@ -160,7 +160,8 @@ public class ParserUnitTest {
 		Document document = textParser.parse(content, measurer, Hypher.getInstance(), MockOption);
 		System.out.println("used time: " + (System.currentTimeMillis() - timestamp));
 		for (int i = 0; i < document.getCount(); ++i) {
-			for (Element element : document.getSegment(i).getElements()) {
+			Paragraph paragraph = (Paragraph) document.getSegment(i);
+			for (Element element : paragraph.getElements()) {
 				if (element instanceof Box) {
 					stringBuilder.append(element);
 				}

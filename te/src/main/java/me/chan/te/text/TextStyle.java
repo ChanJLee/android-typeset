@@ -2,7 +2,9 @@ package me.chan.te.text;
 
 import android.text.TextPaint;
 
-public interface TextStyle {
+import me.chan.te.misc.Recyclable;
+
+public interface TextStyle extends Recyclable {
 	/**
 	 * 更新text paint的样式
 	 *
