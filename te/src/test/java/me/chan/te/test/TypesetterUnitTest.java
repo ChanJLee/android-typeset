@@ -20,9 +20,6 @@ import java.io.InputStreamReader;
 import me.chan.te.config.LineAttributes;
 import me.chan.te.config.Option;
 import me.chan.te.data.Box;
-import me.chan.te.data.Document;
-import me.chan.te.data.Line;
-import me.chan.te.data.Paragraph;
 import me.chan.te.hypher.Hypher;
 import me.chan.te.measurer.Measurer;
 import me.chan.te.parser.TextParser;
@@ -30,11 +27,14 @@ import me.chan.te.test.mock.MockMeasurer;
 import me.chan.te.test.mock.MockOption;
 import me.chan.te.test.mock.MockTextPaint;
 import me.chan.te.text.BreakStrategy;
+import me.chan.te.text.Document;
 import me.chan.te.text.Gravity;
+import me.chan.te.text.Line;
+import me.chan.te.text.Paragraph;
+import me.chan.te.text.Segment;
 import me.chan.te.typesetter.CoreTypesetter;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -143,7 +143,12 @@ public class TypesetterUnitTest {
 
 		StringBuilder stringBuilder = new StringBuilder();
 		for (int i = 0; i < document.getCount(); ++i) {
-			Paragraph paragraph = document.getSegment(i);
+			Segment segment = document.getSegment(i);
+			if (!(segment instanceof Paragraph)) {
+				continue;
+			}
+
+			Paragraph paragraph = (Paragraph) segment;
 			texTypesetter.typeset(paragraph, lineAttributes, breakStrategy);
 			assertNotNull(paragraph);
 			assertNotEquals(paragraph.getLineCount(), 0);

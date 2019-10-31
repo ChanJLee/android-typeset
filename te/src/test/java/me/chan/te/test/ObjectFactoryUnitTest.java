@@ -3,7 +3,7 @@ package me.chan.te.test;
 import org.junit.Assert;
 import org.junit.Test;
 
-import me.chan.te.data.Line;
+import me.chan.te.text.Line;
 import me.chan.te.misc.ObjectFactory;
 
 public class ObjectFactoryUnitTest {

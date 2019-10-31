@@ -9,17 +9,15 @@ import org.junit.Test;
 import java.lang.reflect.Field;
 import java.util.List;
 
-import me.chan.te.config.LineAttributes;
 import me.chan.te.data.Box;
-import me.chan.te.data.BoxStyle;
+import me.chan.te.text.TextStyle;
 import me.chan.te.data.Element;
 import me.chan.te.data.Glue;
-import me.chan.te.data.Line;
-import me.chan.te.data.Paragraph;
+import me.chan.te.text.Line;
+import me.chan.te.text.Paragraph;
 import me.chan.te.data.Penalty;
 import me.chan.te.data.TextBox;
 import me.chan.te.hypher.Hypher;
-import me.chan.te.measurer.AndroidMeasurer;
 import me.chan.te.test.mock.MockMeasurer;
 import me.chan.te.test.mock.MockOption;
 import me.chan.te.test.mock.MockTextPaint;
@@ -123,52 +121,52 @@ public class DataUnitTest {
 		Assert.assertFalse(box.isSplit());
 
 		// check content
-		Assert.assertNull(box.getBoxStyle());
+		Assert.assertNull(box.getTextStyle());
 		checkBoxContent(box, msg);
 
-		BoxStyle boxStyle = new BoxStyle() {
+		TextStyle textStyle = new TextStyle() {
 			@Override
 			public void update(TextPaint textPaint) {
 
 			}
 
 			@Override
-			public boolean isConflict(BoxStyle other) {
+			public boolean isConflict(TextStyle other) {
 				return false;
 			}
 		};
 
-		TextBox box2 = TextBox.obtain(msg, 0, msg.length(), mMockTextPaint.getMockTextSize() * msg.length(), mMockTextPaint.getMockTextHeight(), boxStyle, null);
+		TextBox box2 = TextBox.obtain(msg, 0, msg.length(), mMockTextPaint.getMockTextSize() * msg.length(), mMockTextPaint.getMockTextHeight(), textStyle, null);
 		Assert.assertNotNull(box2);
 		Assert.assertNotEquals(box, box2);
-		Assert.assertEquals(box2.getBoxStyle(), boxStyle);
+		Assert.assertEquals(box2.getTextStyle(), textStyle);
 		checkBoxContent(box2, msg);
 
 		TextBox prev = box2;
 		box2.recycle();
-		Assert.assertNull(box2.getBoxStyle());
+		Assert.assertNull(box2.getTextStyle());
 		Assert.assertEquals(box2.getHeight(), -1, 0);
 		Assert.assertEquals(box2.getWidth(), -1, 0);
 
 		msg = "hello";
-		box2 = TextBox.obtain(msg, 0, msg.length(), mMockTextPaint.getMockTextSize() * msg.length(), mMockTextPaint.getMockTextHeight(), boxStyle);
+		box2 = TextBox.obtain(msg, 0, msg.length(), mMockTextPaint.getMockTextSize() * msg.length(), mMockTextPaint.getMockTextHeight(), textStyle);
 		Assert.assertNotNull(box2);
 		Assert.assertSame(prev, box2);
 		checkBoxContent(box2, msg);
 
-		box = TextBox.obtain(msg, 1, msg.length(), mMockTextPaint.getMockTextSize() * (msg.length() - 1), mMockTextPaint.getMockTextHeight(), boxStyle);
+		box = TextBox.obtain(msg, 1, msg.length(), mMockTextPaint.getMockTextSize() * (msg.length() - 1), mMockTextPaint.getMockTextHeight(), textStyle);
 		Assert.assertNotNull(box);
 		checkBoxContent(box, "ello");
 
 		try {
-			TextBox.obtain(msg, -1, msg.length(), 1, 1, boxStyle).toString();
+			TextBox.obtain(msg, -1, msg.length(), 1, 1, textStyle).toString();
 			fail("check illegal index failed");
 		} catch (Exception e) {
 
 		}
 
 		try {
-			TextBox.obtain(msg, 0, msg.length() + 1, 1, 1, boxStyle).toString();
+			TextBox.obtain(msg, 0, msg.length() + 1, 1, 1, textStyle).toString();
 			fail("check illegal index failed");
 		} catch (Exception e) {
 
@@ -274,14 +272,14 @@ public class DataUnitTest {
 	@Test
 	public void testBoxSpilt() {
 		String msg = "hello world";
-		TextBox box = TextBox.obtain(msg, 0, msg.length(), mMockTextPaint.getMockTextSize() * msg.length(), mMockTextPaint.getMockTextHeight(), new BoxStyle() {
+		TextBox box = TextBox.obtain(msg, 0, msg.length(), mMockTextPaint.getMockTextSize() * msg.length(), mMockTextPaint.getMockTextHeight(), new TextStyle() {
 			@Override
 			public void update(TextPaint textPaint) {
 
 			}
 
 			@Override
-			public boolean isConflict(BoxStyle other) {
+			public boolean isConflict(TextStyle other) {
 				return false;
 			}
 		}, "hah");
@@ -300,7 +298,7 @@ public class DataUnitTest {
 		Assert.assertTrue(box.isSplit());
 		Assert.assertFalse(suffix.isSplit());
 		Assert.assertEquals(suffix.getHeight(), box.getHeight(), 0);
-		Assert.assertEquals(suffix.getBoxStyle(), box.getBoxStyle());
+		Assert.assertEquals(suffix.getTextStyle(), box.getTextStyle());
 		Assert.assertEquals(suffix.getExtra(), box.getExtra());
 
 		Box previous = box;
@@ -370,18 +368,6 @@ public class DataUnitTest {
 		try {
 			builder.drawable(null);
 			fail("test drawable failed");
-		} catch (Throwable throwable) {
-		}
-
-		try {
-			builder.image("hello", -1, -1);
-			fail("test image failed");
-		} catch (Throwable throwable) {
-		}
-
-		try {
-			builder.image("hello");
-			fail("test image failed");
 		} catch (Throwable throwable) {
 		}
 

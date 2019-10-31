@@ -3,7 +3,7 @@ package me.chan.te.typesetter;
 import android.support.annotation.Nullable;
 
 import me.chan.te.config.LineAttributes;
-import me.chan.te.data.Paragraph;
+import me.chan.te.text.Paragraph;
 import me.chan.te.log.Log;
 import me.chan.te.text.BreakStrategy;
 

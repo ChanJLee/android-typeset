@@ -1,10 +1,11 @@
-package me.chan.te.data;
+package me.chan.te.text;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import me.chan.te.data.Box;
+import me.chan.te.misc.Recyclable;
 import me.chan.te.misc.ObjectFactory;
-import me.chan.te.text.Gravity;
 
 /**
  * 绘制行

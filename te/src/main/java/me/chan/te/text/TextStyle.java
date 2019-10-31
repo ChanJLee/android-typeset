@@ -1,8 +1,8 @@
-package me.chan.te.data;
+package me.chan.te.text;
 
 import android.text.TextPaint;
 
-public interface BoxStyle {
+public interface TextStyle {
 	/**
 	 * 更新text paint的样式
 	 *
@@ -16,5 +16,5 @@ public interface BoxStyle {
 	 * @param other 另外一个style
 	 * @return 是否和Other元素style冲突，如果不冲突，表示其对应的Box可以被合并
 	 */
-	boolean isConflict(BoxStyle other);
+	boolean isConflict(TextStyle other);
 }

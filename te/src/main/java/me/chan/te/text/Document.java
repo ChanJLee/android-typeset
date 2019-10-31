@@ -1,10 +1,11 @@
-package me.chan.te.data;
+package me.chan.te.text;
 
 import android.support.annotation.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import me.chan.te.misc.Recyclable;
 import me.chan.te.misc.ObjectFactory;
 
 public final class Document implements Recyclable {

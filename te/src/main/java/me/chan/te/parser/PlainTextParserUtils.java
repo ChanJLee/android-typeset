@@ -1,6 +1,6 @@
 package me.chan.te.parser;
 
-import me.chan.te.data.Paragraph;
+import me.chan.te.text.Paragraph;
 
 public class PlainTextParserUtils {
 	public static void parse(CharSequence paragraph, int start, int end, Paragraph.Builder builder) {

@@ -2,7 +2,7 @@ package me.chan.te.typesetter;
 
 import me.chan.te.text.BreakStrategy;
 import me.chan.te.config.LineAttributes;
-import me.chan.te.data.Paragraph;
+import me.chan.te.text.Paragraph;
 
 /**
  * 排版器

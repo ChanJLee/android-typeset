@@ -3,8 +3,8 @@ package me.chan.te.parser;
 import android.support.annotation.NonNull;
 
 import me.chan.te.config.Option;
-import me.chan.te.data.Document;
-import me.chan.te.data.Paragraph;
+import me.chan.te.text.Document;
+import me.chan.te.text.Paragraph;
 import me.chan.te.hypher.Hypher;
 import me.chan.te.measurer.Measurer;
 

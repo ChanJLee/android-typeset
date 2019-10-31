@@ -1,7 +1,7 @@
 package me.chan.te.typesetter;
 
 import me.chan.te.annotations.Hidden;
-import me.chan.te.data.Recyclable;
+import me.chan.te.misc.Recyclable;
 import me.chan.te.misc.ObjectFactory;
 
 @Hidden
