@@ -10,6 +10,7 @@ import java.lang.reflect.Field;
 import java.util.List;
 
 import me.chan.te.data.Box;
+import me.chan.te.text.Background;
 import me.chan.te.text.TextStyle;
 import me.chan.te.data.Element;
 import me.chan.te.data.Glue;
@@ -22,6 +23,7 @@ import me.chan.te.test.mock.MockMeasurer;
 import me.chan.te.test.mock.MockOption;
 import me.chan.te.test.mock.MockTextPaint;
 import me.chan.te.text.Gravity;
+import me.chan.te.text.UnderLine;
 import me.chan.te.typesetter.BreakPoint;
 import me.chan.te.typesetter.Candidate;
 import me.chan.te.typesetter.Node;
@@ -48,13 +50,13 @@ public class DataUnitTest {
 				1, 2), mMockTextPaint.getMockTextSize(), 0);
 
 		try {
-			TextBox.obtain(null, 0, 10, 1, 1, null, null).toString();
+			TextBox.obtain(null, 0, 10, 1, 1, null, null, null, null).toString();
 			fail("obtain null box");
 		} catch (Throwable throwable) {
 		}
 
 		try {
-			TextBox.obtain(null, 1, 1, 1, 1, null, null).toString();
+			TextBox.obtain(null, 1, 1, 1, 1, null, null, null, null).toString();
 			fail("obtain null box");
 		} catch (Throwable throwable) {
 		}
@@ -126,6 +128,11 @@ public class DataUnitTest {
 
 		TextStyle textStyle = new TextStyle() {
 			@Override
+			public void recycle() {
+
+			}
+
+			@Override
 			public void update(TextPaint textPaint) {
 
 			}
@@ -136,7 +143,7 @@ public class DataUnitTest {
 			}
 		};
 
-		TextBox box2 = TextBox.obtain(msg, 0, msg.length(), mMockTextPaint.getMockTextSize() * msg.length(), mMockTextPaint.getMockTextHeight(), textStyle, null);
+		TextBox box2 = TextBox.obtain(msg, 0, msg.length(), mMockTextPaint.getMockTextSize() * msg.length(), mMockTextPaint.getMockTextHeight(), textStyle, Background.obtain(0), UnderLine.obtain(9), null);
 		Assert.assertNotNull(box2);
 		Assert.assertNotEquals(box, box2);
 		Assert.assertEquals(box2.getTextStyle(), textStyle);
@@ -274,6 +281,11 @@ public class DataUnitTest {
 		String msg = "hello world";
 		TextBox box = TextBox.obtain(msg, 0, msg.length(), mMockTextPaint.getMockTextSize() * msg.length(), mMockTextPaint.getMockTextHeight(), new TextStyle() {
 			@Override
+			public void recycle() {
+
+			}
+
+			@Override
 			public void update(TextPaint textPaint) {
 
 			}
@@ -282,7 +294,7 @@ public class DataUnitTest {
 			public boolean isConflict(TextStyle other) {
 				return false;
 			}
-		}, "hah");
+		}, null, null, null);
 		Assert.assertNotNull(box);
 		Assert.assertFalse(box.isPenalty());
 		Assert.assertFalse(box.isSplit());

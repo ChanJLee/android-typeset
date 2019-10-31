@@ -3,7 +3,9 @@ package me.chan.te.text;
 import android.graphics.Canvas;
 import android.text.TextPaint;
 
-public interface Appearance {
+import me.chan.te.misc.Recyclable;
+
+public interface Appearance extends Recyclable {
 	/**
 	 * 检查样式是否冲突
 	 *

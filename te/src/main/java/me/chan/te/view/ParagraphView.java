@@ -15,10 +15,14 @@ import android.view.View;
 
 import me.chan.te.annotations.Hidden;
 import me.chan.te.data.Box;
+import me.chan.te.data.TextBox;
+import me.chan.te.text.Background;
+import me.chan.te.text.Foreground;
 import me.chan.te.text.Line;
 import me.chan.te.text.Paragraph;
 import me.chan.te.log.Log;
 import me.chan.te.text.Gravity;
+import me.chan.te.text.TextStyle;
 
 @Hidden
 public class ParagraphView extends View implements GestureDetector.OnGestureListener {
@@ -28,16 +32,17 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 
 	private Paragraph mParagraph;
 	private TextPaint mPaint;
+	private TextPaint mWorkPaint = new TextPaint();
 	private Paint mDebugPaint;
 	private int mSelectionMode = SELECTION_MODE_NONE;
 	private GestureDetector mGestureDetector = null;
 	private OnTextSelectedListener mOnTextSelectedListener;
 	private Box mSelectedBox;
 	private Box mSelectedSuffix;
-	private TextPaint mWorkPaint = new TextPaint();
 	private boolean mDebugMode = false;
 	private float mLineSpaceVertical = 0;
 	private float mIntentWidth;
+	private float mDescent;
 
 	public ParagraphView(Context context) {
 		super(context);
@@ -55,11 +60,13 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 	void render(@NonNull Paragraph paragraph,
 				@NonNull TextPaint paint,
 				float lineSpaceVertical,
-				float intentWidth) {
+				float intentWidth,
+				float descent) {
 		mParagraph = paragraph;
 		mPaint = paint;
 		mIntentWidth = intentWidth;
 		mLineSpaceVertical = lineSpaceVertical;
+		mDescent = descent;
 		requestLayout();
 	}
 
@@ -171,26 +178,58 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 
 		for (int i = 0; i < boxSize; ++i) {
 			Box box = line.getBox(i);
-			TextPaint textPaint = getInternalPaint();
 			float width = box.getWidth();
 
+			float left = x;
+			float right = (float) Math.ceil(x + width);
+			float top = (float) Math.ceil(y - line.getLineHeight());
+			float bottom = y + mDescent * 1.1f;
+
+
 			if (box == mSelectedBox || box == mSelectedSuffix) {
-				Paint.FontMetrics fontMetrics = textPaint.getFontMetrics();
-				float left = x;
-				float right = (float) Math.ceil(x + width);
-				float top = (float) Math.ceil(y - line.getLineHeight());
-				float bottom = y + fontMetrics.descent * 1.1f;
-				textPaint.setColor(Color.BLUE);
-				canvas.drawRect(left, top, right, bottom, textPaint);
-				textPaint.setColor(Color.WHITE);
+				mWorkPaint.set(mPaint);
+				mWorkPaint.setColor(Color.BLUE);
+				canvas.drawRect(left, top, right, bottom, mWorkPaint);
+				mWorkPaint.setColor(Color.WHITE);
+			} else {
+				if (box instanceof TextBox) {
+					TextBox textBox = (TextBox) box;
+					Background background = textBox.getBackground();
+					if (background != null) {
+						mWorkPaint.set(mPaint);
+						background.draw(canvas, mWorkPaint, left, top, right, bottom);
+					}
+				}
 			}
 
 			if (mDebugMode) {
 				mDebugPaint.setColor(Color.GREEN);
-				canvas.drawRect(x, (float) Math.ceil(y - line.getLineHeight()), (float) Math.ceil(x + width), y, mDebugPaint);
+				canvas.drawRect(x, (float) Math.ceil(y - line.getLineHeight()),
+						(float) Math.ceil(x + width), y, mDebugPaint);
 			}
 
-			box.draw(canvas, textPaint, x, y);
+			mWorkPaint.set(mPaint);
+
+			if (box instanceof TextBox) {
+				TextBox textBox = (TextBox) box;
+				TextStyle textStyle = textBox.getTextStyle();
+
+				if (textStyle != null) {
+					textStyle.update(mWorkPaint);
+				}
+			}
+
+			box.draw(canvas, mWorkPaint, x, y);
+
+			if (box instanceof TextBox) {
+				TextBox textBox = (TextBox) box;
+				Foreground foreground = textBox.getForeground();
+				if (foreground != null) {
+					mWorkPaint.set(mPaint);
+					foreground.draw(canvas, mWorkPaint, left, top, right, bottom);
+				}
+			}
+
 			x += (spaceWidth + width);
 		}
 
@@ -206,12 +245,6 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 			mDebugPaint.setColor(Color.RED);
 			canvas.drawText(debugInfo, startX, startY, mDebugPaint);
 		}
-	}
-
-	private TextPaint getInternalPaint() {
-		TextPaint textPaint = mWorkPaint;
-		textPaint.set(mPaint);
-		return textPaint;
 	}
 
 	private boolean handleClicked(float x, float y) {

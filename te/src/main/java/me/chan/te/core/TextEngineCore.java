@@ -258,6 +258,10 @@ public class TextEngineCore {
 		mTextPaint.setColor(color);
 	}
 
+	public float getDescent() {
+		return mMeasurer.getDescent();
+	}
+
 	private class H extends Handler {
 		public H(Looper mainLooper) {
 			super(mainLooper);
