@@ -13,12 +13,10 @@ import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
 
-import java.util.List;
-
 import me.chan.te.annotations.Hidden;
 import me.chan.te.data.Box;
-import me.chan.te.data.Line;
-import me.chan.te.data.Paragraph;
+import me.chan.te.text.Line;
+import me.chan.te.text.Paragraph;
 import me.chan.te.log.Log;
 import me.chan.te.text.Gravity;
 

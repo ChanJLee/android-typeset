@@ -11,10 +11,10 @@ import java.io.InputStreamReader;
 import java.util.List;
 
 import me.chan.te.data.Box;
-import me.chan.te.data.Document;
+import me.chan.te.text.Document;
 import me.chan.te.data.Element;
 import me.chan.te.data.Glue;
-import me.chan.te.data.Paragraph;
+import me.chan.te.text.Paragraph;
 import me.chan.te.data.Penalty;
 import me.chan.te.data.TextBox;
 import me.chan.te.hypher.Hypher;

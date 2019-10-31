@@ -7,6 +7,7 @@ import android.support.annotation.Nullable;
 import android.text.TextPaint;
 
 import me.chan.te.misc.ObjectFactory;
+import me.chan.te.misc.Recyclable;
 
 public class DrawableBox extends Box implements Recyclable {
 	private static final ObjectFactory<DrawableBox> POOL = new ObjectFactory<>(512);

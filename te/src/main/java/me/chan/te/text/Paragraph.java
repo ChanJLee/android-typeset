@@ -1,4 +1,4 @@
-package me.chan.te.data;
+package me.chan.te.text;
 
 import android.graphics.drawable.Drawable;
 import android.support.annotation.Nullable;
@@ -8,6 +8,12 @@ import java.util.List;
 
 import me.chan.te.annotations.Hidden;
 import me.chan.te.config.Option;
+import me.chan.te.data.DrawableBox;
+import me.chan.te.data.Element;
+import me.chan.te.data.Glue;
+import me.chan.te.data.Penalty;
+import me.chan.te.misc.Recyclable;
+import me.chan.te.data.TextBox;
 import me.chan.te.hypher.Hypher;
 import me.chan.te.measurer.Measurer;
 import me.chan.te.misc.ObjectFactory;

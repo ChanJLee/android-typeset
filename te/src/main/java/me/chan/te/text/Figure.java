@@ -1,5 +1,6 @@
-package me.chan.te.data;
+package me.chan.te.text;
 
+import me.chan.te.misc.Recyclable;
 import me.chan.te.misc.ObjectFactory;
 
 /**
@@ -12,11 +13,13 @@ public class Figure implements Segment, Recyclable {
 
 	private int mWidth;
 	private int mHeight;
+	private Object mExtra;
 
-	private Figure(String url, int width, int height) {
+	private Figure(String url, int width, int height, Object extra) {
 		mUrl = url;
 		mWidth = width;
 		mHeight = height;
+		mExtra = extra;
 	}
 
 	public String getUrl() {
@@ -39,17 +42,18 @@ public class Figure implements Segment, Recyclable {
 	}
 
 	public static Figure obtain(String url) {
-		return obtain(url, -1, -1);
+		return obtain(url, -1, -1, null);
 	}
 
-	public static Figure obtain(String url, int width, int height) {
+	public static Figure obtain(String url, int width, int height, Object extra) {
 		Figure figure = POOL.acquire();
 		if (figure == null) {
-			return new Figure(url, width, height);
+			return new Figure(url, width, height, extra);
 		}
 		figure.mUrl = url;
 		figure.mWidth = width;
 		figure.mHeight = height;
+		figure.mExtra = extra;
 		return figure;
 	}
 

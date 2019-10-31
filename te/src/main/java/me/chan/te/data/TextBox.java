@@ -7,6 +7,7 @@ import android.text.TextPaint;
 
 import me.chan.te.annotations.Hidden;
 import me.chan.te.misc.ObjectFactory;
+import me.chan.te.text.TextStyle;
 
 /**
  * 文本元素
@@ -16,13 +17,13 @@ public final class TextBox extends Box implements Element, Cloneable {
 
 	private CharSequence mText;
 	@Nullable
-	private BoxStyle mBoxStyle;
+	private TextStyle mTextStyle;
 	private int mStart;
 	private int mEnd;
 
-	protected TextBox(@NonNull CharSequence text, int start, int end, float width, float height, @Nullable BoxStyle boxStyle, Object extra) {
+	protected TextBox(@NonNull CharSequence text, int start, int end, float width, float height, @Nullable TextStyle textStyle, Object extra) {
 		super(width, height, extra);
-		reset(text, start, end, width, height, boxStyle, extra);
+		reset(text, start, end, width, height, textStyle, extra);
 	}
 
 	@Override
@@ -35,7 +36,7 @@ public final class TextBox extends Box implements Element, Cloneable {
 		mText = other.mText;
 		mStart = other.mStart;
 		mEnd = other.mEnd;
-		mBoxStyle = other.mBoxStyle;
+		mTextStyle = other.mTextStyle;
 	}
 
 	@Override
@@ -46,15 +47,15 @@ public final class TextBox extends Box implements Element, Cloneable {
 
 	@Override
 	public Object clone() {
-		TextBox copy = TextBox.obtain(mText, mStart, mEnd, mWidth, mHeight, mBoxStyle, mExtra);
+		TextBox copy = TextBox.obtain(mText, mStart, mEnd, mWidth, mHeight, mTextStyle, mExtra);
 		copy.copy(this);
 		return copy;
 	}
 
 	@Nullable
 	@Hidden
-	public BoxStyle getBoxStyle() {
-		return mBoxStyle;
+	public TextStyle getTextStyle() {
+		return mTextStyle;
 	}
 
 	@Override
@@ -66,13 +67,13 @@ public final class TextBox extends Box implements Element, Cloneable {
 		return mStart == textBox.mStart &&
 				mEnd == textBox.mEnd &&
 				mText.equals(textBox.mText) &&
-				mBoxStyle == textBox.mBoxStyle;
+				mTextStyle == textBox.mTextStyle;
 	}
 
-	private void reset(CharSequence text, int start, int end, float width, float height, @Nullable BoxStyle boxStyle, Object extra) {
+	private void reset(CharSequence text, int start, int end, float width, float height, @Nullable TextStyle textStyle, Object extra) {
 		clearFlag();
 		mText = text;
-		mBoxStyle = boxStyle;
+		mTextStyle = textStyle;
 		mWidth = width;
 		mHeight = height;
 		mStart = start;
@@ -111,8 +112,8 @@ public final class TextBox extends Box implements Element, Cloneable {
 	}
 
 	private void updateTextPaint(TextPaint textPaint) {
-		if (mBoxStyle != null) {
-			mBoxStyle.update(textPaint);
+		if (mTextStyle != null) {
+			mTextStyle.update(textPaint);
 		}
 	}
 
@@ -127,8 +128,8 @@ public final class TextBox extends Box implements Element, Cloneable {
 			return false;
 		}
 
-		if (other.mBoxStyle != null && mBoxStyle != null) {
-			return !mBoxStyle.isConflict(other.mBoxStyle);
+		if (other.mTextStyle != null && mTextStyle != null) {
+			return !mTextStyle.isConflict(other.mTextStyle);
 		}
 		return true;
 	}
@@ -165,7 +166,7 @@ public final class TextBox extends Box implements Element, Cloneable {
 			return null;
 		}
 
-		TextBox suffix = TextBox.obtain(mText, last, mEnd, (1 - ratio) * mWidth, mHeight, mBoxStyle, mExtra);
+		TextBox suffix = TextBox.obtain(mText, last, mEnd, (1 - ratio) * mWidth, mHeight, mTextStyle, mExtra);
 		mEnd = last;
 		mWidth = limitWidth;
 		setFlag(FLAG_SPILT);
@@ -177,17 +178,17 @@ public final class TextBox extends Box implements Element, Cloneable {
 	}
 
 	public static TextBox obtain(@NonNull CharSequence charSequence, int start, int end,
-								 float width, float height, @Nullable BoxStyle boxStyle) {
-		return obtain(charSequence, start, end, width, height, boxStyle, null);
+								 float width, float height, @Nullable TextStyle textStyle) {
+		return obtain(charSequence, start, end, width, height, textStyle, null);
 	}
 
 	public static TextBox obtain(@NonNull CharSequence charSequence, int start, int end,
-								 float width, float height, @Nullable BoxStyle boxStyle, Object extra) {
+								 float width, float height, @Nullable TextStyle textStyle, Object extra) {
 		TextBox box = POOL.acquire();
 		if (box == null) {
-			return new TextBox(charSequence, start, end, width, height, boxStyle, extra);
+			return new TextBox(charSequence, start, end, width, height, textStyle, extra);
 		}
-		box.reset(charSequence, start, end, width, height, boxStyle, extra);
+		box.reset(charSequence, start, end, width, height, textStyle, extra);
 		return box;
 	}
 }

@@ -1,4 +1,4 @@
-package me.chan.te.data;
+package me.chan.te.misc;
 
 public interface Recyclable {
 	void recycle();

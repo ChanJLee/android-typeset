@@ -5,12 +5,12 @@ import android.content.ComponentCallbacks;
 import android.content.res.Configuration;
 
 import me.chan.te.annotations.Hidden;
-import me.chan.te.data.Document;
+import me.chan.te.text.Document;
 import me.chan.te.data.DrawableBox;
-import me.chan.te.data.Figure;
+import me.chan.te.text.Figure;
 import me.chan.te.data.Glue;
-import me.chan.te.data.Line;
-import me.chan.te.data.Paragraph;
+import me.chan.te.text.Line;
+import me.chan.te.text.Paragraph;
 import me.chan.te.data.Penalty;
 import me.chan.te.data.TextBox;
 import me.chan.te.log.Log;
