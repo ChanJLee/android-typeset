@@ -4,20 +4,19 @@ import android.app.Application;
 import android.content.ComponentCallbacks;
 import android.content.res.Configuration;
 
-import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.target.ViewTarget;
 
 import me.chan.te.annotations.Hidden;
-import me.chan.te.text.Background;
-import me.chan.te.text.Document;
 import me.chan.te.data.DrawableBox;
-import me.chan.te.text.Figure;
 import me.chan.te.data.Glue;
-import me.chan.te.text.Line;
-import me.chan.te.text.Paragraph;
 import me.chan.te.data.Penalty;
 import me.chan.te.data.TextBox;
 import me.chan.te.log.Log;
+import me.chan.te.text.Background;
+import me.chan.te.text.Document;
+import me.chan.te.text.Figure;
+import me.chan.te.text.Line;
+import me.chan.te.text.Paragraph;
 import me.chan.te.text.UnderLine;
 import me.chan.te.typesetter.BreakPoint;
 import me.chan.te.typesetter.Candidate;
@@ -37,6 +36,7 @@ public class Te {
 				clean();
 			}
 		});
+
 		try {
 			ViewTarget.setTagId(R.id.me_chan_te_glide);
 		} catch (Exception ignore) {
