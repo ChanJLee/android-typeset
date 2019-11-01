@@ -14,14 +14,14 @@ public class DrawableBox extends Box implements Recyclable {
 
 	private Drawable mDrawable;
 
-	public DrawableBox(@NonNull Drawable drawable, Object extra) {
-		super(drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight(), extra);
+	public DrawableBox(@NonNull Drawable drawable, float width, float height, Object extra) {
+		super(width, height, extra);
 		mDrawable = drawable;
 	}
 
 	@Override
 	public Object clone() {
-		return DrawableBox.obtain(mDrawable, mExtra);
+		return DrawableBox.obtain(mDrawable, getWidth(), getHeight(), getExtra());
 	}
 
 	@Override
@@ -43,6 +43,10 @@ public class DrawableBox extends Box implements Recyclable {
 	public void draw(Canvas canvas, TextPaint paint, float x, float y) {
 		mDrawable.setBounds((int) x, (int) (y - getHeight()), (int) (x + getWidth()), (int) y);
 		mDrawable.draw(canvas);
+	}
+
+	public Drawable getDrawable() {
+		return mDrawable;
 	}
 
 	@Override
@@ -74,19 +78,21 @@ public class DrawableBox extends Box implements Recyclable {
 	@Override
 	public void recycle() {
 		mDrawable = null;
+		mWidth = -1;
+		mHeight = -1;
+		mExtra = null;
+		clearFlag();
 		POOL.release(this);
 	}
 
-	public static DrawableBox obtain(Drawable drawable) {
-		return obtain(drawable, null);
-	}
-
-	public static DrawableBox obtain(Drawable drawable, Object extra) {
+	public static DrawableBox obtain(Drawable drawable, float width, float height, Object extra) {
 		DrawableBox drawableBox = POOL.acquire();
 		if (drawableBox == null) {
-			return new DrawableBox(drawable, extra);
+			return new DrawableBox(drawable, width, height, extra);
 		}
-		drawableBox.mExtra = drawable;
+		drawableBox.mWidth = width;
+		drawableBox.mHeight = height;
+		drawableBox.mExtra = extra;
 		drawableBox.mDrawable = drawable;
 		return drawableBox;
 	}

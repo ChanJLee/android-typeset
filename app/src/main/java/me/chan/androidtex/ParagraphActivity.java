@@ -12,7 +12,7 @@ import android.widget.RadioGroup;
 import java.io.IOException;
 
 import me.chan.te.Te;
-import me.chan.te.parser.BayReaderParser;
+import me.chan.te.parser.BookParser;
 import me.chan.te.parser.TextParser;
 import me.chan.te.source.AssetsSource;
 import me.chan.te.text.BreakStrategy;
@@ -53,7 +53,7 @@ public class ParagraphActivity extends AppCompatActivity {
 			}
 		});
 
-		teView.setParser(new BayReaderParser());
+		teView.setParser(new BookParser(this));
 		try {
 			teView.setSource(new AssetsSource(this, "bay.xml"));
 		} catch (IOException e) {

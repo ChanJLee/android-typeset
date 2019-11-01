@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="me_chan_te_flag_width">13.8dp</dimen>
+    <dimen name="me_chan_te_flag_height">14dp</dimen>
+</resources>
