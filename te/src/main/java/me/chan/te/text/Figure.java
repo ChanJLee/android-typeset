@@ -11,26 +11,30 @@ public class Figure implements Segment, Recyclable {
 
 	private String mUrl;
 
-	private int mWidth;
-	private int mHeight;
+	private float mWidth;
+	private float mHeight;
 	private Object mExtra;
 
-	private Figure(String url, int width, int height, Object extra) {
+	private Figure(String url, float width, float height, Object extra) {
 		mUrl = url;
 		mWidth = width;
 		mHeight = height;
 		mExtra = extra;
 	}
 
+	public Object getExtra() {
+		return mExtra;
+	}
+
 	public String getUrl() {
 		return mUrl;
 	}
 
-	public int getWidth() {
+	public float getWidth() {
 		return mWidth;
 	}
 
-	public int getHeight() {
+	public float getHeight() {
 		return mHeight;
 	}
 
@@ -38,6 +42,7 @@ public class Figure implements Segment, Recyclable {
 	public void recycle() {
 		mWidth = mHeight = -1;
 		mUrl = null;
+		mExtra = null;
 		POOL.release(this);
 	}
 
@@ -45,7 +50,7 @@ public class Figure implements Segment, Recyclable {
 		return obtain(url, -1, -1, null);
 	}
 
-	public static Figure obtain(String url, int width, int height, Object extra) {
+	public static Figure obtain(String url, float width, float height, Object extra) {
 		Figure figure = POOL.acquire();
 		if (figure == null) {
 			return new Figure(url, width, height, extra);

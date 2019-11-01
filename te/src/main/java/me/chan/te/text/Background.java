@@ -22,10 +22,6 @@ public class Background implements Appearance, Recyclable {
 		return mColor;
 	}
 
-	public void setColor(int color) {
-		mColor = color;
-	}
-
 	@Override
 	public boolean isConflict(Appearance other) {
 		return !equals(other);
