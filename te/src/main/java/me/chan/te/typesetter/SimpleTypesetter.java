@@ -14,7 +14,7 @@ import me.chan.te.data.Penalty;
 import me.chan.te.text.BreakStrategy;
 import me.chan.te.text.Gravity;
 
-class SimpleTypesetter implements Typesetter {
+class SimpleTypesetter extends Typesetter {
 
 	@NonNull
 	public boolean typeset(Paragraph paragraph,

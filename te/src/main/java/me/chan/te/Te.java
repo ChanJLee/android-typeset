@@ -4,6 +4,9 @@ import android.app.Application;
 import android.content.ComponentCallbacks;
 import android.content.res.Configuration;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.target.ViewTarget;
+
 import me.chan.te.annotations.Hidden;
 import me.chan.te.text.Background;
 import me.chan.te.text.Document;
@@ -34,6 +37,10 @@ public class Te {
 				clean();
 			}
 		});
+		try {
+			ViewTarget.setTagId(R.id.me_chan_te_glide);
+		} catch (Exception ignore) {
+		}
 	}
 
 	/**

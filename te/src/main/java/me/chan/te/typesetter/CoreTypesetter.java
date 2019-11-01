@@ -7,7 +7,7 @@ import me.chan.te.text.Paragraph;
 import me.chan.te.log.Log;
 import me.chan.te.text.BreakStrategy;
 
-public class CoreTypesetter implements Typesetter {
+public class CoreTypesetter extends Typesetter {
 	private Typesetter mTexTypesetter;
 	private Typesetter mSimpleTypesetter;
 

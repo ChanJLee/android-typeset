@@ -17,7 +17,7 @@ import me.chan.te.log.Log;
 import me.chan.te.text.BreakStrategy;
 import me.chan.te.text.Gravity;
 
-class TexTypesetter implements Typesetter {
+class TexTypesetter extends Typesetter {
 	private static final int CLASS_0 = 0;
 	private static final int CLASS_1 = 1;
 	private static final int CLASS_2 = 2;
