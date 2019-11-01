@@ -3,13 +3,14 @@ package me.chan.te.parser;
 import android.support.annotation.NonNull;
 
 import me.chan.te.config.Option;
+import me.chan.te.parser.utils.PlainTextParserUtils;
 import me.chan.te.text.Document;
 import me.chan.te.text.Paragraph;
 import me.chan.te.hypher.Hypher;
 import me.chan.te.measurer.Measurer;
 
-import static me.chan.te.parser.PlainTextParserUtils.findNewline;
-import static me.chan.te.parser.PlainTextParserUtils.skipBlank;
+import static me.chan.te.parser.utils.PlainTextParserUtils.findNewline;
+import static me.chan.te.parser.utils.PlainTextParserUtils.skipBlank;
 
 public class TextParser implements Parser {
 	@Override
