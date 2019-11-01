@@ -18,6 +18,7 @@ import me.chan.te.R;
 import me.chan.te.config.Option;
 import me.chan.te.hypher.Hypher;
 import me.chan.te.measurer.Measurer;
+import me.chan.te.parser.utils.PlainTextParserUtils;
 import me.chan.te.text.Document;
 import me.chan.te.text.Figure;
 import me.chan.te.text.Paragraph;

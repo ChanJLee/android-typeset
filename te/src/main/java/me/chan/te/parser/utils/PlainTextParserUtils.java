@@ -1,4 +1,4 @@
-package me.chan.te.parser;
+package me.chan.te.parser.utils;
 
 import me.chan.te.text.Background;
 import me.chan.te.text.Foreground;
