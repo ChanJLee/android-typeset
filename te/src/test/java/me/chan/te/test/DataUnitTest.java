@@ -1,5 +1,6 @@
 package me.chan.te.test;
 
+import android.graphics.drawable.ColorDrawable;
 import android.text.TextPaint;
 
 import org.junit.Assert;
@@ -10,6 +11,7 @@ import java.lang.reflect.Field;
 import java.util.List;
 
 import me.chan.te.data.Box;
+import me.chan.te.data.DrawableBox;
 import me.chan.te.text.Background;
 import me.chan.te.text.Figure;
 import me.chan.te.text.Foreground;
@@ -164,7 +166,7 @@ public class DataUnitTest {
 	public void testFigure() {
 		String extra = "ok";
 		String url = "hello";
-		Figure figure = Figure.obtain(url, 1, 2, extra);
+		Figure figure = Figure.obtain(url, 1, 2);
 		Assert.assertNotNull(figure);
 		Assert.assertSame(figure.getUrl(), url);
 		Assert.assertSame(figure.getExtra(), extra);
@@ -178,7 +180,7 @@ public class DataUnitTest {
 		Assert.assertNotEquals(figure.getWidth(), 1, 0);
 		Assert.assertNotEquals(figure.getHeight(), 2, 0);
 
-		figure =  Figure.obtain(url, 1, 2, extra);
+		figure = Figure.obtain(url, 1, 2);
 		Assert.assertSame(figure, p);
 		Assert.assertNotNull(figure);
 		Assert.assertSame(figure.getUrl(), url);
@@ -524,6 +526,7 @@ public class DataUnitTest {
 
 		builder.newParagraph(hello);
 		Paragraph paragraph = builder.build();
+		Assert.assertTrue(paragraph.isEmpty());
 		Assert.assertNotNull(paragraph);
 		Assert.assertEquals(paragraph.getLineCount(), 0);
 		Assert.assertEquals(paragraph.getElements().size(), 2);
@@ -567,10 +570,22 @@ public class DataUnitTest {
 		builder.newParagraph();
 		builder.text("hello");
 		paragraph = builder.build();
+		Assert.assertFalse(paragraph.isEmpty());
 		Assert.assertNull(paragraph.getExtra());
 		Assert.assertEquals(paragraph.getElements().size(), 3);
 		elements = paragraph.getElements();
 		Assert.assertSame(elements.get(0).getClass(), TextBox.class);
+		Assert.assertSame(elements.get(1).getClass(), Glue.class);
+		Assert.assertSame(elements.get(2).getClass(), Penalty.class);
+
+		builder.newParagraph();
+		builder.drawable(new ColorDrawable(10));
+		paragraph = builder.build();
+		Assert.assertFalse(paragraph.isEmpty());
+		Assert.assertNull(paragraph.getExtra());
+		elements = paragraph.getElements();
+		Assert.assertFalse(elements.isEmpty());
+		Assert.assertSame(elements.get(0).getClass(), DrawableBox.class);
 		Assert.assertSame(elements.get(1).getClass(), Glue.class);
 		Assert.assertSame(elements.get(2).getClass(), Penalty.class);
 	}

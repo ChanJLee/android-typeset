@@ -23,7 +23,7 @@ public class TextParser implements Parser {
 			if (i != last) {
 				builder.newParagraph();
 				PlainTextParserUtils.parse(charSequence, i, last, builder);
-				document.addParagraph(builder.build());
+				document.addSegment(builder.build());
 			}
 			i = skipBlank(charSequence, last, len);
 		}

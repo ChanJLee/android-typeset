@@ -12,6 +12,7 @@ import java.io.StringReader;
 
 import me.chan.te.config.Option;
 import me.chan.te.text.Document;
+import me.chan.te.text.Figure;
 import me.chan.te.text.Paragraph;
 import me.chan.te.hypher.Hypher;
 import me.chan.te.measurer.Measurer;
@@ -54,8 +55,6 @@ public class BayReaderParser implements Parser {
 		String id = parser.getAttributeValue(null, "id");
 		Document document = Document.obtain(id);
 
-		Paragraph.Builder builder = new Paragraph.Builder(measurer, hypher, option);
-
 		while (parser.next() != XmlPullParser.END_TAG) {
 			int eventType = parser.getEventType();
 			if (eventType != XmlPullParser.START_TAG) {
@@ -63,7 +62,7 @@ public class BayReaderParser implements Parser {
 			}
 			String name = parser.getName();
 			if (name.equals("para")) {
-				document.addParagraph(parsePara(parser, builder));
+				parsePara(parser, document, measurer, hypher, option);
 			} else {
 				skip(parser);
 			}
@@ -71,9 +70,12 @@ public class BayReaderParser implements Parser {
 		return document;
 	}
 
-	private Paragraph parsePara(XmlPullParser parser, Paragraph.Builder builder) throws IOException, XmlPullParserException {
+	private void parsePara(XmlPullParser parser, Document document,
+						   Measurer measurer, Hypher hypher, Option option) throws IOException, XmlPullParserException {
 		parser.require(XmlPullParser.START_TAG, null, "para");
 		String id = parser.getAttributeValue(null, "id");
+
+		Paragraph.Builder builder = new Paragraph.Builder(measurer, hypher, option);
 		builder.newParagraph(id);
 
 		while (parser.next() != XmlPullParser.END_TAG) {
@@ -86,7 +88,7 @@ public class BayReaderParser implements Parser {
 			if (TextUtils.equals("sent", name)) {
 				parseSent(parser, builder);
 			} else if (TextUtils.equals("img", name)) {
-				parseImage(parser, builder);
+				parseImage(parser, document);
 			} else if (TextUtils.equals("subtitle", name)) {
 				parseSubtitle(parser, builder);
 			} else {
@@ -94,10 +96,18 @@ public class BayReaderParser implements Parser {
 			}
 		}
 
-		return builder.build();
+		Paragraph paragraph = builder.build();
+		if (!paragraph.isEmpty()) {
+			document.addSegment(paragraph);
+		}
 	}
 
-	private void parseImage(XmlPullParser parser, Paragraph.Builder builder) throws XmlPullParserException, IOException {
+	private void parseImage(XmlPullParser parser, Document document) throws XmlPullParserException, IOException {
+
+		String url = null;
+		float width = -1;
+		float height = -1;
+		String description = null;
 		while (parser.next() != XmlPullParser.END_TAG) {
 			int eventType = parser.getEventType();
 			if (eventType != XmlPullParser.START_TAG) {
@@ -106,19 +116,23 @@ public class BayReaderParser implements Parser {
 
 			String name = parser.getName();
 			if (name.equals("url")) {
-				// TODO
-				safeNextText(parser);
-//				img.setUrl(safeNextText(parser));
+				url = safeNextText(parser);
 				parser.require(XmlPullParser.END_TAG, null, "url");
 			} else if (name.equals("desc")) {
-				// TODO
-				safeNextText(parser);
-//				img.setDesc(String.valueOf(safeNextText(parser)));
+				description = safeNextText(parser);
 				parser.require(XmlPullParser.END_TAG, null, "desc");
 			} else {
 				skip(parser);
 			}
 		}
+
+		if (url == null) {
+			return;
+		}
+
+		Figure figure = Figure.obtain(url, width, height);
+		figure.setDescription(description);
+		document.addSegment(figure);
 	}
 
 	private void parseSubtitle(XmlPullParser parser, Paragraph.Builder builder) throws XmlPullParserException, IOException {

@@ -63,7 +63,7 @@ public final class Document implements Recyclable {
 		return document;
 	}
 
-	public void addParagraph(Paragraph paragraph) {
-		mSegments.add(paragraph);
+	public void addSegment(Segment segment) {
+		mSegments.add(segment);
 	}
 }
