@@ -2,15 +2,45 @@ package me.chan.te.text;
 
 import android.text.TextPaint;
 
-import me.chan.te.misc.Recyclable;
+public abstract class TextStyle {
 
-public interface TextStyle extends Recyclable {
+	public static final TextStyle NONE = new TextStyle() {
+		@Override
+		public void update(TextPaint textPaint) {
+			/* do nothing */
+		}
+	};
+	public static final TextStyle BOLD = new TextStyle() {
+
+		@Override
+		public void update(TextPaint textPaint) {
+			textPaint.setFakeBoldText(true);
+		}
+	};
+	public static final TextStyle ITALIC = new TextStyle() {
+		@Override
+		public void update(TextPaint textPaint) {
+			textPaint.setTextSkewX(-0.25f);
+		}
+	};
+
+	public static final TextStyle BOLD_ITALIC = new TextStyle() {
+		@Override
+		public void update(TextPaint textPaint) {
+			textPaint.setFakeBoldText(true);
+			textPaint.setTextSkewX(-0.25f);
+		}
+	};
+
+	private TextStyle() {
+	}
+
 	/**
 	 * 更新text paint的样式
 	 *
 	 * @param textPaint text paint
 	 */
-	void update(TextPaint textPaint);
+	public abstract void update(TextPaint textPaint);
 
 	/**
 	 * 检查样式是否冲突
@@ -18,5 +48,7 @@ public interface TextStyle extends Recyclable {
 	 * @param other 另外一个style
 	 * @return 是否和Other元素style冲突，如果不冲突，表示其对应的Box可以被合并
 	 */
-	boolean isConflict(TextStyle other);
+	public boolean isConflict(TextStyle other) {
+		return !equals(other);
+	}
 }

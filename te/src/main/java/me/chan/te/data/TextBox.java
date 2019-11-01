@@ -56,10 +56,6 @@ public final class TextBox extends Box implements Element, Cloneable {
 			mForeground.recycle();
 		}
 
-		if (mTextStyle != null) {
-			mTextStyle.recycle();
-		}
-
 		reset(null, -1, -1, -1, -1,
 				null, null, null, null);
 		POOL.release(this);
