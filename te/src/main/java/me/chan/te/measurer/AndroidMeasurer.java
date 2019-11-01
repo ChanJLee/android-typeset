@@ -4,6 +4,8 @@ import android.graphics.Paint;
 import android.text.BoringLayout;
 import android.text.TextPaint;
 
+import me.chan.te.text.TextStyle;
+
 /**
  * android的文本测量器
  */
@@ -13,6 +15,7 @@ public class AndroidMeasurer implements Measurer {
 	private float mFontSpacing;
 	private float mDesiredHeight;
 	private float mDescent;
+	private TextPaint mWorkPaint = new TextPaint();
 
 	public AndroidMeasurer(TextPaint textPaint) {
 		refresh(textPaint);
@@ -32,15 +35,22 @@ public class AndroidMeasurer implements Measurer {
 	}
 
 	@Override
-	public float getDesiredWidth(CharSequence charSequence, int start, int end) {
+	public float getDesiredWidth(CharSequence charSequence, int start, int end, TextStyle textStyle) {
+		TextPaint textPaint = mTextPaint;
+		if (textStyle != null) {
+			textPaint = mWorkPaint;
+			textPaint.set(mTextPaint);
+			textStyle.update(textPaint);
+		}
+
 		// 不能使用 TextPaint getTextBounds
 		// vivo 手机使用这个方法慢的出奇
 		// BoringLayout 是用来测量单行文本的
-		return BoringLayout.getDesiredWidth(charSequence, start, end, mTextPaint);
+		return BoringLayout.getDesiredWidth(charSequence, start, end, textPaint);
 	}
 
 	@Override
-	public float getDesiredHeight(CharSequence charSequence, int start, int end) {
+	public float getDesiredHeight(CharSequence charSequence, int start, int end, TextStyle textStyle) {
 		return mFontSpacing;
 	}
 

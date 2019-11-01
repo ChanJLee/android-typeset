@@ -122,8 +122,8 @@ public class Paragraph implements Recyclable, Segment {
 			int size = mHyphenated.size();
 			if (size == 0 || len < MIN_HYPER_LEN) {
 				elements.add(TextBox.obtain(text, start, end,
-						mMeasurer.getDesiredWidth(text, start, end),
-						mMeasurer.getDesiredHeight(text, start, end),
+						mMeasurer.getDesiredWidth(text, start, end, textStyle),
+						mMeasurer.getDesiredHeight(text, start, end, textStyle),
 						textStyle,
 						background,
 						foreground,
@@ -137,8 +137,8 @@ public class Paragraph implements Recyclable, Segment {
 					}
 
 					elements.add(TextBox.obtain(text, start, point,
-							mMeasurer.getDesiredWidth(text, start, point),
-							mMeasurer.getDesiredHeight(text, start, point),
+							mMeasurer.getDesiredWidth(text, start, point, textStyle),
+							mMeasurer.getDesiredHeight(text, start, point, textStyle),
 							textStyle,
 							background,
 							foreground,

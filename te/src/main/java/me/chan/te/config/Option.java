@@ -26,8 +26,8 @@ public class Option {
 	}
 
 	public void refresh(Measurer measurer) {
-		mHyphenWidth = measurer.getDesiredWidth("-", 0, 1);
-		mHyphenHeight = measurer.getDesiredHeight("-", 0, 1);
+		mHyphenWidth = measurer.getDesiredWidth("-", 0, 1, null);
+		mHyphenHeight = measurer.getDesiredHeight("-", 0, 1, null);
 		mSpaceWidth = mHyphenWidth;
 		mSpaceStretch = mSpaceWidth * 1.1f;
 		mSpaceShrink = mSpaceWidth * 0.9f;
