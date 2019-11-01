@@ -463,22 +463,9 @@ public class DataUnitTest {
 		builder.build();
 
 		Paragraph.Builder p = builder;
-		try {
-			builder.text("dd");
-			fail();
-		} catch (Throwable throwable) {
-			assertFalse(throwable instanceof AssertionError);
-		}
 
 		try {
-			builder.text("dd", 0, 1);
-			fail();
-		} catch (Throwable throwable) {
-			assertFalse(throwable instanceof AssertionError);
-		}
-
-		try {
-			builder.text("dd", 0, 1, null);
+			builder.text("dd", 0, 1, null, null, null, null);
 			fail();
 		} catch (Throwable throwable) {
 			assertFalse(throwable instanceof AssertionError);
@@ -534,7 +521,7 @@ public class DataUnitTest {
 		Assert.assertSame(elements.get(1).getClass(), Penalty.class);
 
 		builder = Paragraph.Builder.newBuilder(new MockMeasurer(mMockTextPaint), Hypher.getInstance(), new MockOption(mMockTextPaint), null);
-		builder.text("hello");
+		builder.text("hello", 0, 1, null, null, null, null);
 		paragraph = builder.build();
 		Assert.assertFalse(paragraph.isEmpty());
 		Assert.assertNull(paragraph.getExtra());

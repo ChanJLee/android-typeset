@@ -110,19 +110,8 @@ public class Paragraph implements Recyclable, Segment {
 		private Builder() {
 		}
 
-		public Builder text(CharSequence text) {
-			return text(text, 0, text.length());
-		}
-
-		public Builder text(CharSequence text, Object extra) {
-			return text(text, 0, text.length(), extra);
-		}
-
-		public Builder text(CharSequence text, int start, int end) {
-			return text(text, start, end, null);
-		}
-
-		public Builder text(CharSequence text, int start, int end, Object extra) {
+		public Builder text(CharSequence text, int start, int end, TextStyle textStyle,
+							Background background, Foreground foreground, Object extra) {
 			if (mParagraph == null) {
 				throw new IllegalStateException("call newParagraph first");
 			}
@@ -135,9 +124,9 @@ public class Paragraph implements Recyclable, Segment {
 				elements.add(TextBox.obtain(text, start, end,
 						mMeasurer.getDesiredWidth(text, start, end),
 						mMeasurer.getDesiredHeight(text, start, end),
-						null,
-						null,
-						null,
+						textStyle,
+						background,
+						foreground,
 						extra
 				));
 			} else {
@@ -150,9 +139,9 @@ public class Paragraph implements Recyclable, Segment {
 					elements.add(TextBox.obtain(text, start, point,
 							mMeasurer.getDesiredWidth(text, start, point),
 							mMeasurer.getDesiredHeight(text, start, point),
-							null,
-							null,
-							null,
+							textStyle,
+							background,
+							foreground,
 							extra
 					));
 					if (j != size - 1 && text.charAt(point - 1) != '-') {
