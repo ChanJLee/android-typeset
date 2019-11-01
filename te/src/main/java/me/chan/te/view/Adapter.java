@@ -8,6 +8,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -224,8 +225,8 @@ public class Adapter extends RecyclerView.Adapter<Adapter.Renderer> {
 		public void render(Figure figure) {
 			float width = figure.getWidth();
 			float height = figure.getHeight();
-			float ratio = width <= 0 || height <= 0 ? Figure.DEFAULT_RATIO : height / width;
-			mIvFigure.setRatio(1 / ratio);
+			mIvFigure.setMaxWidth((int) width);
+			mIvFigure.setMaxHeight((int) height);
 
 			mImageLoader.uri(figure.getUrl())
 					.into(mIvFigure);
