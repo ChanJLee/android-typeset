@@ -1,6 +1,7 @@
 package me.chan.te.test;
 
 import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.text.TextPaint;
 
 import org.junit.Assert;
@@ -461,12 +462,6 @@ public class DataUnitTest {
 		}
 
 		try {
-			builder.drawable(null);
-			fail("test drawable failed");
-		} catch (Throwable throwable) {
-		}
-
-		try {
 			builder.text("hello");
 			fail("test text failed");
 		} catch (Throwable throwable) {
@@ -579,7 +574,7 @@ public class DataUnitTest {
 		Assert.assertSame(elements.get(2).getClass(), Penalty.class);
 
 		builder.newParagraph();
-		builder.drawable(new ColorDrawable(10));
+		builder.drawable(new ColorDrawable(10), 10, 10, null);
 		paragraph = builder.build();
 		Assert.assertFalse(paragraph.isEmpty());
 		Assert.assertNull(paragraph.getExtra());
@@ -588,6 +583,34 @@ public class DataUnitTest {
 		Assert.assertSame(elements.get(0).getClass(), DrawableBox.class);
 		Assert.assertSame(elements.get(1).getClass(), Glue.class);
 		Assert.assertSame(elements.get(2).getClass(), Penalty.class);
+	}
+
+	@Test
+	public void testDrawableBox() {
+		String msg = "hello";
+		Drawable drawable = new ColorDrawable(19);
+		DrawableBox drawableBox = DrawableBox.obtain(drawable, 1, 2, msg);
+		Assert.assertNotNull(msg);
+		Assert.assertSame(drawable, drawableBox.getDrawable());
+		Assert.assertEquals(drawableBox.getWidth(), 1, 0);
+		Assert.assertEquals(drawableBox.getHeight(), 2, 0);
+		Assert.assertSame(drawableBox.getExtra(), msg);
+
+		DrawableBox p = drawableBox;
+		drawableBox.recycle();
+		Assert.assertNotSame(drawable, drawableBox.getDrawable());
+		Assert.assertNotEquals(drawableBox.getWidth(), 1, 0);
+		Assert.assertNotEquals(drawableBox.getHeight(), 2, 0);
+		Assert.assertNotSame(drawableBox.getExtra(), msg);
+
+		drawableBox = DrawableBox.obtain(new ColorDrawable(19), 1, 2, msg);
+		Assert.assertNotNull(msg);
+		Assert.assertNotSame(drawable, drawableBox.getDrawable());
+		Assert.assertEquals(drawableBox.getWidth(), 1, 0);
+		Assert.assertEquals(drawableBox.getHeight(), 2, 0);
+		Assert.assertSame(drawableBox.getExtra(), msg);
+		Assert.assertSame(p, drawableBox);
+
 	}
 
 	private void checkBoxContent(TextBox box, String msg) {

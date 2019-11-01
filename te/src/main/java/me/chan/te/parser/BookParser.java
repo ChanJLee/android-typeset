@@ -1,6 +1,9 @@
 package me.chan.te.parser;
 
+import android.content.Context;
+import android.content.res.Resources;
 import android.support.annotation.NonNull;
+import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
 import android.util.Xml;
 
@@ -10,14 +13,26 @@ import org.xmlpull.v1.XmlPullParserException;
 import java.io.IOException;
 import java.io.StringReader;
 
+import me.chan.te.R;
 import me.chan.te.config.Option;
+import me.chan.te.hypher.Hypher;
+import me.chan.te.measurer.Measurer;
 import me.chan.te.text.Document;
 import me.chan.te.text.Figure;
 import me.chan.te.text.Paragraph;
-import me.chan.te.hypher.Hypher;
-import me.chan.te.measurer.Measurer;
 
-public class BayReaderParser implements Parser {
+public class BookParser implements Parser {
+
+	private Context mContext;
+	private float mFlagWidth;
+	private float mFlagHeight;
+
+	public BookParser(Context context) {
+		mContext = context;
+		Resources resources = context.getResources();
+		mFlagWidth = resources.getDimension(R.dimen.me_chan_te_flag_width);
+		mFlagHeight = resources.getDimension(R.dimen.me_chan_te_flag_height);
+	}
 
 	@NonNull
 	@Override
@@ -70,6 +85,11 @@ public class BayReaderParser implements Parser {
 		return document;
 	}
 
+	private static final int STATE_NONE = 0;
+	private static final int STATE_SENT = 1;
+	private static final int STATE_IMG = 2;
+	private static final int STATE_SUBTITLE = 3;
+
 	private void parsePara(XmlPullParser parser, Document document,
 						   Measurer measurer, Hypher hypher, Option option) throws IOException, XmlPullParserException {
 		parser.require(XmlPullParser.START_TAG, null, "para");
@@ -77,6 +97,7 @@ public class BayReaderParser implements Parser {
 
 		Paragraph.Builder builder = new Paragraph.Builder(measurer, hypher, option);
 		builder.newParagraph(id);
+		int lastState = STATE_NONE;
 
 		while (parser.next() != XmlPullParser.END_TAG) {
 			int eventType = parser.getEventType();
@@ -87,19 +108,24 @@ public class BayReaderParser implements Parser {
 			String name = parser.getName();
 			if (TextUtils.equals("sent", name)) {
 				parseSent(parser, builder);
+				lastState = STATE_SENT;
 			} else if (TextUtils.equals("img", name)) {
 				parseImage(parser, document);
+				lastState = STATE_IMG;
 			} else if (TextUtils.equals("subtitle", name)) {
 				parseSubtitle(parser, builder);
+				lastState = STATE_SUBTITLE;
 			} else {
 				skip(parser);
 			}
 		}
 
-		Paragraph paragraph = builder.build();
-		if (!paragraph.isEmpty()) {
-			document.addSegment(paragraph);
+		if (lastState == STATE_SENT) {
+			builder.drawable(ContextCompat.getDrawable(mContext, R.drawable.me_chan_te_icon_no_note), mFlagWidth, mFlagHeight, null);
 		}
+
+		Paragraph paragraph = builder.build();
+		document.addSegment(paragraph);
 	}
 
 	private void parseImage(XmlPullParser parser, Document document) throws XmlPullParserException, IOException {
@@ -136,6 +162,7 @@ public class BayReaderParser implements Parser {
 	}
 
 	private void parseSubtitle(XmlPullParser parser, Paragraph.Builder builder) throws XmlPullParserException, IOException {
+		// TODO
 		parser.require(XmlPullParser.START_TAG, null, "subtitle");
 		String id = parser.getAttributeValue(null, "id");
 		while (parser.next() != XmlPullParser.END_TAG) {
@@ -152,7 +179,6 @@ public class BayReaderParser implements Parser {
 	}
 
 	private void parseSent(XmlPullParser parser, Paragraph.Builder builder) throws IOException, XmlPullParserException {
-		// TODO add id
 		parser.require(XmlPullParser.START_TAG, null, "sent");
 		String id = parser.getAttributeValue(null, "id");
 		String text = safeNextText(parser) + " ";
