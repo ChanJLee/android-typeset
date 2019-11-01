@@ -14,6 +14,7 @@ import java.util.List;
 import me.chan.te.hypher.Hypher;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 public class HyphenUnitTest {
@@ -78,8 +79,8 @@ public class HyphenUnitTest {
 			result = new ArrayList<>();
 			hyphenate(null, result);
 			Assert.fail("test null string");
-		} catch (Exception e) {
-			/* do nothing */
+		} catch (Throwable e) {
+			assertFalse(e instanceof AssertionError);
 		}
 	}
 

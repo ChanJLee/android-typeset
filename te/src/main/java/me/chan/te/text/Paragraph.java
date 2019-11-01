@@ -12,13 +12,12 @@ import me.chan.te.data.DrawableBox;
 import me.chan.te.data.Element;
 import me.chan.te.data.Glue;
 import me.chan.te.data.Penalty;
-import me.chan.te.misc.Recyclable;
 import me.chan.te.data.TextBox;
 import me.chan.te.hypher.Hypher;
 import me.chan.te.measurer.Measurer;
 import me.chan.te.misc.ObjectFactory;
+import me.chan.te.misc.Recyclable;
 import me.chan.te.typesetter.ParagraphTypesetter;
-import me.chan.te.typesetter.Typesetter;
 
 /**
  * 段落
@@ -97,8 +96,10 @@ public class Paragraph implements Recyclable, Segment {
 	/**
 	 * 需要避免多次创建
 	 */
-	public static class Builder {
+	public static class Builder implements Recyclable {
+		private static final ObjectFactory<Builder> POOL = new ObjectFactory<>(8);
 		private static final int MIN_HYPER_LEN = 4;
+
 		private List<Integer> mHyphenated = new ArrayList<>(10);
 		private Measurer mMeasurer;
 		private Hypher mHypher;
@@ -106,24 +107,7 @@ public class Paragraph implements Recyclable, Segment {
 		private Paragraph mParagraph;
 		private boolean mEmpty = true;
 
-		public Builder(Measurer measurer, Hypher hypher, Option option) {
-			mMeasurer = measurer;
-			mHypher = hypher;
-			mOption = option;
-		}
-
-		// TODO remove
-		public Builder newParagraph() {
-			return newParagraph(null);
-		}
-
-		public Builder newParagraph(Object extra) {
-			if (mParagraph != null) {
-				throw new IllegalStateException("call newParagraph twice");
-			}
-
-			mParagraph = obtain(extra);
-			return this;
+		private Builder() {
 		}
 
 		public Builder text(CharSequence text) {
@@ -196,10 +180,6 @@ public class Paragraph implements Recyclable, Segment {
 		}
 
 		public Paragraph build() {
-			if (mParagraph == null) {
-				throw new IllegalStateException("call newParagraph first");
-			}
-
 			int elementSize = mParagraph.mElements.size();
 			if (elementSize != 0 && mParagraph.mElements.get(elementSize - 1) instanceof Glue) {
 				mParagraph.mElements.remove(elementSize - 1);
@@ -209,9 +189,36 @@ public class Paragraph implements Recyclable, Segment {
 			mParagraph.mElements.add(Penalty.obtain(0, 0, -ParagraphTypesetter.INFINITY, true));
 			mParagraph.mEmpty = mEmpty;
 			Paragraph paragraph = mParagraph;
+			recycle();
+			return paragraph;
+		}
+
+		@Override
+		public void recycle() {
 			mParagraph = null;
 			mEmpty = true;
-			return paragraph;
+			mMeasurer = null;
+			mOption = null;
+			mHypher = null;
+			mHyphenated.clear();
+			POOL.release(this);
+		}
+
+		public static Builder newBuilder(Measurer measurer, Hypher hypher, Option option, Object extra) {
+			Builder builder = POOL.acquire();
+			if (builder == null) {
+				builder = new Builder();
+			}
+
+			builder.mMeasurer = measurer;
+			builder.mHypher = hypher;
+			builder.mOption = option;
+			builder.mParagraph = obtain(extra);
+			return builder;
+		}
+
+		public static void clean() {
+			POOL.clean();
 		}
 	}
 }

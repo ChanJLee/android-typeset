@@ -35,6 +35,7 @@ import me.chan.te.typesetter.Node;
 import me.chan.te.typesetter.Sum;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
@@ -61,12 +62,14 @@ public class DataUnitTest {
 			TextBox.obtain(null, 0, 10, 1, 1, null, null, null, null).toString();
 			fail("obtain null box");
 		} catch (Throwable throwable) {
+			assertFalse(throwable instanceof AssertionError);
 		}
 
 		try {
 			TextBox.obtain(null, 1, 1, 1, 1, null, null, null, null).toString();
 			fail("obtain null box");
 		} catch (Throwable throwable) {
+			assertFalse(throwable instanceof AssertionError);
 		}
 	}
 
@@ -168,6 +171,7 @@ public class DataUnitTest {
 		String extra = "ok";
 		String url = "hello";
 		Figure figure = Figure.obtain(url, 1, 2);
+		figure.setExtra(extra);
 		Assert.assertNotNull(figure);
 		Assert.assertSame(figure.getUrl(), url);
 		Assert.assertSame(figure.getExtra(), extra);
@@ -185,7 +189,7 @@ public class DataUnitTest {
 		Assert.assertSame(figure, p);
 		Assert.assertNotNull(figure);
 		Assert.assertSame(figure.getUrl(), url);
-		Assert.assertSame(figure.getExtra(), extra);
+		Assert.assertNotSame(figure.getExtra(), extra);
 		Assert.assertEquals(figure.getWidth(), 1, 0);
 		Assert.assertEquals(figure.getHeight(), 2, 0);
 	}
@@ -253,15 +257,15 @@ public class DataUnitTest {
 		try {
 			TextBox.obtain(msg, -1, msg.length(), 1, 1, textStyle).toString();
 			fail("check illegal index failed");
-		} catch (Exception e) {
-
+		} catch (Throwable e) {
+			assertFalse(e instanceof AssertionError);
 		}
 
 		try {
 			TextBox.obtain(msg, 0, msg.length() + 1, 1, 1, textStyle).toString();
 			fail("check illegal index failed");
-		} catch (Exception e) {
-
+		} catch (Throwable e) {
+			assertFalse(e instanceof AssertionError);
 		}
 	}
 
@@ -454,72 +458,40 @@ public class DataUnitTest {
 
 	@Test
 	public void testParagraphBuilder() {
-		Paragraph.Builder builder = new Paragraph.Builder(new MockMeasurer(mMockTextPaint), Hypher.getInstance(), new MockOption(mMockTextPaint));
+		Paragraph.Builder builder = Paragraph.Builder.newBuilder(new MockMeasurer(mMockTextPaint), Hypher.getInstance(), new MockOption(mMockTextPaint), null);
+		builder.drawable(new ColorDrawable(10), 1, 2, null);
+		builder.build();
+
+		Paragraph.Builder p = builder;
 		try {
-			builder.build();
-			fail("test build failed");
+			builder.text("dd");
+			fail();
 		} catch (Throwable throwable) {
+			assertFalse(throwable instanceof AssertionError);
 		}
 
 		try {
-			builder.text("hello");
-			fail("test text failed");
+			builder.text("dd", 0, 1);
+			fail();
 		} catch (Throwable throwable) {
+			assertFalse(throwable instanceof AssertionError);
 		}
 
 		try {
-			builder.text("hello", null);
-			fail("test text failed");
+			builder.text("dd", 0, 1, null);
+			fail();
 		} catch (Throwable throwable) {
+			assertFalse(throwable instanceof AssertionError);
 		}
 
-		try {
-			builder.text("hello", 0, 1);
-			fail("test text failed");
-		} catch (Throwable throwable) {
-		}
-
-		try {
-			builder.text("hello", 0, 1, null);
-			fail("test text failed");
-		} catch (Throwable throwable) {
-		}
-
-		try {
-			builder.newParagraph();
-			builder.newParagraph();
-			fail("test newParagraph failed");
-		} catch (Throwable throwable) {
-		}
-
-		try {
-			builder.newParagraph(null);
-			builder.newParagraph(null);
-			fail("test newParagraph failed");
-		} catch (Throwable throwable) {
-		}
-
-		try {
-			builder.newParagraph();
-			builder.newParagraph(null);
-			fail("test newParagraph failed");
-		} catch (Throwable throwable) {
-		}
-
-		try {
-			builder.newParagraph(null);
-			builder.newParagraph();
-			fail("test newParagraph failed");
-		} catch (Throwable throwable) {
-		}
+		builder = Paragraph.Builder.newBuilder(new MockMeasurer(mMockTextPaint), Hypher.getInstance(), new MockOption(mMockTextPaint), null);
+		Assert.assertSame(builder, p);
 	}
 
 	@Test
 	public void testParagraph() throws NoSuchFieldException, IllegalAccessException {
-		Paragraph.Builder builder = new Paragraph.Builder(new MockMeasurer(mMockTextPaint), Hypher.getInstance(), new MockOption(mMockTextPaint));
 		String hello = "hello";
-
-		builder.newParagraph(hello);
+		Paragraph.Builder builder = Paragraph.Builder.newBuilder(new MockMeasurer(mMockTextPaint), Hypher.getInstance(), new MockOption(mMockTextPaint), hello);
 		Paragraph paragraph = builder.build();
 		Assert.assertTrue(paragraph.isEmpty());
 		Assert.assertNotNull(paragraph);
@@ -547,7 +519,7 @@ public class DataUnitTest {
 		Assert.assertNotNull(lines);
 		Assert.assertTrue(lines.isEmpty());
 
-		builder.newParagraph(hello);
+		builder = Paragraph.Builder.newBuilder(new MockMeasurer(mMockTextPaint), Hypher.getInstance(), new MockOption(mMockTextPaint), hello);
 		paragraph = builder.build();
 		Assert.assertSame(paragraph, prev);
 		Assert.assertNotNull(paragraph);
@@ -561,8 +533,7 @@ public class DataUnitTest {
 		Assert.assertSame(elements.get(0).getClass(), Glue.class);
 		Assert.assertSame(elements.get(1).getClass(), Penalty.class);
 
-		// TODO test image
-		builder.newParagraph();
+		builder = Paragraph.Builder.newBuilder(new MockMeasurer(mMockTextPaint), Hypher.getInstance(), new MockOption(mMockTextPaint), null);
 		builder.text("hello");
 		paragraph = builder.build();
 		Assert.assertFalse(paragraph.isEmpty());
@@ -573,7 +544,7 @@ public class DataUnitTest {
 		Assert.assertSame(elements.get(1).getClass(), Glue.class);
 		Assert.assertSame(elements.get(2).getClass(), Penalty.class);
 
-		builder.newParagraph();
+		builder = Paragraph.Builder.newBuilder(new MockMeasurer(mMockTextPaint), Hypher.getInstance(), new MockOption(mMockTextPaint), null);
 		builder.drawable(new ColorDrawable(10), 10, 10, null);
 		paragraph = builder.build();
 		Assert.assertFalse(paragraph.isEmpty());

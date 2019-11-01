@@ -32,7 +32,7 @@ import me.chan.te.text.Gravity;
 import me.chan.te.text.Line;
 import me.chan.te.text.Paragraph;
 import me.chan.te.text.Segment;
-import me.chan.te.typesetter.CoreTypesetter;
+import me.chan.te.typesetter.Typesetter;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
@@ -136,7 +136,7 @@ public class TypesetterUnitTest {
 		Assert.assertNotEquals(option.getSpaceStretch(), 0);
 		Assert.assertNotEquals(option.getSpaceWidth(), 0);
 
-		CoreTypesetter texTypesetter = new CoreTypesetter();
+		Typesetter texTypesetter = new Typesetter();
 		TextParser textParser = new TextParser();
 		Document document = textParser.parse(text, measurer, Hypher.getInstance(), option);
 		assertNotEquals(document.getCount(), 0);

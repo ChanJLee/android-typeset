@@ -16,12 +16,11 @@ public class TextParser implements Parser {
 	@NonNull
 	public Document parse(CharSequence charSequence, Measurer measurer, Hypher hypher, Option option) {
 		Document document = Document.obtain();
-		Paragraph.Builder builder = new Paragraph.Builder(measurer, hypher, option);
 		int len = charSequence.length();
 		for (int i = skipBlank(charSequence, 0, len); i < len; ) {
 			int last = findNewline(charSequence, i, len);
 			if (i != last) {
-				builder.newParagraph();
+				Paragraph.Builder builder = Paragraph.Builder.newBuilder(measurer, hypher, option, null);
 				PlainTextParserUtils.parse(charSequence, i, last, builder);
 				document.addSegment(builder.build());
 			}

@@ -25,6 +25,7 @@ import me.chan.te.test.mock.MockOption;
 import me.chan.te.test.mock.MockTextPaint;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 public class ParserUnitTest {
@@ -48,8 +49,8 @@ public class ParserUnitTest {
 		try {
 			textParser.parse(null, measurer, Hypher.getInstance(), MockOption);
 			Assert.fail("test parse null string");
-		} catch (Exception e) {
-			/* do nothing */
+		} catch (Throwable e) {
+			assertFalse(e instanceof AssertionError);
 		}
 
 		document = textParser.parse(" hello", measurer, Hypher.getInstance(), MockOption);
