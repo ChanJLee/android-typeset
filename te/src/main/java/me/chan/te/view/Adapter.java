@@ -5,6 +5,7 @@ import android.graphics.Typeface;
 import android.support.annotation.IdRes;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -231,11 +232,12 @@ public class Adapter extends RecyclerView.Adapter<Adapter.Renderer> {
 			mImageLoader.uri(figure.getUrl())
 					.into(mIvFigure);
 
-			if (figure.getDescription() == null) {
+			String description = figure.getDescription();
+			if (TextUtils.isEmpty(description)) {
 				mTvDesc.setVisibility(View.GONE);
 				return;
 			}
-			mTvDesc.setText(figure.getDescription());
+			mTvDesc.setText(description);
 		}
 	}
 }
