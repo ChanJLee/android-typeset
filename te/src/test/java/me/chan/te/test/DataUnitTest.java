@@ -11,6 +11,8 @@ import java.util.List;
 
 import me.chan.te.data.Box;
 import me.chan.te.text.Background;
+import me.chan.te.text.Figure;
+import me.chan.te.text.Foreground;
 import me.chan.te.text.TextStyle;
 import me.chan.te.data.Element;
 import me.chan.te.data.Glue;
@@ -29,6 +31,9 @@ import me.chan.te.typesetter.Candidate;
 import me.chan.te.typesetter.Node;
 import me.chan.te.typesetter.Sum;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 
 public class DataUnitTest {
@@ -114,6 +119,75 @@ public class DataUnitTest {
 	}
 
 	@Test
+	public void testBackground() {
+		Background background = Background.obtain(10);
+		assertNotNull(background);
+		assertEquals(background.getColor(), 10);
+
+		background.recycle();
+		assertNotEquals(background.getColor(), 10);
+
+		Background p = background;
+		background = Background.obtain(20);
+		Assert.assertNotNull(background);
+		Assert.assertSame(p, background);
+		assertEquals(background.getColor(), 20);
+
+		Assert.assertTrue(background.isConflict(null));
+		Assert.assertTrue(background.isConflict(UnderLine.obtain(0)));
+		Assert.assertFalse(background.isConflict(Background.obtain(20)));
+		Assert.assertTrue(background.isConflict(Background.obtain(10)));
+	}
+
+	@Test
+	public void testForeground() {
+		UnderLine underLine = UnderLine.obtain(10);
+		assertNotNull(underLine);
+		assertEquals(underLine.getColor(), 10);
+
+		underLine.recycle();
+		assertNotEquals(underLine.getColor(), 10);
+
+		UnderLine p = underLine;
+		underLine = UnderLine.obtain(20);
+		Assert.assertNotNull(underLine);
+		Assert.assertSame(p, underLine);
+		assertEquals(underLine.getColor(), 20);
+
+		Assert.assertTrue(underLine.isConflict(null));
+		Assert.assertTrue(underLine.isConflict(Background.obtain(10)));
+		Assert.assertFalse(underLine.isConflict(UnderLine.obtain(20)));
+		Assert.assertTrue(underLine.isConflict(UnderLine.obtain(10)));
+	}
+
+	@Test
+	public void testFigure() {
+		String extra = "ok";
+		String url = "hello";
+		Figure figure = Figure.obtain(url, 1, 2, extra);
+		Assert.assertNotNull(figure);
+		Assert.assertSame(figure.getUrl(), url);
+		Assert.assertSame(figure.getExtra(), extra);
+		Assert.assertEquals(figure.getWidth(), 1, 0);
+		Assert.assertEquals(figure.getHeight(), 2, 0);
+
+		Figure p = figure;
+		figure.recycle();
+		Assert.assertNotSame(figure.getUrl(), url);
+		Assert.assertNotSame(figure.getExtra(), extra);
+		Assert.assertNotEquals(figure.getWidth(), 1, 0);
+		Assert.assertNotEquals(figure.getHeight(), 2, 0);
+
+		figure =  Figure.obtain(url, 1, 2, extra);
+		Assert.assertSame(figure, p);
+		Assert.assertNotNull(figure);
+		Assert.assertSame(figure.getUrl(), url);
+		Assert.assertSame(figure.getExtra(), extra);
+		Assert.assertEquals(figure.getWidth(), 1, 0);
+		Assert.assertEquals(figure.getHeight(), 2, 0);
+	}
+
+	@Test
 	public void testBoxBase() {
 		String msg = "hello world";
 		TextBox box = TextBox.obtain(msg, 0, msg.length(),
@@ -142,11 +216,15 @@ public class DataUnitTest {
 				return false;
 			}
 		};
+		Background background = Background.obtain(10);
+		Foreground foreground = UnderLine.obtain(10);
 
-		TextBox box2 = TextBox.obtain(msg, 0, msg.length(), mMockTextPaint.getMockTextSize() * msg.length(), mMockTextPaint.getMockTextHeight(), textStyle, Background.obtain(0), UnderLine.obtain(9), null);
+		TextBox box2 = TextBox.obtain(msg, 0, msg.length(), mMockTextPaint.getMockTextSize() * msg.length(), mMockTextPaint.getMockTextHeight(), textStyle, background, foreground, null);
 		Assert.assertNotNull(box2);
 		Assert.assertNotEquals(box, box2);
-		Assert.assertEquals(box2.getTextStyle(), textStyle);
+		Assert.assertSame(box2.getTextStyle(), textStyle);
+		Assert.assertSame(background, box2.getBackground());
+		Assert.assertSame(foreground, box2.getForeground());
 		checkBoxContent(box2, msg);
 
 		TextBox prev = box2;
@@ -154,11 +232,15 @@ public class DataUnitTest {
 		Assert.assertNull(box2.getTextStyle());
 		Assert.assertEquals(box2.getHeight(), -1, 0);
 		Assert.assertEquals(box2.getWidth(), -1, 0);
+		Assert.assertNull(box2.getBackground());
+		Assert.assertNull(box2.getForeground());
 
 		msg = "hello";
 		box2 = TextBox.obtain(msg, 0, msg.length(), mMockTextPaint.getMockTextSize() * msg.length(), mMockTextPaint.getMockTextHeight(), textStyle);
 		Assert.assertNotNull(box2);
 		Assert.assertSame(prev, box2);
+		Assert.assertNull(box2.getBackground());
+		Assert.assertNull(box2.getForeground());
 		checkBoxContent(box2, msg);
 
 		box = TextBox.obtain(msg, 1, msg.length(), mMockTextPaint.getMockTextSize() * (msg.length() - 1), mMockTextPaint.getMockTextHeight(), textStyle);
@@ -357,7 +439,6 @@ public class DataUnitTest {
 
 		line = Line.obtain();
 		boxes = (List<Box>) field.get(line);
-		;
 		Assert.assertNotNull(line);
 		Assert.assertSame(prev, line);
 		Assert.assertTrue(boxes.isEmpty());
