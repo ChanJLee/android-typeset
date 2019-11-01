@@ -28,8 +28,13 @@ public class Paragraph implements Recyclable, Segment {
 	private List<Line> mLines = new ArrayList<>(32);
 	private List<Element> mElements = new ArrayList<>(512);
 	private Object mExtra;
+	private boolean mEmpty;
 
 	public Paragraph(Object extra) {
+		mExtra = extra;
+	}
+
+	public void setExtra(Object extra) {
 		mExtra = extra;
 	}
 
@@ -49,6 +54,10 @@ public class Paragraph implements Recyclable, Segment {
 	@Hidden
 	public void addLine(Line line) {
 		mLines.add(line);
+	}
+
+	public boolean isEmpty() {
+		return mEmpty;
 	}
 
 	@Override
@@ -94,6 +103,7 @@ public class Paragraph implements Recyclable, Segment {
 		private Hypher mHypher;
 		private Option mOption;
 		private Paragraph mParagraph;
+		private boolean mEmpty = true;
 
 		public Builder(Measurer measurer, Hypher hypher, Option option) {
 			mMeasurer = measurer;
@@ -101,6 +111,7 @@ public class Paragraph implements Recyclable, Segment {
 			mOption = option;
 		}
 
+		// TODO remove
 		public Builder newParagraph() {
 			return newParagraph(null);
 		}
@@ -167,6 +178,7 @@ public class Paragraph implements Recyclable, Segment {
 			}
 			mHyphenated.clear();
 			elements.add(Glue.obtain(mOption.getSpaceWidth(), mOption.getSpaceStretch(), mOption.getSpaceShrink()));
+			mEmpty = false;
 			return this;
 		}
 
@@ -178,6 +190,7 @@ public class Paragraph implements Recyclable, Segment {
 			List<Element> elements = mParagraph.mElements;
 			elements.add(DrawableBox.obtain(drawable));
 			elements.add(Glue.obtain(mOption.getSpaceWidth(), mOption.getSpaceStretch(), mOption.getSpaceShrink()));
+			mEmpty = false;
 			return this;
 		}
 
@@ -193,8 +206,10 @@ public class Paragraph implements Recyclable, Segment {
 
 			mParagraph.mElements.add(Glue.obtain(0, Typesetter.INFINITY, 0));
 			mParagraph.mElements.add(Penalty.obtain(0, 0, -Typesetter.INFINITY, true));
+			mParagraph.mEmpty = mEmpty;
 			Paragraph paragraph = mParagraph;
 			mParagraph = null;
+			mEmpty = true;
 			return paragraph;
 		}
 	}
