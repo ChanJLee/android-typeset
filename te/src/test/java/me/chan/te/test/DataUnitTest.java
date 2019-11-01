@@ -54,9 +54,9 @@ public class DataUnitTest {
 		String hello = "hello";
 		Assert.assertNotEquals(mockMeasurer.getLineSpacing(), 0);
 		Assert.assertEquals("check measure text", mockMeasurer.getDesiredWidth(hello,
-				0, hello.length()), hello.length() * mMockTextPaint.getMockTextSize(), 0);
+				0, hello.length(), TextStyle.NONE), hello.length() * mMockTextPaint.getMockTextSize(), 0);
 		Assert.assertEquals("check measure text", mockMeasurer.getDesiredWidth(hello,
-				1, 2), mMockTextPaint.getMockTextSize(), 0);
+				1, 2, TextStyle.NONE), mMockTextPaint.getMockTextSize(), 0);
 
 		try {
 			TextBox.obtain(null, 0, 10, 1, 1, null, null, null, null).toString();
@@ -207,22 +207,7 @@ public class DataUnitTest {
 		Assert.assertNull(box.getTextStyle());
 		checkBoxContent(box, msg);
 
-		TextStyle textStyle = new TextStyle() {
-			@Override
-			public void recycle() {
-
-			}
-
-			@Override
-			public void update(TextPaint textPaint) {
-
-			}
-
-			@Override
-			public boolean isConflict(TextStyle other) {
-				return false;
-			}
-		};
+		TextStyle textStyle = TextStyle.NONE;
 		Background background = Background.obtain(10);
 		Foreground foreground = UnderLine.obtain(10);
 
@@ -368,22 +353,7 @@ public class DataUnitTest {
 	@Test
 	public void testBoxSpilt() {
 		String msg = "hello world";
-		TextBox box = TextBox.obtain(msg, 0, msg.length(), mMockTextPaint.getMockTextSize() * msg.length(), mMockTextPaint.getMockTextHeight(), new TextStyle() {
-			@Override
-			public void recycle() {
-
-			}
-
-			@Override
-			public void update(TextPaint textPaint) {
-
-			}
-
-			@Override
-			public boolean isConflict(TextStyle other) {
-				return false;
-			}
-		}, null, null, null);
+		TextBox box = TextBox.obtain(msg, 0, msg.length(), mMockTextPaint.getMockTextSize() * msg.length(), mMockTextPaint.getMockTextHeight(), TextStyle.NONE, null, null, null);
 		Assert.assertNotNull(box);
 		Assert.assertFalse(box.isPenalty());
 		Assert.assertFalse(box.isSplit());
