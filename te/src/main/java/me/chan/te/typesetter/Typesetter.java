@@ -43,6 +43,10 @@ public class Typesetter {
 		float height = figure.getHeight();
 
 		if (width >= 0 && height >= 0) {
+			if (width > lineWidth) {
+				figure.setWidth(lineWidth);
+				figure.setHeight(height / width * lineWidth);
+			}
 			return true;
 		}
 

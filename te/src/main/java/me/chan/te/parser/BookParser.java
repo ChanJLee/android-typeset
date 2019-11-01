@@ -141,12 +141,18 @@ public class BookParser implements Parser {
 			}
 
 			String name = parser.getName();
-			if (name.equals("url")) {
+			if (TextUtils.equals("url", name)) {
 				url = safeNextText(parser);
 				parser.require(XmlPullParser.END_TAG, null, "url");
-			} else if (name.equals("desc")) {
+			} else if (TextUtils.equals("desc", name)) {
 				description = safeNextText(parser);
 				parser.require(XmlPullParser.END_TAG, null, "desc");
+			} else if (TextUtils.equals("width", name)) {
+				width = safeNextFloat(parser);
+				parser.require(XmlPullParser.END_TAG, null, "width");
+			} else if (TextUtils.equals("height", name)) {
+				height = safeNextFloat(parser);
+				parser.require(XmlPullParser.END_TAG, null, "height");
 			} else {
 				skip(parser);
 			}
@@ -159,6 +165,19 @@ public class BookParser implements Parser {
 		Figure figure = Figure.obtain(url, width, height);
 		figure.setDescription(description);
 		document.addSegment(figure);
+	}
+
+	private float safeNextFloat(XmlPullParser parser) throws IOException, XmlPullParserException {
+		String value = safeNextText(parser);
+		if (TextUtils.isEmpty(value)) {
+			return -1;
+		}
+
+		try {
+			return Float.parseFloat(value);
+		} catch (Throwable throwable) {
+			return -1;
+		}
 	}
 
 	private void parseSubtitle(XmlPullParser parser, Paragraph.Builder builder) throws XmlPullParserException, IOException {
