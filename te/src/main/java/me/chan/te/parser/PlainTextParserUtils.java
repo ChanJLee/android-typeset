@@ -1,13 +1,17 @@
 package me.chan.te.parser;
 
+import me.chan.te.text.Background;
+import me.chan.te.text.Foreground;
 import me.chan.te.text.Paragraph;
+import me.chan.te.text.TextStyle;
 
 public class PlainTextParserUtils {
 	public static void parse(CharSequence paragraph, int start, int end, Paragraph.Builder builder) {
-		parse(paragraph, start, end, builder, null);
+		parse(paragraph, start, end, builder, null, null, null, null);
 	}
 
-	public static void parse(CharSequence paragraph, int start, int end, Paragraph.Builder builder, Object extra) {
+	public static void parse(CharSequence paragraph, int start, int end, Paragraph.Builder builder,
+							 TextStyle textStyle, Background background, Foreground foreground, Object extra) {
 		for (int i = start; i < end; ) {
 			int last = findWord(paragraph, i, end);
 			int first = i;
@@ -16,7 +20,7 @@ public class PlainTextParserUtils {
 				continue;
 			}
 
-			builder.text(paragraph, first, last, extra);
+			builder.text(paragraph, first, last, textStyle, background, foreground, extra);
 		}
 	}
 

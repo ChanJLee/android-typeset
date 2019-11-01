@@ -2,6 +2,7 @@ package me.chan.te.parser;
 
 import android.content.Context;
 import android.content.res.Resources;
+import android.graphics.Color;
 import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
@@ -20,6 +21,7 @@ import me.chan.te.measurer.Measurer;
 import me.chan.te.text.Document;
 import me.chan.te.text.Figure;
 import me.chan.te.text.Paragraph;
+import me.chan.te.text.UnderLine;
 
 public class BookParser implements Parser {
 
@@ -180,7 +182,7 @@ public class BookParser implements Parser {
 	}
 
 	private void parseSubtitle(XmlPullParser parser, Paragraph.Builder builder) throws XmlPullParserException, IOException {
-		// TODO
+		// TODO add subtitle
 		parser.require(XmlPullParser.START_TAG, null, "subtitle");
 		String id = parser.getAttributeValue(null, "id");
 		while (parser.next() != XmlPullParser.END_TAG) {
@@ -189,9 +191,7 @@ public class BookParser implements Parser {
 				continue;
 			}
 			String name = parser.getName();
-			safeNextText(parser);
-//			subtitle.setHeadingTimes(name);
-//			subtitle.setSubtitle(safeNextText(parser));
+			String title = safeNextText(parser);
 		}
 		parser.require(XmlPullParser.END_TAG, null, "subtitle");
 	}
@@ -200,7 +200,7 @@ public class BookParser implements Parser {
 		parser.require(XmlPullParser.START_TAG, null, "sent");
 		String id = parser.getAttributeValue(null, "id");
 		String text = safeNextText(parser) + " ";
-		PlainTextParserUtils.parse(text, 0, text.length(), builder, id);
+		PlainTextParserUtils.parse(text, 0, text.length(), builder, null, null, UnderLine.obtain(Color.RED), id);
 		parser.require(XmlPullParser.END_TAG, null, "sent");
 	}
 
