@@ -65,6 +65,7 @@ public class Te {
 		DrawableBox.clean();
 		Background.clean();
 		UnderLine.clean();
+		Paragraph.Builder.clean();
 		System.gc();
 	}
 }

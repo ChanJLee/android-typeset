@@ -12,6 +12,8 @@ import me.chan.te.source.SourceOpenException;
 import me.chan.te.source.StreamSource;
 import me.chan.te.test.mock.MockFileInputStream;
 
+import static org.junit.Assert.assertFalse;
+
 public class SourceUnitTest {
 
 	@Test
@@ -36,6 +38,7 @@ public class SourceUnitTest {
 			fileInputStream.read();
 			Assert.fail("test stream close failed");
 		} catch (Throwable throwable) {
+			assertFalse(throwable instanceof AssertionError);
 		}
 
 		fileInputStream = new MockFileInputStream(file);

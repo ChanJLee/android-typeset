@@ -95,8 +95,7 @@ public class BookParser implements Parser {
 		parser.require(XmlPullParser.START_TAG, null, "para");
 		String id = parser.getAttributeValue(null, "id");
 
-		Paragraph.Builder builder = new Paragraph.Builder(measurer, hypher, option);
-		builder.newParagraph(id);
+		Paragraph.Builder builder = Paragraph.Builder.newBuilder(measurer, hypher, option, id);
 		int lastState = STATE_NONE;
 
 		while (parser.next() != XmlPullParser.END_TAG) {
