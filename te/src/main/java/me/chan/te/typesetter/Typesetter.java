@@ -1,26 +1,20 @@
 package me.chan.te.typesetter;
 
-import me.chan.te.text.BreakStrategy;
 import me.chan.te.config.LineAttributes;
+import me.chan.te.log.Log;
+import me.chan.te.text.BreakStrategy;
 import me.chan.te.text.Figure;
 import me.chan.te.text.Paragraph;
 import me.chan.te.text.Segment;
 
-/**
- * 排版器
- */
-public abstract class Typesetter {
+public class Typesetter {
+	private ParagraphTypesetter mTexTypesetter;
+	private ParagraphTypesetter mSimpleTypesetter;
 
-	public static float INFINITY = 1000;
-	public static int HYPHEN_PENALTY = 100;
-	public static float DEMERITS_LINE = 1;
-	// 对应 α
-	public static float DEMERITS_FLAGGED = 100;
-	// 对应 γ
-	public static float DEMERITS_FITNESS = 3000;
-	public static int MAX_RELAYOUT_TIMES = 30;
-	public static float MIN_SHRINK_RATIO = -0.2f;
-	public static float STRETCH_STEP_RATIO = 0.2f;
+	public Typesetter() {
+		mTexTypesetter = new TexTypesetter();
+		mSimpleTypesetter = new SimpleTypesetter();
+	}
 
 	/**
 	 * @param segment        segment
@@ -48,18 +42,28 @@ public abstract class Typesetter {
 		float width = figure.getWidth();
 		float height = figure.getHeight();
 
-		float ratio = width <= 0 || height <= 0 ? Figure.DEFAULT_RATIO : height / width;
+		if (width >= 0 && height >= 0) {
+			return true;
+		}
+
 		figure.setWidth(lineWidth);
-		figure.setHeight(lineWidth / ratio);
+		figure.setHeight(lineWidth / Figure.DEFAULT_RATIO);
 
 		return true;
 	}
 
-	/**
-	 * @param paragraph      paragraph
-	 * @param lineAttributes 行信息
-	 * @param breakStrategy  {@link BreakStrategy}
-	 * @return 是否排版成功
-	 */
-	protected abstract boolean typeset(Paragraph paragraph, LineAttributes lineAttributes, BreakStrategy breakStrategy);
+	private boolean typeset(Paragraph paragraph, LineAttributes lineAttributes, BreakStrategy breakStrategy) {
+		if (breakStrategy == BreakStrategy.SIMPLE) {
+			return mSimpleTypesetter.typeset(paragraph, lineAttributes, breakStrategy);
+		}
+
+		if (!mTexTypesetter.typeset(paragraph, lineAttributes, breakStrategy)) {
+			Log.w("use tex algorithm failed, fallback to simple algorithm");
+			// tex 存在找不到完美解的情况，如果在这种case下
+			// 回归到朴素的排版算法
+			return mSimpleTypesetter.typeset(paragraph, lineAttributes, breakStrategy);
+		}
+
+		return true;
+	}
 }

@@ -17,6 +17,7 @@ import me.chan.te.data.TextBox;
 import me.chan.te.hypher.Hypher;
 import me.chan.te.measurer.Measurer;
 import me.chan.te.misc.ObjectFactory;
+import me.chan.te.typesetter.ParagraphTypesetter;
 import me.chan.te.typesetter.Typesetter;
 
 /**
@@ -171,7 +172,7 @@ public class Paragraph implements Recyclable, Segment {
 							extra
 					));
 					if (j != size - 1 && text.charAt(point - 1) != '-') {
-						elements.add(Penalty.obtain(mOption.getHyphenWidth(), mOption.getHyphenHeight(), Typesetter.HYPHEN_PENALTY, true));
+						elements.add(Penalty.obtain(mOption.getHyphenWidth(), mOption.getHyphenHeight(), ParagraphTypesetter.HYPHEN_PENALTY, true));
 					}
 					start = point;
 				}
@@ -204,8 +205,8 @@ public class Paragraph implements Recyclable, Segment {
 				mParagraph.mElements.remove(elementSize - 1);
 			}
 
-			mParagraph.mElements.add(Glue.obtain(0, Typesetter.INFINITY, 0));
-			mParagraph.mElements.add(Penalty.obtain(0, 0, -Typesetter.INFINITY, true));
+			mParagraph.mElements.add(Glue.obtain(0, ParagraphTypesetter.INFINITY, 0));
+			mParagraph.mElements.add(Penalty.obtain(0, 0, -ParagraphTypesetter.INFINITY, true));
 			mParagraph.mEmpty = mEmpty;
 			Paragraph paragraph = mParagraph;
 			mParagraph = null;

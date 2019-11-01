@@ -27,7 +27,6 @@ import me.chan.te.source.Source;
 import me.chan.te.source.SourceCloseException;
 import me.chan.te.text.BreakStrategy;
 import me.chan.te.text.Gravity;
-import me.chan.te.typesetter.CoreTypesetter;
 import me.chan.te.typesetter.Typesetter;
 
 public class TextEngineCore {
@@ -65,7 +64,7 @@ public class TextEngineCore {
 		mOption = new Option(mMeasurer);
 		mHandler = new H(Looper.getMainLooper());
 		mParser = new TextParser();
-		mTypesetter = new CoreTypesetter();
+		mTypesetter = new Typesetter();
 	}
 
 	public Option getOption() {
@@ -144,9 +143,7 @@ public class TextEngineCore {
 		LineAttributes lineAttributes = createLineAttributes(width);
 		for (int i = 0; i < size && !thread.isInterrupted(); ++i) {
 			Segment segment = mDocument.getSegment(i);
-			if (segment instanceof Paragraph) {
-				mTypesetter.typeset((Paragraph) segment, lineAttributes, mBreakStrategy);
-			}
+			mTypesetter.typeset(segment, lineAttributes, mBreakStrategy);
 		}
 
 		i("typeset used time: " + (SystemClock.elapsedRealtime() - timestamp));

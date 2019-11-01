@@ -17,13 +17,22 @@ import me.chan.te.log.Log;
 import me.chan.te.text.BreakStrategy;
 import me.chan.te.text.Gravity;
 
-class TexTypesetter extends Typesetter {
+class TexTypesetter implements ParagraphTypesetter {
 	private static final int CLASS_0 = 0;
 	private static final int CLASS_1 = 1;
 	private static final int CLASS_2 = 2;
 	private static final int CLASS_3 = 3;
+	public static float DEMERITS_LINE = 1;
+	// 对应 α
+	public static float DEMERITS_FLAGGED = 100;
+	// 对应 γ
+	public static float DEMERITS_FITNESS = 3000;
+	public static int MAX_RELAYOUT_TIMES = 30;
+	public static float MIN_SHRINK_RATIO = -0.2f;
+	public static float STRETCH_STEP_RATIO = 0.2f;
 
 	@Nullable
+	@Override
 	public boolean typeset(Paragraph paragraph, LineAttributes lineAttributes, BreakStrategy breakStrategy) {
 		List<Node> activeNodes = null;
 		float tolerance = 0;
