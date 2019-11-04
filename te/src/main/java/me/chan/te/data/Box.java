@@ -46,7 +46,7 @@ public abstract class Box implements Cloneable, Element {
 
 	// TODO drawable不能被append remove
 	@Hidden
-	public abstract void append(Box other)
+	public abstract void append(Box other);
 
 	@Hidden
 	public abstract void append(Penalty penalty);
