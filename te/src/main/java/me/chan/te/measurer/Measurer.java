@@ -23,14 +23,4 @@ public interface Measurer {
 	 * @return 文本高度
 	 */
 	float getDesiredHeight(CharSequence charSequence, int start, int end, TextStyle textStyle);
-
-	/**
-	 * @return 每行建议间隔
-	 */
-	float getLineSpacing();
-
-	/**
-	 * @return base line descent
-	 */
-	float getDescent();
 }
