@@ -15,9 +15,6 @@ import java.util.concurrent.Future;
 
 import me.chan.te.config.LineAttributes;
 import me.chan.te.config.Option;
-import me.chan.te.text.Document;
-import me.chan.te.text.Paragraph;
-import me.chan.te.text.Segment;
 import me.chan.te.hypher.Hypher;
 import me.chan.te.log.Log;
 import me.chan.te.measurer.AndroidMeasurer;
@@ -26,7 +23,9 @@ import me.chan.te.parser.TextParser;
 import me.chan.te.source.Source;
 import me.chan.te.source.SourceCloseException;
 import me.chan.te.text.BreakStrategy;
+import me.chan.te.text.Document;
 import me.chan.te.text.Gravity;
+import me.chan.te.text.Segment;
 import me.chan.te.typesetter.Typesetter;
 
 public class TextEngineCore {
