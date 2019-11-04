@@ -3,7 +3,6 @@ package me.chan.te.data;
 import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.text.TextPaint;
 
 import me.chan.te.misc.ObjectFactory;
@@ -14,29 +13,9 @@ public class DrawableBox extends Box implements Recyclable {
 
 	private Drawable mDrawable;
 
-	public DrawableBox(@NonNull Drawable drawable, float width, float height, Object extra) {
-		super(width, height, extra);
+	public DrawableBox(@NonNull Drawable drawable, float width, float height) {
+		super(width, height);
 		mDrawable = drawable;
-	}
-
-	@Override
-	public Object clone() {
-		return DrawableBox.obtain(mDrawable, getWidth(), getHeight(), getExtra());
-	}
-
-	@Override
-	public void append(Box other) {
-		// do nothing
-	}
-
-	@Override
-	public void append(Penalty penalty) {
-		// do nothing
-	}
-
-	@Override
-	public boolean canMerge(Box other) {
-		return false;
 	}
 
 	@Override
@@ -50,49 +29,21 @@ public class DrawableBox extends Box implements Recyclable {
 	}
 
 	@Override
-	public String toString() {
-		return mDrawable.toString();
-	}
-
-	@Override
-	public boolean canSpilt() {
-		return false;
-	}
-
-	@Nullable
-	@Override
-	public Box spilt(float limitWidth) {
-		return null;
-	}
-
-	@Override
-	protected void onCopy(@NonNull Box other) {
-		if (!(other instanceof DrawableBox)) {
-			return;
-		}
-		DrawableBox drawableBox = (DrawableBox) other;
-		mDrawable = drawableBox.mDrawable;
-		mExtra = other.mExtra;
-	}
-
-	@Override
 	public void recycle() {
 		mDrawable = null;
 		mWidth = -1;
 		mHeight = -1;
-		mExtra = null;
-		clear();
 		POOL.release(this);
 	}
 
-	public static DrawableBox obtain(Drawable drawable, float width, float height, Object extra) {
+	public static DrawableBox obtain(Drawable drawable, float width, float height) {
 		DrawableBox drawableBox = POOL.acquire();
 		if (drawableBox == null) {
-			return new DrawableBox(drawable, width, height, extra);
+			return new DrawableBox(drawable, width, height);
 		}
+
 		drawableBox.mWidth = width;
 		drawableBox.mHeight = height;
-		drawableBox.mExtra = extra;
 		drawableBox.mDrawable = drawable;
 		return drawableBox;
 	}

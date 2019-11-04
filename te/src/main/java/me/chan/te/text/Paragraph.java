@@ -156,13 +156,13 @@ public class Paragraph implements Recyclable, Segment {
 			return this;
 		}
 
-		public Builder drawable(Drawable drawable, float width, float height, Object extra) {
+		public Builder drawable(Drawable drawable, float width, float height) {
 			if (mParagraph == null) {
 				throw new IllegalStateException("call newParagraph first");
 			}
 
 			List<Element> elements = mParagraph.mElements;
-			elements.add(DrawableBox.obtain(drawable, width, height, extra));
+			elements.add(DrawableBox.obtain(drawable, width, height));
 			elements.add(Glue.obtain(mOption.getSpaceWidth(), mOption.getSpaceStretch(), mOption.getSpaceShrink()));
 			mEmpty = false;
 			return this;
