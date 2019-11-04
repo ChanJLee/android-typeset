@@ -97,7 +97,7 @@ public final class TextBox extends Box implements Element, Cloneable {
 
 	private void reset(CharSequence text, int start, int end, float width, float height,
 					   @Nullable TextStyle textStyle, Background background, Foreground foreground, Object extra) {
-		clearFlag();
+		clear();
 		mText = text;
 		mTextStyle = textStyle;
 		mWidth = width;

@@ -81,7 +81,7 @@ public class DrawableBox extends Box implements Recyclable {
 		mWidth = -1;
 		mHeight = -1;
 		mExtra = null;
-		clearFlag();
+		clear();
 		POOL.release(this);
 	}
 
