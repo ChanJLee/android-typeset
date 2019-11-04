@@ -41,7 +41,6 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 	private Box mSelectedSuffix;
 	private boolean mDebugMode = false;
 	private float mLineSpaceVertical = 0;
-	private float mIntentWidth;
 	private float mDescent;
 
 	public ParagraphView(Context context) {
@@ -58,15 +57,11 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 
 	// TODO opt
 	void render(@NonNull Paragraph paragraph,
-				@NonNull TextPaint paint,
-				float lineSpaceVertical,
-				float intentWidth,
-				float descent) {
+				@NonNull TextPaint paint) {
 		mParagraph = paragraph;
 		mPaint = paint;
-		mIntentWidth = intentWidth;
-		mLineSpaceVertical = lineSpaceVertical;
-		mDescent = descent;
+		mLineSpaceVertical = paint.getFontSpacing();
+		mDescent = paint.getFontMetrics().descent;
 		requestLayout();
 	}
 
@@ -109,6 +104,7 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 				mParagraph == null) {
 			return super.onTouchEvent(event);
 		}
+
 		if (mGestureDetector == null) {
 			mGestureDetector = new GestureDetector(getContext(), this);
 		}
@@ -120,7 +116,7 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
 		int lineCount = 0;
 		if (mParagraph != null && (lineCount = mParagraph.getLineCount()) != 0) {
-			int height = getPaddingTop() + getPaddingBottom();
+			int height = 0;
 			for (int i = 0; i < lineCount; ++i) {
 				Line line = mParagraph.getLine(i);
 				height += line.getLineHeight();
@@ -147,27 +143,26 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 			return;
 		}
 
-		float y = getPaddingTop();
-		float width = getWidth() - getPaddingLeft() - getPaddingRight();
+		float y = 0;
+		float width = getWidth();
 
 		for (int i = 0; i < lineCount; ++i) {
-			float lineWidth = i == 0 ? width - mIntentWidth : width;
 
 			Line line = mParagraph.getLine(i);
 			y += line.getLineHeight();
-			float x = getPaddingLeft();
-			if (i == 0) {
-				x += mIntentWidth;
-			}
 
+			float x;
 			Gravity gravity = line.getGravity();
 			if (gravity == Gravity.CENTER) {
-				x += (lineWidth - line.getLineWidth()) / 2f;
+				x = (width - line.getLineWidth()) / 2f;
 			} else if (gravity == Gravity.RIGHT) {
-				x += (lineWidth - line.getLineWidth());
+				x = (width - line.getLineWidth());
+			} else {
+				x = 0;
 			}
 
 			draw(canvas, line, x, y, mLineSpaceVertical);
+
 			y += mLineSpaceVertical;
 		}
 	}
@@ -184,7 +179,6 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 			float right = (float) Math.ceil(x + width);
 			float top = (float) Math.ceil(y - line.getLineHeight());
 			float bottom = y + mDescent * 1.1f;
-
 
 			if (box == mSelectedBox || box == mSelectedSuffix) {
 				mWorkPaint.set(mPaint);
@@ -254,7 +248,7 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 		}
 
 		Line targetLine = null;
-		float offsetY = getPaddingTop();
+		float offsetY = 0;
 		int lineNumber = 0;
 		for (; lineNumber < lineCount; ++lineNumber) {
 			Line line = mParagraph.getLine(lineNumber);
@@ -274,7 +268,7 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 		int boxSize = targetLine.getCount();
 		float spaceWidth = targetLine.getSpaceWidth();
 
-		float offsetX = getPaddingLeft();
+		float offsetX = 0;
 		Box target = null;
 		for (int i = 0; i < boxSize; ++i) {
 			Box box = targetLine.getBox(i);

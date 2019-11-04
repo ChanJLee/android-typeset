@@ -123,7 +123,7 @@ public class TypesetterUnitTest {
 	private void checkContent(String text, BreakStrategy breakStrategy, float lineWidth, int textSize) {
 		System.out.println("check content, width: " + lineWidth + " text size: " + textSize + " " + breakStrategy);
 
-		LineAttributes lineAttributes = new LineAttributes(new LineAttributes.Attribute(lineWidth, Gravity.LEFT, 10, 10));
+		LineAttributes lineAttributes = new LineAttributes(new LineAttributes.Attribute(lineWidth, Gravity.LEFT, 10));
 		MockTextPaint paint = new MockTextPaint();
 		Measurer measurer = new MockMeasurer(paint);
 		paint.setMockTextSize(textSize);
@@ -131,7 +131,6 @@ public class TypesetterUnitTest {
 
 		Assert.assertNotEquals(option.getHyphenWidth(), 0);
 		Assert.assertNotEquals(option.getIndentWidth(), 0);
-		Assert.assertNotEquals(option.getLineSpacing(), 0);
 		Assert.assertNotEquals(option.getSpaceShrink(), 0);
 		Assert.assertNotEquals(option.getSpaceStretch(), 0);
 		Assert.assertNotEquals(option.getSpaceWidth(), 0);
