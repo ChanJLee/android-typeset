@@ -37,8 +37,6 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 	private int mSelectionMode = SELECTION_MODE_LONG_PRESS;
 	private GestureDetector mGestureDetector = null;
 	private OnTextSelectedListener mOnTextSelectedListener;
-	private Box mSelectedBox;
-	private Box mSelectedSuffix;
 	private boolean mDebugMode = false;
 	private float mLineSpaceVertical = 0;
 	private float mDescent;
@@ -180,7 +178,7 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 			float top = (float) Math.ceil(y - line.getLineHeight());
 			float bottom = y + mDescent * 1.1f;
 
-			if (box == mSelectedBox || box == mSelectedSuffix) {
+			if (box.isSelected()) {
 				mWorkPaint.set(mPaint);
 				mWorkPaint.setColor(Color.BLUE);
 				canvas.drawRect(left, top, right, bottom, mWorkPaint);
@@ -290,8 +288,7 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 			return handleClickedPenaltyBox(target, lineNumber + 1);
 		}
 
-		mSelectedBox = target;
-		mSelectedSuffix = null;
+		target.setSelected(true);
 		if (mOnTextSelectedListener != null) {
 			mOnTextSelectedListener.onTextSelected(this, target, null);
 		}
@@ -311,8 +308,8 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 		}
 
 		Box suffix = line.getBox(0);
-		mSelectedBox = current;
-		mSelectedSuffix = suffix;
+		current.setSelected(true);
+		suffix.setSelected(true);
 		if (mOnTextSelectedListener != null) {
 			mOnTextSelectedListener.onTextSelected(this, current, suffix);
 		}
@@ -354,7 +351,20 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 	}
 
 	public void clearSelected() {
-		mSelectedBox = mSelectedSuffix = null;
+		if (mParagraph == null) {
+			return;
+		}
+
+		int lineCount = mParagraph.getLineCount();
+		for (int i = 0; i < lineCount; ++i) {
+			Line line = mParagraph.getLine(i);
+			int boxCount = line.getCount();
+			for (int j = 0; j < boxCount; ++j) {
+				Box box = line.getBox(j);
+				box.setSelected(false);
+			}
+		}
+
 		invalidate();
 	}
 
