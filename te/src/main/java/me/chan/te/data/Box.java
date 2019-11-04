@@ -44,9 +44,9 @@ public abstract class Box implements Cloneable, Element {
 
 	public abstract Object clone();
 
-	// TODO drawable不能被append
+	// TODO drawable不能被append remove
 	@Hidden
-	public abstract void append(Box other);
+	public abstract void append(Box other)
 
 	@Hidden
 	public abstract void append(Penalty penalty);
@@ -59,7 +59,7 @@ public abstract class Box implements Cloneable, Element {
 		setFlag(FLAG_NONE);
 	}
 
-	// TODO 移除到text box
+	// TODO 移除到text box remove
 	@Hidden
 	public boolean isPenalty() {
 		return mFlag == FLAG_PENALTY;
