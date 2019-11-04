@@ -22,6 +22,7 @@ public abstract class Box implements Cloneable, Element {
 	protected float mHeight;
 	private int mFlag = FLAG_NONE;
 	protected Object mExtra;
+	private boolean mSelected = false;
 
 	public Box(float width, float height, Object extra) {
 		mWidth = width;
@@ -53,10 +54,12 @@ public abstract class Box implements Cloneable, Element {
 	@Hidden
 	public abstract boolean canMerge(Box other);
 
-	protected void clearFlag() {
+	protected void clear() {
+		mSelected = false;
 		setFlag(FLAG_NONE);
 	}
 
+	// TODO 移除到text box
 	@Hidden
 	public boolean isPenalty() {
 		return mFlag == FLAG_PENALTY;
@@ -82,6 +85,14 @@ public abstract class Box implements Cloneable, Element {
 	@Nullable
 	public abstract Box spilt(float limitWidth);
 
+	public boolean isSelected() {
+		return mSelected;
+	}
+
+	public void setSelected(boolean selected) {
+		mSelected = selected;
+	}
+
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;
@@ -98,6 +109,7 @@ public abstract class Box implements Cloneable, Element {
 		this.mWidth = other.mWidth;
 		this.mHeight = other.mHeight;
 		this.mExtra = other.mExtra;
+		this.mSelected = other.mSelected;
 		onCopy(other);
 	}
 

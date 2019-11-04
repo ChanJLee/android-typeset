@@ -199,6 +199,7 @@ public class DataUnitTest {
 		TextBox box = TextBox.obtain(msg, 0, msg.length(),
 				mMockTextPaint.getMockTextSize() * msg.length(), mMockTextPaint.getMockTextHeight(), null);
 		Assert.assertNotNull(box);
+		Assert.assertFalse(box.isSelected());
 		Assert.assertFalse(box.isPenalty());
 		Assert.assertFalse(box.isSplit());
 
@@ -212,7 +213,9 @@ public class DataUnitTest {
 
 		TextBox box2 = TextBox.obtain(msg, 0, msg.length(), mMockTextPaint.getMockTextSize() * msg.length(), mMockTextPaint.getMockTextHeight(), textStyle, background, foreground, null);
 		Assert.assertNotNull(box2);
+		box2.setSelected(true);
 		Assert.assertNotEquals(box, box2);
+		Assert.assertTrue(box2.isSelected());
 		Assert.assertSame(box2.getTextStyle(), textStyle);
 		Assert.assertSame(background, box2.getBackground());
 		Assert.assertSame(foreground, box2.getForeground());
@@ -221,6 +224,7 @@ public class DataUnitTest {
 		TextBox prev = box2;
 		box2.recycle();
 		Assert.assertNull(box2.getTextStyle());
+		Assert.assertFalse(box2.isSelected());
 		Assert.assertEquals(box2.getHeight(), -1, 0);
 		Assert.assertEquals(box2.getWidth(), -1, 0);
 		Assert.assertNull(box2.getBackground());
@@ -379,6 +383,20 @@ public class DataUnitTest {
 		Assert.assertFalse(box.isSplit());
 	}
 
+	@Test
+	public void testBoxCopy() {
+		String msg = "hello world";
+		TextBox box = TextBox.obtain(msg, 0, msg.length(), mMockTextPaint.getMockTextSize() * msg.length(), mMockTextPaint.getMockTextHeight(), TextStyle.NONE, null, null, null);
+		box.setSelected(true);
+
+		TextBox copy = TextBox.obtain(msg + "x", 0, msg.length() + 1, mMockTextPaint.getMockTextSize() * (msg.length() + 1), mMockTextPaint.getMockTextHeight(), TextStyle.NONE, null, null, null);
+		checkBoxContent(copy, msg + "x");
+		Assert.assertNotSame(copy, box);
+		copy.copy(box);
+
+		Assert.assertTrue(copy.isSelected());
+		checkBoxContent(copy, msg);
+	}
 
 	@Test
 	public void testLine() throws NoSuchFieldException, IllegalAccessException {
