@@ -7,6 +7,7 @@ import me.chan.te.data.Box;
 import me.chan.te.data.Element;
 import me.chan.te.data.Glue;
 import me.chan.te.data.Penalty;
+import me.chan.te.data.TextBox;
 import me.chan.te.text.BreakStrategy;
 import me.chan.te.text.Gravity;
 import me.chan.te.text.Line;
@@ -128,26 +129,34 @@ class SimpleTypesetter implements ParagraphTypesetter {
 
 	private int mergeIf(List<? extends Element> elements, Box box,
 						int start, float currentLineWidth, float width) {
-		Box clone = null;
+		if (!(box instanceof TextBox)) {
+			return start;
+		}
+
+		TextBox current = (TextBox) box;
+		TextBox clone = null;
 		for (; start < elements.size(); ++start) {
 			Element element = elements.get(start);
 			if (!(element instanceof Penalty)) {
 				break;
 			}
 
+			++start;
 			Penalty penalty = (Penalty) element;
-			if (start + 1 < elements.size() &&
-					!(elements.get(start + 1) instanceof Box)) {
+			if (start < elements.size() &&
+					!(elements.get(start) instanceof TextBox)) {
+				--start;
 				break;
 			}
 
-			Box next = (Box) elements.get(start + 1);
-			if (!next.canMerge(box)) {
-				return -1;
+			TextBox next = (TextBox) elements.get(start);
+			if (!next.canMerge(current)) {
+				start -= 2;
+				break;
 			}
 
 			if (clone == null) {
-				clone = (Box) box.clone();
+				clone = (TextBox) current.clone();
 			}
 
 			float cloneWidth = clone.getWidth();
@@ -156,19 +165,18 @@ class SimpleTypesetter implements ParagraphTypesetter {
 			// 如果超出当前的长度 那么直接结束
 			if (currentLineWidth + cloneWidth + nextWidth > width) {
 				if (currentLineWidth + cloneWidth + penalty.getWidth() <= width) {
-					++start;
+					start -= 2;
 					clone.append(penalty);
 					break;
 				}
-				return -1;
+				break;
 			}
 
 			clone.append(next);
-			++start;
 		}
 
 		if (clone != null) {
-			box.copy(clone);
+			current.copy(clone);
 		}
 
 		return start;
@@ -179,9 +187,22 @@ class SimpleTypesetter implements ParagraphTypesetter {
 			return start;
 		}
 
+		// 如果不是文本 那不好分割 直接返回
 		Box box = (Box) elements.get(start);
+		if (!(box instanceof TextBox)) {
+			line.add(box);
+			line.setSpaceWidth(0);
+			line.setLineWidth(width);
+			line.setLineHeight(box.getHeight());
+			line.setRatio(0);
+			line.setGravity(gravity);
+			paragraph.addLine(line);
+			return ++start;
+		}
+
+		TextBox current = (TextBox) box;
 		Box suffix = null;
-		if (box.canSpilt() && (suffix = box.spilt(width)) != null) {
+		if (current.canSpilt() && (suffix = current.spilt(width)) != null) {
 			List<Element> list = (List<Element>) elements;
 			line.add(box);
 			list.set(start, suffix);
