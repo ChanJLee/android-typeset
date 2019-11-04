@@ -34,7 +34,7 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 	private TextPaint mPaint;
 	private TextPaint mWorkPaint = new TextPaint();
 	private Paint mDebugPaint;
-	private int mSelectionMode = SELECTION_MODE_NONE;
+	private int mSelectionMode = SELECTION_MODE_LONG_PRESS;
 	private GestureDetector mGestureDetector = null;
 	private OnTextSelectedListener mOnTextSelectedListener;
 	private Box mSelectedBox;
@@ -161,13 +161,13 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 				x = 0;
 			}
 
-			draw(canvas, line, x, y, mLineSpaceVertical);
+			drawLine(canvas, line, x, y, mLineSpaceVertical);
 
 			y += mLineSpaceVertical;
 		}
 	}
 
-	private void draw(Canvas canvas, Line line, float x, float y, float lineSpace) {
+	private void drawLine(Canvas canvas, Line line, float x, float y, float lineSpace) {
 		float spaceWidth = line.getSpaceWidth();
 		int boxSize = line.getCount();
 
