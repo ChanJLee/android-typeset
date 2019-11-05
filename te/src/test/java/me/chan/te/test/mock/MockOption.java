@@ -34,9 +34,4 @@ public class MockOption extends Option {
 	public float getIndentWidth() {
 		return getSpaceWidth() * 4;
 	}
-
-	@Override
-	public float getLineSpacing() {
-		return mTextPaint.getMockTextHeight();
-	}
 }

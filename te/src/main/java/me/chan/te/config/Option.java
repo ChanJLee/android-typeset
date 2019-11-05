@@ -18,7 +18,6 @@ public class Option {
 	private float mSpaceStretch;
 	private float mSpaceShrink;
 	private float mIndentWidth;
-	private float mLineSpacing;
 	private float mHyphenHeight;
 
 	public Option(Measurer measurer) {
@@ -34,8 +33,6 @@ public class Option {
 
 		// 首行缩进四个空格
 		mIndentWidth = mSpaceWidth * 4;
-		// 1.0 倍行间距
-		mLineSpacing = measurer.getLineSpacing();
 	}
 
 	/**
@@ -78,12 +75,5 @@ public class Option {
 	 */
 	public float getIndentWidth() {
 		return mIndentWidth;
-	}
-
-	/**
-	 * @return 获取每行建议间隔高度
-	 */
-	public float getLineSpacing() {
-		return mLineSpacing;
 	}
 }

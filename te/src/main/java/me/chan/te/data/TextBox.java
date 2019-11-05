@@ -14,7 +14,10 @@ import me.chan.te.text.TextStyle;
 /**
  * 文本元素
  */
-public final class TextBox extends Box implements Element, Cloneable {
+public final class TextBox extends Box implements Element {
+	private static final int FLAG_NONE = 0;
+	private static final int FLAG_PENALTY = 2;
+	private static final int FLAG_SPILT = 1;
 	private final static ObjectFactory<TextBox> POOL = new ObjectFactory<>(51200);
 
 	private CharSequence mText;
@@ -24,26 +27,37 @@ public final class TextBox extends Box implements Element, Cloneable {
 	private int mEnd;
 	private Background mBackground;
 	private Foreground mForeground;
+	private Object mExtra;
+	private int mFlag = FLAG_NONE;
+	private boolean mSelected = false;
 
-	protected TextBox(@NonNull CharSequence text, int start, int end, float width, float height,
+	private TextBox(@NonNull CharSequence text, int start, int end, float width, float height,
 					  @Nullable TextStyle textStyle, Background background, Foreground foreground, Object extra) {
-		super(width, height, extra);
-		reset(text, start, end, width, height, textStyle, background, foreground, extra);
+		super(width, height);
+		reset(this, text, start, end, mWidth, mHeight,
+				textStyle, background, foreground, extra);
 	}
 
-	@Override
-	protected void onCopy(@NonNull Box box) {
-		if (!(box instanceof TextBox)) {
-			return;
-		}
-
-		TextBox other = (TextBox) box;
+	public void copy(@NonNull TextBox other) {
+		mWidth = other.mWidth;
+		mHeight = other.mHeight;
 		mText = other.mText;
+		mTextStyle = other.mTextStyle;
 		mStart = other.mStart;
 		mEnd = other.mEnd;
-		mTextStyle = other.mTextStyle;
-		mForeground = other.mForeground;
 		mBackground = other.mBackground;
+		mForeground = other.mForeground;
+		mExtra = other.mExtra;
+		mFlag = other.mFlag;
+		mSelected = other.mSelected;
+	}
+
+	public boolean isSelected() {
+		return mSelected;
+	}
+
+	public void setSelected(boolean selected) {
+		mSelected = selected;
 	}
 
 	@Override
@@ -56,17 +70,9 @@ public final class TextBox extends Box implements Element, Cloneable {
 			mForeground.recycle();
 		}
 
-		reset(null, -1, -1, -1, -1,
+		reset(this, null, -1, -1, -1, -1,
 				null, null, null, null);
 		POOL.release(this);
-	}
-
-	@Override
-	public Object clone() {
-		TextBox copy = TextBox.obtain(mText, mStart, mEnd, mWidth, mHeight,
-				mTextStyle, mBackground, mForeground, mExtra);
-		copy.copy(this);
-		return copy;
 	}
 
 	public Background getBackground() {
@@ -88,30 +94,21 @@ public final class TextBox extends Box implements Element, Cloneable {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
 		if (!super.equals(o)) return false;
-		TextBox textBox = (TextBox) o;
-		return mStart == textBox.mStart &&
-				mEnd == textBox.mEnd &&
-				mText.equals(textBox.mText) &&
-				mTextStyle == textBox.mTextStyle;
-	}
 
-	private void reset(CharSequence text, int start, int end, float width, float height,
-					   @Nullable TextStyle textStyle, Background background, Foreground foreground, Object extra) {
-		clearFlag();
-		mText = text;
-		mTextStyle = textStyle;
-		mWidth = width;
-		mHeight = height;
-		mStart = start;
-		mEnd = end;
-		mBackground = background;
-		mForeground = foreground;
-		mExtra = extra;
+		TextBox textBox = (TextBox) o;
+		return mText.equals(textBox.mText) &&
+				mTextStyle == textBox.mTextStyle &&
+				mStart == textBox.mStart &&
+				mEnd == textBox.mEnd &&
+				mBackground == textBox.mBackground &&
+				mForeground == textBox.mForeground &&
+				mExtra == textBox.mExtra &&
+				mFlag == textBox.mFlag &&
+				mSelected == textBox.mSelected;
 	}
 
 	@Hidden
-	public void append(Box box) {
-		TextBox other = (TextBox) box;
+	public void append(TextBox other) {
 		mWidth += other.mWidth;
 		mHeight = Math.max(mHeight, other.mHeight);
 		if (mEnd == other.mStart) {
@@ -139,21 +136,12 @@ public final class TextBox extends Box implements Element, Cloneable {
 		mEnd = mText.length();
 	}
 
-	@Hidden
-	public boolean canMerge(Box box) {
-		if (!(box instanceof TextBox)) {
-			return false;
-		}
+	public boolean isPenalty() {
+		return mFlag == FLAG_PENALTY;
+	}
 
-		TextBox other = (TextBox) box;
-		if (mExtra != other.mExtra) {
-			return false;
-		}
-
-		if (other.mTextStyle != null && mTextStyle != null) {
-			return !mTextStyle.isConflict(other.mTextStyle);
-		}
-		return true;
+	public boolean isSplit() {
+		return mFlag == FLAG_SPILT;
 	}
 
 	public void draw(Canvas canvas, TextPaint paint, float x, float y) {
@@ -163,11 +151,6 @@ public final class TextBox extends Box implements Element, Cloneable {
 	@Override
 	public String toString() {
 		return String.valueOf(mText.subSequence(mStart, mEnd));
-	}
-
-	@Override
-	public boolean canSpilt() {
-		return true;
 	}
 
 	@Nullable
@@ -195,6 +178,18 @@ public final class TextBox extends Box implements Element, Cloneable {
 		return suffix;
 	}
 
+	private void setFlag(int flag) {
+		mFlag = flag;
+	}
+
+	public Object getExtra() {
+		return mExtra;
+	}
+
+	public void setExtra(Object extra) {
+		mExtra = extra;
+	}
+
 	public static void clean() {
 		POOL.clean();
 	}
@@ -204,13 +199,35 @@ public final class TextBox extends Box implements Element, Cloneable {
 		return obtain(charSequence, start, end, width, height, textStyle, null, null, null);
 	}
 
-	public static TextBox obtain(@NonNull CharSequence charSequence, int start, int end, float width, float height,
-								 @Nullable TextStyle textStyle, Background background, Foreground foreground, Object extra) {
+	public static TextBox obtain(@NonNull CharSequence charSequence, int start, int end,
+								 float width, float height,
+								 @Nullable TextStyle textStyle,
+								 Background background, Foreground foreground,
+								 Object extra) {
 		TextBox box = POOL.acquire();
 		if (box == null) {
 			return new TextBox(charSequence, start, end, width, height, textStyle, background, foreground, extra);
 		}
-		box.reset(charSequence, start, end, width, height, textStyle, background, foreground, extra);
+		reset(box, charSequence, start, end, width, height,
+				textStyle, background, foreground, extra);
 		return box;
+	}
+
+	private static void reset(TextBox textBox, @NonNull CharSequence charSequence, int start, int end,
+							  float width, float height,
+							  @Nullable TextStyle textStyle,
+							  Background background, Foreground foreground,
+							  Object extra) {
+		textBox.mFlag = FLAG_NONE;
+		textBox.mSelected = false;
+		textBox.mText = charSequence;
+		textBox.mStart = start;
+		textBox.mEnd = end;
+		textBox.mWidth = width;
+		textBox.mHeight = height;
+		textBox.mTextStyle = textStyle;
+		textBox.mBackground = background;
+		textBox.mForeground = foreground;
+		textBox.mExtra = extra;
 	}
 }
