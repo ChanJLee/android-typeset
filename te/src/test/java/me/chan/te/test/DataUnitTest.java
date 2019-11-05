@@ -2,7 +2,6 @@ package me.chan.te.test;
 
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
-import android.text.TextPaint;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -11,23 +10,22 @@ import org.junit.Test;
 import java.lang.reflect.Field;
 import java.util.List;
 
-import me.chan.te.data.TextBox;
 import me.chan.te.data.DrawableBox;
-import me.chan.te.text.Background;
-import me.chan.te.text.Figure;
-import me.chan.te.text.Foreground;
-import me.chan.te.text.TextStyle;
 import me.chan.te.data.Element;
 import me.chan.te.data.Glue;
-import me.chan.te.text.Line;
-import me.chan.te.text.Paragraph;
 import me.chan.te.data.Penalty;
 import me.chan.te.data.TextBox;
 import me.chan.te.hypher.Hypher;
 import me.chan.te.test.mock.MockMeasurer;
 import me.chan.te.test.mock.MockOption;
 import me.chan.te.test.mock.MockTextPaint;
+import me.chan.te.text.Background;
+import me.chan.te.text.Figure;
+import me.chan.te.text.Foreground;
 import me.chan.te.text.Gravity;
+import me.chan.te.text.Line;
+import me.chan.te.text.Paragraph;
+import me.chan.te.text.TextStyle;
 import me.chan.te.text.UnderLine;
 import me.chan.te.typesetter.BreakPoint;
 import me.chan.te.typesetter.Candidate;
