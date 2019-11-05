@@ -228,11 +228,6 @@ class TexTypesetter implements ParagraphTypesetter {
 
 			if (element instanceof TextBox) {
 				TextBox other = (TextBox) element;
-				if (!current.canMerge(other)) {
-					--start;
-					break;
-				}
-
 				current.append(other);
 				continue;
 			}

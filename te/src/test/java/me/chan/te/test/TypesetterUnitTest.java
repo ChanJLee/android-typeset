@@ -20,6 +20,7 @@ import java.io.InputStreamReader;
 import me.chan.te.config.LineAttributes;
 import me.chan.te.config.Option;
 import me.chan.te.data.Box;
+import me.chan.te.data.TextBox;
 import me.chan.te.hypher.Hypher;
 import me.chan.te.measurer.Measurer;
 import me.chan.te.parser.TextParser;
@@ -157,8 +158,12 @@ public class TypesetterUnitTest {
 
 				for (int x = 0; x < l.getCount(); ++x) {
 					Box box = l.getBox(x);
+					if (!(box instanceof TextBox)) {
+						continue;
+					}
+
 					String content = box.toString();
-					if (box.isPenalty()) {
+					if (((TextBox) box).isPenalty()) {
 						Assert.assertEquals(content.charAt(content.length() - 1), '-');
 						content = content.substring(0, content.length() - 1);
 					}

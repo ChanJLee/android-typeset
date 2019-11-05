@@ -23,11 +23,6 @@ public class UnderLine extends Foreground {
 	}
 
 	@Override
-	public boolean isConflict(Appearance other) {
-		return !equals(other);
-	}
-
-	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
