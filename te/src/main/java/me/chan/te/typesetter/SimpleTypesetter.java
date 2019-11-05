@@ -64,6 +64,7 @@ class SimpleTypesetter implements ParagraphTypesetter {
 		float lineHeight = 0f;
 		float currentLineWidth = 0f;
 		float boxTotalWidth = 0f;
+		int next;
 
 		while (start < size) {
 			Element element = elements.get(start);
@@ -80,17 +81,17 @@ class SimpleTypesetter implements ParagraphTypesetter {
 			}
 
 			Box box = (Box) element;
-			int next = mergeIf(elements, box, start + 1, currentLineWidth, lineWidth);
-			if (next == -1) {
-				break;
-			}
+			start = mergeIf(box, start + 1, size, elements);
 
 			// 如果超出当前的长度 那么直接结束
 			if (currentLineWidth + box.getWidth() > lineWidth) {
+				// 如果一行是空的，说明当前只能排一个，并且都显示不下
+				if (line.isEmpty()) {
+					return spiltIf(paragraph, box, elements, next, line, lineWidth, gravity);
+				}
+
 				break;
 			}
-
-			start = next;
 
 			line.add(box);
 			float boxWidth = box.getWidth();
@@ -100,11 +101,6 @@ class SimpleTypesetter implements ParagraphTypesetter {
 			if (lineHeight < box.getHeight()) {
 				lineHeight = box.getHeight();
 			}
-		}
-
-		// 如果一行是空的，说明当前只能排一个，并且都显示不下
-		if (line.isEmpty()) {
-			return spiltIf(paragraph, elements, start, line, lineWidth, gravity);
 		}
 
 		if (breakStrategy == BreakStrategy.SIMPLE) {
@@ -128,62 +124,37 @@ class SimpleTypesetter implements ParagraphTypesetter {
 		return start;
 	}
 
-	private int mergeIf(List<? extends Element> elements, Box box,
-						int start, float currentLineWidth, float width) {
-		if (box instanceof DrawableBox) {
-			return -1;
+	private int mergeIf(Box box, int start, int end, List<? extends Element> elements) {
+		if (!(box instanceof TextBox)) {
+			return start;
 		}
 
 		TextBox current = (TextBox) box;
-		TextBox clone = null;
-		for (; start < elements.size(); ++start) {
+		for (; start < end; ++start) {
 			Element element = elements.get(start);
-			if (!(element instanceof Penalty)) {
+			if (element instanceof Glue) {
+				break;
+			} else if (element instanceof DrawableBox) {
+				break;
+			} else if (element instanceof Penalty) {
+				/* do nothing */
+			} else if (element instanceof TextBox) {
+				TextBox other = (TextBox) element;
+				current.append(other);
+			} else {
 				break;
 			}
-
-			Penalty penalty = (Penalty) element;
-			if (start + 1 < elements.size() &&
-					!(elements.get(start + 1) instanceof TextBox)) {
-				break;
-			}
-
-			TextBox next = (TextBox) elements.get(start + 1);
-			if (clone == null) {
-				clone = (TextBox) current.clone();
-			}
-
-			float cloneWidth = clone.getWidth();
-			float nextWidth = next.getWidth();
-
-			// 如果超出当前的长度 那么直接结束
-			if (currentLineWidth + cloneWidth + nextWidth > width) {
-				if (currentLineWidth + cloneWidth + penalty.getWidth() <= width) {
-					++start;
-					clone.append(penalty);
-					break;
-				}
-				return -1;
-			}
-
-			clone.append(next);
-			++start;
-		}
-
-		if (clone != null) {
-			current.copy(clone);
 		}
 
 		return start;
 	}
 
-	private int spiltIf(Paragraph paragraph, List<? extends Element> elements, int start, Line line, float width, Gravity gravity) {
-		if (start >= elements.size()) {
-			return start;
+	private int spiltIf(Paragraph paragraph, Box box, List<? extends Element> elements, int next, Line line, float width, Gravity gravity) {
+		if (next >= elements.size()) {
+			return next;
 		}
 
 		// 如果不是文本 那不好分割 直接返回
-		Box box = (Box) elements.get(start);
 		if (!(box instanceof TextBox)) {
 			line.add(box);
 			line.setSpaceWidth(0);
@@ -192,18 +163,21 @@ class SimpleTypesetter implements ParagraphTypesetter {
 			line.setRatio(0);
 			line.setGravity(gravity);
 			paragraph.addLine(line);
-			return ++start;
+			return next;
 		}
 
 		TextBox current = (TextBox) box;
-		Box suffix = null;
-		if (current.canSpilt() && (suffix = current.spilt(width)) != null) {
+		TextBox suffix = null;
+		if ((suffix = current.spilt(width)) != null) {
+			// 否则要往前退一格
+			if (elements.get(next) instanceof Glue) {
+				--next;
+			}
 			List<Element> list = (List<Element>) elements;
 			line.add(box);
-			list.set(start, suffix);
+			list.set(next, suffix);
 		} else {
 			line.add(box);
-			++start;
 		}
 
 		line.setSpaceWidth(0);
@@ -212,6 +186,6 @@ class SimpleTypesetter implements ParagraphTypesetter {
 		line.setRatio(0);
 		line.setGravity(gravity);
 		paragraph.addLine(line);
-		return start;
+		return next;
 	}
 }

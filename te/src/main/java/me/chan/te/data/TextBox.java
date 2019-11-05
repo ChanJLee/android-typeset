@@ -14,7 +14,7 @@ import me.chan.te.text.TextStyle;
 /**
  * 文本元素
  */
-public final class TextBox extends Box implements Element, Cloneable {
+public final class TextBox extends Box implements Element {
 	private static final int FLAG_NONE = 0;
 	private static final int FLAG_PENALTY = 2;
 	private static final int FLAG_SPILT = 1;
@@ -73,14 +73,6 @@ public final class TextBox extends Box implements Element, Cloneable {
 		reset(this, null, -1, -1, -1, -1,
 				null, null, null, null);
 		POOL.release(this);
-	}
-
-	@Override
-	public Object clone() {
-		TextBox copy = TextBox.obtain(mText, mStart, mEnd, mWidth, mHeight,
-				mTextStyle, mBackground, mForeground, mExtra);
-		copy.copy(this);
-		return copy;
 	}
 
 	public Background getBackground() {
@@ -155,10 +147,6 @@ public final class TextBox extends Box implements Element, Cloneable {
 	@Override
 	public String toString() {
 		return String.valueOf(mText.subSequence(mStart, mEnd));
-	}
-
-	public boolean canSpilt() {
-		return true;
 	}
 
 	@Nullable
