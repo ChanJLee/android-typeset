@@ -140,6 +140,10 @@ public final class TextBox extends Box implements Element {
 		return mFlag == FLAG_PENALTY;
 	}
 
+	public boolean isSplit() {
+		return mFlag == FLAG_SPILT;
+	}
+
 	public void draw(Canvas canvas, TextPaint paint, float x, float y) {
 		canvas.drawText(mText, mStart, mEnd, x, y, paint);
 	}
@@ -225,9 +229,5 @@ public final class TextBox extends Box implements Element {
 		textBox.mBackground = background;
 		textBox.mForeground = foreground;
 		textBox.mExtra = extra;
-	}
-
-	public boolean isSplit() {
-		return mFlag == FLAG_SPILT;
 	}
 }
