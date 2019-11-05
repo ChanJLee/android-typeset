@@ -31,7 +31,7 @@ public final class TextBox extends Box implements Element {
 	private int mFlag = FLAG_NONE;
 	private boolean mSelected = false;
 
-	protected TextBox(@NonNull CharSequence text, int start, int end, float width, float height,
+	private TextBox(@NonNull CharSequence text, int start, int end, float width, float height,
 					  @Nullable TextStyle textStyle, Background background, Foreground foreground, Object extra) {
 		super(width, height);
 		reset(this, text, start, end, mWidth, mHeight,
