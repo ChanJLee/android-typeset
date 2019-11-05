@@ -244,4 +244,8 @@ public final class TextBox extends Box implements Element, Cloneable {
 		textBox.mForeground = foreground;
 		textBox.mExtra = extra;
 	}
+
+	public boolean isSplit() {
+		return mFlag == FLAG_SPILT;
+	}
 }

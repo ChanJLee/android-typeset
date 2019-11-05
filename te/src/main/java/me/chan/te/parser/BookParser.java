@@ -123,7 +123,7 @@ public class BookParser implements Parser {
 		}
 
 		if (lastState == STATE_SENT) {
-			builder.drawable(ContextCompat.getDrawable(mContext, R.drawable.me_chan_te_icon_no_note), mFlagWidth, mFlagHeight, null);
+			builder.drawable(ContextCompat.getDrawable(mContext, R.drawable.me_chan_te_icon_no_note), mFlagWidth, mFlagHeight);
 		}
 
 		Paragraph paragraph = builder.build();
