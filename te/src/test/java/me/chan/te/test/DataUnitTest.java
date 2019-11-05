@@ -11,7 +11,7 @@ import org.junit.Test;
 import java.lang.reflect.Field;
 import java.util.List;
 
-import me.chan.te.data.Box;
+import me.chan.te.data.TextBox;
 import me.chan.te.data.DrawableBox;
 import me.chan.te.text.Background;
 import me.chan.te.text.Figure;
@@ -137,11 +137,6 @@ public class DataUnitTest {
 		Assert.assertNotNull(background);
 		Assert.assertSame(p, background);
 		assertEquals(background.getColor(), 20);
-
-		Assert.assertTrue(background.isConflict(null));
-		Assert.assertTrue(background.isConflict(UnderLine.obtain(0)));
-		Assert.assertFalse(background.isConflict(Background.obtain(20)));
-		Assert.assertTrue(background.isConflict(Background.obtain(10)));
 	}
 
 	@Test
@@ -158,11 +153,6 @@ public class DataUnitTest {
 		Assert.assertNotNull(underLine);
 		Assert.assertSame(p, underLine);
 		assertEquals(underLine.getColor(), 20);
-
-		Assert.assertTrue(underLine.isConflict(null));
-		Assert.assertTrue(underLine.isConflict(Background.obtain(10)));
-		Assert.assertFalse(underLine.isConflict(UnderLine.obtain(20)));
-		Assert.assertTrue(underLine.isConflict(UnderLine.obtain(10)));
 	}
 
 	@Test
@@ -335,7 +325,7 @@ public class DataUnitTest {
 		Assert.assertFalse(box.isSplit());
 
 		String msg2 = "dcf";
-		Box box2 = TextBox.obtain(msg2, 0, msg2.length(), mMockTextPaint.getMockTextSize() * msg2.length(), mMockTextPaint.getMockTextHeight(), null);
+		TextBox box2 = TextBox.obtain(msg2, 0, msg2.length(), mMockTextPaint.getMockTextSize() * msg2.length(), mMockTextPaint.getMockTextHeight(), null);
 		Assert.assertNotNull(box2);
 		Assert.assertFalse(box2.isPenalty());
 		Assert.assertFalse(box2.isSplit());
@@ -375,7 +365,7 @@ public class DataUnitTest {
 		Assert.assertEquals(suffix.getTextStyle(), box.getTextStyle());
 		Assert.assertEquals(suffix.getExtra(), box.getExtra());
 
-		Box previous = box;
+		TextBox previous = box;
 		box.recycle();
 		msg = "hello";
 		box = TextBox.obtain(msg, 0, msg.length(), mMockTextPaint.getMockTextSize() * msg.length(), mMockTextPaint.getMockTextHeight(), null);
@@ -403,7 +393,7 @@ public class DataUnitTest {
 		Line line = Line.obtain();
 		Field field = Line.class.getDeclaredField("mBoxes");
 		field.setAccessible(true);
-		List<Box> boxes = (List<Box>) field.get(line);
+		List<TextBox> boxes = (List<TextBox>) field.get(line);
 		Assert.assertNotNull(line);
 		Assert.assertNotNull(boxes);
 		Assert.assertTrue(boxes.isEmpty());
@@ -423,7 +413,7 @@ public class DataUnitTest {
 
 		Line prev = line;
 		line.recycle();
-		boxes = (List<Box>) field.get(line);
+		boxes = (List<TextBox>) field.get(line);
 		Assert.assertTrue(boxes.isEmpty());
 		Assert.assertSame(line.getGravity(), Gravity.LEFT);
 		Assert.assertNotEquals(line.getSpaceWidth(), 1, 0);
@@ -432,7 +422,7 @@ public class DataUnitTest {
 		Assert.assertNotEquals(line.getRatio(), 4, 0);
 
 		line = Line.obtain();
-		boxes = (List<Box>) field.get(line);
+		boxes = (List<TextBox>) field.get(line);
 		Assert.assertNotNull(line);
 		Assert.assertSame(prev, line);
 		Assert.assertTrue(boxes.isEmpty());
@@ -446,7 +436,7 @@ public class DataUnitTest {
 	@Test
 	public void testParagraphBuilder() {
 		Paragraph.Builder builder = Paragraph.Builder.newBuilder(new MockMeasurer(mMockTextPaint), Hypher.getInstance(), new MockOption(mMockTextPaint), null);
-		builder.drawable(new ColorDrawable(10), 1, 2, null);
+		builder.drawable(new ColorDrawable(10), 1, 2);
 		builder.build();
 
 		Paragraph.Builder p = builder;
@@ -519,7 +509,7 @@ public class DataUnitTest {
 		Assert.assertSame(elements.get(2).getClass(), Penalty.class);
 
 		builder = Paragraph.Builder.newBuilder(new MockMeasurer(mMockTextPaint), Hypher.getInstance(), new MockOption(mMockTextPaint), null);
-		builder.drawable(new ColorDrawable(10), 10, 10, null);
+		builder.drawable(new ColorDrawable(10), 10, 10);
 		paragraph = builder.build();
 		Assert.assertFalse(paragraph.isEmpty());
 		Assert.assertNull(paragraph.getExtra());
@@ -532,30 +522,24 @@ public class DataUnitTest {
 
 	@Test
 	public void testDrawableBox() {
-		String msg = "hello";
 		Drawable drawable = new ColorDrawable(19);
-		DrawableBox drawableBox = DrawableBox.obtain(drawable, 1, 2, msg);
-		Assert.assertNotNull(msg);
+		DrawableBox drawableBox = DrawableBox.obtain(drawable, 1, 2);
+		Assert.assertNotNull(drawableBox);
 		Assert.assertSame(drawable, drawableBox.getDrawable());
 		Assert.assertEquals(drawableBox.getWidth(), 1, 0);
 		Assert.assertEquals(drawableBox.getHeight(), 2, 0);
-		Assert.assertSame(drawableBox.getExtra(), msg);
 
 		DrawableBox p = drawableBox;
 		drawableBox.recycle();
 		Assert.assertNotSame(drawable, drawableBox.getDrawable());
 		Assert.assertNotEquals(drawableBox.getWidth(), 1, 0);
 		Assert.assertNotEquals(drawableBox.getHeight(), 2, 0);
-		Assert.assertNotSame(drawableBox.getExtra(), msg);
 
-		drawableBox = DrawableBox.obtain(new ColorDrawable(19), 1, 2, msg);
-		Assert.assertNotNull(msg);
+		drawableBox = DrawableBox.obtain(new ColorDrawable(19), 1, 2);
 		Assert.assertNotSame(drawable, drawableBox.getDrawable());
 		Assert.assertEquals(drawableBox.getWidth(), 1, 0);
 		Assert.assertEquals(drawableBox.getHeight(), 2, 0);
-		Assert.assertSame(drawableBox.getExtra(), msg);
 		Assert.assertSame(p, drawableBox);
-
 	}
 
 	private void checkBoxContent(TextBox box, String msg) {

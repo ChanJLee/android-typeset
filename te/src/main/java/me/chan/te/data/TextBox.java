@@ -39,6 +39,8 @@ public final class TextBox extends Box implements Element, Cloneable {
 	}
 
 	public void copy(@NonNull TextBox other) {
+		mWidth = other.mWidth;
+		mHeight = other.mHeight;
 		mText = other.mText;
 		mTextStyle = other.mTextStyle;
 		mStart = other.mStart;
@@ -144,14 +146,6 @@ public final class TextBox extends Box implements Element, Cloneable {
 
 	public boolean isPenalty() {
 		return mFlag == FLAG_PENALTY;
-	}
-
-	@Hidden
-	public boolean canMerge(TextBox other) {
-		if (other.mTextStyle != null && mTextStyle != null) {
-			return !mTextStyle.isConflict(other.mTextStyle);
-		}
-		return true;
 	}
 
 	public void draw(Canvas canvas, TextPaint paint, float x, float y) {

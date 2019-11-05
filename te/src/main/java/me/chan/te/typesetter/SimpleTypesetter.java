@@ -4,6 +4,7 @@ import java.util.List;
 
 import me.chan.te.config.LineAttributes;
 import me.chan.te.data.Box;
+import me.chan.te.data.DrawableBox;
 import me.chan.te.data.Element;
 import me.chan.te.data.Glue;
 import me.chan.te.data.Penalty;
@@ -129,8 +130,8 @@ class SimpleTypesetter implements ParagraphTypesetter {
 
 	private int mergeIf(List<? extends Element> elements, Box box,
 						int start, float currentLineWidth, float width) {
-		if (!(box instanceof TextBox)) {
-			return start;
+		if (box instanceof DrawableBox) {
+			return -1;
 		}
 
 		TextBox current = (TextBox) box;
@@ -141,20 +142,13 @@ class SimpleTypesetter implements ParagraphTypesetter {
 				break;
 			}
 
-			++start;
 			Penalty penalty = (Penalty) element;
-			if (start < elements.size() &&
-					!(elements.get(start) instanceof TextBox)) {
-				--start;
+			if (start + 1 < elements.size() &&
+					!(elements.get(start + 1) instanceof TextBox)) {
 				break;
 			}
 
-			TextBox next = (TextBox) elements.get(start);
-			if (!next.canMerge(current)) {
-				start -= 2;
-				break;
-			}
-
+			TextBox next = (TextBox) elements.get(start + 1);
 			if (clone == null) {
 				clone = (TextBox) current.clone();
 			}
@@ -165,14 +159,15 @@ class SimpleTypesetter implements ParagraphTypesetter {
 			// 如果超出当前的长度 那么直接结束
 			if (currentLineWidth + cloneWidth + nextWidth > width) {
 				if (currentLineWidth + cloneWidth + penalty.getWidth() <= width) {
-					start -= 2;
+					++start;
 					clone.append(penalty);
 					break;
 				}
-				break;
+				return -1;
 			}
 
 			clone.append(next);
+			++start;
 		}
 
 		if (clone != null) {
