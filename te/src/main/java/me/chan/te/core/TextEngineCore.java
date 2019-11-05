@@ -15,9 +15,6 @@ import java.util.concurrent.Future;
 
 import me.chan.te.config.LineAttributes;
 import me.chan.te.config.Option;
-import me.chan.te.text.Document;
-import me.chan.te.text.Paragraph;
-import me.chan.te.text.Segment;
 import me.chan.te.hypher.Hypher;
 import me.chan.te.log.Log;
 import me.chan.te.measurer.AndroidMeasurer;
@@ -26,7 +23,9 @@ import me.chan.te.parser.TextParser;
 import me.chan.te.source.Source;
 import me.chan.te.source.SourceCloseException;
 import me.chan.te.text.BreakStrategy;
+import me.chan.te.text.Document;
 import me.chan.te.text.Gravity;
+import me.chan.te.text.Segment;
 import me.chan.te.typesetter.Typesetter;
 
 public class TextEngineCore {
@@ -49,6 +48,7 @@ public class TextEngineCore {
 	private BreakStrategy mBreakStrategy = BreakStrategy.BALANCED;
 	private Listener mListener;
 	private Typesetter mTypesetter;
+	private boolean mIndentEnable = false;
 
 	public TextEngineCore(Context context) {
 		this(TypedValue.applyDimension(
@@ -65,10 +65,6 @@ public class TextEngineCore {
 		mHandler = new H(Looper.getMainLooper());
 		mParser = new TextParser();
 		mTypesetter = new Typesetter();
-	}
-
-	public Option getOption() {
-		return mOption;
 	}
 
 	public TextPaint getTextPaint() {
@@ -154,16 +150,21 @@ public class TextEngineCore {
 	}
 
 	private LineAttributes createLineAttributes(float width) {
-		LineAttributes.Attribute defaultAttribute = new LineAttributes.Attribute(width, Gravity.LEFT,
-				(int) mOption.getLineSpacing(), mOption.getSpaceWidth());
+		LineAttributes.Attribute defaultAttribute = new LineAttributes.Attribute(width, Gravity.LEFT, mOption.getSpaceWidth());
 		LineAttributes lineAttributes = new LineAttributes(defaultAttribute);
-		lineAttributes.add(0, new LineAttributes.Attribute(
-				width - mOption.getIndentWidth(),
-				Gravity.LEFT,
-				(int) mOption.getLineSpacing(),
-				mOption.getSpaceWidth()
-		));
+
+		if (mIndentEnable) {
+			lineAttributes.add(0, new LineAttributes.Attribute(
+					width - mOption.getIndentWidth(),
+					Gravity.RIGHT, mOption.getSpaceWidth()
+			));
+		}
+
 		return lineAttributes;
+	}
+
+	public void setIndentEnable(boolean indentEnable) {
+		mIndentEnable = indentEnable;
 	}
 
 	private void refresh() {
@@ -253,10 +254,6 @@ public class TextEngineCore {
 
 	public void setTextColor(int color) {
 		mTextPaint.setColor(color);
-	}
-
-	public float getDescent() {
-		return mMeasurer.getDescent();
 	}
 
 	private class H extends Handler {

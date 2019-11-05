@@ -41,14 +41,4 @@ public abstract class TextStyle {
 	 * @param textPaint text paint
 	 */
 	public abstract void update(TextPaint textPaint);
-
-	/**
-	 * 检查样式是否冲突
-	 *
-	 * @param other 另外一个style
-	 * @return 是否和Other元素style冲突，如果不冲突，表示其对应的Box可以被合并
-	 */
-	public boolean isConflict(TextStyle other) {
-		return !equals(other);
-	}
 }

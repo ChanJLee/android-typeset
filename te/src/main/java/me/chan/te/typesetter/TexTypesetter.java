@@ -8,8 +8,10 @@ import java.util.List;
 
 import me.chan.te.config.LineAttributes;
 import me.chan.te.data.Box;
+import me.chan.te.data.DrawableBox;
 import me.chan.te.data.Element;
 import me.chan.te.data.Glue;
+import me.chan.te.data.TextBox;
 import me.chan.te.text.Line;
 import me.chan.te.text.Paragraph;
 import me.chan.te.data.Penalty;
@@ -209,25 +211,29 @@ class TexTypesetter implements ParagraphTypesetter {
 	 */
 	private int mergeBox(Box box, int start, int end,
 						 List<? extends Element> lineElements) {
+		if (!(box instanceof TextBox)) {
+			return start;
+		}
+
+		TextBox current = (TextBox) box;
 		for (; start < end; ++start) {
 			Element element = lineElements.get(start);
 			if (element instanceof Glue) {
 				break;
 			}
 
-			if (element instanceof Box) {
-				Box other = (Box) element;
-				if (!box.canMerge(other)) {
-					--start;
-					break;
-				}
+			if (element instanceof DrawableBox) {
+				break;
+			}
 
-				box.append(other);
+			if (element instanceof TextBox) {
+				TextBox other = (TextBox) element;
+				current.append(other);
 				continue;
 			}
 
 			if (element instanceof Penalty && start == end - 1) {
-				box.append((Penalty) element);
+				current.append((Penalty) element);
 			}
 		}
 

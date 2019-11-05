@@ -34,14 +34,11 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 	private TextPaint mPaint;
 	private TextPaint mWorkPaint = new TextPaint();
 	private Paint mDebugPaint;
-	private int mSelectionMode = SELECTION_MODE_NONE;
+	private int mSelectionMode = SELECTION_MODE_LONG_PRESS;
 	private GestureDetector mGestureDetector = null;
 	private OnTextSelectedListener mOnTextSelectedListener;
-	private Box mSelectedBox;
-	private Box mSelectedSuffix;
 	private boolean mDebugMode = false;
 	private float mLineSpaceVertical = 0;
-	private float mIntentWidth;
 	private float mDescent;
 
 	public ParagraphView(Context context) {
@@ -58,15 +55,11 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 
 	// TODO opt
 	void render(@NonNull Paragraph paragraph,
-				@NonNull TextPaint paint,
-				float lineSpaceVertical,
-				float intentWidth,
-				float descent) {
+				@NonNull TextPaint paint) {
 		mParagraph = paragraph;
 		mPaint = paint;
-		mIntentWidth = intentWidth;
-		mLineSpaceVertical = lineSpaceVertical;
-		mDescent = descent;
+		mLineSpaceVertical = paint.getFontSpacing();
+		mDescent = paint.getFontMetrics().descent;
 		requestLayout();
 	}
 
@@ -109,6 +102,7 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 				mParagraph == null) {
 			return super.onTouchEvent(event);
 		}
+
 		if (mGestureDetector == null) {
 			mGestureDetector = new GestureDetector(getContext(), this);
 		}
@@ -120,7 +114,7 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
 		int lineCount = 0;
 		if (mParagraph != null && (lineCount = mParagraph.getLineCount()) != 0) {
-			int height = getPaddingTop() + getPaddingBottom();
+			int height = 0;
 			for (int i = 0; i < lineCount; ++i) {
 				Line line = mParagraph.getLine(i);
 				height += line.getLineHeight();
@@ -147,32 +141,31 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 			return;
 		}
 
-		float y = getPaddingTop();
-		float width = getWidth() - getPaddingLeft() - getPaddingRight();
+		float y = 0;
+		float width = getWidth();
 
 		for (int i = 0; i < lineCount; ++i) {
-			float lineWidth = i == 0 ? width - mIntentWidth : width;
 
 			Line line = mParagraph.getLine(i);
 			y += line.getLineHeight();
-			float x = getPaddingLeft();
-			if (i == 0) {
-				x += mIntentWidth;
-			}
 
+			float x;
 			Gravity gravity = line.getGravity();
 			if (gravity == Gravity.CENTER) {
-				x += (lineWidth - line.getLineWidth()) / 2f;
+				x = (width - line.getLineWidth()) / 2f;
 			} else if (gravity == Gravity.RIGHT) {
-				x += (lineWidth - line.getLineWidth());
+				x = (width - line.getLineWidth());
+			} else {
+				x = 0;
 			}
 
-			draw(canvas, line, x, y, mLineSpaceVertical);
+			drawLine(canvas, line, x, y, mLineSpaceVertical);
+
 			y += mLineSpaceVertical;
 		}
 	}
 
-	private void draw(Canvas canvas, Line line, float x, float y, float lineSpace) {
+	private void drawLine(Canvas canvas, Line line, float x, float y, float lineSpace) {
 		float spaceWidth = line.getSpaceWidth();
 		int boxSize = line.getCount();
 
@@ -185,15 +178,14 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 			float top = (float) Math.ceil(y - line.getLineHeight());
 			float bottom = y + mDescent * 1.1f;
 
-
-			if (box == mSelectedBox || box == mSelectedSuffix) {
-				mWorkPaint.set(mPaint);
-				mWorkPaint.setColor(Color.BLUE);
-				canvas.drawRect(left, top, right, bottom, mWorkPaint);
-				mWorkPaint.setColor(Color.WHITE);
-			} else {
-				if (box instanceof TextBox) {
-					TextBox textBox = (TextBox) box;
+			if (box instanceof TextBox) {
+				TextBox textBox = (TextBox) box;
+				if (textBox.isSelected()) {
+					mWorkPaint.set(mPaint);
+					mWorkPaint.setColor(Color.BLUE);
+					canvas.drawRect(left, top, right, bottom, mWorkPaint);
+					mWorkPaint.setColor(Color.WHITE);
+				} else {
 					Background background = textBox.getBackground();
 					if (background != null) {
 						mWorkPaint.set(mPaint);
@@ -254,7 +246,7 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 		}
 
 		Line targetLine = null;
-		float offsetY = getPaddingTop();
+		float offsetY = 0;
 		int lineNumber = 0;
 		for (; lineNumber < lineCount; ++lineNumber) {
 			Line line = mParagraph.getLine(lineNumber);
@@ -274,7 +266,7 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 		int boxSize = targetLine.getCount();
 		float spaceWidth = targetLine.getSpaceWidth();
 
-		float offsetX = getPaddingLeft();
+		float offsetX = 0;
 		Box target = null;
 		for (int i = 0; i < boxSize; ++i) {
 			Box box = targetLine.getBox(i);
@@ -288,16 +280,16 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 			offsetX = (nextOffsetX + spaceWidth);
 		}
 
-		if (target == null) {
+		if (target == null || !(target instanceof TextBox)) {
 			return false;
 		}
 
-		if (target.isPenalty() || target.isSplit()) {
-			return handleClickedPenaltyBox(target, lineNumber + 1);
+		TextBox textBox = (TextBox) target;
+		if (textBox.isPenalty() || textBox.isSplit()) {
+			return handleClickedPenaltyBox(textBox, lineNumber + 1);
 		}
 
-		mSelectedBox = target;
-		mSelectedSuffix = null;
+		textBox.setSelected(true);
 		if (mOnTextSelectedListener != null) {
 			mOnTextSelectedListener.onTextSelected(this, target, null);
 		}
@@ -305,7 +297,7 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 		return true;
 	}
 
-	private boolean handleClickedPenaltyBox(Box current, int nextLineNumber) {
+	private boolean handleClickedPenaltyBox(TextBox current, int nextLineNumber) {
 		int lineCount = mParagraph.getLineCount();
 		if (nextLineNumber < 0 || nextLineNumber >= lineCount) {
 			return false;
@@ -317,8 +309,14 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 		}
 
 		Box suffix = line.getBox(0);
-		mSelectedBox = current;
-		mSelectedSuffix = suffix;
+		if (!(suffix instanceof TextBox)) {
+			suffix = null;
+		} else {
+			TextBox suffixTextBox = (TextBox) suffix;
+			suffixTextBox.setSelected(true);
+		}
+
+		current.setSelected(true);
 		if (mOnTextSelectedListener != null) {
 			mOnTextSelectedListener.onTextSelected(this, current, suffix);
 		}
@@ -360,7 +358,22 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 	}
 
 	public void clearSelected() {
-		mSelectedBox = mSelectedSuffix = null;
+		if (mParagraph == null) {
+			return;
+		}
+
+		int lineCount = mParagraph.getLineCount();
+		for (int i = 0; i < lineCount; ++i) {
+			Line line = mParagraph.getLine(i);
+			int boxCount = line.getCount();
+			for (int j = 0; j < boxCount; ++j) {
+				Box box = line.getBox(j);
+				if (box instanceof TextBox) {
+					((TextBox) box).setSelected(false);
+				}
+			}
+		}
+
 		invalidate();
 	}
 

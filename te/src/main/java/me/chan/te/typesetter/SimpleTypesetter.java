@@ -7,6 +7,7 @@ import me.chan.te.data.Box;
 import me.chan.te.data.Element;
 import me.chan.te.data.Glue;
 import me.chan.te.data.Penalty;
+import me.chan.te.data.TextBox;
 import me.chan.te.text.BreakStrategy;
 import me.chan.te.text.Gravity;
 import me.chan.te.text.Line;
@@ -40,7 +41,8 @@ class SimpleTypesetter implements ParagraphTypesetter {
 
 	private int typesetLine(LineAttributes.Attribute attribute,
 							Paragraph paragraph, int start, BreakStrategy breakStrategy) {
-		List<? extends Element> elements = paragraph.getElements();
+		@SuppressWarnings("unchecked")
+		List<Element> elements = (List<Element>) paragraph.getElements();
 		int size = elements.size();
 		float lineWidth = attribute.getLineWidth();
 		float wordSpaceWidth = attribute.getWordSpaceWidth();
@@ -78,16 +80,24 @@ class SimpleTypesetter implements ParagraphTypesetter {
 			}
 
 			Box box = (Box) element;
-			int next = mergeIf(elements, box, start + 1, currentLineWidth, lineWidth);
-			if (next == -1) {
-				break;
-			}
+			int next = mergeIf(box, start + 1, size, elements);
 
 			// 如果超出当前的长度 那么直接结束
 			if (currentLineWidth + box.getWidth() > lineWidth) {
+				// 超出长度，如果因为当前 box 被merge过，需要调整下下标
+				if (start + 1 != next) {
+					start = next - 1;
+					elements.set(start, box);
+				}
+
+				// 如果一行是空的，说明当前只能排一个，并且都显示不下
+				if (line.isEmpty()) {
+					return spiltIf(paragraph, box, elements, start, line, lineWidth, gravity);
+				}
 				break;
 			}
 
+			// 否则正常的跳转下一个下标
 			start = next;
 
 			line.add(box);
@@ -98,11 +108,6 @@ class SimpleTypesetter implements ParagraphTypesetter {
 			if (lineHeight < box.getHeight()) {
 				lineHeight = box.getHeight();
 			}
-		}
-
-		// 如果一行是空的，说明当前只能排一个，并且都显示不下
-		if (line.isEmpty()) {
-			return spiltIf(paragraph, elements, start, line, lineWidth, gravity);
 		}
 
 		if (breakStrategy == BreakStrategy.SIMPLE) {
@@ -126,68 +131,54 @@ class SimpleTypesetter implements ParagraphTypesetter {
 		return start;
 	}
 
-	private int mergeIf(List<? extends Element> elements, Box box,
-						int start, float currentLineWidth, float width) {
-		Box clone = null;
-		for (; start < elements.size(); ++start) {
-			Element element = elements.get(start);
-			if (!(element instanceof Penalty)) {
-				break;
-			}
-
-			Penalty penalty = (Penalty) element;
-			if (start + 1 < elements.size() &&
-					!(elements.get(start + 1) instanceof Box)) {
-				break;
-			}
-
-			Box next = (Box) elements.get(start + 1);
-			if (!next.canMerge(box)) {
-				return -1;
-			}
-
-			if (clone == null) {
-				clone = (Box) box.clone();
-			}
-
-			float cloneWidth = clone.getWidth();
-			float nextWidth = next.getWidth();
-
-			// 如果超出当前的长度 那么直接结束
-			if (currentLineWidth + cloneWidth + nextWidth > width) {
-				if (currentLineWidth + cloneWidth + penalty.getWidth() <= width) {
-					++start;
-					clone.append(penalty);
-					break;
-				}
-				return -1;
-			}
-
-			clone.append(next);
-			++start;
+	private int mergeIf(Box box, int start, int end, List<? extends Element> elements) {
+		if (!(box instanceof TextBox)) {
+			return start;
 		}
 
-		if (clone != null) {
-			box.copy(clone);
+		TextBox current = (TextBox) box;
+		for (; start < end; ++start) {
+			Element element = elements.get(start);
+			if (element instanceof Penalty) {
+				/* do nothing */
+			} else if (element instanceof TextBox) {
+				TextBox other = (TextBox) element;
+				current.append(other);
+			} else {
+				return start;
+			}
 		}
 
 		return start;
 	}
 
-	private int spiltIf(Paragraph paragraph, List<? extends Element> elements, int start, Line line, float width, Gravity gravity) {
-		if (start >= elements.size()) {
-			return start;
+	private int spiltIf(Paragraph paragraph, Box box, List<Element> elements, int currentIndex, Line line, float width, Gravity gravity) {
+		if (currentIndex >= elements.size()) {
+			return currentIndex;
 		}
 
-		Box box = (Box) elements.get(start);
-		Box suffix = null;
-		if (box.canSpilt() && (suffix = box.spilt(width)) != null) {
-			List<Element> list = (List<Element>) elements;
+		// 如果不是文本 那不好分割 直接返回
+		if (!(box instanceof TextBox)) {
 			line.add(box);
-			list.set(start, suffix);
+			line.setSpaceWidth(0);
+			line.setLineWidth(width);
+			line.setLineHeight(box.getHeight());
+			line.setRatio(0);
+			line.setGravity(gravity);
+			paragraph.addLine(line);
+
+			// 并且忽略吃掉当前的box
+			return currentIndex + 1;
+		}
+
+		TextBox current = (TextBox) box;
+		TextBox suffix = null;
+		if ((suffix = current.spilt(width)) != null) {
+			line.add(box);
+			elements.set(currentIndex, suffix);
 		} else {
+			++currentIndex;
 			line.add(box);
-			++start;
 		}
 
 		line.setSpaceWidth(0);
@@ -196,6 +187,6 @@ class SimpleTypesetter implements ParagraphTypesetter {
 		line.setRatio(0);
 		line.setGravity(gravity);
 		paragraph.addLine(line);
-		return start;
+		return currentIndex;
 	}
 }

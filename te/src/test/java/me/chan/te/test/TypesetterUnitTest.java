@@ -20,6 +20,7 @@ import java.io.InputStreamReader;
 import me.chan.te.config.LineAttributes;
 import me.chan.te.config.Option;
 import me.chan.te.data.Box;
+import me.chan.te.data.TextBox;
 import me.chan.te.hypher.Hypher;
 import me.chan.te.measurer.Measurer;
 import me.chan.te.parser.TextParser;
@@ -123,7 +124,7 @@ public class TypesetterUnitTest {
 	private void checkContent(String text, BreakStrategy breakStrategy, float lineWidth, int textSize) {
 		System.out.println("check content, width: " + lineWidth + " text size: " + textSize + " " + breakStrategy);
 
-		LineAttributes lineAttributes = new LineAttributes(new LineAttributes.Attribute(lineWidth, Gravity.LEFT, 10, 10));
+		LineAttributes lineAttributes = new LineAttributes(new LineAttributes.Attribute(lineWidth, Gravity.LEFT, 10));
 		MockTextPaint paint = new MockTextPaint();
 		Measurer measurer = new MockMeasurer(paint);
 		paint.setMockTextSize(textSize);
@@ -131,7 +132,6 @@ public class TypesetterUnitTest {
 
 		Assert.assertNotEquals(option.getHyphenWidth(), 0);
 		Assert.assertNotEquals(option.getIndentWidth(), 0);
-		Assert.assertNotEquals(option.getLineSpacing(), 0);
 		Assert.assertNotEquals(option.getSpaceShrink(), 0);
 		Assert.assertNotEquals(option.getSpaceStretch(), 0);
 		Assert.assertNotEquals(option.getSpaceWidth(), 0);
@@ -158,8 +158,12 @@ public class TypesetterUnitTest {
 
 				for (int x = 0; x < l.getCount(); ++x) {
 					Box box = l.getBox(x);
+					if (!(box instanceof TextBox)) {
+						continue;
+					}
+
 					String content = box.toString();
-					if (box.isPenalty()) {
+					if (((TextBox) box).isPenalty()) {
 						Assert.assertEquals(content.charAt(content.length() - 1), '-');
 						content = content.substring(0, content.length() - 1);
 					}

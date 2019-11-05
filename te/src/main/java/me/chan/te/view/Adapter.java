@@ -198,13 +198,9 @@ public class Adapter extends RecyclerView.Adapter<Adapter.Renderer> {
 		@Override
 		public void render(Paragraph data) {
 			mParagraphView.setDebugMode(mDebugMode);
-			Option option = mTextEngineCore.getOption();
 			mParagraphView.render(
 					data,
-					mTextEngineCore.getTextPaint(),
-					option.getLineSpacing(),
-					option.getIndentWidth(),
-					mTextEngineCore.getDescent());
+					mTextEngineCore.getTextPaint());
 		}
 	}
 

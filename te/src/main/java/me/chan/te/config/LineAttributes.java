@@ -41,13 +41,11 @@ public class LineAttributes {
 	public static class Attribute {
 		private float mLineWidth;
 		private Gravity mGravity;
-		private int mLineVerticalSpace;
 		private float mWordSpace;
 
-		public Attribute(float lineWidth, Gravity gravity, int lineVerticalSpace, float wordSpace) {
+		public Attribute(float lineWidth, Gravity gravity, float wordSpace) {
 			mLineWidth = lineWidth;
 			mGravity = gravity;
-			mLineVerticalSpace = lineVerticalSpace;
 			mWordSpace = wordSpace;
 		}
 
@@ -57,10 +55,6 @@ public class LineAttributes {
 
 		public Gravity getGravity() {
 			return mGravity;
-		}
-
-		public int getLineVerticalSpace() {
-			return mLineVerticalSpace;
 		}
 
 		public float getWordSpaceWidth() {
