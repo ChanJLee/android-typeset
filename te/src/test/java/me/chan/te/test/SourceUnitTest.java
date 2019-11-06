@@ -9,7 +9,7 @@ import java.io.IOException;
 
 import me.chan.te.source.SourceCloseException;
 import me.chan.te.source.SourceOpenException;
-import me.chan.te.source.StreamSource;
+import me.chan.te.source.StreamTextSource;
 import me.chan.te.test.mock.MockFileInputStream;
 
 import static org.junit.Assert.assertFalse;
@@ -20,7 +20,7 @@ public class SourceUnitTest {
 	public void test() throws IOException {
 		File file = new File("../app/src/main/assets/TheBookAndTheSword.txt");
 		FileInputStream fileInputStream = new FileInputStream(file);
-		StreamSource streamSource = new StreamSource(fileInputStream);
+		StreamTextSource streamSource = new StreamTextSource(fileInputStream);
 		CharSequence charSequence = null;
 		try {
 			charSequence = streamSource.open();
@@ -43,7 +43,7 @@ public class SourceUnitTest {
 
 		fileInputStream = new MockFileInputStream(file);
 		try {
-			streamSource = new StreamSource(fileInputStream);
+			streamSource = new StreamTextSource(fileInputStream);
 			streamSource.open();
 			Assert.fail("test read bad file failed");
 		} catch (SourceOpenException e) {

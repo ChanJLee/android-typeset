@@ -1,10 +1,10 @@
 package me.chan.te.source;
 
-public class RawSource implements Source {
+public class PlainTextSource implements Source<CharSequence> {
 
 	private CharSequence mCharSequence;
 
-	public RawSource(CharSequence charSequence) {
+	public PlainTextSource(CharSequence charSequence) {
 		mCharSequence = charSequence;
 	}
 

@@ -24,7 +24,7 @@ import me.chan.te.text.Figure;
 import me.chan.te.text.Paragraph;
 import me.chan.te.text.UnderLine;
 
-public class BookParser implements Parser {
+public class BookParser implements Parser<CharSequence> {
 
 	private Context mContext;
 	private float mFlagWidth;

@@ -39,7 +39,7 @@ public class TextEngineCore {
 	private AndroidMeasurer mMeasurer;
 	private Handler mHandler;
 	private Parser mParser;
-	private CharSequence mContent;
+	private Object mContent;
 	private int mWidth = 0;
 	private ExecutorService mExecutor = Executors.newSingleThreadExecutor();
 
@@ -97,7 +97,7 @@ public class TextEngineCore {
 			public void run() {
 				try {
 					sendMsg(MSG_START, null);
-					CharSequence content = source.open();
+					Object content = source.open();
 					typeset(content, width);
 				} catch (Throwable throwable) {
 					sendMsg(MSG_FAILURE, throwable);
@@ -114,7 +114,8 @@ public class TextEngineCore {
 	}
 
 	// TODO 异常安全保障
-	private void typeset(final CharSequence content, final int width) {
+	@SuppressWarnings("unchecked")
+	private void typeset(final Object content, final int width) {
 		i("typeset, width, " + width +
 				" strategy: " + mBreakStrategy +
 				" text size: " + mTextPaint.getTextSize());

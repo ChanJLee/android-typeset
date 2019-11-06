@@ -5,11 +5,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
-public class StreamSource implements Source {
+public class StreamTextSource implements Source<CharSequence> {
 
 	private InputStream mInputStream;
 
-	public StreamSource(InputStream inputStream) {
+	public StreamTextSource(InputStream inputStream) {
 		mInputStream = inputStream;
 	}
 
