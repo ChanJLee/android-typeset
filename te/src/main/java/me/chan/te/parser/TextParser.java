@@ -12,7 +12,7 @@ import me.chan.te.measurer.Measurer;
 import static me.chan.te.parser.utils.PlainTextParserUtils.findNewline;
 import static me.chan.te.parser.utils.PlainTextParserUtils.skipBlank;
 
-public class TextParser implements Parser {
+public class TextParser implements Parser<CharSequence> {
 	@Override
 	@NonNull
 	public Document parse(CharSequence charSequence, Measurer measurer, Hypher hypher, Option option) {
