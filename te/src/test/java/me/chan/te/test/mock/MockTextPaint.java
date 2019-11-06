@@ -8,6 +8,14 @@ public class MockTextPaint extends TextPaint {
 
 	private int mMockTextSize = MOCK_TEXT_SIZE;
 
+	public MockTextPaint() {
+		this(MOCK_TEXT_SIZE);
+	}
+
+	public MockTextPaint(int textSize) {
+		mMockTextSize = textSize;
+	}
+
 	public int getMockTextSize() {
 		return mMockTextSize;
 	}
