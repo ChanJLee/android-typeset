@@ -11,7 +11,6 @@ import java.lang.reflect.Field;
 import java.util.List;
 
 import me.chan.te.data.DrawableBox;
-import me.chan.te.data.Element;
 import me.chan.te.data.Glue;
 import me.chan.te.data.Penalty;
 import me.chan.te.data.TextBox;
@@ -458,7 +457,7 @@ public class DataUnitTest {
 		Assert.assertTrue(paragraph.isEmpty());
 		Assert.assertNotNull(paragraph);
 		Assert.assertEquals(paragraph.getLineCount(), 0);
-		Assert.assertEquals(paragraph.getElements().size(), 2);
+		Assert.assertEquals(paragraph.getElementCount(), 2);
 		Assert.assertSame(paragraph.getExtra(), hello);
 		Field field = Paragraph.class.getDeclaredField("mLines");
 		field.setAccessible(true);
@@ -468,14 +467,13 @@ public class DataUnitTest {
 		lines.add(Line.obtain());
 		Assert.assertEquals(paragraph.getLineCount(), 1);
 		Assert.assertFalse(lines.isEmpty());
-		List<? extends Element> elements = paragraph.getElements();
-		Assert.assertSame(elements.get(0).getClass(), Glue.class);
-		Assert.assertSame(elements.get(1).getClass(), Penalty.class);
+		Assert.assertSame(paragraph.getElement(0).getClass(), Glue.class);
+		Assert.assertSame(paragraph.getElement(1).getClass(), Penalty.class);
 
 		paragraph.recycle();
 		Paragraph prev = paragraph;
 		Assert.assertEquals(paragraph.getLineCount(), 0);
-		Assert.assertEquals(paragraph.getElements().size(), 0);
+		Assert.assertEquals(paragraph.getElementCount(), 0);
 		Assert.assertNull(paragraph.getExtra());
 		lines = (List<Line>) field.get(paragraph);
 		Assert.assertNotNull(lines);
@@ -486,36 +484,33 @@ public class DataUnitTest {
 		Assert.assertSame(paragraph, prev);
 		Assert.assertNotNull(paragraph);
 		Assert.assertEquals(paragraph.getLineCount(), 0);
-		Assert.assertEquals(paragraph.getElements().size(), 2);
+		Assert.assertEquals(paragraph.getElementCount(), 2);
 		Assert.assertSame(paragraph.getExtra(), hello);
 		lines = (List<Line>) field.get(paragraph);
 		Assert.assertNotNull(lines);
 		Assert.assertTrue(lines.isEmpty());
-		elements = paragraph.getElements();
-		Assert.assertSame(elements.get(0).getClass(), Glue.class);
-		Assert.assertSame(elements.get(1).getClass(), Penalty.class);
+		Assert.assertSame(paragraph.getElement(0).getClass(), Glue.class);
+		Assert.assertSame(paragraph.getElement(1).getClass(), Penalty.class);
 
 		builder = Paragraph.Builder.newBuilder(new MockMeasurer(mMockTextPaint), Hypher.getInstance(), new MockOption(mMockTextPaint), null);
 		builder.text("hello", 0, 1, null, null, null, null);
 		paragraph = builder.build();
 		Assert.assertFalse(paragraph.isEmpty());
 		Assert.assertNull(paragraph.getExtra());
-		Assert.assertEquals(paragraph.getElements().size(), 3);
-		elements = paragraph.getElements();
-		Assert.assertSame(elements.get(0).getClass(), TextBox.class);
-		Assert.assertSame(elements.get(1).getClass(), Glue.class);
-		Assert.assertSame(elements.get(2).getClass(), Penalty.class);
+		Assert.assertEquals(paragraph.getElementCount(), 3);
+		Assert.assertSame(paragraph.getElement(0).getClass(), TextBox.class);
+		Assert.assertSame(paragraph.getElement(1).getClass(), Glue.class);
+		Assert.assertSame(paragraph.getElement(2).getClass(), Penalty.class);
 
 		builder = Paragraph.Builder.newBuilder(new MockMeasurer(mMockTextPaint), Hypher.getInstance(), new MockOption(mMockTextPaint), null);
 		builder.drawable(new ColorDrawable(10), 10, 10);
 		paragraph = builder.build();
 		Assert.assertFalse(paragraph.isEmpty());
 		Assert.assertNull(paragraph.getExtra());
-		elements = paragraph.getElements();
-		Assert.assertFalse(elements.isEmpty());
-		Assert.assertSame(elements.get(0).getClass(), DrawableBox.class);
-		Assert.assertSame(elements.get(1).getClass(), Glue.class);
-		Assert.assertSame(elements.get(2).getClass(), Penalty.class);
+		Assert.assertNotEquals(paragraph.getElementCount(), 0);
+		Assert.assertSame(paragraph.getElement(0).getClass(), DrawableBox.class);
+		Assert.assertSame(paragraph.getElement(1).getClass(), Glue.class);
+		Assert.assertSame(paragraph.getElement(2).getClass(), Penalty.class);
 	}
 
 	@Test

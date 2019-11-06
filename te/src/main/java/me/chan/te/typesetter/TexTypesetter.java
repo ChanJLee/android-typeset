@@ -70,7 +70,6 @@ class TexTypesetter implements ParagraphTypesetter {
 	}
 
 	private List<Node> createActiveNodes(Paragraph paragraph, LineAttributes lineAttributes, float tolerance) {
-		List<? extends Element> elements = paragraph.getElements();
 		List<Node> activeNodes = new LinkedList<>();
 
 		// header
@@ -79,20 +78,21 @@ class TexTypesetter implements ParagraphTypesetter {
 		activeNodes.add(node);
 
 		Sum sum = Sum.obtain();
-		for (int i = 0; i < elements.size() && !activeNodes.isEmpty(); ++i) {
-			Element element = elements.get(i);
+		int size = paragraph.getElementCount();
+		for (int i = 0; i < size && !activeNodes.isEmpty(); ++i) {
+			Element element = paragraph.getElement(i);
 			if (element instanceof Box) {
 				sum.increaseWidth(getElementWidth(element));
 			} else if (element instanceof Glue) {
-				if (i > 0 && elements.get(i - 1) instanceof Box) {
-					typesetLine(i, elements, activeNodes, sum, lineAttributes, tolerance);
+				if (i > 0 && paragraph.getElement(i - 1) instanceof Box) {
+					typesetLine(i, paragraph, activeNodes, sum, lineAttributes, tolerance);
 				}
 
 				Glue glue = (Glue) element;
 				sum.increaseGlue(glue);
 			} else if (element instanceof Penalty &&
 					((Penalty) element).getPenalty() != INFINITY) {
-				typesetLine(i, elements, activeNodes, sum, lineAttributes, tolerance);
+				typesetLine(i, paragraph, activeNodes, sum, lineAttributes, tolerance);
 			}
 		}
 		sum.recycle();
@@ -118,14 +118,13 @@ class TexTypesetter implements ParagraphTypesetter {
 									   List<BreakPoint> breakPoints,
 									   LineAttributes lineAttributes) {
 
-		List<? extends Element> elements = paragraph.getElements();
 		int lineStart = 0;
-		int size = elements.size();
+		int size = paragraph.getElementCount();
 		for (int i = 1; i < breakPoints.size(); ++i) {
 			BreakPoint breakPoint = breakPoints.get(i);
 			int pos = breakPoint.position;
-			for (int j = lineStart; j != 0 && j < elements.size(); ++j) {
-				Element element = elements.get(j);
+			for (int j = lineStart; j != 0 && j < size; ++j) {
+				Element element = paragraph.getElement(j);
 				if (element instanceof Box || (element instanceof Penalty && ((Penalty) element).getPenalty() == -INFINITY)) {
 					lineStart = j;
 					break;
@@ -140,7 +139,7 @@ class TexTypesetter implements ParagraphTypesetter {
 			int lineNumber = paragraph.getLineCount();
 			LineAttributes.Attribute attribute = lineAttributes.get(lineNumber);
 			paragraph.addLine(createLine(
-					elements,
+					paragraph,
 					lineStart,
 					lineEnd,
 					breakPoint.ratio,
@@ -153,14 +152,15 @@ class TexTypesetter implements ParagraphTypesetter {
 	}
 
 	/**
-	 * @param elements   排版元素
+	 * @param paragraph  paragraph
 	 * @param start      开始位置
 	 * @param end        结束位置
 	 * @param ratio      ratio
+	 * @param attribute  attribute
 	 * @param isLastLine 是否是最后一行
 	 * @return 行
 	 */
-	private Line createLine(List<? extends Element> elements, int start, int end, float ratio,
+	private Line createLine(Paragraph paragraph, int start, int end, float ratio,
 							LineAttributes.Attribute attribute, boolean isLastLine) {
 		float lineWidth = attribute.getLineWidth();
 		float expectWordSpace = attribute.getWordSpaceWidth();
@@ -169,13 +169,13 @@ class TexTypesetter implements ParagraphTypesetter {
 		Line line = Line.obtain();
 		float boxTotalWidth = 0;
 		for (int i = start; i < end; ++i) {
-			Element element = elements.get(i);
+			Element element = paragraph.getElement(i);
 			if (!(element instanceof Box)) {
 				continue;
 			}
 
-			Box box = (Box) elements.get(i);
-			i = mergeBox(box, i + 1, end, elements);
+			Box box = (Box) element;
+			i = mergeBox(box, i + 1, end, paragraph);
 
 			if (lineHeight < box.getHeight()) {
 				lineHeight = box.getHeight();
@@ -205,19 +205,21 @@ class TexTypesetter implements ParagraphTypesetter {
 	}
 
 	/**
-	 * @param start        merge 开始的位置
-	 * @param lineElements 当前行
+	 * @param box       box
+	 * @param start     merge 开始的位置
+	 * @param end       end
+	 * @param paragraph paragraph
 	 * @return 最后一个能被处理的index
 	 */
 	private int mergeBox(Box box, int start, int end,
-						 List<? extends Element> lineElements) {
+						 Paragraph paragraph) {
 		if (!(box instanceof TextBox)) {
 			return start;
 		}
 
 		TextBox current = (TextBox) box;
 		for (; start < end; ++start) {
-			Element element = lineElements.get(start);
+			Element element = paragraph.getElement(start);
 			if (element instanceof Glue) {
 				break;
 			}
@@ -269,16 +271,16 @@ class TexTypesetter implements ParagraphTypesetter {
 	 * 对一行进行排版
 	 *
 	 * @param index          当前第几个元素
-	 * @param elements       需要排版的元素
+	 * @param paragraph      paragraph
 	 * @param activeNodes    active nodes
 	 * @param sum            sum
 	 * @param lineAttributes 行配置信息
 	 * @param tolerance      允许的缺陷阈值
 	 */
-	private void typesetLine(int index, List<? extends Element> elements,
+	private void typesetLine(int index, Paragraph paragraph,
 							 List<Node> activeNodes, Sum sum,
 							 LineAttributes lineAttributes, float tolerance) {
-		Element element = elements.get(index);
+		Element element = paragraph.getElement(index);
 		Node active = activeNodes.isEmpty() ? null : activeNodes.get(0);
 
 		while (active != null) {
@@ -296,7 +298,7 @@ class TexTypesetter implements ParagraphTypesetter {
 				if (ratio >= MIN_SHRINK_RATIO && ratio <= tolerance) {
 					int currentClass = computeClazz(ratio);
 
-					float demerits = computeDemerits(element, elements, ratio, active, currentClass);
+					float demerits = computeDemerits(element, paragraph, ratio, active, currentClass);
 
 					// Only store the best candidate for each fitness class
 					if (candidates[currentClass] == null || demerits < candidates[currentClass].demerits) {
@@ -318,7 +320,7 @@ class TexTypesetter implements ParagraphTypesetter {
 				}
 			}
 
-			Sum tmpSum = computeSum(index, elements, sum);
+			Sum tmpSum = computeSum(index, paragraph, sum);
 			createIfActiveNode(active, index, activeNodes, tmpSum, candidates);
 			tmpSum.recycle();
 			for (Candidate candidate : candidates) {
@@ -410,7 +412,7 @@ class TexTypesetter implements ParagraphTypesetter {
 		return 0;
 	}
 
-	private float computeDemerits(Element element, List<? extends Element> elements, float ratio, Node active, int currentClass) {
+	private float computeDemerits(Element element, Paragraph paragraph, float ratio, Node active, int currentClass) {
 		float badness = (float) (100 * Math.pow(Math.abs(ratio), 3));
 		float demerits;
 
@@ -430,9 +432,9 @@ class TexTypesetter implements ParagraphTypesetter {
 		}
 
 		if (element instanceof Penalty &&
-				elements.get(active.getData().position) instanceof Penalty) {
+				paragraph.getElement(active.getData().position) instanceof Penalty) {
 			Penalty penalty = (Penalty) element;
-			Penalty activePenalty = (Penalty) elements.get(active.getData().position);
+			Penalty activePenalty = (Penalty) paragraph.getElement(active.getData().position);
 			if (penalty.isFlag() && activePenalty.isFlag()) {
 				demerits += DEMERITS_FLAGGED;
 			}
@@ -448,11 +450,12 @@ class TexTypesetter implements ParagraphTypesetter {
 		return demerits;
 	}
 
-	private Sum computeSum(int index, List<? extends Element> elements, Sum sum) {
+	private Sum computeSum(int index, Paragraph paragraph, Sum sum) {
 		Sum result = Sum.obtain(sum);
 
-		for (int i = index; i < elements.size(); ++i) {
-			Element element = elements.get(i);
+		int size = paragraph.getElementCount();
+		for (int i = index; i < size; ++i) {
+			Element element = paragraph.getElement(i);
 			if (element instanceof Glue) {
 				Glue glue = (Glue) element;
 				result.increaseGlue(glue);

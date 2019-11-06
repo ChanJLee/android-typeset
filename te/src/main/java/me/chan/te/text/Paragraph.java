@@ -74,6 +74,25 @@ public class Paragraph implements Recyclable, Segment {
 		POOL.release(this);
 	}
 
+	@Hidden
+	public int getElementCount() {
+		return mElements.size();
+	}
+
+	@Hidden
+	public Element getElement(int index) {
+		return mElements.get(index);
+	}
+
+	@Hidden
+	public void replace(int index, Element element) {
+		mElements.set(index, element);
+	}
+
+	public static void clean() {
+		POOL.clean();
+	}
+
 	private static Paragraph obtain(Object extra) {
 		Paragraph paragraph = POOL.acquire();
 		if (paragraph == null) {
@@ -81,16 +100,6 @@ public class Paragraph implements Recyclable, Segment {
 		}
 		paragraph.mExtra = extra;
 		return paragraph;
-	}
-
-	public static void clean() {
-		POOL.clean();
-	}
-
-	// TODO remove
-	@Hidden
-	public List<? extends Element> getElements() {
-		return mElements;
 	}
 
 	/**
