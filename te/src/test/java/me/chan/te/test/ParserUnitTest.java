@@ -58,42 +58,36 @@ public class ParserUnitTest {
 
 
 		Paragraph paragraph = (Paragraph) document.getSegment(0);
-		List<? extends Element> list = paragraph.getElements();
-		assertEquals(list.size(), 3);
+		assertEquals(paragraph.getElementCount(), 3);
 
-		assertEquals("check type, index 0", list.get(0).getClass(), TextBox.class);
-		assertEquals("check type, index 1", list.get(1).getClass(), Glue.class);
-		assertEquals("check type, index 2", list.get(2).getClass(), Penalty.class);
+		assertEquals("check type, index 0", paragraph.getElement(0).getClass(), TextBox.class);
+		assertEquals("check type, index 1", paragraph.getElement(1).getClass(), Glue.class);
+		assertEquals("check type, index 2", paragraph.getElement(2).getClass(), Penalty.class);
 
-		Box box = (Box) list.get(0);
+		Box box = (Box) paragraph.getElement(0);
 		assertEquals("check box content: ", box.toString(), "hello");
 
 		document = textParser.parse(" triangle\n\n\n", measurer, Hypher.getInstance(), MockOption);
 		assertEquals(document.getCount(), 1);
 
 		paragraph = (Paragraph) document.getSegment(0);
-		list = paragraph.getElements();
-		assertEquals(list.size(), 7);
+		assertEquals(paragraph.getElementCount(), 7);
 
-		for (Element element : list) {
-			System.out.println(element);
-		}
+		assertEquals("check type, index 0", paragraph.getElement(0).getClass(), TextBox.class);
+		assertEquals("check type, index 1", paragraph.getElement(1).getClass(), Penalty.class);
+		assertEquals("check type, index 2", paragraph.getElement(2).getClass(), TextBox.class);
+		assertEquals("check type, index 3", paragraph.getElement(3).getClass(), Penalty.class);
+		assertEquals("check type, index 4", paragraph.getElement(4).getClass(), TextBox.class);
+		assertEquals("check type, index 5", paragraph.getElement(5).getClass(), Glue.class);
+		assertEquals("check type, index 6", paragraph.getElement(6).getClass(), Penalty.class);
 
-		assertEquals("check type, index 0", list.get(0).getClass(), TextBox.class);
-		assertEquals("check type, index 1", list.get(1).getClass(), Penalty.class);
-		assertEquals("check type, index 2", list.get(2).getClass(), TextBox.class);
-		assertEquals("check type, index 3", list.get(3).getClass(), Penalty.class);
-		assertEquals("check type, index 4", list.get(4).getClass(), TextBox.class);
-		assertEquals("check type, index 5", list.get(5).getClass(), Glue.class);
-		assertEquals("check type, index 6", list.get(6).getClass(), Penalty.class);
-
-		box = (Box) list.get(0);
+		box = (Box) paragraph.getElement(0);
 		assertEquals("check box content: ", box.toString(), "tri");
 
-		box = (Box) list.get(2);
+		box = (Box) paragraph.getElement(2);
 		assertEquals("check box content: ", box.toString(), "an");
 
-		box = (Box) list.get(4);
+		box = (Box) paragraph.getElement(4);
 		assertEquals("check box content: ", box.toString(), "gle");
 	}
 
@@ -126,8 +120,8 @@ public class ParserUnitTest {
 			}
 
 			Paragraph paragraph = (Paragraph) document.getSegment(0);
-			List<? extends Element> list = paragraph.getElements();
-			for (Element element : list) {
+			for (int i = 0; i < paragraph.getElementCount(); ++i) {
+				Element element = paragraph.getElement(i);
 				if (element instanceof Box) {
 					stringBuilder.append(element);
 				}
@@ -162,7 +156,8 @@ public class ParserUnitTest {
 		System.out.println("used time: " + (System.currentTimeMillis() - timestamp));
 		for (int i = 0; i < document.getCount(); ++i) {
 			Paragraph paragraph = (Paragraph) document.getSegment(i);
-			for (Element element : paragraph.getElements()) {
+			for (int j = 0; j < paragraph.getElementCount(); ++j) {
+				Element element = paragraph.getElement(j);
 				if (element instanceof Box) {
 					stringBuilder.append(element);
 				}
