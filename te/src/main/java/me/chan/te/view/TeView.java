@@ -1,29 +1,34 @@
 package me.chan.te.view;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
-import android.graphics.Rect;
+import android.content.res.TypedArray;
 import android.graphics.Typeface;
-import android.support.annotation.NonNull;
 import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.PagerSnapHelper;
 import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
 import android.util.TypedValue;
-import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.widget.FrameLayout;
 
-import me.chan.te.text.BreakStrategy;
+import me.chan.te.R;
 import me.chan.te.parser.Parser;
 import me.chan.te.source.Source;
+import me.chan.te.text.BreakStrategy;
 
 public class TeView extends FrameLayout {
 
-	private Adapter mAdapter;
+	private static final int BREAK_STRATEGY_SIMPLE = 1;
+	private static final int BREAK_STRATEGY_BALANCE = 2;
 
-	public TeView(Context context) {
-		this(context, null);
-	}
+	static final int MODE_PAGING = 1;
+	static final int MODE_SLIDING = 2;
+
+
+	private Adapter mAdapter;
+	private RecyclerView mImpl;
 
 	public TeView(Context context, AttributeSet attrs) {
 		this(context, attrs, 0);
@@ -32,21 +37,52 @@ public class TeView extends FrameLayout {
 	public TeView(Context context, AttributeSet attrs, int defStyleAttr) {
 		super(context, attrs, defStyleAttr);
 
-		RecyclerView recyclerView = new RecyclerView(context);
-		recyclerView.setClipToPadding(false);
-		recyclerView.setClipChildren(false);
-		addView(recyclerView, new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+		mImpl = new RecyclerView(context);
+		mImpl.setClipToPadding(false);
+		mImpl.setClipChildren(false);
+		mImpl.setLayoutManager(new LinearLayoutManager(context));
+		addView(mImpl, new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
 
-		recyclerView.addItemDecoration(new RecyclerView.ItemDecoration() {
-			@Override
-			public void getItemOffsets(@NonNull Rect outRect, @NonNull View view, @NonNull RecyclerView parent, @NonNull RecyclerView.State state) {
-				outRect.set(0, 0, 0, 50);
-			}
-		});
-
-		recyclerView.setLayoutManager(new LinearLayoutManager(context));
 		mAdapter = new Adapter(context);
-		recyclerView.setAdapter(mAdapter);
+		mImpl.setAdapter(mAdapter);
+
+		init(context, attrs, defStyleAttr);
+	}
+
+	private void init(Context context, AttributeSet attributeSet, int defStyleAttr) {
+		@SuppressLint("CustomViewStyleable")
+		TypedArray typedArray = context.obtainStyledAttributes(attributeSet, R.styleable.me_chan_te_TeView, defStyleAttr, 0);
+		try {
+			init(typedArray);
+		} finally {
+			typedArray.recycle();
+		}
+	}
+
+	private void init(TypedArray typedArray) {
+		float segmentSpace = typedArray.getDimension(R.styleable.me_chan_te_TeView_segmentSpace, TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 22, getResources().getDisplayMetrics()));
+		mImpl.addItemDecoration(new SpaceItemDecoration(segmentSpace));
+
+		int mode = typedArray.getInt(R.styleable.me_chan_te_TeView_segmentSpace, MODE_SLIDING);
+		if (mode == MODE_PAGING) {
+			PagerSnapHelper pagerSnapHelper = new PagerSnapHelper();
+			pagerSnapHelper.attachToRecyclerView(mImpl);
+		}
+
+		float textSize = typedArray.getDimension(R.styleable.me_chan_te_TeView_textSize, TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 18, getResources().getDisplayMetrics()));
+		mAdapter.setTextSize(textSize);
+
+		int breakStrategy = typedArray.getInt(R.styleable.me_chan_te_TeView_breakStrategy, BREAK_STRATEGY_BALANCE);
+		if (breakStrategy == BREAK_STRATEGY_SIMPLE) {
+			mAdapter.setBreakStrategy(BreakStrategy.SIMPLE);
+		} else {
+			mAdapter.setBreakStrategy(BreakStrategy.BALANCED);
+		}
+
+		boolean wordSelectable = typedArray.getBoolean(R.styleable.me_chan_te_TeView_wordSelectable, false);
+		// TODO
+
+
 	}
 
 	public void setSource(final Source source) {
