@@ -22,10 +22,6 @@ public class LineAttributes {
 		return this;
 	}
 
-	public Attribute getDefaultAttribute() {
-		return mDefaultAttribute;
-	}
-
 	public void remove(int lineNumber) {
 		mMap.remove(lineNumber);
 	}
