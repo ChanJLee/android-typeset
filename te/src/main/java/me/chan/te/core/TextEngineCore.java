@@ -24,9 +24,12 @@ import me.chan.te.source.Source;
 import me.chan.te.source.SourceCloseException;
 import me.chan.te.text.BreakStrategy;
 import me.chan.te.text.Document;
+import me.chan.te.text.Figure;
 import me.chan.te.text.Gravity;
+import me.chan.te.text.Page;
+import me.chan.te.text.Paragraph;
 import me.chan.te.text.Segment;
-import me.chan.te.typesetter.Typesetter;
+import me.chan.te.typesetter.CoreParagraphTypesetter;
 
 public class TextEngineCore {
 	private static final int DEFAULT_TEXT_SIZE = 18;
@@ -47,7 +50,7 @@ public class TextEngineCore {
 	private Future<?> mTask;
 	private BreakStrategy mBreakStrategy = BreakStrategy.BALANCED;
 	private Listener mListener;
-	private Typesetter mTypesetter;
+	private CoreParagraphTypesetter mTypesetter;
 	private boolean mIndentEnable = false;
 
 	public TextEngineCore(Context context) {
@@ -64,7 +67,7 @@ public class TextEngineCore {
 		mOption = new Option(mMeasurer);
 		mHandler = new H(Looper.getMainLooper());
 		mParser = new TextParser();
-		mTypesetter = new Typesetter();
+		mTypesetter = new CoreParagraphTypesetter();
 	}
 
 	public TextPaint getTextPaint() {
@@ -115,7 +118,7 @@ public class TextEngineCore {
 
 	// TODO 异常安全保障
 	@SuppressWarnings("unchecked")
-	private void typeset(final Object content, final int width) {
+	private void typeset(final Object content, final int width, int height) {
 		i("typeset, width, " + width +
 				" strategy: " + mBreakStrategy +
 				" text size: " + mTextPaint.getTextSize());
@@ -131,16 +134,28 @@ public class TextEngineCore {
 		// parse
 		long timestamp = SystemClock.elapsedRealtime();
 		mDocument = mParser.parse(content, mMeasurer, Hypher.getInstance(), mOption);
-		int size = mDocument.getCount();
-		i("parse used time: " + (SystemClock.elapsedRealtime() - timestamp) + " paragraphs size: " + size);
+		int size = mDocument.getSegmentCount();
+		i("parse used time: " + (SystemClock.elapsedRealtime() - timestamp) + " segment size: " + size);
 		timestamp = SystemClock.elapsedRealtime();
 
 		// typeset
 		final Thread thread = Thread.currentThread();
 		LineAttributes lineAttributes = createLineAttributes(width);
+
+		Page page = Page.obtian();
+		int height = 0;
 		for (int i = 0; i < size && !thread.isInterrupted(); ++i) {
 			Segment segment = mDocument.getSegment(i);
-			mTypesetter.typeset(segment, lineAttributes, mBreakStrategy);
+			if (segment instanceof Figure) {
+				typesetFigure((Figure) segment, lineAttributes);
+			} else if (segment instanceof Paragraph) {
+				mTypesetter.typeset((Paragraph) segment, lineAttributes, mBreakStrategy);
+			} else {
+				continue;
+			}
+
+			// TODO 排入 page
+			page.addSegment(segment);
 		}
 
 		i("typeset used time: " + (SystemClock.elapsedRealtime() - timestamp));
@@ -148,6 +163,26 @@ public class TextEngineCore {
 
 		// call listener
 		sendMsg(MSG_FINISHED, mDocument);
+	}
+
+	private void typesetFigure(Figure figure, LineAttributes lineAttributes) {
+		LineAttributes.Attribute attribute = lineAttributes.getDefaultAttribute();
+
+		float lineWidth = attribute.getLineWidth();
+
+		float width = figure.getWidth();
+		float height = figure.getHeight();
+
+		if (width >= 0 && height >= 0) {
+			if (width > lineWidth) {
+				figure.setWidth(lineWidth);
+				figure.setHeight(height / width * lineWidth);
+			}
+			return;
+		}
+
+		figure.setWidth(lineWidth);
+		figure.setHeight(lineWidth / Figure.DEFAULT_RATIO);
 	}
 
 	private LineAttributes createLineAttributes(float width) {
