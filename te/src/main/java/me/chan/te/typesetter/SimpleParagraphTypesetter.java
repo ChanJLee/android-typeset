@@ -11,7 +11,7 @@ import me.chan.te.text.Gravity;
 import me.chan.te.text.Line;
 import me.chan.te.text.Paragraph;
 
-class SimpleTypesetter implements ParagraphTypesetter {
+class SimpleParagraphTypesetter implements ParagraphTypesetter {
 
 	@Override
 	public boolean typeset(Paragraph paragraph,

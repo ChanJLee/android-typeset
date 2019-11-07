@@ -35,7 +35,7 @@ import me.chan.te.text.Gravity;
 import me.chan.te.text.Line;
 import me.chan.te.text.Paragraph;
 import me.chan.te.text.Segment;
-import me.chan.te.typesetter.CoreParagraphTypesetter;
+import me.chan.te.typesetter.ParagraphTypesetterImpl;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
@@ -138,7 +138,7 @@ public class TypesetterUnitTest {
 		Assert.assertNotEquals(option.getSpaceStretch(), 0);
 		Assert.assertNotEquals(option.getSpaceWidth(), 0);
 
-		CoreParagraphTypesetter texTypesetter = new CoreParagraphTypesetter();
+		ParagraphTypesetterImpl texTypesetter = new ParagraphTypesetterImpl();
 		TextParser textParser = new TextParser();
 		Document document = textParser.parse(text, measurer, Hypher.getInstance(), option);
 		assertNotEquals(document.getCount(), 0);
@@ -308,7 +308,7 @@ public class TypesetterUnitTest {
 
 		LineAttributes lineAttributes = new LineAttributes(new LineAttributes.Attribute(width, Gravity.LEFT, option.getSpaceWidth()));
 
-		CoreParagraphTypesetter typesetter = new CoreParagraphTypesetter();
+		ParagraphTypesetterImpl typesetter = new ParagraphTypesetterImpl();
 		for (int i = 0; i < document.getCount(); ++i) {
 			typesetter.typeset(document.getSegment(i), lineAttributes, breakStrategy);
 		}

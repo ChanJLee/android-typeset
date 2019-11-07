@@ -5,13 +5,13 @@ import me.chan.te.log.Log;
 import me.chan.te.text.BreakStrategy;
 import me.chan.te.text.Paragraph;
 
-public class CoreParagraphTypesetter implements ParagraphTypesetter {
+public class ParagraphTypesetterImpl implements ParagraphTypesetter {
 	private ParagraphTypesetter mTexTypesetter;
 	private ParagraphTypesetter mSimpleTypesetter;
 
-	public CoreParagraphTypesetter() {
-		mTexTypesetter = new TexTypesetter();
-		mSimpleTypesetter = new SimpleTypesetter();
+	public ParagraphTypesetterImpl() {
+		mTexTypesetter = new TexParagraphTypesetter();
+		mSimpleTypesetter = new SimpleParagraphTypesetter();
 	}
 
 	@Override
