@@ -66,10 +66,12 @@ public class Paragraph implements Recyclable, Segment {
 			mLines.get(i).recycle();
 		}
 		mLines.clear();
+
 		for (int i = 0; i < mElements.size(); ++i) {
 			mElements.get(i).recycle();
 		}
 		mElements.clear();
+
 		mExtra = null;
 		POOL.release(this);
 	}
