@@ -29,7 +29,7 @@ import me.chan.te.text.Gravity;
 import me.chan.te.text.Page;
 import me.chan.te.text.Paragraph;
 import me.chan.te.text.Segment;
-import me.chan.te.typesetter.CoreParagraphTypesetter;
+import me.chan.te.typesetter.ParagraphTypesetterImpl;
 
 public class TextEngineCore {
 	private static final int DEFAULT_TEXT_SIZE = 18;
@@ -50,7 +50,7 @@ public class TextEngineCore {
 	private Future<?> mTask;
 	private BreakStrategy mBreakStrategy = BreakStrategy.BALANCED;
 	private Listener mListener;
-	private CoreParagraphTypesetter mTypesetter;
+	private ParagraphTypesetterImpl mTypesetter;
 	private boolean mIndentEnable = false;
 
 	public TextEngineCore(Context context) {
@@ -67,7 +67,7 @@ public class TextEngineCore {
 		mOption = new Option(mMeasurer);
 		mHandler = new H(Looper.getMainLooper());
 		mParser = new TextParser();
-		mTypesetter = new CoreParagraphTypesetter();
+		mTypesetter = new ParagraphTypesetterImpl();
 	}
 
 	public TextPaint getTextPaint() {
