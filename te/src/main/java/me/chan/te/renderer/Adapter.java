@@ -1,4 +1,4 @@
-package me.chan.te.view;
+package me.chan.te.renderer;
 
 import android.content.Context;
 import android.graphics.Typeface;
@@ -16,7 +16,6 @@ import android.widget.Toast;
 import java.util.List;
 
 import me.chan.te.R;
-import me.chan.te.core.TextEngineCore;
 import me.chan.te.image.ImageLoader;
 import me.chan.te.parser.Parser;
 import me.chan.te.source.Source;
@@ -42,7 +41,7 @@ public class Adapter extends RecyclerView.Adapter<Adapter.Renderer> {
 	public Adapter(final Context context) {
 		mLayoutInflater = LayoutInflater.from(context);
 		mTextEngineCore = new TextEngineCore(context);
-		mTextEngineCore.setListener(new TextEngineCore.Listener() {
+		mTextEngineCore.setRenderer(new TextEngineCore.Listener() {
 			@Override
 			public void onStart() {
 				mDocument = null;

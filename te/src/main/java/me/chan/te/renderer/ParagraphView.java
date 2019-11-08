@@ -1,4 +1,4 @@
-package me.chan.te.view;
+package me.chan.te.renderer;
 
 import android.content.Context;
 import android.graphics.Canvas;

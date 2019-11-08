@@ -1,4 +1,4 @@
-package me.chan.te.view;
+package me.chan.te.renderer;
 
 import android.annotation.SuppressLint;
 import android.content.Context;

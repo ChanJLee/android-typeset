@@ -1,13 +1,10 @@
-package me.chan.te.core;
+package me.chan.te.renderer;
 
-import android.content.Context;
-import android.graphics.Typeface;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.os.SystemClock;
 import android.text.TextPaint;
-import android.util.TypedValue;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -32,8 +29,7 @@ import me.chan.te.text.Paragraph;
 import me.chan.te.text.Segment;
 import me.chan.te.typesetter.ParagraphTypesetterImpl;
 
-public class TextEngineCore {
-	private static final int DEFAULT_TEXT_SIZE = 18;
+class TextEngineCore {
 	private static final int MSG_START = 1;
 	private static final int MSG_FINISHED = 2;
 	private static final int MSG_FAILURE = 3;
@@ -45,46 +41,36 @@ public class TextEngineCore {
 	private Parser mParser;
 	private Object mContent;
 	private int mWidth = 0;
+	private int mHeight = 0;
 	private ExecutorService mExecutor = Executors.newSingleThreadExecutor();
 
 	private Document mDocument;
 	private Future<?> mTask;
 	private BreakStrategy mBreakStrategy = BreakStrategy.BALANCED;
-	private Listener mListener;
+	private Renderer mRenderer;
 	private ParagraphTypesetterImpl mTypesetter;
-	private boolean mIndentEnable = false;
-	private float mLineSpaceVertical;
-	private float mSegmentSpaceVertical;
+	private RenderOption mRenderOption;
 
-	public TextEngineCore(Context context, float segmentSpaceVertical) {
-		this(TypedValue.applyDimension(
-				TypedValue.COMPLEX_UNIT_SP,
-				DEFAULT_TEXT_SIZE,
-				context.getResources().getDisplayMetrics()), segmentSpaceVertical);
-	}
 
-	public TextEngineCore(float textSize, float segmentSpaceVertical) {
+	TextEngineCore(Renderer renderer, RenderOption renderOption) {
 		mTextPaint = new TextPaint(TextPaint.ANTI_ALIAS_FLAG);
-		mTextPaint.setTextSize(textSize);
+		mTextPaint.setTextSize(renderOption.getTextSize());
 		mMeasurer = new AndroidMeasurer(mTextPaint);
 		mOption = new Option(mMeasurer);
 		mHandler = new H(Looper.getMainLooper());
 		mParser = new TextParser();
 		mTypesetter = new ParagraphTypesetterImpl();
-		mLineSpaceVertical = mTextPaint.getFontSpacing();
-		mSegmentSpaceVertical = segmentSpaceVertical;
+		mRenderer = renderer;
+		mRenderOption = renderOption;
 	}
 
-	public TextPaint getTextPaint() {
+	TextPaint getTextPaint() {
 		return mTextPaint;
 	}
 
-	public void setListener(Listener listener) {
-		mListener = listener;
-	}
-
-	public void setParser(Parser parser) {
+	void setParser(Parser parser) {
 		mParser = parser;
+		reload();
 	}
 
 	/**
@@ -93,7 +79,7 @@ public class TextEngineCore {
 	 * @param source source
 	 * @param width  width, must be > 0
 	 */
-	public void typeset(final Source source, final int width, final int height) {
+	void typeset(final Source source, final int width, final int height) {
 		if (width <= 0 || height <= 0) {
 			sendMsg(MSG_FAILURE, new IllegalArgumentException("width and height must be large than 0"));
 			return;
@@ -124,11 +110,13 @@ public class TextEngineCore {
 	// TODO 异常安全保障
 	@SuppressWarnings("unchecked")
 	private void typeset(final Object content, final int width, int height) {
-		i("typeset, width, " + width +
+		i("typeset, width: " + width +
+				"height: " + height +
 				" strategy: " + mBreakStrategy +
 				" text size: " + mTextPaint.getTextSize());
 
 		mWidth = width;
+		mHeight = height;
 		mContent = content;
 
 		// recycle memory
@@ -180,7 +168,7 @@ public class TextEngineCore {
 		float nextPageHeight = currentPage.getHeight();
 		if (nextPageHeight != 0) {
 			// 这里可以区分不同类型 选择不同的垂直方向偏移
-			nextPageHeight += mSegmentSpaceVertical;
+			nextPageHeight += mRenderOption.getSegmentSpace();
 		}
 
 		float currentSegmentHeight = getSegmentHeight(segment);
@@ -212,7 +200,7 @@ public class TextEngineCore {
 			Paragraph paragraph = (Paragraph) segment;
 			int size = paragraph.getLineCount();
 			if (size != 0) {
-				height += ((size - 1) * mLineSpaceVertical);
+				height += ((size - 1) * mRenderOption.getLineSpace());
 			}
 			for (int i = 0; i < size; ++i) {
 				Line line = paragraph.getLine(i);
@@ -245,7 +233,7 @@ public class TextEngineCore {
 		LineAttributes.Attribute defaultAttribute = new LineAttributes.Attribute(width, Gravity.LEFT, mOption.getSpaceWidth());
 		LineAttributes lineAttributes = new LineAttributes(defaultAttribute);
 
-		if (mIndentEnable) {
+		if (mRenderOption.isIndentEnable()) {
 			lineAttributes.add(0, new LineAttributes.Attribute(
 					width - mOption.getIndentWidth(),
 					Gravity.RIGHT, mOption.getSpaceWidth()
@@ -253,31 +241,6 @@ public class TextEngineCore {
 		}
 
 		return lineAttributes;
-	}
-
-	public void setIndentEnable(boolean indentEnable) {
-		mIndentEnable = indentEnable;
-	}
-
-	private void refresh() {
-		if (mContent == null || mWidth < 0) {
-			return;
-		}
-
-		cancel();
-
-		mTask = mExecutor.submit(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					sendMsg(MSG_START, null);
-					typeset(mContent, mWidth);
-				} catch (Throwable throwable) {
-					sendMsg(MSG_FAILURE, throwable);
-				}
-			}
-		});
-		d("refresh: " + mTask);
 	}
 
 	private void sendMsg(int what, Object o) {
@@ -296,9 +259,9 @@ public class TextEngineCore {
 		mHandler.sendMessage(message);
 	}
 
-	public void release() {
+	void release() {
 		cancel();
-		mListener = null;
+		mRenderer = null;
 		mDocument = null;
 		mHandler.removeCallbacksAndMessages(null);
 		mHandler = null;
@@ -311,47 +274,31 @@ public class TextEngineCore {
 		}
 	}
 
-	public void setTextSize(float textSize) {
-		if (mTextPaint.getTextSize() == textSize) {
-			d("text size do not changed, ignore set text size");
+	void reload(RenderOption renderOption) {
+		mMeasurer.refresh(mTextPaint);
+		mOption.refresh(mMeasurer);
+		mRenderOption = renderOption;
+		reload();
+	}
+
+	private void reload() {
+		if (mContent == null || mWidth < 0 || mHeight < 0) {
 			return;
 		}
 
-		mTextPaint.setTextSize(textSize);
-		updateWidget();
-
-		refresh();
-	}
-
-	private static void d(String msg) {
-		Log.d("TextEngineCore", msg);
-	}
-
-	private static void i(String msg) {
-		Log.i("TextEngineCore", msg);
-	}
-
-	public void setBreakStrategy(BreakStrategy breakStrategy) {
-		d("set break strategy: " + breakStrategy);
-		mBreakStrategy = breakStrategy;
-		refresh();
-	}
-
-	public void setTypeface(Typeface typeface) {
-		mTextPaint.setTypeface(typeface);
-		updateWidget();
-
-		refresh();
-	}
-
-	private void updateWidget() {
-		mMeasurer.refresh(mTextPaint);
-		mOption.refresh(mMeasurer);
-		mLineSpaceVertical = mTextPaint.getFontSpacing();
-	}
-
-	public void setTextColor(int color) {
-		mTextPaint.setColor(color);
+		cancel();
+		mTask = mExecutor.submit(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					sendMsg(MSG_START, null);
+					typeset(mContent, mWidth, mHeight);
+				} catch (Throwable throwable) {
+					sendMsg(MSG_FAILURE, throwable);
+				}
+			}
+		});
+		d("reload: " + mTask);
 	}
 
 	private class H extends Handler {
@@ -362,36 +309,25 @@ public class TextEngineCore {
 		@Override
 		public void handleMessage(Message msg) {
 			d("typeset paragraphs");
-			if (mListener == null) {
+			if (mRenderer == null) {
 				return;
 			}
 
 			if (msg.what == MSG_FINISHED) {
-				mListener.onSuccess((Document) msg.obj);
+				mRenderer.render((Document) msg.obj);
 			} else if (msg.what == MSG_FAILURE) {
-				mListener.onFailure((Throwable) msg.obj);
+				mRenderer.error((Throwable) msg.obj);
 			} else if (msg.what == MSG_START) {
-				mListener.onStart();
+				mRenderer.clear();
 			}
 		}
 	}
 
-	public interface Listener {
-		/**
-		 * 加载前调用，这时候需要清空视图
-		 */
-		void onStart();
+	private static void d(String msg) {
+		Log.d("TextEngineCore", msg);
+	}
 
-		/**
-		 * 成功的时候调用
-		 *
-		 * @param document doc
-		 */
-		void onSuccess(Document document);
-
-		/**
-		 * @param throwable 异常信息
-		 */
-		void onFailure(Throwable throwable);
+	private static void i(String msg) {
+		Log.i("TextEngineCore", msg);
 	}
 }

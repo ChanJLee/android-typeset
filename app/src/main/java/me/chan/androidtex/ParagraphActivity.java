@@ -16,7 +16,7 @@ import me.chan.te.parser.BookParser;
 import me.chan.te.parser.TextParser;
 import me.chan.te.source.AssetsTextSource;
 import me.chan.te.text.BreakStrategy;
-import me.chan.te.view.TeView;
+import me.chan.te.renderer.TeView;
 
 public class ParagraphActivity extends AppCompatActivity {
 
