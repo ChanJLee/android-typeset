@@ -46,6 +46,10 @@ public final class Document implements Recyclable {
 		return mSegments.get(index);
 	}
 
+	public void addSegment(Segment segment) {
+		mSegments.add(segment);
+	}
+
 	/**
 	 * 获取页数
 	 *
@@ -57,6 +61,10 @@ public final class Document implements Recyclable {
 
 	public Page getPage(int index) {
 		return mPages.get(index);
+	}
+
+	public void addPage(Page page) {
+		mPages.add(page);
 	}
 
 	@Override
@@ -85,9 +93,5 @@ public final class Document implements Recyclable {
 		}
 		document.mExtra = extra;
 		return document;
-	}
-
-	public void addSegment(Segment segment) {
-		mSegments.add(segment);
 	}
 }

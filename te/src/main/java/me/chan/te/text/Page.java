@@ -11,7 +11,26 @@ public class Page implements Recyclable {
 
 	private List<Segment> mSegments = new ArrayList<>(512);
 
+	private float mWidth;
+	private float mHeight;
+
 	private Page() {
+	}
+
+	public float getWidth() {
+		return mWidth;
+	}
+
+	public void setWidth(float width) {
+		mWidth = width;
+	}
+
+	public float getHeight() {
+		return mHeight;
+	}
+
+	public void setHeight(float height) {
+		mHeight = height;
 	}
 
 	/**
@@ -19,7 +38,7 @@ public class Page implements Recyclable {
 	 *
 	 * @return 段落数目
 	 */
-	public int getCount() {
+	public int getSegmentCount() {
 		return mSegments.size();
 	}
 
@@ -33,6 +52,7 @@ public class Page implements Recyclable {
 
 	@Override
 	public void recycle() {
+		mWidth = mHeight = 0;
 		for (Segment segment : mSegments) {
 			segment.recycle();
 		}
@@ -40,7 +60,7 @@ public class Page implements Recyclable {
 		POOL.release(this);
 	}
 
-	public static Page obtian() {
+	public static Page obtain() {
 		Page page = POOL.acquire();
 		if (page != null) {
 			return page;

@@ -16,7 +16,6 @@ import android.widget.Toast;
 import java.util.List;
 
 import me.chan.te.R;
-import me.chan.te.config.Option;
 import me.chan.te.core.TextEngineCore;
 import me.chan.te.image.ImageLoader;
 import me.chan.te.parser.Parser;
