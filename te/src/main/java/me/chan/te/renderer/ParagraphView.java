@@ -56,7 +56,7 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 	// TODO opt
 	void render(@NonNull Paragraph paragraph,
 				@NonNull TextPaint paint,
-				float lineSpaceVertical) {
+				RenderOption lineSpaceVertical) {
 		mParagraph = paragraph;
 		mPaint = paint;
 		mDescent = paint.getFontMetrics().descent;

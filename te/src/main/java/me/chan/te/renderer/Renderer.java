@@ -1,72 +1,40 @@
 package me.chan.te.renderer;
 
 import android.content.Context;
-import android.content.res.Resources;
-import android.graphics.Color;
-import android.graphics.Typeface;
-import android.support.v4.content.ContextCompat;
 import android.text.TextPaint;
-import android.util.TypedValue;
+import android.view.LayoutInflater;
 
-import java.lang.ref.WeakReference;
-
-import me.chan.te.R;
+import me.chan.te.image.ImageLoader;
 import me.chan.te.parser.Parser;
 import me.chan.te.source.Source;
-import me.chan.te.text.BreakStrategy;
 import me.chan.te.text.Document;
 
 public abstract class Renderer {
-	private static final int DEFAULT_TEXT_SIZE = 18;
-	private static final int DEFAULT_LINE_SPACE = 12;
-	private static final int DEFAULT_SEGMENT_SPACE = 28;
-	private static WeakReference<Typeface> DEFAULT_TYPEFACE;
-
 	private RenderOption mRenderOption;
 	private TextEngineCore mTextEngineCore;
 
-	public Renderer(Context context) {
-		Resources resources = context.getResources();
-		mRenderOption = new RenderOption();
-		mRenderOption.setTextColor(ContextCompat.getColor(context, R.color.me_chan_te_text_color));
+	private ImageLoader mImageLoader;
+	private LayoutInflater mLayoutInflater;
+	private Context mContext;
 
-		Typeface typeface = null;
-		if (DEFAULT_TYPEFACE != null && (typeface = DEFAULT_TYPEFACE.get()) != null) {
-			mRenderOption.setTypeface(typeface);
-		} else {
-			typeface = Typeface.createFromAsset(context.getAssets(), "typeface/SourceSerifPro-Regular.ttf");
-			DEFAULT_TYPEFACE = new WeakReference<>(typeface);
-			mRenderOption.setTypeface(typeface);
-		}
-
-		mRenderOption.setTextSize(
-				TypedValue.applyDimension(
-						TypedValue.COMPLEX_UNIT_SP,
-						DEFAULT_TEXT_SIZE,
-						resources.getDisplayMetrics()
-				)
-		);
-		mRenderOption.setLineSpace(
-				TypedValue.applyDimension(
-						TypedValue.COMPLEX_UNIT_DIP,
-						DEFAULT_LINE_SPACE,
-						resources.getDisplayMetrics()
-				)
-		);
-		mRenderOption.setIndentEnable(false);
-		mRenderOption.setSelectedBgColor(ContextCompat.getColor(context, R.color.me_chan_te_theme_color));
-		mRenderOption.setSelectedTextColor(Color.WHITE);
-		mRenderOption.setSegmentSpace(
-				TypedValue.applyDimension(
-						TypedValue.COMPLEX_UNIT_DIP,
-						DEFAULT_SEGMENT_SPACE,
-						resources.getDisplayMetrics()
-				)
-		);
-		mRenderOption.setBreakStrategy(BreakStrategy.BALANCED);
-		mRenderOption.setRendererMode(RendererMode.SLIDING);
-
+	public Renderer(Context context, RenderOption renderOption) {
+		mContext = context;
+		mRenderOption = renderOption;
+		mImageLoader = new ImageLoader(context);
+		mLayoutInflater = LayoutInflater.from(context);
 		mTextEngineCore = new TextEngineCore(this, mRenderOption);
+	}
+
+	public ImageLoader getImageLoader() {
+		return mImageLoader;
+	}
+
+	public LayoutInflater getLayoutInflater() {
+		return mLayoutInflater;
+	}
+
+	public Context getContext() {
+		return mContext;
 	}
 
 	void clear() {
@@ -92,7 +60,11 @@ public abstract class Renderer {
 		mTextEngineCore = null;
 	}
 
-	public RenderOption getRenderOption() {
+	protected RenderOption getRenderOption() {
+		return mRenderOption;
+	}
+
+	public RenderOption createRendererOption() {
 		return new RenderOption(mRenderOption);
 	}
 
@@ -147,7 +119,7 @@ public abstract class Renderer {
 		mTextEngineCore.typeset(source, width, height);
 	}
 
-	public void setParser(Parser parser) {
+	public void setParser(Parser<?> parser) {
 		mTextEngineCore.setParser(parser);
 	}
 

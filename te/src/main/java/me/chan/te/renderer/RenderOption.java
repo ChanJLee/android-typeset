@@ -11,11 +11,12 @@ class RenderOption {
 	private float mTextSize;
 	private float mLineSpace;
 	private boolean mIndentEnable;
-	private int mSelectedBgColor;
+	private int mSelectedBackgroundColor;
 	private int mSelectedTextColor;
 	private float mSegmentSpace;
 	private BreakStrategy mBreakStrategy;
 	private RendererMode mRendererMode;
+	private boolean mWordSelectable;
 
 	RenderOption() {
 	}
@@ -26,11 +27,20 @@ class RenderOption {
 		mTextSize = other.mTextSize;
 		mLineSpace = other.mLineSpace;
 		mIndentEnable = other.mIndentEnable;
-		mSelectedBgColor = other.mSelectedBgColor;
+		mSelectedBackgroundColor = other.mSelectedBackgroundColor;
 		mSelectedTextColor = other.mSelectedTextColor;
 		mSegmentSpace = other.mSegmentSpace;
 		mBreakStrategy = other.mBreakStrategy;
 		mRendererMode = other.mRendererMode;
+		mWordSelectable = other.mWordSelectable;
+	}
+
+	public boolean isWordSelectable() {
+		return mWordSelectable;
+	}
+
+	public void setWordSelectable(boolean wordSelectable) {
+		mWordSelectable = wordSelectable;
 	}
 
 	public RendererMode getRendererMode() {
@@ -89,12 +99,12 @@ class RenderOption {
 		mIndentEnable = indentEnable;
 	}
 
-	public int getSelectedBgColor() {
-		return mSelectedBgColor;
+	public int getSelectedBackgroundColor() {
+		return mSelectedBackgroundColor;
 	}
 
-	public void setSelectedBgColor(int selectedBgColor) {
-		mSelectedBgColor = selectedBgColor;
+	public void setSelectedBackgroundColor(int selectedBackgroundColor) {
+		mSelectedBackgroundColor = selectedBackgroundColor;
 	}
 
 	public int getSelectedTextColor() {

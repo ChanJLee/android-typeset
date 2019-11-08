@@ -68,7 +68,7 @@ class TextEngineCore {
 		return mTextPaint;
 	}
 
-	void setParser(Parser parser) {
+	void setParser(Parser<?> parser) {
 		mParser = parser;
 		reload();
 	}
