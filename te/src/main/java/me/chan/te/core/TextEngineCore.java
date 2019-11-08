@@ -26,6 +26,7 @@ import me.chan.te.text.BreakStrategy;
 import me.chan.te.text.Document;
 import me.chan.te.text.Figure;
 import me.chan.te.text.Gravity;
+import me.chan.te.text.Line;
 import me.chan.te.text.Page;
 import me.chan.te.text.Paragraph;
 import me.chan.te.text.Segment;
@@ -52,15 +53,17 @@ public class TextEngineCore {
 	private Listener mListener;
 	private ParagraphTypesetterImpl mTypesetter;
 	private boolean mIndentEnable = false;
+	private float mLineSpaceVertical;
+	private float mSegmentSpaceVertical;
 
-	public TextEngineCore(Context context) {
+	public TextEngineCore(Context context, float segmentSpaceVertical) {
 		this(TypedValue.applyDimension(
 				TypedValue.COMPLEX_UNIT_SP,
 				DEFAULT_TEXT_SIZE,
-				context.getResources().getDisplayMetrics()));
+				context.getResources().getDisplayMetrics()), segmentSpaceVertical);
 	}
 
-	public TextEngineCore(float textSize) {
+	public TextEngineCore(float textSize, float segmentSpaceVertical) {
 		mTextPaint = new TextPaint(TextPaint.ANTI_ALIAS_FLAG);
 		mTextPaint.setTextSize(textSize);
 		mMeasurer = new AndroidMeasurer(mTextPaint);
@@ -68,6 +71,8 @@ public class TextEngineCore {
 		mHandler = new H(Looper.getMainLooper());
 		mParser = new TextParser();
 		mTypesetter = new ParagraphTypesetterImpl();
+		mLineSpaceVertical = mTextPaint.getFontSpacing();
+		mSegmentSpaceVertical = segmentSpaceVertical;
 	}
 
 	public TextPaint getTextPaint() {
@@ -88,9 +93,9 @@ public class TextEngineCore {
 	 * @param source source
 	 * @param width  width, must be > 0
 	 */
-	public void typeset(final Source source, final int width) {
-		if (width <= 0) {
-			sendMsg(MSG_FAILURE, new IllegalArgumentException("width must be more than 0"));
+	public void typeset(final Source source, final int width, final int height) {
+		if (width <= 0 || height <= 0) {
+			sendMsg(MSG_FAILURE, new IllegalArgumentException("width and height must be large than 0"));
 			return;
 		}
 		cancel();
@@ -101,7 +106,7 @@ public class TextEngineCore {
 				try {
 					sendMsg(MSG_START, null);
 					Object content = source.open();
-					typeset(content, width);
+					typeset(content, width, height);
 				} catch (Throwable throwable) {
 					sendMsg(MSG_FAILURE, throwable);
 				} finally {
@@ -142,20 +147,17 @@ public class TextEngineCore {
 		final Thread thread = Thread.currentThread();
 		LineAttributes lineAttributes = createLineAttributes(width);
 
-		Page page = Page.obtian();
-		int height = 0;
 		for (int i = 0; i < size && !thread.isInterrupted(); ++i) {
 			Segment segment = mDocument.getSegment(i);
 			if (segment instanceof Figure) {
-				typesetFigure((Figure) segment, lineAttributes);
+				typesetFigure((Figure) segment, mWidth);
 			} else if (segment instanceof Paragraph) {
 				mTypesetter.typeset((Paragraph) segment, lineAttributes, mBreakStrategy);
 			} else {
 				continue;
 			}
 
-			// TODO 排入 page
-			page.addSegment(segment);
+			typesetPage(mDocument, segment, width, height);
 		}
 
 		i("typeset used time: " + (SystemClock.elapsedRealtime() - timestamp));
@@ -165,11 +167,65 @@ public class TextEngineCore {
 		sendMsg(MSG_FINISHED, mDocument);
 	}
 
-	private void typesetFigure(Figure figure, LineAttributes lineAttributes) {
-		LineAttributes.Attribute attribute = lineAttributes.getDefaultAttribute();
+	private void typesetPage(Document document, Segment segment, float width, float height) {
+		int pageSize = document.getPageCount();
+		Page currentPage;
+		if (pageSize == 0) {
+			currentPage = Page.obtain();
+			document.addPage(currentPage);
+		} else {
+			currentPage = document.getPage(pageSize - 1);
+		}
 
-		float lineWidth = attribute.getLineWidth();
+		float nextPageHeight = currentPage.getHeight();
+		if (nextPageHeight != 0) {
+			// 这里可以区分不同类型 选择不同的垂直方向偏移
+			nextPageHeight += mSegmentSpaceVertical;
+		}
 
+		float currentSegmentHeight = getSegmentHeight(segment);
+		nextPageHeight += currentSegmentHeight;
+
+		// 当前页排不下
+		// 但是要注意当前页啥东西都没有都排不下的情况，这时候强行塞到当前页
+		if (nextPageHeight > height && currentPage.getSegmentCount() != 0) {
+			currentPage = Page.obtain();
+			document.addPage(currentPage);
+			currentPage.setWidth(width);
+			currentPage.setHeight(currentSegmentHeight);
+			currentPage.addSegment(segment);
+		} else {
+			currentPage.addSegment(segment);
+			currentPage.setWidth(width);
+			currentPage.setHeight(nextPageHeight);
+		}
+	}
+
+	private float getSegmentHeight(Segment segment) {
+		if (segment instanceof Figure) {
+			Figure figure = (Figure) segment;
+			return figure.getHeight();
+		}
+
+		if (segment instanceof Paragraph) {
+			float height = 0;
+			Paragraph paragraph = (Paragraph) segment;
+			int size = paragraph.getLineCount();
+			if (size != 0) {
+				height += ((size - 1) * mLineSpaceVertical);
+			}
+			for (int i = 0; i < size; ++i) {
+				Line line = paragraph.getLine(i);
+				height += line.getLineHeight();
+			}
+
+			return height;
+		}
+
+		throw new IllegalArgumentException("unknown segment type");
+	}
+
+	private void typesetFigure(Figure figure, float lineWidth) {
 		float width = figure.getWidth();
 		float height = figure.getHeight();
 
@@ -262,8 +318,8 @@ public class TextEngineCore {
 		}
 
 		mTextPaint.setTextSize(textSize);
-		mMeasurer.refresh(mTextPaint);
-		mOption.refresh(mMeasurer);
+		updateWidget();
+
 		refresh();
 	}
 
@@ -283,9 +339,15 @@ public class TextEngineCore {
 
 	public void setTypeface(Typeface typeface) {
 		mTextPaint.setTypeface(typeface);
+		updateWidget();
+
+		refresh();
+	}
+
+	private void updateWidget() {
 		mMeasurer.refresh(mTextPaint);
 		mOption.refresh(mMeasurer);
-		refresh();
+		mLineSpaceVertical = mTextPaint.getFontSpacing();
 	}
 
 	public void setTextColor(int color) {
