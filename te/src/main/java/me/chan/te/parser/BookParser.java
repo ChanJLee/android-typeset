@@ -127,7 +127,9 @@ public class BookParser implements Parser<CharSequence> {
 		}
 
 		Paragraph paragraph = builder.build();
-		document.addSegment(paragraph);
+		if (!paragraph.isEmpty()) {
+			document.addSegment(paragraph);
+		}
 	}
 
 	private void parseImage(XmlPullParser parser, Document document) throws XmlPullParserException, IOException {
@@ -200,8 +202,11 @@ public class BookParser implements Parser<CharSequence> {
 	private void parseSent(XmlPullParser parser, Paragraph.Builder builder) throws IOException, XmlPullParserException {
 		parser.require(XmlPullParser.START_TAG, null, "sent");
 		String id = parser.getAttributeValue(null, "id");
-		String text = safeNextText(parser) + " ";
-		PlainTextParserUtils.parse(text, 0, text.length(), builder, null, null, UnderLine.obtain(Color.RED), id);
+		String text = safeNextText(parser);
+		if (!TextUtils.isEmpty(text)) {
+			PlainTextParserUtils.parse(text, 0, text.length(), builder,
+					null, null, UnderLine.obtain(Color.RED), id);
+		}
 		parser.require(XmlPullParser.END_TAG, null, "sent");
 	}
 
