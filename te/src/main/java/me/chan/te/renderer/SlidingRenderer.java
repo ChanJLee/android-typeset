@@ -19,6 +19,7 @@ public class SlidingRenderer extends Renderer {
 		RecyclerView impl = new RecyclerView(context);
 		impl.setClipToPadding(false);
 		impl.setClipChildren(false);
+		impl.addItemDecoration(new SpaceItemDecoration(renderOption.getSegmentSpace()));
 		impl.setLayoutManager(new LinearLayoutManager(context));
 		viewGroup.addView(impl, new TeView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
 		mAdapter = new PageAdapter(getLayoutInflater(), getImageLoader());
