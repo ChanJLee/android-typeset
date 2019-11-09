@@ -121,9 +121,6 @@ public abstract class Renderer {
 	 * @param height 期望的高度
 	 */
 	public void render(final Source source, int width, int height) {
-		if (mRenderOption.getRendererMode() == RendererMode.SLIDING) {
-			height = Integer.MAX_VALUE;
-		}
 		mTextEngineCore.typeset(source, width, height);
 	}
 

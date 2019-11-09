@@ -165,6 +165,13 @@ class TextEngineCore {
 			currentPage = document.getPage(pageSize - 1);
 		}
 
+		if (mRenderOption.getRendererMode() == RendererMode.SLIDING) {
+			currentPage.addSegment(segment);
+			currentPage.setWidth(width);
+			currentPage.setHeight(-1);
+			return;
+		}
+
 		float nextPageHeight = currentPage.getHeight();
 		if (nextPageHeight != 0) {
 			// 这里可以区分不同类型 选择不同的垂直方向偏移
@@ -217,16 +224,13 @@ class TextEngineCore {
 		float width = figure.getWidth();
 		float height = figure.getHeight();
 
-		if (width >= 0 && height >= 0) {
-			if (width > lineWidth) {
-				figure.setWidth(lineWidth);
-				figure.setHeight(height / width * lineWidth);
-			}
-			return;
+		float ratio = Figure.DEFAULT_RATIO;
+		if (width > 0 && height > 0) {
+			ratio = width / height;
 		}
 
 		figure.setWidth(lineWidth);
-		figure.setHeight(lineWidth / Figure.DEFAULT_RATIO);
+		figure.setHeight(lineWidth / ratio);
 	}
 
 	private LineAttributes createLineAttributes(float width) {

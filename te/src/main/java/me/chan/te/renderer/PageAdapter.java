@@ -9,7 +9,6 @@ import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import me.chan.te.R;
@@ -122,7 +121,7 @@ public class PageAdapter extends RecyclerView.Adapter<PageAdapter.Renderer> {
 	}
 
 	class FigureRenderer extends Renderer<Figure> {
-		private ImageView mIvFigure;
+		private FigureView mFigureView;
 		private TextView mTvDesc;
 
 		FigureRenderer(View view) {
@@ -131,20 +130,13 @@ public class PageAdapter extends RecyclerView.Adapter<PageAdapter.Renderer> {
 
 		@Override
 		protected void onCreate(View view) {
-			mIvFigure = findViewById(R.id.image);
+			mFigureView = findViewById(R.id.image);
 			mTvDesc = findViewById(R.id.desc);
 		}
 
 		@Override
 		public void render(Figure figure) {
-			float width = figure.getWidth();
-			float height = figure.getHeight();
-			mIvFigure.setMaxWidth((int) width);
-			mIvFigure.setMaxHeight((int) height);
-
-			mImageLoader.uri(figure.getUrl())
-					.into(mIvFigure);
-
+			mFigureView.render(mImageLoader, figure);
 			String description = figure.getDescription();
 			if (TextUtils.isEmpty(description)) {
 				mTvDesc.setVisibility(View.GONE);
