@@ -115,7 +115,10 @@ public abstract class Renderer {
 		return false;
 	}
 
-	public void render(final Source source, final int width, final int height) {
+	public void render(final Source source, int width, int height) {
+		if (mRenderOption.getRendererMode() == RendererMode.SLIDING) {
+			height = Integer.MAX_VALUE;
+		}
 		mTextEngineCore.typeset(source, width, height);
 	}
 

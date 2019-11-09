@@ -143,8 +143,10 @@ public class TeView extends FrameLayout {
 
 		int mode = typedArray.getInt(R.styleable.me_chan_te_TeView_me_chan_te_segmentSpace, MODE_SLIDING);
 		if (mode == MODE_PAGING) {
+			renderOption.setRendererMode(RendererMode.PAGING);
 			mRenderer = new PagingRenderer(this, renderOption);
 		} else {
+			renderOption.setRendererMode(RendererMode.SLIDING);
 			mRenderer = new SlidingRenderer(this, renderOption);
 		}
 	}
