@@ -38,13 +38,13 @@ public class ParserUnitTest {
 		Measurer measurer = new MockMeasurer(paint);
 		TextParser textParser = new TextParser();
 		Document document = textParser.parse("hello\n\nworld\n\n", measurer, Hypher.getInstance(), MockOption);
-		assertEquals(document.getCount(), 2);
+		assertEquals(document.getSegmentCount(), 2);
 
 		document = textParser.parse("hello\n\nworld\n", measurer, Hypher.getInstance(), MockOption);
-		assertEquals(document.getCount(), 2);
+		assertEquals(document.getSegmentCount(), 2);
 
 		document = textParser.parse("", measurer, Hypher.getInstance(), MockOption);
-		assertEquals(document.getCount(), 0);
+		assertEquals(document.getSegmentCount(), 0);
 
 		try {
 			textParser.parse(null, measurer, Hypher.getInstance(), MockOption);
@@ -54,7 +54,7 @@ public class ParserUnitTest {
 		}
 
 		document = textParser.parse(" hello", measurer, Hypher.getInstance(), MockOption);
-		assertEquals(document.getCount(), 1);
+		assertEquals(document.getSegmentCount(), 1);
 
 
 		Paragraph paragraph = (Paragraph) document.getSegment(0);
@@ -68,7 +68,7 @@ public class ParserUnitTest {
 		assertEquals("check box content: ", box.toString(), "hello");
 
 		document = textParser.parse(" triangle\n\n\n", measurer, Hypher.getInstance(), MockOption);
-		assertEquals(document.getCount(), 1);
+		assertEquals(document.getSegmentCount(), 1);
 
 		paragraph = (Paragraph) document.getSegment(0);
 		assertEquals(paragraph.getElementCount(), 7);
@@ -115,7 +115,7 @@ public class ParserUnitTest {
 			StringBuilder stringBuilder = new StringBuilder();
 			Document document = textParser.parse(line, measurer, Hypher.getInstance(), MockOption);
 			if (contentWithoutBlank.isEmpty()) {
-				Assert.assertEquals(document.getCount(), 0);
+				Assert.assertEquals(document.getSegmentCount(), 0);
 				continue;
 			}
 
@@ -154,7 +154,7 @@ public class ParserUnitTest {
 		long timestamp = System.currentTimeMillis();
 		Document document = textParser.parse(content, measurer, Hypher.getInstance(), MockOption);
 		System.out.println("used time: " + (System.currentTimeMillis() - timestamp));
-		for (int i = 0; i < document.getCount(); ++i) {
+		for (int i = 0; i < document.getSegmentCount(); ++i) {
 			Paragraph paragraph = (Paragraph) document.getSegment(i);
 			for (int j = 0; j < paragraph.getElementCount(); ++j) {
 				Element element = paragraph.getElement(j);

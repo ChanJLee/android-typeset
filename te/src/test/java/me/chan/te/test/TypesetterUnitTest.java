@@ -141,10 +141,10 @@ public class TypesetterUnitTest {
 		ParagraphTypesetterImpl texTypesetter = new ParagraphTypesetterImpl();
 		TextParser textParser = new TextParser();
 		Document document = textParser.parse(text, measurer, Hypher.getInstance(), option);
-		assertNotEquals(document.getCount(), 0);
+		assertNotEquals(document.getSegmentCount(), 0);
 
 		StringBuilder stringBuilder = new StringBuilder();
-		for (int i = 0; i < document.getCount(); ++i) {
+		for (int i = 0; i < document.getSegmentCount(); ++i) {
 			Segment segment = document.getSegment(i);
 			if (!(segment instanceof Paragraph)) {
 				continue;
@@ -189,7 +189,7 @@ public class TypesetterUnitTest {
 	private void testMix() {
 		Document document = mockDocument(20, 20, 100, BreakStrategy.SIMPLE, "123", "123");
 		Assert.assertNotNull(document);
-		Assert.assertEquals(document.getCount(), 1);
+		Assert.assertEquals(document.getSegmentCount(), 1);
 		Assert.assertEquals(document.getSegment(0).getClass(), Paragraph.class);
 		Paragraph paragraph = (Paragraph) document.getSegment(0);
 
@@ -208,7 +208,7 @@ public class TypesetterUnitTest {
 
 		document = mockDocument(20, 20, 100, BreakStrategy.BALANCED, "123", "123");
 		Assert.assertNotNull(document);
-		Assert.assertEquals(document.getCount(), 1);
+		Assert.assertEquals(document.getSegmentCount(), 1);
 		Assert.assertEquals(document.getSegment(0).getClass(), Paragraph.class);
 		paragraph = (Paragraph) document.getSegment(0);
 
@@ -229,7 +229,7 @@ public class TypesetterUnitTest {
 	private void testMixNormal() {
 		Document document = mockDocument(20, 20, 100, BreakStrategy.SIMPLE, "123");
 		Assert.assertNotNull(document);
-		Assert.assertEquals(document.getCount(), 1);
+		Assert.assertEquals(document.getSegmentCount(), 1);
 		Assert.assertEquals(document.getSegment(0).getClass(), Paragraph.class);
 		Paragraph paragraph = (Paragraph) document.getSegment(0);
 
@@ -244,7 +244,7 @@ public class TypesetterUnitTest {
 
 		document = mockDocument(20, 20, 100, BreakStrategy.BALANCED, "123");
 		Assert.assertNotNull(document);
-		Assert.assertEquals(document.getCount(), 1);
+		Assert.assertEquals(document.getSegmentCount(), 1);
 		Assert.assertEquals(document.getSegment(0).getClass(), Paragraph.class);
 		paragraph = (Paragraph) document.getSegment(0);
 
@@ -261,7 +261,7 @@ public class TypesetterUnitTest {
 	private void testMixFull() {
 		Document document = mockDocument(20, 20, 100, BreakStrategy.SIMPLE, "12345");
 		Assert.assertNotNull(document);
-		Assert.assertEquals(document.getCount(), 1);
+		Assert.assertEquals(document.getSegmentCount(), 1);
 		Assert.assertEquals(document.getSegment(0).getClass(), Paragraph.class);
 		Paragraph paragraph = (Paragraph) document.getSegment(0);
 
@@ -278,7 +278,7 @@ public class TypesetterUnitTest {
 
 		document = mockDocument(20, 20, 100, BreakStrategy.BALANCED, "12345");
 		Assert.assertNotNull(document);
-		Assert.assertEquals(document.getCount(), 1);
+		Assert.assertEquals(document.getSegmentCount(), 1);
 		Assert.assertEquals(document.getSegment(0).getClass(), Paragraph.class);
 		paragraph = (Paragraph) document.getSegment(0);
 
@@ -309,8 +309,8 @@ public class TypesetterUnitTest {
 		LineAttributes lineAttributes = new LineAttributes(new LineAttributes.Attribute(width, Gravity.LEFT, option.getSpaceWidth()));
 
 		ParagraphTypesetterImpl typesetter = new ParagraphTypesetterImpl();
-		for (int i = 0; i < document.getCount(); ++i) {
-			typesetter.typeset(document.getSegment(i), lineAttributes, breakStrategy);
+		for (int i = 0; i < document.getSegmentCount(); ++i) {
+			typesetter.typeset((Paragraph) document.getSegment(i), lineAttributes, breakStrategy);
 		}
 
 		return document;
