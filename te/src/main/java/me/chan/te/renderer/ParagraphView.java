@@ -38,8 +38,9 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 	private GestureDetector mGestureDetector = null;
 	private OnTextSelectedListener mOnTextSelectedListener;
 	private boolean mDebugMode = false;
-	private float mLineSpaceVertical = 0;
+
 	private float mDescent;
+	private RenderOption mRenderOption;
 
 	public ParagraphView(Context context) {
 		super(context);
@@ -56,10 +57,11 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 	// TODO opt
 	void render(@NonNull Paragraph paragraph,
 				@NonNull TextPaint paint,
-				RenderOption lineSpaceVertical) {
+				RenderOption renderOption) {
 		mParagraph = paragraph;
 		mPaint = paint;
 		mDescent = paint.getFontMetrics().descent;
+		mRenderOption = renderOption;
 		requestLayout();
 	}
 
@@ -121,7 +123,7 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 			}
 
 			if (lineCount > 1) {
-				height += ((lineCount - 1) * mLineSpaceVertical);
+				height += ((lineCount - 1) * mRenderOption.getLineSpace());
 			}
 
 			heightMeasureSpec = MeasureSpec.makeMeasureSpec(
@@ -159,13 +161,13 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 				x = 0;
 			}
 
-			drawLine(canvas, line, x, y, mLineSpaceVertical);
+			drawLine(canvas, line, x, y);
 
-			y += mLineSpaceVertical;
+			y += mRenderOption.getLineSpace();
 		}
 	}
 
-	private void drawLine(Canvas canvas, Line line, float x, float y, float lineSpace) {
+	private void drawLine(Canvas canvas, Line line, float x, float y) {
 		float spaceWidth = line.getSpaceWidth();
 		int boxSize = line.getCount();
 
@@ -227,7 +229,7 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 
 		if (mDebugMode) {
 			float startX = 0;
-			float startY = y + lineSpace;
+			float startY = y + mRenderOption.getLineSpace();
 			Rect rect = new Rect();
 			String debugInfo = line.getRatio() + " " + spaceWidth;
 			mDebugPaint.getTextBounds(debugInfo, 0, debugInfo.length(), rect);
@@ -256,7 +258,7 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 				break;
 			}
 
-			offsetY = (nextOffsetY + mLineSpaceVertical);
+			offsetY = (nextOffsetY + mRenderOption.getLineSpace());
 		}
 
 		if (targetLine == null) {

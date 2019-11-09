@@ -63,15 +63,17 @@ class PagingRenderer extends Renderer {
 		@NonNull
 		@Override
 		public Object instantiateItem(@NonNull ViewGroup container, int position) {
+			RenderOption renderOption = getRenderOption();
 			Context context = getContext();
 			RecyclerView impl = new RecyclerView(context);
 			impl.setClipToPadding(false);
 			impl.setClipChildren(false);
 			impl.setLayoutManager(new LinearLayoutManager(context));
+			impl.addItemDecoration(new SpaceItemDecoration(renderOption.getSegmentSpace()));
 			container.addView(impl, new TeView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
 			PageAdapter pageAdapter = new PageAdapter(getLayoutInflater(), getImageLoader());
 			impl.setAdapter(pageAdapter);
-			pageAdapter.render(mDocument.getPage(position), getTextPaint(), getRenderOption());
+			pageAdapter.render(mDocument.getPage(position), getTextPaint(), renderOption);
 			return impl;
 		}
 
