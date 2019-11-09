@@ -56,7 +56,7 @@ public final class Document implements Recyclable {
 	 * @return 段落数目
 	 */
 	public int getPageCount() {
-		return mSegments.size();
+		return mPages.size();
 	}
 
 	public Page getPage(int index) {
