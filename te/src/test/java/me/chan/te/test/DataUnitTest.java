@@ -19,11 +19,14 @@ import me.chan.te.test.mock.MockMeasurer;
 import me.chan.te.test.mock.MockOption;
 import me.chan.te.test.mock.MockTextPaint;
 import me.chan.te.text.Background;
+import me.chan.te.text.Document;
 import me.chan.te.text.Figure;
 import me.chan.te.text.Foreground;
 import me.chan.te.text.Gravity;
 import me.chan.te.text.Line;
+import me.chan.te.text.Page;
 import me.chan.te.text.Paragraph;
+import me.chan.te.text.Segment;
 import me.chan.te.text.TextStyle;
 import me.chan.te.text.UnderLine;
 import me.chan.te.typesetter.BreakPoint;
@@ -35,6 +38,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertSame;
 import static org.junit.Assert.fail;
 
 public class DataUnitTest {
@@ -679,5 +683,112 @@ public class DataUnitTest {
 		Assert.assertEquals(candidate.ratio, 4, 0);
 		Assert.assertSame(node, candidate.active);
 		Assert.assertSame(p, candidate);
+	}
+
+	@Test
+	public void testPage() {
+		Page page = Page.obtain();
+		Assert.assertNotNull(page);
+		Assert.assertEquals(page.getWidth(), 0, 0);
+		Assert.assertEquals(page.getHeight(), 0, 0);
+		try {
+			page.getSegment(0);
+			fail("test get segment");
+		} catch (IndexOutOfBoundsException e) {
+
+		}
+		Assert.assertEquals(page.getSegmentCount(), 0);
+
+		page.setWidth(1);
+		page.setHeight(2);
+		Figure figure = Figure.obtain("", 1, 2);
+		page.addSegment(figure);
+		Assert.assertEquals(page.getWidth(), 1, 0);
+		Assert.assertEquals(page.getHeight(), 2, 0);
+		Assert.assertEquals(page.getSegmentCount(), 1);
+		Assert.assertSame(page.getSegment(0), figure);
+		try {
+			page.getSegment(1);
+			fail("test get segment");
+		} catch (IndexOutOfBoundsException e) {
+
+		}
+
+		page.recycle();
+		Assert.assertEquals(page.getWidth(), 0, 0);
+		Assert.assertEquals(page.getHeight(), 0, 0);
+		Assert.assertEquals(page.getSegmentCount(), 0);
+
+		Page previous = page;
+		page = Page.obtain();
+		Assert.assertNotNull(page);
+		assertSame(page, previous);
+		Assert.assertEquals(page.getWidth(), 0, 0);
+		Assert.assertEquals(page.getHeight(), 0, 0);
+		try {
+			page.getSegment(0);
+			fail("test get segment");
+		} catch (IndexOutOfBoundsException e) {
+
+		}
+		Assert.assertEquals(page.getSegmentCount(), 0);
+	}
+
+	@Test
+	public void testDocument() {
+		String msg = "hello";
+		Document document = Document.obtain(msg);
+		Assert.assertNotNull(document);
+		Assert.assertSame(document.getExtra(), msg);
+		Assert.assertEquals(document.getSegmentCount(), 0);
+		Assert.assertEquals(document.getPageCount(), 0);
+		try {
+			document.getSegment(0);
+			fail("test document get segment");
+		} catch (IndexOutOfBoundsException e) {
+		}
+		try {
+			document.getPage(0);
+			fail("test document get page");
+		} catch (IndexOutOfBoundsException e) {
+		}
+
+		Figure figure = Figure.obtain("", 1, 2);
+		Page page = Page.obtain();
+		document.addPage(page);
+		document.addSegment(figure);
+		Assert.assertEquals(document.getSegmentCount(), 1);
+		Assert.assertEquals(document.getPageCount(), 1);
+		try {
+			document.getSegment(1);
+			fail("test document get segment");
+		} catch (IndexOutOfBoundsException e) {
+		}
+		try {
+			document.getPage(1);
+			fail("test document get page");
+		} catch (IndexOutOfBoundsException e) {
+		}
+		Assert.assertSame(document.getPage(0), page);
+		Assert.assertSame(document.getSegment(0), figure);
+
+		Document previous = document;
+		document.recycle();
+		document = Document.obtain();
+		Assert.assertNotNull(document);
+		Assert.assertNull(document.getExtra());
+		Assert.assertSame(previous, document);
+		Assert.assertEquals(document.getSegmentCount(), 0);
+		Assert.assertEquals(document.getPageCount(), 0);
+		try {
+			document.getSegment(0);
+			fail("test document get segment");
+		} catch (IndexOutOfBoundsException e) {
+		}
+		try {
+			document.getPage(0);
+			fail("test document get page");
+		} catch (IndexOutOfBoundsException e) {
+		}
 	}
 }
