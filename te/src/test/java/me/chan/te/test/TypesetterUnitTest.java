@@ -177,6 +177,7 @@ public class TypesetterUnitTest {
 		String origin = text.replaceAll("\\p{Z}+|\\t|\\r|\\n", "");
 		String current = stringBuilder.toString();
 		assertEquals(origin, current);
+		document.recycle();
 	}
 
 	@Test
