@@ -16,16 +16,16 @@ import java.io.StringReader;
 import java.util.regex.Pattern;
 
 import me.chan.te.R;
-import me.chan.te.config.Option;
 import me.chan.te.hypher.Hypher;
 import me.chan.te.measurer.Measurer;
 import me.chan.te.text.Document;
 import me.chan.te.text.Figure;
+import me.chan.te.text.TextAttribute;
 import me.chan.te.text.Paragraph;
 import me.chan.te.text.UnderLine;
 
 public class BookParser implements Parser<CharSequence> {
-	private static final Pattern PATTERN = Pattern.compile("\\p{Z}+");
+	private static final Pattern PATTERN = Pattern.compile("\\p{Z}+|\\t|\\r|\\n");
 
 	private Context mContext;
 	private float mFlagWidth;
@@ -40,17 +40,17 @@ public class BookParser implements Parser<CharSequence> {
 
 	@NonNull
 	@Override
-	public Document parse(@NonNull CharSequence charSequence, Measurer measurer, Hypher hypher, Option option) throws ParseException {
+	public Document parse(@NonNull CharSequence charSequence, Measurer measurer, Hypher hypher, TextAttribute textAttribute) throws ParseException {
 		XmlPullParser xmlPullParser = Xml.newPullParser();
 		try {
 			xmlPullParser.setInput(new StringReader((String) charSequence));
-			return parse(xmlPullParser, measurer, hypher, option);
+			return parse(xmlPullParser, measurer, hypher, textAttribute);
 		} catch (Throwable e) {
 			throw new ParseException("parse document failed", e);
 		}
 	}
 
-	private Document parse(XmlPullParser parser, Measurer measurer, Hypher hypher, Option option)
+	private Document parse(XmlPullParser parser, Measurer measurer, Hypher hypher, TextAttribute textAttribute)
 			throws IOException, XmlPullParserException {
 		while (parser.next() != XmlPullParser.END_TAG) {
 			int eventType = parser.getEventType();
@@ -61,7 +61,7 @@ public class BookParser implements Parser<CharSequence> {
 			}
 			String name = parser.getName();
 			if (TextUtils.equals("article_content", name)) {
-				return parseArticleContent(parser, measurer, hypher, option);
+				return parseArticleContent(parser, measurer, hypher, textAttribute);
 			} else {
 				skip(parser);
 			}
@@ -69,7 +69,7 @@ public class BookParser implements Parser<CharSequence> {
 		return Document.EMPTY;
 	}
 
-	private Document parseArticleContent(XmlPullParser parser, Measurer measurer, Hypher hypher, Option option) throws IOException, XmlPullParserException {
+	private Document parseArticleContent(XmlPullParser parser, Measurer measurer, Hypher hypher, TextAttribute textAttribute) throws IOException, XmlPullParserException {
 		parser.require(XmlPullParser.START_TAG, null, "article_content");
 		String id = parser.getAttributeValue(null, "id");
 		Document document = Document.obtain(id);
@@ -81,7 +81,7 @@ public class BookParser implements Parser<CharSequence> {
 			}
 			String name = parser.getName();
 			if (name.equals("para")) {
-				parsePara(parser, document, measurer, hypher, option);
+				parsePara(parser, document, measurer, hypher, textAttribute);
 			} else {
 				skip(parser);
 			}
@@ -95,11 +95,11 @@ public class BookParser implements Parser<CharSequence> {
 	private static final int STATE_SUBTITLE = 3;
 
 	private void parsePara(XmlPullParser parser, Document document,
-						   Measurer measurer, Hypher hypher, Option option) throws IOException, XmlPullParserException {
+						   Measurer measurer, Hypher hypher, TextAttribute textAttribute) throws IOException, XmlPullParserException {
 		parser.require(XmlPullParser.START_TAG, null, "para");
 		String id = parser.getAttributeValue(null, "id");
 
-		Paragraph.Builder builder = Paragraph.Builder.newBuilder(measurer, hypher, option, id);
+		Paragraph.Builder builder = Paragraph.Builder.newBuilder(measurer, hypher, textAttribute, id);
 		int lastState = STATE_NONE;
 
 		while (parser.next() != XmlPullParser.END_TAG) {
