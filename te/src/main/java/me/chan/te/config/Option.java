@@ -10,6 +10,9 @@ import me.chan.te.measurer.Measurer;
  */
 public class Option {
 
+	// todo to line attributes
+	// line attributes to text
+
 	/**
 	 * 跟随box的text size变化
 	 */

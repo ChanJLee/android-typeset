@@ -13,18 +13,19 @@ import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
 import java.io.StringReader;
+import java.util.regex.Pattern;
 
 import me.chan.te.R;
 import me.chan.te.config.Option;
 import me.chan.te.hypher.Hypher;
 import me.chan.te.measurer.Measurer;
-import me.chan.te.parser.utils.PlainTextParserUtils;
 import me.chan.te.text.Document;
 import me.chan.te.text.Figure;
 import me.chan.te.text.Paragraph;
 import me.chan.te.text.UnderLine;
 
 public class BookParser implements Parser<CharSequence> {
+	private static final Pattern PATTERN = Pattern.compile("\\p{Z}+");
 
 	private Context mContext;
 	private float mFlagWidth;
@@ -204,10 +205,21 @@ public class BookParser implements Parser<CharSequence> {
 		String id = parser.getAttributeValue(null, "id");
 		String text = safeNextText(parser);
 		if (!TextUtils.isEmpty(text)) {
-			PlainTextParserUtils.parse(text, 0, text.length(), builder,
-					null, null, UnderLine.obtain(Color.RED), id);
+			parseParagraph(builder, text, id);
 		}
 		parser.require(XmlPullParser.END_TAG, null, "sent");
+	}
+
+	private void parseParagraph(Paragraph.Builder builder, String paragraph, String id) {
+		String[] strings = PATTERN.split(paragraph);
+		for (int i = 0; strings != null && i < strings.length; ++i) {
+			String text = strings[i];
+			if (TextUtils.isEmpty(text)) {
+				continue;
+			}
+
+			builder.text(text, 0, text.length(), null, null, UnderLine.obtain(Color.RED), id);
+		}
 	}
 
 	private String safeNextText(XmlPullParser parser) throws XmlPullParserException, IOException {
