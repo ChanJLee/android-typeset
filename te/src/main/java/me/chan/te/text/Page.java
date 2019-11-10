@@ -53,9 +53,6 @@ public class Page implements Recyclable {
 	@Override
 	public void recycle() {
 		mWidth = mHeight = 0;
-		for (Segment segment : mSegments) {
-			segment.recycle();
-		}
 		mSegments.clear();
 		POOL.release(this);
 	}
