@@ -10,8 +10,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-import me.chan.te.config.LineAttributes;
-import me.chan.te.config.Option;
+import me.chan.te.text.TextAttribute;
 import me.chan.te.hypher.Hypher;
 import me.chan.te.log.Log;
 import me.chan.te.measurer.AndroidMeasurer;
@@ -35,11 +34,10 @@ class TextEngineCore {
 	private static final int MSG_FAILURE = 3;
 
 	private TextPaint mTextPaint;
-	private Option mOption;
+	private TextAttribute mTextAttribute;
 	private AndroidMeasurer mMeasurer;
 	private Handler mHandler;
 	private Parser mParser;
-	private Object mContent;
 	private int mWidth = 0;
 	private int mHeight = 0;
 	private ExecutorService mExecutor = Executors.newSingleThreadExecutor();
@@ -54,9 +52,10 @@ class TextEngineCore {
 
 	TextEngineCore(Renderer renderer, RenderOption renderOption) {
 		mTextPaint = new TextPaint(TextPaint.ANTI_ALIAS_FLAG);
-		mTextPaint.setTextSize(renderOption.getTextSize());
+		updateTextPaint(renderOption);
+
 		mMeasurer = new AndroidMeasurer(mTextPaint);
-		mOption = new Option(mMeasurer);
+		mTextAttribute = new TextAttribute(mMeasurer);
 		mHandler = new H(Looper.getMainLooper());
 		mParser = new TextParser();
 		mTypesetter = new ParagraphTypesetterImpl();
@@ -70,7 +69,6 @@ class TextEngineCore {
 
 	void setParser(Parser<?> parser) {
 		mParser = parser;
-		reload();
 	}
 
 	/**
@@ -92,7 +90,9 @@ class TextEngineCore {
 				try {
 					sendMsg(MSG_START, null);
 					Object content = source.open();
-					typeset(content, width, height);
+					Document document = mDocument;
+					mDocument = null;
+					typeset(content, width, height, document);
 				} catch (Throwable throwable) {
 					sendMsg(MSG_FAILURE, throwable);
 				} finally {
@@ -109,7 +109,7 @@ class TextEngineCore {
 
 	// TODO 异常安全保障
 	@SuppressWarnings("unchecked")
-	private void typeset(final Object content, final int width, int height) {
+	private void typeset(final Object content, final int width, int height, Document document) {
 		i("typeset, width: " + width +
 				"height: " + height +
 				" strategy: " + mBreakStrategy +
@@ -117,42 +117,52 @@ class TextEngineCore {
 
 		mWidth = width;
 		mHeight = height;
-		mContent = content;
 
 		// recycle memory
-		if (mDocument != null) {
-			mDocument.recycle();
+		if (document != null) {
+			document.recycle();
 		}
+
+		updateLineAttribute(width);
 
 		// parse
 		long timestamp = SystemClock.elapsedRealtime();
-		mDocument = mParser.parse(content, mMeasurer, Hypher.getInstance(), mOption);
-		int size = mDocument.getSegmentCount();
+		try {
+			document = mParser.parse(content, mMeasurer, Hypher.getInstance(), mTextAttribute);
+		} catch (InterruptedException e) {
+			i("interrupted when parse");
+			return;
+		}
+
+		document.setRaw(content);
+
+		int size = document.getSegmentCount();
 		i("parse used time: " + (SystemClock.elapsedRealtime() - timestamp) + " segment size: " + size);
 		timestamp = SystemClock.elapsedRealtime();
 
 		// typeset
 		final Thread thread = Thread.currentThread();
-		LineAttributes lineAttributes = createLineAttributes(width);
-
 		for (int i = 0; i < size && !thread.isInterrupted(); ++i) {
-			Segment segment = mDocument.getSegment(i);
+			Segment segment = document.getSegment(i);
 			if (segment instanceof Figure) {
 				typesetFigure((Figure) segment, mWidth);
 			} else if (segment instanceof Paragraph) {
-				mTypesetter.typeset((Paragraph) segment, lineAttributes, mBreakStrategy);
+				mTypesetter.typeset((Paragraph) segment, mTextAttribute, mBreakStrategy);
 			} else {
 				continue;
 			}
 
-			typesetPage(mDocument, segment, width, height);
+			typesetPage(document, segment, width, height);
 		}
 
 		i("typeset used time: " + (SystemClock.elapsedRealtime() - timestamp));
-		i("is thread interrupt: " + thread.isInterrupted());
+		boolean isInterrupted = thread.isInterrupted();
+		i("is thread interrupt when typeset: " + isInterrupted);
 
 		// call listener
-		sendMsg(MSG_FINISHED, mDocument);
+		if (!isInterrupted) {
+			sendMsg(MSG_FINISHED, document);
+		}
 	}
 
 	private void typesetPage(Document document, Segment segment, float width, float height) {
@@ -233,18 +243,18 @@ class TextEngineCore {
 		figure.setHeight(lineWidth / ratio);
 	}
 
-	private LineAttributes createLineAttributes(float width) {
-		LineAttributes.Attribute defaultAttribute = new LineAttributes.Attribute(width, Gravity.LEFT, mOption.getSpaceWidth());
-		LineAttributes lineAttributes = new LineAttributes(defaultAttribute);
+	private void updateLineAttribute(float width) {
+		mTextAttribute.removeAllLineAttribute();
+
+		TextAttribute.LineAttribute defaultAttribute = new TextAttribute.LineAttribute(width, Gravity.LEFT);
+		mTextAttribute.setDefaultAttribute(defaultAttribute);
 
 		if (mRenderOption.isIndentEnable()) {
-			lineAttributes.add(0, new LineAttributes.Attribute(
-					width - mOption.getIndentWidth(),
-					Gravity.RIGHT, mOption.getSpaceWidth()
+			mTextAttribute.add(0, new TextAttribute.LineAttribute(
+					width - mTextAttribute.getIndentWidth(),
+					Gravity.RIGHT
 			));
 		}
-
-		return lineAttributes;
 	}
 
 	private void sendMsg(int what, Object o) {
@@ -264,6 +274,7 @@ class TextEngineCore {
 	}
 
 	void release() {
+		i("release");
 		cancel();
 		mRenderer = null;
 		mDocument = null;
@@ -275,23 +286,29 @@ class TextEngineCore {
 		if (mTask != null) {
 			d("cancel task: " + mTask);
 			mTask.cancel(true);
+			mTask = null;
 		}
 	}
 
-	void reload(RenderOption renderOption) {
+	private void updateTextPaint(RenderOption renderOption) {
 		mTextPaint.setColor(renderOption.getTextColor());
 		mTextPaint.setTypeface(renderOption.getTypeface());
 		mTextPaint.setTextSize(renderOption.getTextSize());
+	}
+
+	void reload(RenderOption renderOption) {
+		mRenderOption = renderOption;
+		updateTextPaint(renderOption);
 
 		mMeasurer.refresh(mTextPaint);
-		mOption.refresh(mMeasurer);
-		mRenderOption = renderOption;
+		mTextAttribute.refresh(mMeasurer);
 
 		reload();
 	}
 
 	private void reload() {
-		if (mContent == null || mWidth < 0 || mHeight < 0) {
+		if (mDocument == null || mWidth < 0 || mHeight < 0) {
+			i("reload ignore");
 			return;
 		}
 
@@ -301,7 +318,9 @@ class TextEngineCore {
 			public void run() {
 				try {
 					sendMsg(MSG_START, null);
-					typeset(mContent, mWidth, mHeight);
+					Document document = mDocument;
+					mDocument = null;
+					typeset(document.getRaw(), mWidth, mHeight, document);
 				} catch (Throwable throwable) {
 					sendMsg(MSG_FAILURE, throwable);
 				}
@@ -311,19 +330,20 @@ class TextEngineCore {
 	}
 
 	private class H extends Handler {
-		public H(Looper mainLooper) {
+		H(Looper mainLooper) {
 			super(mainLooper);
 		}
 
 		@Override
 		public void handleMessage(Message msg) {
-			d("typeset paragraphs");
+			d("typeset paragraphs, msg what: " + msg.what);
 			if (mRenderer == null) {
 				return;
 			}
 
 			if (msg.what == MSG_FINISHED) {
-				mRenderer.render((Document) msg.obj);
+				mDocument = (Document) msg.obj;
+				mRenderer.render(mDocument);
 			} else if (msg.what == MSG_FAILURE) {
 				mRenderer.error((Throwable) msg.obj);
 			} else if (msg.what == MSG_START) {

@@ -17,13 +17,18 @@ public final class Document implements Recyclable {
 	private List<Page> mPages = new ArrayList<>(128);
 
 	private Object mExtra;
+	private Object mRaw;
 
 	private Document(Object extra) {
 		mExtra = extra;
 	}
 
-	public static void clean() {
-		POOL.clean();
+	public Object getRaw() {
+		return mRaw;
+	}
+
+	public void setRaw(Object raw) {
+		mRaw = raw;
 	}
 
 	@Nullable
@@ -80,6 +85,10 @@ public final class Document implements Recyclable {
 		mPages.clear();
 
 		POOL.release(this);
+	}
+
+	public static void clean() {
+		POOL.clean();
 	}
 
 	public static Document obtain() {

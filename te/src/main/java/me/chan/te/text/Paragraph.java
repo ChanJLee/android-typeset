@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import me.chan.te.annotations.Hidden;
-import me.chan.te.config.Option;
 import me.chan.te.data.DrawableBox;
 import me.chan.te.data.Element;
 import me.chan.te.data.Glue;
@@ -114,7 +113,7 @@ public class Paragraph implements Recyclable, Segment {
 		private List<Integer> mHyphenated = new ArrayList<>(10);
 		private Measurer mMeasurer;
 		private Hypher mHypher;
-		private Option mOption;
+		private TextAttribute mTextAttribute;
 		private Paragraph mParagraph;
 		private boolean mEmpty = true;
 
@@ -156,13 +155,13 @@ public class Paragraph implements Recyclable, Segment {
 							extra
 					));
 					if (j != size - 1 && text.charAt(point - 1) != '-') {
-						elements.add(Penalty.obtain(mOption.getHyphenWidth(), mOption.getHyphenHeight(), ParagraphTypesetter.HYPHEN_PENALTY, true));
+						elements.add(Penalty.obtain(mTextAttribute.getHyphenWidth(), mTextAttribute.getHyphenHeight(), ParagraphTypesetter.HYPHEN_PENALTY, true));
 					}
 					start = point;
 				}
 			}
 			mHyphenated.clear();
-			elements.add(Glue.obtain(mOption.getSpaceWidth(), mOption.getSpaceStretch(), mOption.getSpaceShrink()));
+			elements.add(Glue.obtain(mTextAttribute.getSpaceWidth(), mTextAttribute.getSpaceStretch(), mTextAttribute.getSpaceShrink()));
 			mEmpty = false;
 			return this;
 		}
@@ -174,7 +173,7 @@ public class Paragraph implements Recyclable, Segment {
 
 			List<Element> elements = mParagraph.mElements;
 			elements.add(DrawableBox.obtain(drawable, width, height));
-			elements.add(Glue.obtain(mOption.getSpaceWidth(), mOption.getSpaceStretch(), mOption.getSpaceShrink()));
+			elements.add(Glue.obtain(mTextAttribute.getSpaceWidth(), mTextAttribute.getSpaceStretch(), mTextAttribute.getSpaceShrink()));
 			mEmpty = false;
 			return this;
 		}
@@ -198,13 +197,13 @@ public class Paragraph implements Recyclable, Segment {
 			mParagraph = null;
 			mEmpty = true;
 			mMeasurer = null;
-			mOption = null;
+			mTextAttribute = null;
 			mHypher = null;
 			mHyphenated.clear();
 			POOL.release(this);
 		}
 
-		public static Builder newBuilder(Measurer measurer, Hypher hypher, Option option, Object extra) {
+		public static Builder newBuilder(Measurer measurer, Hypher hypher, TextAttribute textAttribute, Object extra) {
 			Builder builder = POOL.acquire();
 			if (builder == null) {
 				builder = new Builder();
@@ -212,7 +211,7 @@ public class Paragraph implements Recyclable, Segment {
 
 			builder.mMeasurer = measurer;
 			builder.mHypher = hypher;
-			builder.mOption = option;
+			builder.mTextAttribute = textAttribute;
 			builder.mParagraph = obtain(extra);
 			return builder;
 		}

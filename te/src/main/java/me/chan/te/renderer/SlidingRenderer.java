@@ -33,6 +33,10 @@ public class SlidingRenderer extends Renderer {
 
 	@Override
 	protected void onRenderer(Document document) {
+		if (document.getPageCount() == 0) {
+			return;
+		}
+
 		Page page = document.getPage(0);
 		mAdapter.render(page, getTextPaint(), getRenderOption());
 	}

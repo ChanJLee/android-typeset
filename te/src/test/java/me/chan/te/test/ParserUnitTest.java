@@ -8,7 +8,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.List;
 
 import me.chan.te.data.Box;
 import me.chan.te.text.Document;
@@ -21,7 +20,7 @@ import me.chan.te.hypher.Hypher;
 import me.chan.te.measurer.Measurer;
 import me.chan.te.parser.TextParser;
 import me.chan.te.test.mock.MockMeasurer;
-import me.chan.te.test.mock.MockOption;
+import me.chan.te.test.mock.MockTextAttribute;
 import me.chan.te.test.mock.MockTextPaint;
 
 import static org.junit.Assert.assertEquals;
@@ -34,26 +33,26 @@ public class ParserUnitTest {
 	public void testBase() {
 		MockTextPaint paint = new MockTextPaint();
 		paint.setTextSize(18);
-		MockOption MockOption = new MockOption(paint);
+		MockTextAttribute MockTextAttribute = new MockTextAttribute(paint);
 		Measurer measurer = new MockMeasurer(paint);
 		TextParser textParser = new TextParser();
-		Document document = textParser.parse("hello\n\nworld\n\n", measurer, Hypher.getInstance(), MockOption);
+		Document document = textParser.parse("hello\n\nworld\n\n", measurer, Hypher.getInstance(), MockTextAttribute);
 		assertEquals(document.getSegmentCount(), 2);
 
-		document = textParser.parse("hello\n\nworld\n", measurer, Hypher.getInstance(), MockOption);
+		document = textParser.parse("hello\n\nworld\n", measurer, Hypher.getInstance(), MockTextAttribute);
 		assertEquals(document.getSegmentCount(), 2);
 
-		document = textParser.parse("", measurer, Hypher.getInstance(), MockOption);
+		document = textParser.parse("", measurer, Hypher.getInstance(), MockTextAttribute);
 		assertEquals(document.getSegmentCount(), 0);
 
 		try {
-			textParser.parse(null, measurer, Hypher.getInstance(), MockOption);
+			textParser.parse(null, measurer, Hypher.getInstance(), MockTextAttribute);
 			Assert.fail("test parse null string");
 		} catch (Throwable e) {
 			assertFalse(e instanceof AssertionError);
 		}
 
-		document = textParser.parse(" hello", measurer, Hypher.getInstance(), MockOption);
+		document = textParser.parse(" hello", measurer, Hypher.getInstance(), MockTextAttribute);
 		assertEquals(document.getSegmentCount(), 1);
 
 
@@ -67,7 +66,7 @@ public class ParserUnitTest {
 		Box box = (Box) paragraph.getElement(0);
 		assertEquals("check box content: ", box.toString(), "hello");
 
-		document = textParser.parse(" triangle\n\n\n", measurer, Hypher.getInstance(), MockOption);
+		document = textParser.parse(" triangle\n\n\n", measurer, Hypher.getInstance(), MockTextAttribute);
 		assertEquals(document.getSegmentCount(), 1);
 
 		paragraph = (Paragraph) document.getSegment(0);
@@ -102,7 +101,7 @@ public class ParserUnitTest {
 		String line = null;
 		MockTextPaint paint = new MockTextPaint();
 		Measurer measurer = new MockMeasurer(paint);
-		MockOption MockOption = new MockOption(paint);
+		MockTextAttribute MockTextAttribute = new MockTextAttribute(paint);
 		int lineNumber = 0;
 		TextParser textParser = new TextParser();
 		while ((line = bufferedReader.readLine()) != null) {
@@ -113,7 +112,7 @@ public class ParserUnitTest {
 
 			String contentWithoutBlank = line.replaceAll("\\p{Z}+|\\t|\\r|\\n", "");
 			StringBuilder stringBuilder = new StringBuilder();
-			Document document = textParser.parse(line, measurer, Hypher.getInstance(), MockOption);
+			Document document = textParser.parse(line, measurer, Hypher.getInstance(), MockTextAttribute);
 			if (contentWithoutBlank.isEmpty()) {
 				Assert.assertEquals(document.getSegmentCount(), 0);
 				continue;
@@ -142,7 +141,7 @@ public class ParserUnitTest {
 		String line = null;
 		MockTextPaint paint = new MockTextPaint();
 		Measurer measurer = new MockMeasurer(paint);
-		MockOption MockOption = new MockOption(paint);
+		MockTextAttribute MockTextAttribute = new MockTextAttribute(paint);
 		StringBuilder stringBuilder = new StringBuilder();
 		TextParser textParser = new TextParser();
 		while ((line = bufferedReader.readLine()) != null) {
@@ -152,7 +151,7 @@ public class ParserUnitTest {
 		String content = stringBuilder.toString();
 		stringBuilder = new StringBuilder();
 		long timestamp = System.currentTimeMillis();
-		Document document = textParser.parse(content, measurer, Hypher.getInstance(), MockOption);
+		Document document = textParser.parse(content, measurer, Hypher.getInstance(), MockTextAttribute);
 		System.out.println("used time: " + (System.currentTimeMillis() - timestamp));
 		for (int i = 0; i < document.getSegmentCount(); ++i) {
 			Paragraph paragraph = (Paragraph) document.getSegment(i);

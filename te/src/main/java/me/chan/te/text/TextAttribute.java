@@ -1,21 +1,18 @@
-package me.chan.te.config;
+package me.chan.te.text;
+
+import android.annotation.SuppressLint;
+import android.support.v4.util.SparseArrayCompat;
 
 import me.chan.te.measurer.Measurer;
 
 /**
- * 用于获取算法的通用选项
- * TODO
- * 对于不同的text size, 空格的参数是一样的
- * 但是 - hyphen不一样
+ * 文本属性
  */
-public class Option {
+public class TextAttribute {
+	private LineAttribute mDefaultAttribute;
+	@SuppressLint("UseSparseArrays")
+	private SparseArrayCompat<LineAttribute> mMap = new SparseArrayCompat<>(2000);
 
-	// todo to line attributes
-	// line attributes to text
-
-	/**
-	 * 跟随box的text size变化
-	 */
 	private float mHyphenWidth;
 	private float mSpaceWidth;
 	private float mSpaceStretch;
@@ -23,7 +20,7 @@ public class Option {
 	private float mIndentWidth;
 	private float mHyphenHeight;
 
-	public Option(Measurer measurer) {
+	public TextAttribute(Measurer measurer) {
 		refresh(measurer);
 	}
 
@@ -36,6 +33,27 @@ public class Option {
 
 		// 首行缩进四个空格
 		mIndentWidth = mSpaceWidth * 4;
+	}
+
+	public TextAttribute add(int lineNumber, LineAttribute attribute) {
+		mMap.put(lineNumber, attribute);
+		return this;
+	}
+
+	public void remove(int lineNumber) {
+		mMap.remove(lineNumber);
+	}
+
+	public void removeAllLineAttribute() {
+		mMap.clear();
+	}
+
+	public LineAttribute get(int lineNumber) {
+		LineAttribute attribute = mMap.get(lineNumber);
+		if (attribute != null) {
+			return attribute;
+		}
+		return mDefaultAttribute;
 	}
 
 	/**
@@ -78,5 +96,27 @@ public class Option {
 	 */
 	public float getIndentWidth() {
 		return mIndentWidth;
+	}
+
+	public void setDefaultAttribute(LineAttribute defaultAttribute) {
+		mDefaultAttribute = defaultAttribute;
+	}
+
+	public static class LineAttribute {
+		private float mLineWidth;
+		private Gravity mGravity;
+
+		public LineAttribute(float lineWidth, Gravity gravity) {
+			mLineWidth = lineWidth;
+			mGravity = gravity;
+		}
+
+		public float getLineWidth() {
+			return mLineWidth;
+		}
+
+		public Gravity getGravity() {
+			return mGravity;
+		}
 	}
 }

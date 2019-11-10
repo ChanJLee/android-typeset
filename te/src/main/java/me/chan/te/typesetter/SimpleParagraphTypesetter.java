@@ -1,6 +1,6 @@
 package me.chan.te.typesetter;
 
-import me.chan.te.config.LineAttributes;
+import me.chan.te.text.TextAttribute;
 import me.chan.te.data.Box;
 import me.chan.te.data.Element;
 import me.chan.te.data.Glue;
@@ -15,16 +15,17 @@ class SimpleParagraphTypesetter implements ParagraphTypesetter {
 
 	@Override
 	public boolean typeset(Paragraph paragraph,
-						   LineAttributes lineAttributes, BreakStrategy breakStrategy) {
+						   TextAttribute textAttribute, BreakStrategy breakStrategy) {
 		// 一行尽可能的占满尽可能多的字符
 		// 如果如果只显示了一个并且还不足以完美显示，那么无脑折断
 		int size = paragraph.getElementCount();
 		for (int i = 0; i < size; ) {
-			LineAttributes.Attribute attribute = lineAttributes.get(paragraph.getLineCount());
+			TextAttribute.LineAttribute attribute = textAttribute.get(paragraph.getLineCount());
 			i = typesetLine(attribute,
 					paragraph,
 					i,
-					breakStrategy
+					breakStrategy,
+					textAttribute.getSpaceWidth()
 			);
 		}
 
@@ -36,11 +37,10 @@ class SimpleParagraphTypesetter implements ParagraphTypesetter {
 		return true;
 	}
 
-	private int typesetLine(LineAttributes.Attribute attribute,
-							Paragraph paragraph, int start, BreakStrategy breakStrategy) {
+	private int typesetLine(TextAttribute.LineAttribute attribute,
+							Paragraph paragraph, int start, BreakStrategy breakStrategy, float wordSpaceWidth) {
 		int size = paragraph.getElementCount();
 		float lineWidth = attribute.getLineWidth();
-		float wordSpaceWidth = attribute.getWordSpaceWidth();
 		Gravity gravity = attribute.getGravity();
 
 		// skip none box

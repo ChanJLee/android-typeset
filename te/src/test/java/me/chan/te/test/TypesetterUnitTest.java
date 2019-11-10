@@ -18,8 +18,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
-import me.chan.te.config.LineAttributes;
-import me.chan.te.config.Option;
+import me.chan.te.text.TextAttribute;
 import me.chan.te.data.Box;
 import me.chan.te.data.DrawableBox;
 import me.chan.te.data.TextBox;
@@ -27,7 +26,7 @@ import me.chan.te.hypher.Hypher;
 import me.chan.te.measurer.Measurer;
 import me.chan.te.parser.TextParser;
 import me.chan.te.test.mock.MockMeasurer;
-import me.chan.te.test.mock.MockOption;
+import me.chan.te.test.mock.MockTextAttribute;
 import me.chan.te.test.mock.MockTextPaint;
 import me.chan.te.text.BreakStrategy;
 import me.chan.te.text.Document;
@@ -126,21 +125,22 @@ public class TypesetterUnitTest {
 	private void checkContent(String text, BreakStrategy breakStrategy, float lineWidth, int textSize) {
 		System.out.println("check content, width: " + lineWidth + " text size: " + textSize + " " + breakStrategy);
 
-		LineAttributes lineAttributes = new LineAttributes(new LineAttributes.Attribute(lineWidth, Gravity.LEFT, 10));
 		MockTextPaint paint = new MockTextPaint();
+		TextAttribute textAttribute = new TextAttribute(new MockMeasurer(paint));
+		textAttribute.setDefaultAttribute(new TextAttribute.LineAttribute(lineWidth, Gravity.LEFT));
 		Measurer measurer = new MockMeasurer(paint);
 		paint.setMockTextSize(textSize);
-		Option option = new MockOption(paint);
+		MockTextAttribute attribute = new MockTextAttribute(paint);
 
-		Assert.assertNotEquals(option.getHyphenWidth(), 0);
-		Assert.assertNotEquals(option.getIndentWidth(), 0);
-		Assert.assertNotEquals(option.getSpaceShrink(), 0);
-		Assert.assertNotEquals(option.getSpaceStretch(), 0);
-		Assert.assertNotEquals(option.getSpaceWidth(), 0);
+		Assert.assertNotEquals(attribute.getHyphenWidth(), 0);
+		Assert.assertNotEquals(attribute.getIndentWidth(), 0);
+		Assert.assertNotEquals(attribute.getSpaceShrink(), 0);
+		Assert.assertNotEquals(attribute.getSpaceStretch(), 0);
+		Assert.assertNotEquals(attribute.getSpaceWidth(), 0);
 
 		ParagraphTypesetterImpl texTypesetter = new ParagraphTypesetterImpl();
 		TextParser textParser = new TextParser();
-		Document document = textParser.parse(text, measurer, Hypher.getInstance(), option);
+		Document document = textParser.parse(text, measurer, Hypher.getInstance(), attribute);
 		assertNotEquals(document.getSegmentCount(), 0);
 
 		StringBuilder stringBuilder = new StringBuilder();
@@ -151,7 +151,7 @@ public class TypesetterUnitTest {
 			}
 
 			Paragraph paragraph = (Paragraph) segment;
-			texTypesetter.typeset(paragraph, lineAttributes, breakStrategy);
+			texTypesetter.typeset(paragraph, textAttribute, breakStrategy);
 			assertNotNull(paragraph);
 			assertNotEquals(paragraph.getLineCount(), 0);
 
@@ -298,19 +298,18 @@ public class TypesetterUnitTest {
 		MockTextPaint textPaint = new MockTextPaint(textSize);
 		Measurer measurer = new MockMeasurer(textPaint);
 		Document document = Document.obtain();
-		Option option = new MockOption(textPaint);
-		Paragraph.Builder builder = Paragraph.Builder.newBuilder(measurer, Hypher.getInstance(), option, null);
+		MockTextAttribute attribute = new MockTextAttribute(textPaint);
+		attribute.setDefaultAttribute(new TextAttribute.LineAttribute(width, Gravity.LEFT));
+		Paragraph.Builder builder = Paragraph.Builder.newBuilder(measurer, Hypher.getInstance(), attribute, null);
 		for (int i = 0; i < s.length; ++i) {
 			builder.text(s[i], 0, s[i].length(), null, null, null, null);
 			builder.drawable(new ColorDrawable(10), drawableWidth, 20);
 		}
 		document.addSegment(builder.build());
 
-		LineAttributes lineAttributes = new LineAttributes(new LineAttributes.Attribute(width, Gravity.LEFT, option.getSpaceWidth()));
-
 		ParagraphTypesetterImpl typesetter = new ParagraphTypesetterImpl();
 		for (int i = 0; i < document.getSegmentCount(); ++i) {
-			typesetter.typeset((Paragraph) document.getSegment(i), lineAttributes, breakStrategy);
+			typesetter.typeset((Paragraph) document.getSegment(i), attribute, breakStrategy);
 		}
 
 		return document;

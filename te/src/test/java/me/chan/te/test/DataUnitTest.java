@@ -16,7 +16,7 @@ import me.chan.te.data.Penalty;
 import me.chan.te.data.TextBox;
 import me.chan.te.hypher.Hypher;
 import me.chan.te.test.mock.MockMeasurer;
-import me.chan.te.test.mock.MockOption;
+import me.chan.te.test.mock.MockTextAttribute;
 import me.chan.te.test.mock.MockTextPaint;
 import me.chan.te.text.Background;
 import me.chan.te.text.Document;
@@ -26,7 +26,6 @@ import me.chan.te.text.Gravity;
 import me.chan.te.text.Line;
 import me.chan.te.text.Page;
 import me.chan.te.text.Paragraph;
-import me.chan.te.text.Segment;
 import me.chan.te.text.TextStyle;
 import me.chan.te.text.UnderLine;
 import me.chan.te.typesetter.BreakPoint;
@@ -436,7 +435,7 @@ public class DataUnitTest {
 
 	@Test
 	public void testParagraphBuilder() {
-		Paragraph.Builder builder = Paragraph.Builder.newBuilder(new MockMeasurer(mMockTextPaint), Hypher.getInstance(), new MockOption(mMockTextPaint), null);
+		Paragraph.Builder builder = Paragraph.Builder.newBuilder(new MockMeasurer(mMockTextPaint), Hypher.getInstance(), new MockTextAttribute(mMockTextPaint), null);
 		builder.drawable(new ColorDrawable(10), 1, 2);
 		builder.build();
 
@@ -449,14 +448,14 @@ public class DataUnitTest {
 			assertFalse(throwable instanceof AssertionError);
 		}
 
-		builder = Paragraph.Builder.newBuilder(new MockMeasurer(mMockTextPaint), Hypher.getInstance(), new MockOption(mMockTextPaint), null);
+		builder = Paragraph.Builder.newBuilder(new MockMeasurer(mMockTextPaint), Hypher.getInstance(), new MockTextAttribute(mMockTextPaint), null);
 		Assert.assertSame(builder, p);
 	}
 
 	@Test
 	public void testParagraph() throws NoSuchFieldException, IllegalAccessException {
 		String hello = "hello";
-		Paragraph.Builder builder = Paragraph.Builder.newBuilder(new MockMeasurer(mMockTextPaint), Hypher.getInstance(), new MockOption(mMockTextPaint), hello);
+		Paragraph.Builder builder = Paragraph.Builder.newBuilder(new MockMeasurer(mMockTextPaint), Hypher.getInstance(), new MockTextAttribute(mMockTextPaint), hello);
 		Paragraph paragraph = builder.build();
 		Assert.assertTrue(paragraph.isEmpty());
 		Assert.assertNotNull(paragraph);
@@ -483,7 +482,7 @@ public class DataUnitTest {
 		Assert.assertNotNull(lines);
 		Assert.assertTrue(lines.isEmpty());
 
-		builder = Paragraph.Builder.newBuilder(new MockMeasurer(mMockTextPaint), Hypher.getInstance(), new MockOption(mMockTextPaint), hello);
+		builder = Paragraph.Builder.newBuilder(new MockMeasurer(mMockTextPaint), Hypher.getInstance(), new MockTextAttribute(mMockTextPaint), hello);
 		paragraph = builder.build();
 		Assert.assertSame(paragraph, prev);
 		Assert.assertNotNull(paragraph);
@@ -496,7 +495,7 @@ public class DataUnitTest {
 		Assert.assertSame(paragraph.getElement(0).getClass(), Glue.class);
 		Assert.assertSame(paragraph.getElement(1).getClass(), Penalty.class);
 
-		builder = Paragraph.Builder.newBuilder(new MockMeasurer(mMockTextPaint), Hypher.getInstance(), new MockOption(mMockTextPaint), null);
+		builder = Paragraph.Builder.newBuilder(new MockMeasurer(mMockTextPaint), Hypher.getInstance(), new MockTextAttribute(mMockTextPaint), null);
 		builder.text("hello", 0, 1, null, null, null, null);
 		paragraph = builder.build();
 		Assert.assertFalse(paragraph.isEmpty());
@@ -506,7 +505,7 @@ public class DataUnitTest {
 		Assert.assertSame(paragraph.getElement(1).getClass(), Glue.class);
 		Assert.assertSame(paragraph.getElement(2).getClass(), Penalty.class);
 
-		builder = Paragraph.Builder.newBuilder(new MockMeasurer(mMockTextPaint), Hypher.getInstance(), new MockOption(mMockTextPaint), null);
+		builder = Paragraph.Builder.newBuilder(new MockMeasurer(mMockTextPaint), Hypher.getInstance(), new MockTextAttribute(mMockTextPaint), null);
 		builder.drawable(new ColorDrawable(10), 10, 10);
 		paragraph = builder.build();
 		Assert.assertFalse(paragraph.isEmpty());
