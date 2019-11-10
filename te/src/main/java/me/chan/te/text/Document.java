@@ -83,7 +83,7 @@ public final class Document implements Recyclable {
 			page.recycle();
 		}
 		mPages.clear();
-
+		mRaw = null;
 		POOL.release(this);
 	}
 
