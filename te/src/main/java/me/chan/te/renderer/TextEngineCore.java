@@ -279,9 +279,14 @@ class TextEngineCore {
 	}
 
 	void reload(RenderOption renderOption) {
+		mTextPaint.setColor(renderOption.getTextColor());
+		mTextPaint.setTypeface(renderOption.getTypeface());
+		mTextPaint.setTextSize(renderOption.getTextSize());
+
 		mMeasurer.refresh(mTextPaint);
 		mOption.refresh(mMeasurer);
 		mRenderOption = renderOption;
+
 		reload();
 	}
 

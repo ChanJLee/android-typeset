@@ -62,10 +62,12 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 		mPaint = paint;
 		mDescent = paint.getFontMetrics().descent;
 		mRenderOption = renderOption;
+
 		requestLayout();
 	}
 
-	public void setDebugMode(boolean enable) {
+	// TODO
+	private void setDebugMode(boolean enable) {
 		if (mDebugMode == enable) {
 			return;
 		}
@@ -180,13 +182,14 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 			float top = (float) Math.ceil(y - line.getLineHeight());
 			float bottom = y + mDescent * 1.1f;
 
+			mWorkPaint.set(mPaint);
+
 			if (box instanceof TextBox) {
 				TextBox textBox = (TextBox) box;
 				if (textBox.isSelected()) {
-					mWorkPaint.set(mPaint);
-					mWorkPaint.setColor(Color.BLUE);
+					mWorkPaint.setColor(mRenderOption.getSelectedBackgroundColor());
 					canvas.drawRect(left, top, right, bottom, mWorkPaint);
-					mWorkPaint.setColor(Color.WHITE);
+					mWorkPaint.setColor(mRenderOption.getSelectedTextColor());
 				} else {
 					Background background = textBox.getBackground();
 					if (background != null) {
@@ -201,8 +204,6 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 				canvas.drawRect(x, (float) Math.ceil(y - line.getLineHeight()),
 						(float) Math.ceil(x + width), y, mDebugPaint);
 			}
-
-			mWorkPaint.set(mPaint);
 
 			if (box instanceof TextBox) {
 				TextBox textBox = (TextBox) box;
