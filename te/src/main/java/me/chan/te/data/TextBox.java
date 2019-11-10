@@ -32,7 +32,7 @@ public final class TextBox extends Box implements Element {
 	private boolean mSelected = false;
 
 	private TextBox(@NonNull CharSequence text, int start, int end, float width, float height,
-					  @Nullable TextStyle textStyle, Background background, Foreground foreground, Object extra) {
+					@Nullable TextStyle textStyle, Background background, Foreground foreground, Object extra) {
 		super(width, height);
 		reset(this, text, start, end, mWidth, mHeight,
 				textStyle, background, foreground, extra);
@@ -62,6 +62,10 @@ public final class TextBox extends Box implements Element {
 
 	@Override
 	public void recycle() {
+		if (mText == null) {
+			return;
+		}
+
 		if (mBackground != null) {
 			mBackground.recycle();
 		}
