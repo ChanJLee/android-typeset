@@ -5,10 +5,12 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
+import android.graphics.RectF;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.text.TextPaint;
 import android.util.AttributeSet;
+import android.util.TypedValue;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
@@ -29,6 +31,7 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 	public static final int SELECTION_MODE_NONE = 0;
 	public static final int SELECTION_MODE_CLICK = 1;
 	public static final int SELECTION_MODE_LONG_PRESS = 2;
+	private static final int DEFAULT_ROUND_RADIUS = 3;
 
 	private Paragraph mParagraph;
 	private TextPaint mPaint;
@@ -38,20 +41,23 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 	private GestureDetector mGestureDetector = null;
 	private OnTextSelectedListener mOnTextSelectedListener;
 	private boolean mDebugMode = false;
+	private float mRectRadius;
+	private RectF mRectF = new RectF();
 
 	private float mDescent;
 	private RenderOption mRenderOption;
 
 	public ParagraphView(Context context) {
-		super(context);
+		this(context, null);
 	}
 
 	public ParagraphView(Context context, AttributeSet attrs) {
-		super(context, attrs);
+		this(context, attrs, 0);
 	}
 
 	public ParagraphView(Context context, AttributeSet attrs, int defStyleAttr) {
 		super(context, attrs, defStyleAttr);
+		mRectRadius = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, DEFAULT_ROUND_RADIUS, getResources().getDisplayMetrics());
 	}
 
 	// TODO opt
@@ -188,7 +194,8 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 				TextBox textBox = (TextBox) box;
 				if (textBox.isSelected()) {
 					mWorkPaint.setColor(mRenderOption.getSelectedBackgroundColor());
-					canvas.drawRect(left, top, right, bottom, mWorkPaint);
+					mRectF.set(left, top, right, bottom);
+					canvas.drawRoundRect(mRectF, mRectRadius, mRectRadius, mWorkPaint);
 					mWorkPaint.setColor(mRenderOption.getSelectedTextColor());
 				} else {
 					Background background = textBox.getBackground();
