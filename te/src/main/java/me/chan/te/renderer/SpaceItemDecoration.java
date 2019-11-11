@@ -14,6 +14,14 @@ public class SpaceItemDecoration extends RecyclerView.ItemDecoration {
 
 	@Override
 	public void getItemOffsets(@NonNull Rect outRect, @NonNull View view, @NonNull RecyclerView parent, @NonNull RecyclerView.State state) {
-		outRect.set(0, 0, 0, mSegmentSpace);
+		final int currentPosition = parent.getChildLayoutPosition(view);
+		int count = state.getItemCount();
+		if (currentPosition < 0 || currentPosition >= count) {
+			return;
+		}
+
+		if (currentPosition != count - 1) {
+			outRect.set(0, 0, 0, mSegmentSpace);
+		}
 	}
 }

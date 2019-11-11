@@ -66,9 +66,16 @@ class PagingRenderer extends Renderer {
 			RenderOption renderOption = getRenderOption();
 			Context context = getContext();
 			RecyclerView impl = new RecyclerView(context);
+			impl.setNestedScrollingEnabled(false);
 			impl.setClipToPadding(false);
 			impl.setClipChildren(false);
-			impl.setLayoutManager(new LinearLayoutManager(context));
+			LinearLayoutManager linearLayoutManager = new LinearLayoutManager(context) {
+				@Override
+				public boolean canScrollVertically() {
+					return false;
+				}
+			};
+			impl.setLayoutManager(linearLayoutManager);
 			impl.addItemDecoration(new SpaceItemDecoration(renderOption.getSegmentSpace()));
 			container.addView(impl, new TeView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
 			PageAdapter pageAdapter = new PageAdapter(getLayoutInflater(), getImageLoader());
