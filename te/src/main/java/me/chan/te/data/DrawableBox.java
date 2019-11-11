@@ -6,9 +6,8 @@ import android.support.annotation.NonNull;
 import android.text.TextPaint;
 
 import me.chan.te.misc.ObjectFactory;
-import me.chan.te.misc.Recyclable;
 
-public class DrawableBox extends Box implements Recyclable {
+public class DrawableBox extends Box {
 	private static final ObjectFactory<DrawableBox> POOL = new ObjectFactory<>(512);
 
 	private Drawable mDrawable;
@@ -30,6 +29,11 @@ public class DrawableBox extends Box implements Recyclable {
 
 	@Override
 	public void recycle() {
+		if (isRecycled()) {
+			return;
+		}
+
+		super.recycle();
 		mDrawable = null;
 		mWidth = -1;
 		mHeight = -1;
@@ -45,6 +49,7 @@ public class DrawableBox extends Box implements Recyclable {
 		drawableBox.mWidth = width;
 		drawableBox.mHeight = height;
 		drawableBox.mDrawable = drawable;
+		drawableBox.reuse();
 		return drawableBox;
 	}
 

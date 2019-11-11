@@ -3,10 +3,10 @@ package me.chan.te.text;
 import java.util.ArrayList;
 import java.util.List;
 
+import me.chan.te.misc.DefaultRecyclable;
 import me.chan.te.misc.ObjectFactory;
-import me.chan.te.misc.Recyclable;
 
-public class Page implements Recyclable {
+public class Page extends DefaultRecyclable {
 	private static final ObjectFactory<Page> POOL = new ObjectFactory<>(120);
 
 	private List<Segment> mSegments = new ArrayList<>(512);
@@ -52,6 +52,11 @@ public class Page implements Recyclable {
 
 	@Override
 	public void recycle() {
+		if (isRecycled()) {
+			return;
+		}
+
+		super.recycle();
 		mWidth = mHeight = 0;
 		mSegments.clear();
 		POOL.release(this);
@@ -60,6 +65,7 @@ public class Page implements Recyclable {
 	public static Page obtain() {
 		Page page = POOL.acquire();
 		if (page != null) {
+			page.reuse();
 			return page;
 		}
 

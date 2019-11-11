@@ -14,7 +14,7 @@ import me.chan.te.text.TextStyle;
 /**
  * 文本元素
  */
-public final class TextBox extends Box implements Element {
+public final class TextBox extends Box {
 	private static final int FLAG_NONE = 0;
 	private static final int FLAG_PENALTY = 2;
 	private static final int FLAG_SPILT = 1;
@@ -62,10 +62,11 @@ public final class TextBox extends Box implements Element {
 
 	@Override
 	public void recycle() {
-		if (mText == null) {
+		if (isRecycled()) {
 			return;
 		}
 
+		super.recycle();
 		if (mBackground != null) {
 			mBackground.recycle();
 		}
@@ -214,6 +215,7 @@ public final class TextBox extends Box implements Element {
 		}
 		reset(box, charSequence, start, end, width, height,
 				textStyle, background, foreground, extra);
+		box.reuse();
 		return box;
 	}
 

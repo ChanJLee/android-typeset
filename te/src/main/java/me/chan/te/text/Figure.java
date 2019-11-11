@@ -6,7 +6,7 @@ import me.chan.te.misc.ObjectFactory;
 /**
  * 插图
  */
-public class Figure implements Segment, Recyclable {
+public class Figure extends Segment implements Recyclable {
 	public static final float DEFAULT_RATIO = 1.618f;
 
 	private static final ObjectFactory<Figure> POOL = new ObjectFactory<>(16);
@@ -62,6 +62,11 @@ public class Figure implements Segment, Recyclable {
 
 	@Override
 	public void recycle() {
+		if (isRecycled()) {
+			return;
+		}
+
+		super.recycle();
 		mWidth = mHeight = -1;
 		mUrl = null;
 		mExtra = null;
@@ -76,6 +81,7 @@ public class Figure implements Segment, Recyclable {
 		figure.mUrl = url;
 		figure.mWidth = width;
 		figure.mHeight = height;
+		figure.reuse();
 		return figure;
 	}
 
