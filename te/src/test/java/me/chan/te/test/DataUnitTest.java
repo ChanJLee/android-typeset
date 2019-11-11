@@ -834,6 +834,8 @@ public class DataUnitTest {
 		Assert.assertSame(document.getExtra(), msg);
 		Assert.assertEquals(document.getSegmentCount(), 0);
 		Assert.assertEquals(document.getPageCount(), 0);
+		document.setRaw(msg);
+		Assert.assertSame(document.getRaw(), msg);
 		try {
 			document.getSegment(0);
 			fail("test document get segment");
@@ -866,6 +868,7 @@ public class DataUnitTest {
 
 		Document previous = document;
 		document.recycle();
+		Assert.assertNull(document.getRaw());
 		Assert.assertTrue(document.isRecycled());
 
 		// test recycle twice
@@ -875,6 +878,7 @@ public class DataUnitTest {
 		Assert.assertNotNull(document);
 		Assert.assertFalse(document.isRecycled());
 		Assert.assertNull(document.getExtra());
+		Assert.assertNull(document.getRaw());
 		Assert.assertSame(previous, document);
 		Assert.assertEquals(document.getSegmentCount(), 0);
 		Assert.assertEquals(document.getPageCount(), 0);
