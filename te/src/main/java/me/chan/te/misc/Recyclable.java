@@ -4,4 +4,6 @@ public interface Recyclable {
 	void recycle();
 
 	boolean isRecycled();
+
+	void reuse();
 }

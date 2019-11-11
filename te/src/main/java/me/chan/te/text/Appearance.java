@@ -3,9 +3,9 @@ package me.chan.te.text;
 import android.graphics.Canvas;
 import android.text.TextPaint;
 
-import me.chan.te.misc.Recyclable;
+import me.chan.te.misc.DefaultRecyclable;
 
-public interface Appearance extends Recyclable {
+public abstract class Appearance extends DefaultRecyclable {
 	/**
 	 * @param canvas    canvas
 	 * @param textPaint paint
@@ -14,5 +14,5 @@ public interface Appearance extends Recyclable {
 	 * @param right     right
 	 * @param bottom    bottom
 	 */
-	void draw(Canvas canvas, TextPaint textPaint, float left, float top, float right, float bottom);
+	public abstract void draw(Canvas canvas, TextPaint textPaint, float left, float top, float right, float bottom);
 }

@@ -1,11 +1,11 @@
 package me.chan.te.typesetter;
 
 import me.chan.te.annotations.Hidden;
-import me.chan.te.misc.Recyclable;
+import me.chan.te.misc.DefaultRecyclable;
 import me.chan.te.misc.ObjectFactory;
 
 @Hidden
-public class Node implements Recyclable {
+public class Node extends DefaultRecyclable {
 	private static final ObjectFactory<Node> POOL = new ObjectFactory<>(1024);
 
 	private Data mData = new Data();
@@ -28,6 +28,11 @@ public class Node implements Recyclable {
 
 	@Override
 	public void recycle() {
+		if (isRecycled()) {
+			return;
+		}
+
+		super.recycle();
 		mData.demerits = mData.ratio = mData.fitnessClazz = mData.position = 0;
 		mData.line = -1;
 		if (mData.totals != null) {
@@ -46,6 +51,7 @@ public class Node implements Recyclable {
 		}
 		node.prev = prev;
 		node.next = next;
+		node.recycle();
 		return node;
 	}
 

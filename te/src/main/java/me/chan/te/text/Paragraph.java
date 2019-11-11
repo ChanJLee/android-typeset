@@ -14,14 +14,14 @@ import me.chan.te.data.Penalty;
 import me.chan.te.data.TextBox;
 import me.chan.te.hypher.Hypher;
 import me.chan.te.measurer.Measurer;
+import me.chan.te.misc.DefaultRecyclable;
 import me.chan.te.misc.ObjectFactory;
-import me.chan.te.misc.Recyclable;
 import me.chan.te.typesetter.ParagraphTypesetter;
 
 /**
  * 段落
  */
-public class Paragraph implements Recyclable, Segment {
+public class Paragraph extends Segment {
 	private static final ObjectFactory<Paragraph> POOL = new ObjectFactory<>(4096);
 
 	private List<Line> mLines = new ArrayList<>(32);
@@ -61,6 +61,11 @@ public class Paragraph implements Recyclable, Segment {
 
 	@Override
 	public void recycle() {
+		if (isRecycled()) {
+			return;
+		}
+
+		super.recycle();
 		for (int i = 0; i < mLines.size(); ++i) {
 			mLines.get(i).recycle();
 		}
@@ -99,6 +104,7 @@ public class Paragraph implements Recyclable, Segment {
 		if (paragraph == null) {
 			return new Paragraph(extra);
 		}
+		paragraph.reuse();
 		paragraph.mExtra = extra;
 		return paragraph;
 	}
@@ -106,7 +112,7 @@ public class Paragraph implements Recyclable, Segment {
 	/**
 	 * 需要避免多次创建
 	 */
-	public static class Builder implements Recyclable {
+	public static class Builder extends DefaultRecyclable {
 		private static final ObjectFactory<Builder> POOL = new ObjectFactory<>(8);
 		private static final int MIN_HYPER_LEN = 4;
 
@@ -194,6 +200,11 @@ public class Paragraph implements Recyclable, Segment {
 
 		@Override
 		public void recycle() {
+			if (isRecycled()) {
+				return;
+			}
+
+			super.recycle();
 			mParagraph = null;
 			mEmpty = true;
 			mMeasurer = null;
@@ -213,6 +224,7 @@ public class Paragraph implements Recyclable, Segment {
 			builder.mHypher = hypher;
 			builder.mTextAttribute = textAttribute;
 			builder.mParagraph = obtain(extra);
+			builder.reuse();
 			return builder;
 		}
 

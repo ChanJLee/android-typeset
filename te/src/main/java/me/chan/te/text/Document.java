@@ -6,10 +6,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import me.chan.te.annotations.Hidden;
-import me.chan.te.misc.Recyclable;
+import me.chan.te.misc.DefaultRecyclable;
 import me.chan.te.misc.ObjectFactory;
 
-public final class Document implements Recyclable {
+public final class Document extends DefaultRecyclable {
 	private static final ObjectFactory<Document> POOL = new ObjectFactory<>(8);
 	public final static Document EMPTY = obtain();
 
@@ -74,6 +74,11 @@ public final class Document implements Recyclable {
 
 	@Override
 	public void recycle() {
+		if (isRecycled()) {
+			return;
+		}
+
+		super.recycle();
 		for (Segment segment : mSegments) {
 			segment.recycle();
 		}
@@ -101,6 +106,7 @@ public final class Document implements Recyclable {
 			return new Document(extra);
 		}
 		document.mExtra = extra;
+		document.reuse();
 		return document;
 	}
 }
