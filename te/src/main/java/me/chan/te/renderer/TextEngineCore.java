@@ -29,7 +29,6 @@ import me.chan.te.text.Segment;
 import me.chan.te.typesetter.ParagraphTypesetterImpl;
 
 class TextEngineCore {
-	private static final int MSG_START = 1;
 	private static final int MSG_FINISHED = 2;
 	private static final int MSG_FAILURE = 3;
 
@@ -84,14 +83,16 @@ class TextEngineCore {
 		}
 		cancel();
 
+		final Document document = mDocument;
+		mDocument = null;
+		if (mRenderer != null) {
+			mRenderer.clear();
+		}
 		mTask = mExecutor.submit(new Runnable() {
 			@Override
 			public void run() {
 				try {
-					sendMsg(MSG_START, null);
 					Object content = source.open();
-					Document document = mDocument;
-					mDocument = null;
 					typeset(content, width, height, document);
 				} catch (Throwable throwable) {
 					sendMsg(MSG_FAILURE, throwable);
@@ -313,13 +314,15 @@ class TextEngineCore {
 		}
 
 		cancel();
+		final Document document = mDocument;
+		mDocument = null;
+		if (mRenderer != null) {
+			mRenderer.clear();
+		}
 		mTask = mExecutor.submit(new Runnable() {
 			@Override
 			public void run() {
 				try {
-					sendMsg(MSG_START, null);
-					Document document = mDocument;
-					mDocument = null;
 					typeset(document.getRaw(), mWidth, mHeight, document);
 				} catch (Throwable throwable) {
 					sendMsg(MSG_FAILURE, throwable);
@@ -346,8 +349,6 @@ class TextEngineCore {
 				mRenderer.render(mDocument);
 			} else if (msg.what == MSG_FAILURE) {
 				mRenderer.error((Throwable) msg.obj);
-			} else if (msg.what == MSG_START) {
-				mRenderer.clear();
 			}
 		}
 	}
