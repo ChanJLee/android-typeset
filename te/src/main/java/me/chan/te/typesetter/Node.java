@@ -51,7 +51,7 @@ public class Node extends DefaultRecyclable {
 		}
 		node.prev = prev;
 		node.next = next;
-		node.recycle();
+		node.reuse();
 		return node;
 	}
 

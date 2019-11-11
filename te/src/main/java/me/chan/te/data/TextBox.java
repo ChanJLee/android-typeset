@@ -39,6 +39,10 @@ public final class TextBox extends Box {
 	}
 
 	public void copy(@NonNull TextBox other) {
+		if (other.isRecycled() || isRecycled()) {
+			throw new IllegalStateException("other is recycled or current is recycled");
+		}
+
 		mWidth = other.mWidth;
 		mHeight = other.mHeight;
 		mText = other.mText;

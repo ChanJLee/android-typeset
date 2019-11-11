@@ -185,6 +185,10 @@ public class Paragraph extends Segment {
 		}
 
 		public Paragraph build() {
+			if (isRecycled()) {
+				throw new IllegalStateException("call build twice");
+			}
+
 			int elementSize = mParagraph.mElements.size();
 			if (elementSize != 0 && mParagraph.mElements.get(elementSize - 1) instanceof Glue) {
 				mParagraph.mElements.remove(elementSize - 1);
