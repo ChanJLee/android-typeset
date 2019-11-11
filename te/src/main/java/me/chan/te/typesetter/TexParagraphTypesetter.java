@@ -79,20 +79,21 @@ class TexParagraphTypesetter implements ParagraphTypesetter {
 
 		Sum sum = Sum.obtain();
 		int size = paragraph.getElementCount();
+		Candidate[] candidates = new Candidate[4];
 		for (int i = 0; i < size && !activeNodes.isEmpty(); ++i) {
 			Element element = paragraph.getElement(i);
 			if (element instanceof Box) {
 				sum.increaseWidth(getElementWidth(element));
 			} else if (element instanceof Glue) {
 				if (i > 0 && paragraph.getElement(i - 1) instanceof Box) {
-					typesetLine(i, paragraph, activeNodes, sum, textAttribute, tolerance);
+					typesetLine(i, paragraph, activeNodes, sum, textAttribute, tolerance, candidates);
 				}
 
 				Glue glue = (Glue) element;
 				sum.increaseGlue(glue);
 			} else if (element instanceof Penalty &&
 					((Penalty) element).getPenalty() != INFINITY) {
-				typesetLine(i, paragraph, activeNodes, sum, textAttribute, tolerance);
+				typesetLine(i, paragraph, activeNodes, sum, textAttribute, tolerance, candidates);
 			}
 		}
 		sum.recycle();
@@ -276,16 +277,16 @@ class TexParagraphTypesetter implements ParagraphTypesetter {
 	 * @param sum           sum
 	 * @param textAttribute 行配置信息
 	 * @param tolerance     允许的缺陷阈值
+	 * @param candidates    候选人
 	 */
 	private void typesetLine(int index, Paragraph paragraph,
 							 List<Node> activeNodes, Sum sum,
-							 TextAttribute textAttribute, float tolerance) {
+							 TextAttribute textAttribute, float tolerance,
+							 Candidate[] candidates) {
 		Element element = paragraph.getElement(index);
 		Node active = activeNodes.isEmpty() ? null : activeNodes.get(0);
 
 		while (active != null) {
-			Candidate[] candidates = new Candidate[4];
-
 			while (active != null) {
 				Node next = active.next;
 				int currentLine = active.getData().line + 1;
@@ -323,9 +324,11 @@ class TexParagraphTypesetter implements ParagraphTypesetter {
 			Sum tmpSum = computeSum(index, paragraph, sum);
 			createIfActiveNode(active, index, activeNodes, tmpSum, candidates);
 			tmpSum.recycle();
-			for (Candidate candidate : candidates) {
+			for (int i = 0; i < candidates.length; ++i) {
+				Candidate candidate = candidates[i];
 				if (candidate != null) {
 					candidate.recycle();
+					candidates[i] = null;
 				}
 			}
 		}

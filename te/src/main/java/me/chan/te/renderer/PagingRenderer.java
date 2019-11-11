@@ -77,7 +77,7 @@ class PagingRenderer extends Renderer {
 			};
 			impl.setLayoutManager(linearLayoutManager);
 			impl.addItemDecoration(new SpaceItemDecoration(renderOption.getSegmentSpace()));
-			container.addView(impl, new TeView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+			container.addView(impl);
 			PageAdapter pageAdapter = new PageAdapter(getLayoutInflater(), getImageLoader());
 			impl.setAdapter(pageAdapter);
 			pageAdapter.render(mDocument.getPage(position), getTextPaint(), renderOption);
@@ -87,6 +87,11 @@ class PagingRenderer extends Renderer {
 		@Override
 		public void destroyItem(@NonNull ViewGroup container, int position, @NonNull Object object) {
 			container.removeView((View) object);
+		}
+
+		@Override
+		public int getItemPosition(@NonNull Object object) {
+			return POSITION_NONE;
 		}
 	}
 }
