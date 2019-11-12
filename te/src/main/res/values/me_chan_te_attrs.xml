@@ -18,5 +18,6 @@
             <enum name="sliding" value="2" />
         </attr>
         <attr name="me_chan_te_wordSelectable" format="boolean" />
+<!-- TODO       <attr name="me_chan_te_includePadding" format="boolean" />-->
     </declare-styleable>
 </resources>
