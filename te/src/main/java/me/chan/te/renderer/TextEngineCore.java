@@ -278,7 +278,6 @@ class TextEngineCore {
 			currentPage = Page.obtain();
 			document.addPage(currentPage);
 			return typesetParagraphInPage(document, currentPage, suffix, height, 0);
-
 		} else if (currentHeight == height) {
 			// 刚好放得下
 			currentPage.addSegment(paragraph);
