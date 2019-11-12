@@ -50,6 +50,18 @@ public class Paragraph extends Segment {
 		return mLines.size();
 	}
 
+	public Paragraph spilt(int endIndex) {
+		List<Line> list = mLines;
+		mLines = list.subList(0, endIndex);
+		Paragraph page = Paragraph.obtain(mExtra);
+		page.mLines = list.subList(endIndex, list.size());
+		page.mEmpty = mEmpty;
+		// FIXME 可能内容不对称
+		page.mElements = mElements;
+		return page;
+	}
+
+
 	@Hidden
 	public void addLine(Line line) {
 		mLines.add(line);

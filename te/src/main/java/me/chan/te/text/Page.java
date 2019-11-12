@@ -31,14 +31,6 @@ public class Page extends DefaultRecyclable {
 		mSegments.add(segment);
 	}
 
-	public Page spilt(int endIndex) {
-		List<Segment> list = mSegments;
-		mSegments = list.subList(0, endIndex);
-		Page page = Page.obtain();
-		page.mSegments = list.subList(endIndex, list.size());
-		return page;
-	}
-
 	@Override
 	public void recycle() {
 		if (isRecycled()) {
