@@ -9,8 +9,9 @@
     tools:context=".AndroidTestActivity">
 
     <TextView
+        android:id="@+id/text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="�����ص��ļ�����http://www.shukuai.com/����������̳ �ɻ�Ա��eeee3333��Ϊ��������"
+        android:text="Today I will pluck grapes of wisdom from the tallest and fullest vines in the vineyard,for these were planted by the wisest of my profession who have come before me,generation upon generation."
         android:textSize="18sp" />
 </LinearLayout>
