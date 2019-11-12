@@ -14,7 +14,7 @@ import me.chan.te.text.TextStyle;
 /**
  * 文本元素
  */
-public final class TextBox extends Box implements Element {
+public final class TextBox extends Box {
 	private static final int FLAG_NONE = 0;
 	private static final int FLAG_PENALTY = 2;
 	private static final int FLAG_SPILT = 1;
@@ -32,13 +32,17 @@ public final class TextBox extends Box implements Element {
 	private boolean mSelected = false;
 
 	private TextBox(@NonNull CharSequence text, int start, int end, float width, float height,
-					  @Nullable TextStyle textStyle, Background background, Foreground foreground, Object extra) {
+					@Nullable TextStyle textStyle, Background background, Foreground foreground, Object extra) {
 		super(width, height);
 		reset(this, text, start, end, mWidth, mHeight,
 				textStyle, background, foreground, extra);
 	}
 
 	public void copy(@NonNull TextBox other) {
+		if (other.isRecycled() || isRecycled()) {
+			throw new IllegalStateException("other is recycled or current is recycled");
+		}
+
 		mWidth = other.mWidth;
 		mHeight = other.mHeight;
 		mText = other.mText;
@@ -62,6 +66,11 @@ public final class TextBox extends Box implements Element {
 
 	@Override
 	public void recycle() {
+		if (isRecycled()) {
+			return;
+		}
+
+		super.recycle();
 		if (mBackground != null) {
 			mBackground.recycle();
 		}
@@ -210,6 +219,7 @@ public final class TextBox extends Box implements Element {
 		}
 		reset(box, charSequence, start, end, width, height,
 				textStyle, background, foreground, extra);
+		box.reuse();
 		return box;
 	}
 

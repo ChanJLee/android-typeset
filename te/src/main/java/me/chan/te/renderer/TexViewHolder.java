@@ -1,4 +1,4 @@
-package me.chan.te.view;
+package me.chan.te.renderer;
 
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;

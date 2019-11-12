@@ -1,11 +1,11 @@
 package me.chan.te.test.mock;
 
-import me.chan.te.config.Option;
+import me.chan.te.text.TextAttribute;
 
-public class MockOption extends Option {
+public class MockTextAttribute extends TextAttribute {
 	private MockTextPaint mTextPaint;
 
-	public MockOption(MockTextPaint textPaint) {
+	public MockTextAttribute(MockTextPaint textPaint) {
 		super(new MockMeasurer(textPaint));
 		mTextPaint = textPaint;
 	}

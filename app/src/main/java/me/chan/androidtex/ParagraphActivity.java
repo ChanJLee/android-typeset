@@ -16,7 +16,7 @@ import me.chan.te.parser.BookParser;
 import me.chan.te.parser.TextParser;
 import me.chan.te.source.AssetsTextSource;
 import me.chan.te.text.BreakStrategy;
-import me.chan.te.view.TeView;
+import me.chan.te.renderer.TeView;
 
 public class ParagraphActivity extends AppCompatActivity {
 
@@ -26,11 +26,11 @@ public class ParagraphActivity extends AppCompatActivity {
 		setContentView(R.layout.activity_paragraph);
 
 		final TeView teView = findViewById(R.id.text);
-		teView.setTypeface(Typeface.createFromAsset(getAssets(), "SourceSerifPro-Regular.ttf"));
 		findViewById(R.id.debug).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				teView.setDebugMode(!teView.isDebugMode());
+		//		teView.setDebugMode(!teView.isDebugMode());
+		// 		TODO
 			}
 		});
 
@@ -78,17 +78,17 @@ public class ParagraphActivity extends AppCompatActivity {
 		radioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
 			@Override
 			public void onCheckedChanged(RadioGroup group, int checkedId) {
-				if (checkedId == R.id.text_size_9) {
-					teView.setTextSize(9);
-				} else if (checkedId == R.id.text_size_18) {
-					teView.setTextSize(18);
-				} else if (checkedId == R.id.text_size_27) {
-					teView.setTextSize(27);
-				} else if (checkedId == R.id.text_size_45) {
-					teView.setTextSize(45);
-				} else if (checkedId == R.id.text_size_72) {
-					teView.setTextSize(72);
-				}
+//				if (checkedId == R.id.text_size_9) {
+//					teView.setTextSize(9);
+//				} else if (checkedId == R.id.text_size_18) {
+//					teView.setTextSize(18);
+//				} else if (checkedId == R.id.text_size_27) {
+//					teView.setTextSize(27);
+//				} else if (checkedId == R.id.text_size_45) {
+//					teView.setTextSize(45);
+//				} else if (checkedId == R.id.text_size_72) {
+//					teView.setTextSize(72);
+//				}
 			}
 		});
 
@@ -96,7 +96,7 @@ public class ParagraphActivity extends AppCompatActivity {
 		checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
 			@Override
 			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-				teView.setBreakStrategy(isChecked ? BreakStrategy.BALANCED : BreakStrategy.SIMPLE);
+				//teView.setBreakStrategy(isChecked ? BreakStrategy.BALANCED : BreakStrategy.SIMPLE);
 			}
 		});
 
@@ -104,7 +104,7 @@ public class ParagraphActivity extends AppCompatActivity {
 		checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
 			@Override
 			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-				teView.setTextColor(isChecked ? Color.BLACK : Color.BLUE);
+//				teView.setTextColor(isChecked ? Color.BLACK : Color.BLUE);
 			}
 		});
 	}

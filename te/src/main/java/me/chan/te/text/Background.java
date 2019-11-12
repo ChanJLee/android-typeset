@@ -4,12 +4,11 @@ import android.graphics.Canvas;
 import android.text.TextPaint;
 
 import me.chan.te.misc.ObjectFactory;
-import me.chan.te.misc.Recyclable;
 
 /**
  * 背景
  */
-public class Background implements Appearance, Recyclable {
+public class Background extends Appearance {
 	private static final ObjectFactory<Background> POOL = new ObjectFactory<>(512);
 
 	private int mColor;
@@ -38,6 +37,11 @@ public class Background implements Appearance, Recyclable {
 
 	@Override
 	public void recycle() {
+		if (isRecycled()) {
+			return;
+		}
+
+		super.recycle();
 		mColor = -1;
 		POOL.release(this);
 	}
@@ -48,6 +52,7 @@ public class Background implements Appearance, Recyclable {
 			return new Background(color);
 		}
 		background.mColor = color;
+		background.reuse();
 		return background;
 	}
 

@@ -45,6 +45,11 @@ public class UnderLine extends Foreground {
 
 	@Override
 	public void recycle() {
+		if (isRecycled()) {
+			return;
+		}
+
+		super.recycle();
 		mColor = -1;
 		POOL.release(this);
 	}
@@ -55,6 +60,7 @@ public class UnderLine extends Foreground {
 			return new UnderLine(color);
 		}
 		underLine.mColor = color;
+		underLine.reuse();
 		return underLine;
 	}
 }
