@@ -18,18 +18,15 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
-import me.chan.te.config.LineAttributes;
-import me.chan.te.config.Option;
-import me.chan.te.core.TextEngineCore;
+import me.chan.te.text.TextAttribute;
 import me.chan.te.data.Box;
 import me.chan.te.data.DrawableBox;
 import me.chan.te.data.TextBox;
 import me.chan.te.hypher.Hypher;
 import me.chan.te.measurer.Measurer;
 import me.chan.te.parser.TextParser;
-import me.chan.te.parser.utils.PlainTextParserUtils;
 import me.chan.te.test.mock.MockMeasurer;
-import me.chan.te.test.mock.MockOption;
+import me.chan.te.test.mock.MockTextAttribute;
 import me.chan.te.test.mock.MockTextPaint;
 import me.chan.te.text.BreakStrategy;
 import me.chan.te.text.Document;
@@ -37,10 +34,8 @@ import me.chan.te.text.Gravity;
 import me.chan.te.text.Line;
 import me.chan.te.text.Paragraph;
 import me.chan.te.text.Segment;
-import me.chan.te.typesetter.Typesetter;
+import me.chan.te.typesetter.ParagraphTypesetterImpl;
 
-import static me.chan.te.parser.utils.PlainTextParserUtils.findNewline;
-import static me.chan.te.parser.utils.PlainTextParserUtils.skipBlank;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
@@ -130,32 +125,33 @@ public class TypesetterUnitTest {
 	private void checkContent(String text, BreakStrategy breakStrategy, float lineWidth, int textSize) {
 		System.out.println("check content, width: " + lineWidth + " text size: " + textSize + " " + breakStrategy);
 
-		LineAttributes lineAttributes = new LineAttributes(new LineAttributes.Attribute(lineWidth, Gravity.LEFT, 10));
 		MockTextPaint paint = new MockTextPaint();
+		TextAttribute textAttribute = new TextAttribute(new MockMeasurer(paint));
+		textAttribute.setDefaultAttribute(new TextAttribute.LineAttribute(lineWidth, Gravity.LEFT));
 		Measurer measurer = new MockMeasurer(paint);
 		paint.setMockTextSize(textSize);
-		Option option = new MockOption(paint);
+		MockTextAttribute attribute = new MockTextAttribute(paint);
 
-		Assert.assertNotEquals(option.getHyphenWidth(), 0);
-		Assert.assertNotEquals(option.getIndentWidth(), 0);
-		Assert.assertNotEquals(option.getSpaceShrink(), 0);
-		Assert.assertNotEquals(option.getSpaceStretch(), 0);
-		Assert.assertNotEquals(option.getSpaceWidth(), 0);
+		Assert.assertNotEquals(attribute.getHyphenWidth(), 0);
+		Assert.assertNotEquals(attribute.getIndentWidth(), 0);
+		Assert.assertNotEquals(attribute.getSpaceShrink(), 0);
+		Assert.assertNotEquals(attribute.getSpaceStretch(), 0);
+		Assert.assertNotEquals(attribute.getSpaceWidth(), 0);
 
-		Typesetter texTypesetter = new Typesetter();
+		ParagraphTypesetterImpl texTypesetter = new ParagraphTypesetterImpl();
 		TextParser textParser = new TextParser();
-		Document document = textParser.parse(text, measurer, Hypher.getInstance(), option);
-		assertNotEquals(document.getCount(), 0);
+		Document document = textParser.parse(text, measurer, Hypher.getInstance(), attribute);
+		assertNotEquals(document.getSegmentCount(), 0);
 
 		StringBuilder stringBuilder = new StringBuilder();
-		for (int i = 0; i < document.getCount(); ++i) {
+		for (int i = 0; i < document.getSegmentCount(); ++i) {
 			Segment segment = document.getSegment(i);
 			if (!(segment instanceof Paragraph)) {
 				continue;
 			}
 
 			Paragraph paragraph = (Paragraph) segment;
-			texTypesetter.typeset(paragraph, lineAttributes, breakStrategy);
+			texTypesetter.typeset(paragraph, textAttribute, breakStrategy);
 			assertNotNull(paragraph);
 			assertNotEquals(paragraph.getLineCount(), 0);
 
@@ -181,6 +177,7 @@ public class TypesetterUnitTest {
 		String origin = text.replaceAll("\\p{Z}+|\\t|\\r|\\n", "");
 		String current = stringBuilder.toString();
 		assertEquals(origin, current);
+		document.recycle();
 	}
 
 	@Test
@@ -193,7 +190,7 @@ public class TypesetterUnitTest {
 	private void testMix() {
 		Document document = mockDocument(20, 20, 100, BreakStrategy.SIMPLE, "123", "123");
 		Assert.assertNotNull(document);
-		Assert.assertEquals(document.getCount(), 1);
+		Assert.assertEquals(document.getSegmentCount(), 1);
 		Assert.assertEquals(document.getSegment(0).getClass(), Paragraph.class);
 		Paragraph paragraph = (Paragraph) document.getSegment(0);
 
@@ -212,7 +209,7 @@ public class TypesetterUnitTest {
 
 		document = mockDocument(20, 20, 100, BreakStrategy.BALANCED, "123", "123");
 		Assert.assertNotNull(document);
-		Assert.assertEquals(document.getCount(), 1);
+		Assert.assertEquals(document.getSegmentCount(), 1);
 		Assert.assertEquals(document.getSegment(0).getClass(), Paragraph.class);
 		paragraph = (Paragraph) document.getSegment(0);
 
@@ -233,7 +230,7 @@ public class TypesetterUnitTest {
 	private void testMixNormal() {
 		Document document = mockDocument(20, 20, 100, BreakStrategy.SIMPLE, "123");
 		Assert.assertNotNull(document);
-		Assert.assertEquals(document.getCount(), 1);
+		Assert.assertEquals(document.getSegmentCount(), 1);
 		Assert.assertEquals(document.getSegment(0).getClass(), Paragraph.class);
 		Paragraph paragraph = (Paragraph) document.getSegment(0);
 
@@ -248,7 +245,7 @@ public class TypesetterUnitTest {
 
 		document = mockDocument(20, 20, 100, BreakStrategy.BALANCED, "123");
 		Assert.assertNotNull(document);
-		Assert.assertEquals(document.getCount(), 1);
+		Assert.assertEquals(document.getSegmentCount(), 1);
 		Assert.assertEquals(document.getSegment(0).getClass(), Paragraph.class);
 		paragraph = (Paragraph) document.getSegment(0);
 
@@ -265,7 +262,7 @@ public class TypesetterUnitTest {
 	private void testMixFull() {
 		Document document = mockDocument(20, 20, 100, BreakStrategy.SIMPLE, "12345");
 		Assert.assertNotNull(document);
-		Assert.assertEquals(document.getCount(), 1);
+		Assert.assertEquals(document.getSegmentCount(), 1);
 		Assert.assertEquals(document.getSegment(0).getClass(), Paragraph.class);
 		Paragraph paragraph = (Paragraph) document.getSegment(0);
 
@@ -282,7 +279,7 @@ public class TypesetterUnitTest {
 
 		document = mockDocument(20, 20, 100, BreakStrategy.BALANCED, "12345");
 		Assert.assertNotNull(document);
-		Assert.assertEquals(document.getCount(), 1);
+		Assert.assertEquals(document.getSegmentCount(), 1);
 		Assert.assertEquals(document.getSegment(0).getClass(), Paragraph.class);
 		paragraph = (Paragraph) document.getSegment(0);
 
@@ -302,19 +299,18 @@ public class TypesetterUnitTest {
 		MockTextPaint textPaint = new MockTextPaint(textSize);
 		Measurer measurer = new MockMeasurer(textPaint);
 		Document document = Document.obtain();
-		Option option = new MockOption(textPaint);
-		Paragraph.Builder builder = Paragraph.Builder.newBuilder(measurer, Hypher.getInstance(), option, null);
+		MockTextAttribute attribute = new MockTextAttribute(textPaint);
+		attribute.setDefaultAttribute(new TextAttribute.LineAttribute(width, Gravity.LEFT));
+		Paragraph.Builder builder = Paragraph.Builder.newBuilder(measurer, Hypher.getInstance(), attribute, null);
 		for (int i = 0; i < s.length; ++i) {
 			builder.text(s[i], 0, s[i].length(), null, null, null, null);
 			builder.drawable(new ColorDrawable(10), drawableWidth, 20);
 		}
 		document.addSegment(builder.build());
 
-		LineAttributes lineAttributes = new LineAttributes(new LineAttributes.Attribute(width, Gravity.LEFT, option.getSpaceWidth()));
-
-		Typesetter typesetter = new Typesetter();
-		for (int i = 0; i < document.getCount(); ++i) {
-			typesetter.typeset(document.getSegment(i), lineAttributes, breakStrategy);
+		ParagraphTypesetterImpl typesetter = new ParagraphTypesetterImpl();
+		for (int i = 0; i < document.getSegmentCount(); ++i) {
+			typesetter.typeset((Paragraph) document.getSegment(i), attribute, breakStrategy);
 		}
 
 		return document;

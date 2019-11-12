@@ -10,7 +10,7 @@ import me.chan.te.annotations.Hidden;
  * <p>
  * 比如一个单词，一张图片
  */
-public abstract class Box implements Cloneable, Element {
+public abstract class Box extends Element {
 	protected float mWidth;
 	protected float mHeight;
 

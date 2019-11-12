@@ -16,6 +16,7 @@ import me.chan.te.text.Background;
 import me.chan.te.text.Document;
 import me.chan.te.text.Figure;
 import me.chan.te.text.Line;
+import me.chan.te.text.Page;
 import me.chan.te.text.Paragraph;
 import me.chan.te.text.UnderLine;
 import me.chan.te.typesetter.BreakPoint;
@@ -66,6 +67,7 @@ public class Te {
 		Background.clean();
 		UnderLine.clean();
 		Paragraph.Builder.clean();
+		Page.clean();
 		System.gc();
 	}
 }

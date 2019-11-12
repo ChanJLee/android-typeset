@@ -6,7 +6,7 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
-import me.chan.te.config.LineAttributes;
+import me.chan.te.text.TextAttribute;
 import me.chan.te.data.Box;
 import me.chan.te.data.DrawableBox;
 import me.chan.te.data.Element;
@@ -19,7 +19,7 @@ import me.chan.te.log.Log;
 import me.chan.te.text.BreakStrategy;
 import me.chan.te.text.Gravity;
 
-class TexTypesetter implements ParagraphTypesetter {
+class TexParagraphTypesetter implements ParagraphTypesetter {
 	private static final int CLASS_0 = 0;
 	private static final int CLASS_1 = 1;
 	private static final int CLASS_2 = 2;
@@ -35,12 +35,12 @@ class TexTypesetter implements ParagraphTypesetter {
 
 	@Nullable
 	@Override
-	public boolean typeset(Paragraph paragraph, LineAttributes lineAttributes, BreakStrategy breakStrategy) {
+	public boolean typeset(Paragraph paragraph, TextAttribute textAttribute, BreakStrategy breakStrategy) {
 		List<Node> activeNodes = null;
 		float tolerance = 0;
 		for (int i = 0; i < MAX_RELAYOUT_TIMES; ++i) {
 			tolerance += STRETCH_STEP_RATIO;
-			activeNodes = createActiveNodes(paragraph, lineAttributes, tolerance);
+			activeNodes = createActiveNodes(paragraph, textAttribute, tolerance);
 			if (!activeNodes.isEmpty()) {
 				break;
 			}
@@ -57,7 +57,7 @@ class TexTypesetter implements ParagraphTypesetter {
 			return false;
 		}
 
-		typesetParagraph(paragraph, breakPoints, lineAttributes);
+		typesetParagraph(paragraph, breakPoints, textAttribute);
 		for (Node node : activeNodes) {
 			node.recycle();
 		}
@@ -69,7 +69,7 @@ class TexTypesetter implements ParagraphTypesetter {
 		return true;
 	}
 
-	private List<Node> createActiveNodes(Paragraph paragraph, LineAttributes lineAttributes, float tolerance) {
+	private List<Node> createActiveNodes(Paragraph paragraph, TextAttribute textAttribute, float tolerance) {
 		List<Node> activeNodes = new LinkedList<>();
 
 		// header
@@ -79,20 +79,21 @@ class TexTypesetter implements ParagraphTypesetter {
 
 		Sum sum = Sum.obtain();
 		int size = paragraph.getElementCount();
+		Candidate[] candidates = new Candidate[4];
 		for (int i = 0; i < size && !activeNodes.isEmpty(); ++i) {
 			Element element = paragraph.getElement(i);
 			if (element instanceof Box) {
 				sum.increaseWidth(getElementWidth(element));
 			} else if (element instanceof Glue) {
 				if (i > 0 && paragraph.getElement(i - 1) instanceof Box) {
-					typesetLine(i, paragraph, activeNodes, sum, lineAttributes, tolerance);
+					typesetLine(i, paragraph, activeNodes, sum, textAttribute, tolerance, candidates);
 				}
 
 				Glue glue = (Glue) element;
 				sum.increaseGlue(glue);
 			} else if (element instanceof Penalty &&
 					((Penalty) element).getPenalty() != INFINITY) {
-				typesetLine(i, paragraph, activeNodes, sum, lineAttributes, tolerance);
+				typesetLine(i, paragraph, activeNodes, sum, textAttribute, tolerance, candidates);
 			}
 		}
 		sum.recycle();
@@ -116,7 +117,7 @@ class TexTypesetter implements ParagraphTypesetter {
 
 	private Paragraph typesetParagraph(Paragraph paragraph,
 									   List<BreakPoint> breakPoints,
-									   LineAttributes lineAttributes) {
+									   TextAttribute textAttribute) {
 
 		int lineStart = 0;
 		int size = paragraph.getElementCount();
@@ -137,14 +138,15 @@ class TexTypesetter implements ParagraphTypesetter {
 			}
 
 			int lineNumber = paragraph.getLineCount();
-			LineAttributes.Attribute attribute = lineAttributes.get(lineNumber);
+			TextAttribute.LineAttribute attribute = textAttribute.get(lineNumber);
 			paragraph.addLine(createLine(
 					paragraph,
 					lineStart,
 					lineEnd,
 					breakPoint.ratio,
 					attribute,
-					i == breakPoints.size() - 1));
+					i == breakPoints.size() - 1,
+					textAttribute.getSpaceWidth()));
 			lineStart = pos;
 		}
 
@@ -161,9 +163,8 @@ class TexTypesetter implements ParagraphTypesetter {
 	 * @return 行
 	 */
 	private Line createLine(Paragraph paragraph, int start, int end, float ratio,
-							LineAttributes.Attribute attribute, boolean isLastLine) {
+							TextAttribute.LineAttribute attribute, boolean isLastLine, float expectWordSpace) {
 		float lineWidth = attribute.getLineWidth();
-		float expectWordSpace = attribute.getWordSpaceWidth();
 		Gravity gravity = attribute.getGravity();
 		float lineHeight = 0;
 		Line line = Line.obtain();
@@ -270,26 +271,26 @@ class TexTypesetter implements ParagraphTypesetter {
 	/**
 	 * 对一行进行排版
 	 *
-	 * @param index          当前第几个元素
-	 * @param paragraph      paragraph
-	 * @param activeNodes    active nodes
-	 * @param sum            sum
-	 * @param lineAttributes 行配置信息
-	 * @param tolerance      允许的缺陷阈值
+	 * @param index         当前第几个元素
+	 * @param paragraph     paragraph
+	 * @param activeNodes   active nodes
+	 * @param sum           sum
+	 * @param textAttribute 行配置信息
+	 * @param tolerance     允许的缺陷阈值
+	 * @param candidates    候选人
 	 */
 	private void typesetLine(int index, Paragraph paragraph,
 							 List<Node> activeNodes, Sum sum,
-							 LineAttributes lineAttributes, float tolerance) {
+							 TextAttribute textAttribute, float tolerance,
+							 Candidate[] candidates) {
 		Element element = paragraph.getElement(index);
 		Node active = activeNodes.isEmpty() ? null : activeNodes.get(0);
 
 		while (active != null) {
-			Candidate[] candidates = new Candidate[4];
-
 			while (active != null) {
 				Node next = active.next;
 				int currentLine = active.getData().line + 1;
-				float ratio = computeRatio(element, active.getData(), sum, lineAttributes.get(currentLine).getLineWidth());
+				float ratio = computeRatio(element, active.getData(), sum, textAttribute.get(currentLine).getLineWidth());
 
 				if (ratio < MIN_SHRINK_RATIO || (element instanceof Penalty && ((Penalty) element).getPenalty() == -INFINITY)) {
 					removeActiveNode(active, activeNodes);
@@ -323,9 +324,11 @@ class TexTypesetter implements ParagraphTypesetter {
 			Sum tmpSum = computeSum(index, paragraph, sum);
 			createIfActiveNode(active, index, activeNodes, tmpSum, candidates);
 			tmpSum.recycle();
-			for (Candidate candidate : candidates) {
+			for (int i = 0; i < candidates.length; ++i) {
+				Candidate candidate = candidates[i];
 				if (candidate != null) {
 					candidate.recycle();
+					candidates[i] = null;
 				}
 			}
 		}

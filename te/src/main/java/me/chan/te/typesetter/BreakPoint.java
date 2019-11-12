@@ -1,11 +1,11 @@
 package me.chan.te.typesetter;
 
 import me.chan.te.annotations.Hidden;
-import me.chan.te.misc.Recyclable;
+import me.chan.te.misc.DefaultRecyclable;
 import me.chan.te.misc.ObjectFactory;
 
 @Hidden
-public class BreakPoint implements Recyclable {
+public class BreakPoint extends DefaultRecyclable {
 	private static final ObjectFactory<BreakPoint> POOL = new ObjectFactory<>(512);
 
 	public int position;
@@ -22,6 +22,10 @@ public class BreakPoint implements Recyclable {
 
 	@Override
 	public void recycle() {
+		if (isRecycled()) {
+			return;
+		}
+		super.recycle();
 		reset(-1, -1);
 		POOL.release(this);
 	}
@@ -36,6 +40,7 @@ public class BreakPoint implements Recyclable {
 			return new BreakPoint(position, ratio);
 		}
 		breakPoint.reset(position, ratio);
+		breakPoint.reuse();
 		return breakPoint;
 	}
 }

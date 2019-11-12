@@ -16,13 +16,15 @@ import me.chan.te.data.Penalty;
 import me.chan.te.data.TextBox;
 import me.chan.te.hypher.Hypher;
 import me.chan.te.test.mock.MockMeasurer;
-import me.chan.te.test.mock.MockOption;
+import me.chan.te.test.mock.MockTextAttribute;
 import me.chan.te.test.mock.MockTextPaint;
 import me.chan.te.text.Background;
+import me.chan.te.text.Document;
 import me.chan.te.text.Figure;
 import me.chan.te.text.Foreground;
 import me.chan.te.text.Gravity;
 import me.chan.te.text.Line;
+import me.chan.te.text.Page;
 import me.chan.te.text.Paragraph;
 import me.chan.te.text.TextStyle;
 import me.chan.te.text.UnderLine;
@@ -35,6 +37,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertSame;
 import static org.junit.Assert.fail;
 
 public class DataUnitTest {
@@ -74,19 +77,25 @@ public class DataUnitTest {
 		Glue glue = Glue.obtain(1, 2, 3);
 		Assert.assertNotNull(glue);
 
+		Assert.assertFalse(glue.isRecycled());
 		Assert.assertEquals("check width: ", glue.getWidth(), 1, 0);
 		Assert.assertEquals("check stretch: ", glue.getStretch(), 2, 0);
 		Assert.assertEquals("check shrink: ", glue.getShrink(), 3, 0);
 
 		Glue previous = glue;
 		glue.recycle();
+		Assert.assertTrue(glue.isRecycled());
 		Assert.assertEquals("check width: ", glue.getWidth(), -1, 0);
 		Assert.assertEquals("check stretch: ", glue.getStretch(), -1, 0);
 		Assert.assertEquals("check shrink: ", glue.getShrink(), -1, 0);
 
+		// test recycle twice
+		glue.recycle();
+
 		glue = Glue.obtain(4, 5, 6);
 		Assert.assertNotNull(glue);
 		Assert.assertSame(previous, glue);
+		Assert.assertFalse(glue.isRecycled());
 		Assert.assertEquals("check width: ", glue.getWidth(), 4, 0);
 		Assert.assertEquals("check stretch: ", glue.getStretch(), 5, 0);
 		Assert.assertEquals("check shrink: ", glue.getShrink(), 6, 0);
@@ -97,6 +106,7 @@ public class DataUnitTest {
 		Penalty penalty = Penalty.obtain(1, 2, 3, true);
 		Assert.assertNotNull(penalty);
 
+		Assert.assertFalse(penalty.isRecycled());
 		Assert.assertEquals("check width: ", penalty.getWidth(), 1, 0);
 		Assert.assertEquals("check height: ", penalty.getHeight(), 2, 0);
 		Assert.assertEquals("check penalty: ", penalty.getPenalty(), 3, 0);
@@ -104,16 +114,19 @@ public class DataUnitTest {
 
 		Penalty prev = penalty;
 		penalty.recycle();
+		Assert.assertTrue(penalty.isRecycled());
 		Assert.assertEquals("check width: ", penalty.getWidth(), -1, 0);
 		Assert.assertEquals("check height: ", penalty.getHeight(), -1, 0);
 		Assert.assertEquals("check penalty: ", penalty.getPenalty(), -1, 0);
 		Assert.assertFalse("check flag", penalty.isFlag());
 
+		// test recycle twice
+		penalty.recycle();
+
 		penalty = Penalty.obtain(4, 5, 6, false);
 		Assert.assertNotNull(penalty);
-
 		Assert.assertSame(penalty, prev);
-
+		Assert.assertFalse(penalty.isRecycled());
 		Assert.assertEquals("check width: ", penalty.getWidth(), 4, 0);
 		Assert.assertEquals("check height: ", penalty.getHeight(), 5, 0);
 		Assert.assertEquals("check penalty: ", penalty.getPenalty(), 6, 0);
@@ -124,13 +137,19 @@ public class DataUnitTest {
 	public void testBackground() {
 		Background background = Background.obtain(10);
 		assertNotNull(background);
+		Assert.assertFalse(background.isRecycled());
 		assertEquals(background.getColor(), 10);
 
 		background.recycle();
+		Assert.assertTrue(background.isRecycled());
 		assertNotEquals(background.getColor(), 10);
+
+		// test recycle twice
+		background.recycle();
 
 		Background p = background;
 		background = Background.obtain(20);
+		Assert.assertFalse(background.isRecycled());
 		Assert.assertNotNull(background);
 		Assert.assertSame(p, background);
 		assertEquals(background.getColor(), 20);
@@ -141,12 +160,18 @@ public class DataUnitTest {
 		UnderLine underLine = UnderLine.obtain(10);
 		assertNotNull(underLine);
 		assertEquals(underLine.getColor(), 10);
+		Assert.assertFalse(underLine.isRecycled());
 
 		underLine.recycle();
+		Assert.assertTrue(underLine.isRecycled());
 		assertNotEquals(underLine.getColor(), 10);
+
+		// test recycle twice
+		underLine.recycle();
 
 		UnderLine p = underLine;
 		underLine = UnderLine.obtain(20);
+		Assert.assertFalse(underLine.isRecycled());
 		Assert.assertNotNull(underLine);
 		Assert.assertSame(p, underLine);
 		assertEquals(underLine.getColor(), 20);
@@ -159,6 +184,7 @@ public class DataUnitTest {
 		Figure figure = Figure.obtain(url, 1, 2);
 		figure.setExtra(extra);
 		Assert.assertNotNull(figure);
+		Assert.assertFalse(figure.isRecycled());
 		Assert.assertSame(figure.getUrl(), url);
 		Assert.assertSame(figure.getExtra(), extra);
 		Assert.assertEquals(figure.getWidth(), 1, 0);
@@ -166,14 +192,18 @@ public class DataUnitTest {
 
 		Figure p = figure;
 		figure.recycle();
+		Assert.assertTrue(figure.isRecycled());
 		Assert.assertNotSame(figure.getUrl(), url);
 		Assert.assertNotSame(figure.getExtra(), extra);
 		Assert.assertNotEquals(figure.getWidth(), 1, 0);
 		Assert.assertNotEquals(figure.getHeight(), 2, 0);
 
+		figure.recycle();
+
 		figure = Figure.obtain(url, 1, 2);
 		Assert.assertSame(figure, p);
 		Assert.assertNotNull(figure);
+		Assert.assertFalse(figure.isRecycled());
 		Assert.assertSame(figure.getUrl(), url);
 		Assert.assertNotSame(figure.getExtra(), extra);
 		Assert.assertEquals(figure.getWidth(), 1, 0);
@@ -189,6 +219,7 @@ public class DataUnitTest {
 		Assert.assertFalse(box.isSelected());
 		Assert.assertFalse(box.isPenalty());
 		Assert.assertFalse(box.isSplit());
+		Assert.assertFalse(box.isRecycled());
 
 		// check content
 		Assert.assertNull(box.getTextStyle());
@@ -210,6 +241,7 @@ public class DataUnitTest {
 
 		TextBox prev = box2;
 		box2.recycle();
+		Assert.assertTrue(box2.isRecycled());
 		Assert.assertNull(box2.getTextStyle());
 		Assert.assertFalse(box2.isSelected());
 		Assert.assertEquals(box2.getHeight(), -1, 0);
@@ -217,11 +249,15 @@ public class DataUnitTest {
 		Assert.assertNull(box2.getBackground());
 		Assert.assertNull(box2.getForeground());
 
+		// test recycle twice
+		box2.recycle();
+
 		msg = "hello";
 		box2 = TextBox.obtain(msg, 0, msg.length(), mMockTextPaint.getMockTextSize() * msg.length(), mMockTextPaint.getMockTextHeight(), textStyle);
 		Assert.assertNotNull(box2);
 		Assert.assertSame(prev, box2);
 		Assert.assertNull(box2.getBackground());
+		Assert.assertFalse(box2.isRecycled());
 		Assert.assertNull(box2.getForeground());
 		checkBoxContent(box2, msg);
 
@@ -392,6 +428,7 @@ public class DataUnitTest {
 		field.setAccessible(true);
 		List<TextBox> boxes = (List<TextBox>) field.get(line);
 		Assert.assertNotNull(line);
+		Assert.assertFalse(line.isRecycled());
 		Assert.assertNotNull(boxes);
 		Assert.assertTrue(boxes.isEmpty());
 		line.setSpaceWidth(1);
@@ -410,6 +447,7 @@ public class DataUnitTest {
 
 		Line prev = line;
 		line.recycle();
+		Assert.assertTrue(line.isRecycled());
 		boxes = (List<TextBox>) field.get(line);
 		Assert.assertTrue(boxes.isEmpty());
 		Assert.assertSame(line.getGravity(), Gravity.LEFT);
@@ -418,9 +456,13 @@ public class DataUnitTest {
 		Assert.assertNotEquals(line.getLineWidth(), 3, 0);
 		Assert.assertNotEquals(line.getRatio(), 4, 0);
 
+		// test recycle twice
+		line.recycle();
+
 		line = Line.obtain();
 		boxes = (List<TextBox>) field.get(line);
 		Assert.assertNotNull(line);
+		Assert.assertFalse(line.isRecycled());
 		Assert.assertSame(prev, line);
 		Assert.assertTrue(boxes.isEmpty());
 		Assert.assertSame(line.getGravity(), Gravity.LEFT);
@@ -432,9 +474,18 @@ public class DataUnitTest {
 
 	@Test
 	public void testParagraphBuilder() {
-		Paragraph.Builder builder = Paragraph.Builder.newBuilder(new MockMeasurer(mMockTextPaint), Hypher.getInstance(), new MockOption(mMockTextPaint), null);
+		Paragraph.Builder builder = Paragraph.Builder.newBuilder(new MockMeasurer(mMockTextPaint), Hypher.getInstance(), new MockTextAttribute(mMockTextPaint), null);
 		builder.drawable(new ColorDrawable(10), 1, 2);
+		Assert.assertFalse(builder.isRecycled());
 		builder.build();
+		Assert.assertTrue(builder.isRecycled());
+
+		try {
+			builder.build();
+			Assert.fail("test build failed");
+		} catch (IllegalStateException e) {
+
+		}
 
 		Paragraph.Builder p = builder;
 
@@ -445,17 +496,19 @@ public class DataUnitTest {
 			assertFalse(throwable instanceof AssertionError);
 		}
 
-		builder = Paragraph.Builder.newBuilder(new MockMeasurer(mMockTextPaint), Hypher.getInstance(), new MockOption(mMockTextPaint), null);
+		builder = Paragraph.Builder.newBuilder(new MockMeasurer(mMockTextPaint), Hypher.getInstance(), new MockTextAttribute(mMockTextPaint), null);
 		Assert.assertSame(builder, p);
+		Assert.assertFalse(builder.isRecycled());
 	}
 
 	@Test
 	public void testParagraph() throws NoSuchFieldException, IllegalAccessException {
 		String hello = "hello";
-		Paragraph.Builder builder = Paragraph.Builder.newBuilder(new MockMeasurer(mMockTextPaint), Hypher.getInstance(), new MockOption(mMockTextPaint), hello);
+		Paragraph.Builder builder = Paragraph.Builder.newBuilder(new MockMeasurer(mMockTextPaint), Hypher.getInstance(), new MockTextAttribute(mMockTextPaint), hello);
 		Paragraph paragraph = builder.build();
-		Assert.assertTrue(paragraph.isEmpty());
 		Assert.assertNotNull(paragraph);
+		Assert.assertTrue(paragraph.isEmpty());
+		Assert.assertFalse(paragraph.isRecycled());
 		Assert.assertEquals(paragraph.getLineCount(), 0);
 		Assert.assertEquals(paragraph.getElementCount(), 2);
 		Assert.assertSame(paragraph.getExtra(), hello);
@@ -471,6 +524,7 @@ public class DataUnitTest {
 		Assert.assertSame(paragraph.getElement(1).getClass(), Penalty.class);
 
 		paragraph.recycle();
+		Assert.assertTrue(paragraph.isRecycled());
 		Paragraph prev = paragraph;
 		Assert.assertEquals(paragraph.getLineCount(), 0);
 		Assert.assertEquals(paragraph.getElementCount(), 0);
@@ -479,10 +533,14 @@ public class DataUnitTest {
 		Assert.assertNotNull(lines);
 		Assert.assertTrue(lines.isEmpty());
 
-		builder = Paragraph.Builder.newBuilder(new MockMeasurer(mMockTextPaint), Hypher.getInstance(), new MockOption(mMockTextPaint), hello);
+		// test recycle twice
+		paragraph.recycle();
+
+		builder = Paragraph.Builder.newBuilder(new MockMeasurer(mMockTextPaint), Hypher.getInstance(), new MockTextAttribute(mMockTextPaint), hello);
 		paragraph = builder.build();
 		Assert.assertSame(paragraph, prev);
 		Assert.assertNotNull(paragraph);
+		Assert.assertFalse(paragraph.isRecycled());
 		Assert.assertEquals(paragraph.getLineCount(), 0);
 		Assert.assertEquals(paragraph.getElementCount(), 2);
 		Assert.assertSame(paragraph.getExtra(), hello);
@@ -492,7 +550,7 @@ public class DataUnitTest {
 		Assert.assertSame(paragraph.getElement(0).getClass(), Glue.class);
 		Assert.assertSame(paragraph.getElement(1).getClass(), Penalty.class);
 
-		builder = Paragraph.Builder.newBuilder(new MockMeasurer(mMockTextPaint), Hypher.getInstance(), new MockOption(mMockTextPaint), null);
+		builder = Paragraph.Builder.newBuilder(new MockMeasurer(mMockTextPaint), Hypher.getInstance(), new MockTextAttribute(mMockTextPaint), null);
 		builder.text("hello", 0, 1, null, null, null, null);
 		paragraph = builder.build();
 		Assert.assertFalse(paragraph.isEmpty());
@@ -502,7 +560,7 @@ public class DataUnitTest {
 		Assert.assertSame(paragraph.getElement(1).getClass(), Glue.class);
 		Assert.assertSame(paragraph.getElement(2).getClass(), Penalty.class);
 
-		builder = Paragraph.Builder.newBuilder(new MockMeasurer(mMockTextPaint), Hypher.getInstance(), new MockOption(mMockTextPaint), null);
+		builder = Paragraph.Builder.newBuilder(new MockMeasurer(mMockTextPaint), Hypher.getInstance(), new MockTextAttribute(mMockTextPaint), null);
 		builder.drawable(new ColorDrawable(10), 10, 10);
 		paragraph = builder.build();
 		Assert.assertFalse(paragraph.isEmpty());
@@ -518,18 +576,24 @@ public class DataUnitTest {
 		Drawable drawable = new ColorDrawable(19);
 		DrawableBox drawableBox = DrawableBox.obtain(drawable, 1, 2);
 		Assert.assertNotNull(drawableBox);
+		Assert.assertFalse(drawableBox.isRecycled());
 		Assert.assertSame(drawable, drawableBox.getDrawable());
 		Assert.assertEquals(drawableBox.getWidth(), 1, 0);
 		Assert.assertEquals(drawableBox.getHeight(), 2, 0);
 
 		DrawableBox p = drawableBox;
 		drawableBox.recycle();
+		Assert.assertTrue(drawableBox.isRecycled());
 		Assert.assertNotSame(drawable, drawableBox.getDrawable());
 		Assert.assertNotEquals(drawableBox.getWidth(), 1, 0);
 		Assert.assertNotEquals(drawableBox.getHeight(), 2, 0);
 
+		// test recycle twice
+		drawableBox.recycle();
+
 		drawableBox = DrawableBox.obtain(new ColorDrawable(19), 1, 2);
 		Assert.assertNotSame(drawable, drawableBox.getDrawable());
+		Assert.assertFalse(drawableBox.isRecycled());
 		Assert.assertEquals(drawableBox.getWidth(), 1, 0);
 		Assert.assertEquals(drawableBox.getHeight(), 2, 0);
 		Assert.assertSame(p, drawableBox);
@@ -553,6 +617,8 @@ public class DataUnitTest {
 		Assert.assertNotNull(sum);
 
 		Glue glue = Glue.obtain(1, 2, 3);
+		Assert.assertNotNull(glue);
+		Assert.assertFalse(glue.isRecycled());
 		sum.increaseGlue(glue);
 		Assert.assertEquals(sum.getWidth(), glue.getWidth(), 0);
 		Assert.assertEquals(sum.getShrink(), glue.getShrink(), 0);
@@ -569,13 +635,19 @@ public class DataUnitTest {
 		Assert.assertEquals(sum.getStretch(), o.getStretch(), 0);
 
 		o.recycle();
+		Assert.assertTrue(o.isRecycled());
 		Assert.assertNotEquals(sum.getWidth(), o.getWidth(), 0);
 		Assert.assertNotEquals(sum.getShrink(), o.getShrink(), 0);
 		Assert.assertNotEquals(sum.getStretch(), o.getStretch(), 0);
+
+		// test recycle twice
+		o.recycle();
+
 		Sum p = o;
 		o = Sum.obtain();
 		Assert.assertSame(o, p);
-
+		Assert.assertNotNull(o);
+		Assert.assertFalse(o.isRecycled());
 		Assert.assertNotEquals(sum.getWidth(), o.getWidth(), 0);
 		Assert.assertNotEquals(sum.getShrink(), o.getShrink(), 0);
 		Assert.assertNotEquals(sum.getStretch(), o.getStretch(), 0);
@@ -585,6 +657,7 @@ public class DataUnitTest {
 	public void testNode() {
 		Node node = Node.obtain(null, null);
 		Assert.assertNotNull(node);
+		Assert.assertFalse(node.isRecycled());
 		Assert.assertNull(node.next);
 		Assert.assertNull(node.prev);
 		Assert.assertNotNull(node.getData());
@@ -610,6 +683,7 @@ public class DataUnitTest {
 		node.next = Node.obtain(null, null);
 
 		node.recycle();
+		Assert.assertTrue(node.isRecycled());
 		Assert.assertNotNull(node);
 		Assert.assertNull(node.next);
 		Assert.assertNull(node.prev);
@@ -622,10 +696,14 @@ public class DataUnitTest {
 		Assert.assertEquals(data.line, -1);
 		Assert.assertEquals(data.fitnessClazz, 0);
 
+		// test recycle twice
+		node.recycle();
+
 		Node previous = node;
 		node = Node.obtain(null, null);
 		Assert.assertSame(previous, node);
 		Assert.assertNotNull(node);
+		Assert.assertFalse(node.isRecycled());
 		Assert.assertNull(node.next);
 		Assert.assertNull(node.prev);
 		Assert.assertNotNull(node.getData());
@@ -642,17 +720,23 @@ public class DataUnitTest {
 	public void testBreakPoint() {
 		BreakPoint breakPoint = BreakPoint.obtain(1, 2);
 		Assert.assertNotNull(breakPoint);
+		Assert.assertFalse(breakPoint.isRecycled());
 		Assert.assertEquals(breakPoint.position, 1);
 		Assert.assertEquals(breakPoint.ratio, 2, 0);
 
 		breakPoint.recycle();
+		Assert.assertTrue(breakPoint.isRecycled());
 		Assert.assertEquals(breakPoint.position, -1);
 		Assert.assertEquals(breakPoint.ratio, -1, 0);
+
+		// test recycle twice
+		breakPoint.recycle();
 
 		BreakPoint t = breakPoint;
 		breakPoint = BreakPoint.obtain(3, 4);
 		Assert.assertSame(t, breakPoint);
 		Assert.assertNotNull(breakPoint);
+		Assert.assertFalse(breakPoint.isRecycled());
 		Assert.assertEquals(breakPoint.position, 3);
 		Assert.assertEquals(breakPoint.ratio, 4, 0);
 	}
@@ -663,21 +747,150 @@ public class DataUnitTest {
 		Assert.assertNotNull(node);
 		Candidate candidate = Candidate.obtain(1, 2, node);
 		Assert.assertNotNull(candidate);
+		Assert.assertFalse(candidate.isRecycled());
 		Assert.assertEquals(candidate.demerits, 1, 0);
 		Assert.assertEquals(candidate.ratio, 2, 0);
 		Assert.assertSame(node, candidate.active);
 
 		candidate.recycle();
+		Assert.assertTrue(candidate.isRecycled());
 		Assert.assertEquals(candidate.demerits, Float.MAX_VALUE, 0);
 		Assert.assertEquals(candidate.ratio, -1, 0);
 		Assert.assertNull(candidate.active);
 
+		// test recycle twice
+		candidate.recycle();
+
 		Candidate p = candidate;
 		candidate = Candidate.obtain(3, 4, node);
 		Assert.assertNotNull(candidate);
+		Assert.assertFalse(candidate.isRecycled());
 		Assert.assertEquals(candidate.demerits, 3, 0);
 		Assert.assertEquals(candidate.ratio, 4, 0);
 		Assert.assertSame(node, candidate.active);
 		Assert.assertSame(p, candidate);
+	}
+
+	@Test
+	public void testPage() {
+		Page page = Page.obtain();
+		Assert.assertNotNull(page);
+		Assert.assertFalse(page.isRecycled());
+		Assert.assertEquals(page.getWidth(), 0, 0);
+		Assert.assertEquals(page.getHeight(), 0, 0);
+		try {
+			page.getSegment(0);
+			fail("test get segment");
+		} catch (IndexOutOfBoundsException e) {
+
+		}
+		Assert.assertEquals(page.getSegmentCount(), 0);
+
+		page.setWidth(1);
+		page.setHeight(2);
+		Figure figure = Figure.obtain("", 1, 2);
+		page.addSegment(figure);
+		Assert.assertEquals(page.getWidth(), 1, 0);
+		Assert.assertEquals(page.getHeight(), 2, 0);
+		Assert.assertEquals(page.getSegmentCount(), 1);
+		Assert.assertSame(page.getSegment(0), figure);
+		try {
+			page.getSegment(1);
+			fail("test get segment");
+		} catch (IndexOutOfBoundsException e) {
+
+		}
+
+		page.recycle();
+		Assert.assertTrue(page.isRecycled());
+		Assert.assertEquals(page.getWidth(), 0, 0);
+		Assert.assertEquals(page.getHeight(), 0, 0);
+		Assert.assertEquals(page.getSegmentCount(), 0);
+
+		page.recycle();
+
+		Page previous = page;
+		page = Page.obtain();
+		Assert.assertNotNull(page);
+		assertSame(page, previous);
+		Assert.assertFalse(page.isRecycled());
+		Assert.assertEquals(page.getWidth(), 0, 0);
+		Assert.assertEquals(page.getHeight(), 0, 0);
+		try {
+			page.getSegment(0);
+			fail("test get segment");
+		} catch (IndexOutOfBoundsException e) {
+
+		}
+		Assert.assertEquals(page.getSegmentCount(), 0);
+	}
+
+	@Test
+	public void testDocument() {
+		String msg = "hello";
+		Document document = Document.obtain(msg);
+		Assert.assertNotNull(document);
+		Assert.assertFalse(document.isRecycled());
+		Assert.assertSame(document.getExtra(), msg);
+		Assert.assertEquals(document.getSegmentCount(), 0);
+		Assert.assertEquals(document.getPageCount(), 0);
+		document.setRaw(msg);
+		Assert.assertSame(document.getRaw(), msg);
+		try {
+			document.getSegment(0);
+			fail("test document get segment");
+		} catch (IndexOutOfBoundsException e) {
+		}
+		try {
+			document.getPage(0);
+			fail("test document get page");
+		} catch (IndexOutOfBoundsException e) {
+		}
+
+		Figure figure = Figure.obtain("", 1, 2);
+		Page page = Page.obtain();
+		document.addPage(page);
+		document.addSegment(figure);
+		Assert.assertEquals(document.getSegmentCount(), 1);
+		Assert.assertEquals(document.getPageCount(), 1);
+		try {
+			document.getSegment(1);
+			fail("test document get segment");
+		} catch (IndexOutOfBoundsException e) {
+		}
+		try {
+			document.getPage(1);
+			fail("test document get page");
+		} catch (IndexOutOfBoundsException e) {
+		}
+		Assert.assertSame(document.getPage(0), page);
+		Assert.assertSame(document.getSegment(0), figure);
+
+		Document previous = document;
+		document.recycle();
+		Assert.assertNull(document.getRaw());
+		Assert.assertTrue(document.isRecycled());
+
+		// test recycle twice
+		document.recycle();
+
+		document = Document.obtain();
+		Assert.assertNotNull(document);
+		Assert.assertFalse(document.isRecycled());
+		Assert.assertNull(document.getExtra());
+		Assert.assertNull(document.getRaw());
+		Assert.assertSame(previous, document);
+		Assert.assertEquals(document.getSegmentCount(), 0);
+		Assert.assertEquals(document.getPageCount(), 0);
+		try {
+			document.getSegment(0);
+			fail("test document get segment");
+		} catch (IndexOutOfBoundsException e) {
+		}
+		try {
+			document.getPage(0);
+			fail("test document get page");
+		} catch (IndexOutOfBoundsException e) {
+		}
 	}
 }

@@ -7,7 +7,7 @@ import me.chan.te.misc.ObjectFactory;
 /**
  * 代表添加的'-'符号
  */
-public final class Penalty implements Element {
+public final class Penalty extends Element {
 	private final static ObjectFactory<Penalty> POOL = new ObjectFactory<>(20480);
 
 	private boolean mFlag;
@@ -47,6 +47,11 @@ public final class Penalty implements Element {
 
 	@Override
 	public void recycle() {
+		if (isRecycled()) {
+			return;
+		}
+
+		super.recycle();
 		reset(-1, -1, -1, false);
 		POOL.release(this);
 	}
@@ -69,6 +74,7 @@ public final class Penalty implements Element {
 			return new Penalty(width, height, penalty, flag);
 		}
 		p.reset(width, height, penalty, flag);
+		p.reuse();
 		return p;
 	}
 }

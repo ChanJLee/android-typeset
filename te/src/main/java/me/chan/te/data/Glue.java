@@ -5,7 +5,7 @@ import me.chan.te.misc.ObjectFactory;
 /**
  * 代表一个空格
  */
-public final class Glue implements Element {
+public final class Glue extends Element {
 	private final static ObjectFactory<Glue> POOL = new ObjectFactory<>(40960);
 
 	/**
@@ -50,6 +50,11 @@ public final class Glue implements Element {
 
 	@Override
 	public void recycle() {
+		if (isRecycled()) {
+			return;
+		}
+
+		super.recycle();
 		reset(-1, -1, -1);
 		POOL.release(this);
 	}
@@ -66,6 +71,7 @@ public final class Glue implements Element {
 			return new Glue(width, stretch, shrink);
 		}
 		glue.reset(width, stretch, shrink);
+		glue.reuse();
 		return glue;
 	}
 }

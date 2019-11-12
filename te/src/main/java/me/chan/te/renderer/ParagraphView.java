@@ -1,14 +1,16 @@
-package me.chan.te.view;
+package me.chan.te.renderer;
 
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
+import android.graphics.RectF;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.text.TextPaint;
 import android.util.AttributeSet;
+import android.util.TypedValue;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
@@ -29,6 +31,7 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 	public static final int SELECTION_MODE_NONE = 0;
 	public static final int SELECTION_MODE_CLICK = 1;
 	public static final int SELECTION_MODE_LONG_PRESS = 2;
+	private static final int DEFAULT_ROUND_RADIUS = 3;
 
 	private Paragraph mParagraph;
 	private TextPaint mPaint;
@@ -38,32 +41,39 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 	private GestureDetector mGestureDetector = null;
 	private OnTextSelectedListener mOnTextSelectedListener;
 	private boolean mDebugMode = false;
-	private float mLineSpaceVertical = 0;
+	private float mRectRadius;
+	private RectF mRectF = new RectF();
+
 	private float mDescent;
+	private RenderOption mRenderOption;
 
 	public ParagraphView(Context context) {
-		super(context);
+		this(context, null);
 	}
 
 	public ParagraphView(Context context, AttributeSet attrs) {
-		super(context, attrs);
+		this(context, attrs, 0);
 	}
 
 	public ParagraphView(Context context, AttributeSet attrs, int defStyleAttr) {
 		super(context, attrs, defStyleAttr);
+		mRectRadius = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, DEFAULT_ROUND_RADIUS, getResources().getDisplayMetrics());
 	}
 
 	// TODO opt
 	void render(@NonNull Paragraph paragraph,
-				@NonNull TextPaint paint) {
+				@NonNull TextPaint paint,
+				RenderOption renderOption) {
 		mParagraph = paragraph;
 		mPaint = paint;
-		mLineSpaceVertical = paint.getFontSpacing();
 		mDescent = paint.getFontMetrics().descent;
+		mRenderOption = renderOption;
+
 		requestLayout();
 	}
 
-	public void setDebugMode(boolean enable) {
+	// TODO
+	private void setDebugMode(boolean enable) {
 		if (mDebugMode == enable) {
 			return;
 		}
@@ -121,7 +131,7 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 			}
 
 			if (lineCount > 1) {
-				height += ((lineCount - 1) * mLineSpaceVertical);
+				height += ((lineCount - 1) * mRenderOption.getLineSpace());
 			}
 
 			heightMeasureSpec = MeasureSpec.makeMeasureSpec(
@@ -159,13 +169,13 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 				x = 0;
 			}
 
-			drawLine(canvas, line, x, y, mLineSpaceVertical);
+			drawLine(canvas, line, x, y);
 
-			y += mLineSpaceVertical;
+			y += mRenderOption.getLineSpace();
 		}
 	}
 
-	private void drawLine(Canvas canvas, Line line, float x, float y, float lineSpace) {
+	private void drawLine(Canvas canvas, Line line, float x, float y) {
 		float spaceWidth = line.getSpaceWidth();
 		int boxSize = line.getCount();
 
@@ -178,13 +188,15 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 			float top = (float) Math.ceil(y - line.getLineHeight());
 			float bottom = y + mDescent * 1.1f;
 
+			mWorkPaint.set(mPaint);
+
 			if (box instanceof TextBox) {
 				TextBox textBox = (TextBox) box;
 				if (textBox.isSelected()) {
-					mWorkPaint.set(mPaint);
-					mWorkPaint.setColor(Color.BLUE);
-					canvas.drawRect(left, top, right, bottom, mWorkPaint);
-					mWorkPaint.setColor(Color.WHITE);
+					mWorkPaint.setColor(mRenderOption.getSelectedBackgroundColor());
+					mRectF.set(left, top, right, bottom);
+					canvas.drawRoundRect(mRectF, mRectRadius, mRectRadius, mWorkPaint);
+					mWorkPaint.setColor(mRenderOption.getSelectedTextColor());
 				} else {
 					Background background = textBox.getBackground();
 					if (background != null) {
@@ -199,8 +211,6 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 				canvas.drawRect(x, (float) Math.ceil(y - line.getLineHeight()),
 						(float) Math.ceil(x + width), y, mDebugPaint);
 			}
-
-			mWorkPaint.set(mPaint);
 
 			if (box instanceof TextBox) {
 				TextBox textBox = (TextBox) box;
@@ -227,7 +237,7 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 
 		if (mDebugMode) {
 			float startX = 0;
-			float startY = y + lineSpace;
+			float startY = y + mRenderOption.getLineSpace();
 			Rect rect = new Rect();
 			String debugInfo = line.getRatio() + " " + spaceWidth;
 			mDebugPaint.getTextBounds(debugInfo, 0, debugInfo.length(), rect);
@@ -256,7 +266,7 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 				break;
 			}
 
-			offsetY = (nextOffsetY + mLineSpaceVertical);
+			offsetY = (nextOffsetY + mRenderOption.getLineSpace());
 		}
 
 		if (targetLine == null) {

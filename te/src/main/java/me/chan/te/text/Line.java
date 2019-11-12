@@ -4,13 +4,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import me.chan.te.data.Box;
-import me.chan.te.misc.Recyclable;
+import me.chan.te.misc.DefaultRecyclable;
 import me.chan.te.misc.ObjectFactory;
 
 /**
  * 绘制行
  */
-public class Line implements Recyclable {
+public class Line extends DefaultRecyclable {
 	private static final ObjectFactory<Line> POOL = new ObjectFactory<>(4096);
 
 	private List<Box> mBoxes = new ArrayList<>(150);
@@ -22,10 +22,6 @@ public class Line implements Recyclable {
 
 	private Line() {
 		reset();
-	}
-
-	public static void clean() {
-		POOL.clean();
 	}
 
 	private void reset() {
@@ -75,17 +71,13 @@ public class Line implements Recyclable {
 
 	@Override
 	public void recycle() {
+		if (isRecycled()) {
+			return;
+		}
+
+		super.recycle();
 		reset();
 		POOL.release(this);
-	}
-
-	public static Line obtain() {
-		Line line = POOL.acquire();
-		if (line == null) {
-			return new Line();
-		}
-		line.reset();
-		return line;
 	}
 
 	public int getCount() {
@@ -106,5 +98,19 @@ public class Line implements Recyclable {
 
 	public Box getBox(int index) {
 		return mBoxes.get(index);
+	}
+
+	public static void clean() {
+		POOL.clean();
+	}
+
+	public static Line obtain() {
+		Line line = POOL.acquire();
+		if (line == null) {
+			return new Line();
+		}
+		line.reset();
+		line.reuse();
+		return line;
 	}
 }

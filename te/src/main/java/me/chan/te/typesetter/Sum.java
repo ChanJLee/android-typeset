@@ -2,11 +2,11 @@ package me.chan.te.typesetter;
 
 import me.chan.te.annotations.Hidden;
 import me.chan.te.data.Glue;
-import me.chan.te.misc.Recyclable;
+import me.chan.te.misc.DefaultRecyclable;
 import me.chan.te.misc.ObjectFactory;
 
 @Hidden
-public class Sum implements Recyclable {
+public class Sum extends DefaultRecyclable {
 	private static final ObjectFactory<Sum> POOL = new ObjectFactory<>(1024);
 
 	private float mWidth = 0;
@@ -22,6 +22,11 @@ public class Sum implements Recyclable {
 
 	@Override
 	public void recycle() {
+		if (isRecycled()) {
+			return;
+		}
+
+		super.recycle();
 		mWidth = mShrink = mStretch = 0;
 		POOL.release(this);
 	}
@@ -51,6 +56,7 @@ public class Sum implements Recyclable {
 	public static Sum obtain() {
 		Sum sum = POOL.acquire();
 		if (sum != null) {
+			sum.reuse();
 			return sum;
 		}
 		return new Sum();

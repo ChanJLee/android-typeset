@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import me.chan.te.annotations.Hidden;
-import me.chan.te.config.Option;
 import me.chan.te.data.DrawableBox;
 import me.chan.te.data.Element;
 import me.chan.te.data.Glue;
@@ -15,14 +14,14 @@ import me.chan.te.data.Penalty;
 import me.chan.te.data.TextBox;
 import me.chan.te.hypher.Hypher;
 import me.chan.te.measurer.Measurer;
+import me.chan.te.misc.DefaultRecyclable;
 import me.chan.te.misc.ObjectFactory;
-import me.chan.te.misc.Recyclable;
 import me.chan.te.typesetter.ParagraphTypesetter;
 
 /**
  * 段落
  */
-public class Paragraph implements Recyclable, Segment {
+public class Paragraph extends Segment {
 	private static final ObjectFactory<Paragraph> POOL = new ObjectFactory<>(4096);
 
 	private List<Line> mLines = new ArrayList<>(32);
@@ -51,6 +50,18 @@ public class Paragraph implements Recyclable, Segment {
 		return mLines.size();
 	}
 
+	public Paragraph spilt(int endIndex) {
+		List<Line> list = mLines;
+		mLines = list.subList(0, endIndex);
+		Paragraph page = Paragraph.obtain(mExtra);
+		page.mLines = list.subList(endIndex, list.size());
+		page.mEmpty = mEmpty;
+		// FIXME 可能内容不对称
+		page.mElements = mElements;
+		return page;
+	}
+
+
 	@Hidden
 	public void addLine(Line line) {
 		mLines.add(line);
@@ -62,14 +73,21 @@ public class Paragraph implements Recyclable, Segment {
 
 	@Override
 	public void recycle() {
+		if (isRecycled()) {
+			return;
+		}
+
+		super.recycle();
 		for (int i = 0; i < mLines.size(); ++i) {
 			mLines.get(i).recycle();
 		}
 		mLines.clear();
+
 		for (int i = 0; i < mElements.size(); ++i) {
 			mElements.get(i).recycle();
 		}
 		mElements.clear();
+
 		mExtra = null;
 		POOL.release(this);
 	}
@@ -98,6 +116,7 @@ public class Paragraph implements Recyclable, Segment {
 		if (paragraph == null) {
 			return new Paragraph(extra);
 		}
+		paragraph.reuse();
 		paragraph.mExtra = extra;
 		return paragraph;
 	}
@@ -105,14 +124,14 @@ public class Paragraph implements Recyclable, Segment {
 	/**
 	 * 需要避免多次创建
 	 */
-	public static class Builder implements Recyclable {
+	public static class Builder extends DefaultRecyclable {
 		private static final ObjectFactory<Builder> POOL = new ObjectFactory<>(8);
 		private static final int MIN_HYPER_LEN = 4;
 
 		private List<Integer> mHyphenated = new ArrayList<>(10);
 		private Measurer mMeasurer;
 		private Hypher mHypher;
-		private Option mOption;
+		private TextAttribute mTextAttribute;
 		private Paragraph mParagraph;
 		private boolean mEmpty = true;
 
@@ -154,13 +173,13 @@ public class Paragraph implements Recyclable, Segment {
 							extra
 					));
 					if (j != size - 1 && text.charAt(point - 1) != '-') {
-						elements.add(Penalty.obtain(mOption.getHyphenWidth(), mOption.getHyphenHeight(), ParagraphTypesetter.HYPHEN_PENALTY, true));
+						elements.add(Penalty.obtain(mTextAttribute.getHyphenWidth(), mTextAttribute.getHyphenHeight(), ParagraphTypesetter.HYPHEN_PENALTY, true));
 					}
 					start = point;
 				}
 			}
 			mHyphenated.clear();
-			elements.add(Glue.obtain(mOption.getSpaceWidth(), mOption.getSpaceStretch(), mOption.getSpaceShrink()));
+			elements.add(Glue.obtain(mTextAttribute.getSpaceWidth(), mTextAttribute.getSpaceStretch(), mTextAttribute.getSpaceShrink()));
 			mEmpty = false;
 			return this;
 		}
@@ -172,12 +191,16 @@ public class Paragraph implements Recyclable, Segment {
 
 			List<Element> elements = mParagraph.mElements;
 			elements.add(DrawableBox.obtain(drawable, width, height));
-			elements.add(Glue.obtain(mOption.getSpaceWidth(), mOption.getSpaceStretch(), mOption.getSpaceShrink()));
+			elements.add(Glue.obtain(mTextAttribute.getSpaceWidth(), mTextAttribute.getSpaceStretch(), mTextAttribute.getSpaceShrink()));
 			mEmpty = false;
 			return this;
 		}
 
 		public Paragraph build() {
+			if (isRecycled()) {
+				throw new IllegalStateException("call build twice");
+			}
+
 			int elementSize = mParagraph.mElements.size();
 			if (elementSize != 0 && mParagraph.mElements.get(elementSize - 1) instanceof Glue) {
 				mParagraph.mElements.remove(elementSize - 1);
@@ -193,16 +216,21 @@ public class Paragraph implements Recyclable, Segment {
 
 		@Override
 		public void recycle() {
+			if (isRecycled()) {
+				return;
+			}
+
+			super.recycle();
 			mParagraph = null;
 			mEmpty = true;
 			mMeasurer = null;
-			mOption = null;
+			mTextAttribute = null;
 			mHypher = null;
 			mHyphenated.clear();
 			POOL.release(this);
 		}
 
-		public static Builder newBuilder(Measurer measurer, Hypher hypher, Option option, Object extra) {
+		public static Builder newBuilder(Measurer measurer, Hypher hypher, TextAttribute textAttribute, Object extra) {
 			Builder builder = POOL.acquire();
 			if (builder == null) {
 				builder = new Builder();
@@ -210,8 +238,9 @@ public class Paragraph implements Recyclable, Segment {
 
 			builder.mMeasurer = measurer;
 			builder.mHypher = hypher;
-			builder.mOption = option;
+			builder.mTextAttribute = textAttribute;
 			builder.mParagraph = obtain(extra);
+			builder.reuse();
 			return builder;
 		}
 

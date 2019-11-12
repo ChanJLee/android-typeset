@@ -1,6 +1,6 @@
 package me.chan.te.text;
 
-import me.chan.te.misc.Recyclable;
+import me.chan.te.misc.DefaultRecyclable;
 
-public interface Segment extends Recyclable {
+public class Segment extends DefaultRecyclable {
 }
