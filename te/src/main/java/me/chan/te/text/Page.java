@@ -11,26 +11,7 @@ public class Page extends DefaultRecyclable {
 
 	private List<Segment> mSegments = new ArrayList<>(512);
 
-	private float mWidth;
-	private float mHeight;
-
 	private Page() {
-	}
-
-	public float getWidth() {
-		return mWidth;
-	}
-
-	public void setWidth(float width) {
-		mWidth = width;
-	}
-
-	public float getHeight() {
-		return mHeight;
-	}
-
-	public void setHeight(float height) {
-		mHeight = height;
 	}
 
 	/**
@@ -50,6 +31,14 @@ public class Page extends DefaultRecyclable {
 		mSegments.add(segment);
 	}
 
+	public Page spilt(int endIndex) {
+		List<Segment> list = mSegments;
+		mSegments = list.subList(0, endIndex);
+		Page page = Page.obtain();
+		page.mSegments = list.subList(endIndex, list.size());
+		return page;
+	}
+
 	@Override
 	public void recycle() {
 		if (isRecycled()) {
@@ -57,7 +46,6 @@ public class Page extends DefaultRecyclable {
 		}
 
 		super.recycle();
-		mWidth = mHeight = 0;
 		mSegments.clear();
 		POOL.release(this);
 	}

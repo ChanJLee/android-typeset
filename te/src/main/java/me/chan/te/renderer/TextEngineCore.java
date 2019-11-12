@@ -143,6 +143,7 @@ class TextEngineCore {
 
 		// typeset
 		final Thread thread = Thread.currentThread();
+		float lastHeight = 0;
 		for (int i = 0; i < size && !thread.isInterrupted(); ++i) {
 			Segment segment = document.getSegment(i);
 			if (segment instanceof Figure) {
@@ -153,7 +154,7 @@ class TextEngineCore {
 				continue;
 			}
 
-			typesetPage(document, segment, width, height);
+			lastHeight = typesetPage(document, segment, height, lastHeight);
 		}
 
 		i("typeset used time: " + (SystemClock.elapsedRealtime() - timestamp));
@@ -166,7 +167,7 @@ class TextEngineCore {
 		}
 	}
 
-	private void typesetPage(Document document, Segment segment, float width, float height) {
+	private float typesetPage(Document document, Segment segment, float height, float nextPageHeight) {
 		int pageSize = document.getPageCount();
 		Page currentPage;
 		if (pageSize == 0) {
@@ -178,12 +179,9 @@ class TextEngineCore {
 
 		if (mRenderOption.getRendererMode() == RendererMode.SLIDING) {
 			currentPage.addSegment(segment);
-			currentPage.setWidth(width);
-			currentPage.setHeight(-1);
-			return;
+			return -1;
 		}
 
-		float nextPageHeight = currentPage.getHeight();
 		if (nextPageHeight != 0) {
 			// 这里可以区分不同类型 选择不同的垂直方向偏移
 			nextPageHeight += mRenderOption.getSegmentSpace();
@@ -197,13 +195,11 @@ class TextEngineCore {
 		if (nextPageHeight > height && currentPage.getSegmentCount() != 0) {
 			currentPage = Page.obtain();
 			document.addPage(currentPage);
-			currentPage.setWidth(width);
-			currentPage.setHeight(currentSegmentHeight);
 			currentPage.addSegment(segment);
+			return currentSegmentHeight;
 		} else {
 			currentPage.addSegment(segment);
-			currentPage.setWidth(width);
-			currentPage.setHeight(nextPageHeight);
+			return nextPageHeight;
 		}
 	}
 
