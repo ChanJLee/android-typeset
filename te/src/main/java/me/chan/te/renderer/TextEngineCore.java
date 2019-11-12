@@ -151,7 +151,7 @@ class TextEngineCore {
 			} else if (segment instanceof Paragraph) {
 				mTypesetter.typeset((Paragraph) segment, mTextAttribute, mBreakStrategy);
 			} else {
-				continue;
+				throw new RuntimeException("unknown segment type");
 			}
 
 			lastHeight = typesetPage(document, segment, height, lastHeight);
@@ -182,49 +182,115 @@ class TextEngineCore {
 			return -1;
 		}
 
-		if (nextPageHeight != 0) {
-			// 这里可以区分不同类型 选择不同的垂直方向偏移
-			nextPageHeight += mRenderOption.getSegmentSpace();
+		if (segment instanceof Figure) {
+			return typesetFigureInPage(document, currentPage, (Figure) segment, height, nextPageHeight);
+		} else if (segment instanceof Paragraph) {
+			return typesetParagraphInPage(document, currentPage, (Paragraph) segment, height, nextPageHeight);
 		}
 
-		float currentSegmentHeight = getSegmentHeight(segment);
-		nextPageHeight += currentSegmentHeight;
+		throw new RuntimeException("unknown segment type");
+	}
+
+	private float typesetFigureInPage(Document document, Page currentPage, Figure figure, float height, float currentHeight) {
+		if (currentPage.getSegmentCount() != 0) {
+			// 这里可以区分不同类型 选择不同的垂直方向偏移
+			currentHeight += mRenderOption.getSegmentSpace();
+		}
+
+		float currentSegmentHeight = figure.getHeight();
+		currentHeight += currentSegmentHeight;
 
 		// 当前页排不下
-		// 但是要注意当前页啥东西都没有都排不下的情况，这时候强行塞到当前页
-		if (nextPageHeight > height && currentPage.getSegmentCount() != 0) {
+		if (currentHeight > height) {
+			// 但是要注意当前页啥东西都没有都排不下的情况，这时候强行塞到当前页
+			// 并且创建一个新的页
+			if (currentPage.getSegmentCount() == 0) {
+				currentPage.addSegment(figure);
+				currentPage = Page.obtain();
+				document.addPage(currentPage);
+				return 0;
+			}
+
 			currentPage = Page.obtain();
 			document.addPage(currentPage);
-			currentPage.addSegment(segment);
+			currentPage.addSegment(figure);
 			return currentSegmentHeight;
+		} else if (currentHeight == height) {
+			// 刚好放得下
+			currentPage.addSegment(figure);
+			// 然后创建新的一页
+			currentPage = Page.obtain();
+			document.addPage(currentPage);
+			return 0;
 		} else {
-			currentPage.addSegment(segment);
-			return nextPageHeight;
+			// 足够排下
+			currentPage.addSegment(figure);
+			return currentHeight;
 		}
 	}
 
-	private float getSegmentHeight(Segment segment) {
-		if (segment instanceof Figure) {
-			Figure figure = (Figure) segment;
-			return figure.getHeight();
+	private float typesetParagraphInPage(Document document, Page currentPage, Paragraph paragraph, float height, float currentHeight) {
+		if (currentPage.getSegmentCount() != 0) {
+			// 这里可以区分不同类型 选择不同的垂直方向偏移
+			currentHeight += mRenderOption.getSegmentSpace();
 		}
 
-		if (segment instanceof Paragraph) {
-			float height = 0;
-			Paragraph paragraph = (Paragraph) segment;
-			int size = paragraph.getLineCount();
-			if (size != 0) {
-				height += ((size - 1) * mRenderOption.getLineSpace());
-			}
-			for (int i = 0; i < size; ++i) {
-				Line line = paragraph.getLine(i);
-				height += line.getLineHeight();
+		int lineCount = paragraph.getLineCount();
+		int i = 0;
+		for (; i < lineCount; ++i) {
+			if (i != 0) {
+				currentHeight += mRenderOption.getLineSpace();
 			}
 
-			return height;
+			Line line = paragraph.getLine(i);
+			currentHeight += line.getLineHeight();
+			if (currentHeight >= height) {
+				break;
+			}
 		}
 
-		throw new IllegalArgumentException("unknown segment type");
+		// 当前页排不下
+		if (currentHeight > height) {
+			int endIndex = i;
+			// 如果排不下，尝试去spilt
+			if (endIndex <= 0) {
+				// 一行都塞不进的情况
+				// 那就强行塞一行
+				endIndex = 1;
+			}
+
+			// 现在已经确定了当前paragraph的末尾
+
+			// 即使spilt了 末尾也没有内容了，不如将当前所有内容都塞进去
+			if (endIndex == lineCount) {
+				// 刚好放得下
+				currentPage.addSegment(paragraph);
+				// 然后创建新的一页
+				currentPage = Page.obtain();
+				document.addPage(currentPage);
+				return 0;
+			}
+
+			Paragraph suffix = paragraph.spilt(endIndex);
+			// 刚好放得下
+			currentPage.addSegment(paragraph);
+			// 然后创建新的一页
+			currentPage = Page.obtain();
+			document.addPage(currentPage);
+			return typesetParagraphInPage(document, currentPage, suffix, height, 0);
+
+		} else if (currentHeight == height) {
+			// 刚好放得下
+			currentPage.addSegment(paragraph);
+			// 然后创建新的一页
+			currentPage = Page.obtain();
+			document.addPage(currentPage);
+			return 0;
+		} else {
+			// 足够排下
+			currentPage.addSegment(paragraph);
+			return currentHeight;
+		}
 	}
 
 	private void typesetFigure(Figure figure, float lineWidth) {
