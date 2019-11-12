@@ -2,22 +2,22 @@ package me.chan.te.typesetter;
 
 import android.support.annotation.Nullable;
 
+import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
 
-import me.chan.te.text.TextAttribute;
 import me.chan.te.data.Box;
 import me.chan.te.data.DrawableBox;
 import me.chan.te.data.Element;
 import me.chan.te.data.Glue;
-import me.chan.te.data.TextBox;
-import me.chan.te.text.Line;
-import me.chan.te.text.Paragraph;
 import me.chan.te.data.Penalty;
+import me.chan.te.data.TextBox;
 import me.chan.te.log.Log;
 import me.chan.te.text.BreakStrategy;
 import me.chan.te.text.Gravity;
+import me.chan.te.text.Line;
+import me.chan.te.text.Paragraph;
+import me.chan.te.text.TextAttribute;
 
 class TexParagraphTypesetter implements ParagraphTypesetter {
 	private static final int CLASS_0 = 0;
@@ -70,7 +70,7 @@ class TexParagraphTypesetter implements ParagraphTypesetter {
 	}
 
 	private List<Node> createActiveNodes(Paragraph paragraph, TextAttribute textAttribute, float tolerance) {
-		List<Node> activeNodes = new LinkedList<>();
+		List<Node> activeNodes = new ArrayList<>(128);
 
 		// header
 		Node node = Node.obtain(null, null);
@@ -244,7 +244,7 @@ class TexParagraphTypesetter implements ParagraphTypesetter {
 	}
 
 	private List<BreakPoint> chooseBreakPoints(List<Node> activeNodes) {
-		List<BreakPoint> breaks = new LinkedList<>();
+		List<BreakPoint> breaks = new ArrayList<>(128);
 		Node tempNode = null;
 		for (Node node : activeNodes) {
 			if (tempNode == null) {

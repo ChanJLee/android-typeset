@@ -44,7 +44,7 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 	private float mRectRadius;
 	private RectF mRectF = new RectF();
 
-	private float mDescent;
+	private float mBaselineBelow;
 	private RenderOption mRenderOption;
 
 	public ParagraphView(Context context) {
@@ -66,7 +66,8 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 				RenderOption renderOption) {
 		mParagraph = paragraph;
 		mPaint = paint;
-		mDescent = paint.getFontMetrics().descent;
+		Paint.FontMetrics fontMetrics = paint.getFontMetrics();
+		mBaselineBelow = fontMetrics.bottom;
 		mRenderOption = renderOption;
 
 		requestLayout();
@@ -186,7 +187,7 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 			float left = x;
 			float right = (float) Math.ceil(x + width);
 			float top = (float) Math.ceil(y - line.getLineHeight());
-			float bottom = y + mDescent * 1.1f;
+			float bottom = y + mBaselineBelow;
 
 			mWorkPaint.set(mPaint);
 
