@@ -38,19 +38,3 @@ source read text -> parse text -> typeset -> render
 [async profiler](https://github.com/jvm-profiling-tools/async-profiler)
 
 [JHyphenator](https://github.com/mfietz/JHyphenator)
-
-
-```
-
-BoringLayout
-
-        if (includePad) {
-            spacing = metrics.bottom - metrics.top;
-            mDesc = metrics.bottom;
-        } else {
-            spacing = metrics.descent - metrics.ascent;
-            mDesc = metrics.descent;
-        }
-
-        mBottom = spacing;
-```
