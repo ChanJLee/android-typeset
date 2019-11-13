@@ -136,6 +136,10 @@ public final class TextBox extends Box {
 			throw new IllegalStateException("set text box penalty twice");
 		}
 
+		if (penalty.getWidth() == 0) {
+			return;
+		}
+
 		setFlag(FLAG_PENALTY);
 		mWidth += penalty.getWidth();
 		mHeight = Math.max(mHeight, penalty.getHeight());
