@@ -172,8 +172,14 @@ public class Paragraph extends Segment {
 							foreground,
 							extra
 					));
-					if (j != size - 1 && text.charAt(point - 1) != '-') {
-						elements.add(Penalty.obtain(mTextAttribute.getHyphenWidth(), mTextAttribute.getHyphenHeight(), ParagraphTypesetter.HYPHEN_PENALTY, true));
+					if (j != size - 1) {
+						char ch = text.charAt(point - 1);
+						boolean isExplicitHyphen = ch == '-';
+						elements.add(Penalty.obtain(
+								isExplicitHyphen ? 0 : mTextAttribute.getHyphenWidth(),
+								mTextAttribute.getHyphenHeight(),
+								ParagraphTypesetter.HYPHEN_PENALTY,
+								true));
 					}
 					start = point;
 				}

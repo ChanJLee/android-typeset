@@ -124,10 +124,8 @@ public class Hypher {
 		for (int i = 1; i < lenWithPadding - 1; i++) {
 			if (i > this.mLeftMin && i < (lenWithPadding - this.mRightMin) && points[i] % 2 > 0) {
 				int point = first + i - 1;
-				if (word.charAt(point - 1) != '-') {
-					result.add(point);
-					start = point;
-				}
+				result.add(point);
+				start = point;
 			}
 		}
 
