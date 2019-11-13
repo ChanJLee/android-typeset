@@ -776,8 +776,6 @@ public class DataUnitTest {
 		Page page = Page.obtain();
 		Assert.assertNotNull(page);
 		Assert.assertFalse(page.isRecycled());
-		Assert.assertEquals(page.getWidth(), 0, 0);
-		Assert.assertEquals(page.getHeight(), 0, 0);
 		try {
 			page.getSegment(0);
 			fail("test get segment");
@@ -786,12 +784,8 @@ public class DataUnitTest {
 		}
 		Assert.assertEquals(page.getSegmentCount(), 0);
 
-		page.setWidth(1);
-		page.setHeight(2);
 		Figure figure = Figure.obtain("", 1, 2);
 		page.addSegment(figure);
-		Assert.assertEquals(page.getWidth(), 1, 0);
-		Assert.assertEquals(page.getHeight(), 2, 0);
 		Assert.assertEquals(page.getSegmentCount(), 1);
 		Assert.assertSame(page.getSegment(0), figure);
 		try {
@@ -803,8 +797,6 @@ public class DataUnitTest {
 
 		page.recycle();
 		Assert.assertTrue(page.isRecycled());
-		Assert.assertEquals(page.getWidth(), 0, 0);
-		Assert.assertEquals(page.getHeight(), 0, 0);
 		Assert.assertEquals(page.getSegmentCount(), 0);
 
 		page.recycle();
@@ -814,8 +806,6 @@ public class DataUnitTest {
 		Assert.assertNotNull(page);
 		assertSame(page, previous);
 		Assert.assertFalse(page.isRecycled());
-		Assert.assertEquals(page.getWidth(), 0, 0);
-		Assert.assertEquals(page.getHeight(), 0, 0);
 		try {
 			page.getSegment(0);
 			fail("test get segment");
