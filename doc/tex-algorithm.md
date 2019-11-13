@@ -22,7 +22,7 @@
 
 3. 单词间由glue连接，glue的宽度通常跟字体绑定。在TEX排版系统中，不同的上下文，glue所代表的语义有所不同。
 
-4. 显式的[连字符或者短破折号(dash)](https://www.grammarly.com/blog/dash/)后尾随一个flagged penalty。这个penalty的宽度为0。在有些排版分割中，针对长破折号（em dash），我们允许在长破折号之前断行，因此，我们在破折号之前加一个unflagged的penalty，并且它的宽度也是0。
+4. 显式的[连字符或者短破折号(dash)](https://www.grammarly.com/blog/dash/)后尾随一个flagged penalty。这个penalty的宽度为0。在有些排版风格中，针对长破折号（em dash），我们允许在长破折号之前断行，因此，我们在破折号之前加一个unflagged的penalty，并且它的宽度也是0。
 
 5. 在段落的末尾，总是添加一个glue，来表示在最后一行的右边会有一个空格，并且有一个pm=-∞的penalty来强制换行。
 
