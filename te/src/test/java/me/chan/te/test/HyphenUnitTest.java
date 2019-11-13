@@ -58,10 +58,11 @@ public class HyphenUnitTest {
 		result = new ArrayList<>();
 		hyphenate("cos-triangleok", result);
 		System.out.println(result);
-		assertEquals(result.size(), 3);
-		assertEquals(result.get(0), "cos-tri");
-		assertEquals(result.get(1), "an");
-		assertEquals(result.get(2), "gleok");
+		assertEquals(result.size(), 4);
+		assertEquals(result.get(0), "cos-");
+		assertEquals(result.get(1), "tri");
+		assertEquals(result.get(2), "an");
+		assertEquals(result.get(3), "gleok");
 
 		result = new ArrayList<>();
 		hyphenate("tri-angleok", result);
@@ -95,7 +96,6 @@ public class HyphenUnitTest {
 				new InputStreamReader(new FileInputStream(file)));
 		String line = null;
 		List<String> buffer = new ArrayList<>();
-		Hypher hypher = Hypher.getInstance();
 		long timeStamp = System.currentTimeMillis();
 		while ((line = bufferedReader.readLine()) != null) {
 			++count;
@@ -105,7 +105,6 @@ public class HyphenUnitTest {
 			for (int i = 0; i < size; ++i) {
 				String word = buffer.get(i);
 				Assert.assertFalse(word.isEmpty());
-				Assert.assertFalse(line, word.charAt(word.length() - 1) == '-' && i != size - 1);
 			}
 			System.out.println();
 			buffer.clear();
