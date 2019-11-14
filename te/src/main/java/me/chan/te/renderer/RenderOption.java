@@ -5,7 +5,7 @@ import android.support.annotation.NonNull;
 
 import me.chan.te.text.BreakStrategy;
 
-class RenderOption {
+public class RenderOption {
 	private int mTextColor;
 	private Typeface mTypeface;
 	private float mTextSize;
@@ -17,6 +17,7 @@ class RenderOption {
 	private BreakStrategy mBreakStrategy;
 	private RendererMode mRendererMode;
 	private boolean mWordSelectable;
+	private boolean mEnableDebug;
 
 	RenderOption() {
 	}
@@ -33,6 +34,15 @@ class RenderOption {
 		mBreakStrategy = other.mBreakStrategy;
 		mRendererMode = other.mRendererMode;
 		mWordSelectable = other.mWordSelectable;
+		mEnableDebug = other.mEnableDebug;
+	}
+
+	public boolean isEnableDebug() {
+		return mEnableDebug;
+	}
+
+	public void setEnableDebug(boolean enableDebug) {
+		mEnableDebug = enableDebug;
 	}
 
 	public boolean isWordSelectable() {
