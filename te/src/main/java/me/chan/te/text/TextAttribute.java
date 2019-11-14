@@ -113,6 +113,7 @@ public class TextAttribute {
 			mGravity = gravity;
 		}
 
+		// TODO 移除
 		public float getLineWidth() {
 			return mLineWidth;
 		}
