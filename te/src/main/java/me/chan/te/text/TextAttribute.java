@@ -28,8 +28,10 @@ public class TextAttribute {
 		mHyphenWidth = measurer.getDesiredWidth("-", 0, 1, null);
 		mHyphenHeight = measurer.getDesiredHeight("-", 0, 1, null);
 		mSpaceWidth = mHyphenWidth;
-		mSpaceStretch = mSpaceWidth * 1.1f;
-		mSpaceShrink = mSpaceWidth * 0.9f;
+		float actualSpaceWidth = measurer.getDesiredWidth(" ", 0, 1, null);
+		float delta = mSpaceWidth - actualSpaceWidth;
+		mSpaceStretch = delta;
+		mSpaceShrink = delta;
 
 		// 首行缩进四个空格
 		mIndentWidth = mSpaceWidth * 4;
