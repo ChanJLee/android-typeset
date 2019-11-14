@@ -30,14 +30,14 @@ class TexParagraphTypesetter implements ParagraphTypesetter {
 	// 对应 γ
 	private static final float DEMERITS_FITNESS = 3000;
 	private static final int MAX_RELAYOUT_TIMES = 30;
-	private static final float MIN_SHRINK_RATIO = -0.2f;
+	private static final float MIN_SHRINK_RATIO = -1f;
 	private static final float STRETCH_STEP_RATIO = 0.2f;
 
 	@Nullable
 	@Override
 	public boolean typeset(Paragraph paragraph, TextAttribute textAttribute, BreakStrategy breakStrategy) {
 		List<Node> activeNodes = null;
-		float tolerance = 0;
+		float tolerance = 1 - STRETCH_STEP_RATIO;
 		for (int i = 0; i < MAX_RELAYOUT_TIMES; ++i) {
 			tolerance += STRETCH_STEP_RATIO;
 			activeNodes = createActiveNodes(paragraph, textAttribute, tolerance);
