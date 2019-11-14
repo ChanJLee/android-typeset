@@ -285,6 +285,7 @@ class TexParagraphTypesetter implements ParagraphTypesetter {
 							 Candidate[] candidates) {
 		Element element = paragraph.getElement(index);
 		Node active = activeNodes.isEmpty() ? null : activeNodes.get(0);
+		Node prevActive = null;
 
 		while (active != null) {
 			while (active != null) {
@@ -292,8 +293,11 @@ class TexParagraphTypesetter implements ParagraphTypesetter {
 				int currentLine = active.getData().line + 1;
 				float ratio = computeRatio(element, active.getData(), sum, textAttribute.get(currentLine).getLineWidth());
 
-				if (ratio < MIN_SHRINK_RATIO || (element instanceof Penalty && ((Penalty) element).getPenalty() == -INFINITY)) {
+				if (ratio < MIN_SHRINK_RATIO || (element instanceof Penalty &&
+						((Penalty) element).getPenalty() == -INFINITY)) {
 					removeActiveNode(active, activeNodes);
+				} else {
+					prevActive = active;
 				}
 
 				if (ratio >= MIN_SHRINK_RATIO && ratio <= tolerance) {
