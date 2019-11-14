@@ -64,7 +64,8 @@ class SimpleParagraphTypesetter implements ParagraphTypesetter {
 			Element element = paragraph.getElement(start);
 			if (element instanceof Glue) {
 				Glue glue = (Glue) element;
-				currentLineWidth += (breakStrategy == BreakStrategy.BALANCED ? glue.getShrink() : wordSpaceWidth);
+				currentLineWidth += (breakStrategy == BreakStrategy.BALANCED ?
+						wordSpaceWidth - glue.getShrink() : wordSpaceWidth);
 				++start;
 				continue;
 			}
