@@ -29,7 +29,7 @@ class TexParagraphTypesetter implements ParagraphTypesetter {
 	private static final float DEMERITS_FLAGGED = 100;
 	// 对应 γ
 	private static final float DEMERITS_FITNESS = 3000;
-	private static final int MAX_RELAYOUT_TIMES = 30;
+	private static final int MAX_RELAYOUT_TIMES = 60;
 	private static final float MIN_SHRINK_RATIO = -1f;
 	private static final float STRETCH_STEP_RATIO = 0.2f;
 
