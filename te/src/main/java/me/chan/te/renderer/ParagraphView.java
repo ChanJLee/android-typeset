@@ -40,7 +40,6 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 	private int mSelectionMode = SELECTION_MODE_LONG_PRESS;
 	private GestureDetector mGestureDetector = null;
 	private OnTextSelectedListener mOnTextSelectedListener;
-	private boolean mDebugMode = false;
 	private float mRectRadius;
 	private RectF mRectF = new RectF();
 
@@ -69,48 +68,22 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 		Paint.FontMetrics fontMetrics = paint.getFontMetrics();
 		mBaselineBelow = fontMetrics.bottom;
 		mRenderOption = renderOption;
-
+		setDebugMode(renderOption.isEnableDebug());
 		requestLayout();
 	}
 
-	// TODO
 	private void setDebugMode(boolean enable) {
-		if (mDebugMode == enable) {
-			return;
-		}
-
-		mDebugMode = enable;
-		if (mDebugMode && mDebugPaint == null) {
+		if (enable && mDebugPaint == null) {
 			mDebugPaint = new Paint();
 			mDebugPaint.setColor(Color.GREEN);
 			mDebugPaint.setStyle(Paint.Style.FILL);
 			mDebugPaint.setTextSize(40);
 		}
-		invalidate();
-	}
-
-	public boolean isDebugMode() {
-		return mDebugMode;
-	}
-
-	public boolean isSelectable() {
-		return mSelectionMode != SELECTION_MODE_NONE;
-	}
-
-	public void setSelectionMode(int mode) {
-		if (mode != SELECTION_MODE_NONE &&
-				mode != SELECTION_MODE_CLICK &&
-				mode != SELECTION_MODE_LONG_PRESS) {
-			throw new IllegalArgumentException("invalid selection mode:" + mode);
-		}
-
-		mSelectionMode = mode;
 	}
 
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
-		if (!isSelectable() ||
-				mParagraph == null) {
+		if (mRenderOption == null || !mRenderOption.isWordSelectable()) {
 			return super.onTouchEvent(event);
 		}
 
@@ -148,7 +121,8 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 	protected void onDraw(Canvas canvas) {
 		super.onDraw(canvas);
 		int lineCount = 0;
-		if (mParagraph == null || (lineCount = mParagraph.getLineCount()) == 0) {
+		if (mParagraph == null || (lineCount = mParagraph.getLineCount()) == 0 ||
+				mRenderOption == null) {
 			return;
 		}
 
@@ -207,7 +181,7 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 				}
 			}
 
-			if (mDebugMode) {
+			if (mRenderOption.isEnableDebug()) {
 				mDebugPaint.setColor(Color.GREEN);
 				canvas.drawRect(x, (float) Math.ceil(y - line.getLineHeight()),
 						(float) Math.ceil(x + width), y, mDebugPaint);
@@ -236,7 +210,7 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 			x += (spaceWidth + width);
 		}
 
-		if (mDebugMode) {
+		if (mRenderOption.isEnableDebug()) {
 			float startX = 0;
 			float startY = y + mRenderOption.getLineSpace();
 			Rect rect = new Rect();

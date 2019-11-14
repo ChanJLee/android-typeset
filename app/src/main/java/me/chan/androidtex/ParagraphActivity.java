@@ -1,7 +1,5 @@
 package me.chan.androidtex;
 
-import android.graphics.Color;
-import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -14,9 +12,9 @@ import java.io.IOException;
 import me.chan.te.Te;
 import me.chan.te.parser.BookParser;
 import me.chan.te.parser.TextParser;
-import me.chan.te.source.AssetsTextSource;
-import me.chan.te.text.BreakStrategy;
+import me.chan.te.renderer.RenderOption;
 import me.chan.te.renderer.TeView;
+import me.chan.te.source.AssetsTextSource;
 
 public class ParagraphActivity extends AppCompatActivity {
 
@@ -29,8 +27,9 @@ public class ParagraphActivity extends AppCompatActivity {
 		findViewById(R.id.debug).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-		//		teView.setDebugMode(!teView.isDebugMode());
-		// 		TODO
+				RenderOption renderOption = teView.createRendererOption();
+				renderOption.setEnableDebug(!renderOption.isEnableDebug());
+				teView.refresh(renderOption);
 			}
 		});
 
