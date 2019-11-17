@@ -285,9 +285,9 @@ class TexParagraphTypesetter implements ParagraphTypesetter {
 							 Candidate[] candidates) {
 		Element element = paragraph.getElement(index);
 		Node active = activeNodes.isEmpty() ? null : activeNodes.get(0);
-		Node prevActive = null;
 
 		while (active != null) {
+			boolean needCreateNode = false;
 			while (active != null) {
 				Node next = active.next;
 				int currentLine = active.getData().line + 1;
@@ -296,8 +296,6 @@ class TexParagraphTypesetter implements ParagraphTypesetter {
 				if (ratio < MIN_SHRINK_RATIO || (element instanceof Penalty &&
 						((Penalty) element).getPenalty() == -INFINITY)) {
 					removeActiveNode(active, activeNodes);
-				} else {
-					prevActive = active;
 				}
 
 				if (ratio >= MIN_SHRINK_RATIO && ratio <= tolerance) {
@@ -307,6 +305,8 @@ class TexParagraphTypesetter implements ParagraphTypesetter {
 
 					// Only store the best candidate for each fitness class
 					if (candidates[currentClass] == null || demerits < candidates[currentClass].demerits) {
+						needCreateNode = true;
+
 						if (candidates[currentClass] == null) {
 							candidates[currentClass] = Candidate.obtain(demerits, ratio, active);
 							continue;
@@ -325,14 +325,17 @@ class TexParagraphTypesetter implements ParagraphTypesetter {
 				}
 			}
 
-			Sum tmpSum = computeSum(index, paragraph, sum);
-			createIfActiveNode(active, index, activeNodes, tmpSum, candidates);
-			tmpSum.recycle();
-			for (int i = 0; i < candidates.length; ++i) {
-				Candidate candidate = candidates[i];
-				if (candidate != null) {
-					candidate.recycle();
-					candidates[i] = null;
+			if (needCreateNode) {
+				Sum tmpSum = computeSum(index, paragraph, sum);
+				createIfActiveNode(active, index, activeNodes, tmpSum, candidates);
+				tmpSum.recycle();
+
+				for (int i = 0; i < candidates.length; ++i) {
+					Candidate candidate = candidates[i];
+					if (candidate != null) {
+						candidate.recycle();
+						candidates[i] = null;
+					}
 				}
 			}
 		}
