@@ -13,13 +13,7 @@ public class Node extends DefaultRecyclable {
 	public Node prev;
 	public Node next;
 
-	private Node(Node prev, Node next) {
-		this.prev = prev;
-		this.next = next;
-	}
-
-	public static void clean() {
-		POOL.clean();
+	private Node() {
 	}
 
 	public Data getData() {
@@ -44,15 +38,18 @@ public class Node extends DefaultRecyclable {
 		POOL.release(this);
 	}
 
-	public static Node obtain(Node prev, Node next) {
+	public static Node obtain() {
 		Node node = POOL.acquire();
 		if (node == null) {
-			return new Node(prev, next);
+			return new Node();
 		}
-		node.prev = prev;
-		node.next = next;
+		node.prev = node.next = null;
 		node.reuse();
 		return node;
+	}
+
+	public static void clean() {
+		POOL.clean();
 	}
 
 	public static class Data {

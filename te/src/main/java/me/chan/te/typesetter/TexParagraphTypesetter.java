@@ -36,31 +36,29 @@ class TexParagraphTypesetter implements ParagraphTypesetter {
 	@Nullable
 	@Override
 	public boolean typeset(Paragraph paragraph, TextAttribute textAttribute, BreakStrategy breakStrategy) {
-		List<Node> activeNodes = null;
+		ActiveNodeList activeList = null;
 		float tolerance = 1 - STRETCH_STEP_RATIO;
 		for (int i = 0; i < MAX_RELAYOUT_TIMES; ++i) {
 			tolerance += STRETCH_STEP_RATIO;
-			activeNodes = createActiveNodes(paragraph, textAttribute, tolerance);
-			if (!activeNodes.isEmpty()) {
+			activeList = createActiveNodes(paragraph, textAttribute, tolerance);
+			if (!activeList.isEmpty()) {
 				break;
 			}
 		}
 
-		if (activeNodes == null ||
-				activeNodes.isEmpty()) {
+		if (activeList == null ||
+				activeList.isEmpty()) {
 			w("can not find active nodes: " + paragraph);
 			return false;
 		}
 
-		List<BreakPoint> breakPoints = chooseBreakPoints(activeNodes);
+		List<BreakPoint> breakPoints = chooseBreakPoints(activeList);
 		if (breakPoints.isEmpty()) {
 			return false;
 		}
 
 		typesetParagraph(paragraph, breakPoints, textAttribute);
-		for (Node node : activeNodes) {
-			node.recycle();
-		}
+		activeList.recycle();
 
 		for (BreakPoint breakPoint : breakPoints) {
 			breakPoint.recycle();
@@ -69,36 +67,31 @@ class TexParagraphTypesetter implements ParagraphTypesetter {
 		return true;
 	}
 
-	private List<Node> createActiveNodes(Paragraph paragraph, TextAttribute textAttribute, float tolerance) {
-		List<Node> activeNodes = new ArrayList<>(128);
-
-		// header
-		Node node = Node.obtain(null, null);
-		node.getData().totals = Sum.obtain();
-		activeNodes.add(node);
+	private ActiveNodeList createActiveNodes(Paragraph paragraph, TextAttribute textAttribute, float tolerance) {
+		ActiveNodeList activeNodeList = new ActiveNodeList();
 
 		Sum sum = Sum.obtain();
 		int size = paragraph.getElementCount();
 		Candidate[] candidates = new Candidate[4];
-		for (int i = 0; i < size && !activeNodes.isEmpty(); ++i) {
+		for (int i = 0; i < size && !activeNodeList.isEmpty(); ++i) {
 			Element element = paragraph.getElement(i);
 			if (element instanceof Box) {
 				sum.increaseWidth(getElementWidth(element));
 			} else if (element instanceof Glue) {
 				if (i > 0 && paragraph.getElement(i - 1) instanceof Box) {
-					typesetLine(i, paragraph, activeNodes, sum, textAttribute, tolerance, candidates);
+					typesetLine(i, paragraph, activeNodeList, sum, textAttribute, tolerance, candidates);
 				}
 
 				Glue glue = (Glue) element;
 				sum.increaseGlue(glue);
 			} else if (element instanceof Penalty &&
 					((Penalty) element).getPenalty() != INFINITY) {
-				typesetLine(i, paragraph, activeNodes, sum, textAttribute, tolerance, candidates);
+				typesetLine(i, paragraph, activeNodeList, sum, textAttribute, tolerance, candidates);
 			}
 		}
 		sum.recycle();
 
-		return activeNodes;
+		return activeNodeList;
 	}
 
 	private float getElementWidth(Element element) {
@@ -243,10 +236,10 @@ class TexParagraphTypesetter implements ParagraphTypesetter {
 		return start;
 	}
 
-	private List<BreakPoint> chooseBreakPoints(List<Node> activeNodes) {
+	private List<BreakPoint> chooseBreakPoints(ActiveNodeList activeNodeList) {
 		List<BreakPoint> breaks = new ArrayList<>(128);
 		Node tempNode = null;
-		for (Node node : activeNodes) {
+		for (Node node: activeNodeList) {
 			if (tempNode == null) {
 				tempNode = node;
 				continue;
@@ -271,20 +264,20 @@ class TexParagraphTypesetter implements ParagraphTypesetter {
 	/**
 	 * 对一行进行排版
 	 *
-	 * @param index         当前第几个元素
-	 * @param paragraph     paragraph
-	 * @param activeNodes   active nodes
-	 * @param sum           sum
-	 * @param textAttribute 行配置信息
-	 * @param tolerance     允许的缺陷阈值
-	 * @param candidates    候选人
+	 * @param index          当前第几个元素
+	 * @param paragraph      paragraph
+	 * @param activeNodeList active nodes
+	 * @param sum            sum
+	 * @param textAttribute  行配置信息
+	 * @param tolerance      允许的缺陷阈值
+	 * @param candidates     候选人
 	 */
 	private void typesetLine(int index, Paragraph paragraph,
-							 List<Node> activeNodes, Sum sum,
+							 ActiveNodeList activeNodeList, Sum sum,
 							 TextAttribute textAttribute, float tolerance,
 							 Candidate[] candidates) {
 		Element element = paragraph.getElement(index);
-		Node active = activeNodes.isEmpty() ? null : activeNodes.get(0);
+		Node active = activeNodeList.getHeader();
 
 		while (active != null) {
 			boolean needCreateNode = false;
@@ -295,7 +288,7 @@ class TexParagraphTypesetter implements ParagraphTypesetter {
 
 				if (ratio < MIN_SHRINK_RATIO || (element instanceof Penalty &&
 						((Penalty) element).getPenalty() == -INFINITY)) {
-					removeActiveNode(active, activeNodes);
+					activeNodeList.remove(active);
 				}
 
 				if (ratio >= MIN_SHRINK_RATIO && ratio <= tolerance) {
@@ -327,7 +320,7 @@ class TexParagraphTypesetter implements ParagraphTypesetter {
 
 			if (needCreateNode) {
 				Sum tmpSum = computeSum(index, paragraph, sum);
-				createIfActiveNode(active, index, activeNodes, tmpSum, candidates);
+				createIfActiveNode(active, index, activeNodeList, tmpSum, candidates);
 				tmpSum.recycle();
 
 				for (int i = 0; i < candidates.length; ++i) {
@@ -341,7 +334,7 @@ class TexParagraphTypesetter implements ParagraphTypesetter {
 		}
 	}
 
-	private void createIfActiveNode(Node active, int index, List<Node> activeNodes,
+	private void createIfActiveNode(Node active, int index, ActiveNodeList activeNodeList,
 									Sum sum, Candidate[] candidates) {
 		for (int i = 0; i < candidates.length; ++i) {
 			Candidate candidate = candidates[i];
@@ -349,7 +342,7 @@ class TexParagraphTypesetter implements ParagraphTypesetter {
 				continue;
 			}
 
-			Node node = Node.obtain(null, null);
+			Node node = Node.obtain();
 			Node.Data data = node.getData();
 			data.position = index;
 			data.demerits = candidate.demerits;
@@ -360,21 +353,9 @@ class TexParagraphTypesetter implements ParagraphTypesetter {
 			data.prev = candidate.active;
 
 			if (active != null) {
-				node.prev = active.prev;
-				if (active.prev != null) {
-					active.prev.next = node;
-				}
-
-				node.next = active;
-				active.prev = node;
-				activeNodes.add(activeNodes.indexOf(active), node);
+				activeNodeList.insertBefore(active, node);
 			} else {
-				if (!activeNodes.isEmpty()) {
-					Node last = activeNodes.get(activeNodes.size() - 1);
-					last.next = node;
-					node.prev = last;
-				}
-				activeNodes.add(node);
+				activeNodeList.pushBack(node);
 			}
 		}
 	}
@@ -388,20 +369,6 @@ class TexParagraphTypesetter implements ParagraphTypesetter {
 			return CLASS_2;
 		} else {
 			return CLASS_3;
-		}
-	}
-
-	private void removeActiveNode(Node node, List<Node> activeNodes) {
-		Node prev = node.prev;
-		Node next = node.next;
-		activeNodes.remove(node);
-
-		if (prev != null) {
-			prev.next = next;
-		}
-
-		if (next != null) {
-			next.prev = prev;
 		}
 	}
 
