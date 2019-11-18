@@ -245,6 +245,9 @@ class TextEngineCore {
 			Line line = paragraph.getLine(i);
 			currentHeight += line.getLineHeight();
 			if (currentHeight >= height) {
+				if (i != 0) {
+					--i;
+				}
 				break;
 			}
 		}
