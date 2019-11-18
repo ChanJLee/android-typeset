@@ -48,7 +48,6 @@ public class TextAttribute {
 		mMap.clear();
 	}
 
-	// TODO remove
 	public LineAttribute get(int lineNumber) {
 		LineAttribute attribute = mMap.get(lineNumber);
 		if (attribute != null) {
@@ -99,7 +98,6 @@ public class TextAttribute {
 		return mIndentWidth;
 	}
 
-	// todo remove
 	public void setDefaultAttribute(LineAttribute defaultAttribute) {
 		mDefaultAttribute = defaultAttribute;
 	}
@@ -113,7 +111,6 @@ public class TextAttribute {
 			mGravity = gravity;
 		}
 
-		// TODO 移除
 		public float getLineWidth() {
 			return mLineWidth;
 		}

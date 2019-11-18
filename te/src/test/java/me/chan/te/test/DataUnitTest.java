@@ -655,7 +655,7 @@ public class DataUnitTest {
 
 	@Test
 	public void testNode() {
-		Node node = Node.obtain(null, null);
+		Node node = Node.obtain();
 		Assert.assertNotNull(node);
 		Assert.assertFalse(node.isRecycled());
 		Assert.assertNull(node.next);
@@ -677,10 +677,10 @@ public class DataUnitTest {
 		data.line = 4;
 		data.fitnessClazz = 5;
 		data.totals = Sum.obtain();
-		data.prev = Node.obtain(null, null);
+		data.prev = Node.obtain();
 
-		node.prev = Node.obtain(null, null);
-		node.next = Node.obtain(null, null);
+		node.prev = Node.obtain();
+		node.next = Node.obtain();
 
 		node.recycle();
 		Assert.assertTrue(node.isRecycled());
@@ -700,7 +700,7 @@ public class DataUnitTest {
 		node.recycle();
 
 		Node previous = node;
-		node = Node.obtain(null, null);
+		node = Node.obtain();
 		Assert.assertSame(previous, node);
 		Assert.assertNotNull(node);
 		Assert.assertFalse(node.isRecycled());
@@ -743,7 +743,7 @@ public class DataUnitTest {
 
 	@Test
 	public void testCandidate() {
-		Node node = Node.obtain(null, null);
+		Node node = Node.obtain();
 		Assert.assertNotNull(node);
 		Candidate candidate = Candidate.obtain(1, 2, node);
 		Assert.assertNotNull(candidate);
