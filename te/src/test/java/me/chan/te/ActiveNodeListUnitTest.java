@@ -36,10 +36,10 @@ public class ActiveNodeListUnitTest {
 		Assert.assertNull(activeNodeList.getHeader());
 		Assert.assertSame(activeNodeList.getHeader(), activeNodeList.getTail());
 
-		checkInsert1(activeNodeList);
+		checkAddRemoveSide(activeNodeList);
 	}
 
-	private void checkInsert1(ActiveNodeList activeNodeList) {
+	private void checkAddRemoveSide(ActiveNodeList activeNodeList) {
 		for (int i = 0; i < 5; ++i) {
 			Node node = createNode(i);
 			activeNodeList.pushBack(node);
@@ -62,24 +62,19 @@ public class ActiveNodeListUnitTest {
 		Assert.assertNotSame(activeNodeList.getTail(), activeNodeList.getHeader());
 
 		activeNodeList.remove(activeNodeList.getHeader());
-		checkContent(activeNodeList, 1, 2, 3, 4);
-		activeNodeList.remove(activeNodeList.getTail());
 		checkContent(activeNodeList, 1, 2, 3);
+		activeNodeList.remove(activeNodeList.getTail());
+		checkContent(activeNodeList, 1, 2);
 		Assert.assertNotNull(activeNodeList.getHeader());
 		Assert.assertNotNull(activeNodeList.getTail());
 		Assert.assertNotSame(activeNodeList.getTail(), activeNodeList.getHeader());
 
 		activeNodeList.remove(activeNodeList.getHeader());
-		checkContent(activeNodeList, 2, 3, 4);
+		checkContent(activeNodeList, 2);
 		activeNodeList.remove(activeNodeList.getTail());
-		checkContent(activeNodeList, 2, 3);
-		Assert.assertNotNull(activeNodeList.getHeader());
-		Assert.assertNotNull(activeNodeList.getTail());
-		Assert.assertNotSame(activeNodeList.getTail(), activeNodeList.getHeader());
-	}
-
-	private void checkRemove1() {
-
+		Assert.assertTrue(activeNodeList.isEmpty());
+		Assert.assertNull(activeNodeList.getHeader());
+		Assert.assertNull(activeNodeList.getTail());
 	}
 
 	private Node createNode(int value) {
@@ -97,8 +92,8 @@ public class ActiveNodeListUnitTest {
 			Assert.assertEquals(node.getData().line, ints[i++]);
 		}
 
-		if (i != ints.length - 1 || nodes.hasNext()) {
-			Assert.fail("check content failed");
+		if (i < ints.length || nodes.hasNext()) {
+			Assert.fail("check content failed, " + i + " " + ints.length + " " + nodes.hasNext());
 		}
 	}
 }
