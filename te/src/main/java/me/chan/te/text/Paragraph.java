@@ -1,6 +1,7 @@
 package me.chan.te.text;
 
 import android.graphics.drawable.Drawable;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import java.util.ArrayList;
@@ -11,6 +12,7 @@ import me.chan.te.hypher.Hypher;
 import me.chan.te.measurer.Measurer;
 import me.chan.te.misc.DefaultRecyclable;
 import me.chan.te.misc.ObjectFactory;
+import me.chan.te.renderer.Clickable;
 import me.chan.te.typesetter.ParagraphTypesetter;
 
 /**
@@ -55,7 +57,6 @@ public class Paragraph extends Segment {
 		page.mElements = mElements;
 		return page;
 	}
-
 
 	@Hidden
 	public void addLine(Line line) {
@@ -121,7 +122,6 @@ public class Paragraph extends Segment {
 	 */
 	public static class Builder extends DefaultRecyclable {
 		private static final ObjectFactory<Builder> POOL = new ObjectFactory<>(8);
-		private static final int MIN_HYPER_LEN = 4;
 
 		private List<Integer> mHyphenated = new ArrayList<>(10);
 		private Measurer mMeasurer;
@@ -129,69 +129,36 @@ public class Paragraph extends Segment {
 		private TextAttribute mTextAttribute;
 		private Paragraph mParagraph;
 		private boolean mEmpty = true;
+		private RichTextBuilder mRichTextBuilder = new RichTextBuilder(this);
 
 		private Builder() {
 		}
 
-		public Builder text(CharSequence text, int start, int end, TextStyle textStyle,
-							Background background, Foreground foreground, Object extra) {
-			if (mParagraph == null) {
-				throw new IllegalStateException("call newParagraph first");
-			}
+		public Builder text(CharSequence text, int start, int end) {
+			RichTextBuilder richTextBuilder = richText(text, start, end);
+			return richTextBuilder.build();
+		}
 
-			int len = end - start;
-			List<Element> elements = mParagraph.mElements;
-			mHypher.hyphenate(text, start, end, mHyphenated);
-			int size = mHyphenated.size();
-			if (size == 0 || len < MIN_HYPER_LEN) {
-				elements.add(TextBox.obtain(text, start, end,
-						mMeasurer.getDesiredWidth(text, start, end, textStyle),
-						mMeasurer.getDesiredHeight(text, start, end, textStyle),
-						textStyle,
-						background,
-						foreground,
-						extra
-				));
-			} else {
-				for (int j = 0; j < size; ++j) {
-					int point = mHyphenated.get(j);
-					if (point == start) {
-						continue;
-					}
+		public RichTextBuilder richText(CharSequence text, int start, int end) {
+			mRichTextBuilder.reset(text, start, end);
+			return mRichTextBuilder;
+		}
 
-					elements.add(TextBox.obtain(text, start, point,
-							mMeasurer.getDesiredWidth(text, start, point, textStyle),
-							mMeasurer.getDesiredHeight(text, start, point, textStyle),
-							textStyle,
-							background,
-							foreground,
-							extra
-					));
-					if (j != size - 1) {
-						char ch = text.charAt(point - 1);
-						boolean isExplicitHyphen = ch == '-';
-						elements.add(Penalty.obtain(
-								isExplicitHyphen ? 0 : mTextAttribute.getHyphenWidth(),
-								mTextAttribute.getHyphenHeight(),
-								ParagraphTypesetter.HYPHEN_PENALTY,
-								true));
-					}
-					start = point;
-				}
-			}
-			mHyphenated.clear();
-			elements.add(Glue.obtain(mTextAttribute.getSpaceWidth(), mTextAttribute.getSpaceStretch(), mTextAttribute.getSpaceShrink()));
-			mEmpty = false;
-			return this;
+		public RichTextSpanBuilder richTextSpan(Clickable.OnClickedListener onClickedListener) {
+
 		}
 
 		public Builder drawable(Drawable drawable, float width, float height) {
+			return drawable(drawable, width, height, null);
+		}
+
+		public Builder drawable(Drawable drawable, float width, float height, Clickable.OnClickedListener onClickedListener) {
 			if (mParagraph == null) {
 				throw new IllegalStateException("call newParagraph first");
 			}
 
 			List<Element> elements = mParagraph.mElements;
-			elements.add(DrawableBox.obtain(drawable, width, height));
+			elements.add(DrawableBox.obtain(drawable, width, height, onClickedListener));
 			elements.add(Glue.obtain(mTextAttribute.getSpaceWidth(), mTextAttribute.getSpaceStretch(), mTextAttribute.getSpaceShrink()));
 			mEmpty = false;
 			return this;
@@ -228,6 +195,14 @@ public class Paragraph extends Segment {
 			mTextAttribute = null;
 			mHypher = null;
 			mHyphenated.clear();
+			mRichTextBuilder.mText = null;
+			mRichTextBuilder.mStart = mRichTextBuilder.mEnd = 0;
+			mRichTextBuilder.mBuilder = null;
+			mRichTextBuilder.mTextStyle = null;
+			mRichTextBuilder.mBackground = null;
+			mRichTextBuilder.mForeground = null;
+			mRichTextBuilder.mExtra = null;
+			mRichTextBuilder.mOnClickedListener = null;
 			POOL.release(this);
 		}
 
@@ -247,6 +222,135 @@ public class Paragraph extends Segment {
 
 		public static void clean() {
 			POOL.clean();
+		}
+	}
+
+	public static class RichTextBuilder {
+		private static final int MIN_HYPER_LEN = 4;
+
+		private CharSequence mText;
+		private int mStart;
+		private int mEnd;
+		private Builder mBuilder;
+		private TextStyle mTextStyle;
+		private Background mBackground;
+		private Foreground mForeground;
+		private Object mExtra;
+		private Clickable.OnClickedListener mOnClickedListener;
+
+		RichTextBuilder(Builder builder) {
+			mBuilder = builder;
+		}
+
+		private void reset(@NonNull CharSequence text, int start, int end) {
+			mText = text;
+			mStart = start;
+			mEnd = end;
+		}
+
+		public RichTextBuilder setTextStyle(TextStyle textStyle) {
+			mTextStyle = textStyle;
+			return this;
+		}
+
+		public RichTextBuilder setBackground(Background background) {
+			mBackground = background;
+			return this;
+		}
+
+		public RichTextBuilder setForeground(Foreground foreground) {
+			mForeground = foreground;
+			return this;
+		}
+
+		public RichTextBuilder setExtra(Object extra) {
+			mExtra = extra;
+			return this;
+		}
+
+		public RichTextBuilder setOnClickedListener(Clickable.OnClickedListener onClickedListener) {
+			mOnClickedListener = onClickedListener;
+			return this;
+		}
+
+		public Builder build() {
+			if (mText == null) {
+				throw new RuntimeException("call build twice");
+			}
+
+			if (mBuilder.mParagraph == null) {
+				throw new IllegalStateException("call newParagraph first");
+			}
+
+			int len = mEnd - mStart;
+			List<Element> elements = mBuilder.mParagraph.mElements;
+			mBuilder.mHypher.hyphenate(mText, mStart, mEnd, mBuilder.mHyphenated);
+			int size = mBuilder.mHyphenated.size();
+			if (size == 0 || len < MIN_HYPER_LEN) {
+				elements.add(TextBox.obtain(mText, mStart, mEnd,
+						mBuilder.mMeasurer.getDesiredWidth(mText, mStart, mEnd, mTextStyle),
+						mBuilder.mMeasurer.getDesiredHeight(mText, mStart, mEnd, mTextStyle),
+						mTextStyle,
+						mBackground,
+						mForeground,
+						mExtra,
+						mOnClickedListener
+				));
+			} else {
+				for (int j = 0; j < size; ++j) {
+					int point = mBuilder.mHyphenated.get(j);
+					if (point == mStart) {
+						continue;
+					}
+
+					elements.add(TextBox.obtain(mText, mStart, point,
+							mBuilder.mMeasurer.getDesiredWidth(mText, mStart, point, mTextStyle),
+							mBuilder.mMeasurer.getDesiredHeight(mText, mStart, point, mTextStyle),
+							mTextStyle,
+							mBackground,
+							mForeground,
+							mExtra,
+							mOnClickedListener
+					));
+					if (j != size - 1) {
+						char ch = mText.charAt(point - 1);
+						boolean isExplicitHyphen = ch == '-';
+						elements.add(Penalty.obtain(
+								isExplicitHyphen ? 0 : mBuilder.mTextAttribute.getHyphenWidth(),
+								mBuilder.mTextAttribute.getHyphenHeight(),
+								ParagraphTypesetter.HYPHEN_PENALTY,
+								true));
+					}
+					mStart = point;
+				}
+			}
+			mBuilder.mHyphenated.clear();
+			elements.add(
+					Glue.obtain(
+							mBuilder.mTextAttribute.getSpaceWidth(),
+							mBuilder.mTextAttribute.getSpaceStretch(),
+							mBuilder.mTextAttribute.getSpaceShrink()
+					)
+			);
+			mBuilder.mEmpty = false;
+			return mBuilder;
+		}
+	}
+
+	public static class RichTextSpanBuilder {
+		private Builder mBuilder;
+		private Clickable.OnClickedListener mOnClickedListener;
+
+		RichTextSpanBuilder(Builder builder) {
+			mBuilder = builder;
+		}
+
+		private void reset(Clickable.OnClickedListener onClickedListener) {
+			mOnClickedListener = onClickedListener;
+		}
+
+		public RichTextBuilder next(CharSequence charSequence, int start, int end) {
+			return mBuilder.richText(charSequence, start, end);
 		}
 	}
 

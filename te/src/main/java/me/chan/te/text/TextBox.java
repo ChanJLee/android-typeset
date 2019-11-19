@@ -51,7 +51,7 @@ public final class TextBox extends Box {
 		mExtra = other.mExtra;
 		mFlag = other.mFlag;
 		mSelected = other.mSelected;
-		mTouchListener = other.mTouchListener;
+		mOnClickedListener = other.mOnClickedListener;
 	}
 
 	public boolean isSelected() {
@@ -182,7 +182,7 @@ public final class TextBox extends Box {
 		}
 
 		TextBox suffix = TextBox.obtain(mText, last, mEnd, (1 - ratio) * mWidth, mHeight,
-				mTextStyle, mBackground, mForeground, mExtra);
+				mTextStyle, mBackground, mForeground, mExtra, mOnClickedListener);
 		mEnd = last;
 		mWidth = limitWidth;
 		setFlag(FLAG_SPILT);
@@ -201,20 +201,28 @@ public final class TextBox extends Box {
 		mExtra = extra;
 	}
 
-	public static void clean() {
-		POOL.clean();
+	public void setTextStyle(@Nullable TextStyle textStyle) {
+		mTextStyle = textStyle;
 	}
 
-	public static TextBox obtain(@NonNull CharSequence charSequence, int start, int end,
-								 float width, float height, @Nullable TextStyle textStyle) {
-		return obtain(charSequence, start, end, width, height, textStyle, null, null, null);
+	public void setBackground(Background background) {
+		mBackground = background;
+	}
+
+	public void setForeground(Foreground foreground) {
+		mForeground = foreground;
+	}
+
+	public static void clean() {
+		POOL.clean();
 	}
 
 	public static TextBox obtain(@NonNull CharSequence charSequence, int start, int end,
 								 float width, float height,
 								 @Nullable TextStyle textStyle,
 								 Background background, Foreground foreground,
-								 Object extra) {
+								 Object extra,
+								 OnClickedListener onClickedListener) {
 		TextBox box = POOL.acquire();
 		if (box == null) {
 			return new TextBox(charSequence, start, end, width, height, textStyle, background, foreground, extra);
@@ -230,7 +238,7 @@ public final class TextBox extends Box {
 							  @Nullable TextStyle textStyle,
 							  Background background, Foreground foreground,
 							  Object extra,
-							  TouchListener touchListener) {
+							  OnClickedListener onClickedListener) {
 		textBox.mFlag = FLAG_NONE;
 		textBox.mSelected = false;
 		textBox.mText = charSequence;
@@ -242,6 +250,6 @@ public final class TextBox extends Box {
 		textBox.mBackground = background;
 		textBox.mForeground = foreground;
 		textBox.mExtra = extra;
-		textBox.mTouchListener = touchListener;
+		textBox.mOnClickedListener = onClickedListener;
 	}
 }
