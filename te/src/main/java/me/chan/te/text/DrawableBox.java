@@ -37,6 +37,7 @@ public class DrawableBox extends Box {
 		mDrawable = null;
 		mWidth = -1;
 		mHeight = -1;
+		mTouchListener = null;
 		POOL.release(this);
 	}
 

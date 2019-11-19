@@ -10,6 +10,7 @@ import org.junit.Test;
 import java.lang.reflect.Field;
 import java.util.List;
 
+import me.chan.te.renderer.Touchable;
 import me.chan.te.text.DrawableBox;
 import me.chan.te.text.Glue;
 import me.chan.te.text.Penalty;
@@ -219,6 +220,21 @@ public class DataUnitTest {
 		Assert.assertFalse(box.isPenalty());
 		Assert.assertFalse(box.isSplit());
 		Assert.assertFalse(box.isRecycled());
+		Assert.assertNull(box.getTouchListener());
+
+		Touchable.TouchListener touchListener = new Touchable.TouchListener() {
+			@Override
+			public boolean onClicked(float x, float y) {
+				return false;
+			}
+
+			@Override
+			public boolean onLongClicked(float x, float y) {
+				return false;
+			}
+		};
+		box.setTouchListener(touchListener);
+		Assert.assertSame(touchListener, box.getTouchListener());
 
 		// check content
 		Assert.assertNull(box.getTextStyle());
@@ -239,7 +255,10 @@ public class DataUnitTest {
 		checkBoxContent(box2, msg);
 
 		TextBox prev = box2;
+		box2.setTouchListener(touchListener);
+		Assert.assertSame(box2.getTouchListener(), touchListener);
 		box2.recycle();
+		Assert.assertNull(box2.getTouchListener());
 		Assert.assertTrue(box2.isRecycled());
 		Assert.assertNull(box2.getTextStyle());
 		Assert.assertFalse(box2.isSelected());
@@ -255,6 +274,7 @@ public class DataUnitTest {
 		box2 = TextBox.obtain(msg, 0, msg.length(), mMockTextPaint.getMockTextSize() * msg.length(), mMockTextPaint.getMockTextHeight(), textStyle);
 		Assert.assertNotNull(box2);
 		Assert.assertSame(prev, box2);
+		Assert.assertNull(box2.getTouchListener());
 		Assert.assertNull(box2.getBackground());
 		Assert.assertFalse(box2.isRecycled());
 		Assert.assertNull(box2.getForeground());
@@ -410,6 +430,17 @@ public class DataUnitTest {
 		String msg = "hello world";
 		TextBox box = TextBox.obtain(msg, 0, msg.length(), mMockTextPaint.getMockTextSize() * msg.length(), mMockTextPaint.getMockTextHeight(), TextStyle.NONE, null, null, null);
 		box.setSelected(true);
+		box.setTouchListener(new Touchable.TouchListener() {
+			@Override
+			public boolean onClicked(float x, float y) {
+				return false;
+			}
+
+			@Override
+			public boolean onLongClicked(float x, float y) {
+				return false;
+			}
+		});
 
 		TextBox copy = TextBox.obtain(msg + "x", 0, msg.length() + 1, mMockTextPaint.getMockTextSize() * (msg.length() + 1), mMockTextPaint.getMockTextHeight(), TextStyle.NONE, null, null, null);
 		checkBoxContent(copy, msg + "x");
@@ -417,6 +448,7 @@ public class DataUnitTest {
 		copy.copy(box);
 
 		Assert.assertTrue(copy.isSelected());
+		Assert.assertSame(copy.getTouchListener(), box.getTouchListener());
 		checkBoxContent(copy, msg);
 	}
 
@@ -579,9 +611,24 @@ public class DataUnitTest {
 		Assert.assertSame(drawable, drawableBox.getDrawable());
 		Assert.assertEquals(drawableBox.getWidth(), 1, 0);
 		Assert.assertEquals(drawableBox.getHeight(), 2, 0);
+		Assert.assertNull(drawableBox.getTouchListener());
+		Touchable.TouchListener touchListener = new Touchable.TouchListener() {
+			@Override
+			public boolean onClicked(float x, float y) {
+				return false;
+			}
+
+			@Override
+			public boolean onLongClicked(float x, float y) {
+				return false;
+			}
+		};
+		drawableBox.setTouchListener(touchListener);
+		Assert.assertSame(drawableBox.getTouchListener(), touchListener);
 
 		DrawableBox p = drawableBox;
 		drawableBox.recycle();
+		Assert.assertNull(drawableBox.getTouchListener());
 		Assert.assertTrue(drawableBox.isRecycled());
 		Assert.assertNotSame(drawable, drawableBox.getDrawable());
 		Assert.assertNotEquals(drawableBox.getWidth(), 1, 0);
@@ -591,11 +638,13 @@ public class DataUnitTest {
 		drawableBox.recycle();
 
 		drawableBox = DrawableBox.obtain(new ColorDrawable(19), 1, 2);
+		Assert.assertNull(drawableBox.getTouchListener());
 		Assert.assertNotSame(drawable, drawableBox.getDrawable());
 		Assert.assertFalse(drawableBox.isRecycled());
 		Assert.assertEquals(drawableBox.getWidth(), 1, 0);
 		Assert.assertEquals(drawableBox.getHeight(), 2, 0);
 		Assert.assertSame(p, drawableBox);
+		Assert.assertNull(drawableBox.getTouchListener());
 	}
 
 	private void checkBoxContent(TextBox box, String msg) {

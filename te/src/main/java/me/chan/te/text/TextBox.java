@@ -32,7 +32,7 @@ public final class TextBox extends Box {
 					@Nullable TextStyle textStyle, Background background, Foreground foreground, Object extra) {
 		super(width, height);
 		reset(this, text, start, end, mWidth, mHeight,
-				textStyle, background, foreground, extra);
+				textStyle, background, foreground, extra, null);
 	}
 
 	public void copy(@NonNull TextBox other) {
@@ -51,6 +51,7 @@ public final class TextBox extends Box {
 		mExtra = other.mExtra;
 		mFlag = other.mFlag;
 		mSelected = other.mSelected;
+		mTouchListener = other.mTouchListener;
 	}
 
 	public boolean isSelected() {
@@ -77,7 +78,7 @@ public final class TextBox extends Box {
 		}
 
 		reset(this, null, -1, -1, -1, -1,
-				null, null, null, null);
+				null, null, null, null, null);
 		POOL.release(this);
 	}
 
@@ -219,7 +220,7 @@ public final class TextBox extends Box {
 			return new TextBox(charSequence, start, end, width, height, textStyle, background, foreground, extra);
 		}
 		reset(box, charSequence, start, end, width, height,
-				textStyle, background, foreground, extra);
+				textStyle, background, foreground, extra, null);
 		box.reuse();
 		return box;
 	}
@@ -228,7 +229,8 @@ public final class TextBox extends Box {
 							  float width, float height,
 							  @Nullable TextStyle textStyle,
 							  Background background, Foreground foreground,
-							  Object extra) {
+							  Object extra,
+							  TouchListener touchListener) {
 		textBox.mFlag = FLAG_NONE;
 		textBox.mSelected = false;
 		textBox.mText = charSequence;
@@ -240,5 +242,6 @@ public final class TextBox extends Box {
 		textBox.mBackground = background;
 		textBox.mForeground = foreground;
 		textBox.mExtra = extra;
+		textBox.mTouchListener = touchListener;
 	}
 }
