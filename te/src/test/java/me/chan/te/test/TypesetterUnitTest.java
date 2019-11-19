@@ -31,7 +31,6 @@ import me.chan.te.test.mock.MockTextPaint;
 import me.chan.te.text.BreakStrategy;
 import me.chan.te.text.Document;
 import me.chan.te.text.Gravity;
-import me.chan.te.text.Line;
 import me.chan.te.text.Paragraph;
 import me.chan.te.text.Segment;
 import me.chan.te.typesetter.ParagraphTypesetterImpl;
@@ -156,7 +155,7 @@ public class TypesetterUnitTest {
 			assertNotEquals(paragraph.getLineCount(), 0);
 
 			for (int j = 0; j < paragraph.getLineCount(); ++j) {
-				Line l = paragraph.getLine(j);
+				Paragraph.Line l = paragraph.getLine(j);
 
 				for (int x = 0; x < l.getCount(); ++x) {
 					Box box = l.getBox(x);
@@ -197,8 +196,8 @@ public class TypesetterUnitTest {
 		Assert.assertNotNull(paragraph);
 		Assert.assertEquals(paragraph.getLineCount(), 2);
 
-		Line line1 = paragraph.getLine(0);
-		Line line2 = paragraph.getLine(1);
+		Paragraph.Line line1 = paragraph.getLine(0);
+		Paragraph.Line line2 = paragraph.getLine(1);
 
 		Assert.assertEquals(line1.getCount(), 2);
 		Assert.assertEquals(line1.getBox(0).getClass(), TextBox.class);
@@ -237,7 +236,7 @@ public class TypesetterUnitTest {
 		Assert.assertNotNull(paragraph);
 		Assert.assertEquals(paragraph.getLineCount(), 1);
 
-		Line line1 = paragraph.getLine(0);
+		Paragraph.Line line1 = paragraph.getLine(0);
 
 		Assert.assertEquals(line1.getCount(), 2);
 		Assert.assertEquals(line1.getBox(0).getClass(), TextBox.class);
@@ -269,8 +268,8 @@ public class TypesetterUnitTest {
 		Assert.assertNotNull(paragraph);
 		Assert.assertEquals(paragraph.getLineCount(), 2);
 
-		Line line1 = paragraph.getLine(0);
-		Line line2 = paragraph.getLine(1);
+		Paragraph.Line line1 = paragraph.getLine(0);
+		Paragraph.Line line2 = paragraph.getLine(1);
 
 		Assert.assertEquals(line2.getCount(), 1);
 		Assert.assertEquals(line2.getBox(0).getClass(), DrawableBox.class);

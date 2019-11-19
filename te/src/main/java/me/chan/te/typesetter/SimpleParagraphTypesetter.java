@@ -7,7 +7,6 @@ import me.chan.te.text.Penalty;
 import me.chan.te.text.TextBox;
 import me.chan.te.text.BreakStrategy;
 import me.chan.te.text.Gravity;
-import me.chan.te.text.Line;
 import me.chan.te.text.Paragraph;
 
 class SimpleParagraphTypesetter implements ParagraphTypesetter {
@@ -54,7 +53,7 @@ class SimpleParagraphTypesetter implements ParagraphTypesetter {
 			return start;
 		}
 
-		Line line = Line.obtain();
+		Paragraph.Line line = Paragraph.Line.obtain();
 		float lineHeight = 0f;
 		float currentLineWidth = 0f;
 		float boxTotalWidth = 0f;
@@ -147,7 +146,7 @@ class SimpleParagraphTypesetter implements ParagraphTypesetter {
 		return start;
 	}
 
-	private int spiltIf(Paragraph paragraph, Box box, int currentIndex, Line line, float width, Gravity gravity) {
+	private int spiltIf(Paragraph paragraph, Box box, int currentIndex, Paragraph.Line line, float width, Gravity gravity) {
 		if (currentIndex >= paragraph.getElementCount()) {
 			return currentIndex;
 		}
