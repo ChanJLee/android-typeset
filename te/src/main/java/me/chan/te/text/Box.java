@@ -4,17 +4,17 @@ import android.graphics.Canvas;
 import android.text.TextPaint;
 
 import me.chan.te.annotations.Hidden;
-import me.chan.te.renderer.Touchable;
+import me.chan.te.renderer.Clickable;
 
 /**
  * 一个box为排版中的绘制单元
  * <p>
  * 比如一个单词，一张图片
  */
-public abstract class Box extends Paragraph.Element implements Touchable {
+public abstract class Box extends Paragraph.Element implements Clickable {
 	protected float mWidth;
 	protected float mHeight;
-	protected TouchListener mTouchListener;
+	protected OnClickedListener mOnClickedListener;
 
 	public Box(float width, float height) {
 		mWidth = width;
@@ -22,13 +22,13 @@ public abstract class Box extends Paragraph.Element implements Touchable {
 	}
 
 	@Override
-	public void setTouchListener(TouchListener listener) {
-		mTouchListener = listener;
+	public void setOnClickedListener(OnClickedListener listener) {
+		mOnClickedListener = listener;
 	}
 
 	@Override
-	public TouchListener getTouchListener() {
-		return mTouchListener;
+	public OnClickedListener getOnClickedListener() {
+		return mOnClickedListener;
 	}
 
 	public float getWidth() {
@@ -49,6 +49,6 @@ public abstract class Box extends Paragraph.Element implements Touchable {
 		Box box = (Box) o;
 		return Float.compare(box.mWidth, mWidth) == 0 &&
 				Float.compare(box.mHeight, mHeight) == 0 &&
-				mTouchListener == box.mTouchListener;
+				mOnClickedListener == box.mOnClickedListener;
 	}
 }
