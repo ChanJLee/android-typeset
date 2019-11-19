@@ -3,8 +3,8 @@ package me.chan.te.test;
 import org.junit.Assert;
 import org.junit.Test;
 
-import me.chan.te.text.Line;
 import me.chan.te.misc.ObjectFactory;
+import me.chan.te.text.Paragraph;
 
 public class ObjectFactoryUnitTest {
 
@@ -39,9 +39,9 @@ public class ObjectFactoryUnitTest {
 		Assert.assertEquals(objectFactory.acquire(), "world");
 		Assert.assertNull(objectFactory.acquire());
 
-		ObjectFactory<Line> factory = new ObjectFactory<>(1);
+		ObjectFactory<Paragraph.Line> factory = new ObjectFactory<>(1);
 
-		Line line = Line.obtain();
+		Paragraph.Line line = Paragraph.Line.obtain();
 		Assert.assertNotNull(line);
 
 		factory.release(line);

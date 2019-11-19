@@ -20,7 +20,6 @@ import me.chan.te.text.Box;
 import me.chan.te.text.TextBox;
 import me.chan.te.text.Background;
 import me.chan.te.text.Foreground;
-import me.chan.te.text.Line;
 import me.chan.te.text.Paragraph;
 import me.chan.te.log.Log;
 import me.chan.te.text.Gravity;
@@ -100,7 +99,7 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 		if (mParagraph != null && (lineCount = mParagraph.getLineCount()) != 0) {
 			int height = 0;
 			for (int i = 0; i < lineCount; ++i) {
-				Line line = mParagraph.getLine(i);
+				Paragraph.Line line = mParagraph.getLine(i);
 				height += line.getLineHeight();
 			}
 
@@ -131,7 +130,7 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 
 		for (int i = 0; i < lineCount; ++i) {
 
-			Line line = mParagraph.getLine(i);
+			Paragraph.Line line = mParagraph.getLine(i);
 			y += line.getLineHeight();
 
 			float x;
@@ -150,7 +149,7 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 		}
 	}
 
-	private void drawLine(Canvas canvas, Line line, float x, float y) {
+	private void drawLine(Canvas canvas, Paragraph.Line line, float x, float y) {
 		float spaceWidth = line.getSpaceWidth();
 		int boxSize = line.getCount();
 
@@ -230,11 +229,11 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 			return false;
 		}
 
-		Line targetLine = null;
+		Paragraph.Line targetLine = null;
 		float offsetY = 0;
 		int lineNumber = 0;
 		for (; lineNumber < lineCount; ++lineNumber) {
-			Line line = mParagraph.getLine(lineNumber);
+			Paragraph.Line line = mParagraph.getLine(lineNumber);
 			float nextOffsetY = offsetY + line.getLineHeight();
 			if (offsetY <= y && y <= nextOffsetY) {
 				targetLine = line;
@@ -288,7 +287,7 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 			return false;
 		}
 
-		Line line = mParagraph.getLine(nextLineNumber);
+		Paragraph.Line line = mParagraph.getLine(nextLineNumber);
 		if (line.getCount() == 0) {
 			return false;
 		}
@@ -349,7 +348,7 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 
 		int lineCount = mParagraph.getLineCount();
 		for (int i = 0; i < lineCount; ++i) {
-			Line line = mParagraph.getLine(i);
+			Paragraph.Line line = mParagraph.getLine(i);
 			int boxCount = line.getCount();
 			for (int j = 0; j < boxCount; ++j) {
 				Box box = line.getBox(j);

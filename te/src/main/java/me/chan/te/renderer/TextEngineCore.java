@@ -22,7 +22,6 @@ import me.chan.te.text.BreakStrategy;
 import me.chan.te.text.Document;
 import me.chan.te.text.Figure;
 import me.chan.te.text.Gravity;
-import me.chan.te.text.Line;
 import me.chan.te.text.Page;
 import me.chan.te.text.Paragraph;
 import me.chan.te.text.Segment;
@@ -242,7 +241,7 @@ class TextEngineCore {
 				currentHeight += mRenderOption.getLineSpace();
 			}
 
-			Line line = paragraph.getLine(i);
+			Paragraph.Line line = paragraph.getLine(i);
 			currentHeight += line.getLineHeight();
 			if (currentHeight >= height) {
 				if (i != 0) {

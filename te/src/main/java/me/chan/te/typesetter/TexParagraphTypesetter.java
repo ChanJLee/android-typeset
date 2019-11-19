@@ -14,7 +14,6 @@ import me.chan.te.text.TextBox;
 import me.chan.te.log.Log;
 import me.chan.te.text.BreakStrategy;
 import me.chan.te.text.Gravity;
-import me.chan.te.text.Line;
 import me.chan.te.text.Paragraph;
 import me.chan.te.text.TextAttribute;
 
@@ -154,12 +153,12 @@ class TexParagraphTypesetter implements ParagraphTypesetter {
 	 * @param isLastLine 是否是最后一行
 	 * @return 行
 	 */
-	private Line createLine(Paragraph paragraph, int start, int end, float ratio,
-							TextAttribute.LineAttribute attribute, boolean isLastLine, float expectWordSpace) {
+	private Paragraph.Line createLine(Paragraph paragraph, int start, int end, float ratio,
+									  TextAttribute.LineAttribute attribute, boolean isLastLine, float expectWordSpace) {
 		float lineWidth = attribute.getLineWidth();
 		Gravity gravity = attribute.getGravity();
 		float lineHeight = 0;
-		Line line = Line.obtain();
+		Paragraph.Line line = Paragraph.Line.obtain();
 		float boxTotalWidth = 0;
 		for (int i = start; i < end; ++i) {
 			Paragraph.Element element = paragraph.getElement(i);

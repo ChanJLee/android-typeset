@@ -23,7 +23,6 @@ import me.chan.te.text.Document;
 import me.chan.te.text.Figure;
 import me.chan.te.text.Foreground;
 import me.chan.te.text.Gravity;
-import me.chan.te.text.Line;
 import me.chan.te.text.Page;
 import me.chan.te.text.Paragraph;
 import me.chan.te.text.TextStyle;
@@ -423,8 +422,8 @@ public class DataUnitTest {
 
 	@Test
 	public void testLine() throws NoSuchFieldException, IllegalAccessException {
-		Line line = Line.obtain();
-		Field field = Line.class.getDeclaredField("mBoxes");
+		Paragraph.Line line = Paragraph.Line.obtain();
+		Field field = Paragraph.Line.class.getDeclaredField("mBoxes");
 		field.setAccessible(true);
 		List<TextBox> boxes = (List<TextBox>) field.get(line);
 		Assert.assertNotNull(line);
@@ -445,7 +444,7 @@ public class DataUnitTest {
 		boxes.add(TextBox.obtain("hello", 0, 1, 1, 1, null));
 		Assert.assertFalse(boxes.isEmpty());
 
-		Line prev = line;
+		Paragraph.Line prev = line;
 		line.recycle();
 		Assert.assertTrue(line.isRecycled());
 		boxes = (List<TextBox>) field.get(line);
@@ -459,7 +458,7 @@ public class DataUnitTest {
 		// test recycle twice
 		line.recycle();
 
-		line = Line.obtain();
+		line = Paragraph.Line.obtain();
 		boxes = (List<TextBox>) field.get(line);
 		Assert.assertNotNull(line);
 		Assert.assertFalse(line.isRecycled());
@@ -514,10 +513,10 @@ public class DataUnitTest {
 		Assert.assertSame(paragraph.getExtra(), hello);
 		Field field = Paragraph.class.getDeclaredField("mLines");
 		field.setAccessible(true);
-		List<Line> lines = (List<Line>) field.get(paragraph);
+		List<Paragraph.Line> lines = (List<Paragraph.Line>) field.get(paragraph);
 		Assert.assertNotNull(lines);
 		Assert.assertTrue(lines.isEmpty());
-		lines.add(Line.obtain());
+		lines.add(Paragraph.Line.obtain());
 		Assert.assertEquals(paragraph.getLineCount(), 1);
 		Assert.assertFalse(lines.isEmpty());
 		Assert.assertSame(paragraph.getElement(0).getClass(), Glue.class);
@@ -529,7 +528,7 @@ public class DataUnitTest {
 		Assert.assertEquals(paragraph.getLineCount(), 0);
 		Assert.assertEquals(paragraph.getElementCount(), 0);
 		Assert.assertNull(paragraph.getExtra());
-		lines = (List<Line>) field.get(paragraph);
+		lines = (List<Paragraph.Line>) field.get(paragraph);
 		Assert.assertNotNull(lines);
 		Assert.assertTrue(lines.isEmpty());
 
@@ -544,7 +543,7 @@ public class DataUnitTest {
 		Assert.assertEquals(paragraph.getLineCount(), 0);
 		Assert.assertEquals(paragraph.getElementCount(), 2);
 		Assert.assertSame(paragraph.getExtra(), hello);
-		lines = (List<Line>) field.get(paragraph);
+		lines = (List<Paragraph.Line>) field.get(paragraph);
 		Assert.assertNotNull(lines);
 		Assert.assertTrue(lines.isEmpty());
 		Assert.assertSame(paragraph.getElement(0).getClass(), Glue.class);
