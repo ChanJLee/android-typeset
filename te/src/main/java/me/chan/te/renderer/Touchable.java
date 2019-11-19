@@ -3,6 +3,8 @@ package me.chan.te.renderer;
 public interface Touchable {
 	void setTouchListener(TouchListener listener);
 
+	TouchListener getTouchListener();
+
 	interface TouchListener {
 		boolean onClicked(float x, float y);
 

@@ -21,10 +21,15 @@ public abstract class Box extends Paragraph.Element implements Touchable {
 		mHeight = height;
 	}
 
-//	@Override
-//	public void setTouchListener(TouchListener listener) {
-//		mTouchListener = listener;
-//	}
+	@Override
+	public void setTouchListener(TouchListener listener) {
+		mTouchListener = listener;
+	}
+
+	@Override
+	public TouchListener getTouchListener() {
+		return mTouchListener;
+	}
 
 	public float getWidth() {
 		return mWidth;
