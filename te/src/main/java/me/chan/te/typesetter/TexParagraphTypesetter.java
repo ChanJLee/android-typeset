@@ -6,12 +6,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import me.chan.te.data.Box;
-import me.chan.te.data.DrawableBox;
-import me.chan.te.data.Element;
-import me.chan.te.data.Glue;
-import me.chan.te.data.Penalty;
-import me.chan.te.data.TextBox;
+import me.chan.te.text.Box;
+import me.chan.te.text.DrawableBox;
+import me.chan.te.text.Glue;
+import me.chan.te.text.Penalty;
+import me.chan.te.text.TextBox;
 import me.chan.te.log.Log;
 import me.chan.te.text.BreakStrategy;
 import me.chan.te.text.Gravity;
@@ -74,7 +73,7 @@ class TexParagraphTypesetter implements ParagraphTypesetter {
 		int size = paragraph.getElementCount();
 		Candidate[] candidates = new Candidate[4];
 		for (int i = 0; i < size && !activeNodeList.isEmpty(); ++i) {
-			Element element = paragraph.getElement(i);
+			Paragraph.Element element = paragraph.getElement(i);
 			if (element instanceof Box) {
 				sum.increaseWidth(getElementWidth(element));
 			} else if (element instanceof Glue) {
@@ -94,7 +93,7 @@ class TexParagraphTypesetter implements ParagraphTypesetter {
 		return activeNodeList;
 	}
 
-	private float getElementWidth(Element element) {
+	private float getElementWidth(Paragraph.Element element) {
 		if (element instanceof Penalty) {
 			Penalty penalty = (Penalty) element;
 			return penalty.getWidth();
@@ -118,7 +117,7 @@ class TexParagraphTypesetter implements ParagraphTypesetter {
 			BreakPoint breakPoint = breakPoints.get(i);
 			int pos = breakPoint.position;
 			for (int j = lineStart; j != 0 && j < size; ++j) {
-				Element element = paragraph.getElement(j);
+				Paragraph.Element element = paragraph.getElement(j);
 				if (element instanceof Box || (element instanceof Penalty && ((Penalty) element).getPenalty() == -INFINITY)) {
 					lineStart = j;
 					break;
@@ -163,7 +162,7 @@ class TexParagraphTypesetter implements ParagraphTypesetter {
 		Line line = Line.obtain();
 		float boxTotalWidth = 0;
 		for (int i = start; i < end; ++i) {
-			Element element = paragraph.getElement(i);
+			Paragraph.Element element = paragraph.getElement(i);
 			if (!(element instanceof Box)) {
 				continue;
 			}
@@ -213,7 +212,7 @@ class TexParagraphTypesetter implements ParagraphTypesetter {
 
 		TextBox current = (TextBox) box;
 		for (; start < end; ++start) {
-			Element element = paragraph.getElement(start);
+			Paragraph.Element element = paragraph.getElement(start);
 			if (element instanceof Glue) {
 				break;
 			}
@@ -276,7 +275,7 @@ class TexParagraphTypesetter implements ParagraphTypesetter {
 							 ActiveNodeList activeNodeList, Sum sum,
 							 TextAttribute textAttribute, float tolerance,
 							 Candidate[] candidates) {
-		Element element = paragraph.getElement(index);
+		Paragraph.Element element = paragraph.getElement(index);
 		Node active = activeNodeList.getHeader();
 
 		while (active != null) {
@@ -372,7 +371,7 @@ class TexParagraphTypesetter implements ParagraphTypesetter {
 		}
 	}
 
-	private float computeRatio(Element element, Node.Data data, Sum sum, float lineLength) {
+	private float computeRatio(Paragraph.Element element, Node.Data data, Sum sum, float lineLength) {
 		float width = sum.getWidth() - data.totals.getWidth();
 		if (element instanceof Penalty) {
 			width += getElementWidth(element);
@@ -389,7 +388,7 @@ class TexParagraphTypesetter implements ParagraphTypesetter {
 		return 0;
 	}
 
-	private float computeDemerits(Element element, Paragraph paragraph, float ratio, Node active, int currentClass) {
+	private float computeDemerits(Paragraph.Element element, Paragraph paragraph, float ratio, Node active, int currentClass) {
 		float badness = (float) (100 * Math.pow(Math.abs(ratio), 3));
 		float demerits;
 
@@ -432,7 +431,7 @@ class TexParagraphTypesetter implements ParagraphTypesetter {
 
 		int size = paragraph.getElementCount();
 		for (int i = index; i < size; ++i) {
-			Element element = paragraph.getElement(i);
+			Paragraph.Element element = paragraph.getElement(i);
 			if (element instanceof Glue) {
 				Glue glue = (Glue) element;
 				result.increaseGlue(glue);

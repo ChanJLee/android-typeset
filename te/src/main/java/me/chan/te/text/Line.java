@@ -3,7 +3,6 @@ package me.chan.te.text;
 import java.util.ArrayList;
 import java.util.List;
 
-import me.chan.te.data.Box;
 import me.chan.te.misc.DefaultRecyclable;
 import me.chan.te.misc.ObjectFactory;
 

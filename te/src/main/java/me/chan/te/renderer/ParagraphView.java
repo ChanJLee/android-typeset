@@ -16,8 +16,8 @@ import android.view.MotionEvent;
 import android.view.View;
 
 import me.chan.te.annotations.Hidden;
-import me.chan.te.data.Box;
-import me.chan.te.data.TextBox;
+import me.chan.te.text.Box;
+import me.chan.te.text.TextBox;
 import me.chan.te.text.Background;
 import me.chan.te.text.Foreground;
 import me.chan.te.text.Line;
@@ -362,6 +362,7 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 		invalidate();
 	}
 
+	// TODO remove
 	public void setOnTextSelectedListener(OnTextSelectedListener onTextSelectedListener) {
 		mOnTextSelectedListener = onTextSelectedListener;
 	}

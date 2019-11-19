@@ -1,4 +1,4 @@
-package me.chan.te.data;
+package me.chan.te.text;
 
 import android.support.annotation.NonNull;
 
@@ -7,7 +7,7 @@ import me.chan.te.misc.ObjectFactory;
 /**
  * 代表添加的'-'符号
  */
-public final class Penalty extends Element {
+public final class Penalty extends Paragraph.Element {
 	private final static ObjectFactory<Penalty> POOL = new ObjectFactory<>(20480);
 
 	private boolean mFlag;

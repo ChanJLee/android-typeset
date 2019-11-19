@@ -1,11 +1,11 @@
-package me.chan.te.data;
+package me.chan.te.text;
 
 import me.chan.te.misc.ObjectFactory;
 
 /**
  * 代表一个空格
  */
-public final class Glue extends Element {
+public final class Glue extends Paragraph.Element {
 	private final static ObjectFactory<Glue> POOL = new ObjectFactory<>(40960);
 
 	/**

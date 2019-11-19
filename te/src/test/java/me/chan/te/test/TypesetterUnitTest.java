@@ -19,9 +19,9 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 
 import me.chan.te.text.TextAttribute;
-import me.chan.te.data.Box;
-import me.chan.te.data.DrawableBox;
-import me.chan.te.data.TextBox;
+import me.chan.te.text.Box;
+import me.chan.te.text.DrawableBox;
+import me.chan.te.text.TextBox;
 import me.chan.te.hypher.Hypher;
 import me.chan.te.measurer.Measurer;
 import me.chan.te.parser.TextParser;

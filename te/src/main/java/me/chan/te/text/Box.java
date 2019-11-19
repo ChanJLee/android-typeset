@@ -1,4 +1,4 @@
-package me.chan.te.data;
+package me.chan.te.text;
 
 import android.graphics.Canvas;
 import android.text.TextPaint;
@@ -10,7 +10,7 @@ import me.chan.te.annotations.Hidden;
  * <p>
  * 比如一个单词，一张图片
  */
-public abstract class Box extends Element {
+public abstract class Box extends Paragraph.Element {
 	protected float mWidth;
 	protected float mHeight;
 

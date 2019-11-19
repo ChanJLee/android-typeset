@@ -10,10 +10,10 @@ import org.junit.Test;
 import java.lang.reflect.Field;
 import java.util.List;
 
-import me.chan.te.data.DrawableBox;
-import me.chan.te.data.Glue;
-import me.chan.te.data.Penalty;
-import me.chan.te.data.TextBox;
+import me.chan.te.text.DrawableBox;
+import me.chan.te.text.Glue;
+import me.chan.te.text.Penalty;
+import me.chan.te.text.TextBox;
 import me.chan.te.hypher.Hypher;
 import me.chan.te.test.mock.MockMeasurer;
 import me.chan.te.test.mock.MockTextAttribute;

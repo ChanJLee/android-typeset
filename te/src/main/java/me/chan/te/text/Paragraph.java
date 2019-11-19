@@ -7,11 +7,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import me.chan.te.annotations.Hidden;
-import me.chan.te.data.DrawableBox;
-import me.chan.te.data.Element;
-import me.chan.te.data.Glue;
-import me.chan.te.data.Penalty;
-import me.chan.te.data.TextBox;
 import me.chan.te.hypher.Hypher;
 import me.chan.te.measurer.Measurer;
 import me.chan.te.misc.DefaultRecyclable;
@@ -253,5 +248,11 @@ public class Paragraph extends Segment {
 		public static void clean() {
 			POOL.clean();
 		}
+	}
+
+	/**
+	 * 排版算法中基本元素的接口
+	 */
+	public static class Element extends DefaultRecyclable {
 	}
 }
