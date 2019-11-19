@@ -1,7 +1,7 @@
 package me.chan.te.typesetter;
 
 import me.chan.te.annotations.Hidden;
-import me.chan.te.data.Glue;
+import me.chan.te.text.Glue;
 import me.chan.te.misc.DefaultRecyclable;
 import me.chan.te.misc.ObjectFactory;
 

@@ -1,11 +1,10 @@
 package me.chan.te.typesetter;
 
 import me.chan.te.text.TextAttribute;
-import me.chan.te.data.Box;
-import me.chan.te.data.Element;
-import me.chan.te.data.Glue;
-import me.chan.te.data.Penalty;
-import me.chan.te.data.TextBox;
+import me.chan.te.text.Box;
+import me.chan.te.text.Glue;
+import me.chan.te.text.Penalty;
+import me.chan.te.text.TextBox;
 import me.chan.te.text.BreakStrategy;
 import me.chan.te.text.Gravity;
 import me.chan.te.text.Line;
@@ -45,7 +44,7 @@ class SimpleParagraphTypesetter implements ParagraphTypesetter {
 
 		// skip none box
 		for (; start < size; ++start) {
-			Element element = paragraph.getElement(start);
+			Paragraph.Element element = paragraph.getElement(start);
 			if (element instanceof Box) {
 				break;
 			}
@@ -61,7 +60,7 @@ class SimpleParagraphTypesetter implements ParagraphTypesetter {
 		float boxTotalWidth = 0f;
 
 		while (start < size) {
-			Element element = paragraph.getElement(start);
+			Paragraph.Element element = paragraph.getElement(start);
 			if (element instanceof Glue) {
 				Glue glue = (Glue) element;
 				currentLineWidth += (breakStrategy == BreakStrategy.BALANCED ?
@@ -134,7 +133,7 @@ class SimpleParagraphTypesetter implements ParagraphTypesetter {
 
 		TextBox current = (TextBox) box;
 		for (; start < end; ++start) {
-			Element element = paragraph.getElement(start);
+			Paragraph.Element element = paragraph.getElement(start);
 			if (element instanceof Penalty) {
 				/* do nothing */
 			} else if (element instanceof TextBox) {

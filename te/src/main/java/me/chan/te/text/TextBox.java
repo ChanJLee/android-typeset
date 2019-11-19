@@ -1,4 +1,4 @@
-package me.chan.te.data;
+package me.chan.te.text;
 
 import android.graphics.Canvas;
 import android.support.annotation.NonNull;
@@ -7,9 +7,6 @@ import android.text.TextPaint;
 
 import me.chan.te.annotations.Hidden;
 import me.chan.te.misc.ObjectFactory;
-import me.chan.te.text.Background;
-import me.chan.te.text.Foreground;
-import me.chan.te.text.TextStyle;
 
 /**
  * 文本元素

@@ -9,13 +9,12 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
-import me.chan.te.data.Box;
+import me.chan.te.text.Box;
 import me.chan.te.text.Document;
-import me.chan.te.data.Element;
-import me.chan.te.data.Glue;
+import me.chan.te.text.Glue;
 import me.chan.te.text.Paragraph;
-import me.chan.te.data.Penalty;
-import me.chan.te.data.TextBox;
+import me.chan.te.text.Penalty;
+import me.chan.te.text.TextBox;
 import me.chan.te.hypher.Hypher;
 import me.chan.te.measurer.Measurer;
 import me.chan.te.parser.TextParser;
@@ -120,7 +119,7 @@ public class ParserUnitTest {
 
 			Paragraph paragraph = (Paragraph) document.getSegment(0);
 			for (int i = 0; i < paragraph.getElementCount(); ++i) {
-				Element element = paragraph.getElement(i);
+				Paragraph.Element element = paragraph.getElement(i);
 				if (element instanceof Box) {
 					stringBuilder.append(element);
 				}
@@ -156,7 +155,7 @@ public class ParserUnitTest {
 		for (int i = 0; i < document.getSegmentCount(); ++i) {
 			Paragraph paragraph = (Paragraph) document.getSegment(i);
 			for (int j = 0; j < paragraph.getElementCount(); ++j) {
-				Element element = paragraph.getElement(j);
+				Paragraph.Element element = paragraph.getElement(j);
 				if (element instanceof Box) {
 					stringBuilder.append(element);
 				}

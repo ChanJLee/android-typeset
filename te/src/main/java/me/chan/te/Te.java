@@ -7,10 +7,10 @@ import android.content.res.Configuration;
 import com.bumptech.glide.request.target.ViewTarget;
 
 import me.chan.te.annotations.Hidden;
-import me.chan.te.data.DrawableBox;
-import me.chan.te.data.Glue;
-import me.chan.te.data.Penalty;
-import me.chan.te.data.TextBox;
+import me.chan.te.text.DrawableBox;
+import me.chan.te.text.Glue;
+import me.chan.te.text.Penalty;
+import me.chan.te.text.TextBox;
 import me.chan.te.log.Log;
 import me.chan.te.text.Background;
 import me.chan.te.text.Document;
