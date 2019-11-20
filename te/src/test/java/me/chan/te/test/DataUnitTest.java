@@ -10,9 +10,9 @@ import org.junit.Test;
 import java.lang.reflect.Field;
 import java.util.List;
 
-import me.chan.te.renderer.Clickable;
 import me.chan.te.text.DrawableBox;
 import me.chan.te.text.Glue;
+import me.chan.te.text.OnClickedListener;
 import me.chan.te.text.Penalty;
 import me.chan.te.text.TextBox;
 import me.chan.te.hypher.Hypher;
@@ -58,14 +58,14 @@ public class DataUnitTest {
 				1, 2, TextStyle.NONE), mMockTextPaint.getMockTextSize(), 0);
 
 		try {
-			TextBox.obtain(null, 0, 10, 1, 1, null, null, null, null).toString();
+			TextBox.obtain(null, 0, 10, 1, 1, null, null).toString();
 			fail("obtain null box");
 		} catch (Throwable throwable) {
 			assertFalse(throwable instanceof AssertionError);
 		}
 
 		try {
-			TextBox.obtain(null, 1, 1, 1, 1, null, null, null, null).toString();
+			TextBox.obtain(null, 1, 1, 1, 1, null, null).toString();
 			fail("obtain null box");
 		} catch (Throwable throwable) {
 			assertFalse(throwable instanceof AssertionError);
@@ -99,6 +99,7 @@ public class DataUnitTest {
 		Assert.assertEquals("check width: ", glue.getWidth(), 4, 0);
 		Assert.assertEquals("check stretch: ", glue.getStretch(), 5, 0);
 		Assert.assertEquals("check shrink: ", glue.getShrink(), 6, 0);
+		Assert.assertNotSame(glue, Glue.obtain(4, 5, 6));
 	}
 
 	@Test
@@ -131,6 +132,7 @@ public class DataUnitTest {
 		Assert.assertEquals("check height: ", penalty.getHeight(), 5, 0);
 		Assert.assertEquals("check penalty: ", penalty.getPenalty(), 6, 0);
 		Assert.assertFalse("check flag", penalty.isFlag());
+		Assert.assertNotSame(penalty, Penalty.obtain(4, 5, 6, false));
 	}
 
 	@Test
@@ -153,6 +155,7 @@ public class DataUnitTest {
 		Assert.assertNotNull(background);
 		Assert.assertSame(p, background);
 		assertEquals(background.getColor(), 20);
+		Assert.assertNotSame(background, Background.obtain(20));
 	}
 
 	@Test
@@ -175,6 +178,7 @@ public class DataUnitTest {
 		Assert.assertNotNull(underLine);
 		Assert.assertSame(p, underLine);
 		assertEquals(underLine.getColor(), 20);
+		Assert.assertNotSame(underLine, UnderLine.obtain(20));
 	}
 
 	@Test
@@ -208,13 +212,14 @@ public class DataUnitTest {
 		Assert.assertNotSame(figure.getExtra(), extra);
 		Assert.assertEquals(figure.getWidth(), 1, 0);
 		Assert.assertEquals(figure.getHeight(), 2, 0);
+		Assert.assertNotSame(figure, Figure.obtain(url, 1, 2));
 	}
 
 	@Test
 	public void testBoxBase() {
 		String msg = "hello world";
 		TextBox box = TextBox.obtain(msg, 0, msg.length(),
-				mMockTextPaint.getMockTextSize() * msg.length(), mMockTextPaint.getMockTextHeight(), null);
+				mMockTextPaint.getMockTextSize() * msg.length(), mMockTextPaint.getMockTextHeight(), null, null);
 		Assert.assertNotNull(box);
 		Assert.assertFalse(box.isSelected());
 		Assert.assertFalse(box.isPenalty());
@@ -222,7 +227,7 @@ public class DataUnitTest {
 		Assert.assertFalse(box.isRecycled());
 		Assert.assertNull(box.getOnClickedListener());
 
-		Clickable.OnClickedListener onClickedListener = new Clickable.OnClickedListener() {
+		OnClickedListener onClickedListener = new OnClickedListener() {
 			@Override
 			public boolean onClicked(float x, float y) {
 				return false;
@@ -272,6 +277,7 @@ public class DataUnitTest {
 
 		msg = "hello";
 		box2 = TextBox.obtain(msg, 0, msg.length(), mMockTextPaint.getMockTextSize() * msg.length(), mMockTextPaint.getMockTextHeight(), textStyle);
+		Assert.assertNotSame(box2, TextBox.obtain(msg, 0, msg.length(), mMockTextPaint.getMockTextSize() * msg.length(), mMockTextPaint.getMockTextHeight(), textStyle));
 		Assert.assertNotNull(box2);
 		Assert.assertSame(prev, box2);
 		Assert.assertNull(box2.getOnClickedListener());
@@ -430,7 +436,7 @@ public class DataUnitTest {
 		String msg = "hello world";
 		TextBox box = TextBox.obtain(msg, 0, msg.length(), mMockTextPaint.getMockTextSize() * msg.length(), mMockTextPaint.getMockTextHeight(), TextStyle.NONE, null, null, null);
 		box.setSelected(true);
-		box.setOnClickedListener(new Clickable.OnClickedListener() {
+		box.setOnClickedListener(new OnClickedListener() {
 			@Override
 			public boolean onClicked(float x, float y) {
 				return false;
@@ -491,6 +497,7 @@ public class DataUnitTest {
 		line.recycle();
 
 		line = Paragraph.Line.obtain();
+		Assert.assertNotSame(line, Paragraph.Line.obtain());
 		boxes = (List<TextBox>) field.get(line);
 		Assert.assertNotNull(line);
 		Assert.assertFalse(line.isRecycled());
@@ -521,7 +528,7 @@ public class DataUnitTest {
 		Paragraph.Builder p = builder;
 
 		try {
-			builder.text("dd", 0, 1, null, null, null, null);
+			builder.text("dd", 0, 1);
 			fail();
 		} catch (Throwable throwable) {
 			assertFalse(throwable instanceof AssertionError);
@@ -569,6 +576,10 @@ public class DataUnitTest {
 
 		builder = Paragraph.Builder.newBuilder(new MockMeasurer(mMockTextPaint), Hypher.getInstance(), new MockTextAttribute(mMockTextPaint), hello);
 		paragraph = builder.build();
+
+		Paragraph.Builder builder1 = Paragraph.Builder.newBuilder(new MockMeasurer(mMockTextPaint), Hypher.getInstance(), new MockTextAttribute(mMockTextPaint), hello);
+		Assert.assertNotSame(paragraph, builder1.build());
+
 		Assert.assertSame(paragraph, prev);
 		Assert.assertNotNull(paragraph);
 		Assert.assertFalse(paragraph.isRecycled());
@@ -582,7 +593,7 @@ public class DataUnitTest {
 		Assert.assertSame(paragraph.getElement(1).getClass(), Penalty.class);
 
 		builder = Paragraph.Builder.newBuilder(new MockMeasurer(mMockTextPaint), Hypher.getInstance(), new MockTextAttribute(mMockTextPaint), null);
-		builder.text("hello", 0, 1, null, null, null, null);
+		builder.text("hello", 0, 1);
 		paragraph = builder.build();
 		Assert.assertFalse(paragraph.isEmpty());
 		Assert.assertNull(paragraph.getExtra());
@@ -605,25 +616,18 @@ public class DataUnitTest {
 	@Test
 	public void testDrawableBox() {
 		Drawable drawable = new ColorDrawable(19);
-		DrawableBox drawableBox = DrawableBox.obtain(drawable, 1, 2, touchListener);
+		OnClickedListener onClickedListener = new OnClickedListener() {
+			@Override
+			public boolean onClicked(float x, float y) {
+				return false;
+			}
+		};
+		DrawableBox drawableBox = DrawableBox.obtain(drawable, 1, 2, onClickedListener);
 		Assert.assertNotNull(drawableBox);
 		Assert.assertFalse(drawableBox.isRecycled());
 		Assert.assertSame(drawable, drawableBox.getDrawable());
 		Assert.assertEquals(drawableBox.getWidth(), 1, 0);
 		Assert.assertEquals(drawableBox.getHeight(), 2, 0);
-		Assert.assertNull(drawableBox.getOnClickedListener());
-		Clickable.OnClickedListener onClickedListener = new Clickable.OnClickedListener() {
-			@Override
-			public boolean onClicked(float x, float y) {
-				return false;
-			}
-
-			@Override
-			public boolean onLongClicked(float x, float y) {
-				return false;
-			}
-		};
-		drawableBox.setOnClickedListener(onClickedListener);
 		Assert.assertSame(drawableBox.getOnClickedListener(), onClickedListener);
 
 		DrawableBox p = drawableBox;
@@ -645,6 +649,7 @@ public class DataUnitTest {
 		Assert.assertEquals(drawableBox.getHeight(), 2, 0);
 		Assert.assertSame(p, drawableBox);
 		Assert.assertNull(drawableBox.getOnClickedListener());
+		Assert.assertNotSame(drawableBox, DrawableBox.obtain(new ColorDrawable(19), 1, 2, onClickedListener));
 	}
 
 	private void checkBoxContent(TextBox box, String msg) {
@@ -699,6 +704,7 @@ public class DataUnitTest {
 		Assert.assertNotEquals(sum.getWidth(), o.getWidth(), 0);
 		Assert.assertNotEquals(sum.getShrink(), o.getShrink(), 0);
 		Assert.assertNotEquals(sum.getStretch(), o.getStretch(), 0);
+		Assert.assertNotSame(o, Sum.obtain());
 	}
 
 	@Test
@@ -762,6 +768,7 @@ public class DataUnitTest {
 		Assert.assertEquals(data.ratio, 0, 0);
 		Assert.assertEquals(data.line, -1);
 		Assert.assertEquals(data.fitnessClazz, 0);
+		Assert.assertNotSame(node, Node.obtain());
 	}
 
 	@Test
@@ -787,6 +794,7 @@ public class DataUnitTest {
 		Assert.assertFalse(breakPoint.isRecycled());
 		Assert.assertEquals(breakPoint.position, 3);
 		Assert.assertEquals(breakPoint.ratio, 4, 0);
+		Assert.assertNotSame(breakPoint, BreakPoint.obtain(3, 4));
 	}
 
 	@Test
@@ -817,6 +825,7 @@ public class DataUnitTest {
 		Assert.assertEquals(candidate.ratio, 4, 0);
 		Assert.assertSame(node, candidate.active);
 		Assert.assertSame(p, candidate);
+		Assert.assertNotSame(candidate, Candidate.obtain(1, 2, node));
 	}
 
 	@Test
@@ -861,6 +870,7 @@ public class DataUnitTest {
 
 		}
 		Assert.assertEquals(page.getSegmentCount(), 0);
+		Assert.assertNotSame(page, Page.obtain());
 	}
 
 	@Test
@@ -930,5 +940,51 @@ public class DataUnitTest {
 			fail("test document get page");
 		} catch (IndexOutOfBoundsException e) {
 		}
+		Assert.assertNotSame(document, Document.obtain());
+	}
+
+	@Test
+	public void testRichTextAttribute() {
+		TextBox.RichTextAttribute richTextAttribute = TextBox.RichTextAttribute.obtain();
+		Assert.assertNotNull(richTextAttribute);
+		Assert.assertNull(richTextAttribute.getBackground());
+		Assert.assertNull(richTextAttribute.getExtra());
+		Assert.assertNull(richTextAttribute.getForeground());
+		Assert.assertNull(richTextAttribute.getTextStyle());
+
+		Background background = Background.obtain(10);
+		richTextAttribute.setBackground(background);
+		Assert.assertSame(background, richTextAttribute);
+
+		String msg = "hello";
+		richTextAttribute.setExtra(msg);
+		Assert.assertSame(msg, richTextAttribute.getExtra());
+
+		UnderLine underLine = UnderLine.obtain(10);
+		richTextAttribute.setForeground(underLine);
+		Assert.assertSame(underLine, richTextAttribute.getForeground());
+
+		TextStyle style = TextStyle.BOLD;
+		richTextAttribute.setTextStyle(style);
+		Assert.assertSame(style, richTextAttribute.getTextStyle());
+
+		richTextAttribute.recycle();
+		Assert.assertNull(richTextAttribute.getBackground());
+		Assert.assertNull(richTextAttribute.getExtra());
+		Assert.assertNull(richTextAttribute.getForeground());
+		Assert.assertNull(richTextAttribute.getTextStyle());
+
+		// test recycle twice
+		richTextAttribute.recycle();
+		TextBox.RichTextAttribute p = richTextAttribute;
+		richTextAttribute = TextBox.RichTextAttribute.obtain();
+		Assert.assertSame(p, richTextAttribute);
+		Assert.assertNull(richTextAttribute.getBackground());
+		Assert.assertNull(richTextAttribute.getExtra());
+		Assert.assertNull(richTextAttribute.getForeground());
+		Assert.assertNull(richTextAttribute.getTextStyle());
+
+		TextBox.RichTextAttribute next = TextBox.RichTextAttribute.obtain();
+		Assert.assertNotSame(next, richTextAttribute);
 	}
 }

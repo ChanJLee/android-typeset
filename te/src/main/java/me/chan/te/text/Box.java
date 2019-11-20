@@ -4,14 +4,13 @@ import android.graphics.Canvas;
 import android.text.TextPaint;
 
 import me.chan.te.annotations.Hidden;
-import me.chan.te.renderer.Clickable;
 
 /**
  * 一个box为排版中的绘制单元
  * <p>
  * 比如一个单词，一张图片
  */
-public abstract class Box extends Paragraph.Element implements Clickable {
+public abstract class Box extends Paragraph.Element {
 	protected float mWidth;
 	protected float mHeight;
 	protected OnClickedListener mOnClickedListener;
@@ -21,12 +20,10 @@ public abstract class Box extends Paragraph.Element implements Clickable {
 		mHeight = height;
 	}
 
-	@Override
 	public void setOnClickedListener(OnClickedListener listener) {
 		mOnClickedListener = listener;
 	}
 
-	@Override
 	public OnClickedListener getOnClickedListener() {
 		return mOnClickedListener;
 	}

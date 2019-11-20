@@ -67,6 +67,7 @@ public class Te {
 		UnderLine.clean();
 		Paragraph.Builder.clean();
 		Page.clean();
+		TextBox.RichTextAttribute.clean();
 		System.gc();
 	}
 }

@@ -12,7 +12,6 @@ import me.chan.te.hypher.Hypher;
 import me.chan.te.measurer.Measurer;
 import me.chan.te.misc.DefaultRecyclable;
 import me.chan.te.misc.ObjectFactory;
-import me.chan.te.renderer.Clickable;
 import me.chan.te.typesetter.ParagraphTypesetter;
 
 /**
@@ -144,7 +143,7 @@ public class Paragraph extends Segment {
 			return mRichTextBuilder;
 		}
 
-		public RichTextSpanBuilder richTextSpan(Clickable.OnClickedListener onClickedListener) {
+		public RichTextSpanBuilder richTextSpan(OnClickedListener onClickedListener) {
 
 		}
 
@@ -152,7 +151,7 @@ public class Paragraph extends Segment {
 			return drawable(drawable, width, height, null);
 		}
 
-		public Builder drawable(Drawable drawable, float width, float height, Clickable.OnClickedListener onClickedListener) {
+		public Builder drawable(Drawable drawable, float width, float height, OnClickedListener onClickedListener) {
 			if (mParagraph == null) {
 				throw new IllegalStateException("call newParagraph first");
 			}
@@ -236,7 +235,7 @@ public class Paragraph extends Segment {
 		private Background mBackground;
 		private Foreground mForeground;
 		private Object mExtra;
-		private Clickable.OnClickedListener mOnClickedListener;
+		private OnClickedListener mOnClickedListener;
 
 		RichTextBuilder(Builder builder) {
 			mBuilder = builder;
@@ -268,7 +267,7 @@ public class Paragraph extends Segment {
 			return this;
 		}
 
-		public RichTextBuilder setOnClickedListener(Clickable.OnClickedListener onClickedListener) {
+		public RichTextBuilder setOnClickedListener(OnClickedListener onClickedListener) {
 			mOnClickedListener = onClickedListener;
 			return this;
 		}
@@ -339,13 +338,13 @@ public class Paragraph extends Segment {
 
 	public static class RichTextSpanBuilder {
 		private Builder mBuilder;
-		private Clickable.OnClickedListener mOnClickedListener;
+		private OnClickedListener mOnClickedListener;
 
 		RichTextSpanBuilder(Builder builder) {
 			mBuilder = builder;
 		}
 
-		private void reset(Clickable.OnClickedListener onClickedListener) {
+		private void reset(OnClickedListener onClickedListener) {
 			mOnClickedListener = onClickedListener;
 		}
 
