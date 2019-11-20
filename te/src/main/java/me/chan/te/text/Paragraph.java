@@ -16,6 +16,20 @@ import me.chan.te.typesetter.ParagraphTypesetter;
 
 /**
  * 段落
+ *
+ * Paragraph.Builder builder = xxxx
+ *
+ * Sentence.Builder sentenceBuilder = Sentence.obtain(builder, listener)
+ * sentenceBuilder.nextSpan("xxxx")
+ * 		.setBackground("")
+ * 		.nextSpan("xxx")
+ *
+ * builder.text("hello")
+ * 	.span(sentenceBuilder.build(), listener)
+ * 	.drawable(drawable)
+ *
+ * Paragraph paragraph = builder.build()
+ *
  */
 public class Paragraph extends Segment {
 	private static final ObjectFactory<Paragraph> POOL = new ObjectFactory<>(4096);
