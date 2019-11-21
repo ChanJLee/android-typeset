@@ -1,7 +1,6 @@
 package me.chan.te.text;
 
 import android.graphics.drawable.Drawable;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import java.util.ArrayList;
@@ -16,20 +15,21 @@ import me.chan.te.typesetter.ParagraphTypesetter;
 
 /**
  * 段落
- *
+ * <p>
  * Paragraph.Builder builder = xxxx
- *
- * Sentence.Builder sentenceBuilder = Sentence.obtain(builder, listener)
+ * <p>
+ * Sentence.Builder sentenceBuilder = Sentence.Builder.obtain(builder, listener)
  * sentenceBuilder.nextSpan("xxxx")
- * 		.setBackground("")
- * 		.nextSpan("xxx")
- *
+ * .setBackground("")
+ * .nextSpan("xxx")
+ * <p>
  * builder.text("hello")
- * 	.span(sentenceBuilder.build(), listener)
- * 	.drawable(drawable)
- *
+ * .newSpanBuilder(finish)
+ * .setBackground(xxx)
+ * .build()
+ * .drawable(drawable)
+ * <p>
  * Paragraph paragraph = builder.build()
- *
  */
 public class Paragraph extends Segment {
 	private static final ObjectFactory<Paragraph> POOL = new ObjectFactory<>(4096);
@@ -66,8 +66,7 @@ public class Paragraph extends Segment {
 		Paragraph page = Paragraph.obtain(mExtra);
 		page.mLines = list.subList(endIndex, list.size());
 		page.mEmpty = mEmpty;
-		// FIXME 可能内容不对称
-		page.mElements = mElements;
+		// 不拷贝mElements 复用的时候会出问题
 		return page;
 	}
 
@@ -135,6 +134,7 @@ public class Paragraph extends Segment {
 	 */
 	public static class Builder extends DefaultRecyclable {
 		private static final ObjectFactory<Builder> POOL = new ObjectFactory<>(8);
+		private static final int MIN_HYPER_LEN = 4;
 
 		private List<Integer> mHyphenated = new ArrayList<>(10);
 		private Measurer mMeasurer;
@@ -142,23 +142,81 @@ public class Paragraph extends Segment {
 		private TextAttribute mTextAttribute;
 		private Paragraph mParagraph;
 		private boolean mEmpty = true;
-		private RichTextBuilder mRichTextBuilder = new RichTextBuilder(this);
+		private SpanBuilder mSpanBuilder = new SpanBuilder(this);
 
 		private Builder() {
 		}
 
+		public Builder text(CharSequence text) {
+			return text(text, 0, text.length());
+		}
+
 		public Builder text(CharSequence text, int start, int end) {
-			RichTextBuilder richTextBuilder = richText(text, start, end);
-			return richTextBuilder.build();
+			text(text, start, end, null, null, null);
+			return this;
 		}
 
-		public RichTextBuilder richText(CharSequence text, int start, int end) {
-			mRichTextBuilder.reset(text, start, end);
-			return mRichTextBuilder;
+		public SpanBuilder newSpanBuilder(OnClickedListener listener) {
+			mSpanBuilder.reset(listener);
+			return mSpanBuilder;
 		}
 
-		public RichTextSpanBuilder richTextSpan(OnClickedListener onClickedListener) {
+		private void text(CharSequence text, int start, int end,
+						  OnClickedListener onClickedListener, TextBox.Attribute attribute,
+						  TextStyle textStyle) {
+			if (text == null) {
+				throw new RuntimeException("call build twice");
+			}
 
+			if (mParagraph == null) {
+				throw new IllegalStateException("call newParagraph first");
+			}
+
+			int len = end - start;
+			List<Element> elements = mParagraph.mElements;
+			mHypher.hyphenate(text, start, end, mHyphenated);
+			int size = mHyphenated.size();
+			if (size == 0 || len < MIN_HYPER_LEN) {
+				elements.add(TextBox.obtain(text, start, end,
+						mMeasurer.getDesiredWidth(text, start, end, textStyle),
+						mMeasurer.getDesiredHeight(text, start, end, textStyle),
+						onClickedListener,
+						attribute
+				));
+			} else {
+				for (int j = 0; j < size; ++j) {
+					int point = mHyphenated.get(j);
+					if (point == start) {
+						continue;
+					}
+
+					elements.add(TextBox.obtain(text, start, point,
+							mMeasurer.getDesiredWidth(text, start, point, textStyle),
+							mMeasurer.getDesiredHeight(text, start, point, textStyle),
+							onClickedListener,
+							attribute
+					));
+					if (j != size - 1) {
+						char ch = text.charAt(point - 1);
+						boolean isExplicitHyphen = ch == '-';
+						elements.add(Penalty.obtain(
+								isExplicitHyphen ? 0 : mTextAttribute.getHyphenWidth(),
+								mTextAttribute.getHyphenHeight(),
+								ParagraphTypesetter.HYPHEN_PENALTY,
+								true));
+					}
+					start = point;
+				}
+			}
+			mHyphenated.clear();
+			elements.add(
+					Glue.obtain(
+							mTextAttribute.getSpaceWidth(),
+							mTextAttribute.getSpaceStretch(),
+							mTextAttribute.getSpaceShrink()
+					)
+			);
+			mEmpty = false;
 		}
 
 		public Builder drawable(Drawable drawable, float width, float height) {
@@ -208,14 +266,7 @@ public class Paragraph extends Segment {
 			mTextAttribute = null;
 			mHypher = null;
 			mHyphenated.clear();
-			mRichTextBuilder.mText = null;
-			mRichTextBuilder.mStart = mRichTextBuilder.mEnd = 0;
-			mRichTextBuilder.mBuilder = null;
-			mRichTextBuilder.mTextStyle = null;
-			mRichTextBuilder.mBackground = null;
-			mRichTextBuilder.mForeground = null;
-			mRichTextBuilder.mExtra = null;
-			mRichTextBuilder.mOnClickedListener = null;
+			mSpanBuilder.reset(null);
 			POOL.release(this);
 		}
 
@@ -238,9 +289,7 @@ public class Paragraph extends Segment {
 		}
 	}
 
-	public static class RichTextBuilder {
-		private static final int MIN_HYPER_LEN = 4;
-
+	public static class SpanBuilder {
 		private CharSequence mText;
 		private int mStart;
 		private int mEnd;
@@ -250,120 +299,76 @@ public class Paragraph extends Segment {
 		private Foreground mForeground;
 		private Object mExtra;
 		private OnClickedListener mOnClickedListener;
+		private OnClickedListener mSpanOnClickedListener;
 
-		RichTextBuilder(Builder builder) {
-			mBuilder = builder;
-		}
-
-		private void reset(@NonNull CharSequence text, int start, int end) {
-			mText = text;
-			mStart = start;
-			mEnd = end;
-		}
-
-		public RichTextBuilder setTextStyle(TextStyle textStyle) {
-			mTextStyle = textStyle;
-			return this;
-		}
-
-		public RichTextBuilder setBackground(Background background) {
-			mBackground = background;
-			return this;
-		}
-
-		public RichTextBuilder setForeground(Foreground foreground) {
-			mForeground = foreground;
-			return this;
-		}
-
-		public RichTextBuilder setExtra(Object extra) {
-			mExtra = extra;
-			return this;
-		}
-
-		public RichTextBuilder setOnClickedListener(OnClickedListener onClickedListener) {
-			mOnClickedListener = onClickedListener;
-			return this;
-		}
-
-		public Builder build() {
-			if (mText == null) {
-				throw new RuntimeException("call build twice");
-			}
-
-			if (mBuilder.mParagraph == null) {
-				throw new IllegalStateException("call newParagraph first");
-			}
-
-			int len = mEnd - mStart;
-			List<Element> elements = mBuilder.mParagraph.mElements;
-			mBuilder.mHypher.hyphenate(mText, mStart, mEnd, mBuilder.mHyphenated);
-			int size = mBuilder.mHyphenated.size();
-			if (size == 0 || len < MIN_HYPER_LEN) {
-				elements.add(TextBox.obtain(mText, mStart, mEnd,
-						mBuilder.mMeasurer.getDesiredWidth(mText, mStart, mEnd, mTextStyle),
-						mBuilder.mMeasurer.getDesiredHeight(mText, mStart, mEnd, mTextStyle),
-						mTextStyle,
-						mBackground,
-						mForeground,
-						mExtra,
-						mOnClickedListener
-				));
-			} else {
-				for (int j = 0; j < size; ++j) {
-					int point = mBuilder.mHyphenated.get(j);
-					if (point == mStart) {
-						continue;
-					}
-
-					elements.add(TextBox.obtain(mText, mStart, point,
-							mBuilder.mMeasurer.getDesiredWidth(mText, mStart, point, mTextStyle),
-							mBuilder.mMeasurer.getDesiredHeight(mText, mStart, point, mTextStyle),
-							mTextStyle,
-							mBackground,
-							mForeground,
-							mExtra,
-							mOnClickedListener
-					));
-					if (j != size - 1) {
-						char ch = mText.charAt(point - 1);
-						boolean isExplicitHyphen = ch == '-';
-						elements.add(Penalty.obtain(
-								isExplicitHyphen ? 0 : mBuilder.mTextAttribute.getHyphenWidth(),
-								mBuilder.mTextAttribute.getHyphenHeight(),
-								ParagraphTypesetter.HYPHEN_PENALTY,
-								true));
-					}
-					mStart = point;
-				}
-			}
-			mBuilder.mHyphenated.clear();
-			elements.add(
-					Glue.obtain(
-							mBuilder.mTextAttribute.getSpaceWidth(),
-							mBuilder.mTextAttribute.getSpaceStretch(),
-							mBuilder.mTextAttribute.getSpaceShrink()
-					)
-			);
-			mBuilder.mEmpty = false;
-			return mBuilder;
-		}
-	}
-
-	public static class RichTextSpanBuilder {
-		private Builder mBuilder;
-		private OnClickedListener mOnClickedListener;
-
-		RichTextSpanBuilder(Builder builder) {
+		SpanBuilder(Builder builder) {
 			mBuilder = builder;
 		}
 
 		private void reset(OnClickedListener onClickedListener) {
-			mOnClickedListener = onClickedListener;
+			mText = null;
+			mStart = mEnd = 0;
+			mBuilder = null;
+			mTextStyle = null;
+			mBackground = null;
+			mForeground = null;
+			mExtra = null;
+			mOnClickedListener = null;
+			mSpanOnClickedListener = onClickedListener;
 		}
 
-		public RichTextBuilder next(CharSequence charSequence, int start, int end) {
-			return mBuilder.richText(charSequence, start, end);
+		public SpanBuilder next(CharSequence text) {
+			return next(text, 0, text.length());
+		}
+
+		public SpanBuilder next(CharSequence text, int start, int end) {
+			flush();
+			mText = text;
+			mStart = start;
+			mEnd = end;
+			return this;
+		}
+
+		public SpanBuilder setTextStyle(TextStyle textStyle) {
+			mTextStyle = textStyle;
+			return this;
+		}
+
+		public SpanBuilder setBackground(Background background) {
+			mBackground = background;
+			return this;
+		}
+
+		public SpanBuilder setForeground(Foreground foreground) {
+			mForeground = foreground;
+			return this;
+		}
+
+		public SpanBuilder setExtra(Object extra) {
+			mExtra = extra;
+			return this;
+		}
+
+		public SpanBuilder setOnClickedListener(OnClickedListener onClickedListener) {
+			mOnClickedListener = onClickedListener;
+			return this;
+		}
+
+		private void flush() {
+			TextBox.Attribute attribute = TextBox.Attribute.obtain();
+			attribute.setBackground(mBackground);
+			attribute.setForeground(mForeground);
+			attribute.setExtra(mExtra);
+			attribute.setTextStyle(mTextStyle);
+			attribute.setSpanOnClickedListener(mSpanOnClickedListener);
+			mBuilder.text(mText, mStart, mEnd, mOnClickedListener, attribute, mTextStyle);
+			// reset
+			reset(mSpanOnClickedListener);
+		}
+
+		public Builder finish() {
+			flush();
+			return mBuilder;
 		}
 	}
 

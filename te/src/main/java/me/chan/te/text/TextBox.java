@@ -23,16 +23,16 @@ public final class TextBox extends Box {
 	private int mEnd;
 	private int mFlag = FLAG_NONE;
 	private boolean mSelected = false;
-	private RichTextAttribute mRichTextAttribute;
+	private Attribute mAttribute;
 
 
 	private TextBox(@NonNull CharSequence text, int start, int end,
 					float width, float height,
-					OnClickedListener onClickedListener, RichTextAttribute richTextAttribute) {
+					OnClickedListener onClickedListener, Attribute attribute) {
 		super(width, height);
 		reset(this, text, start, end,
 				mWidth, mHeight,
-				onClickedListener, richTextAttribute);
+				onClickedListener, attribute);
 	}
 
 	public void copy(@NonNull TextBox other) {
@@ -43,12 +43,33 @@ public final class TextBox extends Box {
 		mWidth = other.mWidth;
 		mHeight = other.mHeight;
 		mText = other.mText;
-		mRichTextAttribute = other.mRichTextAttribute;
+		mAttribute = other.mAttribute;
 		mStart = other.mStart;
 		mEnd = other.mEnd;
 		mFlag = other.mFlag;
 		mSelected = other.mSelected;
 		mOnClickedListener = other.mOnClickedListener;
+	}
+
+	public Background getBackground() {
+		if (mAttribute == null) {
+			return null;
+		}
+		return mAttribute.mBackground;
+	}
+
+	public Foreground getForeground() {
+		if (mAttribute == null) {
+			return null;
+		}
+		return mAttribute.mForeground;
+	}
+
+	public TextStyle getTextStyle() {
+		if (mAttribute == null) {
+			return null;
+		}
+		return mAttribute.mTextStyle;
 	}
 
 	public boolean isSelected() {
@@ -66,8 +87,8 @@ public final class TextBox extends Box {
 		}
 
 		super.recycle();
-		if (mRichTextAttribute != null) {
-			mRichTextAttribute.recycle();
+		if (mAttribute != null) {
+			mAttribute.recycle();
 		}
 		reset(this, null, -1, -1,
 				-1, -1,
@@ -84,7 +105,7 @@ public final class TextBox extends Box {
 
 		TextBox textBox = (TextBox) o;
 		return mText.equals(textBox.mText) &&
-				mRichTextAttribute == textBox.mRichTextAttribute &&
+				mAttribute == textBox.mAttribute &&
 				mStart == textBox.mStart &&
 				mEnd == textBox.mEnd &&
 				mOnClickedListener == textBox.mOnClickedListener &&
@@ -161,7 +182,7 @@ public final class TextBox extends Box {
 
 		TextBox suffix = TextBox.obtain(mText, last, mEnd,
 				(1 - ratio) * mWidth, mHeight,
-				mOnClickedListener, mRichTextAttribute
+				mOnClickedListener, mAttribute
 		);
 		mEnd = last;
 		mWidth = limitWidth;
@@ -179,12 +200,12 @@ public final class TextBox extends Box {
 
 	public static TextBox obtain(@NonNull CharSequence charSequence, int start, int end, float width, float height,
 								 OnClickedListener onClickedListener,
-								 RichTextAttribute richTextAttribute) {
+								 Attribute attribute) {
 		TextBox box = POOL.acquire();
 		if (box == null) {
-			return new TextBox(charSequence, start, end, width, height, onClickedListener, richTextAttribute);
+			return new TextBox(charSequence, start, end, width, height, onClickedListener, attribute);
 		}
-		reset(box, charSequence, start, end, width, height, onClickedListener, richTextAttribute);
+		reset(box, charSequence, start, end, width, height, onClickedListener, attribute);
 		box.reuse();
 		return box;
 	}
@@ -192,7 +213,7 @@ public final class TextBox extends Box {
 	private static void reset(TextBox textBox, @NonNull CharSequence charSequence, int start, int end,
 							  float width, float height,
 							  OnClickedListener onClickedListener,
-							  RichTextAttribute richTextAttribute) {
+							  Attribute attribute) {
 		textBox.mFlag = FLAG_NONE;
 		textBox.mSelected = false;
 		textBox.mText = charSequence;
@@ -201,50 +222,39 @@ public final class TextBox extends Box {
 		textBox.mWidth = width;
 		textBox.mHeight = height;
 		textBox.mOnClickedListener = onClickedListener;
-		textBox.mRichTextAttribute = richTextAttribute;
+		textBox.mAttribute = attribute;
 	}
 
-	public static class RichTextAttribute extends DefaultRecyclable {
-		private final static ObjectFactory<RichTextAttribute> POOL = new ObjectFactory<>(128);
+	public static class Attribute extends DefaultRecyclable {
+		private final static ObjectFactory<Attribute> POOL = new ObjectFactory<>(128);
 
 		private TextStyle mTextStyle;
 		private Background mBackground;
 		private Foreground mForeground;
 		private Object mExtra;
+		private OnClickedListener mSpanOnClickedListener;
 
-		private RichTextAttribute() {
-		}
-
-		public TextStyle getTextStyle() {
-			return mTextStyle;
+		private Attribute() {
 		}
 
 		public void setTextStyle(TextStyle textStyle) {
 			mTextStyle = textStyle;
 		}
 
-		public Background getBackground() {
-			return mBackground;
-		}
-
 		public void setBackground(Background background) {
 			mBackground = background;
-		}
-
-		public Foreground getForeground() {
-			return mForeground;
 		}
 
 		public void setForeground(Foreground foreground) {
 			mForeground = foreground;
 		}
 
-		public Object getExtra() {
-			return mExtra;
-		}
-
 		public void setExtra(Object extra) {
 			mExtra = extra;
+		}
+
+		public void setSpanOnClickedListener(OnClickedListener spanOnClickedListener) {
+			mSpanOnClickedListener = spanOnClickedListener;
 		}
 
 		@Override
@@ -263,16 +273,17 @@ public final class TextBox extends Box {
 				mForeground = null;
 			}
 			mExtra = null;
+			mSpanOnClickedListener = null;
 			super.recycle();
 		}
 
-		public static RichTextAttribute obtain() {
-			RichTextAttribute richTextAttribute = POOL.acquire();
-			if (richTextAttribute == null) {
-				return new RichTextAttribute();
+		public static Attribute obtain() {
+			Attribute attribute = POOL.acquire();
+			if (attribute == null) {
+				return new Attribute();
 			}
-			richTextAttribute.reuse();
-			return richTextAttribute;
+			attribute.reuse();
+			return attribute;
 		}
 
 		public static void clean() {
