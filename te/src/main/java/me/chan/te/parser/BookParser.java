@@ -218,7 +218,11 @@ public class BookParser implements Parser<CharSequence> {
 				continue;
 			}
 
-			builder.text(text, 0, text.length(), null, null, UnderLine.obtain(Color.RED), id);
+			builder.newSpanBuilder(null)
+					.next(text)
+					.setForeground(UnderLine.obtain(Color.RED))
+					.setExtra(id)
+					.finish();
 		}
 	}
 
