@@ -72,6 +72,20 @@ public final class TextBox extends Box {
 		return mAttribute.mTextStyle;
 	}
 
+	public Object getExtra() {
+		if (mAttribute == null) {
+			return null;
+		}
+		return mAttribute.mExtra;
+	}
+
+	public OnClickedListener getSpanOnClickedListener() {
+		if (mAttribute == null) {
+			return null;
+		}
+		return mAttribute.mSpanOnClickedListener;
+	}
+
 	public boolean isSelected() {
 		return mSelected;
 	}
