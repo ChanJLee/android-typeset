@@ -24,7 +24,7 @@ import me.chan.te.typesetter.ParagraphTypesetter;
  * .nextSpan("xxx")
  * <p>
  * builder.text("hello")
- * .newSpanBuilder(finish)
+ * .newSpanBuilder(buildSpan)
  * .setBackground(xxx)
  * .build()
  * .drawable(drawable)
@@ -308,7 +308,6 @@ public class Paragraph extends Segment {
 		private void reset(OnClickedListener onClickedListener) {
 			mText = null;
 			mStart = mEnd = 0;
-			mBuilder = null;
 			mTextStyle = null;
 			mBackground = null;
 			mForeground = null;
@@ -355,6 +354,10 @@ public class Paragraph extends Segment {
 		}
 
 		private void flush() {
+			if (mText == null) {
+				return;
+			}
+
 			TextBox.Attribute attribute = TextBox.Attribute.obtain();
 			attribute.setBackground(mBackground);
 			attribute.setForeground(mForeground);
@@ -362,11 +365,12 @@ public class Paragraph extends Segment {
 			attribute.setTextStyle(mTextStyle);
 			attribute.setSpanOnClickedListener(mSpanOnClickedListener);
 			mBuilder.text(mText, mStart, mEnd, mOnClickedListener, attribute, mTextStyle);
+
 			// reset
 			reset(mSpanOnClickedListener);
 		}
 
-		public Builder finish() {
+		public Builder buildSpan() {
 			flush();
 			return mBuilder;
 		}

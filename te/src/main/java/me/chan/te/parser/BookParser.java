@@ -222,7 +222,7 @@ public class BookParser implements Parser<CharSequence> {
 					.next(text)
 					.setForeground(UnderLine.obtain(Color.RED))
 					.setExtra(id)
-					.finish();
+					.buildSpan();
 		}
 	}
 
