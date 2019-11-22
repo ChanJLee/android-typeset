@@ -52,12 +52,12 @@ public class TextEngineCoreUnitTest {
 
 	@Test
 	public void test() throws FileNotFoundException, InterruptedException, IllegalAccessException, NoSuchFieldException {
-//		mRenderOption.setTextSize(1);
-//		testTypeset(new FileTextSource("../app/src/main/assets/TheBookAndTheSword.txt"), 1080, 1024, mRenderOption);
-//		mRenderOption.setTextSize(18);
-//		testTypeset(new FileTextSource("../app/src/main/assets/TheBookAndTheSword.txt"), 1080, 1024, mRenderOption);
-//		mRenderOption.setTextSize(540);
-//		testTypeset(new FileTextSource("../app/src/main/assets/TheBookAndTheSword.txt"), 1080, 1024, mRenderOption);
+		mRenderOption.setTextSize(1);
+		testTypeset(new FileTextSource("../app/src/main/assets/TheBookAndTheSword.txt"), 1080, 1024, mRenderOption);
+		mRenderOption.setTextSize(18);
+		testTypeset(new FileTextSource("../app/src/main/assets/TheBookAndTheSword.txt"), 1080, 1024, mRenderOption);
+		mRenderOption.setTextSize(540);
+		testTypeset(new FileTextSource("../app/src/main/assets/TheBookAndTheSword.txt"), 1080, 1024, mRenderOption);
 		mRenderOption.setTextSize(1080);
 		testTypeset(new FileTextSource("../app/src/main/assets/TheBookAndTheSword.txt"), 1080, 1024, mRenderOption);
 	}

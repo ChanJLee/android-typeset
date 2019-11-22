@@ -256,75 +256,79 @@ public class TextEngineCore {
 	}
 
 	private float typesetParagraphInPage(Document document, Page currentPage, Paragraph paragraph, float height, float currentHeight, boolean isLastSegment) {
-		if (currentPage.getSegmentCount() != 0) {
-			// 这里可以区分不同类型 选择不同的垂直方向偏移
-			currentHeight += mRenderOption.getSegmentSpace();
-		}
-
-		int lineCount = paragraph.getLineCount();
-		int i = 0;
-		for (; i < lineCount; ++i) {
-			if (i != 0) {
-				currentHeight += mRenderOption.getLineSpace();
+		while (true) {
+			if (currentPage.getSegmentCount() != 0) {
+				// 这里可以区分不同类型 选择不同的垂直方向偏移
+				currentHeight += mRenderOption.getSegmentSpace();
 			}
 
-			Paragraph.Line line = paragraph.getLine(i);
-			currentHeight += line.getLineHeight();
-			if (currentHeight >= height) {
+			int lineCount = paragraph.getLineCount();
+			int i = 0;
+			for (; i < lineCount; ++i) {
 				if (i != 0) {
-					--i;
+					currentHeight += mRenderOption.getLineSpace();
 				}
-				break;
-			}
-		}
 
-		// 当前页排不下
-		if (currentHeight > height) {
-			int endIndex = i;
-			// 如果排不下，尝试去spilt
-			if (endIndex <= 0) {
-				// 一行都塞不进的情况
-				// 那就强行塞一行
-				endIndex = 1;
+				Paragraph.Line line = paragraph.getLine(i);
+				currentHeight += line.getLineHeight();
+				if (currentHeight >= height) {
+					if (i != 0) {
+						--i;
+					}
+					break;
+				}
 			}
 
-			// 现在已经确定了当前paragraph的末尾
+			// 当前页排不下
+			if (currentHeight > height) {
+				int endIndex = i;
+				// 如果排不下，尝试去spilt
+				if (endIndex <= 0) {
+					// 一行都塞不进的情况
+					// 那就强行塞一行
+					endIndex = 1;
+				}
 
-			// 即使spilt了 末尾也没有内容了，不如将当前所有内容都塞进去
-			if (endIndex == lineCount) {
+				// 现在已经确定了当前paragraph的末尾
+
+				// 即使spilt了 末尾也没有内容了，不如将当前所有内容都塞进去
+				if (endIndex == lineCount) {
+					// 刚好放得下
+					currentPage.addSegment(paragraph);
+					// 然后创建新的一页
+					if (!isLastSegment) {
+						currentPage = Page.obtain();
+						document.addPage(currentPage);
+						return 0;
+					}
+					return currentHeight;
+				}
+
+				Paragraph suffix = paragraph.spilt(endIndex);
 				// 刚好放得下
 				currentPage.addSegment(paragraph);
 				// 然后创建新的一页
-				if (!isLastSegment) {
+				currentPage = Page.obtain();
+				document.addPage(currentPage);
+				paragraph = suffix;
+				currentHeight = 0;
+				// stack overflow
+//				return typesetParagraphInPage(document, currentPage, suffix, height, 0, isLastSegment);
+			} else if (currentHeight == height) {
+				// 刚好放得下
+				currentPage.addSegment(paragraph);
+				// 然后创建新的一页
+				if (isLastSegment) {
 					currentPage = Page.obtain();
 					document.addPage(currentPage);
 					return 0;
 				}
 				return currentHeight;
+			} else {
+				// 足够排下
+				currentPage.addSegment(paragraph);
+				return currentHeight;
 			}
-
-			Paragraph suffix = paragraph.spilt(endIndex);
-			// 刚好放得下
-			currentPage.addSegment(paragraph);
-			// 然后创建新的一页
-			currentPage = Page.obtain();
-			document.addPage(currentPage);
-			// stack overflow
-			return typesetParagraphInPage(document, currentPage, suffix, height, 0, isLastSegment);
-		} else if (currentHeight == height) {
-			// 刚好放得下
-			currentPage.addSegment(paragraph);
-			// 然后创建新的一页
-			if (isLastSegment) {
-				currentPage = Page.obtain();
-				document.addPage(currentPage);
-				return 0;
-			}
-			return currentHeight;
-		} else {
-			// 足够排下
-			currentPage.addSegment(paragraph);
-			return currentHeight;
 		}
 	}
 
