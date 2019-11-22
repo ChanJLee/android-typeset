@@ -6,6 +6,7 @@ import android.support.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
+import me.chan.te.Te;
 import me.chan.te.annotations.Hidden;
 import me.chan.te.hypher.Hypher;
 import me.chan.te.measurer.Measurer;
@@ -19,12 +20,15 @@ import me.chan.te.typesetter.ParagraphTypesetter;
 public class Paragraph extends Segment {
 	private static final ObjectFactory<Paragraph> POOL = new ObjectFactory<>(4096);
 
-	private List<Line> mLines = new ArrayList<>(32);
-	private List<Element> mElements = new ArrayList<>(512);
+	private List<Line> mLines;
+	private List<Element> mElements;
 	private Object mExtra;
 
 	public Paragraph(Object extra) {
 		mExtra = extra;
+		Te.MemoryOption memoryOption = Te.getMemoryOption();
+		mLines = new ArrayList<>(memoryOption.getParagraphLineInitialCapacity());
+		mElements = new ArrayList<>(memoryOption.getParagraphElementInitialCapacity());
 	}
 
 	@Nullable
@@ -362,7 +366,7 @@ public class Paragraph extends Segment {
 	public static class Line extends DefaultRecyclable {
 		private static final ObjectFactory<Line> POOL = new ObjectFactory<>(4096);
 
-		private List<Box> mBoxes = new ArrayList<>(150);
+		private List<Box> mBoxes;
 		private float mLineHeight;
 		private float mLineWidth;
 		private float mRatio;
@@ -370,6 +374,8 @@ public class Paragraph extends Segment {
 		private Gravity mGravity = Gravity.LEFT;
 
 		private Line() {
+			Te.MemoryOption memoryOption = Te.getMemoryOption();
+			mBoxes = new ArrayList<>(memoryOption.getParagraphLineBoxInitialCapacity());
 			reset();
 		}
 
