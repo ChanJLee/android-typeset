@@ -19,10 +19,10 @@ public class RenderOption {
 	private boolean mWordSelectable;
 	private boolean mEnableDebug;
 
-	RenderOption() {
+	public RenderOption() {
 	}
 
-	RenderOption(RenderOption other) {
+	public RenderOption(RenderOption other) {
 		mTextColor = other.mTextColor;
 		mTypeface = other.mTypeface;
 		mTextSize = other.mTextSize;
