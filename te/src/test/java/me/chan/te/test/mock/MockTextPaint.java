@@ -25,7 +25,12 @@ public class MockTextPaint extends TextPaint {
 	}
 
 	public int getMockTextHeight() {
-		return mMockTextSize / 2;
+		return mMockTextSize;
+	}
+
+	@Override
+	public FontMetrics getFontMetrics() {
+		return new FontMetrics();
 	}
 
 	@Override

@@ -1,8 +1,5 @@
 package me.chan.te.renderer;
 
-import android.os.Handler;
-import android.os.Looper;
-import android.os.Message;
 import android.os.SystemClock;
 import android.text.TextPaint;
 
@@ -10,10 +7,11 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-import me.chan.te.text.TextAttribute;
+import me.chan.te.annotations.Hidden;
 import me.chan.te.hypher.Hypher;
 import me.chan.te.log.Log;
 import me.chan.te.measurer.AndroidMeasurer;
+import me.chan.te.measurer.Measurer;
 import me.chan.te.parser.Parser;
 import me.chan.te.parser.TextParser;
 import me.chan.te.source.Source;
@@ -25,6 +23,7 @@ import me.chan.te.text.Gravity;
 import me.chan.te.text.Page;
 import me.chan.te.text.Paragraph;
 import me.chan.te.text.Segment;
+import me.chan.te.text.TextAttribute;
 import me.chan.te.typesetter.ParagraphTypesetterImpl;
 
 public class TextEngineCore {
@@ -33,8 +32,8 @@ public class TextEngineCore {
 
 	private TextPaint mTextPaint;
 	private TextAttribute mTextAttribute;
-	private AndroidMeasurer mMeasurer;
-	private Handler mHandler;
+	private Measurer mMeasurer;
+	private ThreadHandler mHandler;
 	private Parser mParser;
 	private int mWidth = 0;
 	private int mHeight = 0;
@@ -49,12 +48,33 @@ public class TextEngineCore {
 
 
 	public TextEngineCore(Renderer renderer, RenderOption renderOption) {
-		mTextPaint = new TextPaint(TextPaint.ANTI_ALIAS_FLAG);
+		this(renderer, renderOption, new TextPaint(TextPaint.ANTI_ALIAS_FLAG));
+	}
+
+	@Hidden
+	public TextEngineCore(Renderer renderer, RenderOption renderOption, TextPaint textPaint) {
+		mTextPaint = textPaint;
 		updateTextPaint(renderOption);
 
 		mMeasurer = new AndroidMeasurer(mTextPaint);
 		mTextAttribute = new TextAttribute(mMeasurer);
-		mHandler = new H(Looper.getMainLooper());
+		mHandler = new AndroidThreadHandler() {
+
+			@Override
+			public void handleMessage(int what, Object value) {
+				d("typeset paragraphs, msg what: " + what);
+				if (mRenderer == null) {
+					return;
+				}
+
+				if (what == MSG_FINISHED) {
+					mDocument = (Document) value;
+					mRenderer.render(mDocument);
+				} else if (what == MSG_FAILURE) {
+					mRenderer.error((Throwable) value);
+				}
+			}
+		};
 		mParser = new TextParser();
 		mTypesetter = new ParagraphTypesetterImpl();
 		mRenderer = renderer;
@@ -77,7 +97,7 @@ public class TextEngineCore {
 	 */
 	public void typeset(final Source source, final int width, final int height) {
 		if (width <= 0 || height <= 0) {
-			sendMsg(MSG_FAILURE, new IllegalArgumentException("width and height must be large than 0"));
+			mHandler.sendMessage(MSG_FAILURE, new IllegalArgumentException("width and height must be large than 0"));
 			return;
 		}
 		cancel();
@@ -94,7 +114,7 @@ public class TextEngineCore {
 					Object content = source.open();
 					typeset(content, width, height, document);
 				} catch (Throwable throwable) {
-					sendMsg(MSG_FAILURE, throwable);
+					mHandler.sendMessage(MSG_FAILURE, throwable);
 				} finally {
 					try {
 						source.close();
@@ -153,7 +173,7 @@ public class TextEngineCore {
 				throw new RuntimeException("unknown segment type");
 			}
 
-			lastHeight = typesetPage(document, segment, height, lastHeight);
+			lastHeight = typesetPage(document, segment, height, lastHeight, i == size - 1);
 		}
 
 		i("typeset used time: " + (SystemClock.elapsedRealtime() - timestamp));
@@ -162,11 +182,11 @@ public class TextEngineCore {
 
 		// call listener
 		if (!isInterrupted) {
-			sendMsg(MSG_FINISHED, document);
+			mHandler.sendMessage(MSG_FINISHED, document);
 		}
 	}
 
-	private float typesetPage(Document document, Segment segment, float height, float nextPageHeight) {
+	private float typesetPage(Document document, Segment segment, float height, float nextPageHeight, boolean isLastSegment) {
 		int pageSize = document.getPageCount();
 		Page currentPage;
 		if (pageSize == 0) {
@@ -182,15 +202,15 @@ public class TextEngineCore {
 		}
 
 		if (segment instanceof Figure) {
-			return typesetFigureInPage(document, currentPage, (Figure) segment, height, nextPageHeight);
+			return typesetFigureInPage(document, currentPage, (Figure) segment, height, nextPageHeight, isLastSegment);
 		} else if (segment instanceof Paragraph) {
-			return typesetParagraphInPage(document, currentPage, (Paragraph) segment, height, nextPageHeight);
+			return typesetParagraphInPage(document, currentPage, (Paragraph) segment, height, nextPageHeight, isLastSegment);
 		}
 
 		throw new RuntimeException("unknown segment type");
 	}
 
-	private float typesetFigureInPage(Document document, Page currentPage, Figure figure, float height, float currentHeight) {
+	private float typesetFigureInPage(Document document, Page currentPage, Figure figure, float height, float currentHeight, boolean isLastSegment) {
 		if (currentPage.getSegmentCount() != 0) {
 			// 这里可以区分不同类型 选择不同的垂直方向偏移
 			currentHeight += mRenderOption.getSegmentSpace();
@@ -201,15 +221,19 @@ public class TextEngineCore {
 
 		// 当前页排不下
 		if (currentHeight > height) {
-			// 但是要注意当前页啥东西都没有都排不下的情况，这时候强行塞到当前页
-			// 并且创建一个新的页
+
+			// 但是要注意当前页啥东西都没有都排不下的情况，这时候强行塞到当前页并且创建一个新的页
 			if (currentPage.getSegmentCount() == 0) {
 				currentPage.addSegment(figure);
-				currentPage = Page.obtain();
-				document.addPage(currentPage);
-				return 0;
+				if (!isLastSegment) {
+					currentPage = Page.obtain();
+					document.addPage(currentPage);
+					return 0;
+				}
+				return currentHeight;
 			}
 
+			// 否则新起新的一页
 			currentPage = Page.obtain();
 			document.addPage(currentPage);
 			currentPage.addSegment(figure);
@@ -217,10 +241,13 @@ public class TextEngineCore {
 		} else if (currentHeight == height) {
 			// 刚好放得下
 			currentPage.addSegment(figure);
-			// 然后创建新的一页
-			currentPage = Page.obtain();
-			document.addPage(currentPage);
-			return 0;
+			// 如果不是最后一个segment，创建新的一页
+			if (!isLastSegment) {
+				currentPage = Page.obtain();
+				document.addPage(currentPage);
+				return 0;
+			}
+			return currentHeight;
 		} else {
 			// 足够排下
 			currentPage.addSegment(figure);
@@ -228,7 +255,7 @@ public class TextEngineCore {
 		}
 	}
 
-	private float typesetParagraphInPage(Document document, Page currentPage, Paragraph paragraph, float height, float currentHeight) {
+	private float typesetParagraphInPage(Document document, Page currentPage, Paragraph paragraph, float height, float currentHeight, boolean isLastSegment) {
 		if (currentPage.getSegmentCount() != 0) {
 			// 这里可以区分不同类型 选择不同的垂直方向偏移
 			currentHeight += mRenderOption.getSegmentSpace();
@@ -268,9 +295,12 @@ public class TextEngineCore {
 				// 刚好放得下
 				currentPage.addSegment(paragraph);
 				// 然后创建新的一页
-				currentPage = Page.obtain();
-				document.addPage(currentPage);
-				return 0;
+				if (!isLastSegment) {
+					currentPage = Page.obtain();
+					document.addPage(currentPage);
+					return 0;
+				}
+				return currentHeight;
 			}
 
 			Paragraph suffix = paragraph.spilt(endIndex);
@@ -279,14 +309,18 @@ public class TextEngineCore {
 			// 然后创建新的一页
 			currentPage = Page.obtain();
 			document.addPage(currentPage);
-			return typesetParagraphInPage(document, currentPage, suffix, height, 0);
+			// stack overflow
+			return typesetParagraphInPage(document, currentPage, suffix, height, 0, isLastSegment);
 		} else if (currentHeight == height) {
 			// 刚好放得下
 			currentPage.addSegment(paragraph);
 			// 然后创建新的一页
-			currentPage = Page.obtain();
-			document.addPage(currentPage);
-			return 0;
+			if (isLastSegment) {
+				currentPage = Page.obtain();
+				document.addPage(currentPage);
+				return 0;
+			}
+			return currentHeight;
 		} else {
 			// 足够排下
 			currentPage.addSegment(paragraph);
@@ -321,28 +355,12 @@ public class TextEngineCore {
 		}
 	}
 
-	private void sendMsg(int what, Object o) {
-		if (mHandler == null) {
-			return;
-		}
-
-		if (o == null) {
-			mHandler.sendEmptyMessage(what);
-			return;
-		}
-
-		Message message = Message.obtain();
-		message.what = what;
-		message.obj = o;
-		mHandler.sendMessage(message);
-	}
-
 	void release() {
 		i("release");
 		cancel();
 		mRenderer = null;
 		mDocument = null;
-		mHandler.removeCallbacksAndMessages(null);
+		mHandler.clear();
 		mHandler = null;
 	}
 
@@ -388,32 +406,11 @@ public class TextEngineCore {
 				try {
 					typeset(document.getRaw(), mWidth, mHeight, document);
 				} catch (Throwable throwable) {
-					sendMsg(MSG_FAILURE, throwable);
+					mHandler.sendMessage(MSG_FAILURE, throwable);
 				}
 			}
 		});
 		d("reload: " + mTask);
-	}
-
-	private class H extends Handler {
-		H(Looper mainLooper) {
-			super(mainLooper);
-		}
-
-		@Override
-		public void handleMessage(Message msg) {
-			d("typeset paragraphs, msg what: " + msg.what);
-			if (mRenderer == null) {
-				return;
-			}
-
-			if (msg.what == MSG_FINISHED) {
-				mDocument = (Document) msg.obj;
-				mRenderer.render(mDocument);
-			} else if (msg.what == MSG_FAILURE) {
-				mRenderer.error((Throwable) msg.obj);
-			}
-		}
 	}
 
 	private static void d(String msg) {
