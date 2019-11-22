@@ -6,6 +6,8 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.lang.reflect.Field;
+
 import me.chan.te.hypher.Hypher;
 import me.chan.te.measurer.Measurer;
 import me.chan.te.test.mock.MockMeasurer;
@@ -105,7 +107,7 @@ public class ParagraphUnitTest {
 		Assert.assertEquals(glue.getStretch(), mTextAttribute.getSpaceStretch(), 0);
 
 
-		String[] strings = new String[] {
+		String[] strings = new String[]{
 				"tri",
 				"an",
 				"gle"
@@ -128,7 +130,7 @@ public class ParagraphUnitTest {
 			Penalty penalty = (Penalty) paragraph.getElement(5 + i * 2);
 			Assert.assertEquals(penalty.getWidth(), mTextAttribute.getHyphenWidth(), 0);
 			Assert.assertEquals(penalty.getHeight(), mMeasurer.getDesiredHeight("-", 0, 1, null), 0);
-			Assert.assertEquals(penalty.getPenalty(),ParagraphTypesetter.HYPHEN_PENALTY, 0);
+			Assert.assertEquals(penalty.getPenalty(), ParagraphTypesetter.HYPHEN_PENALTY, 0);
 			Assert.assertTrue(penalty.isFlag());
 		}
 
@@ -145,11 +147,67 @@ public class ParagraphUnitTest {
 	}
 
 	@Test
-	public void testParagraph() {
+	public void testParagraph() throws NoSuchFieldException, IllegalAccessException {
 		String msg = "hello";
 		Paragraph.Builder builder = Paragraph.Builder.newBuilder(mMeasurer, Hypher.getInstance(), mTextAttribute, msg);
+		builder.text("hello");
 		Paragraph paragraph = builder.build();
 
+		Assert.assertEquals(paragraph.getLineCount(), 0);
+		Assert.assertEquals(paragraph.getElementCount(), 3);
 		Assert.assertSame(paragraph.getExtra(), msg);
+
+
+		Glue glue = Glue.obtain(10, 11, 12);
+		paragraph.replace(0, glue);
+		Assert.assertEquals(paragraph.getElementCount(), 3);
+		Assert.assertSame(paragraph.getElement(0), glue);
+
+		Paragraph.Line line1 = Paragraph.Line.obtain();
+		Paragraph.Line line2 = Paragraph.Line.obtain();
+		paragraph.addLine(line1);
+		paragraph.addLine(line2);
+
+		Assert.assertEquals(paragraph.getLineCount(), 2);
+		Assert.assertSame(paragraph.getLine(0), line1);
+		Assert.assertSame(paragraph.getLine(1), line2);
+
+		Paragraph paragraph1 = paragraph.spilt(1);
+		Assert.assertEquals(paragraph.getLineCount(), 1);
+		Assert.assertSame(paragraph.getLine(0), line1);
+		Assert.assertEquals(paragraph1.getLineCount(), 1);
+		Assert.assertSame(paragraph1.getLine(0), line2);
+
+		Class<?> clazz = Paragraph.class;
+		Field lines = clazz.getDeclaredField("mLines");
+		lines.setAccessible(true);
+
+		Field elements = clazz.getDeclaredField("mElements");
+		elements.setAccessible(true);
+
+		Assert.assertSame(paragraph.getExtra(), paragraph.getExtra());
+		Assert.assertNotSame(lines.get(paragraph), lines.get(paragraph1));
+		Assert.assertNotSame(elements.get(paragraph), elements.get(paragraph1));
+
+		paragraph.recycle();
+		Assert.assertEquals(paragraph.getLineCount(), 0);
+		Assert.assertEquals(paragraph.getElementCount(), 0);
+		Assert.assertNull(paragraph.getExtra());
+
+
+		// check recycle twice
+		paragraph.recycle();
+
+		msg = "xxx";
+		paragraph1 = paragraph;
+		builder = Paragraph.Builder.newBuilder(mMeasurer, Hypher.getInstance(), mTextAttribute, msg);
+		builder.text("triangle");
+		paragraph = builder.build();
+		Assert.assertSame(paragraph, paragraph1);
+		Assert.assertEquals(paragraph.getLineCount(), 0);
+		Assert.assertEquals(paragraph.getExtra(), msg);
+		Assert.assertEquals(paragraph.getElementCount(), 7);
+
+		Assert.assertNotSame(paragraph, Paragraph.Builder.newBuilder(mMeasurer, Hypher.getInstance(), mTextAttribute, msg).build());
 	}
 }
