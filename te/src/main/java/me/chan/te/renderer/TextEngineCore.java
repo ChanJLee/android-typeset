@@ -27,7 +27,7 @@ import me.chan.te.text.Paragraph;
 import me.chan.te.text.Segment;
 import me.chan.te.typesetter.ParagraphTypesetterImpl;
 
-class TextEngineCore {
+public class TextEngineCore {
 	private static final int MSG_FINISHED = 2;
 	private static final int MSG_FAILURE = 3;
 
@@ -48,7 +48,7 @@ class TextEngineCore {
 	private RenderOption mRenderOption;
 
 
-	TextEngineCore(Renderer renderer, RenderOption renderOption) {
+	public TextEngineCore(Renderer renderer, RenderOption renderOption) {
 		mTextPaint = new TextPaint(TextPaint.ANTI_ALIAS_FLAG);
 		updateTextPaint(renderOption);
 
@@ -75,7 +75,7 @@ class TextEngineCore {
 	 * @param source source
 	 * @param width  width, must be > 0
 	 */
-	void typeset(final Source source, final int width, final int height) {
+	public void typeset(final Source source, final int width, final int height) {
 		if (width <= 0 || height <= 0) {
 			sendMsg(MSG_FAILURE, new IllegalArgumentException("width and height must be large than 0"));
 			return;
@@ -360,7 +360,7 @@ class TextEngineCore {
 		mTextPaint.setTextSize(renderOption.getTextSize());
 	}
 
-	void reload(RenderOption renderOption) {
+	public void reload(RenderOption renderOption) {
 		mRenderOption = renderOption;
 		updateTextPaint(renderOption);
 
