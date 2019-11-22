@@ -834,47 +834,58 @@ public class DataUnitTest {
 	}
 
 	@Test
-	public void testRichTextAttribute() {
-//		TextBox.Attribute attribute = TextBox.Attribute.obtain();
-//		Assert.assertNotNull(attribute);
-//		Assert.assertNull(attribute.getBackground());
-//		Assert.assertNull(attribute.getExtra());
-//		Assert.assertNull(attribute.getForeground());
-//		Assert.assertNull(attribute.getTextStyle());
-//
-//		Background background = Background.obtain(10);
-//		attribute.setBackground(background);
-//		Assert.assertSame(background, attribute);
-//
-//		String msg = "hello";
-//		attribute.setExtra(msg);
-//		Assert.assertSame(msg, attribute.getExtra());
-//
-//		UnderLine underLine = UnderLine.obtain(10);
-//		attribute.setForeground(underLine);
-//		Assert.assertSame(underLine, attribute.getForeground());
-//
-//		TextStyle style = TextStyle.BOLD;
-//		attribute.setTextStyle(style);
-//		Assert.assertSame(style, attribute.getTextStyle());
-//
-//		attribute.recycle();
-//		Assert.assertNull(attribute.getBackground());
-//		Assert.assertNull(attribute.getExtra());
-//		Assert.assertNull(attribute.getForeground());
-//		Assert.assertNull(attribute.getTextStyle());
-//
-//		// test recycle twice
-//		attribute.recycle();
-//		TextBox.Attribute p = attribute;
-//		attribute = TextBox.Attribute.obtain();
-//		Assert.assertSame(p, attribute);
-//		Assert.assertNull(attribute.getBackground());
-//		Assert.assertNull(attribute.getExtra());
-//		Assert.assertNull(attribute.getForeground());
-//		Assert.assertNull(attribute.getTextStyle());
-//
-//		TextBox.Attribute next = TextBox.Attribute.obtain();
-//		Assert.assertNotSame(next, attribute);
+	public void testRichTextAttribute() throws NoSuchFieldException, IllegalAccessException {
+		Class<?> clazz = TextBox.Attribute.class;
+		Field textStyleField = clazz.getDeclaredField("mTextStyle");
+		Field backgroundField = clazz.getDeclaredField("mBackground");
+		Field foregroundField = clazz.getDeclaredField("mForeground");
+		Field extraField = clazz.getDeclaredField("mExtra");
+		textStyleField.setAccessible(true);
+		backgroundField.setAccessible(true);
+		foregroundField.setAccessible(true);
+		extraField.setAccessible(true);
+
+		TextBox.Attribute attribute = TextBox.Attribute.obtain();
+		Assert.assertNotNull(attribute);
+		Assert.assertNull(backgroundField.get(attribute));
+		Assert.assertNull(extraField.get(attribute));
+		Assert.assertNull(foregroundField.get(attribute));
+		Assert.assertNull(textStyleField.get(attribute));
+
+		Background background = Background.obtain(10);
+		attribute.setBackground(background);
+		Assert.assertSame(background, backgroundField.get(attribute));
+
+		String msg = "hello";
+		attribute.setExtra(msg);
+		Assert.assertSame(msg, extraField.get(attribute));
+
+		UnderLine underLine = UnderLine.obtain(10);
+		attribute.setForeground(underLine);
+		Assert.assertSame(underLine, foregroundField.get(attribute));
+
+		TextStyle style = TextStyle.BOLD;
+		attribute.setTextStyle(style);
+		Assert.assertSame(style, textStyleField.get(attribute));
+
+		attribute.recycle();
+		Assert.assertNull(backgroundField.get(attribute));
+		Assert.assertNull(extraField.get(attribute));
+		Assert.assertNull(foregroundField.get(attribute));
+		Assert.assertNull(textStyleField.get(attribute));
+		// test recycle twice
+		attribute.recycle();
+
+		TextBox.Attribute p = attribute;
+		attribute = TextBox.Attribute.obtain();
+		Assert.assertSame(p, attribute);
+
+		Assert.assertNull(backgroundField.get(attribute));
+		Assert.assertNull(extraField.get(attribute));
+		Assert.assertNull(foregroundField.get(attribute));
+		Assert.assertNull(textStyleField.get(attribute));
+
+		TextBox.Attribute next = TextBox.Attribute.obtain();
+		Assert.assertNotSame(next, attribute);
 	}
 }
