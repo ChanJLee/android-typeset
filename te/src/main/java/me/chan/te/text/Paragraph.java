@@ -37,13 +37,8 @@ public class Paragraph extends Segment {
 	private List<Line> mLines = new ArrayList<>(32);
 	private List<Element> mElements = new ArrayList<>(512);
 	private Object mExtra;
-	private boolean mEmpty;
 
 	public Paragraph(Object extra) {
-		mExtra = extra;
-	}
-
-	public void setExtra(Object extra) {
 		mExtra = extra;
 	}
 
@@ -65,7 +60,7 @@ public class Paragraph extends Segment {
 		mLines = list.subList(0, endIndex);
 		Paragraph page = Paragraph.obtain(mExtra);
 		page.mLines = list.subList(endIndex, list.size());
-		page.mEmpty = mEmpty;
+		page.mExtra = mExtra;
 		// 不拷贝mElements 复用的时候会出问题
 		return page;
 	}
@@ -73,10 +68,6 @@ public class Paragraph extends Segment {
 	@Hidden
 	public void addLine(Line line) {
 		mLines.add(line);
-	}
-
-	public boolean isEmpty() {
-		return mEmpty;
 	}
 
 	@Override
@@ -141,7 +132,6 @@ public class Paragraph extends Segment {
 		private Hypher mHypher;
 		private TextAttribute mTextAttribute;
 		private Paragraph mParagraph;
-		private boolean mEmpty = true;
 		private SpanBuilder mSpanBuilder = new SpanBuilder(this);
 
 		private Builder() {
@@ -216,7 +206,6 @@ public class Paragraph extends Segment {
 							mTextAttribute.getSpaceShrink()
 					)
 			);
-			mEmpty = false;
 		}
 
 		public Builder drawable(Drawable drawable, float width, float height) {
@@ -231,7 +220,6 @@ public class Paragraph extends Segment {
 			List<Element> elements = mParagraph.mElements;
 			elements.add(DrawableBox.obtain(drawable, width, height, onClickedListener));
 			elements.add(Glue.obtain(mTextAttribute.getSpaceWidth(), mTextAttribute.getSpaceStretch(), mTextAttribute.getSpaceShrink()));
-			mEmpty = false;
 			return this;
 		}
 
@@ -241,13 +229,15 @@ public class Paragraph extends Segment {
 			}
 
 			int elementSize = mParagraph.mElements.size();
-			if (elementSize != 0 && mParagraph.mElements.get(elementSize - 1) instanceof Glue) {
-				mParagraph.mElements.remove(elementSize - 1);
+			if (elementSize != 0) {
+				if (mParagraph.mElements.get(elementSize - 1) instanceof Glue) {
+					mParagraph.mElements.remove(elementSize - 1);
+				}
+
+				mParagraph.mElements.add(Glue.obtain(0, ParagraphTypesetter.INFINITY, 0));
+				mParagraph.mElements.add(Penalty.obtain(0, 0, -ParagraphTypesetter.INFINITY, true));
 			}
 
-			mParagraph.mElements.add(Glue.obtain(0, ParagraphTypesetter.INFINITY, 0));
-			mParagraph.mElements.add(Penalty.obtain(0, 0, -ParagraphTypesetter.INFINITY, true));
-			mParagraph.mEmpty = mEmpty;
 			Paragraph paragraph = mParagraph;
 			recycle();
 			return paragraph;
@@ -261,7 +251,6 @@ public class Paragraph extends Segment {
 
 			super.recycle();
 			mParagraph = null;
-			mEmpty = true;
 			mMeasurer = null;
 			mTextAttribute = null;
 			mHypher = null;

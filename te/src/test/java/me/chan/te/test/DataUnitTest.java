@@ -10,22 +10,20 @@ import org.junit.Test;
 import java.lang.reflect.Field;
 import java.util.List;
 
-import me.chan.te.text.DrawableBox;
-import me.chan.te.text.Glue;
-import me.chan.te.text.OnClickedListener;
-import me.chan.te.text.Penalty;
-import me.chan.te.text.TextBox;
-import me.chan.te.hypher.Hypher;
 import me.chan.te.test.mock.MockMeasurer;
-import me.chan.te.test.mock.MockTextAttribute;
 import me.chan.te.test.mock.MockTextPaint;
 import me.chan.te.text.Background;
 import me.chan.te.text.Document;
+import me.chan.te.text.DrawableBox;
 import me.chan.te.text.Figure;
 import me.chan.te.text.Foreground;
+import me.chan.te.text.Glue;
 import me.chan.te.text.Gravity;
+import me.chan.te.text.OnClickedListener;
 import me.chan.te.text.Page;
 import me.chan.te.text.Paragraph;
+import me.chan.te.text.Penalty;
+import me.chan.te.text.TextBox;
 import me.chan.te.text.TextStyle;
 import me.chan.te.text.UnderLine;
 import me.chan.te.typesetter.BreakPoint;
@@ -503,109 +501,6 @@ public class DataUnitTest {
 		Assert.assertNotEquals(line.getLineHeight(), 2, 0);
 		Assert.assertNotEquals(line.getLineWidth(), 3, 0);
 		Assert.assertNotEquals(line.getRatio(), 4, 0);
-	}
-
-	@Test
-	public void testParagraphBuilder() {
-		Paragraph.Builder builder = Paragraph.Builder.newBuilder(new MockMeasurer(mMockTextPaint), Hypher.getInstance(), new MockTextAttribute(mMockTextPaint), null);
-		builder.drawable(new ColorDrawable(10), 1, 2);
-		Assert.assertFalse(builder.isRecycled());
-		builder.build();
-		Assert.assertTrue(builder.isRecycled());
-
-		try {
-			builder.build();
-			Assert.fail("test build failed");
-		} catch (IllegalStateException e) {
-
-		}
-
-		Paragraph.Builder p = builder;
-
-		try {
-			builder.text("dd", 0, 1);
-			fail();
-		} catch (Throwable throwable) {
-			assertFalse(throwable instanceof AssertionError);
-		}
-
-		builder = Paragraph.Builder.newBuilder(new MockMeasurer(mMockTextPaint), Hypher.getInstance(), new MockTextAttribute(mMockTextPaint), null);
-		Assert.assertSame(builder, p);
-		Assert.assertFalse(builder.isRecycled());
-	}
-
-	@Test
-	public void testParagraph() throws NoSuchFieldException, IllegalAccessException {
-		String hello = "hello";
-		Paragraph.Builder builder = Paragraph.Builder.newBuilder(new MockMeasurer(mMockTextPaint), Hypher.getInstance(), new MockTextAttribute(mMockTextPaint), hello);
-		Paragraph paragraph = builder.build();
-		Assert.assertNotNull(paragraph);
-		Assert.assertTrue(paragraph.isEmpty());
-		Assert.assertFalse(paragraph.isRecycled());
-		Assert.assertEquals(paragraph.getLineCount(), 0);
-		Assert.assertEquals(paragraph.getElementCount(), 2);
-		Assert.assertSame(paragraph.getExtra(), hello);
-		Field field = Paragraph.class.getDeclaredField("mLines");
-		field.setAccessible(true);
-		List<Paragraph.Line> lines = (List<Paragraph.Line>) field.get(paragraph);
-		Assert.assertNotNull(lines);
-		Assert.assertTrue(lines.isEmpty());
-		lines.add(Paragraph.Line.obtain());
-		Assert.assertEquals(paragraph.getLineCount(), 1);
-		Assert.assertFalse(lines.isEmpty());
-		Assert.assertSame(paragraph.getElement(0).getClass(), Glue.class);
-		Assert.assertSame(paragraph.getElement(1).getClass(), Penalty.class);
-
-		paragraph.recycle();
-		Assert.assertTrue(paragraph.isRecycled());
-		Paragraph prev = paragraph;
-		Assert.assertEquals(paragraph.getLineCount(), 0);
-		Assert.assertEquals(paragraph.getElementCount(), 0);
-		Assert.assertNull(paragraph.getExtra());
-		lines = (List<Paragraph.Line>) field.get(paragraph);
-		Assert.assertNotNull(lines);
-		Assert.assertTrue(lines.isEmpty());
-
-		// test recycle twice
-		paragraph.recycle();
-
-		builder = Paragraph.Builder.newBuilder(new MockMeasurer(mMockTextPaint), Hypher.getInstance(), new MockTextAttribute(mMockTextPaint), hello);
-		paragraph = builder.build();
-
-		Paragraph.Builder builder1 = Paragraph.Builder.newBuilder(new MockMeasurer(mMockTextPaint), Hypher.getInstance(), new MockTextAttribute(mMockTextPaint), hello);
-		Assert.assertNotSame(paragraph, builder1.build());
-
-		Assert.assertSame(paragraph, prev);
-		Assert.assertNotNull(paragraph);
-		Assert.assertFalse(paragraph.isRecycled());
-		Assert.assertEquals(paragraph.getLineCount(), 0);
-		Assert.assertEquals(paragraph.getElementCount(), 2);
-		Assert.assertSame(paragraph.getExtra(), hello);
-		lines = (List<Paragraph.Line>) field.get(paragraph);
-		Assert.assertNotNull(lines);
-		Assert.assertTrue(lines.isEmpty());
-		Assert.assertSame(paragraph.getElement(0).getClass(), Glue.class);
-		Assert.assertSame(paragraph.getElement(1).getClass(), Penalty.class);
-
-		builder = Paragraph.Builder.newBuilder(new MockMeasurer(mMockTextPaint), Hypher.getInstance(), new MockTextAttribute(mMockTextPaint), null);
-		builder.text("hello", 0, 1);
-		paragraph = builder.build();
-		Assert.assertFalse(paragraph.isEmpty());
-		Assert.assertNull(paragraph.getExtra());
-		Assert.assertEquals(paragraph.getElementCount(), 3);
-		Assert.assertSame(paragraph.getElement(0).getClass(), TextBox.class);
-		Assert.assertSame(paragraph.getElement(1).getClass(), Glue.class);
-		Assert.assertSame(paragraph.getElement(2).getClass(), Penalty.class);
-
-		builder = Paragraph.Builder.newBuilder(new MockMeasurer(mMockTextPaint), Hypher.getInstance(), new MockTextAttribute(mMockTextPaint), null);
-		builder.drawable(new ColorDrawable(10), 10, 10);
-		paragraph = builder.build();
-		Assert.assertFalse(paragraph.isEmpty());
-		Assert.assertNull(paragraph.getExtra());
-		Assert.assertNotEquals(paragraph.getElementCount(), 0);
-		Assert.assertSame(paragraph.getElement(0).getClass(), DrawableBox.class);
-		Assert.assertSame(paragraph.getElement(1).getClass(), Glue.class);
-		Assert.assertSame(paragraph.getElement(2).getClass(), Penalty.class);
 	}
 
 	@Test

@@ -128,7 +128,7 @@ public class BookParser implements Parser<CharSequence> {
 		}
 
 		Paragraph paragraph = builder.build();
-		if (!paragraph.isEmpty()) {
+		if (paragraph.getElementCount() > 0) {
 			document.addSegment(paragraph);
 		}
 	}
