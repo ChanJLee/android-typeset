@@ -277,6 +277,7 @@ public final class TextBox extends Box {
 				return;
 			}
 
+			super.recycle();
 			mTextStyle = null;
 			if (mBackground != null) {
 				mBackground.recycle();
@@ -288,7 +289,7 @@ public final class TextBox extends Box {
 			}
 			mExtra = null;
 			mSpanOnClickedListener = null;
-			super.recycle();
+			POOL.release(this);
 		}
 
 		public static Attribute obtain() {
