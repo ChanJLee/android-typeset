@@ -3,15 +3,18 @@ package me.chan.te.text;
 import java.util.ArrayList;
 import java.util.List;
 
+import me.chan.te.Te;
 import me.chan.te.misc.DefaultRecyclable;
 import me.chan.te.misc.ObjectFactory;
 
 public class Page extends DefaultRecyclable {
 	private static final ObjectFactory<Page> POOL = new ObjectFactory<>(120);
 
-	private List<Segment> mSegments = new ArrayList<>(512);
+	private List<Segment> mSegments;
 
 	private Page() {
+		Te.MemoryOption memoryOption = Te.getMemoryOption();
+		mSegments = new ArrayList<>(memoryOption.getPageSegmentInitialCapacity());
 	}
 
 	/**

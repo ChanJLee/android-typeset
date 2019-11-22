@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import me.chan.te.Te;
 import me.chan.te.text.Box;
 import me.chan.te.text.DrawableBox;
 import me.chan.te.text.Glue;

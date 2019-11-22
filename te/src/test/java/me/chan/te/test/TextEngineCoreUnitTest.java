@@ -8,6 +8,7 @@ import java.io.FileNotFoundException;
 import java.lang.reflect.Field;
 import java.util.concurrent.CountDownLatch;
 
+import me.chan.te.Te;
 import me.chan.te.renderer.RenderOption;
 import me.chan.te.renderer.TextEngineCore;
 import me.chan.te.source.FileTextSource;
@@ -48,6 +49,15 @@ public class TextEngineCoreUnitTest {
 		field = clazz.getDeclaredField("mMeasurer");
 		field.setAccessible(true);
 		field.set(mTextEngineCore, mockMeasurer);
+
+		Te.MemoryOption memoryOption = Te.getMemoryOption();
+		memoryOption.setDocumentPageInitialCapacity(4)
+				.setDocumentSegmentInitialCapacity(4)
+				.setPageSegmentInitialCapacity(4)
+				.setParagraphElementInitialCapacity(4)
+				.setParagraphLineBoxInitialCapacity(4)
+				.setParagraphLineInitialCapacity(4);
+		Te.setMemoryOption(memoryOption);
 	}
 
 	@Test
