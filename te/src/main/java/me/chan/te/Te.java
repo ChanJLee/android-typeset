@@ -97,7 +97,7 @@ public class Te {
 		private int mDocumentPageInitialCapacity = 64;
 		private int mPageSegmentInitialCapacity = 8;
 		private int mParagraphLineInitialCapacity = 32;
-		private int mParagraphElementInitialCapacity = 256;
+		private int mParagraphElementInitialCapacity = 128;
 		private int mParagraphLineBoxInitialCapacity = 32;
 
 		public int getDocumentSegmentInitialCapacity() {
