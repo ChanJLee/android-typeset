@@ -20,6 +20,7 @@ import me.chan.te.text.Background;
 import me.chan.te.text.Box;
 import me.chan.te.text.Foreground;
 import me.chan.te.text.Gravity;
+import me.chan.te.text.OnClickedListener;
 import me.chan.te.text.Paragraph;
 import me.chan.te.text.TextBox;
 import me.chan.te.text.TextStyle;
@@ -218,10 +219,13 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 	}
 
 	private interface Predicate {
-		boolean isTarget(Box lhs, Box rhs);
+		boolean isSelected(Box clickedBox, Box target);
 	}
 
-	private boolean handleMotion(float x, float y, Predicate predicate) {
+	private boolean handleMotion(MotionEvent e, boolean isLongClicked) {
+		float x = e.getX();
+		float y = e.getY();
+
 		int lineCount = 0;
 		if (mParagraph == null || (lineCount = mParagraph.getLineCount()) == 0) {
 			return false;
@@ -229,9 +233,9 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 
 		Paragraph.Line targetLine = null;
 		float offsetY = 0;
-		int lineNumber = 0;
-		for (; lineNumber < lineCount; ++lineNumber) {
-			Paragraph.Line line = mParagraph.getLine(lineNumber);
+		int lineNum = 0;
+		for (; lineNum < lineCount; ++lineNum) {
+			Paragraph.Line line = mParagraph.getLine(lineNum);
 			float nextOffsetY = offsetY + line.getLineHeight();
 			if (offsetY <= y && y <= nextOffsetY) {
 				targetLine = line;
@@ -250,7 +254,8 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 
 		float offsetX = 0;
 		Box target = null;
-		for (int i = 0; i < boxSize; ++i) {
+		int i = 0;
+		for (; i < boxSize; ++i) {
 			Box box = targetLine.getBox(i);
 			float width = box.getWidth();
 			float nextOffsetX = offsetX + width;
@@ -262,23 +267,94 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 			offsetX = (nextOffsetX + spaceWidth);
 		}
 
-		if (target == null || !(target instanceof TextBox)) {
+		if (target == null) {
 			return false;
 		}
 
-		TextBox textBox = (TextBox) target;
-		// TODO
-//		if (textBox.isPenalty() || textBox.isSplit()) {
-//			return handleClickedPenaltyBox(textBox, lineNumber + 1);
-//		}
-
-		textBox.setSelected(true);
+		handleBoxClicked(e, lineNum, i, target, isLongClicked);
 		invalidate();
 		return true;
 	}
 
+	private void handleBoxClicked(MotionEvent e, int lineNum, int boxIndex,
+								  Box target, boolean isLongClicked) {
+		OnClickedListener onClickedListener = getBoxOnClickedListener(target, isLongClicked);
+		if (onClickedListener == null) {
+			return;
+		}
+
+		int frontLineNum = lineNum;
+		int frontBoxIndex = boxIndex - 1;
+
+		while (true) {
+			Paragraph.Line line = null;
+			if (frontBoxIndex < 0) {
+				--frontLineNum;
+				if (frontLineNum < 0 || frontLineNum >= mParagraph.getLineCount()) {
+					break;
+				}
+				line = mParagraph.getLine(frontLineNum);
+				frontBoxIndex = line.getCount() - 1;
+			} else {
+				line = mParagraph.getLine(frontLineNum);
+			}
+
+			while (frontBoxIndex >= 0) {
+
+			}
+		}
+	}
+
+	private OnClickedListener getBoxOnClickedListener(Box target, boolean isLongClicked) {
+		if (isLongClicked) {
+
+			if (!(target instanceof TextBox)) {
+				return null;
+			}
+
+			return ((TextBox) target).getSpanOnClickedListener();
+		}
+
+		return target.getOnClickedListener();
+	}
+
+	private boolean checkPrecondition(Box target, boolean isLongClicked) {
+	}
+
+	private Predicate mSingleClickedPredicate = new Predicate() {
+
+		@Override
+		public boolean isSelected(Box clickedBox, Box target) {
+			OnClickedListener onClickedListener = clickedBox.getOnClickedListener();
+			return onClickedListener != null && onClickedListener == target.getOnClickedListener();
+		}
+	};
+
+	private Predicate mLongClickedPredicate = new Predicate() {
+
+		@Override
+		public boolean isSelected(Box clickedBox, Box target) {
+			if (!(clickedBox instanceof TextBox)) {
+				return false;
+			}
+
+			if (!(target instanceof TextBox)) {
+				return false;
+			}
+
+			TextBox lhs = (TextBox) clickedBox;
+			OnClickedListener onClickedListener = lhs.getSpanOnClickedListener();
+			if (onClickedListener == null) {
+				return false;
+			}
+
+			TextBox rhs = (TextBox) target;
+			return onClickedListener == rhs.getSpanOnClickedListener();
+		}
+	};
+
 	private boolean handleClicked(MotionEvent e) {
-		return handleLongClicked();
+		return handleMotion(e, false);
 	}
 
 	@Override
@@ -293,7 +369,7 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 
 	@Override
 	public boolean onSingleTapUp(MotionEvent e) {
-		return handleClicked(e.getX(), e.getY());
+		return handleClicked(e);
 	}
 
 	@Override
@@ -307,6 +383,7 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 	}
 
 	private void handleLongClicked(MotionEvent e) {
+		handleMotion(e, true);
 	}
 
 	@Override

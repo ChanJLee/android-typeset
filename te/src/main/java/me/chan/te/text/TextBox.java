@@ -22,7 +22,6 @@ public final class TextBox extends Box {
 	private int mEnd;
 	@Hidden
 	private short mFlag = FLAG_NONE;
-	private boolean mSelected = false;
 	private Attribute mAttribute;
 
 
@@ -84,14 +83,6 @@ public final class TextBox extends Box {
 			return null;
 		}
 		return mAttribute.mSpanOnClickedListener;
-	}
-
-	public boolean isSelected() {
-		return mSelected;
-	}
-
-	public void setSelected(boolean selected) {
-		mSelected = selected;
 	}
 
 	@Override
