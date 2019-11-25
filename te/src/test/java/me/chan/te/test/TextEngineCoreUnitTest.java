@@ -116,6 +116,7 @@ public class TextEngineCoreUnitTest {
 						TextBox box = (TextBox) line.getBox(y);
 						String string = box.toString();
 						if (box.isPenalty() && string.length() != 0) {
+							Assert.assertEquals(string.charAt(string.length() - 1), '-');
 							stringBuilder.append(string.substring(0, string.length() - 1));
 						} else {
 							stringBuilder.append(string);
