@@ -14,6 +14,7 @@ public abstract class Box extends Paragraph.Element {
 	protected float mWidth;
 	protected float mHeight;
 	protected OnClickedListener mOnClickedListener;
+	protected boolean mSelected = false;
 
 	public Box(float width, float height) {
 		mWidth = width;
@@ -34,6 +35,22 @@ public abstract class Box extends Paragraph.Element {
 
 	public float getHeight() {
 		return mHeight;
+	}
+
+	public boolean isSelected() {
+		return mSelected;
+	}
+
+	public void setSelected(boolean selected) {
+		mSelected = selected;
+	}
+
+	@Override
+	public void recycle() {
+		super.recycle();
+		mSelected = false;
+		mWidth = -1;
+		mHeight = -1;
 	}
 
 	@Hidden
