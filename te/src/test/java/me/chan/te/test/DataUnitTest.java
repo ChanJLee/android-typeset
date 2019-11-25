@@ -4,19 +4,15 @@ import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 
 import java.lang.reflect.Field;
 import java.util.List;
 
-import me.chan.te.test.mock.MockMeasurer;
-import me.chan.te.test.mock.MockTextPaint;
 import me.chan.te.text.Background;
 import me.chan.te.text.Document;
 import me.chan.te.text.DrawableBox;
 import me.chan.te.text.Figure;
-import me.chan.te.text.Foreground;
 import me.chan.te.text.Glue;
 import me.chan.te.text.Gravity;
 import me.chan.te.text.OnClickedListener;
@@ -24,7 +20,6 @@ import me.chan.te.text.Page;
 import me.chan.te.text.Paragraph;
 import me.chan.te.text.Penalty;
 import me.chan.te.text.TextBox;
-import me.chan.te.text.TextStyle;
 import me.chan.te.text.UnderLine;
 import me.chan.te.typesetter.BreakPoint;
 import me.chan.te.typesetter.Candidate;
@@ -32,43 +27,12 @@ import me.chan.te.typesetter.Node;
 import me.chan.te.typesetter.Sum;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.fail;
 
 public class DataUnitTest {
-	private MockTextPaint mMockTextPaint;
-
-	@Before
-	public void setup() {
-		mMockTextPaint = new MockTextPaint();
-		MockMeasurer mockMeasurer = new MockMeasurer(mMockTextPaint);
-
-		Assert.assertNotEquals(mMockTextPaint.getMockTextSize(), 0);
-		Assert.assertNotEquals(mMockTextPaint.getMockTextHeight(), 0);
-
-		String hello = "hello";
-		Assert.assertEquals("check measure text", mockMeasurer.getDesiredWidth(hello,
-				0, hello.length(), TextStyle.NONE), hello.length() * mMockTextPaint.getMockTextSize(), 0);
-		Assert.assertEquals("check measure text", mockMeasurer.getDesiredWidth(hello,
-				1, 2, TextStyle.NONE), mMockTextPaint.getMockTextSize(), 0);
-
-		try {
-			TextBox.obtain(null, 0, 10, 1, 1, null, null).toString();
-			fail("obtain null box");
-		} catch (Throwable throwable) {
-			assertFalse(throwable instanceof AssertionError);
-		}
-
-		try {
-			TextBox.obtain(null, 1, 1, 1, 1, null, null).toString();
-			fail("obtain null box");
-		} catch (Throwable throwable) {
-			assertFalse(throwable instanceof AssertionError);
-		}
-	}
 
 	@Test
 	public void testGlue() {
@@ -214,244 +178,6 @@ public class DataUnitTest {
 	}
 
 	@Test
-	public void testBoxBase() {
-		String msg = "hello world";
-		TextBox box = TextBox.obtain(msg, 0, msg.length(),
-				mMockTextPaint.getMockTextSize() * msg.length(), mMockTextPaint.getMockTextHeight(), null, null);
-		Assert.assertNotNull(box);
-		Assert.assertFalse(box.isSelected());
-		Assert.assertFalse(box.isPenalty());
-		Assert.assertFalse(box.isSplit());
-		Assert.assertFalse(box.isRecycled());
-		Assert.assertNull(box.getOnClickedListener());
-
-		OnClickedListener onClickedListener = new OnClickedListener() {
-			@Override
-			public boolean onClicked(float x, float y) {
-				return false;
-			}
-		};
-		box.setOnClickedListener(onClickedListener);
-		Assert.assertSame(onClickedListener, box.getOnClickedListener());
-
-		// check content
-//		Assert.assertNull(box.getTextStyle());
-		checkBoxContent(box, msg);
-
-		TextStyle textStyle = TextStyle.NONE;
-		Background background = Background.obtain(10);
-		Foreground foreground = UnderLine.obtain(10);
-
-		TextBox box2 = TextBox.obtain(msg, 0, msg.length(), mMockTextPaint.getMockTextSize() * msg.length(), mMockTextPaint.getMockTextHeight(),null, null);
-		Assert.assertNotNull(box2);
-		box2.setSelected(true);
-		Assert.assertNotEquals(box, box2);
-		Assert.assertTrue(box2.isSelected());
-//		Assert.assertSame(box2.getTextStyle(), textStyle);
-//		Assert.assertSame(background, box2.getBackground());
-//		Assert.assertSame(foreground, box2.getForeground());
-		checkBoxContent(box2, msg);
-
-		TextBox prev = box2;
-		box2.setOnClickedListener(onClickedListener);
-		Assert.assertSame(box2.getOnClickedListener(), onClickedListener);
-		box2.recycle();
-		Assert.assertNull(box2.getOnClickedListener());
-		Assert.assertTrue(box2.isRecycled());
-//		Assert.assertNull(box2.getTextStyle());
-		Assert.assertFalse(box2.isSelected());
-		Assert.assertEquals(box2.getHeight(), -1, 0);
-		Assert.assertEquals(box2.getWidth(), -1, 0);
-//		Assert.assertNull(box2.getBackground());
-//		Assert.assertNull(box2.getForeground());
-
-		// test recycle twice
-		box2.recycle();
-
-		msg = "hello";
-		box2 = TextBox.obtain(msg, 0, msg.length(), mMockTextPaint.getMockTextSize() * msg.length(), mMockTextPaint.getMockTextHeight(),  null, null);
-		Assert.assertNotSame(box2, TextBox.obtain(msg, 0, msg.length(), mMockTextPaint.getMockTextSize() * msg.length(), mMockTextPaint.getMockTextHeight(), null, null));
-		Assert.assertNotNull(box2);
-		Assert.assertSame(prev, box2);
-		Assert.assertNull(box2.getOnClickedListener());
-//		Assert.assertNull(box2.getBackground());
-		Assert.assertFalse(box2.isRecycled());
-//		Assert.assertNull(box2.getForeground());
-		checkBoxContent(box2, msg);
-
-		box = TextBox.obtain(msg, 1, msg.length(), mMockTextPaint.getMockTextSize() * (msg.length() - 1), mMockTextPaint.getMockTextHeight(), null, null);
-		Assert.assertNotNull(box);
-		checkBoxContent(box, "ello");
-
-		try {
-			TextBox.obtain(msg, -1, msg.length(), 1, 1, null, null).toString();
-			fail("check illegal index failed");
-		} catch (Throwable e) {
-			assertFalse(e instanceof AssertionError);
-		}
-
-		try {
-			TextBox.obtain(msg, 0, msg.length() + 1, 1, 1, null, null).toString();
-			fail("check illegal index failed");
-		} catch (Throwable e) {
-			assertFalse(e instanceof AssertionError);
-		}
-	}
-
-//	@Test
-//	public void testBoxEquals() {
-//		String msg = "hello world";
-//		TextBox box1 = TextBox.obtain(msg, 0, msg.length(), mMockTextPaint.getMockTextSize() * msg.length(), mMockTextPaint.getMockTextHeight(), null);
-//		Assert.assertNotNull(box1);
-//
-//		TextBox box2 = TextBox.obtain(msg, 0, msg.length(), mMockTextPaint.getMockTextSize() * msg.length(), mMockTextPaint.getMockTextHeight(), null);
-//		Assert.assertNotNull(box2);
-//
-//		Assert.assertNotSame(box1, box2);
-//
-//		Assert.assertEquals(box1, box1);
-//		Assert.assertEquals(box2, box2);
-//		Assert.assertEquals(box1, box2);
-//
-//		checkBoxContent(box1, msg);
-//		checkBoxContent(box2, msg);
-//
-//		StringBuilder stringBuilder = new StringBuilder("hello ");
-//		stringBuilder.append("world");
-//
-//		msg = stringBuilder.toString();
-//		box2 = TextBox.obtain(msg, 0, msg.length(), mMockTextPaint.getMockTextSize() * msg.length(), mMockTextPaint.getMockTextHeight(), null);
-//		Assert.assertNotNull(box2);
-//
-//		Assert.assertNotSame(box1, box2);
-//
-//		Assert.assertEquals(box1, box1);
-//		Assert.assertEquals(box2, box2);
-//		Assert.assertEquals(box1, box2);
-//
-//		checkBoxContent(box1, msg);
-//		checkBoxContent(box2, msg);
-//	}
-//
-//	@Test
-//	public void testBoxAppend() {
-//		String msg = "hello world";
-//		TextBox box = TextBox.obtain(msg, 0, msg.length(), mMockTextPaint.getMockTextSize() * msg.length(), mMockTextPaint.getMockTextHeight(), null);
-//		Assert.assertNotNull(box);
-//		Assert.assertFalse(box.isPenalty());
-//		Assert.assertFalse(box.isSplit());
-//
-//		Penalty penalty = Penalty.obtain(mMockTextPaint.getMockTextSize(), 2, 3, true);
-//		Assert.assertNotNull(penalty);
-//
-//		box.append(penalty);
-//		Assert.assertTrue(box.isPenalty());
-//		Assert.assertFalse(box.isSplit());
-//
-//		checkBoxContent(box, msg + "-");
-//
-//		msg = "xxxx";
-//		box.recycle();
-//		Assert.assertFalse(box.isPenalty());
-//		Assert.assertFalse(box.isSplit());
-//
-//		box = TextBox.obtain(msg, 0, msg.length(), mMockTextPaint.getMockTextSize() * msg.length(), mMockTextPaint.getMockTextHeight(), null);
-//		Assert.assertNotNull(box);
-//		Assert.assertFalse(box.isPenalty());
-//		Assert.assertFalse(box.isSplit());
-//		checkBoxContent(box, msg);
-//
-//		penalty = Penalty.obtain(mMockTextPaint.getMockTextSize(), mMockTextPaint.getMockTextHeight() * 2, 3, true);
-//		Assert.assertNotNull(penalty);
-//		box.append(penalty);
-//		Assert.assertTrue(box.isPenalty());
-//		Assert.assertFalse(box.isSplit());
-//		checkBoxContent(box, msg + "-", mMockTextPaint.getMockTextHeight() * 2);
-//
-//		msg = "abc";
-//		box.recycle();
-//		box = TextBox.obtain(msg, 0, msg.length(), mMockTextPaint.getMockTextSize() * msg.length(), mMockTextPaint.getMockTextHeight(), null);
-//		Assert.assertNotNull(box);
-//		Assert.assertFalse(box.isPenalty());
-//		Assert.assertFalse(box.isSplit());
-//
-//		String msg2 = "dcf";
-//		TextBox box2 = TextBox.obtain(msg2, 0, msg2.length(), mMockTextPaint.getMockTextSize() * msg2.length(), mMockTextPaint.getMockTextHeight(), null);
-//		Assert.assertNotNull(box2);
-//		Assert.assertFalse(box2.isPenalty());
-//		Assert.assertFalse(box2.isSplit());
-//
-//		box.append(box2);
-//		Assert.assertFalse(box.isPenalty());
-//		Assert.assertFalse(box.isSplit());
-//
-//		checkBoxContent(box, msg + msg2);
-//		box.recycle();
-//		box = TextBox.obtain(msg, 0, msg.length(), mMockTextPaint.getMockTextSize() * msg.length(), mMockTextPaint.getMockTextHeight(), null);
-//		Assert.assertNotNull(box);
-//		Assert.assertFalse(box.isPenalty());
-//		Assert.assertFalse(box.isSplit());
-//		checkBoxContent(box, msg);
-//	}
-//
-//	@Test
-//	public void testBoxSpilt() {
-//		String msg = "hello world";
-//		TextBox box = TextBox.obtain(msg, 0, msg.length(), mMockTextPaint.getMockTextSize() * msg.length(), mMockTextPaint.getMockTextHeight(), TextStyle.NONE, null, null, null);
-//		Assert.assertNotNull(box);
-//		Assert.assertFalse(box.isPenalty());
-//		Assert.assertFalse(box.isSplit());
-//
-//		Assert.assertNull(box.spilt(-1));
-//		Assert.assertNull(box.spilt((msg.length() + 1) * mMockTextPaint.getMockTextSize()));
-//
-//		TextBox suffix = box.spilt("hello".length() * mMockTextPaint.getMockTextSize());
-//		Assert.assertNotNull(suffix);
-//
-//		checkBoxContent(box, "hello");
-//		checkBoxContent(suffix, " world");
-//		Assert.assertTrue(box.isSplit());
-//		Assert.assertFalse(suffix.isSplit());
-//		Assert.assertEquals(suffix.getHeight(), box.getHeight(), 0);
-//		Assert.assertEquals(suffix.getTextStyle(), box.getTextStyle());
-//		Assert.assertEquals(suffix.getExtra(), box.getExtra());
-//
-//		TextBox previous = box;
-//		box.recycle();
-//		msg = "hello";
-//		box = TextBox.obtain(msg, 0, msg.length(), mMockTextPaint.getMockTextSize() * msg.length(), mMockTextPaint.getMockTextHeight(), null);
-//		Assert.assertSame(previous, box);
-//		Assert.assertFalse(box.isSplit());
-//	}
-//
-//	@Test
-//	public void testBoxCopy() {
-//		String msg = "hello world";
-//		TextBox box = TextBox.obtain(msg, 0, msg.length(), mMockTextPaint.getMockTextSize() * msg.length(), mMockTextPaint.getMockTextHeight(), TextStyle.NONE, null, null, null);
-//		box.setSelected(true);
-//		box.setOnClickedListener(new OnClickedListener() {
-//			@Override
-//			public boolean onClicked(float x, float y) {
-//				return false;
-//			}
-//
-//			@Override
-//			public boolean onLongClicked(float x, float y) {
-//				return false;
-//			}
-//		});
-//
-//		TextBox copy = TextBox.obtain(msg + "x", 0, msg.length() + 1, mMockTextPaint.getMockTextSize() * (msg.length() + 1), mMockTextPaint.getMockTextHeight(), TextStyle.NONE, null, null, null);
-//		checkBoxContent(copy, msg + "x");
-//		Assert.assertNotSame(copy, box);
-//		copy.copy(box);
-//
-//		Assert.assertTrue(copy.isSelected());
-//		Assert.assertSame(copy.getOnClickedListener(), box.getOnClickedListener());
-//		checkBoxContent(copy, msg);
-//	}
-
-	@Test
 	public void testLine() throws NoSuchFieldException, IllegalAccessException {
 		Paragraph.Line line = Paragraph.Line.obtain();
 		Field field = Paragraph.Line.class.getDeclaredField("mBoxes");
@@ -540,18 +266,6 @@ public class DataUnitTest {
 		Assert.assertSame(p, drawableBox);
 		Assert.assertNull(drawableBox.getOnClickedListener());
 		Assert.assertNotSame(drawableBox, DrawableBox.obtain(new ColorDrawable(19), 1, 2, onClickedListener));
-	}
-
-	private void checkBoxContent(TextBox box, String msg) {
-		checkBoxContent(box, msg, mMockTextPaint.getMockTextHeight());
-	}
-
-	private void checkBoxContent(TextBox box, String msg, float height) {
-		Assert.assertEquals(msg, box.toString());
-		Assert.assertNotEquals(0, mMockTextPaint.getMockTextHeight(), 0);
-		Assert.assertNotEquals(0, mMockTextPaint.getMockTextSize() * msg.length(), 0);
-		Assert.assertEquals(box.getHeight(), height, 0);
-		Assert.assertEquals(box.getWidth(), mMockTextPaint.getMockTextSize() * msg.length(), 0.1);
 	}
 
 	@Test
@@ -831,61 +545,5 @@ public class DataUnitTest {
 		} catch (IndexOutOfBoundsException e) {
 		}
 		Assert.assertNotSame(document, Document.obtain());
-	}
-
-	@Test
-	public void testRichTextAttribute() throws NoSuchFieldException, IllegalAccessException {
-		Class<?> clazz = TextBox.Attribute.class;
-		Field textStyleField = clazz.getDeclaredField("mTextStyle");
-		Field backgroundField = clazz.getDeclaredField("mBackground");
-		Field foregroundField = clazz.getDeclaredField("mForeground");
-		Field extraField = clazz.getDeclaredField("mExtra");
-		textStyleField.setAccessible(true);
-		backgroundField.setAccessible(true);
-		foregroundField.setAccessible(true);
-		extraField.setAccessible(true);
-
-		TextBox.Attribute attribute = TextBox.Attribute.obtain();
-		Assert.assertNotNull(attribute);
-		Assert.assertNull(backgroundField.get(attribute));
-		Assert.assertNull(extraField.get(attribute));
-		Assert.assertNull(foregroundField.get(attribute));
-		Assert.assertNull(textStyleField.get(attribute));
-
-		Background background = Background.obtain(10);
-		attribute.setBackground(background);
-		Assert.assertSame(background, backgroundField.get(attribute));
-
-		String msg = "hello";
-		attribute.setExtra(msg);
-		Assert.assertSame(msg, extraField.get(attribute));
-
-		UnderLine underLine = UnderLine.obtain(10);
-		attribute.setForeground(underLine);
-		Assert.assertSame(underLine, foregroundField.get(attribute));
-
-		TextStyle style = TextStyle.BOLD;
-		attribute.setTextStyle(style);
-		Assert.assertSame(style, textStyleField.get(attribute));
-
-		attribute.recycle();
-		Assert.assertNull(backgroundField.get(attribute));
-		Assert.assertNull(extraField.get(attribute));
-		Assert.assertNull(foregroundField.get(attribute));
-		Assert.assertNull(textStyleField.get(attribute));
-		// test recycle twice
-		attribute.recycle();
-
-		TextBox.Attribute p = attribute;
-		attribute = TextBox.Attribute.obtain();
-		Assert.assertSame(p, attribute);
-
-		Assert.assertNull(backgroundField.get(attribute));
-		Assert.assertNull(extraField.get(attribute));
-		Assert.assertNull(foregroundField.get(attribute));
-		Assert.assertNull(textStyleField.get(attribute));
-
-		TextBox.Attribute next = TextBox.Attribute.obtain();
-		Assert.assertNotSame(next, attribute);
 	}
 }

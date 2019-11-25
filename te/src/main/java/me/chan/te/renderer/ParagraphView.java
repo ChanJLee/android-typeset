@@ -269,9 +269,10 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 		}
 
 		TextBox textBox = (TextBox) target;
-		if (textBox.isPenalty() || textBox.isSplit()) {
-			return handleClickedPenaltyBox(textBox, lineNumber + 1);
-		}
+		// TODO
+//		if (textBox.isPenalty() || textBox.isSplit()) {
+//			return handleClickedPenaltyBox(textBox, lineNumber + 1);
+//		}
 
 		textBox.setSelected(true);
 		if (mOnTextSelectedListener != null) {

@@ -6,17 +6,16 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import me.chan.te.Te;
+import me.chan.te.log.Log;
 import me.chan.te.text.Box;
+import me.chan.te.text.BreakStrategy;
 import me.chan.te.text.DrawableBox;
 import me.chan.te.text.Glue;
-import me.chan.te.text.Penalty;
-import me.chan.te.text.TextBox;
-import me.chan.te.log.Log;
-import me.chan.te.text.BreakStrategy;
 import me.chan.te.text.Gravity;
 import me.chan.te.text.Paragraph;
+import me.chan.te.text.Penalty;
 import me.chan.te.text.TextAttribute;
+import me.chan.te.text.TextBox;
 
 class TexParagraphTypesetter implements ParagraphTypesetter {
 	private static final int CLASS_0 = 0;
@@ -228,7 +227,10 @@ class TexParagraphTypesetter implements ParagraphTypesetter {
 			}
 
 			if (element instanceof Penalty && start == end - 1) {
-				current.append((Penalty) element);
+				Penalty penalty = (Penalty) element;
+				if (penalty.isFlag()) {
+					current.append((Penalty) element);
+				}
 			}
 		}
 
@@ -238,7 +240,7 @@ class TexParagraphTypesetter implements ParagraphTypesetter {
 	private List<BreakPoint> chooseBreakPoints(ActiveNodeList activeNodeList) {
 		List<BreakPoint> breaks = new ArrayList<>(128);
 		Node tempNode = null;
-		for (Node node: activeNodeList) {
+		for (Node node : activeNodeList) {
 			if (tempNode == null) {
 				tempNode = node;
 				continue;

@@ -13,15 +13,15 @@ import me.chan.te.misc.ObjectFactory;
  * 文本元素
  */
 public final class TextBox extends Box {
-	private static final int FLAG_NONE = 0;
-	private static final int FLAG_PENALTY = 2;
-	private static final int FLAG_SPILT = 1;
+	private static final short FLAG_NONE = 0;
+	private static final short FLAG_PENALTY = 1;
 	private final static ObjectFactory<TextBox> POOL = new ObjectFactory<>(51200);
 
 	private CharSequence mText;
 	private int mStart;
 	private int mEnd;
-	private int mFlag = FLAG_NONE;
+	@Hidden
+	private short mFlag = FLAG_NONE;
 	private boolean mSelected = false;
 	private Attribute mAttribute;
 
@@ -164,10 +164,6 @@ public final class TextBox extends Box {
 		return mFlag == FLAG_PENALTY;
 	}
 
-	public boolean isSplit() {
-		return mFlag == FLAG_SPILT;
-	}
-
 	public void draw(Canvas canvas, TextPaint paint, float x, float y) {
 		canvas.drawText(mText, mStart, mEnd, x, y, paint);
 	}
@@ -198,13 +194,14 @@ public final class TextBox extends Box {
 				(1 - ratio) * mWidth, mHeight,
 				mOnClickedListener, mAttribute
 		);
+		suffix.mFlag = mFlag;
+		mFlag = FLAG_NONE;
 		mEnd = last;
 		mWidth = limitWidth;
-		setFlag(FLAG_SPILT);
 		return suffix;
 	}
 
-	private void setFlag(int flag) {
+	private void setFlag(short flag) {
 		mFlag = flag;
 	}
 
