@@ -17,9 +17,11 @@ import java.util.regex.Pattern;
 
 import me.chan.te.R;
 import me.chan.te.hypher.Hypher;
+import me.chan.te.log.Log;
 import me.chan.te.measurer.Measurer;
 import me.chan.te.text.Document;
 import me.chan.te.text.Figure;
+import me.chan.te.text.OnClickedListener;
 import me.chan.te.text.TextAttribute;
 import me.chan.te.text.Paragraph;
 import me.chan.te.text.UnderLine;
@@ -72,7 +74,7 @@ public class BookParser implements Parser<CharSequence> {
 	private Document parseArticleContent(XmlPullParser parser, Measurer measurer, Hypher hypher, TextAttribute textAttribute) throws IOException, XmlPullParserException {
 		parser.require(XmlPullParser.START_TAG, null, "article_content");
 		String id = parser.getAttributeValue(null, "id");
-		Document document = Document.obtain(id);
+		Document document = Document.obtain();
 
 		while (parser.next() != XmlPullParser.END_TAG) {
 			int eventType = parser.getEventType();
@@ -128,7 +130,7 @@ public class BookParser implements Parser<CharSequence> {
 		}
 
 		Paragraph paragraph = builder.build();
-		if (!paragraph.isEmpty()) {
+		if (paragraph.getElementCount() > 0) {
 			document.addSegment(paragraph);
 		}
 	}
@@ -202,23 +204,40 @@ public class BookParser implements Parser<CharSequence> {
 
 	private void parseSent(XmlPullParser parser, Paragraph.Builder builder) throws IOException, XmlPullParserException {
 		parser.require(XmlPullParser.START_TAG, null, "sent");
-		String id = parser.getAttributeValue(null, "id");
+		final String id = parser.getAttributeValue(null, "id");
+		OnClickedListener sentOnClickedListener = new OnClickedListener() {
+			@Override
+			public boolean onClicked(float x, float y) {
+				Log.d("BookParser", "select sent: " + id);
+				return true;
+			}
+		};
 		String text = safeNextText(parser);
 		if (!TextUtils.isEmpty(text)) {
-			parseParagraph(builder, text, id);
+			parseParagraph(builder, text, sentOnClickedListener);
 		}
 		parser.require(XmlPullParser.END_TAG, null, "sent");
 	}
 
-	private void parseParagraph(Paragraph.Builder builder, String paragraph, String id) {
+	private void parseParagraph(Paragraph.Builder builder, String paragraph, OnClickedListener spanListener) {
 		String[] strings = PATTERN.split(paragraph);
 		for (int i = 0; strings != null && i < strings.length; ++i) {
-			String text = strings[i];
+			final String text = strings[i];
 			if (TextUtils.isEmpty(text)) {
 				continue;
 			}
 
-			builder.text(text, 0, text.length(), null, null, UnderLine.obtain(Color.RED), id);
+			builder.newSpanBuilder(spanListener)
+					.next(text)
+					.setForeground(UnderLine.obtain(Color.RED))
+					.setOnClickedListener(new OnClickedListener() {
+						@Override
+						public boolean onClicked(float x, float y) {
+							Log.d("BookParser", "click: " + text);
+							return true;
+						}
+					})
+					.buildSpan();
 		}
 	}
 

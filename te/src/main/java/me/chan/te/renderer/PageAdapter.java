@@ -27,10 +27,19 @@ public class PageAdapter extends RecyclerView.Adapter<PageAdapter.Renderer> {
 	private ImageLoader mImageLoader;
 	private TextPaint mTextPaint;
 	private RenderOption mRenderOption;
+	private Selection mSelection;
 
 	public PageAdapter(LayoutInflater layoutInflater, ImageLoader imageLoader) {
 		mLayoutInflater = layoutInflater;
 		mImageLoader = imageLoader;
+	}
+
+	public void setSelection(Selection selection) {
+		mSelection = selection;
+	}
+
+	protected void onHandleSelectionCreated(Selection selection) {
+		mSelection = selection;
 	}
 
 	@NonNull
@@ -109,6 +118,12 @@ public class PageAdapter extends RecyclerView.Adapter<PageAdapter.Renderer> {
 		@Override
 		protected void onCreate(View view) {
 			mParagraphView = (ParagraphView) itemView;
+			mParagraphView.setSelectionCreateListener(new ParagraphView.OnSelectionCreateListener() {
+				@Override
+				public void onSelectionCreated(Selection selection) {
+					onHandleSelectionCreated(selection);
+				}
+			});
 		}
 
 		@Override
@@ -116,7 +131,8 @@ public class PageAdapter extends RecyclerView.Adapter<PageAdapter.Renderer> {
 			mParagraphView.render(
 					data,
 					mTextPaint,
-					mRenderOption);
+					mRenderOption,
+					mSelection);
 		}
 	}
 

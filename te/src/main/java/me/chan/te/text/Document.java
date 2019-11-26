@@ -5,6 +5,7 @@ import android.support.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
+import me.chan.te.Te;
 import me.chan.te.annotations.Hidden;
 import me.chan.te.misc.DefaultRecyclable;
 import me.chan.te.misc.ObjectFactory;
@@ -13,14 +14,15 @@ public final class Document extends DefaultRecyclable {
 	private static final ObjectFactory<Document> POOL = new ObjectFactory<>(8);
 	public final static Document EMPTY = obtain();
 
-	private List<Segment> mSegments = new ArrayList<>(512);
-	private List<Page> mPages = new ArrayList<>(128);
+	private List<Segment> mSegments;
+	private List<Page> mPages;
 
-	private Object mExtra;
 	private Object mRaw;
 
-	private Document(Object extra) {
-		mExtra = extra;
+	private Document() {
+		Te.MemoryOption memoryOption = Te.getMemoryOption();
+		mSegments = new ArrayList<>(memoryOption.getDocumentSegmentInitialCapacity());
+		mPages = new ArrayList<>(memoryOption.getDocumentPageInitialCapacity());
 	}
 
 	public Object getRaw() {
@@ -29,11 +31,6 @@ public final class Document extends DefaultRecyclable {
 
 	public void setRaw(Object raw) {
 		mRaw = raw;
-	}
-
-	@Nullable
-	public Object getExtra() {
-		return mExtra;
 	}
 
 	/**
@@ -97,15 +94,10 @@ public final class Document extends DefaultRecyclable {
 	}
 
 	public static Document obtain() {
-		return obtain(null);
-	}
-
-	public static Document obtain(Object extra) {
 		Document document = POOL.acquire();
 		if (document == null) {
-			return new Document(extra);
+			return new Document();
 		}
-		document.mExtra = extra;
 		document.reuse();
 		return document;
 	}

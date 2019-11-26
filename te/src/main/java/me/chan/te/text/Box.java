@@ -13,10 +13,28 @@ import me.chan.te.annotations.Hidden;
 public abstract class Box extends Paragraph.Element {
 	protected float mWidth;
 	protected float mHeight;
+	protected OnClickedListener mOnClickedListener;
+	protected boolean mSelected = false;
 
 	public Box(float width, float height) {
 		mWidth = width;
 		mHeight = height;
+	}
+
+	public boolean isSelected() {
+		return mSelected;
+	}
+
+	public void setSelected(boolean selected) {
+		mSelected = selected;
+	}
+
+	public void setOnClickedListener(OnClickedListener listener) {
+		mOnClickedListener = listener;
+	}
+
+	public OnClickedListener getOnClickedListener() {
+		return mOnClickedListener;
 	}
 
 	public float getWidth() {
@@ -25,6 +43,14 @@ public abstract class Box extends Paragraph.Element {
 
 	public float getHeight() {
 		return mHeight;
+	}
+
+	@Override
+	public void recycle() {
+		super.recycle();
+		mWidth = -1;
+		mHeight = -1;
+		mSelected = false;
 	}
 
 	@Hidden
@@ -36,6 +62,8 @@ public abstract class Box extends Paragraph.Element {
 		if (o == null || getClass() != o.getClass()) return false;
 		Box box = (Box) o;
 		return Float.compare(box.mWidth, mWidth) == 0 &&
-				Float.compare(box.mHeight, mHeight) == 0;
+				Float.compare(box.mHeight, mHeight) == 0 &&
+				mOnClickedListener == box.mOnClickedListener &&
+				mSelected == box.mSelected;
 	}
 }

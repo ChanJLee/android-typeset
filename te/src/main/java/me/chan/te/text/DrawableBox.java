@@ -12,9 +12,10 @@ public class DrawableBox extends Box {
 
 	private Drawable mDrawable;
 
-	public DrawableBox(@NonNull Drawable drawable, float width, float height) {
+	public DrawableBox(@NonNull Drawable drawable, float width, float height, OnClickedListener onClickedListener) {
 		super(width, height);
 		mDrawable = drawable;
+		mOnClickedListener = onClickedListener;
 	}
 
 	@Override
@@ -37,18 +38,20 @@ public class DrawableBox extends Box {
 		mDrawable = null;
 		mWidth = -1;
 		mHeight = -1;
+		mOnClickedListener = null;
 		POOL.release(this);
 	}
 
-	public static DrawableBox obtain(Drawable drawable, float width, float height) {
+	public static DrawableBox obtain(Drawable drawable, float width, float height, OnClickedListener onClickedListener) {
 		DrawableBox drawableBox = POOL.acquire();
 		if (drawableBox == null) {
-			return new DrawableBox(drawable, width, height);
+			return new DrawableBox(drawable, width, height, onClickedListener);
 		}
 
 		drawableBox.mWidth = width;
 		drawableBox.mHeight = height;
 		drawableBox.mDrawable = drawable;
+		drawableBox.mOnClickedListener = onClickedListener;
 		drawableBox.reuse();
 		return drawableBox;
 	}

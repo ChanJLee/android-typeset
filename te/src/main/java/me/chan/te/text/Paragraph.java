@@ -6,6 +6,7 @@ import android.support.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
+import me.chan.te.Te;
 import me.chan.te.annotations.Hidden;
 import me.chan.te.hypher.Hypher;
 import me.chan.te.measurer.Measurer;
@@ -19,22 +20,13 @@ import me.chan.te.typesetter.ParagraphTypesetter;
 public class Paragraph extends Segment {
 	private static final ObjectFactory<Paragraph> POOL = new ObjectFactory<>(4096);
 
-	private List<Line> mLines = new ArrayList<>(32);
-	private List<Element> mElements = new ArrayList<>(512);
-	private Object mExtra;
-	private boolean mEmpty;
+	private List<Line> mLines;
+	private List<Element> mElements;
 
-	public Paragraph(Object extra) {
-		mExtra = extra;
-	}
-
-	public void setExtra(Object extra) {
-		mExtra = extra;
-	}
-
-	@Nullable
-	public Object getExtra() {
-		return mExtra;
+	public Paragraph() {
+		Te.MemoryOption memoryOption = Te.getMemoryOption();
+		mLines = new ArrayList<>(memoryOption.getParagraphLineInitialCapacity());
+		mElements = new ArrayList<>(memoryOption.getParagraphElementInitialCapacity());
 	}
 
 	public Line getLine(int index) {
@@ -48,22 +40,15 @@ public class Paragraph extends Segment {
 	public Paragraph spilt(int endIndex) {
 		List<Line> list = mLines;
 		mLines = list.subList(0, endIndex);
-		Paragraph page = Paragraph.obtain(mExtra);
+		Paragraph page = Paragraph.obtain();
 		page.mLines = list.subList(endIndex, list.size());
-		page.mEmpty = mEmpty;
-		// FIXME 可能内容不对称
-		page.mElements = mElements;
+		// 不拷贝mElements 复用的时候会出问题
 		return page;
 	}
-
 
 	@Hidden
 	public void addLine(Line line) {
 		mLines.add(line);
-	}
-
-	public boolean isEmpty() {
-		return mEmpty;
 	}
 
 	@Override
@@ -82,8 +67,6 @@ public class Paragraph extends Segment {
 			mElements.get(i).recycle();
 		}
 		mElements.clear();
-
-		mExtra = null;
 		POOL.release(this);
 	}
 
@@ -106,13 +89,12 @@ public class Paragraph extends Segment {
 		POOL.clean();
 	}
 
-	private static Paragraph obtain(Object extra) {
+	private static Paragraph obtain() {
 		Paragraph paragraph = POOL.acquire();
 		if (paragraph == null) {
-			return new Paragraph(extra);
+			return new Paragraph();
 		}
 		paragraph.reuse();
-		paragraph.mExtra = extra;
 		return paragraph;
 	}
 
@@ -128,13 +110,32 @@ public class Paragraph extends Segment {
 		private Hypher mHypher;
 		private TextAttribute mTextAttribute;
 		private Paragraph mParagraph;
-		private boolean mEmpty = true;
+		private SpanBuilder mSpanBuilder = new SpanBuilder(this);
 
 		private Builder() {
 		}
 
-		public Builder text(CharSequence text, int start, int end, TextStyle textStyle,
-							Background background, Foreground foreground, Object extra) {
+		public Builder text(CharSequence text) {
+			return text(text, 0, text.length());
+		}
+
+		public Builder text(CharSequence text, int start, int end) {
+			text(text, start, end, null, null, null);
+			return this;
+		}
+
+		public SpanBuilder newSpanBuilder(OnClickedListener listener) {
+			mSpanBuilder.reset(listener);
+			return mSpanBuilder;
+		}
+
+		private void text(CharSequence text, int start, int end,
+						  OnClickedListener onClickedListener, TextBox.Attribute attribute,
+						  TextStyle textStyle) {
+			if (text == null) {
+				throw new RuntimeException("call build twice");
+			}
+
 			if (mParagraph == null) {
 				throw new IllegalStateException("call newParagraph first");
 			}
@@ -147,10 +148,8 @@ public class Paragraph extends Segment {
 				elements.add(TextBox.obtain(text, start, end,
 						mMeasurer.getDesiredWidth(text, start, end, textStyle),
 						mMeasurer.getDesiredHeight(text, start, end, textStyle),
-						textStyle,
-						background,
-						foreground,
-						extra
+						onClickedListener,
+						attribute
 				));
 			} else {
 				for (int j = 0; j < size; ++j) {
@@ -162,10 +161,8 @@ public class Paragraph extends Segment {
 					elements.add(TextBox.obtain(text, start, point,
 							mMeasurer.getDesiredWidth(text, start, point, textStyle),
 							mMeasurer.getDesiredHeight(text, start, point, textStyle),
-							textStyle,
-							background,
-							foreground,
-							extra
+							onClickedListener,
+							attribute
 					));
 					if (j != size - 1) {
 						char ch = text.charAt(point - 1);
@@ -180,20 +177,27 @@ public class Paragraph extends Segment {
 				}
 			}
 			mHyphenated.clear();
-			elements.add(Glue.obtain(mTextAttribute.getSpaceWidth(), mTextAttribute.getSpaceStretch(), mTextAttribute.getSpaceShrink()));
-			mEmpty = false;
-			return this;
+			elements.add(
+					Glue.obtain(
+							mTextAttribute.getSpaceWidth(),
+							mTextAttribute.getSpaceStretch(),
+							mTextAttribute.getSpaceShrink()
+					)
+			);
 		}
 
 		public Builder drawable(Drawable drawable, float width, float height) {
+			return drawable(drawable, width, height, null);
+		}
+
+		public Builder drawable(Drawable drawable, float width, float height, OnClickedListener onClickedListener) {
 			if (mParagraph == null) {
 				throw new IllegalStateException("call newParagraph first");
 			}
 
 			List<Element> elements = mParagraph.mElements;
-			elements.add(DrawableBox.obtain(drawable, width, height));
+			elements.add(DrawableBox.obtain(drawable, width, height, onClickedListener));
 			elements.add(Glue.obtain(mTextAttribute.getSpaceWidth(), mTextAttribute.getSpaceStretch(), mTextAttribute.getSpaceShrink()));
-			mEmpty = false;
 			return this;
 		}
 
@@ -203,13 +207,15 @@ public class Paragraph extends Segment {
 			}
 
 			int elementSize = mParagraph.mElements.size();
-			if (elementSize != 0 && mParagraph.mElements.get(elementSize - 1) instanceof Glue) {
-				mParagraph.mElements.remove(elementSize - 1);
+			if (elementSize != 0) {
+				if (mParagraph.mElements.get(elementSize - 1) instanceof Glue) {
+					mParagraph.mElements.remove(elementSize - 1);
+				}
+
+				mParagraph.mElements.add(Glue.obtain(0, ParagraphTypesetter.INFINITY, 0));
+				mParagraph.mElements.add(Penalty.obtain(0, 0, -ParagraphTypesetter.INFINITY, true));
 			}
 
-			mParagraph.mElements.add(Glue.obtain(0, ParagraphTypesetter.INFINITY, 0));
-			mParagraph.mElements.add(Penalty.obtain(0, 0, -ParagraphTypesetter.INFINITY, true));
-			mParagraph.mEmpty = mEmpty;
 			Paragraph paragraph = mParagraph;
 			recycle();
 			return paragraph;
@@ -223,11 +229,11 @@ public class Paragraph extends Segment {
 
 			super.recycle();
 			mParagraph = null;
-			mEmpty = true;
 			mMeasurer = null;
 			mTextAttribute = null;
 			mHypher = null;
 			mHyphenated.clear();
+			mSpanBuilder.reset(null);
 			POOL.release(this);
 		}
 
@@ -240,13 +246,94 @@ public class Paragraph extends Segment {
 			builder.mMeasurer = measurer;
 			builder.mHypher = hypher;
 			builder.mTextAttribute = textAttribute;
-			builder.mParagraph = obtain(extra);
+			builder.mParagraph = obtain();
 			builder.reuse();
 			return builder;
 		}
 
 		public static void clean() {
 			POOL.clean();
+		}
+	}
+
+	public static class SpanBuilder {
+		private CharSequence mText;
+		private int mStart;
+		private int mEnd;
+		private Builder mBuilder;
+		private TextStyle mTextStyle;
+		private Background mBackground;
+		private Foreground mForeground;
+		private Object mExtra;
+		private OnClickedListener mOnClickedListener;
+		private OnClickedListener mSpanOnClickedListener;
+
+		SpanBuilder(Builder builder) {
+			mBuilder = builder;
+		}
+
+		private void reset(OnClickedListener onClickedListener) {
+			mText = null;
+			mStart = mEnd = 0;
+			mTextStyle = null;
+			mBackground = null;
+			mForeground = null;
+			mExtra = null;
+			mOnClickedListener = null;
+			mSpanOnClickedListener = onClickedListener;
+		}
+
+		public SpanBuilder next(CharSequence text) {
+			return next(text, 0, text.length());
+		}
+
+		public SpanBuilder next(CharSequence text, int start, int end) {
+			flush();
+			mText = text;
+			mStart = start;
+			mEnd = end;
+			return this;
+		}
+
+		public SpanBuilder setTextStyle(TextStyle textStyle) {
+			mTextStyle = textStyle;
+			return this;
+		}
+
+		public SpanBuilder setBackground(Background background) {
+			mBackground = background;
+			return this;
+		}
+
+		public SpanBuilder setForeground(Foreground foreground) {
+			mForeground = foreground;
+			return this;
+		}
+
+		public SpanBuilder setOnClickedListener(OnClickedListener onClickedListener) {
+			mOnClickedListener = onClickedListener;
+			return this;
+		}
+
+		private void flush() {
+			if (mText == null) {
+				return;
+			}
+
+			TextBox.Attribute attribute = TextBox.Attribute.obtain();
+			attribute.setBackground(mBackground);
+			attribute.setForeground(mForeground);
+			attribute.setTextStyle(mTextStyle);
+			attribute.setSpanOnClickedListener(mSpanOnClickedListener);
+			mBuilder.text(mText, mStart, mEnd, mOnClickedListener, attribute, mTextStyle);
+
+			// reset
+			reset(mSpanOnClickedListener);
+		}
+
+		public Builder buildSpan() {
+			flush();
+			return mBuilder;
 		}
 	}
 
@@ -262,7 +349,7 @@ public class Paragraph extends Segment {
 	public static class Line extends DefaultRecyclable {
 		private static final ObjectFactory<Line> POOL = new ObjectFactory<>(4096);
 
-		private List<Box> mBoxes = new ArrayList<>(150);
+		private List<Box> mBoxes;
 		private float mLineHeight;
 		private float mLineWidth;
 		private float mRatio;
@@ -270,6 +357,8 @@ public class Paragraph extends Segment {
 		private Gravity mGravity = Gravity.LEFT;
 
 		private Line() {
+			Te.MemoryOption memoryOption = Te.getMemoryOption();
+			mBoxes = new ArrayList<>(memoryOption.getParagraphLineBoxInitialCapacity());
 			reset();
 		}
 
