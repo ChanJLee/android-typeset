@@ -74,7 +74,7 @@ public class BookParser implements Parser<CharSequence> {
 	private Document parseArticleContent(XmlPullParser parser, Measurer measurer, Hypher hypher, TextAttribute textAttribute) throws IOException, XmlPullParserException {
 		parser.require(XmlPullParser.START_TAG, null, "article_content");
 		String id = parser.getAttributeValue(null, "id");
-		Document document = Document.obtain(id);
+		Document document = Document.obtain();
 
 		while (parser.next() != XmlPullParser.END_TAG) {
 			int eventType = parser.getEventType();

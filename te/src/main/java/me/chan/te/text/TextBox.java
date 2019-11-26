@@ -72,13 +72,6 @@ public final class TextBox extends Box {
 		return mAttribute.mTextStyle;
 	}
 
-	public Object getExtra() {
-		if (mAttribute == null) {
-			return null;
-		}
-		return mAttribute.mExtra;
-	}
-
 	public OnClickedListener getSpanOnClickedListener() {
 		if (mAttribute == null) {
 			return null;
@@ -232,7 +225,6 @@ public final class TextBox extends Box {
 		private TextStyle mTextStyle;
 		private Background mBackground;
 		private Foreground mForeground;
-		private Object mExtra;
 		private OnClickedListener mSpanOnClickedListener;
 
 		private Attribute() {
@@ -248,10 +240,6 @@ public final class TextBox extends Box {
 
 		public void setForeground(Foreground foreground) {
 			mForeground = foreground;
-		}
-
-		public void setExtra(Object extra) {
-			mExtra = extra;
 		}
 
 		public void setSpanOnClickedListener(OnClickedListener spanOnClickedListener) {
@@ -274,7 +262,6 @@ public final class TextBox extends Box {
 				mForeground.recycle();
 				mForeground = null;
 			}
-			mExtra = null;
 			mSpanOnClickedListener = null;
 			POOL.release(this);
 		}

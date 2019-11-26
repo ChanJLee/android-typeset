@@ -17,14 +17,12 @@ public final class Document extends DefaultRecyclable {
 	private List<Segment> mSegments;
 	private List<Page> mPages;
 
-	private Object mExtra;
 	private Object mRaw;
 
-	private Document(Object extra) {
+	private Document() {
 		Te.MemoryOption memoryOption = Te.getMemoryOption();
 		mSegments = new ArrayList<>(memoryOption.getDocumentSegmentInitialCapacity());
 		mPages = new ArrayList<>(memoryOption.getDocumentPageInitialCapacity());
-		mExtra = extra;
 	}
 
 	public Object getRaw() {
@@ -33,11 +31,6 @@ public final class Document extends DefaultRecyclable {
 
 	public void setRaw(Object raw) {
 		mRaw = raw;
-	}
-
-	@Nullable
-	public Object getExtra() {
-		return mExtra;
 	}
 
 	/**
@@ -101,15 +94,10 @@ public final class Document extends DefaultRecyclable {
 	}
 
 	public static Document obtain() {
-		return obtain(null);
-	}
-
-	public static Document obtain(Object extra) {
 		Document document = POOL.acquire();
 		if (document == null) {
-			return new Document(extra);
+			return new Document();
 		}
-		document.mExtra = extra;
 		document.reuse();
 		return document;
 	}
