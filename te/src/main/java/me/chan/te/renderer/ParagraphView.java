@@ -14,6 +14,11 @@ import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 import me.chan.te.annotations.Hidden;
 import me.chan.te.log.Log;
 import me.chan.te.text.Background;
@@ -35,7 +40,7 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 	private Paint mDebugPaint;
 	private GestureDetector mGestureDetector = null;
 	private float mRectRadius;
-	private RectF mRectF = new RectF();
+	private Selection mSelection;
 
 	private float mBaselineBelow;
 	private RenderOption mRenderOption;
@@ -120,6 +125,12 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 			return;
 		}
 
+		if (mSelection != null && mSelection.getParagraph() == mParagraph) {
+			mWorkPaint.set(mPaint);
+			mWorkPaint.setColor(mRenderOption.getSelectedBackgroundColor());
+			mSelection.draw(canvas, mWorkPaint);
+		}
+
 		float y = 0;
 		float width = getWidth();
 
@@ -161,10 +172,8 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 
 			if (box instanceof TextBox) {
 				TextBox textBox = (TextBox) box;
-				if (textBox.isSelected()) {
-					mWorkPaint.setColor(mRenderOption.getSelectedBackgroundColor());
-					mRectF.set(left, top, right, bottom);
-					canvas.drawRoundRect(mRectF, mRectRadius, mRectRadius, mWorkPaint);
+				if (mSelection != null && mSelection.getParagraph() == mParagraph
+						&& mSelection.contains(box)) {
 					mWorkPaint.setColor(mRenderOption.getSelectedTextColor());
 				} else {
 					Background background = textBox.getBackground();
@@ -218,10 +227,6 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 		}
 	}
 
-	private interface Predicate {
-		boolean isSelected(Box clickedBox, Box target);
-	}
-
 	private boolean handleMotion(MotionEvent e, boolean isLongClicked) {
 		float x = e.getX();
 		float y = e.getY();
@@ -271,87 +276,97 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 			return false;
 		}
 
-		handleBoxClicked(e, lineNum, i, target, isLongClicked);
+		handleBoxClicked(e, target, isLongClicked);
 		invalidate();
 		return true;
 	}
 
-	private void handleBoxClicked(MotionEvent e, int lineNum, int boxIndex,
-								  Box target, boolean isLongClicked) {
+	private void handleBoxClicked(MotionEvent e, Box target, boolean isLongClicked) {
 		OnClickedListener onClickedListener = getBoxOnClickedListener(target, isLongClicked);
 		if (onClickedListener == null) {
 			return;
 		}
 
-		int frontLineNum = lineNum;
-		int frontBoxIndex = boxIndex - 1;
+		if (!onClickedListener.onClicked(e.getRawX(), e.getRawY())) {
+			return;
+		}
 
-		while (true) {
-			Paragraph.Line line = null;
-			if (frontBoxIndex < 0) {
-				--frontLineNum;
-				if (frontLineNum < 0 || frontLineNum >= mParagraph.getLineCount()) {
+		Selection selection = new Selection(mParagraph);
+
+		float y = 0;
+		float width = getWidth();
+		int lineCount = mParagraph.getLineCount();
+		for (int i = 0; i < lineCount; ++i) {
+
+			Paragraph.Line line = mParagraph.getLine(i);
+			y += line.getLineHeight();
+
+			float x;
+			Gravity gravity = line.getGravity();
+			if (gravity == Gravity.CENTER) {
+				x = (width - line.getLineWidth()) / 2f;
+			} else if (gravity == Gravity.RIGHT) {
+				x = (width - line.getLineWidth());
+			} else {
+				x = 0;
+			}
+
+			// TODO 统一draw
+			handleSelectionLine(selection, isLongClicked, onClickedListener, line, x, y);
+
+			y += mRenderOption.getLineSpace();
+		}
+
+		mSelection = selection;
+		invalidate();
+	}
+
+	private void handleSelectionLine(Selection selection, boolean isLongClicked,
+									 OnClickedListener onClickedListener, Paragraph.Line line, float x, float y) {
+		int count = line.getCount();
+		RectF rectF = new RectF();
+		boolean hasContent = false;
+		rectF.bottom = y + mBaselineBelow;
+		rectF.top = (float) Math.ceil(y - line.getLineHeight());
+
+		for (int i = 0; i < count; ++i) {
+			Box target = line.getBox(i);
+			OnClickedListener targetListener = getBoxOnClickedListener(target, isLongClicked);
+
+			if (targetListener != onClickedListener) {
+				if (hasContent) {
 					break;
 				}
-				line = mParagraph.getLine(frontLineNum);
-				frontBoxIndex = line.getCount() - 1;
+
+				x += target.getWidth();
+				rectF.left = rectF.right = x + (i + 1) * line.getSpaceWidth();
 			} else {
-				line = mParagraph.getLine(frontLineNum);
-			}
+				if (hasContent) {
+					rectF.right += line.getSpaceWidth();
+				}
 
-			while (frontBoxIndex >= 0) {
-
+				hasContent = true;
+				rectF.right += target.getWidth();
+				selection.add(target);
 			}
+		}
+
+		if (hasContent) {
+			selection.addSelectArea(rectF);
 		}
 	}
 
 	private OnClickedListener getBoxOnClickedListener(Box target, boolean isLongClicked) {
 		if (isLongClicked) {
-
-			if (!(target instanceof TextBox)) {
-				return null;
-			}
-
-			return ((TextBox) target).getSpanOnClickedListener();
+			return target.getOnClickedListener();
 		}
 
-		return target.getOnClickedListener();
+		if (!(target instanceof TextBox)) {
+			return null;
+		}
+
+		return ((TextBox) target).getSpanOnClickedListener();
 	}
-
-	private boolean checkPrecondition(Box target, boolean isLongClicked) {
-	}
-
-	private Predicate mSingleClickedPredicate = new Predicate() {
-
-		@Override
-		public boolean isSelected(Box clickedBox, Box target) {
-			OnClickedListener onClickedListener = clickedBox.getOnClickedListener();
-			return onClickedListener != null && onClickedListener == target.getOnClickedListener();
-		}
-	};
-
-	private Predicate mLongClickedPredicate = new Predicate() {
-
-		@Override
-		public boolean isSelected(Box clickedBox, Box target) {
-			if (!(clickedBox instanceof TextBox)) {
-				return false;
-			}
-
-			if (!(target instanceof TextBox)) {
-				return false;
-			}
-
-			TextBox lhs = (TextBox) clickedBox;
-			OnClickedListener onClickedListener = lhs.getSpanOnClickedListener();
-			if (onClickedListener == null) {
-				return false;
-			}
-
-			TextBox rhs = (TextBox) target;
-			return onClickedListener == rhs.getSpanOnClickedListener();
-		}
-	};
 
 	private boolean handleClicked(MotionEvent e) {
 		return handleMotion(e, false);
@@ -394,5 +409,45 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 
 	private static void d(String msg) {
 		Log.d("TeTextView", msg);
+	}
+
+	private class Selection {
+		private Set<Box> mBoxes = new HashSet<>();
+		private Paragraph mParagraph;
+		private List<RectF> mBackgrounds = new ArrayList<>();
+
+		public Selection(Paragraph paragraph) {
+			mParagraph = paragraph;
+		}
+
+		public Paragraph getParagraph() {
+			return mParagraph;
+		}
+
+		public void setParagraph(Paragraph paragraph) {
+			mParagraph = paragraph;
+		}
+
+		public void addSelectArea(RectF rectF) {
+			mBackgrounds.add(rectF);
+		}
+
+		public boolean contains(Box box) {
+			return mBoxes.contains(box);
+		}
+
+		public void add(Box box) {
+			mBoxes.add(box);
+		}
+
+		public void clear() {
+			mBoxes = null;
+		}
+
+		public void draw(Canvas canvas, TextPaint textPaint) {
+			for (RectF rectF : mBackgrounds) {
+				canvas.drawRoundRect(rectF, mRectRadius, mRectRadius, textPaint);
+			}
+		}
 	}
 }

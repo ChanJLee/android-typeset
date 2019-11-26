@@ -46,7 +46,6 @@ public final class TextBox extends Box {
 		mStart = other.mStart;
 		mEnd = other.mEnd;
 		mFlag = other.mFlag;
-		mSelected = other.mSelected;
 		mOnClickedListener = other.mOnClickedListener;
 	}
 
@@ -114,8 +113,7 @@ public final class TextBox extends Box {
 				mStart == textBox.mStart &&
 				mEnd == textBox.mEnd &&
 				mOnClickedListener == textBox.mOnClickedListener &&
-				mFlag == textBox.mFlag &&
-				mSelected == textBox.mSelected;
+				mFlag == textBox.mFlag;
 	}
 
 	@Hidden
@@ -217,7 +215,6 @@ public final class TextBox extends Box {
 							  OnClickedListener onClickedListener,
 							  Attribute attribute) {
 		textBox.mFlag = FLAG_NONE;
-		textBox.mSelected = false;
 		textBox.mText = charSequence;
 		textBox.mStart = start;
 		textBox.mEnd = end;
