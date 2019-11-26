@@ -14,11 +14,6 @@ import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
 import me.chan.te.annotations.Hidden;
 import me.chan.te.log.Log;
 import me.chan.te.text.Background;
@@ -44,6 +39,8 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 
 	private float mBaselineBelow;
 	private RenderOption mRenderOption;
+	private OnSelectionCreateListener mSelectionCreateListener;
+
 
 	public ParagraphView(Context context) {
 		this(context, null);
@@ -61,14 +58,20 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 	// TODO opt
 	void render(@NonNull Paragraph paragraph,
 				@NonNull TextPaint paint,
-				RenderOption renderOption) {
+				RenderOption renderOption,
+				Selection selection) {
 		mParagraph = paragraph;
 		mPaint = paint;
 		Paint.FontMetrics fontMetrics = paint.getFontMetrics();
 		mBaselineBelow = fontMetrics.bottom;
 		mRenderOption = renderOption;
 		setDebugMode(renderOption.isEnableDebug());
+		mSelection = selection;
 		requestLayout();
+	}
+
+	void setSelectionCreateListener(OnSelectionCreateListener selectionCreateListener) {
+		mSelectionCreateListener = selectionCreateListener;
 	}
 
 	private void setDebugMode(boolean enable) {
@@ -128,7 +131,7 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 		if (mSelection != null && mSelection.getParagraph() == mParagraph) {
 			mWorkPaint.set(mPaint);
 			mWorkPaint.setColor(mRenderOption.getSelectedBackgroundColor());
-			mSelection.draw(canvas, mWorkPaint);
+			mSelection.draw(canvas, mWorkPaint, mRectRadius);
 		}
 
 		float y = 0;
@@ -172,8 +175,9 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 
 			if (box instanceof TextBox) {
 				TextBox textBox = (TextBox) box;
-				if (mSelection != null && mSelection.getParagraph() == mParagraph
-						&& mSelection.contains(box)) {
+				if (mSelection != null &&
+						mSelection.getParagraph() == mParagraph &&
+						box.isSelected()) {
 					mWorkPaint.setColor(mRenderOption.getSelectedTextColor());
 				} else {
 					Background background = textBox.getBackground();
@@ -318,6 +322,9 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 		}
 
 		mSelection = selection;
+		if (mSelectionCreateListener != null) {
+			mSelectionCreateListener.onSelectionCreated(selection);
+		}
 		invalidate();
 	}
 
@@ -334,8 +341,10 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 			OnClickedListener targetListener = getBoxOnClickedListener(target, isLongClicked);
 
 			if (targetListener != onClickedListener) {
+				target.setSelected(false);
+				// 之后的内容要清除
 				if (hasContent) {
-					break;
+					continue;
 				}
 
 				x += target.getWidth();
@@ -347,7 +356,7 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 
 				hasContent = true;
 				rectF.right += target.getWidth();
-				selection.add(target);
+				target.setSelected(true);
 			}
 		}
 
@@ -411,43 +420,7 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 		Log.d("TeTextView", msg);
 	}
 
-	private class Selection {
-		private Set<Box> mBoxes = new HashSet<>();
-		private Paragraph mParagraph;
-		private List<RectF> mBackgrounds = new ArrayList<>();
-
-		public Selection(Paragraph paragraph) {
-			mParagraph = paragraph;
-		}
-
-		public Paragraph getParagraph() {
-			return mParagraph;
-		}
-
-		public void setParagraph(Paragraph paragraph) {
-			mParagraph = paragraph;
-		}
-
-		public void addSelectArea(RectF rectF) {
-			mBackgrounds.add(rectF);
-		}
-
-		public boolean contains(Box box) {
-			return mBoxes.contains(box);
-		}
-
-		public void add(Box box) {
-			mBoxes.add(box);
-		}
-
-		public void clear() {
-			mBoxes = null;
-		}
-
-		public void draw(Canvas canvas, TextPaint textPaint) {
-			for (RectF rectF : mBackgrounds) {
-				canvas.drawRoundRect(rectF, mRectRadius, mRectRadius, textPaint);
-			}
-		}
+	public interface OnSelectionCreateListener {
+		void onSelectionCreated(Selection selection);
 	}
 }

@@ -41,12 +41,14 @@ public final class TextBox extends Box {
 
 		mWidth = other.mWidth;
 		mHeight = other.mHeight;
+		mSelected = other.mSelected;
+		mOnClickedListener = other.mOnClickedListener;
+
 		mText = other.mText;
 		mAttribute = other.mAttribute;
 		mStart = other.mStart;
 		mEnd = other.mEnd;
 		mFlag = other.mFlag;
-		mOnClickedListener = other.mOnClickedListener;
 	}
 
 	public Background getBackground() {
@@ -112,7 +114,6 @@ public final class TextBox extends Box {
 				mAttribute == textBox.mAttribute &&
 				mStart == textBox.mStart &&
 				mEnd == textBox.mEnd &&
-				mOnClickedListener == textBox.mOnClickedListener &&
 				mFlag == textBox.mFlag;
 	}
 
@@ -184,6 +185,7 @@ public final class TextBox extends Box {
 				mOnClickedListener, mAttribute
 		);
 		suffix.mFlag = mFlag;
+		suffix.mSelected = mSelected;
 		mFlag = FLAG_NONE;
 		mEnd = last;
 		mWidth = limitWidth;
