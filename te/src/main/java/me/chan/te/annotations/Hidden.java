@@ -14,6 +14,6 @@ import java.lang.annotation.Target;
 @Documented
 @Inherited
 @Retention(RetentionPolicy.CLASS)
-@Target(value = {ElementType.TYPE, ElementType.METHOD})
+@Target(value = {ElementType.TYPE, ElementType.METHOD, ElementType.CONSTRUCTOR, ElementType.FIELD})
 public @interface Hidden {
 }

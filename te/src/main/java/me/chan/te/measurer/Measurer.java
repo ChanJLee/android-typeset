@@ -1,5 +1,7 @@
 package me.chan.te.measurer;
 
+import android.text.TextPaint;
+
 import me.chan.te.text.TextStyle;
 
 /**
@@ -23,4 +25,11 @@ public interface Measurer {
 	 * @return 文本高度
 	 */
 	float getDesiredHeight(CharSequence charSequence, int start, int end, TextStyle textStyle);
+
+	/**
+	 * 刷新
+	 *
+	 * @param textPaint text paint
+	 */
+	void refresh(TextPaint textPaint);
 }

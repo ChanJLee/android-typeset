@@ -35,7 +35,7 @@ public class TextParser implements Parser<CharSequence> {
 				continue;
 			}
 
-			builder.text(paragraph, first, last, null, null, null, null);
+			builder.text(paragraph, first, last);
 		}
 	}
 

@@ -1,5 +1,7 @@
 package me.chan.te.test.mock;
 
+import android.text.TextPaint;
+
 import me.chan.te.measurer.Measurer;
 import me.chan.te.text.TextStyle;
 
@@ -18,5 +20,10 @@ public class MockMeasurer implements Measurer {
 	@Override
 	public float getDesiredHeight(CharSequence charSequence, int start, int end, TextStyle textStyle) {
 		return mMockTextPaint.getMockTextHeight();
+	}
+
+	@Override
+	public void refresh(TextPaint textPaint) {
+
 	}
 }

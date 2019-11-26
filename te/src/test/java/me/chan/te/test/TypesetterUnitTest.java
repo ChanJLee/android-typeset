@@ -302,7 +302,7 @@ public class TypesetterUnitTest {
 		attribute.setDefaultAttribute(new TextAttribute.LineAttribute(width, Gravity.LEFT));
 		Paragraph.Builder builder = Paragraph.Builder.newBuilder(measurer, Hypher.getInstance(), attribute, null);
 		for (int i = 0; i < s.length; ++i) {
-			builder.text(s[i], 0, s[i].length(), null, null, null, null);
+			builder.text(s[i], 0, s[i].length());
 			builder.drawable(new ColorDrawable(10), drawableWidth, 20);
 		}
 		document.addSegment(builder.build());
