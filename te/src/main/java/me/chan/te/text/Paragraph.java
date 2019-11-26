@@ -22,18 +22,11 @@ public class Paragraph extends Segment {
 
 	private List<Line> mLines;
 	private List<Element> mElements;
-	private Object mExtra;
 
-	public Paragraph(Object extra) {
-		mExtra = extra;
+	public Paragraph() {
 		Te.MemoryOption memoryOption = Te.getMemoryOption();
 		mLines = new ArrayList<>(memoryOption.getParagraphLineInitialCapacity());
 		mElements = new ArrayList<>(memoryOption.getParagraphElementInitialCapacity());
-	}
-
-	@Nullable
-	public Object getExtra() {
-		return mExtra;
 	}
 
 	public Line getLine(int index) {
@@ -47,9 +40,8 @@ public class Paragraph extends Segment {
 	public Paragraph spilt(int endIndex) {
 		List<Line> list = mLines;
 		mLines = list.subList(0, endIndex);
-		Paragraph page = Paragraph.obtain(mExtra);
+		Paragraph page = Paragraph.obtain();
 		page.mLines = list.subList(endIndex, list.size());
-		page.mExtra = mExtra;
 		// 不拷贝mElements 复用的时候会出问题
 		return page;
 	}
@@ -75,8 +67,6 @@ public class Paragraph extends Segment {
 			mElements.get(i).recycle();
 		}
 		mElements.clear();
-
-		mExtra = null;
 		POOL.release(this);
 	}
 
@@ -99,13 +89,12 @@ public class Paragraph extends Segment {
 		POOL.clean();
 	}
 
-	private static Paragraph obtain(Object extra) {
+	private static Paragraph obtain() {
 		Paragraph paragraph = POOL.acquire();
 		if (paragraph == null) {
-			return new Paragraph(extra);
+			return new Paragraph();
 		}
 		paragraph.reuse();
-		paragraph.mExtra = extra;
 		return paragraph;
 	}
 
@@ -257,7 +246,7 @@ public class Paragraph extends Segment {
 			builder.mMeasurer = measurer;
 			builder.mHypher = hypher;
 			builder.mTextAttribute = textAttribute;
-			builder.mParagraph = obtain(extra);
+			builder.mParagraph = obtain();
 			builder.reuse();
 			return builder;
 		}
@@ -321,11 +310,6 @@ public class Paragraph extends Segment {
 			return this;
 		}
 
-		public SpanBuilder setExtra(Object extra) {
-			mExtra = extra;
-			return this;
-		}
-
 		public SpanBuilder setOnClickedListener(OnClickedListener onClickedListener) {
 			mOnClickedListener = onClickedListener;
 			return this;
@@ -339,7 +323,6 @@ public class Paragraph extends Segment {
 			TextBox.Attribute attribute = TextBox.Attribute.obtain();
 			attribute.setBackground(mBackground);
 			attribute.setForeground(mForeground);
-			attribute.setExtra(mExtra);
 			attribute.setTextStyle(mTextStyle);
 			attribute.setSpanOnClickedListener(mSpanOnClickedListener);
 			mBuilder.text(mText, mStart, mEnd, mOnClickedListener, attribute, mTextStyle);

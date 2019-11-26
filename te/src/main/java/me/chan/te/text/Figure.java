@@ -15,7 +15,6 @@ public class Figure extends Segment implements Recyclable {
 
 	private float mWidth;
 	private float mHeight;
-	private Object mExtra;
 	private String mDescription;
 
 	private Figure(String url, float width, float height) {
@@ -24,20 +23,12 @@ public class Figure extends Segment implements Recyclable {
 		mHeight = height;
 	}
 
-	public void setExtra(Object extra) {
-		mExtra = extra;
-	}
-
 	public String getDescription() {
 		return mDescription;
 	}
 
 	public void setDescription(String description) {
 		mDescription = description;
-	}
-
-	public Object getExtra() {
-		return mExtra;
 	}
 
 	public String getUrl() {
@@ -69,7 +60,6 @@ public class Figure extends Segment implements Recyclable {
 		super.recycle();
 		mWidth = mHeight = -1;
 		mUrl = null;
-		mExtra = null;
 		POOL.release(this);
 	}
 
