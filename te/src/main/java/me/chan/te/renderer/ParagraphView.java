@@ -120,10 +120,10 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 	}
 
 	@Override
-	protected void onDraw(Canvas canvas) {
+	protected void onDraw(final Canvas canvas) {
 		super.onDraw(canvas);
-		int lineCount = 0;
-		if (mParagraph == null || (lineCount = mParagraph.getLineCount()) == 0 ||
+		if (mParagraph == null ||
+				mParagraph.getLineCount() == 0 ||
 				mRenderOption == null) {
 			return;
 		}
@@ -134,12 +134,54 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 			mSelection.draw(canvas, mWorkPaint, mRectRadius);
 		}
 
+		mDrawVisitor.setCanvas(canvas);
+		visitParagraph(mParagraph, mDrawVisitor);
+	}
+
+	private boolean handleMotion(MotionEvent e, boolean isLongClicked) {
+		if (mParagraph == null || mParagraph.getLineCount() == 0) {
+			return false;
+		}
+
+		float x = e.getX();
+		float y = e.getY();
+		mMotionEventVisitor.setX(x);
+		mMotionEventVisitor.setY(y);
+		visitParagraph(mParagraph, mMotionEventVisitor);
+		Box target = mMotionEventVisitor.getBox();
+		mMotionEventVisitor.clear();
+		if (target == null) {
+			return false;
+		}
+
+		OnClickedListener onClickedListener = getBoxOnClickedListener(target, isLongClicked);
+		if (onClickedListener == null) {
+			return false;
+		}
+
+		mSelectionVisitor.setOnClickedListener(onClickedListener);
+		mSelectionVisitor.setLongClicked(isLongClicked);
+		visitParagraph(mParagraph, mSelectionVisitor);
+		mSelection = mSelectionVisitor.getSelection();
+		if (mSelectionCreateListener != null) {
+			mSelectionCreateListener.onSelectionCreated(mSelection);
+		}
+		if (mSelectionCreateListener != null) {
+			mSelectionCreateListener.onSelectionCreated(mSelection);
+		}
+		mSelectionVisitor.clear();
+		invalidate();
+		return true;
+	}
+
+	private void visitParagraph(Paragraph paragraph, Visitor visitor) {
+		visitor.onVisitParagraph(paragraph);
 		float y = 0;
 		float width = getWidth();
-
+		int lineCount = paragraph.getLineCount();
 		for (int i = 0; i < lineCount; ++i) {
 
-			Paragraph.Line line = mParagraph.getLine(i);
+			Paragraph.Line line = paragraph.getLine(i);
 			y += line.getLineHeight();
 
 			float x;
@@ -151,17 +193,17 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 			} else {
 				x = 0;
 			}
-
-			drawLine(canvas, line, x, y);
-
+			visitLine(line, x, y, visitor);
 			y += mRenderOption.getLineSpace();
 		}
+		visitor.onVisitParagraphEnd(paragraph);
 	}
 
-	private void drawLine(Canvas canvas, Paragraph.Line line, float x, float y) {
+	private void visitLine(Paragraph.Line line, float x, float y, Visitor visitor) {
+		visitor.onVisitLine(line, x, y);
+
 		float spaceWidth = line.getSpaceWidth();
 		int boxSize = line.getCount();
-
 		for (int i = 0; i < boxSize; ++i) {
 			Box box = line.getBox(i);
 			float width = box.getWidth();
@@ -170,199 +212,15 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 			float right = (float) Math.ceil(x + width);
 			float top = (float) Math.ceil(y - line.getLineHeight());
 			float bottom = y + mBaselineBelow;
-
-			mWorkPaint.set(mPaint);
-
-			if (box instanceof TextBox) {
-				TextBox textBox = (TextBox) box;
-				if (mSelection != null &&
-						mSelection.getParagraph() == mParagraph &&
-						box.isSelected()) {
-					mWorkPaint.setColor(mRenderOption.getSelectedTextColor());
-				} else {
-					Background background = textBox.getBackground();
-					if (background != null) {
-						mWorkPaint.set(mPaint);
-						background.draw(canvas, mWorkPaint, left, top, right, bottom);
-					}
-				}
-			}
-
-			if (mRenderOption.isEnableDebug()) {
-				mDebugPaint.setColor(Color.GREEN);
-				canvas.drawRect(x, (float) Math.ceil(y - line.getLineHeight()),
-						(float) Math.ceil(x + width), y, mDebugPaint);
-			}
-
-			if (box instanceof TextBox) {
-				TextBox textBox = (TextBox) box;
-				TextStyle textStyle = textBox.getTextStyle();
-
-				if (textStyle != null) {
-					textStyle.update(mWorkPaint);
-				}
-			}
-
-			box.draw(canvas, mWorkPaint, x, y);
-
-			if (box instanceof TextBox) {
-				TextBox textBox = (TextBox) box;
-				Foreground foreground = textBox.getForeground();
-				if (foreground != null) {
-					mWorkPaint.set(mPaint);
-					foreground.draw(canvas, mWorkPaint, left, top, right, bottom);
-				}
-			}
-
+			visitBox(box, left, top, right, bottom, visitor);
 			x += (spaceWidth + width);
 		}
 
-		if (mRenderOption.isEnableDebug()) {
-			float startX = 0;
-			float startY = y + mRenderOption.getLineSpace();
-			Rect rect = new Rect();
-			String debugInfo = line.getRatio() + " " + spaceWidth;
-			mDebugPaint.getTextBounds(debugInfo, 0, debugInfo.length(), rect);
-			mDebugPaint.setColor(Color.BLUE);
-			rect.offset((int) startX, (int) startY);
-			canvas.drawRect(rect, mDebugPaint);
-			mDebugPaint.setColor(Color.RED);
-			canvas.drawText(debugInfo, startX, startY, mDebugPaint);
-		}
+		visitor.onVisitLineEnd(line, x, y);
 	}
 
-	private boolean handleMotion(MotionEvent e, boolean isLongClicked) {
-		float x = e.getX();
-		float y = e.getY();
-
-		int lineCount = 0;
-		if (mParagraph == null || (lineCount = mParagraph.getLineCount()) == 0) {
-			return false;
-		}
-
-		Paragraph.Line targetLine = null;
-		float offsetY = 0;
-		int lineNum = 0;
-		for (; lineNum < lineCount; ++lineNum) {
-			Paragraph.Line line = mParagraph.getLine(lineNum);
-			float nextOffsetY = offsetY + line.getLineHeight();
-			if (offsetY <= y && y <= nextOffsetY) {
-				targetLine = line;
-				break;
-			}
-
-			offsetY = (nextOffsetY + mRenderOption.getLineSpace());
-		}
-
-		if (targetLine == null) {
-			return false;
-		}
-
-		int boxSize = targetLine.getCount();
-		float spaceWidth = targetLine.getSpaceWidth();
-
-		float offsetX = 0;
-		Box target = null;
-		int i = 0;
-		for (; i < boxSize; ++i) {
-			Box box = targetLine.getBox(i);
-			float width = box.getWidth();
-			float nextOffsetX = offsetX + width;
-			if (offsetX <= x && x <= nextOffsetX) {
-				target = box;
-				break;
-			}
-
-			offsetX = (nextOffsetX + spaceWidth);
-		}
-
-		if (target == null) {
-			return false;
-		}
-
-		handleBoxClicked(e, target, isLongClicked);
-		invalidate();
-		return true;
-	}
-
-	private void handleBoxClicked(MotionEvent e, Box target, boolean isLongClicked) {
-		OnClickedListener onClickedListener = getBoxOnClickedListener(target, isLongClicked);
-		if (onClickedListener == null) {
-			return;
-		}
-
-		if (!onClickedListener.onClicked(e.getRawX(), e.getRawY())) {
-			return;
-		}
-
-		Selection selection = new Selection(mParagraph);
-
-		float y = 0;
-		float width = getWidth();
-		int lineCount = mParagraph.getLineCount();
-		for (int i = 0; i < lineCount; ++i) {
-
-			Paragraph.Line line = mParagraph.getLine(i);
-			y += line.getLineHeight();
-
-			float x;
-			Gravity gravity = line.getGravity();
-			if (gravity == Gravity.CENTER) {
-				x = (width - line.getLineWidth()) / 2f;
-			} else if (gravity == Gravity.RIGHT) {
-				x = (width - line.getLineWidth());
-			} else {
-				x = 0;
-			}
-
-			// TODO 统一draw
-			handleSelectionLine(selection, isLongClicked, onClickedListener, line, x, y);
-
-			y += mRenderOption.getLineSpace();
-		}
-
-		mSelection = selection;
-		if (mSelectionCreateListener != null) {
-			mSelectionCreateListener.onSelectionCreated(selection);
-		}
-		invalidate();
-	}
-
-	private void handleSelectionLine(Selection selection, boolean isLongClicked,
-									 OnClickedListener onClickedListener, Paragraph.Line line, float x, float y) {
-		int count = line.getCount();
-		RectF rectF = new RectF();
-		boolean hasContent = false;
-		rectF.bottom = y + mBaselineBelow;
-		rectF.top = (float) Math.ceil(y - line.getLineHeight());
-
-		for (int i = 0; i < count; ++i) {
-			Box target = line.getBox(i);
-			OnClickedListener targetListener = getBoxOnClickedListener(target, isLongClicked);
-
-			if (targetListener != onClickedListener) {
-				target.setSelected(false);
-				// 之后的内容要清除
-				if (hasContent) {
-					continue;
-				}
-
-				x += target.getWidth();
-				rectF.left = rectF.right = x + (i + 1) * line.getSpaceWidth();
-			} else {
-				if (hasContent) {
-					rectF.right += line.getSpaceWidth();
-				}
-
-				hasContent = true;
-				rectF.right += target.getWidth();
-				target.setSelected(true);
-			}
-		}
-
-		if (hasContent) {
-			selection.addSelectArea(rectF);
-		}
+	private void visitBox(Box box, float left, float top, float right, float bottom, Visitor visitor) {
+		visitor.onVisitBox(box, left, top, right, bottom);
 	}
 
 	private OnClickedListener getBoxOnClickedListener(Box target, boolean isLongClicked) {
@@ -422,5 +280,230 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 
 	public interface OnSelectionCreateListener {
 		void onSelectionCreated(Selection selection);
+	}
+
+	private DrawVisitor mDrawVisitor = new DrawVisitor();
+
+	private class DrawVisitor implements Visitor {
+		private Canvas mCanvas;
+
+		public void setCanvas(Canvas canvas) {
+			mCanvas = canvas;
+		}
+
+		@Override
+		public void onVisitParagraph(Paragraph paragraph) {
+			/* */
+		}
+
+		@Override
+		public void onVisitParagraphEnd(Paragraph paragraph) {
+
+		}
+
+		@Override
+		public void onVisitLine(Paragraph.Line line, float x, float y) {
+		}
+
+		@Override
+		public void onVisitLineEnd(Paragraph.Line line, float x, float y) {
+			if (mRenderOption.isEnableDebug()) {
+				float startX = 0;
+				float startY = y + mRenderOption.getLineSpace();
+				Rect rect = new Rect();
+				String debugInfo = line.getRatio() + " " + line.getSpaceWidth();
+				mDebugPaint.getTextBounds(debugInfo, 0, debugInfo.length(), rect);
+				mDebugPaint.setColor(Color.BLUE);
+				rect.offset((int) startX, (int) startY);
+				mCanvas.drawRect(rect, mDebugPaint);
+				mDebugPaint.setColor(Color.RED);
+				mCanvas.drawText(debugInfo, startX, startY, mDebugPaint);
+			}
+		}
+
+		@Override
+		public void onVisitBox(Box box, float left, float top, float right, float bottom) {
+			mWorkPaint.set(mPaint);
+
+			if (box instanceof TextBox) {
+				TextBox textBox = (TextBox) box;
+				if (mSelection != null &&
+						mSelection.getParagraph() == mParagraph &&
+						box.isSelected()) {
+					mWorkPaint.setColor(mRenderOption.getSelectedTextColor());
+				} else {
+					Background background = textBox.getBackground();
+					if (background != null) {
+						mWorkPaint.set(mPaint);
+						background.draw(mCanvas, mWorkPaint, left, top, right, bottom);
+					}
+				}
+			}
+
+			if (mRenderOption.isEnableDebug()) {
+				mDebugPaint.setColor(Color.GREEN);
+				mCanvas.drawRect(left, top, right, bottom, mDebugPaint);
+			}
+
+			if (box instanceof TextBox) {
+				TextBox textBox = (TextBox) box;
+				TextStyle textStyle = textBox.getTextStyle();
+
+				if (textStyle != null) {
+					textStyle.update(mWorkPaint);
+				}
+			}
+
+			float baseline = bottom - mBaselineBelow;
+			box.draw(mCanvas, mWorkPaint, left, baseline);
+
+			if (box instanceof TextBox) {
+				TextBox textBox = (TextBox) box;
+				Foreground foreground = textBox.getForeground();
+				if (foreground != null) {
+					mWorkPaint.set(mPaint);
+					foreground.draw(mCanvas, mWorkPaint, left, top, right, bottom);
+				}
+			}
+		}
+	}
+
+	private MotionEventVisitor mMotionEventVisitor = new MotionEventVisitor();
+
+	private class MotionEventVisitor implements Visitor {
+		private Box mBox;
+		private float mX;
+		private float mY;
+
+		public void clear() {
+			mBox = null;
+			mX = mY = -1;
+		}
+
+		public Box getBox() {
+			return mBox;
+		}
+
+		public void setX(float x) {
+			mX = x;
+		}
+
+		public void setY(float y) {
+			mY = y;
+		}
+
+		@Override
+		public void onVisitParagraph(Paragraph paragraph) {
+
+		}
+
+		@Override
+		public void onVisitParagraphEnd(Paragraph paragraph) {
+
+		}
+
+		@Override
+		public void onVisitLine(Paragraph.Line line, float x, float y) {
+
+		}
+
+		@Override
+		public void onVisitLineEnd(Paragraph.Line line, float x, float y) {
+
+		}
+
+		@Override
+		public void onVisitBox(Box box, float left, float top, float right, float bottom) {
+			if ((left <= mX && mX <= right) &&
+					(top <= mY && mY <= bottom)) {
+				mBox = box;
+			}
+		}
+	}
+
+	private SelectionVisitor mSelectionVisitor = new SelectionVisitor();
+
+	private class SelectionVisitor implements Visitor {
+
+		private OnClickedListener mOnClickedListener;
+		private boolean mHasContent;
+		private Selection mSelection;
+		private boolean mIsLongClicked;
+		private RectF mRectF;
+
+		@Override
+		public void onVisitParagraph(Paragraph paragraph) {
+			mSelection = new Selection(paragraph);
+		}
+
+		@Override
+		public void onVisitParagraphEnd(Paragraph paragraph) {
+			if (!mSelection.hasContent()) {
+				mSelection = null;
+			}
+		}
+
+		public void clear() {
+			mOnClickedListener = null;
+			mHasContent = false;
+			mSelection = null;
+			mIsLongClicked = false;
+			mRectF = null;
+		}
+
+		public Selection getSelection() {
+			return mSelection;
+		}
+
+		public void setOnClickedListener(OnClickedListener onClickedListener) {
+			mOnClickedListener = onClickedListener;
+		}
+
+		public void setLongClicked(boolean longClicked) {
+			mIsLongClicked = longClicked;
+		}
+
+		@Override
+		public void onVisitLine(Paragraph.Line line, float x, float y) {
+			mHasContent = false;
+			mRectF = new RectF();
+			mRectF.bottom = y + mBaselineBelow;
+			mRectF.top = y - line.getLineHeight();
+		}
+
+		@Override
+		public void onVisitLineEnd(Paragraph.Line line, float x, float y) {
+			if (mHasContent) {
+				mSelection.addSelectArea(mRectF);
+			}
+		}
+
+		@Override
+		public void onVisitBox(Box box, float left, float top, float right, float bottom) {
+			OnClickedListener targetListener = getBoxOnClickedListener(box, mIsLongClicked);
+			if (targetListener != mOnClickedListener) {
+				box.setSelected(false);
+			} else {
+				if (!mHasContent) {
+					mRectF.left = left;
+				}
+
+				mHasContent = true;
+				mRectF.right = right;
+				box.setSelected(true);
+			}
+		}
+	}
+
+	private interface Visitor {
+		void onVisitParagraph(Paragraph paragraph);
+
+		void onVisitParagraphEnd(Paragraph paragraph);
+
+		void onVisitLine(Paragraph.Line line, float x, float y);
+
+		void onVisitLineEnd(Paragraph.Line line, float x, float y);
+
+		void onVisitBox(Box box, float left, float top, float right, float bottom);
 	}
 }

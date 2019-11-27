@@ -34,4 +34,8 @@ class Selection {
 			canvas.drawRoundRect(rectF, radius, radius, textPaint);
 		}
 	}
+
+	public boolean hasContent() {
+		return !mBackgrounds.isEmpty();
+	}
 }
