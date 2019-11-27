@@ -159,19 +159,41 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 			return false;
 		}
 
-		mSelectionVisitor.setOnClickedListener(onClickedListener);
-		mSelectionVisitor.setLongClicked(isLongClicked);
-		visitParagraph(mParagraph, mSelectionVisitor);
-		mSelection = mSelectionVisitor.getSelection();
+
+		Selection selection = getIfParagraphSelection(mParagraph, onClickedListener, isLongClicked);
+		mParagraph.setSelection(selection);
+		// TODO 丢给外部处理
+		mSelection = selection;
+
+		Paragraph paragraph = mParagraph.getNext();
+		if (paragraph != null) {
+			selection = getIfParagraphSelection(paragraph, onClickedListener, isLongClicked);
+			paragraph.setSelection(selection);
+		}
+
+		paragraph = mParagraph.getPrev();
+		if (paragraph != null) {
+			selection = getIfParagraphSelection(paragraph, onClickedListener, isLongClicked);
+			paragraph.setSelection(selection);
+		}
+
 		if (mSelectionCreateListener != null) {
 			mSelectionCreateListener.onSelectionCreated(mSelection);
 		}
-		if (mSelectionCreateListener != null) {
-			mSelectionCreateListener.onSelectionCreated(mSelection);
-		}
-		mSelectionVisitor.clear();
+
 		invalidate();
 		return true;
+	}
+
+	private Selection getIfParagraphSelection(Paragraph paragraph,
+											OnClickedListener onClickedListener,
+											boolean isLongClicked) {
+		mSelectionVisitor.setOnClickedListener(onClickedListener);
+		mSelectionVisitor.setLongClicked(isLongClicked);
+		visitParagraph(paragraph, mSelectionVisitor);
+		Selection selection = mSelectionVisitor.getSelection();
+		mSelectionVisitor.clear();
+		return selection;
 	}
 
 	private void visitParagraph(Paragraph paragraph, Visitor visitor) {
