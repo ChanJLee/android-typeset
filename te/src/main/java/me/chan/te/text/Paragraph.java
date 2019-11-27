@@ -1,7 +1,6 @@
 package me.chan.te.text;
 
 import android.graphics.drawable.Drawable;
-import android.support.annotation.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,6 +21,8 @@ public class Paragraph extends Segment {
 
 	private List<Line> mLines;
 	private List<Element> mElements;
+	private Paragraph mPrev = null;
+	private Paragraph mNext = null;
 
 	public Paragraph() {
 		Te.MemoryOption memoryOption = Te.getMemoryOption();
@@ -42,8 +43,18 @@ public class Paragraph extends Segment {
 		mLines = list.subList(0, endIndex);
 		Paragraph page = Paragraph.obtain();
 		page.mLines = list.subList(endIndex, list.size());
+		page.mPrev = this;
+		mNext = page;
 		// 不拷贝mElements 复用的时候会出问题
 		return page;
+	}
+
+	public Paragraph getPrev() {
+		return mPrev;
+	}
+
+	public Paragraph getNext() {
+		return mNext;
 	}
 
 	@Hidden
@@ -67,6 +78,7 @@ public class Paragraph extends Segment {
 			mElements.get(i).recycle();
 		}
 		mElements.clear();
+		mNext = mPrev = null;
 		POOL.release(this);
 	}
 
