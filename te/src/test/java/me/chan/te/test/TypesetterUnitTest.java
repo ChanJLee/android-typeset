@@ -300,7 +300,7 @@ public class TypesetterUnitTest {
 		Document document = Document.obtain();
 		MockTextAttribute attribute = new MockTextAttribute(textPaint);
 		attribute.setDefaultAttribute(new TextAttribute.LineAttribute(width, Gravity.LEFT));
-		Paragraph.Builder builder = Paragraph.Builder.newBuilder(measurer, Hypher.getInstance(), attribute, null);
+		Paragraph.Builder builder = Paragraph.Builder.newBuilder(measurer, Hypher.getInstance(), attribute);
 		for (int i = 0; i < s.length; ++i) {
 			builder.text(s[i], 0, s[i].length());
 			builder.drawable(new ColorDrawable(10), drawableWidth, 20);

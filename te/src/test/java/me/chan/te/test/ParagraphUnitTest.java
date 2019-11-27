@@ -38,7 +38,7 @@ public class ParagraphUnitTest {
 	@Test
 	public void testBuilder() {
 		String msg = "hello";
-		Paragraph.Builder builder = Paragraph.Builder.newBuilder(mMeasurer, Hypher.getInstance(), mTextAttribute, msg);
+		Paragraph.Builder builder = Paragraph.Builder.newBuilder(mMeasurer, Hypher.getInstance(), mTextAttribute);
 		Paragraph paragraph = builder.build();
 		Assert.assertTrue(builder.isRecycled());
 		Assert.assertFalse(paragraph.isRecycled());
@@ -53,9 +53,9 @@ public class ParagraphUnitTest {
 
 		// test recycle twice
 		Paragraph.Builder p = builder;
-		builder = Paragraph.Builder.newBuilder(mMeasurer, Hypher.getInstance(), mTextAttribute, msg);
+		builder = Paragraph.Builder.newBuilder(mMeasurer, Hypher.getInstance(), mTextAttribute);
 		Assert.assertSame(p, builder);
-		Assert.assertNotSame(builder, Paragraph.Builder.newBuilder(mMeasurer, Hypher.getInstance(), mTextAttribute, msg));
+		Assert.assertNotSame(builder, Paragraph.Builder.newBuilder(mMeasurer, Hypher.getInstance(), mTextAttribute));
 
 		ColorDrawable colorDrawable = new ColorDrawable(10);
 		OnClickedListener onClickedListener = new OnClickedListener() {
@@ -79,7 +79,6 @@ public class ParagraphUnitTest {
 				.next("triangle")
 				.setBackground(background)
 				.setForeground(underLine)
-				.setExtra(msg)
 				.setOnClickedListener(onClickedListener)
 				.setTextStyle(TextStyle.BOLD)
 				.buildSpan();
@@ -117,7 +116,6 @@ public class ParagraphUnitTest {
 			Assert.assertSame(textBox.getBackground(), background);
 			Assert.assertSame(textBox.getForeground(), underLine);
 			Assert.assertSame(textBox.getTextStyle(), TextStyle.BOLD);
-			Assert.assertSame(textBox.getExtra(), msg);
 			Assert.assertSame(textBox.getSpanOnClickedListener(), spanOnClickedListener);
 			Assert.assertEquals(textBox.getHeight(), mMeasurer.getDesiredHeight(strings[i], 0, strings[i].length(), null), 0);
 			Assert.assertSame(textBox.getOnClickedListener(), onClickedListener);
@@ -148,14 +146,12 @@ public class ParagraphUnitTest {
 
 	@Test
 	public void testParagraph() throws NoSuchFieldException, IllegalAccessException {
-		String msg = "hello";
-		Paragraph.Builder builder = Paragraph.Builder.newBuilder(mMeasurer, Hypher.getInstance(), mTextAttribute, msg);
+		Paragraph.Builder builder = Paragraph.Builder.newBuilder(mMeasurer, Hypher.getInstance(), mTextAttribute);
 		builder.text("hello");
 		Paragraph paragraph = builder.build();
 
 		Assert.assertEquals(paragraph.getLineCount(), 0);
 		Assert.assertEquals(paragraph.getElementCount(), 3);
-		Assert.assertSame(paragraph.getExtra(), msg);
 
 
 		Glue glue = Glue.obtain(10, 11, 12);
@@ -185,29 +181,25 @@ public class ParagraphUnitTest {
 		Field elements = clazz.getDeclaredField("mElements");
 		elements.setAccessible(true);
 
-		Assert.assertSame(paragraph.getExtra(), paragraph.getExtra());
 		Assert.assertNotSame(lines.get(paragraph), lines.get(paragraph1));
 		Assert.assertNotSame(elements.get(paragraph), elements.get(paragraph1));
 
 		paragraph.recycle();
 		Assert.assertEquals(paragraph.getLineCount(), 0);
 		Assert.assertEquals(paragraph.getElementCount(), 0);
-		Assert.assertNull(paragraph.getExtra());
 
 
 		// check recycle twice
 		paragraph.recycle();
 
-		msg = "xxx";
 		paragraph1 = paragraph;
-		builder = Paragraph.Builder.newBuilder(mMeasurer, Hypher.getInstance(), mTextAttribute, msg);
+		builder = Paragraph.Builder.newBuilder(mMeasurer, Hypher.getInstance(), mTextAttribute);
 		builder.text("triangle");
 		paragraph = builder.build();
 		Assert.assertSame(paragraph, paragraph1);
 		Assert.assertEquals(paragraph.getLineCount(), 0);
-		Assert.assertEquals(paragraph.getExtra(), msg);
 		Assert.assertEquals(paragraph.getElementCount(), 7);
 
-		Assert.assertNotSame(paragraph, Paragraph.Builder.newBuilder(mMeasurer, Hypher.getInstance(), mTextAttribute, msg).build());
+		Assert.assertNotSame(paragraph, Paragraph.Builder.newBuilder(mMeasurer, Hypher.getInstance(), mTextAttribute).build());
 	}
 }

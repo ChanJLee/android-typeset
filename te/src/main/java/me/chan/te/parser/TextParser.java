@@ -17,7 +17,7 @@ public class TextParser implements Parser<CharSequence> {
 		for (int i = skipBlank(charSequence, 0, len); i < len; ) {
  			int last = findNewline(charSequence, i, len);
 			if (i != last) {
-				Paragraph.Builder builder = Paragraph.Builder.newBuilder(measurer, hypher, textAttribute, null);
+				Paragraph.Builder builder = Paragraph.Builder.newBuilder(measurer, hypher, textAttribute);
 				parse(charSequence, i, last, builder);
 				document.addSegment(builder.build());
 			}
