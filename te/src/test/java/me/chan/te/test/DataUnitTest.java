@@ -148,11 +148,9 @@ public class DataUnitTest {
 		String extra = "ok";
 		String url = "hello";
 		Figure figure = Figure.obtain(url, 1, 2);
-		figure.setExtra(extra);
 		Assert.assertNotNull(figure);
 		Assert.assertFalse(figure.isRecycled());
 		Assert.assertSame(figure.getUrl(), url);
-		Assert.assertSame(figure.getExtra(), extra);
 		Assert.assertEquals(figure.getWidth(), 1, 0);
 		Assert.assertEquals(figure.getHeight(), 2, 0);
 
@@ -160,7 +158,6 @@ public class DataUnitTest {
 		figure.recycle();
 		Assert.assertTrue(figure.isRecycled());
 		Assert.assertNotSame(figure.getUrl(), url);
-		Assert.assertNotSame(figure.getExtra(), extra);
 		Assert.assertNotEquals(figure.getWidth(), 1, 0);
 		Assert.assertNotEquals(figure.getHeight(), 2, 0);
 
@@ -171,7 +168,6 @@ public class DataUnitTest {
 		Assert.assertNotNull(figure);
 		Assert.assertFalse(figure.isRecycled());
 		Assert.assertSame(figure.getUrl(), url);
-		Assert.assertNotSame(figure.getExtra(), extra);
 		Assert.assertEquals(figure.getWidth(), 1, 0);
 		Assert.assertEquals(figure.getHeight(), 2, 0);
 		Assert.assertNotSame(figure, Figure.obtain(url, 1, 2));
@@ -480,10 +476,9 @@ public class DataUnitTest {
 	@Test
 	public void testDocument() {
 		String msg = "hello";
-		Document document = Document.obtain(msg);
+		Document document = Document.obtain();
 		Assert.assertNotNull(document);
 		Assert.assertFalse(document.isRecycled());
-		Assert.assertSame(document.getExtra(), msg);
 		Assert.assertEquals(document.getSegmentCount(), 0);
 		Assert.assertEquals(document.getPageCount(), 0);
 		document.setRaw(msg);
@@ -529,7 +524,6 @@ public class DataUnitTest {
 		document = Document.obtain();
 		Assert.assertNotNull(document);
 		Assert.assertFalse(document.isRecycled());
-		Assert.assertNull(document.getExtra());
 		Assert.assertNull(document.getRaw());
 		Assert.assertSame(previous, document);
 		Assert.assertEquals(document.getSegmentCount(), 0);

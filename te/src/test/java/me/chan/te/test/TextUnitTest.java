@@ -58,16 +58,13 @@ public class TextUnitTest {
 		Field textStyleField = clazz.getDeclaredField("mTextStyle");
 		Field backgroundField = clazz.getDeclaredField("mBackground");
 		Field foregroundField = clazz.getDeclaredField("mForeground");
-		Field extraField = clazz.getDeclaredField("mExtra");
 		textStyleField.setAccessible(true);
 		backgroundField.setAccessible(true);
 		foregroundField.setAccessible(true);
-		extraField.setAccessible(true);
 
 		TextBox.Attribute attribute = TextBox.Attribute.obtain();
 		Assert.assertNotNull(attribute);
 		Assert.assertNull(backgroundField.get(attribute));
-		Assert.assertNull(extraField.get(attribute));
 		Assert.assertNull(foregroundField.get(attribute));
 		Assert.assertNull(textStyleField.get(attribute));
 
@@ -76,8 +73,6 @@ public class TextUnitTest {
 		Assert.assertSame(background, backgroundField.get(attribute));
 
 		String msg = "hello";
-		attribute.setExtra(msg);
-		Assert.assertSame(msg, extraField.get(attribute));
 
 		UnderLine underLine = UnderLine.obtain(10);
 		attribute.setForeground(underLine);
@@ -89,7 +84,6 @@ public class TextUnitTest {
 
 		attribute.recycle();
 		Assert.assertNull(backgroundField.get(attribute));
-		Assert.assertNull(extraField.get(attribute));
 		Assert.assertNull(foregroundField.get(attribute));
 		Assert.assertNull(textStyleField.get(attribute));
 		// test recycle twice
@@ -100,7 +94,6 @@ public class TextUnitTest {
 		Assert.assertSame(p, attribute);
 
 		Assert.assertNull(backgroundField.get(attribute));
-		Assert.assertNull(extraField.get(attribute));
 		Assert.assertNull(foregroundField.get(attribute));
 		Assert.assertNull(textStyleField.get(attribute));
 
@@ -118,7 +111,6 @@ public class TextUnitTest {
 		assertFalse(box.isRecycled());
 		Assert.assertNull(box.getOnClickedListener());
 		Assert.assertNull(box.getBackground());
-		Assert.assertNull(box.getExtra());
 		Assert.assertNull(box.getForeground());
 		Assert.assertNull(box.getSpanOnClickedListener());
 		Assert.assertNull(box.getTextStyle());
@@ -151,7 +143,6 @@ public class TextUnitTest {
 		Foreground foreground = UnderLine.obtain(10);
 		TextBox.Attribute attribute = TextBox.Attribute.obtain();
 		attribute.setTextStyle(textStyle);
-		attribute.setExtra(msg);
 		attribute.setForeground(foreground);
 		attribute.setBackground(background);
 		attribute.setSpanOnClickedListener(onSpanClickedListener);
@@ -166,7 +157,6 @@ public class TextUnitTest {
 		Assert.assertFalse(box.isPenalty());
 		Assert.assertSame(box.getOnClickedListener(), onClickedListener);
 		Assert.assertSame(box.getBackground(), background);
-		Assert.assertSame(box.getExtra(), msg);
 		Assert.assertSame(box.getForeground(), foreground);
 		Assert.assertSame(box.getSpanOnClickedListener(), onSpanClickedListener);
 		Assert.assertSame(box.getTextStyle(), textStyle);
@@ -195,7 +185,6 @@ public class TextUnitTest {
 		Assert.assertEquals(temp.isRecycled(), suffix.isRecycled());
 		Assert.assertSame(temp.getOnClickedListener(), suffix.getOnClickedListener());
 		Assert.assertSame(temp.getBackground(), suffix.getBackground());
-		Assert.assertSame(temp.getExtra(), suffix.getExtra());
 		Assert.assertSame(temp.getForeground(), suffix.getForeground());
 		Assert.assertSame(temp.getSpanOnClickedListener(), suffix.getSpanOnClickedListener());
 		Assert.assertSame(temp.getTextStyle(), suffix.getTextStyle());
@@ -208,7 +197,6 @@ public class TextUnitTest {
 		Assert.assertTrue(box.isRecycled());
 		Assert.assertNull(box.getOnClickedListener());
 		Assert.assertNull(box.getBackground());
-		Assert.assertNull(box.getExtra());
 		Assert.assertNull(box.getForeground());
 		Assert.assertNull(box.getSpanOnClickedListener());
 		Assert.assertNull(box.getTextStyle());
@@ -229,7 +217,6 @@ public class TextUnitTest {
 		assertFalse(box.isRecycled());
 		Assert.assertNull(box.getOnClickedListener());
 		Assert.assertNull(box.getBackground());
-		Assert.assertNull(box.getExtra());
 		Assert.assertNull(box.getForeground());
 		Assert.assertNull(box.getSpanOnClickedListener());
 		Assert.assertNull(box.getTextStyle());
@@ -315,7 +302,6 @@ public class TextUnitTest {
 		checkBoxContent(suffix, " world");
 		Assert.assertEquals(suffix.getHeight(), box.getHeight(), 0);
 		Assert.assertEquals(suffix.getTextStyle(), box.getTextStyle());
-		Assert.assertEquals(suffix.getExtra(), box.getExtra());
 
 		TextBox previous = box;
 		box.recycle();

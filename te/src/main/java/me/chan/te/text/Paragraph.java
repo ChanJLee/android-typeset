@@ -237,7 +237,7 @@ public class Paragraph extends Segment {
 			POOL.release(this);
 		}
 
-		public static Builder newBuilder(Measurer measurer, Hypher hypher, TextAttribute textAttribute, Object extra) {
+		public static Builder newBuilder(Measurer measurer, Hypher hypher, TextAttribute textAttribute) {
 			Builder builder = POOL.acquire();
 			if (builder == null) {
 				builder = new Builder();
