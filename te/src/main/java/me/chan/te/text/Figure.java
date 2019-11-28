@@ -1,12 +1,12 @@
 package me.chan.te.text;
 
-import me.chan.te.misc.Recyclable;
+import me.chan.te.annotations.Hidden;
 import me.chan.te.misc.ObjectFactory;
 
 /**
  * 插图
  */
-public class Figure extends Segment implements Recyclable {
+public class Figure extends Segment {
 	public static final float DEFAULT_RATIO = 1.618f;
 
 	private static final ObjectFactory<Figure> POOL = new ObjectFactory<>(16);
@@ -15,20 +15,11 @@ public class Figure extends Segment implements Recyclable {
 
 	private float mWidth;
 	private float mHeight;
-	private String mDescription;
 
 	private Figure(String url, float width, float height) {
 		mUrl = url;
 		mWidth = width;
 		mHeight = height;
-	}
-
-	public String getDescription() {
-		return mDescription;
-	}
-
-	public void setDescription(String description) {
-		mDescription = description;
 	}
 
 	public String getUrl() {
@@ -43,14 +34,13 @@ public class Figure extends Segment implements Recyclable {
 		return mHeight;
 	}
 
-	public void setWidth(float width) {
+	@Hidden
+	public void resize(float width, float height) {
 		mWidth = width;
-	}
-
-	public void setHeight(float height) {
 		mHeight = height;
 	}
 
+	@Hidden
 	@Override
 	public void recycle() {
 		if (isRecycled()) {

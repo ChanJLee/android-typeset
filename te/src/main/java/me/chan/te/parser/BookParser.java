@@ -140,7 +140,6 @@ public class BookParser implements Parser<CharSequence> {
 		String url = null;
 		float width = -1;
 		float height = -1;
-		String description = null;
 		while (parser.next() != XmlPullParser.END_TAG) {
 			int eventType = parser.getEventType();
 			if (eventType != XmlPullParser.START_TAG) {
@@ -151,9 +150,6 @@ public class BookParser implements Parser<CharSequence> {
 			if (TextUtils.equals("url", name)) {
 				url = safeNextText(parser);
 				parser.require(XmlPullParser.END_TAG, null, "url");
-			} else if (TextUtils.equals("desc", name)) {
-				description = safeNextText(parser);
-				parser.require(XmlPullParser.END_TAG, null, "desc");
 			} else if (TextUtils.equals("width", name)) {
 				width = safeNextFloat(parser);
 				parser.require(XmlPullParser.END_TAG, null, "width");
@@ -170,7 +166,6 @@ public class BookParser implements Parser<CharSequence> {
 		}
 
 		Figure figure = Figure.obtain(url, width, height);
-		figure.setDescription(description);
 		document.addSegment(figure);
 	}
 
