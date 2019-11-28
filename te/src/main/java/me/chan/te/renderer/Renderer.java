@@ -5,6 +5,7 @@ import android.text.TextPaint;
 import android.view.LayoutInflater;
 
 import me.chan.te.image.ImageLoader;
+import me.chan.te.measurer.Measurer;
 import me.chan.te.parser.Parser;
 import me.chan.te.source.Source;
 import me.chan.te.text.Document;
@@ -46,11 +47,11 @@ public abstract class Renderer {
 
 	protected abstract void onClear();
 
-	void render(Document document) {
-		onRenderer(document);
+	void render(Document document, Measurer measurer) {
+		onRenderer(document, measurer);
 	}
 
-	protected abstract void onRenderer(Document document);
+	protected abstract void onRenderer(Document document, Measurer measurer);
 
 	public void error(Throwable throwable) {
 		onError(throwable);

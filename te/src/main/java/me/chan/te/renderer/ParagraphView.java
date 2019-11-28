@@ -6,6 +6,7 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.RectF;
+import android.os.Build;
 import android.support.annotation.NonNull;
 import android.text.TextPaint;
 import android.util.AttributeSet;
@@ -36,7 +37,8 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 	private GestureDetector mGestureDetector = null;
 	private float mRectRadius;
 
-	private float mBaselineBelow;
+	private float mTopPadding;
+	private float mBottomPadding;
 	private RenderOption mRenderOption;
 	private OnTextSelectedListener mOnTextSelectedListener;
 
@@ -50,16 +52,22 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 
 	public ParagraphView(Context context, AttributeSet attrs, int defStyleAttr) {
 		super(context, attrs, defStyleAttr);
+		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+			setLayerType(View.LAYER_TYPE_SOFTWARE, null);
+		}
+
 		mRectRadius = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, DEFAULT_ROUND_RADIUS, getResources().getDisplayMetrics());
 	}
 
 	void render(@NonNull Paragraph paragraph,
 				@NonNull TextPaint paint,
-				@NonNull RenderOption renderOption) {
+				@NonNull RenderOption renderOption,
+				float topPadding,
+				float bottomPadding) {
 		mParagraph = paragraph;
 		mPaint = paint;
-		Paint.FontMetrics fontMetrics = paint.getFontMetrics();
-		mBaselineBelow = fontMetrics.bottom;
+		mBottomPadding = bottomPadding;
+		mTopPadding = topPadding;
 		mRenderOption = renderOption;
 		setDebugMode(renderOption.isEnableDebug());
 		requestLayout();
@@ -95,7 +103,7 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
 		int lineCount = 0;
 		if (mParagraph != null && (lineCount = mParagraph.getLineCount()) != 0) {
-			int height = 0;
+			int height = (int) Math.ceil(mBottomPadding + mTopPadding);
 			for (int i = 0; i < lineCount; ++i) {
 				Paragraph.Line line = mParagraph.getLine(i);
 				height += line.getLineHeight();
@@ -200,6 +208,9 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 
 			Paragraph.Line line = paragraph.getLine(i);
 			y += line.getLineHeight();
+			if (i == 0) {
+				y -= mBottomPadding;
+			}
 
 			float x;
 			Gravity gravity = line.getGravity();
@@ -228,7 +239,7 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 			float left = x;
 			float right = (float) Math.ceil(x + width);
 			float top = (float) Math.ceil(y - line.getLineHeight());
-			float bottom = y + mBaselineBelow;
+			float bottom = y;
 			visitBox(box, left, top, right, bottom, visitor);
 			x += (spaceWidth + width);
 		}
@@ -345,19 +356,22 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 
 		@Override
 		public void onVisitBox(Box box, float left, float top, float right, float bottom) {
+
+			float belowBottom = bottom + mBottomPadding;
+
 			// 先绘制背景
 			if (box instanceof TextBox) {
 				TextBox textBox = (TextBox) box;
 				Background background = textBox.getBackground();
 				if (background != null) {
 					mWorkPaint.set(mPaint);
-					background.draw(mCanvas, mWorkPaint, left, top, right, bottom);
+					background.draw(mCanvas, mWorkPaint, left, top, right, belowBottom);
 				}
 			}
 
 			if (mRenderOption.isEnableDebug()) {
 				mDebugPaint.setColor(Color.GREEN);
-				mCanvas.drawRect(left, top, right, bottom, mDebugPaint);
+				mCanvas.drawRect(left, top, right, belowBottom, mDebugPaint);
 			}
 
 			mWorkPaint.set(mPaint);
@@ -375,15 +389,14 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 				mWorkPaint.setColor(mRenderOption.getSelectedTextColor());
 			}
 
-			float baseline = bottom - mBaselineBelow;
-			box.draw(mCanvas, mWorkPaint, left, baseline);
+			box.draw(mCanvas, mWorkPaint, left, bottom);
 
 			if (box instanceof TextBox) {
 				TextBox textBox = (TextBox) box;
 				Foreground foreground = textBox.getForeground();
 				if (foreground != null) {
 					mWorkPaint.set(mPaint);
-					foreground.draw(mCanvas, mWorkPaint, left, top, right, bottom);
+					foreground.draw(mCanvas, mWorkPaint, left, top, right, belowBottom);
 				}
 			}
 		}
@@ -441,7 +454,7 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 		@Override
 		public void onVisitBox(Box box, float left, float top, float right, float bottom) {
 			if ((left <= mX && mX <= right) &&
-					(top <= mY && mY <= bottom)) {
+					(top <= mY && mY <= bottom + mBottomPadding)) {
 				mBox = box;
 			}
 		}
@@ -493,7 +506,7 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 		public void onVisitLine(Paragraph.Line line, float x, float y) {
 			mHasContent = false;
 			mRectF = new RectF();
-			mRectF.bottom = y + mBaselineBelow;
+			mRectF.bottom = y + mBottomPadding;
 			mRectF.top = y - line.getLineHeight();
 		}
 

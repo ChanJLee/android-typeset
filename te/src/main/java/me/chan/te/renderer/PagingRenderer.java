@@ -10,12 +10,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import me.chan.te.measurer.Measurer;
 import me.chan.te.text.Document;
 
 class PagingRenderer extends Renderer {
 
 	private Document mDocument;
 	private Adapter mAdapter;
+	private Measurer mMeasurer;
 
 	PagingRenderer(TeView viewGroup, RenderOption renderOption) {
 		super(viewGroup.getContext(), renderOption);
@@ -33,8 +35,9 @@ class PagingRenderer extends Renderer {
 	}
 
 	@Override
-	protected void onRenderer(Document document) {
+	protected void onRenderer(Document document, Measurer measurer) {
 		mDocument = document;
+		mMeasurer = measurer;
 		mAdapter.notifyDataSetChanged();
 	}
 
@@ -91,7 +94,7 @@ class PagingRenderer extends Renderer {
 				}
 			});
 			impl.setAdapter(pageAdapter);
-			pageAdapter.render(mDocument.getPage(position), getTextPaint(), renderOption);
+			pageAdapter.render(mDocument.getPage(position), getTextPaint(), renderOption, mMeasurer);
 			return impl;
 		}
 

@@ -32,4 +32,8 @@ public interface Measurer {
 	 * @param textPaint text paint
 	 */
 	void refresh(TextPaint textPaint);
+
+	float getTopPadding();
+
+	float getBottomPadding();
 }

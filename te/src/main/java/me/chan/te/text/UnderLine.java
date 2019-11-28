@@ -9,7 +9,7 @@ import android.text.TextPaint;
 import me.chan.te.misc.ObjectFactory;
 
 public class UnderLine extends Foreground {
-	private static PathEffect DASH_EFFECT = new DashPathEffect(new float[]{4, 4}, 0);
+	private static PathEffect DASH_EFFECT = new DashPathEffect(new float[]{16, 8, 16, 8}, 0);
 
 	private static final ObjectFactory<UnderLine> POOL = new ObjectFactory<>(256);
 
@@ -35,9 +35,9 @@ public class UnderLine extends Foreground {
 
 	@Override
 	public void draw(Canvas canvas, TextPaint textPaint, float left, float top, float right, float bottom) {
-		textPaint.setPathEffect(DASH_EFFECT);
-		textPaint.setColor(mColor);
 		textPaint.setStyle(Paint.Style.STROKE);
+		textPaint.setColor(mColor);
+		textPaint.setPathEffect(DASH_EFFECT);
 		canvas.drawLine(left, bottom, right, bottom, textPaint);
 	}
 

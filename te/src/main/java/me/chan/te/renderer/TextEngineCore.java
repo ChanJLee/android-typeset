@@ -69,7 +69,7 @@ public class TextEngineCore {
 
 				if (what == MSG_FINISHED) {
 					mDocument = (Document) value;
-					mRenderer.render(mDocument);
+					mRenderer.render(mDocument, mMeasurer);
 				} else if (what == MSG_FAILURE) {
 					mRenderer.error((Throwable) value);
 				}
@@ -264,6 +264,8 @@ public class TextEngineCore {
 
 			int lineCount = paragraph.getLineCount();
 			int i = 0;
+
+			currentHeight = currentHeight + mMeasurer.getBottomPadding() + mMeasurer.getTopPadding();
 			for (; i < lineCount; ++i) {
 				if (i != 0) {
 					currentHeight += mRenderOption.getLineSpace();
