@@ -11,6 +11,7 @@ import me.chan.te.hypher.Hypher;
 import me.chan.te.measurer.Measurer;
 import me.chan.te.misc.DefaultRecyclable;
 import me.chan.te.misc.ObjectFactory;
+import me.chan.te.renderer.Selection;
 import me.chan.te.typesetter.ParagraphTypesetter;
 
 /**
@@ -23,6 +24,7 @@ public class Paragraph extends Segment {
 	private List<Element> mElements;
 	private Paragraph mPrev = null;
 	private Paragraph mNext = null;
+	private Selection mSelection;
 
 	public Paragraph() {
 		Te.MemoryOption memoryOption = Te.getMemoryOption();
@@ -79,6 +81,7 @@ public class Paragraph extends Segment {
 		}
 		mElements.clear();
 		mNext = mPrev = null;
+		mSelection = null;
 		POOL.release(this);
 	}
 
@@ -108,6 +111,14 @@ public class Paragraph extends Segment {
 		}
 		paragraph.reuse();
 		return paragraph;
+	}
+
+	public void setSelection(Selection selection) {
+		mSelection = selection;
+	}
+
+	public Selection getSelection() {
+		return mSelection;
 	}
 
 	/**

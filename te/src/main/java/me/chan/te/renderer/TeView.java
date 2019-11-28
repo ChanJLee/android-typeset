@@ -168,6 +168,10 @@ public class TeView extends FrameLayout {
 		mRenderer.render(source, width, height);
 	}
 
+	public void clearSelection() {
+		mRenderer.clearSelection();
+	}
+
 	public RenderOption createRendererOption() {
 		return mRenderer.createRendererOption();
 	}

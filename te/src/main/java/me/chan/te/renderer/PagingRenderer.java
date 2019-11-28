@@ -16,7 +16,6 @@ class PagingRenderer extends Renderer {
 
 	private Document mDocument;
 	private Adapter mAdapter;
-	private Selection mSelection;
 
 	PagingRenderer(TeView viewGroup, RenderOption renderOption) {
 		super(viewGroup.getContext(), renderOption);
@@ -44,13 +43,13 @@ class PagingRenderer extends Renderer {
 		Toast.makeText(getContext(), "渲染异常", Toast.LENGTH_SHORT).show();
 	}
 
-	private void handleSelectionCreate(Selection selection) {
-		mSelection = selection;
+	@Override
+	protected void onRefresh(RenderOption renderOption) {
 		mAdapter.notifyDataSetChanged();
 	}
 
 	@Override
-	protected void onRefresh(RenderOption renderOption) {
+	protected void invalidate() {
 		mAdapter.notifyDataSetChanged();
 	}
 
@@ -84,13 +83,13 @@ class PagingRenderer extends Renderer {
 			impl.setLayoutManager(linearLayoutManager);
 			impl.addItemDecoration(new SpaceItemDecoration(renderOption.getSegmentSpace()));
 			container.addView(impl);
-			PageAdapter pageAdapter = new PageAdapter(getLayoutInflater(), getImageLoader()) {
+			PageAdapter pageAdapter = new PageAdapter(getLayoutInflater(), getImageLoader());
+			pageAdapter.setOnTextSelectedListener(new PageAdapter.OnTextSelectedListener() {
 				@Override
-				protected void onHandleSelectionCreated(Selection selection) {
-					handleSelectionCreate(selection);
+				public void onTextSelected() {
+					invalidate();
 				}
-			};
-			pageAdapter.setSelection(mSelection);
+			});
 			impl.setAdapter(pageAdapter);
 			pageAdapter.render(mDocument.getPage(position), getTextPaint(), renderOption);
 			return impl;

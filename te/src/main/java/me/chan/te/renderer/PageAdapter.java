@@ -27,19 +27,11 @@ public class PageAdapter extends RecyclerView.Adapter<PageAdapter.Renderer> {
 	private ImageLoader mImageLoader;
 	private TextPaint mTextPaint;
 	private RenderOption mRenderOption;
-	private Selection mSelection;
+	private OnTextSelectedListener mOnTextSelectedListener;
 
 	public PageAdapter(LayoutInflater layoutInflater, ImageLoader imageLoader) {
 		mLayoutInflater = layoutInflater;
 		mImageLoader = imageLoader;
-	}
-
-	public void setSelection(Selection selection) {
-		mSelection = selection;
-	}
-
-	protected void onHandleSelectionCreated(Selection selection) {
-		mSelection = selection;
 	}
 
 	@NonNull
@@ -56,6 +48,10 @@ public class PageAdapter extends RecyclerView.Adapter<PageAdapter.Renderer> {
 	@SuppressWarnings("unchecked")
 	public void onBindViewHolder(@NonNull Renderer renderer, int position) {
 		renderer.render(mPage.getSegment(position));
+	}
+
+	public void setOnTextSelectedListener(OnTextSelectedListener onTextSelectedListener) {
+		mOnTextSelectedListener = onTextSelectedListener;
 	}
 
 	@Override
@@ -118,10 +114,12 @@ public class PageAdapter extends RecyclerView.Adapter<PageAdapter.Renderer> {
 		@Override
 		protected void onCreate(View view) {
 			mParagraphView = (ParagraphView) itemView;
-			mParagraphView.setSelectionCreateListener(new ParagraphView.OnSelectionCreateListener() {
+			mParagraphView.setOnTextSelectedListener(new ParagraphView.OnTextSelectedListener() {
 				@Override
-				public void onSelectionCreated(Selection selection) {
-					onHandleSelectionCreated(selection);
+				public void onTextSelected() {
+					if (mOnTextSelectedListener != null) {
+						mOnTextSelectedListener.onTextSelected();
+					}
 				}
 			});
 		}
@@ -131,8 +129,7 @@ public class PageAdapter extends RecyclerView.Adapter<PageAdapter.Renderer> {
 			mParagraphView.render(
 					data,
 					mTextPaint,
-					mRenderOption,
-					mSelection);
+					mRenderOption);
 		}
 	}
 
@@ -160,5 +157,9 @@ public class PageAdapter extends RecyclerView.Adapter<PageAdapter.Renderer> {
 			}
 			mTvDesc.setText(description);
 		}
+	}
+
+	public interface OnTextSelectedListener {
+		void onTextSelected();
 	}
 }

@@ -23,6 +23,12 @@ public class SlidingRenderer extends Renderer {
 		impl.setLayoutManager(new LinearLayoutManager(context));
 		viewGroup.addView(impl, new TeView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
 		mAdapter = new PageAdapter(getLayoutInflater(), getImageLoader());
+		mAdapter.setOnTextSelectedListener(new PageAdapter.OnTextSelectedListener() {
+			@Override
+			public void onTextSelected() {
+				invalidate();
+			}
+		});
 		impl.setAdapter(mAdapter);
 	}
 
@@ -49,5 +55,10 @@ public class SlidingRenderer extends Renderer {
 	@Override
 	protected void onRefresh(RenderOption renderOption) {
 		mAdapter.update(getTextPaint(), renderOption);
+	}
+
+	@Override
+	protected void invalidate() {
+		mAdapter.notifyDataSetChanged();
 	}
 }
