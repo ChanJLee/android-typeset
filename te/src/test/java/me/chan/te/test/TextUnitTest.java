@@ -115,6 +115,8 @@ public class TextUnitTest {
 		Assert.assertNull(box.getSpanOnClickedListener());
 		Assert.assertNull(box.getTextStyle());
 		Assert.assertFalse(box.isPenalty());
+		Assert.assertEquals(box.getWidth(), mMockTextPaint.getMockTextSize() * msg.length(), 0);
+		Assert.assertEquals(box.getHeight(), mMockTextPaint.getMockTextHeight(), 0);
 		box.setSelected(true);
 		Assert.assertTrue(box.isSelected());
 
@@ -160,6 +162,8 @@ public class TextUnitTest {
 		Assert.assertSame(box.getForeground(), foreground);
 		Assert.assertSame(box.getSpanOnClickedListener(), onSpanClickedListener);
 		Assert.assertSame(box.getTextStyle(), textStyle);
+		Assert.assertEquals(box.getWidth(), mMockTextPaint.getMockTextSize() * msg.length(), 0);
+		Assert.assertEquals(box.getHeight(), mMockTextPaint.getMockTextHeight(), 0);
 		checkBoxContent(box, msg);
 
 		// check append
@@ -168,15 +172,29 @@ public class TextUnitTest {
 		box.append(penalty);
 		Assert.assertTrue(box.isPenalty());
 		checkBoxContent(box, msg + "-");
+		Assert.assertEquals(box.getWidth(), mMockTextPaint.getMockTextSize() * (msg.length() + 1), 0);
+		Assert.assertEquals(box.getHeight(), mMockTextPaint.getMockTextHeight(), 0);
 
-		// test equals
+		// test spilt
 		TextBox suffix = box.spilt("hello".length() * mMockTextPaint.getMockTextSize());
 		Assert.assertNotNull(suffix);
 		Assert.assertFalse(box.isPenalty());
 		Assert.assertTrue(suffix.isPenalty());
 		checkBoxContent(box, "hello");
 		checkBoxContent(suffix, " world" + "-");
+		Assert.assertEquals(box.isSelected(), suffix.isSelected());
+		Assert.assertEquals(box.isRecycled(), suffix.isRecycled());
+		Assert.assertSame(box.getOnClickedListener(), suffix.getOnClickedListener());
+		Assert.assertSame(box.getBackground(), suffix.getBackground());
+		Assert.assertSame(box.getForeground(), suffix.getForeground());
+		Assert.assertSame(box.getSpanOnClickedListener(), suffix.getSpanOnClickedListener());
+		Assert.assertSame(box.getTextStyle(), suffix.getTextStyle());
+		Assert.assertEquals(box.getWidth(), mMockTextPaint.getMockTextSize() * "hello".length(), 0);
+		Assert.assertEquals(box.getHeight(), mMockTextPaint.getMockTextHeight(), 0);
+		Assert.assertEquals(suffix.getWidth(), mMockTextPaint.getMockTextSize() * " world-".length(), 0.1);
+		Assert.assertEquals(suffix.getHeight(), mMockTextPaint.getMockTextHeight(), 0);
 
+		// test copy
 		TextBox temp = TextBox.obtain(msg, 0, msg.length(),
 				mMockTextPaint.getMockTextSize() * msg.length(), mMockTextPaint.getMockTextHeight(),
 				null, null);
@@ -188,6 +206,8 @@ public class TextUnitTest {
 		Assert.assertSame(temp.getForeground(), suffix.getForeground());
 		Assert.assertSame(temp.getSpanOnClickedListener(), suffix.getSpanOnClickedListener());
 		Assert.assertSame(temp.getTextStyle(), suffix.getTextStyle());
+		Assert.assertEquals(temp.getWidth(), mMockTextPaint.getMockTextSize() * " world-".length(), 0.1);
+		Assert.assertEquals(temp.getHeight(), mMockTextPaint.getMockTextHeight(), 0);
 		checkBoxContent(temp, " world" + "-");
 
 		TextBox prev = box;
@@ -200,6 +220,8 @@ public class TextUnitTest {
 		Assert.assertNull(box.getForeground());
 		Assert.assertNull(box.getSpanOnClickedListener());
 		Assert.assertNull(box.getTextStyle());
+		Assert.assertNotEquals(box.getWidth(), mMockTextPaint.getMockTextSize() * "hello".length(), 0);
+		Assert.assertNotEquals(box.getHeight(), mMockTextPaint.getMockTextHeight(), 0);
 
 		// test recycle twice
 		box.recycle();
@@ -341,6 +363,7 @@ public class TextUnitTest {
 		Assert.assertNotNull(box);
 		Assert.assertFalse(box.isPenalty());
 
+		// spilt越界
 		Assert.assertNull(box.spilt(-1));
 		Assert.assertNull(box.spilt((msg.length() + 1) * mMockTextPaint.getMockTextSize()));
 
@@ -354,6 +377,7 @@ public class TextUnitTest {
 
 		TextBox previous = box;
 		box.recycle();
+
 		msg = "hello";
 		box = TextBox.obtain(msg, 0, msg.length(), mMockTextPaint.getMockTextSize() * msg.length(), mMockTextPaint.getMockTextHeight(), null, null);
 		Assert.assertSame(previous, box);
@@ -362,7 +386,17 @@ public class TextUnitTest {
 	@Test
 	public void testBoxCopy() {
 		String msg = "hello world";
-		TextBox box = TextBox.obtain(msg, 0, msg.length(), mMockTextPaint.getMockTextSize() * msg.length(), mMockTextPaint.getMockTextHeight(), null, null);
+		OnClickedListener onClickedListener = new OnClickedListener() {
+			@Override
+			public boolean onClicked(float x, float y) {
+				return false;
+			}
+		};
+		TextBox.Attribute attribute = TextBox.Attribute.obtain();
+		TextBox box = TextBox.obtain(msg, 0, msg.length(),
+				mMockTextPaint.getMockTextSize() * msg.length(),
+				mMockTextPaint.getMockTextHeight(),
+				onClickedListener, attribute);
 		box.setSelected(true);
 		box.setOnClickedListener(new OnClickedListener() {
 			@Override
@@ -371,13 +405,13 @@ public class TextUnitTest {
 			}
 		});
 
-		TextBox copy = TextBox.obtain(msg + "x", 0, msg.length() + 1, mMockTextPaint.getMockTextSize() * (msg.length() + 1), mMockTextPaint.getMockTextHeight(), null, null);
-		checkBoxContent(copy, msg + "x");
-		Assert.assertNotSame(copy, box);
-		copy.copy(box);
+		TextBox copy = TextBox.obtain("x", 0, 1, 1, 2, null, null);
+		Assert.assertNotNull(copy);
+		Assert.assertNotEquals(copy, box);
 
-		Assert.assertTrue(copy.isSelected());
-		Assert.assertSame(copy.getOnClickedListener(), box.getOnClickedListener());
+		copy.copy(box);
+		Assert.assertEquals(box, copy);
+
 		checkBoxContent(copy, msg);
 	}
 
