@@ -28,12 +28,12 @@ public class MockMeasurer implements Measurer {
 	}
 
 	@Override
-	public float getTopPadding() {
+	public float getFontTopPadding() {
 		return 0;
 	}
 
 	@Override
-	public float getBottomPadding() {
+	public float getFontBottomPadding() {
 		return 0;
 	}
 }

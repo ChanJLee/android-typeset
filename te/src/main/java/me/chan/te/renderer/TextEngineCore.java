@@ -265,7 +265,7 @@ public class TextEngineCore {
 			int lineCount = paragraph.getLineCount();
 			int i = 0;
 
-			currentHeight = currentHeight + mMeasurer.getBottomPadding() + mMeasurer.getTopPadding();
+			currentHeight = currentHeight + mMeasurer.getFontBottomPadding() + mMeasurer.getFontTopPadding();
 			for (; i < lineCount; ++i) {
 				if (i != 0) {
 					currentHeight += mRenderOption.getLineSpace();

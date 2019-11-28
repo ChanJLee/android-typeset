@@ -33,7 +33,7 @@ public interface Measurer {
 	 */
 	void refresh(TextPaint textPaint);
 
-	float getTopPadding();
+	float getFontTopPadding();
 
-	float getBottomPadding();
+	float getFontBottomPadding();
 }

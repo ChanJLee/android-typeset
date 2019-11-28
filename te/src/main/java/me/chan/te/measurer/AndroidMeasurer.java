@@ -35,12 +35,12 @@ public class AndroidMeasurer implements Measurer {
 	}
 
 	@Override
-	public float getTopPadding() {
+	public float getFontTopPadding() {
 		return mTopPadding;
 	}
 
 	@Override
-	public float getBottomPadding() {
+	public float getFontBottomPadding() {
 		return mBottomPadding;
 	}
 
