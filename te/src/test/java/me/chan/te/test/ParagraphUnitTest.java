@@ -161,18 +161,46 @@ public class ParagraphUnitTest {
 
 		Paragraph.Line line1 = Paragraph.Line.obtain();
 		Paragraph.Line line2 = Paragraph.Line.obtain();
+		Paragraph.Line line3 = Paragraph.Line.obtain();
 		paragraph.addLine(line1);
 		paragraph.addLine(line2);
+		paragraph.addLine(line3);
 
-		Assert.assertEquals(paragraph.getLineCount(), 2);
+		Assert.assertEquals(paragraph.getLineCount(), 3);
 		Assert.assertSame(paragraph.getLine(0), line1);
 		Assert.assertSame(paragraph.getLine(1), line2);
+		Assert.assertSame(paragraph.getLine(2), line3);
 
 		Paragraph paragraph1 = paragraph.spilt(1);
 		Assert.assertEquals(paragraph.getLineCount(), 1);
 		Assert.assertSame(paragraph.getLine(0), line1);
+
+		Assert.assertEquals(paragraph1.getLineCount(), 2);
+		Assert.assertSame(paragraph1.getLine(0), line2);
+		Assert.assertSame(paragraph1.getLine(1), line3);
+
+		Assert.assertSame(paragraph, paragraph1.getPrev());
+		Assert.assertSame(paragraph.getNext(), paragraph1);
+		Assert.assertNull(paragraph.getPrev());
+		Assert.assertNull(paragraph1.getNext());
+
+
+		Paragraph paragraph2 = paragraph1.spilt(1);
+		Assert.assertEquals(paragraph.getLineCount(), 1);
+		Assert.assertSame(paragraph.getLine(0), line1);
+
 		Assert.assertEquals(paragraph1.getLineCount(), 1);
 		Assert.assertSame(paragraph1.getLine(0), line2);
+
+		Assert.assertEquals(paragraph2.getLineCount(), 1);
+		Assert.assertSame(paragraph2.getLine(0), line3);
+
+		Assert.assertSame(paragraph, paragraph1.getPrev());
+		Assert.assertSame(paragraph.getNext(), paragraph1);
+		Assert.assertNull(paragraph.getPrev());
+		Assert.assertSame(paragraph1.getNext(), paragraph2);
+		Assert.assertSame(paragraph2.getPrev(), paragraph1);
+		Assert.assertNull(paragraph2.getNext());
 
 		Class<?> clazz = Paragraph.class;
 		Field lines = clazz.getDeclaredField("mLines");
@@ -187,7 +215,8 @@ public class ParagraphUnitTest {
 		paragraph.recycle();
 		Assert.assertEquals(paragraph.getLineCount(), 0);
 		Assert.assertEquals(paragraph.getElementCount(), 0);
-
+		Assert.assertNull(paragraph.getNext());
+		Assert.assertNull(paragraph.getPrev());
 
 		// check recycle twice
 		paragraph.recycle();
