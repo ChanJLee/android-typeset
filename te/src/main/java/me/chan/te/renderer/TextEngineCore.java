@@ -312,8 +312,6 @@ public class TextEngineCore {
 				document.addPage(currentPage);
 				paragraph = suffix;
 				currentHeight = 0;
-				// stack overflow
-//				return typesetParagraphInPage(document, currentPage, suffix, height, 0, isLastSegment);
 			} else if (currentHeight == height) {
 				// 刚好放得下
 				currentPage.addSegment(paragraph);
@@ -341,8 +339,7 @@ public class TextEngineCore {
 			ratio = width / height;
 		}
 
-		figure.setWidth(lineWidth);
-		figure.setHeight(lineWidth / ratio);
+		figure.resize(lineWidth, lineWidth / ratio);
 	}
 
 	private void updateLineAttribute(float width) {
