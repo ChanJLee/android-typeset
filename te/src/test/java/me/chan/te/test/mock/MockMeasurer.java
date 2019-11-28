@@ -26,4 +26,14 @@ public class MockMeasurer implements Measurer {
 	public void refresh(TextPaint textPaint) {
 
 	}
+
+	@Override
+	public float getTopPadding() {
+		return 0;
+	}
+
+	@Override
+	public float getBottomPadding() {
+		return 0;
+	}
 }

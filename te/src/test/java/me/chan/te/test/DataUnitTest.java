@@ -13,6 +13,7 @@ import me.chan.te.text.Background;
 import me.chan.te.text.Document;
 import me.chan.te.text.DrawableBox;
 import me.chan.te.text.Figure;
+import me.chan.te.text.Foot;
 import me.chan.te.text.Glue;
 import me.chan.te.text.Gravity;
 import me.chan.te.text.OnClickedListener;
@@ -539,5 +540,35 @@ public class DataUnitTest {
 		} catch (IndexOutOfBoundsException e) {
 		}
 		Assert.assertNotSame(document, Document.obtain());
+	}
+
+	@Test
+	public void testFoot() {
+		String msg = "hello";
+		OnClickedListener onClickedListener = new OnClickedListener() {
+			@Override
+			public boolean onClicked(float x, float y) {
+				return false;
+			}
+		};
+		Foot foot = Foot.obtain(msg, onClickedListener);
+		Assert.assertNotNull(foot);
+		Assert.assertSame(foot.getText(), msg);
+		Assert.assertSame(foot.getOnClickedListener(), onClickedListener);
+
+		foot.recycle();
+		Assert.assertNull(foot.getText());
+		Assert.assertNull(foot.getOnClickedListener());
+
+		// test recycle twice
+		foot.recycle();
+
+		Foot prev = foot;
+		foot = Foot.obtain(msg, onClickedListener);
+		Assert.assertSame(foot, prev);
+		Assert.assertSame(foot.getText(), msg);
+		Assert.assertSame(foot.getOnClickedListener(), onClickedListener);
+
+		Assert.assertNotSame(foot, Foot.obtain(msg, onClickedListener));
 	}
 }
