@@ -8,6 +8,9 @@ import me.chan.te.image.ImageLoader;
 import me.chan.te.parser.Parser;
 import me.chan.te.source.Source;
 import me.chan.te.text.Document;
+import me.chan.te.text.Page;
+import me.chan.te.text.Paragraph;
+import me.chan.te.text.Segment;
 
 public abstract class Renderer {
 	private RenderOption mRenderOption;
@@ -131,4 +134,30 @@ public abstract class Renderer {
 	public TextPaint getTextPaint() {
 		return mTextEngineCore.getTextPaint();
 	}
+
+	public void clearSelection() {
+		Document document = mTextEngineCore.getDocument();
+		if (document == null) {
+			return;
+		}
+
+		int pageCount = document.getPageCount();
+		for (int pageIndex = 0; pageIndex < pageCount; ++pageCount) {
+			Page page = document.getPage(pageIndex);
+			int segmentCount = page.getSegmentCount();
+			for (int segmentIndex = 0; segmentIndex < segmentCount; ++segmentIndex) {
+				Segment segment = page.getSegment(segmentIndex);
+				if (!(segment instanceof Paragraph)) {
+					continue;
+				}
+
+				Paragraph paragraph = (Paragraph) segment;
+				paragraph.setSelection(null);
+			}
+		}
+
+		invalidate();
+	}
+
+	protected abstract void invalidate();
 }

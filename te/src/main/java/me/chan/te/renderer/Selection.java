@@ -7,9 +7,11 @@ import android.text.TextPaint;
 import java.util.ArrayList;
 import java.util.List;
 
+import me.chan.te.annotations.Hidden;
 import me.chan.te.text.Paragraph;
 
-class Selection {
+@Hidden
+public class Selection {
 	private Paragraph mParagraph;
 	private List<RectF> mBackgrounds = new ArrayList<>();
 

@@ -417,6 +417,10 @@ public class TextEngineCore {
 		d("reload: " + mTask);
 	}
 
+	public Document getDocument() {
+		return mDocument;
+	}
+
 	private static void d(String msg) {
 		Log.d("TextEngineCore", msg);
 	}
