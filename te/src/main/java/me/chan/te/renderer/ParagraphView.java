@@ -56,7 +56,11 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 			setLayerType(View.LAYER_TYPE_SOFTWARE, null);
 		}
 
-		mRectRadius = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, DEFAULT_ROUND_RADIUS, getResources().getDisplayMetrics());
+		mRectRadius = TypedValue.applyDimension(
+				TypedValue.COMPLEX_UNIT_DIP,
+				DEFAULT_ROUND_RADIUS,
+				getResources().getDisplayMetrics()
+		);
 	}
 
 	void render(@NonNull Paragraph paragraph,
