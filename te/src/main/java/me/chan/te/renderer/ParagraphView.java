@@ -241,7 +241,7 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 	}
 
 	private OnClickedListener getBoxOnClickedListener(Box target, boolean isLongClicked) {
-		if (isLongClicked) {
+		if (!isLongClicked) {
 			return target.getOnClickedListener();
 		}
 
