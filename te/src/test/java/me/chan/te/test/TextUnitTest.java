@@ -272,17 +272,66 @@ public class TextUnitTest {
 		stringBuilder.append("world");
 
 		msg = stringBuilder.toString();
-		box2 = TextBox.obtain(msg, 0, msg.length(), mMockTextPaint.getMockTextSize() * msg.length(), mMockTextPaint.getMockTextHeight(), onClickedListener, attribute);
+		box2 = TextBox.obtain(msg, 0, msg.length(), mMockTextPaint.getMockTextSize() * msg.length(), mMockTextPaint.getMockTextHeight(), onClickedListener, null);
 		Assert.assertNotNull(box2);
 
 		Assert.assertNotSame(box1, box2);
 
 		Assert.assertEquals(box1, box1);
 		Assert.assertEquals(box2, box2);
-		Assert.assertEquals(box1, box2);
+		Assert.assertNotEquals(box1, box2);
 
 		checkBoxContent(box1, msg);
 		checkBoxContent(box2, msg);
+
+		box2 = TextBox.obtain("kkk", 0, 3, mMockTextPaint.getMockTextSize() * 3, mMockTextPaint.getMockTextHeight(), onClickedListener, attribute);
+		Assert.assertNotNull(box2);
+
+		Assert.assertNotSame(box1, box2);
+
+		Assert.assertEquals(box1, box1);
+		Assert.assertEquals(box2, box2);
+		Assert.assertNotEquals(box1, box2);
+
+		checkBoxContent(box1, msg);
+		checkBoxContent(box2, "kkk");
+
+
+		box2 = TextBox.obtain(msg, 0, msg.length() - 1, mMockTextPaint.getMockTextSize() * (msg.length() - 1), mMockTextPaint.getMockTextHeight(), onClickedListener, attribute);
+		Assert.assertNotNull(box2);
+
+		Assert.assertNotSame(box1, box2);
+
+		Assert.assertEquals(box1, box1);
+		Assert.assertEquals(box2, box2);
+		Assert.assertNotEquals(box1, box2);
+
+		checkBoxContent(box1, msg);
+		checkBoxContent(box2, "hello worl");
+
+		box2 = TextBox.obtain(msg, 0, msg.length(), mMockTextPaint.getMockTextSize() * (msg.length()), mMockTextPaint.getMockTextHeight(), null, attribute);
+		Assert.assertNotNull(box2);
+
+		Assert.assertNotSame(box1, box2);
+
+		Assert.assertEquals(box1, box1);
+		Assert.assertEquals(box2, box2);
+		Assert.assertNotEquals(box1, box2);
+
+		checkBoxContent(box1, msg);
+		checkBoxContent(box2, msg);
+
+		box2 = TextBox.obtain(msg, 0, msg.length(), mMockTextPaint.getMockTextSize() * (msg.length()), mMockTextPaint.getMockTextHeight() - 1, onClickedListener, attribute);
+		Assert.assertNotNull(box2);
+
+		Assert.assertNotSame(box1, box2);
+
+		Assert.assertEquals(box1, box1);
+		Assert.assertEquals(box2, box2);
+		Assert.assertNotEquals(box1, box2);
+
+		checkBoxContent(box1, msg);
+		checkBoxContent(box2, msg, mMockTextPaint.getMockTextHeight() - 1);
 	}
 
 	@Test
@@ -322,7 +371,7 @@ public class TextUnitTest {
 			}
 		});
 
-		TextBox copy = TextBox.obtain(msg + "x", 0, msg.length() + 1, mMockTextPaint.getMockTextSize() * (msg.length() + 1), mMockTextPaint.getMockTextHeight(),  null, null);
+		TextBox copy = TextBox.obtain(msg + "x", 0, msg.length() + 1, mMockTextPaint.getMockTextSize() * (msg.length() + 1), mMockTextPaint.getMockTextHeight(), null, null);
 		checkBoxContent(copy, msg + "x");
 		Assert.assertNotSame(copy, box);
 		copy.copy(box);
