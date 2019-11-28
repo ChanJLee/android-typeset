@@ -345,20 +345,13 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 
 		@Override
 		public void onVisitBox(Box box, float left, float top, float right, float bottom) {
-			mWorkPaint.set(mPaint);
-
+			// 先绘制背景
 			if (box instanceof TextBox) {
 				TextBox textBox = (TextBox) box;
-				if (mSelection != null &&
-						mSelection.getParagraph() == mParagraph &&
-						box.isSelected()) {
-					mWorkPaint.setColor(mRenderOption.getSelectedTextColor());
-				} else {
-					Background background = textBox.getBackground();
-					if (background != null) {
-						mWorkPaint.set(mPaint);
-						background.draw(mCanvas, mWorkPaint, left, top, right, bottom);
-					}
+				Background background = textBox.getBackground();
+				if (background != null) {
+					mWorkPaint.set(mPaint);
+					background.draw(mCanvas, mWorkPaint, left, top, right, bottom);
 				}
 			}
 
@@ -367,6 +360,8 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 				mCanvas.drawRect(left, top, right, bottom, mDebugPaint);
 			}
 
+			mWorkPaint.set(mPaint);
+
 			if (box instanceof TextBox) {
 				TextBox textBox = (TextBox) box;
 				TextStyle textStyle = textBox.getTextStyle();
@@ -374,6 +369,10 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 				if (textStyle != null) {
 					textStyle.update(mWorkPaint);
 				}
+			}
+
+			if (mSelection != null && box.isSelected()) {
+				mWorkPaint.setColor(mRenderOption.getSelectedTextColor());
 			}
 
 			float baseline = bottom - mBaselineBelow;
