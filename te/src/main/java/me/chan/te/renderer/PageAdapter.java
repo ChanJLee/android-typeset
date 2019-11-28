@@ -131,8 +131,8 @@ public class PageAdapter extends RecyclerView.Adapter<PageAdapter.Renderer> {
 					data,
 					mTextPaint,
 					mRenderOption,
-					mMeasurer.getTopPadding(),
-					mMeasurer.getBottomPadding());
+					mMeasurer.getFontTopPadding(),
+					mMeasurer.getFontBottomPadding());
 		}
 	}
 
