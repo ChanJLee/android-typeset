@@ -6,6 +6,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import me.chan.te.measurer.Measurer;
 import me.chan.te.text.Document;
 import me.chan.te.text.Page;
 
@@ -38,13 +39,13 @@ public class SlidingRenderer extends Renderer {
 	}
 
 	@Override
-	protected void onRenderer(Document document) {
+	protected void onRenderer(Document document, Measurer measurer) {
 		if (document.getPageCount() == 0) {
 			return;
 		}
 
 		Page page = document.getPage(0);
-		mAdapter.render(page, getTextPaint(), getRenderOption());
+		mAdapter.render(page, getTextPaint(), getRenderOption(), measurer);
 	}
 
 	@Override

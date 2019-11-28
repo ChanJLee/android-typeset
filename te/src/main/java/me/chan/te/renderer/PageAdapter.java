@@ -11,6 +11,7 @@ import android.view.ViewGroup;
 
 import me.chan.te.R;
 import me.chan.te.image.ImageLoader;
+import me.chan.te.measurer.Measurer;
 import me.chan.te.text.Figure;
 import me.chan.te.text.Page;
 import me.chan.te.text.Paragraph;
@@ -26,6 +27,7 @@ public class PageAdapter extends RecyclerView.Adapter<PageAdapter.Renderer> {
 	private TextPaint mTextPaint;
 	private RenderOption mRenderOption;
 	private OnTextSelectedListener mOnTextSelectedListener;
+	private Measurer mMeasurer;
 
 	public PageAdapter(LayoutInflater layoutInflater, ImageLoader imageLoader) {
 		mLayoutInflater = layoutInflater;
@@ -68,10 +70,11 @@ public class PageAdapter extends RecyclerView.Adapter<PageAdapter.Renderer> {
 		notifyDataSetChanged();
 	}
 
-	public void render(Page page, TextPaint textPaint, RenderOption renderOption) {
+	public void render(Page page, TextPaint textPaint, RenderOption renderOption, Measurer measurer) {
 		mPage = page;
 		mTextPaint = textPaint;
 		mRenderOption = renderOption;
+		mMeasurer = measurer;
 		notifyDataSetChanged();
 	}
 
@@ -127,7 +130,9 @@ public class PageAdapter extends RecyclerView.Adapter<PageAdapter.Renderer> {
 			mParagraphView.render(
 					data,
 					mTextPaint,
-					mRenderOption);
+					mRenderOption,
+					mMeasurer.getTopPadding(),
+					mMeasurer.getBottomPadding());
 		}
 	}
 

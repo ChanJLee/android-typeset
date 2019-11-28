@@ -13,6 +13,8 @@ public class AndroidMeasurer implements Measurer {
 
 	private TextPaint mTextPaint;
 	private float mDesiredHeight;
+	private float mTopPadding = 0;
+	private float mBottomPadding = 0;
 	private TextPaint mWorkPaint = new TextPaint();
 
 	public AndroidMeasurer(TextPaint textPaint) {
@@ -28,6 +30,18 @@ public class AndroidMeasurer implements Measurer {
 		mTextPaint = textPaint;
 		Paint.FontMetrics fontMetrics = mTextPaint.getFontMetrics();
 		mDesiredHeight = fontMetrics.descent - fontMetrics.ascent;
+		mBottomPadding = fontMetrics.bottom;
+		mTopPadding = fontMetrics.ascent - fontMetrics.top;
+	}
+
+	@Override
+	public float getTopPadding() {
+		return mTopPadding;
+	}
+
+	@Override
+	public float getBottomPadding() {
+		return mBottomPadding;
 	}
 
 	@Override
