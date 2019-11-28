@@ -1,7 +1,5 @@
 package me.chan.te.text;
 
-import android.support.annotation.Nullable;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,10 +23,12 @@ public final class Document extends DefaultRecyclable {
 		mPages = new ArrayList<>(memoryOption.getDocumentPageInitialCapacity());
 	}
 
+	@Hidden
 	public Object getRaw() {
 		return mRaw;
 	}
 
+	@Hidden
 	public void setRaw(Object raw) {
 		mRaw = raw;
 	}
@@ -38,12 +38,10 @@ public final class Document extends DefaultRecyclable {
 	 *
 	 * @return 段落数目
 	 */
-	@Hidden
 	public int getSegmentCount() {
 		return mSegments.size();
 	}
 
-	@Hidden
 	public Segment getSegment(int index) {
 		return mSegments.get(index);
 	}
@@ -57,19 +55,23 @@ public final class Document extends DefaultRecyclable {
 	 *
 	 * @return 段落数目
 	 */
+	@Hidden
 	public int getPageCount() {
 		return mPages.size();
 	}
 
+	@Hidden
 	public Page getPage(int index) {
 		return mPages.get(index);
 	}
 
+	@Hidden
 	public void addPage(Page page) {
 		mPages.add(page);
 	}
 
 	@Override
+	@Hidden
 	public void recycle() {
 		if (isRecycled()) {
 			return;
@@ -89,6 +91,7 @@ public final class Document extends DefaultRecyclable {
 		POOL.release(this);
 	}
 
+	@Hidden
 	public static void clean() {
 		POOL.clean();
 	}
