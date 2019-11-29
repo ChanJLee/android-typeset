@@ -544,31 +544,27 @@ public class DataUnitTest {
 
 	@Test
 	public void testFoot() {
-		String msg = "hello";
 		OnClickedListener onClickedListener = new OnClickedListener() {
 			@Override
 			public boolean onClicked(float x, float y) {
 				return false;
 			}
 		};
-		Foot foot = Foot.obtain(msg, onClickedListener);
+		Foot foot = Foot.obtain(onClickedListener);
 		Assert.assertNotNull(foot);
-		Assert.assertSame(foot.getText(), msg);
 		Assert.assertSame(foot.getOnClickedListener(), onClickedListener);
 
 		foot.recycle();
-		Assert.assertNull(foot.getText());
 		Assert.assertNull(foot.getOnClickedListener());
 
 		// test recycle twice
 		foot.recycle();
 
 		Foot prev = foot;
-		foot = Foot.obtain(msg, onClickedListener);
+		foot = Foot.obtain(onClickedListener);
 		Assert.assertSame(foot, prev);
-		Assert.assertSame(foot.getText(), msg);
 		Assert.assertSame(foot.getOnClickedListener(), onClickedListener);
 
-		Assert.assertNotSame(foot, Foot.obtain(msg, onClickedListener));
+		Assert.assertNotSame(foot, Foot.obtain(onClickedListener));
 	}
 }
