@@ -1,5 +1,7 @@
 package me.chan.te.test;
 
+import android.content.Context;
+
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -12,6 +14,7 @@ import me.chan.te.Te;
 import me.chan.te.renderer.RenderOption;
 import me.chan.te.renderer.TextEngineCore;
 import me.chan.te.source.FileTextSource;
+import me.chan.te.test.mock.MockContext;
 import me.chan.te.test.mock.MockMeasurer;
 import me.chan.te.test.mock.MockTextPaint;
 import me.chan.te.test.mock.MockThreadHandler;
@@ -31,7 +34,7 @@ public class TextEngineCoreUnitTest {
 	public void setup() throws NoSuchFieldException, IllegalAccessException {
 		mMockTextPaint = new MockTextPaint();
 		mRenderOption = new RenderOption();
-		mTextEngineCore = new TextEngineCore(null, mRenderOption, mMockTextPaint);
+		mTextEngineCore = new TextEngineCore(new MockContext(), null, mRenderOption, mMockTextPaint);
 		MockMeasurer mockMeasurer = new MockMeasurer(mMockTextPaint);
 
 
