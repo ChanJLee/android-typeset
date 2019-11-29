@@ -1,5 +1,7 @@
 package me.chan.te.renderer;
 
+import android.content.Context;
+import android.content.res.Resources;
 import android.os.SystemClock;
 import android.text.TextPaint;
 
@@ -7,6 +9,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
+import me.chan.te.R;
 import me.chan.te.annotations.Hidden;
 import me.chan.te.hypher.Hypher;
 import me.chan.te.log.Log;
@@ -19,6 +22,7 @@ import me.chan.te.source.SourceCloseException;
 import me.chan.te.text.BreakStrategy;
 import me.chan.te.text.Document;
 import me.chan.te.text.Figure;
+import me.chan.te.text.Foot;
 import me.chan.te.text.Gravity;
 import me.chan.te.text.Page;
 import me.chan.te.text.Paragraph;
@@ -45,14 +49,15 @@ public class TextEngineCore {
 	private Renderer mRenderer;
 	private ParagraphTypesetterImpl mTypesetter;
 	private RenderOption mRenderOption;
+	private float mFootHeight;
 
 
-	public TextEngineCore(Renderer renderer, RenderOption renderOption) {
-		this(renderer, renderOption, new TextPaint(TextPaint.ANTI_ALIAS_FLAG));
+	public TextEngineCore(Context context, Renderer renderer, RenderOption renderOption) {
+		this(context, renderer, renderOption, new TextPaint(TextPaint.ANTI_ALIAS_FLAG));
 	}
 
 	@Hidden
-	public TextEngineCore(Renderer renderer, RenderOption renderOption, TextPaint textPaint) {
+	public TextEngineCore(Context context, Renderer renderer, RenderOption renderOption, TextPaint textPaint) {
 		mTextPaint = textPaint;
 		updateTextPaint(renderOption);
 
@@ -79,6 +84,11 @@ public class TextEngineCore {
 		mTypesetter = new ParagraphTypesetterImpl();
 		mRenderer = renderer;
 		mRenderOption = renderOption;
+
+		Resources resources = context.getResources();
+		if (resources != null) {
+			mFootHeight = resources.getDimension(R.dimen.me_chan_te_foot_height);
+		}
 	}
 
 	TextPaint getTextPaint() {
@@ -169,6 +179,8 @@ public class TextEngineCore {
 				typesetFigure((Figure) segment, mWidth);
 			} else if (segment instanceof Paragraph) {
 				mTypesetter.typeset((Paragraph) segment, mTextAttribute, mBreakStrategy);
+			} else if (segment instanceof Foot) {
+				typesetFoot((Foot) segment);
 			} else {
 				throw new RuntimeException("unknown segment type");
 			}
@@ -184,6 +196,11 @@ public class TextEngineCore {
 		if (!isInterrupted) {
 			mHandler.sendMessage(MSG_FINISHED, document);
 		}
+	}
+
+	private void typesetFoot(Foot foot) {
+		/* do nothing */
+		d("typeset foot, " + foot);
 	}
 
 	private float typesetPage(Document document, Segment segment, float height, float nextPageHeight, boolean isLastSegment) {
@@ -205,18 +222,27 @@ public class TextEngineCore {
 			return typesetFigureInPage(document, currentPage, (Figure) segment, height, nextPageHeight, isLastSegment);
 		} else if (segment instanceof Paragraph) {
 			return typesetParagraphInPage(document, currentPage, (Paragraph) segment, height, nextPageHeight, isLastSegment);
+		} else if (segment instanceof Foot) {
+			return typesetFootInPage(document, currentPage, (Foot) segment, height, nextPageHeight, isLastSegment);
 		}
 
 		throw new RuntimeException("unknown segment type");
 	}
 
+	private float typesetFootInPage(Document document, Page currentPage, Foot foot, float height, float currentHeight, boolean isLastSegment) {
+		return typesetInseparableSegmentInPage(document, currentPage, foot, height, currentHeight, mFootHeight, isLastSegment);
+	}
+
 	private float typesetFigureInPage(Document document, Page currentPage, Figure figure, float height, float currentHeight, boolean isLastSegment) {
+		return typesetInseparableSegmentInPage(document, currentPage, figure, height, currentHeight, figure.getHeight(), isLastSegment);
+	}
+
+	private float typesetInseparableSegmentInPage(Document document, Page currentPage, Segment segment, float height, float currentHeight, float currentSegmentHeight, boolean isLastSegment) {
 		if (currentPage.getSegmentCount() != 0) {
 			// 这里可以区分不同类型 选择不同的垂直方向偏移
 			currentHeight += mRenderOption.getSegmentSpace();
 		}
 
-		float currentSegmentHeight = figure.getHeight();
 		currentHeight += currentSegmentHeight;
 
 		// 当前页排不下
@@ -224,7 +250,7 @@ public class TextEngineCore {
 
 			// 但是要注意当前页啥东西都没有都排不下的情况，这时候强行塞到当前页并且创建一个新的页
 			if (currentPage.getSegmentCount() == 0) {
-				currentPage.addSegment(figure);
+				currentPage.addSegment(segment);
 				if (!isLastSegment) {
 					currentPage = Page.obtain();
 					document.addPage(currentPage);
@@ -236,11 +262,11 @@ public class TextEngineCore {
 			// 否则新起新的一页
 			currentPage = Page.obtain();
 			document.addPage(currentPage);
-			currentPage.addSegment(figure);
+			currentPage.addSegment(segment);
 			return currentSegmentHeight;
 		} else if (currentHeight == height) {
 			// 刚好放得下
-			currentPage.addSegment(figure);
+			currentPage.addSegment(segment);
 			// 如果不是最后一个segment，创建新的一页
 			if (!isLastSegment) {
 				currentPage = Page.obtain();
@@ -250,7 +276,7 @@ public class TextEngineCore {
 			return currentHeight;
 		} else {
 			// 足够排下
-			currentPage.addSegment(figure);
+			currentPage.addSegment(segment);
 			return currentHeight;
 		}
 	}

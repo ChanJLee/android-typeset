@@ -21,6 +21,7 @@ import me.chan.te.log.Log;
 import me.chan.te.measurer.Measurer;
 import me.chan.te.text.Document;
 import me.chan.te.text.Figure;
+import me.chan.te.text.Foot;
 import me.chan.te.text.OnClickedListener;
 import me.chan.te.text.TextAttribute;
 import me.chan.te.text.Paragraph;
@@ -88,6 +89,16 @@ public class BookParser implements Parser<CharSequence> {
 				skip(parser);
 			}
 		}
+
+		Foot foot = Foot.obtain(new OnClickedListener() {
+			@Override
+			public boolean onClicked(float x, float y) {
+				Log.d("BookParser", "click foot");
+				return true;
+			}
+		});
+		document.addSegment(foot);
+
 		return document;
 	}
 

@@ -6,6 +6,7 @@ import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextPaint;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -13,6 +14,8 @@ import me.chan.te.R;
 import me.chan.te.image.ImageLoader;
 import me.chan.te.measurer.Measurer;
 import me.chan.te.text.Figure;
+import me.chan.te.text.Foot;
+import me.chan.te.text.OnClickedListener;
 import me.chan.te.text.Page;
 import me.chan.te.text.Paragraph;
 import me.chan.te.text.Segment;
@@ -20,6 +23,7 @@ import me.chan.te.text.Segment;
 public class PageAdapter extends RecyclerView.Adapter<PageAdapter.Renderer> {
 	private static final int TYPE_PARAGRAPH = 1;
 	private static final int TYPE_FIGURE = 2;
+	private static final int TYPE_FOOT = 3;
 
 	private Page mPage;
 	private LayoutInflater mLayoutInflater;
@@ -39,9 +43,11 @@ public class PageAdapter extends RecyclerView.Adapter<PageAdapter.Renderer> {
 	public Renderer onCreateViewHolder(@NonNull ViewGroup viewGroup, int type) {
 		if (type == TYPE_PARAGRAPH) {
 			return new ParagraphRenderer(mLayoutInflater.inflate(R.layout.me_chan_te_text, viewGroup, false));
+		} else if (type == TYPE_FIGURE) {
+			return new FigureRenderer(mLayoutInflater.inflate(R.layout.me_chan_te_figure, viewGroup, false));
+		} else {
+			return new FootRenderer(mLayoutInflater.inflate(R.layout.me_chan_te_foot, viewGroup, false));
 		}
-
-		return new FigureRenderer(mLayoutInflater.inflate(R.layout.me_chan_te_figure, viewGroup, false));
 	}
 
 	@Override
@@ -57,7 +63,15 @@ public class PageAdapter extends RecyclerView.Adapter<PageAdapter.Renderer> {
 	@Override
 	public int getItemViewType(int position) {
 		Segment segment = mPage.getSegment(position);
-		return segment instanceof Paragraph ? TYPE_PARAGRAPH : TYPE_FIGURE;
+		if (segment instanceof Paragraph) {
+			return TYPE_PARAGRAPH;
+		} else if (segment instanceof Figure) {
+			return TYPE_FIGURE;
+		} else if (segment instanceof Foot) {
+			return TYPE_FOOT;
+		}
+
+		throw new RuntimeException("unknown segment type");
 	}
 
 	@Override
@@ -151,6 +165,44 @@ public class PageAdapter extends RecyclerView.Adapter<PageAdapter.Renderer> {
 		@Override
 		public void render(Figure figure) {
 			mFigureView.render(mImageLoader, figure);
+		}
+	}
+
+	class FootRenderer extends Renderer<Foot> {
+
+		private View mBtnFoot;
+		private Foot mData;
+
+		FootRenderer(@NonNull View itemView) {
+			super(itemView);
+		}
+
+		@Override
+		protected void onCreate(View view) {
+			mBtnFoot = view.findViewById(R.id.finish);
+			mBtnFoot.setOnTouchListener(new View.OnTouchListener() {
+				@Override
+				public boolean onTouch(View v, MotionEvent event) {
+					if (mData == null) {
+						return false;
+					}
+
+					OnClickedListener onClickedListener = mData.getOnClickedListener();
+					if (onClickedListener == null) {
+						return false;
+					}
+
+					if (event.getAction() == MotionEvent.ACTION_DOWN) {
+						return onClickedListener.onClicked(event.getRawX(), event.getRawY());
+					}
+					return true;
+				}
+			});
+		}
+
+		@Override
+		public void render(final Foot data) {
+			mData = data;
 		}
 	}
 

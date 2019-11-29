@@ -26,7 +26,7 @@ public abstract class Renderer {
 		mRenderOption = renderOption;
 		mImageLoader = new ImageLoader(context);
 		mLayoutInflater = LayoutInflater.from(context);
-		mTextEngineCore = new TextEngineCore(this, mRenderOption);
+		mTextEngineCore = new TextEngineCore(context, this, mRenderOption);
 	}
 
 	public ImageLoader getImageLoader() {
