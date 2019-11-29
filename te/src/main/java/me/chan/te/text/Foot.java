@@ -6,19 +6,13 @@ public class Foot extends Segment {
 	private static final ObjectFactory<Foot> POOL = new ObjectFactory<>(4);
 
 	private OnClickedListener mOnClickedListener;
-	private CharSequence mText;
 
-	public Foot(CharSequence text, OnClickedListener onClickedListener) {
+	public Foot(OnClickedListener onClickedListener) {
 		mOnClickedListener = onClickedListener;
-		mText = text;
 	}
 
 	public OnClickedListener getOnClickedListener() {
 		return mOnClickedListener;
-	}
-
-	public CharSequence getText() {
-		return mText;
 	}
 
 	@Override
@@ -29,17 +23,15 @@ public class Foot extends Segment {
 
 		super.recycle();
 		mOnClickedListener = null;
-		mText = null;
 		POOL.release(this);
 	}
 
-	public static Foot obtain(CharSequence text, OnClickedListener onClickedListener) {
+	public static Foot obtain(OnClickedListener onClickedListener) {
 		Foot foot = POOL.acquire();
 		if (foot == null) {
-			return new Foot(text, onClickedListener);
+			return new Foot(onClickedListener);
 		}
 
-		foot.mText = text;
 		foot.mOnClickedListener = onClickedListener;
 		foot.reuse();
 		return foot;
