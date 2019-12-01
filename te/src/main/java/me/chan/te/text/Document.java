@@ -10,17 +10,19 @@ import me.chan.te.misc.ObjectFactory;
 
 public final class Document extends DefaultRecyclable {
 	private static final ObjectFactory<Document> POOL = new ObjectFactory<>(8);
-	public final static Document EMPTY = obtain();
+	public final static Document EMPTY = obtain(null);
 
 	private List<Segment> mSegments;
 	private List<Page> mPages;
+	private OnClickedListener mOnClickedListener;
 
 	private Object mRaw;
 
-	private Document() {
+	private Document(OnClickedListener onClickedListener) {
 		Te.MemoryOption memoryOption = Te.getMemoryOption();
 		mSegments = new ArrayList<>(memoryOption.getDocumentSegmentInitialCapacity());
 		mPages = new ArrayList<>(memoryOption.getDocumentPageInitialCapacity());
+		mOnClickedListener = onClickedListener;
 	}
 
 	@Hidden
@@ -31,6 +33,10 @@ public final class Document extends DefaultRecyclable {
 	@Hidden
 	public void setRaw(Object raw) {
 		mRaw = raw;
+	}
+
+	public OnClickedListener getOnClickedListener() {
+		return mOnClickedListener;
 	}
 
 	/**
@@ -88,6 +94,7 @@ public final class Document extends DefaultRecyclable {
 		}
 		mPages.clear();
 		mRaw = null;
+		mOnClickedListener = null;
 		POOL.release(this);
 	}
 
@@ -97,10 +104,15 @@ public final class Document extends DefaultRecyclable {
 	}
 
 	public static Document obtain() {
+		return obtain(null);
+	}
+
+	public static Document obtain(OnClickedListener onClickedListener) {
 		Document document = POOL.acquire();
 		if (document == null) {
-			return new Document();
+			return new Document(onClickedListener);
 		}
+		document.mOnClickedListener = onClickedListener;
 		document.reuse();
 		return document;
 	}

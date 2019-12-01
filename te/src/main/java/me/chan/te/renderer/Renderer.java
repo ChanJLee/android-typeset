@@ -1,6 +1,7 @@
 package me.chan.te.renderer;
 
 import android.content.Context;
+import android.support.annotation.Nullable;
 import android.text.TextPaint;
 import android.view.LayoutInflater;
 
@@ -158,6 +159,14 @@ public abstract class Renderer {
 		}
 
 		invalidate();
+	}
+
+	@Nullable
+	protected Document getDocument() {
+		if (mTextEngineCore == null) {
+			return null;
+		}
+		return mTextEngineCore.getDocument();
 	}
 
 	protected abstract void invalidate();

@@ -5,13 +5,13 @@ import android.support.annotation.NonNull;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
 import me.chan.te.measurer.Measurer;
 import me.chan.te.text.Document;
+import me.chan.te.text.OnClickedListener;
 
 class PagingRenderer extends Renderer {
 
@@ -73,10 +73,24 @@ class PagingRenderer extends Renderer {
 		public Object instantiateItem(@NonNull ViewGroup container, int position) {
 			RenderOption renderOption = getRenderOption();
 			Context context = getContext();
-			RecyclerView impl = new RecyclerView(context);
+			TeRecyclerView impl = new TeRecyclerView(context);
 			impl.setNestedScrollingEnabled(false);
 			impl.setClipToPadding(false);
 			impl.setClipChildren(false);
+			impl.setOnClickedListener(new OnClickedListener() {
+				@Override
+				public void onClicked(float x, float y) {
+					Document document = getDocument();
+					if (document == null) {
+						return;
+					}
+
+					OnClickedListener onClickedListener = document.getOnClickedListener();
+					if (onClickedListener != null) {
+						onClickedListener.onClicked(x, y);
+					}
+				}
+			});
 			LinearLayoutManager linearLayoutManager = new LinearLayoutManager(context) {
 				@Override
 				public boolean canScrollVertically() {
