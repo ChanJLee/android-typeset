@@ -18,6 +18,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import me.chan.te.R;
+import me.chan.te.log.Log;
 import me.chan.te.parser.Parser;
 import me.chan.te.source.Source;
 import me.chan.te.text.BreakStrategy;
@@ -34,6 +35,7 @@ public class TeView extends FrameLayout {
 	private static Map<String, WeakReference<Typeface>> TYPEFACE_CACHE = new HashMap<>();
 
 	private Renderer mRenderer;
+	private ViewTreeObserver.OnGlobalLayoutListener mLastOnGlobalLayoutListener = null;
 
 	public TeView(Context context, AttributeSet attrs) {
 		this(context, attrs, 0);
@@ -155,39 +157,62 @@ public class TeView extends FrameLayout {
 		int width = getWidth();
 		int height = getHeight();
 		if (width <= 0 || height <= 0) {
-			getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+			i("unknown size, try later, width: " + width + " height: " + height);
+			ViewTreeObserver viewTreeObserver = getViewTreeObserver();
+			if (mLastOnGlobalLayoutListener != null) {
+				d("remove last on global layout listener");
+				viewTreeObserver.removeOnGlobalLayoutListener(mLastOnGlobalLayoutListener);
+			}
+
+			mLastOnGlobalLayoutListener = new ViewTreeObserver.OnGlobalLayoutListener() {
 				@Override
 				public void onGlobalLayout() {
 					getViewTreeObserver().removeOnGlobalLayoutListener(this);
 					mRenderer.render(source, getWidth(), getHeight());
+					mLastOnGlobalLayoutListener = null;
 				}
-			});
+			};
+			getViewTreeObserver().addOnGlobalLayoutListener(mLastOnGlobalLayoutListener);
 			return;
 		}
 
+		d("set source direct");
 		mRenderer.render(source, width, height);
 	}
 
 	public void clearSelection() {
+		d("clear selection");
 		mRenderer.clearSelection();
 	}
 
 	public RenderOption createRendererOption() {
+		d("create new renderer option");
 		return mRenderer.createRendererOption();
 	}
 
+	// TODO 考虑要不要暴露接口
 	public void setParser(Parser<?> parser) {
+		d("set parser");
 		mRenderer.setParser(parser);
 	}
 
 	public void refresh(RenderOption renderOption) {
+		d("refresh render option");
 		mRenderer.refresh(renderOption);
 	}
 
 	@Override
 	protected void onDetachedFromWindow() {
-		// TODO need test
+		i("on detached from window");
 		mRenderer.release();
 		super.onDetachedFromWindow();
+	}
+
+	private static void d(String msg) {
+		Log.d("Texas", msg);
+	}
+
+	private static void i(String msg) {
+		Log.i("Texas", msg);
 	}
 }
