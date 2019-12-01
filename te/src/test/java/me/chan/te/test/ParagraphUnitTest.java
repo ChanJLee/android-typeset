@@ -60,8 +60,7 @@ public class ParagraphUnitTest {
 		ColorDrawable colorDrawable = new ColorDrawable(10);
 		OnClickedListener onClickedListener = new OnClickedListener() {
 			@Override
-			public boolean onClicked(float x, float y) {
-				return false;
+			public void onClicked(float x, float y) {
 			}
 		};
 		builder.drawable(colorDrawable, 1, 2, onClickedListener);
@@ -69,8 +68,7 @@ public class ParagraphUnitTest {
 
 		OnClickedListener spanOnClickedListener = new OnClickedListener() {
 			@Override
-			public boolean onClicked(float x, float y) {
-				return false;
+			public void onClicked(float x, float y) {
 			}
 		};
 		Background background = Background.obtain(10);
