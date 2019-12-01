@@ -476,11 +476,17 @@ public class DataUnitTest {
 	@Test
 	public void testDocument() {
 		String msg = "hello";
-		Document document = Document.obtain();
+		OnClickedListener onClickedListener = new OnClickedListener() {
+			@Override
+			public void onClicked(float x, float y) {
+			}
+		};
+		Document document = Document.obtain(onClickedListener);
 		Assert.assertNotNull(document);
 		Assert.assertFalse(document.isRecycled());
 		Assert.assertEquals(document.getSegmentCount(), 0);
 		Assert.assertEquals(document.getPageCount(), 0);
+		Assert.assertSame(onClickedListener, document.getOnClickedListener());
 		document.setRaw(msg);
 		Assert.assertSame(document.getRaw(), msg);
 		try {
@@ -515,6 +521,7 @@ public class DataUnitTest {
 
 		Document previous = document;
 		document.recycle();
+		Assert.assertNull(document.getOnClickedListener());
 		Assert.assertNull(document.getRaw());
 		Assert.assertTrue(document.isRecycled());
 
