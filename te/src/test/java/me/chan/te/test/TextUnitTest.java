@@ -123,14 +123,12 @@ public class TextUnitTest {
 
 		OnClickedListener onClickedListener = new OnClickedListener() {
 			@Override
-			public boolean onClicked(float x, float y) {
-				return false;
+			public void onClicked(float x, float y) {
 			}
 		};
 		OnClickedListener onSpanClickedListener = new OnClickedListener() {
 			@Override
-			public boolean onClicked(float x, float y) {
-				return false;
+			public void onClicked(float x, float y) {
 			}
 		};
 		box.setOnClickedListener(onClickedListener);
@@ -271,8 +269,7 @@ public class TextUnitTest {
 		TextBox.Attribute attribute = TextBox.Attribute.obtain();
 		OnClickedListener onClickedListener = new OnClickedListener() {
 			@Override
-			public boolean onClicked(float x, float y) {
-				return false;
+			public void onClicked(float x, float y) {
 			}
 		};
 		TextBox box1 = TextBox.obtain(msg, 0, msg.length(), mMockTextPaint.getMockTextSize() * msg.length(), mMockTextPaint.getMockTextHeight(), onClickedListener, attribute);
@@ -388,8 +385,7 @@ public class TextUnitTest {
 		String msg = "hello world";
 		OnClickedListener onClickedListener = new OnClickedListener() {
 			@Override
-			public boolean onClicked(float x, float y) {
-				return false;
+			public void onClicked(float x, float y) {
 			}
 		};
 		TextBox.Attribute attribute = TextBox.Attribute.obtain();
@@ -400,8 +396,7 @@ public class TextUnitTest {
 		box.setSelected(true);
 		box.setOnClickedListener(new OnClickedListener() {
 			@Override
-			public boolean onClicked(float x, float y) {
-				return false;
+			public void onClicked(float x, float y) {
 			}
 		});
 

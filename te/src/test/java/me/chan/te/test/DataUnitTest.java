@@ -231,8 +231,7 @@ public class DataUnitTest {
 		Drawable drawable = new ColorDrawable(19);
 		OnClickedListener onClickedListener = new OnClickedListener() {
 			@Override
-			public boolean onClicked(float x, float y) {
-				return false;
+			public void onClicked(float x, float y) {
 			}
 		};
 		DrawableBox drawableBox = DrawableBox.obtain(drawable, 1, 2, onClickedListener);
@@ -546,8 +545,7 @@ public class DataUnitTest {
 	public void testFoot() {
 		OnClickedListener onClickedListener = new OnClickedListener() {
 			@Override
-			public boolean onClicked(float x, float y) {
-				return false;
+			public void onClicked(float x, float y) {
 			}
 		};
 		Foot foot = Foot.obtain(onClickedListener);
