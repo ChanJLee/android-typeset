@@ -2,12 +2,12 @@ package me.chan.te.renderer;
 
 import android.content.Context;
 import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
 import me.chan.te.measurer.Measurer;
 import me.chan.te.text.Document;
+import me.chan.te.text.OnClickedListener;
 import me.chan.te.text.Page;
 
 public class SlidingRenderer extends Renderer {
@@ -17,9 +17,23 @@ public class SlidingRenderer extends Renderer {
 	public SlidingRenderer(TeView viewGroup, RenderOption renderOption) {
 		super(viewGroup.getContext(), renderOption);
 		Context context = viewGroup.getContext();
-		RecyclerView impl = new RecyclerView(context);
+		TeRecyclerView impl = new TeRecyclerView(context);
 		impl.setClipToPadding(false);
 		impl.setClipChildren(false);
+		impl.setOnClickedListener(new OnClickedListener() {
+			@Override
+			public void onClicked(float x, float y) {
+				Document document = getDocument();
+				if (document == null) {
+					return;
+				}
+
+				OnClickedListener onClickedListener = document.getOnClickedListener();
+				if (onClickedListener != null) {
+					onClickedListener.onClicked(x, y);
+				}
+			}
+		});
 		impl.addItemDecoration(new SpaceItemDecoration(renderOption.getSegmentSpace()));
 		impl.setLayoutManager(new LinearLayoutManager(context));
 		viewGroup.addView(impl, new TeView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));

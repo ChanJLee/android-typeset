@@ -74,8 +74,13 @@ public class BookParser implements Parser<CharSequence> {
 
 	private Document parseArticleContent(XmlPullParser parser, Measurer measurer, Hypher hypher, TextAttribute textAttribute) throws IOException, XmlPullParserException {
 		parser.require(XmlPullParser.START_TAG, null, "article_content");
-		String id = parser.getAttributeValue(null, "id");
-		Document document = Document.obtain();
+		final String id = parser.getAttributeValue(null, "id");
+		Document document = Document.obtain(new OnClickedListener() {
+			@Override
+			public void onClicked(float x, float y) {
+				Log.d("BookParser", "click empty, x: " + x + ", y: " + y + ", id: " + id);
+			}
+		});
 
 		while (parser.next() != XmlPullParser.END_TAG) {
 			int eventType = parser.getEventType();
@@ -92,9 +97,8 @@ public class BookParser implements Parser<CharSequence> {
 
 		Foot foot = Foot.obtain(new OnClickedListener() {
 			@Override
-			public boolean onClicked(float x, float y) {
+			public void onClicked(float x, float y) {
 				Log.d("BookParser", "click foot");
-				return true;
 			}
 		});
 		document.addSegment(foot);
@@ -213,9 +217,8 @@ public class BookParser implements Parser<CharSequence> {
 		final String id = parser.getAttributeValue(null, "id");
 		OnClickedListener sentOnClickedListener = new OnClickedListener() {
 			@Override
-			public boolean onClicked(float x, float y) {
+			public void onClicked(float x, float y) {
 				Log.d("BookParser", "select sent: " + id);
-				return true;
 			}
 		};
 		String text = safeNextText(parser);
@@ -238,9 +241,8 @@ public class BookParser implements Parser<CharSequence> {
 					.setForeground(UnderLine.obtain(Color.RED))
 					.setOnClickedListener(new OnClickedListener() {
 						@Override
-						public boolean onClicked(float x, float y) {
+						public void onClicked(float x, float y) {
 							Log.d("BookParser", "click: " + text);
-							return true;
 						}
 					})
 					.buildSpan();

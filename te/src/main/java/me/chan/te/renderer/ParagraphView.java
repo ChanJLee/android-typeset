@@ -169,6 +169,8 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 			return false;
 		}
 
+		onClickedListener.onClicked(e.getRawX(), e.getRawY());
+
 		Selection selection = getIfParagraphSelection(mParagraph, onClickedListener, isLongClicked);
 		mParagraph.setSelection(selection);
 

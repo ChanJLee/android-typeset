@@ -6,7 +6,6 @@ import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextPaint;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -180,22 +179,17 @@ public class PageAdapter extends RecyclerView.Adapter<PageAdapter.Renderer> {
 		@Override
 		protected void onCreate(View view) {
 			mBtnFoot = view.findViewById(R.id.finish);
-			mBtnFoot.setOnTouchListener(new View.OnTouchListener() {
+			mBtnFoot.setOnTouchListener(new TeOnTouchListener(view.getContext()) {
 				@Override
-				public boolean onTouch(View v, MotionEvent event) {
+				protected void onClicked(float x, float y) {
 					if (mData == null) {
-						return false;
+						return;
 					}
 
 					OnClickedListener onClickedListener = mData.getOnClickedListener();
-					if (onClickedListener == null) {
-						return false;
+					if (onClickedListener != null) {
+						onClickedListener.onClicked(x, y);
 					}
-
-					if (event.getAction() == MotionEvent.ACTION_DOWN) {
-						return onClickedListener.onClicked(event.getRawX(), event.getRawY());
-					}
-					return true;
 				}
 			});
 		}
