@@ -17,7 +17,7 @@ public class SlidingRenderer extends Renderer {
 	public SlidingRenderer(TeView viewGroup, RenderOption renderOption) {
 		super(viewGroup.getContext(), renderOption);
 		Context context = viewGroup.getContext();
-		TeRecyclerView impl = new TeRecyclerView(context);
+		RecyclerViewInternal impl = new RecyclerViewInternal(context);
 		impl.setClipToPadding(false);
 		impl.setClipChildren(false);
 		impl.setOnClickedListener(new OnClickedListener() {

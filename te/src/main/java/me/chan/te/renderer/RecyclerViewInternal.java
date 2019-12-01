@@ -9,27 +9,27 @@ import android.view.MotionEvent;
 
 import me.chan.te.text.OnClickedListener;
 
-public class TeRecyclerView extends RecyclerView {
-	private TeOnTouchListener mTeOnTouchListener;
+class RecyclerViewInternal extends RecyclerView {
+	private SingleClickOnTouchListener mTeOnTouchListener;
 	private OnClickedListener mOnClickedListener;
 
-	public TeRecyclerView(@NonNull Context context) {
+	public RecyclerViewInternal(@NonNull Context context) {
 		super(context);
 		init(context);
 	}
 
-	public TeRecyclerView(@NonNull Context context, @Nullable AttributeSet attrs) {
+	public RecyclerViewInternal(@NonNull Context context, @Nullable AttributeSet attrs) {
 		super(context, attrs);
 		init(context);
 	}
 
-	public TeRecyclerView(@NonNull Context context, @Nullable AttributeSet attrs, int defStyle) {
+	public RecyclerViewInternal(@NonNull Context context, @Nullable AttributeSet attrs, int defStyle) {
 		super(context, attrs, defStyle);
 		init(context);
 	}
 
 	private void init(Context context) {
-		mTeOnTouchListener = new TeOnTouchListener(context) {
+		mTeOnTouchListener = new SingleClickOnTouchListener(context) {
 			@Override
 			protected void onClicked(float x, float y) {
 				if (mOnClickedListener != null) {
