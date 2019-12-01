@@ -73,7 +73,7 @@ class PagingRenderer extends Renderer {
 		public Object instantiateItem(@NonNull ViewGroup container, int position) {
 			RenderOption renderOption = getRenderOption();
 			Context context = getContext();
-			TeRecyclerView impl = new TeRecyclerView(context);
+			RecyclerViewInternal impl = new RecyclerViewInternal(context);
 			impl.setNestedScrollingEnabled(false);
 			impl.setClipToPadding(false);
 			impl.setClipChildren(false);

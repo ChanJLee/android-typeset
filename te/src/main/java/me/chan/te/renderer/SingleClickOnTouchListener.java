@@ -5,13 +5,13 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
 
-public abstract class TeOnTouchListener implements View.OnTouchListener {
+public abstract class SingleClickOnTouchListener implements View.OnTouchListener {
 	private final int mTouchSlopSquare;
 	private float mLastX;
 	private float mLastY;
 	private boolean mIgnore = false;
 
-	public TeOnTouchListener(Context context) {
+	public SingleClickOnTouchListener(Context context) {
 		final ViewConfiguration configuration = ViewConfiguration.get(context);
 		final int touchSlop = configuration.getScaledTouchSlop();
 		mTouchSlopSquare = touchSlop * touchSlop;

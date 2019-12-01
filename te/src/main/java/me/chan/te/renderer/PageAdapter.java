@@ -179,7 +179,7 @@ public class PageAdapter extends RecyclerView.Adapter<PageAdapter.Renderer> {
 		@Override
 		protected void onCreate(View view) {
 			mBtnFoot = view.findViewById(R.id.finish);
-			mBtnFoot.setOnTouchListener(new TeOnTouchListener(view.getContext()) {
+			mBtnFoot.setOnTouchListener(new SingleClickOnTouchListener(view.getContext()) {
 				@Override
 				protected void onClicked(float x, float y) {
 					if (mData == null) {
