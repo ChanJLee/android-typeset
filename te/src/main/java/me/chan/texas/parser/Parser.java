@@ -2,7 +2,7 @@ package me.chan.texas.parser;
 
 import androidx.annotation.NonNull;
 
-import me.chan.texas.text.RenderOption;
+import me.chan.texas.renderer.RenderOption;
 import me.chan.texas.text.Document;
 import me.chan.texas.hypher.Hypher;
 import me.chan.texas.measurer.Measurer;

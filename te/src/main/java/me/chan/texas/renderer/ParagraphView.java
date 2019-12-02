@@ -24,7 +24,6 @@ import me.chan.texas.text.Foreground;
 import me.chan.texas.text.Gravity;
 import me.chan.texas.text.OnClickedListener;
 import me.chan.texas.text.Paragraph;
-import me.chan.texas.text.RenderOption;
 import me.chan.texas.text.TextBox;
 import me.chan.texas.text.TextStyle;
 

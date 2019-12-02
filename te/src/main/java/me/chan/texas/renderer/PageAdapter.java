@@ -17,7 +17,6 @@ import me.chan.texas.text.Foot;
 import me.chan.texas.text.OnClickedListener;
 import me.chan.texas.text.Page;
 import me.chan.texas.text.Paragraph;
-import me.chan.texas.text.RenderOption;
 import me.chan.texas.text.Segment;
 
 public class PageAdapter extends RecyclerView.Adapter<PageAdapter.Renderer> {

@@ -9,7 +9,6 @@ import me.chan.texas.measurer.Measurer;
 import me.chan.texas.text.Document;
 import me.chan.texas.text.OnClickedListener;
 import me.chan.texas.text.Page;
-import me.chan.texas.text.RenderOption;
 
 public class SlidingRenderer extends Renderer {
 

@@ -9,7 +9,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
-import me.chan.texas.text.RenderOption;
+import me.chan.texas.renderer.RenderOption;
 import me.chan.texas.text.Box;
 import me.chan.texas.text.Document;
 import me.chan.texas.text.Glue;
