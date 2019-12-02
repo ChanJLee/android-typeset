@@ -141,7 +141,12 @@ public class BookParser implements Parser<CharSequence> {
 		}
 
 		if (lastState == STATE_SENT) {
-			builder.drawable(ContextCompat.getDrawable(mContext, R.drawable.me_chan_te_icon_no_note), mFlagWidth, mFlagHeight);
+			builder.drawable(ContextCompat.getDrawable(mContext, R.drawable.me_chan_te_flag), mFlagWidth, mFlagHeight, new OnClickedListener() {
+				@Override
+				public void onClicked(float x, float y) {
+					Log.d("BookParser", "click image");
+				}
+			});
 		}
 
 		Paragraph paragraph = builder.build();

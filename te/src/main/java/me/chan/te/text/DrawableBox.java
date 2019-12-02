@@ -2,6 +2,7 @@ package me.chan.te.text;
 
 import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.StateListDrawable;
 import android.support.annotation.NonNull;
 import android.text.TextPaint;
 
@@ -9,6 +10,12 @@ import me.chan.te.misc.ObjectFactory;
 
 public class DrawableBox extends Box {
 	private static final ObjectFactory<DrawableBox> POOL = new ObjectFactory<>(512);
+	private static final int[] STATE_PRESSED = {
+			android.R.attr.state_pressed,
+	};
+	private static final int[] STATE_NORMAL = {
+			-android.R.attr.state_pressed
+	};
 
 	private Drawable mDrawable;
 
@@ -20,8 +27,15 @@ public class DrawableBox extends Box {
 
 	@Override
 	public void draw(Canvas canvas, TextPaint paint, float x, float y) {
-		mDrawable.setBounds((int) x, (int) (y - getHeight()), (int) (x + getWidth()), (int) y);
-		mDrawable.draw(canvas);
+		Drawable drawable = mDrawable;
+		if (mDrawable instanceof StateListDrawable) {
+			StateListDrawable stateListDrawable = (StateListDrawable) mDrawable;
+			stateListDrawable.setState(isSelected() ? STATE_PRESSED : STATE_NORMAL);
+			drawable = stateListDrawable.getCurrent();
+		}
+
+		drawable.setBounds((int) x, (int) (y - getHeight()), (int) (x + getWidth()), (int) y);
+		drawable.draw(canvas);
 	}
 
 	public Drawable getDrawable() {
