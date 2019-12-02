@@ -1,7 +1,7 @@
 package me.chan.texas.renderer;
 
 import android.graphics.Typeface;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import me.chan.texas.text.BreakStrategy;
 

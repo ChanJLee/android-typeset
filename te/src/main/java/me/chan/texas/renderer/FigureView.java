@@ -6,7 +6,7 @@ import android.util.AttributeSet;
 import me.chan.texas.image.ImageLoader;
 import me.chan.texas.text.Figure;
 
-public class FigureView extends android.support.v7.widget.AppCompatImageView {
+public class FigureView extends androidx.appcompat.widget.AppCompatImageView {
 	private Figure mFigure;
 
 	public FigureView(Context context) {

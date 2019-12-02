@@ -1,7 +1,7 @@
 package me.chan.texas.renderer;
 
 import android.content.Context;
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import android.text.TextPaint;
 import android.view.LayoutInflater;
 

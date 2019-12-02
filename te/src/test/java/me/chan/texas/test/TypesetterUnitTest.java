@@ -18,6 +18,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
+import me.chan.texas.renderer.RenderOption;
 import me.chan.texas.text.TextAttribute;
 import me.chan.texas.text.Box;
 import me.chan.texas.text.DrawableBox;
@@ -139,7 +140,8 @@ public class TypesetterUnitTest {
 
 		ParagraphTypesetterImpl texTypesetter = new ParagraphTypesetterImpl();
 		TextParser textParser = new TextParser();
-		Document document = textParser.parse(text, measurer, Hypher.getInstance(), attribute);
+		RenderOption renderOption = new RenderOption();
+		Document document = textParser.parse(text, measurer, Hypher.getInstance(), attribute, renderOption);
 		assertNotEquals(document.getSegmentCount(), 0);
 
 		StringBuilder stringBuilder = new StringBuilder();
