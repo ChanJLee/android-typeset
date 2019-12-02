@@ -164,6 +164,7 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 		if (mLastTouchBox instanceof DrawableBox) {
 			Selection selection = new Selection(mParagraph);
 			mLastTouchBox.setSelected(true);
+			selection.addBox(mLastTouchBox);
 			mParagraph.setSelection(selection);
 			invalidate();
 			return true;
@@ -550,6 +551,7 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 
 				mHasContent = true;
 				mRectF.right = right;
+				mSelection.addBox(box);
 				box.setSelected(true);
 			}
 		}

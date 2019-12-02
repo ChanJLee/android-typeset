@@ -8,12 +8,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 import me.chan.te.annotations.Hidden;
+import me.chan.te.text.Box;
 import me.chan.te.text.Paragraph;
 
 @Hidden
 public class Selection {
 	private Paragraph mParagraph;
 	private List<RectF> mBackgrounds = new ArrayList<>();
+	private List<Box> mBoxes = new ArrayList<>();
 
 	public Selection(Paragraph paragraph) {
 		mParagraph = paragraph;
@@ -37,7 +39,11 @@ public class Selection {
 		}
 	}
 
+	public void addBox(Box box) {
+		mBoxes.add(box);
+	}
+
 	public boolean hasContent() {
-		return !mBackgrounds.isEmpty();
+		return !mBoxes.isEmpty();
 	}
 }

@@ -144,7 +144,6 @@ public abstract class Renderer {
 			return;
 		}
 
-		// TODO 减少循环
 		int pageCount = document.getPageCount();
 		for (int pageIndex = 0; pageIndex < pageCount; ++pageCount) {
 			Page page = document.getPage(pageIndex);
@@ -156,21 +155,7 @@ public abstract class Renderer {
 				}
 
 				Paragraph paragraph = (Paragraph) segment;
-				Selection selection = paragraph.getSelection();
-				if (selection == null) {
-					continue;
-				}
-
 				paragraph.setSelection(null);
-				int lineCount = paragraph.getLineCount();
-				for (int lineIndex = 0; lineIndex < lineCount; ++lineIndex) {
-					Paragraph.Line line = paragraph.getLine(lineIndex);
-					int boxCount = line.getCount();
-					for (int boxIndex = 0; boxIndex < boxCount; ++boxIndex) {
-						Box box = line.getBox(boxIndex);
-						box.setSelected(false);
-					}
-				}
 			}
 		}
 
