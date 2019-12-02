@@ -16,9 +16,11 @@ public class Selection {
 	private Paragraph mParagraph;
 	private List<RectF> mBackgrounds = new ArrayList<>();
 	private List<Box> mBoxes = new ArrayList<>();
+	private boolean mIsLongClicked = false;
 
-	public Selection(Paragraph paragraph) {
+	public Selection(Paragraph paragraph, boolean isLongClicked) {
 		mParagraph = paragraph;
+		mIsLongClicked = isLongClicked;
 	}
 
 	public Paragraph getParagraph() {
@@ -31,6 +33,10 @@ public class Selection {
 
 	public void addSelectArea(RectF rectF) {
 		mBackgrounds.add(rectF);
+	}
+
+	public boolean isLongClicked() {
+		return mIsLongClicked;
 	}
 
 	public void draw(Canvas canvas, TextPaint textPaint, float radius) {
