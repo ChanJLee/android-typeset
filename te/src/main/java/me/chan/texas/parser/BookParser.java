@@ -19,7 +19,7 @@ import me.chan.texas.R;
 import me.chan.texas.hypher.Hypher;
 import me.chan.texas.log.Log;
 import me.chan.texas.measurer.Measurer;
-import me.chan.texas.text.RenderOption;
+import me.chan.texas.renderer.RenderOption;
 import me.chan.texas.text.Document;
 import me.chan.texas.text.Figure;
 import me.chan.texas.text.Foot;

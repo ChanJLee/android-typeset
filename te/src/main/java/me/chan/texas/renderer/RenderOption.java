@@ -1,9 +1,9 @@
-package me.chan.texas.text;
+package me.chan.texas.renderer;
 
 import android.graphics.Typeface;
 import androidx.annotation.NonNull;
 
-import me.chan.texas.renderer.RendererMode;
+import me.chan.texas.text.BreakStrategy;
 
 public class RenderOption {
 	private int mTextColor;
