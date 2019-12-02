@@ -1,6 +1,6 @@
 package me.chan.texas.text;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import me.chan.texas.misc.ObjectFactory;
 

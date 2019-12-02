@@ -1,7 +1,7 @@
 package me.chan.texas.text;
 
 import android.annotation.SuppressLint;
-import android.support.v4.util.SparseArrayCompat;
+import androidx.collection.SparseArrayCompat;
 
 import me.chan.texas.measurer.Measurer;
 

@@ -158,7 +158,7 @@ public class TextEngineCore {
 		// parse
 		long timestamp = SystemClock.elapsedRealtime();
 		try {
-			document = mParser.parse(content, mMeasurer, Hypher.getInstance(), mTextAttribute);
+			document = mParser.parse(content, mMeasurer, Hypher.getInstance(), mTextAttribute, mRenderOption);
 		} catch (InterruptedException e) {
 			i("interrupted when parse");
 			return;
@@ -447,10 +447,10 @@ public class TextEngineCore {
 	}
 
 	private static void d(String msg) {
-		Log.d("TextEngineCore", msg);
+		Log.d("TexasCore", msg);
 	}
 
 	private static void i(String msg) {
-		Log.i("TextEngineCore", msg);
+		Log.i("TexasCore", msg);
 	}
 }

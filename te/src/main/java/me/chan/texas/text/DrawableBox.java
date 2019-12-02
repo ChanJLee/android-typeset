@@ -3,7 +3,7 @@ package me.chan.texas.text;
 import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.StateListDrawable;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 import android.text.TextPaint;
 
 import me.chan.texas.misc.ObjectFactory;

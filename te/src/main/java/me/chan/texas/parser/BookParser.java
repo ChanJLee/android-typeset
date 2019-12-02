@@ -3,8 +3,8 @@ package me.chan.texas.parser;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Color;
-import android.support.annotation.NonNull;
-import android.support.v4.content.ContextCompat;
+import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import android.text.TextUtils;
 import android.util.Xml;
 
@@ -19,6 +19,7 @@ import me.chan.texas.R;
 import me.chan.texas.hypher.Hypher;
 import me.chan.texas.log.Log;
 import me.chan.texas.measurer.Measurer;
+import me.chan.texas.renderer.RenderOption;
 import me.chan.texas.text.Document;
 import me.chan.texas.text.Figure;
 import me.chan.texas.text.Foot;
@@ -43,7 +44,8 @@ public class BookParser implements Parser<CharSequence> {
 
 	@NonNull
 	@Override
-	public Document parse(@NonNull CharSequence charSequence, Measurer measurer, Hypher hypher, TextAttribute textAttribute) throws ParseException {
+	public Document parse(@NonNull CharSequence charSequence, Measurer measurer, Hypher hypher,
+						  TextAttribute textAttribute, RenderOption renderOption) throws ParseException {
 		XmlPullParser xmlPullParser = Xml.newPullParser();
 		try {
 			xmlPullParser.setInput(new StringReader((String) charSequence));

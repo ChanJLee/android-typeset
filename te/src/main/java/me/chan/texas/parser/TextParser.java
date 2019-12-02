@@ -1,9 +1,10 @@
 package me.chan.texas.parser;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import me.chan.texas.hypher.Hypher;
 import me.chan.texas.measurer.Measurer;
+import me.chan.texas.renderer.RenderOption;
 import me.chan.texas.text.Document;
 import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.TextAttribute;
@@ -11,11 +12,12 @@ import me.chan.texas.text.TextAttribute;
 public class TextParser implements Parser<CharSequence> {
 	@Override
 	@NonNull
-	public Document parse(CharSequence charSequence, Measurer measurer, Hypher hypher, TextAttribute textAttribute) {
+	public Document parse(CharSequence charSequence, Measurer measurer, Hypher hypher,
+						  TextAttribute textAttribute, RenderOption renderOption) {
 		Document document = Document.obtain();
 		int len = charSequence.length();
 		for (int i = skipBlank(charSequence, 0, len); i < len; ) {
- 			int last = findNewline(charSequence, i, len);
+			int last = findNewline(charSequence, i, len);
 			if (i != last) {
 				Paragraph.Builder builder = Paragraph.Builder.newBuilder(measurer, hypher, textAttribute);
 				parse(charSequence, i, last, builder);
