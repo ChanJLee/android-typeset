@@ -7,7 +7,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
 
-import me.chan.te.log.Log;
+import me.chan.texas.log.Log;
 
 public class AndroidTestActivity extends AppCompatActivity {
 

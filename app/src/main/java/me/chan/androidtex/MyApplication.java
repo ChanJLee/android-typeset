@@ -2,12 +2,12 @@ package me.chan.androidtex;
 
 import android.app.Application;
 
-import me.chan.te.Te;
+import me.chan.texas.Texas;
 
 public class MyApplication extends Application {
 	@Override
 	public void onCreate() {
 		super.onCreate();
-		Te.init(this);
+		Texas.init(this);
 	}
 }

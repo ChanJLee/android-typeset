@@ -1,0 +1,456 @@
+package me.chan.texas.renderer;
+
+import android.content.Context;
+import android.content.res.Resources;
+import android.os.SystemClock;
+import android.text.TextPaint;
+
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+
+import me.chan.texas.R;
+import me.chan.texas.annotations.Hidden;
+import me.chan.texas.hypher.Hypher;
+import me.chan.texas.log.Log;
+import me.chan.texas.measurer.AndroidMeasurer;
+import me.chan.texas.measurer.Measurer;
+import me.chan.texas.parser.Parser;
+import me.chan.texas.parser.TextParser;
+import me.chan.texas.source.Source;
+import me.chan.texas.source.SourceCloseException;
+import me.chan.texas.text.BreakStrategy;
+import me.chan.texas.text.Document;
+import me.chan.texas.text.Figure;
+import me.chan.texas.text.Foot;
+import me.chan.texas.text.Gravity;
+import me.chan.texas.text.Page;
+import me.chan.texas.text.Paragraph;
+import me.chan.texas.text.Segment;
+import me.chan.texas.text.TextAttribute;
+import me.chan.texas.typesetter.ParagraphTypesetterImpl;
+
+public class TextEngineCore {
+	private static final int MSG_FINISHED = 2;
+	private static final int MSG_FAILURE = 3;
+
+	private TextPaint mTextPaint;
+	private TextAttribute mTextAttribute;
+	private Measurer mMeasurer;
+	private ThreadHandler mHandler;
+	private Parser mParser;
+	private int mWidth = 0;
+	private int mHeight = 0;
+	private ExecutorService mExecutor = Executors.newSingleThreadExecutor();
+
+	private Document mDocument;
+	private Future<?> mTask;
+	private BreakStrategy mBreakStrategy = BreakStrategy.BALANCED;
+	private Renderer mRenderer;
+	private ParagraphTypesetterImpl mTypesetter;
+	private RenderOption mRenderOption;
+	private float mFootHeight;
+
+
+	public TextEngineCore(Context context, Renderer renderer, RenderOption renderOption) {
+		this(context, renderer, renderOption, new TextPaint(TextPaint.ANTI_ALIAS_FLAG));
+	}
+
+	@Hidden
+	public TextEngineCore(Context context, Renderer renderer, RenderOption renderOption, TextPaint textPaint) {
+		mTextPaint = textPaint;
+		updateTextPaint(renderOption);
+
+		mMeasurer = new AndroidMeasurer(mTextPaint);
+		mTextAttribute = new TextAttribute(mMeasurer);
+		mHandler = new AndroidThreadHandler() {
+
+			@Override
+			public void handleMessage(int what, Object value) {
+				d("typeset paragraphs, msg what: " + what);
+				if (mRenderer == null) {
+					return;
+				}
+
+				if (what == MSG_FINISHED) {
+					mDocument = (Document) value;
+					mRenderer.render(mDocument, mMeasurer);
+				} else if (what == MSG_FAILURE) {
+					mRenderer.error((Throwable) value);
+				}
+			}
+		};
+		mParser = new TextParser();
+		mTypesetter = new ParagraphTypesetterImpl();
+		mRenderer = renderer;
+		mRenderOption = renderOption;
+
+		Resources resources = context.getResources();
+		if (resources != null) {
+			mFootHeight = resources.getDimension(R.dimen.me_chan_te_foot_height);
+		}
+	}
+
+	TextPaint getTextPaint() {
+		return mTextPaint;
+	}
+
+	void setParser(Parser<?> parser) {
+		mParser = parser;
+	}
+
+	/**
+	 * typeset content
+	 *
+	 * @param source source
+	 * @param width  width, must be > 0
+	 */
+	public void typeset(final Source source, final int width, final int height) {
+		if (width <= 0 || height <= 0) {
+			mHandler.sendMessage(MSG_FAILURE, new IllegalArgumentException("width and height must be large than 0"));
+			return;
+		}
+		cancel();
+
+		final Document document = mDocument;
+		mDocument = null;
+		if (mRenderer != null) {
+			mRenderer.clear();
+		}
+		mTask = mExecutor.submit(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					Object content = source.open();
+					typeset(content, width, height, document);
+				} catch (Throwable throwable) {
+					mHandler.sendMessage(MSG_FAILURE, throwable);
+				} finally {
+					try {
+						source.close();
+					} catch (SourceCloseException e) {
+						e.printStackTrace();
+					}
+				}
+			}
+		});
+		d("typeset: " + mTask);
+	}
+
+	// TODO 异常安全保障
+	@SuppressWarnings("unchecked")
+	private void typeset(final Object content, final int width, int height, Document document) {
+		i("typeset, width: " + width +
+				"height: " + height +
+				" strategy: " + mBreakStrategy +
+				" text size: " + mTextPaint.getTextSize());
+
+		mWidth = width;
+		mHeight = height;
+
+		// recycle memory
+		if (document != null) {
+			document.recycle();
+		}
+
+		updateLineAttribute(width);
+
+		// parse
+		long timestamp = SystemClock.elapsedRealtime();
+		try {
+			document = mParser.parse(content, mMeasurer, Hypher.getInstance(), mTextAttribute);
+		} catch (InterruptedException e) {
+			i("interrupted when parse");
+			return;
+		}
+
+		document.setRaw(content);
+
+		int size = document.getSegmentCount();
+		i("parse used time: " + (SystemClock.elapsedRealtime() - timestamp) + " segment size: " + size);
+		timestamp = SystemClock.elapsedRealtime();
+
+		// typeset
+		final Thread thread = Thread.currentThread();
+		float lastHeight = 0;
+		for (int i = 0; i < size && !thread.isInterrupted(); ++i) {
+			Segment segment = document.getSegment(i);
+			if (segment instanceof Figure) {
+				typesetFigure((Figure) segment, mWidth);
+			} else if (segment instanceof Paragraph) {
+				mTypesetter.typeset((Paragraph) segment, mTextAttribute, mBreakStrategy);
+			} else if (segment instanceof Foot) {
+				typesetFoot((Foot) segment);
+			} else {
+				throw new RuntimeException("unknown segment type");
+			}
+
+			lastHeight = typesetPage(document, segment, height, lastHeight, i == size - 1);
+		}
+
+		i("typeset used time: " + (SystemClock.elapsedRealtime() - timestamp));
+		boolean isInterrupted = thread.isInterrupted();
+		i("is thread interrupt when typeset: " + isInterrupted);
+
+		// call listener
+		if (!isInterrupted) {
+			mHandler.sendMessage(MSG_FINISHED, document);
+		}
+	}
+
+	private void typesetFoot(Foot foot) {
+		/* do nothing */
+		d("typeset foot, " + foot);
+	}
+
+	private float typesetPage(Document document, Segment segment, float height, float nextPageHeight, boolean isLastSegment) {
+		int pageSize = document.getPageCount();
+		Page currentPage;
+		if (pageSize == 0) {
+			currentPage = Page.obtain();
+			document.addPage(currentPage);
+		} else {
+			currentPage = document.getPage(pageSize - 1);
+		}
+
+		if (mRenderOption.getRendererMode() == RendererMode.SLIDING) {
+			currentPage.addSegment(segment);
+			return -1;
+		}
+
+		if (segment instanceof Figure) {
+			return typesetFigureInPage(document, currentPage, (Figure) segment, height, nextPageHeight, isLastSegment);
+		} else if (segment instanceof Paragraph) {
+			return typesetParagraphInPage(document, currentPage, (Paragraph) segment, height, nextPageHeight, isLastSegment);
+		} else if (segment instanceof Foot) {
+			return typesetFootInPage(document, currentPage, (Foot) segment, height, nextPageHeight, isLastSegment);
+		}
+
+		throw new RuntimeException("unknown segment type");
+	}
+
+	private float typesetFootInPage(Document document, Page currentPage, Foot foot, float height, float currentHeight, boolean isLastSegment) {
+		return typesetInseparableSegmentInPage(document, currentPage, foot, height, currentHeight, mFootHeight, isLastSegment);
+	}
+
+	private float typesetFigureInPage(Document document, Page currentPage, Figure figure, float height, float currentHeight, boolean isLastSegment) {
+		return typesetInseparableSegmentInPage(document, currentPage, figure, height, currentHeight, figure.getHeight(), isLastSegment);
+	}
+
+	private float typesetInseparableSegmentInPage(Document document, Page currentPage, Segment segment, float height, float currentHeight, float currentSegmentHeight, boolean isLastSegment) {
+		if (currentPage.getSegmentCount() != 0) {
+			// 这里可以区分不同类型 选择不同的垂直方向偏移
+			currentHeight += mRenderOption.getSegmentSpace();
+		}
+
+		currentHeight += currentSegmentHeight;
+
+		// 当前页排不下
+		if (currentHeight > height) {
+
+			// 但是要注意当前页啥东西都没有都排不下的情况，这时候强行塞到当前页并且创建一个新的页
+			if (currentPage.getSegmentCount() == 0) {
+				currentPage.addSegment(segment);
+				if (!isLastSegment) {
+					currentPage = Page.obtain();
+					document.addPage(currentPage);
+					return 0;
+				}
+				return currentHeight;
+			}
+
+			// 否则新起新的一页
+			currentPage = Page.obtain();
+			document.addPage(currentPage);
+			currentPage.addSegment(segment);
+			return currentSegmentHeight;
+		} else if (currentHeight == height) {
+			// 刚好放得下
+			currentPage.addSegment(segment);
+			// 如果不是最后一个segment，创建新的一页
+			if (!isLastSegment) {
+				currentPage = Page.obtain();
+				document.addPage(currentPage);
+				return 0;
+			}
+			return currentHeight;
+		} else {
+			// 足够排下
+			currentPage.addSegment(segment);
+			return currentHeight;
+		}
+	}
+
+	private float typesetParagraphInPage(Document document, Page currentPage, Paragraph paragraph, float height, float currentHeight, boolean isLastSegment) {
+		while (true) {
+			if (currentPage.getSegmentCount() != 0) {
+				// 这里可以区分不同类型 选择不同的垂直方向偏移
+				currentHeight += mRenderOption.getSegmentSpace();
+			}
+
+			int lineCount = paragraph.getLineCount();
+			int i = 0;
+
+			currentHeight = currentHeight + mMeasurer.getFontBottomPadding() + mMeasurer.getFontTopPadding();
+			for (; i < lineCount; ++i) {
+				if (i != 0) {
+					currentHeight += mRenderOption.getLineSpace();
+				}
+
+				Paragraph.Line line = paragraph.getLine(i);
+				currentHeight += line.getLineHeight();
+				if (currentHeight >= height) {
+					if (i != 0) {
+						--i;
+					}
+					break;
+				}
+			}
+
+			// 当前页排不下
+			if (currentHeight > height) {
+				int endIndex = i;
+				// 如果排不下，尝试去spilt
+				if (endIndex <= 0) {
+					// 一行都塞不进的情况
+					// 那就强行塞一行
+					endIndex = 1;
+				}
+
+				// 现在已经确定了当前paragraph的末尾
+
+				// 即使spilt了 末尾也没有内容了，不如将当前所有内容都塞进去
+				if (endIndex == lineCount) {
+					// 刚好放得下
+					currentPage.addSegment(paragraph);
+					// 然后创建新的一页
+					if (!isLastSegment) {
+						currentPage = Page.obtain();
+						document.addPage(currentPage);
+						return 0;
+					}
+					return currentHeight;
+				}
+
+				Paragraph suffix = paragraph.spilt(endIndex);
+				// 刚好放得下
+				currentPage.addSegment(paragraph);
+				// 然后创建新的一页
+				currentPage = Page.obtain();
+				document.addPage(currentPage);
+				paragraph = suffix;
+				currentHeight = 0;
+			} else if (currentHeight == height) {
+				// 刚好放得下
+				currentPage.addSegment(paragraph);
+				// 然后创建新的一页
+				if (isLastSegment) {
+					currentPage = Page.obtain();
+					document.addPage(currentPage);
+					return 0;
+				}
+				return currentHeight;
+			} else {
+				// 足够排下
+				currentPage.addSegment(paragraph);
+				return currentHeight;
+			}
+		}
+	}
+
+	private void typesetFigure(Figure figure, float lineWidth) {
+		float width = figure.getWidth();
+		float height = figure.getHeight();
+
+		float ratio = Figure.DEFAULT_RATIO;
+		if (width > 0 && height > 0) {
+			ratio = width / height;
+		}
+
+		figure.resize(lineWidth, lineWidth / ratio);
+	}
+
+	private void updateLineAttribute(float width) {
+		mTextAttribute.removeAllLineAttribute();
+
+		TextAttribute.LineAttribute defaultAttribute = new TextAttribute.LineAttribute(width, Gravity.LEFT);
+		mTextAttribute.setDefaultAttribute(defaultAttribute);
+
+		if (mRenderOption.isIndentEnable()) {
+			mTextAttribute.add(0, new TextAttribute.LineAttribute(
+					width - mTextAttribute.getIndentWidth(),
+					Gravity.RIGHT
+			));
+		}
+	}
+
+	void release() {
+		i("release");
+		cancel();
+		mRenderer = null;
+		mDocument = null;
+		mHandler.clear();
+		mHandler = null;
+	}
+
+	private void cancel() {
+		if (mTask != null) {
+			d("cancel task: " + mTask);
+			mTask.cancel(true);
+			mTask = null;
+		}
+	}
+
+	private void updateTextPaint(RenderOption renderOption) {
+		mTextPaint.setColor(renderOption.getTextColor());
+		mTextPaint.setTypeface(renderOption.getTypeface());
+		mTextPaint.setTextSize(renderOption.getTextSize());
+	}
+
+	public void reload(RenderOption renderOption) {
+		mRenderOption = renderOption;
+		updateTextPaint(renderOption);
+
+		mMeasurer.refresh(mTextPaint);
+		mTextAttribute.refresh(mMeasurer);
+
+		reload();
+	}
+
+	private void reload() {
+		if (mDocument == null || mWidth < 0 || mHeight < 0) {
+			i("reload ignore");
+			return;
+		}
+
+		cancel();
+		final Document document = mDocument;
+		mDocument = null;
+		if (mRenderer != null) {
+			mRenderer.clear();
+		}
+		mTask = mExecutor.submit(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					typeset(document.getRaw(), mWidth, mHeight, document);
+				} catch (Throwable throwable) {
+					mHandler.sendMessage(MSG_FAILURE, throwable);
+				}
+			}
+		});
+		d("reload: " + mTask);
+	}
+
+	public Document getDocument() {
+		return mDocument;
+	}
+
+	private static void d(String msg) {
+		Log.d("TextEngineCore", msg);
+	}
+
+	private static void i(String msg) {
+		Log.i("TextEngineCore", msg);
+	}
+}

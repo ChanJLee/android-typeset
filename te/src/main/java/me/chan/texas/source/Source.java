@@ -1,0 +1,7 @@
+package me.chan.texas.source;
+
+public interface Source<T> {
+	T open() throws SourceOpenException;
+
+	void close() throws SourceCloseException;
+}

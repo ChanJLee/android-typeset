@@ -34,7 +34,7 @@
         android:layout_height="0dp"
         android:layout_weight="1">
 
-        <me.chan.te.renderer.TeView
+        <me.chan.texas.renderer.TexasView
             android:id="@+id/text"
             app:me_chan_te_render_mode="paging"
             android:layout_width="match_parent"
