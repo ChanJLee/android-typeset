@@ -9,12 +9,12 @@ import android.widget.RadioGroup;
 
 import java.io.IOException;
 
-import me.chan.te.Te;
-import me.chan.te.parser.BookParser;
-import me.chan.te.parser.TextParser;
-import me.chan.te.renderer.RenderOption;
-import me.chan.te.renderer.TeView;
-import me.chan.te.source.AssetsTextSource;
+import me.chan.texas.Texas;
+import me.chan.texas.parser.BookParser;
+import me.chan.texas.parser.TextParser;
+import me.chan.texas.renderer.RenderOption;
+import me.chan.texas.renderer.TexasView;
+import me.chan.texas.source.AssetsTextSource;
 
 public class ParagraphActivity extends AppCompatActivity {
 
@@ -23,20 +23,20 @@ public class ParagraphActivity extends AppCompatActivity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_paragraph);
 
-		final TeView teView = findViewById(R.id.text);
+		final TexasView texasView = findViewById(R.id.text);
 		findViewById(R.id.debug).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				RenderOption renderOption = teView.createRendererOption();
+				RenderOption renderOption = texasView.createRendererOption();
 				renderOption.setEnableDebug(!renderOption.isEnableDebug());
-				teView.refresh(renderOption);
+				texasView.refresh(renderOption);
 			}
 		});
 
 		findViewById(R.id.gc).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				Te.clean();
+				Texas.clean();
 			}
 		});
 
@@ -52,9 +52,9 @@ public class ParagraphActivity extends AppCompatActivity {
 			}
 		});
 
-		teView.setParser(new BookParser(this));
+		texasView.setParser(new BookParser(this));
 		try {
-			teView.setSource(new AssetsTextSource(this, "bay.xml"));
+			texasView.setSource(new AssetsTextSource(this, "bay.xml"));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -62,14 +62,14 @@ public class ParagraphActivity extends AppCompatActivity {
 		findViewById(R.id.button1).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				render("TheBookAndTheSword.txt", teView);
+				render("TheBookAndTheSword.txt", texasView);
 			}
 		});
 
 		findViewById(R.id.button2).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				render("IAmLegend.txt", teView);
+				render("IAmLegend.txt", texasView);
 			}
 		});
 
@@ -108,10 +108,10 @@ public class ParagraphActivity extends AppCompatActivity {
 		});
 	}
 
-	private void render(final String name, final TeView teView) {
+	private void render(final String name, final TexasView texasView) {
 		try {
-			teView.setParser(new TextParser());
-			teView.setSource(new AssetsTextSource(this, name));
+			texasView.setParser(new TextParser());
+			texasView.setSource(new AssetsTextSource(this, name));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
