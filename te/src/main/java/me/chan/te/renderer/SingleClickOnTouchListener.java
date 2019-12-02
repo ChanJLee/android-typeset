@@ -1,11 +1,20 @@
 package me.chan.te.renderer;
 
 import android.content.Context;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.StateListDrawable;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
 
 public abstract class SingleClickOnTouchListener implements View.OnTouchListener {
+	private static final int[] STATE_PRESSED = {
+			android.R.attr.state_pressed,
+	};
+	private static final int[] STATE_NORMAL = {
+			-android.R.attr.state_pressed
+	};
+
 	private final int mTouchSlopSquare;
 	private float mLastX;
 	private float mLastY;
@@ -23,11 +32,21 @@ public abstract class SingleClickOnTouchListener implements View.OnTouchListener
 			return false;
 		}
 
+		StateListDrawable stateListDrawable = null;
+		Drawable drawable = v.getBackground();
+		if (drawable instanceof StateListDrawable) {
+			stateListDrawable = (StateListDrawable) drawable;
+		}
+
 		int action = event.getAction();
 		if (action == MotionEvent.ACTION_DOWN) {
 			mLastX = event.getX();
 			mLastY = event.getY();
 			mIgnore = false;
+			if (stateListDrawable != null) {
+				stateListDrawable.setState(STATE_PRESSED);
+				v.invalidate();
+			}
 		} else if (action == MotionEvent.ACTION_MOVE) {
 			float x = event.getX();
 			float y = event.getY();
@@ -40,7 +59,16 @@ public abstract class SingleClickOnTouchListener implements View.OnTouchListener
 			mLastX = x;
 			mLastY = y;
 		} else if (action == MotionEvent.ACTION_UP) {
+			if (stateListDrawable != null) {
+				stateListDrawable.setState(STATE_NORMAL);
+				v.invalidate();
+			}
 			onClicked(event.getRawX(), event.getRawY());
+		} else if (action == MotionEvent.ACTION_CANCEL) {
+			if (stateListDrawable != null) {
+				stateListDrawable.setState(STATE_NORMAL);
+				v.invalidate();
+			}
 		}
 		return true;
 	}
