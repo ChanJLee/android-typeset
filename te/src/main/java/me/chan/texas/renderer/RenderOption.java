@@ -1,6 +1,7 @@
 package me.chan.texas.renderer;
 
 import android.graphics.Typeface;
+
 import androidx.annotation.NonNull;
 
 import me.chan.texas.text.BreakStrategy;
@@ -18,6 +19,8 @@ public class RenderOption {
 	private RendererMode mRendererMode;
 	private boolean mWordSelectable;
 	private boolean mEnableDebug;
+	private int mSpanSelectedBackgroundColor;
+	private int mSpanSelectedTextColor;
 
 	public RenderOption() {
 	}
@@ -35,6 +38,8 @@ public class RenderOption {
 		mRendererMode = other.mRendererMode;
 		mWordSelectable = other.mWordSelectable;
 		mEnableDebug = other.mEnableDebug;
+		mSpanSelectedTextColor = other.mSpanSelectedTextColor;
+		mSpanSelectedBackgroundColor = other.mSpanSelectedBackgroundColor;
 	}
 
 	public boolean isEnableDebug() {
@@ -119,6 +124,22 @@ public class RenderOption {
 
 	public int getSelectedTextColor() {
 		return mSelectedTextColor;
+	}
+
+	public int getSpanSelectedBackgroundColor() {
+		return mSpanSelectedBackgroundColor;
+	}
+
+	public void setSpanSelectedBackgroundColor(int selectedSpanBackgroundColor) {
+		mSpanSelectedBackgroundColor = selectedSpanBackgroundColor;
+	}
+
+	public int getSpanSelectedTextColor() {
+		return mSpanSelectedTextColor;
+	}
+
+	public void setSpanSelectedTextColor(int spanSelectedTextColor) {
+		mSpanSelectedTextColor = spanSelectedTextColor;
 	}
 
 	public void setSelectedTextColor(int selectedTextColor) {

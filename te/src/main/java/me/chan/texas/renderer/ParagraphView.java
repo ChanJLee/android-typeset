@@ -7,7 +7,9 @@ import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.os.Build;
+
 import androidx.annotation.NonNull;
+
 import android.text.TextPaint;
 import android.util.AttributeSet;
 import android.util.TypedValue;
@@ -140,7 +142,9 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 		Selection selection = mParagraph.getSelection();
 		if (selection != null) {
 			mWorkPaint.set(mPaint);
-			mWorkPaint.setColor(mRenderOption.getSelectedBackgroundColor());
+			mWorkPaint.setColor(selection.isLongClicked() ?
+					mRenderOption.getSpanSelectedBackgroundColor() :
+					mRenderOption.getSelectedBackgroundColor());
 			selection.draw(canvas, mWorkPaint, mRectRadius);
 		}
 
@@ -162,7 +166,7 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 
 		onClickedListener.onClicked(e.getRawX(), e.getRawY());
 		if (mLastTouchBox instanceof DrawableBox) {
-			Selection selection = new Selection(mParagraph);
+			Selection selection = new Selection(mParagraph, isLongClicked);
 			mLastTouchBox.setSelected(true);
 			selection.addBox(mLastTouchBox);
 			mParagraph.setSelection(selection);
@@ -408,7 +412,9 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 			}
 
 			if (mSelection != null && box.isSelected()) {
-				mWorkPaint.setColor(mRenderOption.getSelectedTextColor());
+				mWorkPaint.setColor(mSelection.isLongClicked() ?
+						mRenderOption.getSpanSelectedTextColor() :
+						mRenderOption.getSelectedTextColor());
 			}
 
 			box.draw(mCanvas, mWorkPaint, left, bottom);
@@ -494,7 +500,7 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 
 		@Override
 		public void onVisitParagraph(Paragraph paragraph) {
-			mSelection = new Selection(paragraph);
+			mSelection = new Selection(paragraph, mIsLongClicked);
 		}
 
 		@Override

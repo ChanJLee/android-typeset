@@ -6,7 +6,9 @@ import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.graphics.Typeface;
+
 import androidx.core.content.ContextCompat;
+
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.TypedValue;
@@ -120,6 +122,19 @@ public class TexasView extends FrameLayout {
 		// 选中字体的颜色
 		renderOption.setSelectedTextColor(
 				typedArray.getColor(R.styleable.me_chan_te_TeView_me_chan_te_selectedTextColor, Color.WHITE)
+		);
+
+		// 选中span的背景色
+		renderOption.setSpanSelectedBackgroundColor(
+				typedArray.getColor(R.styleable.me_chan_te_TeView_me_chan_te_spanSelectedBackgroundColor,
+						ContextCompat.getColor(context, R.color.me_chan_te_span_bg_color)
+				)
+		);
+
+		// 选中span的字体颜色
+		renderOption.setSpanSelectedTextColor(
+				typedArray.getColor(R.styleable.me_chan_te_TeView_me_chan_te_spanSelectedTextColor,
+						ContextCompat.getColor(context, R.color.me_chan_te_text_color))
 		);
 
 		// 片段间的间隔
