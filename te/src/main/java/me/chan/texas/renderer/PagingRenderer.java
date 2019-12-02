@@ -12,6 +12,7 @@ import android.widget.Toast;
 import me.chan.texas.measurer.Measurer;
 import me.chan.texas.text.Document;
 import me.chan.texas.text.OnClickedListener;
+import me.chan.texas.text.RenderOption;
 
 class PagingRenderer extends Renderer {
 

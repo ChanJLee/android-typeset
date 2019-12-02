@@ -22,6 +22,7 @@ import me.chan.texas.log.Log;
 import me.chan.texas.parser.Parser;
 import me.chan.texas.source.Source;
 import me.chan.texas.text.BreakStrategy;
+import me.chan.texas.text.RenderOption;
 
 public class TexasView extends FrameLayout {
 
