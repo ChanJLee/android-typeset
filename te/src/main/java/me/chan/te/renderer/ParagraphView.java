@@ -19,6 +19,7 @@ import me.chan.te.annotations.Hidden;
 import me.chan.te.log.Log;
 import me.chan.te.text.Background;
 import me.chan.te.text.Box;
+import me.chan.te.text.DrawableBox;
 import me.chan.te.text.Foreground;
 import me.chan.te.text.Gravity;
 import me.chan.te.text.OnClickedListener;
@@ -160,6 +161,13 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 		}
 
 		onClickedListener.onClicked(e.getRawX(), e.getRawY());
+		if (mLastTouchBox instanceof DrawableBox) {
+			Selection selection = new Selection(mParagraph);
+			mLastTouchBox.setSelected(true);
+			mParagraph.setSelection(selection);
+			invalidate();
+			return true;
+		}
 
 		Selection selection = getIfParagraphSelection(mParagraph, onClickedListener, isLongClicked);
 		mParagraph.setSelection(selection);

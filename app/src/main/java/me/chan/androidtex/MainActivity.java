@@ -4,6 +4,7 @@ import android.Manifest;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Layout;
 import android.text.TextPaint;
@@ -24,6 +25,8 @@ public class MainActivity extends AppCompatActivity {
 				Manifest.permission.WRITE_EXTERNAL_STORAGE,
 				Manifest.permission.READ_EXTERNAL_STORAGE,
 		}, 1);
+
+		Log.d("chan_debug", ContextCompat.getDrawable(this, R.drawable.me_chan_te_bg_foot) + "");
 
 		final TextPaint textPaint = new TextPaint();
 		textPaint.setTextSize(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 18, getResources().getDisplayMetrics()));
