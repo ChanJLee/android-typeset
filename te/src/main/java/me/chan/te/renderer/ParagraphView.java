@@ -41,6 +41,7 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 	private float mBottomPadding;
 	private RenderOption mRenderOption;
 	private OnTextSelectedListener mOnTextSelectedListener;
+	private Box mLastTouchBox = null;
 
 	public ParagraphView(Context context) {
 		this(context, null);
@@ -149,22 +150,11 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 	}
 
 	private boolean handleMotion(MotionEvent e, boolean isLongClicked) {
-		if (mParagraph == null || mParagraph.getLineCount() == 0) {
+		if (mLastTouchBox == null) {
 			return false;
 		}
 
-		float x = e.getX();
-		float y = e.getY();
-		mMotionEventVisitor.setX(x);
-		mMotionEventVisitor.setY(y);
-		visitParagraph(mParagraph, mMotionEventVisitor);
-		Box target = mMotionEventVisitor.getBox();
-		mMotionEventVisitor.clear();
-		if (target == null) {
-			return false;
-		}
-
-		OnClickedListener onClickedListener = getBoxOnClickedListener(target, isLongClicked);
+		OnClickedListener onClickedListener = getBoxOnClickedListener(mLastTouchBox, isLongClicked);
 		if (onClickedListener == null) {
 			return false;
 		}
@@ -275,6 +265,23 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 
 	@Override
 	public boolean onDown(MotionEvent e) {
+		mLastTouchBox = null;
+		if (mParagraph == null || mParagraph.getLineCount() == 0) {
+			return false;
+		}
+
+		float x = e.getX();
+		float y = e.getY();
+		mMotionEventVisitor.setX(x);
+		mMotionEventVisitor.setY(y);
+		visitParagraph(mParagraph, mMotionEventVisitor);
+		Box target = mMotionEventVisitor.getBox();
+		mMotionEventVisitor.clear();
+		if (target == null) {
+			return false;
+		}
+
+		mLastTouchBox = target;
 		return true;
 	}
 
