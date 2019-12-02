@@ -9,7 +9,7 @@ import java.lang.reflect.Field;
 import java.util.concurrent.CountDownLatch;
 
 import me.chan.texas.Texas;
-import me.chan.texas.renderer.RenderOption;
+import me.chan.texas.text.RenderOption;
 import me.chan.texas.renderer.TextEngineCore;
 import me.chan.texas.source.FileTextSource;
 import me.chan.texas.test.mock.MockContext;

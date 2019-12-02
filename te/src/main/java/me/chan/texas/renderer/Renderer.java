@@ -12,6 +12,7 @@ import me.chan.texas.source.Source;
 import me.chan.texas.text.Document;
 import me.chan.texas.text.Page;
 import me.chan.texas.text.Paragraph;
+import me.chan.texas.text.RenderOption;
 import me.chan.texas.text.Segment;
 
 public abstract class Renderer {

@@ -26,6 +26,7 @@ import me.chan.texas.text.Foot;
 import me.chan.texas.text.Gravity;
 import me.chan.texas.text.Page;
 import me.chan.texas.text.Paragraph;
+import me.chan.texas.text.RenderOption;
 import me.chan.texas.text.Segment;
 import me.chan.texas.text.TextAttribute;
 import me.chan.texas.typesetter.ParagraphTypesetterImpl;
