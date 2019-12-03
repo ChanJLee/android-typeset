@@ -6,9 +6,6 @@ import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.graphics.Typeface;
-
-import androidx.core.content.ContextCompat;
-
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.TypedValue;
@@ -19,12 +16,12 @@ import java.lang.ref.WeakReference;
 import java.util.HashMap;
 import java.util.Map;
 
+import androidx.core.content.ContextCompat;
 import me.chan.texas.R;
 import me.chan.texas.log.Log;
 import me.chan.texas.parser.Parser;
 import me.chan.texas.source.Source;
 import me.chan.texas.text.BreakStrategy;
-import me.chan.texas.text.UnderLine;
 
 public class TexasView extends FrameLayout {
 
@@ -158,13 +155,6 @@ public class TexasView extends FrameLayout {
 		renderOption.setWordSelectable(
 				typedArray.getBoolean(R.styleable.me_chan_te_TeView_me_chan_te_wordSelectable, true)
 		);
-
-		// 普通下滑线颜色
-		int underlineColor = typedArray.getColor(R.styleable.me_chan_te_TeView_me_chan_te_underlineColor,
-				ContextCompat.getColor(context, R.color.me_chan_te_theme_color)
-		);
-		UnderLine underLine = UnderLine.obtain(underlineColor);
-		renderOption.setUnderLine(underLine);
 
 		int mode = typedArray.getInt(R.styleable.me_chan_te_TeView_me_chan_te_render_mode, MODE_SLIDING);
 		if (mode == MODE_PAGING) {

@@ -22,7 +22,6 @@ public class RenderOption {
 	private boolean mEnableDebug;
 	private int mSpanSelectedBackgroundColor;
 	private int mSpanSelectedTextColor;
-	private UnderLine mUnderLine;
 
 	public RenderOption() {
 	}
@@ -42,7 +41,6 @@ public class RenderOption {
 		mEnableDebug = other.mEnableDebug;
 		mSpanSelectedTextColor = other.mSpanSelectedTextColor;
 		mSpanSelectedBackgroundColor = other.mSpanSelectedBackgroundColor;
-		mUnderLine = other.mUnderLine;
 	}
 
 	public boolean isEnableDebug() {
@@ -155,13 +153,5 @@ public class RenderOption {
 
 	public void setSegmentSpace(float segmentSpace) {
 		mSegmentSpace = segmentSpace;
-	}
-
-	public UnderLine getUnderLine() {
-		return mUnderLine;
-	}
-
-	public void setUnderLine(UnderLine underLine) {
-		mUnderLine = underLine;
 	}
 }
