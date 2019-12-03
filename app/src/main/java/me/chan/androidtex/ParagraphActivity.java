@@ -10,7 +10,6 @@ import android.widget.RadioGroup;
 import java.io.IOException;
 
 import me.chan.texas.Texas;
-import me.chan.texas.parser.BookParser;
 import me.chan.texas.parser.TextParser;
 import me.chan.texas.renderer.RenderOption;
 import me.chan.texas.renderer.TexasView;
