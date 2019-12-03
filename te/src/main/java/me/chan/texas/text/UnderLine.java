@@ -23,6 +23,10 @@ public class UnderLine extends Foreground {
 		return mColor;
 	}
 
+	public void setColor(int color) {
+		mColor = color;
+	}
+
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;
