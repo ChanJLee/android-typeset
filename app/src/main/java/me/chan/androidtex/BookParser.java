@@ -3,8 +3,10 @@ package me.chan.androidtex;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Color;
+
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
+
 import android.text.TextUtils;
 import android.util.Xml;
 
@@ -13,6 +15,8 @@ import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
 import java.io.StringReader;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 import me.chan.texas.R;
@@ -36,12 +40,19 @@ public class BookParser implements Parser<CharSequence> {
 	private Context mContext;
 	private float mFlagWidth;
 	private float mFlagHeight;
+	private OnClickedListener mOnClickedListener;
 
 	public BookParser(Context context) {
 		mContext = context;
 		Resources resources = context.getResources();
 		mFlagWidth = resources.getDimension(R.dimen.me_chan_te_flag_width);
 		mFlagHeight = resources.getDimension(R.dimen.me_chan_te_flag_height);
+		mOnClickedListener = new OnClickedListener() {
+			@Override
+			public void onClicked(float x, float y) {
+
+			}
+		};
 	}
 
 	@NonNull
@@ -245,15 +256,23 @@ public class BookParser implements Parser<CharSequence> {
 				continue;
 			}
 
+			OnClickedListener onClickedListener = null;
+			if (TextUtils.equals("Once", text) ||
+					TextUtils.equals("magnificent", text)) {
+				onClickedListener = mOnClickedListener;
+			} else {
+				onClickedListener = new OnClickedListener() {
+					@Override
+					public void onClicked(float x, float y) {
+						Log.d("BookParser", "click: " + text);
+					}
+				};
+			}
+
 			builder.newSpanBuilder(spanListener)
 					.next(text)
 					.setForeground(UnderLine.obtain(Color.RED))
-					.setOnClickedListener(new OnClickedListener() {
-						@Override
-						public void onClicked(float x, float y) {
-							Log.d("BookParser", "click: " + text);
-						}
-					})
+					.setOnClickedListener(onClickedListener)
 					.buildSpan();
 		}
 	}

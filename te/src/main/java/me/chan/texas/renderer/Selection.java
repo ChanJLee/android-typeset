@@ -48,8 +48,4 @@ public class Selection {
 	public void addBox(Box box) {
 		mBoxes.add(box);
 	}
-
-	public boolean hasContent() {
-		return !mBoxes.isEmpty();
-	}
 }

@@ -493,10 +493,11 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 	private class SelectionVisitor implements Visitor {
 
 		private OnClickedListener mOnClickedListener;
-		private boolean mHasContent;
 		private Selection mSelection;
 		private boolean mIsLongClicked;
 		private RectF mRectF;
+		private float mBottom;
+		private float mTop;
 
 		@Override
 		public void onVisitParagraph(Paragraph paragraph) {
@@ -505,16 +506,14 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 
 		@Override
 		public void onVisitParagraphEnd(Paragraph paragraph) {
-			if (!mSelection.hasContent()) {
-				mSelection = null;
-			}
+			/* do nothing */
 		}
 
 		public void clear() {
 			mOnClickedListener = null;
-			mHasContent = false;
 			mSelection = null;
 			mIsLongClicked = false;
+			mBottom = mTop = -1;
 			mRectF = null;
 		}
 
@@ -532,16 +531,15 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 
 		@Override
 		public void onVisitLine(Paragraph.Line line, float x, float y) {
-			mHasContent = false;
-			mRectF = new RectF();
-			mRectF.bottom = y + mBottomPadding;
-			mRectF.top = y - line.getLineHeight();
+			mBottom = y + mBottomPadding;
+			mTop = y - line.getLineHeight();
 		}
 
 		@Override
 		public void onVisitLineEnd(Paragraph.Line line, float x, float y) {
-			if (mHasContent) {
+			if (mRectF != null) {
 				mSelection.addSelectArea(mRectF);
+				mRectF = null;
 			}
 		}
 
@@ -549,13 +547,17 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 		public void onVisitBox(Box box, float left, float top, float right, float bottom) {
 			OnClickedListener targetListener = getBoxOnClickedListener(box, mIsLongClicked);
 			if (targetListener != mOnClickedListener) {
-				box.setSelected(false);
-			} else {
-				if (!mHasContent) {
-					mRectF.left = left;
+				if (mRectF != null) {
+					mSelection.addSelectArea(mRectF);
+					mRectF = null;
 				}
 
-				mHasContent = true;
+				box.setSelected(false);
+			} else {
+				if (mRectF == null) {
+					mRectF = new RectF(left, mTop, right, mBottom);
+				}
+
 				mRectF.right = right;
 				mSelection.addBox(box);
 				box.setSelected(true);
