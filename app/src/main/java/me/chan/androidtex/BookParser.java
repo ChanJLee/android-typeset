@@ -3,10 +3,6 @@ package me.chan.androidtex;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Color;
-
-import androidx.annotation.NonNull;
-import androidx.core.content.ContextCompat;
-
 import android.text.TextUtils;
 import android.util.Xml;
 
@@ -15,10 +11,10 @@ import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
 import java.io.StringReader;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.regex.Pattern;
 
+import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import me.chan.texas.R;
 import me.chan.texas.hypher.Hypher;
 import me.chan.texas.log.Log;
@@ -30,8 +26,8 @@ import me.chan.texas.text.Document;
 import me.chan.texas.text.Figure;
 import me.chan.texas.text.Foot;
 import me.chan.texas.text.OnClickedListener;
-import me.chan.texas.text.TextAttribute;
 import me.chan.texas.text.Paragraph;
+import me.chan.texas.text.TextAttribute;
 import me.chan.texas.text.UnderLine;
 
 public class BookParser implements Parser<CharSequence> {
