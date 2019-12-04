@@ -17,9 +17,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 import androidx.core.content.ContextCompat;
+
 import me.chan.texas.R;
 import me.chan.texas.log.Log;
 import me.chan.texas.parser.Parser;
+import me.chan.texas.source.ObjectSource;
 import me.chan.texas.source.Source;
 import me.chan.texas.text.BreakStrategy;
 
@@ -27,8 +29,6 @@ public class TexasView extends FrameLayout {
 
 	private static final int BREAK_STRATEGY_SIMPLE = 1;
 	private static final int BREAK_STRATEGY_BALANCE = 2;
-	private static final int MODE_PAGING = 1;
-	private static final int MODE_SLIDING = 2;
 	private static final int DEFAULT_TEXT_SIZE = 18;
 	private static final int DEFAULT_LINE_SPACE = 12;
 	private static final int DEFAULT_SEGMENT_SPACE = 28;
@@ -36,6 +36,7 @@ public class TexasView extends FrameLayout {
 
 	private Renderer mRenderer;
 	private ViewTreeObserver.OnGlobalLayoutListener mLastOnGlobalLayoutListener = null;
+	private RenderListener mRenderListener;
 
 	public TexasView(Context context, AttributeSet attrs) {
 		this(context, attrs, 0);
@@ -156,17 +157,36 @@ public class TexasView extends FrameLayout {
 				typedArray.getBoolean(R.styleable.me_chan_te_TeView_me_chan_te_wordSelectable, true)
 		);
 
-		int mode = typedArray.getInt(R.styleable.me_chan_te_TeView_me_chan_te_render_mode, MODE_SLIDING);
-		if (mode == MODE_PAGING) {
-			renderOption.setRendererMode(RendererMode.PAGING);
-			mRenderer = new PagingRenderer(this, renderOption);
-		} else {
-			renderOption.setRendererMode(RendererMode.SLIDING);
-			mRenderer = new SlidingRenderer(this, renderOption);
-		}
+		mRenderer = new SlidingRenderer(this, renderOption);
+		mRenderer.setListener(new Renderer.Listener() {
+			@Override
+			public void onStart() {
+				if (mRenderListener != null) {
+					mRenderListener.onStart(TexasView.this);
+				}
+			}
+
+			@Override
+			public void onRenderer() {
+				if (mRenderListener != null) {
+					mRenderListener.onEnd(TexasView.this);
+				}
+			}
+
+			@Override
+			public void onError(Throwable throwable) {
+				if (mRenderListener != null) {
+					mRenderListener.onError(TexasView.this, throwable);
+				}
+			}
+		});
 	}
 
-	public void setSource(final Source source) {
+	public void setSource(Object o) {
+		setSource(new ObjectSource(o));
+	}
+
+	public void setSource(final Source<?> source) {
 		int width = getWidth();
 		int height = getHeight();
 		if (width <= 0 || height <= 0) {
@@ -194,7 +214,7 @@ public class TexasView extends FrameLayout {
 	}
 
 	public void clearSelection() {
-		d("clear selection");
+		d("start selection");
 		mRenderer.clearSelection();
 	}
 
@@ -219,6 +239,18 @@ public class TexasView extends FrameLayout {
 		i("on detached from window");
 		mRenderer.release();
 		super.onDetachedFromWindow();
+	}
+
+	public void setRenderListener(RenderListener renderListener) {
+		mRenderListener = renderListener;
+	}
+
+	public interface RenderListener {
+		void onStart(TexasView texasView);
+
+		void onEnd(TexasView texasView);
+
+		void onError(TexasView texasView, Throwable throwable);
 	}
 
 	private static void d(String msg) {

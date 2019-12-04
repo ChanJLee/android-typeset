@@ -8,6 +8,7 @@ import com.bumptech.glide.request.target.ViewTarget;
 
 import me.chan.texas.annotations.Hidden;
 import me.chan.texas.text.DrawableBox;
+import me.chan.texas.text.Foot;
 import me.chan.texas.text.Glue;
 import me.chan.texas.text.Penalty;
 import me.chan.texas.text.TextBox;
@@ -15,7 +16,6 @@ import me.chan.texas.log.Log;
 import me.chan.texas.text.Background;
 import me.chan.texas.text.Document;
 import me.chan.texas.text.Figure;
-import me.chan.texas.text.Page;
 import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.UnderLine;
 import me.chan.texas.typesetter.BreakPoint;
@@ -47,9 +47,7 @@ public class Texas {
 			@Override
 			public void onLowMemory() {
 				Texas.MemoryOption memoryOption = Texas.getMemoryOption();
-				memoryOption.setDocumentPageInitialCapacity(4)
-						.setDocumentSegmentInitialCapacity(4)
-						.setPageSegmentInitialCapacity(4)
+				memoryOption.setDocumentSegmentInitialCapacity(4)
 						.setParagraphElementInitialCapacity(4)
 						.setParagraphLineBoxInitialCapacity(4)
 						.setParagraphLineInitialCapacity(4);
@@ -87,15 +85,13 @@ public class Texas {
 		Background.clean();
 		UnderLine.clean();
 		Paragraph.Builder.clean();
-		Page.clean();
 		TextBox.Attribute.clean();
+		Foot.clean();
 		System.gc();
 	}
 
 	public static class MemoryOption {
 		private int mDocumentSegmentInitialCapacity = 512;
-		private int mDocumentPageInitialCapacity = 64;
-		private int mPageSegmentInitialCapacity = 8;
 		private int mParagraphLineInitialCapacity = 32;
 		private int mParagraphElementInitialCapacity = 128;
 		private int mParagraphLineBoxInitialCapacity = 32;
@@ -106,24 +102,6 @@ public class Texas {
 
 		public MemoryOption setDocumentSegmentInitialCapacity(int documentSegmentInitialCapacity) {
 			mDocumentSegmentInitialCapacity = documentSegmentInitialCapacity;
-			return this;
-		}
-
-		public int getDocumentPageInitialCapacity() {
-			return mDocumentPageInitialCapacity;
-		}
-
-		public MemoryOption setDocumentPageInitialCapacity(int documentPageInitialCapacity) {
-			mDocumentPageInitialCapacity = documentPageInitialCapacity;
-			return this;
-		}
-
-		public int getPageSegmentInitialCapacity() {
-			return mPageSegmentInitialCapacity;
-		}
-
-		public MemoryOption setPageSegmentInitialCapacity(int pageSegmentInitialCapacity) {
-			mPageSegmentInitialCapacity = pageSegmentInitialCapacity;
 			return this;
 		}
 
