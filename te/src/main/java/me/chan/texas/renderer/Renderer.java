@@ -135,10 +135,9 @@ public abstract class Renderer {
 	/**
 	 * @param source 源
 	 * @param width  期望的宽度
-	 * @param height 期望的高度
 	 */
-	public void render(final Source source, int width, int height) {
-		mTextEngineCore.typeset(source, width, height);
+	public void render(final Source source, int width) {
+		mTextEngineCore.typeset(source, width);
 	}
 
 	public void setParser(Parser<?> parser) {

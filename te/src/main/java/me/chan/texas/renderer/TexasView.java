@@ -188,9 +188,8 @@ public class TexasView extends FrameLayout {
 
 	public void setSource(final Source<?> source) {
 		int width = getWidth();
-		int height = getHeight();
-		if (width <= 0 || height <= 0) {
-			i("unknown size, try later, width: " + width + " height: " + height);
+		if (width <= 0) {
+			i("unknown size, try later, width: " + width);
 			ViewTreeObserver viewTreeObserver = getViewTreeObserver();
 			if (mLastOnGlobalLayoutListener != null) {
 				d("remove last on global layout listener");
@@ -201,7 +200,7 @@ public class TexasView extends FrameLayout {
 				@Override
 				public void onGlobalLayout() {
 					getViewTreeObserver().removeOnGlobalLayoutListener(this);
-					mRenderer.render(source, getWidth(), getHeight());
+					mRenderer.render(source, getWidth());
 					mLastOnGlobalLayoutListener = null;
 				}
 			};
@@ -210,7 +209,7 @@ public class TexasView extends FrameLayout {
 		}
 
 		d("set source direct");
-		mRenderer.render(source, width, height);
+		mRenderer.render(source, width);
 	}
 
 	public void clearSelection() {

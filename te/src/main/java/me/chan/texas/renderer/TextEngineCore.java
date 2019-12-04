@@ -20,12 +20,12 @@ import me.chan.texas.source.SourceCloseException;
 import me.chan.texas.text.BreakStrategy;
 import me.chan.texas.text.Document;
 import me.chan.texas.text.Figure;
-import me.chan.texas.text.Foot;
 import me.chan.texas.text.Gravity;
 import me.chan.texas.text.HyphenStrategy;
 import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.Segment;
 import me.chan.texas.text.TextAttribute;
+import me.chan.texas.text.ViewSegment;
 import me.chan.texas.typesetter.ParagraphTypesetterImpl;
 
 public class TextEngineCore {
@@ -38,7 +38,6 @@ public class TextEngineCore {
 	private ThreadHandler mHandler;
 	private Parser mParser;
 	private int mWidth = 0;
-	private int mHeight = 0;
 	private ExecutorService mExecutor = Executors.newSingleThreadExecutor();
 
 	private Document mDocument;
@@ -103,9 +102,8 @@ public class TextEngineCore {
 	 * @param width  width, must be > 0
 	 */
 	public void typeset(final Source source,
-						final int width,
-						final int height) {
-		if (width <= 0 || height <= 0) {
+						final int width) {
+		if (width <= 0) {
 			mHandler.sendMessage(MSG_FAILURE, new IllegalArgumentException("width and height must be large than 0"));
 			return;
 		}
@@ -121,7 +119,7 @@ public class TextEngineCore {
 			public void run() {
 				try {
 					Object content = source.open();
-					typeset(content, width, height, document);
+					typeset(content, width, document);
 				} catch (Throwable throwable) {
 					mHandler.sendMessage(MSG_FAILURE, throwable);
 				} finally {
@@ -140,15 +138,12 @@ public class TextEngineCore {
 	@SuppressWarnings("unchecked")
 	private void typeset(final Object content,
 						 final int width,
-						 int height,
 						 Document document) {
 		i("typeset, width: " + width +
-				" height: " + height +
 				" break strategy: " + mBreakStrategy +
 				" text size: " + mTextPaint.getTextSize());
 
 		mWidth = width;
-		mHeight = height;
 
 		// recycle memory
 		if (document != null) {
@@ -191,8 +186,8 @@ public class TextEngineCore {
 				typesetFigure((Figure) segment, mWidth);
 			} else if (segment instanceof Paragraph) {
 				mTypesetter.typeset((Paragraph) segment, mTextAttribute, mBreakStrategy);
-			} else if (segment instanceof Foot) {
-				typesetFoot((Foot) segment);
+			} else if (segment instanceof ViewSegment) {
+				typesetViewSegment((ViewSegment) segment);
 			} else {
 				throw new RuntimeException("unknown segment type");
 			}
@@ -208,9 +203,9 @@ public class TextEngineCore {
 		}
 	}
 
-	private void typesetFoot(Foot foot) {
+	private void typesetViewSegment(ViewSegment viewSegment) {
 		/* do nothing */
-		d("typeset foot, " + foot);
+		d("typeset foot, " + viewSegment);
 	}
 
 	private void typesetFigure(Figure figure, float lineWidth) {
@@ -273,7 +268,7 @@ public class TextEngineCore {
 	}
 
 	private void reload() {
-		if (mDocument == null || mWidth < 0 || mHeight < 0) {
+		if (mDocument == null || mWidth < 0) {
 			i("reload ignore");
 			return;
 		}
@@ -288,7 +283,7 @@ public class TextEngineCore {
 			@Override
 			public void run() {
 				try {
-					typeset(document.getRaw(), mWidth, mHeight, document);
+					typeset(document.getRaw(), mWidth, document);
 				} catch (Throwable throwable) {
 					mHandler.sendMessage(MSG_FAILURE, throwable);
 				}

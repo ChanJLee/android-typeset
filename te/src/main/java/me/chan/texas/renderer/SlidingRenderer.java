@@ -15,6 +15,7 @@ public class SlidingRenderer extends Renderer {
 
 	private final PageAdapter mAdapter;
 	private RecyclerViewInternal mImpl;
+	private SpaceItemDecoration mSpaceItemDecoration;
 
 	public SlidingRenderer(TexasView viewGroup, RenderOption renderOption) {
 		super(viewGroup.getContext(), renderOption);
@@ -36,7 +37,8 @@ public class SlidingRenderer extends Renderer {
 				}
 			}
 		});
-		mImpl.addItemDecoration(new SpaceItemDecoration(renderOption.getSegmentSpace()));
+		mSpaceItemDecoration = new SpaceItemDecoration((int) renderOption.getSegmentSpace());
+		mImpl.addItemDecoration(mSpaceItemDecoration);
 		mImpl.setLayoutManager(new LinearLayoutManager(context));
 		viewGroup.addView(mImpl, new TexasView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
 		mAdapter = new PageAdapter(getLayoutInflater(), getImageLoader());
@@ -67,6 +69,7 @@ public class SlidingRenderer extends Renderer {
 
 	@Override
 	protected void onRefresh(RenderOption renderOption) {
+		mSpaceItemDecoration.setSegmentSpace((int) renderOption.getSegmentSpace());
 		mAdapter.update(getTextPaint(), renderOption);
 	}
 
