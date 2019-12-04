@@ -17,7 +17,6 @@ import me.chan.texas.test.mock.MockMeasurer;
 import me.chan.texas.test.mock.MockTextPaint;
 import me.chan.texas.test.mock.MockThreadHandler;
 import me.chan.texas.text.Document;
-import me.chan.texas.text.Page;
 import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.TextAttribute;
 import me.chan.texas.text.TextBox;

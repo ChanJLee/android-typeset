@@ -17,7 +17,6 @@ import me.chan.texas.text.Foot;
 import me.chan.texas.text.Glue;
 import me.chan.texas.text.Gravity;
 import me.chan.texas.text.OnClickedListener;
-import me.chan.texas.text.Page;
 import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.Penalty;
 import me.chan.texas.text.TextBox;

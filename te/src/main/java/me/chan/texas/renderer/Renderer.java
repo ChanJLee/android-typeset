@@ -12,7 +12,6 @@ import me.chan.texas.measurer.Measurer;
 import me.chan.texas.parser.Parser;
 import me.chan.texas.source.Source;
 import me.chan.texas.text.Document;
-import me.chan.texas.text.Page;
 import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.Segment;
 
@@ -115,10 +114,6 @@ public abstract class Renderer {
 			return true;
 		}
 
-		if (renderOption.getRendererMode() != mRenderOption.getRendererMode()) {
-			return true;
-		}
-
 		return false;
 	}
 
@@ -145,22 +140,18 @@ public abstract class Renderer {
 			return;
 		}
 
-		int pageCount = document.getPageCount();
-		for (int pageIndex = 0; pageIndex < pageCount; ++pageCount) {
-			Page page = document.getPage(pageIndex);
-			int segmentCount = page.getSegmentCount();
-			for (int segmentIndex = 0; segmentIndex < segmentCount; ++segmentIndex) {
-				Segment segment = page.getSegment(segmentIndex);
-				if (!(segment instanceof Paragraph)) {
-					continue;
-				}
+		int segmentCount = document.getSegmentCount();
+		for (int segmentIndex = 0; segmentIndex < segmentCount; ++segmentCount) {
+			Segment segment = document.getSegment(segmentIndex);
+			if (!(segment instanceof Paragraph)) {
+				continue;
+			}
 
-				Paragraph paragraph = (Paragraph) segment;
-				Selection selection = paragraph.getSelection();
-				paragraph.setSelection(null);
-				if (selection != null) {
-					selection.clear();
-				}
+			Paragraph paragraph = (Paragraph) segment;
+			Selection selection = paragraph.getSelection();
+			paragraph.setSelection(null);
+			if (selection != null) {
+				selection.clear();
 			}
 		}
 
