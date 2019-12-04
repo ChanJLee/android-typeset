@@ -177,20 +177,6 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 		Selection selection = getIfParagraphSelection(mParagraph, onClickedListener, isLongClicked);
 		mParagraph.setSelection(selection);
 
-		Paragraph paragraph = mParagraph.getNext();
-		while (paragraph != null) {
-			selection = getIfParagraphSelection(paragraph, onClickedListener, isLongClicked);
-			paragraph.setSelection(selection);
-			paragraph = paragraph.getNext();
-		}
-
-		paragraph = mParagraph.getPrev();
-		while (paragraph != null) {
-			selection = getIfParagraphSelection(paragraph, onClickedListener, isLongClicked);
-			paragraph.setSelection(selection);
-			paragraph = paragraph.getPrev();
-		}
-
 		if (mOnTextSelectedListener != null) {
 			mOnTextSelectedListener.onTextSelected();
 		}

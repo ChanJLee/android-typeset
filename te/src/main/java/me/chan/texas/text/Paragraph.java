@@ -22,8 +22,6 @@ public class Paragraph extends Segment {
 
 	private List<Line> mLines;
 	private List<Element> mElements;
-	private Paragraph mPrev = null;
-	private Paragraph mNext = null;
 	private Selection mSelection;
 
 	public Paragraph() {
@@ -38,25 +36,6 @@ public class Paragraph extends Segment {
 
 	public int getLineCount() {
 		return mLines.size();
-	}
-
-	public Paragraph spilt(int endIndex) {
-		List<Line> list = mLines;
-		mLines = list.subList(0, endIndex);
-		Paragraph page = Paragraph.obtain();
-		page.mLines = list.subList(endIndex, list.size());
-		page.mPrev = this;
-		mNext = page;
-		// 不拷贝mElements 复用的时候会出问题
-		return page;
-	}
-
-	public Paragraph getPrev() {
-		return mPrev;
-	}
-
-	public Paragraph getNext() {
-		return mNext;
 	}
 
 	@Hidden
@@ -80,7 +59,6 @@ public class Paragraph extends Segment {
 			mElements.get(i).recycle();
 		}
 		mElements.clear();
-		mNext = mPrev = null;
 		mSelection = null;
 		POOL.release(this);
 	}
