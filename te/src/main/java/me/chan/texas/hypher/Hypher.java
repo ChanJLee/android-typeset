@@ -12,7 +12,8 @@ import me.chan.texas.log.Log;
  */
 public class Hypher {
 
-	private static Hypher sInstance;
+	private static Hypher[] sHyphers = new Hypher[2];
+
 	private static final int UNDER_LINE_CODE_POINT = 95;
 
 	private TrieNode mTrie;
@@ -25,11 +26,21 @@ public class Hypher {
 		this.mRightMin = pattern.rightMin;
 	}
 
-	public static synchronized Hypher getInstance() {
-		if (sInstance == null) {
-			sInstance = new Hypher(HyphenationPattern.EN_US);
+	public static synchronized Hypher getInstance(HyphenationPattern hyphenationPattern) {
+		int index = -1;
+		if (hyphenationPattern == HyphenationPattern.EN_US) {
+			index = 0;
+		} else if (hyphenationPattern == HyphenationPattern.EN_GB) {
+			index = 1;
+		} else {
+			throw new IllegalArgumentException("unknown pattern");
 		}
-		return sInstance;
+
+		if (sHyphers[index] == null) {
+			sHyphers[index] = new Hypher(hyphenationPattern);
+		}
+
+		return sHyphers[index];
 	}
 
 	private static TrieNode createTrie(Map<Integer, String> patternObject) {

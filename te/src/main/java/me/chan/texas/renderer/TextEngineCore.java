@@ -1,7 +1,5 @@
 package me.chan.texas.renderer;
 
-import android.content.Context;
-import android.content.res.Resources;
 import android.os.SystemClock;
 import android.text.TextPaint;
 
@@ -9,8 +7,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-import me.chan.texas.R;
 import me.chan.texas.annotations.Hidden;
+import me.chan.texas.hypher.HyphenationPattern;
 import me.chan.texas.hypher.Hypher;
 import me.chan.texas.log.Log;
 import me.chan.texas.measurer.AndroidMeasurer;
@@ -24,6 +22,7 @@ import me.chan.texas.text.Document;
 import me.chan.texas.text.Figure;
 import me.chan.texas.text.Foot;
 import me.chan.texas.text.Gravity;
+import me.chan.texas.text.HyphenStrategy;
 import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.Segment;
 import me.chan.texas.text.TextAttribute;
@@ -48,15 +47,19 @@ public class TextEngineCore {
 	private Renderer mRenderer;
 	private ParagraphTypesetterImpl mTypesetter;
 	private RenderOption mRenderOption;
-	private float mFootHeight;
 
-
-	public TextEngineCore(Context context, Renderer renderer, RenderOption renderOption) {
-		this(context, renderer, renderOption, new TextPaint(TextPaint.ANTI_ALIAS_FLAG));
+	public TextEngineCore(Renderer renderer,
+						  RenderOption renderOption) {
+		this(renderer,
+				renderOption,
+				new TextPaint(TextPaint.ANTI_ALIAS_FLAG)
+		);
 	}
 
 	@Hidden
-	public TextEngineCore(Context context, Renderer renderer, RenderOption renderOption, TextPaint textPaint) {
+	public TextEngineCore(Renderer renderer,
+						  RenderOption renderOption,
+						  TextPaint textPaint) {
 		mTextPaint = textPaint;
 		updateTextPaint(renderOption);
 
@@ -83,11 +86,6 @@ public class TextEngineCore {
 		mTypesetter = new ParagraphTypesetterImpl();
 		mRenderer = renderer;
 		mRenderOption = renderOption;
-
-		Resources resources = context.getResources();
-		if (resources != null) {
-			mFootHeight = resources.getDimension(R.dimen.me_chan_te_foot_height);
-		}
 	}
 
 	TextPaint getTextPaint() {
@@ -104,7 +102,9 @@ public class TextEngineCore {
 	 * @param source source
 	 * @param width  width, must be > 0
 	 */
-	public void typeset(final Source source, final int width, final int height) {
+	public void typeset(final Source source,
+						final int width,
+						final int height) {
 		if (width <= 0 || height <= 0) {
 			mHandler.sendMessage(MSG_FAILURE, new IllegalArgumentException("width and height must be large than 0"));
 			return;
@@ -138,10 +138,13 @@ public class TextEngineCore {
 
 	// TODO 异常安全保障
 	@SuppressWarnings("unchecked")
-	private void typeset(final Object content, final int width, int height, Document document) {
+	private void typeset(final Object content,
+						 final int width,
+						 int height,
+						 Document document) {
 		i("typeset, width: " + width +
-				"height: " + height +
-				" strategy: " + mBreakStrategy +
+				" height: " + height +
+				" break strategy: " + mBreakStrategy +
 				" text size: " + mTextPaint.getTextSize());
 
 		mWidth = width;
@@ -154,10 +157,21 @@ public class TextEngineCore {
 
 		updateLineAttribute(width);
 
+		// 选择断字策略
+		Hypher hypher = null;
+		HyphenStrategy hyphenStrategy = mRenderOption.getHyphenStrategy();
+		if (hyphenStrategy == HyphenStrategy.US) {
+			hypher = Hypher.getInstance(HyphenationPattern.EN_US);
+		} else if (hyphenStrategy == HyphenStrategy.UK) {
+			hypher = Hypher.getInstance(HyphenationPattern.EN_GB);
+		} else {
+			throw new IllegalArgumentException("unknown hyphen strategy");
+		}
+
 		// parse
 		long timestamp = SystemClock.elapsedRealtime();
 		try {
-			document = mParser.parse(content, mMeasurer, Hypher.getInstance(), mTextAttribute, mRenderOption);
+			document = mParser.parse(content, mMeasurer, hypher, mTextAttribute, mRenderOption);
 		} catch (InterruptedException e) {
 			i("interrupted when parse");
 			return;

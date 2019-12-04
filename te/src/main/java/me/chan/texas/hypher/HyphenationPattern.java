@@ -4,7 +4,7 @@ package me.chan.texas.hypher;
 import java.util.HashMap;
 import java.util.Map;
 
-enum HyphenationPattern {
+public enum HyphenationPattern {
 	// The en-GB hyphenation patterns are retrieved from
 	// http://tug_org/svn/texhyphen/trunk/collaboration/repository/hyphenator/
 	EN_GB(2, 3, new HashMap<Integer, String>() {
