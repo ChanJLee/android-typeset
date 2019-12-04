@@ -1,28 +1,30 @@
 package me.chan.texas.renderer;
 
 import android.content.Context;
+
 import androidx.annotation.IdRes;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
 import android.text.TextPaint;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 
 import me.chan.texas.R;
 import me.chan.texas.image.ImageLoader;
 import me.chan.texas.measurer.Measurer;
 import me.chan.texas.text.Document;
 import me.chan.texas.text.Figure;
-import me.chan.texas.text.Foot;
-import me.chan.texas.text.OnClickedListener;
 import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.Segment;
+import me.chan.texas.text.ViewSegment;
 
 public class PageAdapter extends RecyclerView.Adapter<PageAdapter.Renderer> {
 	private static final int TYPE_PARAGRAPH = 1;
 	private static final int TYPE_FIGURE = 2;
-	private static final int TYPE_FOOT = 3;
+	private static final int TYPE_VIEW_SEGMENT = 3;
 
 	private Document mDocument;
 	private LayoutInflater mLayoutInflater;
@@ -45,14 +47,14 @@ public class PageAdapter extends RecyclerView.Adapter<PageAdapter.Renderer> {
 		} else if (type == TYPE_FIGURE) {
 			return new FigureRenderer(mLayoutInflater.inflate(R.layout.me_chan_te_figure, viewGroup, false));
 		} else {
-			return new FootRenderer(mLayoutInflater.inflate(R.layout.me_chan_te_foot, viewGroup, false));
+			return new ViewSegmentRenderer(mLayoutInflater.inflate(R.layout.me_chan_te_view_segment, viewGroup, false));
 		}
 	}
 
 	@Override
 	@SuppressWarnings("unchecked")
 	public void onBindViewHolder(@NonNull Renderer renderer, int position) {
-		renderer.render(mDocument.getSegment(position));
+		renderer.render(getItem(position));
 	}
 
 	public void setOnTextSelectedListener(OnTextSelectedListener onTextSelectedListener) {
@@ -61,16 +63,20 @@ public class PageAdapter extends RecyclerView.Adapter<PageAdapter.Renderer> {
 
 	@Override
 	public int getItemViewType(int position) {
-		Segment segment = mDocument.getSegment(position);
+		Segment segment = getItem(position);
 		if (segment instanceof Paragraph) {
 			return TYPE_PARAGRAPH;
 		} else if (segment instanceof Figure) {
 			return TYPE_FIGURE;
-		} else if (segment instanceof Foot) {
-			return TYPE_FOOT;
+		} else if (segment instanceof ViewSegment) {
+			return TYPE_VIEW_SEGMENT;
 		}
 
 		throw new RuntimeException("unknown segment type");
+	}
+
+	public Segment getItem(int position) {
+		return mDocument.getSegment(position);
 	}
 
 	@Override
@@ -167,37 +173,23 @@ public class PageAdapter extends RecyclerView.Adapter<PageAdapter.Renderer> {
 		}
 	}
 
-	class FootRenderer extends Renderer<Foot> {
+	class ViewSegmentRenderer extends Renderer<ViewSegment> {
 
-		private View mBtnFoot;
-		private Foot mData;
+		private FrameLayout mRootView;
 
-		FootRenderer(@NonNull View itemView) {
+		ViewSegmentRenderer(@NonNull View itemView) {
 			super(itemView);
 		}
 
 		@Override
 		protected void onCreate(View view) {
-			mBtnFoot = view.findViewById(R.id.finish);
-			mBtnFoot.setOnTouchListener(new SingleClickOnTouchListener(view.getContext()) {
-				@Override
-				protected void onClicked(float x, float y) {
-					if (mData == null) {
-						return;
-					}
-
-					OnClickedListener onClickedListener = mData.getOnClickedListener();
-					if (onClickedListener != null) {
-						onClickedListener.onClicked(x, y);
-					}
-				}
-			});
+			mRootView = (FrameLayout) view;
 		}
 
 		@Override
-		public void render(final Foot data) {
-			mBtnFoot.setBackground(data.getDrawable());
-			mData = data;
+		public void render(final ViewSegment data) {
+			data.attach(mLayoutInflater, mRootView);
+			data.render();
 		}
 	}
 

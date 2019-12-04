@@ -5,6 +5,9 @@ import android.content.res.Resources;
 import android.graphics.Color;
 import android.text.TextUtils;
 import android.util.Xml;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -16,7 +19,6 @@ import java.util.regex.Pattern;
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 
-import me.chan.texas.R;
 import me.chan.texas.hypher.Hypher;
 import me.chan.texas.log.Log;
 import me.chan.texas.measurer.Measurer;
@@ -25,11 +27,11 @@ import me.chan.texas.parser.Parser;
 import me.chan.texas.renderer.RenderOption;
 import me.chan.texas.text.Document;
 import me.chan.texas.text.Figure;
-import me.chan.texas.text.Foot;
 import me.chan.texas.text.OnClickedListener;
 import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.TextAttribute;
 import me.chan.texas.text.UnderLine;
+import me.chan.texas.text.ViewSegment;
 
 public class BookParser implements Parser<CharSequence> {
 	private static final Pattern PATTERN = Pattern.compile("\\p{Z}+|\\t|\\r|\\n");
@@ -107,14 +109,24 @@ public class BookParser implements Parser<CharSequence> {
 			}
 		}
 
-		Foot foot = Foot.obtain(ContextCompat.getDrawable(mContext, R.drawable.me_chan_te_bg_foot),
-				new OnClickedListener() {
+		document.addSegment(new ViewSegment() {
+			@Override
+			protected View onCreateView(LayoutInflater layoutInflater, ViewGroup parent) {
+				View view = layoutInflater.inflate(R.layout.test_layout, parent, false);
+				view.findViewById(R.id.finish).setOnClickListener(new View.OnClickListener() {
 					@Override
-					public void onClicked(float x, float y) {
+					public void onClick(View v) {
 						Log.d("BookParser", "click foot");
 					}
 				});
-		document.addSegment(foot);
+				return view;
+			}
+
+			@Override
+			protected void onRender() {
+				/* do nothing */
+			}
+		});
 
 		return document;
 	}

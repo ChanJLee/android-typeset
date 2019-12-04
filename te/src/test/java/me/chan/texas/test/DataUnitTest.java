@@ -13,7 +13,6 @@ import me.chan.texas.text.Background;
 import me.chan.texas.text.Document;
 import me.chan.texas.text.DrawableBox;
 import me.chan.texas.text.Figure;
-import me.chan.texas.text.Foot;
 import me.chan.texas.text.Glue;
 import me.chan.texas.text.Gravity;
 import me.chan.texas.text.OnClickedListener;
