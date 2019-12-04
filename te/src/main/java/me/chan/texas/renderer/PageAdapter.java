@@ -196,6 +196,7 @@ public class PageAdapter extends RecyclerView.Adapter<PageAdapter.Renderer> {
 
 		@Override
 		public void render(final Foot data) {
+			mBtnFoot.setBackground(data.getDrawable());
 			mData = data;
 		}
 	}

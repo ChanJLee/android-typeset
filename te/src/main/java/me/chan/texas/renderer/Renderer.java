@@ -1,7 +1,9 @@
 package me.chan.texas.renderer;
 
 import android.content.Context;
+
 import androidx.annotation.Nullable;
+
 import android.text.TextPaint;
 import android.view.LayoutInflater;
 
@@ -154,7 +156,11 @@ public abstract class Renderer {
 				}
 
 				Paragraph paragraph = (Paragraph) segment;
+				Selection selection = paragraph.getSelection();
 				paragraph.setSelection(null);
+				if (selection != null) {
+					selection.clear();
+				}
 			}
 		}
 
