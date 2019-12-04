@@ -17,9 +17,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 import androidx.core.content.ContextCompat;
+
 import me.chan.texas.R;
 import me.chan.texas.log.Log;
 import me.chan.texas.parser.Parser;
+import me.chan.texas.source.ObjectSource;
 import me.chan.texas.source.Source;
 import me.chan.texas.text.BreakStrategy;
 
@@ -34,6 +36,7 @@ public class TexasView extends FrameLayout {
 
 	private Renderer mRenderer;
 	private ViewTreeObserver.OnGlobalLayoutListener mLastOnGlobalLayoutListener = null;
+	private RenderListener mRenderListener;
 
 	public TexasView(Context context, AttributeSet attrs) {
 		this(context, attrs, 0);
@@ -155,9 +158,35 @@ public class TexasView extends FrameLayout {
 		);
 
 		mRenderer = new SlidingRenderer(this, renderOption);
+		mRenderer.setListener(new Renderer.Listener() {
+			@Override
+			public void onStart() {
+				if (mRenderListener != null) {
+					mRenderListener.onStart(TexasView.this);
+				}
+			}
+
+			@Override
+			public void onRenderer() {
+				if (mRenderListener != null) {
+					mRenderListener.onEnd(TexasView.this);
+				}
+			}
+
+			@Override
+			public void onError(Throwable throwable) {
+				if (mRenderListener != null) {
+					mRenderListener.onError(TexasView.this, throwable);
+				}
+			}
+		});
 	}
 
-	public void setSource(final Source source) {
+	public void setSource(Object o) {
+		setSource(new ObjectSource(o));
+	}
+
+	public void setSource(final Source<?> source) {
 		int width = getWidth();
 		int height = getHeight();
 		if (width <= 0 || height <= 0) {
@@ -185,7 +214,7 @@ public class TexasView extends FrameLayout {
 	}
 
 	public void clearSelection() {
-		d("clear selection");
+		d("start selection");
 		mRenderer.clearSelection();
 	}
 
@@ -210,6 +239,18 @@ public class TexasView extends FrameLayout {
 		i("on detached from window");
 		mRenderer.release();
 		super.onDetachedFromWindow();
+	}
+
+	public void setRenderListener(RenderListener renderListener) {
+		mRenderListener = renderListener;
+	}
+
+	public interface RenderListener {
+		void onStart(TexasView texasView);
+
+		void onEnd(TexasView texasView);
+
+		void onError(TexasView texasView, Throwable throwable);
 	}
 
 	private static void d(String msg) {

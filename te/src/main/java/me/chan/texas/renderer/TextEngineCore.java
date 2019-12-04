@@ -114,7 +114,7 @@ public class TextEngineCore {
 		final Document document = mDocument;
 		mDocument = null;
 		if (mRenderer != null) {
-			mRenderer.clear();
+			mRenderer.start();
 		}
 		mTask = mExecutor.submit(new Runnable() {
 			@Override
@@ -282,7 +282,7 @@ public class TextEngineCore {
 		final Document document = mDocument;
 		mDocument = null;
 		if (mRenderer != null) {
-			mRenderer.clear();
+			mRenderer.start();
 		}
 		mTask = mExecutor.submit(new Runnable() {
 			@Override

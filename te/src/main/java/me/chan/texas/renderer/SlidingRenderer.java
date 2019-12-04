@@ -50,7 +50,7 @@ public class SlidingRenderer extends Renderer {
 	}
 
 	@Override
-	protected void onClear() {
+	protected void onStart() {
 		mAdapter.clear();
 	}
 
