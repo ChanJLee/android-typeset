@@ -8,6 +8,7 @@ import com.bumptech.glide.request.target.ViewTarget;
 
 import me.chan.texas.annotations.Hidden;
 import me.chan.texas.text.DrawableBox;
+import me.chan.texas.text.Foot;
 import me.chan.texas.text.Glue;
 import me.chan.texas.text.Penalty;
 import me.chan.texas.text.TextBox;
@@ -85,6 +86,7 @@ public class Texas {
 		UnderLine.clean();
 		Paragraph.Builder.clean();
 		TextBox.Attribute.clean();
+		Foot.clean();
 		System.gc();
 	}
 
