@@ -5,6 +5,7 @@ import android.graphics.Typeface;
 import androidx.annotation.NonNull;
 
 import me.chan.texas.text.BreakStrategy;
+import me.chan.texas.text.HyphenStrategy;
 
 public class RenderOption {
 	private int mTextColor;
@@ -20,8 +21,10 @@ public class RenderOption {
 	private boolean mEnableDebug;
 	private int mSpanSelectedBackgroundColor;
 	private int mSpanSelectedTextColor;
+	private HyphenStrategy mHyphenStrategy;
 
 	public RenderOption() {
+		mHyphenStrategy = HyphenStrategy.US;
 	}
 
 	public RenderOption(RenderOption other) {
@@ -38,78 +41,88 @@ public class RenderOption {
 		mEnableDebug = other.mEnableDebug;
 		mSpanSelectedTextColor = other.mSpanSelectedTextColor;
 		mSpanSelectedBackgroundColor = other.mSpanSelectedBackgroundColor;
+		mHyphenStrategy = other.mHyphenStrategy;
 	}
 
 	public boolean isEnableDebug() {
 		return mEnableDebug;
 	}
 
-	public void setEnableDebug(boolean enableDebug) {
+	public RenderOption setEnableDebug(boolean enableDebug) {
 		mEnableDebug = enableDebug;
+		return this;
 	}
 
 	public boolean isWordSelectable() {
 		return mWordSelectable;
 	}
 
-	public void setWordSelectable(boolean wordSelectable) {
+	public RenderOption setWordSelectable(boolean wordSelectable) {
 		mWordSelectable = wordSelectable;
+		return this;
 	}
 
 	public BreakStrategy getBreakStrategy() {
 		return mBreakStrategy;
 	}
 
-	public void setBreakStrategy(BreakStrategy breakStrategy) {
+	public RenderOption setBreakStrategy(BreakStrategy breakStrategy) {
 		mBreakStrategy = breakStrategy;
+		return this;
 	}
 
 	public int getTextColor() {
 		return mTextColor;
 	}
 
-	public void setTextColor(int textColor) {
+	public RenderOption setTextColor(int textColor) {
 		mTextColor = textColor;
+		return this;
 	}
 
 	public Typeface getTypeface() {
 		return mTypeface;
 	}
 
-	public void setTypeface(@NonNull Typeface typeface) {
+	public RenderOption setTypeface(@NonNull Typeface typeface) {
 		mTypeface = typeface;
+		return this;
 	}
 
 	public float getTextSize() {
 		return mTextSize;
 	}
 
-	public void setTextSize(float textSize) {
+	public RenderOption setTextSize(float textSize) {
 		mTextSize = textSize;
+		return this;
 	}
 
 	public float getLineSpace() {
 		return mLineSpace;
 	}
 
-	public void setLineSpace(float lineSpace) {
+	public RenderOption setLineSpace(float lineSpace) {
 		mLineSpace = lineSpace;
+		return this;
 	}
 
 	public boolean isIndentEnable() {
 		return mIndentEnable;
 	}
 
-	public void setIndentEnable(boolean indentEnable) {
+	public RenderOption setIndentEnable(boolean indentEnable) {
 		mIndentEnable = indentEnable;
+		return this;
 	}
 
 	public int getSelectedBackgroundColor() {
 		return mSelectedBackgroundColor;
 	}
 
-	public void setSelectedBackgroundColor(int selectedBackgroundColor) {
+	public RenderOption setSelectedBackgroundColor(int selectedBackgroundColor) {
 		mSelectedBackgroundColor = selectedBackgroundColor;
+		return this;
 	}
 
 	public int getSelectedTextColor() {
@@ -120,27 +133,39 @@ public class RenderOption {
 		return mSpanSelectedBackgroundColor;
 	}
 
-	public void setSpanSelectedBackgroundColor(int selectedSpanBackgroundColor) {
+	public RenderOption setSpanSelectedBackgroundColor(int selectedSpanBackgroundColor) {
 		mSpanSelectedBackgroundColor = selectedSpanBackgroundColor;
+		return this;
 	}
 
 	public int getSpanSelectedTextColor() {
 		return mSpanSelectedTextColor;
 	}
 
-	public void setSpanSelectedTextColor(int spanSelectedTextColor) {
+	public RenderOption setSpanSelectedTextColor(int spanSelectedTextColor) {
 		mSpanSelectedTextColor = spanSelectedTextColor;
+		return this;
 	}
 
-	public void setSelectedTextColor(int selectedTextColor) {
+	public RenderOption setSelectedTextColor(int selectedTextColor) {
 		mSelectedTextColor = selectedTextColor;
+		return this;
 	}
 
 	public float getSegmentSpace() {
 		return mSegmentSpace;
 	}
 
-	public void setSegmentSpace(float segmentSpace) {
+	public RenderOption setSegmentSpace(float segmentSpace) {
 		mSegmentSpace = segmentSpace;
+		return this;
+	}
+
+	public HyphenStrategy getHyphenStrategy() {
+		return mHyphenStrategy;
+	}
+
+	public void setHyphenStrategy(HyphenStrategy hyphenStrategy) {
+		mHyphenStrategy = hyphenStrategy;
 	}
 }

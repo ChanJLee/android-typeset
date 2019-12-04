@@ -31,6 +31,7 @@ android {
 ext {
     NEXUS_DEPLOY_VERSION = "1.0-local"
     NEXUS_DEPLOY_ARTIFACT_ID = "texas"
+    NEXUS_DEPLOY_GROUP_ID = "com.shanbay.lib"
     NEXUS_DEPLOY_DESCRIPTION = "text engine"
     NEXUS_DEPLOY_EXCLUDE = []
 }

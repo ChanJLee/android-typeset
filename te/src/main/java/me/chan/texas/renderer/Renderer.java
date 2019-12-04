@@ -28,7 +28,7 @@ public abstract class Renderer {
 		mRenderOption = renderOption;
 		mImageLoader = new ImageLoader(context);
 		mLayoutInflater = LayoutInflater.from(context);
-		mTextEngineCore = new TextEngineCore(context, this, mRenderOption);
+		mTextEngineCore = new TextEngineCore(this, mRenderOption);
 	}
 
 	public ImageLoader getImageLoader() {
@@ -93,6 +93,7 @@ public abstract class Renderer {
 	 * 3. 开启首行缩进
 	 * 4. 更改了断字策略
 	 * 5. 渲染模式发生改变
+	 * 6. 断字策略发生变化
 	 *
 	 * @param renderOption 下一个渲染参数
 	 * @return 是否需要重新reload
@@ -111,6 +112,10 @@ public abstract class Renderer {
 		}
 
 		if (renderOption.getBreakStrategy() != mRenderOption.getBreakStrategy()) {
+			return true;
+		}
+
+		if (renderOption.getHyphenStrategy() != mRenderOption.getHyphenStrategy()) {
 			return true;
 		}
 
