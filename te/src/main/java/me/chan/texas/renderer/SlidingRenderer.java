@@ -1,26 +1,28 @@
 package me.chan.texas.renderer;
 
 import android.content.Context;
+
 import androidx.recyclerview.widget.LinearLayoutManager;
+
 import android.view.ViewGroup;
 import android.widget.Toast;
 
 import me.chan.texas.measurer.Measurer;
 import me.chan.texas.text.Document;
 import me.chan.texas.text.OnClickedListener;
-import me.chan.texas.text.Page;
 
 public class SlidingRenderer extends Renderer {
 
 	private final PageAdapter mAdapter;
+	private RecyclerViewInternal mImpl;
 
 	public SlidingRenderer(TexasView viewGroup, RenderOption renderOption) {
 		super(viewGroup.getContext(), renderOption);
 		Context context = viewGroup.getContext();
-		RecyclerViewInternal impl = new RecyclerViewInternal(context);
-		impl.setClipToPadding(false);
-		impl.setClipChildren(false);
-		impl.setOnClickedListener(new OnClickedListener() {
+		mImpl = new RecyclerViewInternal(context);
+		mImpl.setClipToPadding(false);
+		mImpl.setClipChildren(false);
+		mImpl.setOnClickedListener(new OnClickedListener() {
 			@Override
 			public void onClicked(float x, float y) {
 				Document document = getDocument();
@@ -34,9 +36,9 @@ public class SlidingRenderer extends Renderer {
 				}
 			}
 		});
-		impl.addItemDecoration(new SpaceItemDecoration(renderOption.getSegmentSpace()));
-		impl.setLayoutManager(new LinearLayoutManager(context));
-		viewGroup.addView(impl, new TexasView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+		mImpl.addItemDecoration(new SpaceItemDecoration(renderOption.getSegmentSpace()));
+		mImpl.setLayoutManager(new LinearLayoutManager(context));
+		viewGroup.addView(mImpl, new TexasView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
 		mAdapter = new PageAdapter(getLayoutInflater(), getImageLoader());
 		mAdapter.setOnTextSelectedListener(new PageAdapter.OnTextSelectedListener() {
 			@Override
@@ -44,22 +46,18 @@ public class SlidingRenderer extends Renderer {
 				invalidate();
 			}
 		});
-		impl.setAdapter(mAdapter);
+		mImpl.setAdapter(mAdapter);
 	}
 
 	@Override
-	protected void onClear() {
+	protected void onStart() {
 		mAdapter.clear();
 	}
 
 	@Override
 	protected void onRenderer(Document document, Measurer measurer) {
-		if (document.getPageCount() == 0) {
-			return;
-		}
-
-		Page page = document.getPage(0);
-		mAdapter.render(page, getTextPaint(), getRenderOption(), measurer);
+		mAdapter.render(document, getTextPaint(), getRenderOption(), measurer);
+		mImpl.scrollToPostion(document.getFocusIndex());
 	}
 
 	@Override

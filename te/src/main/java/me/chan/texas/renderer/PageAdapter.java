@@ -12,10 +12,10 @@ import android.view.ViewGroup;
 import me.chan.texas.R;
 import me.chan.texas.image.ImageLoader;
 import me.chan.texas.measurer.Measurer;
+import me.chan.texas.text.Document;
 import me.chan.texas.text.Figure;
 import me.chan.texas.text.Foot;
 import me.chan.texas.text.OnClickedListener;
-import me.chan.texas.text.Page;
 import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.Segment;
 
@@ -24,7 +24,7 @@ public class PageAdapter extends RecyclerView.Adapter<PageAdapter.Renderer> {
 	private static final int TYPE_FIGURE = 2;
 	private static final int TYPE_FOOT = 3;
 
-	private Page mPage;
+	private Document mDocument;
 	private LayoutInflater mLayoutInflater;
 	private ImageLoader mImageLoader;
 	private TextPaint mTextPaint;
@@ -52,7 +52,7 @@ public class PageAdapter extends RecyclerView.Adapter<PageAdapter.Renderer> {
 	@Override
 	@SuppressWarnings("unchecked")
 	public void onBindViewHolder(@NonNull Renderer renderer, int position) {
-		renderer.render(mPage.getSegment(position));
+		renderer.render(mDocument.getSegment(position));
 	}
 
 	public void setOnTextSelectedListener(OnTextSelectedListener onTextSelectedListener) {
@@ -61,7 +61,7 @@ public class PageAdapter extends RecyclerView.Adapter<PageAdapter.Renderer> {
 
 	@Override
 	public int getItemViewType(int position) {
-		Segment segment = mPage.getSegment(position);
+		Segment segment = mDocument.getSegment(position);
 		if (segment instanceof Paragraph) {
 			return TYPE_PARAGRAPH;
 		} else if (segment instanceof Figure) {
@@ -75,16 +75,16 @@ public class PageAdapter extends RecyclerView.Adapter<PageAdapter.Renderer> {
 
 	@Override
 	public int getItemCount() {
-		return mPage == null ? 0 : mPage.getSegmentCount();
+		return mDocument == null ? 0 : mDocument.getSegmentCount();
 	}
 
 	public void clear() {
-		mPage = null;
+		mDocument = null;
 		notifyDataSetChanged();
 	}
 
-	public void render(Page page, TextPaint textPaint, RenderOption renderOption, Measurer measurer) {
-		mPage = page;
+	public void render(Document document, TextPaint textPaint, RenderOption renderOption, Measurer measurer) {
+		mDocument = document;
 		mTextPaint = textPaint;
 		mRenderOption = renderOption;
 		mMeasurer = measurer;

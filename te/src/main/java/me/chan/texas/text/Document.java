@@ -13,15 +13,13 @@ public final class Document extends DefaultRecyclable {
 	public final static Document EMPTY = obtain(null);
 
 	private List<Segment> mSegments;
-	private List<Page> mPages;
 	private OnClickedListener mOnClickedListener;
-
+	private Segment mFocusSegment;
 	private Object mRaw;
 
 	private Document(OnClickedListener onClickedListener) {
 		Texas.MemoryOption memoryOption = Texas.getMemoryOption();
 		mSegments = new ArrayList<>(memoryOption.getDocumentSegmentInitialCapacity());
-		mPages = new ArrayList<>(memoryOption.getDocumentPageInitialCapacity());
 		mOnClickedListener = onClickedListener;
 	}
 
@@ -37,6 +35,19 @@ public final class Document extends DefaultRecyclable {
 
 	public OnClickedListener getOnClickedListener() {
 		return mOnClickedListener;
+	}
+
+	// TODO unit test
+	public void setFocusSegment(Segment segment) {
+		mFocusSegment = segment;
+	}
+
+	public int getFocusIndex() {
+		if (mFocusSegment == null) {
+			return -1;
+		}
+
+		return mSegments.indexOf(mFocusSegment);
 	}
 
 	/**
@@ -56,26 +67,6 @@ public final class Document extends DefaultRecyclable {
 		mSegments.add(segment);
 	}
 
-	/**
-	 * 获取页数
-	 *
-	 * @return 段落数目
-	 */
-	@Hidden
-	public int getPageCount() {
-		return mPages.size();
-	}
-
-	@Hidden
-	public Page getPage(int index) {
-		return mPages.get(index);
-	}
-
-	@Hidden
-	public void addPage(Page page) {
-		mPages.add(page);
-	}
-
 	@Override
 	@Hidden
 	public void recycle() {
@@ -89,12 +80,9 @@ public final class Document extends DefaultRecyclable {
 		}
 		mSegments.clear();
 
-		for (Page page : mPages) {
-			page.recycle();
-		}
-		mPages.clear();
 		mRaw = null;
 		mOnClickedListener = null;
+		mFocusSegment = null;
 		POOL.release(this);
 	}
 
