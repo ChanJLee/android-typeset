@@ -2,6 +2,9 @@ package me.chan.texas.test;
 
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -9,6 +12,7 @@ import org.junit.Test;
 import java.lang.reflect.Field;
 import java.util.List;
 
+import me.chan.texas.test.mock.MockContext;
 import me.chan.texas.text.Background;
 import me.chan.texas.text.Document;
 import me.chan.texas.text.DrawableBox;
@@ -20,6 +24,7 @@ import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.Penalty;
 import me.chan.texas.text.TextBox;
 import me.chan.texas.text.UnderLine;
+import me.chan.texas.text.ViewSegment;
 import me.chan.texas.typesetter.BreakPoint;
 import me.chan.texas.typesetter.Candidate;
 import me.chan.texas.typesetter.Node;
@@ -427,51 +432,6 @@ public class DataUnitTest {
 	}
 
 	@Test
-	public void testPage() {
-		Page page = Page.obtain();
-		Assert.assertNotNull(page);
-		Assert.assertFalse(page.isRecycled());
-		try {
-			page.getSegment(0);
-			fail("test get segment");
-		} catch (IndexOutOfBoundsException e) {
-
-		}
-		Assert.assertEquals(page.getSegmentCount(), 0);
-
-		Figure figure = Figure.obtain("", 1, 2);
-		page.addSegment(figure);
-		Assert.assertEquals(page.getSegmentCount(), 1);
-		Assert.assertSame(page.getSegment(0), figure);
-		try {
-			page.getSegment(1);
-			fail("test get segment");
-		} catch (IndexOutOfBoundsException e) {
-
-		}
-
-		page.recycle();
-		Assert.assertTrue(page.isRecycled());
-		Assert.assertEquals(page.getSegmentCount(), 0);
-
-		page.recycle();
-
-		Page previous = page;
-		page = Page.obtain();
-		Assert.assertNotNull(page);
-		assertSame(page, previous);
-		Assert.assertFalse(page.isRecycled());
-		try {
-			page.getSegment(0);
-			fail("test get segment");
-		} catch (IndexOutOfBoundsException e) {
-
-		}
-		Assert.assertEquals(page.getSegmentCount(), 0);
-		Assert.assertNotSame(page, Page.obtain());
-	}
-
-	@Test
 	public void testDocument() {
 		String msg = "hello";
 		OnClickedListener onClickedListener = new OnClickedListener() {
@@ -483,7 +443,6 @@ public class DataUnitTest {
 		Assert.assertNotNull(document);
 		Assert.assertFalse(document.isRecycled());
 		Assert.assertEquals(document.getSegmentCount(), 0);
-		Assert.assertEquals(document.getPageCount(), 0);
 		Assert.assertSame(onClickedListener, document.getOnClickedListener());
 		document.setRaw(msg);
 		Assert.assertSame(document.getRaw(), msg);
@@ -492,30 +451,32 @@ public class DataUnitTest {
 			fail("test document get segment");
 		} catch (IndexOutOfBoundsException e) {
 		}
-		try {
-			document.getPage(0);
-			fail("test document get page");
-		} catch (IndexOutOfBoundsException e) {
-		}
 
 		Figure figure = Figure.obtain("", 1, 2);
-		Page page = Page.obtain();
-		document.addPage(page);
 		document.addSegment(figure);
 		Assert.assertEquals(document.getSegmentCount(), 1);
-		Assert.assertEquals(document.getPageCount(), 1);
 		try {
 			document.getSegment(1);
 			fail("test document get segment");
 		} catch (IndexOutOfBoundsException e) {
 		}
-		try {
-			document.getPage(1);
-			fail("test document get page");
-		} catch (IndexOutOfBoundsException e) {
-		}
-		Assert.assertSame(document.getPage(0), page);
+
 		Assert.assertSame(document.getSegment(0), figure);
+		ViewSegment viewSegment = new ViewSegment() {
+			@Override
+			protected View onCreateView(LayoutInflater layoutInflater, ViewGroup parent) {
+				return null;
+			}
+
+			@Override
+			protected void onRender() {
+
+			}
+		};
+		document.setFocusSegment(viewSegment);
+		Assert.assertSame(document.getFocusIndex(), -1);
+		document.setFocusSegment(figure);
+		Assert.assertSame(document.getFocusIndex(), 0);
 
 		Document previous = document;
 		document.recycle();
@@ -532,42 +493,27 @@ public class DataUnitTest {
 		Assert.assertNull(document.getRaw());
 		Assert.assertSame(previous, document);
 		Assert.assertEquals(document.getSegmentCount(), 0);
-		Assert.assertEquals(document.getPageCount(), 0);
 		try {
 			document.getSegment(0);
 			fail("test document get segment");
-		} catch (IndexOutOfBoundsException e) {
-		}
-		try {
-			document.getPage(0);
-			fail("test document get page");
 		} catch (IndexOutOfBoundsException e) {
 		}
 		Assert.assertNotSame(document, Document.obtain());
 	}
 
 	@Test
-	public void testFoot() {
-		OnClickedListener onClickedListener = new OnClickedListener() {
+	public void testViewFragment() {
+		final View view = new View(new MockContext());
+		ViewSegment viewSegment = new ViewSegment() {
 			@Override
-			public void onClicked(float x, float y) {
+			protected View onCreateView(LayoutInflater layoutInflater, ViewGroup parent) {
+				return view;
+			}
+
+			@Override
+			protected void onRender() {
+
 			}
 		};
-		Foot foot = Foot.obtain(onClickedListener);
-		Assert.assertNotNull(foot);
-		Assert.assertSame(foot.getOnClickedListener(), onClickedListener);
-
-		foot.recycle();
-		Assert.assertNull(foot.getOnClickedListener());
-
-		// test recycle twice
-		foot.recycle();
-
-		Foot prev = foot;
-		foot = Foot.obtain(onClickedListener);
-		Assert.assertSame(foot, prev);
-		Assert.assertSame(foot.getOnClickedListener(), onClickedListener);
-
-		Assert.assertNotSame(foot, Foot.obtain(onClickedListener));
 	}
 }

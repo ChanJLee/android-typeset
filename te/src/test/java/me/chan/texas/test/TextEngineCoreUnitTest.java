@@ -31,7 +31,7 @@ public class TextEngineCoreUnitTest {
 	public void setup() throws NoSuchFieldException, IllegalAccessException {
 		mMockTextPaint = new MockTextPaint();
 		mRenderOption = new RenderOption();
-		mTextEngineCore = new TextEngineCore(new MockContext(), null, mRenderOption, mMockTextPaint);
+		mTextEngineCore = new TextEngineCore(null, mRenderOption, mMockTextPaint);
 		MockMeasurer mockMeasurer = new MockMeasurer(mMockTextPaint);
 
 
@@ -51,9 +51,7 @@ public class TextEngineCoreUnitTest {
 		field.set(mTextEngineCore, mockMeasurer);
 
 		Texas.MemoryOption memoryOption = Texas.getMemoryOption();
-		memoryOption.setDocumentPageInitialCapacity(4)
-				.setDocumentSegmentInitialCapacity(4)
-				.setPageSegmentInitialCapacity(4)
+		memoryOption.setDocumentSegmentInitialCapacity(4)
 				.setParagraphElementInitialCapacity(4)
 				.setParagraphLineBoxInitialCapacity(4)
 				.setParagraphLineInitialCapacity(4);
@@ -91,7 +89,7 @@ public class TextEngineCoreUnitTest {
 				countDownLatch.countDown();
 			}
 		});
-		mTextEngineCore.typeset(fileTextSource, width, height);
+		mTextEngineCore.typeset(fileTextSource, width);
 		countDownLatch.await();
 
 		if (mValue instanceof Throwable) {
@@ -105,25 +103,22 @@ public class TextEngineCoreUnitTest {
 
 	private void checkDocument(Document document) {
 		StringBuilder stringBuilder = new StringBuilder();
-		for (int i = 0; i < document.getPageCount(); ++i) {
-			Page page = document.getPage(i);
-			Assert.assertNotEquals(page.getSegmentCount(), 0);
-			for (int j = 0; j < page.getSegmentCount(); ++j) {
-				Paragraph paragraph = (Paragraph) page.getSegment(j);
-				for (int x = 0; x < paragraph.getLineCount(); ++x) {
-					Paragraph.Line line = paragraph.getLine(x);
-					for (int y = 0; y < line.getCount(); ++y) {
-						TextBox box = (TextBox) line.getBox(y);
-						String string = box.toString();
-						if (box.isPenalty() && string.length() != 0) {
-							Assert.assertEquals(string.charAt(string.length() - 1), '-');
-							stringBuilder.append(string.substring(0, string.length() - 1));
-						} else {
-							stringBuilder.append(string);
-						}
+		for (int j = 0; j < document.getSegmentCount(); ++j) {
+			Paragraph paragraph = (Paragraph) document.getSegment(j);
+			for (int x = 0; x < paragraph.getLineCount(); ++x) {
+				Paragraph.Line line = paragraph.getLine(x);
+				for (int y = 0; y < line.getCount(); ++y) {
+					TextBox box = (TextBox) line.getBox(y);
+					String string = box.toString();
+					if (box.isPenalty() && string.length() != 0) {
+						Assert.assertEquals(string.charAt(string.length() - 1), '-');
+						stringBuilder.append(string.substring(0, string.length() - 1));
+					} else {
+						stringBuilder.append(string);
 					}
 				}
 			}
+
 		}
 		String origin = (String) document.getRaw();
 		origin = origin.replaceAll("\\p{Z}+|\\t|\\r|\\n", "");

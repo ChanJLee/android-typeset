@@ -26,6 +26,10 @@ public class Hypher {
 		this.mRightMin = pattern.rightMin;
 	}
 
+	public static Hypher getInstance() {
+		return getInstance(HyphenationPattern.EN_US);
+	}
+
 	public static synchronized Hypher getInstance(HyphenationPattern hyphenationPattern) {
 		int index = -1;
 		if (hyphenationPattern == HyphenationPattern.EN_US) {
