@@ -28,7 +28,8 @@ public abstract class ViewSegment extends Segment {
 			return mView;
 		}
 
-		return onCreateView(layoutInflater, parent);
+		mView = onCreateView(layoutInflater, parent);
+		return mView;
 	}
 
 	protected abstract View onCreateView(LayoutInflater layoutInflater, ViewGroup parent);
@@ -38,10 +39,6 @@ public abstract class ViewSegment extends Segment {
 	}
 
 	protected abstract void onRender();
-
-	public int getVerticalSpace() {
-		return -1;
-	}
 
 	@Override
 	public final void recycle() {
