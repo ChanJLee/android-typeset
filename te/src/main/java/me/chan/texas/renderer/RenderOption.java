@@ -5,7 +5,6 @@ import android.graphics.Typeface;
 import androidx.annotation.NonNull;
 
 import me.chan.texas.text.BreakStrategy;
-import me.chan.texas.text.UnderLine;
 
 public class RenderOption {
 	private int mTextColor;
@@ -17,7 +16,6 @@ public class RenderOption {
 	private int mSelectedTextColor;
 	private float mSegmentSpace;
 	private BreakStrategy mBreakStrategy;
-	private RendererMode mRendererMode;
 	private boolean mWordSelectable;
 	private boolean mEnableDebug;
 	private int mSpanSelectedBackgroundColor;
@@ -36,7 +34,6 @@ public class RenderOption {
 		mSelectedTextColor = other.mSelectedTextColor;
 		mSegmentSpace = other.mSegmentSpace;
 		mBreakStrategy = other.mBreakStrategy;
-		mRendererMode = other.mRendererMode;
 		mWordSelectable = other.mWordSelectable;
 		mEnableDebug = other.mEnableDebug;
 		mSpanSelectedTextColor = other.mSpanSelectedTextColor;
@@ -57,14 +54,6 @@ public class RenderOption {
 
 	public void setWordSelectable(boolean wordSelectable) {
 		mWordSelectable = wordSelectable;
-	}
-
-	public RendererMode getRendererMode() {
-		return mRendererMode;
-	}
-
-	public void setRendererMode(RendererMode rendererMode) {
-		mRendererMode = rendererMode;
 	}
 
 	public BreakStrategy getBreakStrategy() {

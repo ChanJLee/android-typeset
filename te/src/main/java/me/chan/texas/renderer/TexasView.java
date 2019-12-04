@@ -27,8 +27,6 @@ public class TexasView extends FrameLayout {
 
 	private static final int BREAK_STRATEGY_SIMPLE = 1;
 	private static final int BREAK_STRATEGY_BALANCE = 2;
-	private static final int MODE_PAGING = 1;
-	private static final int MODE_SLIDING = 2;
 	private static final int DEFAULT_TEXT_SIZE = 18;
 	private static final int DEFAULT_LINE_SPACE = 12;
 	private static final int DEFAULT_SEGMENT_SPACE = 28;
@@ -156,14 +154,7 @@ public class TexasView extends FrameLayout {
 				typedArray.getBoolean(R.styleable.me_chan_te_TeView_me_chan_te_wordSelectable, true)
 		);
 
-		int mode = typedArray.getInt(R.styleable.me_chan_te_TeView_me_chan_te_render_mode, MODE_SLIDING);
-		if (mode == MODE_PAGING) {
-			renderOption.setRendererMode(RendererMode.PAGING);
-			mRenderer = new PagingRenderer(this, renderOption);
-		} else {
-			renderOption.setRendererMode(RendererMode.SLIDING);
-			mRenderer = new SlidingRenderer(this, renderOption);
-		}
+		mRenderer = new SlidingRenderer(this, renderOption);
 	}
 
 	public void setSource(final Source source) {

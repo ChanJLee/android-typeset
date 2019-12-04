@@ -24,7 +24,6 @@ import me.chan.texas.text.Document;
 import me.chan.texas.text.Figure;
 import me.chan.texas.text.Foot;
 import me.chan.texas.text.Gravity;
-import me.chan.texas.text.Page;
 import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.Segment;
 import me.chan.texas.text.TextAttribute;
@@ -172,7 +171,6 @@ public class TextEngineCore {
 
 		// typeset
 		final Thread thread = Thread.currentThread();
-		float lastHeight = 0;
 		for (int i = 0; i < size && !thread.isInterrupted(); ++i) {
 			Segment segment = document.getSegment(i);
 			if (segment instanceof Figure) {
@@ -184,8 +182,6 @@ public class TextEngineCore {
 			} else {
 				throw new RuntimeException("unknown segment type");
 			}
-
-			lastHeight = typesetPage(document, segment, height, lastHeight, i == size - 1);
 		}
 
 		i("typeset used time: " + (SystemClock.elapsedRealtime() - timestamp));
@@ -201,161 +197,6 @@ public class TextEngineCore {
 	private void typesetFoot(Foot foot) {
 		/* do nothing */
 		d("typeset foot, " + foot);
-	}
-
-	private float typesetPage(Document document, Segment segment, float height, float nextPageHeight, boolean isLastSegment) {
-		int pageSize = document.getPageCount();
-		Page currentPage;
-		if (pageSize == 0) {
-			currentPage = Page.obtain();
-			document.addPage(currentPage);
-		} else {
-			currentPage = document.getPage(pageSize - 1);
-		}
-
-		if (mRenderOption.getRendererMode() == RendererMode.SLIDING) {
-			currentPage.addSegment(segment);
-			return -1;
-		}
-
-		if (segment instanceof Figure) {
-			return typesetFigureInPage(document, currentPage, (Figure) segment, height, nextPageHeight, isLastSegment);
-		} else if (segment instanceof Paragraph) {
-			return typesetParagraphInPage(document, currentPage, (Paragraph) segment, height, nextPageHeight, isLastSegment);
-		} else if (segment instanceof Foot) {
-			return typesetFootInPage(document, currentPage, (Foot) segment, height, nextPageHeight, isLastSegment);
-		}
-
-		throw new RuntimeException("unknown segment type");
-	}
-
-	private float typesetFootInPage(Document document, Page currentPage, Foot foot, float height, float currentHeight, boolean isLastSegment) {
-		return typesetInseparableSegmentInPage(document, currentPage, foot, height, currentHeight, mFootHeight, isLastSegment);
-	}
-
-	private float typesetFigureInPage(Document document, Page currentPage, Figure figure, float height, float currentHeight, boolean isLastSegment) {
-		return typesetInseparableSegmentInPage(document, currentPage, figure, height, currentHeight, figure.getHeight(), isLastSegment);
-	}
-
-	private float typesetInseparableSegmentInPage(Document document, Page currentPage, Segment segment, float height, float currentHeight, float currentSegmentHeight, boolean isLastSegment) {
-		if (currentPage.getSegmentCount() != 0) {
-			// 这里可以区分不同类型 选择不同的垂直方向偏移
-			currentHeight += mRenderOption.getSegmentSpace();
-		}
-
-		currentHeight += currentSegmentHeight;
-
-		// 当前页排不下
-		if (currentHeight > height) {
-
-			// 但是要注意当前页啥东西都没有都排不下的情况，这时候强行塞到当前页并且创建一个新的页
-			if (currentPage.getSegmentCount() == 0) {
-				currentPage.addSegment(segment);
-				if (!isLastSegment) {
-					currentPage = Page.obtain();
-					document.addPage(currentPage);
-					return 0;
-				}
-				return currentHeight;
-			}
-
-			// 否则新起新的一页
-			currentPage = Page.obtain();
-			document.addPage(currentPage);
-			currentPage.addSegment(segment);
-			return currentSegmentHeight;
-		} else if (currentHeight == height) {
-			// 刚好放得下
-			currentPage.addSegment(segment);
-			// 如果不是最后一个segment，创建新的一页
-			if (!isLastSegment) {
-				currentPage = Page.obtain();
-				document.addPage(currentPage);
-				return 0;
-			}
-			return currentHeight;
-		} else {
-			// 足够排下
-			currentPage.addSegment(segment);
-			return currentHeight;
-		}
-	}
-
-	private float typesetParagraphInPage(Document document, Page currentPage, Paragraph paragraph, float height, float currentHeight, boolean isLastSegment) {
-		while (true) {
-			if (currentPage.getSegmentCount() != 0) {
-				// 这里可以区分不同类型 选择不同的垂直方向偏移
-				currentHeight += mRenderOption.getSegmentSpace();
-			}
-
-			int lineCount = paragraph.getLineCount();
-			int i = 0;
-
-			currentHeight = currentHeight + mMeasurer.getFontBottomPadding() + mMeasurer.getFontTopPadding();
-			for (; i < lineCount; ++i) {
-				if (i != 0) {
-					currentHeight += mRenderOption.getLineSpace();
-				}
-
-				Paragraph.Line line = paragraph.getLine(i);
-				currentHeight += line.getLineHeight();
-				if (currentHeight >= height) {
-					if (i != 0) {
-						--i;
-					}
-					break;
-				}
-			}
-
-			// 当前页排不下
-			if (currentHeight > height) {
-				int endIndex = i;
-				// 如果排不下，尝试去spilt
-				if (endIndex <= 0) {
-					// 一行都塞不进的情况
-					// 那就强行塞一行
-					endIndex = 1;
-				}
-
-				// 现在已经确定了当前paragraph的末尾
-
-				// 即使spilt了 末尾也没有内容了，不如将当前所有内容都塞进去
-				if (endIndex == lineCount) {
-					// 刚好放得下
-					currentPage.addSegment(paragraph);
-					// 然后创建新的一页
-					if (!isLastSegment) {
-						currentPage = Page.obtain();
-						document.addPage(currentPage);
-						return 0;
-					}
-					return currentHeight;
-				}
-
-				Paragraph suffix = paragraph.spilt(endIndex);
-				// 刚好放得下
-				currentPage.addSegment(paragraph);
-				// 然后创建新的一页
-				currentPage = Page.obtain();
-				document.addPage(currentPage);
-				paragraph = suffix;
-				currentHeight = 0;
-			} else if (currentHeight == height) {
-				// 刚好放得下
-				currentPage.addSegment(paragraph);
-				// 然后创建新的一页
-				if (isLastSegment) {
-					currentPage = Page.obtain();
-					document.addPage(currentPage);
-					return 0;
-				}
-				return currentHeight;
-			} else {
-				// 足够排下
-				currentPage.addSegment(paragraph);
-				return currentHeight;
-			}
-		}
 	}
 
 	private void typesetFigure(Figure figure, float lineWidth) {

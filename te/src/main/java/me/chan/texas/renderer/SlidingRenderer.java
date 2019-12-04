@@ -8,7 +8,6 @@ import android.widget.Toast;
 import me.chan.texas.measurer.Measurer;
 import me.chan.texas.text.Document;
 import me.chan.texas.text.OnClickedListener;
-import me.chan.texas.text.Page;
 
 public class SlidingRenderer extends Renderer {
 
@@ -54,12 +53,7 @@ public class SlidingRenderer extends Renderer {
 
 	@Override
 	protected void onRenderer(Document document, Measurer measurer) {
-		if (document.getPageCount() == 0) {
-			return;
-		}
-
-		Page page = document.getPage(0);
-		mAdapter.render(page, getTextPaint(), getRenderOption(), measurer);
+		mAdapter.render(document, getTextPaint(), getRenderOption(), measurer);
 	}
 
 	@Override
