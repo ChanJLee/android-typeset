@@ -15,6 +15,7 @@ import java.util.regex.Pattern;
 
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
+
 import me.chan.texas.R;
 import me.chan.texas.hypher.Hypher;
 import me.chan.texas.log.Log;
@@ -106,12 +107,13 @@ public class BookParser implements Parser<CharSequence> {
 			}
 		}
 
-		Foot foot = Foot.obtain(new OnClickedListener() {
-			@Override
-			public void onClicked(float x, float y) {
-				Log.d("BookParser", "click foot");
-			}
-		});
+		Foot foot = Foot.obtain(ContextCompat.getDrawable(mContext, R.drawable.me_chan_te_bg_foot),
+				new OnClickedListener() {
+					@Override
+					public void onClicked(float x, float y) {
+						Log.d("BookParser", "click foot");
+					}
+				});
 		document.addSegment(foot);
 
 		return document;

@@ -45,6 +45,12 @@ public class Selection {
 		}
 	}
 
+	public void clear() {
+		for (Box box : mBoxes) {
+			box.setSelected(false);
+		}
+	}
+
 	public void addBox(Box box) {
 		mBoxes.add(box);
 	}
