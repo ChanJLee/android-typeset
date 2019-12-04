@@ -1,22 +1,20 @@
 package me.chan.texas.renderer;
 
 import android.graphics.Rect;
+import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import me.chan.texas.text.Segment;
-import me.chan.texas.text.ViewSegment;
-
-import android.view.View;
 
 public class SpaceItemDecoration extends RecyclerView.ItemDecoration {
-	private int mSegmentSpace;
+	private float mSegmentSpace;
 
-	public SpaceItemDecoration(int segmentSpace) {
+	public SpaceItemDecoration(float segmentSpace) {
 		mSegmentSpace = segmentSpace;
 	}
 
-	public void setSegmentSpace(int segmentSpace) {
+	public void setSegmentSpace(float segmentSpace) {
 		mSegmentSpace = segmentSpace;
 	}
 
@@ -39,14 +37,11 @@ public class SpaceItemDecoration extends RecyclerView.ItemDecoration {
 
 		Segment segment = adapter.getItem(currentPosition);
 
-		int segmentSpace = mSegmentSpace;
-		if (segment instanceof ViewSegment) {
-			segmentSpace = ((ViewSegment) segment).getVerticalSpace();
-			if (segmentSpace < 0) {
-				segmentSpace = mSegmentSpace;
-			}
+		float segmentSpace = segment.getVerticalSpace(mSegmentSpace);
+		if (segmentSpace < 0) {
+			segmentSpace = mSegmentSpace;
 		}
 
-		outRect.set(0, 0, 0, segmentSpace);
+		outRect.set(0, 0, 0, (int) segmentSpace);
 	}
 }

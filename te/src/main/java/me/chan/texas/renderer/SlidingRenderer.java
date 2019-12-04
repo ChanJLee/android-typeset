@@ -37,7 +37,7 @@ public class SlidingRenderer extends Renderer {
 				}
 			}
 		});
-		mSpaceItemDecoration = new SpaceItemDecoration((int) renderOption.getSegmentSpace());
+		mSpaceItemDecoration = new SpaceItemDecoration(renderOption.getSegmentSpace());
 		mImpl.addItemDecoration(mSpaceItemDecoration);
 		mImpl.setLayoutManager(new LinearLayoutManager(context));
 		viewGroup.addView(mImpl, new TexasView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
@@ -69,7 +69,7 @@ public class SlidingRenderer extends Renderer {
 
 	@Override
 	protected void onRefresh(RenderOption renderOption) {
-		mSpaceItemDecoration.setSegmentSpace((int) renderOption.getSegmentSpace());
+		mSpaceItemDecoration.setSegmentSpace(renderOption.getSegmentSpace());
 		mAdapter.update(getTextPaint(), renderOption);
 	}
 
