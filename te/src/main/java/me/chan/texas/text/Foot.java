@@ -35,6 +35,10 @@ public class Foot extends Segment {
 		POOL.release(this);
 	}
 
+	public static void clean() {
+		POOL.clean();
+	}
+
 	public static Foot obtain(Drawable drawable, OnClickedListener onClickedListener) {
 		Foot foot = POOL.acquire();
 		if (foot == null) {
