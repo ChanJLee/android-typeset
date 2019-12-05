@@ -32,9 +32,6 @@ public abstract class TextStyle {
 		}
 	};
 
-	private TextStyle() {
-	}
-
 	/**
 	 * 更新text paint的样式
 	 *
