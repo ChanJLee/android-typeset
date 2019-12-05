@@ -20,14 +20,15 @@ public abstract class Renderer {
 	private ImageLoader mImageLoader;
 	private LayoutInflater mLayoutInflater;
 	private Context mContext;
-	private Listener mListener;
 	private Paragraph mSelectedParagraph;
+	private TexasView mTexasView;
 
-	public Renderer(Context context, RenderOption renderOption) {
-		mContext = context;
+	public Renderer(TexasView texasView, RenderOption renderOption) {
+		mTexasView = texasView;
+		mContext = texasView.getContext();
 		mRenderOption = renderOption;
-		mImageLoader = new ImageLoader(context);
-		mLayoutInflater = LayoutInflater.from(context);
+		mImageLoader = new ImageLoader(mContext);
+		mLayoutInflater = LayoutInflater.from(mContext);
 		mTextEngineCore = new TextEngineCore(this, mRenderOption);
 	}
 
@@ -45,27 +46,21 @@ public abstract class Renderer {
 
 	void start() {
 		onStart();
-		if (mListener != null) {
-			mListener.onStart();
-		}
+		mTexasView.notifyRenderStart();
 	}
 
 	protected abstract void onStart();
 
 	void render(Document document, Measurer measurer) {
 		onRenderer(document, measurer);
-		if (mListener != null) {
-			mListener.onRenderer();
-		}
+		mTexasView.notifyRenderEnd();
 	}
 
 	protected abstract void onRenderer(Document document, Measurer measurer);
 
 	public void error(Throwable throwable) {
 		onError(throwable);
-		if (mListener != null) {
-			mListener.onError(throwable);
-		}
+		mTexasView.notifyRenderError(throwable);
 	}
 
 	protected abstract void onError(Throwable throwable);
@@ -175,19 +170,7 @@ public abstract class Renderer {
 		return mTextEngineCore.getDocument();
 	}
 
-	public void setListener(Listener listener) {
-		mListener = listener;
-	}
-
 	protected abstract void invalidate();
 
 	public abstract int getFirstVisibleSegmentIndex();
-
-	public interface Listener {
-		void onStart();
-
-		void onRenderer();
-
-		void onError(Throwable throwable);
-	}
 }

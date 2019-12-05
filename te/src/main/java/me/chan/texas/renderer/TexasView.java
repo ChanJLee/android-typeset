@@ -39,6 +39,7 @@ public class TexasView extends FrameLayout {
 	private Renderer mRenderer;
 	private ViewTreeObserver.OnGlobalLayoutListener mLastOnGlobalLayoutListener = null;
 	private RenderListener mRenderListener;
+	private ScrollListener mScrollListener;
 
 	public TexasView(Context context, AttributeSet attrs) {
 		this(context, attrs, 0);
@@ -160,28 +161,24 @@ public class TexasView extends FrameLayout {
 		);
 
 		mRenderer = new SlidingRenderer(this, renderOption);
-		mRenderer.setListener(new Renderer.Listener() {
-			@Override
-			public void onStart() {
-				if (mRenderListener != null) {
-					mRenderListener.onStart(TexasView.this);
-				}
-			}
+	}
 
-			@Override
-			public void onRenderer() {
-				if (mRenderListener != null) {
-					mRenderListener.onEnd(TexasView.this);
-				}
-			}
+	void notifyRenderStart() {
+		if (mRenderListener != null) {
+			mRenderListener.onStart(TexasView.this);
+		}
+	}
 
-			@Override
-			public void onError(Throwable throwable) {
-				if (mRenderListener != null) {
-					mRenderListener.onError(TexasView.this, throwable);
-				}
-			}
-		});
+	void notifyRenderEnd() {
+		if (mRenderListener != null) {
+			mRenderListener.onEnd(TexasView.this);
+		}
+	}
+
+	void notifyRenderError(Throwable throwable) {
+		if (mRenderListener != null) {
+			mRenderListener.onError(TexasView.this, throwable);
+		}
 	}
 
 	/**
@@ -300,6 +297,16 @@ public class TexasView extends FrameLayout {
 		mRenderListener = renderListener;
 	}
 
+	public void setScrollListener(ScrollListener scrollListener) {
+		mScrollListener = scrollListener;
+	}
+
+	void notifyScrolled(int dx, int dy) {
+		if (mScrollListener != null) {
+			mScrollListener.onScrolled(this, dx, dy);
+		}
+	}
+
 	/**
 	 * 渲染监听器
 	 */
@@ -325,6 +332,18 @@ public class TexasView extends FrameLayout {
 		 * @param throwable 错误
 		 */
 		void onError(TexasView texasView, Throwable throwable);
+	}
+
+	/**
+	 * 滚动监听器
+	 */
+	public interface ScrollListener {
+		/**
+		 * @param texasView view
+		 * @param dx        dx
+		 * @param dy        dy
+		 */
+		void onScrolled(TexasView texasView, int dx, int dy);
 	}
 
 	private static void d(String msg) {
