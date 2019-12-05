@@ -42,7 +42,6 @@ public class TextEngineCore {
 
 	private Document mDocument;
 	private Future<?> mTask;
-	private BreakStrategy mBreakStrategy = BreakStrategy.BALANCED;
 	private Renderer mRenderer;
 	private ParagraphTypesetterImpl mTypesetter;
 	private RenderOption mRenderOption;
@@ -139,8 +138,9 @@ public class TextEngineCore {
 	private void typeset(final Object content,
 						 final int width,
 						 Document document) {
+		BreakStrategy breakStrategy = mRenderOption.getBreakStrategy();
 		i("typeset, width: " + width +
-				" break strategy: " + mBreakStrategy +
+				" break strategy: " + breakStrategy +
 				" text size: " + mTextPaint.getTextSize());
 
 		mWidth = width;
@@ -185,7 +185,7 @@ public class TextEngineCore {
 			if (segment instanceof Figure) {
 				typesetFigure((Figure) segment, mWidth);
 			} else if (segment instanceof Paragraph) {
-				mTypesetter.typeset((Paragraph) segment, mTextAttribute, mBreakStrategy);
+				mTypesetter.typeset((Paragraph) segment, mTextAttribute, breakStrategy);
 			} else if (segment instanceof ViewSegment) {
 				typesetViewSegment((ViewSegment) segment);
 			} else {

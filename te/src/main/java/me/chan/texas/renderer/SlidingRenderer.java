@@ -4,7 +4,9 @@ import android.content.Context;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import me.chan.texas.measurer.Measurer;
 import me.chan.texas.text.Document;
@@ -17,9 +19,11 @@ public class SlidingRenderer extends Renderer {
 	private RecyclerViewInternal mImpl;
 	private SpaceItemDecoration mSpaceItemDecoration;
 	private LinearLayoutManager mLinearLayoutManager;
+	private TexasView mTexasView;
 
 	public SlidingRenderer(TexasView viewGroup, RenderOption renderOption) {
-		super(viewGroup.getContext(), renderOption);
+		super(viewGroup, renderOption);
+		mTexasView = viewGroup;
 		Context context = viewGroup.getContext();
 		mImpl = new RecyclerViewInternal(context);
 		mImpl.setClipToPadding(false);
@@ -40,6 +44,12 @@ public class SlidingRenderer extends Renderer {
 		});
 		mSpaceItemDecoration = new SpaceItemDecoration(renderOption.getSegmentSpace());
 		mImpl.addItemDecoration(mSpaceItemDecoration);
+		mImpl.addOnScrollListener(new RecyclerView.OnScrollListener() {
+			@Override
+			public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+				mTexasView.notifyScrolled(dx, dy);
+			}
+		});
 		mLinearLayoutManager = new LinearLayoutManager(context);
 		mImpl.setLayoutManager(mLinearLayoutManager);
 		viewGroup.addView(mImpl, new TexasView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
