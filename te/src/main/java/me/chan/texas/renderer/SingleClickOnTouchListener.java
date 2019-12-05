@@ -28,10 +28,6 @@ public abstract class SingleClickOnTouchListener implements View.OnTouchListener
 
 	@Override
 	public boolean onTouch(View v, MotionEvent event) {
-		if (mIgnore) {
-			return false;
-		}
-
 		StateListDrawable stateListDrawable = null;
 		Drawable drawable = v.getBackground();
 		if (drawable instanceof StateListDrawable) {
@@ -63,8 +59,12 @@ public abstract class SingleClickOnTouchListener implements View.OnTouchListener
 				stateListDrawable.setState(STATE_NORMAL);
 				v.invalidate();
 			}
-			onClicked(event.getRawX(), event.getRawY());
+			if (!mIgnore) {
+				onClicked(event.getRawX(), event.getRawY());
+			}
+			mIgnore = false;
 		} else if (action == MotionEvent.ACTION_CANCEL) {
+			mIgnore = false;
 			if (stateListDrawable != null) {
 				stateListDrawable.setState(STATE_NORMAL);
 				v.invalidate();
