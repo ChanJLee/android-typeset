@@ -16,8 +16,8 @@ public abstract class SingleClickOnTouchListener implements View.OnTouchListener
 	};
 
 	private final int mTouchSlopSquare;
-	private float mLastX;
-	private float mLastY;
+	private float mDownX;
+	private float mDownY;
 	private boolean mIgnore = false;
 
 	public SingleClickOnTouchListener(Context context) {
@@ -28,49 +28,56 @@ public abstract class SingleClickOnTouchListener implements View.OnTouchListener
 
 	@Override
 	public boolean onTouch(View v, MotionEvent event) {
-		StateListDrawable stateListDrawable = null;
-		Drawable drawable = v.getBackground();
-		if (drawable instanceof StateListDrawable) {
-			stateListDrawable = (StateListDrawable) drawable;
-		}
-
 		int action = event.getAction();
+
+		// 按下操作，记录按下的坐标
+		// 并改变背景
 		if (action == MotionEvent.ACTION_DOWN) {
-			mLastX = event.getX();
-			mLastY = event.getY();
+			mDownX = event.getX();
+			mDownY = event.getY();
 			mIgnore = false;
-			if (stateListDrawable != null) {
+			Drawable drawable = v.getBackground();
+			if (drawable instanceof StateListDrawable) {
+				StateListDrawable stateListDrawable = (StateListDrawable) drawable;
 				stateListDrawable.setState(STATE_PRESSED);
 				v.invalidate();
 			}
-		} else if (action == MotionEvent.ACTION_MOVE) {
+			return true;
+		}
+
+		// 移动，发现如果超过一定距离，就不响应
+		if (action == MotionEvent.ACTION_MOVE) {
+			if (mIgnore) {
+				return false;
+			}
+
 			float x = event.getX();
 			float y = event.getY();
-			float dx = x - mLastX;
-			float dy = y - mLastY;
+			float dx = x - mDownX;
+			float dy = y - mDownY;
 			if (dx * dx + dy * dy >= mTouchSlopSquare) {
 				mIgnore = true;
 				return false;
 			}
-			mLastX = x;
-			mLastY = y;
-		} else if (action == MotionEvent.ACTION_UP) {
-			if (stateListDrawable != null) {
-				stateListDrawable.setState(STATE_NORMAL);
-				v.invalidate();
-			}
-			if (!mIgnore) {
-				onClicked(event.getRawX(), event.getRawY());
-			}
-			mIgnore = false;
-		} else if (action == MotionEvent.ACTION_CANCEL) {
-			mIgnore = false;
-			if (stateListDrawable != null) {
-				stateListDrawable.setState(STATE_NORMAL);
-				v.invalidate();
-			}
+
+			return true;
 		}
-		return true;
+
+		// 变更背景为正常
+		Drawable drawable = v.getBackground();
+		if (drawable instanceof StateListDrawable) {
+			StateListDrawable stateListDrawable = (StateListDrawable) drawable;
+			stateListDrawable.setState(STATE_NORMAL);
+			v.invalidate();
+		}
+
+		// 抬起手的时候看有没有滑动过度，滑动过度不判定为点击
+		if (action == MotionEvent.ACTION_UP && !mIgnore) {
+			onClicked(event.getRawX(), event.getRawY());
+		}
+
+		// 返回值看有没有忽略滑动
+		return !mIgnore;
 	}
 
 	protected abstract void onClicked(float x, float y);
