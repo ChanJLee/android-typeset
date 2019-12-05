@@ -143,12 +143,14 @@ public class ParagraphUnitTest {
 	@Test
 	public void testParagraph() throws NoSuchFieldException, IllegalAccessException {
 		Paragraph.Builder builder = Paragraph.Builder.newBuilder(mMeasurer, Hypher.getInstance(), mTextAttribute);
+		String msg = "xxx";
+		builder.extra(msg);
 		builder.text("hello");
 		Paragraph paragraph = builder.build();
+		Assert.assertSame(msg, paragraph.getExtra());
 
 		Assert.assertEquals(paragraph.getLineCount(), 0);
 		Assert.assertEquals(paragraph.getElementCount(), 3);
-
 
 		Glue glue = Glue.obtain(10, 11, 12);
 		paragraph.replace(0, glue);
@@ -170,6 +172,7 @@ public class ParagraphUnitTest {
 		paragraph.recycle();
 		Assert.assertEquals(paragraph.getLineCount(), 0);
 		Assert.assertEquals(paragraph.getElementCount(), 0);
+		Assert.assertNull(paragraph.getExtra());
 
 		// check recycle twice
 		paragraph.recycle();
@@ -179,6 +182,7 @@ public class ParagraphUnitTest {
 		builder.text("triangle");
 		paragraph = builder.build();
 		Assert.assertSame(paragraph, paragraph1);
+		Assert.assertNull(paragraph.getExtra());
 		Assert.assertEquals(paragraph.getLineCount(), 0);
 		Assert.assertEquals(paragraph.getElementCount(), 7);
 
