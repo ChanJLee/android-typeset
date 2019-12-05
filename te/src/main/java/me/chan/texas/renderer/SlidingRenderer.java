@@ -1,21 +1,22 @@
 package me.chan.texas.renderer;
 
 import android.content.Context;
-
-import androidx.recyclerview.widget.LinearLayoutManager;
-
 import android.view.ViewGroup;
 import android.widget.Toast;
+
+import androidx.recyclerview.widget.LinearLayoutManager;
 
 import me.chan.texas.measurer.Measurer;
 import me.chan.texas.text.Document;
 import me.chan.texas.text.OnClickedListener;
+import me.chan.texas.text.Paragraph;
 
 public class SlidingRenderer extends Renderer {
 
 	private final PageAdapter mAdapter;
 	private RecyclerViewInternal mImpl;
 	private SpaceItemDecoration mSpaceItemDecoration;
+	private LinearLayoutManager mLinearLayoutManager;
 
 	public SlidingRenderer(TexasView viewGroup, RenderOption renderOption) {
 		super(viewGroup.getContext(), renderOption);
@@ -39,13 +40,14 @@ public class SlidingRenderer extends Renderer {
 		});
 		mSpaceItemDecoration = new SpaceItemDecoration(renderOption.getSegmentSpace());
 		mImpl.addItemDecoration(mSpaceItemDecoration);
-		mImpl.setLayoutManager(new LinearLayoutManager(context));
+		mLinearLayoutManager = new LinearLayoutManager(context);
+		mImpl.setLayoutManager(mLinearLayoutManager);
 		viewGroup.addView(mImpl, new TexasView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
 		mAdapter = new PageAdapter(getLayoutInflater(), getImageLoader());
 		mAdapter.setOnTextSelectedListener(new PageAdapter.OnTextSelectedListener() {
 			@Override
-			public void onTextSelected() {
-				invalidate();
+			public void onTextSelected(Paragraph paragraph) {
+				handleTextSelected(paragraph);
 			}
 		});
 		mImpl.setAdapter(mAdapter);
@@ -76,5 +78,10 @@ public class SlidingRenderer extends Renderer {
 	@Override
 	protected void invalidate() {
 		mAdapter.notifyDataSetChanged();
+	}
+
+	@Override
+	public int getFirstVisibleSegmentIndex() {
+		return mLinearLayoutManager.findFirstVisibleItemPosition();
 	}
 }

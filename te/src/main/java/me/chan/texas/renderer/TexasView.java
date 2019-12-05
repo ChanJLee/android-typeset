@@ -12,11 +12,12 @@ import android.util.TypedValue;
 import android.view.ViewTreeObserver;
 import android.widget.FrameLayout;
 
+import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
+
 import java.lang.ref.WeakReference;
 import java.util.HashMap;
 import java.util.Map;
-
-import androidx.core.content.ContextCompat;
 
 import me.chan.texas.R;
 import me.chan.texas.log.Log;
@@ -24,6 +25,7 @@ import me.chan.texas.parser.Parser;
 import me.chan.texas.source.ObjectSource;
 import me.chan.texas.source.Source;
 import me.chan.texas.text.BreakStrategy;
+import me.chan.texas.text.Document;
 
 public class TexasView extends FrameLayout {
 
@@ -182,10 +184,28 @@ public class TexasView extends FrameLayout {
 		});
 	}
 
+	/**
+	 * 设置渲染源
+	 * 渲染源的类型必须和parser的类型一致:
+	 * <p/>
+	 * {@link TexasView#setParser(Parser)}
+	 * <p/>
+	 * {@link Parser}
+	 *
+	 * @param o 对象
+	 */
 	public void setSource(Object o) {
 		setSource(new ObjectSource(o));
 	}
 
+	/**
+	 * 设置渲染源
+	 * 渲染源的类型必须和parser的类型一致:
+	 * <p/>
+	 * {@link Parser}
+	 *
+	 * @param source 源
+	 */
 	public void setSource(final Source<?> source) {
 		int width = getWidth();
 		if (width <= 0) {
@@ -212,22 +232,40 @@ public class TexasView extends FrameLayout {
 		mRenderer.render(source, width);
 	}
 
+	/**
+	 * 清除当前选中效果
+	 */
 	public void clearSelection() {
 		d("start selection");
 		mRenderer.clearSelection();
 	}
 
+	/**
+	 * 创建一个新的渲染参数 结束后调用 {@link TexasView#refresh(RenderOption)} 刷新样式
+	 *
+	 * @return option
+	 */
 	public RenderOption createRendererOption() {
 		d("create new renderer option");
 		return mRenderer.createRendererOption();
 	}
 
-	// TODO 考虑要不要暴露接口
+	/**
+	 * 解析器能够接受的类型必须和source一致 {@link Source}
+	 * 监听器必须在初始化的时候调用，否则行为将是未定义的
+	 *
+	 * @param parser 解析器
+	 */
 	public void setParser(Parser<?> parser) {
 		d("set parser");
 		mRenderer.setParser(parser);
 	}
 
+	/**
+	 * 刷新当前内容
+	 *
+	 * @param renderOption option
+	 */
 	public void refresh(RenderOption renderOption) {
 		d("refresh render option");
 		mRenderer.refresh(renderOption);
@@ -240,15 +278,52 @@ public class TexasView extends FrameLayout {
 		super.onDetachedFromWindow();
 	}
 
+	/**
+	 * @return 获取第一个可见segment下标
+	 */
+	public int getFirstVisibleSegmentIndex() {
+		return mRenderer.getFirstVisibleSegmentIndex();
+	}
+
+	/**
+	 * @return 返回当前正在渲染的document
+	 */
+	@Nullable
+	public Document getDocument() {
+		return mRenderer.getDocument();
+	}
+
+	/**
+	 * @param renderListener 渲染监听器 {@link RenderListener}
+	 */
 	public void setRenderListener(RenderListener renderListener) {
 		mRenderListener = renderListener;
 	}
 
+	/**
+	 * 渲染监听器
+	 */
 	public interface RenderListener {
+		/**
+		 * 开始渲染的时候调用
+		 *
+		 * @param texasView view
+		 */
 		void onStart(TexasView texasView);
 
+		/**
+		 * 渲染结束的时候调用
+		 *
+		 * @param texasView view
+		 */
 		void onEnd(TexasView texasView);
 
+		/**
+		 * 发生错误的时候调用
+		 *
+		 * @param texasView view
+		 * @param throwable 错误
+		 */
 		void onError(TexasView texasView, Throwable throwable);
 	}
 
