@@ -1,11 +1,10 @@
 package me.chan.texas.renderer;
 
 import android.content.Context;
-
-import androidx.annotation.Nullable;
-
 import android.text.TextPaint;
 import android.view.LayoutInflater;
+
+import androidx.annotation.Nullable;
 
 import me.chan.texas.image.ImageLoader;
 import me.chan.texas.measurer.Measurer;
@@ -13,7 +12,6 @@ import me.chan.texas.parser.Parser;
 import me.chan.texas.source.Source;
 import me.chan.texas.text.Document;
 import me.chan.texas.text.Paragraph;
-import me.chan.texas.text.Segment;
 
 public abstract class Renderer {
 	private RenderOption mRenderOption;
@@ -23,6 +21,7 @@ public abstract class Renderer {
 	private LayoutInflater mLayoutInflater;
 	private Context mContext;
 	private Listener mListener;
+	private Paragraph mSelectedParagraph;
 
 	public Renderer(Context context, RenderOption renderOption) {
 		mContext = context;
@@ -149,26 +148,22 @@ public abstract class Renderer {
 	}
 
 	public void clearSelection() {
-		Document document = mTextEngineCore.getDocument();
-		if (document == null) {
+		if (mSelectedParagraph == null) {
 			return;
 		}
 
-		int segmentCount = document.getSegmentCount();
-		for (int segmentIndex = 0; segmentIndex < segmentCount; ++segmentCount) {
-			Segment segment = document.getSegment(segmentIndex);
-			if (!(segment instanceof Paragraph)) {
-				continue;
-			}
-
-			Paragraph paragraph = (Paragraph) segment;
-			Selection selection = paragraph.getSelection();
-			paragraph.setSelection(null);
-			if (selection != null) {
-				selection.clear();
-			}
+		Selection selection = mSelectedParagraph.getSelection();
+		mSelectedParagraph.setSelection(null);
+		mSelectedParagraph = null;
+		if (selection != null) {
+			selection.clear();
 		}
 
+		invalidate();
+	}
+
+	protected void handleTextSelected(Paragraph paragraph) {
+		mSelectedParagraph = paragraph;
 		invalidate();
 	}
 
@@ -185,6 +180,8 @@ public abstract class Renderer {
 	}
 
 	protected abstract void invalidate();
+
+	public abstract int getFirstVisibleSegmentIndex();
 
 	public interface Listener {
 		void onStart();

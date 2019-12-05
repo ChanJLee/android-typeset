@@ -136,9 +136,9 @@ public class PageAdapter extends RecyclerView.Adapter<PageAdapter.Renderer> {
 			mParagraphView = (ParagraphView) itemView;
 			mParagraphView.setOnTextSelectedListener(new ParagraphView.OnTextSelectedListener() {
 				@Override
-				public void onTextSelected() {
+				public void onTextSelected(Paragraph paragraph) {
 					if (mOnTextSelectedListener != null) {
-						mOnTextSelectedListener.onTextSelected();
+						mOnTextSelectedListener.onTextSelected(paragraph);
 					}
 				}
 			});
@@ -194,6 +194,6 @@ public class PageAdapter extends RecyclerView.Adapter<PageAdapter.Renderer> {
 	}
 
 	public interface OnTextSelectedListener {
-		void onTextSelected();
+		void onTextSelected(Paragraph paragraph);
 	}
 }

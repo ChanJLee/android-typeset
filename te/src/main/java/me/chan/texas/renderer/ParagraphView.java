@@ -178,7 +178,7 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 		mParagraph.setSelection(selection);
 
 		if (mOnTextSelectedListener != null) {
-			mOnTextSelectedListener.onTextSelected();
+			mOnTextSelectedListener.onTextSelected(mParagraph);
 		}
 		return true;
 	}
@@ -319,7 +319,7 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 	}
 
 	public interface OnTextSelectedListener {
-		void onTextSelected();
+		void onTextSelected(Paragraph paragraph);
 	}
 
 	private DrawVisitor mDrawVisitor = new DrawVisitor();

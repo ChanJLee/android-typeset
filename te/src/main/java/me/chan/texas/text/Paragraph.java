@@ -23,6 +23,7 @@ public class Paragraph extends Segment {
 	private List<Line> mLines;
 	private List<Element> mElements;
 	private Selection mSelection;
+	private Object mExtra;
 
 	public Paragraph() {
 		Texas.MemoryOption memoryOption = Texas.getMemoryOption();
@@ -43,6 +44,11 @@ public class Paragraph extends Segment {
 		mLines.add(line);
 	}
 
+	// TODO unit test
+	public Object getExtra() {
+		return mExtra;
+	}
+
 	@Override
 	public void recycle() {
 		if (isRecycled()) {
@@ -60,6 +66,7 @@ public class Paragraph extends Segment {
 		}
 		mElements.clear();
 		mSelection = null;
+		mExtra = null;
 		POOL.release(this);
 	}
 
@@ -111,9 +118,15 @@ public class Paragraph extends Segment {
 		private Hypher mHypher;
 		private TextAttribute mTextAttribute;
 		private Paragraph mParagraph;
+		private Object mExtra;
 		private SpanBuilder mSpanBuilder = new SpanBuilder(this);
 
 		private Builder() {
+		}
+
+		public Builder extra(Object extra) {
+			mExtra = extra;
+			return this;
 		}
 
 		public Builder text(CharSequence text) {
@@ -217,6 +230,7 @@ public class Paragraph extends Segment {
 				mParagraph.mElements.add(Penalty.obtain(0, 0, -ParagraphTypesetter.INFINITY, true));
 			}
 
+			mParagraph.mExtra = mExtra;
 			Paragraph paragraph = mParagraph;
 			recycle();
 			return paragraph;
@@ -234,6 +248,7 @@ public class Paragraph extends Segment {
 			mTextAttribute = null;
 			mHypher = null;
 			mHyphenated.clear();
+			mExtra = null;
 			mSpanBuilder.reset(null);
 			POOL.release(this);
 		}
@@ -265,7 +280,6 @@ public class Paragraph extends Segment {
 		private TextStyle mTextStyle;
 		private Background mBackground;
 		private Foreground mForeground;
-		private Object mExtra;
 		private OnClickedListener mOnClickedListener;
 		private OnClickedListener mSpanOnClickedListener;
 
@@ -279,7 +293,6 @@ public class Paragraph extends Segment {
 			mTextStyle = null;
 			mBackground = null;
 			mForeground = null;
-			mExtra = null;
 			mOnClickedListener = null;
 			mSpanOnClickedListener = onClickedListener;
 		}

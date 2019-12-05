@@ -37,7 +37,6 @@ public final class Document extends DefaultRecyclable {
 		return mOnClickedListener;
 	}
 
-	// TODO unit test
 	public void setFocusSegment(Segment segment) {
 		mFocusSegment = segment;
 	}
@@ -63,6 +62,7 @@ public final class Document extends DefaultRecyclable {
 		return mSegments.get(index);
 	}
 
+	// TODO 加入只读 flag
 	public void addSegment(Segment segment) {
 		mSegments.add(segment);
 	}
