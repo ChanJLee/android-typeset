@@ -49,3 +49,4 @@ freeline*
 
 *.svg
 /app/release
+sync.sh
