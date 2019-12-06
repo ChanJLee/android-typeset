@@ -1,4 +1,4 @@
-package me.chan.texas.renderer.rv;
+package me.chan.texas.renderer;
 
 import android.content.Context;
 
