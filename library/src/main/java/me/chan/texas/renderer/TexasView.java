@@ -149,10 +149,10 @@ public class TexasView extends FrameLayout {
 		);
 
 		// 断字策略
-		int breakStrategy = typedArray.getInt(R.styleable.me_chan_te_TeView_me_chan_te_breakStrategy, BREAK_STRATEGY_SIMPLE);
+		int breakStrategy = typedArray.getInt(R.styleable.me_chan_te_TeView_me_chan_te_breakStrategy, BREAK_STRATEGY_BALANCE);
 		renderOption.setBreakStrategy(
-				breakStrategy == BREAK_STRATEGY_BALANCE ?
-						BreakStrategy.BALANCED : BreakStrategy.SIMPLE
+				breakStrategy == BREAK_STRATEGY_SIMPLE ?
+						BreakStrategy.SIMPLE : BreakStrategy.BALANCED
 		);
 
 		// 是否可选单词

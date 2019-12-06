@@ -1,13 +1,14 @@
 package me.chan.texas.renderer;
 
 import android.content.Context;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.recyclerview.widget.RecyclerView;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 
-import me.chan.texas.renderer.SingleClickOnTouchListener;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.SimpleItemAnimator;
+
 import me.chan.texas.text.OnClickedListener;
 
 public class TexasRecyclerView extends RecyclerView {
@@ -39,9 +40,15 @@ public class TexasRecyclerView extends RecyclerView {
 				}
 			}
 		};
+
+		ItemAnimator itemAnimator = getItemAnimator();
+		if (itemAnimator instanceof SimpleItemAnimator) {
+			SimpleItemAnimator simpleItemAnimator = (SimpleItemAnimator) itemAnimator;
+			simpleItemAnimator.setSupportsChangeAnimations(false);
+		}
 	}
 
-	public void scrollToPostion(int position) {
+	public void scrollToPosition(int position) {
 		if (position <= 0) {
 			return;
 		}
