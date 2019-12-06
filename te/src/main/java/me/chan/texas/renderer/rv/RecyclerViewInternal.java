@@ -1,4 +1,4 @@
-package me.chan.texas.renderer;
+package me.chan.texas.renderer.rv;
 
 import android.content.Context;
 import androidx.annotation.NonNull;
@@ -7,9 +7,10 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 
+import me.chan.texas.renderer.SingleClickOnTouchListener;
 import me.chan.texas.text.OnClickedListener;
 
-class RecyclerViewInternal extends RecyclerView {
+public class RecyclerViewInternal extends RecyclerView {
 	private SingleClickOnTouchListener mTeOnTouchListener;
 	private OnClickedListener mOnClickedListener;
 	private ScrollAction mScrollAction;
