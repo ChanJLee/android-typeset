@@ -245,7 +245,7 @@ public class TextEngineCore {
 
 	private void cancel() {
 		if (mTask != null) {
-			d("cancel task: " + mTask);
+			i("cancel task: " + mTask);
 			mTask.cancel(true);
 			mTask = null;
 		}
@@ -273,6 +273,12 @@ public class TextEngineCore {
 			return;
 		}
 
+		final Object raw = mDocument.getRaw();
+		if (raw == null) {
+			i("reload ignore, get raw failed");
+			return;
+		}
+
 		cancel();
 		final Document document = mDocument;
 		mDocument = null;
@@ -283,13 +289,13 @@ public class TextEngineCore {
 			@Override
 			public void run() {
 				try {
-					typeset(document.getRaw(), mWidth, document);
+					typeset(raw, mWidth, document);
 				} catch (Throwable throwable) {
 					mHandler.sendMessage(MSG_FAILURE, throwable);
 				}
 			}
 		});
-		d("reload: " + mTask);
+		i("reload: " + mTask);
 	}
 
 	public Document getDocument() {

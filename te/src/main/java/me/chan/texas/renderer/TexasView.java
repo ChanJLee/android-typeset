@@ -347,10 +347,10 @@ public class TexasView extends FrameLayout {
 	}
 
 	private static void d(String msg) {
-		Log.d("Texas", msg);
+		Log.d("TexasView", msg);
 	}
 
 	private static void i(String msg) {
-		Log.i("Texas", msg);
+		Log.i("TexasView", msg);
 	}
 }
