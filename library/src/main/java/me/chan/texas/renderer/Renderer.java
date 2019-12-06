@@ -23,7 +23,6 @@ abstract class Renderer {
 	private ImageLoader mImageLoader;
 	private LayoutInflater mLayoutInflater;
 	private Context mContext;
-	private ParagraphSelection mParagraphSelection;
 	private TexasView mTexasView;
 
 	Renderer(TexasView texasView, RenderOption renderOption) {
@@ -148,24 +147,7 @@ abstract class Renderer {
 		mTextEngineCore.setParser(parser);
 	}
 
-	void clearSelection() {
-		if (mParagraphSelection == null) {
-			w("clear selection, but no selected paragraph");
-			return;
-		}
-
-		mParagraphSelection.clear();
-		Document document = getDocument();
-		invalidate(document == null ? -1 : document.indexOf(mParagraphSelection.getParagraph()));
-		mParagraphSelection = null;
-	}
-
-	void handleTextSelected(ParagraphSelection paragraphSelection) {
-		// 后面可以支持多个selection
-		mParagraphSelection = paragraphSelection;
-		Document document = getDocument();
-		invalidate(document == null ? -1 : document.indexOf(paragraphSelection.getParagraph()));
-	}
+	protected abstract void clearSelection();
 
 	@Nullable
 	protected Document getDocument() {

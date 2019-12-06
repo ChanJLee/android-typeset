@@ -58,12 +58,6 @@ public class SlidingRenderer extends Renderer {
 						ViewGroup.LayoutParams.MATCH_PARENT)
 		);
 		mAdapter = new TexasAdapter(getLayoutInflater(), getImageLoader());
-		mAdapter.setOnTextSelectedListener(new TexasAdapter.OnTextSelectedListener() {
-			@Override
-			public void onTextSelected(ParagraphSelection paragraphSelection) {
-				handleTextSelected(paragraphSelection);
-			}
-		});
 		mImpl.setAdapter(mAdapter);
 	}
 
@@ -101,6 +95,11 @@ public class SlidingRenderer extends Renderer {
 		d("refresh");
 		mSpaceItemDecoration.setSegmentSpace(renderOption.getSegmentSpace());
 		mAdapter.update(textPaint, renderOption);
+	}
+
+	@Override
+	protected void clearSelection() {
+		mAdapter.clearSelection();
 	}
 
 	@Override
