@@ -1,17 +1,17 @@
 package me.chan.texas.renderer;
 
 import android.content.Context;
+import android.text.TextPaint;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import me.chan.texas.log.Log;
 import me.chan.texas.measurer.Measurer;
 import me.chan.texas.text.Document;
 import me.chan.texas.text.OnClickedListener;
-import me.chan.texas.text.Paragraph;
 
 public class SlidingRenderer extends Renderer {
 
@@ -52,12 +52,16 @@ public class SlidingRenderer extends Renderer {
 		});
 		mLinearLayoutManager = new LinearLayoutManager(context);
 		mImpl.setLayoutManager(mLinearLayoutManager);
-		viewGroup.addView(mImpl, new TexasView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+		viewGroup.addView(mImpl,
+				new TexasView.LayoutParams(
+						ViewGroup.LayoutParams.MATCH_PARENT,
+						ViewGroup.LayoutParams.MATCH_PARENT)
+		);
 		mAdapter = new PageAdapter(getLayoutInflater(), getImageLoader());
 		mAdapter.setOnTextSelectedListener(new PageAdapter.OnTextSelectedListener() {
 			@Override
-			public void onTextSelected(Paragraph paragraph) {
-				handleTextSelected(paragraph);
+			public void onTextSelected(ParagraphSelection paragraphSelection) {
+				handleTextSelected(paragraphSelection);
 			}
 		});
 		mImpl.setAdapter(mAdapter);
@@ -65,28 +69,43 @@ public class SlidingRenderer extends Renderer {
 
 	@Override
 	protected void onStart() {
+		d("on start");
 		mAdapter.clear();
 	}
 
 	@Override
-	protected void onRenderer(Document document, Measurer measurer) {
-		mAdapter.render(document, getTextPaint(), getRenderOption(), measurer);
-		mImpl.scrollToPostion(document.getFocusIndex());
+	protected void onRenderer(Document document,
+							  Measurer measurer,
+							  TextPaint textPaint,
+							  RenderOption renderOption) {
+		mAdapter.render(
+				document,
+				textPaint,
+				renderOption,
+				measurer
+		);
+		int index = document.getFocusIndex();
+		d("render scroll to: " + index);
+		if (index > 0) {
+			mImpl.scrollToPostion(document.getFocusIndex());
+		}
 	}
 
 	@Override
 	protected void onError(Throwable throwable) {
-		Toast.makeText(getContext(), "渲染异常", Toast.LENGTH_SHORT).show();
+		Log.w("SlidingTexasRenderer", throwable);
 	}
 
 	@Override
-	protected void onRefresh(RenderOption renderOption) {
+	protected void onRefresh(TextPaint textPaint, RenderOption renderOption) {
+		d("refresh");
 		mSpaceItemDecoration.setSegmentSpace(renderOption.getSegmentSpace());
-		mAdapter.update(getTextPaint(), renderOption);
+		mAdapter.update(textPaint, renderOption);
 	}
 
 	@Override
 	protected void invalidate(int position) {
+		d("invalidate position: " + position);
 		if (position < 0 || position >= mAdapter.getItemCount()) {
 			mAdapter.notifyDataSetChanged();
 			return;
@@ -96,6 +115,10 @@ public class SlidingRenderer extends Renderer {
 
 	@Override
 	public int getFirstVisibleSegmentIndex() {
-		return mLinearLayoutManager.findFirstVisibleItemPosition();
+		return mLinearLayoutManager.findFirstCompletelyVisibleItemPosition();
+	}
+
+	private static void d(String msg) {
+		Log.d("SlidingTexasRenderer", msg);
 	}
 }

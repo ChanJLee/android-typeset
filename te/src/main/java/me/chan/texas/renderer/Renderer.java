@@ -12,22 +12,21 @@ import me.chan.texas.measurer.Measurer;
 import me.chan.texas.parser.Parser;
 import me.chan.texas.source.Source;
 import me.chan.texas.text.Document;
-import me.chan.texas.text.Paragraph;
 
 /**
  * 渲染器
  */
-public abstract class Renderer {
+abstract class Renderer {
 	private RenderOption mRenderOption;
 	private TextEngineCore mTextEngineCore;
 
 	private ImageLoader mImageLoader;
 	private LayoutInflater mLayoutInflater;
 	private Context mContext;
-	private Paragraph mSelectedParagraph;
+	private ParagraphSelection mParagraphSelection;
 	private TexasView mTexasView;
 
-	public Renderer(TexasView texasView, RenderOption renderOption) {
+	Renderer(TexasView texasView, RenderOption renderOption) {
 		mTexasView = texasView;
 		mContext = texasView.getContext();
 		mRenderOption = renderOption;
@@ -36,11 +35,11 @@ public abstract class Renderer {
 		mTextEngineCore = new TextEngineCore(this, mRenderOption);
 	}
 
-	public ImageLoader getImageLoader() {
+	ImageLoader getImageLoader() {
 		return mImageLoader;
 	}
 
-	public LayoutInflater getLayoutInflater() {
+	LayoutInflater getLayoutInflater() {
 		return mLayoutInflater;
 	}
 
@@ -56,11 +55,19 @@ public abstract class Renderer {
 	protected abstract void onStart();
 
 	void render(Document document, Measurer measurer) {
-		onRenderer(document, measurer);
+		onRenderer(
+				document,
+				measurer,
+				mTextEngineCore.getTextPaint(),
+				mRenderOption
+		);
 		mTexasView.notifyRenderEnd();
 	}
 
-	protected abstract void onRenderer(Document document, Measurer measurer);
+	protected abstract void onRenderer(Document document,
+									   Measurer measurer,
+									   TextPaint textPaint,
+									   RenderOption renderOption);
 
 	public void error(Throwable throwable) {
 		w(throwable);
@@ -75,15 +82,11 @@ public abstract class Renderer {
 		mTextEngineCore = null;
 	}
 
-	protected RenderOption getRenderOption() {
-		return mRenderOption;
-	}
-
-	public RenderOption createRendererOption() {
+	RenderOption createRendererOption() {
 		return new RenderOption(mRenderOption);
 	}
 
-	public void refresh(RenderOption renderOption) {
+	void refresh(RenderOption renderOption) {
 		d("refresh");
 		boolean needReload = checkIfReload(renderOption);
 		mRenderOption = renderOption;
@@ -93,10 +96,10 @@ public abstract class Renderer {
 			mTextEngineCore.reload(mRenderOption);
 			return;
 		}
-		onRefresh(renderOption);
+		onRefresh(mTextEngineCore.getTextPaint(), renderOption);
 	}
 
-	protected abstract void onRefresh(RenderOption renderOption);
+	protected abstract void onRefresh(TextPaint textPaint, RenderOption renderOption);
 
 	/**
 	 * 1. 字体变化了需要重新reload
@@ -145,31 +148,23 @@ public abstract class Renderer {
 		mTextEngineCore.setParser(parser);
 	}
 
-	public TextPaint getTextPaint() {
-		return mTextEngineCore.getTextPaint();
-	}
-
 	void clearSelection() {
-		if (mSelectedParagraph == null) {
+		if (mParagraphSelection == null) {
 			w("clear selection, but no selected paragraph");
 			return;
 		}
 
-		Selection selection = mSelectedParagraph.getSelection();
-		mSelectedParagraph.setSelection(null);
-		mSelectedParagraph = null;
-		if (selection != null) {
-			selection.clear();
-		}
-
+		mParagraphSelection.clear();
 		Document document = getDocument();
-		invalidate(document == null ? -1 : document.indexOf(mSelectedParagraph));
+		invalidate(document == null ? -1 : document.indexOf(mParagraphSelection.getParagraph()));
+		mParagraphSelection = null;
 	}
 
-	protected void handleTextSelected(Paragraph paragraph) {
-		mSelectedParagraph = paragraph;
+	void handleTextSelected(ParagraphSelection paragraphSelection) {
+		// 后面可以支持多个selection
+		mParagraphSelection = paragraphSelection;
 		Document document = getDocument();
-		invalidate(document == null ? -1 : document.indexOf(mSelectedParagraph));
+		invalidate(document == null ? -1 : document.indexOf(paragraphSelection.getParagraph()));
 	}
 
 	@Nullable
