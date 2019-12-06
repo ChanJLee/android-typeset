@@ -133,7 +133,6 @@ public class TextEngineCore {
 		d("typeset: " + mTask);
 	}
 
-	// TODO 异常安全保障
 	@SuppressWarnings("unchecked")
 	private void typeset(final Object content,
 						 final int width,
@@ -205,10 +204,11 @@ public class TextEngineCore {
 
 	private void typesetViewSegment(ViewSegment viewSegment) {
 		/* do nothing */
-		d("typeset foot, " + viewSegment);
+		d("typeset view segment");
 	}
 
 	private void typesetFigure(Figure figure, float lineWidth) {
+		d("typeset figure");
 		float width = figure.getWidth();
 		float height = figure.getHeight();
 
