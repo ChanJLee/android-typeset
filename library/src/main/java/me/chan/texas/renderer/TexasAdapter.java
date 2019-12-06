@@ -21,7 +21,7 @@ import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.Segment;
 import me.chan.texas.text.ViewSegment;
 
-public class PageAdapter extends RecyclerView.Adapter<PageAdapter.Renderer> {
+public class TexasAdapter extends RecyclerView.Adapter<TexasAdapter.Renderer> {
 	private static final int TYPE_PARAGRAPH = 1;
 	private static final int TYPE_FIGURE = 2;
 	private static final int TYPE_VIEW_SEGMENT = 3;
@@ -35,7 +35,7 @@ public class PageAdapter extends RecyclerView.Adapter<PageAdapter.Renderer> {
 	private Measurer mMeasurer;
 	private ParagraphSelection mParagraphSelection;
 
-	public PageAdapter(LayoutInflater layoutInflater, ImageLoader imageLoader) {
+	public TexasAdapter(LayoutInflater layoutInflater, ImageLoader imageLoader) {
 		mLayoutInflater = layoutInflater;
 		mImageLoader = imageLoader;
 	}

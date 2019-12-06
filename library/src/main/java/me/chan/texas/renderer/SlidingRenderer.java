@@ -15,7 +15,7 @@ import me.chan.texas.text.OnClickedListener;
 
 public class SlidingRenderer extends Renderer {
 
-	private final PageAdapter mAdapter;
+	private final TexasAdapter mAdapter;
 	private TexasRecyclerView mImpl;
 	private SpaceItemDecoration mSpaceItemDecoration;
 	private LinearLayoutManager mLinearLayoutManager;
@@ -57,8 +57,8 @@ public class SlidingRenderer extends Renderer {
 						ViewGroup.LayoutParams.MATCH_PARENT,
 						ViewGroup.LayoutParams.MATCH_PARENT)
 		);
-		mAdapter = new PageAdapter(getLayoutInflater(), getImageLoader());
-		mAdapter.setOnTextSelectedListener(new PageAdapter.OnTextSelectedListener() {
+		mAdapter = new TexasAdapter(getLayoutInflater(), getImageLoader());
+		mAdapter.setOnTextSelectedListener(new TexasAdapter.OnTextSelectedListener() {
 			@Override
 			public void onTextSelected(ParagraphSelection paragraphSelection) {
 				handleTextSelected(paragraphSelection);

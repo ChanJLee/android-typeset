@@ -30,7 +30,7 @@ public class SpaceItemDecoration extends RecyclerView.ItemDecoration {
 			return;
 		}
 
-		PageAdapter adapter = (PageAdapter) parent.getAdapter();
+		TexasAdapter adapter = (TexasAdapter) parent.getAdapter();
 		if (adapter == null) {
 			return;
 		}
