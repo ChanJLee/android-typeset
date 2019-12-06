@@ -7,6 +7,7 @@ import android.view.LayoutInflater;
 import androidx.annotation.Nullable;
 
 import me.chan.texas.image.ImageLoader;
+import me.chan.texas.log.Log;
 import me.chan.texas.measurer.Measurer;
 import me.chan.texas.parser.Parser;
 import me.chan.texas.source.Source;
@@ -62,6 +63,7 @@ public abstract class Renderer {
 	protected abstract void onRenderer(Document document, Measurer measurer);
 
 	public void error(Throwable throwable) {
+		w(throwable);
 		onError(throwable);
 		mTexasView.notifyRenderError(throwable);
 	}
@@ -82,10 +84,12 @@ public abstract class Renderer {
 	}
 
 	public void refresh(RenderOption renderOption) {
+		d("refresh");
 		boolean needReload = checkIfReload(renderOption);
 		mRenderOption = renderOption;
 		// 如果需要排版那么需要通知底层重新排版
 		if (needReload) {
+			d("refresh, but need to reload");
 			mTextEngineCore.reload(mRenderOption);
 			return;
 		}
@@ -145,8 +149,9 @@ public abstract class Renderer {
 		return mTextEngineCore.getTextPaint();
 	}
 
-	public void clearSelection() {
+	void clearSelection() {
 		if (mSelectedParagraph == null) {
+			w("clear selection, but no selected paragraph");
 			return;
 		}
 
@@ -170,6 +175,7 @@ public abstract class Renderer {
 	@Nullable
 	protected Document getDocument() {
 		if (mTextEngineCore == null) {
+			w("get document, core is null");
 			return null;
 		}
 		return mTextEngineCore.getDocument();
@@ -178,4 +184,16 @@ public abstract class Renderer {
 	protected abstract void invalidate(int position);
 
 	public abstract int getFirstVisibleSegmentIndex();
+
+	private static void d(String msg) {
+		Log.d("TexasRenderer", msg);
+	}
+
+	private static void w(String msg) {
+		Log.w("TexasRenderer", msg);
+	}
+
+	private static void w(Throwable throwable) {
+		Log.w("TexasRenderer", throwable);
+	}
 }
