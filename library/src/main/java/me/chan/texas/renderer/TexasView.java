@@ -72,19 +72,19 @@ public class TexasView extends FrameLayout {
 		);
 
 		// 设置字体
+		renderOption.setTypeface(Typeface.DEFAULT);
 		String typefacePath = typedArray.getString(R.styleable.me_chan_te_TeView_me_chan_te_typefaceAssets);
-		if (TextUtils.isEmpty(typefacePath)) {
-			typefacePath = "typeface/SourceSerifPro-Regular.ttf";
-		}
-		WeakReference<Typeface> typefaceWeakReference = TYPEFACE_CACHE.get(typefacePath);
-		Typeface typeface;
-		if (typefaceWeakReference != null && (typeface = typefaceWeakReference.get()) != null) {
-			renderOption.setTypeface(typeface);
-		} else {
-			typeface = Typeface.createFromAsset(context.getAssets(), "typeface/SourceSerifPro-Regular.ttf");
-			typefaceWeakReference = new WeakReference<>(typeface);
-			TYPEFACE_CACHE.put(typefacePath, typefaceWeakReference);
-			renderOption.setTypeface(typeface);
+		if (!TextUtils.isEmpty(typefacePath)) {
+			WeakReference<Typeface> typefaceWeakReference = TYPEFACE_CACHE.get(typefacePath);
+			Typeface typeface;
+			if (typefaceWeakReference != null && (typeface = typefaceWeakReference.get()) != null) {
+				renderOption.setTypeface(typeface);
+			} else {
+				typeface = Typeface.createFromAsset(context.getAssets(), typefacePath);
+				typefaceWeakReference = new WeakReference<>(typeface);
+				TYPEFACE_CACHE.put(typefacePath, typefaceWeakReference);
+				renderOption.setTypeface(typeface);
+			}
 		}
 
 		// 设置字体大小
