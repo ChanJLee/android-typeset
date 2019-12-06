@@ -10,8 +10,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import me.chan.texas.log.Log;
 import me.chan.texas.measurer.Measurer;
-import me.chan.texas.rv.TexasLinearLayoutManager;
-import me.chan.texas.rv.TexasRecyclerView;
+import me.chan.texas.renderer.rv.TexasLinearLayoutManager;
+import me.chan.texas.renderer.rv.TexasRecyclerView;
 import me.chan.texas.text.Document;
 import me.chan.texas.text.OnClickedListener;
 
