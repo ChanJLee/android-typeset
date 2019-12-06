@@ -12,13 +12,13 @@ import me.chan.texas.text.Box;
 import me.chan.texas.text.Paragraph;
 
 @Hidden
-public class Selection {
+class ParagraphSelection {
 	private Paragraph mParagraph;
 	private List<RectF> mBackgrounds = new ArrayList<>();
 	private List<Box> mBoxes = new ArrayList<>();
-	private boolean mIsLongClicked = false;
+	private boolean mIsLongClicked;
 
-	public Selection(Paragraph paragraph, boolean isLongClicked) {
+	public ParagraphSelection(Paragraph paragraph, boolean isLongClicked) {
 		mParagraph = paragraph;
 		mIsLongClicked = isLongClicked;
 	}
@@ -35,7 +35,7 @@ public class Selection {
 		mBackgrounds.add(rectF);
 	}
 
-	public boolean isLongClicked() {
+	public boolean isLongClickSelected() {
 		return mIsLongClicked;
 	}
 
@@ -49,6 +49,7 @@ public class Selection {
 		for (Box box : mBoxes) {
 			box.setSelected(false);
 		}
+		mBackgrounds.clear();
 	}
 
 	public void addBox(Box box) {

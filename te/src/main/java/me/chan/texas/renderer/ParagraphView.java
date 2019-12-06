@@ -7,15 +7,15 @@ import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.os.Build;
-
-import androidx.annotation.NonNull;
-
 import android.text.TextPaint;
 import android.util.AttributeSet;
 import android.util.TypedValue;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import me.chan.texas.annotations.Hidden;
 import me.chan.texas.log.Log;
@@ -45,6 +45,8 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 	private RenderOption mRenderOption;
 	private OnTextSelectedListener mOnTextSelectedListener;
 	private Box mLastTouchBox = null;
+	@Nullable
+	private ParagraphSelection mParagraphSelection;
 
 	public ParagraphView(Context context) {
 		this(context, null);
@@ -70,6 +72,7 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 	void render(@NonNull Paragraph paragraph,
 				@NonNull TextPaint paint,
 				@NonNull RenderOption renderOption,
+				ParagraphSelection selection,
 				float topPadding,
 				float bottomPadding) {
 		mParagraph = paragraph;
@@ -77,6 +80,7 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 		mBottomPadding = bottomPadding;
 		mTopPadding = topPadding;
 		mRenderOption = renderOption;
+		mParagraphSelection = selection;
 		setDebugMode(renderOption.isEnableDebug());
 		requestLayout();
 	}
@@ -139,10 +143,10 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 			return;
 		}
 
-		Selection selection = mParagraph.getSelection();
+		ParagraphSelection selection = mParagraphSelection;
 		if (selection != null) {
 			mWorkPaint.set(mPaint);
-			mWorkPaint.setColor(selection.isLongClicked() ?
+			mWorkPaint.setColor(selection.isLongClickSelected() ?
 					mRenderOption.getSpanSelectedBackgroundColor() :
 					mRenderOption.getSelectedBackgroundColor());
 			selection.draw(canvas, mWorkPaint, mRectRadius);
@@ -166,30 +170,28 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 
 		onClickedListener.onClicked(e.getRawX(), e.getRawY());
 		if (mLastTouchBox instanceof DrawableBox) {
-			Selection selection = new Selection(mParagraph, isLongClicked);
+			ParagraphSelection selection = new ParagraphSelection(mParagraph, isLongClicked);
 			mLastTouchBox.setSelected(true);
 			selection.addBox(mLastTouchBox);
-			mParagraph.setSelection(selection);
 			invalidate();
 			return true;
 		}
 
-		Selection selection = getIfParagraphSelection(mParagraph, onClickedListener, isLongClicked);
-		mParagraph.setSelection(selection);
+		ParagraphSelection selection = getIfParagraphSelection(mParagraph, onClickedListener, isLongClicked);
 
 		if (mOnTextSelectedListener != null) {
-			mOnTextSelectedListener.onTextSelected(mParagraph);
+			mOnTextSelectedListener.onTextSelected(selection);
 		}
 		return true;
 	}
 
-	private Selection getIfParagraphSelection(Paragraph paragraph,
-											  OnClickedListener onClickedListener,
-											  boolean isLongClicked) {
+	private ParagraphSelection getIfParagraphSelection(Paragraph paragraph,
+													   OnClickedListener onClickedListener,
+													   boolean isLongClicked) {
 		mSelectionVisitor.setOnClickedListener(onClickedListener);
 		mSelectionVisitor.setLongClicked(isLongClicked);
 		visitParagraph(paragraph, mSelectionVisitor);
-		Selection selection = mSelectionVisitor.getSelection();
+		ParagraphSelection selection = mSelectionVisitor.getSelection();
 		mSelectionVisitor.clear();
 		return selection;
 	}
@@ -319,20 +321,20 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 	}
 
 	public interface OnTextSelectedListener {
-		void onTextSelected(Paragraph paragraph);
+		void onTextSelected(ParagraphSelection selection);
 	}
 
 	private DrawVisitor mDrawVisitor = new DrawVisitor();
 
 	private class DrawVisitor implements Visitor {
 		private Canvas mCanvas;
-		private Selection mSelection;
+		private ParagraphSelection mSelection;
 
 		public void setCanvas(Canvas canvas) {
 			mCanvas = canvas;
 		}
 
-		public void setSelection(Selection selection) {
+		public void setSelection(ParagraphSelection selection) {
 			mSelection = selection;
 		}
 
@@ -398,7 +400,7 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 			}
 
 			if (mSelection != null && box.isSelected()) {
-				mWorkPaint.setColor(mSelection.isLongClicked() ?
+				mWorkPaint.setColor(mSelection.isLongClickSelected() ?
 						mRenderOption.getSpanSelectedTextColor() :
 						mRenderOption.getSelectedTextColor());
 			}
@@ -479,7 +481,7 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 	private class SelectionVisitor implements Visitor {
 
 		private OnClickedListener mOnClickedListener;
-		private Selection mSelection;
+		private ParagraphSelection mSelection;
 		private boolean mIsLongClicked;
 		private RectF mRectF;
 		private float mBottom;
@@ -487,7 +489,7 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 
 		@Override
 		public void onVisitParagraph(Paragraph paragraph) {
-			mSelection = new Selection(paragraph, mIsLongClicked);
+			mSelection = new ParagraphSelection(paragraph, mIsLongClicked);
 		}
 
 		@Override
@@ -503,7 +505,7 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 			mRectF = null;
 		}
 
-		public Selection getSelection() {
+		public ParagraphSelection getSelection() {
 			return mSelection;
 		}
 

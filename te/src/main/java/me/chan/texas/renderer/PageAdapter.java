@@ -33,6 +33,7 @@ public class PageAdapter extends RecyclerView.Adapter<PageAdapter.Renderer> {
 	private RenderOption mRenderOption;
 	private OnTextSelectedListener mOnTextSelectedListener;
 	private Measurer mMeasurer;
+	private ParagraphSelection mParagraphSelection;
 
 	public PageAdapter(LayoutInflater layoutInflater, ImageLoader imageLoader) {
 		mLayoutInflater = layoutInflater;
@@ -89,7 +90,10 @@ public class PageAdapter extends RecyclerView.Adapter<PageAdapter.Renderer> {
 		notifyDataSetChanged();
 	}
 
-	public void render(Document document, TextPaint textPaint, RenderOption renderOption, Measurer measurer) {
+	public void render(Document document,
+					   TextPaint textPaint,
+					   RenderOption renderOption,
+					   Measurer measurer) {
 		mDocument = document;
 		mTextPaint = textPaint;
 		mRenderOption = renderOption;
@@ -136,9 +140,10 @@ public class PageAdapter extends RecyclerView.Adapter<PageAdapter.Renderer> {
 			mParagraphView = (ParagraphView) itemView;
 			mParagraphView.setOnTextSelectedListener(new ParagraphView.OnTextSelectedListener() {
 				@Override
-				public void onTextSelected(Paragraph paragraph) {
+				public void onTextSelected(ParagraphSelection selection) {
+					mParagraphSelection = selection;
 					if (mOnTextSelectedListener != null) {
-						mOnTextSelectedListener.onTextSelected(paragraph);
+						mOnTextSelectedListener.onTextSelected(selection);
 					}
 				}
 			});
@@ -146,10 +151,16 @@ public class PageAdapter extends RecyclerView.Adapter<PageAdapter.Renderer> {
 
 		@Override
 		public void render(Paragraph data) {
+			ParagraphSelection paragraphSelection = null;
+			if (mParagraphSelection != null && mParagraphSelection.getParagraph() == data) {
+				paragraphSelection = mParagraphSelection;
+			}
+
 			mParagraphView.render(
 					data,
 					mTextPaint,
 					mRenderOption,
+					paragraphSelection,
 					mMeasurer.getFontTopPadding(),
 					mMeasurer.getFontBottomPadding());
 		}
@@ -194,6 +205,6 @@ public class PageAdapter extends RecyclerView.Adapter<PageAdapter.Renderer> {
 	}
 
 	public interface OnTextSelectedListener {
-		void onTextSelected(Paragraph paragraph);
+		void onTextSelected(ParagraphSelection paragraphSelection);
 	}
 }

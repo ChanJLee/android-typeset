@@ -11,7 +11,6 @@ import me.chan.texas.hypher.Hypher;
 import me.chan.texas.measurer.Measurer;
 import me.chan.texas.misc.DefaultRecyclable;
 import me.chan.texas.misc.ObjectFactory;
-import me.chan.texas.renderer.Selection;
 import me.chan.texas.typesetter.ParagraphTypesetter;
 
 /**
@@ -22,7 +21,6 @@ public class Paragraph extends Segment {
 
 	private List<Line> mLines;
 	private List<Element> mElements;
-	private Selection mSelection;
 	private Object mExtra;
 
 	public Paragraph() {
@@ -65,7 +63,6 @@ public class Paragraph extends Segment {
 			mElements.get(i).recycle();
 		}
 		mElements.clear();
-		mSelection = null;
 		mExtra = null;
 		POOL.release(this);
 	}
@@ -96,14 +93,6 @@ public class Paragraph extends Segment {
 		}
 		paragraph.reuse();
 		return paragraph;
-	}
-
-	public void setSelection(Selection selection) {
-		mSelection = selection;
-	}
-
-	public Selection getSelection() {
-		return mSelection;
 	}
 
 	/**
