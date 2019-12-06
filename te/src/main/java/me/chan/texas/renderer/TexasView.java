@@ -204,7 +204,7 @@ public class TexasView extends FrameLayout {
 	 * @param source 源
 	 */
 	public void setSource(final Source<?> source) {
-		int width = getWidth();
+		int width = getWidth() - getPaddingLeft() - getPaddingRight();
 		if (width <= 0) {
 			i("unknown size, try later, width: " + width);
 			ViewTreeObserver viewTreeObserver = getViewTreeObserver();
