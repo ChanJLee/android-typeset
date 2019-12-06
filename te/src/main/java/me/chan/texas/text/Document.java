@@ -104,4 +104,9 @@ public final class Document extends DefaultRecyclable {
 		document.reuse();
 		return document;
 	}
+
+	// TODO unit test
+	public int indexOf(Segment segment) {
+		return mSegments.indexOf(segment);
+	}
 }

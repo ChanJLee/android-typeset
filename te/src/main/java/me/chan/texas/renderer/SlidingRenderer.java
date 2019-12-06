@@ -86,8 +86,12 @@ public class SlidingRenderer extends Renderer {
 	}
 
 	@Override
-	protected void invalidate() {
-		mAdapter.notifyDataSetChanged();
+	protected void invalidate(int position) {
+		if (position < 0 || position >= mAdapter.getItemCount()) {
+			mAdapter.notifyDataSetChanged();
+			return;
+		}
+		mAdapter.notifyItemChanged(position);
 	}
 
 	@Override

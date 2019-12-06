@@ -13,6 +13,9 @@ import me.chan.texas.source.Source;
 import me.chan.texas.text.Document;
 import me.chan.texas.text.Paragraph;
 
+/**
+ * 渲染器
+ */
 public abstract class Renderer {
 	private RenderOption mRenderOption;
 	private TextEngineCore mTextEngineCore;
@@ -154,12 +157,14 @@ public abstract class Renderer {
 			selection.clear();
 		}
 
-		invalidate();
+		Document document = getDocument();
+		invalidate(document == null ? -1 : document.indexOf(mSelectedParagraph));
 	}
 
 	protected void handleTextSelected(Paragraph paragraph) {
 		mSelectedParagraph = paragraph;
-		invalidate();
+		Document document = getDocument();
+		invalidate(document == null ? -1 : document.indexOf(mSelectedParagraph));
 	}
 
 	@Nullable
@@ -170,7 +175,7 @@ public abstract class Renderer {
 		return mTextEngineCore.getDocument();
 	}
 
-	protected abstract void invalidate();
+	protected abstract void invalidate(int position);
 
 	public abstract int getFirstVisibleSegmentIndex();
 }

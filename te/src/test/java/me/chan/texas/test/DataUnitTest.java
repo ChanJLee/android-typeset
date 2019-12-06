@@ -455,6 +455,9 @@ public class DataUnitTest {
 		Figure figure = Figure.obtain("", 1, 2);
 		document.addSegment(figure);
 		Assert.assertEquals(document.getSegmentCount(), 1);
+		Assert.assertEquals(0, document.indexOf(figure));
+		Assert.assertEquals(-1 , document.indexOf(Figure.obtain("", 1, 2)));
+
 		try {
 			document.getSegment(1);
 			fail("test document get segment");
@@ -482,6 +485,7 @@ public class DataUnitTest {
 		document.recycle();
 		Assert.assertNull(document.getOnClickedListener());
 		Assert.assertNull(document.getRaw());
+		Assert.assertEquals(-1, document.indexOf(figure));
 		Assert.assertTrue(document.isRecycled());
 
 		// test recycle twice
