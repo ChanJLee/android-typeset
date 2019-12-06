@@ -1,4 +1,4 @@
-package me.chan.texas.renderer.rv;
+package me.chan.texas.rv;
 
 import android.content.Context;
 
@@ -6,9 +6,9 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.LinearSmoothScroller;
 import androidx.recyclerview.widget.RecyclerView;
 
-public class LinearLayoutManagerInternal extends LinearLayoutManager {
+public class TexasLinearLayoutManager extends LinearLayoutManager {
 
-	public LinearLayoutManagerInternal(Context context) {
+	public TexasLinearLayoutManager(Context context) {
 		super(context, LinearLayoutManager.VERTICAL, false);
 	}
 
@@ -19,9 +19,9 @@ public class LinearLayoutManagerInternal extends LinearLayoutManager {
 		startSmoothScroll(smoothScroller);
 	}
 
-	private class SmoothScrollerImpl extends LinearSmoothScroller {
+	private static class SmoothScrollerImpl extends LinearSmoothScroller {
 
-		public SmoothScrollerImpl(Context context) {
+		SmoothScrollerImpl(Context context) {
 			super(context);
 		}
 

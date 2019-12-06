@@ -1,4 +1,4 @@
-package me.chan.texas.renderer.rv;
+package me.chan.texas.rv;
 
 import android.content.Context;
 import androidx.annotation.NonNull;
@@ -10,22 +10,22 @@ import android.view.MotionEvent;
 import me.chan.texas.renderer.SingleClickOnTouchListener;
 import me.chan.texas.text.OnClickedListener;
 
-public class RecyclerViewInternal extends RecyclerView {
+public class TexasRecyclerView extends RecyclerView {
 	private SingleClickOnTouchListener mTeOnTouchListener;
 	private OnClickedListener mOnClickedListener;
 	private ScrollAction mScrollAction;
 
-	public RecyclerViewInternal(@NonNull Context context) {
+	public TexasRecyclerView(@NonNull Context context) {
 		super(context);
 		init(context);
 	}
 
-	public RecyclerViewInternal(@NonNull Context context, @Nullable AttributeSet attrs) {
+	public TexasRecyclerView(@NonNull Context context, @Nullable AttributeSet attrs) {
 		super(context, attrs);
 		init(context);
 	}
 
-	public RecyclerViewInternal(@NonNull Context context, @Nullable AttributeSet attrs, int defStyle) {
+	public TexasRecyclerView(@NonNull Context context, @Nullable AttributeSet attrs, int defStyle) {
 		super(context, attrs, defStyle);
 		init(context);
 	}

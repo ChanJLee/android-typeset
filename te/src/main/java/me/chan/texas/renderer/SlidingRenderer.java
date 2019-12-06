@@ -10,15 +10,15 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import me.chan.texas.log.Log;
 import me.chan.texas.measurer.Measurer;
-import me.chan.texas.renderer.rv.LinearLayoutManagerInternal;
-import me.chan.texas.renderer.rv.RecyclerViewInternal;
+import me.chan.texas.rv.TexasLinearLayoutManager;
+import me.chan.texas.rv.TexasRecyclerView;
 import me.chan.texas.text.Document;
 import me.chan.texas.text.OnClickedListener;
 
 public class SlidingRenderer extends Renderer {
 
 	private final PageAdapter mAdapter;
-	private RecyclerViewInternal mImpl;
+	private TexasRecyclerView mImpl;
 	private SpaceItemDecoration mSpaceItemDecoration;
 	private LinearLayoutManager mLinearLayoutManager;
 	private TexasView mTexasView;
@@ -27,7 +27,7 @@ public class SlidingRenderer extends Renderer {
 		super(viewGroup, renderOption);
 		mTexasView = viewGroup;
 		Context context = viewGroup.getContext();
-		mImpl = new RecyclerViewInternal(context);
+		mImpl = new TexasRecyclerView(context);
 		mImpl.setClipToPadding(false);
 		mImpl.setClipChildren(false);
 		mImpl.setOnClickedListener(new OnClickedListener() {
@@ -52,7 +52,7 @@ public class SlidingRenderer extends Renderer {
 				mTexasView.notifyScrolled(dx, dy);
 			}
 		});
-		mLinearLayoutManager = new LinearLayoutManagerInternal(context);
+		mLinearLayoutManager = new TexasLinearLayoutManager(context);
 		mImpl.setLayoutManager(mLinearLayoutManager);
 		viewGroup.addView(mImpl,
 				new TexasView.LayoutParams(
