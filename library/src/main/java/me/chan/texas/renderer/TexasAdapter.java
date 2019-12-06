@@ -21,7 +21,7 @@ import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.Segment;
 import me.chan.texas.text.ViewSegment;
 
-public class TexasAdapter extends RecyclerView.Adapter<TexasAdapter.Renderer> {
+class TexasAdapter extends RecyclerView.Adapter<TexasAdapter.Renderer> {
 	private static final int TYPE_PARAGRAPH = 1;
 	private static final int TYPE_FIGURE = 2;
 	private static final int TYPE_VIEW_SEGMENT = 3;
@@ -31,11 +31,13 @@ public class TexasAdapter extends RecyclerView.Adapter<TexasAdapter.Renderer> {
 	private ImageLoader mImageLoader;
 	private TextPaint mTextPaint;
 	private RenderOption mRenderOption;
-	private OnTextSelectedListener mOnTextSelectedListener;
 	private Measurer mMeasurer;
+	/*
+	 * 选中效果属于编辑器内部的状态了，所有直接由adapter管理而不需要通知外部组件
+	 * */
 	private ParagraphSelection mParagraphSelection;
 
-	public TexasAdapter(LayoutInflater layoutInflater, ImageLoader imageLoader) {
+	TexasAdapter(LayoutInflater layoutInflater, ImageLoader imageLoader) {
 		mLayoutInflater = layoutInflater;
 		mImageLoader = imageLoader;
 	}
@@ -58,10 +60,6 @@ public class TexasAdapter extends RecyclerView.Adapter<TexasAdapter.Renderer> {
 		renderer.render(getItem(position));
 	}
 
-	public void setOnTextSelectedListener(OnTextSelectedListener onTextSelectedListener) {
-		mOnTextSelectedListener = onTextSelectedListener;
-	}
-
 	@Override
 	public int getItemViewType(int position) {
 		Segment segment = getItem(position);
@@ -76,7 +74,7 @@ public class TexasAdapter extends RecyclerView.Adapter<TexasAdapter.Renderer> {
 		throw new RuntimeException("unknown segment type");
 	}
 
-	public Segment getItem(int position) {
+	Segment getItem(int position) {
 		return mDocument.getSegment(position);
 	}
 
@@ -87,6 +85,7 @@ public class TexasAdapter extends RecyclerView.Adapter<TexasAdapter.Renderer> {
 
 	public void clear() {
 		mDocument = null;
+		mParagraphSelection = null;
 		notifyDataSetChanged();
 	}
 
@@ -98,13 +97,53 @@ public class TexasAdapter extends RecyclerView.Adapter<TexasAdapter.Renderer> {
 		mTextPaint = textPaint;
 		mRenderOption = renderOption;
 		mMeasurer = measurer;
+		// 清空选中
+		clearSelectionInternal();
 		notifyDataSetChanged();
 	}
 
-	public void update(TextPaint textPaint, RenderOption renderOption) {
+	void update(TextPaint textPaint, RenderOption renderOption) {
 		mTextPaint = textPaint;
 		mRenderOption = renderOption;
 		notifyDataSetChanged();
+	}
+
+	void clearSelection() {
+		if (mParagraphSelection == null) {
+			return;
+		}
+
+		ParagraphSelection paragraphSelection = mParagraphSelection;
+		clearSelectionInternal();
+		notifySelectionChanged(paragraphSelection);
+	}
+
+	private void clearSelectionInternal() {
+		if (mParagraphSelection == null) {
+			return;
+		}
+
+		ParagraphSelection paragraphSelection = mParagraphSelection;
+		mParagraphSelection = null;
+		paragraphSelection.clearSelection();
+	}
+
+	private void notifySelectionChanged(ParagraphSelection paragraphSelection) {
+		if (mDocument == null) {
+			return;
+		}
+
+		int index = mDocument.indexOf(paragraphSelection.getParagraph());
+		if (index < 0 || index >= getItemCount()) {
+			return;
+		}
+		notifyItemChanged(index);
+	}
+
+	private void handleParagraphSelected(ParagraphSelection paragraphSelection) {
+		clearSelectionInternal();
+		mParagraphSelection = paragraphSelection;
+		notifySelectionChanged(paragraphSelection);
 	}
 
 	static abstract class Renderer<T> extends RecyclerView.ViewHolder {
@@ -138,13 +177,15 @@ public class TexasAdapter extends RecyclerView.Adapter<TexasAdapter.Renderer> {
 		@Override
 		protected void onCreate(View view) {
 			mParagraphView = (ParagraphView) itemView;
-			mParagraphView.setOnTextSelectedListener(new ParagraphView.OnTextSelectedListener() {
+			mParagraphView.setOnTextSelectedListener(new ParagraphView.OnSelectedChangedListener() {
 				@Override
-				public void onTextSelected(ParagraphSelection selection) {
-					mParagraphSelection = selection;
-					if (mOnTextSelectedListener != null) {
-						mOnTextSelectedListener.onTextSelected(selection);
-					}
+				public void onTextSelected(TextParagraphSelection selection) {
+					handleParagraphSelected(selection);
+				}
+
+				@Override
+				public void onDrawSelected(DrawableParagraphSelection selection) {
+					handleParagraphSelected(selection);
 				}
 			});
 		}
@@ -202,9 +243,5 @@ public class TexasAdapter extends RecyclerView.Adapter<TexasAdapter.Renderer> {
 			data.attach(mLayoutInflater, mRootView);
 			data.render();
 		}
-	}
-
-	public interface OnTextSelectedListener {
-		void onTextSelected(ParagraphSelection paragraphSelection);
 	}
 }

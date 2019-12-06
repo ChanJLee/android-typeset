@@ -1,26 +1,17 @@
 package me.chan.texas.renderer;
 
 import android.graphics.Canvas;
-import android.graphics.RectF;
 import android.text.TextPaint;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import me.chan.texas.annotations.Hidden;
-import me.chan.texas.text.Box;
 import me.chan.texas.text.Paragraph;
 
-@Hidden
-class ParagraphSelection {
+public abstract class ParagraphSelection {
 	private Paragraph mParagraph;
-	private List<RectF> mBackgrounds = new ArrayList<>();
-	private List<Box> mBoxes = new ArrayList<>();
-	private boolean mIsLongClicked;
+	private boolean mIsSelectedByLongClicked;
 
-	public ParagraphSelection(Paragraph paragraph, boolean isLongClicked) {
+	public ParagraphSelection(Paragraph paragraph, boolean isSelectedByLongClicked) {
 		mParagraph = paragraph;
-		mIsLongClicked = isLongClicked;
+		mIsSelectedByLongClicked = isSelectedByLongClicked;
 	}
 
 	public Paragraph getParagraph() {
@@ -31,28 +22,15 @@ class ParagraphSelection {
 		mParagraph = paragraph;
 	}
 
-	public void addSelectArea(RectF rectF) {
-		mBackgrounds.add(rectF);
+	public boolean isSelectedByLongClick() {
+		return mIsSelectedByLongClicked;
 	}
 
-	public boolean isLongClickSelected() {
-		return mIsLongClicked;
+	public void setSelectedByLongClicked(boolean selectedByLongClicked) {
+		mIsSelectedByLongClicked = selectedByLongClicked;
 	}
 
-	public void draw(Canvas canvas, TextPaint textPaint, float radius) {
-		for (RectF rectF : mBackgrounds) {
-			canvas.drawRoundRect(rectF, radius, radius, textPaint);
-		}
-	}
+	public abstract void clearSelection();
 
-	public void clear() {
-		for (Box box : mBoxes) {
-			box.setSelected(false);
-		}
-		mBackgrounds.clear();
-	}
-
-	public void addBox(Box box) {
-		mBoxes.add(box);
-	}
+	public abstract void draw(Canvas canvas, TextPaint textPaint, float radius);
 }
