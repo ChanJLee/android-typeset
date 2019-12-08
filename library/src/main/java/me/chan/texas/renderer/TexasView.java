@@ -307,6 +307,14 @@ public class TexasView extends FrameLayout {
 		}
 	}
 
+	public int getSelectedTop() {
+		return -1;
+	}
+
+	public int getSelectedBottom() {
+		return -1;
+	}
+
 	/**
 	 * 渲染监听器
 	 */
