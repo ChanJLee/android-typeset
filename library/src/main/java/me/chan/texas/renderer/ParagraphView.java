@@ -170,21 +170,25 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 
 		onClickedListener.onClicked(e.getRawX(), e.getRawY());
 		if (mLastTouchBox instanceof DrawableBox) {
-			DrawableParagraphSelection selection = new DrawableParagraphSelection(
-					mParagraph,
-					isLongClicked,
-					(DrawableBox) mLastTouchBox
-			);
-			mLastTouchBox.setSelected(true);
-			if (mOnTextSelectedListener != null) {
-				mOnTextSelectedListener.onDrawSelected(selection);
-			}
-			return true;
+			return handleDrawableTouched(isLongClicked);
 		}
 
 		TextParagraphSelection selection = getIfParagraphSelection(mParagraph, onClickedListener, isLongClicked);
 		if (mOnTextSelectedListener != null) {
 			mOnTextSelectedListener.onTextSelected(selection);
+		}
+		return true;
+	}
+
+	private boolean handleDrawableTouched(boolean isLongClicked) {
+		DrawableParagraphSelection selection = new DrawableParagraphSelection(
+				mParagraph,
+				isLongClicked,
+				(DrawableBox) mLastTouchBox
+		);
+		mLastTouchBox.setSelected(true);
+		if (mOnTextSelectedListener != null) {
+			mOnTextSelectedListener.onDrawSelected(selection);
 		}
 		return true;
 	}
