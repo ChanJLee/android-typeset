@@ -6,7 +6,6 @@ import androidx.annotation.Nullable;
 import android.text.TextPaint;
 
 import me.chan.texas.annotations.Hidden;
-import me.chan.texas.misc.DefaultRecyclable;
 import me.chan.texas.misc.ObjectFactory;
 
 /**
@@ -22,16 +21,16 @@ public final class TextBox extends Box {
 	private int mEnd;
 	@Hidden
 	private short mFlag = FLAG_NONE;
-	private Attribute mAttribute;
+	private TextBoxAttribute mAttribute;
 
 
 	private TextBox(@NonNull CharSequence text, int start, int end,
 					float width, float height,
-					OnClickedListener onClickedListener, Attribute attribute) {
+					OnClickedListener onClickedListener, TextBoxAttribute BoxAttribute) {
 		super(width, height);
 		reset(this, text, start, end,
 				mWidth, mHeight,
-				onClickedListener, attribute);
+				onClickedListener, BoxAttribute);
 	}
 
 	public void copy(@NonNull TextBox other) {
@@ -55,28 +54,28 @@ public final class TextBox extends Box {
 		if (mAttribute == null) {
 			return null;
 		}
-		return mAttribute.mBackground;
+		return mAttribute.getBackground();
 	}
 
 	public Foreground getForeground() {
 		if (mAttribute == null) {
 			return null;
 		}
-		return mAttribute.mForeground;
+		return mAttribute.getForeground();
 	}
 
 	public TextStyle getTextStyle() {
 		if (mAttribute == null) {
 			return null;
 		}
-		return mAttribute.mTextStyle;
+		return mAttribute.getTextStyle();
 	}
 
 	public OnClickedListener getSpanOnClickedListener() {
 		if (mAttribute == null) {
 			return null;
 		}
-		return mAttribute.mSpanOnClickedListener;
+		return mAttribute.getSpanOnClickedListener();
 	}
 
 	@Override
@@ -195,12 +194,12 @@ public final class TextBox extends Box {
 
 	public static TextBox obtain(@NonNull CharSequence charSequence, int start, int end, float width, float height,
 								 OnClickedListener onClickedListener,
-								 Attribute attribute) {
+								 TextBoxAttribute BoxAttribute) {
 		TextBox box = POOL.acquire();
 		if (box == null) {
-			return new TextBox(charSequence, start, end, width, height, onClickedListener, attribute);
+			return new TextBox(charSequence, start, end, width, height, onClickedListener, BoxAttribute);
 		}
-		reset(box, charSequence, start, end, width, height, onClickedListener, attribute);
+		reset(box, charSequence, start, end, width, height, onClickedListener, BoxAttribute);
 		box.reuse();
 		return box;
 	}
@@ -208,7 +207,7 @@ public final class TextBox extends Box {
 	private static void reset(TextBox textBox, @NonNull CharSequence charSequence, int start, int end,
 							  float width, float height,
 							  OnClickedListener onClickedListener,
-							  Attribute attribute) {
+							  TextBoxAttribute BoxAttribute) {
 		textBox.mFlag = FLAG_NONE;
 		textBox.mText = charSequence;
 		textBox.mStart = start;
@@ -216,67 +215,6 @@ public final class TextBox extends Box {
 		textBox.mWidth = width;
 		textBox.mHeight = height;
 		textBox.mOnClickedListener = onClickedListener;
-		textBox.mAttribute = attribute;
-	}
-
-	public static class Attribute extends DefaultRecyclable {
-		private final static ObjectFactory<Attribute> POOL = new ObjectFactory<>(128);
-
-		private TextStyle mTextStyle;
-		private Background mBackground;
-		private Foreground mForeground;
-		private OnClickedListener mSpanOnClickedListener;
-
-		private Attribute() {
-		}
-
-		public void setTextStyle(TextStyle textStyle) {
-			mTextStyle = textStyle;
-		}
-
-		public void setBackground(Background background) {
-			mBackground = background;
-		}
-
-		public void setForeground(Foreground foreground) {
-			mForeground = foreground;
-		}
-
-		public void setSpanOnClickedListener(OnClickedListener spanOnClickedListener) {
-			mSpanOnClickedListener = spanOnClickedListener;
-		}
-
-		@Override
-		public void recycle() {
-			if (isRecycled()) {
-				return;
-			}
-
-			super.recycle();
-			mTextStyle = null;
-			if (mBackground != null) {
-				mBackground.recycle();
-				mBackground = null;
-			}
-			if (mForeground != null) {
-				mForeground.recycle();
-				mForeground = null;
-			}
-			mSpanOnClickedListener = null;
-			POOL.release(this);
-		}
-
-		public static Attribute obtain() {
-			Attribute attribute = POOL.acquire();
-			if (attribute == null) {
-				return new Attribute();
-			}
-			attribute.reuse();
-			return attribute;
-		}
-
-		public static void clean() {
-			POOL.clean();
-		}
+		textBox.mAttribute = BoxAttribute;
 	}
 }

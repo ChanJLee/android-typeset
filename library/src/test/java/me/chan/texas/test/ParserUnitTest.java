@@ -12,6 +12,7 @@ import java.io.InputStreamReader;
 import me.chan.texas.renderer.RenderOption;
 import me.chan.texas.text.Box;
 import me.chan.texas.text.Document;
+import me.chan.texas.text.Element;
 import me.chan.texas.text.Glue;
 import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.Penalty;
@@ -122,7 +123,7 @@ public class ParserUnitTest {
 
 			Paragraph paragraph = (Paragraph) document.getSegment(0);
 			for (int i = 0; i < paragraph.getElementCount(); ++i) {
-				Paragraph.Element element = paragraph.getElement(i);
+				Element element = paragraph.getElement(i);
 				if (element instanceof Box) {
 					stringBuilder.append(element);
 				}
@@ -159,7 +160,7 @@ public class ParserUnitTest {
 		for (int i = 0; i < document.getSegmentCount(); ++i) {
 			Paragraph paragraph = (Paragraph) document.getSegment(i);
 			for (int j = 0; j < paragraph.getElementCount(); ++j) {
-				Paragraph.Element element = paragraph.getElement(j);
+				Element element = paragraph.getElement(j);
 				if (element instanceof Box) {
 					stringBuilder.append(element);
 				}

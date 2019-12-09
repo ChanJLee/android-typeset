@@ -6,9 +6,14 @@ import android.content.res.Configuration;
 
 import com.bumptech.glide.request.target.ViewTarget;
 
+import java.lang.reflect.Method;
+import java.util.HashSet;
+import java.util.Set;
+
 import me.chan.texas.annotations.Hidden;
 import me.chan.texas.text.DrawableBox;
 import me.chan.texas.text.Glue;
+import me.chan.texas.text.Line;
 import me.chan.texas.text.Penalty;
 import me.chan.texas.text.TextBox;
 import me.chan.texas.log.Log;
@@ -17,14 +22,16 @@ import me.chan.texas.text.Document;
 import me.chan.texas.text.Figure;
 import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.UnderLine;
-import me.chan.texas.typesetter.BreakPoint;
-import me.chan.texas.typesetter.Candidate;
-import me.chan.texas.typesetter.Node;
-import me.chan.texas.typesetter.Sum;
 
 public class Texas {
 
 	private static MemoryOption sMemoryOption = new MemoryOption();
+	private static final Set<Class<?>> RECYCLE_CLAZZ = new HashSet<>();
+
+	@Hidden
+	public static void register(Class<?> clazz) {
+		RECYCLE_CLAZZ.add(clazz);
+	}
 
 	@Hidden
 	public static MemoryOption getMemoryOption() {
@@ -71,23 +78,33 @@ public class Texas {
 		// add engine clean code
 		TextBox.clean();
 		Glue.clean();
-		Paragraph.Line.clean();
+		Line.clean();
 		Paragraph.clean();
 		Penalty.clean();
-		BreakPoint.clean();
-		Candidate.clean();
-		Node.clean();
-		Sum.clean();
 		Document.clean();
 		Figure.clean();
 		DrawableBox.clean();
 		Background.clean();
 		UnderLine.clean();
 		Paragraph.Builder.clean();
-		TextBox.Attribute.clean();
+		for (Class<?> clazz : RECYCLE_CLAZZ) {
+			recycle(clazz);
+		}
+
 		System.gc();
 	}
 
+	private static void recycle(Class<?> clazz) {
+		try {
+			Method method = clazz.getDeclaredMethod("clean");
+			method.setAccessible(true);
+			method.invoke(null);
+		} catch (Throwable e) {
+			e.printStackTrace();
+		}
+	}
+
+	@Hidden
 	public static class MemoryOption {
 		private int mDocumentSegmentInitialCapacity = 512;
 		private int mParagraphLineInitialCapacity = 32;

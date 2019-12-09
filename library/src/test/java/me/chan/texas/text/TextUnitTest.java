@@ -1,4 +1,4 @@
-package me.chan.texas.test;
+package me.chan.texas.text;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -8,13 +8,6 @@ import java.lang.reflect.Field;
 
 import me.chan.texas.test.mock.MockMeasurer;
 import me.chan.texas.test.mock.MockTextPaint;
-import me.chan.texas.text.Background;
-import me.chan.texas.text.Foreground;
-import me.chan.texas.text.OnClickedListener;
-import me.chan.texas.text.Penalty;
-import me.chan.texas.text.TextBox;
-import me.chan.texas.text.TextStyle;
-import me.chan.texas.text.UnderLine;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.fail;
@@ -54,7 +47,7 @@ public class TextUnitTest {
 
 	@Test
 	public void testRichTextAttribute() throws NoSuchFieldException, IllegalAccessException {
-		Class<?> clazz = TextBox.Attribute.class;
+		Class<?> clazz = TextBoxAttribute.class;
 		Field textStyleField = clazz.getDeclaredField("mTextStyle");
 		Field backgroundField = clazz.getDeclaredField("mBackground");
 		Field foregroundField = clazz.getDeclaredField("mForeground");
@@ -62,7 +55,7 @@ public class TextUnitTest {
 		backgroundField.setAccessible(true);
 		foregroundField.setAccessible(true);
 
-		TextBox.Attribute attribute = TextBox.Attribute.obtain();
+		TextBoxAttribute attribute = TextBoxAttribute.obtain();
 		Assert.assertNotNull(attribute);
 		Assert.assertNull(backgroundField.get(attribute));
 		Assert.assertNull(foregroundField.get(attribute));
@@ -89,15 +82,15 @@ public class TextUnitTest {
 		// test recycle twice
 		attribute.recycle();
 
-		TextBox.Attribute p = attribute;
-		attribute = TextBox.Attribute.obtain();
+		TextBoxAttribute p = attribute;
+		attribute = TextBoxAttribute.obtain();
 		Assert.assertSame(p, attribute);
 
 		Assert.assertNull(backgroundField.get(attribute));
 		Assert.assertNull(foregroundField.get(attribute));
 		Assert.assertNull(textStyleField.get(attribute));
 
-		TextBox.Attribute next = TextBox.Attribute.obtain();
+		TextBoxAttribute next = TextBoxAttribute.obtain();
 		Assert.assertNotSame(next, attribute);
 	}
 
@@ -141,7 +134,7 @@ public class TextUnitTest {
 		TextStyle textStyle = TextStyle.NONE;
 		Background background = Background.obtain(10);
 		Foreground foreground = UnderLine.obtain(10);
-		TextBox.Attribute attribute = TextBox.Attribute.obtain();
+		TextBoxAttribute attribute = TextBoxAttribute.obtain();
 		attribute.setTextStyle(textStyle);
 		attribute.setForeground(foreground);
 		attribute.setBackground(background);
@@ -266,7 +259,7 @@ public class TextUnitTest {
 	@Test
 	public void testBoxEquals() {
 		String msg = "hello world";
-		TextBox.Attribute attribute = TextBox.Attribute.obtain();
+		TextBoxAttribute attribute = TextBoxAttribute.obtain();
 		OnClickedListener onClickedListener = new OnClickedListener() {
 			@Override
 			public void onClicked(float x, float y) {
@@ -388,7 +381,7 @@ public class TextUnitTest {
 			public void onClicked(float x, float y) {
 			}
 		};
-		TextBox.Attribute attribute = TextBox.Attribute.obtain();
+		TextBoxAttribute attribute = TextBoxAttribute.obtain();
 		TextBox box = TextBox.obtain(msg, 0, msg.length(),
 				mMockTextPaint.getMockTextSize() * msg.length(),
 				mMockTextPaint.getMockTextHeight(),

@@ -24,6 +24,7 @@ import me.chan.texas.text.Box;
 import me.chan.texas.text.DrawableBox;
 import me.chan.texas.text.Foreground;
 import me.chan.texas.text.Gravity;
+import me.chan.texas.text.Line;
 import me.chan.texas.text.OnClickedListener;
 import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.TextBox;
@@ -121,7 +122,7 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 		if (mParagraph != null && (lineCount = mParagraph.getLineCount()) != 0) {
 			int height = (int) Math.ceil(mBottomPadding + mTopPadding);
 			for (int i = 0; i < lineCount; ++i) {
-				Paragraph.Line line = mParagraph.getLine(i);
+				Line line = mParagraph.getLine(i);
 				height += line.getLineHeight();
 			}
 
@@ -213,7 +214,7 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 		int lineCount = paragraph.getLineCount();
 		for (int i = 0; i < lineCount; ++i) {
 
-			Paragraph.Line line = paragraph.getLine(i);
+			Line line = paragraph.getLine(i);
 			y += line.getLineHeight();
 			if (i == 0) {
 				y -= mBottomPadding;
@@ -234,7 +235,7 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 		visitor.onVisitParagraphEnd(paragraph);
 	}
 
-	private void visitLine(Paragraph.Line line, float x, float y, Visitor visitor) {
+	private void visitLine(Line line, float x, float y, Visitor visitor) {
 		visitor.onVisitLine(line, x, y);
 
 		float spaceWidth = line.getSpaceWidth();
@@ -363,11 +364,11 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 		}
 
 		@Override
-		public void onVisitLine(Paragraph.Line line, float x, float y) {
+		public void onVisitLine(Line line, float x, float y) {
 		}
 
 		@Override
-		public void onVisitLineEnd(Paragraph.Line line, float x, float y) {
+		public void onVisitLineEnd(Line line, float x, float y) {
 			if (mRenderOption.isEnableDebug()) {
 				float startX = 0;
 				float startY = y + mRenderOption.getLineSpace();
@@ -472,12 +473,12 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 		}
 
 		@Override
-		public void onVisitLine(Paragraph.Line line, float x, float y) {
+		public void onVisitLine(Line line, float x, float y) {
 
 		}
 
 		@Override
-		public void onVisitLineEnd(Paragraph.Line line, float x, float y) {
+		public void onVisitLineEnd(Line line, float x, float y) {
 
 		}
 
@@ -541,7 +542,7 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 		}
 
 		@Override
-		public void onVisitLine(Paragraph.Line line, float x, float y) {
+		public void onVisitLine(Line line, float x, float y) {
 			mLastLineBottom = y + mBottomPadding;
 			mLastLineTop = y - line.getLineHeight();
 			mHasContent = false;
@@ -552,7 +553,7 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 		}
 
 		@Override
-		public void onVisitLineEnd(Paragraph.Line line, float x, float y) {
+		public void onVisitLineEnd(Line line, float x, float y) {
 			if (mRectF != null) {
 				mSelection.addSelectArea(mRectF);
 				mRectF = null;
@@ -591,9 +592,9 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 
 		void onVisitParagraphEnd(Paragraph paragraph);
 
-		void onVisitLine(Paragraph.Line line, float x, float y);
+		void onVisitLine(Line line, float x, float y);
 
-		void onVisitLineEnd(Paragraph.Line line, float x, float y);
+		void onVisitLineEnd(Line line, float x, float y);
 
 		void onVisitBox(Box box, float left, float top, float right, float bottom);
 	}

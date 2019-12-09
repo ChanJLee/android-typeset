@@ -1,12 +1,9 @@
-package me.chan.texas.test;
+package me.chan.texas.typesetter;
 
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.Iterator;
-
-import me.chan.texas.typesetter.ActiveNodeList;
-import me.chan.texas.typesetter.Node;
 
 public class ActiveNodeListUnitTest {
 

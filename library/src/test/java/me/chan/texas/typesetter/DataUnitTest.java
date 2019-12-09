@@ -1,4 +1,4 @@
-package me.chan.texas.test;
+package me.chan.texas.typesetter;
 
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
@@ -19,21 +19,16 @@ import me.chan.texas.text.DrawableBox;
 import me.chan.texas.text.Figure;
 import me.chan.texas.text.Glue;
 import me.chan.texas.text.Gravity;
+import me.chan.texas.text.Line;
 import me.chan.texas.text.OnClickedListener;
-import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.Penalty;
 import me.chan.texas.text.TextBox;
 import me.chan.texas.text.UnderLine;
 import me.chan.texas.text.ViewSegment;
-import me.chan.texas.typesetter.BreakPoint;
-import me.chan.texas.typesetter.Candidate;
-import me.chan.texas.typesetter.Node;
-import me.chan.texas.typesetter.Sum;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertSame;
 import static org.junit.Assert.fail;
 
 public class DataUnitTest {
@@ -179,8 +174,8 @@ public class DataUnitTest {
 
 	@Test
 	public void testLine() throws NoSuchFieldException, IllegalAccessException {
-		Paragraph.Line line = Paragraph.Line.obtain();
-		Field field = Paragraph.Line.class.getDeclaredField("mBoxes");
+		Line line = Line.obtain();
+		Field field = Line.class.getDeclaredField("mBoxes");
 		field.setAccessible(true);
 		List<TextBox> boxes = (List<TextBox>) field.get(line);
 		Assert.assertNotNull(line);
@@ -201,7 +196,7 @@ public class DataUnitTest {
 		boxes.add(TextBox.obtain("hello", 0, 1, 1, 1, null, null));
 		Assert.assertFalse(boxes.isEmpty());
 
-		Paragraph.Line prev = line;
+		Line prev = line;
 		line.recycle();
 		Assert.assertTrue(line.isRecycled());
 		boxes = (List<TextBox>) field.get(line);
@@ -215,8 +210,8 @@ public class DataUnitTest {
 		// test recycle twice
 		line.recycle();
 
-		line = Paragraph.Line.obtain();
-		Assert.assertNotSame(line, Paragraph.Line.obtain());
+		line = Line.obtain();
+		Assert.assertNotSame(line, Line.obtain());
 		boxes = (List<TextBox>) field.get(line);
 		Assert.assertNotNull(line);
 		Assert.assertFalse(line.isRecycled());
@@ -476,9 +471,9 @@ public class DataUnitTest {
 			}
 		};
 		document.setFocusSegment(viewSegment);
-		Assert.assertSame(document.getFocusIndex(), -1);
+		Assert.assertSame(document.getFocusSegmentIndex(), -1);
 		document.setFocusSegment(figure);
-		Assert.assertSame(document.getFocusIndex(), 0);
+		Assert.assertSame(document.getFocusSegmentIndex(), 0);
 
 		Document previous = document;
 		document.recycle();

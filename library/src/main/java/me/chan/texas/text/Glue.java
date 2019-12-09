@@ -1,11 +1,15 @@
 package me.chan.texas.text;
 
+import androidx.annotation.Keep;
+
+import me.chan.texas.annotations.Hidden;
 import me.chan.texas.misc.ObjectFactory;
 
 /**
  * 代表一个空格
  */
-public final class Glue extends Paragraph.Element {
+@Hidden
+public final class Glue extends Element {
 	private final static ObjectFactory<Glue> POOL = new ObjectFactory<>(40960);
 
 	/**
@@ -21,10 +25,6 @@ public final class Glue extends Paragraph.Element {
 
 	private Glue(float width, float stretch, float shrink) {
 		reset(width, stretch, shrink);
-	}
-
-	public static void clean() {
-		POOL.clean();
 	}
 
 	public float getWidth() {
@@ -73,5 +73,10 @@ public final class Glue extends Paragraph.Element {
 		glue.reset(width, stretch, shrink);
 		glue.reuse();
 		return glue;
+	}
+
+	@Keep
+	public static void clean() {
+		POOL.clean();
 	}
 }

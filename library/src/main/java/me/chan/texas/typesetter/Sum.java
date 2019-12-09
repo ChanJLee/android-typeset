@@ -1,23 +1,25 @@
 package me.chan.texas.typesetter;
 
+import androidx.annotation.Keep;
+
+import me.chan.texas.Texas;
 import me.chan.texas.annotations.Hidden;
 import me.chan.texas.text.Glue;
 import me.chan.texas.misc.DefaultRecyclable;
 import me.chan.texas.misc.ObjectFactory;
 
 @Hidden
-public class Sum extends DefaultRecyclable {
+class Sum extends DefaultRecyclable {
 	private static final ObjectFactory<Sum> POOL = new ObjectFactory<>(1024);
+	static {
+		Texas.register(Sum.class);
+	}
 
 	private float mWidth = 0;
 	private float mStretch = 0;
 	private float mShrink = 0;
 
 	private Sum() {
-	}
-
-	public static void clean() {
-		POOL.clean();
 	}
 
 	@Override
@@ -68,5 +70,10 @@ public class Sum extends DefaultRecyclable {
 		sum.mShrink = other.mShrink;
 		sum.mStretch = other.mStretch;
 		return sum;
+	}
+
+	@Keep
+	public static void clean() {
+		POOL.clean();
 	}
 }

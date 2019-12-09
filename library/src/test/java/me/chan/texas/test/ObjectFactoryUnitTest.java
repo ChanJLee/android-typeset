@@ -4,6 +4,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import me.chan.texas.misc.ObjectFactory;
+import me.chan.texas.text.Line;
 import me.chan.texas.text.Paragraph;
 
 public class ObjectFactoryUnitTest {
@@ -39,9 +40,9 @@ public class ObjectFactoryUnitTest {
 		Assert.assertEquals(objectFactory.acquire(), "world");
 		Assert.assertNull(objectFactory.acquire());
 
-		ObjectFactory<Paragraph.Line> factory = new ObjectFactory<>(1);
+		ObjectFactory<Line> factory = new ObjectFactory<>(1);
 
-		Paragraph.Line line = Paragraph.Line.obtain();
+		Line line = Line.obtain();
 		Assert.assertNotNull(line);
 
 		factory.release(line);

@@ -1,12 +1,18 @@
 package me.chan.texas.typesetter;
 
+import androidx.annotation.Keep;
+
+import me.chan.texas.Texas;
 import me.chan.texas.annotations.Hidden;
 import me.chan.texas.misc.DefaultRecyclable;
 import me.chan.texas.misc.ObjectFactory;
 
 @Hidden
-public class Candidate extends DefaultRecyclable {
+class Candidate extends DefaultRecyclable {
 	private static final ObjectFactory<Candidate> POOL = new ObjectFactory<>(256);
+	static {
+		Texas.register(Candidate.class);
+	}
 
 	public float demerits;
 	public Node active;
@@ -43,6 +49,7 @@ public class Candidate extends DefaultRecyclable {
 		return candidate;
 	}
 
+	@Keep
 	public static void clean() {
 		POOL.clean();
 	}

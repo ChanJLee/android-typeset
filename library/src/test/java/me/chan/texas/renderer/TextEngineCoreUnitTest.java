@@ -13,6 +13,7 @@ import me.chan.texas.source.FileTextSource;
 import me.chan.texas.test.mock.MockMeasurer;
 import me.chan.texas.test.mock.MockTextPaint;
 import me.chan.texas.text.Document;
+import me.chan.texas.text.Line;
 import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.TextAttribute;
 import me.chan.texas.text.TextBox;
@@ -64,6 +65,7 @@ public class TextEngineCoreUnitTest {
 		testTypeset(new FileTextSource("../app/src/main/assets/TheBookAndTheSword.txt"), 1080, 1024, mRenderOption);
 		mRenderOption.setTextSize(1080);
 		testTypeset(new FileTextSource("../app/src/main/assets/TheBookAndTheSword.txt"), 1080, 1024, mRenderOption);
+		Texas.clean();
 	}
 
 	private int mWhat;
@@ -102,7 +104,7 @@ public class TextEngineCoreUnitTest {
 		for (int j = 0; j < document.getSegmentCount(); ++j) {
 			Paragraph paragraph = (Paragraph) document.getSegment(j);
 			for (int x = 0; x < paragraph.getLineCount(); ++x) {
-				Paragraph.Line line = paragraph.getLine(x);
+				Line line = paragraph.getLine(x);
 				for (int y = 0; y < line.getCount(); ++y) {
 					TextBox box = (TextBox) line.getBox(y);
 					String string = box.toString();
