@@ -15,8 +15,8 @@ class TextBoxAttribute extends DefaultRecyclable {
 	}
 
 	private TextStyle mTextStyle;
-	private Background mBackground;
-	private Foreground mForeground;
+	private Appearance mBackground;
+	private Appearance mForeground;
 	private OnClickedListener mSpanOnClickedListener;
 
 	private TextBoxAttribute() {
@@ -26,11 +26,11 @@ class TextBoxAttribute extends DefaultRecyclable {
 		mTextStyle = textStyle;
 	}
 
-	public void setBackground(Background background) {
+	public void setBackground(Appearance background) {
 		mBackground = background;
 	}
 
-	public void setForeground(Foreground foreground) {
+	public void setForeground(Appearance foreground) {
 		mForeground = foreground;
 	}
 
@@ -42,11 +42,11 @@ class TextBoxAttribute extends DefaultRecyclable {
 		return mTextStyle;
 	}
 
-	public Background getBackground() {
+	public Appearance getBackground() {
 		return mBackground;
 	}
 
-	public Foreground getForeground() {
+	public Appearance getForeground() {
 		return mForeground;
 	}
 

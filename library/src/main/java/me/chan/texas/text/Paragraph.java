@@ -156,8 +156,19 @@ public class Paragraph extends Segment {
 			return mSpanBuilder;
 		}
 
+		/**
+		 * 添加文字
+		 *
+		 * @param text              文字
+		 * @param start             文字开始位置
+		 * @param end               文字结束位置
+		 * @param onClickedListener 文字的点击操作
+		 * @param attribute         文字的属性
+		 * @param textStyle         文字的style
+		 */
 		private void text(CharSequence text, int start, int end,
-						  OnClickedListener onClickedListener, TextBoxAttribute attribute,
+						  OnClickedListener onClickedListener,
+						  TextBoxAttribute attribute,
 						  TextStyle textStyle) {
 			if (text == null) {
 				throw new RuntimeException("call build twice");
@@ -213,10 +224,27 @@ public class Paragraph extends Segment {
 			);
 		}
 
+		/**
+		 * 添加drawable，如果给定宽高小于0，那么行为将是未定义的
+		 *
+		 * @param drawable drawable
+		 * @param width    drawable宽度
+		 * @param height   drawable高度
+		 * @return 当前对象
+		 */
 		public Builder drawable(Drawable drawable, float width, float height) {
 			return drawable(drawable, width, height, null);
 		}
 
+		/**
+		 * 添加drawable，如果给定宽高小于0，那么行为将是未定义的
+		 *
+		 * @param drawable          drawable
+		 * @param width             drawable宽度
+		 * @param height            drawable高度
+		 * @param onClickedListener drawable点击后的操作
+		 * @return 当前对象
+		 */
 		public Builder drawable(Drawable drawable, float width, float height, OnClickedListener onClickedListener) {
 			if (mParagraph == null) {
 				throw new IllegalStateException("call newParagraph first");
@@ -228,6 +256,11 @@ public class Paragraph extends Segment {
 			return this;
 		}
 
+		/**
+		 * 构造
+		 *
+		 * @return paragraph
+		 */
 		public Paragraph build() {
 			if (isRecycled()) {
 				throw new IllegalStateException("call build twice");
@@ -266,6 +299,12 @@ public class Paragraph extends Segment {
 			POOL.release(this);
 		}
 
+		/**
+		 * @param measurer      测量器
+		 * @param hypher        断字器
+		 * @param textAttribute 文本属性
+		 * @return 当前对象
+		 */
 		public static Builder newBuilder(Measurer measurer, Hypher hypher, TextAttribute textAttribute) {
 			Builder builder = POOL.acquire();
 			if (builder == null) {
@@ -280,19 +319,23 @@ public class Paragraph extends Segment {
 			return builder;
 		}
 
+		@Hidden
 		public static void clean() {
 			POOL.clean();
 		}
 	}
 
+	/**
+	 * span构造器
+	 */
 	public static class SpanBuilder {
 		private CharSequence mText;
 		private int mStart;
 		private int mEnd;
 		private Builder mBuilder;
 		private TextStyle mTextStyle;
-		private Background mBackground;
-		private Foreground mForeground;
+		private Appearance mBackground;
+		private Appearance mForeground;
 		private OnClickedListener mOnClickedListener;
 		private OnClickedListener mSpanOnClickedListener;
 
@@ -310,10 +353,24 @@ public class Paragraph extends Segment {
 			mSpanOnClickedListener = onClickedListener;
 		}
 
+		/**
+		 * 往当前span中添加一段文字
+		 *
+		 * @param text 文字
+		 * @return 当前对象
+		 */
 		public SpanBuilder next(CharSequence text) {
 			return next(text, 0, text.length());
 		}
 
+		/**
+		 * 往当前span中添加一段文字
+		 *
+		 * @param text  文字
+		 * @param start 文字的开始
+		 * @param end   文字的结束
+		 * @return 当前对象
+		 */
 		public SpanBuilder next(CharSequence text, int start, int end) {
 			flush();
 			mText = text;
@@ -322,21 +379,53 @@ public class Paragraph extends Segment {
 			return this;
 		}
 
+		/**
+		 * 设置当前文字样式
+		 * <p/>
+		 * {@link TextStyle#BOLD}
+		 * {@link TextStyle#BOLD_ITALIC}
+		 * etc
+		 *
+		 * @param textStyle 文字属性
+		 * @return 当前对象
+		 */
 		public SpanBuilder setTextStyle(TextStyle textStyle) {
 			mTextStyle = textStyle;
 			return this;
 		}
 
-		public SpanBuilder setBackground(Background background) {
+		/**
+		 * 设置当前文字背景
+		 * <p/>
+		 * {@link Background}
+		 *
+		 * @param background 文字背景
+		 * @return 当前对象
+		 */
+		public SpanBuilder setBackground(Appearance background) {
 			mBackground = background;
 			return this;
 		}
 
-		public SpanBuilder setForeground(Foreground foreground) {
+		/**
+		 * 设置当前文字前景
+		 * <p/>
+		 * {@link UnderLine}
+		 *
+		 * @param foreground 前景
+		 * @return 当前对象
+		 */
+		public SpanBuilder setForeground(Appearance foreground) {
 			mForeground = foreground;
 			return this;
 		}
 
+		/**
+		 * 设置span的点击事件，目前由长按触发
+		 *
+		 * @param onClickedListener
+		 * @return 当前对象
+		 */
 		public SpanBuilder setOnClickedListener(OnClickedListener onClickedListener) {
 			mOnClickedListener = onClickedListener;
 			return this;
@@ -358,6 +447,11 @@ public class Paragraph extends Segment {
 			reset(mSpanOnClickedListener);
 		}
 
+		/**
+		 * 创建新的span
+		 *
+		 * @return span
+		 */
 		public Builder buildSpan() {
 			flush();
 			return mBuilder;

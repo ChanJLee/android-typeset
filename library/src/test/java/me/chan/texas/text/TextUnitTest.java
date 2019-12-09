@@ -132,8 +132,8 @@ public class TextUnitTest {
 		checkBoxContent(box, msg);
 
 		TextStyle textStyle = TextStyle.NONE;
-		Background background = Background.obtain(10);
-		Foreground foreground = UnderLine.obtain(10);
+		Appearance background = Background.obtain(10);
+		Appearance foreground = UnderLine.obtain(10);
 		TextBoxAttribute attribute = TextBoxAttribute.obtain();
 		attribute.setTextStyle(textStyle);
 		attribute.setForeground(foreground);

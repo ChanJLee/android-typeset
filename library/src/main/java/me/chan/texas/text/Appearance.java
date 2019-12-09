@@ -3,14 +3,12 @@ package me.chan.texas.text;
 import android.graphics.Canvas;
 import android.text.TextPaint;
 
-import me.chan.texas.annotations.Hidden;
 import me.chan.texas.misc.DefaultRecyclable;
 
 /**
  * 外观，用于内容绘制
  */
-@Hidden
-abstract class Appearance extends DefaultRecyclable {
+public abstract class Appearance extends DefaultRecyclable {
 	/**
 	 * @param canvas    canvas
 	 * @param textPaint paint

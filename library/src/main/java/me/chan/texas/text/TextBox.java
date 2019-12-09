@@ -11,6 +11,7 @@ import me.chan.texas.misc.ObjectFactory;
 /**
  * 文本元素
  */
+@Hidden
 public final class TextBox extends Box {
 	private static final short FLAG_NONE = 0;
 	private static final short FLAG_PENALTY = 1;
@@ -50,14 +51,14 @@ public final class TextBox extends Box {
 		mFlag = other.mFlag;
 	}
 
-	public Background getBackground() {
+	public Appearance getBackground() {
 		if (mAttribute == null) {
 			return null;
 		}
 		return mAttribute.getBackground();
 	}
 
-	public Foreground getForeground() {
+	public Appearance getForeground() {
 		if (mAttribute == null) {
 			return null;
 		}
