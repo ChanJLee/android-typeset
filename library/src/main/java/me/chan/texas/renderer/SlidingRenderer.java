@@ -21,7 +21,7 @@ public class SlidingRenderer extends Renderer {
 	private LinearLayoutManager mLinearLayoutManager;
 	private TexasView mTexasView;
 
-	public SlidingRenderer(TexasView viewGroup, RenderOption renderOption) {
+	public SlidingRenderer(final TexasView viewGroup, RenderOption renderOption) {
 		super(viewGroup, renderOption);
 		mTexasView = viewGroup;
 		Context context = viewGroup.getContext();
@@ -31,15 +31,7 @@ public class SlidingRenderer extends Renderer {
 		mImpl.setOnClickedListener(new OnClickedListener() {
 			@Override
 			public void onClicked(float x, float y) {
-				Document document = getDocument();
-				if (document == null) {
-					return;
-				}
-
-				OnClickedListener onClickedListener = document.getOnClickedListener();
-				if (onClickedListener != null) {
-					onClickedListener.onClicked(x, y);
-				}
+				mTexasView.notifyClicked(x, y);
 			}
 		});
 		mSpaceItemDecoration = new SpaceItemDecoration(renderOption.getSegmentSpace());
