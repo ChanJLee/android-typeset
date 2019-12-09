@@ -329,6 +329,9 @@ public class TexasView extends FrameLayout {
 		}
 	}
 
+	/**
+	 * @param onClickedListener 设置点击事件
+	 */
 	public void setOnClickedListener(OnClickedListener onClickedListener) {
 		mOnClickedListener = onClickedListener;
 	}
