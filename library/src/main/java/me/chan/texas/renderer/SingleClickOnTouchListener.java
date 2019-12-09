@@ -7,7 +7,10 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
 
-public abstract class SingleClickOnTouchListener implements View.OnTouchListener {
+import me.chan.texas.annotations.Hidden;
+
+@Hidden
+abstract class SingleClickOnTouchListener implements View.OnTouchListener {
 	private static final int[] STATE_PRESSED = {
 			android.R.attr.state_pressed,
 	};

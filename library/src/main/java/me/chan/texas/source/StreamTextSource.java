@@ -5,6 +5,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
+/**
+ * 流式文本源
+ */
 public class StreamTextSource implements Source<CharSequence> {
 
 	private InputStream mInputStream;

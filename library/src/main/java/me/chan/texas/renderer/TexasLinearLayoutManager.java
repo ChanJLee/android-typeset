@@ -6,7 +6,10 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.LinearSmoothScroller;
 import androidx.recyclerview.widget.RecyclerView;
 
-public class TexasLinearLayoutManager extends LinearLayoutManager {
+import me.chan.texas.annotations.Hidden;
+
+@Hidden
+class TexasLinearLayoutManager extends LinearLayoutManager {
 
 	public TexasLinearLayoutManager(Context context) {
 		super(context, LinearLayoutManager.VERTICAL, false);

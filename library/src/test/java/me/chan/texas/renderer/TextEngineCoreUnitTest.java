@@ -1,4 +1,4 @@
-package me.chan.texas.test;
+package me.chan.texas.renderer;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -9,13 +9,9 @@ import java.lang.reflect.Field;
 import java.util.concurrent.CountDownLatch;
 
 import me.chan.texas.Texas;
-import me.chan.texas.renderer.RenderOption;
-import me.chan.texas.renderer.TextEngineCore;
 import me.chan.texas.source.FileTextSource;
-import me.chan.texas.test.mock.MockContext;
 import me.chan.texas.test.mock.MockMeasurer;
 import me.chan.texas.test.mock.MockTextPaint;
-import me.chan.texas.test.mock.MockThreadHandler;
 import me.chan.texas.text.Document;
 import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.TextAttribute;

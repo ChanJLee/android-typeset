@@ -2,6 +2,7 @@ package me.chan.texas.parser;
 
 import androidx.annotation.NonNull;
 
+import me.chan.texas.annotations.Hidden;
 import me.chan.texas.hypher.Hypher;
 import me.chan.texas.measurer.Measurer;
 import me.chan.texas.renderer.RenderOption;
@@ -9,6 +10,10 @@ import me.chan.texas.text.Document;
 import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.TextAttribute;
 
+/**
+ * 最简单的文本解析器
+ */
+@Hidden
 public class TextParser implements Parser<CharSequence> {
 	@Override
 	@NonNull

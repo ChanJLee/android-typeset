@@ -28,6 +28,9 @@ import me.chan.texas.text.BreakStrategy;
 import me.chan.texas.text.Document;
 import me.chan.texas.text.OnClickedListener;
 
+/**
+ * 渲染引擎入口视图
+ */
 public class TexasView extends FrameLayout {
 
 	private static final int BREAK_STRATEGY_SIMPLE = 1;

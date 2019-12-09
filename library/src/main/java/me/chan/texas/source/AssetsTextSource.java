@@ -5,6 +5,9 @@ import android.content.res.Resources;
 
 import java.io.IOException;
 
+/**
+ * 打开assets下的文本文件
+ */
 public class AssetsTextSource extends StreamTextSource {
 
 	public AssetsTextSource(Context context, String path) throws IOException {

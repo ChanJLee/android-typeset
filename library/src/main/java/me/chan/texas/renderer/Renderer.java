@@ -6,6 +6,7 @@ import android.view.LayoutInflater;
 
 import androidx.annotation.Nullable;
 
+import me.chan.texas.annotations.Hidden;
 import me.chan.texas.image.ImageLoader;
 import me.chan.texas.log.Log;
 import me.chan.texas.measurer.Measurer;
@@ -16,6 +17,7 @@ import me.chan.texas.text.Document;
 /**
  * 渲染器
  */
+@Hidden
 abstract class Renderer {
 	private RenderOption mRenderOption;
 	private TextEngineCore mTextEngineCore;

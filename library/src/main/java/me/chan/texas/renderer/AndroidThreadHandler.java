@@ -4,7 +4,13 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 
-public abstract class AndroidThreadHandler implements ThreadHandler {
+import me.chan.texas.annotations.Hidden;
+
+/**
+ * android 线程同步器
+ */
+@Hidden
+abstract class AndroidThreadHandler implements ThreadHandler {
 	private Handler mHandler;
 
 	public AndroidThreadHandler() {

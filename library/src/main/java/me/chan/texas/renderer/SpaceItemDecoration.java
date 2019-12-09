@@ -5,9 +5,12 @@ import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
+import me.chan.texas.annotations.Hidden;
 import me.chan.texas.text.Segment;
 
-public class SpaceItemDecoration extends RecyclerView.ItemDecoration {
+@Hidden
+class SpaceItemDecoration extends RecyclerView.ItemDecoration {
 	private float mSegmentSpace;
 
 	public SpaceItemDecoration(float segmentSpace) {

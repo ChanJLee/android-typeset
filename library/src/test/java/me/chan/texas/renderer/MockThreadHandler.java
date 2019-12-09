@@ -1,6 +1,4 @@
-package me.chan.texas.test.mock;
-
-import me.chan.texas.renderer.ThreadHandler;
+package me.chan.texas.renderer;
 
 public abstract class MockThreadHandler implements ThreadHandler {
 	@Override

@@ -28,7 +28,11 @@ import me.chan.texas.text.TextAttribute;
 import me.chan.texas.text.ViewSegment;
 import me.chan.texas.typesetter.ParagraphTypesetterImpl;
 
-public class TextEngineCore {
+/**
+ * 排版核心
+ */
+@Hidden
+class TextEngineCore {
 	private static final int MSG_FINISHED = 2;
 	private static final int MSG_FAILURE = 3;
 

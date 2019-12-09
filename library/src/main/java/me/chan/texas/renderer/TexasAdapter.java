@@ -13,6 +13,7 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
 import me.chan.texas.R;
+import me.chan.texas.annotations.Hidden;
 import me.chan.texas.image.ImageLoader;
 import me.chan.texas.log.Log;
 import me.chan.texas.measurer.Measurer;
@@ -22,6 +23,7 @@ import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.Segment;
 import me.chan.texas.text.ViewSegment;
 
+@Hidden
 class TexasAdapter extends RecyclerView.Adapter<TexasAdapter.Renderer> {
 	private static final int TYPE_PARAGRAPH = 1;
 	private static final int TYPE_FIGURE = 2;

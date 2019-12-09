@@ -8,12 +8,14 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import me.chan.texas.annotations.Hidden;
 import me.chan.texas.log.Log;
 import me.chan.texas.measurer.Measurer;
 import me.chan.texas.text.Document;
 import me.chan.texas.text.OnClickedListener;
 
-public class SlidingRenderer extends Renderer {
+@Hidden
+class SlidingRenderer extends Renderer {
 
 	private final TexasAdapter mAdapter;
 	private TexasRecyclerView mImpl;
