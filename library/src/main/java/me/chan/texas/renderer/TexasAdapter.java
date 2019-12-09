@@ -14,6 +14,7 @@ import android.widget.FrameLayout;
 
 import me.chan.texas.R;
 import me.chan.texas.image.ImageLoader;
+import me.chan.texas.log.Log;
 import me.chan.texas.measurer.Measurer;
 import me.chan.texas.text.Document;
 import me.chan.texas.text.Figure;
@@ -84,6 +85,7 @@ class TexasAdapter extends RecyclerView.Adapter<TexasAdapter.Renderer> {
 	}
 
 	public void clear() {
+		d("clear");
 		mDocument = null;
 		mParagraphSelection = null;
 		notifyDataSetChanged();
@@ -93,6 +95,7 @@ class TexasAdapter extends RecyclerView.Adapter<TexasAdapter.Renderer> {
 					   TextPaint textPaint,
 					   RenderOption renderOption,
 					   Measurer measurer) {
+		d("render");
 		mDocument = document;
 		mTextPaint = textPaint;
 		mRenderOption = renderOption;
@@ -103,12 +106,14 @@ class TexasAdapter extends RecyclerView.Adapter<TexasAdapter.Renderer> {
 	}
 
 	void update(TextPaint textPaint, RenderOption renderOption) {
+		d("update");
 		mTextPaint = textPaint;
 		mRenderOption = renderOption;
 		notifyDataSetChanged();
 	}
 
 	void clearSelection() {
+		d("clear selection");
 		if (mParagraphSelection == null) {
 			return;
 		}
@@ -129,21 +134,39 @@ class TexasAdapter extends RecyclerView.Adapter<TexasAdapter.Renderer> {
 	}
 
 	private void notifySelectionChanged(ParagraphSelection paragraphSelection) {
-		if (mDocument == null) {
+		if (mDocument == null || paragraphSelection == null) {
 			return;
 		}
 
-		int index = mDocument.indexOf(paragraphSelection.getParagraph());
+		Segment segment = paragraphSelection.getParagraph();
+		if (segment == null) {
+			return;
+		}
+
+		int index = mDocument.indexOf(segment);
 		if (index < 0 || index >= getItemCount()) {
 			return;
 		}
+		d("notify item changed: " + index);
 		notifyItemChanged(index);
 	}
 
 	private void handleParagraphSelected(ParagraphSelection paragraphSelection) {
+		// 先取消之前的内容
 		clearSelectionInternal();
+		notifySelectionChanged(mParagraphSelection);
+
+		// 刷新现在的内容
 		mParagraphSelection = paragraphSelection;
-		notifySelectionChanged(paragraphSelection);
+		notifySelectionChanged(mParagraphSelection);
+	}
+
+	float getSelectedTopEdge() {
+		return mParagraphSelection == null ? -1 : mParagraphSelection.getTopEdgeInWindow();
+	}
+
+	float getSelectedBottomEdge() {
+		return mParagraphSelection == null ? -1 : mParagraphSelection.getBottomEdgeInWindow();
 	}
 
 	static abstract class Renderer<T> extends RecyclerView.ViewHolder {
@@ -243,5 +266,9 @@ class TexasAdapter extends RecyclerView.Adapter<TexasAdapter.Renderer> {
 			data.attach(mLayoutInflater, mRootView);
 			data.render();
 		}
+	}
+
+	private static void d(String msg) {
+		Log.d("TexasAdapter", msg);
 	}
 }

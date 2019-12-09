@@ -42,4 +42,8 @@ class TextParagraphSelection extends ParagraphSelection {
 	public void addBox(Box box) {
 		mBoxes.add(box);
 	}
+
+	public boolean isEmpty() {
+		return mBoxes.isEmpty();
+	}
 }
