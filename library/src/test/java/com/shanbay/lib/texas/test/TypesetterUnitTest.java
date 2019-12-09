@@ -1,0 +1,320 @@
+package com.shanbay.lib.texas.test;
+
+import android.graphics.Rect;
+import android.graphics.drawable.ColorDrawable;
+
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+
+import com.shanbay.lib.texas.renderer.RenderOption;
+import com.shanbay.lib.texas.text.Line;
+import com.shanbay.lib.texas.text.TextAttribute;
+import com.shanbay.lib.texas.text.Box;
+import com.shanbay.lib.texas.text.DrawableBox;
+import com.shanbay.lib.texas.text.TextBox;
+import com.shanbay.lib.texas.hypher.Hypher;
+import com.shanbay.lib.texas.measurer.Measurer;
+import com.shanbay.lib.texas.parser.TextParser;
+import com.shanbay.lib.texas.test.mock.MockMeasurer;
+import com.shanbay.lib.texas.test.mock.MockTextAttribute;
+import com.shanbay.lib.texas.test.mock.MockTextPaint;
+import com.shanbay.lib.texas.text.BreakStrategy;
+import com.shanbay.lib.texas.text.Document;
+import com.shanbay.lib.texas.text.Gravity;
+import com.shanbay.lib.texas.text.Paragraph;
+import com.shanbay.lib.texas.text.Segment;
+import com.shanbay.lib.texas.typesetter.ParagraphTypesetterImpl;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
+/**
+ * Example local unit test, which will execute on the development machine (host).
+ *
+ * @see <a href="http://d.android.com/tools/testing">Testing documentation</a>
+ */
+public class TypesetterUnitTest {
+	@Mock
+	private Rect mRect;
+
+	@Before
+	public void setup() {
+		MockitoAnnotations.initMocks(this);
+		Mockito.doAnswer(new Answer() {
+			@Override
+			public Object answer(InvocationOnMock invocation) throws Throwable {
+				Rect rect = (Rect) invocation.getMock();
+				return rect.right - rect.left;
+			}
+		}).when(mRect).width();
+
+		Mockito.doAnswer(new Answer() {
+			@Override
+			public Object answer(InvocationOnMock invocation) throws Throwable {
+				Rect rect = (Rect) invocation.getMock();
+				return rect.bottom - rect.top;
+			}
+		}).when(mRect).height();
+
+		Hypher.getInstance();
+	}
+
+	@Test
+	public void testMockTextPaint() {
+		MockTextPaint textPaint = new MockTextPaint();
+		textPaint.setTextSize(18);
+
+		String msg = "hello";
+		textPaint.getTextBounds(msg, 0, msg.length(), mRect);
+
+		assertEquals(mRect.height(), textPaint.getMockTextHeight());
+		assertEquals(mRect.width(), textPaint.getMockTextSize() * msg.length());
+
+		msg = "";
+		textPaint.getTextBounds(msg, 0, msg.length(), mRect);
+	}
+
+	@Test
+	public void testTypesetter() throws IOException {
+		File file = new File("../app/src/main/assets/TheBookAndTheSword.txt");
+		System.out.println(file.getAbsolutePath());
+		assertTrue(file.exists());
+
+		StringBuilder stringBuilder = new StringBuilder();
+		BufferedReader bufferedReader = new BufferedReader(
+				new InputStreamReader(new FileInputStream(file)));
+		String line = null;
+		while ((line = bufferedReader.readLine()) != null) {
+			stringBuilder.append(line)
+					.append("\n");
+		}
+
+		String text = stringBuilder.toString();
+		assertNotEquals(text.length(), 0);
+
+		long timestamp = System.currentTimeMillis();
+
+		checkContent(text, BreakStrategy.SIMPLE, 200, 1);
+		checkContent(text, BreakStrategy.SIMPLE, 200, 18);
+		checkContent(text, BreakStrategy.SIMPLE, 200, 100);
+		checkContent(text, BreakStrategy.SIMPLE, 200, 200);
+		checkContent(text, BreakStrategy.SIMPLE, 200, 201);
+
+		checkContent(text, BreakStrategy.BALANCED, 200, 1);
+		checkContent(text, BreakStrategy.BALANCED, 200, 18);
+		checkContent(text, BreakStrategy.BALANCED, 200, 100);
+		checkContent(text, BreakStrategy.BALANCED, 200, 200);
+		checkContent(text, BreakStrategy.BALANCED, 200, 201);
+
+		System.out.println("used time: " + (System.currentTimeMillis() - timestamp));
+	}
+
+	private void checkContent(String text, BreakStrategy breakStrategy, float lineWidth, int textSize) {
+		System.out.println("check content, width: " + lineWidth + " text size: " + textSize + " " + breakStrategy);
+
+		MockTextPaint paint = new MockTextPaint();
+		TextAttribute textAttribute = new TextAttribute(new MockMeasurer(paint));
+		textAttribute.setDefaultAttribute(new TextAttribute.LineAttribute(lineWidth, Gravity.LEFT));
+		Measurer measurer = new MockMeasurer(paint);
+		paint.setMockTextSize(textSize);
+		MockTextAttribute attribute = new MockTextAttribute(paint);
+
+		Assert.assertNotEquals(attribute.getHyphenWidth(), 0);
+		Assert.assertNotEquals(attribute.getIndentWidth(), 0);
+		Assert.assertNotEquals(attribute.getSpaceShrink(), 0);
+		Assert.assertNotEquals(attribute.getSpaceStretch(), 0);
+		Assert.assertNotEquals(attribute.getSpaceWidth(), 0);
+
+		ParagraphTypesetterImpl texTypesetter = new ParagraphTypesetterImpl();
+		TextParser textParser = new TextParser();
+		RenderOption renderOption = new RenderOption();
+		Document document = textParser.parse(text, measurer, Hypher.getInstance(), attribute, renderOption);
+		assertNotEquals(document.getSegmentCount(), 0);
+
+		StringBuilder stringBuilder = new StringBuilder();
+		for (int i = 0; i < document.getSegmentCount(); ++i) {
+			Segment segment = document.getSegment(i);
+			if (!(segment instanceof Paragraph)) {
+				continue;
+			}
+
+			Paragraph paragraph = (Paragraph) segment;
+			texTypesetter.typeset(paragraph, textAttribute, breakStrategy);
+			assertNotNull(paragraph);
+			assertNotEquals(paragraph.getLineCount(), 0);
+
+			for (int j = 0; j < paragraph.getLineCount(); ++j) {
+				Line l = paragraph.getLine(j);
+
+				for (int x = 0; x < l.getCount(); ++x) {
+					Box box = l.getBox(x);
+					if (!(box instanceof TextBox)) {
+						continue;
+					}
+
+					String content = box.toString();
+					if (((TextBox) box).isPenalty()) {
+						Assert.assertEquals(content.charAt(content.length() - 1), '-');
+						content = content.substring(0, content.length() - 1);
+					}
+					stringBuilder.append(content);
+				}
+			}
+		}
+
+		String origin = text.replaceAll("\\p{Z}+|\\t|\\r|\\n", "");
+		String current = stringBuilder.toString();
+		assertEquals(origin, current);
+		document.recycle();
+	}
+
+	@Test
+	public void testMixTypesetter() {
+		testMixNormal();
+		testMixFull();
+		testMix();
+	}
+
+	private void testMix() {
+		Document document = mockDocument(20, 20, 100, BreakStrategy.SIMPLE, "123", "123");
+		Assert.assertNotNull(document);
+		Assert.assertEquals(document.getSegmentCount(), 1);
+		Assert.assertEquals(document.getSegment(0).getClass(), Paragraph.class);
+		Paragraph paragraph = (Paragraph) document.getSegment(0);
+
+		Assert.assertNotNull(paragraph);
+		Assert.assertEquals(paragraph.getLineCount(), 2);
+
+		Line line1 = paragraph.getLine(0);
+		Line line2 = paragraph.getLine(1);
+
+		Assert.assertEquals(line1.getCount(), 2);
+		Assert.assertEquals(line1.getBox(0).getClass(), TextBox.class);
+		Assert.assertEquals(line1.getBox(1).getClass(), DrawableBox.class);
+		Assert.assertEquals(line2.getCount(), 2);
+		Assert.assertEquals(line2.getBox(0).getClass(), TextBox.class);
+		Assert.assertEquals(line2.getBox(1).getClass(), DrawableBox.class);
+
+		document = mockDocument(20, 20, 100, BreakStrategy.BALANCED, "123", "123");
+		Assert.assertNotNull(document);
+		Assert.assertEquals(document.getSegmentCount(), 1);
+		Assert.assertEquals(document.getSegment(0).getClass(), Paragraph.class);
+		paragraph = (Paragraph) document.getSegment(0);
+
+		Assert.assertNotNull(paragraph);
+		Assert.assertEquals(paragraph.getLineCount(), 2);
+
+		line1 = paragraph.getLine(0);
+		line2 = paragraph.getLine(1);
+
+		Assert.assertEquals(line1.getCount(), 2);
+		Assert.assertEquals(line1.getBox(0).getClass(), TextBox.class);
+		Assert.assertEquals(line1.getBox(1).getClass(), DrawableBox.class);
+		Assert.assertEquals(line2.getCount(), 2);
+		Assert.assertEquals(line2.getBox(0).getClass(), TextBox.class);
+		Assert.assertEquals(line2.getBox(1).getClass(), DrawableBox.class);
+	}
+
+	private void testMixNormal() {
+		Document document = mockDocument(20, 20, 100, BreakStrategy.SIMPLE, "123");
+		Assert.assertNotNull(document);
+		Assert.assertEquals(document.getSegmentCount(), 1);
+		Assert.assertEquals(document.getSegment(0).getClass(), Paragraph.class);
+		Paragraph paragraph = (Paragraph) document.getSegment(0);
+
+		Assert.assertNotNull(paragraph);
+		Assert.assertEquals(paragraph.getLineCount(), 1);
+
+		Line line1 = paragraph.getLine(0);
+
+		Assert.assertEquals(line1.getCount(), 2);
+		Assert.assertEquals(line1.getBox(0).getClass(), TextBox.class);
+		Assert.assertEquals(line1.getBox(1).getClass(), DrawableBox.class);
+
+		document = mockDocument(20, 20, 100, BreakStrategy.BALANCED, "123");
+		Assert.assertNotNull(document);
+		Assert.assertEquals(document.getSegmentCount(), 1);
+		Assert.assertEquals(document.getSegment(0).getClass(), Paragraph.class);
+		paragraph = (Paragraph) document.getSegment(0);
+
+		Assert.assertNotNull(paragraph);
+		Assert.assertEquals(paragraph.getLineCount(), 1);
+
+		line1 = paragraph.getLine(0);
+
+		Assert.assertEquals(line1.getCount(), 2);
+		Assert.assertEquals(line1.getBox(0).getClass(), TextBox.class);
+		Assert.assertEquals(line1.getBox(1).getClass(), DrawableBox.class);
+	}
+
+	private void testMixFull() {
+		Document document = mockDocument(20, 20, 100, BreakStrategy.SIMPLE, "12345");
+		Assert.assertNotNull(document);
+		Assert.assertEquals(document.getSegmentCount(), 1);
+		Assert.assertEquals(document.getSegment(0).getClass(), Paragraph.class);
+		Paragraph paragraph = (Paragraph) document.getSegment(0);
+
+		Assert.assertNotNull(paragraph);
+		Assert.assertEquals(paragraph.getLineCount(), 2);
+
+		Line line1 = paragraph.getLine(0);
+		Line line2 = paragraph.getLine(1);
+
+		Assert.assertEquals(line2.getCount(), 1);
+		Assert.assertEquals(line2.getBox(0).getClass(), DrawableBox.class);
+		Assert.assertEquals(line1.getCount(), 1);
+		Assert.assertEquals(line1.getBox(0).getClass(), TextBox.class);
+
+		document = mockDocument(20, 20, 100, BreakStrategy.BALANCED, "12345");
+		Assert.assertNotNull(document);
+		Assert.assertEquals(document.getSegmentCount(), 1);
+		Assert.assertEquals(document.getSegment(0).getClass(), Paragraph.class);
+		paragraph = (Paragraph) document.getSegment(0);
+
+		Assert.assertNotNull(paragraph);
+		Assert.assertEquals(paragraph.getLineCount(), 2);
+
+		line1 = paragraph.getLine(0);
+		line2 = paragraph.getLine(1);
+
+		Assert.assertEquals(line2.getCount(), 1);
+		Assert.assertEquals(line2.getBox(0).getClass(), DrawableBox.class);
+		Assert.assertEquals(line1.getCount(), 1);
+		Assert.assertEquals(line1.getBox(0).getClass(), TextBox.class);
+	}
+
+	private Document mockDocument(int textSize, float drawableWidth, float width, BreakStrategy breakStrategy, CharSequence... s) {
+		MockTextPaint textPaint = new MockTextPaint(textSize);
+		Measurer measurer = new MockMeasurer(textPaint);
+		Document document = Document.obtain();
+		MockTextAttribute attribute = new MockTextAttribute(textPaint);
+		attribute.setDefaultAttribute(new TextAttribute.LineAttribute(width, Gravity.LEFT));
+		Paragraph.Builder builder = Paragraph.Builder.newBuilder(measurer, Hypher.getInstance(), attribute);
+		for (int i = 0; i < s.length; ++i) {
+			builder.text(s[i], 0, s[i].length());
+			builder.drawable(new ColorDrawable(10), drawableWidth, 20);
+		}
+		document.addSegment(builder.build());
+
+		ParagraphTypesetterImpl typesetter = new ParagraphTypesetterImpl();
+		for (int i = 0; i < document.getSegmentCount(); ++i) {
+			typesetter.typeset((Paragraph) document.getSegment(i), attribute, breakStrategy);
+		}
+
+		return document;
+	}
+}
