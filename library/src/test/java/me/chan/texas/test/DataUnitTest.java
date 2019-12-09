@@ -439,11 +439,10 @@ public class DataUnitTest {
 			public void onClicked(float x, float y) {
 			}
 		};
-		Document document = Document.obtain(onClickedListener);
+		Document document = Document.obtain();
 		Assert.assertNotNull(document);
 		Assert.assertFalse(document.isRecycled());
 		Assert.assertEquals(document.getSegmentCount(), 0);
-		Assert.assertSame(onClickedListener, document.getOnClickedListener());
 		document.setRaw(msg);
 		Assert.assertSame(document.getRaw(), msg);
 		try {
@@ -483,7 +482,6 @@ public class DataUnitTest {
 
 		Document previous = document;
 		document.recycle();
-		Assert.assertNull(document.getOnClickedListener());
 		Assert.assertNull(document.getRaw());
 		Assert.assertEquals(-1, document.indexOf(figure));
 		Assert.assertTrue(document.isRecycled());
