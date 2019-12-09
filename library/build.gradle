@@ -14,7 +14,7 @@ android {
 
     }
 
-    resourcePrefix "me_chan_te_"
+    resourcePrefix "com_shanbay_lib_texas_"
 
     testOptions {
         unitTests.returnDefaultValues = true

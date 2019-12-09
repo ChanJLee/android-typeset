@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="com_shanbay_lib_texas_TeView">
+        <attr name="com_shanbay_lib_texas_textColor" format="color" />
+        <attr name="com_shanbay_lib_texas_typefaceAssets" format="string" />
+        <attr name="com_shanbay_lib_texas_textSize" format="dimension" />
+        <attr name="com_shanbay_lib_texas_lineSpace" format="dimension" />
+        <attr name="com_shanbay_lib_texas_indent" format="boolean" />
+        <attr name="com_shanbay_lib_texas_selectedBackgroundColor" format="color" />
+        <attr name="com_shanbay_lib_texas_selectedTextColor" format="color" />
+        <attr name="com_shanbay_lib_texas_spanSelectedBackgroundColor" format="color" />
+        <attr name="com_shanbay_lib_texas_spanSelectedTextColor" format="color" />
+        <attr name="com_shanbay_lib_texas_segmentSpace" format="dimension" />
+        <attr name="com_shanbay_lib_texas_breakStrategy" format="enum">
+            <enum name="simple" value="1" />
+            <enum name="balance" value="2" />
+        </attr>
+        <attr name="com_shanbay_lib_texas_wordSelectable" format="boolean" />
+    </declare-styleable>
+</resources>

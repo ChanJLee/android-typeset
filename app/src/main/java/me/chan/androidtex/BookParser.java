@@ -44,8 +44,8 @@ public class BookParser implements Parser<CharSequence> {
 	public BookParser(Context context) {
 		mContext = context;
 		Resources resources = context.getResources();
-		mFlagWidth = resources.getDimension(R.dimen.me_chan_te_flag_width);
-		mFlagHeight = resources.getDimension(R.dimen.me_chan_te_flag_height);
+		mFlagWidth = resources.getDimension(R.dimen.com_shanbay_lib_texas_flag_width);
+		mFlagHeight = resources.getDimension(R.dimen.com_shanbay_lib_texas_flag_height);
 		mOnClickedListener = new OnClickedListener() {
 			@Override
 			public void onClicked(float x, float y) {

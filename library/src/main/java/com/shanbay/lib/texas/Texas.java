@@ -61,11 +61,6 @@ public class Texas {
 				clean();
 			}
 		});
-
-		try {
-			ViewTarget.setTagId(R.id.me_chan_te_glide);
-		} catch (Exception ignore) {
-		}
 	}
 
 	/**
