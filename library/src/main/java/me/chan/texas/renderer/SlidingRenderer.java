@@ -120,4 +120,14 @@ public class SlidingRenderer extends Renderer {
 	private static void d(String msg) {
 		Log.d("SlidingTexasRenderer", msg);
 	}
+
+	@Override
+	float getSelectedBottomEdge() {
+		return mAdapter.getSelectedBottomEdge();
+	}
+
+	@Override
+	float getSelectedTopEdge() {
+		return mAdapter.getSelectedTopEdge();
+	}
 }

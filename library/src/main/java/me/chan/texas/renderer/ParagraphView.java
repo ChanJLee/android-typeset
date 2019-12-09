@@ -47,6 +47,7 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 	private Box mLastTouchBox = null;
 	@Nullable
 	private ParagraphSelection mParagraphSelection;
+	private float mLastYInView, mLastYInWindow;
 
 	public ParagraphView(Context context) {
 		this(context, null);
@@ -168,40 +169,38 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 			return false;
 		}
 
-		onClickedListener.onClicked(e.getRawX(), e.getRawY());
 		if (mLastTouchBox instanceof DrawableBox) {
-			return handleDrawableTouched(isLongClicked);
+			handleDrawableTouched(isLongClicked);
+		} else {
+			handleTextTouched(isLongClicked, onClickedListener);
 		}
 
-		TextParagraphSelection selection = getIfParagraphSelection(mParagraph, onClickedListener, isLongClicked);
-		if (mOnTextSelectedListener != null) {
-			mOnTextSelectedListener.onTextSelected(selection);
-		}
+		onClickedListener.onClicked(e.getRawX(), e.getRawY());
 		return true;
 	}
 
-	private boolean handleDrawableTouched(boolean isLongClicked) {
+	private void handleTextTouched(boolean isLongClicked, OnClickedListener onClickedListener) {
+		mSelectionVisitor.setOnClickedListener(onClickedListener);
+		mSelectionVisitor.setLongClicked(isLongClicked);
+		visitParagraph(mParagraph, mSelectionVisitor);
+		TextParagraphSelection selection = mSelectionVisitor.getSelection();
+		mSelectionVisitor.clear();
+		if (mOnTextSelectedListener != null) {
+			mOnTextSelectedListener.onTextSelected(selection);
+		}
+	}
+
+	private void handleDrawableTouched(boolean isLongClicked) {
 		DrawableParagraphSelection selection = new DrawableParagraphSelection(
 				mParagraph,
 				isLongClicked,
 				(DrawableBox) mLastTouchBox
 		);
+
 		mLastTouchBox.setSelected(true);
 		if (mOnTextSelectedListener != null) {
 			mOnTextSelectedListener.onDrawSelected(selection);
 		}
-		return true;
-	}
-
-	private TextParagraphSelection getIfParagraphSelection(Paragraph paragraph,
-														   OnClickedListener onClickedListener,
-														   boolean isLongClicked) {
-		mSelectionVisitor.setOnClickedListener(onClickedListener);
-		mSelectionVisitor.setLongClicked(isLongClicked);
-		visitParagraph(paragraph, mSelectionVisitor);
-		TextParagraphSelection selection = mSelectionVisitor.getSelection();
-		mSelectionVisitor.clear();
-		return selection;
 	}
 
 	private void visitParagraph(Paragraph paragraph, Visitor visitor) {
@@ -290,6 +289,8 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 			return false;
 		}
 
+		mLastYInView = y;
+		mLastYInWindow = e.getRawY();
 		mLastTouchBox = target;
 		return true;
 	}
@@ -325,7 +326,7 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 	}
 
 	private static void d(String msg) {
-		Log.d("TeTextView", msg);
+		Log.d("TexasParaView", msg);
 	}
 
 	public interface OnSelectedChangedListener {
@@ -494,8 +495,11 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 		private TextParagraphSelection mSelection;
 		private boolean mIsLongClicked;
 		private RectF mRectF;
-		private float mBottom;
-		private float mTop;
+		private float mLastLineBottom;
+		private float mLastLineTop;
+		private float mEdgeTop = -1;
+		private float mEdgeBottom = -1;
+		private boolean mHasContent = false;
 
 		@Override
 		public void onVisitParagraph(Paragraph paragraph) {
@@ -504,15 +508,21 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 
 		@Override
 		public void onVisitParagraphEnd(Paragraph paragraph) {
-			/* do nothing */
+			if (mSelection != null) {
+				mSelection.setTopEdgeInWindow(mEdgeTop);
+				mSelection.setBottomEdgeInWindow(mEdgeBottom);
+			}
 		}
 
 		public void clear() {
 			mOnClickedListener = null;
 			mSelection = null;
 			mIsLongClicked = false;
-			mBottom = mTop = -1;
+			mLastLineBottom = mLastLineTop = -1;
 			mRectF = null;
+			mEdgeTop = -1;
+			mEdgeBottom = -1;
+			mHasContent = false;
 		}
 
 		public TextParagraphSelection getSelection() {
@@ -529,8 +539,13 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 
 		@Override
 		public void onVisitLine(Paragraph.Line line, float x, float y) {
-			mBottom = y + mBottomPadding;
-			mTop = y - line.getLineHeight();
+			mLastLineBottom = y + mBottomPadding;
+			mLastLineTop = y - line.getLineHeight();
+			mHasContent = false;
+
+			if (mSelection.isEmpty()) {
+				mEdgeTop = mLastYInWindow - (mLastYInView - mLastLineTop);
+			}
 		}
 
 		@Override
@@ -538,6 +553,10 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 			if (mRectF != null) {
 				mSelection.addSelectArea(mRectF);
 				mRectF = null;
+			}
+
+			if (mHasContent) {
+				mEdgeBottom = mLastLineBottom - mLastYInView + mLastYInWindow;
 			}
 		}
 
@@ -553,9 +572,10 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 				box.setSelected(false);
 			} else {
 				if (mRectF == null) {
-					mRectF = new RectF(left, mTop, right, mBottom);
+					mRectF = new RectF(left, mLastLineTop, right, mLastLineBottom);
 				}
 
+				mHasContent = true;
 				mRectF.right = right;
 				mSelection.addBox(box);
 				box.setSelected(true);

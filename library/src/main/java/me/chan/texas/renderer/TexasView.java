@@ -307,12 +307,12 @@ public class TexasView extends FrameLayout {
 		}
 	}
 
-	public int getSelectedTop() {
-		return -1;
+	public float getSelectedTopEdge() {
+		return mRenderer.getSelectedTopEdge();
 	}
 
-	public int getSelectedBottom() {
-		return -1;
+	public float getSelectedBottomEdge() {
+		return mRenderer.getSelectedBottomEdge();
 	}
 
 	/**
