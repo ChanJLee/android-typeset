@@ -3,7 +3,8 @@
 ## 简介
 
 Texas是一款支持图文混排的文本渲染库，目前支持两边对齐，并且单词支持断字，用户可以自由的自定义效果。
-<img src="art/device-2019-11-01-171647.png" alt="test image size" height="20%" width="20%">
+
+<img src="art/device-2019-11-01-171647.png" alt="显示效果" height="50%" width="50%">
 
 ## 支持的特性
 
