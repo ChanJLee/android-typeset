@@ -1,5 +1,8 @@
 package me.chan.texas.source;
 
+/**
+ * 直接返回已经读好的对象
+ */
 public class ObjectSource implements Source {
 	private Object mObject;
 

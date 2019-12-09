@@ -1,5 +1,8 @@
 package me.chan.texas.source;
 
+/**
+ * 纯文本
+ */
 public class PlainTextSource implements Source<CharSequence> {
 
 	private CharSequence mCharSequence;

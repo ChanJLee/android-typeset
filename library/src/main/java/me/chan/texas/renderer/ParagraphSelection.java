@@ -3,9 +3,14 @@ package me.chan.texas.renderer;
 import android.graphics.Canvas;
 import android.text.TextPaint;
 
+import me.chan.texas.annotations.Hidden;
 import me.chan.texas.text.Paragraph;
 
-public abstract class ParagraphSelection {
+/**
+ * 文本选中区域
+ */
+@Hidden
+abstract class ParagraphSelection {
 	private Paragraph mParagraph;
 	private boolean mIsSelectedByLongClicked;
 	private float mTopEdgeInWindow = -1;

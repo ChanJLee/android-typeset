@@ -29,6 +29,9 @@ import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.TextBox;
 import me.chan.texas.text.TextStyle;
 
+/**
+ * 渲染文章段落view
+ */
 @Hidden
 public class ParagraphView extends View implements GestureDetector.OnGestureListener {
 	private static final int DEFAULT_ROUND_RADIUS = 3;

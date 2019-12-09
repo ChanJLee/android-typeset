@@ -11,6 +11,9 @@ import me.chan.texas.annotations.Hidden;
 import me.chan.texas.text.Box;
 import me.chan.texas.text.Paragraph;
 
+/**
+ * 文本选中区间
+ */
 @Hidden
 class TextParagraphSelection extends ParagraphSelection {
 	private List<RectF> mBackgrounds = new ArrayList<>();

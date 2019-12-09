@@ -3,10 +3,15 @@ package me.chan.texas.renderer;
 import android.graphics.Canvas;
 import android.text.TextPaint;
 
+import me.chan.texas.annotations.Hidden;
 import me.chan.texas.text.DrawableBox;
 import me.chan.texas.text.Paragraph;
 
-public class DrawableParagraphSelection extends ParagraphSelection {
+/**
+ * drawable被选中的区域
+ */
+@Hidden
+class DrawableParagraphSelection extends ParagraphSelection {
 
 	private DrawableBox mDrawableBox;
 

@@ -4,11 +4,13 @@ import android.graphics.Paint;
 import android.text.BoringLayout;
 import android.text.TextPaint;
 
+import me.chan.texas.annotations.Hidden;
 import me.chan.texas.text.TextStyle;
 
 /**
  * android的文本测量器
  */
+@Hidden
 public class AndroidMeasurer implements Measurer {
 
 	private TextPaint mTextPaint;

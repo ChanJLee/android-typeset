@@ -4,6 +4,9 @@ package me.chan.texas.hypher;
 import java.util.HashMap;
 import java.util.Map;
 
+import me.chan.texas.annotations.Hidden;
+
+@Hidden
 public enum HyphenationPattern {
 	// The en-GB hyphenation patterns are retrieved from
 	// http://tug_org/svn/texhyphen/trunk/collaboration/repository/hyphenator/

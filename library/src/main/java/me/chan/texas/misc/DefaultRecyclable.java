@@ -1,8 +1,11 @@
 package me.chan.texas.misc;
 
+import me.chan.texas.annotations.Hidden;
+
 /**
  * 默认可回收实现类
  */
+@Hidden
 public class DefaultRecyclable implements Recyclable {
 	private boolean mRecycled = false;
 

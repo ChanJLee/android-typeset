@@ -9,7 +9,6 @@ import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * 对象工厂，用于存储频繁创建与销毁的类对象
- * TODO 加锁优化
  *
  * @param <T> 存储类型
  */
@@ -65,6 +64,9 @@ public class ObjectFactory<T> {
 		}
 	}
 
+	/**
+	 * 清除内容
+	 */
 	public void clean() {
 		mReentrantLock.lock();
 		try {

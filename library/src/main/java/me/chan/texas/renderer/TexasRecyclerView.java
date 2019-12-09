@@ -1,33 +1,23 @@
 package me.chan.texas.renderer;
 
 import android.content.Context;
-import android.util.AttributeSet;
 import android.view.MotionEvent;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.SimpleItemAnimator;
 
+import me.chan.texas.annotations.Hidden;
 import me.chan.texas.text.OnClickedListener;
 
-public class TexasRecyclerView extends RecyclerView {
+@Hidden
+class TexasRecyclerView extends RecyclerView {
 	private SingleClickOnTouchListener mTeOnTouchListener;
 	private OnClickedListener mOnClickedListener;
 	private ScrollAction mScrollAction;
 
 	public TexasRecyclerView(@NonNull Context context) {
 		super(context);
-		init(context);
-	}
-
-	public TexasRecyclerView(@NonNull Context context, @Nullable AttributeSet attrs) {
-		super(context, attrs);
-		init(context);
-	}
-
-	public TexasRecyclerView(@NonNull Context context, @Nullable AttributeSet attrs, int defStyle) {
-		super(context, attrs, defStyle);
 		init(context);
 	}
 
