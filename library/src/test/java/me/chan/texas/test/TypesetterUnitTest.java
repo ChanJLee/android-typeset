@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 
 import me.chan.texas.renderer.RenderOption;
+import me.chan.texas.text.Line;
 import me.chan.texas.text.TextAttribute;
 import me.chan.texas.text.Box;
 import me.chan.texas.text.DrawableBox;
@@ -157,7 +158,7 @@ public class TypesetterUnitTest {
 			assertNotEquals(paragraph.getLineCount(), 0);
 
 			for (int j = 0; j < paragraph.getLineCount(); ++j) {
-				Paragraph.Line l = paragraph.getLine(j);
+				Line l = paragraph.getLine(j);
 
 				for (int x = 0; x < l.getCount(); ++x) {
 					Box box = l.getBox(x);
@@ -198,8 +199,8 @@ public class TypesetterUnitTest {
 		Assert.assertNotNull(paragraph);
 		Assert.assertEquals(paragraph.getLineCount(), 2);
 
-		Paragraph.Line line1 = paragraph.getLine(0);
-		Paragraph.Line line2 = paragraph.getLine(1);
+		Line line1 = paragraph.getLine(0);
+		Line line2 = paragraph.getLine(1);
 
 		Assert.assertEquals(line1.getCount(), 2);
 		Assert.assertEquals(line1.getBox(0).getClass(), TextBox.class);
@@ -238,7 +239,7 @@ public class TypesetterUnitTest {
 		Assert.assertNotNull(paragraph);
 		Assert.assertEquals(paragraph.getLineCount(), 1);
 
-		Paragraph.Line line1 = paragraph.getLine(0);
+		Line line1 = paragraph.getLine(0);
 
 		Assert.assertEquals(line1.getCount(), 2);
 		Assert.assertEquals(line1.getBox(0).getClass(), TextBox.class);
@@ -270,8 +271,8 @@ public class TypesetterUnitTest {
 		Assert.assertNotNull(paragraph);
 		Assert.assertEquals(paragraph.getLineCount(), 2);
 
-		Paragraph.Line line1 = paragraph.getLine(0);
-		Paragraph.Line line2 = paragraph.getLine(1);
+		Line line1 = paragraph.getLine(0);
+		Line line2 = paragraph.getLine(1);
 
 		Assert.assertEquals(line2.getCount(), 1);
 		Assert.assertEquals(line2.getBox(0).getClass(), DrawableBox.class);

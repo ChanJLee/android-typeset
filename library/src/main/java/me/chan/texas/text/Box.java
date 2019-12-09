@@ -10,7 +10,8 @@ import me.chan.texas.annotations.Hidden;
  * <p>
  * 比如一个单词，一张图片
  */
-public abstract class Box extends Paragraph.Element {
+@Hidden
+public abstract class Box extends Element {
 	protected float mWidth;
 	protected float mHeight;
 	protected OnClickedListener mOnClickedListener;

@@ -1,14 +1,18 @@
 package me.chan.texas.typesetter;
 
-import me.chan.texas.text.TextAttribute;
+import me.chan.texas.annotations.Hidden;
 import me.chan.texas.text.Box;
-import me.chan.texas.text.Glue;
-import me.chan.texas.text.Penalty;
-import me.chan.texas.text.TextBox;
 import me.chan.texas.text.BreakStrategy;
+import me.chan.texas.text.Element;
+import me.chan.texas.text.Glue;
 import me.chan.texas.text.Gravity;
+import me.chan.texas.text.Line;
 import me.chan.texas.text.Paragraph;
+import me.chan.texas.text.Penalty;
+import me.chan.texas.text.TextAttribute;
+import me.chan.texas.text.TextBox;
 
+@Hidden
 class SimpleParagraphTypesetter implements ParagraphTypesetter {
 
 	@Override
@@ -43,7 +47,7 @@ class SimpleParagraphTypesetter implements ParagraphTypesetter {
 
 		// skip none box
 		for (; start < size; ++start) {
-			Paragraph.Element element = paragraph.getElement(start);
+			Element element = paragraph.getElement(start);
 			if (element instanceof Box) {
 				break;
 			}
@@ -53,13 +57,13 @@ class SimpleParagraphTypesetter implements ParagraphTypesetter {
 			return start;
 		}
 
-		Paragraph.Line line = Paragraph.Line.obtain();
+		Line line = Line.obtain();
 		float lineHeight = 0f;
 		float currentLineWidth = 0f;
 		float boxTotalWidth = 0f;
 
 		while (start < size) {
-			Paragraph.Element element = paragraph.getElement(start);
+			Element element = paragraph.getElement(start);
 			if (element instanceof Glue) {
 				Glue glue = (Glue) element;
 				currentLineWidth += (breakStrategy == BreakStrategy.BALANCED ?
@@ -132,7 +136,7 @@ class SimpleParagraphTypesetter implements ParagraphTypesetter {
 
 		TextBox current = (TextBox) box;
 		for (; start < end; ++start) {
-			Paragraph.Element element = paragraph.getElement(start);
+			Element element = paragraph.getElement(start);
 			if (element instanceof Penalty) {
 				/* do nothing */
 			} else if (element instanceof TextBox) {
@@ -146,7 +150,7 @@ class SimpleParagraphTypesetter implements ParagraphTypesetter {
 		return start;
 	}
 
-	private int spiltIf(Paragraph paragraph, Box box, int currentIndex, Paragraph.Line line, float width, Gravity gravity) {
+	private int spiltIf(Paragraph paragraph, Box box, int currentIndex, Line line, float width, Gravity gravity) {
 		if (currentIndex >= paragraph.getElementCount()) {
 			return currentIndex;
 		}

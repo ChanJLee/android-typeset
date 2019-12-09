@@ -3,11 +3,18 @@ package me.chan.texas.text;
 import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.StateListDrawable;
+
 import androidx.annotation.NonNull;
+
 import android.text.TextPaint;
 
+import me.chan.texas.annotations.Hidden;
 import me.chan.texas.misc.ObjectFactory;
 
+/**
+ * drawable box
+ */
+@Hidden
 public class DrawableBox extends Box {
 	private static final ObjectFactory<DrawableBox> POOL = new ObjectFactory<>(512);
 	private static final int[] STATE_PRESSED = {

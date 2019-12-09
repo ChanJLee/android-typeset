@@ -1,10 +1,12 @@
 package me.chan.texas.typesetter;
 
+import me.chan.texas.annotations.Hidden;
 import me.chan.texas.text.TextAttribute;
 import me.chan.texas.log.Log;
 import me.chan.texas.text.BreakStrategy;
 import me.chan.texas.text.Paragraph;
 
+@Hidden
 public class ParagraphTypesetterImpl implements ParagraphTypesetter {
 	private ParagraphTypesetter mTexTypesetter;
 	private ParagraphTypesetter mSimpleTypesetter;

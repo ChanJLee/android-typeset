@@ -1,12 +1,18 @@
 package me.chan.texas.typesetter;
 
+import androidx.annotation.Keep;
+
+import me.chan.texas.Texas;
 import me.chan.texas.annotations.Hidden;
 import me.chan.texas.misc.DefaultRecyclable;
 import me.chan.texas.misc.ObjectFactory;
 
 @Hidden
-public class BreakPoint extends DefaultRecyclable {
+class BreakPoint extends DefaultRecyclable {
 	private static final ObjectFactory<BreakPoint> POOL = new ObjectFactory<>(512);
+	static {
+		Texas.register(BreakPoint.class);
+	}
 
 	public int position;
 	public float ratio;
@@ -30,6 +36,7 @@ public class BreakPoint extends DefaultRecyclable {
 		POOL.release(this);
 	}
 
+	@Keep
 	public static void clean() {
 		POOL.clean();
 	}

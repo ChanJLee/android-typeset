@@ -2,12 +2,14 @@ package me.chan.texas.text;
 
 import androidx.annotation.NonNull;
 
+import me.chan.texas.annotations.Hidden;
 import me.chan.texas.misc.ObjectFactory;
 
 /**
  * 代表添加的'-'符号
  */
-public final class Penalty extends Paragraph.Element {
+@Hidden
+public final class Penalty extends Element {
 	private final static ObjectFactory<Penalty> POOL = new ObjectFactory<>(20480);
 
 	private boolean mFlag;

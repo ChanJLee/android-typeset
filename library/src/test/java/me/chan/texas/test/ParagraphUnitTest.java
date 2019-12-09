@@ -13,6 +13,7 @@ import me.chan.texas.test.mock.MockTextPaint;
 import me.chan.texas.text.Background;
 import me.chan.texas.text.DrawableBox;
 import me.chan.texas.text.Glue;
+import me.chan.texas.text.Line;
 import me.chan.texas.text.OnClickedListener;
 import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.Penalty;
@@ -157,9 +158,9 @@ public class ParagraphUnitTest {
 		Assert.assertEquals(paragraph.getElementCount(), 3);
 		Assert.assertSame(paragraph.getElement(0), glue);
 
-		Paragraph.Line line1 = Paragraph.Line.obtain();
-		Paragraph.Line line2 = Paragraph.Line.obtain();
-		Paragraph.Line line3 = Paragraph.Line.obtain();
+		Line line1 = Line.obtain();
+		Line line2 = Line.obtain();
+		Line line3 = Line.obtain();
 		paragraph.addLine(line1);
 		paragraph.addLine(line2);
 		paragraph.addLine(line3);

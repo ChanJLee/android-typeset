@@ -6,17 +6,21 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import me.chan.texas.annotations.Hidden;
 import me.chan.texas.log.Log;
 import me.chan.texas.text.Box;
 import me.chan.texas.text.BreakStrategy;
 import me.chan.texas.text.DrawableBox;
+import me.chan.texas.text.Element;
 import me.chan.texas.text.Glue;
 import me.chan.texas.text.Gravity;
+import me.chan.texas.text.Line;
 import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.Penalty;
 import me.chan.texas.text.TextAttribute;
 import me.chan.texas.text.TextBox;
 
+@Hidden
 class TexParagraphTypesetter implements ParagraphTypesetter {
 	private static final int CLASS_0 = 0;
 	private static final int CLASS_1 = 1;
@@ -72,7 +76,7 @@ class TexParagraphTypesetter implements ParagraphTypesetter {
 		int size = paragraph.getElementCount();
 		Candidate[] candidates = new Candidate[4];
 		for (int i = 0; i < size && !activeNodeList.isEmpty(); ++i) {
-			Paragraph.Element element = paragraph.getElement(i);
+			Element element = paragraph.getElement(i);
 			if (element instanceof Box) {
 				sum.increaseWidth(getElementWidth(element));
 			} else if (element instanceof Glue) {
@@ -92,7 +96,7 @@ class TexParagraphTypesetter implements ParagraphTypesetter {
 		return activeNodeList;
 	}
 
-	private float getElementWidth(Paragraph.Element element) {
+	private float getElementWidth(Element element) {
 		if (element instanceof Penalty) {
 			Penalty penalty = (Penalty) element;
 			return penalty.getWidth();
@@ -116,7 +120,7 @@ class TexParagraphTypesetter implements ParagraphTypesetter {
 			BreakPoint breakPoint = breakPoints.get(i);
 			int pos = breakPoint.position;
 			for (int j = lineStart; j != 0 && j < size; ++j) {
-				Paragraph.Element element = paragraph.getElement(j);
+				Element element = paragraph.getElement(j);
 				if (element instanceof Box || (element instanceof Penalty && ((Penalty) element).getPenalty() == -INFINITY)) {
 					lineStart = j;
 					break;
@@ -153,15 +157,15 @@ class TexParagraphTypesetter implements ParagraphTypesetter {
 	 * @param isLastLine 是否是最后一行
 	 * @return 行
 	 */
-	private Paragraph.Line createLine(Paragraph paragraph, int start, int end, float ratio,
-									  TextAttribute.LineAttribute attribute, boolean isLastLine, float expectWordSpace) {
+	private Line createLine(Paragraph paragraph, int start, int end, float ratio,
+							TextAttribute.LineAttribute attribute, boolean isLastLine, float expectWordSpace) {
 		float lineWidth = attribute.getLineWidth();
 		Gravity gravity = attribute.getGravity();
 		float lineHeight = 0;
-		Paragraph.Line line = Paragraph.Line.obtain();
+		Line line = Line.obtain();
 		float boxTotalWidth = 0;
 		for (int i = start; i < end; ++i) {
-			Paragraph.Element element = paragraph.getElement(i);
+			Element element = paragraph.getElement(i);
 			if (!(element instanceof Box)) {
 				continue;
 			}
@@ -211,7 +215,7 @@ class TexParagraphTypesetter implements ParagraphTypesetter {
 
 		TextBox current = (TextBox) box;
 		for (; start < end; ++start) {
-			Paragraph.Element element = paragraph.getElement(start);
+			Element element = paragraph.getElement(start);
 			if (element instanceof Glue) {
 				break;
 			}
@@ -277,7 +281,7 @@ class TexParagraphTypesetter implements ParagraphTypesetter {
 							 ActiveNodeList activeNodeList, Sum sum,
 							 TextAttribute textAttribute, float tolerance,
 							 Candidate[] candidates) {
-		Paragraph.Element element = paragraph.getElement(index);
+		Element element = paragraph.getElement(index);
 		Node active = activeNodeList.getHeader();
 
 		while (active != null) {
@@ -373,7 +377,7 @@ class TexParagraphTypesetter implements ParagraphTypesetter {
 		}
 	}
 
-	private float computeRatio(Paragraph.Element element, Node.Data data, Sum sum, float lineLength) {
+	private float computeRatio(Element element, Node.Data data, Sum sum, float lineLength) {
 		float width = sum.getWidth() - data.totals.getWidth();
 		if (element instanceof Penalty) {
 			width += getElementWidth(element);
@@ -390,7 +394,7 @@ class TexParagraphTypesetter implements ParagraphTypesetter {
 		return 0;
 	}
 
-	private float computeDemerits(Paragraph.Element element, Paragraph paragraph, float ratio, Node active, int currentClass) {
+	private float computeDemerits(Element element, Paragraph paragraph, float ratio, Node active, int currentClass) {
 		float badness = (float) (100 * Math.pow(Math.abs(ratio), 3));
 		float demerits;
 
@@ -433,7 +437,7 @@ class TexParagraphTypesetter implements ParagraphTypesetter {
 
 		int size = paragraph.getElementCount();
 		for (int i = index; i < size; ++i) {
-			Paragraph.Element element = paragraph.getElement(i);
+			Element element = paragraph.getElement(i);
 			if (element instanceof Glue) {
 				Glue glue = (Glue) element;
 				result.increaseGlue(glue);

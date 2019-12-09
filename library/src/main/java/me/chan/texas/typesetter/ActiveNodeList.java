@@ -6,7 +6,8 @@ import java.util.Iterator;
 
 import me.chan.texas.annotations.Hidden;
 
-public class ActiveNodeList implements Iterable<Node> {
+@Hidden
+class ActiveNodeList implements Iterable<Node> {
 	private Node mHeader;
 	private Node mTail;
 

@@ -44,6 +44,9 @@ public class Paragraph extends Segment {
 		mLines.add(line);
 	}
 
+	/**
+	 * @return 获取paragraph上附加的信息
+	 */
 	public Object getExtra() {
 		return mExtra;
 	}
@@ -97,7 +100,7 @@ public class Paragraph extends Segment {
 	}
 
 	/**
-	 * 需要避免多次创建
+	 * 构造器，注意要尽量避免重复创建
 	 */
 	public static class Builder extends DefaultRecyclable {
 		private static final ObjectFactory<Builder> POOL = new ObjectFactory<>(8);
@@ -114,27 +117,47 @@ public class Paragraph extends Segment {
 		private Builder() {
 		}
 
+		/**
+		 * @param extra 设置paragraph的额外信息
+		 * @return 当前对象
+		 */
 		public Builder extra(Object extra) {
 			mExtra = extra;
 			return this;
 		}
 
+		/**
+		 * @param text 文本
+		 * @return 当前对象
+		 */
 		public Builder text(CharSequence text) {
 			return text(text, 0, text.length());
 		}
 
+		/**
+		 * @param text  文本
+		 * @param start 开始下标
+		 * @param end   结束下标
+		 * @return 当前对象
+		 */
 		public Builder text(CharSequence text, int start, int end) {
 			text(text, start, end, null, null, null);
 			return this;
 		}
 
+		/**
+		 * 创建一个span，一个span即代表一组有上下文关联的文字。当span中的文字被选中时，整个span中所有的文字都可以被选中。比如一段词组
+		 *
+		 * @param listener 创建一个span
+		 * @return 当前对象
+		 */
 		public SpanBuilder newSpanBuilder(OnClickedListener listener) {
 			mSpanBuilder.reset(listener);
 			return mSpanBuilder;
 		}
 
 		private void text(CharSequence text, int start, int end,
-						  OnClickedListener onClickedListener, TextBox.Attribute attribute,
+						  OnClickedListener onClickedListener, TextBoxAttribute attribute,
 						  TextStyle textStyle) {
 			if (text == null) {
 				throw new RuntimeException("call build twice");
@@ -324,7 +347,7 @@ public class Paragraph extends Segment {
 				return;
 			}
 
-			TextBox.Attribute attribute = TextBox.Attribute.obtain();
+			TextBoxAttribute attribute = TextBoxAttribute.obtain();
 			attribute.setBackground(mBackground);
 			attribute.setForeground(mForeground);
 			attribute.setTextStyle(mTextStyle);
@@ -338,123 +361,6 @@ public class Paragraph extends Segment {
 		public Builder buildSpan() {
 			flush();
 			return mBuilder;
-		}
-	}
-
-	/**
-	 * 排版算法中基本元素的接口
-	 */
-	public static class Element extends DefaultRecyclable {
-	}
-
-	/**
-	 * 绘制行
-	 */
-	@Hidden
-	public static class Line extends DefaultRecyclable {
-		private static final ObjectFactory<Line> POOL = new ObjectFactory<>(4096);
-
-		private List<Box> mBoxes;
-		private float mLineHeight;
-		private float mLineWidth;
-		private float mRatio;
-		private float mSpaceWidth;
-		private Gravity mGravity = Gravity.LEFT;
-
-		private Line() {
-			Texas.MemoryOption memoryOption = Texas.getMemoryOption();
-			mBoxes = new ArrayList<>(memoryOption.getParagraphLineBoxInitialCapacity());
-			reset();
-		}
-
-		private void reset() {
-			mBoxes.clear();
-			mLineHeight = -1;
-			mLineWidth = -1;
-			mRatio = -1;
-			mSpaceWidth = -1;
-			mGravity = Gravity.LEFT;
-		}
-
-		public Gravity getGravity() {
-			return mGravity;
-		}
-
-		public float getLineHeight() {
-			return mLineHeight;
-		}
-
-		public float getRatio() {
-			return mRatio;
-		}
-
-		public float getSpaceWidth() {
-			return mSpaceWidth;
-		}
-
-		public void setSpaceWidth(float spaceWidth) {
-			mSpaceWidth = spaceWidth;
-		}
-
-		public void setLineHeight(float lineHeight) {
-			mLineHeight = lineHeight;
-		}
-
-		public void setLineWidth(float lineWidth) {
-			mLineWidth = lineWidth;
-		}
-
-		public void setRatio(float ratio) {
-			mRatio = ratio;
-		}
-
-		public void setGravity(Gravity gravity) {
-			mGravity = gravity;
-		}
-
-		@Override
-		public void recycle() {
-			if (isRecycled()) {
-				return;
-			}
-
-			super.recycle();
-			reset();
-			POOL.release(this);
-		}
-
-		public int getCount() {
-			return mBoxes.size();
-		}
-
-		public void add(Box box) {
-			mBoxes.add(box);
-		}
-
-		public boolean isEmpty() {
-			return mBoxes.isEmpty();
-		}
-
-		public float getLineWidth() {
-			return mLineWidth;
-		}
-
-		public Box getBox(int index) {
-			return mBoxes.get(index);
-		}
-
-		public static void clean() {
-			POOL.clean();
-		}
-
-		public static Line obtain() {
-			Line line = POOL.acquire();
-			if (line == null) {
-				return new Line();
-			}
-			line.reset();
-			line.reuse();
-			return line;
 		}
 	}
 }
