@@ -4,19 +4,17 @@ import android.app.Application;
 import android.content.ComponentCallbacks;
 import android.content.res.Configuration;
 
-import com.bumptech.glide.request.target.ViewTarget;
-
 import java.lang.reflect.Method;
 import java.util.HashSet;
 import java.util.Set;
 
+import com.shanbay.lib.log.Log;
 import com.shanbay.lib.texas.annotations.Hidden;
 import com.shanbay.lib.texas.text.DrawableBox;
 import com.shanbay.lib.texas.text.Glue;
 import com.shanbay.lib.texas.text.Line;
 import com.shanbay.lib.texas.text.Penalty;
 import com.shanbay.lib.texas.text.TextBox;
-import com.shanbay.lib.texas.log.Log;
 import com.shanbay.lib.texas.text.Background;
 import com.shanbay.lib.texas.text.Document;
 import com.shanbay.lib.texas.text.Figure;

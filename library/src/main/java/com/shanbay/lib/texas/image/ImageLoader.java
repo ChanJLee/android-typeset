@@ -22,6 +22,7 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.transition.Transition;
+import com.shanbay.lib.texas.annotations.Hidden;
 
 import java.io.File;
 import java.lang.annotation.Retention;
@@ -32,6 +33,7 @@ import java.security.MessageDigest;
 /**
  * 图片加载器
  */
+@Hidden
 public class ImageLoader {
 	/**
 	 * should return {@link Bitmap.Config#ARGB_8888} for

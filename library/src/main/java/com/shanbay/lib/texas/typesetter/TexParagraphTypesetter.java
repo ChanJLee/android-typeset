@@ -7,7 +7,7 @@ import java.util.Collections;
 import java.util.List;
 
 import com.shanbay.lib.texas.annotations.Hidden;
-import com.shanbay.lib.texas.log.Log;
+import com.shanbay.lib.log.Log;
 import com.shanbay.lib.texas.text.Box;
 import com.shanbay.lib.texas.text.BreakStrategy;
 import com.shanbay.lib.texas.text.DrawableBox;

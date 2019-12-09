@@ -5,7 +5,7 @@ import androidx.annotation.NonNull;
 import java.util.List;
 import java.util.Map;
 
-import com.shanbay.lib.texas.log.Log;
+import com.shanbay.lib.log.Log;
 
 /**
  * 断字器
@@ -98,7 +98,7 @@ public class Hypher {
 
 	public void hyphenate(@NonNull CharSequence text, int start, int end, @NonNull List<Integer> result) {
 		if (!result.isEmpty()) {
-			Log.w("hyphenate result is not empty");
+			Log.w("hyphen", "hyphenate result is not empty");
 		}
 
 		if (start == end) {

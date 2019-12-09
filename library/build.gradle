@@ -51,4 +51,5 @@ dependencies {
     androidTestImplementation 'org.mockito:mockito-android:2.7.22'
     implementation 'com.github.bumptech.glide:glide:4.0.0'
     annotationProcessor "com.github.bumptech.glide:compiler:4.0.0"
+    implementation "com.shanbay.lib:log:3.1"
 }

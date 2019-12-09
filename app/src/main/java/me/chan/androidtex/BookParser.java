@@ -20,7 +20,7 @@ import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 
 import com.shanbay.lib.texas.hypher.Hypher;
-import com.shanbay.lib.texas.log.Log;
+import com.shanbay.lib.log.Log;
 import com.shanbay.lib.texas.measurer.Measurer;
 import com.shanbay.lib.texas.parser.ParseException;
 import com.shanbay.lib.texas.parser.Parser;

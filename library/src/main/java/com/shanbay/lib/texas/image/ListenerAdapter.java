@@ -1,5 +1,8 @@
 package com.shanbay.lib.texas.image;
 
+import com.shanbay.lib.texas.annotations.Hidden;
+
+@Hidden
 public class ListenerAdapter<T> implements Listener<T> {
 
 	@Override

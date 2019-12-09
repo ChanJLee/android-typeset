@@ -1,5 +1,8 @@
 package com.shanbay.lib.texas.image;
 
+import com.shanbay.lib.texas.annotations.Hidden;
+
+@Hidden
 public interface Listener<T> {
 	void onLoadCleared(ImageLoader loader);
 

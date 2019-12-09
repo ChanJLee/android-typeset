@@ -20,7 +20,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.shanbay.lib.texas.R;
-import com.shanbay.lib.texas.log.Log;
+import com.shanbay.lib.log.Log;
 import com.shanbay.lib.texas.parser.Parser;
 import com.shanbay.lib.texas.source.ObjectSource;
 import com.shanbay.lib.texas.source.Source;
