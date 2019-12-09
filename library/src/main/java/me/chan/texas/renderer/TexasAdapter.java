@@ -129,11 +129,16 @@ class TexasAdapter extends RecyclerView.Adapter<TexasAdapter.Renderer> {
 	}
 
 	private void notifySelectionChanged(ParagraphSelection paragraphSelection) {
-		if (mDocument == null) {
+		if (mDocument == null || paragraphSelection == null) {
 			return;
 		}
 
-		int index = mDocument.indexOf(paragraphSelection.getParagraph());
+		Segment segment = paragraphSelection.getParagraph();
+		if (segment == null) {
+			return;
+		}
+
+		int index = mDocument.indexOf(segment);
 		if (index < 0 || index >= getItemCount()) {
 			return;
 		}
@@ -141,9 +146,13 @@ class TexasAdapter extends RecyclerView.Adapter<TexasAdapter.Renderer> {
 	}
 
 	private void handleParagraphSelected(ParagraphSelection paragraphSelection) {
+		// 先取消之前的内容
 		clearSelectionInternal();
+		notifySelectionChanged(mParagraphSelection);
+
+		// 刷新现在的内容
 		mParagraphSelection = paragraphSelection;
-		notifyDataSetChanged();
+		notifySelectionChanged(mParagraphSelection);
 	}
 
 	float getSelectedTopEdge() {
