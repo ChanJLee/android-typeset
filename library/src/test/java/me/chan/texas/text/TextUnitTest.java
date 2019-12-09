@@ -96,6 +96,7 @@ public class TextUnitTest {
 
 	@Test
 	public void testBoxBase() {
+		TextBox.clean();
 		String msg = "hello world";
 		TextBox box = TextBox.obtain(msg, 0, msg.length(),
 				mMockTextPaint.getMockTextSize() * msg.length(), mMockTextPaint.getMockTextHeight(), null, null);
@@ -348,6 +349,7 @@ public class TextUnitTest {
 
 	@Test
 	public void testBoxSpilt() {
+		TextBox.clean();
 		String msg = "hello world";
 		TextBox box = TextBox.obtain(msg, 0, msg.length(), mMockTextPaint.getMockTextSize() * msg.length(), mMockTextPaint.getMockTextHeight(), null, null);
 		Assert.assertNotNull(box);
