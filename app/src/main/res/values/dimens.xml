@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="com_shanbay_lib_texas_flag_width">13.8dp</dimen>
+    <dimen name="com_shanbay_lib_texas_flag_height">14dp</dimen>
+    <dimen name="com_shanbay_lib_texas_foot_height">55dp</dimen>
+</resources>

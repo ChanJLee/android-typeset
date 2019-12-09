@@ -57,7 +57,7 @@ public class TexasView extends FrameLayout {
 
 	private void init(Context context, AttributeSet attributeSet, int defStyleAttr) {
 		@SuppressLint("CustomViewStyleable")
-		TypedArray typedArray = context.obtainStyledAttributes(attributeSet, R.styleable.me_chan_te_TeView, defStyleAttr, 0);
+		TypedArray typedArray = context.obtainStyledAttributes(attributeSet, R.styleable.com_shanbay_lib_texas_TeView, defStyleAttr, 0);
 		try {
 			init(context, typedArray);
 		} finally {
@@ -71,14 +71,14 @@ public class TexasView extends FrameLayout {
 
 		// 设置字体颜色
 		renderOption.setTextColor(
-				typedArray.getColor(R.styleable.me_chan_te_TeView_me_chan_te_textColor,
-						ContextCompat.getColor(context, R.color.me_chan_te_text_color)
+				typedArray.getColor(R.styleable.com_shanbay_lib_texas_TeView_com_shanbay_lib_texas_textColor,
+						ContextCompat.getColor(context, R.color.com_shanbay_lib_texas_text_color)
 				)
 		);
 
 		// 设置字体
 		renderOption.setTypeface(Typeface.DEFAULT);
-		String typefacePath = typedArray.getString(R.styleable.me_chan_te_TeView_me_chan_te_typefaceAssets);
+		String typefacePath = typedArray.getString(R.styleable.com_shanbay_lib_texas_TeView_com_shanbay_lib_texas_typefaceAssets);
 		if (!TextUtils.isEmpty(typefacePath)) {
 			WeakReference<Typeface> typefaceWeakReference = TYPEFACE_CACHE.get(typefacePath);
 			Typeface typeface;
@@ -94,7 +94,7 @@ public class TexasView extends FrameLayout {
 
 		// 设置字体大小
 		renderOption.setTextSize(
-				typedArray.getDimension(R.styleable.me_chan_te_TeView_me_chan_te_textSize,
+				typedArray.getDimension(R.styleable.com_shanbay_lib_texas_TeView_com_shanbay_lib_texas_textSize,
 						TypedValue.applyDimension(
 								TypedValue.COMPLEX_UNIT_SP,
 								DEFAULT_TEXT_SIZE,
@@ -105,7 +105,7 @@ public class TexasView extends FrameLayout {
 
 		// 行间距
 		renderOption.setLineSpace(
-				typedArray.getDimension(R.styleable.me_chan_te_TeView_me_chan_te_lineSpace,
+				typedArray.getDimension(R.styleable.com_shanbay_lib_texas_TeView_com_shanbay_lib_texas_lineSpace,
 						TypedValue.applyDimension(
 								TypedValue.COMPLEX_UNIT_DIP,
 								DEFAULT_LINE_SPACE,
@@ -116,36 +116,36 @@ public class TexasView extends FrameLayout {
 
 		// 是否开启首行缩进
 		renderOption.setIndentEnable(
-				typedArray.getBoolean(R.styleable.me_chan_te_TeView_me_chan_te_indent, false)
+				typedArray.getBoolean(R.styleable.com_shanbay_lib_texas_TeView_com_shanbay_lib_texas_indent, false)
 		);
 
 		// 选中字体的背景色
 		renderOption.setSelectedBackgroundColor(
-				typedArray.getColor(R.styleable.me_chan_te_TeView_me_chan_te_selectedBackgroundColor,
-						ContextCompat.getColor(context, R.color.me_chan_te_theme_color)
+				typedArray.getColor(R.styleable.com_shanbay_lib_texas_TeView_com_shanbay_lib_texas_selectedBackgroundColor,
+						ContextCompat.getColor(context, R.color.com_shanbay_lib_texas_theme_color)
 				)
 		);
 
 		// 选中字体的颜色
 		renderOption.setSelectedTextColor(
-				typedArray.getColor(R.styleable.me_chan_te_TeView_me_chan_te_selectedTextColor, Color.WHITE)
+				typedArray.getColor(R.styleable.com_shanbay_lib_texas_TeView_com_shanbay_lib_texas_selectedTextColor, Color.WHITE)
 		);
 
 		// 选中span的背景色
 		renderOption.setSpanSelectedBackgroundColor(
-				typedArray.getColor(R.styleable.me_chan_te_TeView_me_chan_te_spanSelectedBackgroundColor,
-						ContextCompat.getColor(context, R.color.me_chan_te_span_bg_color)
+				typedArray.getColor(R.styleable.com_shanbay_lib_texas_TeView_com_shanbay_lib_texas_spanSelectedBackgroundColor,
+						ContextCompat.getColor(context, R.color.com_shanbay_lib_texas_span_bg_color)
 				)
 		);
 
 		// 选中span的字体颜色
 		renderOption.setSpanSelectedTextColor(
-				typedArray.getColor(R.styleable.me_chan_te_TeView_me_chan_te_spanSelectedTextColor,
-						ContextCompat.getColor(context, R.color.me_chan_te_text_color))
+				typedArray.getColor(R.styleable.com_shanbay_lib_texas_TeView_com_shanbay_lib_texas_spanSelectedTextColor,
+						ContextCompat.getColor(context, R.color.com_shanbay_lib_texas_text_color))
 		);
 
 		// 片段间的间隔
-		renderOption.setSegmentSpace(typedArray.getDimension(R.styleable.me_chan_te_TeView_me_chan_te_segmentSpace,
+		renderOption.setSegmentSpace(typedArray.getDimension(R.styleable.com_shanbay_lib_texas_TeView_com_shanbay_lib_texas_segmentSpace,
 				TypedValue.applyDimension(
 						TypedValue.COMPLEX_UNIT_DIP,
 						DEFAULT_SEGMENT_SPACE,
@@ -154,7 +154,7 @@ public class TexasView extends FrameLayout {
 		);
 
 		// 断字策略
-		int breakStrategy = typedArray.getInt(R.styleable.me_chan_te_TeView_me_chan_te_breakStrategy, BREAK_STRATEGY_BALANCE);
+		int breakStrategy = typedArray.getInt(R.styleable.com_shanbay_lib_texas_TeView_com_shanbay_lib_texas_breakStrategy, BREAK_STRATEGY_BALANCE);
 		renderOption.setBreakStrategy(
 				breakStrategy == BREAK_STRATEGY_SIMPLE ?
 						BreakStrategy.SIMPLE : BreakStrategy.BALANCED
@@ -162,7 +162,7 @@ public class TexasView extends FrameLayout {
 
 		// 是否可选单词
 		renderOption.setWordSelectable(
-				typedArray.getBoolean(R.styleable.me_chan_te_TeView_me_chan_te_wordSelectable, true)
+				typedArray.getBoolean(R.styleable.com_shanbay_lib_texas_TeView_com_shanbay_lib_texas_wordSelectable, true)
 		);
 
 		mRenderer = new SlidingRenderer(this, renderOption);
