@@ -152,6 +152,7 @@ public final class TextBox extends Box {
 	}
 
 	@Override
+	@Hidden
 	public String toString() {
 		return String.valueOf(mText.subSequence(mStart, mEnd));
 	}
