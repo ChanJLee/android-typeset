@@ -42,7 +42,7 @@ teView.setSource(new AssetsTextSource(content, "sample.txt"));
 
 ## 文档
 
-[算法描述](doc/algorithm.md)
+[算法描述](doc/tex-algorithm.md)
 
 [开发规范](doc/code/dev.md)
 
