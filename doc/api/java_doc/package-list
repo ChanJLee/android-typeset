@@ -8,7 +8,5 @@ me.chan.texas.misc
 me.chan.texas.parser
 me.chan.texas.renderer
 me.chan.texas.source
-me.chan.texas.test
-me.chan.texas.test.mock
 me.chan.texas.text
 me.chan.texas.typesetter
