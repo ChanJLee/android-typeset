@@ -359,7 +359,25 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 
 		@Override
 		public void onVisitParagraphEnd(Paragraph paragraph) {
+			if (mRenderOption == null ||
+					!mRenderOption.isEnableDebug() ||
+					!(mParagraphSelection instanceof TextParagraphSelection)) {
+				return;
+			}
 
+			TextParagraphSelection textParagraphSelection = (TextParagraphSelection) mParagraphSelection;
+			mDebugPaint.setColor(Color.TRANSPARENT);
+			mWorkPaint.set(mDebugPaint);
+			mWorkPaint.setColor(Color.RED);
+			mWorkPaint.setStrokeWidth(200);
+			int[] location = new int[2];
+			getLocationOnScreen(location);
+			int x = getWidth() - 100;
+			mCanvas.drawLine(x,
+					textParagraphSelection.getTopEdgeInWindow() - location[1],
+					x,
+					textParagraphSelection.getBottomEdgeInWindow() - location[1],
+					mWorkPaint);
 		}
 
 		@Override
