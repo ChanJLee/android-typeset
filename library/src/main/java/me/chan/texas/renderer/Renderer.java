@@ -173,4 +173,8 @@ abstract class Renderer {
 	private static void w(Throwable throwable) {
 		Log.w("TexasRenderer", throwable);
 	}
+
+	abstract float getSelectedBottomEdge();
+
+	abstract float getSelectedTopEdge();
 }
