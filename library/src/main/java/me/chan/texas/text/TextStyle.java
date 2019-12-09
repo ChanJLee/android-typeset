@@ -2,6 +2,9 @@ package me.chan.texas.text;
 
 import android.text.TextPaint;
 
+/**
+ * 文字样式
+ */
 public abstract class TextStyle {
 
 	public static final TextStyle NONE = new TextStyle() {

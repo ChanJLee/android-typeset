@@ -1,13 +1,16 @@
 package me.chan.texas.text;
 
 import android.annotation.SuppressLint;
+
 import androidx.collection.SparseArrayCompat;
 
+import me.chan.texas.annotations.Hidden;
 import me.chan.texas.measurer.Measurer;
 
 /**
  * 文本属性
  */
+@Hidden
 public class TextAttribute {
 	private LineAttribute mDefaultAttribute;
 	@SuppressLint("UseSparseArrays")

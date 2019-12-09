@@ -8,7 +8,7 @@ import android.text.TextPaint;
 
 import me.chan.texas.misc.ObjectFactory;
 
-public class UnderLine extends Foreground {
+public class UnderLine extends Appearance {
 	private static PathEffect DASH_EFFECT = new DashPathEffect(new float[]{16, 8, 16, 8}, 0);
 
 	private static final ObjectFactory<UnderLine> POOL = new ObjectFactory<>(256);

@@ -41,10 +41,6 @@ class SpaceItemDecoration extends RecyclerView.ItemDecoration {
 		Segment segment = adapter.getItem(currentPosition);
 
 		float segmentSpace = segment.getVerticalSpace(mSegmentSpace);
-		if (segmentSpace < 0) {
-			segmentSpace = mSegmentSpace;
-		}
-
 		outRect.set(0, 0, 0, (int) segmentSpace);
 	}
 }

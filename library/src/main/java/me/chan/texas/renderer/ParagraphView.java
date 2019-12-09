@@ -19,10 +19,10 @@ import androidx.annotation.Nullable;
 
 import me.chan.texas.annotations.Hidden;
 import me.chan.texas.log.Log;
+import me.chan.texas.text.Appearance;
 import me.chan.texas.text.Background;
 import me.chan.texas.text.Box;
 import me.chan.texas.text.DrawableBox;
-import me.chan.texas.text.Foreground;
 import me.chan.texas.text.Gravity;
 import me.chan.texas.text.Line;
 import me.chan.texas.text.OnClickedListener;
@@ -391,7 +391,7 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 			// 先绘制背景
 			if (box instanceof TextBox) {
 				TextBox textBox = (TextBox) box;
-				Background background = textBox.getBackground();
+				Appearance background = textBox.getBackground();
 				if (background != null) {
 					mWorkPaint.set(mPaint);
 					background.draw(mCanvas, mWorkPaint, left, top, right, belowBottom);
@@ -424,7 +424,7 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 
 			if (box instanceof TextBox) {
 				TextBox textBox = (TextBox) box;
-				Foreground foreground = textBox.getForeground();
+				Appearance foreground = textBox.getForeground();
 				if (foreground != null) {
 					mWorkPaint.set(mPaint);
 					foreground.draw(mCanvas, mWorkPaint, left, top, right, belowBottom);
