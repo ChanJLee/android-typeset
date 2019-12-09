@@ -42,8 +42,11 @@ teView.setSource(new AssetsTextSource(content, "sample.txt"));
 ## 文档
 
 [算法描述](doc/algorithm.md)
+
 [开发规范](doc/code/dev.md)
+
 [架构设计](doc/arch/arch.md)
+
 [API](doc/api/api.md)
 
 ## 资源引用
