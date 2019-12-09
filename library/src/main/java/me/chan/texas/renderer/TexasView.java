@@ -26,6 +26,7 @@ import me.chan.texas.source.ObjectSource;
 import me.chan.texas.source.Source;
 import me.chan.texas.text.BreakStrategy;
 import me.chan.texas.text.Document;
+import me.chan.texas.text.OnClickedListener;
 
 public class TexasView extends FrameLayout {
 
@@ -40,6 +41,7 @@ public class TexasView extends FrameLayout {
 	private ViewTreeObserver.OnGlobalLayoutListener mLastOnGlobalLayoutListener = null;
 	private RenderListener mRenderListener;
 	private ScrollListener mScrollListener;
+	private OnClickedListener mOnClickedListener;
 
 	public TexasView(Context context, AttributeSet attrs) {
 		this(context, attrs, 0);
@@ -307,12 +309,28 @@ public class TexasView extends FrameLayout {
 		}
 	}
 
+	/**
+	 * @return 获取选中top边界，坐标相对于整个屏幕
+	 */
 	public float getSelectedTopEdge() {
 		return mRenderer.getSelectedTopEdge();
 	}
 
+	/**
+	 * @return 获取选中bottom边界，坐标相对于整个屏幕
+	 */
 	public float getSelectedBottomEdge() {
 		return mRenderer.getSelectedBottomEdge();
+	}
+
+	void notifyClicked(float x, float y) {
+		if (mOnClickedListener != null) {
+			mOnClickedListener.onClicked(x, y);
+		}
+	}
+
+	public void setOnClickedListener(OnClickedListener onClickedListener) {
+		mOnClickedListener = onClickedListener;
 	}
 
 	/**
