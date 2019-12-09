@@ -367,7 +367,6 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 
 			d("para end, render debug");
 			TextParagraphSelection textParagraphSelection = (TextParagraphSelection) mParagraphSelection;
-			mDebugPaint.setColor(Color.TRANSPARENT);
 			mWorkPaint.set(mDebugPaint);
 			mWorkPaint.setColor(Color.RED);
 			mWorkPaint.setStrokeWidth(200);
