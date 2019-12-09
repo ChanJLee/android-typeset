@@ -10,17 +10,15 @@ import me.chan.texas.misc.ObjectFactory;
 
 public final class Document extends DefaultRecyclable {
 	private static final ObjectFactory<Document> POOL = new ObjectFactory<>(8);
-	public final static Document EMPTY = obtain(null);
+	public final static Document EMPTY = obtain();
 
 	private List<Segment> mSegments;
-	private OnClickedListener mOnClickedListener;
 	private Segment mFocusSegment;
 	private Object mRaw;
 
-	private Document(OnClickedListener onClickedListener) {
+	private Document() {
 		Texas.MemoryOption memoryOption = Texas.getMemoryOption();
 		mSegments = new ArrayList<>(memoryOption.getDocumentSegmentInitialCapacity());
-		mOnClickedListener = onClickedListener;
 	}
 
 	@Hidden
@@ -31,10 +29,6 @@ public final class Document extends DefaultRecyclable {
 	@Hidden
 	public void setRaw(Object raw) {
 		mRaw = raw;
-	}
-
-	public OnClickedListener getOnClickedListener() {
-		return mOnClickedListener;
 	}
 
 	public void setFocusSegment(Segment segment) {
@@ -81,7 +75,6 @@ public final class Document extends DefaultRecyclable {
 		mSegments.clear();
 
 		mRaw = null;
-		mOnClickedListener = null;
 		mFocusSegment = null;
 		POOL.release(this);
 	}
@@ -92,20 +85,14 @@ public final class Document extends DefaultRecyclable {
 	}
 
 	public static Document obtain() {
-		return obtain(null);
-	}
-
-	public static Document obtain(OnClickedListener onClickedListener) {
 		Document document = POOL.acquire();
 		if (document == null) {
-			return new Document(onClickedListener);
+			return new Document();
 		}
-		document.mOnClickedListener = onClickedListener;
 		document.reuse();
 		return document;
 	}
 
-	// TODO unit test
 	public int indexOf(Segment segment) {
 		return mSegments.indexOf(segment);
 	}
