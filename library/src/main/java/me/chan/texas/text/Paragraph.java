@@ -29,10 +29,12 @@ public class Paragraph extends Segment {
 		mElements = new ArrayList<>(memoryOption.getParagraphElementInitialCapacity());
 	}
 
+	@Hidden
 	public Line getLine(int index) {
 		return mLines.get(index);
 	}
 
+	@Hidden
 	public int getLineCount() {
 		return mLines.size();
 	}
@@ -42,7 +44,6 @@ public class Paragraph extends Segment {
 		mLines.add(line);
 	}
 
-	// TODO unit test
 	public Object getExtra() {
 		return mExtra;
 	}
@@ -349,6 +350,7 @@ public class Paragraph extends Segment {
 	/**
 	 * 绘制行
 	 */
+	@Hidden
 	public static class Line extends DefaultRecyclable {
 		private static final ObjectFactory<Line> POOL = new ObjectFactory<>(4096);
 
