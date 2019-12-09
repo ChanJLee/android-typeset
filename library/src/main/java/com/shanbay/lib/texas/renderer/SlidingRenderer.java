@@ -9,7 +9,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.shanbay.lib.texas.annotations.Hidden;
-import com.shanbay.lib.texas.log.Log;
+import com.shanbay.lib.log.Log;
 import com.shanbay.lib.texas.measurer.Measurer;
 import com.shanbay.lib.texas.text.Document;
 import com.shanbay.lib.texas.text.OnClickedListener;

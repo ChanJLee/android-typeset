@@ -18,7 +18,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.shanbay.lib.texas.annotations.Hidden;
-import com.shanbay.lib.texas.log.Log;
+import com.shanbay.lib.log.Log;
 import com.shanbay.lib.texas.text.Appearance;
 import com.shanbay.lib.texas.text.Box;
 import com.shanbay.lib.texas.text.DrawableBox;

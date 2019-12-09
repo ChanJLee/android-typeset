@@ -8,7 +8,7 @@ import androidx.annotation.Nullable;
 
 import com.shanbay.lib.texas.annotations.Hidden;
 import com.shanbay.lib.texas.image.ImageLoader;
-import com.shanbay.lib.texas.log.Log;
+import com.shanbay.lib.log.Log;
 import com.shanbay.lib.texas.measurer.Measurer;
 import com.shanbay.lib.texas.parser.Parser;
 import com.shanbay.lib.texas.source.Source;

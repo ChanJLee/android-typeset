@@ -15,7 +15,7 @@ import android.widget.FrameLayout;
 import com.shanbay.lib.texas.R;
 import com.shanbay.lib.texas.annotations.Hidden;
 import com.shanbay.lib.texas.image.ImageLoader;
-import com.shanbay.lib.texas.log.Log;
+import com.shanbay.lib.log.Log;
 import com.shanbay.lib.texas.measurer.Measurer;
 import com.shanbay.lib.texas.text.Document;
 import com.shanbay.lib.texas.text.Figure;

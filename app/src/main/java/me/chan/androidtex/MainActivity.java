@@ -3,9 +3,11 @@ package me.chan.androidtex;
 import android.Manifest;
 import android.content.Intent;
 import android.os.Bundle;
+
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.appcompat.app.AppCompatActivity;
+
 import android.text.Layout;
 import android.text.TextPaint;
 import android.util.Log;
