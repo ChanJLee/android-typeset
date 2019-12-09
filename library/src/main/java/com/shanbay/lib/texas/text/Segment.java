@@ -1,0 +1,17 @@
+package com.shanbay.lib.texas.text;
+
+import com.shanbay.lib.texas.misc.DefaultRecyclable;
+import com.shanbay.lib.texas.renderer.RenderOption;
+
+/**
+ * 渲染的最小单元
+ */
+public class Segment extends DefaultRecyclable {
+	/**
+	 * @param normalVertical segment的垂直距离 {@link RenderOption#getSegmentSpace()} {@link RenderOption#setSegmentSpace(float)}
+	 * @return 垂直方向的距离
+	 */
+	public float getVerticalSpace(float normalVertical) {
+		return normalVertical;
+	}
+}

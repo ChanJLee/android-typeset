@@ -2,7 +2,7 @@ package me.chan.androidtex;
 
 import android.app.Application;
 
-import me.chan.texas.Texas;
+import com.shanbay.lib.texas.Texas;
 
 public class MyApplication extends Application {
 	@Override

@@ -19,19 +19,19 @@ import java.util.regex.Pattern;
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 
-import me.chan.texas.hypher.Hypher;
-import me.chan.texas.log.Log;
-import me.chan.texas.measurer.Measurer;
-import me.chan.texas.parser.ParseException;
-import me.chan.texas.parser.Parser;
-import me.chan.texas.renderer.RenderOption;
-import me.chan.texas.text.Document;
-import me.chan.texas.text.Figure;
-import me.chan.texas.text.OnClickedListener;
-import me.chan.texas.text.Paragraph;
-import me.chan.texas.text.TextAttribute;
-import me.chan.texas.text.UnderLine;
-import me.chan.texas.text.ViewSegment;
+import com.shanbay.lib.texas.hypher.Hypher;
+import com.shanbay.lib.texas.log.Log;
+import com.shanbay.lib.texas.measurer.Measurer;
+import com.shanbay.lib.texas.parser.ParseException;
+import com.shanbay.lib.texas.parser.Parser;
+import com.shanbay.lib.texas.renderer.RenderOption;
+import com.shanbay.lib.texas.text.Document;
+import com.shanbay.lib.texas.text.Figure;
+import com.shanbay.lib.texas.text.OnClickedListener;
+import com.shanbay.lib.texas.text.Paragraph;
+import com.shanbay.lib.texas.text.TextAttribute;
+import com.shanbay.lib.texas.text.UnderLine;
+import com.shanbay.lib.texas.text.ViewSegment;
 
 public class BookParser implements Parser<CharSequence> {
 	private static final Pattern PATTERN = Pattern.compile("\\p{Z}+|\\t|\\r|\\n");

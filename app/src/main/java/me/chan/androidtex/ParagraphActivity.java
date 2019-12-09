@@ -9,11 +9,11 @@ import android.widget.RadioGroup;
 
 import java.io.IOException;
 
-import me.chan.texas.Texas;
-import me.chan.texas.parser.TextParser;
-import me.chan.texas.renderer.RenderOption;
-import me.chan.texas.renderer.TexasView;
-import me.chan.texas.source.AssetsTextSource;
+import com.shanbay.lib.texas.Texas;
+import com.shanbay.lib.texas.parser.TextParser;
+import com.shanbay.lib.texas.renderer.RenderOption;
+import com.shanbay.lib.texas.renderer.TexasView;
+import com.shanbay.lib.texas.source.AssetsTextSource;
 
 public class ParagraphActivity extends AppCompatActivity {
 
