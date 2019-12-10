@@ -274,7 +274,8 @@ public class BookParser implements Parser<CharSequence> {
 				};
 			}
 
-			builder.newSpanBuilder(spanListener)
+			// for test
+			builder.newSpanBuilder(i % 2 == 1 ? spanListener : null)
 					.next(text)
 					.setForeground(UnderLine.obtain(Color.RED))
 					.setOnClickedListener(onClickedListener)
