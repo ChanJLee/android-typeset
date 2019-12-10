@@ -105,6 +105,10 @@ public class TextAttribute {
 		mDefaultAttribute = defaultAttribute;
 	}
 
+	/**
+	 * 行属性
+	 */
+	@Hidden
 	public static class LineAttribute {
 		private float mLineWidth;
 		private Gravity mGravity;

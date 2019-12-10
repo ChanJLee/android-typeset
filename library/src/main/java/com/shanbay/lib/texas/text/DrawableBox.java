@@ -12,7 +12,7 @@ import com.shanbay.lib.texas.annotations.Hidden;
 import com.shanbay.lib.texas.misc.ObjectFactory;
 
 /**
- * drawable box
+ * drawable
  */
 @Hidden
 public class DrawableBox extends Box {
