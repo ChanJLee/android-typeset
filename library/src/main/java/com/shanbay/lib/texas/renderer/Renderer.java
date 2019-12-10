@@ -160,9 +160,11 @@ abstract class Renderer {
 		return mTextEngineCore.getDocument();
 	}
 
-	protected abstract void invalidate(int position);
-
 	public abstract int getFirstVisibleSegmentIndex();
+
+	abstract float getSelectedBottomEdge();
+
+	abstract float getSelectedTopEdge();
 
 	private static void d(String msg) {
 		Log.d("TexasRenderer", msg);
@@ -175,8 +177,4 @@ abstract class Renderer {
 	private static void w(Throwable throwable) {
 		Log.w("TexasRenderer", throwable);
 	}
-
-	abstract float getSelectedBottomEdge();
-
-	abstract float getSelectedTopEdge();
 }

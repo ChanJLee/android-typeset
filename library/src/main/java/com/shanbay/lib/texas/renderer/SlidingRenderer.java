@@ -97,16 +97,6 @@ class SlidingRenderer extends Renderer {
 	}
 
 	@Override
-	protected void invalidate(int position) {
-		d("invalidate position: " + position);
-		if (position < 0 || position >= mAdapter.getItemCount()) {
-			mAdapter.notifyDataSetChanged();
-			return;
-		}
-		mAdapter.notifyItemChanged(position);
-	}
-
-	@Override
 	public int getFirstVisibleSegmentIndex() {
 		return mLinearLayoutManager.findFirstCompletelyVisibleItemPosition();
 	}
