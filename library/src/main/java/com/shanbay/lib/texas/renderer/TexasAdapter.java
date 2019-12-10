@@ -49,11 +49,11 @@ class TexasAdapter extends RecyclerView.Adapter<TexasAdapter.Renderer> {
 	@Override
 	public Renderer onCreateViewHolder(@NonNull ViewGroup viewGroup, int type) {
 		if (type == TYPE_PARAGRAPH) {
-			return new ParagraphRenderer(mLayoutInflater.inflate(R.layout.me_chan_te_text, viewGroup, false));
+			return new ParagraphRenderer(mLayoutInflater.inflate(R.layout.com_shanbay_lib_texas_text, viewGroup, false));
 		} else if (type == TYPE_FIGURE) {
-			return new FigureRenderer(mLayoutInflater.inflate(R.layout.me_chan_te_figure, viewGroup, false));
+			return new FigureRenderer(mLayoutInflater.inflate(R.layout.com_shanbay_lib_texas_figure, viewGroup, false));
 		} else {
-			return new ViewSegmentRenderer(mLayoutInflater.inflate(R.layout.me_chan_te_view_segment, viewGroup, false));
+			return new ViewSegmentRenderer(mLayoutInflater.inflate(R.layout.com_shanbay_lib_view_segment, viewGroup, false));
 		}
 	}
 
