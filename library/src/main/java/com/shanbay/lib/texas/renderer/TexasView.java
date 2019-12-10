@@ -355,6 +355,10 @@ public class TexasView extends FrameLayout {
 		mOnClickedListener = onClickedListener;
 	}
 
+	public void selectedWithTag(Object o) {
+
+	}
+
 	/**
 	 * 渲染监听器
 	 */

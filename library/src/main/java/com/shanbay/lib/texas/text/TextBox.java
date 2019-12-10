@@ -24,7 +24,6 @@ public final class TextBox extends Box {
 	private short mFlag = FLAG_NONE;
 	private TextBoxAttribute mAttribute;
 
-
 	private TextBox(@NonNull CharSequence text, int start, int end,
 					float width, float height,
 					OnClickedListener onClickedListener, TextBoxAttribute BoxAttribute) {
