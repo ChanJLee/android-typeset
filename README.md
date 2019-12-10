@@ -34,7 +34,6 @@ public class MyApplication extends Application {
 		Texas.init(this);
 	}
 }
-
 ```
 
 2. 在layout中引用自定义view
