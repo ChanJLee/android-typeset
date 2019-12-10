@@ -24,7 +24,19 @@ Texas是一款支持图文混排的文本渲染库，目前支持两边对齐，
 
 ## 实例代码
 
-1. 在layout中引用自定义view
+1. 在application中初始化
+
+```java
+	@Override
+	public void onCreate() {
+		super.onCreate();
+		Texas.init(this);
+	}
+}
+
+```
+
+2. 在layout中引用自定义view
 
 ```xml
 <me.chan.texas.renderer.TexasView
@@ -34,7 +46,7 @@ Texas是一款支持图文混排的文本渲染库，目前支持两边对齐，
     android:layout_margin="10dp" />
 ```
 
-2. 渲染文本
+3. 渲染文本
 
 ```java
 teView.setSource(new AssetsTextSource(content, "sample.txt"));
