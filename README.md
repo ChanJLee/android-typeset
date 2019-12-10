@@ -27,6 +27,7 @@ Texas是一款支持图文混排的文本渲染库，目前支持两边对齐，
 1. 在application中初始化
 
 ```java
+public class MyApplication extends Application {
 	@Override
 	public void onCreate() {
 		super.onCreate();
