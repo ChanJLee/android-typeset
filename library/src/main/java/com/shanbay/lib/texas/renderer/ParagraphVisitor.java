@@ -5,11 +5,11 @@ import com.shanbay.lib.texas.text.Gravity;
 import com.shanbay.lib.texas.text.Line;
 import com.shanbay.lib.texas.text.Paragraph;
 
-abstract class ParagraphVisitor {
+class ParagraphVisitor {
 
-	public void visit(Paragraph paragraph, float width, RenderOption renderOption) {
+	public void visit(Paragraph paragraph, float width, RenderOption renderOption, float fontTopPadding) {
 		onVisitParagraph(paragraph);
-		float y = 0;
+		float y = fontTopPadding;
 		int lineCount = paragraph.getLineCount();
 		for (int i = 0; i < lineCount; ++i) {
 
@@ -50,13 +50,23 @@ abstract class ParagraphVisitor {
 		onVisitLineEnd(line, bottomX, bottomY);
 	}
 
-	protected abstract void onVisitParagraph(Paragraph paragraph);
+	protected void onVisitParagraph(Paragraph paragraph) {
 
-	protected abstract void onVisitParagraphEnd(Paragraph paragraph);
+	}
 
-	protected abstract void onVisitLine(Line line, float x, float y);
+	protected void onVisitParagraphEnd(Paragraph paragraph) {
 
-	protected abstract void onVisitLineEnd(Line line, float x, float y);
+	}
 
-	protected abstract void onVisitBox(Box box, float left, float top, float right, float bottom);
+	protected void onVisitLine(Line line, float x, float y) {
+
+	}
+
+	protected void onVisitLineEnd(Line line, float x, float y) {
+
+	}
+
+	protected void onVisitBox(Box box, float left, float top, float right, float bottom) {
+
+	}
 }

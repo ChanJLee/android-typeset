@@ -75,7 +75,11 @@ public class TextUnitTest {
 		attribute.setTextStyle(style);
 		Assert.assertSame(style, textStyleField.get(attribute));
 
+		attribute.setTag(msg);
+		Assert.assertSame(attribute.getTag(), msg);
+
 		attribute.recycle();
+		Assert.assertNull(attribute.getTag());
 		Assert.assertNull(backgroundField.get(attribute));
 		Assert.assertNull(foregroundField.get(attribute));
 		Assert.assertNull(textStyleField.get(attribute));

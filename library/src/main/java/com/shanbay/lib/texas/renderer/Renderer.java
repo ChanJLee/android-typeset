@@ -60,7 +60,8 @@ abstract class Renderer {
 				document,
 				measurer,
 				mTextEngineCore.getTextPaint(),
-				mRenderOption
+				mRenderOption,
+				mTextEngineCore.getWidth()
 		);
 		mTexasView.notifyRenderEnd();
 	}
@@ -68,7 +69,8 @@ abstract class Renderer {
 	protected abstract void onRenderer(Document document,
 									   Measurer measurer,
 									   TextPaint textPaint,
-									   RenderOption renderOption);
+									   RenderOption renderOption,
+									   float width);
 
 	public void error(Throwable throwable) {
 		w(throwable);
