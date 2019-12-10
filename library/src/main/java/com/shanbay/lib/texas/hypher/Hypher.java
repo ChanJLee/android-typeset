@@ -1,11 +1,11 @@
 package com.shanbay.lib.texas.hypher;
 
 import androidx.annotation.NonNull;
-
-import java.util.List;
-import java.util.Map;
+import androidx.collection.SparseArrayCompat;
 
 import com.shanbay.lib.log.Log;
+
+import java.util.List;
 
 /**
  * 断字器
@@ -47,11 +47,15 @@ public class Hypher {
 		return sHyphers[index];
 	}
 
-	private static TrieNode createTrie(Map<Integer, String> patternObject) {
+	private static TrieNode createTrie(SparseArrayCompat<String> pattern) {
 		TrieNode tree = new TrieNode();
-		for (Map.Entry<Integer, String> entry : patternObject.entrySet()) {
-			int key = entry.getKey();
-			String value = entry.getValue();
+		int count = pattern.size();
+		for (int keyIndex = 0; keyIndex < count; ++keyIndex) {
+			int key = pattern.keyAt(keyIndex);
+			String value = pattern.get(key);
+			if (value == null) {
+				continue;
+			}
 			for (int i = 0; i + key <= value.length(); i = i + key) {
 				createTrie(tree, value, i, i + key);
 			}
