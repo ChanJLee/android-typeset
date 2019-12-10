@@ -10,7 +10,7 @@ import com.shanbay.lib.texas.hypher.Hypher;
 import com.shanbay.lib.texas.measurer.Measurer;
 import com.shanbay.lib.texas.test.mock.MockMeasurer;
 import com.shanbay.lib.texas.test.mock.MockTextPaint;
-import com.shanbay.lib.texas.text.Background;
+import com.shanbay.lib.texas.text.ColorGround;
 import com.shanbay.lib.texas.text.DrawableBox;
 import com.shanbay.lib.texas.text.Glue;
 import com.shanbay.lib.texas.text.Line;
@@ -70,7 +70,7 @@ public class ParagraphUnitTest {
 			public void onClicked(float x, float y) {
 			}
 		};
-		Background background = Background.obtain(10);
+		ColorGround background = ColorGround.obtain(10);
 		UnderLine underLine = UnderLine.obtain(10);
 		builder.newSpanBuilder(spanOnClickedListener)
 				.next("triangle")

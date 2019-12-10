@@ -13,7 +13,7 @@ import java.lang.reflect.Field;
 import java.util.List;
 
 import com.shanbay.lib.texas.test.mock.MockContext;
-import com.shanbay.lib.texas.text.Background;
+import com.shanbay.lib.texas.text.ColorGround;
 import com.shanbay.lib.texas.text.Document;
 import com.shanbay.lib.texas.text.DrawableBox;
 import com.shanbay.lib.texas.text.Figure;
@@ -98,7 +98,7 @@ public class DataUnitTest {
 
 	@Test
 	public void testBackground() {
-		Background background = Background.obtain(10);
+		ColorGround background = ColorGround.obtain(10);
 		assertNotNull(background);
 		Assert.assertFalse(background.isRecycled());
 		assertEquals(background.getColor(), 10);
@@ -110,13 +110,13 @@ public class DataUnitTest {
 		// test recycle twice
 		background.recycle();
 
-		Background p = background;
-		background = Background.obtain(20);
+		ColorGround p = background;
+		background = ColorGround.obtain(20);
 		Assert.assertFalse(background.isRecycled());
 		Assert.assertNotNull(background);
 		Assert.assertSame(p, background);
 		assertEquals(background.getColor(), 20);
-		Assert.assertNotSame(background, Background.obtain(20));
+		Assert.assertNotSame(background, ColorGround.obtain(20));
 	}
 
 	@Test

@@ -61,7 +61,7 @@ public class TextUnitTest {
 		Assert.assertNull(foregroundField.get(attribute));
 		Assert.assertNull(textStyleField.get(attribute));
 
-		Background background = Background.obtain(10);
+		ColorGround background = ColorGround.obtain(10);
 		attribute.setBackground(background);
 		Assert.assertSame(background, backgroundField.get(attribute));
 
@@ -133,7 +133,7 @@ public class TextUnitTest {
 		checkBoxContent(box, msg);
 
 		TextStyle textStyle = TextStyle.NONE;
-		Appearance background = Background.obtain(10);
+		Appearance background = ColorGround.obtain(10);
 		Appearance foreground = UnderLine.obtain(10);
 		TextBoxAttribute attribute = TextBoxAttribute.obtain();
 		attribute.setTextStyle(textStyle);

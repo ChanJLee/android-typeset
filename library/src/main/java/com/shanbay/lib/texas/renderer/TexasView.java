@@ -273,15 +273,16 @@ public class TexasView extends FrameLayout {
 		mRenderer.refresh(renderOption);
 	}
 
-	@Override
-	protected void onDetachedFromWindow() {
-		i("on detached from window");
+	/**
+	 * 释放资源
+	 */
+	public void release() {
+		i("release");
 		mRenderListener = null;
 		mOnClickedListener = null;
 		mScrollListener = null;
 		mLastOnGlobalLayoutListener = null;
 		mRenderer.release();
-		super.onDetachedFromWindow();
 	}
 
 	/**
