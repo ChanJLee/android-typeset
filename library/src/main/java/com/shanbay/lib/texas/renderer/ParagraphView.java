@@ -49,7 +49,8 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 	private Box mLastTouchBox = null;
 	@Nullable
 	private ParagraphSelection mParagraphSelection;
-	private float mLastYInView, mLastYInWindow;
+	private float mLastYInView;
+	private float mLastYInScreen;
 
 	public ParagraphView(Context context) {
 		this(context, null);
@@ -303,7 +304,7 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 		}
 
 		mLastYInView = y;
-		mLastYInWindow = e.getRawY();
+		mLastYInScreen = e.getRawY();
 		mLastTouchBox = target;
 		return true;
 	}
@@ -494,8 +495,8 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 		private RectF mRectF;
 		private float mLastLineBottom;
 		private float mLastLineTop;
-		private float mEdgeTop = -1;
-		private float mEdgeBottom = -1;
+		private float mTopEdgeInScreen = -1;
+		private float mBottomEdgeInScreen = -1;
 		private boolean mHasContent = false;
 
 		@Override
@@ -506,8 +507,8 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 		@Override
 		public void onVisitParagraphEnd(Paragraph paragraph) {
 			if (mSelection != null) {
-				mSelection.setTopEdgeInScreen(mEdgeTop);
-				mSelection.setBottomEdgeInScreen(mEdgeBottom);
+				mSelection.setTopEdgeInScreen(mTopEdgeInScreen);
+				mSelection.setBottomEdgeInScreen(mBottomEdgeInScreen);
 			}
 		}
 
@@ -517,8 +518,8 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 			mIsLongClicked = false;
 			mLastLineBottom = mLastLineTop = -1;
 			mRectF = null;
-			mEdgeTop = -1;
-			mEdgeBottom = -1;
+			mTopEdgeInScreen = -1;
+			mBottomEdgeInScreen = -1;
 			mHasContent = false;
 		}
 
@@ -541,7 +542,7 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 			mHasContent = false;
 
 			if (mSelection.isEmpty()) {
-				mEdgeTop = mLastYInWindow - (mLastYInView - mLastLineTop);
+				mTopEdgeInScreen = mLastYInScreen - (mLastYInView - mLastLineTop);
 			}
 		}
 
@@ -553,7 +554,7 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 			}
 
 			if (mHasContent) {
-				mEdgeBottom = mLastLineBottom - mLastYInView + mLastYInWindow;
+				mBottomEdgeInScreen = mLastLineBottom - mLastYInView + mLastYInScreen;
 			}
 		}
 

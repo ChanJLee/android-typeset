@@ -8,6 +8,9 @@ import android.text.TextPaint;
 
 import com.shanbay.lib.texas.misc.ObjectFactory;
 
+/**
+ * 下划线
+ */
 public class UnderLine extends Appearance {
 	private static PathEffect DASH_EFFECT = new DashPathEffect(new float[]{16, 8, 16, 8}, 0);
 
