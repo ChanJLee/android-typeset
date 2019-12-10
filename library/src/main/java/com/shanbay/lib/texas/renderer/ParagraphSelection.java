@@ -13,8 +13,8 @@ import com.shanbay.lib.texas.text.Paragraph;
 abstract class ParagraphSelection {
 	private Paragraph mParagraph;
 	private boolean mIsSelectedByLongClicked;
-	private float mTopEdgeInScreen = -1;
-	private float mBottomEdgeInScreen = -1;
+	private float mTopEdgeOnScreen = -1;
+	private float mBottomEdgeOnScreen = -1;
 
 	public ParagraphSelection(Paragraph paragraph, boolean isSelectedByLongClicked) {
 		mParagraph = paragraph;
@@ -33,20 +33,20 @@ abstract class ParagraphSelection {
 		return mIsSelectedByLongClicked;
 	}
 
-	public float getTopEdgeInScreen() {
-		return mTopEdgeInScreen;
+	public float getTopEdgeOnScreen() {
+		return mTopEdgeOnScreen;
 	}
 
-	public void setTopEdgeInScreen(float topEdgeInScreen) {
-		mTopEdgeInScreen = topEdgeInScreen;
+	public void setTopEdgeOnScreen(float topEdgeOnScreen) {
+		mTopEdgeOnScreen = topEdgeOnScreen;
 	}
 
-	public float getBottomEdgeInScreen() {
-		return mBottomEdgeInScreen;
+	public float getBottomEdgeOnScreen() {
+		return mBottomEdgeOnScreen;
 	}
 
-	public void setBottomEdgeInScreen(float bottomEdgeInScreen) {
-		mBottomEdgeInScreen = bottomEdgeInScreen;
+	public void setBottomEdgeOnScreen(float bottomEdgeOnScreen) {
+		mBottomEdgeOnScreen = bottomEdgeOnScreen;
 	}
 
 	public abstract void clearSelection();
