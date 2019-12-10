@@ -286,14 +286,18 @@ public class TexasView extends FrameLayout {
 	}
 
 	/**
-	 * @return 获取第一个可见segment下标
+	 * 获取第一个可见segment下标
+	 *
+	 * @return 第一个可见segment下标
 	 */
 	public int getFirstVisibleSegmentIndex() {
 		return mRenderer.getFirstVisibleSegmentIndex();
 	}
 
 	/**
-	 * @return 返回当前正在渲染的document
+	 * 返回当前正在渲染的document
+	 *
+	 * @return document
 	 */
 	@Nullable
 	public Document getDocument() {
@@ -321,14 +325,18 @@ public class TexasView extends FrameLayout {
 	}
 
 	/**
-	 * @return 获取选中top边界，坐标相对于整个屏幕
+	 * 获取选中内容高亮的top边界，坐标相对于整个屏幕
+	 *
+	 * @return top边界
 	 */
 	public float getSelectedTopEdgeInScreen() {
 		return mRenderer.getSelectedTopEdgeInScreen();
 	}
 
 	/**
-	 * @return 获取选中bottom边界，坐标相对于整个屏幕
+	 * 获取选中内容高亮的bottom边界，坐标相对于整个屏幕
+	 *
+	 * @return bottom边界
 	 */
 	public float getSelectedBottomEdgeInScreen() {
 		return mRenderer.getSelectedBottomEdgeInScreen();
