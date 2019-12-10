@@ -17,7 +17,7 @@ import com.shanbay.lib.texas.text.Glue;
 import com.shanbay.lib.texas.text.Paragraph;
 import com.shanbay.lib.texas.text.Penalty;
 import com.shanbay.lib.texas.text.TextBox;
-import com.shanbay.lib.texas.hypher.Hypher;
+import com.shanbay.lib.texas.hyphenation.Hyphenation;
 import com.shanbay.lib.texas.measurer.Measurer;
 import com.shanbay.lib.texas.parser.TextParser;
 import com.shanbay.lib.texas.test.mock.MockMeasurer;
@@ -38,23 +38,23 @@ public class ParserUnitTest {
 		RenderOption renderOption = new RenderOption();
 		Measurer measurer = new MockMeasurer(paint);
 		TextParser textParser = new TextParser();
-		Document document = textParser.parse("hello\n\nworld\n\n", measurer, Hypher.getInstance(), mockTextAttribute, renderOption);
+		Document document = textParser.parse("hello\n\nworld\n\n", measurer, Hyphenation.getInstance(), mockTextAttribute, renderOption);
 		assertEquals(document.getSegmentCount(), 2);
 
-		document = textParser.parse("hello\n\nworld\n", measurer, Hypher.getInstance(), mockTextAttribute, renderOption);
+		document = textParser.parse("hello\n\nworld\n", measurer, Hyphenation.getInstance(), mockTextAttribute, renderOption);
 		assertEquals(document.getSegmentCount(), 2);
 
-		document = textParser.parse("", measurer, Hypher.getInstance(), mockTextAttribute, renderOption);
+		document = textParser.parse("", measurer, Hyphenation.getInstance(), mockTextAttribute, renderOption);
 		assertEquals(document.getSegmentCount(), 0);
 
 		try {
-			textParser.parse(null, measurer, Hypher.getInstance(), mockTextAttribute, renderOption);
+			textParser.parse(null, measurer, Hyphenation.getInstance(), mockTextAttribute, renderOption);
 			Assert.fail("test parse null string");
 		} catch (Throwable e) {
 			assertFalse(e instanceof AssertionError);
 		}
 
-		document = textParser.parse(" hello", measurer, Hypher.getInstance(), mockTextAttribute, renderOption);
+		document = textParser.parse(" hello", measurer, Hyphenation.getInstance(), mockTextAttribute, renderOption);
 		assertEquals(document.getSegmentCount(), 1);
 
 
@@ -68,7 +68,7 @@ public class ParserUnitTest {
 		Box box = (Box) paragraph.getElement(0);
 		assertEquals("check box content: ", box.toString(), "hello");
 
-		document = textParser.parse(" triangle\n\n\n", measurer, Hypher.getInstance(), mockTextAttribute, renderOption);
+		document = textParser.parse(" triangle\n\n\n", measurer, Hyphenation.getInstance(), mockTextAttribute, renderOption);
 		assertEquals(document.getSegmentCount(), 1);
 
 		paragraph = (Paragraph) document.getSegment(0);
@@ -115,7 +115,7 @@ public class ParserUnitTest {
 
 			String contentWithoutBlank = line.replaceAll("\\p{Z}+|\\t|\\r|\\n", "");
 			StringBuilder stringBuilder = new StringBuilder();
-			Document document = textParser.parse(line, measurer, Hypher.getInstance(), MockTextAttribute, renderOption);
+			Document document = textParser.parse(line, measurer, Hyphenation.getInstance(), MockTextAttribute, renderOption);
 			if (contentWithoutBlank.isEmpty()) {
 				Assert.assertEquals(document.getSegmentCount(), 0);
 				continue;
@@ -155,7 +155,7 @@ public class ParserUnitTest {
 		stringBuilder = new StringBuilder();
 		long timestamp = System.currentTimeMillis();
 		RenderOption renderOption = new RenderOption();
-		Document document = textParser.parse(content, measurer, Hypher.getInstance(), MockTextAttribute, renderOption);
+		Document document = textParser.parse(content, measurer, Hyphenation.getInstance(), MockTextAttribute, renderOption);
 		System.out.println("used time: " + (System.currentTimeMillis() - timestamp));
 		for (int i = 0; i < document.getSegmentCount(); ++i) {
 			Paragraph paragraph = (Paragraph) document.getSegment(i);

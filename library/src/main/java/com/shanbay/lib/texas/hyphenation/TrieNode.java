@@ -1,4 +1,4 @@
-package com.shanbay.lib.texas.hypher;
+package com.shanbay.lib.texas.hyphenation;
 
 class TrieNode {
 	IntTrieNodeArrayMap codePoint = new IntTrieNodeArrayMap();

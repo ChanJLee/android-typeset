@@ -3,7 +3,7 @@ package com.shanbay.lib.texas.parser;
 import androidx.annotation.NonNull;
 
 import com.shanbay.lib.texas.annotations.Hidden;
-import com.shanbay.lib.texas.hypher.Hypher;
+import com.shanbay.lib.texas.hyphenation.Hyphenation;
 import com.shanbay.lib.texas.measurer.Measurer;
 import com.shanbay.lib.texas.renderer.RenderOption;
 import com.shanbay.lib.texas.text.Document;
@@ -17,14 +17,14 @@ import com.shanbay.lib.texas.text.TextAttribute;
 public class TextParser implements Parser<CharSequence> {
 	@Override
 	@NonNull
-	public Document parse(CharSequence charSequence, Measurer measurer, Hypher hypher,
+	public Document parse(CharSequence charSequence, Measurer measurer, Hyphenation hyphenation,
 						  TextAttribute textAttribute, RenderOption renderOption) {
 		Document document = Document.obtain();
 		int len = charSequence.length();
 		for (int i = skipBlank(charSequence, 0, len); i < len; ) {
 			int last = findNewline(charSequence, i, len);
 			if (i != last) {
-				Paragraph.Builder builder = Paragraph.Builder.newBuilder(measurer, hypher, textAttribute);
+				Paragraph.Builder builder = Paragraph.Builder.newBuilder(measurer, hyphenation, textAttribute);
 				parse(charSequence, i, last, builder);
 				document.addSegment(builder.build());
 			}

@@ -8,8 +8,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 import com.shanbay.lib.texas.annotations.Hidden;
-import com.shanbay.lib.texas.hypher.HyphenationPattern;
-import com.shanbay.lib.texas.hypher.Hypher;
+import com.shanbay.lib.texas.hyphenation.HyphenationPattern;
+import com.shanbay.lib.texas.hyphenation.Hyphenation;
 import com.shanbay.lib.log.Log;
 import com.shanbay.lib.texas.measurer.AndroidMeasurer;
 import com.shanbay.lib.texas.measurer.Measurer;
@@ -156,12 +156,12 @@ class TextEngineCore {
 		updateLineAttribute(width);
 
 		// 选择断字策略
-		Hypher hypher = null;
+		Hyphenation hyphenation = null;
 		HyphenStrategy hyphenStrategy = mRenderOption.getHyphenStrategy();
 		if (hyphenStrategy == HyphenStrategy.US) {
-			hypher = Hypher.getInstance(HyphenationPattern.EN_US);
+			hyphenation = Hyphenation.getInstance(HyphenationPattern.EN_US);
 		} else if (hyphenStrategy == HyphenStrategy.UK) {
-			hypher = Hypher.getInstance(HyphenationPattern.EN_GB);
+			hyphenation = Hyphenation.getInstance(HyphenationPattern.EN_GB);
 		} else {
 			throw new IllegalArgumentException("unknown hyphen strategy");
 		}
@@ -169,7 +169,7 @@ class TextEngineCore {
 		// parse
 		long timestamp = SystemClock.elapsedRealtime();
 		try {
-			document = mParser.parse(content, mMeasurer, hypher, mTextAttribute, mRenderOption);
+			document = mParser.parse(content, mMeasurer, hyphenation, mTextAttribute, mRenderOption);
 		} catch (InterruptedException e) {
 			i("interrupted when parse");
 			return;

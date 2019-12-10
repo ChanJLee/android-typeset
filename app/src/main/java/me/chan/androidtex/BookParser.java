@@ -19,7 +19,7 @@ import java.util.regex.Pattern;
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 
-import com.shanbay.lib.texas.hypher.Hypher;
+import com.shanbay.lib.texas.hyphenation.Hyphenation;
 import com.shanbay.lib.log.Log;
 import com.shanbay.lib.texas.measurer.Measurer;
 import com.shanbay.lib.texas.parser.ParseException;
@@ -46,6 +46,7 @@ public class BookParser implements Parser<CharSequence> {
 		Resources resources = context.getResources();
 		mFlagWidth = resources.getDimension(R.dimen.com_shanbay_lib_texas_flag_width);
 		mFlagHeight = resources.getDimension(R.dimen.com_shanbay_lib_texas_flag_height);
+		// for test
 		mOnClickedListener = new OnClickedListener() {
 			@Override
 			public void onClicked(float x, float y) {
@@ -56,18 +57,18 @@ public class BookParser implements Parser<CharSequence> {
 
 	@NonNull
 	@Override
-	public Document parse(@NonNull CharSequence charSequence, Measurer measurer, Hypher hypher,
+	public Document parse(@NonNull CharSequence charSequence, Measurer measurer, Hyphenation hyphenation,
 						  TextAttribute textAttribute, RenderOption renderOption) throws ParseException {
 		XmlPullParser xmlPullParser = Xml.newPullParser();
 		try {
 			xmlPullParser.setInput(new StringReader((String) charSequence));
-			return parse(xmlPullParser, measurer, hypher, textAttribute);
+			return parse(xmlPullParser, measurer, hyphenation, textAttribute);
 		} catch (Throwable e) {
 			throw new ParseException("parse document failed", e);
 		}
 	}
 
-	private Document parse(XmlPullParser parser, Measurer measurer, Hypher hypher, TextAttribute textAttribute)
+	private Document parse(XmlPullParser parser, Measurer measurer, Hyphenation hypher, TextAttribute textAttribute)
 			throws IOException, XmlPullParserException {
 		while (parser.next() != XmlPullParser.END_TAG) {
 			int eventType = parser.getEventType();
@@ -86,7 +87,7 @@ public class BookParser implements Parser<CharSequence> {
 		return Document.EMPTY;
 	}
 
-	private Document parseArticleContent(XmlPullParser parser, Measurer measurer, Hypher hypher, TextAttribute textAttribute) throws IOException, XmlPullParserException {
+	private Document parseArticleContent(XmlPullParser parser, Measurer measurer, Hyphenation hypher, TextAttribute textAttribute) throws IOException, XmlPullParserException {
 		parser.require(XmlPullParser.START_TAG, null, "article_content");
 		final String id = parser.getAttributeValue(null, "id");
 		Document document = Document.obtain();
@@ -132,7 +133,7 @@ public class BookParser implements Parser<CharSequence> {
 	private static final int STATE_SUBTITLE = 3;
 
 	private void parsePara(XmlPullParser parser, Document document,
-						   Measurer measurer, Hypher hypher, TextAttribute textAttribute) throws IOException, XmlPullParserException {
+						   Measurer measurer, Hyphenation hypher, TextAttribute textAttribute) throws IOException, XmlPullParserException {
 		parser.require(XmlPullParser.START_TAG, null, "para");
 		String id = parser.getAttributeValue(null, "id");
 
