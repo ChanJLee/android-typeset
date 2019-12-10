@@ -148,7 +148,7 @@ public class ParagraphUnitTest {
 		builder.extra(msg);
 		builder.text("hello");
 		Paragraph paragraph = builder.build();
-		Assert.assertSame(msg, paragraph.getExtra());
+		Assert.assertSame(msg, paragraph.getTag());
 
 		Assert.assertEquals(paragraph.getLineCount(), 0);
 		Assert.assertEquals(paragraph.getElementCount(), 3);
@@ -173,7 +173,7 @@ public class ParagraphUnitTest {
 		paragraph.recycle();
 		Assert.assertEquals(paragraph.getLineCount(), 0);
 		Assert.assertEquals(paragraph.getElementCount(), 0);
-		Assert.assertNull(paragraph.getExtra());
+		Assert.assertNull(paragraph.getTag());
 
 		// check recycle twice
 		paragraph.recycle();
@@ -183,7 +183,7 @@ public class ParagraphUnitTest {
 		builder.text("triangle");
 		paragraph = builder.build();
 		Assert.assertSame(paragraph, paragraph1);
-		Assert.assertNull(paragraph.getExtra());
+		Assert.assertNull(paragraph.getTag());
 		Assert.assertEquals(paragraph.getLineCount(), 0);
 		Assert.assertEquals(paragraph.getElementCount(), 7);
 

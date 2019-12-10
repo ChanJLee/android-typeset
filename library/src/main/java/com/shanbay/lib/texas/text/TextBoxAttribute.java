@@ -21,6 +21,7 @@ class TextBoxAttribute extends DefaultRecyclable {
 	private Appearance mBackground;
 	private Appearance mForeground;
 	private OnClickedListener mSpanOnClickedListener;
+	private Object mTag;
 
 	private TextBoxAttribute() {
 	}
@@ -55,6 +56,14 @@ class TextBoxAttribute extends DefaultRecyclable {
 
 	public OnClickedListener getSpanOnClickedListener() {
 		return mSpanOnClickedListener;
+	}
+
+	public Object getTag() {
+		return mTag;
+	}
+
+	public void setTag(Object tag) {
+		mTag = tag;
 	}
 
 	@Override

@@ -21,7 +21,7 @@ public class Paragraph extends Segment {
 
 	private List<Line> mLines;
 	private List<Element> mElements;
-	private Object mExtra;
+	private Object mTag;
 
 	public Paragraph() {
 		Texas.MemoryOption memoryOption = Texas.getMemoryOption();
@@ -47,8 +47,8 @@ public class Paragraph extends Segment {
 	/**
 	 * @return 获取paragraph上附加的信息
 	 */
-	public Object getExtra() {
-		return mExtra;
+	public Object getTag() {
+		return mTag;
 	}
 
 	@Override
@@ -67,7 +67,7 @@ public class Paragraph extends Segment {
 			mElements.get(i).recycle();
 		}
 		mElements.clear();
-		mExtra = null;
+		mTag = null;
 		POOL.release(this);
 	}
 
@@ -289,7 +289,7 @@ public class Paragraph extends Segment {
 				mParagraph.mElements.add(Penalty.obtain(0, 0, -ParagraphTypesetter.INFINITY, true));
 			}
 
-			mParagraph.mExtra = mExtra;
+			mParagraph.mTag = mExtra;
 			Paragraph paragraph = mParagraph;
 			recycle();
 			return paragraph;
