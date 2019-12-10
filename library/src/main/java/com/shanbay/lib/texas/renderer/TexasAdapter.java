@@ -6,6 +6,7 @@ import androidx.annotation.IdRes;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.graphics.RectF;
 import android.text.TextPaint;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,8 +18,11 @@ import com.shanbay.lib.texas.annotations.Hidden;
 import com.shanbay.lib.texas.image.ImageLoader;
 import com.shanbay.lib.log.Log;
 import com.shanbay.lib.texas.measurer.Measurer;
+import com.shanbay.lib.texas.text.Box;
 import com.shanbay.lib.texas.text.Document;
 import com.shanbay.lib.texas.text.Figure;
+import com.shanbay.lib.texas.text.Line;
+import com.shanbay.lib.texas.text.OnClickedListener;
 import com.shanbay.lib.texas.text.Paragraph;
 import com.shanbay.lib.texas.text.Segment;
 import com.shanbay.lib.texas.text.ViewSegment;
@@ -271,6 +275,128 @@ class TexasAdapter extends RecyclerView.Adapter<TexasAdapter.Renderer> {
 		public void render(final ViewSegment data) {
 			data.attach(mLayoutInflater, mRootView);
 			data.render();
+		}
+	}
+
+
+	private abstract static class SelectedVisitor extends ParagraphVisitor {
+
+		private TextParagraphSelection mSelection;
+		private RectF mRectF;
+		private float mLastLineBottom;
+		private float mLastLineTop;
+		private float mTopEdgeOnScreen = -1;
+		private float mBottomEdgeOnScreen = -1;
+		private boolean mHasContent = false;
+
+		private float mLastYOnScreen;
+		private OnClickedListener mOnClickedListener;
+		private float mLastYInView;
+		private boolean mIsLongClicked;
+
+
+		public void setLastYOnScreen(float lastYOnScreen) {
+			mLastYOnScreen = lastYOnScreen;
+		}
+
+		@Override
+		public void onVisitParagraph(Paragraph paragraph) {
+			mSelection = new TextParagraphSelection(paragraph, mIsLongClicked);
+		}
+
+		@Override
+		public void onVisitParagraphEnd(Paragraph paragraph) {
+			if (mSelection != null) {
+				mSelection.setTopEdgeOnScreen(mTopEdgeOnScreen);
+				mSelection.setBottomEdgeOnScreen(mBottomEdgeOnScreen);
+			}
+		}
+
+		public void clear() {
+			mOnClickedListener = null;
+			mSelection = null;
+			mIsLongClicked = false;
+			mLastLineBottom = mLastLineTop = -1;
+			mRectF = null;
+			mTopEdgeOnScreen = -1;
+			mBottomEdgeOnScreen = -1;
+			mHasContent = false;
+		}
+
+		public ParagraphSelection getSelection() {
+			return mSelection;
+		}
+
+		public void setOnClickedListener(OnClickedListener onClickedListener) {
+			mOnClickedListener = onClickedListener;
+		}
+
+		public void setLongClicked(boolean longClicked) {
+			mIsLongClicked = longClicked;
+		}
+
+		@Override
+		public void onVisitLine(Line line, float bottomX, float bottomY) {
+			mLastLineBottom = bottomY;
+			mLastLineTop = bottomY - line.getLineHeight();
+			mHasContent = false;
+
+			if (mSelection.isEmpty()) {
+				mTopEdgeOnScreen = mLastYOnScreen - (mLastYInView - mLastLineTop);
+			}
+		}
+
+		@Override
+		public void onVisitLineEnd(Line line, float x, float y) {
+			if (mRectF != null) {
+				mSelection.addSelectArea(mRectF);
+				mRectF = null;
+			}
+
+			if (mHasContent) {
+				mBottomEdgeOnScreen = mLastLineBottom - mLastYInView + mLastYOnScreen;
+			}
+		}
+
+		@Override
+		public void onVisitBox(Box box, float left, float top, float right, float bottom) {
+			if (selected(box)) {
+				if (mRectF == null) {
+					mRectF = new RectF(left, mLastLineTop, right, mLastLineBottom);
+				}
+
+				mHasContent = true;
+				mRectF.right = right;
+				mSelection.addBox(box);
+				box.setSelected(true);
+			} else {
+				if (mRectF != null) {
+					mSelection.addSelectArea(mRectF);
+					mRectF = null;
+				}
+
+				box.setSelected(false);
+			}
+		}
+
+		abstract boolean selected(Box box);
+	}
+
+	private static class SelectedByTagVisitor extends SelectedVisitor {
+
+		@Override
+		boolean selected(Box box) {
+			return false;
+		}
+	}
+
+	private static class SelectedByListener extends SelectedVisitor {
+
+		private boolean mLongClicked;
+
+		@Override
+		boolean selected(Box box) {
+			return false;
 		}
 	}
 

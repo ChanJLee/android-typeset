@@ -120,6 +120,11 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
 		int lineCount = 0;
 		if (mParagraph != null && (lineCount = mParagraph.getLineCount()) != 0) {
+			/**
+			 * 第一行和最后一行要包含当前typeface建议的padding，防止绘制的时候超出view显示区域
+			 *
+			 * {@link Paint.FontMetrics}
+			 * */
 			int height = (int) Math.ceil(mBottomPadding + mTopPadding);
 			for (int i = 0; i < lineCount; ++i) {
 				Line line = mParagraph.getLine(i);
