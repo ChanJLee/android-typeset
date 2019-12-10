@@ -410,7 +410,7 @@ public class Paragraph extends Segment {
 		/**
 		 * 设置当前文字背景
 		 * <p/>
-		 * {@link Background}
+		 * {@link ColorGround}
 		 *
 		 * @param background 文字背景
 		 * @return 当前对象

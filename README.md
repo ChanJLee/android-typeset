@@ -17,10 +17,9 @@ Texas是一款支持图文混排的文本渲染库，目前支持两边对齐，
 7. 选中字体颜色
 8. 片段间间距
 9. 断字策略
-10. 渲染模式，是否是单页，还是多页
-11. 是否可选中
-12. 自定义解析
-13. 资源复用，内存/cpu高度优化
+10. 是否可选中
+11. 自定义解析
+12. 资源复用，内存/cpu高度优化
 
 ## 实例代码
 
@@ -49,7 +48,12 @@ public class MyApplication extends Application {
 3. 渲染文本
 
 ```java
-teView.setSource(new AssetsTextSource(content, "sample.txt"));
+texasView.setSource(new AssetsTextSource(content, "sample.txt"));
+```
+
+4. 释放资源
+```java
+texasView.release()
 ```
 
 ## 文档

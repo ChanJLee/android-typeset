@@ -6,14 +6,14 @@ import android.text.TextPaint;
 import com.shanbay.lib.texas.misc.ObjectFactory;
 
 /**
- * 背景
+ * 前景/背景颜色
  */
-public class Background extends Appearance {
-	private static final ObjectFactory<Background> POOL = new ObjectFactory<>(512);
+public class ColorGround extends Appearance {
+	private static final ObjectFactory<ColorGround> POOL = new ObjectFactory<>(512);
 
 	private int mColor;
 
-	private Background(int color) {
+	private ColorGround(int color) {
 		mColor = color;
 	}
 
@@ -25,7 +25,7 @@ public class Background extends Appearance {
 	public boolean equals(Object o) {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
-		Background that = (Background) o;
+		ColorGround that = (ColorGround) o;
 		return mColor == that.mColor;
 	}
 
@@ -46,14 +46,14 @@ public class Background extends Appearance {
 		POOL.release(this);
 	}
 
-	public static Background obtain(int color) {
-		Background background = POOL.acquire();
-		if (background == null) {
-			return new Background(color);
+	public static ColorGround obtain(int color) {
+		ColorGround ground = POOL.acquire();
+		if (ground == null) {
+			return new ColorGround(color);
 		}
-		background.mColor = color;
-		background.reuse();
-		return background;
+		ground.mColor = color;
+		ground.reuse();
+		return ground;
 	}
 
 	public static void clean() {

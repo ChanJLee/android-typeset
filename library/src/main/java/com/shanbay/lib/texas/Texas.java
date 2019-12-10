@@ -15,7 +15,7 @@ import com.shanbay.lib.texas.text.Glue;
 import com.shanbay.lib.texas.text.Line;
 import com.shanbay.lib.texas.text.Penalty;
 import com.shanbay.lib.texas.text.TextBox;
-import com.shanbay.lib.texas.text.Background;
+import com.shanbay.lib.texas.text.ColorGround;
 import com.shanbay.lib.texas.text.Document;
 import com.shanbay.lib.texas.text.Figure;
 import com.shanbay.lib.texas.text.Paragraph;
@@ -77,7 +77,7 @@ public class Texas {
 		Document.clean();
 		Figure.clean();
 		DrawableBox.clean();
-		Background.clean();
+		ColorGround.clean();
 		UnderLine.clean();
 		Paragraph.Builder.clean();
 		for (Class<?> clazz : RECYCLE_CLAZZ) {
