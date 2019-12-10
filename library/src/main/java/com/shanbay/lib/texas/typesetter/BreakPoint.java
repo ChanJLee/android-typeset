@@ -1,7 +1,5 @@
 package com.shanbay.lib.texas.typesetter;
 
-import androidx.annotation.Keep;
-
 import com.shanbay.lib.texas.Texas;
 import com.shanbay.lib.texas.annotations.Hidden;
 import com.shanbay.lib.texas.misc.DefaultRecyclable;
@@ -11,7 +9,12 @@ import com.shanbay.lib.texas.misc.ObjectFactory;
 class BreakPoint extends DefaultRecyclable {
 	private static final ObjectFactory<BreakPoint> POOL = new ObjectFactory<>(512);
 	static {
-		Texas.register(BreakPoint.class);
+		Texas.registerLifecycleCallback(new Texas.LifecycleCallback() {
+			@Override
+			public void onClean() {
+				POOL.clean();
+			}
+		});
 	}
 
 	public int position;
@@ -34,11 +37,6 @@ class BreakPoint extends DefaultRecyclable {
 		super.recycle();
 		reset(-1, -1);
 		POOL.release(this);
-	}
-
-	@Keep
-	public static void clean() {
-		POOL.clean();
 	}
 
 	public static BreakPoint obtain(int position, float ratio) {

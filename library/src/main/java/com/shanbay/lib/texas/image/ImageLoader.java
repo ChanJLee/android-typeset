@@ -6,27 +6,23 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
-import androidx.annotation.DrawableRes;
-import androidx.annotation.IntDef;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import android.text.TextUtils;
 import android.widget.ImageView;
+
+import androidx.annotation.DrawableRes;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.RequestBuilder;
 import com.bumptech.glide.RequestManager;
-import com.bumptech.glide.load.DecodeFormat;
 import com.bumptech.glide.load.Key;
-import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.transition.Transition;
 import com.shanbay.lib.texas.annotations.Hidden;
 
 import java.io.File;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
 import java.nio.charset.Charset;
 import java.security.MessageDigest;
 
@@ -35,61 +31,6 @@ import java.security.MessageDigest;
  */
 @Hidden
 public class ImageLoader {
-	/**
-	 * should return {@link Bitmap.Config#ARGB_8888} for
-	 * {@link Bitmap#getConfig()} when possible.
-	 *
-	 * <p> GIF images decoded by {@link android.graphics.BitmapFactory} currently use an internal
-	 * hidden format that is returned as null from {@link Bitmap#getConfig()}. Since
-	 * we cannot force {@link android.graphics.BitmapFactory} to always return our desired config,
-	 * this setting is a preference, not a promise.</p>
-	 */
-	public static final int FORMAT_ARGB_8888 = 0x01;
-
-	/**
-	 * Bitmaps decoded from image formats that support and/or use alpha (some types of PNGs, GIFs etc)
-	 * should return {@link Bitmap.Config#ARGB_8888} for
-	 * {@link Bitmap#getConfig()}. Bitmaps decoded from formats that don't support or
-	 * use alpha should return {@link Bitmap.Config#RGB_565} for
-	 * {@link Bitmap#getConfig()}.
-	 */
-	public static final int FORMAT_RGB_565 = 0x02;
-
-	@IntDef({FORMAT_ARGB_8888, FORMAT_RGB_565})
-	@Retention(RetentionPolicy.SOURCE)
-	public @interface ImageFormat {
-
-	}
-
-	/**
-	 * {@link DiskCacheStrategy#NONE}
-	 */
-	public static final int CACHE_STRATEGY_NONE = 0x0;
-	/**
-	 * {@link DiskCacheStrategy#DATA}
-	 */
-	public static final int CACHE_STRATEGY_DATA = 0x1;
-	/**
-	 * {@link DiskCacheStrategy#RESOURCE}
-	 */
-	public static final int CACHE_STRATEGY_RESOURCE = 0x2;
-	/**
-	 * {@link DiskCacheStrategy#AUTOMATIC}
-	 */
-	public static final int CACHE_STRATEGY_AUTOMATIC = 0x4;
-	/**
-	 * {@link DiskCacheStrategy#ALL}
-	 */
-	public static final int CACHE_STRATEGY_ALL = 0x8;
-
-	@IntDef({CACHE_STRATEGY_NONE, CACHE_STRATEGY_DATA,
-			CACHE_STRATEGY_RESOURCE, CACHE_STRATEGY_AUTOMATIC,
-			CACHE_STRATEGY_ALL})
-	@Retention(RetentionPolicy.SOURCE)
-	public @interface CacheStrategy {
-
-	}
-
 	private RequestManager mRequestManager;
 	private Handler mHandler;
 
@@ -162,21 +103,6 @@ public class ImageLoader {
 		private Request(Object source) {
 			mSources = source;
 			mRequestOptions = new RequestOptions();
-		}
-
-		/**
-		 * 请求图片的format
-		 *
-		 * @param format {@link #FORMAT_ARGB_8888} {@link #FORMAT_RGB_565}
-		 * @return
-		 */
-		public Request format(@ImageFormat int format) {
-			if (format == FORMAT_ARGB_8888) {
-				mRequestOptions.format(DecodeFormat.PREFER_ARGB_8888);
-			} else if (format == FORMAT_RGB_565) {
-				mRequestOptions.format(DecodeFormat.PREFER_RGB_565);
-			}
-			return this;
 		}
 
 		/**
@@ -271,29 +197,6 @@ public class ImageLoader {
 				});
 			}
 
-			return this;
-		}
-
-		/**
-		 * 图片加载时候的缓存策略
-		 *
-		 * @param strategy {@link #CACHE_STRATEGY_ALL} {@link #CACHE_STRATEGY_AUTOMATIC}
-		 *                 {@link #CACHE_STRATEGY_DATA} {@link #CACHE_STRATEGY_RESOURCE}
-		 *                 {@link #CACHE_STRATEGY_NONE}
-		 * @return
-		 */
-		public Request cacheStrategy(@CacheStrategy int strategy) {
-			if (strategy == CACHE_STRATEGY_ALL) {
-				mRequestOptions.diskCacheStrategy(DiskCacheStrategy.ALL);
-			} else if (strategy == CACHE_STRATEGY_AUTOMATIC) {
-				mRequestOptions.diskCacheStrategy(DiskCacheStrategy.AUTOMATIC);
-			} else if (strategy == CACHE_STRATEGY_DATA) {
-				mRequestOptions.diskCacheStrategy(DiskCacheStrategy.DATA);
-			} else if (strategy == CACHE_STRATEGY_RESOURCE) {
-				mRequestOptions.diskCacheStrategy(DiskCacheStrategy.RESOURCE);
-			} else if (strategy == CACHE_STRATEGY_NONE) {
-				mRequestOptions.diskCacheStrategy(DiskCacheStrategy.NONE);
-			}
 			return this;
 		}
 

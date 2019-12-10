@@ -1,7 +1,5 @@
 package com.shanbay.lib.texas.text;
 
-import androidx.annotation.Keep;
-
 import com.shanbay.lib.texas.Texas;
 import com.shanbay.lib.texas.annotations.Hidden;
 import com.shanbay.lib.texas.misc.DefaultRecyclable;
@@ -11,7 +9,12 @@ import com.shanbay.lib.texas.misc.ObjectFactory;
 class TextBoxAttribute extends DefaultRecyclable {
 	private final static ObjectFactory<TextBoxAttribute> POOL = new ObjectFactory<>(128);
 	static {
-		Texas.register(TextBoxAttribute.class);
+		Texas.registerLifecycleCallback(new Texas.LifecycleCallback() {
+			@Override
+			public void onClean() {
+				POOL.clean();
+			}
+		});
 	}
 
 	private TextStyle mTextStyle;
@@ -81,10 +84,5 @@ class TextBoxAttribute extends DefaultRecyclable {
 		}
 		attribute.reuse();
 		return attribute;
-	}
-
-	@Keep
-	public static void clean() {
-		POOL.clean();
 	}
 }
