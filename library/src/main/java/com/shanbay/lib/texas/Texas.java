@@ -4,31 +4,35 @@ import android.app.Application;
 import android.content.ComponentCallbacks;
 import android.content.res.Configuration;
 
-import java.lang.reflect.Method;
-import java.util.HashSet;
-import java.util.Set;
-
 import com.shanbay.lib.log.Log;
 import com.shanbay.lib.texas.annotations.Hidden;
-import com.shanbay.lib.texas.text.DrawableBox;
-import com.shanbay.lib.texas.text.Glue;
-import com.shanbay.lib.texas.text.Line;
-import com.shanbay.lib.texas.text.Penalty;
-import com.shanbay.lib.texas.text.TextBox;
 import com.shanbay.lib.texas.text.ColorGround;
 import com.shanbay.lib.texas.text.Document;
+import com.shanbay.lib.texas.text.DrawableBox;
 import com.shanbay.lib.texas.text.Figure;
+import com.shanbay.lib.texas.text.Glue;
+import com.shanbay.lib.texas.text.Line;
 import com.shanbay.lib.texas.text.Paragraph;
+import com.shanbay.lib.texas.text.Penalty;
+import com.shanbay.lib.texas.text.TextBox;
 import com.shanbay.lib.texas.text.UnderLine;
+
+import java.util.HashSet;
+import java.util.Set;
 
 public class Texas {
 
 	private static MemoryOption sMemoryOption = new MemoryOption();
-	private static final Set<Class<?>> RECYCLE_CLAZZ = new HashSet<>();
+	private static final Set<LifecycleCallback> LIFECYCLE_CALLBACKS = new HashSet<>();
 
 	@Hidden
-	public static void register(Class<?> clazz) {
-		RECYCLE_CLAZZ.add(clazz);
+	public static void registerLifecycleCallback(LifecycleCallback callback) {
+		LIFECYCLE_CALLBACKS.add(callback);
+	}
+
+	@Hidden
+	public static void unregisterLifecycleCallback(LifecycleCallback callback) {
+		LIFECYCLE_CALLBACKS.remove(callback);
 	}
 
 	@Hidden
@@ -80,21 +84,15 @@ public class Texas {
 		ColorGround.clean();
 		UnderLine.clean();
 		Paragraph.Builder.clean();
-		for (Class<?> clazz : RECYCLE_CLAZZ) {
-			recycle(clazz);
+		for (LifecycleCallback callback : LIFECYCLE_CALLBACKS) {
+			try {
+				Log.i("Texas", "release: " + callback);
+				callback.onClean();
+			} catch (Throwable throwable) {
+				Log.w("Texas", throwable);
+			}
 		}
-
 		System.gc();
-	}
-
-	private static void recycle(Class<?> clazz) {
-		try {
-			Method method = clazz.getDeclaredMethod("clean");
-			method.setAccessible(true);
-			method.invoke(null);
-		} catch (Throwable e) {
-			e.printStackTrace();
-		}
 	}
 
 	@Hidden
@@ -139,5 +137,10 @@ public class Texas {
 			mParagraphLineBoxInitialCapacity = paragraphLineBoxInitialCapacity;
 			return this;
 		}
+	}
+
+	@Hidden
+	public interface LifecycleCallback {
+		void onClean();
 	}
 }

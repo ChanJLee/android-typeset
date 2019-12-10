@@ -1,7 +1,5 @@
 package com.shanbay.lib.texas.typesetter;
 
-import androidx.annotation.Keep;
-
 import com.shanbay.lib.texas.Texas;
 import com.shanbay.lib.texas.annotations.Hidden;
 import com.shanbay.lib.texas.misc.DefaultRecyclable;
@@ -11,7 +9,12 @@ import com.shanbay.lib.texas.misc.ObjectFactory;
 class Candidate extends DefaultRecyclable {
 	private static final ObjectFactory<Candidate> POOL = new ObjectFactory<>(256);
 	static {
-		Texas.register(Candidate.class);
+		Texas.registerLifecycleCallback(new Texas.LifecycleCallback() {
+			@Override
+			public void onClean() {
+				POOL.clean();
+			}
+		});
 	}
 
 	public float demerits;
@@ -47,10 +50,5 @@ class Candidate extends DefaultRecyclable {
 		candidate.reset(demerits, ratio, active);
 		candidate.reuse();
 		return candidate;
-	}
-
-	@Keep
-	public static void clean() {
-		POOL.clean();
 	}
 }

@@ -1,7 +1,5 @@
 package com.shanbay.lib.texas.text;
 
-import androidx.annotation.Keep;
-
 import com.shanbay.lib.texas.annotations.Hidden;
 import com.shanbay.lib.texas.misc.ObjectFactory;
 
@@ -75,7 +73,6 @@ public final class Glue extends Element {
 		return glue;
 	}
 
-	@Keep
 	public static void clean() {
 		POOL.clean();
 	}

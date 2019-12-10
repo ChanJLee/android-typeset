@@ -1,7 +1,5 @@
 package com.shanbay.lib.texas.typesetter;
 
-import androidx.annotation.Keep;
-
 import com.shanbay.lib.texas.Texas;
 import com.shanbay.lib.texas.annotations.Hidden;
 import com.shanbay.lib.texas.text.Glue;
@@ -12,7 +10,12 @@ import com.shanbay.lib.texas.misc.ObjectFactory;
 class Sum extends DefaultRecyclable {
 	private static final ObjectFactory<Sum> POOL = new ObjectFactory<>(1024);
 	static {
-		Texas.register(Sum.class);
+		Texas.registerLifecycleCallback(new Texas.LifecycleCallback() {
+			@Override
+			public void onClean() {
+				POOL.clean();
+			}
+		});
 	}
 
 	private float mWidth = 0;
@@ -70,10 +73,5 @@ class Sum extends DefaultRecyclable {
 		sum.mShrink = other.mShrink;
 		sum.mStretch = other.mStretch;
 		return sum;
-	}
-
-	@Keep
-	public static void clean() {
-		POOL.clean();
 	}
 }
