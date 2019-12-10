@@ -39,7 +39,6 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 	private Paragraph mParagraph;
 	private TextPaint mPaint;
 	private TextPaint mWorkPaint = new TextPaint();
-	private Paint mDebugPaint;
 	private GestureDetector mGestureDetector = null;
 	private float mRectRadius;
 
@@ -90,11 +89,12 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 	}
 
 	private void setDebugMode(boolean enable) {
-		if (enable && mDebugPaint == null) {
-			mDebugPaint = new Paint();
-			mDebugPaint.setColor(Color.GREEN);
-			mDebugPaint.setStyle(Paint.Style.FILL);
-			mDebugPaint.setTextSize(40);
+		if (!enable) {
+			return;
+		}
+
+		if (mDebugDrawVisitor == null) {
+			mDebugDrawVisitor = new DebugDrawVisitor();
 		}
 	}
 
@@ -160,6 +160,16 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 		mDrawVisitor.setSelection(selection);
 		visitParagraph(mParagraph, mDrawVisitor);
 		mDrawVisitor.clear();
+
+		// 绘制debug信息
+		if (!mRenderOption.isEnableDebug()) {
+			return;
+		}
+
+		mDebugDrawVisitor.setCanvas(canvas);
+		mDebugDrawVisitor.setSelection(selection);
+		visitParagraph(mParagraph, mDebugDrawVisitor);
+		mDebugDrawVisitor.clear();
 	}
 
 	private boolean handleMotion(MotionEvent e, boolean isLongClicked) {
@@ -354,30 +364,12 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 
 		@Override
 		public void onVisitParagraph(Paragraph paragraph) {
-			/* */
+			/* do nothing */
 		}
 
 		@Override
 		public void onVisitParagraphEnd(Paragraph paragraph) {
-			if (mRenderOption == null ||
-					!mRenderOption.isEnableDebug() ||
-					!(mParagraphSelection instanceof TextParagraphSelection)) {
-				return;
-			}
-
-			d("para end, render debug");
-			TextParagraphSelection textParagraphSelection = (TextParagraphSelection) mParagraphSelection;
-			mWorkPaint.set(mDebugPaint);
-			mWorkPaint.setColor(Color.RED);
-			mWorkPaint.setStrokeWidth(200);
-			int[] location = new int[2];
-			getLocationOnScreen(location);
-			int x = getWidth() - 100;
-			mCanvas.drawLine(x,
-					textParagraphSelection.getTopEdgeInWindow() - location[1],
-					x,
-					textParagraphSelection.getBottomEdgeInWindow() - location[1],
-					mWorkPaint);
+			/* do nothing */
 		}
 
 		@Override
@@ -386,18 +378,7 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 
 		@Override
 		public void onVisitLineEnd(Line line, float x, float y) {
-			if (mRenderOption.isEnableDebug()) {
-				float startX = 0;
-				float startY = y + mRenderOption.getLineSpace();
-				Rect rect = new Rect();
-				String debugInfo = line.getRatio() + " " + line.getSpaceWidth();
-				mDebugPaint.getTextBounds(debugInfo, 0, debugInfo.length(), rect);
-				mDebugPaint.setColor(Color.BLUE);
-				rect.offset((int) startX, (int) startY);
-				mCanvas.drawRect(rect, mDebugPaint);
-				mDebugPaint.setColor(Color.RED);
-				mCanvas.drawText(debugInfo, startX, startY, mDebugPaint);
-			}
+			/* do nothing */
 		}
 
 		@Override
@@ -413,11 +394,6 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 					mWorkPaint.set(mPaint);
 					background.draw(mCanvas, mWorkPaint, left, top, right, belowBottom);
 				}
-			}
-
-			if (mRenderOption.isEnableDebug()) {
-				mDebugPaint.setColor(Color.GREEN);
-				mCanvas.drawRect(left, top, right, belowBottom, mDebugPaint);
 			}
 
 			mWorkPaint.set(mPaint);
@@ -601,6 +577,85 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 				mSelection.addBox(box);
 				box.setSelected(true);
 			}
+		}
+	}
+
+	private DebugDrawVisitor mDebugDrawVisitor;
+
+	private class DebugDrawVisitor implements Visitor {
+		private final Paint mDebugPaint;
+		private Canvas mCanvas;
+		private ParagraphSelection mSelection;
+
+		public DebugDrawVisitor() {
+			mDebugPaint = new Paint();
+			mDebugPaint.setColor(Color.GREEN);
+			mDebugPaint.setStyle(Paint.Style.STROKE);
+			mDebugPaint.setTextSize(40);
+		}
+
+		public void setSelection(ParagraphSelection selection) {
+			mSelection = selection;
+		}
+
+		public void setCanvas(Canvas canvas) {
+			mCanvas = canvas;
+		}
+
+		private void clear() {
+			mCanvas = null;
+		}
+
+		@Override
+		public void onVisitParagraph(Paragraph paragraph) {
+			/* do nothing */
+		}
+
+		@Override
+		public void onVisitParagraphEnd(Paragraph paragraph) {
+			if (!(mSelection instanceof TextParagraphSelection)) {
+				return;
+			}
+
+			d("para end, render debug");
+			TextParagraphSelection textParagraphSelection = (TextParagraphSelection) mSelection;
+			mWorkPaint.set(mDebugPaint);
+			mWorkPaint.setColor(Color.RED);
+			mWorkPaint.setStrokeWidth(200);
+			int[] location = new int[2];
+			getLocationOnScreen(location);
+			int x = getWidth() - 100;
+			mCanvas.drawLine(x,
+					textParagraphSelection.getTopEdgeInWindow() - location[1],
+					x,
+					textParagraphSelection.getBottomEdgeInWindow() - location[1],
+					mWorkPaint);
+		}
+
+		@Override
+		public void onVisitLine(Line line, float x, float y) {
+			/* do nothing */
+		}
+
+		@Override
+		public void onVisitLineEnd(Line line, float x, float y) {
+			float startX = 0;
+			float startY = y + mRenderOption.getLineSpace();
+			Rect rect = new Rect();
+			String debugInfo = line.getRatio() + " " + line.getSpaceWidth();
+			mDebugPaint.getTextBounds(debugInfo, 0, debugInfo.length(), rect);
+			mDebugPaint.setColor(Color.BLUE);
+			rect.offset((int) startX, (int) startY);
+			mCanvas.drawRect(rect, mDebugPaint);
+			mDebugPaint.setColor(Color.RED);
+			mCanvas.drawText(debugInfo, startX, startY, mDebugPaint);
+		}
+
+		@Override
+		public void onVisitBox(Box box, float left, float top, float right, float bottom) {
+			float belowBottom = bottom + mBottomPadding;
+			mDebugPaint.setColor(Color.GREEN);
+			mCanvas.drawRect(left, top, right, belowBottom, mDebugPaint);
 		}
 	}
 

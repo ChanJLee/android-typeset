@@ -153,13 +153,17 @@ class TexasAdapter extends RecyclerView.Adapter<TexasAdapter.Renderer> {
 		notifyItemChanged(index);
 	}
 
-	private void handleParagraphSelected(ParagraphSelection paragraphSelection) {
+	private void handleParagraphSelected(ParagraphSelection currentSelection) {
 		// 先取消之前的内容
-		clearSelectionInternal();
-		notifySelectionChanged(mParagraphSelection);
+		ParagraphSelection previousSelection = mParagraphSelection;
+		if (previousSelection != null &&
+				previousSelection.getParagraph() != currentSelection.getParagraph()) {
+			clearSelectionInternal();
+			notifySelectionChanged(previousSelection);
+		}
 
 		// 刷新现在的内容
-		mParagraphSelection = paragraphSelection;
+		mParagraphSelection = currentSelection;
 		notifySelectionChanged(mParagraphSelection);
 	}
 
