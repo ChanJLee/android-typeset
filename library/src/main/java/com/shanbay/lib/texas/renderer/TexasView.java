@@ -307,6 +307,9 @@ public class TexasView extends FrameLayout {
 		mRenderListener = renderListener;
 	}
 
+	/**
+	 * @param scrollListener 滚动监听
+	 */
 	public void setScrollListener(ScrollListener scrollListener) {
 		mScrollListener = scrollListener;
 	}
