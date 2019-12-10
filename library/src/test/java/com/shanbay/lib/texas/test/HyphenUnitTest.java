@@ -11,7 +11,7 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.shanbay.lib.texas.hypher.Hypher;
+import com.shanbay.lib.texas.hyphenation.Hyphenation;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -118,7 +118,7 @@ public class HyphenUnitTest {
 	}
 
 	private void hyphenate(String text, int start, int len, List<String> result) {
-		Hypher hypher = Hypher.getInstance();
+		Hyphenation hypher = Hyphenation.getInstance();
 		List<Integer> list = new ArrayList<>();
 		hypher.hyphenate(text, start, start + len, list);
 		for (int p : list) {

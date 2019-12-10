@@ -7,7 +7,7 @@ import java.util.List;
 
 import com.shanbay.lib.texas.Texas;
 import com.shanbay.lib.texas.annotations.Hidden;
-import com.shanbay.lib.texas.hypher.Hypher;
+import com.shanbay.lib.texas.hyphenation.Hyphenation;
 import com.shanbay.lib.texas.measurer.Measurer;
 import com.shanbay.lib.texas.misc.DefaultRecyclable;
 import com.shanbay.lib.texas.misc.ObjectFactory;
@@ -108,7 +108,7 @@ public class Paragraph extends Segment {
 
 		private List<Integer> mHyphenated = new ArrayList<>(10);
 		private Measurer mMeasurer;
-		private Hypher mHypher;
+		private Hyphenation mHyphenation;
 		private TextAttribute mTextAttribute;
 		private Paragraph mParagraph;
 		private Object mExtra;
@@ -193,7 +193,8 @@ public class Paragraph extends Segment {
 
 			int len = end - start;
 			List<Element> elements = mParagraph.mElements;
-			mHypher.hyphenate(text, start, end, mHyphenated);
+			mHyphenated.clear();
+			mHyphenation.hyphenate(text, start, end, mHyphenated);
 			int size = mHyphenated.size();
 			if (size == 0 || len < MIN_HYPER_LEN) {
 				elements.add(TextBox.obtain(text, start, end,
@@ -227,7 +228,6 @@ public class Paragraph extends Segment {
 					start = point;
 				}
 			}
-			mHyphenated.clear();
 			elements.add(
 					Glue.obtain(
 							mTextAttribute.getSpaceWidth(),
@@ -305,7 +305,7 @@ public class Paragraph extends Segment {
 			mParagraph = null;
 			mMeasurer = null;
 			mTextAttribute = null;
-			mHypher = null;
+			mHyphenation = null;
 			mHyphenated.clear();
 			mExtra = null;
 			mSpanBuilder.reset(null);
@@ -314,18 +314,18 @@ public class Paragraph extends Segment {
 
 		/**
 		 * @param measurer      测量器
-		 * @param hypher        断字器
+		 * @param hyphenation   断字器
 		 * @param textAttribute 文本属性
 		 * @return 当前对象
 		 */
-		public static Builder newBuilder(Measurer measurer, Hypher hypher, TextAttribute textAttribute) {
+		public static Builder newBuilder(Measurer measurer, Hyphenation hyphenation, TextAttribute textAttribute) {
 			Builder builder = POOL.acquire();
 			if (builder == null) {
 				builder = new Builder();
 			}
 
 			builder.mMeasurer = measurer;
-			builder.mHypher = hypher;
+			builder.mHyphenation = hyphenation;
 			builder.mTextAttribute = textAttribute;
 			builder.mParagraph = obtain();
 			builder.reuse();

@@ -1,18 +1,16 @@
-package com.shanbay.lib.texas.hypher;
+package com.shanbay.lib.texas.hyphenation;
 
 import androidx.annotation.NonNull;
 import androidx.collection.SparseArrayCompat;
-
-import com.shanbay.lib.log.Log;
 
 import java.util.List;
 
 /**
  * 断字器
  */
-public class Hypher {
+public class Hyphenation {
 
-	private static Hypher[] sHyphers = new Hypher[2];
+	private static Hyphenation[] sHyphers = new Hyphenation[2];
 
 	private static final int UNDER_LINE_CODE_POINT = 95;
 
@@ -20,17 +18,17 @@ public class Hypher {
 	private int mLeftMin;
 	private int mRightMin;
 
-	private Hypher(HyphenationPattern pattern) {
+	private Hyphenation(HyphenationPattern pattern) {
 		this.mTrie = createTrie(pattern.patterns);
 		this.mLeftMin = pattern.leftMin;
 		this.mRightMin = pattern.rightMin;
 	}
 
-	public static Hypher getInstance() {
+	public static Hyphenation getInstance() {
 		return getInstance(HyphenationPattern.EN_US);
 	}
 
-	public static synchronized Hypher getInstance(HyphenationPattern hyphenationPattern) {
+	public static synchronized Hyphenation getInstance(HyphenationPattern hyphenationPattern) {
 		int index = -1;
 		if (hyphenationPattern == HyphenationPattern.EN_US) {
 			index = 0;
@@ -41,7 +39,7 @@ public class Hypher {
 		}
 
 		if (sHyphers[index] == null) {
-			sHyphers[index] = new Hypher(hyphenationPattern);
+			sHyphers[index] = new Hyphenation(hyphenationPattern);
 		}
 
 		return sHyphers[index];
@@ -101,10 +99,6 @@ public class Hypher {
 	}
 
 	public void hyphenate(@NonNull CharSequence text, int start, int end, @NonNull List<Integer> result) {
-		if (!result.isEmpty()) {
-			Log.w("hyphen", "hyphenate result is not empty");
-		}
-
 		if (start == end) {
 			return;
 		}

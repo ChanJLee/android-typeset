@@ -6,7 +6,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.shanbay.lib.texas.hypher.Hypher;
+import com.shanbay.lib.texas.hyphenation.Hyphenation;
 import com.shanbay.lib.texas.measurer.Measurer;
 import com.shanbay.lib.texas.test.mock.MockMeasurer;
 import com.shanbay.lib.texas.test.mock.MockTextPaint;
@@ -37,7 +37,7 @@ public class ParagraphUnitTest {
 	@Test
 	public void testBuilder() {
 		String msg = "hello";
-		Paragraph.Builder builder = Paragraph.Builder.newBuilder(mMeasurer, Hypher.getInstance(), mTextAttribute);
+		Paragraph.Builder builder = Paragraph.Builder.newBuilder(mMeasurer, Hyphenation.getInstance(), mTextAttribute);
 		Paragraph paragraph = builder.build();
 		Assert.assertTrue(builder.isRecycled());
 		Assert.assertFalse(paragraph.isRecycled());
@@ -52,9 +52,9 @@ public class ParagraphUnitTest {
 
 		// test recycle twice
 		Paragraph.Builder p = builder;
-		builder = Paragraph.Builder.newBuilder(mMeasurer, Hypher.getInstance(), mTextAttribute);
+		builder = Paragraph.Builder.newBuilder(mMeasurer, Hyphenation.getInstance(), mTextAttribute);
 		Assert.assertSame(p, builder);
-		Assert.assertNotSame(builder, Paragraph.Builder.newBuilder(mMeasurer, Hypher.getInstance(), mTextAttribute));
+		Assert.assertNotSame(builder, Paragraph.Builder.newBuilder(mMeasurer, Hyphenation.getInstance(), mTextAttribute));
 
 		ColorDrawable colorDrawable = new ColorDrawable(10);
 		OnClickedListener onClickedListener = new OnClickedListener() {
@@ -143,7 +143,7 @@ public class ParagraphUnitTest {
 
 	@Test
 	public void testParagraph() throws NoSuchFieldException, IllegalAccessException {
-		Paragraph.Builder builder = Paragraph.Builder.newBuilder(mMeasurer, Hypher.getInstance(), mTextAttribute);
+		Paragraph.Builder builder = Paragraph.Builder.newBuilder(mMeasurer, Hyphenation.getInstance(), mTextAttribute);
 		String msg = "xxx";
 		builder.extra(msg);
 		builder.text("hello");
@@ -179,7 +179,7 @@ public class ParagraphUnitTest {
 		paragraph.recycle();
 
 		Paragraph paragraph1 = paragraph;
-		builder = Paragraph.Builder.newBuilder(mMeasurer, Hypher.getInstance(), mTextAttribute);
+		builder = Paragraph.Builder.newBuilder(mMeasurer, Hyphenation.getInstance(), mTextAttribute);
 		builder.text("triangle");
 		paragraph = builder.build();
 		Assert.assertSame(paragraph, paragraph1);
@@ -187,6 +187,6 @@ public class ParagraphUnitTest {
 		Assert.assertEquals(paragraph.getLineCount(), 0);
 		Assert.assertEquals(paragraph.getElementCount(), 7);
 
-		Assert.assertNotSame(paragraph, Paragraph.Builder.newBuilder(mMeasurer, Hypher.getInstance(), mTextAttribute).build());
+		Assert.assertNotSame(paragraph, Paragraph.Builder.newBuilder(mMeasurer, Hyphenation.getInstance(), mTextAttribute).build());
 	}
 }

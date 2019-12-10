@@ -24,7 +24,7 @@ import com.shanbay.lib.texas.text.TextAttribute;
 import com.shanbay.lib.texas.text.Box;
 import com.shanbay.lib.texas.text.DrawableBox;
 import com.shanbay.lib.texas.text.TextBox;
-import com.shanbay.lib.texas.hypher.Hypher;
+import com.shanbay.lib.texas.hyphenation.Hyphenation;
 import com.shanbay.lib.texas.measurer.Measurer;
 import com.shanbay.lib.texas.parser.TextParser;
 import com.shanbay.lib.texas.test.mock.MockMeasurer;
@@ -70,7 +70,7 @@ public class TypesetterUnitTest {
 			}
 		}).when(mRect).height();
 
-		Hypher.getInstance();
+		Hyphenation.getInstance();
 	}
 
 	@Test
@@ -142,7 +142,7 @@ public class TypesetterUnitTest {
 		ParagraphTypesetterImpl texTypesetter = new ParagraphTypesetterImpl();
 		TextParser textParser = new TextParser();
 		RenderOption renderOption = new RenderOption();
-		Document document = textParser.parse(text, measurer, Hypher.getInstance(), attribute, renderOption);
+		Document document = textParser.parse(text, measurer, Hyphenation.getInstance(), attribute, renderOption);
 		assertNotEquals(document.getSegmentCount(), 0);
 
 		StringBuilder stringBuilder = new StringBuilder();
@@ -303,7 +303,7 @@ public class TypesetterUnitTest {
 		Document document = Document.obtain();
 		MockTextAttribute attribute = new MockTextAttribute(textPaint);
 		attribute.setDefaultAttribute(new TextAttribute.LineAttribute(width, Gravity.LEFT));
-		Paragraph.Builder builder = Paragraph.Builder.newBuilder(measurer, Hypher.getInstance(), attribute);
+		Paragraph.Builder builder = Paragraph.Builder.newBuilder(measurer, Hyphenation.getInstance(), attribute);
 		for (int i = 0; i < s.length; ++i) {
 			builder.text(s[i], 0, s[i].length());
 			builder.drawable(new ColorDrawable(10), drawableWidth, 20);
