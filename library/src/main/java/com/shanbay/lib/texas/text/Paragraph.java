@@ -146,7 +146,20 @@ public class Paragraph extends Segment {
 		}
 
 		/**
-		 * 创建一个span，一个span即代表一组有上下文关联的文字。当span中的文字被选中时，整个span中所有的文字都可以被选中。比如一段词组
+		 * 创建一个span，span是一段富文本内容，内部有多段组成
+		 * 每个组成部分可以设置文本样式，以及相应点击事件
+		 * 另外一个span可以响应长按事件 {@link Builder#newSpanBuilder(OnClickedListener)}
+		 *
+		 * @return 当前对象
+		 */
+		public SpanBuilder newSpanBuilder() {
+			return newSpanBuilder();
+		}
+
+		/**
+		 * 创建一个span，span是一段富文本内容，内部有多段组成
+		 * 每个组成部分可以设置文本样式，以及相应点击事件
+		 * 另外一个span可以响应长按事件
 		 *
 		 * @param listener 创建一个span
 		 * @return 当前对象
