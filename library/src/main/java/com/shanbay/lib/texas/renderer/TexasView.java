@@ -329,8 +329,8 @@ public class TexasView extends FrameLayout {
 	 *
 	 * @return top边界
 	 */
-	public float getSelectedTopEdgeInScreen() {
-		return mRenderer.getSelectedTopEdgeInScreen();
+	public float getSelectedTopEdgeOnScreen() {
+		return mRenderer.getSelectedTopEdgeOnScreen();
 	}
 
 	/**
@@ -338,8 +338,8 @@ public class TexasView extends FrameLayout {
 	 *
 	 * @return bottom边界
 	 */
-	public float getSelectedBottomEdgeInScreen() {
-		return mRenderer.getSelectedBottomEdgeInScreen();
+	public float getSelectedBottomEdgeOnScreen() {
+		return mRenderer.getSelectedBottomEdgeOnScreen();
 	}
 
 	void notifyClicked(float x, float y) {
