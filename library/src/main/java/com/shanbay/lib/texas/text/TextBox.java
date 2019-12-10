@@ -50,11 +50,19 @@ public final class TextBox extends Box {
 		mFlag = other.mFlag;
 	}
 
+	// TODO unit test
 	public Appearance getBackground() {
 		if (mAttribute == null) {
 			return null;
 		}
 		return mAttribute.getBackground();
+	}
+
+	public Object getTag() {
+		if (mAttribute == null) {
+			return null;
+		}
+		return mAttribute.getTag();
 	}
 
 	public Appearance getForeground() {

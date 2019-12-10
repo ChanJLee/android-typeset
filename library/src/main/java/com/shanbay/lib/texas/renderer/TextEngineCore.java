@@ -306,6 +306,10 @@ class TextEngineCore {
 		return mDocument;
 	}
 
+	public float getWidth() {
+		return mWidth;
+	}
+
 	private static void d(String msg) {
 		Log.d("TexasCore", msg);
 	}

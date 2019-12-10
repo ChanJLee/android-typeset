@@ -58,6 +58,7 @@ class TextBoxAttribute extends DefaultRecyclable {
 		return mSpanOnClickedListener;
 	}
 
+	// TODO test
 	public Object getTag() {
 		return mTag;
 	}
@@ -82,6 +83,7 @@ class TextBoxAttribute extends DefaultRecyclable {
 			mForeground.recycle();
 			mForeground = null;
 		}
+		mTag = null;
 		mSpanOnClickedListener = null;
 		POOL.release(this);
 	}

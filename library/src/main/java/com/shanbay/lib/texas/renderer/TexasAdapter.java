@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.graphics.RectF;
 import android.text.TextPaint;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
@@ -20,15 +21,17 @@ import com.shanbay.lib.log.Log;
 import com.shanbay.lib.texas.measurer.Measurer;
 import com.shanbay.lib.texas.text.Box;
 import com.shanbay.lib.texas.text.Document;
+import com.shanbay.lib.texas.text.DrawableBox;
 import com.shanbay.lib.texas.text.Figure;
 import com.shanbay.lib.texas.text.Line;
 import com.shanbay.lib.texas.text.OnClickedListener;
 import com.shanbay.lib.texas.text.Paragraph;
 import com.shanbay.lib.texas.text.Segment;
+import com.shanbay.lib.texas.text.TextBox;
 import com.shanbay.lib.texas.text.ViewSegment;
 
 @Hidden
-class TexasAdapter extends RecyclerView.Adapter<TexasAdapter.Renderer> {
+class TexasAdapter extends RecyclerView.Adapter<TexasAdapter.Renderer> implements ParagraphView.OnSelectedChangedListener {
 	private static final int TYPE_PARAGRAPH = 1;
 	private static final int TYPE_FIGURE = 2;
 	private static final int TYPE_VIEW_SEGMENT = 3;
@@ -43,6 +46,7 @@ class TexasAdapter extends RecyclerView.Adapter<TexasAdapter.Renderer> {
 	 * 选中效果属于编辑器内部的状态了，所有直接由adapter管理而不需要通知外部组件
 	 * */
 	private ParagraphSelection mParagraphSelection;
+	private float mWidth;
 
 	TexasAdapter(LayoutInflater layoutInflater, ImageLoader imageLoader) {
 		mLayoutInflater = layoutInflater;
@@ -100,12 +104,14 @@ class TexasAdapter extends RecyclerView.Adapter<TexasAdapter.Renderer> {
 	public void render(Document document,
 					   TextPaint textPaint,
 					   RenderOption renderOption,
-					   Measurer measurer) {
+					   Measurer measurer,
+					   float width) {
 		d("render");
 		mDocument = document;
 		mTextPaint = textPaint;
 		mRenderOption = renderOption;
 		mMeasurer = measurer;
+		mWidth = width;
 		// 清空选中
 		clearSelectionInternal();
 		notifyDataSetChanged();
@@ -157,26 +163,65 @@ class TexasAdapter extends RecyclerView.Adapter<TexasAdapter.Renderer> {
 		notifyItemChanged(index);
 	}
 
-	private void handleParagraphSelected(ParagraphSelection currentSelection) {
-		// 先取消之前的内容
-		ParagraphSelection previousSelection = mParagraphSelection;
-		if (previousSelection != null &&
-				previousSelection.getParagraph() != currentSelection.getParagraph()) {
-			clearSelectionInternal();
-			notifySelectionChanged(previousSelection);
-		}
-
-		// 刷新现在的内容
-		mParagraphSelection = currentSelection;
-		notifySelectionChanged(mParagraphSelection);
-	}
-
 	float getSelectedTopEdgeOnScreen() {
 		return mParagraphSelection == null ? -1 : mParagraphSelection.getTopEdgeOnScreen();
 	}
 
 	float getSelectedBottomEdgeOnScreen() {
 		return mParagraphSelection == null ? -1 : mParagraphSelection.getBottomEdgeOnScreen();
+	}
+
+	@Override
+	public void onTextSelected(MotionEvent e,
+							   Paragraph paragraph,
+							   boolean isLongClicked,
+							   OnClickedListener onClickedListener) {
+		mSelectedTextByListener.setOnClickedListener(onClickedListener);
+		mSelectedTextByListener.setLongClicked(isLongClicked);
+		mSelectedTextByListener.setLastYOnScreen(e.getRawY());
+		mSelectedTextByListener.setLastYInView(e.getY());
+		mSelectedTextByListener.visit(paragraph, mWidth, mRenderOption, mMeasurer.getFontTopPadding());
+		TextParagraphSelection selection = mSelectedTextByListener.getSelection();
+		mSelectedTextByListener.clear();
+		handleParagraphSelected(selection);
+		if (onClickedListener != null) {
+			onClickedListener.onClicked(e.getRawX(), e.getRawY());
+		}
+	}
+
+	@Override
+	public void onDrawSelected(MotionEvent e,
+							   Paragraph paragraph,
+							   boolean isLongClicked,
+							   DrawableBox box,
+							   OnClickedListener onClickedListener) {
+		DrawableParagraphSelection selection = new DrawableParagraphSelection(
+				paragraph,
+				isLongClicked,
+				box
+		);
+
+		box.setSelected(true);
+		handleParagraphSelected(selection);
+
+		if (onClickedListener != null) {
+			onClickedListener.onClicked(e.getRawX(), e.getRawY());
+		}
+	}
+
+	private void handleParagraphSelected(ParagraphSelection currentSelection) {
+		// 先取消之前的内容
+		ParagraphSelection previousSelection = mParagraphSelection;
+		clearSelectionInternal();
+
+		if (previousSelection != null &&
+				previousSelection.getParagraph() != currentSelection.getParagraph()) {
+			notifySelectionChanged(previousSelection);
+		}
+
+		// 刷新现在的内容
+		mParagraphSelection = currentSelection;
+		notifySelectionChanged(mParagraphSelection);
 	}
 
 	static abstract class Renderer<T> extends RecyclerView.ViewHolder {
@@ -210,17 +255,7 @@ class TexasAdapter extends RecyclerView.Adapter<TexasAdapter.Renderer> {
 		@Override
 		protected void onCreate(View view) {
 			mParagraphView = (ParagraphView) itemView;
-			mParagraphView.setOnTextSelectedListener(new ParagraphView.OnSelectedChangedListener() {
-				@Override
-				public void onTextSelected(TextParagraphSelection selection) {
-					handleParagraphSelected(selection);
-				}
-
-				@Override
-				public void onDrawSelected(DrawableParagraphSelection selection) {
-					handleParagraphSelected(selection);
-				}
-			});
+			mParagraphView.setOnTextSelectedListener(TexasAdapter.this);
 		}
 
 		@Override
@@ -290,10 +325,16 @@ class TexasAdapter extends RecyclerView.Adapter<TexasAdapter.Renderer> {
 		private boolean mHasContent = false;
 
 		private float mLastYOnScreen;
-		private OnClickedListener mOnClickedListener;
 		private float mLastYInView;
-		private boolean mIsLongClicked;
+		protected boolean mIsLongClicked;
 
+		public void setLongClicked(boolean longClicked) {
+			mIsLongClicked = longClicked;
+		}
+
+		public void setLastYInView(float lastYInView) {
+			mLastYInView = lastYInView;
+		}
 
 		public void setLastYOnScreen(float lastYOnScreen) {
 			mLastYOnScreen = lastYOnScreen;
@@ -313,7 +354,6 @@ class TexasAdapter extends RecyclerView.Adapter<TexasAdapter.Renderer> {
 		}
 
 		public void clear() {
-			mOnClickedListener = null;
 			mSelection = null;
 			mIsLongClicked = false;
 			mLastLineBottom = mLastLineTop = -1;
@@ -323,16 +363,8 @@ class TexasAdapter extends RecyclerView.Adapter<TexasAdapter.Renderer> {
 			mHasContent = false;
 		}
 
-		public ParagraphSelection getSelection() {
+		public TextParagraphSelection getSelection() {
 			return mSelection;
-		}
-
-		public void setOnClickedListener(OnClickedListener onClickedListener) {
-			mOnClickedListener = onClickedListener;
-		}
-
-		public void setLongClicked(boolean longClicked) {
-			mIsLongClicked = longClicked;
 		}
 
 		@Override
@@ -382,21 +414,54 @@ class TexasAdapter extends RecyclerView.Adapter<TexasAdapter.Renderer> {
 		abstract boolean selected(Box box);
 	}
 
-	private static class SelectedByTagVisitor extends SelectedVisitor {
+
+	private static class SelectedTextByTagVisitor extends SelectedVisitor {
+
+		private Object[] mObjects;
+
+		public void setObjects(Object[] objects) {
+			mObjects = objects;
+		}
 
 		@Override
 		boolean selected(Box box) {
+			if (!(box instanceof TextBox)) {
+				return false;
+			}
+
+			TextBox textBox = (TextBox) box;
+			Object rhs = textBox.getTag();
+			if (rhs == null) {
+				return false;
+			}
+
+			for (Object lhs : mObjects) {
+				if (lhs == null) {
+					continue;
+				}
+
+				if (lhs.equals(rhs)) {
+					return true;
+				}
+			}
+
 			return false;
 		}
 	}
 
-	private static class SelectedByListener extends SelectedVisitor {
+	private SelectedTextByListener mSelectedTextByListener = new SelectedTextByListener();
 
-		private boolean mLongClicked;
+	private static class SelectedTextByListener extends SelectedVisitor {
+
+		private OnClickedListener mOnClickedListener;
+
+		public void setOnClickedListener(OnClickedListener onClickedListener) {
+			mOnClickedListener = onClickedListener;
+		}
 
 		@Override
 		boolean selected(Box box) {
-			return false;
+			return mOnClickedListener == ParagraphView.getBoxOnClickedListener(box, mIsLongClicked);
 		}
 	}
 

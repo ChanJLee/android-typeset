@@ -65,12 +65,14 @@ class SlidingRenderer extends Renderer {
 	protected void onRenderer(Document document,
 							  Measurer measurer,
 							  TextPaint textPaint,
-							  RenderOption renderOption) {
+							  RenderOption renderOption,
+							  float width) {
 		mAdapter.render(
 				document,
 				textPaint,
 				renderOption,
-				measurer
+				measurer,
+				width
 		);
 		int index = document.getFocusSegmentIndex();
 		d("render scroll to: " + index);
