@@ -1,0 +1,11 @@
+com.shanbay.lib.texas
+com.shanbay.lib.texas.annotations
+com.shanbay.lib.texas.hyphenation
+com.shanbay.lib.texas.image
+com.shanbay.lib.texas.measurer
+com.shanbay.lib.texas.misc
+com.shanbay.lib.texas.parser
+com.shanbay.lib.texas.renderer
+com.shanbay.lib.texas.source
+com.shanbay.lib.texas.text
+com.shanbay.lib.texas.typesetter
