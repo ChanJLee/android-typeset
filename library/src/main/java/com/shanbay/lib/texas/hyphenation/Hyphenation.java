@@ -10,7 +10,7 @@ import java.util.List;
  */
 public class Hyphenation {
 
-	private static Hyphenation[] sHyphers = new Hyphenation[2];
+	private static final Hyphenation[] HYPHENATIONS = new Hyphenation[2];
 
 	private static final int UNDER_LINE_CODE_POINT = 95;
 
@@ -38,11 +38,11 @@ public class Hyphenation {
 			throw new IllegalArgumentException("unknown pattern");
 		}
 
-		if (sHyphers[index] == null) {
-			sHyphers[index] = new Hyphenation(hyphenationPattern);
+		if (HYPHENATIONS[index] == null) {
+			HYPHENATIONS[index] = new Hyphenation(hyphenationPattern);
 		}
 
-		return sHyphers[index];
+		return HYPHENATIONS[index];
 	}
 
 	private static TrieNode createTrie(SparseArrayCompat<String> pattern) {
