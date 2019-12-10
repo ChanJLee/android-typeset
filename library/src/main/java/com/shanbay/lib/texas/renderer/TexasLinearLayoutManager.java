@@ -11,7 +11,7 @@ import com.shanbay.lib.texas.annotations.Hidden;
 @Hidden
 class TexasLinearLayoutManager extends LinearLayoutManager {
 
-	public TexasLinearLayoutManager(Context context) {
+	TexasLinearLayoutManager(Context context) {
 		super(context, LinearLayoutManager.VERTICAL, false);
 	}
 
@@ -24,8 +24,16 @@ class TexasLinearLayoutManager extends LinearLayoutManager {
 
 	private static class SmoothScrollerImpl extends LinearSmoothScroller {
 
+		private static final int MAX_DURATION = 200;
+
 		SmoothScrollerImpl(Context context) {
 			super(context);
+		}
+
+		@Override
+		protected int calculateTimeForScrolling(int dx) {
+			int duration = super.calculateTimeForScrolling(dx);
+			return duration > MAX_DURATION ? MAX_DURATION : duration;
 		}
 
 		@Override
