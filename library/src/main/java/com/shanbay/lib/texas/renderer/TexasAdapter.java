@@ -46,7 +46,6 @@ class TexasAdapter extends RecyclerView.Adapter<TexasAdapter.Renderer> implement
 	 * 选中效果属于编辑器内部的状态了，所有直接由adapter管理而不需要通知外部组件
 	 * */
 	private ParagraphSelection mParagraphSelection;
-	private float mWidth;
 
 	TexasAdapter(LayoutInflater layoutInflater, ImageLoader imageLoader) {
 		mLayoutInflater = layoutInflater;
@@ -104,14 +103,12 @@ class TexasAdapter extends RecyclerView.Adapter<TexasAdapter.Renderer> implement
 	public void render(Document document,
 					   TextPaint textPaint,
 					   RenderOption renderOption,
-					   Measurer measurer,
-					   float width) {
+					   Measurer measurer) {
 		d("render");
 		mDocument = document;
 		mTextPaint = textPaint;
 		mRenderOption = renderOption;
 		mMeasurer = measurer;
-		mWidth = width;
 		// 清空选中
 		clearSelectionInternal();
 		notifyDataSetChanged();
@@ -175,12 +172,13 @@ class TexasAdapter extends RecyclerView.Adapter<TexasAdapter.Renderer> implement
 	public void onTextSelected(MotionEvent e,
 							   Paragraph paragraph,
 							   boolean isLongClicked,
-							   OnClickedListener onClickedListener) {
+							   OnClickedListener onClickedListener,
+							   int width) {
 		mSelectedTextByListener.setOnClickedListener(onClickedListener);
 		mSelectedTextByListener.setLongClicked(isLongClicked);
 		mSelectedTextByListener.setLastYOnScreen(e.getRawY());
 		mSelectedTextByListener.setLastYInView(e.getY());
-		mSelectedTextByListener.visit(paragraph, mWidth, mRenderOption, mMeasurer.getFontTopPadding());
+		mSelectedTextByListener.visit(paragraph, width, mRenderOption, mMeasurer.getFontTopPadding());
 		TextParagraphSelection selection = mSelectedTextByListener.getSelection();
 		mSelectedTextByListener.clear();
 		handleParagraphSelected(selection);
