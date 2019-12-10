@@ -30,7 +30,7 @@ import com.shanbay.lib.texas.text.TextBox;
 import com.shanbay.lib.texas.text.TextStyle;
 
 /**
- * 渲染文章段落view
+ * 渲染文章段落视图
  */
 @Hidden
 public class ParagraphView extends View implements GestureDetector.OnGestureListener {
@@ -506,8 +506,8 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 		@Override
 		public void onVisitParagraphEnd(Paragraph paragraph) {
 			if (mSelection != null) {
-				mSelection.setTopEdgeInWindow(mEdgeTop);
-				mSelection.setBottomEdgeInWindow(mEdgeBottom);
+				mSelection.setTopEdgeInScreen(mEdgeTop);
+				mSelection.setBottomEdgeInScreen(mEdgeBottom);
 			}
 		}
 
@@ -586,6 +586,7 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 		private final Paint mDebugPaint;
 		private Canvas mCanvas;
 		private ParagraphSelection mSelection;
+		private int[] mLocation = new int[2];
 
 		public DebugDrawVisitor() {
 			mDebugPaint = new Paint();
@@ -622,13 +623,12 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 			mWorkPaint.set(mDebugPaint);
 			mWorkPaint.setColor(Color.RED);
 			mWorkPaint.setStrokeWidth(200);
-			int[] location = new int[2];
-			getLocationOnScreen(location);
+			getLocationOnScreen(mLocation);
 			int x = getWidth() - 100;
 			mCanvas.drawLine(x,
-					textParagraphSelection.getTopEdgeInWindow() - location[1],
+					textParagraphSelection.getTopEdgeInScreen() - mLocation[1],
 					x,
-					textParagraphSelection.getBottomEdgeInWindow() - location[1],
+					textParagraphSelection.getBottomEdgeInScreen() - mLocation[1],
 					mWorkPaint);
 		}
 

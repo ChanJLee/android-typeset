@@ -162,9 +162,9 @@ abstract class Renderer {
 
 	public abstract int getFirstVisibleSegmentIndex();
 
-	abstract float getSelectedBottomEdge();
+	abstract float getSelectedBottomEdgeInScreen();
 
-	abstract float getSelectedTopEdge();
+	abstract float getSelectedTopEdgeInScreen();
 
 	private static void d(String msg) {
 		Log.d("TexasRenderer", msg);

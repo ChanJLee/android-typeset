@@ -167,12 +167,12 @@ class TexasAdapter extends RecyclerView.Adapter<TexasAdapter.Renderer> {
 		notifySelectionChanged(mParagraphSelection);
 	}
 
-	float getSelectedTopEdge() {
-		return mParagraphSelection == null ? -1 : mParagraphSelection.getTopEdgeInWindow();
+	float getSelectedTopEdgeInScreen() {
+		return mParagraphSelection == null ? -1 : mParagraphSelection.getTopEdgeInScreen();
 	}
 
-	float getSelectedBottomEdge() {
-		return mParagraphSelection == null ? -1 : mParagraphSelection.getBottomEdgeInWindow();
+	float getSelectedBottomEdgeInScreen() {
+		return mParagraphSelection == null ? -1 : mParagraphSelection.getBottomEdgeInScreen();
 	}
 
 	static abstract class Renderer<T> extends RecyclerView.ViewHolder {
