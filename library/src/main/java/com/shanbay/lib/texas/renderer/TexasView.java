@@ -319,15 +319,15 @@ public class TexasView extends FrameLayout {
 	/**
 	 * @return 获取选中top边界，坐标相对于整个屏幕
 	 */
-	public float getSelectedTopEdge() {
-		return mRenderer.getSelectedTopEdge();
+	public float getSelectedTopEdgeInScreen() {
+		return mRenderer.getSelectedTopEdgeInScreen();
 	}
 
 	/**
 	 * @return 获取选中bottom边界，坐标相对于整个屏幕
 	 */
-	public float getSelectedBottomEdge() {
-		return mRenderer.getSelectedBottomEdge();
+	public float getSelectedBottomEdgeInScreen() {
+		return mRenderer.getSelectedBottomEdgeInScreen();
 	}
 
 	void notifyClicked(float x, float y) {

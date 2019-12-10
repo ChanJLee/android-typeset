@@ -106,12 +106,12 @@ class SlidingRenderer extends Renderer {
 	}
 
 	@Override
-	float getSelectedBottomEdge() {
-		return mAdapter.getSelectedBottomEdge();
+	float getSelectedBottomEdgeInScreen() {
+		return mAdapter.getSelectedBottomEdgeInScreen();
 	}
 
 	@Override
-	float getSelectedTopEdge() {
-		return mAdapter.getSelectedTopEdge();
+	float getSelectedTopEdgeInScreen() {
+		return mAdapter.getSelectedTopEdgeInScreen();
 	}
 }
