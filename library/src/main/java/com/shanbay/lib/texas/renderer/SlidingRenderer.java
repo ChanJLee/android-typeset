@@ -92,26 +92,16 @@ class SlidingRenderer extends Renderer {
 	}
 
 	@Override
-	protected void clearSelection() {
-		mAdapter.clearSelection();
+	Selection getSelection() {
+		return mAdapter.getSelection();
 	}
 
 	@Override
-	public int getFirstVisibleSegmentIndex() {
+	int getFirstVisibleSegmentIndex() {
 		return mLinearLayoutManager.findFirstCompletelyVisibleItemPosition();
 	}
 
 	private static void d(String msg) {
 		Log.d("SlidingTexasRenderer", msg);
-	}
-
-	@Override
-	float getSelectedBottomEdgeOnScreen() {
-		return mAdapter.getSelectedBottomEdgeOnScreen();
-	}
-
-	@Override
-	float getSelectedTopEdgeOnScreen() {
-		return mAdapter.getSelectedTopEdgeOnScreen();
 	}
 }

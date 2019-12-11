@@ -21,7 +21,7 @@ public class Paragraph extends Segment {
 
 	private List<Line> mLines;
 	private List<Element> mElements;
-	private Object mExtra;
+	private Object mTag;
 
 	public Paragraph() {
 		Texas.MemoryOption memoryOption = Texas.getMemoryOption();
@@ -47,8 +47,8 @@ public class Paragraph extends Segment {
 	/**
 	 * @return 获取paragraph上附加的信息
 	 */
-	public Object getExtra() {
-		return mExtra;
+	public Object getTag() {
+		return mTag;
 	}
 
 	@Override
@@ -67,7 +67,7 @@ public class Paragraph extends Segment {
 			mElements.get(i).recycle();
 		}
 		mElements.clear();
-		mExtra = null;
+		mTag = null;
 		POOL.release(this);
 	}
 
@@ -111,18 +111,18 @@ public class Paragraph extends Segment {
 		private Hyphenation mHyphenation;
 		private TextAttribute mTextAttribute;
 		private Paragraph mParagraph;
-		private Object mExtra;
+		private Object mTag;
 		private SpanBuilder mSpanBuilder = new SpanBuilder(this);
 
 		private Builder() {
 		}
 
 		/**
-		 * @param extra 设置paragraph的额外信息
+		 * @param tag 设置paragraph的额外信息
 		 * @return 当前对象
 		 */
-		public Builder extra(Object extra) {
-			mExtra = extra;
+		public Builder tag(Object tag) {
+			mTag = tag;
 			return this;
 		}
 
@@ -289,7 +289,7 @@ public class Paragraph extends Segment {
 				mParagraph.mElements.add(Penalty.obtain(0, 0, -ParagraphTypesetter.INFINITY, true));
 			}
 
-			mParagraph.mExtra = mExtra;
+			mParagraph.mTag = mTag;
 			Paragraph paragraph = mParagraph;
 			recycle();
 			return paragraph;
@@ -307,7 +307,7 @@ public class Paragraph extends Segment {
 			mTextAttribute = null;
 			mHyphenation = null;
 			mHyphenated.clear();
-			mExtra = null;
+			mTag = null;
 			mSpanBuilder.reset(null);
 			POOL.release(this);
 		}
@@ -351,6 +351,7 @@ public class Paragraph extends Segment {
 		private Appearance mForeground;
 		private OnClickedListener mOnClickedListener;
 		private OnClickedListener mSpanOnClickedListener;
+		private Object mTag;
 
 		SpanBuilder(Builder builder) {
 			mBuilder = builder;
@@ -363,6 +364,7 @@ public class Paragraph extends Segment {
 			mBackground = null;
 			mForeground = null;
 			mOnClickedListener = null;
+			mTag = null;
 			mSpanOnClickedListener = onClickedListener;
 		}
 
@@ -389,6 +391,17 @@ public class Paragraph extends Segment {
 			mText = text;
 			mStart = start;
 			mEnd = end;
+			return this;
+		}
+
+		/**
+		 * 设置span tag
+		 *
+		 * @param tag span tag
+		 * @return 当前对象
+		 */
+		public SpanBuilder tag(Object tag) {
+			mTag = tag;
 			return this;
 		}
 
@@ -453,6 +466,7 @@ public class Paragraph extends Segment {
 			attribute.setBackground(mBackground);
 			attribute.setForeground(mForeground);
 			attribute.setTextStyle(mTextStyle);
+			attribute.setTag(mTag);
 			attribute.setSpanOnClickedListener(mSpanOnClickedListener);
 			mBuilder.text(mText, mStart, mEnd, mOnClickedListener, attribute, mTextStyle);
 

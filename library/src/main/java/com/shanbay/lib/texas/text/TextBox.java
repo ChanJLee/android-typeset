@@ -24,7 +24,6 @@ public final class TextBox extends Box {
 	private short mFlag = FLAG_NONE;
 	private TextBoxAttribute mAttribute;
 
-
 	private TextBox(@NonNull CharSequence text, int start, int end,
 					float width, float height,
 					OnClickedListener onClickedListener, TextBoxAttribute BoxAttribute) {
@@ -51,11 +50,19 @@ public final class TextBox extends Box {
 		mFlag = other.mFlag;
 	}
 
+	// TODO unit test
 	public Appearance getBackground() {
 		if (mAttribute == null) {
 			return null;
 		}
 		return mAttribute.getBackground();
+	}
+
+	public Object getTag() {
+		if (mAttribute == null) {
+			return null;
+		}
+		return mAttribute.getTag();
 	}
 
 	public Appearance getForeground() {

@@ -23,6 +23,8 @@ import com.shanbay.lib.texas.text.TextStyle;
 import com.shanbay.lib.texas.text.UnderLine;
 import com.shanbay.lib.texas.typesetter.ParagraphTypesetter;
 
+import java.lang.reflect.Field;
+
 public class ParagraphUnitTest {
 
 	private Measurer mMeasurer;
@@ -35,7 +37,7 @@ public class ParagraphUnitTest {
 	}
 
 	@Test
-	public void testBuilder() {
+	public void testBuilder() throws NoSuchFieldException, IllegalAccessException {
 		String msg = "hello";
 		Paragraph.Builder builder = Paragraph.Builder.newBuilder(mMeasurer, Hyphenation.getInstance(), mTextAttribute);
 		Paragraph paragraph = builder.build();
@@ -72,13 +74,19 @@ public class ParagraphUnitTest {
 		};
 		ColorGround background = ColorGround.obtain(10);
 		UnderLine underLine = UnderLine.obtain(10);
-		builder.newSpanBuilder(spanOnClickedListener)
+		String tag = "msg";
+		Paragraph.SpanBuilder spanBuilder = builder.newSpanBuilder(spanOnClickedListener)
 				.next("triangle")
 				.setBackground(background)
 				.setForeground(underLine)
+				.tag(tag)
 				.setOnClickedListener(onClickedListener)
-				.setTextStyle(TextStyle.BOLD)
-				.buildSpan();
+				.setTextStyle(TextStyle.BOLD);
+		Field field = spanBuilder.getClass().getDeclaredField("mTag");
+		field.setAccessible(true);
+		Assert.assertSame(field.get(spanBuilder), tag);
+		spanBuilder.buildSpan();
+		Assert.assertNull(field.get(spanBuilder));
 
 		paragraph = builder.build();
 		Assert.assertEquals(paragraph.getElementCount(), 11);
@@ -117,6 +125,7 @@ public class ParagraphUnitTest {
 			Assert.assertEquals(textBox.getHeight(), mMeasurer.getDesiredHeight(strings[i], 0, strings[i].length(), null), 0);
 			Assert.assertSame(textBox.getOnClickedListener(), onClickedListener);
 			Assert.assertEquals(textBox.getWidth(), mMeasurer.getDesiredWidth(strings[i], 0, strings[i].length(), null), 0);
+			Assert.assertSame(textBox.getTag(), tag);
 
 			int next = 5 + i * 2;
 			if (next == 9) {
@@ -145,10 +154,10 @@ public class ParagraphUnitTest {
 	public void testParagraph() throws NoSuchFieldException, IllegalAccessException {
 		Paragraph.Builder builder = Paragraph.Builder.newBuilder(mMeasurer, Hyphenation.getInstance(), mTextAttribute);
 		String msg = "xxx";
-		builder.extra(msg);
+		builder.tag(msg);
 		builder.text("hello");
 		Paragraph paragraph = builder.build();
-		Assert.assertSame(msg, paragraph.getExtra());
+		Assert.assertSame(msg, paragraph.getTag());
 
 		Assert.assertEquals(paragraph.getLineCount(), 0);
 		Assert.assertEquals(paragraph.getElementCount(), 3);
@@ -173,7 +182,7 @@ public class ParagraphUnitTest {
 		paragraph.recycle();
 		Assert.assertEquals(paragraph.getLineCount(), 0);
 		Assert.assertEquals(paragraph.getElementCount(), 0);
-		Assert.assertNull(paragraph.getExtra());
+		Assert.assertNull(paragraph.getTag());
 
 		// check recycle twice
 		paragraph.recycle();
@@ -183,7 +192,7 @@ public class ParagraphUnitTest {
 		builder.text("triangle");
 		paragraph = builder.build();
 		Assert.assertSame(paragraph, paragraph1);
-		Assert.assertNull(paragraph.getExtra());
+		Assert.assertNull(paragraph.getTag());
 		Assert.assertEquals(paragraph.getLineCount(), 0);
 		Assert.assertEquals(paragraph.getElementCount(), 7);
 

@@ -19,11 +19,11 @@ class TextParagraphSelection extends ParagraphSelection {
 	private List<RectF> mBackgrounds = new ArrayList<>();
 	private List<Box> mBoxes = new ArrayList<>();
 
-	public TextParagraphSelection(Paragraph paragraph, boolean isLongClicked) {
-		super(paragraph, isLongClicked);
+	TextParagraphSelection(Paragraph paragraph, boolean isSelectedByLongClicked, float touchYInView, float touchYOnScreen, float width) {
+		super(paragraph, isSelectedByLongClicked, touchYInView, touchYOnScreen, width);
 	}
 
-	public void addSelectArea(RectF rectF) {
+	void addSelectArea(RectF rectF) {
 		mBackgrounds.add(rectF);
 	}
 
@@ -42,11 +42,11 @@ class TextParagraphSelection extends ParagraphSelection {
 		mBackgrounds.clear();
 	}
 
-	public void addBox(Box box) {
+	void addBox(Box box) {
 		mBoxes.add(box);
 	}
 
-	public boolean isEmpty() {
+	boolean isEmpty() {
 		return mBoxes.isEmpty();
 	}
 }
