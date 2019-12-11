@@ -66,6 +66,7 @@ public abstract class Selection {
 
 	/**
 	 * 高亮所有符合tag的元素
+	 * <p/>
 	 * {@link Paragraph.Builder#newSpanBuilder()}
 	 * {@link Paragraph.Builder#newSpanBuilder(OnClickedListener)}
 	 * {@link Paragraph.SpanBuilder#tag(Object)}
@@ -83,6 +84,7 @@ public abstract class Selection {
 
 	/**
 	 * 高亮所有符合tag的元素
+	 * <p/>
 	 * {@link Paragraph.Builder#newSpanBuilder()}
 	 * {@link Paragraph.Builder#newSpanBuilder(OnClickedListener)}
 	 * {@link Paragraph.SpanBuilder#tag(Object)}

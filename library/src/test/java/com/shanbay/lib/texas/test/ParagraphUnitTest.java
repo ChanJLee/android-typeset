@@ -88,8 +88,12 @@ public class ParagraphUnitTest {
 		spanBuilder.buildSpan();
 		Assert.assertNull(field.get(spanBuilder));
 
+		builder.newSpanBuilder(spanOnClickedListener)
+				.next("ok")
+				.buildSpan();
+
 		paragraph = builder.build();
-		Assert.assertEquals(paragraph.getElementCount(), 11);
+		Assert.assertEquals(paragraph.getElementCount(), 13);
 		DrawableBox drawableBox = (DrawableBox) paragraph.getElement(0);
 		Assert.assertSame(drawableBox.getDrawable(), colorDrawable);
 		Glue glue = (Glue) paragraph.getElement(1);
@@ -109,7 +113,6 @@ public class ParagraphUnitTest {
 		Assert.assertEquals(glue.getWidth(), mTextAttribute.getSpaceWidth(), 0);
 		Assert.assertEquals(glue.getShrink(), mTextAttribute.getSpaceShrink(), 0);
 		Assert.assertEquals(glue.getStretch(), mTextAttribute.getSpaceStretch(), 0);
-
 
 		String[] strings = new String[]{
 				"tri",
@@ -139,11 +142,20 @@ public class ParagraphUnitTest {
 		}
 
 		glue = (Glue) paragraph.getElement(9);
+		Assert.assertEquals(glue.getWidth(), mTextAttribute.getSpaceWidth(), 0);
+		Assert.assertEquals(glue.getStretch(),mTextAttribute.getSpaceStretch(), 0);
+		Assert.assertEquals(glue.getShrink(), mTextAttribute.getSpaceShrink(), 0);
+
+		textBox = (TextBox) paragraph.getElement(10);
+		Assert.assertEquals(textBox.toString(), "ok");
+		Assert.assertNull(textBox.getTag());
+
+		glue = (Glue) paragraph.getElement(11);
 		Assert.assertEquals(glue.getWidth(), 0, 0);
 		Assert.assertEquals(glue.getStretch(), ParagraphTypesetter.INFINITY, 0);
 		Assert.assertEquals(glue.getShrink(), 0, 0);
 
-		Penalty penalty = (Penalty) paragraph.getElement(10);
+		Penalty penalty = (Penalty) paragraph.getElement(12);
 		Assert.assertEquals(penalty.getWidth(), 0, 0);
 		Assert.assertEquals(penalty.getHeight(), 0, 0);
 		Assert.assertEquals(penalty.getPenalty(), -ParagraphTypesetter.INFINITY, 0);
