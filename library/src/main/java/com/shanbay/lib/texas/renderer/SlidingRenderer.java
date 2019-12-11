@@ -93,7 +93,7 @@ class SlidingRenderer extends Renderer {
 
 	@Override
 	Selection getSelection() {
-		return mAdapter.getSelection();
+		return mAdapter.getCurrentSelection();
 	}
 
 	@Override

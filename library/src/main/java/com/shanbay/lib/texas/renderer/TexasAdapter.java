@@ -48,7 +48,7 @@ class TexasAdapter extends RecyclerView.Adapter<TexasAdapter.Renderer> implement
 	/*
 	 * 选中效果属于编辑器内部的状态了，所有直接由adapter管理而不需要通知外部组件
 	 * */
-	private Selection mSelection;
+	private Selection mCurrentSelection;
 
 	TexasAdapter(LayoutInflater layoutInflater, ImageLoader imageLoader) {
 		mLayoutInflater = layoutInflater;
@@ -99,7 +99,7 @@ class TexasAdapter extends RecyclerView.Adapter<TexasAdapter.Renderer> implement
 	public void clear() {
 		d("clear");
 		mDocument = null;
-		mSelection = null;
+		clearSelection();
 		notifyDataSetChanged();
 	}
 
@@ -112,10 +112,7 @@ class TexasAdapter extends RecyclerView.Adapter<TexasAdapter.Renderer> implement
 		mTextPaint = textPaint;
 		mRenderOption = renderOption;
 		mMeasurer = measurer;
-		if (mSelection != null) {
-			mSelection.clear();
-			mSelection = null;
-		}
+		clearSelection();
 		notifyDataSetChanged();
 	}
 
@@ -141,8 +138,8 @@ class TexasAdapter extends RecyclerView.Adapter<TexasAdapter.Renderer> implement
 	}
 
 	@Nullable
-	Selection getSelection() {
-		return mSelection;
+	Selection getCurrentSelection() {
+		return mCurrentSelection;
 	}
 
 	@Override
@@ -191,9 +188,9 @@ class TexasAdapter extends RecyclerView.Adapter<TexasAdapter.Renderer> implement
 	}
 
 	private void clearSelection() {
-		if (mSelection != null) {
-			mSelection.clear();
-			mSelection = null;
+		if (mCurrentSelection != null) {
+			mCurrentSelection.clear();
+			mCurrentSelection = null;
 		}
 	}
 
@@ -204,14 +201,20 @@ class TexasAdapter extends RecyclerView.Adapter<TexasAdapter.Renderer> implement
 		mSelectedTextByTagVisitor.setTags(tags);
 		mSelectedTextByTagVisitor.setWidth(paragraphSelection.getViewWidth());
 		mSelectedTextByTagVisitor.visit(paragraphSelection.getParagraph(), paragraphSelection.getViewWidth(), mRenderOption, mMeasurer.getFontTopPadding());
-		TextParagraphSelection selection = mSelectedTextByTagVisitor.getSelection();
-		handleParagraphSelected(new SelectionImpl(selection));
+		TextParagraphSelection textParagraphSelection = mSelectedTextByTagVisitor.getSelection();
+		Selection selection = new SelectionImpl(textParagraphSelection);
+		handleParagraphSelected(selection);
 		mSelectedTextByTagVisitor.clear();
 	}
 
 	private void handleParagraphSelected(Selection selection) {
 		notifySegmentChanged(selection.getParagraph());
-		mSelection = selection;
+		if (mCurrentSelection == null) {
+			mCurrentSelection = selection;
+			return;
+		}
+
+		mCurrentSelection.update(selection);
 	}
 
 	static abstract class Renderer<T> extends RecyclerView.ViewHolder {
@@ -251,8 +254,8 @@ class TexasAdapter extends RecyclerView.Adapter<TexasAdapter.Renderer> implement
 		@Override
 		public void render(Paragraph data) {
 			ParagraphSelection paragraphSelection = null;
-			if (mSelection != null && mSelection.getParagraph() == data) {
-				paragraphSelection = mSelection.getParagraphSelection();
+			if (mCurrentSelection != null && mCurrentSelection.getParagraph() == data) {
+				paragraphSelection = mCurrentSelection.getParagraphSelection();
 			}
 
 			mParagraphView.render(
@@ -423,7 +426,7 @@ class TexasAdapter extends RecyclerView.Adapter<TexasAdapter.Renderer> implement
 		@Override
 		void onClear(Paragraph paragraph) {
 			notifySegmentChanged(paragraph);
-			mSelection = null;
+			mCurrentSelection = null;
 		}
 	}
 

@@ -5,7 +5,6 @@ import androidx.annotation.Nullable;
 
 import com.shanbay.lib.texas.text.Paragraph;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -15,6 +14,10 @@ public abstract class Selection {
 
 	Selection(ParagraphSelection paragraphSelection) {
 		mParagraphSelection = paragraphSelection;
+	}
+
+	void update(Selection selection) {
+		mParagraphSelection = selection.mParagraphSelection;
 	}
 
 	@Nullable
