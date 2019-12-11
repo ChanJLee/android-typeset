@@ -31,6 +31,8 @@ import com.shanbay.lib.texas.text.Segment;
 import com.shanbay.lib.texas.text.TextBox;
 import com.shanbay.lib.texas.text.ViewSegment;
 
+import java.util.List;
+
 @Hidden
 class TexasAdapter extends RecyclerView.Adapter<TexasAdapter.Renderer> implements ParagraphView.OnSelectedChangedListener {
 	private static final int TYPE_PARAGRAPH = 1;
@@ -195,14 +197,14 @@ class TexasAdapter extends RecyclerView.Adapter<TexasAdapter.Renderer> implement
 		}
 	}
 
-	private void handleSelectedParagraphByTags(ParagraphSelection paragraphSelection, Object[] tags) {
+	private void handleSelectedParagraphByTags(ParagraphSelection paragraphSelection, List<?> tags) {
 		mSelectedTextByTagVisitor.setLongClicked(paragraphSelection.isSelectedByLongClick());
 		mSelectedTextByTagVisitor.setLastYOnScreen(paragraphSelection.getTouchYOnScreen());
 		mSelectedTextByTagVisitor.setLastYInView(paragraphSelection.getTouchYInView());
-		mSelectedTextByTagVisitor.setObjects(tags);
+		mSelectedTextByTagVisitor.setTags(tags);
 		mSelectedTextByTagVisitor.setWidth(paragraphSelection.getViewWidth());
 		mSelectedTextByTagVisitor.visit(paragraphSelection.getParagraph(), paragraphSelection.getViewWidth(), mRenderOption, mMeasurer.getFontTopPadding());
-		TextParagraphSelection selection = mSelectedTextByListenerVisitor.getSelection();
+		TextParagraphSelection selection = mSelectedTextByTagVisitor.getSelection();
 		handleParagraphSelected(new SelectionImpl(selection));
 		mSelectedTextByTagVisitor.clear();
 	}
@@ -414,7 +416,7 @@ class TexasAdapter extends RecyclerView.Adapter<TexasAdapter.Renderer> implement
 		}
 
 		@Override
-		void onSelectedByTags(@NonNull ParagraphSelection paragraphSelection, @NonNull Object[] tags) {
+		void onSelectedByTags(@NonNull ParagraphSelection paragraphSelection, @NonNull List<?> tags) {
 			handleSelectedParagraphByTags(paragraphSelection, tags);
 		}
 
@@ -429,10 +431,10 @@ class TexasAdapter extends RecyclerView.Adapter<TexasAdapter.Renderer> implement
 
 	private static class SelectedTextByTagVisitor extends SelectedVisitor {
 
-		private Object[] mObjects;
+		private List<?> mTags;
 
-		public void setObjects(Object[] objects) {
-			mObjects = objects;
+		void setTags(List<?> tags) {
+			mTags = tags;
 		}
 
 		@Override
@@ -447,7 +449,7 @@ class TexasAdapter extends RecyclerView.Adapter<TexasAdapter.Renderer> implement
 				return false;
 			}
 
-			for (Object lhs : mObjects) {
+			for (Object lhs : mTags) {
 				if (lhs == null) {
 					continue;
 				}
