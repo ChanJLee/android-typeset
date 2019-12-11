@@ -33,6 +33,11 @@ import com.shanbay.lib.texas.text.ViewSegment;
 
 import java.util.List;
 
+/**
+ * 点击事件通知约定：
+ * 发生一次点击作为一次事务，之后除非发生另外一次点击，后面所有的高亮都算作这一次事务附带的事件
+ * 每一次点击需要清除上一次的记录，因此通过点击发生selection后，重新高亮不会触发点击事件的回调
+ */
 @Hidden
 class TexasAdapter extends RecyclerView.Adapter<TexasAdapter.Renderer> implements ParagraphView.OnSelectedChangedListener {
 	private static final int TYPE_PARAGRAPH = 1;
@@ -157,9 +162,11 @@ class TexasAdapter extends RecyclerView.Adapter<TexasAdapter.Renderer> implement
 				e.getRawY()
 		);
 		mSelectedTextByListenerVisitor.setOnClickedListener(onClickedListener);
-		mSelectedTextByListenerVisitor.visit(paragraph, mRenderOption, mMeasurer.getFontTopPadding());
-		TextParagraphSelection selection = mSelectedTextByListenerVisitor.getTextParagraphSelection();
-		mSelectedTextByListenerVisitor.clear();
+		ParagraphSelection selection = mSelectedTextByListenerVisitor.visit(
+				paragraph,
+				mRenderOption,
+				mMeasurer.getFontTopPadding()
+		);
 		handleParagraphSelected(new SelectionImpl(selection));
 	}
 
@@ -178,7 +185,6 @@ class TexasAdapter extends RecyclerView.Adapter<TexasAdapter.Renderer> implement
 				width,
 				box
 		);
-
 		box.setSelected(true);
 		handleParagraphSelected(new SelectionImpl(selection));
 	}
@@ -198,11 +204,12 @@ class TexasAdapter extends RecyclerView.Adapter<TexasAdapter.Renderer> implement
 				paragraphSelection.getTouchYOnScreen()
 		);
 		mSelectedTextByTagVisitor.setTags(tags);
-		mSelectedTextByTagVisitor.visit(paragraphSelection.getParagraph(), mRenderOption, mMeasurer.getFontTopPadding());
-		TextParagraphSelection textParagraphSelection = mSelectedTextByTagVisitor.getTextParagraphSelection();
-		Selection selection = new SelectionImpl(textParagraphSelection);
-		handleParagraphSelected(selection);
-		mSelectedTextByTagVisitor.clear();
+		ParagraphSelection selection = mSelectedTextByTagVisitor.visit(
+				paragraphSelection.getParagraph(),
+				mRenderOption,
+				mMeasurer.getFontTopPadding()
+		);
+		handleParagraphSelected(new SelectionImpl(selection));
 	}
 
 	private void handleParagraphSelected(Selection selection) {
@@ -330,8 +337,11 @@ class TexasAdapter extends RecyclerView.Adapter<TexasAdapter.Renderer> implement
 			mLastYOnScreen = yOnScreen;
 		}
 
-		public void visit(Paragraph paragraph, RenderOption renderOption, float fontTopPadding) {
+		public ParagraphSelection visit(Paragraph paragraph, RenderOption renderOption, float fontTopPadding) {
 			super.visit(paragraph, mWidth, renderOption, fontTopPadding);
+			ParagraphSelection paragraphSelection = mSelection;
+			clear();
+			return paragraphSelection;
 		}
 
 		@Override
@@ -347,7 +357,7 @@ class TexasAdapter extends RecyclerView.Adapter<TexasAdapter.Renderer> implement
 			}
 		}
 
-		public void clear() {
+		private void clear() {
 			mSelection = null;
 			mIsLongClicked = false;
 			mLastLineBottom = mLastLineTop = -1;
@@ -355,10 +365,6 @@ class TexasAdapter extends RecyclerView.Adapter<TexasAdapter.Renderer> implement
 			mTopEdgeOnScreen = -1;
 			mBottomEdgeOnScreen = -1;
 			mHasContent = false;
-		}
-
-		TextParagraphSelection getTextParagraphSelection() {
-			return mSelection;
 		}
 
 		@Override
