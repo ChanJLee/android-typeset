@@ -146,30 +146,29 @@ class TexasAdapter extends RecyclerView.Adapter<TexasAdapter.Renderer> implement
 	public void onTextSelected(MotionEvent e,
 							   Paragraph paragraph,
 							   boolean isLongClicked,
-							   OnClickedListener onClickedListener,
-							   int width) {
+							   int width,
+							   OnClickedListener onClickedListener) {
+		// 先清除之前的selection
 		clearSelection();
-		mSelectedTextByListenerVisitor.setLongClicked(isLongClicked);
-		mSelectedTextByListenerVisitor.setLastYOnScreen(e.getRawY());
-		mSelectedTextByListenerVisitor.setLastYInView(e.getY());
+		mSelectedTextByListenerVisitor.reset(
+				width,
+				isLongClicked,
+				e.getY(),
+				e.getRawY()
+		);
 		mSelectedTextByListenerVisitor.setOnClickedListener(onClickedListener);
-		mSelectedTextByListenerVisitor.setWidth(width);
-		mSelectedTextByListenerVisitor.visit(paragraph, width, mRenderOption, mMeasurer.getFontTopPadding());
-		TextParagraphSelection selection = mSelectedTextByListenerVisitor.getSelection();
+		mSelectedTextByListenerVisitor.visit(paragraph, mRenderOption, mMeasurer.getFontTopPadding());
+		TextParagraphSelection selection = mSelectedTextByListenerVisitor.getTextParagraphSelection();
 		mSelectedTextByListenerVisitor.clear();
 		handleParagraphSelected(new SelectionImpl(selection));
-		if (onClickedListener != null) {
-			onClickedListener.onClicked(e.getRawX(), e.getRawY());
-		}
 	}
 
 	@Override
 	public void onDrawSelected(MotionEvent e,
 							   Paragraph paragraph,
 							   boolean isLongClicked,
-							   DrawableBox box,
-							   OnClickedListener onClickedListener,
-							   int width) {
+							   int width,
+							   DrawableBox box) {
 		clearSelection();
 		DrawableParagraphSelection selection = new DrawableParagraphSelection(
 				paragraph,
@@ -182,9 +181,6 @@ class TexasAdapter extends RecyclerView.Adapter<TexasAdapter.Renderer> implement
 
 		box.setSelected(true);
 		handleParagraphSelected(new SelectionImpl(selection));
-		if (onClickedListener != null) {
-			onClickedListener.onClicked(e.getRawX(), e.getRawY());
-		}
 	}
 
 	private void clearSelection() {
@@ -195,13 +191,15 @@ class TexasAdapter extends RecyclerView.Adapter<TexasAdapter.Renderer> implement
 	}
 
 	private void handleSelectedParagraphByTags(ParagraphSelection paragraphSelection, List<?> tags) {
-		mSelectedTextByTagVisitor.setLongClicked(paragraphSelection.isSelectedByLongClick());
-		mSelectedTextByTagVisitor.setLastYOnScreen(paragraphSelection.getTouchYOnScreen());
-		mSelectedTextByTagVisitor.setLastYInView(paragraphSelection.getTouchYInView());
+		mSelectedTextByTagVisitor.reset(
+				paragraphSelection.getWidth(),
+				paragraphSelection.isSelectedByLongClick(),
+				paragraphSelection.getTouchYInView(),
+				paragraphSelection.getTouchYOnScreen()
+		);
 		mSelectedTextByTagVisitor.setTags(tags);
-		mSelectedTextByTagVisitor.setWidth(paragraphSelection.getViewWidth());
-		mSelectedTextByTagVisitor.visit(paragraphSelection.getParagraph(), paragraphSelection.getViewWidth(), mRenderOption, mMeasurer.getFontTopPadding());
-		TextParagraphSelection textParagraphSelection = mSelectedTextByTagVisitor.getSelection();
+		mSelectedTextByTagVisitor.visit(paragraphSelection.getParagraph(), mRenderOption, mMeasurer.getFontTopPadding());
+		TextParagraphSelection textParagraphSelection = mSelectedTextByTagVisitor.getTextParagraphSelection();
 		Selection selection = new SelectionImpl(textParagraphSelection);
 		handleParagraphSelected(selection);
 		mSelectedTextByTagVisitor.clear();
@@ -310,6 +308,8 @@ class TexasAdapter extends RecyclerView.Adapter<TexasAdapter.Renderer> implement
 	private abstract static class SelectedVisitor extends ParagraphVisitor {
 
 		private TextParagraphSelection mSelection;
+
+		// 绘制背景用
 		private RectF mRectF;
 		private float mLastLineBottom;
 		private float mLastLineTop;
@@ -317,25 +317,21 @@ class TexasAdapter extends RecyclerView.Adapter<TexasAdapter.Renderer> implement
 		private float mBottomEdgeOnScreen = -1;
 		private boolean mHasContent = false;
 
+		// 必要的运行数据
 		private float mLastYOnScreen;
 		private float mLastYInView;
 		boolean mIsLongClicked;
 		private float mWidth;
 
-		public void setWidth(float width) {
+		void reset(float width, boolean isLongClicked, float yInView, float yOnScreen) {
 			mWidth = width;
+			mIsLongClicked = isLongClicked;
+			mLastYInView = yInView;
+			mLastYOnScreen = yOnScreen;
 		}
 
-		public void setLongClicked(boolean longClicked) {
-			mIsLongClicked = longClicked;
-		}
-
-		public void setLastYInView(float lastYInView) {
-			mLastYInView = lastYInView;
-		}
-
-		public void setLastYOnScreen(float lastYOnScreen) {
-			mLastYOnScreen = lastYOnScreen;
+		public void visit(Paragraph paragraph, RenderOption renderOption, float fontTopPadding) {
+			super.visit(paragraph, mWidth, renderOption, fontTopPadding);
 		}
 
 		@Override
@@ -361,7 +357,7 @@ class TexasAdapter extends RecyclerView.Adapter<TexasAdapter.Renderer> implement
 			mHasContent = false;
 		}
 
-		public TextParagraphSelection getSelection() {
+		TextParagraphSelection getTextParagraphSelection() {
 			return mSelection;
 		}
 
@@ -410,24 +406,6 @@ class TexasAdapter extends RecyclerView.Adapter<TexasAdapter.Renderer> implement
 		}
 
 		abstract boolean selected(Box box);
-	}
-
-	private class SelectionImpl extends Selection {
-
-		SelectionImpl(ParagraphSelection paragraphSelection) {
-			super(paragraphSelection);
-		}
-
-		@Override
-		void onSelectedByTags(@NonNull ParagraphSelection paragraphSelection, @NonNull List<?> tags) {
-			handleSelectedParagraphByTags(paragraphSelection, tags);
-		}
-
-		@Override
-		void onClear(Paragraph paragraph) {
-			notifySegmentChanged(paragraph);
-			mCurrentSelection = null;
-		}
 	}
 
 	private SelectedTextByTagVisitor mSelectedTextByTagVisitor = new SelectedTextByTagVisitor();
@@ -479,6 +457,25 @@ class TexasAdapter extends RecyclerView.Adapter<TexasAdapter.Renderer> implement
 		@Override
 		boolean selected(Box box) {
 			return mOnClickedListener == ParagraphView.getBoxOnClickedListener(box, mIsLongClicked);
+		}
+	}
+
+	private class SelectionImpl extends Selection {
+
+		SelectionImpl(ParagraphSelection paragraphSelection) {
+			super(paragraphSelection);
+		}
+
+		@Override
+		void onSelectedByTags(@NonNull ParagraphSelection paragraphSelection, @NonNull List<?> tags) {
+			handleSelectedParagraphByTags(paragraphSelection, tags);
+		}
+
+		@Override
+		void onClear(@NonNull ParagraphSelection selection) {
+			selection.clearSelection();
+			notifySegmentChanged(selection.getParagraph());
+			mCurrentSelection = null;
 		}
 	}
 
