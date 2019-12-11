@@ -145,7 +145,7 @@ public class ParagraphUnitTest {
 	public void testParagraph() throws NoSuchFieldException, IllegalAccessException {
 		Paragraph.Builder builder = Paragraph.Builder.newBuilder(mMeasurer, Hyphenation.getInstance(), mTextAttribute);
 		String msg = "xxx";
-		builder.extra(msg);
+		builder.tag(msg);
 		builder.text("hello");
 		Paragraph paragraph = builder.build();
 		Assert.assertSame(msg, paragraph.getTag());

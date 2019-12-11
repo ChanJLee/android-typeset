@@ -235,14 +235,6 @@ public class TexasView extends FrameLayout {
 	}
 
 	/**
-	 * 清除当前选中效果
-	 */
-	public void clearSelection() {
-		d("start selection");
-		mRenderer.clearSelection();
-	}
-
-	/**
 	 * 创建一个新的渲染参数 结束后调用 {@link TexasView#refresh(RenderOption)} 刷新样式
 	 *
 	 * @return option
@@ -325,21 +317,13 @@ public class TexasView extends FrameLayout {
 	}
 
 	/**
-	 * 获取选中内容高亮的top边界，坐标相对于整个屏幕
+	 * 获取选中信息
 	 *
-	 * @return top边界
+	 * @return 选中信息
 	 */
-	public float getSelectedTopEdgeOnScreen() {
-		return mRenderer.getSelectedTopEdgeOnScreen();
-	}
-
-	/**
-	 * 获取选中内容高亮的bottom边界，坐标相对于整个屏幕
-	 *
-	 * @return bottom边界
-	 */
-	public float getSelectedBottomEdgeOnScreen() {
-		return mRenderer.getSelectedBottomEdgeOnScreen();
+	@Nullable
+	public Selection getSelection() {
+		return mRenderer.getSelection();
 	}
 
 	void notifyClicked(float x, float y) {
@@ -353,10 +337,6 @@ public class TexasView extends FrameLayout {
 	 */
 	public void setOnClickedListener(OnClickedListener onClickedListener) {
 		mOnClickedListener = onClickedListener;
-	}
-
-	public void selectedWithTag(Object o) {
-
 	}
 
 	/**

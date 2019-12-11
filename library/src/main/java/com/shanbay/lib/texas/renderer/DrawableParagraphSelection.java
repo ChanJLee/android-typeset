@@ -15,8 +15,8 @@ class DrawableParagraphSelection extends ParagraphSelection {
 
 	private DrawableBox mDrawableBox;
 
-	DrawableParagraphSelection(Paragraph paragraph, boolean isSelectedByLongClicked, DrawableBox drawableBox) {
-		super(paragraph, isSelectedByLongClicked);
+	DrawableParagraphSelection(Paragraph paragraph, boolean isSelectedByLongClicked, float touchYInView, float touchYOnScreen, float width, DrawableBox drawableBox) {
+		super(paragraph, isSelectedByLongClicked, touchYInView, touchYOnScreen, width);
 		mDrawableBox = drawableBox;
 	}
 
