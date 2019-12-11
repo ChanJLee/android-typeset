@@ -23,7 +23,7 @@ class SlidingRenderer extends Renderer {
 	private LinearLayoutManager mLinearLayoutManager;
 	private TexasView mTexasView;
 
-	public SlidingRenderer(final TexasView viewGroup, RenderOption renderOption) {
+	SlidingRenderer(final TexasView viewGroup, RenderOption renderOption) {
 		super(viewGroup, renderOption);
 		mTexasView = viewGroup;
 		Context context = viewGroup.getContext();
