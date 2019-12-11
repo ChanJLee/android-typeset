@@ -40,6 +40,11 @@ public class BookParser implements Parser<CharSequence> {
 	private float mFlagWidth;
 	private float mFlagHeight;
 	private OnClickedListener mOnClickedListener;
+	private Listener mListener;
+
+	public void setListener(Listener listener) {
+		mListener = listener;
+	}
 
 	public BookParser(Context context) {
 		mContext = context;
@@ -271,6 +276,9 @@ public class BookParser implements Parser<CharSequence> {
 					@Override
 					public void onClicked(float x, float y) {
 						Log.d("BookParser", "click: " + text);
+						if (mListener != null) {
+							mListener.onTextClicked();
+						}
 					}
 				};
 			}
@@ -278,6 +286,7 @@ public class BookParser implements Parser<CharSequence> {
 			// for test
 			builder.newSpanBuilder(i % 2 == 1 ? spanListener : null)
 					.next(text)
+					.tag(i)
 					.setForeground(UnderLine.obtain(Color.RED))
 					.setOnClickedListener(onClickedListener)
 					.buildSpan();
@@ -308,5 +317,9 @@ public class BookParser implements Parser<CharSequence> {
 					break;
 			}
 		}
+	}
+
+	public interface Listener {
+		void onTextClicked();
 	}
 }

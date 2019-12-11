@@ -5,6 +5,10 @@ import androidx.annotation.Nullable;
 
 import com.shanbay.lib.texas.text.Paragraph;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 public abstract class Selection {
 
 	private ParagraphSelection mParagraphSelection;
@@ -52,10 +56,18 @@ public abstract class Selection {
 			return;
 		}
 
+		onSelectedByTags(mParagraphSelection, Arrays.asList(tags));
+	}
+
+	public void selectedByTags(List<?> tags) {
+		if (tags == null || tags.isEmpty() || mParagraphSelection == null) {
+			return;
+		}
+
 		onSelectedByTags(mParagraphSelection, tags);
 	}
 
-	abstract void onSelectedByTags(@NonNull ParagraphSelection paragraphSelection, @NonNull Object[] tags);
+	abstract void onSelectedByTags(@NonNull ParagraphSelection paragraphSelection, @NonNull List<?> tags);
 
 	/**
 	 * 清除选中

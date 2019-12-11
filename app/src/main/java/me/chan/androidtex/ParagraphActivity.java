@@ -12,6 +12,7 @@ import java.io.IOException;
 import com.shanbay.lib.texas.Texas;
 import com.shanbay.lib.texas.parser.TextParser;
 import com.shanbay.lib.texas.renderer.RenderOption;
+import com.shanbay.lib.texas.renderer.Selection;
 import com.shanbay.lib.texas.renderer.TexasView;
 import com.shanbay.lib.texas.source.AssetsTextSource;
 
@@ -51,7 +52,19 @@ public class ParagraphActivity extends AppCompatActivity {
 			}
 		});
 
-		texasView.setParser(new BookParser(this));
+		BookParser bookParser = new BookParser(this);
+		bookParser.setListener(new BookParser.Listener() {
+			@Override
+			public void onTextClicked() {
+				Selection selection = texasView.getSelection();
+				if (selection == null) {
+					return;
+				}
+
+				selection.selectedByTags(2, 3, 4, 6);
+			}
+		});
+		texasView.setParser(bookParser);
 		try {
 			texasView.setSource(new AssetsTextSource(this, "bay.xml"));
 		} catch (IOException e) {
