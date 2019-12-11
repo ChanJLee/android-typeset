@@ -128,7 +128,6 @@ class TexasAdapter extends RecyclerView.Adapter<TexasAdapter.Renderer> implement
 		notifyDataSetChanged();
 	}
 
-
 	private void notifySegmentChanged(Segment segment) {
 		if (mDocument == null || segment == null) {
 			return;
