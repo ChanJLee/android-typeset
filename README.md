@@ -38,7 +38,7 @@ public class MyApplication extends Application {
 2. 在layout中引用自定义view
 
 ```xml
-<me.chan.texas.renderer.TexasView
+<com.shanbay.lib.texas.renderer.TexasView
     android:id="@+id/text"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -58,7 +58,7 @@ texasView.release()
 
 ## 文档
 
-[算法描述](doc/tex-algorithm.md)
+[算法描述](doc/algorithm/tex-algorithm.md)
 
 [开发规范](doc/code/dev.md)
 
