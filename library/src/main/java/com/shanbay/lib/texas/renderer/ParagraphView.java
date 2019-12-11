@@ -377,6 +377,14 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 		}
 
 		@Override
+		protected void onVisitParagraph(Paragraph paragraph) {
+			mWorkPaint.set(mDebugPaint);
+			mWorkPaint.setColor(0x1E586FF1);
+			mWorkPaint.setStyle(Paint.Style.FILL);
+			mCanvas.drawRect(0, 0, getWidth(), getHeight(), mWorkPaint);
+		}
+
+		@Override
 		public void onVisitParagraphEnd(Paragraph paragraph) {
 			if (!(mSelection instanceof TextParagraphSelection)) {
 				return;
