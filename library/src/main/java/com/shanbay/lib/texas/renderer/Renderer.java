@@ -149,8 +149,6 @@ abstract class Renderer {
 		mTextEngineCore.setParser(parser);
 	}
 
-	protected abstract void clearSelection();
-
 	@Nullable
 	protected Document getDocument() {
 		if (mTextEngineCore == null) {
@@ -160,11 +158,9 @@ abstract class Renderer {
 		return mTextEngineCore.getDocument();
 	}
 
-	public abstract int getFirstVisibleSegmentIndex();
+	abstract Selection getSelection();
 
-	abstract float getSelectedBottomEdgeOnScreen();
-
-	abstract float getSelectedTopEdgeOnScreen();
+	abstract int getFirstVisibleSegmentIndex();
 
 	private static void d(String msg) {
 		Log.d("TexasRenderer", msg);
