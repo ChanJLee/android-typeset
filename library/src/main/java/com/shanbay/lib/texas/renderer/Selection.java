@@ -24,7 +24,7 @@ public abstract class Selection {
 
 	@Nullable
 	Paragraph getParagraph() {
-		if (mParagraphSelection == null) {
+		if (checkIfInvalid()) {
 			w("invalid selection, get paragraph, return -1");
 			return null;
 		}
@@ -42,7 +42,7 @@ public abstract class Selection {
 	 * @return top边界
 	 */
 	public float getSelectedTopEdgeOnScreen() {
-		if (mParagraphSelection == null) {
+		if (checkIfInvalid()) {
 			w("invalid selection, get top, return -1");
 			return -1;
 		}
@@ -56,7 +56,7 @@ public abstract class Selection {
 	 * @return bottom边界
 	 */
 	public float getSelectedBottomEdgeOnScreen() {
-		if (mParagraphSelection == null) {
+		if (checkIfInvalid()) {
 			w("invalid selection, get bottom, return -1");
 			return -1;
 		}
@@ -72,8 +72,8 @@ public abstract class Selection {
 	 *
 	 * @param tags tags
 	 */
-	public void selectedByTags(Object... tags) {
-		if (tags == null || tags.length == 0 || mParagraphSelection == null) {
+	public void selectByTags(Object... tags) {
+		if (checkIfInvalid() || tags == null || tags.length == 0) {
 			w("invalid argument or selection, ignore");
 			return;
 		}
@@ -89,8 +89,8 @@ public abstract class Selection {
 	 *
 	 * @param tags tags
 	 */
-	public void selectedByTags(List<?> tags) {
-		if (mParagraphSelection == null || tags == null || tags.isEmpty()) {
+	public void selectByTags(List<?> tags) {
+		if (checkIfInvalid() || tags == null || tags.isEmpty()) {
 			w("invalid argument or selection, ignore");
 			return;
 		}
@@ -100,11 +100,24 @@ public abstract class Selection {
 
 	abstract void onSelectedByTags(@NonNull ParagraphSelection paragraphSelection, @NonNull List<?> tags);
 
+	private boolean checkIfInvalid() {
+		if (mParagraphSelection == null) {
+			return true;
+		}
+
+		Paragraph paragraph = mParagraphSelection.getParagraph();
+		if (paragraph == null) {
+			return true;
+		}
+
+		return paragraph.isRecycled();
+	}
+
 	/**
 	 * 清除选中
 	 */
 	public void clear() {
-		if (mParagraphSelection == null) {
+		if (checkIfInvalid()) {
 			w("invalid selection, clear ignore");
 			return;
 		}
