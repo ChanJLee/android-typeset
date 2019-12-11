@@ -24,7 +24,7 @@ class TexasLinearLayoutManager extends LinearLayoutManager {
 
 	private static class SmoothScrollerImpl extends LinearSmoothScroller {
 
-		private static final int MAX_DURATION = 200;
+		private static final int MAX_DURATION = 100;
 
 		SmoothScrollerImpl(Context context) {
 			super(context);
