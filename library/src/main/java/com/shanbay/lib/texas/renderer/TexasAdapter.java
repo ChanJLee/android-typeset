@@ -149,6 +149,7 @@ class TexasAdapter extends RecyclerView.Adapter<TexasAdapter.Renderer> implement
 							   boolean isLongClicked,
 							   OnClickedListener onClickedListener,
 							   int width) {
+		clearSelection();
 		mSelectedTextByListenerVisitor.setLongClicked(isLongClicked);
 		mSelectedTextByListenerVisitor.setLastYOnScreen(e.getRawY());
 		mSelectedTextByListenerVisitor.setLastYInView(e.getY());
@@ -170,6 +171,7 @@ class TexasAdapter extends RecyclerView.Adapter<TexasAdapter.Renderer> implement
 							   DrawableBox box,
 							   OnClickedListener onClickedListener,
 							   int width) {
+		clearSelection();
 		DrawableParagraphSelection selection = new DrawableParagraphSelection(
 				paragraph,
 				isLongClicked,
@@ -186,6 +188,13 @@ class TexasAdapter extends RecyclerView.Adapter<TexasAdapter.Renderer> implement
 		}
 	}
 
+	private void clearSelection() {
+		if (mSelection != null) {
+			mSelection.clear();
+			mSelection = null;
+		}
+	}
+
 	private void handleSelectedParagraphByTags(ParagraphSelection paragraphSelection, Object[] tags) {
 		mSelectedTextByTagVisitor.setLongClicked(paragraphSelection.isSelectedByLongClick());
 		mSelectedTextByTagVisitor.setLastYOnScreen(paragraphSelection.getTouchYOnScreen());
@@ -199,11 +208,6 @@ class TexasAdapter extends RecyclerView.Adapter<TexasAdapter.Renderer> implement
 	}
 
 	private void handleParagraphSelected(Selection selection) {
-		if (mSelection != null) {
-			mSelection.clear();
-			mSelection = null;
-		}
-
 		notifySegmentChanged(selection.getParagraph());
 		mSelection = selection;
 	}
