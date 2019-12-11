@@ -178,6 +178,9 @@ public class BookParser implements Parser<CharSequence> {
 		Paragraph paragraph = builder.build();
 		if (paragraph.getElementCount() > 0) {
 			document.addSegment(paragraph);
+			if ("A9127P127029".equals(id)) {
+				document.setFocusSegment(paragraph);
+			}
 		}
 	}
 
