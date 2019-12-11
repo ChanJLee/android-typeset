@@ -68,7 +68,7 @@ public class ParagraphActivity extends AppCompatActivity {
 					return;
 				}
 
-				selection.selectedByTags(2, 3, 4, 6);
+				selection.selectByTags(2, 3, 4, 6);
 			}
 		});
 		texasView.setParser(bookParser);
