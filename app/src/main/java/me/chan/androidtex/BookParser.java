@@ -277,7 +277,7 @@ public class BookParser implements Parser<CharSequence> {
 					public void onClicked(float x, float y) {
 						Log.d("BookParser", "click: " + text);
 						if (mListener != null) {
-							mListener.onTextClicked();
+							mListener.onTextClicked(text);
 						}
 					}
 				};
@@ -320,6 +320,6 @@ public class BookParser implements Parser<CharSequence> {
 	}
 
 	public interface Listener {
-		void onTextClicked();
+		void onTextClicked(String text);
 	}
 }

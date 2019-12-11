@@ -27,7 +27,7 @@ abstract class ParagraphSelection {
 		mViewWidth = width;
 	}
 
-	public float getViewWidth() {
+	public float getWidth() {
 		return mViewWidth;
 	}
 

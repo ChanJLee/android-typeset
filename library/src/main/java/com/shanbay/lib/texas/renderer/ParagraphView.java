@@ -186,16 +186,15 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 			return false;
 		}
 
+		// 通知上层有元素被选中
 		if (mLastTouchBox instanceof DrawableBox) {
-			mOnTextSelectedListener.onDrawSelected(e, mParagraph, isLongClicked, (DrawableBox) mLastTouchBox, onClickedListener, getWidth());
+			mOnTextSelectedListener.onDrawSelected(e, mParagraph, isLongClicked, getWidth(), (DrawableBox) mLastTouchBox);
 		} else {
-			mOnTextSelectedListener.onTextSelected(e, mParagraph, isLongClicked, onClickedListener, getWidth());
+			mOnTextSelectedListener.onTextSelected(e, mParagraph, isLongClicked, getWidth(), onClickedListener);
 		}
-		return true;
-	}
 
-	private boolean handleClicked(MotionEvent e) {
-		return handleMotion(e, false);
+		onClickedListener.onClicked(e.getRawX(), e.getRawY());
+		return true;
 	}
 
 	@Override
@@ -226,7 +225,7 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 
 	@Override
 	public boolean onSingleTapUp(MotionEvent e) {
-		return handleClicked(e);
+		return handleMotion(e, false);
 	}
 
 	@Override
@@ -236,10 +235,6 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 
 	@Override
 	public void onLongPress(MotionEvent e) {
-		handleLongClicked(e);
-	}
-
-	private void handleLongClicked(MotionEvent e) {
 		handleMotion(e, true);
 	}
 
@@ -251,9 +246,9 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 
 	public interface OnSelectedChangedListener {
 
-		void onTextSelected(MotionEvent e, Paragraph paragraph, boolean isLongClicked, OnClickedListener onClickedListener, int width);
+		void onTextSelected(MotionEvent e, Paragraph paragraph, boolean isLongClicked, int width, OnClickedListener onClickedListener);
 
-		void onDrawSelected(MotionEvent e, Paragraph paragraph, boolean isLongClicked, DrawableBox box, OnClickedListener onClickedListener, int width);
+		void onDrawSelected(MotionEvent e, Paragraph paragraph, boolean isLongClicked, int width, DrawableBox box);
 	}
 
 	private DrawVisitor mDrawVisitor = new DrawVisitor();
@@ -425,10 +420,6 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 		}
 	}
 
-	private static void d(String msg) {
-		Log.d("TexasParaView", msg);
-	}
-
 	static OnClickedListener getBoxOnClickedListener(Box target, boolean isLongClicked) {
 		if (!isLongClicked) {
 			return target.getOnClickedListener();
@@ -439,5 +430,9 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 		}
 
 		return ((TextBox) target).getSpanOnClickedListener();
+	}
+
+	private static void d(String msg) {
+		Log.d("TexasParaView", msg);
 	}
 }

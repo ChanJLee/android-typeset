@@ -1,7 +1,10 @@
 package me.chan.androidtex;
 
 import android.os.Bundle;
+
 import androidx.appcompat.app.AppCompatActivity;
+
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
@@ -55,7 +58,11 @@ public class ParagraphActivity extends AppCompatActivity {
 		BookParser bookParser = new BookParser(this);
 		bookParser.setListener(new BookParser.Listener() {
 			@Override
-			public void onTextClicked() {
+			public void onTextClicked(String text) {
+				if (!TextUtils.equals(text, "was")) {
+					return;
+				}
+
 				Selection selection = texasView.getSelection();
 				if (selection == null) {
 					return;
