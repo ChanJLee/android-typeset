@@ -5,7 +5,6 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
-import android.graphics.RectF;
 import android.os.Build;
 import android.text.TextPaint;
 import android.util.AttributeSet;
@@ -14,20 +13,19 @@ import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-
-import com.shanbay.lib.texas.annotations.Hidden;
 import com.shanbay.lib.log.Log;
+import com.shanbay.lib.texas.annotations.Hidden;
 import com.shanbay.lib.texas.text.Appearance;
 import com.shanbay.lib.texas.text.Box;
 import com.shanbay.lib.texas.text.DrawableBox;
-import com.shanbay.lib.texas.text.Gravity;
 import com.shanbay.lib.texas.text.Line;
 import com.shanbay.lib.texas.text.OnClickedListener;
 import com.shanbay.lib.texas.text.Paragraph;
 import com.shanbay.lib.texas.text.TextBox;
 import com.shanbay.lib.texas.text.TextStyle;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 /**
  * 渲染文章段落视图
@@ -49,8 +47,6 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 	private Box mLastTouchBox = null;
 	@Nullable
 	private ParagraphSelection mParagraphSelection;
-	private float mLastYInView;
-	private float mLastYOnScreen;
 
 	public ParagraphView(Context context) {
 		this(context, null);
@@ -120,6 +116,11 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
 		int lineCount = 0;
 		if (mParagraph != null && (lineCount = mParagraph.getLineCount()) != 0) {
+			/**
+			 * 第一行和最后一行要包含当前typeface建议的padding，防止绘制的时候超出view显示区域
+			 *
+			 * {@link Paint.FontMetrics}
+			 * */
 			int height = (int) Math.ceil(mBottomPadding + mTopPadding);
 			for (int i = 0; i < lineCount; ++i) {
 				Line line = mParagraph.getLine(i);
@@ -157,9 +158,11 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 			selection.draw(canvas, mWorkPaint, mRectRadius);
 		}
 
+		int width = getWidth();
+
 		mDrawVisitor.setCanvas(canvas);
 		mDrawVisitor.setSelection(selection);
-		visitParagraph(mParagraph, mDrawVisitor);
+		mDrawVisitor.visit(mParagraph, width, mRenderOption, mTopPadding);
 		mDrawVisitor.clear();
 
 		// 绘制debug信息
@@ -169,12 +172,12 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 
 		mDebugDrawVisitor.setCanvas(canvas);
 		mDebugDrawVisitor.setSelection(selection);
-		visitParagraph(mParagraph, mDebugDrawVisitor);
+		mDebugDrawVisitor.visit(mParagraph, width, mRenderOption, mTopPadding);
 		mDebugDrawVisitor.clear();
 	}
 
 	private boolean handleMotion(MotionEvent e, boolean isLongClicked) {
-		if (mLastTouchBox == null) {
+		if (mLastTouchBox == null || mOnTextSelectedListener == null) {
 			return false;
 		}
 
@@ -184,101 +187,11 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 		}
 
 		if (mLastTouchBox instanceof DrawableBox) {
-			handleDrawableTouched(isLongClicked);
+			mOnTextSelectedListener.onDrawSelected(e, mParagraph, isLongClicked, (DrawableBox) mLastTouchBox, onClickedListener, getWidth());
 		} else {
-			handleTextTouched(isLongClicked, onClickedListener);
+			mOnTextSelectedListener.onTextSelected(e, mParagraph, isLongClicked, onClickedListener, getWidth());
 		}
-
-		onClickedListener.onClicked(e.getRawX(), e.getRawY());
 		return true;
-	}
-
-	private void handleTextTouched(boolean isLongClicked, OnClickedListener onClickedListener) {
-		mSelectionVisitor.setOnClickedListener(onClickedListener);
-		mSelectionVisitor.setLongClicked(isLongClicked);
-		visitParagraph(mParagraph, mSelectionVisitor);
-		TextParagraphSelection selection = mSelectionVisitor.getSelection();
-		mSelectionVisitor.clear();
-		if (mOnTextSelectedListener != null) {
-			mOnTextSelectedListener.onTextSelected(selection);
-		}
-	}
-
-	private void handleDrawableTouched(boolean isLongClicked) {
-		DrawableParagraphSelection selection = new DrawableParagraphSelection(
-				mParagraph,
-				isLongClicked,
-				(DrawableBox) mLastTouchBox
-		);
-
-		mLastTouchBox.setSelected(true);
-		if (mOnTextSelectedListener != null) {
-			mOnTextSelectedListener.onDrawSelected(selection);
-		}
-	}
-
-	private void visitParagraph(Paragraph paragraph, Visitor visitor) {
-		visitor.onVisitParagraph(paragraph);
-		float y = 0;
-		float width = getWidth();
-		int lineCount = paragraph.getLineCount();
-		for (int i = 0; i < lineCount; ++i) {
-
-			Line line = paragraph.getLine(i);
-			y += line.getLineHeight();
-			if (i == 0) {
-				y -= mBottomPadding;
-			}
-
-			float x;
-			Gravity gravity = line.getGravity();
-			if (gravity == Gravity.CENTER) {
-				x = (width - line.getLineWidth()) / 2f;
-			} else if (gravity == Gravity.RIGHT) {
-				x = (width - line.getLineWidth());
-			} else {
-				x = 0;
-			}
-			visitLine(line, x, y, visitor);
-			y += mRenderOption.getLineSpace();
-		}
-		visitor.onVisitParagraphEnd(paragraph);
-	}
-
-	private void visitLine(Line line, float x, float y, Visitor visitor) {
-		visitor.onVisitLine(line, x, y);
-
-		float spaceWidth = line.getSpaceWidth();
-		int boxSize = line.getCount();
-		for (int i = 0; i < boxSize; ++i) {
-			Box box = line.getBox(i);
-			float width = box.getWidth();
-
-			float left = x;
-			float right = (float) Math.ceil(x + width);
-			float top = (float) Math.ceil(y - line.getLineHeight());
-			float bottom = y;
-			visitBox(box, left, top, right, bottom, visitor);
-			x += (spaceWidth + width);
-		}
-
-		visitor.onVisitLineEnd(line, x, y);
-	}
-
-	private void visitBox(Box box, float left, float top, float right, float bottom, Visitor visitor) {
-		visitor.onVisitBox(box, left, top, right, bottom);
-	}
-
-	private OnClickedListener getBoxOnClickedListener(Box target, boolean isLongClicked) {
-		if (!isLongClicked) {
-			return target.getOnClickedListener();
-		}
-
-		if (!(target instanceof TextBox)) {
-			return null;
-		}
-
-		return ((TextBox) target).getSpanOnClickedListener();
 	}
 
 	private boolean handleClicked(MotionEvent e) {
@@ -294,17 +207,14 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 
 		float x = e.getX();
 		float y = e.getY();
-		mMotionEventVisitor.setX(x);
-		mMotionEventVisitor.setY(y);
-		visitParagraph(mParagraph, mMotionEventVisitor);
+		mMotionEventVisitor.setMotionLocation(x, y);
+		mMotionEventVisitor.visit(mParagraph, getWidth(), mRenderOption, mTopPadding);
 		Box target = mMotionEventVisitor.getBox();
 		mMotionEventVisitor.clear();
 		if (target == null) {
 			return false;
 		}
 
-		mLastYInView = y;
-		mLastYOnScreen = e.getRawY();
 		mLastTouchBox = target;
 		return true;
 	}
@@ -339,53 +249,29 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 		return false;
 	}
 
-	private static void d(String msg) {
-		Log.d("TexasParaView", msg);
-	}
-
 	public interface OnSelectedChangedListener {
-		void onTextSelected(TextParagraphSelection selection);
 
-		void onDrawSelected(DrawableParagraphSelection selection);
+		void onTextSelected(MotionEvent e, Paragraph paragraph, boolean isLongClicked, OnClickedListener onClickedListener, int width);
+
+		void onDrawSelected(MotionEvent e, Paragraph paragraph, boolean isLongClicked, DrawableBox box, OnClickedListener onClickedListener, int width);
 	}
 
 	private DrawVisitor mDrawVisitor = new DrawVisitor();
 
-	private class DrawVisitor implements Visitor {
+	private class DrawVisitor extends ParagraphVisitor {
 		private Canvas mCanvas;
 		private ParagraphSelection mSelection;
 
-		public void setCanvas(Canvas canvas) {
+		void setCanvas(Canvas canvas) {
 			mCanvas = canvas;
 		}
 
-		public void setSelection(ParagraphSelection selection) {
+		void setSelection(ParagraphSelection selection) {
 			mSelection = selection;
 		}
 
 		@Override
-		public void onVisitParagraph(Paragraph paragraph) {
-			/* do nothing */
-		}
-
-		@Override
-		public void onVisitParagraphEnd(Paragraph paragraph) {
-			/* do nothing */
-		}
-
-		@Override
-		public void onVisitLine(Line line, float x, float y) {
-		}
-
-		@Override
-		public void onVisitLineEnd(Line line, float x, float y) {
-			/* do nothing */
-		}
-
-		@Override
 		public void onVisitBox(Box box, float left, float top, float right, float bottom) {
-
-			float belowBottom = bottom + mBottomPadding;
 
 			// 先绘制背景
 			if (box instanceof TextBox) {
@@ -393,7 +279,7 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 				Appearance background = textBox.getBackground();
 				if (background != null) {
 					mWorkPaint.set(mPaint);
-					background.draw(mCanvas, mWorkPaint, left, top, right, belowBottom);
+					background.draw(mCanvas, mWorkPaint, left, top, right, bottom);
 				}
 			}
 
@@ -414,14 +300,14 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 						mRenderOption.getSelectedTextColor());
 			}
 
-			box.draw(mCanvas, mWorkPaint, left, bottom);
+			box.draw(mCanvas, mWorkPaint, left, bottom - mBottomPadding);
 
 			if (box instanceof TextBox) {
 				TextBox textBox = (TextBox) box;
 				Appearance foreground = textBox.getForeground();
 				if (foreground != null) {
 					mWorkPaint.set(mPaint);
-					foreground.draw(mCanvas, mWorkPaint, left, top, right, belowBottom);
+					foreground.draw(mCanvas, mWorkPaint, left, top, right, bottom);
 				}
 			}
 		}
@@ -434,10 +320,16 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 
 	private MotionEventVisitor mMotionEventVisitor = new MotionEventVisitor();
 
-	private class MotionEventVisitor implements Visitor {
+	private class MotionEventVisitor extends ParagraphVisitor {
+
 		private Box mBox;
 		private float mX;
 		private float mY;
+
+		public void setMotionLocation(float x, float y) {
+			mX = x;
+			mY = y;
+		}
 
 		public void clear() {
 			mBox = null;
@@ -448,169 +340,40 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 			return mBox;
 		}
 
-		public void setX(float x) {
-			mX = x;
-		}
-
-		public void setY(float y) {
-			mY = y;
-		}
-
-		@Override
-		public void onVisitParagraph(Paragraph paragraph) {
-
-		}
-
-		@Override
-		public void onVisitParagraphEnd(Paragraph paragraph) {
-
-		}
-
-		@Override
-		public void onVisitLine(Line line, float x, float y) {
-
-		}
-
-		@Override
-		public void onVisitLineEnd(Line line, float x, float y) {
-
-		}
-
 		@Override
 		public void onVisitBox(Box box, float left, float top, float right, float bottom) {
 			if ((left <= mX && mX <= right) &&
-					(top <= mY && mY <= bottom + mBottomPadding)) {
+					(top <= mY && mY <= bottom)) {
 				mBox = box;
-			}
-		}
-	}
-
-	private SelectionVisitor mSelectionVisitor = new SelectionVisitor();
-
-	private class SelectionVisitor implements Visitor {
-
-		private OnClickedListener mOnClickedListener;
-		private TextParagraphSelection mSelection;
-		private boolean mIsLongClicked;
-		private RectF mRectF;
-		private float mLastLineBottom;
-		private float mLastLineTop;
-		private float mTopEdgeOnScreen = -1;
-		private float mBottomEdgeOnScreen = -1;
-		private boolean mHasContent = false;
-
-		@Override
-		public void onVisitParagraph(Paragraph paragraph) {
-			mSelection = new TextParagraphSelection(paragraph, mIsLongClicked);
-		}
-
-		@Override
-		public void onVisitParagraphEnd(Paragraph paragraph) {
-			if (mSelection != null) {
-				mSelection.setTopEdgeOnScreen(mTopEdgeOnScreen);
-				mSelection.setBottomEdgeOnScreen(mBottomEdgeOnScreen);
-			}
-		}
-
-		public void clear() {
-			mOnClickedListener = null;
-			mSelection = null;
-			mIsLongClicked = false;
-			mLastLineBottom = mLastLineTop = -1;
-			mRectF = null;
-			mTopEdgeOnScreen = -1;
-			mBottomEdgeOnScreen = -1;
-			mHasContent = false;
-		}
-
-		public TextParagraphSelection getSelection() {
-			return mSelection;
-		}
-
-		public void setOnClickedListener(OnClickedListener onClickedListener) {
-			mOnClickedListener = onClickedListener;
-		}
-
-		public void setLongClicked(boolean longClicked) {
-			mIsLongClicked = longClicked;
-		}
-
-		@Override
-		public void onVisitLine(Line line, float x, float y) {
-			mLastLineBottom = y + mBottomPadding;
-			mLastLineTop = y - line.getLineHeight();
-			mHasContent = false;
-
-			if (mSelection.isEmpty()) {
-				mTopEdgeOnScreen = mLastYOnScreen - (mLastYInView - mLastLineTop);
-			}
-		}
-
-		@Override
-		public void onVisitLineEnd(Line line, float x, float y) {
-			if (mRectF != null) {
-				mSelection.addSelectArea(mRectF);
-				mRectF = null;
-			}
-
-			if (mHasContent) {
-				mBottomEdgeOnScreen = mLastLineBottom - mLastYInView + mLastYOnScreen;
-			}
-		}
-
-		@Override
-		public void onVisitBox(Box box, float left, float top, float right, float bottom) {
-			OnClickedListener targetListener = getBoxOnClickedListener(box, mIsLongClicked);
-			if (targetListener != mOnClickedListener) {
-				if (mRectF != null) {
-					mSelection.addSelectArea(mRectF);
-					mRectF = null;
-				}
-
-				box.setSelected(false);
-			} else {
-				if (mRectF == null) {
-					mRectF = new RectF(left, mLastLineTop, right, mLastLineBottom);
-				}
-
-				mHasContent = true;
-				mRectF.right = right;
-				mSelection.addBox(box);
-				box.setSelected(true);
 			}
 		}
 	}
 
 	private DebugDrawVisitor mDebugDrawVisitor;
 
-	private class DebugDrawVisitor implements Visitor {
+	private class DebugDrawVisitor extends ParagraphVisitor {
 		private final Paint mDebugPaint;
 		private Canvas mCanvas;
 		private ParagraphSelection mSelection;
 		private int[] mLocation = new int[2];
 
-		public DebugDrawVisitor() {
+		DebugDrawVisitor() {
 			mDebugPaint = new Paint();
 			mDebugPaint.setColor(Color.GREEN);
 			mDebugPaint.setStyle(Paint.Style.STROKE);
 			mDebugPaint.setTextSize(40);
 		}
 
-		public void setSelection(ParagraphSelection selection) {
+		void setSelection(ParagraphSelection selection) {
 			mSelection = selection;
 		}
 
-		public void setCanvas(Canvas canvas) {
+		void setCanvas(Canvas canvas) {
 			mCanvas = canvas;
 		}
 
-		private void clear() {
+		void clear() {
 			mCanvas = null;
-		}
-
-		@Override
-		public void onVisitParagraph(Paragraph paragraph) {
-			/* do nothing */
 		}
 
 		@Override
@@ -634,11 +397,6 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 		}
 
 		@Override
-		public void onVisitLine(Line line, float x, float y) {
-			/* do nothing */
-		}
-
-		@Override
 		public void onVisitLineEnd(Line line, float x, float y) {
 			float startX = 0;
 			float startY = y + mRenderOption.getLineSpace();
@@ -654,21 +412,24 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 
 		@Override
 		public void onVisitBox(Box box, float left, float top, float right, float bottom) {
-			float belowBottom = bottom + mBottomPadding;
 			mDebugPaint.setColor(Color.GREEN);
-			mCanvas.drawRect(left, top, right, belowBottom, mDebugPaint);
+			mCanvas.drawRect(left, top, right, bottom, mDebugPaint);
 		}
 	}
 
-	private interface Visitor {
-		void onVisitParagraph(Paragraph paragraph);
+	private static void d(String msg) {
+		Log.d("TexasParaView", msg);
+	}
 
-		void onVisitParagraphEnd(Paragraph paragraph);
+	static OnClickedListener getBoxOnClickedListener(Box target, boolean isLongClicked) {
+		if (!isLongClicked) {
+			return target.getOnClickedListener();
+		}
 
-		void onVisitLine(Line line, float x, float y);
+		if (!(target instanceof TextBox)) {
+			return null;
+		}
 
-		void onVisitLineEnd(Line line, float x, float y);
-
-		void onVisitBox(Box box, float left, float top, float right, float bottom);
+		return ((TextBox) target).getSpanOnClickedListener();
 	}
 }

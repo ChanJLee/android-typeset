@@ -15,22 +15,36 @@ abstract class ParagraphSelection {
 	private boolean mIsSelectedByLongClicked;
 	private float mTopEdgeOnScreen = -1;
 	private float mBottomEdgeOnScreen = -1;
+	private float mTouchYInView;
+	private float mTouchYOnScreen;
+	private float mViewWidth;
 
-	public ParagraphSelection(Paragraph paragraph, boolean isSelectedByLongClicked) {
+	public ParagraphSelection(Paragraph paragraph, boolean isSelectedByLongClicked, float touchYInView, float touchYOnScreen, float width) {
 		mParagraph = paragraph;
 		mIsSelectedByLongClicked = isSelectedByLongClicked;
+		mTouchYInView = touchYInView;
+		mTouchYOnScreen = touchYOnScreen;
+		mViewWidth = width;
 	}
 
-	public Paragraph getParagraph() {
-		return mParagraph;
+	public float getViewWidth() {
+		return mViewWidth;
 	}
 
-	public void setParagraph(Paragraph paragraph) {
-		mParagraph = paragraph;
+	public float getTouchYInView() {
+		return mTouchYInView;
+	}
+
+	public float getTouchYOnScreen() {
+		return mTouchYOnScreen;
 	}
 
 	public boolean isSelectedByLongClick() {
 		return mIsSelectedByLongClicked;
+	}
+
+	public Paragraph getParagraph() {
+		return mParagraph;
 	}
 
 	public float getTopEdgeOnScreen() {
