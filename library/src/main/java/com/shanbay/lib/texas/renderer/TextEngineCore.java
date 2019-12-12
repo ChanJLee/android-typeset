@@ -50,8 +50,8 @@ class TextEngineCore {
 	private ParagraphTypesetterImpl mTypesetter;
 	private RenderOption mRenderOption;
 
-	public TextEngineCore(Renderer renderer,
-						  RenderOption renderOption) {
+	TextEngineCore(Renderer renderer,
+				   RenderOption renderOption) {
 		this(renderer,
 				renderOption,
 				new TextPaint(TextPaint.ANTI_ALIAS_FLAG)
@@ -59,9 +59,9 @@ class TextEngineCore {
 	}
 
 	@Hidden
-	public TextEngineCore(Renderer renderer,
-						  RenderOption renderOption,
-						  TextPaint textPaint) {
+	TextEngineCore(Renderer renderer,
+				   RenderOption renderOption,
+				   TextPaint textPaint) {
 		mTextPaint = textPaint;
 		updateTextPaint(renderOption);
 
@@ -104,8 +104,8 @@ class TextEngineCore {
 	 * @param source source
 	 * @param width  width, must be > 0
 	 */
-	public void typeset(final Source source,
-						final int width) {
+	void typeset(final Source source,
+				 final int width) {
 		if (width <= 0) {
 			mHandler.sendMessage(MSG_FAILURE, new IllegalArgumentException("width and height must be large than 0"));
 			return;
@@ -214,14 +214,19 @@ class TextEngineCore {
 	private void typesetFigure(Figure figure, float lineWidth) {
 		d("typeset figure");
 		float width = figure.getWidth();
-		float height = figure.getHeight();
-
-		float ratio = Figure.DEFAULT_RATIO;
-		if (width > 0 && height > 0) {
-			ratio = width / height;
+		if (width <= 0) {
+			w("width <= 0, ignore");
+			return;
 		}
 
-		figure.resize(lineWidth, lineWidth / ratio);
+		float height = figure.getHeight();
+		if (height <= 0) {
+			w("height <= 0, ignore");
+			return;
+		}
+
+		float ratio = height / width;
+		figure.resize(lineWidth, lineWidth * ratio);
 	}
 
 	private void updateLineAttribute(float width) {
@@ -261,7 +266,7 @@ class TextEngineCore {
 		mTextPaint.setTextSize(renderOption.getTextSize());
 	}
 
-	public void reload(RenderOption renderOption) {
+	void reload(RenderOption renderOption) {
 		mRenderOption = renderOption;
 		updateTextPaint(renderOption);
 
@@ -312,5 +317,9 @@ class TextEngineCore {
 
 	private static void i(String msg) {
 		Log.i("TexasCore", msg);
+	}
+
+	private static void w(String msg) {
+		Log.w("TexasCore", msg);
 	}
 }

@@ -28,18 +28,34 @@ public class FigureView extends androidx.appcompat.widget.AppCompatImageView {
 
 	public void render(ImageLoader imageLoader, Figure figure) {
 		mFigure = figure;
-		imageLoader.uri(figure.getUrl())
-				.size((int) figure.getWidth(), (int) figure.getHeight())
-				.into(this);
+		ImageLoader.Request request = imageLoader.uri(figure.getUrl());
+
+		int width = (int) mFigure.getWidth();
+		int height = (int) mFigure.getHeight();
+		if (width > 0 && height > 0) {
+			request.size(width, height);
+		}
+
+		request.into(this);
 		requestLayout();
 	}
 
 	@Override
 	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-		if (mFigure != null) {
-			widthMeasureSpec = MeasureSpec.makeMeasureSpec((int) mFigure.getWidth(), MeasureSpec.EXACTLY);
-			heightMeasureSpec = MeasureSpec.makeMeasureSpec((int) mFigure.getHeight(), MeasureSpec.EXACTLY);
+		if (mFigure == null) {
+			super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+			return;
 		}
+
+		int width = (int) mFigure.getWidth();
+		int height = (int) mFigure.getHeight();
+		if (width <= 0 || height <= 0) {
+			super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+			return;
+		}
+
+		widthMeasureSpec = MeasureSpec.makeMeasureSpec(width, MeasureSpec.EXACTLY);
+		heightMeasureSpec = MeasureSpec.makeMeasureSpec(height, MeasureSpec.EXACTLY);
 		super.onMeasure(widthMeasureSpec, heightMeasureSpec);
 	}
 }
