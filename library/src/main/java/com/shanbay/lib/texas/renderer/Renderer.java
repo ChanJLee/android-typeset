@@ -97,6 +97,7 @@ abstract class Renderer {
 			mTextEngineCore.reload(mRenderOption);
 			return;
 		}
+		mTextEngineCore.updateRenderOption(mRenderOption);
 		onRefresh(mTextEngineCore.getTextPaint(), renderOption);
 	}
 

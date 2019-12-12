@@ -203,10 +203,13 @@ class TextEngineCore {
 		i("typeset used time: " + (SystemClock.elapsedRealtime() - timestamp));
 		boolean isInterrupted = thread.isInterrupted();
 		i("is thread interrupt when typeset: " + isInterrupted);
+		if (isInterrupted) {
+			return;
+		}
 
 		// call listener
-		if (!isInterrupted) {
-			mHandler.sendMessage(MSG_FINISHED, document);
+		mHandler.sendMessage(MSG_FINISHED, document);
+		if (mRenderOption.isEnableDebug()) {
 			analyzeDocument(document);
 		}
 	}
@@ -313,10 +316,7 @@ class TextEngineCore {
 	}
 
 	private static void analyzeDocument(Document document) {
-		float sum = 0;
-		int count = 0;
-		float var = -1;
-		List<Float> ratios = new ArrayList<>();
+		ResultEvaluation resultEvaluation = new ResultEvaluation();
 		final int segmentCount = document.getSegmentCount();
 		for (int segmentIndex = 0; segmentIndex < segmentCount; ++segmentIndex) {
 			Segment segment = document.getSegment(segmentIndex);
@@ -324,65 +324,67 @@ class TextEngineCore {
 				continue;
 			}
 
-			float paragraphSum = 0;
-			int paragraphCount = 0;
-			List<Float> paragraphRatios = new ArrayList<>();
 			Paragraph paragraph = (Paragraph) segment;
 			final int lineCount = paragraph.getLineCount();
 			for (int lineIndex = 0; lineIndex < lineCount; ++lineIndex) {
 				Line line = paragraph.getLine(lineIndex);
 				float ratio = line.getRatio();
-				paragraphSum += ratio;
-				++paragraphCount;
-				paragraphRatios.add(ratio);
+				resultEvaluation.add(ratio);
 			}
-
-			if (paragraphRatios.isEmpty()) {
-				continue;
-			}
-
-			float paragraphAvg = paragraphSum / paragraphCount;
-			float paragraphVar = calVar(paragraphAvg, paragraphCount, paragraphRatios);
 		}
+		d("total: " + resultEvaluation.get());
 	}
 
 	public Document getDocument() {
 		return mDocument;
 	}
 
-	private static void d(String msg) {
-		Log.d("TexasCore", msg);
-	}
-
-	private static void i(String msg) {
-		Log.i("TexasCore", msg);
-	}
-
 	private static void w(String msg) {
 		Log.w("TexasCore", msg);
+	}
+
+	void updateRenderOption(RenderOption renderOption) {
+		mRenderOption = renderOption;
 	}
 
 	private static class ResultEvaluation {
 		private List<Float> mSamples = new ArrayList<>();
 		private float mSum = 0;
+		// 0
 		private int mBestCount = 0;
+		// (0, 1]
+		private int mStretchLevel0Count = 0;
 		// (1, 2]
-		private int mMaxLeve1Count = 0;
+		private int mStretchLevel1Count = 0;
 		// (2, 3]
-		private int mMaxLeve2Count;
+		private int mStretchLevel2Count = 0;
 		// (3, 4]
-		private int mMaxLeve3Count;
+		private int mStretchLevel3Count;
 		// (4, 无穷)
-		private int mMaxLeve4Count;
-		// [0.8, 1)
-		private int mMinLeve1Count;
-		// (负无穷, 0.8)
-		private int mMinLeve2Count;
+		private int mStretchLevel4Count;
+		// [-0.2, 0)
+		private int mShrinkLevel0Count;
+		// (负无穷, -0.2)
+		private int mShrinkLevel1Count;
 
 		public void add(float sample) {
 
-			if (sample >= -1 && sample <= 1) {
+			if (sample > 4) {
+				++mStretchLevel4Count;
+			} else if (sample > 3) {
+				++mStretchLevel3Count;
+			} else if (sample > 2) {
+				++mStretchLevel2Count;
+			} else if (sample > 1) {
+				++mStretchLevel1Count;
+			} else if (sample > 0) {
+				++mStretchLevel0Count;
+			} else if (sample == 0) {
 				++mBestCount;
+			} else if (sample >= -0.2) {
+				++mShrinkLevel0Count;
+			} else {
+				++mShrinkLevel1Count;
 			}
 
 			mSamples.add(sample);
@@ -395,7 +397,7 @@ class TextEngineCore {
 				return "has not samples";
 			}
 
-			StringBuilder stringBuilder = new StringBuilder("count: ")
+			StringBuilder stringBuilder = new StringBuilder("\ncount: ")
 					.append(count)
 					.append(", ");
 
@@ -411,13 +413,27 @@ class TextEngineCore {
 			}
 			stringBuilder.append("mid: ")
 					.append(mid)
-					.append(", ");
+					.append(", ")
+					.append("var: ")
+					.append(calVar(avg, count));
 
-
-			float var = calVar(avg, count);
-			stringBuilder.append("var: ")
-					.append(var)
-					.append(", ");
+			stringBuilder
+					.append("\n(-∞, -0.2: ")
+					.append(mShrinkLevel1Count * 1.0 / count)
+					.append("\n[-0.2, 0): ")
+					.append(mShrinkLevel0Count * 1.0 / count)
+					.append("\n0:")
+					.append(mBestCount * 1.0 / count)
+					.append("\n(0, 1]: ")
+					.append(mStretchLevel0Count * 1.0 / count)
+					.append("\n(1, 2]: ")
+					.append(mStretchLevel1Count * 1.0 / count)
+					.append("\n(2, 3]: ")
+					.append(mStretchLevel2Count * 1.0 / count)
+					.append("\n(3, 4]: ")
+					.append(mStretchLevel3Count * 1.0 / count)
+					.append("\n(4, +∞): ")
+					.append(mStretchLevel4Count * 1.0 / count);
 
 			return stringBuilder.toString();
 		}
@@ -429,5 +445,13 @@ class TextEngineCore {
 			}
 			return var / count;
 		}
+	}
+
+	private static void d(String msg) {
+		Log.d("TexasCore", msg);
+	}
+
+	private static void i(String msg) {
+		Log.i("TexasCore", msg);
 	}
 }
