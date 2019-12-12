@@ -3,6 +3,9 @@ package com.shanbay.lib.texas.renderer;
 import android.os.SystemClock;
 import android.text.TextPaint;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -22,6 +25,7 @@ import com.shanbay.lib.texas.text.Document;
 import com.shanbay.lib.texas.text.Figure;
 import com.shanbay.lib.texas.text.Gravity;
 import com.shanbay.lib.texas.text.HyphenStrategy;
+import com.shanbay.lib.texas.text.Line;
 import com.shanbay.lib.texas.text.Paragraph;
 import com.shanbay.lib.texas.text.Segment;
 import com.shanbay.lib.texas.text.TextAttribute;
@@ -203,6 +207,7 @@ class TextEngineCore {
 		// call listener
 		if (!isInterrupted) {
 			mHandler.sendMessage(MSG_FINISHED, document);
+			analyzeDocument(document);
 		}
 	}
 
@@ -307,6 +312,40 @@ class TextEngineCore {
 		i("reload: " + mTask);
 	}
 
+	private static void analyzeDocument(Document document) {
+		float sum = 0;
+		int count = 0;
+		float var = -1;
+		List<Float> ratios = new ArrayList<>();
+		final int segmentCount = document.getSegmentCount();
+		for (int segmentIndex = 0; segmentIndex < segmentCount; ++segmentIndex) {
+			Segment segment = document.getSegment(segmentIndex);
+			if (!(segment instanceof Paragraph)) {
+				continue;
+			}
+
+			float paragraphSum = 0;
+			int paragraphCount = 0;
+			List<Float> paragraphRatios = new ArrayList<>();
+			Paragraph paragraph = (Paragraph) segment;
+			final int lineCount = paragraph.getLineCount();
+			for (int lineIndex = 0; lineIndex < lineCount; ++lineIndex) {
+				Line line = paragraph.getLine(lineIndex);
+				float ratio = line.getRatio();
+				paragraphSum += ratio;
+				++paragraphCount;
+				paragraphRatios.add(ratio);
+			}
+
+			if (paragraphRatios.isEmpty()) {
+				continue;
+			}
+
+			float paragraphAvg = paragraphSum / paragraphCount;
+			float paragraphVar = calVar(paragraphAvg, paragraphCount, paragraphRatios);
+		}
+	}
+
 	public Document getDocument() {
 		return mDocument;
 	}
@@ -321,5 +360,74 @@ class TextEngineCore {
 
 	private static void w(String msg) {
 		Log.w("TexasCore", msg);
+	}
+
+	private static class ResultEvaluation {
+		private List<Float> mSamples = new ArrayList<>();
+		private float mSum = 0;
+		private int mBestCount = 0;
+		// (1, 2]
+		private int mMaxLeve1Count = 0;
+		// (2, 3]
+		private int mMaxLeve2Count;
+		// (3, 4]
+		private int mMaxLeve3Count;
+		// (4, 无穷)
+		private int mMaxLeve4Count;
+		// [0.8, 1)
+		private int mMinLeve1Count;
+		// (负无穷, 0.8)
+		private int mMinLeve2Count;
+
+		public void add(float sample) {
+
+			if (sample >= -1 && sample <= 1) {
+				++mBestCount;
+			}
+
+			mSamples.add(sample);
+			mSum += sample;
+		}
+
+		public String get() {
+			int count = mSamples.size();
+			if (count == 0) {
+				return "has not samples";
+			}
+
+			StringBuilder stringBuilder = new StringBuilder("count: ")
+					.append(count)
+					.append(", ");
+
+			float avg = mSum / count;
+			stringBuilder.append("avg: ")
+					.append(avg)
+					.append(", ");
+
+			Collections.sort(mSamples);
+			float mid = mSamples.get(count / 2);
+			if (count % 2 == 0) {
+				mid = (mid + mSamples.get(count / 2 - 1)) / 2;
+			}
+			stringBuilder.append("mid: ")
+					.append(mid)
+					.append(", ");
+
+
+			float var = calVar(avg, count);
+			stringBuilder.append("var: ")
+					.append(var)
+					.append(", ");
+
+			return stringBuilder.toString();
+		}
+
+		private float calVar(float avg, int count) {
+			float var = 0.0f;
+			for (float s : mSamples) {
+				var += (s - avg) * (s - avg);
+			}
+			return var / count;
+		}
 	}
 }
