@@ -7,8 +7,6 @@ import com.shanbay.lib.texas.misc.ObjectFactory;
  * 插图
  */
 public class Figure extends Segment {
-	public static final float DEFAULT_RATIO = 1.618f;
-
 	private static final ObjectFactory<Figure> POOL = new ObjectFactory<>(16);
 
 	private String mUrl;
