@@ -332,7 +332,7 @@ class TextEngineCore {
 				resultEvaluation.add(ratio);
 			}
 		}
-		d("total: " + resultEvaluation.get());
+		d("total: \n" + resultEvaluation.get());
 	}
 
 	public Document getDocument() {
@@ -347,6 +347,9 @@ class TextEngineCore {
 		mRenderOption = renderOption;
 	}
 
+	/**
+	 * 用来衡量算法质量
+	 */
 	private static class ResultEvaluation {
 		private List<Float> mSamples = new ArrayList<>();
 		private float mSum = 0;
@@ -397,7 +400,7 @@ class TextEngineCore {
 				return "has not samples";
 			}
 
-			StringBuilder stringBuilder = new StringBuilder("\ncount: ")
+			StringBuilder stringBuilder = new StringBuilder("count: ")
 					.append(count)
 					.append(", ");
 
