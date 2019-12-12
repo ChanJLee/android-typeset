@@ -256,13 +256,20 @@ public class TexasView extends FrameLayout {
 	}
 
 	/**
-	 * 刷新当前内容
+	 * 刷新内容
 	 *
 	 * @param renderOption option
 	 */
 	public void refresh(RenderOption renderOption) {
 		d("refresh render option");
 		mRenderer.refresh(renderOption);
+	}
+
+	/**
+	 * 刷新内容
+	 */
+	public void refresh() {
+		mRenderer.refresh();
 	}
 
 	/**

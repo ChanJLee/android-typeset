@@ -145,6 +145,8 @@ abstract class Renderer {
 		mTextEngineCore.typeset(source, width);
 	}
 
+	abstract void refresh();
+
 	public void setParser(Parser<?> parser) {
 		mTextEngineCore.setParser(parser);
 	}
