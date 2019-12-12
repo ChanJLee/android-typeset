@@ -239,7 +239,7 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 		return false;
 	}
 
-	public interface OnSelectedChangedListener {
+	interface OnSelectedChangedListener {
 
 		void onTextSelected(MotionEvent e, Paragraph paragraph, boolean isLongClicked, int width, OnClickedListener onClickedListener);
 
