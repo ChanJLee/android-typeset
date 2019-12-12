@@ -19,6 +19,7 @@ public abstract class ViewSegment extends Segment {
 
 	@Hidden
 	public final void attach(LayoutInflater layoutInflater, FrameLayout frameLayout) {
+		frameLayout.removeAllViews();
 		View view = getView(layoutInflater, frameLayout);
 		ViewGroup viewGroup = (ViewGroup) view.getParent();
 		if (viewGroup != null) {
