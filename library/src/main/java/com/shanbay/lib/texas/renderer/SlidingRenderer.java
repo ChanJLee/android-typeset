@@ -92,6 +92,11 @@ class SlidingRenderer extends Renderer {
 	}
 
 	@Override
+	void refresh() {
+		mAdapter.notifyDataSetChanged();
+	}
+
+	@Override
 	Selection getSelection() {
 		return mAdapter.getCurrentSelection();
 	}
