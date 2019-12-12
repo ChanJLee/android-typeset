@@ -14,12 +14,8 @@ import com.shanbay.lib.texas.misc.ObjectFactory;
  */
 public class UnderLine extends Appearance {
 	private static final PathEffect DASH_EFFECT = new DashPathEffect(new float[]{16, 8, 16, 8}, 0);
-	/**
-	 * 绘制都是发生在主线程的，所以不用担心这里共享对象会有线程竞争问题
-	 */
-	private static final Path PATH = new Path();
-
 	private static final ObjectFactory<UnderLine> POOL = new ObjectFactory<>(256);
+	private static final ObjectFactory<Path> PATH_POOL = new ObjectFactory<>(8);
 
 	private int mColor;
 
@@ -50,10 +46,11 @@ public class UnderLine extends Appearance {
 		textPaint.setStyle(Paint.Style.STROKE);
 		textPaint.setColor(mColor);
 		textPaint.setPathEffect(DASH_EFFECT);
-		PATH.reset();
-		PATH.moveTo(left, bottom);
-		PATH.lineTo(right, bottom);
-		canvas.drawPath(PATH, textPaint);
+		Path path = obtainPath();
+		path.moveTo(left, bottom);
+		path.lineTo(right, bottom);
+		canvas.drawPath(path, textPaint);
+		recyclePath(path);
 	}
 
 	@Override
@@ -77,7 +74,21 @@ public class UnderLine extends Appearance {
 		return underLine;
 	}
 
+	private static Path obtainPath() {
+		Path path = PATH_POOL.acquire();
+		if (path == null) {
+			return new Path();
+		}
+		path.reset();
+		return path;
+	}
+
+	private static void recyclePath(Path path) {
+		PATH_POOL.release(path);
+	}
+
 	public static void clean() {
 		POOL.clean();
+		PATH_POOL.clean();
 	}
 }
