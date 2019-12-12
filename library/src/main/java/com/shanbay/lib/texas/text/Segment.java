@@ -7,11 +7,20 @@ import com.shanbay.lib.texas.renderer.RenderOption;
  * 渲染的最小单元
  */
 public class Segment extends DefaultRecyclable {
+
 	/**
-	 * @param normalVertical segment的垂直距离 {@link RenderOption#getSegmentSpace()} {@link RenderOption#setSegmentSpace(float)}
-	 * @return 垂直方向的距离
+	 * @param segmentSpace segment的垂直距离 {@link RenderOption#getSegmentSpace()} {@link RenderOption#setSegmentSpace(float)}
+	 * @return 距离上一个segment的距离
 	 */
-	public float getVerticalSpace(float normalVertical) {
-		return normalVertical;
+	public float getTopMarigin(float segmentSpace) {
+		return 0;
+	}
+
+	/**
+	 * @param segmentSpace segment的垂直距离 {@link RenderOption#getSegmentSpace()} {@link RenderOption#setSegmentSpace(float)}
+	 * @return 距离下一个segment的距离
+	 */
+	public float getBottomMargin(float segmentSpace) {
+		return segmentSpace;
 	}
 }

@@ -97,6 +97,25 @@ public class BookParser implements Parser<CharSequence> {
 		final String id = parser.getAttributeValue(null, "id");
 		Document document = Document.obtain();
 
+		document.addSegment(new ViewSegment() {
+			@Override
+			protected View onCreateView(LayoutInflater layoutInflater, ViewGroup parent) {
+				View view = layoutInflater.inflate(R.layout.test_layout, parent, false);
+				view.findViewById(R.id.finish).setOnClickListener(new View.OnClickListener() {
+					@Override
+					public void onClick(View v) {
+						Log.d("BookParser", "click foot");
+					}
+				});
+				return view;
+			}
+
+			@Override
+			protected void onRender() {
+				/* do nothing */
+			}
+		});
+
 		while (parser.next() != XmlPullParser.END_TAG) {
 			int eventType = parser.getEventType();
 			if (eventType != XmlPullParser.START_TAG) {
