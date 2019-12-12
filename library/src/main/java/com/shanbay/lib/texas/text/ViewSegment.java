@@ -3,7 +3,6 @@ package com.shanbay.lib.texas.text;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewParent;
 import android.widget.FrameLayout;
 
 import com.shanbay.lib.texas.annotations.Hidden;
@@ -21,9 +20,8 @@ public abstract class ViewSegment extends Segment {
 	@Hidden
 	public final void attach(LayoutInflater layoutInflater, FrameLayout frameLayout) {
 		View view = getView(layoutInflater, frameLayout);
-		ViewParent viewParent = view.getParent();
-		if (viewParent instanceof ViewGroup) {
-			ViewGroup viewGroup = (ViewGroup) viewParent;
+		ViewGroup viewGroup = (ViewGroup) view.getParent();
+		if (viewGroup != null) {
 			viewGroup.removeView(view);
 		}
 		frameLayout.addView(view, mLayoutParams);
