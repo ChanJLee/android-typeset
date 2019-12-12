@@ -3,6 +3,7 @@ package com.shanbay.lib.texas.text;
 import android.graphics.Canvas;
 import android.graphics.DashPathEffect;
 import android.graphics.Paint;
+import android.graphics.Path;
 import android.graphics.PathEffect;
 import android.text.TextPaint;
 
@@ -12,7 +13,11 @@ import com.shanbay.lib.texas.misc.ObjectFactory;
  * 下划线
  */
 public class UnderLine extends Appearance {
-	private static PathEffect DASH_EFFECT = new DashPathEffect(new float[]{16, 8, 16, 8}, 0);
+	private static final PathEffect DASH_EFFECT = new DashPathEffect(new float[]{16, 8, 16, 8}, 0);
+	/**
+	 * 绘制都是发生在主线程的，所以不用担心这里共享对象会有线程竞争问题
+	 */
+	private static final Path PATH = new Path();
 
 	private static final ObjectFactory<UnderLine> POOL = new ObjectFactory<>(256);
 
@@ -45,11 +50,10 @@ public class UnderLine extends Appearance {
 		textPaint.setStyle(Paint.Style.STROKE);
 		textPaint.setColor(mColor);
 		textPaint.setPathEffect(DASH_EFFECT);
-		canvas.drawLine(left, bottom, right, bottom, textPaint);
-	}
-
-	public static void clean() {
-		POOL.clean();
+		PATH.reset();
+		PATH.moveTo(left, bottom);
+		PATH.lineTo(right, bottom);
+		canvas.drawPath(PATH, textPaint);
 	}
 
 	@Override
@@ -71,5 +75,9 @@ public class UnderLine extends Appearance {
 		underLine.mColor = color;
 		underLine.reuse();
 		return underLine;
+	}
+
+	public static void clean() {
+		POOL.clean();
 	}
 }

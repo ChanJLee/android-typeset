@@ -5,13 +5,15 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
-import android.os.Build;
 import android.text.TextPaint;
 import android.util.AttributeSet;
 import android.util.TypedValue;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.shanbay.lib.log.Log;
 import com.shanbay.lib.texas.annotations.Hidden;
@@ -23,9 +25,6 @@ import com.shanbay.lib.texas.text.OnClickedListener;
 import com.shanbay.lib.texas.text.Paragraph;
 import com.shanbay.lib.texas.text.TextBox;
 import com.shanbay.lib.texas.text.TextStyle;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 
 /**
  * 渲染文章段落视图
@@ -58,10 +57,6 @@ public class ParagraphView extends View implements GestureDetector.OnGestureList
 
 	public ParagraphView(Context context, AttributeSet attrs, int defStyleAttr) {
 		super(context, attrs, defStyleAttr);
-		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-			setLayerType(View.LAYER_TYPE_SOFTWARE, null);
-		}
-
 		mRectRadius = TypedValue.applyDimension(
 				TypedValue.COMPLEX_UNIT_DIP,
 				DEFAULT_ROUND_RADIUS,
