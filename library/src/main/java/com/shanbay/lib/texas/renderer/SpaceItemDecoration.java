@@ -41,7 +41,7 @@ class SpaceItemDecoration extends RecyclerView.ItemDecoration {
 		Segment segment = adapter.getItem(currentPosition);
 		outRect.set(
 				0,
-				(int) segment.getTopMarigin(mSegmentSpace),
+				(int) segment.getTopMargin(mSegmentSpace),
 				0,
 				(int) segment.getBottomMargin(mSegmentSpace)
 		);

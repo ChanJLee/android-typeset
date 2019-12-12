@@ -12,7 +12,7 @@ public class Segment extends DefaultRecyclable {
 	 * @param segmentSpace segment的垂直距离 {@link RenderOption#getSegmentSpace()} {@link RenderOption#setSegmentSpace(float)}
 	 * @return 距离上一个segment的距离
 	 */
-	public float getTopMarigin(float segmentSpace) {
+	public float getTopMargin(float segmentSpace) {
 		return 0;
 	}
 
