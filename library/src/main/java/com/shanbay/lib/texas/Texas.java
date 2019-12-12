@@ -97,10 +97,10 @@ public class Texas {
 
 	@Hidden
 	public static class MemoryOption {
-		private int mDocumentSegmentInitialCapacity = 512;
-		private int mParagraphLineInitialCapacity = 32;
+		private int mDocumentSegmentInitialCapacity = 32;
+		private int mParagraphLineInitialCapacity = 16;
 		private int mParagraphElementInitialCapacity = 128;
-		private int mParagraphLineBoxInitialCapacity = 32;
+		private int mParagraphLineBoxInitialCapacity = 16;
 
 		public int getDocumentSegmentInitialCapacity() {
 			return mDocumentSegmentInitialCapacity;
