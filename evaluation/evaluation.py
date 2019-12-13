@@ -8,12 +8,15 @@ import matplotlib.mlab as mlab
 import subprocess
 import os
 
+UUID = 0
+
 def render(samples): 
     n, bins, patches = plt.hist(samples, 10, facecolor='blue', alpha=0.5)
 
     plt.xlabel('rj')
     plt.ylabel('count')
-    plt.title('tex algorithm evaluation')
+    UUID = UUID + 1
+    plt.title('tex algorithm evaluation ' + UUID)
     plt.axis([-1, 8, 0, len(samples)])
     plt.grid(True)
     plt.show()
