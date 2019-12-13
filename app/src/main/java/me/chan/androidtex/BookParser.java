@@ -100,14 +100,7 @@ public class BookParser implements Parser<CharSequence> {
 		document.addSegment(new ViewSegment() {
 			@Override
 			protected View onCreateView(LayoutInflater layoutInflater, ViewGroup parent) {
-				View view = layoutInflater.inflate(R.layout.test_layout, parent, false);
-				view.findViewById(R.id.finish).setOnClickListener(new View.OnClickListener() {
-					@Override
-					public void onClick(View v) {
-						Log.d("BookParser", "click foot");
-					}
-				});
-				return view;
+				return layoutInflater.inflate(R.layout.test_header, parent, false);
 			}
 
 			@Override
