@@ -1,19 +1,14 @@
 package com.shanbay.lib.texas.renderer;
 
+import android.annotation.SuppressLint;
+import android.os.Environment;
 import android.os.SystemClock;
 import android.text.TextPaint;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-
-import com.shanbay.lib.texas.annotations.Hidden;
-import com.shanbay.lib.texas.hyphenation.HyphenationPattern;
-import com.shanbay.lib.texas.hyphenation.Hyphenation;
 import com.shanbay.lib.log.Log;
+import com.shanbay.lib.texas.annotations.Hidden;
+import com.shanbay.lib.texas.hyphenation.Hyphenation;
+import com.shanbay.lib.texas.hyphenation.HyphenationPattern;
 import com.shanbay.lib.texas.measurer.AndroidMeasurer;
 import com.shanbay.lib.texas.measurer.Measurer;
 import com.shanbay.lib.texas.parser.Parser;
@@ -31,6 +26,15 @@ import com.shanbay.lib.texas.text.Segment;
 import com.shanbay.lib.texas.text.TextAttribute;
 import com.shanbay.lib.texas.text.ViewSegment;
 import com.shanbay.lib.texas.typesetter.ParagraphTypesetterImpl;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 /**
  * 排版核心
@@ -351,8 +355,8 @@ class TextEngineCore {
 	 * 用来衡量算法质量
 	 */
 	private static class ResultEvaluation {
-		private List<Float> mSamples = new ArrayList<>();
 		private float mSum = 0;
+		private List<Float> mSamples = new ArrayList<>();
 		// 0
 		private int mBestCount = 0;
 		// (0, 1]
@@ -394,6 +398,7 @@ class TextEngineCore {
 			mSum += sample;
 		}
 
+		@SuppressLint("DefaultLocale")
 		public String get() {
 			int count = mSamples.size();
 			if (count == 0) {
@@ -437,6 +442,29 @@ class TextEngineCore {
 					.append(mStretchLevel3Count * 1.0 / count)
 					.append("\n(4, +∞): ")
 					.append(mStretchLevel4Count * 1.0 / count);
+
+			StringBuilder json = new StringBuilder("[");
+			for (float sample : mSamples) {
+				json.append(sample)
+						.append(",");
+			}
+			if (json.length() > 0) {
+				json.deleteCharAt(json.length() - 1);
+			}
+			json.append("]");
+			try {
+				File file = new File(Environment.getExternalStorageDirectory(), "tex.json");
+				if (!file.exists()) {
+					file.createNewFile();
+				}
+				FileOutputStream fileOutputStream = new FileOutputStream(file);
+				fileOutputStream.write(json.toString().getBytes());
+				fileOutputStream.flush();
+				fileOutputStream.close();
+				d("EvaluationSample " + file.getAbsolutePath());
+			} catch (Throwable e) {
+				e.printStackTrace();
+			}
 
 			return stringBuilder.toString();
 		}
