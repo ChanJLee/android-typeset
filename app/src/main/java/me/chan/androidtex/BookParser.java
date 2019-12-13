@@ -107,6 +107,16 @@ public class BookParser implements Parser<CharSequence> {
 			protected void onRender() {
 				/* do nothing */
 			}
+
+			@Override
+			public float getTopMargin(float segmentSpace) {
+				return 0;
+			}
+
+			@Override
+			public float getBottomMargin(float segmentSpace) {
+				return 0;
+			}
 		});
 
 		while (parser.next() != XmlPullParser.END_TAG) {
