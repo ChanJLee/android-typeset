@@ -43,6 +43,13 @@ public class ParagraphActivity extends AppCompatActivity {
 			}
 		});
 
+		findViewById(R.id.refresh).setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				texasView.refresh();
+			}
+		});
+
 		final View container = findViewById(R.id.option_container);
 		findViewById(R.id.option).setOnClickListener(new View.OnClickListener() {
 			@Override
