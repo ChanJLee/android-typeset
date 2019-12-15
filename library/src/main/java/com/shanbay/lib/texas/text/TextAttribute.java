@@ -31,8 +31,8 @@ public class TextAttribute {
 		mHyphenWidth = measurer.getDesiredWidth("-", 0, 1, null);
 		mHyphenHeight = measurer.getDesiredHeight("-", 0, 1, null);
 		mSpaceWidth = mHyphenWidth;
-		mSpaceStretch = mSpaceWidth * 0.3333f;
-		mSpaceShrink = mSpaceWidth * 0.25f;
+		mSpaceStretch = mSpaceWidth * 0.8f;
+		mSpaceShrink = mSpaceWidth * 0.2f;
 
 		// 首行缩进四个空格
 		mIndentWidth = mSpaceWidth * 4;
