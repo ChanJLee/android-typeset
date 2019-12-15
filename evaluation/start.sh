@@ -10,5 +10,6 @@ do
     echo ${line};
     ((i++));
     path=`echo ${line} | awk -F ' ' '{print $10}'`;
+    echo "read ${path}"
     python2 ./evaluation.py "figure-${i}" ${path} &
 done
