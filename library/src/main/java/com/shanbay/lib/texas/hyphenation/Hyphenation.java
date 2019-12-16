@@ -14,9 +14,9 @@ public class Hyphenation {
 
 	private static final int UNDER_LINE_CODE_POINT = 95;
 
-	private TrieNode mTrie;
-	private int mLeftMin;
-	private int mRightMin;
+	private final TrieNode mTrie;
+	private final int mLeftMin;
+	private final int mRightMin;
 
 	private Hyphenation(HyphenationPattern pattern) {
 		this.mTrie = createTrie(pattern.patterns);
