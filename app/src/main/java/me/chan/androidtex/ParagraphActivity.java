@@ -88,14 +88,42 @@ public class ParagraphActivity extends AppCompatActivity {
 		findViewById(R.id.button1).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				render("TheBookAndTheSword.txt", texasView);
+				render("harry1.txt", texasView);
 			}
 		});
 
 		findViewById(R.id.button2).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				render("IAmLegend.txt", texasView);
+				render("harry2.txt", texasView);
+			}
+		});
+
+		findViewById(R.id.button3).setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				render("harry3.txt", texasView);
+			}
+		});
+
+		findViewById(R.id.button4).setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				render("harry4.txt", texasView);
+			}
+		});
+
+		findViewById(R.id.button5).setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				render("harry5.txt", texasView);
+			}
+		});
+
+		findViewById(R.id.button6).setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				render("harry6.txt", texasView);
 			}
 		});
 
