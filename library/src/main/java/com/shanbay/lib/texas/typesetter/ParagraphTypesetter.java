@@ -8,7 +8,7 @@ import com.shanbay.lib.texas.text.Paragraph;
 @Hidden
 public interface ParagraphTypesetter {
 	float INFINITY = 1000;
-	int HYPHEN_PENALTY = 100;
+	int HYPHEN_PENALTY = 20;
 
 	boolean typeset(Paragraph paragraph, TextAttribute textAttribute, BreakStrategy breakStrategy);
 }
