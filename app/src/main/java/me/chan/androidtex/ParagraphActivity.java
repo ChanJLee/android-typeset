@@ -1,5 +1,6 @@
 package me.chan.androidtex;
 
+import android.graphics.Typeface;
 import android.os.Bundle;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -35,6 +36,9 @@ public class ParagraphActivity extends AppCompatActivity {
 				texasView.refresh(renderOption);
 			}
 		});
+
+		RenderOption renderOption = texasView.createRendererOption();
+		renderOption.setTypeface(Typeface.createFromAsset(getAssets(), "SourceSerifPro-Regular.ttf"));
 
 		findViewById(R.id.gc).setOnClickListener(new View.OnClickListener() {
 			@Override

@@ -43,6 +43,7 @@ ant.properties
 /library/build
 /app/build
 /gradle
+evaluation/temp/*
 
 #freeline
 freeline*
