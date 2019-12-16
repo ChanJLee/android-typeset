@@ -38,14 +38,32 @@ class SlidingRenderer extends Renderer {
 		});
 		mSpaceItemDecoration = new SpaceItemDecoration(renderOption.getSegmentSpace());
 		mImpl.addItemDecoration(mSpaceItemDecoration);
-		mImpl.addOnScrollListener(new RecyclerView.OnScrollListener() {
-			@Override
-			public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
-				mTexasView.notifyScrolled(dx, dy);
-			}
-		});
 		mLinearLayoutManager = new TexasLinearLayoutManager(context);
 		mImpl.setLayoutManager(mLinearLayoutManager);
+		mImpl.addOnScrollListener(new RecyclerView.OnScrollListener() {
+			@Override
+			public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
+				if (newState != RecyclerView.SCROLL_STATE_IDLE) {
+					return;
+				}
+
+				int position = mLinearLayoutManager.findFirstCompletelyVisibleItemPosition();
+				if (position == 0) {
+					mTexasView.notifyScrolledTop();
+					return;
+				}
+
+				position = mLinearLayoutManager.findLastCompletelyVisibleItemPosition();
+				if (position == mLinearLayoutManager.getItemCount() - 1) {
+					mTexasView.notifyScrolledBottom();
+				}
+			}
+
+			@Override
+			public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+				mTexasView.notifyScroll(dx, dy);
+			}
+		});
 		viewGroup.addView(mImpl,
 				new TexasView.LayoutParams(
 						ViewGroup.LayoutParams.MATCH_PARENT,

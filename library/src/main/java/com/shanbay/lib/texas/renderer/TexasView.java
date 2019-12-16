@@ -317,9 +317,9 @@ public class TexasView extends FrameLayout {
 		mScrollListener = scrollListener;
 	}
 
-	void notifyScrolled(int dx, int dy) {
+	void notifyScroll(int dx, int dy) {
 		if (mScrollListener != null) {
-			mScrollListener.onScrolled(this, dx, dy);
+			mScrollListener.onScroll(this, dx, dy);
 		}
 	}
 
@@ -344,6 +344,18 @@ public class TexasView extends FrameLayout {
 	 */
 	public void setOnClickedListener(OnClickedListener onClickedListener) {
 		mOnClickedListener = onClickedListener;
+	}
+
+	void notifyScrolledTop() {
+		if (mScrollListener != null) {
+			mScrollListener.onScrolledTop(this);
+		}
+	}
+
+	void notifyScrolledBottom() {
+		if (mScrollListener != null) {
+			mScrollListener.onScrolledBottom(this);
+		}
 	}
 
 	/**
@@ -377,12 +389,29 @@ public class TexasView extends FrameLayout {
 	 * 滚动监听器
 	 */
 	public interface ScrollListener {
+
 		/**
+		 * 当滑动完成的时候，顶部可见
+		 *
+		 * @param texasView view
+		 */
+		void onScrolledTop(TexasView texasView);
+
+		/**
+		 * 滚动的时候回调
+		 *
 		 * @param texasView view
 		 * @param dx        dx
 		 * @param dy        dy
 		 */
-		void onScrolled(TexasView texasView, int dx, int dy);
+		void onScroll(TexasView texasView, int dx, int dy);
+
+		/**
+		 * 当滑动完成的时候，底部可见
+		 *
+		 * @param texasView view
+		 */
+		void onScrolledBottom(TexasView texasView);
 	}
 
 	private static void d(String msg) {
