@@ -1,6 +1,20 @@
 # 配套工具
 
-## 性能测试工具
+## 性能优化工具
+
+如果不希望在android设备上进行性能优化，找到当前repo下的async-profiler-1.6-macos-x64
+
+```shell
+cd 3rd/async-profiler-1.6-macos-x64
+cat README.md
+```
+1. 配置junit运行参数
+
+![junit参数设置](20191216145416.jpg)
+
+2. 我们推荐使用agent的方式加载async-profiler，这个README.md里有agent的使用方法，主要就是设置jvm的参数
+
+![配置jvm参数](20191216144927.jpg)
 
 ## 算法质量可视化工具
 
