@@ -90,37 +90,39 @@ public class TypesetterUnitTest {
 
 	@Test
 	public void testTypesetter() throws IOException {
-		File file = new File("../app/src/main/assets/TheBookAndTheSword.txt");
-		System.out.println(file.getAbsolutePath());
-		assertTrue(file.exists());
+		for (int i = 1; i <= 6; ++i) {
+			File file = new File("../app/src/main/assets/harry" + i + ".txt");
+			System.out.println(file.getAbsolutePath());
+			assertTrue(file.exists());
 
-		StringBuilder stringBuilder = new StringBuilder();
-		BufferedReader bufferedReader = new BufferedReader(
-				new InputStreamReader(new FileInputStream(file)));
-		String line = null;
-		while ((line = bufferedReader.readLine()) != null) {
-			stringBuilder.append(line)
-					.append("\n");
+			StringBuilder stringBuilder = new StringBuilder();
+			BufferedReader bufferedReader = new BufferedReader(
+					new InputStreamReader(new FileInputStream(file)));
+			String line = null;
+			while ((line = bufferedReader.readLine()) != null) {
+				stringBuilder.append(line)
+						.append("\n");
+			}
+
+			String text = stringBuilder.toString();
+			assertNotEquals(text.length(), 0);
+
+			long timestamp = System.currentTimeMillis();
+
+			checkContent(text, BreakStrategy.SIMPLE, 200, 1);
+			checkContent(text, BreakStrategy.SIMPLE, 200, 18);
+			checkContent(text, BreakStrategy.SIMPLE, 200, 100);
+			checkContent(text, BreakStrategy.SIMPLE, 200, 200);
+			checkContent(text, BreakStrategy.SIMPLE, 200, 201);
+
+			checkContent(text, BreakStrategy.BALANCED, 200, 1);
+			checkContent(text, BreakStrategy.BALANCED, 200, 18);
+			checkContent(text, BreakStrategy.BALANCED, 200, 100);
+			checkContent(text, BreakStrategy.BALANCED, 200, 200);
+			checkContent(text, BreakStrategy.BALANCED, 200, 201);
+
+			System.out.println("used time: " + (System.currentTimeMillis() - timestamp));
 		}
-
-		String text = stringBuilder.toString();
-		assertNotEquals(text.length(), 0);
-
-		long timestamp = System.currentTimeMillis();
-
-		checkContent(text, BreakStrategy.SIMPLE, 200, 1);
-		checkContent(text, BreakStrategy.SIMPLE, 200, 18);
-		checkContent(text, BreakStrategy.SIMPLE, 200, 100);
-		checkContent(text, BreakStrategy.SIMPLE, 200, 200);
-		checkContent(text, BreakStrategy.SIMPLE, 200, 201);
-
-		checkContent(text, BreakStrategy.BALANCED, 200, 1);
-		checkContent(text, BreakStrategy.BALANCED, 200, 18);
-		checkContent(text, BreakStrategy.BALANCED, 200, 100);
-		checkContent(text, BreakStrategy.BALANCED, 200, 200);
-		checkContent(text, BreakStrategy.BALANCED, 200, 201);
-
-		System.out.println("used time: " + (System.currentTimeMillis() - timestamp));
 	}
 
 	private void checkContent(String text, BreakStrategy breakStrategy, float lineWidth, int textSize) {
