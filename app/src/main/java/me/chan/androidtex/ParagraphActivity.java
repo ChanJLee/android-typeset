@@ -10,6 +10,7 @@ import android.view.View;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.RadioGroup;
+import android.widget.Toast;
 
 import java.io.IOException;
 
@@ -34,6 +35,22 @@ public class ParagraphActivity extends AppCompatActivity {
 				RenderOption renderOption = texasView.createRendererOption();
 				renderOption.setEnableDebug(!renderOption.isEnableDebug());
 				texasView.refresh(renderOption);
+			}
+		});
+		texasView.setScrollListener(new TexasView.ScrollListener() {
+			@Override
+			public void onScrolledTop(TexasView texasView) {
+				Toast.makeText(texasView.getContext(), "顶部可见", Toast.LENGTH_SHORT).show();
+			}
+
+			@Override
+			public void onScroll(TexasView texasView, int dx, int dy) {
+
+			}
+
+			@Override
+			public void onScrolledBottom(TexasView texasView) {
+				Toast.makeText(texasView.getContext(), "底部", Toast.LENGTH_SHORT).show();
 			}
 		});
 
