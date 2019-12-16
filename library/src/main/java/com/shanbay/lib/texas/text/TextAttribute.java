@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 
 import androidx.collection.SparseArrayCompat;
 
+import com.shanbay.lib.log.Log;
 import com.shanbay.lib.texas.annotations.Hidden;
 import com.shanbay.lib.texas.measurer.Measurer;
 
@@ -30,12 +31,14 @@ public class TextAttribute {
 	public void refresh(Measurer measurer) {
 		mHyphenWidth = measurer.getDesiredWidth("-", 0, 1, null);
 		mHyphenHeight = measurer.getDesiredHeight("-", 0, 1, null);
-		mSpaceWidth = mHyphenWidth;
-		mSpaceStretch = mSpaceWidth * 0.8f;
-		mSpaceShrink = mSpaceWidth * 0.2f;
+		mSpaceWidth = mHyphenWidth * 1.2f;
+		mSpaceStretch = mHyphenWidth * 0.6f;
+		mSpaceShrink = mHyphenWidth * 0.2f;
 
 		// 首行缩进四个空格
-		mIndentWidth = mSpaceWidth * 4;
+		mIndentWidth = mHyphenWidth * 4;
+
+		i("space width: " + mSpaceWidth + " space shrink: " + mSpaceShrink + " space stretch: " + mSpaceStretch);
 	}
 
 	public TextAttribute add(int lineNumber, LineAttribute attribute) {
@@ -125,5 +128,9 @@ public class TextAttribute {
 		public Gravity getGravity() {
 			return mGravity;
 		}
+	}
+
+	private static void i(String msg) {
+		Log.i("TexasText", msg);
 	}
 }

@@ -24,8 +24,8 @@ def load(title, path):
     print "path, ", path
 
     try:
-        s = os.popen("adb shell cat " + path).read()
-        print s
+        f = open(path)
+        s = f.read()
         render(title, json.loads(s))
     except Exception as e:
         print e.message
