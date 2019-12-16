@@ -66,6 +66,8 @@ texasView.release()
 
 [API](doc/api/api.md)
 
+[配套工具](doc/tools/tools.md)
+
 ## 资源引用
 
 [english-words](https://github.com/dwyl/english-words.git)
