@@ -44,7 +44,7 @@ public class ParagraphActivity extends AppCompatActivity {
 			}
 
 			@Override
-			public void onScroll(TexasView texasView, int dx, int dy) {
+			public void onScrolling(TexasView texasView, int dx, int dy) {
 
 			}
 

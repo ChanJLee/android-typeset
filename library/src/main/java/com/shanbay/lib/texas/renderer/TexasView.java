@@ -319,7 +319,7 @@ public class TexasView extends FrameLayout {
 
 	void notifyScroll(int dx, int dy) {
 		if (mScrollListener != null) {
-			mScrollListener.onScroll(this, dx, dy);
+			mScrollListener.onScrolling(this, dx, dy);
 		}
 	}
 
@@ -404,7 +404,7 @@ public class TexasView extends FrameLayout {
 		 * @param dx        dx
 		 * @param dy        dy
 		 */
-		void onScroll(TexasView texasView, int dx, int dy);
+		void onScrolling(TexasView texasView, int dx, int dy);
 
 		/**
 		 * 当滑动完成的时候，底部可见
