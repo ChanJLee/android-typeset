@@ -17,7 +17,11 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 
+import com.shanbay.lib.log.Log;
 import com.shanbay.lib.texas.renderer.RenderOption;
 import com.shanbay.lib.texas.text.Line;
 import com.shanbay.lib.texas.text.TextAttribute;
@@ -71,6 +75,27 @@ public class TypesetterUnitTest {
 		}).when(mRect).height();
 
 		Hyphenation.getInstance();
+
+		try {
+			Class<?> clazz = Class.forName("com.shanbay.lib.log.Log$JavaLog");
+			Constructor<?> constructor = clazz.getDeclaredConstructor();
+			Field field = Log.class.getDeclaredField("sImpl");
+			field.setAccessible(true);
+			constructor.setAccessible(true);
+			field.set(null, constructor.newInstance());
+		} catch (NoSuchFieldException e) {
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			e.printStackTrace();
+		} catch (NoSuchMethodException e) {
+			e.printStackTrace();
+		} catch (InvocationTargetException e) {
+			e.printStackTrace();
+		} catch (InstantiationException e) {
+			e.printStackTrace();
+		}
 	}
 
 	@Test
