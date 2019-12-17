@@ -4,12 +4,10 @@ import android.content.Context;
 import android.text.TextPaint;
 import android.view.ViewGroup;
 
-import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
-import com.shanbay.lib.texas.annotations.Hidden;
 import com.shanbay.lib.log.Log;
+import com.shanbay.lib.texas.annotations.Hidden;
 import com.shanbay.lib.texas.measurer.Measurer;
 import com.shanbay.lib.texas.text.Document;
 import com.shanbay.lib.texas.text.OnClickedListener;
@@ -40,30 +38,6 @@ class SlidingRenderer extends Renderer {
 		mImpl.addItemDecoration(mSpaceItemDecoration);
 		mLinearLayoutManager = new TexasLinearLayoutManager(context);
 		mImpl.setLayoutManager(mLinearLayoutManager);
-		mImpl.addOnScrollListener(new RecyclerView.OnScrollListener() {
-			@Override
-			public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
-				if (newState != RecyclerView.SCROLL_STATE_IDLE) {
-					return;
-				}
-
-				int position = mLinearLayoutManager.findFirstCompletelyVisibleItemPosition();
-				if (position == 0) {
-					mTexasView.notifyScrolledTop();
-					return;
-				}
-
-				position = mLinearLayoutManager.findLastCompletelyVisibleItemPosition();
-				if (position == mLinearLayoutManager.getItemCount() - 1) {
-					mTexasView.notifyScrolledBottom();
-				}
-			}
-
-			@Override
-			public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
-				mTexasView.notifyScroll(dx, dy);
-			}
-		});
 		viewGroup.addView(mImpl,
 				new TexasView.LayoutParams(
 						ViewGroup.LayoutParams.MATCH_PARENT,
