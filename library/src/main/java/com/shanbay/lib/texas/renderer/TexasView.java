@@ -43,7 +43,6 @@ public class TexasView extends FrameLayout {
 	private Renderer mRenderer;
 	private ViewTreeObserver.OnGlobalLayoutListener mLastOnGlobalLayoutListener = null;
 	private RenderListener mRenderListener;
-	private ScrollListener mScrollListener;
 	private OnClickedListener mOnClickedListener;
 
 	public TexasView(Context context, AttributeSet attrs) {
@@ -279,7 +278,6 @@ public class TexasView extends FrameLayout {
 		i("release");
 		mRenderListener = null;
 		mOnClickedListener = null;
-		mScrollListener = null;
 		mLastOnGlobalLayoutListener = null;
 		mRenderer.release();
 	}
@@ -311,19 +309,6 @@ public class TexasView extends FrameLayout {
 	}
 
 	/**
-	 * @param scrollListener 滚动监听
-	 */
-	public void setScrollListener(ScrollListener scrollListener) {
-		mScrollListener = scrollListener;
-	}
-
-	void notifyScroll(int dx, int dy) {
-		if (mScrollListener != null) {
-			mScrollListener.onScrolling(this, dx, dy);
-		}
-	}
-
-	/**
 	 * 获取选中信息
 	 *
 	 * @return 选中信息
@@ -344,18 +329,6 @@ public class TexasView extends FrameLayout {
 	 */
 	public void setOnClickedListener(OnClickedListener onClickedListener) {
 		mOnClickedListener = onClickedListener;
-	}
-
-	void notifyScrolledTop() {
-		if (mScrollListener != null) {
-			mScrollListener.onScrolledTop(this);
-		}
-	}
-
-	void notifyScrolledBottom() {
-		if (mScrollListener != null) {
-			mScrollListener.onScrolledBottom(this);
-		}
 	}
 
 	/**
@@ -383,35 +356,6 @@ public class TexasView extends FrameLayout {
 		 * @param throwable 错误
 		 */
 		void onError(TexasView texasView, Throwable throwable);
-	}
-
-	/**
-	 * 滚动监听器
-	 */
-	public interface ScrollListener {
-
-		/**
-		 * 当滑动完成的时候，顶部可见
-		 *
-		 * @param texasView view
-		 */
-		void onScrolledTop(TexasView texasView);
-
-		/**
-		 * 滚动的时候回调
-		 *
-		 * @param texasView view
-		 * @param dx        dx
-		 * @param dy        dy
-		 */
-		void onScrolling(TexasView texasView, int dx, int dy);
-
-		/**
-		 * 当滑动完成的时候，底部可见
-		 *
-		 * @param texasView view
-		 */
-		void onScrolledBottom(TexasView texasView);
 	}
 
 	private static void d(String msg) {
