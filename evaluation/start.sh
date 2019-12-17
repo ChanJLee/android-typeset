@@ -19,5 +19,5 @@ do
 
     file="./temp/data-${count}"
     adb pull ${path} ${file}
-    python2 ./evaluation.py "figure-${count}" ${file} &
+    python2 ./evaluation.py "figure-${count}" "${file}" &
 done
