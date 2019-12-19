@@ -25,6 +25,7 @@ import com.shanbay.lib.texas.measurer.Measurer;
 import com.shanbay.lib.texas.parser.ParseException;
 import com.shanbay.lib.texas.parser.Parser;
 import com.shanbay.lib.texas.renderer.RenderOption;
+import com.shanbay.lib.texas.renderer.TexasView;
 import com.shanbay.lib.texas.text.Document;
 import com.shanbay.lib.texas.text.Figure;
 import com.shanbay.lib.texas.text.OnClickedListener;
@@ -41,17 +42,19 @@ public class BookParser implements Parser<CharSequence> {
 	private float mFlagHeight;
 	private OnClickedListener mOnClickedListener;
 	private Listener mListener;
+	private TexasView mTexasView;
 
 	public void setListener(Listener listener) {
 		mListener = listener;
 	}
 
-	public BookParser(Context context) {
+	public BookParser(Context context, TexasView texasView) {
 		mContext = context;
 		Resources resources = context.getResources();
 		mFlagWidth = resources.getDimension(R.dimen.com_shanbay_lib_texas_flag_width);
 		mFlagHeight = resources.getDimension(R.dimen.com_shanbay_lib_texas_flag_height);
 		// for test
+		mTexasView = texasView;
 		mOnClickedListener = new OnClickedListener() {
 			@Override
 			public void onClicked(float x, float y) {
@@ -140,6 +143,7 @@ public class BookParser implements Parser<CharSequence> {
 					@Override
 					public void onClick(View v) {
 						Log.d("BookParser", "click foot");
+						mTexasView.scrollToPosition(0);
 					}
 				});
 				return view;

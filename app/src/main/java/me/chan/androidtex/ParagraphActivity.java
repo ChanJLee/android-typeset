@@ -67,7 +67,7 @@ public class ParagraphActivity extends AppCompatActivity {
 			}
 		});
 
-		BookParser bookParser = new BookParser(this);
+		BookParser bookParser = new BookParser(this, texasView);
 		bookParser.setListener(new BookParser.Listener() {
 			@Override
 			public void onTextClicked(String text) {
