@@ -23,7 +23,7 @@ cat README.md
 2. 如果是第一次安装，运行
 
 ```shell
-./install
+./install.sh
 ```
 
 3. 运行start.sh
