@@ -256,7 +256,7 @@ public class TexasView extends FrameLayout {
 	}
 
 	/**
-	 * 刷新内容
+	 * 刷新内容，可能会重新排版 {@link TexasView#redraw()}
 	 *
 	 * @param renderOption option
 	 */
@@ -266,10 +266,10 @@ public class TexasView extends FrameLayout {
 	}
 
 	/**
-	 * 刷新内容
+	 * 只是简单的重新绘制内容
 	 */
-	public void refresh() {
-		mRenderer.refresh();
+	public void redraw() {
+		mRenderer.redraw();
 	}
 
 	/**

@@ -85,7 +85,7 @@ class SlidingRenderer extends Renderer {
 	}
 
 	@Override
-	void refresh() {
+	void redraw() {
 		mAdapter.notifyDataSetChanged();
 	}
 
