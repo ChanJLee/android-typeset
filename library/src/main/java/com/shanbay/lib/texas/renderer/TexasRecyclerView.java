@@ -38,8 +38,13 @@ class TexasRecyclerView extends RecyclerView {
 		}
 	}
 
-	public void scrollToPosition(int position) {
+	public void scrollToPosition(int position, boolean anim) {
 		if (position <= 0) {
+			return;
+		}
+
+		if (!anim) {
+			scrollToPosition(position);
 			return;
 		}
 

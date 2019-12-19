@@ -67,7 +67,7 @@ class SlidingRenderer extends Renderer {
 		int index = document.getFocusSegmentIndex();
 		d("render scroll to: " + index);
 		if (index > 0) {
-			mImpl.scrollToPosition(document.getFocusSegmentIndex());
+			mImpl.scrollToPosition(document.getFocusSegmentIndex(), false);
 		}
 	}
 
