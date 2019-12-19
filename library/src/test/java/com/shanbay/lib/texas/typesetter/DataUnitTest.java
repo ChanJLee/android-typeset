@@ -474,6 +474,8 @@ public class DataUnitTest {
 		Assert.assertSame(document.getFocusSegmentIndex(), -1);
 		document.setFocusSegment(figure);
 		Assert.assertSame(document.getFocusSegmentIndex(), 0);
+		Assert.assertEquals(document.indexOf(null), -1);
+		Assert.assertEquals(document.indexOf(figure), 0);
 
 		Document previous = document;
 		document.recycle();
