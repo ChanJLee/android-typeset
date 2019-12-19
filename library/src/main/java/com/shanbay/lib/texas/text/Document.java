@@ -46,10 +46,6 @@ public final class Document extends DefaultRecyclable {
 	 */
 	@Hidden
 	public int getFocusSegmentIndex() {
-		if (mFocusSegment == null) {
-			return -1;
-		}
-
 		return indexOf(mFocusSegment);
 	}
 
@@ -61,6 +57,10 @@ public final class Document extends DefaultRecyclable {
 	 * @return 获取segment的下标，负值则为没有segment
 	 */
 	public int indexOf(Segment segment) {
+		if (segment == null) {
+			return -1;
+		}
+
 		return mSegments.indexOf(segment);
 	}
 
