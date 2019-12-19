@@ -165,6 +165,8 @@ abstract class Renderer {
 
 	abstract int getFirstVisibleSegmentIndex();
 
+	abstract void scrollToPosition(int position, boolean smooth);
+
 	private static void d(String msg) {
 		Log.d("TexasRenderer", msg);
 	}

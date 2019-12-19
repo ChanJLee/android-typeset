@@ -98,6 +98,11 @@ class SlidingRenderer extends Renderer {
 		return mLinearLayoutManager.findFirstCompletelyVisibleItemPosition();
 	}
 
+	@Override
+	void scrollToPosition(int position, boolean smooth) {
+		mImpl.scrollToPosition(position, smooth);
+	}
+
 	private static void d(String msg) {
 		Log.d("SlidingTexasRenderer", msg);
 	}

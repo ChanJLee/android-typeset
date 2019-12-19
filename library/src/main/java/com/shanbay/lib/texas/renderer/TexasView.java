@@ -27,6 +27,7 @@ import com.shanbay.lib.texas.source.Source;
 import com.shanbay.lib.texas.text.BreakStrategy;
 import com.shanbay.lib.texas.text.Document;
 import com.shanbay.lib.texas.text.OnClickedListener;
+import com.shanbay.lib.texas.text.Segment;
 
 /**
  * 渲染引擎入口视图
@@ -329,6 +330,25 @@ public class TexasView extends FrameLayout {
 	 */
 	public void setOnClickedListener(OnClickedListener onClickedListener) {
 		mOnClickedListener = onClickedListener;
+	}
+
+	/**
+	 * {@link TexasView#scrollToPosition(int, boolean)}
+	 *
+	 * @param position position
+	 */
+	public void scrollToPosition(int position) {
+		scrollToPosition(position, true);
+	}
+
+	/**
+	 * 滚动到document的某个segment
+	 *
+	 * @param position segment index {@link Document#indexOf(Segment)} {@link com.shanbay.lib.texas.text.Paragraph}
+	 * @param smooth   滚动的时候是否平滑滚动
+	 */
+	public void scrollToPosition(int position, boolean smooth) {
+		mRenderer.scrollToPosition(position, smooth);
 	}
 
 	/**
