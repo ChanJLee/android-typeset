@@ -209,29 +209,33 @@ public class TexasView extends FrameLayout {
 	 * @param source 源
 	 */
 	public void setSource(final Source<?> source) {
-		int width = getWidth() - getPaddingLeft() - getPaddingRight();
-		if (width <= 0) {
-			i("unknown size, try later, width: " + width);
-			ViewTreeObserver viewTreeObserver = getViewTreeObserver();
-			if (mLastOnGlobalLayoutListener != null) {
-				d("remove last on global layout listener");
-				viewTreeObserver.removeOnGlobalLayoutListener(mLastOnGlobalLayoutListener);
-			}
-
-			mLastOnGlobalLayoutListener = new ViewTreeObserver.OnGlobalLayoutListener() {
-				@Override
-				public void onGlobalLayout() {
-					getViewTreeObserver().removeOnGlobalLayoutListener(this);
-					mRenderer.render(source, getWidth());
-					mLastOnGlobalLayoutListener = null;
-				}
-			};
-			getViewTreeObserver().addOnGlobalLayoutListener(mLastOnGlobalLayoutListener);
+		int width = getRenderWidth();
+		if (width > 0) {
+			d("set source direct");
+			mRenderer.render(source, width);
 			return;
 		}
 
-		d("set source direct");
-		mRenderer.render(source, width);
+		i("unknown size, try later, width: " + width);
+		ViewTreeObserver viewTreeObserver = getViewTreeObserver();
+		if (mLastOnGlobalLayoutListener != null) {
+			d("remove last on global layout listener");
+			viewTreeObserver.removeOnGlobalLayoutListener(mLastOnGlobalLayoutListener);
+		}
+
+		mLastOnGlobalLayoutListener = new ViewTreeObserver.OnGlobalLayoutListener() {
+			@Override
+			public void onGlobalLayout() {
+				getViewTreeObserver().removeOnGlobalLayoutListener(this);
+				mRenderer.render(source, getRenderWidth());
+				mLastOnGlobalLayoutListener = null;
+			}
+		};
+		getViewTreeObserver().addOnGlobalLayoutListener(mLastOnGlobalLayoutListener);
+	}
+
+	private int getRenderWidth() {
+		return getWidth() - getPaddingLeft() - getPaddingRight();
 	}
 
 	/**
