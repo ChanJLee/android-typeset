@@ -37,22 +37,6 @@ public class ParagraphActivity extends AppCompatActivity {
 				texasView.refresh(renderOption);
 			}
 		});
-		texasView.setScrollListener(new TexasView.ScrollListener() {
-			@Override
-			public void onScrolledTop(TexasView texasView) {
-				Toast.makeText(texasView.getContext(), "顶部可见", Toast.LENGTH_SHORT).show();
-			}
-
-			@Override
-			public void onScrolling(TexasView texasView, int dx, int dy) {
-
-			}
-
-			@Override
-			public void onScrolledBottom(TexasView texasView) {
-				Toast.makeText(texasView.getContext(), "底部", Toast.LENGTH_SHORT).show();
-			}
-		});
 
 		RenderOption renderOption = texasView.createRendererOption();
 		renderOption.setTypeface(Typeface.createFromAsset(getAssets(), "SourceSerifPro-Regular.ttf"));

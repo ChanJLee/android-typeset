@@ -22,6 +22,11 @@ class TexasLinearLayoutManager extends LinearLayoutManager {
 		startSmoothScroll(smoothScroller);
 	}
 
+	@Override
+	public void scrollToPosition(int position) {
+		scrollToPositionWithOffset(position, 0);
+	}
+
 	private static class SmoothScrollerImpl extends LinearSmoothScroller {
 
 		private static final int MAX_DURATION = 100;
