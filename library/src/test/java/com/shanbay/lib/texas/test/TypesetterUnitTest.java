@@ -3,6 +3,25 @@ package com.shanbay.lib.texas.test;
 import android.graphics.Rect;
 import android.graphics.drawable.ColorDrawable;
 
+import com.shanbay.lib.texas.hyphenation.Hyphenation;
+import com.shanbay.lib.texas.measurer.Measurer;
+import com.shanbay.lib.texas.parser.TextParser;
+import com.shanbay.lib.texas.renderer.RenderOption;
+import com.shanbay.lib.texas.test.mock.MockMeasurer;
+import com.shanbay.lib.texas.test.mock.MockTextAttribute;
+import com.shanbay.lib.texas.test.mock.MockTextPaint;
+import com.shanbay.lib.texas.text.Box;
+import com.shanbay.lib.texas.text.BreakStrategy;
+import com.shanbay.lib.texas.text.Document;
+import com.shanbay.lib.texas.text.DrawableBox;
+import com.shanbay.lib.texas.text.Gravity;
+import com.shanbay.lib.texas.text.Line;
+import com.shanbay.lib.texas.text.Paragraph;
+import com.shanbay.lib.texas.text.Segment;
+import com.shanbay.lib.texas.text.TextAttribute;
+import com.shanbay.lib.texas.text.TextBox;
+import com.shanbay.lib.texas.typesetter.ParagraphTypesetterImpl;
+
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -17,29 +36,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-
-import com.shanbay.lib.log.Log;
-import com.shanbay.lib.texas.renderer.RenderOption;
-import com.shanbay.lib.texas.text.Line;
-import com.shanbay.lib.texas.text.TextAttribute;
-import com.shanbay.lib.texas.text.Box;
-import com.shanbay.lib.texas.text.DrawableBox;
-import com.shanbay.lib.texas.text.TextBox;
-import com.shanbay.lib.texas.hyphenation.Hyphenation;
-import com.shanbay.lib.texas.measurer.Measurer;
-import com.shanbay.lib.texas.parser.TextParser;
-import com.shanbay.lib.texas.test.mock.MockMeasurer;
-import com.shanbay.lib.texas.test.mock.MockTextAttribute;
-import com.shanbay.lib.texas.test.mock.MockTextPaint;
-import com.shanbay.lib.texas.text.BreakStrategy;
-import com.shanbay.lib.texas.text.Document;
-import com.shanbay.lib.texas.text.Gravity;
-import com.shanbay.lib.texas.text.Paragraph;
-import com.shanbay.lib.texas.text.Segment;
-import com.shanbay.lib.texas.typesetter.ParagraphTypesetterImpl;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
@@ -75,27 +71,6 @@ public class TypesetterUnitTest {
 		}).when(mRect).height();
 
 		Hyphenation.getInstance();
-
-		try {
-			Class<?> clazz = Class.forName("com.shanbay.lib.log.Log$JavaLog");
-			Constructor<?> constructor = clazz.getDeclaredConstructor();
-			Field field = Log.class.getDeclaredField("sImpl");
-			field.setAccessible(true);
-			constructor.setAccessible(true);
-			field.set(null, constructor.newInstance());
-		} catch (NoSuchFieldException e) {
-			e.printStackTrace();
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
-		} catch (IllegalAccessException e) {
-			e.printStackTrace();
-		} catch (NoSuchMethodException e) {
-			e.printStackTrace();
-		} catch (InvocationTargetException e) {
-			e.printStackTrace();
-		} catch (InstantiationException e) {
-			e.printStackTrace();
-		}
 	}
 
 	@Test
