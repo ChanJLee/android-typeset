@@ -18,7 +18,8 @@ import androidx.annotation.RestrictTo;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.shanbay.lib.log.Log;
-import com.shanbay.lib.texas.R;
+
+import me.chan.texas.R;
 import me.chan.texas.image.ImageLoader;
 import me.chan.texas.misc.PaintSet;
 import me.chan.texas.renderer.core.TypesetEngine;

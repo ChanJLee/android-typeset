@@ -3,8 +3,8 @@ package me.chan.texas.text;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.shanbay.lib.texas.BuildConfig;
 
+import me.chan.texas.BuildConfig;
 import me.chan.texas.Texas;
 import me.chan.texas.TexasOption;
 import me.chan.texas.hyphenation.Hyphenation;
