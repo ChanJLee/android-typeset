@@ -31,7 +31,7 @@
                 android:textSize="20dp"
                 tools:text="from《3 rules to Help you build a successful business 》" />
 
-            <com.shanbay.lib.texas.renderer.ui.text.ParagraphView
+            <me.chan.texas.renderer.ui.text.ParagraphView
                 android:id="@+id/paragraph"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

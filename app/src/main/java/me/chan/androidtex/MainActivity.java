@@ -14,9 +14,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
-import com.shanbay.lib.texas.renderer.core.WorkerScheduler;
-import com.shanbay.lib.texas.renderer.core.graphics.TextureScene;
-import com.shanbay.lib.texas.utils.TexasUtils;
+import me.chan.texas.renderer.core.WorkerScheduler;
+import me.chan.texas.renderer.core.graphics.TextureScene;
+import me.chan.texas.utils.TexasUtils;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -11,11 +11,11 @@ import android.view.ViewParent;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.shanbay.lib.texas.TexasOption;
-import com.shanbay.lib.texas.renderer.OnSpanClickedPredicate;
-import com.shanbay.lib.texas.renderer.ui.text.ParagraphView;
-import com.shanbay.lib.texas.source.SourceCloseException;
-import com.shanbay.lib.texas.text.Paragraph;
+import me.chan.texas.TexasOption;
+import me.chan.texas.renderer.OnSpanClickedPredicate;
+import me.chan.texas.renderer.ui.text.ParagraphView;
+import me.chan.texas.source.SourceCloseException;
+import me.chan.texas.text.Paragraph;
 
 import java.lang.reflect.Method;
 
