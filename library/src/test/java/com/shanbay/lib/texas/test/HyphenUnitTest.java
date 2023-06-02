@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.shanbay.lib.texas.hyphenation.Hyphenation;
+import com.shanbay.lib.texas.utils.IntArray;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -76,6 +77,20 @@ public class HyphenUnitTest {
 		System.out.println(result);
 		assertEquals(result.size(), 0);
 
+		result = new ArrayList<>();
+		hyphenate("self-complacency", result);
+		System.out.println(result);
+		assertEquals(result.size(), 4);
+		assertEquals(result.get(0), "self-");
+		assertEquals(result.get(1), "com");
+		assertEquals(result.get(2), "pla");
+		assertEquals(result.get(3), "cency");
+
+		result = new ArrayList<>();
+		hyphenate("-", result);
+		System.out.println(result);
+		assertEquals(result.size(), 0);
+
 		try {
 			result = new ArrayList<>();
 			hyphenate(null, result);
@@ -119,9 +134,10 @@ public class HyphenUnitTest {
 
 	private void hyphenate(String text, int start, int len, List<String> result) {
 		Hyphenation hypher = Hyphenation.getInstance();
-		List<Integer> list = new ArrayList<>();
+		IntArray list = new IntArray();
 		hypher.hyphenate(text, start, start + len, list);
-		for (int p : list) {
+		for (int i = 0; i < list.size(); ++i) {
+			int p = list.get(i);
 			result.add(text.substring(start, p));
 			start = p;
 		}

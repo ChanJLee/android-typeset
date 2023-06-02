@@ -1,0 +1,33 @@
+stages:
+  - android_pipeline
+
+before_script:
+  - git clone https://gitlab_runner_android_01:ib8zgZRqyapcbndodwmm@git.17bdc.com/android-apps/android-make.git --depth=1 android-make
+
+job_release_mr_check:
+  stage: android_pipeline
+  tags:
+    - Android
+  script:
+    - android-make/make-scripts/gitlab-pipeline/main job_release_mr_check
+  only:
+    refs:
+      - merge_requests
+    variables:
+      - $CI_MERGE_REQUEST_SOURCE_BRANCH_NAME !~ /^release.*/
+  artifacts:
+    expose_as: 'unit_tests_result'
+    paths:
+      - artifacts/
+
+job_release_mr_auto_test:
+  stage: android_pipeline
+  tags:
+    - Android
+  script:
+    - android-make/make-scripts/gitlab-pipeline/main job_release_mr_auto_test
+  only:
+    refs:
+      - tags
+    variables:
+      - $CI_COMMIT_TAG =~ /^tag-release.*/

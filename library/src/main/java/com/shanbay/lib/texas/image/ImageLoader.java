@@ -1,9 +1,11 @@
 package com.shanbay.lib.texas.image;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.TextUtils;
@@ -12,6 +14,7 @@ import android.widget.ImageView;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.RequestBuilder;
@@ -19,20 +22,23 @@ import com.bumptech.glide.RequestManager;
 import com.bumptech.glide.load.Key;
 import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.SimpleTarget;
+import com.bumptech.glide.request.target.ViewTarget;
 import com.bumptech.glide.request.transition.Transition;
-import com.shanbay.lib.texas.annotations.Hidden;
 
 import java.io.File;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
+
+import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
 /**
  * 图片加载器
  */
-@Hidden
+@RestrictTo(LIBRARY)
 public class ImageLoader {
-	private RequestManager mRequestManager;
-	private Handler mHandler;
+	private final RequestManager mRequestManager;
+	private final Handler mHandler;
 
 	public ImageLoader(@NonNull Context context) {
 		mRequestManager = Glide.with(context);
@@ -50,7 +56,7 @@ public class ImageLoader {
 	}
 
 	/**
-	 * load image from drawable
+	 * load image from emoticon
 	 *
 	 * @param id resource's id
 	 * @return request
@@ -93,12 +99,12 @@ public class ImageLoader {
 	 * Image Request
 	 */
 	public class Request {
-		private RequestOptions mRequestOptions;
+		private final RequestOptions mRequestOptions;
 		/**
 		 * 记录是否调用过into
 		 */
 		private volatile boolean mDead = false;
-		private Object mSources;
+		private final Object mSources;
 
 		private Request(Object source) {
 			mSources = source;
@@ -111,6 +117,7 @@ public class ImageLoader {
 		 * @param resId 预览资源
 		 * @return
 		 */
+		@SuppressLint("CheckResult")
 		public Request preview(@DrawableRes int resId) {
 			mRequestOptions.placeholder(resId);
 			return this;
@@ -122,6 +129,7 @@ public class ImageLoader {
 		 * @param drawable 预览图
 		 * @return
 		 */
+		@SuppressLint("CheckResult")
 		public Request preview(@NonNull Drawable drawable) {
 			mRequestOptions.placeholder(drawable);
 			return this;
@@ -133,6 +141,7 @@ public class ImageLoader {
 		 * @param resId 错误资源
 		 * @return
 		 */
+		@SuppressLint("CheckResult")
 		public Request error(@DrawableRes int resId) {
 			mRequestOptions.error(resId);
 			return this;
@@ -144,6 +153,7 @@ public class ImageLoader {
 		 * @param drawable 错误图片
 		 * @return
 		 */
+		@SuppressLint("CheckResult")
 		public Request error(@NonNull Drawable drawable) {
 			mRequestOptions.error(drawable);
 			return this;
@@ -166,6 +176,7 @@ public class ImageLoader {
 		 * @param height 高度
 		 * @return
 		 */
+		@SuppressLint("CheckResult")
 		public Request size(int width, int height) {
 			mRequestOptions.override(width, height);
 			return this;
@@ -176,6 +187,7 @@ public class ImageLoader {
 		 *
 		 * @return request
 		 */
+		@SuppressLint("CheckResult")
 		public Request dontAnimate() {
 			mRequestOptions.dontAnimate();
 			return this;
@@ -187,12 +199,13 @@ public class ImageLoader {
 		 * @param id 用于识别本次请求
 		 * @return request
 		 */
+		@SuppressLint("CheckResult")
 		public Request id(@NonNull final String id) {
 			if (!TextUtils.isEmpty(id)) {
 				mRequestOptions.signature(new Key() {
 					@Override
 					public void updateDiskCacheKey(MessageDigest messageDigest) {
-						messageDigest.update(id.getBytes(Charset.forName("UTF-8")));
+						messageDigest.update(id.getBytes(StandardCharsets.UTF_8));
 					}
 				});
 			}
@@ -206,6 +219,7 @@ public class ImageLoader {
 		 * @param imageView imageView
 		 * @throws IllegalStateException 每个request只可以调用一次，如果调用多次那么触发{@link IllegalStateException}异常
 		 */
+		@SuppressLint("CheckResult")
 		public void into(@NonNull ImageView imageView) {
 			if (mDead) {
 				throw new IllegalStateException("call one request twice");
@@ -214,7 +228,9 @@ public class ImageLoader {
 			mRequestManager.clear(imageView);
 			RequestBuilder<Drawable> glideRequest = mRequestManager.load(mSources);
 			glideRequest.apply(mRequestOptions);
-			glideRequest.into(imageView);
+
+			ViewTarget<?, ?> target = glideRequest.into(imageView);
+			target.waitForLayout();
 		}
 
 		/**
@@ -248,6 +264,7 @@ public class ImageLoader {
 			as(mRequestManager.asFile(), listener);
 		}
 
+		@SuppressLint("CheckResult")
 		private <T> void as(RequestBuilder<T> requestBuilder, final Listener<T> listener) {
 			final RequestBuilder<T> glideRequest = requestBuilder.load(mSources);
 			glideRequest.apply(mRequestOptions);

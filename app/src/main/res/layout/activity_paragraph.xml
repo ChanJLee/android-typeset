@@ -27,12 +27,30 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="内存回收" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
 
         <Button
             android:id="@+id/refresh"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="刷新" />
+
+        <Button
+            android:id="@+id/highlight"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="高亮" />
+
+        <Button
+            android:id="@+id/line_height"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="改变行高" />
     </LinearLayout>
 
     <FrameLayout
@@ -44,7 +62,7 @@
             android:id="@+id/text"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_margin="10dp" />
+            app:com_shanbay_lib_texas_selectedBackgroundRoundRadius="3dp" />
 
         <LinearLayout
             android:id="@+id/option_container"
@@ -66,7 +84,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="渲染《harry2》" />
-
 
             <Button
                 android:id="@+id/button3"
@@ -91,6 +108,12 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="渲染《harry6》" />
+
+            <Button
+                android:id="@+id/button7"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="渲染《活着》" />
 
             <RadioGroup
                 android:id="@+id/radio_group"

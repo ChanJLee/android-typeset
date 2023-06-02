@@ -1,0 +1,10 @@
+<article_content id="A330691">
+    <para id="A353519P2667860">
+        <sent id="A353519P2667860S1">
+            <![CDATA[最新添加的元素必须在队列的尾部等待，在队列中时间最长的元素则排在最前面。]]>
+        </sent>
+        <sent id="A353519P2667860S2">
+            <![CDATA[这种排序原则被称作FIFO（first-in first-out），即先进先出，也称先到先得。]]>
+        </sent>
+    </para>
+</article_content>

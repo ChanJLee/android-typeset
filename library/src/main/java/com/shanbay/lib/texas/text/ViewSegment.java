@@ -1,64 +1,90 @@
 package com.shanbay.lib.texas.text;
 
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.FrameLayout;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
-import com.shanbay.lib.texas.annotations.Hidden;
+import android.graphics.Rect;
+import android.view.View;
+
+import androidx.annotation.LayoutRes;
+import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
+
+import com.shanbay.lib.texas.misc.DefaultRecyclable;
 
 /**
  * 用户自定义视图片段
  */
-public abstract class ViewSegment extends Segment {
+public abstract class ViewSegment extends DefaultRecyclable implements Segment {
+	private int mLayout;
+	private boolean mIncremental;
+	@RestrictTo(RestrictTo.Scope.LIBRARY)
+	private Object mTag;
+	private Rect mRect;
 
-	private View mView;
-	private FrameLayout.LayoutParams mLayoutParams = new FrameLayout.LayoutParams(
-			ViewGroup.LayoutParams.MATCH_PARENT,
-			ViewGroup.LayoutParams.WRAP_CONTENT);
-
-	@Hidden
-	public final void attach(LayoutInflater layoutInflater, FrameLayout frameLayout) {
-		frameLayout.removeAllViews();
-		View view = getView(layoutInflater, frameLayout);
-		ViewGroup viewGroup = (ViewGroup) view.getParent();
-		if (viewGroup != null) {
-			viewGroup.removeView(view);
-		}
-		frameLayout.addView(view, mLayoutParams);
-	}
-
-	private View getView(LayoutInflater layoutInflater, FrameLayout parent) {
-		if (mView != null) {
-			return mView;
-		}
-
-		mView = onCreateView(layoutInflater, parent);
-		return mView;
+	/**
+	 * 用户自定义视图
+	 *
+	 * @param layout layout id
+	 */
+	public ViewSegment(@LayoutRes int layout) {
+		this(layout, false);
 	}
 
 	/**
-	 * @param layoutInflater layout inflater
-	 * @param parent         parent
-	 * @return 当前视图view
+	 * 用户自定义视图
+	 *
+	 * @param layout      layout id
+	 * @param incremental 是否是增量更新
 	 */
-	protected abstract View onCreateView(LayoutInflater layoutInflater, ViewGroup parent);
+	public ViewSegment(@LayoutRes int layout, boolean incremental) {
+		this(layout, incremental, null);
+	}
 
-	public final void render() {
-		onRender();
+	/**
+	 * 用户自定义视图
+	 *
+	 * @param layout      layout id
+	 * @param incremental 是否是增量更新
+	 * @param tag         唯一标识
+	 */
+	public ViewSegment(@LayoutRes int layout, boolean incremental, Object tag) {
+		mTag = tag;
+		mLayout = layout;
+		mIncremental = incremental;
+	}
+
+	@RestrictTo(LIBRARY)
+	public int getLayout() {
+		return mLayout;
+	}
+
+	public boolean isIncremental() {
+		return mIncremental;
+	}
+
+	public final void render(View view) {
+		onRender(view);
 	}
 
 	/**
 	 * 开始渲染
+	 *
+	 * @param view 当前所要捆绑data的视图
 	 */
-	protected abstract void onRender();
+	protected abstract void onRender(View view);
 
 	@Override
 	public final void recycle() {
+		// view segment 不支持复用
+		// 因为可能导致内存泄露
 		if (isRecycled()) {
 			return;
 		}
 		super.recycle();
+		mTag = null;
+		mRect = null;
+		mIncremental = false;
+		mLayout = 0;
 	}
 
 	@Override
@@ -69,5 +95,28 @@ public abstract class ViewSegment extends Segment {
 	@Override
 	public final void reuse() {
 		super.reuse();
+	}
+
+	@Nullable
+	@Override
+	public Object getTag() {
+		return mTag;
+	}
+
+	@Nullable
+	@Override
+	public void getRect(Rect rect) {
+		rect.set(mRect);
+	}
+
+	@Override
+	public void setRect(Rect rect) {
+		mRect = rect;
+	}
+
+	@Nullable
+	@Override
+	public Rect getRect() {
+		return mRect;
 	}
 }

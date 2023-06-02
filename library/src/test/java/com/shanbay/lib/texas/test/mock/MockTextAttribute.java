@@ -1,9 +1,10 @@
 package com.shanbay.lib.texas.test.mock;
 
+import com.shanbay.lib.texas.measurer.MockMeasurer;
 import com.shanbay.lib.texas.text.TextAttribute;
 
 public class MockTextAttribute extends TextAttribute {
-	private MockTextPaint mTextPaint;
+	private final MockTextPaint mTextPaint;
 
 	public MockTextAttribute(MockTextPaint textPaint) {
 		super(new MockMeasurer(textPaint));
@@ -28,10 +29,5 @@ public class MockTextAttribute extends TextAttribute {
 	@Override
 	public float getSpaceShrink() {
 		return getSpaceWidth() * 0.9f;
-	}
-
-	@Override
-	public float getIndentWidth() {
-		return getSpaceWidth() * 4;
 	}
 }

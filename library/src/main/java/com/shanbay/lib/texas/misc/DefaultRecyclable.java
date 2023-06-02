@@ -1,18 +1,19 @@
 package com.shanbay.lib.texas.misc;
 
-import com.shanbay.lib.texas.annotations.Hidden;
+import com.shanbay.lib.texas.annotations.TexasUnitTest;
 
 /**
  * 默认可回收实现类
  */
-@Hidden
 public class DefaultRecyclable implements Recyclable {
-	private boolean mRecycled = false;
+
+	@TexasUnitTest("true")
+	private volatile boolean mRecycled = false;
 
 	@Override
 	public void recycle() {
 		if (mRecycled) {
-			throw new IllegalStateException("current object has been recycled, call recycle twice");
+			throw new IllegalStateException("current object has been recycled, call recycle twice: " + this);
 		}
 		mRecycled = true;
 	}

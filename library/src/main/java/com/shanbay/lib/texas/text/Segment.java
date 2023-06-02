@@ -1,26 +1,33 @@
 package com.shanbay.lib.texas.text;
 
-import com.shanbay.lib.texas.misc.DefaultRecyclable;
-import com.shanbay.lib.texas.renderer.RenderOption;
+import android.graphics.Rect;
+
+import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
 
 /**
  * 渲染的最小单元
  */
-public class Segment extends DefaultRecyclable {
-
+public interface Segment {
 	/**
-	 * @param segmentSpace segment的垂直距离 {@link RenderOption#getSegmentSpace()} {@link RenderOption#setSegmentSpace(float)}
-	 * @return 距离上一个segment的距离
+	 * @return 获取当前segment的唯一标识
 	 */
-	public float getTopMargin(float segmentSpace) {
-		return 0;
-	}
+	@Nullable
+	Object getTag();
 
-	/**
-	 * @param segmentSpace segment的垂直距离 {@link RenderOption#getSegmentSpace()} {@link RenderOption#setSegmentSpace(float)}
-	 * @return 距离下一个segment的距离
-	 */
-	public float getBottomMargin(float segmentSpace) {
-		return segmentSpace;
-	}
+	@RestrictTo(RestrictTo.Scope.LIBRARY)
+	void getRect(Rect rect);
+
+	@RestrictTo(RestrictTo.Scope.LIBRARY)
+	@Nullable
+	Rect getRect();
+
+	@RestrictTo(RestrictTo.Scope.LIBRARY)
+	void setRect(Rect rect);
+
+	@RestrictTo(RestrictTo.Scope.LIBRARY)
+	void recycle();
+
+	@RestrictTo(RestrictTo.Scope.LIBRARY)
+	boolean isRecycled();
 }

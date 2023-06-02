@@ -1,27 +1,22 @@
 package com.shanbay.lib.texas.text;
 
-import android.annotation.SuppressLint;
-
-import androidx.collection.SparseArrayCompat;
+import androidx.annotation.RestrictTo;
 
 import com.shanbay.lib.log.Log;
-import com.shanbay.lib.texas.annotations.Hidden;
 import com.shanbay.lib.texas.measurer.Measurer;
+
+import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
 /**
  * 文本属性
  */
-@Hidden
+@RestrictTo(LIBRARY)
 public class TextAttribute {
-	private LineAttribute mDefaultAttribute;
-	@SuppressLint("UseSparseArrays")
-	private SparseArrayCompat<LineAttribute> mMap = new SparseArrayCompat<>(2000);
 
 	private float mHyphenWidth;
 	private float mSpaceWidth;
 	private float mSpaceStretch;
 	private float mSpaceShrink;
-	private float mIndentWidth;
 	private float mHyphenHeight;
 
 	public TextAttribute(Measurer measurer) {
@@ -29,37 +24,14 @@ public class TextAttribute {
 	}
 
 	public void refresh(Measurer measurer) {
-		mHyphenWidth = measurer.getDesiredWidth("-", 0, 1, null);
-		mHyphenHeight = measurer.getDesiredHeight("-", 0, 1, null);
-		mSpaceWidth = mHyphenWidth * 1.2f;
-		mSpaceStretch = mHyphenWidth * 0.6f;
-		mSpaceShrink = mHyphenWidth * 0.2f;
+		Measurer.CharSequenceSpec spec = measurer.measure("-", 0, 1, null, null);
+		mHyphenWidth = spec.getWidth();
+		mHyphenHeight = spec.getHeight();
+		mSpaceWidth = (float) Math.ceil(mHyphenWidth * 1.2f);
+		mSpaceStretch = (float) Math.ceil(mHyphenWidth * 0.6f);
+		mSpaceShrink = (float) Math.ceil(mHyphenWidth * 0.2f);
 
-		// 首行缩进四个空格
-		mIndentWidth = mHyphenWidth * 4;
-
-		i("space width: " + mSpaceWidth + " space shrink: " + mSpaceShrink + " space stretch: " + mSpaceStretch);
-	}
-
-	public TextAttribute add(int lineNumber, LineAttribute attribute) {
-		mMap.put(lineNumber, attribute);
-		return this;
-	}
-
-	public void remove(int lineNumber) {
-		mMap.remove(lineNumber);
-	}
-
-	public void removeAllLineAttribute() {
-		mMap.clear();
-	}
-
-	public LineAttribute get(int lineNumber) {
-		LineAttribute attribute = mMap.get(lineNumber);
-		if (attribute != null) {
-			return attribute;
-		}
-		return mDefaultAttribute;
+		i(toString());
 	}
 
 	/**
@@ -97,40 +69,25 @@ public class TextAttribute {
 		return mSpaceShrink;
 	}
 
-	/**
-	 * @return 获取首行缩进的宽度
-	 */
-	public float getIndentWidth() {
-		return mIndentWidth;
-	}
-
-	public void setDefaultAttribute(LineAttribute defaultAttribute) {
-		mDefaultAttribute = defaultAttribute;
-	}
-
-	/**
-	 * 行属性
-	 */
-	@Hidden
-	public static class LineAttribute {
-		private float mLineWidth;
-		private Gravity mGravity;
-
-		public LineAttribute(float lineWidth, Gravity gravity) {
-			mLineWidth = lineWidth;
-			mGravity = gravity;
-		}
-
-		public float getLineWidth() {
-			return mLineWidth;
-		}
-
-		public Gravity getGravity() {
-			return mGravity;
-		}
-	}
-
 	private static void i(String msg) {
 		Log.i("TexasText", msg);
+	}
+
+	@Override
+	public String toString() {
+		return new StringBuilder(64)
+				.append("TextAttribute{")
+				.append("mHyphenWidth=")
+				.append(mHyphenWidth)
+				.append(", mSpaceWidth=")
+				.append(mSpaceWidth)
+				.append(", mSpaceStretch=")
+				.append(mSpaceStretch)
+				.append(", mSpaceShrink=")
+				.append(mSpaceShrink)
+				.append(", mHyphenHeight=")
+				.append(mHyphenHeight)
+				.append('}')
+				.toString();
 	}
 }

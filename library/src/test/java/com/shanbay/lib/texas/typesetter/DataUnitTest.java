@@ -1,47 +1,71 @@
 package com.shanbay.lib.texas.typesetter;
 
+import android.graphics.Rect;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
-import android.view.LayoutInflater;
+import android.text.TextPaint;
 import android.view.View;
-import android.view.ViewGroup;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
+import com.shanbay.lib.texas.TestUtils;
+import com.shanbay.lib.texas.Texas;
+import com.shanbay.lib.texas.measurer.MockMeasurer;
+import com.shanbay.lib.texas.test.mock.MockTextPaint;
+import com.shanbay.lib.texas.text.RectGround;
+import com.shanbay.lib.texas.text.Document;
+import com.shanbay.lib.texas.text.layout.DrawableBox;
+import com.shanbay.lib.texas.text.Emoticon;
+import com.shanbay.lib.texas.text.Figure;
+import com.shanbay.lib.texas.text.layout.Glue;
+import com.shanbay.lib.texas.text.layout.Line;
+import com.shanbay.lib.texas.text.layout.Penalty;
+import com.shanbay.lib.texas.text.TextAttribute;
+import com.shanbay.lib.texas.text.layout.TextBox;
+import com.shanbay.lib.texas.text.TextStyle;
+import com.shanbay.lib.texas.text.DotUnderLine;
+import com.shanbay.lib.texas.text.ViewSegment;
+import com.shanbay.lib.texas.typesetter.tex.Candidate;
+import com.shanbay.lib.texas.typesetter.tex.Node;
+import com.shanbay.lib.texas.typesetter.tex.Sum;
 
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.lang.reflect.Field;
 import java.util.List;
 
-import com.shanbay.lib.texas.test.mock.MockContext;
-import com.shanbay.lib.texas.text.ColorGround;
-import com.shanbay.lib.texas.text.Document;
-import com.shanbay.lib.texas.text.DrawableBox;
-import com.shanbay.lib.texas.text.Figure;
-import com.shanbay.lib.texas.text.Glue;
-import com.shanbay.lib.texas.text.Gravity;
-import com.shanbay.lib.texas.text.Line;
-import com.shanbay.lib.texas.text.OnClickedListener;
-import com.shanbay.lib.texas.text.Penalty;
-import com.shanbay.lib.texas.text.TextBox;
-import com.shanbay.lib.texas.text.UnderLine;
-import com.shanbay.lib.texas.text.ViewSegment;
-
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 
 public class DataUnitTest {
+	private TextAttribute mTextAttribute;
+	private MockTextPaint mMockTextPaint;
+	private MockMeasurer mMockMeasurer;
+
+	@Before
+	public void init() {
+		mMockTextPaint = new MockTextPaint();
+		mMockTextPaint.setMockTextSize(10);
+		mMockMeasurer = new MockMeasurer(mMockTextPaint);
+		mTextAttribute = new TextAttribute(mMockMeasurer);
+		Texas.clean();
+	}
 
 	@Test
 	public void testGlue() {
-		Glue glue = Glue.obtain(1, 2, 3);
+		mMockTextPaint.setMockTextSize(1);
+		mTextAttribute.refresh(mMockMeasurer);
+
+		Glue glue = Glue.obtain(mTextAttribute);
 		Assert.assertNotNull(glue);
 
 		Assert.assertFalse(glue.isRecycled());
-		Assert.assertEquals("check width: ", glue.getWidth(), 1, 0);
-		Assert.assertEquals("check stretch: ", glue.getStretch(), 2, 0);
-		Assert.assertEquals("check shrink: ", glue.getShrink(), 3, 0);
+		Assert.assertEquals("check width: ", glue.getWidth(), mTextAttribute.getSpaceWidth(), 0);
+		Assert.assertEquals("check stretch: ", glue.getStretch(), mTextAttribute.getSpaceStretch(), 0);
+		Assert.assertEquals("check shrink: ", glue.getShrink(), mTextAttribute.getSpaceShrink(), 0);
 
 		Glue previous = glue;
 		glue.recycle();
@@ -53,93 +77,90 @@ public class DataUnitTest {
 		// test recycle twice
 		glue.recycle();
 
-		glue = Glue.obtain(4, 5, 6);
+		mMockTextPaint.setMockTextSize(2);
+		mTextAttribute.refresh(mMockMeasurer);
+		glue = Glue.obtain(mTextAttribute);
 		Assert.assertNotNull(glue);
 		Assert.assertSame(previous, glue);
 		Assert.assertFalse(glue.isRecycled());
-		Assert.assertEquals("check width: ", glue.getWidth(), 4, 0);
-		Assert.assertEquals("check stretch: ", glue.getStretch(), 5, 0);
-		Assert.assertEquals("check shrink: ", glue.getShrink(), 6, 0);
-		Assert.assertNotSame(glue, Glue.obtain(4, 5, 6));
+		Assert.assertEquals("check width: ", glue.getWidth(), mTextAttribute.getSpaceWidth(), 0);
+		Assert.assertEquals("check stretch: ", glue.getStretch(), mTextAttribute.getSpaceStretch(), 0);
+		Assert.assertEquals("check shrink: ", glue.getShrink(), mTextAttribute.getSpaceShrink(), 0);
+		Assert.assertNotSame(glue, Glue.obtain(mTextAttribute));
 	}
 
 	@Test
 	public void testPenalty() {
-		Penalty penalty = Penalty.obtain(1, 2, 3, true);
+		mMockTextPaint.setMockTextSize(2);
+		mTextAttribute.refresh(mMockMeasurer);
+
+		TextStyle textStyle = new TextStyle() {
+			@Override
+			public void update(@NonNull TextPaint textPaint, @Nullable Object tag) {
+
+			}
+		};
+		String tag = "hello";
+		Penalty penalty = Penalty.obtain(2, true, tag, textStyle, mMockMeasurer, mTextAttribute);
 		Assert.assertNotNull(penalty);
 
 		Assert.assertFalse(penalty.isRecycled());
-		Assert.assertEquals("check width: ", penalty.getWidth(), 1, 0);
-		Assert.assertEquals("check height: ", penalty.getHeight(), 2, 0);
-		Assert.assertEquals("check penalty: ", penalty.getPenalty(), 3, 0);
+		Assert.assertEquals("check width: ", penalty.getWidth(), mTextAttribute.getHyphenWidth(), 0);
+		Assert.assertEquals("check height: ", penalty.getHeight(), mTextAttribute.getHyphenHeight(), 0);
+		Assert.assertEquals("check penalty: ", penalty.getPenalty(), 2, 0);
 		Assert.assertTrue("check flag", penalty.isFlag());
+		Assert.assertSame(penalty.getTag(), tag);
+		Assert.assertSame(penalty.getTextStyle(), textStyle);
 
 		Penalty prev = penalty;
 		penalty.recycle();
-		Assert.assertTrue(penalty.isRecycled());
-		Assert.assertEquals("check width: ", penalty.getWidth(), -1, 0);
-		Assert.assertEquals("check height: ", penalty.getHeight(), -1, 0);
-		Assert.assertEquals("check penalty: ", penalty.getPenalty(), -1, 0);
-		Assert.assertFalse("check flag", penalty.isFlag());
+//		Assert.assertTrue(penalty.isRecycled());
+//		Assert.assertEquals("check width: ", penalty.getWidth(), -1, 0);
+//		Assert.assertEquals("check height: ", penalty.getHeight(), -1, 0);
+//		Assert.assertEquals("check penalty: ", penalty.getPenalty(), -1, 0);
+//		Assert.assertFalse("check flag", penalty.isFlag());
+		TestUtils.testRecycled(penalty);
 
 		// test recycle twice
 		penalty.recycle();
 
-		penalty = Penalty.obtain(4, 5, 6, false);
+		mMockTextPaint.setMockTextSize(4);
+		mTextAttribute.refresh(mMockMeasurer);
+		TextStyle textStyle1 = new TextStyle() {
+			@Override
+			public void update(@NonNull TextPaint textPaint, @Nullable Object tag) {
+
+			}
+		};
+		String tag2 = "fuck2";
+		penalty = Penalty.obtain(5, false, tag2, textStyle1, mMockMeasurer, mTextAttribute);
 		Assert.assertNotNull(penalty);
 		Assert.assertSame(penalty, prev);
 		Assert.assertFalse(penalty.isRecycled());
-		Assert.assertEquals("check width: ", penalty.getWidth(), 4, 0);
-		Assert.assertEquals("check height: ", penalty.getHeight(), 5, 0);
-		Assert.assertEquals("check penalty: ", penalty.getPenalty(), 6, 0);
+		Assert.assertSame(penalty.getTextStyle(), textStyle1);
+		Assert.assertSame(penalty.getTag(), tag2);
+		Assert.assertEquals("check width: ", penalty.getWidth(), 0, 0);
+		Assert.assertEquals("check height: ", penalty.getHeight(), 0, 0);
+		Assert.assertEquals("check penalty: ", penalty.getPenalty(), 5, 0);
 		Assert.assertFalse("check flag", penalty.isFlag());
-		Assert.assertNotSame(penalty, Penalty.obtain(4, 5, 6, false));
+		Assert.assertNotSame(penalty, Penalty.obtain(10, true, "fuck2", new TextStyle() {
+			@Override
+			public void update(@NonNull TextPaint textPaint, @Nullable Object tag) {
+
+			}
+		}, mMockMeasurer, mTextAttribute));
 	}
 
 	@Test
 	public void testBackground() {
-		ColorGround background = ColorGround.obtain(10);
-		assertNotNull(background);
-		Assert.assertFalse(background.isRecycled());
+		RectGround background = new RectGround(10);
 		assertEquals(background.getColor(), 10);
-
-		background.recycle();
-		Assert.assertTrue(background.isRecycled());
-		assertNotEquals(background.getColor(), 10);
-
-		// test recycle twice
-		background.recycle();
-
-		ColorGround p = background;
-		background = ColorGround.obtain(20);
-		Assert.assertFalse(background.isRecycled());
-		Assert.assertNotNull(background);
-		Assert.assertSame(p, background);
-		assertEquals(background.getColor(), 20);
-		Assert.assertNotSame(background, ColorGround.obtain(20));
 	}
 
 	@Test
 	public void testForeground() {
-		UnderLine underLine = UnderLine.obtain(10);
-		assertNotNull(underLine);
-		assertEquals(underLine.getColor(), 10);
-		Assert.assertFalse(underLine.isRecycled());
-
-		underLine.recycle();
-		Assert.assertTrue(underLine.isRecycled());
-		assertNotEquals(underLine.getColor(), 10);
-
-		// test recycle twice
-		underLine.recycle();
-
-		UnderLine p = underLine;
-		underLine = UnderLine.obtain(20);
-		Assert.assertFalse(underLine.isRecycled());
-		Assert.assertNotNull(underLine);
-		Assert.assertSame(p, underLine);
-		assertEquals(underLine.getColor(), 20);
-		Assert.assertNotSame(underLine, UnderLine.obtain(20));
+		DotUnderLine dotUnderLine = new DotUnderLine(10);
+		assertEquals(dotUnderLine.getColor(), 10);
 	}
 
 	@Test
@@ -152,6 +173,7 @@ public class DataUnitTest {
 		Assert.assertSame(figure.getUrl(), url);
 		Assert.assertEquals(figure.getWidth(), 1, 0);
 		Assert.assertEquals(figure.getHeight(), 2, 0);
+		Assert.assertNull(figure.getTag());
 
 		Figure p = figure;
 		figure.recycle();
@@ -162,7 +184,7 @@ public class DataUnitTest {
 
 		figure.recycle();
 
-		figure = Figure.obtain(url, 1, 2);
+		figure = Figure.obtain(url, 1, 2, extra);
 		Assert.assertSame(figure, p);
 		Assert.assertNotNull(figure);
 		Assert.assertFalse(figure.isRecycled());
@@ -170,30 +192,31 @@ public class DataUnitTest {
 		Assert.assertEquals(figure.getWidth(), 1, 0);
 		Assert.assertEquals(figure.getHeight(), 2, 0);
 		Assert.assertNotSame(figure, Figure.obtain(url, 1, 2));
+		Assert.assertSame(figure.getTag(), extra);
+
+		figure.recycle();
+		TestUtils.testRecycled(figure);
 	}
 
 	@Test
 	public void testLine() throws NoSuchFieldException, IllegalAccessException {
 		Line line = Line.obtain();
-		Field field = Line.class.getDeclaredField("mBoxes");
+		Field field = Line.class.getDeclaredField("mElements");
 		field.setAccessible(true);
 		List<TextBox> boxes = (List<TextBox>) field.get(line);
 		Assert.assertNotNull(line);
 		Assert.assertFalse(line.isRecycled());
 		Assert.assertNotNull(boxes);
 		Assert.assertTrue(boxes.isEmpty());
-		line.setSpaceWidth(1);
-		Assert.assertEquals(line.getSpaceWidth(), 1, 0);
 		line.setLineHeight(2);
 		Assert.assertEquals(line.getLineHeight(), 2, 0);
-		line.setLineWidth(3);
-		Assert.assertEquals(line.getLineWidth(), 3, 0);
 		line.setRatio(4);
 		Assert.assertEquals(line.getRatio(), 4, 0);
-		Assert.assertSame(line.getGravity(), Gravity.LEFT);
-		line.setGravity(Gravity.CENTER);
-		Assert.assertSame(line.getGravity(), Gravity.CENTER);
-		boxes.add(TextBox.obtain("hello", 0, 1, 1, 1, null, null));
+
+
+		mMockTextPaint.setMockTextSize(4);
+		mTextAttribute.refresh(mMockMeasurer);
+		boxes.add(TextBox.obtain("hello", 0, 1, mMockMeasurer, null, null, null, null));
 		Assert.assertFalse(boxes.isEmpty());
 
 		Line prev = line;
@@ -201,10 +224,7 @@ public class DataUnitTest {
 		Assert.assertTrue(line.isRecycled());
 		boxes = (List<TextBox>) field.get(line);
 		Assert.assertTrue(boxes.isEmpty());
-		Assert.assertSame(line.getGravity(), Gravity.LEFT);
-		Assert.assertNotEquals(line.getSpaceWidth(), 1, 0);
 		Assert.assertNotEquals(line.getLineHeight(), 2, 0);
-		Assert.assertNotEquals(line.getLineWidth(), 3, 0);
 		Assert.assertNotEquals(line.getRatio(), 4, 0);
 
 		// test recycle twice
@@ -217,49 +237,85 @@ public class DataUnitTest {
 		Assert.assertFalse(line.isRecycled());
 		Assert.assertSame(prev, line);
 		Assert.assertTrue(boxes.isEmpty());
-		Assert.assertSame(line.getGravity(), Gravity.LEFT);
-		Assert.assertNotEquals(line.getSpaceWidth(), 1, 0);
 		Assert.assertNotEquals(line.getLineHeight(), 2, 0);
-		Assert.assertNotEquals(line.getLineWidth(), 3, 0);
 		Assert.assertNotEquals(line.getRatio(), 4, 0);
 	}
 
 	@Test
 	public void testDrawableBox() {
 		Drawable drawable = new ColorDrawable(19);
-		OnClickedListener onClickedListener = new OnClickedListener() {
-			@Override
-			public void onClicked(float x, float y) {
-			}
-		};
-		DrawableBox drawableBox = DrawableBox.obtain(drawable, 1, 2, onClickedListener);
+
+		Emoticon emoticon = Emoticon.obtain(drawable, 1, 2);
+		DrawableBox drawableBox = DrawableBox.obtain(drawable, 1, 2, emoticon, null, null, null);
 		Assert.assertNotNull(drawableBox);
 		Assert.assertFalse(drawableBox.isRecycled());
+		Assert.assertSame(emoticon, drawableBox.getEmoticon());
 		Assert.assertSame(drawable, drawableBox.getDrawable());
 		Assert.assertEquals(drawableBox.getWidth(), 1, 0);
 		Assert.assertEquals(drawableBox.getHeight(), 2, 0);
-		Assert.assertSame(drawableBox.getOnClickedListener(), onClickedListener);
 
 		DrawableBox p = drawableBox;
 		drawableBox.recycle();
-		Assert.assertNull(drawableBox.getOnClickedListener());
 		Assert.assertTrue(drawableBox.isRecycled());
+		Assert.assertTrue(emoticon.isRecycled());
+		Assert.assertNull(drawableBox.getEmoticon());
 		Assert.assertNotSame(drawable, drawableBox.getDrawable());
 		Assert.assertNotEquals(drawableBox.getWidth(), 1, 0);
 		Assert.assertNotEquals(drawableBox.getHeight(), 2, 0);
+		Assert.assertNull(drawableBox.getEmoticon());
 
 		// test recycle twice
 		drawableBox.recycle();
 
-		drawableBox = DrawableBox.obtain(new ColorDrawable(19), 1, 2, null);
-		Assert.assertNull(drawableBox.getOnClickedListener());
+		drawableBox = DrawableBox.obtain(new ColorDrawable(19), 1, 2, emoticon, null, null, null);
 		Assert.assertNotSame(drawable, drawableBox.getDrawable());
 		Assert.assertFalse(drawableBox.isRecycled());
 		Assert.assertEquals(drawableBox.getWidth(), 1, 0);
 		Assert.assertEquals(drawableBox.getHeight(), 2, 0);
 		Assert.assertSame(p, drawableBox);
-		Assert.assertNull(drawableBox.getOnClickedListener());
-		Assert.assertNotSame(drawableBox, DrawableBox.obtain(new ColorDrawable(19), 1, 2, onClickedListener));
+		Assert.assertSame(emoticon, drawableBox.getEmoticon());
+		Assert.assertTrue(emoticon.isRecycled());
+		Assert.assertNotSame(drawableBox, DrawableBox.obtain(new ColorDrawable(19), 1, 2, emoticon, null, null, null));
+	}
+
+	@Test
+	public void testEmoticon() throws NoSuchFieldException, IllegalAccessException {
+		Drawable drawable = new ColorDrawable(19);
+		Emoticon emoticon = Emoticon.obtain(drawable, 1, 2);
+		Assert.assertFalse(emoticon.isRecycled());
+		Assert.assertNotNull(emoticon);
+		Assert.assertSame(emoticon.getDrawable(), drawable);
+		Assert.assertEquals(emoticon.getWidth(), 1, 0);
+		Assert.assertEquals(emoticon.getHeight(), 2, 0);
+		Drawable drawable1 = new ColorDrawable(20);
+		emoticon.setDrawable(drawable1);
+		Assert.assertSame(drawable1, emoticon.getDrawable());
+
+		Field field = emoticon.getClass().getDeclaredField("mDrawableBox");
+		field.setAccessible(true);
+		DrawableBox drawableBox = (DrawableBox) field.get(emoticon);
+		Assert.assertSame(drawableBox.getEmoticon(), emoticon);
+
+		emoticon.recycle();
+		Assert.assertTrue(emoticon.isRecycled());
+		Assert.assertNull(emoticon.getDrawable());
+		Assert.assertEquals(0, emoticon.getWidth(), 0);
+		Assert.assertEquals(0, emoticon.getHeight(), 0);
+		Assert.assertNull(field.get(emoticon));
+		emoticon.setDrawable(new ColorDrawable(100));
+		Assert.assertNull(emoticon.getDrawable());
+
+		// test recycle twice
+		emoticon.recycle();
+		Assert.assertTrue(emoticon.isRecycled());
+
+		Emoticon prev = emoticon;
+		emoticon = Emoticon.obtain(drawable, 2, 3);
+		Assert.assertSame(prev, emoticon);
+		Assert.assertFalse(emoticon.isRecycled());
+		Assert.assertEquals(emoticon.getWidth(), 2, 0);
+		Assert.assertEquals(emoticon.getHeight(), 3, 0);
+		drawableBox = (DrawableBox) field.get(emoticon);
 	}
 
 	@Test
@@ -267,16 +323,13 @@ public class DataUnitTest {
 		Sum sum = Sum.obtain();
 		Assert.assertNotNull(sum);
 
-		Glue glue = Glue.obtain(1, 2, 3);
+		Glue glue = Glue.obtain(mTextAttribute);
 		Assert.assertNotNull(glue);
 		Assert.assertFalse(glue.isRecycled());
-		sum.increaseGlue(glue);
+		sum.increase(glue);
 		Assert.assertEquals(sum.getWidth(), glue.getWidth(), 0);
 		Assert.assertEquals(sum.getShrink(), glue.getShrink(), 0);
 		Assert.assertEquals(sum.getStretch(), glue.getStretch(), 0);
-
-		sum.increaseWidth(10);
-		Assert.assertEquals(sum.getWidth(), glue.getWidth() + 10, 0);
 
 		Sum o = Sum.obtain(sum);
 		Assert.assertNotSame(o, sum);
@@ -312,24 +365,22 @@ public class DataUnitTest {
 		Assert.assertFalse(node.isRecycled());
 		Assert.assertNull(node.next);
 		Assert.assertNull(node.prev);
-		Assert.assertNotNull(node.getData());
 
-		Node.Data data = node.getData();
-		Assert.assertNull(data.prev);
-		Assert.assertNull(data.totals);
-		Assert.assertEquals(data.position, 0);
-		Assert.assertEquals(data.demerits, 0, 0);
-		Assert.assertEquals(data.ratio, 0, 0);
-		Assert.assertEquals(data.line, -1);
-		Assert.assertEquals(data.fitnessClazz, 0);
+		Assert.assertNull(node.link);
+		Assert.assertNull(node.totals);
+		Assert.assertEquals(node.state, 0);
+		Assert.assertEquals(node.demerits, 0, 0);
+		Assert.assertEquals(node.ratio, 0, 0);
+		Assert.assertEquals(node.line, -1);
+		Assert.assertEquals(node.fitness, 0);
 
-		data.position = 1;
-		data.demerits = 2;
-		data.ratio = 3;
-		data.line = 4;
-		data.fitnessClazz = 5;
-		data.totals = Sum.obtain();
-		data.prev = Node.obtain();
+		node.state = 1;
+		node.demerits = 2;
+		node.ratio = 3;
+		node.line = 4;
+		node.fitness = 5;
+		node.totals = Sum.obtain();
+		node.link = Node.obtain();
 
 		node.prev = Node.obtain();
 		node.next = Node.obtain();
@@ -339,14 +390,13 @@ public class DataUnitTest {
 		Assert.assertNotNull(node);
 		Assert.assertNull(node.next);
 		Assert.assertNull(node.prev);
-		Assert.assertNotNull(node.getData());
-		Assert.assertNull(data.prev);
-		Assert.assertNull(data.totals);
-		Assert.assertEquals(data.position, 0);
-		Assert.assertEquals(data.demerits, 0, 0);
-		Assert.assertEquals(data.ratio, 0, 0);
-		Assert.assertEquals(data.line, -1);
-		Assert.assertEquals(data.fitnessClazz, 0);
+		Assert.assertNull(node.link);
+		Assert.assertNull(node.totals);
+		Assert.assertEquals(node.state, 0);
+		Assert.assertEquals(node.demerits, 0, 0);
+		Assert.assertEquals(node.ratio, 0, 0);
+		Assert.assertEquals(node.line, -1);
+		Assert.assertEquals(node.fitness, 0);
 
 		// test recycle twice
 		node.recycle();
@@ -358,41 +408,14 @@ public class DataUnitTest {
 		Assert.assertFalse(node.isRecycled());
 		Assert.assertNull(node.next);
 		Assert.assertNull(node.prev);
-		Assert.assertNotNull(node.getData());
-		Assert.assertNull(data.prev);
-		Assert.assertNull(data.totals);
-		Assert.assertEquals(data.position, 0);
-		Assert.assertEquals(data.demerits, 0, 0);
-		Assert.assertEquals(data.ratio, 0, 0);
-		Assert.assertEquals(data.line, -1);
-		Assert.assertEquals(data.fitnessClazz, 0);
+		Assert.assertNull(node.link);
+		Assert.assertNull(node.totals);
+		Assert.assertEquals(node.state, 0);
+		Assert.assertEquals(node.demerits, 0, 0);
+		Assert.assertEquals(node.ratio, 0, 0);
+		Assert.assertEquals(node.line, -1);
+		Assert.assertEquals(node.fitness, 0);
 		Assert.assertNotSame(node, Node.obtain());
-	}
-
-	@Test
-	public void testBreakPoint() {
-		BreakPoint breakPoint = BreakPoint.obtain(1, 2);
-		Assert.assertNotNull(breakPoint);
-		Assert.assertFalse(breakPoint.isRecycled());
-		Assert.assertEquals(breakPoint.position, 1);
-		Assert.assertEquals(breakPoint.ratio, 2, 0);
-
-		breakPoint.recycle();
-		Assert.assertTrue(breakPoint.isRecycled());
-		Assert.assertEquals(breakPoint.position, -1);
-		Assert.assertEquals(breakPoint.ratio, -1, 0);
-
-		// test recycle twice
-		breakPoint.recycle();
-
-		BreakPoint t = breakPoint;
-		breakPoint = BreakPoint.obtain(3, 4);
-		Assert.assertSame(t, breakPoint);
-		Assert.assertNotNull(breakPoint);
-		Assert.assertFalse(breakPoint.isRecycled());
-		Assert.assertEquals(breakPoint.position, 3);
-		Assert.assertEquals(breakPoint.ratio, 4, 0);
-		Assert.assertNotSame(breakPoint, BreakPoint.obtain(3, 4));
 	}
 
 	@Test
@@ -408,8 +431,8 @@ public class DataUnitTest {
 
 		candidate.recycle();
 		Assert.assertTrue(candidate.isRecycled());
-		Assert.assertEquals(candidate.demerits, Float.MAX_VALUE, 0);
-		Assert.assertEquals(candidate.ratio, -1, 0);
+		Assert.assertEquals(candidate.demerits,0, 0);
+		Assert.assertEquals(candidate.ratio, 0, 0);
 		Assert.assertNull(candidate.active);
 
 		// test recycle twice
@@ -429,17 +452,9 @@ public class DataUnitTest {
 	@Test
 	public void testDocument() {
 		String msg = "hello";
-		OnClickedListener onClickedListener = new OnClickedListener() {
-			@Override
-			public void onClicked(float x, float y) {
-			}
-		};
 		Document document = Document.obtain();
 		Assert.assertNotNull(document);
-		Assert.assertFalse(document.isRecycled());
 		Assert.assertEquals(document.getSegmentCount(), 0);
-		document.setRaw(msg);
-		Assert.assertSame(document.getRaw(), msg);
 		try {
 			document.getSegment(0);
 			fail("test document get segment");
@@ -449,8 +464,8 @@ public class DataUnitTest {
 		Figure figure = Figure.obtain("", 1, 2);
 		document.addSegment(figure);
 		Assert.assertEquals(document.getSegmentCount(), 1);
-		Assert.assertEquals(0, document.indexOf(figure));
-		Assert.assertEquals(-1 , document.indexOf(Figure.obtain("", 1, 2)));
+		Assert.assertEquals(0, document.indexOfSegment(figure));
+		Assert.assertEquals(-1, document.indexOfSegment(Figure.obtain("", 1, 2)));
 
 		try {
 			document.getSegment(1);
@@ -459,38 +474,34 @@ public class DataUnitTest {
 		}
 
 		Assert.assertSame(document.getSegment(0), figure);
-		ViewSegment viewSegment = new ViewSegment() {
-			@Override
-			protected View onCreateView(LayoutInflater layoutInflater, ViewGroup parent) {
-				return null;
-			}
+		ViewSegment viewSegment = new ViewSegment(1) {
 
 			@Override
-			protected void onRender() {
+			protected void onRender(View view) {
 
 			}
 		};
 		document.setFocusSegment(viewSegment);
-		Assert.assertSame(document.getFocusSegmentIndex(), -1);
+		Assert.assertSame(document.getFocusSegmentSegmentIndex(), -1);
 		document.setFocusSegment(figure);
-		Assert.assertSame(document.getFocusSegmentIndex(), 0);
-		Assert.assertEquals(document.indexOf(null), -1);
-		Assert.assertEquals(document.indexOf(figure), 0);
+		Assert.assertSame(document.getFocusSegmentSegmentIndex(), 0);
+		Assert.assertSame(document.getFocusSegmentOffset(), 0);
 
-		Document previous = document;
-		document.recycle();
-		Assert.assertNull(document.getRaw());
-		Assert.assertEquals(-1, document.indexOf(figure));
-		Assert.assertTrue(document.isRecycled());
+		document.setFocusSegment(figure, 10);
+		Assert.assertSame(document.getFocusSegmentSegmentIndex(), 0);
+		Assert.assertSame(document.getFocusSegmentOffset(), 10);
+
+		Assert.assertEquals(document.indexOfSegment(null), -1);
+		Assert.assertEquals(document.indexOfSegment(figure), 0);
+
+		document.release();
+		Assert.assertEquals(-1, document.indexOfSegment(figure));
 
 		// test recycle twice
-		document.recycle();
+		document.release();
 
 		document = Document.obtain();
 		Assert.assertNotNull(document);
-		Assert.assertFalse(document.isRecycled());
-		Assert.assertNull(document.getRaw());
-		Assert.assertSame(previous, document);
 		Assert.assertEquals(document.getSegmentCount(), 0);
 		try {
 			document.getSegment(0);
@@ -502,17 +513,44 @@ public class DataUnitTest {
 
 	@Test
 	public void testViewFragment() {
-		final View view = new View(new MockContext());
-		ViewSegment viewSegment = new ViewSegment() {
-			@Override
-			protected View onCreateView(LayoutInflater layoutInflater, ViewGroup parent) {
-				return view;
-			}
+		ViewSegment viewSegment = new ViewSegment(1) {
 
 			@Override
-			protected void onRender() {
+			protected void onRender(View v) {
 
 			}
 		};
+		Assert.assertNull(viewSegment.getTag());
+		Assert.assertEquals(viewSegment.getLayout(), 1);
+		Assert.assertNull(viewSegment.getRect());
+
+
+		ViewSegment p = viewSegment;
+		viewSegment.recycle();
+
+		Assert.assertNull(viewSegment.getTag());
+		Assert.assertEquals(viewSegment.getLayout(), 0);
+		Assert.assertNull(viewSegment.getRect());
+
+		// test recycle twice
+		// view segment do not have cache
+		viewSegment.recycle();
+
+		String msg = "hello";
+		Rect rect = new Rect();
+		viewSegment = new ViewSegment(2, true, msg) {
+
+			@Override
+			protected void onRender(View v) {
+
+			}
+		};
+		viewSegment.setRect(rect);
+
+		Assert.assertNotSame(viewSegment, p);
+		Assert.assertSame(viewSegment.getRect(), rect);
+		Assert.assertSame(viewSegment.getTag(), msg);
+		Assert.assertTrue(viewSegment.isIncremental());
+		Assert.assertEquals(viewSegment.getLayout(), 2);
 	}
 }

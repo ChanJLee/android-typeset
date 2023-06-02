@@ -2,6 +2,7 @@ package me.chan.androidtex;
 
 import android.app.Application;
 
+import com.shanbay.lib.hiddenapi.HiddenApiCompat;
 import com.shanbay.lib.log.Log;
 import com.shanbay.lib.texas.Texas;
 
@@ -10,6 +11,11 @@ public class MyApplication extends Application {
 	public void onCreate() {
 		super.onCreate();
 		Log.init(this, "/sdcard/shanbay/texas/log");
-		Texas.init(this);
+		HiddenApiCompat.fix(this);
+		Texas.MemoryOption memoryOption = new Texas.MemoryOption();
+		memoryOption.setTextBufferSize(51200)
+				.setLineBufferSize(4096)
+				.setParagraphBufferSize(4096);
+		Texas.init(this, memoryOption);
 	}
 }

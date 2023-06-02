@@ -1,0 +1,67 @@
+version: "1.0.0" # 当前数据结构的版本，不要轻易修改
+build-types: # 一个配置版本可以有多个构建类型，比如 unit test 就在内网 而 module-test 构建就在ateam机器
+  module-test:
+    jenkins-url: "jenkins.17bdc.com" # 构建服务地址
+    jenkins-job: "module-build" # 构建项目
+    args:
+      BuildGit:
+        type: Runtime
+        action:
+          - PLUGIN_OUTPUT=`git config --get remote.origin.url`
+          - PLUGIN_OUTPUT=${PLUGIN_OUTPUT/https:\/\/git.17bdc.com\//git@git.17bdc.com:}
+      ReleaseNote:
+        type: TextArea
+      PrivateToken:
+        type: Runtime
+        action:
+          - if [[ ${SHELL} == "/bin/zsh" ]] ; then
+          -   source ~/.zshrc
+          - fi
+          - PLUGIN_OUTPUT=${GITLAB_KEY}
+      BuildModule:
+        type: String
+        default: library
+      BuildBranch:
+        type: Runtime
+        action:
+          - PLUGIN_OUTPUT=`git branch | grep \\* | cut -d ' ' -f2`
+          - if [[ ${PLUGIN_OUTPUT} == \"\" ]]; then
+          -   PLUGIN_OUTPUT=\"获取分支名失败\"
+          - fi
+      JdkVersion:
+        type: String
+        mutable: false
+        default: jdk11
+  modeule-release:
+    jenkins-url: "jenkins.17bdc.com" # 构建服务地址
+    jenkins-job: "module-build" # 构建项目
+    args:
+      BuildGit:
+        type: Runtime
+        action:
+          - PLUGIN_OUTPUT=`git config --get remote.origin.url`
+          - PLUGIN_OUTPUT=${PLUGIN_OUTPUT/https:\/\/git.17bdc.com\//git@git.17bdc.com:}
+      ReleaseNote:
+        type: TextArea
+      PrivateToken:
+        type: Runtime
+        action:
+          - if [[ ${SHELL} == "/bin/zsh" ]] ; then
+          -   source ~/.zshrc
+          - fi
+          - PLUGIN_OUTPUT=${GITLAB_KEY}
+      BuildModule:
+        type: String
+        default: library
+      BuildBranch:
+        type: String
+        mutable: false
+        default: master
+      CreateTag:
+        type: Boolean
+        mutable: false
+        default: true
+      JdkVersion:
+        type: String
+        mutable: false
+        default: jdk11

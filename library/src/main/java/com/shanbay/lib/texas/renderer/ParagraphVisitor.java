@@ -1,72 +1,177 @@
 package com.shanbay.lib.texas.renderer;
 
-import com.shanbay.lib.texas.text.Box;
-import com.shanbay.lib.texas.text.Gravity;
-import com.shanbay.lib.texas.text.Line;
+import android.graphics.RectF;
+
+import androidx.annotation.IntDef;
+import androidx.annotation.RestrictTo;
+
 import com.shanbay.lib.texas.text.Paragraph;
+import com.shanbay.lib.texas.text.layout.Box;
+import com.shanbay.lib.texas.text.layout.Element;
+import com.shanbay.lib.texas.text.layout.Glue;
+import com.shanbay.lib.texas.text.layout.Layout;
+import com.shanbay.lib.texas.text.layout.Line;
 
-class ParagraphVisitor {
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 
-	public void visit(Paragraph paragraph, float width, RenderOption renderOption, float fontTopPadding) {
-		onVisitParagraph(paragraph);
-		float y = fontTopPadding;
-		int lineCount = paragraph.getLineCount();
-		for (int i = 0; i < lineCount; ++i) {
+@RestrictTo(RestrictTo.Scope.LIBRARY)
+public abstract class ParagraphVisitor {
 
-			Line line = paragraph.getLine(i);
-			y += line.getLineHeight();
-			float x;
-			Gravity gravity = line.getGravity();
-			if (gravity == Gravity.CENTER) {
-				x = (width - line.getLineWidth()) / 2f;
-			} else if (gravity == Gravity.RIGHT) {
-				x = (width - line.getLineWidth());
-			} else {
-				x = 0;
+	private final RectF mInnerRect = new RectF();
+	private final RectF mOuterRect = new RectF();
+	private int mVisitSig = SIG_NORMAL;
+
+	@RestrictTo(RestrictTo.Scope.LIBRARY)
+	protected int mCurrentBoxIndexInternal;
+
+	/**
+	 * 正常模式
+	 */
+	public static final int SIG_NORMAL = 0;
+	/**
+	 * 暂停所有visit
+	 */
+	public static final int SIG_STOP_PARA_VISIT = 1;
+	/**
+	 * 暂停当前行的visit
+	 */
+	public static final int SIG_STOP_LINE_VISIT = 2;
+
+	@Retention(RetentionPolicy.SOURCE)
+	@IntDef({SIG_NORMAL, SIG_STOP_LINE_VISIT, SIG_STOP_PARA_VISIT})
+	public @interface VisitSig {
+
+	}
+
+	public void visit(Paragraph paragraph, RenderOption renderOption) throws VisitException {
+		try {
+			onVisitParagraphStart(paragraph);
+			Layout layout = paragraph.getLayout();
+			float x = layout.getPaddingLeft();
+			float y = layout.getPaddingTop();
+			int end = layout.getLineCount();
+			for (int i = 0; i < end && mVisitSig != SIG_STOP_PARA_VISIT; ++i) {
+				Line line = layout.getLine(i);
+				y += line.getLineHeight();
+
+				visitLine(line, x, y);
+
+				float lineSpace = layout.getLineSpace();
+				y += lineSpace;
 			}
-			visitLine(line, x, y);
-			y += renderOption.getLineSpace();
+			onVisitParagraphEnd(paragraph);
+		} catch (Throwable throwable) {
+			// 忽略因为 release，而visit依旧在运行，导致访问内部数据结构出错的问题
+			throw new VisitException(throwable);
+		} finally {
+			mVisitSig = SIG_NORMAL;
 		}
-		onVisitParagraphEnd(paragraph);
 	}
 
 	private void visitLine(Line line, float bottomX, float bottomY) {
-		onVisitLine(line, bottomX, bottomY);
+		onVisitLineStart(line, bottomX, bottomY);
 
-		float spaceWidth = line.getSpaceWidth();
-		int boxSize = line.getCount();
-		for (int i = 0; i < boxSize; ++i) {
-			Box box = line.getBox(i);
+		int size = line.getCount();
+		for (int i = 0; i < size && mVisitSig == SIG_NORMAL; ++i) {
+			Element element = line.getElement(i);
+			if (element instanceof Glue) {
+				bottomX += getAdjustGlueWidth(line, (Glue) element);
+				continue;
+			}
+
+			Box box = (Box) element;
 			float width = box.getWidth();
 
 			float left = bottomX;
-			float right = (float) Math.ceil(bottomX + width);
-			float top = (float) Math.ceil(bottomY - line.getLineHeight());
+			float right = bottomX + width;
+			float top = bottomY - line.getLineHeight() - line.getTopPadding();
 			float bottom = bottomY;
-			onVisitBox(box, left, top, right, bottom);
-			bottomX += (spaceWidth + width);
+			mInnerRect.set(left, top, right, bottom);
+			mOuterRect.set(left, top, right, bottom);
+
+			// set left
+			Element leftElement = null;
+			int index = i;
+			float offset = 0;
+			while (--index >= 0) {
+				leftElement = line.getElement(index);
+				if (leftElement instanceof Box) {
+					break;
+				}
+
+				offset += getAdjustGlueWidth(line, (Glue) leftElement);
+			}
+			mOuterRect.left -= (offset / 2);
+
+			// set right
+			Element rightElement = null;
+			index = i;
+			offset = 0;
+			while (++index < size) {
+				rightElement = line.getElement(index);
+				if (rightElement instanceof Box) {
+					break;
+				}
+
+				offset += getAdjustGlueWidth(line, (Glue) rightElement);
+			}
+			mOuterRect.right += (offset / 2);
+
+			mCurrentBoxIndexInternal = i;
+			onVisitBox(box, mInnerRect, mOuterRect);
+			bottomX += width;
 		}
 
 		onVisitLineEnd(line, bottomX, bottomY);
+		// 如果是暂停当前行的visit，那么下一次开始的时候要清空状态
+		if (mVisitSig == SIG_STOP_LINE_VISIT) {
+			mVisitSig = SIG_NORMAL;
+		}
 	}
 
-	protected void onVisitParagraph(Paragraph paragraph) {
+	private float getAdjustGlueWidth(Line line, Glue glue) {
+		float ratio = line.getRatio();
+		if (ratio == 0) {
+			return glue.getWidth();
+		}
 
+		if (ratio > 0) {
+			return glue.getWidth() + ratio * glue.getStretch();
+		}
+
+		return glue.getWidth() + ratio * glue.getShrink();
 	}
 
-	protected void onVisitParagraphEnd(Paragraph paragraph) {
-
+	/**
+	 * @param sig 通知 visitor下一步动作
+	 */
+	protected void sendVisitSig(@VisitSig int sig) {
+		mVisitSig = sig;
 	}
 
-	protected void onVisitLine(Line line, float x, float y) {
+	protected abstract void onVisitParagraphStart(Paragraph paragraph);
 
-	}
+	protected abstract void onVisitParagraphEnd(Paragraph paragraph);
 
-	protected void onVisitLineEnd(Line line, float x, float y) {
+	protected abstract void onVisitLineStart(Line line, float x, float y);
 
-	}
+	protected abstract void onVisitLineEnd(Line line, float x, float y);
 
-	protected void onVisitBox(Box box, float left, float top, float right, float bottom) {
+	/**
+	 * @param box   box
+	 * @param inner 内部box绘制区域
+	 * @param outer 外部绘制区域
+	 */
+	protected abstract void onVisitBox(Box box, RectF inner, RectF outer);
 
+	/**
+	 * 访问异常，可能因为paragraph被回收，然而访问还在进行时抛出
+	 * https://bugly.qq.com/v2/crash-reporting/crashes/900021510/415701/report?pid=1&search=texas&searchType=detail&bundleId=&channelId=&version=all&tagList=&start=0&date=all
+	 */
+	public static class VisitException extends Exception {
+		public VisitException(Throwable cause) {
+			super(cause);
+		}
 	}
 }

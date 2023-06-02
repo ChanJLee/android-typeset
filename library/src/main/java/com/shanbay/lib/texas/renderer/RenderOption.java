@@ -1,52 +1,160 @@
 package com.shanbay.lib.texas.renderer;
 
+import android.content.Context;
+import android.content.res.Resources;
 import android.graphics.Typeface;
+import android.util.DisplayMetrics;
+import android.util.TypedValue;
 
+import androidx.annotation.ColorInt;
+import androidx.annotation.FloatRange;
 import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
 
 import com.shanbay.lib.texas.text.BreakStrategy;
 import com.shanbay.lib.texas.text.HyphenStrategy;
-import com.shanbay.lib.texas.text.OnClickedListener;
-import com.shanbay.lib.texas.text.Segment;
+import com.shanbay.lib.texas.utils.TexasUtils;
 
 /**
  * 渲染参数
  */
 public class RenderOption {
+	static final RenderOption DEFAULT = new RenderOption();
+
+	/**
+	 * 增加字段记得需要更新：
+	 * 1. copy ctor
+	 * 2. equals
+	 * 3. hashCode
+	 */
 	private int mTextColor;
 	private Typeface mTypeface;
 	private float mTextSize;
 	private float mLineSpace;
-	private boolean mIndentEnable;
 	private int mSelectedBackgroundColor;
 	private int mSelectedTextColor;
-	private float mSegmentSpace;
 	private BreakStrategy mBreakStrategy;
 	private boolean mWordSelectable;
 	private boolean mEnableDebug;
-	private int mSpanSelectedBackgroundColor;
-	private int mSpanSelectedTextColor;
-	private HyphenStrategy mHyphenStrategy;
+	private boolean mEnableOnDrawTsDebug;
+	private boolean mEnableAsyncDrawTsDebug;
 
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+
+		RenderOption that = (RenderOption) o;
+
+		if (mTextColor != that.mTextColor) return false;
+		if (Float.compare(that.mTextSize, mTextSize) != 0) return false;
+		if (Float.compare(that.mLineSpace, mLineSpace) != 0) return false;
+		if (mSelectedBackgroundColor != that.mSelectedBackgroundColor) return false;
+		if (mSelectedTextColor != that.mSelectedTextColor) return false;
+		if (mWordSelectable != that.mWordSelectable) return false;
+		if (mEnableDebug != that.mEnableDebug) return false;
+		if (mEnableOnDrawTsDebug != that.mEnableOnDrawTsDebug) return false;
+		if (mEnableAsyncDrawTsDebug != that.mEnableAsyncDrawTsDebug) return false;
+		if (mSelectedByLongClickBackgroundColor != that.mSelectedByLongClickBackgroundColor)
+			return false;
+		if (mSelectedByLongClickTextColor != that.mSelectedByLongClickTextColor) return false;
+		if (mEnableLazyRender != that.mEnableLazyRender) return false;
+		if (mSpanHighlightTextColor != that.mSpanHighlightTextColor) return false;
+		if (mLoadingBackgroundColor != that.mLoadingBackgroundColor) return false;
+		if (mDrawEmoticonSelection != that.mDrawEmoticonSelection) return false;
+		if (mDragViewColor != that.mDragViewColor) return false;
+		if (mCompatMode != that.mCompatMode) return false;
+		if (Float.compare(that.mSelectedBackgroundRoundRadius, mSelectedBackgroundRoundRadius) != 0)
+			return false;
+		if (!TexasUtils.equals(mTypeface, that.mTypeface))
+			return false;
+		if (mBreakStrategy != that.mBreakStrategy) return false;
+		return mHyphenStrategy == that.mHyphenStrategy;
+	}
+
+	@Override
+	public int hashCode() {
+		int result = mTextColor;
+		result = 31 * result + (mTypeface != null ? mTypeface.hashCode() : 0);
+		result = 31 * result + (mTextSize != +0.0f ? Float.floatToIntBits(mTextSize) : 0);
+		result = 31 * result + (mLineSpace != +0.0f ? Float.floatToIntBits(mLineSpace) : 0);
+		result = 31 * result + mSelectedBackgroundColor;
+		result = 31 * result + mSelectedTextColor;
+		result = 31 * result + (mBreakStrategy != null ? mBreakStrategy.hashCode() : 0);
+		result = 31 * result + (mWordSelectable ? 1 : 0);
+		result = 31 * result + (mEnableDebug ? 1 : 0);
+		result = 31 * result + (mEnableOnDrawTsDebug ? 1 : 0);
+		result = 31 * result + (mEnableAsyncDrawTsDebug ? 1 : 0);
+		result = 31 * result + mSelectedByLongClickBackgroundColor;
+		result = 31 * result + mSelectedByLongClickTextColor;
+		result = 31 * result + (mHyphenStrategy != null ? mHyphenStrategy.hashCode() : 0);
+		result = 31 * result + (mEnableLazyRender ? 1 : 0);
+		result = 31 * result + mSpanHighlightTextColor;
+		result = 31 * result + mLoadingBackgroundColor;
+		result = 31 * result + (mDrawEmoticonSelection ? 1 : 0);
+		result = 31 * result + mDragViewColor;
+		result = 31 * result + (mCompatMode ? 1 : 0);
+		result = 31 * result + (mSelectedBackgroundRoundRadius != +0.0f ? Float.floatToIntBits(mSelectedBackgroundRoundRadius) : 0);
+		return result;
+	}
+
+	private int mSelectedByLongClickBackgroundColor;
+	private int mSelectedByLongClickTextColor;
+	private HyphenStrategy mHyphenStrategy;
+	private boolean mEnableLazyRender;
+	private int mSpanHighlightTextColor;
+	private int mLoadingBackgroundColor;
+	private boolean mDrawEmoticonSelection = false;
+	private int mDragViewColor;
+	private boolean mCompatMode = false;
+	private float mSelectedBackgroundRoundRadius;
+
+	@RestrictTo(RestrictTo.Scope.LIBRARY)
 	public RenderOption() {
 		mHyphenStrategy = HyphenStrategy.US;
 	}
 
+	@RestrictTo(RestrictTo.Scope.LIBRARY)
 	public RenderOption(RenderOption other) {
-		mTextColor = other.mTextColor;
-		mTypeface = other.mTypeface;
-		mTextSize = other.mTextSize;
-		mLineSpace = other.mLineSpace;
-		mIndentEnable = other.mIndentEnable;
-		mSelectedBackgroundColor = other.mSelectedBackgroundColor;
-		mSelectedTextColor = other.mSelectedTextColor;
-		mSegmentSpace = other.mSegmentSpace;
-		mBreakStrategy = other.mBreakStrategy;
-		mWordSelectable = other.mWordSelectable;
-		mEnableDebug = other.mEnableDebug;
-		mSpanSelectedTextColor = other.mSpanSelectedTextColor;
-		mSpanSelectedBackgroundColor = other.mSpanSelectedBackgroundColor;
-		mHyphenStrategy = other.mHyphenStrategy;
+		this.mTextColor = other.mTextColor;
+		this.mTypeface = other.mTypeface;
+		this.mTextSize = other.mTextSize;
+		this.mLineSpace = other.mLineSpace;
+		this.mSelectedBackgroundColor = other.mSelectedBackgroundColor;
+		this.mSelectedTextColor = other.mSelectedTextColor;
+		this.mBreakStrategy = other.mBreakStrategy;
+		this.mWordSelectable = other.mWordSelectable;
+		this.mEnableDebug = other.mEnableDebug;
+		this.mSelectedByLongClickBackgroundColor = other.mSelectedByLongClickBackgroundColor;
+		this.mSelectedByLongClickTextColor = other.mSelectedByLongClickTextColor;
+		this.mHyphenStrategy = other.mHyphenStrategy;
+		this.mEnableLazyRender = other.mEnableLazyRender;
+		this.mSpanHighlightTextColor = other.mSpanHighlightTextColor;
+		this.mLoadingBackgroundColor = other.mLoadingBackgroundColor;
+		this.mDrawEmoticonSelection = other.mDrawEmoticonSelection;
+		this.mDragViewColor = other.mDragViewColor;
+		this.mCompatMode = other.mCompatMode;
+		this.mSelectedBackgroundRoundRadius = other.mSelectedBackgroundRoundRadius;
+		this.mEnableAsyncDrawTsDebug = other.mEnableAsyncDrawTsDebug;
+		this.mEnableOnDrawTsDebug = other.mEnableAsyncDrawTsDebug;
+	}
+
+	/**
+	 * @return 表情符号是否渲染选中效果
+	 */
+	public boolean isDrawEmoticonSelection() {
+		return mDrawEmoticonSelection;
+	}
+
+	/**
+	 * 是否让表情符号也在被选中时渲染选中效果
+	 *
+	 * @param enable enable
+	 * @return 当前对象
+	 */
+	public RenderOption setDrawEmoticonSelection(boolean enable) {
+		mDrawEmoticonSelection = enable;
+		return this;
 	}
 
 	/**
@@ -64,6 +172,15 @@ public class RenderOption {
 	 */
 	public RenderOption setEnableDebug(boolean enableDebug) {
 		mEnableDebug = enableDebug;
+		return this;
+	}
+
+	public int getDragViewColor() {
+		return mDragViewColor;
+	}
+
+	public RenderOption setDragViewColor(@ColorInt int dragViewColor) {
+		mDragViewColor = dragViewColor;
 		return this;
 	}
 
@@ -113,11 +230,11 @@ public class RenderOption {
 	/**
 	 * 设置字体颜色
 	 *
-	 * @param textColor 颜色
+	 * @param color 颜色
 	 * @return 当前对象
 	 */
-	public RenderOption setTextColor(int textColor) {
-		mTextColor = textColor;
+	public RenderOption setTextColor(int color) {
+		mTextColor = color;
 		return this;
 	}
 
@@ -148,6 +265,7 @@ public class RenderOption {
 
 	/**
 	 * 设置当前字体大小
+	 * {@link TypedValue#applyDimension(int, float, DisplayMetrics)}
 	 *
 	 * @param textSize 字号
 	 * @return 当前对象
@@ -155,6 +273,20 @@ public class RenderOption {
 	public RenderOption setTextSize(float textSize) {
 		mTextSize = textSize;
 		return this;
+	}
+
+	/**
+	 * @param context 上下文
+	 * @param unit    {@link TypedValue#COMPLEX_UNIT_SP} {@link TypedValue#COMPLEX_UNIT_PX} {@link TypedValue#COMPLEX_UNIT_DIP} etc.
+	 * @param value   字号
+	 * @return 当前对象
+	 */
+	public RenderOption setTextSize(@NonNull Context context, int unit, @FloatRange(from = 0) float value) {
+		Resources resources = context.getResources();
+		DisplayMetrics displayMetrics = resources.getDisplayMetrics();
+		return setTextSize(
+				TypedValue.applyDimension(unit, value, displayMetrics)
+		);
 	}
 
 	/**
@@ -176,24 +308,6 @@ public class RenderOption {
 	}
 
 	/**
-	 * @return 是否首行缩进
-	 */
-	public boolean isIndentEnable() {
-		return mIndentEnable;
-	}
-
-	/**
-	 * 设置首行缩进
-	 *
-	 * @param indentEnable 是否开启
-	 * @return 当前对象
-	 */
-	public RenderOption setIndentEnable(boolean indentEnable) {
-		mIndentEnable = indentEnable;
-		return this;
-	}
-
-	/**
 	 * @return 获取点击文字后选中效果的背景颜色
 	 */
 	public int getSelectedBackgroundColor() {
@@ -203,11 +317,11 @@ public class RenderOption {
 	/**
 	 * 设置点击文字后选中效果的背景颜色
 	 *
-	 * @param selectedBackgroundColor 颜色
+	 * @param color 颜色
 	 * @return 当前对象
 	 */
-	public RenderOption setSelectedBackgroundColor(int selectedBackgroundColor) {
-		mSelectedBackgroundColor = selectedBackgroundColor;
+	public RenderOption setSelectedBackgroundColor(int color) {
+		mSelectedBackgroundColor = color;
 		return this;
 	}
 
@@ -221,73 +335,45 @@ public class RenderOption {
 	/**
 	 * 设置点击文字后的颜色
 	 *
-	 * @param selectedTextColor 颜色
+	 * @param color 颜色
 	 * @return 当前对象
 	 */
-	public RenderOption setSelectedTextColor(int selectedTextColor) {
-		mSelectedTextColor = selectedTextColor;
+	public RenderOption setSelectedTextColor(int color) {
+		mSelectedTextColor = color;
 		return this;
 	}
 
 	/**
-	 * @return 获取span选中后背景的颜色 {@link com.shanbay.lib.texas.text.Paragraph.Builder#newSpanBuilder(OnClickedListener)}
+	 * 获取长按
 	 */
-	public int getSpanSelectedBackgroundColor() {
-		return mSpanSelectedBackgroundColor;
+	public int getSelectedByLongClickBackgroundColor() {
+		return mSelectedByLongClickBackgroundColor;
 	}
 
 	/**
-	 * 设置点击span后的背景色
+	 * 设置点击后的背景色
 	 *
-	 * @param selectedSpanBackgroundColor 颜色 {@link com.shanbay.lib.texas.text.Paragraph.Builder#newSpanBuilder(OnClickedListener)}
 	 * @return 当前对象
 	 */
-	public RenderOption setSpanSelectedBackgroundColor(int selectedSpanBackgroundColor) {
-		mSpanSelectedBackgroundColor = selectedSpanBackgroundColor;
+	public RenderOption setSelectedByLongClickBackgroundColor(int color) {
+		mSelectedByLongClickBackgroundColor = color;
 		return this;
 	}
 
 	/**
-	 * @return 返回span选中后的颜色 {@link com.shanbay.lib.texas.text.Paragraph.Builder#newSpanBuilder(OnClickedListener)}
+	 * 获取长按时显示的文字颜色
 	 */
-	public int getSpanSelectedTextColor() {
-		return mSpanSelectedTextColor;
+	public int getSelectedByLongClickTextColor() {
+		return mSelectedByLongClickTextColor;
 	}
 
 	/**
-	 * 设置span选中后的颜色
+	 * 设置长按选中后的颜色
 	 *
-	 * @param spanSelectedTextColor 颜色 {@link com.shanbay.lib.texas.text.Paragraph.Builder#newSpanBuilder(OnClickedListener)}
 	 * @return 当前对象
 	 */
-	public RenderOption setSpanSelectedTextColor(int spanSelectedTextColor) {
-		mSpanSelectedTextColor = spanSelectedTextColor;
-		return this;
-	}
-
-	/**
-	 * @return 获取segment之间的间距
-	 * <p/>
-	 * {@link com.shanbay.lib.texas.text.Document#addSegment(Segment)}
-	 * {@link com.shanbay.lib.texas.text.Paragraph}
-	 * {@link com.shanbay.lib.texas.text.ViewSegment}
-	 * {@link com.shanbay.lib.texas.text.Figure}
-	 */
-	public float getSegmentSpace() {
-		return mSegmentSpace;
-	}
-
-	/**
-	 * @param segmentSpace 设置segment之间的间距
-	 * @return 当前对象
-	 * <p/>
-	 * {@link com.shanbay.lib.texas.text.Document#addSegment(Segment)}
-	 * {@link com.shanbay.lib.texas.text.Paragraph}
-	 * {@link com.shanbay.lib.texas.text.ViewSegment}
-	 * {@link com.shanbay.lib.texas.text.Figure}
-	 */
-	public RenderOption setSegmentSpace(float segmentSpace) {
-		mSegmentSpace = segmentSpace;
+	public RenderOption setSelectedByLongClickTextColor(int color) {
+		mSelectedByLongClickTextColor = color;
 		return this;
 	}
 
@@ -305,5 +391,128 @@ public class RenderOption {
 	public RenderOption setHyphenStrategy(HyphenStrategy hyphenStrategy) {
 		mHyphenStrategy = hyphenStrategy;
 		return this;
+	}
+
+	/**
+	 * 是否开启懒惰渲染模式
+	 *
+	 * @return 是否开启懒惰渲染模式
+	 */
+	public boolean isEnableLazyRender() {
+		return mEnableLazyRender;
+	}
+
+	/**
+	 * 开启懒惰渲染模式，即滚动的时候不渲染，等待滚动停止后渲染内容
+	 *
+	 * @param enable enable
+	 * @return 当前对象
+	 */
+	public RenderOption setEnableLazyRender(boolean enable) {
+		mEnableLazyRender = enable;
+		return this;
+	}
+
+	/**
+	 * @return 获取高亮字体颜色
+	 */
+	public int getSpanHighlightTextColor() {
+		return mSpanHighlightTextColor;
+	}
+
+	/**
+	 * 设置高亮字体颜色
+	 *
+	 * @param color 字体颜色
+	 * @return 当前对象
+	 */
+	public RenderOption setSpanHighlightTextColor(int color) {
+		mSpanHighlightTextColor = color;
+		return this;
+	}
+
+	/**
+	 * @return 获取加载时的背景色
+	 */
+	public int getLoadingBackgroundColor() {
+		return mLoadingBackgroundColor;
+	}
+
+	/**
+	 * 设置加载背景色
+	 *
+	 * @param color
+	 * @return 当前对象
+	 */
+	public RenderOption setLoadingBackgroundColor(int color) {
+		mLoadingBackgroundColor = color;
+		return this;
+	}
+
+	/**
+	 * @return 是否是兼容性渲染
+	 */
+	public boolean isCompatMode() {
+		return mCompatMode;
+	}
+
+	/**
+	 * 兼容模式 会采用同步渲染 更慢 更耗电
+	 * 但是兼容性很好
+	 * <p>
+	 * Tips: 目前不支持在运行时动态修改
+	 * </p>
+	 *
+	 * @param enable 是否开启兼容性渲染模式
+	 * @return 当前对象
+	 */
+	@RestrictTo(RestrictTo.Scope.LIBRARY)
+	public RenderOption setCompatMode(boolean enable) {
+		mCompatMode = enable;
+		return this;
+	}
+
+	/**
+	 * @return 获取选中背景的圆角半径
+	 */
+	public float getSelectedBackgroundRoundRadius() {
+		return mSelectedBackgroundRoundRadius;
+	}
+
+	/**
+	 * @param selectedBackgroundRoundRadius 设置选中背景的圆角半径
+	 * @return 当前对象
+	 */
+	public RenderOption setSelectedBackgroundRoundRadius(float selectedBackgroundRoundRadius) {
+		mSelectedBackgroundRoundRadius = selectedBackgroundRoundRadius;
+		return this;
+	}
+
+	/**
+	 * @return 是否开启onDraw时间戳debug
+	 */
+	public boolean isEnableOnDrawTsDebug() {
+		return mEnableOnDrawTsDebug;
+	}
+
+	/**
+	 * @param enable 开启onDraw时间戳debug
+	 */
+	public void setEnableOnDrawTsDebug(boolean enable) {
+		mEnableOnDrawTsDebug = enable;
+	}
+
+	/**
+	 * @return 是否开启异步渲染时间戳debug
+	 */
+	public boolean isEnableAsyncDrawTsDebug() {
+		return mEnableAsyncDrawTsDebug;
+	}
+
+	/**
+	 * @param enable 开启异步渲染时间戳debug
+	 */
+	public void setEnableAsyncDrawTsDebug(boolean enable) {
+		mEnableAsyncDrawTsDebug = enable;
 	}
 }
