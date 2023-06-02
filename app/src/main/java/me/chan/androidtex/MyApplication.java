@@ -4,7 +4,7 @@ import android.app.Application;
 
 import com.shanbay.lib.hiddenapi.HiddenApiCompat;
 import com.shanbay.lib.log.Log;
-import com.shanbay.lib.texas.Texas;
+import me.chan.texas.Texas;
 
 public class MyApplication extends Application {
 	@Override

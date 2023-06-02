@@ -10,7 +10,7 @@
         android:background="#009688"
         android:layout_height="wrap_content" />
 
-    <com.shanbay.lib.texas.renderer.ui.text.ParagraphView
+    <me.chan.texas.renderer.ui.text.ParagraphView
         android:id="@+id/paragraph"
         android:layout_width="0dp"
         android:layout_height="wrap_content"

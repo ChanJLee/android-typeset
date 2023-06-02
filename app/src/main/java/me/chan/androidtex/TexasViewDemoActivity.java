@@ -20,19 +20,19 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
-import com.shanbay.lib.texas.Texas;
-import com.shanbay.lib.texas.adapter.TextAdapter;
-import com.shanbay.lib.texas.renderer.ParagraphVisitor;
-import com.shanbay.lib.texas.renderer.RenderOption;
-import com.shanbay.lib.texas.renderer.TexasView;
-import com.shanbay.lib.texas.renderer.ui.decor.ParagraphDecor;
-import com.shanbay.lib.texas.source.AssetsTextSource;
-import com.shanbay.lib.texas.text.BreakStrategy;
-import com.shanbay.lib.texas.text.Document;
-import com.shanbay.lib.texas.text.Figure;
-import com.shanbay.lib.texas.text.Paragraph;
-import com.shanbay.lib.texas.text.Segment;
-import com.shanbay.lib.texas.utils.TexasUtils;
+import me.chan.texas.Texas;
+import me.chan.texas.adapter.TextAdapter;
+import me.chan.texas.renderer.ParagraphVisitor;
+import me.chan.texas.renderer.RenderOption;
+import me.chan.texas.renderer.TexasView;
+import me.chan.texas.renderer.ui.decor.ParagraphDecor;
+import me.chan.texas.source.AssetsTextSource;
+import me.chan.texas.text.BreakStrategy;
+import me.chan.texas.text.Document;
+import me.chan.texas.text.Figure;
+import me.chan.texas.text.Paragraph;
+import me.chan.texas.text.Segment;
+import me.chan.texas.utils.TexasUtils;
 
 import java.io.IOException;
 
