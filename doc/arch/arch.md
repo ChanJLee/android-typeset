@@ -6,7 +6,7 @@
 
 目前的segment分为以下几种
 
-- Paragraph 文章段落，内部是由文本\drawable组成。
+- Paragraph 文章段落，内部是由文本\emoticon组成。
 
 - Figure 插图
 

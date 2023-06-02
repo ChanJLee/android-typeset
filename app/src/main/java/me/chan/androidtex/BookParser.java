@@ -2,12 +2,31 @@ package me.chan.androidtex;
 
 import android.content.Context;
 import android.content.res.Resources;
+import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Path;
+import android.graphics.RectF;
+import android.graphics.drawable.Drawable;
+import android.text.TextPaint;
 import android.text.TextUtils;
 import android.util.Xml;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
+import android.widget.Toast;
+
+import com.shanbay.lib.log.Log;
+import com.shanbay.lib.texas.TexasOption;
+import com.shanbay.lib.texas.adapter.ParseException;
+import com.shanbay.lib.texas.renderer.TexasView;
+import com.shanbay.lib.texas.text.Appearance;
+import com.shanbay.lib.texas.text.RectGround;
+import com.shanbay.lib.texas.text.Document;
+import com.shanbay.lib.texas.text.DrawContext;
+import com.shanbay.lib.texas.text.Emoticon;
+import com.shanbay.lib.texas.text.Figure;
+import com.shanbay.lib.texas.text.Paragraph;
+import com.shanbay.lib.texas.text.TextStyle;
+import com.shanbay.lib.texas.text.DotUnderLine;
+import com.shanbay.lib.texas.text.ViewSegment;
 
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -17,66 +36,55 @@ import java.io.StringReader;
 import java.util.regex.Pattern;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 
-import com.shanbay.lib.texas.hyphenation.Hyphenation;
-import com.shanbay.lib.log.Log;
-import com.shanbay.lib.texas.measurer.Measurer;
-import com.shanbay.lib.texas.parser.ParseException;
-import com.shanbay.lib.texas.parser.Parser;
-import com.shanbay.lib.texas.renderer.RenderOption;
-import com.shanbay.lib.texas.renderer.TexasView;
-import com.shanbay.lib.texas.text.Document;
-import com.shanbay.lib.texas.text.Figure;
-import com.shanbay.lib.texas.text.OnClickedListener;
-import com.shanbay.lib.texas.text.Paragraph;
-import com.shanbay.lib.texas.text.TextAttribute;
-import com.shanbay.lib.texas.text.UnderLine;
-import com.shanbay.lib.texas.text.ViewSegment;
-
-public class BookParser implements Parser<CharSequence> {
+public class BookParser extends TexasView.Adapter<CharSequence> {
 	private static final Pattern PATTERN = Pattern.compile("\\p{Z}+|\\t|\\r|\\n");
 
-	private Context mContext;
-	private float mFlagWidth;
-	private float mFlagHeight;
-	private OnClickedListener mOnClickedListener;
-	private Listener mListener;
-	private TexasView mTexasView;
+	private final Context mContext;
+	private final float mFlagWidth;
+	private final float mFlagHeight;
+	private final TexasView mTexasView;
 
-	public void setListener(Listener listener) {
-		mListener = listener;
+	public static class SpanTag {
+		public String sentId;
+		public String text;
+
+		public SpanTag(String sentId, String text) {
+			this.sentId = sentId;
+			this.text = text;
+		}
 	}
 
-	public BookParser(Context context, TexasView texasView) {
+	public static class FlagTag {
+	}
+
+	private final int mPolicy;
+
+	public BookParser(Context context, TexasView texasView, int policy) {
 		mContext = context;
+		mPolicy = policy;
 		Resources resources = context.getResources();
 		mFlagWidth = resources.getDimension(R.dimen.com_shanbay_lib_texas_flag_width);
 		mFlagHeight = resources.getDimension(R.dimen.com_shanbay_lib_texas_flag_height);
 		// for test
 		mTexasView = texasView;
-		mOnClickedListener = new OnClickedListener() {
-			@Override
-			public void onClicked(float x, float y) {
-
-			}
-		};
 	}
 
 	@NonNull
 	@Override
-	public Document parse(@NonNull CharSequence charSequence, Measurer measurer, Hyphenation hyphenation,
-						  TextAttribute textAttribute, RenderOption renderOption) throws ParseException {
+	public Document parse(@NonNull CharSequence charSequence, TexasOption texasOption) throws ParseException {
 		XmlPullParser xmlPullParser = Xml.newPullParser();
 		try {
 			xmlPullParser.setInput(new StringReader((String) charSequence));
-			return parse(xmlPullParser, measurer, hyphenation, textAttribute);
+			return parse(xmlPullParser, texasOption);
 		} catch (Throwable e) {
 			throw new ParseException("parse document failed", e);
 		}
 	}
 
-	private Document parse(XmlPullParser parser, Measurer measurer, Hyphenation hypher, TextAttribute textAttribute)
+	private Document parse(XmlPullParser parser, TexasOption texasOption)
 			throws IOException, XmlPullParserException {
 		while (parser.next() != XmlPullParser.END_TAG) {
 			int eventType = parser.getEventType();
@@ -87,40 +95,90 @@ public class BookParser implements Parser<CharSequence> {
 			}
 			String name = parser.getName();
 			if (TextUtils.equals("article_content", name)) {
-				return parseArticleContent(parser, measurer, hypher, textAttribute);
+				return parseArticleContent(parser, texasOption);
 			} else {
 				skip(parser);
 			}
 		}
-		return Document.EMPTY;
+		return Document.createEmptyDocument();
 	}
 
-	private Document parseArticleContent(XmlPullParser parser, Measurer measurer, Hyphenation hypher, TextAttribute textAttribute) throws IOException, XmlPullParserException {
+	private void setupUserDefineView(Document document) {
+		// 添加自定义的视图
+		document.addSegment(new ViewSegment(R.layout.test_header) {
+
+			@Override
+			protected void onRender(View view) {
+
+			}
+		});
+	}
+
+	private void setupLongWordUnitTest(Document document, TexasOption texasOption) {
+		// 用于测试超长单词
+		Paragraph.Builder builder = Paragraph.Builder.newBuilder(texasOption);
+		Paragraph paragraph = builder.newSpanBuilder()
+				.next("QWERTYUIOPASDFGHJKLZXCVBNM")
+				.setTextStyle(new TextStyle() {
+					@Override
+					public void update(@NonNull TextPaint textPaint, @Nullable Object tag) {
+						textPaint.setTextSize(120);
+						textPaint.setFakeBoldText(true);
+					}
+				})
+				.buildSpan()
+				.build();
+		document.addSegment(paragraph);
+	}
+
+	// 增量更新就是当前页共享一个实例
+	// 因为文本引擎可能会渲染特别长的内容，因此会使用回收机制保证内存占用的稳定性
+	// 当视图不可见时就会被回收
+	// 增量更新就是不会参与页面内容的回收，都使用一个实例
+	private void setupIncrementalUserDefineView(Document document) {
+		document.addSegment(new ViewSegment(R.layout.test_layout, true) {
+			@Override
+			protected void onRender(View view) {
+				if (view.getTag() != null) {
+					Log.d("chan_debug", "渲染过了: " + this);
+					return;
+				}
+
+				Log.d("chan_debug", "设置元素： " + this);
+				view.findViewById(R.id.finish).setOnClickListener(new View.OnClickListener() {
+					@Override
+					public void onClick(View v) {
+						Toast.makeText(mContext, "click me", Toast.LENGTH_SHORT).show();
+						mTexasView.redraw();
+					}
+				});
+				view.setTag("fuck");
+			}
+		});
+		document.addSegment(new ViewSegment(R.layout.test_layout2, true) {
+			@Override
+			protected void onRender(View view) {
+				Log.d("chan_debug", "渲染隐含元素");
+			}
+		});
+		document.addSegment(new ViewSegment(R.layout.test_layout2, true) {
+			@Override
+			protected void onRender(View view) {
+				Log.d("chan_debug", "渲染隐含元素2");
+			}
+		});
+	}
+
+	private Document parseArticleContent(XmlPullParser parser, TexasOption texasOption) throws IOException, XmlPullParserException {
 		parser.require(XmlPullParser.START_TAG, null, "article_content");
 		final String id = parser.getAttributeValue(null, "id");
 		Document document = Document.obtain();
 
-		document.addSegment(new ViewSegment() {
-			@Override
-			protected View onCreateView(LayoutInflater layoutInflater, ViewGroup parent) {
-				return layoutInflater.inflate(R.layout.test_header, parent, false);
-			}
+		setupUserDefineView(document);
 
-			@Override
-			protected void onRender() {
-				/* do nothing */
-			}
+		setupLongWordUnitTest(document, texasOption);
 
-			@Override
-			public float getTopMargin(float segmentSpace) {
-				return 0;
-			}
-
-			@Override
-			public float getBottomMargin(float segmentSpace) {
-				return 0;
-			}
-		});
+		setupIncrementalUserDefineView(document);
 
 		while (parser.next() != XmlPullParser.END_TAG) {
 			int eventType = parser.getEventType();
@@ -129,29 +187,23 @@ public class BookParser implements Parser<CharSequence> {
 			}
 			String name = parser.getName();
 			if (name.equals("para")) {
-				parsePara(parser, document, measurer, hypher, textAttribute);
+				parsePara(parser, document, texasOption);
 			} else {
 				skip(parser);
 			}
 		}
 
-		document.addSegment(new ViewSegment() {
+		// 测试页面滚动
+		document.addSegment(new ViewSegment(R.layout.test_layout) {
+
 			@Override
-			protected View onCreateView(LayoutInflater layoutInflater, ViewGroup parent) {
-				View view = layoutInflater.inflate(R.layout.test_layout, parent, false);
+			protected void onRender(View view) {
 				view.findViewById(R.id.finish).setOnClickListener(new View.OnClickListener() {
 					@Override
 					public void onClick(View v) {
-						Log.d("BookParser", "click foot");
 						mTexasView.scrollToPosition(0);
 					}
 				});
-				return view;
-			}
-
-			@Override
-			protected void onRender() {
-				/* do nothing */
 			}
 		});
 
@@ -163,12 +215,13 @@ public class BookParser implements Parser<CharSequence> {
 	private static final int STATE_IMG = 2;
 	private static final int STATE_SUBTITLE = 3;
 
-	private void parsePara(XmlPullParser parser, Document document,
-						   Measurer measurer, Hyphenation hypher, TextAttribute textAttribute) throws IOException, XmlPullParserException {
+	private void parsePara(XmlPullParser parser, Document document, TexasOption texasOption) throws IOException, XmlPullParserException {
 		parser.require(XmlPullParser.START_TAG, null, "para");
 		String id = parser.getAttributeValue(null, "id");
 
-		Paragraph.Builder builder = Paragraph.Builder.newBuilder(measurer, hypher, textAttribute);
+		Paragraph.Builder builder = Paragraph.Builder.newBuilder(texasOption, mPolicy);
+
+		builder.tag(id);
 		int lastState = STATE_NONE;
 
 		while (parser.next() != XmlPullParser.END_TAG) {
@@ -193,12 +246,9 @@ public class BookParser implements Parser<CharSequence> {
 		}
 
 		if (lastState == STATE_SENT) {
-			builder.drawable(ContextCompat.getDrawable(mContext, R.drawable.me_chan_te_flag), mFlagWidth, mFlagHeight, new OnClickedListener() {
-				@Override
-				public void onClicked(float x, float y) {
-					Log.d("BookParser", "click image");
-				}
-			});
+			final Drawable drawable = ContextCompat.getDrawable(mContext, R.drawable.me_chan_te_flag);
+			final Emoticon emoticon = Emoticon.obtain(drawable, mFlagWidth, mFlagHeight, new FlagTag(), null, null);
+			builder.emoticon(emoticon);
 		}
 
 		Paragraph paragraph = builder.build();
@@ -259,7 +309,6 @@ public class BookParser implements Parser<CharSequence> {
 	}
 
 	private void parseSubtitle(XmlPullParser parser, Paragraph.Builder builder) throws XmlPullParserException, IOException {
-		// TODO add subtitle
 		parser.require(XmlPullParser.START_TAG, null, "subtitle");
 		String id = parser.getAttributeValue(null, "id");
 		while (parser.next() != XmlPullParser.END_TAG) {
@@ -276,20 +325,16 @@ public class BookParser implements Parser<CharSequence> {
 	private void parseSent(XmlPullParser parser, Paragraph.Builder builder) throws IOException, XmlPullParserException {
 		parser.require(XmlPullParser.START_TAG, null, "sent");
 		final String id = parser.getAttributeValue(null, "id");
-		OnClickedListener sentOnClickedListener = new OnClickedListener() {
-			@Override
-			public void onClicked(float x, float y) {
-				Log.d("BookParser", "select sent: " + id);
-			}
-		};
 		String text = safeNextText(parser);
 		if (!TextUtils.isEmpty(text)) {
-			parseParagraph(builder, text, sentOnClickedListener);
+			parseParagraph(builder, text, id);
 		}
 		parser.require(XmlPullParser.END_TAG, null, "sent");
 	}
 
-	private void parseParagraph(Paragraph.Builder builder, String paragraph, OnClickedListener spanListener) {
+	// 这里给了个demo显示带圆角的背景
+	// 注意这只是demo代码，因此质量不可控
+	private void parseParagraph(Paragraph.Builder builder, String paragraph, String sentId) {
 		String[] strings = PATTERN.split(paragraph);
 		for (int i = 0; strings != null && i < strings.length; ++i) {
 			final String text = strings[i];
@@ -297,31 +342,74 @@ public class BookParser implements Parser<CharSequence> {
 				continue;
 			}
 
-			OnClickedListener onClickedListener = null;
-			if (TextUtils.equals("Once", text) ||
-					TextUtils.equals("magnificent", text)) {
-				onClickedListener = mOnClickedListener;
-			} else {
-				onClickedListener = new OnClickedListener() {
+			// for test
+			Paragraph.SpanBuilder spanBuilder = builder.newSpanBuilder()
+					.next(text)
+					.tag(new SpanTag(sentId, text))
+					.setForeground(RED_UL);
+			if ("A9127P126990S210411".equals(sentId)) {
+				spanBuilder.setBackground(new RectGround(0xffC09453));
+			} else if ("A344173P2435118S1".equals(sentId)) {
+				spanBuilder.setBackground(new Appearance() {
+					private Path mPath = new Path();
+					private float[] mLeftRound = new float[]{
+							20, 20,
+							0, 0,
+							0, 0,
+							20, 20
+					};
+					private float[] mRightRound = new float[]{
+							0, 0,
+							20, 20,
+							20, 20,
+							0, 0
+					};
+
 					@Override
-					public void onClicked(float x, float y) {
-						Log.d("BookParser", "click: " + text);
-						if (mListener != null) {
-							mListener.onTextClicked(text);
+					public void draw(Canvas canvas, TextPaint textPaint, RectF inner, RectF outer, DrawContext context) {
+						textPaint.setColor(Color.GREEN);
+
+						// 独立的单元，左右都要有圆角
+						if (!checkTagIsSelected(context.getPrevTag()) && !checkTagIsSelected(context.getNextTag())) {
+							canvas.drawRoundRect(outer, 20, 20, textPaint);
+							return;
+						}
+
+						// 前面没有单词
+						if (checkTagIsSelected(context.getPrevTag())) {
+							mPath.reset();
+							mPath.addRoundRect(
+									outer,
+									mLeftRound,
+									Path.Direction.CW
+							);
+							canvas.drawPath(mPath, textPaint);
+						} else if (checkTagIsSelected(context.getNextTag())) {
+							// 后面没有单词
+							mPath.reset();
+							mPath.addRoundRect(
+									outer,
+									mRightRound,
+									Path.Direction.CW
+							);
+							canvas.drawPath(mPath, textPaint);
+						} else {
+							// 夹在中间
+							canvas.drawRect(outer, textPaint);
 						}
 					}
-				};
-			}
 
-			// for test
-			builder.newSpanBuilder(i % 2 == 1 ? spanListener : null)
-					.next(text)
-					.tag(i)
-					.setForeground(UnderLine.obtain(Color.RED))
-					.setOnClickedListener(onClickedListener)
-					.buildSpan();
+					private boolean checkTagIsSelected(Object tag) {
+						// 你这里改成自己的逻辑
+						return true;
+					}
+				});
+			}
+			spanBuilder.buildSpan();
 		}
 	}
+
+	private static final DotUnderLine RED_UL = new DotUnderLine(Color.RED);
 
 	private String safeNextText(XmlPullParser parser) throws XmlPullParserException, IOException {
 		String result = parser.nextText();
@@ -347,9 +435,5 @@ public class BookParser implements Parser<CharSequence> {
 					break;
 			}
 		}
-	}
-
-	public interface Listener {
-		void onTextClicked(String text);
 	}
 }

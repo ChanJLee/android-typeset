@@ -4,7 +4,7 @@ package com.shanbay.lib.texas.source;
  * 源关闭异常
  */
 public class SourceCloseException extends Exception {
-	private int mCode;
+	private final int mCode;
 
 	/**
 	 * @param message 错误msg

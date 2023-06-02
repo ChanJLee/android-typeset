@@ -1,11 +1,13 @@
 package com.shanbay.lib.texas.text;
 
-import com.shanbay.lib.texas.annotations.Hidden;
+import androidx.annotation.RestrictTo;
+
+import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
 /**
  * 行gravity信息
  */
-@Hidden
+@RestrictTo(LIBRARY)
 public enum Gravity {
 	LEFT,
 	RIGHT,

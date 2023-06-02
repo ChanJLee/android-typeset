@@ -11,5 +11,9 @@ public enum BreakStrategy {
 	/**
 	 * 尽可能占满，不够显示就尝试断字
 	 */
-	BALANCED
+	BALANCED,
+	/**
+	 * 未知
+	 */
+	UNKNOWN
 }

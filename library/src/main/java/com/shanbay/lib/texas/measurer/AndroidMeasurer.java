@@ -1,68 +1,70 @@
 package com.shanbay.lib.texas.measurer;
 
+import static androidx.annotation.RestrictTo.Scope.LIBRARY;
+
 import android.graphics.Paint;
 import android.text.BoringLayout;
 import android.text.TextPaint;
+import android.text.TextUtils;
 
-import com.shanbay.lib.texas.annotations.Hidden;
+import androidx.annotation.RestrictTo;
+
+import com.shanbay.lib.texas.misc.PaintSet;
 import com.shanbay.lib.texas.text.TextStyle;
+import com.shanbay.lib.texas.utils.CharArrayPool;
 
 /**
  * android的文本测量器
  */
-@Hidden
+@RestrictTo(LIBRARY)
 public class AndroidMeasurer implements Measurer {
 
-	private TextPaint mTextPaint;
-	private float mDesiredHeight;
-	private float mTopPadding = 0;
-	private float mBottomPadding = 0;
-	private TextPaint mWorkPaint = new TextPaint();
+	private static final CharArrayPool POOL = new CharArrayPool();
 
-	public AndroidMeasurer(TextPaint textPaint) {
-		refresh(textPaint);
-	}
+	private final PaintSet mPaintSet;
 
-	/**
-	 * 刷新当前的text paint
-	 *
-	 * @param textPaint text paint
-	 */
-	public void refresh(TextPaint textPaint) {
-		mTextPaint = textPaint;
-		Paint.FontMetrics fontMetrics = mTextPaint.getFontMetrics();
-		mDesiredHeight = fontMetrics.descent - fontMetrics.ascent;
-		mBottomPadding = fontMetrics.bottom;
-		mTopPadding = fontMetrics.ascent - fontMetrics.top;
+	public AndroidMeasurer(PaintSet context) {
+		mPaintSet = context;
 	}
 
 	@Override
-	public float getFontTopPadding() {
-		return mTopPadding;
+	public CharSequenceSpec measure(CharSequence charSequence, int start, int end, TextStyle textStyle, Object tag) {
+		CharSequenceSpec spec = new CharSequenceSpec();
+		measure(charSequence, start, end, textStyle, tag, spec);
+		return spec;
 	}
 
 	@Override
-	public float getFontBottomPadding() {
-		return mBottomPadding;
-	}
-
-	@Override
-	public float getDesiredWidth(CharSequence charSequence, int start, int end, TextStyle textStyle) {
-		TextPaint textPaint = mTextPaint;
+	public void measure(CharSequence charSequence, int start, int end, TextStyle textStyle, Object tag, CharSequenceSpec spec) {
+		TextPaint textPaint = mPaintSet.getPaint();
 		if (textStyle != null) {
-			textPaint = mWorkPaint;
-			textPaint.set(mTextPaint);
-			textStyle.update(textPaint);
+			textPaint = mPaintSet.getWorkPaint();
+			textStyle.update(textPaint, tag);
 		}
 
 		// 不能使用 TextPaint getTextBounds
 		// vivo 手机使用这个方法慢的出奇
 		// BoringLayout 是用来测量单行文本的
-		return BoringLayout.getDesiredWidth(charSequence, start, end, textPaint);
+		float width = 0;
+		if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+			int size = end - start;
+			char[] buf = POOL.obtain(size);
+			TextUtils.getChars(charSequence, start, end, buf, 0);
+			width = textPaint.getRunAdvance(buf, 0, size, 0, size, false, size);
+			POOL.release(buf);
+		} else {
+			width = (float) Math.ceil(BoringLayout.getDesiredWidth(charSequence, start, end, textPaint));
+		}
+		Paint.FontMetrics fontMetrics = textPaint.getFontMetrics();
+		float height = (float) Math.ceil(fontMetrics.descent - fontMetrics.ascent);
+		float bottomPadding = (float) Math.ceil(fontMetrics.bottom - fontMetrics.descent);
+		bottomPadding = Math.min(bottomPadding, 1);
+		float topPadding = (float) Math.ceil(fontMetrics.ascent - fontMetrics.top);
+
+		spec.reset(width, height, topPadding, bottomPadding, (float) Math.ceil(fontMetrics.descent));
 	}
 
-	@Override
-	public float getDesiredHeight(CharSequence charSequence, int start, int end, TextStyle textStyle) {
-		return mDesiredHeight;
+	public String stats() {
+		return POOL.stats();
 	}
 }

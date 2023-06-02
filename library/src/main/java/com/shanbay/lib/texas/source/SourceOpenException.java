@@ -4,7 +4,7 @@ package com.shanbay.lib.texas.source;
  * 源打开异常
  */
 public class SourceOpenException extends Exception {
-	private int mCode;
+	private final int mCode;
 
 	/**
 	 * @param message 错误msg

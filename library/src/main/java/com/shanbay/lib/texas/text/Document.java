@@ -1,63 +1,60 @@
 package com.shanbay.lib.texas.text;
 
+import com.shanbay.lib.texas.Texas;
+
 import java.util.ArrayList;
 import java.util.List;
 
-import com.shanbay.lib.texas.Texas;
-import com.shanbay.lib.texas.annotations.Hidden;
-import com.shanbay.lib.texas.misc.DefaultRecyclable;
-import com.shanbay.lib.texas.misc.ObjectFactory;
+import androidx.annotation.RestrictTo;
+
+import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
 /**
  * 文档
  */
-public final class Document extends DefaultRecyclable {
-	private static final ObjectFactory<Document> POOL = new ObjectFactory<>(8);
-	public final static Document EMPTY = obtain();
-
+public final class Document {
 	private List<Segment> mSegments;
 	private Segment mFocusSegment;
-	private Object mRaw;
+	private int mFocusSegmentOffset;
 
 	private Document() {
 		Texas.MemoryOption memoryOption = Texas.getMemoryOption();
 		mSegments = new ArrayList<>(memoryOption.getDocumentSegmentInitialCapacity());
 	}
 
-	@Hidden
-	public Object getRaw() {
-		return mRaw;
-	}
-
-	@Hidden
-	public void setRaw(Object raw) {
-		mRaw = raw;
-	}
-
 	/**
 	 * @param segment 设置当前焦点segment，焦点segment的意思是下次渲染的时候，优先将视图滚动到当前segment
 	 */
 	public void setFocusSegment(Segment segment) {
+		setFocusSegment(segment, 0);
+	}
+
+	/**
+	 * @param segment 设置当前焦点segment，焦点segment的意思是下次渲染的时候，优先将视图滚动到当前segment
+	 * @param offset  垂直方向偏移
+	 */
+	public void setFocusSegment(Segment segment, int offset) {
 		mFocusSegment = segment;
+		mFocusSegmentOffset = offset;
+	}
+
+	public int getFocusSegmentSegmentIndex() {
+		return indexOfSegment(mFocusSegment);
 	}
 
 	/**
-	 * @return 获取focus segment的下标，负值则为没有focus segment
+	 * @return 获取focus segment偏移量
 	 */
-	@Hidden
-	public int getFocusSegmentIndex() {
-		return indexOf(mFocusSegment);
+	public int getFocusSegmentOffset() {
+		return mFocusSegmentOffset;
 	}
 
-
 	/**
-	 * 获取对应segment的下标
-	 *
 	 * @param segment segment
-	 * @return 获取segment的下标，负值则为没有segment
+	 * @return segment在document中的下标
 	 */
-	public int indexOf(Segment segment) {
-		if (segment == null) {
+	public int indexOfSegment(Segment segment) {
+		if (segment == null || mSegments == null) {
 			return -1;
 		}
 
@@ -70,7 +67,7 @@ public final class Document extends DefaultRecyclable {
 	 * @return 段落数目
 	 */
 	public int getSegmentCount() {
-		return mSegments.size();
+		return mSegments == null ? 0 : mSegments.size();
 	}
 
 	/**
@@ -91,38 +88,26 @@ public final class Document extends DefaultRecyclable {
 	 * @param segment 添加segment
 	 */
 	public void addSegment(Segment segment) {
+		// 后续如果要支持移除，则需要考虑到 TexasAdapter 的id是否stable
 		mSegments.add(segment);
 	}
 
-	@Override
-	@Hidden
-	public void recycle() {
-		if (isRecycled()) {
-			return;
-		}
-
-		super.recycle();
-		for (Segment segment : mSegments) {
+	@RestrictTo(LIBRARY)
+	public void release() {
+		int count = mSegments == null ? 0 : mSegments.size();
+		for (int i = 0; i < count; ++i) {
+			Segment segment = mSegments.get(i);
 			segment.recycle();
 		}
-		mSegments.clear();
-
-		mRaw = null;
+		mSegments = null;
 		mFocusSegment = null;
-		POOL.release(this);
-	}
-
-	@Hidden
-	public static void clean() {
-		POOL.clean();
 	}
 
 	public static Document obtain() {
-		Document document = POOL.acquire();
-		if (document == null) {
-			return new Document();
-		}
-		document.reuse();
-		return document;
+		return new Document();
+	}
+
+	public static Document createEmptyDocument() {
+		return obtain();
 	}
 }

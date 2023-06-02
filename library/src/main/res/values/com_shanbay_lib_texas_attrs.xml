@@ -1,20 +1,64 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <declare-styleable name="com_shanbay_lib_texas_TeView">
+        <attr name="android:padding" format="dimension" />
+        <attr name="android:paddingLeft" format="dimension" />
+        <attr name="android:paddingRight" format="dimension" />
+        <attr name="android:paddingTop" format="dimension" />
+        <attr name="android:paddingBottom" format="dimension" />
         <attr name="com_shanbay_lib_texas_textColor" format="color" />
         <attr name="com_shanbay_lib_texas_typefaceAssets" format="string" />
         <attr name="com_shanbay_lib_texas_textSize" format="dimension" />
         <attr name="com_shanbay_lib_texas_lineSpace" format="dimension" />
-        <attr name="com_shanbay_lib_texas_indent" format="boolean" />
         <attr name="com_shanbay_lib_texas_selectedBackgroundColor" format="color" />
         <attr name="com_shanbay_lib_texas_selectedTextColor" format="color" />
         <attr name="com_shanbay_lib_texas_spanSelectedBackgroundColor" format="color" />
         <attr name="com_shanbay_lib_texas_spanSelectedTextColor" format="color" />
-        <attr name="com_shanbay_lib_texas_segmentSpace" format="dimension" />
         <attr name="com_shanbay_lib_texas_breakStrategy" format="enum">
             <enum name="simple" value="1" />
             <enum name="balance" value="2" />
         </attr>
         <attr name="com_shanbay_lib_texas_wordSelectable" format="boolean" />
+        <attr name="com_shanbay_lib_texas_hyphenStrategy" format="enum">
+            <enum name="us" value="1" />
+            <enum name="uk" value="2" />
+        </attr>
+        <attr name="com_shanbay_lib_texas_lazyRender" format="boolean" />
+        <attr name="com_shanbay_lib_texas_spanHighlightTextColor" format="color" />
+        <attr name="com_shanbay_lib_texas_loadingBackgroundColor" format="color" />
+        <attr name="com_shanbay_lib_texas_dragViewColor" format="color" />
+        <attr name="com_shanbay_lib_texas_selectedBackgroundRoundRadius" format="dimension" />
+        <attr name="com_shanbay_lib_texas_compatMode" format="boolean" />
+    </declare-styleable>
+
+    <style name="com_shanbay_lib_texas_TexasRecyclerView" parent="android:Widget">
+        <item name="android:scrollbars">vertical</item>
+        <item name="android:scrollbarStyle">outsideOverlay</item>
+        <item name="android:scrollbarThumbVertical">
+            @drawable/com_shanbay_lib_texas_scrollbar_thumb
+        </item>
+        <item name="android:scrollbarTrackVertical">@null</item>
+    </style>
+
+    <declare-styleable name="com_shanbay_lib_texas_ParagraphView">
+        <attr name="com_shanbay_lib_texas_paragraph_textColor" format="color" />
+        <attr name="com_shanbay_lib_texas_paragraph_typefaceAssets" format="string" />
+        <attr name="com_shanbay_lib_texas_paragraph_textSize" format="dimension" />
+        <attr name="com_shanbay_lib_texas_paragraph_lineSpace" format="dimension" />
+        <attr name="com_shanbay_lib_texas_paragraph_selectedBackgroundColor" format="color" />
+        <attr name="com_shanbay_lib_texas_paragraph_selectedTextColor" format="color" />
+        <attr name="com_shanbay_lib_texas_paragraph_spanSelectedBackgroundColor" format="color" />
+        <attr name="com_shanbay_lib_texas_paragraph_spanSelectedTextColor" format="color" />
+        <attr name="com_shanbay_lib_texas_paragraph_breakStrategy" format="enum">
+            <enum name="simple" value="1" />
+            <enum name="balance" value="2" />
+        </attr>
+        <attr name="com_shanbay_lib_texas_paragraph_wordSelectable" format="boolean" />
+        <attr name="com_shanbay_lib_texas_paragraph_hyphenStrategy" format="enum">
+            <enum name="us" value="1" />
+            <enum name="uk" value="2" />
+        </attr>
+        <attr name="com_shanbay_lib_texas_paragraph_selectedBackgroundRoundRadius" format="dimension" />
+        <attr name="com_shanbay_lib_texas_paragraph_compatMode" format="boolean" />
     </declare-styleable>
 </resources>

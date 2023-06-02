@@ -1,16 +1,18 @@
 package com.shanbay.lib.texas.test;
 
+import com.shanbay.lib.texas.source.CacheSource;
+import com.shanbay.lib.texas.source.ObjectSource;
+import com.shanbay.lib.texas.source.SourceCloseException;
+import com.shanbay.lib.texas.source.SourceOpenException;
+import com.shanbay.lib.texas.source.StreamTextSource;
+import com.shanbay.lib.texas.test.mock.MockFileInputStream;
+
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-
-import com.shanbay.lib.texas.source.SourceCloseException;
-import com.shanbay.lib.texas.source.SourceOpenException;
-import com.shanbay.lib.texas.source.StreamTextSource;
-import com.shanbay.lib.texas.test.mock.MockFileInputStream;
 
 import static org.junit.Assert.assertFalse;
 
@@ -47,6 +49,48 @@ public class SourceUnitTest {
 			streamSource.open();
 			Assert.fail("test read bad file failed");
 		} catch (SourceOpenException e) {
+		}
+	}
+
+	@Test
+	public void testCacheSource() throws SourceOpenException, SourceCloseException {
+		String str = "hello";
+		CountSource countSource = new CountSource(str);
+		CacheSource<String> cacheSource = new CacheSource<>(countSource);
+		Assert.assertEquals(str, cacheSource.open());
+		Assert.assertEquals(countSource.openCount, 1);
+		Assert.assertEquals(countSource.closeCount, 0);
+		cacheSource.close();
+		Assert.assertEquals(countSource.closeCount, 1);
+
+		// 读第二次测试幂等性
+		Assert.assertEquals(str, cacheSource.open());
+		Assert.assertEquals(countSource.openCount, 1);
+
+		cacheSource.cleanCache();
+		Assert.assertEquals(str, cacheSource.open());
+		Assert.assertEquals(countSource.openCount, 2);
+		Assert.assertEquals(countSource.closeCount, 1);
+	}
+
+	private static class CountSource extends ObjectSource<String> {
+		public int openCount = 0;
+		public int closeCount = 0;
+
+		public CountSource(String object) {
+			super(object);
+		}
+
+		@Override
+		public String open() throws SourceOpenException {
+			openCount++;
+			return super.open();
+		}
+
+		@Override
+		public void close() throws SourceCloseException {
+			closeCount++;
+			super.close();
 		}
 	}
 }

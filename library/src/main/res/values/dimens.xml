@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="com_shanbay_lib_texas_default_magnifier_size">100dp</dimen>
+</resources>

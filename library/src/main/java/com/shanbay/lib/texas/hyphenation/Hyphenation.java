@@ -1,16 +1,48 @@
 package com.shanbay.lib.texas.hyphenation;
 
+import static androidx.annotation.RestrictTo.Scope.LIBRARY;
+import static com.shanbay.lib.texas.utils.TexasUtils.parseInt;
+
 import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
 import androidx.collection.SparseArrayCompat;
 
-import java.util.List;
+import com.shanbay.lib.texas.Texas;
+import com.shanbay.lib.texas.misc.ObjectPool;
+import com.shanbay.lib.texas.utils.IntArray;
+import com.shanbay.lib.texas.utils.Lazy;
 
 /**
  * 断字器
  */
+@RestrictTo(LIBRARY)
 public class Hyphenation {
+	private static final ObjectPool<IntArray> POOL = new ObjectPool<>(4);
 
-	private static final Hyphenation[] HYPHENATIONS = new Hyphenation[2];
+	static {
+		Texas.registerLifecycleCallback(new Texas.LifecycleCallback() {
+			@Override
+			public void onClean() {
+				POOL.clean();
+			}
+		});
+	}
+
+	private static final boolean DEBUG = false;
+
+	private static final Lazy<Hyphenation> EN_US = new Lazy<Hyphenation>() {
+		@Override
+		protected Hyphenation create() {
+			return new Hyphenation(HyphenationPattern.newInstance(HyphenationPattern.EN_US));
+		}
+	};
+
+	private static final Lazy<Hyphenation> EN_GB = new Lazy<Hyphenation>() {
+		@Override
+		protected Hyphenation create() {
+			return new Hyphenation(HyphenationPattern.newInstance(HyphenationPattern.EN_GB));
+		}
+	};
 
 	private static final int UNDER_LINE_CODE_POINT = 95;
 
@@ -28,21 +60,14 @@ public class Hyphenation {
 		return getInstance(HyphenationPattern.EN_US);
 	}
 
-	public static synchronized Hyphenation getInstance(HyphenationPattern hyphenationPattern) {
-		int index = -1;
-		if (hyphenationPattern == HyphenationPattern.EN_US) {
-			index = 0;
-		} else if (hyphenationPattern == HyphenationPattern.EN_GB) {
-			index = 1;
-		} else {
-			throw new IllegalArgumentException("unknown pattern");
+	public static Hyphenation getInstance(@HyphenationPattern.PatternType int type) {
+		if (type == HyphenationPattern.EN_US) {
+			return EN_US.value();
+		} else if (type == HyphenationPattern.EN_GB) {
+			return EN_GB.value();
 		}
 
-		if (HYPHENATIONS[index] == null) {
-			HYPHENATIONS[index] = new Hyphenation(hyphenationPattern);
-		}
-
-		return HYPHENATIONS[index];
+		throw new IllegalArgumentException("unknown pattern");
 	}
 
 	private static TrieNode createTrie(SparseArrayCompat<String> pattern) {
@@ -58,6 +83,21 @@ public class Hyphenation {
 				createTrie(tree, value, i, i + key);
 			}
 		}
+
+		if (DEBUG) {
+			int capacity = tree.capacity();
+			int used = tree.used();
+			System.out.println("capacity: " + capacity);
+			System.out.println("used: " + used);
+			System.out.println("usage: " + (used * 1.0f / capacity));
+			System.out.println("max: " + tree.max());
+
+			SparseArrayCompat<Integer> arrayCompat = tree.status();
+			for (int i = 0; i < arrayCompat.size(); ++i) {
+				System.out.println("detail: " + arrayCompat.keyAt(i) + " -> " + arrayCompat.valueAt(i));
+			}
+		}
+
 		return tree;
 	}
 
@@ -75,7 +115,7 @@ public class Hyphenation {
 			t = t.codePoint.get(codePoint);
 		}
 
-		IntArrayList list = new IntArrayList();
+		IntArray array = new IntArray();
 		int digitStart = -1;
 		for (int p = start; p < end; p++) {
 			if (Character.isDigit(value.charAt(p))) {
@@ -84,21 +124,19 @@ public class Hyphenation {
 				}
 				if (p == end - 1) {
 					// last number in the pattern
-					String number = value.substring(digitStart, end);
-					list.add(Integer.valueOf(number));
+					array.add(parseInt(value, digitStart, end));
 				}
 			} else if (digitStart >= 0) {
-				String number = value.substring(digitStart, p);
-				list.add(Integer.valueOf(number));
+				array.add(parseInt(value, digitStart, p));
 				digitStart = -1;
 			} else {
-				list.add(0);
+				array.add(0);
 			}
 		}
-		t.points = list.toArray();
+		t.points = array;
 	}
 
-	public void hyphenate(@NonNull CharSequence text, int start, int end, @NonNull List<Integer> result) {
+	public void hyphenate(@NonNull CharSequence text, int start, int end, @NonNull IntArray result) {
 		if (start == end) {
 			return;
 		}
@@ -107,9 +145,9 @@ public class Hyphenation {
 
 		int len = end - start;
 		int lenWithPadding = len + 2;
-		int[] points = new int[len + 2];
+		IntArray points = obtain(len + 2);
 		TrieNode node, trie = this.mTrie;
-		int[] nodePoints;
+		IntArray nodePoints;
 		for (int i = 0; i < lenWithPadding; i++) {
 			node = trie;
 			for (int j = i; j < lenWithPadding; j++) {
@@ -125,8 +163,9 @@ public class Hyphenation {
 
 				nodePoints = node.points;
 				if (nodePoints != null) {
-					for (int k = 0; k < nodePoints.length && i + k < points.length; k++) {
-						points[i + k] = Math.max(points[i + k], nodePoints[k]);
+					int size = nodePoints.size();
+					for (int k = 0; k < size && i + k < points.size(); k++) {
+						points.set(i + k, Math.max(points.get(i + k), nodePoints.get(k)));
 					}
 				}
 			}
@@ -135,9 +174,21 @@ public class Hyphenation {
 		int first = start;
 		int last = start + len;
 		for (int i = 1; i < lenWithPadding - 1; i++) {
-			if (i > this.mLeftMin && i < (lenWithPadding - this.mRightMin) && points[i] % 2 > 0) {
+			if (i > this.mLeftMin && i < (lenWithPadding - this.mRightMin) && points.get(i) % 2 > 0) {
 				int point = first + i - 1;
-				result.add(point);
+				if (start != first &&
+						start < last &&
+						point - start == 1 &&
+						word.charAt(start) == '-' &&
+						!result.empty()) {
+					// 修复 self-complacency 这个单词
+					// 如果不这么改
+					// 会是这样的序列：self, -, com, pla, cency
+					// 我们期望的 self-, com, pla, cency
+					result.set(result.size() - 1, point);
+				} else {
+					result.add(point);
+				}
 				start = point;
 			}
 		}
@@ -145,5 +196,20 @@ public class Hyphenation {
 		if (start < last && last - start != len) {
 			result.add(last);
 		}
+
+		release(points);
+	}
+
+	private static IntArray obtain(int size) {
+		IntArray array = POOL.acquire();
+		if (array == null) {
+			array = new IntArray(size);
+		}
+		array.zero(size);
+		return array;
+	}
+
+	private static void release(IntArray array) {
+		POOL.release(array);
 	}
 }

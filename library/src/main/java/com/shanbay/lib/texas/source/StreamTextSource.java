@@ -53,7 +53,10 @@ public class StreamTextSource implements Source<CharSequence> {
 	@Override
 	public void close() throws SourceCloseException {
 		try {
-			mInputStream.close();
+			if (mInputStream != null) {
+				mInputStream.close();
+				mInputStream = null;
+			}
 		} catch (Throwable e) {
 			throw new SourceCloseException("close source failed", e);
 		}

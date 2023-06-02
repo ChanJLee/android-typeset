@@ -2,13 +2,30 @@
 
 buildscript {
     repositories {
-        google()
-        jcenter()
+        maven {
+            url "https://maven.aliyun.com/nexus/content/repositories/gradle-plugin"
+        }
 
+        maven {
+            url 'https://maven.aliyun.com/nexus/content/groups/public'
+        }
+
+        maven {
+            url "https://maven.aliyun.com/nexus/content/repositories/google"
+        }
+
+        maven {
+            credentials {
+                username System.getenv("NEXUS_MAVEN_READ_USERNAME")
+                password System.getenv("NEXUS_MAVEN_READ_PASSWORD")
+            }
+            url "https://nexus.17bdc.com/repository/maven-public/"
+        }
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.4.0'
-
+        classpath 'com.android.tools.build:gradle:3.5.3'
+        classpath 'com.shanbay.lib:repo:+'
+        classpath 'com.shanbay.lib:baycoco:+'
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
     }
@@ -17,22 +34,19 @@ buildscript {
 allprojects {
     repositories {
         maven {
-            url 'http://maven.aliyun.com/nexus/content/groups/public/'
+            url 'https://maven.aliyun.com/nexus/content/groups/public'
         }
+
         maven {
-            url 'http://maven.aliyun.com/nexus/content/repositories/jcenter'
+            url "https://maven.aliyun.com/nexus/content/repositories/google"
         }
-
-        google()
-
-        jcenter()
 
         maven {
             credentials {
-                username "shanbay"
-                password "aFucYrNBkscMT4bb"
+                username System.getenv("NEXUS_MAVEN_READ_USERNAME")
+                password System.getenv("NEXUS_MAVEN_READ_PASSWORD")
             }
-            url "http://47.100.195.47/nexus/content/groups/public/"
+            url "https://nexus.17bdc.com/repository/maven-public/"
         }
 
         bayLocalDebugOnlyMaven()

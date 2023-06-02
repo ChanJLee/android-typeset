@@ -1,8 +1,10 @@
 package com.shanbay.lib.texas.image;
 
-import com.shanbay.lib.texas.annotations.Hidden;
+import androidx.annotation.RestrictTo;
 
-@Hidden
+import static androidx.annotation.RestrictTo.Scope.LIBRARY;
+
+@RestrictTo(LIBRARY)
 public interface Listener<T> {
 	void onLoadCleared(ImageLoader loader);
 

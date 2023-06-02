@@ -5,7 +5,7 @@ package com.shanbay.lib.texas.source;
  */
 public class PlainTextSource implements Source<CharSequence> {
 
-	private CharSequence mCharSequence;
+	private final CharSequence mCharSequence;
 
 	public PlainTextSource(CharSequence charSequence) {
 		mCharSequence = charSequence;

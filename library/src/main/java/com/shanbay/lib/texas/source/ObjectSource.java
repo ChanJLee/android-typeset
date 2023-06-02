@@ -3,20 +3,24 @@ package com.shanbay.lib.texas.source;
 /**
  * 直接返回已经读好的对象
  */
-public class ObjectSource implements Source {
-	private Object mObject;
+public class ObjectSource<T> implements Source<T> {
+	private T mObject;
 
-	public ObjectSource(Object object) {
+	public ObjectSource(T object) {
 		mObject = object;
 	}
 
 	@Override
-	public Object open() throws SourceOpenException {
+	public T open() throws SourceOpenException {
 		return mObject;
 	}
 
 	@Override
 	public void close() throws SourceCloseException {
-		mObject = null;
+		/* do nothing */
+	}
+
+	public void setObject(T object) {
+		mObject = object;
 	}
 }

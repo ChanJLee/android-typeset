@@ -26,3 +26,6 @@
 -keepclassmembers class * {
     @androidx.annotation.Keep *;
 }
+
+-keep public class opennlp.tools.tokenize.TokenizerFactory
+-dontwarn opennlp.**

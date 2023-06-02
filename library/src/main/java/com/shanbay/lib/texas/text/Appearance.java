@@ -1,21 +1,30 @@
 package com.shanbay.lib.texas.text;
 
 import android.graphics.Canvas;
+import android.graphics.RectF;
 import android.text.TextPaint;
 
-import com.shanbay.lib.texas.misc.DefaultRecyclable;
+import androidx.annotation.AnyThread;
 
 /**
  * 外观，用于内容绘制
  */
-public abstract class Appearance extends DefaultRecyclable {
+public abstract class Appearance {
 	/**
-	 * @param canvas    canvas
+	 * <pre>
+	 *       ----------- <br/>
+	 * hello | |world| | I am fine. <br/>
+	 *       ----------- <br/>
+	 * 大的矩形是 outer 包含文字以及和前后单词的间隙
+	 * 小的矩形是 inner 包裹文字
+	 * </pre>
+	 * * @param canvas    canvas
+	 *
 	 * @param textPaint paint
-	 * @param left      left
-	 * @param top       top
-	 * @param right     right
-	 * @param bottom    bottom
+	 * @param inner     包裹整个文字的矩形
+	 * @param outer     包裹整个文字以及水平方向间隙的矩形
+	 * @param context   绘制上下文，可以知道当前绘制单元前后位置
 	 */
-	public abstract void draw(Canvas canvas, TextPaint textPaint, float left, float top, float right, float bottom);
+	@AnyThread
+	public abstract void draw(Canvas canvas, TextPaint textPaint, RectF inner, RectF outer, DrawContext context);
 }

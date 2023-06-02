@@ -1,5 +1,7 @@
 package com.shanbay.lib.texas.source;
 
+import androidx.annotation.AnyThread;
+
 /**
  * 设置texas数据源的读取来源
  *
@@ -12,6 +14,7 @@ public interface Source<T> {
 	 * @return 数据
 	 * @throws SourceOpenException 异常的时候抛出
 	 */
+	@AnyThread
 	T open() throws SourceOpenException;
 
 	/**
@@ -19,5 +22,6 @@ public interface Source<T> {
 	 *
 	 * @throws SourceCloseException
 	 */
+	@AnyThread
 	void close() throws SourceCloseException;
 }
