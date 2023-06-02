@@ -26,7 +26,8 @@ import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.shanbay.lib.log.Log;
-import com.shanbay.lib.texas.R;
+
+import me.chan.texas.R;
 import me.chan.texas.TexasOption;
 import me.chan.texas.adapter.ParseException;
 import me.chan.texas.annotations.Idempotent;

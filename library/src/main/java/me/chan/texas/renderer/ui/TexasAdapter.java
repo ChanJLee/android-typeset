@@ -17,8 +17,8 @@ import androidx.collection.SparseArrayCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.shanbay.lib.log.Log;
-import com.shanbay.lib.texas.BuildConfig;
 
+import me.chan.texas.BuildConfig;
 import me.chan.texas.image.ImageLoader;
 import me.chan.texas.misc.PaintSet;
 import me.chan.texas.renderer.RenderOption;

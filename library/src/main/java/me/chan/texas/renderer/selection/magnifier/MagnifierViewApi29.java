@@ -8,7 +8,8 @@ import android.widget.Magnifier;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 
-import com.shanbay.lib.texas.R;
+import me.chan.texas.R;
+
 
 @RequiresApi(api = Build.VERSION_CODES.Q)
 public class MagnifierViewApi29 implements MagnifierView {

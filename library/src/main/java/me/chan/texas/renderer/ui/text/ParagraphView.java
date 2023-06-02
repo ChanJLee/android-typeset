@@ -21,9 +21,9 @@ import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 
 import com.shanbay.lib.log.Log;
-import com.shanbay.lib.texas.BuildConfig;
-import com.shanbay.lib.texas.R;
 
+import me.chan.texas.BuildConfig;
+import me.chan.texas.R;
 import me.chan.texas.TexasOption;
 import me.chan.texas.annotations.Internal;
 import me.chan.texas.hyphenation.Hyphenation;
