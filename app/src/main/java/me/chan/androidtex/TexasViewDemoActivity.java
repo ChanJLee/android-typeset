@@ -8,6 +8,7 @@ import android.graphics.RectF;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.MotionEvent;
 import android.view.View;
@@ -323,7 +324,7 @@ public class TexasViewDemoActivity extends AppCompatActivity {
 			public void onClick(View v) {
 				RenderOption renderOption = mTexasView.createRendererOption();
 				renderOption.setLineSpace(renderOption.getLineSpace() + 200);
-				com.shanbay.lib.log.Log.i("TexasCore", "set line space: " + renderOption.getLineSpace());
+				Log.i("TexasCore", "set line space: " + renderOption.getLineSpace());
 				mTexasView.refresh(renderOption);
 			}
 		});
