@@ -52,7 +52,7 @@ public class MainActivity extends AppCompatActivity {
 		findViewById(R.id.button2).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				Intent intent = new Intent(v.getContext(), TexasViewDemoActivity.class);
+				Intent intent = new Intent(v.getContext(), ParagraphRenderActivity.class);
 				startActivity(intent);
 			}
 		});
