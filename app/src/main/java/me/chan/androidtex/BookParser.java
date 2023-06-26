@@ -9,11 +9,11 @@ import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
 import android.text.TextPaint;
 import android.text.TextUtils;
+import android.util.Log;
 import android.util.Xml;
 import android.view.View;
 import android.widget.Toast;
 
-import com.shanbay.lib.log.Log;
 import me.chan.texas.TexasOption;
 import me.chan.texas.adapter.ParseException;
 import me.chan.texas.renderer.TexasView;
