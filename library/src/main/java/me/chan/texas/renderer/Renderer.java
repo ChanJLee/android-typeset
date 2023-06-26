@@ -6,6 +6,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
+import android.util.Log;
 import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,7 +18,6 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.shanbay.lib.log.Log;
 
 import me.chan.texas.R;
 import me.chan.texas.image.ImageLoader;

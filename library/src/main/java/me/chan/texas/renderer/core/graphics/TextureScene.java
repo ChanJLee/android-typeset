@@ -3,11 +3,10 @@ package me.chan.texas.renderer.core.graphics;
 import android.graphics.Canvas;
 import android.graphics.Picture;
 import android.os.SystemClock;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
-
-import com.shanbay.lib.log.Log;
 
 import java.util.concurrent.atomic.AtomicInteger;
 

@@ -9,11 +9,11 @@ import android.graphics.Point;
 import android.graphics.Typeface;
 import android.text.TextPaint;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.WindowManager;
 
 import androidx.annotation.RestrictTo;
 
-import com.shanbay.lib.log.Log;
 import me.chan.texas.compat.TextPaintCompat;
 import me.chan.texas.renderer.RenderOption;
 import me.chan.texas.text.Paragraph;

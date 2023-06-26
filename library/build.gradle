@@ -1,5 +1,4 @@
 apply plugin: 'com.android.library'
-apply plugin: 'baycoco'
 
 android {
     compileSdkVersion 32
@@ -41,28 +40,6 @@ android {
     }
 }
 
-apply plugin: 'repo'
-repo {
-    version "11.5.1"
-    name "texas"
-    group "com.shanbay.lib"
-    desc "text engine"
-    ignoreLocalLintError true
-}
-
-baycoco {
-    // 不需要计算覆盖率的 class 文件路径，可以添加在这里
-    // 例子：
-    // ['classes/com/shanbay/biz/common/utils/QQUtil.class',
-    // 'classes/com/shanbay/biz/common/utils/WeiXinUtil.class']
-
-    excludedFiles = [
-            'com/shanbay/lib/texas/image/*.class',
-            'com/shanbay/lib/texas/renderer/*Adapter.class',
-            'com/shanbay/lib/texas/renderer/*Renderer.*'
-    ]
-}
-
 task javadoc(type: Javadoc) {
     source = android.sourceSets.main.java.srcDirs
     classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
@@ -88,8 +65,6 @@ dependencies {
     //noinspection GradleDependency
     implementation 'androidx.recyclerview:recyclerview:1.0.0'
 
-    //noinspection GradleDependency
-    implementation "com.shanbay.lib:log:3.1"
     implementation 'com.github.bumptech.glide:glide:4.11.0'
     annotationProcessor "com.github.bumptech.glide:compiler:4.11.0"
 

@@ -1,13 +1,13 @@
 package me.chan.texas.renderer.selection;
 
 import android.graphics.RectF;
+import android.util.Log;
 import android.view.View;
 
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
-import com.shanbay.lib.log.Log;
 import me.chan.texas.misc.DefaultRecyclable;
 import me.chan.texas.misc.ObjectPool;
 import me.chan.texas.renderer.ui.TexasAdapter;

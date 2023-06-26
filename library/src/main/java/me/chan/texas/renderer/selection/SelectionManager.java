@@ -1,6 +1,7 @@
 package me.chan.texas.renderer.selection;
 
 import android.annotation.SuppressLint;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,7 +10,6 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
-import com.shanbay.lib.log.Log;
 import me.chan.texas.misc.Bitmap;
 import me.chan.texas.renderer.OnSpanClickedPredicate;
 import me.chan.texas.renderer.OnSpanLongClickedPredicate;

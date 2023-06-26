@@ -2,10 +2,11 @@ package me.chan.texas.text;
 
 import androidx.annotation.RestrictTo;
 
-import com.shanbay.lib.log.Log;
 import me.chan.texas.measurer.Measurer;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
+
+import android.util.Log;
 
 /**
  * 文本属性

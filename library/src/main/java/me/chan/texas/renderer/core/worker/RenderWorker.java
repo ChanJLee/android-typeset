@@ -8,13 +8,13 @@ import android.graphics.RectF;
 import android.os.Looper;
 import android.os.SystemClock;
 import android.text.TextPaint;
+import android.util.Log;
 
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 
-import com.shanbay.lib.log.Log;
 import me.chan.texas.misc.DefaultRecyclable;
 import me.chan.texas.misc.ObjectPool;
 import me.chan.texas.misc.PaintSet;

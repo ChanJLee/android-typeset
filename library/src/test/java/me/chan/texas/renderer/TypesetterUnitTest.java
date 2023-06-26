@@ -7,8 +7,8 @@ import static org.junit.Assert.assertTrue;
 
 import android.graphics.Rect;
 import android.graphics.drawable.ColorDrawable;
+import android.util.Log;
 
-import com.shanbay.lib.log.Log;
 import me.chan.texas.TexasOption;
 import me.chan.texas.adapter.ParseException;
 import me.chan.texas.adapter.TextAdapter;

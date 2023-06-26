@@ -3,11 +3,12 @@ package me.chan.texas.typesetter.tex;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import static me.chan.texas.Texas.INFINITY;
 
+import android.util.Log;
+
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 
-import com.shanbay.lib.log.Log;
 import me.chan.texas.text.BreakStrategy;
 import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.layout.Box;
