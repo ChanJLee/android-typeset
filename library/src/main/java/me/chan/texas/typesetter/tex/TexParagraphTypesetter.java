@@ -1,12 +1,12 @@
 package me.chan.texas.typesetter.tex;
 
 import android.os.Build;
+import android.util.Log;
 
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 
-import com.shanbay.lib.log.Log;
 import me.chan.texas.renderer.core.TypesetEngine;
 import me.chan.texas.text.BreakStrategy;
 import me.chan.texas.text.Paragraph;

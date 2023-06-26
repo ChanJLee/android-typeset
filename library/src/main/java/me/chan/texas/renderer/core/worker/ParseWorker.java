@@ -1,9 +1,10 @@
 package me.chan.texas.renderer.core.worker;
 
+import android.util.Log;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 
-import com.shanbay.lib.log.Log;
 import me.chan.texas.misc.DefaultRecyclable;
 import me.chan.texas.misc.ObjectPool;
 import me.chan.texas.renderer.core.sync.WorkerMessager;

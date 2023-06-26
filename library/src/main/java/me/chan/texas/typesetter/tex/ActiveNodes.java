@@ -7,7 +7,7 @@ import java.util.Iterator;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
-import com.shanbay.lib.log.Log;
+import android.util.Log;
 
 
 @RestrictTo(LIBRARY)

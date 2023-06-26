@@ -10,6 +10,7 @@ import android.os.Build;
 import android.os.Process;
 import android.text.TextUtils;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.MotionEvent;
 import android.view.View;
@@ -19,8 +20,6 @@ import androidx.annotation.AnyThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
-
-import com.shanbay.lib.log.Log;
 
 import me.chan.texas.BuildConfig;
 import me.chan.texas.R;

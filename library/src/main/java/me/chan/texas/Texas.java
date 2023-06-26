@@ -6,12 +6,12 @@ import android.app.Application;
 import android.content.ComponentCallbacks;
 import android.content.Context;
 import android.content.res.Configuration;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 
-import com.shanbay.lib.log.Log;
 import me.chan.texas.di.DaggerTexasComponent;
 import me.chan.texas.di.TexasComponent;
 import me.chan.texas.issue.IssueSystem;

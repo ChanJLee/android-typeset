@@ -13,19 +13,9 @@ buildscript {
         maven {
             url "https://maven.aliyun.com/nexus/content/repositories/google"
         }
-
-        maven {
-            credentials {
-                username System.getenv("NEXUS_MAVEN_READ_USERNAME")
-                password System.getenv("NEXUS_MAVEN_READ_PASSWORD")
-            }
-            url "https://nexus.17bdc.com/repository/maven-public/"
-        }
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:3.5.3'
-        classpath 'com.shanbay.lib:repo:+'
-        classpath 'com.shanbay.lib:baycoco:+'
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
     }
@@ -39,39 +29,6 @@ allprojects {
 
         maven {
             url "https://maven.aliyun.com/nexus/content/repositories/google"
-        }
-
-        maven {
-            credentials {
-                username System.getenv("NEXUS_MAVEN_READ_USERNAME")
-                password System.getenv("NEXUS_MAVEN_READ_PASSWORD")
-            }
-            url "https://nexus.17bdc.com/repository/maven-public/"
-        }
-
-        bayLocalDebugOnlyMaven()
-    }
-}
-
-/**
- * 该仓库为本地调试用的仓库。
- * 工作条件：
- * 某个仓库执行了uploadArchives任务时，会吧相应的产物输出到BAY_LOCAL_MAVEN指定的路径。
- * 在配置了环境变量BAY_LOCAL_MAVEN的机器上使用，通常为开发者的工作机器。目前我们的编译服务器uranus（release编译）上面没有配置该环境变量，所以该仓库在编译release的时候，不会生效。
- * @return
- */
-def bayLocalDebugOnlyMaven() {
-    if (System.getenv("URANUS_SERVER") == null) {
-        if (System.getenv("BAY_LOCAL_MAVEN") == null) {
-            println("未配置本地maven仓库路径，请参考该教程进行配置：https://sites.google.com/shanbay.com/axdroid-team/%E9%A6%96%E9%A1%B5/uranus-%E6%9E%84%E5%BB%BA%E8%84%9A%E6%9C%AC%E6%8E%A5%E5%85%A5")
-            return
-        }
-        project.allprojects {
-            repositories {
-                maven {
-                    url System.getenv("BAY_LOCAL_MAVEN")
-                }
-            }
         }
     }
 }

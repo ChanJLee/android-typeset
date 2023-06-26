@@ -6,11 +6,11 @@ import android.annotation.SuppressLint;
 import android.graphics.Rect;
 import android.os.Environment;
 import android.os.SystemClock;
+import android.util.Log;
 
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 
-import com.shanbay.lib.log.Log;
 import me.chan.texas.Texas;
 import me.chan.texas.TexasOption;
 import me.chan.texas.adapter.ParseException;

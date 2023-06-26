@@ -12,6 +12,7 @@ import android.os.Build;
 import android.os.Process;
 import android.text.TextUtils;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.ViewTreeObserver;
 import android.widget.FrameLayout;
@@ -24,8 +25,6 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.UiThread;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
-
-import com.shanbay.lib.log.Log;
 
 import me.chan.texas.R;
 import me.chan.texas.TexasOption;

@@ -3,10 +3,10 @@ package me.chan.texas.compat;
 import android.graphics.Typeface;
 import android.graphics.fonts.FontFamily;
 import android.text.TextPaint;
+import android.util.Log;
 
 import androidx.annotation.RestrictTo;
 
-import com.shanbay.lib.log.Log;
 import me.chan.texas.renderer.TexasView;
 
 import java.lang.reflect.Field;
