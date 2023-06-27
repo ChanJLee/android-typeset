@@ -49,7 +49,7 @@ public class ParagraphRenderActivity extends AppCompatActivity {
 
 	private void updateStyle() {
 		RenderOption renderOption = mTexasView.createRendererOption();
-		renderOption.setTypeface(Typeface.createFromAsset(getAssets(), "opposans_m.ttf"));
+		renderOption.setTypeface(Typeface.createFromAsset(getAssets(), "opposans_b.ttf"));
 		renderOption.setLineSpace(12);
 		renderOption.setTextSize(this, TypedValue.COMPLEX_UNIT_SP, 18);
 		mTexasView.refresh(renderOption);
