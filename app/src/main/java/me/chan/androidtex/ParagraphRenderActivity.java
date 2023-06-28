@@ -1,29 +1,29 @@
 package me.chan.androidtex;
 
-import static me.chan.texas.renderer.ParagraphVisitor.SIG_NORMAL;
 import static me.chan.texas.renderer.ParagraphVisitor.SIG_STOP_PARA_VISIT;
 
-import android.content.res.Resources;
+import android.content.Context;
+import android.content.Intent;
 import android.graphics.Canvas;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.Typeface;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.TypedValue;
 import android.view.MotionEvent;
-import android.widget.LinearLayout;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.ContextCompat;
 
-import java.io.IOException;
-
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.functions.Consumer;
+import io.reactivex.schedulers.Schedulers;
+import me.chan.androidtex.api.NiceBookApiService;
 import me.chan.texas.renderer.RenderOption;
 import me.chan.texas.renderer.TexasView;
 import me.chan.texas.renderer.ui.decor.ParagraphDecor;
-import me.chan.texas.source.AssetsTextSource;
+import me.chan.texas.source.ObjectSource;
+import me.chan.texas.text.BreakStrategy;
 import me.chan.texas.text.Document;
 import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.Segment;
@@ -38,7 +38,7 @@ public class ParagraphRenderActivity extends AppCompatActivity {
 
 		// 设置整个渲染窗口的padding
 		mTexasView = findViewById(R.id.text);
-		mTexasView.setRendererPadding(32, 10, 32, 10);
+		mTexasView.setRendererPadding(32, 64, 32, 64);
 
 		updateStyle();
 		setupSidebar();
@@ -52,6 +52,7 @@ public class ParagraphRenderActivity extends AppCompatActivity {
 		renderOption.setTypeface(Typeface.createFromAsset(getAssets(), "opposans_b.ttf"));
 		renderOption.setLineSpace(12);
 		renderOption.setTextSize(this, TypedValue.COMPLEX_UNIT_SP, 18);
+		renderOption.setBreakStrategy(BreakStrategy.BALANCED);
 		mTexasView.refresh(renderOption);
 	}
 
@@ -97,13 +98,18 @@ public class ParagraphRenderActivity extends AppCompatActivity {
 	 * 加载数据
 	 */
 	private void setupData() {
-		BookParser adapter = new BookParser(this, mTexasView, Paragraph.TYPESET_POLICY_CN);
-		mTexasView.setAdapter(adapter);
-		try {
-			adapter.setSource(new AssetsTextSource(this, "cn.xml"));
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		Intent intent = getIntent();
+		NiceBookApiService.getInstance().fetchSection(intent.getStringExtra(KEY_BOOK), intent.getStringExtra(KEY_SECTION))
+				.subscribeOn(Schedulers.io())
+				.observeOn(AndroidSchedulers.mainThread())
+				.subscribe(new Consumer<Section>() {
+					@Override
+					public void accept(Section section) throws Exception {
+						SectionAdapter adapter = new SectionAdapter(ParagraphRenderActivity.this);
+						mTexasView.setAdapter(adapter);
+						adapter.setSource(new ObjectSource<>(section));
+					}
+				});
 	}
 
 	private void setupClickPredicate() {
@@ -159,5 +165,16 @@ public class ParagraphRenderActivity extends AppCompatActivity {
 			mTexasView.release();
 		}
 		super.onDestroy();
+	}
+
+	private static final String KEY_BOOK = "book";
+	private static final String KEY_SECTION = "section";
+	private static final String KEY_DURATION = "duration";
+	public static Intent createIntent(Context context, String bookId, String sectionId, long durationMs) {
+		Intent intent = new Intent(context, ParagraphRenderActivity.class);
+		intent.putExtra(KEY_BOOK, bookId);
+		intent.putExtra(KEY_SECTION, sectionId);
+		intent.putExtra(KEY_DURATION, durationMs);
+		return intent;
 	}
 }

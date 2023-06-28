@@ -3,6 +3,7 @@ package me.chan.androidtex.api;
 import java.util.Map;
 
 import io.reactivex.Observable;
+import me.chan.androidtex.Section;
 import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
@@ -29,5 +30,9 @@ public class NiceBookApiService {
 
     public Observable<Map<String, Object>> fetchBooks() {
         return mApi.fetchBooks();
+    }
+
+    public Observable<Section> fetchSection(String bookId, String sectionId) {
+        return mApi.fetchSection(bookId, sectionId);
     }
 }
