@@ -4,16 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#888BC34A"
+    android:background="#88C9DFAF"
     tools:context=".ParagraphRenderActivity">
-
-    <TextView
-        android:id="@+id/countdown"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:gravity="center"
-        android:textSize="200sp"
-        tools:text="1" />
 
     <me.chan.texas.renderer.TexasView
         android:id="@+id/text"
