@@ -11,6 +11,7 @@ import android.graphics.Typeface;
 import android.os.Bundle;
 import android.util.TypedValue;
 import android.view.MotionEvent;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -62,12 +63,23 @@ public class ParagraphRenderActivity extends AppCompatActivity {
 		mTexasView.setSegmentDecoration(new TexasView.SegmentDecoration() {
 			@Override
 			public void onDecorateSegment(int index, int count, Segment segment, Document document, Rect outRect) {
+				if (segment.getTag() == SectionAdapter.TAG_TITLE) {
+					if (index == 0) {
+						outRect.set(segmentPaddingHorizontal, 0, segmentPaddingHorizontal, 0);
+					} else if (index == count - 1) {
+						outRect.set(segmentPaddingHorizontal, segmentPaddingVertical, segmentPaddingHorizontal, 0);
+					} else {
+						outRect.set(segmentPaddingHorizontal, segmentPaddingVertical, segmentPaddingHorizontal, 0);
+					}
+					return;
+				}
+
 				if (index == 0) {
 					outRect.set(segmentPaddingHorizontal, 0, segmentPaddingHorizontal, segmentPaddingVertical);
 				} else if (index == count - 1) {
-					outRect.set(segmentPaddingHorizontal, segmentPaddingVertical, segmentPaddingHorizontal, 0);
+					outRect.set(segmentPaddingHorizontal, 0, segmentPaddingHorizontal, 0);
 				} else {
-					outRect.set(segmentPaddingHorizontal, segmentPaddingVertical, segmentPaddingHorizontal, segmentPaddingVertical);
+					outRect.set(segmentPaddingHorizontal, 0, segmentPaddingHorizontal, segmentPaddingVertical);
 				}
 			}
 		});
@@ -98,6 +110,24 @@ public class ParagraphRenderActivity extends AppCompatActivity {
 	 * 加载数据
 	 */
 	private void setupData() {
+		mTexasView.setRenderListener(new TexasView.RenderListener() {
+			@Override
+			public void onStart(TexasView texasView) {
+
+			}
+
+			@Override
+			public void onEnd(TexasView texasView) {
+				mTexasView.setRenderListener(null);
+				startRec();
+			}
+
+			@Override
+			public void onError(TexasView texasView, Throwable throwable) {
+
+			}
+		});
+
 		Intent intent = getIntent();
 		NiceBookApiService.getInstance().fetchSection(intent.getStringExtra(KEY_BOOK), intent.getStringExtra(KEY_SECTION))
 				.subscribeOn(Schedulers.io())
@@ -110,6 +140,10 @@ public class ParagraphRenderActivity extends AppCompatActivity {
 						adapter.setSource(new ObjectSource<>(section));
 					}
 				});
+	}
+
+	private void startRec() {
+		Toast.makeText(this, "start record video after 5 seconds", Toast.LENGTH_SHORT).show();
 	}
 
 	private void setupClickPredicate() {

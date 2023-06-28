@@ -17,8 +17,9 @@ import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.TextStyle;
 
 public class SectionAdapter extends TexasView.Adapter<Section> {
+    public static final Object TAG_TITLE = new Object();
 
-    private Context mContext;
+    private final Context mContext;
 
     public SectionAdapter(Context mContext) {
         this.mContext = mContext;
@@ -41,7 +42,8 @@ public class SectionAdapter extends TexasView.Adapter<Section> {
                             textPaint.setTextSize(titleTextSize);
                         }
                     })
-                    .buildSpan();
+                    .buildSpan()
+                    .tag(TAG_TITLE);
             document.addSegment(builder.build());
 
             builder = Paragraph.Builder.newBuilder(texasOption, Paragraph.TYPESET_POLICY_CN);
