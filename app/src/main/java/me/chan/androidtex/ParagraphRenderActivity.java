@@ -14,7 +14,6 @@ import android.graphics.RectF;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.SystemClock;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.MotionEvent;
 import android.view.animation.LinearInterpolator;
@@ -22,6 +21,8 @@ import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+
+import java.io.File;
 
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.functions.Consumer;
@@ -39,6 +40,7 @@ import me.chan.texas.text.layout.Layout;
 
 public class ParagraphRenderActivity extends AppCompatActivity {
 	private TexasView mTexasView;
+	private ViewRecorder mViewRecorder;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -54,6 +56,8 @@ public class ParagraphRenderActivity extends AppCompatActivity {
 		setupScrollBar();
 		setupClickPredicate();
 		setupData();
+
+		mViewRecorder = new ViewRecorder(this);
 	}
 
 	private void updateStyle() {
@@ -118,6 +122,11 @@ public class ParagraphRenderActivity extends AppCompatActivity {
 	 * 加载数据
 	 */
 	private void setupData() {
+		Intent intent = getIntent();
+		String bookId = intent.getStringExtra(KEY_BOOK);
+		String sectionId = intent.getStringExtra(KEY_SECTION);
+		File file = new File(getExternalCacheDir(), bookId + "_" + sectionId + ".mp4");
+
 		mTexasView.setRenderListener(new TexasView.RenderListener() {
 			@Override
 			public void onStart(TexasView texasView) {
@@ -127,7 +136,7 @@ public class ParagraphRenderActivity extends AppCompatActivity {
 			@Override
 			public void onEnd(TexasView texasView) {
 				mTexasView.setRenderListener(null);
-				startRec();
+				startRec(file);
 			}
 
 			@Override
@@ -136,7 +145,6 @@ public class ParagraphRenderActivity extends AppCompatActivity {
 			}
 		});
 
-		Intent intent = getIntent();
 		NiceBookApiService.getInstance().fetchSection(intent.getStringExtra(KEY_BOOK), intent.getStringExtra(KEY_SECTION))
 				.subscribeOn(Schedulers.io())
 				.observeOn(AndroidSchedulers.mainThread())
@@ -150,9 +158,22 @@ public class ParagraphRenderActivity extends AppCompatActivity {
 				});
 	}
 
-	private void startRec() {
+	private File mVideo;
+	private void startRec(File file) {
+		mVideo = file;
 		Toast.makeText(this, "start record video after 5 seconds", Toast.LENGTH_SHORT).show();
+		mViewRecorder.startRecording(mVideo.getAbsolutePath());
+	}
 
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+		super.onActivityResult(requestCode, resultCode, data);
+		if (mViewRecorder.onActivityResult(requestCode, resultCode, data)) {
+			startAnim();
+		}
+	}
+
+	private void startAnim() {
 		int windowHeight = mTexasView.getHeight();
 		int totalHeight = 0;
 
@@ -179,6 +200,7 @@ public class ParagraphRenderActivity extends AppCompatActivity {
 			public void onAnimationUpdate(ValueAnimator valueAnimator) {
 				int y = (int) valueAnimator.getAnimatedValue();
 				mTexasView.dispatchTouchEvent(obtainMotionEvent(MotionEvent.ACTION_MOVE, -y));
+				mViewRecorder.take(mTexasView);
 			}
 		});
 		animator.addListener(new AnimatorListenerAdapter() {
@@ -186,6 +208,8 @@ public class ParagraphRenderActivity extends AppCompatActivity {
 			public void onAnimationEnd(Animator animation) {
 				MotionEvent down = obtainMotionEvent(MotionEvent.ACTION_UP, -distance);
 				mTexasView.dispatchTouchEvent(down);
+				mViewRecorder.take(mTexasView);
+				mViewRecorder.stopRecording();
 			}
 
 			@Override
