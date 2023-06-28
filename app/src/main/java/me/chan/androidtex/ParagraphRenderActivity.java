@@ -2,6 +2,10 @@ package me.chan.androidtex;
 
 import static me.chan.texas.renderer.ParagraphVisitor.SIG_STOP_PARA_VISIT;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.animation.ObjectAnimator;
+import android.animation.ValueAnimator;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Canvas;
@@ -9,8 +13,11 @@ import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.Typeface;
 import android.os.Bundle;
+import android.os.SystemClock;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.MotionEvent;
+import android.view.animation.LinearInterpolator;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
@@ -28,6 +35,7 @@ import me.chan.texas.text.BreakStrategy;
 import me.chan.texas.text.Document;
 import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.Segment;
+import me.chan.texas.text.layout.Layout;
 
 public class ParagraphRenderActivity extends AppCompatActivity {
 	private TexasView mTexasView;
@@ -144,6 +152,54 @@ public class ParagraphRenderActivity extends AppCompatActivity {
 
 	private void startRec() {
 		Toast.makeText(this, "start record video after 5 seconds", Toast.LENGTH_SHORT).show();
+
+		int windowHeight = mTexasView.getHeight();
+		int totalHeight = 0;
+
+		Document document = mTexasView.getDocument();
+		for (int i = 0; i < document.getSegmentCount(); ++i) {
+			Paragraph paragraph = (Paragraph) document.getSegment(i);
+			Layout layout = paragraph.getLayout();
+			totalHeight += layout.getHeight();
+		}
+
+		int distance = totalHeight - windowHeight;
+		if (distance <= 0) {
+			return;
+		}
+
+		Intent intent = getIntent();
+		ValueAnimator animator = ObjectAnimator.ofInt(0, distance);
+		animator.setInterpolator(new LinearInterpolator());
+		long duration = intent.getLongExtra(KEY_DURATION, 1);
+		animator.setDuration(duration);
+
+		animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+			@Override
+			public void onAnimationUpdate(ValueAnimator valueAnimator) {
+				int y = (int) valueAnimator.getAnimatedValue();
+				mTexasView.dispatchTouchEvent(obtainMotionEvent(MotionEvent.ACTION_MOVE, -y));
+			}
+		});
+		animator.addListener(new AnimatorListenerAdapter() {
+			@Override
+			public void onAnimationEnd(Animator animation) {
+				MotionEvent down = obtainMotionEvent(MotionEvent.ACTION_UP, -distance);
+				mTexasView.dispatchTouchEvent(down);
+			}
+
+			@Override
+			public void onAnimationStart(Animator animation) {
+				MotionEvent down = obtainMotionEvent(MotionEvent.ACTION_DOWN, 0);
+				mTexasView.dispatchTouchEvent(down);
+			}
+		});
+		animator.start();
+	}
+
+	private MotionEvent obtainMotionEvent(int type, int y) {
+		long ts = SystemClock.uptimeMillis();
+		return MotionEvent.obtain(ts, ts, type, 0, y, 0);
 	}
 
 	private void setupClickPredicate() {
