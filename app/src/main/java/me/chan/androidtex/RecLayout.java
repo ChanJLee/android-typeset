@@ -4,7 +4,9 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.util.AttributeSet;
+import android.view.Choreographer;
 import android.view.Surface;
+import android.view.ViewTreeObserver;
 import android.widget.FrameLayout;
 
 import androidx.annotation.NonNull;
@@ -12,7 +14,7 @@ import androidx.annotation.Nullable;
 
 import java.io.File;
 
-public class RecLayout extends FrameLayout {
+public class RecLayout extends FrameLayout implements Runnable {
 
     private final ViewVideoRecorder mViewVideoRecorder;
 
@@ -23,6 +25,19 @@ public class RecLayout extends FrameLayout {
 
     public void start(File file) {
         mViewVideoRecorder.start(file);
+        getChildAt(0).getViewTreeObserver().addOnDrawListener(new ViewTreeObserver.OnDrawListener() {
+            @Override
+            public void onDraw() {
+                Surface surface = mViewVideoRecorder.getEncodeSurface();
+                if (surface == null) {
+                    return;
+                }
+
+                Canvas canvas = surface.lockCanvas(null);
+                draw(canvas);
+                surface.unlockCanvasAndPost(canvas);
+            }
+        });
     }
 
     public void stop() {
@@ -30,14 +45,10 @@ public class RecLayout extends FrameLayout {
     }
 
     public void take() {
-        Surface surface = mViewVideoRecorder.getEncodeSurface();
-        if (surface == null) {
-            return;
-        }
+    }
 
-        Canvas canvas = surface.lockCanvas(null);
-        canvas.drawColor(Color.TRANSPARENT);
-        getChildAt(0).draw(canvas);
-        surface.unlockCanvasAndPost(canvas);
+    @Override
+    public void run() {
+
     }
 }

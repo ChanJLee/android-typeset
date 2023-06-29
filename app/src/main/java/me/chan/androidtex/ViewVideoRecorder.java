@@ -35,7 +35,7 @@ public class ViewVideoRecorder {
 		mediaRecorder.setVideoSource(MediaRecorder.VideoSource.SURFACE);
 		mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
 		mediaRecorder.setVideoEncoder(MediaRecorder.VideoEncoder.H264);
-		mediaRecorder.setVideoFrameRate(30);
+		mediaRecorder.setVideoFrameRate(60);
 		mediaRecorder.setVideoSize(width, height);
 		mediaRecorder.setVideoEncodingBitRate(32 * 1024 * 1024);
 		mediaRecorder.setOutputFile(output.getAbsolutePath());
