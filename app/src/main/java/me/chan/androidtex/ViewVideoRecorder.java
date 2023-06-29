@@ -2,6 +2,7 @@ package me.chan.androidtex;
 
 import android.annotation.SuppressLint;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.media.MediaRecorder;
 import android.view.Surface;
 import android.view.View;
@@ -36,7 +37,7 @@ public class ViewVideoRecorder {
 		mediaRecorder.setVideoEncoder(MediaRecorder.VideoEncoder.H264);
 		mediaRecorder.setVideoFrameRate(30);
 		mediaRecorder.setVideoSize(width, height);
-		mediaRecorder.setVideoEncodingBitRate(width * height * 8);
+		mediaRecorder.setVideoEncodingBitRate(32 * 1024 * 1024);
 		mediaRecorder.setOutputFile(output.getAbsolutePath());
 		mediaRecorder.setOnErrorListener(new MediaRecorder.OnErrorListener() {
 			@Override
@@ -55,14 +56,13 @@ public class ViewVideoRecorder {
 		return true;
 	}
 
-	public void take() {
-		Canvas canvas = encodeSurface.lockCanvas(null);
-		mTargetView.draw(canvas);
-		encodeSurface.unlockCanvasAndPost(canvas);
+	public Surface getEncodeSurface() {
+		return encodeSurface;
 	}
 
 	public void stop() {
 		try {
+			encodeSurface = null;
 			mediaRecorder.stop();
 			mediaRecorder.release();
 		} catch (Throwable ignore) {

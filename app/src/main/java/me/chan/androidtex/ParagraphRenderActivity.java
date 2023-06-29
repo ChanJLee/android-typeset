@@ -42,7 +42,7 @@ import me.chan.texas.text.layout.Layout;
 
 public class ParagraphRenderActivity extends AppCompatActivity {
 	private TexasView mTexasView;
-	private ViewVideoRecorder mViewRecorder;
+	private RecLayout mRecLayout;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -61,7 +61,7 @@ public class ParagraphRenderActivity extends AppCompatActivity {
 		setupClickPredicate();
 		setupData();
 
-		mViewRecorder = new ViewVideoRecorder(findViewById(R.id.root));
+		mRecLayout = findViewById(R.id.root);
 	}
 
 	private void updateStyle() {
@@ -169,6 +169,8 @@ public class ParagraphRenderActivity extends AppCompatActivity {
 		startAnim();
 	}
 
+	private ValueAnimator animator;
+
 	private void startAnim() {
 		int windowHeight = mTexasView.getHeight();
 		int totalHeight = 0;
@@ -186,17 +188,16 @@ public class ParagraphRenderActivity extends AppCompatActivity {
 		}
 
 		Intent intent = getIntent();
-		ValueAnimator animator = ObjectAnimator.ofInt(0, distance);
+		animator = ObjectAnimator.ofInt(0, distance);
 		animator.setInterpolator(new LinearInterpolator());
 		long duration = intent.getLongExtra(KEY_DURATION, 1);
 		animator.setDuration(duration);
-
 		animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
 			@Override
 			public void onAnimationUpdate(ValueAnimator valueAnimator) {
+				mRecLayout.take();
 				int y = (int) valueAnimator.getAnimatedValue();
 				mTexasView.dispatchTouchEvent(obtainMotionEvent(MotionEvent.ACTION_MOVE, -y));
-				mViewRecorder.take();
 			}
 		});
 		animator.addListener(new AnimatorListenerAdapter() {
@@ -204,17 +205,22 @@ public class ParagraphRenderActivity extends AppCompatActivity {
 			public void onAnimationEnd(Animator animation) {
 				MotionEvent down = obtainMotionEvent(MotionEvent.ACTION_UP, -distance);
 				mTexasView.dispatchTouchEvent(down);
-				mViewRecorder.take();
-				mViewRecorder.stop();
+				mRecLayout.stop();
 			}
 
 			@Override
 			public void onAnimationStart(Animator animation) {
 				MotionEvent down = obtainMotionEvent(MotionEvent.ACTION_DOWN, 0);
 				mTexasView.dispatchTouchEvent(down);
-				mViewRecorder.start(mVideo);
+				mRecLayout.start(mVideo);
+			}
+
+			@Override
+			public void onAnimationCancel(Animator animation) {
+				mRecLayout.stop();
 			}
 		});
+		animator.setStartDelay(1000);
 		animator.start();
 	}
 
@@ -272,6 +278,10 @@ public class ParagraphRenderActivity extends AppCompatActivity {
 	 */
 	@Override
 	protected void onDestroy() {
+		if (animator.isRunning()) {
+			animator.cancel();
+		}
+
 		if (mTexasView != null) {
 			mTexasView.release();
 		}

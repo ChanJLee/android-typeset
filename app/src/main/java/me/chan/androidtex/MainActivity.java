@@ -52,7 +52,7 @@ public class MainActivity extends AppCompatActivity {
 		findViewById(R.id.button2).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				Intent intent = ParagraphRenderActivity.createIntent(v.getContext(), "3051", "1", 20000);
+				Intent intent = ParagraphRenderActivity.createIntent(v.getContext(), "3051", "1", 20 * 60 * 1000);
 				startActivity(intent);
 			}
 		});
