@@ -1,9 +1,7 @@
 package me.chan.androidtex;
 
 import android.annotation.SuppressLint;
-import android.graphics.Bitmap;
 import android.graphics.Canvas;
-import android.graphics.Paint;
 import android.media.MediaRecorder;
 import android.view.Surface;
 import android.view.View;
@@ -11,10 +9,7 @@ import android.view.View;
 import java.io.File;
 
 public class ViewVideoRecorder {
-	private Throwable mThrowable;
 	private final View mTargetView;
-	private Bitmap mBitmap;
-	private final Paint mPaint = new Paint();
 	private Surface encodeSurface;
 	private MediaRecorder mediaRecorder;
 
@@ -46,7 +41,6 @@ public class ViewVideoRecorder {
 		mediaRecorder.setOnErrorListener(new MediaRecorder.OnErrorListener() {
 			@Override
 			public void onError(MediaRecorder mr, int what, int extra) {
-				mThrowable = new IllegalStateException("内部错误: " + what + "," + extra);
 			}
 		});
 
@@ -54,7 +48,6 @@ public class ViewVideoRecorder {
 			mediaRecorder.prepare();
 			mediaRecorder.start();
 		} catch (Throwable e) {
-			mThrowable = e;
 			return false;
 		}
 
@@ -72,8 +65,7 @@ public class ViewVideoRecorder {
 		try {
 			mediaRecorder.stop();
 			mediaRecorder.release();
-		} catch (Throwable throwable) {
-			mThrowable = throwable;
+		} catch (Throwable ignore) {
 		}
 	}
 }
