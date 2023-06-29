@@ -56,7 +56,7 @@ public class ViewVideoRecorder {
 	}
 
 	public void take() {
-		Canvas canvas = android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M ? encodeSurface.lockHardwareCanvas() : encodeSurface.lockCanvas(null);
+		Canvas canvas = encodeSurface.lockCanvas(null);
 		mTargetView.draw(canvas);
 		encodeSurface.unlockCanvasAndPost(canvas);
 	}
