@@ -16,7 +16,12 @@
             android:exported="false" />
         <activity
             android:name=".ParagraphRenderActivity"
-            android:exported="false" />
+            android:exported="true">
+            <intent-filter>
+                <action android:name="${applicationId}.REC" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
         <activity
             android:name=".ParagraphViewDemoActivity"
             android:exported="false" />
