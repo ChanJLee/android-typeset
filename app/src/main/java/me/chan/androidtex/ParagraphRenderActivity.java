@@ -40,7 +40,7 @@ import me.chan.texas.text.layout.Layout;
 
 public class ParagraphRenderActivity extends AppCompatActivity {
 	private TexasView mTexasView;
-	private ViewRecorder mViewRecorder;
+	private ViewVideoRecorder mViewRecorder;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -57,7 +57,7 @@ public class ParagraphRenderActivity extends AppCompatActivity {
 		setupClickPredicate();
 		setupData();
 
-		mViewRecorder = new ViewRecorder(this);
+		mViewRecorder = new ViewVideoRecorder(mTexasView);
 	}
 
 	private void updateStyle() {
@@ -145,32 +145,22 @@ public class ParagraphRenderActivity extends AppCompatActivity {
 			}
 		});
 
-		NiceBookApiService.getInstance().fetchSection(intent.getStringExtra(KEY_BOOK), intent.getStringExtra(KEY_SECTION))
-				.subscribeOn(Schedulers.io())
-				.observeOn(AndroidSchedulers.mainThread())
-				.subscribe(new Consumer<Section>() {
-					@Override
-					public void accept(Section section) throws Exception {
-						SectionAdapter adapter = new SectionAdapter(ParagraphRenderActivity.this);
-						mTexasView.setAdapter(adapter);
-						adapter.setSource(new ObjectSource<>(section));
-					}
-				});
+		NiceBookApiService.getInstance().fetchSection(intent.getStringExtra(KEY_BOOK), intent.getStringExtra(KEY_SECTION)).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(new Consumer<Section>() {
+			@Override
+			public void accept(Section section) throws Exception {
+				SectionAdapter adapter = new SectionAdapter(ParagraphRenderActivity.this);
+				mTexasView.setAdapter(adapter);
+				adapter.setSource(new ObjectSource<>(section));
+			}
+		});
 	}
 
 	private File mVideo;
+
 	private void startRec(File file) {
 		mVideo = file;
 		Toast.makeText(this, "start record video after 5 seconds", Toast.LENGTH_SHORT).show();
-		mViewRecorder.startRecording(mVideo.getAbsolutePath());
-	}
-
-	@Override
-	protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-		super.onActivityResult(requestCode, resultCode, data);
-		if (mViewRecorder.onActivityResult(requestCode, resultCode, data)) {
-			startAnim();
-		}
+		startAnim();
 	}
 
 	private void startAnim() {
@@ -200,7 +190,7 @@ public class ParagraphRenderActivity extends AppCompatActivity {
 			public void onAnimationUpdate(ValueAnimator valueAnimator) {
 				int y = (int) valueAnimator.getAnimatedValue();
 				mTexasView.dispatchTouchEvent(obtainMotionEvent(MotionEvent.ACTION_MOVE, -y));
-				mViewRecorder.take(mTexasView);
+				mViewRecorder.take();
 			}
 		});
 		animator.addListener(new AnimatorListenerAdapter() {
@@ -208,14 +198,15 @@ public class ParagraphRenderActivity extends AppCompatActivity {
 			public void onAnimationEnd(Animator animation) {
 				MotionEvent down = obtainMotionEvent(MotionEvent.ACTION_UP, -distance);
 				mTexasView.dispatchTouchEvent(down);
-				mViewRecorder.take(mTexasView);
-				mViewRecorder.stopRecording();
+				mViewRecorder.take();
+				mViewRecorder.stop();
 			}
 
 			@Override
 			public void onAnimationStart(Animator animation) {
 				MotionEvent down = obtainMotionEvent(MotionEvent.ACTION_DOWN, 0);
 				mTexasView.dispatchTouchEvent(down);
+				mViewRecorder.start(mVideo);
 			}
 		});
 		animator.start();
@@ -284,6 +275,7 @@ public class ParagraphRenderActivity extends AppCompatActivity {
 	private static final String KEY_BOOK = "book";
 	private static final String KEY_SECTION = "section";
 	private static final String KEY_DURATION = "duration";
+
 	public static Intent createIntent(Context context, String bookId, String sectionId, long durationMs) {
 		Intent intent = new Intent(context, ParagraphRenderActivity.class);
 		intent.putExtra(KEY_BOOK, bookId);
