@@ -5,6 +5,9 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#88C9DFAF"
+    android:id="@+id/root"
+    android:fitsSystemWindows="true"
+
     tools:context=".ParagraphRenderActivity">
 
     <me.chan.texas.renderer.TexasView
@@ -12,4 +15,8 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:com_shanbay_lib_texas_selectedBackgroundRoundRadius="3dp" />
+
+    <me.chan.androidtex.LockView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
 </FrameLayout>

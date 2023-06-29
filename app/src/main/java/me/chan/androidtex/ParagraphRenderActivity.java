@@ -14,8 +14,10 @@ import android.graphics.RectF;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.SystemClock;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.MotionEvent;
+import android.view.WindowManager;
 import android.view.animation.LinearInterpolator;
 import android.widget.Toast;
 
@@ -47,6 +49,8 @@ public class ParagraphRenderActivity extends AppCompatActivity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_paragraph_render);
 
+		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+
 		// 设置整个渲染窗口的padding
 		mTexasView = findViewById(R.id.text);
 		mTexasView.setRendererPadding(32, 64, 32, 64);
@@ -57,7 +61,7 @@ public class ParagraphRenderActivity extends AppCompatActivity {
 		setupClickPredicate();
 		setupData();
 
-		mViewRecorder = new ViewVideoRecorder(mTexasView);
+		mViewRecorder = new ViewVideoRecorder(findViewById(R.id.root));
 	}
 
 	private void updateStyle() {
@@ -126,6 +130,8 @@ public class ParagraphRenderActivity extends AppCompatActivity {
 		String bookId = intent.getStringExtra(KEY_BOOK);
 		String sectionId = intent.getStringExtra(KEY_SECTION);
 		File file = new File(getExternalCacheDir(), bookId + "_" + sectionId + ".mp4");
+
+		Log.d("chan_debug", file.getAbsolutePath());
 
 		mTexasView.setRenderListener(new TexasView.RenderListener() {
 			@Override
