@@ -6,11 +6,13 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
-import me.chan.texas.misc.Bitmap;
+import me.chan.texas.misc.BitBucket;
 import me.chan.texas.renderer.OnSpanClickedPredicate;
 import me.chan.texas.renderer.OnSpanLongClickedPredicate;
 import me.chan.texas.renderer.ParagraphVisitor;
@@ -21,7 +23,6 @@ import me.chan.texas.renderer.selection.visitor.SelectedTextByClickedVisitor;
 import me.chan.texas.renderer.selection.visitor.SelectedTextByDragVisitor;
 import me.chan.texas.renderer.selection.visitor.SelfDriveSelectedVisitor;
 import me.chan.texas.renderer.ui.TexasAdapter;
-import me.chan.texas.renderer.ui.rv.SegmentItemFragmentLayout;
 import me.chan.texas.renderer.ui.rv.TexasRecyclerView;
 import me.chan.texas.renderer.ui.text.OnSelectedChangedListener;
 import me.chan.texas.renderer.ui.text.TextureParagraph;
@@ -62,7 +63,7 @@ public class SelectionManager implements OnSelectedChangedListener {
 	 */
 	private final SelectedTextByDragVisitor mSelectedTextByDragVisitor = new SelectedTextByDragVisitor();
 	/**
-	 * 用于点击是选中文本 {@link SelectionManager#onBoxSelected(MotionEvent, Paragraph, boolean, Box)}
+	 * 用于点击是选中文本 {@link SelectionManager#onBoxSelected(MotionEvent, Paragraph, int, Box)}
 	 */
 	private final SelectedTextByClickedVisitor mSelectedTextByClickedVisitor = new SelectedTextByClickedVisitor();
 
@@ -88,6 +89,12 @@ public class SelectionManager implements OnSelectedChangedListener {
 		mDropView.setVisibility(View.GONE);
 		mDropView.setSelectionManager(this);
 		mContentView = recyclerView;
+		mContentView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+			@Override
+			public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+				mDropView.updateContentScrollY(-dy);
+			}
+		});
 	}
 
 	/**
@@ -112,17 +119,48 @@ public class SelectionManager implements OnSelectedChangedListener {
 		return mCurrentSelection;
 	}
 
+	@Override
+	public boolean onSegmentClicked(MotionEvent e, Paragraph paragraph, int eventType) {
+		if (mListener == null) {
+			return false;
+		}
+
+		if (eventType == OnSelectedChangedListener.EVENT_CLICKED) {
+			mListener.onSegmentClicked(paragraph.getTag(), e.getRawX(), e.getRawY());
+			return true;
+		}
+
+		if (eventType == EVENT_DOUBLE_CLICKED) {
+			mListener.onSegmentDoubleClicked(paragraph.getTag(), e.getRawX(), e.getRawY());
+			return true;
+		}
+
+		return false;
+	}
+
 	/**
 	 * 由用户 长按 & 点击触发选中
 	 *
-	 * @param e             点击事件
-	 * @param paragraph     paragraph
-	 * @param isLongClicked 是否是长按操作
-	 * @param box           被选中的box
+	 * @param e         点击事件
+	 * @param paragraph paragraph
+	 * @param box       被选中的box
 	 * @return 是否有box被选中
 	 */
 	@Override
-	public boolean onBoxSelected(MotionEvent e, Paragraph paragraph, boolean isLongClicked, Box box) {
+	public boolean onBoxSelected(MotionEvent e, Paragraph paragraph, @EventType int eventType, Box box) {
+		if (eventType == OnSelectedChangedListener.EVENT_CLICKED ||
+				eventType == OnSelectedChangedListener.EVENT_LONG_CLICKED) {
+			boolean handled = onBoxSelected(e, paragraph, eventType == OnSelectedChangedListener.EVENT_LONG_CLICKED, box);
+			if (!handled && eventType == OnSelectedChangedListener.EVENT_CLICKED && mListener != null) {
+				mListener.onSegmentClicked(paragraph.getTag(), e.getRawX(), e.getRawY());
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	private boolean onBoxSelected(MotionEvent e, Paragraph paragraph, boolean isLongClicked, Box box) {
 		OnSpanClickedPredicate predicate = isLongClicked ? mOnLongClickedPredicate : mOnSpanClickedPredicate;
 		if (predicate == null) {
 			return false;
@@ -168,11 +206,11 @@ public class SelectionManager implements OnSelectedChangedListener {
 	}
 
 	private boolean handleParagraphClicked0(Paragraph paragraph,
-								   RenderOption renderOption,
-								   boolean isLongClicked,
-								   OnSpanClickedPredicate predicate,
-								   Object boxTag,
-								   int index) throws ParagraphVisitor.VisitException {
+											RenderOption renderOption,
+											boolean isLongClicked,
+											OnSpanClickedPredicate predicate,
+											Object boxTag,
+											int index) throws ParagraphVisitor.VisitException {
 		try {
 			mSelectedTextByClickedVisitor.reset(
 					isLongClicked,
@@ -198,7 +236,7 @@ public class SelectionManager implements OnSelectedChangedListener {
 			return;
 		}
 
-		Selection.RectEdge selectedRectEdge = selection.getSelectedRectEdge();
+		Selection.RectEdge selectedRectEdge = selection.getSelectedRectEdge(mContentView);
 		if (selectedRectEdge == null) {
 			mContentView.allowHandleTouchEvent();
 			mDropView.setVisibility(View.GONE);
@@ -266,18 +304,13 @@ public class SelectionManager implements OnSelectedChangedListener {
 
 		Selection currentSelection = Selection.obtain(mAdapter, mLayoutManager);
 		for (int i = firstVisibleItemPosition; i <= lastVisibleItemPosition; ++i) {
-			SegmentItemFragmentLayout root = (SegmentItemFragmentLayout) mLayoutManager.findViewByPosition(i);
-			if (root == null) {
-				continue;
-			}
-
-			View content = root.getContent();
+			View content = mLayoutManager.findViewByPosition(i);
 			if (!(content instanceof TextureParagraph)) {
 				continue;
 			}
 
 			TextureParagraph textureParagraph = (TextureParagraph) content;
-			textureParagraph.getLocationOnScreen(mLocations);
+			mContentView.getChildLocations(content, mLocations);
 
 			if (mLocations[1] + content.getHeight() < y1) {
 				continue;
@@ -309,30 +342,30 @@ public class SelectionManager implements OnSelectedChangedListener {
 		updateMotionSelection(prevSelection, currentSelection);
 	}
 
-	private Bitmap mSelectionDiffBitmap;
+	private BitBucket mSelectionDiffBucket;
 
 	private void updateMotionSelection(Selection prevSelection, Selection currentSelection) {
 		// 先置换下 因为 adapter 在绘制的时候会先查这里
 		mCurrentSelection = currentSelection;
 
 		int size = mAdapter.getItemCount();
-		if (mSelectionDiffBitmap == null || mSelectionDiffBitmap.size() < size) {
-			mSelectionDiffBitmap = new Bitmap(size);
+		if (mSelectionDiffBucket == null || mSelectionDiffBucket.size() < size) {
+			mSelectionDiffBucket = new BitBucket(size);
 		}
 
 		// 因此 需要变化的 item 都在 两个集合里了
-		mSelectionDiffBitmap.clear();
+		mSelectionDiffBucket.clear();
 		for (int i = 0; i < currentSelection.size(); ++i) {
 			ParagraphSelection paragraphSelection = currentSelection.get(i);
 			int index = paragraphSelection.getIndex();
-			mSelectionDiffBitmap.set(index, true);
+			mSelectionDiffBucket.set(index, true);
 			mAdapter.notifyItemChanged(index);
 		}
 
 		for (int i = 0; i < prevSelection.size(); ++i) {
 			ParagraphSelection paragraphSelection = prevSelection.get(i);
 			int index = paragraphSelection.getIndex();
-			if (!mSelectionDiffBitmap.get(index)) {
+			if (!mSelectionDiffBucket.get(index)) {
 				paragraphSelection.clear();
 				mAdapter.notifyItemChanged(index);
 				paragraphSelection.recycle();
@@ -465,15 +498,38 @@ public class SelectionManager implements OnSelectedChangedListener {
 		mDropView.setColor(renderOption.getDragViewColor());
 	}
 
+	public void autoScrollUp() {
+		int position = mLayoutManager.findFirstCompletelyVisibleItemPosition();
+		if (position == 0) {
+			return;
+		}
+
+		mContentView.scrollBy(0, (int) (-mContentView.getHeight() * 0.3f));
+	}
+
+	public void autoScrollDown() {
+		int position = mLayoutManager.findLastCompletelyVisibleItemPosition();
+		if (position == mAdapter.getItemCount() - 1) {
+			return;
+		}
+
+		mContentView.scrollBy(0, (int) (mContentView.getHeight() * 0.3f));
+	}
+
 	public interface Listener {
 		void onSpanClicked(float x, float y, Object tag);
 
 		void onSpanLongClicked(float x, float y, Object tag);
 
-		void onDragStart(float x, float y);
+		// todo fix me 现在不是raw的
+		void onDragStart(float rawX, float rawY);
 
-		void onDragEnd(float x, float y);
+		void onDragEnd(float rawX, float rawY);
 
 		void onDragDismiss();
+
+		void onSegmentDoubleClicked(Object paragraphTag, float x, float y);
+
+		void onSegmentClicked(Object paragraphTag, float rawX, float rawY);
 	}
 }

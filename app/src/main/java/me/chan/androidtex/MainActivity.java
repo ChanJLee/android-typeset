@@ -14,12 +14,12 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import me.chan.texas.renderer.core.WorkerScheduler;
 import me.chan.texas.renderer.core.graphics.TextureScene;
 import me.chan.texas.utils.TexasUtils;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -52,7 +52,7 @@ public class MainActivity extends AppCompatActivity {
 		findViewById(R.id.button2).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				Intent intent = ParagraphRenderActivity.createIntent(v.getContext(), "3051", "1", 20 * 60 * 1000);
+				Intent intent = new Intent(v.getContext(), TexasViewDemoActivity.class);
 				startActivity(intent);
 			}
 		});
@@ -95,14 +95,6 @@ public class MainActivity extends AppCompatActivity {
 			@Override
 			public void onClick(View v) {
 				Intent intent = new Intent(v.getContext(), ParagraphViewDemoActivity.class);
-				startActivity(intent);
-			}
-		});
-
-		findViewById(R.id.bookstore).setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View view) {
-				Intent intent = new Intent(view.getContext(), ShowBooksActivity.class);
 				startActivity(intent);
 			}
 		});

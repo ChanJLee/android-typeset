@@ -123,6 +123,17 @@ public class Renderer implements SelectionManager.Listener {
 		mImpl.addOnScrollListener(mOnScrollListener);
 
 		mAdapter = new TexasAdapter(layoutInflater, imageLoader, mImpl.getRecycledViewPool(), mImpl);
+		mAdapter.setListener(new TexasAdapter.Listener() {
+			@Override
+			public void onSegmentClicked(float x, float y, Object tag) {
+				mTexasView.notifySegmentClicked(x, y, tag);
+			}
+
+			@Override
+			public void onSegmentDoubleClicked(float x, float y, Object tag) {
+				mTexasView.notifySegmentDoubleClicked(x, y, tag);
+			}
+		});
 		mImpl.addItemDecoration(new SegmentItemDecoration(mAdapter));
 
 		// selection
@@ -132,13 +143,6 @@ public class Renderer implements SelectionManager.Listener {
 		// highlight
 		mHighlightManager = new HighlightManager(mAdapter);
 		mAdapter.setHighlightManager(mHighlightManager);
-
-		mAdapter.setListener(new TexasAdapter.Listener() {
-			@Override
-			public void onSegmentClicked(float x, float y, Object tag) {
-				mTexasView.notifySegmentClicked(x, y, tag);
-			}
-		});
 
 		// adapter
 		mImpl.setAdapter(mAdapter);
@@ -536,6 +540,16 @@ public class Renderer implements SelectionManager.Listener {
 	@Override
 	public void onDragDismiss() {
 		mTexasView.notifyDragDismiss();
+	}
+
+	@Override
+	public void onSegmentDoubleClicked(Object paragraphTag, float x, float y) {
+		mTexasView.notifySegmentDoubleClicked(x, y, paragraphTag);
+	}
+
+	@Override
+	public void onSegmentClicked(Object paragraphTag, float rawX, float rawY) {
+		mTexasView.notifySegmentClicked(rawX, rawY, paragraphTag);
 	}
 
 	public void setHasFixedSize(boolean enable) {

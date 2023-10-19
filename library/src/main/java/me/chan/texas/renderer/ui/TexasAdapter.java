@@ -63,6 +63,8 @@ public class TexasAdapter extends RecyclerView.Adapter<TexasAdapter.Renderer> {
 		}
 	}
 
+	private final TexasRecyclerView mView;
+
 	private Document mDocument;
 	private final LayoutInflater mLayoutInflater;
 	private final ImageLoader mImageLoader;
@@ -77,10 +79,9 @@ public class TexasAdapter extends RecyclerView.Adapter<TexasAdapter.Renderer> {
 	private PaintSet mPaintSet;
 	private final RecyclerView.RecycledViewPool mPool;
 	private ParagraphDecor mParagraphDecor;
-	private final TexasRecyclerView mView;
-	private Listener mListener;
 
 	private final SparseArrayCompat<TextureParagraph> mTextureParagraphRecord = new SparseArrayCompat<>();
+	private Listener mListener;
 
 	public TexasAdapter(LayoutInflater layoutInflater,
 						ImageLoader imageLoader,
@@ -95,6 +96,10 @@ public class TexasAdapter extends RecyclerView.Adapter<TexasAdapter.Renderer> {
 		setHasStableIds(true);
 	}
 
+	public void setListener(Listener listener) {
+		mListener = listener;
+	}
+
 	public void setHighlightManager(HighlightManager highlightManager) {
 		mHighlightManager = highlightManager;
 	}
@@ -103,29 +108,23 @@ public class TexasAdapter extends RecyclerView.Adapter<TexasAdapter.Renderer> {
 		mSelectionManager = selectionManager;
 	}
 
-	public void setListener(Listener listener) {
-		mListener = listener;
-	}
-
 	@NonNull
 	@Override
 	public Renderer onCreateViewHolder(@NonNull ViewGroup viewGroup, int type) {
 		Context context = viewGroup.getContext();
-		SegmentItemFragmentLayout root = new SegmentItemFragmentLayout(mView);
 		if (type == TYPE_PARAGRAPH) {
-			root.addView(new TextureParagraphView0(context));
-			return new ParagraphRenderer(root);
+			return new ParagraphRenderer(new TextureParagraphView0(context));
 		} else if (type == TYPE_PARAGRAPH_COMPAT) {
-			root.addView(new TextureParagraphView0Compat(context));
-			return new ParagraphRenderer(root);
+			return new ParagraphRenderer(new TextureParagraphView0Compat(context));
 		} else if (type == TYPE_FIGURE) {
 			FigureView figureView = new FigureView(context);
 			figureView.setAdjustViewBounds(true);
 			figureView.setScaleType(ImageView.ScaleType.FIT_XY);
+			SegmentItemFragmentLayout root = new SegmentItemFragmentLayout(mView);
 			root.addView(figureView);
 			return new FigureRenderer(root);
 		} else {
-			return createViewSegment(root, type);
+			return createViewSegment(type);
 		}
 	}
 
@@ -141,7 +140,8 @@ public class TexasAdapter extends RecyclerView.Adapter<TexasAdapter.Renderer> {
 		}
 	}
 
-	private Renderer createViewSegment(@NonNull SegmentItemFragmentLayout root, int type) {
+	private Renderer createViewSegment(int type) {
+		SegmentItemFragmentLayout root = new SegmentItemFragmentLayout(mView);
 		boolean incrementalUpdateView = isIncrementalUpdateView(type);
 		View content = null;
 		if (incrementalUpdateView) {
@@ -329,26 +329,47 @@ public class TexasAdapter extends RecyclerView.Adapter<TexasAdapter.Renderer> {
 
 		private float mX, mY;
 
-		Renderer(@NonNull SegmentItemFragmentLayout root) {
-			super(root);
-			root.setLayoutParams(new RecyclerView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-			onCreate(root.getChildAt(0));
-			root.setOnClickedListener(new SegmentItemFragmentLayout.OnClickedListener() {
-				@Override
-				public void onClicked(float x, float y) {
-					if (mListener == null) {
-						return;
+		Renderer(@NonNull View view) {
+			super(view);
+			view.setLayoutParams(new RecyclerView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+
+			if (view instanceof SegmentItemFragmentLayout) {
+				SegmentItemFragmentLayout layout = (SegmentItemFragmentLayout) view;
+				layout.setOnClickedListener(new SegmentItemFragmentLayout.OnClickedListener() {
+					@Override
+					public void onClicked(float x, float y) {
+						if (mListener == null) {
+							return;
+						}
+
+						int position = getAdapterPosition();
+						if (position < 0 || position >= getItemCount()) {
+							return;
+						}
+
+						Segment segment = getItem(position);
+						mListener.onSegmentClicked(x, y, segment.getTag());
 					}
 
-					int position = getAdapterPosition();
-					if (position < 0 || position >= getItemCount()) {
-						return;
-					}
+					@Override
+					public void onDoubleClicked(float x, float y) {
+						if (mListener == null) {
+							return;
+						}
 
-					Segment segment = getItem(position);
-					mListener.onSegmentClicked(x, y, segment.getTag());
-				}
-			});
+						int position = getAdapterPosition();
+						if (position < 0 || position >= getItemCount()) {
+							return;
+						}
+
+						Segment segment = getItem(position);
+						mListener.onSegmentDoubleClicked(x, y, segment.getTag());
+					}
+				});
+				view = layout.getChildAt(0);
+			}
+
+			onCreate(view);
 		}
 
 		protected abstract void onCreate(View view);
@@ -372,7 +393,7 @@ public class TexasAdapter extends RecyclerView.Adapter<TexasAdapter.Renderer> {
 
 		private TextureParagraph mRender;
 
-		ParagraphRenderer(@NonNull SegmentItemFragmentLayout root) {
+		ParagraphRenderer(@NonNull View root) {
 			super(root);
 		}
 
@@ -407,7 +428,7 @@ public class TexasAdapter extends RecyclerView.Adapter<TexasAdapter.Renderer> {
 	class FigureRenderer extends Renderer<Figure> {
 		private FigureView mFigureView;
 
-		FigureRenderer(SegmentItemFragmentLayout root) {
+		FigureRenderer(View root) {
 			super(root);
 		}
 
@@ -424,7 +445,7 @@ public class TexasAdapter extends RecyclerView.Adapter<TexasAdapter.Renderer> {
 
 	class ViewSegmentRenderer extends Renderer<ViewSegment> {
 
-		ViewSegmentRenderer(@NonNull SegmentItemFragmentLayout root) {
+		ViewSegmentRenderer(@NonNull View root) {
 			super(root);
 		}
 
@@ -510,7 +531,14 @@ public class TexasAdapter extends RecyclerView.Adapter<TexasAdapter.Renderer> {
 		Log.w("TexasAdapter", msg);
 	}
 
+	/**
+	 * {@link  me.chan.texas.renderer.ui.text.ParagraphViewMotion}
+	 * 处理paragraph的事件
+	 * 其它由 {@link SegmentItemFragmentLayout}
+	 */
 	public interface Listener {
 		void onSegmentClicked(float x, float y, Object tag);
+
+		void onSegmentDoubleClicked(float x, float y, Object tag);
 	}
 }

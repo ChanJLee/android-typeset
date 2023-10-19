@@ -4,7 +4,7 @@ import android.graphics.Canvas;
 import android.graphics.RectF;
 import android.text.TextPaint;
 
-import me.chan.texas.TestUtils;
+import com.shanbay.lib.texas.TestUtils;
 import me.chan.texas.measurer.Measurer;
 import me.chan.texas.text.Appearance;
 import me.chan.texas.text.DrawContext;

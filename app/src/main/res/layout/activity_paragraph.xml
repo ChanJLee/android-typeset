@@ -51,6 +51,12 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="改变行高" />
+
+        <Button
+            android:id="@+id/scroll_content"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="滚动" />
     </LinearLayout>
 
     <FrameLayout

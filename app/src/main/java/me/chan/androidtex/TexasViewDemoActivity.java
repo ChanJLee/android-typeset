@@ -131,6 +131,11 @@ public class TexasViewDemoActivity extends AppCompatActivity {
 			public void onEmptyClicked(float x, float y) {
 				Toast.makeText(TexasViewDemoActivity.this, "点击了空白", Toast.LENGTH_SHORT).show();
 			}
+
+			@Override
+			public void onSegmentDoubleClicked(float x, float y, Object tag) {
+				Toast.makeText(TexasViewDemoActivity.this, "双击", Toast.LENGTH_SHORT).show();
+			}
 		});
 
 		mTexasView.setOnDragSelectListener(new TexasView.OnDragSelectListener() {
@@ -319,12 +324,19 @@ public class TexasViewDemoActivity extends AppCompatActivity {
 	}
 
 	private void setupDebug() {
+		findViewById(R.id.scroll_content).setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				mTexasView.scrollToPosition(0);
+			}
+		});
+
 		findViewById(R.id.line_height).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				RenderOption renderOption = mTexasView.createRendererOption();
 				renderOption.setLineSpace(renderOption.getLineSpace() + 200);
-				Log.i("TexasCore", "set line space: " + renderOption.getLineSpace());
+				com.shanbay.lib.log.Log.i("TexasCore", "set line space: " + renderOption.getLineSpace());
 				mTexasView.refresh(renderOption);
 			}
 		});
@@ -341,7 +353,6 @@ public class TexasViewDemoActivity extends AppCompatActivity {
 		// test update render option
 		RenderOption renderOption = mTexasView.createRendererOption();
 		renderOption.setDrawEmoticonSelection(false);
-		renderOption.setTypeface(Typeface.createFromAsset(getAssets(), "SourceSerifPro-Regular.ttf"));
 		mTexasView.refresh(renderOption);
 
 		findViewById(R.id.gc).setOnClickListener(new View.OnClickListener() {

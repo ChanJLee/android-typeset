@@ -10,7 +10,7 @@ import me.chan.texas.renderer.RenderOption;
 import me.chan.texas.source.CacheSource;
 import me.chan.texas.source.FileTextSource;
 import me.chan.texas.source.SourceOpenException;
-import me.chan.texas.test.mock.MockTextPaint;
+import com.shanbay.lib.texas.test.mock.MockTextPaint;
 import me.chan.texas.text.BreakStrategy;
 import me.chan.texas.text.Document;
 import me.chan.texas.text.Paragraph;

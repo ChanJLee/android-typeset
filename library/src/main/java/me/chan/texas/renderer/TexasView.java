@@ -91,6 +91,12 @@ public final class TexasView extends FrameLayout {
 		}
 	}
 
+	void notifySegmentDoubleClicked(float x, float y, Object tag) {
+		if (mOnClickedListener != null) {
+			mOnClickedListener.onSegmentDoubleClicked(x, y, tag);
+		}
+	}
+
 	@Retention(RetentionPolicy.SOURCE)
 	@IntDef({SCROLL_STATE_IDLE, SCROLL_STATE_DRAGGING, SCROLL_STATE_SETTLING})
 	public @interface TexasViewScrollState {
@@ -161,7 +167,7 @@ public final class TexasView extends FrameLayout {
 		);
 
 		// 设置字体
-		renderOption.setTypeface(Typeface.DEFAULT);
+		renderOption.setTypeface(Texas.getDefaultTypeface());
 		String typefacePath = typedArray.getString(R.styleable.com_shanbay_lib_texas_TeView_com_shanbay_lib_texas_typefaceAssets);
 		if (!TextUtils.isEmpty(typefacePath)) {
 			WeakReference<Typeface> typefaceWeakReference = TYPEFACE_CACHE.get(typefacePath);
@@ -286,7 +292,7 @@ public final class TexasView extends FrameLayout {
 
 
 		// 如果开启了非兼容模式，且系统版本小于6.0，关闭硬件加速
-		// {@link com.shanbay.lib.texas.renderer.core.graphics.TextureScene}
+		// {@link me.chan.texas.renderer.core.graphics.TextureScene}
 		if (!renderOption.isCompatMode() && Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
 			setLayerType(LAYER_TYPE_SOFTWARE, null);
 		}
@@ -536,7 +542,7 @@ public final class TexasView extends FrameLayout {
 	/**
 	 * 滚动到document的某个segment
 	 *
-	 * @param position segment index {@link Document#indexOfSegment(Segment)} {@link Paragraph}
+	 * @param position segment index {@link Document#indexOfSegment(Segment)} {@link me.chan.texas.text.Paragraph}
 	 * @param smooth   滚动的时候是否平滑滚动
 	 */
 	public void scrollToPosition(int position, boolean smooth) {
@@ -546,7 +552,7 @@ public final class TexasView extends FrameLayout {
 	/**
 	 * 滚动到document的某个segment
 	 *
-	 * @param position segment index {@link Document#indexOfSegment(Segment)} (Segment)} {@link Paragraph}
+	 * @param position segment index {@link Document#indexOfSegment(Segment)} (Segment)} {@link me.chan.texas.text.Paragraph}
 	 * @param smooth   滚动的时候是否平滑滚动
 	 * @param offset   滑动方向上的offset
 	 */
@@ -874,7 +880,7 @@ public final class TexasView extends FrameLayout {
 
 		/**
 		 * @param paragraphTag {@link Paragraph#getTag()}
-		 * @param spanTag      {@link Paragraph.SpanBuilder#tag(Object)}
+		 * @param spanTag      {@link me.chan.texas.text.Paragraph.SpanBuilder#tag(Object)}
 		 * @return 是否选中
 		 */
 		@Idempotent
@@ -883,8 +889,8 @@ public final class TexasView extends FrameLayout {
 
 	public interface HighlightPredicate {
 		/**
-		 * @param paragraphTag {@link Paragraph.Builder#tag(Object)}
-		 * @param spanTag      {@link Paragraph.SpanBuilder#tag(Object)}
+		 * @param paragraphTag {@link me.chan.texas.text.Paragraph.Builder#tag(Object)}
+		 * @param spanTag      {@link me.chan.texas.text.Paragraph.SpanBuilder#tag(Object)}
 		 * @return 是否选中，这个函数必须是幂等的
 		 */
 		@Idempotent
@@ -935,6 +941,13 @@ public final class TexasView extends FrameLayout {
 		 * @param y 点击发生时相对屏幕的y坐标
 		 */
 		void onEmptyClicked(float x, float y);
+
+		/**
+		 * @param x   点击发生时相对屏幕的x坐标
+		 * @param y   点击发生时相对屏幕的y坐标
+		 * @param tag 被点击的segment tag
+		 */
+		void onSegmentDoubleClicked(float x, float y, Object tag);
 	}
 
 	/**

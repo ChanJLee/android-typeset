@@ -9,19 +9,7 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme"
-        android:usesCleartextTraffic="true">
-        <activity
-            android:name=".ShowBooksActivity"
-            android:exported="false" />
-        <activity
-            android:name=".ParagraphRenderActivity"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="${applicationId}.REC" />
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </activity>
+        android:theme="@style/AppTheme">
         <activity
             android:name=".ParagraphViewDemoActivity"
             android:exported="false" />
