@@ -94,9 +94,9 @@ public class ParserUnitTest {
 		Paragraph paragraph = (Paragraph) document.getSegment(0);
 		assertEquals(paragraph.getElementCount(), 3);
 
-		Assert.assertEquals("check type, index 0", paragraph.getElement(0).getClass(), TextBox.class);
-		Assert.assertEquals("check type, index 1", paragraph.getElement(1), Glue.TERMINAL);
-		Assert.assertEquals("check type, index 2", paragraph.getElement(2), Penalty.FORCE_BREAK);
+		assertEquals("check type, index 0", paragraph.getElement(0).getClass(), TextBox.class);
+		assertEquals("check type, index 1", paragraph.getElement(1), Glue.TERMINAL);
+		assertEquals("check type, index 2", paragraph.getElement(2), Penalty.FORCE_BREAK);
 
 		Box box = (Box) paragraph.getElement(0);
 		assertEquals("check box content: ", box.toString(), "hello");
@@ -108,13 +108,13 @@ public class ParserUnitTest {
 		paragraph = (Paragraph) document.getSegment(0);
 		assertEquals(paragraph.getElementCount(), 7);
 
-		Assert.assertEquals("check type, index 0", paragraph.getElement(0).getClass(), TextBox.class);
-		Assert.assertEquals("check type, index 1", paragraph.getElement(1).getClass(), Penalty.class);
-		Assert.assertEquals("check type, index 2", paragraph.getElement(2).getClass(), TextBox.class);
-		Assert.assertEquals("check type, index 3", paragraph.getElement(3).getClass(), Penalty.class);
-		Assert.assertEquals("check type, index 4", paragraph.getElement(4).getClass(), TextBox.class);
-		Assert.assertEquals("check type, index 5", paragraph.getElement(5), Glue.TERMINAL);
-		Assert.assertEquals("check type, index 6", paragraph.getElement(6), Penalty.FORCE_BREAK);
+		assertEquals("check type, index 0", paragraph.getElement(0).getClass(), TextBox.class);
+		assertEquals("check type, index 1", paragraph.getElement(1).getClass(), Penalty.class);
+		assertEquals("check type, index 2", paragraph.getElement(2).getClass(), TextBox.class);
+		assertEquals("check type, index 3", paragraph.getElement(3).getClass(), Penalty.class);
+		assertEquals("check type, index 4", paragraph.getElement(4).getClass(), TextBox.class);
+		assertEquals("check type, index 5", paragraph.getElement(5), Glue.TERMINAL);
+		assertEquals("check type, index 6", paragraph.getElement(6), Penalty.FORCE_BREAK);
 
 		box = (Box) paragraph.getElement(0);
 		assertEquals("check box content: ", box.toString(), "tri");

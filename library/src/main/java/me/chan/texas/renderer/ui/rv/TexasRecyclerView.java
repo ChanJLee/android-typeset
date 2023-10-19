@@ -3,6 +3,7 @@ package me.chan.texas.renderer.ui.rv;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.view.MotionEvent;
+import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
@@ -64,6 +65,11 @@ public class TexasRecyclerView extends RecyclerView {
 		mScrollAction.position = position;
 		mScrollAction.offset = offset;
 		post(mScrollAction);
+	}
+
+	public void getChildLocations(View child, int[] locations) {
+		locations[0] = child.getLeft();
+		locations[1] = child.getTop();
 	}
 
 	private class ScrollAction implements Runnable {

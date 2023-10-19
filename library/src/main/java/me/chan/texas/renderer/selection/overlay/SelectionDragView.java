@@ -31,14 +31,13 @@ import androidx.annotation.RestrictTo;
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class SelectionDragView extends View {
 	private final Paint mPaint;
-	private final int mScreenHeight;
 
 	private static final int HOT_MOTION_REGION_SIZE = 300;
 	private final RectF mP1 = new RectF(0, 0, HOT_MOTION_REGION_SIZE, HOT_MOTION_REGION_SIZE);
 	private final RectF mP2 = new RectF(0, 0, HOT_MOTION_REGION_SIZE, HOT_MOTION_REGION_SIZE);
 
+
 	private SelectionManager mSelectionManager;
-	private final int[] mLocations = new int[2];
 	private final MagnifierView mMagnifierView;
 	private float mAdviseOffsetY;
 
@@ -46,8 +45,11 @@ public class SelectionDragView extends View {
 	private final RectF mFocusPoint = new RectF();
 	private final RectF mUnFocusPoint = new RectF();
 
-	private float mLastTouchX, mLastTouchY;
-	private float mTouchSlopThresholdSquare = 0;
+	private float mLastTouchPoint[] = {0, 0};
+	private float mTouchPoint[] = {0, 0};
+	private float mTouchSlopThresholdSquare;
+	private final LongPressMotionDispatcher mLongPressMotionDispatcher;
+	private final Region mMotionRegion = new Region();
 
 	public SelectionDragView(Context context, ViewGroup parent) {
 		super(context, null, 0);
@@ -56,19 +58,21 @@ public class SelectionDragView extends View {
 		mPaint.setStyle(Paint.Style.FILL);
 		mPaint.setAntiAlias(true);
 
-		DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
-		mScreenHeight = displayMetrics.heightPixels;
-
 		mTouchSlopThresholdSquare = 2 * ViewConfiguration.get(context).getScaledTouchSlop();
 		mTouchSlopThresholdSquare = mTouchSlopThresholdSquare * mTouchSlopThresholdSquare;
 
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-			mMagnifierView = new MagnifierViewApi29(parent);
-		} else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-			mMagnifierView = new MagnifierViewApi28(parent);
-		} else {
-			mMagnifierView = new MagnifierViewNoop(parent);
-		}
+		mMagnifierView = MagnifierViewFactory.newInstance(parent);
+
+		mLongPressMotionDispatcher = new LongPressMotionDispatcher() {
+			@Override
+			protected void onMotionReceived(int direction) {
+				if (direction == LongPressMotionDispatcher.DIRECTION_UP) {
+					mSelectionManager.autoScrollUp();
+				} else if (direction == LongPressMotionDispatcher.DIRECTION_DOWN) {
+					mSelectionManager.autoScrollDown();
+				}
+			}
+		};
 	}
 
 	private final Region mRendererRegion = new Region();
@@ -77,21 +81,21 @@ public class SelectionDragView extends View {
 	@RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
 	@Override
 	protected void onDraw(Canvas canvas) {
-		super.onDraw(canvas);
-
 		// 手指中心
-		canvas.drawCircle(mLastTouchX, mLastTouchY, 10, mPaint);
+		if (mTouchPoint[0] >= 0 || mTouchPoint[1] >= 0) {
+			canvas.drawCircle(mTouchPoint[0], mTouchPoint[1], 10, mPaint);
+		}
 
 		getRendererRegion(mRendererRegion);
 
 		canvas.save();
-		canvas.translate(-mLocations[0], -mLocations[1]);
 
-		float cx = mRendererRegion.top.centerX();
-		float cy = mRendererRegion.top.centerY();
+		float cx = mRendererRegion.getTopX();
+		float cy = mRendererRegion.getTopY();
 		float left = cx - HALF_OF_DROPPER_SIZE;
 		float bottom = cy + HALF_OF_DROPPER_SIZE;
 
+		int contentHeight = getHeight();
 		mPath.reset();
 		mPath.moveTo((left + cx) / 2, cy + mAdviseOffsetY);
 		mPath.lineTo(cx, cy + mAdviseOffsetY);
@@ -100,14 +104,13 @@ public class SelectionDragView extends View {
 		mPath.close();
 		canvas.drawPath(mPath, mPaint);
 
-		cx = mRendererRegion.bottom.centerX();
-		cy = mRendererRegion.bottom.centerY();
-
+		cx = mRendererRegion.getBottomX();
+		cy = mRendererRegion.getBottomY();
 		float right = cx + HALF_OF_DROPPER_SIZE;
 		bottom = cy + HALF_OF_DROPPER_SIZE;
 
 		mPath.reset();
-		if (bottom <= mScreenHeight) {
+		if (bottom <= contentHeight) {
 			mPath.moveTo((right + cx) / 2, cy);
 			mPath.lineTo(cx, cy);
 			mPath.lineTo(cx, (bottom + cy) / 2);
@@ -125,47 +128,49 @@ public class SelectionDragView extends View {
 		canvas.restore();
 	}
 
-	@Override
-	protected void onSizeChanged(int w, int h, int oldw, int oldh) {
-		super.onSizeChanged(w, h, oldw, oldh);
-		getLocationOnScreen(mLocations);
-	}
-
 	private boolean mHandleDownEvent = false;
 
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
 		int action = event.getAction();
-		float x = event.getRawX();
-		float y = event.getRawY();
+		float x = event.getX();
+		float y = event.getY();
 
-		if (action == MotionEvent.ACTION_MOVE) {
-			float dx = mLastTouchX - x;
-			float dy = mLastTouchY - y;
-			if (dy * dy + dx * dx < mTouchSlopThresholdSquare) {
-				return true;
+		if (action == MotionEvent.ACTION_MOVE && mHandleDownEvent) {
+			float dx = mLastTouchPoint[0] - x;
+			float dy = mLastTouchPoint[1] - y;
+			if (dy * dy + dx * dx >= mTouchSlopThresholdSquare) {
+				handleMoveEvent(x, y);
+				mLastTouchPoint[0] = x;
+				mLastTouchPoint[1] = y;
+			} else {
+				scheduleAutoScrollEvent(y);
 			}
-		}
-
-		mLastTouchX = event.getX();
-		mLastTouchY = event.getY();
-
-		if (action == MotionEvent.ACTION_DOWN) {
+		} else if (action == MotionEvent.ACTION_DOWN) {
 			mHandleDownEvent = handleDownEvent(x, y);
-		} else if (action == MotionEvent.ACTION_MOVE && mHandleDownEvent) {
-			handleMoveEvent(x, y);
-		} else if ((action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_CANCEL) &&
-				mHandleDownEvent) {
+			mLastTouchPoint[0] = x;
+			mLastTouchPoint[1] = y;
+		} else if ((action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_CANCEL) && mHandleDownEvent) {
+			mLongPressMotionDispatcher.cancel("手已经抬起");
 			mSelectionManager.handleDragEnd(x, y);
 		}
 
-		handlePrompt(action);
+		renderPrompt(action, x, y);
 
 		/* 防止事件传递到下面 */
 		return true;
 	}
 
-	private void handlePrompt(int action) {
+	@Override
+	protected void onDetachedFromWindow() {
+		mLongPressMotionDispatcher.cancel("detach window");
+		super.onDetachedFromWindow();
+	}
+
+	private void renderPrompt(int action, float x, float y) {
+		mTouchPoint[0] = x;
+		mTouchPoint[1] = y;
+
 		// render magnifier
 		if (action == MotionEvent.ACTION_CANCEL || action == MotionEvent.ACTION_UP) {
 			dismissPrompt();
@@ -173,41 +178,29 @@ public class SelectionDragView extends View {
 		}
 
 		if (mHandleDownEvent) {
-			mMagnifierView.show(mLastTouchX, mLastTouchY);
+			mMagnifierView.show(x, y);
 		}
 	}
 
-	@SuppressLint("FieldCodeStyle")
-	private static class Region {
-		private RectF top;
-		private RectF bottom;
-
-		public float getTopX() {
-			return top.centerX();
-		}
-
-		public float getTopY() {
-			return top.centerY();
-		}
-
-		public float getBottomX() {
-			return bottom.centerX();
-		}
-
-		public float getBottomY() {
-			return bottom.centerY();
+	private void scheduleAutoScrollEvent(float y) {
+		int height = getHeight();
+		if (y < height * 0.1) {
+			mLongPressMotionDispatcher.dispatch(LongPressMotionDispatcher.DIRECTION_UP);
+		} else if (y > height * 0.9) {
+			mLongPressMotionDispatcher.dispatch(LongPressMotionDispatcher.DIRECTION_DOWN);
+		} else {
+			mLongPressMotionDispatcher.cancel("y超出了范围");
 		}
 	}
-
-	private final Region mMotionRegion = new Region();
 
 	private void handleMoveEvent(float x, float y) {
 		mFocusPoint.offset(x - mFocusPoint.centerX(), y - mFocusPoint.centerY());
-		if (mSelectionManager != null) {
-			getMotionRegion(mMotionRegion);
-			mSelectionManager.handleMoveToSelection(mMotionRegion.getTopX(), mMotionRegion.getTopY(),
-					mMotionRegion.getBottomX(), mMotionRegion.getBottomY(), mMotionRegion.top == mFocusPoint);
+		if (mSelectionManager == null) {
+			return;
 		}
+
+		getMotionRegion(mMotionRegion);
+		mSelectionManager.handleMoveToSelection(mMotionRegion.getTopX(), mMotionRegion.getTopY(), mMotionRegion.getBottomX(), mMotionRegion.getBottomY(), mMotionRegion.isTop(mFocusPoint));
 	}
 
 	private void getRendererRegion(Region region) {
@@ -220,25 +213,21 @@ public class SelectionDragView extends View {
 
 	private void getSelectedRegion(Region region, RectF p1, RectF p2) {
 		if (p1.centerY() < p2.centerY()) {
-			region.top = p1;
-			region.bottom = p2;
+			region.setup(p1, p2);
 			return;
 		}
 
 		if (p1.centerY() > p2.centerY()) {
-			region.top = p2;
-			region.bottom = p1;
+			region.setup(p2, p1);
 			return;
 		}
 
 		if (p1.centerX() <= p2.centerX()) {
-			region.top = p1;
-			region.bottom = p2;
+			region.setup(p1, p2);
 			return;
 		}
 
-		region.top = p2;
-		region.bottom = p1;
+		region.setup(p2, p1);
 	}
 
 	private boolean handleDownEvent(float x, float y) {
@@ -261,7 +250,7 @@ public class SelectionDragView extends View {
 
 	private void dismissPrompt() {
 		mMagnifierView.dismiss();
-		mLastTouchX = mLastTouchY = -100;
+		mTouchPoint[0] = mTouchPoint[1] = -100;
 		invalidate();
 	}
 
@@ -302,5 +291,17 @@ public class SelectionDragView extends View {
 
 	public void setColor(@ColorInt int color) {
 		mPaint.setColor(color);
+	}
+
+	public void updateContentScrollY(int dy) {
+		if (getVisibility() != VISIBLE) {
+			return;
+		}
+
+		mP1.offset(0, dy);
+		mP2.offset(0, dy);
+		mFocusPoint.offset(0, dy);
+		mUnFocusPoint.offset(0, dy);
+		invalidate();
 	}
 }

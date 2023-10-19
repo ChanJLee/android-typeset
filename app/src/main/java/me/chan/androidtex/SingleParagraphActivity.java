@@ -46,6 +46,11 @@ public class SingleParagraphActivity extends AppCompatActivity {
 			public void onEmptyClicked(ParagraphView paragraphView) {
 				Toast.makeText(SingleParagraphActivity.this, "onEmptyClicked", Toast.LENGTH_SHORT).show();
 			}
+
+			@Override
+			public void onDoubleClicked(ParagraphView paragraphView) {
+				Toast.makeText(SingleParagraphActivity.this, "onDoubleClicked", Toast.LENGTH_SHORT).show();
+			}
 		});
 		paragraphView.setOnSpanClickedPredicate(new OnSpanClickedPredicate() {
 			@Override

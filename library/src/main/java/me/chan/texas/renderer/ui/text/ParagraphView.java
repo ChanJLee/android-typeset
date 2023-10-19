@@ -119,8 +119,13 @@ public class ParagraphView extends FrameLayout {
 		addView((View) mRender, new FrameLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
 		OnSelectedChangedListener onSelectedChangedListener = new OnSelectedChangedListener() {
 			@Override
-			public boolean onBoxSelected(MotionEvent e, Paragraph paragraph, boolean isLongClicked, Box box) {
-				return selectParagraph(paragraph, isLongClicked, box);
+			public boolean onSegmentClicked(MotionEvent e, Paragraph paragraph, int eventType) {
+				return handleParagraphClicked(paragraph, eventType);
+			}
+
+			@Override
+			public boolean onBoxSelected(MotionEvent e, Paragraph paragraph, @EventType int eventType, Box box) {
+				return handleParagraphSelected(paragraph, eventType, box);
 			}
 		};
 		mRender.setOnTextSelectedListener(onSelectedChangedListener);
@@ -149,20 +154,52 @@ public class ParagraphView extends FrameLayout {
 		super.onDetachedFromWindow();
 	}
 
-	private boolean selectParagraph(Paragraph paragraph, boolean isLongClicked, Box box) {
+	private boolean handleParagraphSelected(Paragraph paragraph, @OnSelectedChangedListener.EventType int eventType, Box box) {
+		if (mOnClickedListener == null) {
+			return false;
+		}
+
+		if (eventType == OnSelectedChangedListener.EVENT_CLICKED || eventType == OnSelectedChangedListener.EVENT_LONG_CLICKED) {
+			boolean handled = handleParagraphSelected(paragraph, eventType == OnSelectedChangedListener.EVENT_LONG_CLICKED, box);
+			if (!handled && eventType == OnSelectedChangedListener.EVENT_CLICKED) {
+				mOnClickedListener.onEmptyClicked(this);
+				return true;
+			}
+
+			return false;
+		}
+
+		return false;
+	}
+
+	private boolean handleParagraphClicked(Paragraph paragraph, int eventType) {
+		if (mOnClickedListener == null) {
+			return false;
+		}
+
+		if (eventType == OnSelectedChangedListener.EVENT_DOUBLE_CLICKED) {
+			mOnClickedListener.onDoubleClicked(this);
+			return true;
+		}
+
+		if (eventType == OnSelectedChangedListener.EVENT_CLICKED) {
+			mOnClickedListener.onEmptyClicked(this);
+		}
+
+		return false;
+	}
+
+	private boolean handleParagraphSelected(Paragraph paragraph, boolean isLongClicked, Box box) {
 		// 1. clear prev selection
 		clearSelection();
 
 		OnSpanClickedPredicate predicate = isLongClicked ? mOnSpanLongClickedPredicate : mOnSpanClickedPredicate;
 		if (predicate == null) {
-			if (mOnClickedListener != null) {
-				mOnClickedListener.onEmptyClicked(this);
-			}
 			return false;
 		}
 
 		try {
-			boolean handled = selectParagraph0(paragraph, isLongClicked, box, predicate);
+			boolean handled = handleParagraphSelected0(paragraph, isLongClicked, box, predicate);
 			if (handled) {
 				if (isLongClicked) {
 					if (mOnClickedListener != null) {
@@ -185,7 +222,7 @@ public class ParagraphView extends FrameLayout {
 		return true;
 	}
 
-	private boolean selectParagraph0(Paragraph paragraph, boolean isLongClicked, Box box, OnSpanClickedPredicate predicate) throws ParagraphVisitor.VisitException {
+	private boolean handleParagraphSelected0(Paragraph paragraph, boolean isLongClicked, Box box, OnSpanClickedPredicate predicate) throws ParagraphVisitor.VisitException {
 		try {
 			mSelectedTextByClickedVisitor.reset(
 					isLongClicked,
@@ -501,6 +538,11 @@ public class ParagraphView extends FrameLayout {
 		 * @param paragraphView 被点击的段落
 		 */
 		void onEmptyClicked(ParagraphView paragraphView);
+
+		/**
+		 * @param paragraphView 被点击的段落
+		 */
+		void onDoubleClicked(ParagraphView paragraphView);
 	}
 
 	/**
@@ -538,7 +580,7 @@ public class ParagraphView extends FrameLayout {
 		);
 
 		// 设置字体
-		renderOption.setTypeface(Typeface.DEFAULT);
+		renderOption.setTypeface(Texas.getDefaultTypeface());
 		String typefacePath = typedArray.getString(R.styleable.com_shanbay_lib_texas_ParagraphView_com_shanbay_lib_texas_paragraph_typefaceAssets);
 		if (!TextUtils.isEmpty(typefacePath)) {
 			WeakReference<Typeface> typefaceWeakReference = TexasView.TYPEFACE_CACHE.get(typefacePath);

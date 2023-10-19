@@ -7,22 +7,22 @@ public class BitmapUnitTest {
 
 	@Test
 	public void testSize() {
-		Bitmap bitmap = new Bitmap(31);
+		BitBucket bitmap = new BitBucket(31);
 		Assert.assertEquals(bitmap.size(), 32);
 
-		bitmap = new Bitmap(0);
+		bitmap = new BitBucket(0);
 		Assert.assertEquals(bitmap.size(), 0);
 
-		bitmap = new Bitmap(32);
+		bitmap = new BitBucket(32);
 		Assert.assertEquals(bitmap.size(), 32);
 
-		bitmap = new Bitmap(33);
+		bitmap = new BitBucket(33);
 		Assert.assertEquals(bitmap.size(), 64);
 	}
 
 	@Test
 	public void testWR() {
-		Bitmap bitmap = new Bitmap(63);
+		BitBucket bitmap = new BitBucket(63);
 		Assert.assertEquals(bitmap.size(), 64);
 
 		Assert.assertFalse(bitmap.get(0));

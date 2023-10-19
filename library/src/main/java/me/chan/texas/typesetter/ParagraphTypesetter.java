@@ -2,7 +2,7 @@ package me.chan.texas.typesetter;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
-import android.util.Log;
+import static me.chan.texas.typesetter.AbsParagraphTypesetter.DEBUG;
 
 import androidx.annotation.RestrictTo;
 
@@ -24,7 +24,7 @@ public class ParagraphTypesetter {
 	public ParagraphTypesetter() {
 		mTexTypesetter = Texas.isEnableTexCompat() ? new TexParagraphTypesetterCompat() : new TexParagraphTypesetter();
 		mSimpleTypesetter = new SimpleParagraphTypesetter();
-		mStatus = AbsParagraphTypesetter.DEBUG ? new Status() : null;
+		mStatus = DEBUG ? new Status() : null;
 	}
 
 	/**
@@ -52,7 +52,7 @@ public class ParagraphTypesetter {
 	}
 
 	private boolean typeset0(Paragraph paragraph, BreakStrategy breakStrategy, int width) {
-		if (AbsParagraphTypesetter.DEBUG) {
+		if (DEBUG) {
 			++mStatus.mCount;
 			mStatus.mInternalState = null;
 		}
@@ -64,7 +64,7 @@ public class ParagraphTypesetter {
 		if (!mTexTypesetter.typeset(paragraph, breakStrategy, width)) {
 			// tex 存在找不到完美解的情况，如果在这种case下
 			// 回归到朴素的排版算法
-			if (AbsParagraphTypesetter.DEBUG) {
+			if (DEBUG) {
 				++mStatus.mFallbackCount;
 				Log.w("ParagraphTypesetter", "can not find active nodes: " + paragraph);
 			}
@@ -72,7 +72,7 @@ public class ParagraphTypesetter {
 			return mSimpleTypesetter.typeset(paragraph, breakStrategy, width);
 		}
 
-		if (AbsParagraphTypesetter.DEBUG) {
+		if (DEBUG) {
 			mStatus.mInternalState = mTexTypesetter.getInternalState();
 		}
 		return true;
