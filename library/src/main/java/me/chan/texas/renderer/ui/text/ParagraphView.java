@@ -23,6 +23,7 @@ import androidx.core.content.ContextCompat;
 
 import me.chan.texas.BuildConfig;
 import me.chan.texas.R;
+import me.chan.texas.Texas;
 import me.chan.texas.TexasOption;
 import me.chan.texas.annotations.Internal;
 import me.chan.texas.hyphenation.Hyphenation;

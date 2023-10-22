@@ -4,6 +4,8 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
 import static me.chan.texas.typesetter.AbsParagraphTypesetter.DEBUG;
 
+import android.util.Log;
+
 import androidx.annotation.RestrictTo;
 
 import me.chan.texas.Texas;

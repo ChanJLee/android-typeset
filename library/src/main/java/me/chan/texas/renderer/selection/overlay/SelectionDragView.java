@@ -7,22 +7,19 @@ import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.RectF;
 import android.os.Build;
-import android.util.DisplayMetrics;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 
-import me.chan.texas.renderer.selection.SelectionManager;
-import me.chan.texas.renderer.selection.magnifier.MagnifierView;
-import me.chan.texas.renderer.selection.magnifier.MagnifierViewApi28;
-import me.chan.texas.renderer.selection.magnifier.MagnifierViewApi29;
-import me.chan.texas.renderer.selection.magnifier.MagnifierViewNoop;
-
 import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
+
+import me.chan.texas.renderer.selection.SelectionManager;
+import me.chan.texas.renderer.selection.magnifier.MagnifierView;
+import me.chan.texas.renderer.selection.magnifier.MagnifierViewFactory;
 
 /**
  * Created by Otway on 2021/11/16.
