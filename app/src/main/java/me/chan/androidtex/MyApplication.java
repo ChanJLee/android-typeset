@@ -9,8 +9,7 @@ public class MyApplication extends Application {
 	@Override
 	public void onCreate() {
 		super.onCreate();
-		Log.init(this, "/sdcard/shanbay/texas/log");
-		HiddenApiCompat.fix(this);
+		// HiddenApiCompat.fix(this);
 		Texas.MemoryOption memoryOption = new Texas.MemoryOption();
 		memoryOption.setTextBufferSize(51200)
 				.setLineBufferSize(4096)

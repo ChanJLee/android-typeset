@@ -8,9 +8,9 @@ import android.util.Log;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 
-import com.shanbay.lib.texas.BuildConfig;
-
 import java.util.Arrays;
+
+import me.chan.texas.BuildConfig;
 
 public abstract class LongPressMotionDispatcher {
 	private static final int LONG_PRESS_TIMEOUT = 500;
