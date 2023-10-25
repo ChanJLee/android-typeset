@@ -36,4 +36,10 @@ public class ConcurrencyModule {
 	public TaskQueue provideRendererTaskQueue() {
 		return new AndroidTaskQueue("RendererTask");
 	}
+
+	@Provides
+	@Named("MixTask")
+	public TaskQueue provideTypesetQueue() {
+		return new AndroidTaskQueue("MixTask");
+	}
 }

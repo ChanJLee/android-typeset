@@ -38,7 +38,7 @@ import me.chan.texas.renderer.RenderOption;
 import me.chan.texas.renderer.TexasView;
 import me.chan.texas.renderer.core.WorkerScheduler;
 import me.chan.texas.renderer.core.worker.ParseWorker;
-import me.chan.texas.renderer.core.worker.TypesetWorker;
+import me.chan.texas.renderer.core.worker.ParagraphTypesetWorker;
 import me.chan.texas.renderer.selection.ParagraphSelection;
 import me.chan.texas.renderer.selection.visitor.SelectedTextByClickedVisitor;
 import me.chan.texas.source.Source;
@@ -327,8 +327,8 @@ public class ParagraphView extends FrameLayout {
 
 	private boolean typeset0(int width) {
 		try {
-			TypesetWorker worker = WorkerScheduler.typeset();
-			TypesetWorker.Args args = TypesetWorker.Args.obtain(mParagraph, mRenderOption, width);
+			ParagraphTypesetWorker worker = WorkerScheduler.typeset();
+			ParagraphTypesetWorker.Args args = ParagraphTypesetWorker.Args.obtain(mParagraph, mRenderOption, width);
 			worker.submitSync(mRender.getTaskId(), args);
 			return true;
 		} catch (Throwable e) {

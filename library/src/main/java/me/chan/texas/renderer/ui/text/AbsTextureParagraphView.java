@@ -12,6 +12,7 @@ import androidx.annotation.RestrictTo;
 
 import me.chan.texas.misc.PaintSet;
 import me.chan.texas.renderer.RenderOption;
+import me.chan.texas.renderer.core.WorkerScheduler;
 import me.chan.texas.renderer.highlight.ParagraphHighlight;
 import me.chan.texas.renderer.selection.ParagraphSelection;
 import me.chan.texas.renderer.ui.decor.ParagraphDecor;
@@ -22,9 +23,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public abstract class AbsTextureParagraphView extends View implements TextureParagraph {
-	private static final AtomicInteger UUID = new AtomicInteger(0);
-
-	private final int mId = UUID.incrementAndGet();
+	private final int mId = WorkerScheduler.requestId();
 
 	protected RenderOption mRenderOption;
 	protected Paragraph mParagraph;
