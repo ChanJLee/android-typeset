@@ -175,6 +175,12 @@ public class TexasAdapter extends RecyclerView.Adapter<TexasAdapter.Renderer> {
 	@Override
 	@SuppressWarnings("unchecked")
 	public void onBindViewHolder(@NonNull Renderer renderer, int position) {
+		if (position == getItemCount() - 1) {
+			mListener.onLoadingMore(position);
+		} else if (position == 0) {
+			mListener.onLoadingPrevious();
+		}
+
 		Segment segment = getItem(position);
 		if (segment == null) {
 			w("segment is null, ignore onBindViewHolder");
@@ -540,5 +546,9 @@ public class TexasAdapter extends RecyclerView.Adapter<TexasAdapter.Renderer> {
 		void onSegmentClicked(float x, float y, Object tag);
 
 		void onSegmentDoubleClicked(float x, float y, Object tag);
+
+		void onLoadingMore(int count);
+
+		void onLoadingPrevious();
 	}
 }

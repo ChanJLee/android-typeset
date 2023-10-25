@@ -54,7 +54,7 @@ public class RenderWorker implements TaskQueue.Task<RenderWorker.Args, Void>, Ta
 		mMessager = messager;
 		mMessager.addListener(new WorkerMessager.Listener() {
 			@Override
-			public boolean handleMessage(int id, WorkerMessager.WorkerMessage value) {
+			public boolean handleMessage(TaskQueue.Token token, WorkerMessager.WorkerMessage value) {
 				Args args = value.asArg(Args.class);
 				if (args == null) {
 					return false;
@@ -70,17 +70,17 @@ public class RenderWorker implements TaskQueue.Task<RenderWorker.Args, Void>, Ta
 		});
 	}
 
-	public void submit(int id, Args args) {
+	public void submit(TaskQueue.Token token, Args args) {
 		if (mStats != null) {
 			++mStats.requestCount;
 		}
-		mTaskQueue.cancel(id);
-		mTaskQueue.submit(id, args, this, this);
+		mTaskQueue.cancel(token);
+		mTaskQueue.submit(token, args, this, this);
 	}
 
-	public void submitSync(int taskId, Args args) {
+	public void submitSync(TaskQueue.Token token, Args args) {
 		try {
-			mTaskQueue.submitSync(taskId, args, this);
+			mTaskQueue.submitSync(token, args, this);
 			args.recycle();
 		} catch (Throwable e) {
 			Log.w(TAG, e);
@@ -103,7 +103,7 @@ public class RenderWorker implements TaskQueue.Task<RenderWorker.Args, Void>, Ta
 		return mStats;
 	}
 
-	private void render(int taskId, Paragraph paragraph, Args args) {
+	private void render(TaskQueue.Token token, Paragraph paragraph, Args args) {
 		if (args.width <= 0) {
 			return;
 		}
@@ -114,7 +114,7 @@ public class RenderWorker implements TaskQueue.Task<RenderWorker.Args, Void>, Ta
 			ts = SystemClock.elapsedRealtime();
 		}
 
-		render0(taskId, paragraph, args);
+		render0(token.getId(), paragraph, args);
 
 		if (mStats != null) {
 			mStats.drawUsageMs += SystemClock.elapsedRealtime() - ts;
@@ -214,37 +214,37 @@ public class RenderWorker implements TaskQueue.Task<RenderWorker.Args, Void>, Ta
 	private final DrawVisitor mDrawVisitor = new DrawVisitor();
 
 	@Override
-	public Void run(int id, Args args) throws Throwable {
+	public Void run(TaskQueue.Token token, Args args) throws Throwable {
 		if (mStats != null) {
 			++mStats.handleCount;
 		}
 
 		if (args.width > 0) {
-			render(id, args.paragraph, args);
+			render(token, args.paragraph, args);
 		}
 		return null;
 	}
 
 	@Override
-	public void onStart(int id, Args args) {
+	public void onStart(TaskQueue.Token token, Args args) {
 		/* do nothing */
 	}
 
 	@Override
-	public void onSuccess(int id, Args args, Void ret) {
+	public void onSuccess(TaskQueue.Token token, Args args, Void ret) {
 		WorkerMessager.WorkerMessage message = WorkerMessager.WorkerMessage.obtain(TYPE_SUCCESS, args, ret);
-		mMessager.send(id, message);
+		mMessager.send(token, message);
 	}
 
 	@Override
-	public void onError(int id, Args args, Throwable throwable) {
+	public void onError(TaskQueue.Token token, Args args, Throwable throwable) {
 		Log.w(TAG, throwable);
 		WorkerMessager.WorkerMessage message = WorkerMessager.WorkerMessage.obtain(TYPE_ERROR, args, throwable);
-		mMessager.send(id, message);
+		mMessager.send(token, message);
 	}
 
-	public void cancel(int taskId) {
-		mTaskQueue.cancel(taskId);
+	public void cancel(TaskQueue.Token token) {
+		mTaskQueue.cancel(token);
 	}
 
 	private final static class DrawVisitor extends ParagraphVisitor {
