@@ -1,7 +1,6 @@
 package me.chan.texas.renderer.core;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
-
 import static me.chan.texas.renderer.core.worker.MixTask.TYPESET_ACTION_DEFAULT;
 
 import android.util.Log;
@@ -15,8 +14,6 @@ import javax.inject.Named;
 import me.chan.texas.Texas;
 import me.chan.texas.di.TexasComponent;
 import me.chan.texas.di.core.TextEngineCoreComponent;
-import me.chan.texas.measurer.AndroidMeasurer;
-import me.chan.texas.measurer.Measurer;
 import me.chan.texas.misc.PaintSet;
 import me.chan.texas.renderer.RenderOption;
 import me.chan.texas.renderer.Renderer;
@@ -53,6 +50,10 @@ public class TypesetEngine {
 		TexasComponent texasComponent = Texas.getTexasComponent();
 		TextEngineCoreComponent textEngineCoreComponent = texasComponent.coreComponent().create();
 		textEngineCoreComponent.inject(this);
+
+		if (DEBUG) {
+			d("typeset engine created: " + mToken);
+		}
 	}
 
 	public void setAdapter(TexasView.Adapter<?> adapter) {
@@ -97,6 +98,13 @@ public class TypesetEngine {
 
 			@Override
 			public void onFailure(Throwable throwable) {
+				if (throwable instanceof TaskQueue.TokenExpiredException) {
+					if (DEBUG) {
+						w(throwable);
+					}
+					return;
+				}
+
 				if (mRenderer != null) {
 					mRenderer.error(throwable);
 				}
@@ -115,10 +123,6 @@ public class TypesetEngine {
 			}
 		}, mAdapter, mSegmentDecoration);
 		WorkerScheduler.mix().submit(mToken, args);
-	}
-
-	protected Measurer createMeasure(PaintSet paintSet) {
-		return new AndroidMeasurer(paintSet);
 	}
 
 	public static class TypesetResult {
@@ -218,18 +222,22 @@ public class TypesetEngine {
 	}
 
 	private static void d(String msg) {
-		Log.d("TexasCore", msg);
+		Log.d("TypesetEngine", msg);
 	}
 
 	private static void i(String msg) {
-		Log.i("TexasCore", msg);
+		Log.i("TypesetEngine", msg);
 	}
 
 	private static void w(String msg) {
-		Log.w("TexasCore", msg);
+		Log.w("TypesetEngine", msg);
+	}
+
+	private static void w(Throwable throwable) {
+		Log.w("TypesetEngine", throwable);
 	}
 
 	private static void e(String msg, Throwable throwable) {
-		Log.e("TexasCore", msg, throwable);
+		Log.e("TypesetEngine", msg, throwable);
 	}
 }
