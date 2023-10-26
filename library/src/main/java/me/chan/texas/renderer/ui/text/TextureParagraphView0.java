@@ -30,7 +30,7 @@ public class TextureParagraphView0 extends AbsTextureParagraphView {
 		}
 
 		if (!mTextureStage.isAttached()) {
-			mTextureStage.attach();
+			mTextureStage.attach(getToken());
 		}
 
 		Layout layout = mParagraph.getLayout();
@@ -44,7 +44,7 @@ public class TextureParagraphView0 extends AbsTextureParagraphView {
 				mHighlight,
 				mParagraphDecor
 		);
-		WorkerScheduler.render().submit(getTaskId(), args);
+		WorkerScheduler.render().submit(getToken(), args);
 	}
 
 	@Nullable

@@ -1,7 +1,10 @@
 package me.chan.texas.measurer;
 
+import androidx.annotation.RestrictTo;
+
 import me.chan.texas.misc.PaintSet;
 
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 public class AndroidMeasureFactory implements MeasureFactory {
 
 	private static class Holder {

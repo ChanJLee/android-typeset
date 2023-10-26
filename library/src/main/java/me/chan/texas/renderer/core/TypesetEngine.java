@@ -30,6 +30,7 @@ import me.chan.texas.utils.concurrency.TaskQueue;
  */
 @RestrictTo(LIBRARY)
 public class TypesetEngine {
+	public static final boolean DEBUG = false;
 
 	private volatile TexasView.Adapter<?> mAdapter;
 	private int mWidth = 0;

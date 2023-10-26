@@ -12,6 +12,7 @@ import me.chan.texas.renderer.highlight.ParagraphHighlight;
 import me.chan.texas.renderer.selection.ParagraphSelection;
 import me.chan.texas.renderer.ui.decor.ParagraphDecor;
 import me.chan.texas.text.Paragraph;
+import me.chan.texas.utils.concurrency.TaskQueue;
 
 /**
  * 段落渲染器
@@ -59,7 +60,7 @@ public interface TextureParagraph {
 	/**
 	 * @return 用于标识一个渲染对象
 	 */
-	int getTaskId();
+	TaskQueue.Token getToken();
 
 	/**
 	 * 通知刷新UI

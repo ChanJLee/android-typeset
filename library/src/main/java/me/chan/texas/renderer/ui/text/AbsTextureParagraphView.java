@@ -12,18 +12,16 @@ import androidx.annotation.RestrictTo;
 
 import me.chan.texas.misc.PaintSet;
 import me.chan.texas.renderer.RenderOption;
-import me.chan.texas.renderer.core.WorkerScheduler;
 import me.chan.texas.renderer.highlight.ParagraphHighlight;
 import me.chan.texas.renderer.selection.ParagraphSelection;
 import me.chan.texas.renderer.ui.decor.ParagraphDecor;
 import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.layout.Layout;
-
-import java.util.concurrent.atomic.AtomicInteger;
+import me.chan.texas.utils.concurrency.TaskQueue;
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public abstract class AbsTextureParagraphView extends View implements TextureParagraph {
-	private final int mId = WorkerScheduler.requestId();
+	private final TaskQueue.Token mToken = TaskQueue.Token.newInstance();
 
 	protected RenderOption mRenderOption;
 	protected Paragraph mParagraph;
@@ -107,8 +105,8 @@ public abstract class AbsTextureParagraphView extends View implements TexturePar
 	protected abstract void onRender();
 
 	@Override
-	public int getTaskId() {
-		return mId;
+	public TaskQueue.Token getToken() {
+		return mToken;
 	}
 
 	@Override
