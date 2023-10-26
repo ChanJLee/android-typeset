@@ -4,27 +4,17 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
 import static me.chan.texas.renderer.core.worker.MixTask.TYPESET_ACTION_DEFAULT;
 
-import android.annotation.SuppressLint;
-import android.graphics.Rect;
-import android.os.Environment;
-import android.os.SystemClock;
 import android.util.Log;
 
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
+import javax.inject.Inject;
+import javax.inject.Named;
 
-import me.chan.texas.TexasOption;
-import me.chan.texas.adapter.ParseException;
-import me.chan.texas.hyphenation.Hyphenation;
-import me.chan.texas.hyphenation.HyphenationPattern;
-import me.chan.texas.issue.IssueSystem;
+import me.chan.texas.Texas;
+import me.chan.texas.di.TexasComponent;
+import me.chan.texas.di.core.TextEngineCoreComponent;
 import me.chan.texas.measurer.AndroidMeasurer;
 import me.chan.texas.measurer.Measurer;
 import me.chan.texas.misc.PaintSet;
@@ -32,22 +22,7 @@ import me.chan.texas.renderer.RenderOption;
 import me.chan.texas.renderer.Renderer;
 import me.chan.texas.renderer.TexasView;
 import me.chan.texas.renderer.core.worker.MixTask;
-import me.chan.texas.renderer.core.worker.ParagraphTypesetWorker;
-import me.chan.texas.renderer.core.worker.ParseWorker;
-import me.chan.texas.source.SourceOpenException;
-import me.chan.texas.text.BreakStrategy;
 import me.chan.texas.text.Document;
-import me.chan.texas.text.Figure;
-import me.chan.texas.text.HyphenStrategy;
-import me.chan.texas.text.Paragraph;
-import me.chan.texas.text.Segment;
-import me.chan.texas.text.TextAttribute;
-import me.chan.texas.text.ViewSegment;
-import me.chan.texas.text.layout.Element;
-import me.chan.texas.text.layout.Glue;
-import me.chan.texas.text.layout.Layout;
-import me.chan.texas.text.layout.Line;
-import me.chan.texas.text.layout.Penalty;
 import me.chan.texas.utils.concurrency.TaskQueue;
 
 /**
@@ -63,12 +38,20 @@ public class TypesetEngine {
 	private RenderOption mRenderOption;
 	private TexasView.SegmentDecoration mSegmentDecoration;
 
+	@Inject
+	@Named("ComputeTask")
+	TaskQueue mComputeQueue;
+
 	private final TaskQueue.Token mToken = TaskQueue.Token.newInstance();
 
 	public TypesetEngine(Renderer renderer,
 						 RenderOption renderOption) {
 		mRenderer = renderer;
 		mRenderOption = renderOption;
+
+		TexasComponent texasComponent = Texas.getTexasComponent();
+		TextEngineCoreComponent textEngineCoreComponent = texasComponent.coreComponent().create();
+		textEngineCoreComponent.inject(this);
 	}
 
 	public void setAdapter(TexasView.Adapter<?> adapter) {
@@ -113,18 +96,24 @@ public class TypesetEngine {
 
 			@Override
 			public void onFailure(Throwable throwable) {
-				// todo
+				if (mRenderer != null) {
+					mRenderer.error(throwable);
+				}
 			}
 
 			@Override
 			public void onSuccess(TypesetResult result) {
 				if (mDocument != result.doc) {
-					// todo release previous document
+					releaseDocument(mDocument);
 				}
 				mDocument = result.doc;
+				if (mRenderer != null) {
+					mRenderer.render(mDocument, result.paintSet);
+				}
+
 			}
 		}, mAdapter, mSegmentDecoration);
-		WorkerScheduler.mix().submit(mId, args);
+		WorkerScheduler.mix().submit(mToken, args);
 	}
 
 	protected Measurer createMeasure(PaintSet paintSet) {
@@ -141,32 +130,6 @@ public class TypesetEngine {
 		}
 	}
 
-	private void typesetParagraph(Paragraph paragraph, int width) throws Throwable {
-		ParagraphTypesetWorker.Args args = ParagraphTypesetWorker.Args.obtain(paragraph, mRenderOption, width);
-		WorkerScheduler.typeset().submitSync(mToken, args);
-	}
-
-	private void typesetViewSegment(ViewSegment viewSegment) {
-		/* do nothing */
-	}
-
-	private void typesetFigure(Figure figure, float lineWidth) {
-		float width = figure.getWidth();
-		if (width <= 0) {
-			w("width <= 0, ignore");
-			return;
-		}
-
-		float height = figure.getHeight();
-		if (height <= 0) {
-			w("height <= 0, ignore");
-			return;
-		}
-
-		float ratio = height / width;
-		figure.resize(lineWidth, lineWidth * ratio);
-	}
-
 	public void release() {
 		i("release");
 		cancel();
@@ -181,18 +144,19 @@ public class TypesetEngine {
 		// 释放内存
 		final Document document = mDocument;
 		mDocument = null;
+		if (document != null) {
+			releaseDocument(document);
+		}
+	}
+
+	private void releaseDocument(Document document) {
 		if (document == null) {
 			return;
 		}
 
-		// todo odd
-		mExecutor.execute(new Runnable() {
-			@Override
-			public void run() {
-				// 回收可能是一个耗时操作
-				document.release();
-				i("release document finished");
-			}
+		WorkerScheduler.odd().submit(mToken, mComputeQueue, () -> {
+			// 回收可能是一个耗时操作
+			document.release();
 		});
 	}
 
@@ -206,7 +170,7 @@ public class TypesetEngine {
 	 */
 	public void reload(RenderOption prevRenderOption) {
 		// 默认只要重新测量就可以了
-		int action = TYPESET_ACTION_REMEASURE;
+		int action = MixTask.TYPESET_ACTION_REMEASURE;
 
 		// 看下是不是只修改了断行策略，只修改了行高
 		// 大概可以提升70%左右的性能
@@ -215,7 +179,7 @@ public class TypesetEngine {
 				RenderOption copy = new RenderOption(prevRenderOption);
 				copy.setBreakStrategy(mRenderOption.getBreakStrategy());
 				if (copy.equals(mRenderOption)) {
-					action = TYPESET_ACTION_TYPESET_ONLY;
+					action = MixTask.TYPESET_ACTION_TYPESET_ONLY;
 				}
 			}
 		}
@@ -244,23 +208,7 @@ public class TypesetEngine {
 			i("reload ignore");
 			return;
 		}
-		typeset(mWidth, TYPESET_ACTION_TYPESET_ONLY);
-	}
-
-	@Override
-	@RestrictTo(LIBRARY)
-	public void handleMessage(int what, Object value) {
-		d("typeset paragraphs, msg what: " + what);
-		if (mRenderer == null) {
-			return;
-		}
-
-		if (what == TYPESET_MSG_FINISHED) {
-			TypesetResult result = (TypesetResult) value;
-			mRenderer.render(mDocument, result.paintSet);
-		} else if (what == TYPESET_MSG_FAILURE) {
-			mRenderer.error((Throwable) value);
-		}
+		typeset(mWidth, MixTask.TYPESET_ACTION_TYPESET_ONLY);
 	}
 
 	@VisibleForTesting

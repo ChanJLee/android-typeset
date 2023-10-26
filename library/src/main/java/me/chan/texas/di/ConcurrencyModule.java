@@ -38,8 +38,8 @@ public class ConcurrencyModule {
 	}
 
 	@Provides
-	@Named("MixTask")
-	public TaskQueue provideTypesetQueue() {
-		return new AndroidTaskQueue("MixTask");
+	@Named("ComputeTask")
+	public TaskQueue provideComputeQueue() {
+		return new AndroidTaskQueue("ComputeTask");
 	}
 }
