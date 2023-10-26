@@ -39,7 +39,7 @@ public class AndroidTaskQueue implements TaskQueue {
 	public <A, R> void submit(Token token, @NonNull A args, @NonNull Task<A, R> task, @NonNull Listener<A, R> listener) {
 		Message message = Message.obtain();
 		message.what = token.getId();
-		message.obj = Args.obtain(args, task, listener);
+		message.obj = Args.obtain(token, args, task, listener);
 		Handler handler = getHandler(true);
 		handler.sendMessage(message);
 	}
@@ -74,8 +74,8 @@ public class AndroidTaskQueue implements TaskQueue {
 		@Override
 		@SuppressWarnings("unchecked")
 		public void handleMessage(@NonNull Message msg) {
-			Token token token = msg.what;
 			Args obj = (Args) msg.obj;
+			Token token = obj.token;
 
 			Listener listener = obj.listener;
 			if (listener != null) {
@@ -105,6 +105,8 @@ public class AndroidTaskQueue implements TaskQueue {
 
 		private Object args;
 
+		private Token token;
+
 		private Args() {
 		}
 
@@ -117,17 +119,19 @@ public class AndroidTaskQueue implements TaskQueue {
 			task = null;
 			listener = null;
 			args = null;
+			token = null;
 			super.recycle();
 			POOL.release(this);
 		}
 
 		@SuppressWarnings("unchecked")
-		public static Args obtain(Object args, @NonNull Task task, @NonNull Listener listener) {
+		public static Args obtain(Token token, Object args, @NonNull Task task, @NonNull Listener listener) {
 			Args obj = POOL.acquire();
 			if (obj == null) {
 				obj = new Args();
 			}
 
+			obj.token = token;
 			obj.task = task;
 			obj.listener = listener;
 			obj.args = args;

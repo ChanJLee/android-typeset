@@ -41,7 +41,7 @@ public class WorkerScheduler {
     TaskQueue mRendererTaskQueue;
 
     @Inject
-    @Named("MixTask")
+    @Named("ComputeTask")
     TaskQueue mMixTaskQueue;
 
     @Inject
@@ -119,12 +119,12 @@ public class WorkerScheduler {
         throw new IllegalArgumentException("unknown task queue type");
     }
 
-    public static void cancelAll(int taskId) {
+    public static void cancelAll(TaskQueue.Token token) {
         WorkerScheduler scheduler = getInstance();
-        scheduler.mMiscTaskQueue.cancel(taskId);
-        scheduler.mRendererTaskQueue.cancel(taskId);
-        scheduler.mMessager.clear(taskId);
-        scheduler.mMixTaskQueue.cancel(taskId);
+        scheduler.mMiscTaskQueue.cancel(token);
+        scheduler.mRendererTaskQueue.cancel(token);
+        scheduler.mMixTaskQueue.cancel(token);
+        scheduler.mMessager.clear(token);
     }
 
     public static int requestId() {
