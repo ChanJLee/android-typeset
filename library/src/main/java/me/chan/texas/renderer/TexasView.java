@@ -860,18 +860,18 @@ public final class TexasView extends FrameLayout {
 		 */
 		@NonNull
 		@AnyThread
-		protected abstract Document parse(@NonNull T content, TexasOption texasOption) throws ParseException;
+		protected abstract Document parse(@NonNull T content, TexasOption texasOption, LoadType loadType) throws ParseException;
 
 		@NonNull
 		@RestrictTo(RestrictTo.Scope.LIBRARY)
-		public final Document getDocument(TexasOption texasOption) throws SourceOpenException, ParseException {
+		public final Document getDocument(TexasOption texasOption, LoadType loadType) throws SourceOpenException, ParseException {
 			if (mSource == null) {
-				return mDocument;
+				return null;
 			}
 
 			try {
 				T value = mSource.open();
-				return parse(value, texasOption);
+				return parse(value, texasOption, loadType);
 			} finally {
 				// close quietly
 				try {
@@ -884,9 +884,20 @@ public final class TexasView extends FrameLayout {
 
 		/**
 		 * 加载的类型
-		 * */
+		 */
 		public enum LoadType {
-			LOAD_PREVIOUS, LOAD_NEXT, REFRESH
+			/**
+			 * 加载之前
+			 */
+			LOAD_PREVIOUS,
+			/**
+			 * 加载之后
+			 */
+			LOAD_NEXT,
+			/**
+			 * 初始化
+			 */
+			INIT
 		}
 	}
 
