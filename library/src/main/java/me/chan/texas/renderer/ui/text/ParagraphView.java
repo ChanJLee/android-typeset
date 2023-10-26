@@ -38,7 +38,7 @@ import me.chan.texas.renderer.RenderOption;
 import me.chan.texas.renderer.TexasView;
 import me.chan.texas.renderer.core.WorkerScheduler;
 import me.chan.texas.renderer.core.worker.ParseWorker;
-import me.chan.texas.renderer.core.worker.TypesetWorker;
+import me.chan.texas.renderer.core.worker.ParagraphTypesetWorker;
 import me.chan.texas.renderer.selection.ParagraphSelection;
 import me.chan.texas.renderer.selection.visitor.SelectedTextByClickedVisitor;
 import me.chan.texas.source.Source;
@@ -327,9 +327,9 @@ public class ParagraphView extends FrameLayout {
 
 	private boolean typeset0(int width) {
 		try {
-			TypesetWorker worker = WorkerScheduler.typeset();
-			TypesetWorker.Args args = TypesetWorker.Args.obtain(mParagraph, mRenderOption, width);
-			worker.submitSync(mRender.getTaskId(), args);
+			ParagraphTypesetWorker worker = WorkerScheduler.typeset();
+			ParagraphTypesetWorker.Args args = ParagraphTypesetWorker.Args.obtain(mParagraph, mRenderOption, width);
+			worker.submitSync(mRender.getToken(), args);
 			return true;
 		} catch (Throwable e) {
 			return false;
@@ -402,7 +402,7 @@ public class ParagraphView extends FrameLayout {
 		// 提交解析任务
 		ParseWorker.Args args = ParseWorker.Args.obtain(source, mParseListener);
 		ParseWorker worker = WorkerScheduler.parse();
-		worker.submit(mRender.getTaskId(), args);
+		worker.submit(mRender.getToken(), args);
 	}
 
 	/**
@@ -460,7 +460,7 @@ public class ParagraphView extends FrameLayout {
 		if (releaseBuffer) {
 			mRender.clear();
 		}
-		WorkerScheduler.cancelAll(mRender.getTaskId());
+		WorkerScheduler.cancelAll(mRender.getToken());
 	}
 
 	/**

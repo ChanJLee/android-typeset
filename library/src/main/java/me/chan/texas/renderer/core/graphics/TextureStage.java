@@ -11,6 +11,7 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.WorkerThread;
 
 import me.chan.texas.renderer.core.WorkerScheduler;
+import me.chan.texas.utils.concurrency.TaskQueue;
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class TextureStage {
@@ -18,12 +19,13 @@ public class TextureStage {
 	private static final boolean DEBUG = false;
 
 	private boolean mAttached = false;
+
 	private DoubleBuffer mBuffer;
 
 	@MainThread
-	public void attach() {
+	public void attach(TaskQueue.Token token) {
 		if (mBuffer == null) {
-			mBuffer = new DoubleBuffer();
+			mBuffer = new DoubleBuffer(token);
 		}
 		mAttached = true;
 	}
@@ -95,6 +97,12 @@ public class TextureStage {
 
 		private boolean mReleased = false;
 
+		private final TaskQueue.Token mToken;
+
+		public DoubleBuffer(TaskQueue.Token token) {
+			mToken = token;
+		}
+
 		@WorkerThread
 		public Canvas lockCanvas(int width, int height) {
 			if (mReleased) {
@@ -123,7 +131,7 @@ public class TextureStage {
 
 		@MainThread
 		public void release() {
-			WorkerScheduler.odd().submit(-1 /* 基本上是一个不可能的值 */, WorkerScheduler.getTaskQueue(TASK_QUEUE_RENDER), this);
+			WorkerScheduler.odd().submit(mToken /* 基本上是一个不可能的值 */, WorkerScheduler.getTaskQueue(TASK_QUEUE_RENDER), this);
 		}
 
 		@MainThread

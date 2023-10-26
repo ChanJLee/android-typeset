@@ -133,6 +133,16 @@ public class Renderer implements SelectionManager.Listener {
 			public void onSegmentDoubleClicked(float x, float y, Object tag) {
 				mTexasView.notifySegmentDoubleClicked(x, y, tag);
 			}
+
+			@Override
+			public void onLoadingMore(int count) {
+				// todo
+			}
+
+			@Override
+			public void onLoadingPrevious() {
+				// todo
+			}
 		});
 		mImpl.addItemDecoration(new SegmentItemDecoration(mAdapter));
 

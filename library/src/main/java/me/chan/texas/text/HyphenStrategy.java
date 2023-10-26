@@ -11,5 +11,9 @@ public enum HyphenStrategy {
 	/**
 	 * 根据英音断
 	 */
-	UK
+	UK,
+	/**
+	 * 没有断字策略
+	 * */
+	NONE,
 }
