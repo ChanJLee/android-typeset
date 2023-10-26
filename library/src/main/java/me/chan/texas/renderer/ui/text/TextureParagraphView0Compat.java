@@ -55,6 +55,6 @@ public class TextureParagraphView0Compat extends AbsTextureParagraphView {
 				mHighlight,
 				mParagraphDecor
 		);
-		WorkerScheduler.render().submitSync(getTaskId(), args);
+		WorkerScheduler.render().submitSync(getToken(), args);
 	}
 }

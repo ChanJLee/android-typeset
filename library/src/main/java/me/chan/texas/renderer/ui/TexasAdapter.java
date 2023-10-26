@@ -132,10 +132,10 @@ public class TexasAdapter extends RecyclerView.Adapter<TexasAdapter.Renderer> {
 	public void onViewRecycled(@NonNull Renderer holder) {
 		if (holder instanceof ParagraphRenderer) {
 			ParagraphRenderer paragraphRenderer = (ParagraphRenderer) holder;
-			mTextureParagraphRecord.remove(paragraphRenderer.mRender.getTaskId());
+			mTextureParagraphRecord.remove(paragraphRenderer.mRender.getToken().getId());
 			paragraphRenderer.mRender.clear();
 			if (DEBUG) {
-				d("onViewRecycled: " + paragraphRenderer.mRender.getTaskId());
+				d("onViewRecycled: " + paragraphRenderer.mRender.getToken());
 			}
 		}
 	}
@@ -309,7 +309,7 @@ public class TexasAdapter extends RecyclerView.Adapter<TexasAdapter.Renderer> {
 				TextureParagraph textureParagraph = mTextureParagraphRecord.valueAt(i);
 				textureParagraph.clear();
 				if (DEBUG) {
-					d("release texture paragraph record " + textureParagraph.getTaskId());
+					d("release texture paragraph record " + textureParagraph.getToken());
 				}
 			}
 		} catch (Throwable throwable) {
@@ -424,9 +424,9 @@ public class TexasAdapter extends RecyclerView.Adapter<TexasAdapter.Renderer> {
 					highlight,
 					mParagraphDecor);
 
-			mTextureParagraphRecord.put(mRender.getTaskId(), mRender);
+			mTextureParagraphRecord.put(mRender.getToken().getId(), mRender);
 			if (DEBUG) {
-				d("onCreateViewHolder: " + mRender.getTaskId());
+				d("onCreateViewHolder: " + mRender.getToken());
 			}
 		}
 	}

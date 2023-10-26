@@ -89,14 +89,14 @@ public class ParagraphTypesetWorker implements TaskQueue.Task<ParagraphTypesetWo
 	@Override
 	public void onSuccess(TaskQueue.Token token, Args args, Paragraph ret) {
 		WorkerMessager.WorkerMessage message = WorkerMessager.WorkerMessage.obtain(TYPE_SUCCESS, args, ret);
-		mMessager.send(token.getId(), message);
+		mMessager.send(token, message);
 	}
 
 	@Override
 	public void onError(TaskQueue.Token token, Args args, Throwable throwable) {
 		Log.w("TypesetWorker", throwable);
 		WorkerMessager.WorkerMessage message = WorkerMessager.WorkerMessage.obtain(TYPE_ERROR, args, throwable);
-		mMessager.send(token.getId(), message);
+		mMessager.send(token, message);
 	}
 
 	@Override

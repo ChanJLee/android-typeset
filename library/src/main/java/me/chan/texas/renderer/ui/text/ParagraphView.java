@@ -329,7 +329,7 @@ public class ParagraphView extends FrameLayout {
 		try {
 			ParagraphTypesetWorker worker = WorkerScheduler.typeset();
 			ParagraphTypesetWorker.Args args = ParagraphTypesetWorker.Args.obtain(mParagraph, mRenderOption, width);
-			worker.submitSync(mRender.getTaskId(), args);
+			worker.submitSync(mRender.getToken(), args);
 			return true;
 		} catch (Throwable e) {
 			return false;
@@ -402,7 +402,7 @@ public class ParagraphView extends FrameLayout {
 		// 提交解析任务
 		ParseWorker.Args args = ParseWorker.Args.obtain(source, mParseListener);
 		ParseWorker worker = WorkerScheduler.parse();
-		worker.submit(mRender.getTaskId(), args);
+		worker.submit(mRender.getToken(), args);
 	}
 
 	/**
@@ -460,7 +460,7 @@ public class ParagraphView extends FrameLayout {
 		if (releaseBuffer) {
 			mRender.clear();
 		}
-		WorkerScheduler.cancelAll(mRender.getTaskId());
+		WorkerScheduler.cancelAll(mRender.getToken());
 	}
 
 	/**

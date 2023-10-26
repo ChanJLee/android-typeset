@@ -5,7 +5,8 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import androidx.annotation.IntDef;
 import androidx.annotation.RestrictTo;
 
-import java.util.concurrent.atomic.AtomicInteger;
+import javax.inject.Inject;
+import javax.inject.Named;
 
 import me.chan.texas.Texas;
 import me.chan.texas.di.TexasComponent;
@@ -13,13 +14,10 @@ import me.chan.texas.di.core.TextEngineCoreComponent;
 import me.chan.texas.renderer.core.sync.WorkerMessager;
 import me.chan.texas.renderer.core.worker.MixTask;
 import me.chan.texas.renderer.core.worker.OddWorker;
+import me.chan.texas.renderer.core.worker.ParagraphTypesetWorker;
 import me.chan.texas.renderer.core.worker.ParseWorker;
 import me.chan.texas.renderer.core.worker.RenderWorker;
-import me.chan.texas.renderer.core.worker.ParagraphTypesetWorker;
 import me.chan.texas.utils.concurrency.TaskQueue;
-
-import javax.inject.Inject;
-import javax.inject.Named;
 
 /**
  * 工作调度
@@ -27,8 +25,6 @@ import javax.inject.Named;
 @RestrictTo(LIBRARY)
 public class WorkerScheduler {
     private static volatile WorkerScheduler sInstance;
-
-    private static final AtomicInteger UUID = new AtomicInteger();
 
     // handler需要设置线程可见性，这样一旦释放了handler，工作线程能立马看到
     // 滞后的消息就不会发到主线程
@@ -125,9 +121,5 @@ public class WorkerScheduler {
         scheduler.mRendererTaskQueue.cancel(token);
         scheduler.mMixTaskQueue.cancel(token);
         scheduler.mMessager.clear(token);
-    }
-
-    public static int requestId() {
-        return UUID.incrementAndGet();
     }
 }

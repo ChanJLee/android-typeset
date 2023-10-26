@@ -6,6 +6,8 @@ import android.os.Message;
 
 import androidx.annotation.NonNull;
 
+import me.chan.texas.utils.concurrency.TaskQueue;
+
 public class AndroidWorkerMessager extends WorkerMessager {
 	private final Handler mHandler;
 
@@ -16,7 +18,8 @@ public class AndroidWorkerMessager extends WorkerMessager {
 				int count = mListeners.size();
 				for (int i = 0; i < count; ++i) {
 					Listener listener = mListeners.get(i);
-					if (listener.handleMessage(msg.what, (WorkerMessage) msg.obj)) {
+					WorkerMessage message = (WorkerMessage) msg.obj;
+					if (listener.handleMessage(message.getToken(), message)) {
 						break;
 					}
 				}
@@ -26,15 +29,16 @@ public class AndroidWorkerMessager extends WorkerMessager {
 	}
 
 	@Override
-	public void send(int id, WorkerMessage message) {
+	public void send(TaskQueue.Token token, WorkerMessage message) {
 		android.os.Message msg = android.os.Message.obtain();
-		msg.what = id;
+		msg.what = token.getId();
 		msg.obj = message;
+		message.setToken(token);
 		mHandler.sendMessage(msg);
 	}
 
 	@Override
-	public void clear(int id) {
-		mHandler.removeMessages(id);
+	public void clear(TaskQueue.Token token) {
+		mHandler.removeMessages(token.getId());
 	}
 }

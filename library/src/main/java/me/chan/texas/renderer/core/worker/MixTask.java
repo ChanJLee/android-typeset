@@ -7,6 +7,7 @@ import android.os.SystemClock;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -49,6 +50,7 @@ import me.chan.texas.text.layout.Line;
 import me.chan.texas.text.layout.Penalty;
 import me.chan.texas.utils.concurrency.TaskQueue;
 
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 public class MixTask implements TaskQueue.Listener<MixTask.Args, TypesetEngine.TypesetResult>, TaskQueue.Task<MixTask.Args, TypesetEngine.TypesetResult> {
 	private static final int TYPE_SUCCESS = 1;
 

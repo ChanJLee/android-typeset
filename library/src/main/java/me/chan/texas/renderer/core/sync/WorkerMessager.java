@@ -48,6 +48,8 @@ public abstract class WorkerMessager {
 		private Object mArg;
 		private Object mValue;
 
+		private TaskQueue.Token mToken;
+
 		private WorkerMessage() {
 		}
 
@@ -96,10 +98,18 @@ public abstract class WorkerMessager {
 			}
 
 			mArg = mValue = null;
+			mToken = null;
 			super.recycle();
 			POOL.release(this);
 		}
 
+		public TaskQueue.Token getToken() {
+			return mToken;
+		}
+
+		public void setToken(TaskQueue.Token token) {
+			mToken = token;
+		}
 
 		public static WorkerMessage obtain(int type, Object arg, Object value) {
 			WorkerMessage message = POOL.acquire();
