@@ -17,14 +17,11 @@ import me.chan.texas.renderer.selection.ParagraphSelection;
 import me.chan.texas.renderer.ui.decor.ParagraphDecor;
 import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.layout.Layout;
-
-import java.util.concurrent.atomic.AtomicInteger;
+import me.chan.texas.utils.concurrency.TaskQueue;
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public abstract class AbsTextureParagraphView extends View implements TextureParagraph {
-	private static final AtomicInteger UUID = new AtomicInteger(0);
-
-	private final int mId = UUID.incrementAndGet();
+	private final TaskQueue.Token mToken = TaskQueue.Token.newInstance();
 
 	protected RenderOption mRenderOption;
 	protected Paragraph mParagraph;
@@ -108,8 +105,8 @@ public abstract class AbsTextureParagraphView extends View implements TexturePar
 	protected abstract void onRender();
 
 	@Override
-	public int getTaskId() {
-		return mId;
+	public TaskQueue.Token getToken() {
+		return mToken;
 	}
 
 	@Override

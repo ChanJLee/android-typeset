@@ -36,26 +36,26 @@ public class AndroidTaskQueue implements TaskQueue {
 	}
 
 	@Override
-	public <A, R> void submit(int id, @NonNull A args, @NonNull Task<A, R> task, @NonNull Listener<A, R> listener) {
+	public <A, R> void submit(Token token, @NonNull A args, @NonNull Task<A, R> task, @NonNull Listener<A, R> listener) {
 		Message message = Message.obtain();
-		message.what = id;
-		message.obj = Args.obtain(args, task, listener);
+		message.what = token.getId();
+		message.obj = Args.obtain(token, args, task, listener);
 		Handler handler = getHandler(true);
 		handler.sendMessage(message);
 	}
 
 	@Override
-	public <A, R> R submitSync(int id, @NonNull A args, @NonNull Task<A, R> task) throws Throwable {
-		return task.run(id, args);
+	public <A, R> R submitSync(Token token, @NonNull A args, @NonNull Task<A, R> task) throws Throwable {
+		return task.run(token, args);
 	}
 
 	@Override
-	public synchronized void cancel(int id) {
+	public synchronized void cancel(Token token) {
 		Handler handler = getHandler(false);
 		if (handler == null) {
 			return;
 		}
-		handler.removeMessages(id);
+		handler.removeMessages(token.getId());
 	}
 
 	@Override
@@ -74,24 +74,24 @@ public class AndroidTaskQueue implements TaskQueue {
 		@Override
 		@SuppressWarnings("unchecked")
 		public void handleMessage(@NonNull Message msg) {
-			int id = msg.what;
 			Args obj = (Args) msg.obj;
+			Token token = obj.token;
 
 			Listener listener = obj.listener;
 			if (listener != null) {
-				listener.onStart(id, obj.args);
+				listener.onStart(token, obj.args);
 			}
 
 			Task task = obj.task;
 			Object args = obj.args;
 			try {
-				Object ret = submitSync(id, args, task);
+				Object ret = submitSync(token, args, task);
 				if (listener != null) {
-					listener.onSuccess(id, args, ret);
+					listener.onSuccess(token, args, ret);
 				}
 			} catch (Throwable throwable) {
 				if (listener != null) {
-					listener.onError(id, args, throwable);
+					listener.onError(token, args, throwable);
 				}
 			}
 		}
@@ -105,6 +105,8 @@ public class AndroidTaskQueue implements TaskQueue {
 
 		private Object args;
 
+		private Token token;
+
 		private Args() {
 		}
 
@@ -117,17 +119,19 @@ public class AndroidTaskQueue implements TaskQueue {
 			task = null;
 			listener = null;
 			args = null;
+			token = null;
 			super.recycle();
 			POOL.release(this);
 		}
 
 		@SuppressWarnings("unchecked")
-		public static Args obtain(Object args, @NonNull Task task, @NonNull Listener listener) {
+		public static Args obtain(Token token, Object args, @NonNull Task task, @NonNull Listener listener) {
 			Args obj = POOL.acquire();
 			if (obj == null) {
 				obj = new Args();
 			}
 
+			obj.token = token;
 			obj.task = task;
 			obj.listener = listener;
 			obj.args = args;

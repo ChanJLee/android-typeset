@@ -4,6 +4,7 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import static me.chan.texas.utils.TexasUtils.parseInt;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.collection.SparseArrayCompat;
 
@@ -43,14 +44,27 @@ public class Hyphenation {
 			return new Hyphenation(HyphenationPattern.newInstance(HyphenationPattern.EN_GB));
 		}
 	};
+	private static final Lazy<Hyphenation> NONE = new Lazy<Hyphenation>() {
+		@Override
+		protected Hyphenation create() {
+			return new Hyphenation();
+		}
+	};
 
 	private static final int UNDER_LINE_CODE_POINT = 95;
 
+	@Nullable
 	private final TrieNode mTrie;
 	private final int mLeftMin;
 	private final int mRightMin;
 
-	private Hyphenation(HyphenationPattern pattern) {
+	private Hyphenation() {
+		mTrie = null;
+		mLeftMin = 0;
+		mRightMin = 0;
+	}
+
+	private Hyphenation(@NonNull HyphenationPattern pattern) {
 		this.mTrie = createTrie(pattern.patterns);
 		this.mLeftMin = pattern.leftMin;
 		this.mRightMin = pattern.rightMin;
@@ -65,6 +79,8 @@ public class Hyphenation {
 			return EN_US.value();
 		} else if (type == HyphenationPattern.EN_GB) {
 			return EN_GB.value();
+		} else if (type == HyphenationPattern.NONE) {
+			return NONE.value();
 		}
 
 		throw new IllegalArgumentException("unknown pattern");
@@ -137,7 +153,7 @@ public class Hyphenation {
 	}
 
 	public void hyphenate(@NonNull CharSequence text, int start, int end, @NonNull IntArray result) {
-		if (start == end) {
+		if (start == end || mTrie == null) {
 			return;
 		}
 

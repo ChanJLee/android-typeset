@@ -5,104 +5,121 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import androidx.annotation.IntDef;
 import androidx.annotation.RestrictTo;
 
+import javax.inject.Inject;
+import javax.inject.Named;
+
 import me.chan.texas.Texas;
 import me.chan.texas.di.TexasComponent;
 import me.chan.texas.di.core.TextEngineCoreComponent;
 import me.chan.texas.renderer.core.sync.WorkerMessager;
+import me.chan.texas.renderer.core.worker.MixTask;
 import me.chan.texas.renderer.core.worker.OddWorker;
+import me.chan.texas.renderer.core.worker.ParagraphTypesetWorker;
 import me.chan.texas.renderer.core.worker.ParseWorker;
 import me.chan.texas.renderer.core.worker.RenderWorker;
-import me.chan.texas.renderer.core.worker.TypesetWorker;
 import me.chan.texas.utils.concurrency.TaskQueue;
-
-import javax.inject.Inject;
-import javax.inject.Named;
 
 /**
  * 工作调度
  */
 @RestrictTo(LIBRARY)
 public class WorkerScheduler {
-	private static volatile WorkerScheduler sInstance;
+    private static volatile WorkerScheduler sInstance;
 
-	// handler需要设置线程可见性，这样一旦释放了handler，工作线程能立马看到
-	// 滞后的消息就不会发到主线程
-	@Inject
-	@Named("MiscTask")
-	TaskQueue mMiscTaskQueue;
+    // handler需要设置线程可见性，这样一旦释放了handler，工作线程能立马看到
+    // 滞后的消息就不会发到主线程
+    @Inject
+    @Named("MiscTask")
+    TaskQueue mMiscTaskQueue;
 
-	@Inject
-	@Named("RendererTask")
-	TaskQueue mRendererTaskQueue;
+    @Inject
+    @Named("RendererTask")
+    TaskQueue mRendererTaskQueue;
 
-	@Inject
-	WorkerMessager mMessager;
+    @Inject
+    @Named("ComputeTask")
+    TaskQueue mMixTaskQueue;
 
-	private final RenderWorker mRenderWorker;
-	private final TypesetWorker mTypesetWorker;
-	private final ParseWorker mParseWorker;
-	private final OddWorker mOddWorker;
+    @Inject
+    WorkerMessager mMessager;
 
-	private WorkerScheduler() {
-		TexasComponent texasComponent = Texas.getTexasComponent();
-		TextEngineCoreComponent textEngineCoreComponent = texasComponent.coreComponent().create();
-		textEngineCoreComponent.inject(this);
+    private final RenderWorker mRenderWorker;
+    private final ParagraphTypesetWorker mTypesetWorker;
+    private final ParseWorker mParseWorker;
+    private final OddWorker mOddWorker;
+    private final MixTask mMixTask;
 
-		mRenderWorker = new RenderWorker(mRendererTaskQueue, mMessager);
-		mTypesetWorker = new TypesetWorker(mMiscTaskQueue, mMessager);
-		mParseWorker = new ParseWorker(mMiscTaskQueue, mMessager);
-		mOddWorker = new OddWorker();
-	}
+    private WorkerScheduler() {
+        TexasComponent texasComponent = Texas.getTexasComponent();
+        TextEngineCoreComponent textEngineCoreComponent = texasComponent.coreComponent().create();
+        textEngineCoreComponent.inject(this);
 
-	private static synchronized WorkerScheduler getInstance() {
-		if (sInstance == null) {
-			sInstance = new WorkerScheduler();
-		}
-		return sInstance;
-	}
+        mRenderWorker = new RenderWorker(mRendererTaskQueue, mMessager);
+        mTypesetWorker = new ParagraphTypesetWorker(mMiscTaskQueue, mMessager);
+        mParseWorker = new ParseWorker(mMiscTaskQueue, mMessager);
+        mOddWorker = new OddWorker();
+        mMixTask = new MixTask(mMixTaskQueue, mMessager);
+    }
 
-	public static ParseWorker parse() {
-		return getInstance().mParseWorker;
-	}
+    private static synchronized WorkerScheduler getInstance() {
+        if (sInstance == null) {
+            sInstance = new WorkerScheduler();
+        }
+        return sInstance;
+    }
 
-	public static RenderWorker render() {
-		return getInstance().mRenderWorker;
-	}
+    public static ParseWorker parse() {
+        return getInstance().mParseWorker;
+    }
 
-	public static TypesetWorker typeset() {
-		return getInstance().mTypesetWorker;
-	}
+    public static RenderWorker render() {
+        return getInstance().mRenderWorker;
+    }
 
-	public static OddWorker odd() {
-		return getInstance().mOddWorker;
-	}
+    public static ParagraphTypesetWorker typeset() {
+        return getInstance().mTypesetWorker;
+    }
 
+    public static OddWorker odd() {
+        return getInstance().mOddWorker;
+    }
 
-	public static final int TASK_QUEUE_RENDER = 1;
-	public static final int TASK_QUEUE_TYPESET = 2;
-	public static final int TASK_QUEUE_PARSE = 3;
+    /*
+    * 合并排版结果
+    * */
+    public static MixTask mix() {
+        return getInstance().mMixTask;
+    }
 
-	@IntDef({TASK_QUEUE_RENDER, TASK_QUEUE_TYPESET, TASK_QUEUE_PARSE})
-	public @interface TaskQueueType {
+    public static final int TASK_QUEUE_RENDER = 1;
+    public static final int TASK_QUEUE_TYPESET = 2;
+    public static final int TASK_QUEUE_PARSE = 3;
+    public static final int TASK_QUEUE_COMPUTE = 4;
 
-	}
+    @IntDef({TASK_QUEUE_RENDER, TASK_QUEUE_TYPESET, TASK_QUEUE_PARSE})
+    public @interface TaskQueueType {
 
-	public static TaskQueue getTaskQueue(@TaskQueueType int type) {
-		if (type == TASK_QUEUE_RENDER) {
-			return getInstance().mRendererTaskQueue;
-		} else if (type == TASK_QUEUE_TYPESET) {
-			return getInstance().mMiscTaskQueue;
-		} else if (type == TASK_QUEUE_PARSE) {
-			return getInstance().mMiscTaskQueue;
-		}
+    }
 
-		throw new IllegalArgumentException("unknown task queue type");
-	}
+    public static TaskQueue getTaskQueue(@TaskQueueType int type) {
+        if (type == TASK_QUEUE_RENDER) {
+            return getInstance().mRendererTaskQueue;
+        } else if (type == TASK_QUEUE_TYPESET) {
+            return getInstance().mMiscTaskQueue;
+        } else if (type == TASK_QUEUE_PARSE) {
+            return getInstance().mMiscTaskQueue;
+        } else if (type == TASK_QUEUE_COMPUTE) {
+            return getInstance().mMixTaskQueue;
+        }
 
-	public static void cancelAll(int taskId) {
-		WorkerScheduler scheduler = getInstance();
-		scheduler.mMiscTaskQueue.cancel(taskId);
-		scheduler.mRendererTaskQueue.cancel(taskId);
-		scheduler.mMessager.clear(taskId);
-	}
+        throw new IllegalArgumentException("unknown task queue type");
+    }
+
+    public static void cancelAll(TaskQueue.Token token) {
+        WorkerScheduler scheduler = getInstance();
+        scheduler.mMiscTaskQueue.cancel(token);
+        scheduler.mRendererTaskQueue.cancel(token);
+        scheduler.mMixTaskQueue.cancel(token);
+        scheduler.mMessager.clear(token);
+    }
 }

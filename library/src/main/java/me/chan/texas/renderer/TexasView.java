@@ -818,6 +818,12 @@ public final class TexasView extends FrameLayout {
 		private Source<T> mSource;
 		private TexasView mTexasView;
 
+		private Document mDocument;
+
+		public Adapter() {
+			mDocument = Document.createEmptyDocument();
+		}
+
 		private void attach(@NonNull TexasView view) {
 			mTexasView = view;
 			if (mSource != null) {
@@ -860,7 +866,7 @@ public final class TexasView extends FrameLayout {
 		@RestrictTo(RestrictTo.Scope.LIBRARY)
 		public final Document getDocument(TexasOption texasOption) throws SourceOpenException, ParseException {
 			if (mSource == null) {
-				return Document.createEmptyDocument();
+				return mDocument;
 			}
 
 			try {
@@ -875,6 +881,29 @@ public final class TexasView extends FrameLayout {
 				}
 			}
 		}
+
+		/**
+		 * 加载的类型
+		 * */
+		public enum LoadType {
+			LOAD_PREVIOUS, LOAD_NEXT, REFRESH
+		}
+	}
+
+	public void renderLoadingMore() {
+		// todo
+	}
+
+	public void renderRefresh() {
+		// todo
+	}
+
+	public void renderLoadingPrevious() {
+		// todo
+	}
+
+	public void cancelLoading() {
+		// todo
 	}
 
 	public interface SelectionPredicate {
