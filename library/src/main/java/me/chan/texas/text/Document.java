@@ -14,39 +14,10 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY;
  */
 public final class Document {
 	private List<Segment> mSegments;
-	private Segment mFocusSegment;
-	private int mFocusSegmentOffset;
 
 	private Document() {
 		Texas.MemoryOption memoryOption = Texas.getMemoryOption();
 		mSegments = new ArrayList<>(memoryOption.getDocumentSegmentInitialCapacity());
-	}
-
-	/**
-	 * @param segment 设置当前焦点segment，焦点segment的意思是下次渲染的时候，优先将视图滚动到当前segment
-	 */
-	public void setFocusSegment(Segment segment) {
-		setFocusSegment(segment, 0);
-	}
-
-	/**
-	 * @param segment 设置当前焦点segment，焦点segment的意思是下次渲染的时候，优先将视图滚动到当前segment
-	 * @param offset  垂直方向偏移
-	 */
-	public void setFocusSegment(Segment segment, int offset) {
-		mFocusSegment = segment;
-		mFocusSegmentOffset = offset;
-	}
-
-	public int getFocusSegmentSegmentIndex() {
-		return indexOfSegment(mFocusSegment);
-	}
-
-	/**
-	 * @return 获取focus segment偏移量
-	 */
-	public int getFocusSegmentOffset() {
-		return mFocusSegmentOffset;
 	}
 
 	/**
@@ -82,16 +53,6 @@ public final class Document {
 		return mSegments.get(index);
 	}
 
-	/**
-	 * 添加segment
-	 *
-	 * @param segment 添加segment
-	 */
-	public void addSegment(Segment segment) {
-		// 后续如果要支持移除，则需要考虑到 TexasAdapter 的id是否stable
-		mSegments.add(segment);
-	}
-
 	@RestrictTo(LIBRARY)
 	public void release() {
 		int count = mSegments == null ? 0 : mSegments.size();
@@ -100,14 +61,20 @@ public final class Document {
 			segment.recycle();
 		}
 		mSegments = null;
-		mFocusSegment = null;
 	}
 
 	public static Document obtain() {
 		return new Document();
 	}
 
-	public static Document createEmptyDocument() {
-		return obtain();
+	@RestrictTo(LIBRARY)
+	public void insertHead(List<Segment> segments) {
+		segments.addAll(mSegments);
+		mSegments = segments;
+	}
+
+	@RestrictTo(LIBRARY)
+	public void insertTail(List<Segment> segments) {
+		mSegments.addAll(segments);
 	}
 }

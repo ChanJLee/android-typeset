@@ -47,7 +47,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * 每一次点击需要清除上一次的记录，因此通过点击发生selection后，重新高亮不会触发点击事件的回调
  */
 @RestrictTo(LIBRARY)
-public class TexasAdapter extends RecyclerView.Adapter<TexasAdapter.Renderer> {
+public class RendererAdapter extends RecyclerView.Adapter<RendererAdapter.Renderer> {
 	private static final boolean DEBUG = false;
 
 	// 内部自定义的type必须小于0
@@ -83,10 +83,10 @@ public class TexasAdapter extends RecyclerView.Adapter<TexasAdapter.Renderer> {
 	private final SparseArrayCompat<TextureParagraph> mTextureParagraphRecord = new SparseArrayCompat<>();
 	private Listener mListener;
 
-	public TexasAdapter(LayoutInflater layoutInflater,
-						ImageLoader imageLoader,
-						RecyclerView.RecycledViewPool pool,
-						TexasRecyclerView view) {
+	public RendererAdapter(LayoutInflater layoutInflater,
+						   ImageLoader imageLoader,
+						   RecyclerView.RecycledViewPool pool,
+						   TexasRecyclerView view) {
 		mLayoutInflater = layoutInflater;
 		mImageLoader = imageLoader;
 		mPool = pool;
@@ -481,8 +481,8 @@ public class TexasAdapter extends RecyclerView.Adapter<TexasAdapter.Renderer> {
 		 * view segment type计算算法：
 		 * {@link ViewSegment#ViewSegment(int)} 接受R.layout作为构造函数参数
 		 * R.layout是唯一的。当检测到R.layout没有创建过type，就通atomic int自增一来产生一个唯一的type
-		 * 这个自增的id从1开始 {@link TexasAdapter#getItemViewType(int)}
-		 * 而内部保留id则是小于0的 {@link TexasAdapter#TYPE_FIGURE} etc.
+		 * 这个自增的id从1开始 {@link RendererAdapter#getItemViewType(int)}
+		 * 而内部保留id则是小于0的 {@link RendererAdapter#TYPE_FIGURE} etc.
 		 */
 		private final SparseArrayCompat<Integer> mTypeBuffer = new SparseArrayCompat<>(4);
 		private final SparseArrayCompat<Integer> mLayoutBuffer = new SparseArrayCompat<>(4);

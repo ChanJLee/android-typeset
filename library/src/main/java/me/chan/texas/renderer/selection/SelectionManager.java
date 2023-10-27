@@ -22,7 +22,7 @@ import me.chan.texas.renderer.selection.overlay.SelectionDragView;
 import me.chan.texas.renderer.selection.visitor.SelectedTextByClickedVisitor;
 import me.chan.texas.renderer.selection.visitor.SelectedTextByDragVisitor;
 import me.chan.texas.renderer.selection.visitor.SelfDriveSelectedVisitor;
-import me.chan.texas.renderer.ui.TexasAdapter;
+import me.chan.texas.renderer.ui.RendererAdapter;
 import me.chan.texas.renderer.ui.rv.TexasRecyclerView;
 import me.chan.texas.renderer.ui.text.OnSelectedChangedListener;
 import me.chan.texas.renderer.ui.text.TextureParagraph;
@@ -46,7 +46,7 @@ public class SelectionManager implements OnSelectedChangedListener {
 	private OnSpanClickedPredicate mOnSpanClickedPredicate;
 	private OnSpanLongClickedPredicate mOnLongClickedPredicate;
 
-	private final TexasAdapter mAdapter;
+	private final RendererAdapter mAdapter;
 	private final LinearLayoutManager mLayoutManager;
 	private final Listener mListener;
 	private final SelectionDragView mDropView;
@@ -72,7 +72,7 @@ public class SelectionManager implements OnSelectedChangedListener {
 	 */
 	private final int[] mLocations = new int[2];
 
-	public SelectionManager(TexasAdapter adapter,
+	public SelectionManager(RendererAdapter adapter,
 							LinearLayoutManager layoutManager,
 							Listener listener,
 							TexasView texasView,

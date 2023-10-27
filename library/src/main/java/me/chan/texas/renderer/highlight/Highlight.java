@@ -2,7 +2,7 @@ package me.chan.texas.renderer.highlight;
 
 import androidx.annotation.RestrictTo;
 
-import me.chan.texas.renderer.ui.TexasAdapter;
+import me.chan.texas.renderer.ui.RendererAdapter;
 import me.chan.texas.text.Paragraph;
 
 import java.util.ArrayList;
@@ -10,11 +10,11 @@ import java.util.List;
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class Highlight {
-	private final TexasAdapter mAdapter;
+	private final RendererAdapter mAdapter;
 	private final List<ParagraphHighlight> mHighlights = new ArrayList<>();
 	private final int mFirstIndex;
 
-	public Highlight(TexasAdapter adapter, int index) {
+	public Highlight(RendererAdapter adapter, int index) {
 		mAdapter = adapter;
 		mFirstIndex = index;
 	}

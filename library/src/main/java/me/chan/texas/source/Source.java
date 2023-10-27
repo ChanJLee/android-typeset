@@ -2,6 +2,8 @@ package me.chan.texas.source;
 
 import androidx.annotation.AnyThread;
 
+import me.chan.texas.renderer.LoadingStrategy;
+
 /**
  * 设置texas数据源的读取来源
  *
@@ -15,7 +17,7 @@ public interface Source<T> {
 	 * @throws SourceOpenException 异常的时候抛出
 	 */
 	@AnyThread
-	T open() throws SourceOpenException;
+	T open(LoadingStrategy strategy) throws SourceOpenException;
 
 	/**
 	 * 读取完毕，关闭source
