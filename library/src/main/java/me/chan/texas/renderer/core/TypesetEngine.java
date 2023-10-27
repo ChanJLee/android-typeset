@@ -1,7 +1,7 @@
 package me.chan.texas.renderer.core;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
-import static me.chan.texas.renderer.core.worker.MixTask.TYPESET_ACTION_DEFAULT;
+import static me.chan.texas.renderer.core.worker.MixWorker.TYPESET_ACTION_DEFAULT;
 
 import android.util.Log;
 
@@ -18,7 +18,7 @@ import me.chan.texas.misc.PaintSet;
 import me.chan.texas.renderer.RenderOption;
 import me.chan.texas.renderer.Renderer;
 import me.chan.texas.renderer.TexasView;
-import me.chan.texas.renderer.core.worker.MixTask;
+import me.chan.texas.renderer.core.worker.MixWorker;
 import me.chan.texas.text.Document;
 import me.chan.texas.utils.concurrency.TaskQueue;
 
@@ -87,43 +87,52 @@ public class TypesetEngine {
 		}
 
 		cancel();
-
-		MixTask.Args args = MixTask.Args.obtain(outWidth, action, mRenderOption, mDocument, new MixTask.Listener() {
-			@Override
-			public void onStart() {
-				if (mRenderer != null) {
-					mRenderer.start();
-				}
-			}
-
-			@Override
-			public void onFailure(Throwable throwable) {
-				if (throwable instanceof TaskQueue.TokenExpiredException) {
-					if (DEBUG) {
-						w(throwable);
-					}
-					return;
-				}
-
-				if (mRenderer != null) {
-					mRenderer.error(throwable);
-				}
-			}
-
-			@Override
-			public void onSuccess(TypesetResult result) {
-				if (mDocument != result.doc) {
-					releaseDocument(mDocument);
-				}
-				mDocument = result.doc;
-				if (mRenderer != null) {
-					mRenderer.render(mDocument, result.paintSet);
-				}
-
-			}
-		}, mAdapter, mSegmentDecoration);
+		MixWorker.Args args = MixWorker.Args.obtain(
+				outWidth,
+				action,
+				mRenderOption,
+				mDocument,
+				mListener,
+				mAdapter,
+				mSegmentDecoration
+		);
 		WorkerScheduler.mix().submit(mToken, args);
 	}
+
+	private MixWorker.Listener mListener = new MixWorker.Listener() {
+		@Override
+		public void onStart() {
+			if (mRenderer != null) {
+				mRenderer.start();
+			}
+		}
+
+		@Override
+		public void onFailure(Throwable throwable) {
+			if (throwable instanceof TaskQueue.TokenExpiredException) {
+				if (DEBUG) {
+					w(throwable);
+				}
+				return;
+			}
+
+			if (mRenderer != null) {
+				mRenderer.error(throwable);
+			}
+		}
+
+		@Override
+		public void onSuccess(TypesetResult result) {
+			if (mDocument != result.doc) {
+				releaseDocument(mDocument);
+			}
+
+			mDocument = result.doc;
+			if (mRenderer != null) {
+				mRenderer.render(mDocument, result.paintSet);
+			}
+		}
+	};
 
 	public static class TypesetResult {
 		PaintSet paintSet;
@@ -175,7 +184,7 @@ public class TypesetEngine {
 	 */
 	public void reload(RenderOption prevRenderOption) {
 		// 默认只要重新测量就可以了
-		int action = MixTask.TYPESET_ACTION_REMEASURE;
+		int action = MixWorker.TYPESET_ACTION_REMEASURE;
 
 		// 看下是不是只修改了断行策略，只修改了行高
 		// 大概可以提升70%左右的性能
@@ -184,7 +193,7 @@ public class TypesetEngine {
 				RenderOption copy = new RenderOption(prevRenderOption);
 				copy.setBreakStrategy(mRenderOption.getBreakStrategy());
 				if (copy.equals(mRenderOption)) {
-					action = MixTask.TYPESET_ACTION_TYPESET_ONLY;
+					action = MixWorker.TYPESET_ACTION_TYPESET_ONLY;
 				}
 			}
 		}
@@ -213,7 +222,7 @@ public class TypesetEngine {
 			i("reload ignore");
 			return;
 		}
-		typeset(mWidth, MixTask.TYPESET_ACTION_TYPESET_ONLY);
+		typeset(mWidth, MixWorker.TYPESET_ACTION_TYPESET_ONLY);
 	}
 
 	@VisibleForTesting

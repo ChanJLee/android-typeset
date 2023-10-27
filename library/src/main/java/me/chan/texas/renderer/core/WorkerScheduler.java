@@ -12,7 +12,7 @@ import me.chan.texas.Texas;
 import me.chan.texas.di.TexasComponent;
 import me.chan.texas.di.core.TextEngineCoreComponent;
 import me.chan.texas.renderer.core.sync.WorkerMessager;
-import me.chan.texas.renderer.core.worker.MixTask;
+import me.chan.texas.renderer.core.worker.MixWorker;
 import me.chan.texas.renderer.core.worker.OddWorker;
 import me.chan.texas.renderer.core.worker.ParagraphTypesetWorker;
 import me.chan.texas.renderer.core.worker.ParseWorker;
@@ -47,7 +47,7 @@ public class WorkerScheduler {
     private final ParagraphTypesetWorker mTypesetWorker;
     private final ParseWorker mParseWorker;
     private final OddWorker mOddWorker;
-    private final MixTask mMixTask;
+    private final MixWorker mMixTask;
 
     private WorkerScheduler() {
         TexasComponent texasComponent = Texas.getTexasComponent();
@@ -58,7 +58,7 @@ public class WorkerScheduler {
         mTypesetWorker = new ParagraphTypesetWorker(mMiscTaskQueue, mMessager);
         mParseWorker = new ParseWorker(mMiscTaskQueue, mMessager);
         mOddWorker = new OddWorker();
-        mMixTask = new MixTask(mMixTaskQueue, mMessager);
+        mMixTask = new MixWorker(mMixTaskQueue, mMessager);
     }
 
     private static synchronized WorkerScheduler getInstance() {
@@ -87,7 +87,7 @@ public class WorkerScheduler {
     /*
     * 合并排版结果
     * */
-    public static MixTask mix() {
+    public static MixWorker mix() {
         return getInstance().mMixTask;
     }
 

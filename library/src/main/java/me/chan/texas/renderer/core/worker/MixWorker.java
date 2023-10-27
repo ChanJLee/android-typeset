@@ -51,7 +51,7 @@ import me.chan.texas.text.layout.Penalty;
 import me.chan.texas.utils.concurrency.TaskQueue;
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-public class MixTask implements TaskQueue.Listener<MixTask.Args, TypesetEngine.TypesetResult>, TaskQueue.Task<MixTask.Args, TypesetEngine.TypesetResult> {
+public class MixWorker implements TaskQueue.Listener<MixWorker.Args, TypesetEngine.TypesetResult>, TaskQueue.Task<MixWorker.Args, TypesetEngine.TypesetResult> {
 	private static final int TYPE_SUCCESS = 1;
 
 	private static final int TYPE_ERROR = 2;
@@ -79,7 +79,7 @@ public class MixTask implements TaskQueue.Listener<MixTask.Args, TypesetEngine.T
 	@Inject
 	MeasureFactory mMeasureFactory;
 
-	public MixTask(TaskQueue taskQueue, WorkerMessager messager) {
+	public MixWorker(TaskQueue taskQueue, WorkerMessager messager) {
 		mTaskQueue = taskQueue;
 		mMessager = messager;
 		mMessager.addListener((id, value) -> {

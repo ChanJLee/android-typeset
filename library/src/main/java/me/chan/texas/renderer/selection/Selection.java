@@ -10,7 +10,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 
 import me.chan.texas.misc.DefaultRecyclable;
 import me.chan.texas.misc.ObjectPool;
-import me.chan.texas.renderer.ui.TexasAdapter;
+import me.chan.texas.renderer.ui.RendererAdapter;
 import me.chan.texas.renderer.ui.rv.TexasRecyclerView;
 import me.chan.texas.text.Document;
 import me.chan.texas.text.Paragraph;
@@ -21,7 +21,7 @@ import java.util.List;
 public final class Selection extends DefaultRecyclable {
 	private static final ObjectPool<Selection> POOL = new ObjectPool<>(8);
 
-	private TexasAdapter mTexasAdapter;
+	private RendererAdapter mTexasAdapter;
 	private LinearLayoutManager mTexasLayoutManager;
 	private final List<ParagraphSelection> mParagraphSelectionList = new ArrayList<>();
 	private final RectEdge mRectEdge = new RectEdge();
@@ -235,7 +235,7 @@ public final class Selection extends DefaultRecyclable {
 		}
 	}
 
-	public static Selection obtain(TexasAdapter adapter, LinearLayoutManager layoutManager) {
+	public static Selection obtain(RendererAdapter adapter, LinearLayoutManager layoutManager) {
 		Selection selection = POOL.acquire();
 		if (selection == null) {
 			selection = new Selection();

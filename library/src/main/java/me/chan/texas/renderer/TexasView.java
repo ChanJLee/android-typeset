@@ -47,6 +47,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.ref.WeakReference;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -821,7 +822,7 @@ public final class TexasView extends FrameLayout {
 		private Document mDocument;
 
 		public Adapter() {
-			mDocument = Document.createEmptyDocument();
+			mDocument = Document.obtain();
 		}
 
 		private void attach(@NonNull TexasView view) {
@@ -860,18 +861,30 @@ public final class TexasView extends FrameLayout {
 		 */
 		@NonNull
 		@AnyThread
-		protected abstract Document parse(@NonNull T content, TexasOption texasOption, LoadType loadType) throws ParseException;
+		protected abstract List<Segment> parse(@NonNull T content, TexasOption texasOption, LoadingStrategy loadType) throws ParseException;
 
 		@NonNull
 		@RestrictTo(RestrictTo.Scope.LIBRARY)
-		public final Document getDocument(TexasOption texasOption, LoadType loadType) throws SourceOpenException, ParseException {
+		public final Document getDocument(TexasOption texasOption, LoadingStrategy loadType) throws SourceOpenException, ParseException {
 			if (mSource == null) {
-				return null;
+				return mDocument;
 			}
 
 			try {
-				T value = mSource.open();
-				return parse(value, texasOption, loadType);
+				T value = mSource.open(loadType);
+				if (value == null) {
+					return mDocument;
+				}
+
+				List<Segment> segments = parse(value, texasOption, loadType);
+				if (loadType == LoadingStrategy.LOAD_PREVIOUS) {
+					mDocument.insertHead(segments);
+				} else if (loadType == LoadingStrategy.LOAD_MORE) {
+					mDocument.insertTail(segments);
+				} else {
+					throw new IllegalStateException("unknown load type: " + loadType);
+				}
+				return mDocument;
 			} finally {
 				// close quietly
 				try {
@@ -881,39 +894,13 @@ public final class TexasView extends FrameLayout {
 				}
 			}
 		}
-
-		/**
-		 * 加载的类型
-		 */
-		public enum LoadType {
-			/**
-			 * 加载之前
-			 */
-			LOAD_PREVIOUS,
-			/**
-			 * 加载之后
-			 */
-			LOAD_NEXT,
-			/**
-			 * 初始化
-			 */
-			INIT
-		}
 	}
 
 	public void renderLoadingMore() {
 		// todo
 	}
 
-	public void renderRefresh() {
-		// todo
-	}
-
 	public void renderLoadingPrevious() {
-		// todo
-	}
-
-	public void cancelLoading() {
 		// todo
 	}
 

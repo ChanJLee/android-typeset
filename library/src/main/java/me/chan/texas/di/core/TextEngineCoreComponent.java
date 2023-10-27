@@ -4,7 +4,7 @@ import me.chan.texas.renderer.core.TypesetEngine;
 import me.chan.texas.renderer.core.WorkerScheduler;
 
 import dagger.Subcomponent;
-import me.chan.texas.renderer.core.worker.MixTask;
+import me.chan.texas.renderer.core.worker.MixWorker;
 
 @Subcomponent
 public interface TextEngineCoreComponent {
@@ -17,5 +17,5 @@ public interface TextEngineCoreComponent {
 
 	void inject(WorkerScheduler workerScheduler);
 
-	void inject(MixTask mixTask);
+	void inject(MixWorker mixTask);
 }

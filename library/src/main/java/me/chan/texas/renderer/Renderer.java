@@ -28,7 +28,7 @@ import me.chan.texas.renderer.highlight.HighlightManager;
 import me.chan.texas.renderer.highlight.ParagraphHighlight;
 import me.chan.texas.renderer.selection.Selection;
 import me.chan.texas.renderer.selection.SelectionManager;
-import me.chan.texas.renderer.ui.TexasAdapter;
+import me.chan.texas.renderer.ui.RendererAdapter;
 import me.chan.texas.renderer.ui.decor.ParagraphDecor;
 import me.chan.texas.renderer.ui.rv.SegmentItemDecoration;
 import me.chan.texas.renderer.ui.rv.TexasLinearLayoutManager;
@@ -61,7 +61,7 @@ public class Renderer implements SelectionManager.Listener {
 	/**
 	 * 数据子系统
 	 */
-	private final TexasAdapter mAdapter;
+	private final RendererAdapter mAdapter;
 	/**
 	 * 视图显示窗口
 	 */
@@ -122,8 +122,8 @@ public class Renderer implements SelectionManager.Listener {
 		);
 		mImpl.addOnScrollListener(mOnScrollListener);
 
-		mAdapter = new TexasAdapter(layoutInflater, imageLoader, mImpl.getRecycledViewPool(), mImpl);
-		mAdapter.setListener(new TexasAdapter.Listener() {
+		mAdapter = new RendererAdapter(layoutInflater, imageLoader, mImpl.getRecycledViewPool(), mImpl);
+		mAdapter.setListener(new RendererAdapter.Listener() {
 			@Override
 			public void onSegmentClicked(float x, float y, Object tag) {
 				mTexasView.notifySegmentClicked(x, y, tag);
@@ -136,12 +136,12 @@ public class Renderer implements SelectionManager.Listener {
 
 			@Override
 			public void onLoadingMore(int count) {
-				// todo
+				mTexasView.renderLoadingMore();
 			}
 
 			@Override
 			public void onLoadingPrevious() {
-				// todo
+				mTexasView.renderLoadingPrevious();
 			}
 		});
 		mImpl.addItemDecoration(new SegmentItemDecoration(mAdapter));
