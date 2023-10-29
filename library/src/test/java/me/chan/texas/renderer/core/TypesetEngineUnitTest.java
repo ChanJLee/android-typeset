@@ -150,7 +150,7 @@ public class TypesetEngineUnitTest {
 		if (reload) {
 			mTypesetEngine.reload(renderOption);
 		} else {
-			mTypesetEngine.typeset(width);
+			mTypesetEngine.typeset(width, document);
 		}
 		countDownLatch.await();
 

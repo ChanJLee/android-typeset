@@ -14,7 +14,6 @@ import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.util.TypedValue;
-import android.view.ViewTreeObserver;
 import android.widget.FrameLayout;
 
 import androidx.annotation.AnyThread;
@@ -25,6 +24,13 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.UiThread;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
+
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.ref.WeakReference;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import me.chan.texas.R;
 import me.chan.texas.Texas;
@@ -42,13 +48,6 @@ import me.chan.texas.text.HyphenStrategy;
 import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.Segment;
 import me.chan.texas.utils.TexasUtils;
-
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.ref.WeakReference;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 /**
  * 渲染引擎入口视图
@@ -108,7 +107,6 @@ public final class TexasView extends FrameLayout {
 	public final static Map<String, WeakReference<Typeface>> TYPEFACE_CACHE = new HashMap<>();
 
 	private Renderer mRenderer;
-	private ViewTreeObserver.OnGlobalLayoutListener mLastOnGlobalLayoutListener = null;
 	private RenderListener mRenderListener;
 	private OnClickedListener mOnClickedListener;
 	private Adapter<?> mAdapter;
@@ -331,7 +329,7 @@ public final class TexasView extends FrameLayout {
 		mRenderer.setSegmentDecoration(segmentDecoration);
 	}
 
-	private void render() {
+	private void render(LoadingStrategy loadingStrategy) {
 		if (mRenderer == null) {
 			return;
 		}
@@ -339,39 +337,17 @@ public final class TexasView extends FrameLayout {
 		int width = getRenderWidth();
 		if (width > 0) {
 			d("set source direct");
-			mRenderer.render(width);
-			return;
+			mRenderer.render(width, loadingStrategy);
 		}
 
-		i("unknown size, try later, width: " + width);
-		ViewTreeObserver viewTreeObserver = getViewTreeObserver();
-		if (mLastOnGlobalLayoutListener != null) {
-			d("remove last on global layout listener");
-			viewTreeObserver.removeOnGlobalLayoutListener(mLastOnGlobalLayoutListener);
-		}
+		/* wait... onSizeChanged */
+	}
 
-		mLastOnGlobalLayoutListener = new ViewTreeObserver.OnGlobalLayoutListener() {
-			@Override
-			public void onGlobalLayout() {
-				int width = getRenderWidth();
-				if (mRenderer == null) {
-					i("renderer is null");
-					getViewTreeObserver().removeOnGlobalLayoutListener(this);
-					return;
-				}
-
-				if (width <= 0) {
-					i("unknown size, try later, width: " + width);
-					return;
-				}
-
-				i("get width, render: " + width);
-				getViewTreeObserver().removeOnGlobalLayoutListener(this);
-				mRenderer.render(width);
-				mLastOnGlobalLayoutListener = null;
-			}
-		};
-		viewTreeObserver.addOnGlobalLayoutListener(mLastOnGlobalLayoutListener);
+	@Override
+	protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+		super.onSizeChanged(w, h, oldw, oldh);
+		/* render if size changed */
+		render(mRenderer.hasContent() ? LoadingStrategy.LOAD_REFRESH : LoadingStrategy.LOAD_MORE);
 	}
 
 	private int getRenderWidth() {
@@ -413,7 +389,6 @@ public final class TexasView extends FrameLayout {
 		}
 
 		d("bind adapter");
-		mRenderer.setAdapter(adapter);
 		adapter.attach(this);
 		mAdapter = adapter;
 	}
@@ -461,7 +436,6 @@ public final class TexasView extends FrameLayout {
 		mRenderListener = null;
 		mOnClickedListener = null;
 		mOnDragSelectListener = null;
-		mLastOnGlobalLayoutListener = null;
 		if (mRenderer != null) {
 			mRenderer.release();
 			mRenderer = null;
@@ -819,7 +793,7 @@ public final class TexasView extends FrameLayout {
 		private Source<T> mSource;
 		private TexasView mTexasView;
 
-		private Document mDocument;
+		private final Document mDocument;
 
 		public Adapter() {
 			mDocument = Document.obtain();
@@ -828,7 +802,7 @@ public final class TexasView extends FrameLayout {
 		private void attach(@NonNull TexasView view) {
 			mTexasView = view;
 			if (mSource != null) {
-				view.render();
+				view.render(LoadingStrategy.LOAD_MORE);
 			}
 		}
 
@@ -844,12 +818,12 @@ public final class TexasView extends FrameLayout {
 		@UiThread
 		public final void setSource(Source<T> source) {
 			mSource = source;
-			notifyViewsRender();
+			notifyViewsRender(LoadingStrategy.LOAD_MORE);
 		}
 
-		private void notifyViewsRender() {
+		private void notifyViewsRender(LoadingStrategy strategy) {
 			if (mTexasView != null) {
-				mTexasView.render();
+				mTexasView.render(strategy);
 			}
 		}
 

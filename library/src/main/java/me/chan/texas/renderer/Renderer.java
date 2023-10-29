@@ -23,6 +23,8 @@ import me.chan.texas.R;
 import me.chan.texas.image.ImageLoader;
 import me.chan.texas.misc.PaintSet;
 import me.chan.texas.renderer.core.TypesetEngine;
+import me.chan.texas.renderer.core.WorkerScheduler;
+import me.chan.texas.renderer.core.worker.LoadingWorker;
 import me.chan.texas.renderer.highlight.Highlight;
 import me.chan.texas.renderer.highlight.HighlightManager;
 import me.chan.texas.renderer.highlight.ParagraphHighlight;
@@ -35,6 +37,7 @@ import me.chan.texas.renderer.ui.rv.TexasLinearLayoutManager;
 import me.chan.texas.renderer.ui.rv.TexasRecyclerView;
 import me.chan.texas.text.Document;
 import me.chan.texas.utils.TexasUtils;
+import me.chan.texas.utils.concurrency.TaskQueue;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -44,525 +47,538 @@ import java.lang.reflect.Method;
  */
 @RestrictTo(LIBRARY)
 public class Renderer implements SelectionManager.Listener {
-
-	/**
-	 * 显示参数
-	 */
-	private RenderOption mRenderOption;
-	/**
-	 * 显示总窗口
-	 */
-	private final TexasView mTexasView;
-
-	/**
-	 * 排版子系统
-	 */
-	private TypesetEngine mTypesetEngine;
-	/**
-	 * 数据子系统
-	 */
-	private final RendererAdapter mAdapter;
-	/**
-	 * 视图显示窗口
-	 */
-	private final TexasRecyclerView mImpl;
-	/**
-	 * 视图排版子系统
-	 */
-	private final TexasLinearLayoutManager mLinearLayoutManager;
-	/**
-	 * 内容选择子系统
-	 */
-	private final SelectionManager mSelectionManager;
-	/**
-	 * 内容高亮
-	 */
-	private final HighlightManager mHighlightManager;
-
-	private final RecyclerView.OnScrollListener mOnScrollListener = new RecyclerView.OnScrollListener() {
-		@Override
-		public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
-			mTexasView.notifyScrollStateChanged(rvState2InternalState(newState));
-		}
-
-		@Override
-		public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
-			mTexasView.notifyScrollChanged(dx, dy);
-		}
-	};
-
-	public Renderer(final TexasView texasView, RenderOption renderOption) {
-		mTexasView = texasView;
-		mRenderOption = renderOption;
-
-		// misc modules
-		Context context = texasView.getContext();
-		ImageLoader imageLoader = new ImageLoader(context);
-		LayoutInflater layoutInflater = LayoutInflater.from(context);
-
-		// core
-		mTypesetEngine = new TypesetEngine(this, mRenderOption);
-
-		// rv
-		mLinearLayoutManager = new TexasLinearLayoutManager(context);
-		mImpl = new TexasRecyclerView(new ContextThemeWrapper(context, R.style.com_shanbay_lib_texas_TexasRecyclerView), mLinearLayoutManager);
-		mImpl.setClipToPadding(false);
-		mImpl.setClipChildren(false);
-		mImpl.setOnClickedListener(new TexasRecyclerView.OnClickedListener() {
-			@Override
-			public void onClicked(float x, float y) {
-				mTexasView.notifyEmptyClicked(x, y);
-			}
-		});
-		mImpl.setLayoutManager(mLinearLayoutManager);
-		texasView.addView(mImpl,
-				new TexasView.LayoutParams(
-						ViewGroup.LayoutParams.MATCH_PARENT,
-						ViewGroup.LayoutParams.MATCH_PARENT)
-		);
-		mImpl.addOnScrollListener(mOnScrollListener);
-
-		mAdapter = new RendererAdapter(layoutInflater, imageLoader, mImpl.getRecycledViewPool(), mImpl);
-		mAdapter.setListener(new RendererAdapter.Listener() {
-			@Override
-			public void onSegmentClicked(float x, float y, Object tag) {
-				mTexasView.notifySegmentClicked(x, y, tag);
-			}
-
-			@Override
-			public void onSegmentDoubleClicked(float x, float y, Object tag) {
-				mTexasView.notifySegmentDoubleClicked(x, y, tag);
-			}
-
-			@Override
-			public void onLoadingMore(int count) {
-				mTexasView.renderLoadingMore();
-			}
-
-			@Override
-			public void onLoadingPrevious() {
-				mTexasView.renderLoadingPrevious();
-			}
-		});
-		mImpl.addItemDecoration(new SegmentItemDecoration(mAdapter));
-
-		// selection
-		mSelectionManager = new SelectionManager(mAdapter, mLinearLayoutManager, this, texasView, mImpl);
-		mAdapter.setSelectionManager(mSelectionManager);
-
-		// highlight
-		mHighlightManager = new HighlightManager(mAdapter);
-		mAdapter.setHighlightManager(mHighlightManager);
-
-		// adapter
-		mImpl.setAdapter(mAdapter);
-	}
-
-	public void start() {
-		onStart();
-		mTexasView.notifyRenderStart();
-	}
-
-	protected void onStart() {
-		d("on start");
-		mHighlightManager.clear();
-		mSelectionManager.clear();
-		mAdapter.clear();
-	}
-
-	public void render(@NonNull Document document, PaintSet paintSet) {
-		if (mTypesetEngine == null) {
-			w("render, core is null");
-			return;
-		}
-
-		onRenderer(
-				document,
-				paintSet,
-				mRenderOption
-		);
-		mTexasView.notifyRenderEnd();
-	}
-
-	protected void onRenderer(Document document,
-							  PaintSet paintSet,
-							  RenderOption renderOption) {
-		if (document == null) {
-			/* do nothing */
-			return;
-		}
-
-		mHighlightManager.clear();
-		mSelectionManager.clear();
-		mAdapter.render(
-				document,
-				paintSet,
-				renderOption
-		);
-
-		int index = document.getFocusSegmentSegmentIndex();
-		d("render scroll to: " + index);
-		if (index >= 0 && index < document.getSegmentCount()) {
-			mImpl.scrollToPosition(index, false, document.getFocusSegmentOffset());
-		}
-	}
-
-	public void error(Throwable throwable) {
-		w(throwable);
-		onError(throwable);
-		mTexasView.notifyRenderError(throwable);
-	}
-
-	protected void onError(Throwable throwable) {
-		Log.w("SlidingTexasRenderer", throwable);
-	}
-
-	@CallSuper
-	public void release() {
-		onRelease();
-		if (mTypesetEngine == null) {
-			w("release, core is null");
-			return;
-		}
-
-		mTypesetEngine.release();
-		mTypesetEngine = null;
-	}
-
-	public RenderOption createRendererOption() {
-		return new RenderOption(mRenderOption);
-	}
-
-	public void refresh(RenderOption renderOption) {
-		if (mTypesetEngine == null) {
-			// fix https://bugly.qq.com/v2/crash-reporting/crashes/900021510/404021/report?pid=1&search=texas&searchType=detail&bundleId=&channelId=&version=all&tagList=&start=0&date=all
-			w("refresh, core is null");
-			return;
-		}
-
-		d("refresh");
-		boolean needReload = TexasUtils.diff(mRenderOption, renderOption);
-
-		RenderOption prev = mRenderOption;
-		mRenderOption = renderOption;
-		mAdapter.updateRenderOption(mRenderOption);
-		mSelectionManager.updateRenderOption(mRenderOption);
-		mTypesetEngine.updateRenderOption(mRenderOption);
-
-		// 如果需要排版那么需要通知底层重新排版
-		if (needReload) {
-			d("refresh, but need to reload");
-			mTypesetEngine.reload(prev);
-			return;
-		}
-
-		// compat mode 改变了 只需要重新加载
-		if (prev.isCompatMode() != mRenderOption.isCompatMode()) {
-			reload();
-			return;
-		}
-
-		redrawInternal();
-	}
-
-	/**
-	 * @param width 期望的宽度
-	 */
-	public void render(int width) {
-		if (mTypesetEngine == null) {
-			w("render, core is null");
-			return;
-		}
-
-		mTypesetEngine.typeset(width);
-	}
-
-	public void setAdapter(TexasView.Adapter<?> adapter) {
-		if (mTypesetEngine == null) {
-			w("set parser, core is null");
-			return;
-		}
-
-		mTypesetEngine.setAdapter(adapter);
-	}
-
-	@Nullable
-	public Document getDocument() {
-		if (mTypesetEngine == null) {
-			w("get document, core is null");
-			return null;
-		}
-		return mTypesetEngine.getDocument();
-	}
-
-	public Selection getSelection() {
-		return mSelectionManager.getCurrentSelection();
-	}
-
-	public int getFirstVisibleSegmentIndex(boolean completelyVisible) {
-		return completelyVisible ?
-				mLinearLayoutManager.findFirstCompletelyVisibleItemPosition() :
-				mLinearLayoutManager.findFirstVisibleItemPosition();
-	}
-
-	public void scrollToPosition(int position, boolean smooth, int offset) {
-		mImpl.scrollToPosition(position, smooth, offset);
-	}
-
-	public void highlightParagraphs(TexasView.HighlightPredicate predicate, boolean scrollTo, int offset) {
-		Highlight area = mHighlightManager.highlightParagraphs(predicate);
-		if (area == null || area.isEmpty()) {
-			return;
-		}
-
-		if (!scrollTo) {
-			return;
-		}
-
-		int firstVisibleItemIndex = mLinearLayoutManager.findFirstVisibleItemPosition();
-		int lastVisibleItemIndex = mLinearLayoutManager.findLastVisibleItemPosition();
-		int currentItemIndex = area.getFirstIndexInDocument();
-		if (currentItemIndex <= firstVisibleItemIndex || currentItemIndex >= lastVisibleItemIndex) {
-			ParagraphHighlight paragraphHighlight = area.get(0);
-			mLinearLayoutManager.scrollToPositionWithOffset(currentItemIndex, (int) (offset - paragraphHighlight.getYInParagraph()));
-		}
-	}
-
-	public void clearHighlight() {
-		mHighlightManager.clear();
-	}
-
-	public void clearSelection() {
-		mSelectionManager.clear();
-	}
-
-	public int getScrollState() {
-		int state = mImpl.getScrollState();
-		return rvState2InternalState(state);
-	}
-
-	private static int rvState2InternalState(int state) {
-		if (state == RecyclerView.SCROLL_STATE_IDLE) {
-			return TexasView.SCROLL_STATE_IDLE;
-		} else if (state == RecyclerView.SCROLL_STATE_DRAGGING) {
-			return TexasView.SCROLL_STATE_DRAGGING;
-		} else if (state == RecyclerView.SCROLL_STATE_SETTLING) {
-			return TexasView.SCROLL_STATE_SETTLING;
-		} else {
-			throw new IllegalStateException("unknown rv state: " + state);
-		}
-	}
-
-	public void setScrollBarEnable(boolean enable) {
-		mImpl.setVerticalScrollBarEnabled(enable);
-	}
-
-	public void onRelease() {
-		mImpl.removeOnScrollListener(mOnScrollListener);
-		mImpl.stopScroll();
-		mAdapter.release();
-	}
-
-	public void setScrollBarDrawable(Drawable drawable) {
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-			mImpl.setVerticalScrollbarThumbDrawable(drawable);
-		} else {
-			setScrollBarDrawableLowQ(drawable);
-		}
-	}
-
-	public Drawable getScrollBarDrawable() {
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-			return mImpl.getVerticalScrollbarThumbDrawable();
-		} else {
-			return getScrollBarDrawableLowQ();
-		}
-	}
-
-	@Nullable
-	private Object getScrollbar() {
-		try {
-			Class<View> clazz = View.class;
-			@SuppressLint({"DiscouragedPrivateApi", "SoonBlockedPrivateApi"})
-			Method method = clazz.getDeclaredMethod("getScrollCache");
-			method.setAccessible(true);
-			Object cache = method.invoke(mImpl);
-			if (cache == null) {
-				Log.w("SlidingTexasRenderer", "get cache failed");
-				return null;
-			}
-
-			Class<?> cacheClazz = cache.getClass();
-			Field scrollBarField = cacheClazz.getDeclaredField("scrollBar");
-			scrollBarField.setAccessible(true);
-			return scrollBarField.get(cache);
-		} catch (Throwable e) {
-			Log.w("SlidingTexasRenderer", e);
-		}
-		return null;
-	}
-
-	private Drawable getScrollBarDrawableLowQ() {
-		try {
-			Object scrollbarObj = getScrollbar();
-			if (scrollbarObj == null) {
-				Log.w("SlidingTexasRenderer", "get scroll bar failed");
-				return null;
-			}
-
-			Class<?> scrollbarClass = scrollbarObj.getClass();
-			Field field = scrollbarClass.getDeclaredField("mVerticalThumb");
-			field.setAccessible(true);
-			return (Drawable) field.get(scrollbarObj);
-		} catch (Throwable throwable) {
-			Log.w("SlidingTexasRenderer", throwable);
-		}
-		return null;
-	}
-
-	@SuppressLint("DiscouragedPrivateApi")
-	private void setScrollBarDrawableLowQ(Drawable drawable) {
-		try {
-			Object scrollbarObj = getScrollbar();
-			if (scrollbarObj == null) {
-				Log.w("SlidingTexasRenderer", "get scroll bar failed");
-				return;
-			}
-
-			Class<?> scrollbarClass = scrollbarObj.getClass();
-			Method method = scrollbarClass.getDeclaredMethod("setVerticalThumbDrawable", Drawable.class);
-			method.setAccessible(true);
-			method.invoke(scrollbarObj, drawable);
-		} catch (Throwable e) {
-			Log.w("SlidingTexasRenderer", e);
-		}
-	}
-
-	public void setOnSpanLongClickedPredicate(OnSpanLongClickedPredicate predicate) {
-		mSelectionManager.setOnLongClickedPredicate(predicate);
-	}
-
-	public void setOnSpanClickedPredicate(OnSpanClickedPredicate predicate) {
-		mSelectionManager.setOnClickedPredicate(predicate);
-	}
-
-	@SuppressLint("NotifyDataSetChanged")
-	public void redraw() {
-		redraw(0, mAdapter.getItemCount());
-	}
-
-	private void redraw(int start, int end) {
-		if (start >= end || start < 0 || end > mAdapter.getItemCount()) {
-			return;
-		}
-
-		try {
-			mAdapter.notifyItemRangeChanged(start, end - start);
-		} catch (Throwable ignore) {
-			/* update */
-		}
-	}
-
-	public void setPadding(int paddingLeft, int paddingTop, int paddingRight, int paddingBottom) {
-		mImpl.setPadding(paddingLeft, paddingTop, paddingRight, paddingBottom);
-	}
-
-	public void setSegmentDecoration(TexasView.SegmentDecoration segmentDecoration) {
-		if (mTypesetEngine != null) {
-			mTypesetEngine.setSegmentDecoration(segmentDecoration);
-		}
-	}
-
-	private static void d(String msg) {
-		Log.d("TexasRenderer", msg);
-	}
-
-	private static void w(String msg) {
-		Log.w("TexasRenderer", msg);
-	}
-
-	private static void w(Throwable throwable) {
-		Log.w("TexasRenderer", throwable);
-	}
-
-	public RenderOption getRendererOption() {
-		return mRenderOption;
-	}
-
-	public Selection selectParagraphs(TexasView.SelectionPredicate predicate) {
-		return mSelectionManager.selectParagraphs(predicate);
-	}
-
-	public int getPaddingWidth() {
-		return mImpl.getPaddingLeft() + mImpl.getPaddingRight();
-	}
-
-	@SuppressLint("NotifyDataSetChanged")
-	public void reload() {
-		try {
-			mAdapter.notifyItemRangeChanged(0, mAdapter.getItemCount());
-		} catch (Throwable ignore) {
-			/* ignore */
-		}
-	}
-
-	public void resume() {
-		redrawInternal();
-	}
-
-	private void redrawInternal() {
-		// 修复部分机型 在切换到后台后白屏的bug
-		// Activity#makeVisible
-		// see https://cs.android.com/android/platform/superproject/+/master:frameworks/base/core/java/android/app/Activity.java;drc=c7282e57cd01f1576baac04356bf99bee34e4c18;l=4246
-
-		redraw(0, mAdapter.getItemCount());
-	}
-
-	public void pause() {
-		/* do nothing */
-	}
-
-	public void setParagraphDecor(ParagraphDecor decor) {
-		mAdapter.setParagraphDecor(decor);
-		redrawInternal();
-	}
-
-	@Override
-	public void onSpanClicked(float x, float y, Object tag) {
-		mTexasView.notifySpanClicked(x, y, tag);
-	}
-
-	@Override
-	public void onSpanLongClicked(float x, float y, Object tag) {
-		mTexasView.notifySpanLongClicked(x, y, tag);
-	}
-
-	@Override
-	public void onDragStart(float x, float y) {
-		mTexasView.notifyDragStart(x, y);
-	}
-
-	@Override
-	public void onDragEnd(float x, float y) {
-		mTexasView.notifyDragEnd(x, y);
-	}
-
-	@Override
-	public void onDragDismiss() {
-		mTexasView.notifyDragDismiss();
-	}
-
-	@Override
-	public void onSegmentDoubleClicked(Object paragraphTag, float x, float y) {
-		mTexasView.notifySegmentDoubleClicked(x, y, paragraphTag);
-	}
-
-	@Override
-	public void onSegmentClicked(Object paragraphTag, float rawX, float rawY) {
-		mTexasView.notifySegmentClicked(rawX, rawY, paragraphTag);
-	}
-
-	public void setHasFixedSize(boolean enable) {
-		mImpl.setHasFixedSize(enable);
-	}
+    private final TaskQueue.Token mToken = TaskQueue.Token.newInstance();
+
+    /**
+     * 显示参数
+     */
+    private RenderOption mRenderOption;
+    /**
+     * 显示总窗口
+     */
+    private final TexasView mTexasView;
+
+    /**
+     * 排版子系统
+     */
+    private TypesetEngine mTypesetEngine;
+    /**
+     * 数据子系统
+     */
+    private final RendererAdapter mAdapter;
+    /**
+     * 视图显示窗口
+     */
+    private final TexasRecyclerView mImpl;
+    /**
+     * 视图排版子系统
+     */
+    private final TexasLinearLayoutManager mLinearLayoutManager;
+    /**
+     * 内容选择子系统
+     */
+    private final SelectionManager mSelectionManager;
+    /**
+     * 内容高亮
+     */
+    private final HighlightManager mHighlightManager;
+
+    private final RecyclerView.OnScrollListener mOnScrollListener = new RecyclerView.OnScrollListener() {
+        @Override
+        public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
+            mTexasView.notifyScrollStateChanged(rvState2InternalState(newState));
+        }
+
+        @Override
+        public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+            mTexasView.notifyScrollChanged(dx, dy);
+        }
+    };
+
+    public Renderer(final TexasView texasView, RenderOption renderOption) {
+        mTexasView = texasView;
+        mRenderOption = renderOption;
+
+        // misc modules
+        Context context = texasView.getContext();
+        ImageLoader imageLoader = new ImageLoader(context);
+        LayoutInflater layoutInflater = LayoutInflater.from(context);
+
+        // core
+        mTypesetEngine = new TypesetEngine(this, mRenderOption, mToken);
+
+        // rv
+        mLinearLayoutManager = new TexasLinearLayoutManager(context);
+        mImpl = new TexasRecyclerView(new ContextThemeWrapper(context, R.style.com_shanbay_lib_texas_TexasRecyclerView), mLinearLayoutManager);
+        mImpl.setClipToPadding(false);
+        mImpl.setClipChildren(false);
+        mImpl.setOnClickedListener(new TexasRecyclerView.OnClickedListener() {
+            @Override
+            public void onClicked(float x, float y) {
+                mTexasView.notifyEmptyClicked(x, y);
+            }
+        });
+        mImpl.setLayoutManager(mLinearLayoutManager);
+        texasView.addView(mImpl,
+                new TexasView.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.MATCH_PARENT)
+        );
+        mImpl.addOnScrollListener(mOnScrollListener);
+
+        mAdapter = new RendererAdapter(layoutInflater, imageLoader, mImpl.getRecycledViewPool(), mImpl);
+        mAdapter.setListener(new RendererAdapter.Listener() {
+            @Override
+            public void onSegmentClicked(float x, float y, Object tag) {
+                mTexasView.notifySegmentClicked(x, y, tag);
+            }
+
+            @Override
+            public void onSegmentDoubleClicked(float x, float y, Object tag) {
+                mTexasView.notifySegmentDoubleClicked(x, y, tag);
+            }
+
+            @Override
+            public void onLoadingMore(int count) {
+                mTexasView.renderLoadingMore();
+            }
+
+            @Override
+            public void onLoadingPrevious() {
+                mTexasView.renderLoadingPrevious();
+            }
+        });
+        mImpl.addItemDecoration(new SegmentItemDecoration(mAdapter));
+
+        // selection
+        mSelectionManager = new SelectionManager(mAdapter, mLinearLayoutManager, this, texasView, mImpl);
+        mAdapter.setSelectionManager(mSelectionManager);
+
+        // highlight
+        mHighlightManager = new HighlightManager(mAdapter);
+        mAdapter.setHighlightManager(mHighlightManager);
+
+        // adapter
+        mImpl.setAdapter(mAdapter);
+    }
+
+    public void start() {
+        onStart();
+        mTexasView.notifyRenderStart();
+    }
+
+    protected void onStart() {
+        d("on start");
+        mHighlightManager.clear();
+        mSelectionManager.clear();
+        mAdapter.clear();
+    }
+
+    public void render(@NonNull Document document, PaintSet paintSet) {
+        if (mTypesetEngine == null) {
+            w("render, core is null");
+            return;
+        }
+
+        onRenderer(
+                document,
+                paintSet,
+                mRenderOption
+        );
+        mTexasView.notifyRenderEnd();
+    }
+
+    protected void onRenderer(Document document,
+                              PaintSet paintSet,
+                              RenderOption renderOption) {
+        if (document == null) {
+            /* do nothing */
+            return;
+        }
+
+        mHighlightManager.clear();
+        mSelectionManager.clear();
+        mAdapter.render(
+                document,
+                paintSet,
+                renderOption
+        );
+    }
+
+    public void error(Throwable throwable) {
+        w(throwable);
+        onError(throwable);
+        mTexasView.notifyRenderError(throwable);
+    }
+
+    protected void onError(Throwable throwable) {
+        Log.w("SlidingTexasRenderer", throwable);
+    }
+
+    @CallSuper
+    public void release() {
+        onRelease();
+        if (mTypesetEngine == null) {
+            w("release, core is null");
+            return;
+        }
+
+        mTypesetEngine.release();
+        mTypesetEngine = null;
+    }
+
+    public RenderOption createRendererOption() {
+        return new RenderOption(mRenderOption);
+    }
+
+    public void refresh(RenderOption renderOption) {
+        if (mTypesetEngine == null) {
+            // fix https://bugly.qq.com/v2/crash-reporting/crashes/900021510/404021/report?pid=1&search=texas&searchType=detail&bundleId=&channelId=&version=all&tagList=&start=0&date=all
+            w("refresh, core is null");
+            return;
+        }
+
+        d("refresh");
+        boolean needReload = TexasUtils.diff(mRenderOption, renderOption);
+
+        RenderOption prev = mRenderOption;
+        mRenderOption = renderOption;
+        mAdapter.updateRenderOption(mRenderOption);
+        mSelectionManager.updateRenderOption(mRenderOption);
+        mTypesetEngine.updateRenderOption(mRenderOption);
+
+        // 如果需要排版那么需要通知底层重新排版
+        if (needReload) {
+            d("refresh, but need to reload");
+            mTypesetEngine.reload(prev);
+            return;
+        }
+
+        // compat mode 改变了 只需要重新加载
+        if (prev.isCompatMode() != mRenderOption.isCompatMode()) {
+            reload();
+            return;
+        }
+
+        redrawInternal();
+    }
+
+    /**
+     * @param width 期望的宽度
+     */
+    public void render(int width, LoadingStrategy strategy) {
+        if (mTypesetEngine == null) {
+            w("render, core is null");
+            return;
+        }
+
+        WorkerScheduler.loading().cancel(mToken);
+        WorkerScheduler.typeset().cancel(mToken);
+
+        LoadingWorker.Args args = LoadingWorker.Args.obtain(mRenderOption, mTexasView.getAdapter(), strategy, new LoadingWorker.Listener() {
+            @Override
+            public void onStart() {
+                d("try loading doc, width: " + width + ", strategy: " + strategy);
+            }
+
+            @Override
+            public void onFailure(Throwable throwable) {
+                mTexasView.notifyRenderError(throwable);
+            }
+
+            @Override
+            public void onSuccess(Document document) {
+                mTypesetEngine.typeset(width, document);
+            }
+        });
+        WorkerScheduler.loading().submit(mToken, args);
+    }
+
+    @Nullable
+    public Document getDocument() {
+        if (mTypesetEngine == null) {
+            w("get document, core is null");
+            return null;
+        }
+        return mTypesetEngine.getDocument();
+    }
+
+    public Selection getSelection() {
+        return mSelectionManager.getCurrentSelection();
+    }
+
+    public int getFirstVisibleSegmentIndex(boolean completelyVisible) {
+        return completelyVisible ?
+                mLinearLayoutManager.findFirstCompletelyVisibleItemPosition() :
+                mLinearLayoutManager.findFirstVisibleItemPosition();
+    }
+
+    public void scrollToPosition(int position, boolean smooth, int offset) {
+        mImpl.scrollToPosition(position, smooth, offset);
+    }
+
+    public void highlightParagraphs(TexasView.HighlightPredicate predicate, boolean scrollTo, int offset) {
+        Highlight area = mHighlightManager.highlightParagraphs(predicate);
+        if (area == null || area.isEmpty()) {
+            return;
+        }
+
+        if (!scrollTo) {
+            return;
+        }
+
+        int firstVisibleItemIndex = mLinearLayoutManager.findFirstVisibleItemPosition();
+        int lastVisibleItemIndex = mLinearLayoutManager.findLastVisibleItemPosition();
+        int currentItemIndex = area.getFirstIndexInDocument();
+        if (currentItemIndex <= firstVisibleItemIndex || currentItemIndex >= lastVisibleItemIndex) {
+            ParagraphHighlight paragraphHighlight = area.get(0);
+            mLinearLayoutManager.scrollToPositionWithOffset(currentItemIndex, (int) (offset - paragraphHighlight.getYInParagraph()));
+        }
+    }
+
+    public void clearHighlight() {
+        mHighlightManager.clear();
+    }
+
+    public void clearSelection() {
+        mSelectionManager.clear();
+    }
+
+    public int getScrollState() {
+        int state = mImpl.getScrollState();
+        return rvState2InternalState(state);
+    }
+
+    private static int rvState2InternalState(int state) {
+        if (state == RecyclerView.SCROLL_STATE_IDLE) {
+            return TexasView.SCROLL_STATE_IDLE;
+        } else if (state == RecyclerView.SCROLL_STATE_DRAGGING) {
+            return TexasView.SCROLL_STATE_DRAGGING;
+        } else if (state == RecyclerView.SCROLL_STATE_SETTLING) {
+            return TexasView.SCROLL_STATE_SETTLING;
+        } else {
+            throw new IllegalStateException("unknown rv state: " + state);
+        }
+    }
+
+    public void setScrollBarEnable(boolean enable) {
+        mImpl.setVerticalScrollBarEnabled(enable);
+    }
+
+    public void onRelease() {
+        mImpl.removeOnScrollListener(mOnScrollListener);
+        mImpl.stopScroll();
+        mAdapter.release();
+    }
+
+    public void setScrollBarDrawable(Drawable drawable) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            mImpl.setVerticalScrollbarThumbDrawable(drawable);
+        } else {
+            setScrollBarDrawableLowQ(drawable);
+        }
+    }
+
+    public Drawable getScrollBarDrawable() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            return mImpl.getVerticalScrollbarThumbDrawable();
+        } else {
+            return getScrollBarDrawableLowQ();
+        }
+    }
+
+    @Nullable
+    private Object getScrollbar() {
+        try {
+            Class<View> clazz = View.class;
+            @SuppressLint({"DiscouragedPrivateApi", "SoonBlockedPrivateApi"})
+            Method method = clazz.getDeclaredMethod("getScrollCache");
+            method.setAccessible(true);
+            Object cache = method.invoke(mImpl);
+            if (cache == null) {
+                Log.w("SlidingTexasRenderer", "get cache failed");
+                return null;
+            }
+
+            Class<?> cacheClazz = cache.getClass();
+            Field scrollBarField = cacheClazz.getDeclaredField("scrollBar");
+            scrollBarField.setAccessible(true);
+            return scrollBarField.get(cache);
+        } catch (Throwable e) {
+            Log.w("SlidingTexasRenderer", e);
+        }
+        return null;
+    }
+
+    private Drawable getScrollBarDrawableLowQ() {
+        try {
+            Object scrollbarObj = getScrollbar();
+            if (scrollbarObj == null) {
+                Log.w("SlidingTexasRenderer", "get scroll bar failed");
+                return null;
+            }
+
+            Class<?> scrollbarClass = scrollbarObj.getClass();
+            Field field = scrollbarClass.getDeclaredField("mVerticalThumb");
+            field.setAccessible(true);
+            return (Drawable) field.get(scrollbarObj);
+        } catch (Throwable throwable) {
+            Log.w("SlidingTexasRenderer", throwable);
+        }
+        return null;
+    }
+
+    @SuppressLint("DiscouragedPrivateApi")
+    private void setScrollBarDrawableLowQ(Drawable drawable) {
+        try {
+            Object scrollbarObj = getScrollbar();
+            if (scrollbarObj == null) {
+                Log.w("SlidingTexasRenderer", "get scroll bar failed");
+                return;
+            }
+
+            Class<?> scrollbarClass = scrollbarObj.getClass();
+            Method method = scrollbarClass.getDeclaredMethod("setVerticalThumbDrawable", Drawable.class);
+            method.setAccessible(true);
+            method.invoke(scrollbarObj, drawable);
+        } catch (Throwable e) {
+            Log.w("SlidingTexasRenderer", e);
+        }
+    }
+
+    public void setOnSpanLongClickedPredicate(OnSpanLongClickedPredicate predicate) {
+        mSelectionManager.setOnLongClickedPredicate(predicate);
+    }
+
+    public void setOnSpanClickedPredicate(OnSpanClickedPredicate predicate) {
+        mSelectionManager.setOnClickedPredicate(predicate);
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
+    public void redraw() {
+        redraw(0, mAdapter.getItemCount());
+    }
+
+    private void redraw(int start, int end) {
+        if (start >= end || start < 0 || end > mAdapter.getItemCount()) {
+            return;
+        }
+
+        try {
+            mAdapter.notifyItemRangeChanged(start, end - start);
+        } catch (Throwable ignore) {
+            /* update */
+        }
+    }
+
+    public void setPadding(int paddingLeft, int paddingTop, int paddingRight, int paddingBottom) {
+        mImpl.setPadding(paddingLeft, paddingTop, paddingRight, paddingBottom);
+    }
+
+    public void setSegmentDecoration(TexasView.SegmentDecoration segmentDecoration) {
+        if (mTypesetEngine != null) {
+            mTypesetEngine.setSegmentDecoration(segmentDecoration);
+        }
+    }
+
+    private static void d(String msg) {
+        Log.d("TexasRenderer", msg);
+    }
+
+    private static void w(String msg) {
+        Log.w("TexasRenderer", msg);
+    }
+
+    private static void w(Throwable throwable) {
+        Log.w("TexasRenderer", throwable);
+    }
+
+    public RenderOption getRendererOption() {
+        return mRenderOption;
+    }
+
+    public Selection selectParagraphs(TexasView.SelectionPredicate predicate) {
+        return mSelectionManager.selectParagraphs(predicate);
+    }
+
+    public int getPaddingWidth() {
+        return mImpl.getPaddingLeft() + mImpl.getPaddingRight();
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
+    public void reload() {
+        try {
+            mAdapter.notifyItemRangeChanged(0, mAdapter.getItemCount());
+        } catch (Throwable ignore) {
+            /* ignore */
+        }
+    }
+
+    public void resume() {
+        redrawInternal();
+    }
+
+    private void redrawInternal() {
+        // 修复部分机型 在切换到后台后白屏的bug
+        // Activity#makeVisible
+        // see https://cs.android.com/android/platform/superproject/+/master:frameworks/base/core/java/android/app/Activity.java;drc=c7282e57cd01f1576baac04356bf99bee34e4c18;l=4246
+
+        redraw(0, mAdapter.getItemCount());
+    }
+
+    public void pause() {
+        /* do nothing */
+    }
+
+    public void setParagraphDecor(ParagraphDecor decor) {
+        mAdapter.setParagraphDecor(decor);
+        redrawInternal();
+    }
+
+    @Override
+    public void onSpanClicked(float x, float y, Object tag) {
+        mTexasView.notifySpanClicked(x, y, tag);
+    }
+
+    @Override
+    public void onSpanLongClicked(float x, float y, Object tag) {
+        mTexasView.notifySpanLongClicked(x, y, tag);
+    }
+
+    @Override
+    public void onDragStart(float x, float y) {
+        mTexasView.notifyDragStart(x, y);
+    }
+
+    @Override
+    public void onDragEnd(float x, float y) {
+        mTexasView.notifyDragEnd(x, y);
+    }
+
+    @Override
+    public void onDragDismiss() {
+        mTexasView.notifyDragDismiss();
+    }
+
+    @Override
+    public void onSegmentDoubleClicked(Object paragraphTag, float x, float y) {
+        mTexasView.notifySegmentDoubleClicked(x, y, paragraphTag);
+    }
+
+    @Override
+    public void onSegmentClicked(Object paragraphTag, float rawX, float rawY) {
+        mTexasView.notifySegmentClicked(rawX, rawY, paragraphTag);
+    }
+
+    public void setHasFixedSize(boolean enable) {
+        mImpl.setHasFixedSize(enable);
+    }
+
+    public int getWidth() {
+        return mTypesetEngine == null ? 0 : mTypesetEngine.getWidth();
+    }
+
+    public boolean hasContent() {
+        return mAdapter != null && mAdapter.getItemCount() > 0;
+    }
 }

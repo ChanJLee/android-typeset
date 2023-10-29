@@ -27,226 +27,212 @@ import me.chan.texas.utils.concurrency.TaskQueue;
  */
 @RestrictTo(LIBRARY)
 public class TypesetEngine {
-	public static final boolean DEBUG = false;
+    public static final boolean DEBUG = false;
+    private final TaskQueue.Token mToken;
+    private int mWidth = 0;
+    private Document mDocument = null;
 
-	private volatile TexasView.Adapter<?> mAdapter;
-	private int mWidth = 0;
-	private Document mDocument;
-	private Renderer mRenderer;
-	private RenderOption mRenderOption;
-	private TexasView.SegmentDecoration mSegmentDecoration;
+    private Renderer mRenderer;
+    private RenderOption mRenderOption;
+    private TexasView.SegmentDecoration mSegmentDecoration;
 
-	@Inject
-	@Named("ComputeTask")
-	TaskQueue mComputeQueue;
+    @Inject
+    @Named("ComputeTask")
+    TaskQueue mComputeQueue;
 
-	private final TaskQueue.Token mToken = TaskQueue.Token.newInstance();
+    public TypesetEngine(Renderer renderer,
+                         RenderOption renderOption,
+                         TaskQueue.Token token) {
+        mRenderer = renderer;
+        mRenderOption = renderOption;
+        mToken = token;
 
-	public TypesetEngine(Renderer renderer,
-						 RenderOption renderOption) {
-		mRenderer = renderer;
-		mRenderOption = renderOption;
+        TexasComponent texasComponent = Texas.getTexasComponent();
+        TextEngineCoreComponent textEngineCoreComponent = texasComponent.coreComponent().create();
+        textEngineCoreComponent.inject(this);
 
-		TexasComponent texasComponent = Texas.getTexasComponent();
-		TextEngineCoreComponent textEngineCoreComponent = texasComponent.coreComponent().create();
-		textEngineCoreComponent.inject(this);
+        if (DEBUG) {
+            d("typeset engine created: " + mToken);
+        }
+    }
 
-		if (DEBUG) {
-			d("typeset engine created: " + mToken);
-		}
-	}
+    public void typeset(int width, Document document) {
+        mDocument = document;
+        mWidth = width;
+        typeset(width, document, TYPESET_ACTION_DEFAULT);
+    }
 
-	public void setAdapter(TexasView.Adapter<?> adapter) {
-		// 设置adapter之前需要取消所有的任务
-		// 防止document解析错
-		// adapter和对应的数据接口是有关系的
-		cancel();
-		mAdapter = adapter;
-	}
+    /**
+     * typeset content
+     *
+     * @param outWidth width, must be > 0
+     * @param action   action
+     */
+    private void typeset(final int outWidth, Document document, final int action) {
+        if (outWidth <= 0) {
+            w("typeset, width <= 0");
+            mRenderer.error(new IllegalArgumentException("width and height must be large than 0"));
+            return;
+        }
 
-	public void typeset(int width) {
-		typeset(width, TYPESET_ACTION_DEFAULT);
-	}
+        cancel();
+        MixWorker.Args args = MixWorker.Args.obtain(
+                outWidth,
+                action,
+                mRenderOption,
+                document,
+                mListener,
+                mSegmentDecoration
+        );
+        WorkerScheduler.mix().submit(mToken, args);
+    }
 
-	/**
-	 * typeset content
-	 *
-	 * @param outWidth width, must be > 0
-	 * @param action   action
-	 */
-	private void typeset(final int outWidth, final int action) {
-		if (outWidth <= 0) {
-			w("typeset, width <= 0");
-			mRenderer.error(new IllegalArgumentException("width and height must be large than 0"));
-			return;
-		}
+    private final MixWorker.Listener mListener = new MixWorker.Listener() {
+        @Override
+        public void onStart() {
+            if (mRenderer != null) {
+                mRenderer.start();
+            }
+        }
 
-		if (mAdapter == null) {
-			w("typeset, adapter is null");
-			return;
-		}
+        @Override
+        public void onFailure(Throwable throwable) {
+            if (throwable instanceof TaskQueue.TokenExpiredException) {
+                if (DEBUG) {
+                    w(throwable);
+                }
+                return;
+            }
 
-		cancel();
-		MixWorker.Args args = MixWorker.Args.obtain(
-				outWidth,
-				action,
-				mRenderOption,
-				mDocument,
-				mListener,
-				mAdapter,
-				mSegmentDecoration
-		);
-		WorkerScheduler.mix().submit(mToken, args);
-	}
+            if (mRenderer != null) {
+                mRenderer.error(throwable);
+            }
+        }
 
-	private MixWorker.Listener mListener = new MixWorker.Listener() {
-		@Override
-		public void onStart() {
-			if (mRenderer != null) {
-				mRenderer.start();
-			}
-		}
+        @Override
+        public void onSuccess(TypesetResult result) {
+            if (mRenderer != null) {
+                mRenderer.render(result.doc, result.paintSet);
+            }
+        }
+    };
 
-		@Override
-		public void onFailure(Throwable throwable) {
-			if (throwable instanceof TaskQueue.TokenExpiredException) {
-				if (DEBUG) {
-					w(throwable);
-				}
-				return;
-			}
+    public int getWidth() {
+        return mWidth;
+    }
 
-			if (mRenderer != null) {
-				mRenderer.error(throwable);
-			}
-		}
+    public static class TypesetResult {
+        PaintSet paintSet;
+        Document doc;
 
-		@Override
-		public void onSuccess(TypesetResult result) {
-			if (mDocument != result.doc) {
-				releaseDocument(mDocument);
-			}
+        public TypesetResult(PaintSet paintSet, Document doc) {
+            this.paintSet = paintSet;
+            this.doc = doc;
+        }
+    }
 
-			mDocument = result.doc;
-			if (mRenderer != null) {
-				mRenderer.render(mDocument, result.paintSet);
-			}
-		}
-	};
+    public void release() {
+        i("release");
+        cancel();
 
-	public static class TypesetResult {
-		PaintSet paintSet;
-		Document doc;
+        mToken.destroy();
 
-		public TypesetResult(PaintSet paintSet, Document doc) {
-			this.paintSet = paintSet;
-			this.doc = doc;
-		}
-	}
+        // 断开渲染
+        mRenderer = null;
+    }
 
-	public void release() {
-		i("release");
-		cancel();
+//    private void releaseDocument(Document document) {
+//        if (document == null) {
+//            return;
+//        }
+//
+//        WorkerScheduler.odd().submit(mToken, mComputeQueue, () -> {
+//            // 回收可能是一个耗时操作
+//            document.release();
+//        });
+//    }
 
-		mToken.destroy();
+    private void cancel() {
+        // 取消准备发送的消息
+        WorkerScheduler.mix().cancel(mToken);
+    }
 
-		// 关闭解析
-		mAdapter = null;
-		// 断开渲染
-		mRenderer = null;
+    /**
+     * @param prevRenderOption 旧的渲染选项
+     */
+    public void reload(RenderOption prevRenderOption) {
+        if (mDocument == null) {
+            return;
+        }
 
-		// 释放内存
-		final Document document = mDocument;
-		mDocument = null;
-		if (document != null) {
-			releaseDocument(document);
-		}
-	}
+        // 默认只要重新测量就可以了
+        int action = MixWorker.TYPESET_ACTION_REMEASURE;
 
-	private void releaseDocument(Document document) {
-		if (document == null) {
-			return;
-		}
+        // 看下是不是只修改了断行策略，只修改了行高
+        // 大概可以提升70%左右的性能
+        if (mRenderOption != null && prevRenderOption != null) {
+            if (prevRenderOption.getBreakStrategy() != mRenderOption.getBreakStrategy()) {
+                RenderOption copy = new RenderOption(prevRenderOption);
+                copy.setBreakStrategy(mRenderOption.getBreakStrategy());
+                if (copy.equals(mRenderOption)) {
+                    action = MixWorker.TYPESET_ACTION_TYPESET_ONLY;
+                }
+            }
+        }
 
-		WorkerScheduler.odd().submit(mToken, mComputeQueue, () -> {
-			// 回收可能是一个耗时操作
-			document.release();
-		});
-	}
+        // fail-fast
+        if (mWidth <= 0) {
+            i("reload ignore");
+            return;
+        }
+        typeset(mWidth, mDocument, action);
+    }
 
-	private void cancel() {
-		// 取消准备发送的消息
-		WorkerScheduler.mix().cancel(mToken);
-	}
+    public Document getDocument() {
+        return mDocument;
+    }
 
-	/**
-	 * @param prevRenderOption 旧的渲染选项
-	 */
-	public void reload(RenderOption prevRenderOption) {
-		// 默认只要重新测量就可以了
-		int action = MixWorker.TYPESET_ACTION_REMEASURE;
+    public void updateRenderOption(RenderOption renderOption) {
+        mRenderOption = renderOption;
+    }
 
-		// 看下是不是只修改了断行策略，只修改了行高
-		// 大概可以提升70%左右的性能
-		if (mRenderOption != null && prevRenderOption != null) {
-			if (prevRenderOption.getBreakStrategy() != mRenderOption.getBreakStrategy()) {
-				RenderOption copy = new RenderOption(prevRenderOption);
-				copy.setBreakStrategy(mRenderOption.getBreakStrategy());
-				if (copy.equals(mRenderOption)) {
-					action = MixWorker.TYPESET_ACTION_TYPESET_ONLY;
-				}
-			}
-		}
+    public void setSegmentDecoration(TexasView.SegmentDecoration segmentDecoration) {
+        mSegmentDecoration = segmentDecoration;
+        if (mDocument == null) {
+            i("document is null, setSegmentDecoration ignore");
+            return;
+        }
 
-		// fail-fast
-		if (mWidth <= 0) {
-			i("reload ignore");
-			return;
-		}
-		typeset(mWidth, action);
-	}
+        // fail-fast
+        if (mWidth <= 0) {
+            i("width < 0, setSegmentDecoration ignore");
+            return;
+        }
+        typeset(mWidth, mDocument, MixWorker.TYPESET_ACTION_TYPESET_ONLY);
+    }
 
-	public Document getDocument() {
-		return mDocument;
-	}
+    @VisibleForTesting
+    public Object getTypesetterInternalState() {
+        return WorkerScheduler.typeset().getTypesetterInternalState();
+    }
 
-	public void updateRenderOption(RenderOption renderOption) {
-		mRenderOption = renderOption;
-	}
+    private static void d(String msg) {
+        Log.d("TypesetEngine", msg);
+    }
 
-	public void setSegmentDecoration(TexasView.SegmentDecoration segmentDecoration) {
-		mSegmentDecoration = segmentDecoration;
+    private static void i(String msg) {
+        Log.i("TypesetEngine", msg);
+    }
 
-		// fail-fast
-		if (mWidth <= 0) {
-			i("reload ignore");
-			return;
-		}
-		typeset(mWidth, MixWorker.TYPESET_ACTION_TYPESET_ONLY);
-	}
+    private static void w(String msg) {
+        Log.w("TypesetEngine", msg);
+    }
 
-	@VisibleForTesting
-	public Object getTypesetterInternalState() {
-		return WorkerScheduler.typeset().getTypesetterInternalState();
-	}
+    private static void w(Throwable throwable) {
+        Log.w("TypesetEngine", throwable);
+    }
 
-	private static void d(String msg) {
-		Log.d("TypesetEngine", msg);
-	}
-
-	private static void i(String msg) {
-		Log.i("TypesetEngine", msg);
-	}
-
-	private static void w(String msg) {
-		Log.w("TypesetEngine", msg);
-	}
-
-	private static void w(Throwable throwable) {
-		Log.w("TypesetEngine", throwable);
-	}
-
-	private static void e(String msg, Throwable throwable) {
-		Log.e("TypesetEngine", msg, throwable);
-	}
+    private static void e(String msg, Throwable throwable) {
+        Log.e("TypesetEngine", msg, throwable);
+    }
 }
