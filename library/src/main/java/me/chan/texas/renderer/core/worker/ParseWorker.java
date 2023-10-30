@@ -7,6 +7,7 @@ import androidx.annotation.RestrictTo;
 
 import me.chan.texas.misc.DefaultRecyclable;
 import me.chan.texas.misc.ObjectPool;
+import me.chan.texas.renderer.LoadingStrategy;
 import me.chan.texas.renderer.core.sync.WorkerMessager;
 import me.chan.texas.source.Source;
 import me.chan.texas.text.Paragraph;
@@ -77,7 +78,7 @@ public class ParseWorker implements TaskQueue.Task<ParseWorker.Args, Paragraph>,
 	@Override
 	public Paragraph run(TaskQueue.Token token, Args args) throws Throwable {
 		try {
-			return args.source.open();
+			return args.source.open(args.strategy);
 		} finally {
 			try {
 				args.source.close();
@@ -98,6 +99,8 @@ public class ParseWorker implements TaskQueue.Task<ParseWorker.Args, Paragraph>,
 		private Source<Paragraph> source;
 		private Listener listener;
 
+		private LoadingStrategy strategy;
+
 		private Args() {
 		}
 
@@ -109,11 +112,13 @@ public class ParseWorker implements TaskQueue.Task<ParseWorker.Args, Paragraph>,
 
 			listener = null;
 			source = null;
+			strategy = null;
 			super.recycle();
 			POOL.release(this);
 		}
 
 		public static Args obtain(@NonNull Source<Paragraph> source,
+								  LoadingStrategy strategy,
 								  @NonNull Listener listener) {
 			Args args = POOL.acquire();
 			if (args == null) {
@@ -121,6 +126,7 @@ public class ParseWorker implements TaskQueue.Task<ParseWorker.Args, Paragraph>,
 			}
 
 			args.source = source;
+			args.strategy = strategy;
 			args.listener = listener;
 			args.reuse();
 			return args;

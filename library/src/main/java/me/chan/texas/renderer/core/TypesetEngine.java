@@ -1,7 +1,6 @@
 package me.chan.texas.renderer.core;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
-import static me.chan.texas.renderer.core.worker.MixWorker.TYPESET_ACTION_DEFAULT;
 
 import android.util.Log;
 
@@ -59,16 +58,16 @@ public class TypesetEngine {
     public void typeset(int width, Document document) {
         mDocument = document;
         mWidth = width;
-        typeset(width, document, TYPESET_ACTION_DEFAULT);
+        typeset0(width, document);
     }
 
     /**
      * typeset content
      *
      * @param outWidth width, must be > 0
-     * @param action   action
+     * @param document document
      */
-    private void typeset(final int outWidth, Document document, final int action) {
+    private void typeset0(final int outWidth, Document document) {
         if (outWidth <= 0) {
             w("typeset, width <= 0");
             mRenderer.error(new IllegalArgumentException("width and height must be large than 0"));
@@ -78,7 +77,6 @@ public class TypesetEngine {
         cancel();
         MixWorker.Args args = MixWorker.Args.obtain(
                 outWidth,
-                action,
                 mRenderOption,
                 document,
                 mListener,
@@ -141,51 +139,9 @@ public class TypesetEngine {
         mRenderer = null;
     }
 
-//    private void releaseDocument(Document document) {
-//        if (document == null) {
-//            return;
-//        }
-//
-//        WorkerScheduler.odd().submit(mToken, mComputeQueue, () -> {
-//            // 回收可能是一个耗时操作
-//            document.release();
-//        });
-//    }
-
     private void cancel() {
         // 取消准备发送的消息
         WorkerScheduler.mix().cancel(mToken);
-    }
-
-    /**
-     * @param prevRenderOption 旧的渲染选项
-     */
-    public void reload(RenderOption prevRenderOption) {
-        if (mDocument == null) {
-            return;
-        }
-
-        // 默认只要重新测量就可以了
-        int action = MixWorker.TYPESET_ACTION_REMEASURE;
-
-        // 看下是不是只修改了断行策略，只修改了行高
-        // 大概可以提升70%左右的性能
-        if (mRenderOption != null && prevRenderOption != null) {
-            if (prevRenderOption.getBreakStrategy() != mRenderOption.getBreakStrategy()) {
-                RenderOption copy = new RenderOption(prevRenderOption);
-                copy.setBreakStrategy(mRenderOption.getBreakStrategy());
-                if (copy.equals(mRenderOption)) {
-                    action = MixWorker.TYPESET_ACTION_TYPESET_ONLY;
-                }
-            }
-        }
-
-        // fail-fast
-        if (mWidth <= 0) {
-            i("reload ignore");
-            return;
-        }
-        typeset(mWidth, mDocument, action);
     }
 
     public Document getDocument() {
@@ -208,7 +164,7 @@ public class TypesetEngine {
             i("width < 0, setSegmentDecoration ignore");
             return;
         }
-        typeset(mWidth, mDocument, MixWorker.TYPESET_ACTION_TYPESET_ONLY);
+        typeset(mWidth, mDocument);
     }
 
     @VisibleForTesting

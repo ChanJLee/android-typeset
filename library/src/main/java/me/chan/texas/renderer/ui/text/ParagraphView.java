@@ -31,6 +31,7 @@ import me.chan.texas.hyphenation.HyphenationPattern;
 import me.chan.texas.measurer.AndroidMeasurer;
 import me.chan.texas.measurer.Measurer;
 import me.chan.texas.misc.PaintSet;
+import me.chan.texas.renderer.LoadingStrategy;
 import me.chan.texas.renderer.OnSpanClickedPredicate;
 import me.chan.texas.renderer.OnSpanLongClickedPredicate;
 import me.chan.texas.renderer.ParagraphVisitor;
@@ -400,7 +401,7 @@ public class ParagraphView extends FrameLayout {
 		source.owner = this;
 
 		// 提交解析任务
-		ParseWorker.Args args = ParseWorker.Args.obtain(source, mParseListener);
+		ParseWorker.Args args = ParseWorker.Args.obtain(source, LoadingStrategy.LOAD_MORE, mParseListener);
 		ParseWorker worker = WorkerScheduler.parse();
 		worker.submit(mRender.getToken(), args);
 	}
@@ -422,7 +423,7 @@ public class ParagraphView extends FrameLayout {
 	 * @param renderOption option
 	 */
 	public void refresh(@NonNull RenderOption renderOption) {
-		boolean reload = TexasUtils.diff(mRenderOption, renderOption);
+		int cmpType = TexasUtils.cmp(mRenderOption, renderOption);
 
 		mRenderOption = renderOption;
 		mPaintSet.refresh(renderOption);
@@ -479,7 +480,7 @@ public class ParagraphView extends FrameLayout {
 		private ParagraphView owner;
 
 		@Override
-		public final Paragraph open() throws SourceOpenException {
+		public final Paragraph open(LoadingStrategy strategy) throws SourceOpenException {
 			// 选择断字策略
 			Hyphenation hyphenation = null;
 			HyphenStrategy hyphenStrategy = owner.mRenderOption.getHyphenStrategy();
