@@ -7,7 +7,6 @@ import me.chan.texas.hyphenation.Hyphenation;
 import me.chan.texas.measurer.Measurer;
 import me.chan.texas.measurer.MockMeasurer;
 import me.chan.texas.renderer.RenderOption;
-import me.chan.texas.source.CacheSource;
 import me.chan.texas.source.FileTextSource;
 import me.chan.texas.source.SourceOpenException;
 import com.shanbay.lib.texas.test.mock.MockTextPaint;

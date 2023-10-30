@@ -1,6 +1,5 @@
 package com.shanbay.lib.texas.test;
 
-import me.chan.texas.source.CacheSource;
 import me.chan.texas.source.ObjectSource;
 import me.chan.texas.source.SourceCloseException;
 import me.chan.texas.source.SourceOpenException;

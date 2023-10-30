@@ -817,8 +817,16 @@ public final class TexasView extends FrameLayout {
 
 		@UiThread
 		public final void setSource(Source<T> source) {
+			Source<?> previous = mSource;
 			mSource = source;
 			notifyViewsRender(LoadingStrategy.LOAD_MORE);
+			if (previous != null && previous != source) {
+				try {
+					previous.close();
+				} catch (Throwable ignore) {
+					/* noop */
+				}
+			}
 		}
 
 		private void notifyViewsRender(LoadingStrategy strategy) {
