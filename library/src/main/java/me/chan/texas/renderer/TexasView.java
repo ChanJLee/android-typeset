@@ -843,7 +843,7 @@ public final class TexasView extends FrameLayout {
 		 */
 		@NonNull
 		@AnyThread
-		protected abstract List<Segment> parse(@NonNull T content, TexasOption texasOption, LoadingStrategy loadType) throws ParseException;
+		protected abstract List<Segment> parse(@NonNull T content, TexasOption texasOption) throws ParseException;
 
 		@NonNull
 		@RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -858,7 +858,7 @@ public final class TexasView extends FrameLayout {
 					return mDocument;
 				}
 
-				List<Segment> segments = parse(value, texasOption, loadType);
+				List<Segment> segments = parse(value, texasOption);
 				if (loadType == LoadingStrategy.LOAD_PREVIOUS) {
 					mDocument.insertHead(segments);
 				} else if (loadType == LoadingStrategy.LOAD_MORE) {
