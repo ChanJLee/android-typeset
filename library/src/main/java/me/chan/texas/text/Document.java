@@ -55,11 +55,7 @@ public final class Document {
 
 	@RestrictTo(LIBRARY)
 	public void release() {
-		int count = mSegments == null ? 0 : mSegments.size();
-		for (int i = 0; i < count; ++i) {
-			Segment segment = mSegments.get(i);
-			segment.recycle();
-		}
+		clear();
 		mSegments = null;
 	}
 
@@ -76,5 +72,19 @@ public final class Document {
 	@RestrictTo(LIBRARY)
 	public void insertTail(List<Segment> segments) {
 		mSegments.addAll(segments);
+	}
+
+	@RestrictTo(LIBRARY)
+	public void clear() {
+		if (mSegments == null || mSegments.isEmpty()) {
+			return;
+		}
+
+		final int count = mSegments.size();
+		for (int i = 0; i < count; ++i) {
+			Segment segment = mSegments.get(i);
+			segment.recycle();
+		}
+		mSegments.clear();
 	}
 }

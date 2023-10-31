@@ -863,6 +863,9 @@ public final class TexasView extends FrameLayout {
 					mDocument.insertHead(segments);
 				} else if (loadType == LoadingStrategy.LOAD_MORE) {
 					mDocument.insertTail(segments);
+				} else if (loadType == LoadingStrategy.LOAD_REFRESH) {
+					mDocument.clear();
+					mDocument.insertTail(segments);
 				} else {
 					throw new IllegalStateException("unknown load type: " + loadType);
 				}
