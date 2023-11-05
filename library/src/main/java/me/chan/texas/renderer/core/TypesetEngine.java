@@ -55,10 +55,13 @@ public class TypesetEngine {
         }
     }
 
-    public void typeset(int width, Document document) {
-        mDocument = document;
+    public void setWidth(int width) {
         mWidth = width;
-        typeset0(width, document);
+    }
+
+    public void typeset(Document document) {
+        mDocument = document;
+        typeset0(mWidth, document);
     }
 
     /**
@@ -71,6 +74,10 @@ public class TypesetEngine {
         if (outWidth <= 0) {
             w("typeset, width <= 0");
             mRenderer.error(new IllegalArgumentException("width and height must be large than 0"));
+            return;
+        }
+
+        if (document == null) {
             return;
         }
 
@@ -164,7 +171,7 @@ public class TypesetEngine {
             i("width < 0, setSegmentDecoration ignore");
             return;
         }
-        typeset(mWidth, mDocument);
+        typeset(mDocument);
     }
 
     @VisibleForTesting
