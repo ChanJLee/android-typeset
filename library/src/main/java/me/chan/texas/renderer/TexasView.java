@@ -841,7 +841,7 @@ public final class TexasView extends FrameLayout {
 		 * @return 文档
 		 * @throws ParseException 解析错误的时候抛出
 		 */
-		@NonNull
+		@Nullable
 		@AnyThread
 		protected abstract List<Segment> parse(@NonNull T content, TexasOption texasOption) throws ParseException;
 
@@ -859,6 +859,10 @@ public final class TexasView extends FrameLayout {
 				}
 
 				List<Segment> segments = parse(value, texasOption);
+				if (segments == null) {
+					return mDocument;
+				}
+
 				if (loadType == LoadingStrategy.LOAD_PREVIOUS) {
 					mDocument.insertHead(segments);
 				} else if (loadType == LoadingStrategy.LOAD_MORE) {

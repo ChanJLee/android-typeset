@@ -60,7 +60,7 @@ public class SingleParagraphActivity extends AppCompatActivity {
 		});
 		paragraphView.setSource(new ParagraphView.ParagraphSource() {
 			@Override
-			protected Paragraph open(TexasOption option) {
+			protected Paragraph onOpen(TexasOption option) {
 				Paragraph.Builder builder = Paragraph.Builder.newBuilder(option);
 				builder.stream(msg, 0, msg.length(), new Paragraph.Builder.SpanReader() {
 					@Override
@@ -73,7 +73,7 @@ public class SingleParagraphActivity extends AppCompatActivity {
 			}
 
 			@Override
-			public void close() throws SourceCloseException {
+			protected void onClose() throws SourceCloseException {
 
 			}
 		});
