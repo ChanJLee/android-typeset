@@ -382,6 +382,7 @@ public class ParagraphView extends FrameLayout {
 		render0(mParagraph);
 	}
 
+	private ParagraphSource mSource;
 
 	/**
 	 * @param source 段落源
@@ -399,6 +400,9 @@ public class ParagraphView extends FrameLayout {
 
 		// 赋予
 		source.owner = this;
+
+		// cache last source
+		mSource = source;
 
 		// 提交解析任务
 		ParseWorker.Args args = ParseWorker.Args.obtain(source, LoadingStrategy.LOAD_MORE, mParseListener);
@@ -428,12 +432,27 @@ public class ParagraphView extends FrameLayout {
 		mRenderOption = renderOption;
 		mPaintSet.refresh(renderOption);
 
-		if (reload) {
+		if (cmpType == TexasUtils.CmpType.CMP_LOAD) {
+			// 丢弃之前的任务
+			discard(false);
+
+			// 清除之前的 selection
+			clearSelection();
+
+			// 提交解析任务
+			ParseWorker.Args args = ParseWorker.Args.obtain(mSource, LoadingStrategy.LOAD_REFRESH, mParseListener);
+			ParseWorker worker = WorkerScheduler.parse();
+			worker.submit(mRender.getToken(), args);
+		} else if (cmpType == TexasUtils.CmpType.CMP_TYPESET) {
 			int width = getWidth() - getPaddingLeft() - getPaddingRight();
 			if (width > 0) {
 				typeset0(width);
 			}
 			return;
+		}
+
+		if (cmpType != TexasUtils.CmpType.CMP_DRAW) {
+			throw new IllegalStateException("unknown cmp type: " + cmpType);
 		}
 
 		if (mParagraph != null) {
@@ -474,13 +493,13 @@ public class ParagraphView extends FrameLayout {
 	/**
 	 * 设置paragraph source
 	 */
-	public static abstract class ParagraphSource implements Source<Paragraph> {
+	public static abstract class ParagraphSource extends Source<Paragraph> {
 
 		@Internal
 		private ParagraphView owner;
 
 		@Override
-		public final Paragraph open(LoadingStrategy strategy) throws SourceOpenException {
+		protected Paragraph onOpen(LoadingStrategy strategy) throws SourceOpenException {
 			// 选择断字策略
 			Hyphenation hyphenation = null;
 			HyphenStrategy hyphenStrategy = owner.mRenderOption.getHyphenStrategy();
@@ -493,7 +512,7 @@ public class ParagraphView extends FrameLayout {
 			}
 
 			TexasOption texasOption = new TexasOption(hyphenation, owner.mMeasurer, owner.mTextAttribute, owner.mRenderOption);
-			return open(texasOption);
+			return onOpen(texasOption);
 		}
 
 		/**
@@ -503,7 +522,7 @@ public class ParagraphView extends FrameLayout {
 		 * @return paragraph
 		 */
 		@AnyThread
-		protected abstract Paragraph open(TexasOption option);
+		protected abstract Paragraph onOpen(TexasOption option);
 	}
 
 	/**

@@ -12,8 +12,8 @@ public enum LoadingStrategy {
      * 加载更多
      */
     LOAD_MORE,
-    /*
+    /**
      * 刷新当前内容
-     * */
+     */
     LOAD_REFRESH
 }
