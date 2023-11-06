@@ -263,7 +263,7 @@ public class Renderer implements SelectionManager.Listener {
     }
 
     /**
-     * @param width 期望的宽度
+     * @param width 期望的宽度，如果是负值，那么就忽略排版，只会解析
      */
     public void load(String reason, int width, LoadingStrategy strategy) {
         if (BuildConfig.DEBUG) {
@@ -275,8 +275,11 @@ public class Renderer implements SelectionManager.Listener {
             return;
         }
 
-        WorkerScheduler.loading().cancel(mToken);
-        WorkerScheduler.typeset().cancel(mToken);
+        // 如果是刷新，那么之前的解析都可以取消掉了
+        if (strategy == LoadingStrategy.LOAD_REFRESH) {
+            WorkerScheduler.loading().cancel(mToken);
+        }
+        WorkerScheduler.mix().cancel(mToken);
 
         mTypesetEngine.setWidth(width);
 
@@ -308,7 +311,8 @@ public class Renderer implements SelectionManager.Listener {
             Log.d("TexasRenderer", "typeset, reason: " + reason);
         }
 
-        WorkerScheduler.typeset().cancel(mToken);
+        // 重新排版会将之前的解析任务都失效
+        WorkerScheduler.mix().cancel(mToken);
 
         mTypesetEngine.setWidth(width);
         Document document = mTypesetEngine.getDocument();

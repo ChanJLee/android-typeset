@@ -5,7 +5,6 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import android.util.Log;
 
 import androidx.annotation.RestrictTo;
-import androidx.annotation.VisibleForTesting;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -81,7 +80,6 @@ public class TypesetEngine {
             return;
         }
 
-        cancel();
         MixWorker.Args args = MixWorker.Args.obtain(
                 outWidth,
                 mRenderOption,
@@ -172,11 +170,6 @@ public class TypesetEngine {
             return;
         }
         typeset(mDocument);
-    }
-
-    @VisibleForTesting
-    public Object getTypesetterInternalState() {
-        return WorkerScheduler.typeset().getTypesetterInternalState();
     }
 
     private static void d(String msg) {

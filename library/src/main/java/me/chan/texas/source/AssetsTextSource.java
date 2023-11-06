@@ -11,10 +11,18 @@ import java.io.IOException;
 public class AssetsTextSource extends StreamTextSource {
 
 	public AssetsTextSource(Context context, String path) throws IOException {
-		this(context.getResources(), path);
+		this(context, path, false);
 	}
 
 	public AssetsTextSource(Resources resources, String path) throws IOException {
-		super(resources.getAssets().open(path));
+		this(resources, path, false);
+	}
+
+	public AssetsTextSource(Context context, String path, boolean lazyLoad) throws IOException {
+		this(context.getResources(), path, lazyLoad);
+	}
+
+	public AssetsTextSource(Resources resources, String path, boolean lazyLoad) throws IOException {
+		super(resources.getAssets().open(path), lazyLoad);
 	}
 }

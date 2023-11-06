@@ -13,14 +13,21 @@ import me.chan.texas.renderer.LoadingStrategy;
  * 流式文本源
  */
 public class StreamTextSource extends Source<CharSequence> {
-    private static final int BUFFER_SIZE = 128;
+    private static final int DEFAULT_BUFFER_SIZE = 128;
 
     private InputStream mInputStream;
     private final List<CharSequence> mCachedBuffer = new ArrayList<>();
     private int mIndex = -1;
 
+    private final boolean mLazyLoad;
+
     public StreamTextSource(InputStream inputStream) {
+        this(inputStream, false);
+    }
+
+    public StreamTextSource(InputStream inputStream, boolean lazyLoad) {
         mInputStream = inputStream;
+        mLazyLoad = lazyLoad;
     }
 
     @Override
@@ -53,7 +60,8 @@ public class StreamTextSource extends Source<CharSequence> {
             bufferedReader = new BufferedReader(inputStreamReader);
             String line;
 
-            for (int i = 0; i < BUFFER_SIZE && (line = bufferedReader.readLine()) != null; ++i) {
+            int bufferSize = mLazyLoad ? DEFAULT_BUFFER_SIZE : Integer.MAX_VALUE;
+            for (int i = 0; i < bufferSize && (line = bufferedReader.readLine()) != null; ++i) {
                 stringBuilder.append(line)
                         .append("\n");
             }
