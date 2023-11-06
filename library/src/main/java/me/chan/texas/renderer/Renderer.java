@@ -296,10 +296,6 @@ public class Renderer implements SelectionManager.Listener {
 
             @Override
             public void onSuccess(Document document) {
-                if (width <= 0) {
-                    return;
-                }
-
                 mTypesetEngine.typeset(document);
             }
         });
