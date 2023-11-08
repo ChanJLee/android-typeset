@@ -7,6 +7,7 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
+import me.chan.texas.BuildConfig;
 import me.chan.texas.renderer.LoadingStrategy;
 
 /**
@@ -36,10 +37,14 @@ public class StreamTextSource extends Source<CharSequence> {
             return mCachedBuffer.isEmpty() || mIndex - 1 >= 0 ? null : mCachedBuffer.get(--mIndex);
         } else if (strategy == LoadingStrategy.LOAD_REFRESH) {
             return mCachedBuffer.isEmpty() ? null : mCachedBuffer.get(mIndex);
-        } else {
-            if (strategy != LoadingStrategy.LOAD_MORE) {
-                throw new IllegalArgumentException("unknown load strategy");
+        } else if (strategy == LoadingStrategy.LOAD_MORE) {
+            /* noop */
+        } else if (strategy == LoadingStrategy.LOAD_RELOAD) {
+            if (BuildConfig.DEBUG && !mCachedBuffer.isEmpty()) {
+                throw new IllegalStateException("source has been read");
             }
+        } else {
+            throw new IllegalArgumentException("unknown load strategy");
         }
 
         if (mIndex > 0 && mIndex < mCachedBuffer.size()) {

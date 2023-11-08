@@ -796,7 +796,7 @@ public final class TexasView extends FrameLayout {
         private void attach(@NonNull TexasView view) {
             mTexasView = view;
             if (mSource != null) {
-                view.load("adapter attached", LoadingStrategy.LOAD_MORE);
+                view.load("adapter attached", LoadingStrategy.LOAD_RELOAD);
             }
         }
 
@@ -815,8 +815,8 @@ public final class TexasView extends FrameLayout {
             mSource = source;
 
             // start load more
-            if (mTexasView != null) {
-                mTexasView.load("new source", LoadingStrategy.LOAD_MORE);
+            if (mTexasView != null && previous != mSource) {
+                mTexasView.load("new source", LoadingStrategy.LOAD_RELOAD);
             }
 
             if (previous != null && previous != source) {
@@ -860,7 +860,8 @@ public final class TexasView extends FrameLayout {
                     mDocument.insertHead(segments);
                 } else if (loadType == LoadingStrategy.LOAD_MORE) {
                     mDocument.insertTail(segments);
-                } else if (loadType == LoadingStrategy.LOAD_REFRESH) {
+                } else if (loadType == LoadingStrategy.LOAD_REFRESH ||
+                        loadType == LoadingStrategy.LOAD_RELOAD) {
                     mDocument.clear();
                     mDocument.insertTail(segments);
                 } else {

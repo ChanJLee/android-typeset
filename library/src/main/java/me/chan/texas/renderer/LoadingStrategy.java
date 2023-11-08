@@ -13,7 +13,11 @@ public enum LoadingStrategy {
      */
     LOAD_MORE,
     /**
-     * 刷新当前内容
+     * 刷新当前内容，但不清除已经加载的数据
      */
-    LOAD_REFRESH
+    LOAD_REFRESH,
+    /**
+     * 重新加载数据
+     * */
+    LOAD_RELOAD
 }

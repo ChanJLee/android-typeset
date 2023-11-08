@@ -278,6 +278,10 @@ public class Renderer implements SelectionManager.Listener {
         // 如果是刷新，那么之前的解析都可以取消掉了
         if (strategy == LoadingStrategy.LOAD_REFRESH) {
             WorkerScheduler.loading().cancel(mToken);
+        } else if (strategy == LoadingStrategy.LOAD_RELOAD) {
+            WorkerScheduler.loading().cancel(mToken);
+            mTypesetEngine.reset();
+            mAdapter.clear();
         }
         WorkerScheduler.mix().cancel(mToken);
 
@@ -291,11 +295,22 @@ public class Renderer implements SelectionManager.Listener {
 
             @Override
             public void onFailure(Throwable throwable) {
+                if (mTexasView == null) {
+                    return;
+                }
+
                 mTexasView.notifyRenderError(throwable);
             }
 
             @Override
             public void onSuccess(Document document) {
+                if (mTypesetEngine == null) {
+                    return;
+                }
+
+                if (BuildConfig.DEBUG) {
+                    Log.d("TexasRenderer", "load success, reason: " + reason + ", width: " + mTypesetEngine.getWidth());
+                }
                 mTypesetEngine.typeset(document);
             }
         });

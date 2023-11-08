@@ -124,6 +124,10 @@ public class TypesetEngine {
         return mWidth;
     }
 
+    public void reset() {
+        mDocument = null;
+    }
+
     public static class TypesetResult {
         PaintSet paintSet;
         Document doc;
