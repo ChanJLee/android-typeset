@@ -1,7 +1,6 @@
 package me.chan.texas.source;
 
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
@@ -16,7 +15,7 @@ import me.chan.texas.renderer.LoadingStrategy;
 public class StreamTextSource extends Source<CharSequence> {
     private static final int DEFAULT_BUFFER_SIZE = 128;
 
-    private InputStream mInputStream;
+    private BufferedReader mReader;
     private final List<CharSequence> mCachedBuffer = new ArrayList<>();
     private int mIndex = -1;
 
@@ -27,7 +26,7 @@ public class StreamTextSource extends Source<CharSequence> {
     }
 
     public StreamTextSource(InputStream inputStream, boolean lazyLoad) {
-        mInputStream = inputStream;
+        mReader = new BufferedReader(new InputStreamReader(inputStream));
         mLazyLoad = lazyLoad;
     }
 
@@ -58,15 +57,10 @@ public class StreamTextSource extends Source<CharSequence> {
 
     private CharSequence onOpen0() throws SourceOpenException {
         StringBuilder stringBuilder = new StringBuilder();
-        InputStreamReader inputStreamReader = null;
-        BufferedReader bufferedReader = null;
         try {
-            inputStreamReader = new InputStreamReader(mInputStream);
-            bufferedReader = new BufferedReader(inputStreamReader);
             String line;
-
             int bufferSize = mLazyLoad ? DEFAULT_BUFFER_SIZE : Integer.MAX_VALUE;
-            for (int i = 0; i < bufferSize && (line = bufferedReader.readLine()) != null; ++i) {
+            for (int i = 0; i < bufferSize && (line = mReader.readLine()) != null; ++i) {
                 stringBuilder.append(line)
                         .append("\n");
             }
@@ -76,21 +70,6 @@ public class StreamTextSource extends Source<CharSequence> {
             }
         } catch (Throwable e) {
             throw new SourceOpenException("source open failed", e);
-        } finally {
-            if (inputStreamReader != null) {
-                try {
-                    inputStreamReader.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-            if (bufferedReader != null) {
-                try {
-                    bufferedReader.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
         }
         return stringBuilder.toString();
     }
@@ -98,9 +77,9 @@ public class StreamTextSource extends Source<CharSequence> {
     @Override
     protected void onClose() throws SourceCloseException {
         try {
-            if (mInputStream != null) {
-                mInputStream.close();
-                mInputStream = null;
+            if (mReader != null) {
+                mReader.close();
+                mReader = null;
             }
         } catch (Throwable e) {
             throw new SourceCloseException("close source failed", e);

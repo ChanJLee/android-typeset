@@ -47,7 +47,7 @@ import me.chan.texas.utils.concurrency.TaskQueue;
  */
 @RestrictTo(LIBRARY)
 public class Renderer implements SelectionManager.Listener {
-    private final TaskQueue.Token mToken = TaskQueue.Token.newInstance();
+    private final TaskQueue.Token mToken;
 
     /**
      * 显示参数
@@ -95,7 +95,8 @@ public class Renderer implements SelectionManager.Listener {
         }
     };
 
-    public Renderer(final TexasView texasView, RenderOption renderOption) {
+    public Renderer(final TexasView texasView, RenderOption renderOption, TaskQueue.Token token) {
+        mToken = token;
         mTexasView = texasView;
         mRenderOption = renderOption;
 

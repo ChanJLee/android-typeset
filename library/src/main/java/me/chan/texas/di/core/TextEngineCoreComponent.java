@@ -1,5 +1,6 @@
 package me.chan.texas.di.core;
 
+import me.chan.texas.renderer.TexasView;
 import me.chan.texas.renderer.core.TypesetEngine;
 import me.chan.texas.renderer.core.WorkerScheduler;
 
@@ -21,4 +22,6 @@ public interface TextEngineCoreComponent {
 	void inject(MixWorker worker);
 
 	void inject(LoadingWorker worker);
+
+	void inject(TexasView.Adapter<Object> adapter);
 }
