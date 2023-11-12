@@ -3,6 +3,8 @@ package me.chan.texas.source;
 import androidx.annotation.AnyThread;
 import androidx.annotation.Nullable;
 
+import me.chan.texas.BuildConfig;
+import me.chan.texas.misc.ResourceManager;
 import me.chan.texas.renderer.LoadingStrategy;
 
 /**
@@ -13,6 +15,17 @@ import me.chan.texas.renderer.LoadingStrategy;
 public abstract class Source<T> {
 
 	private volatile boolean mClosed = false;
+
+	public Source() {
+		if (BuildConfig.DEBUG) {
+			ResourceManager.hold(this, new ResourceManager.Listener<Source<T>>() {
+				@Override
+				public boolean isReleased(Source<T> o) {
+					return o.isClosed();
+				}
+			});
+		}
+	}
 
 	/**
 	 * 打开开始读取内容
@@ -53,4 +66,8 @@ public abstract class Source<T> {
 	}
 
 	protected abstract void onClose() throws SourceCloseException;
+
+	public boolean isClosed() {
+		return mClosed;
+	}
 }

@@ -32,11 +32,19 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.inject.Inject;
+import javax.inject.Named;
+
+import me.chan.texas.BuildConfig;
 import me.chan.texas.R;
 import me.chan.texas.Texas;
 import me.chan.texas.TexasOption;
 import me.chan.texas.adapter.ParseException;
 import me.chan.texas.annotations.Idempotent;
+import me.chan.texas.di.TexasComponent;
+import me.chan.texas.di.core.TextEngineCoreComponent;
+import me.chan.texas.misc.ResourceManager;
+import me.chan.texas.renderer.core.WorkerScheduler;
 import me.chan.texas.renderer.selection.Selection;
 import me.chan.texas.renderer.ui.decor.ParagraphDecor;
 import me.chan.texas.source.ObjectSource;
@@ -48,11 +56,13 @@ import me.chan.texas.text.HyphenStrategy;
 import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.Segment;
 import me.chan.texas.utils.TexasUtils;
+import me.chan.texas.utils.concurrency.TaskQueue;
 
 /**
  * 渲染引擎入口视图
  */
 public final class TexasView extends FrameLayout {
+    private final TaskQueue.Token mToken = TaskQueue.Token.newInstance();
     /**
      * 非正常下标
      */
@@ -297,7 +307,7 @@ public final class TexasView extends FrameLayout {
             setLayerType(LAYER_TYPE_SOFTWARE, null);
         }
 
-        mRenderer = new Renderer(this, renderOption);
+        mRenderer = new Renderer(this, renderOption, mToken);
     }
 
     @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -433,6 +443,10 @@ public final class TexasView extends FrameLayout {
         if (mRenderer != null) {
             mRenderer.release();
             mRenderer = null;
+        }
+
+        if (BuildConfig.DEBUG) {
+            ResourceManager.check();
         }
     }
 
@@ -789,8 +803,15 @@ public final class TexasView extends FrameLayout {
 
         private final Document mDocument;
 
+        @Inject
+        @Named("ComputeTask")
+        TaskQueue mComputeTaskQueue;
+
         public Adapter() {
             mDocument = Document.obtain();
+            TexasComponent texasComponent = Texas.getTexasComponent();
+            TextEngineCoreComponent textEngineCoreComponent = texasComponent.coreComponent().create();
+            textEngineCoreComponent.inject((TexasView.Adapter<Object>) this);
         }
 
         private void attach(@NonNull TexasView view) {
@@ -801,7 +822,25 @@ public final class TexasView extends FrameLayout {
         }
 
         private void detach() {
+            if (mTexasView == null) {
+                return;
+            }
+
+            TaskQueue.Token token = mTexasView.mToken;
             mTexasView = null;
+            if (mSource != null) {
+                WorkerScheduler.odd().submit(token, mComputeTaskQueue, new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            d("source destroy");
+                            mSource.close();
+                        } catch (Throwable ignore) {
+                            /* do nothing */
+                        }
+                    }
+                });
+            }
         }
 
         @UiThread
@@ -845,37 +884,28 @@ public final class TexasView extends FrameLayout {
                 return mDocument;
             }
 
-            try {
-                T value = mSource.open(loadType);
-                if (value == null) {
-                    return mDocument;
-                }
-
-                List<Segment> segments = parse(value, texasOption);
-                if (segments == null) {
-                    return mDocument;
-                }
-
-                if (loadType == LoadingStrategy.LOAD_PREVIOUS) {
-                    mDocument.insertHead(segments);
-                } else if (loadType == LoadingStrategy.LOAD_MORE) {
-                    mDocument.insertTail(segments);
-                } else if (loadType == LoadingStrategy.LOAD_REFRESH ||
-                        loadType == LoadingStrategy.LOAD_RELOAD) {
-                    mDocument.clear();
-                    mDocument.insertTail(segments);
-                } else {
-                    throw new IllegalStateException("unknown load type: " + loadType);
-                }
+            T value = mSource.open(loadType);
+            if (value == null) {
                 return mDocument;
-            } finally {
-                // close quietly
-                try {
-                    mSource.close();
-                } catch (Throwable throwable) {
-                    Log.w("TexasAdapter", throwable);
-                }
             }
+
+            List<Segment> segments = parse(value, texasOption);
+            if (segments == null) {
+                return mDocument;
+            }
+
+            if (loadType == LoadingStrategy.LOAD_PREVIOUS) {
+                mDocument.insertHead(segments);
+            } else if (loadType == LoadingStrategy.LOAD_MORE) {
+                mDocument.insertTail(segments);
+            } else if (loadType == LoadingStrategy.LOAD_REFRESH ||
+                    loadType == LoadingStrategy.LOAD_RELOAD) {
+                mDocument.clear();
+                mDocument.insertTail(segments);
+            } else {
+                throw new IllegalStateException("unknown load type: " + loadType);
+            }
+            return mDocument;
         }
     }
 
