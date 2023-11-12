@@ -383,8 +383,8 @@ public final class TexasView extends FrameLayout {
         }
 
         d("bind adapter");
-        adapter.attach(this);
         mAdapter = adapter;
+        adapter.attach(this);
     }
 
     /**
