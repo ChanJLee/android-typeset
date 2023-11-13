@@ -15,7 +15,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import me.chan.texas.renderer.core.WorkerScheduler;
-import me.chan.texas.renderer.core.graphics.TextureScene;
+import me.chan.texas.renderer.core.graphics.TexturePicture;
 import me.chan.texas.utils.TexasUtils;
 
 import java.util.ArrayList;
@@ -23,7 +23,7 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
-	private final List<TextureScene> mPictures = new ArrayList<>();
+	private final List<TexturePicture> mPictures = new ArrayList<>();
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -70,7 +70,7 @@ public class MainActivity extends AppCompatActivity {
 			public void onClick(View v) {
 				String msg = "Hello World".intern();
 				for (int i = 0; i < 1000; ++i) {
-					TextureScene picture = TextureScene.createPicture();
+					TexturePicture picture = TexturePicture.createPicture();
 					Canvas canvas = picture.beginRecording(1080, 540);
 					for (int j = 0; j < 1000; ++j) {
 						canvas.drawText(msg, 0, 0, textPaint);
@@ -84,8 +84,8 @@ public class MainActivity extends AppCompatActivity {
 		findViewById(R.id.free_picture).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				for (TextureScene picture : mPictures) {
-					TextureScene.releasePicture(picture);
+				for (TexturePicture picture : mPictures) {
+					TexturePicture.releasePicture(picture);
 				}
 				mPictures.clear();
 			}
@@ -104,6 +104,6 @@ public class MainActivity extends AppCompatActivity {
 	protected void onResume() {
 		super.onResume();
 
-		Log.d("chan_debug", "onResume: " + TextureScene.getPictureStats() + " " + WorkerScheduler.render().getStats());
+		Log.d("chan_debug", "onResume: " + TexturePicture.getPictureStats() + " " + WorkerScheduler.render().getStats());
 	}
 }

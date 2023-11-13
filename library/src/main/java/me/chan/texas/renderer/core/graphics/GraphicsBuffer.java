@@ -14,7 +14,7 @@ import me.chan.texas.renderer.core.WorkerScheduler;
 import me.chan.texas.utils.concurrency.TaskQueue;
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-public class TextureStage {
+public class GraphicsBuffer {
 
 	private static final boolean DEBUG = false;
 
@@ -71,7 +71,7 @@ public class TextureStage {
 		}
 
 		for (int i = 0; i < 3; ++i) {
-			TextureScene picture = mBuffer.getPicture();
+			TexturePicture picture = mBuffer.getPicture();
 			if (picture == null) {
 				break;
 			}
@@ -92,8 +92,8 @@ public class TextureStage {
 	}
 
 	private static class DoubleBuffer implements Runnable {
-		private volatile TextureScene mDrewPicture;
-		private TextureScene mDrawingPicture;
+		private volatile TexturePicture mDrewPicture;
+		private TexturePicture mDrawingPicture;
 
 		private boolean mReleased = false;
 
@@ -110,7 +110,7 @@ public class TextureStage {
 			}
 
 			if (mDrawingPicture == null) {
-				mDrawingPicture = TextureScene.createPicture();
+				mDrawingPicture = TexturePicture.createPicture();
 			}
 
 			return mDrawingPicture.beginRecording(width, height);
@@ -121,12 +121,12 @@ public class TextureStage {
 			mDrawingPicture.endRecording();
 
 			// ready recycle
-			TextureScene tmp = mDrewPicture;
+			TexturePicture tmp = mDrewPicture;
 
 			// 读写栏栅，不然draw的时候会闪烁
 			mDrewPicture = mDrawingPicture;
 			mDrawingPicture = null;
-			TextureScene.releasePicture(tmp);
+			TexturePicture.releasePicture(tmp);
 		}
 
 		@MainThread
@@ -135,7 +135,7 @@ public class TextureStage {
 		}
 
 		@MainThread
-		public TextureScene getPicture() {
+		public TexturePicture getPicture() {
 			return mDrewPicture;
 		}
 
@@ -143,12 +143,12 @@ public class TextureStage {
 		public void run() {
 			mReleased = true;
 			if (mDrewPicture != null) {
-				TextureScene.releasePicture(mDrewPicture);
+				TexturePicture.releasePicture(mDrewPicture);
 				mDrewPicture = null;
 			}
 
 			if (mDrawingPicture != null) {
-				TextureScene.releasePicture(mDrawingPicture);
+				TexturePicture.releasePicture(mDrawingPicture);
 				mDrawingPicture = null;
 			}
 		}

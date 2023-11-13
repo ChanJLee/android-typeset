@@ -10,8 +10,11 @@ import androidx.annotation.RestrictTo;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
+import me.chan.texas.BuildConfig;
+import me.chan.texas.misc.ResourceManager;
+
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-public class TextureScene extends Picture {
+public class TexturePicture extends Picture {
 
 	private static final AtomicInteger CREATE_PICTURE_COUNT = new AtomicInteger(0);
 	private static final AtomicInteger RELEASE_PICTURE_COUNT = new AtomicInteger(0);
@@ -25,6 +28,12 @@ public class TextureScene extends Picture {
 	private boolean mHackIsReleased__ = false;
 
 	private boolean mHackIsDrawFailed__ = false;
+
+	public TexturePicture() {
+		if (BuildConfig.DEBUG) {
+			ResourceManager.hold(this, o -> o.mHackIsReleased__);
+		}
+	}
 
 	@Override
 	protected void finalize() throws Throwable {
@@ -79,13 +88,13 @@ public class TextureScene extends Picture {
 	}
 
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
-	public static TextureScene createPicture() {
+	public static TexturePicture createPicture() {
 		CREATE_PICTURE_COUNT.incrementAndGet();
-		return new TextureScene();
+		return new TexturePicture();
 	}
 
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
-	public static void releasePicture(TextureScene picture) {
+	public static void releasePicture(TexturePicture picture) {
 		if (picture == null) {
 			return;
 		}
