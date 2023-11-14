@@ -45,6 +45,7 @@ import me.chan.texas.di.TexasComponent;
 import me.chan.texas.di.core.TextEngineCoreComponent;
 import me.chan.texas.misc.ResourceManager;
 import me.chan.texas.renderer.core.WorkerScheduler;
+import me.chan.texas.renderer.core.worker.LoadingWorker;
 import me.chan.texas.renderer.selection.Selection;
 import me.chan.texas.renderer.ui.decor.ParagraphDecor;
 import me.chan.texas.source.ObjectSource;
@@ -879,33 +880,36 @@ public final class TexasView extends FrameLayout {
 
         @NonNull
         @RestrictTo(RestrictTo.Scope.LIBRARY)
-        public final Document getDocument(TexasOption texasOption, LoadingStrategy loadType) throws SourceOpenException, ParseException {
+        public final LoadingWorker.LoadingResult getDocument(TexasOption texasOption, LoadingStrategy loadType) throws SourceOpenException, ParseException {
             if (mSource == null) {
-                return mDocument;
+                return LoadingWorker.LoadingResult.obtainWithoutContent(loadType, mDocument);
             }
 
             T value = mSource.open(loadType);
             if (value == null) {
-                return mDocument;
+                return LoadingWorker.LoadingResult.obtainWithoutContent(loadType, mDocument);
             }
 
             List<Segment> segments = parse(value, texasOption);
             if (segments == null) {
-                return mDocument;
+                return LoadingWorker.LoadingResult.obtainWithoutContent(loadType, mDocument);
             }
 
             if (loadType == LoadingStrategy.LOAD_PREVIOUS) {
                 mDocument.insertHead(segments);
+                return LoadingWorker.LoadingResult.obtain(loadType, mDocument, 0, segments.size());
             } else if (loadType == LoadingStrategy.LOAD_MORE) {
+                int start = mDocument.getSegmentCount();
                 mDocument.insertTail(segments);
+                return LoadingWorker.LoadingResult.obtain(loadType, mDocument, start, start + segments.size());
             } else if (loadType == LoadingStrategy.LOAD_REFRESH ||
                     loadType == LoadingStrategy.LOAD_RELOAD) {
                 mDocument.clear();
                 mDocument.insertTail(segments);
+                return LoadingWorker.LoadingResult.obtain(loadType, mDocument);
             } else {
                 throw new IllegalStateException("unknown load type: " + loadType);
             }
-            return mDocument;
         }
     }
 

@@ -304,7 +304,7 @@ public class Renderer implements SelectionManager.Listener {
             }
 
             @Override
-            public void onSuccess(Document document) {
+            public void onSuccess(LoadingStrategy strategy, Document document, int start, int end) {
                 if (mTypesetEngine == null) {
                     return;
                 }
