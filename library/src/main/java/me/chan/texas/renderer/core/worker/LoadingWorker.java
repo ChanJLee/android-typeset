@@ -29,7 +29,7 @@ import me.chan.texas.text.TextAttribute;
 import me.chan.texas.utils.concurrency.TaskQueue;
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-public class LoadingWorker implements TaskQueue.Listener<LoadingWorker.Args, Document>, TaskQueue.Task<LoadingWorker.Args, Document> {
+public class LoadingWorker implements TaskQueue.Listener<LoadingWorker.Args, LoadingWorker.LoadingResult>, TaskQueue.Task<LoadingWorker.Args, LoadingWorker.LoadingResult> {
     private static final int TYPE_SUCCESS = 1;
 
     private static final int TYPE_ERROR = 2;
@@ -56,7 +56,8 @@ public class LoadingWorker implements TaskQueue.Listener<LoadingWorker.Args, Doc
             if (value.type() == TYPE_START) {
                 args.listener.onStart();
             } else if (value.type() == TYPE_SUCCESS) {
-                args.listener.onSuccess(value.value());
+                LoadingResult result = value.value();
+                args.listener.onSuccess(result.strategy, result.document, result.start, result.end);
             } else if (value.type() == TYPE_ERROR) {
                 args.listener.onFailure(value.error());
             } else {
@@ -82,7 +83,7 @@ public class LoadingWorker implements TaskQueue.Listener<LoadingWorker.Args, Doc
     }
 
     @Override
-    public void onSuccess(TaskQueue.Token token, LoadingWorker.Args args, Document ret) {
+    public void onSuccess(TaskQueue.Token token, LoadingWorker.Args args, LoadingResult ret) {
         WorkerMessager.WorkerMessage message = WorkerMessager.WorkerMessage.obtain(TYPE_SUCCESS, args, ret);
         mMessager.send(token, message);
     }
@@ -94,7 +95,7 @@ public class LoadingWorker implements TaskQueue.Listener<LoadingWorker.Args, Doc
     }
 
     @Override
-    public Document run(TaskQueue.Token token, LoadingWorker.Args args) throws Throwable {
+    public LoadingResult run(TaskQueue.Token token, LoadingWorker.Args args) throws Throwable {
         PaintSet paintSet = new PaintSet(args.option);
         Measurer measurer = mMeasureFactory.create(paintSet);
         TextAttribute textAttribute = new TextAttribute(measurer);
@@ -102,7 +103,7 @@ public class LoadingWorker implements TaskQueue.Listener<LoadingWorker.Args, Doc
         return parse(token, textAttribute, measurer, args.option, args.adapter, args.strategy);
     }
 
-    private Document parse(TaskQueue.Token token, TextAttribute textAttribute, Measurer measurer, RenderOption option, TexasView.Adapter<?> adapter, LoadingStrategy strategy) throws TaskQueue.TokenExpiredException, SourceOpenException, ParseException {
+    private LoadingResult parse(TaskQueue.Token token, TextAttribute textAttribute, Measurer measurer, RenderOption option, TexasView.Adapter<?> adapter, LoadingStrategy strategy) throws TaskQueue.TokenExpiredException, SourceOpenException, ParseException {
         // 选择断字策略
         Hyphenation hyphenation = null;
         HyphenStrategy hyphenStrategy = option.getHyphenStrategy();
@@ -135,7 +136,49 @@ public class LoadingWorker implements TaskQueue.Listener<LoadingWorker.Args, Doc
 
         void onFailure(Throwable throwable);
 
-        void onSuccess(Document document);
+        void onSuccess(LoadingStrategy strategy, Document document, int start, int end);
+    }
+
+    public static class LoadingResult extends DefaultRecyclable {
+        private static final ObjectPool<LoadingWorker.LoadingResult> POOL = new ObjectPool<>(32);
+
+        private Document document;
+        private int start;
+        private int end;
+
+        private LoadingStrategy strategy;
+
+        private LoadingResult() {
+
+        }
+
+        @Override
+        public void recycle() {
+            super.recycle();
+        }
+
+        public static LoadingResult obtainWithoutContent(LoadingStrategy strategy, Document document) {
+            final int size = document.getSegmentCount();
+            return obtain(strategy, document, size, size);
+        }
+
+        public static LoadingResult obtain(LoadingStrategy strategy, Document document) {
+            return obtain(strategy, document, 0, document.getSegmentCount());
+        }
+
+        public static LoadingResult obtain(LoadingStrategy strategy, Document document, int start, int end) {
+            LoadingResult result = POOL.acquire();
+            if (result == null) {
+                result = new LoadingResult();
+            }
+
+            result.document = document;
+            result.start = start;
+            result.end = end;
+            result.strategy = strategy;
+            result.reuse();
+            return result;
+        }
     }
 
     public static class Args extends DefaultRecyclable {

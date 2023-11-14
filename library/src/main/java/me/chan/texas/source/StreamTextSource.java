@@ -13,7 +13,7 @@ import me.chan.texas.renderer.LoadingStrategy;
  * 流式文本源
  */
 public class StreamTextSource extends Source<CharSequence> {
-    private static final int DEFAULT_BUFFER_SIZE = 128;
+    private static final int DEFAULT_BUFFER_SIZE = 4;
 
     private BufferedReader mReader;
     private final List<CharSequence> mCachedBuffer = new ArrayList<>();
