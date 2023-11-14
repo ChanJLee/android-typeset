@@ -28,6 +28,7 @@ import me.chan.texas.misc.PaintSet;
 import me.chan.texas.renderer.core.TypesetEngine;
 import me.chan.texas.renderer.core.WorkerScheduler;
 import me.chan.texas.renderer.core.worker.LoadingWorker;
+import me.chan.texas.renderer.core.worker.MixWorker;
 import me.chan.texas.renderer.highlight.Highlight;
 import me.chan.texas.renderer.highlight.HighlightManager;
 import me.chan.texas.renderer.highlight.ParagraphHighlight;
@@ -184,6 +185,19 @@ public class Renderer implements SelectionManager.Listener {
         mTexasView.notifyRenderEnd();
     }
 
+    private void render(LoadingStrategy loadingStrategy, int start, int end) {
+        if (mTypesetEngine == null) {
+            w("render, core is null");
+            return;
+        }
+
+        mAdapter.render(
+                loadingStrategy,
+                start,
+                end
+        );
+    }
+
     protected void onRenderer(Document document,
                               PaintSet paintSet,
                               RenderOption renderOption) {
@@ -247,7 +261,8 @@ public class Renderer implements SelectionManager.Listener {
         if (cmpType == TexasUtils.CmpType.CMP_LOAD) {
             load("render option changed", mTypesetEngine.getWidth(), LoadingStrategy.LOAD_REFRESH);
         } else if (cmpType == TexasUtils.CmpType.CMP_TYPESET) {
-            mTypesetEngine.typeset(mTypesetEngine.getDocument());
+            Document document = mTypesetEngine.getDocument();
+            mTypesetEngine.typeset(document);
         }
 
         if (cmpType != TexasUtils.CmpType.CMP_DRAW) {
@@ -312,7 +327,28 @@ public class Renderer implements SelectionManager.Listener {
                 if (BuildConfig.DEBUG) {
                     Log.d("TexasRenderer", "load success, reason: " + reason + ", width: " + mTypesetEngine.getWidth());
                 }
-                mTypesetEngine.typeset(document);
+
+                if (strategy == LoadingStrategy.LOAD_REFRESH || strategy == LoadingStrategy.LOAD_RELOAD) {
+                    mTypesetEngine.typeset(document);
+                    return;
+                }
+
+                mTypesetEngine.typeset(document, start, end, new MixWorker.Listener() {
+                    @Override
+                    public void onStart() {
+                        /* noop */
+                    }
+
+                    @Override
+                    public void onFailure(Throwable throwable) {
+                        /* noop */
+                    }
+
+                    @Override
+                    public void onSuccess(TypesetEngine.TypesetResult result) {
+                        render(strategy, start, end);
+                    }
+                });
             }
         });
         WorkerScheduler.loading().submit(mToken, args);

@@ -126,7 +126,17 @@ public class MixWorker implements TaskQueue.Listener<MixWorker.Args, TypesetEngi
             d("parse or refresh used time: " + (parseTimestamp - startTimestamp));
         }
 
-        typesetDocument(token, args.outWidth, args.document, args.option, args.segmentDecoration, measurer, textAttribute);
+        typesetDocument(
+                token,
+                args.outWidth,
+                args.document,
+                args.option,
+                args.segmentDecoration,
+                measurer,
+                textAttribute,
+                args.start,
+                args.end
+        );
 
         if (DEBUG) {
             d("typeset used time: " + (SystemClock.elapsedRealtime() - parseTimestamp));
@@ -146,11 +156,13 @@ public class MixWorker implements TaskQueue.Listener<MixWorker.Args, TypesetEngi
                                  RenderOption option,
                                  TexasView.SegmentDecoration segmentDecoration,
                                  Measurer measurer,
-                                 TextAttribute textAttribute) throws Throwable {
+                                 TextAttribute textAttribute,
+                                 int start,
+                                 int end) throws Throwable {
         int size = document.getSegmentCount();
 
         // typeset
-        for (int i = 0; i < size && !token.isExpired(); ++i) {
+        for (int i = start; i < end && !token.isExpired(); ++i) {
             Segment segment = document.getSegment(i);
             int width = outWidth;
 
@@ -285,8 +297,12 @@ public class MixWorker implements TaskQueue.Listener<MixWorker.Args, TypesetEngi
         private RenderOption option;
         private Document document;
         private Listener listener;
+        private TexasView.SegmentDecoration segmentDecoration;
 
-        TexasView.SegmentDecoration segmentDecoration;
+        private int start;
+
+        private int end;
+
 
         private Args() {
         }
@@ -302,6 +318,7 @@ public class MixWorker implements TaskQueue.Listener<MixWorker.Args, TypesetEngi
             document = null;
             listener = null;
             segmentDecoration = null;
+            start = end = 0;
             super.recycle();
             POOL.release(this);
         }
@@ -310,7 +327,9 @@ public class MixWorker implements TaskQueue.Listener<MixWorker.Args, TypesetEngi
                                   RenderOption option,
                                   Document document,
                                   Listener listener,
-                                  TexasView.SegmentDecoration segmentDecoration) {
+                                  TexasView.SegmentDecoration segmentDecoration,
+                                  int start,
+                                  int end) {
             Args args = POOL.acquire();
             if (args == null) {
                 args = new Args();
@@ -321,6 +340,8 @@ public class MixWorker implements TaskQueue.Listener<MixWorker.Args, TypesetEngi
             args.document = document;
             args.listener = listener;
             args.segmentDecoration = segmentDecoration;
+            args.start = start;
+            args.end = end;
             args.reuse();
             return args;
         }

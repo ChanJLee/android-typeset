@@ -20,6 +20,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import me.chan.texas.BuildConfig;
 import me.chan.texas.image.ImageLoader;
 import me.chan.texas.misc.PaintSet;
+import me.chan.texas.renderer.LoadingStrategy;
 import me.chan.texas.renderer.RenderOption;
 import me.chan.texas.renderer.highlight.HighlightManager;
 import me.chan.texas.renderer.highlight.ParagraphHighlight;
@@ -268,6 +269,21 @@ public class RendererAdapter extends RecyclerView.Adapter<RendererAdapter.Render
 		mPaintSet = context;
 		mRenderOption = renderOption;
 		notifyDataSetChanged();
+	}
+
+	@SuppressLint("NotifyDataSetChanged")
+	public void render(LoadingStrategy strategy,
+					   int start,
+					   int end) {
+		d("render");
+		mView.stopScroll();
+		if (strategy == LoadingStrategy.LOAD_PREVIOUS) {
+			notifyItemRangeInserted(0, end - start);
+		} else if (strategy == LoadingStrategy.LOAD_MORE) {
+			notifyItemRangeInserted(start, end - start);
+		} else {
+			throw new IllegalArgumentException("unknown loading strategy");
+		}
 	}
 
 	public void updateRenderOption(RenderOption renderOption) {
