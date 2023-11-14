@@ -58,9 +58,13 @@ public class TypesetEngine {
         mWidth = width;
     }
 
-    public void typeset(Document document) {
+    public void typeset(Document document, int start, int end, MixWorker.Listener listener) {
         mDocument = document;
-        typeset0(mWidth, document);
+        typeset0(mWidth, document, start, end, listener);
+    }
+
+    public void typeset(Document document) {
+        typeset(document, 0, document.getSegmentCount(), mListener);
     }
 
     /**
@@ -69,7 +73,7 @@ public class TypesetEngine {
      * @param outWidth width, must be > 0
      * @param document document
      */
-    private void typeset0(final int outWidth, Document document) {
+    private void typeset0(final int outWidth, Document document, int start, int end, MixWorker.Listener listener) {
         if (outWidth <= 0) {
             w("typeset, width <= 0");
             mRenderer.error(new IllegalArgumentException("width and height must be large than 0"));
@@ -84,8 +88,10 @@ public class TypesetEngine {
                 outWidth,
                 mRenderOption,
                 document,
-                mListener,
-                mSegmentDecoration
+                listener,
+                mSegmentDecoration,
+                start,
+                end
         );
         WorkerScheduler.mix().submit(mToken, args);
     }
@@ -129,12 +135,16 @@ public class TypesetEngine {
     }
 
     public static class TypesetResult {
-        PaintSet paintSet;
-        Document doc;
+        private final PaintSet paintSet;
+        private final Document doc;
 
         public TypesetResult(PaintSet paintSet, Document doc) {
             this.paintSet = paintSet;
             this.doc = doc;
+        }
+
+        public PaintSet getPaintSet() {
+            return paintSet;
         }
     }
 
