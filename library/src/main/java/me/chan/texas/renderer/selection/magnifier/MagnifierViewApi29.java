@@ -18,7 +18,7 @@ public class MagnifierViewApi29 implements MagnifierView {
 
 	public MagnifierViewApi29(@NonNull View view) {
 		Resources resources = view.getResources();
-		int size = (int) resources.getDimension(R.dimen.com_shanbay_lib_texas_default_magnifier_size);
+		int size = (int) resources.getDimension(R.dimen.me_chan_texas_default_magnifier_size);
 		mMagnifier = new Magnifier.Builder(view)
 				.setSize(size, size)
 				.setDefaultSourceToMagnifierOffset(0, (int) (size * -0.66f))

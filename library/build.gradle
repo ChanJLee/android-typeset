@@ -19,8 +19,6 @@ android {
         targetCompatibility JavaVersion.VERSION_1_8
     }
 
-    resourcePrefix "com_shanbay_lib_texas_"
-
     testOptions {
         unitTests.returnDefaultValues = true
         unitTests {
