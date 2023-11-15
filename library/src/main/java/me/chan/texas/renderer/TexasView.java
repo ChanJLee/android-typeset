@@ -172,14 +172,14 @@ public final class TexasView extends FrameLayout {
 
         // 设置字体颜色
         renderOption.setTextColor(
-                typedArray.getColor(R.styleable.me_chan_texas_TexasView_me_chan_texas_textColor,
+                typedArray.getColor(R.styleable.me_chan_texas_TexasView_me_chan_texas_TexasView_textColor,
                         ContextCompat.getColor(context, R.color.me_chan_texas_text_color)
                 )
         );
 
         // 设置字体
         renderOption.setTypeface(Texas.getDefaultTypeface());
-        String typefacePath = typedArray.getString(R.styleable.me_chan_texas_TexasView_me_chan_texas_typefaceAssets);
+        String typefacePath = typedArray.getString(R.styleable.me_chan_texas_TexasView_me_chan_texas_TexasView_typefaceAssets);
         if (!TextUtils.isEmpty(typefacePath)) {
             WeakReference<Typeface> typefaceWeakReference = TYPEFACE_CACHE.get(typefacePath);
             Typeface typeface;
@@ -195,7 +195,7 @@ public final class TexasView extends FrameLayout {
 
         // 设置字体大小
         renderOption.setTextSize(
-                typedArray.getDimension(R.styleable.me_chan_texas_TexasView_me_chan_texas_textSize,
+                typedArray.getDimension(R.styleable.me_chan_texas_TexasView_me_chan_texas_TexasView_textSize,
                         TypedValue.applyDimension(
                                 TypedValue.COMPLEX_UNIT_SP,
                                 DEFAULT_TEXT_SIZE,
@@ -206,7 +206,7 @@ public final class TexasView extends FrameLayout {
 
         // 行间距
         renderOption.setLineSpace(
-                typedArray.getDimension(R.styleable.me_chan_texas_TexasView_me_chan_texas_lineSpace,
+                typedArray.getDimension(R.styleable.me_chan_texas_TexasView_me_chan_texas_TexasView_lineSpace,
                         TypedValue.applyDimension(
                                 TypedValue.COMPLEX_UNIT_DIP,
                                 DEFAULT_LINE_SPACE,
@@ -217,31 +217,31 @@ public final class TexasView extends FrameLayout {
 
         // 选中字体的背景色
         renderOption.setSelectedBackgroundColor(
-                typedArray.getColor(R.styleable.me_chan_texas_TexasView_me_chan_texas_selectedBackgroundColor,
+                typedArray.getColor(R.styleable.me_chan_texas_TexasView_me_chan_texas_TexasView_selectedBackgroundColor,
                         ContextCompat.getColor(context, R.color.me_chan_texas_theme_color)
                 )
         );
 
         // 选中字体的颜色
         renderOption.setSelectedTextColor(
-                typedArray.getColor(R.styleable.me_chan_texas_TexasView_me_chan_texas_selectedTextColor, Color.WHITE)
+                typedArray.getColor(R.styleable.me_chan_texas_TexasView_me_chan_texas_TexasView_selectedTextColor, Color.WHITE)
         );
 
         // 选中span的背景色
         renderOption.setSelectedByLongClickBackgroundColor(
-                typedArray.getColor(R.styleable.me_chan_texas_TexasView_me_chan_texas_spanSelectedBackgroundColor,
+                typedArray.getColor(R.styleable.me_chan_texas_TexasView_me_chan_texas_TexasView_spanSelectedBackgroundColor,
                         ContextCompat.getColor(context, R.color.me_chan_texas_span_bg_color)
                 )
         );
 
         // 选中span的字体颜色
         renderOption.setSelectedByLongClickTextColor(
-                typedArray.getColor(R.styleable.me_chan_texas_TexasView_me_chan_texas_spanSelectedTextColor,
+                typedArray.getColor(R.styleable.me_chan_texas_TexasView_me_chan_texas_TexasView_spanSelectedTextColor,
                         ContextCompat.getColor(context, R.color.me_chan_texas_text_color))
         );
 
         // 断字策略
-        int breakStrategy = typedArray.getInt(R.styleable.me_chan_texas_TexasView_me_chan_texas_breakStrategy, BREAK_STRATEGY_BALANCE);
+        int breakStrategy = typedArray.getInt(R.styleable.me_chan_texas_TexasView_me_chan_texas_TexasView_breakStrategy, BREAK_STRATEGY_BALANCE);
         renderOption.setBreakStrategy(
                 breakStrategy == BREAK_STRATEGY_SIMPLE ?
                         BreakStrategy.SIMPLE : BreakStrategy.BALANCED
@@ -249,11 +249,11 @@ public final class TexasView extends FrameLayout {
 
         // 是否可选单词
         renderOption.setWordSelectable(
-                typedArray.getBoolean(R.styleable.me_chan_texas_TexasView_me_chan_texas_wordSelectable, true)
+                typedArray.getBoolean(R.styleable.me_chan_texas_TexasView_me_chan_texas_TexasView_wordSelectable, true)
         );
 
         // 断字策略
-        int hyphenStrategy = typedArray.getInt(R.styleable.me_chan_texas_TexasView_me_chan_texas_hyphenStrategy, HYPHEN_STRATEGY_US);
+        int hyphenStrategy = typedArray.getInt(R.styleable.me_chan_texas_TexasView_me_chan_texas_TexasView_hyphenStrategy, HYPHEN_STRATEGY_US);
         renderOption.setHyphenStrategy(
                 hyphenStrategy == HYPHEN_STRATEGY_UK ?
                         HyphenStrategy.UK : HyphenStrategy.US
@@ -261,33 +261,33 @@ public final class TexasView extends FrameLayout {
 
         // lazy 渲染模式优化
         renderOption.setEnableLazyRender(
-                typedArray.getBoolean(R.styleable.me_chan_texas_TexasView_me_chan_texas_lazyRender, true)
+                typedArray.getBoolean(R.styleable.me_chan_texas_TexasView_me_chan_texas_TexasView_lazyRender, true)
         );
 
         // 高亮span文字颜色
         renderOption.setSpanHighlightTextColor(
-                typedArray.getColor(R.styleable.me_chan_texas_TexasView_me_chan_texas_spanHighlightTextColor,
+                typedArray.getColor(R.styleable.me_chan_texas_TexasView_me_chan_texas_TexasView_spanHighlightTextColor,
                         ContextCompat.getColor(context, R.color.me_chan_texas_theme_color)
                 )
         );
 
         // 加载中背景色
         renderOption.setLoadingBackgroundColor(
-                typedArray.getColor(R.styleable.me_chan_texas_TexasView_me_chan_texas_loadingBackgroundColor,
+                typedArray.getColor(R.styleable.me_chan_texas_TexasView_me_chan_texas_TexasView_loadingBackgroundColor,
                         ContextCompat.getColor(context, R.color.me_chan_texas_loading_bg)
                 )
         );
 
         // 自由划线水滴颜色
         renderOption.setDragViewColor(
-                typedArray.getColor(R.styleable.me_chan_texas_TexasView_me_chan_texas_dragViewColor,
+                typedArray.getColor(R.styleable.me_chan_texas_TexasView_me_chan_texas_TexasView_dragViewColor,
                         ContextCompat.getColor(context, R.color.me_chan_texas_drag_view_color))
         );
 
         // 设置选中圆角半径
         renderOption.setSelectedBackgroundRoundRadius(
                 typedArray.getDimension(
-                        R.styleable.me_chan_texas_TexasView_me_chan_texas_selectedBackgroundRoundRadius,
+                        R.styleable.me_chan_texas_TexasView_me_chan_texas_TexasView_selectedBackgroundRoundRadius,
                         TypedValue.applyDimension(
                                 TypedValue.COMPLEX_UNIT_DIP,
                                 3,
@@ -298,7 +298,7 @@ public final class TexasView extends FrameLayout {
 
         // 是否开启兼容模式
         renderOption.setCompatMode(
-                typedArray.getBoolean(R.styleable.me_chan_texas_TexasView_me_chan_texas_compatMode, false)
+                typedArray.getBoolean(R.styleable.me_chan_texas_TexasView_me_chan_texas_TexasView_compatMode, false)
         );
 
 
