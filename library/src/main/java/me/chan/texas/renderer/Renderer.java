@@ -325,7 +325,10 @@ public class Renderer implements SelectionManager.Listener {
                 }
 
                 if (BuildConfig.DEBUG) {
-                    Log.d("TexasRenderer", "load success, reason: " + reason + ", width: " + mTypesetEngine.getWidth());
+                    Log.d("TexasRenderer", "load success, reason: " + reason +
+                            ", width: " + mTypesetEngine.getWidth() +
+                            ", start: " + start +
+                            ", end: " + end);
                 }
 
                 if (strategy == LoadingStrategy.LOAD_REFRESH || strategy == LoadingStrategy.LOAD_RELOAD) {
