@@ -595,14 +595,14 @@ public class ParagraphView extends FrameLayout {
 
 		// 设置字体颜色
 		renderOption.setTextColor(
-				typedArray.getColor(R.styleable.me_chan_texas_ParagraphView_me_chan_texas_paragraph_textColor,
+				typedArray.getColor(R.styleable.me_chan_texas_ParagraphView_me_chan_texas_ParagraphView_textColor,
 						ContextCompat.getColor(context, R.color.me_chan_texas_text_color)
 				)
 		);
 
 		// 设置字体
 		renderOption.setTypeface(Texas.getDefaultTypeface());
-		String typefacePath = typedArray.getString(R.styleable.me_chan_texas_ParagraphView_me_chan_texas_paragraph_typefaceAssets);
+		String typefacePath = typedArray.getString(R.styleable.me_chan_texas_ParagraphView_me_chan_texas_ParagraphView_typefaceAssets);
 		if (!TextUtils.isEmpty(typefacePath)) {
 			WeakReference<Typeface> typefaceWeakReference = TexasView.TYPEFACE_CACHE.get(typefacePath);
 			Typeface typeface;
@@ -618,7 +618,7 @@ public class ParagraphView extends FrameLayout {
 
 		// 设置字体大小
 		renderOption.setTextSize(
-				typedArray.getDimension(R.styleable.me_chan_texas_ParagraphView_me_chan_texas_paragraph_textSize,
+				typedArray.getDimension(R.styleable.me_chan_texas_ParagraphView_me_chan_texas_ParagraphView_textSize,
 						TypedValue.applyDimension(
 								TypedValue.COMPLEX_UNIT_SP,
 								TexasView.DEFAULT_TEXT_SIZE,
@@ -629,7 +629,7 @@ public class ParagraphView extends FrameLayout {
 
 		// 行间距
 		renderOption.setLineSpace(
-				typedArray.getDimension(R.styleable.me_chan_texas_ParagraphView_me_chan_texas_paragraph_lineSpace,
+				typedArray.getDimension(R.styleable.me_chan_texas_ParagraphView_me_chan_texas_ParagraphView_lineSpace,
 						TypedValue.applyDimension(
 								TypedValue.COMPLEX_UNIT_DIP,
 								TexasView.DEFAULT_LINE_SPACE,
@@ -640,31 +640,31 @@ public class ParagraphView extends FrameLayout {
 
 		// 选中字体的背景色
 		renderOption.setSelectedBackgroundColor(
-				typedArray.getColor(R.styleable.me_chan_texas_ParagraphView_me_chan_texas_paragraph_selectedBackgroundColor,
+				typedArray.getColor(R.styleable.me_chan_texas_ParagraphView_me_chan_texas_ParagraphView_selectedBackgroundColor,
 						ContextCompat.getColor(context, R.color.me_chan_texas_theme_color)
 				)
 		);
 
 		// 选中字体的颜色
 		renderOption.setSelectedTextColor(
-				typedArray.getColor(R.styleable.me_chan_texas_ParagraphView_me_chan_texas_paragraph_selectedTextColor, Color.WHITE)
+				typedArray.getColor(R.styleable.me_chan_texas_ParagraphView_me_chan_texas_ParagraphView_selectedTextColor, Color.WHITE)
 		);
 
 		// 选中span的背景色
 		renderOption.setSelectedByLongClickBackgroundColor(
-				typedArray.getColor(R.styleable.me_chan_texas_ParagraphView_me_chan_texas_paragraph_spanSelectedBackgroundColor,
+				typedArray.getColor(R.styleable.me_chan_texas_ParagraphView_me_chan_texas_ParagraphView_spanSelectedBackgroundColor,
 						ContextCompat.getColor(context, R.color.me_chan_texas_span_bg_color)
 				)
 		);
 
 		// 选中span的字体颜色
 		renderOption.setSelectedByLongClickTextColor(
-				typedArray.getColor(R.styleable.me_chan_texas_ParagraphView_me_chan_texas_paragraph_spanSelectedTextColor,
+				typedArray.getColor(R.styleable.me_chan_texas_ParagraphView_me_chan_texas_ParagraphView_spanSelectedTextColor,
 						ContextCompat.getColor(context, R.color.me_chan_texas_text_color))
 		);
 
 		// 断字策略
-		int breakStrategy = typedArray.getInt(R.styleable.me_chan_texas_ParagraphView_me_chan_texas_paragraph_breakStrategy, TexasView.BREAK_STRATEGY_BALANCE);
+		int breakStrategy = typedArray.getInt(R.styleable.me_chan_texas_ParagraphView_me_chan_texas_ParagraphView_breakStrategy, TexasView.BREAK_STRATEGY_BALANCE);
 		renderOption.setBreakStrategy(
 				breakStrategy == TexasView.BREAK_STRATEGY_SIMPLE ?
 						BreakStrategy.SIMPLE : BreakStrategy.BALANCED
@@ -672,11 +672,11 @@ public class ParagraphView extends FrameLayout {
 
 		// 是否可选单词
 		renderOption.setWordSelectable(
-				typedArray.getBoolean(R.styleable.me_chan_texas_ParagraphView_me_chan_texas_paragraph_wordSelectable, true)
+				typedArray.getBoolean(R.styleable.me_chan_texas_ParagraphView_me_chan_texas_ParagraphView_wordSelectable, true)
 		);
 
 		// 断字策略
-		int hyphenStrategy = typedArray.getInt(R.styleable.me_chan_texas_ParagraphView_me_chan_texas_paragraph_hyphenStrategy, TexasView.HYPHEN_STRATEGY_US);
+		int hyphenStrategy = typedArray.getInt(R.styleable.me_chan_texas_ParagraphView_me_chan_texas_ParagraphView_hyphenStrategy, TexasView.HYPHEN_STRATEGY_US);
 		renderOption.setHyphenStrategy(
 				hyphenStrategy == TexasView.HYPHEN_STRATEGY_UK ?
 						HyphenStrategy.UK : HyphenStrategy.US
@@ -705,7 +705,7 @@ public class ParagraphView extends FrameLayout {
 		// 设置选中圆角半径
 		renderOption.setSelectedBackgroundRoundRadius(
 				typedArray.getDimension(
-						R.styleable.me_chan_texas_ParagraphView_me_chan_texas_paragraph_selectedBackgroundRoundRadius,
+						R.styleable.me_chan_texas_ParagraphView_me_chan_texas_ParagraphView_selectedBackgroundRoundRadius,
 						TypedValue.applyDimension(
 								TypedValue.COMPLEX_UNIT_DIP,
 								3,
@@ -716,7 +716,7 @@ public class ParagraphView extends FrameLayout {
 
 		// 是否开启兼容模式
 		renderOption.setCompatMode(
-				typedArray.getBoolean(R.styleable.me_chan_texas_ParagraphView_me_chan_texas_paragraph_compatMode, false)
+				typedArray.getBoolean(R.styleable.me_chan_texas_ParagraphView_me_chan_texas_ParagraphView_compatMode, false)
 		);
 
 		return renderOption;

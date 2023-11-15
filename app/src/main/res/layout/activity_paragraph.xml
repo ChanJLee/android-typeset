@@ -68,7 +68,7 @@
             android:id="@+id/text"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            app:me_chan_texas_selectedBackgroundRoundRadius="3dp" />
+            app:me_chan_texas_TexasView_selectedBackgroundRoundRadius="3dp" />
 
         <LinearLayout
             android:id="@+id/option_container"
