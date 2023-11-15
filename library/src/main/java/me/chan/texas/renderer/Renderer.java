@@ -111,7 +111,7 @@ public class Renderer implements SelectionManager.Listener {
 
         // rv
         mLinearLayoutManager = new TexasLinearLayoutManager(context);
-        mImpl = new TexasRecyclerView(new ContextThemeWrapper(context, R.style.com_shanbay_lib_texas_TexasRecyclerView), mLinearLayoutManager);
+        mImpl = new TexasRecyclerView(new ContextThemeWrapper(context, R.style.me_chan_texas_TexasRecyclerView), mLinearLayoutManager);
         mImpl.setClipToPadding(false);
         mImpl.setClipChildren(false);
         mImpl.setOnClickedListener((x, y) -> mTexasView.notifyEmptyClicked(x, y));
