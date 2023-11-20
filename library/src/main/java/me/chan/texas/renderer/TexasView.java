@@ -14,6 +14,8 @@ import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.util.TypedValue;
+import android.view.LayoutInflater;
+import android.view.View;
 import android.widget.FrameLayout;
 
 import androidx.annotation.AnyThread;
@@ -48,11 +50,13 @@ import me.chan.texas.renderer.core.WorkerScheduler;
 import me.chan.texas.renderer.core.worker.LoadingWorker;
 import me.chan.texas.renderer.selection.Selection;
 import me.chan.texas.renderer.ui.decor.ParagraphDecor;
+import me.chan.texas.renderer.ui.indicator.LoadingIndicator;
 import me.chan.texas.source.ObjectSource;
 import me.chan.texas.source.Source;
 import me.chan.texas.source.SourceOpenException;
 import me.chan.texas.text.BreakStrategy;
 import me.chan.texas.text.Document;
+import me.chan.texas.text.Gravity;
 import me.chan.texas.text.HyphenStrategy;
 import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.Segment;
@@ -123,6 +127,10 @@ public final class TexasView extends FrameLayout {
     private Adapter<?> mAdapter;
     private OnScrollListener mOnScrollListener;
     private OnDragSelectListener mOnDragSelectListener;
+
+    private LoadingIndicator mTopLoadingIndicator;
+
+    private LoadingIndicator mBottomLoadingIndicator;
 
     public TexasView(Context context, AttributeSet attrs) {
         this(context, attrs, 0);
@@ -301,6 +309,26 @@ public final class TexasView extends FrameLayout {
                 typedArray.getBoolean(R.styleable.me_chan_texas_TexasView_me_chan_texas_TexasView_compatMode, false)
         );
 
+        LayoutInflater inflater = LayoutInflater.from(context);
+        int indicatorId = typedArray.getResourceId(R.styleable.me_chan_texas_TexasView_me_chan_texas_TexasView_bottomIndicator,
+                R.layout.me_chan_texas_bottom_loading_indicator);
+        if (indicatorId != NO_ID) {
+            View view = inflater.inflate(indicatorId, this, false);
+            if (!(view instanceof LoadingIndicator)) {
+                throw new IllegalArgumentException("bottom loading indicator should implements me.chan.texas.renderer.ui.indicator.LoadingIndicator");
+            }
+            mBottomLoadingIndicator = (LoadingIndicator) view;
+        }
+
+        indicatorId = typedArray.getResourceId(R.styleable.me_chan_texas_TexasView_me_chan_texas_TexasView_topLoadingIndicator,
+                R.layout.me_chan_texas_top_loading_indicator);
+        if (indicatorId != NO_ID) {
+            View view = inflater.inflate(indicatorId, this, false);
+            if (!(view instanceof LoadingIndicator)) {
+                throw new IllegalArgumentException("top loading indicator should implements me.chan.texas.renderer.ui.indicator.LoadingIndicator");
+            }
+            mTopLoadingIndicator = (LoadingIndicator) view;
+        }
 
         // 如果开启了非兼容模式，且系统版本小于6.0，关闭硬件加速
         // {@link me.chan.texas.renderer.core.graphics.TextureScene}
@@ -309,6 +337,19 @@ public final class TexasView extends FrameLayout {
         }
 
         mRenderer = new Renderer(this, renderOption, mToken);
+
+        if (mTopLoadingIndicator != null) {
+            View view = (View) mTopLoadingIndicator;
+            addView(view);
+        }
+
+        if (mBottomLoadingIndicator != null) {
+            View view = (View) mBottomLoadingIndicator;
+            FrameLayout.LayoutParams layoutParams = (LayoutParams) view.getLayoutParams();
+            layoutParams.gravity = android.view.Gravity.BOTTOM;
+            view.setLayoutParams(layoutParams);
+            addView(view, layoutParams);
+        }
     }
 
     @RestrictTo(RestrictTo.Scope.LIBRARY)
