@@ -29,6 +29,8 @@
         <attr name="me_chan_texas_TexasView_dragViewColor" format="color" />
         <attr name="me_chan_texas_TexasView_selectedBackgroundRoundRadius" format="dimension" />
         <attr name="me_chan_texas_TexasView_compatMode" format="boolean" />
+        <attr name="me_chan_texas_TexasView_bottomIndicator" format="reference" />
+        <attr name="me_chan_texas_TexasView_topLoadingIndicator" format="reference" />
     </declare-styleable>
 
     <style name="me_chan_texas_TexasRecyclerView" parent="android:Widget">
@@ -64,6 +66,6 @@
 
     <declare-styleable name="me_chan_texas_LoadingIndicatorView">
         <attr name="me_chan_texas_LoadingIndicatorView_loadingColor" format="color" />
-        <attr name="me_chan_texas_LoadingIndicatorView_loadingErrorColor" format="color" />
+        <attr name="me_chan_texas_LoadingIndicatorView_loadingBackgroundColor" format="color" />
     </declare-styleable>
 </resources>
