@@ -33,6 +33,8 @@ public class LoadingIndicatorView extends View implements LoadingIndicator {
             mDeltaRatioX = (float) animation.getAnimatedValue();
             invalidate();
         });
+        mValueAnimator.setRepeatCount(ValueAnimator.INFINITE);
+        mValueAnimator.setRepeatMode(ValueAnimator.RESTART);
         mValueAnimator.setDuration(2000);
 
         Resources resources = context.getResources();
