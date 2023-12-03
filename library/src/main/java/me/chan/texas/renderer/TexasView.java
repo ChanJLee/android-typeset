@@ -56,7 +56,6 @@ import me.chan.texas.source.Source;
 import me.chan.texas.source.SourceOpenException;
 import me.chan.texas.text.BreakStrategy;
 import me.chan.texas.text.Document;
-import me.chan.texas.text.Gravity;
 import me.chan.texas.text.HyphenStrategy;
 import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.Segment;
@@ -353,23 +352,23 @@ public final class TexasView extends FrameLayout {
     }
 
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    public void notifyRenderStart() {
+    public void notifyRenderStart(LoadingStrategy loadingStrategy) {
         if (mRenderListener != null) {
-            mRenderListener.onStart(TexasView.this);
+            mRenderListener.onStart(TexasView.this, loadingStrategy);
         }
     }
 
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    public void notifyRenderEnd() {
+    public void notifyRenderEnd(LoadingStrategy loadingStrategy) {
         if (mRenderListener != null) {
-            mRenderListener.onEnd(TexasView.this);
+            mRenderListener.onEnd(TexasView.this, loadingStrategy);
         }
     }
 
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    public void notifyRenderError(Throwable throwable) {
+    public void notifyRenderError(LoadingStrategy strategy, Throwable throwable) {
         if (mRenderListener != null) {
-            mRenderListener.onError(TexasView.this, throwable);
+            mRenderListener.onError(TexasView.this, strategy, throwable);
         }
     }
 
@@ -393,7 +392,7 @@ public final class TexasView extends FrameLayout {
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
         /* render if size changed */
-        mRenderer.typeset("onSizeChanged", getRenderWidth());
+        mRenderer.typeset("onSizeChanged", getRenderWidth(), LoadingStrategy.TYPESET_ONLY);
     }
 
     private int getRenderWidth() {
@@ -808,14 +807,14 @@ public final class TexasView extends FrameLayout {
          *
          * @param texasView view
          */
-        void onStart(TexasView texasView);
+        void onStart(TexasView texasView, LoadingStrategy loadingStrategy);
 
         /**
          * 渲染结束的时候调用
          *
          * @param texasView view
          */
-        void onEnd(TexasView texasView);
+        void onEnd(TexasView texasView, LoadingStrategy loadingStrategy);
 
         /**
          * 发生错误的时候调用
@@ -823,7 +822,7 @@ public final class TexasView extends FrameLayout {
          * @param texasView view
          * @param throwable 错误
          */
-        void onError(TexasView texasView, Throwable throwable);
+        void onError(TexasView texasView, LoadingStrategy loadingStrategy, Throwable throwable);
     }
 
     private static void d(String msg) {
@@ -954,11 +953,11 @@ public final class TexasView extends FrameLayout {
         }
     }
 
-    public void notifyLoadMore() {
+    void scheduleLoadMore() {
         load("load more", LoadingStrategy.LOAD_MORE);
     }
 
-    public void notifyLoadPrevious() {
+    void scheduleLoadPrevious() {
         load("load previous", LoadingStrategy.LOAD_PREVIOUS);
     }
 
