@@ -353,6 +353,18 @@ public final class TexasView extends FrameLayout {
 
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public void notifyRenderStart(LoadingStrategy loadingStrategy) {
+        if (loadingStrategy == LoadingStrategy.LOAD_REFRESH ||
+                loadingStrategy == LoadingStrategy.LOAD_PREVIOUS ||
+                loadingStrategy == LoadingStrategy.LOAD_RELOAD) {
+            if (mTopLoadingIndicator != null) {
+                mTopLoadingIndicator.renderLoading();
+            }
+        } else if (loadingStrategy == LoadingStrategy.LOAD_MORE) {
+            if (mBottomLoadingIndicator != null) {
+                mBottomLoadingIndicator.renderLoading();
+            }
+        }
+
         if (mRenderListener != null) {
             mRenderListener.onStart(TexasView.this, loadingStrategy);
         }
@@ -360,6 +372,14 @@ public final class TexasView extends FrameLayout {
 
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public void notifyRenderEnd(LoadingStrategy loadingStrategy) {
+        if (mBottomLoadingIndicator != null) {
+            mBottomLoadingIndicator.dismiss();
+        }
+
+        if (mTopLoadingIndicator != null) {
+            mTopLoadingIndicator.dismiss();
+        }
+
         if (mRenderListener != null) {
             mRenderListener.onEnd(TexasView.this, loadingStrategy);
         }
@@ -367,6 +387,14 @@ public final class TexasView extends FrameLayout {
 
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public void notifyRenderError(LoadingStrategy strategy, Throwable throwable) {
+        if (mBottomLoadingIndicator != null) {
+            mBottomLoadingIndicator.dismiss();
+        }
+
+        if (mTopLoadingIndicator != null) {
+            mTopLoadingIndicator.dismiss();
+        }
+
         if (mRenderListener != null) {
             mRenderListener.onError(TexasView.this, strategy, throwable);
         }
