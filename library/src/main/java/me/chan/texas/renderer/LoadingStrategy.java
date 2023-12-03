@@ -19,5 +19,9 @@ public enum LoadingStrategy {
     /**
      * 重新加载数据
      * */
-    LOAD_RELOAD
+    LOAD_RELOAD,
+    /**
+     * 只重新排版
+     * */
+    TYPESET_ONLY
 }

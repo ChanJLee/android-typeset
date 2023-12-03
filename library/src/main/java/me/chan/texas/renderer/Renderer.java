@@ -137,12 +137,12 @@ public class Renderer implements SelectionManager.Listener {
 
             @Override
             public void onLoadingMore(int count) {
-                mTexasView.notifyLoadMore();
+                mTexasView.scheduleLoadMore();
             }
 
             @Override
             public void onLoadingPrevious() {
-                mTexasView.notifyLoadPrevious();
+                mTexasView.scheduleLoadPrevious();
             }
         });
         mImpl.addItemDecoration(new SegmentItemDecoration(mAdapter));
@@ -159,9 +159,9 @@ public class Renderer implements SelectionManager.Listener {
         mImpl.setAdapter(mAdapter);
     }
 
-    public void start() {
+    public void start(LoadingStrategy strategy) {
         onStart();
-        mTexasView.notifyRenderStart();
+        mTexasView.notifyRenderStart(strategy);
     }
 
     protected void onStart() {
@@ -171,7 +171,7 @@ public class Renderer implements SelectionManager.Listener {
         mAdapter.clear();
     }
 
-    public void render(@NonNull Document document, PaintSet paintSet) {
+    public void render(LoadingStrategy strategy, @NonNull Document document, PaintSet paintSet) {
         if (mTypesetEngine == null) {
             w("render, core is null");
             return;
@@ -182,7 +182,7 @@ public class Renderer implements SelectionManager.Listener {
                 paintSet,
                 mRenderOption
         );
-        mTexasView.notifyRenderEnd();
+        mTexasView.notifyRenderEnd(strategy);
     }
 
     private void render(LoadingStrategy loadingStrategy, int start, int end) {
@@ -215,10 +215,10 @@ public class Renderer implements SelectionManager.Listener {
         );
     }
 
-    public void error(Throwable throwable) {
+    public void error(LoadingStrategy strategy, Throwable throwable) {
         w(throwable);
         onError(throwable);
-        mTexasView.notifyRenderError(throwable);
+        mTexasView.notifyRenderError(strategy, throwable);
     }
 
     protected void onError(Throwable throwable) {
@@ -260,9 +260,11 @@ public class Renderer implements SelectionManager.Listener {
 
         if (cmpType == TexasUtils.CmpType.CMP_LOAD) {
             load("render option changed", mTypesetEngine.getWidth(), LoadingStrategy.LOAD_REFRESH);
+            return;
         } else if (cmpType == TexasUtils.CmpType.CMP_TYPESET) {
             Document document = mTypesetEngine.getDocument();
-            mTypesetEngine.typeset(document);
+            mTypesetEngine.typeset(document, LoadingStrategy.TYPESET_ONLY);
+            return;
         }
 
         if (cmpType != TexasUtils.CmpType.CMP_DRAW) {
@@ -307,15 +309,12 @@ public class Renderer implements SelectionManager.Listener {
             @Override
             public void onStart() {
                 d("try loading doc, width: " + width + ", strategy: " + strategy);
+                mTexasView.notifyRenderStart(strategy);
             }
 
             @Override
             public void onFailure(Throwable throwable) {
-                if (mTexasView == null) {
-                    return;
-                }
-
-                mTexasView.notifyRenderError(throwable);
+                mTexasView.notifyRenderError(strategy, throwable);
             }
 
             @Override
@@ -332,24 +331,25 @@ public class Renderer implements SelectionManager.Listener {
                 }
 
                 if (strategy == LoadingStrategy.LOAD_REFRESH || strategy == LoadingStrategy.LOAD_RELOAD) {
-                    mTypesetEngine.typeset(document);
+                    mTypesetEngine.typeset(document, strategy);
                     return;
                 }
 
-                mTypesetEngine.typeset(document, start, end, new MixWorker.Listener() {
+                mTypesetEngine.typeset(document, strategy, start, end, new MixWorker.Listener() {
                     @Override
-                    public void onStart() {
+                    public void onStart(LoadingStrategy loadingStrategy) {
                         /* noop */
                     }
 
                     @Override
-                    public void onFailure(Throwable throwable) {
-                        /* noop */
+                    public void onFailure(LoadingStrategy loadingStrategy, Throwable throwable) {
+                        mTexasView.notifyRenderError(loadingStrategy, throwable);
                     }
 
                     @Override
-                    public void onSuccess(TypesetEngine.TypesetResult result) {
+                    public void onSuccess(LoadingStrategy loadingStrategy, TypesetEngine.TypesetResult result) {
                         render(strategy, start, end);
+                        mTexasView.notifyRenderEnd(loadingStrategy);
                     }
                 });
             }
@@ -357,7 +357,7 @@ public class Renderer implements SelectionManager.Listener {
         WorkerScheduler.loading().submit(mToken, args);
     }
 
-    public void typeset(String reason, int width) {
+    public void typeset(String reason, int width, LoadingStrategy strategy) {
         if (BuildConfig.DEBUG) {
             Log.d("TexasRenderer", "typeset, reason: " + reason);
         }
@@ -370,7 +370,7 @@ public class Renderer implements SelectionManager.Listener {
         if (document == null || width <= 0) {
             return;
         }
-        mTypesetEngine.typeset(document);
+        mTypesetEngine.typeset(document, strategy);
     }
 
     @Nullable

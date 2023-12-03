@@ -13,6 +13,7 @@ import me.chan.texas.Texas;
 import me.chan.texas.di.TexasComponent;
 import me.chan.texas.di.core.TextEngineCoreComponent;
 import me.chan.texas.misc.PaintSet;
+import me.chan.texas.renderer.LoadingStrategy;
 import me.chan.texas.renderer.RenderOption;
 import me.chan.texas.renderer.Renderer;
 import me.chan.texas.renderer.TexasView;
@@ -58,13 +59,13 @@ public class TypesetEngine {
         mWidth = width;
     }
 
-    public void typeset(Document document, int start, int end, MixWorker.Listener listener) {
+    public void typeset(Document document, LoadingStrategy strategy, int start, int end, MixWorker.Listener listener) {
         mDocument = document;
-        typeset0(mWidth, document, start, end, listener);
+        typeset0(mWidth, document, strategy, start, end, listener);
     }
 
-    public void typeset(Document document) {
-        typeset(document, 0, document.getSegmentCount(), mListener);
+    public void typeset(Document document, LoadingStrategy strategy) {
+        typeset(document, strategy, 0, document.getSegmentCount(), mListener);
     }
 
     /**
@@ -73,10 +74,12 @@ public class TypesetEngine {
      * @param outWidth width, must be > 0
      * @param document document
      */
-    private void typeset0(final int outWidth, Document document, int start, int end, MixWorker.Listener listener) {
+    private void typeset0(final int outWidth,
+                          Document document, LoadingStrategy strategy, int start, int end,
+                          MixWorker.Listener listener) {
         if (outWidth <= 0) {
             w("typeset, width <= 0");
-            mRenderer.error(new IllegalArgumentException("width and height must be large than 0"));
+            mRenderer.error(strategy, new IllegalArgumentException("width and height must be large than 0"));
             return;
         }
 
@@ -88,6 +91,7 @@ public class TypesetEngine {
                 outWidth,
                 mRenderOption,
                 document,
+                strategy,
                 listener,
                 mSegmentDecoration,
                 start,
@@ -98,14 +102,14 @@ public class TypesetEngine {
 
     private final MixWorker.Listener mListener = new MixWorker.Listener() {
         @Override
-        public void onStart() {
+        public void onStart(LoadingStrategy strategy) {
             if (mRenderer != null) {
-                mRenderer.start();
+                mRenderer.start(strategy);
             }
         }
 
         @Override
-        public void onFailure(Throwable throwable) {
+        public void onFailure(LoadingStrategy strategy, Throwable throwable) {
             if (throwable instanceof TaskQueue.TokenExpiredException) {
                 if (DEBUG) {
                     w(throwable);
@@ -114,14 +118,14 @@ public class TypesetEngine {
             }
 
             if (mRenderer != null) {
-                mRenderer.error(throwable);
+                mRenderer.error(strategy, throwable);
             }
         }
 
         @Override
-        public void onSuccess(TypesetResult result) {
+        public void onSuccess(LoadingStrategy strategy, TypesetResult result) {
             if (mRenderer != null) {
-                mRenderer.render(result.doc, result.paintSet);
+                mRenderer.render(strategy, result.doc, result.paintSet);
             }
         }
     };
@@ -183,7 +187,7 @@ public class TypesetEngine {
             i("width < 0, setSegmentDecoration ignore");
             return;
         }
-        typeset(mDocument);
+        typeset(mDocument, LoadingStrategy.TYPESET_ONLY);
     }
 
     private static void d(String msg) {
