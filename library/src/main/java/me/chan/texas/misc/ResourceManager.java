@@ -30,7 +30,7 @@ public class ResourceManager {
 
             for (Unit<Object> unit : mUnits) {
                 if (!unit.l.isReleased(unit.o)) {
-                    throw new RuntimeException("check object release failed");
+                    throw new RuntimeException("check object release failed: " + unit.o);
                 }
             }
             mUnits.clear();
