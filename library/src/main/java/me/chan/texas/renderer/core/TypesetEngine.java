@@ -17,6 +17,7 @@ import me.chan.texas.renderer.LoadingStrategy;
 import me.chan.texas.renderer.RenderOption;
 import me.chan.texas.renderer.Renderer;
 import me.chan.texas.renderer.TexasView;
+import me.chan.texas.renderer.core.worker.LoadingWorker;
 import me.chan.texas.renderer.core.worker.MixWorker;
 import me.chan.texas.text.Document;
 import me.chan.texas.utils.concurrency.TaskQueue;
@@ -26,187 +27,213 @@ import me.chan.texas.utils.concurrency.TaskQueue;
  */
 @RestrictTo(LIBRARY)
 public class TypesetEngine {
-    public static final boolean DEBUG = false;
-    private final TaskQueue.Token mToken;
-    private int mWidth = 0;
-    private Document mDocument = null;
+	private static final int EVENT_START = 1;
+	private static final int EVENT_SUCCESS = 2;
+	private static final int EVENT_FAILURE = 3;
+	private static final int EVENT_ALL = EVENT_FAILURE | EVENT_START | EVENT_SUCCESS;
 
-    private Renderer mRenderer;
-    private RenderOption mRenderOption;
-    private TexasView.SegmentDecoration mSegmentDecoration;
+	public static final boolean DEBUG = false;
+	private final TaskQueue.Token mToken;
+	private int mWidth = 0;
+	private Document mDocument = null;
 
-    @Inject
-    @Named("ComputeTask")
-    TaskQueue mComputeQueue;
+	private Renderer mRenderer;
+	private RenderOption mRenderOption;
+	private TexasView.SegmentDecoration mSegmentDecoration;
 
-    public TypesetEngine(Renderer renderer,
-                         RenderOption renderOption,
-                         TaskQueue.Token token) {
-        mRenderer = renderer;
-        mRenderOption = renderOption;
-        mToken = token;
+	@Inject
+	@Named("ComputeTask")
+	TaskQueue mComputeQueue;
 
-        TexasComponent texasComponent = Texas.getTexasComponent();
-        TextEngineCoreComponent textEngineCoreComponent = texasComponent.coreComponent().create();
-        textEngineCoreComponent.inject(this);
+	public TypesetEngine(Renderer renderer,
+						 RenderOption renderOption,
+						 TaskQueue.Token token) {
+		mRenderer = renderer;
+		mRenderOption = renderOption;
+		mToken = token;
 
-        if (DEBUG) {
-            d("typeset engine created: " + mToken);
-        }
-    }
+		TexasComponent texasComponent = Texas.getTexasComponent();
+		TextEngineCoreComponent textEngineCoreComponent = texasComponent.coreComponent().create();
+		textEngineCoreComponent.inject(this);
 
-    public void setWidth(int width) {
-        mWidth = width;
-    }
+		if (DEBUG) {
+			d("typeset engine created: " + mToken);
+		}
+	}
 
-    public void typeset(Document document, LoadingStrategy strategy, int start, int end, MixWorker.Listener listener) {
-        mDocument = document;
-        typeset0(mWidth, document, strategy, start, end, listener);
-    }
+	public void resize(String reason, LoadingStrategy strategy, Listener listener) {
+		if (mDocument == null || mWidth <= 0) {
+			return;
+		}
 
-    public void typeset(Document document, LoadingStrategy strategy) {
-        typeset(document, strategy, 0, document.getSegmentCount(), mListener);
-    }
+		typeset0(reason, mWidth, mDocument, 0, mDocument.getSegmentCount(), strategy, listener, EVENT_ALL);
+	}
 
-    /**
-     * typeset content
-     *
-     * @param outWidth width, must be > 0
-     * @param document document
-     */
-    private void typeset0(final int outWidth,
-                          Document document, LoadingStrategy strategy, int start, int end,
-                          MixWorker.Listener listener) {
-        if (outWidth <= 0) {
-            w("typeset, width <= 0");
-            mRenderer.error(strategy, new IllegalArgumentException("width and height must be large than 0"));
-            return;
-        }
+	/**
+	 * typeset content
+	 *
+	 * @param outWidth width, must be > 0
+	 * @param document document
+	 */
+	private void typeset0(String reason, final int outWidth,
+						  Document document, int start, int end,
+						  LoadingStrategy strategy, Listener listener,
+						  int focusEvents) {
+		d("typeset, reason: " + reason + ", width: " + outWidth + ", strategy: " + strategy);
+		if (outWidth <= 0) {
+			w("typeset, width <= 0");
+			mRenderer.error(strategy, new IllegalArgumentException("width and height must be large than 0"));
+			return;
+		}
 
-        if (document == null) {
-            return;
-        }
+		if (document == null) {
+			return;
+		}
 
-        MixWorker.Args args = MixWorker.Args.obtain(
-                outWidth,
-                mRenderOption,
-                document,
-                strategy,
-                listener,
-                mSegmentDecoration,
-                start,
-                end
-        );
-        WorkerScheduler.mix().submit(mToken, args);
-    }
+		if (document != mDocument || strategy == LoadingStrategy.LOAD_RELOAD ||
+				strategy == LoadingStrategy.LOAD_REFRESH) {
+			WorkerScheduler.mix().cancel(mToken);
+		}
 
-    private final MixWorker.Listener mListener = new MixWorker.Listener() {
-        @Override
-        public void onStart(LoadingStrategy strategy) {
-            if (mRenderer != null) {
-                mRenderer.start(strategy);
-            }
-        }
+		mDocument = document;
+		mWidth = outWidth;
+		MixWorker.Args args = MixWorker.Args.obtain(outWidth, mRenderOption, document, strategy,
+				new MixWorker.Listener() {
+					@Override
+					public void onStart(LoadingStrategy strategy) {
+						if (listener != null && (focusEvents & EVENT_START) != 0) {
+							listener.onStart(strategy);
+						}
+					}
 
-        @Override
-        public void onFailure(LoadingStrategy strategy, Throwable throwable) {
-            if (throwable instanceof TaskQueue.TokenExpiredException) {
-                if (DEBUG) {
-                    w(throwable);
-                }
-                return;
-            }
+					@Override
+					public void onFailure(LoadingStrategy strategy, Throwable throwable) {
+						if (throwable instanceof TaskQueue.TokenExpiredException) {
+							if (DEBUG) {
+								w(throwable);
+							}
+							return;
+						}
 
-            if (mRenderer != null) {
-                mRenderer.error(strategy, throwable);
-            }
-        }
+						if (listener != null && (focusEvents & EVENT_FAILURE) != 0) {
+							listener.onFailure(strategy, throwable);
+						}
+					}
 
-        @Override
-        public void onSuccess(LoadingStrategy strategy, TypesetResult result) {
-            if (mRenderer != null) {
-                mRenderer.render(strategy, result.doc, result.paintSet);
-            }
-        }
-    };
+					@Override
+					public void onSuccess(LoadingStrategy strategy, MixWorker.TypesetResult result) {
+						if (listener != null && (focusEvents & EVENT_SUCCESS) != 0) {
+							listener.onSuccess(strategy, result.paintSet, result.doc, result.start, result.end);
+						}
+					}
+				}, mSegmentDecoration, start, end);
+		WorkerScheduler.mix().submit(mToken, args);
+	}
 
-    public int getWidth() {
-        return mWidth;
-    }
+	public int getWidth() {
+		return mWidth;
+	}
 
-    public void reset() {
-        mDocument = null;
-    }
+	public void reset() {
+		mDocument = null;
+	}
 
-    public static class TypesetResult {
-        private final PaintSet paintSet;
-        private final Document doc;
+	public void load(String reason, int width, LoadingStrategy strategy, TexasView.Adapter<?> adapter, Listener listener) {
+		// 非增量的加载，都需要取消之前的任务
+		if (strategy == LoadingStrategy.LOAD_REFRESH ||
+				strategy == LoadingStrategy.LOAD_RELOAD) {
+			cancel();
+		}
 
-        public TypesetResult(PaintSet paintSet, Document doc) {
-            this.paintSet = paintSet;
-            this.doc = doc;
-        }
+		LoadingWorker.Args args = LoadingWorker.Args.obtain(mRenderOption, adapter, strategy, new LoadingWorker.Listener() {
+			@Override
+			public void onStart() {
+				d("try loading doc, width: " + width + ", strategy: " + strategy);
+				if (listener != null) {
+					listener.onStart(strategy);
+				}
+			}
 
-        public PaintSet getPaintSet() {
-            return paintSet;
-        }
-    }
+			@Override
+			public void onFailure(Throwable throwable) {
+				if (throwable instanceof TaskQueue.TokenExpiredException) {
+					if (DEBUG) {
+						w(throwable);
+					}
+					return;
+				}
 
-    public void release() {
-        i("release");
-        cancel();
+				if (listener != null) {
+					listener.onFailure(strategy, throwable);
+				}
+			}
 
-        mToken.destroy();
+			@Override
+			public void onSuccess(LoadingStrategy strategy, Document document, int start, int end) {
+				if (strategy == LoadingStrategy.LOAD_REFRESH || strategy == LoadingStrategy.LOAD_RELOAD) {
+					typeset0(reason, width, document, 0, document.getSegmentCount(), strategy, listener, EVENT_FAILURE | EVENT_SUCCESS);
+					return;
+				}
 
-        // 断开渲染
-        mRenderer = null;
-    }
+				typeset0(reason, width, document, start, end, strategy, listener, EVENT_FAILURE | EVENT_SUCCESS);
+			}
+		});
+		WorkerScheduler.loading().submit(mToken, args);
+	}
 
-    private void cancel() {
-        // 取消准备发送的消息
-        WorkerScheduler.mix().cancel(mToken);
-    }
+	public void release() {
+		i("release");
+		cancel();
 
-    public Document getDocument() {
-        return mDocument;
-    }
+		mToken.destroy();
 
-    public void updateRenderOption(RenderOption renderOption) {
-        mRenderOption = renderOption;
-    }
+		// 断开渲染
+		mRenderer = null;
+	}
 
-    public void setSegmentDecoration(TexasView.SegmentDecoration segmentDecoration) {
-        mSegmentDecoration = segmentDecoration;
-        if (mDocument == null) {
-            i("document is null, setSegmentDecoration ignore");
-            return;
-        }
+	private void cancel() {
+		// 取消准备发送的消息
+		WorkerScheduler.loading().cancel(mToken);
+		WorkerScheduler.mix().cancel(mToken);
+	}
 
-        // fail-fast
-        if (mWidth <= 0) {
-            i("width < 0, setSegmentDecoration ignore");
-            return;
-        }
-        typeset(mDocument, LoadingStrategy.TYPESET_ONLY);
-    }
+	public Document getDocument() {
+		return mDocument;
+	}
 
-    private static void d(String msg) {
-        Log.d("TypesetEngine", msg);
-    }
+	public void updateRenderOption(RenderOption renderOption) {
+		mRenderOption = renderOption;
+	}
 
-    private static void i(String msg) {
-        Log.i("TypesetEngine", msg);
-    }
+	public void setSegmentDecoration(TexasView.SegmentDecoration segmentDecoration) {
+		mSegmentDecoration = segmentDecoration;
+	}
 
-    private static void w(String msg) {
-        Log.w("TypesetEngine", msg);
-    }
+	private static void d(String msg) {
+		Log.d("TypesetEngine", msg);
+	}
 
-    private static void w(Throwable throwable) {
-        Log.w("TypesetEngine", throwable);
-    }
+	private static void i(String msg) {
+		Log.i("TypesetEngine", msg);
+	}
 
-    private static void e(String msg, Throwable throwable) {
-        Log.e("TypesetEngine", msg, throwable);
-    }
+	private static void w(String msg) {
+		Log.w("TypesetEngine", msg);
+	}
+
+	private static void w(Throwable throwable) {
+		Log.w("TypesetEngine", throwable);
+	}
+
+	private static void e(String msg, Throwable throwable) {
+		Log.e("TypesetEngine", msg, throwable);
+	}
+
+	public interface Listener {
+		void onStart(LoadingStrategy strategy);
+
+		void onFailure(LoadingStrategy strategy, Throwable throwable);
+
+		void onSuccess(LoadingStrategy strategy, PaintSet paintSet, Document doc, int start, int end);
+	}
 }

@@ -357,6 +357,20 @@ public class TexasUtils {
 		int CMP_DRAW = 3;
 	}
 
+	@RestrictTo(RestrictTo.Scope.LIBRARY)
+	public static String cmpType2String(@CmpType int type) {
+		switch (type) {
+			case CmpType.CMP_DRAW:
+				return "CMP_DRAW";
+			case CmpType.CMP_TYPESET:
+				return "CMP_TYPESET";
+			case CmpType.CMP_LOAD:
+				return "CMP_LOAD";
+			default:
+				return "UNKNOWN";
+		}
+	}
+
 	/**
 	 * 1. 字体变化了需要重新reload
 	 * 2. 字体大小变化了需要重新reload

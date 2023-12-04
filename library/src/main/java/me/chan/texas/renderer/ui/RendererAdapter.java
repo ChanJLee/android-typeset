@@ -238,8 +238,8 @@ public class RendererAdapter extends RecyclerView.Adapter<RendererAdapter.Render
 	}
 
 	@SuppressLint("NotifyDataSetChanged")
-	public void clear() {
-		d("clear");
+	public void clear(String reason) {
+		d("clear: " + reason);
 		mView.stopScroll();
 
 		int count = 0;
