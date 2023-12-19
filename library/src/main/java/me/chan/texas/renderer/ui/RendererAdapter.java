@@ -260,30 +260,32 @@ public class RendererAdapter extends RecyclerView.Adapter<RendererAdapter.Render
 	}
 
 	@SuppressLint("NotifyDataSetChanged")
-	public void render(Document document,
-					   PaintSet context,
-					   RenderOption renderOption) {
+	public void render(LoadingStrategy strategy, PaintSet paintSet, Document document, int start, int end, RenderOption renderOption) {
 		d("render");
 		mView.stopScroll();
-		mDocument = document;
-		mPaintSet = context;
+		mPaintSet = paintSet;
 		mRenderOption = renderOption;
-		notifyDataSetChanged();
-	}
+		Document prev = mDocument;
+		mDocument = document;
 
-	@SuppressLint("NotifyDataSetChanged")
-	public void render(LoadingStrategy strategy,
-					   int start,
-					   int end) {
-		d("render");
-		mView.stopScroll();
-		if (strategy == LoadingStrategy.LOAD_PREVIOUS) {
-			notifyItemRangeInserted(0, end - start);
-		} else if (strategy == LoadingStrategy.LOAD_MORE) {
-			notifyItemRangeInserted(start, end - start);
-		} else {
-			throw new IllegalArgumentException("unknown loading strategy");
+		// refresh content
+		if (prev != document ||
+				strategy == LoadingStrategy.LOAD_RELOAD) {
+			notifyDataSetChanged();
+			return;
 		}
+
+		if (strategy == LoadingStrategy.LOAD_MORE || strategy == LoadingStrategy.LOAD_PREVIOUS) {
+			notifyItemRangeInserted(start, end - start);
+			return;
+		}
+
+		if (strategy == LoadingStrategy.LOAD_REFRESH
+				|| strategy == LoadingStrategy.TYPESET_ONLY) {
+			notifyItemRangeChanged(start, end - start);
+		}
+
+		throw new IllegalArgumentException("illegal argument, loading strategy: " + strategy);
 	}
 
 	public void updateRenderOption(RenderOption renderOption) {
