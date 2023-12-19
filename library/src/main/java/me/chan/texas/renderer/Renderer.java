@@ -26,7 +26,6 @@ import me.chan.texas.R;
 import me.chan.texas.image.ImageLoader;
 import me.chan.texas.misc.PaintSet;
 import me.chan.texas.renderer.core.TypesetEngine;
-import me.chan.texas.renderer.core.WorkerScheduler;
 import me.chan.texas.renderer.highlight.Highlight;
 import me.chan.texas.renderer.highlight.HighlightManager;
 import me.chan.texas.renderer.highlight.ParagraphHighlight;
@@ -107,9 +106,7 @@ public class Renderer implements SelectionManager.Listener {
 
 		@Override
 		public void onSuccess(LoadingStrategy strategy, PaintSet paintSet, Document doc, int start, int end) {
-			// todo 处理完是否要清空内容
-			render(strategy, start, end);
-			mTexasView.notifyRenderEnd(strategy);
+
 		}
 	};
 
@@ -199,52 +196,26 @@ public class Renderer implements SelectionManager.Listener {
 		mTypesetEngine.resize(reason, strategy, mListener);
 	}
 
-	private void render(LoadingStrategy strategy, @NonNull Document document, PaintSet paintSet) {
-		if (mTypesetEngine == null) {
-			w("render, core is null");
-			return;
+	private void render(LoadingStrategy strategy, PaintSet paintSet, Document document, int start, int end) {
+		// todo selection 跟位置无关
+		if (strategy == LoadingStrategy.LOAD_RELOAD) {
+			mHighlightManager.clear();
+			mSelectionManager.clear();
 		}
 
-		if (document == null) {
-			/* do nothing */
-			return;
+		if (strategy == LoadingStrategy.TYPESET_ONLY) {
+			mAdapter.render();
+		} else if (strategy == LoadingStrategy.LOAD_REFRESH || strategy == LoadingStrategy.LOAD_RELOAD) {
+
+		} else if (strategy == LoadingStrategy.LOAD_PREVIOUS) {
+
+		} else if (strategy == LoadingStrategy.LOAD_MORE) {
+
+		} else {
+			throw new IllegalStateException("unknown strategy: " + strategy);
 		}
 
-		mHighlightManager.clear();
-		mSelectionManager.clear();
-		mAdapter.render(
-				document,
-				paintSet,
-				mRenderOption
-		);
 		mTexasView.notifyRenderEnd(strategy);
-	}
-
-	private void render(LoadingStrategy loadingStrategy, int start, int end) {
-		if (mTypesetEngine == null) {
-			w("render, core is null");
-			return;
-		}
-
-		mAdapter.render(
-				loadingStrategy,
-				start,
-				end
-		);
-	}
-
-	public void renderLoading(LoadingStrategy strategy) {
-		d("on start");
-		mHighlightManager.clear();
-		mSelectionManager.clear();
-		mAdapter.clear("Renderer.start");
-		mTexasView.notifyRenderStart(strategy);
-	}
-
-	public void error(LoadingStrategy strategy, Throwable throwable) {
-		w(throwable);
-		Log.w("SlidingTexasRenderer", throwable);
-		mTexasView.notifyRenderError(strategy, throwable);
 	}
 
 	@CallSuper

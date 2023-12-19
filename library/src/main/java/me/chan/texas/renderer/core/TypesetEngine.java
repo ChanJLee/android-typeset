@@ -82,11 +82,17 @@ public class TypesetEngine {
 		d("typeset, reason: " + reason + ", width: " + outWidth + ", strategy: " + strategy);
 		if (outWidth <= 0) {
 			w("typeset, width <= 0");
-			mRenderer.error(strategy, new IllegalArgumentException("width and height must be large than 0"));
+			if (listener != null && (focusEvents & EVENT_FAILURE) != 0) {
+				listener.onFailure(strategy, new IllegalArgumentException("width and height must be large than 0"));
+			}
 			return;
 		}
 
 		if (document == null) {
+			w("typeset, document is null");
+			if (listener != null && (focusEvents & EVENT_FAILURE) != 0) {
+				listener.onFailure(strategy, new IllegalArgumentException("document is null"));
+			}
 			return;
 		}
 
