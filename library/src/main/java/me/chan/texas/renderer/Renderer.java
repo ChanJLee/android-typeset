@@ -106,7 +106,7 @@ public class Renderer implements SelectionManager.Listener {
 
 		@Override
 		public void onSuccess(LoadingStrategy strategy, PaintSet paintSet, Document doc, int start, int end) {
-
+			render(strategy, paintSet, doc, start, end);
 		}
 	};
 
@@ -198,22 +198,10 @@ public class Renderer implements SelectionManager.Listener {
 
 	private void render(LoadingStrategy strategy, PaintSet paintSet, Document document, int start, int end) {
 		// todo selection 跟位置无关
-		if (strategy == LoadingStrategy.LOAD_RELOAD) {
-			mHighlightManager.clear();
-			mSelectionManager.clear();
-		}
+		mHighlightManager.clear();
+		mSelectionManager.clear();
 
-		if (strategy == LoadingStrategy.TYPESET_ONLY) {
-			mAdapter.render();
-		} else if (strategy == LoadingStrategy.LOAD_REFRESH || strategy == LoadingStrategy.LOAD_RELOAD) {
-
-		} else if (strategy == LoadingStrategy.LOAD_PREVIOUS) {
-
-		} else if (strategy == LoadingStrategy.LOAD_MORE) {
-
-		} else {
-			throw new IllegalStateException("unknown strategy: " + strategy);
-		}
+		mAdapter.render(strategy, paintSet, document, start, end, mRenderOption);
 
 		mTexasView.notifyRenderEnd(strategy);
 	}
