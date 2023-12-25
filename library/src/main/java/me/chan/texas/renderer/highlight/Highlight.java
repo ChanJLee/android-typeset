@@ -12,6 +12,8 @@ import java.util.List;
 public class Highlight {
 	private final RendererAdapter mAdapter;
 	private final List<ParagraphHighlight> mHighlights = new ArrayList<>();
+
+	// TODO REMOVE
 	private final int mFirstIndex;
 
 	public Highlight(RendererAdapter adapter, int index) {
