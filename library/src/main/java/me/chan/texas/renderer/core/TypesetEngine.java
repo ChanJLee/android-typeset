@@ -15,7 +15,6 @@ import me.chan.texas.di.core.TextEngineCoreComponent;
 import me.chan.texas.misc.PaintSet;
 import me.chan.texas.renderer.LoadingStrategy;
 import me.chan.texas.renderer.RenderOption;
-import me.chan.texas.renderer.Renderer;
 import me.chan.texas.renderer.TexasView;
 import me.chan.texas.renderer.core.worker.LoadingWorker;
 import me.chan.texas.renderer.core.worker.MixWorker;
@@ -32,12 +31,13 @@ public class TypesetEngine {
 	private static final int EVENT_FAILURE = 3;
 	private static final int EVENT_ALL = EVENT_FAILURE | EVENT_START | EVENT_SUCCESS;
 
+	private static final int EVENT_NONE = 0;
+
 	public static final boolean DEBUG = false;
 	private final TaskQueue.Token mToken;
 	private int mWidth = 0;
 	private Document mDocument = null;
 
-	private Renderer mRenderer;
 	private RenderOption mRenderOption;
 	private TexasView.SegmentDecoration mSegmentDecoration;
 
@@ -45,10 +45,9 @@ public class TypesetEngine {
 	@Named("ComputeTask")
 	TaskQueue mComputeQueue;
 
-	public TypesetEngine(Renderer renderer,
-						 RenderOption renderOption,
-						 TaskQueue.Token token) {
-		mRenderer = renderer;
+	public TypesetEngine(
+			RenderOption renderOption,
+			TaskQueue.Token token) {
 		mRenderOption = renderOption;
 		mToken = token;
 
@@ -62,31 +61,34 @@ public class TypesetEngine {
 	}
 
 	public void resize(String reason, LoadingStrategy strategy, Listener listener) {
-		if (mDocument == null || mWidth <= 0) {
-			return;
+		resize0(reason, mWidth, strategy, listener, EVENT_ALL);
+	}
+
+	public void resize(String reason, int width, LoadingStrategy strategy, Listener listener) {
+		resize0(reason, width, strategy, listener, EVENT_NONE);
+	}
+
+	private void resize0(String reason, int width, LoadingStrategy strategy, Listener listener, int focusEvents) {
+		if (width > 0) {
+			mWidth = width;
 		}
 
-		typeset0(reason, mWidth, mDocument, 0, mDocument.getSegmentCount(), strategy, listener, EVENT_ALL);
+		if (mDocument == null || width <= 0) {
+			return;
+		}
+		typeset0(reason, mDocument, 0, mDocument.getSegmentCount(), strategy, listener, focusEvents);
 	}
 
 	/**
 	 * typeset content
 	 *
-	 * @param outWidth width, must be > 0
 	 * @param document document
 	 */
-	private void typeset0(String reason, final int outWidth,
+	private void typeset0(String reason,
 						  Document document, int start, int end,
 						  LoadingStrategy strategy, Listener listener,
 						  int focusEvents) {
-		d("typeset, reason: " + reason + ", width: " + outWidth + ", strategy: " + strategy);
-		if (outWidth <= 0) {
-			w("typeset, width <= 0");
-			if (listener != null && (focusEvents & EVENT_FAILURE) != 0) {
-				listener.onFailure(strategy, new IllegalArgumentException("width and height must be large than 0"));
-			}
-			return;
-		}
+		d("typeset, reason: " + reason + ", strategy: " + strategy + ", start: " + start + ", end: " + end);
 
 		if (document == null) {
 			w("typeset, document is null");
@@ -97,13 +99,12 @@ public class TypesetEngine {
 		}
 
 		// 先取消之前已经提交的排版任务
-		if (document != mDocument || strategy == LoadingStrategy.LOAD) {
+		if (strategy == LoadingStrategy.LOAD || strategy == LoadingStrategy.TYPESET_ONLY) {
 			WorkerScheduler.mix().cancel(mToken);
 		}
 
 		mDocument = document;
-		mWidth = outWidth;
-		MixWorker.Args args = MixWorker.Args.obtain(outWidth, mRenderOption, document, strategy,
+		MixWorker.Args args = MixWorker.Args.obtain(mWidth, mRenderOption, document, strategy,
 				new MixWorker.Listener() {
 					@Override
 					public void onStart(LoadingStrategy strategy) {
@@ -150,6 +151,7 @@ public class TypesetEngine {
 			cancel();
 		}
 
+		mWidth = width;
 		LoadingWorker.Args args = LoadingWorker.Args.obtain(mRenderOption, adapter, strategy, new LoadingWorker.Listener() {
 			@Override
 			public void onStart() {
@@ -175,12 +177,7 @@ public class TypesetEngine {
 
 			@Override
 			public void onSuccess(LoadingStrategy strategy, Document document, int start, int end) {
-				if (strategy == LoadingStrategy.LOAD) {
-					typeset0(reason, width, document, 0, document.getSegmentCount(), strategy, listener, EVENT_FAILURE | EVENT_SUCCESS);
-					return;
-				}
-
-				typeset0(reason, width, document, start, end, strategy, listener, EVENT_FAILURE | EVENT_SUCCESS);
+				typeset0(reason, document, start, end, strategy, listener, EVENT_FAILURE | EVENT_SUCCESS);
 			}
 		});
 		WorkerScheduler.loading().submit(mToken, args);
@@ -191,9 +188,6 @@ public class TypesetEngine {
 		cancel();
 
 		mToken.destroy();
-
-		// 断开渲染
-		mRenderer = null;
 	}
 
 	private void cancel() {
