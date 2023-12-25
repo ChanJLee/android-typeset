@@ -121,7 +121,7 @@ public class Renderer implements SelectionManager.Listener {
 		LayoutInflater layoutInflater = LayoutInflater.from(context);
 
 		// core
-		mTypesetEngine = new TypesetEngine(this, mRenderOption, mToken);
+		mTypesetEngine = new TypesetEngine(mRenderOption, mToken);
 
 		// rv
 		mLinearLayoutManager = new TexasLinearLayoutManager(context);
@@ -193,7 +193,7 @@ public class Renderer implements SelectionManager.Listener {
 		}
 
 		// 重新排版会将之前的解析任务都失效
-		mTypesetEngine.resize(reason, strategy, mListener);
+		mTypesetEngine.resize(reason, width, strategy, mListener);
 	}
 
 	private void render(LoadingStrategy strategy, PaintSet paintSet, Document document, int start, int end) {
