@@ -96,8 +96,8 @@ public class TypesetEngine {
 			return;
 		}
 
-		if (document != mDocument || strategy == LoadingStrategy.LOAD_RELOAD ||
-				strategy == LoadingStrategy.LOAD_REFRESH) {
+		// 先取消之前已经提交的排版任务
+		if (document != mDocument || strategy == LoadingStrategy.LOAD) {
 			WorkerScheduler.mix().cancel(mToken);
 		}
 
@@ -146,8 +146,7 @@ public class TypesetEngine {
 
 	public void load(String reason, int width, LoadingStrategy strategy, TexasView.Adapter<?> adapter, Listener listener) {
 		// 非增量的加载，都需要取消之前的任务
-		if (strategy == LoadingStrategy.LOAD_REFRESH ||
-				strategy == LoadingStrategy.LOAD_RELOAD) {
+		if (strategy == LoadingStrategy.LOAD) {
 			cancel();
 		}
 
@@ -176,7 +175,7 @@ public class TypesetEngine {
 
 			@Override
 			public void onSuccess(LoadingStrategy strategy, Document document, int start, int end) {
-				if (strategy == LoadingStrategy.LOAD_REFRESH || strategy == LoadingStrategy.LOAD_RELOAD) {
+				if (strategy == LoadingStrategy.LOAD) {
 					typeset0(reason, width, document, 0, document.getSegmentCount(), strategy, listener, EVENT_FAILURE | EVENT_SUCCESS);
 					return;
 				}
