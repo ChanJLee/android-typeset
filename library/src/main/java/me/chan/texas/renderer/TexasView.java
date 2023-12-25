@@ -353,15 +353,13 @@ public final class TexasView extends FrameLayout {
 
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
 	public void notifyRenderStart(LoadingStrategy loadingStrategy) {
-		if (loadingStrategy == LoadingStrategy.LOAD_REFRESH ||
-				loadingStrategy == LoadingStrategy.LOAD_PREVIOUS ||
-				loadingStrategy == LoadingStrategy.LOAD_RELOAD) {
-			if (mTopLoadingIndicator != null) {
-				mTopLoadingIndicator.renderLoading();
-			}
-		} else if (loadingStrategy == LoadingStrategy.LOAD_MORE) {
+		if (loadingStrategy == LoadingStrategy.LOAD_MORE) {
 			if (mBottomLoadingIndicator != null) {
 				mBottomLoadingIndicator.renderLoading();
+			}
+		} else  {
+			if (mTopLoadingIndicator != null) {
+				mTopLoadingIndicator.renderLoading();
 			}
 		}
 
@@ -888,7 +886,7 @@ public final class TexasView extends FrameLayout {
 		private void attach(@NonNull TexasView view) {
 			mTexasView = view;
 			if (mSource != null) {
-				view.load("adapter attached", LoadingStrategy.LOAD_RELOAD);
+				view.load("adapter attached", LoadingStrategy.LOAD);
 			}
 		}
 
@@ -926,7 +924,7 @@ public final class TexasView extends FrameLayout {
 
 			// start load more
 			if (mTexasView != null && previous != mSource) {
-				mTexasView.load("new source", LoadingStrategy.LOAD_RELOAD);
+				mTexasView.load("new source", LoadingStrategy.LOAD);
 			}
 
 			if (previous != null && previous != source) {
@@ -972,8 +970,7 @@ public final class TexasView extends FrameLayout {
 				int start = mDocument.getSegmentCount();
 				mDocument.insertTail(segments);
 				return LoadingWorker.LoadingResult.obtain(loadType, mDocument, start, start + segments.size());
-			} else if (loadType == LoadingStrategy.LOAD_REFRESH ||
-					loadType == LoadingStrategy.LOAD_RELOAD) {
+			} else if (loadType == LoadingStrategy.LOAD) {
 				mDocument.clear();
 				mDocument.insertTail(segments);
 				return LoadingWorker.LoadingResult.obtain(loadType, mDocument);

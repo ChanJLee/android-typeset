@@ -270,7 +270,7 @@ public class RendererAdapter extends RecyclerView.Adapter<RendererAdapter.Render
 
 		// refresh content
 		if (prev != document ||
-				strategy == LoadingStrategy.LOAD_RELOAD) {
+				strategy == LoadingStrategy.LOAD) {
 			notifyDataSetChanged();
 			return;
 		}
@@ -280,8 +280,7 @@ public class RendererAdapter extends RecyclerView.Adapter<RendererAdapter.Render
 			return;
 		}
 
-		if (strategy == LoadingStrategy.LOAD_REFRESH
-				|| strategy == LoadingStrategy.TYPESET_ONLY) {
+		if (strategy == LoadingStrategy.TYPESET_ONLY) {
 			notifyItemRangeChanged(start, end - start);
 		}
 

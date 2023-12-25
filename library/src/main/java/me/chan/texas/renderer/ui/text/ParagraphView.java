@@ -440,7 +440,7 @@ public class ParagraphView extends FrameLayout {
 			clearSelection();
 
 			// 提交解析任务
-			ParseWorker.Args args = ParseWorker.Args.obtain(mSource, LoadingStrategy.LOAD_REFRESH, mParseListener);
+			ParseWorker.Args args = ParseWorker.Args.obtain(mSource, LoadingStrategy.LOAD, mParseListener);
 			ParseWorker worker = WorkerScheduler.parse();
 			worker.submit(mRender.getToken(), args);
 		} else if (cmpType == TexasUtils.CmpType.CMP_TYPESET) {
