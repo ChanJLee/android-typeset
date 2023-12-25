@@ -14,7 +14,6 @@ public class ParagraphHighlight extends DefaultRecyclable {
 	private int mTextColor;
 	private Paragraph mParagraph;
 	private float mYInParagraph;
-	private int mIndex;
 	private final SparseArrayCompat<Box> mSet = new SparseArrayCompat<>(32);
 
 	private ParagraphHighlight() {
@@ -30,14 +29,6 @@ public class ParagraphHighlight extends DefaultRecyclable {
 
 	public boolean isHighlight(Box box) {
 		return mSet.containsKey(box.getId());
-	}
-
-	public void setIndex(int index) {
-		mIndex = index;
-	}
-
-	public int getIndex() {
-		return mIndex;
 	}
 
 	public float getYInParagraph() {
@@ -58,7 +49,6 @@ public class ParagraphHighlight extends DefaultRecyclable {
 
 		mParagraph = null;
 		mYInParagraph = 0;
-		mIndex = 0;
 		super.recycle();
 		POOL.release(this);
 	}

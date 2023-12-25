@@ -74,7 +74,6 @@ public class HighlightManager {
 			mHighlight = new Highlight(mAdapter, index);
 		}
 
-		paragraphHighlight.setIndex(index);
 		mHighlight.add(paragraphHighlight);
 
 		try {
