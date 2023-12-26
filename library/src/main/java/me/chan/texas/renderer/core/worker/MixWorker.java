@@ -29,7 +29,6 @@ import me.chan.texas.misc.PaintSet;
 import me.chan.texas.renderer.LoadingStrategy;
 import me.chan.texas.renderer.RenderOption;
 import me.chan.texas.renderer.TexasView;
-import me.chan.texas.renderer.core.TypesetEngine;
 import me.chan.texas.renderer.core.WorkerScheduler;
 import me.chan.texas.renderer.core.sync.WorkerMessager;
 import me.chan.texas.text.Document;

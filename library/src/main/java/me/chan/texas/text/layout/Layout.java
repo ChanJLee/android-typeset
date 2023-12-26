@@ -15,9 +15,12 @@ import me.chan.texas.text.BreakStrategy;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class Layout extends DefaultRecyclable {
 	private static final ObjectPool<Layout> POOL = new ObjectPool<>(Texas.getMemoryOption().getParagraphBufferSize());
+
+	private static final AtomicInteger UUID = new AtomicInteger(0);
 
 	private final Advise mAdvise = new Advise();
 
@@ -27,6 +30,8 @@ public class Layout extends DefaultRecyclable {
 	private float mLineSpace = 0;
 
 	private String mAlgorithm = "unknown";
+
+	private int mId = 0;
 
 	private Layout() {
 		Texas.MemoryOption memoryOption = Texas.getMemoryOption();
@@ -80,6 +85,7 @@ public class Layout extends DefaultRecyclable {
 		if (layout == null) {
 			layout = new Layout();
 		}
+		layout.mId = UUID.incrementAndGet();
 		layout.reuse();
 		return layout;
 	}
@@ -91,6 +97,7 @@ public class Layout extends DefaultRecyclable {
 		}
 		layout.mAdvise.copy(other.mAdvise);
 		layout.mRect = other.mRect;
+		layout.mId = UUID.incrementAndGet();
 		layout.reuse();
 		return layout;
 	}
@@ -228,6 +235,10 @@ public class Layout extends DefaultRecyclable {
 			sb.append("\n");
 		}
 		return sb.toString();
+	}
+
+	public int getId() {
+		return mId;
 	}
 
 	@RestrictTo(LIBRARY)
