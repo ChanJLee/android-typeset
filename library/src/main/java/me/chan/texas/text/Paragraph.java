@@ -27,10 +27,6 @@ import java.util.List;
  * 段落
  */
 public final class Paragraph extends DefaultRecyclable implements Segment {
-
-	@RestrictTo(LIBRARY)
-	public static final int TYPESET_VERSION_INVALID = 0;
-
 	private static final ObjectPool<Paragraph> POOL = new ObjectPool<>(Texas.getMemoryOption().getParagraphBufferSize());
 
 	@NonNull
@@ -39,8 +35,6 @@ public final class Paragraph extends DefaultRecyclable implements Segment {
 
 	@RestrictTo(LIBRARY)
 	final List<Element> mElements;
-
-	private int mTypesetVersion = TYPESET_VERSION_INVALID;
 
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
 	Object mTag;
@@ -100,18 +94,12 @@ public final class Paragraph extends DefaultRecyclable implements Segment {
 		}
 		mElements.clear();
 		mTag = null;
-		mTypesetVersion = TYPESET_VERSION_INVALID;
 		POOL.release(this);
 	}
 
 	@RestrictTo(LIBRARY)
 	public int getTypesetVersion() {
-		return mTypesetVersion;
-	}
-
-	@RestrictTo(LIBRARY)
-	public void setTypesetVersion(int typesetVersion) {
-		mTypesetVersion = typesetVersion;
+		return mLayout.getId();
 	}
 
 	public boolean hasContent() {
