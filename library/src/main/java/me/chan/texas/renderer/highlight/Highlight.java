@@ -1,9 +1,12 @@
 package me.chan.texas.renderer.highlight;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 
 import me.chan.texas.renderer.ui.RendererAdapter;
 import me.chan.texas.text.Paragraph;
+import me.chan.texas.text.Segment;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,16 +16,19 @@ public class Highlight {
 	private final RendererAdapter mAdapter;
 	private final List<ParagraphHighlight> mHighlights = new ArrayList<>();
 
-	// TODO REMOVE
-	private final int mFirstIndex;
+	// todo 切换adapter的时候清除highlight
 
-	public Highlight(RendererAdapter adapter, int index) {
+	public Highlight(RendererAdapter adapter) {
 		mAdapter = adapter;
-		mFirstIndex = index;
 	}
 
 	public int getFirstIndexInDocument() {
-		return mFirstIndex;
+		if (isEmpty()) {
+			return -1;
+		}
+
+		ParagraphHighlight highlight = mHighlights.get(0);
+		return mAdapter.indexOf(highlight.getParagraph());
 	}
 
 	public boolean isEmpty() {
@@ -40,9 +46,13 @@ public class Highlight {
 	public void clear() {
 		for (ParagraphHighlight highlight : mHighlights) {
 			highlight.clear();
+			int index = mAdapter.indexOf(highlight.getParagraph());
+			if (index < 0) {
+				continue;
+			}
 
 			try {
-				mAdapter.notifyItemChanged(highlight.getIndex());
+				mAdapter.notifyItemChanged(index);
 			} catch (Throwable ignore) {
 				/* do nothing */
 			}
@@ -50,6 +60,7 @@ public class Highlight {
 		mHighlights.clear();
 	}
 
+	@Nullable
 	public ParagraphHighlight getParagraphHighlight(Paragraph paragraph) {
 		for (ParagraphHighlight paragraphHighlight : mHighlights) {
 			if (paragraphHighlight.getParagraph() == paragraph) {
@@ -60,7 +71,7 @@ public class Highlight {
 		return null;
 	}
 
-	public void add(ParagraphHighlight paragraphHighlight) {
+	public void add(@NonNull ParagraphHighlight paragraphHighlight) {
 		mHighlights.add(paragraphHighlight);
 	}
 }

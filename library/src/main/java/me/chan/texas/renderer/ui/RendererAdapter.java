@@ -348,6 +348,14 @@ public class RendererAdapter extends RecyclerView.Adapter<RendererAdapter.Render
 		mParagraphDecor = decor;
 	}
 
+	public int indexOf(Segment segment) {
+		if (mDocument == null) {
+			return -1;
+		}
+
+		return mDocument.indexOfSegment(segment);
+	}
+
 	abstract class Renderer<T extends Segment> extends RecyclerView.ViewHolder {
 
 		private float mX, mY;
