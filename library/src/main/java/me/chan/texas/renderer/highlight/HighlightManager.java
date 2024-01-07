@@ -71,7 +71,7 @@ public class HighlightManager {
 
 	private void handleParagraphHighlighted(ParagraphHighlight paragraphHighlight, int index) {
 		if (mHighlight == null) {
-			mHighlight = new Highlight(mAdapter, index);
+			mHighlight = new Highlight(mAdapter);
 		}
 
 		mHighlight.add(paragraphHighlight);
