@@ -34,7 +34,6 @@ public final class Selection extends DefaultRecyclable {
 		mParagraphSelectionList.add(selection);
 	}
 
-	// TODO: 2021/11/18 遍历性能优化 guangcheng.zhang@shanbay.com
 	@Nullable
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
 	ParagraphSelection getParagraphSelection(Paragraph paragraph) {
