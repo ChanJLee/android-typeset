@@ -197,10 +197,10 @@ public class Renderer implements SelectionManager.Listener {
 	}
 
 	private void render(LoadingStrategy strategy, PaintSet paintSet, Document document, int start, int end) {
-		// todo selection 跟位置无关
-		if (strategy == LoadingStrategy.LOAD) {
-			mHighlightManager.clear();
-			mSelectionManager.clear();
+		if (strategy != LoadingStrategy.LOAD_PREVIOUS &&
+				strategy != LoadingStrategy.LOAD_MORE) {
+			clearHighlight();
+			clearSelection();
 		}
 
 		mAdapter.render(strategy, paintSet, document, start, end, mRenderOption);
