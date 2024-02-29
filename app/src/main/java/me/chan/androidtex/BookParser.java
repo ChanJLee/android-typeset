@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
@@ -370,12 +371,12 @@ public class BookParser extends TexasView.Adapter<CharSequence> {
 					};
 
 					@Override
-					public void draw(Canvas canvas, TextPaint textPaint, RectF inner, RectF outer, DrawContext context) {
-						textPaint.setColor(Color.GREEN);
+					public void draw(Canvas canvas, Paint paint, RectF inner, RectF outer, DrawContext context) {
+						paint.setColor(Color.GREEN);
 
 						// 独立的单元，左右都要有圆角
 						if (!checkTagIsSelected(context.getPrevTag()) && !checkTagIsSelected(context.getNextTag())) {
-							canvas.drawRoundRect(outer, 20, 20, textPaint);
+							canvas.drawRoundRect(outer, 20, 20, paint);
 							return;
 						}
 
@@ -387,7 +388,7 @@ public class BookParser extends TexasView.Adapter<CharSequence> {
 									mLeftRound,
 									Path.Direction.CW
 							);
-							canvas.drawPath(mPath, textPaint);
+							canvas.drawPath(mPath, paint);
 						} else if (checkTagIsSelected(context.getNextTag())) {
 							// 后面没有单词
 							mPath.reset();
@@ -396,10 +397,10 @@ public class BookParser extends TexasView.Adapter<CharSequence> {
 									mRightRound,
 									Path.Direction.CW
 							);
-							canvas.drawPath(mPath, textPaint);
+							canvas.drawPath(mPath, paint);
 						} else {
 							// 夹在中间
-							canvas.drawRect(outer, textPaint);
+							canvas.drawRect(outer, paint);
 						}
 					}
 
