@@ -4,12 +4,11 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 
-import me.chan.texas.renderer.ui.RendererAdapter;
-import me.chan.texas.text.Paragraph;
-import me.chan.texas.text.Segment;
-
 import java.util.ArrayList;
 import java.util.List;
+
+import me.chan.texas.renderer.ui.RendererAdapter;
+import me.chan.texas.text.Paragraph;
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class Highlight {
