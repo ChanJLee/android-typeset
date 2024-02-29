@@ -6,7 +6,6 @@ import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.PathEffect;
 import android.graphics.RectF;
-import android.text.TextPaint;
 
 /**
  * 点下划线
@@ -57,16 +56,16 @@ public class DotUnderLine extends Appearance {
 	}
 
 	@Override
-	public void draw(Canvas canvas, TextPaint textPaint, RectF inner, RectF outer, DrawContext context) {
-		textPaint.setStyle(Paint.Style.STROKE);
-		textPaint.setStrokeWidth(mWidth);
-		textPaint.setColor(mColor);
-		textPaint.setPathEffect(DASH_EFFECT);
+	public void draw(Canvas canvas, Paint paint, RectF inner, RectF outer, DrawContext context) {
+		paint.setStyle(Paint.Style.STROKE);
+		paint.setStrokeWidth(mWidth);
+		paint.setColor(mColor);
+		paint.setPathEffect(DASH_EFFECT);
 
 		float bottom = inner.bottom - DEFAULT_BOTTOM_OFFSET;
 		mPath.moveTo(inner.left, bottom);
 		mPath.lineTo(inner.right, bottom);
-		canvas.drawPath(mPath, textPaint);
+		canvas.drawPath(mPath, paint);
 		mPath.reset();
 	}
 }

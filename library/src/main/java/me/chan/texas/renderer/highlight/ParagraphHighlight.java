@@ -1,6 +1,7 @@
 package me.chan.texas.renderer.highlight;
 
-import androidx.collection.SparseArrayCompat;
+import java.util.ArrayList;
+import java.util.List;
 
 import me.chan.texas.misc.DefaultRecyclable;
 import me.chan.texas.misc.ObjectPool;
@@ -14,7 +15,7 @@ public class ParagraphHighlight extends DefaultRecyclable {
 	private int mTextColor;
 	private Paragraph mParagraph;
 	private float mYInParagraph;
-	private final SparseArrayCompat<Box> mSet = new SparseArrayCompat<>(32);
+	private final List<Box> mBoxes = new ArrayList<>(32);
 
 	private ParagraphHighlight() {
 	}
@@ -28,7 +29,7 @@ public class ParagraphHighlight extends DefaultRecyclable {
 	}
 
 	public boolean isHighlight(Box box) {
-		return mSet.containsKey(box.getId());
+		return box.containsStatus(Box.STATUS_HIGHLIGHT);
 	}
 
 	public float getYInParagraph() {
@@ -54,7 +55,10 @@ public class ParagraphHighlight extends DefaultRecyclable {
 	}
 
 	public void clear() {
-		mSet.clear();
+		for (Box box : mBoxes) {
+			box.removeStatus(Box.STATUS_HIGHLIGHT);
+		}
+		mBoxes.clear();
 	}
 
 	public static ParagraphHighlight obtain(float yInParagraph, Paragraph paragraph) {
@@ -70,6 +74,7 @@ public class ParagraphHighlight extends DefaultRecyclable {
 	}
 
 	public void addBox(Box box) {
-		mSet.put(box.getId(), box);
+		box.addStatus(Box.STATUS_HIGHLIGHT);
+		mBoxes.add(box);
 	}
 }

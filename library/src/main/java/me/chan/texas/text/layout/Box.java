@@ -6,6 +6,7 @@ import android.graphics.Canvas;
 import android.text.TextPaint;
 
 import androidx.annotation.CallSuper;
+import androidx.annotation.IntDef;
 import androidx.annotation.RestrictTo;
 
 import me.chan.texas.text.Appearance;
@@ -21,6 +22,13 @@ import java.util.concurrent.atomic.AtomicInteger;
 @RestrictTo(LIBRARY)
 public abstract class Box extends Element {
 	private static final AtomicInteger UUID = new AtomicInteger(0);
+
+	public static final int STATUS_SELECTED = 1;
+	public static final int STATUS_HIGHLIGHT = 1 << 1;
+
+	@IntDef({STATUS_SELECTED, STATUS_HIGHLIGHT})
+	public @interface StatusType {
+	}
 
 	/**
 	 * 增加修改内容参考
@@ -43,6 +51,8 @@ public abstract class Box extends Element {
 	protected Appearance mForeground;
 
 	private int mId;
+
+	private int mStatus = 0;
 
 	/**
 	 * @param width  宽度
@@ -80,6 +90,7 @@ public abstract class Box extends Element {
 		mHeight = 0;
 		mId = 0;
 		mTag = null;
+		removeAllStatus();
 
 		mBackground = null;
 		mForeground = null;
@@ -93,6 +104,7 @@ public abstract class Box extends Element {
 	@Override
 	public void reuse() {
 		super.reuse();
+		removeAllStatus();
 		mId = UUID.incrementAndGet();
 	}
 
@@ -102,6 +114,26 @@ public abstract class Box extends Element {
 
 	public Appearance getForeground() {
 		return mForeground;
+	}
+
+	@RestrictTo(LIBRARY)
+	public void addStatus(@StatusType int status) {
+		mStatus |= status;
+	}
+
+	@RestrictTo(LIBRARY)
+	public void removeStatus(@StatusType int status) {
+		mStatus &= ~status;
+	}
+
+	@RestrictTo(LIBRARY)
+	public void removeAllStatus() {
+		mStatus = 0;
+	}
+
+	@RestrictTo(LIBRARY)
+	public boolean containsStatus(int statusHighlight) {
+		return (mStatus & statusHighlight) != 0;
 	}
 
 	public Object getTag() {
