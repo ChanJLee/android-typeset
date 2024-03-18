@@ -283,7 +283,7 @@ public class RenderWorker implements TaskQueue.Task<RenderWorker.Args, Void>, Ta
 
 		}
 
-		private Object lookup(boolean prev) {
+		private Box lookupBox(boolean prev) {
 			int size = mLine.getCount();
 			int offset = prev ? -1 : 1;
 			int index = mCurrentBoxIndexInternal + offset;
@@ -292,7 +292,7 @@ public class RenderWorker implements TaskQueue.Task<RenderWorker.Args, Void>, Ta
 				Element element = mLine.getElement(index);
 				index += offset;
 				if (element instanceof Box) {
-					return ((Box) element).getTag();
+					return (Box) element;
 				}
 			}
 
@@ -301,11 +301,9 @@ public class RenderWorker implements TaskQueue.Task<RenderWorker.Args, Void>, Ta
 
 		@Override
 		public void onVisitBox(Box box, RectF inner, RectF outer) {
-			mDrawContext.reset();
-			mDrawContext.setTag(box.getTag());
-
-			mDrawContext.setPrevTag(lookup(true));
-			mDrawContext.setNextTag(lookup(false));
+			Box prev = lookupBox(true);
+			Box next = lookupBox(false);
+			mDrawContext.reset(prev, box, next);
 
 			boolean isSelected = isBoxSelected(box);
 

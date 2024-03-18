@@ -8,7 +8,10 @@ import android.text.TextPaint;
 
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
-import androidx.collection.SparseArrayCompat;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import me.chan.texas.misc.DefaultRecyclable;
 import me.chan.texas.misc.ObjectPool;
@@ -18,10 +21,6 @@ import me.chan.texas.text.layout.Box;
 import me.chan.texas.text.layout.Element;
 import me.chan.texas.text.layout.Layout;
 import me.chan.texas.text.layout.Line;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * 文本选中区域
@@ -38,7 +37,7 @@ public class ParagraphSelection extends DefaultRecyclable {
 	private final List<RectF> mBackgrounds = new ArrayList<>();
 	private int mId;
 	private int mIndex;
-	private final SparseArrayCompat<Box> mSet = new SparseArrayCompat<>(32);
+	private final List<Box> mSet = new ArrayList<>(32);
 
 	private ParagraphSelection() {
 	}
@@ -88,7 +87,8 @@ public class ParagraphSelection extends DefaultRecyclable {
 	private Box mLast;
 
 	public void pushBox(Box box) {
-		mSet.put(box.getId(), box);
+		box.addStatus(Box.STATUS_SELECTED);
+		mSet.add(box);
 
 		if (mLast == null) {
 			mLast = box;
@@ -98,7 +98,8 @@ public class ParagraphSelection extends DefaultRecyclable {
 	}
 
 	public void appendBox(Box box) {
-		mSet.put(box.getId(), box);
+		box.addStatus(Box.STATUS_SELECTED);
+		mSet.add(box);
 
 		if (mFirst == null) {
 			mFirst = box;
@@ -232,10 +233,13 @@ public class ParagraphSelection extends DefaultRecyclable {
 	}
 
 	public boolean isSelected(Box box) {
-		return mSet.containsKey(box.getId());
+		return box.containsStatus(Box.STATUS_SELECTED);
 	}
 
 	public void clear() {
+		for (Box box : mSet) {
+			box.removeStatus(Box.STATUS_SELECTED);
+		}
 		mSet.clear();
 		mFirst = mLast = null;
 		mBackgrounds.clear();
