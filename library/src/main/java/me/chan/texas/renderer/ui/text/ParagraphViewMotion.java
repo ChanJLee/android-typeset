@@ -12,6 +12,7 @@ import me.chan.texas.renderer.ParagraphVisitor;
 import me.chan.texas.renderer.RenderOption;
 import me.chan.texas.renderer.ui.decor.ParagraphDecor;
 import me.chan.texas.text.Paragraph;
+import me.chan.texas.text.TypesetContext;
 import me.chan.texas.text.layout.Box;
 import me.chan.texas.text.layout.Layout;
 import me.chan.texas.text.layout.Line;
@@ -192,7 +193,7 @@ public class ParagraphViewMotion {
 		}
 
 		@Override
-		public void onVisitBox(Box box, RectF inner, RectF outer) {
+		public void onVisitBox(Box box, RectF inner, RectF outer, TypesetContext context) {
 			// 增大点击热区
 			if (outer.left <= mX &&
 					outer.right >= mX) {

@@ -250,10 +250,13 @@ public class RenderWorker implements TaskQueue.Task<RenderWorker.Args, Void>, Ta
 	private final static class DrawVisitor extends ParagraphVisitor {
 
 		private Canvas mCanvas;
-		private final TypesetContext mDrawContext = new TypesetContext();
 		private Line mLine;
 		private Args mArgs;
 		private boolean mIsInterrupted = false;
+
+		public DrawVisitor() {
+			super(true);
+		}
 
 		void setCanvas(Canvas canvas) {
 			mCanvas = canvas;
@@ -283,32 +286,12 @@ public class RenderWorker implements TaskQueue.Task<RenderWorker.Args, Void>, Ta
 
 		}
 
-		private Box lookupBox(boolean prev) {
-			int size = mLine.getCount();
-			int offset = prev ? -1 : 1;
-			int index = mCurrentBoxIndexInternal + offset;
-
-			while (index >= 0 && index < size) {
-				Element element = mLine.getElement(index);
-				index += offset;
-				if (element instanceof Box) {
-					return (Box) element;
-				}
-			}
-
-			return null;
-		}
-
 		@Override
-		public void onVisitBox(Box box, RectF inner, RectF outer) {
-			Box prev = lookupBox(true);
-			Box next = lookupBox(false);
-			mDrawContext.reset(prev, box, next);
-
+		public void onVisitBox(Box box, RectF inner, RectF outer, TypesetContext context) {
 			boolean isSelected = isBoxSelected(box);
 
 			// 先绘制背景
-			drawBackground(box, isSelected, inner, outer);
+			drawBackground(box, isSelected, inner, outer, context);
 
 			TextPaint workPaint = mArgs.mPaintSet.getWorkPaint();
 
@@ -333,14 +316,14 @@ public class RenderWorker implements TaskQueue.Task<RenderWorker.Args, Void>, Ta
 
 			drawContent(box, workPaint, inner, isSelected);
 
-			drawForeground(box, inner, outer);
+			drawForeground(box, inner, outer, context);
 		}
 
-		private void drawForeground(Box box, RectF inner, RectF outer) {
+		private void drawForeground(Box box, RectF inner, RectF outer, TypesetContext context) {
 			Appearance foreground = box.getForeground();
 			if (foreground != null) {
 				TextPaint workPaint = mArgs.mPaintSet.getWorkPaint();
-				foreground.draw(mCanvas, workPaint, inner, outer, mDrawContext);
+				foreground.draw(mCanvas, workPaint, inner, outer, context);
 			}
 		}
 
@@ -348,11 +331,11 @@ public class RenderWorker implements TaskQueue.Task<RenderWorker.Args, Void>, Ta
 			box.draw(mCanvas, workPaint, inner.left, inner.bottom - mLine.getBaselineOffset(), isSelected);
 		}
 
-		private void drawBackground(Box box, boolean isSelected, RectF inner, RectF outer) {
+		private void drawBackground(Box box, boolean isSelected, RectF inner, RectF outer, TypesetContext context) {
 			Appearance background = box.getBackground();
 			if (background != null && !isSelected) {
 				TextPaint workPaint = mArgs.mPaintSet.getWorkPaint();
-				background.draw(mCanvas, workPaint, inner, outer, mDrawContext);
+				background.draw(mCanvas, workPaint, inner, outer, context);
 			}
 		}
 
@@ -391,6 +374,7 @@ public class RenderWorker implements TaskQueue.Task<RenderWorker.Args, Void>, Ta
 		private int mTaskId;
 
 		DebugDrawVisitor() {
+			super();
 			mDebugPaint = new Paint();
 			mDebugPaint.setColor(Color.GREEN);
 			mDebugPaint.setStyle(Paint.Style.STROKE);
@@ -466,7 +450,7 @@ public class RenderWorker implements TaskQueue.Task<RenderWorker.Args, Void>, Ta
 		}
 
 		@Override
-		public void onVisitBox(Box box, RectF inner, RectF outer) {
+		public void onVisitBox(Box box, RectF inner, RectF outer, TypesetContext context) {
 			mDebugPaint.setColor(Color.GREEN);
 			mCanvas.drawRect(inner, mDebugPaint);
 		}

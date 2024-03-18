@@ -3,9 +3,11 @@ package me.chan.texas.renderer;
 import android.graphics.RectF;
 
 import androidx.annotation.IntDef;
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 
 import me.chan.texas.text.Paragraph;
+import me.chan.texas.text.TypesetContext;
 import me.chan.texas.text.layout.Box;
 import me.chan.texas.text.layout.Element;
 import me.chan.texas.text.layout.Glue;
@@ -44,6 +46,33 @@ public abstract class ParagraphVisitor {
 
 	}
 
+	@Nullable
+	private final TypesetContext mTypesetContext;
+
+	public ParagraphVisitor() {
+		this(false);
+	}
+
+	public ParagraphVisitor(boolean enableTypesetContext) {
+		mTypesetContext = enableTypesetContext ? new TypesetContext() : null;
+	}
+
+	private Box lookupBox(Line line, boolean prev) {
+		int size = line.getCount();
+		int offset = prev ? -1 : 1;
+		int index = mCurrentBoxIndexInternal + offset;
+
+		while (index >= 0 && index < size) {
+			Element element = line.getElement(index);
+			index += offset;
+			if (element instanceof Box) {
+				return (Box) element;
+			}
+		}
+
+		return null;
+	}
+
 	public void visit(Paragraph paragraph, RenderOption renderOption) throws VisitException {
 		try {
 			onVisitParagraphStart(paragraph);
@@ -54,6 +83,12 @@ public abstract class ParagraphVisitor {
 			for (int i = 0; i < end && mVisitSig != SIG_STOP_PARA_VISIT; ++i) {
 				Line line = layout.getLine(i);
 				y += line.getLineHeight();
+
+				if (mTypesetContext != null) {
+					mTypesetContext.line = line;
+					mTypesetContext.setParagraphLocationAttribute(TypesetContext.LOCATION_PARAGRAPH_START, i == 0);
+					mTypesetContext.setParagraphLocationAttribute(TypesetContext.LOCATION_PARAGRAPH_END, i == end - 1);
+				}
 
 				visitLine(line, x, y);
 
@@ -119,7 +154,12 @@ public abstract class ParagraphVisitor {
 			mOuterRect.right += (offset / 2);
 
 			mCurrentBoxIndexInternal = i;
-			onVisitBox(box, mInnerRect, mOuterRect);
+			if (mTypesetContext != null) {
+				Box prev = lookupBox(mTypesetContext.line, true);
+				Box next = lookupBox(mTypesetContext.line, false);
+				mTypesetContext.reset(prev, box, next);
+			}
+			onVisitBox(box, mInnerRect, mOuterRect, mTypesetContext);
 			bottomX += width;
 		}
 
@@ -163,11 +203,10 @@ public abstract class ParagraphVisitor {
 	 * @param inner 内部box绘制区域
 	 * @param outer 外部绘制区域
 	 */
-	protected abstract void onVisitBox(Box box, RectF inner, RectF outer);
+	protected abstract void onVisitBox(Box box, RectF inner, RectF outer, @Nullable TypesetContext context);
 
 	/**
 	 * 访问异常，可能因为paragraph被回收，然而访问还在进行时抛出
-	 * https://bugly.qq.com/v2/crash-reporting/crashes/900021510/415701/report?pid=1&search=texas&searchType=detail&bundleId=&channelId=&version=all&tagList=&start=0&date=all
 	 */
 	public static class VisitException extends Exception {
 		public VisitException(Throwable cause) {
