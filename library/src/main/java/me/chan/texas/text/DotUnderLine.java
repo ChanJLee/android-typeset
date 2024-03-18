@@ -56,7 +56,7 @@ public class DotUnderLine extends Appearance {
 	}
 
 	@Override
-	public void draw(Canvas canvas, Paint paint, RectF inner, RectF outer, DrawContext context) {
+	public void draw(Canvas canvas, Paint paint, RectF inner, RectF outer, TypesetContext context) {
 		paint.setStyle(Paint.Style.STROKE);
 		paint.setStrokeWidth(mWidth);
 		paint.setColor(mColor);

@@ -49,7 +49,7 @@ public class UnderLine extends Appearance {
 	}
 
 	@Override
-	public void draw(Canvas canvas, Paint paint, RectF inner, RectF outer, DrawContext context) {
+	public void draw(Canvas canvas, Paint paint, RectF inner, RectF outer, TypesetContext context) {
 		paint.setStyle(Paint.Style.FILL);
 		paint.setStrokeWidth(mWidth);
 		paint.setColor(mColor);

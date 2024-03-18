@@ -6,7 +6,7 @@ import androidx.annotation.RestrictTo;
 
 import me.chan.texas.text.layout.Box;
 
-public class DrawContext {
+public class TypesetContext {
 	/**
 	 * {@link Paragraph.SpanBuilder#tag(Object)}
 	 */
@@ -68,7 +68,17 @@ public class DrawContext {
 	 */
 	public static final int LOCATION_LINE_MIDDLE = 3;
 
-	@IntDef({LOCATION_LINE_START, LOCATION_LINE_END, LOCATION_LINE_MIDDLE})
+	@RestrictTo(RestrictTo.Scope.LIBRARY)
+	public static final int LOCATION_PARAGRAPH_START = 4;
+
+	@RestrictTo(RestrictTo.Scope.LIBRARY)
+	public static final int LOCATION_PARAGRAPH_END = 5;
+
+	@RestrictTo(RestrictTo.Scope.LIBRARY)
+	public static final int LOCATION_PARAGRAPH_MIDDLE = 6;
+
+	@IntDef({LOCATION_LINE_START, LOCATION_LINE_END, LOCATION_LINE_MIDDLE,
+			LOCATION_PARAGRAPH_START, LOCATION_PARAGRAPH_END, LOCATION_PARAGRAPH_MIDDLE})
 	public @interface LocationType {
 	}
 

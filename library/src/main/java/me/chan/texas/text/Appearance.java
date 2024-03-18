@@ -26,5 +26,5 @@ public abstract class Appearance {
 	 * @param context 绘制上下文，可以知道当前绘制单元前后位置
 	 */
 	@AnyThread
-	public abstract void draw(Canvas canvas, Paint paint, RectF inner, RectF outer, DrawContext context);
+	public abstract void draw(Canvas canvas, Paint paint, RectF inner, RectF outer, TypesetContext context);
 }

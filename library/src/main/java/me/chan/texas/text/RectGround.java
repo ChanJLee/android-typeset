@@ -52,7 +52,7 @@ public class RectGround extends Appearance {
 	}
 
 	@Override
-	public void draw(Canvas canvas, Paint paint, RectF inner, RectF outer, DrawContext context) {
+	public void draw(Canvas canvas, Paint paint, RectF inner, RectF outer, TypesetContext context) {
 		paint.setColor(mColor);
 		if (mRadius > 0) {
 			canvas.drawRoundRect(inner, mRadius, mRadius, paint);
