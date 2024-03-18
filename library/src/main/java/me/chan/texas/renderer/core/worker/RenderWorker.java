@@ -26,7 +26,7 @@ import me.chan.texas.renderer.selection.ParagraphSelection;
 import me.chan.texas.renderer.ui.decor.ParagraphDecor;
 import me.chan.texas.renderer.ui.text.TextureParagraph;
 import me.chan.texas.text.Appearance;
-import me.chan.texas.text.DrawContext;
+import me.chan.texas.text.TypesetContext;
 import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.TextStyle;
 import me.chan.texas.text.layout.Box;
@@ -250,7 +250,7 @@ public class RenderWorker implements TaskQueue.Task<RenderWorker.Args, Void>, Ta
 	private final static class DrawVisitor extends ParagraphVisitor {
 
 		private Canvas mCanvas;
-		private final DrawContext mDrawContext = new DrawContext();
+		private final TypesetContext mDrawContext = new TypesetContext();
 		private Line mLine;
 		private Args mArgs;
 		private boolean mIsInterrupted = false;
@@ -381,7 +381,6 @@ public class RenderWorker implements TaskQueue.Task<RenderWorker.Args, Void>, Ta
 	private final static class DebugDrawVisitor extends ParagraphVisitor {
 		private final Paint mDebugPaint;
 		private Canvas mCanvas;
-		private final int[] mLocation = new int[2];
 		private Args mArgs;
 		private static final int[] BACKGROUND = {
 				0x33ff0000,
@@ -434,7 +433,6 @@ public class RenderWorker implements TaskQueue.Task<RenderWorker.Args, Void>, Ta
 			workPaint.set(mDebugPaint);
 			workPaint.setColor(Color.RED);
 			workPaint.setStrokeWidth(10);
-			mArgs.renderer.getLocationOnScreen(mLocation);
 			int x = mArgs.width - 100;
 			if (mArgs.selection == null) {
 				return;
@@ -442,9 +440,9 @@ public class RenderWorker implements TaskQueue.Task<RenderWorker.Args, Void>, Ta
 			RectF first = mArgs.selection.getFirstRegion();
 			RectF last = mArgs.selection.getLastRegion();
 			mCanvas.drawLine(x,
-					first != null ? first.left : -1,
+					first != null ? first.top : -1,
 					x,
-					last != null ? last.right : -1,
+					last != null ? last.bottom : -1,
 					workPaint);
 		}
 

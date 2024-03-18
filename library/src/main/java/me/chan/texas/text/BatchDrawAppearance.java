@@ -15,12 +15,12 @@ public abstract class BatchDrawAppearance extends Appearance {
 	private boolean mShouldReset = false;
 
 	@Override
-	public final void draw(Canvas canvas, Paint paint, RectF inner, RectF outer, DrawContext context) {
+	public final void draw(Canvas canvas, Paint paint, RectF inner, RectF outer, TypesetContext context) {
 		if (!isEnable()) {
 			return;
 		}
 
-		if (context.checkLocation(DrawContext.LOCATION_LINE_START) || mShouldReset) {
+		if (context.checkLocation(TypesetContext.LOCATION_LINE_START) || mShouldReset) {
 			mInner.set(inner);
 			mOuter.set(outer);
 			mShouldReset = false;
@@ -32,7 +32,7 @@ public abstract class BatchDrawAppearance extends Appearance {
 		mInner.bottom = Math.max(mInner.bottom, inner.bottom);
 		mOuter.top = Math.max(mOuter.top, outer.top);
 		mOuter.bottom = Math.max(mOuter.bottom, outer.bottom);
-		if (context.checkLocation(DrawContext.LOCATION_LINE_END) || !isSameGroup(context)) {
+		if (context.checkLocation(TypesetContext.LOCATION_LINE_END) || !isSameGroup(context)) {
 			scheduleDraw(canvas, paint);
 			mShouldReset = true;
 		}
@@ -44,7 +44,7 @@ public abstract class BatchDrawAppearance extends Appearance {
 
 	protected abstract void onDraw(Canvas canvas, Paint paint, RectF inner, RectF outer);
 
-	protected abstract boolean isSameGroup(DrawContext context);
+	protected abstract boolean isSameGroup(TypesetContext context);
 
 	protected boolean isEnable() {
 		return true;
