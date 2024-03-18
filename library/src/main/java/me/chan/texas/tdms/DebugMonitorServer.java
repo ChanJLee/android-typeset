@@ -14,6 +14,7 @@ import me.chan.texas.text.Document;
 import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.Segment;
 import me.chan.texas.text.TextAttribute;
+import me.chan.texas.text.TypesetContext;
 import me.chan.texas.text.layout.Box;
 import me.chan.texas.text.layout.Layout;
 import me.chan.texas.text.layout.Line;
@@ -155,7 +156,7 @@ public class DebugMonitorServer {
 		}
 
 		@Override
-		protected void onVisitBox(Box box, RectF inner, RectF outer) {
+		protected void onVisitBox(Box box, RectF inner, RectF outer, TypesetContext context) {
 			if (!mNewline) {
 				mBuilder.append(",");
 			}

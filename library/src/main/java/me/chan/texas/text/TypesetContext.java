@@ -1,10 +1,12 @@
 package me.chan.texas.text;
 
 import androidx.annotation.IntDef;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 
 import me.chan.texas.text.layout.Box;
+import me.chan.texas.text.layout.Line;
 
 public class TypesetContext {
 	/**
@@ -23,6 +25,10 @@ public class TypesetContext {
 	 */
 	@Nullable
 	private Box mNextBox;
+
+	@RestrictTo(RestrictTo.Scope.LIBRARY)
+	@NonNull
+	public Line line;
 
 	/**
 	 * @return 获得当前元素的tag
@@ -66,22 +72,32 @@ public class TypesetContext {
 	/**
 	 * 行中
 	 */
-	public static final int LOCATION_LINE_MIDDLE = 3;
+	public static final int LOCATION_LINE_MIDDLE = 4;
 
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
-	public static final int LOCATION_PARAGRAPH_START = 4;
+	public static final int LOCATION_PARAGRAPH_START = 8;
 
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
-	public static final int LOCATION_PARAGRAPH_END = 5;
+	public static final int LOCATION_PARAGRAPH_END = 16;
 
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
-	public static final int LOCATION_PARAGRAPH_MIDDLE = 6;
+	public static final int LOCATION_PARAGRAPH_MIDDLE = 32;
 
 	@IntDef({LOCATION_LINE_START, LOCATION_LINE_END, LOCATION_LINE_MIDDLE,
 			LOCATION_PARAGRAPH_START, LOCATION_PARAGRAPH_END, LOCATION_PARAGRAPH_MIDDLE})
 	public @interface LocationType {
 	}
 
+	private int mParagraphLocationAttribute = 0;
+
+	@RestrictTo(RestrictTo.Scope.LIBRARY)
+	public void setParagraphLocationAttribute(int location, boolean enable) {
+		if (enable) {
+			mParagraphLocationAttribute |= location;
+		} else {
+			mParagraphLocationAttribute &= ~location;
+		}
+	}
 
 	/**
 	 * @param location {@link #LOCATION_LINE_START} or {@link #LOCATION_LINE_END}
@@ -94,6 +110,13 @@ public class TypesetContext {
 			return mNextBox == null;
 		} else if (location == LOCATION_LINE_MIDDLE) {
 			return mPrevBox != null && mNextBox != null;
+		} else if (location == LOCATION_PARAGRAPH_START) {
+			return (mParagraphLocationAttribute & LOCATION_PARAGRAPH_START) != 0;
+		} else if (location == LOCATION_PARAGRAPH_END) {
+			return (mParagraphLocationAttribute & LOCATION_PARAGRAPH_END) != 0;
+		} else if (location == LOCATION_PARAGRAPH_MIDDLE) {
+			return !checkLocation(LOCATION_PARAGRAPH_START) &&
+					!checkLocation(LOCATION_PARAGRAPH_END);
 		}
 
 		throw new IllegalArgumentException("unknown location type: " + location);
