@@ -7,27 +7,27 @@ import me.chan.texas.utils.concurrency.TaskQueue;
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class OddWorker implements TaskQueue.Listener<Runnable, Void>, TaskQueue.Task<Runnable, Void> {
 
-	public void submit(int id, TaskQueue taskQueue, Runnable runnable) {
-		taskQueue.submit(id, runnable, this, this);
+	public void submit(TaskQueue.Token token, TaskQueue taskQueue, Runnable runnable) {
+		taskQueue.submit(token, runnable, this, this);
 	}
 
 	@Override
-	public void onStart(int id, Runnable args) {
-
-	}
-
-	@Override
-	public void onSuccess(int id, Runnable args, Void ret) {
+	public void onStart(TaskQueue.Token token, Runnable args) {
 
 	}
 
 	@Override
-	public void onError(int id, Runnable args, Throwable throwable) {
+	public void onSuccess(TaskQueue.Token token, Runnable args, Void ret) {
 
 	}
 
 	@Override
-	public Void run(int id, Runnable args) throws Throwable {
+	public void onError(TaskQueue.Token token, Runnable args, Throwable throwable) {
+
+	}
+
+	@Override
+	public Void run(TaskQueue.Token token, Runnable args) throws Throwable {
 		try {
 			args.run();
 		} catch (Throwable ignore) {

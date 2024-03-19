@@ -1,14 +1,17 @@
 package me.chan.texas.adapter;
 
+import static androidx.annotation.RestrictTo.Scope.LIBRARY;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import me.chan.texas.TexasOption;
 import me.chan.texas.renderer.TexasView;
-import me.chan.texas.text.Document;
 import me.chan.texas.text.Paragraph;
-
-import static androidx.annotation.RestrictTo.Scope.LIBRARY;
+import me.chan.texas.text.Segment;
 
 /**
  * 最简单的文本解析器
@@ -17,19 +20,19 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 public class TextAdapter extends TexasView.Adapter<CharSequence> {
 	@Override
 	@NonNull
-	protected Document parse(CharSequence charSequence, TexasOption texasOption) {
-		Document document = Document.obtain();
+	protected List<Segment> parse(CharSequence charSequence, TexasOption texasOption) {
+		List<Segment> segments = new ArrayList<>();
 		int len = charSequence.length();
 		for (int i = skipBlank(charSequence, 0, len); i < len; ) {
 			int last = findNewline(charSequence, i, len);
 			if (i != last) {
 				Paragraph.Builder builder = Paragraph.Builder.newBuilder(texasOption);
 				parse(charSequence, i, last, builder);
-				document.addSegment(builder.build());
+				segments.add(builder.build());
 			}
 			i = skipBlank(charSequence, last, len);
 		}
-		return document;
+		return segments;
 	}
 
 	private static void parse(CharSequence paragraph, int start, int end, Paragraph.Builder builder) {

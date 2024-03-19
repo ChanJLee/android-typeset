@@ -1,0 +1,10 @@
+.notification_root {
+    background: #181818;
+    color: #CCCCCC;
+    padding: 16px;
+    height: 100%;
+    width: 100%;
+    cursor: text;
+    overflow: scroll;
+    scroll-behavior: smooth;
+}

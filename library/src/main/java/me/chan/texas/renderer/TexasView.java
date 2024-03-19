@@ -14,7 +14,8 @@ import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.util.TypedValue;
-import android.view.ViewTreeObserver;
+import android.view.LayoutInflater;
+import android.view.View;
 import android.widget.FrameLayout;
 
 import androidx.annotation.AnyThread;
@@ -26,12 +27,30 @@ import androidx.annotation.UiThread;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.ref.WeakReference;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.inject.Inject;
+import javax.inject.Named;
+
+import me.chan.texas.BuildConfig;
 import me.chan.texas.R;
+import me.chan.texas.Texas;
 import me.chan.texas.TexasOption;
 import me.chan.texas.adapter.ParseException;
 import me.chan.texas.annotations.Idempotent;
+import me.chan.texas.di.TexasComponent;
+import me.chan.texas.di.core.TextEngineCoreComponent;
+import me.chan.texas.misc.ResourceManager;
+import me.chan.texas.renderer.core.WorkerScheduler;
+import me.chan.texas.renderer.core.worker.LoadingWorker;
 import me.chan.texas.renderer.selection.Selection;
 import me.chan.texas.renderer.ui.decor.ParagraphDecor;
+import me.chan.texas.renderer.ui.indicator.LoadingIndicator;
 import me.chan.texas.source.ObjectSource;
 import me.chan.texas.source.Source;
 import me.chan.texas.source.SourceOpenException;
@@ -41,17 +60,13 @@ import me.chan.texas.text.HyphenStrategy;
 import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.Segment;
 import me.chan.texas.utils.TexasUtils;
-
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.ref.WeakReference;
-import java.util.HashMap;
-import java.util.Map;
+import me.chan.texas.utils.concurrency.TaskQueue;
 
 /**
  * 渲染引擎入口视图
  */
 public final class TexasView extends FrameLayout {
+	private final TaskQueue.Token mToken = TaskQueue.Token.newInstance();
 	/**
 	 * 非正常下标
 	 */
@@ -91,6 +106,12 @@ public final class TexasView extends FrameLayout {
 		}
 	}
 
+	void notifySegmentDoubleClicked(float x, float y, Object tag) {
+		if (mOnClickedListener != null) {
+			mOnClickedListener.onSegmentDoubleClicked(x, y, tag);
+		}
+	}
+
 	@Retention(RetentionPolicy.SOURCE)
 	@IntDef({SCROLL_STATE_IDLE, SCROLL_STATE_DRAGGING, SCROLL_STATE_SETTLING})
 	public @interface TexasViewScrollState {
@@ -100,12 +121,15 @@ public final class TexasView extends FrameLayout {
 	public final static Map<String, WeakReference<Typeface>> TYPEFACE_CACHE = new HashMap<>();
 
 	private Renderer mRenderer;
-	private ViewTreeObserver.OnGlobalLayoutListener mLastOnGlobalLayoutListener = null;
 	private RenderListener mRenderListener;
 	private OnClickedListener mOnClickedListener;
 	private Adapter<?> mAdapter;
 	private OnScrollListener mOnScrollListener;
 	private OnDragSelectListener mOnDragSelectListener;
+
+	private LoadingIndicator mTopLoadingIndicator;
+
+	private LoadingIndicator mBottomLoadingIndicator;
 
 	public TexasView(Context context, AttributeSet attrs) {
 		this(context, attrs, 0);
@@ -119,7 +143,7 @@ public final class TexasView extends FrameLayout {
 
 	private void init(Context context, AttributeSet attributeSet, int defStyleAttr) {
 		@SuppressLint("CustomViewStyleable")
-		TypedArray typedArray = context.obtainStyledAttributes(attributeSet, R.styleable.com_shanbay_lib_texas_TeView, defStyleAttr, 0);
+		TypedArray typedArray = context.obtainStyledAttributes(attributeSet, R.styleable.me_chan_texas_TexasView, defStyleAttr, 0);
 		try {
 			init(context, typedArray);
 		} finally {
@@ -155,14 +179,14 @@ public final class TexasView extends FrameLayout {
 
 		// 设置字体颜色
 		renderOption.setTextColor(
-				typedArray.getColor(R.styleable.com_shanbay_lib_texas_TeView_com_shanbay_lib_texas_textColor,
-						ContextCompat.getColor(context, R.color.com_shanbay_lib_texas_text_color)
+				typedArray.getColor(R.styleable.me_chan_texas_TexasView_me_chan_texas_TexasView_textColor,
+						ContextCompat.getColor(context, R.color.me_chan_texas_text_color)
 				)
 		);
 
 		// 设置字体
-		renderOption.setTypeface(Typeface.DEFAULT);
-		String typefacePath = typedArray.getString(R.styleable.com_shanbay_lib_texas_TeView_com_shanbay_lib_texas_typefaceAssets);
+		renderOption.setTypeface(Texas.getDefaultTypeface());
+		String typefacePath = typedArray.getString(R.styleable.me_chan_texas_TexasView_me_chan_texas_TexasView_typefaceAssets);
 		if (!TextUtils.isEmpty(typefacePath)) {
 			WeakReference<Typeface> typefaceWeakReference = TYPEFACE_CACHE.get(typefacePath);
 			Typeface typeface;
@@ -178,7 +202,7 @@ public final class TexasView extends FrameLayout {
 
 		// 设置字体大小
 		renderOption.setTextSize(
-				typedArray.getDimension(R.styleable.com_shanbay_lib_texas_TeView_com_shanbay_lib_texas_textSize,
+				typedArray.getDimension(R.styleable.me_chan_texas_TexasView_me_chan_texas_TexasView_textSize,
 						TypedValue.applyDimension(
 								TypedValue.COMPLEX_UNIT_SP,
 								DEFAULT_TEXT_SIZE,
@@ -189,7 +213,7 @@ public final class TexasView extends FrameLayout {
 
 		// 行间距
 		renderOption.setLineSpace(
-				typedArray.getDimension(R.styleable.com_shanbay_lib_texas_TeView_com_shanbay_lib_texas_lineSpace,
+				typedArray.getDimension(R.styleable.me_chan_texas_TexasView_me_chan_texas_TexasView_lineSpace,
 						TypedValue.applyDimension(
 								TypedValue.COMPLEX_UNIT_DIP,
 								DEFAULT_LINE_SPACE,
@@ -200,31 +224,31 @@ public final class TexasView extends FrameLayout {
 
 		// 选中字体的背景色
 		renderOption.setSelectedBackgroundColor(
-				typedArray.getColor(R.styleable.com_shanbay_lib_texas_TeView_com_shanbay_lib_texas_selectedBackgroundColor,
-						ContextCompat.getColor(context, R.color.com_shanbay_lib_texas_theme_color)
+				typedArray.getColor(R.styleable.me_chan_texas_TexasView_me_chan_texas_TexasView_selectedBackgroundColor,
+						ContextCompat.getColor(context, R.color.me_chan_texas_theme_color)
 				)
 		);
 
 		// 选中字体的颜色
 		renderOption.setSelectedTextColor(
-				typedArray.getColor(R.styleable.com_shanbay_lib_texas_TeView_com_shanbay_lib_texas_selectedTextColor, Color.WHITE)
+				typedArray.getColor(R.styleable.me_chan_texas_TexasView_me_chan_texas_TexasView_selectedTextColor, Color.WHITE)
 		);
 
 		// 选中span的背景色
 		renderOption.setSelectedByLongClickBackgroundColor(
-				typedArray.getColor(R.styleable.com_shanbay_lib_texas_TeView_com_shanbay_lib_texas_spanSelectedBackgroundColor,
-						ContextCompat.getColor(context, R.color.com_shanbay_lib_texas_span_bg_color)
+				typedArray.getColor(R.styleable.me_chan_texas_TexasView_me_chan_texas_TexasView_spanSelectedBackgroundColor,
+						ContextCompat.getColor(context, R.color.me_chan_texas_span_bg_color)
 				)
 		);
 
 		// 选中span的字体颜色
 		renderOption.setSelectedByLongClickTextColor(
-				typedArray.getColor(R.styleable.com_shanbay_lib_texas_TeView_com_shanbay_lib_texas_spanSelectedTextColor,
-						ContextCompat.getColor(context, R.color.com_shanbay_lib_texas_text_color))
+				typedArray.getColor(R.styleable.me_chan_texas_TexasView_me_chan_texas_TexasView_spanSelectedTextColor,
+						ContextCompat.getColor(context, R.color.me_chan_texas_text_color))
 		);
 
 		// 断字策略
-		int breakStrategy = typedArray.getInt(R.styleable.com_shanbay_lib_texas_TeView_com_shanbay_lib_texas_breakStrategy, BREAK_STRATEGY_BALANCE);
+		int breakStrategy = typedArray.getInt(R.styleable.me_chan_texas_TexasView_me_chan_texas_TexasView_breakStrategy, BREAK_STRATEGY_BALANCE);
 		renderOption.setBreakStrategy(
 				breakStrategy == BREAK_STRATEGY_SIMPLE ?
 						BreakStrategy.SIMPLE : BreakStrategy.BALANCED
@@ -232,11 +256,11 @@ public final class TexasView extends FrameLayout {
 
 		// 是否可选单词
 		renderOption.setWordSelectable(
-				typedArray.getBoolean(R.styleable.com_shanbay_lib_texas_TeView_com_shanbay_lib_texas_wordSelectable, true)
+				typedArray.getBoolean(R.styleable.me_chan_texas_TexasView_me_chan_texas_TexasView_wordSelectable, true)
 		);
 
 		// 断字策略
-		int hyphenStrategy = typedArray.getInt(R.styleable.com_shanbay_lib_texas_TeView_com_shanbay_lib_texas_hyphenStrategy, HYPHEN_STRATEGY_US);
+		int hyphenStrategy = typedArray.getInt(R.styleable.me_chan_texas_TexasView_me_chan_texas_TexasView_hyphenStrategy, HYPHEN_STRATEGY_US);
 		renderOption.setHyphenStrategy(
 				hyphenStrategy == HYPHEN_STRATEGY_UK ?
 						HyphenStrategy.UK : HyphenStrategy.US
@@ -244,33 +268,33 @@ public final class TexasView extends FrameLayout {
 
 		// lazy 渲染模式优化
 		renderOption.setEnableLazyRender(
-				typedArray.getBoolean(R.styleable.com_shanbay_lib_texas_TeView_com_shanbay_lib_texas_lazyRender, true)
+				typedArray.getBoolean(R.styleable.me_chan_texas_TexasView_me_chan_texas_TexasView_lazyRender, true)
 		);
 
 		// 高亮span文字颜色
 		renderOption.setSpanHighlightTextColor(
-				typedArray.getColor(R.styleable.com_shanbay_lib_texas_TeView_com_shanbay_lib_texas_spanHighlightTextColor,
-						ContextCompat.getColor(context, R.color.com_shanbay_lib_texas_theme_color)
+				typedArray.getColor(R.styleable.me_chan_texas_TexasView_me_chan_texas_TexasView_spanHighlightTextColor,
+						ContextCompat.getColor(context, R.color.me_chan_texas_theme_color)
 				)
 		);
 
 		// 加载中背景色
 		renderOption.setLoadingBackgroundColor(
-				typedArray.getColor(R.styleable.com_shanbay_lib_texas_TeView_com_shanbay_lib_texas_loadingBackgroundColor,
-						ContextCompat.getColor(context, R.color.com_shanbay_lib_texas_loading_bg)
+				typedArray.getColor(R.styleable.me_chan_texas_TexasView_me_chan_texas_TexasView_loadingBackgroundColor,
+						ContextCompat.getColor(context, R.color.me_chan_texas_loading_bg)
 				)
 		);
 
 		// 自由划线水滴颜色
 		renderOption.setDragViewColor(
-				typedArray.getColor(R.styleable.com_shanbay_lib_texas_TeView_com_shanbay_lib_texas_dragViewColor,
-						ContextCompat.getColor(context, R.color.com_shanbay_lib_texas_drag_view_color))
+				typedArray.getColor(R.styleable.me_chan_texas_TexasView_me_chan_texas_TexasView_dragViewColor,
+						ContextCompat.getColor(context, R.color.me_chan_texas_drag_view_color))
 		);
 
 		// 设置选中圆角半径
 		renderOption.setSelectedBackgroundRoundRadius(
 				typedArray.getDimension(
-						R.styleable.com_shanbay_lib_texas_TeView_com_shanbay_lib_texas_selectedBackgroundRoundRadius,
+						R.styleable.me_chan_texas_TexasView_me_chan_texas_TexasView_selectedBackgroundRoundRadius,
 						TypedValue.applyDimension(
 								TypedValue.COMPLEX_UNIT_DIP,
 								3,
@@ -281,37 +305,96 @@ public final class TexasView extends FrameLayout {
 
 		// 是否开启兼容模式
 		renderOption.setCompatMode(
-				typedArray.getBoolean(R.styleable.com_shanbay_lib_texas_TeView_com_shanbay_lib_texas_compatMode, false)
+				typedArray.getBoolean(R.styleable.me_chan_texas_TexasView_me_chan_texas_TexasView_compatMode, false)
 		);
 
+		LayoutInflater inflater = LayoutInflater.from(context);
+		int indicatorId = typedArray.getResourceId(R.styleable.me_chan_texas_TexasView_me_chan_texas_TexasView_bottomIndicator,
+				R.layout.me_chan_texas_bottom_loading_indicator);
+		if (indicatorId != NO_ID) {
+			View view = inflater.inflate(indicatorId, this, false);
+			if (!(view instanceof LoadingIndicator)) {
+				throw new IllegalArgumentException("bottom loading indicator should implements me.chan.texas.renderer.ui.indicator.LoadingIndicator");
+			}
+			mBottomLoadingIndicator = (LoadingIndicator) view;
+		}
+
+		indicatorId = typedArray.getResourceId(R.styleable.me_chan_texas_TexasView_me_chan_texas_TexasView_topLoadingIndicator,
+				R.layout.me_chan_texas_top_loading_indicator);
+		if (indicatorId != NO_ID) {
+			View view = inflater.inflate(indicatorId, this, false);
+			if (!(view instanceof LoadingIndicator)) {
+				throw new IllegalArgumentException("top loading indicator should implements me.chan.texas.renderer.ui.indicator.LoadingIndicator");
+			}
+			mTopLoadingIndicator = (LoadingIndicator) view;
+		}
 
 		// 如果开启了非兼容模式，且系统版本小于6.0，关闭硬件加速
-		// {@link com.shanbay.lib.texas.renderer.core.graphics.TextureScene}
+		// {@link me.chan.texas.renderer.core.graphics.TextureScene}
 		if (!renderOption.isCompatMode() && Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
 			setLayerType(LAYER_TYPE_SOFTWARE, null);
 		}
 
-		mRenderer = new Renderer(this, renderOption);
-	}
+		mRenderer = new Renderer(this, renderOption, mToken);
 
-	@RestrictTo(RestrictTo.Scope.LIBRARY)
-	public void notifyRenderStart() {
-		if (mRenderListener != null) {
-			mRenderListener.onStart(TexasView.this);
+		if (mTopLoadingIndicator != null) {
+			View view = (View) mTopLoadingIndicator;
+			addView(view);
+		}
+
+		if (mBottomLoadingIndicator != null) {
+			View view = (View) mBottomLoadingIndicator;
+			FrameLayout.LayoutParams layoutParams = (LayoutParams) view.getLayoutParams();
+			layoutParams.gravity = android.view.Gravity.BOTTOM;
+			view.setLayoutParams(layoutParams);
+			addView(view, layoutParams);
 		}
 	}
 
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
-	public void notifyRenderEnd() {
+	public void notifyRenderStart(LoadingStrategy loadingStrategy) {
+		if (loadingStrategy == LoadingStrategy.LOAD_MORE) {
+			if (mBottomLoadingIndicator != null) {
+				mBottomLoadingIndicator.renderLoading();
+			}
+		} else  {
+			if (mTopLoadingIndicator != null) {
+				mTopLoadingIndicator.renderLoading();
+			}
+		}
+
 		if (mRenderListener != null) {
-			mRenderListener.onEnd(TexasView.this);
+			mRenderListener.onStart(TexasView.this, loadingStrategy);
 		}
 	}
 
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
-	public void notifyRenderError(Throwable throwable) {
+	public void notifyRenderEnd(LoadingStrategy loadingStrategy) {
+		if (mBottomLoadingIndicator != null) {
+			mBottomLoadingIndicator.dismiss();
+		}
+
+		if (mTopLoadingIndicator != null) {
+			mTopLoadingIndicator.dismiss();
+		}
+
 		if (mRenderListener != null) {
-			mRenderListener.onError(TexasView.this, throwable);
+			mRenderListener.onEnd(TexasView.this, loadingStrategy);
+		}
+	}
+
+	@RestrictTo(RestrictTo.Scope.LIBRARY)
+	public void notifyRenderError(LoadingStrategy strategy, Throwable throwable) {
+		if (mBottomLoadingIndicator != null) {
+			mBottomLoadingIndicator.dismiss();
+		}
+
+		if (mTopLoadingIndicator != null) {
+			mTopLoadingIndicator.dismiss();
+		}
+
+		if (mRenderListener != null) {
+			mRenderListener.onError(TexasView.this, strategy, throwable);
 		}
 	}
 
@@ -323,47 +406,21 @@ public final class TexasView extends FrameLayout {
 		mRenderer.setSegmentDecoration(segmentDecoration);
 	}
 
-	private void render() {
+	private void load(String reason, LoadingStrategy loadingStrategy) {
 		if (mRenderer == null) {
 			return;
 		}
 
-		int width = getRenderWidth();
-		if (width > 0) {
-			d("set source direct");
-			mRenderer.render(width);
-			return;
+		mRenderer.load(reason, getRenderWidth(), loadingStrategy);
+	}
+
+	@Override
+	protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+		super.onSizeChanged(w, h, oldw, oldh);
+		/* render if size changed */
+		if (w != oldw) {
+			mRenderer.typeset("onSizeChanged", getRenderWidth(), LoadingStrategy.TYPESET_ONLY);
 		}
-
-		i("unknown size, try later, width: " + width);
-		ViewTreeObserver viewTreeObserver = getViewTreeObserver();
-		if (mLastOnGlobalLayoutListener != null) {
-			d("remove last on global layout listener");
-			viewTreeObserver.removeOnGlobalLayoutListener(mLastOnGlobalLayoutListener);
-		}
-
-		mLastOnGlobalLayoutListener = new ViewTreeObserver.OnGlobalLayoutListener() {
-			@Override
-			public void onGlobalLayout() {
-				int width = getRenderWidth();
-				if (mRenderer == null) {
-					i("renderer is null");
-					getViewTreeObserver().removeOnGlobalLayoutListener(this);
-					return;
-				}
-
-				if (width <= 0) {
-					i("unknown size, try later, width: " + width);
-					return;
-				}
-
-				i("get width, render: " + width);
-				getViewTreeObserver().removeOnGlobalLayoutListener(this);
-				mRenderer.render(width);
-				mLastOnGlobalLayoutListener = null;
-			}
-		};
-		viewTreeObserver.addOnGlobalLayoutListener(mLastOnGlobalLayoutListener);
 	}
 
 	private int getRenderWidth() {
@@ -405,9 +462,8 @@ public final class TexasView extends FrameLayout {
 		}
 
 		d("bind adapter");
-		mRenderer.setAdapter(adapter);
-		adapter.attach(this);
 		mAdapter = adapter;
+		adapter.attach(this);
 	}
 
 	/**
@@ -453,10 +509,13 @@ public final class TexasView extends FrameLayout {
 		mRenderListener = null;
 		mOnClickedListener = null;
 		mOnDragSelectListener = null;
-		mLastOnGlobalLayoutListener = null;
 		if (mRenderer != null) {
 			mRenderer.release();
 			mRenderer = null;
+		}
+
+		if (BuildConfig.DEBUG) {
+			ResourceManager.check();
 		}
 	}
 
@@ -536,7 +595,7 @@ public final class TexasView extends FrameLayout {
 	/**
 	 * 滚动到document的某个segment
 	 *
-	 * @param position segment index {@link Document#indexOfSegment(Segment)} {@link Paragraph}
+	 * @param position segment index {@link Document#indexOfSegment(Segment)} {@link me.chan.texas.text.Paragraph}
 	 * @param smooth   滚动的时候是否平滑滚动
 	 */
 	public void scrollToPosition(int position, boolean smooth) {
@@ -546,7 +605,7 @@ public final class TexasView extends FrameLayout {
 	/**
 	 * 滚动到document的某个segment
 	 *
-	 * @param position segment index {@link Document#indexOfSegment(Segment)} (Segment)} {@link Paragraph}
+	 * @param position segment index {@link Document#indexOfSegment(Segment)} (Segment)} {@link me.chan.texas.text.Paragraph}
 	 * @param smooth   滚动的时候是否平滑滚动
 	 * @param offset   滑动方向上的offset
 	 */
@@ -776,14 +835,14 @@ public final class TexasView extends FrameLayout {
 		 *
 		 * @param texasView view
 		 */
-		void onStart(TexasView texasView);
+		void onStart(TexasView texasView, LoadingStrategy loadingStrategy);
 
 		/**
 		 * 渲染结束的时候调用
 		 *
 		 * @param texasView view
 		 */
-		void onEnd(TexasView texasView);
+		void onEnd(TexasView texasView, LoadingStrategy loadingStrategy);
 
 		/**
 		 * 发生错误的时候调用
@@ -791,7 +850,7 @@ public final class TexasView extends FrameLayout {
 		 * @param texasView view
 		 * @param throwable 错误
 		 */
-		void onError(TexasView texasView, Throwable throwable);
+		void onError(TexasView texasView, LoadingStrategy loadingStrategy, Throwable throwable);
 	}
 
 	private static void d(String msg) {
@@ -811,15 +870,46 @@ public final class TexasView extends FrameLayout {
 		private Source<T> mSource;
 		private TexasView mTexasView;
 
+		private final Document mDocument;
+
+		@Inject
+		@Named("ComputeTask")
+		TaskQueue mComputeTaskQueue;
+
+		public Adapter() {
+			mDocument = Document.obtain();
+			TexasComponent texasComponent = Texas.getTexasComponent();
+			TextEngineCoreComponent textEngineCoreComponent = texasComponent.coreComponent().create();
+			textEngineCoreComponent.inject((TexasView.Adapter<Object>) this);
+		}
+
 		private void attach(@NonNull TexasView view) {
 			mTexasView = view;
 			if (mSource != null) {
-				view.render();
+				view.load("adapter attached", LoadingStrategy.LOAD);
 			}
 		}
 
 		private void detach() {
+			if (mTexasView == null) {
+				return;
+			}
+
+			TaskQueue.Token token = mTexasView.mToken;
 			mTexasView = null;
+			if (mSource != null) {
+				WorkerScheduler.odd().submit(token, mComputeTaskQueue, new Runnable() {
+					@Override
+					public void run() {
+						try {
+							d("source destroy");
+							mSource.close();
+						} catch (Throwable ignore) {
+							/* do nothing */
+						}
+					}
+				});
+			}
 		}
 
 		@UiThread
@@ -829,13 +919,20 @@ public final class TexasView extends FrameLayout {
 
 		@UiThread
 		public final void setSource(Source<T> source) {
+			Source<?> previous = mSource;
 			mSource = source;
-			notifyViewsRender();
-		}
 
-		private void notifyViewsRender() {
-			if (mTexasView != null) {
-				mTexasView.render();
+			// start load more
+			if (mTexasView != null && previous != mSource) {
+				mTexasView.load("new source", LoadingStrategy.LOAD);
+			}
+
+			if (previous != null && previous != source) {
+				try {
+					previous.close();
+				} catch (Throwable ignore) {
+					/* noop */
+				}
 			}
 		}
 
@@ -845,36 +942,57 @@ public final class TexasView extends FrameLayout {
 		 * @return 文档
 		 * @throws ParseException 解析错误的时候抛出
 		 */
-		@NonNull
+		@Nullable
 		@AnyThread
-		protected abstract Document parse(@NonNull T content, TexasOption texasOption) throws ParseException;
+		protected abstract List<Segment> parse(@NonNull T content, TexasOption texasOption) throws ParseException;
 
 		@NonNull
 		@RestrictTo(RestrictTo.Scope.LIBRARY)
-		public final Document getDocument(TexasOption texasOption) throws SourceOpenException, ParseException {
+		public final LoadingWorker.LoadingResult getDocument(TexasOption texasOption, LoadingStrategy loadType) throws SourceOpenException, ParseException {
 			if (mSource == null) {
-				return Document.createEmptyDocument();
+				return LoadingWorker.LoadingResult.obtainWithoutContent(loadType, mDocument);
 			}
 
-			try {
-				T value = mSource.open();
-				return parse(value, texasOption);
-			} finally {
-				// close quietly
-				try {
-					mSource.close();
-				} catch (Throwable throwable) {
-					Log.w("TexasAdapter", throwable);
-				}
+			T value = mSource.open(loadType);
+			if (value == null) {
+				return LoadingWorker.LoadingResult.obtainWithoutContent(loadType, mDocument);
+			}
+
+			List<Segment> segments = parse(value, texasOption);
+			if (segments == null) {
+				return LoadingWorker.LoadingResult.obtainWithoutContent(loadType, mDocument);
+			}
+
+			if (loadType == LoadingStrategy.LOAD_PREVIOUS) {
+				mDocument.insertHead(segments);
+				return LoadingWorker.LoadingResult.obtain(loadType, mDocument, 0, segments.size());
+			} else if (loadType == LoadingStrategy.LOAD_MORE) {
+				int start = mDocument.getSegmentCount();
+				mDocument.insertTail(segments);
+				return LoadingWorker.LoadingResult.obtain(loadType, mDocument, start, start + segments.size());
+			} else if (loadType == LoadingStrategy.LOAD) {
+				mDocument.clear();
+				mDocument.insertTail(segments);
+				return LoadingWorker.LoadingResult.obtain(loadType, mDocument);
+			} else {
+				throw new IllegalStateException("unknown load type: " + loadType);
 			}
 		}
+	}
+
+	void scheduleLoadMore() {
+		load("load more", LoadingStrategy.LOAD_MORE);
+	}
+
+	void scheduleLoadPrevious() {
+		load("load previous", LoadingStrategy.LOAD_PREVIOUS);
 	}
 
 	public interface SelectionPredicate {
 
 		/**
 		 * @param paragraphTag {@link Paragraph#getTag()}
-		 * @param spanTag      {@link Paragraph.SpanBuilder#tag(Object)}
+		 * @param spanTag      {@link me.chan.texas.text.Paragraph.SpanBuilder#tag(Object)}
 		 * @return 是否选中
 		 */
 		@Idempotent
@@ -883,8 +1001,8 @@ public final class TexasView extends FrameLayout {
 
 	public interface HighlightPredicate {
 		/**
-		 * @param paragraphTag {@link Paragraph.Builder#tag(Object)}
-		 * @param spanTag      {@link Paragraph.SpanBuilder#tag(Object)}
+		 * @param paragraphTag {@link me.chan.texas.text.Paragraph.Builder#tag(Object)}
+		 * @param spanTag      {@link me.chan.texas.text.Paragraph.SpanBuilder#tag(Object)}
 		 * @return 是否选中，这个函数必须是幂等的
 		 */
 		@Idempotent
@@ -935,6 +1053,13 @@ public final class TexasView extends FrameLayout {
 		 * @param y 点击发生时相对屏幕的y坐标
 		 */
 		void onEmptyClicked(float x, float y);
+
+		/**
+		 * @param x   点击发生时相对屏幕的x坐标
+		 * @param y   点击发生时相对屏幕的y坐标
+		 * @param tag 被点击的segment tag
+		 */
+		void onSegmentDoubleClicked(float x, float y, Object tag);
 	}
 
 	/**

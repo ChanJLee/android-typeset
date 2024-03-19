@@ -12,6 +12,7 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.WindowManager;
 
+import androidx.annotation.IntDef;
 import androidx.annotation.RestrictTo;
 
 import me.chan.texas.compat.TextPaintCompat;
@@ -37,6 +38,11 @@ public class TexasUtils {
 		Resources resources = context.getResources();
 		DisplayMetrics displayMetrics = resources.getDisplayMetrics();
 		sDensity = displayMetrics.density;
+	}
+
+	@RestrictTo(RestrictTo.Scope.LIBRARY)
+	public static float getDensity() {
+		return sDensity;
 	}
 
 	private static void initDebugInfo(Context context) {
@@ -335,6 +341,36 @@ public class TexasUtils {
 		return lineSpace;
 	}
 
+	@IntDef({CmpType.CMP_DRAW, CmpType.CMP_TYPESET, CmpType.CMP_LOAD})
+	public @interface CmpType {
+		/**
+		 * 需要重新排版
+		 */
+		int CMP_TYPESET = 1;
+		/**
+		 * 需要重新加载
+		 */
+		int CMP_LOAD = 2;
+		/**
+		 * 需要重新绘制
+		 */
+		int CMP_DRAW = 3;
+	}
+
+	@RestrictTo(RestrictTo.Scope.LIBRARY)
+	public static String cmpType2String(@CmpType int type) {
+		switch (type) {
+			case CmpType.CMP_DRAW:
+				return "CMP_DRAW";
+			case CmpType.CMP_TYPESET:
+				return "CMP_TYPESET";
+			case CmpType.CMP_LOAD:
+				return "CMP_LOAD";
+			default:
+				return "UNKNOWN";
+		}
+	}
+
 	/**
 	 * 1. 字体变化了需要重新reload
 	 * 2. 字体大小变化了需要重新reload
@@ -347,23 +383,23 @@ public class TexasUtils {
 	 * @return 是否需要重新reload
 	 */
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
-	public static boolean diff(RenderOption prev, RenderOption current) {
+	@CmpType
+	public static int cmp(RenderOption prev, RenderOption current) {
 		if (prev.isCompatMode() != current.isCompatMode()) {
 			throw new RuntimeException("compat mode can not be changed at runtime");
 		}
 
-		if (!TexasUtils.equals(prev.getTypeface(), current.getTypeface())) {
-			return true;
+		if (prev.getBreakStrategy() != current.getBreakStrategy() ||
+				prev.getHyphenStrategy() != current.getHyphenStrategy()) {
+			return CmpType.CMP_LOAD;
 		}
 
-		if (prev.getTextSize() != current.getTextSize()) {
-			return true;
+		if (prev.getTextSize() != current.getTextSize() ||
+				!TexasUtils.equals(prev.getTypeface(), current.getTypeface())
+		) {
+			return CmpType.CMP_TYPESET;
 		}
 
-		if (prev.getBreakStrategy() != current.getBreakStrategy()) {
-			return true;
-		}
-
-		return prev.getHyphenStrategy() != current.getHyphenStrategy();
+		return CmpType.CMP_DRAW;
 	}
 }

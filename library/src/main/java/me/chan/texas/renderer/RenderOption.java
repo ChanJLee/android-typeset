@@ -515,4 +515,31 @@ public class RenderOption {
 	public void setEnableAsyncDrawTsDebug(boolean enable) {
 		mEnableAsyncDrawTsDebug = enable;
 	}
+
+	@Override
+	public String toString() {
+		return "RenderOption{" +
+				"mTextColor=" + mTextColor +
+				", mTypeface=" + mTypeface +
+				", mTextSize=" + mTextSize +
+				", mLineSpace=" + mLineSpace +
+				", mSelectedBackgroundColor=" + mSelectedBackgroundColor +
+				", mSelectedTextColor=" + mSelectedTextColor +
+				", mBreakStrategy=" + mBreakStrategy +
+				", mWordSelectable=" + mWordSelectable +
+				", mEnableDebug=" + mEnableDebug +
+				", mEnableOnDrawTsDebug=" + mEnableOnDrawTsDebug +
+				", mEnableAsyncDrawTsDebug=" + mEnableAsyncDrawTsDebug +
+				", mSelectedByLongClickBackgroundColor=" + mSelectedByLongClickBackgroundColor +
+				", mSelectedByLongClickTextColor=" + mSelectedByLongClickTextColor +
+				", mHyphenStrategy=" + mHyphenStrategy +
+				", mEnableLazyRender=" + mEnableLazyRender +
+				", mSpanHighlightTextColor=" + mSpanHighlightTextColor +
+				", mLoadingBackgroundColor=" + mLoadingBackgroundColor +
+				", mDrawEmoticonSelection=" + mDrawEmoticonSelection +
+				", mDragViewColor=" + mDragViewColor +
+				", mCompatMode=" + mCompatMode +
+				", mSelectedBackgroundRoundRadius=" + mSelectedBackgroundRoundRadius +
+				'}';
+	}
 }

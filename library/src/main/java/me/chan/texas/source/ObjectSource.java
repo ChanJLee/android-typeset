@@ -1,9 +1,11 @@
 package me.chan.texas.source;
 
+import me.chan.texas.renderer.LoadingStrategy;
+
 /**
  * 直接返回已经读好的对象
  */
-public class ObjectSource<T> implements Source<T> {
+public class ObjectSource<T> extends Source<T> {
 	private T mObject;
 
 	public ObjectSource(T object) {
@@ -11,12 +13,14 @@ public class ObjectSource<T> implements Source<T> {
 	}
 
 	@Override
-	public T open() throws SourceOpenException {
-		return mObject;
+	protected T onOpen(LoadingStrategy strategy) throws SourceOpenException {
+		T ret = mObject;
+		mObject = null;
+		return ret;
 	}
 
 	@Override
-	public void close() throws SourceCloseException {
+	protected void onClose() throws SourceCloseException {
 		/* do nothing */
 	}
 

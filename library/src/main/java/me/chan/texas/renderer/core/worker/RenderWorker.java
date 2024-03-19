@@ -26,7 +26,7 @@ import me.chan.texas.renderer.selection.ParagraphSelection;
 import me.chan.texas.renderer.ui.decor.ParagraphDecor;
 import me.chan.texas.renderer.ui.text.TextureParagraph;
 import me.chan.texas.text.Appearance;
-import me.chan.texas.text.DrawContext;
+import me.chan.texas.text.TypesetContext;
 import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.TextStyle;
 import me.chan.texas.text.layout.Box;
@@ -54,7 +54,7 @@ public class RenderWorker implements TaskQueue.Task<RenderWorker.Args, Void>, Ta
 		mMessager = messager;
 		mMessager.addListener(new WorkerMessager.Listener() {
 			@Override
-			public boolean handleMessage(int id, WorkerMessager.WorkerMessage value) {
+			public boolean handleMessage(TaskQueue.Token token, WorkerMessager.WorkerMessage value) {
 				Args args = value.asArg(Args.class);
 				if (args == null) {
 					return false;
@@ -70,17 +70,17 @@ public class RenderWorker implements TaskQueue.Task<RenderWorker.Args, Void>, Ta
 		});
 	}
 
-	public void submit(int id, Args args) {
+	public void submit(TaskQueue.Token token, Args args) {
 		if (mStats != null) {
 			++mStats.requestCount;
 		}
-		mTaskQueue.cancel(id);
-		mTaskQueue.submit(id, args, this, this);
+		mTaskQueue.cancel(token);
+		mTaskQueue.submit(token, args, this, this);
 	}
 
-	public void submitSync(int taskId, Args args) {
+	public void submitSync(TaskQueue.Token token, Args args) {
 		try {
-			mTaskQueue.submitSync(taskId, args, this);
+			mTaskQueue.submitSync(token, args, this);
 			args.recycle();
 		} catch (Throwable e) {
 			Log.w(TAG, e);
@@ -103,7 +103,7 @@ public class RenderWorker implements TaskQueue.Task<RenderWorker.Args, Void>, Ta
 		return mStats;
 	}
 
-	private void render(int taskId, Paragraph paragraph, Args args) {
+	private void render(TaskQueue.Token token, Paragraph paragraph, Args args) {
 		if (args.width <= 0) {
 			return;
 		}
@@ -114,7 +114,7 @@ public class RenderWorker implements TaskQueue.Task<RenderWorker.Args, Void>, Ta
 			ts = SystemClock.elapsedRealtime();
 		}
 
-		render0(taskId, paragraph, args);
+		render0(token.getId(), paragraph, args);
 
 		if (mStats != null) {
 			mStats.drawUsageMs += SystemClock.elapsedRealtime() - ts;
@@ -214,43 +214,42 @@ public class RenderWorker implements TaskQueue.Task<RenderWorker.Args, Void>, Ta
 	private final DrawVisitor mDrawVisitor = new DrawVisitor();
 
 	@Override
-	public Void run(int id, Args args) throws Throwable {
+	public Void run(TaskQueue.Token token, Args args) throws Throwable {
 		if (mStats != null) {
 			++mStats.handleCount;
 		}
 
 		if (args.width > 0) {
-			render(id, args.paragraph, args);
+			render(token, args.paragraph, args);
 		}
 		return null;
 	}
 
 	@Override
-	public void onStart(int id, Args args) {
+	public void onStart(TaskQueue.Token token, Args args) {
 		/* do nothing */
 	}
 
 	@Override
-	public void onSuccess(int id, Args args, Void ret) {
+	public void onSuccess(TaskQueue.Token token, Args args, Void ret) {
 		WorkerMessager.WorkerMessage message = WorkerMessager.WorkerMessage.obtain(TYPE_SUCCESS, args, ret);
-		mMessager.send(id, message);
+		mMessager.send(token, message);
 	}
 
 	@Override
-	public void onError(int id, Args args, Throwable throwable) {
+	public void onError(TaskQueue.Token token, Args args, Throwable throwable) {
 		Log.w(TAG, throwable);
 		WorkerMessager.WorkerMessage message = WorkerMessager.WorkerMessage.obtain(TYPE_ERROR, args, throwable);
-		mMessager.send(id, message);
+		mMessager.send(token, message);
 	}
 
-	public void cancel(int taskId) {
-		mTaskQueue.cancel(taskId);
+	public void cancel(TaskQueue.Token token) {
+		mTaskQueue.cancel(token);
 	}
 
 	private final static class DrawVisitor extends ParagraphVisitor {
 
 		private Canvas mCanvas;
-		private final DrawContext mDrawContext = new DrawContext();
 		private Line mLine;
 		private Args mArgs;
 		private boolean mIsInterrupted = false;
@@ -283,34 +282,12 @@ public class RenderWorker implements TaskQueue.Task<RenderWorker.Args, Void>, Ta
 
 		}
 
-		private Object lookup(boolean prev) {
-			int size = mLine.getCount();
-			int offset = prev ? -1 : 1;
-			int index = mCurrentBoxIndexInternal + offset;
-
-			while (index >= 0 && index < size) {
-				Element element = mLine.getElement(index);
-				index += offset;
-				if (element instanceof Box) {
-					return ((Box) element).getTag();
-				}
-			}
-
-			return null;
-		}
-
 		@Override
-		public void onVisitBox(Box box, RectF inner, RectF outer) {
-			mDrawContext.reset();
-			mDrawContext.setTag(box.getTag());
-
-			mDrawContext.setPrevTag(lookup(true));
-			mDrawContext.setNextTag(lookup(false));
-
+		public void onVisitBox(Box box, RectF inner, RectF outer, TypesetContext context) {
 			boolean isSelected = isBoxSelected(box);
 
 			// 先绘制背景
-			drawBackground(box, isSelected, inner, outer);
+			drawBackground(box, isSelected, inner, outer, context);
 
 			TextPaint workPaint = mArgs.mPaintSet.getWorkPaint();
 
@@ -335,14 +312,14 @@ public class RenderWorker implements TaskQueue.Task<RenderWorker.Args, Void>, Ta
 
 			drawContent(box, workPaint, inner, isSelected);
 
-			drawForeground(box, inner, outer);
+			drawForeground(box, inner, outer, context);
 		}
 
-		private void drawForeground(Box box, RectF inner, RectF outer) {
+		private void drawForeground(Box box, RectF inner, RectF outer, TypesetContext context) {
 			Appearance foreground = box.getForeground();
 			if (foreground != null) {
 				TextPaint workPaint = mArgs.mPaintSet.getWorkPaint();
-				foreground.draw(mCanvas, workPaint, inner, outer, mDrawContext);
+				foreground.draw(mCanvas, workPaint, inner, outer, context);
 			}
 		}
 
@@ -350,11 +327,11 @@ public class RenderWorker implements TaskQueue.Task<RenderWorker.Args, Void>, Ta
 			box.draw(mCanvas, workPaint, inner.left, inner.bottom - mLine.getBaselineOffset(), isSelected);
 		}
 
-		private void drawBackground(Box box, boolean isSelected, RectF inner, RectF outer) {
+		private void drawBackground(Box box, boolean isSelected, RectF inner, RectF outer, TypesetContext context) {
 			Appearance background = box.getBackground();
 			if (background != null && !isSelected) {
 				TextPaint workPaint = mArgs.mPaintSet.getWorkPaint();
-				background.draw(mCanvas, workPaint, inner, outer, mDrawContext);
+				background.draw(mCanvas, workPaint, inner, outer, context);
 			}
 		}
 
@@ -383,7 +360,6 @@ public class RenderWorker implements TaskQueue.Task<RenderWorker.Args, Void>, Ta
 	private final static class DebugDrawVisitor extends ParagraphVisitor {
 		private final Paint mDebugPaint;
 		private Canvas mCanvas;
-		private final int[] mLocation = new int[2];
 		private Args mArgs;
 		private static final int[] BACKGROUND = {
 				0x33ff0000,
@@ -394,6 +370,7 @@ public class RenderWorker implements TaskQueue.Task<RenderWorker.Args, Void>, Ta
 		private int mTaskId;
 
 		DebugDrawVisitor() {
+			super();
 			mDebugPaint = new Paint();
 			mDebugPaint.setColor(Color.GREEN);
 			mDebugPaint.setStyle(Paint.Style.STROKE);
@@ -436,7 +413,6 @@ public class RenderWorker implements TaskQueue.Task<RenderWorker.Args, Void>, Ta
 			workPaint.set(mDebugPaint);
 			workPaint.setColor(Color.RED);
 			workPaint.setStrokeWidth(10);
-			mArgs.renderer.getLocationOnScreen(mLocation);
 			int x = mArgs.width - 100;
 			if (mArgs.selection == null) {
 				return;
@@ -444,9 +420,9 @@ public class RenderWorker implements TaskQueue.Task<RenderWorker.Args, Void>, Ta
 			RectF first = mArgs.selection.getFirstRegion();
 			RectF last = mArgs.selection.getLastRegion();
 			mCanvas.drawLine(x,
-					first != null ? first.left : -1,
+					first != null ? first.top : -1,
 					x,
-					last != null ? last.right : -1,
+					last != null ? last.bottom : -1,
 					workPaint);
 		}
 
@@ -470,7 +446,7 @@ public class RenderWorker implements TaskQueue.Task<RenderWorker.Args, Void>, Ta
 		}
 
 		@Override
-		public void onVisitBox(Box box, RectF inner, RectF outer) {
+		public void onVisitBox(Box box, RectF inner, RectF outer, TypesetContext context) {
 			mDebugPaint.setColor(Color.GREEN);
 			mCanvas.drawRect(inner, mDebugPaint);
 		}

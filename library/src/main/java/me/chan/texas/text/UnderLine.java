@@ -3,7 +3,6 @@ package me.chan.texas.text;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.RectF;
-import android.text.TextPaint;
 
 /**
  * 下划线
@@ -50,11 +49,11 @@ public class UnderLine extends Appearance {
 	}
 
 	@Override
-	public void draw(Canvas canvas, TextPaint textPaint, RectF inner, RectF outer, DrawContext context) {
-		textPaint.setStyle(Paint.Style.FILL);
-		textPaint.setStrokeWidth(mWidth);
-		textPaint.setColor(mColor);
+	public void draw(Canvas canvas, Paint paint, RectF inner, RectF outer, TypesetContext context) {
+		paint.setStyle(Paint.Style.FILL);
+		paint.setStrokeWidth(mWidth);
+		paint.setColor(mColor);
 
-		canvas.drawLine(inner.left, inner.bottom, inner.right, inner.bottom, textPaint);
+		canvas.drawLine(inner.left, inner.bottom, inner.right, inner.bottom, paint);
 	}
 }

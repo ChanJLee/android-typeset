@@ -7,6 +7,7 @@ import androidx.annotation.RestrictTo;
 
 import me.chan.texas.misc.DefaultRecyclable;
 import me.chan.texas.misc.ObjectPool;
+import me.chan.texas.renderer.LoadingStrategy;
 import me.chan.texas.renderer.core.sync.WorkerMessager;
 import me.chan.texas.source.Source;
 import me.chan.texas.text.Paragraph;
@@ -25,7 +26,7 @@ public class ParseWorker implements TaskQueue.Task<ParseWorker.Args, Paragraph>,
 		mMessager = messager;
 		mMessager.addListener(new WorkerMessager.Listener() {
 			@Override
-			public boolean handleMessage(int id, WorkerMessager.WorkerMessage value) {
+			public boolean handleMessage(TaskQueue.Token token, WorkerMessager.WorkerMessage value) {
 				Args args = value.asArg(Args.class);
 				if (args == null) {
 					return false;
@@ -48,32 +49,36 @@ public class ParseWorker implements TaskQueue.Task<ParseWorker.Args, Paragraph>,
 		});
 	}
 
-	public <T> void submit(int id, Args args) {
-		mTaskQueue.submit(id, args, this, this);
+	public void submit(TaskQueue.Token token, Args args) {
+		mTaskQueue.submit(token, args, this, this);
+	}
+
+	public Paragraph submitSync(TaskQueue.Token token, Args args) throws Throwable {
+		return mTaskQueue.submitSync(token, args, this);
 	}
 
 	@Override
-	public void onStart(int id, Args args) {
+	public void onStart(TaskQueue.Token token, Args args) {
 		/* do nothing */
 	}
 
 	@Override
-	public void onSuccess(int id, Args args, Paragraph ret) {
+	public void onSuccess(TaskQueue.Token token, Args args, Paragraph ret) {
 		WorkerMessager.WorkerMessage message = WorkerMessager.WorkerMessage.obtain(TYPE_SUCCESS, args, ret);
-		mMessager.send(id, message);
+		mMessager.send(token, message);
 	}
 
 	@Override
-	public void onError(int id, Args args, Throwable throwable) {
+	public void onError(TaskQueue.Token token, Args args, Throwable throwable) {
 		Log.w("ParseWorker", throwable);
 		WorkerMessager.WorkerMessage message = WorkerMessager.WorkerMessage.obtain(TYPE_ERROR, args, throwable);
-		mMessager.send(id, message);
+		mMessager.send(token, message);
 	}
 
 	@Override
-	public Paragraph run(int id, Args args) throws Throwable {
+	public Paragraph run(TaskQueue.Token token, Args args) throws Throwable {
 		try {
-			return args.source.open();
+			return args.source.open(args.strategy);
 		} finally {
 			try {
 				args.source.close();
@@ -94,6 +99,8 @@ public class ParseWorker implements TaskQueue.Task<ParseWorker.Args, Paragraph>,
 		private Source<Paragraph> source;
 		private Listener listener;
 
+		private LoadingStrategy strategy;
+
 		private Args() {
 		}
 
@@ -105,11 +112,13 @@ public class ParseWorker implements TaskQueue.Task<ParseWorker.Args, Paragraph>,
 
 			listener = null;
 			source = null;
+			strategy = null;
 			super.recycle();
 			POOL.release(this);
 		}
 
 		public static Args obtain(@NonNull Source<Paragraph> source,
+								  LoadingStrategy strategy,
 								  @NonNull Listener listener) {
 			Args args = POOL.acquire();
 			if (args == null) {
@@ -117,6 +126,7 @@ public class ParseWorker implements TaskQueue.Task<ParseWorker.Args, Paragraph>,
 			}
 
 			args.source = source;
+			args.strategy = strategy;
 			args.listener = listener;
 			args.reuse();
 			return args;

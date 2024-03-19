@@ -21,6 +21,8 @@ public abstract class ViewSegment extends DefaultRecyclable implements Segment {
 	private Object mTag;
 	private Rect mRect;
 
+	private int mId;
+
 	/**
 	 * 用户自定义视图
 	 *
@@ -51,6 +53,7 @@ public abstract class ViewSegment extends DefaultRecyclable implements Segment {
 		mTag = tag;
 		mLayout = layout;
 		mIncremental = incremental;
+		mId = UUID.getAndIncrement();
 	}
 
 	@RestrictTo(LIBRARY)
@@ -118,5 +121,10 @@ public abstract class ViewSegment extends DefaultRecyclable implements Segment {
 	@Override
 	public Rect getRect() {
 		return mRect;
+	}
+
+	@Override
+	public final int getId() {
+		return mId;
 	}
 }

@@ -67,15 +67,15 @@ public class ParagraphViewDemoActivity extends AppCompatActivity {
 		}
 
 		@Override
-		protected Paragraph open(TexasOption option) {
+		protected Paragraph onOpen(TexasOption option) {
 			return Paragraph.Builder.newBuilder(option)
 					.text(mText)
 					.build();
 		}
 
 		@Override
-		public void close() throws SourceCloseException {
-			/* do nothing */
+		protected void onClose() throws SourceCloseException {
+
 		}
 	}
 

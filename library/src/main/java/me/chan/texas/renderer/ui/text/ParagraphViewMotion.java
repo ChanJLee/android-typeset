@@ -12,6 +12,7 @@ import me.chan.texas.renderer.ParagraphVisitor;
 import me.chan.texas.renderer.RenderOption;
 import me.chan.texas.renderer.ui.decor.ParagraphDecor;
 import me.chan.texas.text.Paragraph;
+import me.chan.texas.text.TypesetContext;
 import me.chan.texas.text.layout.Box;
 import me.chan.texas.text.layout.Layout;
 import me.chan.texas.text.layout.Line;
@@ -21,7 +22,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-public class ParagraphViewMotion implements GestureDetector.OnGestureListener {
+public class ParagraphViewMotion {
 	private Paragraph mParagraph;
 	private GestureDetector mGestureDetector = null;
 
@@ -32,6 +33,8 @@ public class ParagraphViewMotion implements GestureDetector.OnGestureListener {
 	@Nullable
 	private ParagraphDecor mParagraphDecor;
 	private final View mView;
+
+	private EventListener mEventListener;
 
 	public ParagraphViewMotion(Context context, View view) {
 		mContext = context;
@@ -63,74 +66,56 @@ public class ParagraphViewMotion implements GestureDetector.OnGestureListener {
 		}
 
 		if (mGestureDetector == null) {
-			mGestureDetector = new GestureDetector(mContext, this);
+			mGestureDetector = new GestureDetector(mContext, mEventListener = new EventListener());
 		}
 		mGestureDetector.setIsLongpressEnabled(true);
+		mGestureDetector.setOnDoubleTapListener(mEventListener);
 		return mGestureDetector.onTouchEvent(event);
 	}
 
-	private boolean handleMotion(MotionEvent e, boolean isLongClicked) {
+	private boolean handleMotion(MotionEvent e, @OnSelectedChangedListener.EventType int eventType) {
 		if (mMode == MODE_BOX) {
-			return handleBoxModeMotion(e, isLongClicked);
+			return handleBoxModeMotion(e, eventType);
 		}
 
 		if (mMode == MODE_DECOR) {
-			return handleDecorModeMotion(e, isLongClicked);
+			return handleDecorModeMotion(e, eventType);
 		}
 
-		return false;
+		return handleEmptyModeMotion(e, eventType);
 	}
 
-	private boolean handleDecorModeMotion(MotionEvent e, boolean isLongClicked) {
-		if (mParagraphDecor == null || isLongClicked) {
+	private boolean handleEmptyModeMotion(MotionEvent e, int eventType) {
+		if (mOnTextSelectedListener == null) {
+			return false;
+		}
+
+		// 通知上层有元素被选中
+		return mOnTextSelectedListener.onSegmentClicked(e, mParagraph, eventType);
+	}
+
+	private boolean handleDecorModeMotion(MotionEvent e, @OnSelectedChangedListener.EventType int eventType) {
+		if (mParagraphDecor == null || eventType != OnSelectedChangedListener.EVENT_CLICKED) {
 			return false;
 		}
 
 		return mParagraphDecor.handleTouchEvent(e, mParagraph, mRenderOption, mView.getWidth(), mView.getHeight());
 	}
 
-	private boolean handleBoxModeMotion(MotionEvent e, boolean isLongClicked) {
+	private boolean handleBoxModeMotion(MotionEvent e, @OnSelectedChangedListener.EventType int eventType) {
 		if (mLastTouchBox == null || mOnTextSelectedListener == null) {
 			return false;
 		}
 
 		// 通知上层有元素被选中
-		return mOnTextSelectedListener.onBoxSelected(e, mParagraph, isLongClicked, mLastTouchBox);
-	}
-
-	@Override
-	public boolean onDown(MotionEvent e) {
-		mLastTouchBox = null;
-		mMode = 0;
-
-		if (mParagraph == null) {
-			return false;
-		}
-
-		Layout layout = mParagraph.getLayout();
-		if (layout.getLineCount() == 0) {
-			return false;
-		}
-
-		float x = e.getX();
-		float y = e.getY();
-		mLastTouchBox = checkIfClicked(x, y);
-		if (mLastTouchBox != null) {
-			mMode = MODE_BOX;
-			return true;
-		}
-
-		if (mParagraphDecor != null && mParagraphDecor.handleTouchEvent(e, mParagraph, mRenderOption, mView.getWidth(), mView.getHeight())) {
-			mMode = MODE_DECOR;
-			return true;
-		}
-
-		return false;
+		return mOnTextSelectedListener.onBoxSelected(e, mParagraph, eventType, mLastTouchBox);
 	}
 
 	private int mMode = 0;
 	private static final int MODE_BOX = 1;
 	private static final int MODE_DECOR = 2;
+
+	private static final int MODE_EMPTY = 3;
 
 	public Box checkIfClicked(float x, float y) {
 		mMotionEventVisitor.setMotionLocation(x, y);
@@ -148,32 +133,6 @@ public class ParagraphViewMotion implements GestureDetector.OnGestureListener {
 
 	public Paragraph getParagraph() {
 		return mParagraph;
-	}
-
-	@Override
-	public void onShowPress(MotionEvent e) {
-		/* do nothing */
-	}
-
-	@Override
-	public boolean onSingleTapUp(MotionEvent e) {
-		return handleMotion(e, false);
-	}
-
-	@Override
-	public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
-		return false;
-	}
-
-	@Override
-	public void onLongPress(MotionEvent e) {
-		handleMotion(e, true);
-	}
-
-	@Override
-	public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-		/* do nothing */
-		return false;
 	}
 
 	private final MotionEventVisitor mMotionEventVisitor = new MotionEventVisitor();
@@ -234,7 +193,7 @@ public class ParagraphViewMotion implements GestureDetector.OnGestureListener {
 		}
 
 		@Override
-		public void onVisitBox(Box box, RectF inner, RectF outer) {
+		public void onVisitBox(Box box, RectF inner, RectF outer, TypesetContext context) {
 			// 增大点击热区
 			if (outer.left <= mX &&
 					outer.right >= mX) {
@@ -254,5 +213,82 @@ public class ParagraphViewMotion implements GestureDetector.OnGestureListener {
 
 	private static void i(String msg) {
 		Log.i("TexasParaView", msg);
+	}
+
+	private class EventListener implements GestureDetector.OnGestureListener, GestureDetector.OnDoubleTapListener {
+		@Override
+		public boolean onDown(MotionEvent e) {
+			// todo predicate 没有选中任何人，以empty计算
+			mLastTouchBox = null;
+			mMode = 0;
+
+			if (mParagraph == null) {
+				return false;
+			}
+
+			Layout layout = mParagraph.getLayout();
+			if (layout.getLineCount() == 0) {
+				return false;
+			}
+
+			float x = e.getX();
+			float y = e.getY();
+			mLastTouchBox = checkIfClicked(x, y);
+			if (mLastTouchBox != null) {
+				mMode = MODE_BOX;
+				return true;
+			}
+
+			if (mParagraphDecor != null && mParagraphDecor.handleTouchEvent(e, mParagraph, mRenderOption, mView.getWidth(), mView.getHeight())) {
+				mMode = MODE_DECOR;
+				return true;
+			}
+
+			mMode = MODE_EMPTY;
+			return true;
+		}
+
+
+		@Override
+		public void onShowPress(MotionEvent e) {
+			/* do nothing */
+		}
+
+		@Override
+		public boolean onSingleTapUp(MotionEvent e) {
+			return false;
+		}
+
+		@Override
+		public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+			return false;
+		}
+
+		@Override
+		public void onLongPress(MotionEvent e) {
+			handleMotion(e, OnSelectedChangedListener.EVENT_LONG_CLICKED);
+		}
+
+		@Override
+		public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+			/* do nothing */
+			return false;
+		}
+
+		@Override
+		public boolean onSingleTapConfirmed(MotionEvent e) {
+			return handleMotion(e, OnSelectedChangedListener.EVENT_CLICKED);
+		}
+
+		@Override
+		public boolean onDoubleTap(MotionEvent e) {
+			mMode = MODE_EMPTY;
+			return handleMotion(e, OnSelectedChangedListener.EVENT_DOUBLE_CLICKED);
+		}
+
+		@Override
+		public boolean onDoubleTapEvent(MotionEvent e) {
+			return true;
+		}
 	}
 }

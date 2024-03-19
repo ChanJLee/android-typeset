@@ -1,5 +1,7 @@
 package me.chan.texas.typesetter.tex;
 
+import static me.chan.texas.Texas.INFINITY;
+
 import android.os.Build;
 import android.util.Log;
 
@@ -20,7 +22,6 @@ import me.chan.texas.typesetter.AbsParagraphTypesetter;
 import me.chan.texas.typesetter.utils.ElementStream;
 import me.chan.texas.utils.IntArray;
 import me.chan.texas.utils.IntStack;
-import me.chan.texas.Texas;
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class TexParagraphTypesetter extends AbsParagraphTypesetter {
@@ -136,7 +137,7 @@ public class TexParagraphTypesetter extends AbsParagraphTypesetter {
 
 				context.total.increase((Glue) element);
 			} else if (element instanceof Penalty &&
-					((Penalty) element).getPenalty() != Texas.INFINITY) {
+					((Penalty) element).getPenalty() != INFINITY) {
 				typesetLines(context, element, save);
 			}
 		}
@@ -167,7 +168,7 @@ public class TexParagraphTypesetter extends AbsParagraphTypesetter {
 
 				int save = stream.state();
 				Element element = stream.next();
-				if (element instanceof Box || (element instanceof Penalty && ((Penalty) element).getPenalty() == -Texas.INFINITY)) {
+				if (element instanceof Box || (element instanceof Penalty && ((Penalty) element).getPenalty() == -INFINITY)) {
 					stream.restore(save);
 					break;
 				}
@@ -275,7 +276,7 @@ public class TexParagraphTypesetter extends AbsParagraphTypesetter {
 			// 如果当前node对于当前元素压缩的太多了，那么就移除当前节点
 			// 或者当前节点就是一个强制断点
 			if (ratio < context.args.minTolerance || (element instanceof Penalty &&
-					((Penalty) element).getPenalty() == -Texas.INFINITY)) {
+					((Penalty) element).getPenalty() == -INFINITY)) {
 				context.actives.remove(active);
 			}
 
@@ -385,10 +386,10 @@ public class TexParagraphTypesetter extends AbsParagraphTypesetter {
 		// 同理则需要收缩
 		if (width < lineWidth) {
 			float stretch = context.total.getStretch() - node.totals.getStretch();
-			return stretch > 0 ? (lineWidth - width) / stretch : Texas.INFINITY;
+			return stretch > 0 ? (lineWidth - width) / stretch : INFINITY;
 		} else if (width > lineWidth) {
 			float shrink = context.total.getShrink() - node.totals.getShrink();
-			return shrink > 0 ? (lineWidth - width) / shrink : Texas.INFINITY;
+			return shrink > 0 ? (lineWidth - width) / shrink : INFINITY;
 		}
 
 		return 0;
@@ -439,7 +440,7 @@ public class TexParagraphTypesetter extends AbsParagraphTypesetter {
 				);
 			}
 
-			if (penalty.getPenalty() != -Texas.INFINITY) {
+			if (penalty.getPenalty() != -INFINITY) {
 				return (float) (
 						Math.pow(context.args.demeritsLine + badness, 2) -
 								Math.pow(((Penalty) element).getPenalty(), 2)
@@ -470,7 +471,7 @@ public class TexParagraphTypesetter extends AbsParagraphTypesetter {
 					after.increase(glue);
 				} else if (element instanceof Box ||
 						(element instanceof Penalty &&
-								((Penalty) element).getPenalty() == -Texas.INFINITY)) {
+								((Penalty) element).getPenalty() == -INFINITY)) {
 					break;
 				}
 			}

@@ -11,7 +11,6 @@ import me.chan.texas.measurer.MockMeasurer;
 import me.chan.texas.misc.PaintSet;
 import me.chan.texas.renderer.ParagraphVisitor;
 import me.chan.texas.renderer.RenderOption;
-import me.chan.texas.source.CacheSource;
 import me.chan.texas.source.FileTextSource;
 import me.chan.texas.source.SourceOpenException;
 import me.chan.texas.test.mock.MockTextPaint;
@@ -150,7 +149,7 @@ public class TypesetEngineUnitTest {
 		if (reload) {
 			mTypesetEngine.reload(renderOption);
 		} else {
-			mTypesetEngine.typeset(width);
+			mTypesetEngine.resize(width, document);
 		}
 		countDownLatch.await();
 

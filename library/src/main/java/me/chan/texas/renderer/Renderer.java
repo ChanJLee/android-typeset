@@ -18,7 +18,10 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.recyclerview.widget.RecyclerView;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 
+import me.chan.texas.BuildConfig;
 import me.chan.texas.R;
 import me.chan.texas.image.ImageLoader;
 import me.chan.texas.misc.PaintSet;
@@ -28,22 +31,21 @@ import me.chan.texas.renderer.highlight.HighlightManager;
 import me.chan.texas.renderer.highlight.ParagraphHighlight;
 import me.chan.texas.renderer.selection.Selection;
 import me.chan.texas.renderer.selection.SelectionManager;
-import me.chan.texas.renderer.ui.TexasAdapter;
+import me.chan.texas.renderer.ui.RendererAdapter;
 import me.chan.texas.renderer.ui.decor.ParagraphDecor;
 import me.chan.texas.renderer.ui.rv.SegmentItemDecoration;
 import me.chan.texas.renderer.ui.rv.TexasLinearLayoutManager;
 import me.chan.texas.renderer.ui.rv.TexasRecyclerView;
 import me.chan.texas.text.Document;
 import me.chan.texas.utils.TexasUtils;
-
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
+import me.chan.texas.utils.concurrency.TaskQueue;
 
 /**
  * 协调各个组件一起工作
  */
 @RestrictTo(LIBRARY)
 public class Renderer implements SelectionManager.Listener {
+	private final TaskQueue.Token mToken;
 
 	/**
 	 * 显示参数
@@ -61,7 +63,7 @@ public class Renderer implements SelectionManager.Listener {
 	/**
 	 * 数据子系统
 	 */
-	private final TexasAdapter mAdapter;
+	private final RendererAdapter mAdapter;
 	/**
 	 * 视图显示窗口
 	 */
@@ -91,7 +93,25 @@ public class Renderer implements SelectionManager.Listener {
 		}
 	};
 
-	public Renderer(final TexasView texasView, RenderOption renderOption) {
+	private TypesetEngine.Listener mListener = new TypesetEngine.Listener() {
+		@Override
+		public void onStart(LoadingStrategy strategy) {
+			mTexasView.notifyRenderStart(strategy);
+		}
+
+		@Override
+		public void onFailure(LoadingStrategy strategy, Throwable throwable) {
+			mTexasView.notifyRenderError(strategy, throwable);
+		}
+
+		@Override
+		public void onSuccess(LoadingStrategy strategy, PaintSet paintSet, Document doc, int start, int end) {
+			render(strategy, paintSet, doc, start, end);
+		}
+	};
+
+	public Renderer(final TexasView texasView, RenderOption renderOption, TaskQueue.Token token) {
+		mToken = token;
 		mTexasView = texasView;
 		mRenderOption = renderOption;
 
@@ -101,19 +121,14 @@ public class Renderer implements SelectionManager.Listener {
 		LayoutInflater layoutInflater = LayoutInflater.from(context);
 
 		// core
-		mTypesetEngine = new TypesetEngine(this, mRenderOption);
+		mTypesetEngine = new TypesetEngine(mRenderOption, mToken);
 
 		// rv
 		mLinearLayoutManager = new TexasLinearLayoutManager(context);
-		mImpl = new TexasRecyclerView(new ContextThemeWrapper(context, R.style.com_shanbay_lib_texas_TexasRecyclerView), mLinearLayoutManager);
+		mImpl = new TexasRecyclerView(new ContextThemeWrapper(context, R.style.me_chan_texas_TexasRecyclerView), mLinearLayoutManager);
 		mImpl.setClipToPadding(false);
 		mImpl.setClipChildren(false);
-		mImpl.setOnClickedListener(new TexasRecyclerView.OnClickedListener() {
-			@Override
-			public void onClicked(float x, float y) {
-				mTexasView.notifyEmptyClicked(x, y);
-			}
-		});
+		mImpl.setOnClickedListener((x, y) -> mTexasView.notifyEmptyClicked(x, y));
 		mImpl.setLayoutManager(mLinearLayoutManager);
 		texasView.addView(mImpl,
 				new TexasView.LayoutParams(
@@ -122,7 +137,29 @@ public class Renderer implements SelectionManager.Listener {
 		);
 		mImpl.addOnScrollListener(mOnScrollListener);
 
-		mAdapter = new TexasAdapter(layoutInflater, imageLoader, mImpl.getRecycledViewPool(), mImpl);
+		mAdapter = new RendererAdapter(layoutInflater, imageLoader, mImpl.getRecycledViewPool(), mImpl);
+		mAdapter.setHasStableIds(true);
+		mAdapter.setListener(new RendererAdapter.Listener() {
+			@Override
+			public void onSegmentClicked(float x, float y, Object tag) {
+				mTexasView.notifySegmentClicked(x, y, tag);
+			}
+
+			@Override
+			public void onSegmentDoubleClicked(float x, float y, Object tag) {
+				mTexasView.notifySegmentDoubleClicked(x, y, tag);
+			}
+
+			@Override
+			public void onLoadingMore(int count) {
+				mTexasView.scheduleLoadMore();
+			}
+
+			@Override
+			public void onLoadingPrevious() {
+				mTexasView.scheduleLoadPrevious();
+			}
+		});
 		mImpl.addItemDecoration(new SegmentItemDecoration(mAdapter));
 
 		// selection
@@ -133,74 +170,43 @@ public class Renderer implements SelectionManager.Listener {
 		mHighlightManager = new HighlightManager(mAdapter);
 		mAdapter.setHighlightManager(mHighlightManager);
 
-		mAdapter.setListener(new TexasAdapter.Listener() {
-			@Override
-			public void onSegmentClicked(float x, float y, Object tag) {
-				mTexasView.notifySegmentClicked(x, y, tag);
-			}
-		});
-
 		// adapter
 		mImpl.setAdapter(mAdapter);
 	}
 
-	public void start() {
-		onStart();
-		mTexasView.notifyRenderStart();
-	}
+	/**
+	 * @param width 期望的宽度，如果是负值，那么就忽略排版，只会解析
+	 */
+	public void load(String reason, int width, LoadingStrategy strategy) {
+		d("load, reason: " + reason);
 
-	protected void onStart() {
-		d("on start");
-		mHighlightManager.clear();
-		mSelectionManager.clear();
-		mAdapter.clear();
-	}
-
-	public void render(@NonNull Document document, PaintSet paintSet) {
 		if (mTypesetEngine == null) {
 			w("render, core is null");
 			return;
 		}
 
-		onRenderer(
-				document,
-				paintSet,
-				mRenderOption
-		);
-		mTexasView.notifyRenderEnd();
+		mTypesetEngine.load(reason, width, strategy, mTexasView.getAdapter(), mListener);
 	}
 
-	protected void onRenderer(Document document,
-							  PaintSet paintSet,
-							  RenderOption renderOption) {
-		if (document == null) {
-			/* do nothing */
-			return;
+	public void typeset(String reason, int width, LoadingStrategy strategy) {
+		if (BuildConfig.DEBUG) {
+			Log.d("TexasRenderer", "typeset, reason: " + reason);
 		}
 
-		mHighlightManager.clear();
-		mSelectionManager.clear();
-		mAdapter.render(
-				document,
-				paintSet,
-				renderOption
-		);
+		// 重新排版会将之前的解析任务都失效
+		mTypesetEngine.resize(reason, width, strategy, mListener);
+	}
 
-		int index = document.getFocusSegmentSegmentIndex();
-		d("render scroll to: " + index);
-		if (index >= 0 && index < document.getSegmentCount()) {
-			mImpl.scrollToPosition(index, false, document.getFocusSegmentOffset());
+	private void render(LoadingStrategy strategy, PaintSet paintSet, Document document, int start, int end) {
+		if (strategy != LoadingStrategy.LOAD_PREVIOUS &&
+				strategy != LoadingStrategy.LOAD_MORE) {
+			clearHighlight();
+			clearSelection();
 		}
-	}
 
-	public void error(Throwable throwable) {
-		w(throwable);
-		onError(throwable);
-		mTexasView.notifyRenderError(throwable);
-	}
+		mAdapter.render(strategy, paintSet, document, start, end, mRenderOption);
 
-	protected void onError(Throwable throwable) {
-		Log.w("SlidingTexasRenderer", throwable);
+		mTexasView.notifyRenderEnd(strategy);
 	}
 
 	@CallSuper
@@ -222,12 +228,12 @@ public class Renderer implements SelectionManager.Listener {
 	public void refresh(RenderOption renderOption) {
 		if (mTypesetEngine == null) {
 			// fix https://bugly.qq.com/v2/crash-reporting/crashes/900021510/404021/report?pid=1&search=texas&searchType=detail&bundleId=&channelId=&version=all&tagList=&start=0&date=all
-			w("refresh, core is null");
+			w("ignore refresh, typeset engine is null");
 			return;
 		}
 
-		d("refresh");
-		boolean needReload = TexasUtils.diff(mRenderOption, renderOption);
+		int cmpType = TexasUtils.cmp(mRenderOption, renderOption);
+		d("refresh, cmp type: " + TexasUtils.cmpType2String(cmpType));
 
 		RenderOption prev = mRenderOption;
 		mRenderOption = renderOption;
@@ -235,11 +241,19 @@ public class Renderer implements SelectionManager.Listener {
 		mSelectionManager.updateRenderOption(mRenderOption);
 		mTypesetEngine.updateRenderOption(mRenderOption);
 
-		// 如果需要排版那么需要通知底层重新排版
-		if (needReload) {
-			d("refresh, but need to reload");
-			mTypesetEngine.reload(prev);
+		if (cmpType == TexasUtils.CmpType.CMP_LOAD) {
+			d("render option changed, load");
+			load("render option changed", mTypesetEngine.getWidth(), LoadingStrategy.LOAD);
 			return;
+		} else if (cmpType == TexasUtils.CmpType.CMP_TYPESET) {
+			d("render option changed, typeset");
+			mTypesetEngine.resize("Renderer.refresh", LoadingStrategy.TYPESET_ONLY, mListener);
+			return;
+		}
+
+		d("render option changed, redraw");
+		if (cmpType != TexasUtils.CmpType.CMP_DRAW) {
+			throw new IllegalStateException("unknown cmp type: " + cmpType);
 		}
 
 		// compat mode 改变了 只需要重新加载
@@ -249,27 +263,6 @@ public class Renderer implements SelectionManager.Listener {
 		}
 
 		redrawInternal();
-	}
-
-	/**
-	 * @param width 期望的宽度
-	 */
-	public void render(int width) {
-		if (mTypesetEngine == null) {
-			w("render, core is null");
-			return;
-		}
-
-		mTypesetEngine.typeset(width);
-	}
-
-	public void setAdapter(TexasView.Adapter<?> adapter) {
-		if (mTypesetEngine == null) {
-			w("set parser, core is null");
-			return;
-		}
-
-		mTypesetEngine.setAdapter(adapter);
 	}
 
 	@Nullable
@@ -454,9 +447,12 @@ public class Renderer implements SelectionManager.Listener {
 	}
 
 	public void setSegmentDecoration(TexasView.SegmentDecoration segmentDecoration) {
-		if (mTypesetEngine != null) {
-			mTypesetEngine.setSegmentDecoration(segmentDecoration);
+		if (mTypesetEngine == null) {
+			return;
 		}
+
+		mTypesetEngine.setSegmentDecoration(segmentDecoration);
+		mTypesetEngine.resize("Renderer.setSegmentDecoration", LoadingStrategy.TYPESET_ONLY, mListener);
 	}
 
 	private static void d(String msg) {
@@ -538,7 +534,25 @@ public class Renderer implements SelectionManager.Listener {
 		mTexasView.notifyDragDismiss();
 	}
 
+	@Override
+	public void onSegmentDoubleClicked(Object paragraphTag, float x, float y) {
+		mTexasView.notifySegmentDoubleClicked(x, y, paragraphTag);
+	}
+
+	@Override
+	public void onSegmentClicked(Object paragraphTag, float rawX, float rawY) {
+		mTexasView.notifySegmentClicked(rawX, rawY, paragraphTag);
+	}
+
 	public void setHasFixedSize(boolean enable) {
 		mImpl.setHasFixedSize(enable);
+	}
+
+	public int getWidth() {
+		return mTypesetEngine == null ? 0 : mTypesetEngine.getWidth();
+	}
+
+	public boolean hasContent() {
+		return mAdapter != null && mAdapter.getItemCount() > 0;
 	}
 }

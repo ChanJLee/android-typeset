@@ -8,6 +8,7 @@ import me.chan.texas.renderer.ParagraphVisitor;
 import me.chan.texas.renderer.TexasView;
 import me.chan.texas.renderer.highlight.ParagraphHighlight;
 import me.chan.texas.text.Paragraph;
+import me.chan.texas.text.TypesetContext;
 import me.chan.texas.text.layout.Box;
 import me.chan.texas.text.layout.Line;
 import me.chan.texas.text.layout.TextBox;
@@ -40,7 +41,7 @@ public class HighlightParagraphVisitor extends ParagraphVisitor {
 	}
 
 	@Override
-	protected void onVisitBox(Box box, RectF inner, RectF outer) {
+	protected void onVisitBox(Box box, RectF inner, RectF outer, TypesetContext context) {
 		if (!(box instanceof TextBox)) {
 			return;
 		}

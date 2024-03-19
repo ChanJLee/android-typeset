@@ -1,6 +1,7 @@
 package me.chan.androidtex;
 
 import android.app.Application;
+import android.graphics.Typeface;
 
 import me.chan.texas.Texas;
 
@@ -14,5 +15,7 @@ public class MyApplication extends Application {
 				.setLineBufferSize(4096)
 				.setParagraphBufferSize(4096);
 		Texas.init(this, memoryOption);
+		Texas.setTDMSEnable(true);
+		Texas.setDefaultTypeface(Typeface.createFromAsset(getAssets(), "opposans_r.ttf"));
 	}
 }

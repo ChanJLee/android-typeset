@@ -1,8 +1,8 @@
 package me.chan.texas.text;
 
 import android.graphics.Canvas;
+import android.graphics.Paint;
 import android.graphics.RectF;
-import android.text.TextPaint;
 
 import androidx.annotation.AnyThread;
 
@@ -20,11 +20,11 @@ public abstract class Appearance {
 	 * </pre>
 	 * * @param canvas    canvas
 	 *
-	 * @param textPaint paint
-	 * @param inner     包裹整个文字的矩形
-	 * @param outer     包裹整个文字以及水平方向间隙的矩形
-	 * @param context   绘制上下文，可以知道当前绘制单元前后位置
+	 * @param paint   paint
+	 * @param inner   包裹整个文字的矩形
+	 * @param outer   包裹整个文字以及水平方向间隙的矩形
+	 * @param context 绘制上下文，可以知道当前绘制单元前后位置
 	 */
 	@AnyThread
-	public abstract void draw(Canvas canvas, TextPaint textPaint, RectF inner, RectF outer, DrawContext context);
+	public abstract void draw(Canvas canvas, Paint paint, RectF inner, RectF outer, TypesetContext context);
 }
