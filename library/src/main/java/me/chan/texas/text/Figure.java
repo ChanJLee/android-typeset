@@ -25,6 +25,7 @@ public final class Figure extends DefaultRecyclable implements Segment {
 	private Object mTag;
 
 	private Rect mRect;
+	private int mId;
 
 	private Figure(String url, float width, float height, Object tag) {
 		mTag = tag;
@@ -66,6 +67,11 @@ public final class Figure extends DefaultRecyclable implements Segment {
 		POOL.release(this);
 	}
 
+	@Override
+	public int getId() {
+		return mId;
+	}
+
 	public static Figure obtain(String url, float width, float height) {
 		return obtain(url, width, height, null);
 	}
@@ -80,6 +86,7 @@ public final class Figure extends DefaultRecyclable implements Segment {
 		figure.mWidth = width;
 		figure.mHeight = height;
 		figure.mTag = tag;
+		figure.mId = Segment.UUID.getAndIncrement();
 		figure.reuse();
 		return figure;
 	}

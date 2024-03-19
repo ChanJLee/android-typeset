@@ -46,6 +46,8 @@ public final class Paragraph extends DefaultRecyclable implements Segment {
 	public @interface TypesetPolicy {
 	}
 
+	int mId;
+
 	@Nullable
 	@Override
 	public Object getTag() {
@@ -95,6 +97,11 @@ public final class Paragraph extends DefaultRecyclable implements Segment {
 		mElements.clear();
 		mTag = null;
 		POOL.release(this);
+	}
+
+	@Override
+	public int getId() {
+		return mId;
 	}
 
 	@RestrictTo(LIBRARY)

@@ -234,7 +234,7 @@ public class RendererAdapter extends RecyclerView.Adapter<RendererAdapter.Render
 
 	@Override
 	public long getItemId(int position) {
-		return position;
+		return getItem(position).getId();
 	}
 
 	@SuppressLint("NotifyDataSetChanged")
