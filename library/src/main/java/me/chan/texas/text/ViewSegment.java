@@ -88,6 +88,7 @@ public abstract class ViewSegment extends DefaultRecyclable implements Segment {
 		mRect = null;
 		mIncremental = false;
 		mLayout = 0;
+		mId = 0;
 	}
 
 	@Override

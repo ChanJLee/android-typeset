@@ -59,6 +59,7 @@ public final class Figure extends DefaultRecyclable implements Segment {
 			return;
 		}
 
+		mId = 0;
 		mWidth = mHeight = 0;
 		mUrl = null;
 		mTag = null;
