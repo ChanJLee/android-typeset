@@ -3,8 +3,8 @@ package me.chan.texas.text.layout;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
 import android.graphics.Canvas;
+import android.graphics.Paint;
 import android.os.Build;
-import android.text.TextPaint;
 import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
@@ -13,12 +13,12 @@ import androidx.annotation.VisibleForTesting;
 
 import me.chan.texas.Texas;
 import me.chan.texas.annotations.Internal;
-import me.chan.texas.utils.CharArrayPool;
 import me.chan.texas.measurer.Measurer;
 import me.chan.texas.misc.ObjectPool;
 import me.chan.texas.text.Appearance;
 import me.chan.texas.text.TextAttribute;
 import me.chan.texas.text.TextStyle;
+import me.chan.texas.utils.CharArrayPool;
 
 /**
  * 文本元素
@@ -221,7 +221,7 @@ public final class TextBox extends Box {
 	}
 
 	@Override
-	public void draw(Canvas canvas, TextPaint paint, float x, float y, boolean isSelected) {
+	public void draw(Canvas canvas, Paint paint, float x, float y, boolean isSelected) {
 		if (mAttribute != ATTRIBUTE_NONE) {
 			if (hasAttribute(ATTRIBUTE_ZOOM_OUT)) {
 				paint.setTextSize(paint.getTextSize() * ZOOM_OUT_FACTOR);

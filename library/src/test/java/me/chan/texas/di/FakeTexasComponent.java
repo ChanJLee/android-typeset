@@ -5,7 +5,7 @@ import me.chan.texas.concurrency.Messager;
 import dagger.BindsInstance;
 import dagger.Component;
 
-@Component(modules = {SubModule.class, FakeConcurrencyModule.class})
+@Component(modules = {SubModule.class, FakeConcurrencyModule.class, FakePlatformModule.class})
 public interface FakeTexasComponent extends TexasComponent {
 
 	@Component.Factory
