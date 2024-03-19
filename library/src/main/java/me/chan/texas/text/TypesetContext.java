@@ -47,22 +47,30 @@ public class TypesetContext {
 	 * 行首
 	 */
 	public static final int LOCATION_LINE_START = 1;
+
 	/**
 	 * 行尾
 	 */
 	public static final int LOCATION_LINE_END = 2;
+
 	/**
 	 * 行中
 	 */
 	public static final int LOCATION_LINE_MIDDLE = 4;
 
-	@RestrictTo(RestrictTo.Scope.LIBRARY)
+	/**
+	 * 段首
+	 */
 	public static final int LOCATION_PARAGRAPH_START = 8;
 
-	@RestrictTo(RestrictTo.Scope.LIBRARY)
+	/**
+	 * 段尾
+	 */
 	public static final int LOCATION_PARAGRAPH_END = 16;
 
-	@RestrictTo(RestrictTo.Scope.LIBRARY)
+	/**
+	 * 段中
+	 */
 	public static final int LOCATION_PARAGRAPH_MIDDLE = 32;
 
 	public void clear() {
