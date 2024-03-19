@@ -112,6 +112,42 @@ public final class TextBox extends Box {
 		mBaselineOffset = other.mBaselineOffset;
 	}
 
+	// todo fix unit test
+	public boolean append(@NonNull TextBox box) {
+		if (this.mText != box.mText ||
+				this.mEnd != box.mStart) {
+			return false;
+		}
+
+		this.mEnd = box.mEnd;
+		this.mHeight = Math.max(this.mHeight, box.mHeight);
+		this.mWidth += box.mWidth;
+		return true;
+	}
+
+	/**
+	 * @param penalty 累加另外一个元素的文本值
+	 */
+	public void append(Penalty penalty) {
+		// check tag ?
+		if (isPenalty()) {
+			throw new IllegalStateException("set text box penalty twice");
+		}
+
+		if (penalty.getWidth() == 0) {
+			return;
+		}
+
+		addAttribute(ATTRIBUTE_PENALTY);
+		mWidth += penalty.getWidth();
+		mHeight = Math.max(mHeight, penalty.getHeight());
+
+		// todo None copy
+		mText = mText.subSequence(mStart, mEnd) + "-";
+		mStart = 0;
+		mEnd = mText.length();
+	}
+
 	public TextStyle getTextStyle() {
 		return mTextStyle;
 	}
@@ -296,13 +332,13 @@ public final class TextBox extends Box {
 		spec.recycle();
 	}
 
-	public static TextBox obtain(TextBox rhs) {
+	public static TextBox obtain(TextBox raw) {
 		TextBox box = POOL.acquire();
 		if (box == null) {
 			box = new TextBox(0, 0);
 		}
 		box.reuse();
-		box.copy(rhs);
+		box.copy(raw);
 		return box;
 	}
 

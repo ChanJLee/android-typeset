@@ -9,6 +9,9 @@ import android.graphics.Rect;
 import android.graphics.drawable.ColorDrawable;
 import android.util.Log;
 
+import com.shanbay.lib.texas.test.mock.MockTextAttribute;
+import com.shanbay.lib.texas.test.mock.MockTextPaint;
+
 import me.chan.texas.TexasOption;
 import me.chan.texas.adapter.ParseException;
 import me.chan.texas.adapter.TextAdapter;
@@ -16,11 +19,10 @@ import me.chan.texas.hyphenation.Hyphenation;
 import me.chan.texas.measurer.Measurer;
 import me.chan.texas.measurer.MockMeasurer;
 import me.chan.texas.renderer.core.WorkerScheduler;
+import me.chan.texas.renderer.core.worker.LoadingWorker;
 import me.chan.texas.source.ObjectSource;
 import me.chan.texas.source.SourceCloseException;
 import me.chan.texas.source.SourceOpenException;
-import me.chan.texas.test.mock.MockTextAttribute;
-import me.chan.texas.test.mock.MockTextPaint;
 import me.chan.texas.text.layout.Box;
 import me.chan.texas.text.BreakStrategy;
 import me.chan.texas.text.Document;
@@ -54,6 +56,8 @@ import java.io.InputStreamReader;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.List;
 
 import opennlp.tools.tokenize.TokenizerModel;
 
@@ -259,9 +263,10 @@ public class TypesetterUnitTest {
 		ParagraphTypesetter texTypesetter = new ParagraphTypesetter();
 		TextAdapter textParser = new TextAdapter();
 		RenderOption renderOption = new RenderOption();
-		textParser.setSource(new ObjectSource<CharSequence>(text));
+		textParser.setSource(new ObjectSource<>(text));
 		TexasOption texasOption = new TexasOption(Hyphenation.getInstance(), mMockMeasurer, mMockTextAttribute, renderOption);
-		Document document = textParser.getDocument(texasOption);
+		LoadingWorker.LoadingResult result = textParser.getDocument(texasOption, LoadingStrategy.LOAD);
+		Document document = result.getDocument();
 		assertNotEquals(document.getSegmentCount(), 0);
 
 		StringBuilder stringBuilder = new StringBuilder();
@@ -466,7 +471,9 @@ public class TypesetterUnitTest {
 			builder.text(s[i], 0, s[i].length());
 			builder.emoticon(Emoticon.obtain(new ColorDrawable(10), drawableWidth, 20));
 		}
-		document.addSegment(builder.build());
+		List<Segment> list = new ArrayList<>();
+		list.add(builder.build());
+		document.insertTail(list);
 
 		ParagraphTypesetter typesetter = new ParagraphTypesetter();
 		for (int i = 0; i < document.getSegmentCount(); ++i) {

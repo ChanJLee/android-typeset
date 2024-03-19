@@ -2,28 +2,7 @@ package me.chan.texas.renderer.core;
 
 import android.graphics.RectF;
 
-import me.chan.texas.Texas;
-import me.chan.texas.adapter.TextAdapter;
-import me.chan.texas.concurrency.Messager;
-import me.chan.texas.di.DaggerFakeTexasComponent;
-import me.chan.texas.measurer.Measurer;
-import me.chan.texas.measurer.MockMeasurer;
-import me.chan.texas.misc.PaintSet;
-import me.chan.texas.renderer.ParagraphVisitor;
-import me.chan.texas.renderer.RenderOption;
-import me.chan.texas.source.FileTextSource;
-import me.chan.texas.source.SourceOpenException;
-import me.chan.texas.test.mock.MockTextPaint;
-import me.chan.texas.text.Document;
-import me.chan.texas.text.Paragraph;
-import me.chan.texas.text.Segment;
-import me.chan.texas.text.TextAttribute;
-import me.chan.texas.text.layout.Box;
-import me.chan.texas.text.layout.Element;
-import me.chan.texas.text.layout.Layout;
-import me.chan.texas.text.layout.Line;
-import me.chan.texas.text.layout.TextBox;
-import me.chan.texas.text.tokenizer.Tokenizer;
+import com.shanbay.lib.texas.test.mock.MockTextPaint;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -34,6 +13,27 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.concurrent.CountDownLatch;
 
+import me.chan.texas.Texas;
+import me.chan.texas.adapter.TextAdapter;
+import me.chan.texas.concurrency.Messager;
+import me.chan.texas.di.DaggerFakeTexasComponent;
+import me.chan.texas.measurer.MockMeasurer;
+import me.chan.texas.renderer.ParagraphVisitor;
+import me.chan.texas.renderer.RenderOption;
+import me.chan.texas.source.FileTextSource;
+import me.chan.texas.source.SourceOpenException;
+import me.chan.texas.text.Document;
+import me.chan.texas.text.Paragraph;
+import me.chan.texas.text.Segment;
+import me.chan.texas.text.TextAttribute;
+import me.chan.texas.text.TypesetContext;
+import me.chan.texas.text.layout.Box;
+import me.chan.texas.text.layout.Element;
+import me.chan.texas.text.layout.Layout;
+import me.chan.texas.text.layout.Line;
+import me.chan.texas.text.layout.TextBox;
+import me.chan.texas.text.tokenizer.Tokenizer;
+import me.chan.texas.utils.concurrency.TaskQueue;
 import opennlp.tools.tokenize.TokenizerModel;
 
 public class TypesetEngineUnitTest {
@@ -67,12 +67,7 @@ public class TypesetEngineUnitTest {
 		}));
 
 		final MockMeasurer mockMeasurer = new MockMeasurer(mMockTextPaint);
-		mTypesetEngine = new TypesetEngine(null, mRenderOption) {
-			@Override
-			protected Measurer createMeasure(PaintSet paintSet) {
-				return mockMeasurer;
-			}
-		};
+		mTypesetEngine = new TypesetEngine(mRenderOption, TaskQueue.Token.newInstance());
 	}
 
 	@Test
@@ -226,8 +221,8 @@ public class TypesetEngineUnitTest {
 
 		TestVisitor visitor = new TestVisitor() {
 			@Override
-			protected void onVisitBox(Box box, RectF inner, RectF outer) {
-				super.onVisitBox(box, inner, outer);
+			protected void onVisitBox(Box box, RectF inner, RectF outer, TypesetContext context) {
+				super.onVisitBox(box, inner, outer, context);
 				sendVisitSig(SIG_STOP_LINE_VISIT);
 			}
 		};
@@ -240,8 +235,8 @@ public class TypesetEngineUnitTest {
 
 		visitor = new TestVisitor() {
 			@Override
-			protected void onVisitBox(Box box, RectF inner, RectF outer) {
-				super.onVisitBox(box, inner, outer);
+			protected void onVisitBox(Box box, RectF inner, RectF outer, TypesetContext context) {
+				super.onVisitBox(box, inner, outer, context);
 				sendVisitSig(SIG_STOP_PARA_VISIT);
 			}
 		};
@@ -283,7 +278,7 @@ public class TypesetEngineUnitTest {
 		}
 
 		@Override
-		protected void onVisitBox(Box box, RectF inner, RectF outer) {
+		protected void onVisitBox(Box box, RectF inner, RectF outer, TypesetContext context) {
 			++boxCount;
 		}
 	}
