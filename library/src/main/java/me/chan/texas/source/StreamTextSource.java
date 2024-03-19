@@ -1,39 +1,46 @@
 package me.chan.texas.source;
 
+import androidx.annotation.Nullable;
+
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
-import me.chan.texas.BuildConfig;
 import me.chan.texas.renderer.LoadingStrategy;
 
 /**
  * 流式文本源
  */
 public class StreamTextSource extends Source<CharSequence> {
-	private static final int DEFAULT_BUFFER_SIZE = 4;
 
 	private BufferedReader mReader;
-	private final List<CharSequence> mCachedBuffer = new ArrayList<>();
+	@Nullable
+	private final List<CharSequence> mCachedBuffer;
 	private int mIndex = -1;
 
-	private final boolean mLazyLoad;
+	private int mLoadBufferSize = 1024;
 
 	public StreamTextSource(InputStream inputStream) {
-		this(inputStream, false);
+		this(inputStream, -1);
 	}
 
-	public StreamTextSource(InputStream inputStream, boolean lazyLoad) {
+	public StreamTextSource(InputStream inputStream, int lazyLoadBufferSize) {
 		mReader = new BufferedReader(new InputStreamReader(inputStream));
-		mLazyLoad = lazyLoad;
+		if (lazyLoadBufferSize > 0) {
+			mLoadBufferSize = lazyLoadBufferSize;
+			mCachedBuffer = new ArrayList<>(lazyLoadBufferSize);
+		} else {
+			mLoadBufferSize = Integer.MAX_VALUE;
+			mCachedBuffer = null;
+		}
 	}
 
 	@Override
 	protected CharSequence onOpen(LoadingStrategy strategy) throws SourceOpenException {
 		if (strategy == LoadingStrategy.LOAD_PREVIOUS) {
-			return mCachedBuffer.isEmpty() || mIndex - 1 >= 0 ? null : mCachedBuffer.get(--mIndex);
+			return mCachedBuffer == null || mCachedBuffer.isEmpty() || mIndex - 1 >= 0 ? null : mCachedBuffer.get(--mIndex);
 		} else if (strategy == LoadingStrategy.LOAD_MORE) {
 			/* noop */
 		} else if (strategy == LoadingStrategy.LOAD) {
@@ -42,11 +49,13 @@ public class StreamTextSource extends Source<CharSequence> {
 			throw new IllegalArgumentException("unknown load strategy");
 		}
 
-		if (mIndex > 0 && mIndex < mCachedBuffer.size()) {
+		if (mCachedBuffer != null && mIndex > 0 && mIndex < mCachedBuffer.size()) {
 			return mCachedBuffer.get(++mIndex);
 		}
 		CharSequence sequence = onOpen0();
-		mCachedBuffer.add(sequence);
+		if (mCachedBuffer != null) {
+			mCachedBuffer.add(sequence);
+		}
 		++mIndex;
 		return sequence;
 	}
@@ -55,7 +64,7 @@ public class StreamTextSource extends Source<CharSequence> {
 		StringBuilder stringBuilder = new StringBuilder();
 		try {
 			String line;
-			int bufferSize = mLazyLoad ? DEFAULT_BUFFER_SIZE : Integer.MAX_VALUE;
+			int bufferSize = mLoadBufferSize;
 			for (int i = 0; i < bufferSize && (line = mReader.readLine()) != null; ++i) {
 				stringBuilder.append(line)
 						.append("\n");
