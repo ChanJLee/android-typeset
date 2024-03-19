@@ -26,10 +26,6 @@ public class TypesetContext {
 	@Nullable
 	private Box mNextBox;
 
-	@RestrictTo(RestrictTo.Scope.LIBRARY)
-	@NonNull
-	public Line line;
-
 	/**
 	 * @return 获得当前元素的tag
 	 */
@@ -82,6 +78,11 @@ public class TypesetContext {
 
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
 	public static final int LOCATION_PARAGRAPH_MIDDLE = 32;
+
+	public void clear() {
+		mBox = mNextBox = mPrevBox = null;
+		mParagraphLocationAttribute = 0;
+	}
 
 	@IntDef({LOCATION_LINE_START, LOCATION_LINE_END, LOCATION_LINE_MIDDLE,
 			LOCATION_PARAGRAPH_START, LOCATION_PARAGRAPH_END, LOCATION_PARAGRAPH_MIDDLE})

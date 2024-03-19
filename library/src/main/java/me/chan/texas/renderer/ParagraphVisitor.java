@@ -24,9 +24,6 @@ public abstract class ParagraphVisitor {
 	private final RectF mOuterRect = new RectF();
 	private int mVisitSig = SIG_NORMAL;
 
-	@RestrictTo(RestrictTo.Scope.LIBRARY)
-	protected int mCurrentBoxIndexInternal;
-
 	/**
 	 * 正常模式
 	 */
@@ -46,32 +43,7 @@ public abstract class ParagraphVisitor {
 
 	}
 
-	@Nullable
-	private final TypesetContext mTypesetContext;
-
-	public ParagraphVisitor() {
-		this(false);
-	}
-
-	public ParagraphVisitor(boolean enableTypesetContext) {
-		mTypesetContext = enableTypesetContext ? new TypesetContext() : null;
-	}
-
-	private Box lookupBox(Line line, boolean prev) {
-		int size = line.getCount();
-		int offset = prev ? -1 : 1;
-		int index = mCurrentBoxIndexInternal + offset;
-
-		while (index >= 0 && index < size) {
-			Element element = line.getElement(index);
-			index += offset;
-			if (element instanceof Box) {
-				return (Box) element;
-			}
-		}
-
-		return null;
-	}
+	private final TypesetContext mTypesetContext = new TypesetContext();
 
 	public void visit(Paragraph paragraph, RenderOption renderOption) throws VisitException {
 		try {
@@ -84,11 +56,9 @@ public abstract class ParagraphVisitor {
 				Line line = layout.getLine(i);
 				y += line.getLineHeight();
 
-				if (mTypesetContext != null) {
-					mTypesetContext.line = line;
-					mTypesetContext.setParagraphLocationAttribute(TypesetContext.LOCATION_PARAGRAPH_START, i == 0);
-					mTypesetContext.setParagraphLocationAttribute(TypesetContext.LOCATION_PARAGRAPH_END, i == end - 1);
-				}
+				mTypesetContext.clear();
+				mTypesetContext.setParagraphLocationAttribute(TypesetContext.LOCATION_PARAGRAPH_START, i == 0);
+				mTypesetContext.setParagraphLocationAttribute(TypesetContext.LOCATION_PARAGRAPH_END, i == end - 1);
 
 				visitLine(line, x, y);
 
@@ -153,12 +123,7 @@ public abstract class ParagraphVisitor {
 			}
 			mOuterRect.right += (offset / 2);
 
-			mCurrentBoxIndexInternal = i;
-			if (mTypesetContext != null) {
-				Box prev = lookupBox(mTypesetContext.line, true);
-				Box next = lookupBox(mTypesetContext.line, false);
-				mTypesetContext.reset(prev, box, next);
-			}
+			mTypesetContext.reset((Box) leftElement, box, (Box) rightElement);
 			onVisitBox(box, mInnerRect, mOuterRect, mTypesetContext);
 			bottomX += width;
 		}
