@@ -74,64 +74,60 @@ public abstract class ParagraphVisitor {
 		}
 	}
 
+	// todo test 一开始有空格
 	private void visitLine(Line line, float bottomX, float bottomY) {
 		onVisitLineStart(line, bottomX, bottomY);
 
 		int size = line.getCount();
-		for (int i = 0; i < size && mVisitSig == SIG_NORMAL; ++i) {
-			Element element = line.getElement(i);
-			if (element instanceof Glue) {
-				bottomX += getAdjustGlueWidth(line, (Glue) element);
-				continue;
-			}
+		assignBoxMeta(line, 0, size, bottomX, bottomY, mTypesetContext.currentBoxMetaInfo);
 
-			Box box = (Box) element;
-			float width = box.getWidth();
+		if (mTypesetContext.currentBoxMetaInfo.isValid()) {
+			do {
+				mInnerRect.set(mTypesetContext.currentBoxMetaInfo.inner);
+				mOuterRect.set(mTypesetContext.currentBoxMetaInfo.inner);
+				if (mTypesetContext.prevBoxMetaInfo.isValid()) {
+					mOuterRect.left = (mTypesetContext.prevBoxMetaInfo.inner.right + mTypesetContext.currentBoxMetaInfo.inner.left) / 2.0f;
+				}
 
-			float left = bottomX;
-			float right = bottomX + width;
-			float top = bottomY - line.getLineHeight() - line.getTopPadding();
-			float bottom = bottomY;
-			mInnerRect.set(left, top, right, bottom);
-			mOuterRect.set(left, top, right, bottom);
+				assignBoxMeta(line, mTypesetContext.currentBoxMetaInfo.index + 1, size, mTypesetContext.currentBoxMetaInfo.inner.right, bottomY, mTypesetContext.nextBoxMetaInfo);
+				if (mTypesetContext.nextBoxMetaInfo.isValid()) {
+					mOuterRect.right = (mTypesetContext.nextBoxMetaInfo.inner.left + mTypesetContext.currentBoxMetaInfo.inner.right) / 2.0f;
+				}
 
-			// set left
-			Element leftElement = null;
-			int index = i;
-			float offset = 0;
-			while (--index >= 0) {
-				leftElement = line.getElement(index);
-				if (leftElement instanceof Box) {
+				onVisitBox(mTypesetContext.currentBoxMetaInfo.box, mInnerRect, mOuterRect, mTypesetContext);
+				if (!mTypesetContext.nextBoxMetaInfo.isValid() || mVisitSig != SIG_NORMAL) {
 					break;
 				}
 
-				offset += getAdjustGlueWidth(line, (Glue) leftElement);
-			}
-			mOuterRect.left -= (offset / 2);
-
-			// set right
-			Element rightElement = null;
-			index = i;
-			offset = 0;
-			while (++index < size) {
-				rightElement = line.getElement(index);
-				if (rightElement instanceof Box) {
-					break;
-				}
-
-				offset += getAdjustGlueWidth(line, (Glue) rightElement);
-			}
-			mOuterRect.right += (offset / 2);
-
-			mTypesetContext.reset((Box) leftElement, box, (Box) rightElement);
-			onVisitBox(box, mInnerRect, mOuterRect, mTypesetContext);
-			bottomX += width;
+				mTypesetContext.prevBoxMetaInfo.set(mTypesetContext.currentBoxMetaInfo);
+				mTypesetContext.currentBoxMetaInfo.set(mTypesetContext.nextBoxMetaInfo);
+				mTypesetContext.nextBoxMetaInfo.clear();
+			} while (true);
 		}
 
 		onVisitLineEnd(line, bottomX, bottomY);
 		// 如果是暂停当前行的visit，那么下一次开始的时候要清空状态
 		if (mVisitSig == SIG_STOP_LINE_VISIT) {
 			mVisitSig = SIG_NORMAL;
+		}
+	}
+
+	private void assignBoxMeta(Line line, int start, int end, float bottomX, float bottomY, TypesetContext.BoxMetaInfo meta) {
+		for (int index = start; index < end; ++index) {
+			Element element = line.getElement(index);
+			if (element instanceof Box) {
+				Box box = (Box) element;
+				float width = box.getWidth();
+				float left = bottomX;
+				float right = bottomX + width;
+				float top = bottomY - line.getLineHeight() - line.getTopPadding();
+				float bottom = bottomY;
+				meta.inner.set(left, top, right, bottom);
+				meta.box = box;
+				meta.index = index;
+				return;
+			}
+			bottomX += getAdjustGlueWidth(line, (Glue) element);
 		}
 	}
 

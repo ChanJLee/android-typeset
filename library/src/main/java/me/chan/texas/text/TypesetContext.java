@@ -1,37 +1,30 @@
 package me.chan.texas.text;
 
+import android.graphics.RectF;
+
 import androidx.annotation.IntDef;
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 
 import me.chan.texas.text.layout.Box;
-import me.chan.texas.text.layout.Line;
 
 public class TypesetContext {
-	/**
-	 * {@link Paragraph.SpanBuilder#tag(Object)}
-	 */
-	private Box mBox;
 
-	/**
-	 * {@link Paragraph.SpanBuilder#tag(Object)}
-	 */
-	@Nullable
-	private Box mPrevBox;
+	@RestrictTo(RestrictTo.Scope.LIBRARY)
+	public BoxMetaInfo currentBoxMetaInfo = new BoxMetaInfo();
 
-	/**
-	 * {@link Paragraph.SpanBuilder#tag(Object)}
-	 */
-	@Nullable
-	private Box mNextBox;
+	@RestrictTo(RestrictTo.Scope.LIBRARY)
+	public BoxMetaInfo prevBoxMetaInfo = new BoxMetaInfo();
+
+	@RestrictTo(RestrictTo.Scope.LIBRARY)
+	public BoxMetaInfo nextBoxMetaInfo = new BoxMetaInfo();
 
 	/**
 	 * @return 获得当前元素的tag
 	 */
 	@Nullable
 	public Object getTag() {
-		return mBox.getTag();
+		return currentBoxMetaInfo.box.getTag();
 	}
 
 	/**
@@ -39,7 +32,7 @@ public class TypesetContext {
 	 */
 	@Nullable
 	public Object getPrevTag() {
-		return mPrevBox == null ? null : mPrevBox.getTag();
+		return prevBoxMetaInfo.box == null ? null : prevBoxMetaInfo.box.getTag();
 	}
 
 	/**
@@ -47,14 +40,7 @@ public class TypesetContext {
 	 */
 	@Nullable
 	public Object getNextTag() {
-		return mNextBox == null ? null : mNextBox.getTag();
-	}
-
-	@RestrictTo(RestrictTo.Scope.LIBRARY)
-	public void reset(Box prev, Box current, Box next) {
-		mBox = current;
-		mPrevBox = prev;
-		mNextBox = next;
+		return nextBoxMetaInfo.box == null ? null : nextBoxMetaInfo.box.getTag();
 	}
 
 	/**
@@ -80,7 +66,9 @@ public class TypesetContext {
 	public static final int LOCATION_PARAGRAPH_MIDDLE = 32;
 
 	public void clear() {
-		mBox = mNextBox = mPrevBox = null;
+		currentBoxMetaInfo.clear();
+		prevBoxMetaInfo.clear();
+		nextBoxMetaInfo.clear();
 		mParagraphLocationAttribute = 0;
 	}
 
@@ -106,11 +94,11 @@ public class TypesetContext {
 	 */
 	public boolean checkLocation(@LocationType int location) {
 		if (location == LOCATION_LINE_START) {
-			return mPrevBox == null;
+			return prevBoxMetaInfo.box == null;
 		} else if (location == LOCATION_LINE_END) {
-			return mNextBox == null;
+			return nextBoxMetaInfo.box == null;
 		} else if (location == LOCATION_LINE_MIDDLE) {
-			return mPrevBox != null && mNextBox != null;
+			return prevBoxMetaInfo.box != null && nextBoxMetaInfo.box != null;
 		} else if (location == LOCATION_PARAGRAPH_START) {
 			return (mParagraphLocationAttribute & LOCATION_PARAGRAPH_START) != 0;
 		} else if (location == LOCATION_PARAGRAPH_END) {
@@ -121,5 +109,34 @@ public class TypesetContext {
 		}
 
 		throw new IllegalArgumentException("unknown location type: " + location);
+	}
+
+	@RestrictTo(RestrictTo.Scope.LIBRARY)
+	public static final class BoxMetaInfo {
+		public final RectF inner = new RectF();
+		public Box box;
+		public int index;
+
+		public void clear() {
+			inner.set(0, 0, 0, 0);
+			box = null;
+			index = -1;
+		}
+
+		public boolean isValid() {
+			return box != null;
+		}
+
+		public void set(Box box, int index, RectF inner) {
+			this.box = box;
+			this.index = index;
+			this.inner.set(inner);
+		}
+
+		public void set(BoxMetaInfo meta) {
+			this.box = meta.box;
+			this.index = meta.index;
+			this.inner.set(meta.inner);
+		}
 	}
 }
