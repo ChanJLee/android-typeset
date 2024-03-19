@@ -358,8 +358,6 @@ public class RendererAdapter extends RecyclerView.Adapter<RendererAdapter.Render
 
 	abstract class Renderer<T extends Segment> extends RecyclerView.ViewHolder {
 
-		private float mX, mY;
-
 		Renderer(@NonNull View view) {
 			super(view);
 			view.setLayoutParams(new RecyclerView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
