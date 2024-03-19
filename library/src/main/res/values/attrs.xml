@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="me_chan_texas_TexasView">
+        <attr name="android:padding" format="dimension" />
+        <attr name="android:paddingLeft" format="dimension" />
+        <attr name="android:paddingRight" format="dimension" />
+        <attr name="android:paddingTop" format="dimension" />
+        <attr name="android:paddingBottom" format="dimension" />
+        <attr name="me_chan_texas_TexasView_textColor" format="color" />
+        <attr name="me_chan_texas_TexasView_typefaceAssets" format="string" />
+        <attr name="me_chan_texas_TexasView_textSize" format="dimension" />
+        <attr name="me_chan_texas_TexasView_lineSpace" format="dimension" />
+        <attr name="me_chan_texas_TexasView_selectedBackgroundColor" format="color" />
+        <attr name="me_chan_texas_TexasView_selectedTextColor" format="color" />
+        <attr name="me_chan_texas_TexasView_spanSelectedBackgroundColor" format="color" />
+        <attr name="me_chan_texas_TexasView_spanSelectedTextColor" format="color" />
+        <attr name="me_chan_texas_TexasView_breakStrategy" format="enum">
+            <enum name="simple" value="1" />
+            <enum name="balance" value="2" />
+        </attr>
+        <attr name="me_chan_texas_TexasView_wordSelectable" format="boolean" />
+        <attr name="me_chan_texas_TexasView_hyphenStrategy" format="enum">
+            <enum name="us" value="1" />
+            <enum name="uk" value="2" />
+        </attr>
+        <attr name="me_chan_texas_TexasView_lazyRender" format="boolean" />
+        <attr name="me_chan_texas_TexasView_spanHighlightTextColor" format="color" />
+        <attr name="me_chan_texas_TexasView_loadingBackgroundColor" format="color" />
+        <attr name="me_chan_texas_TexasView_dragViewColor" format="color" />
+        <attr name="me_chan_texas_TexasView_selectedBackgroundRoundRadius" format="dimension" />
+        <attr name="me_chan_texas_TexasView_compatMode" format="boolean" />
+        <attr name="me_chan_texas_TexasView_bottomIndicator" format="reference" />
+        <attr name="me_chan_texas_TexasView_topLoadingIndicator" format="reference" />
+    </declare-styleable>
+
+    <style name="me_chan_texas_TexasRecyclerView" parent="android:Widget">
+        <item name="android:scrollbars">vertical</item>
+        <item name="android:scrollbarStyle">outsideOverlay</item>
+        <item name="android:scrollbarThumbVertical">
+            @drawable/me_chan_texas_scrollbar_thumb
+        </item>
+        <item name="android:scrollbarTrackVertical">@null</item>
+    </style>
+
+    <declare-styleable name="me_chan_texas_ParagraphView">
+        <attr name="me_chan_texas_ParagraphView_textColor" format="color" />
+        <attr name="me_chan_texas_ParagraphView_typefaceAssets" format="string" />
+        <attr name="me_chan_texas_ParagraphView_textSize" format="dimension" />
+        <attr name="me_chan_texas_ParagraphView_lineSpace" format="dimension" />
+        <attr name="me_chan_texas_ParagraphView_selectedBackgroundColor" format="color" />
+        <attr name="me_chan_texas_ParagraphView_selectedTextColor" format="color" />
+        <attr name="me_chan_texas_ParagraphView_spanSelectedBackgroundColor" format="color" />
+        <attr name="me_chan_texas_ParagraphView_spanSelectedTextColor" format="color" />
+        <attr name="me_chan_texas_ParagraphView_breakStrategy" format="enum">
+            <enum name="simple" value="1" />
+            <enum name="balance" value="2" />
+        </attr>
+        <attr name="me_chan_texas_ParagraphView_wordSelectable" format="boolean" />
+        <attr name="me_chan_texas_ParagraphView_hyphenStrategy" format="enum">
+            <enum name="us" value="1" />
+            <enum name="uk" value="2" />
+        </attr>
+        <attr name="me_chan_texas_ParagraphView_selectedBackgroundRoundRadius" format="dimension" />
+        <attr name="me_chan_texas_ParagraphView_compatMode" format="boolean" />
+    </declare-styleable>
+
+    <declare-styleable name="me_chan_texas_LoadingIndicatorView">
+        <attr name="me_chan_texas_LoadingIndicatorView_loadingColor" format="color" />
+        <attr name="me_chan_texas_LoadingIndicatorView_loadingBackgroundColor" format="color" />
+    </declare-styleable>
+</resources>

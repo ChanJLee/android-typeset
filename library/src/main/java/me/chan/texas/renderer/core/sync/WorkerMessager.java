@@ -5,6 +5,7 @@ import androidx.annotation.Nullable;
 
 import me.chan.texas.misc.DefaultRecyclable;
 import me.chan.texas.misc.ObjectPool;
+import me.chan.texas.utils.concurrency.TaskQueue;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,24 +21,24 @@ public abstract class WorkerMessager {
 	/**
 	 * 发送消息
 	 *
-	 * @param id      id
+	 * @param token      id
 	 * @param message 消息附带的值
 	 */
-	public abstract void send(int id, WorkerMessage message);
+	public abstract void send(TaskQueue.Token token, WorkerMessage message);
 
 	/**
 	 * 清空消息
 	 */
-	public abstract void clear(int id);
+	public abstract void clear(TaskQueue.Token token);
 
 	public interface Listener {
 		/**
 		 * 处理消息
 		 *
-		 * @param id
+		 * @param token
 		 * @param value
 		 */
-		boolean handleMessage(int id, WorkerMessage value);
+		boolean handleMessage(TaskQueue.Token token, WorkerMessage value);
 	}
 
 	public static class WorkerMessage extends DefaultRecyclable {
@@ -46,6 +47,8 @@ public abstract class WorkerMessager {
 		private int mType;
 		private Object mArg;
 		private Object mValue;
+
+		private TaskQueue.Token mToken;
 
 		private WorkerMessage() {
 		}
@@ -95,10 +98,18 @@ public abstract class WorkerMessager {
 			}
 
 			mArg = mValue = null;
+			mToken = null;
 			super.recycle();
 			POOL.release(this);
 		}
 
+		public TaskQueue.Token getToken() {
+			return mToken;
+		}
+
+		public void setToken(TaskQueue.Token token) {
+			mToken = token;
+		}
 
 		public static WorkerMessage obtain(int type, Object arg, Object value) {
 			WorkerMessage message = POOL.acquire();

@@ -8,7 +8,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 
 import me.chan.texas.renderer.core.WorkerScheduler;
-import me.chan.texas.renderer.core.graphics.TextureStage;
+import me.chan.texas.renderer.core.graphics.GraphicsBuffer;
 import me.chan.texas.renderer.core.worker.RenderWorker;
 import me.chan.texas.text.layout.Layout;
 
@@ -16,11 +16,11 @@ import me.chan.texas.text.layout.Layout;
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class TextureParagraphView0 extends AbsTextureParagraphView {
 
-	private final TextureStage mTextureStage;
+	private final GraphicsBuffer mGraphicsBuffer;
 
 	public TextureParagraphView0(Context context) {
 		super(context);
-		mTextureStage = new TextureStage();
+		mGraphicsBuffer = new GraphicsBuffer();
 	}
 
 	@Override
@@ -29,8 +29,8 @@ public class TextureParagraphView0 extends AbsTextureParagraphView {
 			return;
 		}
 
-		if (!mTextureStage.isAttached()) {
-			mTextureStage.attach();
+		if (!mGraphicsBuffer.isAttached()) {
+			mGraphicsBuffer.attach(getToken());
 		}
 
 		Layout layout = mParagraph.getLayout();
@@ -44,7 +44,7 @@ public class TextureParagraphView0 extends AbsTextureParagraphView {
 				mHighlight,
 				mParagraphDecor
 		);
-		WorkerScheduler.render().submit(getTaskId(), args);
+		WorkerScheduler.render().submit(getToken(), args);
 	}
 
 	@Nullable
@@ -54,7 +54,7 @@ public class TextureParagraphView0 extends AbsTextureParagraphView {
 			return null;
 		}
 
-		return mTextureStage.lockCanvas(width, height);
+		return mGraphicsBuffer.lockCanvas(width, height);
 	}
 
 	@Override
@@ -63,7 +63,7 @@ public class TextureParagraphView0 extends AbsTextureParagraphView {
 			return;
 		}
 
-		mTextureStage.unlockCanvas();
+		mGraphicsBuffer.unlockCanvas();
 	}
 
 	@Override
@@ -73,12 +73,12 @@ public class TextureParagraphView0 extends AbsTextureParagraphView {
 
 	@Override
 	protected void onDraw(Canvas canvas) {
-		mTextureStage.draw(canvas);
+		mGraphicsBuffer.draw(canvas);
 	}
 
 	@Override
 	public void clear() {
 		super.clear();
-		mTextureStage.detach();
+		mGraphicsBuffer.detach();
 	}
 }

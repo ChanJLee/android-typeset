@@ -3,21 +3,9 @@ package me.chan.texas.source;
 /**
  * 纯文本
  */
-public class PlainTextSource implements Source<CharSequence> {
-
-	private final CharSequence mCharSequence;
+public class PlainTextSource extends ObjectSource<CharSequence> {
 
 	public PlainTextSource(CharSequence charSequence) {
-		mCharSequence = charSequence;
-	}
-
-	@Override
-	public CharSequence open() throws SourceOpenException {
-		return mCharSequence;
-	}
-
-	@Override
-	public void close() throws SourceCloseException {
-		/* do nothing */
+		super(charSequence);
 	}
 }

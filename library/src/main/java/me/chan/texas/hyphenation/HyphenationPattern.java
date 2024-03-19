@@ -6,6 +6,7 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import android.annotation.SuppressLint;
 
 import androidx.annotation.IntDef;
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.collection.SparseArrayCompat;
 
@@ -20,7 +21,9 @@ public class HyphenationPattern {
 	// http://tug_org/svn/texhyphen/trunk/collaboration/repository/hyphenator/
 	public static final int EN_US = 2;
 
-	@IntDef({EN_GB, EN_US})
+	public static final int NONE = 0;
+
+	@IntDef({EN_GB, EN_US, NONE})
 	public @interface PatternType {
 
 	}
@@ -35,6 +38,7 @@ public class HyphenationPattern {
 		this.patterns = pattern;
 	}
 
+	@Nullable
 	public static HyphenationPattern newInstance(@PatternType int type) {
 		if (type == EN_GB) {
 			SparseArrayCompat<String> pattern = new SparseArrayCompat<>();
@@ -61,6 +65,10 @@ public class HyphenationPattern {
 			pattern.put(11, "pseu3d6o3f2s2t1ant5shimi1n2ut1estpseu3d6o3d25tab1o1lismpo3lyph1onophi5lat1e3ltravers3a3bschro1ding12g1o4n3i1zat1ro1pol3it3trop1o5lis3trop1o5lesle3g6en2dreeth1y6l1eneor4tho3ni4t");
 			pattern.put(12, "3ra4m5e1triz1e6p3i3neph1");
 			return new HyphenationPattern(2, 3, pattern);
+		}
+
+		if (type == NONE) {
+			return null;
 		}
 
 		throw new IllegalArgumentException();

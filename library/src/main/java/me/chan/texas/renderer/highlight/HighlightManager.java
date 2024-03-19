@@ -6,21 +6,21 @@ import androidx.annotation.RestrictTo;
 import me.chan.texas.renderer.ParagraphVisitor;
 import me.chan.texas.renderer.TexasView;
 import me.chan.texas.renderer.highlight.visitor.HighlightParagraphVisitor;
-import me.chan.texas.renderer.ui.TexasAdapter;
+import me.chan.texas.renderer.ui.RendererAdapter;
 import me.chan.texas.text.Document;
 import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.Segment;
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class HighlightManager {
-	private final TexasAdapter mAdapter;
+	private final RendererAdapter mAdapter;
 	/**
 	 * 当前高亮
 	 */
 	private Highlight mHighlight;
 	private final HighlightParagraphVisitor mHighlightParagraphVisitor = new HighlightParagraphVisitor();
 
-	public HighlightManager(TexasAdapter adapter) {
+	public HighlightManager(RendererAdapter adapter) {
 		mAdapter = adapter;
 	}
 
@@ -71,10 +71,9 @@ public class HighlightManager {
 
 	private void handleParagraphHighlighted(ParagraphHighlight paragraphHighlight, int index) {
 		if (mHighlight == null) {
-			mHighlight = new Highlight(mAdapter, index);
+			mHighlight = new Highlight(mAdapter);
 		}
 
-		paragraphHighlight.setIndex(index);
 		mHighlight.add(paragraphHighlight);
 
 		try {

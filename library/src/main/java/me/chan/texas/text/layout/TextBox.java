@@ -223,7 +223,7 @@ public final class TextBox extends Box {
 	}
 
 	@VisibleForTesting
-	int getStart() {
+	public int getStart() {
 		return mStart;
 	}
 

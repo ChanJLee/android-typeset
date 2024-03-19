@@ -37,8 +37,8 @@
         android:text="paragraph view demo"/>
 
     <Button
-        android:id="@+id/bookstore"
+        android:id="@+id/indicator"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="书籍列表"/>
+        android:text="test indicator"/>
 </LinearLayout>

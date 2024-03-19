@@ -23,6 +23,7 @@ import androidx.core.content.ContextCompat;
 
 import me.chan.texas.BuildConfig;
 import me.chan.texas.R;
+import me.chan.texas.Texas;
 import me.chan.texas.TexasOption;
 import me.chan.texas.annotations.Internal;
 import me.chan.texas.hyphenation.Hyphenation;
@@ -30,6 +31,7 @@ import me.chan.texas.hyphenation.HyphenationPattern;
 import me.chan.texas.measurer.AndroidMeasurer;
 import me.chan.texas.measurer.Measurer;
 import me.chan.texas.misc.PaintSet;
+import me.chan.texas.renderer.LoadingStrategy;
 import me.chan.texas.renderer.OnSpanClickedPredicate;
 import me.chan.texas.renderer.OnSpanLongClickedPredicate;
 import me.chan.texas.renderer.ParagraphVisitor;
@@ -37,7 +39,7 @@ import me.chan.texas.renderer.RenderOption;
 import me.chan.texas.renderer.TexasView;
 import me.chan.texas.renderer.core.WorkerScheduler;
 import me.chan.texas.renderer.core.worker.ParseWorker;
-import me.chan.texas.renderer.core.worker.TypesetWorker;
+import me.chan.texas.renderer.core.worker.ParagraphTypesetWorker;
 import me.chan.texas.renderer.selection.ParagraphSelection;
 import me.chan.texas.renderer.selection.visitor.SelectedTextByClickedVisitor;
 import me.chan.texas.source.Source;
@@ -119,8 +121,13 @@ public class ParagraphView extends FrameLayout {
 		addView((View) mRender, new FrameLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
 		OnSelectedChangedListener onSelectedChangedListener = new OnSelectedChangedListener() {
 			@Override
-			public boolean onBoxSelected(MotionEvent e, Paragraph paragraph, boolean isLongClicked, Box box) {
-				return selectParagraph(paragraph, isLongClicked, box);
+			public boolean onSegmentClicked(MotionEvent e, Paragraph paragraph, int eventType) {
+				return handleParagraphClicked(paragraph, eventType);
+			}
+
+			@Override
+			public boolean onBoxSelected(MotionEvent e, Paragraph paragraph, @EventType int eventType, Box box) {
+				return handleParagraphSelected(paragraph, eventType, box);
 			}
 		};
 		mRender.setOnTextSelectedListener(onSelectedChangedListener);
@@ -149,20 +156,52 @@ public class ParagraphView extends FrameLayout {
 		super.onDetachedFromWindow();
 	}
 
-	private boolean selectParagraph(Paragraph paragraph, boolean isLongClicked, Box box) {
+	private boolean handleParagraphSelected(Paragraph paragraph, @OnSelectedChangedListener.EventType int eventType, Box box) {
+		if (mOnClickedListener == null) {
+			return false;
+		}
+
+		if (eventType == OnSelectedChangedListener.EVENT_CLICKED || eventType == OnSelectedChangedListener.EVENT_LONG_CLICKED) {
+			boolean handled = handleParagraphSelected(paragraph, eventType == OnSelectedChangedListener.EVENT_LONG_CLICKED, box);
+			if (!handled && eventType == OnSelectedChangedListener.EVENT_CLICKED) {
+				mOnClickedListener.onEmptyClicked(this);
+				return true;
+			}
+
+			return false;
+		}
+
+		return false;
+	}
+
+	private boolean handleParagraphClicked(Paragraph paragraph, int eventType) {
+		if (mOnClickedListener == null) {
+			return false;
+		}
+
+		if (eventType == OnSelectedChangedListener.EVENT_DOUBLE_CLICKED) {
+			mOnClickedListener.onDoubleClicked(this);
+			return true;
+		}
+
+		if (eventType == OnSelectedChangedListener.EVENT_CLICKED) {
+			mOnClickedListener.onEmptyClicked(this);
+		}
+
+		return false;
+	}
+
+	private boolean handleParagraphSelected(Paragraph paragraph, boolean isLongClicked, Box box) {
 		// 1. clear prev selection
 		clearSelection();
 
 		OnSpanClickedPredicate predicate = isLongClicked ? mOnSpanLongClickedPredicate : mOnSpanClickedPredicate;
 		if (predicate == null) {
-			if (mOnClickedListener != null) {
-				mOnClickedListener.onEmptyClicked(this);
-			}
 			return false;
 		}
 
 		try {
-			boolean handled = selectParagraph0(paragraph, isLongClicked, box, predicate);
+			boolean handled = handleParagraphSelected0(paragraph, isLongClicked, box, predicate);
 			if (handled) {
 				if (isLongClicked) {
 					if (mOnClickedListener != null) {
@@ -185,7 +224,7 @@ public class ParagraphView extends FrameLayout {
 		return true;
 	}
 
-	private boolean selectParagraph0(Paragraph paragraph, boolean isLongClicked, Box box, OnSpanClickedPredicate predicate) throws ParagraphVisitor.VisitException {
+	private boolean handleParagraphSelected0(Paragraph paragraph, boolean isLongClicked, Box box, OnSpanClickedPredicate predicate) throws ParagraphVisitor.VisitException {
 		try {
 			mSelectedTextByClickedVisitor.reset(
 					isLongClicked,
@@ -289,9 +328,9 @@ public class ParagraphView extends FrameLayout {
 
 	private boolean typeset0(int width) {
 		try {
-			TypesetWorker worker = WorkerScheduler.typeset();
-			TypesetWorker.Args args = TypesetWorker.Args.obtain(mParagraph, mRenderOption, width);
-			worker.submitSync(mRender.getTaskId(), args);
+			ParagraphTypesetWorker worker = WorkerScheduler.typeset();
+			ParagraphTypesetWorker.Args args = ParagraphTypesetWorker.Args.obtain(mParagraph, mRenderOption, width);
+			worker.submitSync(mRender.getToken(), args);
 			return true;
 		} catch (Throwable e) {
 			return false;
@@ -343,6 +382,7 @@ public class ParagraphView extends FrameLayout {
 		render0(mParagraph);
 	}
 
+	private ParagraphSource mSource;
 
 	/**
 	 * @param source 段落源
@@ -361,10 +401,13 @@ public class ParagraphView extends FrameLayout {
 		// 赋予
 		source.owner = this;
 
+		// cache last source
+		mSource = source;
+
 		// 提交解析任务
-		ParseWorker.Args args = ParseWorker.Args.obtain(source, mParseListener);
+		ParseWorker.Args args = ParseWorker.Args.obtain(source, LoadingStrategy.LOAD_MORE, mParseListener);
 		ParseWorker worker = WorkerScheduler.parse();
-		worker.submit(mRender.getTaskId(), args);
+		worker.submit(mRender.getToken(), args);
 	}
 
 	/**
@@ -384,17 +427,32 @@ public class ParagraphView extends FrameLayout {
 	 * @param renderOption option
 	 */
 	public void refresh(@NonNull RenderOption renderOption) {
-		boolean reload = TexasUtils.diff(mRenderOption, renderOption);
+		int cmpType = TexasUtils.cmp(mRenderOption, renderOption);
 
 		mRenderOption = renderOption;
 		mPaintSet.refresh(renderOption);
 
-		if (reload) {
+		if (cmpType == TexasUtils.CmpType.CMP_LOAD) {
+			// 丢弃之前的任务
+			discard(false);
+
+			// 清除之前的 selection
+			clearSelection();
+
+			// 提交解析任务
+			ParseWorker.Args args = ParseWorker.Args.obtain(mSource, LoadingStrategy.LOAD, mParseListener);
+			ParseWorker worker = WorkerScheduler.parse();
+			worker.submit(mRender.getToken(), args);
+		} else if (cmpType == TexasUtils.CmpType.CMP_TYPESET) {
 			int width = getWidth() - getPaddingLeft() - getPaddingRight();
 			if (width > 0) {
 				typeset0(width);
 			}
 			return;
+		}
+
+		if (cmpType != TexasUtils.CmpType.CMP_DRAW) {
+			throw new IllegalStateException("unknown cmp type: " + cmpType);
 		}
 
 		if (mParagraph != null) {
@@ -422,7 +480,7 @@ public class ParagraphView extends FrameLayout {
 		if (releaseBuffer) {
 			mRender.clear();
 		}
-		WorkerScheduler.cancelAll(mRender.getTaskId());
+		WorkerScheduler.cancelAll(mRender.getToken());
 	}
 
 	/**
@@ -435,13 +493,13 @@ public class ParagraphView extends FrameLayout {
 	/**
 	 * 设置paragraph source
 	 */
-	public static abstract class ParagraphSource implements Source<Paragraph> {
+	public static abstract class ParagraphSource extends Source<Paragraph> {
 
 		@Internal
 		private ParagraphView owner;
 
 		@Override
-		public final Paragraph open() throws SourceOpenException {
+		protected Paragraph onOpen(LoadingStrategy strategy) throws SourceOpenException {
 			// 选择断字策略
 			Hyphenation hyphenation = null;
 			HyphenStrategy hyphenStrategy = owner.mRenderOption.getHyphenStrategy();
@@ -454,7 +512,7 @@ public class ParagraphView extends FrameLayout {
 			}
 
 			TexasOption texasOption = new TexasOption(hyphenation, owner.mMeasurer, owner.mTextAttribute, owner.mRenderOption);
-			return open(texasOption);
+			return onOpen(texasOption);
 		}
 
 		/**
@@ -464,7 +522,7 @@ public class ParagraphView extends FrameLayout {
 		 * @return paragraph
 		 */
 		@AnyThread
-		protected abstract Paragraph open(TexasOption option);
+		protected abstract Paragraph onOpen(TexasOption option);
 	}
 
 	/**
@@ -501,6 +559,11 @@ public class ParagraphView extends FrameLayout {
 		 * @param paragraphView 被点击的段落
 		 */
 		void onEmptyClicked(ParagraphView paragraphView);
+
+		/**
+		 * @param paragraphView 被点击的段落
+		 */
+		void onDoubleClicked(ParagraphView paragraphView);
 	}
 
 	/**
@@ -518,7 +581,7 @@ public class ParagraphView extends FrameLayout {
 
 	private RenderOption createRenderOption(Context context, AttributeSet attributeSet, int defStyleAttr) {
 		@SuppressLint("CustomViewStyleable")
-		TypedArray typedArray = context.obtainStyledAttributes(attributeSet, R.styleable.com_shanbay_lib_texas_ParagraphView, defStyleAttr, 0);
+		TypedArray typedArray = context.obtainStyledAttributes(attributeSet, R.styleable.me_chan_texas_ParagraphView, defStyleAttr, 0);
 		try {
 			return createRenderOption0(context, typedArray);
 		} finally {
@@ -532,14 +595,14 @@ public class ParagraphView extends FrameLayout {
 
 		// 设置字体颜色
 		renderOption.setTextColor(
-				typedArray.getColor(R.styleable.com_shanbay_lib_texas_ParagraphView_com_shanbay_lib_texas_paragraph_textColor,
-						ContextCompat.getColor(context, R.color.com_shanbay_lib_texas_text_color)
+				typedArray.getColor(R.styleable.me_chan_texas_ParagraphView_me_chan_texas_ParagraphView_textColor,
+						ContextCompat.getColor(context, R.color.me_chan_texas_text_color)
 				)
 		);
 
 		// 设置字体
-		renderOption.setTypeface(Typeface.DEFAULT);
-		String typefacePath = typedArray.getString(R.styleable.com_shanbay_lib_texas_ParagraphView_com_shanbay_lib_texas_paragraph_typefaceAssets);
+		renderOption.setTypeface(Texas.getDefaultTypeface());
+		String typefacePath = typedArray.getString(R.styleable.me_chan_texas_ParagraphView_me_chan_texas_ParagraphView_typefaceAssets);
 		if (!TextUtils.isEmpty(typefacePath)) {
 			WeakReference<Typeface> typefaceWeakReference = TexasView.TYPEFACE_CACHE.get(typefacePath);
 			Typeface typeface;
@@ -555,7 +618,7 @@ public class ParagraphView extends FrameLayout {
 
 		// 设置字体大小
 		renderOption.setTextSize(
-				typedArray.getDimension(R.styleable.com_shanbay_lib_texas_ParagraphView_com_shanbay_lib_texas_paragraph_textSize,
+				typedArray.getDimension(R.styleable.me_chan_texas_ParagraphView_me_chan_texas_ParagraphView_textSize,
 						TypedValue.applyDimension(
 								TypedValue.COMPLEX_UNIT_SP,
 								TexasView.DEFAULT_TEXT_SIZE,
@@ -566,7 +629,7 @@ public class ParagraphView extends FrameLayout {
 
 		// 行间距
 		renderOption.setLineSpace(
-				typedArray.getDimension(R.styleable.com_shanbay_lib_texas_ParagraphView_com_shanbay_lib_texas_paragraph_lineSpace,
+				typedArray.getDimension(R.styleable.me_chan_texas_ParagraphView_me_chan_texas_ParagraphView_lineSpace,
 						TypedValue.applyDimension(
 								TypedValue.COMPLEX_UNIT_DIP,
 								TexasView.DEFAULT_LINE_SPACE,
@@ -577,31 +640,31 @@ public class ParagraphView extends FrameLayout {
 
 		// 选中字体的背景色
 		renderOption.setSelectedBackgroundColor(
-				typedArray.getColor(R.styleable.com_shanbay_lib_texas_ParagraphView_com_shanbay_lib_texas_paragraph_selectedBackgroundColor,
-						ContextCompat.getColor(context, R.color.com_shanbay_lib_texas_theme_color)
+				typedArray.getColor(R.styleable.me_chan_texas_ParagraphView_me_chan_texas_ParagraphView_selectedBackgroundColor,
+						ContextCompat.getColor(context, R.color.me_chan_texas_theme_color)
 				)
 		);
 
 		// 选中字体的颜色
 		renderOption.setSelectedTextColor(
-				typedArray.getColor(R.styleable.com_shanbay_lib_texas_ParagraphView_com_shanbay_lib_texas_paragraph_selectedTextColor, Color.WHITE)
+				typedArray.getColor(R.styleable.me_chan_texas_ParagraphView_me_chan_texas_ParagraphView_selectedTextColor, Color.WHITE)
 		);
 
 		// 选中span的背景色
 		renderOption.setSelectedByLongClickBackgroundColor(
-				typedArray.getColor(R.styleable.com_shanbay_lib_texas_ParagraphView_com_shanbay_lib_texas_paragraph_spanSelectedBackgroundColor,
-						ContextCompat.getColor(context, R.color.com_shanbay_lib_texas_span_bg_color)
+				typedArray.getColor(R.styleable.me_chan_texas_ParagraphView_me_chan_texas_ParagraphView_spanSelectedBackgroundColor,
+						ContextCompat.getColor(context, R.color.me_chan_texas_span_bg_color)
 				)
 		);
 
 		// 选中span的字体颜色
 		renderOption.setSelectedByLongClickTextColor(
-				typedArray.getColor(R.styleable.com_shanbay_lib_texas_ParagraphView_com_shanbay_lib_texas_paragraph_spanSelectedTextColor,
-						ContextCompat.getColor(context, R.color.com_shanbay_lib_texas_text_color))
+				typedArray.getColor(R.styleable.me_chan_texas_ParagraphView_me_chan_texas_ParagraphView_spanSelectedTextColor,
+						ContextCompat.getColor(context, R.color.me_chan_texas_text_color))
 		);
 
 		// 断字策略
-		int breakStrategy = typedArray.getInt(R.styleable.com_shanbay_lib_texas_ParagraphView_com_shanbay_lib_texas_paragraph_breakStrategy, TexasView.BREAK_STRATEGY_BALANCE);
+		int breakStrategy = typedArray.getInt(R.styleable.me_chan_texas_ParagraphView_me_chan_texas_ParagraphView_breakStrategy, TexasView.BREAK_STRATEGY_BALANCE);
 		renderOption.setBreakStrategy(
 				breakStrategy == TexasView.BREAK_STRATEGY_SIMPLE ?
 						BreakStrategy.SIMPLE : BreakStrategy.BALANCED
@@ -609,11 +672,11 @@ public class ParagraphView extends FrameLayout {
 
 		// 是否可选单词
 		renderOption.setWordSelectable(
-				typedArray.getBoolean(R.styleable.com_shanbay_lib_texas_ParagraphView_com_shanbay_lib_texas_paragraph_wordSelectable, true)
+				typedArray.getBoolean(R.styleable.me_chan_texas_ParagraphView_me_chan_texas_ParagraphView_wordSelectable, true)
 		);
 
 		// 断字策略
-		int hyphenStrategy = typedArray.getInt(R.styleable.com_shanbay_lib_texas_ParagraphView_com_shanbay_lib_texas_paragraph_hyphenStrategy, TexasView.HYPHEN_STRATEGY_US);
+		int hyphenStrategy = typedArray.getInt(R.styleable.me_chan_texas_ParagraphView_me_chan_texas_ParagraphView_hyphenStrategy, TexasView.HYPHEN_STRATEGY_US);
 		renderOption.setHyphenStrategy(
 				hyphenStrategy == TexasView.HYPHEN_STRATEGY_UK ?
 						HyphenStrategy.UK : HyphenStrategy.US
@@ -626,23 +689,23 @@ public class ParagraphView extends FrameLayout {
 
 		// 高亮span文字颜色
 		renderOption.setSpanHighlightTextColor(
-				ContextCompat.getColor(context, R.color.com_shanbay_lib_texas_theme_color)
+				ContextCompat.getColor(context, R.color.me_chan_texas_theme_color)
 		);
 
 		// 加载中背景色
 		renderOption.setLoadingBackgroundColor(
-				ContextCompat.getColor(context, R.color.com_shanbay_lib_texas_loading_bg)
+				ContextCompat.getColor(context, R.color.me_chan_texas_loading_bg)
 		);
 
 		// 自由划线水滴颜色
 		renderOption.setDragViewColor(
-				ContextCompat.getColor(context, R.color.com_shanbay_lib_texas_drag_view_color)
+				ContextCompat.getColor(context, R.color.me_chan_texas_drag_view_color)
 		);
 
 		// 设置选中圆角半径
 		renderOption.setSelectedBackgroundRoundRadius(
 				typedArray.getDimension(
-						R.styleable.com_shanbay_lib_texas_ParagraphView_com_shanbay_lib_texas_paragraph_selectedBackgroundRoundRadius,
+						R.styleable.me_chan_texas_ParagraphView_me_chan_texas_ParagraphView_selectedBackgroundRoundRadius,
 						TypedValue.applyDimension(
 								TypedValue.COMPLEX_UNIT_DIP,
 								3,
@@ -653,7 +716,7 @@ public class ParagraphView extends FrameLayout {
 
 		// 是否开启兼容模式
 		renderOption.setCompatMode(
-				typedArray.getBoolean(R.styleable.com_shanbay_lib_texas_ParagraphView_com_shanbay_lib_texas_paragraph_compatMode, false)
+				typedArray.getBoolean(R.styleable.me_chan_texas_ParagraphView_me_chan_texas_ParagraphView_compatMode, false)
 		);
 
 		return renderOption;

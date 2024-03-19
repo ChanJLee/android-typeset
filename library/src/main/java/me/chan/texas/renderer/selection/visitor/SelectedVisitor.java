@@ -9,6 +9,7 @@ import me.chan.texas.renderer.ParagraphVisitor;
 import me.chan.texas.renderer.RenderOption;
 import me.chan.texas.renderer.selection.ParagraphSelection;
 import me.chan.texas.text.Paragraph;
+import me.chan.texas.text.TypesetContext;
 import me.chan.texas.text.layout.Box;
 import me.chan.texas.text.layout.DrawableBox;
 import me.chan.texas.text.layout.Line;
@@ -82,7 +83,7 @@ public abstract class SelectedVisitor extends ParagraphVisitor {
 	}
 
 	@Override
-	public void onVisitBox(Box box, RectF inner, RectF outer) {
+	public void onVisitBox(Box box, RectF inner, RectF outer, TypesetContext context) {
 		if (selected(box, inner, outer)) {
 			if (!(box instanceof DrawableBox) || includeSelectNonTextBoxRegion()) {
 				appendRect(outer);

@@ -10,7 +10,8 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 
 import me.chan.texas.misc.DefaultRecyclable;
 import me.chan.texas.misc.ObjectPool;
-import me.chan.texas.renderer.ui.TexasAdapter;
+import me.chan.texas.renderer.ui.RendererAdapter;
+import me.chan.texas.renderer.ui.rv.TexasRecyclerView;
 import me.chan.texas.text.Document;
 import me.chan.texas.text.Paragraph;
 
@@ -20,7 +21,7 @@ import java.util.List;
 public final class Selection extends DefaultRecyclable {
 	private static final ObjectPool<Selection> POOL = new ObjectPool<>(8);
 
-	private TexasAdapter mTexasAdapter;
+	private RendererAdapter mTexasAdapter;
 	private LinearLayoutManager mTexasLayoutManager;
 	private final List<ParagraphSelection> mParagraphSelectionList = new ArrayList<>();
 	private final RectEdge mRectEdge = new RectEdge();
@@ -33,7 +34,6 @@ public final class Selection extends DefaultRecyclable {
 		mParagraphSelectionList.add(selection);
 	}
 
-	// TODO: 2021/11/18 遍历性能优化 guangcheng.zhang@shanbay.com
 	@Nullable
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
 	ParagraphSelection getParagraphSelection(Paragraph paragraph) {
@@ -74,7 +74,7 @@ public final class Selection extends DefaultRecyclable {
 	 */
 	private final int[] mLocations = new int[2];
 
-	public RectEdge getSelectedRectEdge() {
+	public RectEdge getSelectedRectEdge(TexasRecyclerView container) {
 
 		int size = mParagraphSelectionList.size();
 		if (size == 0) {
@@ -89,7 +89,7 @@ public final class Selection extends DefaultRecyclable {
 			}
 
 			hasModified = true;
-			boolean result = getParagraphLocationOnScreen(paragraphSelection.getParagraph(), mLocations);
+			boolean result = getParagraphLocation(container, paragraphSelection.getParagraph(), mLocations);
 			if (!result) {
 				w("get first region location failed");
 			}
@@ -110,7 +110,7 @@ public final class Selection extends DefaultRecyclable {
 			}
 
 			hasModified = true;
-			boolean result = getParagraphLocationOnScreen(paragraphSelection.getParagraph(), mLocations);
+			boolean result = getParagraphLocation(container, paragraphSelection.getParagraph(), mLocations);
 			if (!result) {
 				w("get last region location failed");
 			}
@@ -126,7 +126,7 @@ public final class Selection extends DefaultRecyclable {
 		return hasModified ? mRectEdge : null;
 	}
 
-	boolean getParagraphLocationOnScreen(Paragraph paragraph, int[] locations) {
+	boolean getParagraphLocation(TexasRecyclerView container, Paragraph paragraph, int[] locations) {
 		Document document = mTexasAdapter.getDocument();
 		if (document == null) {
 			return false;
@@ -142,7 +142,7 @@ public final class Selection extends DefaultRecyclable {
 			return false;
 		}
 
-		child.getLocationOnScreen(locations);
+		container.getChildLocations(child, locations);
 		return true;
 	}
 
@@ -234,7 +234,7 @@ public final class Selection extends DefaultRecyclable {
 		}
 	}
 
-	public static Selection obtain(TexasAdapter adapter, LinearLayoutManager layoutManager) {
+	public static Selection obtain(RendererAdapter adapter, LinearLayoutManager layoutManager) {
 		Selection selection = POOL.acquire();
 		if (selection == null) {
 			selection = new Selection();

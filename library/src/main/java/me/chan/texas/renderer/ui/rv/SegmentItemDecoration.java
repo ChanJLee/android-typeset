@@ -3,7 +3,7 @@ package me.chan.texas.renderer.ui.rv;
 import android.graphics.Rect;
 import android.view.View;
 
-import me.chan.texas.renderer.ui.TexasAdapter;
+import me.chan.texas.renderer.ui.RendererAdapter;
 import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.Segment;
 
@@ -11,9 +11,9 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 public class SegmentItemDecoration extends RecyclerView.ItemDecoration {
-	private final TexasAdapter mAdapter;
+	private final RendererAdapter mAdapter;
 
-	public SegmentItemDecoration(TexasAdapter adapter) {
+	public SegmentItemDecoration(RendererAdapter adapter) {
 		mAdapter = adapter;
 	}
 

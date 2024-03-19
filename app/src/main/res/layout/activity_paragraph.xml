@@ -51,6 +51,12 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="改变行高" />
+
+        <Button
+            android:id="@+id/scroll_content"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="滚动" />
     </LinearLayout>
 
     <FrameLayout
@@ -62,7 +68,7 @@
             android:id="@+id/text"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            app:com_shanbay_lib_texas_selectedBackgroundRoundRadius="3dp" />
+            app:me_chan_texas_TexasView_selectedBackgroundRoundRadius="3dp" />
 
         <LinearLayout
             android:id="@+id/option_container"
