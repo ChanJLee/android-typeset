@@ -254,10 +254,6 @@ public class RenderWorker implements TaskQueue.Task<RenderWorker.Args, Void>, Ta
 		private Args mArgs;
 		private boolean mIsInterrupted = false;
 
-		public DrawVisitor() {
-			super(true);
-		}
-
 		void setCanvas(Canvas canvas) {
 			mCanvas = canvas;
 		}
