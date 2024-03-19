@@ -9,8 +9,6 @@ import me.chan.texas.measurer.Measurer;
 import me.chan.texas.source.SourceCloseException;
 import me.chan.texas.source.SourceOpenException;
 import me.chan.texas.measurer.MockMeasurer;
-import me.chan.texas.test.mock.MockTextAttribute;
-import me.chan.texas.test.mock.MockTextPaint;
 import me.chan.texas.text.layout.Box;
 import me.chan.texas.text.Document;
 import me.chan.texas.text.layout.Element;
@@ -31,6 +29,9 @@ import java.io.InputStreamReader;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+
+import com.shanbay.lib.texas.test.mock.MockTextAttribute;
+import com.shanbay.lib.texas.test.mock.MockTextPaint;
 
 public class ParserUnitTest {
 

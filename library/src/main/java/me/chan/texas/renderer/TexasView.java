@@ -24,6 +24,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.UiThread;
+import androidx.annotation.VisibleForTesting;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -945,6 +946,12 @@ public final class TexasView extends FrameLayout {
 		@Nullable
 		@AnyThread
 		protected abstract List<Segment> parse(@NonNull T content, TexasOption texasOption) throws ParseException;
+
+		@VisibleForTesting
+		public final Document getDocument(TexasOption option) throws SourceOpenException, ParseException {
+			LoadingWorker.LoadingResult result = getDocument(option, LoadingStrategy.LOAD);
+			return result.getDocument();
+		}
 
 		@NonNull
 		@RestrictTo(RestrictTo.Scope.LIBRARY)

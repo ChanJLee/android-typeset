@@ -9,12 +9,11 @@ import android.view.View;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import me.chan.texas.TestUtils;
 import me.chan.texas.Texas;
 import me.chan.texas.measurer.MockMeasurer;
-import me.chan.texas.test.mock.MockTextPaint;
 import me.chan.texas.text.RectGround;
 import me.chan.texas.text.Document;
+import me.chan.texas.text.Segment;
 import me.chan.texas.text.layout.DrawableBox;
 import me.chan.texas.text.Emoticon;
 import me.chan.texas.text.Figure;
@@ -35,10 +34,14 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
+
+import com.shanbay.lib.texas.TestUtils;
+import com.shanbay.lib.texas.test.mock.MockTextPaint;
 
 public class DataUnitTest {
 	private TextAttribute mTextAttribute;
@@ -431,7 +434,7 @@ public class DataUnitTest {
 
 		candidate.recycle();
 		Assert.assertTrue(candidate.isRecycled());
-		Assert.assertEquals(candidate.demerits,0, 0);
+		Assert.assertEquals(candidate.demerits, 0, 0);
 		Assert.assertEquals(candidate.ratio, 0, 0);
 		Assert.assertNull(candidate.active);
 
@@ -461,8 +464,10 @@ public class DataUnitTest {
 		} catch (IndexOutOfBoundsException e) {
 		}
 
+		List<Segment> segments = new ArrayList<>();
 		Figure figure = Figure.obtain("", 1, 2);
-		document.addSegment(figure);
+		segments.add(figure);
+		document.insertTail(segments);
 		Assert.assertEquals(document.getSegmentCount(), 1);
 		Assert.assertEquals(0, document.indexOfSegment(figure));
 		Assert.assertEquals(-1, document.indexOfSegment(Figure.obtain("", 1, 2)));
@@ -481,18 +486,14 @@ public class DataUnitTest {
 
 			}
 		};
-		document.setFocusSegment(viewSegment);
-		Assert.assertSame(document.getFocusSegmentSegmentIndex(), -1);
-		document.setFocusSegment(figure);
-		Assert.assertSame(document.getFocusSegmentSegmentIndex(), 0);
-		Assert.assertSame(document.getFocusSegmentOffset(), 0);
-
-		document.setFocusSegment(figure, 10);
-		Assert.assertSame(document.getFocusSegmentSegmentIndex(), 0);
-		Assert.assertSame(document.getFocusSegmentOffset(), 10);
+		segments.clear();
+		segments.add(viewSegment);
+		document.insertHead(segments);
 
 		Assert.assertEquals(document.indexOfSegment(null), -1);
-		Assert.assertEquals(document.indexOfSegment(figure), 0);
+		Assert.assertEquals(document.indexOfSegment(figure), 1);
+		Assert.assertEquals(document.indexOfSegment(viewSegment), 0);
+		Assert.assertEquals(document.getSegmentCount(), 2);
 
 		document.release();
 		Assert.assertEquals(-1, document.indexOfSegment(figure));

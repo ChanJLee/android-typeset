@@ -2,14 +2,15 @@ package me.chan.texas.text;
 
 import android.graphics.drawable.ColorDrawable;
 
-import me.chan.texas.TestUtils;
+import com.shanbay.lib.texas.TestUtils;
+import com.shanbay.lib.texas.test.mock.MockTextPaint;
+
 import me.chan.texas.Texas;
 import me.chan.texas.TexasOption;
 import me.chan.texas.hyphenation.Hyphenation;
 import me.chan.texas.measurer.Measurer;
 import me.chan.texas.measurer.MockMeasurer;
 import me.chan.texas.renderer.RenderOption;
-import me.chan.texas.test.mock.MockTextPaint;
 import me.chan.texas.text.layout.DrawableBox;
 import me.chan.texas.text.layout.Element;
 import me.chan.texas.text.layout.Glue;
