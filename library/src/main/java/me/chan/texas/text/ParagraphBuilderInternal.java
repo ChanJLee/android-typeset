@@ -101,6 +101,7 @@ class ParagraphBuilderInternal {
 		advise.setLineSpace(mLineSpace);
 		advise.setBreakStrategy(mBreakStrategy);
 		mParagraph.mTag = mTag;
+		mParagraph.mId = Segment.UUID.incrementAndGet();
 		return mParagraph;
 	}
 
