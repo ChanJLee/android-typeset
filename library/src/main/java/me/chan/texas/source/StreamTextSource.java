@@ -20,7 +20,7 @@ public class StreamTextSource extends Source<CharSequence> {
 	private final List<CharSequence> mCachedBuffer;
 	private int mIndex = -1;
 
-	private int mLoadBufferSize = 1024;
+	private final int mLoadBufferSize;
 
 	public StreamTextSource(InputStream inputStream) {
 		this(inputStream, -1);
