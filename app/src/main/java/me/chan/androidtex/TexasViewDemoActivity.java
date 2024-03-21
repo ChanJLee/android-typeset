@@ -316,7 +316,7 @@ public class TexasViewDemoActivity extends AppCompatActivity {
 	private void render(final String name, final TexasView texasView) {
 		try {
 			TextAdapter adapter = new TextAdapter();
-			adapter.setSource(new AssetsTextSource(this, name, name.equals("harry1.txt") /* lazy load */));
+			adapter.setSource(new AssetsTextSource(this, name, name.equals("harry1.txt") ? 100 : -1 /* lazy load */));
 			texasView.setAdapter(adapter);
 		} catch (IOException e) {
 			e.printStackTrace();

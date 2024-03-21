@@ -490,7 +490,7 @@ public final class TexasView extends FrameLayout {
 	}
 
 	/**
-	 * 只是简单的重新绘制内容
+	 * 重新绘制内容
 	 */
 	public void redraw() {
 		if (mRenderer != null) {

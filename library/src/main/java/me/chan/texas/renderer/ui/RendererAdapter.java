@@ -95,6 +95,31 @@ public class RendererAdapter extends RecyclerView.Adapter<RendererAdapter.Render
 
 		// 前提是Document没有变化
 		setHasStableIds(true);
+
+		// TODO check we are at first.
+		registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
+			@Override
+			public void onItemRangeChanged(int positionStart, int itemCount) {
+				int size = getItemCount();
+				for (int i = 0; i < itemCount; ++i) {
+					int index = i + positionStart;
+					if (index >= size) {
+						return;
+					}
+
+					Segment segment = getItem(positionStart + i);
+					if (segment instanceof Paragraph) {
+						Paragraph paragraph = (Paragraph) segment;
+						paragraph.invalid();
+					}
+				}
+			}
+
+			@Override
+			public void onItemRangeChanged(int positionStart, int itemCount, @Nullable Object payload) {
+				onItemRangeChanged(positionStart, itemCount);
+			}
+		});
 	}
 
 	public void setListener(Listener listener) {

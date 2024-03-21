@@ -48,6 +48,21 @@ public final class Paragraph extends DefaultRecyclable implements Segment {
 
 	int mId;
 
+	private int mVersion = 1;
+
+	@RestrictTo(LIBRARY)
+	public void invalid() {
+		++mVersion;
+		if (mVersion == 0) {
+			++mVersion;
+		}
+	}
+
+	@RestrictTo(LIBRARY)
+	public int getVersion() {
+		return mVersion;
+	}
+
 	@Nullable
 	@Override
 	public Object getTag() {
