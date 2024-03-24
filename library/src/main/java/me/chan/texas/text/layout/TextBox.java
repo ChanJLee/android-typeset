@@ -127,7 +127,8 @@ public final class TextBox extends Box {
 			return false;
 		}
 
-		// TODO fixme
+		// 目前因为符号问题不能合并的case大概占比 1%不到
+		// TODO 优化下
 		if (mAttribute != box.mAttribute) {
 			return false;
 		}

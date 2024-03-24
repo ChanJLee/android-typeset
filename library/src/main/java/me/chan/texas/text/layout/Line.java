@@ -205,7 +205,6 @@ public class Line extends DefaultRecyclable {
 			// 添加 -
 			appendIfSuffix(mElements, mLastTextElement);
 
-			// TODO 修复需要合并的情况
 			// 合並
 			mergeText(mLine, mElements);
 
