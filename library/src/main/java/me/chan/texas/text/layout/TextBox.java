@@ -128,6 +128,7 @@ public final class TextBox extends Box {
 		}
 
 		// 目前因为符号问题不能合并的case大概占比 1%不到
+		// 但是能提高 30% 后续遍历的性能
 		// TODO 优化下
 		if (mAttribute != box.mAttribute) {
 			return false;
