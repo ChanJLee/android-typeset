@@ -127,9 +127,18 @@ public final class TextBox extends Box {
 			return false;
 		}
 
-		this.mEnd = box.mEnd;
-		this.mHeight = Math.max(this.mHeight, box.mHeight);
+		// TODO fixme
+		if (mAttribute != box.mAttribute) {
+			return false;
+		}
+
 		this.mWidth += box.mWidth;
+		this.mHeight = Math.max(this.mHeight, box.mHeight);
+		this.mEnd = box.mEnd;
+		this.mAttribute |= box.mAttribute;
+		this.mTopPadding = Math.max(this.mTopPadding, box.mTopPadding);
+		this.mBottomPadding = Math.max(this.mBottomPadding, box.mBottomPadding);
+		this.mBaselineOffset = Math.max(this.mBaselineOffset, box.mBaselineOffset);
 		return true;
 	}
 
@@ -184,6 +193,10 @@ public final class TextBox extends Box {
 		result = 31 * result + mAttribute;
 		result = 31 * result + mGroupId;
 		return result;
+	}
+
+	public int getGroupId() {
+		return mGroupId;
 	}
 
 	/**
