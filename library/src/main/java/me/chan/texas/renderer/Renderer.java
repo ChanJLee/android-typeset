@@ -138,7 +138,6 @@ public class Renderer implements SelectionManager.Listener {
 		mImpl.addOnScrollListener(mOnScrollListener);
 
 		mAdapter = new RendererAdapter(layoutInflater, imageLoader, mImpl.getRecycledViewPool(), mImpl);
-		mAdapter.setHasStableIds(true);
 		mAdapter.setListener(new RendererAdapter.Listener() {
 			@Override
 			public void onSegmentClicked(float x, float y, Object tag) {
