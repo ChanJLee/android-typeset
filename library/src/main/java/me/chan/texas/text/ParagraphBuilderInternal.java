@@ -12,6 +12,7 @@ import me.chan.texas.Texas;
 import me.chan.texas.TexasOption;
 import me.chan.texas.hyphenation.Hyphenation;
 import me.chan.texas.measurer.Measurer;
+import me.chan.texas.text.icu.UnicodeUtils;
 import me.chan.texas.text.layout.Element;
 import me.chan.texas.text.layout.Glue;
 import me.chan.texas.text.layout.Layout;
@@ -411,7 +412,7 @@ class ParagraphBuilderInternal {
 		}
 
 		mHyphenated.clear();
-		mHyphenation.hyphenate(text, start, end, mHyphenated);
+		int groupId = mHyphenation.hyphenate(text, start, end, mHyphenated);
 		int size = mHyphenated.size();
 		if (size == 0) {
 			appendElement(TextBox.obtain(text, start, end,
@@ -419,7 +420,8 @@ class ParagraphBuilderInternal {
 					textStyle,
 					tag,
 					background,
-					foreground
+					foreground,
+					groupId
 			));
 		} else {
 			for (int j = 0; j < size; ++j) {
@@ -428,22 +430,28 @@ class ParagraphBuilderInternal {
 					continue;
 				}
 
-				appendElement(TextBox.obtain(text, start, point,
+				TextBox box = TextBox.obtain(text, start, point,
 						mMeasurer,
 						textStyle,
 						tag,
 						background,
-						foreground
-				));
+						foreground,
+						groupId
+				);
+				appendElement(box);
 				if (j != size - 1) {
-					appendElement(Penalty.obtain(
-							Texas.HYPHEN_PENALTY,
-							text.charAt(point - 1) != '-',
-							tag,
-							textStyle,
-							mMeasurer,
-							mTextAttribute
-					));
+					if (UnicodeUtils.isHyphen(text.charAt(point - 1))) {
+						box.addAttribute(TextBox.ATTRIBUTE_PENALTY);
+						appendElement(Penalty.obtainFakePenalty(Texas.HYPHEN_PENALTY, groupId));
+					} else {
+						appendElement(Penalty.obtain(Texas.HYPHEN_PENALTY,
+								tag,
+								textStyle,
+								mMeasurer,
+								mTextAttribute,
+								groupId
+						));
+					}
 				}
 				start = point;
 			}

@@ -240,7 +240,7 @@ public class Line extends DefaultRecyclable {
 			Element element = line.getElement(size - 1);
 			if (element instanceof TextBox) {
 				TextBox copy = TextBox.obtain((TextBox) element);
-				copy.appendContent((Penalty) lastElement);
+				copy.merge((Penalty) lastElement);
 				line.mElements.set(size - 1, copy);
 				line.mBottomPadding = Math.max(copy.getBottomPadding(), line.mBottomPadding);
 				line.mTopPadding = Math.max(copy.getTopPadding(), line.mTopPadding);

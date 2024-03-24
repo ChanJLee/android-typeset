@@ -8,6 +8,8 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.collection.SparseArrayCompat;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 import me.chan.texas.Texas;
 import me.chan.texas.misc.ObjectPool;
 import me.chan.texas.utils.IntArray;
@@ -19,6 +21,10 @@ import me.chan.texas.utils.Lazy;
 @RestrictTo(LIBRARY)
 public class Hyphenation {
 	private static final ObjectPool<IntArray> POOL = new ObjectPool<>(4);
+
+	public static final int NONE_GROUP_ID = 0;
+
+	private static final AtomicInteger UUID = new AtomicInteger(0);
 
 	static {
 		Texas.registerLifecycleCallback(new Texas.LifecycleCallback() {
@@ -84,6 +90,14 @@ public class Hyphenation {
 		}
 
 		throw new IllegalArgumentException("unknown pattern");
+	}
+
+	private static int nextId() {
+		int id = UUID.incrementAndGet();
+		if (id == NONE_GROUP_ID) {
+			id = UUID.incrementAndGet();
+		}
+		return id;
 	}
 
 	private static TrieNode createTrie(SparseArrayCompat<String> pattern) {
@@ -152,9 +166,9 @@ public class Hyphenation {
 		t.points = array;
 	}
 
-	public void hyphenate(@NonNull CharSequence text, int start, int end, @NonNull IntArray result) {
+	public int hyphenate(@NonNull CharSequence text, int start, int end, @NonNull IntArray result) {
 		if (start == end || mTrie == null) {
-			return;
+			return NONE_GROUP_ID;
 		}
 
 		String word = String.valueOf(text);
@@ -214,6 +228,8 @@ public class Hyphenation {
 		}
 
 		release(points);
+
+		return nextId();
 	}
 
 	private static IntArray obtain(int size) {
