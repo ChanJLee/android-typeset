@@ -123,4 +123,9 @@ public class UnicodeUtils {
 				isSpace(codePoint) ||
 				isWhitespace(codePoint);
 	}
+
+	@RestrictTo(RestrictTo.Scope.LIBRARY)
+	public static boolean isHyphen(int codePoint) {
+		return codePoint == '-';
+	}
 }

@@ -11,8 +11,10 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 
+import me.chan.texas.BuildConfig;
 import me.chan.texas.Texas;
 import me.chan.texas.annotations.Internal;
+import me.chan.texas.hyphenation.Hyphenation;
 import me.chan.texas.measurer.Measurer;
 import me.chan.texas.misc.ObjectPool;
 import me.chan.texas.text.Appearance;
@@ -74,6 +76,8 @@ public final class TextBox extends Box {
 	@Internal
 	private int mAttribute = ATTRIBUTE_NONE;
 
+	private int mGroupId = Hyphenation.NONE_GROUP_ID;
+
 	private TextBox(float width, float height) {
 		super(width, height);
 	}
@@ -110,12 +114,16 @@ public final class TextBox extends Box {
 		mTopPadding = other.mTopPadding;
 		mBottomPadding = other.mBottomPadding;
 		mBaselineOffset = other.mBaselineOffset;
+
+		mGroupId = other.mGroupId;
 	}
 
 	// todo fix unit test
-	public boolean append(@NonNull TextBox box) {
-		if (this.mText != box.mText ||
-				this.mEnd != box.mStart) {
+	public boolean merge(@NonNull TextBox box) {
+		if (this.mGroupId != box.mGroupId) {
+			if (BuildConfig.DEBUG) {
+				throw new IllegalStateException("can't merge text box with difference group id");
+			}
 			return false;
 		}
 
@@ -123,29 +131,6 @@ public final class TextBox extends Box {
 		this.mHeight = Math.max(this.mHeight, box.mHeight);
 		this.mWidth += box.mWidth;
 		return true;
-	}
-
-	/**
-	 * @param penalty 累加另外一个元素的文本值
-	 */
-	public void append(Penalty penalty) {
-		// check tag ?
-		if (isPenalty()) {
-			throw new IllegalStateException("set text box penalty twice");
-		}
-
-		if (penalty.getWidth() == 0) {
-			return;
-		}
-
-		addAttribute(ATTRIBUTE_PENALTY);
-		mWidth += penalty.getWidth();
-		mHeight = Math.max(mHeight, penalty.getHeight());
-
-		// todo None copy
-		mText = mText.subSequence(mStart, mEnd) + "-";
-		mStart = 0;
-		mEnd = mText.length();
 	}
 
 	public TextStyle getTextStyle() {
@@ -164,6 +149,7 @@ public final class TextBox extends Box {
 		mTextStyle = null;
 		mAttribute = ATTRIBUTE_NONE;
 		mTopPadding = mBottomPadding = mBaselineOffset = 0;
+		mGroupId = Hyphenation.NONE_GROUP_ID;
 		POOL.release(this);
 	}
 
@@ -182,6 +168,7 @@ public final class TextBox extends Box {
 		if (Float.compare(textBox.mBaselineOffset, mBaselineOffset) != 0) return false;
 		if (mAttribute != textBox.mAttribute) return false;
 		if (mText != null ? !mText.equals(textBox.mText) : textBox.mText != null) return false;
+		if (mGroupId != textBox.mGroupId) return false;
 		return mTextStyle != null ? mTextStyle.equals(textBox.mTextStyle) : textBox.mTextStyle == null;
 	}
 
@@ -195,16 +182,23 @@ public final class TextBox extends Box {
 		result = 31 * result + (mBottomPadding != +0.0f ? Float.floatToIntBits(mBottomPadding) : 0);
 		result = 31 * result + (mBaselineOffset != +0.0f ? Float.floatToIntBits(mBaselineOffset) : 0);
 		result = 31 * result + mAttribute;
+		result = 31 * result + mGroupId;
 		return result;
 	}
 
 	/**
 	 * @param penalty 累加另外一个元素的文本值
 	 */
-	public void appendContent(Penalty penalty) {
+	public void merge(Penalty penalty) {
 		// check tag ?
 		if (isPenalty()) {
 			throw new IllegalStateException("set text box penalty twice");
+		}
+
+		if (penalty.getGroupId() != mGroupId) {
+			if (BuildConfig.DEBUG) {
+				throw new IllegalStateException("can't merge penalty with difference group id");
+			}
 		}
 
 		if (penalty.getWidth() == 0) {
@@ -287,9 +281,18 @@ public final class TextBox extends Box {
 								 Object tag,
 								 Appearance background,
 								 Appearance foreground) {
+		return obtain(charSequence, start, end, measurer, textStyle, tag, background, foreground, Hyphenation.NONE_GROUP_ID);
+	}
+
+	public static TextBox obtain(@NonNull CharSequence charSequence, int start, int end,
+								 Measurer measurer,
+								 TextStyle textStyle,
+								 Object tag,
+								 Appearance background,
+								 Appearance foreground, int groupId) {
 		TextBox textBox = obtain(
 				charSequence, start, end, 0, 0,
-				textStyle, tag, background, foreground
+				textStyle, tag, background, foreground, groupId
 		);
 		textBox.measure(measurer, null);
 		return textBox;
@@ -300,7 +303,8 @@ public final class TextBox extends Box {
 								  TextStyle textStyle,
 								  Object tag,
 								  Appearance background,
-								  Appearance foreground) {
+								  Appearance foreground,
+								  int groupId) {
 		TextBox box = POOL.acquire();
 		if (box == null) {
 			box = new TextBox(charSequence, start, end, width, height, textStyle);
@@ -315,6 +319,8 @@ public final class TextBox extends Box {
 		box.mStart = start;
 		box.mEnd = end;
 		box.mTextStyle = textStyle;
+
+		box.mGroupId = groupId;
 
 		box.reuse();
 		return box;
