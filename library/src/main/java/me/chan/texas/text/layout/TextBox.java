@@ -197,9 +197,6 @@ public final class TextBox extends Box {
 		return result;
 	}
 
-	public int getGroupId() {
-		return mGroupId;
-	}
 
 	/**
 	 * @param penalty 累加另外一个元素的文本值
@@ -208,12 +205,6 @@ public final class TextBox extends Box {
 		// check tag ?
 		if (isPenalty()) {
 			throw new IllegalStateException("set text box penalty twice");
-		}
-
-		if (penalty.getGroupId() != mGroupId) {
-			if (BuildConfig.DEBUG) {
-				throw new IllegalStateException("can't merge penalty with difference group id");
-			}
 		}
 
 		if (penalty.getWidth() == 0) {
@@ -227,6 +218,14 @@ public final class TextBox extends Box {
 		mText = mText.subSequence(mStart, mEnd) + "-";
 		mStart = 0;
 		mEnd = mText.length();
+	}
+
+	public boolean isSameGroup(TextBox box) {
+		if (mGroupId == Hyphenation.NONE_GROUP_ID) {
+			return false;
+		}
+
+		return mGroupId == box.mGroupId;
 	}
 
 	@Override

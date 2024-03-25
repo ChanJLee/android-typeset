@@ -442,14 +442,13 @@ class ParagraphBuilderInternal {
 				if (j != size - 1) {
 					if (UnicodeUtils.isHyphen(text.charAt(point - 1))) {
 						box.addAttribute(TextBox.ATTRIBUTE_PENALTY);
-						appendElement(Penalty.obtainFakePenalty(Texas.HYPHEN_PENALTY, groupId));
+						appendElement(Penalty.obtainFakePenalty(Texas.HYPHEN_PENALTY));
 					} else {
 						appendElement(Penalty.obtain(Texas.HYPHEN_PENALTY,
 								tag,
 								textStyle,
 								mMeasurer,
-								mTextAttribute,
-								groupId
+								mTextAttribute
 						));
 					}
 				}

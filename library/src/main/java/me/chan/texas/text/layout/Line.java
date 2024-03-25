@@ -246,7 +246,7 @@ public class Line extends DefaultRecyclable {
 
 				TextBox current = (TextBox) element;
 				TextBox next = (TextBox) nextElement;
-				if (next.getGroupId() != current.getGroupId()) {
+				if (!next.isSameGroup(current)) {
 					line.add(element);
 					continue;
 				}
@@ -268,7 +268,7 @@ public class Line extends DefaultRecyclable {
 					}
 
 					next = (TextBox) nextElement;
-					if (next.getGroupId() != current.getGroupId()) {
+					if (!next.isSameGroup(current)) {
 						break;
 					}
 

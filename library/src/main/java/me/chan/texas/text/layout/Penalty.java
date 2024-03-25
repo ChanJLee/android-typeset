@@ -4,7 +4,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 
 import me.chan.texas.Texas;
-import me.chan.texas.hyphenation.Hyphenation;
 import me.chan.texas.measurer.Measurer;
 import me.chan.texas.misc.ObjectPool;
 import me.chan.texas.text.TextAttribute;
@@ -122,8 +121,6 @@ public class Penalty extends Element {
 	private Object mTag;
 	private TextStyle mTextStyle;
 
-	private int mGroupId = Hyphenation.NONE_GROUP_ID;
-
 	private Penalty() {
 	}
 
@@ -172,7 +169,6 @@ public class Penalty extends Element {
 		mFlag = false;
 		mTag = null;
 		mTextStyle = null;
-		mGroupId = Hyphenation.NONE_GROUP_ID;
 		POOL.release(this);
 	}
 
@@ -196,29 +192,23 @@ public class Penalty extends Element {
 		spec.recycle();
 	}
 
-	public int getGroupId() {
-		return mGroupId;
-	}
-
 	public static void clean() {
 		POOL.clean();
 	}
 
-	public static Penalty obtainFakePenalty(float penalty, int groupId) {
-		return obtain(penalty, false, null, null, null, null, groupId);
+	public static Penalty obtainFakePenalty(float penalty) {
+		return obtain(penalty, false, null, null, null, null);
 	}
 
 	public static Penalty obtain(float penalty,
 								 Object tag, TextStyle textStyle,
-								 Measurer measurer, TextAttribute textAttribute,
-								 int groupId) {
-		return obtain(penalty, true, tag, textStyle, measurer, textAttribute, groupId);
+								 Measurer measurer, TextAttribute textAttribute) {
+		return obtain(penalty, true, tag, textStyle, measurer, textAttribute);
 	}
 
 	@NonNull
 	public static Penalty obtain(float penalty, boolean flag/* 不是连字符 true, 连字符 false */,
-								 Object tag, TextStyle textStyle, Measurer measurer, TextAttribute textAttribute,
-								 int groupId) {
+								 Object tag, TextStyle textStyle, Measurer measurer, TextAttribute textAttribute) {
 		Penalty p = POOL.acquire();
 		if (p == null) {
 			p = new Penalty();
@@ -229,7 +219,6 @@ public class Penalty extends Element {
 		p.mPenalty = penalty;
 		p.mTag = tag;
 		p.mTextStyle = textStyle;
-		p.mGroupId = groupId;
 		p.measure(measurer, textAttribute);
 		return p;
 	}
