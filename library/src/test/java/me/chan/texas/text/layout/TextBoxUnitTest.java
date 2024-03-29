@@ -180,7 +180,7 @@ public class TextBoxUnitTest {
 		Assert.assertFalse(textBox.isRecycled());
 
 		Penalty penalty = Penalty.obtain(10, true, null, null, mMockMeasurer, mTextAttribute);
-		textBox.appendContent(penalty);
+		textBox.merge(penalty);
 
 		// check content not changed except text
 		msg = "hello-";
@@ -217,7 +217,7 @@ public class TextBoxUnitTest {
 		Assert.assertFalse(textBox.isPenalty());
 		Assert.assertFalse(textBox.isRecycled());
 
-		textBox.appendContent(penalty);
+		textBox.merge(penalty);
 		Assert.assertEquals(textBox.getWidth(), 2 * mMockTextPaint.getMockTextSize(), 0);
 		Assert.assertEquals(textBox.getHeight(), mMockTextPaint.getMockTextHeight(), 0);
 		Assert.assertEquals(textBox.getTag(), mTag);
@@ -235,7 +235,7 @@ public class TextBoxUnitTest {
 
 		// test append penalty twice
 		try {
-			textBox.appendContent(penalty);
+			textBox.merge(penalty);
 			Assert.fail();
 		} catch (Throwable t) {
 
@@ -320,7 +320,7 @@ public class TextBoxUnitTest {
 
 		Penalty penalty = Penalty.obtain(0, true, null, null, mMockMeasurer, mTextAttribute);
 		Assert.assertFalse(textBox.isPenalty());
-		textBox.appendContent(penalty);
+		textBox.merge(penalty);
 		Assert.assertTrue(textBox.isPenalty());
 		Assert.assertFalse(textBox.isRecycled());
 
@@ -394,7 +394,7 @@ public class TextBoxUnitTest {
 		Assert.assertNotEquals(lhs.getForeground(), rhs.getForeground());
 
 		Penalty penalty = Penalty.obtain(1, true, null, null, mMockMeasurer, mTextAttribute);
-		rhs.appendContent(penalty);
+		rhs.merge(penalty);
 
 		// text box
 		Assert.assertNotEquals(lhs.toString(), rhs.toString());
