@@ -238,8 +238,6 @@ public class RendererAdapter extends RecyclerView.Adapter<RendererAdapter.Render
 		if (segment == null) {
 			throw new IllegalStateException("segment is null");
 		}
-		long id = segment.getId();
-		Log.d("chan_debug", "position: " + position + ", id: " + id);
 		return segment.getId();
 	}
 
