@@ -320,7 +320,7 @@ public class ParagraphView extends FrameLayout {
 		if (BuildConfig.DEBUG) {
 			Log.d(TAG, "onMeasure: widthSpec = " + MeasureSpec.toString(widthMeasureSpec) +
 					", heightSpec = " + MeasureSpec.toString(heightMeasureSpec) +
-					", width = " + getMeasuredWidth() + "" +
+					", width = " + getMeasuredWidth() +
 					", height = " + getMeasuredHeight() +
 					", tag = " + getTag());
 		}
