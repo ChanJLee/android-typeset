@@ -99,7 +99,7 @@ public class TypesetEngine {
 		}
 
 		// 先取消之前已经提交的排版任务
-		if (strategy == LoadingStrategy.LOAD || strategy == LoadingStrategy.TYPESET_ONLY) {
+		if (strategy == LoadingStrategy.INIT || strategy == LoadingStrategy.TYPESET_ONLY) {
 			WorkerScheduler.mix().cancel(mToken);
 		}
 
@@ -147,7 +147,7 @@ public class TypesetEngine {
 
 	public void load(String reason, int width, LoadingStrategy strategy, TexasView.Adapter<?> adapter, Listener listener) {
 		// 非增量的加载，都需要取消之前的任务
-		if (strategy == LoadingStrategy.LOAD) {
+		if (strategy == LoadingStrategy.INIT) {
 			cancel();
 		}
 

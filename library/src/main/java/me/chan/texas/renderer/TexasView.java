@@ -887,7 +887,7 @@ public final class TexasView extends FrameLayout {
 		private void attach(@NonNull TexasView view) {
 			mTexasView = view;
 			if (mSource != null) {
-				view.load("adapter attached", LoadingStrategy.LOAD);
+				view.load("adapter attached", LoadingStrategy.INIT);
 			}
 		}
 
@@ -925,7 +925,7 @@ public final class TexasView extends FrameLayout {
 
 			// start load more
 			if (mTexasView != null && previous != mSource) {
-				mTexasView.load("new source", LoadingStrategy.LOAD);
+				mTexasView.load("new source", LoadingStrategy.INIT);
 			}
 
 			if (previous != null && previous != source) {
@@ -949,7 +949,7 @@ public final class TexasView extends FrameLayout {
 
 		@VisibleForTesting
 		public final Document getDocument(TexasOption option) throws SourceOpenException, ParseException {
-			LoadingWorker.LoadingResult result = getDocument(option, LoadingStrategy.LOAD);
+			LoadingWorker.LoadingResult result = getDocument(option, LoadingStrategy.INIT);
 			return result.getDocument();
 		}
 
@@ -977,7 +977,7 @@ public final class TexasView extends FrameLayout {
 				int start = mDocument.getSegmentCount();
 				mDocument.insertTail(segments);
 				return LoadingWorker.LoadingResult.obtain(loadType, mDocument, start, start + segments.size());
-			} else if (loadType == LoadingStrategy.LOAD) {
+			} else if (loadType == LoadingStrategy.INIT) {
 				mDocument.clear();
 				mDocument.insertTail(segments);
 				return LoadingWorker.LoadingResult.obtain(loadType, mDocument);
