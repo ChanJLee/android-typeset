@@ -12,7 +12,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public interface Segment {
 
-	AtomicInteger UUID = new AtomicInteger(0);
+	AtomicInteger SEGMENT_UUID = new AtomicInteger(0);
 
 	/**
 	 * @return 获取当前segment的唯一标识
@@ -38,4 +38,8 @@ public interface Segment {
 
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
 	int getId();
+
+	static int nextId() {
+		return SEGMENT_UUID.incrementAndGet();
+	}
 }
