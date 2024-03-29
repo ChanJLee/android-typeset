@@ -234,7 +234,13 @@ public class RendererAdapter extends RecyclerView.Adapter<RendererAdapter.Render
 
 	@Override
 	public long getItemId(int position) {
-		return getItem(position).getId();
+		Segment segment = getItem(position);
+		if (segment == null) {
+			throw new IllegalStateException("segment is null");
+		}
+		long id = segment.getId();
+		Log.d("chan_debug", "position: " + position + ", id: " + id);
+		return segment.getId();
 	}
 
 	@SuppressLint("NotifyDataSetChanged")
