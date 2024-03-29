@@ -270,7 +270,7 @@ public class RendererAdapter extends RecyclerView.Adapter<RendererAdapter.Render
 
 		// refresh content
 		if (prev != document ||
-				strategy == LoadingStrategy.LOAD) {
+				strategy == LoadingStrategy.INIT) {
 			notifyDataSetChanged();
 			return;
 		}

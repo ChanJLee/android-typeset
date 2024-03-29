@@ -265,7 +265,7 @@ public class TypesetterUnitTest {
 		RenderOption renderOption = new RenderOption();
 		textParser.setSource(new ObjectSource<>(text));
 		TexasOption texasOption = new TexasOption(Hyphenation.getInstance(), mMockMeasurer, mMockTextAttribute, renderOption);
-		LoadingWorker.LoadingResult result = textParser.getDocument(texasOption, LoadingStrategy.LOAD);
+		LoadingWorker.LoadingResult result = textParser.getDocument(texasOption, LoadingStrategy.INIT);
 		Document document = result.getDocument();
 		assertNotEquals(document.getSegmentCount(), 0);
 

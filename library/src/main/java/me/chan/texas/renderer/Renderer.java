@@ -242,7 +242,7 @@ public class Renderer implements SelectionManager.Listener {
 
 		if (cmpType == TexasUtils.CmpType.CMP_LOAD) {
 			d("render option changed, load");
-			load("render option changed", mTypesetEngine.getWidth(), LoadingStrategy.LOAD);
+			load("render option changed", mTypesetEngine.getWidth(), LoadingStrategy.INIT);
 			return;
 		} else if (cmpType == TexasUtils.CmpType.CMP_TYPESET) {
 			d("render option changed, typeset");

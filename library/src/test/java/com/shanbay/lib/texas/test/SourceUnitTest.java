@@ -25,7 +25,7 @@ public class SourceUnitTest {
 		StreamTextSource streamSource = new StreamTextSource(fileInputStream);
 		CharSequence charSequence = null;
 		try {
-			charSequence = streamSource.open(LoadingStrategy.LOAD);
+			charSequence = streamSource.open(LoadingStrategy.INIT);
 		} catch (SourceOpenException e) {
 		}
 
@@ -43,30 +43,27 @@ public class SourceUnitTest {
 		fileInputStream = new MockFileInputStream(file);
 		try {
 			streamSource = new StreamTextSource(fileInputStream);
-			streamSource.open(LoadingStrategy.LOAD);
+			streamSource.open(LoadingStrategy.INIT);
 			Assert.fail("test read bad file failed");
 		} catch (SourceOpenException e) {
 		}
 	}
 
 	@Test
-	public void testLoadingStrategy() {
-		StreamTextSource streamSource = new StreamTextSource(new MockInputStream(), 1);
-		CharSequence charSequence = null;
-		try {
-			charSequence = streamSource.open(LoadingStrategy.LOAD);
-			System.out.println(charSequence);
-		} catch (SourceOpenException e) {
-		}
+	public void testLoadingStrategy() throws SourceOpenException {
+		StreamTextSource streamSource = new StreamTextSource(new MockInputStream());
 
-		Assert.assertNotNull(charSequence);
+		Assert.assertNull(streamSource.open(LoadingStrategy.LOAD_PREVIOUS));
+		Assert.assertEquals(streamSource.open(LoadingStrategy.INIT), "0\n");
+		Assert.assertNull(streamSource.open(LoadingStrategy.LOAD_PREVIOUS));
+		Assert.assertEquals(streamSource.open(LoadingStrategy.INIT), "1\n");
 
 		streamSource.close();
 	}
 
 	private static class MockInputStream extends InputStream {
 
-		private final byte[] mBytes = "0\n1\n2\n3\n4\n5\n6\n7\n8\n9\n".getBytes();
+		private final byte[] mBytes = "0\n1\n2\n3".getBytes();
 		private int mPtr;
 
 		@Override
