@@ -18,6 +18,18 @@ import me.chan.texas.text.Segment;
  */
 @RestrictTo(LIBRARY)
 public class TextAdapter extends TexasView.Adapter<CharSequence> {
+
+	@Paragraph.TypesetPolicy
+	private final int mTypesetPolicy;
+
+	public TextAdapter() {
+		this(Paragraph.TYPESET_POLICY_EN);
+	}
+
+	public TextAdapter(int typesetPolicy) {
+		mTypesetPolicy = typesetPolicy;
+	}
+
 	@Override
 	@NonNull
 	protected List<Segment> parse(CharSequence charSequence, TexasOption texasOption) {
@@ -26,7 +38,7 @@ public class TextAdapter extends TexasView.Adapter<CharSequence> {
 		for (int i = skipBlank(charSequence, 0, len); i < len; ) {
 			int last = findNewline(charSequence, i, len);
 			if (i != last) {
-				Paragraph.Builder builder = Paragraph.Builder.newBuilder(texasOption);
+				Paragraph.Builder builder = Paragraph.Builder.newBuilder(texasOption, mTypesetPolicy);
 				parse(charSequence, i, last, builder);
 				segments.add(builder.build());
 			}
