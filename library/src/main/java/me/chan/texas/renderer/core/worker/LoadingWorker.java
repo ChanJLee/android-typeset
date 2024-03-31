@@ -179,6 +179,10 @@ public class LoadingWorker implements TaskQueue.Listener<LoadingWorker.Args, Loa
             result.reuse();
             return result;
         }
+
+        public Document getDocument() {
+            return document;
+        }
     }
 
     public static class Args extends DefaultRecyclable {

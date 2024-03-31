@@ -24,6 +24,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.UiThread;
+import androidx.annotation.VisibleForTesting;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -489,7 +490,7 @@ public final class TexasView extends FrameLayout {
 	}
 
 	/**
-	 * 只是简单的重新绘制内容
+	 * 重新绘制内容
 	 */
 	public void redraw() {
 		if (mRenderer != null) {
@@ -886,7 +887,7 @@ public final class TexasView extends FrameLayout {
 		private void attach(@NonNull TexasView view) {
 			mTexasView = view;
 			if (mSource != null) {
-				view.load("adapter attached", LoadingStrategy.LOAD);
+				view.load("adapter attached", LoadingStrategy.INIT);
 			}
 		}
 
@@ -924,7 +925,7 @@ public final class TexasView extends FrameLayout {
 
 			// start load more
 			if (mTexasView != null && previous != mSource) {
-				mTexasView.load("new source", LoadingStrategy.LOAD);
+				mTexasView.load("new source", LoadingStrategy.INIT);
 			}
 
 			if (previous != null && previous != source) {
@@ -945,6 +946,12 @@ public final class TexasView extends FrameLayout {
 		@Nullable
 		@AnyThread
 		protected abstract List<Segment> parse(@NonNull T content, TexasOption texasOption) throws ParseException;
+
+		@VisibleForTesting
+		public final Document getDocument(TexasOption option) throws SourceOpenException, ParseException {
+			LoadingWorker.LoadingResult result = getDocument(option, LoadingStrategy.INIT);
+			return result.getDocument();
+		}
 
 		@NonNull
 		@RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -970,7 +977,7 @@ public final class TexasView extends FrameLayout {
 				int start = mDocument.getSegmentCount();
 				mDocument.insertTail(segments);
 				return LoadingWorker.LoadingResult.obtain(loadType, mDocument, start, start + segments.size());
-			} else if (loadType == LoadingStrategy.LOAD) {
+			} else if (loadType == LoadingStrategy.INIT) {
 				mDocument.clear();
 				mDocument.insertTail(segments);
 				return LoadingWorker.LoadingResult.obtain(loadType, mDocument);

@@ -53,7 +53,7 @@ public abstract class ViewSegment extends DefaultRecyclable implements Segment {
 		mTag = tag;
 		mLayout = layout;
 		mIncremental = incremental;
-		mId = UUID.getAndIncrement();
+		mId = Segment.nextId();
 	}
 
 	@RestrictTo(LIBRARY)
@@ -88,6 +88,7 @@ public abstract class ViewSegment extends DefaultRecyclable implements Segment {
 		mRect = null;
 		mIncremental = false;
 		mLayout = 0;
+		mId = 0;
 	}
 
 	@Override

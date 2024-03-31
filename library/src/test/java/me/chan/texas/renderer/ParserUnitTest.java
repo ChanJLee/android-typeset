@@ -9,8 +9,6 @@ import me.chan.texas.measurer.Measurer;
 import me.chan.texas.source.SourceCloseException;
 import me.chan.texas.source.SourceOpenException;
 import me.chan.texas.measurer.MockMeasurer;
-import me.chan.texas.test.mock.MockTextAttribute;
-import me.chan.texas.test.mock.MockTextPaint;
 import me.chan.texas.text.layout.Box;
 import me.chan.texas.text.Document;
 import me.chan.texas.text.layout.Element;
@@ -31,6 +29,9 @@ import java.io.InputStreamReader;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+
+import com.shanbay.lib.texas.test.mock.MockTextAttribute;
+import com.shanbay.lib.texas.test.mock.MockTextPaint;
 
 public class ParserUnitTest {
 
@@ -58,7 +59,7 @@ public class ParserUnitTest {
 	}
 
 	@Test
-	public void testBase() throws InterruptedException, SourceCloseException, SourceOpenException, ParseException {
+	public void testBase() throws SourceOpenException, ParseException {
 		MockTextPaint paint = new MockTextPaint();
 		paint.setTextSize(18);
 		MockTextAttribute mockTextAttribute = new MockTextAttribute(paint);
@@ -66,7 +67,7 @@ public class ParserUnitTest {
 		Measurer measurer = new MockMeasurer(paint);
 		TextAdapter textParser = new TextAdapter();
 		textParser.setData("hello\n\nworld\n\n");
-		TexasOption texasOption = new TexasOption( Hyphenation.getInstance(),measurer, mockTextAttribute, renderOption);
+		TexasOption texasOption = new TexasOption(Hyphenation.getInstance(), measurer, mockTextAttribute, renderOption);
 		Document document = textParser.getDocument(texasOption);
 		assertEquals(document.getSegmentCount(), 2);
 
@@ -78,13 +79,8 @@ public class ParserUnitTest {
 		document = textParser.getDocument(texasOption);
 		assertEquals(document.getSegmentCount(), 0);
 
-		try {
-			textParser.setData(null);
-			textParser.getDocument(texasOption);
-			Assert.fail("test parse null string");
-		} catch (Throwable e) {
-			assertFalse(e instanceof AssertionError);
-		}
+		textParser.setData(null);
+		textParser.getDocument(texasOption);
 
 		textParser.setData(" hello");
 		document = textParser.getDocument(texasOption);

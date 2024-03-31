@@ -15,7 +15,7 @@ public enum LoadingStrategy {
 	/**
 	 * 重新加载数据
 	 */
-	LOAD,
+	INIT,
 	/**
 	 * 只重新排版，不重新加载数据
 	 */

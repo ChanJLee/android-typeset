@@ -2,15 +2,17 @@ package me.chan.texas.renderer;
 
 import android.graphics.RectF;
 
-import me.chan.texas.TestUtils;
+import com.shanbay.lib.texas.TestUtils;
+import com.shanbay.lib.texas.test.mock.MockTextPaint;
+
 import me.chan.texas.TexasOption;
 import me.chan.texas.hyphenation.Hyphenation;
 import me.chan.texas.measurer.MockMeasurer;
 import me.chan.texas.renderer.highlight.ParagraphHighlight;
-import me.chan.texas.test.mock.MockTextPaint;
 import me.chan.texas.text.BreakStrategy;
 import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.TextAttribute;
+import me.chan.texas.text.TypesetContext;
 import me.chan.texas.text.layout.Box;
 import me.chan.texas.text.layout.Element;
 import me.chan.texas.text.layout.Line;
@@ -115,7 +117,7 @@ public class HighlightUnitTest {
 		}
 
 		@Override
-		protected void onVisitBox(Box box, RectF inner, RectF outer) {
+		protected void onVisitBox(Box box, RectF inner, RectF outer, TypesetContext context) {
 			if (mParagraphHighlight.isHighlight(box)) {
 				++mCount;
 				Assert.assertTrue(mBoxes.contains(box));

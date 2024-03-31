@@ -1,6 +1,7 @@
 package me.chan.texas.text.layout;
 
 import android.graphics.Canvas;
+import android.graphics.Paint;
 import android.graphics.RectF;
 import android.text.TextPaint;
 
@@ -35,7 +36,7 @@ public class BoxUnitTest {
 		// test set bg
 		Appearance bg = new Appearance() {
 			@Override
-			public void draw(Canvas canvas, TextPaint textPaint, RectF inner, RectF outer, TypesetContext context) {
+			public void draw(Canvas canvas, Paint textPaint, RectF inner, RectF outer, TypesetContext context) {
 
 			}
 		};
@@ -45,7 +46,7 @@ public class BoxUnitTest {
 		// test set fg
 		Appearance fg = new Appearance() {
 			@Override
-			public void draw(Canvas canvas, TextPaint textPaint, RectF inner, RectF outer, TypesetContext context) {
+			public void draw(Canvas canvas, Paint textPaint, RectF inner, RectF outer, TypesetContext context) {
 
 			}
 		};
@@ -78,7 +79,7 @@ public class BoxUnitTest {
 		}
 
 		@Override
-		public void draw(Canvas canvas, TextPaint paint, float x, float y, boolean isSelected) {
+		public void draw(Canvas canvas, Paint paint, float x, float y, boolean isSelected) {
 
 		}
 

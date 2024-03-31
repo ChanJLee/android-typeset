@@ -1,8 +1,9 @@
 package me.chan.texas.text.layout;
 
-import me.chan.texas.TestUtils;
+import com.shanbay.lib.texas.TestUtils;
+import com.shanbay.lib.texas.test.mock.MockTextPaint;
+
 import me.chan.texas.measurer.MockMeasurer;
-import me.chan.texas.test.mock.MockTextPaint;
 
 import org.junit.Assert;
 import org.junit.Test;

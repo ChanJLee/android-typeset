@@ -504,7 +504,7 @@ public class SelectionManager implements OnSelectedChangedListener {
 			return;
 		}
 
-		mContentView.scrollBy(0, (int) (-mContentView.getHeight() * 0.3f));
+		mContentView.scrollBy(0, (int) (-mContentView.getHeight() * 0.1f));
 	}
 
 	public void autoScrollDown() {
@@ -513,7 +513,7 @@ public class SelectionManager implements OnSelectedChangedListener {
 			return;
 		}
 
-		mContentView.scrollBy(0, (int) (mContentView.getHeight() * 0.3f));
+		mContentView.scrollBy(0, (int) (mContentView.getHeight() * 0.1f));
 	}
 
 	public interface Listener {

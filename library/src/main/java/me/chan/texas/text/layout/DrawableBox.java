@@ -1,9 +1,11 @@
 package me.chan.texas.text.layout;
 
+import static androidx.annotation.RestrictTo.Scope.LIBRARY;
+
 import android.graphics.Canvas;
+import android.graphics.Paint;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.StateListDrawable;
-import android.text.TextPaint;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
@@ -14,8 +16,6 @@ import me.chan.texas.misc.ObjectPool;
 import me.chan.texas.text.Appearance;
 import me.chan.texas.text.Emoticon;
 import me.chan.texas.text.TextAttribute;
-
-import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
 /**
  * 可绘制box，可以是图片，表情
@@ -40,7 +40,7 @@ public class DrawableBox extends Box {
 	}
 
 	@Override
-	public void draw(Canvas canvas, TextPaint paint, float x, float y, boolean isSelected) {
+	public void draw(Canvas canvas, Paint paint, float x, float y, boolean isSelected) {
 		Drawable drawable = mDrawable;
 		if (mDrawable instanceof StateListDrawable) {
 			StateListDrawable stateListDrawable = (StateListDrawable) mDrawable;

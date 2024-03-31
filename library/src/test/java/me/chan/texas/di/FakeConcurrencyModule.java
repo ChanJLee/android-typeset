@@ -2,38 +2,30 @@ package me.chan.texas.di;
 
 import androidx.annotation.NonNull;
 
-import me.chan.texas.concurrency.Messager;
-import me.chan.texas.renderer.MockMessager;
-import me.chan.texas.renderer.core.sync.WorkerMessager;
-import me.chan.texas.utils.concurrency.TaskQueue;
-
 import javax.inject.Named;
 
 import dagger.Module;
 import dagger.Provides;
+import me.chan.texas.renderer.core.sync.WorkerMessager;
+import me.chan.texas.utils.concurrency.TaskQueue;
 
 @Module
 public class FakeConcurrencyModule {
 
 	@Provides
-	public Messager provideThreadHandler(Messager.HandleListener listener) {
-		return new MockMessager(listener);
-	}
-
-	@Provides
 	public WorkerMessager provideWorkerMessager() {
 		return new WorkerMessager() {
 			@Override
-			public void send(int id, WorkerMessage message) {
+			public void send(TaskQueue.Token token, WorkerMessage message) {
 				for (Listener listener : mListeners) {
-					if (listener.handleMessage(id, message)) {
+					if (listener.handleMessage(token, message)) {
 						return;
 					}
 				}
 			}
 
 			@Override
-			public void clear(int id) {
+			public void clear(TaskQueue.Token token) {
 
 			}
 		};
@@ -51,24 +43,31 @@ public class FakeConcurrencyModule {
 		return new MockTaskQueue();
 	}
 
+	@Provides
+	@Named("ComputeTask")
+	public TaskQueue provideComputeQueue() {
+		return new MockTaskQueue();
+	}
+
 	private static class MockTaskQueue implements TaskQueue {
+
 		@Override
-		public <A, R> void submit(int id, @NonNull A args, @NonNull Task<A, R> task, @NonNull Listener<A, R> listener) {
+		public <A, R> void submit(Token token, @NonNull A args, @NonNull Task<A, R> task, @NonNull Listener<A, R> listener) {
 			try {
-				listener.onStart(id, args);
-				listener.onSuccess(id, args, task.run(id, args));
+				listener.onStart(token, args);
+				listener.onSuccess(token, args, task.run(token, args));
 			} catch (Throwable throwable) {
-				listener.onError(id, args, throwable);
+				listener.onError(token, args, throwable);
 			}
 		}
 
 		@Override
-		public <A, R> R submitSync(int id, @NonNull A args, @NonNull Task<A, R> task) throws Throwable {
-			return task.run(id, args);
+		public <A, R> R submitSync(Token token, @NonNull A args, @NonNull Task<A, R> task) throws Throwable {
+			return task.run(token, args);
 		}
 
 		@Override
-		public void cancel(int id) {
+		public void cancel(Token token) {
 
 		}
 	}

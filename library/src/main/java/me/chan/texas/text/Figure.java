@@ -59,6 +59,7 @@ public final class Figure extends DefaultRecyclable implements Segment {
 			return;
 		}
 
+		mId = 0;
 		mWidth = mHeight = 0;
 		mUrl = null;
 		mTag = null;
@@ -86,7 +87,7 @@ public final class Figure extends DefaultRecyclable implements Segment {
 		figure.mWidth = width;
 		figure.mHeight = height;
 		figure.mTag = tag;
-		figure.mId = Segment.UUID.getAndIncrement();
+		figure.mId = Segment.nextId();
 		figure.reuse();
 		return figure;
 	}

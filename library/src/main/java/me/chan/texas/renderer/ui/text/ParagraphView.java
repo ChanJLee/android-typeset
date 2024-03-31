@@ -320,7 +320,7 @@ public class ParagraphView extends FrameLayout {
 		if (BuildConfig.DEBUG) {
 			Log.d(TAG, "onMeasure: widthSpec = " + MeasureSpec.toString(widthMeasureSpec) +
 					", heightSpec = " + MeasureSpec.toString(heightMeasureSpec) +
-					", width = " + getMeasuredWidth() + "" +
+					", width = " + getMeasuredWidth() +
 					", height = " + getMeasuredHeight() +
 					", tag = " + getTag());
 		}
@@ -440,7 +440,7 @@ public class ParagraphView extends FrameLayout {
 			clearSelection();
 
 			// 提交解析任务
-			ParseWorker.Args args = ParseWorker.Args.obtain(mSource, LoadingStrategy.LOAD, mParseListener);
+			ParseWorker.Args args = ParseWorker.Args.obtain(mSource, LoadingStrategy.INIT, mParseListener);
 			ParseWorker worker = WorkerScheduler.parse();
 			worker.submit(mRender.getToken(), args);
 		} else if (cmpType == TexasUtils.CmpType.CMP_TYPESET) {

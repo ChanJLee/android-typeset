@@ -161,6 +161,8 @@ public class Line extends DefaultRecyclable {
 
 		private boolean mContainTerminal;
 
+		private final List<Element> mElements = new ArrayList<>(128);
+
 		private Builder() {
 		}
 
@@ -179,13 +181,7 @@ public class Line extends DefaultRecyclable {
 
 			if (element instanceof Box) {
 				mLastTextElement = element;
-				mLine.mElements.add(element);
-				if (element instanceof TextBox) {
-					TextBox textBox = (TextBox) element;
-					mLine.mBottomPadding = Math.max(textBox.getBottomPadding(), mLine.mBottomPadding);
-					mLine.mTopPadding = Math.max(textBox.getTopPadding(), mLine.mTopPadding);
-					mLine.mBaselineOffset = Math.max(textBox.getBaselineOffset(), mLine.mBaselineOffset);
-				}
+				mElements.add(element);
 			} else if (element instanceof Penalty) {
 				Penalty penalty = (Penalty) element;
 				if (penalty.isFlag()) {
@@ -193,7 +189,7 @@ public class Line extends DefaultRecyclable {
 				}
 			} else if (element instanceof Glue) {
 				// glue
-				mLine.mElements.add(element);
+				mElements.add(element);
 			} else {
 				throw new IllegalStateException("unknown element");
 			}
@@ -201,13 +197,16 @@ public class Line extends DefaultRecyclable {
 
 		public Line build(BreakStrategy breakStrategy, int lineWidth) {
 			// strip blank
-			strip(mLine);
-			if (mLine.isEmpty()) {
+			strip(mElements);
+			if (mElements.isEmpty()) {
 				return mLine;
 			}
 
 			// 添加 -
-			appendIfSuffix(mLine, mLastTextElement);
+			appendIfSuffix(mElements, mLastTextElement);
+
+			// 合並
+			mergeText(mLine, mElements);
 
 			// measure line
 			measureLine(mLine, breakStrategy, lineWidth);
@@ -220,31 +219,89 @@ public class Line extends DefaultRecyclable {
 			return mLine;
 		}
 
-		private static void strip(Line line) {
-			int count = line.mElements.size();
-			for (int i = count - 1; i >= 0; --i) {
-				Element element = line.mElements.get(i);
-				if (!(element instanceof Glue)) {
+		private static void mergeText(Line line, List<Element> elements) {
+			int count = elements.size();
+			if (count == 0) {
+				return;
+			}
+
+			int index = 0;
+			while (index < count) {
+				Element element = elements.get(index++);
+				if (!(element instanceof TextBox)) {
+					line.add(element);
+					continue;
+				}
+
+				if (index >= count) {
+					line.add(element);
 					break;
 				}
-				line.mElements.remove(i);
+
+				Element nextElement = elements.get(index);
+				if (!(nextElement instanceof TextBox)) {
+					line.add(element);
+					continue;
+				}
+
+				TextBox current = (TextBox) element;
+				TextBox next = (TextBox) nextElement;
+				if (!next.isSameGroup(current)) {
+					line.add(element);
+					continue;
+				}
+
+				TextBox copy = TextBox.obtain(current);
+				if (!copy.merge(next)) {
+					line.add(current);
+					copy.recycle();
+					continue;
+				}
+
+				line.add(copy);
+
+				++index;
+				while (index < count) {
+					nextElement = elements.get(index);
+					if (!(nextElement instanceof TextBox)) {
+						break;
+					}
+
+					next = (TextBox) nextElement;
+					if (!next.isSameGroup(current)) {
+						break;
+					}
+
+					if (!copy.merge(next)) {
+						break;
+					}
+					++index;
+				}
 			}
 		}
 
-		private static void appendIfSuffix(Line line, Element lastElement) {
+		private static void strip(List<Element> elements) {
+			int count = elements.size();
+			for (int i = count - 1; i >= 0; --i) {
+				Element element = elements.get(i);
+				if (!(element instanceof Glue)) {
+					break;
+				}
+				elements.remove(i);
+			}
+		}
+
+		private static void appendIfSuffix(List<Element> elements, Element lastElement) {
 			if (!(lastElement instanceof Penalty)) {
 				return;
 			}
 
-			int size = line.mElements.size();
-			Element element = line.getElement(size - 1);
+			int size = elements.size();
+			Element element = elements.get(size - 1);
 			if (element instanceof TextBox) {
 				TextBox copy = TextBox.obtain((TextBox) element);
-				copy.appendContent((Penalty) lastElement);
-				line.mElements.set(size - 1, copy);
-				line.mBottomPadding = Math.max(copy.getBottomPadding(), line.mBottomPadding);
-				line.mTopPadding = Math.max(copy.getTopPadding(), line.mTopPadding);
-				line.mBaselineOffset = Math.max(copy.getBaselineOffset(), line.mBaselineOffset);
+				copy.merge((Penalty) lastElement);
+				elements.set(size - 1, copy);
 			}
 		}
 
@@ -262,6 +319,13 @@ public class Line extends DefaultRecyclable {
 					boxWidth += box.getWidth();
 					if (lineHeight < box.getHeight()) {
 						lineHeight = box.getHeight();
+					}
+
+					if (box instanceof TextBox) {
+						TextBox textBox = (TextBox) box;
+						line.mBottomPadding = Math.max(textBox.getBottomPadding(), line.mBottomPadding);
+						line.mTopPadding = Math.max(textBox.getTopPadding(), line.mTopPadding);
+						line.mBaselineOffset = Math.max(textBox.getBaselineOffset(), line.mBaselineOffset);
 					}
 				} else if (element instanceof Glue) {
 					Glue glue = (Glue) element;
@@ -299,6 +363,7 @@ public class Line extends DefaultRecyclable {
 			mLine = null;
 			mLastTextElement = null;
 			mContainTerminal = false;
+			mElements.clear();
 			super.recycle();
 
 			BUILDER_POOL.release(this);

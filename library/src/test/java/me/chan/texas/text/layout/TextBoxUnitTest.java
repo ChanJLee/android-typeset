@@ -1,16 +1,18 @@
 package me.chan.texas.text.layout;
 
 import android.graphics.Canvas;
+import android.graphics.Paint;
 import android.graphics.RectF;
 import android.text.TextPaint;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import me.chan.texas.TestUtils;
+import com.shanbay.lib.texas.TestUtils;
+import com.shanbay.lib.texas.test.mock.MockTextPaint;
+
 import me.chan.texas.measurer.Measurer;
 import me.chan.texas.measurer.MockMeasurer;
-import me.chan.texas.test.mock.MockTextPaint;
 import me.chan.texas.text.Appearance;
 import me.chan.texas.text.TypesetContext;
 import me.chan.texas.text.TextAttribute;
@@ -40,13 +42,13 @@ public class TextBoxUnitTest {
 
 		mBg = new Appearance() {
 			@Override
-			public void draw(Canvas canvas, TextPaint textPaint, RectF inner, RectF outer, TypesetContext context) {
+			public void draw(Canvas canvas, Paint textPaint, RectF inner, RectF outer, TypesetContext context) {
 
 			}
 		};
 		mFg = new Appearance() {
 			@Override
-			public void draw(Canvas canvas, TextPaint textPaint, RectF inner, RectF outer, TypesetContext context) {
+			public void draw(Canvas canvas, Paint textPaint, RectF inner, RectF outer, TypesetContext context) {
 
 			}
 		};
@@ -88,13 +90,13 @@ public class TextBoxUnitTest {
 		// test obtain after recycle
 		Appearance bg = new Appearance() {
 			@Override
-			public void draw(Canvas canvas, TextPaint textPaint, RectF inner, RectF outer, TypesetContext context) {
+			public void draw(Canvas canvas, Paint textPaint, RectF inner, RectF outer, TypesetContext context) {
 
 			}
 		};
 		Appearance fg = new Appearance() {
 			@Override
-			public void draw(Canvas canvas, TextPaint textPaint, RectF inner, RectF outer, TypesetContext context) {
+			public void draw(Canvas canvas, Paint textPaint, RectF inner, RectF outer, TypesetContext context) {
 
 			}
 		};
@@ -178,7 +180,7 @@ public class TextBoxUnitTest {
 		Assert.assertFalse(textBox.isRecycled());
 
 		Penalty penalty = Penalty.obtain(10, true, null, null, mMockMeasurer, mTextAttribute);
-		textBox.appendContent(penalty);
+		textBox.merge(penalty);
 
 		// check content not changed except text
 		msg = "hello-";
@@ -215,7 +217,7 @@ public class TextBoxUnitTest {
 		Assert.assertFalse(textBox.isPenalty());
 		Assert.assertFalse(textBox.isRecycled());
 
-		textBox.appendContent(penalty);
+		textBox.merge(penalty);
 		Assert.assertEquals(textBox.getWidth(), 2 * mMockTextPaint.getMockTextSize(), 0);
 		Assert.assertEquals(textBox.getHeight(), mMockTextPaint.getMockTextHeight(), 0);
 		Assert.assertEquals(textBox.getTag(), mTag);
@@ -233,7 +235,7 @@ public class TextBoxUnitTest {
 
 		// test append penalty twice
 		try {
-			textBox.appendContent(penalty);
+			textBox.merge(penalty);
 			Assert.fail();
 		} catch (Throwable t) {
 
@@ -318,7 +320,7 @@ public class TextBoxUnitTest {
 
 		Penalty penalty = Penalty.obtain(0, true, null, null, mMockMeasurer, mTextAttribute);
 		Assert.assertFalse(textBox.isPenalty());
-		textBox.appendContent(penalty);
+		textBox.merge(penalty);
 		Assert.assertTrue(textBox.isPenalty());
 		Assert.assertFalse(textBox.isRecycled());
 
@@ -333,13 +335,13 @@ public class TextBoxUnitTest {
 		// test obtain after recycle
 		Appearance bg = new Appearance() {
 			@Override
-			public void draw(Canvas canvas, TextPaint textPaint, RectF inner, RectF outer, TypesetContext context) {
+			public void draw(Canvas canvas, Paint textPaint, RectF inner, RectF outer, TypesetContext context) {
 
 			}
 		};
 		Appearance fg = new Appearance() {
 			@Override
-			public void draw(Canvas canvas, TextPaint textPaint, RectF inner, RectF outer, TypesetContext context) {
+			public void draw(Canvas canvas, Paint textPaint, RectF inner, RectF outer, TypesetContext context) {
 
 			}
 		};
@@ -392,7 +394,7 @@ public class TextBoxUnitTest {
 		Assert.assertNotEquals(lhs.getForeground(), rhs.getForeground());
 
 		Penalty penalty = Penalty.obtain(1, true, null, null, mMockMeasurer, mTextAttribute);
-		rhs.appendContent(penalty);
+		rhs.merge(penalty);
 
 		// text box
 		Assert.assertNotEquals(lhs.toString(), rhs.toString());
