@@ -12,19 +12,16 @@ public class AndroidWorkerMessager extends WorkerMessager {
 	private final Handler mHandler;
 
 	public AndroidWorkerMessager() {
-		mHandler = new Handler(Looper.getMainLooper(), new Handler.Callback() {
-			@Override
-			public boolean handleMessage(@NonNull Message msg) {
-				int count = mListeners.size();
-				for (int i = 0; i < count; ++i) {
-					Listener listener = mListeners.get(i);
-					WorkerMessage message = (WorkerMessage) msg.obj;
-					if (listener.handleMessage(message.getToken(), message)) {
-						break;
-					}
+		mHandler = new Handler(Looper.getMainLooper(), msg -> {
+			int count = mListeners.size();
+			for (int i = 0; i < count; ++i) {
+				Listener listener = mListeners.get(i);
+				WorkerMessage message = (WorkerMessage) msg.obj;
+				if (listener.handleMessage(message.getToken(), message)) {
+					break;
 				}
-				return true;
 			}
+			return true;
 		});
 	}
 
