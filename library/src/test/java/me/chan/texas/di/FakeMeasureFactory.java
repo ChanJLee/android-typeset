@@ -15,7 +15,7 @@ public class FakeMeasureFactory implements MeasureFactory {
 		private static final FakeMeasureFactory INSTANCE = new FakeMeasureFactory();
 	}
 
-	public static MeasureFactory getInstance() {
+	public static FakeMeasureFactory getInstance() {
 		return Holder.INSTANCE;
 	}
 
