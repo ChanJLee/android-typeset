@@ -2,24 +2,15 @@ package me.chan.texas.di;
 
 import androidx.annotation.NonNull;
 
-import me.chan.texas.concurrency.Messager;
-import me.chan.texas.renderer.MockMessager;
-import me.chan.texas.renderer.core.sync.WorkerMessager;
-import me.chan.texas.utils.concurrency.AndroidTaskQueue;
-import me.chan.texas.utils.concurrency.TaskQueue;
-
 import javax.inject.Named;
 
 import dagger.Module;
 import dagger.Provides;
+import me.chan.texas.renderer.core.sync.WorkerMessager;
+import me.chan.texas.utils.concurrency.TaskQueue;
 
 @Module
 public class FakeConcurrencyModule {
-
-	@Provides
-	public Messager provideThreadHandler(Messager.HandleListener listener) {
-		return new MockMessager(listener);
-	}
 
 	@Provides
 	public WorkerMessager provideWorkerMessager() {

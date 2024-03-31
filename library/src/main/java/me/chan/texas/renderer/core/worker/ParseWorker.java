@@ -24,28 +24,25 @@ public class ParseWorker implements TaskQueue.Task<ParseWorker.Args, Paragraph>,
 	public ParseWorker(TaskQueue taskQueue, WorkerMessager messager) {
 		mTaskQueue = taskQueue;
 		mMessager = messager;
-		mMessager.addListener(new WorkerMessager.Listener() {
-			@Override
-			public boolean handleMessage(TaskQueue.Token token, WorkerMessager.WorkerMessage value) {
-				Args args = value.asArg(Args.class);
-				if (args == null) {
-					return false;
-				}
-				switch (value.type()) {
-					case TYPE_SUCCESS:
-						if (args.listener != null) {
-							args.listener.onParseSuccess(value.value());
-						}
-						break;
-					case TYPE_ERROR:
-						if (args.listener != null) {
-							args.listener.onParseFailure(value.error());
-						}
-						break;
-				}
-				args.recycle();
-				return true;
+		mMessager.addListener((token, value) -> {
+			Args args = value.asArg(Args.class);
+			if (args == null) {
+				return false;
 			}
+			switch (value.type()) {
+				case TYPE_SUCCESS:
+					if (args.listener != null) {
+						args.listener.onParseSuccess(value.value());
+					}
+					break;
+				case TYPE_ERROR:
+					if (args.listener != null) {
+						args.listener.onParseFailure(value.error());
+					}
+					break;
+			}
+			args.recycle();
+			return true;
 		});
 	}
 
