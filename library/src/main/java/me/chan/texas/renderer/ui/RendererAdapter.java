@@ -234,7 +234,11 @@ public class RendererAdapter extends RecyclerView.Adapter<RendererAdapter.Render
 
 	@Override
 	public long getItemId(int position) {
-		return getItem(position).getId();
+		Segment segment = getItem(position);
+		if (segment == null) {
+			throw new IllegalStateException("segment is null");
+		}
+		return segment.getId();
 	}
 
 	@SuppressLint("NotifyDataSetChanged")
@@ -270,7 +274,7 @@ public class RendererAdapter extends RecyclerView.Adapter<RendererAdapter.Render
 
 		// refresh content
 		if (prev != document ||
-				strategy == LoadingStrategy.LOAD) {
+				strategy == LoadingStrategy.INIT) {
 			notifyDataSetChanged();
 			return;
 		}
@@ -357,8 +361,6 @@ public class RendererAdapter extends RecyclerView.Adapter<RendererAdapter.Render
 	}
 
 	abstract class Renderer<T extends Segment> extends RecyclerView.ViewHolder {
-
-		private float mX, mY;
 
 		Renderer(@NonNull View view) {
 			super(view);

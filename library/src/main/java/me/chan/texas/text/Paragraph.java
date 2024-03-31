@@ -48,6 +48,7 @@ public final class Paragraph extends DefaultRecyclable implements Segment {
 
 	int mId;
 
+
 	@Nullable
 	@Override
 	public Object getTag() {
@@ -90,6 +91,7 @@ public final class Paragraph extends DefaultRecyclable implements Segment {
 		}
 
 		super.recycle();
+		mId = 0;
 		mLayout.clear();
 		for (int i = 0; i < mElements.size(); ++i) {
 			mElements.get(i).recycle();

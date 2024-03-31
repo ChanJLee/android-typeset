@@ -196,8 +196,19 @@ public class Penalty extends Element {
 		POOL.clean();
 	}
 
+	public static Penalty obtainFakePenalty(float penalty) {
+		return obtain(penalty, false, null, null, null, null);
+	}
+
+	public static Penalty obtain(float penalty,
+								 Object tag, TextStyle textStyle,
+								 Measurer measurer, TextAttribute textAttribute) {
+		return obtain(penalty, true, tag, textStyle, measurer, textAttribute);
+	}
+
 	@NonNull
-	public static Penalty obtain(float penalty, boolean flag/* 不是连字符 true, 连字符 false */, Object tag, TextStyle textStyle, Measurer measurer, TextAttribute textAttribute) {
+	public static Penalty obtain(float penalty, boolean flag/* 不是连字符 true, 连字符 false */,
+								 Object tag, TextStyle textStyle, Measurer measurer, TextAttribute textAttribute) {
 		Penalty p = POOL.acquire();
 		if (p == null) {
 			p = new Penalty();

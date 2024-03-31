@@ -3,22 +3,24 @@ package me.chan.texas.text.layout;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
 import android.graphics.Canvas;
+import android.graphics.Paint;
 import android.os.Build;
-import android.text.TextPaint;
 import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 
+import me.chan.texas.BuildConfig;
 import me.chan.texas.Texas;
 import me.chan.texas.annotations.Internal;
-import me.chan.texas.utils.CharArrayPool;
+import me.chan.texas.hyphenation.Hyphenation;
 import me.chan.texas.measurer.Measurer;
 import me.chan.texas.misc.ObjectPool;
 import me.chan.texas.text.Appearance;
 import me.chan.texas.text.TextAttribute;
 import me.chan.texas.text.TextStyle;
+import me.chan.texas.utils.CharArrayPool;
 
 /**
  * 文本元素
@@ -74,6 +76,8 @@ public final class TextBox extends Box {
 	@Internal
 	private int mAttribute = ATTRIBUTE_NONE;
 
+	private int mGroupId = Hyphenation.NONE_GROUP_ID;
+
 	private TextBox(float width, float height) {
 		super(width, height);
 	}
@@ -110,6 +114,34 @@ public final class TextBox extends Box {
 		mTopPadding = other.mTopPadding;
 		mBottomPadding = other.mBottomPadding;
 		mBaselineOffset = other.mBaselineOffset;
+
+		mGroupId = other.mGroupId;
+	}
+
+	// todo fix unit test
+	public boolean merge(@NonNull TextBox box) {
+		if (this.mGroupId != box.mGroupId) {
+			if (BuildConfig.DEBUG) {
+				throw new IllegalStateException("can't merge text box with difference group id");
+			}
+			return false;
+		}
+
+		// 目前因为符号问题不能合并的case大概占比 1%不到
+		// 但是能提高 30% 后续遍历的性能
+		// TODO 优化下
+		if (mAttribute != box.mAttribute) {
+			return false;
+		}
+
+		this.mWidth += box.mWidth;
+		this.mHeight = Math.max(this.mHeight, box.mHeight);
+		this.mEnd = box.mEnd;
+		this.mAttribute |= box.mAttribute;
+		this.mTopPadding = Math.max(this.mTopPadding, box.mTopPadding);
+		this.mBottomPadding = Math.max(this.mBottomPadding, box.mBottomPadding);
+		this.mBaselineOffset = Math.max(this.mBaselineOffset, box.mBaselineOffset);
+		return true;
 	}
 
 	public TextStyle getTextStyle() {
@@ -128,6 +160,7 @@ public final class TextBox extends Box {
 		mTextStyle = null;
 		mAttribute = ATTRIBUTE_NONE;
 		mTopPadding = mBottomPadding = mBaselineOffset = 0;
+		mGroupId = Hyphenation.NONE_GROUP_ID;
 		POOL.release(this);
 	}
 
@@ -146,6 +179,7 @@ public final class TextBox extends Box {
 		if (Float.compare(textBox.mBaselineOffset, mBaselineOffset) != 0) return false;
 		if (mAttribute != textBox.mAttribute) return false;
 		if (mText != null ? !mText.equals(textBox.mText) : textBox.mText != null) return false;
+		if (mGroupId != textBox.mGroupId) return false;
 		return mTextStyle != null ? mTextStyle.equals(textBox.mTextStyle) : textBox.mTextStyle == null;
 	}
 
@@ -159,13 +193,15 @@ public final class TextBox extends Box {
 		result = 31 * result + (mBottomPadding != +0.0f ? Float.floatToIntBits(mBottomPadding) : 0);
 		result = 31 * result + (mBaselineOffset != +0.0f ? Float.floatToIntBits(mBaselineOffset) : 0);
 		result = 31 * result + mAttribute;
+		result = 31 * result + mGroupId;
 		return result;
 	}
+
 
 	/**
 	 * @param penalty 累加另外一个元素的文本值
 	 */
-	public void appendContent(Penalty penalty) {
+	public void merge(Penalty penalty) {
 		// check tag ?
 		if (isPenalty()) {
 			throw new IllegalStateException("set text box penalty twice");
@@ -184,8 +220,16 @@ public final class TextBox extends Box {
 		mEnd = mText.length();
 	}
 
+	public boolean isSameGroup(TextBox box) {
+		if (mGroupId == Hyphenation.NONE_GROUP_ID) {
+			return false;
+		}
+
+		return mGroupId == box.mGroupId;
+	}
+
 	@Override
-	public void draw(Canvas canvas, TextPaint paint, float x, float y, boolean isSelected) {
+	public void draw(Canvas canvas, Paint paint, float x, float y, boolean isSelected) {
 		if (mAttribute != ATTRIBUTE_NONE) {
 			if (hasAttribute(ATTRIBUTE_ZOOM_OUT)) {
 				paint.setTextSize(paint.getTextSize() * ZOOM_OUT_FACTOR);
@@ -251,9 +295,18 @@ public final class TextBox extends Box {
 								 Object tag,
 								 Appearance background,
 								 Appearance foreground) {
+		return obtain(charSequence, start, end, measurer, textStyle, tag, background, foreground, Hyphenation.NONE_GROUP_ID);
+	}
+
+	public static TextBox obtain(@NonNull CharSequence charSequence, int start, int end,
+								 Measurer measurer,
+								 TextStyle textStyle,
+								 Object tag,
+								 Appearance background,
+								 Appearance foreground, int groupId) {
 		TextBox textBox = obtain(
 				charSequence, start, end, 0, 0,
-				textStyle, tag, background, foreground
+				textStyle, tag, background, foreground, groupId
 		);
 		textBox.measure(measurer, null);
 		return textBox;
@@ -264,7 +317,8 @@ public final class TextBox extends Box {
 								  TextStyle textStyle,
 								  Object tag,
 								  Appearance background,
-								  Appearance foreground) {
+								  Appearance foreground,
+								  int groupId) {
 		TextBox box = POOL.acquire();
 		if (box == null) {
 			box = new TextBox(charSequence, start, end, width, height, textStyle);
@@ -279,6 +333,8 @@ public final class TextBox extends Box {
 		box.mStart = start;
 		box.mEnd = end;
 		box.mTextStyle = textStyle;
+
+		box.mGroupId = groupId;
 
 		box.reuse();
 		return box;
@@ -296,13 +352,13 @@ public final class TextBox extends Box {
 		spec.recycle();
 	}
 
-	public static TextBox obtain(TextBox rhs) {
+	public static TextBox obtain(TextBox raw) {
 		TextBox box = POOL.acquire();
 		if (box == null) {
 			box = new TextBox(0, 0);
 		}
 		box.reuse();
-		box.copy(rhs);
+		box.copy(raw);
 		return box;
 	}
 
