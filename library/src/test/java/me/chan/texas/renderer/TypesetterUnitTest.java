@@ -119,30 +119,30 @@ public class TypesetterUnitTest {
 
 	@Test
 	public void testTypesetterSimplePreCondition() throws InterruptedException, SourceCloseException, SourceOpenException, ParseException, NoSuchFieldException, IllegalAccessException {
-		checkContentPredication("hello world", BreakStrategy.SIMPLE, 10, 1, new String[]{
+		checkContentPredication("hello world", BreakStrategy.SIMPLE, 10, 1, Paragraph.TYPESET_POLICY_EN, new String[]{
 				"hello",
 				"world"
 		});
-		checkContentPredication("hello world", BreakStrategy.SIMPLE, 10, 2, new String[]{
+		checkContentPredication("hello world", BreakStrategy.SIMPLE, 10, 2, Paragraph.TYPESET_POLICY_EN, new String[]{
 				"hello",
 				"world"
 		});
-		checkContentPredication("hello world", BreakStrategy.SIMPLE, 12, 1, new String[]{
+		checkContentPredication("hello world", BreakStrategy.SIMPLE, 12, 1, Paragraph.TYPESET_POLICY_EN, new String[]{
 				"hello world"
 		});
-		checkContentPredication("hello world", BreakStrategy.SIMPLE, 14, 1, new String[]{
+		checkContentPredication("hello world", BreakStrategy.SIMPLE, 14, 1, Paragraph.TYPESET_POLICY_EN, new String[]{
 				"hello world"
 		});
 
-		checkContentPredication("1 2 3 555565", BreakStrategy.SIMPLE, 5, 1, new String[] {
+		checkContentPredication("1 2 3 555565", BreakStrategy.SIMPLE, 5, 1, Paragraph.TYPESET_POLICY_EN, new String[]{
 				"1 2",
 				"3",
 				"555565"
 		});
 
-		checkContentPredication("一二三四五六七八九", BreakStrategy.SIMPLE, 5, 1, new String[] {
-				"一二三四五",
-				"七八九"
+		checkContentPredication("一二三四五六七八九", BreakStrategy.SIMPLE, 5, 1, Paragraph.TYPESET_POLICY_CN, new String[]{
+				"一 二 三 四 五",
+				"六 七 八 九"
 		});
 	}
 
@@ -225,14 +225,14 @@ public class TypesetterUnitTest {
 		}
 	}
 
-	private void checkContentPredication(String text, BreakStrategy breakStrategy, float lineWidth, int textSize, String[] exceptedLines) throws InterruptedException, SourceCloseException, SourceOpenException, ParseException, NoSuchFieldException, IllegalAccessException {
-		System.out.println("check content, width: " + lineWidth + " text size: " + textSize + " " + breakStrategy);
+	private void checkContentPredication(String text, BreakStrategy breakStrategy, float lineWidth, int textSize, int policy, String[] exceptedLines) throws InterruptedException, SourceCloseException, SourceOpenException, ParseException, NoSuchFieldException, IllegalAccessException {
+		System.out.println("check content predication, width: " + lineWidth + " text size: " + textSize + " " + breakStrategy + "->" + text);
 
 		FakeMeasureFactory factory = FakeMeasureFactory.getInstance();
 		factory.getMockTextPaint().setMockTextSize(textSize);
 
 		ParagraphTypesetter texTypesetter = new ParagraphTypesetter();
-		TextAdapter textParser = new TextAdapter();
+		TextAdapter textParser = new TextAdapter(policy);
 		RenderOption renderOption = new RenderOption();
 		textParser.setSource(new ObjectSource<>(text));
 
