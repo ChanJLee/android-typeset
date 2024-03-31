@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import me.chan.texas.renderer.LoadingStrategy;
+import me.chan.texas.source.Source;
 import me.chan.texas.source.SourceOpenException;
 import me.chan.texas.source.StreamTextSource;
 
@@ -54,9 +55,13 @@ public class SourceUnitTest {
 		StreamTextSource streamSource = new StreamTextSource(new MockInputStream());
 
 		Assert.assertNull(streamSource.open(LoadingStrategy.LOAD_PREVIOUS));
-		Assert.assertEquals(streamSource.open(LoadingStrategy.INIT), "0\n");
+		Assert.assertNull(streamSource.open(LoadingStrategy.LOAD_MORE));
+		Assert.assertNull(streamSource.open(LoadingStrategy.TYPESET_ONLY));
+		Assert.assertEquals(streamSource.open(LoadingStrategy.INIT), "0\n1\n2\n3");
 		Assert.assertNull(streamSource.open(LoadingStrategy.LOAD_PREVIOUS));
-		Assert.assertEquals(streamSource.open(LoadingStrategy.INIT), "1\n");
+		Assert.assertEquals(streamSource.open(LoadingStrategy.INIT), "");
+		Assert.assertNull(streamSource.open(LoadingStrategy.LOAD_MORE));
+		Assert.assertNull(streamSource.open(LoadingStrategy.TYPESET_ONLY));
 
 		streamSource.close();
 	}
