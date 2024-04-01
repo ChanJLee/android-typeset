@@ -40,19 +40,18 @@ public class PrimitiveUnitTest {
 				.next("1 2 3 4 5")
 				.buildSpan();
 		checkContent(builder.build(), 6, BreakStrategy.SIMPLE,
-				"1 2",
-				"3 4",
-				"5"
+				"1 2 3",
+				"4 5"
 		);
 
 		// single line, full
 		System.out.println(">>>>> simple 1");
 		builder = Paragraph.Builder.newBuilder(mTexasOption);
 		builder.newSpanBuilder()
-				.next("1 2")
+				.next("1 2 3 ")
 				.buildSpan();
 		checkContent(builder.build(), 6, BreakStrategy.SIMPLE,
-				"1 2"
+				"1 2 3"
 		);
 
 		// single line, not full
@@ -104,12 +103,11 @@ public class PrimitiveUnitTest {
 		System.out.println(">>>>> simple fb break 0");
 		Paragraph.Builder builder = Paragraph.Builder.newBuilder(mTexasOption);
 		builder.newSpanBuilder()
-				.next("1 2 3, 4 5")
+				.next("1112 3, 4 5")
 				.buildSpan();
 		checkContent(builder.build(), 6, BreakStrategy.SIMPLE,
-				"1 2",
-				"3, 4",
-				"5"
+				"1112",
+				"3, 4 5"
 		);
 
 		// 断点在 3 之后 不存在可以断的点
@@ -119,12 +117,11 @@ public class PrimitiveUnitTest {
 				System.out.println(">>>>> simple fb break 1");
 				builder = Paragraph.Builder.newBuilder(mTexasOption);
 				builder.newSpanBuilder()
-						.next("111 < 3 4 5")
+						.next("1111 < 3 4 5")
 						.buildSpan();
 				checkContent(builder.build(), 6, BreakStrategy.SIMPLE,
-						"111",
-						"<3 4",
-						"5"
+						"1111",
+						"<3 4 5"
 				);
 			}
 

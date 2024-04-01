@@ -2,6 +2,7 @@ package me.chan.texas.text;
 
 import androidx.annotation.RestrictTo;
 
+import me.chan.texas.Texas;
 import me.chan.texas.measurer.Measurer;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
@@ -28,9 +29,11 @@ public class TextAttribute {
 		Measurer.CharSequenceSpec spec = measurer.measure("-", 0, 1, null, null);
 		mHyphenWidth = spec.getWidth();
 		mHyphenHeight = spec.getHeight();
-		mSpaceWidth = (float) Math.ceil(mHyphenWidth * 1.2f);
-		mSpaceStretch = (float) Math.ceil(mHyphenWidth * 0.6f);
-		mSpaceShrink = (float) Math.ceil(mHyphenWidth * 0.2f);
+
+		Texas.TypesetFactor factor = Texas.getTypesetFactor();
+		mSpaceWidth = (float) Math.ceil(mHyphenWidth * factor.spaceWidthFactor);
+		mSpaceStretch = mHyphenWidth * factor.spaceStretchFactor;
+		mSpaceShrink = mHyphenWidth * factor.spaceShrinkFactor;
 
 		i(toString());
 	}

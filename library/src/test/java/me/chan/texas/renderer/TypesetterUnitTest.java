@@ -6,21 +6,16 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import android.graphics.Rect;
-import android.graphics.drawable.ColorDrawable;
 import android.util.Log;
 
-import com.shanbay.lib.texas.test.mock.MockTextAttribute;
 import com.shanbay.lib.texas.test.mock.MockTextPaint;
 
 import me.chan.texas.Texas;
-import me.chan.texas.TexasOption;
 import me.chan.texas.adapter.ParseException;
 import me.chan.texas.adapter.TextAdapter;
 import me.chan.texas.di.DaggerFakeTexasComponent;
 import me.chan.texas.di.FakeMeasureFactory;
 import me.chan.texas.hyphenation.Hyphenation;
-import me.chan.texas.measurer.Measurer;
-import me.chan.texas.measurer.MockMeasurer;
 import me.chan.texas.renderer.core.WorkerScheduler;
 import me.chan.texas.renderer.core.worker.LoadingWorker;
 import me.chan.texas.source.ObjectSource;
@@ -29,15 +24,11 @@ import me.chan.texas.source.SourceOpenException;
 import me.chan.texas.text.layout.Box;
 import me.chan.texas.text.BreakStrategy;
 import me.chan.texas.text.Document;
-import me.chan.texas.text.layout.Region;
-import me.chan.texas.text.layout.DrawableBox;
 import me.chan.texas.text.layout.Element;
-import me.chan.texas.text.Emoticon;
 import me.chan.texas.text.layout.Layout;
 import me.chan.texas.text.layout.Line;
 import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.Segment;
-import me.chan.texas.text.TextAttribute;
 import me.chan.texas.text.layout.TextBox;
 import me.chan.texas.text.tokenizer.Tokenizer;
 import me.chan.texas.typesetter.ParagraphTypesetter;
@@ -48,19 +39,12 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.List;
 
 import me.chan.texas.utils.concurrency.TaskQueue;
 import opennlp.tools.tokenize.TokenizerModel;
@@ -119,46 +103,58 @@ public class TypesetterUnitTest {
 
 	@Test
 	public void testTypesetterSimplePreCondition() throws InterruptedException, SourceCloseException, SourceOpenException, ParseException, NoSuchFieldException, IllegalAccessException {
-		checkContentPredication("hello world", BreakStrategy.SIMPLE, 10, 1, new String[]{
+		checkContentPredication("hello world", BreakStrategy.SIMPLE, 10, 1, Paragraph.TYPESET_POLICY_EN, new String[]{
 				"hello",
 				"world"
 		});
-		checkContentPredication("hello world", BreakStrategy.SIMPLE, 10, 2, new String[]{
+		checkContentPredication("hello world", BreakStrategy.SIMPLE, 10, 2, Paragraph.TYPESET_POLICY_EN, new String[]{
 				"hello",
 				"world"
 		});
-		checkContentPredication("hello world", BreakStrategy.SIMPLE, 12, 1, new String[]{
+		checkContentPredication("hello world", BreakStrategy.SIMPLE, 12, 1, Paragraph.TYPESET_POLICY_EN, new String[]{
 				"hello world"
 		});
-		checkContentPredication("hello world", BreakStrategy.SIMPLE, 14, 1, new String[]{
+		checkContentPredication("hello world", BreakStrategy.SIMPLE, 14, 1, Paragraph.TYPESET_POLICY_EN, new String[]{
 				"hello world"
 		});
 
-		checkContentPredication("1 2 3 555565", BreakStrategy.SIMPLE, 5, 1, new String[] {
-				"1 2",
-				"3",
+		checkContentPredication("1 2 3 555565", BreakStrategy.SIMPLE, 5, 1, Paragraph.TYPESET_POLICY_EN, new String[]{
+				"1 2 3",
 				"555565"
 		});
 
-		checkContentPredication("一二三四五六七八九", BreakStrategy.SIMPLE, 5, 1, new String[] {
-				"一二三四五",
-				"七八九"
+		checkContentPredication("一二三四五六七八九", BreakStrategy.SIMPLE, 5, 1, Paragraph.TYPESET_POLICY_CN, new String[]{
+				"一 二 三 四 五",
+				"六 七 八 九"
 		});
 	}
 
 	@Test
 	public void testTypesetterBalancePreCondition() throws IllegalAccessException, InterruptedException, ParseException, SourceOpenException, SourceCloseException, NoSuchFieldException {
-		checkContent("hello world", BreakStrategy.BALANCED, 10, 1);
+		checkContentPredication("hello world", BreakStrategy.BALANCED, 10, 1, Paragraph.TYPESET_POLICY_EN, new String[]{
+				"hello",
+				"world"
+		});
+		checkContentPredication("hello world", BreakStrategy.BALANCED, 10, 2, Paragraph.TYPESET_POLICY_EN, new String[]{
+				"hello",
+				"world"
+		});
+		checkContentPredication("hello world", BreakStrategy.BALANCED, 12, 1, Paragraph.TYPESET_POLICY_EN, new String[]{
+				"hello world"
+		});
+		checkContentPredication("hello world", BreakStrategy.BALANCED, 14, 1, Paragraph.TYPESET_POLICY_EN, new String[]{
+				"hello world"
+		});
 
-		checkContent("hello world", BreakStrategy.BALANCED, 10, 2);
+		checkContentPredication("1 2 3 555565", BreakStrategy.BALANCED, 5, 1, Paragraph.TYPESET_POLICY_EN, new String[]{
+				"1 2 3",
+				"555565"
+		});
 
-		checkContent("hello world", BreakStrategy.BALANCED, 10, 3);
-
-		checkContent("hello world", BreakStrategy.BALANCED, 100, 1);
-
-		checkContent("1 2 3 4 5 6 7 8 555565", BreakStrategy.BALANCED, 5, 1);
-
-		checkContent("一二三四五六七八九", BreakStrategy.BALANCED, 5, 2);
+		checkContentPredication("一二三四五六七八九", BreakStrategy.BALANCED, 5, 1, Paragraph.TYPESET_POLICY_CN, new String[]{
+				"一 二 三 四 五",
+				"六 七 八 九"
+		});
 
 	}
 
@@ -225,14 +221,14 @@ public class TypesetterUnitTest {
 		}
 	}
 
-	private void checkContentPredication(String text, BreakStrategy breakStrategy, float lineWidth, int textSize, String[] exceptedLines) throws InterruptedException, SourceCloseException, SourceOpenException, ParseException, NoSuchFieldException, IllegalAccessException {
-		System.out.println("check content, width: " + lineWidth + " text size: " + textSize + " " + breakStrategy);
+	private void checkContentPredication(String text, BreakStrategy breakStrategy, float lineWidth, int textSize, int policy, String[] exceptedLines) throws InterruptedException, SourceCloseException, SourceOpenException, ParseException, NoSuchFieldException, IllegalAccessException {
+		System.out.println("check content predication, width: " + lineWidth + " text size: " + textSize + " " + breakStrategy + "->" + text);
 
 		FakeMeasureFactory factory = FakeMeasureFactory.getInstance();
 		factory.getMockTextPaint().setMockTextSize(textSize);
 
 		ParagraphTypesetter texTypesetter = new ParagraphTypesetter();
-		TextAdapter textParser = new TextAdapter();
+		TextAdapter textParser = new TextAdapter(policy);
 		RenderOption renderOption = new RenderOption();
 		textParser.setSource(new ObjectSource<>(text));
 
@@ -315,7 +311,8 @@ public class TypesetterUnitTest {
 
 					Box box = (Box) element;
 					String content = box.toString();
-					if (((TextBox) box).isPenalty()) {
+					TextBox textBox = (TextBox) box;
+					if (textBox.isPenalty() && textBox.hasAttribute(TextBox.ATTRIBUTE_PENDED_HYPHEN)) {
 						Assert.assertEquals(content.charAt(content.length() - 1), '-');
 						content = content.substring(0, content.length() - 1);
 					}
