@@ -243,23 +243,17 @@ public class RendererAdapter extends RecyclerView.Adapter<RendererAdapter.Render
 
 	@Override
 	public void onViewAttachedToWindow(@NonNull Renderer holder) {
-		if (holder instanceof ViewSegmentRenderer) {
-			ViewSegmentRenderer viewSegmentRenderer = (ViewSegmentRenderer) holder;
-			ViewSegment viewSegment = (ViewSegment) getItem(viewSegmentRenderer.getAdapterPosition());
-			if (viewSegment != null) {
-				viewSegment.attachToWindow();
-			}
+		Segment segment = getItem(holder.getAdapterPosition());
+		if (segment != null) {
+			segment.attachToWindow();
 		}
 	}
 
 	@Override
 	public void onViewDetachedFromWindow(@NonNull Renderer holder) {
-		if (holder instanceof ViewSegmentRenderer) {
-			ViewSegmentRenderer viewSegmentRenderer = (ViewSegmentRenderer) holder;
-			ViewSegment viewSegment = (ViewSegment) getItem(viewSegmentRenderer.getAdapterPosition());
-			if (viewSegment != null) {
-				viewSegment.detachFromWindow();
-			}
+		Segment segment = getItem(holder.getAdapterPosition());
+		if (segment != null) {
+			segment.detachFromWindow();
 		}
 	}
 
