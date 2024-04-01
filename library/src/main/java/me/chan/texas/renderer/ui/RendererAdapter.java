@@ -241,6 +241,28 @@ public class RendererAdapter extends RecyclerView.Adapter<RendererAdapter.Render
 		return segment.getId();
 	}
 
+	@Override
+	public void onViewAttachedToWindow(@NonNull Renderer holder) {
+		if (holder instanceof ViewSegmentRenderer) {
+			ViewSegmentRenderer viewSegmentRenderer = (ViewSegmentRenderer) holder;
+			ViewSegment viewSegment = (ViewSegment) getItem(viewSegmentRenderer.getAdapterPosition());
+			if (viewSegment != null) {
+				viewSegment.attachToWindow();
+			}
+		}
+	}
+
+	@Override
+	public void onViewDetachedFromWindow(@NonNull Renderer holder) {
+		if (holder instanceof ViewSegmentRenderer) {
+			ViewSegmentRenderer viewSegmentRenderer = (ViewSegmentRenderer) holder;
+			ViewSegment viewSegment = (ViewSegment) getItem(viewSegmentRenderer.getAdapterPosition());
+			if (viewSegment != null) {
+				viewSegment.detachFromWindow();
+			}
+		}
+	}
+
 	@SuppressLint("NotifyDataSetChanged")
 	public void clear(String reason) {
 		d("clear: " + reason);

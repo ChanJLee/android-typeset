@@ -128,4 +128,20 @@ public abstract class ViewSegment extends DefaultRecyclable implements Segment {
 	public final int getId() {
 		return mId;
 	}
+
+	@RestrictTo(LIBRARY)
+	public final void attachToWindow() {
+		onAttachedToWindow();
+	}
+
+	protected void onAttachedToWindow() {
+	}
+
+	@RestrictTo(LIBRARY)
+	public final void detachFromWindow() {
+		onDetachedFromWindow();
+	}
+
+	protected void onDetachedFromWindow() {
+	}
 }
