@@ -6,21 +6,16 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import android.graphics.Rect;
-import android.graphics.drawable.ColorDrawable;
 import android.util.Log;
 
-import com.shanbay.lib.texas.test.mock.MockTextAttribute;
 import com.shanbay.lib.texas.test.mock.MockTextPaint;
 
 import me.chan.texas.Texas;
-import me.chan.texas.TexasOption;
 import me.chan.texas.adapter.ParseException;
 import me.chan.texas.adapter.TextAdapter;
 import me.chan.texas.di.DaggerFakeTexasComponent;
 import me.chan.texas.di.FakeMeasureFactory;
 import me.chan.texas.hyphenation.Hyphenation;
-import me.chan.texas.measurer.Measurer;
-import me.chan.texas.measurer.MockMeasurer;
 import me.chan.texas.renderer.core.WorkerScheduler;
 import me.chan.texas.renderer.core.worker.LoadingWorker;
 import me.chan.texas.source.ObjectSource;
@@ -29,15 +24,11 @@ import me.chan.texas.source.SourceOpenException;
 import me.chan.texas.text.layout.Box;
 import me.chan.texas.text.BreakStrategy;
 import me.chan.texas.text.Document;
-import me.chan.texas.text.layout.Region;
-import me.chan.texas.text.layout.DrawableBox;
 import me.chan.texas.text.layout.Element;
-import me.chan.texas.text.Emoticon;
 import me.chan.texas.text.layout.Layout;
 import me.chan.texas.text.layout.Line;
 import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.Segment;
-import me.chan.texas.text.TextAttribute;
 import me.chan.texas.text.layout.TextBox;
 import me.chan.texas.text.tokenizer.Tokenizer;
 import me.chan.texas.typesetter.ParagraphTypesetter;
@@ -48,19 +39,12 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.List;
 
 import me.chan.texas.utils.concurrency.TaskQueue;
 import opennlp.tools.tokenize.TokenizerModel;
@@ -327,7 +311,8 @@ public class TypesetterUnitTest {
 
 					Box box = (Box) element;
 					String content = box.toString();
-					if (((TextBox) box).isPenalty()) {
+					TextBox textBox = (TextBox) box;
+					if (textBox.isPenalty() && textBox.hasAttribute(TextBox.ATTRIBUTE_PENDED_HYPHEN)) {
 						Assert.assertEquals(content.charAt(content.length() - 1), '-');
 						content = content.substring(0, content.length() - 1);
 					}
