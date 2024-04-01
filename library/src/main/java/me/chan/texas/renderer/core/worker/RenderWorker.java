@@ -397,7 +397,7 @@ public class RenderWorker implements TaskQueue.Task<RenderWorker.Args, Void>, Ta
 		protected void onVisitParagraphStart(Paragraph paragraph) {
 			TextPaint workPaint = mArgs.mPaintSet.getWorkPaint();
 			workPaint.set(mDebugPaint);
-			workPaint.setColor(BACKGROUND[mTaskId % BACKGROUND.length]);
+			workPaint.setColor(BACKGROUND[paragraph.getId() % BACKGROUND.length]);
 			workPaint.setStyle(Paint.Style.FILL);
 			Layout layout = paragraph.getLayout();
 			mCanvas.drawRect(0, 0, mArgs.width, layout.getHeight(), workPaint);

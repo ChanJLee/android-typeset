@@ -32,8 +32,8 @@ public class TextAttribute {
 
 		Texas.TypesetFactor factor = Texas.getTypesetFactor();
 		mSpaceWidth = (float) Math.ceil(mHyphenWidth * factor.spaceWidthFactor);
-		mSpaceStretch = (float) Math.ceil(mHyphenWidth * factor.spaceStretchFactor);
-		mSpaceShrink = (float) Math.ceil(mHyphenWidth * factor.spaceShrinkFactor);
+		mSpaceStretch = mHyphenWidth * factor.spaceStretchFactor;
+		mSpaceShrink = mHyphenWidth * factor.spaceShrinkFactor;
 
 		i(toString());
 	}
