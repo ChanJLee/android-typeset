@@ -135,8 +135,7 @@ public class TypesetterUnitTest {
 		});
 
 		checkContentPredication("1 2 3 555565", BreakStrategy.SIMPLE, 5, 1, Paragraph.TYPESET_POLICY_EN, new String[]{
-				"1 2",
-				"3",
+				"1 2 3",
 				"555565"
 		});
 
@@ -148,17 +147,30 @@ public class TypesetterUnitTest {
 
 	@Test
 	public void testTypesetterBalancePreCondition() throws IllegalAccessException, InterruptedException, ParseException, SourceOpenException, SourceCloseException, NoSuchFieldException {
-		checkContent("hello world", BreakStrategy.BALANCED, 10, 1);
+		checkContentPredication("hello world", BreakStrategy.BALANCED, 10, 1, Paragraph.TYPESET_POLICY_EN, new String[]{
+				"hello",
+				"world"
+		});
+		checkContentPredication("hello world", BreakStrategy.BALANCED, 10, 2, Paragraph.TYPESET_POLICY_EN, new String[]{
+				"hello",
+				"world"
+		});
+		checkContentPredication("hello world", BreakStrategy.BALANCED, 12, 1, Paragraph.TYPESET_POLICY_EN, new String[]{
+				"hello world"
+		});
+		checkContentPredication("hello world", BreakStrategy.BALANCED, 14, 1, Paragraph.TYPESET_POLICY_EN, new String[]{
+				"hello world"
+		});
 
-		checkContent("hello world", BreakStrategy.BALANCED, 10, 2);
+		checkContentPredication("1 2 3 555565", BreakStrategy.BALANCED, 5, 1, Paragraph.TYPESET_POLICY_EN, new String[]{
+				"1 2 3",
+				"555565"
+		});
 
-		checkContent("hello world", BreakStrategy.BALANCED, 10, 3);
-
-		checkContent("hello world", BreakStrategy.BALANCED, 100, 1);
-
-		checkContent("1 2 3 4 5 6 7 8 555565", BreakStrategy.BALANCED, 5, 1);
-
-		checkContent("一二三四五六七八九", BreakStrategy.BALANCED, 5, 2);
+		checkContentPredication("一二三四五六七八九", BreakStrategy.BALANCED, 5, 1, Paragraph.TYPESET_POLICY_CN, new String[]{
+				"一 二 三 四 五",
+				"六 七 八 九"
+		});
 
 	}
 
