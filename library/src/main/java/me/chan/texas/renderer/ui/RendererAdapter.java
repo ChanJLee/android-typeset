@@ -241,6 +241,22 @@ public class RendererAdapter extends RecyclerView.Adapter<RendererAdapter.Render
 		return segment.getId();
 	}
 
+	@Override
+	public void onViewAttachedToWindow(@NonNull Renderer holder) {
+		Segment segment = getItem(holder.getAdapterPosition());
+		if (segment != null) {
+			segment.attachToWindow();
+		}
+	}
+
+	@Override
+	public void onViewDetachedFromWindow(@NonNull Renderer holder) {
+		Segment segment = getItem(holder.getAdapterPosition());
+		if (segment != null) {
+			segment.detachFromWindow();
+		}
+	}
+
 	@SuppressLint("NotifyDataSetChanged")
 	public void clear(String reason) {
 		d("clear: " + reason);

@@ -1,7 +1,10 @@
 package com.shanbay.lib.texas.test;
 
+import me.chan.texas.Texas;
 import me.chan.texas.measurer.MockMeasurer;
+
 import com.shanbay.lib.texas.test.mock.MockTextPaint;
+
 import me.chan.texas.text.TextAttribute;
 
 import org.junit.Assert;
@@ -16,8 +19,9 @@ public class TextAttributeUnitTest {
 		Assert.assertEquals(textAttribute.getHyphenHeight(), 20, 0);
 		Assert.assertEquals(textAttribute.getHyphenWidth(), 20, 0);
 
-		Assert.assertEquals(textAttribute.getSpaceWidth(), 20 * 1.2, 0);
-		Assert.assertEquals(textAttribute.getSpaceShrink(), 20 * 0.2, 0);
-		Assert.assertEquals(textAttribute.getSpaceStretch(), 20  * 0.6, 0);
+		Texas.TypesetFactor factor = Texas.getTypesetFactor();
+		Assert.assertEquals(textAttribute.getSpaceWidth(), 20 * factor.spaceWidthFactor, 0);
+		Assert.assertEquals(textAttribute.getSpaceShrink(), 20 * factor.spaceShrinkFactor, 0);
+		Assert.assertEquals(textAttribute.getSpaceStretch(), 20 * factor.spaceStretchFactor, 0);
 	}
 }

@@ -422,4 +422,33 @@ public class Texas {
 	public static void setDefaultTypeface(Typeface defaultTypeface) {
 		sDefaultTypeface = defaultTypeface;
 	}
+
+	private static TypesetFactor sTypesetFactor = new TypesetFactor();
+
+	public static TypesetFactor getTypesetFactor() {
+		return sTypesetFactor;
+	}
+
+	public static void setTypesetFactor(@NonNull TypesetFactor factor) {
+		if (factor == null) {
+			throw new IllegalArgumentException("factor == null");
+		}
+		sTypesetFactor = factor;
+	}
+
+	public static class TypesetFactor {
+		public float spaceWidthFactor;
+		public float spaceStretchFactor;
+		public float spaceShrinkFactor;
+
+		public TypesetFactor() {
+			this(1f, 0.4f, 0.2f);
+		}
+
+		public TypesetFactor(float spaceWidthFactor, float spaceStretchFactor, float spaceShrinkFactor) {
+			this.spaceWidthFactor = spaceWidthFactor;
+			this.spaceStretchFactor = spaceStretchFactor;
+			this.spaceShrinkFactor = spaceShrinkFactor;
+		}
+	}
 }

@@ -48,6 +48,8 @@ public final class TextBox extends Box {
 	 */
 	public static final int ATTRIBUTE_SQUISH_RIGHT = 8;
 
+	public static final int ATTRIBUTE_PENDED_HYPHEN = 16;
+
 	static final float ZOOM_OUT_FACTOR = 0.8333f;
 
 	static final int SQUISH_FACTOR = 2;
@@ -212,6 +214,7 @@ public final class TextBox extends Box {
 		}
 
 		addAttribute(ATTRIBUTE_PENALTY);
+		addAttribute(ATTRIBUTE_PENDED_HYPHEN);
 		mWidth += penalty.getWidth();
 		mHeight = Math.max(mHeight, penalty.getHeight());
 

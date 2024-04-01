@@ -39,6 +39,14 @@ public interface Segment {
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
 	int getId();
 
+	@RestrictTo(RestrictTo.Scope.LIBRARY)
+	default void attachToWindow() {
+	}
+
+	@RestrictTo(RestrictTo.Scope.LIBRARY)
+	default void detachFromWindow() {
+	}
+
 	static int nextId() {
 		return SEGMENT_UUID.incrementAndGet();
 	}
