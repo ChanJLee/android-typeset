@@ -102,7 +102,6 @@ public final class Figure extends DefaultRecyclable implements Segment {
 		return mTag;
 	}
 
-	@Nullable
 	@Override
 	public void getRect(Rect rect) {
 		rect.set(mRect);

@@ -130,6 +130,7 @@ public abstract class ViewSegment extends DefaultRecyclable implements Segment {
 	}
 
 	@RestrictTo(LIBRARY)
+	@Override
 	public final void attachToWindow() {
 		onAttachedToWindow();
 	}
@@ -138,6 +139,7 @@ public abstract class ViewSegment extends DefaultRecyclable implements Segment {
 	}
 
 	@RestrictTo(LIBRARY)
+	@Override
 	public final void detachFromWindow() {
 		onDetachedFromWindow();
 	}
