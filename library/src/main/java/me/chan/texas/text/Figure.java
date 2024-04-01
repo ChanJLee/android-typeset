@@ -80,7 +80,7 @@ public final class Figure extends DefaultRecyclable implements Segment {
 	public static Figure obtain(String url, float width, float height, Object tag) {
 		Figure figure = POOL.acquire();
 		if (figure == null) {
-			return new Figure(url, width, height, tag);
+			figure = new Figure(url, width, height, tag);
 		}
 
 		figure.mUrl = url;
