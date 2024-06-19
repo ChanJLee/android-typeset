@@ -9,6 +9,7 @@ import android.text.TextUtils;
 
 import androidx.annotation.RestrictTo;
 
+import me.chan.texas.compat.TextPaintCompat;
 import me.chan.texas.misc.PaintSet;
 import me.chan.texas.text.TextStyle;
 import me.chan.texas.utils.CharArrayPool;
@@ -22,6 +23,8 @@ public class AndroidMeasurer implements Measurer {
 	private static final CharArrayPool POOL = new CharArrayPool();
 
 	private final PaintSet mPaintSet;
+
+	private final TextPaint mWorkPaint = TextPaintCompat.create();
 
 	public AndroidMeasurer(PaintSet context) {
 		mPaintSet = context;
@@ -38,7 +41,7 @@ public class AndroidMeasurer implements Measurer {
 	public void measure(CharSequence charSequence, int start, int end, TextStyle textStyle, Object tag, CharSequenceSpec spec) {
 		TextPaint textPaint = mPaintSet.getPaint();
 		if (textStyle != null) {
-			textPaint = mPaintSet.getWorkPaint();
+			textPaint = mPaintSet.getWorkPaint(mWorkPaint);
 			textStyle.update(textPaint, tag);
 		}
 
