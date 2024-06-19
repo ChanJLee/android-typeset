@@ -15,6 +15,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 
+import me.chan.texas.compat.TextPaintCompat;
 import me.chan.texas.misc.DefaultRecyclable;
 import me.chan.texas.misc.ObjectPool;
 import me.chan.texas.misc.PaintSet;
@@ -30,7 +31,6 @@ import me.chan.texas.text.TypesetContext;
 import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.TextStyle;
 import me.chan.texas.text.layout.Box;
-import me.chan.texas.text.layout.Element;
 import me.chan.texas.text.layout.Layout;
 import me.chan.texas.text.layout.Line;
 import me.chan.texas.text.layout.TextBox;
@@ -48,6 +48,8 @@ public class RenderWorker implements TaskQueue.Task<RenderWorker.Args, Void>, Ta
 	private final WorkerMessager mMessager;
 
 	private Stats mStats;
+
+	private final TextPaint mWorkPaint = TextPaintCompat.create();
 
 	public RenderWorker(TaskQueue taskQueue, WorkerMessager messager) {
 		mTaskQueue = taskQueue;
@@ -185,7 +187,7 @@ public class RenderWorker implements TaskQueue.Task<RenderWorker.Args, Void>, Ta
 			return;
 		}
 
-		TextPaint workPaint = args.mPaintSet.getWorkPaint();
+		TextPaint workPaint = args.mPaintSet.getWorkPaint(mWorkPaint);
 		workPaint.setColor(selection.getBgColor());
 		selection.draw(canvas, workPaint, args.option.getSelectedBackgroundRoundRadius());
 	}
@@ -196,13 +198,13 @@ public class RenderWorker implements TaskQueue.Task<RenderWorker.Args, Void>, Ta
 		}
 
 		if (mDebugDrawVisitor == null) {
-			mDebugDrawVisitor = new DebugDrawVisitor();
+			mDebugDrawVisitor = new DebugDrawVisitor(mWorkPaint);
 		}
 
 		try {
 			mDebugDrawVisitor.setTaskId(taskId);
 			mDebugDrawVisitor.setCanvas(canvas);
-			mDebugDrawVisitor.setRenderContext(args);
+			mDebugDrawVisitor.setRenderArgs(args);
 			mDebugDrawVisitor.visit(paragraph, args.option);
 		} catch (ParagraphVisitor.VisitException e) {
 			Log.w("TexasRenderEngine", e);
@@ -211,7 +213,7 @@ public class RenderWorker implements TaskQueue.Task<RenderWorker.Args, Void>, Ta
 		}
 	}
 
-	private final DrawVisitor mDrawVisitor = new DrawVisitor();
+	private final DrawVisitor mDrawVisitor = new DrawVisitor(mWorkPaint);
 
 	@Override
 	public Void run(TaskQueue.Token token, Args args) throws Throwable {
@@ -254,6 +256,12 @@ public class RenderWorker implements TaskQueue.Task<RenderWorker.Args, Void>, Ta
 		private Args mArgs;
 		private boolean mIsInterrupted = false;
 
+		private final TextPaint mWorkPaint;
+
+		public DrawVisitor(TextPaint workPaint) {
+			mWorkPaint = workPaint;
+		}
+
 		void setCanvas(Canvas canvas) {
 			mCanvas = canvas;
 		}
@@ -289,7 +297,7 @@ public class RenderWorker implements TaskQueue.Task<RenderWorker.Args, Void>, Ta
 			// 先绘制背景
 			drawBackground(box, isSelected, inner, outer, context);
 
-			TextPaint workPaint = mArgs.mPaintSet.getWorkPaint();
+			TextPaint workPaint = mArgs.mPaintSet.getWorkPaint(mWorkPaint);
 
 			if (box instanceof TextBox) {
 				TextBox textBox = (TextBox) box;
@@ -318,7 +326,7 @@ public class RenderWorker implements TaskQueue.Task<RenderWorker.Args, Void>, Ta
 		private void drawForeground(Box box, RectF inner, RectF outer, TypesetContext context) {
 			Appearance foreground = box.getForeground();
 			if (foreground != null) {
-				TextPaint workPaint = mArgs.mPaintSet.getWorkPaint();
+				TextPaint workPaint = mArgs.mPaintSet.getWorkPaint(mWorkPaint);
 				foreground.draw(mCanvas, workPaint, inner, outer, context);
 			}
 		}
@@ -330,7 +338,7 @@ public class RenderWorker implements TaskQueue.Task<RenderWorker.Args, Void>, Ta
 		private void drawBackground(Box box, boolean isSelected, RectF inner, RectF outer, TypesetContext context) {
 			Appearance background = box.getBackground();
 			if (background != null && !isSelected) {
-				TextPaint workPaint = mArgs.mPaintSet.getWorkPaint();
+				TextPaint workPaint = mArgs.mPaintSet.getWorkPaint(mWorkPaint);
 				background.draw(mCanvas, workPaint, inner, outer, context);
 			}
 		}
@@ -369,15 +377,18 @@ public class RenderWorker implements TaskQueue.Task<RenderWorker.Args, Void>, Ta
 
 		private int mTaskId;
 
-		DebugDrawVisitor() {
+		private final TextPaint mWorkPaint;
+
+		DebugDrawVisitor(TextPaint workerPaint) {
 			super();
 			mDebugPaint = new Paint();
 			mDebugPaint.setColor(Color.GREEN);
 			mDebugPaint.setStyle(Paint.Style.STROKE);
 			mDebugPaint.setTextSize(40);
+			mWorkPaint = workerPaint;
 		}
 
-		public void setRenderContext(Args args) {
+		public void setRenderArgs(Args args) {
 			mArgs = args;
 		}
 
@@ -395,7 +406,7 @@ public class RenderWorker implements TaskQueue.Task<RenderWorker.Args, Void>, Ta
 
 		@Override
 		protected void onVisitParagraphStart(Paragraph paragraph) {
-			TextPaint workPaint = mArgs.mPaintSet.getWorkPaint();
+			TextPaint workPaint = mArgs.mPaintSet.getWorkPaint(mWorkPaint);
 			workPaint.set(mDebugPaint);
 			workPaint.setColor(BACKGROUND[paragraph.getId() % BACKGROUND.length]);
 			workPaint.setStyle(Paint.Style.FILL);
@@ -408,7 +419,7 @@ public class RenderWorker implements TaskQueue.Task<RenderWorker.Args, Void>, Ta
 
 		@Override
 		public void onVisitParagraphEnd(Paragraph paragraph) {
-			TextPaint workPaint = mArgs.mPaintSet.getWorkPaint();
+			TextPaint workPaint = mArgs.mPaintSet.getWorkPaint(mWorkPaint);
 			workPaint.setStyle(Paint.Style.STROKE);
 			workPaint.set(mDebugPaint);
 			workPaint.setColor(Color.RED);

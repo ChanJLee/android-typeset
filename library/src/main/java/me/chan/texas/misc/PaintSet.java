@@ -3,6 +3,7 @@ package me.chan.texas.misc;
 import android.graphics.Typeface;
 import android.text.TextPaint;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 
 import me.chan.texas.Texas;
@@ -13,11 +14,9 @@ import me.chan.texas.utils.TexasUtils;
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class PaintSet {
 	private final TextPaint mPaint;
-	private final TextPaint mWorkPaint;
 
 	public PaintSet() {
 		mPaint = TextPaintCompat.create(TextPaint.ANTI_ALIAS_FLAG);
-		mWorkPaint = TextPaintCompat.create();
 
 		// support default typeface
 		Typeface defaultTypeface = Texas.getDefaultTypeface();
@@ -46,9 +45,13 @@ public class PaintSet {
 		return mPaint;
 	}
 
-	public TextPaint getWorkPaint() {
-		mWorkPaint.set(mPaint);
-		return mWorkPaint;
+	/**
+	 * @param copy 用于复制的TextPaint
+	 * @return copy
+	 */
+	public TextPaint getWorkPaint(@NonNull TextPaint copy) {
+		copy.set(mPaint);
+		return copy;
 	}
 
 	public void set(PaintSet other) {
