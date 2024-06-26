@@ -1,5 +1,6 @@
 package me.chan.texas.renderer;
 
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -90,6 +91,10 @@ public class TouchEvent extends DefaultRecyclable {
 		float offsetY = parent.getScrollY() - mSourceView.getTop();
 		mX -= offsetX;
 		mY -= offsetY;
+	}
+
+	public static TouchEvent obtain(View source, MotionEvent event) {
+		return obtain(source, event.getX(), event.getY(), event.getRawX(), event.getRawY());
 	}
 
 	public static TouchEvent obtain(View source, float x, float y, float rawX, float rawY) {

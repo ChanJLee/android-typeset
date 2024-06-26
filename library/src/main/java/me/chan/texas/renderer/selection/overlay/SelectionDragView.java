@@ -17,6 +17,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 
+import me.chan.texas.renderer.TouchEvent;
 import me.chan.texas.renderer.selection.SelectionManager;
 import me.chan.texas.renderer.selection.magnifier.MagnifierView;
 import me.chan.texas.renderer.selection.magnifier.MagnifierViewFactory;
@@ -144,12 +145,12 @@ public class SelectionDragView extends View {
 				scheduleAutoScrollEvent(y);
 			}
 		} else if (action == MotionEvent.ACTION_DOWN) {
-			mHandleDownEvent = handleDownEvent(x, y);
+			mHandleDownEvent = handleDownEvent(event, x, y);
 			mLastTouchPoint[0] = x;
 			mLastTouchPoint[1] = y;
 		} else if ((action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_CANCEL) && mHandleDownEvent) {
 			mLongPressMotionDispatcher.cancel("手已经抬起");
-			mSelectionManager.handleDragEnd(x, y);
+			mSelectionManager.handleDragEnd(TouchEvent.obtain(this, event));
 		}
 
 		renderPrompt(action, x, y);
@@ -227,13 +228,13 @@ public class SelectionDragView extends View {
 		region.setup(p2, p1);
 	}
 
-	private boolean handleDownEvent(float x, float y) {
+	private boolean handleDownEvent(MotionEvent event, float x, float y) {
 		boolean handled = checkIfClickedHotRegion(x, y);
 
 		if (handled) {
 			mFocusPoint.offset(x - mFocusPoint.centerX(), y - mFocusPoint.centerY());
 			// 通知上层开始拖拽
-			mSelectionManager.handleDragStart(x, y);
+			mSelectionManager.handleDragStart(TouchEvent.obtain(this, event));
 			return true;
 		}
 
