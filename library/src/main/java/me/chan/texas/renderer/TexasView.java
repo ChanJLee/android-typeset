@@ -103,14 +103,18 @@ public final class TexasView extends FrameLayout {
 
 	void notifySegmentClicked(TouchEvent event, Object tag) {
 		if (mOnClickedListener != null) {
+			event.adjust(this);
 			mOnClickedListener.onSegmentClicked(event, tag);
 		}
+		event.recycle();
 	}
 
 	void notifySegmentDoubleClicked(TouchEvent event, Object tag) {
 		if (mOnClickedListener != null) {
+			event.adjust(this);
 			mOnClickedListener.onSegmentDoubleClicked(event, tag);
 		}
+		event.recycle();
 	}
 
 	@Retention(RetentionPolicy.SOURCE)
@@ -569,8 +573,10 @@ public final class TexasView extends FrameLayout {
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
 	public void notifyEmptyClicked(TouchEvent event) {
 		if (mOnClickedListener != null) {
+			event.adjust(this);
 			mOnClickedListener.onEmptyClicked(event);
 		}
+		event.recycle();
 	}
 
 	public void setOnDragSelectListener(OnDragSelectListener onDragSelectListener) {
@@ -745,29 +751,37 @@ public final class TexasView extends FrameLayout {
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
 	public void notifySpanLongClicked(TouchEvent event, Object tag) {
 		if (mOnClickedListener != null) {
+			event.adjust(this);
 			mOnClickedListener.onSpanLongClicked(event, tag);
 		}
+		event.recycle();
 	}
 
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
 	public void notifySpanClicked(TouchEvent event, Object tag) {
 		if (mOnClickedListener != null) {
+			event.adjust(this);
 			mOnClickedListener.onSpanClicked(event, tag);
 		}
+		event.recycle();
 	}
 
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
 	public void notifyDragStart(TouchEvent event) {
 		if (mOnDragSelectListener != null) {
+			event.adjust(this);
 			mOnDragSelectListener.onDragStart(event);
 		}
+		event.recycle();
 	}
 
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
 	public void notifyDragEnd(TouchEvent event) {
 		if (mOnDragSelectListener != null) {
+			event.adjust(this);
 			mOnDragSelectListener.onDragEnd(event);
 		}
+		event.recycle();
 	}
 
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
