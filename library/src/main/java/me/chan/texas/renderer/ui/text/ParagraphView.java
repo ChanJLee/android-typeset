@@ -37,6 +37,7 @@ import me.chan.texas.renderer.OnSpanLongClickedPredicate;
 import me.chan.texas.renderer.ParagraphVisitor;
 import me.chan.texas.renderer.RenderOption;
 import me.chan.texas.renderer.TexasView;
+import me.chan.texas.renderer.TouchEvent;
 import me.chan.texas.renderer.core.WorkerScheduler;
 import me.chan.texas.renderer.core.worker.ParseWorker;
 import me.chan.texas.renderer.core.worker.ParagraphTypesetWorker;
@@ -121,13 +122,13 @@ public class ParagraphView extends FrameLayout {
 		addView((View) mRender, new FrameLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
 		OnSelectedChangedListener onSelectedChangedListener = new OnSelectedChangedListener() {
 			@Override
-			public boolean onSegmentClicked(MotionEvent e, Paragraph paragraph, int eventType) {
-				return handleParagraphClicked(paragraph, eventType);
+			public boolean onSegmentClicked(View source, MotionEvent e, Paragraph paragraph, int eventType) {
+				return handleParagraphClicked(source, e, eventType);
 			}
 
 			@Override
-			public boolean onBoxSelected(MotionEvent e, Paragraph paragraph, @EventType int eventType, Box box) {
-				return handleParagraphSelected(paragraph, eventType, box);
+			public boolean onBoxSelected(View source, MotionEvent e, Paragraph paragraph, @EventType int eventType, Box box) {
+				return handleParagraphSelected(source, e, paragraph, eventType, box);
 			}
 		};
 		mRender.setOnTextSelectedListener(onSelectedChangedListener);
@@ -156,15 +157,18 @@ public class ParagraphView extends FrameLayout {
 		super.onDetachedFromWindow();
 	}
 
-	private boolean handleParagraphSelected(Paragraph paragraph, @OnSelectedChangedListener.EventType int eventType, Box box) {
+	private boolean handleParagraphSelected(View source, MotionEvent e, Paragraph paragraph, @OnSelectedChangedListener.EventType int eventType, Box box) {
 		if (mOnClickedListener == null) {
 			return false;
 		}
 
 		if (eventType == OnSelectedChangedListener.EVENT_CLICKED || eventType == OnSelectedChangedListener.EVENT_LONG_CLICKED) {
-			boolean handled = handleParagraphSelected(paragraph, eventType == OnSelectedChangedListener.EVENT_LONG_CLICKED, box);
+			boolean handled = handleParagraphSelected(source, e, paragraph, eventType == OnSelectedChangedListener.EVENT_LONG_CLICKED, box);
 			if (!handled && eventType == OnSelectedChangedListener.EVENT_CLICKED) {
-				mOnClickedListener.onEmptyClicked(this);
+				TouchEvent event = TouchEvent.obtain(source, e);
+				event.adjust(this);
+				mOnClickedListener.onEmptyClicked(this, event);
+				event.recycle();
 				return true;
 			}
 
@@ -174,24 +178,30 @@ public class ParagraphView extends FrameLayout {
 		return false;
 	}
 
-	private boolean handleParagraphClicked(Paragraph paragraph, int eventType) {
+	private boolean handleParagraphClicked(View source, MotionEvent e, int eventType) {
 		if (mOnClickedListener == null) {
 			return false;
 		}
 
 		if (eventType == OnSelectedChangedListener.EVENT_DOUBLE_CLICKED) {
-			mOnClickedListener.onDoubleClicked(this);
+			TouchEvent event = TouchEvent.obtain(source, e);
+			event.adjust(this);
+			mOnClickedListener.onDoubleClicked(this, event);
+			event.recycle();
 			return true;
 		}
 
 		if (eventType == OnSelectedChangedListener.EVENT_CLICKED) {
-			mOnClickedListener.onEmptyClicked(this);
+			TouchEvent event = TouchEvent.obtain(source, e);
+			event.adjust(this);
+			mOnClickedListener.onEmptyClicked(this, event);
+			event.recycle();
 		}
 
 		return false;
 	}
 
-	private boolean handleParagraphSelected(Paragraph paragraph, boolean isLongClicked, Box box) {
+	private boolean handleParagraphSelected(View source, MotionEvent e, Paragraph paragraph, boolean isLongClicked, Box box) {
 		// 1. clear prev selection
 		clearSelection();
 
@@ -202,21 +212,24 @@ public class ParagraphView extends FrameLayout {
 
 		try {
 			boolean handled = handleParagraphSelected0(paragraph, isLongClicked, box, predicate);
+			TouchEvent event = TouchEvent.obtain(source, e);
+			event.adjust(this);
 			if (handled) {
 				if (isLongClicked) {
 					if (mOnClickedListener != null) {
-						mOnClickedListener.onSpanLongClicked(this, box.getTag());
+						mOnClickedListener.onSpanLongClicked(this, event, box.getTag());
 					}
 				} else {
 					if (mOnClickedListener != null) {
-						mOnClickedListener.onSpanClicked(this, box.getTag());
+						mOnClickedListener.onSpanClicked(this, event, box.getTag());
 					}
 				}
 			} else {
 				if (mOnClickedListener != null) {
-					mOnClickedListener.onEmptyClicked(this);
+					mOnClickedListener.onEmptyClicked(this, event);
 				}
 			}
+			event.recycle();
 		} catch (ParagraphVisitor.VisitException ex) {
 			/* do nothing */
 		}
@@ -270,8 +283,6 @@ public class ParagraphView extends FrameLayout {
 	}
 
 	/**
-	 * see {@link MeasureStep } for more information
-	 *
 	 * @param widthMeasureSpec  horizontal space requirements as imposed by the parent.
 	 *                          The requirements are encoded with
 	 *                          {@link android.view.View.MeasureSpec}.
@@ -547,36 +558,23 @@ public class ParagraphView extends FrameLayout {
 		 * @param paragraphView 被点击的段落
 		 * @param tag           被点击的text tag
 		 */
-		void onSpanClicked(ParagraphView paragraphView, Object tag);
+		void onSpanClicked(ParagraphView paragraphView, TouchEvent event, Object tag);
 
 		/**
 		 * @param paragraphView 被点击的段落
 		 * @param tag           被点击的text tag
 		 */
-		void onSpanLongClicked(ParagraphView paragraphView, Object tag);
+		void onSpanLongClicked(ParagraphView paragraphView, TouchEvent event, Object tag);
 
 		/**
 		 * @param paragraphView 被点击的段落
 		 */
-		void onEmptyClicked(ParagraphView paragraphView);
+		void onEmptyClicked(ParagraphView paragraphView, TouchEvent event);
 
 		/**
 		 * @param paragraphView 被点击的段落
 		 */
-		void onDoubleClicked(ParagraphView paragraphView);
-	}
-
-	/**
-	 * 抽象measure step
-	 * <p>
-	 * 1. 默认测量：主动call super.onMeasure
-	 * 2. 第一步测量：如果能确定宽度就确定，否则就推测文本的宽度
-	 * 3. 第二次测量：已经排版好了，这时候宽高都是确定的
-	 * <p>
-	 * 因为要做到动态改变行宽，所以所有的动作都是通过 requestLayout -> onLayout 进行分发的
-	 */
-	private interface MeasureStep {
-		void onMeasure(int widthMeasureSpec, int heightMeasureSpec);
+		void onDoubleClicked(ParagraphView paragraphView, TouchEvent event);
 	}
 
 	private RenderOption createRenderOption(Context context, AttributeSet attributeSet, int defStyleAttr) {

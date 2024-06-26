@@ -1,8 +1,5 @@
 package me.chan.androidtex;
 
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.util.Log;
@@ -11,13 +8,15 @@ import android.view.ViewParent;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AppCompatActivity;
+
+import java.lang.reflect.Method;
+
 import me.chan.texas.TexasOption;
-import me.chan.texas.renderer.OnSpanClickedPredicate;
+import me.chan.texas.renderer.TouchEvent;
 import me.chan.texas.renderer.ui.text.ParagraphView;
 import me.chan.texas.source.SourceCloseException;
 import me.chan.texas.text.Paragraph;
-
-import java.lang.reflect.Method;
 
 public class SingleParagraphActivity extends AppCompatActivity {
 
@@ -33,41 +32,33 @@ public class SingleParagraphActivity extends AppCompatActivity {
 		ParagraphView paragraphView = findViewById(R.id.paragraph);
 		paragraphView.setOnClickedListener(new ParagraphView.OnClickedListener() {
 			@Override
-			public void onSpanClicked(ParagraphView paragraphView, Object tag) {
+			public void onSpanClicked(ParagraphView paragraphView, TouchEvent event, Object tag) {
 				Toast.makeText(SingleParagraphActivity.this, "onSpanClicked", Toast.LENGTH_SHORT).show();
 			}
 
 			@Override
-			public void onSpanLongClicked(ParagraphView paragraphView, Object tag) {
+			public void onSpanLongClicked(ParagraphView paragraphView, TouchEvent event, Object tag) {
 				Toast.makeText(SingleParagraphActivity.this, "onSpanLongClicked", Toast.LENGTH_SHORT).show();
 			}
 
 			@Override
-			public void onEmptyClicked(ParagraphView paragraphView) {
+			public void onEmptyClicked(ParagraphView paragraphView, TouchEvent event) {
 				Toast.makeText(SingleParagraphActivity.this, "onEmptyClicked", Toast.LENGTH_SHORT).show();
 			}
 
 			@Override
-			public void onDoubleClicked(ParagraphView paragraphView) {
+			public void onDoubleClicked(ParagraphView paragraphView, TouchEvent event) {
 				Toast.makeText(SingleParagraphActivity.this, "onDoubleClicked", Toast.LENGTH_SHORT).show();
 			}
 		});
-		paragraphView.setOnSpanClickedPredicate(new OnSpanClickedPredicate() {
-			@Override
-			public boolean apply(@Nullable Object clickedTag, @Nullable Object tag) {
-				return clickedTag == tag;
-			}
-		});
+		paragraphView.setOnSpanClickedPredicate((clickedTag, tag) -> clickedTag == tag);
 		paragraphView.setSource(new ParagraphView.ParagraphSource() {
 			@Override
 			protected Paragraph onOpen(TexasOption option) {
 				Paragraph.Builder builder = Paragraph.Builder.newBuilder(option);
-				builder.stream(msg, 0, msg.length(), new Paragraph.Builder.SpanReader() {
-					@Override
-					public Paragraph.Span read(CharSequence text, int start, int end) {
-						Paragraph.Span span = Paragraph.Span.obtain(text, start, end);
-						return span.tag(new Tag(start, end));
-					}
+				builder.stream(msg, 0, msg.length(), (text, start, end) -> {
+					Paragraph.Span span = Paragraph.Span.obtain(text, start, end);
+					return span.tag(new Tag(start, end));
 				});
 				return builder.build();
 			}
@@ -84,12 +75,7 @@ public class SingleParagraphActivity extends AppCompatActivity {
 				paragraphView.setPadding(paragraphView.getPaddingLeft() + 10, paragraphView.getPaddingTop(), paragraphView.getPaddingRight() + 10, paragraphView.getPaddingBottom());
 
 
-				v.post(new Runnable() {
-					@Override
-					public void run() {
-						log(v);
-					}
-				});
+				v.post(() -> log(v));
 			}
 		});
 	}

@@ -22,6 +22,7 @@ import me.chan.texas.image.ImageLoader;
 import me.chan.texas.misc.PaintSet;
 import me.chan.texas.renderer.LoadingStrategy;
 import me.chan.texas.renderer.RenderOption;
+import me.chan.texas.renderer.TouchEvent;
 import me.chan.texas.renderer.highlight.HighlightManager;
 import me.chan.texas.renderer.highlight.ParagraphHighlight;
 import me.chan.texas.renderer.selection.ParagraphSelection;
@@ -386,7 +387,7 @@ public class RendererAdapter extends RecyclerView.Adapter<RendererAdapter.Render
 				SegmentItemFragmentLayout layout = (SegmentItemFragmentLayout) view;
 				layout.setOnClickedListener(new SegmentItemFragmentLayout.OnClickedListener() {
 					@Override
-					public void onClicked(float x, float y) {
+					public void onClicked(TouchEvent event) {
 						if (mListener == null) {
 							return;
 						}
@@ -397,11 +398,11 @@ public class RendererAdapter extends RecyclerView.Adapter<RendererAdapter.Render
 						}
 
 						Segment segment = getItem(position);
-						mListener.onSegmentClicked(x, y, segment.getTag());
+						mListener.onSegmentClicked(event, segment.getTag());
 					}
 
 					@Override
-					public void onDoubleClicked(float x, float y) {
+					public void onDoubleClicked(TouchEvent event) {
 						if (mListener == null) {
 							return;
 						}
@@ -412,7 +413,7 @@ public class RendererAdapter extends RecyclerView.Adapter<RendererAdapter.Render
 						}
 
 						Segment segment = getItem(position);
-						mListener.onSegmentDoubleClicked(x, y, segment.getTag());
+						mListener.onSegmentDoubleClicked(event, segment.getTag());
 					}
 				});
 				view = layout.getChildAt(0);
@@ -586,9 +587,9 @@ public class RendererAdapter extends RecyclerView.Adapter<RendererAdapter.Render
 	 * 其它由 {@link SegmentItemFragmentLayout}
 	 */
 	public interface Listener {
-		void onSegmentClicked(float x, float y, Object tag);
+		void onSegmentClicked(TouchEvent event, Object tag);
 
-		void onSegmentDoubleClicked(float x, float y, Object tag);
+		void onSegmentDoubleClicked(TouchEvent event, Object tag);
 
 		void onLoadingMore(int count);
 

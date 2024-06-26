@@ -12,6 +12,8 @@ import androidx.recyclerview.widget.SimpleItemAnimator;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
+import me.chan.texas.renderer.TouchEvent;
+
 @RestrictTo(LIBRARY)
 @SuppressLint("ViewConstructor")
 public class TexasRecyclerView extends RecyclerView {
@@ -29,9 +31,9 @@ public class TexasRecyclerView extends RecyclerView {
 	private void init(Context context) {
 		mTeOnTouchListener = new SingleClickOnTouchListener(context) {
 			@Override
-			protected void onClicked(float x, float y) {
+			protected void onClicked(MotionEvent event) {
 				if (mOnClickedListener != null) {
-					mOnClickedListener.onClicked(x, y);
+					mOnClickedListener.onClicked(TouchEvent.obtain(TexasRecyclerView.this, event));
 				}
 			}
 		};
@@ -123,6 +125,6 @@ public class TexasRecyclerView extends RecyclerView {
 	}
 
 	public interface OnClickedListener {
-		void onClicked(float x, float y);
+		void onClicked(TouchEvent event);
 	}
 }
