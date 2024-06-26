@@ -8,6 +8,8 @@ import android.widget.FrameLayout;
 
 import androidx.annotation.RestrictTo;
 
+import me.chan.texas.renderer.TouchEvent;
+
 @SuppressLint("ViewConstructor")
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class SegmentItemFragmentLayout extends FrameLayout {
@@ -46,9 +48,9 @@ public class SegmentItemFragmentLayout extends FrameLayout {
 	}
 
 	public interface OnClickedListener {
-		void onClicked(float x, float y);
+		void onClicked(TouchEvent event);
 
-		void onDoubleClicked(float x, float y);
+		void onDoubleClicked(TouchEvent event);
 	}
 
 	private class EventListener implements GestureDetector.OnGestureListener, GestureDetector.OnDoubleTapListener {
@@ -88,13 +90,13 @@ public class SegmentItemFragmentLayout extends FrameLayout {
 
 		@Override
 		public boolean onSingleTapConfirmed(MotionEvent e) {
-			mOnClickedListener.onClicked(e.getRawX(), e.getRawY());
+			mOnClickedListener.onClicked(TouchEvent.obtain(SegmentItemFragmentLayout.this, e));
 			return true;
 		}
 
 		@Override
 		public boolean onDoubleTap(MotionEvent e) {
-			mOnClickedListener.onDoubleClicked(e.getRawX(), e.getRawY());
+			mOnClickedListener.onDoubleClicked(TouchEvent.obtain(SegmentItemFragmentLayout.this, e));
 			return true;
 		}
 

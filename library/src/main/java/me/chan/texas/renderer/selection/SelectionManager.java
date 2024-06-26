@@ -18,6 +18,7 @@ import me.chan.texas.renderer.OnSpanLongClickedPredicate;
 import me.chan.texas.renderer.ParagraphVisitor;
 import me.chan.texas.renderer.RenderOption;
 import me.chan.texas.renderer.TexasView;
+import me.chan.texas.renderer.TouchEvent;
 import me.chan.texas.renderer.selection.overlay.SelectionDragView;
 import me.chan.texas.renderer.selection.visitor.SelectedTextByClickedVisitor;
 import me.chan.texas.renderer.selection.visitor.SelectedTextByDragVisitor;
@@ -63,7 +64,7 @@ public class SelectionManager implements OnSelectedChangedListener {
 	 */
 	private final SelectedTextByDragVisitor mSelectedTextByDragVisitor = new SelectedTextByDragVisitor();
 	/**
-	 * 用于点击是选中文本 {@link SelectionManager#onBoxSelected(MotionEvent, Paragraph, int, Box)}
+	 * 用于点击是选中文本 {@link SelectionManager#onBoxSelected(View, MotionEvent, Paragraph, int, Box)}
 	 */
 	private final SelectedTextByClickedVisitor mSelectedTextByClickedVisitor = new SelectedTextByClickedVisitor();
 
@@ -120,18 +121,18 @@ public class SelectionManager implements OnSelectedChangedListener {
 	}
 
 	@Override
-	public boolean onSegmentClicked(MotionEvent e, Paragraph paragraph, int eventType) {
+	public boolean onSegmentClicked(View source, MotionEvent e, Paragraph paragraph, int eventType) {
 		if (mListener == null) {
 			return false;
 		}
 
 		if (eventType == OnSelectedChangedListener.EVENT_CLICKED) {
-			mListener.onSegmentClicked(paragraph.getTag(), e.getRawX(), e.getRawY());
+			mListener.onSegmentClicked(TouchEvent.obtain(source, e), paragraph.getTag());
 			return true;
 		}
 
 		if (eventType == EVENT_DOUBLE_CLICKED) {
-			mListener.onSegmentDoubleClicked(paragraph.getTag(), e.getRawX(), e.getRawY());
+			mListener.onSegmentDoubleClicked(TouchEvent.obtain(source, e), paragraph.getTag());
 			return true;
 		}
 
@@ -147,12 +148,12 @@ public class SelectionManager implements OnSelectedChangedListener {
 	 * @return 是否有box被选中
 	 */
 	@Override
-	public boolean onBoxSelected(MotionEvent e, Paragraph paragraph, @EventType int eventType, Box box) {
+	public boolean onBoxSelected(View source, MotionEvent e, Paragraph paragraph, @EventType int eventType, Box box) {
 		if (eventType == OnSelectedChangedListener.EVENT_CLICKED ||
 				eventType == OnSelectedChangedListener.EVENT_LONG_CLICKED) {
-			boolean handled = onBoxSelected(e, paragraph, eventType == OnSelectedChangedListener.EVENT_LONG_CLICKED, box);
+			boolean handled = onBoxSelected(source, e, paragraph, eventType == OnSelectedChangedListener.EVENT_LONG_CLICKED, box);
 			if (!handled && eventType == OnSelectedChangedListener.EVENT_CLICKED && mListener != null) {
-				mListener.onSegmentClicked(paragraph.getTag(), e.getRawX(), e.getRawY());
+				mListener.onSegmentClicked(TouchEvent.obtain(source, e), paragraph.getTag());
 				return true;
 			}
 		}
@@ -160,7 +161,7 @@ public class SelectionManager implements OnSelectedChangedListener {
 		return false;
 	}
 
-	private boolean onBoxSelected(MotionEvent e, Paragraph paragraph, boolean isLongClicked, Box box) {
+	private boolean onBoxSelected(View source, MotionEvent e, Paragraph paragraph, boolean isLongClicked, Box box) {
 		OnSpanClickedPredicate predicate = isLongClicked ? mOnLongClickedPredicate : mOnSpanClickedPredicate;
 		if (predicate == null) {
 			return false;
@@ -174,10 +175,10 @@ public class SelectionManager implements OnSelectedChangedListener {
 
 			if (handled && mListener != null) {
 				if (isLongClicked) {
-					mListener.onSpanLongClicked(e.getRawX(), e.getRawY(), box.getTag());
+					mListener.onSpanLongClicked(TouchEvent.obtain(source, e), box.getTag());
 					notifyUpdateSelectionDropView();
 				} else {
-					mListener.onSpanClicked(e.getRawX(), e.getRawY(), box.getTag());
+					mListener.onSpanClicked(TouchEvent.obtain(source, e), box.getTag());
 				}
 			}
 		} catch (ParagraphVisitor.VisitException ex) {
@@ -267,21 +268,19 @@ public class SelectionManager implements OnSelectedChangedListener {
 	/**
 	 * 开始拖拽水滴
 	 *
-	 * @param x x
-	 * @param y y
+	 * @param event 事件
 	 */
-	public void handleDragStart(float x, float y) {
-		mListener.onDragStart(x, y);
+	public void handleDragStart(TouchEvent event) {
+		mListener.onDragStart(event);
 	}
 
 	/**
 	 * 结束拖拽水滴
 	 *
-	 * @param x x
-	 * @param y y
+	 * @param event 事件
 	 */
-	public void handleDragEnd(float x, float y) {
-		mListener.onDragEnd(x, y);
+	public void handleDragEnd(TouchEvent event) {
+		mListener.onDragEnd(event);
 	}
 
 	/**
@@ -517,19 +516,18 @@ public class SelectionManager implements OnSelectedChangedListener {
 	}
 
 	public interface Listener {
-		void onSpanClicked(float x, float y, Object tag);
+		void onSpanClicked(TouchEvent event, Object tag);
 
-		void onSpanLongClicked(float x, float y, Object tag);
+		void onSpanLongClicked(TouchEvent event, Object tag);
 
-		// todo fix me 现在不是raw的
-		void onDragStart(float rawX, float rawY);
+		void onDragStart(TouchEvent event);
 
-		void onDragEnd(float rawX, float rawY);
+		void onDragEnd(TouchEvent event);
 
 		void onDragDismiss();
 
-		void onSegmentDoubleClicked(Object paragraphTag, float x, float y);
+		void onSegmentDoubleClicked(TouchEvent event, Object paragraphTag);
 
-		void onSegmentClicked(Object paragraphTag, float rawX, float rawY);
+		void onSegmentClicked(TouchEvent event, Object paragraphTag);
 	}
 }

@@ -78,12 +78,12 @@ public abstract class SingleClickOnTouchListener implements View.OnTouchListener
 
 		// 抬起手的时候看有没有滑动过度，滑动过度不判定为点击
 		if (action == MotionEvent.ACTION_UP && !mIgnore) {
-			onClicked(event.getRawX(), event.getRawY());
+			onClicked(event);
 		}
 
 		// 返回值看有没有忽略滑动
 		return !mIgnore;
 	}
 
-	protected abstract void onClicked(float x, float y);
+	protected abstract void onClicked(MotionEvent event);
 }

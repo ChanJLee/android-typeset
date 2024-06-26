@@ -5,7 +5,6 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.RectF;
-import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Log;
@@ -21,11 +20,14 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
+import java.io.IOException;
+
 import me.chan.texas.Texas;
 import me.chan.texas.adapter.TextAdapter;
 import me.chan.texas.renderer.ParagraphVisitor;
 import me.chan.texas.renderer.RenderOption;
 import me.chan.texas.renderer.TexasView;
+import me.chan.texas.renderer.TouchEvent;
 import me.chan.texas.renderer.ui.decor.ParagraphDecor;
 import me.chan.texas.source.AssetsTextSource;
 import me.chan.texas.text.BreakStrategy;
@@ -34,8 +36,6 @@ import me.chan.texas.text.Figure;
 import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.Segment;
 import me.chan.texas.utils.TexasUtils;
-
-import java.io.IOException;
 
 public class TexasViewDemoActivity extends AppCompatActivity {
 
@@ -113,39 +113,39 @@ public class TexasViewDemoActivity extends AppCompatActivity {
 	void setupListener() {
 		mTexasView.setOnClickedListener(new TexasView.OnClickedListener() {
 			@Override
-			public void onSpanClicked(float x, float y, Object tag) {
-				// fuck
+			public void onSpanClicked(TouchEvent event, Object tag) {
+
 			}
 
 			@Override
-			public void onSpanLongClicked(float x, float y, Object tag) {
-				// fuck
+			public void onSpanLongClicked(TouchEvent event, Object tag) {
+
 			}
 
 			@Override
-			public void onSegmentClicked(float x, float y, Object tag) {
+			public void onSegmentClicked(TouchEvent event, Object tag) {
 				Toast.makeText(TexasViewDemoActivity.this, "点击了Segment", Toast.LENGTH_SHORT).show();
 			}
 
 			@Override
-			public void onEmptyClicked(float x, float y) {
+			public void onEmptyClicked(TouchEvent event) {
 				Toast.makeText(TexasViewDemoActivity.this, "点击了空白", Toast.LENGTH_SHORT).show();
 			}
 
 			@Override
-			public void onSegmentDoubleClicked(float x, float y, Object tag) {
+			public void onSegmentDoubleClicked(TouchEvent event, Object tag) {
 				Toast.makeText(TexasViewDemoActivity.this, "双击", Toast.LENGTH_SHORT).show();
 			}
 		});
 
 		mTexasView.setOnDragSelectListener(new TexasView.OnDragSelectListener() {
 			@Override
-			public void onDragStart(float x, float y) {
+			public void onDragStart(TouchEvent event) {
 
 			}
 
 			@Override
-			public void onDragEnd(float x, float y) {
+			public void onDragEnd(TouchEvent event) {
 
 			}
 
