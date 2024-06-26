@@ -121,12 +121,12 @@ public class ParagraphView extends FrameLayout {
 		addView((View) mRender, new FrameLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
 		OnSelectedChangedListener onSelectedChangedListener = new OnSelectedChangedListener() {
 			@Override
-			public boolean onSegmentClicked(MotionEvent e, Paragraph paragraph, int eventType) {
+			public boolean onSegmentClicked(View source, MotionEvent e, Paragraph paragraph, int eventType) {
 				return handleParagraphClicked(paragraph, eventType);
 			}
 
 			@Override
-			public boolean onBoxSelected(MotionEvent e, Paragraph paragraph, @EventType int eventType, Box box) {
+			public boolean onBoxSelected(View source, MotionEvent e, Paragraph paragraph, @EventType int eventType, Box box) {
 				return handleParagraphSelected(paragraph, eventType, box);
 			}
 		};

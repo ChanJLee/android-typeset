@@ -128,7 +128,7 @@ public class Renderer implements SelectionManager.Listener {
 		mImpl = new TexasRecyclerView(new ContextThemeWrapper(context, R.style.me_chan_texas_TexasRecyclerView), mLinearLayoutManager);
 		mImpl.setClipToPadding(false);
 		mImpl.setClipChildren(false);
-		mImpl.setOnClickedListener((x, y) -> mTexasView.notifyEmptyClicked(x, y));
+		mImpl.setOnClickedListener(mTexasView::notifyEmptyClicked);
 		mImpl.setLayoutManager(mLinearLayoutManager);
 		texasView.addView(mImpl,
 				new TexasView.LayoutParams(
@@ -140,13 +140,13 @@ public class Renderer implements SelectionManager.Listener {
 		mAdapter = new RendererAdapter(layoutInflater, imageLoader, mImpl.getRecycledViewPool(), mImpl);
 		mAdapter.setListener(new RendererAdapter.Listener() {
 			@Override
-			public void onSegmentClicked(float x, float y, Object tag) {
-				mTexasView.notifySegmentClicked(x, y, tag);
+			public void onSegmentClicked(TouchEvent event, Object tag) {
+				mTexasView.notifySegmentClicked(event, tag);
 			}
 
 			@Override
-			public void onSegmentDoubleClicked(float x, float y, Object tag) {
-				mTexasView.notifySegmentDoubleClicked(x, y, tag);
+			public void onSegmentDoubleClicked(TouchEvent event, Object tag) {
+				mTexasView.notifySegmentDoubleClicked(event, tag);
 			}
 
 			@Override
@@ -509,23 +509,23 @@ public class Renderer implements SelectionManager.Listener {
 	}
 
 	@Override
-	public void onSpanClicked(float x, float y, Object tag) {
-		mTexasView.notifySpanClicked(x, y, tag);
+	public void onSpanClicked(TouchEvent event, Object tag) {
+		mTexasView.notifySpanClicked(event, tag);
 	}
 
 	@Override
-	public void onSpanLongClicked(float x, float y, Object tag) {
-		mTexasView.notifySpanLongClicked(x, y, tag);
+	public void onSpanLongClicked(TouchEvent event, Object tag) {
+		mTexasView.notifySpanLongClicked(event, tag);
 	}
 
 	@Override
-	public void onDragStart(float x, float y) {
-		mTexasView.notifyDragStart(x, y);
+	public void onDragStart(TouchEvent event) {
+		mTexasView.notifyDragStart(event);
 	}
 
 	@Override
-	public void onDragEnd(float x, float y) {
-		mTexasView.notifyDragEnd(x, y);
+	public void onDragEnd(TouchEvent event) {
+		mTexasView.notifyDragEnd(event);
 	}
 
 	@Override
@@ -534,13 +534,13 @@ public class Renderer implements SelectionManager.Listener {
 	}
 
 	@Override
-	public void onSegmentDoubleClicked(Object paragraphTag, float x, float y) {
-		mTexasView.notifySegmentDoubleClicked(x, y, paragraphTag);
+	public void onSegmentDoubleClicked(TouchEvent event, Object paragraphTag) {
+		mTexasView.notifySegmentDoubleClicked(event, paragraphTag);
 	}
 
 	@Override
-	public void onSegmentClicked(Object paragraphTag, float rawX, float rawY) {
-		mTexasView.notifySegmentClicked(rawX, rawY, paragraphTag);
+	public void onSegmentClicked(TouchEvent event, Object paragraphTag) {
+		mTexasView.notifySegmentClicked(event, paragraphTag);
 	}
 
 	public void setHasFixedSize(boolean enable) {

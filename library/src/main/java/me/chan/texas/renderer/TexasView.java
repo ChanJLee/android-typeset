@@ -101,15 +101,15 @@ public final class TexasView extends FrameLayout {
 	 */
 	public static final int SCROLL_STATE_SETTLING = 2;
 
-	void notifySegmentClicked(float x, float y, Object tag) {
+	void notifySegmentClicked(TouchEvent event, Object tag) {
 		if (mOnClickedListener != null) {
-			mOnClickedListener.onSegmentClicked(x, y, tag);
+			mOnClickedListener.onSegmentClicked(event, tag);
 		}
 	}
 
-	void notifySegmentDoubleClicked(float x, float y, Object tag) {
+	void notifySegmentDoubleClicked(TouchEvent event, Object tag) {
 		if (mOnClickedListener != null) {
-			mOnClickedListener.onSegmentDoubleClicked(x, y, tag);
+			mOnClickedListener.onSegmentDoubleClicked(event, tag);
 		}
 	}
 
@@ -358,7 +358,7 @@ public final class TexasView extends FrameLayout {
 			if (mBottomLoadingIndicator != null) {
 				mBottomLoadingIndicator.renderLoading();
 			}
-		} else  {
+		} else {
 			if (mTopLoadingIndicator != null) {
 				mTopLoadingIndicator.renderLoading();
 			}
@@ -567,9 +567,9 @@ public final class TexasView extends FrameLayout {
 	}
 
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
-	public void notifyEmptyClicked(float x, float y) {
+	public void notifyEmptyClicked(TouchEvent event) {
 		if (mOnClickedListener != null) {
-			mOnClickedListener.onEmptyClicked(x, y);
+			mOnClickedListener.onEmptyClicked(event);
 		}
 	}
 
@@ -743,30 +743,30 @@ public final class TexasView extends FrameLayout {
 	}
 
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
-	public void notifySpanLongClicked(float x, float y, Object tag) {
+	public void notifySpanLongClicked(TouchEvent event, Object tag) {
 		if (mOnClickedListener != null) {
-			mOnClickedListener.onSpanLongClicked(x, y, tag);
+			mOnClickedListener.onSpanLongClicked(event, tag);
 		}
 	}
 
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
-	public void notifySpanClicked(float x, float y, Object tag) {
+	public void notifySpanClicked(TouchEvent event, Object tag) {
 		if (mOnClickedListener != null) {
-			mOnClickedListener.onSpanClicked(x, y, tag);
+			mOnClickedListener.onSpanClicked(event, tag);
 		}
 	}
 
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
-	public void notifyDragStart(float x, float y) {
+	public void notifyDragStart(TouchEvent event) {
 		if (mOnDragSelectListener != null) {
-			mOnDragSelectListener.onDragStart(x, y);
+			mOnDragSelectListener.onDragStart(event);
 		}
 	}
 
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
-	public void notifyDragEnd(float x, float y) {
+	public void notifyDragEnd(TouchEvent event) {
 		if (mOnDragSelectListener != null) {
-			mOnDragSelectListener.onDragEnd(x, y);
+			mOnDragSelectListener.onDragEnd(event);
 		}
 	}
 
@@ -1035,38 +1035,33 @@ public final class TexasView extends FrameLayout {
 	 */
 	public interface OnClickedListener {
 		/**
-		 * @param x   点击发生时相对屏幕的x坐标
-		 * @param y   点击发生时相对屏幕的y坐标
-		 * @param tag 被点击的text tag
+		 * @param event touch event
+		 * @param tag   被点击的text tag
 		 */
-		void onSpanClicked(float x, float y, Object tag);
+		void onSpanClicked(TouchEvent event, Object tag);
 
 		/**
-		 * @param x   点击发生时相对屏幕的x坐标
-		 * @param y   点击发生时相对屏幕的y坐标
-		 * @param tag 被点击的text tag
+		 * @param event touch event
+		 * @param tag   被点击的text tag
 		 */
-		void onSpanLongClicked(float x, float y, Object tag);
+		void onSpanLongClicked(TouchEvent event, Object tag);
 
 		/**
-		 * @param x   点击发生时相对屏幕的x坐标
-		 * @param y   点击发生时相对屏幕的y坐标
-		 * @param tag 被点击的segment tag
+		 * @param event touch event
+		 * @param tag   被点击的segment tag
 		 */
-		void onSegmentClicked(float x, float y, Object tag);
+		void onSegmentClicked(TouchEvent event, Object tag);
 
 		/**
-		 * @param x 点击发生时相对屏幕的x坐标
-		 * @param y 点击发生时相对屏幕的y坐标
+		 * @param event touch event
 		 */
-		void onEmptyClicked(float x, float y);
+		void onEmptyClicked(TouchEvent event);
 
 		/**
-		 * @param x   点击发生时相对屏幕的x坐标
-		 * @param y   点击发生时相对屏幕的y坐标
-		 * @param tag 被点击的segment tag
+		 * @param event touch event
+		 * @param tag   被点击的segment tag
 		 */
-		void onSegmentDoubleClicked(float x, float y, Object tag);
+		void onSegmentDoubleClicked(TouchEvent event, Object tag);
 	}
 
 	/**
@@ -1106,13 +1101,15 @@ public final class TexasView extends FrameLayout {
 	 */
 	public interface OnDragSelectListener {
 		/**
-		 * @param x 点击发生时相对屏幕的x坐标
-		 * @param y 点击发生时相对屏幕的y坐标
+		 * @param event touch event
 		 */
 
-		void onDragStart(float x, float y);
+		void onDragStart(TouchEvent event);
 
-		void onDragEnd(float x, float y);
+		/**
+		 * @param event touch event
+		 */
+		void onDragEnd(TouchEvent event);
 
 		void onDragDismiss();
 	}
