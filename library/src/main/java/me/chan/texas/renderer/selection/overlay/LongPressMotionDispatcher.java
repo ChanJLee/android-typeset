@@ -22,7 +22,7 @@ public abstract class LongPressMotionDispatcher {
 	public @interface DirectionType {
 	}
 
-	private final boolean mPendingMsgBucket[] = {false, false, false};
+	private final boolean[] mPendingMsgBucket = {false, false, false};
 
 	private final Handler mPendingMotionHandler = new Handler(Looper.getMainLooper()) {
 		@Override

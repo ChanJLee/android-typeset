@@ -6,7 +6,6 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.RectF;
-import android.os.Build;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
@@ -14,7 +13,6 @@ import android.view.ViewGroup;
 
 import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 
 import me.chan.texas.renderer.TouchEvent;
@@ -76,7 +74,6 @@ public class SelectionDragView extends View {
 	private final Region mRendererRegion = new Region();
 	private static final int HALF_OF_DROPPER_SIZE = 50;
 
-	@RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
 	@Override
 	protected void onDraw(Canvas canvas) {
 		// 手指中心
