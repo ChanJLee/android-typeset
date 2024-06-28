@@ -38,6 +38,7 @@ public class RenderOption {
 	private boolean mEnableDebug;
 	private boolean mEnableOnDrawTsDebug;
 	private boolean mEnableAsyncDrawTsDebug;
+	private boolean mEnableFullWithSymbolOptimization = true;
 
 	@Override
 	public boolean equals(Object o) {
@@ -69,6 +70,7 @@ public class RenderOption {
 		if (!TexasUtils.equals(mTypeface, that.mTypeface))
 			return false;
 		if (mBreakStrategy != that.mBreakStrategy) return false;
+		if (mHyphenStrategy != that.mHyphenStrategy) return false;
 		return mHyphenStrategy == that.mHyphenStrategy;
 	}
 
@@ -95,6 +97,7 @@ public class RenderOption {
 		result = 31 * result + mDragViewColor;
 		result = 31 * result + (mCompatMode ? 1 : 0);
 		result = 31 * result + (mSelectedBackgroundRoundRadius != +0.0f ? Float.floatToIntBits(mSelectedBackgroundRoundRadius) : 0);
+		result = 31 * result + (mEnableFullWithSymbolOptimization ? 1 : 0);
 		return result;
 	}
 
@@ -137,6 +140,7 @@ public class RenderOption {
 		this.mSelectedBackgroundRoundRadius = other.mSelectedBackgroundRoundRadius;
 		this.mEnableAsyncDrawTsDebug = other.mEnableAsyncDrawTsDebug;
 		this.mEnableOnDrawTsDebug = other.mEnableAsyncDrawTsDebug;
+		this.mEnableFullWithSymbolOptimization = other.mEnableFullWithSymbolOptimization;
 	}
 
 	/**
@@ -516,6 +520,22 @@ public class RenderOption {
 		mEnableAsyncDrawTsDebug = enable;
 	}
 
+	/**
+	 * @return 是否开启全角符号优化
+	 */
+	public boolean isEnableFullWithSymbolOptimization() {
+		return mEnableFullWithSymbolOptimization;
+	}
+
+	/**
+	 * 针对于‘》《’等全角符号同时出现的case，该优化会压缩符号的宽度，使得符号中间不会占用过多的宽度
+	 *
+	 * @param enable 是否开启全角符号优化
+	 */
+	public void setEnableFullWithSymbolOptimization(boolean enable) {
+		mEnableFullWithSymbolOptimization = enable;
+	}
+
 	@Override
 	public String toString() {
 		return "RenderOption{" +
@@ -540,6 +560,7 @@ public class RenderOption {
 				", mDragViewColor=" + mDragViewColor +
 				", mCompatMode=" + mCompatMode +
 				", mSelectedBackgroundRoundRadius=" + mSelectedBackgroundRoundRadius +
+				", mEnableFullWithSymbolOptimization=" + mEnableFullWithSymbolOptimization +
 				'}';
 	}
 }

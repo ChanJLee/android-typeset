@@ -377,6 +377,7 @@ public class TexasUtils {
 	 * 3. 更改了断字策略
 	 * 4. 渲染模式发生改变
 	 * 5. 断字策略发生变化
+	 * 6. 全角符号优化变化
 	 *
 	 * @param prev    之前的render option
 	 * @param current 现在的render option
@@ -395,8 +396,8 @@ public class TexasUtils {
 		}
 
 		if (prev.getTextSize() != current.getTextSize() ||
-				!TexasUtils.equals(prev.getTypeface(), current.getTypeface())
-		) {
+				!TexasUtils.equals(prev.getTypeface(), current.getTypeface()) ||
+				prev.isEnableFullWithSymbolOptimization() != current.isEnableFullWithSymbolOptimization()) {
 			return CmpType.CMP_TYPESET;
 		}
 
