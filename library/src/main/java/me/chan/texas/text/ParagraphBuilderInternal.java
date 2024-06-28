@@ -12,6 +12,7 @@ import me.chan.texas.Texas;
 import me.chan.texas.TexasOption;
 import me.chan.texas.hyphenation.Hyphenation;
 import me.chan.texas.measurer.Measurer;
+import me.chan.texas.renderer.RenderOption;
 import me.chan.texas.text.icu.UnicodeUtils;
 import me.chan.texas.text.layout.Element;
 import me.chan.texas.text.layout.Glue;
@@ -37,6 +38,7 @@ class ParagraphBuilderInternal {
 	private Hyphenation mHyphenation;
 	private TextAttribute mTextAttribute;
 	private Paragraph mParagraph;
+	private RenderOption mRenderOption;
 	private Object mTag;
 	private final Paragraph.SpanBuilder mSpanBuilder;
 
@@ -109,6 +111,7 @@ class ParagraphBuilderInternal {
 	public void reset() {
 		mParagraph = null;
 		mMeasurer = null;
+		mRenderOption = null;
 		mTextAttribute = null;
 		mHyphenation = null;
 		mHyphenated.clear();
@@ -123,6 +126,7 @@ class ParagraphBuilderInternal {
 
 	public void reset(TexasOption texasOption,
 					  @Paragraph.TypesetPolicy int typesetPolicy) {
+		mRenderOption = texasOption.getRenderOption();
 		mMeasurer = texasOption.getMeasurer();
 		mHyphenation = texasOption.getHyphenation();
 		mTextAttribute = texasOption.getTextAttribute();
@@ -594,9 +598,11 @@ class ParagraphBuilderInternal {
 				builder.appendElement(builder.mCommonGlue);
 				builder.appendElementExcludeAdvise(adviseElement);
 			} else if (checkTokenAttributeSafe(accepted, Token.SYMBOL_TYPEFACE_MASK, Token.SYMBOL_SQUISH_RIGHT)) {
-				builder.appendElementExcludeAdvise(adviseElement);
-				builder.appendElement(obtainSymbolGlueFromStack(builder));
-				builder.appendElementExcludeAdvise(adviseElement);
+				if (builder.mRenderOption.isEnableFullWithSymbolOptimization()) {
+					builder.appendElementExcludeAdvise(adviseElement);
+					builder.appendElement(obtainSymbolGlueFromStack(builder));
+					builder.appendElementExcludeAdvise(adviseElement);
+				}
 			} else {
 				Token realPrev = stream.tryGet(state, -1);
 				if (realPrev != accepted && getTokenTypeSafe(realPrev) == Token.TYPE_BLANK &&
@@ -608,20 +614,6 @@ class ParagraphBuilderInternal {
 					builder.appendElement(adviseElement);
 				}
 			}
-		}
-
-		private static Glue obtainSymbolGlueFromStack(ParagraphBuilderInternal builder) {
-			Element last = builder.mParagraph.mElements.get(builder.mParagraph.mElements.size() - 1);
-			if (BuildConfig.DEBUG && !(last instanceof TextBox)) {
-				throw new IllegalStateException("last element must be TextBox");
-			}
-
-			TextBox textBox = (TextBox) last;
-			if (BuildConfig.DEBUG && textBox.getAttribute() == 0) {
-				throw new IllegalStateException("TextBox's attribute must be set");
-			}
-
-			return SymbolGlue.obtain(textBox);
 		}
 	}
 
@@ -705,9 +697,13 @@ class ParagraphBuilderInternal {
 			if (prevType == Token.TYPE_NONE) {
 				TextBox textBox = builder.appendSymbolToken(text, spanReader, current);
 				if (checkTokenAttributeSafe(current, Token.SYMBOL_TYPEFACE_MASK, Token.SYMBOL_SQUISH_LEFT)) {
-					textBox.addAttribute(TextBox.ATTRIBUTE_SQUISH_LEFT);
+					if (builder.mRenderOption.isEnableFullWithSymbolOptimization()) {
+						textBox.addAttribute(TextBox.ATTRIBUTE_SQUISH_LEFT);
+					}
 				} else if (checkTokenAttributeSafe(current, Token.SYMBOL_TYPEFACE_MASK, Token.SYMBOL_SQUISH_RIGHT)) {
-					textBox.addAttribute(TextBox.ATTRIBUTE_SQUISH_RIGHT);
+					if (builder.mRenderOption.isEnableFullWithSymbolOptimization()) {
+						textBox.addAttribute(TextBox.ATTRIBUTE_SQUISH_RIGHT);
+					}
 				}
 				accept(current);
 				return true;
@@ -739,9 +735,13 @@ class ParagraphBuilderInternal {
 			// 生成一个 symbol
 			TextBox box = builder.obtainSymbolTextBox(text, spanReader, current);
 			if (checkTokenAttributeSafe(current, Token.SYMBOL_TYPEFACE_MASK, Token.SYMBOL_SQUISH_LEFT)) {
-				box.addAttribute(TextBox.ATTRIBUTE_SQUISH_LEFT);
+				if (builder.mRenderOption.isEnableFullWithSymbolOptimization()) {
+					box.addAttribute(TextBox.ATTRIBUTE_SQUISH_LEFT);
+				}
 			} else if (checkTokenAttributeSafe(current, Token.SYMBOL_TYPEFACE_MASK, Token.SYMBOL_SQUISH_RIGHT)) {
-				box.addAttribute(TextBox.ATTRIBUTE_SQUISH_RIGHT);
+				if (builder.mRenderOption.isEnableFullWithSymbolOptimization()) {
+					box.addAttribute(TextBox.ATTRIBUTE_SQUISH_RIGHT);
+				}
 			}
 
 			// 明确的需要拉升左边
@@ -754,9 +754,11 @@ class ParagraphBuilderInternal {
 				// 找真实的解析buffer，看当前token在原文中是否有空格，如果有，且没有要求squish，那么就要填充空格
 				Token realPrev = stream.tryGet(state, -1);
 				if (checkTokenAttributeSafe(current, Token.SYMBOL_TYPEFACE_MASK, Token.SYMBOL_SQUISH_LEFT)) {
-					builder.appendElementExcludeAdvise(adviseElement);
-					builder.appendElement(SymbolGlue.obtain(box));
-					builder.appendElementExcludeAdvise(adviseElement);
+					if (builder.mRenderOption.isEnableFullWithSymbolOptimization()) {
+						builder.appendElementExcludeAdvise(adviseElement);
+						builder.appendElement(SymbolGlue.obtain(box));
+						builder.appendElementExcludeAdvise(adviseElement);
+					}
 				} else if (getTokenTypeSafe(realPrev) == Token.TYPE_BLANK &&
 						(getTokenAttributeSafe(current) & Token.SYMBOL_TYPEFACE_MASK) == 0) {
 					builder.appendElementExcludeAdvise(adviseElement);
@@ -794,9 +796,13 @@ class ParagraphBuilderInternal {
 
 			TextBox box = builder.obtainSymbolTextBox(text, spanReader, current);
 			if (checkTokenAttributeSafe(current, Token.SYMBOL_TYPEFACE_MASK, Token.SYMBOL_SQUISH_LEFT)) {
-				box.addAttribute(TextBox.ATTRIBUTE_SQUISH_LEFT);
+				if (builder.mRenderOption.isEnableFullWithSymbolOptimization()) {
+					box.addAttribute(TextBox.ATTRIBUTE_SQUISH_LEFT);
+				}
 			} else if (checkTokenAttributeSafe(current, Token.SYMBOL_TYPEFACE_MASK, Token.SYMBOL_SQUISH_RIGHT)) {
-				box.addAttribute(TextBox.ATTRIBUTE_SQUISH_RIGHT);
+				if (builder.mRenderOption.isEnableFullWithSymbolOptimization()) {
+					box.addAttribute(TextBox.ATTRIBUTE_SQUISH_RIGHT);
+				}
 			}
 
 			// 添加 advise
@@ -924,9 +930,11 @@ class ParagraphBuilderInternal {
 
 		private void performState1AdviseSymbolPadding(ParagraphBuilderInternal builder,
 													  TextBox box, Element adviseElement) {
-			builder.appendElementExcludeAdvise(adviseElement);
-			builder.appendElement(SymbolGlue.obtain(box));
-			builder.appendElementExcludeAdvise(adviseElement);
+			if (builder.mRenderOption.isEnableFullWithSymbolOptimization()) {
+				builder.appendElementExcludeAdvise(adviseElement);
+				builder.appendElement(SymbolGlue.obtain(box));
+				builder.appendElementExcludeAdvise(adviseElement);
+			}
 		}
 
 		private void performState1AdvisePadding(ParagraphBuilderInternal builder, Element adviseElement) {
@@ -983,9 +991,11 @@ class ParagraphBuilderInternal {
 				builder.appendElement(builder.mCommonGlue);
 				builder.appendElementExcludeAdvise(adviseElement);
 			} else if (checkTokenAttributeSafe(accepted, Token.SYMBOL_TYPEFACE_MASK, Token.SYMBOL_SQUISH_RIGHT)) {
-				builder.appendElementExcludeAdvise(adviseElement);
-				builder.appendElement(obtainSymbolGlueFromStack(builder));
-				builder.appendElementExcludeAdvise(adviseElement);
+				if (builder.mRenderOption.isEnableFullWithSymbolOptimization()) {
+					builder.appendElementExcludeAdvise(adviseElement);
+					builder.appendElement(obtainSymbolGlueFromStack(builder));
+					builder.appendElementExcludeAdvise(adviseElement);
+				}
 			} else {
 				Token realPrev = stream.tryGet(state, -1);
 				if (realPrev != accepted && getTokenTypeSafe(realPrev) == Token.TYPE_BLANK &&
@@ -998,19 +1008,19 @@ class ParagraphBuilderInternal {
 				}
 			}
 		}
+	}
 
-		private static Glue obtainSymbolGlueFromStack(ParagraphBuilderInternal builder) {
-			Element last = builder.mParagraph.mElements.get(builder.mParagraph.mElements.size() - 1);
-			if (BuildConfig.DEBUG && !(last instanceof TextBox)) {
-				throw new IllegalStateException("last element must be TextBox");
-			}
-
-			TextBox textBox = (TextBox) last;
-			if (BuildConfig.DEBUG && textBox.getAttribute() == 0) {
-				throw new IllegalStateException("TextBox's attribute must be set");
-			}
-
-			return SymbolGlue.obtain(textBox);
+	private static Glue obtainSymbolGlueFromStack(ParagraphBuilderInternal builder) {
+		Element last = builder.mParagraph.mElements.get(builder.mParagraph.mElements.size() - 1);
+		if (BuildConfig.DEBUG && !(last instanceof TextBox)) {
+			throw new IllegalStateException("last element must be TextBox");
 		}
+
+		TextBox textBox = (TextBox) last;
+		if (BuildConfig.DEBUG && textBox.getAttribute() == 0) {
+			throw new IllegalStateException("TextBox's attribute must be set");
+		}
+
+		return SymbolGlue.obtain(textBox);
 	}
 }
