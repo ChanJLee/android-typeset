@@ -37,7 +37,6 @@ public class Texas {
 	private static MemoryOption sMemoryOption;
 	private static final Set<LifecycleCallback> LIFECYCLE_CALLBACKS = new HashSet<>();
 	private static Context sAppContext;
-	private static int sSubParagraphMaxHeight = TexasUtils.getScreenHeight();
 
 	@RestrictTo(LIBRARY)
 	public static void registerLifecycleCallback(LifecycleCallback callback) {
@@ -60,20 +59,6 @@ public class Texas {
 			sMemoryOption = new MemoryOption();
 		}
 		return sMemoryOption;
-	}
-
-	/**
-	 * @param height 设置paragraph分片高度
-	 */
-	public static void setSubParagraphMaxHeight(int height) {
-		sSubParagraphMaxHeight = height;
-	}
-
-	/**
-	 * @return 获取paragraph分片高度
-	 */
-	public static int getSubParagraphMaxHeight() {
-		return sSubParagraphMaxHeight;
 	}
 
 	/**
@@ -122,7 +107,6 @@ public class Texas {
 			}
 		});
 		TexasUtils.init(application);
-		setSubParagraphMaxHeight(TexasUtils.getScreenHeight() / 3);
 	}
 
 	@RestrictTo(LIBRARY)
