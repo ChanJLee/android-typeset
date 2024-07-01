@@ -74,7 +74,6 @@ public abstract class ParagraphVisitor {
 		}
 	}
 
-	// todo test 一开始有空格
 	private void visitLine(Line line, float bottomX, float bottomY) {
 		onVisitLineStart(line, bottomX, bottomY);
 
