@@ -49,6 +49,7 @@ public class HighlightParagraphVisitor extends ParagraphVisitor {
 		TextBox textBox = (TextBox) box;
 		Object tag = textBox.getTag();
 		if (!mPredicate.apply(mParagraph.getTag(), tag)) {
+			textBox.removeStatus(Box.STATUS_HIGHLIGHT);
 			return;
 		}
 

@@ -5,6 +5,7 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import android.graphics.Canvas;
 import android.graphics.RectF;
 import android.text.TextPaint;
+import android.util.Log;
 
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
@@ -238,6 +239,7 @@ public class ParagraphSelection extends DefaultRecyclable {
 
 	public void clear() {
 		for (Box box : mSet) {
+			Log.d("chan_debug", "clear -》" + box);
 			box.removeStatus(Box.STATUS_SELECTED);
 		}
 		mSet.clear();
