@@ -96,6 +96,7 @@ public class TokenStream extends DefaultRecyclable {
 		token.mStart = save;
 		token.mEnd = save + 1;
 		token.mType = Token.TYPE_WORD;
+		token.mAttributes |= Token.WORD_TYPE_CONTEXT_SENSITIVE;
 
 		while (!mCharStream.eof()) {
 			codePoint = mCharStream.eat();
