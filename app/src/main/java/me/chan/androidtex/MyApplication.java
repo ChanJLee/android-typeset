@@ -3,6 +3,9 @@ package me.chan.androidtex;
 import android.app.Application;
 import android.graphics.Typeface;
 
+import androidx.appcompat.app.AppCompatDelegate;
+import androidx.core.os.LocaleListCompat;
+
 import me.chan.texas.Texas;
 
 public class MyApplication extends Application {
@@ -17,5 +20,8 @@ public class MyApplication extends Application {
 		Texas.init(this, memoryOption);
 		Texas.setTDMSEnable(true);
 		Texas.setDefaultTypeface(Typeface.createFromAsset(getAssets(), "opposans_r.ttf"));
+
+		LocaleListCompat appLocale = LocaleListCompat.forLanguageTags("ar");
+		AppCompatDelegate.setApplicationLocales(appLocale);
 	}
 }

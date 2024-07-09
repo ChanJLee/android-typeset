@@ -128,4 +128,29 @@ public class UnicodeUtils {
 	public static boolean isHyphen(int codePoint) {
 		return codePoint == '-';
 	}
+
+
+	@RestrictTo(RestrictTo.Scope.LIBRARY)
+	public static boolean isRTLCharacter(int c) {
+		byte directionality = Character.getDirectionality(c);
+		return directionality == Character.DIRECTIONALITY_RIGHT_TO_LEFT ||
+				directionality == Character.DIRECTIONALITY_RIGHT_TO_LEFT_ARABIC;
+	}
+
+	@RestrictTo(RestrictTo.Scope.LIBRARY)
+	public static boolean isContextSensitiveCharacter(int c) {
+		// Unicode ranges for Arabic, Hebrew, etc.
+		// Arabic: \u0600 - \u06FF
+		// Arabic Supplement: \u0750 - \u077F
+		// Hebrew: \u0590 - \u05FF
+		return ((c >= '\u0600' && c <= '\u06FF') ||  // Arabic
+				(c >= '\u0750' && c <= '\u077F') ||  // Arabic Supplement
+				(c >= '\u0590' && c <= '\u05FF'));  // Hebrew
+
+	}
+
+	@RestrictTo(RestrictTo.Scope.LIBRARY)
+	public static boolean isContextFreeCharacter(int c) {
+		return !isContextSensitiveCharacter(c);
+	}
 }
