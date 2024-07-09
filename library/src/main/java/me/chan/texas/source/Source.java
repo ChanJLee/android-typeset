@@ -3,8 +3,6 @@ package me.chan.texas.source;
 import androidx.annotation.AnyThread;
 import androidx.annotation.Nullable;
 
-import me.chan.texas.BuildConfig;
-import me.chan.texas.misc.ResourceManager;
 import me.chan.texas.renderer.LoadingStrategy;
 
 /**
@@ -13,19 +11,6 @@ import me.chan.texas.renderer.LoadingStrategy;
  * @param <T> 返回的类型
  */
 public abstract class Source<T> {
-
-	private volatile boolean mClosed = false;
-
-	public Source() {
-		if (BuildConfig.DEBUG) {
-			ResourceManager.hold(this, new ResourceManager.Listener<Source<T>>() {
-				@Override
-				public boolean isReleased(Source<T> o) {
-					return o.isClosed();
-				}
-			});
-		}
-	}
 
 	/**
 	 * 打开开始读取内容
@@ -36,10 +21,6 @@ public abstract class Source<T> {
 	@AnyThread
 	@Nullable
 	public synchronized T open(LoadingStrategy strategy) throws SourceOpenException {
-		if (mClosed) {
-			throw new SourceOpenException(-1, "source has been closed", null);
-		}
-
 		return onOpen(strategy);
 	}
 
@@ -52,22 +33,12 @@ public abstract class Source<T> {
 	 */
 	@AnyThread
 	public synchronized final void close() {
-		if (mClosed) {
-			return;
-		}
-
 		try {
 			onClose();
 		} catch (Throwable ignore) {
 			/* noop */
-		} finally {
-			mClosed = true;
 		}
 	}
 
 	protected abstract void onClose() throws SourceCloseException;
-
-	public boolean isClosed() {
-		return mClosed;
-	}
 }
