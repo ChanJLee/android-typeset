@@ -80,31 +80,59 @@ public class TokenStream extends DefaultRecyclable {
 	}
 
 	private boolean unknown() {
-		Token token = Token.obtain();
-		token.mCharSequence = mCharStream.getText();
-		token.mStart = mCharStream.save();
-		token.mEnd = token.mStart + 1;
-		token.mType = Token.TYPE_UNKNOWN;
-		mCharStream.eat();
+		return context() || surrogate();
+	}
 
-		int codePoint = mCharStream.peek(token.mStart);
-		if (!Character.isHighSurrogate((char) codePoint)) {
-			return mBuffer.add(token);
+	private boolean context() {
+		int save = mCharStream.save();
+		int codePoint = mCharStream.eat();
+		if (!UnicodeUtils.isContextSensitiveCharacter(codePoint)) {
+			mCharStream.restore(save);
+			return false;
 		}
 
-		// 未知字符比较特别 可能是多个 char 组合为一个字符
-		mCharStream.adjust(1);
-		++token.mEnd;
+		Token token = Token.obtain();
+		token.mCharSequence = mCharStream.getText();
+		token.mStart = save;
+		token.mEnd = save + 1;
+		token.mType = Token.TYPE_WORD;
 
+		while (!mCharStream.eof()) {
+			codePoint = mCharStream.eat();
+			if (!UnicodeUtils.isContextSensitiveCharacter((char) codePoint)) {
+				mCharStream.adjust(-1);
+				return mBuffer.add(token);
+			}
+			token.mEnd += 1;
+		}
+
+		return mBuffer.add(token);
+	}
+
+	private boolean surrogate() {
+		int save = mCharStream.save();
+		int codePoint = mCharStream.eat();
+		if (!Character.isHighSurrogate((char) codePoint)) {
+			mCharStream.restore(save);
+			return false;
+		}
+
+		Token token = Token.obtain();
+		token.mCharSequence = mCharStream.getText();
+		token.mStart = save;
+		token.mEnd = save + 1;
+		token.mType = Token.TYPE_UNKNOWN;
+
+		// 吃掉低位
+		mCharStream.eat();
 		while (!mCharStream.eof()) {
 			codePoint = mCharStream.eat();
 			if (!Character.isHighSurrogate((char) codePoint)) {
 				mCharStream.adjust(-1);
-				return mBuffer.add(token);
+				break;
 			}
 
-			mCharStream.adjust(1);
-			token.mEnd += 2;
+			++token.mEnd;
 		}
 
 		return mBuffer.add(token);
