@@ -29,9 +29,11 @@ public class Token extends DefaultRecyclable {
 
 	public static final int SYMBOL_TYPEFACE_MASK = SYMBOL_SQUISH_MASK | SYMBOL_STRETCH_MASK;
 
+	// TODO 这个地方有些许混乱了，需要重新整理
 	public static final int WORD_TYPE_CN = 64;
 	public static final int WORD_TYPE_LATIN = 128;
-	public static final int WORD_TYPE_MASK = WORD_TYPE_LATIN | WORD_TYPE_CN;
+	public static final int WORD_TYPE_CONTEXT_SENSITIVE = 256;
+	public static final int WORD_TYPE_MASK = WORD_TYPE_LATIN | WORD_TYPE_CN | WORD_TYPE_CONTEXT_SENSITIVE;
 
 
 	@IntDef({SYMBOL_KINSOKU_MASK,
