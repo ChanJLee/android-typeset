@@ -25,7 +25,7 @@ public class SingleParagraphActivity extends AppCompatActivity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_single_paragraph);
 
-		String msg = "It was nearly midnight, and he was lying on his stomach in bed, the blankets drawn right over his head like a tent, a flashlight in one hand and a large leather-bound book (A History of Magic by Bathilda Bagshot) propped open against the pillow. Harry moved the tip of his eagle-feather quill down the page, frowning as he looked for something that would help him write his essay, \"Witch Burning in the Fourteenth Century Was Completely Pointless discuss.";
+		String msg = "\ud83d\ude4bIt would be better to say\uff1aA cup of tea.\n\u2753Modifying Reason\uff1aThe word 'cup' is repeated unnecessarily.\uff08\u062a\u0645 \u062a\u0643\u0631\u0627\u0631 \u0643\u0644\u0645\u0629 '\u0643\u0648\u0628' \u0628\u0634\u0643\u0644 \u063a\u064a\u0631 \u0636\u0631\u0648\u0631\u064a.\uff09";
 		TextView textView = findViewById(R.id.text);
 		textView.setText(msg);
 
