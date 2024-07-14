@@ -50,6 +50,8 @@ public final class TextBox extends Box {
 
 	public static final int ATTRIBUTE_PENDED_HYPHEN = 16;
 
+	public static final int ATTRIBUTE_RTL = 32;
+
 	static final float ZOOM_OUT_FACTOR = 0.8333f;
 
 	static final int SQUISH_FACTOR = 2;
@@ -247,7 +249,7 @@ public final class TextBox extends Box {
 			int size = mEnd - mStart;
 			char[] buf = CHAR_ARRAY_POOL.obtain(size);
 			TextUtils.getChars(mText, mStart, mEnd, buf, 0);
-			canvas.drawTextRun(buf, 0, size, 0, size, x, y, false, paint);
+			canvas.drawTextRun(buf, 0, size, 0, size, x, y, containsStatus(ATTRIBUTE_RTL), paint);
 			CHAR_ARRAY_POOL.release(buf);
 			return;
 		}

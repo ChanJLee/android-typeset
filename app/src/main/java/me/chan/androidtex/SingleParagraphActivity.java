@@ -25,9 +25,10 @@ public class SingleParagraphActivity extends AppCompatActivity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_single_paragraph);
 
-		String msg = "\ud83d\ude4bIt would be better to say\uff1aA cup of tea.\n\u2753Modifying Reason\uff1aThe word 'cup' is repeated unnecessarily.\uff08\u062a\u0645 \u062a\u0643\u0631\u0627\u0631 \u0643\u0644\u0645\u0629 '\u0643\u0648\u0628' \u0628\u0634\u0643\u0644 \u063a\u064a\u0631 \u0636\u0631\u0648\u0631\u064a.\uff09";
+		String msg = "\ud83d\ude4b\uff08\u062a\u0645 \u062a\u0643\u0631\u0627\u0631 \u0643\u0644\u0645\u0629 '\u0643\u0648\u0628' \u0628\u0634\u0643\u0644 \u063a\u064a\u0631 \u0636\u0631\u0648\u0631\u064a.\uff09";
 		TextView textView = findViewById(R.id.text);
 		textView.setText(msg);
+
 
 		ParagraphView paragraphView = findViewById(R.id.paragraph);
 		paragraphView.setOnClickedListener(new ParagraphView.OnClickedListener() {
