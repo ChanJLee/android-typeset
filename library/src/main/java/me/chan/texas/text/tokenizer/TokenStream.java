@@ -80,7 +80,18 @@ public class TokenStream extends DefaultRecyclable {
 	}
 
 	private boolean unknown() {
-		return context() || surrogate();
+		if(context() || surrogate()) {
+			return true;
+		}
+
+		int save = mCharStream.save();
+		mCharStream.eat();
+		Token token = Token.obtain();
+		token.mCharSequence = mCharStream.getText();
+		token.mStart = save;
+		token.mEnd = save + 1;
+		token.mType = Token.TYPE_WORD;
+		return mBuffer.add(token);
 	}
 
 	private boolean context() {
@@ -95,7 +106,7 @@ public class TokenStream extends DefaultRecyclable {
 		token.mCharSequence = mCharStream.getText();
 		token.mStart = save;
 		token.mEnd = save + 1;
-		token.mType = Token.TYPE_WORD;
+		token.mType = Token.TYPE_UNKNOWN;
 		token.mAttributes |= Token.WORD_TYPE_CONTEXT_SENSITIVE;
 
 		while (!mCharStream.eof()) {
@@ -112,28 +123,33 @@ public class TokenStream extends DefaultRecyclable {
 
 	private boolean surrogate() {
 		int save = mCharStream.save();
-		int codePoint = mCharStream.eat();
-		if (!Character.isHighSurrogate((char) codePoint)) {
-			mCharStream.restore(save);
-			return false;
-		}
-
 		Token token = Token.obtain();
 		token.mCharSequence = mCharStream.getText();
 		token.mStart = save;
-		token.mEnd = save + 1;
+		token.mEnd = save;
 		token.mType = Token.TYPE_UNKNOWN;
 
-		// 吃掉低位
-		mCharStream.eat();
 		while (!mCharStream.eof()) {
-			codePoint = mCharStream.eat();
-			if (!Character.isHighSurrogate((char) codePoint)) {
+			int codePoint = mCharStream.eat();
+			// TODO unit test
+			if (!Character.isHighSurrogate((char) codePoint) || mCharStream.eof()) {
 				mCharStream.adjust(-1);
 				break;
 			}
 
-			++token.mEnd;
+			// TODO unit test
+			codePoint = mCharStream.eat();
+			if (!Character.isLowSurrogate((char) codePoint)) {
+				mCharStream.adjust(-2);
+				break;
+			}
+
+			token.mEnd += 2;
+		}
+
+		if (token.mStart == token.mEnd) {
+			token.recycle();
+			return false;
 		}
 
 		return mBuffer.add(token);
