@@ -1,5 +1,7 @@
 package me.chan.texas.text.tokenizer;
 
+import android.icu.text.Bidi;
+
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -93,13 +95,16 @@ public class TokenStreamUnitTest {
 	public void print4() {
 		me.chan.texas.text.tokenizer.Tokenizer.setup(mModel);
 		// String msg = "\uD83D\uDE4BIt would be better to say：A cup of tea.\n❓Modifying Reason：The word 'cup' is repeated unnecessarily.（تم تكرار كلمة 'كوب' بشكل غير ضروري.）";
-		String msg = "تم تكرار كلمة 'كوب' بشكل غير ضروري.";
+		String msg = "تم تكرار كلمة 'كوب' بشكل غير ضروري. x";
 		System.out.println(msg);
 		TokenStream reader = TokenStream.read(msg, 0, msg.length());
 		while (reader.hasNext()) {
 			Token token = reader.next();
 			System.out.println(token.toString());
 		}
+
+		System.out.println("===>" + Bidi.getBaseDirection(msg));
+		System.out.println("===>" + Bidi.getBaseDirection("hello world"));
 	}
 
 	@Test
