@@ -215,6 +215,8 @@ class ParagraphBuilderInternal {
 			appendCnWordToken(text, spanReader, token);
 		} else if (token.checkAttribute(Token.WORD_TYPE_MASK, Token.WORD_TYPE_CONTEXT_SENSITIVE)) {
 			appendContextSensitiveWordToken(text, spanReader, token);
+		} else {
+			throw new IllegalArgumentException("unknown token type");
 		}
 	}
 
