@@ -52,7 +52,8 @@ public class Token extends DefaultRecyclable {
 			SYMBOL_STRETCH_LEFT,
 			SYMBOL_STRETCH_RIGHT,
 			WORD_TYPE_LATIN,
-			WORD_TYPE_CN})
+			WORD_TYPE_CN,
+			WORD_TYPE_CONTEXT_SENSITIVE})
 	public @interface TokenAttribute {
 
 	}
