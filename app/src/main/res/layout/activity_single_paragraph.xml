@@ -37,6 +37,11 @@
                 android:layout_height="wrap_content"
                 android:background="#4CAF50"
                 app:me_chan_texas_ParagraphView_textSize="20dp" />
+
+            <me.chan.androidtex.TestView
+                android:id="@+id/test_view"
+                android:layout_width="match_parent"
+                android:layout_height="100dp" />
         </LinearLayout>
     </ScrollView>
 </me.chan.androidtex.MyLinearLayout>

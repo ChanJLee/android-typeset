@@ -29,6 +29,8 @@ public class SingleParagraphActivity extends AppCompatActivity {
 		TextView textView = findViewById(R.id.text);
 		textView.setText(msg);
 
+		TestView testView = findViewById(R.id.test_view);
+		testView.setText(msg.substring(0, 6));
 
 		ParagraphView paragraphView = findViewById(R.id.paragraph);
 		paragraphView.setOnClickedListener(new ParagraphView.OnClickedListener() {

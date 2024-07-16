@@ -211,9 +211,45 @@ class ParagraphBuilderInternal {
 		// 区分中英文
 		if (token.checkAttribute(Token.WORD_TYPE_MASK, Token.WORD_TYPE_LATIN)) {
 			appendLatinWordToken(text, spanReader, token);
-		} else {
-			assert token.checkAttribute(Token.WORD_TYPE_MASK, Token.WORD_TYPE_CN);
+		} else if (token.checkAttribute(Token.WORD_TYPE_MASK, Token.WORD_TYPE_CN)) {
 			appendCnWordToken(text, spanReader, token);
+		} else if (token.checkAttribute(Token.WORD_TYPE_MASK, Token.WORD_TYPE_CONTEXT_SENSITIVE)) {
+			appendContextSensitiveWordToken(text, spanReader, token);
+		}
+	}
+
+	private void appendContextSensitiveWordToken(CharSequence text,
+												 Paragraph.Builder.SpanReader spanReader,
+												 Token token) {
+		int start = token.mStart;
+		int end = token.mEnd;
+		Paragraph.Span span = null;
+		if (spanReader != null) {
+			span = spanReader.read(text, start, end);
+		}
+
+		TextStyle textStyle = null;
+		Object tag = null;
+		Appearance background = null;
+		Appearance foreground = null;
+		if (span != null) {
+			textStyle = span.mTextStyle;
+			tag = span.mTag;
+			background = span.mBackground;
+			foreground = span.mForeground;
+		}
+
+		TextBox textBox = TextBox.obtain(text, start, end,
+				mMeasurer, textStyle,
+				tag,
+				background,
+				foreground);
+		textBox.addAttribute(TextBox.ATTRIBUTE_RTL);
+
+		appendElement(textBox);
+
+		if (span != null) {
+			span.recycle();
 		}
 	}
 
