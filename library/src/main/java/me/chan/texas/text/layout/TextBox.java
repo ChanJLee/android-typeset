@@ -245,16 +245,11 @@ public final class TextBox extends Box {
 			}
 		}
 
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-			int size = mEnd - mStart;
-			char[] buf = CHAR_ARRAY_POOL.obtain(size);
-			TextUtils.getChars(mText, mStart, mEnd, buf, 0);
-			canvas.drawTextRun(buf, 0, size, 0, size, x, y, containsStatus(ATTRIBUTE_RTL), paint);
-			CHAR_ARRAY_POOL.release(buf);
-			return;
-		}
-
-		canvas.drawText(mText, mStart, mEnd, x, y, paint);
+		int size = mEnd - mStart;
+		char[] buf = CHAR_ARRAY_POOL.obtain(size);
+		TextUtils.getChars(mText, mStart, mEnd, buf, 0);
+		canvas.drawTextRun(buf, 0, size, 0, size, x, y, containsStatus(ATTRIBUTE_RTL), paint);
+		CHAR_ARRAY_POOL.release(buf);
 	}
 
 	@Override
