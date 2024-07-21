@@ -90,7 +90,7 @@ public class TokenStream extends DefaultRecyclable {
 		token.mCharSequence = mCharStream.getText();
 		token.mStart = save;
 		token.mEnd = save + 1;
-		token.mType = Token.TYPE_WORD;
+		token.mType = Token.TYPE_UNKNOWN;
 		return mBuffer.add(token);
 	}
 
