@@ -16,6 +16,7 @@ public interface TokenType {
 
 
 	class Symbol implements TokenType {
+
 		// 避头尾
 		public static final int SYMBOL_KINSOKU_AVOID_HEADER = 1;
 		public static final int SYMBOL_KINSOKU_AVOID_TAIL = 2;
@@ -74,15 +75,14 @@ public interface TokenType {
 	}
 
 	class Word implements TokenType {
-
-		// CJK
-		public static final int CONTEXT_FREE = 1;
 		// 一般是拉丁
-		public static final int CONTEXT_SENSITIVE = 2;
+		public static final int CONTEXT_SENSITIVE = 1;
 
-		public static final int HYPHEN_ENABLE = 3;
+		public static final int HYPHEN_ENABLE = 2;
 
-		public static final int FULL_WIDTH = 4;
+		public static final int FULL_WIDTH = 3;
+
+		public static final int RTL = 4;
 
 		@Override
 		public boolean check(BitBucket bucket, int attribute) {
