@@ -3,6 +3,7 @@ package me.chan.texas.text.tokenizer;
 import androidx.annotation.IntDef;
 import androidx.annotation.RestrictTo;
 
+import me.chan.texas.misc.BitBucket;
 import me.chan.texas.misc.DefaultRecyclable;
 import me.chan.texas.misc.ObjectPool;
 
@@ -75,10 +76,11 @@ public class Token extends DefaultRecyclable {
 
 	@TokenType
 	public int mType = TYPE_NONE;
-	public int mAttributes;
 	public CharSequence mCharSequence;
 	public int mStart;
 	public int mEnd;
+
+	public final BitBucket mAttributes = new BitBucket();
 
 	// 添加删除要顺带修改 copy 函数
 
