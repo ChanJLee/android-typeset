@@ -1,10 +1,13 @@
 package me.chan.androidtex;
 
 import android.annotation.SuppressLint;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewParent;
+import android.widget.Chronometer;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -24,6 +27,15 @@ public class SingleParagraphActivity extends AppCompatActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_single_paragraph);
+
+		Chronometer chronometer = findViewById(R.id.clock);
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+			chronometer.setCountDown(true);
+		}
+		// 显示分钟:秒
+		chronometer.setFormat("%02d:%02d:%02d");
+		chronometer.setBase(SystemClock.elapsedRealtime() + 10_000);
+		chronometer.start();
 
 		String msg = "\ud83d\ude4bIt would be better to say\uff1aA cup of tea.\n\u2753Modifying Reason\uff1aThe word 'cup' is repeated unnecessarily.\uff08\u062a\u0645 \u062a\u0643\u0631\u0627\u0631 \u0643\u0644\u0645\u0629 '\u0643\u0648\u0628' \u0628\u0634\u0643\u0644 \u063a\u064a\u0631 \u0636\u0631\u0648\u0631\u064a.\uff09";
 		TextView textView = findViewById(R.id.text);

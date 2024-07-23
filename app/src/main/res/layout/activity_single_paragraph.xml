@@ -23,6 +23,11 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
+            <Chronometer
+                android:id="@+id/clock"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
             <TextView
                 android:id="@+id/text"
                 android:layout_width="match_parent"
