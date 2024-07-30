@@ -20,7 +20,7 @@ public class ICUTokenUnitTest {
 		for (int end = boundary.next();
 			 end != BreakIterator.DONE;
 			 start = end, end = boundary.next()) {
-			System.out.println("(" + start + "," + end + ")[" + source.substring(start,end) + "]");
+			System.out.println("(" + start + "," + end + ")[" + source.substring(start, end) + "]");
 		}
 	}
 }

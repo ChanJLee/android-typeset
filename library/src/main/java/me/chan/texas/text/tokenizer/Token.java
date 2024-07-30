@@ -80,7 +80,7 @@ public class Token extends DefaultRecyclable {
 	public int mStart;
 	public int mEnd;
 
-	public final BitBucket mAttributes = new BitBucket();
+	public int mAttributes = 0;
 
 	// 添加删除要顺带修改 copy 函数
 
