@@ -1,44 +1,3 @@
-BY_NAME = [
-    ("Cased_Letter", CASED_LETTER),
-    ("Close_Punctuation", CLOSE_PUNCTUATION),
-    ("Connector_Punctuation", CONNECTOR_PUNCTUATION),
-    ("Control", CONTROL),
-    ("Currency_Symbol", CURRENCY_SYMBOL),
-    ("Dash_Punctuation", DASH_PUNCTUATION),
-    ("Decimal_Number", DECIMAL_NUMBER),
-    ("Enclosing_Mark", ENCLOSING_MARK),
-    ("Final_Punctuation", FINAL_PUNCTUATION),
-    ("Format", FORMAT),
-    ("Initial_Punctuation", INITIAL_PUNCTUATION),
-    ("Letter", LETTER),
-    ("Letter_Number", LETTER_NUMBER),
-    ("Line_Separator", LINE_SEPARATOR),
-    ("Lowercase_Letter", LOWERCASE_LETTER),
-    ("Mark", MARK),
-    ("Math_Symbol", MATH_SYMBOL),
-    ("Modifier_Letter", MODIFIER_LETTER),
-    ("Modifier_Symbol", MODIFIER_SYMBOL),
-    ("Nonspacing_Mark", NONSPACING_MARK),
-    ("Number", NUMBER),
-    ("Open_Punctuation", OPEN_PUNCTUATION),
-    ("Other", OTHER),
-    ("Other_Letter", OTHER_LETTER),
-    ("Other_Number", OTHER_NUMBER),
-    ("Other_Punctuation", OTHER_PUNCTUATION),
-    ("Other_Symbol", OTHER_SYMBOL),
-    ("Paragraph_Separator", PARAGRAPH_SEPARATOR),
-    ("Private_Use", PRIVATE_USE),
-    ("Punctuation", PUNCTUATION),
-    ("Separator", SEPARATOR),
-    ("Space_Separator", SPACE_SEPARATOR),
-    ("Spacing_Mark", SPACING_MARK),
-    ("Surrogate", SURROGATE),
-    ("Symbol", SYMBOL),
-    ("Titlecase_Letter", TITLECASE_LETTER),
-    ("Unassigned", UNASSIGNED),
-    ("Uppercase_Letter", UPPERCASE_LETTER),
-]
-
 CASED_LETTER =  [
     (65, 90),
     (97, 122),
@@ -185,7 +144,7 @@ CASED_LETTER =  [
     (125184, 125251),
 ]
 
-pub const CLOSE_PUNCTUATION =  [
+CLOSE_PUNCTUATION =  [
     (41, 41),
     (93, 93),
     (125, 125),
@@ -264,7 +223,7 @@ pub const CLOSE_PUNCTUATION =  [
     (65379, 65379),
 ]
 
-pub const CONNECTOR_PUNCTUATION =  [
+CONNECTOR_PUNCTUATION =  [
     (95, 95),
     (8255, 8256),
     (8276, 8276),
@@ -273,9 +232,9 @@ pub const CONNECTOR_PUNCTUATION =  [
     (65343, 65343),
 ]
 
-pub const CONTROL =  [(0, 31), (127, 159)]
+CONTROL =  [(0, 31), (127, 159)]
 
-pub const CURRENCY_SYMBOL =  [
+CURRENCY_SYMBOL =  [
     (36, 36),
     (162, 165),
     (1423, 1423),
@@ -299,7 +258,7 @@ pub const CURRENCY_SYMBOL =  [
     (126128, 126128),
 ]
 
-pub const DASH_PUNCTUATION =  [
+DASH_PUNCTUATION =  [
     (45, 45),
     (1418, 1418),
     (1470, 1470),
@@ -321,7 +280,7 @@ pub const DASH_PUNCTUATION =  [
     (69293, 69293),
 ]
 
-pub const DECIMAL_NUMBER =  [
+DECIMAL_NUMBER =  [
     (48, 57),
     (1632, 1641),
     (1776, 1785),
@@ -388,9 +347,9 @@ pub const DECIMAL_NUMBER =  [
     (130032, 130041),
 ]
 
-pub const ENCLOSING_MARK = [(1160, 1161), (6846, 6846), (8413, 8416), (8418, 8420), (42608, 42610)]
+ENCLOSING_MARK = [(1160, 1161), (6846, 6846), (8413, 8416), (8418, 8420), (42608, 42610)]
 
-pub const FINAL_PUNCTUATION =  [
+FINAL_PUNCTUATION =  [
     (187, 187),
     (8217, 8217),
     (8221, 8221),
@@ -403,7 +362,7 @@ pub const FINAL_PUNCTUATION =  [
     (11809, 11809),
 ]
 
-pub const FORMAT =  [
+FORMAT =  [
     (173, 173),
     (1536, 1541),
     (1564, 1564),
@@ -427,7 +386,7 @@ pub const FORMAT =  [
     (917536, 917631),
 ]
 
-pub const INITIAL_PUNCTUATION =  [
+INITIAL_PUNCTUATION =  [
     (171, 171),
     (8216, 8216),
     (8219, 8220),
@@ -441,7 +400,7 @@ pub const INITIAL_PUNCTUATION =  [
     (11808, 11808),
 ]
 
-pub const LETTER =  [
+LETTER =  [
     (65, 90),
     (97, 122),
     (170, 170),
@@ -1103,7 +1062,7 @@ pub const LETTER =  [
     (201552, 205743),
 ]
 
-pub const LETTER_NUMBER =  [
+LETTER_NUMBER =  [
     (5870, 5872),
     (8544, 8578),
     (8581, 8584),
@@ -1118,9 +1077,9 @@ pub const LETTER_NUMBER =  [
     (74752, 74862),
 ]
 
-pub const LINE_SEPARATOR =  [(8232, 8232)]
+LINE_SEPARATOR =  [(8232, 8232)]
 
-pub const LOWERCASE_LETTER =  [
+LOWERCASE_LETTER =  [
     (97, 122),
     (181, 181),
     (223, 246),
@@ -1781,7 +1740,7 @@ pub const LOWERCASE_LETTER =  [
     (125218, 125251),
 ]
 
-pub const MARK =  [
+MARK =  [
     (768, 879),
     (1155, 1161),
     (1425, 1469),
@@ -2094,7 +2053,7 @@ pub const MARK =  [
     (917760, 917999),
 ]
 
-pub const MATH_SYMBOL =  [
+MATH_SYMBOL =  [
     (43, 43),
     (60, 62),
     (124, 124),
@@ -2161,7 +2120,7 @@ pub const MATH_SYMBOL =  [
     (126704, 126705),
 ]
 
-pub const MODIFIER_LETTER =  [
+MODIFIER_LETTER =  [
     (688, 705),
     (710, 721),
     (736, 740),
@@ -2235,7 +2194,7 @@ pub const MODIFIER_LETTER =  [
     (125259, 125259),
 ]
 
-pub const MODIFIER_SYMBOL =  [
+MODIFIER_SYMBOL =  [
     (94, 94),
     (96, 96),
     (168, 168),
@@ -2269,7 +2228,7 @@ pub const MODIFIER_SYMBOL =  [
     (127995, 127999),
 ]
 
-pub const NONSPACING_MARK =  [
+NONSPACING_MARK =  [
     (768, 879),
     (1155, 1159),
     (1425, 1469),
@@ -2618,7 +2577,7 @@ pub const NONSPACING_MARK =  [
     (917760, 917999),
 ]
 
-pub const NUMBER =  [
+NUMBER =  [
     (48, 57),
     (178, 179),
     (185, 185),
@@ -2758,7 +2717,7 @@ pub const NUMBER =  [
     (130032, 130041),
 ]
 
-pub const OPEN_PUNCTUATION =  [
+OPEN_PUNCTUATION =  [
     (40, 40),
     (91, 91),
     (123, 123),
@@ -2840,7 +2799,7 @@ pub const OPEN_PUNCTUATION =  [
     (65378, 65378),
 ]
 
-pub const OTHER =  [
+OTHER =  [
     (0, 31),
     (127, 159),
     (173, 173),
@@ -3555,7 +3514,7 @@ pub const OTHER =  [
     (918000, 1114111),
 ]
 
-pub const OTHER_LETTER =  [
+OTHER_LETTER =  [
     (170, 170),
     (186, 186),
     (443, 443),
@@ -4068,7 +4027,7 @@ pub const OTHER_LETTER =  [
     (201552, 205743),
 ]
 
-pub const OTHER_NUMBER =  [
+OTHER_NUMBER =  [
     (178, 179),
     (185, 185),
     (188, 190),
@@ -4143,7 +4102,7 @@ pub const OTHER_NUMBER =  [
     (127232, 127244),
 ]
 
-pub const OTHER_PUNCTUATION =  [
+OTHER_PUNCTUATION =  [
     (33, 35),
     (37, 39),
     (42, 42),
@@ -4333,7 +4292,7 @@ pub const OTHER_PUNCTUATION =  [
     (125278, 125279),
 ]
 
-pub const OTHER_SYMBOL =  [
+OTHER_SYMBOL =  [
     (166, 166),
     (169, 169),
     (174, 174),
@@ -4520,11 +4479,11 @@ pub const OTHER_SYMBOL =  [
     (129940, 129994),
 ]
 
-pub const PARAGRAPH_SEPARATOR =  [(8233, 8233)]
+PARAGRAPH_SEPARATOR =  [(8233, 8233)]
 
-pub const PRIVATE_USE = [(57344, 63743), (983040, 1048573), (1048576, 1114109)]
+PRIVATE_USE = [(57344, 63743), (983040, 1048573), (1048576, 1114109)]
 
-pub const PUNCTUATION =  [
+PUNCTUATION =  [
     (33, 35),
     (37, 42),
     (44, 47),
@@ -4718,7 +4677,7 @@ pub const PUNCTUATION =  [
     (125278, 125279),
 ]
 
-pub const SEPARATOR =  [
+SEPARATOR =  [
     (32, 32),
     (160, 160),
     (5760, 5760),
@@ -4729,7 +4688,7 @@ pub const SEPARATOR =  [
     (12288, 12288),
 ]
 
-pub const SPACE_SEPARATOR =  [
+SPACE_SEPARATOR =  [
     (32, 32),
     (160, 160),
     (5760, 5760),
@@ -4739,7 +4698,7 @@ pub const SPACE_SEPARATOR =  [
     (12288, 12288),
 ]
 
-pub const SPACING_MARK =  [
+SPACING_MARK =  [
     (2307, 2307),
     (2363, 2363),
     (2366, 2368),
@@ -4924,9 +4883,9 @@ pub const SPACING_MARK =  [
     (119149, 119154),
 ]
 
-pub const SURROGATE =  [(55296, 57343)]
+SURROGATE =  [(55296, 57343)]
 
-pub const SYMBOL =  [
+SYMBOL =  [
     (36, 36),
     (43, 43),
     (60, 62),
@@ -5161,7 +5120,7 @@ pub const SYMBOL =  [
     (129940, 129994),
 ]
 
-pub const TITLECASE_LETTER =  [
+TITLECASE_LETTER =  [
     (453, 453),
     (456, 456),
     (459, 459),
@@ -5174,7 +5133,7 @@ pub const TITLECASE_LETTER =  [
     (8188, 8188),
 ]
 
-pub const UNASSIGNED =  [
+UNASSIGNED =  [
     (888, 889),
     (896, 899),
     (907, 907),
@@ -5884,7 +5843,7 @@ pub const UNASSIGNED =  [
     (1114110, 1114111),
 ]
 
-pub const UPPERCASE_LETTER =  [
+UPPERCASE_LETTER =  [
     (65, 90),
     (192, 214),
     (216, 222),
@@ -6531,6 +6490,47 @@ pub const UPPERCASE_LETTER =  [
     (120720, 120744),
     (120778, 120778),
     (125184, 125217),
+]
+
+BY_NAME = [
+    ("Cased_Letter", CASED_LETTER),
+    ("Close_Punctuation", CLOSE_PUNCTUATION),
+    ("Connector_Punctuation", CONNECTOR_PUNCTUATION),
+    ("Control", CONTROL),
+    ("Currency_Symbol", CURRENCY_SYMBOL),
+    ("Dash_Punctuation", DASH_PUNCTUATION),
+    ("Decimal_Number", DECIMAL_NUMBER),
+    ("Enclosing_Mark", ENCLOSING_MARK),
+    ("Final_Punctuation", FINAL_PUNCTUATION),
+    ("Format", FORMAT),
+    ("Initial_Punctuation", INITIAL_PUNCTUATION),
+    ("Letter", LETTER),
+    ("Letter_Number", LETTER_NUMBER),
+    ("Line_Separator", LINE_SEPARATOR),
+    ("Lowercase_Letter", LOWERCASE_LETTER),
+    ("Mark", MARK),
+    ("Math_Symbol", MATH_SYMBOL),
+    ("Modifier_Letter", MODIFIER_LETTER),
+    ("Modifier_Symbol", MODIFIER_SYMBOL),
+    ("Nonspacing_Mark", NONSPACING_MARK),
+    ("Number", NUMBER),
+    ("Open_Punctuation", OPEN_PUNCTUATION),
+    ("Other", OTHER),
+    ("Other_Letter", OTHER_LETTER),
+    ("Other_Number", OTHER_NUMBER),
+    ("Other_Punctuation", OTHER_PUNCTUATION),
+    ("Other_Symbol", OTHER_SYMBOL),
+    ("Paragraph_Separator", PARAGRAPH_SEPARATOR),
+    ("Private_Use", PRIVATE_USE),
+    ("Punctuation", PUNCTUATION),
+    ("Separator", SEPARATOR),
+    ("Space_Separator", SPACE_SEPARATOR),
+    ("Spacing_Mark", SPACING_MARK),
+    ("Surrogate", SURROGATE),
+    ("Symbol", SYMBOL),
+    ("Titlecase_Letter", TITLECASE_LETTER),
+    ("Unassigned", UNASSIGNED),
+    ("Uppercase_Letter", UPPERCASE_LETTER),
 ]
 
 file = open("../library/src/main/java/me/chan/text/icu/UnicodeCategory.java", "w")
