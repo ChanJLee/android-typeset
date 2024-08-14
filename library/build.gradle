@@ -71,4 +71,6 @@ dependencies {
     testAnnotationProcessor 'com.google.dagger:dagger-compiler:2.38.1'
 
     implementation 'org.apache.opennlp:opennlp-tools:1.9.3'
+    // https://mvnrepository.com/artifact/com.ibm.icu/icu4j
+    implementation 'com.ibm.icu:icu4j:75.1'
 }
