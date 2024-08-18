@@ -1,0 +1,123 @@
+package me.chan.texas.text.tokenizer;
+
+import com.ibm.icu.text.BreakIterator;
+
+import java.text.CharacterIterator;
+
+class WordReader {
+
+	private final CharacterIterator0 mIterator0 = new CharacterIterator0();
+
+	private WordReader() {
+		/* noop */
+	}
+
+	private void read0(CharSequence text, int start, int end, Listener listener) {
+		BreakIterator boundary = BreakIterator.getWordInstance();
+		boundary.setText(mIterator0.reset(text, start, end));
+
+		start = boundary.first();
+		for (end = boundary.next();
+			 end != BreakIterator.DONE;
+			 start = end, end = boundary.next()) {
+			listener.onNext(text, start, end);
+		}
+	}
+
+	private volatile static WordReader sInstance;
+	public synchronized static void read(CharSequence text, int start, int end, Listener listener) {
+		if (sInstance == null) {
+			sInstance = new WordReader();
+		}
+
+		sInstance.read0(text, start, end, listener);
+	}
+
+	public interface Listener {
+		void onNext(CharSequence text, int start, int end);
+	}
+
+	private static class CharacterIterator0 implements CharacterIterator {
+		private int index;
+		private CharSequence seq;
+		private int start;
+		private int size;
+
+		public CharacterIterator reset(CharSequence text, int start, int end) {
+			seq = text;
+			index = this.start = start;
+			size = end - start;
+			return this;
+		}
+
+		@Override
+		public char first() {
+			index = 0;
+			return current();
+		}
+
+		@Override
+		public char last() {
+			index = size;
+			return previous();
+		}
+
+		@Override
+		public char current() {
+			if (index == size) {
+				return DONE;
+			}
+			return seq.charAt(index + start);
+		}
+
+		@Override
+		public char next() {
+			if (index < size) {
+				++index;
+			}
+			return current();
+		}
+
+		@Override
+		public char previous() {
+			if (index == 0) {
+				return DONE;
+			}
+			--index;
+			return current();
+		}
+
+		@Override
+		public char setIndex(int position) {
+			if (position < 0 || position > size) {
+				throw new IllegalArgumentException();
+			}
+			index = position;
+			return current();
+		}
+
+		@Override
+		public int getBeginIndex() {
+			return 0;
+		}
+
+		@Override
+		public int getEndIndex() {
+			return size;
+		}
+
+		@Override
+		public int getIndex() {
+			return index;
+		}
+
+		@Override
+		public Object clone() {
+			CharacterIterator0 copy = new CharacterIterator0();
+			copy.start = this.start;
+			copy.seq = this.seq;
+			copy.index = this.index;
+			return copy;
+		}
+	}
+}
