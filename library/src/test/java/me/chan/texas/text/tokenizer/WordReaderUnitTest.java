@@ -89,10 +89,13 @@ public class WordReaderUnitTest {
 	@Test
 	public void testSimple() {
 		WordStream stream = new WordStream();
-		String msg = "a b c";
+		String msg = "0 2 4";
 		stream.setText(msg, 0, msg.length());
 
-		while (stream.next((text, start, end) -> System.out.println(text.subSequence(start, end))))
-			;
+		while (stream.next((text, start, end) -> System.out.println(text.subSequence(start, end))));
+
+		System.out.println("====================================");
+		stream.setText(msg, 1, 3);
+		while (stream.next((text, start, end) -> System.out.println(text.subSequence(start, end))));
 	}
 }

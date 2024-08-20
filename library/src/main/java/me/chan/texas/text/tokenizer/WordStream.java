@@ -18,10 +18,10 @@ class WordStream {
 		mBrk.clear();
 		mIndex = 0;
 
-		mBrk.add(boundary.first());
+		mBrk.add(boundary.first() + start);
 		for (int brk = boundary.next();
 			 brk != BreakIterator.DONE; brk = boundary.next()) {
-			mBrk.add(brk);
+			mBrk.add(brk + start);
 		}
 	}
 
@@ -49,8 +49,9 @@ class WordStream {
 
 		public CharacterIterator reset(CharSequence text, int start, int end) {
 			seq = text;
-			index = this.start = start;
+			this.start = start;
 			size = end - start;
+			index = 0;
 			return this;
 		}
 
