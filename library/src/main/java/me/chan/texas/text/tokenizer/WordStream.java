@@ -4,33 +4,37 @@ import com.ibm.icu.text.BreakIterator;
 
 import java.text.CharacterIterator;
 
-class WordReader {
+import me.chan.texas.utils.IntArray;
 
+class WordStream {
 	private final CharacterIterator0 mIterator0 = new CharacterIterator0();
+	private final IntArray mBrk = new IntArray(128);
+	private int mIndex = 0;
 
-	private WordReader() {
-		/* noop */
-	}
-
-	private void read0(CharSequence text, int start, int end, Listener listener) {
+	public void setText(CharSequence text, int start, int end) {
 		BreakIterator boundary = BreakIterator.getWordInstance();
 		boundary.setText(mIterator0.reset(text, start, end));
 
-		start = boundary.first();
-		for (end = boundary.next();
-			 end != BreakIterator.DONE;
-			 start = end, end = boundary.next()) {
-			listener.onNext(text, start, end);
+		mBrk.clear();
+		mIndex = 0;
+
+		mBrk.add(boundary.first());
+		for (int brk = boundary.next();
+			 brk != BreakIterator.DONE; brk = boundary.next()) {
+			mBrk.add(brk);
 		}
 	}
 
-	private volatile static WordReader sInstance;
-	public synchronized static void read(CharSequence text, int start, int end, Listener listener) {
-		if (sInstance == null) {
-			sInstance = new WordReader();
+	public boolean next(Listener listener) {
+		if (mIndex + 1 >= mBrk.size()) {
+			return false;
 		}
 
-		sInstance.read0(text, start, end, listener);
+		int start = mIndex;
+		int end = ++mIndex;
+
+		listener.onNext(mIterator0.seq, start, end);
+		return true;
 	}
 
 	public interface Listener {
