@@ -30,8 +30,8 @@ class WordStream {
 			return false;
 		}
 
-		int start = mIndex;
-		int end = ++mIndex;
+		int start = mBrk.get(mIndex);
+		int end = mBrk.get(++mIndex);
 
 		listener.onNext(mIterator0.seq, start, end);
 		return true;
@@ -122,7 +122,13 @@ class WordStream {
 			copy.start = this.start;
 			copy.seq = this.seq;
 			copy.index = this.index;
+			copy.size = this.size;
 			return copy;
+		}
+
+		@Override
+		public String toString() {
+			return seq.subSequence(start, start + size).toString();
 		}
 	}
 }
