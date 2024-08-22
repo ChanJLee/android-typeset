@@ -13,6 +13,10 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
 
 public class WordReaderUnitTest {
 
@@ -92,10 +96,49 @@ public class WordReaderUnitTest {
 		String msg = "0 2 4";
 		stream.setText(msg, 0, msg.length());
 
-		while (stream.next((text, start, end) -> System.out.println(text.subSequence(start, end))));
+		while (stream.next((text, start, end) -> System.out.println(text.subSequence(start, end))))
+			;
 
 		System.out.println("====================================");
 		stream.setText(msg, 1, 3);
-		while (stream.next((text, start, end) -> System.out.println(text.subSequence(start, end))));
+		while (stream.next((text, start, end) -> System.out.println(text.subSequence(start, end))))
+			;
+	}
+
+	@Test
+	public void testSave() {
+		String[] array = {"0", " ", "1", " ", "2", " ", "3", " ", "4", " ", "5", " ", "6", " ", "7", " ", "8", " ", "9"};
+		List<String> list = new ArrayList<>();
+		Collections.addAll(list, array);
+		StringBuilder stringBuilder = new StringBuilder();
+		for (String s : list) {
+			stringBuilder.append(s);
+		}
+		String text = stringBuilder.toString();
+
+		WordStream stream = new WordStream();
+		Assert.assertFalse(stream.prev(null));
+		Assert.assertFalse(stream.next(null));
+		Assert.assertEquals(stream.save(), 0);
+
+		stream.setText(text, 0, text.length());
+		Assert.assertFalse(stream.prev(null));
+		Iterator<String> iterator = list.iterator();
+		while (stream.next((text1, start, end) -> {
+			String except = iterator.next();
+			String actual = text1.subSequence(start, end).toString();
+			Assert.assertEquals(except, actual);
+		})) ;
+		Assert.assertEquals(stream.save(), list.size());
+
+		// 倒序List
+		Collections.reverse((List<?>) list);
+		Iterator<String> iterator2 = list.iterator();
+		while (stream.prev((text1, start, end) -> {
+			String except = iterator2.next();
+			String actual = text1.subSequence(start, end).toString();
+			Assert.assertEquals(except, actual);
+		})) ;
+		Assert.assertEquals(stream.save(), 0);
 	}
 }

@@ -33,12 +33,31 @@ class WordStream {
 		int start = mBrk.get(mIndex);
 		int end = mBrk.get(++mIndex);
 
-		listener.onNext(mIterator0.seq, start, end);
+		listener.onValue(mIterator0.seq, start, end);
 		return true;
 	}
 
+	public boolean prev(Listener listener) {
+		if (mIndex - 1 < 0) {
+			return false;
+		}
+
+		int end = mBrk.get(mIndex);
+		int start = mBrk.get(--mIndex);
+		listener.onValue(mIterator0.seq, start, end);
+		return true;
+	}
+
+	public int save() {
+		return mIndex;
+	}
+
+	public void restore(int status) {
+		mIndex = status;
+	}
+
 	public interface Listener {
-		void onNext(CharSequence text, int start, int end);
+		void onValue(CharSequence text, int start, int end);
 	}
 
 	private static class CharacterIterator0 implements CharacterIterator {
