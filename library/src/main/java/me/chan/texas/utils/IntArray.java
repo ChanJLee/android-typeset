@@ -159,6 +159,15 @@ public class IntArray {
 
 	@Override
 	public String toString() {
-		return Arrays.toString(mContainer);
+		StringBuilder sb = new StringBuilder();
+		sb.append('[');
+		for (int i = 0; i < mIndex; i++) {
+			sb.append(mContainer[i]);
+			if (i != mIndex - 1) {
+				sb.append(", ");
+			}
+		}
+		sb.append(']');
+		return sb.toString();
 	}
 }

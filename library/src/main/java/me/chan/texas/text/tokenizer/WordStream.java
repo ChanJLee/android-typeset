@@ -4,37 +4,60 @@ import com.ibm.icu.text.BreakIterator;
 
 import java.text.CharacterIterator;
 
-class WordReader {
+import me.chan.texas.utils.IntArray;
 
+class WordStream {
 	private final CharacterIterator0 mIterator0 = new CharacterIterator0();
+	private final IntArray mBrk = new IntArray(128);
+	private int mIndex = 0;
 
-	private WordReader() {
-		/* noop */
-	}
-
-	private void read0(CharSequence text, int start, int end, Listener listener) {
+	public void setText(CharSequence text, int start, int end) {
 		BreakIterator boundary = BreakIterator.getWordInstance();
 		boundary.setText(mIterator0.reset(text, start, end));
 
-		start = boundary.first();
-		for (end = boundary.next();
-			 end != BreakIterator.DONE;
-			 start = end, end = boundary.next()) {
-			listener.onNext(text, start, end);
+		mBrk.clear();
+		mIndex = 0;
+
+		mBrk.add(boundary.first() + start);
+		for (int brk = boundary.next();
+			 brk != BreakIterator.DONE; brk = boundary.next()) {
+			mBrk.add(brk + start);
 		}
 	}
 
-	private volatile static WordReader sInstance;
-	public synchronized static void read(CharSequence text, int start, int end, Listener listener) {
-		if (sInstance == null) {
-			sInstance = new WordReader();
+	public boolean next(Listener listener) {
+		if (mIndex + 1 >= mBrk.size()) {
+			return false;
 		}
 
-		sInstance.read0(text, start, end, listener);
+		int start = mBrk.get(mIndex);
+		int end = mBrk.get(++mIndex);
+
+		listener.onValue(mIterator0.seq, start, end);
+		return true;
+	}
+
+	public boolean prev(Listener listener) {
+		if (mIndex - 1 < 0) {
+			return false;
+		}
+
+		int end = mBrk.get(mIndex);
+		int start = mBrk.get(--mIndex);
+		listener.onValue(mIterator0.seq, start, end);
+		return true;
+	}
+
+	public int save() {
+		return mIndex;
+	}
+
+	public void restore(int status) {
+		mIndex = status;
 	}
 
 	public interface Listener {
-		void onNext(CharSequence text, int start, int end);
+		void onValue(CharSequence text, int start, int end);
 	}
 
 	private static class CharacterIterator0 implements CharacterIterator {
@@ -45,8 +68,9 @@ class WordReader {
 
 		public CharacterIterator reset(CharSequence text, int start, int end) {
 			seq = text;
-			index = this.start = start;
+			this.start = start;
 			size = end - start;
+			index = 0;
 			return this;
 		}
 
@@ -117,7 +141,13 @@ class WordReader {
 			copy.start = this.start;
 			copy.seq = this.seq;
 			copy.index = this.index;
+			copy.size = this.size;
 			return copy;
+		}
+
+		@Override
+		public String toString() {
+			return seq.subSequence(start, start + size).toString();
 		}
 	}
 }
