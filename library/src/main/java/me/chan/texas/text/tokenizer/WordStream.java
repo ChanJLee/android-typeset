@@ -4,11 +4,11 @@ import com.ibm.icu.text.BreakIterator;
 
 import java.text.CharacterIterator;
 
-import me.chan.texas.utils.IntArray;
+import me.chan.texas.utils.LongArray;
 
 class WordStream {
 	private final CharacterIterator0 mIterator0 = new CharacterIterator0();
-	private final IntArray mBrk = new IntArray(128);
+	private final LongArray mBrk = new LongArray(128);
 	private int mIndex = 0;
 
 	public void setText(CharSequence text, int start, int end) {
@@ -18,11 +18,18 @@ class WordStream {
 		mBrk.clear();
 		mIndex = 0;
 
-		mBrk.add(boundary.first() + start);
+		addBrk(boundary.getRuleStatus(), boundary.first() + start);
 		for (int brk = boundary.next();
 			 brk != BreakIterator.DONE; brk = boundary.next()) {
-			mBrk.add(brk + start);
+			addBrk(boundary.getRuleStatus(), brk + start);
 		}
+	}
+
+	private void addBrk(int reason, int index) {
+		long v = reason;
+		v <<= 32;
+		v += index;
+		mBrk.add(v);
 	}
 
 	public boolean next(Listener listener) {
@@ -30,10 +37,10 @@ class WordStream {
 			return false;
 		}
 
-		int start = mBrk.get(mIndex);
-		int end = mBrk.get(++mIndex);
+		long start = (mBrk.get(mIndex));
+		int end = (int) mBrk.get(++mIndex);
 
-		listener.onValue(mIterator0.seq, start, end);
+		listener.onValue(mIterator0.seq, (int) start, end, (int) (start >> 32));
 		return true;
 	}
 
@@ -42,9 +49,9 @@ class WordStream {
 			return false;
 		}
 
-		int end = mBrk.get(mIndex);
-		int start = mBrk.get(--mIndex);
-		listener.onValue(mIterator0.seq, start, end);
+		int end = (int) mBrk.get(mIndex);
+		long start = mBrk.get(--mIndex);
+		listener.onValue(mIterator0.seq, (int) start, end, (int) (start >> 32));
 		return true;
 	}
 
@@ -57,7 +64,7 @@ class WordStream {
 	}
 
 	public interface Listener {
-		void onValue(CharSequence text, int start, int end);
+		void onValue(CharSequence text, int start, int end, int reason);
 	}
 
 	private static class CharacterIterator0 implements CharacterIterator {
