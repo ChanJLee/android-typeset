@@ -160,7 +160,7 @@ public class TexasViewDemoActivity extends AppCompatActivity {
 	 * 加载数据
 	 */
 	private void setupData() {
-		BookParser adapter = new BookParser(this, mTexasView, Paragraph.TYPESET_POLICY_CN);
+		BookParser adapter = new BookParser(this, mTexasView, Paragraph.TYPESET_POLICY_CJK_OPTIMIZATION);
 		mTexasView.setAdapter(adapter);
 		try {
 			adapter.setSource(new AssetsTextSource(this, "CnEnMix.xml"));
