@@ -1,5 +1,7 @@
 package me.chan.texas.text.tokenizer;
 
+import androidx.annotation.Nullable;
+
 import com.ibm.icu.text.BreakIterator;
 
 import java.text.CharacterIterator;
@@ -7,6 +9,79 @@ import java.text.CharacterIterator;
 import me.chan.texas.utils.LongArray;
 
 class WordStream {
+	/**
+	 * Tag value for "words" that do not fit into any of other categories.
+	 * Includes spaces and most punctuation.
+	 *
+	 * @stable ICU 53
+	 */
+	public static final int WORD_NONE = BreakIterator.WORD_NONE;
+
+	/**
+	 * Upper bound for tags for uncategorized words.
+	 *
+	 * @stable ICU 53
+	 */
+	public static final int WORD_NONE_LIMIT = BreakIterator.WORD_NONE_LIMIT;
+
+	/**
+	 * Tag value for words that appear to be numbers, lower limit.
+	 *
+	 * @stable ICU 53
+	 */
+	public static final int WORD_NUMBER = BreakIterator.WORD_NUMBER;
+
+	/**
+	 * Tag value for words that appear to be numbers, upper limit.
+	 *
+	 * @stable ICU 53
+	 */
+	public static final int WORD_NUMBER_LIMIT = BreakIterator.WORD_NUMBER_LIMIT;
+
+	/**
+	 * Tag value for words that contain letters, excluding
+	 * hiragana, katakana or ideographic characters, lower limit.
+	 *
+	 * @stable ICU 53
+	 */
+	public static final int WORD_LETTER = BreakIterator.WORD_LETTER;
+
+	/**
+	 * Tag value for words containing letters, upper limit
+	 *
+	 * @stable ICU 53
+	 */
+	public static final int WORD_LETTER_LIMIT = BreakIterator.WORD_LETTER_LIMIT;
+
+	/**
+	 * Tag value for words containing kana characters, lower limit
+	 *
+	 * @stable ICU 53
+	 */
+	public static final int WORD_KANA = BreakIterator.WORD_KANA;
+
+	/**
+	 * Tag value for words containing kana characters, upper limit
+	 *
+	 * @stable ICU 53
+	 */
+	public static final int WORD_KANA_LIMIT = BreakIterator.WORD_KANA_LIMIT;
+
+	/**
+	 * Tag value for words containing ideographic characters, lower limit
+	 *
+	 * @stable ICU 53
+	 */
+	public static final int WORD_IDEO = BreakIterator.WORD_IDEO;
+
+	/**
+	 * Tag value for words containing ideographic characters, upper limit
+	 *
+	 * @stable ICU 53
+	 */
+	public static final int WORD_IDEO_LIMIT = BreakIterator.WORD_IDEO_LIMIT;
+
+
 	private final CharacterIterator0 mIterator0 = new CharacterIterator0();
 	private final LongArray mBrk = new LongArray(128);
 	private int mIndex = 0;
@@ -32,27 +107,36 @@ class WordStream {
 		mBrk.add(v);
 	}
 
-	public boolean next(Listener listener) {
+	@Nullable
+	public Token next() {
 		if (mIndex + 1 >= mBrk.size()) {
-			return false;
+			return null;
 		}
 
 		long start = (mBrk.get(mIndex));
 		int end = (int) mBrk.get(++mIndex);
-
-		listener.onGetSpan(mIterator0.seq, (int) start, end, (int) (start >> 32));
-		return true;
+		Token token = Token.obtain();
+		token.mCharSequence = mIterator0.seq;
+		token.mStart = (int) start;
+		token.mEnd = end;
+		token.mReason = (int) (start >> 32);
+		return token;
 	}
 
-	public boolean prev(Listener listener) {
+	@Nullable
+	public Token prev() {
 		if (mIndex - 1 < 0) {
-			return false;
+			return null;
 		}
 
 		int end = (int) mBrk.get(mIndex);
 		long start = mBrk.get(--mIndex);
-		listener.onGetSpan(mIterator0.seq, (int) start, end, (int) (start >> 32));
-		return true;
+		Token token = Token.obtain();
+		token.mCharSequence = mIterator0.seq;
+		token.mStart = (int) start;
+		token.mEnd = end;
+		token.mReason = (int) (start >> 32);
+		return token;
 	}
 
 	public int save() {
@@ -61,10 +145,6 @@ class WordStream {
 
 	public void restore(int status) {
 		mIndex = status;
-	}
-
-	public interface Listener {
-		void onGetSpan(CharSequence text, int start, int end, int reason);
 	}
 
 	private static class CharacterIterator0 implements CharacterIterator {

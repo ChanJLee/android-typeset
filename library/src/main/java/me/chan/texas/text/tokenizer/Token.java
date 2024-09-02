@@ -75,12 +75,13 @@ public class Token extends DefaultRecyclable {
 	}
 
 	@TokenType
-	public int mType = TYPE_NONE;
-	public CharSequence mCharSequence;
-	public int mStart;
-	public int mEnd;
+	int mType = TYPE_NONE;
+	CharSequence mCharSequence;
+	int mStart;
+	int mEnd;
 
-	public int mAttributes = 0;
+	int mAttributes = 0;
+	int mReason;
 
 	// 添加删除要顺带修改 copy 函数
 
