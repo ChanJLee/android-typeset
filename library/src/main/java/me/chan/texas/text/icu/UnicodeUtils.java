@@ -16,16 +16,32 @@ public class UnicodeUtils {
 	}
 
 	/**
-	 * 是否是中文 (简体、繁体)
-	 *
 	 * @param codePoint unicode
 	 * @return 是否是中文字符
 	 */
-	public static boolean isCn(int codePoint) {
-		// https://www.compart.com/en/unicode/block/U+4E00
-		// https://www.compart.com/en/unicode/block/U+F900
+	public static boolean isCJK(int codePoint) {
+		//CJK Unified Ideographs: U+4E00 - U+9FFF
+		//CJK Unified Ideographs Extension A: U+3400 - U+4DBF
+		//CJK Unified Ideographs Extension B: U+20000 - U+2A6DF
+		//CJK Unified Ideographs Extension C: U+2A700 - U+2B73F
+		//CJK Unified Ideographs Extension D: U+2B740 - U+2B81F
+		//CJK Unified Ideographs Extension E: U+2B820 - U+2CEAF
+		//CJK Unified Ideographs Extension F: U+2CEB0 - U+2EBEF
+		//CJK Compatibility Ideographs: U+F900 - U+FAFF
+		//CJK Radicals Supplement: U+2E80 - U+2EFF
+		//Kangxi Radicals: U+2F00 - U+2FDF
+		//Ideographic Description Characters: U+2FF0 - U+2FFF
 		return (codePoint >= 0x4e00 && codePoint <= 0x9fff) ||
-				(codePoint >= 0xf900 && codePoint <= 0xfaff);
+				(codePoint >= 0x3400 && codePoint <= 0x4dbf) ||
+				(codePoint >= 0x20000 && codePoint <= 0x2a6df) ||
+				(codePoint >= 0x2a700 && codePoint <= 0x2b73f) ||
+				(codePoint >= 0x2b740 && codePoint <= 0x2b81f) ||
+				(codePoint >= 0x2b820 && codePoint <= 0x2ceaf) ||
+				(codePoint >= 0x2ceb0 && codePoint <= 0x2ebef) ||
+				(codePoint >= 0xf900 && codePoint <= 0xfaff) ||
+				(codePoint >= 0x2e80 && codePoint <= 0x2eff) ||
+				(codePoint >= 0x2f00 && codePoint <= 0x2fdf) ||
+				(codePoint >= 0x2ff0 && codePoint <= 0x2fff);
 	}
 
 	/**

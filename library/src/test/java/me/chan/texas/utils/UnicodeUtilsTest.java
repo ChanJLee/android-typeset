@@ -30,29 +30,29 @@ public class UnicodeUtilsTest {
 	@Test
 	public void test() {
 		// EN
-		Assert.assertFalse(UnicodeUtils.isCn('a'));
-		Assert.assertFalse(UnicodeUtils.isCn('z'));
-		Assert.assertFalse(UnicodeUtils.isCn('A'));
-		Assert.assertFalse(UnicodeUtils.isCn('Z'));
-		Assert.assertFalse(UnicodeUtils.isCn('0'));
-		Assert.assertFalse(UnicodeUtils.isCn('9'));
-		Assert.assertFalse(UnicodeUtils.isCn('-'));
-		Assert.assertFalse(UnicodeUtils.isCn(','));
+		Assert.assertFalse(UnicodeUtils.isCJK('a'));
+		Assert.assertFalse(UnicodeUtils.isCJK('z'));
+		Assert.assertFalse(UnicodeUtils.isCJK('A'));
+		Assert.assertFalse(UnicodeUtils.isCJK('Z'));
+		Assert.assertFalse(UnicodeUtils.isCJK('0'));
+		Assert.assertFalse(UnicodeUtils.isCJK('9'));
+		Assert.assertFalse(UnicodeUtils.isCJK('-'));
+		Assert.assertFalse(UnicodeUtils.isCJK(','));
 
-		Assert.assertTrue(UnicodeUtils.isCn('一'));
-
-		Assert.assertTrue(UnicodeUtils.isSpace('　'));
-		Assert.assertFalse(UnicodeUtils.isCn(','));
+		Assert.assertTrue(UnicodeUtils.isCJK('一'));
 
 		Assert.assertTrue(UnicodeUtils.isSpace('　'));
-		Assert.assertFalse(UnicodeUtils.isCn('　'));
+		Assert.assertFalse(UnicodeUtils.isCJK(','));
+
+		Assert.assertTrue(UnicodeUtils.isSpace('　'));
+		Assert.assertFalse(UnicodeUtils.isCJK('　'));
 		Assert.assertTrue(UnicodeUtils.isSpace('　'));
 		Assert.assertTrue(UnicodeUtils.isSpace('　'));
 		Assert.assertTrue(UnicodeUtils.isSpace('　'));
 		Assert.assertTrue(UnicodeUtils.isSpace('　'));
 
 		Assert.assertTrue(UnicodeUtils.isSpace(' '));
-		Assert.assertFalse(UnicodeUtils.isCn(' '));
+		Assert.assertFalse(UnicodeUtils.isCJK(' '));
 		Assert.assertTrue(UnicodeUtils.isSpace(' '));
 		Assert.assertTrue(UnicodeUtils.isSpace(' '));
 		Assert.assertTrue(UnicodeUtils.isSpace(' '));
@@ -125,50 +125,50 @@ public class UnicodeUtilsTest {
 	@Test
 	public void testCn() {
 		for (int i = 'a'; i < 'z'; i++) {
-			Assert.assertFalse(UnicodeUtils.isCn(i));
+			Assert.assertFalse(UnicodeUtils.isCJK(i));
 		}
 		for (int i = 'A'; i < 'Z'; i++) {
-			Assert.assertFalse(UnicodeUtils.isCn(i));
+			Assert.assertFalse(UnicodeUtils.isCJK(i));
 		}
 		for (int space : SPACES) {
-			Assert.assertFalse(UnicodeUtils.isCn(space));
+			Assert.assertFalse(UnicodeUtils.isCJK(space));
 		}
 		String emoji = "😀";
 		Assert.assertTrue(Character.isHighSurrogate(emoji.charAt(0)));
-		Assert.assertFalse(UnicodeUtils.isCn(emoji.charAt(0)));
+		Assert.assertFalse(UnicodeUtils.isCJK(emoji.charAt(0)));
 
 		for (int cp : TokenStream.KINSOKU_AVOID_HEADER_MAP) {
-			Assert.assertFalse(UnicodeUtils.isCn(cp));
+			Assert.assertFalse(UnicodeUtils.isCJK(cp));
 		}
 		for (int cp : TokenStream.KINSOKU_AVOID_TAIL_MAP) {
-			Assert.assertFalse(UnicodeUtils.isCn(cp));
+			Assert.assertFalse(UnicodeUtils.isCJK(cp));
 		}
 		for (int cp : TokenStream.SQUISH_LEFT_MAP) {
-			Assert.assertFalse(UnicodeUtils.isCn(cp));
+			Assert.assertFalse(UnicodeUtils.isCJK(cp));
 		}
 		for (int cp : TokenStream.SQUISH_RIGHT_MAP) {
-			Assert.assertFalse(UnicodeUtils.isCn(cp));
+			Assert.assertFalse(UnicodeUtils.isCJK(cp));
 		}
 		for (int cp : TokenStream.STRETCH_LEFT_MAP) {
-			Assert.assertFalse(UnicodeUtils.isCn(cp));
+			Assert.assertFalse(UnicodeUtils.isCJK(cp));
 		}
 		for (int cp : TokenStream.STRETCH_RIGHT_MAP) {
-			Assert.assertFalse(UnicodeUtils.isCn(cp));
+			Assert.assertFalse(UnicodeUtils.isCJK(cp));
 		}
 
-		Assert.assertFalse(UnicodeUtils.isCn('\t'));
+		Assert.assertFalse(UnicodeUtils.isCJK('\t'));
 
-		Assert.assertFalse(UnicodeUtils.isCn(0xc0));
-		Assert.assertFalse(UnicodeUtils.isCn(0xff));
-		Assert.assertFalse(UnicodeUtils.isCn(0x100));
-		Assert.assertFalse(UnicodeUtils.isCn(0x17f));
-		Assert.assertFalse(UnicodeUtils.isCn(0x180));
-		Assert.assertFalse(UnicodeUtils.isCn(0x24f));
+		Assert.assertFalse(UnicodeUtils.isCJK(0xc0));
+		Assert.assertFalse(UnicodeUtils.isCJK(0xff));
+		Assert.assertFalse(UnicodeUtils.isCJK(0x100));
+		Assert.assertFalse(UnicodeUtils.isCJK(0x17f));
+		Assert.assertFalse(UnicodeUtils.isCJK(0x180));
+		Assert.assertFalse(UnicodeUtils.isCJK(0x24f));
 
-		Assert.assertFalse(UnicodeUtils.isCn('-'));
-		Assert.assertFalse(UnicodeUtils.isCn('0'));
-		Assert.assertFalse(UnicodeUtils.isCn('9'));
-		Assert.assertTrue(UnicodeUtils.isCn('你'));
+		Assert.assertFalse(UnicodeUtils.isCJK('-'));
+		Assert.assertFalse(UnicodeUtils.isCJK('0'));
+		Assert.assertFalse(UnicodeUtils.isCJK('9'));
+		Assert.assertTrue(UnicodeUtils.isCJK('你'));
 	}
 
 	@Test

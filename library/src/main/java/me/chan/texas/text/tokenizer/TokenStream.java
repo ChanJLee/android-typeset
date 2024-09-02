@@ -200,7 +200,7 @@ public class TokenStream extends DefaultRecyclable {
 	private boolean cn() {
 		int save = mCharStream.save();
 		int codePoint = mCharStream.eat();
-		if (!UnicodeUtils.isCn(codePoint)) {
+		if (!UnicodeUtils.isCJK(codePoint)) {
 			mCharStream.restore(save);
 			return false;
 		}
@@ -214,7 +214,7 @@ public class TokenStream extends DefaultRecyclable {
 
 		while (!mCharStream.eof()) {
 			codePoint = mCharStream.eat();
-			if (!UnicodeUtils.isCn(codePoint)) {
+			if (!UnicodeUtils.isCJK(codePoint)) {
 				mCharStream.adjust(-1);
 				break;
 			}
