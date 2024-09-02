@@ -221,8 +221,8 @@ class ParagraphBuilderInternal {
 	private void appendContextSensitiveWordToken(CharSequence text,
 												 Paragraph.Builder.SpanReader spanReader,
 												 Token token) {
-		int start = token.mStart;
-		int end = token.mEnd;
+		int start = token.getStart();
+		int end = token.getEnd();
 		Paragraph.Span span = null;
 		if (spanReader != null) {
 			span = spanReader.read(text, start, end);
@@ -546,7 +546,7 @@ class ParagraphBuilderInternal {
 	}
 
 	private static int getTokenAttributeSafe(Token token) {
-		return token == null ? Token.TYPE_NONE : token.mAttributes;
+		return token == null ? Token.TYPE_NONE : token.getAttributes();
 	}
 
 	private static boolean checkTokenAttributeSafe(Token token,

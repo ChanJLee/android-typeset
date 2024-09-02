@@ -109,28 +109,17 @@ class WordStream {
 
 	@Nullable
 	public Token next() {
-		if (mIndex + 1 >= mBrk.size()) {
-			return null;
-		}
-
-		long start = (mBrk.get(mIndex));
-		int end = (int) mBrk.get(++mIndex);
-		Token token = Token.obtain();
-		token.mCharSequence = mIterator0.seq;
-		token.mStart = (int) start;
-		token.mEnd = end;
-		token.mReason = (int) (start >> 32);
-		return token;
+		return get(mIndex++);
 	}
 
 	@Nullable
-	public Token prev() {
-		if (mIndex - 1 < 0) {
+	private Token get(int index) {
+		if (index + 1 >= mBrk.size() || index < 0) {
 			return null;
 		}
 
-		int end = (int) mBrk.get(mIndex);
-		long start = mBrk.get(--mIndex);
+		long start = (mBrk.get(index));
+		int end = (int) mBrk.get(index + 1);
 		Token token = Token.obtain();
 		token.mCharSequence = mIterator0.seq;
 		token.mStart = (int) start;
@@ -145,6 +134,15 @@ class WordStream {
 
 	public void restore(int status) {
 		mIndex = status;
+	}
+
+	public Token tryGet(int state, int offset) {
+		int index = state + offset;
+		return get(index);
+	}
+
+	public boolean hasNext() {
+		return mIndex + 1 < mBrk.size();
 	}
 
 	private static class CharacterIterator0 implements CharacterIterator {

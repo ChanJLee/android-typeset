@@ -1,19 +1,15 @@
 package me.chan.texas.text.tokenizer;
 
 
-import android.content.Context;
-import android.util.Log;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 
-import me.chan.texas.Texas;
 import me.chan.texas.misc.DefaultRecyclable;
 import me.chan.texas.misc.ObjectPool;
+import me.chan.texas.text.icu.UnicodeUtils;
 
-import java.io.IOException;
 import java.util.Arrays;
 
 // sent ::= unit*
@@ -35,8 +31,6 @@ public class TokenStream extends DefaultRecyclable {
 
 	private final WordStream mStream = new WordStream();
 
-	private Tokenizer mTokenizer = null;
-
 	private TokenStream() {
 	}
 
@@ -46,16 +40,6 @@ public class TokenStream extends DefaultRecyclable {
 
 	public void restore(int state) {
 		mStream.restore(state);
-	}
-
-	private static Tokenizer getTokenizer() {
-		Context context = Texas.getAppContext();
-		try {
-			return Tokenizer.getInstance(context);
-		} catch (IOException e) {
-			Log.w("TokenStream", e);
-		}
-		return null;
 	}
 
 	@Override
@@ -70,22 +54,12 @@ public class TokenStream extends DefaultRecyclable {
 
 	@Nullable
 	public Token tryGet(int state, int offset) {
-		int index = state + offset;
-		if (index < 0 || index >= mBuffer.size()) {
-			return null;
-		}
-
-		return mBuffer.get(index);
+		return aop(mStream.tryGet(state, offset));
 	}
 
 	@Nullable
 	public Token tryGet(int step) {
-		int index = mIndex + step;
-		if (index < 0 || index >= mBuffer.size()) {
-			return null;
-		}
-
-		return mBuffer.get(index);
+		return tryGet(mStream.save(), step);
 	}
 
 	public Token next() {
@@ -93,11 +67,91 @@ public class TokenStream extends DefaultRecyclable {
 			throw new IllegalStateException("empty reader stream");
 		}
 
-		return mBuffer.get(mIndex++);
+		return aop(mStream.next());
 	}
 
 	public boolean hasNext() {
-		return mIndex >= 0 && mIndex < mBuffer.size();
+		return mStream.hasNext();
+	}
+
+	private static Token aop(Token token) {
+		if (token.mReason >= WordStream.WORD_LETTER && token.mReason < WordStream.WORD_LETTER_LIMIT) {
+			return word(token);
+		}
+
+		if (token.mReason >= WordStream.WORD_IDEO && token.mReason < WordStream.WORD_IDEO_LIMIT) {
+			return word(token);
+		}
+
+		if (token.mReason >= WordStream.WORD_NONE && token.mReason < WordStream.WORD_NONE_LIMIT) {
+			return unit(token);
+		}
+
+		if (token.mReason >= WordStream.WORD_NUMBER && token.mReason < WordStream.WORD_NUMBER_LIMIT) {
+			token.mType = Token.TYPE_WORD;
+			token.mCategory = Token.WORD_CATEGORY_NUMBER;
+			return token;
+		}
+
+		if (token.mReason >= WordStream.WORD_KANA && token.mReason < WordStream.WORD_KANA_LIMIT) {
+			return word(token);
+		}
+
+		throw new IllegalStateException("unknown token type");
+	}
+
+	private static Token word(Token token) {
+		// fast check
+		token.mType = Token.TYPE_WORD;
+		int codePoint = token.mCharSequence.charAt(token.mStart);
+		if (codePoint <= 0xff) {
+			token.mCategory = Token.WORD_CATEGORY_ASCII;
+			return token;
+		}
+		token.mCategory = UnicodeUtils.isCJK(codePoint) ? Token.WORD_CATEGORY_CJK : Token.WORD_CATEGORY_OTHER;
+		return token;
+	}
+
+	private static Token unit(Token token) {
+		int codePoint = token.mCharSequence.charAt(token.mStart);
+		int type = Character.getType(codePoint);
+		if (type == Character.MATH_SYMBOL
+				/* https://www.compart.com/en/unicode/category/Sc */
+				|| type == Character.CURRENCY_SYMBOL
+				/* https://www.compart.com/en/unicode/category/Sk */
+				|| type == Character.MODIFIER_SYMBOL
+				/* https://www.compart.com/en/unicode/category/So */
+				|| type == Character.OTHER_SYMBOL) {
+			token.mCategory = type;
+			token.mType = Token.TYPE_SYMBOL;
+			token.mAttributes |= Token.SYMBOL_KINSOKU_AVOID_TAIL;
+			return token;
+		}
+
+		if (type == Character.DASH_PUNCTUATION
+				|| type == Character.END_PUNCTUATION
+				|| type == Character.FINAL_QUOTE_PUNCTUATION
+				|| type == Character.INITIAL_QUOTE_PUNCTUATION
+				|| type == Character.OTHER_PUNCTUATION
+				|| type == Character.START_PUNCTUATION) {
+			token.mCategory = type;
+			token.mType = Token.TYPE_PUNCTUATION;
+			token.mAttributes = getStretchAdvise(codePoint) |
+					getSquishAdvise(codePoint) |
+					getKinsokuAdvise(codePoint);
+			return token;
+		}
+
+		// 空白？
+		if (UnicodeUtils.isBreakTokenSymbol(codePoint)) {
+			token.mType = Token.TYPE_BLANK;
+			return token;
+		}
+
+		// 未知字符，这个可能是不可见的字符
+		token.mType = Token.TYPE_WORD;
+		token.mCategory = Token.WORD_CATEGORY_OTHER;
+		return token;
 	}
 
 	public static TokenStream obtain(CharSequence text, int start, int end) {
@@ -107,7 +161,6 @@ public class TokenStream extends DefaultRecyclable {
 		}
 
 		tokenStream.mStream.setText(text, start, end);
-		tokenStream.mTokenizer = getTokenizer();
 		tokenStream.reuse();
 		return tokenStream;
 	}
