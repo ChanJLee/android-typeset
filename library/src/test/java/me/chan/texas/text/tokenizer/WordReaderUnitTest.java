@@ -81,7 +81,7 @@ public class WordReaderUnitTest {
 
 			StringBuilder builder = new StringBuilder();
 			stream.setText(text, 0, text.length());
-			while (stream.next(builder::append)) {
+			while (stream.next((text1, start, end, reason) -> builder.append(text1, start, end))) {
 				/* noop */
 			}
 			Assert.assertEquals(builder.toString(), text);
@@ -96,12 +96,12 @@ public class WordReaderUnitTest {
 		String msg = "0 2 4";
 		stream.setText(msg, 0, msg.length());
 
-		while (stream.next((text, start, end) -> System.out.println(text.subSequence(start, end))))
+		while (stream.next((text, start, end, reason) -> System.out.println(text.subSequence(start, end) + " -- " + reason)))
 			;
 
 		System.out.println("====================================");
 		stream.setText(msg, 1, 3);
-		while (stream.next((text, start, end) -> System.out.println(text.subSequence(start, end))))
+		while (stream.next((text, start, end, reason) -> System.out.println(text.subSequence(start, end) + "--" + reason)))
 			;
 	}
 
@@ -124,7 +124,7 @@ public class WordReaderUnitTest {
 		stream.setText(text, 0, text.length());
 		Assert.assertFalse(stream.prev(null));
 		Iterator<String> iterator = list.iterator();
-		while (stream.next((text1, start, end) -> {
+		while (stream.next((text1, start, end, reason) -> {
 			String except = iterator.next();
 			String actual = text1.subSequence(start, end).toString();
 			Assert.assertEquals(except, actual);
@@ -134,7 +134,7 @@ public class WordReaderUnitTest {
 		// 倒序List
 		Collections.reverse((List<?>) list);
 		Iterator<String> iterator2 = list.iterator();
-		while (stream.prev((text1, start, end) -> {
+		while (stream.prev((text1, start, end, reason) -> {
 			String except = iterator2.next();
 			String actual = text1.subSequence(start, end).toString();
 			Assert.assertEquals(except, actual);

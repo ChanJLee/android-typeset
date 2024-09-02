@@ -2,7 +2,7 @@ package me.chan.texas.text.layout;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
-import static me.chan.texas.text.Paragraph.TYPESET_POLICY_EN;
+import static me.chan.texas.text.Paragraph.TYPESET_POLICY_DEFAULT;
 
 import android.graphics.Rect;
 
@@ -248,7 +248,7 @@ public class Layout extends DefaultRecyclable {
 		 */
 		private float mLineSpace = -1;
 		private BreakStrategy mBreakStrategy;
-		private int mTypesetPolicy = TYPESET_POLICY_EN;
+		private int mTypesetPolicy = TYPESET_POLICY_DEFAULT;
 
 		public float getLineSpace() {
 			return mLineSpace;
@@ -277,7 +277,7 @@ public class Layout extends DefaultRecyclable {
 		private void clear() {
 			mLineSpace = -1;
 			mBreakStrategy = null;
-			mTypesetPolicy = TYPESET_POLICY_EN;
+			mTypesetPolicy = TYPESET_POLICY_DEFAULT;
 		}
 
 		public void copy(Advise advise) {
