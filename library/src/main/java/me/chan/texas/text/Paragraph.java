@@ -38,11 +38,11 @@ public final class Paragraph extends DefaultRecyclable implements Segment {
 
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
 	Object mTag;
-	public static final int TYPESET_POLICY_EN = 0;
-	public static final int TYPESET_POLICY_CN = 1;
+	public static final int TYPESET_POLICY_DEFAULT = 0;
+	public static final int TYPESET_POLICY_CJK_OPTIMIZATION = 1;
 
 	@Retention(RetentionPolicy.SOURCE)
-	@IntDef({TYPESET_POLICY_EN, TYPESET_POLICY_CN})
+	@IntDef({TYPESET_POLICY_DEFAULT, TYPESET_POLICY_CJK_OPTIMIZATION})
 	public @interface TypesetPolicy {
 	}
 
@@ -298,7 +298,7 @@ public final class Paragraph extends DefaultRecyclable implements Segment {
 
 		/**
 		 * @param texasOption   texas option
-		 * @param typesetPolicy {@link Paragraph#TYPESET_POLICY_CN} {@link Paragraph#TYPESET_POLICY_EN}
+		 * @param typesetPolicy {@link Paragraph#TYPESET_POLICY_CJK_OPTIMIZATION} {@link Paragraph#TYPESET_POLICY_DEFAULT}
 		 * @return 当前对象
 		 */
 		public static Builder newBuilder(TexasOption texasOption,
@@ -318,7 +318,7 @@ public final class Paragraph extends DefaultRecyclable implements Segment {
 		 * @return 当前对象
 		 */
 		public static Builder newBuilder(TexasOption texasOption) {
-			return newBuilder(texasOption, TYPESET_POLICY_EN);
+			return newBuilder(texasOption, TYPESET_POLICY_DEFAULT);
 		}
 
 		public static void clean() {

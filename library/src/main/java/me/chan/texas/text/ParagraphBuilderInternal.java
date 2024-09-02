@@ -1,7 +1,7 @@
 package me.chan.texas.text;
 
-import static me.chan.texas.text.Paragraph.TYPESET_POLICY_CN;
-import static me.chan.texas.text.Paragraph.TYPESET_POLICY_EN;
+import static me.chan.texas.text.Paragraph.TYPESET_POLICY_CJK_OPTIMIZATION;
+import static me.chan.texas.text.Paragraph.TYPESET_POLICY_DEFAULT;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -169,7 +169,7 @@ class ParagraphBuilderInternal {
 		try {
 			Layout.Advise advise = mParagraph.mLayout.getAdvise();
 			tokenStream = TokenStream.read(text, start, end,
-					advise.getTypesetPolicy() == TYPESET_POLICY_EN);
+					advise.getTypesetPolicy() == TYPESET_POLICY_DEFAULT);
 			if (tokenStream == null) {
 				return;
 			}
@@ -289,7 +289,7 @@ class ParagraphBuilderInternal {
 		Layout layout = mParagraph.getLayout();
 		Layout.Advise advise = layout.getAdvise();
 		int typesetPolicy = advise.getTypesetPolicy();
-		Element linkElement = typesetPolicy == TYPESET_POLICY_CN ? mStretchOnlyGlue : Penalty.ADVISE_BREAK;
+		Element linkElement = typesetPolicy == TYPESET_POLICY_CJK_OPTIMIZATION ? mStretchOnlyGlue : Penalty.ADVISE_BREAK;
 		for (int i = token.getStart(); i < token.getEnd(); ++i) {
 			if (i != token.getStart()) {
 				appendElement(linkElement);
@@ -320,7 +320,7 @@ class ParagraphBuilderInternal {
 					foreground);
 
 			// 英文模式下 要对中文进行缩放
-			if (typesetPolicy == TYPESET_POLICY_EN) {
+			if (typesetPolicy == TYPESET_POLICY_DEFAULT) {
 				textBox.addAttribute(TextBox.ATTRIBUTE_ZOOM_OUT);
 			}
 
