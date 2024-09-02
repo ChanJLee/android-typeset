@@ -11,7 +11,7 @@ public class ICUTokenUnitTest {
 	@Test
 	public void testSimple() {
 //		String msg = "\u0067\u0308 fuck你好😜，你好真的假的？تم تكرار كلمة 'كوب' بشكل غير ضروري.";
-		String msg = "나는  Chicago에  산다.100“get on”这里指“应付，过活”，“can't get on without”即为“失去……便寸步难行，不能没有……”。这里Laurie在极力表明Jo和他在一起是“全村的期望”，他不能没有她。don't.";
+		String msg = "にほん你ご나는  Chicago에  산다.100“get on”这里指“应付，过活”，“can't get on without”即为“失去……便寸步难行，不能没有……”。这里Laurie在极力表明Jo和他在一起是“全村的期望”，他不能没有她。don't. 9th 18岁";
 		print(msg);
 		print2(msg);
 		print3(msg);
