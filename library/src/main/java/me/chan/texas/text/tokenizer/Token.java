@@ -36,6 +36,9 @@ public class Token extends DefaultRecyclable {
 	public static final int WORD_TYPE_CONTEXT_SENSITIVE = 256;
 	public static final int WORD_TYPE_MASK = WORD_TYPE_LATIN | WORD_TYPE_CN | WORD_TYPE_CONTEXT_SENSITIVE;
 
+	public int getAttributes() {
+		return mAttributes;
+	}
 
 	@IntDef({SYMBOL_KINSOKU_MASK,
 			SYMBOL_SQUISH_MASK,
@@ -63,13 +66,31 @@ public class Token extends DefaultRecyclable {
 	public static final int TYPE_SYMBOL = 1;
 	public static final int TYPE_BLANK = 2;
 	public static final int TYPE_WORD = 3;
-	public static final int TYPE_UNKNOWN = 4;
+	public static final int TYPE_PUNCTUATION = 4;
+
+	public static final int SYMBOL_CATEGORY_MATH = Character.MATH_SYMBOL;
+	public static final int SYMBOL_CATEGORY_CURRENCY = Character.CURRENCY_SYMBOL;
+	public static final int SYMBOL_CATEGORY_MODIFIER = Character.MODIFIER_SYMBOL;
+	public static final int SYMBOL_CATEGORY_OTHER = Character.OTHER_SYMBOL;
+
+	public static final int PUNCTUATION_CATEGORY_DASH = Character.DASH_PUNCTUATION;
+	public static final int PUNCTUATION_CATEGORY_END = Character.END_PUNCTUATION;
+	public static final int PUNCTUATION_CATEGORY_FINAL_QUOTE = Character.FINAL_QUOTE_PUNCTUATION;
+	public static final int PUNCTUATION_CATEGORY_INITIAL_QUOTE = Character.INITIAL_QUOTE_PUNCTUATION;
+	public static final int PUNCTUATION_CATEGORY_OTHER = Character.OTHER_PUNCTUATION;
+	public static final int PUNCTUATION_CATEGORY_START = Character.START_PUNCTUATION;
+
+	public static final int WORD_CATEGORY_NUMBER = 1;
+	public static final int WORD_CATEGORY_ASCII = 2;
+	public static final int WORD_CATEGORY_CJK = 3;
+	public static final int WORD_CATEGORY_OTHER = 4;
+
 
 	@IntDef({TYPE_NONE,
 			TYPE_SYMBOL,
 			TYPE_BLANK,
 			TYPE_WORD,
-			TYPE_UNKNOWN})
+			TYPE_PUNCTUATION})
 	public @interface TokenType {
 
 	}
@@ -82,6 +103,8 @@ public class Token extends DefaultRecyclable {
 
 	int mAttributes = 0;
 	int mReason;
+
+	int mCategory;
 
 	// 添加删除要顺带修改 copy 函数
 
