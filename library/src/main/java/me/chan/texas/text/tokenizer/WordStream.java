@@ -33,7 +33,7 @@ class WordStream {
 		int start = mBrk.get(mIndex);
 		int end = mBrk.get(++mIndex);
 
-		listener.onValue(mIterator0.seq, start, end);
+		listener.onGetSpan(mIterator0.seq, start, end);
 		return true;
 	}
 
@@ -44,7 +44,7 @@ class WordStream {
 
 		int end = mBrk.get(mIndex);
 		int start = mBrk.get(--mIndex);
-		listener.onValue(mIterator0.seq, start, end);
+		listener.onGetSpan(mIterator0.seq, start, end);
 		return true;
 	}
 
@@ -57,7 +57,7 @@ class WordStream {
 	}
 
 	public interface Listener {
-		void onValue(CharSequence text, int start, int end);
+		void onGetSpan(CharSequence text, int start, int end);
 	}
 
 	private static class CharacterIterator0 implements CharacterIterator {
