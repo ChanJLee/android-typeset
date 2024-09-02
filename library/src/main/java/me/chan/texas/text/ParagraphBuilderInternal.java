@@ -167,9 +167,7 @@ class ParagraphBuilderInternal {
 		// 单词流会分析出一个句子中每个字符所代表的语义，这样可以精确的识别诸如： isn't、1920s 为一个单词
 		TokenStream tokenStream = null;
 		try {
-			Layout.Advise advise = mParagraph.mLayout.getAdvise();
-			tokenStream = TokenStream.read(text, start, end,
-					advise.getTypesetPolicy() == TYPESET_POLICY_DEFAULT);
+			tokenStream = TokenStream.obtain(text, start, end);
 			if (tokenStream == null) {
 				return;
 			}
@@ -517,7 +515,7 @@ class ParagraphBuilderInternal {
 									 TokenStream stream,
 									 CharSequence text,
 									 Paragraph.Builder.SpanReader spanReader) {
-			int state = stream.state();
+			int state = stream.save();
 			boolean accept = perform0(builder, accepted, stream, text, spanReader);
 			if (!accept) {
 				stream.restore(state);
@@ -594,7 +592,7 @@ class ParagraphBuilderInternal {
 								   TokenStream stream,
 								   CharSequence text,
 								   Paragraph.Builder.SpanReader spanReader) {
-			int state = stream.state();
+			int state = stream.save();
 			Token current = stream.next();
 			if (current.getType() != Token.TYPE_WORD) {
 				return false;
@@ -714,7 +712,7 @@ class ParagraphBuilderInternal {
 								TokenStream stream,
 								CharSequence text,
 								Paragraph.Builder.SpanReader spanReader) {
-			int state = stream.state();
+			int state = stream.save();
 			Token current = stream.next();
 			if (current.getType() != Token.TYPE_SYMBOL) {
 				return false;
@@ -989,7 +987,7 @@ class ParagraphBuilderInternal {
 								TokenStream stream,
 								CharSequence text,
 								Paragraph.Builder.SpanReader spanReader) {
-			int state = stream.state();
+			int state = stream.save();
 			Token current = stream.next();
 			if (current.getType() != Token.TYPE_UNKNOWN) {
 				return false;
