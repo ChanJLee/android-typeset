@@ -124,7 +124,7 @@ public class TokenStream extends DefaultRecyclable {
 				|| type == Character.OTHER_SYMBOL) {
 			token.mCategory = type;
 			token.mType = Token.TYPE_SYMBOL;
-			token.mAttributes |= Token.SYMBOL_KINSOKU_AVOID_TAIL;
+			token.mAttributes = type != Character.OTHER_SYMBOL ? Token.SYMBOL_KINSOKU_AVOID_TAIL : 0;
 			return token;
 		}
 
