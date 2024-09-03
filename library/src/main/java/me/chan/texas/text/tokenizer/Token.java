@@ -67,6 +67,7 @@ public class Token extends DefaultRecyclable {
 	public static final int TYPE_BLANK = 2;
 	public static final int TYPE_WORD = 3;
 	public static final int TYPE_PUNCTUATION = 4;
+//	public static final int TYPE_UNKNOWN = 5;
 
 	public static final int SYMBOL_CATEGORY_MATH = Character.MATH_SYMBOL;
 	public static final int SYMBOL_CATEGORY_CURRENCY = Character.CURRENCY_SYMBOL;
@@ -83,7 +84,8 @@ public class Token extends DefaultRecyclable {
 	public static final int WORD_CATEGORY_NUMBER = 1;
 	public static final int WORD_CATEGORY_ASCII = 2;
 	public static final int WORD_CATEGORY_CJK = 3;
-	public static final int WORD_CATEGORY_OTHER = 4;
+	public static final int WORD_CATEGORY_RTL = 4;
+	public static final int WORD_CATEGORY_OTHER = 5;
 
 
 	@IntDef({TYPE_NONE,
