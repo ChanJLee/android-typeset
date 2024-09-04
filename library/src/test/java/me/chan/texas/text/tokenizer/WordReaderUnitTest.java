@@ -94,13 +94,24 @@ public class WordReaderUnitTest {
 	@Test
 	public void testSimple() {
 		WordStream stream = new WordStream();
+		Assert.assertNull(stream.next());
+		Assert.assertNull(stream.tryGet(stream.save(), -1));
 		String msg = "0 2 4";
 		stream.setText(msg, 0, msg.length());
-
+		Assert.assertNull(stream.tryGet(stream.save(), -1));
+		Assert.assertNull(stream.tryGet(stream.save(), 5));
 		Token token = null;
+		token = stream.tryGet(stream.save(), 4);
+		Assert.assertEquals(token.getCharSequence().subSequence(token.getStart(), token.getEnd()).toString(), "4");
+
+
 		while ((token = stream.next()) != null) {
 			System.out.println(token.getCharSequence().subSequence(token.getStart(), token.getEnd()));
 		}
+		token = stream.tryGet(stream.save(), -5);
+		Assert.assertEquals(token.getCharSequence().subSequence(token.getStart(), token.getEnd()).toString(), "0");
+		Assert.assertNull(stream.tryGet(stream.save(), -6));
+
 
 		System.out.println("====================================");
 		stream.setText(msg, 1, 3);
@@ -125,6 +136,8 @@ public class WordReaderUnitTest {
 		Assert.assertEquals(stream.save(), 0);
 
 		stream.setText(text, 0, text.length());
+
+		int save = stream.save();
 		Iterator<String> iterator = list.iterator();
 		Token token = null;
 		while ((token = stream.next()) != null) {
@@ -134,5 +147,13 @@ public class WordReaderUnitTest {
 		}
 		Assert.assertEquals(stream.save(), list.size());
 
+		stream.restore(save);
+		iterator = list.iterator();
+		while ((token = stream.next()) != null) {
+			String except = iterator.next();
+			String actual = token.getCharSequence().subSequence(token.getStart(), token.getEnd()).toString();
+			Assert.assertEquals(except, actual);
+		}
+		Assert.assertEquals(stream.save(), list.size());
 	}
 }
