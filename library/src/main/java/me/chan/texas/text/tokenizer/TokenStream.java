@@ -59,7 +59,7 @@ public class TokenStream extends DefaultRecyclable {
 
 	@Nullable
 	public Token tryGet(int state, int offset) {
-		return aop(mStream.tryGet(state, offset));
+		return mStream.tryGet(state, offset);
 	}
 
 	@Nullable
