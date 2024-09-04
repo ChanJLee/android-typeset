@@ -109,7 +109,25 @@ class WordStream {
 
 	@Nullable
 	public Token next() {
-		return get(mIndex++);
+		Token token = get(mIndex);
+		if (token != null) {
+			++mIndex;
+		}
+		return token;
+	}
+
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		for (int i = mIndex; i < mBrk.size(); ++i) {
+			long v = mBrk.get(i);
+			builder.append("(");
+			builder.append((int) v);
+			builder.append(",");
+			builder.append(v >> 32);
+			builder.append(")");
+		}
+		return builder.toString();
 	}
 
 	@Nullable
