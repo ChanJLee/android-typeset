@@ -49,6 +49,8 @@ class ParagraphBuilderInternal {
 	private Glue mCommonGlue;
 	private Glue mStretchOnlyGlue;
 
+	private TokenStream mFakeTokenStream = TokenStream.obtain(" ", 0, 1);
+
 	public ParagraphBuilderInternal(Paragraph.Builder builder) {
 		mSpanBuilder = new Paragraph.SpanBuilder(builder);
 	}
@@ -142,7 +144,7 @@ class ParagraphBuilderInternal {
 	}
 
 	private void appendEmoticon(Emoticon emoticon) {
-		Token token = Token.obtainNone();
+		Token token = Token.obtainOtherWord();
 		appendElement(emoticon.getDrawableBox());
 		mLastToken = token;
 	}
@@ -175,19 +177,11 @@ class ParagraphBuilderInternal {
 			// 追加一个空格
 			// 这个未来还能不能适用，就要看状态推导图了，目前看一个token后接blank和none不影响状态机的跳转
 			if (mLastToken != null && tokenStream.hasNext()) {
-				tokenStream.ahead(Token.obtainBlank());
+				mFakeTokenStream.reset();
+				appendSent0(text, reader, mFakeTokenStream);
 			}
 
-			Token prev = mLastToken;
 			appendSent0(text, reader, tokenStream);
-			if (prev != mLastToken && prev != null) {
-				prev.recycle();
-			}
-
-			// 因为token会跟着stream销毁，所以要保留上次的token
-			if (mLastToken != null) {
-				mLastToken = Token.copy(mLastToken);
-			}
 		} finally {
 			if (tokenStream != null) {
 				tokenStream.recycle();
@@ -206,21 +200,20 @@ class ParagraphBuilderInternal {
 	private void appendWordToken(CharSequence text,
 								 Paragraph.Builder.SpanReader spanReader,
 								 Token token) {
-		// 区分中英文
-		if (token.checkAttribute(Token.WORD_TYPE_MASK, Token.WORD_TYPE_LATIN)) {
-			appendLatinWordToken(text, spanReader, token);
-		} else if (token.checkAttribute(Token.WORD_TYPE_MASK, Token.WORD_TYPE_CN)) {
-			appendCnWordToken(text, spanReader, token);
-		} else if (token.checkAttribute(Token.WORD_TYPE_MASK, Token.WORD_TYPE_CONTEXT_SENSITIVE)) {
-			appendContextSensitiveWordToken(text, spanReader, token);
+		int category = token.getCategory();
+		if (category == Token.WORD_CATEGORY_ASCII) {
+			appendAsciiWordToken(text, spanReader, token);
+		} else if (category == Token.WORD_CATEGORY_CJK) {
+			appendCjkWordToken(text, spanReader, token);
 		} else {
-			throw new IllegalArgumentException("unknown token type");
+			appendWordTokenDirect(text, spanReader, token, category == Token.WORD_CATEGORY_RTL);
 		}
 	}
 
-	private void appendContextSensitiveWordToken(CharSequence text,
-												 Paragraph.Builder.SpanReader spanReader,
-												 Token token) {
+	private void appendWordTokenDirect(CharSequence text,
+									   Paragraph.Builder.SpanReader spanReader,
+									   Token token,
+									   boolean rtl) {
 		int start = token.getStart();
 		int end = token.getEnd();
 		Paragraph.Span span = null;
@@ -244,7 +237,10 @@ class ParagraphBuilderInternal {
 				tag,
 				background,
 				foreground);
-		textBox.addAttribute(TextBox.ATTRIBUTE_RTL);
+
+		if (rtl) {
+			textBox.addAttribute(TextBox.ATTRIBUTE_RTL);
+		}
 
 		appendElement(textBox);
 
@@ -253,7 +249,7 @@ class ParagraphBuilderInternal {
 		}
 	}
 
-	private void appendLatinWordToken(CharSequence text,
+	private void appendAsciiWordToken(CharSequence text,
 									  Paragraph.Builder.SpanReader spanReader,
 									  Token token) {
 		Paragraph.Span span = null;
@@ -281,9 +277,9 @@ class ParagraphBuilderInternal {
 		}
 	}
 
-	private void appendCnWordToken(CharSequence text,
-								   Paragraph.Builder.SpanReader spanReader,
-								   Token token) {
+	private void appendCjkWordToken(CharSequence text,
+									Paragraph.Builder.SpanReader spanReader,
+									Token token) {
 		Layout layout = mParagraph.getLayout();
 		Layout.Advise advise = layout.getAdvise();
 		int typesetPolicy = advise.getTypesetPolicy();
@@ -562,7 +558,6 @@ class ParagraphBuilderInternal {
 		TYPESET_RULES.add(new WordRules());
 		TYPESET_RULES.add(new SymbolRules());
 		TYPESET_RULES.add(new BlankRules());
-		TYPESET_RULES.add(new UnknownRules());
 	}
 
 	/**
@@ -598,7 +593,7 @@ class ParagraphBuilderInternal {
 				return false;
 			}
 
-			// 1: word -> glue 其实就是中英文之间分割
+			// 1: word -> glue 其实就是中英文之间分割，广义来讲就是不同类型为word之间需要分割开
 			// 2: unknown -> glue
 			// 3: blank -> noop
 			// 4: none -> noop
@@ -610,8 +605,6 @@ class ParagraphBuilderInternal {
 				}
 			} else if (prevType == Token.TYPE_SYMBOL) {
 				performPrefixState1(builder, accepted, stream, state);
-			} else if (prevType == Token.TYPE_UNKNOWN) {
-				builder.appendElement(builder.mCommonGlue);
 			}
 
 			builder.appendWordToken(text, spanReader, current);
@@ -681,10 +674,8 @@ class ParagraphBuilderInternal {
 			int prevType = getTokenTypeSafe(accepted);
 			int nextType = getTokenTypeSafe(next);
 
-			if (prevType == Token.TYPE_WORD ||
-					prevType == Token.TYPE_UNKNOWN) {
-				if (nextType == Token.TYPE_WORD ||
-						nextType == Token.TYPE_UNKNOWN) {
+			if (prevType == Token.TYPE_WORD) {
+				if (nextType == Token.TYPE_WORD) {
 					builder.appendElement(builder.mCommonGlue);
 					accept(current);
 					return true;
@@ -977,72 +968,6 @@ class ParagraphBuilderInternal {
 			builder.appendElementExcludeAdvise(adviseElement);
 			builder.appendElement(builder.mCommonGlue);
 			builder.appendElementExcludeAdvise(adviseElement);
-		}
-	}
-
-	private static class UnknownRules extends TypesetRule {
-
-		@Override
-		public boolean perform0(ParagraphBuilderInternal builder, Token accepted,
-								TokenStream stream,
-								CharSequence text,
-								Paragraph.Builder.SpanReader spanReader) {
-			int state = stream.save();
-			Token current = stream.next();
-			if (current.getType() != Token.TYPE_UNKNOWN) {
-				return false;
-			}
-
-			// 1: word -> glue
-			// 2: unknown -> advise_brk
-			// 3: blank -> noop
-			// 4: none -> noop
-			// 5: symbol -> prefix state 1
-			int prevType = getTokenTypeSafe(accepted);
-			if (prevType == Token.TYPE_WORD) {
-				builder.appendElement(builder.mCommonGlue);
-			} else if (prevType == Token.TYPE_UNKNOWN) {
-				builder.appendElement(Penalty.ADVISE_BREAK);
-			} else if (prevType == Token.TYPE_SYMBOL) {
-				performPrefixState1(builder, accepted, stream, state);
-			}
-
-			builder.appendUnknownToken(text, spanReader, current);
-
-			accept(current);
-			return true;
-		}
-
-		private static void performPrefixState1(ParagraphBuilderInternal builder, Token accepted, TokenStream stream, int state) {
-			// 先获取建议
-			Element adviseElement = checkTokenAttributeSafe(accepted, Token.SYMBOL_KINSOKU_MASK, Token.SYMBOL_KINSOKU_AVOID_TAIL) ?
-					Penalty.FORBIDDEN_BREAK : Penalty.ADVISE_BREAK;
-
-			// 是否添加空格取决于前一个符号
-			// 如果它要，那么就添加
-			// 不要的话尝试用原先单词流中的数据填充，不过要注意，如果前面的单词不让填充空格，那么也是什么都不能做的
-
-			if (checkTokenAttributeSafe(accepted, Token.SYMBOL_TYPEFACE_MASK, Token.SYMBOL_STRETCH_RIGHT)) {
-				builder.appendElementExcludeAdvise(adviseElement);
-				builder.appendElement(builder.mCommonGlue);
-				builder.appendElementExcludeAdvise(adviseElement);
-			} else if (checkTokenAttributeSafe(accepted, Token.SYMBOL_TYPEFACE_MASK, Token.SYMBOL_SQUISH_RIGHT)) {
-				if (builder.mRenderOption.isEnableFullWithSymbolOptimization()) {
-					builder.appendElementExcludeAdvise(adviseElement);
-					builder.appendElement(obtainSymbolGlueFromStack(builder));
-					builder.appendElementExcludeAdvise(adviseElement);
-				}
-			} else {
-				Token realPrev = stream.tryGet(state, -1);
-				if (realPrev != accepted && getTokenTypeSafe(realPrev) == Token.TYPE_BLANK &&
-						(getTokenAttributeSafe(accepted) & Token.SYMBOL_SQUISH_MASK) == 0) {
-					builder.appendElementExcludeAdvise(adviseElement);
-					builder.appendElement(builder.mCommonGlue);
-					builder.appendElementExcludeAdvise(adviseElement);
-				} else {
-					builder.appendElement(adviseElement);
-				}
-			}
 		}
 	}
 

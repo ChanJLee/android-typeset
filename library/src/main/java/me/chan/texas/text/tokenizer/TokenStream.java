@@ -34,6 +34,11 @@ public class TokenStream extends DefaultRecyclable {
 	private TokenStream() {
 	}
 
+
+	public void reset() {
+		mStream.reset();
+	}
+
 	public int save() {
 		return mStream.save();
 	}
@@ -135,7 +140,7 @@ public class TokenStream extends DefaultRecyclable {
 				|| type == Character.OTHER_PUNCTUATION
 				|| type == Character.START_PUNCTUATION) {
 			token.mCategory = type;
-			token.mType = Token.TYPE_PUNCTUATION;
+			token.mType = Token.TYPE_SYMBOL;
 			token.mAttributes = getStretchAdvise(codePoint) |
 					getSquishAdvise(codePoint) |
 					getKinsokuAdvise(codePoint);
