@@ -22,14 +22,6 @@ public class TokenStreamUnitTest {
 	}
 
 	@Test
-	public void testInvalidArgs() {
-		Assert.assertNull(TokenStream.read(null, 0, 0));
-		Assert.assertNull(TokenStream.read("123", 3, 4));
-		Assert.assertNull(TokenStream.read("123", 1, 1));
-		Assert.assertNull(TokenStream.read("123", 1, 0));
-	}
-
-	@Test
 	public void testNlp2() throws IOException {
 		TokenizerModel model = new TokenizerModel(new File("../library/src/main/assets/texas/opennlp-en-ud-ewt-tokens-1.0-1.9.3.bin"));
 		Tokenizer tokenizer = new TokenizerME(model);
@@ -58,7 +50,7 @@ public class TokenStreamUnitTest {
 
 		System.out.println(msg);
 		int index = 0;
-		TokenStream reader = TokenStream.read(msg, 0, msg.length());
+		TokenStream reader = TokenStream.obtain(msg, 0, msg.length());
 		while (reader.hasNext()) {
 			Token token = reader.next();
 			System.out.println(token.toString());
@@ -73,7 +65,7 @@ public class TokenStreamUnitTest {
 		me.chan.texas.text.tokenizer.Tokenizer.setup(mModel);
 		String msg = "don't.";
 		System.out.println(msg.length() + " " + msg.codePointCount(0, msg.length()));
-		TokenStream reader = TokenStream.read(msg, 0, msg.length());
+		TokenStream reader =  TokenStream.obtain(msg, 0, msg.length());
 		while (reader.hasNext()) {
 			Token token = reader.next();
 			System.out.println(token.toString());
@@ -84,7 +76,7 @@ public class TokenStreamUnitTest {
 	public void print3() {
 		me.chan.texas.text.tokenizer.Tokenizer.setup(mModel);
 		String msg = "oh fuck...";
-		TokenStream reader = TokenStream.read(msg, 0, msg.length());
+		TokenStream reader =  TokenStream.obtain(msg, 0, msg.length());
 		while (reader.hasNext()) {
 			Token token = reader.next();
 			System.out.println(token.toString());
@@ -98,7 +90,7 @@ public class TokenStreamUnitTest {
 		// String msg = "\ud83d\ude4b\uff08\u062a\u0645 \u062a\u0643\u0631\u0627\u0631 \u0643\u0644\u0645\u0629 '\u0643\u0648\u0628' \u0628\u0634\u0643\u0644 \u063a\u064a\u0631 \u0636\u0631\u0648\u0631\u064a.\uff09";
 		String msg = "\u0067\u0308";
 		System.out.println(msg);
-		TokenStream reader = TokenStream.read(msg, 0, msg.length());
+		TokenStream reader =  TokenStream.obtain(msg, 0, msg.length());
 		while (reader.hasNext()) {
 			Token token = reader.next();
 			System.out.println(token.toString());

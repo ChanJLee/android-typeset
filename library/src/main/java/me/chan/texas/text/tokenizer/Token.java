@@ -3,7 +3,6 @@ package me.chan.texas.text.tokenizer;
 import androidx.annotation.IntDef;
 import androidx.annotation.RestrictTo;
 
-import me.chan.texas.misc.BitBucket;
 import me.chan.texas.misc.DefaultRecyclable;
 import me.chan.texas.misc.ObjectPool;
 
@@ -30,21 +29,18 @@ public class Token extends DefaultRecyclable {
 
 	public static final int SYMBOL_TYPEFACE_MASK = SYMBOL_SQUISH_MASK | SYMBOL_STRETCH_MASK;
 
-	// TODO 这个地方有些许混乱了，需要重新整理
-	public static final int WORD_TYPE_CN = 64;
-	public static final int WORD_TYPE_LATIN = 128;
-	public static final int WORD_TYPE_CONTEXT_SENSITIVE = 256;
-	public static final int WORD_TYPE_MASK = WORD_TYPE_LATIN | WORD_TYPE_CN | WORD_TYPE_CONTEXT_SENSITIVE;
-
 	public int getAttributes() {
 		return mAttributes;
+	}
+
+	public int getCategory() {
+		return mCategory;
 	}
 
 	@IntDef({SYMBOL_KINSOKU_MASK,
 			SYMBOL_SQUISH_MASK,
 			SYMBOL_STRETCH_MASK,
-			SYMBOL_TYPEFACE_MASK,
-			WORD_TYPE_MASK})
+			SYMBOL_TYPEFACE_MASK})
 	public @interface TokenMask {
 
 	}
@@ -54,20 +50,15 @@ public class Token extends DefaultRecyclable {
 			SYMBOL_SQUISH_LEFT,
 			SYMBOL_SQUISH_RIGHT,
 			SYMBOL_STRETCH_LEFT,
-			SYMBOL_STRETCH_RIGHT,
-			WORD_TYPE_LATIN,
-			WORD_TYPE_CN,
-			WORD_TYPE_CONTEXT_SENSITIVE})
+			SYMBOL_STRETCH_RIGHT})
 	public @interface TokenAttribute {
 
 	}
 
-	public static final int TYPE_NONE = 0;
-	public static final int TYPE_SYMBOL = 1;
-	public static final int TYPE_BLANK = 2;
-	public static final int TYPE_WORD = 3;
-	public static final int TYPE_PUNCTUATION = 4;
-//	public static final int TYPE_UNKNOWN = 5;
+	public static final int TYPE_NONE = 0; /* 什么也不是 */
+	public static final int TYPE_SYMBOL = 1; /* 符号+标点符号 */
+	public static final int TYPE_BLANK = 2; /* 未来扩展下为control */
+	public static final int TYPE_WORD = 3; /* 单词 */
 
 	public static final int SYMBOL_CATEGORY_MATH = Character.MATH_SYMBOL;
 	public static final int SYMBOL_CATEGORY_CURRENCY = Character.CURRENCY_SYMBOL;
@@ -91,8 +82,7 @@ public class Token extends DefaultRecyclable {
 	@IntDef({TYPE_NONE,
 			TYPE_SYMBOL,
 			TYPE_BLANK,
-			TYPE_WORD,
-			TYPE_PUNCTUATION})
+			TYPE_WORD,})
 	public @interface TokenType {
 
 	}
@@ -102,10 +92,8 @@ public class Token extends DefaultRecyclable {
 	CharSequence mCharSequence;
 	int mStart;
 	int mEnd;
-
-	int mAttributes = 0;
 	int mReason;
-
+	int mAttributes = 0;
 	int mCategory;
 
 	// 添加删除要顺带修改 copy 函数
@@ -154,7 +142,7 @@ public class Token extends DefaultRecyclable {
 		}
 
 		if (mType == TYPE_WORD) {
-			return mAttributes == WORD_TYPE_LATIN ? "英文" : "中文";
+			return mCategory == WORD_CATEGORY_ASCII ? "英文" : "中文";
 		}
 
 		return "未知";
@@ -246,14 +234,15 @@ public class Token extends DefaultRecyclable {
 		return token;
 	}
 
-	public static Token obtainNone() {
+	public static Token obtainOtherWord() {
 		Token token = POOL.acquire();
 		if (token == null) {
 			token = new Token();
 		}
 
 		token.reuse();
-		token.mType = TYPE_UNKNOWN;
+		token.mType = TYPE_WORD;
+		token.mCategory = WORD_CATEGORY_OTHER;
 		return token;
 	}
 

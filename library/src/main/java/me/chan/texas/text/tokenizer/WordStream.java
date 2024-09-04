@@ -145,6 +145,10 @@ class WordStream {
 		return mIndex + 1 < mBrk.size();
 	}
 
+	public void reset() {
+		restore(0);
+	}
+
 	private static class CharacterIterator0 implements CharacterIterator {
 		private int index;
 		private CharSequence seq;

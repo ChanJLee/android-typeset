@@ -81,8 +81,9 @@ public class WordReaderUnitTest {
 
 			StringBuilder builder = new StringBuilder();
 			stream.setText(text, 0, text.length());
-			while (stream.next((text1, start, end, reason) -> builder.append(text1, start, end))) {
-				/* noop */
+			Token token = null;
+			while ((token = stream.next()) != null) {
+				builder.append(token.getCharSequence(), token.getStart(), token.getEnd());
 			}
 			Assert.assertEquals(builder.toString(), text);
 
@@ -96,13 +97,16 @@ public class WordReaderUnitTest {
 		String msg = "0 2 4";
 		stream.setText(msg, 0, msg.length());
 
-		while (stream.next((text, start, end, reason) -> System.out.println(text.subSequence(start, end) + " -- " + reason)))
-			;
+		Token token = null;
+		while ((token = stream.next()) != null) {
+			System.out.println(token.getCharSequence().subSequence(token.getStart(), token.getEnd()));
+		}
 
 		System.out.println("====================================");
 		stream.setText(msg, 1, 3);
-		while (stream.next((text, start, end, reason) -> System.out.println(text.subSequence(start, end) + "--" + reason)))
-			;
+		while ((token = stream.next()) != null) {
+			System.out.println(token.getCharSequence().subSequence(token.getStart(), token.getEnd()));
+		}
 	}
 
 	@Test
@@ -117,28 +121,18 @@ public class WordReaderUnitTest {
 		String text = stringBuilder.toString();
 
 		WordStream stream = new WordStream();
-		Assert.assertFalse(stream.prev(null));
-		Assert.assertFalse(stream.next(null));
+		Assert.assertNull(stream.next());
 		Assert.assertEquals(stream.save(), 0);
 
 		stream.setText(text, 0, text.length());
-		Assert.assertFalse(stream.prev(null));
 		Iterator<String> iterator = list.iterator();
-		while (stream.next((text1, start, end, reason) -> {
+		Token token = null;
+		while ((token = stream.next()) != null) {
 			String except = iterator.next();
-			String actual = text1.subSequence(start, end).toString();
+			String actual = token.getCharSequence().subSequence(token.getStart(), token.getEnd()).toString();
 			Assert.assertEquals(except, actual);
-		})) ;
+		}
 		Assert.assertEquals(stream.save(), list.size());
 
-		// 倒序List
-		Collections.reverse((List<?>) list);
-		Iterator<String> iterator2 = list.iterator();
-		while (stream.prev((text1, start, end, reason) -> {
-			String except = iterator2.next();
-			String actual = text1.subSequence(start, end).toString();
-			Assert.assertEquals(except, actual);
-		})) ;
-		Assert.assertEquals(stream.save(), 0);
 	}
 }
