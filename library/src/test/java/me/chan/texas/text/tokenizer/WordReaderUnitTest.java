@@ -104,7 +104,6 @@ public class WordReaderUnitTest {
 		token = stream.tryGet(stream.save(), 4);
 		Assert.assertEquals(token.getCharSequence().subSequence(token.getStart(), token.getEnd()).toString(), "4");
 
-
 		while ((token = stream.next()) != null) {
 			System.out.println(token.getCharSequence().subSequence(token.getStart(), token.getEnd()));
 		}
@@ -112,6 +111,11 @@ public class WordReaderUnitTest {
 		Assert.assertEquals(token.getCharSequence().subSequence(token.getStart(), token.getEnd()).toString(), "0");
 		Assert.assertNull(stream.tryGet(stream.save(), -6));
 
+		stream.reset();
+		Assert.assertNull(stream.tryGet(stream.save(), -1));
+		Assert.assertNull(stream.tryGet(stream.save(), 5));
+		token = stream.tryGet(stream.save(), 4);
+		Assert.assertEquals(token.getCharSequence().subSequence(token.getStart(), token.getEnd()).toString(), "4");
 
 		System.out.println("====================================");
 		stream.setText(msg, 1, 3);
