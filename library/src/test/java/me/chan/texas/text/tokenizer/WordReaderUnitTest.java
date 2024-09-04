@@ -168,4 +168,19 @@ public class WordReaderUnitTest {
 		}
 		Assert.assertEquals(stream.save(), list.size());
 	}
+
+	@Test
+	public void testLong() {
+		long v = addBrk(200, 2);
+		int reason = (int) (v >>> 32);
+		Assert.assertEquals(reason, 200);
+	}
+
+	private long addBrk(int reason, int index) {
+		long v = reason;
+		v <<= 32;
+		v += index;
+		return v;
+	}
+
 }

@@ -124,7 +124,7 @@ class WordStream {
 			builder.append("(");
 			builder.append((int) v);
 			builder.append(",");
-			builder.append(v >> 32);
+			builder.append(v >>> 32);
 			builder.append(")");
 		}
 		return builder.toString();
@@ -136,13 +136,13 @@ class WordStream {
 			return null;
 		}
 
-		long start = (mBrk.get(index));
-		long end = (int) mBrk.get(index + 1);
+		long start = mBrk.get(index);
+		long end = mBrk.get(index + 1);
 		Token token = Token.obtain();
 		token.mCharSequence = mIterator0.seq;
 		token.mStart = (int) start;
 		token.mEnd = (int) end;
-		token.mReason = (int) (end >> 32);
+		token.mReason = (int) (end >>> 32);
 		return token;
 	}
 
