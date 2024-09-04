@@ -93,7 +93,7 @@ class WordStream {
 		mBrk.clear();
 		mIndex = 0;
 
-		addBrk(boundary.getRuleStatus(), boundary.first() + start);
+		addBrk(WORD_NONE, boundary.first() + start);
 		for (int brk = boundary.next();
 			 brk != BreakIterator.DONE; brk = boundary.next()) {
 			addBrk(boundary.getRuleStatus(), brk + start);
@@ -137,12 +137,12 @@ class WordStream {
 		}
 
 		long start = (mBrk.get(index));
-		int end = (int) mBrk.get(index + 1);
+		long end = (int) mBrk.get(index + 1);
 		Token token = Token.obtain();
 		token.mCharSequence = mIterator0.seq;
 		token.mStart = (int) start;
-		token.mEnd = end;
-		token.mReason = (int) (start >> 32);
+		token.mEnd = (int) end;
+		token.mReason = (int) (end >> 32);
 		return token;
 	}
 

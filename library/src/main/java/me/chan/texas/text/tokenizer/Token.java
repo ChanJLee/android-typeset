@@ -37,6 +37,10 @@ public class Token extends DefaultRecyclable {
 		return mCategory;
 	}
 
+	public int getReason() {
+		return mReason;
+	}
+
 	@IntDef({SYMBOL_KINSOKU_MASK,
 			SYMBOL_SQUISH_MASK,
 			SYMBOL_STRETCH_MASK,
