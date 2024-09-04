@@ -142,7 +142,27 @@ public class Token extends DefaultRecyclable {
 		}
 
 		if (mType == TYPE_WORD) {
-			return mCategory == WORD_CATEGORY_ASCII ? "英文" : "中文";
+			if (mCategory == WORD_CATEGORY_ASCII) {
+				return "英文";
+			}
+
+			if (mCategory == WORD_CATEGORY_CJK) {
+				return "CJK";
+			}
+
+			if (mCategory == WORD_CATEGORY_NUMBER) {
+				return "数字";
+			}
+
+			if (mCategory == WORD_CATEGORY_RTL) {
+				return "RTL";
+			}
+
+			if (mCategory == WORD_CATEGORY_OTHER) {
+				return "其它";
+			}
+
+			throw new IllegalStateException("unknown word category");
 		}
 
 		return "未知";
