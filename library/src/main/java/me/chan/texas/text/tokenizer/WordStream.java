@@ -308,7 +308,7 @@ class WordStream {
 			"[^$CR$LF$Newline$ExFm]$ExFm*;\n" +
 			"$Numeric$ExFm*{100};\n" +
 			"$ALetterPlus$ExFm*{200};\n" +
-			"$HangulSyllable{400};\n" +
+			"$HangulSyllable{400};\n" + /* 韩文返回400 */
 			"$Hebrew_Letter$ExFm*{200};\n" +
 			"$Katakana$ExFm*{400};\n" +
 			"$Hiragana$ExFm*{400};\n" +
@@ -332,7 +332,7 @@ class WordStream {
 			"$ExtendNumLet$ExFm*$Numeric{100};\n" +
 			"$ExtendNumLet$ExFm*$Katakana{400};\n" +
 			"^$Regional_Indicator$ExFm*$Regional_Indicator;\n" +
-			"$HangulSyllable$HangulSyllable{400};\n" +
+			"$HangulSyllable$HangulSyllable{400};\n" + /* 韩文返回400 */
 			"$KanaKanji$KanaKanji{400};\n" +
 			".;\n";
 	private static BreakIterator sBreakIterator;
