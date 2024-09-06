@@ -131,6 +131,10 @@ public class Token extends DefaultRecyclable {
 		return mType;
 	}
 
+	public int size() {
+		return mEnd - mStart;
+	}
+
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
 	public String getSemantics() {
 		if (mType == TYPE_NONE) {
