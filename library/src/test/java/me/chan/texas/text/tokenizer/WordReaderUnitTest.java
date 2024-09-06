@@ -42,7 +42,7 @@ public class WordReaderUnitTest {
 
 			long timestamp = System.currentTimeMillis();
 
-			wordStream.setText(text, 0, text.length());
+			wordStream.setText(text, 0, text.length(), true);
 			StringBuilder builder = new StringBuilder();
 			BreakIterator boundary = BreakIterator.getWordInstance();
 			boundary.setText(text);
