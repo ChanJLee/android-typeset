@@ -14,6 +14,7 @@ import java.text.CharacterIterator;
 
 import me.chan.texas.Texas;
 import me.chan.texas.text.icu.UnicodeUtils;
+import me.chan.texas.utils.CharStream;
 import me.chan.texas.utils.LongArray;
 
 class WordStream {
@@ -91,64 +92,61 @@ class WordStream {
 
 
 	private final CharacterSequenceIterator mIterator = new CharacterSequenceIterator();
+	private final CharStream mStream = new CharStream();
 	private LongArray mBrk = new LongArray(128);
-	private LongArray mPending = new LongArray(128);
 	private int mIndex = 0;
 
-	public void setText(CharSequence text, int start, int end) {
-		setText(text, start, end, false);
-	}
-
 	@VisibleForTesting
-	void setText(CharSequence text, int start, int end, boolean benchmark) {
+	void setText(CharSequence text, int start, int end) {
 		synchronized (WordStream.class /* 粒度必须要粗 */) {
-			setText0(text, start, end, benchmark);
+			setText0(text, start, end);
 		}
 	}
 
-	private void setText0(CharSequence text, int start, int end, boolean benchmark) {
-		BreakIterator boundary = getInstance(benchmark);
-		boundary.setText(mIterator.reset(text, start, end));
-
+	private void setText0(CharSequence text, int start, int end) {
 		mBrk.clear();
-		mPending.clear();
 		mIndex = 0;
+		mStream.reset(text, start, end);
 
-		addBrk(mPending, WORD_NONE, boundary.first() + start);
-		for (int brk = boundary.next();
-			 brk != BreakIterator.DONE; brk = boundary.next()) {
-			addBrk(mPending, boundary.getRuleStatus(), brk + start);
-		}
-
-		if (benchmark) {
-			LongArray tmp = mBrk;
-			mBrk = mPending;
-			mPending = tmp;
-			return;
-		}
-
-		merge(mPending, mBrk, text);
+		sent(mBrk, mStream);
 	}
 
-	private void merge(LongArray src, LongArray dest, CharSequence text) {
-		Tokenizer tokenizer = getTokenizer();
-		if (tokenizer == null) {
-			return;
-		}
-
-		for (int i = 1; i < src.size(); ++i) {
-			Token token = get0(src, text, i);
-			try {
-				dest.add(src.get(i));
-				if (filter(token)) {
-					continue;
-				}
-
-				// todo
-			} finally {
-				token.recycle();
+	private static void sent(LongArray brk, CharStream stream) {
+		while (!stream.eof()) {
+			if (!unit(brk, stream)) {
+				throw new IllegalStateException("parse state error");
 			}
 		}
+	}
+
+	private static boolean unit(LongArray brk, CharStream stream) {
+		return word(brk, stream) || ws(brk, stream);
+	}
+
+	private static boolean word(LongArray brk, CharStream stream) {
+		int save = stream.save();
+		int codePoint = stream.eat();
+		if (!UnicodeUtils.isBreakTokenSymbol(codePoint)) {
+			stream.restore(save);
+			return false;
+		}
+
+		// todo
+		int start = stream.save();
+		while (!stream.eof()) {
+			codePoint = stream.eat();
+			if (UnicodeUtils.isBreakTokenSymbol(codePoint)) {
+				stream.adjust(-1);
+				break;
+			}
+		}
+		return true;
+	}
+
+	private static boolean ws(LongArray brk, CharStream stream) {
+		addBrk(brk, WORD_NONE, stream.save());
+		stream.eat();
+		return true;
 	}
 
 	private static boolean filter(Token token) {
@@ -236,60 +234,60 @@ class WordStream {
 		restore(0);
 	}
 
-	private boolean nlp(Tokenizer tokenizer, CharSequence text, int start, int end) {
-		SpanStream stream = tokenizer.tokenize(text, start, end);
-		Token last = null;
-
-		while (stream.hasNext()) {
-			SpanStream.Span span = stream.next();
-
-			Token token = Token.obtain();
-			token.mCharSequence = mCharStream.getText();
-			token.mStart = start;
-			token.mEnd = span.getEnd();
-
-			// 看下首字母
-			int codePoint = text.charAt(span.getStart());
-			boolean isSymbolsAndPunctuation = UnicodeUtils.isSymbolsAndPunctuation(codePoint);
-			// 修正下
-			if (isSymbolsAndPunctuation && token.mEnd - token.mStart > 1) {
-				isSymbolsAndPunctuation = token.mEnd - token.mStart == 3 && codePoint == '.' &&
-						mCharStream.peek(start + 1) == '.' && mCharStream.peek(start + 2) == '.';
-			}
-
-			token.mType = isSymbolsAndPunctuation ? Token.TYPE_SYMBOL : Token.TYPE_WORD;
-
-			if (isSymbolsAndPunctuation) {
-				if (token.mEnd - token.mStart == 3 && codePoint == '.' &&
-						mCharStream.peek(start + 1) == '.' && mCharStream.peek(start + 2) == '.') {
-					token.mAttributes = Token.SYMBOL_KINSOKU_AVOID_HEADER;
-				} else {
-					token.mAttributes =
-							getStretchAdvise(codePoint) |
-									getSquishAdvise(codePoint) |
-									getKinsokuAdvise(codePoint);
-				}
-			} else {
-				token.mAttributes = Token.WORD_TYPE_LATIN;
-			}
-
-			start = token.mEnd;
-
-			// 看看能不能把文字合并
-			if (!isSymbolsAndPunctuation && last != null && last.mType == Token.TYPE_WORD) {
-				last.mEnd = token.mEnd;
-				token.recycle();
-				continue;
-			}
-
-			last = token;
-			if (!mBuffer.add(token)) {
-				return false;
-			}
-		}
-
-		return true;
-	}
+//	private boolean nlp(Tokenizer tokenizer, CharSequence text, int start, int end) {
+//		SpanStream stream = tokenizer.tokenize(text, start, end);
+//		Token last = null;
+//
+//		while (stream.hasNext()) {
+//			SpanStream.Span span = stream.next();
+//
+//			Token token = Token.obtain();
+//			token.mCharSequence = stream.getText();
+//			token.mStart = start;
+//			token.mEnd = span.getEnd();
+//
+//			// 看下首字母
+//			int codePoint = text.charAt(span.getStart());
+//			boolean isSymbolsAndPunctuation = UnicodeUtils.isSymbolsAndPunctuation(codePoint);
+//			// 修正下
+//			if (isSymbolsAndPunctuation && token.mEnd - token.mStart > 1) {
+//				isSymbolsAndPunctuation = token.mEnd - token.mStart == 3 && codePoint == '.' &&
+//						stream.peek(start + 1) == '.' && stream.peek(start + 2) == '.';
+//			}
+//
+//			token.mType = isSymbolsAndPunctuation ? Token.TYPE_SYMBOL : Token.TYPE_WORD;
+//
+//			if (isSymbolsAndPunctuation) {
+//				if (token.mEnd - token.mStart == 3 && codePoint == '.' &&
+//						stream.peek(start + 1) == '.' && stream.peek(start + 2) == '.') {
+//					token.mAttributes = Token.SYMBOL_KINSOKU_AVOID_HEADER;
+//				} else {
+//					token.mAttributes =
+//							getStretchAdvise(codePoint) |
+//									getSquishAdvise(codePoint) |
+//									getKinsokuAdvise(codePoint);
+//				}
+//			} else {
+//				token.mAttributes = Token.WORD_TYPE_LATIN;
+//			}
+//
+//			start = token.mEnd;
+//
+//			// 看看能不能把文字合并
+//			if (!isSymbolsAndPunctuation && last != null && last.mType == Token.TYPE_WORD) {
+//				last.mEnd = token.mEnd;
+//				token.recycle();
+//				continue;
+//			}
+//
+//			last = token;
+//			if (!mBuffer.add(token)) {
+//				return false;
+//			}
+//		}
+//
+//		return true;
+//	}
 
 	private static class CharacterSequenceIterator implements CharacterIterator {
 		private int index;
@@ -382,12 +380,6 @@ class WordStream {
 		}
 	}
 
-	private static final String WS_BREAKER_RULE = "!!quoted_literals_only;\n" +
-			"$Space=[\\p{White_Space}];\n" +  // 定义空格符
-			"$ExFm=[\\p{Extend}\\p{Format}\\p{ZWJ}];\n" +  // 可选：处理修饰符
-			"^$Space+;\n" +  // 忽略连续空格
-			"[^$Space]$ExFm*;\n" +  // 匹配除空格之外的字符，并附带修饰符
-			"$Space+;\n";  // 以空格为分割点
 	private static final String WORD_BREAKER_US_RULE = "!!chain;\n" +
 			"!!quoted_literals_only;\n" +
 			"$Han=[:Han:];\n" +
@@ -461,15 +453,6 @@ class WordStream {
 			sWordBreakIterator = new RuleBasedBreakIterator(WORD_BREAKER_US_RULE);
 		}
 		return sWordBreakIterator;
-	}
-
-	private static BreakIterator sWhiteSpaceBreakIterator;
-
-	private static BreakIterator getWhiteSpaceBreakIterator() {
-		if (sWhiteSpaceBreakIterator == null) {
-			sWhiteSpaceBreakIterator = new RuleBasedBreakIterator(WS_BREAKER_RULE);
-		}
-		return sWhiteSpaceBreakIterator;
 	}
 
 	private static Tokenizer getTokenizer() {
