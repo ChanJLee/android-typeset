@@ -136,15 +136,33 @@ class WordStream {
 			return;
 		}
 
-		for (int i = 0; i < src.size(); ++i) {
+		for (int i = 1; i < src.size(); ++i) {
 			Token token = get0(src, text, i);
-			// TODO merge
-			token.recycle();
+			try {
+				dest.add(src.get(i));
+				if (filter(token)) {
+					continue;
+				}
+
+				// todo
+			} finally {
+				token.recycle();
+			}
 		}
 	}
 
+	private static boolean filter(Token token) {
+		for (int i = token.mStart; i < token.mEnd; ++i) {
+			int c = token.mCharSequence.charAt(i);
+			if (c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z') {
+				return false;
+			}
+		}
+		return true;
+	}
+
 	private static BreakIterator getInstance(boolean benchmark) {
-		return benchmark ? BreakIterator.getWordInstance() : getBreakIterator();
+		return benchmark ? BreakIterator.getWordInstance() : getWhiteSpaceBreakIterator();
 	}
 
 	private static void addBrk(LongArray buffer, int reason, int index) {
@@ -364,6 +382,12 @@ class WordStream {
 		}
 	}
 
+	private static final String WS_BREAKER_RULE = "!!quoted_literals_only;\n" +
+			"$Space=[\\p{White_Space}];\n" +  // 定义空格符
+			"$ExFm=[\\p{Extend}\\p{Format}\\p{ZWJ}];\n" +  // 可选：处理修饰符
+			"^$Space+;\n" +  // 忽略连续空格
+			"[^$Space]$ExFm*;\n" +  // 匹配除空格之外的字符，并附带修饰符
+			"$Space+;\n";  // 以空格为分割点
 	private static final String WORD_BREAKER_US_RULE = "!!chain;\n" +
 			"!!quoted_literals_only;\n" +
 			"$Han=[:Han:];\n" +
@@ -430,13 +454,22 @@ class WordStream {
 			"$HangulSyllable$HangulSyllable{400};\n" + /* 韩文返回400 */
 			"$KanaKanji$KanaKanji{400};\n" +
 			".;\n";
-	private static BreakIterator sBreakIterator;
+	private static BreakIterator sWordBreakIterator;
 
-	private static BreakIterator getBreakIterator() {
-		if (sBreakIterator == null) {
-			sBreakIterator = new RuleBasedBreakIterator(WORD_BREAKER_US_RULE);
+	private static BreakIterator getWordBreakIterator() {
+		if (sWordBreakIterator == null) {
+			sWordBreakIterator = new RuleBasedBreakIterator(WORD_BREAKER_US_RULE);
 		}
-		return sBreakIterator;
+		return sWordBreakIterator;
+	}
+
+	private static BreakIterator sWhiteSpaceBreakIterator;
+
+	private static BreakIterator getWhiteSpaceBreakIterator() {
+		if (sWhiteSpaceBreakIterator == null) {
+			sWhiteSpaceBreakIterator = new RuleBasedBreakIterator(WS_BREAKER_RULE);
+		}
+		return sWhiteSpaceBreakIterator;
 	}
 
 	private static Tokenizer getTokenizer() {
