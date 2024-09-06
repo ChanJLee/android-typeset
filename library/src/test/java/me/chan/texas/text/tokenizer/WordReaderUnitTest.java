@@ -4,6 +4,7 @@ import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 
 import com.ibm.icu.text.BreakIterator;
+import com.ibm.icu.text.UnicodeSet;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -167,6 +168,42 @@ public class WordReaderUnitTest {
 			Assert.assertEquals(except, actual);
 		}
 		Assert.assertEquals(stream.save(), list.size());
+	}
+
+	@Test
+	public void testWs() {
+		BreakIterator boundary = WordStream.getWhiteSpaceBreakIterator();
+		String text = "1 abc 3 4";
+		boundary.setText(text);
+		int start = boundary.first();
+		boundary.getRuleStatus();
+		for (int end = boundary.next();
+			 end != BreakIterator.DONE;
+			 start = end, end = boundary.next()) {
+			int reason = boundary.getRuleStatus();
+			String actual = text.subSequence(start, end).toString();
+			System.out.println(actual);
+		}
+	}
+
+	@Test
+	public void unit() {
+		UnicodeSet unicodeSet = new UnicodeSet("\\p{White_Space}");
+		List<Integer> points = new ArrayList<>();
+		unicodeSet.forEach(codePoint -> {
+			if (codePoint.length() > 2) {
+				throw new IllegalStateException("codePoint: " + codePoint);
+			}
+			points.add((int) codePoint.charAt(0));
+		});
+		points.sort((o1, o2) -> o1 - o2);
+
+		StringBuilder stringBuilder = new StringBuilder("private static final int WHITE_SPACE = {");
+		for (int i = 0; i < points.size(); ++i) {
+			stringBuilder.append(String.format("0x%04x,", points.get(i).intValue()));
+		}
+		stringBuilder.append("};");
+		System.out.println(stringBuilder.toString());
 	}
 
 	@Test
