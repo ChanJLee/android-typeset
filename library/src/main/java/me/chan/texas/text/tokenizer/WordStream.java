@@ -1,13 +1,19 @@
 package me.chan.texas.text.tokenizer;
 
+import android.content.Context;
+import android.util.Log;
+
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 
 import com.ibm.icu.text.BreakIterator;
 import com.ibm.icu.text.RuleBasedBreakIterator;
 
+import java.io.IOException;
 import java.text.CharacterIterator;
 
+import me.chan.texas.Texas;
+import me.chan.texas.text.icu.UnicodeUtils;
 import me.chan.texas.utils.LongArray;
 
 class WordStream {
@@ -84,8 +90,9 @@ class WordStream {
 	public static final int WORD_IDEO_LIMIT = BreakIterator.WORD_IDEO_LIMIT;
 
 
-	private final CharacterIterator0 mIterator0 = new CharacterIterator0();
-	private final LongArray mBrk = new LongArray(128);
+	private final CharacterSequenceIterator mIterator = new CharacterSequenceIterator();
+	private LongArray mBrk = new LongArray(128);
+	private LongArray mPending = new LongArray(128);
 	private int mIndex = 0;
 
 	public void setText(CharSequence text, int start, int end) {
@@ -94,16 +101,45 @@ class WordStream {
 
 	@VisibleForTesting
 	void setText(CharSequence text, int start, int end, boolean benchmark) {
+		synchronized (WordStream.class /* 粒度必须要粗 */) {
+			setText0(text, start, end, benchmark);
+		}
+	}
+
+	private void setText0(CharSequence text, int start, int end, boolean benchmark) {
 		BreakIterator boundary = getInstance(benchmark);
-		boundary.setText(mIterator0.reset(text, start, end));
+		boundary.setText(mIterator.reset(text, start, end));
 
 		mBrk.clear();
+		mPending.clear();
 		mIndex = 0;
 
-		addBrk(WORD_NONE, boundary.first() + start);
+		addBrk(mPending, WORD_NONE, boundary.first() + start);
 		for (int brk = boundary.next();
 			 brk != BreakIterator.DONE; brk = boundary.next()) {
-			addBrk(boundary.getRuleStatus(), brk + start);
+			addBrk(mPending, boundary.getRuleStatus(), brk + start);
+		}
+
+		if (benchmark) {
+			LongArray tmp = mBrk;
+			mBrk = mPending;
+			mPending = tmp;
+			return;
+		}
+
+		merge(mPending, mBrk, text);
+	}
+
+	private void merge(LongArray src, LongArray dest, CharSequence text) {
+		Tokenizer tokenizer = getTokenizer();
+		if (tokenizer == null) {
+			return;
+		}
+
+		for (int i = 0; i < src.size(); ++i) {
+			Token token = get0(src, text, i);
+			// TODO merge
+			token.recycle();
 		}
 	}
 
@@ -111,11 +147,11 @@ class WordStream {
 		return benchmark ? BreakIterator.getWordInstance() : getBreakIterator();
 	}
 
-	private void addBrk(int reason, int index) {
+	private static void addBrk(LongArray buffer, int reason, int index) {
 		long v = reason;
 		v <<= 32;
 		v += index;
-		mBrk.add(v);
+		buffer.add(v);
 	}
 
 	@Nullable
@@ -143,14 +179,18 @@ class WordStream {
 
 	@Nullable
 	private Token get(int index) {
-		if (index + 1 >= mBrk.size() || index < 0) {
+		return get0(mBrk, mIterator.seq, index);
+	}
+
+	private static Token get0(LongArray brk, CharSequence text, int index) {
+		if (index + 1 >= brk.size() || index < 0) {
 			return null;
 		}
 
-		long start = mBrk.get(index);
-		long end = mBrk.get(index + 1);
+		long start = brk.get(index);
+		long end = brk.get(index + 1);
 		Token token = Token.obtain();
-		token.mCharSequence = mIterator0.seq;
+		token.mCharSequence = text;
 		token.mStart = (int) start;
 		token.mEnd = (int) end;
 		token.mReason = (int) (end >>> 32);
@@ -178,7 +218,62 @@ class WordStream {
 		restore(0);
 	}
 
-	private static class CharacterIterator0 implements CharacterIterator {
+	private boolean nlp(Tokenizer tokenizer, CharSequence text, int start, int end) {
+		SpanStream stream = tokenizer.tokenize(text, start, end);
+		Token last = null;
+
+		while (stream.hasNext()) {
+			SpanStream.Span span = stream.next();
+
+			Token token = Token.obtain();
+			token.mCharSequence = mCharStream.getText();
+			token.mStart = start;
+			token.mEnd = span.getEnd();
+
+			// 看下首字母
+			int codePoint = text.charAt(span.getStart());
+			boolean isSymbolsAndPunctuation = UnicodeUtils.isSymbolsAndPunctuation(codePoint);
+			// 修正下
+			if (isSymbolsAndPunctuation && token.mEnd - token.mStart > 1) {
+				isSymbolsAndPunctuation = token.mEnd - token.mStart == 3 && codePoint == '.' &&
+						mCharStream.peek(start + 1) == '.' && mCharStream.peek(start + 2) == '.';
+			}
+
+			token.mType = isSymbolsAndPunctuation ? Token.TYPE_SYMBOL : Token.TYPE_WORD;
+
+			if (isSymbolsAndPunctuation) {
+				if (token.mEnd - token.mStart == 3 && codePoint == '.' &&
+						mCharStream.peek(start + 1) == '.' && mCharStream.peek(start + 2) == '.') {
+					token.mAttributes = Token.SYMBOL_KINSOKU_AVOID_HEADER;
+				} else {
+					token.mAttributes =
+							getStretchAdvise(codePoint) |
+									getSquishAdvise(codePoint) |
+									getKinsokuAdvise(codePoint);
+				}
+			} else {
+				token.mAttributes = Token.WORD_TYPE_LATIN;
+			}
+
+			start = token.mEnd;
+
+			// 看看能不能把文字合并
+			if (!isSymbolsAndPunctuation && last != null && last.mType == Token.TYPE_WORD) {
+				last.mEnd = token.mEnd;
+				token.recycle();
+				continue;
+			}
+
+			last = token;
+			if (!mBuffer.add(token)) {
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	private static class CharacterSequenceIterator implements CharacterIterator {
 		private int index;
 		private CharSequence seq;
 		private int start;
@@ -255,7 +350,7 @@ class WordStream {
 
 		@Override
 		public Object clone() {
-			CharacterIterator0 copy = new CharacterIterator0();
+			CharacterSequenceIterator copy = new CharacterSequenceIterator();
 			copy.start = this.start;
 			copy.seq = this.seq;
 			copy.index = this.index;
@@ -285,7 +380,7 @@ class WordStream {
 			"$Single_Quote=[\\p{Word_Break=Single_Quote}];\n" +
 			"$Double_Quote=[\\p{Word_Break=Double_Quote}];\n" +
 			"$MidNumLet=[\\p{Word_Break=MidNumLet}];\n" +
-			"$MidLetter=[\\p{Word_Break=MidLetter}-[\\:\\uFE55\\uFF1A]];\n" +
+			"$MidLetter=[\\p{Word_Break=MidLetter}-[\\:\\uFE55\\uFF1A]\\-\\u2011\\u00AD\\u2013\\u2014];\n" +
 			"$MidNum=[\\p{Word_Break=MidNum}];\n" +
 			"$Numeric=[\\p{Word_Break=Numeric}];\n" +
 			"$ExtendNumLet=[\\p{Word_Break=ExtendNumLet}];\n" +
@@ -342,5 +437,15 @@ class WordStream {
 			sBreakIterator = new RuleBasedBreakIterator(WORD_BREAKER_US_RULE);
 		}
 		return sBreakIterator;
+	}
+
+	private static Tokenizer getTokenizer() {
+		Context context = Texas.getAppContext();
+		try {
+			return Tokenizer.getInstance(context);
+		} catch (IOException e) {
+			Log.w("TokenStream", e);
+		}
+		return null;
 	}
 }
