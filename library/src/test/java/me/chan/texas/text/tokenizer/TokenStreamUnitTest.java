@@ -25,7 +25,7 @@ public class TokenStreamUnitTest {
 	public void testNlp2() throws IOException {
 		TokenizerModel model = new TokenizerModel(new File("../library/src/main/assets/texas/opennlp-en-ud-ewt-tokens-1.0-1.9.3.bin"));
 		Tokenizer tokenizer = new TokenizerME(model);
-		String[] tokens = tokenizer.tokenize("\"will! fuck");
+		String[] tokens = tokenizer.tokenize("\"will! 你好R&B");
 		for (String token : tokens) {
 			System.out.println(token);
 		}

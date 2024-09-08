@@ -15,6 +15,7 @@ import java.text.CharacterIterator;
 import me.chan.texas.Texas;
 import me.chan.texas.text.icu.UnicodeUtils;
 import me.chan.texas.utils.CharStream;
+import me.chan.texas.utils.IntArray;
 import me.chan.texas.utils.LongArray;
 
 class WordStream {
@@ -93,7 +94,7 @@ class WordStream {
 
 	private final CharacterSequenceIterator mIterator = new CharacterSequenceIterator();
 	private final CharStream mStream = new CharStream();
-	private LongArray mBrk = new LongArray(128);
+	private final LongArray mBrk = new LongArray(128);
 	private int mIndex = 0;
 
 	@VisibleForTesting
@@ -111,7 +112,7 @@ class WordStream {
 		sent(mBrk, mStream);
 	}
 
-	private static void sent(LongArray brk, CharStream stream) {
+	private void sent(LongArray brk, CharStream stream) {
 		while (!stream.eof()) {
 			if (!unit(brk, stream)) {
 				throw new IllegalStateException("parse state error");
@@ -119,11 +120,11 @@ class WordStream {
 		}
 	}
 
-	private static boolean unit(LongArray brk, CharStream stream) {
+	private boolean unit(LongArray brk, CharStream stream) {
 		return word(brk, stream) || ws(brk, stream);
 	}
 
-	private static boolean word(LongArray brk, CharStream stream) {
+	private boolean word(LongArray brk, CharStream stream) {
 		int save = stream.save();
 		int codePoint = stream.eat();
 		if (!UnicodeUtils.isBreakTokenSymbol(codePoint)) {
@@ -131,36 +132,53 @@ class WordStream {
 			return false;
 		}
 
-		// todo
 		int start = stream.save();
+		boolean simple = true;
 		while (!stream.eof()) {
 			codePoint = stream.eat();
 			if (UnicodeUtils.isBreakTokenSymbol(codePoint)) {
-				stream.adjust(-1);
+				stream.back();
+				word0(brk, stream.getText(), start, stream.save(), simple);
 				break;
+			}
+
+			if (!(codePoint >= 'a' && codePoint <= 'z') && !(codePoint >= 'A' && codePoint <= 'Z')) {
+				simple = false;
 			}
 		}
 		return true;
+	}
+
+	private final IntArray mPending = new IntArray(32);
+	private void word0(LongArray brk, CharSequence text, int start, int end, boolean simple) {
+		if (simple) {
+			addBrk(brk, BreakIterator.WORD_LETTER, end);
+			return;
+		}
+
+		BreakIterator boundary = BreakIterator.getWordInstance();
+		boundary.setText(mIterator.reset(text, start, end));
+
+		mBrk.clear();
+		mIndex = 0;
+
+		mPending.clear();
+		start = boundary.first();
+		mPending.add(start);
+		boundary.getRuleStatus();
+		for (end = boundary.next();
+			 end != BreakIterator.DONE;
+			 start = end, end = boundary.next()) {
+			mPending.add(end);
+		}
+
+
 	}
 
 	private static boolean ws(LongArray brk, CharStream stream) {
 		addBrk(brk, WORD_NONE, stream.save());
 		stream.eat();
 		return true;
-	}
-
-	private static boolean filter(Token token) {
-		for (int i = token.mStart; i < token.mEnd; ++i) {
-			int c = token.mCharSequence.charAt(i);
-			if (c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z') {
-				return false;
-			}
-		}
-		return true;
-	}
-
-	private static BreakIterator getInstance(boolean benchmark) {
-		return benchmark ? BreakIterator.getWordInstance() : getWhiteSpaceBreakIterator();
 	}
 
 	private static void addBrk(LongArray buffer, int reason, int index) {
