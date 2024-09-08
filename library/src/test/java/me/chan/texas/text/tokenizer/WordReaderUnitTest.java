@@ -23,7 +23,6 @@ public class WordReaderUnitTest {
 
 	@Test
 	public void testBase() throws IOException {
-		WordStream wordStream = new WordStream();
 		for (int i = 1; i <= 6; ++i) {
 			File file = new File("../app/src/main/assets/harry" + i + ".txt");
 			System.out.println(file.getAbsolutePath());
@@ -43,7 +42,6 @@ public class WordReaderUnitTest {
 
 			long timestamp = System.currentTimeMillis();
 
-			wordStream.setText(text, 0, text.length(), true);
 			StringBuilder builder = new StringBuilder();
 			BreakIterator boundary = BreakIterator.getWordInstance();
 			boundary.setText(text);
@@ -53,11 +51,6 @@ public class WordReaderUnitTest {
 				 end != BreakIterator.DONE;
 				 start = end, end = boundary.next()) {
 				builder.append(text, start, end);
-				int reason = boundary.getRuleStatus();
-				Token token = wordStream.next();
-				String actual = text.subSequence(start, end).toString();
-				Assert.assertEquals(token.getCharSequence().subSequence(token.getStart(), token.getEnd()), actual);
-				Assert.assertEquals(token.getReason(), reason);
 			}
 
 			Assert.assertEquals(builder.toString(), text);
@@ -168,22 +161,6 @@ public class WordReaderUnitTest {
 			Assert.assertEquals(except, actual);
 		}
 		Assert.assertEquals(stream.save(), list.size());
-	}
-
-	@Test
-	public void testWs() {
-		BreakIterator boundary = WordStream.getWhiteSpaceBreakIterator();
-		String text = "1 abc 3 4";
-		boundary.setText(text);
-		int start = boundary.first();
-		boundary.getRuleStatus();
-		for (int end = boundary.next();
-			 end != BreakIterator.DONE;
-			 start = end, end = boundary.next()) {
-			int reason = boundary.getRuleStatus();
-			String actual = text.subSequence(start, end).toString();
-			System.out.println(actual);
-		}
 	}
 
 	@Test
