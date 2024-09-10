@@ -19,7 +19,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
-public class WordReaderUnitTest {
+public class WordStreamUnitTest {
 
 	@Test
 	public void testBase() throws IOException {
@@ -128,7 +128,7 @@ public class WordReaderUnitTest {
 
 	@Test
 	public void testSave() {
-		String[] array = {"0", " ", "1", " ", "2", " ", "3", " ", "4", " ", "5", " ", "6", " ", "7", " ", "8", " ", "9"};
+		String[] array = {"00", " ", "1", " ", "hello-world你好R&B"};
 		List<String> list = new ArrayList<>();
 		Collections.addAll(list, array);
 		StringBuilder stringBuilder = new StringBuilder();
@@ -162,39 +162,4 @@ public class WordReaderUnitTest {
 		}
 		Assert.assertEquals(stream.save(), list.size());
 	}
-
-	@Test
-	public void unit() {
-		UnicodeSet unicodeSet = new UnicodeSet("\\p{White_Space}");
-		List<Integer> points = new ArrayList<>();
-		unicodeSet.forEach(codePoint -> {
-			if (codePoint.length() > 2) {
-				throw new IllegalStateException("codePoint: " + codePoint);
-			}
-			points.add((int) codePoint.charAt(0));
-		});
-		points.sort((o1, o2) -> o1 - o2);
-
-		StringBuilder stringBuilder = new StringBuilder("private static final int WHITE_SPACE = {");
-		for (int i = 0; i < points.size(); ++i) {
-			stringBuilder.append(String.format("0x%04x,", points.get(i).intValue()));
-		}
-		stringBuilder.append("};");
-		System.out.println(stringBuilder.toString());
-	}
-
-	@Test
-	public void testLong() {
-		long v = addBrk(200, 2);
-		int reason = (int) (v >>> 32);
-		Assert.assertEquals(reason, 200);
-	}
-
-	private long addBrk(int reason, int index) {
-		long v = reason;
-		v <<= 32;
-		v += index;
-		return v;
-	}
-
 }
