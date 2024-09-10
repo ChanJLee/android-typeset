@@ -15,7 +15,6 @@ import java.text.CharacterIterator;
 import me.chan.texas.Texas;
 import me.chan.texas.text.icu.UnicodeUtils;
 import me.chan.texas.utils.CharStream;
-import me.chan.texas.utils.IntArray;
 import me.chan.texas.utils.LongArray;
 
 class WordStream {
@@ -94,7 +93,7 @@ class WordStream {
 
 	private final CharacterSequenceIterator mIterator = new CharacterSequenceIterator();
 	private final CharStream mStream = new CharStream();
-	private final LongArray mBrk = new LongArray(128);
+	private final BrkArray mBrk = new BrkArray(128);
 	private int mIndex = 0;
 
 	@VisibleForTesting
@@ -113,7 +112,7 @@ class WordStream {
 		sent(mBrk, mStream);
 	}
 
-	private void sent(LongArray brk, CharStream stream) {
+	private void sent(BrkArray brk, CharStream stream) {
 		while (!stream.eof()) {
 			if (!unit(brk, stream)) {
 				throw new IllegalStateException("parse state error");
@@ -121,11 +120,11 @@ class WordStream {
 		}
 	}
 
-	private boolean unit(LongArray brk, CharStream stream) {
+	private boolean unit(BrkArray brk, CharStream stream) {
 		return word(brk, stream) || ws(brk, stream);
 	}
 
-	private boolean word(LongArray brk, CharStream stream) {
+	private boolean word(BrkArray brk, CharStream stream) {
 		int save = stream.save();
 		int codePoint = stream.eat();
 		if (UnicodeUtils.isBreakTokenSymbol(codePoint)) {
@@ -151,9 +150,9 @@ class WordStream {
 		return (codePoint >= 'a' && codePoint <= 'z') || (codePoint >= 'A' && codePoint <= 'Z');
 	}
 
-	private final LongArray mPending = new LongArray(32);
+	private final BrkArray mPending = new BrkArray(32);
 
-	private void word0(LongArray brk, CharSequence text, int start, int end, boolean simple) {
+	private void word0(BrkArray brk, CharSequence text, int start, int end, boolean simple) {
 		if (simple) {
 			addBrk(brk, BreakIterator.WORD_LETTER, end);
 			return;
@@ -163,7 +162,6 @@ class WordStream {
 		boundary.setText(mIterator.reset(text, start, end));
 
 		mPending.clear();
-		boundary.getRuleStatus();
 		for (end = boundary.next();
 			 end != BreakIterator.DONE; end = boundary.next()) {
 			addBrk(mPending, boundary.getRuleStatus(), start + end);
@@ -182,13 +180,13 @@ class WordStream {
 		}
 	}
 
-	private static boolean ws(LongArray brk, CharStream stream) {
+	private static boolean ws(BrkArray brk, CharStream stream) {
 		stream.eat();
 		addBrk(brk, WORD_NONE, stream.save());
 		return true;
 	}
 
-	private static void addBrk(LongArray buffer, int reason, int index) {
+	private static void addBrk(BrkArray buffer, int reason, int index) {
 		long v = reason;
 		v <<= 32;
 		v += index;
@@ -216,6 +214,26 @@ class WordStream {
 			builder.append(")");
 		}
 		return builder.toString();
+	}
+
+	private static final class BrkArray extends LongArray {
+		public BrkArray(int size) {
+			super(size);
+		}
+
+		@Override
+		public String toString() {
+			StringBuilder builder = new StringBuilder();
+			for (int i = 0; i < size(); ++i) {
+				long v = get(i);
+				builder.append("(");
+				builder.append((int) v);
+				builder.append(",");
+				builder.append(v >>> 32);
+				builder.append(")");
+			}
+			return builder.toString();
+		}
 	}
 
 	@Nullable
