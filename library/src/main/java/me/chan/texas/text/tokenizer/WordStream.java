@@ -109,6 +109,7 @@ class WordStream {
 		mIndex = 0;
 		mStream.reset(text, start, end);
 
+		mBrk.add(WORD_NONE);
 		sent(mBrk, mStream);
 	}
 
@@ -127,26 +128,27 @@ class WordStream {
 	private boolean word(LongArray brk, CharStream stream) {
 		int save = stream.save();
 		int codePoint = stream.eat();
-		if (!UnicodeUtils.isBreakTokenSymbol(codePoint)) {
+		if (UnicodeUtils.isBreakTokenSymbol(codePoint)) {
 			stream.restore(save);
 			return false;
 		}
 
-		int start = stream.save();
-		boolean simple = true;
+		boolean simple = isSimpleWord(codePoint);
 		while (!stream.eof()) {
 			codePoint = stream.eat();
 			if (UnicodeUtils.isBreakTokenSymbol(codePoint)) {
 				stream.back();
-				word0(brk, stream.getText(), start, stream.save(), simple);
+				word0(brk, stream.getText(), save, stream.save(), simple);
 				break;
 			}
 
-			if (!(codePoint >= 'a' && codePoint <= 'z') && !(codePoint >= 'A' && codePoint <= 'Z')) {
-				simple = false;
-			}
+			simple = simple && isSimpleWord(codePoint);
 		}
 		return true;
+	}
+
+	private static boolean isSimpleWord(int codePoint) {
+		return (codePoint >= 'a' && codePoint <= 'z') || (codePoint >= 'A' && codePoint <= 'Z');
 	}
 
 	private final LongArray mPending = new LongArray(32);
@@ -160,19 +162,14 @@ class WordStream {
 		BreakIterator boundary = BreakIterator.getWordInstance();
 		boundary.setText(mIterator.reset(text, start, end));
 
-		mBrk.clear();
-		mIndex = 0;
-
 		mPending.clear();
-		addBrk(mPending, WORD_NONE, start);
 		boundary.getRuleStatus();
 		for (end = boundary.next();
 			 end != BreakIterator.DONE; end = boundary.next()) {
 			addBrk(mPending, boundary.getRuleStatus(), start + end);
 		}
 
-		mBrk.add(mPending.get(0));
-		for (int i = 1; i < mPending.size(); ++i) {
+		for (int i = 0; i < mPending.size(); ++i) {
 			long v = mPending.get(i);
 			int reason = (int) (v >>> 32);
 			if (reason >= WORD_NUMBER && reason < WORD_NUMBER_LIMIT
@@ -186,8 +183,8 @@ class WordStream {
 	}
 
 	private static boolean ws(LongArray brk, CharStream stream) {
-		addBrk(brk, WORD_NONE, stream.save());
 		stream.eat();
+		addBrk(brk, WORD_NONE, stream.save());
 		return true;
 	}
 
