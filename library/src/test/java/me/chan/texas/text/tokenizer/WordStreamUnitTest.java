@@ -128,11 +128,10 @@ public class WordStreamUnitTest {
 
 	@Test
 	public void testSave() {
-		String[] array = {"00", " ", "1", " ", "hello-world你好R&B"};
-		List<String> list = new ArrayList<>();
-		Collections.addAll(list, array);
+		String[] array = {"aa", " ", "11", " ", "hello-world你好R&B"};
+		String[] result = {"aa", " ", "11", " ", "hello-world", "你好", "R&B"};
 		StringBuilder stringBuilder = new StringBuilder();
-		for (String s : list) {
+		for (String s : array) {
 			stringBuilder.append(s);
 		}
 		String text = stringBuilder.toString();
@@ -143,6 +142,8 @@ public class WordStreamUnitTest {
 
 		stream.setText(text, 0, text.length());
 
+		List<String> list = new ArrayList<>();
+		Collections.addAll(list, result);
 		int save = stream.save();
 		Iterator<String> iterator = list.iterator();
 		Token token = null;
