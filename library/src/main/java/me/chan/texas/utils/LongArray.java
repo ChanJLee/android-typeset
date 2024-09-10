@@ -170,4 +170,8 @@ public class LongArray {
 		sb.append(']');
 		return sb.toString();
 	}
+
+	public long back() {
+		return mContainer[mIndex - 1];
+	}
 }

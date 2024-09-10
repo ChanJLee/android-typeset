@@ -149,7 +149,8 @@ class WordStream {
 		return true;
 	}
 
-	private final IntArray mPending = new IntArray(32);
+	private final LongArray mPending = new LongArray(32);
+
 	private void word0(LongArray brk, CharSequence text, int start, int end, boolean simple) {
 		if (simple) {
 			addBrk(brk, BreakIterator.WORD_LETTER, end);
@@ -163,16 +164,25 @@ class WordStream {
 		mIndex = 0;
 
 		mPending.clear();
-		start = boundary.first();
-		mPending.add(start);
+		addBrk(mPending, WORD_NONE, start);
 		boundary.getRuleStatus();
 		for (end = boundary.next();
-			 end != BreakIterator.DONE;
-			 start = end, end = boundary.next()) {
-			mPending.add(end);
+			 end != BreakIterator.DONE; end = boundary.next()) {
+			addBrk(mPending, boundary.getRuleStatus(), start + end);
 		}
 
-
+		mBrk.add(mPending.get(0));
+		for (int i = 1; i < mPending.size(); ++i) {
+			long v = mPending.get(i);
+			int reason = (int) (v >>> 32);
+			if (reason >= WORD_NUMBER && reason < WORD_NUMBER_LIMIT
+					|| reason >= WORD_KANA && reason < WORD_KANA_LIMIT
+					|| reason >= WORD_IDEO && reason < WORD_IDEO_LIMIT) {
+				int prev = (int) mBrk.back();
+				nlp(mBrk, text, prev, (int) v);
+				mBrk.add(v);
+			}
+		}
 	}
 
 	private static boolean ws(LongArray brk, CharStream stream) {
@@ -252,60 +262,21 @@ class WordStream {
 		restore(0);
 	}
 
-//	private boolean nlp(Tokenizer tokenizer, CharSequence text, int start, int end) {
-//		SpanStream stream = tokenizer.tokenize(text, start, end);
-//		Token last = null;
-//
-//		while (stream.hasNext()) {
-//			SpanStream.Span span = stream.next();
-//
-//			Token token = Token.obtain();
-//			token.mCharSequence = stream.getText();
-//			token.mStart = start;
-//			token.mEnd = span.getEnd();
-//
-//			// 看下首字母
-//			int codePoint = text.charAt(span.getStart());
-//			boolean isSymbolsAndPunctuation = UnicodeUtils.isSymbolsAndPunctuation(codePoint);
-//			// 修正下
-//			if (isSymbolsAndPunctuation && token.mEnd - token.mStart > 1) {
-//				isSymbolsAndPunctuation = token.mEnd - token.mStart == 3 && codePoint == '.' &&
-//						stream.peek(start + 1) == '.' && stream.peek(start + 2) == '.';
-//			}
-//
-//			token.mType = isSymbolsAndPunctuation ? Token.TYPE_SYMBOL : Token.TYPE_WORD;
-//
-//			if (isSymbolsAndPunctuation) {
-//				if (token.mEnd - token.mStart == 3 && codePoint == '.' &&
-//						stream.peek(start + 1) == '.' && stream.peek(start + 2) == '.') {
-//					token.mAttributes = Token.SYMBOL_KINSOKU_AVOID_HEADER;
-//				} else {
-//					token.mAttributes =
-//							getStretchAdvise(codePoint) |
-//									getSquishAdvise(codePoint) |
-//									getKinsokuAdvise(codePoint);
-//				}
-//			} else {
-//				token.mAttributes = Token.WORD_TYPE_LATIN;
-//			}
-//
-//			start = token.mEnd;
-//
-//			// 看看能不能把文字合并
-//			if (!isSymbolsAndPunctuation && last != null && last.mType == Token.TYPE_WORD) {
-//				last.mEnd = token.mEnd;
-//				token.recycle();
-//				continue;
-//			}
-//
-//			last = token;
-//			if (!mBuffer.add(token)) {
-//				return false;
-//			}
-//		}
-//
-//		return true;
-//	}
+	private void nlp(LongArray brk, CharSequence text, int start, int end) {
+		Tokenizer tokenizer = getTokenizer();
+		if (tokenizer == null) {
+			return;
+		}
+
+		SpanStream stream = tokenizer.tokenize(text, start, end);
+		while (stream.hasNext()) {
+			SpanStream.Span span = stream.next();
+			// 看下首字母
+			int codePoint = text.charAt(span.getStart());
+			boolean isSymbolsAndPunctuation = UnicodeUtils.isSymbolsAndPunctuation(codePoint);
+			addBrk(brk, isSymbolsAndPunctuation ? WORD_NONE : WORD_LETTER, span.getEnd());
+		}
+	}
 
 	private static class CharacterSequenceIterator implements CharacterIterator {
 		private int index;
