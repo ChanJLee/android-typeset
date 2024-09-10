@@ -277,7 +277,7 @@ class WordStream {
 		restore(0);
 	}
 
-	private void nlp(LongArray brk, CharSequence text, int start, int end) {
+	private void nlp(BrkArray brk, CharSequence text, int start, int end) {
 		Tokenizer tokenizer = getTokenizer();
 		if (tokenizer == null) {
 			return;
