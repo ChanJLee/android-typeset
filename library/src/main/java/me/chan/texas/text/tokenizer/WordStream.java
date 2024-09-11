@@ -452,7 +452,8 @@ class WordStream {
 			".;\n";
 	private static BreakIterator sWordBreakIterator;
 
-	private static BreakIterator getWordBreakIterator() {
+	@VisibleForTesting
+	static BreakIterator getWordBreakIterator() {
 		if (sWordBreakIterator == null) {
 			sWordBreakIterator = new RuleBasedBreakIterator(WORD_BREAKER_US_RULE);
 		}
