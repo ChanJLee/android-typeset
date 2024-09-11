@@ -15,11 +15,7 @@ public class UnicodeUtils {
 		return Character.isIdeographic(codePoint);
 	}
 
-	/**
-	 * @param codePoint unicode
-	 * @return 是否是中文字符
-	 */
-	public static boolean isCJK(int codePoint) {
+	public static boolean isCJKExtends(int codePoint) {
 		//CJK Unified Ideographs: U+4E00 - U+9FFF
 		//CJK Unified Ideographs Extension A: U+3400 - U+4DBF
 		//CJK Unified Ideographs Extension B: U+20000 - U+2A6DF
@@ -27,10 +23,16 @@ public class UnicodeUtils {
 		//CJK Unified Ideographs Extension D: U+2B740 - U+2B81F
 		//CJK Unified Ideographs Extension E: U+2B820 - U+2CEAF
 		//CJK Unified Ideographs Extension F: U+2CEB0 - U+2EBEF
-		//CJK Compatibility Ideographs: U+F900 - U+FAFF
+		//CJK Compatibility Ideographs: U+F900 - U+FAFF, U+FF00 – U+FFEF
 		//CJK Radicals Supplement: U+2E80 - U+2EFF
 		//Kangxi Radicals: U+2F00 - U+2FDF
 		//Ideographic Description Characters: U+2FF0 - U+2FFF
+		// 平假名（Hiragana）：U+3040 – U+309F
+		// 片假名（Katakana）：U+30A0 – U+30FF
+		// 半角片假名（Halfwidth Katakana）：U+FF60 – U+FF9F
+		// 扩展片假名：U+31F0 – U+31FF
+		// 韩文字母 (Hangul)：U+AC00 – U+D7AF：Hangul 音节
+		// Hangul 字母: U+1100 – U+11FF
 		return (codePoint >= 0x4e00 && codePoint <= 0x9fff) ||
 				(codePoint >= 0x3400 && codePoint <= 0x4dbf) ||
 				(codePoint >= 0x20000 && codePoint <= 0x2a6df) ||
@@ -41,8 +43,15 @@ public class UnicodeUtils {
 				(codePoint >= 0xf900 && codePoint <= 0xfaff) ||
 				(codePoint >= 0x2e80 && codePoint <= 0x2eff) ||
 				(codePoint >= 0x2f00 && codePoint <= 0x2fdf) ||
-				(codePoint >= 0x2ff0 && codePoint <= 0x2fff);
+				(codePoint >= 0x2ff0 && codePoint <= 0x2fff) ||
+				(codePoint >= 0x3040 && codePoint <= 0x309f) ||
+				(codePoint >= 0x30a0 && codePoint <= 0x30ff) ||
+				(codePoint >= 0xff60 && codePoint <= 0xff9f) ||
+				(codePoint >= 0x31f0 && codePoint <= 0x31ff) ||
+				(codePoint >= 0xac00 && codePoint <= 0xd7af) ||
+				(codePoint >= 0x1100 && codePoint <= 0x11ff);
 	}
+
 
 	/**
 	 * use {@link #isLatinLetter(int)} instead

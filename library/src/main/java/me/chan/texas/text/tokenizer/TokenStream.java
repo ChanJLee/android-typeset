@@ -113,7 +113,7 @@ public class TokenStream extends DefaultRecyclable {
 			token.mCategory = Token.WORD_CATEGORY_ASCII;
 			return token;
 		}
-		token.mCategory = UnicodeUtils.isCJK(codePoint) ? Token.WORD_CATEGORY_CJK : Token.WORD_CATEGORY_OTHER;
+		token.mCategory = UnicodeUtils.isCJKExtends(codePoint) ? Token.WORD_CATEGORY_CJK : Token.WORD_CATEGORY_OTHER;
 		return token;
 	}
 
