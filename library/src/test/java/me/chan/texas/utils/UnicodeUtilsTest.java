@@ -30,29 +30,29 @@ public class UnicodeUtilsTest {
 	@Test
 	public void test() {
 		// EN
-		Assert.assertFalse(UnicodeUtils.isCJK('a'));
-		Assert.assertFalse(UnicodeUtils.isCJK('z'));
-		Assert.assertFalse(UnicodeUtils.isCJK('A'));
-		Assert.assertFalse(UnicodeUtils.isCJK('Z'));
-		Assert.assertFalse(UnicodeUtils.isCJK('0'));
-		Assert.assertFalse(UnicodeUtils.isCJK('9'));
-		Assert.assertFalse(UnicodeUtils.isCJK('-'));
-		Assert.assertFalse(UnicodeUtils.isCJK(','));
+		Assert.assertFalse(UnicodeUtils.isCJKExtends('a'));
+		Assert.assertFalse(UnicodeUtils.isCJKExtends('z'));
+		Assert.assertFalse(UnicodeUtils.isCJKExtends('A'));
+		Assert.assertFalse(UnicodeUtils.isCJKExtends('Z'));
+		Assert.assertFalse(UnicodeUtils.isCJKExtends('0'));
+		Assert.assertFalse(UnicodeUtils.isCJKExtends('9'));
+		Assert.assertFalse(UnicodeUtils.isCJKExtends('-'));
+		Assert.assertFalse(UnicodeUtils.isCJKExtends(','));
 
-		Assert.assertTrue(UnicodeUtils.isCJK('一'));
-
-		Assert.assertTrue(UnicodeUtils.isSpace('　'));
-		Assert.assertFalse(UnicodeUtils.isCJK(','));
+		Assert.assertTrue(UnicodeUtils.isCJKExtends('一'));
 
 		Assert.assertTrue(UnicodeUtils.isSpace('　'));
-		Assert.assertFalse(UnicodeUtils.isCJK('　'));
+		Assert.assertFalse(UnicodeUtils.isCJKExtends(','));
+
+		Assert.assertTrue(UnicodeUtils.isSpace('　'));
+		Assert.assertFalse(UnicodeUtils.isCJKExtends('　'));
 		Assert.assertTrue(UnicodeUtils.isSpace('　'));
 		Assert.assertTrue(UnicodeUtils.isSpace('　'));
 		Assert.assertTrue(UnicodeUtils.isSpace('　'));
 		Assert.assertTrue(UnicodeUtils.isSpace('　'));
 
 		Assert.assertTrue(UnicodeUtils.isSpace(' '));
-		Assert.assertFalse(UnicodeUtils.isCJK(' '));
+		Assert.assertFalse(UnicodeUtils.isCJKExtends(' '));
 		Assert.assertTrue(UnicodeUtils.isSpace(' '));
 		Assert.assertTrue(UnicodeUtils.isSpace(' '));
 		Assert.assertTrue(UnicodeUtils.isSpace(' '));
@@ -125,50 +125,50 @@ public class UnicodeUtilsTest {
 	@Test
 	public void testCn() {
 		for (int i = 'a'; i < 'z'; i++) {
-			Assert.assertFalse(UnicodeUtils.isCJK(i));
+			Assert.assertFalse(UnicodeUtils.isCJKExtends(i));
 		}
 		for (int i = 'A'; i < 'Z'; i++) {
-			Assert.assertFalse(UnicodeUtils.isCJK(i));
+			Assert.assertFalse(UnicodeUtils.isCJKExtends(i));
 		}
 		for (int space : SPACES) {
-			Assert.assertFalse(UnicodeUtils.isCJK(space));
+			Assert.assertFalse(UnicodeUtils.isCJKExtends(space));
 		}
 		String emoji = "😀";
 		Assert.assertTrue(Character.isHighSurrogate(emoji.charAt(0)));
-		Assert.assertFalse(UnicodeUtils.isCJK(emoji.charAt(0)));
+		Assert.assertFalse(UnicodeUtils.isCJKExtends(emoji.charAt(0)));
 
 		for (int cp : TokenStream.KINSOKU_AVOID_HEADER_MAP) {
-			Assert.assertFalse(UnicodeUtils.isCJK(cp));
+			Assert.assertFalse(UnicodeUtils.isCJKExtends(cp));
 		}
 		for (int cp : TokenStream.KINSOKU_AVOID_TAIL_MAP) {
-			Assert.assertFalse(UnicodeUtils.isCJK(cp));
+			Assert.assertFalse(UnicodeUtils.isCJKExtends(cp));
 		}
 		for (int cp : TokenStream.SQUISH_LEFT_MAP) {
-			Assert.assertFalse(UnicodeUtils.isCJK(cp));
+			Assert.assertFalse(UnicodeUtils.isCJKExtends(cp));
 		}
 		for (int cp : TokenStream.SQUISH_RIGHT_MAP) {
-			Assert.assertFalse(UnicodeUtils.isCJK(cp));
+			Assert.assertFalse(UnicodeUtils.isCJKExtends(cp));
 		}
 		for (int cp : TokenStream.STRETCH_LEFT_MAP) {
-			Assert.assertFalse(UnicodeUtils.isCJK(cp));
+			Assert.assertFalse(UnicodeUtils.isCJKExtends(cp));
 		}
 		for (int cp : TokenStream.STRETCH_RIGHT_MAP) {
-			Assert.assertFalse(UnicodeUtils.isCJK(cp));
+			Assert.assertFalse(UnicodeUtils.isCJKExtends(cp));
 		}
 
-		Assert.assertFalse(UnicodeUtils.isCJK('\t'));
+		Assert.assertFalse(UnicodeUtils.isCJKExtends('\t'));
 
-		Assert.assertFalse(UnicodeUtils.isCJK(0xc0));
-		Assert.assertFalse(UnicodeUtils.isCJK(0xff));
-		Assert.assertFalse(UnicodeUtils.isCJK(0x100));
-		Assert.assertFalse(UnicodeUtils.isCJK(0x17f));
-		Assert.assertFalse(UnicodeUtils.isCJK(0x180));
-		Assert.assertFalse(UnicodeUtils.isCJK(0x24f));
+		Assert.assertFalse(UnicodeUtils.isCJKExtends(0xc0));
+		Assert.assertFalse(UnicodeUtils.isCJKExtends(0xff));
+		Assert.assertFalse(UnicodeUtils.isCJKExtends(0x100));
+		Assert.assertFalse(UnicodeUtils.isCJKExtends(0x17f));
+		Assert.assertFalse(UnicodeUtils.isCJKExtends(0x180));
+		Assert.assertFalse(UnicodeUtils.isCJKExtends(0x24f));
 
-		Assert.assertFalse(UnicodeUtils.isCJK('-'));
-		Assert.assertFalse(UnicodeUtils.isCJK('0'));
-		Assert.assertFalse(UnicodeUtils.isCJK('9'));
-		Assert.assertTrue(UnicodeUtils.isCJK('你'));
+		Assert.assertFalse(UnicodeUtils.isCJKExtends('-'));
+		Assert.assertFalse(UnicodeUtils.isCJKExtends('0'));
+		Assert.assertFalse(UnicodeUtils.isCJKExtends('9'));
+		Assert.assertTrue(UnicodeUtils.isCJKExtends('你'));
 	}
 
 	@Test
@@ -223,5 +223,10 @@ public class UnicodeUtilsTest {
 	@Test
 	public void testIdeographic() {
 		Assert.assertTrue(UnicodeUtils.isIdeographic('你'));
+		Assert.assertTrue(UnicodeUtils.isCJKExtends('你'));
+		Assert.assertTrue(UnicodeUtils.isCJKExtends('\u3040'));
+		Assert.assertTrue(UnicodeUtils.isCJKExtends('\u30A0'));
+		Assert.assertTrue(UnicodeUtils.isCJKExtends('\uFF60'));
+		Assert.assertTrue(UnicodeUtils.isCJKExtends('\u31F0'));
 	}
 }
