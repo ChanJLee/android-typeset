@@ -138,7 +138,7 @@ public class UnicodeUtils {
 	 * @return 是否是内部分割符
 	 */
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
-	public static boolean isBreakTokenSymbol(int codePoint) {
+	public static boolean isControlCharacter(int codePoint) {
 		// white 和 space 是有交叉的 0x20 就是
 		/* 优先自主判断 */
 		return codePoint == ' ' ||

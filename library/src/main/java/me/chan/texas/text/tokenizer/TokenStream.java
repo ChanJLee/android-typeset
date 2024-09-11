@@ -148,7 +148,7 @@ public class TokenStream extends DefaultRecyclable {
 		}
 
 		// 空白？
-		if (UnicodeUtils.isBreakTokenSymbol(codePoint)) {
+		if (UnicodeUtils.isControlCharacter(codePoint)) {
 			token.mType = Token.TYPE_BLANK;
 			return token;
 		}

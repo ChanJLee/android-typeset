@@ -1,95 +1,24 @@
 package me.chan.texas.text.tokenizer;
 
-import android.content.Context;
-import android.util.Log;
-
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 
 import com.ibm.icu.text.BreakIterator;
-import com.ibm.icu.text.RuleBasedBreakIterator;
 
-import java.io.IOException;
-import java.text.CharacterIterator;
-
-import me.chan.texas.Texas;
 import me.chan.texas.text.icu.UnicodeUtils;
 import me.chan.texas.utils.CharStream;
 import me.chan.texas.utils.LongArray;
 
 class WordStream {
-	/**
-	 * Tag value for "words" that do not fit into any of other categories.
-	 * Includes spaces and most punctuation.
-	 *
-	 * @stable ICU 53
-	 */
-	public static final int WORD_NONE = BreakIterator.WORD_NONE;
-
-	/**
-	 * Upper bound for tags for uncategorized words.
-	 *
-	 * @stable ICU 53
-	 */
-	public static final int WORD_NONE_LIMIT = BreakIterator.WORD_NONE_LIMIT;
-
-	/**
-	 * Tag value for words that appear to be numbers, lower limit.
-	 *
-	 * @stable ICU 53
-	 */
-	public static final int WORD_NUMBER = BreakIterator.WORD_NUMBER;
-
-	/**
-	 * Tag value for words that appear to be numbers, upper limit.
-	 *
-	 * @stable ICU 53
-	 */
-	public static final int WORD_NUMBER_LIMIT = BreakIterator.WORD_NUMBER_LIMIT;
-
-	/**
-	 * Tag value for words that contain letters, excluding
-	 * hiragana, katakana or ideographic characters, lower limit.
-	 *
-	 * @stable ICU 53
-	 */
-	public static final int WORD_LETTER = BreakIterator.WORD_LETTER;
-
-	/**
-	 * Tag value for words containing letters, upper limit
-	 *
-	 * @stable ICU 53
-	 */
-	public static final int WORD_LETTER_LIMIT = BreakIterator.WORD_LETTER_LIMIT;
-
-	/**
-	 * Tag value for words containing kana characters, lower limit
-	 *
-	 * @stable ICU 53
-	 */
-	public static final int WORD_KANA = BreakIterator.WORD_KANA;
-
-	/**
-	 * Tag value for words containing kana characters, upper limit
-	 *
-	 * @stable ICU 53
-	 */
-	public static final int WORD_KANA_LIMIT = BreakIterator.WORD_KANA_LIMIT;
-
-	/**
-	 * Tag value for words containing ideographic characters, lower limit
-	 *
-	 * @stable ICU 53
-	 */
-	public static final int WORD_IDEO = BreakIterator.WORD_IDEO;
-
-	/**
-	 * Tag value for words containing ideographic characters, upper limit
-	 *
-	 * @stable ICU 53
-	 */
-	public static final int WORD_IDEO_LIMIT = BreakIterator.WORD_IDEO_LIMIT;
-
+	public static final byte CATEGORY_NONE = -1;
+	public static final byte CATEGORY_UNKNOWN_LETTER = 0; /* 未知字符 */
+	public static final byte CATEGORY_NORMAL = 1; /* 正常的单词 [a-z]... */
+	public static final byte CATEGORY_NUMBER = 2; /* 数字 */
+	public static final byte CATEGORY_SYMBOL = 3; /* 符号 */
+	public static final byte CATEGORY_PUNCTUATION = 4; /* 标点符号 */
+	public static final byte CATEGORY_CONTROL = 5; /* 控制类字符，空格，space。。。 */
+	public static final byte CATEGORY_CJK = 6; /* CJK */
+	public static final byte CATEGORY_RTL = 8; /* 从右到左的字符 TODO 保留字段 */
 
 	private final CharacterSequenceIterator mIterator = new CharacterSequenceIterator();
 	private final CharStream mStream = new CharStream();
@@ -108,86 +37,101 @@ class WordStream {
 		mIndex = 0;
 		mStream.reset(text, start, end);
 
-		mBrk.add(WORD_NONE);
-		sent(mBrk, mStream);
-	}
+		BreakIterator boundary = WordBreaker.getWordBreakIterator();
+		boundary.setText(mIterator.reset(text, start, end));
 
-	private void sent(BrkArray brk, CharStream stream) {
-		while (!stream.eof()) {
-			if (!unit(brk, stream)) {
-				throw new IllegalStateException("parse state error");
+		addBrk(mBrk, CATEGORY_NONE, boundary.first() + start);
+		for (int brk = boundary.next();
+			 brk != BreakIterator.DONE; brk = boundary.next()) {
+			int reason = boundary.getRuleStatus();
+			if (reason >= BreakIterator.WORD_LETTER && reason < BreakIterator.WORD_LETTER_LIMIT
+					|| reason >= BreakIterator.WORD_NONE && reason < BreakIterator.WORD_NONE_LIMIT) {
+				append(mBrk, text, brk + start);
+				continue;
 			}
+
+			if (reason >= BreakIterator.WORD_NUMBER && reason < BreakIterator.WORD_NUMBER_LIMIT) {
+				addBrk(mBrk, CATEGORY_NUMBER, brk + start);
+				continue;
+			}
+
+			if (reason >= BreakIterator.WORD_KANA && reason < BreakIterator.WORD_KANA_LIMIT ||
+					reason >= BreakIterator.WORD_IDEO && reason < BreakIterator.WORD_IDEO_LIMIT) {
+				appendCJK(mBrk, brk + start);
+				continue;
+			}
+
+			throw new IllegalStateException("unknown token type");
 		}
 	}
 
-	private boolean unit(BrkArray brk, CharStream stream) {
-		return word(brk, stream) || ws(brk, stream);
-	}
-
-	private boolean word(BrkArray brk, CharStream stream) {
-		int save = stream.save();
-		int codePoint = stream.eat();
-		if (UnicodeUtils.isBreakTokenSymbol(codePoint)) {
-			stream.restore(save);
-			return false;
-		}
-
-		boolean simple = isSimpleWord(codePoint);
-		while (!stream.eof()) {
-			codePoint = stream.eat();
-			if (UnicodeUtils.isBreakTokenSymbol(codePoint)) {
-				stream.back();
-				word0(brk, stream.getText(), save, stream.save(), simple);
+	private void append(BrkArray brk, CharSequence text, int end) {
+		final int start = (int) brk.last();
+		boolean simpleWord = true;
+		for (int i = start; i < end; ++i) {
+			int codePoint = text.charAt(i);
+			if (!isSimpleWord(codePoint)) {
+				simpleWord = false;
 				break;
 			}
-
-			simple = simple && isSimpleWord(codePoint);
 		}
-		return true;
+
+		if (simpleWord) {
+			addBrk(brk, CATEGORY_NORMAL, end);
+			return;
+		}
+
+		// todo test 多个空格
+		int codePoint = text.charAt(start);
+		if (UnicodeUtils.isControlCharacter(codePoint)) {
+			addBrk(brk, CATEGORY_CONTROL, end);
+			return;
+		}
+
+		int type = Character.getType(codePoint);
+		if (type == Character.MATH_SYMBOL
+				/* https://www.compart.com/en/unicode/category/Sc */
+				|| type == Character.CURRENCY_SYMBOL
+				/* https://www.compart.com/en/unicode/category/Sk */
+				|| type == Character.MODIFIER_SYMBOL
+				/* https://www.compart.com/en/unicode/category/So */
+				|| type == Character.OTHER_SYMBOL) {
+			addBrk(brk, CATEGORY_SYMBOL, end);
+			return;
+		}
+
+		if (type == Character.DASH_PUNCTUATION
+				|| type == Character.END_PUNCTUATION
+				|| type == Character.FINAL_QUOTE_PUNCTUATION
+				|| type == Character.INITIAL_QUOTE_PUNCTUATION
+				|| type == Character.OTHER_PUNCTUATION
+				|| type == Character.START_PUNCTUATION) {
+			addBrk(brk, CATEGORY_PUNCTUATION, end);
+			return;
+		}
+
+		if (UnicodeUtils.isCJKExtends(codePoint)) {
+			appendCJK(brk, end);
+			return;
+		}
+
+		addBrk(brk, CATEGORY_UNKNOWN_LETTER, end);
+	}
+
+	private static void appendCJK(BrkArray brk, int index) {
+		int lastCategory = (int) brk.last() >>> 32;
+		if (lastCategory == CATEGORY_CJK) {
+			brk.removeLast();
+		}
+		addBrk(brk, CATEGORY_CJK, index);
 	}
 
 	private static boolean isSimpleWord(int codePoint) {
 		return (codePoint >= 'a' && codePoint <= 'z') || (codePoint >= 'A' && codePoint <= 'Z');
 	}
 
-	private final BrkArray mPending = new BrkArray(32);
-
-	private void word0(BrkArray brk, CharSequence text, int start, int end, boolean simple) {
-		if (simple) {
-			addBrk(brk, BreakIterator.WORD_LETTER, end);
-			return;
-		}
-
-		BreakIterator boundary = BreakIterator.getWordInstance();
-		boundary.setText(mIterator.reset(text, start, end));
-
-		mPending.clear();
-		for (end = boundary.next();
-			 end != BreakIterator.DONE; end = boundary.next()) {
-			addBrk(mPending, boundary.getRuleStatus(), start + end);
-		}
-
-		for (int i = 0; i < mPending.size(); ++i) {
-			long v = mPending.get(i);
-			int reason = (int) (v >>> 32);
-			if (reason >= WORD_NUMBER && reason < WORD_NUMBER_LIMIT
-					|| reason >= WORD_KANA && reason < WORD_KANA_LIMIT
-					|| reason >= WORD_IDEO && reason < WORD_IDEO_LIMIT) {
-				int prev = (int) mBrk.back();
-				nlp(mBrk, text, prev, (int) v);
-				mBrk.add(v);
-			}
-		}
-	}
-
-	private static boolean ws(BrkArray brk, CharStream stream) {
-		stream.eat();
-		addBrk(brk, WORD_NONE, stream.save());
-		return true;
-	}
-
-	private static void addBrk(BrkArray buffer, int reason, int index) {
-		long v = reason;
+	private static void addBrk(BrkArray buffer, int category, int index) {
+		long v = category;
 		v <<= 32;
 		v += index;
 		buffer.add(v);
@@ -238,7 +182,7 @@ class WordStream {
 
 	@Nullable
 	private Token get(int index) {
-		return get0(mBrk, mIterator.seq, index);
+		return get0(mBrk, mIterator.getSeq(), index);
 	}
 
 	private static Token get0(LongArray brk, CharSequence text, int index) {
@@ -252,7 +196,7 @@ class WordStream {
 		token.mCharSequence = text;
 		token.mStart = (int) start;
 		token.mEnd = (int) end;
-		token.mReason = (int) (end >>> 32);
+		token.mCategory = (int) (end >>> 32);
 		return token;
 	}
 
@@ -275,198 +219,5 @@ class WordStream {
 
 	public void reset() {
 		restore(0);
-	}
-
-	private void nlp(BrkArray brk, CharSequence text, int start, int end) {
-		Tokenizer tokenizer = getTokenizer();
-		if (tokenizer == null) {
-			return;
-		}
-
-		SpanStream stream = tokenizer.tokenize(text, start, end);
-		while (stream.hasNext()) {
-			SpanStream.Span span = stream.next();
-			// 看下首字母
-			int codePoint = text.charAt(span.getStart());
-			boolean isSymbolsAndPunctuation = UnicodeUtils.isSymbolsAndPunctuation(codePoint);
-			addBrk(brk, isSymbolsAndPunctuation ? WORD_NONE : WORD_LETTER, span.getEnd());
-		}
-	}
-
-	private static class CharacterSequenceIterator implements CharacterIterator {
-		private int index;
-		private CharSequence seq;
-		private int start;
-		private int size;
-
-		public CharacterIterator reset(CharSequence text, int start, int end) {
-			seq = text;
-			this.start = start;
-			size = end - start;
-			index = 0;
-			return this;
-		}
-
-		@Override
-		public char first() {
-			index = 0;
-			return current();
-		}
-
-		@Override
-		public char last() {
-			index = size;
-			return previous();
-		}
-
-		@Override
-		public char current() {
-			if (index == size) {
-				return DONE;
-			}
-			return seq.charAt(index + start);
-		}
-
-		@Override
-		public char next() {
-			if (index < size) {
-				++index;
-			}
-			return current();
-		}
-
-		@Override
-		public char previous() {
-			if (index == 0) {
-				return DONE;
-			}
-			--index;
-			return current();
-		}
-
-		@Override
-		public char setIndex(int position) {
-			if (position < 0 || position > size) {
-				throw new IllegalArgumentException();
-			}
-			index = position;
-			return current();
-		}
-
-		@Override
-		public int getBeginIndex() {
-			return 0;
-		}
-
-		@Override
-		public int getEndIndex() {
-			return size;
-		}
-
-		@Override
-		public int getIndex() {
-			return index;
-		}
-
-		@Override
-		public Object clone() {
-			CharacterSequenceIterator copy = new CharacterSequenceIterator();
-			copy.start = this.start;
-			copy.seq = this.seq;
-			copy.index = this.index;
-			copy.size = this.size;
-			return copy;
-		}
-
-		@Override
-		public String toString() {
-			return seq.subSequence(start, start + size).toString();
-		}
-	}
-
-	private static final String WORD_BREAKER_US_RULE = "!!chain;\n" +
-			"!!quoted_literals_only;\n" +
-			"$Han=[:Han:];\n" +
-			"$CR=[\\p{Word_Break=CR}];\n" +
-			"$LF=[\\p{Word_Break=LF}];\n" +
-			"$Newline=[\\p{Word_Break=Newline}];\n" +
-			"$Extend=[\\p{Word_Break=Extend}-$Han];\n" +
-			"$ZWJ=[\\p{Word_Break=ZWJ}];\n" +
-			"$Regional_Indicator=[\\p{Word_Break=Regional_Indicator}];\n" +
-			"$Format=[\\p{Word_Break=Format}];\n" +
-			"$Katakana=[\\p{Word_Break=Katakana}];\n" +
-			"$Hebrew_Letter=[\\p{Word_Break=Hebrew_Letter}];\n" +
-			"$ALetter=[\\p{Word_Break=ALetter}];\n" +
-			"$Single_Quote=[\\p{Word_Break=Single_Quote}];\n" +
-			"$Double_Quote=[\\p{Word_Break=Double_Quote}];\n" +
-			"$MidNumLet=[\\p{Word_Break=MidNumLet}];\n" +
-			"$MidLetter=[\\p{Word_Break=MidLetter}-[\\:\\uFE55\\uFF1A]\\-\\u2011\\u00AD\\u2013\\u2014];\n" +
-			"$MidNum=[\\p{Word_Break=MidNum}];\n" +
-			"$Numeric=[\\p{Word_Break=Numeric}];\n" +
-			"$ExtendNumLet=[\\p{Word_Break=ExtendNumLet}];\n" +
-			"$WSegSpace=[\\p{Word_Break=WSegSpace}];\n" +
-			"$Extended_Pict=[\\p{Extended_Pictographic}];\n" +
-			"$Hiragana=[:Hiragana:];\n" +
-			"$Ideographic=[\\p{Ideographic}];\n" +
-			"$Control=[\\p{Grapheme_Cluster_Break=Control}];\n" +
-			"$HangulSyllable=[\\uac00-\\ud7a3];\n" +
-			"$ComplexContext=[:LineBreak=Complex_Context:];\n" +
-			"$KanaKanji=[$Han$Hiragana$Katakana];\n" +
-			"$dictionaryCJK=[$KanaKanji$HangulSyllable];\n" +
-			"$dictionary=[$ComplexContext$dictionaryCJK];\n" +
-			"$ALetterPlus=[$ALetter-$dictionaryCJK[$ComplexContext-$Extend-$Control]];\n" +
-			"$CR$LF;\n" +
-			"$ZWJ$Extended_Pict;\n" +
-			"$WSegSpace$WSegSpace;\n" +
-			"$ExFm=[$Extend$Format$ZWJ];\n" +
-			"^$ExFm+;\n" +
-			"[^$CR$LF$Newline$ExFm]$ExFm*;\n" +
-			"$Numeric$ExFm*{100};\n" +
-			"$ALetterPlus$ExFm*{200};\n" +
-			"$HangulSyllable{400};\n" + /* 韩文返回400 */
-			"$Hebrew_Letter$ExFm*{200};\n" +
-			"$Katakana$ExFm*{400};\n" +
-			"$Hiragana$ExFm*{400};\n" +
-			"$Ideographic$ExFm*{400};\n" +
-			"($ALetterPlus|$Hebrew_Letter)$ExFm*($ALetterPlus|$Hebrew_Letter);\n" +
-			"($ALetterPlus|$Hebrew_Letter)$ExFm*($MidLetter|$MidNumLet|$Single_Quote)$ExFm*($ALetterPlus|$Hebrew_Letter){200};\n" +
-			"$Hebrew_Letter$ExFm*$Single_Quote{200};\n" +
-			"$Hebrew_Letter$ExFm*$Double_Quote$ExFm*$Hebrew_Letter;\n" +
-			"$Numeric$ExFm*$Numeric;\n" +
-			"($ALetterPlus|$Hebrew_Letter)$ExFm*$Numeric;\n" +
-			"$Numeric$ExFm*($ALetterPlus|$Hebrew_Letter);\n" +
-			"$Numeric$ExFm*($MidNum|$MidNumLet|$Single_Quote)$ExFm*$Numeric;\n" +
-			"$Katakana$ExFm*$Katakana{400};\n" +
-			"$ALetterPlus$ExFm*$ExtendNumLet{200};\n" +
-			"$Hebrew_Letter$ExFm*$ExtendNumLet{200};\n" +
-			"$Numeric$ExFm*$ExtendNumLet{100};\n" +
-			"$Katakana$ExFm*$ExtendNumLet{400};\n" +
-			"$ExtendNumLet$ExFm*$ExtendNumLet{200};\n" +
-			"$ExtendNumLet$ExFm*$ALetterPlus{200};\n" +
-			"$ExtendNumLet$ExFm*$Hebrew_Letter{200};\n" +
-			"$ExtendNumLet$ExFm*$Numeric{100};\n" +
-			"$ExtendNumLet$ExFm*$Katakana{400};\n" +
-			"^$Regional_Indicator$ExFm*$Regional_Indicator;\n" +
-			"$HangulSyllable$HangulSyllable{400};\n" + /* 韩文返回400 */
-			"$KanaKanji$KanaKanji{400};\n" +
-			".;\n";
-	private static BreakIterator sWordBreakIterator;
-
-	@VisibleForTesting
-	static BreakIterator getWordBreakIterator() {
-		if (sWordBreakIterator == null) {
-			sWordBreakIterator = new RuleBasedBreakIterator(WORD_BREAKER_US_RULE);
-		}
-		return sWordBreakIterator;
-	}
-
-	private static Tokenizer getTokenizer() {
-		Context context = Texas.getAppContext();
-		try {
-			return Tokenizer.getInstance(context);
-		} catch (IOException e) {
-			Log.w("TokenStream", e);
-		}
-		return null;
 	}
 }
