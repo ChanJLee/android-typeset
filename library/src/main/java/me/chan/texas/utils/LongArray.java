@@ -171,7 +171,11 @@ public class LongArray {
 		return sb.toString();
 	}
 
-	public long back() {
+	public long last() {
 		return mContainer[mIndex - 1];
+	}
+
+	public void removeLast() {
+		removeAt(mIndex - 1);
 	}
 }

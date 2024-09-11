@@ -96,7 +96,6 @@ public class Token extends DefaultRecyclable {
 	CharSequence mCharSequence;
 	int mStart;
 	int mEnd;
-	int mReason;
 	int mAttributes = 0;
 	int mCategory;
 

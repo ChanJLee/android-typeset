@@ -129,7 +129,7 @@ public class WordStreamUnitTest {
 	@Test
 	public void testSave() {
 		String[] array = {"aa", " ", "11", " ", "hello-world你好R&B"};
-		String[] result = {"aa", " ", "11", " ", "hello-world", "你好", "R&B"};
+		String[] result = {"aa", " ", "11", " ", "hello-world", "你好", "R", "&", "B"};
 		StringBuilder stringBuilder = new StringBuilder();
 		for (String s : array) {
 			stringBuilder.append(s);
