@@ -3,6 +3,8 @@ package me.chan.texas.text.tokenizer;
 import androidx.annotation.IntDef;
 import androidx.annotation.RestrictTo;
 
+import java.util.Objects;
+
 import me.chan.texas.misc.DefaultRecyclable;
 import me.chan.texas.misc.ObjectPool;
 
@@ -65,14 +67,15 @@ public class Token extends DefaultRecyclable {
 	public static final int TYPE_WORD = 3; /* 单词 */
 
 	public static final byte CATEGORY_NONE = 0;
-	public static final byte CATEGORY_UNKNOWN_LETTER = 1; /* 未知字符 */
-	public static final byte CATEGORY_NORMAL = 2; /* 正常的单词 [a-z]... */
-	public static final byte CATEGORY_NUMBER = 3; /* 数字 */
-	public static final byte CATEGORY_SYMBOL = 4; /* 符号 */
-	public static final byte CATEGORY_PUNCTUATION = 5; /* 标点符号 */
-	public static final byte CATEGORY_CONTROL = 6; /* 控制类字符，空格，space。。。TODO 需要扩展 */
-	public static final byte CATEGORY_CJK = 7; /* CJK */
-	public static final byte CATEGORY_RTL = 8; /* 从右到左的字符 TODO 保留字段 */
+	public static final byte CATEGORY_SYMBOL = 1; /* 符号 */
+	public static final byte CATEGORY_PUNCTUATION = 2; /* 标点符号 */
+	public static final byte CATEGORY_CONTROL = 3; /* 控制类字符，空格，space。。。TODO 需要扩展 */
+	static final byte CATEGORY_WORD_LIMITED = 10;
+	public static final byte CATEGORY_UNKNOWN_LETTER = CATEGORY_WORD_LIMITED; /* 未知字符 */
+	public static final byte CATEGORY_NORMAL = 11; /* 正常的单词 [a-z]... */
+	public static final byte CATEGORY_NUMBER = 12; /* 数字 */
+	public static final byte CATEGORY_CJK = 13; /* CJK */
+	public static final byte CATEGORY_RTL = 14; /* 从右到左的字符 TODO 保留字段 */
 
 	@IntDef({TYPE_NONE,
 			TYPE_SYMBOL,
@@ -227,6 +230,40 @@ public class Token extends DefaultRecyclable {
 		}
 
 		return String.format("%s <%s>", getSemantics(), mCharSequence.subSequence(mStart, mEnd));
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+
+		Token token = (Token) o;
+		if (!(mType == token.mType && mMask == token.mMask)) {
+			return false;
+		}
+
+		if (mCharSequence != null && token.mCharSequence != null) {
+			if ((mEnd - mStart) != (token.mEnd - token.mStart)) {
+				return false;
+			}
+
+			for (int i = 0; i < mCharSequence.length(); ++i) {
+				if (mCharSequence.charAt(mStart + i) != token.mCharSequence.charAt(token.mStart + i)) {
+					return false;
+				}
+			}
+		}
+		return true;
+	}
+
+	@Override
+	public int hashCode() {
+		int result = mType;
+		result = 31 * result + Objects.hashCode(mCharSequence);
+		result = 31 * result + mStart;
+		result = 31 * result + mEnd;
+		result = 31 * result + mMask;
+		return result;
 	}
 
 	public static Token obtain() {

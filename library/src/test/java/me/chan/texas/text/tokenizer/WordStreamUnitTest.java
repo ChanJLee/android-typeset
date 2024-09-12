@@ -133,7 +133,6 @@ public class WordStreamUnitTest {
 	@Test
 	public void testSave() {
 		String[] array = {"aa", " ", "11", " ", "hello-world你好R&B"};
-		String[] result = {"aa", " ", "11", " ", "hello-world", "你好", "R", "&", "B"};
 		StringBuilder stringBuilder = new StringBuilder();
 		for (String s : array) {
 			stringBuilder.append(s);
@@ -146,24 +145,111 @@ public class WordStreamUnitTest {
 
 		stream.setText(text, 0, text.length());
 
-		List<String> list = new ArrayList<>();
-		Collections.addAll(list, result);
+		List<Token> list = new ArrayList<>();
+		{
+			Token token = Token.obtain();
+			token.mCharSequence = "aa";
+			token.mStart = 0;
+			token.mEnd = 2;
+			token.mMask = Token.CATEGORY_NORMAL;
+			token.mType = Token.TYPE_WORD;
+			list.add(token);
+		}
+
+		{
+			Token token = Token.obtain();
+			token.mCharSequence = " ";
+			token.mStart = 0;
+			token.mEnd = 1;
+			token.mMask = Token.CATEGORY_CONTROL;
+			token.mType = Token.TYPE_CONTROL;
+			list.add(token);
+		}
+
+		{
+			Token token = Token.obtain();
+			token.mCharSequence = "11";
+			token.mStart = 0;
+			token.mEnd = 2;
+			token.mMask = Token.CATEGORY_NUMBER;
+			token.mType = Token.TYPE_WORD;
+			list.add(token);
+		}
+
+		{
+			Token token = Token.obtain();
+			token.mCharSequence = " ";
+			token.mStart = 0;
+			token.mEnd = 1;
+			token.mMask = Token.CATEGORY_CONTROL;
+			token.mType = Token.TYPE_CONTROL;
+			list.add(token);
+		}
+
+		{
+			Token token = Token.obtain();
+			token.mCharSequence = "hello-world";
+			token.mStart = 0;
+			token.mEnd = 11;
+			token.mMask = Token.CATEGORY_NORMAL;
+			token.mType = Token.TYPE_WORD;
+			list.add(token);
+		}
+
+		{
+			Token token = Token.obtain();
+			token.mCharSequence = "你好";
+			token.mStart = 0;
+			token.mEnd = 2;
+			token.mMask = Token.CATEGORY_CJK;
+			token.mType = Token.TYPE_WORD;
+			list.add(token);
+		}
+
+		{
+			Token token = Token.obtain();
+			token.mCharSequence = "R";
+			token.mStart = 0;
+			token.mEnd = 1;
+			token.mMask = Token.CATEGORY_NORMAL;
+			token.mType = Token.TYPE_WORD;
+			list.add(token);
+		}
+
+		{
+			Token token = Token.obtain();
+			token.mCharSequence = "&";
+			token.mStart = 0;
+			token.mEnd = 1;
+			token.mMask = Token.CATEGORY_PUNCTUATION | (Character.getType('&') << 8);
+			token.mType = Token.TYPE_SYMBOL;
+			list.add(token);
+		}
+
+		{
+			Token token = Token.obtain();
+			token.mCharSequence = "B";
+			token.mStart = 0;
+			token.mEnd = 1;
+			token.mMask = Token.CATEGORY_NORMAL;
+			token.mType = Token.TYPE_WORD;
+			list.add(token);
+		}
+
 		int save = stream.save();
-		Iterator<String> iterator = list.iterator();
+		Iterator<Token> iterator = list.iterator();
 		Token token = null;
 		while ((token = stream.next()) != null) {
-			String except = iterator.next();
-			String actual = token.getCharSequence().subSequence(token.getStart(), token.getEnd()).toString();
-			Assert.assertEquals(except, actual);
+			Token except = iterator.next();
+			Assert.assertEquals(except, token);
 		}
 		Assert.assertEquals(stream.save(), list.size());
 
 		stream.restore(save);
 		iterator = list.iterator();
 		while ((token = stream.next()) != null) {
-			String except = iterator.next();
-			String actual = token.getCharSequence().subSequence(token.getStart(), token.getEnd()).toString();
-			Assert.assertEquals(except, actual);
+			Token except = iterator.next();
+			Assert.assertEquals(except, token);
 		}
 		Assert.assertEquals(stream.save(), list.size());
 	}

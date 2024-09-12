@@ -122,12 +122,16 @@ public class TokenStream extends DefaultRecyclable {
 	}
 
 	private static void appendSymbolOrPunctuation(BrkArray brk, byte category, int type, int codePoint, int index) {
+		addBrk0(brk, category, getMask(codePoint, type), index);
+	}
+
+	@VisibleForTesting
+	static int getMask(int codePoint, int type) {
 		int mask = getSquishAdvise(codePoint);
 		if (mask == 0) {
 			mask = getStretchAdvise(codePoint);
 		}
-
-		addBrk0(brk, category, mask | getKinsokuAdvise(codePoint, type), index);
+		return mask | getKinsokuAdvise(codePoint, type);
 	}
 
 	private static void appendCJK(BrkArray brk, int index) {
@@ -213,6 +217,21 @@ public class TokenStream extends DefaultRecyclable {
 		token.mStart = (int) start;
 		token.mEnd = (int) end;
 		token.mMask = (int) (end >>> 32);
+
+		int category = token.getCategory();
+		if (category >= Token.CATEGORY_WORD_LIMITED) {
+			token.mType = Token.TYPE_WORD;
+		} else if (category == Token.CATEGORY_CONTROL) {
+			token.mType = Token.TYPE_CONTROL;
+		} else if (category == Token.CATEGORY_PUNCTUATION ||
+				category == Token.CATEGORY_SYMBOL) {
+			token.mType = Token.TYPE_SYMBOL;
+		} else if (category == Token.CATEGORY_NONE) {
+			token.mType = Token.TYPE_NONE;
+		} else {
+			throw new IllegalStateException("unknown token type");
+		}
+
 		return token;
 	}
 
@@ -479,8 +498,7 @@ public class TokenStream extends DefaultRecyclable {
 	public static int getKinsokuAdvise(int codePoint, int type) {
 		if (type == Character.START_PUNCTUATION ||
 				type == Character.INITIAL_QUOTE_PUNCTUATION ||
-				type == Character.CURRENCY_SYMBOL ||
-				type == Character.OTHER_PUNCTUATION) {
+				type == Character.CURRENCY_SYMBOL) {
 			return Token.SYMBOL_KINSOKU_AVOID_TAIL;
 		}
 
@@ -490,14 +508,20 @@ public class TokenStream extends DefaultRecyclable {
 			return Token.SYMBOL_KINSOKU_AVOID_HEADER;
 		}
 
-		if (type == Character.MATH_SYMBOL || type == Character.MODIFIER_SYMBOL || type == Character.OTHER_SYMBOL) {
-			return Token.SYMBOL_KINSOKU_MASK;
+		if (type == Character.OTHER_PUNCTUATION) {
+			if (codePoint == '&' || codePoint == '@') {
+				return Token.SYMBOL_KINSOKU_MASK;
+			}
+//
+//			if (codePoint == '"' || codePoint == '\'') {
+//				return Token.SYMBOL_KINSOKU_AVOID_HEADER;
+//			}
+
+			return Token.SYMBOL_KINSOKU_AVOID_HEADER;
 		}
 
-		// 临时加的，没有放到表里面。
-		// 规避在头部能最大程度减少视觉上的干扰。
-		if (codePoint == '"' || codePoint == '\'') {
-			return Token.SYMBOL_KINSOKU_AVOID_HEADER;
+		if (type == Character.MATH_SYMBOL || type == Character.MODIFIER_SYMBOL || type == Character.OTHER_SYMBOL) {
+			return Token.SYMBOL_KINSOKU_MASK;
 		}
 
 		return 0;
