@@ -6,8 +6,6 @@ import androidx.annotation.VisibleForTesting;
 
 import com.ibm.icu.text.BreakIterator;
 
-import java.util.Arrays;
-
 import me.chan.texas.misc.DefaultRecyclable;
 import me.chan.texas.misc.ObjectPool;
 import me.chan.texas.text.icu.UnicodeUtils;
@@ -487,11 +485,12 @@ public class TokenStream extends DefaultRecyclable {
 		}
 
 		if (type == Character.FINAL_QUOTE_PUNCTUATION ||
-				type == Character.END_PUNCTUATION) {
+				type == Character.END_PUNCTUATION ||
+				type == Character.DASH_PUNCTUATION) {
 			return Token.SYMBOL_KINSOKU_AVOID_HEADER;
 		}
 
-		if (type == Character.MATH_SYMBOL || type == Character.MODIFIER_SYMBOL) {
+		if (type == Character.MATH_SYMBOL || type == Character.MODIFIER_SYMBOL || type == Character.OTHER_SYMBOL) {
 			return Token.SYMBOL_KINSOKU_MASK;
 		}
 
@@ -501,19 +500,7 @@ public class TokenStream extends DefaultRecyclable {
 			return Token.SYMBOL_KINSOKU_AVOID_HEADER;
 		}
 
-
-		int advise = 0;
-		int index = binarySearch(KINSOKU_AVOID_HEADER_MAP, codePoint);
-		if (index >= 0) {
-			advise |= Token.SYMBOL_KINSOKU_AVOID_HEADER;
-		}
-
-		index = binarySearch(KINSOKU_AVOID_TAIL_MAP, codePoint);
-		if (index >= 0) {
-			advise |= Token.SYMBOL_KINSOKU_AVOID_TAIL;
-		}
-
-		return advise;
+		return 0;
 	}
 
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -529,32 +516,6 @@ public class TokenStream extends DefaultRecyclable {
 		}
 
 		return 0;
-	}
-
-	static char[] KINSOKU_AVOID_TAIL_MAP;
-	static char[] KINSOKU_AVOID_HEADER_MAP;
-
-	static {
-		Arrays.sort(KINSOKU_AVOID_HEADER_MAP = new char[]{
-				0x21 /*!*/, 0x25 /*%*/, 0x27 /*'*/, 0x29 /*)*/, 0x2c /*,*/, 0x2d /*-*/, 0x2e /*.*/, 0x3a /*:*/, 0x3b /*;*/,
-				0x3f /*?*/, 0x5d /*]*/, 0x7d /*}*/, 0xa8 /*¨*/, 0xb0 /*°*/, 0xb7 /*·*/, 0x2c7 /*ˇ*/, 0x2c9 /*ˉ*/, 0x2010 /*‐*/,
-				0x2013 /*–*/, 0x2014 /*—*/, 0x2015 /*―*/, 0x2016 /*‖*/, 0x2019 /*’*/, 0x201d /*”*/, 0x2022 /*•*/, 0x2025 /*‥*/,
-				0x2026 /*…*/, 0x2027 /*‧*/, 0x2030 /*‰*/, 0x2032 /*′*/, 0x2033 /*″*/, 0x2103 /*℃*/, 0x2109 /*℉*/, 0x2236 /*∶*/,
-				0x3001 /*、*/, 0x3e /*>*/, 0x3002 /*。*/, 0x3005 /*々*/, 0x3009 /*〉*/, 0x300b /*》*/, 0x300d /*」*/, 0x300f /*』*/,
-				0x3011 /*】*/, 0x3015 /*〕*/, 0x3017 /*〗*/, 0xfe30 /*︰*/, 0xfe34 /*︴*/, 0xfe36 /*︶*/, 0xfe38 /*︸*/, 0xfe3a /*︺*/,
-				0xfe3c /*︼*/, 0xfe3e /*︾*/, 0xfe40 /*﹀*/, 0xfe42 /*﹂*/, 0xfe44 /*﹄*/, 0xfe4f /*﹏*/, 0xff01 /*！*/, 0xff02 /*＂*/,
-				0xff05 /*％*/, 0xff07 /*＇*/, 0xff09 /*）*/, 0xff0c /*，*/, 0xff0d /*－*/, 0xff1a /*：*/, 0xff1b /*；*/, 0xff1f /*？*/,
-				0xff3d /*］*/, 0xff40 /*｀*/, 0xff5c /*｜*/, 0xff5d /*｝*/, 0xff5e /*～*/, 0xffe0 /*￠*/
-		});
-
-		Arrays.sort(KINSOKU_AVOID_TAIL_MAP = new char[]{
-				0x24 /*$*/, 0x28 /*(*/, 0x5b /*[*/, 0x5c /*\*/, 0x7b /*{*/, 0xa3 /*£*/, 0xa5 /*¥*/, 0xa7 /*§*/, 0xb7 /*·*/,
-				0x2018 /*‘*/, 0x201c /*“*/, 0x2035 /*‵*/, 0x20ac /*€*/, 0x3008 /*〈*/, 0x300a /*《*/, 0x300c /*「*/, 0x300e /*『*/,
-				0x3010 /*【*/, 0x3012 /*〒*/, 0x3016 /*〖*/, 0x3014 /*〔*/, 0xfe35 /*︵*/, 0xfe37 /*︷*/, 0xfe39 /*︹*/, 0xfe3b /*︻*/,
-				0xfe3d /*︽*/, 0xfe3f /*︿*/, 0xfe41 /*﹁*/, 0xfe43 /*﹃*/, 0xfe5f /*﹟*/, 0xfe69 /*﹩*/, 0xfe6b /*﹫*/, 0xff03 /*＃*/,
-				0xff04 /*＄*/, 0xff08 /*（*/, 0xff1c /*＜*/, 0xff20 /*＠*/, 0xff3b /*［*/, 0xff5b /*｛*/, 0xff5e /*～*/, 0xffe1 /*￡*/,
-				0xffe5 /*￥*/, 0x3c /*<*/
-		});
 	}
 
 	private static int binarySearch(char[] array, int value) {
