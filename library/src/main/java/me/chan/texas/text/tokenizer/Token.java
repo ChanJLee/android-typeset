@@ -11,8 +11,8 @@ public class Token extends DefaultRecyclable {
 	private static final ObjectPool<Token> POOL = new ObjectPool<>(128);
 
 	// attributes
-	// 0...23 attributes
-	// 24...31 category
+	// 0...7 category
+	// 8...31 mask
 
 	// 避头尾
 	public static final int SYMBOL_KINSOKU_AVOID_HEADER = 1;
