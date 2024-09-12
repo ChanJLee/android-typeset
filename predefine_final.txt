@@ -1,4 +1,5 @@
-private final char[] SQUISH_RIGHT_MAP = {
+@VisibleForTesting
+ public static final char[] SQUISH_RIGHT_MAP = {
 	'〉', /* \u232a */
 	'、', /* \u3001 */
 	'。', /* \u3002 */
@@ -28,7 +29,8 @@ private final char[] SQUISH_RIGHT_MAP = {
 	'］', /* \uff3d */
 	'｠', /* \uff60 */
 };
-private final char[] SQUISH_LEFT_MAP = {
+@VisibleForTesting
+ public static final char[] SQUISH_LEFT_MAP = {
 	'〈', /* \u2329 */
 	'〈', /* \u3008 */
 	'《', /* \u300a */
@@ -56,7 +58,8 @@ private final char[] SQUISH_LEFT_MAP = {
 	'［', /* \uff3b */
 	'｟', /* \uff5f */
 };
-private final char[] STRETCH_RIGHT_MAP = {
+@VisibleForTesting
+ public static final char[] STRETCH_RIGHT_MAP = {
 	'!', /* \u0021 */
 	')', /* \u0029 */
 	',', /* \u002c */
@@ -134,7 +137,8 @@ private final char[] STRETCH_RIGHT_MAP = {
 	'｣', /* \uff63 */
 	'､', /* \uff64 */
 };
-private final char[] STRETCH_LEFT_MAP = {
+@VisibleForTesting
+ public static final char[] STRETCH_LEFT_MAP = {
 	'(', /* \u0028 */
 	'<', /* \u003c */
 	'[', /* \u005b */

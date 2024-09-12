@@ -65,7 +65,7 @@ public class WordStreamUnitTest {
 
 	@Test
 	public void test() throws IOException {
-		WordStream stream = new WordStream();
+		TokenStream stream = new TokenStream();
 		for (int i = 1; i <= 6; ++i) {
 			File file = new File("../app/src/main/assets/harry" + i + ".txt");
 			System.out.println(file.getAbsolutePath());
@@ -99,7 +99,7 @@ public class WordStreamUnitTest {
 
 	@Test
 	public void testSimple() {
-		WordStream stream = new WordStream();
+		TokenStream stream = new TokenStream();
 		Assert.assertNull(stream.next());
 		Assert.assertNull(stream.tryGet(stream.save(), -1));
 		String msg = "0 2 4";
@@ -140,7 +140,7 @@ public class WordStreamUnitTest {
 		}
 		String text = stringBuilder.toString();
 
-		WordStream stream = new WordStream();
+		TokenStream stream = new TokenStream();
 		Assert.assertNull(stream.next());
 		Assert.assertEquals(stream.save(), 0);
 
