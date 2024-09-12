@@ -221,7 +221,7 @@ public class WordStreamUnitTest {
 			token.mCharSequence = "&";
 			token.mStart = 0;
 			token.mEnd = 1;
-			token.mMask = Token.CATEGORY_PUNCTUATION | (Character.getType('&') << 8);
+			token.mMask = TokenStream.getMask('&', Character.getType('&'));
 			token.mType = Token.TYPE_SYMBOL;
 			list.add(token);
 		}
