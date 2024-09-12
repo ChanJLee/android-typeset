@@ -10,16 +10,6 @@ import me.chan.texas.utils.CharStream;
 import me.chan.texas.utils.LongArray;
 
 class WordStream {
-	public static final byte CATEGORY_NONE = -1;
-	public static final byte CATEGORY_UNKNOWN_LETTER = 0; /* 未知字符 */
-	public static final byte CATEGORY_NORMAL = 1; /* 正常的单词 [a-z]... */
-	public static final byte CATEGORY_NUMBER = 2; /* 数字 */
-	public static final byte CATEGORY_SYMBOL = 3; /* 符号 */
-	public static final byte CATEGORY_PUNCTUATION = 4; /* 标点符号 */
-	public static final byte CATEGORY_CONTROL = 5; /* 控制类字符，空格，space。。。 */
-	public static final byte CATEGORY_CJK = 6; /* CJK */
-	public static final byte CATEGORY_RTL = 8; /* 从右到左的字符 TODO 保留字段 */
-
 	private final CharacterSequenceIterator mIterator = new CharacterSequenceIterator();
 	private final CharStream mStream = new CharStream();
 	private final BrkArray mBrk = new BrkArray(128);
@@ -40,7 +30,7 @@ class WordStream {
 		BreakIterator boundary = WordBreaker.getWordBreakIterator();
 		boundary.setText(mIterator.reset(text, start, end));
 
-		addBrk(mBrk, CATEGORY_NONE, boundary.first() + start);
+		addBrk(mBrk, Token.CATEGORY_NONE, boundary.first() + start);
 		for (int brk = boundary.next();
 			 brk != BreakIterator.DONE; brk = boundary.next()) {
 			int reason = boundary.getRuleStatus();
@@ -51,7 +41,7 @@ class WordStream {
 			}
 
 			if (reason >= BreakIterator.WORD_NUMBER && reason < BreakIterator.WORD_NUMBER_LIMIT) {
-				addBrk(mBrk, CATEGORY_NUMBER, brk + start);
+				addBrk(mBrk, Token.CATEGORY_NUMBER, brk + start);
 				continue;
 			}
 
@@ -77,14 +67,14 @@ class WordStream {
 		}
 
 		if (simpleWord) {
-			addBrk(brk, CATEGORY_NORMAL, end);
+			addBrk(brk, Token.CATEGORY_NORMAL, end);
 			return;
 		}
 
 		// todo test 多个空格
 		int codePoint = text.charAt(start);
 		if (UnicodeUtils.isControlCharacter(codePoint)) {
-			addBrk(brk, CATEGORY_CONTROL, end);
+			addBrk(brk, Token.CATEGORY_CONTROL, end);
 			return;
 		}
 
@@ -96,7 +86,7 @@ class WordStream {
 				|| type == Character.MODIFIER_SYMBOL
 				/* https://www.compart.com/en/unicode/category/So */
 				|| type == Character.OTHER_SYMBOL) {
-			addBrk(brk, CATEGORY_SYMBOL, end);
+			addBrk(brk, Token.CATEGORY_SYMBOL, end);
 			return;
 		}
 
@@ -106,7 +96,7 @@ class WordStream {
 				|| type == Character.INITIAL_QUOTE_PUNCTUATION
 				|| type == Character.OTHER_PUNCTUATION
 				|| type == Character.START_PUNCTUATION) {
-			addBrk(brk, CATEGORY_PUNCTUATION, end);
+			addBrk(brk, Token.CATEGORY_PUNCTUATION, end);
 			return;
 		}
 
@@ -115,15 +105,15 @@ class WordStream {
 			return;
 		}
 
-		addBrk(brk, CATEGORY_UNKNOWN_LETTER, end);
+		addBrk(brk, Token.CATEGORY_UNKNOWN_LETTER, end);
 	}
 
 	private static void appendCJK(BrkArray brk, int index) {
 		int lastCategory = (int) brk.last() >>> 32;
-		if (lastCategory == CATEGORY_CJK) {
+		if (lastCategory == Token.CATEGORY_CJK) {
 			brk.removeLast();
 		}
-		addBrk(brk, CATEGORY_CJK, index);
+		addBrk(brk, Token.CATEGORY_CJK, index);
 	}
 
 	private static boolean isSimpleWord(int codePoint) {

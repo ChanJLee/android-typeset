@@ -10,6 +10,10 @@ import me.chan.texas.misc.ObjectPool;
 public class Token extends DefaultRecyclable {
 	private static final ObjectPool<Token> POOL = new ObjectPool<>(128);
 
+	// attributes
+	// 0...23 attributes
+	// 24...31 category
+
 	// 避头尾
 	public static final int SYMBOL_KINSOKU_AVOID_HEADER = 1;
 	public static final int SYMBOL_KINSOKU_AVOID_TAIL = 2;
@@ -37,10 +41,6 @@ public class Token extends DefaultRecyclable {
 		return mCategory;
 	}
 
-	public int getReason() {
-		return mReason;
-	}
-
 	@IntDef({SYMBOL_KINSOKU_MASK,
 			SYMBOL_SQUISH_MASK,
 			SYMBOL_STRETCH_MASK,
@@ -61,31 +61,22 @@ public class Token extends DefaultRecyclable {
 
 	public static final int TYPE_NONE = 0; /* 什么也不是 */
 	public static final int TYPE_SYMBOL = 1; /* 符号+标点符号 */
-	public static final int TYPE_BLANK = 2; /* 未来扩展下为control */
+	public static final int TYPE_CONTROL = 2; /* 空格、制表符等 */
 	public static final int TYPE_WORD = 3; /* 单词 */
 
-	public static final int SYMBOL_CATEGORY_MATH = Character.MATH_SYMBOL;
-	public static final int SYMBOL_CATEGORY_CURRENCY = Character.CURRENCY_SYMBOL;
-	public static final int SYMBOL_CATEGORY_MODIFIER = Character.MODIFIER_SYMBOL;
-	public static final int SYMBOL_CATEGORY_OTHER = Character.OTHER_SYMBOL;
-
-	public static final int PUNCTUATION_CATEGORY_DASH = Character.DASH_PUNCTUATION;
-	public static final int PUNCTUATION_CATEGORY_END = Character.END_PUNCTUATION;
-	public static final int PUNCTUATION_CATEGORY_FINAL_QUOTE = Character.FINAL_QUOTE_PUNCTUATION;
-	public static final int PUNCTUATION_CATEGORY_INITIAL_QUOTE = Character.INITIAL_QUOTE_PUNCTUATION;
-	public static final int PUNCTUATION_CATEGORY_OTHER = Character.OTHER_PUNCTUATION;
-	public static final int PUNCTUATION_CATEGORY_START = Character.START_PUNCTUATION;
-
-	public static final int WORD_CATEGORY_NUMBER = 1;
-	public static final int WORD_CATEGORY_ASCII = 2;
-	public static final int WORD_CATEGORY_CJK = 3;
-	public static final int WORD_CATEGORY_RTL = 4;
-	public static final int WORD_CATEGORY_OTHER = 5;
-
+	public static final byte CATEGORY_NONE = 0;
+	public static final byte CATEGORY_UNKNOWN_LETTER = 1; /* 未知字符 */
+	public static final byte CATEGORY_NORMAL = 2; /* 正常的单词 [a-z]... */
+	public static final byte CATEGORY_NUMBER = 3; /* 数字 */
+	public static final byte CATEGORY_SYMBOL = 4; /* 符号 */
+	public static final byte CATEGORY_PUNCTUATION = 5; /* 标点符号 */
+	public static final byte CATEGORY_CONTROL = 6; /* 控制类字符，空格，space。。。TODO 需要扩展 */
+	public static final byte CATEGORY_CJK = 7; /* CJK */
+	public static final byte CATEGORY_RTL = 8; /* 从右到左的字符 TODO 保留字段 */
 
 	@IntDef({TYPE_NONE,
 			TYPE_SYMBOL,
-			TYPE_BLANK,
+			TYPE_CONTROL,
 			TYPE_WORD,})
 	public @interface TokenType {
 
@@ -140,7 +131,7 @@ public class Token extends DefaultRecyclable {
 			return "none";
 		}
 
-		if (mType == TYPE_BLANK) {
+		if (mType == TYPE_CONTROL) {
 			return "空格";
 		}
 
@@ -149,23 +140,23 @@ public class Token extends DefaultRecyclable {
 		}
 
 		if (mType == TYPE_WORD) {
-			if (mCategory == WORD_CATEGORY_ASCII) {
+			if (mCategory == CATEGORY_NORMAL) {
 				return "英文";
 			}
 
-			if (mCategory == WORD_CATEGORY_CJK) {
+			if (mCategory == CATEGORY_CJK) {
 				return "CJK";
 			}
 
-			if (mCategory == WORD_CATEGORY_NUMBER) {
+			if (mCategory == CATEGORY_NUMBER) {
 				return "数字";
 			}
 
-			if (mCategory == WORD_CATEGORY_RTL) {
+			if (mCategory == CATEGORY_RTL) {
 				return "RTL";
 			}
 
-			if (mCategory == WORD_CATEGORY_OTHER) {
+			if (mCategory == CATEGORY_UNKNOWN_LETTER) {
 				return "其它";
 			}
 
@@ -257,7 +248,7 @@ public class Token extends DefaultRecyclable {
 		}
 
 		token.reuse();
-		token.mType = TYPE_BLANK;
+		token.mType = TYPE_CONTROL;
 		return token;
 	}
 
@@ -269,7 +260,7 @@ public class Token extends DefaultRecyclable {
 
 		token.reuse();
 		token.mType = TYPE_WORD;
-		token.mCategory = WORD_CATEGORY_OTHER;
+		token.mCategory = Token.CATEGORY_UNKNOWN_LETTER;
 		return token;
 	}
 
