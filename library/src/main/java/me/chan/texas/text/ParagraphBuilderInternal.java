@@ -175,7 +175,7 @@ class ParagraphBuilderInternal {
 			}
 
 			// 追加一个空格
-			// 这个未来还能不能适用，就要看状态推导图了，目前看一个token后接blank和none不影响状态机的跳转
+			// 这个未来还能不能适用，就要看状态推导图了，目前看一个token后接control和none不影响状态机的跳转
 			if (mLastToken != null && tokenStream.hasNext()) {
 				mFakeTokenStream.reset();
 				appendSent0(text, reader, mFakeTokenStream);
@@ -201,12 +201,12 @@ class ParagraphBuilderInternal {
 								 Paragraph.Builder.SpanReader spanReader,
 								 Token token) {
 		int category = token.getCategory();
-		if (category == Token.WORD_CATEGORY_ASCII) {
+		if (category == Token.CATEGORY_NORMAL) {
 			appendAsciiWordToken(text, spanReader, token);
-		} else if (category == Token.WORD_CATEGORY_CJK) {
+		} else if (category == Token.CATEGORY_CJK) {
 			appendCjkWordToken(text, spanReader, token);
 		} else {
-			appendWordTokenDirect(text, spanReader, token, category == Token.WORD_CATEGORY_RTL);
+			appendWordTokenDirect(text, spanReader, token, category == Token.CATEGORY_RTL);
 		}
 	}
 
@@ -552,12 +552,12 @@ class ParagraphBuilderInternal {
 	}
 
 	static {
-		// blank 实际上可以约减掉了，但是因为为了后期好理解所以保留
-		// 因为blank存在，我们需要关心下一个token是什么，所以如果blank删除，那么rules的api接口就要修改
+		// control 实际上可以约减掉了，但是因为为了后期好理解所以保留
+		// 因为control存在，我们需要关心下一个token是什么，所以如果control删除，那么rules的api接口就要修改
 		TYPESET_RULES = new ArrayList<>();
 		TYPESET_RULES.add(new WordRules());
 		TYPESET_RULES.add(new SymbolRules());
-		TYPESET_RULES.add(new BlankRules());
+		TYPESET_RULES.add(new ControlRules());
 	}
 
 	/**
@@ -595,7 +595,7 @@ class ParagraphBuilderInternal {
 
 			// 1: word -> glue 其实就是中英文之间分割，广义来讲就是不同类型为word之间需要分割开
 			// 2: unknown -> glue
-			// 3: blank -> noop
+			// 3: control -> noop
 			// 4: none -> noop
 			// 5: symbol -> prefix state 1
 			int prevType = getTokenTypeSafe(accepted);
@@ -634,7 +634,7 @@ class ParagraphBuilderInternal {
 				}
 			} else {
 				Token realPrev = stream.tryGet(state, -1);
-				if (realPrev != accepted && getTokenTypeSafe(realPrev) == Token.TYPE_BLANK &&
+				if (realPrev != accepted && getTokenTypeSafe(realPrev) == Token.TYPE_CONTROL &&
 						(getTokenAttributeSafe(accepted) & Token.SYMBOL_TYPEFACE_MASK) == 0) {
 					builder.appendElementExcludeAdvise(adviseElement);
 					builder.appendElement(builder.mCommonGlue);
@@ -646,7 +646,7 @@ class ParagraphBuilderInternal {
 		}
 	}
 
-	private static class BlankRules extends TypesetRule {
+	private static class ControlRules extends TypesetRule {
 
 		@Override
 		public boolean perform0(ParagraphBuilderInternal builder, Token accepted,
@@ -654,22 +654,22 @@ class ParagraphBuilderInternal {
 								CharSequence text,
 								Paragraph.Builder.SpanReader spanReader) {
 			Token current = stream.next();
-			if (current.getType() != Token.TYPE_BLANK) {
+			if (current.getType() != Token.TYPE_CONTROL) {
 				return false;
 			}
 
 			Token next = stream.tryGet(0);
 			//--------------------v next ----------
-			// 				word	unknown		symbol		blank		none
+			// 				word	unknown		symbol		control		none
 			//----------|-----------------------------
 			// word    	|   direct  direct		trans		noop		noop
 			// unknown 	|   direct  direct		trans		noop		noop
 			// symbol 	|   trans	trans		trans		noop		noop < 本质上都是丢给后面的人处理
-			// blank	|	noop	noop		noop		noop		noop < 规避多个空格
+			// control	|	noop	noop		noop		noop		noop < 规避多个空格
 			// none		|   noop 	noop 		noop		noop		noop < 首行不留白，这个可能作为 future 未来支持开启
 			//-----------------------------------------
 			//  ^ prev
-			// trans 就要上面的规则去检查是否丢弃了 blank，但是当前的规则不需要处理，所以本质上是noop
+			// trans 就要上面的规则去检查是否丢弃了 control，但是当前的规则不需要处理，所以本质上是noop
 
 			int prevType = getTokenTypeSafe(accepted);
 			int nextType = getTokenTypeSafe(next);
@@ -686,13 +686,13 @@ class ParagraphBuilderInternal {
 			}
 
 			if (prevType == Token.TYPE_SYMBOL ||
-					prevType == Token.TYPE_BLANK ||
+					prevType == Token.TYPE_CONTROL ||
 					prevType == Token.TYPE_NONE) {
 				accept(accepted);
 				return true;
 			}
 
-			throw new IllegalStateException("blank's rules under invalid state");
+			throw new IllegalStateException("control's rules under invalid state");
 		}
 	}
 
@@ -710,12 +710,12 @@ class ParagraphBuilderInternal {
 			}
 
 			//--------------------v next ----------
-			// 				word	unknown		symbol		blank		none
+			// 				word	unknown		symbol		control		none
 			//----------|-----------------------------
 			// word    	|   state2  state2		state2		state2		state2
 			// unknown 	|   state2  state2		state2		state2		state2
 			// symbol 	|   state1	state1		state1		state1		state1
-			// blank	|	-		-			-			-			-
+			// control	|	-		-			-			-			-
 			// none		|   直接进 	直接进 		直接进		直接进		直接进
 			//-----------------------------------------
 			//  ^ prev
@@ -736,7 +736,7 @@ class ParagraphBuilderInternal {
 				return true;
 			}
 
-			if (prevType == Token.TYPE_BLANK) {
+			if (prevType == Token.TYPE_CONTROL) {
 				// never
 				throw new IllegalStateException("symbol's rules under invalid sate");
 			}
@@ -786,7 +786,7 @@ class ParagraphBuilderInternal {
 						builder.appendElement(SymbolGlue.obtain(box));
 						builder.appendElementExcludeAdvise(adviseElement);
 					}
-				} else if (getTokenTypeSafe(realPrev) == Token.TYPE_BLANK &&
+				} else if (getTokenTypeSafe(realPrev) == Token.TYPE_CONTROL &&
 						(getTokenAttributeSafe(current) & Token.SYMBOL_TYPEFACE_MASK) == 0) {
 					builder.appendElementExcludeAdvise(adviseElement);
 					builder.appendElement(builder.mCommonGlue);
@@ -945,7 +945,7 @@ class ParagraphBuilderInternal {
 			// noop 后续多了一些操作，要保留原始数据中的空格
 			// 但是不能是 开头、有压缩的需求
 			Token realPrev = stream.tryGet(state, -1);
-			if (getTokenTypeSafe(realPrev) == Token.TYPE_BLANK) {
+			if (getTokenTypeSafe(realPrev) == Token.TYPE_CONTROL) {
 				builder.appendElementExcludeAdvise(adviseElement);
 				builder.appendElement(builder.mCommonGlue);
 				builder.appendElementExcludeAdvise(adviseElement);

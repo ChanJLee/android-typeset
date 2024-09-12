@@ -55,7 +55,7 @@ public class ICUTokenUnitTest {
 
 	private void print4(String source) {
 		System.out.println("========== word instance, my");
-		BreakIterator boundary = WordStream.getWordBreakIterator();
+		BreakIterator boundary = WordBreaker.getWordBreakIterator();
 		boundary.setText(source);
 
 		int start = boundary.first();
