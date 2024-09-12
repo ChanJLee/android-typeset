@@ -8,7 +8,6 @@ import androidx.annotation.VisibleForTesting;
 
 import me.chan.texas.misc.DefaultRecyclable;
 import me.chan.texas.misc.ObjectPool;
-import me.chan.texas.text.icu.UnicodeUtils;
 
 import java.util.Arrays;
 
