@@ -17,7 +17,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -221,7 +220,8 @@ public class WordStreamUnitTest {
 			token.mCharSequence = "&";
 			token.mStart = 0;
 			token.mEnd = 1;
-			token.mMask = TokenStream.getMask('&', Character.getType('&'));
+			token.mMask = TokenStream.getMask(Token.CATEGORY_PUNCTUATION,
+					TokenStream.getAdvise('&', Character.getType('&')));
 			token.mType = Token.TYPE_SYMBOL;
 			list.add(token);
 		}

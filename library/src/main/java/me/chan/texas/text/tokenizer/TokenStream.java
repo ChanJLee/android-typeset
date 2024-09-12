@@ -137,11 +137,11 @@ public class TokenStream extends DefaultRecyclable {
 	}
 
 	private static void appendSymbolOrPunctuation(BrkArray brk, byte category, int type, int codePoint, int index) {
-		addBrk0(brk, category, getMask(codePoint, type), index);
+		addBrk0(brk, category, getAdvise(codePoint, type), index);
 	}
 
 	@VisibleForTesting
-	static int getMask(int codePoint, int type) {
+	static int getAdvise(int codePoint, int type) {
 		int mask = getSquishAdvise(codePoint);
 		if (mask == 0) {
 			mask = getStretchAdvise(codePoint);
@@ -161,11 +161,16 @@ public class TokenStream extends DefaultRecyclable {
 		addBrk0(buffer, category, 0, index);
 	}
 
-	private static void addBrk0(BrkArray buffer, byte category, long mask, int index) {
-		long v = mask << 8 | category;
+	private static void addBrk0(BrkArray buffer, byte category, long advise, int index) {
+		long v = getMask(category, advise);
 		v <<= 32;
 		v += index;
 		buffer.add(v);
+	}
+
+	@VisibleForTesting
+	static int getMask(byte category, long advise) {
+		return (int) (advise << 8 | category);
 	}
 
 	@Nullable
