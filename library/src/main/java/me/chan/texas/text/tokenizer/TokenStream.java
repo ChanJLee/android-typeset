@@ -47,9 +47,8 @@ public class TokenStream extends DefaultRecyclable {
 		for (int brk = boundary.next();
 			 brk != BreakIterator.DONE; brk = boundary.next()) {
 			int reason = boundary.getRuleStatus();
-			if (reason >= BreakIterator.WORD_LETTER && reason < BreakIterator.WORD_LETTER_LIMIT
-					|| reason >= BreakIterator.WORD_NONE && reason < BreakIterator.WORD_NONE_LIMIT) {
-				append(mBrk, text, brk + start);
+			if (reason >= BreakIterator.WORD_LETTER && reason < BreakIterator.WORD_LETTER_LIMIT) {
+				appendLatter(mBrk, text, brk + start);
 				continue;
 			}
 
@@ -64,16 +63,21 @@ public class TokenStream extends DefaultRecyclable {
 				continue;
 			}
 
+			if (reason >= BreakIterator.WORD_NONE && reason < BreakIterator.WORD_NONE_LIMIT) {
+				appendUnknown(mBrk, text, brk + start);
+				continue;
+			}
+
 			throw new IllegalStateException("unknown token type");
 		}
 	}
 
-	private void append(BrkArray brk, CharSequence text, int end) {
+	private void appendLatter(BrkArray brk, CharSequence text, int end) {
 		final int start = (int) brk.last();
 		boolean simpleWord = true;
 		for (int i = start; i < end; ++i) {
 			int codePoint = text.charAt(i);
-			if (!isSimpleWord(codePoint)) {
+			if (codePoint > 128) {
 				simpleWord = false;
 				break;
 			}
@@ -81,6 +85,22 @@ public class TokenStream extends DefaultRecyclable {
 
 		if (simpleWord) {
 			addBrk(brk, Token.CATEGORY_NORMAL, end);
+			return;
+		}
+
+		int codePoint = text.charAt(start);
+		if (UnicodeUtils.isCJKExtends(codePoint)) {
+			appendCJK(brk, end);
+			return;
+		}
+
+		addBrk(brk, Token.CATEGORY_UNKNOWN_LETTER, end);
+	}
+
+	private void appendUnknown(BrkArray brk, CharSequence text, int end) {
+		final int start = (int) brk.last();
+		if (end - start > 1) {
+			addBrk(brk, Token.CATEGORY_UNKNOWN_LETTER, end);
 			return;
 		}
 
@@ -113,11 +133,6 @@ public class TokenStream extends DefaultRecyclable {
 			return;
 		}
 
-		if (UnicodeUtils.isCJKExtends(codePoint)) {
-			appendCJK(brk, end);
-			return;
-		}
-
 		addBrk(brk, Token.CATEGORY_UNKNOWN_LETTER, end);
 	}
 
@@ -140,10 +155,6 @@ public class TokenStream extends DefaultRecyclable {
 			brk.removeLast();
 		}
 		addBrk(brk, Token.CATEGORY_CJK, index);
-	}
-
-	private static boolean isSimpleWord(int codePoint) {
-		return (codePoint >= 'a' && codePoint <= 'z') || (codePoint >= 'A' && codePoint <= 'Z');
 	}
 
 	private static void addBrk(BrkArray buffer, byte category, int index) {
