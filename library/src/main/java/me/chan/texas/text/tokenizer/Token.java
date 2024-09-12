@@ -34,11 +34,11 @@ public class Token extends DefaultRecyclable {
 	public static final int SYMBOL_TYPEFACE_MASK = SYMBOL_SQUISH_MASK | SYMBOL_STRETCH_MASK;
 
 	public int getAttributes() {
-		return mAttributes;
+		return mMask >>> 8;
 	}
 
 	public int getCategory() {
-		return mCategory;
+		return mMask & 0xff;
 	}
 
 	@IntDef({SYMBOL_KINSOKU_MASK,
@@ -87,10 +87,7 @@ public class Token extends DefaultRecyclable {
 	CharSequence mCharSequence;
 	int mStart;
 	int mEnd;
-	int mAttributes = 0;
-	int mCategory;
-
-	// 添加删除要顺带修改 copy 函数
+	int mMask;
 
 	private Token() {
 
@@ -139,24 +136,25 @@ public class Token extends DefaultRecyclable {
 			return getSymbolSemantics();
 		}
 
+		byte category = (byte) mMask;
 		if (mType == TYPE_WORD) {
-			if (mCategory == CATEGORY_NORMAL) {
+			if (category == CATEGORY_NORMAL) {
 				return "英文";
 			}
 
-			if (mCategory == CATEGORY_CJK) {
+			if (category == CATEGORY_CJK) {
 				return "CJK";
 			}
 
-			if (mCategory == CATEGORY_NUMBER) {
+			if (category == CATEGORY_NUMBER) {
 				return "数字";
 			}
 
-			if (mCategory == CATEGORY_RTL) {
+			if (category == CATEGORY_RTL) {
 				return "RTL";
 			}
 
-			if (mCategory == CATEGORY_UNKNOWN_LETTER) {
+			if (category == CATEGORY_UNKNOWN_LETTER) {
 				return "其它";
 			}
 
@@ -167,11 +165,11 @@ public class Token extends DefaultRecyclable {
 	}
 
 	public boolean checkMask(@TokenMask int mask) {
-		return (mAttributes & mask) != 0;
+		return ((mMask >>> 8) & mask) != 0;
 	}
 
 	public boolean checkAttribute(@TokenMask int mask, @TokenAttribute int flag) {
-		return (mAttributes & mask & flag) == flag;
+		return ((mMask >>> 8) & mask & flag) == flag;
 	}
 
 	public CharSequence getCharSequence() {
@@ -213,7 +211,7 @@ public class Token extends DefaultRecyclable {
 		super.recycle();
 		mCharSequence = null;
 		mStart = mEnd = 0;
-		mAttributes = 0;
+		mMask = 0;
 		mType = TYPE_NONE;
 		POOL.release(this);
 	}
@@ -241,17 +239,6 @@ public class Token extends DefaultRecyclable {
 		return token;
 	}
 
-	public static Token obtainBlank() {
-		Token token = POOL.acquire();
-		if (token == null) {
-			token = new Token();
-		}
-
-		token.reuse();
-		token.mType = TYPE_CONTROL;
-		return token;
-	}
-
 	public static Token obtainOtherWord() {
 		Token token = POOL.acquire();
 		if (token == null) {
@@ -260,14 +247,14 @@ public class Token extends DefaultRecyclable {
 
 		token.reuse();
 		token.mType = TYPE_WORD;
-		token.mCategory = Token.CATEGORY_UNKNOWN_LETTER;
+		token.mMask = Token.CATEGORY_UNKNOWN_LETTER;
 		return token;
 	}
 
 	public static Token copy(Token other) {
 		Token copy = obtain();
 		copy.mType = other.mType;
-		copy.mAttributes = other.mAttributes;
+		copy.mMask = other.mMask;
 		copy.mCharSequence = other.mCharSequence;
 		copy.mStart = other.mStart;
 		copy.mEnd = other.mEnd;
