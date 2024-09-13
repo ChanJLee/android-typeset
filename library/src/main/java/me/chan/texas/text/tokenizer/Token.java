@@ -16,6 +16,8 @@ public class Token extends DefaultRecyclable {
 	// 0...7 category
 	// 8...31 mask
 
+	public static final int SYMBOL_ATTRIBUTE_NONE = 0;
+
 	// 避头尾
 	public static final int SYMBOL_KINSOKU_AVOID_HEADER = 1;
 	public static final int SYMBOL_KINSOKU_AVOID_TAIL = 2;
@@ -56,7 +58,8 @@ public class Token extends DefaultRecyclable {
 			SYMBOL_SQUISH_LEFT,
 			SYMBOL_SQUISH_RIGHT,
 			SYMBOL_STRETCH_LEFT,
-			SYMBOL_STRETCH_RIGHT})
+			SYMBOL_STRETCH_RIGHT,
+			SYMBOL_ATTRIBUTE_NONE})
 	public @interface TokenAttribute {
 
 	}
