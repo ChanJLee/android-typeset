@@ -9,14 +9,13 @@ import com.ibm.icu.text.BreakIterator;
 import me.chan.texas.misc.DefaultRecyclable;
 import me.chan.texas.misc.ObjectPool;
 import me.chan.texas.text.icu.UnicodeUtils;
-import me.chan.texas.utils.CharStream;
+import me.chan.texas.trace.TraceEvent;
 import me.chan.texas.utils.LongArray;
 
 public class TokenStream extends DefaultRecyclable {
 	private static final ObjectPool<TokenStream> POOL = new ObjectPool<>(4);
 
 	private final CharacterSequenceIterator mIterator = new CharacterSequenceIterator();
-	private final CharStream mStream = new CharStream();
 	private final BrkArray mBrk = new BrkArray(128);
 	private int mIndex = 0;
 
@@ -26,6 +25,11 @@ public class TokenStream extends DefaultRecyclable {
 			super.recycle();
 			POOL.release(this);
 		}
+	}
+
+	@RestrictTo(RestrictTo.Scope.LIBRARY)
+	public CharSequence getText() {
+		return mIterator.getSeq();
 	}
 
 	@VisibleForTesting
@@ -38,7 +42,6 @@ public class TokenStream extends DefaultRecyclable {
 	private void setText0(CharSequence text, int start, int end) {
 		mBrk.clear();
 		mIndex = 0;
-		mStream.reset(text, start, end);
 
 		BreakIterator boundary = WordBreaker.getWordBreakIterator();
 		boundary.setText(mIterator.reset(text, start, end));
@@ -99,10 +102,6 @@ public class TokenStream extends DefaultRecyclable {
 
 	private void appendUnknown(BrkArray brk, CharSequence text, int end) {
 		final int start = (int) brk.last();
-		if (end - start > 1) {
-			addBrk(brk, Token.CATEGORY_UNKNOWN_LETTER, end);
-			return;
-		}
 
 		// todo test 多个空格
 		int codePoint = text.charAt(start);
@@ -120,6 +119,9 @@ public class TokenStream extends DefaultRecyclable {
 				/* https://www.compart.com/en/unicode/category/So */
 				|| type == Character.OTHER_SYMBOL) {
 			appendSymbolOrPunctuation(brk, Token.CATEGORY_SYMBOL, type, codePoint, end);
+			if (end - start > 1) {
+				TraceEvent.error("TokenStream, unknown symbol1: " + text.subSequence(start, end));
+			}
 			return;
 		}
 
@@ -130,6 +132,9 @@ public class TokenStream extends DefaultRecyclable {
 				|| type == Character.OTHER_PUNCTUATION
 				|| type == Character.START_PUNCTUATION) {
 			appendSymbolOrPunctuation(brk, Token.CATEGORY_PUNCTUATION, type, codePoint, end);
+			if (end - start > 1) {
+				TraceEvent.error("TokenStream, unknown symbol2: " + text.subSequence(start, end));
+			}
 			return;
 		}
 
@@ -150,7 +155,7 @@ public class TokenStream extends DefaultRecyclable {
 	}
 
 	private static void appendCJK(BrkArray brk, int index) {
-		int lastCategory = (int) brk.last() >>> 32;
+		byte lastCategory = (byte) (brk.last() >>> 32);
 		if (lastCategory == Token.CATEGORY_CJK) {
 			brk.removeLast();
 		}
@@ -525,7 +530,7 @@ public class TokenStream extends DefaultRecyclable {
 		}
 
 		if (type == Character.OTHER_PUNCTUATION) {
-			if (codePoint == '&' || codePoint == '@') {
+			if (codePoint == '&' || codePoint == '@' || codePoint == '·') {
 				return Token.SYMBOL_KINSOKU_MASK;
 			}
 //

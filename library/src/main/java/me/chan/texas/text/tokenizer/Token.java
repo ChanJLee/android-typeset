@@ -288,6 +288,18 @@ public class Token extends DefaultRecyclable {
 		return token;
 	}
 
+	public static Token obtainWhiteSpace() {
+		Token token = POOL.acquire();
+		if (token == null) {
+			token = new Token();
+		}
+
+		token.reuse();
+		token.mType = TYPE_CONTROL;
+		token.mMask = Token.CATEGORY_CONTROL;
+		return token;
+	}
+
 	public static Token copy(Token other) {
 		Token copy = obtain();
 		copy.mType = other.mType;
