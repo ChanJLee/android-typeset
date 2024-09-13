@@ -131,7 +131,7 @@ public class WordStreamUnitTest {
 
 	@Test
 	public void testSave() {
-		String[] array = {"aa", " ", "11", " ", "hello-world你好R&B"};
+		String[] array = {"aa", " ", "11", " ", "hello-world四五R&B"};
 		StringBuilder stringBuilder = new StringBuilder();
 		for (String s : array) {
 			stringBuilder.append(s);
@@ -197,7 +197,7 @@ public class WordStreamUnitTest {
 
 		{
 			Token token = Token.obtain();
-			token.mCharSequence = "你好";
+			token.mCharSequence = "四五";
 			token.mStart = 0;
 			token.mEnd = 2;
 			token.mMask = Token.CATEGORY_CJK;

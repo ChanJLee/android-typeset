@@ -37,7 +37,8 @@ public class PrimitiveUnitTest {
 		System.out.println(">>>>> simple 0");
 		Paragraph.Builder builder = Paragraph.Builder.newBuilder(mTexasOption);
 		builder.newSpanBuilder()
-				.next("1 2 3 4 5")
+				.next("1 2 3")
+				.next("4 5")
 				.buildSpan();
 		checkContent(builder.build(), 6, BreakStrategy.SIMPLE,
 				"1 2 3",

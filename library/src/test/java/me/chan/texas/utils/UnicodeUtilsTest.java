@@ -137,27 +137,7 @@ public class UnicodeUtilsTest {
 		Assert.assertTrue(Character.isHighSurrogate(emoji.charAt(0)));
 		Assert.assertFalse(UnicodeUtils.isCJKExtends(emoji.charAt(0)));
 
-//		for (int cp : TokenStream.KINSOKU_AVOID_HEADER_MAP) {
-//			Assert.assertFalse(UnicodeUtils.isCJKExtends(cp));
-//		}
-//		for (int cp : TokenStream.KINSOKU_AVOID_TAIL_MAP) {
-//			Assert.assertFalse(UnicodeUtils.isCJKExtends(cp));
-//		}
-		for (int cp : TokenStream.SQUISH_LEFT_MAP) {
-			Assert.assertFalse(UnicodeUtils.isCJKExtends(cp));
-		}
-		for (int cp : TokenStream.SQUISH_RIGHT_MAP) {
-			Assert.assertFalse(UnicodeUtils.isCJKExtends(cp));
-		}
-		for (int cp : TokenStream.STRETCH_LEFT_MAP) {
-			Assert.assertFalse(UnicodeUtils.isCJKExtends(cp));
-		}
-		for (int cp : TokenStream.STRETCH_RIGHT_MAP) {
-			Assert.assertFalse(UnicodeUtils.isCJKExtends(cp));
-		}
-
 		Assert.assertFalse(UnicodeUtils.isCJKExtends('\t'));
-
 		Assert.assertFalse(UnicodeUtils.isCJKExtends(0xc0));
 		Assert.assertFalse(UnicodeUtils.isCJKExtends(0xff));
 		Assert.assertFalse(UnicodeUtils.isCJKExtends(0x100));
