@@ -163,18 +163,27 @@ class ParagraphBuilderInternal {
 			return;
 		}
 
-		if (mLastToken != null) {
-			appendElement(mCommonGlue);
-			mLastToken = Token.obtainWhiteSpace();
-		}
-
 		// TODO token.recycle
 		// 将句子转换为单词流
 		// 单词流会分析出一个句子中每个字符所代表的语义，这样可以精确的识别诸如： isn't、1920s 为一个单词
 		TokenStream tokenStream = null;
 		try {
-			tokenStream = TokenStream.obtain(text, start, end);
+			// 追加一个空格
+			// 这个未来还能不能适用，就要看状态推导图了，目前看一个token后接blank和none不影响状态机的跳转
+			if (mLastToken != null && tokenStream.hasNext()) {
+				tokenStream.ahead();
+			}
+
+			Token prev = mLastToken;
 			appendSent0(text, reader, tokenStream);
+			if (prev != mLastToken && prev != null) {
+				prev.recycle();
+			}
+
+			// 因为token会跟着stream销毁，所以要保留上次的token
+			if (mLastToken != null) {
+				mLastToken = Token.copy(mLastToken);
+			}
 		} finally {
 			if (tokenStream != null) {
 				tokenStream.recycle();
@@ -502,8 +511,12 @@ class ParagraphBuilderInternal {
 		return token == null ? Token.TYPE_NONE : token.getType();
 	}
 
-	private static int getTokenAttributeSafe(Token token) {
-		return token == null ? Token.TYPE_NONE : token.getAttributes();
+	private static int getSymbolAttributeSafe(Token token) {
+		return token == null ? Token.SYMBOL_ATTRIBUTE_NONE : token.getAttributes();
+	}
+
+	private static int getCategorySafe(Token token) {
+		return token == null ? Token.CATEGORY_NONE : token.getCategory();
 	}
 
 	private static boolean checkTokenAttributeSafe(Token token,
@@ -561,8 +574,10 @@ class ParagraphBuilderInternal {
 			// 5: symbol -> prefix state 1
 			int prevType = getTokenTypeSafe(accepted);
 			if (prevType == Token.TYPE_WORD) {
-				if (getTokenAttributeSafe(accepted) != getTokenAttributeSafe(current)) {
+				if (getCategorySafe(accepted) != getCategorySafe(current)) {
 					builder.appendElement(builder.mCommonGlue);
+				} else {
+					builder.appendElement(Penalty.ADVISE_BREAK);
 				}
 			} else if (prevType == Token.TYPE_SYMBOL) {
 				performPrefixState1(builder, accepted, stream, state);
@@ -596,7 +611,7 @@ class ParagraphBuilderInternal {
 			} else {
 				Token realPrev = stream.tryGet(state, -1);
 				if (realPrev != accepted && getTokenTypeSafe(realPrev) == Token.TYPE_CONTROL &&
-						(getTokenAttributeSafe(accepted) & Token.SYMBOL_TYPEFACE_MASK) == 0) {
+						(getSymbolAttributeSafe(accepted) & Token.SYMBOL_TYPEFACE_MASK) == 0) {
 					builder.appendElementExcludeAdvise(adviseElement);
 					builder.appendElement(builder.mCommonGlue);
 					builder.appendElementExcludeAdvise(adviseElement);
@@ -748,7 +763,7 @@ class ParagraphBuilderInternal {
 						builder.appendElementExcludeAdvise(adviseElement);
 					}
 				} else if (getTokenTypeSafe(realPrev) == Token.TYPE_CONTROL &&
-						(getTokenAttributeSafe(current) & Token.SYMBOL_TYPEFACE_MASK) == 0) {
+						(getSymbolAttributeSafe(current) & Token.SYMBOL_TYPEFACE_MASK) == 0) {
 					builder.appendElementExcludeAdvise(adviseElement);
 					builder.appendElement(builder.mCommonGlue);
 					builder.appendElementExcludeAdvise(adviseElement);
@@ -861,7 +876,7 @@ class ParagraphBuilderInternal {
 					return;
 				}
 
-				if ((getTokenAttributeSafe(current) & Token.SYMBOL_TYPEFACE_MASK) != Token.TYPE_NONE) {
+				if ((getSymbolAttributeSafe(current) & Token.SYMBOL_TYPEFACE_MASK) != Token.TYPE_NONE) {
 					throw new RuntimeException("symbol rule's state 1 advise logic error");
 				}
 
@@ -890,7 +905,7 @@ class ParagraphBuilderInternal {
 				return;
 			}
 
-			if ((getTokenAttributeSafe(accepted) & Token.SYMBOL_TYPEFACE_MASK) != Token.TYPE_NONE) {
+			if ((getSymbolAttributeSafe(accepted) & Token.SYMBOL_TYPEFACE_MASK) != Token.TYPE_NONE) {
 				throw new RuntimeException("symbol rule's state 1 advise logic error");
 			}
 

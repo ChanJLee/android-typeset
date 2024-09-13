@@ -178,4 +178,19 @@ public class LongArray {
 	public void removeLast() {
 		removeAt(mIndex - 1);
 	}
+
+	public void insertAt(int index, long v) {
+		if (index >= mIndex) {
+			add(v);
+			return;
+		}
+
+		if (mIndex + 1 > mContainer.length) {
+			mContainer = Arrays.copyOf(mContainer, mContainer.length * 2);
+		}
+
+		System.arraycopy(mContainer, index, mContainer, index + 1, mIndex - index);
+		mContainer[index] = v;
+		mIndex++;
+	}
 }

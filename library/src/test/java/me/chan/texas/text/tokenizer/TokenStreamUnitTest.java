@@ -43,8 +43,8 @@ public class TokenStreamUnitTest {
 				"hello",
 				"essay-based",
 				"hello",
-				"R&B",
-				"R&B",
+				"R", "B",
+				"R", "B",
 				"nice"
 		};
 
