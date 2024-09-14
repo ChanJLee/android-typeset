@@ -51,6 +51,13 @@
                 app:me_chan_texas_ParagraphView_textSize="20dp"
                 tools:me_chan_texas_ParagraphView_text="hello" />
 
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="#8BC34A"
+                android:text="hello"
+                android:textSize="20dp" />
+
             <me.chan.androidtex.TestView
                 android:id="@+id/test_view"
                 android:layout_width="match_parent"

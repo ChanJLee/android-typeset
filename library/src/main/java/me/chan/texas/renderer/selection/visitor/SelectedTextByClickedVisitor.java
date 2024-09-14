@@ -4,17 +4,17 @@ import android.graphics.RectF;
 
 import androidx.annotation.RestrictTo;
 
-import me.chan.texas.renderer.OnSpanClickedPredicate;
+import me.chan.texas.renderer.SpanPredicate;
 import me.chan.texas.text.layout.Box;
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class SelectedTextByClickedVisitor extends SelectedVisitor {
 
-	private OnSpanClickedPredicate mPredicate;
+	private SpanPredicate mPredicate;
 	private Object mClickedTag;
 	private boolean mHandled = false;
 
-	public void setPredicate(OnSpanClickedPredicate predicate, Object clicked) {
+	public void setPredicate(SpanPredicate predicate, Object clicked) {
 		mPredicate = predicate;
 		mClickedTag = clicked;
 	}

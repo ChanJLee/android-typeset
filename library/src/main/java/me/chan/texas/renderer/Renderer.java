@@ -416,12 +416,8 @@ public class Renderer implements SelectionManager.Listener {
 		}
 	}
 
-	public void setOnSpanLongClickedPredicate(OnSpanLongClickedPredicate predicate) {
-		mSelectionManager.setOnLongClickedPredicate(predicate);
-	}
-
-	public void setOnSpanClickedPredicate(OnSpanClickedPredicate predicate) {
-		mSelectionManager.setOnClickedPredicate(predicate);
+	public void setSpanTouchEventHandler(SpanTouchEventHandler listener) {
+		mSelectionManager.setSpanTouchEventHandler(listener);
 	}
 
 	@SuppressLint("NotifyDataSetChanged")
