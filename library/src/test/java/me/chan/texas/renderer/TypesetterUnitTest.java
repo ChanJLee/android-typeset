@@ -282,6 +282,7 @@ public class TypesetterUnitTest {
 		Assert.assertEquals(2, integer.get());
 
 		integer.set(0);
+		AtomicInteger tagCount = new AtomicInteger(0);
 		new ParagraphVisitor() {
 			@Override
 			protected void onVisitParagraphStart(Paragraph paragraph) {
@@ -305,12 +306,14 @@ public class TypesetterUnitTest {
 			@Override
 			protected void onVisitBox(Box box, RectF inner, RectF outer, @Nullable TypesetContext context) {
 				sendVisitSig(ParagraphVisitor.SIG_STOP_PARA_VISIT);
+				tagCount.incrementAndGet();
 			}
 		}.visit(paragraph, new RenderOption());
 		Assert.assertEquals(1, integer.get());
+		Assert.assertEquals(1, tagCount.get());
 
 		integer.set(0);
-		AtomicInteger tagCount = new AtomicInteger(0);
+		tagCount.set(0);
 		new ParagraphVisitor() {
 			@Override
 			protected void onVisitParagraphStart(Paragraph paragraph) {
