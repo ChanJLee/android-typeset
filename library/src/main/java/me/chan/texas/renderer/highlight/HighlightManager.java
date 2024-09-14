@@ -4,7 +4,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 
 import me.chan.texas.renderer.ParagraphVisitor;
-import me.chan.texas.renderer.TexasView;
+import me.chan.texas.renderer.SpanPredicate;
 import me.chan.texas.renderer.highlight.visitor.HighlightParagraphVisitor;
 import me.chan.texas.renderer.ui.RendererAdapter;
 import me.chan.texas.text.Document;
@@ -36,7 +36,7 @@ public class HighlightManager {
 		return mHighlight == null ? null : mHighlight.getParagraphHighlight(paragraph);
 	}
 
-	public Highlight highlightParagraphs(TexasView.HighlightPredicate predicate) {
+	public Highlight highlightParagraphs(SpanPredicate predicate) {
 		Document document = mAdapter.getDocument();
 		if (document == null) {
 			return null;
@@ -83,7 +83,7 @@ public class HighlightManager {
 		}
 	}
 
-	private ParagraphHighlight highlightParagraph(Paragraph paragraph, TexasView.HighlightPredicate predicate) {
+	private ParagraphHighlight highlightParagraph(Paragraph paragraph, SpanPredicate predicate) {
 		try {
 			mHighlightParagraphVisitor.setParams(paragraph, predicate);
 			mHighlightParagraphVisitor.visit(paragraph, mAdapter.getRenderOption());

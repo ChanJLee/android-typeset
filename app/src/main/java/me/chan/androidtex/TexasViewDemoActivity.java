@@ -173,26 +173,19 @@ public class TexasViewDemoActivity extends AppCompatActivity {
 	 * 高亮
 	 */
 	private void setupHighlight() {
-		findViewById(R.id.highlight).setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				mTexasView.highlightParagraphs(new TexasView.HighlightPredicate() {
-					@Override
-					public boolean apply(@Nullable Object paragraphTag, @Nullable Object spanTag) {
-						if (!"A9127P127017".equals(paragraphTag)) {
-							return false;
-						}
-
-						if (!(spanTag instanceof BookParser.SpanTag)) {
-							return false;
-						}
-
-						BookParser.SpanTag tag = (BookParser.SpanTag) spanTag;
-						return "A9127P127017S210459".equals(tag.sentId);
+		findViewById(R.id.highlight).setOnClickListener(v ->
+				mTexasView.highlightParagraphs((paragraphTag, spanTag) -> {
+					if (!"A9127P127017".equals(paragraphTag)) {
+						return false;
 					}
-				}, true, 0);
-			}
-		});
+
+					if (!(spanTag instanceof BookParser.SpanTag)) {
+						return false;
+					}
+
+					BookParser.SpanTag tag = (BookParser.SpanTag) spanTag;
+					return "A9127P127017S210459".equals(tag.sentId);
+				}, true, 0));
 	}
 
 	private void setupDecor() {
@@ -282,16 +275,13 @@ public class TexasViewDemoActivity extends AppCompatActivity {
 				if (mDest.top - 10 < y && mDest.bottom + 10 > y &&
 						mDest.left - 10 < x && mDest.right + 10 > x) {
 					mClicked = true;
-					mTexasView.selectParagraphs(new TexasView.SelectionPredicate() {
-						@Override
-						public boolean apply(Object paragraphTag, Object spanTag) {
-							if (!(spanTag instanceof BookParser.SpanTag)) {
-								return false;
-							}
-
-							BookParser.SpanTag tag = (BookParser.SpanTag) spanTag;
-							return "A9127P126972S210390".equals(tag.sentId);
+					mTexasView.selectParagraphs((paragraphTag, spanTag) -> {
+						if (!(spanTag instanceof BookParser.SpanTag)) {
+							return false;
 						}
+
+						BookParser.SpanTag tag = (BookParser.SpanTag) spanTag;
+						return "A9127P126972S210390".equals(tag.sentId);
 					});
 					return true;
 				}

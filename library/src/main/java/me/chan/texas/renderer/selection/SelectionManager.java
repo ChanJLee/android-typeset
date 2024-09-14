@@ -37,7 +37,7 @@ import me.chan.texas.text.layout.Box;
  * <p>
  * 目前有三个地方会触发选中
  * 1. 长按 & 点击 操作
- * 2. 主动调用 {@link TexasView#selectParagraphs(TexasView.SelectionPredicate)}
+ * 2. 主动调用 {@link TexasView#selectParagraphs} 接口
  * 3. 长按后拖动水滴
  * Created by Otway on 2021/11/12.
  */
@@ -54,7 +54,7 @@ public class SelectionManager implements OnSelectedChangedListener {
 	/**
 	 * 用于自驱式的选中文本
 	 * <p>
-	 * 即主动调用 {@link TexasView#selectParagraphs(TexasView.SelectionPredicate)} 接口，而不是通过点击操作
+	 * 即主动调用 {@link TexasView#selectParagraphs} 接口，而不是通过点击操作
 	 */
 	private final SelfDriveSelectedVisitor mSelfDriveSelectedVisitor = new SelfDriveSelectedVisitor();
 	/**
@@ -398,7 +398,7 @@ public class SelectionManager implements OnSelectedChangedListener {
 	 * @return 选中区域
 	 */
 	@Nullable
-	public Selection selectParagraphs(TexasView.SelectionPredicate predicate) {
+	public Selection selectParagraphs(SpanPredicate predicate) {
 		Document document = mAdapter.getDocument();
 		clearSelection();
 
@@ -415,7 +415,7 @@ public class SelectionManager implements OnSelectedChangedListener {
 		return mCurrentSelection;
 	}
 
-	private void selectParagraph(Paragraph paragraph, TexasView.SelectionPredicate predicate, int index) {
+	private void selectParagraph(Paragraph paragraph, SpanPredicate predicate, int index) {
 		if (paragraph == null) {
 			return;
 		}
