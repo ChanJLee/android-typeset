@@ -13,10 +13,10 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import me.chan.texas.misc.BitBucket;
-import me.chan.texas.renderer.OnSpanClickedPredicate;
-import me.chan.texas.renderer.OnSpanLongClickedPredicate;
 import me.chan.texas.renderer.ParagraphVisitor;
 import me.chan.texas.renderer.RenderOption;
+import me.chan.texas.renderer.SpanPredicate;
+import me.chan.texas.renderer.SpanTouchEventHandler;
 import me.chan.texas.renderer.TexasView;
 import me.chan.texas.renderer.TouchEvent;
 import me.chan.texas.renderer.selection.overlay.SelectionDragView;
@@ -44,8 +44,6 @@ import me.chan.texas.text.layout.Box;
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class SelectionManager implements OnSelectedChangedListener {
 	private Selection mCurrentSelection;
-	private OnSpanClickedPredicate mOnSpanClickedPredicate;
-	private OnSpanLongClickedPredicate mOnLongClickedPredicate;
 
 	private final RendererAdapter mAdapter;
 	private final LinearLayoutManager mLayoutManager;
@@ -72,6 +70,19 @@ public class SelectionManager implements OnSelectedChangedListener {
 	 * 拖拽时定位用
 	 */
 	private final int[] mLocations = new int[2];
+	private SpanTouchEventHandler mSpanTouchEventHandler;
+	private final SpanPredicate mOnSpanClickedPredicate = new SpanPredicate() {
+		@Override
+		public boolean apply(@Nullable Object clickedTag, @Nullable Object tag) {
+			return mSpanTouchEventHandler.applySpanClicked(clickedTag, tag);
+		}
+	};
+	private final SpanPredicate mOnSpanLongClickedPredicate = new SpanPredicate() {
+		@Override
+		public boolean apply(@Nullable Object clickedTag, @Nullable Object tag) {
+			return mSpanTouchEventHandler.applySpanLongClicked(clickedTag, tag);
+		}
+	};
 
 	public SelectionManager(RendererAdapter adapter,
 							LinearLayoutManager layoutManager,
@@ -98,18 +109,8 @@ public class SelectionManager implements OnSelectedChangedListener {
 		});
 	}
 
-	/**
-	 * @param onSpanClickedPredicate 单击的谓词
-	 */
-	public void setOnClickedPredicate(OnSpanClickedPredicate onSpanClickedPredicate) {
-		mOnSpanClickedPredicate = onSpanClickedPredicate;
-	}
-
-	/**
-	 * @param onLongClickedPredicate 长按的谓词
-	 */
-	public void setOnLongClickedPredicate(OnSpanLongClickedPredicate onLongClickedPredicate) {
-		mOnLongClickedPredicate = onLongClickedPredicate;
+	public void setSpanTouchEventHandler(SpanTouchEventHandler listener) {
+		mSpanTouchEventHandler = listener;
 	}
 
 	/**
@@ -162,11 +163,7 @@ public class SelectionManager implements OnSelectedChangedListener {
 	}
 
 	private boolean onBoxSelected(View source, MotionEvent e, Paragraph paragraph, boolean isLongClicked, Box box) {
-		OnSpanClickedPredicate predicate = isLongClicked ? mOnLongClickedPredicate : mOnSpanClickedPredicate;
-		if (predicate == null) {
-			return false;
-		}
-
+		SpanPredicate predicate = isLongClicked ? mOnSpanLongClickedPredicate : mOnSpanClickedPredicate;
 		clearSelection();
 
 		boolean handled = false;
@@ -190,7 +187,7 @@ public class SelectionManager implements OnSelectedChangedListener {
 
 	private boolean handleParagraphClicked(Paragraph paragraph,
 										   boolean isLongClicked,
-										   OnSpanClickedPredicate predicate,
+										   SpanPredicate predicate,
 										   Box box) throws ParagraphVisitor.VisitException {
 		Document document = mAdapter.getDocument();
 		if (document == null) {
@@ -209,7 +206,7 @@ public class SelectionManager implements OnSelectedChangedListener {
 	private boolean handleParagraphClicked0(Paragraph paragraph,
 											RenderOption renderOption,
 											boolean isLongClicked,
-											OnSpanClickedPredicate predicate,
+											SpanPredicate predicate,
 											Object boxTag,
 											int index) throws ParagraphVisitor.VisitException {
 		try {
@@ -513,6 +510,10 @@ public class SelectionManager implements OnSelectedChangedListener {
 		}
 
 		mContentView.scrollBy(0, (int) (mContentView.getHeight() * 0.1f));
+	}
+
+	public SpanTouchEventHandler getSpanTouchEventHandler() {
+		return mSpanTouchEventHandler;
 	}
 
 	public interface Listener {

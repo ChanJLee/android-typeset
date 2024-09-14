@@ -655,27 +655,9 @@ public final class TexasView extends FrameLayout {
 		}
 	}
 
-	/**
-	 * 选中和高亮的定义
-	 * <p>
-	 * 高亮只是高亮文字
-	 * <p>
-	 * 选中可以由程序触发，比如我想让某一段文字选中，也可以通过点击事件触发，比如长按，点击单词。
-	 */
-	public void setOnSpanClickedPredicate(OnSpanClickedPredicate predicate) {
+	public void setSpanTouchEventHandler(SpanTouchEventHandler listener) {
 		if (mRenderer != null) {
-			mRenderer.setOnSpanClickedPredicate(predicate);
-		}
-	}
-
-	/**
-	 * 长按触发
-	 *
-	 * @param predicate predicate
-	 */
-	public void setOnSpanLongClickedPredicate(OnSpanLongClickedPredicate predicate) {
-		if (mRenderer != null) {
-			mRenderer.setOnSpanLongClickedPredicate(predicate);
+			mRenderer.setSpanTouchEventHandler(listener);
 		}
 	}
 
@@ -1009,6 +991,7 @@ public final class TexasView extends FrameLayout {
 		load("load previous", LoadingStrategy.LOAD_PREVIOUS);
 	}
 
+	// TODO remove
 	public interface SelectionPredicate {
 
 		/**
@@ -1020,6 +1003,7 @@ public final class TexasView extends FrameLayout {
 		boolean apply(Object paragraphTag, Object spanTag);
 	}
 
+	// TODO remove
 	public interface HighlightPredicate {
 		/**
 		 * @param paragraphTag {@link me.chan.texas.text.Paragraph.Builder#tag(Object)}
@@ -1028,20 +1012,6 @@ public final class TexasView extends FrameLayout {
 		 */
 		@Idempotent
 		boolean apply(@Nullable Object paragraphTag, @Nullable Object spanTag);
-	}
-
-	/**
-	 * use {@link me.chan.texas.renderer.OnSpanClickedPredicate} instead
-	 */
-	@Deprecated
-	public interface OnSpanClickedPredicate extends me.chan.texas.renderer.OnSpanClickedPredicate {
-	}
-
-	/**
-	 * use {@link me.chan.texas.renderer.OnSpanLongClickedPredicate} instead
-	 */
-	@Deprecated
-	public interface OnSpanLongClickedPredicate extends me.chan.texas.renderer.OnSpanLongClickedPredicate {
 	}
 
 	/**

@@ -11,11 +11,13 @@ import android.widget.Chronometer;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import java.lang.reflect.Method;
 
 import me.chan.texas.TexasOption;
+import me.chan.texas.renderer.SpanTouchEventHandler;
 import me.chan.texas.renderer.TouchEvent;
 import me.chan.texas.renderer.ui.text.ParagraphView;
 import me.chan.texas.source.SourceCloseException;
@@ -58,7 +60,22 @@ public class SingleParagraphActivity extends AppCompatActivity {
 				Toast.makeText(SingleParagraphActivity.this, "onDoubleClicked", Toast.LENGTH_SHORT).show();
 			}
 		});
-		paragraphView.setOnSpanClickedPredicate((clickedTag, tag) -> clickedTag == tag);
+		paragraphView.setSpanTouchEventHandler(new SpanTouchEventHandler() {
+			@Override
+			public boolean isSpanClickable(@Nullable Object tag) {
+				return true;
+			}
+
+			@Override
+			public boolean applySpanClicked(@Nullable Object clickedTag, @Nullable Object otherTag) {
+				return clickedTag == otherTag;
+			}
+
+			@Override
+			public boolean applySpanLongClicked(@Nullable Object clickedTag, @Nullable Object otherTag) {
+				return false;
+			}
+		});
 		paragraphView.setSource(new ParagraphView.ParagraphSource() {
 			@Override
 			protected Paragraph onOpen(TexasOption option) {

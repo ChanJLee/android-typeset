@@ -26,6 +26,7 @@ import me.chan.texas.Texas;
 import me.chan.texas.adapter.TextAdapter;
 import me.chan.texas.renderer.ParagraphVisitor;
 import me.chan.texas.renderer.RenderOption;
+import me.chan.texas.renderer.SpanTouchEventHandler;
 import me.chan.texas.renderer.TexasView;
 import me.chan.texas.renderer.TouchEvent;
 import me.chan.texas.renderer.ui.decor.ParagraphDecor;
@@ -81,24 +82,23 @@ public class TexasViewDemoActivity extends AppCompatActivity {
 
 	private void setupClickPredicate() {
 		// 没别的要求，一定要快！！！不然会ANR ⚠️
-
-		// 单机谓词 判断 单机时哪些单词要被高亮
-		mTexasView.setOnSpanClickedPredicate(new TexasView.OnSpanClickedPredicate() {
+		mTexasView.setSpanTouchEventHandler(new SpanTouchEventHandler() {
 			@Override
-			public boolean apply(@Nullable Object clickedTag, @Nullable Object tag) {
-				// 一个单词可能被拆开换行显示了，因此只要看tag是不是同一个就可以在点击的时候高亮
-				return clickedTag == tag;
+			public boolean isSpanClickable(Object tag) {
+				return true;
 			}
-		});
 
-		// 长按谓词
-		mTexasView.setOnSpanLongClickedPredicate(new TexasView.OnSpanLongClickedPredicate() {
+			// 单机谓词 判断 单机时哪些单词要被高亮
 			@Override
-			public boolean apply(@Nullable Object clickedTag, @Nullable Object tag) {
-				// 和点击了的单词处于同一个句子的单词将被长按的时候高亮
-				if (clickedTag instanceof BookParser.SpanTag && tag instanceof BookParser.SpanTag) {
+			public boolean applySpanClicked(@Nullable Object clickedTag, @Nullable Object otherTag) {
+				return clickedTag == otherTag;
+			}
+
+			@Override
+			public boolean applySpanLongClicked(@Nullable Object clickedTag, @Nullable Object otherTag) {
+				if (clickedTag instanceof BookParser.SpanTag && otherTag instanceof BookParser.SpanTag) {
 					BookParser.SpanTag lhs = (BookParser.SpanTag) clickedTag;
-					BookParser.SpanTag rhs = (BookParser.SpanTag) tag;
+					BookParser.SpanTag rhs = (BookParser.SpanTag) otherTag;
 					return TexasUtils.equals(lhs.sentId, rhs.sentId);
 				}
 
