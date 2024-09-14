@@ -62,6 +62,7 @@
         </attr>
         <attr name="me_chan_texas_ParagraphView_selectedBackgroundRoundRadius" format="dimension" />
         <attr name="me_chan_texas_ParagraphView_compatMode" format="boolean" />
+        <attr name="me_chan_texas_ParagraphView_text" format="string" />
     </declare-styleable>
 
     <declare-styleable name="me_chan_texas_LoadingIndicatorView">

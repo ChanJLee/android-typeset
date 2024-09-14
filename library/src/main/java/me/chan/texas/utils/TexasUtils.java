@@ -50,7 +50,7 @@ public class TexasUtils {
 	}
 
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
-	public static boolean isIsDebug() {
+	public static boolean isDebug() {
 		return sIsDebug;
 	}
 

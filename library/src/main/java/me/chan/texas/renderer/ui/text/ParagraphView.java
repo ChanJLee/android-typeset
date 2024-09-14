@@ -1,6 +1,5 @@
 package me.chan.texas.renderer.ui.text;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
@@ -113,27 +112,36 @@ public class ParagraphView extends FrameLayout {
 
 	public ParagraphView(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
 		super(context, attrs, defStyleAttr);
-		mRenderOption = createRenderOption(context, attrs, defStyleAttr);
-		mPaintSet = new PaintSet(mRenderOption);
-		mMeasurer = new AndroidMeasurer(mPaintSet);
-		mTextAttribute = new TextAttribute(mMeasurer);
-		mRender = mRenderOption.isCompatMode() || Build.VERSION.SDK_INT < Build.VERSION_CODES.M ?
-				new TextureParagraphView0Compat(context) : new TextureParagraphView0(context);
-		addView((View) mRender, new FrameLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
-		OnSelectedChangedListener onSelectedChangedListener = new OnSelectedChangedListener() {
-			@Override
-			public boolean onSegmentClicked(View source, MotionEvent e, Paragraph paragraph, int eventType) {
-				return handleParagraphClicked(source, e, eventType);
-			}
+		TypedArray typedArray = context.obtainStyledAttributes(attrs, R.styleable.me_chan_texas_ParagraphView, defStyleAttr, 0);
+		try {
+			mRenderOption = createRenderOption(context, typedArray);
+			mPaintSet = new PaintSet(mRenderOption);
+			mMeasurer = new AndroidMeasurer(mPaintSet);
+			mTextAttribute = new TextAttribute(mMeasurer);
+			mRender = mRenderOption.isCompatMode() || Build.VERSION.SDK_INT < Build.VERSION_CODES.M ?
+					new TextureParagraphView0Compat(context) : new TextureParagraphView0(context);
+			addView((View) mRender, new FrameLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+			OnSelectedChangedListener onSelectedChangedListener = new OnSelectedChangedListener() {
+				@Override
+				public boolean onSegmentClicked(View source, MotionEvent e, Paragraph paragraph, int eventType) {
+					return handleParagraphClicked(source, e, eventType);
+				}
 
-			@Override
-			public boolean onBoxSelected(View source, MotionEvent e, Paragraph paragraph, @EventType int eventType, Box box) {
-				return handleParagraphSelected(source, e, paragraph, eventType, box);
-			}
-		};
-		mRender.setOnTextSelectedListener(onSelectedChangedListener);
+				@Override
+				public boolean onBoxSelected(View source, MotionEvent e, Paragraph paragraph, @EventType int eventType, Box box) {
+					return handleParagraphSelected(source, e, paragraph, eventType, box);
+				}
+			};
+			mRender.setOnTextSelectedListener(onSelectedChangedListener);
 
-		checkUIThreadPriority();
+			String text = typedArray.getString(R.styleable.me_chan_texas_ParagraphView_me_chan_texas_ParagraphView_text);
+			if (!TextUtils.isEmpty(text)) {
+				setText(text);
+			}
+			checkUIThreadPriority();
+		} finally {
+			typedArray.recycle();
+		}
 	}
 
 	@Override
@@ -398,7 +406,7 @@ public class ParagraphView extends FrameLayout {
 	/**
 	 * @param source 段落源
 	 */
-	public void setSource(ParagraphSource source) {
+	public void setSource(@NonNull ParagraphSource source) {
 		if (DEBUG) {
 			Log.d(TAG, "setSource: source = " + source);
 		}
@@ -418,7 +426,35 @@ public class ParagraphView extends FrameLayout {
 		// 提交解析任务
 		ParseWorker.Args args = ParseWorker.Args.obtain(source, LoadingStrategy.LOAD_MORE, mParseListener);
 		ParseWorker worker = WorkerScheduler.parse();
-		worker.submit(mRender.getToken(), args);
+		if (!isInEditMode()) {
+			worker.submit(mRender.getToken(), args);
+			return;
+		}
+
+		try {
+			Paragraph paragraph = worker.submitSync(mRender.getToken(), args);
+			mParseListener.onParseSuccess(paragraph);
+		} catch (Throwable e) {
+			mParseListener.onParseFailure(e);
+		}
+	}
+
+	public void setText(@NonNull CharSequence text) {
+		setText(text, 0, text.length());
+	}
+
+	public void setText(@NonNull CharSequence text, int start, int end) {
+		setSource(new ParagraphSource() {
+			@Override
+			protected void onClose() {
+				/* do nothing */
+			}
+
+			@Override
+			protected Paragraph onOpen(TexasOption option) {
+				return Paragraph.Builder.newBuilder(option).text(text, start, end).build();
+			}
+		});
 	}
 
 	/**
@@ -577,17 +613,7 @@ public class ParagraphView extends FrameLayout {
 		void onDoubleClicked(ParagraphView paragraphView, TouchEvent event);
 	}
 
-	private RenderOption createRenderOption(Context context, AttributeSet attributeSet, int defStyleAttr) {
-		@SuppressLint("CustomViewStyleable")
-		TypedArray typedArray = context.obtainStyledAttributes(attributeSet, R.styleable.me_chan_texas_ParagraphView, defStyleAttr, 0);
-		try {
-			return createRenderOption0(context, typedArray);
-		} finally {
-			typedArray.recycle();
-		}
-	}
-
-	private RenderOption createRenderOption0(Context context, TypedArray typedArray) {
+	private RenderOption createRenderOption(Context context, TypedArray typedArray) {
 		Resources resources = getResources();
 		RenderOption renderOption = new RenderOption();
 
