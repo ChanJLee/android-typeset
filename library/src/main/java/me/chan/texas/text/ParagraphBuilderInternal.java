@@ -163,7 +163,6 @@ class ParagraphBuilderInternal {
 			return;
 		}
 
-		// TODO token.recycle
 		// 将句子转换为单词流
 		// 单词流会分析出一个句子中每个字符所代表的语义，这样可以精确的识别诸如： isn't、1920s 为一个单词
 		TokenStream tokenStream = TokenStream.obtain(text, start, end);
