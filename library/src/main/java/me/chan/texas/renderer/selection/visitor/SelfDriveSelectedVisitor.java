@@ -5,15 +5,15 @@ import android.graphics.RectF;
 import androidx.annotation.RestrictTo;
 
 import me.chan.texas.renderer.RenderOption;
-import me.chan.texas.renderer.TexasView;
+import me.chan.texas.renderer.SpanPredicate;
 import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.layout.Box;
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class SelfDriveSelectedVisitor extends SelectedVisitor {
-	private TexasView.SelectionPredicate mPredicate;
+	private SpanPredicate mPredicate;
 
-	public void reset(RenderOption renderOption, TexasView.SelectionPredicate predicate) {
+	public void reset(RenderOption renderOption, SpanPredicate predicate) {
 		mPredicate = predicate;
 		super.reset(true, renderOption);
 	}

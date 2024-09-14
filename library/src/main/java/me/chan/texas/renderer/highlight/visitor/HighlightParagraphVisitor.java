@@ -5,7 +5,7 @@ import android.graphics.RectF;
 import androidx.annotation.RestrictTo;
 
 import me.chan.texas.renderer.ParagraphVisitor;
-import me.chan.texas.renderer.TexasView;
+import me.chan.texas.renderer.SpanPredicate;
 import me.chan.texas.renderer.highlight.ParagraphHighlight;
 import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.TypesetContext;
@@ -17,7 +17,7 @@ import me.chan.texas.text.layout.TextBox;
 public class HighlightParagraphVisitor extends ParagraphVisitor {
 
 	private Paragraph mParagraph;
-	private TexasView.HighlightPredicate mPredicate;
+	private SpanPredicate mPredicate;
 	private ParagraphHighlight mParagraphHighlight;
 
 	@Override
@@ -70,7 +70,7 @@ public class HighlightParagraphVisitor extends ParagraphVisitor {
 		return mParagraphHighlight;
 	}
 
-	public void setParams(Paragraph paragraph, TexasView.HighlightPredicate predicate) {
+	public void setParams(Paragraph paragraph, SpanPredicate predicate) {
 		mPredicate = predicate;
 		mParagraph = paragraph;
 	}
