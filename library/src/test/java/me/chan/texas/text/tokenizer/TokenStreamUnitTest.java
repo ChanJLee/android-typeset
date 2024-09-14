@@ -5,35 +5,12 @@ import android.icu.text.Bidi;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.io.File;
-import java.io.IOException;
 import java.lang.reflect.Field;
-
-import opennlp.tools.tokenize.Tokenizer;
-import opennlp.tools.tokenize.TokenizerME;
-import opennlp.tools.tokenize.TokenizerModel;
 
 public class TokenStreamUnitTest {
 
-	private final TokenizerModel mModel;
-
-	public TokenStreamUnitTest() throws IOException {
-		mModel = new TokenizerModel(new File("../library/src/main/assets/texas/opennlp-en-ud-ewt-tokens-1.0-1.9.3.bin"));
-	}
-
-	@Test
-	public void testNlp2() throws IOException {
-		TokenizerModel model = new TokenizerModel(new File("../library/src/main/assets/texas/opennlp-en-ud-ewt-tokens-1.0-1.9.3.bin"));
-		Tokenizer tokenizer = new TokenizerME(model);
-		String[] tokens = tokenizer.tokenize("\"will! 你好R&B");
-		for (String token : tokens) {
-			System.out.println(token);
-		}
-	}
-
 	@Test
 	public void print1() {
-		me.chan.texas.text.tokenizer.Tokenizer.setup(mModel);
 		String msg = "I don't. bite-size hello... essay-based. hello! R&B, R&B nice";
 		System.out.println(msg.length() + " " + msg.codePointCount(0, msg.length()));
 		String[] values = {
@@ -62,7 +39,6 @@ public class TokenStreamUnitTest {
 
 	@Test
 	public void print2() {
-		me.chan.texas.text.tokenizer.Tokenizer.setup(mModel);
 		String msg = "don't.";
 		System.out.println(msg.length() + " " + msg.codePointCount(0, msg.length()));
 		TokenStream reader =  TokenStream.obtain(msg, 0, msg.length());
@@ -74,7 +50,6 @@ public class TokenStreamUnitTest {
 
 	@Test
 	public void print3() {
-		me.chan.texas.text.tokenizer.Tokenizer.setup(mModel);
 		String msg = "oh fuck...";
 		TokenStream reader =  TokenStream.obtain(msg, 0, msg.length());
 		while (reader.hasNext()) {
@@ -85,7 +60,6 @@ public class TokenStreamUnitTest {
 
 	@Test
 	public void print4() {
-		me.chan.texas.text.tokenizer.Tokenizer.setup(mModel);
 		// String msg = "\uD83D\uDE4BIt would be better to say：A cup of tea.\n❓Modifying Reason：The word 'cup' is repeated unnecessarily.（تم تكرار كلمة 'كوب' بشكل غير ضروري.）";
 		// String msg = "\ud83d\ude4b\uff08\u062a\u0645 \u062a\u0643\u0631\u0627\u0631 \u0643\u0644\u0645\u0629 '\u0643\u0648\u0628' \u0628\u0634\u0643\u0644 \u063a\u064a\u0631 \u0636\u0631\u0648\u0631\u064a.\uff09";
 		String msg = "\u0067\u0308";

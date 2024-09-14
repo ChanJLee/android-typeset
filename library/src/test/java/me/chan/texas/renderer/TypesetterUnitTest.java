@@ -30,7 +30,6 @@ import me.chan.texas.text.layout.Line;
 import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.Segment;
 import me.chan.texas.text.layout.TextBox;
-import me.chan.texas.text.tokenizer.Tokenizer;
 import me.chan.texas.typesetter.ParagraphTypesetter;
 
 import org.junit.Assert;
@@ -47,7 +46,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 
 import me.chan.texas.utils.concurrency.TaskQueue;
-import opennlp.tools.tokenize.TokenizerModel;
 
 /**
  * Example local unit test, which will execute on the development machine (host).
@@ -59,14 +57,6 @@ public class TypesetterUnitTest {
 	private Rect mRect;
 
 	static {
-		TokenizerModel model = null;
-		try {
-			model = new TokenizerModel(new File("../library/src/main/assets/texas/opennlp-en-ud-ewt-tokens-1.0-1.9.3.bin"));
-			Tokenizer.setup(model);
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
-
 		Texas.setTexasComponent(DaggerFakeTexasComponent.factory().create());
 	}
 
