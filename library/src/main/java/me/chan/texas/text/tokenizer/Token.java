@@ -209,12 +209,7 @@ public class Token extends DefaultRecyclable {
 	}
 
 	@Override
-	public void recycle() {
-		if (isRecycled()) {
-			return;
-		}
-
-		super.recycle();
+	protected void onRecycle() {
 		mCharSequence = null;
 		mStart = mEnd = 0;
 		mMask = 0;

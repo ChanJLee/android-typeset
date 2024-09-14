@@ -69,13 +69,8 @@ public class Line extends DefaultRecyclable {
 	}
 
 	@Override
-	public void recycle() {
-		if (isRecycled()) {
-			return;
-		}
-
+	protected void onRecycle() {
 		reset();
-		super.recycle();
 		POOL.release(this);
 	}
 
@@ -355,17 +350,11 @@ public class Line extends DefaultRecyclable {
 		}
 
 		@Override
-		public void recycle() {
-			if (isRecycled()) {
-				return;
-			}
-
+		protected void onRecycle() {
 			mLine = null;
 			mLastTextElement = null;
 			mContainTerminal = false;
 			mElements.clear();
-			super.recycle();
-
 			BUILDER_POOL.release(this);
 		}
 

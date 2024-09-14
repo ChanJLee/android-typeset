@@ -153,12 +153,8 @@ public final class TextBox extends Box {
 	}
 
 	@Override
-	public void recycle() {
-		if (isRecycled()) {
-			return;
-		}
-
-		super.recycle();
+	protected void onRecycle() {
+		super.onRecycle();
 		mText = null;
 		mStart = mEnd = 0;
 		mTextStyle = null;

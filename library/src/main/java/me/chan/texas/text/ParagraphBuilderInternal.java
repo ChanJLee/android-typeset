@@ -166,12 +166,13 @@ class ParagraphBuilderInternal {
 		// TODO token.recycle
 		// 将句子转换为单词流
 		// 单词流会分析出一个句子中每个字符所代表的语义，这样可以精确的识别诸如： isn't、1920s 为一个单词
-		TokenStream tokenStream = null;
+		TokenStream tokenStream = TokenStream.obtain(text, start, end);
 		try {
+
 			// 追加一个空格
 			// 这个未来还能不能适用，就要看状态推导图了，目前看一个token后接blank和none不影响状态机的跳转
 			if (mLastToken != null && tokenStream.hasNext()) {
-				tokenStream.ahead();
+				tokenStream = TokenStream.link(TokenStream.obtain(" ", 0, 1), tokenStream);
 			}
 
 			Token prev = mLastToken;
@@ -179,15 +180,8 @@ class ParagraphBuilderInternal {
 			if (prev != mLastToken && prev != null) {
 				prev.recycle();
 			}
-
-			// 因为token会跟着stream销毁，所以要保留上次的token
-			if (mLastToken != null) {
-				mLastToken = Token.copy(mLastToken);
-			}
 		} finally {
-			if (tokenStream != null) {
-				tokenStream.recycle();
-			}
+			tokenStream.recycle();
 		}
 	}
 

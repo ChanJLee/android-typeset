@@ -208,16 +208,11 @@ public class ParagraphTypesetWorker implements TaskQueue.Task<ParagraphTypesetWo
 		}
 
 		@Override
-		public void recycle() {
-			if (isRecycled()) {
-				return;
-			}
-
+		protected void onRecycle() {
 			paragraph = null;
 			option = null;
 			listener = null;
 			width = 0;
-			super.recycle();
 			POOL.release(this);
 		}
 

@@ -58,18 +58,13 @@ public class Layout extends DefaultRecyclable {
 	}
 
 	@Override
-	public void recycle() {
-		if (isRecycled()) {
-			return;
-		}
-
+	protected void onRecycle() {
 		clear();
 		mLineSpace = -1;
 		mLineWidth = -1;
 		mAdvise.clear();
 		mRect = null;
 		mAlgorithm = "unknown";
-		super.recycle();
 		POOL.release(this);
 	}
 

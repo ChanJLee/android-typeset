@@ -92,14 +92,9 @@ public abstract class WorkerMessager {
 		}
 
 		@Override
-		public void recycle() {
-			if (isRecycled()) {
-				return;
-			}
-
+		protected void onRecycle() {
 			mArg = mValue = null;
 			mToken = null;
-			super.recycle();
 			POOL.release(this);
 		}
 

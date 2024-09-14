@@ -111,16 +111,11 @@ public class AndroidTaskQueue implements TaskQueue {
 		}
 
 		@Override
-		public void recycle() {
-			if (isRecycled()) {
-				return;
-			}
-
+		protected void onRecycle() {
 			task = null;
 			listener = null;
 			args = null;
 			token = null;
-			super.recycle();
 			POOL.release(this);
 		}
 

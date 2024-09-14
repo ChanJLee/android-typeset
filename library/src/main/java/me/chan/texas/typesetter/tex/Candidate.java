@@ -25,14 +25,9 @@ public class Candidate extends DefaultRecyclable {
 	public float ratio;
 
 	@Override
-	public void recycle() {
-		if (isRecycled()) {
-			return;
-		}
-
+	protected void onRecycle() {
 		ratio = demerits = 0;
 		active = null;
-		super.recycle();
 		POOL.release(this);
 	}
 

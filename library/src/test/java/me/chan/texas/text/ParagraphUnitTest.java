@@ -365,6 +365,7 @@ public class ParagraphUnitTest {
 	@Test
 	public void testSymbolSent() {
 		TexasOption texasOption = new TexasOption(Hyphenation.getInstance(), mMeasurer, mTextAttribute, new RenderOption());
+		Glue blank = Glue.obtain(mTextAttribute);
 
 		testSymbolSent2();
 
@@ -391,7 +392,7 @@ public class ParagraphUnitTest {
 			builder.text("hello");
 			builder.text("\" ");
 			paragraph = builder.build();
-			checkContent(paragraph, "hello", "\"", Glue.TERMINAL, Penalty.FORCE_BREAK);
+			checkContent(paragraph, "hello", Penalty.FORBIDDEN_BREAK, blank, Penalty.FORBIDDEN_BREAK, "\"", Glue.TERMINAL, Penalty.FORCE_BREAK);
 
 			builder = Paragraph.Builder.newBuilder(texasOption);
 			builder.text("\"");
