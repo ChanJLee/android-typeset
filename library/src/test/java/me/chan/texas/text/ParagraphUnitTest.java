@@ -19,33 +19,22 @@ import me.chan.texas.text.layout.Line;
 import me.chan.texas.text.layout.Penalty;
 import me.chan.texas.text.layout.SymbolGlue;
 import me.chan.texas.text.layout.TextBox;
-import me.chan.texas.text.tokenizer.Tokenizer;
 
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.io.File;
-import java.io.IOException;
-
-import opennlp.tools.tokenize.TokenizerModel;
 
 public class ParagraphUnitTest {
 
 	private Measurer mMeasurer;
 	private TextAttribute mTextAttribute;
 
-	private final TokenizerModel mModel;
-
-	public ParagraphUnitTest() throws IOException {
-		mModel = new TokenizerModel(new File("../library/src/main/assets/texas/opennlp-en-ud-ewt-tokens-1.0-1.9.3.bin"));
-	}
 
 	@Before
 	public void setup() {
 		mMeasurer = new MockMeasurer(new MockTextPaint(20));
 		mTextAttribute = new TextAttribute(mMeasurer);
-		Tokenizer.setup(mModel);
 	}
 
 	@Test
