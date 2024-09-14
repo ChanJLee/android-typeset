@@ -583,8 +583,8 @@ public class WordStreamUnitTest {
 
 	@Test
 	public void testLink() {
-		TokenStream tokenStream = TokenStream.link(TokenStream.obtain(" ", 0, 1), TokenStream.obtain("a b", 0, 3));
-		Assert.assertEquals(tokenStream.size(), 4);
+		TokenStream tokenStream = TokenStream.link(TokenStream.obtain(" ", 0, 1), TokenStream.obtain("a  b", 0, 4));
+		Assert.assertEquals(4, tokenStream.size());
 		Assert.assertTrue(tokenStream.hasNext());
 		int save = tokenStream.save();
 		assertToken(tokenStream.next(), " ");
@@ -598,7 +598,7 @@ public class WordStreamUnitTest {
 		Assert.assertTrue(tokenStream.hasNext());
 		assertToken(tokenStream.next(), "a");
 		Assert.assertTrue(tokenStream.hasNext());
-		assertToken(tokenStream.next(), " ");
+		assertToken(tokenStream.next(), "  ");
 		Assert.assertTrue(tokenStream.hasNext());
 		assertToken(tokenStream.next(), "b");
 

@@ -43,6 +43,7 @@ import me.chan.texas.renderer.SpanPredicate;
 import me.chan.texas.renderer.selection.ParagraphSelection;
 import me.chan.texas.renderer.selection.visitor.SelectedTextByClickedVisitor;
 import me.chan.texas.source.Source;
+import me.chan.texas.source.SourceCloseException;
 import me.chan.texas.source.SourceOpenException;
 import me.chan.texas.text.BreakStrategy;
 import me.chan.texas.text.HyphenStrategy;
@@ -462,17 +463,14 @@ public class ParagraphView extends FrameLayout {
 	}
 
 	public void setText(@NonNull CharSequence text, int start, int end) {
-		setSource(new ParagraphSource() {
-			@Override
-			protected void onClose() {
-				/* do nothing */
+		if (mSource != null && mSource instanceof TextParagraphSource) {
+			TextParagraphSource source = (TextParagraphSource) mSource;
+			if (source.mText == text && source.mStart == start && source.mEnd == end) {
+				return;
 			}
+		}
 
-			@Override
-			protected Paragraph onOpen(TexasOption option) {
-				return Paragraph.Builder.newBuilder(option).text(text, start, end).build();
-			}
-		});
+		setSource(new TextParagraphSource(text, start, end));
 	}
 
 	/**
@@ -769,6 +767,28 @@ public class ParagraphView extends FrameLayout {
 			}
 		} catch (Throwable t) {
 			Log.w("Texas", t);
+		}
+	}
+
+	private static class TextParagraphSource extends ParagraphSource {
+		private final CharSequence mText;
+		private final int mStart;
+		private final int mEnd;
+
+		public TextParagraphSource(CharSequence text, int start, int end) {
+			mText = text;
+			mStart = start;
+			mEnd = end;
+		}
+
+		@Override
+		protected Paragraph onOpen(TexasOption option) {
+			return Paragraph.Builder.newBuilder(option).text(mText, mStart, mEnd).build();
+		}
+
+		@Override
+		protected void onClose() throws SourceCloseException {
+			/* do nothing */
 		}
 	}
 }

@@ -101,7 +101,6 @@ class TextTokenStream extends DefaultRecyclable implements TokenStream {
 	private void appendUnknown(BrkArray brk, CharSequence text, int end) {
 		final int start = (int) brk.last();
 
-		// todo test 多个空格
 		int codePoint = text.charAt(start);
 		if (UnicodeUtils.isControlCharacter(codePoint)) {
 			addBrk(brk, Token.CATEGORY_CONTROL, end);
