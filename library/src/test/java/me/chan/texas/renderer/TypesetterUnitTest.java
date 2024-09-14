@@ -6,7 +6,10 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import android.graphics.Rect;
+import android.graphics.RectF;
 import android.util.Log;
+
+import androidx.annotation.Nullable;
 
 import com.shanbay.lib.texas.test.mock.MockTextPaint;
 
@@ -21,6 +24,7 @@ import me.chan.texas.renderer.core.worker.LoadingWorker;
 import me.chan.texas.source.ObjectSource;
 import me.chan.texas.source.SourceCloseException;
 import me.chan.texas.source.SourceOpenException;
+import me.chan.texas.text.TypesetContext;
 import me.chan.texas.text.layout.Box;
 import me.chan.texas.text.BreakStrategy;
 import me.chan.texas.text.Document;
@@ -44,6 +48,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import me.chan.texas.utils.concurrency.TaskQueue;
 
@@ -148,6 +153,194 @@ public class TypesetterUnitTest {
 
 	}
 
+	@Test
+	public void testParagraphVisit() throws SourceCloseException, SourceOpenException, ParseException, NoSuchFieldException, InterruptedException, IllegalAccessException, ParagraphVisitor.VisitException {
+		Paragraph paragraph = checkContentPredication("一二三四五六七八九一二三四", BreakStrategy.BALANCED, 5, 1, Paragraph.TYPESET_POLICY_CJK_OPTIMIZATION, new String[]{
+				"一 二 三 四 五",
+				"六 七 八 九 一",
+				"二 三 四"
+		});
+		new ParagraphVisitor() {
+
+			@Override
+			protected void onVisitParagraphStart(Paragraph paragraph) {
+				sendVisitSig(ParagraphVisitor.SIG_STOP_PARA_VISIT);
+			}
+
+			@Override
+			protected void onVisitParagraphEnd(Paragraph paragraph) {
+
+			}
+
+			@Override
+			protected void onVisitLineStart(Line line, float x, float y) {
+				Assert.fail("test stop para visit failed");
+			}
+
+			@Override
+			protected void onVisitLineEnd(Line line, float x, float y) {
+
+			}
+
+			@Override
+			protected void onVisitBox(Box box, RectF inner, RectF outer, @Nullable TypesetContext context) {
+
+			}
+		}.visit(paragraph, new RenderOption());
+		AtomicInteger integer = new AtomicInteger(0);
+		new ParagraphVisitor() {
+			@Override
+			protected void onVisitParagraphStart(Paragraph paragraph) {
+			}
+
+			@Override
+			protected void onVisitParagraphEnd(Paragraph paragraph) {
+
+			}
+
+			@Override
+			protected void onVisitLineStart(Line line, float x, float y) {
+				integer.incrementAndGet();
+			}
+
+			@Override
+			protected void onVisitLineEnd(Line line, float x, float y) {
+
+			}
+
+			@Override
+			protected void onVisitBox(Box box, RectF inner, RectF outer, @Nullable TypesetContext context) {
+
+			}
+		}.visit(paragraph, new RenderOption());
+		Assert.assertEquals(3, integer.get());
+
+		integer.set(0);
+		new ParagraphVisitor() {
+			@Override
+			protected void onVisitParagraphStart(Paragraph paragraph) {
+			}
+
+			@Override
+			protected void onVisitParagraphEnd(Paragraph paragraph) {
+
+			}
+
+			@Override
+			protected void onVisitLineStart(Line line, float x, float y) {
+				integer.incrementAndGet();
+				if (integer.get() == 2) {
+					sendVisitSig(ParagraphVisitor.SIG_STOP_LINE_VISIT);
+				}
+			}
+
+			@Override
+			protected void onVisitLineEnd(Line line, float x, float y) {
+
+			}
+
+			@Override
+			protected void onVisitBox(Box box, RectF inner, RectF outer, @Nullable TypesetContext context) {
+				if (integer.get() == 2) {
+					Assert.fail("test stop line visit failed");
+				}
+			}
+		}.visit(paragraph, new RenderOption());
+		Assert.assertEquals(3, integer.get());
+
+		integer.set(0);
+		new ParagraphVisitor() {
+			@Override
+			protected void onVisitParagraphStart(Paragraph paragraph) {
+			}
+
+			@Override
+			protected void onVisitParagraphEnd(Paragraph paragraph) {
+
+			}
+
+			@Override
+			protected void onVisitLineStart(Line line, float x, float y) {
+				integer.incrementAndGet();
+				if (integer.get() == 2) {
+					sendVisitSig(ParagraphVisitor.SIG_STOP_PARA_VISIT);
+				}
+			}
+
+			@Override
+			protected void onVisitLineEnd(Line line, float x, float y) {
+
+			}
+
+			@Override
+			protected void onVisitBox(Box box, RectF inner, RectF outer, @Nullable TypesetContext context) {
+				if (integer.get() > 2) {
+					Assert.fail("test stop line visit failed");
+				}
+			}
+		}.visit(paragraph, new RenderOption());
+		Assert.assertEquals(2, integer.get());
+
+		integer.set(0);
+		new ParagraphVisitor() {
+			@Override
+			protected void onVisitParagraphStart(Paragraph paragraph) {
+			}
+
+			@Override
+			protected void onVisitParagraphEnd(Paragraph paragraph) {
+
+			}
+
+			@Override
+			protected void onVisitLineStart(Line line, float x, float y) {
+				integer.incrementAndGet();
+			}
+
+			@Override
+			protected void onVisitLineEnd(Line line, float x, float y) {
+
+			}
+
+			@Override
+			protected void onVisitBox(Box box, RectF inner, RectF outer, @Nullable TypesetContext context) {
+				sendVisitSig(ParagraphVisitor.SIG_STOP_PARA_VISIT);
+			}
+		}.visit(paragraph, new RenderOption());
+		Assert.assertEquals(1, integer.get());
+
+		integer.set(0);
+		AtomicInteger tagCount = new AtomicInteger(0);
+		new ParagraphVisitor() {
+			@Override
+			protected void onVisitParagraphStart(Paragraph paragraph) {
+			}
+
+			@Override
+			protected void onVisitParagraphEnd(Paragraph paragraph) {
+
+			}
+
+			@Override
+			protected void onVisitLineStart(Line line, float x, float y) {
+				integer.incrementAndGet();
+			}
+
+			@Override
+			protected void onVisitLineEnd(Line line, float x, float y) {
+
+			}
+
+			@Override
+			protected void onVisitBox(Box box, RectF inner, RectF outer, @Nullable TypesetContext context) {
+				sendVisitSig(ParagraphVisitor.SIG_STOP_LINE_VISIT);
+				tagCount.incrementAndGet();
+			}
+		}.visit(paragraph, new RenderOption());
+		Assert.assertEquals(3, integer.get());
+		Assert.assertEquals(3, tagCount.get());
+	}
+
 	private void printDocument(Document document) {
 		for (int i = 0; i < document.getSegmentCount(); ++i) {
 			Segment segment = document.getSegment(i);
@@ -211,7 +404,7 @@ public class TypesetterUnitTest {
 		}
 	}
 
-	private void checkContentPredication(String text, BreakStrategy breakStrategy, float lineWidth, int textSize, int policy, String[] exceptedLines) throws InterruptedException, SourceCloseException, SourceOpenException, ParseException, NoSuchFieldException, IllegalAccessException {
+	private Paragraph checkContentPredication(String text, BreakStrategy breakStrategy, float lineWidth, int textSize, int policy, String[] exceptedLines) throws InterruptedException, SourceCloseException, SourceOpenException, ParseException, NoSuchFieldException, IllegalAccessException {
 		System.out.println("check content predication, width: " + lineWidth + " text size: " + textSize + " " + breakStrategy + "->" + text);
 
 		FakeMeasureFactory factory = FakeMeasureFactory.getInstance();
@@ -254,6 +447,8 @@ public class TypesetterUnitTest {
 		} catch (ParagraphVisitor.VisitException e) {
 			Assert.fail("fuck");
 		}
+
+		return paragraph;
 	}
 
 	private void checkContent(String text, BreakStrategy breakStrategy, float lineWidth, int textSize) throws InterruptedException, SourceCloseException, SourceOpenException, ParseException, NoSuchFieldException, IllegalAccessException {
