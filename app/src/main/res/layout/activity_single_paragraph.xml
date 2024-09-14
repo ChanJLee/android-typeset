@@ -43,6 +43,14 @@
                 android:background="#4CAF50"
                 app:me_chan_texas_ParagraphView_textSize="20dp" />
 
+            <me.chan.texas.renderer.ui.text.ParagraphView
+                android:id="@+id/paragraph2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="#4CAF50"
+                app:me_chan_texas_ParagraphView_textSize="20dp"
+                tools:me_chan_texas_ParagraphView_text="hello" />
+
             <me.chan.androidtex.TestView
                 android:id="@+id/test_view"
                 android:layout_width="match_parent"
