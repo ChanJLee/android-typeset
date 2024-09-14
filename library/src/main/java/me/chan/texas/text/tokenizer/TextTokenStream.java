@@ -21,6 +21,7 @@ class TextTokenStream extends DefaultRecyclable implements TokenStream {
 
 	@Override
 	protected void onRecycle() {
+		mIndex = 0;
 		POOL.release(this);
 	}
 

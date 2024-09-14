@@ -6,6 +6,7 @@ import static org.junit.Assert.assertTrue;
 import com.ibm.icu.text.BreakIterator;
 import com.ibm.icu.text.UnicodeSet;
 import com.ibm.icu.text.UnicodeSetIterator;
+import com.shanbay.lib.texas.TestUtils;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -252,6 +253,13 @@ public class WordStreamUnitTest {
 			Assert.assertEquals(except, token);
 		}
 		Assert.assertEquals(stream.save(), list.size());
+
+		TokenStream tmp = stream;
+		stream.recycle();
+		TestUtils.testRecycled(tmp);
+
+		stream = TextTokenStream.obtain("hello", 1, 2);
+		Assert.assertSame(stream, tmp);
 	}
 
 	@Test
@@ -598,6 +606,12 @@ public class WordStreamUnitTest {
 		assertToken(tokenStream.tryGet(save, 0), " ");
 		assertToken(tokenStream.tryGet(-1), "b");
 		Assert.assertNull(tokenStream.tryGet(4));
+
+		TokenStream tmp = tokenStream;
+		tokenStream.recycle();
+		TestUtils.testRecycled(tokenStream);
+		tokenStream = TokenStream.link(TokenStream.obtain(" ", 0, 1), TokenStream.obtain("a b", 0, 3));
+		Assert.assertSame(tokenStream, tmp);
 	}
 
 	private void assertToken(Token token, String except) {

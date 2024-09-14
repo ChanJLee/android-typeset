@@ -1,5 +1,7 @@
 package me.chan.texas.text.tokenizer;
 
+import androidx.annotation.RestrictTo;
+
 import me.chan.texas.misc.Recyclable;
 
 public interface TokenStream extends Recyclable {
@@ -22,6 +24,7 @@ public interface TokenStream extends Recyclable {
 		return TextTokenStream.obtain(text, start, end);
 	}
 
+	@RestrictTo(RestrictTo.Scope.LIBRARY)
 	static TokenStream link(TokenStream stream1, TokenStream stream2) {
 		// 目前只需要支持两个
 		return LinkedTokenStream.obtain(stream1, stream2);
