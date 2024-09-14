@@ -81,6 +81,8 @@ class LinkedTokenStream extends DefaultRecyclable implements TokenStream {
 	protected void onRecycle() {
 		mStream1.recycle();
 		mStream2.recycle();
+		mIndex = 0;
+		mStream1 = mStream2 = null;
 		POOL.release(this);
 	}
 }
