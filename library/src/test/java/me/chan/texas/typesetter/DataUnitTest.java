@@ -73,9 +73,9 @@ public class DataUnitTest {
 		Glue previous = glue;
 		glue.recycle();
 		Assert.assertTrue(glue.isRecycled());
-		Assert.assertEquals("check width: ", glue.getWidth(), -1, 0);
-		Assert.assertEquals("check stretch: ", glue.getStretch(), -1, 0);
-		Assert.assertEquals("check shrink: ", glue.getShrink(), -1, 0);
+		Assert.assertEquals("check width: ", glue.getWidth(), 0, 0);
+		Assert.assertEquals("check stretch: ", glue.getStretch(), 0, 0);
+		Assert.assertEquals("check shrink: ", glue.getShrink(), 0, 0);
 
 		// test recycle twice
 		glue.recycle();

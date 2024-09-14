@@ -108,26 +108,26 @@ public class TokenStreamUnitTest {
 //		for (int v : TokenStream.KINSOKU_AVOID_TAIL_MAP) {
 //			Assert.assertNotEquals(TokenStream.getKinsokuAdvise(v) & Token.SYMBOL_KINSOKU_AVOID_TAIL, 0);
 //		}
-		Assert.assertEquals(TokenStream.getKinsokuAdvise(0), 0);
-		Assert.assertEquals(TokenStream.getKinsokuAdvise(0xb7), Token.SYMBOL_KINSOKU_AVOID_TAIL | Token.SYMBOL_KINSOKU_AVOID_HEADER);
+		Assert.assertEquals(TextTokenStream.getKinsokuAdvise(0), 0);
+		Assert.assertEquals(TextTokenStream.getKinsokuAdvise(0xb7), Token.SYMBOL_KINSOKU_AVOID_TAIL | Token.SYMBOL_KINSOKU_AVOID_HEADER);
 
 
-		for (int v : TokenStream.SQUISH_RIGHT_MAP) {
-			Assert.assertEquals(TokenStream.getSquishAdvise(v), Token.SYMBOL_SQUISH_RIGHT);
+		for (int v : TextTokenStream.SQUISH_RIGHT_MAP) {
+			Assert.assertEquals(TextTokenStream.getSquishAdvise(v), Token.SYMBOL_SQUISH_RIGHT);
 		}
-		for (int v : TokenStream.SQUISH_LEFT_MAP) {
-			Assert.assertEquals(TokenStream.getSquishAdvise(v), Token.SYMBOL_SQUISH_LEFT);
+		for (int v : TextTokenStream.SQUISH_LEFT_MAP) {
+			Assert.assertEquals(TextTokenStream.getSquishAdvise(v), Token.SYMBOL_SQUISH_LEFT);
 		}
-		Assert.assertEquals(TokenStream.getSquishAdvise(0), 0);
+		Assert.assertEquals(TextTokenStream.getSquishAdvise(0), 0);
 
 
-		for (int v : TokenStream.STRETCH_RIGHT_MAP) {
-			Assert.assertEquals(TokenStream.getStretchAdvise(v), Token.SYMBOL_STRETCH_RIGHT);
+		for (int v : TextTokenStream.STRETCH_RIGHT_MAP) {
+			Assert.assertEquals(TextTokenStream.getStretchAdvise(v), Token.SYMBOL_STRETCH_RIGHT);
 		}
-		for (int v : TokenStream.STRETCH_LEFT_MAP) {
-			Assert.assertEquals(TokenStream.getStretchAdvise(v), Token.SYMBOL_STRETCH_LEFT);
+		for (int v : TextTokenStream.STRETCH_LEFT_MAP) {
+			Assert.assertEquals(TextTokenStream.getStretchAdvise(v), Token.SYMBOL_STRETCH_LEFT);
 		}
-		Assert.assertEquals(TokenStream.getStretchAdvise(0), 0);
+		Assert.assertEquals(TextTokenStream.getStretchAdvise(0), 0);
 	}
 
 	@Test

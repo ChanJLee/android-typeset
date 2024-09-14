@@ -85,12 +85,7 @@ public final class Paragraph extends DefaultRecyclable implements Segment {
 	}
 
 	@Override
-	public void recycle() {
-		if (isRecycled()) {
-			return;
-		}
-
-		super.recycle();
+	protected void onRecycle() {
 		mId = 0;
 		mLayout.clear();
 		for (int i = 0; i < mElements.size(); ++i) {
@@ -284,14 +279,7 @@ public final class Paragraph extends DefaultRecyclable implements Segment {
 		}
 
 		@Override
-		@RestrictTo(LIBRARY)
-		@Internal
-		public void recycle() {
-			if (isRecycled()) {
-				return;
-			}
-
-			super.recycle();
+		protected void onRecycle() {
 			mBuilder0.reset();
 			POOL.release(this);
 		}
@@ -485,18 +473,13 @@ public final class Paragraph extends DefaultRecyclable implements Segment {
 		}
 
 		@Override
-		public void recycle() {
-			if (isRecycled()) {
-				return;
-			}
-
+		protected void onRecycle() {
 			mText = null;
 			mStart = mEnd = 0;
 			mTextStyle = null;
 			mBackground = null;
 			mForeground = null;
 			mTag = null;
-			super.recycle();
 			POOL.release(this);
 		}
 

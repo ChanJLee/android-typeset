@@ -1,5 +1,6 @@
 package me.chan.texas.text.layout;
 
+import androidx.annotation.CallSuper;
 import androidx.annotation.RestrictTo;
 
 import me.chan.texas.Texas;
@@ -8,6 +9,8 @@ import me.chan.texas.misc.ObjectPool;
 import me.chan.texas.text.TextAttribute;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
+
+import android.annotation.SuppressLint;
 
 /**
  * 代表一个空格
@@ -33,8 +36,9 @@ public class Glue extends Element {
 			return "TERMINAL_GLUE";
 		}
 
+		@SuppressLint("MissingSuperCall")
 		@Override
-		public void recycle() {
+		protected void onRecycle() {
 
 		}
 	};
@@ -57,8 +61,9 @@ public class Glue extends Element {
 			return "ADVICE_BRK";
 		}
 
+		@SuppressLint("MissingSuperCall")
 		@Override
-		public void recycle() {
+		protected void onRecycle() {
 
 		}
 	};
@@ -100,15 +105,11 @@ public class Glue extends Element {
 				'}';
 	}
 
+	@CallSuper
 	@Override
-	public void recycle() {
-		if (isRecycled()) {
-			return;
-		}
-
-		mWidth = mShrink = mStretch = -1;
+	protected void onRecycle() {
+		mWidth = mShrink = mStretch = 0;
 		mRefreshFlag = 0;
-		super.recycle();
 		POOL.release(this);
 	}
 

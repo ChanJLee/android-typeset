@@ -83,9 +83,9 @@ public abstract class Box extends Element {
 		return mHeight;
 	}
 
+	@CallSuper
 	@Override
-	public void recycle() {
-		super.recycle();
+	protected void onRecycle() {
 		mWidth = 0;
 		mHeight = 0;
 		mId = 0;
@@ -102,8 +102,7 @@ public abstract class Box extends Element {
 
 	@CallSuper
 	@Override
-	public void reuse() {
-		super.reuse();
+	protected void onReuse() {
 		removeAllStatus();
 		mId = UUID.incrementAndGet();
 	}

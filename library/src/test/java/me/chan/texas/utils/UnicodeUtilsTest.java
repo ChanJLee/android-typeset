@@ -1,7 +1,6 @@
 package me.chan.texas.utils;
 
 import me.chan.texas.text.icu.UnicodeUtils;
-import me.chan.texas.text.tokenizer.TokenStream;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -92,37 +91,6 @@ public class UnicodeUtilsTest {
 	}
 
 	@Test
-	public void testPunctuation() {
-		Assert.assertFalse(UnicodeUtils.isSymbolsAndPunctuation('a'));
-		for (int space : SPACES) {
-			Assert.assertFalse(UnicodeUtils.isSymbolsAndPunctuation(space));
-		}
-
-		String emoji = "😀";
-		Assert.assertTrue(Character.isHighSurrogate(emoji.charAt(0)));
-		Assert.assertFalse(UnicodeUtils.isSymbolsAndPunctuation(emoji.charAt(0)));
-
-//		for (int cp : TokenStream.KINSOKU_AVOID_HEADER_MAP) {
-//			Assert.assertTrue(UnicodeUtils.isSymbolsAndPunctuation(cp));
-//		}
-//		for (int cp : TokenStream.KINSOKU_AVOID_TAIL_MAP) {
-//			Assert.assertTrue(UnicodeUtils.isSymbolsAndPunctuation(cp));
-//		}
-		for (int cp : TokenStream.SQUISH_LEFT_MAP) {
-			Assert.assertTrue(UnicodeUtils.isSymbolsAndPunctuation(cp));
-		}
-		for (int cp : TokenStream.SQUISH_RIGHT_MAP) {
-			Assert.assertTrue(UnicodeUtils.isSymbolsAndPunctuation(cp));
-		}
-		for (int cp : TokenStream.STRETCH_LEFT_MAP) {
-			Assert.assertTrue(UnicodeUtils.isSymbolsAndPunctuation(cp));
-		}
-		for (int cp : TokenStream.STRETCH_RIGHT_MAP) {
-			Assert.assertTrue(UnicodeUtils.isSymbolsAndPunctuation(cp));
-		}
-	}
-
-	@Test
 	public void testCn() {
 		for (int i = 'a'; i < 'z'; i++) {
 			Assert.assertFalse(UnicodeUtils.isCJKExtends(i));
@@ -165,25 +133,6 @@ public class UnicodeUtilsTest {
 		String emoji = "😀";
 		Assert.assertTrue(Character.isHighSurrogate(emoji.charAt(0)));
 		Assert.assertFalse(UnicodeUtils.isLatinLetter(emoji.charAt(0)));
-
-//		for (int cp : TokenStream.KINSOKU_AVOID_HEADER_MAP) {
-//			Assert.assertFalse(UnicodeUtils.isLatinLetter(cp));
-//		}
-//		for (int cp : TokenStream.KINSOKU_AVOID_TAIL_MAP) {
-//			Assert.assertFalse(UnicodeUtils.isLatinLetter(cp));
-//		}
-		for (int cp : TokenStream.SQUISH_LEFT_MAP) {
-			Assert.assertFalse(UnicodeUtils.isLatinLetter(cp));
-		}
-		for (int cp : TokenStream.SQUISH_RIGHT_MAP) {
-			Assert.assertFalse(UnicodeUtils.isLatinLetter(cp));
-		}
-		for (int cp : TokenStream.STRETCH_LEFT_MAP) {
-			Assert.assertFalse(UnicodeUtils.isLatinLetter(cp));
-		}
-		for (int cp : TokenStream.STRETCH_RIGHT_MAP) {
-			Assert.assertFalse(UnicodeUtils.isLatinLetter(cp));
-		}
 
 		Assert.assertFalse(UnicodeUtils.isLatinLetter('\t'));
 

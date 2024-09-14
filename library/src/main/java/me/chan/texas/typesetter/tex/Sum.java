@@ -30,12 +30,7 @@ public class Sum extends DefaultRecyclable {
 	}
 
 	@Override
-	public void recycle() {
-		if (isRecycled()) {
-			return;
-		}
-
-		super.recycle();
+	protected void onRecycle() {
 		mWidth = mShrink = mStretch = 0;
 		POOL.release(this);
 	}

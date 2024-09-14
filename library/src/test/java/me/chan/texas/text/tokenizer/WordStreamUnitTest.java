@@ -64,7 +64,7 @@ public class WordStreamUnitTest {
 
 	@Test
 	public void test() throws IOException {
-		TokenStream stream = new TokenStream();
+		TextTokenStream stream = new TextTokenStream();
 		for (int i = 1; i <= 6; ++i) {
 			File file = new File("../app/src/main/assets/harry" + i + ".txt");
 			System.out.println(file.getAbsolutePath());
@@ -98,7 +98,7 @@ public class WordStreamUnitTest {
 
 	@Test
 	public void testSimple() {
-		TokenStream stream = new TokenStream();
+		TextTokenStream stream = new TextTokenStream();
 		Assert.assertNull(stream.next());
 		Assert.assertNull(stream.tryGet(stream.save(), -1));
 		String msg = "0 2 4";
@@ -138,7 +138,7 @@ public class WordStreamUnitTest {
 		}
 		String text = stringBuilder.toString();
 
-		TokenStream stream = new TokenStream();
+		TextTokenStream stream = new TextTokenStream();
 		Assert.assertNull(stream.next());
 		Assert.assertEquals(stream.save(), 0);
 
@@ -220,8 +220,8 @@ public class WordStreamUnitTest {
 			token.mCharSequence = "&";
 			token.mStart = 0;
 			token.mEnd = 1;
-			token.mMask = TokenStream.getMask(Token.CATEGORY_PUNCTUATION,
-					TokenStream.getAdvise('&', Character.getType('&')));
+			token.mMask = TextTokenStream.getMask(Token.CATEGORY_PUNCTUATION,
+					TextTokenStream.getAdvise('&', Character.getType('&')));
 			token.mType = Token.TYPE_SYMBOL;
 			list.add(token);
 		}
@@ -571,5 +571,36 @@ public class WordStreamUnitTest {
 		}
 		stringBuilder.append("};\n");
 		return stringBuilder.toString();
+	}
+
+	@Test
+	public void testLink() {
+		TokenStream tokenStream = TokenStream.link(TokenStream.obtain(" ", 0, 1), TokenStream.obtain("a b", 0, 3));
+		Assert.assertEquals(tokenStream.size(), 4);
+		Assert.assertTrue(tokenStream.hasNext());
+		int save = tokenStream.save();
+		assertToken(tokenStream.next(), " ");
+
+		Assert.assertTrue(tokenStream.hasNext());
+		assertToken(tokenStream.next(), "a");
+		tokenStream.restore(save);
+		Assert.assertTrue(tokenStream.hasNext());
+		assertToken(tokenStream.next(), " ");
+
+		Assert.assertTrue(tokenStream.hasNext());
+		assertToken(tokenStream.next(), "a");
+		Assert.assertTrue(tokenStream.hasNext());
+		assertToken(tokenStream.next(), " ");
+		Assert.assertTrue(tokenStream.hasNext());
+		assertToken(tokenStream.next(), "b");
+
+		Assert.assertFalse(tokenStream.hasNext());
+		assertToken(tokenStream.tryGet(save, 0), " ");
+		assertToken(tokenStream.tryGet(-1), "b");
+		Assert.assertNull(tokenStream.tryGet(4));
+	}
+
+	private void assertToken(Token token, String except) {
+		Assert.assertEquals(except, token.getCharSequence().subSequence(token.getStart(), token.getEnd()).toString());
 	}
 }

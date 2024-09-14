@@ -35,13 +35,8 @@ public final class Emoticon extends DefaultRecyclable {
 	}
 
 	@Override
-	public void recycle() {
-		if (isRecycled()) {
-			return;
-		}
-
+	protected void onRecycle() {
 		mDrawableBox = null;
-		super.recycle();
 		POOL.release(this);
 	}
 
