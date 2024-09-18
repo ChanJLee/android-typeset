@@ -63,18 +63,18 @@ public class HighlightManager {
 				continue;
 			}
 
-			handleParagraphHighlighted(paragraphHighlight, i);
+			handleParagraphHighlighted(paragraph, paragraphHighlight, i);
 		}
 
 		return mHighlight;
 	}
 
-	private void handleParagraphHighlighted(ParagraphHighlight paragraphHighlight, int index) {
+	private void handleParagraphHighlighted(Paragraph paragraph, ParagraphHighlight paragraphHighlight, int index) {
 		if (mHighlight == null) {
 			mHighlight = new Highlight(mAdapter);
 		}
 
-		mHighlight.add(paragraphHighlight);
+		mHighlight.add(paragraph, paragraphHighlight);
 
 		try {
 			mAdapter.notifyItemChanged(index);

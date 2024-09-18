@@ -774,6 +774,7 @@ public class ParagraphView extends FrameLayout {
 		private final CharSequence mText;
 		private final int mStart;
 		private final int mEnd;
+		private Paragraph mParagraph;
 
 		public TextParagraphSource(CharSequence text, int start, int end) {
 			mText = text;
@@ -783,7 +784,13 @@ public class ParagraphView extends FrameLayout {
 
 		@Override
 		protected Paragraph onOpen(TexasOption option) {
-			return Paragraph.Builder.newBuilder(option).text(mText, mStart, mEnd).build();
+			if (mParagraph != null) {
+				return mParagraph;
+			}
+
+			return mParagraph = Paragraph.Builder.newBuilder(option)
+					.text(mText, mStart, mEnd)
+					.build();
 		}
 
 		@Override

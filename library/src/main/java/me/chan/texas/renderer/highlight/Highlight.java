@@ -13,7 +13,7 @@ import me.chan.texas.text.Paragraph;
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class Highlight {
 	private final RendererAdapter mAdapter;
-	private final List<ParagraphHighlight> mHighlights = new ArrayList<>();
+	private final List<Paragraph> mHighlights = new ArrayList<>();
 
 	// todo 切换adapter的时候清除highlight
 
@@ -26,8 +26,8 @@ public class Highlight {
 			return -1;
 		}
 
-		ParagraphHighlight highlight = mHighlights.get(0);
-		return mAdapter.indexOf(highlight.getParagraph());
+		Paragraph paragraph = mHighlights.get(0);
+		return mAdapter.indexOf(paragraph);
 	}
 
 	public boolean isEmpty() {
@@ -35,7 +35,8 @@ public class Highlight {
 	}
 
 	public ParagraphHighlight get(int index) {
-		return mHighlights.get(index);
+		Paragraph paragraph = mHighlights.get(index);
+		return paragraph.getHighlight();
 	}
 
 	public int getCount() {
@@ -43,9 +44,14 @@ public class Highlight {
 	}
 
 	public void clear() {
-		for (ParagraphHighlight highlight : mHighlights) {
-			highlight.clear();
-			int index = mAdapter.indexOf(highlight.getParagraph());
+		for (Paragraph paragraph : mHighlights) {
+			ParagraphHighlight highlight = paragraph.getHighlight();
+			if (highlight != null) {
+				highlight.clear();
+				highlight.recycle();
+				paragraph.setHighlight(null);
+			}
+			int index = mAdapter.indexOf(paragraph);
 			if (index < 0) {
 				continue;
 			}
@@ -61,16 +67,11 @@ public class Highlight {
 
 	@Nullable
 	public ParagraphHighlight getParagraphHighlight(Paragraph paragraph) {
-		for (ParagraphHighlight paragraphHighlight : mHighlights) {
-			if (paragraphHighlight.getParagraph() == paragraph) {
-				return paragraphHighlight;
-			}
-		}
-
-		return null;
+		return paragraph.getHighlight();
 	}
 
-	public void add(@NonNull ParagraphHighlight paragraphHighlight) {
-		mHighlights.add(paragraphHighlight);
+	public void add(@NonNull Paragraph paragraph, @NonNull ParagraphHighlight paragraphHighlight) {
+		paragraph.setHighlight(paragraphHighlight);
+		mHighlights.add(paragraph);
 	}
 }

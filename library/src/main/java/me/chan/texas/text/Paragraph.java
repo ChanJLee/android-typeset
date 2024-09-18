@@ -15,6 +15,8 @@ import me.chan.texas.TexasOption;
 import me.chan.texas.annotations.Internal;
 import me.chan.texas.misc.DefaultRecyclable;
 import me.chan.texas.misc.ObjectPool;
+import me.chan.texas.renderer.highlight.ParagraphHighlight;
+import me.chan.texas.renderer.selection.ParagraphSelection;
 import me.chan.texas.text.layout.Element;
 import me.chan.texas.text.layout.Layout;
 
@@ -71,6 +73,32 @@ public final class Paragraph extends DefaultRecyclable implements Segment {
 		mLayout.setRect(rect);
 	}
 
+	private ParagraphHighlight mHighlight;
+
+	private ParagraphSelection mSelection;
+
+	@RestrictTo(LIBRARY)
+	@Nullable
+	public ParagraphHighlight getHighlight() {
+		return mHighlight;
+	}
+
+	@RestrictTo(LIBRARY)
+	public void setHighlight(ParagraphHighlight highlight) {
+		mHighlight = highlight;
+	}
+
+	@RestrictTo(LIBRARY)
+	@Nullable
+	public ParagraphSelection getSelection() {
+		return mSelection;
+	}
+
+	@RestrictTo(LIBRARY)
+	public void setSelection(ParagraphSelection selection) {
+		mSelection = selection;
+	}
+
 	private Paragraph(Object tag) {
 		mTag = tag;
 		Texas.MemoryOption memoryOption = Texas.getMemoryOption();
@@ -93,6 +121,14 @@ public final class Paragraph extends DefaultRecyclable implements Segment {
 		}
 		mElements.clear();
 		mTag = null;
+		if (mHighlight != null) {
+			mHighlight.recycle();
+			mHighlight = null;
+		}
+		if (mSelection != null) {
+			mSelection.recycle();
+			mSelection = null;
+		}
 		POOL.release(this);
 	}
 
