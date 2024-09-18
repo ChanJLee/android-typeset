@@ -1,18 +1,23 @@
 package me.chan.androidtex;
 
 import android.annotation.SuppressLint;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewParent;
+import android.widget.Chronometer;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import java.lang.reflect.Method;
 
 import me.chan.texas.TexasOption;
+import me.chan.texas.renderer.SpanTouchEventHandler;
 import me.chan.texas.renderer.TouchEvent;
 import me.chan.texas.renderer.ui.text.ParagraphView;
 import me.chan.texas.source.SourceCloseException;
@@ -25,9 +30,13 @@ public class SingleParagraphActivity extends AppCompatActivity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_single_paragraph);
 
-		String msg = "It was nearly midnight, and he was lying on his stomach in bed, the blankets drawn right over his head like a tent, a flashlight in one hand and a large leather-bound book (A History of Magic by Bathilda Bagshot) propped open against the pillow. Harry moved the tip of his eagle-feather quill down the page, frowning as he looked for something that would help him write his essay, \"Witch Burning in the Fourteenth Century Was Completely Pointless discuss.";
+		// String msg = "\ud83d\ude4b\uff08\u062a\u0645 \u062a\u0643\u0631\u0627\u0631 \u0643\u0644\u0645\u0629 '\u0643\u0648\u0628' \u0628\u0634\u0643\u0644 \u063a\u064a\u0631 \u0636\u0631\u0648\u0631\u064a.\uff09";
+		String msg = "\u0067\u0308";
 		TextView textView = findViewById(R.id.text);
 		textView.setText(msg);
+
+		TestView testView = findViewById(R.id.test_view);
+		testView.setText(msg);
 
 		ParagraphView paragraphView = findViewById(R.id.paragraph);
 		paragraphView.setOnClickedListener(new ParagraphView.OnClickedListener() {
@@ -51,7 +60,22 @@ public class SingleParagraphActivity extends AppCompatActivity {
 				Toast.makeText(SingleParagraphActivity.this, "onDoubleClicked", Toast.LENGTH_SHORT).show();
 			}
 		});
-		paragraphView.setOnSpanClickedPredicate((clickedTag, tag) -> clickedTag == tag);
+		paragraphView.setSpanTouchEventHandler(new SpanTouchEventHandler() {
+			@Override
+			public boolean isSpanClickable(@Nullable Object tag) {
+				return true;
+			}
+
+			@Override
+			public boolean applySpanClicked(@Nullable Object clickedTag, @Nullable Object otherTag) {
+				return clickedTag == otherTag;
+			}
+
+			@Override
+			public boolean applySpanLongClicked(@Nullable Object clickedTag, @Nullable Object otherTag) {
+				return false;
+			}
+		});
 		paragraphView.setSource(new ParagraphView.ParagraphSource() {
 			@Override
 			protected Paragraph onOpen(TexasOption option) {

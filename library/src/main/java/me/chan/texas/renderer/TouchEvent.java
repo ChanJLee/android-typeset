@@ -23,14 +23,10 @@ public class TouchEvent extends DefaultRecyclable {
 	}
 
 	@Override
-	public void recycle() {
-		if (isRecycled()) {
-			return;
-		}
-
+	protected void onRecycle() {
 		mX = mY = mRawX = mRawY = 0;
 		mSourceView = null;
-		super.recycle();
+		POOL.release(this);
 	}
 
 	/**

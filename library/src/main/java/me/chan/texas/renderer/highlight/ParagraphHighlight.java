@@ -41,16 +41,11 @@ public class ParagraphHighlight extends DefaultRecyclable {
 	}
 
 	@Override
-	public void recycle() {
-		if (isRecycled()) {
-			return;
-		}
-
+	protected void onRecycle() {
 		clear();
 
 		mParagraph = null;
 		mYInParagraph = 0;
-		super.recycle();
 		POOL.release(this);
 	}
 

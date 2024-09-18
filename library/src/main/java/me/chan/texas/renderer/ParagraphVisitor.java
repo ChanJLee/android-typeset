@@ -79,8 +79,7 @@ public abstract class ParagraphVisitor {
 
 		int size = line.getCount();
 		assignBoxMeta(line, 0, size, bottomX, bottomY, mTypesetContext.currentBoxMetaInfo);
-
-		if (mTypesetContext.currentBoxMetaInfo.isValid()) {
+		if (mTypesetContext.currentBoxMetaInfo.isValid() && mVisitSig == SIG_NORMAL) {
 			do {
 				mInnerRect.set(mTypesetContext.currentBoxMetaInfo.inner);
 				mOuterRect.set(mTypesetContext.currentBoxMetaInfo.inner);

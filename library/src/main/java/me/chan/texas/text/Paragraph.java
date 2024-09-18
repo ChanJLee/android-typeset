@@ -15,6 +15,8 @@ import me.chan.texas.TexasOption;
 import me.chan.texas.annotations.Internal;
 import me.chan.texas.misc.DefaultRecyclable;
 import me.chan.texas.misc.ObjectPool;
+import me.chan.texas.renderer.highlight.ParagraphHighlight;
+import me.chan.texas.renderer.selection.ParagraphSelection;
 import me.chan.texas.text.layout.Element;
 import me.chan.texas.text.layout.Layout;
 
@@ -38,11 +40,11 @@ public final class Paragraph extends DefaultRecyclable implements Segment {
 
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
 	Object mTag;
-	public static final int TYPESET_POLICY_EN = 0;
-	public static final int TYPESET_POLICY_CN = 1;
+	public static final int TYPESET_POLICY_DEFAULT = 0;
+	public static final int TYPESET_POLICY_CJK_OPTIMIZATION = 1;
 
 	@Retention(RetentionPolicy.SOURCE)
-	@IntDef({TYPESET_POLICY_EN, TYPESET_POLICY_CN})
+	@IntDef({TYPESET_POLICY_DEFAULT, TYPESET_POLICY_CJK_OPTIMIZATION})
 	public @interface TypesetPolicy {
 	}
 
@@ -71,6 +73,32 @@ public final class Paragraph extends DefaultRecyclable implements Segment {
 		mLayout.setRect(rect);
 	}
 
+	private ParagraphHighlight mHighlight;
+
+	private ParagraphSelection mSelection;
+
+	@RestrictTo(LIBRARY)
+	@Nullable
+	public ParagraphHighlight getHighlight() {
+		return mHighlight;
+	}
+
+	@RestrictTo(LIBRARY)
+	public void setHighlight(ParagraphHighlight highlight) {
+		mHighlight = highlight;
+	}
+
+	@RestrictTo(LIBRARY)
+	@Nullable
+	public ParagraphSelection getSelection() {
+		return mSelection;
+	}
+
+	@RestrictTo(LIBRARY)
+	public void setSelection(ParagraphSelection selection) {
+		mSelection = selection;
+	}
+
 	private Paragraph(Object tag) {
 		mTag = tag;
 		Texas.MemoryOption memoryOption = Texas.getMemoryOption();
@@ -85,12 +113,7 @@ public final class Paragraph extends DefaultRecyclable implements Segment {
 	}
 
 	@Override
-	public void recycle() {
-		if (isRecycled()) {
-			return;
-		}
-
-		super.recycle();
+	protected void onRecycle() {
 		mId = 0;
 		mLayout.clear();
 		for (int i = 0; i < mElements.size(); ++i) {
@@ -98,6 +121,14 @@ public final class Paragraph extends DefaultRecyclable implements Segment {
 		}
 		mElements.clear();
 		mTag = null;
+		if (mHighlight != null) {
+			mHighlight.recycle();
+			mHighlight = null;
+		}
+		if (mSelection != null) {
+			mSelection.recycle();
+			mSelection = null;
+		}
 		POOL.release(this);
 	}
 
@@ -284,21 +315,14 @@ public final class Paragraph extends DefaultRecyclable implements Segment {
 		}
 
 		@Override
-		@RestrictTo(LIBRARY)
-		@Internal
-		public void recycle() {
-			if (isRecycled()) {
-				return;
-			}
-
-			super.recycle();
+		protected void onRecycle() {
 			mBuilder0.reset();
 			POOL.release(this);
 		}
 
 		/**
 		 * @param texasOption   texas option
-		 * @param typesetPolicy {@link Paragraph#TYPESET_POLICY_CN} {@link Paragraph#TYPESET_POLICY_EN}
+		 * @param typesetPolicy {@link Paragraph#TYPESET_POLICY_CJK_OPTIMIZATION} {@link Paragraph#TYPESET_POLICY_DEFAULT}
 		 * @return 当前对象
 		 */
 		public static Builder newBuilder(TexasOption texasOption,
@@ -318,7 +342,7 @@ public final class Paragraph extends DefaultRecyclable implements Segment {
 		 * @return 当前对象
 		 */
 		public static Builder newBuilder(TexasOption texasOption) {
-			return newBuilder(texasOption, TYPESET_POLICY_EN);
+			return newBuilder(texasOption, TYPESET_POLICY_DEFAULT);
 		}
 
 		public static void clean() {
@@ -485,18 +509,13 @@ public final class Paragraph extends DefaultRecyclable implements Segment {
 		}
 
 		@Override
-		public void recycle() {
-			if (isRecycled()) {
-				return;
-			}
-
+		protected void onRecycle() {
 			mText = null;
 			mStart = mEnd = 0;
 			mTextStyle = null;
 			mBackground = null;
 			mForeground = null;
 			mTag = null;
-			super.recycle();
 			POOL.release(this);
 		}
 

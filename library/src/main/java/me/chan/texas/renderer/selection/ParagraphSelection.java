@@ -171,11 +171,7 @@ public class ParagraphSelection extends DefaultRecyclable {
 	}
 
 	@Override
-	public void recycle() {
-		if (isRecycled()) {
-			return;
-		}
-
+	protected void onRecycle() {
 		mFirst = mLast = null;
 		mBackgrounds.clear();
 		mParagraph = null;
@@ -183,7 +179,6 @@ public class ParagraphSelection extends DefaultRecyclable {
 		mStyle = null;
 		mId = 0;
 		mIndex = 0;
-		super.recycle();
 		POOL.release(this);
 	}
 
@@ -200,6 +195,7 @@ public class ParagraphSelection extends DefaultRecyclable {
 
 		paragraphSelection.reuse();
 		paragraphSelection.reset(paragraph, style);
+		paragraph.setSelection(paragraphSelection);
 		return paragraphSelection;
 	}
 

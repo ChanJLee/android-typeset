@@ -3,12 +3,20 @@ package me.chan.texas.text.tokenizer;
 import androidx.annotation.IntDef;
 import androidx.annotation.RestrictTo;
 
+import java.util.Objects;
+
 import me.chan.texas.misc.DefaultRecyclable;
 import me.chan.texas.misc.ObjectPool;
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class Token extends DefaultRecyclable {
 	private static final ObjectPool<Token> POOL = new ObjectPool<>(128);
+
+	// attributes
+	// 0...7 category
+	// 8...31 mask
+
+	public static final int SYMBOL_ATTRIBUTE_NONE = 0;
 
 	// 避头尾
 	public static final int SYMBOL_KINSOKU_AVOID_HEADER = 1;
@@ -29,16 +37,18 @@ public class Token extends DefaultRecyclable {
 
 	public static final int SYMBOL_TYPEFACE_MASK = SYMBOL_SQUISH_MASK | SYMBOL_STRETCH_MASK;
 
-	public static final int WORD_TYPE_CN = 64;
-	public static final int WORD_TYPE_LATIN = 128;
-	public static final int WORD_TYPE_MASK = WORD_TYPE_LATIN | WORD_TYPE_CN;
+	public int getAttributes() {
+		return mMask >>> 8;
+	}
 
+	public int getCategory() {
+		return mMask & 0xff;
+	}
 
 	@IntDef({SYMBOL_KINSOKU_MASK,
 			SYMBOL_SQUISH_MASK,
 			SYMBOL_STRETCH_MASK,
-			SYMBOL_TYPEFACE_MASK,
-			WORD_TYPE_MASK})
+			SYMBOL_TYPEFACE_MASK})
 	public @interface TokenMask {
 
 	}
@@ -49,35 +59,41 @@ public class Token extends DefaultRecyclable {
 			SYMBOL_SQUISH_RIGHT,
 			SYMBOL_STRETCH_LEFT,
 			SYMBOL_STRETCH_RIGHT,
-			WORD_TYPE_LATIN,
-			WORD_TYPE_CN})
+			SYMBOL_ATTRIBUTE_NONE})
 	public @interface TokenAttribute {
 
 	}
 
-	public static final int TYPE_NONE = 0;
-	public static final int TYPE_SYMBOL = 1;
-	public static final int TYPE_BLANK = 2;
-	public static final int TYPE_WORD = 3;
-	public static final int TYPE_UNKNOWN = 4;
+	public static final int TYPE_NONE = 0; /* 什么也不是 */
+	public static final int TYPE_SYMBOL = 1; /* 符号+标点符号 */
+	public static final int TYPE_CONTROL = 2; /* 空格、制表符等 */
+	public static final int TYPE_WORD = 3; /* 单词 */
+
+	public static final byte CATEGORY_NONE = 0;
+	public static final byte CATEGORY_SYMBOL = 1; /* 符号 */
+	public static final byte CATEGORY_PUNCTUATION = 2; /* 标点符号 */
+	public static final byte CATEGORY_CONTROL = 3; /* 控制类字符，空格，space。。。TODO 需要扩展 */
+	static final byte CATEGORY_WORD_LIMITED = 10;
+	public static final byte CATEGORY_UNKNOWN_LETTER = CATEGORY_WORD_LIMITED; /* 未知字符 */
+	public static final byte CATEGORY_NORMAL = 11; /* 正常的单词 [a-z]... */
+	public static final byte CATEGORY_NUMBER = 12; /* 数字 */
+	public static final byte CATEGORY_CJK = 13; /* CJK */
+	public static final byte CATEGORY_RTL = 14; /* 从右到左的字符 TODO 保留字段 */
 
 	@IntDef({TYPE_NONE,
 			TYPE_SYMBOL,
-			TYPE_BLANK,
-			TYPE_WORD,
-			TYPE_UNKNOWN})
+			TYPE_CONTROL,
+			TYPE_WORD,})
 	public @interface TokenType {
 
 	}
 
 	@TokenType
-	public int mType = TYPE_NONE;
-	public int mAttributes;
-	public CharSequence mCharSequence;
-	public int mStart;
-	public int mEnd;
-
-	// 添加删除要顺带修改 copy 函数
+	int mType = TYPE_NONE;
+	CharSequence mCharSequence;
+	int mStart;
+	int mEnd;
+	int mMask;
 
 	private Token() {
 
@@ -108,13 +124,17 @@ public class Token extends DefaultRecyclable {
 		return mType;
 	}
 
+	public int size() {
+		return mEnd - mStart;
+	}
+
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
 	public String getSemantics() {
 		if (mType == TYPE_NONE) {
 			return "none";
 		}
 
-		if (mType == TYPE_BLANK) {
+		if (mType == TYPE_CONTROL) {
 			return "空格";
 		}
 
@@ -122,19 +142,40 @@ public class Token extends DefaultRecyclable {
 			return getSymbolSemantics();
 		}
 
+		byte category = (byte) mMask;
 		if (mType == TYPE_WORD) {
-			return mAttributes == WORD_TYPE_LATIN ? "英文" : "中文";
+			if (category == CATEGORY_NORMAL) {
+				return "英文";
+			}
+
+			if (category == CATEGORY_CJK) {
+				return "CJK";
+			}
+
+			if (category == CATEGORY_NUMBER) {
+				return "数字";
+			}
+
+			if (category == CATEGORY_RTL) {
+				return "RTL";
+			}
+
+			if (category == CATEGORY_UNKNOWN_LETTER) {
+				return "其它";
+			}
+
+			throw new IllegalStateException("unknown word category");
 		}
 
 		return "未知";
 	}
 
 	public boolean checkMask(@TokenMask int mask) {
-		return (mAttributes & mask) != 0;
+		return ((mMask >>> 8) & mask) != 0;
 	}
 
 	public boolean checkAttribute(@TokenMask int mask, @TokenAttribute int flag) {
-		return (mAttributes & mask & flag) == flag;
+		return ((mMask >>> 8) & mask & flag) == flag;
 	}
 
 	public CharSequence getCharSequence() {
@@ -168,15 +209,10 @@ public class Token extends DefaultRecyclable {
 	}
 
 	@Override
-	public void recycle() {
-		if (isRecycled()) {
-			return;
-		}
-
-		super.recycle();
+	protected void onRecycle() {
 		mCharSequence = null;
 		mStart = mEnd = 0;
-		mAttributes = 0;
+		mMask = 0;
 		mType = TYPE_NONE;
 		POOL.release(this);
 	}
@@ -194,6 +230,40 @@ public class Token extends DefaultRecyclable {
 		return String.format("%s <%s>", getSemantics(), mCharSequence.subSequence(mStart, mEnd));
 	}
 
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+
+		Token token = (Token) o;
+		if (!(mType == token.mType && mMask == token.mMask)) {
+			return false;
+		}
+
+		if (mCharSequence != null && token.mCharSequence != null) {
+			if ((mEnd - mStart) != (token.mEnd - token.mStart)) {
+				return false;
+			}
+
+			for (int i = 0; i < mCharSequence.length(); ++i) {
+				if (mCharSequence.charAt(mStart + i) != token.mCharSequence.charAt(token.mStart + i)) {
+					return false;
+				}
+			}
+		}
+		return true;
+	}
+
+	@Override
+	public int hashCode() {
+		int result = mType;
+		result = 31 * result + Objects.hashCode(mCharSequence);
+		result = 31 * result + mStart;
+		result = 31 * result + mEnd;
+		result = 31 * result + mMask;
+		return result;
+	}
+
 	public static Token obtain() {
 		Token token = POOL.acquire();
 		if (token == null) {
@@ -204,32 +274,34 @@ public class Token extends DefaultRecyclable {
 		return token;
 	}
 
-	public static Token obtainBlank() {
+	public static Token obtainOtherWord() {
 		Token token = POOL.acquire();
 		if (token == null) {
 			token = new Token();
 		}
 
 		token.reuse();
-		token.mType = TYPE_BLANK;
+		token.mType = TYPE_WORD;
+		token.mMask = Token.CATEGORY_UNKNOWN_LETTER;
 		return token;
 	}
 
-	public static Token obtainNone() {
+	public static Token obtainWhiteSpace() {
 		Token token = POOL.acquire();
 		if (token == null) {
 			token = new Token();
 		}
 
 		token.reuse();
-		token.mType = TYPE_UNKNOWN;
+		token.mType = TYPE_CONTROL;
+		token.mMask = Token.CATEGORY_CONTROL;
 		return token;
 	}
 
 	public static Token copy(Token other) {
 		Token copy = obtain();
 		copy.mType = other.mType;
-		copy.mAttributes = other.mAttributes;
+		copy.mMask = other.mMask;
 		copy.mCharSequence = other.mCharSequence;
 		copy.mStart = other.mStart;
 		copy.mEnd = other.mEnd;

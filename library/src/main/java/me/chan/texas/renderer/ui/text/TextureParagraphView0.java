@@ -44,7 +44,13 @@ public class TextureParagraphView0 extends AbsTextureParagraphView {
 				mHighlight,
 				mParagraphDecor
 		);
-		WorkerScheduler.render().submit(getToken(), args);
+
+		if (!isInEditMode()) {
+			WorkerScheduler.render().submit(getToken(), args);
+			return;
+		}
+
+		WorkerScheduler.render().submitSync(getToken(), args);
 	}
 
 	@Nullable

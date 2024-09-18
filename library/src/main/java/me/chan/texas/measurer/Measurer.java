@@ -86,12 +86,7 @@ public interface Measurer {
 		}
 
 		@Override
-		public void recycle() {
-			if (isRecycled()) {
-				return;
-			}
-
-			super.recycle();
+		protected void onRecycle() {
 			mWidth = mHeight = mFontBottomPadding = mFontTopPadding = mBaselineHeight = 0;
 			POOL.release(this);
 		}

@@ -1,5 +1,7 @@
 package me.chan.texas.text.layout;
 
+import android.annotation.SuppressLint;
+
 import androidx.annotation.RestrictTo;
 
 import me.chan.texas.measurer.Measurer;
@@ -17,12 +19,9 @@ public class SymbolGlue extends Glue {
 	private SymbolGlue() {
 	}
 
+	@SuppressLint("MissingSuperCall")
 	@Override
-	public void recycle() {
-		if (isRecycled()) {
-			return;
-		}
-
+	protected void onRecycle() {
 		mWidth = mShrink = mStretch = 0;
 		mRefreshFlag = 0;
 		mTextBox = null;

@@ -481,11 +481,7 @@ public class RenderWorker implements TaskQueue.Task<RenderWorker.Args, Void>, Ta
 		}
 
 		@Override
-		public void recycle() {
-			if (isRecycled()) {
-				return;
-			}
-
+		protected void onRecycle() {
 			selection = null;
 			highlight = null;
 			mPaintSet = null;
@@ -494,7 +490,6 @@ public class RenderWorker implements TaskQueue.Task<RenderWorker.Args, Void>, Ta
 			option = null;
 			renderer = null;
 			width = 0;
-			super.recycle();
 			POOL.release(this);
 		}
 

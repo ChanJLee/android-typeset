@@ -466,7 +466,8 @@ public class RendererAdapter extends RecyclerView.Adapter<RendererAdapter.Render
 					mRenderOption,
 					paragraphSelection,
 					highlight,
-					mParagraphDecor);
+					mParagraphDecor,
+					mSelectionManager.getSpanTouchEventHandler());
 
 			mTextureParagraphRecord.put(mRender.getToken().getId(), mRender);
 			if (DEBUG) {

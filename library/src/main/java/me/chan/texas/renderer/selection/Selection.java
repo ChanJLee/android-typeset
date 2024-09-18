@@ -164,18 +164,12 @@ public final class Selection extends DefaultRecyclable {
 	}
 
 	@Override
-	public void recycle() {
-		if (!isRecycled()) {
-			return;
-		}
-
+	protected void onRecycle() {
 		mParagraphSelectionList.clear();
 		mTexasLayoutManager = null;
 		mTexasAdapter = null;
 		mRectEdge.bottomX = mRectEdge.topX =
 				mRectEdge.bottomY = mRectEdge.topY = mRectEdge.lineHeight = 0;
-
-		super.recycle();
 		POOL.release(this);
 	}
 

@@ -19,33 +19,22 @@ import me.chan.texas.text.layout.Line;
 import me.chan.texas.text.layout.Penalty;
 import me.chan.texas.text.layout.SymbolGlue;
 import me.chan.texas.text.layout.TextBox;
-import me.chan.texas.text.tokenizer.Tokenizer;
 
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.io.File;
-import java.io.IOException;
-
-import opennlp.tools.tokenize.TokenizerModel;
 
 public class ParagraphUnitTest {
 
 	private Measurer mMeasurer;
 	private TextAttribute mTextAttribute;
 
-	private final TokenizerModel mModel;
-
-	public ParagraphUnitTest() throws IOException {
-		mModel = new TokenizerModel(new File("../library/src/main/assets/texas/opennlp-en-ud-ewt-tokens-1.0-1.9.3.bin"));
-	}
 
 	@Before
 	public void setup() {
 		mMeasurer = new MockMeasurer(new MockTextPaint(20));
 		mTextAttribute = new TextAttribute(mMeasurer);
-		Tokenizer.setup(mModel);
 	}
 
 	@Test
@@ -202,7 +191,7 @@ public class ParagraphUnitTest {
 		Paragraph.Builder builder = Paragraph.Builder.newBuilder(texasOption);
 
 		mIndex = 0;
-		String[] arr = {"hello", ",", "world", "...", "fuck", "he's", "name"};
+		String[] arr = {"hello", ",", "world", ".", ".", ".", "fuck", "he's", "name"};
 		String msg = " hello, world... \n\t\r fuck he's name";
 		builder.stream(msg, 0, msg.length(), new Paragraph.Builder.SpanReader() {
 			@Override
@@ -306,7 +295,7 @@ public class ParagraphUnitTest {
 			Paragraph.Builder builder = Paragraph.Builder.newBuilder(texasOption);
 			builder.text("😜😜yes");
 			Paragraph paragraph = builder.build();
-			checkContent(paragraph, "😜😜", blank, "yes", Glue.TERMINAL, Penalty.FORCE_BREAK);
+			checkContent(paragraph, "😜", Penalty.ADVISE_BREAK, "😜", blank, "yes", Glue.TERMINAL, Penalty.FORCE_BREAK);
 		}
 
 		{
@@ -365,6 +354,7 @@ public class ParagraphUnitTest {
 	@Test
 	public void testSymbolSent() {
 		TexasOption texasOption = new TexasOption(Hyphenation.getInstance(), mMeasurer, mTextAttribute, new RenderOption());
+		Glue blank = Glue.obtain(mTextAttribute);
 
 		testSymbolSent2();
 
@@ -375,7 +365,7 @@ public class ParagraphUnitTest {
 			Paragraph.Builder builder = Paragraph.Builder.newBuilder(texasOption);
 			builder.text("\"😜😜");
 			Paragraph paragraph = builder.build();
-			checkContent(paragraph, "\"", Penalty.ADVISE_BREAK, "😜😜", Glue.TERMINAL, Penalty.FORCE_BREAK);
+			checkContent(paragraph, "\"", Penalty.ADVISE_BREAK, "😜", Penalty.ADVISE_BREAK, "😜", Glue.TERMINAL, Penalty.FORCE_BREAK);
 
 			builder = Paragraph.Builder.newBuilder(texasOption);
 			builder.text("\"yes");
@@ -388,9 +378,10 @@ public class ParagraphUnitTest {
 			checkContent(paragraph, "\"", Penalty.ADVISE_BREAK, "《", Glue.TERMINAL, Penalty.FORCE_BREAK);
 
 			builder = Paragraph.Builder.newBuilder(texasOption);
+			builder.text("hello");
 			builder.text("\" ");
 			paragraph = builder.build();
-			checkContent(paragraph, "\"", Glue.TERMINAL, Penalty.FORCE_BREAK);
+			checkContent(paragraph, "hello", Penalty.FORBIDDEN_BREAK, blank, Penalty.FORBIDDEN_BREAK, "\"", Glue.TERMINAL, Penalty.FORCE_BREAK);
 
 			builder = Paragraph.Builder.newBuilder(texasOption);
 			builder.text("\"");
@@ -407,20 +398,20 @@ public class ParagraphUnitTest {
 			Paragraph.Builder builder = Paragraph.Builder.newBuilder(texasOption);
 			builder.text(">《");
 			Paragraph paragraph = builder.build();
-			checkContent(paragraph, ">", blank, "《", Glue.TERMINAL, Penalty.FORCE_BREAK);
+			checkContent(paragraph, ">", Penalty.FORBIDDEN_BREAK, blank, Penalty.FORBIDDEN_BREAK, "《", Glue.TERMINAL, Penalty.FORCE_BREAK);
 			TextBox box = (TextBox) paragraph.getElement(0);
 			Assert.assertEquals(box.getAttribute(), 0);
-			box = (TextBox) paragraph.getElement(2);
+			box = (TextBox) paragraph.getElement(4);
 			Assert.assertTrue(box.hasAttribute(TextBox.ATTRIBUTE_SQUISH_LEFT));
 
 
 			builder = Paragraph.Builder.newBuilder(texasOption);
 			builder.text("><");
 			paragraph = builder.build();
-			checkContent(paragraph, ">", blank, "<", Glue.TERMINAL, Penalty.FORCE_BREAK);
+			checkContent(paragraph, ">", Penalty.FORBIDDEN_BREAK, blank, Penalty.FORBIDDEN_BREAK, "<", Glue.TERMINAL, Penalty.FORCE_BREAK);
 			box = (TextBox) paragraph.getElement(0);
 			Assert.assertEquals(box.getAttribute(), 0);
-			box = (TextBox) paragraph.getElement(2);
+			box = (TextBox) paragraph.getElement(4);
 			Assert.assertEquals(box.getAttribute(), 0);
 
 			builder = Paragraph.Builder.newBuilder(texasOption);
@@ -474,10 +465,10 @@ public class ParagraphUnitTest {
 			builder = Paragraph.Builder.newBuilder(texasOption);
 			builder.text("》<");
 			paragraph = builder.build();
-			checkContent(paragraph, "》", blank, "<", Glue.TERMINAL, Penalty.FORCE_BREAK);
+			checkContent(paragraph, "》", Penalty.FORBIDDEN_BREAK, blank, Penalty.FORBIDDEN_BREAK, "<", Glue.TERMINAL, Penalty.FORCE_BREAK);
 			box = (TextBox) paragraph.getElement(0);
 			Assert.assertEquals(box.getAttribute(), TextBox.ATTRIBUTE_SQUISH_RIGHT);
-			box = (TextBox) paragraph.getElement(2);
+			box = (TextBox) paragraph.getElement(4);
 			Assert.assertEquals(box.getAttribute(), 0);
 
 			builder = Paragraph.Builder.newBuilder(texasOption);
@@ -724,7 +715,7 @@ public class ParagraphUnitTest {
 		builder = Paragraph.Builder.newBuilder(texasOption);
 		builder.text("no #yes");
 		paragraph = builder.build();
-		checkContent(paragraph, "no", blank, "#", Penalty.ADVISE_BREAK, "yes", Glue.TERMINAL, Penalty.FORCE_BREAK);
+		checkContent(paragraph, "no", Penalty.FORBIDDEN_BREAK, blank, Penalty.FORBIDDEN_BREAK, "#", Penalty.ADVISE_BREAK, "yes", Glue.TERMINAL, Penalty.FORCE_BREAK);
 	}
 
 	@Test
@@ -739,7 +730,7 @@ public class ParagraphUnitTest {
 			// case 3
 			builder.text("😜😜");
 			Paragraph paragraph = builder.build();
-			checkContent(paragraph, "😜😜", blank, "😜😜", Glue.TERMINAL, Penalty.FORCE_BREAK);
+			checkContent(paragraph, "😜", Penalty.ADVISE_BREAK, "😜", blank, "😜", Penalty.ADVISE_BREAK, "😜", Glue.TERMINAL, Penalty.FORCE_BREAK);
 		}
 
 		{
@@ -747,7 +738,7 @@ public class ParagraphUnitTest {
 			// case 1
 			builder.text("yes😜😜");
 			Paragraph paragraph = builder.build();
-			checkContent(paragraph, "yes", blank, "😜😜", Glue.TERMINAL, Penalty.FORCE_BREAK);
+			checkContent(paragraph, "yes", blank, "😜", Penalty.ADVISE_BREAK, "😜", Glue.TERMINAL, Penalty.FORCE_BREAK);
 		}
 
 		// case 2 不存在
@@ -756,22 +747,22 @@ public class ParagraphUnitTest {
 			Paragraph.Builder builder = Paragraph.Builder.newBuilder(texasOption);
 			builder.text("》😜😜");
 			Paragraph paragraph = builder.build();
-			checkContent(paragraph, "》", SymbolGlue.class, "😜😜", Glue.TERMINAL, Penalty.FORCE_BREAK);
+			checkContent(paragraph, "》", SymbolGlue.class, "😜", Penalty.ADVISE_BREAK, "😜", Glue.TERMINAL, Penalty.FORCE_BREAK);
 
 			builder = Paragraph.Builder.newBuilder(texasOption);
 			builder.text("?😜😜");
 			paragraph = builder.build();
-			checkContent(paragraph, "?", blank, "😜😜", Glue.TERMINAL, Penalty.FORCE_BREAK);
+			checkContent(paragraph, "?", blank, "😜", Penalty.ADVISE_BREAK, "😜", Glue.TERMINAL, Penalty.FORCE_BREAK);
 
 			builder = Paragraph.Builder.newBuilder(texasOption);
 			builder.text("《😜😜");
 			paragraph = builder.build();
-			checkContent(paragraph, "《", Penalty.FORBIDDEN_BREAK, "😜😜", Glue.TERMINAL, Penalty.FORCE_BREAK);
+			checkContent(paragraph, "《", Penalty.FORBIDDEN_BREAK, "😜", Penalty.ADVISE_BREAK, "😜", Glue.TERMINAL, Penalty.FORCE_BREAK);
 
 			builder = Paragraph.Builder.newBuilder(texasOption);
 			builder.text("\"😜😜");
 			paragraph = builder.build();
-			checkContent(paragraph, "\"", Penalty.ADVISE_BREAK, "😜😜", Glue.TERMINAL, Penalty.FORCE_BREAK);
+			checkContent(paragraph, "\"", Penalty.ADVISE_BREAK, "😜", Penalty.ADVISE_BREAK, "😜", Glue.TERMINAL, Penalty.FORCE_BREAK);
 		}
 	}
 
@@ -812,32 +803,32 @@ public class ParagraphUnitTest {
 			Paragraph.Builder builder = Paragraph.Builder.newBuilder(texasOption);
 			builder.text("😜😜 😜😜");
 			Paragraph paragraph = builder.build();
-			checkContent(paragraph, "😜😜", blank, "😜😜", Glue.TERMINAL, Penalty.FORCE_BREAK);
+			checkContent(paragraph, "😜", Penalty.ADVISE_BREAK, "😜", blank, "😜", Penalty.ADVISE_BREAK, "😜", Glue.TERMINAL, Penalty.FORCE_BREAK);
 
 			builder = Paragraph.Builder.newBuilder(texasOption);
 			builder.text("😜😜 yes");
 			paragraph = builder.build();
-			checkContent(paragraph, "😜😜", blank, "yes", Glue.TERMINAL, Penalty.FORCE_BREAK);
+			checkContent(paragraph, "😜", Penalty.ADVISE_BREAK, "😜", blank, "yes", Glue.TERMINAL, Penalty.FORCE_BREAK);
 
 			// todo symbol test
 			builder = Paragraph.Builder.newBuilder(texasOption);
 			builder.text("😜😜 《");
 			paragraph = builder.build();
-			checkContent(paragraph, "😜😜", SymbolGlue.class, "《", Glue.TERMINAL, Penalty.FORCE_BREAK);
+			checkContent(paragraph, "😜", Penalty.ADVISE_BREAK, "😜", SymbolGlue.class, "《", Glue.TERMINAL, Penalty.FORCE_BREAK);
 			builder = Paragraph.Builder.newBuilder(texasOption);
 			builder.text("😜😜 ?");
 			paragraph = builder.build();
-			checkContent(paragraph, "😜😜", Penalty.FORBIDDEN_BREAK, "?", Glue.TERMINAL, Penalty.FORCE_BREAK);
+			checkContent(paragraph, "😜", Penalty.ADVISE_BREAK, "😜", Penalty.FORBIDDEN_BREAK, "?", Glue.TERMINAL, Penalty.FORCE_BREAK);
 
 			builder = Paragraph.Builder.newBuilder(texasOption);
 			builder.text("😜😜  ");
 			paragraph = builder.build();
-			checkContent(paragraph, "😜😜", Glue.TERMINAL, Penalty.FORCE_BREAK);
+			checkContent(paragraph, "😜", Penalty.ADVISE_BREAK, "😜", Glue.TERMINAL, Penalty.FORCE_BREAK);
 
 			builder = Paragraph.Builder.newBuilder(texasOption);
 			builder.text("😜😜 ");
 			paragraph = builder.build();
-			checkContent(paragraph, "😜😜", Glue.TERMINAL, Penalty.FORCE_BREAK);
+			checkContent(paragraph, "😜", Penalty.ADVISE_BREAK, "😜", Glue.TERMINAL, Penalty.FORCE_BREAK);
 		}
 
 		{
@@ -850,13 +841,13 @@ public class ParagraphUnitTest {
 			builder = Paragraph.Builder.newBuilder(texasOption);
 			builder.text("no> yes");
 			paragraph = builder.build();
-			checkContent(paragraph, "no", Penalty.FORBIDDEN_BREAK, ">", blank, "yes", Glue.TERMINAL, Penalty.FORCE_BREAK);
+			checkContent(paragraph, "no", Penalty.FORBIDDEN_BREAK, ">", Penalty.FORBIDDEN_BREAK, blank, Penalty.FORBIDDEN_BREAK, "yes", Glue.TERMINAL, Penalty.FORCE_BREAK);
 
 			// simple
 			builder = Paragraph.Builder.newBuilder(texasOption);
 			builder.text("no- yes");
 			paragraph = builder.build();
-			checkContent(paragraph, "no-", blank, "yes", Glue.TERMINAL, Penalty.FORCE_BREAK);
+			checkContent(paragraph, "no", Penalty.FORBIDDEN_BREAK, "-", blank, "yes", Glue.TERMINAL, Penalty.FORCE_BREAK);
 
 			// avoid tail + 收缩左
 			builder = Paragraph.Builder.newBuilder(texasOption);
@@ -868,7 +859,7 @@ public class ParagraphUnitTest {
 			builder = Paragraph.Builder.newBuilder(texasOption);
 			builder.text("no <yes");
 			paragraph = builder.build();
-			checkContent(paragraph, "no", blank, "<", Penalty.FORBIDDEN_BREAK, "yes", Glue.TERMINAL, Penalty.FORCE_BREAK);
+			checkContent(paragraph, "no", Penalty.FORBIDDEN_BREAK, blank, Penalty.FORBIDDEN_BREAK, "<", Penalty.FORBIDDEN_BREAK, "yes", Glue.TERMINAL, Penalty.FORCE_BREAK);
 
 			builder = Paragraph.Builder.newBuilder(texasOption);
 			builder.text("no: yes");
@@ -878,7 +869,7 @@ public class ParagraphUnitTest {
 			builder = Paragraph.Builder.newBuilder(texasOption);
 			builder.text(", 😜😜");
 			paragraph = builder.build();
-			checkContent(paragraph, ",", blank, "😜😜", Glue.TERMINAL, Penalty.FORCE_BREAK);
+			checkContent(paragraph, ",", blank, "😜", Penalty.ADVISE_BREAK, "😜", Glue.TERMINAL, Penalty.FORCE_BREAK);
 
 			builder = Paragraph.Builder.newBuilder(texasOption);
 			builder.text(", yes");
@@ -906,7 +897,7 @@ public class ParagraphUnitTest {
 			Paragraph.Builder builder = Paragraph.Builder.newBuilder(texasOption);
 			builder.text("  😜😜");
 			Paragraph paragraph = builder.build();
-			checkContent(paragraph, "😜😜", Glue.TERMINAL, Penalty.FORCE_BREAK);
+			checkContent(paragraph, "😜", Penalty.ADVISE_BREAK, "😜", Glue.TERMINAL, Penalty.FORCE_BREAK);
 
 			builder = Paragraph.Builder.newBuilder(texasOption);
 			builder.text("  yes");
@@ -934,7 +925,7 @@ public class ParagraphUnitTest {
 			Paragraph.Builder builder = Paragraph.Builder.newBuilder(texasOption);
 			builder.text(" 😜😜");
 			Paragraph paragraph = builder.build();
-			checkContent(paragraph, "😜😜", Glue.TERMINAL, Penalty.FORCE_BREAK);
+			checkContent(paragraph, "😜", Penalty.ADVISE_BREAK, "😜", Glue.TERMINAL, Penalty.FORCE_BREAK);
 
 			builder = Paragraph.Builder.newBuilder(texasOption);
 			builder.text(" yes");

@@ -13,10 +13,10 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import me.chan.texas.misc.BitBucket;
-import me.chan.texas.renderer.OnSpanClickedPredicate;
-import me.chan.texas.renderer.OnSpanLongClickedPredicate;
 import me.chan.texas.renderer.ParagraphVisitor;
 import me.chan.texas.renderer.RenderOption;
+import me.chan.texas.renderer.SpanPredicate;
+import me.chan.texas.renderer.SpanTouchEventHandler;
 import me.chan.texas.renderer.TexasView;
 import me.chan.texas.renderer.TouchEvent;
 import me.chan.texas.renderer.selection.overlay.SelectionDragView;
@@ -37,15 +37,13 @@ import me.chan.texas.text.layout.Box;
  * <p>
  * 目前有三个地方会触发选中
  * 1. 长按 & 点击 操作
- * 2. 主动调用 {@link TexasView#selectParagraphs(TexasView.SelectionPredicate)}
+ * 2. 主动调用 {@link TexasView#selectParagraphs} 接口
  * 3. 长按后拖动水滴
  * Created by Otway on 2021/11/12.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class SelectionManager implements OnSelectedChangedListener {
 	private Selection mCurrentSelection;
-	private OnSpanClickedPredicate mOnSpanClickedPredicate;
-	private OnSpanLongClickedPredicate mOnLongClickedPredicate;
 
 	private final RendererAdapter mAdapter;
 	private final LinearLayoutManager mLayoutManager;
@@ -56,7 +54,7 @@ public class SelectionManager implements OnSelectedChangedListener {
 	/**
 	 * 用于自驱式的选中文本
 	 * <p>
-	 * 即主动调用 {@link TexasView#selectParagraphs(TexasView.SelectionPredicate)} 接口，而不是通过点击操作
+	 * 即主动调用 {@link TexasView#selectParagraphs} 接口，而不是通过点击操作
 	 */
 	private final SelfDriveSelectedVisitor mSelfDriveSelectedVisitor = new SelfDriveSelectedVisitor();
 	/**
@@ -72,6 +70,19 @@ public class SelectionManager implements OnSelectedChangedListener {
 	 * 拖拽时定位用
 	 */
 	private final int[] mLocations = new int[2];
+	private SpanTouchEventHandler mSpanTouchEventHandler;
+	private final SpanPredicate mOnSpanClickedPredicate = new SpanPredicate() {
+		@Override
+		public boolean apply(@Nullable Object clickedTag, @Nullable Object tag) {
+			return mSpanTouchEventHandler.applySpanClicked(clickedTag, tag);
+		}
+	};
+	private final SpanPredicate mOnSpanLongClickedPredicate = new SpanPredicate() {
+		@Override
+		public boolean apply(@Nullable Object clickedTag, @Nullable Object tag) {
+			return mSpanTouchEventHandler.applySpanLongClicked(clickedTag, tag);
+		}
+	};
 
 	public SelectionManager(RendererAdapter adapter,
 							LinearLayoutManager layoutManager,
@@ -98,18 +109,8 @@ public class SelectionManager implements OnSelectedChangedListener {
 		});
 	}
 
-	/**
-	 * @param onSpanClickedPredicate 单击的谓词
-	 */
-	public void setOnClickedPredicate(OnSpanClickedPredicate onSpanClickedPredicate) {
-		mOnSpanClickedPredicate = onSpanClickedPredicate;
-	}
-
-	/**
-	 * @param onLongClickedPredicate 长按的谓词
-	 */
-	public void setOnLongClickedPredicate(OnSpanLongClickedPredicate onLongClickedPredicate) {
-		mOnLongClickedPredicate = onLongClickedPredicate;
+	public void setSpanTouchEventHandler(SpanTouchEventHandler listener) {
+		mSpanTouchEventHandler = listener;
 	}
 
 	/**
@@ -162,11 +163,7 @@ public class SelectionManager implements OnSelectedChangedListener {
 	}
 
 	private boolean onBoxSelected(View source, MotionEvent e, Paragraph paragraph, boolean isLongClicked, Box box) {
-		OnSpanClickedPredicate predicate = isLongClicked ? mOnLongClickedPredicate : mOnSpanClickedPredicate;
-		if (predicate == null) {
-			return false;
-		}
-
+		SpanPredicate predicate = isLongClicked ? mOnSpanLongClickedPredicate : mOnSpanClickedPredicate;
 		clearSelection();
 
 		boolean handled = false;
@@ -190,7 +187,7 @@ public class SelectionManager implements OnSelectedChangedListener {
 
 	private boolean handleParagraphClicked(Paragraph paragraph,
 										   boolean isLongClicked,
-										   OnSpanClickedPredicate predicate,
+										   SpanPredicate predicate,
 										   Box box) throws ParagraphVisitor.VisitException {
 		Document document = mAdapter.getDocument();
 		if (document == null) {
@@ -209,7 +206,7 @@ public class SelectionManager implements OnSelectedChangedListener {
 	private boolean handleParagraphClicked0(Paragraph paragraph,
 											RenderOption renderOption,
 											boolean isLongClicked,
-											OnSpanClickedPredicate predicate,
+											SpanPredicate predicate,
 											Object boxTag,
 											int index) throws ParagraphVisitor.VisitException {
 		try {
@@ -401,7 +398,7 @@ public class SelectionManager implements OnSelectedChangedListener {
 	 * @return 选中区域
 	 */
 	@Nullable
-	public Selection selectParagraphs(TexasView.SelectionPredicate predicate) {
+	public Selection selectParagraphs(SpanPredicate predicate) {
 		Document document = mAdapter.getDocument();
 		clearSelection();
 
@@ -418,7 +415,7 @@ public class SelectionManager implements OnSelectedChangedListener {
 		return mCurrentSelection;
 	}
 
-	private void selectParagraph(Paragraph paragraph, TexasView.SelectionPredicate predicate, int index) {
+	private void selectParagraph(Paragraph paragraph, SpanPredicate predicate, int index) {
 		if (paragraph == null) {
 			return;
 		}
@@ -513,6 +510,10 @@ public class SelectionManager implements OnSelectedChangedListener {
 		}
 
 		mContentView.scrollBy(0, (int) (mContentView.getHeight() * 0.1f));
+	}
+
+	public SpanTouchEventHandler getSpanTouchEventHandler() {
+		return mSpanTouchEventHandler;
 	}
 
 	public interface Listener {

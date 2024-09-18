@@ -14,7 +14,6 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import me.chan.texas.TexasOption;
-import me.chan.texas.renderer.OnSpanClickedPredicate;
 import me.chan.texas.renderer.ui.text.ParagraphView;
 import me.chan.texas.source.SourceCloseException;
 import me.chan.texas.text.Paragraph;
@@ -117,13 +116,6 @@ public class ParagraphViewDemoActivity extends AppCompatActivity {
 			super(itemView);
 
 			mParagraphView = itemView.findViewById(R.id.paragraph);
-			mParagraphView.setOnSpanClickedPredicate(new OnSpanClickedPredicate() {
-				@Override
-				public boolean apply(@Nullable Object clickedTag, @Nullable Object tag) {
-					return false;
-				}
-			});
-
 			mLabel = itemView.findViewById(R.id.label);
 		}
 	}

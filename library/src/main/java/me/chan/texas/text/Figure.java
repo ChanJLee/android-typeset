@@ -53,18 +53,12 @@ public final class Figure extends DefaultRecyclable implements Segment {
 	}
 
 	@Override
-	@RestrictTo(LIBRARY)
-	public void recycle() {
-		if (isRecycled()) {
-			return;
-		}
-
+	protected void onRecycle() {
 		mId = 0;
 		mWidth = mHeight = 0;
 		mUrl = null;
 		mTag = null;
 		mRect = null;
-		super.recycle();
 		POOL.release(this);
 	}
 

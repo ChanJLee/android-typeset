@@ -5,26 +5,35 @@ import me.chan.texas.annotations.TexasUnitTest;
 /**
  * 默认可回收实现类
  */
-public class DefaultRecyclable implements Recyclable {
+public abstract class DefaultRecyclable implements Recyclable {
 
 	@TexasUnitTest("true")
 	private volatile boolean mRecycled = false;
 
 	@Override
-	public void recycle() {
+	public final void recycle() {
 		if (mRecycled) {
-			throw new IllegalStateException("current object has been recycled, call recycle twice: " + this);
+			return;
 		}
+
 		mRecycled = true;
+		onRecycle();
 	}
 
+	protected abstract void onRecycle();
+
 	@Override
-	public boolean isRecycled() {
+	public final boolean isRecycled() {
 		return mRecycled;
 	}
 
 	@Override
-	public void reuse() {
+	public final void reuse() {
 		mRecycled = false;
+		onReuse();
+	}
+
+	protected void onReuse() {
+
 	}
 }

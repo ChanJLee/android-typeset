@@ -1,10 +1,8 @@
 package me.chan.texas.utils;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.res.Resources;
-import android.graphics.Paint;
 import android.graphics.Point;
 import android.graphics.Typeface;
 import android.text.TextPaint;
@@ -19,9 +17,6 @@ import me.chan.texas.compat.TextPaintCompat;
 import me.chan.texas.renderer.RenderOption;
 import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.layout.Layout;
-
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 
 public class TexasUtils {
 	private static int sScreenWidth = 1080;
@@ -55,7 +50,7 @@ public class TexasUtils {
 	}
 
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
-	public static boolean isIsDebug() {
+	public static boolean isDebug() {
 		return sIsDebug;
 	}
 
@@ -282,53 +277,7 @@ public class TexasUtils {
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
 	public static void setupTextPaint(TextPaint paint) {
 		paint.density = sDensity;
-		setBidiFlags(paint);
 	}
-
-	private static void setBidiFlags(Paint paint) {
-		if (BIDI_INVOKE_STUB.state == BidiInvokeStub.STATE_IDLE) {
-			initBidiInvokeStub();
-		}
-
-		if (BIDI_INVOKE_STUB.state != BidiInvokeStub.STATE_OK) {
-			return;
-		}
-
-		try {
-			BIDI_INVOKE_STUB.method.invoke(paint, BIDI_INVOKE_STUB.flag);
-		} catch (Throwable e) {
-			BIDI_INVOKE_STUB.state = BidiInvokeStub.STATE_FAILED;
-		}
-	}
-
-	private static void initBidiInvokeStub() {
-		try {
-			@SuppressLint("SoonBlockedPrivateApi") Method method = Paint.class.getDeclaredMethod("setBidiFlags", int.class);
-			method.setAccessible(true);
-
-			@SuppressLint("SoonBlockedPrivateApi") Field flag = Paint.class.getDeclaredField("BIDI_FORCE_LTR");
-			flag.setAccessible(true);
-
-			BIDI_INVOKE_STUB.method = method;
-			BIDI_INVOKE_STUB.flag = flag.getInt(null);
-
-			BIDI_INVOKE_STUB.state = BidiInvokeStub.STATE_OK;
-		} catch (Throwable throwable) {
-			BIDI_INVOKE_STUB.state = BidiInvokeStub.STATE_FAILED;
-		}
-	}
-
-	private static class BidiInvokeStub {
-		private static final int STATE_IDLE = 1;
-		private static final int STATE_OK = 0;
-		private static final int STATE_FAILED = -1;
-
-		public int state = 1;
-		public Method method;
-		public int flag;
-	}
-
-	private static final BidiInvokeStub BIDI_INVOKE_STUB = new BidiInvokeStub();
 
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
 	public static float getLineSpace(Paragraph paragraph) {

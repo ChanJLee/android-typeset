@@ -7,6 +7,10 @@ public class BitBucket {
 	private static final int SIZE_MASK = BITS_SIZE_OF_INT - 1;
 	private final int[] mBits;
 
+	public BitBucket() {
+		this(32);
+	}
+
 	public BitBucket(int size) {
 		mBits = new int[((size + SIZE_MASK) & ~SIZE_MASK) / BITS_SIZE_OF_INT];
 	}

@@ -35,12 +35,7 @@ public class Node extends DefaultRecyclable {
 	}
 
 	@Override
-	public void recycle() {
-		if (isRecycled()) {
-			return;
-		}
-
-		super.recycle();
+	protected void onRecycle() {
 		demerits = ratio = fitness = state = 0;
 		line = -1;
 		if (totals != null) {

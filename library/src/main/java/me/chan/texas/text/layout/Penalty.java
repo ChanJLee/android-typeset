@@ -39,8 +39,8 @@ public class Penalty extends Element {
 		}
 
 		@Override
-		public void recycle() {
-
+		protected void onRecycle() {
+			/* NOOP */
 		}
 
 		@Override
@@ -89,8 +89,8 @@ public class Penalty extends Element {
 		}
 
 		@Override
-		public void recycle() {
-
+		protected void onRecycle() {
+			/* NOOP */
 		}
 
 		@Override
@@ -158,12 +158,7 @@ public class Penalty extends Element {
 	}
 
 	@Override
-	public void recycle() {
-		if (isRecycled()) {
-			return;
-		}
-
-		super.recycle();
+	protected void onRecycle() {
 		mWidth = mHeight = 0;
 		mPenalty = 0;
 		mFlag = false;

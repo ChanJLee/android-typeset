@@ -74,4 +74,8 @@ public class CharStream {
 	public void clear() {
 		reset(null, 0, 0);
 	}
+
+	public void back() {
+		adjust(-1);
+	}
 }
