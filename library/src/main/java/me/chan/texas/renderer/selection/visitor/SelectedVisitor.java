@@ -97,7 +97,6 @@ public abstract class SelectedVisitor extends ParagraphVisitor {
 			}
 			mSelection.appendBox(box);
 		} else {
-			// 偷懒，这里直接清除了，实际上应该是在外部处理
 			box.removeStatus(Box.STATUS_SELECTED);
 			closeRect();
 		}
