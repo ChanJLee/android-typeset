@@ -195,6 +195,7 @@ public class ParagraphSelection extends DefaultRecyclable {
 
 		paragraphSelection.reuse();
 		paragraphSelection.reset(paragraph, style);
+		paragraph.setSelection(paragraphSelection);
 		return paragraphSelection;
 	}
 
