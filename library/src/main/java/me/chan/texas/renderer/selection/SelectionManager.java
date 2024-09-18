@@ -215,11 +215,11 @@ public class SelectionManager implements OnSelectedChangedListener {
 					renderOption
 			);
 			mSelectedTextByClickedVisitor.setPredicate(predicate, boxTag);
-			ParagraphSelection selection = mSelectedTextByClickedVisitor.startVisit(
+			mSelectedTextByClickedVisitor.startVisit(
 					paragraph,
 					renderOption
 			);
-			handleParagraphSelected(selection, index);
+			handleParagraphSelected(paragraph, index);
 			return mSelectedTextByClickedVisitor.isHandled();
 		} finally {
 			mSelectedTextByClickedVisitor.clear();
@@ -323,11 +323,9 @@ public class SelectionManager implements OnSelectedChangedListener {
 				float tempX2 = x2 - mLocations[0];
 				float tempY2 = y2 - mLocations[1];
 				mSelectedTextByDragVisitor.setRegion(tempX1, tempY1, tempX2, tempY2, isFocusP1);
-				ParagraphSelection paragraphSelection = mSelectedTextByDragVisitor.startVisit(
-						textureParagraph.getParagraph(),
-						renderOption
-				);
-				addParagraphSelection(currentSelection, paragraphSelection, i);
+				Paragraph paragraph = textureParagraph.getParagraph();
+				mSelectedTextByDragVisitor.startVisit(paragraph, renderOption);
+				addParagraphSelection(currentSelection, paragraph);
 			} catch (ParagraphVisitor.VisitException ex) {
 				w(ex);
 			} finally {
@@ -352,22 +350,25 @@ public class SelectionManager implements OnSelectedChangedListener {
 		// 因此 需要变化的 item 都在 两个集合里了
 		mSelectionDiffBucket.clear();
 		for (int i = 0; i < currentSelection.size(); ++i) {
-			ParagraphSelection paragraphSelection = currentSelection.get(i);
-			int index = paragraphSelection.getIndex();
+			Paragraph paragraph = currentSelection.get(i);
+			int index = mAdapter.sendSignal(paragraph, RendererAdapter.SIG_SELECTION_CHANGED);
+			if (index < 0) {
+				continue;
+			}
 			mSelectionDiffBucket.set(index, true);
-			mAdapter.notifyItemChanged(index);
 		}
 
 		for (int i = 0; i < prevSelection.size(); ++i) {
-			ParagraphSelection paragraphSelection = prevSelection.get(i);
-			int index = paragraphSelection.getIndex();
+			Paragraph paragraph = prevSelection.get(i);
+			int index = mAdapter.sendSignal(paragraph, RendererAdapter.SIG_SELECTION_CHANGED);
 			if (!mSelectionDiffBucket.get(index)) {
-				paragraphSelection.clear();
-				mAdapter.notifyItemChanged(index);
-				paragraphSelection.recycle();
+				ParagraphSelection paragraphSelection = prevSelection.getParagraphSelection(paragraph);
+				if (paragraphSelection != null) {
+					paragraphSelection.clear();
+					paragraphSelection.recycle();
+				}
 			}
 		}
-
 
 		notifyUpdateSelectionDropView();
 
@@ -398,7 +399,7 @@ public class SelectionManager implements OnSelectedChangedListener {
 	 * @return 选中区域
 	 */
 	@Nullable
-	public Selection selectParagraphs(SpanPredicate predicate) {
+	public Selection selectParagraphs(TexasView.SelectionPredicate predicate) {
 		Document document = mAdapter.getDocument();
 		clearSelection();
 
@@ -415,7 +416,7 @@ public class SelectionManager implements OnSelectedChangedListener {
 		return mCurrentSelection;
 	}
 
-	private void selectParagraph(Paragraph paragraph, SpanPredicate predicate, int index) {
+	private void selectParagraph(Paragraph paragraph, TexasView.SelectionPredicate predicate, int index) {
 		if (paragraph == null) {
 			return;
 		}
@@ -423,12 +424,8 @@ public class SelectionManager implements OnSelectedChangedListener {
 		try {
 			RenderOption renderOption = mAdapter.getRenderOption();
 			mSelfDriveSelectedVisitor.reset(renderOption, predicate);
-			ParagraphSelection paragraphSelection = mSelfDriveSelectedVisitor.startVisit(paragraph, renderOption);
-			if (paragraphSelection == null) {
-				return;
-			}
-
-			handleParagraphSelected(paragraphSelection, index);
+			mSelfDriveSelectedVisitor.startVisit(paragraph, renderOption);
+			handleParagraphSelected(paragraph, index);
 		} catch (ParagraphVisitor.VisitException ignored) {
 			/* do nothing */
 		} finally {
@@ -449,34 +446,30 @@ public class SelectionManager implements OnSelectedChangedListener {
 		return mCurrentSelection.getParagraphSelection(paragraph);
 	}
 
-	private void addParagraphSelection(Selection selection, ParagraphSelection paragraphSelection, int index) {
-		if (paragraphSelection == null || paragraphSelection.isEmpty()) {
-			return;
-		}
-
-		paragraphSelection.setIndex(index);
-		selection.add(paragraphSelection);
+	private void addParagraphSelection(Selection selection, Paragraph paragraph) {
+		selection.add(paragraph);
 	}
 
 	/**
 	 * 处理 paragraph 被选中
 	 *
-	 * @param paragraphSelection selection
+	 * @param paragraph paragraph
+	 * @param index     index
 	 */
-	private void handleParagraphSelected(ParagraphSelection paragraphSelection, int index) {
+	private void handleParagraphSelected(Paragraph paragraph, int index) {
 		if (mCurrentSelection == null) {
 			mCurrentSelection = Selection.obtain(mAdapter, mLayoutManager);
 		}
 
 		if (index < 0) {
 			Document document = mAdapter.getDocument();
-			index = document.indexOfSegment(paragraphSelection.getParagraph());
+			index = document.indexOfSegment(paragraph);
 		}
 
-		addParagraphSelection(mCurrentSelection, paragraphSelection, index);
+		addParagraphSelection(mCurrentSelection, paragraph);
 
 		try {
-			mAdapter.notifyItemChanged(index);
+			mAdapter.sendSignal(index, RendererAdapter.SIG_SELECTION_CHANGED);
 		} catch (Throwable ignore) {
 			/* do nothing */
 		}

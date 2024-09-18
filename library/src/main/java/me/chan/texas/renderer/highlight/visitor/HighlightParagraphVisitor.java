@@ -6,6 +6,7 @@ import androidx.annotation.RestrictTo;
 
 import me.chan.texas.renderer.ParagraphVisitor;
 import me.chan.texas.renderer.SpanPredicate;
+import me.chan.texas.renderer.TexasView;
 import me.chan.texas.renderer.highlight.ParagraphHighlight;
 import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.TypesetContext;
@@ -16,13 +17,15 @@ import me.chan.texas.text.layout.TextBox;
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class HighlightParagraphVisitor extends ParagraphVisitor {
 
-	private Paragraph mParagraph;
-	private SpanPredicate mPredicate;
+	private TexasView.HighlightPredicate mPredicate;
 	private ParagraphHighlight mParagraphHighlight;
+	private Object mParagraphTag;
+	private Paragraph mParagraph;
 
 	@Override
 	protected void onVisitParagraphStart(Paragraph paragraph) {
-
+		mParagraphTag = paragraph.getTag();
+		mParagraph = paragraph;
 	}
 
 	@Override
@@ -48,7 +51,7 @@ public class HighlightParagraphVisitor extends ParagraphVisitor {
 
 		TextBox textBox = (TextBox) box;
 		Object tag = textBox.getTag();
-		if (!mPredicate.apply(mParagraph.getTag(), tag)) {
+		if (!mPredicate.apply(mParagraphTag, tag)) {
 			textBox.removeStatus(Box.STATUS_HIGHLIGHT);
 			return;
 		}
@@ -64,13 +67,14 @@ public class HighlightParagraphVisitor extends ParagraphVisitor {
 		mParagraphHighlight = null;
 		mPredicate = null;
 		mParagraph = null;
+		mParagraphTag = null;
 	}
 
 	public ParagraphHighlight getParagraphHighlight() {
 		return mParagraphHighlight;
 	}
 
-	public void setParams(Paragraph paragraph, SpanPredicate predicate) {
+	public void setParams(Paragraph paragraph, TexasView.HighlightPredicate predicate) {
 		mPredicate = predicate;
 		mParagraph = paragraph;
 	}

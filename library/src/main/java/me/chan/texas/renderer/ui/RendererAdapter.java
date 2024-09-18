@@ -41,6 +41,7 @@ import me.chan.texas.text.Segment;
 import me.chan.texas.text.ViewSegment;
 import me.chan.texas.text.layout.Layout;
 
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -595,5 +596,26 @@ public class RendererAdapter extends RecyclerView.Adapter<RendererAdapter.Render
 		void onLoadingMore(int count);
 
 		void onLoadingPrevious();
+	}
+
+	public static final Object SIG_SELECTION_CHANGED = new Object();
+
+	public static final Object SIG_HIGHLIGHT_CHANGED = new Object();
+
+	public int sendSignal(Segment segment, Object signal) {
+		int index = indexOf(segment);
+		return sendSignal(index, signal);
+	}
+
+	public int sendSignal(int index, Object signal) {
+		if (index >= 0) {
+			notifyItemChanged(index, signal);
+		}
+		return index;
+	}
+
+	@Override
+	public void onBindViewHolder(@NonNull Renderer holder, int position, @NonNull List<Object> payloads) {
+		super.onBindViewHolder(holder, position, payloads);
 	}
 }

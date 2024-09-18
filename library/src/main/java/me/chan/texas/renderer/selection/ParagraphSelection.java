@@ -5,7 +5,6 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import android.graphics.Canvas;
 import android.graphics.RectF;
 import android.text.TextPaint;
-import android.util.Log;
 
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
@@ -31,30 +30,20 @@ public class ParagraphSelection extends DefaultRecyclable {
 	private static final ObjectPool<ParagraphSelection> POOL = new ObjectPool<>(32);
 	private static final AtomicInteger UUID = new AtomicInteger(0);
 
-	private Paragraph mParagraph;
 	private int mBgColor;
 	private int mTextColor;
 	private Style mStyle;
 	private final List<RectF> mBackgrounds = new ArrayList<>();
 	private int mId;
-	private int mIndex;
+	// todo 通过visitor优化
 	private final List<Box> mSet = new ArrayList<>(32);
 
 	private ParagraphSelection() {
 	}
 
-	private void reset(Paragraph paragraph, Style style) {
-		mParagraph = paragraph;
+	private void reset(Style style) {
 		mId = UUID.incrementAndGet();
 		mStyle = style;
-	}
-
-	public int getIndex() {
-		return mIndex;
-	}
-
-	public void setIndex(int index) {
-		mIndex = index;
 	}
 
 	/**
@@ -78,10 +67,6 @@ public class ParagraphSelection extends DefaultRecyclable {
 
 	public int getTextColor() {
 		return mTextColor;
-	}
-
-	public Paragraph getParagraph() {
-		return mParagraph;
 	}
 
 	private Box mFirst;
@@ -140,10 +125,15 @@ public class ParagraphSelection extends DefaultRecyclable {
 	/**
 	 * @return 因为排版的时候单词会被拆分，因此会导致用户设置的tag重复，这个方法内部还需要去去重，但是无法对空tag去重，所以忽略空tag
 	 */
-	public List<Object> getSelectedTags() {
+	@Nullable
+	public static List<Object> getSelectedTags(Paragraph paragraph) {
+		Layout layout = paragraph.getLayout();
+		if (paragraph.isRecycled() || layout == null || layout.isRecycled()) {
+			return null;
+		}
+
 		List<Object> result = new ArrayList<>();
 		Object last = null; /* 去重 */
-		Layout layout = mParagraph.getLayout();
 		int count = layout.getLineCount();
 		for (int i = 0; i < count; ++i) {
 			Line line = layout.getLine(i);
@@ -174,28 +164,24 @@ public class ParagraphSelection extends DefaultRecyclable {
 	protected void onRecycle() {
 		mFirst = mLast = null;
 		mBackgrounds.clear();
-		mParagraph = null;
 		mBgColor = mTextColor = 0;
 		mStyle = null;
 		mId = 0;
-		mIndex = 0;
 		POOL.release(this);
 	}
 
 	/**
-	 * @param paragraph paragraph
-	 * @param style     渲染样式
+	 * @param style 渲染样式
 	 * @return selection selection
 	 */
-	public static ParagraphSelection obtain(Paragraph paragraph, Style style) {
+	public static ParagraphSelection obtain(Style style) {
 		ParagraphSelection paragraphSelection = POOL.acquire();
 		if (paragraphSelection == null) {
 			paragraphSelection = new ParagraphSelection();
 		}
 
 		paragraphSelection.reuse();
-		paragraphSelection.reset(paragraph, style);
-		paragraph.setSelection(paragraphSelection);
+		paragraphSelection.reset(style);
 		return paragraphSelection;
 	}
 
@@ -229,13 +215,12 @@ public class ParagraphSelection extends DefaultRecyclable {
 		return mFirst == null;
 	}
 
-	public boolean isSelected(Box box) {
+	public static boolean isSelected(Box box) {
 		return box.containsStatus(Box.STATUS_SELECTED);
 	}
 
 	public void clear() {
 		for (Box box : mSet) {
-			Log.d("chan_debug", "clear -》" + box);
 			box.removeStatus(Box.STATUS_SELECTED);
 		}
 		mSet.clear();

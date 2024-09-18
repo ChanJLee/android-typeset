@@ -51,8 +51,9 @@ public abstract class SelectedVisitor extends ParagraphVisitor {
 	}
 
 	public ParagraphSelection startVisit(Paragraph paragraph, RenderOption renderOption) throws VisitException {
-		mSelection = ParagraphSelection.obtain(paragraph, mIsUseLongClickStyle ? ParagraphSelection.LONG_CLICK : ParagraphSelection.CLICK);
+		mSelection = ParagraphSelection.obtain(mIsUseLongClickStyle ? ParagraphSelection.LONG_CLICK : ParagraphSelection.CLICK);
 		super.visit(paragraph, renderOption);
+		paragraph.setSelection(mSelection);
 		return mSelection;
 	}
 
@@ -92,7 +93,6 @@ public abstract class SelectedVisitor extends ParagraphVisitor {
 			}
 			mSelection.appendBox(box);
 		} else {
-			// fixme
 			// 偷懒，这里直接清除了，实际上应该是在外部处理
 			box.removeStatus(Box.STATUS_SELECTED);
 			closeRect();
