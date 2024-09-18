@@ -309,11 +309,7 @@ public class MixWorker implements TaskQueue.Listener<MixWorker.Args, MixWorker.T
 		}
 
 		@Override
-		public void recycle() {
-			if (isRecycled()) {
-				return;
-			}
-
+		protected void onRecycle() {
 			outWidth = 0;
 			option = null;
 			document = null;
@@ -321,7 +317,6 @@ public class MixWorker implements TaskQueue.Listener<MixWorker.Args, MixWorker.T
 			segmentDecoration = null;
 			start = end = 0;
 			strategy = null;
-			super.recycle();
 			POOL.release(this);
 		}
 

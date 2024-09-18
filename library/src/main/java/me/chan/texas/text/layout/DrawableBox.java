@@ -65,23 +65,19 @@ public class DrawableBox extends Box {
 	}
 
 	@Override
-	public void recycle() {
-		if (isRecycled()) {
-			return;
-		}
-
+	protected void onRecycle() {
+		super.onRecycle();
 		mDrawable = null;
 		mEmoticon.recycle();
 		mEmoticon = null;
-		super.recycle();
 		POOL.release(this);
 	}
 
 	public static DrawableBox obtain(Drawable drawable,
-	                                 float width, float height,
-	                                 Emoticon emoticon, Object tag,
-	                                 Appearance background,
-	                                 Appearance foreground) {
+									 float width, float height,
+									 Emoticon emoticon, Object tag,
+									 Appearance background,
+									 Appearance foreground) {
 		DrawableBox drawableBox = POOL.acquire();
 		if (drawableBox == null) {
 			drawableBox = new DrawableBox(drawable, width, height, emoticon);

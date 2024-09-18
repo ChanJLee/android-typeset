@@ -43,7 +43,6 @@ import me.chan.texas.R;
 import me.chan.texas.Texas;
 import me.chan.texas.TexasOption;
 import me.chan.texas.adapter.ParseException;
-import me.chan.texas.annotations.Idempotent;
 import me.chan.texas.di.TexasComponent;
 import me.chan.texas.di.core.TextEngineCoreComponent;
 import me.chan.texas.misc.ResourceManager;
@@ -58,7 +57,6 @@ import me.chan.texas.source.SourceOpenException;
 import me.chan.texas.text.BreakStrategy;
 import me.chan.texas.text.Document;
 import me.chan.texas.text.HyphenStrategy;
-import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.Segment;
 import me.chan.texas.utils.TexasUtils;
 import me.chan.texas.utils.concurrency.TaskQueue;
@@ -627,7 +625,7 @@ public final class TexasView extends FrameLayout {
 	 *
 	 * @param predicate 谓词
 	 */
-	public void highlightParagraphs(HighlightPredicate predicate) {
+	public void highlightParagraphs(SpanPredicate predicate) {
 		highlightParagraphs(predicate, false, 0);
 	}
 
@@ -638,7 +636,7 @@ public final class TexasView extends FrameLayout {
 	 * @param scrollTo  是否滚动到高亮区域
 	 * @param offset    滚动偏移
 	 */
-	public void highlightParagraphs(HighlightPredicate predicate, boolean scrollTo, int offset) {
+	public void highlightParagraphs(SpanPredicate predicate, boolean scrollTo, int offset) {
 		if (mRenderer == null) {
 			return;
 		}
@@ -655,27 +653,9 @@ public final class TexasView extends FrameLayout {
 		}
 	}
 
-	/**
-	 * 选中和高亮的定义
-	 * <p>
-	 * 高亮只是高亮文字
-	 * <p>
-	 * 选中可以由程序触发，比如我想让某一段文字选中，也可以通过点击事件触发，比如长按，点击单词。
-	 */
-	public void setOnSpanClickedPredicate(OnSpanClickedPredicate predicate) {
+	public void setSpanTouchEventHandler(SpanTouchEventHandler listener) {
 		if (mRenderer != null) {
-			mRenderer.setOnSpanClickedPredicate(predicate);
-		}
-	}
-
-	/**
-	 * 长按触发
-	 *
-	 * @param predicate predicate
-	 */
-	public void setOnSpanLongClickedPredicate(OnSpanLongClickedPredicate predicate) {
-		if (mRenderer != null) {
-			mRenderer.setOnSpanLongClickedPredicate(predicate);
+			mRenderer.setSpanTouchEventHandler(listener);
 		}
 	}
 
@@ -686,7 +666,7 @@ public final class TexasView extends FrameLayout {
 	 * @return 选中区域
 	 */
 	@Nullable
-	public Selection selectParagraphs(SelectionPredicate predicate) {
+	public Selection selectParagraphs(SpanPredicate predicate) {
 		return mRenderer == null ? null : mRenderer.selectParagraphs(predicate);
 	}
 
@@ -1007,41 +987,6 @@ public final class TexasView extends FrameLayout {
 
 	void scheduleLoadPrevious() {
 		load("load previous", LoadingStrategy.LOAD_PREVIOUS);
-	}
-
-	public interface SelectionPredicate {
-
-		/**
-		 * @param paragraphTag {@link Paragraph#getTag()}
-		 * @param spanTag      {@link me.chan.texas.text.Paragraph.SpanBuilder#tag(Object)}
-		 * @return 是否选中
-		 */
-		@Idempotent
-		boolean apply(Object paragraphTag, Object spanTag);
-	}
-
-	public interface HighlightPredicate {
-		/**
-		 * @param paragraphTag {@link me.chan.texas.text.Paragraph.Builder#tag(Object)}
-		 * @param spanTag      {@link me.chan.texas.text.Paragraph.SpanBuilder#tag(Object)}
-		 * @return 是否选中，这个函数必须是幂等的
-		 */
-		@Idempotent
-		boolean apply(@Nullable Object paragraphTag, @Nullable Object spanTag);
-	}
-
-	/**
-	 * use {@link me.chan.texas.renderer.OnSpanClickedPredicate} instead
-	 */
-	@Deprecated
-	public interface OnSpanClickedPredicate extends me.chan.texas.renderer.OnSpanClickedPredicate {
-	}
-
-	/**
-	 * use {@link me.chan.texas.renderer.OnSpanLongClickedPredicate} instead
-	 */
-	@Deprecated
-	public interface OnSpanLongClickedPredicate extends me.chan.texas.renderer.OnSpanLongClickedPredicate {
 	}
 
 	/**

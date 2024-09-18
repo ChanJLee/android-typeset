@@ -77,28 +77,12 @@ public abstract class ViewSegment extends DefaultRecyclable implements Segment {
 	protected abstract void onRender(View view);
 
 	@Override
-	public final void recycle() {
-		// view segment 不支持复用
-		// 因为可能导致内存泄露
-		if (isRecycled()) {
-			return;
-		}
-		super.recycle();
+	protected final void onRecycle() {
 		mTag = null;
 		mRect = null;
 		mIncremental = false;
 		mLayout = 0;
 		mId = 0;
-	}
-
-	@Override
-	public final boolean isRecycled() {
-		return super.isRecycled();
-	}
-
-	@Override
-	public final void reuse() {
-		super.reuse();
 	}
 
 	@Nullable

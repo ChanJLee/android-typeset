@@ -37,7 +37,8 @@ public class PrimitiveUnitTest {
 		System.out.println(">>>>> simple 0");
 		Paragraph.Builder builder = Paragraph.Builder.newBuilder(mTexasOption);
 		builder.newSpanBuilder()
-				.next("1 2 3 4 5")
+				.next("1 2 3")
+				.next("4 5")
 				.buildSpan();
 		checkContent(builder.build(), 6, BreakStrategy.SIMPLE,
 				"1 2 3",
@@ -233,7 +234,7 @@ public class PrimitiveUnitTest {
 
 		// multi line
 		System.out.println(">>>>> tex cn");
-		Paragraph.Builder builder = Paragraph.Builder.newBuilder(texasOption, Paragraph.TYPESET_POLICY_CN);
+		Paragraph.Builder builder = Paragraph.Builder.newBuilder(texasOption, Paragraph.TYPESET_POLICY_CJK_OPTIMIZATION);
 		builder.newSpanBuilder()
 				.next("一二三，四五，")
 				.buildSpan();

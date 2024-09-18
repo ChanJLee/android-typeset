@@ -17,18 +17,14 @@ import me.chan.texas.text.layout.Box;
 import me.chan.texas.text.layout.Element;
 import me.chan.texas.text.layout.Line;
 import me.chan.texas.text.layout.TextBox;
-import me.chan.texas.text.tokenizer.Tokenizer;
 import me.chan.texas.typesetter.ParagraphTypesetter;
 
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
-
-import opennlp.tools.tokenize.TokenizerModel;
 
 public class SelectionUnitTest {
 
@@ -36,10 +32,8 @@ public class SelectionUnitTest {
 	private final TextAttribute mTextAttribute;
 
 	public SelectionUnitTest() throws IOException {
-		TokenizerModel model = new TokenizerModel(new File("../library/src/main/assets/texas/opennlp-en-ud-ewt-tokens-1.0-1.9.3.bin"));
 		mMeasurer = new MockMeasurer(new MockTextPaint(1));
 		mTextAttribute = new TextAttribute(mMeasurer);
-		Tokenizer.setup(model);
 	}
 
 	@Test

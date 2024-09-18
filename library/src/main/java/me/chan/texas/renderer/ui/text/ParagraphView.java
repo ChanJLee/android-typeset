@@ -1,6 +1,5 @@
 package me.chan.texas.renderer.ui.text;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
@@ -32,18 +31,19 @@ import me.chan.texas.measurer.AndroidMeasurer;
 import me.chan.texas.measurer.Measurer;
 import me.chan.texas.misc.PaintSet;
 import me.chan.texas.renderer.LoadingStrategy;
-import me.chan.texas.renderer.OnSpanClickedPredicate;
-import me.chan.texas.renderer.OnSpanLongClickedPredicate;
 import me.chan.texas.renderer.ParagraphVisitor;
 import me.chan.texas.renderer.RenderOption;
+import me.chan.texas.renderer.SpanTouchEventHandler;
 import me.chan.texas.renderer.TexasView;
 import me.chan.texas.renderer.TouchEvent;
 import me.chan.texas.renderer.core.WorkerScheduler;
 import me.chan.texas.renderer.core.worker.ParseWorker;
 import me.chan.texas.renderer.core.worker.ParagraphTypesetWorker;
+import me.chan.texas.renderer.SpanPredicate;
 import me.chan.texas.renderer.selection.ParagraphSelection;
 import me.chan.texas.renderer.selection.visitor.SelectedTextByClickedVisitor;
 import me.chan.texas.source.Source;
+import me.chan.texas.source.SourceCloseException;
 import me.chan.texas.source.SourceOpenException;
 import me.chan.texas.text.BreakStrategy;
 import me.chan.texas.text.HyphenStrategy;
@@ -79,16 +79,27 @@ public class ParagraphView extends FrameLayout {
 	 * */
 	private Paragraph mParagraph;
 
-	private OnSpanLongClickedPredicate mOnSpanLongClickedPredicate;
-
-	private OnSpanClickedPredicate mOnSpanClickedPredicate;
-
 	private OnClickedListener mOnClickedListener;
 
 	private final SelectedTextByClickedVisitor mSelectedTextByClickedVisitor = new SelectedTextByClickedVisitor();
 
 	private ParagraphSelection mCurrentSelection;
 	private final Region mRegion = new Region();
+
+	private SpanTouchEventHandler mSpanTouchEventHandler;
+
+	private final SpanPredicate mOnSpanClickedPredicate = new SpanPredicate() {
+		@Override
+		public boolean apply(@Nullable Object clickedTag, @Nullable Object tag) {
+			return mSpanTouchEventHandler.applySpanClicked(clickedTag, tag);
+		}
+	};
+	private final SpanPredicate mOnSpanLongClickedPredicate = new SpanPredicate() {
+		@Override
+		public boolean apply(@Nullable Object clickedTag, @Nullable Object tag) {
+			return mSpanTouchEventHandler.applySpanLongClicked(clickedTag, tag);
+		}
+	};
 
 	private final ParseWorker.Listener mParseListener = new ParseWorker.Listener() {
 		@Override
@@ -113,27 +124,36 @@ public class ParagraphView extends FrameLayout {
 
 	public ParagraphView(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
 		super(context, attrs, defStyleAttr);
-		mRenderOption = createRenderOption(context, attrs, defStyleAttr);
-		mPaintSet = new PaintSet(mRenderOption);
-		mMeasurer = new AndroidMeasurer(mPaintSet);
-		mTextAttribute = new TextAttribute(mMeasurer);
-		mRender = mRenderOption.isCompatMode() || Build.VERSION.SDK_INT < Build.VERSION_CODES.M ?
-				new TextureParagraphView0Compat(context) : new TextureParagraphView0(context);
-		addView((View) mRender, new FrameLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
-		OnSelectedChangedListener onSelectedChangedListener = new OnSelectedChangedListener() {
-			@Override
-			public boolean onSegmentClicked(View source, MotionEvent e, Paragraph paragraph, int eventType) {
-				return handleParagraphClicked(source, e, eventType);
-			}
+		TypedArray typedArray = context.obtainStyledAttributes(attrs, R.styleable.me_chan_texas_ParagraphView, defStyleAttr, 0);
+		try {
+			mRenderOption = createRenderOption(context, typedArray);
+			mPaintSet = new PaintSet(mRenderOption);
+			mMeasurer = new AndroidMeasurer(mPaintSet);
+			mTextAttribute = new TextAttribute(mMeasurer);
+			mRender = mRenderOption.isCompatMode() || Build.VERSION.SDK_INT < Build.VERSION_CODES.M ?
+					new TextureParagraphView0Compat(context) : new TextureParagraphView0(context);
+			addView((View) mRender, new FrameLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+			OnSelectedChangedListener onSelectedChangedListener = new OnSelectedChangedListener() {
+				@Override
+				public boolean onSegmentClicked(View source, MotionEvent e, Paragraph paragraph, int eventType) {
+					return handleParagraphClicked(source, e, eventType);
+				}
 
-			@Override
-			public boolean onBoxSelected(View source, MotionEvent e, Paragraph paragraph, @EventType int eventType, Box box) {
-				return handleParagraphSelected(source, e, paragraph, eventType, box);
-			}
-		};
-		mRender.setOnTextSelectedListener(onSelectedChangedListener);
+				@Override
+				public boolean onBoxSelected(View source, MotionEvent e, Paragraph paragraph, @EventType int eventType, Box box) {
+					return handleParagraphSelected(source, e, paragraph, eventType, box);
+				}
+			};
+			mRender.setOnTextSelectedListener(onSelectedChangedListener);
 
-		checkUIThreadPriority();
+			String text = typedArray.getString(R.styleable.me_chan_texas_ParagraphView_me_chan_texas_ParagraphView_text);
+			if (!TextUtils.isEmpty(text)) {
+				setText(text);
+			}
+			checkUIThreadPriority();
+		} finally {
+			typedArray.recycle();
+		}
 	}
 
 	@Override
@@ -205,7 +225,7 @@ public class ParagraphView extends FrameLayout {
 		// 1. clear prev selection
 		clearSelection();
 
-		OnSpanClickedPredicate predicate = isLongClicked ? mOnSpanLongClickedPredicate : mOnSpanClickedPredicate;
+		SpanPredicate predicate = isLongClicked ? mOnSpanLongClickedPredicate : mOnSpanClickedPredicate;
 		if (predicate == null) {
 			return false;
 		}
@@ -237,7 +257,7 @@ public class ParagraphView extends FrameLayout {
 		return true;
 	}
 
-	private boolean handleParagraphSelected0(Paragraph paragraph, boolean isLongClicked, Box box, OnSpanClickedPredicate predicate) throws ParagraphVisitor.VisitException {
+	private boolean handleParagraphSelected0(Paragraph paragraph, boolean isLongClicked, Box box, SpanPredicate predicate) throws ParagraphVisitor.VisitException {
 		try {
 			mSelectedTextByClickedVisitor.reset(
 					isLongClicked,
@@ -348,11 +368,18 @@ public class ParagraphView extends FrameLayout {
 		}
 	}
 
+	public void setSpanTouchEventHandler(@Nullable SpanTouchEventHandler spanTouchEventHandler) {
+		mSpanTouchEventHandler = spanTouchEventHandler;
+	}
+
 	private void render0(Paragraph paragraph) {
 		if (DEBUG) {
 			Log.d(TAG, "render0: paragraph = " + paragraph);
 		}
-		mRender.render(paragraph, mPaintSet, mRenderOption, mCurrentSelection, null, null);
+
+		mRender.render(paragraph, mPaintSet,
+				mRenderOption, mCurrentSelection,
+				null, null, mSpanTouchEventHandler);
 	}
 
 	/**
@@ -398,7 +425,7 @@ public class ParagraphView extends FrameLayout {
 	/**
 	 * @param source 段落源
 	 */
-	public void setSource(ParagraphSource source) {
+	public void setSource(@NonNull ParagraphSource source) {
 		if (DEBUG) {
 			Log.d(TAG, "setSource: source = " + source);
 		}
@@ -418,7 +445,32 @@ public class ParagraphView extends FrameLayout {
 		// 提交解析任务
 		ParseWorker.Args args = ParseWorker.Args.obtain(source, LoadingStrategy.LOAD_MORE, mParseListener);
 		ParseWorker worker = WorkerScheduler.parse();
-		worker.submit(mRender.getToken(), args);
+		if (!isInEditMode()) {
+			worker.submit(mRender.getToken(), args);
+			return;
+		}
+
+		try {
+			Paragraph paragraph = worker.submitSync(mRender.getToken(), args);
+			mParseListener.onParseSuccess(paragraph);
+		} catch (Throwable e) {
+			mParseListener.onParseFailure(e);
+		}
+	}
+
+	public void setText(@NonNull CharSequence text) {
+		setText(text, 0, text.length());
+	}
+
+	public void setText(@NonNull CharSequence text, int start, int end) {
+		if (mSource != null && mSource instanceof TextParagraphSource) {
+			TextParagraphSource source = (TextParagraphSource) mSource;
+			if (source.mText == text && source.mStart == start && source.mEnd == end) {
+				return;
+			}
+		}
+
+		setSource(new TextParagraphSource(text, start, end));
 	}
 
 	/**
@@ -537,20 +589,6 @@ public class ParagraphView extends FrameLayout {
 	}
 
 	/**
-	 * @param onSpanLongClickedPredicate 设置长按逻辑
-	 */
-	public void setOnSpanLongClickedPredicate(OnSpanLongClickedPredicate onSpanLongClickedPredicate) {
-		mOnSpanLongClickedPredicate = onSpanLongClickedPredicate;
-	}
-
-	/**
-	 * @param onSpanClickedPredicate 设置单点逻辑
-	 */
-	public void setOnSpanClickedPredicate(OnSpanClickedPredicate onSpanClickedPredicate) {
-		mOnSpanClickedPredicate = onSpanClickedPredicate;
-	}
-
-	/**
 	 * 点击事件
 	 */
 	public interface OnClickedListener {
@@ -577,17 +615,7 @@ public class ParagraphView extends FrameLayout {
 		void onDoubleClicked(ParagraphView paragraphView, TouchEvent event);
 	}
 
-	private RenderOption createRenderOption(Context context, AttributeSet attributeSet, int defStyleAttr) {
-		@SuppressLint("CustomViewStyleable")
-		TypedArray typedArray = context.obtainStyledAttributes(attributeSet, R.styleable.me_chan_texas_ParagraphView, defStyleAttr, 0);
-		try {
-			return createRenderOption0(context, typedArray);
-		} finally {
-			typedArray.recycle();
-		}
-	}
-
-	private RenderOption createRenderOption0(Context context, TypedArray typedArray) {
+	private RenderOption createRenderOption(Context context, TypedArray typedArray) {
 		Resources resources = getResources();
 		RenderOption renderOption = new RenderOption();
 
@@ -739,6 +767,35 @@ public class ParagraphView extends FrameLayout {
 			}
 		} catch (Throwable t) {
 			Log.w("Texas", t);
+		}
+	}
+
+	private static class TextParagraphSource extends ParagraphSource {
+		private final CharSequence mText;
+		private final int mStart;
+		private final int mEnd;
+		private Paragraph mParagraph;
+
+		public TextParagraphSource(CharSequence text, int start, int end) {
+			mText = text;
+			mStart = start;
+			mEnd = end;
+		}
+
+		@Override
+		protected Paragraph onOpen(TexasOption option) {
+			if (mParagraph != null) {
+				return mParagraph;
+			}
+
+			return mParagraph = Paragraph.Builder.newBuilder(option)
+					.text(mText, mStart, mEnd)
+					.build();
+		}
+
+		@Override
+		protected void onClose() throws SourceCloseException {
+			/* do nothing */
 		}
 	}
 }

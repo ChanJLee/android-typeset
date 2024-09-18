@@ -10,6 +10,7 @@ import android.view.View;
 
 import me.chan.texas.renderer.ParagraphVisitor;
 import me.chan.texas.renderer.RenderOption;
+import me.chan.texas.renderer.SpanTouchEventHandler;
 import me.chan.texas.renderer.ui.decor.ParagraphDecor;
 import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.TypesetContext;
@@ -35,6 +36,7 @@ public class ParagraphViewMotion {
 	private final View mView;
 
 	private EventListener mEventListener;
+	private SpanTouchEventHandler mSpanClickedEventHandler;
 
 	public ParagraphViewMotion(Context context, View view) {
 		mContext = context;
@@ -43,10 +45,12 @@ public class ParagraphViewMotion {
 
 	public void setup(@NonNull Paragraph paragraph,
 					  @NonNull RenderOption renderOption,
-					  @Nullable ParagraphDecor paragraphDecor) {
+					  @Nullable ParagraphDecor paragraphDecor,
+					  @Nullable SpanTouchEventHandler spanClickedEventHandler) {
 		mParagraph = paragraph;
 		mRenderOption = renderOption;
 		mParagraphDecor = paragraphDecor;
+		mSpanClickedEventHandler = spanClickedEventHandler;
 	}
 
 	public void clear() {
@@ -114,7 +118,6 @@ public class ParagraphViewMotion {
 	private int mMode = 0;
 	private static final int MODE_BOX = 1;
 	private static final int MODE_DECOR = 2;
-
 	private static final int MODE_EMPTY = 3;
 
 	public Box checkIfClicked(float x, float y) {
@@ -216,13 +219,13 @@ public class ParagraphViewMotion {
 	}
 
 	private class EventListener implements GestureDetector.OnGestureListener, GestureDetector.OnDoubleTapListener {
+
 		@Override
-		public boolean onDown(MotionEvent e) {
-			// todo predicate 没有选中任何人，以empty计算
+		public boolean onDown(@NonNull MotionEvent e) {
 			mLastTouchBox = null;
 			mMode = 0;
 
-			if (mParagraph == null) {
+			if (mParagraph == null || mSpanClickedEventHandler == null) {
 				return false;
 			}
 
@@ -233,10 +236,15 @@ public class ParagraphViewMotion {
 
 			float x = e.getX();
 			float y = e.getY();
-			mLastTouchBox = checkIfClicked(x, y);
-			if (mLastTouchBox != null) {
-				mMode = MODE_BOX;
-				return true;
+			Box box = checkIfClicked(x, y);
+			if (box != null) {
+				if (mSpanClickedEventHandler.isSpanClickable(box.getTag())) {
+					mLastTouchBox = box;
+					mMode = MODE_BOX;
+					return true;
+				}
+
+				return false;
 			}
 
 			if (mParagraphDecor != null && mParagraphDecor.handleTouchEvent(e, mParagraph, mRenderOption, mView.getWidth(), mView.getHeight())) {

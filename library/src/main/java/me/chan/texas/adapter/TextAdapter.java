@@ -23,7 +23,7 @@ public class TextAdapter extends TexasView.Adapter<CharSequence> {
 	private final int mTypesetPolicy;
 
 	public TextAdapter() {
-		this(Paragraph.TYPESET_POLICY_EN);
+		this(Paragraph.TYPESET_POLICY_DEFAULT);
 	}
 
 	public TextAdapter(int typesetPolicy) {

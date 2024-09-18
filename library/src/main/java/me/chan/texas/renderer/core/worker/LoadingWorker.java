@@ -152,11 +152,6 @@ public class LoadingWorker implements TaskQueue.Listener<LoadingWorker.Args, Loa
 
         }
 
-        @Override
-        public void recycle() {
-            super.recycle();
-        }
-
         public static LoadingResult obtainWithoutContent(LoadingStrategy strategy, Document document) {
             final int size = document.getSegmentCount();
             return obtain(strategy, document, size, size);
@@ -183,6 +178,11 @@ public class LoadingWorker implements TaskQueue.Listener<LoadingWorker.Args, Loa
         public Document getDocument() {
             return document;
         }
+
+        @Override
+        protected void onRecycle() {
+            /* NOOP */
+        }
     }
 
     public static class Args extends DefaultRecyclable {
@@ -197,16 +197,11 @@ public class LoadingWorker implements TaskQueue.Listener<LoadingWorker.Args, Loa
         }
 
         @Override
-        public void recycle() {
-            if (isRecycled()) {
-                return;
-            }
-
+        protected void onRecycle() {
             option = null;
             listener = null;
             adapter = null;
             strategy = null;
-            super.recycle();
             POOL.release(this);
         }
 

@@ -40,7 +40,8 @@ public class TestUtils {
 						}
 					} else {
 						Object o = field.get(recyclable);
-						if (o == null) {
+						// is final
+						if (o == null || (field.getModifiers() & Modifier.FINAL) != 0) {
 							continue;
 						}
 
@@ -49,14 +50,15 @@ public class TestUtils {
 							if (collection.isEmpty()) {
 								continue;
 							}
-						} if (o instanceof SparseArrayCompat) {
+						}
+						if (o instanceof SparseArrayCompat) {
 							SparseArrayCompat<?> compat = (SparseArrayCompat<?>) o;
 							if (compat.isEmpty()) {
 								continue;
 							}
 						}
 
-						Assert.fail("check failed");
+						Assert.fail("check failed field: " + field.getName());
 					}
 				}
 				clazz = clazz.getSuperclass();

@@ -1,12 +1,12 @@
 apply plugin: 'com.android.library'
 
 android {
-    compileSdkVersion 32
+    compileSdkVersion 34
 
     defaultConfig {
-        minSdkVersion 21
+        minSdkVersion 23
         //noinspection OldTargetApi
-        targetSdkVersion 32
+        targetSdkVersion 34
         versionCode 1
         versionName "1.0"
 
@@ -70,5 +70,6 @@ dependencies {
     annotationProcessor 'com.google.dagger:dagger-compiler:2.38.1'
     testAnnotationProcessor 'com.google.dagger:dagger-compiler:2.38.1'
 
-    implementation 'org.apache.opennlp:opennlp-tools:1.9.3'
+    // https://mvnrepository.com/artifact/com.ibm.icu/icu4j
+    implementation 'com.ibm.icu:icu4j:75.1'
 }

@@ -102,15 +102,10 @@ public class ParseWorker implements TaskQueue.Task<ParseWorker.Args, Paragraph>,
 		}
 
 		@Override
-		public void recycle() {
-			if (isRecycled()) {
-				return;
-			}
-
+		protected void onRecycle() {
 			listener = null;
 			source = null;
 			strategy = null;
-			super.recycle();
 			POOL.release(this);
 		}
 

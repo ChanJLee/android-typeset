@@ -8,6 +8,7 @@ import androidx.annotation.RestrictTo;
 
 import me.chan.texas.misc.PaintSet;
 import me.chan.texas.renderer.RenderOption;
+import me.chan.texas.renderer.SpanTouchEventHandler;
 import me.chan.texas.renderer.highlight.ParagraphHighlight;
 import me.chan.texas.renderer.selection.ParagraphSelection;
 import me.chan.texas.renderer.ui.decor.ParagraphDecor;
@@ -38,19 +39,21 @@ public interface TextureParagraph {
 	void getLocationOnScreen(int[] location);
 
 	/**
-	 * @param paragraph    绘制的段落
-	 * @param paintSet     画笔集合
-	 * @param renderOption 绘制选项
-	 * @param selection    选中的内容
-	 * @param highlight    高亮的内容
-	 * @param decor        装饰的内容
+	 * @param paragraph               绘制的段落
+	 * @param paintSet                画笔集合
+	 * @param renderOption            绘制选项
+	 * @param selection               选中的内容
+	 * @param highlight               高亮的内容
+	 * @param decor                   装饰的内容
+	 * @param spanClickedEventHandler 点击事件处理器
 	 */
 	void render(@NonNull Paragraph paragraph,
 				@NonNull PaintSet paintSet,
 				@NonNull RenderOption renderOption,
 				@Nullable ParagraphSelection selection,
 				@Nullable ParagraphHighlight highlight,
-				@Nullable ParagraphDecor decor);
+				@Nullable ParagraphDecor decor,
+				@Nullable SpanTouchEventHandler spanClickedEventHandler);
 
 	/**
 	 * @param onTextSelectedListener 选中的回调

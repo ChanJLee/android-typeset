@@ -287,7 +287,7 @@ public class Renderer implements SelectionManager.Listener {
 		mImpl.scrollToPosition(position, smooth, offset);
 	}
 
-	public void highlightParagraphs(TexasView.HighlightPredicate predicate, boolean scrollTo, int offset) {
+	public void highlightParagraphs(SpanPredicate predicate, boolean scrollTo, int offset) {
 		Highlight area = mHighlightManager.highlightParagraphs(predicate);
 		if (area == null || area.isEmpty()) {
 			return;
@@ -416,12 +416,8 @@ public class Renderer implements SelectionManager.Listener {
 		}
 	}
 
-	public void setOnSpanLongClickedPredicate(OnSpanLongClickedPredicate predicate) {
-		mSelectionManager.setOnLongClickedPredicate(predicate);
-	}
-
-	public void setOnSpanClickedPredicate(OnSpanClickedPredicate predicate) {
-		mSelectionManager.setOnClickedPredicate(predicate);
+	public void setSpanTouchEventHandler(SpanTouchEventHandler listener) {
+		mSelectionManager.setSpanTouchEventHandler(listener);
 	}
 
 	@SuppressLint("NotifyDataSetChanged")
@@ -470,7 +466,7 @@ public class Renderer implements SelectionManager.Listener {
 		return mRenderOption;
 	}
 
-	public Selection selectParagraphs(TexasView.SelectionPredicate predicate) {
+	public Selection selectParagraphs(SpanPredicate predicate) {
 		return mSelectionManager.selectParagraphs(predicate);
 	}
 
