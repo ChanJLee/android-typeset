@@ -142,7 +142,7 @@ public final class Selection extends DefaultRecyclable {
 
 	@Override
 	protected void onRecycle() {
-		clear();
+		mParagraphs.clear();
 		mTexasLayoutManager = null;
 		mTexasAdapter = null;
 		mRectEdge.bottomX = mRectEdge.topX =

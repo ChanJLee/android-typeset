@@ -53,7 +53,11 @@ public abstract class SelectedVisitor extends ParagraphVisitor {
 	public ParagraphSelection startVisit(Paragraph paragraph, RenderOption renderOption) throws VisitException {
 		mSelection = ParagraphSelection.obtain(mIsUseLongClickStyle ? ParagraphSelection.LONG_CLICK : ParagraphSelection.CLICK);
 		super.visit(paragraph, renderOption);
+		ParagraphSelection prev = paragraph.getSelection();
 		paragraph.setSelection(mSelection);
+		if (prev != null) {
+			prev.recycle();
+		}
 		return mSelection;
 	}
 
