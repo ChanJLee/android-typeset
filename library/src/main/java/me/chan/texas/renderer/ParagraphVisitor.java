@@ -7,7 +7,6 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 
 import me.chan.texas.text.Paragraph;
-import me.chan.texas.text.TypesetContext;
 import me.chan.texas.text.layout.Box;
 import me.chan.texas.text.layout.Element;
 import me.chan.texas.text.layout.Glue;
@@ -92,6 +91,7 @@ public abstract class ParagraphVisitor {
 					mOuterRect.right = (mTypesetContext.nextBoxMetaInfo.inner.left + mTypesetContext.currentBoxMetaInfo.inner.right) / 2.0f;
 				}
 
+				++mTypesetContext.sequence;
 				onVisitBox(mTypesetContext.currentBoxMetaInfo.box, mInnerRect, mOuterRect, mTypesetContext);
 				if (!mTypesetContext.nextBoxMetaInfo.isValid() || mVisitSig != SIG_NORMAL) {
 					break;

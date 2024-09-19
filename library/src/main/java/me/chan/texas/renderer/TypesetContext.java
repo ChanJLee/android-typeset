@@ -1,4 +1,4 @@
-package me.chan.texas.text;
+package me.chan.texas.renderer;
 
 import android.graphics.RectF;
 
@@ -6,18 +6,22 @@ import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 
+import me.chan.texas.annotations.Idempotent;
 import me.chan.texas.text.layout.Box;
 
-public class TypesetContext {
+public final class TypesetContext {
 
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
-	public BoxMetaInfo currentBoxMetaInfo = new BoxMetaInfo();
+	BoxMetaInfo currentBoxMetaInfo = new BoxMetaInfo();
 
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
-	public BoxMetaInfo prevBoxMetaInfo = new BoxMetaInfo();
+	BoxMetaInfo prevBoxMetaInfo = new BoxMetaInfo();
 
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
-	public BoxMetaInfo nextBoxMetaInfo = new BoxMetaInfo();
+	BoxMetaInfo nextBoxMetaInfo = new BoxMetaInfo();
+
+	@RestrictTo(RestrictTo.Scope.LIBRARY)
+	int sequence = 0;
 
 	/**
 	 * @return 获得当前元素的tag
@@ -41,6 +45,12 @@ public class TypesetContext {
 	@Nullable
 	public Object getNextTag() {
 		return nextBoxMetaInfo.box == null ? null : nextBoxMetaInfo.box.getTag();
+	}
+
+	@Idempotent
+	@RestrictTo(RestrictTo.Scope.LIBRARY)
+	public int getSequence() {
+		return sequence;
 	}
 
 	/**
@@ -78,6 +88,7 @@ public class TypesetContext {
 		prevBoxMetaInfo.clear();
 		nextBoxMetaInfo.clear();
 		mParagraphLocationAttribute = 0;
+		sequence = 0;
 	}
 
 	@IntDef({LOCATION_LINE_START, LOCATION_LINE_END, LOCATION_LINE_MIDDLE,

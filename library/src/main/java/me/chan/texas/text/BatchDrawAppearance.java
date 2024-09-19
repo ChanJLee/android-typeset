@@ -4,6 +4,8 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.RectF;
 
+import me.chan.texas.renderer.TypesetContext;
+
 /**
  * 批量绘制Appearance，会更有效率一点
  */

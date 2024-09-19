@@ -12,7 +12,6 @@ import me.chan.texas.renderer.highlight.ParagraphHighlight;
 import me.chan.texas.text.BreakStrategy;
 import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.TextAttribute;
-import me.chan.texas.text.TypesetContext;
 import me.chan.texas.text.layout.Box;
 import me.chan.texas.text.layout.Element;
 import me.chan.texas.text.layout.Line;

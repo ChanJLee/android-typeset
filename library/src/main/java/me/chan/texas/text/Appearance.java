@@ -6,6 +6,8 @@ import android.graphics.RectF;
 
 import androidx.annotation.AnyThread;
 
+import me.chan.texas.renderer.TypesetContext;
+
 /**
  * 外观，用于内容绘制
  */

@@ -14,7 +14,7 @@ import com.shanbay.lib.texas.test.mock.MockTextPaint;
 import me.chan.texas.measurer.Measurer;
 import me.chan.texas.measurer.MockMeasurer;
 import me.chan.texas.text.Appearance;
-import me.chan.texas.text.TypesetContext;
+import me.chan.texas.renderer.TypesetContext;
 import me.chan.texas.text.TextAttribute;
 import me.chan.texas.text.TextStyle;
 

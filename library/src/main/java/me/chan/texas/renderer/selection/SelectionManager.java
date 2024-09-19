@@ -362,12 +362,12 @@ public class SelectionManager implements OnSelectedChangedListener {
 			Paragraph paragraph = prevSelection.get(i);
 			int index = mAdapter.indexOf(paragraph);
 			if (!mSelectionDiffBucket.get(index)) {
-				mAdapter.sendSignal(index, RendererAdapter.SIG_SELECTION_CHANGED);
 				ParagraphSelection paragraphSelection = prevSelection.getParagraphSelection(paragraph);
 				if (paragraphSelection != null) {
-					paragraphSelection.clear();
 					paragraphSelection.recycle();
+					paragraph.setSelection(null);
 				}
+				mAdapter.sendSignal(index, RendererAdapter.SIG_SELECTION_CHANGED);
 			}
 		}
 

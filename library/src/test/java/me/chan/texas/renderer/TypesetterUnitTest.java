@@ -24,7 +24,6 @@ import me.chan.texas.renderer.core.worker.LoadingWorker;
 import me.chan.texas.source.ObjectSource;
 import me.chan.texas.source.SourceCloseException;
 import me.chan.texas.source.SourceOpenException;
-import me.chan.texas.text.TypesetContext;
 import me.chan.texas.text.layout.Box;
 import me.chan.texas.text.BreakStrategy;
 import me.chan.texas.text.Document;
