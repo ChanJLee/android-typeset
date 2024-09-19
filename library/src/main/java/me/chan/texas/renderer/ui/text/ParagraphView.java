@@ -270,8 +270,7 @@ public class ParagraphView extends FrameLayout {
 
 			// update ui
 			mCurrentSelection = mSelectedTextByClickedVisitor.startVisit(
-					paragraph,
-					mRenderOption
+					paragraph
 			);
 			render0(paragraph);
 

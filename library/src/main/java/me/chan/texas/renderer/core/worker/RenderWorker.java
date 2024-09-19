@@ -173,7 +173,7 @@ public class RenderWorker implements TaskQueue.Task<RenderWorker.Args, Void>, Ta
 
 			mDrawVisitor.setCanvas(canvas);
 			mDrawVisitor.setRenderContext(args);
-			mDrawVisitor.visit(paragraph, args.option);
+			mDrawVisitor.visit(paragraph);
 		} catch (ParagraphVisitor.VisitException e) {
 			Log.w("TexasRenderEngine", e);
 		} finally {
@@ -205,7 +205,7 @@ public class RenderWorker implements TaskQueue.Task<RenderWorker.Args, Void>, Ta
 			mDebugDrawVisitor.setTaskId(taskId);
 			mDebugDrawVisitor.setCanvas(canvas);
 			mDebugDrawVisitor.setRenderArgs(args);
-			mDebugDrawVisitor.visit(paragraph, args.option);
+			mDebugDrawVisitor.visit(paragraph);
 		} catch (ParagraphVisitor.VisitException e) {
 			Log.w("TexasRenderEngine", e);
 		} finally {
@@ -291,7 +291,7 @@ public class RenderWorker implements TaskQueue.Task<RenderWorker.Args, Void>, Ta
 		}
 
 		@Override
-		public void onVisitBox(Box box, RectF inner, RectF outer, RendererContext context) {
+		public void onVisitBox(Box box, RectF inner, RectF outer, @NonNull RendererContext context) {
 			boolean isSelected = isBoxSelected(box);
 
 			// 先绘制背景
@@ -457,7 +457,7 @@ public class RenderWorker implements TaskQueue.Task<RenderWorker.Args, Void>, Ta
 		}
 
 		@Override
-		public void onVisitBox(Box box, RectF inner, RectF outer, RendererContext context) {
+		public void onVisitBox(Box box, RectF inner, RectF outer, @NonNull RendererContext context) {
 			mDebugPaint.setColor(Color.GREEN);
 			mCanvas.drawRect(inner, mDebugPaint);
 		}

@@ -3,6 +3,7 @@ package me.chan.texas.renderer.selection.visitor;
 import android.graphics.RectF;
 
 import androidx.annotation.CallSuper;
+import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 
 import me.chan.texas.renderer.ParagraphVisitor;
@@ -46,13 +47,13 @@ public abstract class SelectedVisitor extends ParagraphVisitor {
 	}
 
 	@Override
-	final public void visit(Paragraph paragraph, RenderOption renderOption) throws VisitException {
-		super.visit(paragraph, renderOption);
+	final public void visit(Paragraph paragraph) throws VisitException {
+		super.visit(paragraph);
 	}
 
-	public ParagraphSelection startVisit(Paragraph paragraph, RenderOption renderOption) throws VisitException {
+	public ParagraphSelection startVisit(Paragraph paragraph) throws VisitException {
 		mSelection = ParagraphSelection.obtain(mIsUseLongClickStyle ? ParagraphSelection.LONG_CLICK : ParagraphSelection.CLICK);
-		super.visit(paragraph, renderOption);
+		super.visit(paragraph);
 		ParagraphSelection prev = paragraph.getSelection();
 		paragraph.setSelection(mSelection);
 		if (prev != null) {
@@ -88,7 +89,7 @@ public abstract class SelectedVisitor extends ParagraphVisitor {
 	}
 
 	@Override
-	public void onVisitBox(Box box, RectF inner, RectF outer, RendererContext context) {
+	public void onVisitBox(Box box, RectF inner, RectF outer, @NonNull RendererContext context) {
 		if (selected(box, inner, outer)) {
 			if (!(box instanceof DrawableBox) || includeSelectNonTextBoxRegion()) {
 				appendRect(outer);
@@ -97,7 +98,6 @@ public abstract class SelectedVisitor extends ParagraphVisitor {
 			}
 			mSelection.appendBox(box);
 		} else {
-			box.removeStatus(Box.STATUS_SELECTED);
 			closeRect();
 		}
 	}

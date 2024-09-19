@@ -1,8 +1,6 @@
 package me.chan.texas.renderer.highlight;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import me.chan.texas.misc.BitBucket;
 import me.chan.texas.misc.DefaultRecyclable;
 import me.chan.texas.misc.ObjectPool;
 import me.chan.texas.renderer.RenderOption;
@@ -15,7 +13,7 @@ public class ParagraphHighlight extends DefaultRecyclable {
 	private int mTextColor;
 	private Paragraph mParagraph;
 	private float mYInParagraph;
-	private final List<Box> mBoxes = new ArrayList<>(32);
+	private final BitBucket mBitBucket = new BitBucket(256);
 
 	private ParagraphHighlight() {
 	}
@@ -29,7 +27,7 @@ public class ParagraphHighlight extends DefaultRecyclable {
 	}
 
 	public boolean isHighlight(Box box) {
-		return box.containsStatus(Box.STATUS_HIGHLIGHT);
+		return mBitBucket.get(box.getSeq());
 	}
 
 	public float getYInParagraph() {
@@ -50,10 +48,7 @@ public class ParagraphHighlight extends DefaultRecyclable {
 	}
 
 	public void clear() {
-		for (Box box : mBoxes) {
-			box.removeStatus(Box.STATUS_HIGHLIGHT);
-		}
-		mBoxes.clear();
+		mBitBucket.clear();
 	}
 
 	public static ParagraphHighlight obtain(float yInParagraph, Paragraph paragraph) {
@@ -69,7 +64,6 @@ public class ParagraphHighlight extends DefaultRecyclable {
 	}
 
 	public void addBox(Box box) {
-		box.addStatus(Box.STATUS_HIGHLIGHT);
-		mBoxes.add(box);
+		mBitBucket.set(box.getSeq(), true);
 	}
 }

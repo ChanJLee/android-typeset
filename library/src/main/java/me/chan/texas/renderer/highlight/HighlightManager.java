@@ -87,7 +87,7 @@ public class HighlightManager {
 	private ParagraphHighlight highlightParagraph(Paragraph paragraph, TexasView.HighlightPredicate predicate) {
 		try {
 			mHighlightParagraphVisitor.setParams(paragraph, predicate);
-			mHighlightParagraphVisitor.visit(paragraph, mAdapter.getRenderOption());
+			mHighlightParagraphVisitor.visit(paragraph);
 			return mHighlightParagraphVisitor.getParagraphHighlight();
 		} catch (ParagraphVisitor.VisitException ignore) {
 			/* do nothing */

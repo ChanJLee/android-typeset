@@ -107,6 +107,7 @@ public final class Paragraph extends DefaultRecyclable implements Segment {
 
 	@RestrictTo(LIBRARY)
 	public synchronized Layout swap(@NonNull Layout layout) {
+		layout.finishLayout();
 		Layout old = mLayout;
 		mLayout = layout;
 		return old;
@@ -135,11 +136,6 @@ public final class Paragraph extends DefaultRecyclable implements Segment {
 	@Override
 	public int getId() {
 		return mId;
-	}
-
-	@RestrictTo(LIBRARY)
-	public int getTypesetVersion() {
-		return mLayout.getId();
 	}
 
 	public boolean hasContent() {

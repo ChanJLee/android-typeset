@@ -6,6 +6,8 @@ import android.graphics.Canvas;
 import android.graphics.RectF;
 import android.text.TextPaint;
 
+import androidx.annotation.MainThread;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 
@@ -13,12 +15,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import me.chan.texas.misc.BitBucket;
 import me.chan.texas.misc.DefaultRecyclable;
 import me.chan.texas.misc.ObjectPool;
+import me.chan.texas.renderer.ParagraphVisitor;
 import me.chan.texas.renderer.RenderOption;
+import me.chan.texas.renderer.RendererContext;
 import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.layout.Box;
-import me.chan.texas.text.layout.Element;
 import me.chan.texas.text.layout.Layout;
 import me.chan.texas.text.layout.Line;
 
@@ -35,8 +39,7 @@ public class ParagraphSelection extends DefaultRecyclable {
 	private Style mStyle;
 	private final List<RectF> mBackgrounds = new ArrayList<>();
 	private int mId;
-	// todo 通过visitor优化
-	private final List<Box> mSet = new ArrayList<>(32);
+	private final BitBucket mSet = new BitBucket(128);
 
 	private ParagraphSelection() {
 	}
@@ -73,8 +76,7 @@ public class ParagraphSelection extends DefaultRecyclable {
 	private Box mLast;
 
 	public void pushBox(Box box) {
-		box.addStatus(Box.STATUS_SELECTED);
-		mSet.add(box);
+		mSet.set(box.getSeq(), true);
 
 		if (mLast == null) {
 			mLast = box;
@@ -84,8 +86,7 @@ public class ParagraphSelection extends DefaultRecyclable {
 	}
 
 	public void appendBox(Box box) {
-		box.addStatus(Box.STATUS_SELECTED);
-		mSet.add(box);
+		mSet.set(box.getSeq(), true);
 
 		if (mFirst == null) {
 			mFirst = box;
@@ -126,38 +127,24 @@ public class ParagraphSelection extends DefaultRecyclable {
 	 * @return 因为排版的时候单词会被拆分，因此会导致用户设置的tag重复，这个方法内部还需要去去重，但是无法对空tag去重，所以忽略空tag
 	 */
 	@Nullable
+	@RestrictTo(LIBRARY)
+	@MainThread
 	public static List<Object> getSelectedTags(Paragraph paragraph) {
 		Layout layout = paragraph.getLayout();
 		if (paragraph.isRecycled() || layout == null || layout.isRecycled()) {
 			return null;
 		}
 
-		List<Object> result = new ArrayList<>();
-		Object last = null; /* 去重 */
-		int count = layout.getLineCount();
-		for (int i = 0; i < count; ++i) {
-			Line line = layout.getLine(i);
-			for (int j = 0; j < line.getCount(); ++j) {
-				Element element = line.getElement(j);
-				if (!(element instanceof Box)) {
-					continue;
-				}
-
-				Box box = (Box) element;
-				if (!isSelected(box)) {
-					continue;
-				}
-
-				Object tag = box.getTag();
-				if (tag == last || tag == null) {
-					continue;
-				}
-
-				result.add(tag);
-				last = tag;
-			}
+		try {
+			GET_SELECTED_TAG_VISITOR.selection = paragraph.getSelection();
+			GET_SELECTED_TAG_VISITOR.visit(paragraph);
+			return GET_SELECTED_TAG_VISITOR.tags;
+		} catch (Throwable ignored) {
+			return null;
+		} finally {
+			GET_SELECTED_TAG_VISITOR.tags = null;
+			GET_SELECTED_TAG_VISITOR.selection = null;
 		}
-		return result;
 	}
 
 	@Override
@@ -215,14 +202,12 @@ public class ParagraphSelection extends DefaultRecyclable {
 		return mFirst == null;
 	}
 
-	public static boolean isSelected(Box box) {
-		return box.containsStatus(Box.STATUS_SELECTED);
+	@RestrictTo(LIBRARY)
+	public boolean isSelected(Box box) {
+		return mSet.get(box.getSeq());
 	}
 
 	public void clear() {
-		for (Box box : mSet) {
-			box.removeStatus(Box.STATUS_SELECTED);
-		}
 		mSet.clear();
 		mFirst = mLast = null;
 		mBackgrounds.clear();
@@ -241,4 +226,38 @@ public class ParagraphSelection extends DefaultRecyclable {
 		paragraphSelection.mTextColor = renderOption.getSelectedTextColor();
 		paragraphSelection.mBgColor = renderOption.getSelectedBackgroundColor();
 	};
+
+	private final static GetSelectedTagVisitor GET_SELECTED_TAG_VISITOR = new GetSelectedTagVisitor();
+
+	private static class GetSelectedTagVisitor extends ParagraphVisitor {
+		public List<Object> tags;
+		public ParagraphSelection selection;
+
+		@Override
+		protected void onVisitParagraphStart(Paragraph paragraph) {
+			tags = new ArrayList<>();
+		}
+
+		@Override
+		protected void onVisitParagraphEnd(Paragraph paragraph) {
+
+		}
+
+		@Override
+		protected void onVisitLineStart(Line line, float x, float y) {
+
+		}
+
+		@Override
+		protected void onVisitLineEnd(Line line, float x, float y) {
+
+		}
+
+		@Override
+		protected void onVisitBox(Box box, RectF inner, RectF outer, @NonNull RendererContext context) {
+			if (selection.isSelected(box)) {
+				tags.add(box.getTag());
+			}
+		}
+	}
 }

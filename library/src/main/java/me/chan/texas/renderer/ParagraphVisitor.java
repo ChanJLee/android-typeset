@@ -3,7 +3,7 @@ package me.chan.texas.renderer;
 import android.graphics.RectF;
 
 import androidx.annotation.IntDef;
-import androidx.annotation.Nullable;
+import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 
 import me.chan.texas.text.Paragraph;
@@ -44,7 +44,7 @@ public abstract class ParagraphVisitor {
 
 	private final RendererContext mTypesetContext = new RendererContext();
 
-	public void visit(Paragraph paragraph, RenderOption renderOption) throws VisitException {
+	public void visit(Paragraph paragraph) throws VisitException {
 		try {
 			onVisitParagraphStart(paragraph);
 			Layout layout = paragraph.getLayout();
@@ -91,7 +91,6 @@ public abstract class ParagraphVisitor {
 					mOuterRect.right = (mTypesetContext.nextBoxMetaInfo.inner.left + mTypesetContext.currentBoxMetaInfo.inner.right) / 2.0f;
 				}
 
-				++mTypesetContext.sequence;
 				onVisitBox(mTypesetContext.currentBoxMetaInfo.box, mInnerRect, mOuterRect, mTypesetContext);
 				if (!mTypesetContext.nextBoxMetaInfo.isValid() || mVisitSig != SIG_NORMAL) {
 					break;
@@ -162,7 +161,7 @@ public abstract class ParagraphVisitor {
 	 * @param inner 内部box绘制区域
 	 * @param outer 外部绘制区域
 	 */
-	protected abstract void onVisitBox(Box box, RectF inner, RectF outer, @Nullable RendererContext context);
+	protected abstract void onVisitBox(Box box, RectF inner, RectF outer, @NonNull RendererContext context);
 
 	/**
 	 * 访问异常，可能因为paragraph被回收，然而访问还在进行时抛出
