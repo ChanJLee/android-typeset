@@ -4,7 +4,7 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.RectF;
 
-import me.chan.texas.renderer.TypesetContext;
+import me.chan.texas.renderer.RendererContext;
 
 /**
  * 前景/背景颜色
@@ -54,7 +54,7 @@ public class RectGround extends Appearance {
 	}
 
 	@Override
-	public void draw(Canvas canvas, Paint paint, RectF inner, RectF outer, TypesetContext context) {
+	public void draw(Canvas canvas, Paint paint, RectF inner, RectF outer, RendererContext context) {
 		paint.setColor(mColor);
 		if (mRadius > 0) {
 			canvas.drawRoundRect(inner, mRadius, mRadius, paint);

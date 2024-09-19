@@ -42,7 +42,7 @@ public abstract class ParagraphVisitor {
 
 	}
 
-	private final TypesetContext mTypesetContext = new TypesetContext();
+	private final RendererContext mTypesetContext = new RendererContext();
 
 	public void visit(Paragraph paragraph, RenderOption renderOption) throws VisitException {
 		try {
@@ -56,8 +56,8 @@ public abstract class ParagraphVisitor {
 				y += line.getLineHeight();
 
 				mTypesetContext.clear();
-				mTypesetContext.setParagraphLocationAttribute(TypesetContext.LOCATION_PARAGRAPH_START, i == 0);
-				mTypesetContext.setParagraphLocationAttribute(TypesetContext.LOCATION_PARAGRAPH_END, i == end - 1);
+				mTypesetContext.setParagraphLocationAttribute(RendererContext.LOCATION_PARAGRAPH_START, i == 0);
+				mTypesetContext.setParagraphLocationAttribute(RendererContext.LOCATION_PARAGRAPH_END, i == end - 1);
 
 				visitLine(line, x, y);
 
@@ -110,7 +110,7 @@ public abstract class ParagraphVisitor {
 		}
 	}
 
-	private void assignBoxMeta(Line line, int start, int end, float bottomX, float bottomY, TypesetContext.BoxMetaInfo meta) {
+	private void assignBoxMeta(Line line, int start, int end, float bottomX, float bottomY, RendererContext.BoxMetaInfo meta) {
 		for (int index = start; index < end; ++index) {
 			Element element = line.getElement(index);
 			if (element instanceof Box) {
@@ -162,7 +162,7 @@ public abstract class ParagraphVisitor {
 	 * @param inner 内部box绘制区域
 	 * @param outer 外部绘制区域
 	 */
-	protected abstract void onVisitBox(Box box, RectF inner, RectF outer, @Nullable TypesetContext context);
+	protected abstract void onVisitBox(Box box, RectF inner, RectF outer, @Nullable RendererContext context);
 
 	/**
 	 * 访问异常，可能因为paragraph被回收，然而访问还在进行时抛出

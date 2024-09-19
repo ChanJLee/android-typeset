@@ -7,7 +7,7 @@ import android.graphics.RectF;
 import com.shanbay.lib.texas.TestUtils;
 import me.chan.texas.measurer.Measurer;
 import me.chan.texas.text.Appearance;
-import me.chan.texas.renderer.TypesetContext;
+import me.chan.texas.renderer.RendererContext;
 import me.chan.texas.text.TextAttribute;
 
 import org.junit.Assert;
@@ -35,7 +35,7 @@ public class BoxUnitTest {
 		// test set bg
 		Appearance bg = new Appearance() {
 			@Override
-			public void draw(Canvas canvas, Paint textPaint, RectF inner, RectF outer, TypesetContext context) {
+			public void draw(Canvas canvas, Paint textPaint, RectF inner, RectF outer, RendererContext context) {
 
 			}
 		};
@@ -45,7 +45,7 @@ public class BoxUnitTest {
 		// test set fg
 		Appearance fg = new Appearance() {
 			@Override
-			public void draw(Canvas canvas, Paint textPaint, RectF inner, RectF outer, TypesetContext context) {
+			public void draw(Canvas canvas, Paint textPaint, RectF inner, RectF outer, RendererContext context) {
 
 			}
 		};

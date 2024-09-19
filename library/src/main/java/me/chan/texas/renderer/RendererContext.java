@@ -9,7 +9,7 @@ import androidx.annotation.RestrictTo;
 import me.chan.texas.annotations.Idempotent;
 import me.chan.texas.text.layout.Box;
 
-public final class TypesetContext {
+public final class RendererContext {
 
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
 	BoxMetaInfo currentBoxMetaInfo = new BoxMetaInfo();

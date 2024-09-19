@@ -6,7 +6,7 @@ import android.graphics.RectF;
 
 import androidx.annotation.AnyThread;
 
-import me.chan.texas.renderer.TypesetContext;
+import me.chan.texas.renderer.RendererContext;
 
 /**
  * 外观，用于内容绘制
@@ -28,5 +28,5 @@ public abstract class Appearance {
 	 * @param context 绘制上下文，可以知道当前绘制单元前后位置
 	 */
 	@AnyThread
-	public abstract void draw(Canvas canvas, Paint paint, RectF inner, RectF outer, TypesetContext context);
+	public abstract void draw(Canvas canvas, Paint paint, RectF inner, RectF outer, RendererContext context);
 }

@@ -50,7 +50,7 @@ public class BoundCheckDrawer extends ParagraphVisitor {
 	}
 
 	@Override
-	protected void onVisitBox(Box box, RectF inner, RectF outer, TypesetContext context) {
+	protected void onVisitBox(Box box, RectF inner, RectF outer, RendererContext context) {
 		mCurrentX = inner.left + box.getWidth();
 		if (mPrint) {
 			System.out.print(box);
