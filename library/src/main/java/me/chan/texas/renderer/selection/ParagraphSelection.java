@@ -149,6 +149,7 @@ public class ParagraphSelection extends DefaultRecyclable {
 
 	@Override
 	protected void onRecycle() {
+		mSet.clear();
 		mFirst = mLast = null;
 		mBackgrounds.clear();
 		mBgColor = mTextColor = 0;

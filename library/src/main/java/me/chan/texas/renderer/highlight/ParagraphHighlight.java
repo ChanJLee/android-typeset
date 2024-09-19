@@ -35,7 +35,6 @@ public class ParagraphHighlight extends DefaultRecyclable {
 	@Override
 	protected void onRecycle() {
 		clear();
-
 		mYInParagraph = 0;
 		POOL.release(this);
 	}
