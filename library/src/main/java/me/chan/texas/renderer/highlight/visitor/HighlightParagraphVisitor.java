@@ -20,17 +20,19 @@ public class HighlightParagraphVisitor extends ParagraphVisitor {
 	private TexasView.HighlightPredicate mPredicate;
 	private ParagraphHighlight mParagraphHighlight;
 	private Object mParagraphTag;
-	private Paragraph mParagraph;
 
 	@Override
 	protected void onVisitParagraphStart(Paragraph paragraph) {
 		mParagraphTag = paragraph.getTag();
-		mParagraph = paragraph;
 	}
 
 	@Override
 	protected void onVisitParagraphEnd(Paragraph paragraph) {
-
+		ParagraphHighlight highlight = paragraph.getHighlight();
+		if (highlight != null) {
+			highlight.recycle();
+		}
+		paragraph.setHighlight(mParagraphHighlight);
 	}
 
 	@Override
@@ -56,7 +58,7 @@ public class HighlightParagraphVisitor extends ParagraphVisitor {
 		}
 
 		if (mParagraphHighlight == null) {
-			mParagraphHighlight = ParagraphHighlight.obtain(inner.top, mParagraph);
+			mParagraphHighlight = ParagraphHighlight.obtain(inner.top);
 		}
 
 		mParagraphHighlight.addBox(box);
@@ -65,7 +67,6 @@ public class HighlightParagraphVisitor extends ParagraphVisitor {
 	public void clear() {
 		mParagraphHighlight = null;
 		mPredicate = null;
-		mParagraph = null;
 		mParagraphTag = null;
 	}
 
@@ -73,8 +74,7 @@ public class HighlightParagraphVisitor extends ParagraphVisitor {
 		return mParagraphHighlight;
 	}
 
-	public void setParams(Paragraph paragraph, TexasView.HighlightPredicate predicate) {
+	public void setParams(TexasView.HighlightPredicate predicate) {
 		mPredicate = predicate;
-		mParagraph = paragraph;
 	}
 }

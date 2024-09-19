@@ -297,7 +297,7 @@ public class SelectionManager implements OnSelectedChangedListener {
 
 		RenderOption renderOption = mAdapter.getRenderOption();
 
-		Selection currentSelection = Selection.obtain(mAdapter, mLayoutManager);
+		Selection currentSelection = Selection.obtain(mAdapter);
 		for (int i = firstVisibleItemPosition; i <= lastVisibleItemPosition; ++i) {
 			View content = mLayoutManager.findViewByPosition(i);
 			if (!(content instanceof TextureParagraph)) {
@@ -433,19 +433,6 @@ public class SelectionManager implements OnSelectedChangedListener {
 		}
 	}
 
-	/**
-	 * @param paragraph paragraph
-	 * @return 返回 paragraph 的选中信息，如果没有选中就返回null
-	 */
-	@Nullable
-	public ParagraphSelection getParagraphSelection(Paragraph paragraph) {
-		if (mCurrentSelection == null) {
-			return null;
-		}
-
-		return mCurrentSelection.getParagraphSelection(paragraph);
-	}
-
 	private void addParagraphSelection(Selection selection, Paragraph paragraph) {
 		selection.add(paragraph);
 	}
@@ -458,7 +445,7 @@ public class SelectionManager implements OnSelectedChangedListener {
 	 */
 	private void handleParagraphSelected(Paragraph paragraph, int index) {
 		if (mCurrentSelection == null) {
-			mCurrentSelection = Selection.obtain(mAdapter, mLayoutManager);
+			mCurrentSelection = Selection.obtain(mAdapter);
 		}
 
 		if (index < 0) {
