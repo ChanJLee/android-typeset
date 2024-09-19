@@ -476,7 +476,6 @@ public class RenderWorker implements TaskQueue.Task<RenderWorker.Args, Void>, Ta
 		private PaintSet paintSet;
 		private RenderOption option;
 		private TextureParagraph renderer;
-
 		private ParagraphDecor decor;
 		private int width;
 
