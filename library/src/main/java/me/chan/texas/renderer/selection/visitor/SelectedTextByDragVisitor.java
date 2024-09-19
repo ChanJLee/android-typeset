@@ -155,7 +155,7 @@ public class SelectedTextByDragVisitor extends SelectedVisitor {
 
 			textBox = (TextBox) element;
 			float top = rectF.bottom + layout.getLineSpace();
-			rectF = new RectF(0, top, textBox.getWidth(), top + textBox.getHeight());
+			rectF = new RectF(layout.getPaddingLeft(), top, textBox.getWidth() + layout.getPaddingLeft(), top + textBox.getHeight());
 			mSelection.appendRegion(rectF);
 			mSelection.appendBox(textBox);
 			index = link(line, 1, true, rectF);
