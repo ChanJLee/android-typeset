@@ -49,12 +49,12 @@ public final class Paragraph extends DefaultRecyclable implements Segment {
 	 */
 	public static final int TYPESET_POLICY_CJK_MIX_OPTIMIZATION = 1;
 	/**
-	 * 双向文本
+	 * 双向文本，非常耗时，不建议使用
 	 */
 	public static final int TYPESET_POLICY_BIDI_TEXT = 2;
 
 	@Retention(RetentionPolicy.SOURCE)
-	@IntDef({TYPESET_POLICY_DEFAULT, TYPESET_POLICY_CJK_MIX_OPTIMIZATION})
+	@IntDef({TYPESET_POLICY_DEFAULT, TYPESET_POLICY_CJK_MIX_OPTIMIZATION, TYPESET_POLICY_BIDI_TEXT})
 	public @interface TypesetPolicy {
 	}
 

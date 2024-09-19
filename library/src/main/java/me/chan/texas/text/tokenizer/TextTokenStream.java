@@ -32,12 +32,16 @@ class TextTokenStream extends DefaultRecyclable implements TokenStream {
 
 	@VisibleForTesting
 	void setText(CharSequence text, int start, int end) {
+		setText(text, start, end, false);
+	}
+
+	void setText(CharSequence text, int start, int end, boolean rtl) {
 		synchronized (TextTokenStream.class /* 粒度必须要粗 */) {
-			setText0(text, start, end);
+			setText0(text, start, end, rtl);
 		}
 	}
 
-	private void setText0(CharSequence text, int start, int end) {
+	private void setText0(CharSequence text, int start, int end, boolean rtl) {
 		mBrk.clear();
 		mIndex = 0;
 
@@ -595,13 +599,13 @@ class TextTokenStream extends DefaultRecyclable implements TokenStream {
 		return -1;
 	}
 
-	public static TextTokenStream obtain(CharSequence text, int start, int end) {
+	public static TextTokenStream obtain(CharSequence text, int start, int end, boolean rtl) {
 		TextTokenStream tokenStream = POOL.acquire();
 		if (tokenStream == null) {
 			tokenStream = new TextTokenStream();
 		}
 
-		tokenStream.setText(text, start, end);
+		tokenStream.setText(text, start, end, rtl);
 		tokenStream.reuse();
 		return tokenStream;
 	}

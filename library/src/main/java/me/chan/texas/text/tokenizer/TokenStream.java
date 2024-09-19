@@ -21,7 +21,11 @@ public interface TokenStream extends Recyclable {
 	int size();
 
 	static TokenStream obtain(CharSequence text, int start, int end) {
-		return TextTokenStream.obtain(text, start, end);
+		return obtain(text, start, end, false);
+	}
+
+	static TokenStream obtain(CharSequence text, int start, int end, boolean rtl) {
+		return TextTokenStream.obtain(text, start, end, rtl);
 	}
 
 	@RestrictTo(RestrictTo.Scope.LIBRARY)

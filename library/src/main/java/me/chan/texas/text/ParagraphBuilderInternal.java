@@ -2,9 +2,13 @@ package me.chan.texas.text;
 
 import static me.chan.texas.text.Paragraph.TYPESET_POLICY_CJK_MIX_OPTIMIZATION;
 
+import android.text.TextUtils;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+
+import com.ibm.icu.text.Bidi;
 
 import me.chan.texas.BuildConfig;
 import me.chan.texas.Texas;
@@ -23,8 +27,12 @@ import me.chan.texas.text.tokenizer.Token;
 import me.chan.texas.text.tokenizer.TokenStream;
 import me.chan.texas.utils.IntArray;
 
+import java.text.AttributedCharacterIterator;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /*
  * 把文本添加过程抽离出来了，因为太复杂了，需要在另外一个文件里面单独写明
@@ -167,9 +175,29 @@ class ParagraphBuilderInternal {
 			return;
 		}
 
+		Layout.Advise advise = mParagraph.mLayout.getAdvise();
+		if (!advise.checkTypesetPolicy(Paragraph.TYPESET_POLICY_BIDI_TEXT)) {
+			appendRun(text, start, end, reader, false);
+			return;
+		}
+
+		char[] buffer = TextBox.CHAR_ARRAY_POOL.obtain(end - start);
+		TextUtils.getChars(text, start, end, buffer, 0);
+		Bidi bidi = new Bidi(buffer, 0, null, 0, end - start, Bidi.DIRECTION_DEFAULT_LEFT_TO_RIGHT);
+		for (int i = 0; i < bidi.getRunCount(); ++i) {
+			int runStart = bidi.getRunStart(i);
+			int runLimit = bidi.getRunLimit(i);
+			boolean rtl = bidi.getRunLevel(i) % 2 != 0;
+			appendRun(text, start + runStart, start + runLimit, reader, rtl);
+		}
+		TextBox.CHAR_ARRAY_POOL.release(buffer);
+	}
+
+	private void appendRun(CharSequence text, int start, int end,
+						   @Nullable Paragraph.Builder.SpanReader reader, boolean rtl) {
 		// 将句子转换为单词流
 		// 单词流会分析出一个句子中每个字符所代表的语义，这样可以精确的识别诸如： isn't、1920s 为一个单词
-		TokenStream tokenStream = TokenStream.obtain(text, start, end);
+		TokenStream tokenStream = TokenStream.obtain(text, start, end, rtl);
 		try {
 
 			// 追加一个空格
@@ -179,7 +207,7 @@ class ParagraphBuilderInternal {
 			}
 
 			Token prev = mLastToken;
-			appendSent0(text, reader, tokenStream);
+			appendRun0(text, reader, tokenStream);
 			if (prev != mLastToken && prev != null) {
 				prev.recycle();
 			}
@@ -188,9 +216,9 @@ class ParagraphBuilderInternal {
 		}
 	}
 
-	private void appendSent0(CharSequence text,
-							 Paragraph.Builder.SpanReader spanReader,
-							 TokenStream tokenStream) {
+	private void appendRun0(CharSequence text,
+							Paragraph.Builder.SpanReader spanReader,
+							TokenStream tokenStream) {
 		while (tokenStream.hasNext()) {
 			mLastToken = accept(mLastToken, tokenStream, text, spanReader);
 		}
