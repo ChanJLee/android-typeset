@@ -13,7 +13,7 @@ public class ParagraphHighlight extends DefaultRecyclable {
 	private int mTextColor;
 	private Paragraph mParagraph;
 	private float mYInParagraph;
-	private final BitBucket mBitBucket = new BitBucket(256);
+	private final BitBucket mBitBucket = new BitBucket(128);
 
 	private ParagraphHighlight() {
 	}
