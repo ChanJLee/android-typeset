@@ -154,7 +154,7 @@ public class RenderWorker implements TaskQueue.Task<RenderWorker.Args, Void>, Ta
 		}
 
 		Layout layout = paragraph.getLayout();
-		args.decor.draw(canvas, paragraph, args.option, args.width, layout.getHeight());
+		args.decor.draw(canvas, paragraph, args.width, layout.getHeight());
 	}
 
 	private void renderContent(Canvas canvas, Paragraph paragraph, Args args) {

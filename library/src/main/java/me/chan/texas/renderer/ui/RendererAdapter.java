@@ -23,9 +23,6 @@ import me.chan.texas.misc.PaintSet;
 import me.chan.texas.renderer.LoadingStrategy;
 import me.chan.texas.renderer.RenderOption;
 import me.chan.texas.renderer.TouchEvent;
-import me.chan.texas.renderer.highlight.HighlightManager;
-import me.chan.texas.renderer.highlight.ParagraphHighlight;
-import me.chan.texas.renderer.selection.ParagraphSelection;
 import me.chan.texas.renderer.selection.SelectionManager;
 import me.chan.texas.renderer.ui.decor.ParagraphDecor;
 import me.chan.texas.renderer.ui.figure.FigureView;
@@ -78,7 +75,6 @@ public class RendererAdapter extends RecyclerView.Adapter<RendererAdapter.Render
 	 */
 	private final ViewSegmentManager mViewSegmentManager = new ViewSegmentManager();
 	private SelectionManager mSelectionManager;
-	private HighlightManager mHighlightManager;
 	private PaintSet mPaintSet;
 	private final RecyclerView.RecycledViewPool mPool;
 	private ParagraphDecor mParagraphDecor;
@@ -101,10 +97,6 @@ public class RendererAdapter extends RecyclerView.Adapter<RendererAdapter.Render
 
 	public void setListener(Listener listener) {
 		mListener = listener;
-	}
-
-	public void setHighlightManager(HighlightManager highlightManager) {
-		mHighlightManager = highlightManager;
 	}
 
 	public void setSelectionManager(SelectionManager selectionManager) {

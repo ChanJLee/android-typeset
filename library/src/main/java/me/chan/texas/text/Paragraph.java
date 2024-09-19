@@ -17,6 +17,7 @@ import me.chan.texas.misc.DefaultRecyclable;
 import me.chan.texas.misc.ObjectPool;
 import me.chan.texas.renderer.highlight.ParagraphHighlight;
 import me.chan.texas.renderer.selection.ParagraphSelection;
+import me.chan.texas.renderer.ui.decor.ParagraphDecor;
 import me.chan.texas.text.layout.Element;
 import me.chan.texas.text.layout.Layout;
 
@@ -50,7 +51,6 @@ public final class Paragraph extends DefaultRecyclable implements Segment {
 
 	int mId;
 
-
 	@Nullable
 	@Override
 	public Object getTag() {
@@ -76,6 +76,8 @@ public final class Paragraph extends DefaultRecyclable implements Segment {
 	private ParagraphHighlight mHighlight;
 
 	private ParagraphSelection mSelection;
+
+	private ParagraphDecor mDecor;
 
 	@RestrictTo(LIBRARY)
 	@Nullable
