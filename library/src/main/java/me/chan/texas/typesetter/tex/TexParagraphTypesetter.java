@@ -76,7 +76,7 @@ public class TexParagraphTypesetter extends AbsParagraphTypesetter {
 			return args;
 		}
 
-		if (advise.checkTypesetPolicy(Paragraph.TYPESET_POLICY_CJK_OPTIMIZATION)) {
+		if (advise.checkTypesetPolicy(Paragraph.TYPESET_POLICY_CJK_MIX_OPTIMIZATION)) {
 			args.maxTolerance = 0.2f;
 			args.toleranceInterceptor = CN_TOLERANCE_INTERCEPTOR;
 		}

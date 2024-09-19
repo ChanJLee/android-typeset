@@ -12,7 +12,6 @@ import androidx.annotation.VisibleForTesting;
 
 import me.chan.texas.Texas;
 import me.chan.texas.TexasOption;
-import me.chan.texas.annotations.Internal;
 import me.chan.texas.misc.DefaultRecyclable;
 import me.chan.texas.misc.ObjectPool;
 import me.chan.texas.renderer.highlight.ParagraphHighlight;
@@ -46,16 +45,16 @@ public final class Paragraph extends DefaultRecyclable implements Segment {
 	 */
 	public static final int TYPESET_POLICY_DEFAULT = 0;
 	/**
-	 * CJK优化，会使得cjk文字和英文渲染的时候，显得字体更小一点
+	 * CJK混合优化，会使得cjk文字和英文渲染的时候，显得字体更小一点
 	 */
-	public static final int TYPESET_POLICY_CJK_OPTIMIZATION = 1;
+	public static final int TYPESET_POLICY_CJK_MIX_OPTIMIZATION = 1;
 	/**
 	 * 双向文本
 	 */
 	public static final int TYPESET_POLICY_BIDI_TEXT = 2;
 
 	@Retention(RetentionPolicy.SOURCE)
-	@IntDef({TYPESET_POLICY_DEFAULT, TYPESET_POLICY_CJK_OPTIMIZATION})
+	@IntDef({TYPESET_POLICY_DEFAULT, TYPESET_POLICY_CJK_MIX_OPTIMIZATION})
 	public @interface TypesetPolicy {
 	}
 

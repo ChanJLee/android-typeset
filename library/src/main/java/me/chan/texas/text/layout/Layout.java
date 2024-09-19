@@ -2,7 +2,7 @@ package me.chan.texas.text.layout;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
-import static me.chan.texas.text.Paragraph.TYPESET_POLICY_CJK_OPTIMIZATION;
+import static me.chan.texas.text.Paragraph.TYPESET_POLICY_CJK_MIX_OPTIMIZATION;
 import static me.chan.texas.text.Paragraph.TYPESET_POLICY_DEFAULT;
 
 import android.graphics.Rect;
@@ -253,7 +253,7 @@ public class Layout extends DefaultRecyclable {
 		 */
 		private float mLineSpace = -1;
 		private BreakStrategy mBreakStrategy;
-		private int mTypesetPolicies = TYPESET_POLICY_CJK_OPTIMIZATION;
+		private int mTypesetPolicies = TYPESET_POLICY_CJK_MIX_OPTIMIZATION;
 
 		public float getLineSpace() {
 			return mLineSpace;
