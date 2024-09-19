@@ -9,6 +9,7 @@ import androidx.annotation.RestrictTo;
 
 import me.chan.texas.misc.DefaultRecyclable;
 import me.chan.texas.misc.ObjectPool;
+import me.chan.texas.renderer.core.WorkerScheduler;
 import me.chan.texas.renderer.ui.RendererAdapter;
 import me.chan.texas.renderer.ui.rv.TexasLinearLayoutManager;
 import me.chan.texas.renderer.ui.rv.TexasRecyclerView;
@@ -168,7 +169,6 @@ public final class Selection extends DefaultRecyclable {
 				continue;
 			}
 
-			paragraphSelection.clear();
 			paragraph.setSelection(null);
 			try {
 				if (mTexasAdapter != null) {
