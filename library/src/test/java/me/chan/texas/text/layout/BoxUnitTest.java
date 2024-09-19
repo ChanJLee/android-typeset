@@ -3,12 +3,11 @@ package me.chan.texas.text.layout;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.RectF;
-import android.text.TextPaint;
 
 import com.shanbay.lib.texas.TestUtils;
 import me.chan.texas.measurer.Measurer;
 import me.chan.texas.text.Appearance;
-import me.chan.texas.text.TypesetContext;
+import me.chan.texas.renderer.TypesetContext;
 import me.chan.texas.text.TextAttribute;
 
 import org.junit.Assert;

@@ -27,7 +27,7 @@ import me.chan.texas.renderer.selection.ParagraphSelection;
 import me.chan.texas.renderer.ui.decor.ParagraphDecor;
 import me.chan.texas.renderer.ui.text.TextureParagraph;
 import me.chan.texas.text.Appearance;
-import me.chan.texas.text.TypesetContext;
+import me.chan.texas.renderer.TypesetContext;
 import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.TextStyle;
 import me.chan.texas.text.layout.Box;

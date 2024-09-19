@@ -19,7 +19,7 @@ import me.chan.texas.adapter.ParseException;
 import me.chan.texas.renderer.TexasView;
 import me.chan.texas.text.Appearance;
 import me.chan.texas.text.RectGround;
-import me.chan.texas.text.TypesetContext;
+import me.chan.texas.renderer.TypesetContext;
 import me.chan.texas.text.Emoticon;
 import me.chan.texas.text.Figure;
 import me.chan.texas.text.Paragraph;

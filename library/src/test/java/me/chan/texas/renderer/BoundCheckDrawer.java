@@ -2,7 +2,6 @@ package me.chan.texas.renderer;
 
 import android.graphics.RectF;
 
-import me.chan.texas.text.TypesetContext;
 import me.chan.texas.text.layout.Box;
 import me.chan.texas.text.layout.Line;
 import me.chan.texas.text.Paragraph;
