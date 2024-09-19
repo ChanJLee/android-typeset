@@ -2,6 +2,8 @@ package me.chan.texas.renderer;
 
 import android.graphics.RectF;
 
+import androidx.annotation.NonNull;
+
 import com.shanbay.lib.texas.TestUtils;
 import com.shanbay.lib.texas.test.mock.MockTextPaint;
 
@@ -153,7 +155,7 @@ public class SelectionUnitTest {
 		}
 
 		@Override
-		protected void onVisitBox(Box box, RectF inner, RectF outer, RendererContext context) {
+		protected void onVisitBox(Box box, RectF inner, RectF outer, @NonNull RendererContext context) {
 			if (mParagraphSelection.isSelected(box)) {
 				++mCount;
 				Assert.assertTrue(mBoxes.contains(box));
@@ -198,7 +200,7 @@ public class SelectionUnitTest {
 		}
 
 		@Override
-		protected void onVisitBox(Box box, RectF inner, RectF outer, RendererContext context) {
+		protected void onVisitBox(Box box, RectF inner, RectF outer, @NonNull RendererContext context) {
 			if (mParagraphSelection.isSelected(box)) {
 				++mCount;
 				Assert.assertTrue(mBoxes.contains(box.getTag()));

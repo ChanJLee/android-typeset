@@ -5,7 +5,7 @@ import java.util.Arrays;
 public class BitBucket {
 	private static final int BITS_SIZE_OF_INT = 32;
 	private static final int SIZE_MASK = BITS_SIZE_OF_INT - 1;
-	private final int[] mBits;
+	private int[] mBits;
 
 	public BitBucket() {
 		this(32);
@@ -27,7 +27,9 @@ public class BitBucket {
 
 		int bucketIndex = index / BITS_SIZE_OF_INT;
 		if (bucketIndex >= mBits.length) {
-			return false;
+			int[] bits = new int[mBits.length * 2];
+			System.arraycopy(mBits, 0, bits, 0, mBits.length);
+			mBits = bits;
 		}
 
 		int bucketOffset = index % BITS_SIZE_OF_INT;

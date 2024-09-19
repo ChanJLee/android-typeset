@@ -20,9 +20,6 @@ public final class RendererContext {
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
 	BoxMetaInfo nextBoxMetaInfo = new BoxMetaInfo();
 
-	@RestrictTo(RestrictTo.Scope.LIBRARY)
-	int sequence = 0;
-
 	/**
 	 * @return 获得当前元素的tag
 	 */
@@ -45,12 +42,6 @@ public final class RendererContext {
 	@Nullable
 	public Object getNextTag() {
 		return nextBoxMetaInfo.box == null ? null : nextBoxMetaInfo.box.getTag();
-	}
-
-	@Idempotent
-	@RestrictTo(RestrictTo.Scope.LIBRARY)
-	public int getSequence() {
-		return sequence;
 	}
 
 	/**
@@ -88,7 +79,6 @@ public final class RendererContext {
 		prevBoxMetaInfo.clear();
 		nextBoxMetaInfo.clear();
 		mParagraphLocationAttribute = 0;
-		sequence = 0;
 	}
 
 	@IntDef({LOCATION_LINE_START, LOCATION_LINE_END, LOCATION_LINE_MIDDLE,

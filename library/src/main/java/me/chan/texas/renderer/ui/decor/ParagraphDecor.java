@@ -15,6 +15,7 @@ import me.chan.texas.text.layout.Layout;
 import me.chan.texas.text.layout.Line;
 
 import androidx.annotation.AnyThread;
+import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 
 /**
@@ -122,7 +123,7 @@ public abstract class ParagraphDecor {
 			mViewportOuter = viewportOuter;
 			mViewportInner = viewportInner;
 			try {
-				visit(paragraph, renderOption);
+				visit(paragraph);
 			} catch (VisitException e) {
 				e.printStackTrace();
 			} finally {
@@ -161,7 +162,7 @@ public abstract class ParagraphDecor {
 		}
 
 		@Override
-		protected void onVisitBox(Box box, RectF inner, RectF outer, RendererContext context) {
+		protected void onVisitBox(Box box, RectF inner, RectF outer, @NonNull RendererContext context) {
 			int sig = onLayoutDecor(mParagraph, box.getTag(), inner, outer, mViewportOuter, mViewportInner);
 			if (sig == SIG_STOP_PARA_VISIT) {
 				sendVisitSig(SIG_STOP_PARA_VISIT);

@@ -216,8 +216,7 @@ public class SelectionManager implements OnSelectedChangedListener {
 			);
 			mSelectedTextByClickedVisitor.setPredicate(predicate, boxTag);
 			mSelectedTextByClickedVisitor.startVisit(
-					paragraph,
-					renderOption
+					paragraph
 			);
 			handleParagraphSelected(paragraph, index);
 			return mSelectedTextByClickedVisitor.isHandled();
@@ -324,7 +323,7 @@ public class SelectionManager implements OnSelectedChangedListener {
 				float tempY2 = y2 - mLocations[1];
 				mSelectedTextByDragVisitor.setRegion(tempX1, tempY1, tempX2, tempY2, isFocusP1);
 				Paragraph paragraph = textureParagraph.getParagraph();
-				mSelectedTextByDragVisitor.startVisit(paragraph, renderOption);
+				mSelectedTextByDragVisitor.startVisit(paragraph);
 				addParagraphSelection(currentSelection, paragraph);
 			} catch (ParagraphVisitor.VisitException ex) {
 				w(ex);
@@ -425,7 +424,7 @@ public class SelectionManager implements OnSelectedChangedListener {
 		try {
 			RenderOption renderOption = mAdapter.getRenderOption();
 			mSelfDriveSelectedVisitor.reset(renderOption, predicate);
-			mSelfDriveSelectedVisitor.startVisit(paragraph, renderOption);
+			mSelfDriveSelectedVisitor.startVisit(paragraph);
 			handleParagraphSelected(paragraph, index);
 		} catch (ParagraphVisitor.VisitException ignored) {
 			/* do nothing */

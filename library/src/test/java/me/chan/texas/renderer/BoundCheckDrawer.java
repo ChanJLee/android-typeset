@@ -2,6 +2,8 @@ package me.chan.texas.renderer;
 
 import android.graphics.RectF;
 
+import androidx.annotation.NonNull;
+
 import me.chan.texas.text.layout.Box;
 import me.chan.texas.text.layout.Line;
 import me.chan.texas.text.Paragraph;
@@ -50,7 +52,7 @@ public class BoundCheckDrawer extends ParagraphVisitor {
 	}
 
 	@Override
-	protected void onVisitBox(Box box, RectF inner, RectF outer, RendererContext context) {
+	protected void onVisitBox(Box box, RectF inner, RectF outer, @NonNull RendererContext context) {
 		mCurrentX = inner.left + box.getWidth();
 		if (mPrint) {
 			System.out.print(box);

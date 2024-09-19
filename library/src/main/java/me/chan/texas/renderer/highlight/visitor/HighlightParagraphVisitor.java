@@ -2,6 +2,7 @@ package me.chan.texas.renderer.highlight.visitor;
 
 import android.graphics.RectF;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 
 import me.chan.texas.renderer.ParagraphVisitor;
@@ -43,7 +44,7 @@ public class HighlightParagraphVisitor extends ParagraphVisitor {
 	}
 
 	@Override
-	protected void onVisitBox(Box box, RectF inner, RectF outer, RendererContext context) {
+	protected void onVisitBox(Box box, RectF inner, RectF outer, @NonNull RendererContext context) {
 		if (!(box instanceof TextBox)) {
 			return;
 		}
@@ -51,7 +52,6 @@ public class HighlightParagraphVisitor extends ParagraphVisitor {
 		TextBox textBox = (TextBox) box;
 		Object tag = textBox.getTag();
 		if (!mPredicate.apply(mParagraphTag, tag)) {
-			textBox.removeStatus(Box.STATUS_HIGHLIGHT);
 			return;
 		}
 
