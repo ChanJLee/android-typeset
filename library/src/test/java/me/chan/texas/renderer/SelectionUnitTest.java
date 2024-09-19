@@ -104,7 +104,7 @@ public class SelectionUnitTest {
 			}
 		}
 
-		Set<Object> tags = new HashSet<>(paragraphSelection.getSelectedTags());
+		Set<Object> tags = new HashSet<>(ParagraphSelection.getSelectedTags(paragraph));
 
 		TestBoxVisitor visitor = new TestBoxVisitor(set, paragraphSelection);
 		visitor.test(paragraph, renderOption);
@@ -163,7 +163,7 @@ public class SelectionUnitTest {
 		}
 
 		public void test(Paragraph subParagraph, RenderOption renderOption) throws VisitException {
-			visit(subParagraph, renderOption);
+			visit(subParagraph);
 			Assert.assertEquals(mCount, mBoxes.size());
 		}
 	}
@@ -208,7 +208,7 @@ public class SelectionUnitTest {
 		}
 
 		public void test(Paragraph subParagraph, RenderOption renderOption) throws VisitException {
-			visit(subParagraph, renderOption);
+			visit(subParagraph);
 			Assert.assertEquals(mCount, mBoxes.size());
 		}
 	}

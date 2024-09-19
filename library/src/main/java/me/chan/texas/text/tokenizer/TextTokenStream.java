@@ -599,6 +599,10 @@ class TextTokenStream extends DefaultRecyclable implements TokenStream {
 		return -1;
 	}
 
+	public static TextTokenStream obtain(CharSequence text, int start, int end) {
+		return obtain(text, start, end, false);
+	}
+
 	public static TextTokenStream obtain(CharSequence text, int start, int end, boolean rtl) {
 		TextTokenStream tokenStream = POOL.acquire();
 		if (tokenStream == null) {
