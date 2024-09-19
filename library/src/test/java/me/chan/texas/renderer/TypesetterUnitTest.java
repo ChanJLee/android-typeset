@@ -117,7 +117,7 @@ public class TypesetterUnitTest {
 				"555565"
 		});
 
-		checkContentPredication("一二三四五六七八九", BreakStrategy.SIMPLE, 5, 1, Paragraph.TYPESET_POLICY_CJK_MIX_OPTIMIZATION, new String[]{
+		checkContentPredication("一二三四五六七八九", BreakStrategy.SIMPLE, 5, 1, Paragraph.TYPESET_POLICY_DEFAULT, new String[]{
 				"一 二 三 四 五",
 				"六 七 八 九"
 		});
@@ -145,7 +145,7 @@ public class TypesetterUnitTest {
 				"555565"
 		});
 
-		checkContentPredication("一二三四五六七八九", BreakStrategy.BALANCED, 5, 1, Paragraph.TYPESET_POLICY_CJK_MIX_OPTIMIZATION, new String[]{
+		checkContentPredication("一二三四五六七八九", BreakStrategy.BALANCED, 5, 1, Paragraph.TYPESET_POLICY_DEFAULT, new String[]{
 				"一 二 三 四 五",
 				"六 七 八 九"
 		});
@@ -154,7 +154,7 @@ public class TypesetterUnitTest {
 
 	@Test
 	public void testParagraphVisit() throws SourceCloseException, SourceOpenException, ParseException, NoSuchFieldException, InterruptedException, IllegalAccessException, ParagraphVisitor.VisitException {
-		Paragraph paragraph = checkContentPredication("一二三四五六七八九一二三四", BreakStrategy.BALANCED, 5, 1, Paragraph.TYPESET_POLICY_CJK_MIX_OPTIMIZATION, new String[]{
+		Paragraph paragraph = checkContentPredication("一二三四五六七八九一二三四", BreakStrategy.BALANCED, 5, 1, Paragraph.TYPESET_POLICY_DEFAULT, new String[]{
 				"一 二 三 四 五",
 				"六 七 八 九 一",
 				"二 三 四"

@@ -103,6 +103,7 @@ public class SelectionUnitTest {
 				paragraphSelection.appendBox(box1);
 			}
 		}
+		paragraph.setSelection(paragraphSelection);
 
 		Set<Object> tags = new HashSet<>(ParagraphSelection.getSelectedTags(paragraph));
 
