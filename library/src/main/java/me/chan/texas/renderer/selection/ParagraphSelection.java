@@ -136,7 +136,6 @@ public class ParagraphSelection extends DefaultRecyclable {
 		}
 
 		try {
-			GET_SELECTED_TAG_VISITOR.selection = paragraph.getSelection();
 			GET_SELECTED_TAG_VISITOR.visit(paragraph);
 			return GET_SELECTED_TAG_VISITOR.tags;
 		} catch (Throwable ignored) {
@@ -237,6 +236,7 @@ public class ParagraphSelection extends DefaultRecyclable {
 		@Override
 		protected void onVisitParagraphStart(Paragraph paragraph) {
 			tags = new ArrayList<>();
+			selection = paragraph.getSelection();
 		}
 
 		@Override
