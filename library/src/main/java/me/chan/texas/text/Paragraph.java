@@ -41,8 +41,18 @@ public final class Paragraph extends DefaultRecyclable implements Segment {
 
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
 	Object mTag;
+	/**
+	 * 默认
+	 */
 	public static final int TYPESET_POLICY_DEFAULT = 0;
+	/**
+	 * CJK优化，会使得cjk文字和英文渲染的时候，显得字体更小一点
+	 */
 	public static final int TYPESET_POLICY_CJK_OPTIMIZATION = 1;
+	/**
+	 * 双向文本
+	 */
+	public static final int TYPESET_POLICY_BIDI_TEXT = 2;
 
 	@Retention(RetentionPolicy.SOURCE)
 	@IntDef({TYPESET_POLICY_DEFAULT, TYPESET_POLICY_CJK_OPTIMIZATION})
@@ -285,6 +295,22 @@ public final class Paragraph extends DefaultRecyclable implements Segment {
 			return this;
 		}
 
+		public Builder addTypesetPolicy(@TypesetPolicy int policy) {
+			mBuilder0.addTypesetPolicy(policy);
+			return this;
+		}
+
+		public Builder clearTypesetPolicy() {
+			mBuilder0.clearTypesetPolicy();
+			return this;
+		}
+
+		public Builder setTypesetPolicy(@TypesetPolicy int policy) {
+			clearTypesetPolicy();
+			addTypesetPolicy(policy);
+			return this;
+		}
+
 		/**
 		 * 构造一个paragraph
 		 * <p/>
@@ -319,20 +345,19 @@ public final class Paragraph extends DefaultRecyclable implements Segment {
 		}
 
 		/**
-		 * @param texasOption   texas option
-		 * @param typesetPolicy {@link Paragraph#TYPESET_POLICY_CJK_OPTIMIZATION} {@link Paragraph#TYPESET_POLICY_DEFAULT}
+		 * use {@link #newBuilder(TexasOption)} & {@link #addTypesetPolicy(int)} instead
+		 * <p>
+		 * more {@link #clearTypesetPolicy()}
+		 * </p>
+		 *
+		 * @param texasOption texas option
 		 * @return 当前对象
 		 */
+		@Deprecated
 		public static Builder newBuilder(TexasOption texasOption,
 										 @TypesetPolicy int typesetPolicy) {
-			Builder builder = POOL.acquire();
-			if (builder == null) {
-				builder = new Builder();
-			}
-
-			builder.mBuilder0.reset(texasOption, typesetPolicy);
-			builder.reuse();
-			return builder;
+			return newBuilder(texasOption)
+					.setTypesetPolicy(typesetPolicy);
 		}
 
 		/**
@@ -340,7 +365,14 @@ public final class Paragraph extends DefaultRecyclable implements Segment {
 		 * @return 当前对象
 		 */
 		public static Builder newBuilder(TexasOption texasOption) {
-			return newBuilder(texasOption, TYPESET_POLICY_DEFAULT);
+			Builder builder = POOL.acquire();
+			if (builder == null) {
+				builder = new Builder();
+			}
+
+			builder.mBuilder0.reset(texasOption);
+			builder.reuse();
+			return builder;
 		}
 
 		public static void clean() {

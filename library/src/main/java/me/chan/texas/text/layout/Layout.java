@@ -2,6 +2,7 @@ package me.chan.texas.text.layout;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
+import static me.chan.texas.text.Paragraph.TYPESET_POLICY_CJK_OPTIMIZATION;
 import static me.chan.texas.text.Paragraph.TYPESET_POLICY_DEFAULT;
 
 import android.graphics.Rect;
@@ -12,6 +13,7 @@ import me.chan.texas.Texas;
 import me.chan.texas.misc.DefaultRecyclable;
 import me.chan.texas.misc.ObjectPool;
 import me.chan.texas.text.BreakStrategy;
+import me.chan.texas.text.Paragraph;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -251,7 +253,7 @@ public class Layout extends DefaultRecyclable {
 		 */
 		private float mLineSpace = -1;
 		private BreakStrategy mBreakStrategy;
-		private int mTypesetPolicy = TYPESET_POLICY_DEFAULT;
+		private int mTypesetPolicies = TYPESET_POLICY_CJK_OPTIMIZATION;
 
 		public float getLineSpace() {
 			return mLineSpace;
@@ -269,23 +271,27 @@ public class Layout extends DefaultRecyclable {
 			mBreakStrategy = breakStrategy;
 		}
 
-		public int getTypesetPolicy() {
-			return mTypesetPolicy;
+		public boolean checkTypesetPolicy(@Paragraph.TypesetPolicy int typesetPolicy) {
+			return (mTypesetPolicies & typesetPolicy) != 0;
 		}
 
-		public void setTypesetPolicy(int typesetPolicy) {
-			mTypesetPolicy = typesetPolicy;
+		public void addTypesetPolicy(@Paragraph.TypesetPolicy int typesetPolicy) {
+			mTypesetPolicies |= typesetPolicy;
+		}
+
+		public void clearTypesetPolicy() {
+			mTypesetPolicies = TYPESET_POLICY_DEFAULT;
 		}
 
 		private void clear() {
 			mLineSpace = -1;
 			mBreakStrategy = null;
-			mTypesetPolicy = TYPESET_POLICY_DEFAULT;
+			mTypesetPolicies = TYPESET_POLICY_DEFAULT;
 		}
 
 		public void copy(Advise advise) {
 			mLineSpace = advise.mLineSpace;
-			mTypesetPolicy = advise.mTypesetPolicy;
+			mTypesetPolicies = advise.mTypesetPolicies;
 			mBreakStrategy = advise.mBreakStrategy;
 		}
 	}
