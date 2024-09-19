@@ -1,7 +1,6 @@
 package me.chan.texas.text;
 
-import static me.chan.texas.text.Paragraph.TYPESET_POLICY_CJK_OPTIMIZATION;
-import static me.chan.texas.text.Paragraph.TYPESET_POLICY_DEFAULT;
+import static me.chan.texas.text.Paragraph.TYPESET_POLICY_CJK_MIX_OPTIMIZATION;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -282,7 +281,7 @@ class ParagraphBuilderInternal {
 									Token token) {
 		Layout layout = mParagraph.getLayout();
 		Layout.Advise advise = layout.getAdvise();
-		boolean cjkOptimization = advise.checkTypesetPolicy(TYPESET_POLICY_CJK_OPTIMIZATION);
+		boolean cjkOptimization = advise.checkTypesetPolicy(TYPESET_POLICY_CJK_MIX_OPTIMIZATION);
 		Element linkElement = cjkOptimization ? Penalty.ADVISE_BREAK : mStretchOnlyGlue;
 		for (int i = token.getStart(); i < token.getEnd(); ++i) {
 			if (i != token.getStart()) {
