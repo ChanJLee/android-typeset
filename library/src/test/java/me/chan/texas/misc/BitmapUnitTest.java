@@ -43,8 +43,9 @@ public class BitmapUnitTest {
 		bitmap.set(5, false);
 		Assert.assertFalse(bitmap.get(5));
 
-		Assert.assertFalse(bitmap.set(64, true));
-		Assert.assertFalse(bitmap.get(64));
+		Assert.assertTrue(bitmap.set(64, true));
+		Assert.assertEquals(bitmap.size(), 128);
+		Assert.assertTrue(bitmap.get(64));
 		Assert.assertFalse(bitmap.set(-1, true));
 		Assert.assertFalse(bitmap.get(-1));
 

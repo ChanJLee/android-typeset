@@ -56,8 +56,7 @@ public class HighlightUnitTest {
 		texTypesetter.typeset(paragraph, BreakStrategy.SIMPLE, 10, 1);
 
 		ParagraphHighlight paragraphHighlight = ParagraphHighlight.obtain(
-				1,
-				paragraph
+				1
 		);
 
 		Set<Box> set = new HashSet<>();
@@ -121,7 +120,7 @@ public class HighlightUnitTest {
 		}
 
 		public void test(Paragraph subParagraph, RenderOption renderOption) throws VisitException {
-			visit(subParagraph, renderOption);
+			visit(subParagraph);
 			Assert.assertEquals(mCount, mBoxes.size());
 		}
 	}

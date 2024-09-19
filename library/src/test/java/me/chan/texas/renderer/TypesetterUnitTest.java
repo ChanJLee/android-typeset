@@ -185,7 +185,7 @@ public class TypesetterUnitTest {
 			protected void onVisitBox(Box box, RectF inner, RectF outer, @NonNull RendererContext context) {
 
 			}
-		}.visit(paragraph, new RenderOption());
+		}.visit(paragraph);
 		AtomicInteger integer = new AtomicInteger(0);
 		new ParagraphVisitor() {
 			@Override
@@ -211,7 +211,7 @@ public class TypesetterUnitTest {
 			protected void onVisitBox(Box box, RectF inner, RectF outer, @NonNull RendererContext context) {
 
 			}
-		}.visit(paragraph, new RenderOption());
+		}.visit(paragraph);
 		Assert.assertEquals(3, integer.get());
 
 		integer.set(0);
@@ -244,7 +244,7 @@ public class TypesetterUnitTest {
 					Assert.fail("test stop line visit failed");
 				}
 			}
-		}.visit(paragraph, new RenderOption());
+		}.visit(paragraph);
 		Assert.assertEquals(3, integer.get());
 
 		integer.set(0);
@@ -277,7 +277,7 @@ public class TypesetterUnitTest {
 					Assert.fail("test stop line visit failed");
 				}
 			}
-		}.visit(paragraph, new RenderOption());
+		}.visit(paragraph);
 		Assert.assertEquals(2, integer.get());
 
 		integer.set(0);
@@ -307,7 +307,7 @@ public class TypesetterUnitTest {
 				sendVisitSig(ParagraphVisitor.SIG_STOP_PARA_VISIT);
 				tagCount.incrementAndGet();
 			}
-		}.visit(paragraph, new RenderOption());
+		}.visit(paragraph);
 		Assert.assertEquals(1, integer.get());
 		Assert.assertEquals(1, tagCount.get());
 
@@ -338,7 +338,7 @@ public class TypesetterUnitTest {
 				sendVisitSig(ParagraphVisitor.SIG_STOP_LINE_VISIT);
 				tagCount.incrementAndGet();
 			}
-		}.visit(paragraph, new RenderOption());
+		}.visit(paragraph);
 		Assert.assertEquals(3, integer.get());
 		Assert.assertEquals(3, tagCount.get());
 	}
@@ -445,7 +445,7 @@ public class TypesetterUnitTest {
 
 		BoundCheckDrawer drawer = new BoundCheckDrawer(lineWidth);
 		try {
-			drawer.visit(paragraph, renderOption);
+			drawer.visit(paragraph);
 		} catch (ParagraphVisitor.VisitException e) {
 			Assert.fail("fuck");
 		}
@@ -509,7 +509,7 @@ public class TypesetterUnitTest {
 
 			BoundCheckDrawer drawer = new BoundCheckDrawer(lineWidth);
 			try {
-				drawer.visit(paragraph, renderOption);
+				drawer.visit(paragraph);
 			} catch (ParagraphVisitor.VisitException e) {
 				Assert.fail("fuck");
 			}
