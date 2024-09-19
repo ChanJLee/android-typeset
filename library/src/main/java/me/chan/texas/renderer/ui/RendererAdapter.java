@@ -184,6 +184,10 @@ public class RendererAdapter extends RecyclerView.Adapter<RendererAdapter.Render
 			mListener.onLoadingPrevious();
 		}
 
+		onBindViewHolder0(renderer, position);
+	}
+
+	private void onBindViewHolder0(@NonNull Renderer renderer, int position) {
 		Segment segment = getItem(position);
 		if (segment == null) {
 			w("segment is null, ignore onBindViewHolder");
@@ -610,7 +614,7 @@ public class RendererAdapter extends RecyclerView.Adapter<RendererAdapter.Render
 	}
 
 	@Override
-	public void onBindViewHolder(@NonNull Renderer holder, int position, @NonNull List<Object> payloads) {
-		super.onBindViewHolder(holder, position, payloads);
+	public void onBindViewHolder(@NonNull Renderer renderer, int position, @NonNull List<Object> payloads) {
+		onBindViewHolder0(renderer, position);
 	}
 }
