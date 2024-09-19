@@ -27,7 +27,7 @@ import me.chan.texas.renderer.selection.ParagraphSelection;
 import me.chan.texas.renderer.ui.decor.ParagraphDecor;
 import me.chan.texas.renderer.ui.text.TextureParagraph;
 import me.chan.texas.text.Appearance;
-import me.chan.texas.renderer.TypesetContext;
+import me.chan.texas.renderer.RendererContext;
 import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.TextStyle;
 import me.chan.texas.text.layout.Box;
@@ -291,7 +291,7 @@ public class RenderWorker implements TaskQueue.Task<RenderWorker.Args, Void>, Ta
 		}
 
 		@Override
-		public void onVisitBox(Box box, RectF inner, RectF outer, TypesetContext context) {
+		public void onVisitBox(Box box, RectF inner, RectF outer, RendererContext context) {
 			boolean isSelected = isBoxSelected(box);
 
 			// 先绘制背景
@@ -323,7 +323,7 @@ public class RenderWorker implements TaskQueue.Task<RenderWorker.Args, Void>, Ta
 			drawForeground(box, inner, outer, context);
 		}
 
-		private void drawForeground(Box box, RectF inner, RectF outer, TypesetContext context) {
+		private void drawForeground(Box box, RectF inner, RectF outer, RendererContext context) {
 			Appearance foreground = box.getForeground();
 			if (foreground != null) {
 				TextPaint workPaint = mArgs.mPaintSet.getWorkPaint(mWorkPaint);
@@ -335,7 +335,7 @@ public class RenderWorker implements TaskQueue.Task<RenderWorker.Args, Void>, Ta
 			box.draw(mCanvas, workPaint, inner.left, inner.bottom - mLine.getBaselineOffset(), isSelected);
 		}
 
-		private void drawBackground(Box box, boolean isSelected, RectF inner, RectF outer, TypesetContext context) {
+		private void drawBackground(Box box, boolean isSelected, RectF inner, RectF outer, RendererContext context) {
 			Appearance background = box.getBackground();
 			if (background != null && !isSelected) {
 				TextPaint workPaint = mArgs.mPaintSet.getWorkPaint(mWorkPaint);
@@ -457,7 +457,7 @@ public class RenderWorker implements TaskQueue.Task<RenderWorker.Args, Void>, Ta
 		}
 
 		@Override
-		public void onVisitBox(Box box, RectF inner, RectF outer, TypesetContext context) {
+		public void onVisitBox(Box box, RectF inner, RectF outer, RendererContext context) {
 			mDebugPaint.setColor(Color.GREEN);
 			mCanvas.drawRect(inner, mDebugPaint);
 		}

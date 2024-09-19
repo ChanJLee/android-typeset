@@ -7,7 +7,7 @@ import android.graphics.Path;
 import android.graphics.PathEffect;
 import android.graphics.RectF;
 
-import me.chan.texas.renderer.TypesetContext;
+import me.chan.texas.renderer.RendererContext;
 
 /**
  * 点下划线
@@ -58,7 +58,7 @@ public class DotUnderLine extends Appearance {
 	}
 
 	@Override
-	public void draw(Canvas canvas, Paint paint, RectF inner, RectF outer, TypesetContext context) {
+	public void draw(Canvas canvas, Paint paint, RectF inner, RectF outer, RendererContext context) {
 		paint.setStyle(Paint.Style.STROKE);
 		paint.setStrokeWidth(mWidth);
 		paint.setColor(mColor);

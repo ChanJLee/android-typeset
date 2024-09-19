@@ -7,7 +7,7 @@ import android.graphics.drawable.ColorDrawable;
 
 import com.shanbay.lib.texas.TestUtils;
 import me.chan.texas.text.Appearance;
-import me.chan.texas.renderer.TypesetContext;
+import me.chan.texas.renderer.RendererContext;
 import me.chan.texas.text.Emoticon;
 
 import org.junit.Assert;
@@ -41,13 +41,13 @@ public class EmoticonUnitTest {
 		String tag = "msg";
 		Appearance bg = new Appearance() {
 			@Override
-			public void draw(Canvas canvas, Paint textPaint, RectF inner, RectF outer, TypesetContext context) {
+			public void draw(Canvas canvas, Paint textPaint, RectF inner, RectF outer, RendererContext context) {
 
 			}
 		};
 		Appearance fg = new Appearance() {
 			@Override
-			public void draw(Canvas canvas, Paint textPaint, RectF inner, RectF outer, TypesetContext context) {
+			public void draw(Canvas canvas, Paint textPaint, RectF inner, RectF outer, RendererContext context) {
 
 			}
 		};
@@ -84,13 +84,13 @@ public class EmoticonUnitTest {
 		tag = "kkk";
 		fg = new Appearance() {
 			@Override
-			public void draw(Canvas canvas, Paint textPaint, RectF inner, RectF outer, TypesetContext context) {
+			public void draw(Canvas canvas, Paint textPaint, RectF inner, RectF outer, RendererContext context) {
 
 			}
 		};
 		bg = new Appearance() {
 			@Override
-			public void draw(Canvas canvas, Paint textPaint, RectF inner, RectF outer, TypesetContext context) {
+			public void draw(Canvas canvas, Paint textPaint, RectF inner, RectF outer, RendererContext context) {
 
 			}
 		};

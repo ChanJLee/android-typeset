@@ -4,7 +4,7 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.RectF;
 
-import me.chan.texas.renderer.TypesetContext;
+import me.chan.texas.renderer.RendererContext;
 
 /**
  * 下划线
@@ -51,7 +51,7 @@ public class UnderLine extends Appearance {
 	}
 
 	@Override
-	public void draw(Canvas canvas, Paint paint, RectF inner, RectF outer, TypesetContext context) {
+	public void draw(Canvas canvas, Paint paint, RectF inner, RectF outer, RendererContext context) {
 		paint.setStyle(Paint.Style.FILL);
 		paint.setStrokeWidth(mWidth);
 		paint.setColor(mColor);

@@ -182,7 +182,7 @@ public class TypesetterUnitTest {
 			}
 
 			@Override
-			protected void onVisitBox(Box box, RectF inner, RectF outer, @Nullable TypesetContext context) {
+			protected void onVisitBox(Box box, RectF inner, RectF outer, @Nullable RendererContext context) {
 
 			}
 		}.visit(paragraph, new RenderOption());
@@ -208,7 +208,7 @@ public class TypesetterUnitTest {
 			}
 
 			@Override
-			protected void onVisitBox(Box box, RectF inner, RectF outer, @Nullable TypesetContext context) {
+			protected void onVisitBox(Box box, RectF inner, RectF outer, @Nullable RendererContext context) {
 
 			}
 		}.visit(paragraph, new RenderOption());
@@ -239,7 +239,7 @@ public class TypesetterUnitTest {
 			}
 
 			@Override
-			protected void onVisitBox(Box box, RectF inner, RectF outer, @Nullable TypesetContext context) {
+			protected void onVisitBox(Box box, RectF inner, RectF outer, @Nullable RendererContext context) {
 				if (integer.get() == 2) {
 					Assert.fail("test stop line visit failed");
 				}
@@ -272,7 +272,7 @@ public class TypesetterUnitTest {
 			}
 
 			@Override
-			protected void onVisitBox(Box box, RectF inner, RectF outer, @Nullable TypesetContext context) {
+			protected void onVisitBox(Box box, RectF inner, RectF outer, @Nullable RendererContext context) {
 				if (integer.get() > 2) {
 					Assert.fail("test stop line visit failed");
 				}
@@ -303,7 +303,7 @@ public class TypesetterUnitTest {
 			}
 
 			@Override
-			protected void onVisitBox(Box box, RectF inner, RectF outer, @Nullable TypesetContext context) {
+			protected void onVisitBox(Box box, RectF inner, RectF outer, @Nullable RendererContext context) {
 				sendVisitSig(ParagraphVisitor.SIG_STOP_PARA_VISIT);
 				tagCount.incrementAndGet();
 			}
@@ -334,7 +334,7 @@ public class TypesetterUnitTest {
 			}
 
 			@Override
-			protected void onVisitBox(Box box, RectF inner, RectF outer, @Nullable TypesetContext context) {
+			protected void onVisitBox(Box box, RectF inner, RectF outer, @Nullable RendererContext context) {
 				sendVisitSig(ParagraphVisitor.SIG_STOP_LINE_VISIT);
 				tagCount.incrementAndGet();
 			}

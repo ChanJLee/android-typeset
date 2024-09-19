@@ -9,7 +9,7 @@ import me.chan.texas.renderer.ParagraphVisitor;
 import me.chan.texas.renderer.RenderOption;
 import me.chan.texas.renderer.TexasView;
 import me.chan.texas.text.Paragraph;
-import me.chan.texas.renderer.TypesetContext;
+import me.chan.texas.renderer.RendererContext;
 import me.chan.texas.text.layout.Box;
 import me.chan.texas.text.layout.Layout;
 import me.chan.texas.text.layout.Line;
@@ -161,7 +161,7 @@ public abstract class ParagraphDecor {
 		}
 
 		@Override
-		protected void onVisitBox(Box box, RectF inner, RectF outer, TypesetContext context) {
+		protected void onVisitBox(Box box, RectF inner, RectF outer, RendererContext context) {
 			int sig = onLayoutDecor(mParagraph, box.getTag(), inner, outer, mViewportOuter, mViewportInner);
 			if (sig == SIG_STOP_PARA_VISIT) {
 				sendVisitSig(SIG_STOP_PARA_VISIT);

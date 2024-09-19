@@ -111,7 +111,7 @@ public class HighlightUnitTest {
 		}
 
 		@Override
-		protected void onVisitBox(Box box, RectF inner, RectF outer, TypesetContext context) {
+		protected void onVisitBox(Box box, RectF inner, RectF outer, RendererContext context) {
 			if (mParagraphHighlight.isHighlight(box)) {
 				++mCount;
 				Assert.assertTrue(mBoxes.contains(box));
