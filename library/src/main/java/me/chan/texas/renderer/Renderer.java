@@ -167,7 +167,6 @@ public class Renderer implements SelectionManager.Listener {
 
 		// highlight
 		mHighlightManager = new HighlightManager(mAdapter);
-		mAdapter.setHighlightManager(mHighlightManager);
 
 		// adapter
 		mImpl.setAdapter(mAdapter);
