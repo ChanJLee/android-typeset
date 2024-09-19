@@ -83,7 +83,6 @@ public class ParagraphView extends FrameLayout {
 
 	private final SelectedTextByClickedVisitor mSelectedTextByClickedVisitor = new SelectedTextByClickedVisitor();
 
-	private ParagraphSelection mCurrentSelection;
 	private final Region mRegion = new Region();
 
 	private SpanTouchEventHandler mSpanTouchEventHandler;
@@ -269,7 +268,7 @@ public class ParagraphView extends FrameLayout {
 			);
 
 			// update ui
-			mCurrentSelection = mSelectedTextByClickedVisitor.startVisit(
+			mSelectedTextByClickedVisitor.startVisit(
 					paragraph
 			);
 			render0(paragraph);
@@ -284,21 +283,21 @@ public class ParagraphView extends FrameLayout {
 	 * 清除选中区域
 	 */
 	public void clearSelection() {
-		if (mCurrentSelection == null) {
+		if (mParagraph == null) {
 			return;
 		}
 
-		clearSelection0();
+		ParagraphSelection selection = mParagraph.getSelection();
+		if (selection == null) {
+			return;
+		}
+
+		mParagraph.setSelection(null);
+		selection.recycle();
 
 		if (mParagraph != null) {
 			render0(mParagraph);
 		}
-	}
-
-	private void clearSelection0() {
-		mCurrentSelection.clear();
-		mCurrentSelection.recycle();
-		mCurrentSelection = null;
 	}
 
 	/**
@@ -376,9 +375,7 @@ public class ParagraphView extends FrameLayout {
 			Log.d(TAG, "render0: paragraph = " + paragraph);
 		}
 
-		mRender.render(paragraph, mPaintSet,
-				mRenderOption, mCurrentSelection,
-				null, null, mSpanTouchEventHandler);
+		mRender.render(paragraph, mPaintSet, mRenderOption, null, mSpanTouchEventHandler);
 	}
 
 	/**

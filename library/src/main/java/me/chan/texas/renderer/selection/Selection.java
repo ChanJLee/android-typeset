@@ -6,11 +6,11 @@ import android.view.View;
 
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
-import androidx.recyclerview.widget.LinearLayoutManager;
 
 import me.chan.texas.misc.DefaultRecyclable;
 import me.chan.texas.misc.ObjectPool;
 import me.chan.texas.renderer.ui.RendererAdapter;
+import me.chan.texas.renderer.ui.rv.TexasLinearLayoutManager;
 import me.chan.texas.renderer.ui.rv.TexasRecyclerView;
 import me.chan.texas.text.Document;
 import me.chan.texas.text.Paragraph;
@@ -22,7 +22,6 @@ public final class Selection extends DefaultRecyclable {
 	private static final ObjectPool<Selection> POOL = new ObjectPool<>(8);
 
 	private RendererAdapter mTexasAdapter;
-	private LinearLayoutManager mTexasLayoutManager;
 	private final List<Paragraph> mParagraphs = new ArrayList<>();
 	private final RectEdge mRectEdge = new RectEdge();
 
@@ -57,8 +56,8 @@ public final class Selection extends DefaultRecyclable {
 	 */
 	private final int[] mLocations = new int[2];
 
-	// TODO 选择之前先把之前的selection取消，不然会重叠box信息
-	public RectEdge getSelectedRectEdge(TexasRecyclerView container) {
+	@RestrictTo(RestrictTo.Scope.LIBRARY)
+	RectEdge getSelectedRectEdge(TexasRecyclerView container) {
 
 		int size = mParagraphs.size();
 		if (size == 0) {
@@ -123,7 +122,12 @@ public final class Selection extends DefaultRecyclable {
 			return false;
 		}
 
-		View child = mTexasLayoutManager.findViewByPosition(index);
+		TexasLinearLayoutManager layoutManager = (TexasLinearLayoutManager) container.getLayoutManager();
+		if (layoutManager == null) {
+			return false;
+		}
+
+		View child = layoutManager.findViewByPosition(index);
 		if (child == null) {
 			return false;
 		}
@@ -143,7 +147,6 @@ public final class Selection extends DefaultRecyclable {
 	@Override
 	protected void onRecycle() {
 		mParagraphs.clear();
-		mTexasLayoutManager = null;
 		mTexasAdapter = null;
 		mRectEdge.bottomX = mRectEdge.topX =
 				mRectEdge.bottomY = mRectEdge.topY = mRectEdge.lineHeight = 0;
@@ -210,14 +213,13 @@ public final class Selection extends DefaultRecyclable {
 		}
 	}
 
-	public static Selection obtain(RendererAdapter adapter, LinearLayoutManager layoutManager) {
+	public static Selection obtain(RendererAdapter adapter) {
 		Selection selection = POOL.acquire();
 		if (selection == null) {
 			selection = new Selection();
 		}
 
 		selection.mTexasAdapter = adapter;
-		selection.mTexasLayoutManager = layoutManager;
 		selection.reuse();
 		return selection;
 	}

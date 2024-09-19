@@ -4,14 +4,12 @@ import me.chan.texas.misc.BitBucket;
 import me.chan.texas.misc.DefaultRecyclable;
 import me.chan.texas.misc.ObjectPool;
 import me.chan.texas.renderer.RenderOption;
-import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.layout.Box;
 
 public class ParagraphHighlight extends DefaultRecyclable {
 	private static final ObjectPool<ParagraphHighlight> POOL = new ObjectPool<>(32);
 
 	private int mTextColor;
-	private Paragraph mParagraph;
 	private float mYInParagraph;
 	private final BitBucket mBitBucket = new BitBucket(128);
 
@@ -34,15 +32,10 @@ public class ParagraphHighlight extends DefaultRecyclable {
 		return mYInParagraph;
 	}
 
-	public Paragraph getParagraph() {
-		return mParagraph;
-	}
-
 	@Override
 	protected void onRecycle() {
 		clear();
 
-		mParagraph = null;
 		mYInParagraph = 0;
 		POOL.release(this);
 	}
@@ -51,14 +44,13 @@ public class ParagraphHighlight extends DefaultRecyclable {
 		mBitBucket.clear();
 	}
 
-	public static ParagraphHighlight obtain(float yInParagraph, Paragraph paragraph) {
+	public static ParagraphHighlight obtain(float yInParagraph) {
 		ParagraphHighlight highlight = POOL.acquire();
 		if (highlight == null) {
 			highlight = new ParagraphHighlight();
 		}
 
 		highlight.mYInParagraph = yInParagraph;
-		highlight.mParagraph = paragraph;
 		highlight.reuse();
 		return highlight;
 	}

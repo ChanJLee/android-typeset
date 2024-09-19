@@ -458,15 +458,10 @@ public class RendererAdapter extends RecyclerView.Adapter<RendererAdapter.Render
 
 		@Override
 		protected void onRender(Paragraph data) {
-			ParagraphSelection paragraphSelection = mSelectionManager.getParagraphSelection(data);
-			ParagraphHighlight highlight = mHighlightManager.getParagraphHighlight(data);
-
 			mRender.render(
 					data,
 					mPaintSet,
 					mRenderOption,
-					paragraphSelection,
-					highlight,
 					mParagraphDecor,
 					mSelectionManager.getSpanTouchEventHandler());
 
