@@ -124,21 +124,26 @@ class ParagraphBuilderInternal {
 		mCommonGlue = null;
 	}
 
-	public void reset(TexasOption texasOption,
-					  @Paragraph.TypesetPolicy int typesetPolicy) {
+	public void reset(TexasOption texasOption) {
 		mRenderOption = texasOption.getRenderOption();
 		mMeasurer = texasOption.getMeasurer();
 		mHyphenation = texasOption.getHyphenation();
 		mTextAttribute = texasOption.getTextAttribute();
 		mParagraph = Paragraph.obtain();
 		mParagraph.mLayout = Layout.obtain();
-		Layout.Advise advise = mParagraph.mLayout.getAdvise();
-		advise.setTypesetPolicy(typesetPolicy);
 		mCommonGlue = Glue.obtain(mTextAttribute);
 		mStretchOnlyGlue = Glue.obtain(
 				0, 0, mTextAttribute.getSpaceStretch(), 0
 		);
 		mLastToken = null;
+	}
+
+	public void addTypesetPolicy(int policy) {
+		mParagraph.mLayout.getAdvise().addTypesetPolicy(policy);
+	}
+
+	public void clearTypesetPolicy() {
+		mParagraph.mLayout.getAdvise().clearTypesetPolicy();
 	}
 
 	private void appendEmoticon(Emoticon emoticon) {
@@ -277,8 +282,8 @@ class ParagraphBuilderInternal {
 									Token token) {
 		Layout layout = mParagraph.getLayout();
 		Layout.Advise advise = layout.getAdvise();
-		int typesetPolicy = advise.getTypesetPolicy();
-		Element linkElement = typesetPolicy == TYPESET_POLICY_CJK_OPTIMIZATION ? mStretchOnlyGlue : Penalty.ADVISE_BREAK;
+		boolean cjkOptimization = advise.checkTypesetPolicy(TYPESET_POLICY_CJK_OPTIMIZATION);
+		Element linkElement = cjkOptimization ? Penalty.ADVISE_BREAK : mStretchOnlyGlue;
 		for (int i = token.getStart(); i < token.getEnd(); ++i) {
 			if (i != token.getStart()) {
 				appendElement(linkElement);
@@ -309,7 +314,7 @@ class ParagraphBuilderInternal {
 					foreground);
 
 			// 英文模式下 要对中文进行缩放
-			if (typesetPolicy == TYPESET_POLICY_DEFAULT) {
+			if (cjkOptimization) {
 				textBox.addAttribute(TextBox.ATTRIBUTE_ZOOM_OUT);
 			}
 
