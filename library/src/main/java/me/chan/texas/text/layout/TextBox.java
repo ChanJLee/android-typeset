@@ -57,7 +57,7 @@ public final class TextBox extends Box {
 	static final int SQUISH_FACTOR = 2;
 
 	private final static ObjectPool<TextBox> POOL = new ObjectPool<>(Texas.getMemoryOption().getTextBufferSize());
-	private final static CharArrayPool CHAR_ARRAY_POOL = new CharArrayPool();
+	public final static CharArrayPool CHAR_ARRAY_POOL = new CharArrayPool();
 
 	@VisibleForTesting
 	static boolean hasBuffered() {
