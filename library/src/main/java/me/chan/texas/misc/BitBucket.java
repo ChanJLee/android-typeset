@@ -3,16 +3,16 @@ package me.chan.texas.misc;
 import java.util.Arrays;
 
 public class BitBucket {
-	private static final int BITS_SIZE_OF_INT = 32;
-	private static final int SIZE_MASK = BITS_SIZE_OF_INT - 1;
+	private static final int SIZE_OF_BUCKET = 32;
+	private static final int SIZE_MASK = SIZE_OF_BUCKET - 1;
 	private int[] mBits;
 
 	public BitBucket() {
-		this(32);
+		this(SIZE_OF_BUCKET);
 	}
 
 	public BitBucket(int size) {
-		mBits = new int[((size + SIZE_MASK) & ~SIZE_MASK) / BITS_SIZE_OF_INT];
+		mBits = new int[((size + SIZE_MASK) & ~SIZE_MASK) / SIZE_OF_BUCKET];
 	}
 
 	/**
@@ -25,14 +25,12 @@ public class BitBucket {
 			return false;
 		}
 
-		int bucketIndex = index / BITS_SIZE_OF_INT;
-		if (bucketIndex >= mBits.length) {
-			int[] bits = new int[mBits.length * 2];
-			System.arraycopy(mBits, 0, bits, 0, mBits.length);
-			mBits = bits;
+		int bucketIndex = index / SIZE_OF_BUCKET;
+		if (bucketIndex >= size()) {
+			resize();
 		}
 
-		int bucketOffset = index % BITS_SIZE_OF_INT;
+		int bucketOffset = index % SIZE_OF_BUCKET;
 
 		if (v) {
 			mBits[bucketIndex] |= (1 << bucketOffset);
@@ -41,6 +39,12 @@ public class BitBucket {
 		}
 
 		return true;
+	}
+
+	private void resize() {
+		int[] bits = new int[mBits.length * 2];
+		System.arraycopy(mBits, 0, bits, 0, mBits.length);
+		mBits = bits;
 	}
 
 	/**
@@ -52,12 +56,12 @@ public class BitBucket {
 			return false;
 		}
 
-		int bucketIndex = index / BITS_SIZE_OF_INT;
+		int bucketIndex = index / SIZE_OF_BUCKET;
 		if (bucketIndex >= mBits.length) {
 			return false;
 		}
 
-		int bucketOffset = index % BITS_SIZE_OF_INT;
+		int bucketOffset = index % SIZE_OF_BUCKET;
 		return (mBits[bucketIndex] & (1 << bucketOffset)) != 0;
 	}
 
@@ -72,11 +76,11 @@ public class BitBucket {
 	 * @return 能存储的最大bit位
 	 */
 	public int size() {
-		return mBits.length * BITS_SIZE_OF_INT;
+		return mBits.length * SIZE_OF_BUCKET;
 	}
 
 	public int getRange(int start, int end) {
-		if (end - start > BITS_SIZE_OF_INT) {
+		if (end - start > SIZE_OF_BUCKET) {
 			throw new IllegalArgumentException("too large range, max range is 32");
 		}
 
@@ -86,15 +90,15 @@ public class BitBucket {
 
 		int range = end - start;
 		// 获得start到end 之间的bit位
-		int index = start / BITS_SIZE_OF_INT;
-		int offset = start % BITS_SIZE_OF_INT;
+		int index = start / SIZE_OF_BUCKET;
+		int offset = start % SIZE_OF_BUCKET;
 		long value = mBits[index] & 0xFFFFFFFFL;
-		if (offset + range > BITS_SIZE_OF_INT) {
+		if (offset + range > SIZE_OF_BUCKET) {
 			if (++index >= mBits.length) {
 				throw new IllegalArgumentException("invalid range");
 			}
 			long tmp = mBits[index];
-			tmp = tmp << BITS_SIZE_OF_INT;
+			tmp = tmp << SIZE_OF_BUCKET;
 			value |= tmp;
 		}
 
