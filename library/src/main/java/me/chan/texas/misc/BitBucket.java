@@ -87,16 +87,18 @@ public class BitBucket {
 		int range = end - start;
 		// 获得start到end 之间的bit位
 		int index = start / BITS_SIZE_OF_INT;
-		long value = mBits[index];
-		if (start % BITS_SIZE_OF_INT + range > BITS_SIZE_OF_INT) {
+		int offset = start % BITS_SIZE_OF_INT;
+		long value = mBits[index] & 0xFFFFFFFFL;
+		if (offset + range > BITS_SIZE_OF_INT) {
 			if (++index >= mBits.length) {
 				throw new IllegalArgumentException("invalid range");
 			}
-			value |= (long) mBits[index] << BITS_SIZE_OF_INT;
+			long tmp = mBits[index];
+			tmp = tmp << BITS_SIZE_OF_INT;
+			value |= tmp;
 		}
 
-		value = value >> 32;
-		value = value & 0x00000000FFFFFFFFL;
+		value = value >>> offset;
 		long mask = (1L << (range)) - 1;
 		value = (value & mask);
 		return (int) value;
