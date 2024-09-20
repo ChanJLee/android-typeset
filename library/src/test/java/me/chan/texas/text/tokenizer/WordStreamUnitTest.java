@@ -131,6 +131,51 @@ public class WordStreamUnitTest {
 	}
 
 	@Test
+	public void testRtl() {
+		String msg = "\u062a\u0645 123 ABC \u062a\u0643\u0631\u0627\u0631 \u0643\u0644\u0645\u0629 \u0643\u0648\u0628 \u0628\u0634\u0643\u0644 \u063a\u064a\u0631 \u0636\u0631\u0648\u0631\u064a";
+		List<String> list = new ArrayList<>();
+		// 空格分割倒序添加
+		String[] arr = msg.split(" ");
+		for (int i = arr.length - 1; i >= 0; --i) {
+			list.add(arr[i]);
+			list.add(" ");
+		}
+		list.remove(list.size() - 1);
+
+		System.out.println(msg);
+		Token token = null;
+		Iterator<String> iterator = list.iterator();
+		TokenStream stream = TextTokenStream.obtain(msg, 0, msg.length(), true);
+		int save = stream.save();
+		while ((token = stream.next()) != null) {
+			Assert.assertEquals(iterator.next(), token.getCharSequence().subSequence(token.getStart(), token.getEnd()).toString());
+		}
+		Assert.assertFalse(iterator.hasNext());
+
+		Assert.assertEquals(stream.save(), list.size());
+		token = stream.tryGet(-1);
+		Assert.assertEquals(list.get(list.size() - 1), token.getCharSequence().subSequence(token.getStart(), token.getEnd()).toString());
+
+		stream.restore(save);
+		Assert.assertNull(stream.tryGet(-1));
+		Assert.assertEquals(stream.save(), 0);
+		token = stream.tryGet(0);
+		Assert.assertEquals(list.get(0), token.getCharSequence().subSequence(token.getStart(), token.getEnd()).toString());
+
+		token = stream.next();
+		Assert.assertEquals(list.get(0), token.getCharSequence().subSequence(token.getStart(), token.getEnd()).toString());
+
+		token = stream.tryGet(-1);
+		Assert.assertEquals(list.get(0), token.getCharSequence().subSequence(token.getStart(), token.getEnd()).toString());
+
+		token = stream.tryGet(0);
+		Assert.assertEquals(list.get(1), token.getCharSequence().subSequence(token.getStart(), token.getEnd()).toString());
+
+		token = stream.tryGet(1);
+		Assert.assertEquals(list.get(2), token.getCharSequence().subSequence(token.getStart(), token.getEnd()).toString());
+	}
+
+	@Test
 	public void testSave() {
 		String[] array = {"aa", " ", "11", " ", "hello-world四五R&B"};
 		StringBuilder stringBuilder = new StringBuilder();
