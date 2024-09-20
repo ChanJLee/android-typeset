@@ -99,17 +99,9 @@ public class BitmapUnitTest {
 		bitmap.set(5, true);
 		bitmap.set(7, true);
 
-		// 0b11000000_00000000_00000000_00001101_11100000_00000000_00000000_10100011
-		Assert.assertEquals(0b11000000_00000000_00000000_00001101, bitmap.getRange(32, 64));
-		Assert.assertEquals(0b11011000_00000000_00000000_00001010, bitmap.getRange(4, 36));
-	}
-
-	@Test
-	public void testBase() {
-		// 0b11100000_00000000_00000000_00000011
-		// 11111111_11111111_11111111_11111111_11100000000000000000000000000011
-		int x = -536870909;
-		long v = x;
-		System.out.println(Long.toBinaryString(v));
+		// 0b10100000_00000000_00000000_00001101_11100000_00000000_00000000_10100011
+		Assert.assertEquals(0b10100000_00000000_00000000_00001101, bitmap.getRange(32, 64));
+		Assert.assertEquals(0b1101_11100000_00000000_00000000_1010, bitmap.getRange(4, 36));
+		Assert.assertEquals(0b00001101_11100000, bitmap.getRange(24, 40));
 	}
 }
