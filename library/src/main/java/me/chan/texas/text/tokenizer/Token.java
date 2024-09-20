@@ -14,7 +14,8 @@ public class Token extends DefaultRecyclable {
 
 	// attributes
 	// 0...7 category
-	// 8...31 mask
+	// 8...30 mask
+	// 30...31 direction
 
 	public static final int SYMBOL_ATTRIBUTE_NONE = 0;
 
@@ -78,7 +79,6 @@ public class Token extends DefaultRecyclable {
 	public static final byte CATEGORY_NORMAL = 11; /* 正常的单词 [a-z]... */
 	public static final byte CATEGORY_NUMBER = 12; /* 数字 */
 	public static final byte CATEGORY_CJK = 13; /* CJK */
-	public static final byte CATEGORY_RTL = 14; /* 从右到左的字符 TODO 保留字段 */
 
 	@IntDef({TYPE_NONE,
 			TYPE_SYMBOL,
@@ -154,10 +154,6 @@ public class Token extends DefaultRecyclable {
 
 			if (category == CATEGORY_NUMBER) {
 				return "数字";
-			}
-
-			if (category == CATEGORY_RTL) {
-				return "RTL";
 			}
 
 			if (category == CATEGORY_UNKNOWN_LETTER) {

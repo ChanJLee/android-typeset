@@ -233,7 +233,8 @@ class ParagraphBuilderInternal {
 		} else if (category == Token.CATEGORY_CJK) {
 			appendCjkWordToken(text, spanReader, token);
 		} else {
-			appendWordTokenDirect(text, spanReader, token, category == Token.CATEGORY_RTL);
+			// TODO
+			// appendWordTokenDirect(text, spanReader, token, category == Token.CATEGORY_RTL);
 		}
 	}
 

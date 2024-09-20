@@ -18,10 +18,12 @@ class TextTokenStream extends DefaultRecyclable implements TokenStream {
 	private final CharacterSequenceIterator mIterator = new CharacterSequenceIterator();
 	private final BrkArray mBrk = new BrkArray(128);
 	private int mIndex = 0;
+	private boolean mRtl = false;
 
 	@Override
 	protected void onRecycle() {
 		mIndex = 0;
+		mRtl = false;
 		POOL.release(this);
 	}
 
@@ -44,6 +46,7 @@ class TextTokenStream extends DefaultRecyclable implements TokenStream {
 	private void setText0(CharSequence text, int start, int end, boolean rtl) {
 		mBrk.clear();
 		mIndex = 0;
+		mRtl = rtl;
 
 		BreakIterator boundary = WordBreaker.getWordBreakIterator();
 		boundary.setText(mIterator.reset(text, start, end));
@@ -224,10 +227,14 @@ class TextTokenStream extends DefaultRecyclable implements TokenStream {
 
 	@Nullable
 	private Token get(int index) {
-		return get0(mBrk, mIterator.getSeq(), index);
+		return get0(mBrk, mIterator.getSeq(), index, mRtl);
 	}
 
-	private static Token get0(LongArray brk, CharSequence text, int index) {
+	private Token get0(LongArray brk, CharSequence text, int index, boolean rtl) {
+		if (rtl) {
+			index = size() - index - 1;
+		}
+
 		if (index + 1 >= brk.size() || index < 0) {
 			return null;
 		}

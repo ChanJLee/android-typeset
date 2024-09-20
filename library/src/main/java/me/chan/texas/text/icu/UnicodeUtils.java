@@ -15,6 +15,23 @@ public class UnicodeUtils {
 		return Character.isIdeographic(codePoint);
 	}
 
+	// Returns true if the character's presence could affect RTL layout.
+	//
+	// In order to be fast, the code is intentionally rough and quite conservative in its
+	// considering inclusion of any non-BMP or surrogate characters or anything in the bidi
+	// blocks or any bidi formatting characters with a potential to affect RTL layout.
+	@RestrictTo(RestrictTo.Scope.LIBRARY)
+	public static boolean couldAffectRtl(int c) {
+		return (0x0590 <= c && c <= 0x08FF) ||  // RTL scripts
+				c == 0x200E ||  // Bidi format character
+				c == 0x200F ||  // Bidi format character
+				(0x202A <= c && c <= 0x202E) ||  // Bidi format characters
+				(0x2066 <= c && c <= 0x2069) ||  // Bidi format characters
+				(0xD800 <= c && c <= 0xDFFF) ||  // Surrogate pairs
+				(0xFB1D <= c && c <= 0xFDFF) ||  // Hebrew and Arabic presentation forms
+				(0xFE70 <= c && c <= 0xFEFE);  // Arabic presentation forms
+	}
+
 	public static boolean isCJKExtends(int codePoint) {
 		//CJK Unified Ideographs: U+4E00 - U+9FFF
 		//CJK Unified Ideographs Extension A: U+3400 - U+4DBF
@@ -160,22 +177,5 @@ public class UnicodeUtils {
 		byte directionality = Character.getDirectionality(c);
 		return directionality == Character.DIRECTIONALITY_RIGHT_TO_LEFT ||
 				directionality == Character.DIRECTIONALITY_RIGHT_TO_LEFT_ARABIC;
-	}
-
-	@RestrictTo(RestrictTo.Scope.LIBRARY)
-	public static boolean isContextSensitiveCharacter(int c) {
-		// Unicode ranges for Arabic, Hebrew, etc.
-		// Arabic: \u0600 - \u06FF
-		// Arabic Supplement: \u0750 - \u077F
-		// Hebrew: \u0590 - \u05FF
-		return ((c >= '\u0600' && c <= '\u06FF') ||  // Arabic
-				(c >= '\u0750' && c <= '\u077F') ||  // Arabic Supplement
-				(c >= '\u0590' && c <= '\u05FF'));  // Hebrew
-
-	}
-
-	@RestrictTo(RestrictTo.Scope.LIBRARY)
-	public static boolean isContextFreeCharacter(int c) {
-		return !isContextSensitiveCharacter(c);
 	}
 }
