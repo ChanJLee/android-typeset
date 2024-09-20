@@ -74,4 +74,31 @@ public class BitBucket {
 	public int size() {
 		return mBits.length * BITS_SIZE_OF_INT;
 	}
+
+	public int getRange(int start, int end) {
+		if (end - start > BITS_SIZE_OF_INT) {
+			throw new IllegalArgumentException("too large range, max range is 32");
+		}
+
+		if (start < 0 || end < 0 || start >= end || end > size()) {
+			throw new IllegalArgumentException("invalid range");
+		}
+
+		int range = end - start;
+		// 获得start到end 之间的bit位
+		int index = start / BITS_SIZE_OF_INT;
+		long value = mBits[index];
+		if (start % BITS_SIZE_OF_INT + range > BITS_SIZE_OF_INT) {
+			if (++index >= mBits.length) {
+				throw new IllegalArgumentException("invalid range");
+			}
+			value |= (long) mBits[index] << BITS_SIZE_OF_INT;
+		}
+
+		value = value >> 32;
+		value = value & 0x00000000FFFFFFFFL;
+		long mask = (1L << (range)) - 1;
+		value = (value & mask);
+		return (int) value;
+	}
 }
