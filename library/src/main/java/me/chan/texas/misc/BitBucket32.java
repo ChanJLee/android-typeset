@@ -5,7 +5,15 @@ import androidx.annotation.RestrictTo;
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class BitBucket32 {
 	private static final int SIZE_OF_BUCKET = 32;
-	private int mBits = 0;
+	private int mBits;
+
+	public BitBucket32() {
+		this(0);
+	}
+
+	public BitBucket32(int bits) {
+		mBits = bits;
+	}
 
 	/**
 	 * @param index index
@@ -47,7 +55,11 @@ public class BitBucket32 {
 	 * 清除所有bit位
 	 */
 	public void clear() {
-		mBits = 0;
+		reset(0);
+	}
+
+	public void reset(int bits) {
+		mBits = bits;
 	}
 
 	public int getRange(int start, int end) {
@@ -65,5 +77,23 @@ public class BitBucket32 {
 		int mask = (1 << (range)) - 1;
 		value = (value & mask);
 		return value;
+	}
+
+	public int getBits() {
+		return mBits;
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+
+		BitBucket32 that = (BitBucket32) o;
+		return mBits == that.mBits;
+	}
+
+	@Override
+	public int hashCode() {
+		return mBits;
 	}
 }

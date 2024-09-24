@@ -87,7 +87,7 @@ public class TokenStreamUnitTest {
 
 
 		for (int v : TextTokenStream.SQUISH_RIGHT_MAP) {
-			Assert.assertEquals(TextTokenStream.getSquishAdvise(v), Token.SYMBOL_SQUISH_RIGHT);
+			Assert.assertEquals(TextTokenStream.getSquishAdvise(v), Token.SYMBOL_ATTRIBUTE_SQUISH_RIGHT);
 		}
 		for (int v : TextTokenStream.SQUISH_LEFT_MAP) {
 			Assert.assertEquals(TextTokenStream.getSquishAdvise(v), Token.SYMBOL_SQUISH_LEFT);
