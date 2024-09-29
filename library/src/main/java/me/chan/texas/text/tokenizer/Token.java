@@ -254,7 +254,7 @@ public class Token extends DefaultRecyclable {
 			return "";
 		}
 
-		return String.format("%s <%s>", getSemantics(), mCharSequence.subSequence(mStart, mEnd));
+		return String.format("%s[%s <%s>]", isRtl() ? "<<" : ">>", getSemantics(), mCharSequence.subSequence(mStart, mEnd));
 	}
 
 	@Override

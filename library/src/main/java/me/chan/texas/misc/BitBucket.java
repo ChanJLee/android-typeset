@@ -28,7 +28,7 @@ public class BitBucket {
 		}
 
 		int bucketIndex = index / SIZE_OF_BUCKET;
-		if (bucketIndex >= size()) {
+		if (bucketIndex >= mBits.length) {
 			resize();
 		}
 

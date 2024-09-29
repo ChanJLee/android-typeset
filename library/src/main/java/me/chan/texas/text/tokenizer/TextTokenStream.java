@@ -528,7 +528,7 @@ class TextTokenStream extends DefaultRecyclable implements TokenStream {
 	};
 
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
-	public static boolean setupStretchAdvise(BitBucket32 bits, int codePoint) {
+	static boolean setupStretchAdvise(BitBucket32 bits, int codePoint) {
 		int index = binarySearch(STRETCH_RIGHT_MAP, codePoint);
 		if (index >= 0) {
 			bits.set(Token.SYMBOL_ATTRIBUTE_STRETCH_RIGHT);
@@ -544,8 +544,14 @@ class TextTokenStream extends DefaultRecyclable implements TokenStream {
 		return false;
 	}
 
+	@VisibleForTesting
+	static boolean setupKinsokuAdvise(BitBucket32 bits, int codePoint) {
+		int type = Character.getType(codePoint);
+		return setupKinsokuAdvise(bits, codePoint, type);
+	}
+
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
-	public static boolean setupKinsokuAdvise(BitBucket32 bits, int codePoint, int type) {
+	static boolean setupKinsokuAdvise(BitBucket32 bits, int codePoint, int type) {
 		if (type == Character.START_PUNCTUATION ||
 				type == Character.INITIAL_QUOTE_PUNCTUATION ||
 				type == Character.CURRENCY_SYMBOL) {
@@ -585,7 +591,7 @@ class TextTokenStream extends DefaultRecyclable implements TokenStream {
 	}
 
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
-	public static boolean setupSquishAdvise(BitBucket32 bits, int codePoint) {
+	static boolean setupSquishAdvise(BitBucket32 bits, int codePoint) {
 		int index = binarySearch(SQUISH_RIGHT_MAP, codePoint);
 		if (index >= 0) {
 			bits.set(Token.SYMBOL_ATTRIBUTE_SQUISH_RIGHT);
