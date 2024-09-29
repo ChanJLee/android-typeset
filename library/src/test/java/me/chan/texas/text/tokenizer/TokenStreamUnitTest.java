@@ -7,6 +7,8 @@ import org.junit.Test;
 
 import java.lang.reflect.Field;
 
+import me.chan.texas.misc.BitBucket32;
+
 public class TokenStreamUnitTest {
 
 	@Test
@@ -31,7 +33,7 @@ public class TokenStreamUnitTest {
 		while (reader.hasNext()) {
 			Token token = reader.next();
 			System.out.println(token.toString());
-			if (token.mType == Token.TYPE_WORD) {
+			if (token.getType() == Token.TYPE_WORD) {
 				Assert.assertEquals(values[index++], token.mCharSequence.subSequence(token.mStart, token.mEnd));
 			}
 		}
@@ -41,7 +43,7 @@ public class TokenStreamUnitTest {
 	public void print2() {
 		String msg = "don't.";
 		System.out.println(msg.length() + " " + msg.codePointCount(0, msg.length()));
-		TokenStream reader =  TokenStream.obtain(msg, 0, msg.length());
+		TokenStream reader = TokenStream.obtain(msg, 0, msg.length());
 		while (reader.hasNext()) {
 			Token token = reader.next();
 			System.out.println(token.toString());
@@ -51,7 +53,7 @@ public class TokenStreamUnitTest {
 	@Test
 	public void print3() {
 		String msg = "oh fuck...";
-		TokenStream reader =  TokenStream.obtain(msg, 0, msg.length());
+		TokenStream reader = TokenStream.obtain(msg, 0, msg.length());
 		while (reader.hasNext()) {
 			Token token = reader.next();
 			System.out.println(token.toString());
@@ -64,7 +66,7 @@ public class TokenStreamUnitTest {
 		// String msg = "\ud83d\ude4b\uff08\u062a\u0645 \u062a\u0643\u0631\u0627\u0631 \u0643\u0644\u0645\u0629 '\u0643\u0648\u0628' \u0628\u0634\u0643\u0644 \u063a\u064a\u0631 \u0636\u0631\u0648\u0631\u064a.\uff09";
 		String msg = "\u0067\u0308";
 		System.out.println(msg);
-		TokenStream reader =  TokenStream.obtain(msg, 0, msg.length());
+		TokenStream reader = TokenStream.obtain(msg, 0, msg.length());
 		while (reader.hasNext()) {
 			Token token = reader.next();
 			System.out.println(token.toString());
@@ -76,32 +78,47 @@ public class TokenStreamUnitTest {
 
 	@Test
 	public void testPrimitive() {
-//		for (int v : TokenStream.KINSOKU_AVOID_HEADER_MAP) {
-//			Assert.assertNotEquals(TokenStream.getKinsokuAdvise(v) & Token.SYMBOL_KINSOKU_AVOID_HEADER, 0);
-//		}
-//		for (int v : TokenStream.KINSOKU_AVOID_TAIL_MAP) {
-//			Assert.assertNotEquals(TokenStream.getKinsokuAdvise(v) & Token.SYMBOL_KINSOKU_AVOID_TAIL, 0);
-//		}
-		Assert.assertEquals(TextTokenStream.getKinsokuAdvise(0), 0);
-		Assert.assertEquals(TextTokenStream.getKinsokuAdvise(0xb7), Token.SYMBOL_KINSOKU_AVOID_TAIL | Token.SYMBOL_KINSOKU_AVOID_HEADER);
+		BitBucket32 bucket = new BitBucket32();
+		TextTokenStream.setupKinsokuAdvise(bucket, 0);
+		Assert.assertEquals(bucket.getRange(0, 32), 0);
+		bucket.clear();
 
+		TextTokenStream.setupKinsokuAdvise(bucket, 0xb7);
+		Assert.assertTrue(bucket.get(Token.SYMBOL_ATTRIBUTE_KINSOKU_AVOID_TAIL));
+		Assert.assertTrue(bucket.get(Token.SYMBOL_ATTRIBUTE_KINSOKU_AVOID_HEADER));
+		bucket.clear();
 
 		for (int v : TextTokenStream.SQUISH_RIGHT_MAP) {
-			Assert.assertEquals(TextTokenStream.getSquishAdvise(v), Token.SYMBOL_ATTRIBUTE_SQUISH_RIGHT);
+			TextTokenStream.setupSquishAdvise(bucket, v);
+			Assert.assertTrue(bucket.get(Token.SYMBOL_ATTRIBUTE_SQUISH_RIGHT));
+			Assert.assertEquals(1 << (Token.SYMBOL_ATTRIBUTE_SQUISH_RIGHT - Token.BIT_ATTRIBUTES_START),
+					bucket.getRange(Token.BIT_ATTRIBUTES_START, Token.BIT_ATTRIBUTES_END));
+			bucket.clear();
 		}
-		for (int v : TextTokenStream.SQUISH_LEFT_MAP) {
-			Assert.assertEquals(TextTokenStream.getSquishAdvise(v), Token.SYMBOL_SQUISH_LEFT);
-		}
-		Assert.assertEquals(TextTokenStream.getSquishAdvise(0), 0);
 
+		for (int v : TextTokenStream.SQUISH_LEFT_MAP) {
+			TextTokenStream.setupSquishAdvise(bucket, v);
+			Assert.assertTrue(bucket.get(Token.SYMBOL_ATTRIBUTE_SQUISH_LEFT));
+			Assert.assertEquals(1 << (Token.SYMBOL_ATTRIBUTE_SQUISH_LEFT - Token.BIT_ATTRIBUTES_START),
+					bucket.getRange(Token.BIT_ATTRIBUTES_START, Token.BIT_ATTRIBUTES_END));
+			bucket.clear();
+		}
 
 		for (int v : TextTokenStream.STRETCH_RIGHT_MAP) {
-			Assert.assertEquals(TextTokenStream.getStretchAdvise(v), Token.SYMBOL_STRETCH_RIGHT);
+			TextTokenStream.setupStretchAdvise(bucket, v);
+			Assert.assertTrue(bucket.get(Token.SYMBOL_ATTRIBUTE_STRETCH_RIGHT));
+			Assert.assertEquals(1 << (Token.SYMBOL_ATTRIBUTE_STRETCH_RIGHT - Token.BIT_ATTRIBUTES_START),
+					bucket.getRange(Token.BIT_ATTRIBUTES_START, Token.BIT_ATTRIBUTES_END));
+			bucket.clear();
 		}
+
 		for (int v : TextTokenStream.STRETCH_LEFT_MAP) {
-			Assert.assertEquals(TextTokenStream.getStretchAdvise(v), Token.SYMBOL_STRETCH_LEFT);
+			TextTokenStream.setupStretchAdvise(bucket, v);
+			Assert.assertTrue(bucket.get(Token.SYMBOL_ATTRIBUTE_STRETCH_LEFT));
+			Assert.assertEquals(1 << (Token.SYMBOL_ATTRIBUTE_STRETCH_LEFT - Token.BIT_ATTRIBUTES_START),
+					bucket.getRange(Token.BIT_ATTRIBUTES_START, Token.BIT_ATTRIBUTES_END));
+			bucket.clear();
 		}
-		Assert.assertEquals(TextTokenStream.getStretchAdvise(0), 0);
 	}
 
 	@Test

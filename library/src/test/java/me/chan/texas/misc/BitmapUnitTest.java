@@ -26,7 +26,12 @@ public class BitmapUnitTest {
 		Assert.assertEquals(bitmap.size(), 64);
 
 		Assert.assertFalse(bitmap.get(0));
-		Assert.assertFalse(bitmap.get(-1));
+		try {
+			Assert.assertFalse(bitmap.get(-1));
+			Assert.fail();
+		} catch (IllegalArgumentException e) {
+
+		}
 
 		bitmap.set(0, true);
 		Assert.assertTrue(bitmap.get(0));
