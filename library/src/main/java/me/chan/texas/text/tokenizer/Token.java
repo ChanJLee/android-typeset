@@ -14,13 +14,25 @@ public class Token extends DefaultRecyclable {
 	private static final ObjectPool<Token> POOL = new ObjectPool<>(128);
 
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
-	public int getWordCategory() {
-		return mMask.getRange(BIT_CATEGORY_START, BIT_CATEGORY_END);
+	public byte getWordCategory() {
+		if (mMask.get(WORD_CATEGORY_NORMAL)) {
+			return WORD_CATEGORY_NORMAL;
+		}
+
+		if (mMask.get(WORD_CATEGORY_CJK)) {
+			return WORD_CATEGORY_CJK;
+		}
+
+		if (mMask.get(WORD_CATEGORY_NUMBER)) {
+			return WORD_CATEGORY_NUMBER;
+		}
+
+		return WORD_CATEGORY_UNKNOWN_LETTER;
 	}
 
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
-	public int getSymbolAttributes() {
-		return mMask.getRange(BIT_ATTRIBUTES_START, BIT_ATTRIBUTES_END);
+	public boolean checkSymbolAttribute(int attribute) {
+		return mMask.get(Token.TYPE_SYMBOL) && mMask.get(attribute);
 	}
 
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -28,12 +40,13 @@ public class Token extends DefaultRecyclable {
 		return mMask.get(BIT_DIRECTION);
 	}
 
-	@IntDef({SYMBOL_KINSOKU_MASK,
-			SYMBOL_SQUISH_MASK,
-			SYMBOL_STRETCH_MASK,
-			SYMBOL_TYPEFACE_MASK})
-	public @interface SymbolTokenMask {
+	public boolean hasSymbolTypefaceAttributes() {
+		if (getType() != Token.TYPE_SYMBOL) {
+			return false;
+		}
 
+		int attributes = mMask.getRange(BIT_SYMBOL_TYPEFACE_START, BIT_SYMBOL_TYPEFACE_END);
+		return attributes != 0;
 	}
 
 	@IntDef({SYMBOL_ATTRIBUTE_KINSOKU_AVOID_HEADER,
@@ -46,15 +59,19 @@ public class Token extends DefaultRecyclable {
 
 	}
 
-	// attributes
+	// mask bit field
 	// 0...8 type
 	// 8...31 mask
+	// - 8...16 category
+	// - 16...31 attributes
 	// 31...32 direction
 	public static final byte TYPE_NONE = 0; /* 什么也不是 */
 
 	// 8...16 category
 	// 16...31 attributes
 
+	@RestrictTo(RestrictTo.Scope.LIBRARY)
+	public static final int BIT_TYPE_START = 0;
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
 	public static final int BIT_TYPE_END = 8;
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -67,16 +84,12 @@ public class Token extends DefaultRecyclable {
 	public static final int BIT_ATTRIBUTES_END = 31;
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
 	public static final int BIT_DIRECTION = 31;
+	@RestrictTo(RestrictTo.Scope.LIBRARY)
+	public static final int BIT_SYMBOL_TYPEFACE_START = 18;
+	@RestrictTo(RestrictTo.Scope.LIBRARY)
+	public static final int BIT_SYMBOL_TYPEFACE_END = 21;
 
 	public static final byte TYPE_SYMBOL = 1; /* 符号+标点符号 */
-	@RestrictTo(RestrictTo.Scope.LIBRARY)
-	public static final int SYMBOL_KINSOKU_MASK = 3;
-	@RestrictTo(RestrictTo.Scope.LIBRARY)
-	public static final int SYMBOL_SQUISH_MASK = 3 << 2;
-	@RestrictTo(RestrictTo.Scope.LIBRARY)
-	public static final int SYMBOL_STRETCH_MASK = 3 << 4;
-	@RestrictTo(RestrictTo.Scope.LIBRARY)
-	public static final int SYMBOL_TYPEFACE_MASK = 3 << 6;
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
 	public static final byte SYMBOL_CATEGORY_SYMBOL = 8; /* 符号 */
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -122,29 +135,17 @@ public class Token extends DefaultRecyclable {
 
 	}
 
-	private String getSymbolSemantics() {
-		String kinsoku = "   ";
-		if (hasSymbolAttributes(SYMBOL_KINSOKU_MASK)) {
-			kinsoku = mMask.get(SYMBOL_ATTRIBUTE_KINSOKU_AVOID_HEADER) ? "避头" : "避尾";
-		}
-
-		String typeface = "     ";
-		if (hasSymbolAttributes(SYMBOL_TYPEFACE_MASK)) {
-			if (hasSymbolAttributes(SYMBOL_SQUISH_MASK)) {
-				typeface = mMask.get(SYMBOL_ATTRIBUTE_SQUISH_LEFT) ? "挤压左" : "挤压右";
-			} else if (hasSymbolAttributes(SYMBOL_STRETCH_MASK)) {
-				typeface = mMask.get(SYMBOL_ATTRIBUTE_STRETCH_LEFT) ? "拉伸左" : "拉伸右";
-			} else {
-				typeface = "fuck typeface";
-			}
-		}
-
-		return String.format("符号,%-2s,%-3s", kinsoku, typeface);
-	}
-
 	@TokenType
-	public int getType() {
-		return mMask.getRange(0, 8);
+	public byte getType() {
+		if (mMask.get(TYPE_WORD)) {
+			return TYPE_WORD;
+		}
+
+		if (mMask.get(TYPE_CONTROL)) {
+			return TYPE_CONTROL;
+		}
+
+		return mMask.get(TYPE_SYMBOL) ? TYPE_SYMBOL : TYPE_NONE;
 	}
 
 	public int size() {
@@ -167,7 +168,7 @@ public class Token extends DefaultRecyclable {
 		}
 
 		if (type == TYPE_WORD) {
-			byte category = (byte) mMask.getRange(8, 31);
+			byte category = getWordCategory();
 			if (category == WORD_CATEGORY_NORMAL) {
 				return "英文";
 			}
@@ -190,20 +191,25 @@ public class Token extends DefaultRecyclable {
 		return "未知";
 	}
 
-	public boolean hasSymbolAttributes(@SymbolTokenMask int mask) {
-		if (getType() != TYPE_SYMBOL) {
-			return false;
+	private String getSymbolSemantics() {
+		String kinsoku = "   ";
+		if (mMask.get(SYMBOL_ATTRIBUTE_KINSOKU_AVOID_TAIL) || mMask.get(SYMBOL_ATTRIBUTE_KINSOKU_AVOID_HEADER)) {
+			kinsoku = mMask.get(SYMBOL_ATTRIBUTE_KINSOKU_AVOID_HEADER) ? "避头" : "避尾";
 		}
 
-		return (mMask.getRange(BIT_ATTRIBUTES_START, BIT_ATTRIBUTES_END) & mask) != 0;
-	}
-
-	public boolean checkSymbolAttribute(@SymbolTokenAttribute int flag) {
-		if (getType() != TYPE_SYMBOL) {
-			return false;
+		String typeface = "";
+		if (mMask.get(SYMBOL_ATTRIBUTE_SQUISH_LEFT) || mMask.get(SYMBOL_ATTRIBUTE_SQUISH_RIGHT)) {
+			typeface = mMask.get(SYMBOL_ATTRIBUTE_SQUISH_LEFT) ? "挤压左" : "挤压右";
 		}
 
-		return mMask.get(flag);
+		if (mMask.get(SYMBOL_ATTRIBUTE_STRETCH_LEFT) || mMask.get(SYMBOL_ATTRIBUTE_STRETCH_RIGHT)) {
+			if (!typeface.isEmpty()) {
+				typeface += "&";
+			}
+			typeface += mMask.get(SYMBOL_ATTRIBUTE_STRETCH_LEFT) ? "拉伸左" : "拉伸右";
+		}
+
+		return String.format("符号,%-2s,%-3s", kinsoku, typeface);
 	}
 
 	public CharSequence getCharSequence() {

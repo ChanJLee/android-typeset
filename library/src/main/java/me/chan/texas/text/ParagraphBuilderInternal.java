@@ -502,12 +502,7 @@ class ParagraphBuilderInternal {
 									 TokenStream stream,
 									 CharSequence text,
 									 Paragraph.Builder.SpanReader spanReader) {
-			int state = stream.save();
-			boolean accept = perform0(builder, accepted, stream, text, spanReader);
-			if (!accept) {
-				stream.restore(state);
-			}
-			return accept;
+			return perform0(builder, accepted, stream, text, spanReader);
 		}
 
 		protected abstract boolean perform0(ParagraphBuilderInternal builder,
@@ -532,8 +527,8 @@ class ParagraphBuilderInternal {
 		return token == null ? Token.TYPE_NONE : token.getType();
 	}
 
-	private static int getSymbolAttributesSafe(Token token) {
-		return token == null || token.getType() != Token.TYPE_SYMBOL ? 0 : token.getSymbolAttributes();
+	private static boolean hasSymbolTypefaceAttributesSafe(Token token) {
+		return token != null && token.hasSymbolTypefaceAttributes();
 	}
 
 	private static int getWordCategorySafe(Token token) {
@@ -584,22 +579,19 @@ class ParagraphBuilderInternal {
 			int state = stream.save();
 			Token current = stream.next();
 			if (current.getType() != Token.TYPE_WORD) {
+				stream.restore(state);
+				current.recycle();
 				return false;
 			}
 
-			// 1: word -> glue 其实就是中英文之间分割，广义来讲就是不同类型为word之间需要分割开
-			// 2: unknown -> glue
-			// 3: control -> noop
-			// 4: none -> noop
-			// 5: symbol -> prefix state 1
-			int prevType = getTokenTypeSafe(accepted);
-			if (prevType == Token.TYPE_WORD) {
-				if (getWordCategorySafe(accepted) != getWordCategorySafe(current)) {
-					builder.appendElement(builder.mCommonGlue);
-				} else {
-					builder.appendElement(Penalty.ADVISE_BREAK);
-				}
-			} else if (prevType == Token.TYPE_SYMBOL) {
+			// 1: word -> state 2
+			// 2: control -> noop
+			// 3: none -> noop
+			// 4: symbol -> prefix state 1
+			int acceptedType = getTokenTypeSafe(accepted);
+			if (acceptedType == Token.TYPE_WORD) {
+				performPrefixState2(builder, accepted, current);
+			} else if (acceptedType == Token.TYPE_SYMBOL) {
 				performPrefixState1(builder, accepted, stream, state);
 			}
 
@@ -607,6 +599,17 @@ class ParagraphBuilderInternal {
 
 			accept(current);
 			return true;
+		}
+
+		private static void performPrefixState2(ParagraphBuilderInternal builder, @NonNull Token accepted, Token current) {
+			// 其实就是不同文字类型之间分割
+			// 比如字母和数字之间加空格
+			// 否则就是可以断点
+			if (getWordCategorySafe(accepted) != getWordCategorySafe(current)) {
+				builder.appendElement(builder.mCommonGlue);
+			} else {
+				builder.appendElement(Penalty.ADVISE_BREAK);
+			}
 		}
 
 		private static void performPrefixState1(ParagraphBuilderInternal builder, @NonNull Token accepted, TokenStream stream, int state) {
@@ -629,9 +632,11 @@ class ParagraphBuilderInternal {
 					builder.appendElementExcludeAdvise(adviseElement);
 				}
 			} else {
+				// 那就要看原始的流中有没有要求添加空格
 				Token realPrev = stream.tryGet(state, -1);
-				if (realPrev != accepted && getTokenTypeSafe(realPrev) == Token.TYPE_CONTROL &&
-						(getSymbolAttributesSafe(accepted) & Token.SYMBOL_TYPEFACE_MASK) == 0) {
+				if (realPrev != accepted &&
+						getTokenTypeSafe(realPrev) == Token.TYPE_CONTROL &&
+						!hasSymbolTypefaceAttributesSafe(accepted)) {
 					builder.appendElementExcludeAdvise(adviseElement);
 					builder.appendElement(builder.mCommonGlue);
 					builder.appendElementExcludeAdvise(adviseElement);
@@ -649,20 +654,22 @@ class ParagraphBuilderInternal {
 								TokenStream stream,
 								CharSequence text,
 								Paragraph.Builder.SpanReader spanReader) {
+			int state = stream.save();
 			Token current = stream.next();
 			if (current.getType() != Token.TYPE_CONTROL) {
+				stream.restore(state);
+				current.recycle();
 				return false;
 			}
 
 			Token next = stream.tryGet(0);
 			//--------------------v next ----------
-			// 				word	unknown		symbol		control		none
+			// 				word		symbol		control		none
 			//----------|-----------------------------
-			// word    	|   direct  direct		trans		noop		noop
-			// unknown 	|   direct  direct		trans		noop		noop
-			// symbol 	|   trans	trans		trans		noop		noop < 本质上都是丢给后面的人处理
-			// control	|	noop	noop		noop		noop		noop < 规避多个空格
-			// none		|   noop 	noop 		noop		noop		noop < 首行不留白，这个可能作为 future 未来支持开启
+			// word    	|   direct 		trans		noop		noop
+			// symbol 	|   trans		trans		noop		noop < 本质上都是丢给后面的人处理
+			// control	|	noop		noop		noop		noop < 规避多个空格
+			// none		|   noop  		noop		noop		noop < 首行不留白，这个可能作为 future 未来支持开启
 			//-----------------------------------------
 			//  ^ prev
 			// trans 就要上面的规则去检查是否丢弃了 control，但是当前的规则不需要处理，所以本质上是noop
@@ -702,6 +709,8 @@ class ParagraphBuilderInternal {
 			int state = stream.save();
 			Token current = stream.next();
 			if (current.getType() != Token.TYPE_SYMBOL) {
+				stream.restore(state);
+				current.recycle();
 				return false;
 			}
 
@@ -775,6 +784,7 @@ class ParagraphBuilderInternal {
 			} else {
 				// 看情况是否要填充空格
 				// 找真实的解析buffer，看当前token在原文中是否有空格，如果有，且没有要求squish，那么就要填充空格
+				// 但是填充空格的时候需要收到当前current的约束
 				Token realPrev = stream.tryGet(state, -1);
 				if (checkSymbolTokenAttributeSafe(current, Token.SYMBOL_ATTRIBUTE_SQUISH_LEFT)) {
 					if (builder.mRenderOption.isEnableFullWithSymbolOptimization()) {
@@ -782,8 +792,7 @@ class ParagraphBuilderInternal {
 						builder.appendElement(SymbolGlue.obtain(box));
 						builder.appendElementExcludeAdvise(adviseElement);
 					}
-				} else if (getTokenTypeSafe(realPrev) == Token.TYPE_CONTROL &&
-						(getSymbolAttributesSafe(current) & Token.SYMBOL_TYPEFACE_MASK) == 0) {
+				} else if (getTokenTypeSafe(realPrev) == Token.TYPE_CONTROL && !hasSymbolTypefaceAttributesSafe(current)) {
 					builder.appendElementExcludeAdvise(adviseElement);
 					builder.appendElement(builder.mCommonGlue);
 					builder.appendElementExcludeAdvise(adviseElement);
@@ -896,7 +905,7 @@ class ParagraphBuilderInternal {
 					return;
 				}
 
-				if ((getSymbolAttributesSafe(current) & Token.SYMBOL_TYPEFACE_MASK) != Token.TYPE_NONE) {
+				if (hasSymbolTypefaceAttributesSafe(current)) {
 					throw new RuntimeException("symbol rule's state 1 advise logic error");
 				}
 
@@ -925,7 +934,7 @@ class ParagraphBuilderInternal {
 				return;
 			}
 
-			if ((getSymbolAttributesSafe(accepted) & Token.SYMBOL_TYPEFACE_MASK) != Token.TYPE_NONE) {
+			if (hasSymbolTypefaceAttributesSafe(accepted)) {
 				throw new RuntimeException("symbol rule's state 1 advise logic error");
 			}
 
