@@ -200,6 +200,7 @@ public class WordStreamUnitTest {
 			token.mEnd = 2;
 			token.mMask.set(Token.TYPE_WORD);
 			token.mMask.set(Token.WORD_CATEGORY_NORMAL);
+			token.toString();
 			list.add(token);
 		}
 
