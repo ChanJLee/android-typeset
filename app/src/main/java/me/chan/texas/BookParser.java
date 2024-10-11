@@ -1,4 +1,4 @@
-package me.chan.androidtex;
+package me.chan.texas;
 
 import android.content.res.Resources;
 import android.graphics.Canvas;
@@ -14,7 +14,6 @@ import android.util.Xml;
 import android.view.View;
 import android.widget.Toast;
 
-import me.chan.texas.TexasOption;
 import me.chan.texas.adapter.ParseException;
 import me.chan.texas.renderer.TexasView;
 import me.chan.texas.text.Appearance;
@@ -68,8 +67,8 @@ public class BookParser extends TexasView.Adapter<CharSequence> {
 		mContext = context;
 		mPolicy = policy;
 		Resources resources = context.getResources();
-		mFlagWidth = resources.getDimension(R.dimen.com_shanbay_lib_texas_flag_width);
-		mFlagHeight = resources.getDimension(R.dimen.com_shanbay_lib_texas_flag_height);
+		mFlagWidth = resources.getDimension(me.chan.texas.debug.R.dimen.com_shanbay_lib_texas_flag_width);
+		mFlagHeight = resources.getDimension(me.chan.texas.debug.R.dimen.com_shanbay_lib_texas_flag_height);
 		// for test
 		mTexasView = texasView;
 	}
@@ -107,7 +106,7 @@ public class BookParser extends TexasView.Adapter<CharSequence> {
 
 	private void setupUserDefineView(List<Segment> segments) {
 		// 添加自定义的视图
-		segments.add(new ViewSegment(R.layout.test_header) {
+		segments.add(new ViewSegment(me.chan.texas.debug.R.layout.test_header) {
 
 			@Override
 			protected void onRender(View view) {
@@ -138,7 +137,7 @@ public class BookParser extends TexasView.Adapter<CharSequence> {
 	// 当视图不可见时就会被回收
 	// 增量更新就是不会参与页面内容的回收，都使用一个实例
 	private void setupIncrementalUserDefineView(List<Segment> segments) {
-		segments.add(new ViewSegment(R.layout.test_layout, true) {
+		segments.add(new ViewSegment(me.chan.texas.debug.R.layout.test_layout, true) {
 			@Override
 			protected void onRender(View view) {
 				if (view.getTag() != null) {
@@ -147,7 +146,7 @@ public class BookParser extends TexasView.Adapter<CharSequence> {
 				}
 
 				Log.d("chan_debug", "设置元素： " + this);
-				view.findViewById(R.id.finish).setOnClickListener(new View.OnClickListener() {
+				view.findViewById(me.chan.texas.debug.R.id.finish).setOnClickListener(new View.OnClickListener() {
 					@Override
 					public void onClick(View v) {
 						Toast.makeText(mContext, "click me", Toast.LENGTH_SHORT).show();
@@ -157,13 +156,13 @@ public class BookParser extends TexasView.Adapter<CharSequence> {
 				view.setTag("fuck");
 			}
 		});
-		segments.add(new ViewSegment(R.layout.test_layout2, true) {
+		segments.add(new ViewSegment(me.chan.texas.debug.R.layout.test_layout2, true) {
 			@Override
 			protected void onRender(View view) {
 				Log.d("chan_debug", "渲染隐含元素");
 			}
 		});
-		segments.add(new ViewSegment(R.layout.test_layout2, true) {
+		segments.add(new ViewSegment(me.chan.texas.debug.R.layout.test_layout2, true) {
 			@Override
 			protected void onRender(View view) {
 				Log.d("chan_debug", "渲染隐含元素2");
@@ -196,11 +195,11 @@ public class BookParser extends TexasView.Adapter<CharSequence> {
 		}
 
 		// 测试页面滚动
-		segments.add(new ViewSegment(R.layout.test_layout) {
+		segments.add(new ViewSegment(me.chan.texas.debug.R.layout.test_layout) {
 
 			@Override
 			protected void onRender(View view) {
-				view.findViewById(R.id.finish).setOnClickListener(new View.OnClickListener() {
+				view.findViewById(me.chan.texas.debug.R.id.finish).setOnClickListener(new View.OnClickListener() {
 					@Override
 					public void onClick(View v) {
 						mTexasView.scrollToPosition(0);
@@ -248,7 +247,7 @@ public class BookParser extends TexasView.Adapter<CharSequence> {
 		}
 
 		if (lastState == STATE_SENT) {
-			final Drawable drawable = ContextCompat.getDrawable(mContext, R.drawable.me_chan_te_flag);
+			final Drawable drawable = ContextCompat.getDrawable(mContext, me.chan.texas.debug.R.drawable.me_chan_te_flag);
 			final Emoticon emoticon = Emoticon.obtain(drawable, mFlagWidth, mFlagHeight, new FlagTag(), null, null);
 			builder.emoticon(emoticon);
 		}

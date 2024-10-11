@@ -1,4 +1,4 @@
-package me.chan.androidtex;
+package me.chan.texas;
 
 import android.content.Context;
 import android.graphics.Canvas;

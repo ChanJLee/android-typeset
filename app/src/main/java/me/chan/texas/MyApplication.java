@@ -1,4 +1,4 @@
-package me.chan.androidtex;
+package me.chan.texas;
 
 import android.app.Application;
 import android.graphics.Typeface;

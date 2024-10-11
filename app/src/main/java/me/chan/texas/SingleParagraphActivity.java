@@ -1,13 +1,10 @@
-package me.chan.androidtex;
+package me.chan.texas;
 
 import android.annotation.SuppressLint;
-import android.os.Build;
 import android.os.Bundle;
-import android.os.SystemClock;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewParent;
-import android.widget.Chronometer;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -16,7 +13,6 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import java.lang.reflect.Method;
 
-import me.chan.texas.TexasOption;
 import me.chan.texas.renderer.SpanTouchEventHandler;
 import me.chan.texas.renderer.TouchEvent;
 import me.chan.texas.renderer.ui.text.ParagraphView;
@@ -28,17 +24,17 @@ public class SingleParagraphActivity extends AppCompatActivity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_single_paragraph);
+		setContentView(me.chan.texas.debug.R.layout.activity_single_paragraph);
 
 		// String msg = "\ud83d\ude4b\uff08\u062a\u0645 \u062a\u0643\u0631\u0627\u0631 \u0643\u0644\u0645\u0629 '\u0643\u0648\u0628' \u0628\u0634\u0643\u0644 \u063a\u064a\u0631 \u0636\u0631\u0648\u0631\u064a.\uff09";
 		String msg = "\u0067\u0308";
-		TextView textView = findViewById(R.id.text);
+		TextView textView = findViewById(me.chan.texas.debug.R.id.text);
 		textView.setText(msg);
 
-		TestView testView = findViewById(R.id.test_view);
+		TestView testView = findViewById(me.chan.texas.debug.R.id.test_view);
 		testView.setText(msg);
 
-		ParagraphView paragraphView = findViewById(R.id.paragraph);
+		ParagraphView paragraphView = findViewById(me.chan.texas.debug.R.id.paragraph);
 		paragraphView.setOnClickedListener(new ParagraphView.OnClickedListener() {
 			@Override
 			public void onSpanClicked(ParagraphView paragraphView, TouchEvent event, Object tag) {
@@ -93,7 +89,7 @@ public class SingleParagraphActivity extends AppCompatActivity {
 			}
 		});
 
-		findViewById(R.id.increase_padding).setOnClickListener(new View.OnClickListener() {
+		findViewById(me.chan.texas.debug.R.id.increase_padding).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				paragraphView.setPadding(paragraphView.getPaddingLeft() + 10, paragraphView.getPaddingTop(), paragraphView.getPaddingRight() + 10, paragraphView.getPaddingBottom());
