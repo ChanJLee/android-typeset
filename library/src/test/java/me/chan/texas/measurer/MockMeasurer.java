@@ -1,6 +1,6 @@
 package me.chan.texas.measurer;
 
-import com.shanbay.lib.texas.test.mock.MockTextPaint;
+import me.chan.texas.test.mock.MockTextPaint;
 import me.chan.texas.text.TextStyle;
 
 public class MockMeasurer implements Measurer {

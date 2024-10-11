@@ -1,4 +1,4 @@
-package com.shanbay.lib.texas.test.mock;
+package me.chan.texas.test.mock;
 
 import android.graphics.Rect;
 import android.text.TextPaint;

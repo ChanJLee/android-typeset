@@ -1,4 +1,4 @@
-package com.shanbay.lib.texas.test;
+package me.chan.texas.test;
 
 import org.junit.Assert;
 import org.junit.Test;
