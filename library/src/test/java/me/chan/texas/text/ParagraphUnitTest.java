@@ -782,8 +782,19 @@ public class ParagraphUnitTest {
 			builder.text("yes 《");
 			paragraph = builder.build();
 			checkContent(paragraph, "yes", SymbolGlue.class, "《", Glue.TERMINAL, Penalty.FORCE_BREAK);
+
+			builder = Paragraph.Builder.newBuilder(texasOption);
+			builder.text("yes").text("《");
+			paragraph = builder.build();
+			checkContent(paragraph, "yes", SymbolGlue.class, "《", Glue.TERMINAL, Penalty.FORCE_BREAK);
+
 			builder = Paragraph.Builder.newBuilder(texasOption);
 			builder.text("yes ?");
+			paragraph = builder.build();
+			checkContent(paragraph, "yes", Penalty.FORBIDDEN_BREAK, blank, Penalty.FORBIDDEN_BREAK, "?", Glue.TERMINAL, Penalty.FORCE_BREAK);
+
+			builder = Paragraph.Builder.newBuilder(texasOption);
+			builder.text("yes").text("?");
 			paragraph = builder.build();
 			checkContent(paragraph, "yes", Penalty.FORBIDDEN_BREAK, blank, Penalty.FORBIDDEN_BREAK, "?", Glue.TERMINAL, Penalty.FORCE_BREAK);
 
