@@ -23,9 +23,6 @@ import me.chan.texas.misc.PaintSet;
 import me.chan.texas.renderer.LoadingStrategy;
 import me.chan.texas.renderer.RenderOption;
 import me.chan.texas.renderer.TouchEvent;
-import me.chan.texas.renderer.highlight.HighlightManager;
-import me.chan.texas.renderer.highlight.ParagraphHighlight;
-import me.chan.texas.renderer.selection.ParagraphSelection;
 import me.chan.texas.renderer.selection.SelectionManager;
 import me.chan.texas.renderer.ui.decor.ParagraphDecor;
 import me.chan.texas.renderer.ui.figure.FigureView;
@@ -41,6 +38,7 @@ import me.chan.texas.text.Segment;
 import me.chan.texas.text.ViewSegment;
 import me.chan.texas.text.layout.Layout;
 
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -77,7 +75,6 @@ public class RendererAdapter extends RecyclerView.Adapter<RendererAdapter.Render
 	 */
 	private final ViewSegmentManager mViewSegmentManager = new ViewSegmentManager();
 	private SelectionManager mSelectionManager;
-	private HighlightManager mHighlightManager;
 	private PaintSet mPaintSet;
 	private final RecyclerView.RecycledViewPool mPool;
 	private ParagraphDecor mParagraphDecor;
@@ -100,10 +97,6 @@ public class RendererAdapter extends RecyclerView.Adapter<RendererAdapter.Render
 
 	public void setListener(Listener listener) {
 		mListener = listener;
-	}
-
-	public void setHighlightManager(HighlightManager highlightManager) {
-		mHighlightManager = highlightManager;
 	}
 
 	public void setSelectionManager(SelectionManager selectionManager) {
@@ -183,6 +176,10 @@ public class RendererAdapter extends RecyclerView.Adapter<RendererAdapter.Render
 			mListener.onLoadingPrevious();
 		}
 
+		onBindViewHolder0(renderer, position);
+	}
+
+	private void onBindViewHolder0(@NonNull Renderer renderer, int position) {
 		Segment segment = getItem(position);
 		if (segment == null) {
 			w("segment is null, ignore onBindViewHolder");
@@ -457,15 +454,10 @@ public class RendererAdapter extends RecyclerView.Adapter<RendererAdapter.Render
 
 		@Override
 		protected void onRender(Paragraph data) {
-			ParagraphSelection paragraphSelection = mSelectionManager.getParagraphSelection(data);
-			ParagraphHighlight highlight = mHighlightManager.getParagraphHighlight(data);
-
 			mRender.render(
 					data,
 					mPaintSet,
 					mRenderOption,
-					paragraphSelection,
-					highlight,
 					mParagraphDecor,
 					mSelectionManager.getSpanTouchEventHandler());
 
@@ -595,5 +587,26 @@ public class RendererAdapter extends RecyclerView.Adapter<RendererAdapter.Render
 		void onLoadingMore(int count);
 
 		void onLoadingPrevious();
+	}
+
+	public static final Object SIG_SELECTION_CHANGED = new Object();
+
+	public static final Object SIG_HIGHLIGHT_CHANGED = new Object();
+
+	public int sendSignal(Segment segment, Object signal) {
+		int index = indexOf(segment);
+		return sendSignal(index, signal);
+	}
+
+	public int sendSignal(int index, Object signal) {
+		if (index >= 0) {
+			notifyItemChanged(index, signal);
+		}
+		return index;
+	}
+
+	@Override
+	public void onBindViewHolder(@NonNull Renderer renderer, int position, @NonNull List<Object> payloads) {
+		onBindViewHolder0(renderer, position);
 	}
 }

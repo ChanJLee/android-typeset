@@ -6,10 +6,7 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 
 import androidx.annotation.CallSuper;
-import androidx.annotation.IntDef;
 import androidx.annotation.RestrictTo;
-
-import java.util.concurrent.atomic.AtomicInteger;
 
 import me.chan.texas.text.Appearance;
 import me.chan.texas.utils.TexasUtils;
@@ -21,15 +18,6 @@ import me.chan.texas.utils.TexasUtils;
  */
 @RestrictTo(LIBRARY)
 public abstract class Box extends Element {
-	private static final AtomicInteger UUID = new AtomicInteger(0);
-
-	public static final int STATUS_SELECTED = 1;
-	public static final int STATUS_HIGHLIGHT = 1 << 1;
-
-	@IntDef({STATUS_SELECTED, STATUS_HIGHLIGHT})
-	public @interface StatusType {
-	}
-
 	/**
 	 * 增加修改内容参考
 	 * {@link #equals(Object)}
@@ -50,9 +38,8 @@ public abstract class Box extends Element {
 	 */
 	protected Appearance mForeground;
 
-	private int mId;
+	private int mSeq;
 
-	private int mStatus = 0;
 
 	/**
 	 * @param width  宽度
@@ -88,23 +75,21 @@ public abstract class Box extends Element {
 	protected void onRecycle() {
 		mWidth = 0;
 		mHeight = 0;
-		mId = 0;
+		mSeq = 0;
 		mTag = null;
-		removeAllStatus();
 
 		mBackground = null;
 		mForeground = null;
 	}
 
-	public int getId() {
-		return mId;
+	@RestrictTo(LIBRARY)
+	public int getSeq() {
+		return mSeq;
 	}
 
-	@CallSuper
-	@Override
-	protected void onReuse() {
-		removeAllStatus();
-		mId = UUID.incrementAndGet();
+	@RestrictTo(LIBRARY)
+	public void setSeq(int seq) {
+		mSeq = seq;
 	}
 
 	public Appearance getBackground() {
@@ -113,26 +98,6 @@ public abstract class Box extends Element {
 
 	public Appearance getForeground() {
 		return mForeground;
-	}
-
-	@RestrictTo(LIBRARY)
-	public void addStatus(@StatusType int status) {
-		mStatus |= status;
-	}
-
-	@RestrictTo(LIBRARY)
-	public void removeStatus(@StatusType int status) {
-		mStatus &= ~status;
-	}
-
-	@RestrictTo(LIBRARY)
-	public void removeAllStatus() {
-		mStatus = 0;
-	}
-
-	@RestrictTo(LIBRARY)
-	public boolean containsStatus(int statusHighlight) {
-		return (mStatus & statusHighlight) != 0;
 	}
 
 	public Object getTag() {

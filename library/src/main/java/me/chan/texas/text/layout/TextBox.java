@@ -57,7 +57,7 @@ public final class TextBox extends Box {
 	static final int SQUISH_FACTOR = 2;
 
 	private final static ObjectPool<TextBox> POOL = new ObjectPool<>(Texas.getMemoryOption().getTextBufferSize());
-	private final static CharArrayPool CHAR_ARRAY_POOL = new CharArrayPool();
+	public final static CharArrayPool CHAR_ARRAY_POOL = new CharArrayPool();
 
 	@VisibleForTesting
 	static boolean hasBuffered() {
@@ -244,7 +244,7 @@ public final class TextBox extends Box {
 		int size = mEnd - mStart;
 		char[] buf = CHAR_ARRAY_POOL.obtain(size);
 		TextUtils.getChars(mText, mStart, mEnd, buf, 0);
-		canvas.drawTextRun(buf, 0, size, 0, size, x, y, containsStatus(ATTRIBUTE_RTL), paint);
+		canvas.drawTextRun(buf, 0, size, 0, size, x, y, hasAttribute(ATTRIBUTE_RTL), paint);
 		CHAR_ARRAY_POOL.release(buf);
 	}
 

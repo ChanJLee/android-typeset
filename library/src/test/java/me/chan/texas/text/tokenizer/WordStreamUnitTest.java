@@ -23,6 +23,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import me.chan.texas.misc.BitBucket32;
+
 public class WordStreamUnitTest {
 
 	@Test
@@ -131,6 +133,51 @@ public class WordStreamUnitTest {
 	}
 
 	@Test
+	public void testRtl() {
+		String msg = "\u062a\u0645 123 ABC \u062a\u0643\u0631\u0627\u0631 \u0643\u0644\u0645\u0629 \u0643\u0648\u0628 \u0628\u0634\u0643\u0644 \u063a\u064a\u0631 \u0636\u0631\u0648\u0631\u064a";
+		List<String> list = new ArrayList<>();
+		// 空格分割倒序添加
+		String[] arr = msg.split(" ");
+		for (int i = arr.length - 1; i >= 0; --i) {
+			list.add(arr[i]);
+			list.add(" ");
+		}
+		list.remove(list.size() - 1);
+
+		System.out.println(msg);
+		Token token = null;
+		Iterator<String> iterator = list.iterator();
+		TokenStream stream = TextTokenStream.obtain(msg, 0, msg.length(), true);
+		int save = stream.save();
+		while ((token = stream.next()) != null) {
+			Assert.assertEquals(iterator.next(), token.getCharSequence().subSequence(token.getStart(), token.getEnd()).toString());
+		}
+		Assert.assertFalse(iterator.hasNext());
+
+		Assert.assertEquals(stream.save(), list.size());
+		token = stream.tryGet(-1);
+		Assert.assertEquals(list.get(list.size() - 1), token.getCharSequence().subSequence(token.getStart(), token.getEnd()).toString());
+
+		stream.restore(save);
+		Assert.assertNull(stream.tryGet(-1));
+		Assert.assertEquals(stream.save(), 0);
+		token = stream.tryGet(0);
+		Assert.assertEquals(list.get(0), token.getCharSequence().subSequence(token.getStart(), token.getEnd()).toString());
+
+		token = stream.next();
+		Assert.assertEquals(list.get(0), token.getCharSequence().subSequence(token.getStart(), token.getEnd()).toString());
+
+		token = stream.tryGet(-1);
+		Assert.assertEquals(list.get(0), token.getCharSequence().subSequence(token.getStart(), token.getEnd()).toString());
+
+		token = stream.tryGet(0);
+		Assert.assertEquals(list.get(1), token.getCharSequence().subSequence(token.getStart(), token.getEnd()).toString());
+
+		token = stream.tryGet(1);
+		Assert.assertEquals(list.get(2), token.getCharSequence().subSequence(token.getStart(), token.getEnd()).toString());
+	}
+
+	@Test
 	public void testSave() {
 		String[] array = {"aa", " ", "11", " ", "hello-world四五R&B"};
 		StringBuilder stringBuilder = new StringBuilder();
@@ -151,8 +198,9 @@ public class WordStreamUnitTest {
 			token.mCharSequence = "aa";
 			token.mStart = 0;
 			token.mEnd = 2;
-			token.mMask = Token.CATEGORY_NORMAL;
-			token.mType = Token.TYPE_WORD;
+			token.mMask.set(Token.TYPE_WORD);
+			token.mMask.set(Token.WORD_CATEGORY_NORMAL);
+			token.toString();
 			list.add(token);
 		}
 
@@ -161,8 +209,9 @@ public class WordStreamUnitTest {
 			token.mCharSequence = " ";
 			token.mStart = 0;
 			token.mEnd = 1;
-			token.mMask = Token.CATEGORY_CONTROL;
-			token.mType = Token.TYPE_CONTROL;
+			int v = ' ';
+			token.mMask.reset(v << Token.BIT_TYPE_END);
+			token.mMask.set(Token.TYPE_CONTROL);
 			list.add(token);
 		}
 
@@ -171,8 +220,8 @@ public class WordStreamUnitTest {
 			token.mCharSequence = "11";
 			token.mStart = 0;
 			token.mEnd = 2;
-			token.mMask = Token.CATEGORY_NUMBER;
-			token.mType = Token.TYPE_WORD;
+			token.mMask.set(Token.TYPE_WORD);
+			token.mMask.set(Token.WORD_CATEGORY_NUMBER);
 			list.add(token);
 		}
 
@@ -181,8 +230,9 @@ public class WordStreamUnitTest {
 			token.mCharSequence = " ";
 			token.mStart = 0;
 			token.mEnd = 1;
-			token.mMask = Token.CATEGORY_CONTROL;
-			token.mType = Token.TYPE_CONTROL;
+			int v = ' ';
+			token.mMask.reset(v << Token.BIT_TYPE_END);
+			token.mMask.set(Token.TYPE_CONTROL);
 			list.add(token);
 		}
 
@@ -191,8 +241,8 @@ public class WordStreamUnitTest {
 			token.mCharSequence = "hello-world";
 			token.mStart = 0;
 			token.mEnd = 11;
-			token.mMask = Token.CATEGORY_NORMAL;
-			token.mType = Token.TYPE_WORD;
+			token.mMask.set(Token.TYPE_WORD);
+			token.mMask.set(Token.WORD_CATEGORY_NORMAL);
 			list.add(token);
 		}
 
@@ -201,8 +251,8 @@ public class WordStreamUnitTest {
 			token.mCharSequence = "四五";
 			token.mStart = 0;
 			token.mEnd = 2;
-			token.mMask = Token.CATEGORY_CJK;
-			token.mType = Token.TYPE_WORD;
+			token.mMask.set(Token.TYPE_WORD);
+			token.mMask.set(Token.WORD_CATEGORY_CJK);
 			list.add(token);
 		}
 
@@ -211,8 +261,8 @@ public class WordStreamUnitTest {
 			token.mCharSequence = "R";
 			token.mStart = 0;
 			token.mEnd = 1;
-			token.mMask = Token.CATEGORY_NORMAL;
-			token.mType = Token.TYPE_WORD;
+			token.mMask.set(Token.TYPE_WORD);
+			token.mMask.set(Token.WORD_CATEGORY_NORMAL);
 			list.add(token);
 		}
 
@@ -221,9 +271,10 @@ public class WordStreamUnitTest {
 			token.mCharSequence = "&";
 			token.mStart = 0;
 			token.mEnd = 1;
-			token.mMask = TextTokenStream.getMask(Token.CATEGORY_PUNCTUATION,
-					TextTokenStream.getAdvise('&', Character.getType('&')));
-			token.mType = Token.TYPE_SYMBOL;
+			token.mMask.set(Token.TYPE_SYMBOL);
+			token.mMask.set(Token.SYMBOL_CATEGORY_PUNCTUATION);
+			token.mMask.set(Token.SYMBOL_ATTRIBUTE_KINSOKU_AVOID_TAIL);
+			token.mMask.set(Token.SYMBOL_ATTRIBUTE_KINSOKU_AVOID_HEADER);
 			list.add(token);
 		}
 
@@ -232,8 +283,8 @@ public class WordStreamUnitTest {
 			token.mCharSequence = "B";
 			token.mStart = 0;
 			token.mEnd = 1;
-			token.mMask = Token.CATEGORY_NORMAL;
-			token.mType = Token.TYPE_WORD;
+			token.mMask.set(Token.TYPE_WORD);
+			token.mMask.set(Token.WORD_CATEGORY_NORMAL);
 			list.add(token);
 		}
 

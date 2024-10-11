@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Canvas;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 
@@ -40,8 +41,6 @@ public class TextureParagraphView0 extends AbsTextureParagraphView {
 				this,
 				layout.getWidth(),
 				mPaintSet,
-				mParagraphSelection,
-				mHighlight,
 				mParagraphDecor
 		);
 
@@ -78,7 +77,7 @@ public class TextureParagraphView0 extends AbsTextureParagraphView {
 	}
 
 	@Override
-	protected void onDraw(Canvas canvas) {
+	protected void onDraw(@NonNull Canvas canvas) {
 		mGraphicsBuffer.draw(canvas);
 	}
 

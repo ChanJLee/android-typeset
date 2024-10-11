@@ -2,6 +2,8 @@ package me.chan.texas.renderer;
 
 import android.graphics.RectF;
 
+import androidx.annotation.NonNull;
+
 import com.shanbay.lib.texas.TestUtils;
 import com.shanbay.lib.texas.test.mock.MockTextPaint;
 
@@ -12,7 +14,6 @@ import me.chan.texas.renderer.selection.ParagraphSelection;
 import me.chan.texas.text.BreakStrategy;
 import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.TextAttribute;
-import me.chan.texas.text.TypesetContext;
 import me.chan.texas.text.layout.Box;
 import me.chan.texas.text.layout.Element;
 import me.chan.texas.text.layout.Line;
@@ -55,7 +56,7 @@ public class SelectionUnitTest {
 		Paragraph paragraph = builder.build();
 		texTypesetter.typeset(paragraph, BreakStrategy.SIMPLE, 10, 1);
 
-		ParagraphSelection paragraphSelection = ParagraphSelection.obtain(paragraph, ParagraphSelection.LONG_CLICK);
+		ParagraphSelection paragraphSelection = ParagraphSelection.obtain(ParagraphSelection.LONG_CLICK);
 
 		Assert.assertTrue(paragraphSelection.isEmpty());
 		Box box = TextBox.obtain(
@@ -102,8 +103,9 @@ public class SelectionUnitTest {
 				paragraphSelection.appendBox(box1);
 			}
 		}
+		paragraph.setSelection(paragraphSelection);
 
-		Set<Object> tags = new HashSet<>(paragraphSelection.getSelectedTags());
+		Set<Object> tags = new HashSet<>(ParagraphSelection.getSelectedTags(paragraph));
 
 		TestBoxVisitor visitor = new TestBoxVisitor(set, paragraphSelection);
 		visitor.test(paragraph, renderOption);
@@ -154,7 +156,7 @@ public class SelectionUnitTest {
 		}
 
 		@Override
-		protected void onVisitBox(Box box, RectF inner, RectF outer, TypesetContext context) {
+		protected void onVisitBox(Box box, RectF inner, RectF outer, @NonNull RendererContext context) {
 			if (mParagraphSelection.isSelected(box)) {
 				++mCount;
 				Assert.assertTrue(mBoxes.contains(box));
@@ -162,7 +164,7 @@ public class SelectionUnitTest {
 		}
 
 		public void test(Paragraph subParagraph, RenderOption renderOption) throws VisitException {
-			visit(subParagraph, renderOption);
+			visit(subParagraph);
 			Assert.assertEquals(mCount, mBoxes.size());
 		}
 	}
@@ -199,7 +201,7 @@ public class SelectionUnitTest {
 		}
 
 		@Override
-		protected void onVisitBox(Box box, RectF inner, RectF outer, TypesetContext context) {
+		protected void onVisitBox(Box box, RectF inner, RectF outer, @NonNull RendererContext context) {
 			if (mParagraphSelection.isSelected(box)) {
 				++mCount;
 				Assert.assertTrue(mBoxes.contains(box.getTag()));
@@ -207,7 +209,7 @@ public class SelectionUnitTest {
 		}
 
 		public void test(Paragraph subParagraph, RenderOption renderOption) throws VisitException {
-			visit(subParagraph, renderOption);
+			visit(subParagraph);
 			Assert.assertEquals(mCount, mBoxes.size());
 		}
 	}

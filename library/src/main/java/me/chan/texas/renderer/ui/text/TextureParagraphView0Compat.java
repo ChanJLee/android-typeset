@@ -3,6 +3,7 @@ package me.chan.texas.renderer.ui.text;
 import android.content.Context;
 import android.graphics.Canvas;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 
 import me.chan.texas.renderer.core.WorkerScheduler;
@@ -38,7 +39,7 @@ public class TextureParagraphView0Compat extends AbsTextureParagraphView {
 	}
 
 	@Override
-	protected void onDraw(Canvas canvas) {
+	protected void onDraw(@NonNull Canvas canvas) {
 		if (mParagraph == null) {
 			return;
 		}
@@ -51,8 +52,6 @@ public class TextureParagraphView0Compat extends AbsTextureParagraphView {
 				this,
 				layout.getWidth(),
 				mPaintSet,
-				mParagraphSelection,
-				mHighlight,
 				mParagraphDecor
 		);
 		WorkerScheduler.render().submitSync(getToken(), args);
