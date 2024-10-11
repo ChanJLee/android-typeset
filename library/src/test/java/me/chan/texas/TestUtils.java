@@ -1,4 +1,4 @@
-package com.shanbay.lib.texas;
+package me.chan.texas;
 
 import androidx.collection.SparseArrayCompat;
 

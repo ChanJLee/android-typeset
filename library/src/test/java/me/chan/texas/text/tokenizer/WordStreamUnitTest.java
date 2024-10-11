@@ -6,7 +6,7 @@ import static org.junit.Assert.assertTrue;
 import com.ibm.icu.text.BreakIterator;
 import com.ibm.icu.text.UnicodeSet;
 import com.ibm.icu.text.UnicodeSetIterator;
-import com.shanbay.lib.texas.TestUtils;
+import me.chan.texas.TestUtils;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -22,8 +22,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-
-import me.chan.texas.misc.BitBucket32;
 
 public class WordStreamUnitTest {
 

@@ -8,8 +8,8 @@ import android.text.TextPaint;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.shanbay.lib.texas.TestUtils;
-import com.shanbay.lib.texas.test.mock.MockTextPaint;
+import me.chan.texas.TestUtils;
+import me.chan.texas.test.mock.MockTextPaint;
 
 import me.chan.texas.measurer.Measurer;
 import me.chan.texas.measurer.MockMeasurer;

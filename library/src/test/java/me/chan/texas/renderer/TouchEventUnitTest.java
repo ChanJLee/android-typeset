@@ -1,6 +1,6 @@
 package me.chan.texas.renderer;
 
-import com.shanbay.lib.texas.TestUtils;
+import me.chan.texas.TestUtils;
 
 import org.junit.Assert;
 import org.junit.Test;

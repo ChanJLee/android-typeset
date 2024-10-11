@@ -11,7 +11,7 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 
-import com.shanbay.lib.texas.test.mock.MockTextPaint;
+import me.chan.texas.test.mock.MockTextPaint;
 
 import me.chan.texas.Texas;
 import me.chan.texas.adapter.ParseException;
