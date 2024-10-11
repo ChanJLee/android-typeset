@@ -13,36 +13,6 @@ public class Token extends DefaultRecyclable {
 	private static final ObjectPool<Token> POOL = new ObjectPool<>(128);
 
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
-	public byte getWordCategory() {
-		if (mMask.get(WORD_CATEGORY_NORMAL)) {
-			return WORD_CATEGORY_NORMAL;
-		}
-
-		if (mMask.get(WORD_CATEGORY_CJK)) {
-			return WORD_CATEGORY_CJK;
-		}
-
-		if (mMask.get(WORD_CATEGORY_NUMBER)) {
-			return WORD_CATEGORY_NUMBER;
-		}
-
-		return WORD_CATEGORY_UNKNOWN_LETTER;
-	}
-
-	@RestrictTo(RestrictTo.Scope.LIBRARY)
-	public byte getSymbolCategory() {
-		if (mMask.get(SYMBOL_CATEGORY_SYMBOL)) {
-			return SYMBOL_CATEGORY_SYMBOL;
-		}
-
-		if (mMask.get(SYMBOL_CATEGORY_PUNCTUATION)) {
-			return SYMBOL_CATEGORY_PUNCTUATION;
-		}
-
-		return SYMBOL_CATEGORY_UNKNOWN;
-	}
-
-	@RestrictTo(RestrictTo.Scope.LIBRARY)
 	public boolean checkSymbolAttribute(int attribute) {
 		return mMask.get(Token.TYPE_SYMBOL) && mMask.get(attribute);
 	}
@@ -55,6 +25,11 @@ public class Token extends DefaultRecyclable {
 
 		int attributes = mMask.getRange(BIT_SYMBOL_TYPEFACE_START, BIT_SYMBOL_TYPEFACE_END);
 		return attributes != 0;
+	}
+
+	@RestrictTo(RestrictTo.Scope.LIBRARY)
+	public int getCategoryBits() {
+		return mMask.getRange(BIT_CATEGORY_START, BIT_CATEGORY_END);
 	}
 
 	@IntDef({SYMBOL_ATTRIBUTE_KINSOKU_AVOID_HEADER,
@@ -73,11 +48,8 @@ public class Token extends DefaultRecyclable {
 	// - 8...16 category
 	// - 16...31 attributes
 	// 31...32 direction
-	public static final byte TYPE_NONE = 0; /* 什么也不是 */
 
-	// 8...16 category
-	// 16...31 attributes
-
+	// bit field
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
 	public static final int BIT_TYPE_START = 0;
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -91,16 +63,31 @@ public class Token extends DefaultRecyclable {
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
 	public static final int BIT_ATTRIBUTES_END = 31;
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
-	public static final int BIT_DIRECTION = 31;
-	@RestrictTo(RestrictTo.Scope.LIBRARY)
 	public static final int BIT_SYMBOL_TYPEFACE_START = 18;
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
 	public static final int BIT_SYMBOL_TYPEFACE_END = 21;
 
+	// type
+	public static final byte TYPE_NONE = 0; /* 什么也不是 */
 	public static final byte TYPE_SYMBOL = 1; /* 符号+标点符号 */
+	public static final byte TYPE_CONTROL = 2; /* 空格、制表符等 */
+	public static final byte TYPE_WORD = 3; /* 单词 */
+
+	// category
+	@RestrictTo(RestrictTo.Scope.LIBRARY)
 	public static final byte SYMBOL_CATEGORY_SYMBOL = 8; /* 符号 */
+	@RestrictTo(RestrictTo.Scope.LIBRARY)
 	public static final byte SYMBOL_CATEGORY_PUNCTUATION = 9; /* 标点符号 */
-	public static final byte SYMBOL_CATEGORY_UNKNOWN = 10;
+	@RestrictTo(RestrictTo.Scope.LIBRARY)
+	public static final byte WORD_CATEGORY_UNKNOWN_LETTER = 8; /* 未知字符 */
+	@RestrictTo(RestrictTo.Scope.LIBRARY)
+	public static final byte WORD_CATEGORY_NORMAL = 9; /* 正常的单词 [a-z]... */
+	@RestrictTo(RestrictTo.Scope.LIBRARY)
+	public static final byte WORD_CATEGORY_NUMBER = 10; /* 数字 */
+	@RestrictTo(RestrictTo.Scope.LIBRARY)
+	public static final byte WORD_CATEGORY_CJK = 11; /* CJK */
+
+	// symbol attributes
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
 	public static final int SYMBOL_ATTRIBUTE_KINSOKU_AVOID_HEADER = 16;
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -114,15 +101,8 @@ public class Token extends DefaultRecyclable {
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
 	public static final int SYMBOL_ATTRIBUTE_STRETCH_RIGHT = 21;
 
-
-	public static final byte TYPE_CONTROL = 2; /* 空格、制表符等 */
-
-	public static final byte TYPE_WORD = 3; /* 单词 */
-	public static final byte WORD_CATEGORY_UNKNOWN_LETTER = 8; /* 未知字符 */
-	public static final byte WORD_CATEGORY_NORMAL = 9; /* 正常的单词 [a-z]... */
-	public static final byte WORD_CATEGORY_NUMBER = 10; /* 数字 */
-	public static final byte WORD_CATEGORY_CJK = 11; /* CJK */
-
+	// direction
+	@RestrictTo(RestrictTo.Scope.LIBRARY)
 	public static final byte DIRECTION_RTL = 31;
 
 	@IntDef({TYPE_NONE,
@@ -143,7 +123,7 @@ public class Token extends DefaultRecyclable {
 	}
 
 	public boolean isRtl() {
-		return mMask.get(BIT_DIRECTION);
+		return mMask.get(DIRECTION_RTL);
 	}
 
 	@TokenType
@@ -175,26 +155,6 @@ public class Token extends DefaultRecyclable {
 		return mEnd - mStart;
 	}
 
-	/**
-	 * if token is a word, return the category of the word {@link #WORD_CATEGORY_NORMAL}, {@link #WORD_CATEGORY_CJK}, {@link #WORD_CATEGORY_NUMBER}, {@link #WORD_CATEGORY_UNKNOWN_LETTER}
-	 * <p>
-	 * if token is a symbol, return the category of the symbol {@link #SYMBOL_CATEGORY_SYMBOL}, {@link #SYMBOL_CATEGORY_PUNCTUATION}
-	 *
-	 * @return the category of the token
-	 */
-	public byte getCategory() {
-		int type = getType();
-		if (type == TYPE_WORD) {
-			return getWordCategory();
-		}
-
-		if (type == TYPE_SYMBOL) {
-			return getSymbolCategory();
-		}
-
-		throw new IllegalStateException("unknown token category");
-	}
-
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
 	public String getSemantics() {
 		int type = getType();
@@ -211,20 +171,19 @@ public class Token extends DefaultRecyclable {
 		}
 
 		if (type == TYPE_WORD) {
-			byte category = getWordCategory();
-			if (category == WORD_CATEGORY_NORMAL) {
+			if (check(WORD_CATEGORY_NORMAL)) {
 				return "英文";
 			}
 
-			if (category == WORD_CATEGORY_CJK) {
+			if (check(WORD_CATEGORY_CJK)) {
 				return "CJK";
 			}
 
-			if (category == WORD_CATEGORY_NUMBER) {
+			if (check(WORD_CATEGORY_NUMBER)) {
 				return "数字";
 			}
 
-			if (category == WORD_CATEGORY_UNKNOWN_LETTER) {
+			if (check(WORD_CATEGORY_UNKNOWN_LETTER)) {
 				return "其它";
 			}
 
@@ -232,6 +191,11 @@ public class Token extends DefaultRecyclable {
 		}
 
 		return "未知";
+	}
+
+	@RestrictTo(RestrictTo.Scope.LIBRARY)
+	public boolean check(int index) {
+		return mMask.get(index);
 	}
 
 	private String getSymbolSemantics() {

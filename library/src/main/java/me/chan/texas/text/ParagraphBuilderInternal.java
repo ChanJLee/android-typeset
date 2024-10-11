@@ -220,14 +220,12 @@ class ParagraphBuilderInternal {
 		}
 	}
 
-	// TODO SUPPORT DIRECTION
 	private void appendWordToken(CharSequence text,
 								 Paragraph.Builder.SpanReader spanReader,
 								 Token token) {
-		int category = token.getWordCategory();
-		if (category == Token.WORD_CATEGORY_NORMAL) {
+		if (token.check(Token.WORD_CATEGORY_NORMAL)) {
 			appendAsciiWordToken(text, spanReader, token);
-		} else if (category == Token.WORD_CATEGORY_CJK) {
+		} else if (token.check(Token.WORD_CATEGORY_CJK)) {
 			appendCjkWordToken(text, spanReader, token);
 		} else {
 			appendWordTokenDirect(text, spanReader, token);
@@ -531,10 +529,6 @@ class ParagraphBuilderInternal {
 		return token != null && token.hasSymbolTypefaceAttributes();
 	}
 
-	private static int getWordCategorySafe(Token token) {
-		return token == null || token.getType() != Token.TYPE_WORD ? 0 : token.getWordCategory();
-	}
-
 	private static boolean checkSymbolTokenAttributeSafe(Token token,
 														 @Token.SymbolTokenAttribute int attr) {
 		return token != null && token.getType() == Token.TYPE_SYMBOL && token.checkSymbolAttribute(attr);
@@ -605,7 +599,7 @@ class ParagraphBuilderInternal {
 			// 其实就是不同文字类型之间分割
 			// 比如字母和数字之间加空格
 			// 否则就是可以断点
-			if (getWordCategorySafe(accepted) != getWordCategorySafe(current)) {
+			if (accepted.getCategoryBits() != current.getCategoryBits()) {
 				builder.appendElement(builder.mCommonGlue);
 			} else {
 				builder.appendElement(Penalty.ADVISE_BREAK);

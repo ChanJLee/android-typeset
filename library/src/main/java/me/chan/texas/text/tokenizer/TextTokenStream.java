@@ -66,7 +66,7 @@ class TextTokenStream extends DefaultRecyclable implements TokenStream {
 				mBits.clear();
 				mBits.set(Token.TYPE_WORD);
 				mBits.set(Token.WORD_CATEGORY_NUMBER);
-				mBits.set(Token.BIT_DIRECTION, mRtl);
+				mBits.set(Token.DIRECTION_RTL, mRtl);
 				addBrk(mBrk, mBits.getBits(), brk + start);
 				continue;
 			}
@@ -101,7 +101,7 @@ class TextTokenStream extends DefaultRecyclable implements TokenStream {
 			mBits.clear();
 			mBits.set(Token.TYPE_WORD);
 			mBits.set(Token.WORD_CATEGORY_NORMAL);
-			mBits.set(Token.BIT_DIRECTION, mRtl);
+			mBits.set(Token.DIRECTION_RTL, mRtl);
 			addBrk(brk, mBits.getBits(), end);
 			return;
 		}
@@ -115,7 +115,7 @@ class TextTokenStream extends DefaultRecyclable implements TokenStream {
 		mBits.clear();
 		mBits.set(Token.TYPE_WORD);
 		mBits.set(Token.WORD_CATEGORY_UNKNOWN_LETTER);
-		mBits.set(Token.BIT_DIRECTION, mRtl);
+		mBits.set(Token.DIRECTION_RTL, mRtl);
 		addBrk(brk, mBits.getBits(), end);
 	}
 
@@ -159,7 +159,7 @@ class TextTokenStream extends DefaultRecyclable implements TokenStream {
 		mBits.clear();
 		mBits.set(Token.TYPE_WORD);
 		mBits.set(Token.WORD_CATEGORY_UNKNOWN_LETTER);
-		mBits.set(Token.BIT_DIRECTION, mRtl);
+		mBits.set(Token.DIRECTION_RTL, mRtl);
 		addBrk(brk, mBits.getBits(), end);
 	}
 
@@ -167,7 +167,7 @@ class TextTokenStream extends DefaultRecyclable implements TokenStream {
 		mBits.clear();
 		mBits.reset(codePoint << Token.BIT_TYPE_END);
 		mBits.set(Token.TYPE_CONTROL);
-		mBits.set(Token.BIT_DIRECTION, mRtl);
+		mBits.set(Token.DIRECTION_RTL, mRtl);
 		addBrk(brk, mBits.getBits(), index);
 	}
 
@@ -176,7 +176,7 @@ class TextTokenStream extends DefaultRecyclable implements TokenStream {
 		mBits.set(Token.TYPE_SYMBOL);
 		mBits.set(category);
 		setupAdvise(mBits, type, codePoint);
-		mBits.set(Token.BIT_DIRECTION, mRtl);
+		mBits.set(Token.DIRECTION_RTL, mRtl);
 
 		addBrk(brk, mBits.getBits(), index);
 	}
@@ -199,7 +199,7 @@ class TextTokenStream extends DefaultRecyclable implements TokenStream {
 		mBits.clear();
 		mBits.set(Token.TYPE_WORD);
 		mBits.set(Token.WORD_CATEGORY_CJK);
-		mBits.set(Token.BIT_DIRECTION, mRtl);
+		mBits.set(Token.DIRECTION_RTL, mRtl);
 
 		addBrk(brk, mBits.getBits(), index);
 	}
