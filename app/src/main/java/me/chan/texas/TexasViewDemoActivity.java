@@ -1,4 +1,4 @@
-package me.chan.androidtex;
+package me.chan.texas;
 
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -22,7 +22,7 @@ import androidx.core.content.ContextCompat;
 
 import java.io.IOException;
 
-import me.chan.texas.Texas;
+import me.chan.androidtex.R;
 import me.chan.texas.adapter.TextAdapter;
 import me.chan.texas.renderer.ParagraphVisitor;
 import me.chan.texas.renderer.RenderOption;
@@ -46,11 +46,11 @@ public class TexasViewDemoActivity extends AppCompatActivity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_paragraph);
+		setContentView(me.chan.androidtex.R.layout.activity_paragraph);
 		mPaint.setColor(Color.RED);
 
 		// 设置整个渲染窗口的padding
-		mTexasView = findViewById(R.id.text);
+		mTexasView = findViewById(me.chan.androidtex.R.id.text);
 		mTexasView.setRendererPadding(30, 10, 30, 10);
 
 		// 设置 decor
@@ -173,7 +173,7 @@ public class TexasViewDemoActivity extends AppCompatActivity {
 	 * 高亮
 	 */
 	private void setupHighlight() {
-		findViewById(R.id.highlight).setOnClickListener(v ->
+		findViewById(me.chan.androidtex.R.id.highlight).setOnClickListener(v ->
 				mTexasView.highlightParagraphs((paragraphTag, spanTag) -> {
 					if (!"A9127P127017".equals(paragraphTag)) {
 						return false;
@@ -219,7 +219,7 @@ public class TexasViewDemoActivity extends AppCompatActivity {
 		// 调用完 然后经历 onLayoutDecor 让你去准备这一段落的 渲染信息，比如你探测到这段
 		// 有句子id是 A9127P126972S210390，我便在这个句子旁边画个🔥
 		// 最后会 onDrawDecor 让你去绘制🔥
-		final Drawable fireDrawable = ContextCompat.getDrawable(this, R.drawable.fire);
+		final Drawable fireDrawable = ContextCompat.getDrawable(this, me.chan.androidtex.R.drawable.fire);
 		ParagraphDecor paragraphDecor = new ParagraphDecor() {
 			private boolean mClicked = false;
 			private boolean mDraw = false;
@@ -295,7 +295,7 @@ public class TexasViewDemoActivity extends AppCompatActivity {
 	 * 就是滚动条
 	 */
 	private void setupScrollBar() {
-		Drawable drawable = ContextCompat.getDrawable(this, R.drawable.scrollbar_thumb_demo);
+		Drawable drawable = ContextCompat.getDrawable(this, me.chan.androidtex.R.drawable.scrollbar_thumb_demo);
 		mTexasView.setScrollBarDrawable(drawable);
 		Drawable target = mTexasView.getScrollBarDrawable();
 		if (drawable != target) {
@@ -314,14 +314,14 @@ public class TexasViewDemoActivity extends AppCompatActivity {
 	}
 
 	private void setupDebug() {
-		findViewById(R.id.scroll_content).setOnClickListener(new View.OnClickListener() {
+		findViewById(me.chan.androidtex.R.id.scroll_content).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				mTexasView.scrollToPosition(0);
 			}
 		});
 
-		findViewById(R.id.line_height).setOnClickListener(new View.OnClickListener() {
+		findViewById(me.chan.androidtex.R.id.line_height).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				RenderOption renderOption = mTexasView.createRendererOption();
@@ -331,7 +331,7 @@ public class TexasViewDemoActivity extends AppCompatActivity {
 			}
 		});
 
-		findViewById(R.id.debug).setOnClickListener(new View.OnClickListener() {
+		findViewById(me.chan.androidtex.R.id.debug).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				RenderOption renderOption = mTexasView.createRendererOption();
@@ -345,22 +345,22 @@ public class TexasViewDemoActivity extends AppCompatActivity {
 		renderOption.setDrawEmoticonSelection(false);
 		mTexasView.refresh(renderOption);
 
-		findViewById(R.id.gc).setOnClickListener(new View.OnClickListener() {
+		findViewById(me.chan.androidtex.R.id.gc).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				Texas.clean();
 			}
 		});
 
-		findViewById(R.id.refresh).setOnClickListener(new View.OnClickListener() {
+		findViewById(me.chan.androidtex.R.id.refresh).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				mTexasView.redraw();
 			}
 		});
 
-		final View container = findViewById(R.id.option_container);
-		findViewById(R.id.option).setOnClickListener(new View.OnClickListener() {
+		final View container = findViewById(me.chan.androidtex.R.id.option_container);
+		findViewById(me.chan.androidtex.R.id.option).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				if (container.getVisibility() == View.VISIBLE) {
@@ -371,76 +371,76 @@ public class TexasViewDemoActivity extends AppCompatActivity {
 			}
 		});
 
-		findViewById(R.id.button1).setOnClickListener(new View.OnClickListener() {
+		findViewById(me.chan.androidtex.R.id.button1).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				render("harry1.txt", mTexasView);
 			}
 		});
 
-		findViewById(R.id.button2).setOnClickListener(new View.OnClickListener() {
+		findViewById(me.chan.androidtex.R.id.button2).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				render("harry2.txt", mTexasView);
 			}
 		});
 
-		findViewById(R.id.button3).setOnClickListener(new View.OnClickListener() {
+		findViewById(me.chan.androidtex.R.id.button3).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				render("harry3.txt", mTexasView);
 			}
 		});
 
-		findViewById(R.id.button4).setOnClickListener(new View.OnClickListener() {
+		findViewById(me.chan.androidtex.R.id.button4).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				render("harry4.txt", mTexasView);
 			}
 		});
 
-		findViewById(R.id.button5).setOnClickListener(new View.OnClickListener() {
+		findViewById(me.chan.androidtex.R.id.button5).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				render("harry5.txt", mTexasView);
 			}
 		});
 
-		findViewById(R.id.button6).setOnClickListener(new View.OnClickListener() {
+		findViewById(me.chan.androidtex.R.id.button6).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				render("harry6.txt", mTexasView);
 			}
 		});
 
-		findViewById(R.id.button7).setOnClickListener(new View.OnClickListener() {
+		findViewById(me.chan.androidtex.R.id.button7).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				render("simple_txt.txt", mTexasView);
 			}
 		});
 
-		RadioGroup radioGroup = findViewById(R.id.radio_group);
+		RadioGroup radioGroup = findViewById(me.chan.androidtex.R.id.radio_group);
 		radioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
 			@Override
 			public void onCheckedChanged(RadioGroup group, int checkedId) {
 				RenderOption option = mTexasView.createRendererOption();
-				if (checkedId == R.id.text_size_9) {
+				if (checkedId == me.chan.androidtex.R.id.text_size_9) {
 					option.setTextSize(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 9, getResources().getDisplayMetrics()));
-				} else if (checkedId == R.id.text_size_18) {
+				} else if (checkedId == me.chan.androidtex.R.id.text_size_18) {
 					option.setTextSize(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 18, getResources().getDisplayMetrics()));
-				} else if (checkedId == R.id.text_size_27) {
+				} else if (checkedId == me.chan.androidtex.R.id.text_size_27) {
 					option.setTextSize(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 27, getResources().getDisplayMetrics()));
-				} else if (checkedId == R.id.text_size_45) {
+				} else if (checkedId == me.chan.androidtex.R.id.text_size_45) {
 					option.setTextSize(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 45, getResources().getDisplayMetrics()));
-				} else if (checkedId == R.id.text_size_72) {
+				} else if (checkedId == me.chan.androidtex.R.id.text_size_72) {
 					option.setTextSize(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 72, getResources().getDisplayMetrics()));
 				}
 				mTexasView.refresh(option);
 			}
 		});
 
-		CheckBox checkBox = findViewById(R.id.checkbox);
+		CheckBox checkBox = findViewById(me.chan.androidtex.R.id.checkbox);
 		checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
 			@Override
 			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {

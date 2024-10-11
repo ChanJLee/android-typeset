@@ -1,10 +1,11 @@
-package me.chan.androidtex;
+package me.chan.texas;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
 import android.view.View;
 
+import me.chan.androidtex.R;
 import me.chan.texas.renderer.ui.indicator.LoadingIndicator;
 
 public class LoadingIndicatorActivity extends AppCompatActivity {
@@ -12,9 +13,9 @@ public class LoadingIndicatorActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_loading_indicator);
+        setContentView(me.chan.androidtex.R.layout.activity_loading_indicator);
 
-        LoadingIndicator loadingIndicator = findViewById(R.id.indicator);
+        LoadingIndicator loadingIndicator = findViewById(me.chan.androidtex.R.id.indicator);
         View view = findViewById(R.id.button);
         view.setOnClickListener(new View.OnClickListener() {
             @Override
