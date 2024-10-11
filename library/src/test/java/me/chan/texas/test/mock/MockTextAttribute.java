@@ -1,4 +1,4 @@
-package com.shanbay.lib.texas.test.mock;
+package me.chan.texas.test.mock;
 
 import me.chan.texas.measurer.MockMeasurer;
 import me.chan.texas.text.TextAttribute;

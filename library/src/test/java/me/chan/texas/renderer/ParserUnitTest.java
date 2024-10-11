@@ -30,8 +30,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import com.shanbay.lib.texas.test.mock.MockTextAttribute;
-import com.shanbay.lib.texas.test.mock.MockTextPaint;
+import me.chan.texas.test.mock.MockTextAttribute;
+import me.chan.texas.test.mock.MockTextPaint;
 
 public class ParserUnitTest {
 

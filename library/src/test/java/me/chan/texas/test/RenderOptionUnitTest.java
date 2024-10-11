@@ -1,8 +1,8 @@
-package com.shanbay.lib.texas.test;
+package me.chan.texas.test;
 
 import android.graphics.Typeface;
 
-import com.shanbay.lib.texas.TestUtils;
+import me.chan.texas.TestUtils;
 import me.chan.texas.renderer.RenderOption;
 import me.chan.texas.text.BreakStrategy;
 import me.chan.texas.text.HyphenStrategy;

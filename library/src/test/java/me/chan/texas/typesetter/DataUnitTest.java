@@ -40,8 +40,8 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
-import com.shanbay.lib.texas.TestUtils;
-import com.shanbay.lib.texas.test.mock.MockTextPaint;
+import me.chan.texas.TestUtils;
+import me.chan.texas.test.mock.MockTextPaint;
 
 public class DataUnitTest {
 	private TextAttribute mTextAttribute;

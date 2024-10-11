@@ -1,6 +1,6 @@
 package me.chan.texas.di;
 
-import com.shanbay.lib.texas.test.mock.MockTextPaint;
+import me.chan.texas.test.mock.MockTextPaint;
 
 import me.chan.texas.measurer.MeasureFactory;
 import me.chan.texas.measurer.Measurer;
