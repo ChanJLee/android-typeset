@@ -2,6 +2,7 @@ package me.chan.texas.text.tokenizer;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.RestrictTo;
+import androidx.annotation.VisibleForTesting;
 
 import java.util.Objects;
 
@@ -74,7 +75,7 @@ public class Token extends DefaultRecyclable {
 	public static final byte TYPE_WORD = 3; /* 单词 */
 
 	// category
-	public static final byte SYMBOL_CATEGORY_SYMBOL = 8; /* 符号 */
+	public static final byte SYMBOL_CATEGORY_SYMBOL = 8; /* 符号 emoji */
 	public static final byte SYMBOL_CATEGORY_PUNCTUATION = 9; /* 标点符号 */
 	public static final byte WORD_CATEGORY_UNKNOWN_LETTER = 10; /* 未知字符 */
 	public static final byte WORD_CATEGORY_NORMAL = 11; /* 正常的单词 [a-z]... */
@@ -336,6 +337,7 @@ public class Token extends DefaultRecyclable {
 		return copy;
 	}
 
+	@VisibleForTesting
 	static int numberOfTrailingZeros(int i) {
 		// HD, Count trailing 0's
 		i = ~i & (i - 1);
