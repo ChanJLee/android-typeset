@@ -74,18 +74,13 @@ public class Token extends DefaultRecyclable {
 	public static final byte TYPE_WORD = 3; /* 单词 */
 
 	// category
-	@RestrictTo(RestrictTo.Scope.LIBRARY)
 	public static final byte SYMBOL_CATEGORY_SYMBOL = 8; /* 符号 */
-	@RestrictTo(RestrictTo.Scope.LIBRARY)
 	public static final byte SYMBOL_CATEGORY_PUNCTUATION = 9; /* 标点符号 */
-	@RestrictTo(RestrictTo.Scope.LIBRARY)
-	public static final byte WORD_CATEGORY_UNKNOWN_LETTER = 8; /* 未知字符 */
-	@RestrictTo(RestrictTo.Scope.LIBRARY)
-	public static final byte WORD_CATEGORY_NORMAL = 9; /* 正常的单词 [a-z]... */
-	@RestrictTo(RestrictTo.Scope.LIBRARY)
-	public static final byte WORD_CATEGORY_NUMBER = 10; /* 数字 */
-	@RestrictTo(RestrictTo.Scope.LIBRARY)
-	public static final byte WORD_CATEGORY_CJK = 11; /* CJK */
+	public static final byte WORD_CATEGORY_UNKNOWN_LETTER = 10; /* 未知字符 */
+	public static final byte WORD_CATEGORY_NORMAL = 11; /* 正常的单词 [a-z]... */
+	public static final byte WORD_CATEGORY_NUMBER = 12; /* 数字 */
+	public static final byte WORD_CATEGORY_CJK = 13; /* CJK */
+	public static final byte CATEGORY_UNKNOWN = 14; /* 未知分类 */
 
 	// symbol attributes
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -113,6 +108,17 @@ public class Token extends DefaultRecyclable {
 
 	}
 
+	@IntDef({CATEGORY_UNKNOWN,
+			SYMBOL_CATEGORY_SYMBOL,
+			SYMBOL_CATEGORY_PUNCTUATION,
+			WORD_CATEGORY_UNKNOWN_LETTER,
+			WORD_CATEGORY_NORMAL,
+			WORD_CATEGORY_NUMBER,
+			WORD_CATEGORY_CJK})
+	public @interface CategoryType {
+
+	}
+
 	CharSequence mCharSequence;
 	int mStart;
 	int mEnd;
@@ -128,15 +134,20 @@ public class Token extends DefaultRecyclable {
 
 	@TokenType
 	public byte getType() {
-		if (mMask.get(TYPE_WORD)) {
-			return TYPE_WORD;
+		int v = mMask.getRange(BIT_TYPE_START, BIT_TYPE_END);
+		if (v == 0) {
+			return TYPE_NONE;
 		}
+		return (byte) numberOfTrailingZeros(v << BIT_TYPE_START);
+	}
 
-		if (mMask.get(TYPE_CONTROL)) {
-			return TYPE_CONTROL;
+	@CategoryType
+	public byte getCategory() {
+		int v = mMask.getRange(BIT_CATEGORY_START, BIT_CATEGORY_END);
+		if (v == 0) {
+			return CATEGORY_UNKNOWN;
 		}
-
-		return mMask.get(TYPE_SYMBOL) ? TYPE_SYMBOL : TYPE_NONE;
+		return (byte) numberOfTrailingZeros(v << BIT_CATEGORY_START);
 	}
 
 	public CharSequence getCharSequence() {
@@ -171,19 +182,20 @@ public class Token extends DefaultRecyclable {
 		}
 
 		if (type == TYPE_WORD) {
-			if (check(WORD_CATEGORY_NORMAL)) {
+			int category = getCategory();
+			if (category == WORD_CATEGORY_NORMAL) {
 				return "英文";
 			}
 
-			if (check(WORD_CATEGORY_CJK)) {
+			if (category == WORD_CATEGORY_CJK) {
 				return "CJK";
 			}
 
-			if (check(WORD_CATEGORY_NUMBER)) {
+			if (category == WORD_CATEGORY_NUMBER) {
 				return "数字";
 			}
 
-			if (check(WORD_CATEGORY_UNKNOWN_LETTER)) {
+			if (category == WORD_CATEGORY_UNKNOWN_LETTER) {
 				return "其它";
 			}
 
@@ -322,5 +334,29 @@ public class Token extends DefaultRecyclable {
 		copy.mStart = other.mStart;
 		copy.mEnd = other.mEnd;
 		return copy;
+	}
+
+	static int numberOfTrailingZeros(int i) {
+		// HD, Count trailing 0's
+		i = ~i & (i - 1);
+		if (i <= 0) return i & 32;
+		int n = 1;
+		if (i > 1 << 16) {
+			n += 16;
+			i >>>= 16;
+		}
+		if (i > 1 << 8) {
+			n += 8;
+			i >>>= 8;
+		}
+		if (i > 1 << 4) {
+			n += 4;
+			i >>>= 4;
+		}
+		if (i > 1 << 2) {
+			n += 2;
+			i >>>= 2;
+		}
+		return n + (i >>> 1);
 	}
 }

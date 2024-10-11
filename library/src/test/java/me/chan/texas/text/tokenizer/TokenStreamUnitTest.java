@@ -35,7 +35,71 @@ public class TokenStreamUnitTest {
 			System.out.println(token.toString());
 			if (token.getType() == Token.TYPE_WORD) {
 				Assert.assertEquals(values[index++], token.mCharSequence.subSequence(token.mStart, token.mEnd));
+				Assert.assertEquals(Token.WORD_CATEGORY_NORMAL, token.getCategory());
+			} else if (token.getType() == Token.TYPE_SYMBOL) {
+				Assert.assertEquals(Token.SYMBOL_CATEGORY_PUNCTUATION, token.getCategory());
 			}
+		}
+	}
+
+	@Test
+	public void testCategory() {
+		String msg = "你好";
+		System.out.println(msg.length() + " " + msg.codePointCount(0, msg.length()));
+		TokenStream reader = TokenStream.obtain(msg, 0, msg.length());
+		while (reader.hasNext()) {
+			Token token = reader.next();
+			Assert.assertEquals(Token.WORD_CATEGORY_CJK, token.getCategory());
+			Assert.assertEquals(Token.TYPE_WORD, token.getType());
+		}
+	}
+
+	@Test
+	public void testCategory2() {
+		String msg = "19";
+		System.out.println(msg.length() + " " + msg.codePointCount(0, msg.length()));
+		TokenStream reader = TokenStream.obtain(msg, 0, msg.length());
+		while (reader.hasNext()) {
+			Token token = reader.next();
+			Assert.assertEquals(Token.WORD_CATEGORY_NUMBER, token.getCategory());
+			Assert.assertEquals(Token.TYPE_WORD, token.getType());
+		}
+	}
+
+	@Test
+	public void testCategory3() {
+		String msg = "✈️";
+		System.out.println(msg.length() + " " + msg.codePointCount(0, msg.length()));
+		TokenStream reader = TokenStream.obtain(msg, 0, msg.length());
+		while (reader.hasNext()) {
+			Token token = reader.next();
+			Assert.assertEquals(Token.SYMBOL_CATEGORY_SYMBOL, token.getCategory());
+			Assert.assertEquals(Token.TYPE_SYMBOL, token.getType());
+		}
+	}
+
+	@Test
+	public void testCategory4() {
+		String msg = "$";
+		System.out.println(msg.length() + " " + msg.codePointCount(0, msg.length()));
+		TokenStream reader = TokenStream.obtain(msg, 0, msg.length());
+		while (reader.hasNext()) {
+			Token token = reader.next();
+			Assert.assertEquals(Token.SYMBOL_CATEGORY_SYMBOL, token.getCategory());
+			Assert.assertEquals(Token.TYPE_SYMBOL, token.getType());
+		}
+	}
+
+
+	@Test
+	public void testCategory5() {
+		String msg = "ضروري";
+		System.out.println(msg);
+		TokenStream reader = TokenStream.obtain(msg, 0, msg.length());
+		while (reader.hasNext()) {
+			Token token = reader.next();
+			Assert.assertEquals(Token.WORD_CATEGORY_UNKNOWN_LETTER, token.getCategory());
+			Assert.assertEquals(Token.TYPE_WORD, token.getType());
 		}
 	}
 
@@ -136,5 +200,15 @@ public class TokenStreamUnitTest {
 				}
 			}
 		}
+	}
+
+	@Test
+	public void testTail() {
+		Assert.assertEquals(32, Token.numberOfTrailingZeros(0));
+		Assert.assertEquals(0, Token.numberOfTrailingZeros(1));
+		Assert.assertEquals(1, Token.numberOfTrailingZeros(2));
+		Assert.assertEquals(0, Token.numberOfTrailingZeros(3));
+		Assert.assertEquals(2, Token.numberOfTrailingZeros(4));
+		Assert.assertEquals(0, Token.numberOfTrailingZeros(5));
 	}
 }
