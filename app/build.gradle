@@ -10,7 +10,7 @@ ext {
 android {
     compileSdkVersion 34
     defaultConfig {
-        applicationId "me.chan.androidtex"
+        applicationId "me.chan.texas.debug"
         minSdkVersion 23
         targetSdkVersion 34
         versionCode 1

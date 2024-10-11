@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<me.chan.androidtex.MyLinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<me.chan.texas.MyLinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".SingleParagraphActivity">
+    tools:context="me.chan.texas.SingleParagraphActivity">
 
-    <me.chan.androidtex.MyButton
+    <me.chan.texas.MyButton
         android:id="@+id/increase_padding"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -58,10 +58,10 @@
                 android:text="hello"
                 android:textSize="20dp" />
 
-            <me.chan.androidtex.TestView
+            <me.chan.texas.TestView
                 android:id="@+id/test_view"
                 android:layout_width="match_parent"
                 android:layout_height="100dp" />
         </LinearLayout>
     </ScrollView>
-</me.chan.androidtex.MyLinearLayout>
+</me.chan.texas.MyLinearLayout>

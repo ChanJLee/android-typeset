@@ -1,4 +1,4 @@
-package me.chan.androidtex;
+package me.chan.texas;
 
 import android.Manifest;
 import android.content.Intent;
@@ -28,7 +28,7 @@ public class MainActivity extends AppCompatActivity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_main);
+		setContentView(me.chan.texas.debug.R.layout.activity_main);
 
 		ActivityCompat.requestPermissions(this, new String[]{
 				Manifest.permission.INTERNET,
@@ -36,7 +36,7 @@ public class MainActivity extends AppCompatActivity {
 				Manifest.permission.READ_EXTERNAL_STORAGE,
 		}, 1);
 
-		Log.d("chan_debug", ContextCompat.getDrawable(this, R.drawable.me_chan_te_bg_foot) + "");
+		Log.d("chan_debug", ContextCompat.getDrawable(this, me.chan.texas.debug.R.drawable.me_chan_te_bg_foot) + "");
 
 		final TextPaint textPaint = new TextPaint();
 		TexasUtils.setupTextPaint(textPaint);
@@ -49,7 +49,7 @@ public class MainActivity extends AppCompatActivity {
 
 		WorkerScheduler.render().setStatsEnable(true);
 
-		findViewById(R.id.button2).setOnClickListener(new View.OnClickListener() {
+		findViewById(me.chan.texas.debug.R.id.button2).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				Intent intent = new Intent(v.getContext(), TexasViewDemoActivity.class);
@@ -57,7 +57,7 @@ public class MainActivity extends AppCompatActivity {
 			}
 		});
 
-		findViewById(R.id.button3).setOnClickListener(new View.OnClickListener() {
+		findViewById(me.chan.texas.debug.R.id.button3).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				Intent intent = new Intent(v.getContext(), SingleParagraphActivity.class);
@@ -65,7 +65,7 @@ public class MainActivity extends AppCompatActivity {
 			}
 		});
 
-		findViewById(R.id.alloc_picture).setOnClickListener(new View.OnClickListener() {
+		findViewById(me.chan.texas.debug.R.id.alloc_picture).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				String msg = "Hello World".intern();
@@ -81,7 +81,7 @@ public class MainActivity extends AppCompatActivity {
 			}
 		});
 
-		findViewById(R.id.free_picture).setOnClickListener(new View.OnClickListener() {
+		findViewById(me.chan.texas.debug.R.id.free_picture).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				for (TexturePicture picture : mPictures) {
@@ -91,7 +91,7 @@ public class MainActivity extends AppCompatActivity {
 			}
 		});
 
-		findViewById(R.id.paragraph_view_demo).setOnClickListener(new View.OnClickListener() {
+		findViewById(me.chan.texas.debug.R.id.paragraph_view_demo).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				Intent intent = new Intent(v.getContext(), ParagraphViewDemoActivity.class);
@@ -99,7 +99,7 @@ public class MainActivity extends AppCompatActivity {
 			}
 		});
 
-		findViewById(R.id.indicator).setOnClickListener(new View.OnClickListener() {
+		findViewById(me.chan.texas.debug.R.id.indicator).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				Intent intent = new Intent(v.getContext(), LoadingIndicatorActivity.class);
