@@ -1,4 +1,4 @@
-package me.chan.androidtex;
+package me.chan.texas;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -13,6 +13,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import me.chan.androidtex.R;
 import me.chan.texas.TexasOption;
 import me.chan.texas.renderer.ui.text.ParagraphView;
 import me.chan.texas.source.SourceCloseException;
@@ -26,9 +27,9 @@ public class ParagraphViewDemoActivity extends AppCompatActivity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_paragraph_view_demo);
+		setContentView(me.chan.androidtex.R.layout.activity_paragraph_view_demo);
 
-		RecyclerView recyclerView = findViewById(R.id.recycler_view);
+		RecyclerView recyclerView = findViewById(me.chan.androidtex.R.id.recycler_view);
 		List<ParagraphView.ParagraphSource> sources = new ArrayList<>();
 
 		sources.add(new MySource("1 Mr. and Mrs. Dursley, of number four, Privet Drive, were proud to say that they were perfectly normal, thank you very much. They were the last people you'd expect to be involved in anything strange or mysterious, because they just didn't hold with such nonsense.\n"));
@@ -90,7 +91,7 @@ public class ParagraphViewDemoActivity extends AppCompatActivity {
 		@NonNull
 		@Override
 		public MyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-			return new MyViewHolder(mLayoutInflater.inflate(R.layout.item_paragraph_view, parent, false));
+			return new MyViewHolder(mLayoutInflater.inflate(me.chan.androidtex.R.layout.item_paragraph_view, parent, false));
 		}
 
 		@Override
@@ -115,7 +116,7 @@ public class ParagraphViewDemoActivity extends AppCompatActivity {
 		public MyViewHolder(@NonNull View itemView) {
 			super(itemView);
 
-			mParagraphView = itemView.findViewById(R.id.paragraph);
+			mParagraphView = itemView.findViewById(me.chan.androidtex.R.id.paragraph);
 			mLabel = itemView.findViewById(R.id.label);
 		}
 	}

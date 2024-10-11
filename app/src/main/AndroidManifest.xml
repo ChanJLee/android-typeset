@@ -3,7 +3,7 @@
     package="me.chan.androidtex">
 
     <application
-        android:name=".MyApplication"
+        android:name="me.chan.texas.MyApplication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -11,17 +11,17 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".LoadingIndicatorActivity"
+            android:name="me.chan.texas.LoadingIndicatorActivity"
             android:exported="false" />
         <activity
-            android:name=".ParagraphViewDemoActivity"
+            android:name="me.chan.texas.ParagraphViewDemoActivity"
             android:exported="false" />
         <activity
-            android:name=".SingleParagraphActivity"
+            android:name="me.chan.texas.SingleParagraphActivity"
             android:exported="false" />
-        <activity android:name=".TexasViewDemoActivity" />
+        <activity android:name="me.chan.texas.TexasViewDemoActivity" />
         <activity
-            android:name=".MainActivity"
+            android:name="me.chan.texas.MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
