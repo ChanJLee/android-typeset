@@ -14,7 +14,7 @@ import com.shanbay.lib.texas.test.mock.MockTextPaint;
 import me.chan.texas.measurer.Measurer;
 import me.chan.texas.measurer.MockMeasurer;
 import me.chan.texas.text.Appearance;
-import me.chan.texas.text.TypesetContext;
+import me.chan.texas.renderer.RendererContext;
 import me.chan.texas.text.TextAttribute;
 import me.chan.texas.text.TextStyle;
 
@@ -42,13 +42,13 @@ public class TextBoxUnitTest {
 
 		mBg = new Appearance() {
 			@Override
-			public void draw(Canvas canvas, Paint textPaint, RectF inner, RectF outer, TypesetContext context) {
+			public void draw(Canvas canvas, Paint textPaint, RectF inner, RectF outer, RendererContext context) {
 
 			}
 		};
 		mFg = new Appearance() {
 			@Override
-			public void draw(Canvas canvas, Paint textPaint, RectF inner, RectF outer, TypesetContext context) {
+			public void draw(Canvas canvas, Paint textPaint, RectF inner, RectF outer, RendererContext context) {
 
 			}
 		};
@@ -90,13 +90,13 @@ public class TextBoxUnitTest {
 		// test obtain after recycle
 		Appearance bg = new Appearance() {
 			@Override
-			public void draw(Canvas canvas, Paint textPaint, RectF inner, RectF outer, TypesetContext context) {
+			public void draw(Canvas canvas, Paint textPaint, RectF inner, RectF outer, RendererContext context) {
 
 			}
 		};
 		Appearance fg = new Appearance() {
 			@Override
-			public void draw(Canvas canvas, Paint textPaint, RectF inner, RectF outer, TypesetContext context) {
+			public void draw(Canvas canvas, Paint textPaint, RectF inner, RectF outer, RendererContext context) {
 
 			}
 		};
@@ -335,13 +335,13 @@ public class TextBoxUnitTest {
 		// test obtain after recycle
 		Appearance bg = new Appearance() {
 			@Override
-			public void draw(Canvas canvas, Paint textPaint, RectF inner, RectF outer, TypesetContext context) {
+			public void draw(Canvas canvas, Paint textPaint, RectF inner, RectF outer, RendererContext context) {
 
 			}
 		};
 		Appearance fg = new Appearance() {
 			@Override
-			public void draw(Canvas canvas, Paint textPaint, RectF inner, RectF outer, TypesetContext context) {
+			public void draw(Canvas canvas, Paint textPaint, RectF inner, RectF outer, RendererContext context) {
 
 			}
 		};

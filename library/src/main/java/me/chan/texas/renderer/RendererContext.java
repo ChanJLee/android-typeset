@@ -1,4 +1,4 @@
-package me.chan.texas.text;
+package me.chan.texas.renderer;
 
 import android.graphics.RectF;
 
@@ -6,18 +6,19 @@ import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 
+import me.chan.texas.annotations.Idempotent;
 import me.chan.texas.text.layout.Box;
 
-public class TypesetContext {
+public final class RendererContext {
 
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
-	public BoxMetaInfo currentBoxMetaInfo = new BoxMetaInfo();
+	BoxMetaInfo currentBoxMetaInfo = new BoxMetaInfo();
 
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
-	public BoxMetaInfo prevBoxMetaInfo = new BoxMetaInfo();
+	BoxMetaInfo prevBoxMetaInfo = new BoxMetaInfo();
 
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
-	public BoxMetaInfo nextBoxMetaInfo = new BoxMetaInfo();
+	BoxMetaInfo nextBoxMetaInfo = new BoxMetaInfo();
 
 	/**
 	 * @return 获得当前元素的tag

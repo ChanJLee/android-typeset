@@ -167,7 +167,6 @@ public class Renderer implements SelectionManager.Listener {
 
 		// highlight
 		mHighlightManager = new HighlightManager(mAdapter);
-		mAdapter.setHighlightManager(mHighlightManager);
 
 		// adapter
 		mImpl.setAdapter(mAdapter);
@@ -287,7 +286,7 @@ public class Renderer implements SelectionManager.Listener {
 		mImpl.scrollToPosition(position, smooth, offset);
 	}
 
-	public void highlightParagraphs(SpanPredicate predicate, boolean scrollTo, int offset) {
+	public void highlightParagraphs(TexasView.HighlightPredicate predicate, boolean scrollTo, int offset) {
 		Highlight area = mHighlightManager.highlightParagraphs(predicate);
 		if (area == null || area.isEmpty()) {
 			return;
@@ -466,7 +465,7 @@ public class Renderer implements SelectionManager.Listener {
 		return mRenderOption;
 	}
 
-	public Selection selectParagraphs(SpanPredicate predicate) {
+	public Selection selectParagraphs(TexasView.SelectionPredicate predicate) {
 		return mSelectionManager.selectParagraphs(predicate);
 	}
 

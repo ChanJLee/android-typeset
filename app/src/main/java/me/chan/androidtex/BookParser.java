@@ -19,7 +19,7 @@ import me.chan.texas.adapter.ParseException;
 import me.chan.texas.renderer.TexasView;
 import me.chan.texas.text.Appearance;
 import me.chan.texas.text.RectGround;
-import me.chan.texas.text.TypesetContext;
+import me.chan.texas.renderer.RendererContext;
 import me.chan.texas.text.Emoticon;
 import me.chan.texas.text.Figure;
 import me.chan.texas.text.Paragraph;
@@ -369,7 +369,7 @@ public class BookParser extends TexasView.Adapter<CharSequence> {
 					};
 
 					@Override
-					public void draw(Canvas canvas, Paint paint, RectF inner, RectF outer, TypesetContext context) {
+					public void draw(Canvas canvas, Paint paint, RectF inner, RectF outer, RendererContext context) {
 						paint.setColor(Color.GREEN);
 
 						// 独立的单元，左右都要有圆角

@@ -4,7 +4,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 
 import me.chan.texas.renderer.ParagraphVisitor;
-import me.chan.texas.renderer.SpanPredicate;
+import me.chan.texas.renderer.TexasView;
 import me.chan.texas.renderer.highlight.visitor.HighlightParagraphVisitor;
 import me.chan.texas.renderer.ui.RendererAdapter;
 import me.chan.texas.text.Document;
@@ -31,12 +31,7 @@ public class HighlightManager {
 		}
 	}
 
-	@Nullable
-	public ParagraphHighlight getParagraphHighlight(Paragraph paragraph) {
-		return mHighlight == null ? null : mHighlight.getParagraphHighlight(paragraph);
-	}
-
-	public Highlight highlightParagraphs(SpanPredicate predicate) {
+	public Highlight highlightParagraphs(TexasView.HighlightPredicate predicate) {
 		Document document = mAdapter.getDocument();
 		if (document == null) {
 			return null;
@@ -77,16 +72,16 @@ public class HighlightManager {
 		mHighlight.add(paragraph, paragraphHighlight);
 
 		try {
-			mAdapter.notifyItemChanged(index);
+			mAdapter.sendSignal(index, RendererAdapter.SIG_HIGHLIGHT_CHANGED);
 		} catch (Throwable ignore) {
 			/* do nothing */
 		}
 	}
 
-	private ParagraphHighlight highlightParagraph(Paragraph paragraph, SpanPredicate predicate) {
+	private ParagraphHighlight highlightParagraph(Paragraph paragraph, TexasView.HighlightPredicate predicate) {
 		try {
-			mHighlightParagraphVisitor.setParams(paragraph, predicate);
-			mHighlightParagraphVisitor.visit(paragraph, mAdapter.getRenderOption());
+			mHighlightParagraphVisitor.setParams(predicate);
+			mHighlightParagraphVisitor.visit(paragraph);
 			return mHighlightParagraphVisitor.getParagraphHighlight();
 		} catch (ParagraphVisitor.VisitException ignore) {
 			/* do nothing */
