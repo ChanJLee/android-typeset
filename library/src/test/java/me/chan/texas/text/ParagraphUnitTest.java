@@ -764,6 +764,20 @@ public class ParagraphUnitTest {
 			paragraph = builder.build();
 			checkContent(paragraph, "\"", Penalty.ADVISE_BREAK, "😜", Penalty.ADVISE_BREAK, "😜", Glue.TERMINAL, Penalty.FORCE_BREAK);
 		}
+
+		{
+			String msg = "……";
+			Paragraph.Builder builder = Paragraph.Builder.newBuilder(texasOption);
+			builder.text(msg);
+			builder.stream(msg, new Paragraph.Builder.SpanReader() {
+				@Override
+				public Paragraph.Span read(CharSequence text, int start, int end) {
+					return Paragraph.Span.obtain(text, start, end);
+				}
+			});
+			Paragraph paragraph = builder.build();
+			checkContent(paragraph, "》", SymbolGlue.class, "😜", Penalty.ADVISE_BREAK, "😜", Glue.TERMINAL, Penalty.FORCE_BREAK);
+		}
 	}
 
 	@Test
