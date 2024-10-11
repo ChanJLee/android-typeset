@@ -41,8 +41,8 @@ public class SelectionDragView extends View {
 	private final RectF mFocusPoint = new RectF();
 	private final RectF mUnFocusPoint = new RectF();
 
-	private float mLastTouchPoint[] = {0, 0};
-	private float mTouchPoint[] = {0, 0};
+	private final float[] mLastTouchPoint = {0, 0};
+	private final float[] mTouchPoint = {0, 0};
 	private float mTouchSlopThresholdSquare;
 	private final LongPressMotionDispatcher mLongPressMotionDispatcher;
 	private final Region mMotionRegion = new Region();
@@ -75,7 +75,7 @@ public class SelectionDragView extends View {
 	private static final int HALF_OF_DROPPER_SIZE = 50;
 
 	@Override
-	protected void onDraw(Canvas canvas) {
+	protected void onDraw(@NonNull Canvas canvas) {
 		// 手指中心
 		if (mTouchPoint[0] >= 0 || mTouchPoint[1] >= 0) {
 			canvas.drawCircle(mTouchPoint[0], mTouchPoint[1], 10, mPaint);
@@ -125,6 +125,7 @@ public class SelectionDragView extends View {
 
 	private boolean mHandleDownEvent = false;
 
+	@SuppressLint("ClickableViewAccessibility")
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
 		int action = event.getAction();

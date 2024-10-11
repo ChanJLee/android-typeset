@@ -234,11 +234,23 @@ public class PrimitiveUnitTest {
 
 		// multi line
 		System.out.println(">>>>> tex cn");
-		Paragraph.Builder builder = Paragraph.Builder.newBuilder(texasOption, Paragraph.TYPESET_POLICY_CJK_OPTIMIZATION);
+		Paragraph.Builder builder = Paragraph.Builder.newBuilder(texasOption, Paragraph.TYPESET_POLICY_DEFAULT);
 		builder.newSpanBuilder()
 				.next("一二三，四五，")
 				.buildSpan();
 		Paragraph paragraph = builder.build();
+		checkContent(paragraph, 12, BreakStrategy.BALANCED,
+				"一 二 三， 四",
+				"五，"
+		);
+
+		System.out.println(">>>>> tex cn2");
+		builder = Paragraph.Builder.newBuilder(texasOption)
+				.clearTypesetPolicy();
+		builder.newSpanBuilder()
+				.next("一二三，四五，")
+				.buildSpan();
+		paragraph = builder.build();
 		checkContent(paragraph, 12, BreakStrategy.BALANCED,
 				"一 二 三， 四",
 				"五，"
@@ -265,9 +277,8 @@ public class PrimitiveUnitTest {
 		}
 
 		BoundCheckDrawer boundCheckDrawer = new BoundCheckDrawer(width, true);
-		RenderOption renderOption = new RenderOption();
 		try {
-			boundCheckDrawer.visit(paragraph, renderOption);
+			boundCheckDrawer.visit(paragraph);
 		} catch (Throwable e) {
 			e.printStackTrace();
 		}

@@ -9,7 +9,7 @@ import android.graphics.Rect;
 import android.graphics.RectF;
 import android.util.Log;
 
-import androidx.annotation.Nullable;
+import androidx.annotation.NonNull;
 
 import com.shanbay.lib.texas.test.mock.MockTextPaint;
 
@@ -24,7 +24,6 @@ import me.chan.texas.renderer.core.worker.LoadingWorker;
 import me.chan.texas.source.ObjectSource;
 import me.chan.texas.source.SourceCloseException;
 import me.chan.texas.source.SourceOpenException;
-import me.chan.texas.text.TypesetContext;
 import me.chan.texas.text.layout.Box;
 import me.chan.texas.text.BreakStrategy;
 import me.chan.texas.text.Document;
@@ -118,7 +117,7 @@ public class TypesetterUnitTest {
 				"555565"
 		});
 
-		checkContentPredication("一二三四五六七八九", BreakStrategy.SIMPLE, 5, 1, Paragraph.TYPESET_POLICY_CJK_OPTIMIZATION, new String[]{
+		checkContentPredication("一二三四五六七八九", BreakStrategy.SIMPLE, 5, 1, Paragraph.TYPESET_POLICY_DEFAULT, new String[]{
 				"一 二 三 四 五",
 				"六 七 八 九"
 		});
@@ -146,7 +145,7 @@ public class TypesetterUnitTest {
 				"555565"
 		});
 
-		checkContentPredication("一二三四五六七八九", BreakStrategy.BALANCED, 5, 1, Paragraph.TYPESET_POLICY_CJK_OPTIMIZATION, new String[]{
+		checkContentPredication("一二三四五六七八九", BreakStrategy.BALANCED, 5, 1, Paragraph.TYPESET_POLICY_DEFAULT, new String[]{
 				"一 二 三 四 五",
 				"六 七 八 九"
 		});
@@ -155,7 +154,7 @@ public class TypesetterUnitTest {
 
 	@Test
 	public void testParagraphVisit() throws SourceCloseException, SourceOpenException, ParseException, NoSuchFieldException, InterruptedException, IllegalAccessException, ParagraphVisitor.VisitException {
-		Paragraph paragraph = checkContentPredication("一二三四五六七八九一二三四", BreakStrategy.BALANCED, 5, 1, Paragraph.TYPESET_POLICY_CJK_OPTIMIZATION, new String[]{
+		Paragraph paragraph = checkContentPredication("一二三四五六七八九一二三四", BreakStrategy.BALANCED, 5, 1, Paragraph.TYPESET_POLICY_DEFAULT, new String[]{
 				"一 二 三 四 五",
 				"六 七 八 九 一",
 				"二 三 四"
@@ -183,10 +182,10 @@ public class TypesetterUnitTest {
 			}
 
 			@Override
-			protected void onVisitBox(Box box, RectF inner, RectF outer, @Nullable TypesetContext context) {
+			protected void onVisitBox(Box box, RectF inner, RectF outer, @NonNull RendererContext context) {
 
 			}
-		}.visit(paragraph, new RenderOption());
+		}.visit(paragraph);
 		AtomicInteger integer = new AtomicInteger(0);
 		new ParagraphVisitor() {
 			@Override
@@ -209,10 +208,10 @@ public class TypesetterUnitTest {
 			}
 
 			@Override
-			protected void onVisitBox(Box box, RectF inner, RectF outer, @Nullable TypesetContext context) {
+			protected void onVisitBox(Box box, RectF inner, RectF outer, @NonNull RendererContext context) {
 
 			}
-		}.visit(paragraph, new RenderOption());
+		}.visit(paragraph);
 		Assert.assertEquals(3, integer.get());
 
 		integer.set(0);
@@ -240,12 +239,12 @@ public class TypesetterUnitTest {
 			}
 
 			@Override
-			protected void onVisitBox(Box box, RectF inner, RectF outer, @Nullable TypesetContext context) {
+			protected void onVisitBox(Box box, RectF inner, RectF outer, @NonNull RendererContext context) {
 				if (integer.get() == 2) {
 					Assert.fail("test stop line visit failed");
 				}
 			}
-		}.visit(paragraph, new RenderOption());
+		}.visit(paragraph);
 		Assert.assertEquals(3, integer.get());
 
 		integer.set(0);
@@ -273,12 +272,12 @@ public class TypesetterUnitTest {
 			}
 
 			@Override
-			protected void onVisitBox(Box box, RectF inner, RectF outer, @Nullable TypesetContext context) {
+			protected void onVisitBox(Box box, RectF inner, RectF outer, @NonNull RendererContext context) {
 				if (integer.get() > 2) {
 					Assert.fail("test stop line visit failed");
 				}
 			}
-		}.visit(paragraph, new RenderOption());
+		}.visit(paragraph);
 		Assert.assertEquals(2, integer.get());
 
 		integer.set(0);
@@ -304,11 +303,11 @@ public class TypesetterUnitTest {
 			}
 
 			@Override
-			protected void onVisitBox(Box box, RectF inner, RectF outer, @Nullable TypesetContext context) {
+			protected void onVisitBox(Box box, RectF inner, RectF outer, @NonNull RendererContext context) {
 				sendVisitSig(ParagraphVisitor.SIG_STOP_PARA_VISIT);
 				tagCount.incrementAndGet();
 			}
-		}.visit(paragraph, new RenderOption());
+		}.visit(paragraph);
 		Assert.assertEquals(1, integer.get());
 		Assert.assertEquals(1, tagCount.get());
 
@@ -335,11 +334,11 @@ public class TypesetterUnitTest {
 			}
 
 			@Override
-			protected void onVisitBox(Box box, RectF inner, RectF outer, @Nullable TypesetContext context) {
+			protected void onVisitBox(Box box, RectF inner, RectF outer, @NonNull RendererContext context) {
 				sendVisitSig(ParagraphVisitor.SIG_STOP_LINE_VISIT);
 				tagCount.incrementAndGet();
 			}
-		}.visit(paragraph, new RenderOption());
+		}.visit(paragraph);
 		Assert.assertEquals(3, integer.get());
 		Assert.assertEquals(3, tagCount.get());
 	}
@@ -446,7 +445,7 @@ public class TypesetterUnitTest {
 
 		BoundCheckDrawer drawer = new BoundCheckDrawer(lineWidth);
 		try {
-			drawer.visit(paragraph, renderOption);
+			drawer.visit(paragraph);
 		} catch (ParagraphVisitor.VisitException e) {
 			Assert.fail("fuck");
 		}
@@ -510,7 +509,7 @@ public class TypesetterUnitTest {
 
 			BoundCheckDrawer drawer = new BoundCheckDrawer(lineWidth);
 			try {
-				drawer.visit(paragraph, renderOption);
+				drawer.visit(paragraph);
 			} catch (ParagraphVisitor.VisitException e) {
 				Assert.fail("fuck");
 			}

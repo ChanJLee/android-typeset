@@ -785,7 +785,7 @@ public class ParagraphUnitTest {
 			builder = Paragraph.Builder.newBuilder(texasOption);
 			builder.text("yes ?");
 			paragraph = builder.build();
-			checkContent(paragraph, "yes", Penalty.FORBIDDEN_BREAK, "?", Glue.TERMINAL, Penalty.FORCE_BREAK);
+			checkContent(paragraph, "yes", Penalty.FORBIDDEN_BREAK, blank, Penalty.FORBIDDEN_BREAK, "?", Glue.TERMINAL, Penalty.FORCE_BREAK);
 
 			builder = Paragraph.Builder.newBuilder(texasOption);
 			builder.text("yes")
@@ -828,7 +828,7 @@ public class ParagraphUnitTest {
 			builder = Paragraph.Builder.newBuilder(texasOption);
 			builder.text("😜😜 ?");
 			paragraph = builder.build();
-			checkContent(paragraph, "😜", Penalty.ADVISE_BREAK, "😜", Penalty.FORBIDDEN_BREAK, "?", Glue.TERMINAL, Penalty.FORCE_BREAK);
+			checkContent(paragraph, "😜", Penalty.ADVISE_BREAK, "😜", Penalty.FORBIDDEN_BREAK, blank, Penalty.FORBIDDEN_BREAK, "?", Glue.TERMINAL, Penalty.FORCE_BREAK);
 
 			builder = Paragraph.Builder.newBuilder(texasOption);
 			builder.text("😜😜  ");

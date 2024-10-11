@@ -1,10 +1,13 @@
 package me.chan.texas.misc;
 
+import androidx.annotation.RestrictTo;
+
 import java.util.ArrayList;
 import java.util.List;
 
 import me.chan.texas.BuildConfig;
 
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 public class ResourceManager {
 
     private static volatile Impl sImpl;

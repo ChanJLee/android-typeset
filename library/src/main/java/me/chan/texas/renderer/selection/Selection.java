@@ -6,11 +6,12 @@ import android.view.View;
 
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
-import androidx.recyclerview.widget.LinearLayoutManager;
 
 import me.chan.texas.misc.DefaultRecyclable;
 import me.chan.texas.misc.ObjectPool;
+import me.chan.texas.renderer.core.WorkerScheduler;
 import me.chan.texas.renderer.ui.RendererAdapter;
+import me.chan.texas.renderer.ui.rv.TexasLinearLayoutManager;
 import me.chan.texas.renderer.ui.rv.TexasRecyclerView;
 import me.chan.texas.text.Document;
 import me.chan.texas.text.Paragraph;
@@ -22,51 +23,33 @@ public final class Selection extends DefaultRecyclable {
 	private static final ObjectPool<Selection> POOL = new ObjectPool<>(8);
 
 	private RendererAdapter mTexasAdapter;
-	private LinearLayoutManager mTexasLayoutManager;
-	private final List<ParagraphSelection> mParagraphSelectionList = new ArrayList<>();
+	private final List<Paragraph> mParagraphs = new ArrayList<>();
 	private final RectEdge mRectEdge = new RectEdge();
 
 	private Selection() {
 	}
 
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
-	void add(ParagraphSelection selection) {
-		mParagraphSelectionList.add(selection);
+	void add(Paragraph paragraph) {
+		mParagraphs.add(paragraph);
 	}
 
 	@Nullable
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
 	ParagraphSelection getParagraphSelection(Paragraph paragraph) {
-		if (paragraph == null || paragraph.getTag() == null) {
-			return null;
-		}
-
-		for (ParagraphSelection paragraphSelection : mParagraphSelectionList) {
-			if (paragraphSelection.getParagraph() == paragraph) {
-				return paragraphSelection;
-			}
-		}
-
-		return null;
+		return paragraph.getSelection();
 	}
 
 	/**
 	 * @return 获取当前选中的tags，忽略空tag
 	 */
 	@Nullable
-	public List<ParagraphSelectedTag> getSelectedTags() {
-		if (mParagraphSelectionList.isEmpty()) {
+	public List<Paragraph> getSelectedParagraphs() {
+		if (mParagraphs.isEmpty()) {
 			return null;
 		}
 
-		final List<ParagraphSelectedTag> list = new ArrayList<>();
-		for (ParagraphSelection paragraphSelection : mParagraphSelectionList) {
-			ParagraphSelectedTag paragraphSelectedTag = new ParagraphSelectedTag();
-			paragraphSelectedTag.paragraphTag = paragraphSelection.getParagraph().getTag();
-			paragraphSelectedTag.boxTags = paragraphSelection.getSelectedTags();
-			list.add(paragraphSelectedTag);
-		}
-		return list;
+		return mParagraphs;
 	}
 
 	/**
@@ -74,22 +57,24 @@ public final class Selection extends DefaultRecyclable {
 	 */
 	private final int[] mLocations = new int[2];
 
-	public RectEdge getSelectedRectEdge(TexasRecyclerView container) {
+	@RestrictTo(RestrictTo.Scope.LIBRARY)
+	RectEdge getSelectedRectEdge(TexasRecyclerView container) {
 
-		int size = mParagraphSelectionList.size();
+		int size = mParagraphs.size();
 		if (size == 0) {
 			return null;
 		}
 
 		boolean hasModified = false;
 		for (int i = 0; i < size; ++i) {
-			ParagraphSelection paragraphSelection = mParagraphSelectionList.get(i);
-			if (paragraphSelection.isSelectedRegionEmpty()) {
+			Paragraph paragraph = mParagraphs.get(i);
+			ParagraphSelection paragraphSelection = paragraph.getSelection();
+			if (paragraphSelection == null || paragraphSelection.isSelectedRegionEmpty()) {
 				continue;
 			}
 
 			hasModified = true;
-			boolean result = getParagraphLocation(container, paragraphSelection.getParagraph(), mLocations);
+			boolean result = getParagraphLocation(container, paragraph, mLocations);
 			if (!result) {
 				w("get first region location failed");
 			}
@@ -104,13 +89,14 @@ public final class Selection extends DefaultRecyclable {
 		}
 
 		for (int i = size - 1; i >= 0; --i) {
-			ParagraphSelection paragraphSelection = mParagraphSelectionList.get(i);
-			if (paragraphSelection.isSelectedRegionEmpty()) {
+			Paragraph paragraph = mParagraphs.get(i);
+			ParagraphSelection paragraphSelection = paragraph.getSelection();
+			if (paragraphSelection == null || paragraphSelection.isSelectedRegionEmpty()) {
 				continue;
 			}
 
 			hasModified = true;
-			boolean result = getParagraphLocation(container, paragraphSelection.getParagraph(), mLocations);
+			boolean result = getParagraphLocation(container, paragraph, mLocations);
 			if (!result) {
 				w("get last region location failed");
 			}
@@ -137,7 +123,12 @@ public final class Selection extends DefaultRecyclable {
 			return false;
 		}
 
-		View child = mTexasLayoutManager.findViewByPosition(index);
+		TexasLinearLayoutManager layoutManager = (TexasLinearLayoutManager) container.getLayoutManager();
+		if (layoutManager == null) {
+			return false;
+		}
+
+		View child = layoutManager.findViewByPosition(index);
 		if (child == null) {
 			return false;
 		}
@@ -146,27 +137,17 @@ public final class Selection extends DefaultRecyclable {
 		return true;
 	}
 
-	private boolean checkIfInvalid(ParagraphSelection paragraphSelection) {
-		Paragraph paragraph = paragraphSelection.getParagraph();
-		if (paragraph == null) {
-			return true;
-		}
-
-		return paragraph.isRecycled();
-	}
-
 	public int size() {
-		return mParagraphSelectionList.size();
+		return mParagraphs.size();
 	}
 
-	public ParagraphSelection get(int index) {
-		return mParagraphSelectionList.get(index);
+	public Paragraph get(int index) {
+		return mParagraphs.get(index);
 	}
 
 	@Override
 	protected void onRecycle() {
-		mParagraphSelectionList.clear();
-		mTexasLayoutManager = null;
+		mParagraphs.clear();
 		mTexasAdapter = null;
 		mRectEdge.bottomX = mRectEdge.topX =
 				mRectEdge.bottomY = mRectEdge.topY = mRectEdge.lineHeight = 0;
@@ -178,27 +159,31 @@ public final class Selection extends DefaultRecyclable {
 	 */
 	public void clear() {
 		// 通知内容被清除的时候还需要
-		for (ParagraphSelection paragraphSelection : mParagraphSelectionList) {
-			if (checkIfInvalid(paragraphSelection)) {
+		for (Paragraph paragraph : mParagraphs) {
+			if (paragraph.isRecycled()) {
 				continue;
 			}
 
-			int index = paragraphSelection.getIndex();
-			paragraphSelection.clear();
+			ParagraphSelection paragraphSelection = paragraph.getSelection();
+			if (paragraphSelection == null) {
+				continue;
+			}
+
+			paragraph.setSelection(null);
 			try {
 				if (mTexasAdapter != null) {
-					mTexasAdapter.notifyItemChanged(index);
+					mTexasAdapter.sendSignal(paragraph, RendererAdapter.SIG_SELECTION_CHANGED);
 				}
 			} catch (Throwable ignore) {
 				/* do nothing */
 			}
 			paragraphSelection.recycle();
 		}
-		mParagraphSelectionList.clear();
+		mParagraphs.clear();
 	}
 
 	public boolean isEmpty() {
-		return mParagraphSelectionList.isEmpty();
+		return mParagraphs.isEmpty();
 	}
 
 	private static void w(String msg) {
@@ -228,20 +213,14 @@ public final class Selection extends DefaultRecyclable {
 		}
 	}
 
-	public static Selection obtain(RendererAdapter adapter, LinearLayoutManager layoutManager) {
+	public static Selection obtain(RendererAdapter adapter) {
 		Selection selection = POOL.acquire();
 		if (selection == null) {
 			selection = new Selection();
 		}
 
 		selection.mTexasAdapter = adapter;
-		selection.mTexasLayoutManager = layoutManager;
 		selection.reuse();
 		return selection;
-	}
-
-	public static class ParagraphSelectedTag {
-		public Object paragraphTag;
-		public List<Object> boxTags;
 	}
 }
