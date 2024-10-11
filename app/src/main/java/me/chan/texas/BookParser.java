@@ -337,22 +337,14 @@ public class BookParser extends TexasView.Adapter<CharSequence> {
 	// 这里给了个demo显示带圆角的背景
 	// 注意这只是demo代码，因此质量不可控
 	private void parseParagraph(Paragraph.Builder builder, String paragraph, String sentId) {
-		String[] strings = PATTERN.split(paragraph);
-		for (int i = 0; strings != null && i < strings.length; ++i) {
-			final String text = strings[i];
-			if (TextUtils.isEmpty(text)) {
-				continue;
-			}
-
-			// for test
-			Paragraph.SpanBuilder spanBuilder = builder.newSpanBuilder()
-					.next(text)
-					.tag(new SpanTag(sentId, text))
+		builder.stream(paragraph, 0, paragraph.length(), (text, start, end) -> {
+			Paragraph.Span span = Paragraph.Span.obtain(text, start, end)
+					.tag(new SpanTag(sentId, text.subSequence(start, end).toString()))
 					.setForeground(RED_UL);
 			if ("A9127P126990S210411".equals(sentId)) {
-				spanBuilder.setBackground(new RectGround(0xffC09453));
+				span.setBackground(new RectGround(0xffC09453));
 			} else if ("A344173P2435118S1".equals(sentId)) {
-				spanBuilder.setBackground(new Appearance() {
+				span.setBackground(new Appearance() {
 					private Path mPath = new Path();
 					private float[] mLeftRound = new float[]{
 							20, 20,
@@ -407,8 +399,8 @@ public class BookParser extends TexasView.Adapter<CharSequence> {
 					}
 				});
 			}
-			spanBuilder.buildSpan();
-		}
+			return span;
+		});
 	}
 
 	private static final DotUnderLine RED_UL = new DotUnderLine(Color.RED);

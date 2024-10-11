@@ -9,7 +9,6 @@ import me.chan.texas.misc.BitBucket32;
 import me.chan.texas.misc.DefaultRecyclable;
 import me.chan.texas.misc.ObjectPool;
 
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 public class Token extends DefaultRecyclable {
 	private static final ObjectPool<Token> POOL = new ObjectPool<>(128);
 
@@ -31,15 +30,24 @@ public class Token extends DefaultRecyclable {
 	}
 
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
+	public byte getSymbolCategory() {
+		if (mMask.get(SYMBOL_CATEGORY_SYMBOL)) {
+			return SYMBOL_CATEGORY_SYMBOL;
+		}
+
+		if (mMask.get(SYMBOL_CATEGORY_PUNCTUATION)) {
+			return SYMBOL_CATEGORY_PUNCTUATION;
+		}
+
+		return SYMBOL_CATEGORY_UNKNOWN;
+	}
+
+	@RestrictTo(RestrictTo.Scope.LIBRARY)
 	public boolean checkSymbolAttribute(int attribute) {
 		return mMask.get(Token.TYPE_SYMBOL) && mMask.get(attribute);
 	}
 
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
-	public boolean isRtl() {
-		return mMask.get(BIT_DIRECTION);
-	}
-
 	public boolean hasSymbolTypefaceAttributes() {
 		if (getType() != Token.TYPE_SYMBOL) {
 			return false;
@@ -90,10 +98,9 @@ public class Token extends DefaultRecyclable {
 	public static final int BIT_SYMBOL_TYPEFACE_END = 21;
 
 	public static final byte TYPE_SYMBOL = 1; /* 符号+标点符号 */
-	@RestrictTo(RestrictTo.Scope.LIBRARY)
 	public static final byte SYMBOL_CATEGORY_SYMBOL = 8; /* 符号 */
-	@RestrictTo(RestrictTo.Scope.LIBRARY)
 	public static final byte SYMBOL_CATEGORY_PUNCTUATION = 9; /* 标点符号 */
+	public static final byte SYMBOL_CATEGORY_UNKNOWN = 10;
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
 	public static final int SYMBOL_ATTRIBUTE_KINSOKU_AVOID_HEADER = 16;
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -135,6 +142,10 @@ public class Token extends DefaultRecyclable {
 
 	}
 
+	public boolean isRtl() {
+		return mMask.get(BIT_DIRECTION);
+	}
+
 	@TokenType
 	public byte getType() {
 		if (mMask.get(TYPE_WORD)) {
@@ -148,8 +159,40 @@ public class Token extends DefaultRecyclable {
 		return mMask.get(TYPE_SYMBOL) ? TYPE_SYMBOL : TYPE_NONE;
 	}
 
+	public CharSequence getCharSequence() {
+		return mCharSequence;
+	}
+
+	public int getStart() {
+		return mStart;
+	}
+
+	public int getEnd() {
+		return mEnd;
+	}
+
 	public int size() {
 		return mEnd - mStart;
+	}
+
+	/**
+	 * if token is a word, return the category of the word {@link #WORD_CATEGORY_NORMAL}, {@link #WORD_CATEGORY_CJK}, {@link #WORD_CATEGORY_NUMBER}, {@link #WORD_CATEGORY_UNKNOWN_LETTER}
+	 * <p>
+	 * if token is a symbol, return the category of the symbol {@link #SYMBOL_CATEGORY_SYMBOL}, {@link #SYMBOL_CATEGORY_PUNCTUATION}
+	 *
+	 * @return the category of the token
+	 */
+	public byte getCategory() {
+		int type = getType();
+		if (type == TYPE_WORD) {
+			return getWordCategory();
+		}
+
+		if (type == TYPE_SYMBOL) {
+			return getSymbolCategory();
+		}
+
+		throw new IllegalStateException("unknown token category");
 	}
 
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -210,18 +253,6 @@ public class Token extends DefaultRecyclable {
 		}
 
 		return String.format("符号,%-2s,%-3s", kinsoku, typeface);
-	}
-
-	public CharSequence getCharSequence() {
-		return mCharSequence;
-	}
-
-	public int getStart() {
-		return mStart;
-	}
-
-	public int getEnd() {
-		return mEnd;
 	}
 
 	public boolean equals(String s) {

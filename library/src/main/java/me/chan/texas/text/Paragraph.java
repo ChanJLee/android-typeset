@@ -19,6 +19,7 @@ import me.chan.texas.renderer.selection.ParagraphSelection;
 import me.chan.texas.renderer.ui.decor.ParagraphDecor;
 import me.chan.texas.text.layout.Element;
 import me.chan.texas.text.layout.Layout;
+import me.chan.texas.text.tokenizer.Token;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -259,6 +260,27 @@ public final class Paragraph extends DefaultRecyclable implements Segment {
 		 * 下标的规则是 左闭右开即 [0, 3) 包含 0, 1, 2这三个下标
 		 *
 		 * @param text       text
+		 * @param spanReader span 读取
+		 * @return 当前对象
+		 */
+		public Builder stream(CharSequence text, SpanReader spanReader) {
+			return stream(text, 0, text.length(), spanReader);
+		}
+
+		/**
+		 * 以stream流的模式设置文本
+		 * 以文本 "Hi, World..." 为例
+		 * 词法引擎回去解析这段文本，并解析成
+		 * [Hi, 0-2]
+		 * [,, 2-3]
+		 * [World, 4-9]
+		 * [..., 9-12]
+		 * 的单词流，客户端根据下标 去确定当前的单词流样式
+		 * <p>
+		 * 该方法保证 下标间永不重叠，并且递增
+		 * 下标的规则是 左闭右开即 [0, 3) 包含 0, 1, 2这三个下标
+		 *
+		 * @param text       text
 		 * @param start      开始位置
 		 * @param end        起始位置
 		 * @param spanReader span 读取
@@ -269,8 +291,17 @@ public final class Paragraph extends DefaultRecyclable implements Segment {
 			return this;
 		}
 
-		public interface SpanReader {
+		// TODO
+		public interface SpanReader extends SpanReaderV2 {
 			Span read(CharSequence text, int start, int end);
+
+			default Span read(Token token) {
+				return read(token.getCharSequence(), token.getStart(), token.getEnd());
+			}
+		}
+
+		public interface SpanReaderV2 {
+			Span read(Token token);
 		}
 
 		/**
@@ -603,6 +634,10 @@ public final class Paragraph extends DefaultRecyclable implements Segment {
 		public Span setForeground(Appearance foreground) {
 			mForeground = foreground;
 			return this;
+		}
+
+		public static Span obtain(Token token) {
+			return obtain(token.getCharSequence(), token.getStart(), token.getEnd());
 		}
 
 		/**
