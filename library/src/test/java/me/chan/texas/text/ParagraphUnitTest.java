@@ -2,8 +2,8 @@ package me.chan.texas.text;
 
 import android.graphics.drawable.ColorDrawable;
 
-import com.shanbay.lib.texas.TestUtils;
-import com.shanbay.lib.texas.test.mock.MockTextPaint;
+import me.chan.texas.TestUtils;
+import me.chan.texas.test.mock.MockTextPaint;
 
 import me.chan.texas.Texas;
 import me.chan.texas.TexasOption;

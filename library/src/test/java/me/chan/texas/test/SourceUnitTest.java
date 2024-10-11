@@ -1,8 +1,8 @@
-package com.shanbay.lib.texas.test;
+package me.chan.texas.test;
 
 import static org.junit.Assert.assertFalse;
 
-import com.shanbay.lib.texas.test.mock.MockFileInputStream;
+import me.chan.texas.test.mock.MockFileInputStream;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -13,7 +13,6 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import me.chan.texas.renderer.LoadingStrategy;
-import me.chan.texas.source.Source;
 import me.chan.texas.source.SourceOpenException;
 import me.chan.texas.source.StreamTextSource;
 

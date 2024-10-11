@@ -4,8 +4,8 @@ import android.graphics.RectF;
 
 import androidx.annotation.NonNull;
 
-import com.shanbay.lib.texas.TestUtils;
-import com.shanbay.lib.texas.test.mock.MockTextPaint;
+import me.chan.texas.TestUtils;
+import me.chan.texas.test.mock.MockTextPaint;
 
 import me.chan.texas.TexasOption;
 import me.chan.texas.hyphenation.Hyphenation;

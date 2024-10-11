@@ -1,4 +1,4 @@
-package com.shanbay.lib.texas.test.mock;
+package me.chan.texas.test.mock;
 
 import java.io.File;
 import java.io.FileDescriptor;

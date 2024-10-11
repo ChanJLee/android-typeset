@@ -1,9 +1,9 @@
-package com.shanbay.lib.texas.test;
+package me.chan.texas.test;
 
 import me.chan.texas.Texas;
 import me.chan.texas.measurer.MockMeasurer;
 
-import com.shanbay.lib.texas.test.mock.MockTextPaint;
+import me.chan.texas.test.mock.MockTextPaint;
 
 import me.chan.texas.text.TextAttribute;
 

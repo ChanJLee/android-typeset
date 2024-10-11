@@ -5,7 +5,7 @@ import android.graphics.Paint;
 import android.graphics.RectF;
 import android.graphics.drawable.ColorDrawable;
 
-import com.shanbay.lib.texas.TestUtils;
+import me.chan.texas.TestUtils;
 import me.chan.texas.text.Appearance;
 import me.chan.texas.renderer.RendererContext;
 import me.chan.texas.text.Emoticon;

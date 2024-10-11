@@ -4,7 +4,7 @@ import me.chan.texas.TexasOption;
 import me.chan.texas.hyphenation.Hyphenation;
 import me.chan.texas.measurer.MockMeasurer;
 import me.chan.texas.renderer.RenderOption;
-import com.shanbay.lib.texas.test.mock.MockTextPaint;
+import me.chan.texas.test.mock.MockTextPaint;
 import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.TextAttribute;
 
