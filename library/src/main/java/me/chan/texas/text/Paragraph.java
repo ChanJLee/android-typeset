@@ -12,11 +12,11 @@ import androidx.annotation.VisibleForTesting;
 
 import me.chan.texas.Texas;
 import me.chan.texas.TexasOption;
-import me.chan.texas.annotations.Internal;
 import me.chan.texas.misc.DefaultRecyclable;
 import me.chan.texas.misc.ObjectPool;
 import me.chan.texas.renderer.highlight.ParagraphHighlight;
 import me.chan.texas.renderer.selection.ParagraphSelection;
+import me.chan.texas.renderer.ui.decor.ParagraphDecor;
 import me.chan.texas.text.layout.Element;
 import me.chan.texas.text.layout.Layout;
 
@@ -40,16 +40,25 @@ public final class Paragraph extends DefaultRecyclable implements Segment {
 
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
 	Object mTag;
+	/**
+	 * 默认
+	 */
 	public static final int TYPESET_POLICY_DEFAULT = 0;
-	public static final int TYPESET_POLICY_CJK_OPTIMIZATION = 1;
+	/**
+	 * CJK混合优化，会使得cjk文字和英文渲染的时候，显得字体更小一点
+	 */
+	public static final int TYPESET_POLICY_CJK_MIX_OPTIMIZATION = 1;
+	/**
+	 * 双向文本，非常耗时，不建议使用
+	 */
+	public static final int TYPESET_POLICY_BIDI_TEXT = 2;
 
 	@Retention(RetentionPolicy.SOURCE)
-	@IntDef({TYPESET_POLICY_DEFAULT, TYPESET_POLICY_CJK_OPTIMIZATION})
+	@IntDef({TYPESET_POLICY_DEFAULT, TYPESET_POLICY_CJK_MIX_OPTIMIZATION, TYPESET_POLICY_BIDI_TEXT})
 	public @interface TypesetPolicy {
 	}
 
 	int mId;
-
 
 	@Nullable
 	@Override
@@ -76,6 +85,8 @@ public final class Paragraph extends DefaultRecyclable implements Segment {
 	private ParagraphHighlight mHighlight;
 
 	private ParagraphSelection mSelection;
+
+	private ParagraphDecor mDecor;
 
 	@RestrictTo(LIBRARY)
 	@Nullable
@@ -107,6 +118,7 @@ public final class Paragraph extends DefaultRecyclable implements Segment {
 
 	@RestrictTo(LIBRARY)
 	public synchronized Layout swap(@NonNull Layout layout) {
+		layout.finishLayout();
 		Layout old = mLayout;
 		mLayout = layout;
 		return old;
@@ -135,11 +147,6 @@ public final class Paragraph extends DefaultRecyclable implements Segment {
 	@Override
 	public int getId() {
 		return mId;
-	}
-
-	@RestrictTo(LIBRARY)
-	public int getTypesetVersion() {
-		return mLayout.getId();
 	}
 
 	public boolean hasContent() {
@@ -287,6 +294,22 @@ public final class Paragraph extends DefaultRecyclable implements Segment {
 			return this;
 		}
 
+		public Builder addTypesetPolicy(@TypesetPolicy int policy) {
+			mBuilder0.addTypesetPolicy(policy);
+			return this;
+		}
+
+		public Builder clearTypesetPolicy() {
+			mBuilder0.clearTypesetPolicy();
+			return this;
+		}
+
+		public Builder setTypesetPolicy(@TypesetPolicy int policy) {
+			clearTypesetPolicy();
+			addTypesetPolicy(policy);
+			return this;
+		}
+
 		/**
 		 * 构造一个paragraph
 		 * <p/>
@@ -321,20 +344,19 @@ public final class Paragraph extends DefaultRecyclable implements Segment {
 		}
 
 		/**
-		 * @param texasOption   texas option
-		 * @param typesetPolicy {@link Paragraph#TYPESET_POLICY_CJK_OPTIMIZATION} {@link Paragraph#TYPESET_POLICY_DEFAULT}
+		 * use {@link #newBuilder(TexasOption)} & {@link #addTypesetPolicy(int)} instead
+		 * <p>
+		 * more {@link #clearTypesetPolicy()}
+		 * </p>
+		 *
+		 * @param texasOption texas option
 		 * @return 当前对象
 		 */
+		@Deprecated
 		public static Builder newBuilder(TexasOption texasOption,
 										 @TypesetPolicy int typesetPolicy) {
-			Builder builder = POOL.acquire();
-			if (builder == null) {
-				builder = new Builder();
-			}
-
-			builder.mBuilder0.reset(texasOption, typesetPolicy);
-			builder.reuse();
-			return builder;
+			return newBuilder(texasOption)
+					.setTypesetPolicy(typesetPolicy);
 		}
 
 		/**
@@ -342,7 +364,14 @@ public final class Paragraph extends DefaultRecyclable implements Segment {
 		 * @return 当前对象
 		 */
 		public static Builder newBuilder(TexasOption texasOption) {
-			return newBuilder(texasOption, TYPESET_POLICY_DEFAULT);
+			Builder builder = POOL.acquire();
+			if (builder == null) {
+				builder = new Builder();
+			}
+
+			builder.mBuilder0.reset(texasOption);
+			builder.reuse();
+			return builder;
 		}
 
 		public static void clean() {

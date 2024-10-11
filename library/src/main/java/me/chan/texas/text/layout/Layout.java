@@ -2,6 +2,7 @@ package me.chan.texas.text.layout;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
+import static me.chan.texas.text.Paragraph.TYPESET_POLICY_CJK_MIX_OPTIMIZATION;
 import static me.chan.texas.text.Paragraph.TYPESET_POLICY_DEFAULT;
 
 import android.graphics.Rect;
@@ -12,15 +13,13 @@ import me.chan.texas.Texas;
 import me.chan.texas.misc.DefaultRecyclable;
 import me.chan.texas.misc.ObjectPool;
 import me.chan.texas.text.BreakStrategy;
+import me.chan.texas.text.Paragraph;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public class Layout extends DefaultRecyclable {
 	private static final ObjectPool<Layout> POOL = new ObjectPool<>(Texas.getMemoryOption().getParagraphBufferSize());
-
-	private static final AtomicInteger UUID = new AtomicInteger(0);
 
 	private final Advise mAdvise = new Advise();
 
@@ -30,8 +29,6 @@ public class Layout extends DefaultRecyclable {
 	private float mLineSpace = 0;
 
 	private String mAlgorithm = "unknown";
-
-	private int mId = 0;
 
 	private Layout() {
 		Texas.MemoryOption memoryOption = Texas.getMemoryOption();
@@ -80,7 +77,6 @@ public class Layout extends DefaultRecyclable {
 		if (layout == null) {
 			layout = new Layout();
 		}
-		layout.mId = UUID.incrementAndGet();
 		layout.reuse();
 		return layout;
 	}
@@ -92,7 +88,6 @@ public class Layout extends DefaultRecyclable {
 		}
 		layout.mAdvise.copy(other.mAdvise);
 		layout.mRect = other.mRect;
-		layout.mId = UUID.incrementAndGet();
 		layout.reuse();
 		return layout;
 	}
@@ -232,8 +227,23 @@ public class Layout extends DefaultRecyclable {
 		return sb.toString();
 	}
 
-	public int getId() {
-		return mId;
+	@RestrictTo(LIBRARY)
+	public void finishLayout() {
+		if (mLines.isEmpty()) {
+			return;
+		}
+
+		int seq = 0;
+		for (int i = 0; i < mLines.size(); ++i) {
+			Line line = mLines.get(i);
+			for (int j = 0; j < line.getCount(); ++j) {
+				Element element = line.getElement(j);
+				if (element instanceof Box) {
+					Box box = (Box) element;
+					box.setSeq(seq++);
+				}
+			}
+		}
 	}
 
 	@RestrictTo(LIBRARY)
@@ -243,7 +253,7 @@ public class Layout extends DefaultRecyclable {
 		 */
 		private float mLineSpace = -1;
 		private BreakStrategy mBreakStrategy;
-		private int mTypesetPolicy = TYPESET_POLICY_DEFAULT;
+		private int mTypesetPolicies = TYPESET_POLICY_CJK_MIX_OPTIMIZATION;
 
 		public float getLineSpace() {
 			return mLineSpace;
@@ -261,23 +271,27 @@ public class Layout extends DefaultRecyclable {
 			mBreakStrategy = breakStrategy;
 		}
 
-		public int getTypesetPolicy() {
-			return mTypesetPolicy;
+		public boolean checkTypesetPolicy(@Paragraph.TypesetPolicy int typesetPolicy) {
+			return (mTypesetPolicies & typesetPolicy) != 0;
 		}
 
-		public void setTypesetPolicy(int typesetPolicy) {
-			mTypesetPolicy = typesetPolicy;
+		public void addTypesetPolicy(@Paragraph.TypesetPolicy int typesetPolicy) {
+			mTypesetPolicies |= typesetPolicy;
+		}
+
+		public void clearTypesetPolicy() {
+			mTypesetPolicies = TYPESET_POLICY_DEFAULT;
 		}
 
 		private void clear() {
 			mLineSpace = -1;
 			mBreakStrategy = null;
-			mTypesetPolicy = TYPESET_POLICY_DEFAULT;
+			mTypesetPolicies = TYPESET_POLICY_DEFAULT;
 		}
 
 		public void copy(Advise advise) {
 			mLineSpace = advise.mLineSpace;
-			mTypesetPolicy = advise.mTypesetPolicy;
+			mTypesetPolicies = advise.mTypesetPolicies;
 			mBreakStrategy = advise.mBreakStrategy;
 		}
 	}

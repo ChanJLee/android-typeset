@@ -42,16 +42,12 @@ public interface TextureParagraph {
 	 * @param paragraph               绘制的段落
 	 * @param paintSet                画笔集合
 	 * @param renderOption            绘制选项
-	 * @param selection               选中的内容
-	 * @param highlight               高亮的内容
 	 * @param decor                   装饰的内容
 	 * @param spanClickedEventHandler 点击事件处理器
 	 */
 	void render(@NonNull Paragraph paragraph,
 				@NonNull PaintSet paintSet,
 				@NonNull RenderOption renderOption,
-				@Nullable ParagraphSelection selection,
-				@Nullable ParagraphHighlight highlight,
 				@Nullable ParagraphDecor decor,
 				@Nullable SpanTouchEventHandler spanClickedEventHandler);
 

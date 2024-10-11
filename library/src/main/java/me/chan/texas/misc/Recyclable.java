@@ -1,8 +1,11 @@
 package me.chan.texas.misc;
 
+import androidx.annotation.RestrictTo;
+
 /**
  * 可回收的资源标记
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 public interface Recyclable {
 	/**
 	 * 回收

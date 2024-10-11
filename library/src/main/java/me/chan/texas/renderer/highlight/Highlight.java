@@ -1,7 +1,6 @@
 package me.chan.texas.renderer.highlight;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 
 import java.util.ArrayList;
@@ -57,17 +56,12 @@ public class Highlight {
 			}
 
 			try {
-				mAdapter.notifyItemChanged(index);
+				mAdapter.sendSignal(index, RendererAdapter.SIG_HIGHLIGHT_CHANGED);
 			} catch (Throwable ignore) {
 				/* do nothing */
 			}
 		}
 		mHighlights.clear();
-	}
-
-	@Nullable
-	public ParagraphHighlight getParagraphHighlight(Paragraph paragraph) {
-		return paragraph.getHighlight();
 	}
 
 	public void add(@NonNull Paragraph paragraph, @NonNull ParagraphHighlight paragraphHighlight) {

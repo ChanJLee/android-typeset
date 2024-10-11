@@ -3,13 +3,14 @@ package me.chan.texas.renderer.selection.visitor;
 import android.graphics.RectF;
 
 import androidx.annotation.CallSuper;
+import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 
 import me.chan.texas.renderer.ParagraphVisitor;
 import me.chan.texas.renderer.RenderOption;
 import me.chan.texas.renderer.selection.ParagraphSelection;
 import me.chan.texas.text.Paragraph;
-import me.chan.texas.text.TypesetContext;
+import me.chan.texas.renderer.RendererContext;
 import me.chan.texas.text.layout.Box;
 import me.chan.texas.text.layout.DrawableBox;
 import me.chan.texas.text.layout.Line;
@@ -46,14 +47,18 @@ public abstract class SelectedVisitor extends ParagraphVisitor {
 	}
 
 	@Override
-	final public void visit(Paragraph paragraph, RenderOption renderOption) throws VisitException {
-		super.visit(paragraph, renderOption);
+	final public void visit(Paragraph paragraph) throws VisitException {
+		super.visit(paragraph);
 	}
 
-	public ParagraphSelection startVisit(Paragraph paragraph, RenderOption renderOption) throws VisitException {
-		mSelection = ParagraphSelection.obtain(paragraph, mIsUseLongClickStyle ? ParagraphSelection.LONG_CLICK : ParagraphSelection.CLICK);
-		super.visit(paragraph, renderOption);
-		return mSelection;
+	public void startVisit(Paragraph paragraph) throws VisitException {
+		ParagraphSelection prev = paragraph.getSelection();
+		mSelection = ParagraphSelection.obtain(mIsUseLongClickStyle ? ParagraphSelection.LONG_CLICK : ParagraphSelection.CLICK);
+		paragraph.setSelection(mSelection);
+		super.visit(paragraph);
+		if (prev != null) {
+			prev.recycle();
+		}
 	}
 
 	@Override
@@ -83,7 +88,7 @@ public abstract class SelectedVisitor extends ParagraphVisitor {
 	}
 
 	@Override
-	public void onVisitBox(Box box, RectF inner, RectF outer, TypesetContext context) {
+	public void onVisitBox(Box box, RectF inner, RectF outer, @NonNull RendererContext context) {
 		if (selected(box, inner, outer)) {
 			if (!(box instanceof DrawableBox) || includeSelectNonTextBoxRegion()) {
 				appendRect(outer);
@@ -92,9 +97,6 @@ public abstract class SelectedVisitor extends ParagraphVisitor {
 			}
 			mSelection.appendBox(box);
 		} else {
-			// fixme
-			// 偷懒，这里直接清除了，实际上应该是在外部处理
-			box.removeStatus(Box.STATUS_SELECTED);
 			closeRect();
 		}
 	}

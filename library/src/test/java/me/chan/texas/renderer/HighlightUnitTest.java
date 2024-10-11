@@ -2,6 +2,8 @@ package me.chan.texas.renderer;
 
 import android.graphics.RectF;
 
+import androidx.annotation.NonNull;
+
 import com.shanbay.lib.texas.TestUtils;
 import com.shanbay.lib.texas.test.mock.MockTextPaint;
 
@@ -12,7 +14,6 @@ import me.chan.texas.renderer.highlight.ParagraphHighlight;
 import me.chan.texas.text.BreakStrategy;
 import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.TextAttribute;
-import me.chan.texas.text.TypesetContext;
 import me.chan.texas.text.layout.Box;
 import me.chan.texas.text.layout.Element;
 import me.chan.texas.text.layout.Line;
@@ -55,8 +56,7 @@ public class HighlightUnitTest {
 		texTypesetter.typeset(paragraph, BreakStrategy.SIMPLE, 10, 1);
 
 		ParagraphHighlight paragraphHighlight = ParagraphHighlight.obtain(
-				1,
-				paragraph
+				1
 		);
 
 		Set<Box> set = new HashSet<>();
@@ -112,7 +112,7 @@ public class HighlightUnitTest {
 		}
 
 		@Override
-		protected void onVisitBox(Box box, RectF inner, RectF outer, TypesetContext context) {
+		protected void onVisitBox(Box box, RectF inner, RectF outer, @NonNull RendererContext context) {
 			if (mParagraphHighlight.isHighlight(box)) {
 				++mCount;
 				Assert.assertTrue(mBoxes.contains(box));
@@ -120,7 +120,7 @@ public class HighlightUnitTest {
 		}
 
 		public void test(Paragraph subParagraph, RenderOption renderOption) throws VisitException {
-			visit(subParagraph, renderOption);
+			visit(subParagraph);
 			Assert.assertEquals(mCount, mBoxes.size());
 		}
 	}
