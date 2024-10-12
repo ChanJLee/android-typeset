@@ -26,6 +26,7 @@ import me.chan.texas.text.Segment;
 import me.chan.texas.text.TextStyle;
 import me.chan.texas.text.DotUnderLine;
 import me.chan.texas.text.ViewSegment;
+import me.chan.texas.text.tokenizer.Token;
 
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -337,10 +338,13 @@ public class BookParser extends TexasView.Adapter<CharSequence> {
 	// 这里给了个demo显示带圆角的背景
 	// 注意这只是demo代码，因此质量不可控
 	private void parseParagraph(Paragraph.Builder builder, String paragraph, String sentId) {
-		builder.stream(paragraph, 0, paragraph.length(), (text, start, end) -> {
-			Paragraph.Span span = Paragraph.Span.obtain(text, start, end)
-					.tag(new SpanTag(sentId, text.subSequence(start, end).toString()))
+		builder.stream(paragraph, 0, paragraph.length(), (token) -> {
+			Paragraph.Span span = Paragraph.Span.obtain(token)
 					.setForeground(RED_UL);
+			if (token.getCategory() == Token.CATEGORY_NORMAL) {
+				span.tag(new SpanTag(sentId, token.getCharSequence().subSequence(token.getStart(), token.getEnd()).toString()));
+			}
+
 			if ("A9127P126990S210411".equals(sentId)) {
 				span.setBackground(new RectGround(0xffC09453));
 			} else if ("A344173P2435118S1".equals(sentId)) {
