@@ -2,8 +2,6 @@ package me.chan.texas.text;
 
 import static me.chan.texas.text.Paragraph.TYPESET_POLICY_CJK_MIX_OPTIMIZATION;
 
-import android.text.TextUtils;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
@@ -249,10 +247,11 @@ class ParagraphBuilderInternal {
 		Appearance background = null;
 		Appearance foreground = null;
 		if (span != null) {
-			textStyle = span.mTextStyle;
+			TextStyles styles = span.mStyles;
+			textStyle = styles.getTextStyle();
 			tag = span.mTag;
-			background = span.mBackground;
-			foreground = span.mForeground;
+			background = styles.getBackground();
+			foreground = styles.getForeground();
 		}
 
 		TextBox textBox = TextBox.obtain(text, start, end,
@@ -285,10 +284,11 @@ class ParagraphBuilderInternal {
 		Appearance background = null;
 		Appearance foreground = null;
 		if (span != null) {
-			textStyle = span.mTextStyle;
+			TextStyles styles = span.mStyles;
+			textStyle = styles.getTextStyle();
 			tag = span.mTag;
-			background = span.mBackground;
-			foreground = span.mForeground;
+			background = styles.getBackground();
+			foreground = styles.getForeground();
 		}
 
 		appendEnText(text, token.getStart(), token.getEnd(), textStyle, tag, background, foreground);
@@ -324,10 +324,11 @@ class ParagraphBuilderInternal {
 			Appearance background = null;
 			Appearance foreground = null;
 			if (span != null) {
-				textStyle = span.mTextStyle;
+				TextStyles styles = span.mStyles;
+				textStyle = styles.getTextStyle();
 				tag = span.mTag;
-				background = span.mBackground;
-				foreground = span.mForeground;
+				background = styles.getBackground();
+				foreground = styles.getForeground();
 			}
 
 			TextBox textBox = TextBox.obtain(text, start, end,
@@ -376,10 +377,11 @@ class ParagraphBuilderInternal {
 		Appearance background = null;
 		Appearance foreground = null;
 		if (span != null) {
-			textStyle = span.mTextStyle;
+			TextStyles styles = span.mStyles;
+			textStyle = styles.getTextStyle();
 			tag = span.mTag;
-			background = span.mBackground;
-			foreground = span.mForeground;
+			background = styles.getBackground();
+			foreground = styles.getForeground();
 		}
 
 		TextBox textBox = TextBox.obtain(text, token.getStart(), token.getEnd(),

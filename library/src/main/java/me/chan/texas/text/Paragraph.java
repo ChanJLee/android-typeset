@@ -466,7 +466,7 @@ public final class Paragraph extends DefaultRecyclable implements Segment {
 		 * @return 当前对象
 		 */
 		public SpanBuilder setTextStyle(TextStyle textStyle) {
-			mSpan.mTextStyle = textStyle;
+			mSpan.setTextStyle(textStyle);
 			return this;
 		}
 
@@ -479,7 +479,7 @@ public final class Paragraph extends DefaultRecyclable implements Segment {
 		 * @return 当前对象
 		 */
 		public SpanBuilder setBackground(Appearance background) {
-			mSpan.mBackground = background;
+			mSpan.setBackground(background);
 			return this;
 		}
 
@@ -492,7 +492,7 @@ public final class Paragraph extends DefaultRecyclable implements Segment {
 		 * @return 当前对象
 		 */
 		public SpanBuilder setForeground(Appearance foreground) {
-			mSpan.mForeground = foreground;
+			mSpan.setForeground(foreground);
 			return this;
 		}
 
@@ -538,12 +538,7 @@ public final class Paragraph extends DefaultRecyclable implements Segment {
 		private int mEnd;
 
 		@RestrictTo(LIBRARY)
-		TextStyle mTextStyle;
-		@RestrictTo(LIBRARY)
-		Appearance mBackground;
-		@RestrictTo(LIBRARY)
-		Appearance mForeground;
-		@RestrictTo(LIBRARY)
+		final TextStyles mStyles = new TextStyles();
 		Object mTag;
 
 		private Span() {
@@ -553,9 +548,7 @@ public final class Paragraph extends DefaultRecyclable implements Segment {
 			this.mText = other.mText;
 			this.mStart = other.mStart;
 			this.mEnd = other.mEnd;
-			this.mTextStyle = other.mTextStyle;
-			this.mBackground = other.mBackground;
-			this.mForeground = other.mForeground;
+			this.mStyles.copy(other.mStyles);
 			this.mTag = other.mTag;
 		}
 
@@ -563,9 +556,7 @@ public final class Paragraph extends DefaultRecyclable implements Segment {
 		protected void onRecycle() {
 			mText = null;
 			mStart = mEnd = 0;
-			mTextStyle = null;
-			mBackground = null;
-			mForeground = null;
+			mStyles.clear();
 			mTag = null;
 			POOL.release(this);
 		}
@@ -597,7 +588,7 @@ public final class Paragraph extends DefaultRecyclable implements Segment {
 		 * @return 当前对象
 		 */
 		public Span setTextStyle(TextStyle textStyle) {
-			mTextStyle = textStyle;
+			mStyles.setTextStyle(textStyle);
 			return this;
 		}
 
@@ -610,7 +601,7 @@ public final class Paragraph extends DefaultRecyclable implements Segment {
 		 * @return 当前对象
 		 */
 		public Span setBackground(Appearance background) {
-			mBackground = background;
+			mStyles.setBackground(background);
 			return this;
 		}
 
@@ -623,7 +614,7 @@ public final class Paragraph extends DefaultRecyclable implements Segment {
 		 * @return 当前对象
 		 */
 		public Span setForeground(Appearance foreground) {
-			mForeground = foreground;
+			mStyles.setForeground(foreground);
 			return this;
 		}
 
@@ -662,17 +653,17 @@ public final class Paragraph extends DefaultRecyclable implements Segment {
 
 		@VisibleForTesting
 		public TextStyle getTextStyle() {
-			return mTextStyle;
+			return mStyles.getTextStyle();
 		}
 
 		@VisibleForTesting
 		public Appearance getBackground() {
-			return mBackground;
+			return mStyles.getBackground();
 		}
 
 		@VisibleForTesting
 		public Appearance getForeground() {
-			return mForeground;
+			return mStyles.getForeground();
 		}
 
 		@VisibleForTesting
