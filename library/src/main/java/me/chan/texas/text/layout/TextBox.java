@@ -4,8 +4,6 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
 import android.graphics.Canvas;
 import android.graphics.Paint;
-import android.os.Build;
-import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
@@ -21,6 +19,7 @@ import me.chan.texas.text.Appearance;
 import me.chan.texas.text.TextAttribute;
 import me.chan.texas.text.TextStyle;
 import me.chan.texas.utils.CharArrayPool;
+import me.chan.texas.utils.TexasUtils;
 
 /**
  * 文本元素
@@ -243,7 +242,7 @@ public final class TextBox extends Box {
 
 		int size = mEnd - mStart;
 		char[] buf = CHAR_ARRAY_POOL.obtain(size);
-		TextUtils.getChars(mText, mStart, mEnd, buf, 0);
+		TexasUtils.getChars(mText, mStart, mEnd, buf, 0);
 		canvas.drawTextRun(buf, 0, size, 0, size, x, y, hasAttribute(ATTRIBUTE_RTL), paint);
 		CHAR_ARRAY_POOL.release(buf);
 	}

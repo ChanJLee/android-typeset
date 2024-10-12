@@ -26,6 +26,7 @@ import me.chan.texas.text.layout.TextBox;
 import me.chan.texas.text.tokenizer.Token;
 import me.chan.texas.text.tokenizer.TokenStream;
 import me.chan.texas.utils.IntArray;
+import me.chan.texas.utils.TexasUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -178,8 +179,8 @@ class ParagraphBuilderInternal {
 		}
 
 		char[] buffer = TextBox.CHAR_ARRAY_POOL.obtain(end - start);
-		TextUtils.getChars(text, start, end, buffer, 0);
-		Bidi bidi = new Bidi(buffer, 0, null, 0, end - start, Bidi.DIRECTION_DEFAULT_LEFT_TO_RIGHT);
+		TexasUtils.getChars(text, start, end, buffer, 0);
+		Bidi bidi = new Bidi(buffer, 0, null, 0, end - start, Bidi.LEVEL_DEFAULT_LTR);
 		for (int i = 0; i < bidi.getRunCount(); ++i) {
 			int runStart = bidi.getRunStart(i);
 			int runLimit = bidi.getRunLimit(i);
