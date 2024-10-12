@@ -45,11 +45,42 @@ public class TokenStreamUnitTest {
 	@Test
 	public void testCategory() {
 		String msg = "你好";
-		System.out.println(msg.length() + " " + msg.codePointCount(0, msg.length()));
 		TokenStream reader = TokenStream.obtain(msg, 0, msg.length());
 		while (reader.hasNext()) {
 			Token token = reader.next();
 			Assert.assertEquals(Token.CATEGORY_CJK, token.getCategory());
+			Assert.assertEquals(Token.TYPE_WORD, token.getType());
+		}
+
+		msg = "の";
+		reader = TokenStream.obtain(msg, 0, msg.length());
+		while (reader.hasNext()) {
+			Token token = reader.next();
+			Assert.assertEquals(Token.CATEGORY_CJK, token.getCategory());
+			Assert.assertEquals(Token.TYPE_WORD, token.getType());
+		}
+
+		msg = "나는";
+		reader = TokenStream.obtain(msg, 0, msg.length());
+		while (reader.hasNext()) {
+			Token token = reader.next();
+			Assert.assertEquals(Token.CATEGORY_CJK, token.getCategory());
+			Assert.assertEquals(Token.TYPE_WORD, token.getType());
+		}
+
+		msg = "나는";
+		reader = TokenStream.obtain(msg, 0, msg.length());
+		while (reader.hasNext()) {
+			Token token = reader.next();
+			Assert.assertEquals(Token.CATEGORY_CJK, token.getCategory());
+			Assert.assertEquals(Token.TYPE_WORD, token.getType());
+		}
+
+		msg = "อักษรไทย";
+		reader = TokenStream.obtain(msg, 0, msg.length());
+		while (reader.hasNext()) {
+			Token token = reader.next();
+			Assert.assertEquals(Token.CATEGORY_UNKNOWN_LETTER, token.getCategory());
 			Assert.assertEquals(Token.TYPE_WORD, token.getType());
 		}
 	}
@@ -57,7 +88,6 @@ public class TokenStreamUnitTest {
 	@Test
 	public void testCategory2() {
 		String msg = "19";
-		System.out.println(msg.length() + " " + msg.codePointCount(0, msg.length()));
 		TokenStream reader = TokenStream.obtain(msg, 0, msg.length());
 		while (reader.hasNext()) {
 			Token token = reader.next();

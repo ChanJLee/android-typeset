@@ -240,7 +240,7 @@ class ParagraphBuilderInternal {
 		int end = token.getEnd();
 		Paragraph.Span span = null;
 		if (spanReader != null) {
-			span = spanReader.read(text, start, end);
+			span = spanReader.read(token);
 		}
 
 		TextStyle textStyle = null;
@@ -276,9 +276,7 @@ class ParagraphBuilderInternal {
 									  Token token) {
 		Paragraph.Span span = null;
 		if (spanReader != null) {
-			int start = token.getStart();
-			int end = token.getEnd();
-			span = spanReader.read(text, start, end);
+			span = spanReader.read(token);
 		}
 
 		TextStyle textStyle = null;
@@ -306,6 +304,12 @@ class ParagraphBuilderInternal {
 		Layout.Advise advise = layout.getAdvise();
 		boolean cjkOptimization = advise.checkTypesetPolicy(TYPESET_POLICY_CJK_MIX_OPTIMIZATION);
 		Element linkElement = cjkOptimization ? Penalty.ADVISE_BREAK : mStretchOnlyGlue;
+
+		Paragraph.Span span = null;
+		if (spanReader != null) {
+			span = spanReader.read(token);
+		}
+
 		for (int i = token.getStart(); i < token.getEnd(); ++i) {
 			if (i != token.getStart()) {
 				appendElement(linkElement);
@@ -313,10 +317,6 @@ class ParagraphBuilderInternal {
 
 			int start = i;
 			int end = i + 1;
-			Paragraph.Span span = null;
-			if (spanReader != null) {
-				span = spanReader.read(text, start, end);
-			}
 
 			TextStyle textStyle = null;
 			Object tag = null;
@@ -367,9 +367,7 @@ class ParagraphBuilderInternal {
 										Token token) {
 		Paragraph.Span span = null;
 		if (spanReader != null) {
-			int start = token.getStart();
-			int end = token.getEnd();
-			span = spanReader.read(text, start, end);
+			span = spanReader.read(token);
 		}
 
 		TextStyle textStyle = null;
