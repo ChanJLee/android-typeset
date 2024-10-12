@@ -223,9 +223,9 @@ class ParagraphBuilderInternal {
 	private void appendWordToken(CharSequence text,
 								 Paragraph.Builder.SpanReader spanReader,
 								 Token token) {
-		if (token.check(Token.WORD_CATEGORY_NORMAL)) {
+		if (token.check(Token.CATEGORY_NORMAL)) {
 			appendAsciiWordToken(text, spanReader, token);
-		} else if (token.check(Token.WORD_CATEGORY_CJK)) {
+		} else if (token.check(Token.CATEGORY_CJK)) {
 			appendCjkWordToken(text, spanReader, token);
 		} else {
 			appendWordTokenDirect(text, spanReader, token);

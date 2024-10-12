@@ -75,12 +75,12 @@ public class Token extends DefaultRecyclable {
 	public static final byte TYPE_WORD = 3; /* 单词 */
 
 	// category
-	public static final byte SYMBOL_CATEGORY_SYMBOL = 8; /* 符号 emoji */
-	public static final byte SYMBOL_CATEGORY_PUNCTUATION = 9; /* 标点符号 */
-	public static final byte WORD_CATEGORY_UNKNOWN_LETTER = 10; /* 未知字符 */
-	public static final byte WORD_CATEGORY_NORMAL = 11; /* 正常的单词 [a-z]... */
-	public static final byte WORD_CATEGORY_NUMBER = 12; /* 数字 */
-	public static final byte WORD_CATEGORY_CJK = 13; /* CJK */
+	public static final byte CATEGORY_SYMBOL = 8; /* 符号 emoji */
+	public static final byte CATEGORY_PUNCTUATION = 9; /* 标点符号 */
+	public static final byte CATEGORY_UNKNOWN_LETTER = 10; /* 未知字符 */
+	public static final byte CATEGORY_NORMAL = 11; /* 正常的单词 [a-z]... */
+	public static final byte CATEGORY_NUMBER = 12; /* 数字 */
+	public static final byte CATEGORY_CJK = 13; /* CJK */
 	public static final byte CATEGORY_UNKNOWN = 14; /* 未知分类 */
 
 	// symbol attributes
@@ -110,20 +110,20 @@ public class Token extends DefaultRecyclable {
 	}
 
 	@IntDef({CATEGORY_UNKNOWN,
-			SYMBOL_CATEGORY_SYMBOL,
-			SYMBOL_CATEGORY_PUNCTUATION,
-			WORD_CATEGORY_UNKNOWN_LETTER,
-			WORD_CATEGORY_NORMAL,
-			WORD_CATEGORY_NUMBER,
-			WORD_CATEGORY_CJK})
+			CATEGORY_SYMBOL,
+			CATEGORY_PUNCTUATION,
+			CATEGORY_UNKNOWN_LETTER,
+			CATEGORY_NORMAL,
+			CATEGORY_NUMBER,
+			CATEGORY_CJK})
 	public @interface CategoryType {
 
 	}
 
-	CharSequence mCharSequence;
-	int mStart;
-	int mEnd;
-	final BitBucket32 mMask = new BitBucket32();
+	private CharSequence mCharSequence;
+	private int mStart;
+	private int mEnd;
+	private final BitBucket32 mMask = new BitBucket32();
 
 	private Token() {
 
@@ -184,19 +184,19 @@ public class Token extends DefaultRecyclable {
 
 		if (type == TYPE_WORD) {
 			int category = getCategory();
-			if (category == WORD_CATEGORY_NORMAL) {
+			if (category == CATEGORY_NORMAL) {
 				return "英文";
 			}
 
-			if (category == WORD_CATEGORY_CJK) {
+			if (category == CATEGORY_CJK) {
 				return "CJK";
 			}
 
-			if (category == WORD_CATEGORY_NUMBER) {
+			if (category == CATEGORY_NUMBER) {
 				return "数字";
 			}
 
-			if (category == WORD_CATEGORY_UNKNOWN_LETTER) {
+			if (category == CATEGORY_UNKNOWN_LETTER) {
 				return "其它";
 			}
 
