@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import me.chan.texas.misc.BitBucket;
+import me.chan.texas.renderer.ParagraphPredicates;
 import me.chan.texas.renderer.ParagraphVisitor;
 import me.chan.texas.renderer.RenderOption;
 import me.chan.texas.renderer.SpanPredicate;
@@ -73,13 +74,13 @@ public class SelectionManager implements OnSelectedChangedListener {
 	private SpanTouchEventHandler mSpanTouchEventHandler;
 	private final SpanPredicate mOnSpanClickedPredicate = new SpanPredicate() {
 		@Override
-		public boolean apply(@Nullable Object clickedTag, @Nullable Object tag) {
+		public boolean accept(@Nullable Object clickedTag, @Nullable Object tag) {
 			return mSpanTouchEventHandler.applySpanClicked(clickedTag, tag);
 		}
 	};
 	private final SpanPredicate mOnSpanLongClickedPredicate = new SpanPredicate() {
 		@Override
-		public boolean apply(@Nullable Object clickedTag, @Nullable Object tag) {
+		public boolean accept(@Nullable Object clickedTag, @Nullable Object tag) {
 			return mSpanTouchEventHandler.applySpanLongClicked(clickedTag, tag);
 		}
 	};
@@ -395,11 +396,11 @@ public class SelectionManager implements OnSelectedChangedListener {
 	/**
 	 * 主动 选择 paragraph
 	 *
-	 * @param predicate 谓词
+	 * @param predicates 谓词
 	 * @return 选中区域
 	 */
 	@Nullable
-	public Selection selectParagraphs(TexasView.SelectionPredicate predicate) {
+	public Selection selectParagraphs(ParagraphPredicates predicates) {
 		Document document = mAdapter.getDocument();
 		clearSelection();
 
@@ -409,21 +410,21 @@ public class SelectionManager implements OnSelectedChangedListener {
 				continue;
 			}
 
-			selectParagraph((Paragraph) segment, predicate, i);
+			selectParagraph((Paragraph) segment, predicates, i);
 		}
 
 		notifyUpdateSelectionDropView();
 		return mCurrentSelection;
 	}
 
-	private void selectParagraph(Paragraph paragraph, TexasView.SelectionPredicate predicate, int index) {
+	private void selectParagraph(Paragraph paragraph, ParagraphPredicates predicates, int index) {
 		if (paragraph == null) {
 			return;
 		}
 
 		try {
 			RenderOption renderOption = mAdapter.getRenderOption();
-			mSelfDriveSelectedVisitor.reset(renderOption, predicate);
+			mSelfDriveSelectedVisitor.reset(renderOption, predicates);
 			mSelfDriveSelectedVisitor.startVisit(paragraph);
 			handleParagraphSelected(paragraph, index);
 		} catch (ParagraphVisitor.VisitException ignored) {

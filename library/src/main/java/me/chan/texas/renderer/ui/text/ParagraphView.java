@@ -89,13 +89,13 @@ public class ParagraphView extends FrameLayout {
 
 	private final SpanPredicate mOnSpanClickedPredicate = new SpanPredicate() {
 		@Override
-		public boolean apply(@Nullable Object clickedTag, @Nullable Object tag) {
+		public boolean accept(@Nullable Object clickedTag, @Nullable Object tag) {
 			return mSpanTouchEventHandler.applySpanClicked(clickedTag, tag);
 		}
 	};
 	private final SpanPredicate mOnSpanLongClickedPredicate = new SpanPredicate() {
 		@Override
-		public boolean apply(@Nullable Object clickedTag, @Nullable Object tag) {
+		public boolean accept(@Nullable Object clickedTag, @Nullable Object tag) {
 			return mSpanTouchEventHandler.applySpanLongClicked(clickedTag, tag);
 		}
 	};

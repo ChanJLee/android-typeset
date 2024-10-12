@@ -23,6 +23,7 @@ import androidx.core.content.ContextCompat;
 import java.io.IOException;
 
 import me.chan.texas.adapter.TextAdapter;
+import me.chan.texas.renderer.ParagraphPredicates;
 import me.chan.texas.renderer.ParagraphVisitor;
 import me.chan.texas.renderer.RenderOption;
 import me.chan.texas.renderer.SpanTouchEventHandler;
@@ -173,17 +174,21 @@ public class TexasViewDemoActivity extends AppCompatActivity {
 	 */
 	private void setupHighlight() {
 		findViewById(me.chan.texas.debug.R.id.highlight).setOnClickListener(v ->
-				mTexasView.highlightParagraphs((paragraphTag, spanTag) -> {
-					if (!"A9127P127017".equals(paragraphTag)) {
-						return false;
+				mTexasView.highlightParagraphs(new ParagraphPredicates() {
+					@Override
+					public boolean acceptSpan(@Nullable Object spanTag) {
+						if (!(spanTag instanceof BookParser.SpanTag)) {
+							return false;
+						}
+
+						BookParser.SpanTag tag = (BookParser.SpanTag) spanTag;
+						return "A9127P127017S210459".equals(tag.sentId);
 					}
 
-					if (!(spanTag instanceof BookParser.SpanTag)) {
-						return false;
+					@Override
+					public boolean acceptParagraph(@Nullable Object paragraphTag) {
+						return "A9127P127017".equals(paragraphTag);
 					}
-
-					BookParser.SpanTag tag = (BookParser.SpanTag) spanTag;
-					return "A9127P127017S210459".equals(tag.sentId);
 				}, true, 0));
 	}
 
@@ -274,13 +279,21 @@ public class TexasViewDemoActivity extends AppCompatActivity {
 				if (mDest.top - 10 < y && mDest.bottom + 10 > y &&
 						mDest.left - 10 < x && mDest.right + 10 > x) {
 					mClicked = true;
-					mTexasView.selectParagraphs((paragraphTag, spanTag) -> {
-						if (!(spanTag instanceof BookParser.SpanTag)) {
-							return false;
+					mTexasView.selectParagraphs(new ParagraphPredicates() {
+						@Override
+						public boolean acceptSpan(@Nullable Object spanTag) {
+							if (!(spanTag instanceof BookParser.SpanTag)) {
+								return false;
+							}
+
+							BookParser.SpanTag tag = (BookParser.SpanTag) spanTag;
+							return "A9127P126972S210390".equals(tag.sentId);
 						}
 
-						BookParser.SpanTag tag = (BookParser.SpanTag) spanTag;
-						return "A9127P126972S210390".equals(tag.sentId);
+						@Override
+						public boolean acceptParagraph(@Nullable Object paragraphTag) {
+							return true;
+						}
 					});
 					return true;
 				}

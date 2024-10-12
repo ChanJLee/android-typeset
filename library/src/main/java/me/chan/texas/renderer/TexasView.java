@@ -625,25 +625,25 @@ public final class TexasView extends FrameLayout {
 	/**
 	 * 高亮paragraph中的文本，只在渲染出document后生效
 	 *
-	 * @param predicate 谓词
+	 * @param predicates 谓词
 	 */
-	public void highlightParagraphs(HighlightPredicate predicate) {
-		highlightParagraphs(predicate, false, 0);
+	public void highlightParagraphs(ParagraphPredicates predicates) {
+		highlightParagraphs(predicates, false, 0);
 	}
 
 	/**
 	 * 高亮paragraph中的文本，只在渲染出document后生效
 	 *
-	 * @param predicate 谓词
+	 * @param predicates 谓词
 	 * @param scrollTo  是否滚动到高亮区域
 	 * @param offset    滚动偏移
 	 */
-	public void highlightParagraphs(HighlightPredicate predicate, boolean scrollTo, int offset) {
+	public void highlightParagraphs(ParagraphPredicates predicates, boolean scrollTo, int offset) {
 		if (mRenderer == null) {
 			return;
 		}
 
-		mRenderer.highlightParagraphs(predicate, scrollTo, offset);
+		mRenderer.highlightParagraphs(predicates, scrollTo, offset);
 	}
 
 	/**
@@ -668,8 +668,8 @@ public final class TexasView extends FrameLayout {
 	 * @return 选中区域
 	 */
 	@Nullable
-	public Selection selectParagraphs(SelectionPredicate predicate) {
-		return mRenderer == null ? null : mRenderer.selectParagraphs(predicate);
+	public Selection selectParagraphs(ParagraphPredicates predicates) {
+		return mRenderer == null ? null : mRenderer.selectParagraphs(predicates);
 	}
 
 	/**
@@ -1073,26 +1073,5 @@ public final class TexasView extends FrameLayout {
 		void onDragEnd(TouchEvent event);
 
 		void onDragDismiss();
-	}
-
-	public interface SelectionPredicate {
-
-		/**
-		 * @param paragraphTag {@link Paragraph#getTag()}
-		 * @param spanTag      {@link me.chan.texas.text.Paragraph.SpanBuilder#tag(Object)}
-		 * @return 是否选中
-		 */
-		@Idempotent
-		boolean apply(Object paragraphTag, Object spanTag);
-	}
-
-	public interface HighlightPredicate {
-		/**
-		 * @param paragraphTag {@link me.chan.texas.text.Paragraph.Builder#tag(Object)}
-		 * @param spanTag      {@link me.chan.texas.text.Paragraph.SpanBuilder#tag(Object)}
-		 * @return 是否选中，这个函数必须是幂等的
-		 */
-		@Idempotent
-		boolean apply(@Nullable Object paragraphTag, @Nullable Object spanTag);
 	}
 }

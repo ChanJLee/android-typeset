@@ -286,8 +286,8 @@ public class Renderer implements SelectionManager.Listener {
 		mImpl.scrollToPosition(position, smooth, offset);
 	}
 
-	public void highlightParagraphs(TexasView.HighlightPredicate predicate, boolean scrollTo, int offset) {
-		Highlight area = mHighlightManager.highlightParagraphs(predicate);
+	public void highlightParagraphs(ParagraphPredicates predicates, boolean scrollTo, int offset) {
+		Highlight area = mHighlightManager.highlightParagraphs(predicates);
 		if (area == null || area.isEmpty()) {
 			return;
 		}
@@ -465,8 +465,8 @@ public class Renderer implements SelectionManager.Listener {
 		return mRenderOption;
 	}
 
-	public Selection selectParagraphs(TexasView.SelectionPredicate predicate) {
-		return mSelectionManager.selectParagraphs(predicate);
+	public Selection selectParagraphs(ParagraphPredicates predicates) {
+		return mSelectionManager.selectParagraphs(predicates);
 	}
 
 	public int getPaddingWidth() {
