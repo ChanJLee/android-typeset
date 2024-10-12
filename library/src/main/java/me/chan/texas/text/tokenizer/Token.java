@@ -6,7 +6,6 @@ import androidx.annotation.VisibleForTesting;
 
 import java.util.Objects;
 
-import me.chan.texas.misc.BitBucket32;
 import me.chan.texas.misc.DefaultRecyclable;
 import me.chan.texas.misc.ObjectPool;
 
@@ -14,8 +13,8 @@ public class Token extends DefaultRecyclable {
 	private static final ObjectPool<Token> POOL = new ObjectPool<>(128);
 
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
-	public boolean checkSymbolAttribute(int attribute) {
-		return mMask.get(Token.TYPE_SYMBOL) && mMask.get(attribute);
+	public boolean checkAttribute(int attribute) {
+		return ((mAttributes << BIT_ATTRIBUTES_START) & (1 << attribute)) != 0;
 	}
 
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -24,13 +23,7 @@ public class Token extends DefaultRecyclable {
 			return false;
 		}
 
-		int attributes = mMask.getRange(BIT_SYMBOL_TYPEFACE_START, BIT_SYMBOL_TYPEFACE_END);
-		return attributes != 0;
-	}
-
-	@RestrictTo(RestrictTo.Scope.LIBRARY)
-	public int getCategoryBits() {
-		return mMask.getRange(BIT_CATEGORY_START, BIT_CATEGORY_END);
+		return mAttributes >> 2 != 0;
 	}
 
 	@IntDef({SYMBOL_ATTRIBUTE_KINSOKU_AVOID_HEADER,
@@ -63,10 +56,6 @@ public class Token extends DefaultRecyclable {
 	public static final int BIT_ATTRIBUTES_START = 16;
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
 	public static final int BIT_ATTRIBUTES_END = 31;
-	@RestrictTo(RestrictTo.Scope.LIBRARY)
-	public static final int BIT_SYMBOL_TYPEFACE_START = 18;
-	@RestrictTo(RestrictTo.Scope.LIBRARY)
-	public static final int BIT_SYMBOL_TYPEFACE_END = 21;
 
 	// type
 	public static final byte TYPE_NONE = 0; /* 什么也不是 */
@@ -81,7 +70,6 @@ public class Token extends DefaultRecyclable {
 	public static final byte CATEGORY_NORMAL = 11; /* 正常的单词 [a-z]... */
 	public static final byte CATEGORY_NUMBER = 12; /* 数字 */
 	public static final byte CATEGORY_CJK = 13; /* CJK */
-	public static final byte CATEGORY_UNKNOWN = 14; /* 未知分类 */
 
 	// symbol attributes
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -109,8 +97,7 @@ public class Token extends DefaultRecyclable {
 
 	}
 
-	@IntDef({CATEGORY_UNKNOWN,
-			CATEGORY_SYMBOL,
+	@IntDef({CATEGORY_SYMBOL,
 			CATEGORY_PUNCTUATION,
 			CATEGORY_UNKNOWN_LETTER,
 			CATEGORY_NORMAL,
@@ -120,35 +107,30 @@ public class Token extends DefaultRecyclable {
 
 	}
 
-	private CharSequence mCharSequence;
-	private int mStart;
-	private int mEnd;
-	private final BitBucket32 mMask = new BitBucket32();
+	CharSequence mCharSequence;
+	int mStart;
+	int mEnd;
+	byte mType;
+	byte mCategory;
+	byte mAttributes;
+	boolean mRtl;
 
 	private Token() {
 
 	}
 
 	public boolean isRtl() {
-		return mMask.get(DIRECTION_RTL);
+		return mRtl;
 	}
 
 	@TokenType
 	public byte getType() {
-		int v = mMask.getRange(BIT_TYPE_START, BIT_TYPE_END);
-		if (v == 0) {
-			return TYPE_NONE;
-		}
-		return (byte) numberOfTrailingZeros(v << BIT_TYPE_START);
+		return mType;
 	}
 
 	@CategoryType
 	public byte getCategory() {
-		int v = mMask.getRange(BIT_CATEGORY_START, BIT_CATEGORY_END);
-		if (v == 0) {
-			return CATEGORY_UNKNOWN;
-		}
-		return (byte) numberOfTrailingZeros(v << BIT_CATEGORY_START);
+		return mCategory;
 	}
 
 	public CharSequence getCharSequence() {
@@ -206,27 +188,26 @@ public class Token extends DefaultRecyclable {
 		return "未知";
 	}
 
-	@RestrictTo(RestrictTo.Scope.LIBRARY)
-	public boolean check(int index) {
-		return mMask.get(index);
-	}
-
 	private String getSymbolSemantics() {
 		String kinsoku = "   ";
-		if (mMask.get(SYMBOL_ATTRIBUTE_KINSOKU_AVOID_TAIL) || mMask.get(SYMBOL_ATTRIBUTE_KINSOKU_AVOID_HEADER)) {
-			kinsoku = mMask.get(SYMBOL_ATTRIBUTE_KINSOKU_AVOID_HEADER) ? "避头" : "避尾";
+		if (checkAttribute(SYMBOL_ATTRIBUTE_KINSOKU_AVOID_HEADER)) {
+			kinsoku = "避头";
+		}
+
+		if (checkAttribute(SYMBOL_ATTRIBUTE_KINSOKU_AVOID_TAIL)) {
+			kinsoku += "避尾";
 		}
 
 		String typeface = "";
-		if (mMask.get(SYMBOL_ATTRIBUTE_SQUISH_LEFT) || mMask.get(SYMBOL_ATTRIBUTE_SQUISH_RIGHT)) {
-			typeface = mMask.get(SYMBOL_ATTRIBUTE_SQUISH_LEFT) ? "挤压左" : "挤压右";
+		if (checkAttribute(SYMBOL_ATTRIBUTE_SQUISH_LEFT) || checkAttribute(SYMBOL_ATTRIBUTE_SQUISH_RIGHT)) {
+			typeface = checkAttribute(SYMBOL_ATTRIBUTE_SQUISH_LEFT) ? "挤压左" : "挤压右";
 		}
 
-		if (mMask.get(SYMBOL_ATTRIBUTE_STRETCH_LEFT) || mMask.get(SYMBOL_ATTRIBUTE_STRETCH_RIGHT)) {
+		if (checkAttribute(SYMBOL_ATTRIBUTE_STRETCH_LEFT) || checkAttribute(SYMBOL_ATTRIBUTE_STRETCH_RIGHT)) {
 			if (!typeface.isEmpty()) {
 				typeface += "&";
 			}
-			typeface += mMask.get(SYMBOL_ATTRIBUTE_STRETCH_LEFT) ? "拉伸左" : "拉伸右";
+			typeface += checkAttribute(SYMBOL_ATTRIBUTE_STRETCH_LEFT) ? "拉伸左" : "拉伸右";
 		}
 
 		return String.format("符号,%-2s,%-3s", kinsoku, typeface);
@@ -254,7 +235,10 @@ public class Token extends DefaultRecyclable {
 	protected void onRecycle() {
 		mCharSequence = null;
 		mStart = mEnd = 0;
-		mMask.clear();
+		mType = 0;
+		mCategory = 0;
+		mAttributes = 0;
+		mRtl = false;
 		POOL.release(this);
 	}
 
@@ -277,9 +261,10 @@ public class Token extends DefaultRecyclable {
 		if (o == null || getClass() != o.getClass()) return false;
 
 		Token token = (Token) o;
-		if (!(mMask.equals(token.mMask))) {
-			return false;
-		}
+		if (mType != token.mType) return false;
+		if (mCategory != token.mCategory) return false;
+		if (mAttributes != token.mAttributes) return false;
+		if (mRtl != token.mRtl) return false;
 
 		if (mCharSequence != null && token.mCharSequence != null) {
 			if ((mEnd - mStart) != (token.mEnd - token.mStart)) {
@@ -297,11 +282,7 @@ public class Token extends DefaultRecyclable {
 
 	@Override
 	public int hashCode() {
-		int result = mMask.getBits();
-		result = 31 * result + Objects.hashCode(mCharSequence);
-		result = 31 * result + mStart;
-		result = 31 * result + mEnd;
-		return result;
+		return Objects.hash(mCharSequence, mStart, mEnd, mType, mCategory, mAttributes, mRtl);
 	}
 
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -323,14 +304,17 @@ public class Token extends DefaultRecyclable {
 		}
 
 		token.reuse();
-		token.mMask.reset(TYPE_WORD);
+		token.mType = TYPE_WORD;
 		return token;
 	}
 
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
 	public static Token copy(Token other) {
 		Token copy = obtain();
-		copy.mMask.reset(other.mMask.getBits());
+		copy.mType = other.mType;
+		copy.mCategory = other.mCategory;
+		copy.mAttributes = other.mAttributes;
+		copy.mRtl = other.mRtl;
 		copy.mCharSequence = other.mCharSequence;
 		copy.mStart = other.mStart;
 		copy.mEnd = other.mEnd;

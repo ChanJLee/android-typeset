@@ -165,7 +165,6 @@ class TextTokenStream extends DefaultRecyclable implements TokenStream {
 
 	private void appendControl(BrkArray brk, int codePoint, int index) {
 		mBits.clear();
-		mBits.reset(codePoint << Token.BIT_TYPE_END);
 		mBits.set(Token.TYPE_CONTROL);
 		mBits.set(Token.DIRECTION_RTL, mRtl);
 		addBrk(brk, mBits.getBits(), index);
@@ -209,11 +208,6 @@ class TextTokenStream extends DefaultRecyclable implements TokenStream {
 		v <<= 32;
 		v += index;
 		buffer.add(v);
-	}
-
-	@VisibleForTesting
-	static int getMask(byte category, long advise) {
-		return (int) (advise << 8 | category);
 	}
 
 	@Nullable
@@ -279,8 +273,26 @@ class TextTokenStream extends DefaultRecyclable implements TokenStream {
 		token.mCharSequence = text;
 		token.mStart = (int) start;
 		token.mEnd = (int) end;
-		token.mMask.reset((int) (end >>> 32));
+
+		mBits.reset((int) (end >>> 32));
+		token.mType = (byte) (bit2Value(mBits.getRange(Token.BIT_TYPE_START, Token.BIT_TYPE_END), Token.BIT_TYPE_START));
+		if (token.mType != Token.TYPE_CONTROL) {
+			token.mCategory = (byte) (bit2Value(mBits.getRange(Token.BIT_CATEGORY_START, Token.BIT_CATEGORY_END), Token.BIT_CATEGORY_START));
+		}
+		if (token.mType == Token.TYPE_SYMBOL) {
+			token.mAttributes = (byte) mBits.getRange(Token.BIT_ATTRIBUTES_START, Token.BIT_ATTRIBUTES_END);
+		}
+		token.mRtl = mBits.get(Token.DIRECTION_RTL);
+
 		return token;
+	}
+
+	private static int bit2Value(int bits, int offset) {
+		if (bits == 0) {
+			return offset;
+		}
+
+		return Token.numberOfTrailingZeros(bits) + offset;
 	}
 
 	public int save() {
