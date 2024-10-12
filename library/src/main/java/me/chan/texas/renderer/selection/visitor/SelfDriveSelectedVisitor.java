@@ -4,35 +4,36 @@ import android.graphics.RectF;
 
 import androidx.annotation.RestrictTo;
 
+import me.chan.texas.renderer.ParagraphPredicates;
 import me.chan.texas.renderer.RenderOption;
-import me.chan.texas.renderer.TexasView;
 import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.layout.Box;
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class SelfDriveSelectedVisitor extends SelectedVisitor {
-	private TexasView.SelectionPredicate mPredicate;
-	private Object mParagraphTag;
+	private ParagraphPredicates mPredicates;
 
-	public void reset(RenderOption renderOption, TexasView.SelectionPredicate predicate) {
-		mPredicate = predicate;
+	public void reset(RenderOption renderOption, ParagraphPredicates predicates) {
+		mPredicates = predicates;
 		super.reset(true, renderOption);
 	}
 
 	@Override
 	protected void onVisitParagraphStart(Paragraph paragraph) {
 		super.onVisitParagraphStart(paragraph);
-		mParagraphTag = paragraph.getTag();
+		if (!mPredicates.acceptParagraph(paragraph.getTag())) {
+			sendVisitSig(SIG_STOP_PARA_VISIT);
+		}
 	}
 
 	@Override
 	protected boolean selected(Box box, RectF inner, RectF outer) {
-		return mPredicate.apply(mParagraphTag, box.getTag());
+		return mPredicates.acceptSpan(box.getTag());
 	}
 
 	@Override
 	public void onVisitParagraphEnd(Paragraph paragraph) {
-		mPredicate = null;
+		mPredicates = null;
 		super.onVisitParagraphEnd(paragraph);
 	}
 }
