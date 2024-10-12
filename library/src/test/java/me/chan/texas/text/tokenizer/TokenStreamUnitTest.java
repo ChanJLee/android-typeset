@@ -35,9 +35,9 @@ public class TokenStreamUnitTest {
 			System.out.println(token.toString());
 			if (token.getType() == Token.TYPE_WORD) {
 				Assert.assertEquals(values[index++], token.mCharSequence.subSequence(token.mStart, token.mEnd));
-				Assert.assertEquals(Token.WORD_CATEGORY_NORMAL, token.getCategory());
+				Assert.assertEquals(Token.CATEGORY_NORMAL, token.getCategory());
 			} else if (token.getType() == Token.TYPE_SYMBOL) {
-				Assert.assertEquals(Token.SYMBOL_CATEGORY_PUNCTUATION, token.getCategory());
+				Assert.assertEquals(Token.CATEGORY_PUNCTUATION, token.getCategory());
 			}
 		}
 	}
@@ -49,7 +49,7 @@ public class TokenStreamUnitTest {
 		TokenStream reader = TokenStream.obtain(msg, 0, msg.length());
 		while (reader.hasNext()) {
 			Token token = reader.next();
-			Assert.assertEquals(Token.WORD_CATEGORY_CJK, token.getCategory());
+			Assert.assertEquals(Token.CATEGORY_CJK, token.getCategory());
 			Assert.assertEquals(Token.TYPE_WORD, token.getType());
 		}
 	}
@@ -61,7 +61,7 @@ public class TokenStreamUnitTest {
 		TokenStream reader = TokenStream.obtain(msg, 0, msg.length());
 		while (reader.hasNext()) {
 			Token token = reader.next();
-			Assert.assertEquals(Token.WORD_CATEGORY_NUMBER, token.getCategory());
+			Assert.assertEquals(Token.CATEGORY_NUMBER, token.getCategory());
 			Assert.assertEquals(Token.TYPE_WORD, token.getType());
 		}
 	}
@@ -73,7 +73,7 @@ public class TokenStreamUnitTest {
 		TokenStream reader = TokenStream.obtain(msg, 0, msg.length());
 		while (reader.hasNext()) {
 			Token token = reader.next();
-			Assert.assertEquals(Token.SYMBOL_CATEGORY_SYMBOL, token.getCategory());
+			Assert.assertEquals(Token.CATEGORY_SYMBOL, token.getCategory());
 			Assert.assertEquals(Token.TYPE_SYMBOL, token.getType());
 		}
 	}
@@ -85,7 +85,7 @@ public class TokenStreamUnitTest {
 		TokenStream reader = TokenStream.obtain(msg, 0, msg.length());
 		while (reader.hasNext()) {
 			Token token = reader.next();
-			Assert.assertEquals(Token.SYMBOL_CATEGORY_SYMBOL, token.getCategory());
+			Assert.assertEquals(Token.CATEGORY_SYMBOL, token.getCategory());
 			Assert.assertEquals(Token.TYPE_SYMBOL, token.getType());
 		}
 	}
@@ -98,7 +98,7 @@ public class TokenStreamUnitTest {
 		TokenStream reader = TokenStream.obtain(msg, 0, msg.length());
 		while (reader.hasNext()) {
 			Token token = reader.next();
-			Assert.assertEquals(Token.WORD_CATEGORY_UNKNOWN_LETTER, token.getCategory());
+			Assert.assertEquals(Token.CATEGORY_UNKNOWN_LETTER, token.getCategory());
 			Assert.assertEquals(Token.TYPE_WORD, token.getType());
 		}
 	}

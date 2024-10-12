@@ -197,7 +197,7 @@ public class WordStreamUnitTest {
 			token.mStart = 0;
 			token.mEnd = 2;
 			token.mMask.set(Token.TYPE_WORD);
-			token.mMask.set(Token.WORD_CATEGORY_NORMAL);
+			token.mMask.set(Token.CATEGORY_NORMAL);
 			token.toString();
 			list.add(token);
 		}
@@ -219,7 +219,7 @@ public class WordStreamUnitTest {
 			token.mStart = 0;
 			token.mEnd = 2;
 			token.mMask.set(Token.TYPE_WORD);
-			token.mMask.set(Token.WORD_CATEGORY_NUMBER);
+			token.mMask.set(Token.CATEGORY_NUMBER);
 			list.add(token);
 		}
 
@@ -240,7 +240,7 @@ public class WordStreamUnitTest {
 			token.mStart = 0;
 			token.mEnd = 11;
 			token.mMask.set(Token.TYPE_WORD);
-			token.mMask.set(Token.WORD_CATEGORY_NORMAL);
+			token.mMask.set(Token.CATEGORY_NORMAL);
 			list.add(token);
 		}
 
@@ -250,7 +250,7 @@ public class WordStreamUnitTest {
 			token.mStart = 0;
 			token.mEnd = 2;
 			token.mMask.set(Token.TYPE_WORD);
-			token.mMask.set(Token.WORD_CATEGORY_CJK);
+			token.mMask.set(Token.CATEGORY_CJK);
 			list.add(token);
 		}
 
@@ -260,7 +260,7 @@ public class WordStreamUnitTest {
 			token.mStart = 0;
 			token.mEnd = 1;
 			token.mMask.set(Token.TYPE_WORD);
-			token.mMask.set(Token.WORD_CATEGORY_NORMAL);
+			token.mMask.set(Token.CATEGORY_NORMAL);
 			list.add(token);
 		}
 
@@ -270,7 +270,7 @@ public class WordStreamUnitTest {
 			token.mStart = 0;
 			token.mEnd = 1;
 			token.mMask.set(Token.TYPE_SYMBOL);
-			token.mMask.set(Token.SYMBOL_CATEGORY_PUNCTUATION);
+			token.mMask.set(Token.CATEGORY_PUNCTUATION);
 			token.mMask.set(Token.SYMBOL_ATTRIBUTE_KINSOKU_AVOID_TAIL);
 			token.mMask.set(Token.SYMBOL_ATTRIBUTE_KINSOKU_AVOID_HEADER);
 			list.add(token);
@@ -282,7 +282,7 @@ public class WordStreamUnitTest {
 			token.mStart = 0;
 			token.mEnd = 1;
 			token.mMask.set(Token.TYPE_WORD);
-			token.mMask.set(Token.WORD_CATEGORY_NORMAL);
+			token.mMask.set(Token.CATEGORY_NORMAL);
 			list.add(token);
 		}
 
