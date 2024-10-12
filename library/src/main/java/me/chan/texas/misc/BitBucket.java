@@ -4,7 +4,6 @@ import androidx.annotation.RestrictTo;
 
 import java.util.Arrays;
 
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 public class BitBucket {
 	private static final int SIZE_OF_BUCKET = 32;
 	private static final int SIZE_MASK = SIZE_OF_BUCKET - 1;
