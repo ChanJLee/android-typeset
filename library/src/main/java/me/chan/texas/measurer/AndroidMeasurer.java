@@ -13,6 +13,7 @@ import me.chan.texas.compat.TextPaintCompat;
 import me.chan.texas.misc.PaintSet;
 import me.chan.texas.text.TextStyle;
 import me.chan.texas.utils.CharArrayPool;
+import me.chan.texas.utils.TexasUtils;
 
 /**
  * android的文本测量器
@@ -52,7 +53,7 @@ public class AndroidMeasurer implements Measurer {
 		if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
 			int size = end - start;
 			char[] buf = POOL.obtain(size);
-			TextUtils.getChars(charSequence, start, end, buf, 0);
+			TexasUtils.getChars(charSequence, start, end, buf, 0);
 			width = textPaint.getRunAdvance(buf, 0, size, 0, size, false, size);
 			POOL.release(buf);
 		} else {
