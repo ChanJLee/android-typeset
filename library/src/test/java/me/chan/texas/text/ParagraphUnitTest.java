@@ -19,6 +19,7 @@ import me.chan.texas.text.layout.Line;
 import me.chan.texas.text.layout.Penalty;
 import me.chan.texas.text.layout.SymbolGlue;
 import me.chan.texas.text.layout.TextBox;
+import me.chan.texas.text.tokenizer.Token;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -193,14 +194,11 @@ public class ParagraphUnitTest {
 		mIndex = 0;
 		String[] arr = {"hello", ",", "world", ".", ".", ".", "fuck", "he's", "name"};
 		String msg = " hello, world... \n\t\r fuck he's name";
-		builder.stream(msg, 0, msg.length(), new Paragraph.Builder.SpanReader() {
-			@Override
-			public Paragraph.Span read(CharSequence text, int start, int end) {
-				String s = (String) text.subSequence(start, end);
-				System.out.println(s);
-				Assert.assertEquals(arr[mIndex++], s);
-				return null;
-			}
+		builder.stream(msg, 0, msg.length(), token -> {
+			String s = (String) msg.subSequence(token.getStart(), token.getEnd());
+			System.out.println(s);
+			Assert.assertEquals(arr[mIndex++], s);
+			return null;
 		});
 	}
 
@@ -211,12 +209,7 @@ public class ParagraphUnitTest {
 
 		mIndex = 0;
 		String msg = "bite-size";
-		builder.stream(msg, 0, msg.length(), new Paragraph.Builder.SpanReader() {
-			@Override
-			public Paragraph.Span read(CharSequence text, int start, int end) {
-				return Paragraph.Span.obtain(text, start, end).tag("fuck");
-			}
-		});
+		builder.stream(msg, 0, msg.length(), token -> Paragraph.Span.obtain(msg, token.getStart(), token.getEnd()).tag("fuck"));
 
 		boolean found = false;
 		Paragraph paragraph = builder.build();
@@ -245,12 +238,7 @@ public class ParagraphUnitTest {
 
 		mIndex = 0;
 		String msg = "bite-size";
-		builder.stream(msg, 0, msg.length(), new Paragraph.Builder.SpanReader() {
-			@Override
-			public Paragraph.Span read(CharSequence text, int start, int end) {
-				return null;
-			}
-		});
+		builder.stream(msg, 0, msg.length(), token -> null);
 
 		boolean found = false;
 		Paragraph paragraph = builder.build();

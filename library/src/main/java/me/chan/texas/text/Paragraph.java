@@ -291,16 +291,7 @@ public final class Paragraph extends DefaultRecyclable implements Segment {
 			return this;
 		}
 
-		// TODO
-		public interface SpanReader extends SpanReaderV2 {
-			Span read(CharSequence text, int start, int end);
-
-			default Span read(Token token) {
-				return read(token.getCharSequence(), token.getStart(), token.getEnd());
-			}
-		}
-
-		public interface SpanReaderV2 {
+		public interface SpanReader {
 			Span read(Token token);
 		}
 
@@ -529,7 +520,7 @@ public final class Paragraph extends DefaultRecyclable implements Segment {
 
 		@Override
 		@RestrictTo(LIBRARY)
-		public final Span read(CharSequence text, int start, int end) {
+		public final Span read(Token token) {
 			Span span = Span.obtain(mSpan.mText, mSpan.mStart, mSpan.mEnd);
 			span.copy(mSpan);
 			return span;
