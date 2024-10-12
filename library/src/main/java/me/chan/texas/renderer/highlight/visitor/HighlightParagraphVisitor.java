@@ -23,7 +23,7 @@ public class HighlightParagraphVisitor extends ParagraphVisitor {
 
 	@Override
 	protected void onVisitParagraphStart(Paragraph paragraph) {
-		if (mPredicates.acceptParagraph(paragraph.getTag())) {
+		if (!mPredicates.acceptParagraph(paragraph.getTag())) {
 			sendVisitSig(SIG_STOP_PARA_VISIT);
 		}
 	}

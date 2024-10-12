@@ -20,7 +20,6 @@ public class SelfDriveSelectedVisitor extends SelectedVisitor {
 
 	@Override
 	protected void onVisitParagraphStart(Paragraph paragraph) {
-		super.onVisitParagraphStart(paragraph);
 		if (!mPredicates.acceptParagraph(paragraph.getTag())) {
 			sendVisitSig(SIG_STOP_PARA_VISIT);
 		}
