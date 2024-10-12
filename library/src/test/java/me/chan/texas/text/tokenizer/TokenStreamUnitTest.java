@@ -81,15 +81,36 @@ public class TokenStreamUnitTest {
 	@Test
 	public void testCategory4() {
 		String msg = "$";
-		System.out.println(msg.length() + " " + msg.codePointCount(0, msg.length()));
 		TokenStream reader = TokenStream.obtain(msg, 0, msg.length());
 		while (reader.hasNext()) {
 			Token token = reader.next();
 			Assert.assertEquals(Token.CATEGORY_SYMBOL, token.getCategory());
 			Assert.assertEquals(Token.TYPE_SYMBOL, token.getType());
+			Assert.assertTrue(token.checkAttribute(Token.SYMBOL_ATTRIBUTE_KINSOKU_AVOID_TAIL));
+			Assert.assertFalse(token.checkAttribute(Token.SYMBOL_ATTRIBUTE_KINSOKU_AVOID_HEADER));
+		}
+
+		msg = "&";
+		reader = TokenStream.obtain(msg, 0, msg.length());
+		while (reader.hasNext()) {
+			Token token = reader.next();
+			Assert.assertEquals(Token.CATEGORY_PUNCTUATION, token.getCategory());
+			Assert.assertEquals(Token.TYPE_SYMBOL, token.getType());
+			Assert.assertTrue(token.checkAttribute(Token.SYMBOL_ATTRIBUTE_KINSOKU_AVOID_TAIL));
+			Assert.assertTrue(token.checkAttribute(Token.SYMBOL_ATTRIBUTE_KINSOKU_AVOID_HEADER));
+		}
+
+		msg = "《";
+		reader = TokenStream.obtain(msg, 0, msg.length());
+		while (reader.hasNext()) {
+			Token token = reader.next();
+			Assert.assertEquals(Token.CATEGORY_PUNCTUATION, token.getCategory());
+			Assert.assertEquals(Token.TYPE_SYMBOL, token.getType());
+			Assert.assertTrue(token.checkAttribute(Token.SYMBOL_ATTRIBUTE_KINSOKU_AVOID_TAIL));
+			Assert.assertFalse(token.checkAttribute(Token.SYMBOL_ATTRIBUTE_KINSOKU_AVOID_HEADER));
+			Assert.assertTrue(token.checkAttribute(Token.SYMBOL_ATTRIBUTE_SQUISH_LEFT));
 		}
 	}
-
 
 	@Test
 	public void testCategory5() {
