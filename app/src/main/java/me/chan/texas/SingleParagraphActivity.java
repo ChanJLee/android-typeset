@@ -18,6 +18,7 @@ import me.chan.texas.renderer.TouchEvent;
 import me.chan.texas.renderer.ui.text.ParagraphView;
 import me.chan.texas.source.SourceCloseException;
 import me.chan.texas.text.Paragraph;
+import me.chan.texas.text.tokenizer.Token;
 
 public class SingleParagraphActivity extends AppCompatActivity {
 
@@ -76,9 +77,13 @@ public class SingleParagraphActivity extends AppCompatActivity {
 			@Override
 			protected Paragraph onOpen(TexasOption option) {
 				Paragraph.Builder builder = Paragraph.Builder.newBuilder(option);
-				builder.stream(msg, 0, msg.length(), (text, start, end) -> {
-					Paragraph.Span span = Paragraph.Span.obtain(text, start, end);
-					return span.tag(new Tag(start, end));
+				builder.stream(msg, 0, msg.length(), token -> {
+					Paragraph.Span span = Paragraph.Span.obtain(token);
+					if (token.getCategory() != Token.CATEGORY_NORMAL) {
+						return span;
+					}
+
+					return span.tag(new Tag(token.getStart(), token.getEnd()));
 				});
 				return builder.build();
 			}
