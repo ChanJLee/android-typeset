@@ -6,7 +6,6 @@ import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 
-import me.chan.texas.annotations.Idempotent;
 import me.chan.texas.text.layout.Box;
 
 public final class RendererContext {
@@ -147,5 +146,10 @@ public final class RendererContext {
 			this.index = meta.index;
 			this.inner.set(meta.inner);
 		}
+	}
+
+	@RestrictTo(RestrictTo.Scope.LIBRARY)
+	public BoxMetaInfo getCurrentBoxMetaInfo() {
+		return currentBoxMetaInfo;
 	}
 }
