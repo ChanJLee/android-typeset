@@ -75,8 +75,8 @@ public class SelectedTextByDragVisitor extends SelectedVisitor {
 			float bottom = rectF.top - layout.getLineSpace();
 			float right = mLinesWidthBuffer.get(index);
 			rectF = new RectF(right - box.getWidth(), bottom - line.getLineHeight(), right, bottom);
-			mSelection.pushRegion(rectF);
-			mSelection.pushBox(textBox);
+			mSelection.prependRegion(rectF);
+			mSelection.prependBox(textBox);
 			index = link(line, count - 2, false, rectF);
 		}
 	}
@@ -95,7 +95,7 @@ public class SelectedTextByDragVisitor extends SelectedVisitor {
 				mSelection.appendBox(box);
 				rectF.right += box.getWidth();
 			} else {
-				mSelection.pushBox(box);
+				mSelection.prependBox(box);
 				rectF.left -= box.getWidth();
 			}
 		}
