@@ -30,6 +30,7 @@ import me.chan.texas.text.Appearance;
 import me.chan.texas.renderer.RendererContext;
 import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.TextStyle;
+import me.chan.texas.text.TextStyles;
 import me.chan.texas.text.layout.Box;
 import me.chan.texas.text.layout.Layout;
 import me.chan.texas.text.layout.Line;
@@ -169,8 +170,6 @@ public class RenderWorker implements TaskQueue.Task<RenderWorker.Args, Void>, Ta
 				highlight.updateStyle(args.option);
 			}
 
-			renderSelection(canvas, args, selection);
-
 			mDrawVisitor.setCanvas(canvas);
 			mDrawVisitor.setRenderContext(args);
 			mDrawVisitor.visit(paragraph);
@@ -179,16 +178,6 @@ public class RenderWorker implements TaskQueue.Task<RenderWorker.Args, Void>, Ta
 		} finally {
 			mDrawVisitor.clear();
 		}
-	}
-
-	private void renderSelection(Canvas canvas, Args args, ParagraphSelection selection) {
-		if (selection == null) {
-			return;
-		}
-
-		TextPaint workPaint = args.paintSet.getWorkPaint(mWorkPaint);
-		workPaint.setColor(selection.getBgColor());
-		selection.draw(canvas, workPaint, args.option.getSelectedBackgroundRoundRadius());
 	}
 
 	private void renderDebug(int taskId, Canvas canvas, Paragraph paragraph, Args args) {
@@ -249,16 +238,18 @@ public class RenderWorker implements TaskQueue.Task<RenderWorker.Args, Void>, Ta
 	}
 
 	private final static class DrawVisitor extends ParagraphVisitor {
+		private static final int STEP_DRAW_BACKGROUND = 0;
+		private static final int STEP_DRAW_CONTENT = 1;
 
 		private Canvas mCanvas;
 		private Line mLine;
 		private Args mArgs;
 		private boolean mIsInterrupted = false;
+		private int mStep = STEP_DRAW_BACKGROUND;
 
 		private final TextPaint mWorkPaint;
 
 		private ParagraphSelection mSelection;
-		private ParagraphHighlight mHighlight;
 
 		public DrawVisitor(TextPaint workPaint) {
 			mWorkPaint = workPaint;
@@ -273,14 +264,20 @@ public class RenderWorker implements TaskQueue.Task<RenderWorker.Args, Void>, Ta
 		}
 
 		@Override
+		public void visit(Paragraph paragraph) throws VisitException {
+			mStep = STEP_DRAW_BACKGROUND;
+			super.visit(paragraph);
+			mStep = STEP_DRAW_CONTENT;
+			super.visit(paragraph);
+		}
+
+		@Override
 		protected void onVisitParagraphStart(Paragraph paragraph) {
-			mHighlight = paragraph.getHighlight();
 			mSelection = paragraph.getSelection();
 		}
 
 		@Override
 		protected void onVisitParagraphEnd(Paragraph paragraph) {
-			mHighlight = null;
 			mSelection = null;
 		}
 
@@ -297,12 +294,12 @@ public class RenderWorker implements TaskQueue.Task<RenderWorker.Args, Void>, Ta
 		@Override
 		public void onVisitBox(Box box, RectF inner, RectF outer, @NonNull RendererContext context) {
 			boolean isSelected = isBoxSelected(mSelection, box);
-
-			// 先绘制背景
-			drawBackground(box, isSelected, inner, outer, context);
+			if (mStep == STEP_DRAW_BACKGROUND) {
+				drawBackground(box, inner, outer, context, isSelected);
+				return;
+			}
 
 			TextPaint workPaint = mArgs.paintSet.getWorkPaint(mWorkPaint);
-
 			if (box instanceof TextBox) {
 				TextBox textBox = (TextBox) box;
 				// 显示高亮
@@ -313,21 +310,31 @@ public class RenderWorker implements TaskQueue.Task<RenderWorker.Args, Void>, Ta
 					textStyle.update(workPaint, tag);
 				}
 
-				if (mHighlight != null && mHighlight.isHighlight(box)) {
-					workPaint.setColor(mHighlight.getTextColor());
+				if (mSelection != null && isSelected) {
+					TextStyles textStyles = mSelection.getStyles();
+					textStyle = textStyles.getTextStyle();
+					if (textStyle != null) {
+						textStyle.update(workPaint, box.getTag());
+					}
 				}
-			}
-
-			if (mSelection != null && isSelected) {
-				workPaint.setColor(mSelection.getTextColor());
 			}
 
 			drawContent(box, workPaint, inner, isSelected);
 
-			drawForeground(box, inner, outer, context);
+			drawForeground(box, inner, outer, context, isSelected);
 		}
 
-		private void drawForeground(Box box, RectF inner, RectF outer, RendererContext context) {
+		private void drawForeground(Box box, RectF inner, RectF outer, RendererContext context, boolean isSelected) {
+			if (isSelected) {
+				TextStyles textStyles = mSelection.getStyles();
+				Appearance foreground = textStyles.getForeground();
+				if (foreground != null) {
+					TextPaint workPaint = mArgs.paintSet.getWorkPaint(mWorkPaint);
+					foreground.draw(mCanvas, workPaint, inner, outer, context);
+					return;
+				}
+			}
+
 			Appearance foreground = box.getForeground();
 			if (foreground != null) {
 				TextPaint workPaint = mArgs.paintSet.getWorkPaint(mWorkPaint);
@@ -339,9 +346,19 @@ public class RenderWorker implements TaskQueue.Task<RenderWorker.Args, Void>, Ta
 			box.draw(mCanvas, workPaint, inner.left, inner.bottom - mLine.getBaselineOffset(), isSelected);
 		}
 
-		private void drawBackground(Box box, boolean isSelected, RectF inner, RectF outer, RendererContext context) {
+		private void drawBackground(Box box, RectF inner, RectF outer, RendererContext context, boolean isSelected) {
+			if (isSelected) {
+				TextStyles textStyles = mSelection.getStyles();
+				Appearance background = textStyles.getBackground();
+				if (background != null) {
+					TextPaint workPaint = mArgs.paintSet.getWorkPaint(mWorkPaint);
+					background.draw(mCanvas, workPaint, inner, outer, context);
+					return;
+				}
+			}
+
 			Appearance background = box.getBackground();
-			if (background != null && !isSelected) {
+			if (background != null) {
 				TextPaint workPaint = mArgs.paintSet.getWorkPaint(mWorkPaint);
 				background.draw(mCanvas, workPaint, inner, outer, context);
 			}
