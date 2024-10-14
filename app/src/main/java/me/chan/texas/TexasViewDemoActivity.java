@@ -85,7 +85,7 @@ public class TexasViewDemoActivity extends AppCompatActivity {
 		mTexasView.setSpanTouchEventHandler(new SpanTouchEventHandler() {
 			@Override
 			public boolean isSpanClickable(Object tag) {
-				return true;
+				return tag != null;
 			}
 
 			// 单机谓词 判断 单机时哪些单词要被高亮
@@ -96,6 +96,10 @@ public class TexasViewDemoActivity extends AppCompatActivity {
 
 			@Override
 			public boolean applySpanLongClicked(@Nullable Object clickedTag, @Nullable Object otherTag) {
+				if (otherTag == null) {
+					return true;
+				}
+
 				if (clickedTag instanceof BookParser.SpanTag && otherTag instanceof BookParser.SpanTag) {
 					BookParser.SpanTag lhs = (BookParser.SpanTag) clickedTag;
 					BookParser.SpanTag rhs = (BookParser.SpanTag) otherTag;
