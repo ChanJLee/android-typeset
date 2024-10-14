@@ -23,6 +23,7 @@ import me.chan.texas.misc.ObjectPool;
 import me.chan.texas.renderer.ParagraphVisitor;
 import me.chan.texas.renderer.RenderOption;
 import me.chan.texas.renderer.RendererContext;
+import me.chan.texas.text.Appearance;
 import me.chan.texas.text.BatchDrawAppearance;
 import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.TextStyle;
@@ -306,19 +307,11 @@ public class ParagraphSelection extends DefaultRecyclable {
 					textPaint.setColor(mTextColor);
 				}
 			});
-			setBackground(new BatchDrawAppearance() {
+			setBackground(new SelectionAppearance(selection) {
 				@Override
-				protected void onDraw(Canvas canvas, Paint paint, RectF inner, RectF outer, RendererContext context) {
-					if (!isSameGroup(context)) {
-						return;
-					}
+				protected void onDraw(Canvas canvas, Paint paint) {
 					paint.setColor(mBackgroundColor);
-					canvas.drawRoundRect(inner, mRound, mRound, paint);
-				}
-
-				@Override
-				protected boolean isSameGroup(RendererContext context) {
-					return selection.isSelected(context.getCurrentBoxMetaInfo().box);
+					canvas.drawRoundRect(mInner, mRound, mRound, paint);
 				}
 			});
 		}
@@ -345,5 +338,48 @@ public class ParagraphSelection extends DefaultRecyclable {
 			box = null;
 			rect.set(0, 0, 0, 0);
 		}
+	}
+
+	public static abstract class SelectionAppearance extends Appearance {
+
+		protected final RectF mInner = new RectF();
+
+		private boolean mShouldReset = false;
+
+		private final ParagraphSelection mSelection;
+
+		public SelectionAppearance(ParagraphSelection selection) {
+			mSelection = selection;
+		}
+
+		// TODO context support update state
+		@Override
+		public final void draw(Canvas canvas, Paint paint, RectF inner, RectF outer, RendererContext context) {
+			if (context.checkLocation(RendererContext.LOCATION_LINE_START)) {
+				mShouldReset = true;
+			}
+
+			boolean isSelected = mSelection.isSelected(context.getCurrentBoxMetaInfo().box);
+			if (isSelected) {
+				if (mShouldReset) {
+					mInner.set(inner);
+					mShouldReset = false;
+				} else {
+					mInner.right = inner.right;
+					mInner.top = Math.max(mInner.top, inner.top);
+					mInner.bottom = Math.max(mInner.bottom, inner.bottom);
+				}
+			}
+
+			if (context.checkLocation(RendererContext.LOCATION_LINE_END) || !isSelected) {
+				if (!mInner.isEmpty()) {
+					onDraw(canvas, paint);
+				}
+				mShouldReset = true;
+				mInner.set(0, 0, 0, 0);
+			}
+		}
+
+		protected abstract void onDraw(Canvas canvas, Paint paint);
 	}
 }
