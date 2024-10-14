@@ -23,7 +23,7 @@ import me.chan.texas.renderer.TouchEvent;
 import me.chan.texas.renderer.selection.overlay.SelectionDragView;
 import me.chan.texas.renderer.selection.visitor.SelectedTextByClickedVisitor;
 import me.chan.texas.renderer.selection.visitor.SelectedTextByDragVisitor;
-import me.chan.texas.renderer.selection.visitor.SelfDriveSelectedVisitor;
+import me.chan.texas.renderer.selection.visitor.PredicatesDriveSelectedVisitor;
 import me.chan.texas.renderer.ui.RendererAdapter;
 import me.chan.texas.renderer.ui.rv.TexasRecyclerView;
 import me.chan.texas.renderer.ui.text.OnSelectedChangedListener;
@@ -31,6 +31,7 @@ import me.chan.texas.renderer.ui.text.TextureParagraph;
 import me.chan.texas.text.Document;
 import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.Segment;
+import me.chan.texas.text.TextStyles;
 import me.chan.texas.text.layout.Box;
 
 /**
@@ -57,7 +58,7 @@ public class SelectionManager implements OnSelectedChangedListener {
 	 * <p>
 	 * 即主动调用 {@link TexasView#selectParagraphs} 接口，而不是通过点击操作
 	 */
-	private final SelfDriveSelectedVisitor mSelfDriveSelectedVisitor = new SelfDriveSelectedVisitor();
+	private final PredicatesDriveSelectedVisitor mPredicatesDriveSelectedVisitor = new PredicatesDriveSelectedVisitor();
 	/**
 	 * 用于拖拽时选中文本 {@link SelectionManager#handleMoveToSelection(float, float, float, float, boolean)}
 	 */
@@ -400,7 +401,7 @@ public class SelectionManager implements OnSelectedChangedListener {
 	 * @return 选中区域
 	 */
 	@Nullable
-	public Selection selectParagraphs(ParagraphPredicates predicates) {
+	public Selection selectParagraphs(ParagraphPredicates predicates, @Nullable TextStyles styles) {
 		Document document = mAdapter.getDocument();
 		clearSelection();
 
@@ -410,32 +411,37 @@ public class SelectionManager implements OnSelectedChangedListener {
 				continue;
 			}
 
-			selectParagraph((Paragraph) segment, predicates, i);
+			selectParagraph((Paragraph) segment, predicates, i, styles);
 		}
 
 		notifyUpdateSelectionDropView();
 		return mCurrentSelection;
 	}
 
-	private void selectParagraph(Paragraph paragraph, ParagraphPredicates predicates, int index) {
+	private void selectParagraph(Paragraph paragraph, ParagraphPredicates predicates, int index, @Nullable TextStyles styles) {
 		if (paragraph == null) {
 			return;
 		}
+		// todo clear
 
 		try {
 			RenderOption renderOption = mAdapter.getRenderOption();
-			mSelfDriveSelectedVisitor.reset(renderOption, predicates);
-			mSelfDriveSelectedVisitor.startVisit(paragraph);
+			mPredicatesDriveSelectedVisitor.reset(renderOption, predicates, styles);
+			mPredicatesDriveSelectedVisitor.startVisit(paragraph);
 			handleParagraphSelected(paragraph, index);
 		} catch (ParagraphVisitor.VisitException ignored) {
 			/* do nothing */
 		} finally {
-			mSelfDriveSelectedVisitor.clear();
+			mPredicatesDriveSelectedVisitor.clear();
 		}
 	}
 
 	private void addParagraphSelection(Selection selection, Paragraph paragraph) {
-		selection.add(paragraph);
+		// TODO 去重
+		ParagraphSelection paragraphSelection = paragraph.getSelection();
+		if (paragraphSelection != null) {
+			selection.add(paragraph);
+		}
 	}
 
 	/**
