@@ -37,6 +37,7 @@ import me.chan.texas.renderer.ui.rv.SegmentItemDecoration;
 import me.chan.texas.renderer.ui.rv.TexasLinearLayoutManager;
 import me.chan.texas.renderer.ui.rv.TexasRecyclerView;
 import me.chan.texas.text.Document;
+import me.chan.texas.text.TextStyles;
 import me.chan.texas.utils.TexasUtils;
 import me.chan.texas.utils.concurrency.TaskQueue;
 
@@ -465,8 +466,8 @@ public class Renderer implements SelectionManager.Listener {
 		return mRenderOption;
 	}
 
-	public Selection selectParagraphs(ParagraphPredicates predicates) {
-		return mSelectionManager.selectParagraphs(predicates);
+	public Selection selectParagraphs(ParagraphPredicates predicates, @Nullable TextStyles styles) {
+		return mSelectionManager.selectParagraphs(predicates, styles);
 	}
 
 	public int getPaddingWidth() {
