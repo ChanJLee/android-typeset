@@ -11,6 +11,7 @@ import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.annotation.VisibleForTesting;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -237,6 +238,51 @@ public class ParagraphSelection extends DefaultRecyclable {
 			if (selection.isSelected(box)) {
 				tags.add(box.getTag());
 			}
+		}
+	}
+
+	@VisibleForTesting
+	@RestrictTo(LIBRARY)
+	String toString(Paragraph paragraph) {
+		Layout layout = paragraph.getLayout();
+		if (paragraph.isRecycled() || layout == null || layout.isRecycled()) {
+			return "";
+		}
+
+		try {
+			StringBuilder builder = new StringBuilder();
+			ParagraphVisitor paragraphVisitor = new ParagraphVisitor() {
+				@Override
+				protected void onVisitParagraphStart(Paragraph paragraph) {
+
+				}
+
+				@Override
+				protected void onVisitParagraphEnd(Paragraph paragraph) {
+
+				}
+
+				@Override
+				protected void onVisitLineStart(Line line, float x, float y) {
+
+				}
+
+				@Override
+				protected void onVisitLineEnd(Line line, float x, float y) {
+
+				}
+
+				@Override
+				protected void onVisitBox(Box box, RectF inner, RectF outer, @NonNull RendererContext context) {
+					if (isSelected(box)) {
+						builder.append(box.getTag()).append(", ");
+					}
+				}
+			};
+			paragraphVisitor.visit(paragraph);
+			return builder.toString();
+		} catch (Throwable ignored) {
+			return "";
 		}
 	}
 
