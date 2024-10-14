@@ -43,6 +43,7 @@ public class ParagraphSelection extends DefaultRecyclable {
 	private TextStyles mStyles;
 	private int mId;
 	private final BitBucket mSet = new BitBucket(128);
+	private final List<RectF> mBackgrounds = new ArrayList<>();
 
 	private ParagraphSelection() {
 	}
@@ -60,46 +61,47 @@ public class ParagraphSelection extends DefaultRecyclable {
 		return mId;
 	}
 
-	private final BoxLocation mFirst = new BoxLocation();
-	private final BoxLocation mLast = new BoxLocation();
+	private Box mFirst;
+	private Box mLast;
 
 	@RestrictTo(LIBRARY)
 	public void prependBox(Box box) {
 		mSet.set(box.getSeq(), true);
 
-		if (mLast.box == null) {
-			mLast.box = box;
+
+		if (mLast == null) {
+			mLast = box;
 		}
 
-		mFirst.box = box;
+		mFirst = box;
 	}
 
 	@RestrictTo(LIBRARY)
 	public void appendRegion(RectF rectF) {
-		mLast.rect.set(rectF);
+		mBackgrounds.add(rectF);
 	}
 
 	@RestrictTo(LIBRARY)
 	public void prependRegion(RectF rectF) {
-		mFirst.rect.set(rectF);
+		mBackgrounds.add(0, rectF);
 	}
 
 	@RestrictTo(LIBRARY)
 	public void appendBox(Box box) {
 		mSet.set(box.getSeq(), true);
 
-		if (mFirst.box == null) {
-			mFirst.box = box;
+		if (mFirst == null) {
+			mFirst = box;
 		}
 
-		mLast.box = box;
+		mLast = box;
 	}
 
 	/**
 	 * @return 选中区域是空的
 	 */
 	public boolean isSelectedRegionEmpty() {
-		return mFirst.rect.isEmpty() && mLast.rect.isEmpty();
+		return mBackgrounds.isEmpty();
 	}
 
 	/**
@@ -128,8 +130,7 @@ public class ParagraphSelection extends DefaultRecyclable {
 	@Override
 	protected void onRecycle() {
 		mSet.clear();
-		mFirst.clear();
-		mLast.clear();
+		mBackgrounds.clear();
 		mStyles = null;
 		mId = 0;
 		POOL.release(this);
@@ -166,26 +167,32 @@ public class ParagraphSelection extends DefaultRecyclable {
 
 	@Nullable
 	public RectF getFirstRegion() {
-		return mFirst.rect;
+		if (mBackgrounds.isEmpty()) {
+			return null;
+		}
+		return mBackgrounds.get(0);
 	}
 
 	@Nullable
 	public RectF getLastRegion() {
-		return mLast.rect;
+		if (mBackgrounds.isEmpty()) {
+			return null;
+		}
+		return mBackgrounds.get(mBackgrounds.size() - 1);
 	}
 
 	@Nullable
 	public Box getFirstBox() {
-		return mFirst.box;
+		return mFirst;
 	}
 
 	@Nullable
 	public Box getLastBox() {
-		return mLast.box;
+		return mLast;
 	}
 
 	public boolean isEmpty() {
-		return mFirst.box == null;
+		return mFirst == null;
 	}
 
 	@RestrictTo(LIBRARY)
@@ -195,8 +202,8 @@ public class ParagraphSelection extends DefaultRecyclable {
 
 	public void clear() {
 		mSet.clear();
-		mFirst.clear();
-		mLast.clear();
+		mFirst = mLast = null;
+		mBackgrounds.clear();
 	}
 
 	public void updateStyle(RenderOption option) {
@@ -327,16 +334,6 @@ public class ParagraphSelection extends DefaultRecyclable {
 
 			mTextColor = option.getSelectedTextColor();
 			mBackgroundColor = option.getSelectedBackgroundColor();
-		}
-	}
-
-	private static final class BoxLocation {
-		Box box;
-		final RectF rect = new RectF();
-
-		void clear() {
-			box = null;
-			rect.set(0, 0, 0, 0);
 		}
 	}
 

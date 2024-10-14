@@ -52,10 +52,12 @@ public class BookParser extends TexasView.Adapter<CharSequence> {
 	public static class SpanTag {
 		public String sentId;
 		public String text;
+		public boolean isWord;
 
-		public SpanTag(String sentId, String text) {
+		public SpanTag(String sentId, String text, boolean isWord) {
 			this.sentId = sentId;
 			this.text = text;
+			this.isWord = isWord;
 		}
 	}
 
@@ -340,10 +342,10 @@ public class BookParser extends TexasView.Adapter<CharSequence> {
 	private void parseParagraph(Paragraph.Builder builder, String paragraph, String sentId) {
 		builder.stream(paragraph, 0, paragraph.length(), (token) -> {
 			Paragraph.Span span = Paragraph.Span.obtain(token)
-					.setForeground(RED_UL);
-			if (token.getCategory() == Token.CATEGORY_NORMAL) {
-				span.tag(new SpanTag(sentId, token.getCharSequence().subSequence(token.getStart(), token.getEnd()).toString()));
-			}
+					.setForeground(RED_UL)
+					.tag(new SpanTag(sentId,
+							token.getCharSequence().subSequence(token.getStart(), token.getEnd()).toString(),
+							token.getCategory() == Token.CATEGORY_NORMAL));
 
 			if ("A9127P126990S210411".equals(sentId)) {
 				span.setBackground(new RectGround(0xffC09453));
