@@ -58,8 +58,8 @@ import me.chan.texas.source.SourceOpenException;
 import me.chan.texas.text.BreakStrategy;
 import me.chan.texas.text.Document;
 import me.chan.texas.text.HyphenStrategy;
-import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.Segment;
+import me.chan.texas.text.TextStyles;
 import me.chan.texas.utils.TexasUtils;
 import me.chan.texas.utils.concurrency.TaskQueue;
 
@@ -635,8 +635,8 @@ public final class TexasView extends FrameLayout {
 	 * 高亮paragraph中的文本，只在渲染出document后生效
 	 *
 	 * @param predicates 谓词
-	 * @param scrollTo  是否滚动到高亮区域
-	 * @param offset    滚动偏移
+	 * @param scrollTo   是否滚动到高亮区域
+	 * @param offset     滚动偏移
 	 */
 	public void highlightParagraphs(ParagraphPredicates predicates, boolean scrollTo, int offset) {
 		if (mRenderer == null) {
@@ -664,12 +664,24 @@ public final class TexasView extends FrameLayout {
 	/**
 	 * 选中文本
 	 *
-	 * @param predicate predicate
+	 * @param predicates predicate
 	 * @return 选中区域
 	 */
 	@Nullable
 	public Selection selectParagraphs(ParagraphPredicates predicates) {
-		return mRenderer == null ? null : mRenderer.selectParagraphs(predicates);
+		return selectParagraphs(predicates, null);
+	}
+
+	/**
+	 * 选中文本
+	 *
+	 * @param predicates predicate
+	 * @param styles     选中文本的样式，为空就为默认样式 {@link RenderOption#setSelectedByLongClickTextColor(int)} (int)} ...
+	 * @return 选中区域
+	 */
+	@Nullable
+	public Selection selectParagraphs(ParagraphPredicates predicates, @Nullable TextStyles styles) {
+		return mRenderer == null ? null : mRenderer.selectParagraphs(predicates, styles);
 	}
 
 	/**
