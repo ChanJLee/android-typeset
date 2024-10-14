@@ -275,7 +275,7 @@ public class ParagraphSelection extends DefaultRecyclable {
 				@Override
 				protected void onVisitBox(Box box, RectF inner, RectF outer, @NonNull RendererContext context) {
 					if (isSelected(box)) {
-						builder.append(box.getTag()).append(", ");
+						builder.append(box).append(", ");
 					}
 				}
 			};
@@ -308,7 +308,10 @@ public class ParagraphSelection extends DefaultRecyclable {
 			});
 			setBackground(new BatchDrawAppearance() {
 				@Override
-				protected void onDraw(Canvas canvas, Paint paint, RectF inner, RectF outer) {
+				protected void onDraw(Canvas canvas, Paint paint, RectF inner, RectF outer, RendererContext context) {
+					if (!isSameGroup(context)) {
+						return;
+					}
 					paint.setColor(mBackgroundColor);
 					canvas.drawRoundRect(inner, mRound, mRound, paint);
 				}
