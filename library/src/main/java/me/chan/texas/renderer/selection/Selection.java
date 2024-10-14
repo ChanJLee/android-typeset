@@ -4,12 +4,12 @@ import android.graphics.RectF;
 import android.util.Log;
 import android.view.View;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 
 import me.chan.texas.misc.DefaultRecyclable;
 import me.chan.texas.misc.ObjectPool;
-import me.chan.texas.renderer.core.WorkerScheduler;
 import me.chan.texas.renderer.ui.RendererAdapter;
 import me.chan.texas.renderer.ui.rv.TexasLinearLayoutManager;
 import me.chan.texas.renderer.ui.rv.TexasRecyclerView;
@@ -59,7 +59,6 @@ public final class Selection extends DefaultRecyclable {
 
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
 	RectEdge getSelectedRectEdge(TexasRecyclerView container) {
-
 		int size = mParagraphs.size();
 		if (size == 0) {
 			return null;
@@ -184,6 +183,16 @@ public final class Selection extends DefaultRecyclable {
 
 	public boolean isEmpty() {
 		return mParagraphs.isEmpty();
+	}
+
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder("[");
+		for (Paragraph paragraph : mParagraphs) {
+			builder.append(paragraph.getSelection().toString(paragraph)).append(", ");
+		}
+		builder.append("]");
+		return builder.toString();
 	}
 
 	private static void w(String msg) {
