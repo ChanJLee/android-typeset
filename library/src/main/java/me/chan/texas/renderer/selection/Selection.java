@@ -240,6 +240,8 @@ public final class Selection extends DefaultRecyclable {
 		private final int mBackgroundColor;
 		private final int mTextColor;
 
+		private boolean mEnableDrag = true;
+
 		public Styles(int backgroundColor, int textColor) {
 			mBackgroundColor = backgroundColor;
 			mTextColor = textColor;
@@ -251,6 +253,15 @@ public final class Selection extends DefaultRecyclable {
 
 		public int getTextColor() {
 			return mTextColor;
+		}
+
+		public boolean isEnableDrag() {
+			return mEnableDrag;
+		}
+
+		public Styles setEnableDrag(boolean enableDrag) {
+			mEnableDrag = enableDrag;
+			return this;
 		}
 	}
 }

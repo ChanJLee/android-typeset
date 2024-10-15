@@ -279,7 +279,7 @@ public class Renderer implements SelectionManager.Listener {
 	}
 
 	public void highlightParagraphs(ParagraphPredicates predicates, boolean scrollTo, int offset) {
-		Selection selection = selectParagraphs(predicates, new Selection.Styles(Color.TRANSPARENT, mRenderOption.getSpanHighlightTextColor()));
+		Selection selection = selectParagraphs(predicates, new Selection.Styles(Color.TRANSPARENT, mRenderOption.getSpanHighlightTextColor()).setEnableDrag(false));
 		if (selection == null || selection.isEmpty()) {
 			return;
 		}
