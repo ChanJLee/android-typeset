@@ -8,6 +8,7 @@ import androidx.annotation.RestrictTo;
 import me.chan.texas.renderer.ParagraphPredicates;
 import me.chan.texas.renderer.RenderOption;
 import me.chan.texas.renderer.selection.ParagraphSelection;
+import me.chan.texas.renderer.selection.Selection;
 import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.TextStyles;
 import me.chan.texas.text.layout.Box;
@@ -16,7 +17,7 @@ import me.chan.texas.text.layout.Box;
 public class PredicatesDriveSelectedVisitor extends SelectedVisitor {
 	private ParagraphPredicates mPredicates;
 
-	public void reset(RenderOption renderOption, ParagraphPredicates predicates, @Nullable TextStyles styles) {
+	public void reset(RenderOption renderOption, ParagraphPredicates predicates, @Nullable Selection.Styles styles) {
 		mPredicates = predicates;
 
 		// 如果样式为空，则按照长按的效果来处理

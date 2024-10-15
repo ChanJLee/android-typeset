@@ -3,6 +3,7 @@ package me.chan.texas.renderer.selection;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.RectF;
 import android.text.TextPaint;
@@ -150,18 +151,21 @@ public class ParagraphSelection extends DefaultRecyclable {
 	}
 
 	/**
-	 * @param textStyles 渲染样式
+	 * @param styles 渲染样式
 	 * @return selection selection
 	 */
 	@RestrictTo(LIBRARY)
-	public static ParagraphSelection obtain(TextStyles textStyles) {
+	public static ParagraphSelection obtain(Selection.Styles styles) {
+		if (styles == null) {
+			return obtain(true);
+		}
+
 		ParagraphSelection paragraphSelection = POOL.acquire();
 		if (paragraphSelection == null) {
 			paragraphSelection = new ParagraphSelection();
 		}
 
-		paragraphSelection.reuse();
-		paragraphSelection.reset(textStyles);
+		paragraphSelection.reset(new SelectionStyles(paragraphSelection, styles.getTextColor(), styles.getBackgroundColor()));
 		return paragraphSelection;
 	}
 
@@ -334,6 +338,35 @@ public class ParagraphSelection extends DefaultRecyclable {
 
 			mTextColor = option.getSelectedTextColor();
 			mBackgroundColor = option.getSelectedBackgroundColor();
+		}
+	}
+
+	private static class SelectionStyles extends TextStyles {
+		private float mRound;
+
+		public SelectionStyles(ParagraphSelection selection, int textColor, int backgroundColor) {
+			setTextStyle(new TextStyle() {
+				@Override
+				public void update(@NonNull TextPaint textPaint, @Nullable Object tag) {
+					textPaint.setColor(textColor);
+				}
+			});
+
+			if (backgroundColor != Color.TRANSPARENT) {
+				setBackground(new SelectionAppearance(selection) {
+
+					@Override
+					protected void onDraw(Canvas canvas, Paint paint) {
+						paint.setColor(backgroundColor);
+						canvas.drawRoundRect(mInner, mRound, mRound, paint);
+					}
+				});
+			}
+		}
+
+		@Override
+		public void update(RenderOption option) {
+			mRound = option.getSelectedBackgroundRoundRadius();
 		}
 	}
 

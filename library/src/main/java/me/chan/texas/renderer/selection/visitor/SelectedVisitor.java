@@ -9,6 +9,7 @@ import androidx.annotation.RestrictTo;
 import me.chan.texas.renderer.ParagraphVisitor;
 import me.chan.texas.renderer.RenderOption;
 import me.chan.texas.renderer.selection.ParagraphSelection;
+import me.chan.texas.renderer.selection.Selection;
 import me.chan.texas.text.Paragraph;
 import me.chan.texas.renderer.RendererContext;
 import me.chan.texas.text.TextStyles;
@@ -41,14 +42,14 @@ public abstract class SelectedVisitor extends ParagraphVisitor {
 	}
 
 	/**
-	 * @param textStyles   text styles
+	 * @param styles       styles
 	 * @param renderOption render option
 	 */
-	public void reset(TextStyles textStyles, RenderOption renderOption) {
+	public void reset(Selection.Styles styles, RenderOption renderOption) {
 		if (mSelection != null) {
 			throw new IllegalStateException("missing call clear before reuse visitor?");
 		}
-		mSelection = ParagraphSelection.obtain(textStyles);
+		mSelection = ParagraphSelection.obtain(styles);
 		mRenderOption = renderOption;
 	}
 

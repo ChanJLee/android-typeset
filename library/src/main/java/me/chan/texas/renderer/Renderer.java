@@ -4,6 +4,7 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.util.Log;
@@ -26,9 +27,6 @@ import me.chan.texas.R;
 import me.chan.texas.image.ImageLoader;
 import me.chan.texas.misc.PaintSet;
 import me.chan.texas.renderer.core.TypesetEngine;
-import me.chan.texas.renderer.highlight.Highlight;
-import me.chan.texas.renderer.highlight.HighlightManager;
-import me.chan.texas.renderer.highlight.ParagraphHighlight;
 import me.chan.texas.renderer.selection.Selection;
 import me.chan.texas.renderer.selection.SelectionManager;
 import me.chan.texas.renderer.ui.RendererAdapter;
@@ -37,7 +35,7 @@ import me.chan.texas.renderer.ui.rv.SegmentItemDecoration;
 import me.chan.texas.renderer.ui.rv.TexasLinearLayoutManager;
 import me.chan.texas.renderer.ui.rv.TexasRecyclerView;
 import me.chan.texas.text.Document;
-import me.chan.texas.text.TextStyles;
+import me.chan.texas.text.Paragraph;
 import me.chan.texas.utils.TexasUtils;
 import me.chan.texas.utils.concurrency.TaskQueue;
 
@@ -77,10 +75,6 @@ public class Renderer implements SelectionManager.Listener {
 	 * 内容选择子系统
 	 */
 	private final SelectionManager mSelectionManager;
-	/**
-	 * 内容高亮
-	 */
-	private final HighlightManager mHighlightManager;
 
 	private final RecyclerView.OnScrollListener mOnScrollListener = new RecyclerView.OnScrollListener() {
 		@Override
@@ -165,9 +159,6 @@ public class Renderer implements SelectionManager.Listener {
 		// selection
 		mSelectionManager = new SelectionManager(mAdapter, mLinearLayoutManager, this, texasView, mImpl);
 		mAdapter.setSelectionManager(mSelectionManager);
-
-		// highlight
-		mHighlightManager = new HighlightManager(mAdapter);
 
 		// adapter
 		mImpl.setAdapter(mAdapter);
@@ -288,26 +279,17 @@ public class Renderer implements SelectionManager.Listener {
 	}
 
 	public void highlightParagraphs(ParagraphPredicates predicates, boolean scrollTo, int offset) {
-		Highlight area = mHighlightManager.highlightParagraphs(predicates);
-		if (area == null || area.isEmpty()) {
+		Selection selection = selectParagraphs(predicates, new Selection.Styles(Color.TRANSPARENT, mRenderOption.getSpanHighlightTextColor()));
+		if (selection == null || selection.isEmpty()) {
 			return;
 		}
 
-		if (!scrollTo) {
-			return;
-		}
-
-		int firstVisibleItemIndex = mLinearLayoutManager.findFirstVisibleItemPosition();
-		int lastVisibleItemIndex = mLinearLayoutManager.findLastVisibleItemPosition();
-		int currentItemIndex = area.getFirstIndexInDocument();
-		if (currentItemIndex <= firstVisibleItemIndex || currentItemIndex >= lastVisibleItemIndex) {
-			ParagraphHighlight paragraphHighlight = area.get(0);
-			mLinearLayoutManager.scrollToPositionWithOffset(currentItemIndex, (int) (offset - paragraphHighlight.getYInParagraph()));
-		}
+		Paragraph paragraph = selection.getParagraph(0);
+		mImpl.scrollToPosition(mAdapter.indexOf(paragraph), true, offset);
 	}
 
 	public void clearHighlight() {
-		mHighlightManager.clear();
+		clearSelection();
 	}
 
 	public void clearSelection() {
@@ -466,7 +448,7 @@ public class Renderer implements SelectionManager.Listener {
 		return mRenderOption;
 	}
 
-	public Selection selectParagraphs(ParagraphPredicates predicates, @Nullable TextStyles styles) {
+	public Selection selectParagraphs(ParagraphPredicates predicates, @Nullable Selection.Styles styles) {
 		return mSelectionManager.selectParagraphs(predicates, styles);
 	}
 

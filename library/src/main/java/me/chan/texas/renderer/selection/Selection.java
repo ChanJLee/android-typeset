@@ -4,7 +4,6 @@ import android.graphics.RectF;
 import android.util.Log;
 import android.view.View;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 
@@ -140,8 +139,12 @@ public final class Selection extends DefaultRecyclable {
 		return mParagraphs.size();
 	}
 
-	public Paragraph get(int index) {
+	public Paragraph getParagraph(int index) {
 		return mParagraphs.get(index);
+	}
+
+	public ParagraphSelection get(int index) {
+		return getParagraph(index).getSelection();
 	}
 
 	@Override
@@ -231,5 +234,23 @@ public final class Selection extends DefaultRecyclable {
 		selection.mTexasAdapter = adapter;
 		selection.reuse();
 		return selection;
+	}
+
+	public static class Styles {
+		private final int mBackgroundColor;
+		private final int mTextColor;
+
+		public Styles(int backgroundColor, int textColor) {
+			mBackgroundColor = backgroundColor;
+			mTextColor = textColor;
+		}
+
+		public int getBackgroundColor() {
+			return mBackgroundColor;
+		}
+
+		public int getTextColor() {
+			return mTextColor;
+		}
 	}
 }

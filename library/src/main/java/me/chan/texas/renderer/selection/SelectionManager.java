@@ -31,7 +31,6 @@ import me.chan.texas.renderer.ui.text.TextureParagraph;
 import me.chan.texas.text.Document;
 import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.Segment;
-import me.chan.texas.text.TextStyles;
 import me.chan.texas.text.layout.Box;
 
 /**
@@ -351,7 +350,7 @@ public class SelectionManager implements OnSelectedChangedListener {
 		// 因此 需要变化的 item 都在 两个集合里了
 		mSelectionDiffBucket.clear();
 		for (int i = 0; i < currentSelection.size(); ++i) {
-			Paragraph paragraph = currentSelection.get(i);
+			Paragraph paragraph = currentSelection.getParagraph(i);
 			int index = mAdapter.sendSignal(paragraph, RendererAdapter.SIG_SELECTION_CHANGED);
 			if (index < 0) {
 				continue;
@@ -360,7 +359,7 @@ public class SelectionManager implements OnSelectedChangedListener {
 		}
 
 		for (int i = 0; i < prevSelection.size(); ++i) {
-			Paragraph paragraph = prevSelection.get(i);
+			Paragraph paragraph = prevSelection.getParagraph(i);
 			int index = mAdapter.indexOf(paragraph);
 			if (!mSelectionDiffBucket.get(index)) {
 				ParagraphSelection paragraphSelection = prevSelection.getParagraphSelection(paragraph);
@@ -401,7 +400,7 @@ public class SelectionManager implements OnSelectedChangedListener {
 	 * @return 选中区域
 	 */
 	@Nullable
-	public Selection selectParagraphs(ParagraphPredicates predicates, @Nullable TextStyles styles) {
+	public Selection selectParagraphs(ParagraphPredicates predicates, @Nullable Selection.Styles styles) {
 		Document document = mAdapter.getDocument();
 		clearSelection();
 
@@ -418,7 +417,7 @@ public class SelectionManager implements OnSelectedChangedListener {
 		return mCurrentSelection;
 	}
 
-	private void selectParagraph(Paragraph paragraph, ParagraphPredicates predicates, int index, @Nullable TextStyles styles) {
+	private void selectParagraph(Paragraph paragraph, ParagraphPredicates predicates, int index, @Nullable Selection.Styles styles) {
 		if (paragraph == null) {
 			return;
 		}
