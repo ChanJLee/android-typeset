@@ -43,7 +43,6 @@ import me.chan.texas.R;
 import me.chan.texas.Texas;
 import me.chan.texas.TexasOption;
 import me.chan.texas.adapter.ParseException;
-import me.chan.texas.annotations.Idempotent;
 import me.chan.texas.di.TexasComponent;
 import me.chan.texas.di.core.TextEngineCoreComponent;
 import me.chan.texas.misc.ResourceManager;
@@ -680,7 +679,7 @@ public final class TexasView extends FrameLayout {
 	 * @return 选中区域
 	 */
 	@Nullable
-	public Selection selectParagraphs(ParagraphPredicates predicates, @Nullable TextStyles styles) {
+	public Selection selectParagraphs(ParagraphPredicates predicates, @Nullable Selection.Styles styles) {
 		return mRenderer == null ? null : mRenderer.selectParagraphs(predicates, styles);
 	}
 
