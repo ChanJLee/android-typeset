@@ -413,7 +413,10 @@ public class SelectionManager implements OnSelectedChangedListener {
 			selectParagraph((Paragraph) segment, predicates, i, styles);
 		}
 
-		notifyUpdateSelectionDropView();
+		if (styles == null || styles.isEnableDrag()) {
+			notifyUpdateSelectionDropView();
+		}
+
 		return mCurrentSelection;
 	}
 
@@ -421,7 +424,6 @@ public class SelectionManager implements OnSelectedChangedListener {
 		if (paragraph == null) {
 			return;
 		}
-		// todo clear
 
 		try {
 			RenderOption renderOption = mAdapter.getRenderOption();
