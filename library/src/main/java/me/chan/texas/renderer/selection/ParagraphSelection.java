@@ -25,7 +25,6 @@ import me.chan.texas.renderer.ParagraphVisitor;
 import me.chan.texas.renderer.RenderOption;
 import me.chan.texas.renderer.RendererContext;
 import me.chan.texas.text.Appearance;
-import me.chan.texas.text.BatchDrawAppearance;
 import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.TextStyle;
 import me.chan.texas.text.TextStyles;
