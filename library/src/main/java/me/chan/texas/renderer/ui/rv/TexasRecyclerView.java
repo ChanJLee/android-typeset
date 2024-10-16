@@ -13,7 +13,7 @@ public interface TexasRecyclerView {
 
 	void disallowHandleTouchEvent();
 
-	RecyclerView.LayoutManager getLayoutManager();
+	TexasLayoutManager getTexasLayoutManager();
 
 	void getChildLocations(View child, int[] locations);
 

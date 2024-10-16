@@ -122,7 +122,7 @@ public final class Selection extends DefaultRecyclable {
 			return false;
 		}
 
-		TexasLayoutManager layoutManager = (TexasLayoutManager) container.getLayoutManager();
+		TexasLayoutManager layoutManager = container.getTexasLayoutManager();
 		if (layoutManager == null) {
 			return false;
 		}

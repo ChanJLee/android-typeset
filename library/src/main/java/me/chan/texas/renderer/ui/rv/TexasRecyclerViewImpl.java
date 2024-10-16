@@ -101,6 +101,11 @@ public class TexasRecyclerViewImpl extends RecyclerView implements TexasRecycler
 		mDisallowHandleTouchEvent = true;
 	}
 
+	@Override
+	public TexasLayoutManager getTexasLayoutManager() {
+		return mTexasLinearLayoutManager;
+	}
+
 	public void allowHandleTouchEvent() {
 		mDisallowHandleTouchEvent = false;
 	}
