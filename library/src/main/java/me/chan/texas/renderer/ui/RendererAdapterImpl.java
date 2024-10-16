@@ -27,7 +27,7 @@ import me.chan.texas.renderer.selection.SelectionManager;
 import me.chan.texas.renderer.ui.decor.ParagraphDecor;
 import me.chan.texas.renderer.ui.figure.FigureView;
 import me.chan.texas.renderer.ui.rv.SegmentItemFragmentLayout;
-import me.chan.texas.renderer.ui.rv.TexasRecyclerView;
+import me.chan.texas.renderer.ui.rv.TexasRecyclerViewImpl;
 import me.chan.texas.renderer.ui.text.TextureParagraph;
 import me.chan.texas.renderer.ui.text.TextureParagraphView0;
 import me.chan.texas.renderer.ui.text.TextureParagraphView0Compat;
@@ -47,7 +47,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * 每一次点击需要清除上一次的记录，因此通过点击发生selection后，重新高亮不会触发点击事件的回调
  */
 @RestrictTo(LIBRARY)
-public class RendererAdapter extends RecyclerView.Adapter<RendererAdapter.Renderer> {
+public class RendererAdapterImpl extends RecyclerView.Adapter<RendererAdapterImpl.Renderer> implements TexasRendererAdapter {
 	private static final boolean DEBUG = false;
 
 	// 内部自定义的type必须小于0
@@ -63,7 +63,7 @@ public class RendererAdapter extends RecyclerView.Adapter<RendererAdapter.Render
 		}
 	}
 
-	private final TexasRecyclerView mView;
+	private final TexasRecyclerViewImpl mView;
 
 	private Document mDocument;
 	private final LayoutInflater mLayoutInflater;
@@ -82,10 +82,10 @@ public class RendererAdapter extends RecyclerView.Adapter<RendererAdapter.Render
 	private final SparseArrayCompat<TextureParagraph> mTextureParagraphRecord = new SparseArrayCompat<>();
 	private Listener mListener;
 
-	public RendererAdapter(LayoutInflater layoutInflater,
-						   ImageLoader imageLoader,
-						   RecyclerView.RecycledViewPool pool,
-						   TexasRecyclerView view) {
+	public RendererAdapterImpl(LayoutInflater layoutInflater,
+							   ImageLoader imageLoader,
+							   RecyclerView.RecycledViewPool pool,
+							   TexasRecyclerViewImpl view) {
 		mLayoutInflater = layoutInflater;
 		mImageLoader = imageLoader;
 		mPool = pool;
@@ -518,8 +518,8 @@ public class RendererAdapter extends RecyclerView.Adapter<RendererAdapter.Render
 		 * view segment type计算算法：
 		 * {@link ViewSegment#ViewSegment(int)} 接受R.layout作为构造函数参数
 		 * R.layout是唯一的。当检测到R.layout没有创建过type，就通atomic int自增一来产生一个唯一的type
-		 * 这个自增的id从1开始 {@link RendererAdapter#getItemViewType(int)}
-		 * 而内部保留id则是小于0的 {@link RendererAdapter#TYPE_FIGURE} etc.
+		 * 这个自增的id从1开始 {@link RendererAdapterImpl#getItemViewType(int)}
+		 * 而内部保留id则是小于0的 {@link RendererAdapterImpl#TYPE_FIGURE} etc.
 		 */
 		private final SparseArrayCompat<Integer> mTypeBuffer = new SparseArrayCompat<>(4);
 		private final SparseArrayCompat<Integer> mLayoutBuffer = new SparseArrayCompat<>(4);
@@ -588,10 +588,6 @@ public class RendererAdapter extends RecyclerView.Adapter<RendererAdapter.Render
 
 		void onLoadingPrevious();
 	}
-
-	public static final Object SIG_SELECTION_CHANGED = new Object();
-
-	public static final Object SIG_HIGHLIGHT_CHANGED = new Object();
 
 	public int sendSignal(Segment segment, Object signal) {
 		int index = indexOf(segment);

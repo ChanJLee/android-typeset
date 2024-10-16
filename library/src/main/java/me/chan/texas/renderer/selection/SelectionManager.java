@@ -9,7 +9,6 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
-import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import me.chan.texas.misc.BitBucket;
@@ -24,7 +23,9 @@ import me.chan.texas.renderer.selection.overlay.SelectionDragView;
 import me.chan.texas.renderer.selection.visitor.SelectedTextByClickedVisitor;
 import me.chan.texas.renderer.selection.visitor.SelectedTextByDragVisitor;
 import me.chan.texas.renderer.selection.visitor.PredicatesDriveSelectedVisitor;
-import me.chan.texas.renderer.ui.RendererAdapter;
+import me.chan.texas.renderer.ui.RendererAdapterImpl;
+import me.chan.texas.renderer.ui.TexasRendererAdapter;
+import me.chan.texas.renderer.ui.rv.TexasLayoutManager;
 import me.chan.texas.renderer.ui.rv.TexasRecyclerView;
 import me.chan.texas.renderer.ui.text.OnSelectedChangedListener;
 import me.chan.texas.renderer.ui.text.TextureParagraph;
@@ -46,10 +47,10 @@ import me.chan.texas.text.layout.Box;
 public class SelectionManager implements OnSelectedChangedListener {
 	private Selection mCurrentSelection;
 
-	private final RendererAdapter mAdapter;
-	private final LinearLayoutManager mLayoutManager;
+	private final TexasRendererAdapter mAdapter;
+	private final TexasLayoutManager mLayoutManager;
 	private final Listener mListener;
-	private final SelectionDragView mDropView;
+	private SelectionDragView mDropView;
 	private final TexasRecyclerView mContentView;
 
 	/**
@@ -85,23 +86,25 @@ public class SelectionManager implements OnSelectedChangedListener {
 		}
 	};
 
-	public SelectionManager(RendererAdapter adapter,
-							LinearLayoutManager layoutManager,
+	public SelectionManager(TexasRendererAdapter adapter,
+							TexasLayoutManager layoutManager,
 							Listener listener,
-							TexasView texasView,
-							TexasRecyclerView recyclerView) {
+							@Nullable TexasView texasView /* unit test 的时候为空 */,
+							TexasRecyclerView contextView) {
 		mAdapter = adapter;
 		mLayoutManager = layoutManager;
 		mListener = listener;
-		mDropView = new SelectionDragView(texasView.getContext(), texasView);
-		texasView.addView(mDropView,
-				new TexasView.LayoutParams(
-						ViewGroup.LayoutParams.MATCH_PARENT,
-						ViewGroup.LayoutParams.MATCH_PARENT)
-		);
-		mDropView.setVisibility(View.GONE);
-		mDropView.setSelectionManager(this);
-		mContentView = recyclerView;
+		if (texasView != null) {
+			mDropView = new SelectionDragView(texasView.getContext(), texasView);
+			texasView.addView(mDropView,
+					new TexasView.LayoutParams(
+							ViewGroup.LayoutParams.MATCH_PARENT,
+							ViewGroup.LayoutParams.MATCH_PARENT)
+			);
+			mDropView.setVisibility(View.GONE);
+			mDropView.setSelectionManager(this);
+		}
+		mContentView = contextView;
 		mContentView.addOnScrollListener(new RecyclerView.OnScrollListener() {
 			@Override
 			public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
@@ -351,7 +354,7 @@ public class SelectionManager implements OnSelectedChangedListener {
 		mSelectionDiffBucket.clear();
 		for (int i = 0; i < currentSelection.size(); ++i) {
 			Paragraph paragraph = currentSelection.getParagraph(i);
-			int index = mAdapter.sendSignal(paragraph, RendererAdapter.SIG_SELECTION_CHANGED);
+			int index = mAdapter.sendSignal(paragraph, TexasRendererAdapter.SIG_SELECTION_CHANGED);
 			if (index < 0) {
 				continue;
 			}
@@ -367,7 +370,7 @@ public class SelectionManager implements OnSelectedChangedListener {
 					paragraphSelection.recycle();
 					paragraph.setSelection(null);
 				}
-				mAdapter.sendSignal(index, RendererAdapter.SIG_SELECTION_CHANGED);
+				mAdapter.sendSignal(index, RendererAdapterImpl.SIG_SELECTION_CHANGED);
 			}
 		}
 
@@ -438,7 +441,6 @@ public class SelectionManager implements OnSelectedChangedListener {
 	}
 
 	private void addParagraphSelection(Selection selection, Paragraph paragraph) {
-		// TODO 去重
 		ParagraphSelection paragraphSelection = paragraph.getSelection();
 		if (paragraphSelection != null) {
 			selection.add(paragraph);
@@ -464,7 +466,7 @@ public class SelectionManager implements OnSelectedChangedListener {
 		addParagraphSelection(mCurrentSelection, paragraph);
 
 		try {
-			mAdapter.sendSignal(index, RendererAdapter.SIG_SELECTION_CHANGED);
+			mAdapter.sendSignal(index, RendererAdapterImpl.SIG_SELECTION_CHANGED);
 		} catch (Throwable ignore) {
 			/* do nothing */
 		}

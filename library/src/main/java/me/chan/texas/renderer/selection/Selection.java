@@ -9,8 +9,9 @@ import androidx.annotation.RestrictTo;
 
 import me.chan.texas.misc.DefaultRecyclable;
 import me.chan.texas.misc.ObjectPool;
-import me.chan.texas.renderer.ui.RendererAdapter;
-import me.chan.texas.renderer.ui.rv.TexasLinearLayoutManager;
+import me.chan.texas.renderer.ui.RendererAdapterImpl;
+import me.chan.texas.renderer.ui.TexasRendererAdapter;
+import me.chan.texas.renderer.ui.rv.TexasLayoutManager;
 import me.chan.texas.renderer.ui.rv.TexasRecyclerView;
 import me.chan.texas.text.Document;
 import me.chan.texas.text.Paragraph;
@@ -21,7 +22,7 @@ import java.util.List;
 public final class Selection extends DefaultRecyclable {
 	private static final ObjectPool<Selection> POOL = new ObjectPool<>(8);
 
-	private RendererAdapter mTexasAdapter;
+	private TexasRendererAdapter mTexasAdapter;
 	private final List<Paragraph> mParagraphs = new ArrayList<>();
 	private final RectEdge mRectEdge = new RectEdge();
 
@@ -121,7 +122,7 @@ public final class Selection extends DefaultRecyclable {
 			return false;
 		}
 
-		TexasLinearLayoutManager layoutManager = (TexasLinearLayoutManager) container.getLayoutManager();
+		TexasLayoutManager layoutManager = (TexasLayoutManager) container.getLayoutManager();
 		if (layoutManager == null) {
 			return false;
 		}
@@ -174,7 +175,7 @@ public final class Selection extends DefaultRecyclable {
 			paragraph.setSelection(null);
 			try {
 				if (mTexasAdapter != null) {
-					mTexasAdapter.sendSignal(paragraph, RendererAdapter.SIG_SELECTION_CHANGED);
+					mTexasAdapter.sendSignal(paragraph, RendererAdapterImpl.SIG_SELECTION_CHANGED);
 				}
 			} catch (Throwable ignore) {
 				/* do nothing */
@@ -225,7 +226,7 @@ public final class Selection extends DefaultRecyclable {
 		}
 	}
 
-	public static Selection obtain(RendererAdapter adapter) {
+	public static Selection obtain(TexasRendererAdapter adapter) {
 		Selection selection = POOL.acquire();
 		if (selection == null) {
 			selection = new Selection();
