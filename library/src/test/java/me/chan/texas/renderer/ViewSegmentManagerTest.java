@@ -1,6 +1,6 @@
 package me.chan.texas.renderer;
 
-import me.chan.texas.renderer.ui.RendererAdapter;
+import me.chan.texas.renderer.ui.RendererAdapterImpl;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -9,7 +9,7 @@ public class ViewSegmentManagerTest {
 
 	@Test
 	public void test() {
-		RendererAdapter.ViewSegmentManager manager = new RendererAdapter.ViewSegmentManager();
+		RendererAdapterImpl.ViewSegmentManager manager = new RendererAdapterImpl.ViewSegmentManager();
 		try {
 			Assert.assertEquals(manager.getLayout(1), 1);
 			Assert.fail("check get layout failed");

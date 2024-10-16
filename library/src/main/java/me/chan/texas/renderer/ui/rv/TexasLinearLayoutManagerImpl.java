@@ -10,11 +10,11 @@ import androidx.recyclerview.widget.LinearSmoothScroller;
 import androidx.recyclerview.widget.RecyclerView;
 
 @RestrictTo(LIBRARY)
-public class TexasLinearLayoutManager extends LinearLayoutManager {
+public class TexasLinearLayoutManagerImpl extends LinearLayoutManager implements TexasLayoutManager {
 
 	private int mOffset;
 
-	public TexasLinearLayoutManager(Context context) {
+	public TexasLinearLayoutManagerImpl(Context context) {
 		super(context, RecyclerView.VERTICAL, false);
 	}
 

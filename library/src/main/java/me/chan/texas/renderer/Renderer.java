@@ -29,11 +29,11 @@ import me.chan.texas.misc.PaintSet;
 import me.chan.texas.renderer.core.TypesetEngine;
 import me.chan.texas.renderer.selection.Selection;
 import me.chan.texas.renderer.selection.SelectionManager;
-import me.chan.texas.renderer.ui.RendererAdapter;
+import me.chan.texas.renderer.ui.RendererAdapterImpl;
 import me.chan.texas.renderer.ui.decor.ParagraphDecor;
 import me.chan.texas.renderer.ui.rv.SegmentItemDecoration;
-import me.chan.texas.renderer.ui.rv.TexasLinearLayoutManager;
-import me.chan.texas.renderer.ui.rv.TexasRecyclerView;
+import me.chan.texas.renderer.ui.rv.TexasLinearLayoutManagerImpl;
+import me.chan.texas.renderer.ui.rv.TexasRecyclerViewImpl;
 import me.chan.texas.text.Document;
 import me.chan.texas.text.Paragraph;
 import me.chan.texas.utils.TexasUtils;
@@ -62,15 +62,15 @@ public class Renderer implements SelectionManager.Listener {
 	/**
 	 * 数据子系统
 	 */
-	private final RendererAdapter mAdapter;
+	private final RendererAdapterImpl mAdapter;
 	/**
 	 * 视图显示窗口
 	 */
-	private final TexasRecyclerView mImpl;
+	private final TexasRecyclerViewImpl mImpl;
 	/**
 	 * 视图排版子系统
 	 */
-	private final TexasLinearLayoutManager mLinearLayoutManager;
+	private final TexasLinearLayoutManagerImpl mLinearLayoutManager;
 	/**
 	 * 内容选择子系统
 	 */
@@ -119,8 +119,8 @@ public class Renderer implements SelectionManager.Listener {
 		mTypesetEngine = new TypesetEngine(mRenderOption, mToken);
 
 		// rv
-		mLinearLayoutManager = new TexasLinearLayoutManager(context);
-		mImpl = new TexasRecyclerView(new ContextThemeWrapper(context, R.style.me_chan_texas_TexasRecyclerView), mLinearLayoutManager);
+		mLinearLayoutManager = new TexasLinearLayoutManagerImpl(context);
+		mImpl = new TexasRecyclerViewImpl(new ContextThemeWrapper(context, R.style.me_chan_texas_TexasRecyclerView), mLinearLayoutManager);
 		mImpl.setClipToPadding(false);
 		mImpl.setClipChildren(false);
 		mImpl.setOnClickedListener(mTexasView::notifyEmptyClicked);
@@ -132,8 +132,8 @@ public class Renderer implements SelectionManager.Listener {
 		);
 		mImpl.addOnScrollListener(mOnScrollListener);
 
-		mAdapter = new RendererAdapter(layoutInflater, imageLoader, mImpl.getRecycledViewPool(), mImpl);
-		mAdapter.setListener(new RendererAdapter.Listener() {
+		mAdapter = new RendererAdapterImpl(layoutInflater, imageLoader, mImpl.getRecycledViewPool(), mImpl);
+		mAdapter.setListener(new RendererAdapterImpl.Listener() {
 			@Override
 			public void onSegmentClicked(TouchEvent event, Object tag) {
 				mTexasView.notifySegmentClicked(event, tag);
