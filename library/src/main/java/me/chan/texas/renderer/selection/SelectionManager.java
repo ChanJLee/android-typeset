@@ -385,6 +385,7 @@ public class SelectionManager implements OnSelectedChangedListener {
 	public void clearSelection() {
 		if (mCurrentSelection != null) {
 			mCurrentSelection.clear();
+			mCurrentSelection = null;
 		}
 	}
 
