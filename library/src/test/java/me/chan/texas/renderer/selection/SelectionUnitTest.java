@@ -103,7 +103,7 @@ public class SelectionUnitTest {
 		selection = mSelectionManager.selectParagraphs(new ParagraphPredicates() {
 			@Override
 			public boolean acceptSpan(@Nullable Object spanTag) {
-				return "1".equals(spanTag) || "一".equals(spanTag);
+				return "1".equals(spanTag) || "一".equals(spanTag) || "二".equals(spanTag);
 			}
 
 			@Override
@@ -114,6 +114,7 @@ public class SelectionUnitTest {
 
 		Assert.assertNotSame(prev, selection);
 		Assert.assertFalse(selection.isEmpty());
+		Assert.assertEquals(2, selection.size());
 	}
 
 	private class MyRecyclerView implements TexasRecyclerView {
