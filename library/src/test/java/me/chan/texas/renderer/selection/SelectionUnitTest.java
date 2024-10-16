@@ -6,24 +6,26 @@ import static org.junit.Assert.assertNotNull;
 
 import android.view.View;
 
+import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
 
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import me.chan.texas.TexasOption;
-import me.chan.texas.adapter.ParseException;
-import me.chan.texas.adapter.TextAdapter;
 import me.chan.texas.hyphenation.Hyphenation;
 import me.chan.texas.measurer.Measurer;
 import me.chan.texas.measurer.MockMeasurer;
+import me.chan.texas.renderer.ParagraphPredicates;
 import me.chan.texas.renderer.RenderOption;
 import me.chan.texas.renderer.TouchEvent;
 import me.chan.texas.renderer.ui.TexasRendererAdapter;
 import me.chan.texas.renderer.ui.rv.TexasLayoutManager;
 import me.chan.texas.renderer.ui.rv.TexasRecyclerView;
-import me.chan.texas.source.SourceOpenException;
 import me.chan.texas.test.mock.MockTextPaint;
 import me.chan.texas.text.BreakStrategy;
 import me.chan.texas.text.Document;
@@ -31,6 +33,7 @@ import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.Segment;
 import me.chan.texas.text.TextAttribute;
 import me.chan.texas.text.layout.Layout;
+import me.chan.texas.text.tokenizer.Token;
 import me.chan.texas.typesetter.ParagraphTypesetter;
 
 public class SelectionUnitTest {
@@ -40,7 +43,7 @@ public class SelectionUnitTest {
 	private MyLayoutManager mLayoutManager;
 
 	@Before
-	public void init() throws SourceOpenException, ParseException {
+	public void init() {
 		MockTextPaint textPaint = new MockTextPaint();
 		textPaint.setMockTextSize(1);
 
@@ -48,11 +51,16 @@ public class SelectionUnitTest {
 		TextAttribute textAttribute = new TextAttribute(measurer);
 		TexasOption texasOption = new TexasOption(Hyphenation.getInstance(), measurer, textAttribute, mRenderOption = new RenderOption());
 
-		MockTextPaint paint = new MockTextPaint();
-		paint.setTextSize(1);
-		TextAdapter textParser = new TextAdapter();
-		textParser.setData("1 2 3 4 5 6 7 8 9\na b c d e f g h i\n一 二 三 四 五 六 七 八 九");
-		mDocument = textParser.getDocument(texasOption);
+		mDocument = Document.obtain();
+		List<Segment> list = new ArrayList<>();
+		list.add(Paragraph.Builder.newBuilder(texasOption).tag("p1")
+				.stream("1 2 3 4 5 6 7 8 9", token -> Paragraph.Span.obtain(token)
+						.tag(token.getCharSequence().subSequence(token.getStart(), token.getEnd()).toString())).build());
+		list.add(Paragraph.Builder.newBuilder(texasOption).tag("p2").stream("a b c d e f g h i", token ->
+				Paragraph.Span.obtain(token).tag(token.getCharSequence().subSequence(token.getStart(), token.getEnd()).toString())).build());
+		list.add(Paragraph.Builder.newBuilder(texasOption).tag("p3").stream("一 二 三 四 五 六 七 八 九", token -> Paragraph.Span.obtain(token)
+				.tag(token.getCharSequence().subSequence(token.getStart(), token.getEnd()).toString())).build());
+		mDocument.insertTail(list);
 
 		ParagraphTypesetter texTypesetter = new ParagraphTypesetter();
 
@@ -77,8 +85,35 @@ public class SelectionUnitTest {
 	}
 
 	@Test
-	public void testBase() {
+	public void testPredicate() {
+		Selection selection = mSelectionManager.selectParagraphs(new ParagraphPredicates() {
+			@Override
+			public boolean acceptSpan(@Nullable Object spanTag) {
+				return false;
+			}
 
+			@Override
+			public boolean acceptParagraph(@Nullable Object paragraphTag) {
+				return false;
+			}
+		}, new Selection.Styles(1, 2).setEnableDrag(false));
+		Assert.assertTrue(selection.isEmpty());
+
+		Selection prev = selection;
+		selection = mSelectionManager.selectParagraphs(new ParagraphPredicates() {
+			@Override
+			public boolean acceptSpan(@Nullable Object spanTag) {
+				return "1".equals(spanTag) || "一".equals(spanTag);
+			}
+
+			@Override
+			public boolean acceptParagraph(@Nullable Object paragraphTag) {
+				return "p1".equals(paragraphTag) || "p3".equals(paragraphTag);
+			}
+		}, new Selection.Styles(1, 2).setEnableDrag(false));
+
+		Assert.assertNotSame(prev, selection);
+		Assert.assertFalse(selection.isEmpty());
 	}
 
 	private class MyRecyclerView implements TexasRecyclerView {
