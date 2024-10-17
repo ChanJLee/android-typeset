@@ -19,6 +19,7 @@ import me.chan.texas.renderer.TouchEvent;
 import me.chan.texas.renderer.selection.SelectionManager;
 import me.chan.texas.renderer.selection.magnifier.MagnifierView;
 import me.chan.texas.renderer.selection.magnifier.MagnifierViewFactory;
+import me.chan.texas.utils.TexasUtils;
 
 /**
  * Created by Otway on 2021/11/16.
@@ -279,8 +280,8 @@ public class SelectionDragView extends View {
 	 */
 	public void renderRegion(float x1, float y1, float x2, float y2, float adviseOffsetY) {
 		float offset = HOT_MOTION_REGION_SIZE / 2.0f;
-		mP1.set(x1 - offset, y1 - offset, x1 + offset, y1 + offset);
-		mP2.set(x2 - offset, y2 - offset, x2 + offset, y2 + offset);
+		TexasUtils.setRect(mP1, x1 - offset, y1 - offset, x1 + offset, y1 + offset);
+		TexasUtils.setRect(mP2, x2 - offset, y2 - offset, x2 + offset, y2 + offset);
 		mAdviseOffsetY = adviseOffsetY;
 		invalidate();
 	}

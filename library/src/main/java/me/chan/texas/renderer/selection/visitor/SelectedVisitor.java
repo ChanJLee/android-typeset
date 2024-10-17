@@ -15,6 +15,7 @@ import me.chan.texas.renderer.RendererContext;
 import me.chan.texas.text.layout.Box;
 import me.chan.texas.text.layout.DrawableBox;
 import me.chan.texas.text.layout.Line;
+import me.chan.texas.utils.TexasUtils;
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public abstract class SelectedVisitor extends ParagraphVisitor {
@@ -123,7 +124,8 @@ public abstract class SelectedVisitor extends ParagraphVisitor {
 
 	private void appendRect(RectF rectF) {
 		if (mRectF == null) {
-			mRectF = new RectF(rectF.left, mLastLineTop, rectF.right, mLastLineBottom);
+			mRectF = new RectF();
+			TexasUtils.setRect(mRectF, rectF.left, mLastLineTop, rectF.right, mLastLineBottom);
 		}
 		mRectF.right = rectF.right;
 	}

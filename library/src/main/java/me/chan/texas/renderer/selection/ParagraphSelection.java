@@ -405,7 +405,7 @@ public class ParagraphSelection extends DefaultRecyclable {
 					onDraw(canvas, paint);
 				}
 				mShouldReset = true;
-				mInner.set(0, 0, 0, 0);
+				mInner.left = mInner.top = mInner.right = mInner.bottom = 0;
 			}
 		}
 

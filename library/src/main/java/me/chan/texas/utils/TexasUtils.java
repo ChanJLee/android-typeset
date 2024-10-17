@@ -4,6 +4,8 @@ import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.res.Resources;
 import android.graphics.Point;
+import android.graphics.Rect;
+import android.graphics.RectF;
 import android.graphics.Typeface;
 import android.text.GetChars;
 import android.text.TextPaint;
@@ -370,5 +372,33 @@ public class TexasUtils {
 			for (int i = start; i < end; i++)
 				dest[destoff++] = s.charAt(i);
 		}
+	}
+
+	public static void copyRect(Rect dest, Rect src) {
+		dest.top = src.top;
+		dest.bottom = src.bottom;
+		dest.left = src.left;
+		dest.right = src.right;
+	}
+
+	public static void copyRect(RectF dest, RectF src) {
+		dest.top = src.top;
+		dest.bottom = src.bottom;
+		dest.left = src.left;
+		dest.right = src.right;
+	}
+
+	public static void setRect(RectF dest, float left, float top, float right, float bottom) {
+		dest.left = left;
+		dest.top = top;
+		dest.right = right;
+		dest.bottom = bottom;
+	}
+
+	public static void setRect(Rect dest, int left, int top, int right, int bottom) {
+		dest.left = left;
+		dest.top = top;
+		dest.right = right;
+		dest.bottom = bottom;
 	}
 }
