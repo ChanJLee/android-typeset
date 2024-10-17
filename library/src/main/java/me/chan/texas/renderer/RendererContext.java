@@ -7,6 +7,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 
 import me.chan.texas.text.layout.Box;
+import me.chan.texas.utils.TexasUtils;
 
 public final class RendererContext {
 
@@ -126,7 +127,7 @@ public final class RendererContext {
 		public int index;
 
 		public void clear() {
-			inner.set(0, 0, 0, 0);
+			inner.top = inner.left = inner.right = inner.bottom = 0;
 			box = null;
 			index = -1;
 		}
@@ -138,13 +139,13 @@ public final class RendererContext {
 		public void set(Box box, int index, RectF inner) {
 			this.box = box;
 			this.index = index;
-			this.inner.set(inner);
+			TexasUtils.copyRect(this.inner, inner);
 		}
 
 		public void set(BoxMetaInfo meta) {
 			this.box = meta.box;
 			this.index = meta.index;
-			this.inner.set(meta.inner);
+			TexasUtils.copyRect(this.inner, meta.inner);
 		}
 	}
 
