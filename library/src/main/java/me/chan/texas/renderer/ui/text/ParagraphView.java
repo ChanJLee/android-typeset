@@ -260,6 +260,7 @@ public class ParagraphView extends FrameLayout {
 		try {
 			mSelectedTextByClickedVisitor.reset(
 					isLongClicked,
+					paragraph,
 					mRenderOption
 			);
 			mSelectedTextByClickedVisitor.setPredicate(

@@ -1,19 +1,16 @@
 package me.chan.texas.renderer.selection;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 
+import android.graphics.RectF;
 import android.view.View;
 
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
-import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,13 +19,14 @@ import me.chan.texas.TexasOption;
 import me.chan.texas.hyphenation.Hyphenation;
 import me.chan.texas.measurer.Measurer;
 import me.chan.texas.measurer.MockMeasurer;
-import me.chan.texas.measurer.MockTextPaint;
+import me.chan.texas.misc.Rect;
 import me.chan.texas.renderer.ParagraphPredicates;
 import me.chan.texas.renderer.RenderOption;
 import me.chan.texas.renderer.TouchEvent;
 import me.chan.texas.renderer.ui.TexasRendererAdapter;
 import me.chan.texas.renderer.ui.rv.TexasLayoutManager;
 import me.chan.texas.renderer.ui.rv.TexasRecyclerView;
+import me.chan.texas.test.mock.MockTextPaint;
 import me.chan.texas.text.BreakStrategy;
 import me.chan.texas.text.Document;
 import me.chan.texas.text.Paragraph;
@@ -37,8 +35,7 @@ import me.chan.texas.text.TextAttribute;
 import me.chan.texas.text.layout.Layout;
 import me.chan.texas.typesetter.ParagraphTypesetter;
 
-@RunWith(AndroidJUnit4.class)
-public class SelectionUnitTest {
+public class SelectionManagerUnitTest {
 	private Document mDocument;
 	private RenderOption mRenderOption;
 	private SelectionManager mSelectionManager;
@@ -60,7 +57,7 @@ public class SelectionUnitTest {
 						.tag(token.getCharSequence().subSequence(token.getStart(), token.getEnd()).toString())).build());
 		list.add(Paragraph.Builder.newBuilder(texasOption).tag("p2").stream("a b c d e f g h i", token ->
 				Paragraph.Span.obtain(token).tag(token.getCharSequence().subSequence(token.getStart(), token.getEnd()).toString())).build());
-		list.add(Paragraph.Builder.newBuilder(texasOption).tag("p3").stream("一 二 三 四 五 六 七 八 九", token -> Paragraph.Span.obtain(token)
+		list.add(Paragraph.Builder.newBuilder(texasOption).setTypesetPolicy(Paragraph.TYPESET_POLICY_DEFAULT).tag("p3").stream("一 二 三 四 五 六 七 八 九", token -> Paragraph.Span.obtain(token)
 				.tag(token.getCharSequence().subSequence(token.getStart(), token.getEnd()).toString())).build());
 		mDocument.insertTail(list);
 
@@ -105,7 +102,7 @@ public class SelectionUnitTest {
 		selection = mSelectionManager.selectParagraphs(new ParagraphPredicates() {
 			@Override
 			public boolean acceptSpan(@Nullable Object spanTag) {
-				return "1".equals(spanTag) || "一".equals(spanTag) || "二".equals(spanTag);
+				return "1".equals(spanTag) || "一".equals(spanTag) || "二".equals(spanTag) || "三".equals(spanTag) || "四".equals(spanTag);
 			}
 
 			@Override
@@ -117,6 +114,13 @@ public class SelectionUnitTest {
 		Assert.assertNotSame(prev, selection);
 		Assert.assertFalse(selection.isEmpty());
 		Assert.assertEquals(2, selection.size());
+
+		ParagraphSelection paragraphSelection = selection.get(0);
+		RectF first = paragraphSelection.getFirstRegion();
+		RectF last = paragraphSelection.getLastRegion();
+		Assert.assertSame(first, last);
+
+
 	}
 
 	private class MyRecyclerView implements TexasRecyclerView {

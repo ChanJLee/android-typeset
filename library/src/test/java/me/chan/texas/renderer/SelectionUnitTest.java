@@ -56,7 +56,7 @@ public class SelectionUnitTest {
 		Paragraph paragraph = builder.build();
 		texTypesetter.typeset(paragraph, BreakStrategy.SIMPLE, 10, 1);
 
-		ParagraphSelection paragraphSelection = ParagraphSelection.obtain(true);
+		ParagraphSelection paragraphSelection = ParagraphSelection.obtain(true, paragraph);
 
 		Assert.assertTrue(paragraphSelection.isEmpty());
 		Box box = TextBox.obtain(

@@ -17,16 +17,16 @@ import me.chan.texas.text.layout.Box;
 public class PredicatesDriveSelectedVisitor extends SelectedVisitor {
 	private ParagraphPredicates mPredicates;
 
-	public void reset(RenderOption renderOption, ParagraphPredicates predicates, @Nullable Selection.Styles styles) {
+	public void reset(RenderOption renderOption, ParagraphPredicates predicates, Paragraph paragraph, @Nullable Selection.Styles styles) {
 		mPredicates = predicates;
 
 		// 如果样式为空，则按照长按的效果来处理
 		if (styles == null) {
-			super.reset(true, renderOption);
+			super.reset(true, paragraph, renderOption);
 			return;
 		}
 
-		super.reset(styles, renderOption);
+		super.reset(styles, paragraph, renderOption);
 	}
 
 	@Override
