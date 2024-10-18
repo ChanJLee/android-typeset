@@ -3,7 +3,6 @@ package me.chan.texas.renderer.selection;
 import static org.junit.Assert.assertNotNull;
 
 import android.graphics.RectF;
-import android.view.MotionEvent;
 import android.view.View;
 
 import androidx.annotation.Nullable;
@@ -22,7 +21,9 @@ import me.chan.texas.measurer.Measurer;
 import me.chan.texas.measurer.MockMeasurer;
 import me.chan.texas.renderer.ParagraphPredicates;
 import me.chan.texas.renderer.RenderOption;
+import me.chan.texas.renderer.SpanTouchEventHandler;
 import me.chan.texas.renderer.TouchEvent;
+import me.chan.texas.renderer.selection.overlay.DragSelectView;
 import me.chan.texas.renderer.ui.TexasRendererAdapter;
 import me.chan.texas.renderer.ui.rv.TexasLayoutManager;
 import me.chan.texas.renderer.ui.rv.TexasRecyclerView;
@@ -33,6 +34,7 @@ import me.chan.texas.text.Document;
 import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.Segment;
 import me.chan.texas.text.TextAttribute;
+import me.chan.texas.text.layout.Box;
 import me.chan.texas.text.layout.Layout;
 import me.chan.texas.typesetter.ParagraphTypesetter;
 
@@ -80,7 +82,23 @@ public class SelectionManagerUnitTest {
 
 		mSelectionManager = new SelectionManager(new MyAdapter(),
 				mLayoutManager = new MyLayoutManager(mDocument),
-				mSelectionListener = new MySelectionListener(), null, new MyRecyclerView());
+				mSelectionListener = new MySelectionListener(), new MyDragView(), new MyRecyclerView());
+		mSelectionManager.setSpanTouchEventHandler(new SpanTouchEventHandler() {
+			@Override
+			public boolean isSpanClickable(@Nullable Object tag) {
+				return true;
+			}
+
+			@Override
+			public boolean applySpanClicked(@Nullable Object clickedTag, @Nullable Object otherTag) {
+				return clickedTag == otherTag;
+			}
+
+			@Override
+			public boolean applySpanLongClicked(@Nullable Object clickedTag, @Nullable Object otherTag) {
+				return clickedTag == otherTag;
+			}
+		});
 
 		Assert.assertNull(mSelectionManager.getCurrentSelection());
 	}
@@ -171,6 +189,18 @@ public class SelectionManagerUnitTest {
 
 		Assert.assertFalse(mSelectionManager.onSegmentClicked(touchEvent, paragraph, OnSelectedChangedListener.EVENT_LONG_CLICKED));
 		Assert.assertEquals(mSelectionListener.mEvent, SelectionEvent.SEGMENT_DOUBLE_CLICKED);
+
+		Box box = (Box) paragraph.getElement(0);
+		Assert.assertTrue(mSelectionManager.onBoxSelected(touchEvent, paragraph, OnSelectedChangedListener.EVENT_LONG_CLICKED, box));
+		Assert.assertEquals(SelectionEvent.SPAN_LONG_CLICKED, mSelectionListener.mEvent);
+		Assert.assertTrue(mSelectionManager.onBoxSelected(touchEvent, paragraph, OnSelectedChangedListener.EVENT_CLICKED, box));
+		Assert.assertEquals(SelectionEvent.SPAN_CLICKED, mSelectionListener.mEvent);
+
+		Assert.assertTrue(mSelectionManager.onBoxSelected(touchEvent, paragraph, OnSelectedChangedListener.EVENT_LONG_CLICKED, box));
+		selection = mSelectionManager.getCurrentSelection();
+		Assert.assertNotNull(selection);
+
+
 	}
 
 	private class MyRecyclerView implements TexasRecyclerView {
@@ -220,6 +250,45 @@ public class SelectionManagerUnitTest {
 		DRAG_DISMISS,
 		SEGMENT_DOUBLE_CLICKED,
 		SEGMENT_CLICKED
+	}
+
+	private class MyDragView implements DragSelectView {
+		private float mX1;
+		private float mY1;
+		private float mX2;
+		private float mY2;
+		private float mAdviseOffsetY;
+
+		private float mContentScrollY;
+
+		@Override
+		public void setVisibility(int visible) {
+
+		}
+
+		@Override
+		public void setSelectionManager(SelectionManager selectionManager) {
+
+		}
+
+		@Override
+		public void updateContentScrollY(int y) {
+			mContentScrollY = y;
+		}
+
+		@Override
+		public void renderRegion(float x1, float y1, float x2, float y2, float adviseOffsetY) {
+			mX1 = x1;
+			mY1 = y1;
+			mX2 = x2;
+			mY2 = y2;
+			mAdviseOffsetY = adviseOffsetY;
+		}
+
+		@Override
+		public void setColor(int color) {
+
+		}
 	}
 
 	private class MySelectionListener implements SelectionManager.Listener {

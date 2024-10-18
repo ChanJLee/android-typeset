@@ -2,9 +2,7 @@ package me.chan.texas.renderer.selection;
 
 import android.annotation.SuppressLint;
 import android.util.Log;
-import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -19,7 +17,7 @@ import me.chan.texas.renderer.SpanPredicate;
 import me.chan.texas.renderer.SpanTouchEventHandler;
 import me.chan.texas.renderer.TexasView;
 import me.chan.texas.renderer.TouchEvent;
-import me.chan.texas.renderer.selection.overlay.SelectionDragView;
+import me.chan.texas.renderer.selection.overlay.DragSelectView;
 import me.chan.texas.renderer.selection.visitor.SelectedTextByClickedVisitor;
 import me.chan.texas.renderer.selection.visitor.SelectedTextByDragVisitor;
 import me.chan.texas.renderer.selection.visitor.PredicatesDriveSelectedVisitor;
@@ -50,7 +48,7 @@ public class SelectionManager implements OnSelectedChangedListener {
 	private final TexasRendererAdapter mAdapter;
 	private final TexasLayoutManager mLayoutManager;
 	private final Listener mListener;
-	private SelectionDragView mDropView;
+	private DragSelectView mDropView;
 	private final TexasRecyclerView mContentView;
 
 	/**
@@ -89,21 +87,14 @@ public class SelectionManager implements OnSelectedChangedListener {
 	public SelectionManager(TexasRendererAdapter adapter,
 							TexasLayoutManager layoutManager,
 							Listener listener,
-							@Nullable TexasView texasView /* unit test 的时候为空 */,
+							DragSelectView selectableView,
 							TexasRecyclerView contextView) {
 		mAdapter = adapter;
 		mLayoutManager = layoutManager;
 		mListener = listener;
-		if (texasView != null) {
-			mDropView = new SelectionDragView(texasView.getContext(), texasView);
-			texasView.addView(mDropView,
-					new TexasView.LayoutParams(
-							ViewGroup.LayoutParams.MATCH_PARENT,
-							ViewGroup.LayoutParams.MATCH_PARENT)
-			);
-			mDropView.setVisibility(View.GONE);
-			mDropView.setSelectionManager(this);
-		}
+		mDropView = selectableView;
+		mDropView.setVisibility(View.GONE);
+		mDropView.setSelectionManager(this);
 		mContentView = contextView;
 		mContentView.addOnScrollListener(new RecyclerView.OnScrollListener() {
 			@Override
@@ -161,6 +152,7 @@ public class SelectionManager implements OnSelectedChangedListener {
 				mListener.onSegmentClicked(e, paragraph.getTag());
 				return true;
 			}
+			return handled;
 		}
 
 		return false;
