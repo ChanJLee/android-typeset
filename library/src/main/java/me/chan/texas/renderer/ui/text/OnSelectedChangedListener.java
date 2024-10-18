@@ -1,11 +1,9 @@
 package me.chan.texas.renderer.ui.text;
 
-import android.view.MotionEvent;
-import android.view.View;
-
 import androidx.annotation.IntDef;
 import androidx.annotation.RestrictTo;
 
+import me.chan.texas.renderer.TouchEvent;
 import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.layout.Box;
 
@@ -15,11 +13,11 @@ public interface OnSelectedChangedListener {
 	int EVENT_LONG_CLICKED = 2;
 	int EVENT_DOUBLE_CLICKED = 3;
 
-	boolean onSegmentClicked(View source, MotionEvent e, Paragraph paragraph, int eventType);
+	boolean onSegmentClicked(TouchEvent event, Paragraph paragraph, int eventType);
 
 	@IntDef({EVENT_CLICKED, EVENT_LONG_CLICKED, EVENT_DOUBLE_CLICKED})
 	@interface EventType {
 	}
 
-	boolean onBoxSelected(View source, MotionEvent e, Paragraph paragraph, @EventType int eventType, Box box);
+	boolean onBoxSelected(TouchEvent event, Paragraph paragraph, @EventType int eventType, Box box);
 }

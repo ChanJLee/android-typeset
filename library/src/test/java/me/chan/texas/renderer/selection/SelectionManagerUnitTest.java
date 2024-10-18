@@ -3,6 +3,7 @@ package me.chan.texas.renderer.selection;
 import static org.junit.Assert.assertNotNull;
 
 import android.graphics.RectF;
+import android.view.MotionEvent;
 import android.view.View;
 
 import androidx.annotation.Nullable;
@@ -19,13 +20,13 @@ import me.chan.texas.TexasOption;
 import me.chan.texas.hyphenation.Hyphenation;
 import me.chan.texas.measurer.Measurer;
 import me.chan.texas.measurer.MockMeasurer;
-import me.chan.texas.misc.Rect;
 import me.chan.texas.renderer.ParagraphPredicates;
 import me.chan.texas.renderer.RenderOption;
 import me.chan.texas.renderer.TouchEvent;
 import me.chan.texas.renderer.ui.TexasRendererAdapter;
 import me.chan.texas.renderer.ui.rv.TexasLayoutManager;
 import me.chan.texas.renderer.ui.rv.TexasRecyclerView;
+import me.chan.texas.renderer.ui.text.OnSelectedChangedListener;
 import me.chan.texas.test.mock.MockTextPaint;
 import me.chan.texas.text.BreakStrategy;
 import me.chan.texas.text.Document;
@@ -40,6 +41,7 @@ public class SelectionManagerUnitTest {
 	private RenderOption mRenderOption;
 	private SelectionManager mSelectionManager;
 	private MyLayoutManager mLayoutManager;
+	private MySelectionListener mSelectionListener;
 
 	@Before
 	public void init() {
@@ -78,7 +80,7 @@ public class SelectionManagerUnitTest {
 
 		mSelectionManager = new SelectionManager(new MyAdapter(),
 				mLayoutManager = new MyLayoutManager(mDocument),
-				new MySelectionListener(), null, new MyRecyclerView());
+				mSelectionListener = new MySelectionListener(), null, new MyRecyclerView());
 
 		Assert.assertNull(mSelectionManager.getCurrentSelection());
 	}
@@ -124,6 +126,8 @@ public class SelectionManagerUnitTest {
 		Assert.assertEquals(first.top, 0, 0.1);
 		Assert.assertEquals(first.right, 1.5, 0.1);
 		Assert.assertEquals(first.bottom, 1, 0.1);
+		Assert.assertFalse(paragraphSelection.isEmpty());
+		Assert.assertFalse(paragraphSelection.isSelectedRegionEmpty());
 
 		List<Object> list = paragraphSelection.getSelectedTags();
 		Assert.assertEquals(list.size(), 1);
@@ -150,6 +154,23 @@ public class SelectionManagerUnitTest {
 		Assert.assertEquals(list.get(1), "二");
 		Assert.assertEquals(list.get(2), "三");
 		Assert.assertEquals(list.get(3), "四");
+	}
+
+	@Test
+	public void testMotion() {
+		Selection selection = mSelectionManager.getCurrentSelection();
+		Assert.assertNull(selection);
+
+		Paragraph paragraph = (Paragraph) mDocument.getSegment(0);
+		TouchEvent touchEvent = TouchEvent.obtain(null, 0, 0, 0, 0);
+		Assert.assertTrue(mSelectionManager.onSegmentClicked(touchEvent, paragraph, OnSelectedChangedListener.EVENT_CLICKED));
+		Assert.assertEquals(mSelectionListener.mEvent, SelectionEvent.SEGMENT_CLICKED);
+
+		Assert.assertTrue(mSelectionManager.onSegmentClicked(touchEvent, paragraph, OnSelectedChangedListener.EVENT_DOUBLE_CLICKED));
+		Assert.assertEquals(mSelectionListener.mEvent, SelectionEvent.SEGMENT_DOUBLE_CLICKED);
+
+		Assert.assertFalse(mSelectionManager.onSegmentClicked(touchEvent, paragraph, OnSelectedChangedListener.EVENT_LONG_CLICKED));
+		Assert.assertEquals(mSelectionListener.mEvent, SelectionEvent.SEGMENT_DOUBLE_CLICKED);
 	}
 
 	private class MyRecyclerView implements TexasRecyclerView {
@@ -190,41 +211,54 @@ public class SelectionManagerUnitTest {
 		}
 	}
 
+	enum SelectionEvent {
+		NONE,
+		SPAN_CLICKED,
+		SPAN_LONG_CLICKED,
+		DRAG_START,
+		DRAG_END,
+		DRAG_DISMISS,
+		SEGMENT_DOUBLE_CLICKED,
+		SEGMENT_CLICKED
+	}
+
 	private class MySelectionListener implements SelectionManager.Listener {
+
+		private SelectionEvent mEvent = SelectionEvent.NONE;
 
 		@Override
 		public void onSpanClicked(TouchEvent event, Object tag) {
-
+			mEvent = SelectionEvent.SPAN_CLICKED;
 		}
 
 		@Override
 		public void onSpanLongClicked(TouchEvent event, Object tag) {
-
+			mEvent = SelectionEvent.SPAN_LONG_CLICKED;
 		}
 
 		@Override
 		public void onDragStart(TouchEvent event) {
-
+			mEvent = SelectionEvent.DRAG_START;
 		}
 
 		@Override
 		public void onDragEnd(TouchEvent event) {
-
+			mEvent = SelectionEvent.DRAG_END;
 		}
 
 		@Override
 		public void onDragDismiss() {
-
+			mEvent = SelectionEvent.DRAG_DISMISS;
 		}
 
 		@Override
 		public void onSegmentDoubleClicked(TouchEvent event, Object paragraphTag) {
-
+			mEvent = SelectionEvent.SEGMENT_DOUBLE_CLICKED;
 		}
 
 		@Override
 		public void onSegmentClicked(TouchEvent event, Object paragraphTag) {
-
+			mEvent = SelectionEvent.SEGMENT_CLICKED;
 		}
 	}
 
