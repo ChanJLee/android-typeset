@@ -64,7 +64,7 @@ public class SelectionManager implements OnSelectedChangedListener {
 	 */
 	private final SelectedTextByDragVisitor mSelectedTextByDragVisitor = new SelectedTextByDragVisitor();
 	/**
-	 * 用于点击是选中文本 {@link SelectionManager#onBoxSelected(View, MotionEvent, Paragraph, int, Box)}
+	 * 用于点击是选中文本 {@link SelectionManager#onBoxSelected(TouchEvent, Paragraph, int, Box)}
 	 */
 	private final SelectedTextByClickedVisitor mSelectedTextByClickedVisitor = new SelectedTextByClickedVisitor();
 
@@ -126,18 +126,18 @@ public class SelectionManager implements OnSelectedChangedListener {
 	}
 
 	@Override
-	public boolean onSegmentClicked(View source, MotionEvent e, Paragraph paragraph, int eventType) {
+	public boolean onSegmentClicked(TouchEvent e, Paragraph paragraph, int eventType) {
 		if (mListener == null) {
 			return false;
 		}
 
 		if (eventType == OnSelectedChangedListener.EVENT_CLICKED) {
-			mListener.onSegmentClicked(TouchEvent.obtain(source, e), paragraph.getTag());
+			mListener.onSegmentClicked(e, paragraph.getTag());
 			return true;
 		}
 
 		if (eventType == EVENT_DOUBLE_CLICKED) {
-			mListener.onSegmentDoubleClicked(TouchEvent.obtain(source, e), paragraph.getTag());
+			mListener.onSegmentDoubleClicked(e, paragraph.getTag());
 			return true;
 		}
 
@@ -153,12 +153,12 @@ public class SelectionManager implements OnSelectedChangedListener {
 	 * @return 是否有box被选中
 	 */
 	@Override
-	public boolean onBoxSelected(View source, MotionEvent e, Paragraph paragraph, @EventType int eventType, Box box) {
+	public boolean onBoxSelected(TouchEvent e, Paragraph paragraph, @EventType int eventType, Box box) {
 		if (eventType == OnSelectedChangedListener.EVENT_CLICKED ||
 				eventType == OnSelectedChangedListener.EVENT_LONG_CLICKED) {
-			boolean handled = onBoxSelected(source, e, paragraph, eventType == OnSelectedChangedListener.EVENT_LONG_CLICKED, box);
+			boolean handled = onBoxSelected(e, paragraph, eventType == OnSelectedChangedListener.EVENT_LONG_CLICKED, box);
 			if (!handled && eventType == OnSelectedChangedListener.EVENT_CLICKED && mListener != null) {
-				mListener.onSegmentClicked(TouchEvent.obtain(source, e), paragraph.getTag());
+				mListener.onSegmentClicked(e, paragraph.getTag());
 				return true;
 			}
 		}
@@ -166,7 +166,7 @@ public class SelectionManager implements OnSelectedChangedListener {
 		return false;
 	}
 
-	private boolean onBoxSelected(View source, MotionEvent e, Paragraph paragraph, boolean isLongClicked, Box box) {
+	private boolean onBoxSelected(TouchEvent e, Paragraph paragraph, boolean isLongClicked, Box box) {
 		SpanPredicate predicate = isLongClicked ? mOnSpanLongClickedPredicate : mOnSpanClickedPredicate;
 		clearSelection();
 
@@ -176,10 +176,10 @@ public class SelectionManager implements OnSelectedChangedListener {
 
 			if (handled && mListener != null) {
 				if (isLongClicked) {
-					mListener.onSpanLongClicked(TouchEvent.obtain(source, e), box.getTag());
+					mListener.onSpanLongClicked(e, box.getTag());
 					notifyUpdateSelectionDropView();
 				} else {
-					mListener.onSpanClicked(TouchEvent.obtain(source, e), box.getTag());
+					mListener.onSpanClicked(e, box.getTag());
 				}
 			}
 		} catch (ParagraphVisitor.VisitException ex) {

@@ -11,6 +11,7 @@ import android.view.View;
 import me.chan.texas.renderer.ParagraphVisitor;
 import me.chan.texas.renderer.RenderOption;
 import me.chan.texas.renderer.SpanTouchEventHandler;
+import me.chan.texas.renderer.TouchEvent;
 import me.chan.texas.renderer.ui.decor.ParagraphDecor;
 import me.chan.texas.text.Paragraph;
 import me.chan.texas.renderer.RendererContext;
@@ -95,7 +96,7 @@ public class ParagraphViewMotion {
 		}
 
 		// 通知上层有元素被选中
-		return mOnTextSelectedListener.onSegmentClicked(mView, e, mParagraph, eventType);
+		return mOnTextSelectedListener.onSegmentClicked(TouchEvent.obtain(mView, e), mParagraph, eventType);
 	}
 
 	private boolean handleDecorModeMotion(MotionEvent e, @OnSelectedChangedListener.EventType int eventType) {
@@ -112,7 +113,7 @@ public class ParagraphViewMotion {
 		}
 
 		// 通知上层有元素被选中
-		return mOnTextSelectedListener.onBoxSelected(mView, e, mParagraph, eventType, mLastTouchBox);
+		return mOnTextSelectedListener.onBoxSelected(TouchEvent.obtain(mView, e), mParagraph, eventType, mLastTouchBox);
 	}
 
 	private int mMode = 0;
