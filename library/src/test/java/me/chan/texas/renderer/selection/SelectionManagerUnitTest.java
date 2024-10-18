@@ -120,7 +120,36 @@ public class SelectionManagerUnitTest {
 		RectF last = paragraphSelection.getLastRegion();
 		Assert.assertSame(first, last);
 
+		Assert.assertEquals(first.left, 0, 0.1);
+		Assert.assertEquals(first.top, 0, 0.1);
+		Assert.assertEquals(first.right, 1.5, 0.1);
+		Assert.assertEquals(first.bottom, 1, 0.1);
 
+		List<Object> list = paragraphSelection.getSelectedTags();
+		Assert.assertEquals(list.size(), 1);
+		Assert.assertEquals(list.get(0), "1");
+
+		paragraphSelection = selection.get(1);
+		first = paragraphSelection.getFirstRegion();
+		last = paragraphSelection.getLastRegion();
+		Assert.assertNotSame(first, last);
+
+		Assert.assertEquals(first.left, 0, 0.1);
+		Assert.assertEquals(first.top, 0, 0.1);
+		Assert.assertEquals(first.right, 5, 0.1);
+		Assert.assertEquals(first.bottom, 1, 0.1);
+
+		Assert.assertEquals(last.left, 0, 0.1);
+		Assert.assertEquals(last.top, 2, 0.1);
+		Assert.assertEquals(last.right, 1.5, 0.1);
+		Assert.assertEquals(last.bottom, 3, 0.1);
+
+		list = paragraphSelection.getSelectedTags();
+		Assert.assertEquals(list.size(), 4);
+		Assert.assertEquals(list.get(0), "一");
+		Assert.assertEquals(list.get(1), "二");
+		Assert.assertEquals(list.get(2), "三");
+		Assert.assertEquals(list.get(3), "四");
 	}
 
 	private class MyRecyclerView implements TexasRecyclerView {
