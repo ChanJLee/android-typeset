@@ -26,7 +26,7 @@ import me.chan.texas.utils.TexasUtils;
  */
 @SuppressLint("ViewConstructor")
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-public class SelectionDragView extends View {
+public class DragSelectViewImpl extends View implements DragSelectView {
 	private final Paint mPaint;
 
 	private static final int HOT_MOTION_REGION_SIZE = 300;
@@ -48,7 +48,7 @@ public class SelectionDragView extends View {
 	private final LongPressMotionDispatcher mLongPressMotionDispatcher;
 	private final Region mMotionRegion = new Region();
 
-	public SelectionDragView(Context context, ViewGroup parent) {
+	public DragSelectViewImpl(Context context, ViewGroup parent) {
 		super(context, null, 0);
 		mPaint = new Paint();
 		mPaint.setColor(0x88ff0000);

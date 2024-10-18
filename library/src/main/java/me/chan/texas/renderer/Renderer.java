@@ -29,6 +29,7 @@ import me.chan.texas.misc.PaintSet;
 import me.chan.texas.renderer.core.TypesetEngine;
 import me.chan.texas.renderer.selection.Selection;
 import me.chan.texas.renderer.selection.SelectionManager;
+import me.chan.texas.renderer.selection.overlay.DragSelectViewImpl;
 import me.chan.texas.renderer.ui.RendererAdapterImpl;
 import me.chan.texas.renderer.ui.decor.ParagraphDecor;
 import me.chan.texas.renderer.ui.rv.SegmentItemDecoration;
@@ -157,7 +158,13 @@ public class Renderer implements SelectionManager.Listener {
 		mImpl.addItemDecoration(new SegmentItemDecoration(mAdapter));
 
 		// selection
-		mSelectionManager = new SelectionManager(mAdapter, mLinearLayoutManager, this, texasView, mImpl);
+		DragSelectViewImpl selectionDragView = new DragSelectViewImpl(texasView.getContext(), texasView);
+		texasView.addView(selectionDragView,
+				new TexasView.LayoutParams(
+						ViewGroup.LayoutParams.MATCH_PARENT,
+						ViewGroup.LayoutParams.MATCH_PARENT)
+		);
+		mSelectionManager = new SelectionManager(mAdapter, mLinearLayoutManager, this, selectionDragView, mImpl);
 		mAdapter.setSelectionManager(mSelectionManager);
 
 		// adapter
