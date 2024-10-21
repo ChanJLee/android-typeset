@@ -279,14 +279,25 @@ public class SelectionManager implements OnSelectedChangedListener {
 	/**
 	 * 长按后滑动选中
 	 *
-	 * @param x1        顶部x
-	 * @param y1        顶部y
-	 * @param x2        底部x
-	 * @param y2        底部y
-	 * @param isFocusP1 手指是否按在p1上滑动
+	 * @param x1 x1
+	 * @param y1 y1
+	 * @param x2 x2
+	 * @param y2 y2
 	 */
 	@SuppressLint("NotifyDataSetChanged")
-	public void handleMoveToSelection(float x1, float y1, float x2, float y2, boolean isFocusP1) {
+	public void handleMoveToSelection(float x1, float y1, float x2, float y2) {
+		if (x1 > x2) {
+			float tmp = x1;
+			x1 = x2;
+			x2 = tmp;
+		}
+
+		if (y1 > y2) {
+			float tmp = y1;
+			y1 = y2;
+			y2 = tmp;
+		}
+
 		int firstVisibleItemPosition = mLayoutManager.findFirstVisibleItemPosition();
 		int lastVisibleItemPosition = mLayoutManager.findLastVisibleItemPosition();
 
@@ -317,7 +328,7 @@ public class SelectionManager implements OnSelectedChangedListener {
 				float tempY1 = y1 - mLocations[1];
 				float tempX2 = x2 - mLocations[0];
 				float tempY2 = y2 - mLocations[1];
-				mSelectedTextByDragVisitor.setRegion(tempX1, tempY1, tempX2, tempY2, isFocusP1);
+				mSelectedTextByDragVisitor.setRegion(tempX1, tempY1, tempX2, tempY2);
 				mSelectedTextByDragVisitor.startVisit(paragraph);
 				addParagraphSelection(currentSelection, paragraph);
 			} catch (ParagraphVisitor.VisitException ex) {
