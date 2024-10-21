@@ -70,4 +70,6 @@ public interface TextureParagraph {
 	Paragraph getParagraph();
 
 	void clear();
+
+	int getHeight();
 }

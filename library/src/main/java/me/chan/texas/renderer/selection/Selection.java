@@ -2,7 +2,6 @@ package me.chan.texas.renderer.selection;
 
 import android.graphics.RectF;
 import android.util.Log;
-import android.view.View;
 
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
@@ -13,6 +12,7 @@ import me.chan.texas.renderer.ui.RendererAdapterImpl;
 import me.chan.texas.renderer.ui.TexasRendererAdapter;
 import me.chan.texas.renderer.ui.rv.TexasLayoutManager;
 import me.chan.texas.renderer.ui.rv.TexasRecyclerView;
+import me.chan.texas.renderer.ui.text.TextureParagraph;
 import me.chan.texas.text.Document;
 import me.chan.texas.text.Paragraph;
 
@@ -83,7 +83,7 @@ public final class Selection extends DefaultRecyclable {
 
 			mRectEdge.topY = firstRegion.top + mLocations[1];
 			mRectEdge.topX = firstRegion.left + mLocations[0];
-			mRectEdge.lineHeight = firstRegion.height();
+			mRectEdge.lineHeight = firstRegion.bottom - firstRegion.top;
 			break;
 		}
 
@@ -127,7 +127,7 @@ public final class Selection extends DefaultRecyclable {
 			return false;
 		}
 
-		View child = layoutManager.findViewByPosition(index);
+		TextureParagraph child = layoutManager.findTextureParagraphByPosition(index);
 		if (child == null) {
 			return false;
 		}

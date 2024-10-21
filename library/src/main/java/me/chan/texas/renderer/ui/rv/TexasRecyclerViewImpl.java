@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.SimpleItemAnimator;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
 import me.chan.texas.renderer.TouchEvent;
+import me.chan.texas.renderer.ui.text.TextureParagraph;
 
 @RestrictTo(LIBRARY)
 @SuppressLint("ViewConstructor")
@@ -104,6 +105,12 @@ public class TexasRecyclerViewImpl extends RecyclerView implements TexasRecycler
 	@Override
 	public TexasLayoutManager getTexasLayoutManager() {
 		return mTexasLinearLayoutManager;
+	}
+
+	@Override
+	public void getChildLocations(TextureParagraph textureParagraph, int[] locations) {
+		View child = (View) textureParagraph;
+		getChildLocations(child, locations);
 	}
 
 	public void allowHandleTouchEvent() {
