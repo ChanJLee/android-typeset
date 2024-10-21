@@ -2,9 +2,11 @@ package me.chan.texas.renderer.selection;
 
 import static org.junit.Assert.assertNotNull;
 
+import android.graphics.Canvas;
 import android.graphics.RectF;
 import android.view.View;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -19,15 +21,18 @@ import me.chan.texas.TexasOption;
 import me.chan.texas.hyphenation.Hyphenation;
 import me.chan.texas.measurer.Measurer;
 import me.chan.texas.measurer.MockMeasurer;
+import me.chan.texas.misc.PaintSet;
 import me.chan.texas.renderer.ParagraphPredicates;
 import me.chan.texas.renderer.RenderOption;
 import me.chan.texas.renderer.SpanTouchEventHandler;
 import me.chan.texas.renderer.TouchEvent;
 import me.chan.texas.renderer.selection.overlay.DragSelectView;
 import me.chan.texas.renderer.ui.TexasRendererAdapter;
+import me.chan.texas.renderer.ui.decor.ParagraphDecor;
 import me.chan.texas.renderer.ui.rv.TexasLayoutManager;
 import me.chan.texas.renderer.ui.rv.TexasRecyclerView;
 import me.chan.texas.renderer.ui.text.OnSelectedChangedListener;
+import me.chan.texas.renderer.ui.text.TextureParagraph;
 import me.chan.texas.test.mock.MockTextPaint;
 import me.chan.texas.text.BreakStrategy;
 import me.chan.texas.text.Document;
@@ -37,6 +42,7 @@ import me.chan.texas.text.TextAttribute;
 import me.chan.texas.text.layout.Box;
 import me.chan.texas.text.layout.Layout;
 import me.chan.texas.typesetter.ParagraphTypesetter;
+import me.chan.texas.utils.concurrency.TaskQueue;
 
 public class SelectionManagerUnitTest {
 	private Document mDocument;
@@ -44,6 +50,9 @@ public class SelectionManagerUnitTest {
 	private SelectionManager mSelectionManager;
 	private MyLayoutManager mLayoutManager;
 	private MySelectionListener mSelectionListener;
+	private MyDragView mDragSelectView;
+	private MyRecyclerView mContainer;
+	private List<TextureParagraph> mTextureParagraphs;
 
 	@Before
 	public void init() {
@@ -82,8 +91,12 @@ public class SelectionManagerUnitTest {
 
 		mSelectionManager = new SelectionManager(new MyAdapter(),
 				mLayoutManager = new MyLayoutManager(mDocument),
-				mSelectionListener = new MySelectionListener(), new MyDragView(), new MyRecyclerView());
+				mSelectionListener = new MySelectionListener(),
+				mDragSelectView = new MyDragView(),
+				mContainer = new MyRecyclerView()
+		);
 		mSelectionManager.setSpanTouchEventHandler(new SpanTouchEventHandler() {
+
 			@Override
 			public boolean isSpanClickable(@Nullable Object tag) {
 				return true;
@@ -101,6 +114,15 @@ public class SelectionManagerUnitTest {
 		});
 
 		Assert.assertNull(mSelectionManager.getCurrentSelection());
+
+		mTextureParagraphs = new ArrayList<>();
+		Paragraph paragraph = (Paragraph) mDocument.getSegment(0);
+		int offset = 0;
+		mTextureParagraphs.add(new MyTextureParagraph(paragraph, offset));
+		offset += paragraph.getLayout().getHeight();
+		mTextureParagraphs.add(new MyTextureParagraph(paragraph = (Paragraph) mDocument.getSegment(1), offset));
+		offset += paragraph.getLayout().getHeight();
+		mTextureParagraphs.add(new MyTextureParagraph(paragraph = (Paragraph) mDocument.getSegment(2), offset));
 	}
 
 	@Test
@@ -195,12 +217,26 @@ public class SelectionManagerUnitTest {
 		Assert.assertEquals(SelectionEvent.SPAN_LONG_CLICKED, mSelectionListener.mEvent);
 		Assert.assertTrue(mSelectionManager.onBoxSelected(touchEvent, paragraph, OnSelectedChangedListener.EVENT_CLICKED, box));
 		Assert.assertEquals(SelectionEvent.SPAN_CLICKED, mSelectionListener.mEvent);
+		mSelectionManager.handleClickNothing();
 
+		Assert.assertEquals(View.GONE, mDragSelectView.mVisibility);
 		Assert.assertTrue(mSelectionManager.onBoxSelected(touchEvent, paragraph, OnSelectedChangedListener.EVENT_LONG_CLICKED, box));
 		selection = mSelectionManager.getCurrentSelection();
 		Assert.assertNotNull(selection);
+		Assert.assertEquals(View.VISIBLE, mDragSelectView.mVisibility);
 
+		Selection.RectEdge edge = selection.getSelectedRectEdge(mContainer);
+		Assert.assertEquals(edge.topX, 0, 0.1);
+		Assert.assertEquals(edge.topY, 0, 0.1);
+		Assert.assertEquals(edge.bottomX, 1.5, 0.1);
+		Assert.assertEquals(edge.bottomY, 1, 0.1);
 
+		mSelectionManager.handleMoveToSelection(-1, -1, 1.5f, 1, true);
+		edge = selection.getSelectedRectEdge(mContainer);
+		Assert.assertEquals(edge.topX, 0, 0.1);
+		Assert.assertEquals(edge.topY, 0, 0.1);
+		Assert.assertEquals(edge.bottomX, 1.5, 0.1);
+		Assert.assertEquals(edge.bottomY, 1, 0.1);
 	}
 
 	private class MyRecyclerView implements TexasRecyclerView {
@@ -226,7 +262,7 @@ public class SelectionManagerUnitTest {
 		}
 
 		@Override
-		public void getChildLocations(View child, int[] locations) {
+		public void getChildLocations(TextureParagraph child, int[] locations) {
 
 		}
 
@@ -252,6 +288,68 @@ public class SelectionManagerUnitTest {
 		SEGMENT_CLICKED
 	}
 
+	private class MyTextureParagraph implements TextureParagraph {
+		private final Paragraph mParagraph;
+		private final int mOffset;
+
+		private MyTextureParagraph(Paragraph paragraph, int offset) {
+			mParagraph = paragraph;
+			mOffset = offset;
+		}
+
+		@Nullable
+		@Override
+		public Canvas lockCanvas(int width, int height) {
+			return null;
+		}
+
+		@Override
+		public void unlockCanvasAndPost(Canvas canvas) {
+
+		}
+
+		@Override
+		public void getLocationOnScreen(int[] location) {
+			location[0] = 0;
+			location[1] = mOffset;
+		}
+
+		@Override
+		public void render(@NonNull Paragraph paragraph, @NonNull PaintSet paintSet, @NonNull RenderOption renderOption, @Nullable ParagraphDecor decor, @Nullable SpanTouchEventHandler spanClickedEventHandler) {
+
+		}
+
+		@Override
+		public void setOnTextSelectedListener(OnSelectedChangedListener onTextSelectedListener) {
+
+		}
+
+		@Override
+		public TaskQueue.Token getToken() {
+			return null;
+		}
+
+		@Override
+		public void syncUI() {
+
+		}
+
+		@Override
+		public Paragraph getParagraph() {
+			return mParagraph;
+		}
+
+		@Override
+		public void clear() {
+
+		}
+
+		@Override
+		public int getHeight() {
+			return mParagraph.getLayout().getHeight();
+		}
+	}
+
 	private class MyDragView implements DragSelectView {
 		private float mX1;
 		private float mY1;
@@ -260,10 +358,11 @@ public class SelectionManagerUnitTest {
 		private float mAdviseOffsetY;
 
 		private float mContentScrollY;
+		private int mVisibility;
 
 		@Override
 		public void setVisibility(int visible) {
-
+			mVisibility = visible;
 		}
 
 		@Override
@@ -355,8 +454,8 @@ public class SelectionManagerUnitTest {
 		}
 
 		@Override
-		public View findViewByPosition(int index) {
-			return null;
+		public TextureParagraph findTextureParagraphByPosition(int index) {
+			return mTextureParagraphs.get(index);
 		}
 
 		@Override

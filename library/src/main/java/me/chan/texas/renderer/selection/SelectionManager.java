@@ -296,15 +296,13 @@ public class SelectionManager implements OnSelectedChangedListener {
 
 		Selection currentSelection = Selection.obtain(mAdapter);
 		for (int i = firstVisibleItemPosition; i <= lastVisibleItemPosition; ++i) {
-			View content = mLayoutManager.findViewByPosition(i);
-			if (!(content instanceof TextureParagraph)) {
+			TextureParagraph textureParagraph = mLayoutManager.findTextureParagraphByPosition(i);
+			if (textureParagraph == null) {
 				continue;
 			}
 
-			TextureParagraph textureParagraph = (TextureParagraph) content;
-			mContentView.getChildLocations(content, mLocations);
-
-			if (mLocations[1] + content.getHeight() < y1) {
+			mContentView.getChildLocations(textureParagraph, mLocations);
+			if (mLocations[1] + textureParagraph.getHeight() < y1) {
 				continue;
 			}
 

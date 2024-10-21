@@ -3,11 +3,15 @@ package me.chan.texas.renderer.ui.rv;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
 import android.content.Context;
+import android.view.View;
 
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.LinearSmoothScroller;
 import androidx.recyclerview.widget.RecyclerView;
+
+import me.chan.texas.renderer.ui.text.TextureParagraph;
 
 @RestrictTo(LIBRARY)
 public class TexasLinearLayoutManagerImpl extends LinearLayoutManager implements TexasLayoutManager {
@@ -32,6 +36,13 @@ public class TexasLinearLayoutManagerImpl extends LinearLayoutManager implements
 	@Override
 	public void scrollToPosition(int position) {
 		scrollToPositionWithOffset(position, mOffset);
+	}
+
+	@Nullable
+	@Override
+	public TextureParagraph findTextureParagraphByPosition(int index) {
+		View child = findViewByPosition(index);
+		return child instanceof TextureParagraph ? (TextureParagraph) child : null;
 	}
 
 	private static class SmoothScrollerImpl extends LinearSmoothScroller {
