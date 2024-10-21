@@ -167,11 +167,19 @@ public class SelectedTextByDragVisitor extends SelectedVisitor {
 	public void onVisitLineStart(Line line, float bottomX, float bottomY) {
 		mLineSelected = false;
 		mLastBoxX = 0;
+		int sig = SIG_NORMAL;
+		float top = bottomY - line.getLineHeight();
 		if (bottomY <= mY1) {
-			sendVisitSig(SIG_STOP_LINE_VISIT);
-		} else if (bottomY - line.getLineHeight() >= mY2) {
-			sendVisitSig(SIG_STOP_PARA_VISIT);
+			sig = SIG_STOP_LINE_VISIT;
 		}
+		if (top >= mY2) {
+			sig = SIG_STOP_PARA_VISIT;
+		}
+
+		if (sig != SIG_NORMAL) {
+			sendVisitSig(sig);
+		}
+
 		super.onVisitLineStart(line, bottomX, bottomY);
 	}
 
@@ -214,62 +222,24 @@ public class SelectedTextByDragVisitor extends SelectedVisitor {
 		}
 
 		mLastBoxX = inner.right;
-
-		// 同行
-		if (outer.top <= mY1 && outer.bottom >= mY1 &&
-				outer.top <= mY2 && outer.bottom >= mY2) {
-			float start = mX1;
-			float end = mX2;
-			if (mX1 > mX2) {
-				start = mX2;
-				end = mX1;
-			}
-			return (inner.right > start && inner.right <= end) ||
-					(inner.left >= start && inner.left < end);
-		}
-
-		// 不同行
-		// y方向一点不沾边 直接忽略
-		if (outer.bottom <= mY1 || outer.top >= mY2) {
-			return false;
-		}
-
-		// 全包裹
-		if (outer.top >= mY1 && outer.bottom <= mY2) {
-			return true;
-		}
-
-		// 上半部分夹住
-		if (outer.top <= mY1 && outer.bottom >= mY1) {
-			return mIsFocusP1 ?
-					outer.bottom >= mY1 && inner.right > mX1
-					: inner.right > mX1;
-		}
-
-		// 下半部分夹住
-		return mIsFocusP1 ?
-				inner.left < mX2
-				: outer.top <= mY2 && inner.left < mX2;
+		return !(inner.right <= mX1 || inner.left >= mX2);
 	}
 
 	@Override
 	public void clear() {
 		mFirstSelectedLine = mLastSelectedLine = null;
 		mX1 = mX2 = mY2 = mY1 = 0;
-		mIsFocusP1 = false;
 		mLinesWidthBuffer.clear();
 		super.clear();
 	}
 
 	private float mX1, mY1, mX2, mY2;
-	private boolean mIsFocusP1;
 
-	public void setRegion(float x1, float y1, float x2, float y2, boolean isFocusP1) {
+	public void setRegion(float x1, float y1, float x2, float y2) {
 		mX1 = x1;
 		mY1 = y1;
 		mX2 = x2;
 		mY2 = y2;
-		mIsFocusP1 = isFocusP1;
 	}
 
 	@Override
@@ -279,7 +249,6 @@ public class SelectedTextByDragVisitor extends SelectedVisitor {
 				", mY1=" + mY1 +
 				", mX2=" + mX2 +
 				", mY2=" + mY2 +
-				", mIsFocusP1=" + mIsFocusP1 +
 				'}';
 	}
 }

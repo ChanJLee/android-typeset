@@ -215,9 +215,15 @@ public class SelectionManagerUnitTest {
 		Box box = (Box) paragraph.getElement(0);
 		Assert.assertTrue(mSelectionManager.onBoxSelected(touchEvent, paragraph, OnSelectedChangedListener.EVENT_LONG_CLICKED, box));
 		Assert.assertEquals(SelectionEvent.SPAN_LONG_CLICKED, mSelectionListener.mEvent);
+		Assert.assertNotNull(paragraph.getSelection());
 		Assert.assertTrue(mSelectionManager.onBoxSelected(touchEvent, paragraph, OnSelectedChangedListener.EVENT_CLICKED, box));
 		Assert.assertEquals(SelectionEvent.SPAN_CLICKED, mSelectionListener.mEvent);
 		mSelectionManager.handleClickNothing();
+
+		for (TextureParagraph textureParagraph : mTextureParagraphs) {
+			Paragraph tmp = textureParagraph.getParagraph();
+			Assert.assertNull(tmp.getSelection());
+		}
 
 		Assert.assertEquals(View.GONE, mDragSelectView.mVisibility);
 		Assert.assertTrue(mSelectionManager.onBoxSelected(touchEvent, paragraph, OnSelectedChangedListener.EVENT_LONG_CLICKED, box));
@@ -231,12 +237,89 @@ public class SelectionManagerUnitTest {
 		Assert.assertEquals(edge.bottomX, 1.5, 0.1);
 		Assert.assertEquals(edge.bottomY, 1, 0.1);
 
-		mSelectionManager.handleMoveToSelection(-1, -1, 1.5f, 1, true);
+		mSelectionManager.handleMoveToSelection(-1, -1, 1.5f, 1);
+		selection = mSelectionManager.getCurrentSelection();
 		edge = selection.getSelectedRectEdge(mContainer);
 		Assert.assertEquals(edge.topX, 0, 0.1);
 		Assert.assertEquals(edge.topY, 0, 0.1);
 		Assert.assertEquals(edge.bottomX, 1.5, 0.1);
 		Assert.assertEquals(edge.bottomY, 1, 0.1);
+		Assert.assertEquals(1, selection.size());
+		ParagraphSelection paragraphSelection = selection.get(0);
+		checkSelectedTag(paragraphSelection.getSelectedTags(), "1");
+
+		mSelectionManager.handleMoveToSelection(1.5f, 1, -1, -1);
+		selection = mSelectionManager.getCurrentSelection();
+		edge = selection.getSelectedRectEdge(mContainer);
+		Assert.assertEquals(edge.topX, 0, 0.1);
+		Assert.assertEquals(edge.topY, 0, 0.1);
+		Assert.assertEquals(edge.bottomX, 1.5, 0.1);
+		Assert.assertEquals(edge.bottomY, 1, 0.1);
+		Assert.assertEquals(1, selection.size());
+
+		mSelectionManager.handleMoveToSelection(-1, -1, 1.5f, 2);
+		selection = mSelectionManager.getCurrentSelection();
+		edge = selection.getSelectedRectEdge(mContainer);
+		Assert.assertEquals(edge.topX, 0, 0.1);
+		Assert.assertEquals(edge.topY, 0, 0.1);
+		Assert.assertEquals(edge.bottomX, 1.5, 0.1);
+		Assert.assertEquals(edge.bottomY, 1, 0.1);
+		Assert.assertEquals(1, selection.size());
+		paragraphSelection = selection.get(0);
+		checkSelectedTag(paragraphSelection.getSelectedTags(), "1");
+
+		mSelectionManager.handleMoveToSelection(-1, -1, 1.5f, 3);
+		selection = mSelectionManager.getCurrentSelection();
+		edge = selection.getSelectedRectEdge(mContainer);
+		Assert.assertEquals(edge.topX, 0, 0.1);
+		Assert.assertEquals(edge.topY, 0, 0.1);
+		Assert.assertEquals(edge.bottomX, 1.5, 0.1);
+		Assert.assertEquals(edge.bottomY, 3, 0.1);
+		Assert.assertEquals(1, selection.size());
+		paragraphSelection = selection.get(0);
+		checkSelectedTag(paragraphSelection.getSelectedTags(), "1", "4");
+
+		mSelectionManager.handleMoveToSelection(-1, -1, 3, 3);
+		selection = mSelectionManager.getCurrentSelection();
+		edge = selection.getSelectedRectEdge(mContainer);
+		Assert.assertEquals(edge.topX, 0, 0.1);
+		Assert.assertEquals(edge.topY, 0, 0.1);
+		Assert.assertEquals(edge.bottomX, 3.5, 0.1);
+		Assert.assertEquals(edge.bottomY, 3, 0.1);
+		Assert.assertEquals(1, selection.size());
+		paragraphSelection = selection.get(0);
+		checkSelectedTag(paragraphSelection.getSelectedTags(), "1", "2", "4", "5");
+
+
+		mSelectionManager.handleMoveToSelection(1, 0, 3, 3);
+		selection = mSelectionManager.getCurrentSelection();
+		edge = selection.getSelectedRectEdge(mContainer);
+		Assert.assertEquals(edge.topX, 1.5, 0.1);
+		Assert.assertEquals(edge.topY, 0, 0.1);
+		Assert.assertEquals(edge.bottomX, 3.5, 0.1);
+		Assert.assertEquals(edge.bottomY, 3, 0.1);
+		Assert.assertEquals(1, selection.size());
+		paragraphSelection = selection.get(0);
+		checkSelectedTag(paragraphSelection.getSelectedTags(), "2", "5");
+
+
+		mSelectionManager.handleMoveToSelection(1, 1, 3, 3);
+		selection = mSelectionManager.getCurrentSelection();
+		edge = selection.getSelectedRectEdge(mContainer);
+		Assert.assertEquals(edge.topX, 1.5, 0.1);
+		Assert.assertEquals(edge.topY, 2, 0.1);
+		Assert.assertEquals(edge.bottomX, 3.5, 0.1);
+		Assert.assertEquals(edge.bottomY, 3, 0.1);
+		Assert.assertEquals(1, selection.size());
+		paragraphSelection = selection.get(0);
+		checkSelectedTag(paragraphSelection.getSelectedTags(), "5");
+	}
+
+	private static void checkSelectedTag(List<Object> actual, Object... excepts) {
+		Assert.assertEquals(actual.size(), excepts.length);
+		for (int i = 0; i < actual.size(); ++i) {
+			Assert.assertEquals(actual.get(i), excepts[i]);
+		}
 	}
 
 	private class MyRecyclerView implements TexasRecyclerView {
@@ -263,7 +346,8 @@ public class SelectionManagerUnitTest {
 
 		@Override
 		public void getChildLocations(TextureParagraph child, int[] locations) {
-
+			MyTextureParagraph paragraph = (MyTextureParagraph) child;
+			paragraph.getLocationOnScreen(locations);
 		}
 
 		@Override

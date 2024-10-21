@@ -197,7 +197,7 @@ public class DragSelectViewImpl extends View implements DragSelectView {
 		}
 
 		getMotionRegion(mMotionRegion);
-		mSelectionManager.handleMoveToSelection(mMotionRegion.getTopX(), mMotionRegion.getTopY(), mMotionRegion.getBottomX(), mMotionRegion.getBottomY(), mMotionRegion.isTop(mFocusPoint));
+		mSelectionManager.handleMoveToSelection(mMotionRegion.getTopX(), mMotionRegion.getTopY(), mMotionRegion.getBottomX(), mMotionRegion.getBottomY());
 	}
 
 	private void getRendererRegion(Region region) {
