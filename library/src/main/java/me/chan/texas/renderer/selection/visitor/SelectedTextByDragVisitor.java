@@ -1,9 +1,9 @@
 package me.chan.texas.renderer.selection.visitor;
 
 import android.graphics.RectF;
+import android.util.Log;
 
 import androidx.annotation.RestrictTo;
-import androidx.annotation.VisibleForTesting;
 
 import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.layout.Box;
@@ -20,10 +20,20 @@ import java.util.List;
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class SelectedTextByDragVisitor extends SelectedVisitor {
 
+	private static final boolean DEBUG = false;
+
 	private Line mFirstSelectedLine, mLastSelectedLine;
 	private float mLastBoxX;
 	private final List<Float> mLinesWidthBuffer = new ArrayList<>();
 	private final RectF mSelectionRegion = new RectF();
+
+	@Override
+	protected void onVisitParagraphStart(Paragraph paragraph) {
+		super.onVisitParagraphStart(paragraph);
+		if (DEBUG) {
+			Log.d("chan_debug", "start visit paragraph: " + mSelectionRegion);
+		}
+	}
 
 	@Override
 	public void onVisitParagraphEnd(Paragraph paragraph) {
@@ -166,9 +176,9 @@ public class SelectedTextByDragVisitor extends SelectedVisitor {
 		}
 	}
 
-	private final static int ALL = 1;
-	private final static int LEFT = 2;
-	private final static int RIGHT = 3;
+	private final static int LEFT = 1;
+	private final static int RIGHT = 2;
+	private final static int ALL = 3;
 	private final static int BETWEEN = 4;
 
 	private int mSelectionMode = 0;
@@ -186,6 +196,7 @@ public class SelectedTextByDragVisitor extends SelectedVisitor {
 			sig = SIG_STOP_PARA_VISIT;
 		}
 
+		mSelectionMode = 0;
 		if (sig != SIG_NORMAL) {
 			sendVisitSig(sig);
 		} else {
@@ -196,12 +207,16 @@ public class SelectedTextByDragVisitor extends SelectedVisitor {
 					mSelectionMode = BETWEEN;
 				}
 			} else {
-				if (bottomY <= mSelectionRegion.bottom) {
-					mSelectionMode = LEFT;
-				} else {
+				if (bottomY < mSelectionRegion.bottom) {
 					mSelectionMode = ALL;
+				} else {
+					mSelectionMode = LEFT;
 				}
 			}
+		}
+
+		if (DEBUG) {
+			Log.d("chan_debug", mSelectionMode + " - " + line);
 		}
 
 		super.onVisitLineStart(line, bottomX, bottomY);
@@ -234,6 +249,9 @@ public class SelectedTextByDragVisitor extends SelectedVisitor {
 	@Override
 	protected boolean selected(Box box, RectF inner, RectF outer) {
 		boolean result = selectedImpl(box, inner, outer);
+		if (DEBUG) {
+			Log.d("chan_debug", "selected: " + result + " - " + box + " " + inner);
+		}
 		if (result) {
 			mLineSelected = true;
 		}
@@ -251,15 +269,15 @@ public class SelectedTextByDragVisitor extends SelectedVisitor {
 		}
 
 		if (mSelectionMode == LEFT) {
-			return inner.right <= mSelectionRegion.right;
+			return inner.left <= mSelectionRegion.right;
 		}
 
 		if (mSelectionMode == RIGHT) {
-			return inner.left >= mSelectionRegion.left;
+			return inner.right >= mSelectionRegion.left;
 		}
 
 		if (mSelectionMode == BETWEEN) {
-			return inner.left < mSelectionRegion.right && inner.right > mSelectionRegion.left;
+			return inner.left <= mSelectionRegion.right && inner.right >= mSelectionRegion.left;
 		}
 
 		return false;
