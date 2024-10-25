@@ -22,6 +22,7 @@ public class Line extends DefaultRecyclable {
 
 	private final List<Element> mElements;
 	private float mLineHeight;
+	private float mLineWidth;
 	private float mRatio;
 	private float mTopPadding;
 	private float mBottomPadding;
@@ -44,12 +45,20 @@ public class Line extends DefaultRecyclable {
 		return mLineHeight;
 	}
 
+	public void setLineWidth(float lineWidth) {
+		mLineWidth = lineWidth;
+	}
+
 	public float getRatio() {
 		return mRatio;
 	}
 
 	public void setLineHeight(float lineHeight) {
 		mLineHeight = lineHeight;
+	}
+
+	public float getLineWidth() {
+		return mLineWidth;
 	}
 
 	public void setRatio(float ratio) {
@@ -330,6 +339,8 @@ public class Line extends DefaultRecyclable {
 				}
 			}
 
+			float totalWidth = glueWidth + boxWidth;
+			line.setLineWidth(totalWidth);
 			line.setLineHeight(lineHeight);
 			if (breakStrategy == BreakStrategy.SIMPLE) {
 				line.setRatio(0);
@@ -337,7 +348,6 @@ public class Line extends DefaultRecyclable {
 			}
 
 			float ratio = 0;
-			float totalWidth = glueWidth + boxWidth;
 			if (totalWidth == lineWidth) {
 				ratio = 0;
 			} else if (totalWidth > lineWidth) {
