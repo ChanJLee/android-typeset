@@ -42,6 +42,7 @@ import me.chan.texas.text.TextAttribute;
 import me.chan.texas.text.layout.Box;
 import me.chan.texas.text.layout.Layout;
 import me.chan.texas.typesetter.ParagraphTypesetter;
+import me.chan.texas.utils.TexasUtils;
 import me.chan.texas.utils.concurrency.TaskQueue;
 
 public class SelectionManagerUnitTest {
@@ -300,19 +301,19 @@ public class SelectionManagerUnitTest {
 		Assert.assertEquals(edge.bottomY, 3, 0.1);
 		Assert.assertEquals(1, selection.size());
 		paragraphSelection = selection.get(0);
-		checkSelectedTag(paragraphSelection.getSelectedTags(), "2", "5");
+		checkSelectedTag(paragraphSelection.getSelectedTags(), "2", "3", "4", "5");
 
 
 		mSelectionManager.handleMoveToSelection(1, 1, 3, 3);
 		selection = mSelectionManager.getCurrentSelection();
 		edge = selection.getSelectedRectEdge(mContainer);
 		Assert.assertEquals(edge.topX, 1.5, 0.1);
-		Assert.assertEquals(edge.topY, 2, 0.1);
+		Assert.assertEquals(edge.topY, 0, 0.1);
 		Assert.assertEquals(edge.bottomX, 3.5, 0.1);
 		Assert.assertEquals(edge.bottomY, 3, 0.1);
 		Assert.assertEquals(1, selection.size());
 		paragraphSelection = selection.get(0);
-		checkSelectedTag(paragraphSelection.getSelectedTags(), "5");
+		checkSelectedTag(paragraphSelection.getSelectedTags(), "2", "3", "4", "5");
 	}
 
 	private static void checkSelectedTag(List<Object> actual, Object... excepts) {
@@ -589,5 +590,21 @@ public class SelectionManagerUnitTest {
 		public int indexOf(Segment segment) {
 			return mDocument.indexOfSegment(segment);
 		}
+	}
+
+	@Test
+	public void testTntersect() {
+		RectF lhs = new RectF();
+		RectF rhs = new RectF();
+
+		TexasUtils.setRect(rhs, 0, 0, 2, 2);
+		TexasUtils.setRect(lhs, -1, -1, 1, 1);
+		Assert.assertTrue(TexasUtils.intersects(lhs, rhs));
+
+		TexasUtils.setRect(lhs, 0, 0, 1, 1);
+		Assert.assertTrue(TexasUtils.intersects(lhs, rhs));
+
+		TexasUtils.setRect(lhs, 1, 1, 3, 3);
+		Assert.assertTrue(TexasUtils.intersects(lhs, rhs));
 	}
 }

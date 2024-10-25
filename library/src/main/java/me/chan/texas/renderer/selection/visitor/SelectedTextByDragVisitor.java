@@ -3,6 +3,7 @@ package me.chan.texas.renderer.selection.visitor;
 import android.graphics.RectF;
 
 import androidx.annotation.RestrictTo;
+import androidx.annotation.VisibleForTesting;
 
 import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.layout.Box;
@@ -11,6 +12,7 @@ import me.chan.texas.text.layout.Element;
 import me.chan.texas.text.layout.Layout;
 import me.chan.texas.text.layout.Line;
 import me.chan.texas.text.layout.TextBox;
+import me.chan.texas.utils.TexasUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,6 +23,7 @@ public class SelectedTextByDragVisitor extends SelectedVisitor {
 	private Line mFirstSelectedLine, mLastSelectedLine;
 	private float mLastBoxX;
 	private final List<Float> mLinesWidthBuffer = new ArrayList<>();
+	private final RectF mSelectionRegion = new RectF();
 
 	@Override
 	public void onVisitParagraphEnd(Paragraph paragraph) {
@@ -163,21 +166,42 @@ public class SelectedTextByDragVisitor extends SelectedVisitor {
 		}
 	}
 
+	private final static int ALL = 1;
+	private final static int LEFT = 2;
+	private final static int RIGHT = 3;
+	private final static int BETWEEN = 4;
+
+	private int mSelectionMode = 0;
+
 	@Override
 	public void onVisitLineStart(Line line, float bottomX, float bottomY) {
 		mLineSelected = false;
 		mLastBoxX = 0;
 		int sig = SIG_NORMAL;
 		float top = bottomY - line.getLineHeight();
-		if (bottomY <= mY1) {
+		if (bottomY < mSelectionRegion.top) {
 			sig = SIG_STOP_LINE_VISIT;
 		}
-		if (top >= mY2) {
+		if (top >= mSelectionRegion.bottom) {
 			sig = SIG_STOP_PARA_VISIT;
 		}
 
 		if (sig != SIG_NORMAL) {
 			sendVisitSig(sig);
+		} else {
+			if (top <= mSelectionRegion.top) {
+				if (bottomY < mSelectionRegion.bottom) {
+					mSelectionMode = RIGHT;
+				} else {
+					mSelectionMode = BETWEEN;
+				}
+			} else {
+				if (bottomY <= mSelectionRegion.bottom) {
+					mSelectionMode = LEFT;
+				} else {
+					mSelectionMode = ALL;
+				}
+			}
 		}
 
 		super.onVisitLineStart(line, bottomX, bottomY);
@@ -222,33 +246,43 @@ public class SelectedTextByDragVisitor extends SelectedVisitor {
 		}
 
 		mLastBoxX = inner.right;
-		return !(inner.right <= mX1 || inner.left >= mX2);
+		if (mSelectionMode == ALL) {
+			return true;
+		}
+
+		if (mSelectionMode == LEFT) {
+			return inner.right <= mSelectionRegion.right;
+		}
+
+		if (mSelectionMode == RIGHT) {
+			return inner.left >= mSelectionRegion.left;
+		}
+
+		if (mSelectionMode == BETWEEN) {
+			return inner.left < mSelectionRegion.right && inner.right > mSelectionRegion.left;
+		}
+
+		return false;
 	}
 
 	@Override
 	public void clear() {
 		mFirstSelectedLine = mLastSelectedLine = null;
-		mX1 = mX2 = mY2 = mY1 = 0;
 		mLinesWidthBuffer.clear();
 		super.clear();
 	}
 
-	private float mX1, mY1, mX2, mY2;
-
 	public void setRegion(float x1, float y1, float x2, float y2) {
-		mX1 = x1;
-		mY1 = y1;
-		mX2 = x2;
-		mY2 = y2;
+		TexasUtils.setRect(mSelectionRegion, x1, y1, x2, y2);
 	}
 
 	@Override
 	public String toString() {
 		return "Drag{" +
-				"mX1=" + mX1 +
-				", mY1=" + mY1 +
-				", mX2=" + mX2 +
-				", mY2=" + mY2 +
+				"mSelectionRegion.left=" + mSelectionRegion.left +
+				", mSelectionRegion.top=" + mSelectionRegion.top +
+				", mSelectionRegion.right=" + mSelectionRegion.right +
+				", mSelectionRegion.bottom=" + mSelectionRegion.bottom +
 				'}';
 	}
 }

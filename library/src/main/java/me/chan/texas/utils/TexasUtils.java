@@ -14,6 +14,7 @@ import android.util.Log;
 import android.view.WindowManager;
 
 import androidx.annotation.IntDef;
+import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 
 import me.chan.texas.compat.TextPaintCompat;
@@ -400,5 +401,20 @@ public class TexasUtils {
 		dest.top = top;
 		dest.right = right;
 		dest.bottom = bottom;
+	}
+
+	/**
+	 * Returns true iff the two specified rectangles intersect. In no event are
+	 * either of the rectangles modified. To record the intersection,
+	 * use intersect() or setIntersect().
+	 *
+	 * @param a The first rectangle being tested for intersection
+	 * @param b The second rectangle being tested for intersection
+	 * @return true iff the two specified rectangles intersect. In no event are
+	 *              either of the rectangles modified.
+	 */
+	public static boolean intersects(@NonNull RectF a, @NonNull RectF b) {
+		return a.left < b.right && b.left < a.right
+				&& a.top < b.bottom && b.top < a.bottom;
 	}
 }
