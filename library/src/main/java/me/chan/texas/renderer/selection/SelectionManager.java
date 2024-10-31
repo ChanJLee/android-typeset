@@ -286,18 +286,6 @@ public class SelectionManager implements OnSelectedChangedListener {
 	 */
 	@SuppressLint("NotifyDataSetChanged")
 	public void handleMoveToSelection(float x1, float y1, float x2, float y2) {
-		if (x1 > x2) {
-			float tmp = x1;
-			x1 = x2;
-			x2 = tmp;
-		}
-
-		if (y1 > y2) {
-			float tmp = y1;
-			y1 = y2;
-			y2 = tmp;
-		}
-
 		int firstVisibleItemPosition = mLayoutManager.findFirstVisibleItemPosition();
 		int lastVisibleItemPosition = mLayoutManager.findLastVisibleItemPosition();
 

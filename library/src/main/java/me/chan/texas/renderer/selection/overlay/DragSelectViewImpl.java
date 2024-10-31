@@ -148,8 +148,8 @@ public class DragSelectViewImpl extends View implements DragSelectView {
 					"] r[" + event.getRawX() + "," + event.getRawY() + "]";
 			if (mDebugPaint == null) {
 				mDebugPaint = new Paint();
-				mDebugPaint.setColor(Color.GREEN);
-				mDebugPaint.setTextSize(30);
+				mDebugPaint.setColor(Color.RED);
+				mDebugPaint.setTextSize(35);
 			}
 		}
 
