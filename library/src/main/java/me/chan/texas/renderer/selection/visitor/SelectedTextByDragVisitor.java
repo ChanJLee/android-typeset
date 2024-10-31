@@ -29,7 +29,7 @@ public class SelectedTextByDragVisitor extends SelectedVisitor {
 	protected void onVisitParagraphStart(Paragraph paragraph) {
 		super.onVisitParagraphStart(paragraph);
 		if (Texas.DEBUG_DRAG) {
-			Log.d("chan_debug", "start visit paragraph: " + mSelectionRegion);
+			Log.d("drag_debug.visitor", "start visit paragraph: " + mSelectionRegion);
 		}
 	}
 
@@ -214,7 +214,7 @@ public class SelectedTextByDragVisitor extends SelectedVisitor {
 		}
 
 		if (Texas.DEBUG_DRAG) {
-			Log.d("chan_debug", mSelectionMode + " - " + line);
+			Log.d("drag_debug.visitor", mSelectionMode + " - " + line);
 		}
 
 		super.onVisitLineStart(line, bottomX, bottomY);
@@ -248,7 +248,7 @@ public class SelectedTextByDragVisitor extends SelectedVisitor {
 	protected boolean selected(Box box, RectF inner, RectF outer) {
 		boolean result = selectedImpl(box, inner, outer);
 		if (Texas.DEBUG_DRAG) {
-			Log.d("chan_debug", "selected: " + result + " - " + box + " " + inner);
+			Log.d("drag_debug.visitor", "selected: " + result + " - " + box + " " + inner);
 		}
 		if (result) {
 			mLineSelected = true;
