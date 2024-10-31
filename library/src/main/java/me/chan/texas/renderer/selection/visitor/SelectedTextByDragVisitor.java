@@ -275,7 +275,15 @@ public class SelectedTextByDragVisitor extends SelectedVisitor {
 		}
 
 		if (mSelectionMode == BETWEEN) {
-			return inner.left <= mSelectionRegion.right && inner.right >= mSelectionRegion.left;
+			float right = mSelectionRegion.right;
+			float left = mSelectionRegion.left;
+			if (right < left) {
+				float tmp = right;
+				right = left;
+				left = tmp;
+			}
+			return (inner.left >= left && inner.left <= right) ||
+					(inner.right >= left && inner.right <= right);
 		}
 
 		return false;

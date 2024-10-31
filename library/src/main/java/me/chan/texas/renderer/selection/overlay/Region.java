@@ -1,33 +1,38 @@
 package me.chan.texas.renderer.selection.overlay;
 
-import android.graphics.RectF;
+import me.chan.texas.misc.PointF;
 
 class Region {
-	private RectF mTop;
-	private RectF mBottom;
+	private PointF mTop;
+	private PointF mBottom;
 
-	public void setup(RectF top, RectF bottom) {
+	public void setup(PointF top, PointF bottom) {
 		mTop = top;
 		mBottom = bottom;
 	}
 
 	public float getTopX() {
-		return mTop.centerX();
+		return mTop.x;
 	}
 
 	public float getTopY() {
-		return mTop.centerY();
+		return mTop.y;
 	}
 
 	public float getBottomX() {
-		return mBottom.centerX();
+		return mBottom.x;
 	}
 
 	public float getBottomY() {
-		return mBottom.centerY();
+		return mBottom.y;
 	}
 
-	public boolean isTop(RectF point) {
+	public boolean isTop(PointF point) {
 		return point == mTop;
+	}
+
+	@Override
+	public String toString() {
+		return "Region[" + mTop + mBottom + "]";
 	}
 }
