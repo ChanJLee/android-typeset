@@ -5,6 +5,7 @@ import android.util.Log;
 
 import androidx.annotation.RestrictTo;
 
+import me.chan.texas.Texas;
 import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.layout.Box;
 import me.chan.texas.text.layout.DrawableBox;
@@ -19,9 +20,6 @@ import java.util.List;
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class SelectedTextByDragVisitor extends SelectedVisitor {
-
-	private static final boolean DEBUG = false;
-
 	private Line mFirstSelectedLine, mLastSelectedLine;
 	private float mLastBoxX;
 	private final List<Float> mLinesWidthBuffer = new ArrayList<>();
@@ -30,7 +28,7 @@ public class SelectedTextByDragVisitor extends SelectedVisitor {
 	@Override
 	protected void onVisitParagraphStart(Paragraph paragraph) {
 		super.onVisitParagraphStart(paragraph);
-		if (DEBUG) {
+		if (Texas.DEBUG_DRAG) {
 			Log.d("chan_debug", "start visit paragraph: " + mSelectionRegion);
 		}
 	}
@@ -215,7 +213,7 @@ public class SelectedTextByDragVisitor extends SelectedVisitor {
 			}
 		}
 
-		if (DEBUG) {
+		if (Texas.DEBUG_DRAG) {
 			Log.d("chan_debug", mSelectionMode + " - " + line);
 		}
 
@@ -249,7 +247,7 @@ public class SelectedTextByDragVisitor extends SelectedVisitor {
 	@Override
 	protected boolean selected(Box box, RectF inner, RectF outer) {
 		boolean result = selectedImpl(box, inner, outer);
-		if (DEBUG) {
+		if (Texas.DEBUG_DRAG) {
 			Log.d("chan_debug", "selected: " + result + " - " + box + " " + inner);
 		}
 		if (result) {
