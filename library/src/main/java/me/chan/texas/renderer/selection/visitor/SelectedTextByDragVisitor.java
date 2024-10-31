@@ -6,6 +6,7 @@ import android.util.Log;
 import androidx.annotation.RestrictTo;
 
 import me.chan.texas.Texas;
+import me.chan.texas.misc.PointF;
 import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.layout.Box;
 import me.chan.texas.text.layout.DrawableBox;
@@ -13,7 +14,6 @@ import me.chan.texas.text.layout.Element;
 import me.chan.texas.text.layout.Layout;
 import me.chan.texas.text.layout.Line;
 import me.chan.texas.text.layout.TextBox;
-import me.chan.texas.utils.TexasUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,13 +23,14 @@ public class SelectedTextByDragVisitor extends SelectedVisitor {
 	private Line mFirstSelectedLine, mLastSelectedLine;
 	private float mLastBoxX;
 	private final List<Float> mLinesWidthBuffer = new ArrayList<>();
-	private final RectF mSelectionRegion = new RectF();
+	private final PointF mP1 = new PointF();
+	private final PointF mP2 = new PointF();
 
 	@Override
 	protected void onVisitParagraphStart(Paragraph paragraph) {
 		super.onVisitParagraphStart(paragraph);
 		if (Texas.DEBUG_DRAG) {
-			Log.d("drag_debug.visitor", "start visit paragraph: " + mSelectionRegion);
+			Log.d("drag_debug.visitor", "start visit paragraph: " + mP1 + " " + mP2);
 		}
 	}
 
@@ -174,12 +175,7 @@ public class SelectedTextByDragVisitor extends SelectedVisitor {
 		}
 	}
 
-	private final static int LEFT = 1;
-	private final static int RIGHT = 2;
-	private final static int ALL = 3;
-	private final static int BETWEEN = 4;
-
-	private int mSelectionMode = 0;
+	private float mLeft, mRight;
 
 	@Override
 	public void onVisitLineStart(Line line, float bottomX, float bottomY) {
@@ -187,34 +183,38 @@ public class SelectedTextByDragVisitor extends SelectedVisitor {
 		mLastBoxX = 0;
 		int sig = SIG_NORMAL;
 		float top = bottomY - line.getLineHeight();
-		if (bottomY < mSelectionRegion.top) {
+		if (bottomY < mP1.y) {
 			sig = SIG_STOP_LINE_VISIT;
 		}
-		if (top >= mSelectionRegion.bottom) {
+
+		if (top >= mP2.y) {
 			sig = SIG_STOP_PARA_VISIT;
 		}
 
-		mSelectionMode = 0;
+		mLeft = 0;
+		mRight = line.getLineWidth();
 		if (sig != SIG_NORMAL) {
 			sendVisitSig(sig);
 		} else {
-			if (top <= mSelectionRegion.top) {
-				if (bottomY < mSelectionRegion.bottom) {
-					mSelectionMode = RIGHT;
+			if (top <= mP1.y) {
+				if (bottomY < mP2.y) {
+					mLeft = mP1.x;
 				} else {
-					mSelectionMode = BETWEEN;
+					mLeft = Math.min(mP1.x, mP2.x);
+					mRight = Math.max(mP1.x, mP2.x);
 				}
 			} else {
-				if (bottomY < mSelectionRegion.bottom) {
-					mSelectionMode = ALL;
+				if (bottomY < mP2.y) {
+					mLeft = 0;
+					mRight = line.getLineWidth();
 				} else {
-					mSelectionMode = LEFT;
+					mRight = mP2.x;
 				}
 			}
 		}
 
 		if (Texas.DEBUG_DRAG) {
-			Log.d("drag_debug.visitor", mSelectionMode + " - " + line);
+			Log.d("drag_debug.visitor", "line wide: [" + mLeft + " - " + mRight + "]");
 		}
 
 		super.onVisitLineStart(line, bottomX, bottomY);
@@ -262,31 +262,8 @@ public class SelectedTextByDragVisitor extends SelectedVisitor {
 		}
 
 		mLastBoxX = inner.right;
-		if (mSelectionMode == ALL) {
-			return true;
-		}
-
-		if (mSelectionMode == LEFT) {
-			return inner.left <= mSelectionRegion.right;
-		}
-
-		if (mSelectionMode == RIGHT) {
-			return inner.right >= mSelectionRegion.left;
-		}
-
-		if (mSelectionMode == BETWEEN) {
-			float right = mSelectionRegion.right;
-			float left = mSelectionRegion.left;
-			if (right < left) {
-				float tmp = right;
-				right = left;
-				left = tmp;
-			}
-			return (inner.left >= left && inner.left <= right) ||
-					(inner.right >= left && inner.right <= right);
-		}
-
-		return false;
+		return (inner.left >= mLeft && inner.left <= mRight) ||
+				(inner.right >= mLeft && inner.right <= mRight);
 	}
 
 	@Override
@@ -297,16 +274,14 @@ public class SelectedTextByDragVisitor extends SelectedVisitor {
 	}
 
 	public void setRegion(float x1, float y1, float x2, float y2) {
-		TexasUtils.setRect(mSelectionRegion, x1, y1, x2, y2);
+		mP1.set(x1, y1);
+		mP2.set(x2, y2);
 	}
 
 	@Override
 	public String toString() {
 		return "Drag{" +
-				"mSelectionRegion.left=" + mSelectionRegion.left +
-				", mSelectionRegion.top=" + mSelectionRegion.top +
-				", mSelectionRegion.right=" + mSelectionRegion.right +
-				", mSelectionRegion.bottom=" + mSelectionRegion.bottom +
+				"p1: " + mP1 + ", p2: " + mP2 +
 				'}';
 	}
 }
