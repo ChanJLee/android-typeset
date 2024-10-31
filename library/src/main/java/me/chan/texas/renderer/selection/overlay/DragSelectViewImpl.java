@@ -3,9 +3,11 @@ package me.chan.texas.renderer.selection.overlay;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.RectF;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
@@ -15,6 +17,7 @@ import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 
+import me.chan.texas.Texas;
 import me.chan.texas.renderer.TouchEvent;
 import me.chan.texas.renderer.selection.SelectionManager;
 import me.chan.texas.renderer.selection.magnifier.MagnifierView;
@@ -122,9 +125,15 @@ public class DragSelectViewImpl extends View implements DragSelectView {
 		canvas.drawPath(mPath, mPaint);
 
 		canvas.restore();
+
+		if (Texas.DEBUG_DRAG && mDebugPaint != null) {
+			canvas.drawText(mDebugInfo, 0, 200, mDebugPaint);
+		}
 	}
 
 	private boolean mHandleDownEvent = false;
+	private String mDebugInfo = "";
+	private Paint mDebugPaint = null;
 
 	@SuppressLint("ClickableViewAccessibility")
 	@Override
@@ -132,6 +141,17 @@ public class DragSelectViewImpl extends View implements DragSelectView {
 		int action = event.getAction();
 		float x = event.getX();
 		float y = event.getY();
+
+		if (Texas.DEBUG_DRAG) {
+			mDebugInfo = MotionEvent.actionToString(action) +
+					", [" + x + "," + y +
+					"] r[" + event.getRawX() + "," + event.getRawY() + "]";
+			if (mDebugPaint == null) {
+				mDebugPaint = new Paint();
+				mDebugPaint.setColor(Color.GREEN);
+				mDebugPaint.setTextSize(30);
+			}
+		}
 
 		if (action == MotionEvent.ACTION_MOVE && mHandleDownEvent) {
 			float dx = mLastTouchPoint[0] - x;
@@ -279,6 +299,10 @@ public class DragSelectViewImpl extends View implements DragSelectView {
 	 * @param adviseOffsetY 绘制方向建议的y偏移量
 	 */
 	public void renderRegion(float x1, float y1, float x2, float y2, float adviseOffsetY) {
+		if (Texas.DEBUG_DRAG) {
+			Log.d("drag_debug.view", "update selection: " + x1 + " " + y1 + " " + x2 + " " + y2);
+		}
+
 		float offset = HOT_MOTION_REGION_SIZE / 2.0f;
 		TexasUtils.setRect(mP1, x1 - offset, y1 - offset, x1 + offset, y1 + offset);
 		TexasUtils.setRect(mP2, x2 - offset, y2 - offset, x2 + offset, y2 + offset);
