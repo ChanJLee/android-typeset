@@ -249,7 +249,7 @@ public class SelectionManagerUnitTest {
 		ParagraphSelection paragraphSelection = selection.get(0);
 		checkSelectedTag(paragraphSelection.getSelectedTags(), "1");
 
-		mSelectionManager.handleMoveToSelection(-1, -1, 1.5f, 2);
+		mSelectionManager.handleMoveToSelection(-1, -1, 1.5f, 1f);
 		selection = mSelectionManager.getCurrentSelection();
 		edge = selection.getSelectedRectEdge(mContainer);
 		Assert.assertEquals(edge.topX, 0, 0.1);
@@ -269,7 +269,7 @@ public class SelectionManagerUnitTest {
 		Assert.assertEquals(edge.bottomY, 3, 0.1);
 		Assert.assertEquals(1, selection.size());
 		paragraphSelection = selection.get(0);
-		checkSelectedTag(paragraphSelection.getSelectedTags(), "1", "4");
+		checkSelectedTag(paragraphSelection.getSelectedTags(), "1", "2", "3", "4");
 
 		mSelectionManager.handleMoveToSelection(-1, -1, 3, 3);
 		selection = mSelectionManager.getCurrentSelection();
@@ -280,7 +280,7 @@ public class SelectionManagerUnitTest {
 		Assert.assertEquals(edge.bottomY, 3, 0.1);
 		Assert.assertEquals(1, selection.size());
 		paragraphSelection = selection.get(0);
-		checkSelectedTag(paragraphSelection.getSelectedTags(), "1", "2", "4", "5");
+		checkSelectedTag(paragraphSelection.getSelectedTags(), "1", "2", "3", "4", "5");
 
 
 		mSelectionManager.handleMoveToSelection(1, 0, 3, 3);

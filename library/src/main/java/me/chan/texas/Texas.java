@@ -32,7 +32,7 @@ import java.util.Set;
 
 public class Texas {
 	@RestrictTo(LIBRARY)
-	public static final boolean DEBUG_DRAG = true;
+	public static final boolean DEBUG_DRAG = false;
 
 	public static final float INFINITY = 1000;
 	public static final int HYPHEN_PENALTY = 20;
