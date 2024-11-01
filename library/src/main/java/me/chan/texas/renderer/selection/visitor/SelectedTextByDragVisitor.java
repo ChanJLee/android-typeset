@@ -191,6 +191,8 @@ public class SelectedTextByDragVisitor extends SelectedVisitor {
 			sig = SIG_STOP_PARA_VISIT;
 		}
 
+		String debug = null;
+
 		mLeft = 0;
 		mRight = line.getLineWidth();
 		if (sig != SIG_NORMAL) {
@@ -199,22 +201,26 @@ public class SelectedTextByDragVisitor extends SelectedVisitor {
 			if (top <= mP1.y) {
 				if (bottomY < mP2.y) {
 					mLeft = mP1.x;
+					debug = "right";
 				} else {
 					mLeft = Math.min(mP1.x, mP2.x);
 					mRight = Math.max(mP1.x, mP2.x);
+					debug = "between";
 				}
 			} else {
 				if (bottomY < mP2.y) {
 					mLeft = 0;
 					mRight = line.getLineWidth();
+					debug = "all";
 				} else {
 					mRight = mP2.x;
+					debug = "left";
 				}
 			}
 		}
 
 		if (Texas.DEBUG_DRAG) {
-			Log.d("drag_debug.visitor", "line wide: [" + mLeft + " - " + mRight + "]");
+			Log.d("drag_debug.visitor", "line wide: [" + mLeft + " - " + mRight + "]" + debug);
 		}
 
 		super.onVisitLineStart(line, bottomX, bottomY);
@@ -274,8 +280,8 @@ public class SelectedTextByDragVisitor extends SelectedVisitor {
 	}
 
 	public void setRegion(float x1, float y1, float x2, float y2) {
-		mP1.set(x1, y1);
-		mP2.set(x2, y2);
+		mP1.set(x1, y1 < 0 ? 0 : y1);
+		mP2.set(x2, y2 < 0 ? 0 : y2);
 	}
 
 	@Override
