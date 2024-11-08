@@ -343,10 +343,11 @@ class ParagraphBuilderInternal {
 			}
 
 			appendElement(textBox);
+		}
 
-			if (span != null) {
-				span.recycle();
-			}
+		// TODO unit test
+		if (span != null) {
+			span.recycle();
 		}
 	}
 
