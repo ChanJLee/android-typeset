@@ -74,6 +74,10 @@ public final class Document {
 		mSegments.addAll(segments);
 	}
 
+	public void addSegment(Segment segment) {
+		mSegments.add(segment);
+	}
+
 	@RestrictTo(LIBRARY)
 	public void clear() {
 		if (mSegments == null || mSegments.isEmpty()) {

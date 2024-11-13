@@ -878,14 +878,14 @@ public final class TexasView extends FrameLayout {
 		private Source<T> mSource;
 		private TexasView mTexasView;
 
-		private final Document mDocument;
+		@Nullable
+		private Document mDocument;
 
 		@Inject
 		@Named("ComputeTask")
 		TaskQueue mComputeTaskQueue;
 
 		public Adapter() {
-			mDocument = Document.obtain();
 			TexasComponent texasComponent = Texas.getTexasComponent();
 			TextEngineCoreComponent textEngineCoreComponent = texasComponent.coreComponent().create();
 			textEngineCoreComponent.inject((TexasView.Adapter<Object>) this);
@@ -952,7 +952,13 @@ public final class TexasView extends FrameLayout {
 		 */
 		@Nullable
 		@AnyThread
-		protected abstract List<Segment> parse(@NonNull T content, TexasOption texasOption) throws ParseException;
+		protected abstract Document parse(@NonNull T content, TexasOption texasOption) throws ParseException;
+
+		@Nullable
+		@AnyThread
+		protected List<Segment> parseIncremental(@NonNull T content, TexasOption texasOption) throws ParseException {
+			return null;
+		}
 
 		@VisibleForTesting
 		public final Document getDocument(TexasOption option) throws SourceOpenException, ParseException {
@@ -960,19 +966,30 @@ public final class TexasView extends FrameLayout {
 			return result.getDocument();
 		}
 
+		private static final Document EMPTY_DOCUMENT = Document.obtain();
+
 		@NonNull
 		@RestrictTo(RestrictTo.Scope.LIBRARY)
 		public final LoadingWorker.LoadingResult getDocument(TexasOption texasOption, LoadingStrategy loadType) throws SourceOpenException, ParseException {
 			if (mSource == null) {
-				return LoadingWorker.LoadingResult.obtainWithoutContent(loadType, mDocument);
+				return LoadingWorker.LoadingResult.obtainWithoutContent(loadType, mDocument == null ? EMPTY_DOCUMENT : mDocument);
 			}
 
 			T value = mSource.open(loadType);
 			if (value == null) {
-				return LoadingWorker.LoadingResult.obtainWithoutContent(loadType, mDocument);
+				return LoadingWorker.LoadingResult.obtainWithoutContent(loadType, mDocument == null ? EMPTY_DOCUMENT : mDocument);
 			}
 
-			List<Segment> segments = parse(value, texasOption);
+			if (loadType == LoadingStrategy.INIT) {
+				mDocument = parse(value, texasOption);
+				return LoadingWorker.LoadingResult.obtain(loadType, mDocument);
+			}
+
+			if (mDocument == null) {
+				throw new IllegalStateException("document is null");
+			}
+
+			List<Segment> segments = parseIncremental(value, texasOption);
 			if (segments == null) {
 				return LoadingWorker.LoadingResult.obtainWithoutContent(loadType, mDocument);
 			}
@@ -984,10 +1001,6 @@ public final class TexasView extends FrameLayout {
 				int start = mDocument.getSegmentCount();
 				mDocument.insertTail(segments);
 				return LoadingWorker.LoadingResult.obtain(loadType, mDocument, start, start + segments.size());
-			} else if (loadType == LoadingStrategy.INIT) {
-				mDocument.clear();
-				mDocument.insertTail(segments);
-				return LoadingWorker.LoadingResult.obtain(loadType, mDocument);
 			} else {
 				throw new IllegalStateException("unknown load type: " + loadType);
 			}
