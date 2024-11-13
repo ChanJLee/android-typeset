@@ -22,7 +22,7 @@ import java.util.List;
 public final class Selection extends DefaultRecyclable {
 	private static final ObjectPool<Selection> POOL = new ObjectPool<>(8);
 
-	private TexasRendererAdapter mTexasAdapter;
+	private TexasRecyclerView mContainer;
 	private final List<Paragraph> mParagraphs = new ArrayList<>();
 	private final RectEdge mRectEdge = new RectEdge();
 
@@ -58,7 +58,7 @@ public final class Selection extends DefaultRecyclable {
 	private final int[] mLocations = new int[2];
 
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
-	RectEdge getSelectedRectEdge(TexasRecyclerView container) {
+	RectEdge getSelectedRectEdge() {
 		int size = mParagraphs.size();
 		if (size == 0) {
 			return null;
@@ -73,7 +73,7 @@ public final class Selection extends DefaultRecyclable {
 			}
 
 			hasModified = true;
-			boolean result = getParagraphLocation(container, paragraph, mLocations);
+			boolean result = getParagraphLocation(mContainer, paragraph, mLocations);
 			if (!result) {
 				w("get first region location failed");
 			}
@@ -95,7 +95,7 @@ public final class Selection extends DefaultRecyclable {
 			}
 
 			hasModified = true;
-			boolean result = getParagraphLocation(container, paragraph, mLocations);
+			boolean result = getParagraphLocation(mContainer, paragraph, mLocations);
 			if (!result) {
 				w("get last region location failed");
 			}
@@ -112,7 +112,12 @@ public final class Selection extends DefaultRecyclable {
 	}
 
 	boolean getParagraphLocation(TexasRecyclerView container, Paragraph paragraph, int[] locations) {
-		Document document = mTexasAdapter.getDocument();
+		TexasRendererAdapter adapter = (TexasRendererAdapter) container.getAdapter();
+		if (adapter == null) {
+			return false;
+		}
+
+		Document document = adapter.getDocument();
 		if (document == null) {
 			return false;
 		}
@@ -151,7 +156,7 @@ public final class Selection extends DefaultRecyclable {
 	@Override
 	protected void onRecycle() {
 		mParagraphs.clear();
-		mTexasAdapter = null;
+		mContainer = null;
 		mRectEdge.bottomX = mRectEdge.topX =
 				mRectEdge.bottomY = mRectEdge.topY = mRectEdge.lineHeight = 0;
 		POOL.release(this);
@@ -174,8 +179,9 @@ public final class Selection extends DefaultRecyclable {
 
 			paragraph.setSelection(null);
 			try {
-				if (mTexasAdapter != null) {
-					mTexasAdapter.sendSignal(paragraph, RendererAdapterImpl.SIG_SELECTION_CHANGED);
+				TexasRendererAdapter adapter = (TexasRendererAdapter) mContainer.getAdapter();
+				if (adapter != null) {
+					adapter.sendSignal(paragraph, RendererAdapterImpl.SIG_SELECTION_CHANGED);
 				}
 			} catch (Throwable ignore) {
 				/* do nothing */
@@ -226,13 +232,13 @@ public final class Selection extends DefaultRecyclable {
 		}
 	}
 
-	public static Selection obtain(TexasRendererAdapter adapter) {
+	public static Selection obtain(TexasRecyclerView container) {
 		Selection selection = POOL.acquire();
 		if (selection == null) {
 			selection = new Selection();
 		}
 
-		selection.mTexasAdapter = adapter;
+		selection.mContainer = container;
 		selection.reuse();
 		return selection;
 	}

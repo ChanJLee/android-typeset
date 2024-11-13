@@ -1,7 +1,5 @@
 package me.chan.texas.renderer.ui.rv;
 
-import android.view.View;
-
 import androidx.annotation.RestrictTo;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -22,4 +20,6 @@ public interface TexasRecyclerView {
 	void scrollBy(int x, int y);
 
 	int getHeight();
+
+	RecyclerView.Adapter<?> getAdapter();
 }
