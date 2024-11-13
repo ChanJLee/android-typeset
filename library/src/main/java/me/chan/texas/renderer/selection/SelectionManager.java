@@ -230,7 +230,7 @@ public class SelectionManager implements OnSelectedChangedListener {
 			return;
 		}
 
-		Selection.RectEdge selectedRectEdge = selection.getSelectedRectEdge(mContentView);
+		Selection.RectEdge selectedRectEdge = selection.getSelectedRectEdge();
 		if (selectedRectEdge == null) {
 			mContentView.allowHandleTouchEvent();
 			mDropView.setVisibility(View.GONE);
@@ -293,7 +293,7 @@ public class SelectionManager implements OnSelectedChangedListener {
 
 		RenderOption renderOption = mAdapter.getRenderOption();
 
-		Selection currentSelection = Selection.obtain(mAdapter);
+		Selection currentSelection = Selection.obtain(mContentView);
 		for (int i = firstVisibleItemPosition; i <= lastVisibleItemPosition; ++i) {
 			TextureParagraph textureParagraph = mLayoutManager.findTextureParagraphByPosition(i);
 			if (textureParagraph == null) {
@@ -446,7 +446,7 @@ public class SelectionManager implements OnSelectedChangedListener {
 	 */
 	private void handleParagraphSelected(Paragraph paragraph, int index) {
 		if (mCurrentSelection == null) {
-			mCurrentSelection = Selection.obtain(mAdapter);
+			mCurrentSelection = Selection.obtain(mContentView);
 		}
 
 		if (index < 0) {
