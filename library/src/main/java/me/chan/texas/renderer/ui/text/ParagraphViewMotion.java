@@ -112,6 +112,16 @@ public class ParagraphViewMotion {
 			return false;
 		}
 
+		if (eventType != OnSelectedChangedListener.EVENT_CLICKED && eventType != OnSelectedChangedListener.EVENT_LONG_CLICKED) {
+			return false;
+		}
+
+		if (!mSpanClickedEventHandler.acceptSpan(
+				eventType == OnSelectedChangedListener.EVENT_CLICKED ?
+						SpanTouchEventHandler.EventType.CLICK : SpanTouchEventHandler.EventType.LONG_CLICK, mLastTouchBox.getTag())) {
+			return false;
+		}
+
 		// 通知上层有元素被选中
 		return mOnTextSelectedListener.onBoxSelected(TouchEvent.obtain(mView, e), mParagraph, eventType, mLastTouchBox);
 	}
