@@ -112,7 +112,6 @@ public class ParagraphSelection extends DefaultRecyclable {
 	}
 
 	@Nullable
-	@RestrictTo(LIBRARY)
 	@MainThread
 	public List<Object> getSelectedTags() {
 		return getSelectedTags(mParagraph);
