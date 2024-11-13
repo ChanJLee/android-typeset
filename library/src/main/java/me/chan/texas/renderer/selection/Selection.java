@@ -57,8 +57,7 @@ public final class Selection extends DefaultRecyclable {
 	 */
 	private final int[] mLocations = new int[2];
 
-	@RestrictTo(RestrictTo.Scope.LIBRARY)
-	RectEdge getSelectedRectEdge() {
+	public RectEdge getSelectedRectEdge() {
 		int size = mParagraphs.size();
 		if (size == 0) {
 			return null;
