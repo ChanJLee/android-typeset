@@ -275,7 +275,11 @@ public class ParagraphViewMotion {
 
 		@Override
 		public boolean onSingleTapUp(MotionEvent e) {
-			return false;
+			if (mMode == MODE_DECOR && mParagraphDecor != null) {
+				return mParagraphDecor.handleTouchEvent(e, mParagraph, mRenderOption, mView.getWidth(), mView.getHeight());
+			}
+
+			return true;
 		}
 
 		@Override

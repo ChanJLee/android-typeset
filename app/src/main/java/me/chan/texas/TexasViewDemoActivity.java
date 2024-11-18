@@ -253,7 +253,7 @@ public class TexasViewDemoActivity extends AppCompatActivity {
 				}
 
 				mDraw = true;
-				mDest.set(decorOuter.right - 40, (int) spanOuter.bottom - 40, decorOuter.right, (int) spanOuter.bottom);
+				mDest.set(decorOuter.right - 20, (int) spanOuter.bottom - 40, decorOuter.right + 20, (int) spanOuter.bottom);
 				return ParagraphVisitor.SIG_STOP_PARA_VISIT;
 			}
 
@@ -272,17 +272,18 @@ public class TexasViewDemoActivity extends AppCompatActivity {
 
 			@Override
 			protected boolean onTouchEvent(MotionEvent event, Paragraph paragraph, Rect decorOuter, Rect decorInner) {
-				if (!mDraw) {
-					return false;
-				}
-
 				// 需要根据 onCollectDecorRenderInfo 缓存区域去判断事件点击
-				float x = event.getX();
-				float y = event.getY();
-
-				if (mDest.top - 10 < y && mDest.bottom + 10 > y &&
-						mDest.left - 10 < x && mDest.right + 10 > x) {
-					mClicked = true;
+				int action = event.getAction();
+				if (action == MotionEvent.ACTION_DOWN) {
+					float x = event.getX();
+					float y = event.getY();
+					if (mDest.top - 10 < y && mDest.bottom + 10 > y &&
+							mDest.left - 10 < x && mDest.right + 10 > x) {
+						mClicked = true;
+						return true;
+					}
+					return false;
+				} else if (action == MotionEvent.ACTION_UP) {
 					mTexasView.selectParagraphs(new ParagraphPredicates() {
 						@Override
 						public boolean acceptSpan(@Nullable Object spanTag) {
@@ -299,9 +300,8 @@ public class TexasViewDemoActivity extends AppCompatActivity {
 							return true;
 						}
 					});
-					return true;
 				}
-				return false;
+				return true;
 			}
 		};
 		mTexasView.setParagraphDecor(paragraphDecor);
