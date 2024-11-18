@@ -3,7 +3,6 @@ package me.chan.texas.renderer.selection;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.RectF;
 import android.text.TextPaint;
@@ -24,10 +23,8 @@ import me.chan.texas.misc.ObjectPool;
 import me.chan.texas.renderer.ParagraphVisitor;
 import me.chan.texas.renderer.RenderOption;
 import me.chan.texas.renderer.RendererContext;
-import me.chan.texas.text.Appearance;
 import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.TextStyle;
-import me.chan.texas.text.TextStyles;
 import me.chan.texas.text.layout.Box;
 import me.chan.texas.text.layout.Layout;
 import me.chan.texas.text.layout.Line;
@@ -39,7 +36,7 @@ public class ParagraphSelection extends DefaultRecyclable {
 	private static final ObjectPool<ParagraphSelection> POOL = new ObjectPool<>(32);
 	private static final AtomicInteger UUID = new AtomicInteger(0);
 
-	private TextStyles mStyles;
+	private InternalSelectionStyle mStyle;
 	private int mId;
 	private final BitBucket mSet = new BitBucket(128);
 	private final List<RectF> mBackgrounds = new ArrayList<>();
@@ -49,14 +46,14 @@ public class ParagraphSelection extends DefaultRecyclable {
 	private ParagraphSelection() {
 	}
 
-	private void reset(TextStyles styles) {
+	private void reset(InternalSelectionStyle style) {
 		mId = UUID.incrementAndGet();
-		mStyles = styles;
+		mStyle = style;
 	}
 
 	@RestrictTo(LIBRARY)
-	public TextStyles getStyles() {
-		return mStyles;
+	public TextStyle getStyle() {
+		return mStyle;
 	}
 
 	@RestrictTo(LIBRARY)
@@ -144,7 +141,7 @@ public class ParagraphSelection extends DefaultRecyclable {
 	protected void onRecycle() {
 		mSet.clear();
 		mBackgrounds.clear();
-		mStyles = null;
+		mStyle = null;
 		mId = 0;
 		mParagraph = null;
 		POOL.release(this);
@@ -158,8 +155,8 @@ public class ParagraphSelection extends DefaultRecyclable {
 		}
 
 		paragraphSelection.reuse();
-		paragraphSelection.mInternalTextStyles.reset(isLongClicked);
-		paragraphSelection.reset(paragraphSelection.mInternalTextStyles);
+		paragraphSelection.mInternalTextStyle.reset(isLongClicked);
+		paragraphSelection.reset(paragraphSelection.mInternalTextStyle);
 		paragraphSelection.mParagraph = paragraph;
 		return paragraphSelection;
 	}
@@ -179,7 +176,8 @@ public class ParagraphSelection extends DefaultRecyclable {
 			paragraphSelection = new ParagraphSelection();
 		}
 
-		paragraphSelection.reset(new SelectionStyles(paragraphSelection, styles.getTextColor(), styles.getBackgroundColor()));
+		paragraphSelection.mInternalTextStyle.reset(styles);
+		paragraphSelection.reset(paragraphSelection.mInternalTextStyle);
 		paragraphSelection.mParagraph = paragraph;
 		return paragraphSelection;
 	}
@@ -225,14 +223,21 @@ public class ParagraphSelection extends DefaultRecyclable {
 		mBackgrounds.clear();
 	}
 
-	@RestrictTo(LIBRARY)
-	public void updateStyle(RenderOption option) {
-		mStyles.update(option);
-	}
+	public void drawBackground(Canvas canvas, Paint paint, RenderOption option) {
+		mStyle.update(option);
 
-	@RestrictTo(LIBRARY)
-	public interface Style {
-		void update(ParagraphSelection paragraphSelection, RenderOption renderOption);
+		float radius = option.getSelectedBackgroundRoundRadius();
+		paint.setColor(mStyle.mBackgroundColor);
+		if (radius <= 0) {
+			for (RectF rectF : mBackgrounds) {
+				canvas.drawRect(rectF, paint);
+			}
+			return;
+		}
+
+		for (RectF rectF : mBackgrounds) {
+			canvas.drawRoundRect(rectF, radius, radius, paint);
+		}
 	}
 
 	private final static GetSelectedTagVisitor GET_SELECTED_TAG_VISITOR = new GetSelectedTagVisitor();
@@ -315,38 +320,30 @@ public class ParagraphSelection extends DefaultRecyclable {
 		}
 	}
 
-	private final InternalTextStyles mInternalTextStyles = new InternalTextStyles(this);
+	private final InternalSelectionStyle mInternalTextStyle = new InternalSelectionStyle();
 
-	private static class InternalTextStyles extends TextStyles {
+	private static class InternalSelectionStyle extends TextStyle {
 		private int mTextColor = 0;
-		private int mBackgroundColor = 0;
-		private float mRound;
-
 		private boolean mIsLongClicked;
+		private Selection.Styles mStyles;
+		private int mBackgroundColor = 0;
 
 		public void reset(boolean isLongClicked) {
 			mIsLongClicked = isLongClicked;
+			mStyles = null;
 		}
 
-		public InternalTextStyles(ParagraphSelection selection) {
-			setTextStyle(new TextStyle() {
-				@Override
-				public void update(@NonNull TextPaint textPaint, @Nullable Object tag) {
-					textPaint.setColor(mTextColor);
-				}
-			});
-			setBackground(new SelectionAppearance(selection) {
-				@Override
-				protected void onDraw(Canvas canvas, Paint paint) {
-					paint.setColor(mBackgroundColor);
-					canvas.drawRoundRect(mInner, mRound, mRound, paint);
-				}
-			});
+		public void reset(Selection.Styles styles) {
+			mStyles = styles;
 		}
 
-		@Override
 		public void update(RenderOption option) {
-			mRound = option.getSelectedBackgroundRoundRadius();
+			if (mStyles != null) {
+				mTextColor = mStyles.getTextColor();
+				mBackgroundColor = mStyles.getBackgroundColor();
+				return;
+			}
+
 			if (mIsLongClicked) {
 				mTextColor = option.getSelectedByLongClickTextColor();
 				mBackgroundColor = option.getSelectedByLongClickBackgroundColor();
@@ -356,77 +353,10 @@ public class ParagraphSelection extends DefaultRecyclable {
 			mTextColor = option.getSelectedTextColor();
 			mBackgroundColor = option.getSelectedBackgroundColor();
 		}
-	}
-
-	private static class SelectionStyles extends TextStyles {
-		private float mRound;
-
-		public SelectionStyles(ParagraphSelection selection, int textColor, int backgroundColor) {
-			setTextStyle(new TextStyle() {
-				@Override
-				public void update(@NonNull TextPaint textPaint, @Nullable Object tag) {
-					textPaint.setColor(textColor);
-				}
-			});
-
-			if (backgroundColor != Color.TRANSPARENT) {
-				setBackground(new SelectionAppearance(selection) {
-
-					@Override
-					protected void onDraw(Canvas canvas, Paint paint) {
-						paint.setColor(backgroundColor);
-						canvas.drawRoundRect(mInner, mRound, mRound, paint);
-					}
-				});
-			}
-		}
 
 		@Override
-		public void update(RenderOption option) {
-			mRound = option.getSelectedBackgroundRoundRadius();
+		public void update(@NonNull TextPaint textPaint, @Nullable Object tag) {
+			textPaint.setColor(mTextColor);
 		}
-	}
-
-	@RestrictTo(LIBRARY)
-	public static abstract class SelectionAppearance extends Appearance {
-
-		protected final RectF mInner = new RectF();
-
-		private boolean mShouldReset = false;
-
-		private final ParagraphSelection mSelection;
-
-		public SelectionAppearance(ParagraphSelection selection) {
-			mSelection = selection;
-		}
-
-		@Override
-		public final void draw(Canvas canvas, Paint paint, RectF inner, RectF outer, RendererContext context) {
-			if (context.checkLocation(RendererContext.LOCATION_LINE_START)) {
-				mShouldReset = true;
-			}
-
-			boolean isSelected = mSelection.isSelected(context.getCurrentBoxMetaInfo().box);
-			if (isSelected) {
-				if (mShouldReset) {
-					mInner.set(inner);
-					mShouldReset = false;
-				} else {
-					mInner.right = inner.right;
-					mInner.top = Math.max(mInner.top, inner.top);
-					mInner.bottom = Math.max(mInner.bottom, inner.bottom);
-				}
-			}
-
-			if (context.checkLocation(RendererContext.LOCATION_LINE_END) || !isSelected) {
-				if (!mInner.isEmpty()) {
-					onDraw(canvas, paint);
-				}
-				mShouldReset = true;
-				mInner.left = mInner.top = mInner.right = mInner.bottom = 0;
-			}
-		}
-
-		protected abstract void onDraw(Canvas canvas, Paint paint);
 	}
 }

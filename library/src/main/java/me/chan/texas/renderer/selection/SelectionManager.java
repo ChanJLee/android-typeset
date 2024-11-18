@@ -58,7 +58,7 @@ public class SelectionManager implements OnSelectedChangedListener {
 	 */
 	private final PredicatesDriveSelectedVisitor mPredicatesDriveSelectedVisitor = new PredicatesDriveSelectedVisitor();
 	/**
-	 * 用于拖拽时选中文本 {@link SelectionManager#handleMoveToSelection(float, float, float, float, boolean)}
+	 * 用于拖拽时选中文本 {@link SelectionManager#handleMoveToSelection(float, float, float, float)}
 	 */
 	private final SelectedTextByDragVisitor mSelectedTextByDragVisitor = new SelectedTextByDragVisitor();
 	/**

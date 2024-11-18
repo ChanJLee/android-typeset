@@ -137,11 +137,8 @@ public class RenderWorker implements TaskQueue.Task<RenderWorker.Args, Void>, Ta
 		try {
 			ParagraphSelection selection = paragraph.getSelection();
 			if (selection != null) {
-				selection.updateStyle(args.option);
-			}
-
-			if (selection != null) {
-				drawSelectionBackground(canvas, paragraph, args, selection);
+				TextPaint workPaint = args.paintSet.getWorkPaint(mWorkPaint);
+				selection.drawBackground(canvas, workPaint, args.option);
 			}
 
 			// draw content
@@ -150,50 +147,10 @@ public class RenderWorker implements TaskQueue.Task<RenderWorker.Args, Void>, Ta
 			// render decor
 			renderDecor(canvas, paragraph, args);
 
-			if (selection != null) {
-				drawSelectionForeground(canvas, paragraph, args, selection);
-			}
-
 			// render debug info
 			renderDebug(taskId, canvas, paragraph, args);
 		} finally {
 			args.renderer.unlockCanvasAndPost(canvas);
-		}
-	}
-
-	private void drawSelectionBackground(Canvas canvas, Paragraph paragraph, Args args, ParagraphSelection selection) {
-		Appearance appearance = selection.getStyles().getBackground();
-		if (appearance == null) {
-			return;
-		}
-
-		mAppearanceDrawVisitor.setCanvas(canvas);
-		mAppearanceDrawVisitor.setArgs(args);
-		mAppearanceDrawVisitor.setAppearance(appearance);
-		try {
-			mAppearanceDrawVisitor.visit(paragraph);
-		} catch (ParagraphVisitor.VisitException e) {
-			Log.w("TexasRenderEngine", e);
-		} finally {
-			mAppearanceDrawVisitor.clear();
-		}
-	}
-
-	private void drawSelectionForeground(Canvas canvas, Paragraph paragraph, Args args, ParagraphSelection selection) {
-		Appearance appearance = selection.getStyles().getForeground();
-		if (appearance == null) {
-			return;
-		}
-
-		mAppearanceDrawVisitor.setCanvas(canvas);
-		mAppearanceDrawVisitor.setArgs(args);
-		mAppearanceDrawVisitor.setAppearance(appearance);
-		try {
-			mAppearanceDrawVisitor.visit(paragraph);
-		} catch (ParagraphVisitor.VisitException e) {
-			Log.w("TexasRenderEngine", e);
-		} finally {
-			mAppearanceDrawVisitor.clear();
 		}
 	}
 
@@ -240,7 +197,6 @@ public class RenderWorker implements TaskQueue.Task<RenderWorker.Args, Void>, Ta
 	}
 
 	private final DrawVisitor mDrawVisitor = new DrawVisitor(mWorkPaint);
-	private final AppearanceDrawVisitor mAppearanceDrawVisitor = new AppearanceDrawVisitor(mWorkPaint);
 
 	@Override
 	public Void run(TaskQueue.Token token, Args args) throws Throwable {
@@ -274,61 +230,6 @@ public class RenderWorker implements TaskQueue.Task<RenderWorker.Args, Void>, Ta
 
 	public void cancel(TaskQueue.Token token) {
 		mTaskQueue.cancel(token);
-	}
-
-	private final static class AppearanceDrawVisitor extends ParagraphVisitor {
-		private Canvas mCanvas;
-		private final TextPaint mWorkPaint;
-		private Args mArgs;
-		private Appearance mAppearance;
-
-		public AppearanceDrawVisitor(TextPaint workPaint) {
-			mWorkPaint = workPaint;
-		}
-
-		void setCanvas(Canvas canvas) {
-			mCanvas = canvas;
-		}
-
-		public void setAppearance(Appearance appearance) {
-			mAppearance = appearance;
-		}
-
-		public void setArgs(Args args) {
-			mArgs = args;
-		}
-
-		@Override
-		protected void onVisitParagraphStart(Paragraph paragraph) {
-			/* noop */
-		}
-
-		@Override
-		protected void onVisitParagraphEnd(Paragraph paragraph) {
-			/* noop */
-		}
-
-		@Override
-		protected void onVisitLineStart(Line line, float x, float y) {
-			/* noop */
-		}
-
-		@Override
-		public void onVisitLineEnd(Line line, float x, float y) {
-			/* noop */
-		}
-
-		@Override
-		public void onVisitBox(Box box, RectF inner, RectF outer, @NonNull RendererContext context) {
-			TextPaint workPaint = mArgs.paintSet.getWorkPaint(mWorkPaint);
-			mAppearance.draw(mCanvas, workPaint, inner, outer, context);
-		}
-
-		public void clear() {
-			mCanvas = null;
-			mAppearance = null;
-			mArgs = null;
-		}
 	}
 
 	private final static class DrawVisitor extends ParagraphVisitor {
@@ -405,8 +306,7 @@ public class RenderWorker implements TaskQueue.Task<RenderWorker.Args, Void>, Ta
 				}
 
 				if (mSelection != null && isSelected) {
-					TextStyles textStyles = mSelection.getStyles();
-					textStyle = textStyles.getTextStyle();
+					textStyle = mSelection.getStyle();
 					if (textStyle != null) {
 						textStyle.update(workPaint, box.getTag());
 					}
