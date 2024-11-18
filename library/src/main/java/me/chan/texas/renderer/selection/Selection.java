@@ -269,5 +269,14 @@ public final class Selection extends DefaultRecyclable {
 			mEnableDrag = enableDrag;
 			return this;
 		}
+
+		@Override
+		public String toString() {
+			return "Styles{" +
+					"mBackgroundColor=" + String.format("#%x", mBackgroundColor) +
+					", mTextColor=" + String.format("#%x", mTextColor) +
+					", mEnableDrag=" + mEnableDrag +
+					'}';
+		}
 	}
 }
