@@ -1,7 +1,5 @@
 package me.chan.texas.misc;
 
-import androidx.annotation.RestrictTo;
-
 import java.util.Arrays;
 
 public class BitBucket {

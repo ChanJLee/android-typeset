@@ -331,12 +331,12 @@ public class SelectionManager implements OnSelectedChangedListener {
 
 	private BitBucket mSelectionDiffBucket;
 
-	private void updateMotionSelection(Selection prevSelection, Selection currentSelection) {
+	private void updateMotionSelection(@Nullable Selection prevSelection, Selection currentSelection) {
 		// 先置换下 因为 adapter 在绘制的时候会先查这里
 		mCurrentSelection = currentSelection;
 
 		int size = mAdapter.getItemCount();
-		if (mSelectionDiffBucket == null || mSelectionDiffBucket.size() < size) {
+		if (mSelectionDiffBucket == null) {
 			mSelectionDiffBucket = new BitBucket(size);
 		}
 
@@ -351,22 +351,23 @@ public class SelectionManager implements OnSelectedChangedListener {
 			mSelectionDiffBucket.set(index, true);
 		}
 
-		for (int i = 0; i < prevSelection.size(); ++i) {
-			Paragraph paragraph = prevSelection.getParagraph(i);
-			int index = mAdapter.indexOf(paragraph);
-			if (!mSelectionDiffBucket.get(index)) {
-				ParagraphSelection paragraphSelection = prevSelection.getParagraphSelection(paragraph);
-				if (paragraphSelection != null) {
-					paragraphSelection.recycle();
-					paragraph.setSelection(null);
+		if (prevSelection != null) {
+			for (int i = 0; i < prevSelection.size(); ++i) {
+				Paragraph paragraph = prevSelection.getParagraph(i);
+				int index = mAdapter.indexOf(paragraph);
+				if (!mSelectionDiffBucket.get(index)) {
+					ParagraphSelection paragraphSelection = prevSelection.getParagraphSelection(paragraph);
+					if (paragraphSelection != null) {
+						paragraphSelection.recycle();
+						paragraph.setSelection(null);
+					}
+					mAdapter.sendSignal(index, RendererAdapterImpl.SIG_SELECTION_CHANGED);
 				}
-				mAdapter.sendSignal(index, RendererAdapterImpl.SIG_SELECTION_CHANGED);
 			}
+			prevSelection.recycle();
 		}
 
 		notifyUpdateSelectionDropView();
-
-		prevSelection.recycle();
 	}
 
 	/**
