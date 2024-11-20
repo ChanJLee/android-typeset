@@ -60,24 +60,26 @@ public abstract class SelectedVisitor extends ParagraphVisitor {
 
 	@Override
 	final public void visit(Paragraph paragraph) throws VisitException {
-		super.visit(paragraph);
+		throw new UnsupportedOperationException("use startVisit instead");
 	}
 
 	public void startVisit(Paragraph paragraph) throws VisitException {
 		ParagraphSelection prev = paragraph.getSelection();
-		paragraph.setSelection(mSelection);
+		paragraph.setSelection(null);
 		super.visit(paragraph);
 		if (prev != null) {
 			prev.recycle();
+		}
+		if (mSelection.isEmpty()) {
+			mSelection.recycle();
+		} else {
+			paragraph.setSelection(mSelection);
 		}
 	}
 
 	@Override
 	public void onVisitParagraphEnd(Paragraph paragraph) {
-		ParagraphSelection selection = paragraph.getSelection();
-		if (selection != mSelection) {
-			mSelection.recycle();
-		}
+
 	}
 
 	@CallSuper
