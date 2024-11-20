@@ -63,7 +63,7 @@ public class BitBucket {
 
 		int bucketIndex = index / SIZE_OF_BUCKET;
 		if (bucketIndex >= mBits.length) {
-			throw new IllegalArgumentException("invalid index");
+			return false;
 		}
 
 		int bucketOffset = index % SIZE_OF_BUCKET;

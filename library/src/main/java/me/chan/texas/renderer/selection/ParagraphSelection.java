@@ -14,6 +14,7 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -108,19 +109,29 @@ public class ParagraphSelection extends DefaultRecyclable {
 		return mParagraph;
 	}
 
-	@Nullable
+	@NonNull
 	@MainThread
 	public List<Object> getSelectedTags() {
 		return getSelectedTags(mParagraph);
 	}
 
+	private static final List<Object> EMPTY = Collections.unmodifiableList(new ArrayList<>());
+
 	/**
 	 * @return 因为排版的时候单词会被拆分，因此会导致用户设置的tag重复，这个方法内部还需要去去重，但是无法对空tag去重，所以忽略空tag
 	 */
-	@Nullable
+	@NonNull
 	@RestrictTo(LIBRARY)
 	@MainThread
 	public static List<Object> getSelectedTags(Paragraph paragraph) {
+		List<Object> list = getSelectedTags0(paragraph);
+		if (list == null) {
+			return EMPTY;
+		}
+		return list;
+	}
+
+	private static List<Object> getSelectedTags0(Paragraph paragraph) {
 		Layout layout = paragraph.getLayout();
 		if (paragraph.isRecycled() || layout == null || layout.isRecycled()) {
 			return null;
