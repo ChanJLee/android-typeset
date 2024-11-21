@@ -91,7 +91,7 @@ class TextTokenStream extends DefaultRecyclable implements TokenStream {
 		boolean simpleWord = true;
 		for (int i = start; i < end; ++i) {
 			int codePoint = text.charAt(i);
-			if (codePoint > 128) {
+			if (codePoint > 128 && !UnicodeUtils.isSymbolsAndPunctuation(codePoint)) {
 				simpleWord = false;
 				break;
 			}

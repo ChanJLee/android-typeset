@@ -13,18 +13,19 @@ public class TokenStreamUnitTest {
 
 	@Test
 	public void print1() {
-		String msg = "I don't. bite-size hello... essay-based. hello! R&B, R&B nice";
+		String msg = "I don't. didn’t bite-size hello... essay-based. hello! R&B, R&B nice";
 		System.out.println(msg.length() + " " + msg.codePointCount(0, msg.length()));
 		String[] values = {
 				"I",
 				"don't",
+				"didn’t",
 				"bite-size",
 				"hello",
 				"essay-based",
 				"hello",
 				"R", "B",
 				"R", "B",
-				"nice"
+				"nice",
 		};
 
 		System.out.println(msg);
@@ -81,6 +82,14 @@ public class TokenStreamUnitTest {
 		while (reader.hasNext()) {
 			Token token = reader.next();
 			Assert.assertEquals(Token.CATEGORY_UNKNOWN_LETTER, token.getCategory());
+			Assert.assertEquals(Token.TYPE_WORD, token.getType());
+		}
+
+		msg = "didn’t";
+		reader = TokenStream.obtain(msg, 0, msg.length());
+		while (reader.hasNext()) {
+			Token token = reader.next();
+			Assert.assertEquals(Token.CATEGORY_NORMAL, token.getCategory());
 			Assert.assertEquals(Token.TYPE_WORD, token.getType());
 		}
 	}
