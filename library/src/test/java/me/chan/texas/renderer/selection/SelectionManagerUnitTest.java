@@ -232,7 +232,7 @@ public class SelectionManagerUnitTest {
 		Assert.assertNotNull(selection);
 		Assert.assertEquals(View.VISIBLE, mDragSelectView.mVisibility);
 
-		Selection.RectEdge edge = selection.getSelectedRectEdge(mContainer);
+		Selection.RectEdge edge = selection.getSelectedRectEdge();
 		Assert.assertEquals(edge.topX, 0, 0.1);
 		Assert.assertEquals(edge.topY, 0, 0.1);
 		Assert.assertEquals(edge.bottomX, 1.5, 0.1);
@@ -240,7 +240,7 @@ public class SelectionManagerUnitTest {
 
 		mSelectionManager.handleMoveToSelection(-1, -1, 1.5f, 1);
 		selection = mSelectionManager.getCurrentSelection();
-		edge = selection.getSelectedRectEdge(mContainer);
+		edge = selection.getSelectedRectEdge();
 		Assert.assertEquals(edge.topX, 0, 0.1);
 		Assert.assertEquals(edge.topY, 0, 0.1);
 		Assert.assertEquals(edge.bottomX, 1.5, 0.1);
@@ -251,7 +251,7 @@ public class SelectionManagerUnitTest {
 
 		mSelectionManager.handleMoveToSelection(-1, -1, 1.5f, 1f);
 		selection = mSelectionManager.getCurrentSelection();
-		edge = selection.getSelectedRectEdge(mContainer);
+		edge = selection.getSelectedRectEdge();
 		Assert.assertEquals(edge.topX, 0, 0.1);
 		Assert.assertEquals(edge.topY, 0, 0.1);
 		Assert.assertEquals(edge.bottomX, 1.5, 0.1);
@@ -262,7 +262,7 @@ public class SelectionManagerUnitTest {
 
 		mSelectionManager.handleMoveToSelection(-1, -1, 1.5f, 3);
 		selection = mSelectionManager.getCurrentSelection();
-		edge = selection.getSelectedRectEdge(mContainer);
+		edge = selection.getSelectedRectEdge();
 		Assert.assertEquals(edge.topX, 0, 0.1);
 		Assert.assertEquals(edge.topY, 0, 0.1);
 		Assert.assertEquals(edge.bottomX, 1.5, 0.1);
@@ -273,7 +273,7 @@ public class SelectionManagerUnitTest {
 
 		mSelectionManager.handleMoveToSelection(-1, -1, 3, 3);
 		selection = mSelectionManager.getCurrentSelection();
-		edge = selection.getSelectedRectEdge(mContainer);
+		edge = selection.getSelectedRectEdge();
 		Assert.assertEquals(edge.topX, 0, 0.1);
 		Assert.assertEquals(edge.topY, 0, 0.1);
 		Assert.assertEquals(edge.bottomX, 3.5, 0.1);
@@ -285,7 +285,7 @@ public class SelectionManagerUnitTest {
 
 		mSelectionManager.handleMoveToSelection(1, 0, 3, 3);
 		selection = mSelectionManager.getCurrentSelection();
-		edge = selection.getSelectedRectEdge(mContainer);
+		edge = selection.getSelectedRectEdge();
 		Assert.assertEquals(edge.topX, 1.5, 0.1);
 		Assert.assertEquals(edge.topY, 0, 0.1);
 		Assert.assertEquals(edge.bottomX, 3.5, 0.1);
@@ -297,7 +297,7 @@ public class SelectionManagerUnitTest {
 
 		mSelectionManager.handleMoveToSelection(1, 1, 3, 3);
 		selection = mSelectionManager.getCurrentSelection();
-		edge = selection.getSelectedRectEdge(mContainer);
+		edge = selection.getSelectedRectEdge();
 		Assert.assertEquals(edge.topX, 1.5, 0.1);
 		Assert.assertEquals(edge.topY, 0, 0.1);
 		Assert.assertEquals(edge.bottomX, 3.5, 0.1);
@@ -350,6 +350,11 @@ public class SelectionManagerUnitTest {
 		@Override
 		public int getHeight() {
 			return 10000;
+		}
+
+		@Override
+		public RecyclerView.Adapter<?> getAdapter() {
+			return null;
 		}
 	}
 
