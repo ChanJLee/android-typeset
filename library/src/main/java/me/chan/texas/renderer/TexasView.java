@@ -43,7 +43,6 @@ import me.chan.texas.R;
 import me.chan.texas.Texas;
 import me.chan.texas.TexasOption;
 import me.chan.texas.adapter.ParseException;
-import me.chan.texas.annotations.Idempotent;
 import me.chan.texas.di.TexasComponent;
 import me.chan.texas.di.core.TextEngineCoreComponent;
 import me.chan.texas.misc.ResourceManager;
@@ -58,8 +57,8 @@ import me.chan.texas.source.SourceOpenException;
 import me.chan.texas.text.BreakStrategy;
 import me.chan.texas.text.Document;
 import me.chan.texas.text.HyphenStrategy;
-import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.Segment;
+import me.chan.texas.text.TextStyles;
 import me.chan.texas.utils.TexasUtils;
 import me.chan.texas.utils.concurrency.TaskQueue;
 
@@ -625,25 +624,25 @@ public final class TexasView extends FrameLayout {
 	/**
 	 * 高亮paragraph中的文本，只在渲染出document后生效
 	 *
-	 * @param predicate 谓词
+	 * @param predicates 谓词
 	 */
-	public void highlightParagraphs(HighlightPredicate predicate) {
-		highlightParagraphs(predicate, false, 0);
+	public void highlightParagraphs(ParagraphPredicates predicates) {
+		highlightParagraphs(predicates, false, 0);
 	}
 
 	/**
 	 * 高亮paragraph中的文本，只在渲染出document后生效
 	 *
-	 * @param predicate 谓词
-	 * @param scrollTo  是否滚动到高亮区域
-	 * @param offset    滚动偏移
+	 * @param predicates 谓词
+	 * @param scrollTo   是否滚动到高亮区域
+	 * @param offset     滚动偏移
 	 */
-	public void highlightParagraphs(HighlightPredicate predicate, boolean scrollTo, int offset) {
+	public void highlightParagraphs(ParagraphPredicates predicates, boolean scrollTo, int offset) {
 		if (mRenderer == null) {
 			return;
 		}
 
-		mRenderer.highlightParagraphs(predicate, scrollTo, offset);
+		mRenderer.highlightParagraphs(predicates, scrollTo, offset);
 	}
 
 	/**
@@ -664,12 +663,24 @@ public final class TexasView extends FrameLayout {
 	/**
 	 * 选中文本
 	 *
-	 * @param predicate predicate
+	 * @param predicates predicate
 	 * @return 选中区域
 	 */
 	@Nullable
-	public Selection selectParagraphs(SelectionPredicate predicate) {
-		return mRenderer == null ? null : mRenderer.selectParagraphs(predicate);
+	public Selection selectParagraphs(ParagraphPredicates predicates) {
+		return selectParagraphs(predicates, null);
+	}
+
+	/**
+	 * 选中文本
+	 *
+	 * @param predicates predicate
+	 * @param styles     选中文本的样式，为空就为默认样式 {@link RenderOption#setSelectedByLongClickTextColor(int)} (int)} ...
+	 * @return 选中区域
+	 */
+	@Nullable
+	public Selection selectParagraphs(ParagraphPredicates predicates, @Nullable Selection.Styles styles) {
+		return mRenderer == null ? null : mRenderer.selectParagraphs(predicates, styles);
 	}
 
 	/**
@@ -867,14 +878,14 @@ public final class TexasView extends FrameLayout {
 		private Source<T> mSource;
 		private TexasView mTexasView;
 
-		private final Document mDocument;
+		@Nullable
+		private Document mDocument;
 
 		@Inject
 		@Named("ComputeTask")
 		TaskQueue mComputeTaskQueue;
 
 		public Adapter() {
-			mDocument = Document.obtain();
 			TexasComponent texasComponent = Texas.getTexasComponent();
 			TextEngineCoreComponent textEngineCoreComponent = texasComponent.coreComponent().create();
 			textEngineCoreComponent.inject((TexasView.Adapter<Object>) this);
@@ -941,7 +952,13 @@ public final class TexasView extends FrameLayout {
 		 */
 		@Nullable
 		@AnyThread
-		protected abstract List<Segment> parse(@NonNull T content, TexasOption texasOption) throws ParseException;
+		protected abstract Document parse(@NonNull T content, TexasOption texasOption) throws ParseException;
+
+		@Nullable
+		@AnyThread
+		protected List<Segment> parseIncremental(@NonNull T content, TexasOption texasOption) throws ParseException {
+			return null;
+		}
 
 		@VisibleForTesting
 		public final Document getDocument(TexasOption option) throws SourceOpenException, ParseException {
@@ -949,19 +966,30 @@ public final class TexasView extends FrameLayout {
 			return result.getDocument();
 		}
 
+		private static final Document EMPTY_DOCUMENT = Document.obtain();
+
 		@NonNull
 		@RestrictTo(RestrictTo.Scope.LIBRARY)
 		public final LoadingWorker.LoadingResult getDocument(TexasOption texasOption, LoadingStrategy loadType) throws SourceOpenException, ParseException {
 			if (mSource == null) {
-				return LoadingWorker.LoadingResult.obtainWithoutContent(loadType, mDocument);
+				return LoadingWorker.LoadingResult.obtainWithoutContent(loadType, mDocument == null ? EMPTY_DOCUMENT : mDocument);
 			}
 
 			T value = mSource.open(loadType);
 			if (value == null) {
-				return LoadingWorker.LoadingResult.obtainWithoutContent(loadType, mDocument);
+				return LoadingWorker.LoadingResult.obtainWithoutContent(loadType, mDocument == null ? EMPTY_DOCUMENT : mDocument);
 			}
 
-			List<Segment> segments = parse(value, texasOption);
+			if (loadType == LoadingStrategy.INIT) {
+				mDocument = parse(value, texasOption);
+				return LoadingWorker.LoadingResult.obtain(loadType, mDocument);
+			}
+
+			if (mDocument == null) {
+				throw new IllegalStateException("document is null");
+			}
+
+			List<Segment> segments = parseIncremental(value, texasOption);
 			if (segments == null) {
 				return LoadingWorker.LoadingResult.obtainWithoutContent(loadType, mDocument);
 			}
@@ -973,10 +1001,6 @@ public final class TexasView extends FrameLayout {
 				int start = mDocument.getSegmentCount();
 				mDocument.insertTail(segments);
 				return LoadingWorker.LoadingResult.obtain(loadType, mDocument, start, start + segments.size());
-			} else if (loadType == LoadingStrategy.INIT) {
-				mDocument.clear();
-				mDocument.insertTail(segments);
-				return LoadingWorker.LoadingResult.obtain(loadType, mDocument);
 			} else {
 				throw new IllegalStateException("unknown load type: " + loadType);
 			}
@@ -1073,26 +1097,5 @@ public final class TexasView extends FrameLayout {
 		void onDragEnd(TouchEvent event);
 
 		void onDragDismiss();
-	}
-
-	public interface SelectionPredicate {
-
-		/**
-		 * @param paragraphTag {@link Paragraph#getTag()}
-		 * @param spanTag      {@link me.chan.texas.text.Paragraph.SpanBuilder#tag(Object)}
-		 * @return 是否选中
-		 */
-		@Idempotent
-		boolean apply(Object paragraphTag, Object spanTag);
-	}
-
-	public interface HighlightPredicate {
-		/**
-		 * @param paragraphTag {@link me.chan.texas.text.Paragraph.Builder#tag(Object)}
-		 * @param spanTag      {@link me.chan.texas.text.Paragraph.SpanBuilder#tag(Object)}
-		 * @return 是否选中，这个函数必须是幂等的
-		 */
-		@Idempotent
-		boolean apply(@Nullable Object paragraphTag, @Nullable Object spanTag);
 	}
 }

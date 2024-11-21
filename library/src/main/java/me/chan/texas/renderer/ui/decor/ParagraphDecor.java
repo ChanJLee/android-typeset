@@ -49,7 +49,7 @@ public abstract class ParagraphDecor {
 	private final Rect mTouchInRect = new Rect();
 
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
-	public boolean handleTouchEvent(MotionEvent event, Paragraph paragraph, RenderOption renderOption, int width, int height) {
+	public final boolean handleTouchEvent(MotionEvent event, Paragraph paragraph, RenderOption renderOption, int width, int height) {
 		if (renderOption == null) {
 			return false;
 		}

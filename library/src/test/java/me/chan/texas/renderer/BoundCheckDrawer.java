@@ -44,7 +44,11 @@ public class BoundCheckDrawer extends ParagraphVisitor {
 	@Override
 	protected void onVisitLineEnd(Line line, float x, float y) {
 		if (line.getCount() > 1) {
-			Assert.assertTrue("x out of range", mCurrentX <= mWidth);
+			try {
+				Assert.assertTrue("x out of range", mCurrentX <= (mWidth + 0.04f /* 精度问题 */));
+			} catch (Throwable throwable) {
+				throw new RuntimeException(throwable);
+			}
 		}
 		if (mPrint) {
 			System.out.println("|");

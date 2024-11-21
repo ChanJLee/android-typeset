@@ -14,12 +14,12 @@ import me.chan.texas.renderer.TouchEvent;
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class SegmentItemFragmentLayout extends FrameLayout {
 
-	private final TexasRecyclerView mRecyclerView;
+	private final TexasRecyclerViewImpl mRecyclerView;
 	private OnClickedListener mOnClickedListener;
 	private GestureDetector mGestureDetector;
 	private EventListener mEventListener;
 
-	public SegmentItemFragmentLayout(TexasRecyclerView recyclerView) {
+	public SegmentItemFragmentLayout(TexasRecyclerViewImpl recyclerView) {
 		super(recyclerView.getContext());
 
 		mRecyclerView = recyclerView;

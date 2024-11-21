@@ -14,11 +14,11 @@ import me.chan.texas.Texas;
 import me.chan.texas.TexasOption;
 import me.chan.texas.misc.DefaultRecyclable;
 import me.chan.texas.misc.ObjectPool;
-import me.chan.texas.renderer.highlight.ParagraphHighlight;
 import me.chan.texas.renderer.selection.ParagraphSelection;
 import me.chan.texas.renderer.ui.decor.ParagraphDecor;
 import me.chan.texas.text.layout.Element;
 import me.chan.texas.text.layout.Layout;
+import me.chan.texas.text.tokenizer.Token;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -82,22 +82,9 @@ public final class Paragraph extends DefaultRecyclable implements Segment {
 		mLayout.setRect(rect);
 	}
 
-	private ParagraphHighlight mHighlight;
-
 	private ParagraphSelection mSelection;
 
 	private ParagraphDecor mDecor;
-
-	@RestrictTo(LIBRARY)
-	@Nullable
-	public ParagraphHighlight getHighlight() {
-		return mHighlight;
-	}
-
-	@RestrictTo(LIBRARY)
-	public void setHighlight(ParagraphHighlight highlight) {
-		mHighlight = highlight;
-	}
 
 	@RestrictTo(LIBRARY)
 	@Nullable
@@ -133,10 +120,6 @@ public final class Paragraph extends DefaultRecyclable implements Segment {
 		}
 		mElements.clear();
 		mTag = null;
-		if (mHighlight != null) {
-			mHighlight.recycle();
-			mHighlight = null;
-		}
 		if (mSelection != null) {
 			mSelection.recycle();
 			mSelection = null;
@@ -259,6 +242,27 @@ public final class Paragraph extends DefaultRecyclable implements Segment {
 		 * 下标的规则是 左闭右开即 [0, 3) 包含 0, 1, 2这三个下标
 		 *
 		 * @param text       text
+		 * @param spanReader span 读取
+		 * @return 当前对象
+		 */
+		public Builder stream(CharSequence text, SpanReader spanReader) {
+			return stream(text, 0, text.length(), spanReader);
+		}
+
+		/**
+		 * 以stream流的模式设置文本
+		 * 以文本 "Hi, World..." 为例
+		 * 词法引擎回去解析这段文本，并解析成
+		 * [Hi, 0-2]
+		 * [,, 2-3]
+		 * [World, 4-9]
+		 * [..., 9-12]
+		 * 的单词流，客户端根据下标 去确定当前的单词流样式
+		 * <p>
+		 * 该方法保证 下标间永不重叠，并且递增
+		 * 下标的规则是 左闭右开即 [0, 3) 包含 0, 1, 2这三个下标
+		 *
+		 * @param text       text
 		 * @param start      开始位置
 		 * @param end        起始位置
 		 * @param spanReader span 读取
@@ -270,7 +274,7 @@ public final class Paragraph extends DefaultRecyclable implements Segment {
 		}
 
 		public interface SpanReader {
-			Span read(CharSequence text, int start, int end);
+			Span read(Token token);
 		}
 
 		/**
@@ -444,7 +448,7 @@ public final class Paragraph extends DefaultRecyclable implements Segment {
 		 * @return 当前对象
 		 */
 		public SpanBuilder setTextStyle(TextStyle textStyle) {
-			mSpan.mTextStyle = textStyle;
+			mSpan.setTextStyle(textStyle);
 			return this;
 		}
 
@@ -457,7 +461,7 @@ public final class Paragraph extends DefaultRecyclable implements Segment {
 		 * @return 当前对象
 		 */
 		public SpanBuilder setBackground(Appearance background) {
-			mSpan.mBackground = background;
+			mSpan.setBackground(background);
 			return this;
 		}
 
@@ -470,7 +474,7 @@ public final class Paragraph extends DefaultRecyclable implements Segment {
 		 * @return 当前对象
 		 */
 		public SpanBuilder setForeground(Appearance foreground) {
-			mSpan.mForeground = foreground;
+			mSpan.setForeground(foreground);
 			return this;
 		}
 
@@ -498,7 +502,7 @@ public final class Paragraph extends DefaultRecyclable implements Segment {
 
 		@Override
 		@RestrictTo(LIBRARY)
-		public final Span read(CharSequence text, int start, int end) {
+		public final Span read(Token token) {
 			Span span = Span.obtain(mSpan.mText, mSpan.mStart, mSpan.mEnd);
 			span.copy(mSpan);
 			return span;
@@ -516,12 +520,7 @@ public final class Paragraph extends DefaultRecyclable implements Segment {
 		private int mEnd;
 
 		@RestrictTo(LIBRARY)
-		TextStyle mTextStyle;
-		@RestrictTo(LIBRARY)
-		Appearance mBackground;
-		@RestrictTo(LIBRARY)
-		Appearance mForeground;
-		@RestrictTo(LIBRARY)
+		final TextStyles mStyles = new TextStyles();
 		Object mTag;
 
 		private Span() {
@@ -531,9 +530,7 @@ public final class Paragraph extends DefaultRecyclable implements Segment {
 			this.mText = other.mText;
 			this.mStart = other.mStart;
 			this.mEnd = other.mEnd;
-			this.mTextStyle = other.mTextStyle;
-			this.mBackground = other.mBackground;
-			this.mForeground = other.mForeground;
+			this.mStyles.copy(other.mStyles);
 			this.mTag = other.mTag;
 		}
 
@@ -541,9 +538,7 @@ public final class Paragraph extends DefaultRecyclable implements Segment {
 		protected void onRecycle() {
 			mText = null;
 			mStart = mEnd = 0;
-			mTextStyle = null;
-			mBackground = null;
-			mForeground = null;
+			mStyles.clear();
 			mTag = null;
 			POOL.release(this);
 		}
@@ -575,7 +570,7 @@ public final class Paragraph extends DefaultRecyclable implements Segment {
 		 * @return 当前对象
 		 */
 		public Span setTextStyle(TextStyle textStyle) {
-			mTextStyle = textStyle;
+			mStyles.setTextStyle(textStyle);
 			return this;
 		}
 
@@ -588,7 +583,7 @@ public final class Paragraph extends DefaultRecyclable implements Segment {
 		 * @return 当前对象
 		 */
 		public Span setBackground(Appearance background) {
-			mBackground = background;
+			mStyles.setBackground(background);
 			return this;
 		}
 
@@ -601,8 +596,12 @@ public final class Paragraph extends DefaultRecyclable implements Segment {
 		 * @return 当前对象
 		 */
 		public Span setForeground(Appearance foreground) {
-			mForeground = foreground;
+			mStyles.setForeground(foreground);
 			return this;
+		}
+
+		public static Span obtain(Token token) {
+			return obtain(token.getCharSequence(), token.getStart(), token.getEnd());
 		}
 
 		/**
@@ -636,17 +635,17 @@ public final class Paragraph extends DefaultRecyclable implements Segment {
 
 		@VisibleForTesting
 		public TextStyle getTextStyle() {
-			return mTextStyle;
+			return mStyles.getTextStyle();
 		}
 
 		@VisibleForTesting
 		public Appearance getBackground() {
-			return mBackground;
+			return mStyles.getBackground();
 		}
 
 		@VisibleForTesting
 		public Appearance getForeground() {
-			return mForeground;
+			return mStyles.getForeground();
 		}
 
 		@VisibleForTesting

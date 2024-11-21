@@ -13,18 +13,19 @@ public class TokenStreamUnitTest {
 
 	@Test
 	public void print1() {
-		String msg = "I don't. bite-size hello... essay-based. hello! R&B, R&B nice";
+		String msg = "I don't. didn’t bite-size hello... essay-based. hello! R&B, R&B nice";
 		System.out.println(msg.length() + " " + msg.codePointCount(0, msg.length()));
 		String[] values = {
 				"I",
 				"don't",
+				"didn’t",
 				"bite-size",
 				"hello",
 				"essay-based",
 				"hello",
 				"R", "B",
 				"R", "B",
-				"nice"
+				"nice",
 		};
 
 		System.out.println(msg);
@@ -35,7 +36,130 @@ public class TokenStreamUnitTest {
 			System.out.println(token.toString());
 			if (token.getType() == Token.TYPE_WORD) {
 				Assert.assertEquals(values[index++], token.mCharSequence.subSequence(token.mStart, token.mEnd));
+				Assert.assertEquals(Token.CATEGORY_NORMAL, token.getCategory());
+			} else if (token.getType() == Token.TYPE_SYMBOL) {
+				Assert.assertEquals(Token.CATEGORY_PUNCTUATION, token.getCategory());
 			}
+		}
+	}
+
+	@Test
+	public void testCategory() {
+		String msg = "你好";
+		TokenStream reader = TokenStream.obtain(msg, 0, msg.length());
+		while (reader.hasNext()) {
+			Token token = reader.next();
+			Assert.assertEquals(Token.CATEGORY_CJK, token.getCategory());
+			Assert.assertEquals(Token.TYPE_WORD, token.getType());
+		}
+
+		msg = "の";
+		reader = TokenStream.obtain(msg, 0, msg.length());
+		while (reader.hasNext()) {
+			Token token = reader.next();
+			Assert.assertEquals(Token.CATEGORY_CJK, token.getCategory());
+			Assert.assertEquals(Token.TYPE_WORD, token.getType());
+		}
+
+		msg = "나는";
+		reader = TokenStream.obtain(msg, 0, msg.length());
+		while (reader.hasNext()) {
+			Token token = reader.next();
+			Assert.assertEquals(Token.CATEGORY_CJK, token.getCategory());
+			Assert.assertEquals(Token.TYPE_WORD, token.getType());
+		}
+
+		msg = "나는";
+		reader = TokenStream.obtain(msg, 0, msg.length());
+		while (reader.hasNext()) {
+			Token token = reader.next();
+			Assert.assertEquals(Token.CATEGORY_CJK, token.getCategory());
+			Assert.assertEquals(Token.TYPE_WORD, token.getType());
+		}
+
+		msg = "อักษรไทย";
+		reader = TokenStream.obtain(msg, 0, msg.length());
+		while (reader.hasNext()) {
+			Token token = reader.next();
+			Assert.assertEquals(Token.CATEGORY_UNKNOWN_LETTER, token.getCategory());
+			Assert.assertEquals(Token.TYPE_WORD, token.getType());
+		}
+
+		msg = "didn’t";
+		reader = TokenStream.obtain(msg, 0, msg.length());
+		while (reader.hasNext()) {
+			Token token = reader.next();
+			Assert.assertEquals(Token.CATEGORY_NORMAL, token.getCategory());
+			Assert.assertEquals(Token.TYPE_WORD, token.getType());
+		}
+	}
+
+	@Test
+	public void testCategory2() {
+		String msg = "19";
+		TokenStream reader = TokenStream.obtain(msg, 0, msg.length());
+		while (reader.hasNext()) {
+			Token token = reader.next();
+			Assert.assertEquals(Token.CATEGORY_NUMBER, token.getCategory());
+			Assert.assertEquals(Token.TYPE_WORD, token.getType());
+		}
+	}
+
+	@Test
+	public void testCategory3() {
+		String msg = "✈️";
+		System.out.println(msg.length() + " " + msg.codePointCount(0, msg.length()));
+		TokenStream reader = TokenStream.obtain(msg, 0, msg.length());
+		while (reader.hasNext()) {
+			Token token = reader.next();
+			Assert.assertEquals(Token.CATEGORY_SYMBOL, token.getCategory());
+			Assert.assertEquals(Token.TYPE_SYMBOL, token.getType());
+		}
+	}
+
+	@Test
+	public void testCategory4() {
+		String msg = "$";
+		TokenStream reader = TokenStream.obtain(msg, 0, msg.length());
+		while (reader.hasNext()) {
+			Token token = reader.next();
+			Assert.assertEquals(Token.CATEGORY_SYMBOL, token.getCategory());
+			Assert.assertEquals(Token.TYPE_SYMBOL, token.getType());
+			Assert.assertTrue(token.checkAttribute(Token.SYMBOL_ATTRIBUTE_KINSOKU_AVOID_TAIL));
+			Assert.assertFalse(token.checkAttribute(Token.SYMBOL_ATTRIBUTE_KINSOKU_AVOID_HEADER));
+		}
+
+		msg = "&";
+		reader = TokenStream.obtain(msg, 0, msg.length());
+		while (reader.hasNext()) {
+			Token token = reader.next();
+			Assert.assertEquals(Token.CATEGORY_PUNCTUATION, token.getCategory());
+			Assert.assertEquals(Token.TYPE_SYMBOL, token.getType());
+			Assert.assertTrue(token.checkAttribute(Token.SYMBOL_ATTRIBUTE_KINSOKU_AVOID_TAIL));
+			Assert.assertTrue(token.checkAttribute(Token.SYMBOL_ATTRIBUTE_KINSOKU_AVOID_HEADER));
+		}
+
+		msg = "《";
+		reader = TokenStream.obtain(msg, 0, msg.length());
+		while (reader.hasNext()) {
+			Token token = reader.next();
+			Assert.assertEquals(Token.CATEGORY_PUNCTUATION, token.getCategory());
+			Assert.assertEquals(Token.TYPE_SYMBOL, token.getType());
+			Assert.assertTrue(token.checkAttribute(Token.SYMBOL_ATTRIBUTE_KINSOKU_AVOID_TAIL));
+			Assert.assertFalse(token.checkAttribute(Token.SYMBOL_ATTRIBUTE_KINSOKU_AVOID_HEADER));
+			Assert.assertTrue(token.checkAttribute(Token.SYMBOL_ATTRIBUTE_SQUISH_LEFT));
+		}
+	}
+
+	@Test
+	public void testCategory5() {
+		String msg = "ضروري";
+		System.out.println(msg);
+		TokenStream reader = TokenStream.obtain(msg, 0, msg.length());
+		while (reader.hasNext()) {
+			Token token = reader.next();
+			Assert.assertEquals(Token.CATEGORY_UNKNOWN_LETTER, token.getCategory());
+			Assert.assertEquals(Token.TYPE_WORD, token.getType());
 		}
 	}
 
@@ -136,5 +260,15 @@ public class TokenStreamUnitTest {
 				}
 			}
 		}
+	}
+
+	@Test
+	public void testTail() {
+		Assert.assertEquals(32, Token.numberOfTrailingZeros(0));
+		Assert.assertEquals(0, Token.numberOfTrailingZeros(1));
+		Assert.assertEquals(1, Token.numberOfTrailingZeros(2));
+		Assert.assertEquals(0, Token.numberOfTrailingZeros(3));
+		Assert.assertEquals(2, Token.numberOfTrailingZeros(4));
+		Assert.assertEquals(0, Token.numberOfTrailingZeros(5));
 	}
 }

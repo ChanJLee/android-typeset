@@ -2,28 +2,28 @@ package me.chan.texas.renderer.selection;
 
 import android.annotation.SuppressLint;
 import android.util.Log;
-import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
-import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import me.chan.texas.misc.BitBucket;
+import me.chan.texas.renderer.ParagraphPredicates;
 import me.chan.texas.renderer.ParagraphVisitor;
 import me.chan.texas.renderer.RenderOption;
 import me.chan.texas.renderer.SpanPredicate;
 import me.chan.texas.renderer.SpanTouchEventHandler;
 import me.chan.texas.renderer.TexasView;
 import me.chan.texas.renderer.TouchEvent;
-import me.chan.texas.renderer.selection.overlay.SelectionDragView;
+import me.chan.texas.renderer.selection.overlay.DragSelectView;
 import me.chan.texas.renderer.selection.visitor.SelectedTextByClickedVisitor;
 import me.chan.texas.renderer.selection.visitor.SelectedTextByDragVisitor;
-import me.chan.texas.renderer.selection.visitor.SelfDriveSelectedVisitor;
-import me.chan.texas.renderer.ui.RendererAdapter;
+import me.chan.texas.renderer.selection.visitor.PredicatesDriveSelectedVisitor;
+import me.chan.texas.renderer.ui.RendererAdapterImpl;
+import me.chan.texas.renderer.ui.TexasRendererAdapter;
+import me.chan.texas.renderer.ui.rv.TexasLayoutManager;
 import me.chan.texas.renderer.ui.rv.TexasRecyclerView;
 import me.chan.texas.renderer.ui.text.OnSelectedChangedListener;
 import me.chan.texas.renderer.ui.text.TextureParagraph;
@@ -45,10 +45,10 @@ import me.chan.texas.text.layout.Box;
 public class SelectionManager implements OnSelectedChangedListener {
 	private Selection mCurrentSelection;
 
-	private final RendererAdapter mAdapter;
-	private final LinearLayoutManager mLayoutManager;
+	private final TexasRendererAdapter mAdapter;
+	private final TexasLayoutManager mLayoutManager;
 	private final Listener mListener;
-	private final SelectionDragView mDropView;
+	private DragSelectView mDropView;
 	private final TexasRecyclerView mContentView;
 
 	/**
@@ -56,13 +56,13 @@ public class SelectionManager implements OnSelectedChangedListener {
 	 * <p>
 	 * 即主动调用 {@link TexasView#selectParagraphs} 接口，而不是通过点击操作
 	 */
-	private final SelfDriveSelectedVisitor mSelfDriveSelectedVisitor = new SelfDriveSelectedVisitor();
+	private final PredicatesDriveSelectedVisitor mPredicatesDriveSelectedVisitor = new PredicatesDriveSelectedVisitor();
 	/**
-	 * 用于拖拽时选中文本 {@link SelectionManager#handleMoveToSelection(float, float, float, float, boolean)}
+	 * 用于拖拽时选中文本 {@link SelectionManager#handleMoveToSelection(float, float, float, float)}
 	 */
 	private final SelectedTextByDragVisitor mSelectedTextByDragVisitor = new SelectedTextByDragVisitor();
 	/**
-	 * 用于点击是选中文本 {@link SelectionManager#onBoxSelected(View, MotionEvent, Paragraph, int, Box)}
+	 * 用于点击是选中文本 {@link SelectionManager#onBoxSelected(TouchEvent, Paragraph, int, Box)}
 	 */
 	private final SelectedTextByClickedVisitor mSelectedTextByClickedVisitor = new SelectedTextByClickedVisitor();
 
@@ -73,34 +73,29 @@ public class SelectionManager implements OnSelectedChangedListener {
 	private SpanTouchEventHandler mSpanTouchEventHandler;
 	private final SpanPredicate mOnSpanClickedPredicate = new SpanPredicate() {
 		@Override
-		public boolean apply(@Nullable Object clickedTag, @Nullable Object tag) {
+		public boolean accept(@Nullable Object clickedTag, @Nullable Object tag) {
 			return mSpanTouchEventHandler.applySpanClicked(clickedTag, tag);
 		}
 	};
 	private final SpanPredicate mOnSpanLongClickedPredicate = new SpanPredicate() {
 		@Override
-		public boolean apply(@Nullable Object clickedTag, @Nullable Object tag) {
+		public boolean accept(@Nullable Object clickedTag, @Nullable Object tag) {
 			return mSpanTouchEventHandler.applySpanLongClicked(clickedTag, tag);
 		}
 	};
 
-	public SelectionManager(RendererAdapter adapter,
-							LinearLayoutManager layoutManager,
+	public SelectionManager(TexasRendererAdapter adapter,
+							TexasLayoutManager layoutManager,
 							Listener listener,
-							TexasView texasView,
-							TexasRecyclerView recyclerView) {
+							DragSelectView selectableView,
+							TexasRecyclerView contextView) {
 		mAdapter = adapter;
 		mLayoutManager = layoutManager;
 		mListener = listener;
-		mDropView = new SelectionDragView(texasView.getContext(), texasView);
-		texasView.addView(mDropView,
-				new TexasView.LayoutParams(
-						ViewGroup.LayoutParams.MATCH_PARENT,
-						ViewGroup.LayoutParams.MATCH_PARENT)
-		);
+		mDropView = selectableView;
 		mDropView.setVisibility(View.GONE);
 		mDropView.setSelectionManager(this);
-		mContentView = recyclerView;
+		mContentView = contextView;
 		mContentView.addOnScrollListener(new RecyclerView.OnScrollListener() {
 			@Override
 			public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
@@ -122,18 +117,18 @@ public class SelectionManager implements OnSelectedChangedListener {
 	}
 
 	@Override
-	public boolean onSegmentClicked(View source, MotionEvent e, Paragraph paragraph, int eventType) {
+	public boolean onSegmentClicked(TouchEvent e, Paragraph paragraph, int eventType) {
 		if (mListener == null) {
 			return false;
 		}
 
 		if (eventType == OnSelectedChangedListener.EVENT_CLICKED) {
-			mListener.onSegmentClicked(TouchEvent.obtain(source, e), paragraph.getTag());
+			mListener.onSegmentClicked(e, paragraph.getTag());
 			return true;
 		}
 
 		if (eventType == EVENT_DOUBLE_CLICKED) {
-			mListener.onSegmentDoubleClicked(TouchEvent.obtain(source, e), paragraph.getTag());
+			mListener.onSegmentDoubleClicked(e, paragraph.getTag());
 			return true;
 		}
 
@@ -149,20 +144,21 @@ public class SelectionManager implements OnSelectedChangedListener {
 	 * @return 是否有box被选中
 	 */
 	@Override
-	public boolean onBoxSelected(View source, MotionEvent e, Paragraph paragraph, @EventType int eventType, Box box) {
+	public boolean onBoxSelected(TouchEvent e, Paragraph paragraph, @EventType int eventType, Box box) {
 		if (eventType == OnSelectedChangedListener.EVENT_CLICKED ||
 				eventType == OnSelectedChangedListener.EVENT_LONG_CLICKED) {
-			boolean handled = onBoxSelected(source, e, paragraph, eventType == OnSelectedChangedListener.EVENT_LONG_CLICKED, box);
+			boolean handled = onBoxSelected(e, paragraph, eventType == OnSelectedChangedListener.EVENT_LONG_CLICKED, box);
 			if (!handled && eventType == OnSelectedChangedListener.EVENT_CLICKED && mListener != null) {
-				mListener.onSegmentClicked(TouchEvent.obtain(source, e), paragraph.getTag());
+				mListener.onSegmentClicked(e, paragraph.getTag());
 				return true;
 			}
+			return handled;
 		}
 
 		return false;
 	}
 
-	private boolean onBoxSelected(View source, MotionEvent e, Paragraph paragraph, boolean isLongClicked, Box box) {
+	private boolean onBoxSelected(TouchEvent e, Paragraph paragraph, boolean isLongClicked, Box box) {
 		SpanPredicate predicate = isLongClicked ? mOnSpanLongClickedPredicate : mOnSpanClickedPredicate;
 		clearSelection();
 
@@ -172,10 +168,10 @@ public class SelectionManager implements OnSelectedChangedListener {
 
 			if (handled && mListener != null) {
 				if (isLongClicked) {
-					mListener.onSpanLongClicked(TouchEvent.obtain(source, e), box.getTag());
+					mListener.onSpanLongClicked(e, box.getTag());
 					notifyUpdateSelectionDropView();
 				} else {
-					mListener.onSpanClicked(TouchEvent.obtain(source, e), box.getTag());
+					mListener.onSpanClicked(e, box.getTag());
 				}
 			}
 		} catch (ParagraphVisitor.VisitException ex) {
@@ -212,6 +208,7 @@ public class SelectionManager implements OnSelectedChangedListener {
 		try {
 			mSelectedTextByClickedVisitor.reset(
 					isLongClicked,
+					paragraph,
 					renderOption
 			);
 			mSelectedTextByClickedVisitor.setPredicate(predicate, boxTag);
@@ -233,7 +230,7 @@ public class SelectionManager implements OnSelectedChangedListener {
 			return;
 		}
 
-		Selection.RectEdge selectedRectEdge = selection.getSelectedRectEdge(mContentView);
+		Selection.RectEdge selectedRectEdge = selection.getSelectedRectEdge();
 		if (selectedRectEdge == null) {
 			mContentView.allowHandleTouchEvent();
 			mDropView.setVisibility(View.GONE);
@@ -282,14 +279,13 @@ public class SelectionManager implements OnSelectedChangedListener {
 	/**
 	 * 长按后滑动选中
 	 *
-	 * @param x1        顶部x
-	 * @param y1        顶部y
-	 * @param x2        底部x
-	 * @param y2        底部y
-	 * @param isFocusP1 手指是否按在p1上滑动
+	 * @param x1 x1
+	 * @param y1 y1
+	 * @param x2 x2
+	 * @param y2 y2
 	 */
 	@SuppressLint("NotifyDataSetChanged")
-	public void handleMoveToSelection(float x1, float y1, float x2, float y2, boolean isFocusP1) {
+	public void handleMoveToSelection(float x1, float y1, float x2, float y2) {
 		int firstVisibleItemPosition = mLayoutManager.findFirstVisibleItemPosition();
 		int lastVisibleItemPosition = mLayoutManager.findLastVisibleItemPosition();
 
@@ -297,17 +293,15 @@ public class SelectionManager implements OnSelectedChangedListener {
 
 		RenderOption renderOption = mAdapter.getRenderOption();
 
-		Selection currentSelection = Selection.obtain(mAdapter);
+		Selection currentSelection = Selection.obtain(mContentView);
 		for (int i = firstVisibleItemPosition; i <= lastVisibleItemPosition; ++i) {
-			View content = mLayoutManager.findViewByPosition(i);
-			if (!(content instanceof TextureParagraph)) {
+			TextureParagraph textureParagraph = mLayoutManager.findTextureParagraphByPosition(i);
+			if (textureParagraph == null) {
 				continue;
 			}
 
-			TextureParagraph textureParagraph = (TextureParagraph) content;
-			mContentView.getChildLocations(content, mLocations);
-
-			if (mLocations[1] + content.getHeight() < y1) {
+			mContentView.getChildLocations(textureParagraph, mLocations);
+			if (mLocations[1] + textureParagraph.getHeight() < y1) {
 				continue;
 			}
 
@@ -316,13 +310,13 @@ public class SelectionManager implements OnSelectedChangedListener {
 			}
 
 			try {
-				mSelectedTextByDragVisitor.reset(true, renderOption);
+				Paragraph paragraph = textureParagraph.getParagraph();
+				mSelectedTextByDragVisitor.reset(true, paragraph, renderOption);
 				float tempX1 = x1 - mLocations[0];
 				float tempY1 = y1 - mLocations[1];
 				float tempX2 = x2 - mLocations[0];
 				float tempY2 = y2 - mLocations[1];
-				mSelectedTextByDragVisitor.setRegion(tempX1, tempY1, tempX2, tempY2, isFocusP1);
-				Paragraph paragraph = textureParagraph.getParagraph();
+				mSelectedTextByDragVisitor.setRegion(tempX1, tempY1, tempX2, tempY2);
 				mSelectedTextByDragVisitor.startVisit(paragraph);
 				addParagraphSelection(currentSelection, paragraph);
 			} catch (ParagraphVisitor.VisitException ex) {
@@ -337,42 +331,43 @@ public class SelectionManager implements OnSelectedChangedListener {
 
 	private BitBucket mSelectionDiffBucket;
 
-	private void updateMotionSelection(Selection prevSelection, Selection currentSelection) {
+	private void updateMotionSelection(@Nullable Selection prevSelection, Selection currentSelection) {
 		// 先置换下 因为 adapter 在绘制的时候会先查这里
 		mCurrentSelection = currentSelection;
 
 		int size = mAdapter.getItemCount();
-		if (mSelectionDiffBucket == null || mSelectionDiffBucket.size() < size) {
+		if (mSelectionDiffBucket == null) {
 			mSelectionDiffBucket = new BitBucket(size);
 		}
 
 		// 因此 需要变化的 item 都在 两个集合里了
 		mSelectionDiffBucket.clear();
 		for (int i = 0; i < currentSelection.size(); ++i) {
-			Paragraph paragraph = currentSelection.get(i);
-			int index = mAdapter.sendSignal(paragraph, RendererAdapter.SIG_SELECTION_CHANGED);
+			Paragraph paragraph = currentSelection.getParagraph(i);
+			int index = mAdapter.sendSignal(paragraph, TexasRendererAdapter.SIG_SELECTION_CHANGED);
 			if (index < 0) {
 				continue;
 			}
 			mSelectionDiffBucket.set(index, true);
 		}
 
-		for (int i = 0; i < prevSelection.size(); ++i) {
-			Paragraph paragraph = prevSelection.get(i);
-			int index = mAdapter.indexOf(paragraph);
-			if (!mSelectionDiffBucket.get(index)) {
-				ParagraphSelection paragraphSelection = prevSelection.getParagraphSelection(paragraph);
-				if (paragraphSelection != null) {
-					paragraphSelection.recycle();
-					paragraph.setSelection(null);
+		if (prevSelection != null) {
+			for (int i = 0; i < prevSelection.size(); ++i) {
+				Paragraph paragraph = prevSelection.getParagraph(i);
+				int index = mAdapter.indexOf(paragraph);
+				if (!mSelectionDiffBucket.get(index)) {
+					ParagraphSelection paragraphSelection = prevSelection.getParagraphSelection(paragraph);
+					if (paragraphSelection != null) {
+						paragraphSelection.recycle();
+						paragraph.setSelection(null);
+					}
+					mAdapter.sendSignal(index, RendererAdapterImpl.SIG_SELECTION_CHANGED);
 				}
-				mAdapter.sendSignal(index, RendererAdapter.SIG_SELECTION_CHANGED);
 			}
+			prevSelection.recycle();
 		}
 
 		notifyUpdateSelectionDropView();
-
-		prevSelection.recycle();
 	}
 
 	/**
@@ -381,6 +376,7 @@ public class SelectionManager implements OnSelectedChangedListener {
 	public void clearSelection() {
 		if (mCurrentSelection != null) {
 			mCurrentSelection.clear();
+			mCurrentSelection = null;
 		}
 	}
 
@@ -395,11 +391,11 @@ public class SelectionManager implements OnSelectedChangedListener {
 	/**
 	 * 主动 选择 paragraph
 	 *
-	 * @param predicate 谓词
+	 * @param predicates 谓词
 	 * @return 选中区域
 	 */
 	@Nullable
-	public Selection selectParagraphs(TexasView.SelectionPredicate predicate) {
+	public Selection selectParagraphs(ParagraphPredicates predicates, @Nullable Selection.Styles styles) {
 		Document document = mAdapter.getDocument();
 		clearSelection();
 
@@ -409,32 +405,38 @@ public class SelectionManager implements OnSelectedChangedListener {
 				continue;
 			}
 
-			selectParagraph((Paragraph) segment, predicate, i);
+			selectParagraph((Paragraph) segment, predicates, i, styles);
 		}
 
-		notifyUpdateSelectionDropView();
+		if (styles == null || styles.isEnableDrag()) {
+			notifyUpdateSelectionDropView();
+		}
+
 		return mCurrentSelection;
 	}
 
-	private void selectParagraph(Paragraph paragraph, TexasView.SelectionPredicate predicate, int index) {
+	private void selectParagraph(Paragraph paragraph, ParagraphPredicates predicates, int index, @Nullable Selection.Styles styles) {
 		if (paragraph == null) {
 			return;
 		}
 
 		try {
 			RenderOption renderOption = mAdapter.getRenderOption();
-			mSelfDriveSelectedVisitor.reset(renderOption, predicate);
-			mSelfDriveSelectedVisitor.startVisit(paragraph);
+			mPredicatesDriveSelectedVisitor.reset(renderOption, predicates, paragraph, styles);
+			mPredicatesDriveSelectedVisitor.startVisit(paragraph);
 			handleParagraphSelected(paragraph, index);
 		} catch (ParagraphVisitor.VisitException ignored) {
 			/* do nothing */
 		} finally {
-			mSelfDriveSelectedVisitor.clear();
+			mPredicatesDriveSelectedVisitor.clear();
 		}
 	}
 
 	private void addParagraphSelection(Selection selection, Paragraph paragraph) {
-		selection.add(paragraph);
+		ParagraphSelection paragraphSelection = paragraph.getSelection();
+		if (paragraphSelection != null) {
+			selection.add(paragraph);
+		}
 	}
 
 	/**
@@ -445,7 +447,7 @@ public class SelectionManager implements OnSelectedChangedListener {
 	 */
 	private void handleParagraphSelected(Paragraph paragraph, int index) {
 		if (mCurrentSelection == null) {
-			mCurrentSelection = Selection.obtain(mAdapter);
+			mCurrentSelection = Selection.obtain(mContentView);
 		}
 
 		if (index < 0) {
@@ -456,7 +458,7 @@ public class SelectionManager implements OnSelectedChangedListener {
 		addParagraphSelection(mCurrentSelection, paragraph);
 
 		try {
-			mAdapter.sendSignal(index, RendererAdapter.SIG_SELECTION_CHANGED);
+			mAdapter.sendSignal(index, RendererAdapterImpl.SIG_SELECTION_CHANGED);
 		} catch (Throwable ignore) {
 			/* do nothing */
 		}

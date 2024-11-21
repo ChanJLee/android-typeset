@@ -3,9 +3,10 @@ package me.chan.texas.renderer.selection.overlay;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
-import android.graphics.RectF;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
@@ -15,6 +16,8 @@ import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 
+import me.chan.texas.Texas;
+import me.chan.texas.misc.PointF;
 import me.chan.texas.renderer.TouchEvent;
 import me.chan.texas.renderer.selection.SelectionManager;
 import me.chan.texas.renderer.selection.magnifier.MagnifierView;
@@ -25,12 +28,12 @@ import me.chan.texas.renderer.selection.magnifier.MagnifierViewFactory;
  */
 @SuppressLint("ViewConstructor")
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-public class SelectionDragView extends View {
+public class DragSelectViewImpl extends View implements DragSelectView {
 	private final Paint mPaint;
 
 	private static final int HOT_MOTION_REGION_SIZE = 300;
-	private final RectF mP1 = new RectF(0, 0, HOT_MOTION_REGION_SIZE, HOT_MOTION_REGION_SIZE);
-	private final RectF mP2 = new RectF(0, 0, HOT_MOTION_REGION_SIZE, HOT_MOTION_REGION_SIZE);
+	private final PointF mP1 = new PointF(0, 0);
+	private final PointF mP2 = new PointF(0, 0);
 
 
 	private SelectionManager mSelectionManager;
@@ -38,16 +41,16 @@ public class SelectionDragView extends View {
 	private float mAdviseOffsetY;
 
 	private final Path mPath = new Path();
-	private final RectF mFocusPoint = new RectF();
-	private final RectF mUnFocusPoint = new RectF();
+	private final PointF mFocusPoint = new PointF();
+	private final PointF mUnFocusPoint = new PointF();
 
-	private final float[] mLastTouchPoint = {0, 0};
-	private final float[] mTouchPoint = {0, 0};
+	private final PointF mLastTouchPoint = new PointF();
+	private final PointF mTouchPoint = new PointF();
 	private float mTouchSlopThresholdSquare;
 	private final LongPressMotionDispatcher mLongPressMotionDispatcher;
 	private final Region mMotionRegion = new Region();
 
-	public SelectionDragView(Context context, ViewGroup parent) {
+	public DragSelectViewImpl(Context context, ViewGroup parent) {
 		super(context, null, 0);
 		mPaint = new Paint();
 		mPaint.setColor(0x88ff0000);
@@ -77,8 +80,8 @@ public class SelectionDragView extends View {
 	@Override
 	protected void onDraw(@NonNull Canvas canvas) {
 		// 手指中心
-		if (mTouchPoint[0] >= 0 || mTouchPoint[1] >= 0) {
-			canvas.drawCircle(mTouchPoint[0], mTouchPoint[1], 10, mPaint);
+		if (mTouchPoint.x >= 0 || mTouchPoint.y >= 0) {
+			canvas.drawCircle(mTouchPoint.x, mTouchPoint.y, 10, mPaint);
 		}
 
 		getRendererRegion(mRendererRegion);
@@ -121,9 +124,15 @@ public class SelectionDragView extends View {
 		canvas.drawPath(mPath, mPaint);
 
 		canvas.restore();
+
+		if (Texas.DEBUG_DRAG && mDebugPaint != null) {
+			canvas.drawText(mDebugInfo, 0, 200, mDebugPaint);
+		}
 	}
 
 	private boolean mHandleDownEvent = false;
+	private String mDebugInfo = "";
+	private Paint mDebugPaint = null;
 
 	@SuppressLint("ClickableViewAccessibility")
 	@Override
@@ -132,20 +141,31 @@ public class SelectionDragView extends View {
 		float x = event.getX();
 		float y = event.getY();
 
+		if (Texas.DEBUG_DRAG) {
+			mDebugInfo = MotionEvent.actionToString(action) +
+					", [" + x + "," + y +
+					"] r[" + event.getRawX() + "," + event.getRawY() + "]";
+			if (mDebugPaint == null) {
+				mDebugPaint = new Paint();
+				mDebugPaint.setColor(Color.RED);
+				mDebugPaint.setTextSize(35);
+			}
+		}
+
 		if (action == MotionEvent.ACTION_MOVE && mHandleDownEvent) {
-			float dx = mLastTouchPoint[0] - x;
-			float dy = mLastTouchPoint[1] - y;
+			float dx = mLastTouchPoint.x - x;
+			float dy = mLastTouchPoint.y - y;
 			if (dy * dy + dx * dx >= mTouchSlopThresholdSquare) {
 				handleMoveEvent(x, y);
-				mLastTouchPoint[0] = x;
-				mLastTouchPoint[1] = y;
+				mLastTouchPoint.x = x;
+				mLastTouchPoint.y = y;
 			} else {
 				scheduleAutoScrollEvent(y);
 			}
 		} else if (action == MotionEvent.ACTION_DOWN) {
 			mHandleDownEvent = handleDownEvent(event, x, y);
-			mLastTouchPoint[0] = x;
-			mLastTouchPoint[1] = y;
+			mLastTouchPoint.x = x;
+			mLastTouchPoint.y = y;
 		} else if ((action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_CANCEL) && mHandleDownEvent) {
 			mLongPressMotionDispatcher.cancel("手已经抬起");
 			mSelectionManager.handleDragEnd(TouchEvent.obtain(this, event));
@@ -164,8 +184,8 @@ public class SelectionDragView extends View {
 	}
 
 	private void renderPrompt(int action, float x, float y) {
-		mTouchPoint[0] = x;
-		mTouchPoint[1] = y;
+		mTouchPoint.x = x;
+		mTouchPoint.y = y;
 
 		// render magnifier
 		if (action == MotionEvent.ACTION_CANCEL || action == MotionEvent.ACTION_UP) {
@@ -190,35 +210,41 @@ public class SelectionDragView extends View {
 	}
 
 	private void handleMoveEvent(float x, float y) {
-		mFocusPoint.offset(x - mFocusPoint.centerX(), y - mFocusPoint.centerY());
+		mFocusPoint.offset(x - mFocusPoint.x, y - mFocusPoint.y);
 		if (mSelectionManager == null) {
 			return;
 		}
 
 		getMotionRegion(mMotionRegion);
-		mSelectionManager.handleMoveToSelection(mMotionRegion.getTopX(), mMotionRegion.getTopY(), mMotionRegion.getBottomX(), mMotionRegion.getBottomY(), mMotionRegion.isTop(mFocusPoint));
+		mSelectionManager.handleMoveToSelection(mMotionRegion.getTopX(), mMotionRegion.getTopY(), mMotionRegion.getBottomX(), mMotionRegion.getBottomY());
 	}
 
 	private void getRendererRegion(Region region) {
 		getSelectedRegion(region, mP1, mP2);
+		if (Texas.DEBUG_DRAG) {
+			Log.d("drag_debug.view", "getRendererRegion: " + mP1 + " " + mP2 + " " + region);
+		}
 	}
 
 	private void getMotionRegion(Region region) {
 		getSelectedRegion(region, mFocusPoint, mUnFocusPoint);
+		if (Texas.DEBUG_DRAG) {
+			Log.d("drag_debug.view", "getMotionRegion: " + mFocusPoint + " " + mUnFocusPoint + " " + region);
+		}
 	}
 
-	private void getSelectedRegion(Region region, RectF p1, RectF p2) {
-		if (p1.centerY() < p2.centerY()) {
+	private void getSelectedRegion(Region region, PointF p1, PointF p2) {
+		if (p1.y < p2.y) {
 			region.setup(p1, p2);
 			return;
 		}
 
-		if (p1.centerY() > p2.centerY()) {
+		if (p1.y > p2.y) {
 			region.setup(p2, p1);
 			return;
 		}
 
-		if (p1.centerX() <= p2.centerX()) {
+		if (p1.x <= p2.x) {
 			region.setup(p1, p2);
 			return;
 		}
@@ -230,7 +256,7 @@ public class SelectionDragView extends View {
 		boolean handled = checkIfClickedHotRegion(x, y);
 
 		if (handled) {
-			mFocusPoint.offset(x - mFocusPoint.centerX(), y - mFocusPoint.centerY());
+			mFocusPoint.offset(x - mFocusPoint.x, y - mFocusPoint.y);
 			// 通知上层开始拖拽
 			mSelectionManager.handleDragStart(TouchEvent.obtain(this, event));
 			return true;
@@ -246,18 +272,18 @@ public class SelectionDragView extends View {
 
 	private void dismissPrompt() {
 		mMagnifierView.dismiss();
-		mTouchPoint[0] = mTouchPoint[1] = -100;
+		mTouchPoint.x = mTouchPoint.y = -100;
 		invalidate();
 	}
 
 	private boolean checkIfClickedHotRegion(float x, float y) {
-		if (mP1.contains(x, y)) {
+		if (mP1.contains(x, y, HOT_MOTION_REGION_SIZE)) {
 			mFocusPoint.set(mP1);
 			mUnFocusPoint.set(mP2);
 			return true;
 		}
 
-		if (mP2.contains(x, y)) {
+		if (mP2.contains(x, y, HOT_MOTION_REGION_SIZE)) {
 			mFocusPoint.set(mP2);
 			mUnFocusPoint.set(mP1);
 			return true;
@@ -278,9 +304,12 @@ public class SelectionDragView extends View {
 	 * @param adviseOffsetY 绘制方向建议的y偏移量
 	 */
 	public void renderRegion(float x1, float y1, float x2, float y2, float adviseOffsetY) {
-		float offset = HOT_MOTION_REGION_SIZE / 2.0f;
-		mP1.set(x1 - offset, y1 - offset, x1 + offset, y1 + offset);
-		mP2.set(x2 - offset, y2 - offset, x2 + offset, y2 + offset);
+		if (Texas.DEBUG_DRAG) {
+			Log.d("drag_debug.view", "update selection: " + x1 + " " + y1 + " " + x2 + " " + y2);
+		}
+
+		mP1.set(x1, y1);
+		mP2.set(x2, y2);
 		mAdviseOffsetY = adviseOffsetY;
 		invalidate();
 	}

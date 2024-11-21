@@ -4,6 +4,7 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.util.Log;
@@ -26,17 +27,16 @@ import me.chan.texas.R;
 import me.chan.texas.image.ImageLoader;
 import me.chan.texas.misc.PaintSet;
 import me.chan.texas.renderer.core.TypesetEngine;
-import me.chan.texas.renderer.highlight.Highlight;
-import me.chan.texas.renderer.highlight.HighlightManager;
-import me.chan.texas.renderer.highlight.ParagraphHighlight;
 import me.chan.texas.renderer.selection.Selection;
 import me.chan.texas.renderer.selection.SelectionManager;
-import me.chan.texas.renderer.ui.RendererAdapter;
+import me.chan.texas.renderer.selection.overlay.DragSelectViewImpl;
+import me.chan.texas.renderer.ui.RendererAdapterImpl;
 import me.chan.texas.renderer.ui.decor.ParagraphDecor;
 import me.chan.texas.renderer.ui.rv.SegmentItemDecoration;
-import me.chan.texas.renderer.ui.rv.TexasLinearLayoutManager;
-import me.chan.texas.renderer.ui.rv.TexasRecyclerView;
+import me.chan.texas.renderer.ui.rv.TexasLinearLayoutManagerImpl;
+import me.chan.texas.renderer.ui.rv.TexasRecyclerViewImpl;
 import me.chan.texas.text.Document;
+import me.chan.texas.text.Paragraph;
 import me.chan.texas.utils.TexasUtils;
 import me.chan.texas.utils.concurrency.TaskQueue;
 
@@ -63,23 +63,19 @@ public class Renderer implements SelectionManager.Listener {
 	/**
 	 * 数据子系统
 	 */
-	private final RendererAdapter mAdapter;
+	private final RendererAdapterImpl mAdapter;
 	/**
 	 * 视图显示窗口
 	 */
-	private final TexasRecyclerView mImpl;
+	private final TexasRecyclerViewImpl mImpl;
 	/**
 	 * 视图排版子系统
 	 */
-	private final TexasLinearLayoutManager mLinearLayoutManager;
+	private final TexasLinearLayoutManagerImpl mLinearLayoutManager;
 	/**
 	 * 内容选择子系统
 	 */
 	private final SelectionManager mSelectionManager;
-	/**
-	 * 内容高亮
-	 */
-	private final HighlightManager mHighlightManager;
 
 	private final RecyclerView.OnScrollListener mOnScrollListener = new RecyclerView.OnScrollListener() {
 		@Override
@@ -124,8 +120,8 @@ public class Renderer implements SelectionManager.Listener {
 		mTypesetEngine = new TypesetEngine(mRenderOption, mToken);
 
 		// rv
-		mLinearLayoutManager = new TexasLinearLayoutManager(context);
-		mImpl = new TexasRecyclerView(new ContextThemeWrapper(context, R.style.me_chan_texas_TexasRecyclerView), mLinearLayoutManager);
+		mLinearLayoutManager = new TexasLinearLayoutManagerImpl(context);
+		mImpl = new TexasRecyclerViewImpl(new ContextThemeWrapper(context, R.style.me_chan_texas_TexasRecyclerView), mLinearLayoutManager);
 		mImpl.setClipToPadding(false);
 		mImpl.setClipChildren(false);
 		mImpl.setOnClickedListener(mTexasView::notifyEmptyClicked);
@@ -137,8 +133,8 @@ public class Renderer implements SelectionManager.Listener {
 		);
 		mImpl.addOnScrollListener(mOnScrollListener);
 
-		mAdapter = new RendererAdapter(layoutInflater, imageLoader, mImpl.getRecycledViewPool(), mImpl);
-		mAdapter.setListener(new RendererAdapter.Listener() {
+		mAdapter = new RendererAdapterImpl(layoutInflater, imageLoader, mImpl.getRecycledViewPool(), mImpl);
+		mAdapter.setListener(new RendererAdapterImpl.Listener() {
 			@Override
 			public void onSegmentClicked(TouchEvent event, Object tag) {
 				mTexasView.notifySegmentClicked(event, tag);
@@ -162,11 +158,14 @@ public class Renderer implements SelectionManager.Listener {
 		mImpl.addItemDecoration(new SegmentItemDecoration(mAdapter));
 
 		// selection
-		mSelectionManager = new SelectionManager(mAdapter, mLinearLayoutManager, this, texasView, mImpl);
+		DragSelectViewImpl selectionDragView = new DragSelectViewImpl(texasView.getContext(), texasView);
+		texasView.addView(selectionDragView,
+				new TexasView.LayoutParams(
+						ViewGroup.LayoutParams.MATCH_PARENT,
+						ViewGroup.LayoutParams.MATCH_PARENT)
+		);
+		mSelectionManager = new SelectionManager(mAdapter, mLinearLayoutManager, this, selectionDragView, mImpl);
 		mAdapter.setSelectionManager(mSelectionManager);
-
-		// highlight
-		mHighlightManager = new HighlightManager(mAdapter);
 
 		// adapter
 		mImpl.setAdapter(mAdapter);
@@ -286,27 +285,18 @@ public class Renderer implements SelectionManager.Listener {
 		mImpl.scrollToPosition(position, smooth, offset);
 	}
 
-	public void highlightParagraphs(TexasView.HighlightPredicate predicate, boolean scrollTo, int offset) {
-		Highlight area = mHighlightManager.highlightParagraphs(predicate);
-		if (area == null || area.isEmpty()) {
+	public void highlightParagraphs(ParagraphPredicates predicates, boolean scrollTo, int offset) {
+		Selection selection = selectParagraphs(predicates, new Selection.Styles(Color.TRANSPARENT, mRenderOption.getSpanHighlightTextColor()).setEnableDrag(false));
+		if (selection == null || selection.isEmpty()) {
 			return;
 		}
 
-		if (!scrollTo) {
-			return;
-		}
-
-		int firstVisibleItemIndex = mLinearLayoutManager.findFirstVisibleItemPosition();
-		int lastVisibleItemIndex = mLinearLayoutManager.findLastVisibleItemPosition();
-		int currentItemIndex = area.getFirstIndexInDocument();
-		if (currentItemIndex <= firstVisibleItemIndex || currentItemIndex >= lastVisibleItemIndex) {
-			ParagraphHighlight paragraphHighlight = area.get(0);
-			mLinearLayoutManager.scrollToPositionWithOffset(currentItemIndex, (int) (offset - paragraphHighlight.getYInParagraph()));
-		}
+		Paragraph paragraph = selection.getParagraph(0);
+		mImpl.scrollToPosition(mAdapter.indexOf(paragraph), true, offset);
 	}
 
 	public void clearHighlight() {
-		mHighlightManager.clear();
+		clearSelection();
 	}
 
 	public void clearSelection() {
@@ -465,8 +455,8 @@ public class Renderer implements SelectionManager.Listener {
 		return mRenderOption;
 	}
 
-	public Selection selectParagraphs(TexasView.SelectionPredicate predicate) {
-		return mSelectionManager.selectParagraphs(predicate);
+	public Selection selectParagraphs(ParagraphPredicates predicates, @Nullable Selection.Styles styles) {
+		return mSelectionManager.selectParagraphs(predicates, styles);
 	}
 
 	public int getPaddingWidth() {

@@ -4,13 +4,17 @@ import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.res.Resources;
 import android.graphics.Point;
+import android.graphics.Rect;
+import android.graphics.RectF;
 import android.graphics.Typeface;
+import android.text.GetChars;
 import android.text.TextPaint;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.WindowManager;
 
 import androidx.annotation.IntDef;
+import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 
 import me.chan.texas.compat.TextPaintCompat;
@@ -351,5 +355,66 @@ public class TexasUtils {
 		}
 
 		return CmpType.CMP_DRAW;
+	}
+
+	public static void getChars(CharSequence s, int start, int end,
+								char[] dest, int destoff) {
+		Class<? extends CharSequence> c = s.getClass();
+
+		if (c == String.class)
+			((String) s).getChars(start, end, dest, destoff);
+		else if (c == StringBuffer.class)
+			((StringBuffer) s).getChars(start, end, dest, destoff);
+		else if (c == StringBuilder.class)
+			((StringBuilder) s).getChars(start, end, dest, destoff);
+		else if (s instanceof GetChars)
+			((GetChars) s).getChars(start, end, dest, destoff);
+		else {
+			for (int i = start; i < end; i++)
+				dest[destoff++] = s.charAt(i);
+		}
+	}
+
+	public static void copyRect(Rect dest, Rect src) {
+		dest.top = src.top;
+		dest.bottom = src.bottom;
+		dest.left = src.left;
+		dest.right = src.right;
+	}
+
+	public static void copyRect(RectF dest, RectF src) {
+		dest.top = src.top;
+		dest.bottom = src.bottom;
+		dest.left = src.left;
+		dest.right = src.right;
+	}
+
+	public static void setRect(RectF dest, float left, float top, float right, float bottom) {
+		dest.left = left;
+		dest.top = top;
+		dest.right = right;
+		dest.bottom = bottom;
+	}
+
+	public static void setRect(Rect dest, int left, int top, int right, int bottom) {
+		dest.left = left;
+		dest.top = top;
+		dest.right = right;
+		dest.bottom = bottom;
+	}
+
+	/**
+	 * Returns true iff the two specified rectangles intersect. In no event are
+	 * either of the rectangles modified. To record the intersection,
+	 * use intersect() or setIntersect().
+	 *
+	 * @param a The first rectangle being tested for intersection
+	 * @param b The second rectangle being tested for intersection
+	 * @return true iff the two specified rectangles intersect. In no event are
+	 *              either of the rectangles modified.
+	 */
+	public static boolean intersects(@NonNull RectF a, @NonNull RectF b) {
+		return a.left < b.right && b.left < a.right
+				&& a.top < b.bottom && b.top < a.bottom;
 	}
 }

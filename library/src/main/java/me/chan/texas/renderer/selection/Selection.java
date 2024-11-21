@@ -2,17 +2,17 @@ package me.chan.texas.renderer.selection;
 
 import android.graphics.RectF;
 import android.util.Log;
-import android.view.View;
 
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 
 import me.chan.texas.misc.DefaultRecyclable;
 import me.chan.texas.misc.ObjectPool;
-import me.chan.texas.renderer.core.WorkerScheduler;
-import me.chan.texas.renderer.ui.RendererAdapter;
-import me.chan.texas.renderer.ui.rv.TexasLinearLayoutManager;
+import me.chan.texas.renderer.ui.RendererAdapterImpl;
+import me.chan.texas.renderer.ui.TexasRendererAdapter;
+import me.chan.texas.renderer.ui.rv.TexasLayoutManager;
 import me.chan.texas.renderer.ui.rv.TexasRecyclerView;
+import me.chan.texas.renderer.ui.text.TextureParagraph;
 import me.chan.texas.text.Document;
 import me.chan.texas.text.Paragraph;
 
@@ -22,7 +22,7 @@ import java.util.List;
 public final class Selection extends DefaultRecyclable {
 	private static final ObjectPool<Selection> POOL = new ObjectPool<>(8);
 
-	private RendererAdapter mTexasAdapter;
+	private TexasRecyclerView mContainer;
 	private final List<Paragraph> mParagraphs = new ArrayList<>();
 	private final RectEdge mRectEdge = new RectEdge();
 
@@ -57,9 +57,7 @@ public final class Selection extends DefaultRecyclable {
 	 */
 	private final int[] mLocations = new int[2];
 
-	@RestrictTo(RestrictTo.Scope.LIBRARY)
-	RectEdge getSelectedRectEdge(TexasRecyclerView container) {
-
+	public RectEdge getSelectedRectEdge() {
 		int size = mParagraphs.size();
 		if (size == 0) {
 			return null;
@@ -74,7 +72,7 @@ public final class Selection extends DefaultRecyclable {
 			}
 
 			hasModified = true;
-			boolean result = getParagraphLocation(container, paragraph, mLocations);
+			boolean result = getParagraphLocation(mContainer, paragraph, mLocations);
 			if (!result) {
 				w("get first region location failed");
 			}
@@ -84,7 +82,7 @@ public final class Selection extends DefaultRecyclable {
 
 			mRectEdge.topY = firstRegion.top + mLocations[1];
 			mRectEdge.topX = firstRegion.left + mLocations[0];
-			mRectEdge.lineHeight = firstRegion.height();
+			mRectEdge.lineHeight = firstRegion.bottom - firstRegion.top;
 			break;
 		}
 
@@ -96,7 +94,7 @@ public final class Selection extends DefaultRecyclable {
 			}
 
 			hasModified = true;
-			boolean result = getParagraphLocation(container, paragraph, mLocations);
+			boolean result = getParagraphLocation(mContainer, paragraph, mLocations);
 			if (!result) {
 				w("get last region location failed");
 			}
@@ -113,7 +111,7 @@ public final class Selection extends DefaultRecyclable {
 	}
 
 	boolean getParagraphLocation(TexasRecyclerView container, Paragraph paragraph, int[] locations) {
-		Document document = mTexasAdapter.getDocument();
+		Document document = container.getDocument();
 		if (document == null) {
 			return false;
 		}
@@ -123,12 +121,12 @@ public final class Selection extends DefaultRecyclable {
 			return false;
 		}
 
-		TexasLinearLayoutManager layoutManager = (TexasLinearLayoutManager) container.getLayoutManager();
+		TexasLayoutManager layoutManager = container.getTexasLayoutManager();
 		if (layoutManager == null) {
 			return false;
 		}
 
-		View child = layoutManager.findViewByPosition(index);
+		TextureParagraph child = layoutManager.findTextureParagraphByPosition(index);
 		if (child == null) {
 			return false;
 		}
@@ -141,14 +139,18 @@ public final class Selection extends DefaultRecyclable {
 		return mParagraphs.size();
 	}
 
-	public Paragraph get(int index) {
+	public Paragraph getParagraph(int index) {
 		return mParagraphs.get(index);
+	}
+
+	public ParagraphSelection get(int index) {
+		return getParagraph(index).getSelection();
 	}
 
 	@Override
 	protected void onRecycle() {
 		mParagraphs.clear();
-		mTexasAdapter = null;
+		mContainer = null;
 		mRectEdge.bottomX = mRectEdge.topX =
 				mRectEdge.bottomY = mRectEdge.topY = mRectEdge.lineHeight = 0;
 		POOL.release(this);
@@ -171,9 +173,7 @@ public final class Selection extends DefaultRecyclable {
 
 			paragraph.setSelection(null);
 			try {
-				if (mTexasAdapter != null) {
-					mTexasAdapter.sendSignal(paragraph, RendererAdapter.SIG_SELECTION_CHANGED);
-				}
+				mContainer.sendSignal(paragraph, RendererAdapterImpl.SIG_SELECTION_CHANGED);
 			} catch (Throwable ignore) {
 				/* do nothing */
 			}
@@ -184,6 +184,16 @@ public final class Selection extends DefaultRecyclable {
 
 	public boolean isEmpty() {
 		return mParagraphs.isEmpty();
+	}
+
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder("[");
+		for (Paragraph paragraph : mParagraphs) {
+			builder.append(paragraph.getSelection().toString(paragraph)).append(", ");
+		}
+		builder.append("]");
+		return builder.toString();
 	}
 
 	private static void w(String msg) {
@@ -213,14 +223,52 @@ public final class Selection extends DefaultRecyclable {
 		}
 	}
 
-	public static Selection obtain(RendererAdapter adapter) {
+	public static Selection obtain(TexasRecyclerView container) {
 		Selection selection = POOL.acquire();
 		if (selection == null) {
 			selection = new Selection();
 		}
 
-		selection.mTexasAdapter = adapter;
+		selection.mContainer = container;
 		selection.reuse();
 		return selection;
+	}
+
+	public static class Styles {
+		private final int mBackgroundColor;
+		private final int mTextColor;
+
+		private boolean mEnableDrag = true;
+
+		public Styles(int backgroundColor, int textColor) {
+			mBackgroundColor = backgroundColor;
+			mTextColor = textColor;
+		}
+
+		public int getBackgroundColor() {
+			return mBackgroundColor;
+		}
+
+		public int getTextColor() {
+			return mTextColor;
+		}
+
+		public boolean isEnableDrag() {
+			return mEnableDrag;
+		}
+
+		public Styles setEnableDrag(boolean enableDrag) {
+			mEnableDrag = enableDrag;
+			return this;
+		}
+
+		@Override
+		public String toString() {
+			return "Styles{" +
+					"mBackgroundColor=" + String.format("#%x", mBackgroundColor) +
+					", mTextColor=" + String.format("#%x", mTextColor) +
+					", mEnableDrag=" + mEnableDrag +
+					'}';
+		}
 	}
 }

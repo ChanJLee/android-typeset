@@ -12,6 +12,7 @@ import me.chan.texas.text.layout.Element;
 import me.chan.texas.text.layout.Glue;
 import me.chan.texas.text.layout.Layout;
 import me.chan.texas.text.layout.Line;
+import me.chan.texas.utils.TexasUtils;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -80,8 +81,8 @@ public abstract class ParagraphVisitor {
 		assignBoxMeta(line, 0, size, bottomX, bottomY, mTypesetContext.currentBoxMetaInfo);
 		if (mTypesetContext.currentBoxMetaInfo.isValid() && mVisitSig == SIG_NORMAL) {
 			do {
-				mInnerRect.set(mTypesetContext.currentBoxMetaInfo.inner);
-				mOuterRect.set(mTypesetContext.currentBoxMetaInfo.inner);
+				TexasUtils.copyRect(mInnerRect, mTypesetContext.currentBoxMetaInfo.inner);
+				TexasUtils.copyRect(mOuterRect, mTypesetContext.currentBoxMetaInfo.inner);
 				if (mTypesetContext.prevBoxMetaInfo.isValid()) {
 					mOuterRect.left = (mTypesetContext.prevBoxMetaInfo.inner.right + mTypesetContext.currentBoxMetaInfo.inner.left) / 2.0f;
 				}
@@ -115,11 +116,10 @@ public abstract class ParagraphVisitor {
 			if (element instanceof Box) {
 				Box box = (Box) element;
 				float width = box.getWidth();
-				float left = bottomX;
-				float right = bottomX + width;
-				float top = bottomY - line.getLineHeight() - line.getTopPadding();
-				float bottom = bottomY;
-				meta.inner.set(left, top, right, bottom);
+				meta.inner.left = bottomX;
+				meta.inner.right = bottomX + width;
+				meta.inner.top = bottomY - line.getLineHeight() - line.getTopPadding();
+				meta.inner.bottom = bottomY;
 				meta.box = box;
 				meta.index = index;
 				return;

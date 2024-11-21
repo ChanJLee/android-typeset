@@ -1,8 +1,5 @@
 package me.chan.texas.misc;
 
-import androidx.annotation.RestrictTo;
-
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 public class BitBucket32 {
 	private static final int SIZE_OF_BUCKET = 32;
 	private int mBits;

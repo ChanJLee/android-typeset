@@ -1,9 +1,12 @@
 package me.chan.texas.renderer.selection.visitor;
 
 import android.graphics.RectF;
+import android.util.Log;
 
 import androidx.annotation.RestrictTo;
 
+import me.chan.texas.Texas;
+import me.chan.texas.misc.PointF;
 import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.layout.Box;
 import me.chan.texas.text.layout.DrawableBox;
@@ -17,10 +20,19 @@ import java.util.List;
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class SelectedTextByDragVisitor extends SelectedVisitor {
-
 	private Line mFirstSelectedLine, mLastSelectedLine;
 	private float mLastBoxX;
 	private final List<Float> mLinesWidthBuffer = new ArrayList<>();
+	private final PointF mP1 = new PointF();
+	private final PointF mP2 = new PointF();
+
+	@Override
+	protected void onVisitParagraphStart(Paragraph paragraph) {
+		super.onVisitParagraphStart(paragraph);
+		if (Texas.DEBUG_DRAG) {
+			Log.d("drag_debug.visitor", "start visit paragraph: " + mP1 + " " + mP2);
+		}
+	}
 
 	@Override
 	public void onVisitParagraphEnd(Paragraph paragraph) {
@@ -75,8 +87,8 @@ public class SelectedTextByDragVisitor extends SelectedVisitor {
 			float bottom = rectF.top - layout.getLineSpace();
 			float right = mLinesWidthBuffer.get(index);
 			rectF = new RectF(right - box.getWidth(), bottom - line.getLineHeight(), right, bottom);
-			mSelection.pushRegion(rectF);
-			mSelection.pushBox(textBox);
+			mSelection.prependRegion(rectF);
+			mSelection.prependBox(textBox);
 			index = link(line, count - 2, false, rectF);
 		}
 	}
@@ -95,7 +107,7 @@ public class SelectedTextByDragVisitor extends SelectedVisitor {
 				mSelection.appendBox(box);
 				rectF.right += box.getWidth();
 			} else {
-				mSelection.pushBox(box);
+				mSelection.prependBox(box);
 				rectF.left -= box.getWidth();
 			}
 		}
@@ -163,15 +175,54 @@ public class SelectedTextByDragVisitor extends SelectedVisitor {
 		}
 	}
 
+	private float mLeft, mRight;
+
 	@Override
 	public void onVisitLineStart(Line line, float bottomX, float bottomY) {
 		mLineSelected = false;
 		mLastBoxX = 0;
-		if (bottomY <= mY1) {
-			sendVisitSig(SIG_STOP_LINE_VISIT);
-		} else if (bottomY - line.getLineHeight() >= mY2) {
-			sendVisitSig(SIG_STOP_PARA_VISIT);
+		int sig = SIG_NORMAL;
+		float top = bottomY - line.getLineHeight();
+		if (bottomY < mP1.y) {
+			sig = SIG_STOP_LINE_VISIT;
 		}
+
+		if (top >= mP2.y) {
+			sig = SIG_STOP_PARA_VISIT;
+		}
+
+		String debug = null;
+
+		mLeft = 0;
+		mRight = line.getLineWidth();
+		if (sig != SIG_NORMAL) {
+			sendVisitSig(sig);
+		} else {
+			if (top <= mP1.y) {
+				if (bottomY < mP2.y) {
+					mLeft = mP1.x;
+					debug = "right";
+				} else {
+					mLeft = Math.min(mP1.x, mP2.x);
+					mRight = Math.max(mP1.x, mP2.x);
+					debug = "between";
+				}
+			} else {
+				if (bottomY < mP2.y) {
+					mLeft = 0;
+					mRight = line.getLineWidth();
+					debug = "all";
+				} else {
+					mRight = mP2.x;
+					debug = "left";
+				}
+			}
+		}
+
+		if (Texas.DEBUG_DRAG) {
+			Log.d("drag_debug.visitor", "line wide: [" + mLeft + " - " + mRight + "]" + debug);
+		}
+
 		super.onVisitLineStart(line, bottomX, bottomY);
 	}
 
@@ -202,6 +253,9 @@ public class SelectedTextByDragVisitor extends SelectedVisitor {
 	@Override
 	protected boolean selected(Box box, RectF inner, RectF outer) {
 		boolean result = selectedImpl(box, inner, outer);
+		if (Texas.DEBUG_DRAG) {
+			Log.d("drag_debug.visitor", "selected: " + result + " - " + box + " " + inner);
+		}
 		if (result) {
 			mLineSelected = true;
 		}
@@ -214,72 +268,26 @@ public class SelectedTextByDragVisitor extends SelectedVisitor {
 		}
 
 		mLastBoxX = inner.right;
-
-		// 同行
-		if (outer.top <= mY1 && outer.bottom >= mY1 &&
-				outer.top <= mY2 && outer.bottom >= mY2) {
-			float start = mX1;
-			float end = mX2;
-			if (mX1 > mX2) {
-				start = mX2;
-				end = mX1;
-			}
-			return (inner.right > start && inner.right <= end) ||
-					(inner.left >= start && inner.left < end);
-		}
-
-		// 不同行
-		// y方向一点不沾边 直接忽略
-		if (outer.bottom <= mY1 || outer.top >= mY2) {
-			return false;
-		}
-
-		// 全包裹
-		if (outer.top >= mY1 && outer.bottom <= mY2) {
-			return true;
-		}
-
-		// 上半部分夹住
-		if (outer.top <= mY1 && outer.bottom >= mY1) {
-			return mIsFocusP1 ?
-					outer.bottom >= mY1 && inner.right > mX1
-					: inner.right > mX1;
-		}
-
-		// 下半部分夹住
-		return mIsFocusP1 ?
-				inner.left < mX2
-				: outer.top <= mY2 && inner.left < mX2;
+		return (inner.left >= mLeft && inner.left <= mRight) ||
+				(inner.right >= mLeft && inner.right <= mRight);
 	}
 
 	@Override
 	public void clear() {
 		mFirstSelectedLine = mLastSelectedLine = null;
-		mX1 = mX2 = mY2 = mY1 = 0;
-		mIsFocusP1 = false;
 		mLinesWidthBuffer.clear();
 		super.clear();
 	}
 
-	private float mX1, mY1, mX2, mY2;
-	private boolean mIsFocusP1;
-
-	public void setRegion(float x1, float y1, float x2, float y2, boolean isFocusP1) {
-		mX1 = x1;
-		mY1 = y1;
-		mX2 = x2;
-		mY2 = y2;
-		mIsFocusP1 = isFocusP1;
+	public void setRegion(float x1, float y1, float x2, float y2) {
+		mP1.set(x1, y1);
+		mP2.set(x2, y2);
 	}
 
 	@Override
 	public String toString() {
 		return "Drag{" +
-				"mX1=" + mX1 +
-				", mY1=" + mY1 +
-				", mX2=" + mX2 +
-				", mY2=" + mY2 +
-				", mIsFocusP1=" + mIsFocusP1 +
+				"p1: " + mP1 + ", p2: " + mP2 +
 				'}';
 	}
 }

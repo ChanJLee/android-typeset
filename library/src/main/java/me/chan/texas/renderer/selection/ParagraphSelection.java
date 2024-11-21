@@ -3,6 +3,7 @@ package me.chan.texas.renderer.selection;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
 import android.graphics.Canvas;
+import android.graphics.Paint;
 import android.graphics.RectF;
 import android.text.TextPaint;
 
@@ -10,8 +11,10 @@ import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.annotation.VisibleForTesting;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -22,6 +25,7 @@ import me.chan.texas.renderer.ParagraphVisitor;
 import me.chan.texas.renderer.RenderOption;
 import me.chan.texas.renderer.RendererContext;
 import me.chan.texas.text.Paragraph;
+import me.chan.texas.text.TextStyle;
 import me.chan.texas.text.layout.Box;
 import me.chan.texas.text.layout.Layout;
 import me.chan.texas.text.layout.Line;
@@ -29,54 +33,42 @@ import me.chan.texas.text.layout.Line;
 /**
  * 文本选中区域
  */
-@RestrictTo(LIBRARY)
 public class ParagraphSelection extends DefaultRecyclable {
 	private static final ObjectPool<ParagraphSelection> POOL = new ObjectPool<>(32);
 	private static final AtomicInteger UUID = new AtomicInteger(0);
 
-	private int mBgColor;
-	private int mTextColor;
-	private Style mStyle;
-	private final List<RectF> mBackgrounds = new ArrayList<>();
+	private InternalSelectionStyle mStyle;
 	private int mId;
 	private final BitBucket mSet = new BitBucket(128);
+	private final List<RectF> mBackgrounds = new ArrayList<>();
+
+	private Paragraph mParagraph;
 
 	private ParagraphSelection() {
 	}
 
-	private void reset(Style style) {
+	private void reset(InternalSelectionStyle style) {
 		mId = UUID.incrementAndGet();
 		mStyle = style;
 	}
 
-	/**
-	 * 更新 style
-	 *
-	 * @param renderOption render option
-	 */
-	public void updateStyle(RenderOption renderOption) {
-		if (mStyle != null) {
-			mStyle.update(this, renderOption);
-		}
+	@RestrictTo(LIBRARY)
+	public TextStyle getStyle() {
+		return mStyle;
 	}
 
+	@RestrictTo(LIBRARY)
 	public int getId() {
 		return mId;
-	}
-
-	public int getBgColor() {
-		return mBgColor;
-	}
-
-	public int getTextColor() {
-		return mTextColor;
 	}
 
 	private Box mFirst;
 	private Box mLast;
 
-	public void pushBox(Box box) {
+	@RestrictTo(LIBRARY)
+	public void prependBox(Box box) {
 		mSet.set(box.getSeq(), true);
+
 
 		if (mLast == null) {
 			mLast = box;
@@ -85,6 +77,17 @@ public class ParagraphSelection extends DefaultRecyclable {
 		mFirst = box;
 	}
 
+	@RestrictTo(LIBRARY)
+	public void appendRegion(RectF rectF) {
+		mBackgrounds.add(rectF);
+	}
+
+	@RestrictTo(LIBRARY)
+	public void prependRegion(RectF rectF) {
+		mBackgrounds.add(0, rectF);
+	}
+
+	@RestrictTo(LIBRARY)
 	public void appendBox(Box box) {
 		mSet.set(box.getSeq(), true);
 
@@ -102,34 +105,33 @@ public class ParagraphSelection extends DefaultRecyclable {
 		return mBackgrounds.isEmpty();
 	}
 
-	public void draw(Canvas canvas, TextPaint textPaint, float radius) {
-		if (radius <= 0) {
-			for (RectF rectF : mBackgrounds) {
-				canvas.drawRect(rectF, textPaint);
-			}
-			return;
-		}
-
-		for (RectF rectF : mBackgrounds) {
-			canvas.drawRoundRect(rectF, radius, radius, textPaint);
-		}
+	public Paragraph getParagraph() {
+		return mParagraph;
 	}
 
-	public void appendRegion(RectF rectF) {
-		mBackgrounds.add(rectF);
+	@NonNull
+	@MainThread
+	public List<Object> getSelectedTags() {
+		return getSelectedTags(mParagraph);
 	}
 
-	public void pushRegion(RectF rectF) {
-		mBackgrounds.add(0, rectF);
-	}
+	private static final List<Object> EMPTY = Collections.unmodifiableList(new ArrayList<>());
 
 	/**
 	 * @return 因为排版的时候单词会被拆分，因此会导致用户设置的tag重复，这个方法内部还需要去去重，但是无法对空tag去重，所以忽略空tag
 	 */
-	@Nullable
+	@NonNull
 	@RestrictTo(LIBRARY)
 	@MainThread
 	public static List<Object> getSelectedTags(Paragraph paragraph) {
+		List<Object> list = getSelectedTags0(paragraph);
+		if (list == null) {
+			return EMPTY;
+		}
+		return list;
+	}
+
+	private static List<Object> getSelectedTags0(Paragraph paragraph) {
 		Layout layout = paragraph.getLayout();
 		if (paragraph.isRecycled() || layout == null || layout.isRecycled()) {
 			return null;
@@ -149,26 +151,46 @@ public class ParagraphSelection extends DefaultRecyclable {
 	@Override
 	protected void onRecycle() {
 		mSet.clear();
-		mFirst = mLast = null;
 		mBackgrounds.clear();
-		mBgColor = mTextColor = 0;
 		mStyle = null;
 		mId = 0;
+		mParagraph = null;
+		mFirst = mLast = null;
 		POOL.release(this);
 	}
 
-	/**
-	 * @param style 渲染样式
-	 * @return selection selection
-	 */
-	public static ParagraphSelection obtain(Style style) {
+	@RestrictTo(LIBRARY)
+	public static ParagraphSelection obtain(boolean isLongClicked, Paragraph paragraph) {
 		ParagraphSelection paragraphSelection = POOL.acquire();
 		if (paragraphSelection == null) {
 			paragraphSelection = new ParagraphSelection();
 		}
 
 		paragraphSelection.reuse();
-		paragraphSelection.reset(style);
+		paragraphSelection.mInternalTextStyle.reset(isLongClicked);
+		paragraphSelection.reset(paragraphSelection.mInternalTextStyle);
+		paragraphSelection.mParagraph = paragraph;
+		return paragraphSelection;
+	}
+
+	/**
+	 * @param styles 渲染样式
+	 * @return selection selection
+	 */
+	@RestrictTo(LIBRARY)
+	public static ParagraphSelection obtain(Selection.Styles styles, Paragraph paragraph) {
+		if (styles == null) {
+			return obtain(true, paragraph);
+		}
+
+		ParagraphSelection paragraphSelection = POOL.acquire();
+		if (paragraphSelection == null) {
+			paragraphSelection = new ParagraphSelection();
+		}
+
+		paragraphSelection.mInternalTextStyle.reset(styles);
+		paragraphSelection.reset(paragraphSelection.mInternalTextStyle);
+		paragraphSelection.mParagraph = paragraph;
 		return paragraphSelection;
 	}
 
@@ -213,19 +235,22 @@ public class ParagraphSelection extends DefaultRecyclable {
 		mBackgrounds.clear();
 	}
 
-	public interface Style {
-		void update(ParagraphSelection paragraphSelection, RenderOption renderOption);
+	public void drawBackground(Canvas canvas, Paint paint, RenderOption option) {
+		mStyle.update(option);
+
+		float radius = option.getSelectedBackgroundRoundRadius();
+		paint.setColor(mStyle.mBackgroundColor);
+		if (radius <= 0) {
+			for (RectF rectF : mBackgrounds) {
+				canvas.drawRect(rectF, paint);
+			}
+			return;
+		}
+
+		for (RectF rectF : mBackgrounds) {
+			canvas.drawRoundRect(rectF, radius, radius, paint);
+		}
 	}
-
-	public static final Style LONG_CLICK = (paragraphSelection, renderOption) -> {
-		paragraphSelection.mTextColor = renderOption.getSelectedByLongClickTextColor();
-		paragraphSelection.mBgColor = renderOption.getSelectedByLongClickBackgroundColor();
-	};
-
-	public static final Style CLICK = (paragraphSelection, renderOption) -> {
-		paragraphSelection.mTextColor = renderOption.getSelectedTextColor();
-		paragraphSelection.mBgColor = renderOption.getSelectedBackgroundColor();
-	};
 
 	private final static GetSelectedTagVisitor GET_SELECTED_TAG_VISITOR = new GetSelectedTagVisitor();
 
@@ -259,6 +284,91 @@ public class ParagraphSelection extends DefaultRecyclable {
 			if (selection.isSelected(box)) {
 				tags.add(box.getTag());
 			}
+		}
+	}
+
+	@VisibleForTesting
+	@RestrictTo(LIBRARY)
+	String toString(Paragraph paragraph) {
+		Layout layout = paragraph.getLayout();
+		if (paragraph.isRecycled() || layout == null || layout.isRecycled()) {
+			return "";
+		}
+
+		try {
+			StringBuilder builder = new StringBuilder();
+			ParagraphVisitor paragraphVisitor = new ParagraphVisitor() {
+				@Override
+				protected void onVisitParagraphStart(Paragraph paragraph) {
+
+				}
+
+				@Override
+				protected void onVisitParagraphEnd(Paragraph paragraph) {
+
+				}
+
+				@Override
+				protected void onVisitLineStart(Line line, float x, float y) {
+
+				}
+
+				@Override
+				protected void onVisitLineEnd(Line line, float x, float y) {
+
+				}
+
+				@Override
+				protected void onVisitBox(Box box, RectF inner, RectF outer, @NonNull RendererContext context) {
+					if (isSelected(box)) {
+						builder.append(box).append(", ");
+					}
+				}
+			};
+			paragraphVisitor.visit(paragraph);
+			return builder.toString();
+		} catch (Throwable ignored) {
+			return "";
+		}
+	}
+
+	private final InternalSelectionStyle mInternalTextStyle = new InternalSelectionStyle();
+
+	private static class InternalSelectionStyle extends TextStyle {
+		private int mTextColor = 0;
+		private boolean mIsLongClicked;
+		private Selection.Styles mStyles;
+		private int mBackgroundColor = 0;
+
+		public void reset(boolean isLongClicked) {
+			mIsLongClicked = isLongClicked;
+			mStyles = null;
+		}
+
+		public void reset(Selection.Styles styles) {
+			mStyles = styles;
+		}
+
+		public void update(RenderOption option) {
+			if (mStyles != null) {
+				mTextColor = mStyles.getTextColor();
+				mBackgroundColor = mStyles.getBackgroundColor();
+				return;
+			}
+
+			if (mIsLongClicked) {
+				mTextColor = option.getSelectedByLongClickTextColor();
+				mBackgroundColor = option.getSelectedByLongClickBackgroundColor();
+				return;
+			}
+
+			mTextColor = option.getSelectedTextColor();
+			mBackgroundColor = option.getSelectedBackgroundColor();
+		}
+
+		@Override
+		public void update(@NonNull TextPaint textPaint, @Nullable Object tag) {
+			textPaint.setColor(mTextColor);
 		}
 	}
 }

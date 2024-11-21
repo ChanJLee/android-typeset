@@ -21,7 +21,7 @@ public class SelectedTextByClickedVisitor extends SelectedVisitor {
 
 	@Override
 	protected boolean selected(Box box, RectF inner, RectF outer) {
-		boolean result = mPredicate.apply(mClickedTag, box.getTag());
+		boolean result = mPredicate.accept(mClickedTag, box.getTag());
 		if (result) {
 			mHandled = true;
 		}
