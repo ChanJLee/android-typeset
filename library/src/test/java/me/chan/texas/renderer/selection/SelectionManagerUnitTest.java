@@ -17,6 +17,7 @@ import org.junit.Test;
 import java.util.ArrayList;
 import java.util.List;
 
+import me.chan.texas.TestUtils;
 import me.chan.texas.TexasOption;
 import me.chan.texas.hyphenation.Hyphenation;
 import me.chan.texas.measurer.Measurer;
@@ -120,9 +121,9 @@ public class SelectionManagerUnitTest {
 		Paragraph paragraph = (Paragraph) mDocument.getSegment(0);
 		int offset = 0;
 		mTextureParagraphs.add(new MyTextureParagraph(paragraph, offset));
-		offset += paragraph.getLayout().getHeight();
+		offset += (paragraph.getLayout().getHeight() + 1);
 		mTextureParagraphs.add(new MyTextureParagraph(paragraph = (Paragraph) mDocument.getSegment(1), offset));
-		offset += paragraph.getLayout().getHeight();
+		offset += (paragraph.getLayout().getHeight() + 1);
 		mTextureParagraphs.add(new MyTextureParagraph(paragraph = (Paragraph) mDocument.getSegment(2), offset));
 	}
 
@@ -347,16 +348,28 @@ public class SelectionManagerUnitTest {
 			Assert.assertEquals(1, selection.size());
 			paragraphSelection = selection.get(0);
 			checkSelectedTag(paragraphSelection.getSelectedTags(), "2", "3", "4", "5");
+
+			paragraphSelection.recycle();
+			TestUtils.testRecycled(paragraphSelection);
 		}
 
 		// 小区域
 		{
-
+			mSelectionManager.handleMoveToSelection(1, 2, 3, 3);
+			selection = mSelectionManager.getCurrentSelection();
+			edge = selection.getSelectedRectEdge();
+			Assert.assertEquals(edge.topX, 0, 0.1);
+			Assert.assertEquals(edge.topY, 2, 0.1);
+			Assert.assertEquals(edge.bottomX, 3.5, 0.1);
+			Assert.assertEquals(edge.bottomY, 3, 0.1);
+			Assert.assertEquals(1, selection.size());
+			ParagraphSelection paragraphSelection = selection.get(0);
+			checkSelectedTag(paragraphSelection.getSelectedTags(), "4", "5");
 		}
 
 		// 底部超出去
 		{
-			mSelectionManager.handleMoveToSelection(4, 4, 5f, 5f);
+			mSelectionManager.handleMoveToSelection(4, 4, 6f, 6f);
 			selection = mSelectionManager.getCurrentSelection();
 			edge = selection.getSelectedRectEdge();
 			Assert.assertEquals(edge.topX, 3.5, 0.1);
@@ -367,7 +380,7 @@ public class SelectionManagerUnitTest {
 			ParagraphSelection paragraphSelection = selection.get(0);
 			checkSelectedTag(paragraphSelection.getSelectedTags(), "9");
 
-			mSelectionManager.handleMoveToSelection(2, 2, 5f, 5f);
+			mSelectionManager.handleMoveToSelection(2, 2, 6, 6f);
 			selection = mSelectionManager.getCurrentSelection();
 			edge = selection.getSelectedRectEdge();
 			Assert.assertEquals(edge.topX, 1.5, 0.1);
@@ -377,6 +390,23 @@ public class SelectionManagerUnitTest {
 			Assert.assertEquals(1, selection.size());
 			paragraphSelection = selection.get(0);
 			checkSelectedTag(paragraphSelection.getSelectedTags(), "5", "6", "7", "8", "9");
+		}
+
+		// 跨区域
+		{
+			mSelectionManager.handleMoveToSelection(4, 4, 7, 7f);
+			selection = mSelectionManager.getCurrentSelection();
+			edge = selection.getSelectedRectEdge();
+			Assert.assertEquals(edge.topX, 3.5, 0.1);
+			Assert.assertEquals(edge.topY, 4, 0.1);
+			Assert.assertEquals(edge.bottomX, 5, 0.1);
+			Assert.assertEquals(edge.bottomY, 7, 0.1);
+			Assert.assertEquals(2, selection.size());
+			ParagraphSelection paragraphSelection = selection.get(0);
+			checkSelectedTag(paragraphSelection.getSelectedTags(), "9");
+
+			paragraphSelection = selection.get(1);
+			checkSelectedTag(paragraphSelection.getSelectedTags(), "a", "b", "c");
 		}
 	}
 
