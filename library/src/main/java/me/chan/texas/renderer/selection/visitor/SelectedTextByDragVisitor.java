@@ -280,8 +280,8 @@ public class SelectedTextByDragVisitor extends SelectedVisitor {
 	}
 
 	public void setRegion(float x1, float y1, float x2, float y2) {
-		mP1.set(x1, y1 < 0 ? 0 : y1);
-		mP2.set(x2, y2 < 0 ? 0 : y2);
+		mP1.set(x1, y1);
+		mP2.set(x2, y2);
 	}
 
 	@Override
