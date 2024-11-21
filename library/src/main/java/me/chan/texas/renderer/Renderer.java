@@ -545,4 +545,8 @@ public class Renderer implements SelectionManager.Listener {
 				mLinearLayoutManager.findLastCompletelyVisibleItemPosition() :
 				mLinearLayoutManager.findLastVisibleItemPosition();
 	}
+
+	public void smoothScrollBy(int dx, int dy) {
+		mImpl.smoothScrollBy(dx, dy);
+	}
 }
