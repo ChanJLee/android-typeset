@@ -155,6 +155,7 @@ public class ParagraphSelection extends DefaultRecyclable {
 		mStyle = null;
 		mId = 0;
 		mParagraph = null;
+		mFirst = mLast = null;
 		POOL.release(this);
 	}
 

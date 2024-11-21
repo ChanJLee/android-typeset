@@ -309,16 +309,6 @@ public class WordStreamUnitTest {
 		Assert.assertSame(stream, tmp);
 	}
 
-	@Test
-	public void unit() throws IOException {
-		String v = printSet("[[:Ps:]]", "PS") + printSet("[[:Pe:]]", "PE") + printSet("[[:Pi:]]", "PI") + printSet("[[:Pf:]]", "PF") + printSet("[[:Po:]]", "PO");
-		File file = new File("../app/build/predefine.txt");
-		file.createNewFile();
-		FileOutputStream fileOutputStream = new FileOutputStream(file);
-		fileOutputStream.write(v.getBytes());
-		fileOutputStream.close();
-	}
-
 	private String printSet(String pattern, String name) {
 		// pattern: Ps
 		UnicodeSet unicodeSet = new UnicodeSet(pattern);

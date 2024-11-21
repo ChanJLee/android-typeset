@@ -13,7 +13,10 @@ import androidx.recyclerview.widget.SimpleItemAnimator;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
 import me.chan.texas.renderer.TouchEvent;
+import me.chan.texas.renderer.ui.TexasRendererAdapter;
 import me.chan.texas.renderer.ui.text.TextureParagraph;
+import me.chan.texas.text.Document;
+import me.chan.texas.text.Segment;
 
 @RestrictTo(LIBRARY)
 @SuppressLint("ViewConstructor")
@@ -111,6 +114,20 @@ public class TexasRecyclerViewImpl extends RecyclerView implements TexasRecycler
 	public void getChildLocations(TextureParagraph textureParagraph, int[] locations) {
 		View child = (View) textureParagraph;
 		getChildLocations(child, locations);
+	}
+
+	@Override
+	public Document getDocument() {
+		TexasRendererAdapter adapter = (TexasRendererAdapter) getAdapter();
+		return adapter == null ? null : adapter.getDocument();
+	}
+
+	@Override
+	public void sendSignal(Segment segment, Object sig) {
+		TexasRendererAdapter adapter = (TexasRendererAdapter) getAdapter();
+		if (adapter != null) {
+			adapter.sendSignal(segment, sig);
+		}
 	}
 
 	public void allowHandleTouchEvent() {
