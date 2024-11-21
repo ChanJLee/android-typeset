@@ -543,6 +543,14 @@ public final class TexasView extends FrameLayout {
 	}
 
 	/**
+	 * @param completelyVisible 是否要完全可见的segment
+	 * @return 最后一个可见segment下标，没有则为 {@link TexasView#NO_POSITION}
+	 */
+	public int getLastVisibleSegmentIndex(boolean completelyVisible) {
+		return mRenderer == null ? NO_POSITION : mRenderer.getLastVisibleSegmentIndex(completelyVisible);
+	}
+
+	/**
 	 * 返回当前正在渲染的document
 	 *
 	 * @return document
