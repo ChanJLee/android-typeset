@@ -2,8 +2,6 @@ package me.chan.texas.text;
 
 import static me.chan.texas.text.Paragraph.TYPESET_POLICY_CJK_MIX_OPTIMIZATION;
 
-import android.text.TextUtils;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
@@ -26,6 +24,7 @@ import me.chan.texas.text.layout.TextBox;
 import me.chan.texas.text.tokenizer.Token;
 import me.chan.texas.text.tokenizer.TokenStream;
 import me.chan.texas.utils.IntArray;
+import me.chan.texas.utils.TexasUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -178,8 +177,8 @@ class ParagraphBuilderInternal {
 		}
 
 		char[] buffer = TextBox.CHAR_ARRAY_POOL.obtain(end - start);
-		TextUtils.getChars(text, start, end, buffer, 0);
-		Bidi bidi = new Bidi(buffer, 0, null, 0, end - start, Bidi.DIRECTION_DEFAULT_LEFT_TO_RIGHT);
+		TexasUtils.getChars(text, start, end, buffer, 0);
+		Bidi bidi = new Bidi(buffer, 0, null, 0, end - start, Bidi.LEVEL_DEFAULT_LTR);
 		for (int i = 0; i < bidi.getRunCount(); ++i) {
 			int runStart = bidi.getRunStart(i);
 			int runLimit = bidi.getRunLimit(i);
@@ -220,14 +219,13 @@ class ParagraphBuilderInternal {
 		}
 	}
 
-	// TODO SUPPORT DIRECTION
 	private void appendWordToken(CharSequence text,
 								 Paragraph.Builder.SpanReader spanReader,
 								 Token token) {
-		int category = token.getWordCategory();
-		if (category == Token.WORD_CATEGORY_NORMAL) {
+		int category = token.getCategory();
+		if (category == Token.CATEGORY_NORMAL) {
 			appendAsciiWordToken(text, spanReader, token);
-		} else if (category == Token.WORD_CATEGORY_CJK) {
+		} else if (category == Token.CATEGORY_CJK) {
 			appendCjkWordToken(text, spanReader, token);
 		} else {
 			appendWordTokenDirect(text, spanReader, token);
@@ -241,7 +239,7 @@ class ParagraphBuilderInternal {
 		int end = token.getEnd();
 		Paragraph.Span span = null;
 		if (spanReader != null) {
-			span = spanReader.read(text, start, end);
+			span = spanReader.read(token);
 		}
 
 		TextStyle textStyle = null;
@@ -249,10 +247,11 @@ class ParagraphBuilderInternal {
 		Appearance background = null;
 		Appearance foreground = null;
 		if (span != null) {
-			textStyle = span.mTextStyle;
+			TextStyles styles = span.mStyles;
+			textStyle = styles.getTextStyle();
 			tag = span.mTag;
-			background = span.mBackground;
-			foreground = span.mForeground;
+			background = styles.getBackground();
+			foreground = styles.getForeground();
 		}
 
 		TextBox textBox = TextBox.obtain(text, start, end,
@@ -277,9 +276,7 @@ class ParagraphBuilderInternal {
 									  Token token) {
 		Paragraph.Span span = null;
 		if (spanReader != null) {
-			int start = token.getStart();
-			int end = token.getEnd();
-			span = spanReader.read(text, start, end);
+			span = spanReader.read(token);
 		}
 
 		TextStyle textStyle = null;
@@ -287,10 +284,11 @@ class ParagraphBuilderInternal {
 		Appearance background = null;
 		Appearance foreground = null;
 		if (span != null) {
-			textStyle = span.mTextStyle;
+			TextStyles styles = span.mStyles;
+			textStyle = styles.getTextStyle();
 			tag = span.mTag;
-			background = span.mBackground;
-			foreground = span.mForeground;
+			background = styles.getBackground();
+			foreground = styles.getForeground();
 		}
 
 		appendEnText(text, token.getStart(), token.getEnd(), textStyle, tag, background, foreground);
@@ -307,6 +305,12 @@ class ParagraphBuilderInternal {
 		Layout.Advise advise = layout.getAdvise();
 		boolean cjkOptimization = advise.checkTypesetPolicy(TYPESET_POLICY_CJK_MIX_OPTIMIZATION);
 		Element linkElement = cjkOptimization ? Penalty.ADVISE_BREAK : mStretchOnlyGlue;
+
+		Paragraph.Span span = null;
+		if (spanReader != null) {
+			span = spanReader.read(token);
+		}
+
 		for (int i = token.getStart(); i < token.getEnd(); ++i) {
 			if (i != token.getStart()) {
 				appendElement(linkElement);
@@ -314,20 +318,17 @@ class ParagraphBuilderInternal {
 
 			int start = i;
 			int end = i + 1;
-			Paragraph.Span span = null;
-			if (spanReader != null) {
-				span = spanReader.read(text, start, end);
-			}
 
 			TextStyle textStyle = null;
 			Object tag = null;
 			Appearance background = null;
 			Appearance foreground = null;
 			if (span != null) {
-				textStyle = span.mTextStyle;
+				TextStyles styles = span.mStyles;
+				textStyle = styles.getTextStyle();
 				tag = span.mTag;
-				background = span.mBackground;
-				foreground = span.mForeground;
+				background = styles.getBackground();
+				foreground = styles.getForeground();
 			}
 
 			TextBox textBox = TextBox.obtain(text, start, end,
@@ -342,10 +343,11 @@ class ParagraphBuilderInternal {
 			}
 
 			appendElement(textBox);
+		}
 
-			if (span != null) {
-				span.recycle();
-			}
+		// TODO unit test
+		if (span != null) {
+			span.recycle();
 		}
 	}
 
@@ -368,9 +370,7 @@ class ParagraphBuilderInternal {
 										Token token) {
 		Paragraph.Span span = null;
 		if (spanReader != null) {
-			int start = token.getStart();
-			int end = token.getEnd();
-			span = spanReader.read(text, start, end);
+			span = spanReader.read(token);
 		}
 
 		TextStyle textStyle = null;
@@ -378,10 +378,11 @@ class ParagraphBuilderInternal {
 		Appearance background = null;
 		Appearance foreground = null;
 		if (span != null) {
-			textStyle = span.mTextStyle;
+			TextStyles styles = span.mStyles;
+			textStyle = styles.getTextStyle();
 			tag = span.mTag;
-			background = span.mBackground;
-			foreground = span.mForeground;
+			background = styles.getBackground();
+			foreground = styles.getForeground();
 		}
 
 		TextBox textBox = TextBox.obtain(text, token.getStart(), token.getEnd(),
@@ -531,13 +532,9 @@ class ParagraphBuilderInternal {
 		return token != null && token.hasSymbolTypefaceAttributes();
 	}
 
-	private static int getWordCategorySafe(Token token) {
-		return token == null || token.getType() != Token.TYPE_WORD ? 0 : token.getWordCategory();
-	}
-
 	private static boolean checkSymbolTokenAttributeSafe(Token token,
 														 @Token.SymbolTokenAttribute int attr) {
-		return token != null && token.getType() == Token.TYPE_SYMBOL && token.checkSymbolAttribute(attr);
+		return token != null && token.getType() == Token.TYPE_SYMBOL && token.checkAttribute(attr);
 	}
 
 	static {
@@ -605,7 +602,7 @@ class ParagraphBuilderInternal {
 			// 其实就是不同文字类型之间分割
 			// 比如字母和数字之间加空格
 			// 否则就是可以断点
-			if (getWordCategorySafe(accepted) != getWordCategorySafe(current)) {
+			if (accepted.getCategory() != current.getCategory()) {
 				builder.appendElement(builder.mCommonGlue);
 			} else {
 				builder.appendElement(Penalty.ADVISE_BREAK);

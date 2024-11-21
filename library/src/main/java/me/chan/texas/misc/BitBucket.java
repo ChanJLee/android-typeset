@@ -1,10 +1,7 @@
 package me.chan.texas.misc;
 
-import androidx.annotation.RestrictTo;
-
 import java.util.Arrays;
 
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 public class BitBucket {
 	private static final int SIZE_OF_BUCKET = 32;
 	private static final int SIZE_MASK = SIZE_OF_BUCKET - 1;
@@ -66,7 +63,7 @@ public class BitBucket {
 
 		int bucketIndex = index / SIZE_OF_BUCKET;
 		if (bucketIndex >= mBits.length) {
-			throw new IllegalArgumentException("invalid index");
+			return false;
 		}
 
 		int bucketOffset = index % SIZE_OF_BUCKET;

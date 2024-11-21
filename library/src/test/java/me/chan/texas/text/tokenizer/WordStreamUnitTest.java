@@ -6,6 +6,7 @@ import static org.junit.Assert.assertTrue;
 import com.ibm.icu.text.BreakIterator;
 import com.ibm.icu.text.UnicodeSet;
 import com.ibm.icu.text.UnicodeSetIterator;
+
 import me.chan.texas.TestUtils;
 
 import org.junit.Assert;
@@ -196,8 +197,8 @@ public class WordStreamUnitTest {
 			token.mCharSequence = "aa";
 			token.mStart = 0;
 			token.mEnd = 2;
-			token.mMask.set(Token.TYPE_WORD);
-			token.mMask.set(Token.WORD_CATEGORY_NORMAL);
+			token.mType = Token.TYPE_WORD;
+			token.mCategory = Token.CATEGORY_NORMAL;
 			token.toString();
 			list.add(token);
 		}
@@ -207,9 +208,7 @@ public class WordStreamUnitTest {
 			token.mCharSequence = " ";
 			token.mStart = 0;
 			token.mEnd = 1;
-			int v = ' ';
-			token.mMask.reset(v << Token.BIT_TYPE_END);
-			token.mMask.set(Token.TYPE_CONTROL);
+			token.mType = Token.TYPE_CONTROL;
 			list.add(token);
 		}
 
@@ -218,8 +217,8 @@ public class WordStreamUnitTest {
 			token.mCharSequence = "11";
 			token.mStart = 0;
 			token.mEnd = 2;
-			token.mMask.set(Token.TYPE_WORD);
-			token.mMask.set(Token.WORD_CATEGORY_NUMBER);
+			token.mType = Token.TYPE_WORD;
+			token.mCategory = Token.CATEGORY_NUMBER;
 			list.add(token);
 		}
 
@@ -228,9 +227,7 @@ public class WordStreamUnitTest {
 			token.mCharSequence = " ";
 			token.mStart = 0;
 			token.mEnd = 1;
-			int v = ' ';
-			token.mMask.reset(v << Token.BIT_TYPE_END);
-			token.mMask.set(Token.TYPE_CONTROL);
+			token.mType = Token.TYPE_CONTROL;
 			list.add(token);
 		}
 
@@ -239,8 +236,8 @@ public class WordStreamUnitTest {
 			token.mCharSequence = "hello-world";
 			token.mStart = 0;
 			token.mEnd = 11;
-			token.mMask.set(Token.TYPE_WORD);
-			token.mMask.set(Token.WORD_CATEGORY_NORMAL);
+			token.mType = Token.TYPE_WORD;
+			token.mCategory = Token.CATEGORY_NORMAL;
 			list.add(token);
 		}
 
@@ -249,8 +246,8 @@ public class WordStreamUnitTest {
 			token.mCharSequence = "四五";
 			token.mStart = 0;
 			token.mEnd = 2;
-			token.mMask.set(Token.TYPE_WORD);
-			token.mMask.set(Token.WORD_CATEGORY_CJK);
+			token.mType = Token.TYPE_WORD;
+			token.mCategory = Token.CATEGORY_CJK;
 			list.add(token);
 		}
 
@@ -259,8 +256,8 @@ public class WordStreamUnitTest {
 			token.mCharSequence = "R";
 			token.mStart = 0;
 			token.mEnd = 1;
-			token.mMask.set(Token.TYPE_WORD);
-			token.mMask.set(Token.WORD_CATEGORY_NORMAL);
+			token.mType = Token.TYPE_WORD;
+			token.mCategory = Token.CATEGORY_NORMAL;
 			list.add(token);
 		}
 
@@ -269,10 +266,11 @@ public class WordStreamUnitTest {
 			token.mCharSequence = "&";
 			token.mStart = 0;
 			token.mEnd = 1;
-			token.mMask.set(Token.TYPE_SYMBOL);
-			token.mMask.set(Token.SYMBOL_CATEGORY_PUNCTUATION);
-			token.mMask.set(Token.SYMBOL_ATTRIBUTE_KINSOKU_AVOID_TAIL);
-			token.mMask.set(Token.SYMBOL_ATTRIBUTE_KINSOKU_AVOID_HEADER);
+			token.mType = Token.TYPE_SYMBOL;
+			token.mCategory = Token.CATEGORY_PUNCTUATION;
+			token.mAttributes = (byte) (
+					((1 << Token.SYMBOL_ATTRIBUTE_KINSOKU_AVOID_TAIL) | (1 << Token.SYMBOL_ATTRIBUTE_KINSOKU_AVOID_HEADER))
+							>> Token.BIT_ATTRIBUTES_START);
 			list.add(token);
 		}
 
@@ -281,8 +279,8 @@ public class WordStreamUnitTest {
 			token.mCharSequence = "B";
 			token.mStart = 0;
 			token.mEnd = 1;
-			token.mMask.set(Token.TYPE_WORD);
-			token.mMask.set(Token.WORD_CATEGORY_NORMAL);
+			token.mType = Token.TYPE_WORD;
+			token.mCategory = Token.CATEGORY_NORMAL;
 			list.add(token);
 		}
 
@@ -309,16 +307,6 @@ public class WordStreamUnitTest {
 
 		stream = TextTokenStream.obtain("hello", 1, 2);
 		Assert.assertSame(stream, tmp);
-	}
-
-	@Test
-	public void unit() throws IOException {
-		String v = printSet("[[:Ps:]]", "PS") + printSet("[[:Pe:]]", "PE") + printSet("[[:Pi:]]", "PI") + printSet("[[:Pf:]]", "PF") + printSet("[[:Po:]]", "PO");
-		File file = new File("../app/build/predefine.txt");
-		file.createNewFile();
-		FileOutputStream fileOutputStream = new FileOutputStream(file);
-		fileOutputStream.write(v.getBytes());
-		fileOutputStream.close();
 	}
 
 	private String printSet(String pattern, String name) {

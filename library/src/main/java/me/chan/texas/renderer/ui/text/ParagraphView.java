@@ -89,13 +89,13 @@ public class ParagraphView extends FrameLayout {
 
 	private final SpanPredicate mOnSpanClickedPredicate = new SpanPredicate() {
 		@Override
-		public boolean apply(@Nullable Object clickedTag, @Nullable Object tag) {
+		public boolean accept(@Nullable Object clickedTag, @Nullable Object tag) {
 			return mSpanTouchEventHandler.applySpanClicked(clickedTag, tag);
 		}
 	};
 	private final SpanPredicate mOnSpanLongClickedPredicate = new SpanPredicate() {
 		@Override
-		public boolean apply(@Nullable Object clickedTag, @Nullable Object tag) {
+		public boolean accept(@Nullable Object clickedTag, @Nullable Object tag) {
 			return mSpanTouchEventHandler.applySpanLongClicked(clickedTag, tag);
 		}
 	};
@@ -134,13 +134,13 @@ public class ParagraphView extends FrameLayout {
 			addView((View) mRender, new FrameLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
 			OnSelectedChangedListener onSelectedChangedListener = new OnSelectedChangedListener() {
 				@Override
-				public boolean onSegmentClicked(View source, MotionEvent e, Paragraph paragraph, int eventType) {
-					return handleParagraphClicked(source, e, eventType);
+				public boolean onSegmentClicked(TouchEvent e, Paragraph paragraph, int eventType) {
+					return handleParagraphClicked(e, eventType);
 				}
 
 				@Override
-				public boolean onBoxSelected(View source, MotionEvent e, Paragraph paragraph, @EventType int eventType, Box box) {
-					return handleParagraphSelected(source, e, paragraph, eventType, box);
+				public boolean onBoxSelected(TouchEvent e, Paragraph paragraph, @EventType int eventType, Box box) {
+					return handleParagraphSelected(e, paragraph, eventType, box);
 				}
 			};
 			mRender.setOnTextSelectedListener(onSelectedChangedListener);
@@ -176,15 +176,14 @@ public class ParagraphView extends FrameLayout {
 		super.onDetachedFromWindow();
 	}
 
-	private boolean handleParagraphSelected(View source, MotionEvent e, Paragraph paragraph, @OnSelectedChangedListener.EventType int eventType, Box box) {
+	private boolean handleParagraphSelected(TouchEvent event, Paragraph paragraph, @OnSelectedChangedListener.EventType int eventType, Box box) {
 		if (mOnClickedListener == null) {
 			return false;
 		}
 
 		if (eventType == OnSelectedChangedListener.EVENT_CLICKED || eventType == OnSelectedChangedListener.EVENT_LONG_CLICKED) {
-			boolean handled = handleParagraphSelected(source, e, paragraph, eventType == OnSelectedChangedListener.EVENT_LONG_CLICKED, box);
+			boolean handled = handleParagraphSelected(event, paragraph, eventType == OnSelectedChangedListener.EVENT_LONG_CLICKED, box);
 			if (!handled && eventType == OnSelectedChangedListener.EVENT_CLICKED) {
-				TouchEvent event = TouchEvent.obtain(source, e);
 				event.adjust(this);
 				mOnClickedListener.onEmptyClicked(this, event);
 				event.recycle();
@@ -197,13 +196,12 @@ public class ParagraphView extends FrameLayout {
 		return false;
 	}
 
-	private boolean handleParagraphClicked(View source, MotionEvent e, int eventType) {
+	private boolean handleParagraphClicked(TouchEvent event, int eventType) {
 		if (mOnClickedListener == null) {
 			return false;
 		}
 
 		if (eventType == OnSelectedChangedListener.EVENT_DOUBLE_CLICKED) {
-			TouchEvent event = TouchEvent.obtain(source, e);
 			event.adjust(this);
 			mOnClickedListener.onDoubleClicked(this, event);
 			event.recycle();
@@ -211,7 +209,6 @@ public class ParagraphView extends FrameLayout {
 		}
 
 		if (eventType == OnSelectedChangedListener.EVENT_CLICKED) {
-			TouchEvent event = TouchEvent.obtain(source, e);
 			event.adjust(this);
 			mOnClickedListener.onEmptyClicked(this, event);
 			event.recycle();
@@ -220,7 +217,7 @@ public class ParagraphView extends FrameLayout {
 		return false;
 	}
 
-	private boolean handleParagraphSelected(View source, MotionEvent e, Paragraph paragraph, boolean isLongClicked, Box box) {
+	private boolean handleParagraphSelected(TouchEvent event, Paragraph paragraph, boolean isLongClicked, Box box) {
 		// 1. clear prev selection
 		clearSelection();
 
@@ -231,7 +228,6 @@ public class ParagraphView extends FrameLayout {
 
 		try {
 			boolean handled = handleParagraphSelected0(paragraph, isLongClicked, box, predicate);
-			TouchEvent event = TouchEvent.obtain(source, e);
 			event.adjust(this);
 			if (handled) {
 				if (isLongClicked) {
@@ -260,6 +256,7 @@ public class ParagraphView extends FrameLayout {
 		try {
 			mSelectedTextByClickedVisitor.reset(
 					isLongClicked,
+					paragraph,
 					mRenderOption
 			);
 			mSelectedTextByClickedVisitor.setPredicate(

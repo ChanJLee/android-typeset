@@ -19,6 +19,7 @@ import me.chan.texas.text.layout.Line;
 import me.chan.texas.text.layout.Penalty;
 import me.chan.texas.text.layout.SymbolGlue;
 import me.chan.texas.text.layout.TextBox;
+import me.chan.texas.text.tokenizer.Token;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -193,14 +194,11 @@ public class ParagraphUnitTest {
 		mIndex = 0;
 		String[] arr = {"hello", ",", "world", ".", ".", ".", "fuck", "he's", "name"};
 		String msg = " hello, world... \n\t\r fuck he's name";
-		builder.stream(msg, 0, msg.length(), new Paragraph.Builder.SpanReader() {
-			@Override
-			public Paragraph.Span read(CharSequence text, int start, int end) {
-				String s = (String) text.subSequence(start, end);
-				System.out.println(s);
-				Assert.assertEquals(arr[mIndex++], s);
-				return null;
-			}
+		builder.stream(msg, 0, msg.length(), token -> {
+			String s = (String) msg.subSequence(token.getStart(), token.getEnd());
+			System.out.println(s);
+			Assert.assertEquals(arr[mIndex++], s);
+			return null;
 		});
 	}
 
@@ -211,12 +209,7 @@ public class ParagraphUnitTest {
 
 		mIndex = 0;
 		String msg = "bite-size";
-		builder.stream(msg, 0, msg.length(), new Paragraph.Builder.SpanReader() {
-			@Override
-			public Paragraph.Span read(CharSequence text, int start, int end) {
-				return Paragraph.Span.obtain(text, start, end).tag("fuck");
-			}
-		});
+		builder.stream(msg, 0, msg.length(), token -> Paragraph.Span.obtain(msg, token.getStart(), token.getEnd()).tag("fuck"));
 
 		boolean found = false;
 		Paragraph paragraph = builder.build();
@@ -245,12 +238,7 @@ public class ParagraphUnitTest {
 
 		mIndex = 0;
 		String msg = "bite-size";
-		builder.stream(msg, 0, msg.length(), new Paragraph.Builder.SpanReader() {
-			@Override
-			public Paragraph.Span read(CharSequence text, int start, int end) {
-				return null;
-			}
-		});
+		builder.stream(msg, 0, msg.length(), token -> null);
 
 		boolean found = false;
 		Paragraph paragraph = builder.build();
@@ -764,6 +752,20 @@ public class ParagraphUnitTest {
 			paragraph = builder.build();
 			checkContent(paragraph, "\"", Penalty.ADVISE_BREAK, "😜", Penalty.ADVISE_BREAK, "😜", Glue.TERMINAL, Penalty.FORCE_BREAK);
 		}
+//
+//		{
+//			String msg = "……";
+//			Paragraph.Builder builder = Paragraph.Builder.newBuilder(texasOption);
+//			builder.text(msg);
+//			builder.stream(msg, new Paragraph.Builder.SpanReader() {
+//				@Override
+//				public Paragraph.Span read(CharSequence text, int start, int end) {
+//					return Paragraph.Span.obtain(text, start, end);
+//				}
+//			});
+//			Paragraph paragraph = builder.build();
+//			checkContent(paragraph, "》", SymbolGlue.class, "😜", Penalty.ADVISE_BREAK, "😜", Glue.TERMINAL, Penalty.FORCE_BREAK);
+//		}
 	}
 
 	@Test
@@ -791,12 +793,12 @@ public class ParagraphUnitTest {
 			builder = Paragraph.Builder.newBuilder(texasOption);
 			builder.text("yes ?");
 			paragraph = builder.build();
-			checkContent(paragraph, "yes", Penalty.FORBIDDEN_BREAK, blank, Penalty.FORBIDDEN_BREAK, "?", Glue.TERMINAL, Penalty.FORCE_BREAK);
+			checkContent(paragraph, "yes", Penalty.FORBIDDEN_BREAK, "?", Glue.TERMINAL, Penalty.FORCE_BREAK);
 
 			builder = Paragraph.Builder.newBuilder(texasOption);
 			builder.text("yes").text("?");
 			paragraph = builder.build();
-			checkContent(paragraph, "yes", Penalty.FORBIDDEN_BREAK, blank, Penalty.FORBIDDEN_BREAK, "?", Glue.TERMINAL, Penalty.FORCE_BREAK);
+			checkContent(paragraph, "yes", Penalty.FORBIDDEN_BREAK, "?", Glue.TERMINAL, Penalty.FORCE_BREAK);
 
 			builder = Paragraph.Builder.newBuilder(texasOption);
 			builder.text("yes  ");
@@ -829,7 +831,7 @@ public class ParagraphUnitTest {
 			builder = Paragraph.Builder.newBuilder(texasOption);
 			builder.text("😜😜 ?");
 			paragraph = builder.build();
-			checkContent(paragraph, "😜", Penalty.ADVISE_BREAK, "😜", Penalty.FORBIDDEN_BREAK, blank, Penalty.FORBIDDEN_BREAK, "?", Glue.TERMINAL, Penalty.FORCE_BREAK);
+			checkContent(paragraph, "😜", Penalty.ADVISE_BREAK, "😜", Penalty.FORBIDDEN_BREAK, "?", Glue.TERMINAL, Penalty.FORCE_BREAK);
 
 			builder = Paragraph.Builder.newBuilder(texasOption);
 			builder.text("😜😜  ");

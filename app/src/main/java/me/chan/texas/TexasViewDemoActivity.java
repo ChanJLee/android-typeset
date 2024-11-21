@@ -23,6 +23,7 @@ import androidx.core.content.ContextCompat;
 import java.io.IOException;
 
 import me.chan.texas.adapter.TextAdapter;
+import me.chan.texas.renderer.ParagraphPredicates;
 import me.chan.texas.renderer.ParagraphVisitor;
 import me.chan.texas.renderer.RenderOption;
 import me.chan.texas.renderer.SpanTouchEventHandler;
@@ -84,7 +85,7 @@ public class TexasViewDemoActivity extends AppCompatActivity {
 		mTexasView.setSpanTouchEventHandler(new SpanTouchEventHandler() {
 			@Override
 			public boolean isSpanClickable(Object tag) {
-				return true;
+				return tag != null;
 			}
 
 			// 单机谓词 判断 单机时哪些单词要被高亮
@@ -95,6 +96,10 @@ public class TexasViewDemoActivity extends AppCompatActivity {
 
 			@Override
 			public boolean applySpanLongClicked(@Nullable Object clickedTag, @Nullable Object otherTag) {
+				if (otherTag == null) {
+					return true;
+				}
+
 				if (clickedTag instanceof BookParser.SpanTag && otherTag instanceof BookParser.SpanTag) {
 					BookParser.SpanTag lhs = (BookParser.SpanTag) clickedTag;
 					BookParser.SpanTag rhs = (BookParser.SpanTag) otherTag;
@@ -173,17 +178,21 @@ public class TexasViewDemoActivity extends AppCompatActivity {
 	 */
 	private void setupHighlight() {
 		findViewById(me.chan.texas.debug.R.id.highlight).setOnClickListener(v ->
-				mTexasView.highlightParagraphs((paragraphTag, spanTag) -> {
-					if (!"A9127P127017".equals(paragraphTag)) {
-						return false;
+				mTexasView.highlightParagraphs(new ParagraphPredicates() {
+					@Override
+					public boolean acceptSpan(@Nullable Object spanTag) {
+						if (!(spanTag instanceof BookParser.SpanTag)) {
+							return false;
+						}
+
+						BookParser.SpanTag tag = (BookParser.SpanTag) spanTag;
+						return "A9127P127017S210459".equals(tag.sentId);
 					}
 
-					if (!(spanTag instanceof BookParser.SpanTag)) {
-						return false;
+					@Override
+					public boolean acceptParagraph(@Nullable Object paragraphTag) {
+						return "A9127P127017".equals(paragraphTag);
 					}
-
-					BookParser.SpanTag tag = (BookParser.SpanTag) spanTag;
-					return "A9127P127017S210459".equals(tag.sentId);
 				}, true, 0));
 	}
 
@@ -244,7 +253,7 @@ public class TexasViewDemoActivity extends AppCompatActivity {
 				}
 
 				mDraw = true;
-				mDest.set(decorOuter.right - 40, (int) spanOuter.bottom - 40, decorOuter.right, (int) spanOuter.bottom);
+				mDest.set(decorOuter.right - 20, (int) spanOuter.bottom - 40, decorOuter.right + 20, (int) spanOuter.bottom);
 				return ParagraphVisitor.SIG_STOP_PARA_VISIT;
 			}
 
@@ -263,28 +272,36 @@ public class TexasViewDemoActivity extends AppCompatActivity {
 
 			@Override
 			protected boolean onTouchEvent(MotionEvent event, Paragraph paragraph, Rect decorOuter, Rect decorInner) {
-				if (!mDraw) {
-					return false;
-				}
-
 				// 需要根据 onCollectDecorRenderInfo 缓存区域去判断事件点击
-				float x = event.getX();
-				float y = event.getY();
+				int action = event.getAction();
+				if (action == MotionEvent.ACTION_DOWN) {
+					float x = event.getX();
+					float y = event.getY();
+					if (mDest.top - 10 < y && mDest.bottom + 10 > y &&
+							mDest.left - 10 < x && mDest.right + 10 > x) {
+						mClicked = true;
+						return true;
+					}
+					return false;
+				} else if (action == MotionEvent.ACTION_UP) {
+					mTexasView.selectParagraphs(new ParagraphPredicates() {
+						@Override
+						public boolean acceptSpan(@Nullable Object spanTag) {
+							if (!(spanTag instanceof BookParser.SpanTag)) {
+								return false;
+							}
 
-				if (mDest.top - 10 < y && mDest.bottom + 10 > y &&
-						mDest.left - 10 < x && mDest.right + 10 > x) {
-					mClicked = true;
-					mTexasView.selectParagraphs((paragraphTag, spanTag) -> {
-						if (!(spanTag instanceof BookParser.SpanTag)) {
-							return false;
+							BookParser.SpanTag tag = (BookParser.SpanTag) spanTag;
+							return "A9127P126972S210390".equals(tag.sentId);
 						}
 
-						BookParser.SpanTag tag = (BookParser.SpanTag) spanTag;
-						return "A9127P126972S210390".equals(tag.sentId);
+						@Override
+						public boolean acceptParagraph(@Nullable Object paragraphTag) {
+							return true;
+						}
 					});
-					return true;
 				}
-				return false;
+				return true;
 			}
 		};
 		mTexasView.setParagraphDecor(paragraphDecor);

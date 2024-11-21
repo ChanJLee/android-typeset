@@ -34,17 +34,18 @@ public abstract class BatchDrawAppearance extends Appearance {
 		mInner.bottom = Math.max(mInner.bottom, inner.bottom);
 		mOuter.top = Math.max(mOuter.top, outer.top);
 		mOuter.bottom = Math.max(mOuter.bottom, outer.bottom);
-		if (context.checkLocation(RendererContext.LOCATION_LINE_END) || !isSameGroup(context)) {
-			scheduleDraw(canvas, paint);
+		if (context.checkLocation(RendererContext.LOCATION_LINE_END) ||
+				!isSameGroup(context)) {
+			scheduleDraw(canvas, paint, context);
 			mShouldReset = true;
 		}
 	}
 
-	private void scheduleDraw(Canvas canvas, Paint paint) {
-		onDraw(canvas, paint, mInner, mOuter);
+	private void scheduleDraw(Canvas canvas, Paint paint, RendererContext context) {
+		onDraw(canvas, paint, mInner, mOuter, context);
 	}
 
-	protected abstract void onDraw(Canvas canvas, Paint paint, RectF inner, RectF outer);
+	protected abstract void onDraw(Canvas canvas, Paint paint, RectF inner, RectF outer, RendererContext context);
 
 	protected abstract boolean isSameGroup(RendererContext context);
 

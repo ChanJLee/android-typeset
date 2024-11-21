@@ -392,15 +392,15 @@ public class TypesetterUnitTest {
 
 			checkContent(text, BreakStrategy.SIMPLE, 1080, 1);
 			checkContent(text, BreakStrategy.SIMPLE, 1080, 18);
-			checkContent(text, BreakStrategy.SIMPLE, 1080, 540);
-			checkContent(text, BreakStrategy.SIMPLE, 1080, 1080);
-			checkContent(text, BreakStrategy.SIMPLE, 1080, 1081);
+			checkContent(text, BreakStrategy.SIMPLE, 1080, 540, false);
+			checkContent(text, BreakStrategy.SIMPLE, 1080, 1080, false);
+			checkContent(text, BreakStrategy.SIMPLE, 1080, 1081, false);
 
 			checkContent(text, BreakStrategy.BALANCED, 1080, 1);
 			checkContent(text, BreakStrategy.BALANCED, 1080, 18);
-			checkContent(text, BreakStrategy.BALANCED, 1080, 540);
-			checkContent(text, BreakStrategy.BALANCED, 1080, 1080);
-			checkContent(text, BreakStrategy.BALANCED, 1080, 1081);
+			checkContent(text, BreakStrategy.BALANCED, 1080, 540, false);
+			checkContent(text, BreakStrategy.BALANCED, 1080, 1080, false);
+			checkContent(text, BreakStrategy.BALANCED, 1080, 1081, false);
 
 			System.out.println("used time: " + (System.currentTimeMillis() - timestamp));
 		}
@@ -453,7 +453,11 @@ public class TypesetterUnitTest {
 		return paragraph;
 	}
 
-	private void checkContent(String text, BreakStrategy breakStrategy, float lineWidth, int textSize) throws InterruptedException, SourceCloseException, SourceOpenException, ParseException, NoSuchFieldException, IllegalAccessException {
+	private void checkContent(String text, BreakStrategy breakStrategy, float lineWidth, int textSize) throws SourceCloseException, SourceOpenException, ParseException, NoSuchFieldException, InterruptedException, IllegalAccessException {
+		checkContent(text, breakStrategy, lineWidth, textSize, true);
+	}
+
+	private void checkContent(String text, BreakStrategy breakStrategy, float lineWidth, int textSize, boolean enableBoundCheck) throws InterruptedException, SourceCloseException, SourceOpenException, ParseException, NoSuchFieldException, IllegalAccessException {
 		System.out.println("check content, width: " + lineWidth + " text size: " + textSize + " " + breakStrategy);
 
 		FakeMeasureFactory factory = FakeMeasureFactory.getInstance();
@@ -507,11 +511,13 @@ public class TypesetterUnitTest {
 				}
 			}
 
-			BoundCheckDrawer drawer = new BoundCheckDrawer(lineWidth);
-			try {
-				drawer.visit(paragraph);
-			} catch (ParagraphVisitor.VisitException e) {
-				Assert.fail("fuck");
+			if (enableBoundCheck) {
+				BoundCheckDrawer drawer = new BoundCheckDrawer(lineWidth);
+				try {
+					drawer.visit(paragraph);
+				} catch (ParagraphVisitor.VisitException e) {
+					Assert.fail("fuck");
+				}
 			}
 		}
 

@@ -9,11 +9,13 @@ import androidx.annotation.RestrictTo;
 import me.chan.texas.renderer.ParagraphVisitor;
 import me.chan.texas.renderer.RenderOption;
 import me.chan.texas.renderer.selection.ParagraphSelection;
+import me.chan.texas.renderer.selection.Selection;
 import me.chan.texas.text.Paragraph;
 import me.chan.texas.renderer.RendererContext;
 import me.chan.texas.text.layout.Box;
 import me.chan.texas.text.layout.DrawableBox;
 import me.chan.texas.text.layout.Line;
+import me.chan.texas.utils.TexasUtils;
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public abstract class SelectedVisitor extends ParagraphVisitor {
@@ -25,20 +27,30 @@ public abstract class SelectedVisitor extends ParagraphVisitor {
 	private float mLastLineBottom;
 	private float mLastLineTop;
 
-	// 必要的运行数据
-	boolean mIsUseLongClickStyle;
 	protected RenderOption mRenderOption;
 
 	/**
-	 * @param isUseLongClickStyle 是否使用 long click 的效果去渲染 selection
-	 * @param renderOption        render option
+	 * @param isLongClicked 是否长按
+	 * @param renderOption  render option
 	 */
-	public void reset(boolean isUseLongClickStyle, RenderOption renderOption) {
-		mIsUseLongClickStyle = isUseLongClickStyle;
-		mRenderOption = renderOption;
+	public void reset(boolean isLongClicked, Paragraph paragraph, RenderOption renderOption) {
 		if (mSelection != null) {
 			throw new IllegalStateException("missing call clear before reuse visitor?");
 		}
+		mSelection = ParagraphSelection.obtain(isLongClicked, paragraph);
+		mRenderOption = renderOption;
+	}
+
+	/**
+	 * @param styles       styles
+	 * @param renderOption render option
+	 */
+	public void reset(Selection.Styles styles, Paragraph paragraph, RenderOption renderOption) {
+		if (mSelection != null) {
+			throw new IllegalStateException("missing call clear before reuse visitor?");
+		}
+		mSelection = ParagraphSelection.obtain(styles, paragraph);
+		mRenderOption = renderOption;
 	}
 
 	@Override
@@ -48,27 +60,31 @@ public abstract class SelectedVisitor extends ParagraphVisitor {
 
 	@Override
 	final public void visit(Paragraph paragraph) throws VisitException {
-		super.visit(paragraph);
+		throw new UnsupportedOperationException("use startVisit instead");
 	}
 
 	public void startVisit(Paragraph paragraph) throws VisitException {
 		ParagraphSelection prev = paragraph.getSelection();
-		mSelection = ParagraphSelection.obtain(mIsUseLongClickStyle ? ParagraphSelection.LONG_CLICK : ParagraphSelection.CLICK);
-		paragraph.setSelection(mSelection);
+		paragraph.setSelection(null);
 		super.visit(paragraph);
 		if (prev != null) {
 			prev.recycle();
+		}
+		if (mSelection.isEmpty()) {
+			mSelection.recycle();
+		} else {
+			paragraph.setSelection(mSelection);
 		}
 	}
 
 	@Override
 	public void onVisitParagraphEnd(Paragraph paragraph) {
+
 	}
 
 	@CallSuper
 	public void clear() {
 		mSelection = null;
-		mIsUseLongClickStyle = false;
 		mLastLineBottom = mLastLineTop = -1;
 		mRectF = null;
 	}
@@ -110,7 +126,8 @@ public abstract class SelectedVisitor extends ParagraphVisitor {
 
 	private void appendRect(RectF rectF) {
 		if (mRectF == null) {
-			mRectF = new RectF(rectF.left, mLastLineTop, rectF.right, mLastLineBottom);
+			mRectF = new RectF();
+			TexasUtils.setRect(mRectF, rectF.left, mLastLineTop, rectF.right, mLastLineBottom);
 		}
 		mRectF.right = rectF.right;
 	}
