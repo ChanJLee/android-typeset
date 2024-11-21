@@ -630,6 +630,17 @@ public final class TexasView extends FrameLayout {
 	}
 
 	/**
+	 * 滚动偏移量
+	 * @param dx 水平滚动距离
+	 * @param dy 垂直滚动距离
+	 */
+	public void smoothScrollBy(int dx, int dy) {
+		if (mRenderer != null) {
+			mRenderer.smoothScrollBy(dx, dy);
+		}
+	}
+
+	/**
 	 * 高亮paragraph中的文本，只在渲染出document后生效
 	 *
 	 * @param predicates 谓词
