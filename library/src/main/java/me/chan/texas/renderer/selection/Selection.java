@@ -111,12 +111,7 @@ public final class Selection extends DefaultRecyclable {
 	}
 
 	boolean getParagraphLocation(TexasRecyclerView container, Paragraph paragraph, int[] locations) {
-		TexasRendererAdapter adapter = (TexasRendererAdapter) container.getAdapter();
-		if (adapter == null) {
-			return false;
-		}
-
-		Document document = adapter.getDocument();
+		Document document = container.getDocument();
 		if (document == null) {
 			return false;
 		}
@@ -178,10 +173,7 @@ public final class Selection extends DefaultRecyclable {
 
 			paragraph.setSelection(null);
 			try {
-				TexasRendererAdapter adapter = (TexasRendererAdapter) mContainer.getAdapter();
-				if (adapter != null) {
-					adapter.sendSignal(paragraph, RendererAdapterImpl.SIG_SELECTION_CHANGED);
-				}
+				mContainer.sendSignal(paragraph, RendererAdapterImpl.SIG_SELECTION_CHANGED);
 			} catch (Throwable ignore) {
 				/* do nothing */
 			}
