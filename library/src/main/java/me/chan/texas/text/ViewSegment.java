@@ -16,7 +16,7 @@ import me.chan.texas.misc.DefaultRecyclable;
  */
 public abstract class ViewSegment extends DefaultRecyclable implements Segment {
 	private int mLayout;
-	private boolean mIncremental;
+	private boolean mDisableReuse;
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
 	private Object mTag;
 	private Rect mRect;
@@ -35,24 +35,24 @@ public abstract class ViewSegment extends DefaultRecyclable implements Segment {
 	/**
 	 * 用户自定义视图
 	 *
-	 * @param layout      layout id
-	 * @param incremental 是否是增量更新
+	 * @param layout       layout id
+	 * @param disableReuse 是否需要复用
 	 */
-	public ViewSegment(@LayoutRes int layout, boolean incremental) {
-		this(layout, incremental, null);
+	public ViewSegment(@LayoutRes int layout, boolean disableReuse) {
+		this(layout, disableReuse, null);
 	}
 
 	/**
 	 * 用户自定义视图
 	 *
-	 * @param layout      layout id
-	 * @param incremental 是否是增量更新
-	 * @param tag         唯一标识
+	 * @param layout       layout id
+	 * @param disableReuse 是否需要复用
+	 * @param tag          唯一标识
 	 */
-	public ViewSegment(@LayoutRes int layout, boolean incremental, Object tag) {
+	public ViewSegment(@LayoutRes int layout, boolean disableReuse, Object tag) {
 		mTag = tag;
 		mLayout = layout;
-		mIncremental = incremental;
+		mDisableReuse = disableReuse;
 		mId = Segment.nextId();
 	}
 
@@ -61,8 +61,8 @@ public abstract class ViewSegment extends DefaultRecyclable implements Segment {
 		return mLayout;
 	}
 
-	public boolean isIncremental() {
-		return mIncremental;
+	public boolean isDisableReuse() {
+		return mDisableReuse;
 	}
 
 	public final void render(View view) {
@@ -80,7 +80,7 @@ public abstract class ViewSegment extends DefaultRecyclable implements Segment {
 	protected final void onRecycle() {
 		mTag = null;
 		mRect = null;
-		mIncremental = false;
+		mDisableReuse = false;
 		mLayout = 0;
 		mId = 0;
 	}
