@@ -526,7 +526,7 @@ public class RendererAdapterImpl extends RecyclerView.Adapter<RendererAdapterImp
 		private final AtomicInteger mViewUUID = new AtomicInteger(0);
 
 		public int getType(int layout, int position, boolean incremental) {
-			return incremental ? getIncrementalType(position, layout) : getNonIncrementalType(layout);
+			return incremental ? getIncrementalType(layout) : getNonIncrementalType(layout);
 		}
 
 		private int getNonIncrementalType(int layout) {
@@ -541,12 +541,19 @@ public class RendererAdapterImpl extends RecyclerView.Adapter<RendererAdapterImp
 			return type;
 		}
 
-		private int getIncrementalType(int position, int layout) {
-			int type = -position + UNREUSABLE_TYPE_START;
+		private static final AtomicInteger sIncrementalType = new AtomicInteger(UNREUSABLE_TYPE_START);
+
+		private int getIncrementalType(int layout) {
+			int type = sIncrementalType.decrementAndGet();
+			if (type >= UNREUSABLE_TYPE_START) {
+				throw new IllegalStateException("incremental type overflow");
+			}
+
 			Integer prevValue = mLayoutBuffer.get(type);
 			if (prevValue != null && prevValue != layout) {
 				throw new IllegalStateException("illegal state");
 			}
+
 			if (prevValue == null) {
 				mLayoutBuffer.put(type, layout);
 			}
