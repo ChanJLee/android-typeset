@@ -448,7 +448,7 @@ public class IntMap<E> implements Cloneable {
 		return buffer.toString();
 	}
 
-	private static int binarySearch(int[] array, int size, int value) {
+	static int binarySearch(int[] array, int size, int value) {
 		int lo = 0;
 		int hi = size - 1;
 

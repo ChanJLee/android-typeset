@@ -12,6 +12,7 @@ import me.chan.texas.text.Paragraph;
 import me.chan.texas.renderer.RendererContext;
 import me.chan.texas.text.layout.Box;
 import me.chan.texas.text.layout.Layout;
+import me.chan.texas.text.layout.Line;
 
 import androidx.annotation.AnyThread;
 import androidx.annotation.NonNull;
@@ -73,7 +74,15 @@ public abstract class ParagraphDecor {
 	 * @param viewportInner 整个view真实轮廓即包含decor margin的矩形位置
 	 */
 	@AnyThread
-	protected abstract void onPreDrawDecor(Paragraph paragraph, Rect viewportOuter, Rect viewportInner);
+	protected abstract void onStartLayoutParagraph(Paragraph paragraph, Rect viewportOuter, Rect viewportInner);
+
+	protected abstract void onEndLayoutParagraph(Paragraph paragraph, Rect viewportOuter, Rect viewportInner);
+
+	protected void onStartLayoutLine() {
+	}
+
+	protected void onEndLayoutLine() {
+	}
 
 	/**
 	 * 收集 decor 渲染信息（针对每个真实的span内容）
@@ -115,7 +124,14 @@ public abstract class ParagraphDecor {
 		@Override
 		protected void onVisitParagraphEnd(Paragraph paragraph) {
 			super.onVisitParagraphEnd(paragraph);
+			onEndLayoutParagraph(mParagraph, mViewportOuter, mViewportInner);
 			onDrawDecor(mCanvas, mParagraph, mViewportOuter, mViewportInner);
+		}
+
+		@Override
+		protected void onVisitLineStart(Line line, float x, float y) {
+			onStartLayoutLine();
+			super.onVisitLineStart(line, x, y);
 		}
 
 		@Override
@@ -125,8 +141,14 @@ public abstract class ParagraphDecor {
 		}
 
 		@Override
+		protected void onVisitLineEnd(Line line, float x, float y) {
+			super.onVisitLineEnd(line, x, y);
+			onEndLayoutLine();
+		}
+
+		@Override
 		protected void onVisitParagraphStart(Paragraph paragraph) {
-			onPreDrawDecor(mParagraph, mViewportOuter, mViewportInner);
+			onStartLayoutParagraph(mParagraph, mViewportOuter, mViewportInner);
 			super.onVisitParagraphStart(paragraph);
 		}
 	};
