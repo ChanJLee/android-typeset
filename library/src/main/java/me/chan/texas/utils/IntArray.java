@@ -145,7 +145,7 @@ public class IntArray {
 		return true;
 	}
 
-	private static int idealIntArraySize(int need) {
+	static int idealIntArraySize(int need) {
 		return idealByteArraySize(need * 4) / 4;
 	}
 
