@@ -48,6 +48,98 @@ public class TokenStreamUnitTest {
 	}
 
 	@Test
+	public void testPrivateUse() {
+		// 私用区字符 U+E000
+		String privateUseChar = "\uE000";
+
+		// 打印私用区字符
+		System.out.println("私用区字符: " + privateUseChar);
+		TokenStream tokenStream = TokenStream.obtain(privateUseChar, 0, privateUseChar.length());
+		Token token = tokenStream.next();
+		Assert.assertEquals(Token.TYPE_WORD, token.getType());
+		Assert.assertEquals(Token.CATEGORY_UNKNOWN_LETTER, token.getCategory());
+		Assert.assertFalse(tokenStream.hasNext());
+	}
+
+	@Test
+	public void testSpacingMark() {
+		// 零宽空格 U+200B，实际上没有可见字符，但它会影响排版
+		// 在 Unicode 中，Spacing Mark（间隔标记）是一类字符，它们通常用于修改文本中的空格行为，或者在不直接显示的情况下影响排版效果。
+		// 这些字符的特点是，它们本身通常不显示任何可见符号，但可以控制字符之间的间距、对齐、排版、行间距等。与其他控制字符不同，
+		// Spacing Mark 是一种显示上不会产生明显符号但对文本布局有影响的特殊字符。
+		String textWithZeroWidthSpace = "Hello\u200BWorld";
+
+		System.out.println("原始文本: HelloWorld");
+		System.out.println("带零宽空格的文本: " + textWithZeroWidthSpace);
+		TokenStream tokenStream = TokenStream.obtain(textWithZeroWidthSpace, 0, textWithZeroWidthSpace.length());
+		Token token = tokenStream.next();
+		Assert.assertEquals(Token.TYPE_WORD, token.getType());
+		Assert.assertEquals(Token.CATEGORY_NORMAL, token.getCategory());
+		Assert.assertTrue(tokenStream.hasNext());
+
+		token = tokenStream.next();
+		Assert.assertEquals(Token.TYPE_CONTROL, token.getType());
+		Assert.assertTrue(tokenStream.hasNext());
+
+		token = tokenStream.next();
+		Assert.assertEquals(Token.TYPE_WORD, token.getType());
+		Assert.assertEquals(Token.CATEGORY_NORMAL, token.getCategory());
+		Assert.assertFalse(tokenStream.hasNext());
+
+
+		// 字符 "Hello" 和 ि
+		String textWithSpace = "HelloिWorld";  // "Hello" 和 "World" 之间有一个空格
+
+		// 打印带空格的文本
+		System.out.println("带ि的文本: " + textWithSpace);
+		tokenStream = TokenStream.obtain(textWithZeroWidthSpace, 0, textWithZeroWidthSpace.length());
+		token = tokenStream.next();
+		Assert.assertEquals(Token.TYPE_WORD, token.getType());
+		Assert.assertEquals(Token.CATEGORY_NORMAL, token.getCategory());
+		Assert.assertTrue(tokenStream.hasNext());
+
+		token = tokenStream.next();
+		Assert.assertEquals(Token.TYPE_CONTROL, token.getType());
+		Assert.assertTrue(tokenStream.hasNext());
+
+		token = tokenStream.next();
+		Assert.assertEquals(Token.TYPE_WORD, token.getType());
+		Assert.assertEquals(Token.CATEGORY_NORMAL, token.getCategory());
+		Assert.assertFalse(tokenStream.hasNext());
+	}
+
+	@Test
+	public void testEnclosingMark() {
+		// 使用封闭圆圈将字母 "A" 包围
+		// Enclosing Mark 类字符通过包围或标记其他字符来影响文本的排版和视觉效果。它们的主要作用是将字符包围在各种形状（如圆圈、方框、三角形等）中，
+		// 以突出或标记字符。Unicode 提供了多种封闭标记字符，开发者可以根据需要在文本中使用它们来实现更复杂的排版效果和符号表达。
+		String enclosedA = "A\u20DD"; // A 被封闭在圆圈中
+
+		// 打印带有封闭圆圈的字符
+		System.out.println("封闭圆圈的字符: " + enclosedA);
+
+		TokenStream tokenStream = TokenStream.obtain(enclosedA, 0, enclosedA.length());
+		Token token = tokenStream.next();
+		Assert.assertEquals(Token.TYPE_WORD, token.getType());
+		Assert.assertEquals(Token.CATEGORY_UNKNOWN_LETTER, token.getCategory());
+		Assert.assertFalse(tokenStream.hasNext());
+	}
+
+	@Test
+	public void testNonspacingMark() {
+		// 字符 "e" 和组合尖音符（U+0301）
+		String accentedE = "e\u0301";  // 字符 e + 组合尖音符（é）
+
+		// 打印带有尖音符的字符
+		System.out.println("带有尖音符的字符: " + accentedE);
+		TokenStream tokenStream = TokenStream.obtain(accentedE, 0, accentedE.length());
+		Token token = tokenStream.next();
+		Assert.assertEquals(Token.TYPE_WORD, token.getType());
+		Assert.assertEquals(Token.CATEGORY_UNKNOWN_LETTER, token.getCategory());
+		Assert.assertFalse(tokenStream.hasNext());
+	}
+
+	@Test
 	public void print1() {
 		String msg = "I don't. didn’t bite-size hello... essay-based. hello! R&B, R&B nice";
 		System.out.println(msg.length() + " " + msg.codePointCount(0, msg.length()));

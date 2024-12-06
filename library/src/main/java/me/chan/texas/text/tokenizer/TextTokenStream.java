@@ -160,7 +160,9 @@ class TextTokenStream extends DefaultRecyclable implements TokenStream {
 		if (type == Character.CONTROL ||
 				type == Character.SPACE_SEPARATOR ||
 				type == Character.LINE_SEPARATOR ||
-				type == Character.PARAGRAPH_SEPARATOR) {
+				type == Character.PARAGRAPH_SEPARATOR ||
+				type == Character.COMBINING_SPACING_MARK ||
+				type == Character.FORMAT) {
 			appendControl(brk, (byte) type, codePoint, end);
 			return;
 		}
