@@ -120,11 +120,12 @@ class TextTokenStream extends DefaultRecyclable implements TokenStream {
 	}
 
 	private void appendUnknown(BrkArray brk, CharSequence text, int end) {
+		// https://www.compart.com/en/unicode/category
 		final int start = (int) brk.last();
 
 		int codePoint = text.charAt(start);
-		if (UnicodeUtils.isControlCharacter(codePoint)) {
-			appendControl(brk, codePoint, end);
+		if (codePoint == ' ') {
+			appendControl(brk, Character.SPACE_SEPARATOR, codePoint, end);
 			return;
 		}
 
@@ -156,6 +157,14 @@ class TextTokenStream extends DefaultRecyclable implements TokenStream {
 			return;
 		}
 
+		if (type == Character.CONTROL ||
+				type == Character.SPACE_SEPARATOR ||
+				type == Character.LINE_SEPARATOR ||
+				type == Character.PARAGRAPH_SEPARATOR) {
+			appendControl(brk, (byte) type, codePoint, end);
+			return;
+		}
+
 		mBits.clear();
 		mBits.set(Token.TYPE_WORD);
 		mBits.set(Token.CATEGORY_UNKNOWN_LETTER);
@@ -163,7 +172,11 @@ class TextTokenStream extends DefaultRecyclable implements TokenStream {
 		addBrk(brk, mBits.getBits(), end);
 	}
 
-	private void appendControl(BrkArray brk, int codePoint, int index) {
+	private void appendControl(BrkArray brk, byte type, int codePoint, int index) {
+		// https://www.compart.com/en/unicode/category/Cc 0x00-0x9f
+		// https://www.compart.com/en/unicode/category/Zs 0x20-0x3000
+		// https://www.compart.com/en/unicode/category/Zp 0x2028
+		// https://www.compart.com/en/unicode/category/Zl 0x2029
 		mBits.clear();
 		mBits.set(Token.TYPE_CONTROL);
 		mBits.set(Token.DIRECTION_RTL, mRtl);

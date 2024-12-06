@@ -85,6 +85,8 @@ public class Token extends DefaultRecyclable {
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
 	public static final int SYMBOL_ATTRIBUTE_STRETCH_RIGHT = 21;
 
+	public static final int CONTROL_ATTRIBUTE_ADVANCE = 16;
+
 	// direction
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
 	public static final byte DIRECTION_RTL = 31;
