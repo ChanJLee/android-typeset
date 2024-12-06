@@ -71,31 +71,32 @@ public class PrimitiveUnitTest {
 		System.out.println(">>>>> simple force break 0");
 		Paragraph.Builder builder = Paragraph.Builder.newBuilder(mTexasOption);
 		builder.newSpanBuilder()
-				.next("1 <")
+				.next("1")
 				.buildSpan()
 				.brk()
 				.newSpanBuilder()
-				.next("1 2 3")
+				.next(" 2")
+				.buildSpan()
+				.brk()
+				.newSpanBuilder()
+				.next("3")
 				.buildSpan();
-		checkContent(builder.build(), 8, BreakStrategy.SIMPLE,
-				"1 <",
-				"1 2 3"
-		);
-
+		checkContent(builder.build(), 8, BreakStrategy.SIMPLE, "1", "2", "3");
 
 		System.out.println(">>>>> tex force break 0");
 		builder = Paragraph.Builder.newBuilder(mTexasOption);
 		builder.newSpanBuilder()
-				.next("1 <")
+				.next("1")
 				.buildSpan()
 				.brk()
 				.newSpanBuilder()
-				.next("1 2 3")
+				.next(" 2")
+				.buildSpan()
+				.brk()
+				.newSpanBuilder()
+				.next("3")
 				.buildSpan();
-		checkContent(builder.build(), 8, BreakStrategy.BALANCED,
-				"1 <",
-				"1 2 3"
-		);
+		checkContent(builder.build(), 8, BreakStrategy.BALANCED, "1", "2", "3");
 	}
 
 	@Test

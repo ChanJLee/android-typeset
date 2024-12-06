@@ -12,6 +12,42 @@ import me.chan.texas.misc.BitBucket32;
 public class TokenStreamUnitTest {
 
 	@Test
+	public void testJoin() {
+		// 家庭表情符号：父亲👨‍👩‍👧‍👦
+		String familyEmoji = "\uD83D\uDC68\u200D\uD83D\uDC69\u200D\uD83D\uDC67\u200D\uD83D\uDC66";
+		TokenStream tokenStream = TokenStream.obtain(familyEmoji, 0, familyEmoji.length());
+		Token token = tokenStream.next();
+		Assert.assertEquals(Token.TYPE_WORD, token.getType());
+		Assert.assertEquals(Token.CATEGORY_UNKNOWN_LETTER, token.getCategory());
+		Assert.assertFalse(tokenStream.hasNext());
+
+		// 打印家庭表情符号
+		System.out.println("家庭表情符号: " + familyEmoji);
+
+		// 中等肤色的手掌表情符号 ✋🏽
+		String mediumSkinToneHand = "✋\uD83C\uDFFD";
+		tokenStream = TokenStream.obtain(familyEmoji, 0, familyEmoji.length());
+		token = tokenStream.next();
+		Assert.assertEquals(Token.TYPE_WORD, token.getType());
+		Assert.assertEquals(Token.CATEGORY_UNKNOWN_LETTER, token.getCategory());
+		Assert.assertFalse(tokenStream.hasNext());
+
+		// 打印中等肤色的手掌表情符号
+		System.out.println("中等肤色的手掌: " + mediumSkinToneHand);
+
+		// 浅色肤色的手掌表情符号 ✋🏼
+		String lightSkinToneHand = "✋\uD83C\uDFFC";
+
+		// 打印浅色肤色的手掌表情符号
+		System.out.println("浅色肤色的手掌: " + lightSkinToneHand);
+		tokenStream = TokenStream.obtain(familyEmoji, 0, familyEmoji.length());
+		token = tokenStream.next();
+		Assert.assertEquals(Token.TYPE_WORD, token.getType());
+		Assert.assertEquals(Token.CATEGORY_UNKNOWN_LETTER, token.getCategory());
+		Assert.assertFalse(tokenStream.hasNext());
+	}
+
+	@Test
 	public void print1() {
 		String msg = "I don't. didn’t bite-size hello... essay-based. hello! R&B, R&B nice";
 		System.out.println(msg.length() + " " + msg.codePointCount(0, msg.length()));

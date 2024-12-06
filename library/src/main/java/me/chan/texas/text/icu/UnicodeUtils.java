@@ -150,22 +150,6 @@ public class UnicodeUtils {
 		return Character.isWhitespace(codePoint);
 	}
 
-	/**
-	 * @param codePoint unicode
-	 * @return 是否是内部分割符
-	 */
-	@RestrictTo(RestrictTo.Scope.LIBRARY)
-	public static boolean isControlCharacter(int codePoint) {
-		// white 和 space 是有交叉的 0x20 就是
-		/* 优先自主判断 */
-		return codePoint == ' ' ||
-				codePoint == '\n' ||
-				codePoint == '\t' ||
-				codePoint == '\r' ||
-				isSpace(codePoint) ||
-				isWhitespace(codePoint);
-	}
-
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
 	public static boolean isHyphen(int codePoint) {
 		return codePoint == '-';

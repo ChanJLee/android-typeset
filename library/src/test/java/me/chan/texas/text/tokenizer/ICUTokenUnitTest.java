@@ -11,12 +11,16 @@ public class ICUTokenUnitTest {
 	@Test
 	public void testSimple() {
 //		String msg = "\u0067\u0308 fuck你好😜，你好真的假的？تم تكرار كلمة 'كوب' بشكل غير ضروري.";
-		String msg = " อักษรไทย \u0067\u0308hello 9.0 にほん你ご나는  Chicago에  hello산다.100“can't get on without”即为“失去……便寸步难行，不能没有……”。don't. 9th 18岁 R&Bتم تكرار كلمة";
+		String msg = "\tอักษรไทย \u0067\u0308hello 9.0 にほん你ご나는  Chicago에  hello산다.100“can't get on without”即为“失去……便寸步难行，不能没有……”。don't. 9th 18岁 R&Bتم تكرار كلمة";
 //		String msg = "'hello";
 //		print(msg);
 //		print2(msg);
 //		print3(msg);
 		print4(msg);
+
+		System.out.println(Character.getType(' ') + "<<<<<<<");
+		System.out.println(Character.getType('\t') + "<<<<<<<");
+		System.out.println(Character.getType('\n') + "<<<<<<<");
 	}
 
 	private void print(String source) {
