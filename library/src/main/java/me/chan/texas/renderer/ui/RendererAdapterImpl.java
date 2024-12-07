@@ -203,9 +203,7 @@ public class RendererAdapterImpl extends RecyclerView.Adapter<RendererAdapterImp
 			return TYPE_FIGURE;
 		} else if (content instanceof ViewSegment) {
 			ViewSegment viewSegment = (ViewSegment) content;
-			boolean isIncremental = viewSegment.isIncremental();
-			int type = mViewSegmentManager.getType(viewSegment.getLayout(), position, isIncremental);
-			return type;
+			return mViewSegmentManager.getType(viewSegment);
 		}
 
 		throw new RuntimeException("unknown segment type");
@@ -523,33 +521,49 @@ public class RendererAdapterImpl extends RecyclerView.Adapter<RendererAdapterImp
 		 */
 		private final SparseArrayCompat<Integer> mTypeBuffer = new SparseArrayCompat<>(4);
 		private final SparseArrayCompat<Integer> mLayoutBuffer = new SparseArrayCompat<>(4);
-		private final AtomicInteger mViewUUID = new AtomicInteger(0);
+		private final AtomicInteger mViewUUID = new AtomicInteger(UNREUSABLE_TYPE_START);
 
-		public int getType(int layout, int position, boolean incremental) {
-			return incremental ? getIncrementalType(position, layout) : getNonIncrementalType(layout);
+		public int getType(ViewSegment viewSegment) {
+			return getType(viewSegment, viewSegment.isDisableReuse());
 		}
 
-		private int getNonIncrementalType(int layout) {
+		public int getType(ViewSegment viewSegment, boolean disableReuse) {
+			return disableReuse ? getUniqueType(viewSegment) : getReusableType(viewSegment);
+		}
+
+		private int getReusableType(ViewSegment viewSegment) {
+			int layout = viewSegment.getLayout();
 			Integer t = mTypeBuffer.get(layout);
 			if (t != null) {
 				return t;
 			}
 
-			int type = mViewUUID.incrementAndGet();
+			int type = mViewUUID.decrementAndGet();
+			if (type >= UNREUSABLE_TYPE_START) {
+				throw new IllegalStateException("view segment type must be less than " + UNREUSABLE_TYPE_START);
+			}
+
 			mTypeBuffer.put(layout, type);
 			mLayoutBuffer.put(type, layout);
 			return type;
 		}
 
-		private int getIncrementalType(int position, int layout) {
-			int type = -position + UNREUSABLE_TYPE_START;
+		private int getUniqueType(ViewSegment viewSegment) {
+			int type = viewSegment.getId();
+			if (type <= 0) {
+				throw new IllegalStateException("view segment id must be greater than 0, check Segment#nextId()");
+			}
+
+			int layout = viewSegment.getLayout();
 			Integer prevValue = mLayoutBuffer.get(type);
 			if (prevValue != null && prevValue != layout) {
 				throw new IllegalStateException("illegal state");
 			}
+
 			if (prevValue == null) {
 				mLayoutBuffer.put(type, layout);
 			}
+
 			return type;
 		}
 

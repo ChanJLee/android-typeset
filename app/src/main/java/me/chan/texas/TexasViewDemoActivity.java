@@ -234,10 +234,15 @@ public class TexasViewDemoActivity extends AppCompatActivity {
 			private final Rect mDest = new Rect();
 
 			@Override
-			protected void onPreDrawDecor(Paragraph paragraph, Rect viewportOuter, Rect viewportInner) {
+			protected void onStartLayoutParagraph(Paragraph paragraph, Rect viewportOuter, Rect viewportInner) {
 				// 准备绘制 decor
 				mClicked = false;
 				mDraw = false;
+			}
+
+			@Override
+			protected void onEndLayoutParagraph(Paragraph paragraph, Rect viewportOuter, Rect viewportInner) {
+				// noop
 			}
 
 			@Override

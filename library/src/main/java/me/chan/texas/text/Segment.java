@@ -48,6 +48,10 @@ public interface Segment {
 	}
 
 	static int nextId() {
-		return SEGMENT_UUID.incrementAndGet();
+		int id = SEGMENT_UUID.incrementAndGet();
+		if (id <= 0) {
+			throw new RuntimeException("Segment id overflow");
+		}
+		return id;
 	}
 }

@@ -543,6 +543,14 @@ public final class TexasView extends FrameLayout {
 	}
 
 	/**
+	 * @param completelyVisible 是否要完全可见的segment
+	 * @return 最后一个可见segment下标，没有则为 {@link TexasView#NO_POSITION}
+	 */
+	public int getLastVisibleSegmentIndex(boolean completelyVisible) {
+		return mRenderer == null ? NO_POSITION : mRenderer.getLastVisibleSegmentIndex(completelyVisible);
+	}
+
+	/**
 	 * 返回当前正在渲染的document
 	 *
 	 * @return document
@@ -618,6 +626,17 @@ public final class TexasView extends FrameLayout {
 	public void scrollToPosition(int position, boolean smooth, int offset) {
 		if (mRenderer != null) {
 			mRenderer.scrollToPosition(position, smooth, offset);
+		}
+	}
+
+	/**
+	 * 滚动偏移量
+	 * @param dx 水平滚动距离
+	 * @param dy 垂直滚动距离
+	 */
+	public void smoothScrollBy(int dx, int dy) {
+		if (mRenderer != null) {
+			mRenderer.smoothScrollBy(dx, dy);
 		}
 	}
 
