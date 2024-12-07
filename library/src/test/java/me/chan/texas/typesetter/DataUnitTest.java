@@ -551,7 +551,7 @@ public class DataUnitTest {
 		Assert.assertNotSame(viewSegment, p);
 		Assert.assertSame(viewSegment.getRect(), rect);
 		Assert.assertSame(viewSegment.getTag(), msg);
-		Assert.assertTrue(viewSegment.isIncremental());
+		Assert.assertTrue(viewSegment.isDisableReuse());
 		Assert.assertEquals(viewSegment.getLayout(), 2);
 	}
 }

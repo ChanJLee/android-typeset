@@ -539,4 +539,14 @@ public class Renderer implements SelectionManager.Listener {
 	public boolean hasContent() {
 		return mAdapter != null && mAdapter.getItemCount() > 0;
 	}
+
+	public int getLastVisibleSegmentIndex(boolean completelyVisible) {
+		return completelyVisible ?
+				mLinearLayoutManager.findLastCompletelyVisibleItemPosition() :
+				mLinearLayoutManager.findLastVisibleItemPosition();
+	}
+
+	public void smoothScrollBy(int dx, int dy) {
+		mImpl.smoothScrollBy(dx, dy);
+	}
 }

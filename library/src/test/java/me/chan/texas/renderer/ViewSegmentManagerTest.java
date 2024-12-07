@@ -1,6 +1,10 @@
 package me.chan.texas.renderer;
 
+import android.view.View;
+
+import me.chan.texas.TestUtils;
 import me.chan.texas.renderer.ui.RendererAdapterImpl;
+import me.chan.texas.text.ViewSegment;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -16,38 +20,36 @@ public class ViewSegmentManagerTest {
 		} catch (Throwable throwable) {
 		}
 
-		Assert.assertEquals(manager.getType(1, 0, false), 1);
-		Assert.assertEquals(manager.getType(0, 0, false), 2);
-		Assert.assertEquals(manager.getType(-3, 0, false), 3);
+		ViewSegment viewSegment = new ViewSegment(1) {
+			@Override
+			protected void onRender(View view) {
 
-		Assert.assertEquals(manager.getType(1, 0, false), 1);
-		Assert.assertEquals(manager.getType(0, 0, false), 2);
-		Assert.assertEquals(manager.getType(-3, 0, false), 3);
-		Assert.assertEquals(manager.getLayout(1), 1);
-		Assert.assertEquals(manager.getLayout(2), 0);
-		Assert.assertEquals(manager.getLayout(3), -3);
+			}
+		};
+		Assert.assertEquals(false, viewSegment.isDisableReuse());
+		Assert.assertEquals(manager.getType(viewSegment), -5);
 
+		ViewSegment viewSegment2 = new ViewSegment(1) {
+			@Override
+			protected void onRender(View view) {
 
-		int offset = -1;
-		Assert.assertEquals(manager.getType(1, 0, true), -3 + offset);
-		Assert.assertEquals(manager.getType(1, 1, true), -4 + offset);
-		Assert.assertEquals(manager.getType(1, 2, true), -5 + offset);
-		Assert.assertEquals(manager.getType(2, 3, true), -6 + offset);
-		try {
-			Assert.assertEquals(manager.getType(2, 2, true), -4);
-			Assert.fail();
-		} catch (IllegalStateException e) {
+			}
+		};
+		Assert.assertEquals(false, viewSegment2.isDisableReuse());
+		Assert.assertEquals(manager.getType(viewSegment2), -5);
 
-		}
+		viewSegment.recycle();
+		TestUtils.testRecycled(viewSegment);
 
-		Assert.assertEquals(manager.getType(1, 0, true), -3 + offset);
-		Assert.assertEquals(manager.getType(1, 1, true), -4 + offset);
-		Assert.assertEquals(manager.getType(1, 2, true), -5 + offset);
-		Assert.assertEquals(manager.getType(2, 3, true), -6 + offset);
+		viewSegment = new ViewSegment(1, true) {
+			@Override
+			protected void onRender(View view) {
 
-		Assert.assertEquals(manager.getLayout(-3 + offset), 1);
-		Assert.assertEquals(manager.getLayout(-4 + offset), 1);
-		Assert.assertEquals(manager.getLayout(-5 + offset), 1);
-		Assert.assertEquals(manager.getLayout(-6 + offset), 2);
+			}
+		};
+		Assert.assertEquals(true, viewSegment.isDisableReuse());
+		Assert.assertEquals(manager.getType(viewSegment), viewSegment.getId());
+		viewSegment.recycle();
+		TestUtils.testRecycled(viewSegment);
 	}
 }
