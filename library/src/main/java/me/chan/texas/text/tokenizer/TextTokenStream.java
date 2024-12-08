@@ -181,6 +181,13 @@ class TextTokenStream extends DefaultRecyclable implements TokenStream {
 		// https://www.compart.com/en/unicode/category/Zl 0x2029
 		mBits.clear();
 		mBits.set(Token.TYPE_CONTROL);
+		if (type == Character.SPACE_SEPARATOR) {
+			mBits.set(Token.CONTROL_ATTRIBUTE_SPACE);
+		} else if (codePoint == '\n' || type == Character.PARAGRAPH_SEPARATOR || type == Character.LINE_SEPARATOR) {
+			mBits.set(Token.CONTROL_ATTRIBUTE_NEW_LINE);
+		} else if (codePoint == '\t') {
+			mBits.set(Token.CONTROL_ATTRIBUTE_TAB_HORIZONTAL);
+		}
 		mBits.set(Token.DIRECTION_RTL, mRtl);
 		addBrk(brk, mBits.getBits(), index);
 	}
@@ -294,7 +301,7 @@ class TextTokenStream extends DefaultRecyclable implements TokenStream {
 		if (token.mType != Token.TYPE_CONTROL) {
 			token.mCategory = (byte) (bit2Value(mBits.getRange(Token.BIT_CATEGORY_START, Token.BIT_CATEGORY_END), Token.BIT_CATEGORY_START));
 		}
-		if (token.mType == Token.TYPE_SYMBOL) {
+		if (token.mType == Token.TYPE_SYMBOL || token.mType == Token.TYPE_CONTROL) {
 			token.mAttributes = (byte) mBits.getRange(Token.BIT_ATTRIBUTES_START, Token.BIT_ATTRIBUTES_END);
 		}
 		token.mRtl = mBits.get(Token.DIRECTION_RTL);
