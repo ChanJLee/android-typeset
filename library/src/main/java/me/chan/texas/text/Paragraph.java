@@ -53,12 +53,13 @@ public final class Paragraph extends DefaultRecyclable implements Segment {
 	 */
 	public static final int TYPESET_POLICY_BIDI_TEXT = 2;
 	/**
-	 * 是否接受文本中存在的control符号，比如\n、\t
+	 * 是否接受文本中存在的control符号，比如\n
 	 */
 	public static final int TYPESET_POLICY_ACCEPT_CONTROL_CHAR = 4;
 
 	@Retention(RetentionPolicy.SOURCE)
-	@IntDef({TYPESET_POLICY_DEFAULT, TYPESET_POLICY_CJK_MIX_OPTIMIZATION, TYPESET_POLICY_BIDI_TEXT})
+	@IntDef({TYPESET_POLICY_DEFAULT, TYPESET_POLICY_CJK_MIX_OPTIMIZATION, TYPESET_POLICY_BIDI_TEXT,
+			TYPESET_POLICY_ACCEPT_CONTROL_CHAR})
 	public @interface TypesetPolicy {
 	}
 

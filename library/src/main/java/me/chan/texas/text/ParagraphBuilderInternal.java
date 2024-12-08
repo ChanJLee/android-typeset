@@ -408,6 +408,32 @@ class ParagraphBuilderInternal {
 		mParagraph.mElements.add(element);
 	}
 
+	private void appendControlToken(Token token) {
+		Layout.Advise advise = mParagraph.mLayout.getAdvise();
+		if (!advise.checkTypesetPolicy(Paragraph.TYPESET_POLICY_ACCEPT_CONTROL_CHAR)) {
+			appendElement(mCommonGlue);
+			return;
+		}
+
+		if (token.checkAttribute(Token.CONTROL_ATTRIBUTE_SPACE)) {
+			appendElement(mCommonGlue);
+			return;
+		}
+		if (token.checkAttribute(Token.CONTROL_ATTRIBUTE_NEW_LINE)) {
+			appendElement(Glue.TERMINAL);
+			appendElement(Penalty.FORCE_BREAK);
+			return;
+		}
+
+		if (token.checkAttribute(Token.CONTROL_ATTRIBUTE_TAB_HORIZONTAL)) {
+			// todo support tab
+			appendElement(mCommonGlue);
+			return;
+		}
+
+		// TODO how to fix it.
+	}
+
 	/**
 	 * 用于在添加glue前后使用，因为glue本身代表可以断点
 	 * 所以没必要再添加advise break
@@ -659,6 +685,14 @@ class ParagraphBuilderInternal {
 				return false;
 			}
 
+			Layout.Advise advise = builder.mParagraph.mLayout.getAdvise();
+			if (advise.checkTypesetPolicy(Paragraph.TYPESET_POLICY_ACCEPT_CONTROL_CHAR) &&
+					current.checkAttribute(Token.CONTROL_ATTRIBUTE_NEW_LINE)) {
+				builder.appendControlToken(current);
+				accept(Token.obtain());
+				return true;
+			}
+
 			Token next = stream.tryGet(0);
 			//--------------------v next ----------
 			// 				word		symbol		control		none
@@ -676,7 +710,7 @@ class ParagraphBuilderInternal {
 
 			if (prevType == Token.TYPE_WORD) {
 				if (nextType == Token.TYPE_WORD) {
-					builder.appendElement(builder.mCommonGlue);
+					appendControlToken(builder, current);
 					accept(current);
 					return true;
 				}
@@ -693,6 +727,15 @@ class ParagraphBuilderInternal {
 			}
 
 			throw new IllegalStateException("control's rules under invalid state");
+		}
+
+		private void appendControlToken(ParagraphBuilderInternal builder, Token token) {
+			if (token.checkAttribute(Token.CONTROL_ATTRIBUTE_SPACE)) {
+				builder.appendElement(builder.mCommonGlue);
+			} else if (token.checkAttribute(Token.CONTROL_ATTRIBUTE_TAB_HORIZONTAL)) {
+				// todo support tab
+				builder.appendElement(builder.mCommonGlue);
+			}
 		}
 	}
 

@@ -241,6 +241,11 @@ public class TexasViewDemoActivity extends AppCompatActivity {
 			}
 
 			@Override
+			protected void onEndLayoutParagraph(Paragraph paragraph, Rect viewportOuter, Rect viewportInner) {
+
+			}
+
+			@Override
 			protected int onLayoutDecor(Paragraph paragraph, Object spanTag, RectF spanOuter, RectF spanInner, Rect decorOuter, Rect decorInner) {
 				// 准备decor的布局
 				if (!(spanTag instanceof BookParser.SpanTag)) {
