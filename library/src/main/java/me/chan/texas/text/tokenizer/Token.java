@@ -242,7 +242,7 @@ public class Token extends DefaultRecyclable {
     protected void onRecycle() {
         mCharSequence = null;
         mStart = mEnd = 0;
-        mType = 0;
+        mType = TYPE_NONE;
         mCategory = 0;
         mAttributes = 0;
         mRtl = false;
