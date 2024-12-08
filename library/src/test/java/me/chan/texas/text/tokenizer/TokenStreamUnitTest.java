@@ -140,6 +140,39 @@ public class TokenStreamUnitTest {
 	}
 
 	@Test
+	public void testControl() {
+		String text = "\t\n\r ";
+		TokenStream tokenStream = TokenStream.obtain(text, 0, text.length());
+		Token token = tokenStream.next();
+		Assert.assertEquals(Token.TYPE_CONTROL, token.getType());
+		Assert.assertTrue(token.checkAttribute(Token.CONTROL_ATTRIBUTE_TAB_HORIZONTAL));
+		Assert.assertFalse(token.checkAttribute(Token.CONTROL_ATTRIBUTE_NEW_LINE));
+		Assert.assertFalse(token.checkAttribute(Token.CONTROL_ATTRIBUTE_SPACE));
+		Assert.assertTrue(tokenStream.hasNext());
+
+		token = tokenStream.next();
+		Assert.assertEquals(Token.TYPE_CONTROL, token.getType());
+		Assert.assertFalse(token.checkAttribute(Token.CONTROL_ATTRIBUTE_TAB_HORIZONTAL));
+		Assert.assertTrue(token.checkAttribute(Token.CONTROL_ATTRIBUTE_NEW_LINE));
+		Assert.assertFalse(token.checkAttribute(Token.CONTROL_ATTRIBUTE_SPACE));
+		Assert.assertTrue(tokenStream.hasNext());
+
+		token = tokenStream.next();
+		Assert.assertEquals(Token.TYPE_CONTROL, token.getType());
+		Assert.assertFalse(token.checkAttribute(Token.CONTROL_ATTRIBUTE_TAB_HORIZONTAL));
+		Assert.assertFalse(token.checkAttribute(Token.CONTROL_ATTRIBUTE_NEW_LINE));
+		Assert.assertFalse(token.checkAttribute(Token.CONTROL_ATTRIBUTE_SPACE));
+		Assert.assertTrue(tokenStream.hasNext());
+
+		token = tokenStream.next();
+		Assert.assertEquals(Token.TYPE_CONTROL, token.getType());
+		Assert.assertFalse(token.checkAttribute(Token.CONTROL_ATTRIBUTE_TAB_HORIZONTAL));
+		Assert.assertFalse(token.checkAttribute(Token.CONTROL_ATTRIBUTE_NEW_LINE));
+		Assert.assertTrue(token.checkAttribute(Token.CONTROL_ATTRIBUTE_SPACE));
+		Assert.assertFalse(tokenStream.hasNext());
+	}
+
+	@Test
 	public void print1() {
 		String msg = "I don't. didn’t bite-size hello... essay-based. hello! R&B, R&B nice";
 		System.out.println(msg.length() + " " + msg.codePointCount(0, msg.length()));
