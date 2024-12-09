@@ -601,7 +601,7 @@ class TextTokenStream extends DefaultRecyclable implements TokenStream {
 		}
 
 		if (type == Character.OTHER_PUNCTUATION) {
-			if (codePoint == '&' || codePoint == '@' || codePoint == '·') {
+			if (codePoint == '&' || codePoint == '@' || codePoint == '·' || codePoint == '/') {
 				bits.set(Token.SYMBOL_ATTRIBUTE_KINSOKU_AVOID_HEADER);
 				bits.set(Token.SYMBOL_ATTRIBUTE_KINSOKU_AVOID_TAIL);
 				return true;
