@@ -208,6 +208,7 @@ public class WordStreamUnitTest {
 			token.mCharSequence = " ";
 			token.mStart = 0;
 			token.mEnd = 1;
+			token.mAttributes = (byte) ((1 << Token.CONTROL_ATTRIBUTE_SPACE) >> Token.BIT_ATTRIBUTES_START);
 			token.mType = Token.TYPE_CONTROL;
 			list.add(token);
 		}
@@ -227,6 +228,7 @@ public class WordStreamUnitTest {
 			token.mCharSequence = " ";
 			token.mStart = 0;
 			token.mEnd = 1;
+			token.mAttributes = (byte) ((1 << Token.CONTROL_ATTRIBUTE_SPACE) >> Token.BIT_ATTRIBUTES_START);
 			token.mType = Token.TYPE_CONTROL;
 			list.add(token);
 		}
