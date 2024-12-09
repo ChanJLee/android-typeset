@@ -199,7 +199,6 @@ public class WordStreamUnitTest {
 			token.mEnd = 2;
 			token.mType = Token.TYPE_WORD;
 			token.mCategory = Token.CATEGORY_NORMAL;
-			token.toString();
 			list.add(token);
 		}
 
