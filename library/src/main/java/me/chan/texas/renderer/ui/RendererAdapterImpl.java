@@ -138,34 +138,20 @@ public class RendererAdapterImpl extends RecyclerView.Adapter<RendererAdapterImp
 	private Renderer createViewSegment(int type) {
 		SegmentItemFragmentLayout root = new SegmentItemFragmentLayout(mView);
 		boolean incrementalUpdateView = isIncrementalUpdateView(type);
-		View content = null;
+		View content = mLayoutInflater.inflate(mViewSegmentManager.getLayout(type), root, false);
 		if (incrementalUpdateView) {
-			content = mSingletonViewCache.get(type);
-			ViewGroup viewGroup = null;
-			if (content != null) {
-				if ((viewGroup = (ViewGroup) content.getParent()) != null) {
-					viewGroup.removeView(content);
-				}
-			}
-		}
-
-		if (content == null) {
-			content = mLayoutInflater.inflate(mViewSegmentManager.getLayout(type), root, false);
-			if (incrementalUpdateView) {
-				mSingletonViewCache.put(type, content);
-				mPool.setMaxRecycledViews(type, 0);
-			}
+			mPool.setMaxRecycledViews(type, 0);
 		}
 
 		root.addView(content);
-		return new ViewSegmentRenderer(root);
+		ViewSegmentRenderer renderer = new ViewSegmentRenderer(root);
+		renderer.setIsRecyclable(!incrementalUpdateView);
+		return renderer;
 	}
 
 	private boolean isIncrementalUpdateView(int type) {
-		return type <= UNREUSABLE_TYPE_START;
+		return type > 0;
 	}
-
-	private final SparseArrayCompat<View> mSingletonViewCache = new SparseArrayCompat<>();
 
 	@Override
 	@SuppressWarnings("unchecked")
