@@ -135,17 +135,31 @@ public class RendererAdapterImpl extends RecyclerView.Adapter<RendererAdapterImp
 		}
 	}
 
+	private final SparseArrayCompat<View> mSingletonViewCache = new SparseArrayCompat<>();
 	private Renderer createViewSegment(int type) {
 		SegmentItemFragmentLayout root = new SegmentItemFragmentLayout(mView);
 		boolean disableReuseType = isDisableReuseType(type);
-		View content = mLayoutInflater.inflate(mViewSegmentManager.getLayout(type), root, false);
+		View content = null;
 		if (disableReuseType) {
-			mPool.setMaxRecycledViews(type, 0);
+			content = mSingletonViewCache.get(type);
+			ViewGroup viewGroup = null;
+			if (content != null) {
+				if ((viewGroup = (ViewGroup) content.getParent()) != null) {
+					viewGroup.removeView(content);
+				}
+			}
+		}
+
+		if (content == null) {
+			content = mLayoutInflater.inflate(mViewSegmentManager.getLayout(type), root, false);
+			if (disableReuseType) {
+				mSingletonViewCache.put(type, content);
+				mPool.setMaxRecycledViews(type, 0);
+			}
 		}
 
 		root.addView(content);
-		ViewSegmentRenderer renderer = new ViewSegmentRenderer(root);
-		return renderer;
+		return new ViewSegmentRenderer(root);
 	}
 
 	private boolean isDisableReuseType(int type) {
