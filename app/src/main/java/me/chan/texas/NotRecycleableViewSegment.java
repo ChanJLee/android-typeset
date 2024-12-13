@@ -1,5 +1,6 @@
 package me.chan.texas;
 
+import android.util.Log;
 import android.view.View;
 
 import me.chan.texas.debug.R;
@@ -14,6 +15,7 @@ public class NotRecycleableViewSegment extends ViewSegment {
 
 	@Override
 	protected void onRender(View view) {
+		Log.d("chan_debug", "onRender: " + this + " " + view);
 		if (mLastView != null && mLastView != view) {
 			throw new IllegalStateException("View is not recycled");
 		}

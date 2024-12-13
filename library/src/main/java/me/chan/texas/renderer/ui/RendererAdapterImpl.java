@@ -137,19 +137,18 @@ public class RendererAdapterImpl extends RecyclerView.Adapter<RendererAdapterImp
 
 	private Renderer createViewSegment(int type) {
 		SegmentItemFragmentLayout root = new SegmentItemFragmentLayout(mView);
-		boolean incrementalUpdateView = isIncrementalUpdateView(type);
+		boolean disableReuseType = isDisableReuseType(type);
 		View content = mLayoutInflater.inflate(mViewSegmentManager.getLayout(type), root, false);
-		if (incrementalUpdateView) {
+		if (disableReuseType) {
 			mPool.setMaxRecycledViews(type, 0);
 		}
 
 		root.addView(content);
 		ViewSegmentRenderer renderer = new ViewSegmentRenderer(root);
-		renderer.setIsRecyclable(!incrementalUpdateView);
 		return renderer;
 	}
 
-	private boolean isIncrementalUpdateView(int type) {
+	private boolean isDisableReuseType(int type) {
 		return type > 0;
 	}
 
