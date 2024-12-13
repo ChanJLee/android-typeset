@@ -226,6 +226,7 @@ public class BookParser extends TexasView.Adapter<CharSequence> {
 		builder.tag(id);
 		int lastState = STATE_NONE;
 
+		String firstSent = null;
 		while (parser.next() != XmlPullParser.END_TAG) {
 			int eventType = parser.getEventType();
 			if (eventType != XmlPullParser.START_TAG) {
@@ -234,8 +235,11 @@ public class BookParser extends TexasView.Adapter<CharSequence> {
 
 			String name = parser.getName();
 			if (TextUtils.equals("sent", name)) {
-				parseSent(parser, builder);
+				String sent = parseSent(parser, builder);
 				lastState = STATE_SENT;
+				if (firstSent == null) {
+					firstSent = sent;
+				}
 			} else if (TextUtils.equals("img", name)) {
 				parseImage(parser, document);
 				lastState = STATE_IMG;
@@ -263,7 +267,10 @@ public class BookParser extends TexasView.Adapter<CharSequence> {
 //			}
 		}
 
-		document.addSegment(new NotRecycleableViewSegment());
+		if (firstSent != null) {
+			document.addSegment(new RecycleableViewSegment(firstSent));
+			document.addSegment(new NotRecycleableViewSegment());
+		}
 	}
 
 	private void parseImage(XmlPullParser parser, Document document) throws XmlPullParserException, IOException {
@@ -327,7 +334,7 @@ public class BookParser extends TexasView.Adapter<CharSequence> {
 		parser.require(XmlPullParser.END_TAG, null, "subtitle");
 	}
 
-	private void parseSent(XmlPullParser parser, Paragraph.Builder builder) throws IOException, XmlPullParserException {
+	private String parseSent(XmlPullParser parser, Paragraph.Builder builder) throws IOException, XmlPullParserException {
 		parser.require(XmlPullParser.START_TAG, null, "sent");
 		final String id = parser.getAttributeValue(null, "id");
 		String text = safeNextText(parser);
@@ -335,6 +342,7 @@ public class BookParser extends TexasView.Adapter<CharSequence> {
 			parseParagraph(builder, text, id);
 		}
 		parser.require(XmlPullParser.END_TAG, null, "sent");
+		return text;
 	}
 
 	// 这里给了个demo显示带圆角的背景

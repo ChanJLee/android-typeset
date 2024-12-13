@@ -5,4 +5,6 @@
     android:text="NOT RECYCLE"
     android:id="@+id/text"
     android:gravity="center"
+    android:maxLength="30"
+    android:ellipsize="end"
     android:background="#228BC34A"/>
