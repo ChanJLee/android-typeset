@@ -262,6 +262,8 @@ public class BookParser extends TexasView.Adapter<CharSequence> {
 //				document.setFocusSegment(paragraph);
 //			}
 		}
+
+		document.addSegment(new NotRecycleableViewSegment());
 	}
 
 	private void parseImage(XmlPullParser parser, Document document) throws XmlPullParserException, IOException {
