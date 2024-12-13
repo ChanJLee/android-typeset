@@ -242,7 +242,7 @@ public class TexasViewDemoActivity extends AppCompatActivity {
 
 			@Override
 			protected void onEndLayoutParagraph(Paragraph paragraph, Rect viewportOuter, Rect viewportInner) {
-
+				// noop
 			}
 
 			@Override
