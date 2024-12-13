@@ -16,9 +16,10 @@ public class NotRecycleableViewSegment extends ViewSegment {
 	@Override
 	protected void onRender(View view) {
 		Log.d("chan_debug", "onRender: " + this + " " + view);
-		if (mLastView != null && mLastView != view) {
+		View current = view.findViewById(R.id.text);
+		if (mLastView != null && mLastView != current) {
 			throw new IllegalStateException("View is not recycled");
 		}
-		mLastView = view;
+		mLastView = current;
 	}
 }
