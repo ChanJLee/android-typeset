@@ -14,6 +14,7 @@ import androidx.annotation.IdRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.annotation.VisibleForTesting;
 import androidx.collection.SparseArrayCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -162,7 +163,8 @@ public class RendererAdapterImpl extends RecyclerView.Adapter<RendererAdapterImp
 		return new ViewSegmentRenderer(root);
 	}
 
-	private boolean isDisableReuseType(int type) {
+	@VisibleForTesting
+	static boolean isDisableReuseType(int type) {
 		return type > 0;
 	}
 
