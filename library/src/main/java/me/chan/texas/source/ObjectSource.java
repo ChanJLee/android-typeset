@@ -14,9 +14,11 @@ public class ObjectSource<T> extends Source<T> {
 
 	@Override
 	protected T onOpen(LoadingStrategy strategy) throws SourceOpenException {
-		T ret = mObject;
-		mObject = null;
-		return ret;
+		if (strategy == LoadingStrategy.INIT) {
+			return mObject;
+		}
+
+		return null;
 	}
 
 	@Override

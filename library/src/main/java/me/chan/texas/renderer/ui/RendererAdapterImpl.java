@@ -299,6 +299,7 @@ public class RendererAdapterImpl extends RecyclerView.Adapter<RendererAdapterImp
 
 		if (strategy == LoadingStrategy.TYPESET_ONLY) {
 			notifyItemRangeChanged(start, end - start);
+			return;
 		}
 
 		throw new IllegalArgumentException("illegal argument, loading strategy: " + strategy);
