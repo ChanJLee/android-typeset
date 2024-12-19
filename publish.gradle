@@ -1,1 +1,15 @@
-/* noop */
+apply plugin: 'maven-publish'
+
+project.afterEvaluate {
+    publishing {
+        publications {
+            release(MavenPublication) {
+                groupId = 'me.chan.lib'
+                artifactId = 'texas'
+                version = '1.0.0'
+
+                artifact bundleReleaseAar
+            }
+        }
+    }
+}
