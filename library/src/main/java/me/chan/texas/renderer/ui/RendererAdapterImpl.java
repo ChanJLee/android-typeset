@@ -14,6 +14,7 @@ import androidx.annotation.IdRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.annotation.VisibleForTesting;
 import androidx.collection.SparseArrayCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -135,11 +136,12 @@ public class RendererAdapterImpl extends RecyclerView.Adapter<RendererAdapterImp
 		}
 	}
 
+	private final SparseArrayCompat<View> mSingletonViewCache = new SparseArrayCompat<>();
 	private Renderer createViewSegment(int type) {
 		SegmentItemFragmentLayout root = new SegmentItemFragmentLayout(mView);
-		boolean incrementalUpdateView = isIncrementalUpdateView(type);
+		boolean disableReuseType = isDisableReuseType(type);
 		View content = null;
-		if (incrementalUpdateView) {
+		if (disableReuseType) {
 			content = mSingletonViewCache.get(type);
 			ViewGroup viewGroup = null;
 			if (content != null) {
@@ -151,7 +153,7 @@ public class RendererAdapterImpl extends RecyclerView.Adapter<RendererAdapterImp
 
 		if (content == null) {
 			content = mLayoutInflater.inflate(mViewSegmentManager.getLayout(type), root, false);
-			if (incrementalUpdateView) {
+			if (disableReuseType) {
 				mSingletonViewCache.put(type, content);
 				mPool.setMaxRecycledViews(type, 0);
 			}
@@ -161,11 +163,10 @@ public class RendererAdapterImpl extends RecyclerView.Adapter<RendererAdapterImp
 		return new ViewSegmentRenderer(root);
 	}
 
-	private boolean isIncrementalUpdateView(int type) {
-		return type <= UNREUSABLE_TYPE_START;
+	@VisibleForTesting
+	static boolean isDisableReuseType(int type) {
+		return type > 0;
 	}
-
-	private final SparseArrayCompat<View> mSingletonViewCache = new SparseArrayCompat<>();
 
 	@Override
 	@SuppressWarnings("unchecked")
@@ -298,6 +299,7 @@ public class RendererAdapterImpl extends RecyclerView.Adapter<RendererAdapterImp
 
 		if (strategy == LoadingStrategy.TYPESET_ONLY) {
 			notifyItemRangeChanged(start, end - start);
+			return;
 		}
 
 		throw new IllegalArgumentException("illegal argument, loading strategy: " + strategy);
