@@ -120,11 +120,12 @@ class TextTokenStream extends DefaultRecyclable implements TokenStream {
 	}
 
 	private void appendUnknown(BrkArray brk, CharSequence text, int end) {
+		// https://www.compart.com/en/unicode/category
 		final int start = (int) brk.last();
 
 		int codePoint = text.charAt(start);
-		if (UnicodeUtils.isControlCharacter(codePoint)) {
-			appendControl(brk, codePoint, end);
+		if (codePoint == ' ') {
+			appendControl(brk, Character.SPACE_SEPARATOR, codePoint, end);
 			return;
 		}
 
@@ -156,6 +157,16 @@ class TextTokenStream extends DefaultRecyclable implements TokenStream {
 			return;
 		}
 
+		if (type == Character.CONTROL ||
+				type == Character.SPACE_SEPARATOR ||
+				type == Character.LINE_SEPARATOR ||
+				type == Character.PARAGRAPH_SEPARATOR ||
+				type == Character.COMBINING_SPACING_MARK ||
+				type == Character.FORMAT) {
+			appendControl(brk, (byte) type, codePoint, end);
+			return;
+		}
+
 		mBits.clear();
 		mBits.set(Token.TYPE_WORD);
 		mBits.set(Token.CATEGORY_UNKNOWN_LETTER);
@@ -163,9 +174,20 @@ class TextTokenStream extends DefaultRecyclable implements TokenStream {
 		addBrk(brk, mBits.getBits(), end);
 	}
 
-	private void appendControl(BrkArray brk, int codePoint, int index) {
+	private void appendControl(BrkArray brk, byte type, int codePoint, int index) {
+		// https://www.compart.com/en/unicode/category/Cc 0x00-0x9f
+		// https://www.compart.com/en/unicode/category/Zs 0x20-0x3000
+		// https://www.compart.com/en/unicode/category/Zp 0x2028
+		// https://www.compart.com/en/unicode/category/Zl 0x2029
 		mBits.clear();
 		mBits.set(Token.TYPE_CONTROL);
+		if (type == Character.SPACE_SEPARATOR) {
+			mBits.set(Token.CONTROL_ATTRIBUTE_SPACE);
+		} else if (codePoint == '\n' || type == Character.PARAGRAPH_SEPARATOR || type == Character.LINE_SEPARATOR) {
+			mBits.set(Token.CONTROL_ATTRIBUTE_NEW_LINE);
+		} else if (codePoint == '\t') {
+			mBits.set(Token.CONTROL_ATTRIBUTE_TAB_HORIZONTAL);
+		}
 		mBits.set(Token.DIRECTION_RTL, mRtl);
 		addBrk(brk, mBits.getBits(), index);
 	}
@@ -279,7 +301,7 @@ class TextTokenStream extends DefaultRecyclable implements TokenStream {
 		if (token.mType != Token.TYPE_CONTROL) {
 			token.mCategory = (byte) (bit2Value(mBits.getRange(Token.BIT_CATEGORY_START, Token.BIT_CATEGORY_END), Token.BIT_CATEGORY_START));
 		}
-		if (token.mType == Token.TYPE_SYMBOL) {
+		if (token.mType == Token.TYPE_SYMBOL || token.mType == Token.TYPE_CONTROL) {
 			token.mAttributes = (byte) mBits.getRange(Token.BIT_ATTRIBUTES_START, Token.BIT_ATTRIBUTES_END);
 		}
 		token.mRtl = mBits.get(Token.DIRECTION_RTL);
@@ -579,7 +601,7 @@ class TextTokenStream extends DefaultRecyclable implements TokenStream {
 		}
 
 		if (type == Character.OTHER_PUNCTUATION) {
-			if (codePoint == '&' || codePoint == '@' || codePoint == '·') {
+			if (codePoint == '&' || codePoint == '@' || codePoint == '·' || codePoint == '/') {
 				bits.set(Token.SYMBOL_ATTRIBUTE_KINSOKU_AVOID_HEADER);
 				bits.set(Token.SYMBOL_ATTRIBUTE_KINSOKU_AVOID_TAIL);
 				return true;

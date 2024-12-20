@@ -1,1 +1,21 @@
-/* noop */
+apply plugin: 'maven-publish'
+
+task androidSourcesJar(type: Jar) {
+    archiveClassifier.set('sources')
+    from android.sourceSets.main.java.srcDirs
+}
+
+project.afterEvaluate {
+    publishing {
+        publications {
+            release(MavenPublication) {
+                groupId = 'me.chan.lib'
+                artifactId = 'texas'
+                version = '1.0.0'
+
+                artifact bundleReleaseAar
+                artifact androidSourcesJar
+            }
+        }
+    }
+}
