@@ -5,6 +5,7 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.RectF;
+import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Log;
@@ -480,6 +481,11 @@ public class TexasViewDemoActivity extends AppCompatActivity {
 				mTexasView.refresh(option);
 			}
 		});
+
+		Typeface typeface = Typeface.createFromAsset(getAssets(), "opposans_m.ttf");
+		renderOption = mTexasView.createRendererOption();
+		renderOption.setTypeface(typeface);
+		mTexasView.refresh(renderOption);
 	}
 
 	// 有些机型有问题，息屏后渲染会空白
