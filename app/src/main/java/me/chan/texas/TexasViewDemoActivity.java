@@ -482,7 +482,7 @@ public class TexasViewDemoActivity extends AppCompatActivity {
 			}
 		});
 
-		Typeface typeface = Typeface.createFromAsset(getAssets(), "opposans_m.ttf");
+		Typeface typeface = Typeface.createFromAsset(getAssets(), "opposans_r.ttf");
 		renderOption = mTexasView.createRendererOption();
 		renderOption.setTypeface(typeface);
 		mTexasView.refresh(renderOption);
