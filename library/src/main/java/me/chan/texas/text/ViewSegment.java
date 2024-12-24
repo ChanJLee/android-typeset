@@ -65,8 +65,17 @@ public abstract class ViewSegment extends DefaultRecyclable implements Segment {
 		return mDisableReuse;
 	}
 
+	private View mView;
+
 	public final void render(View view) {
+		mView = view;
 		onRender(view);
+	}
+
+	protected void requestRedraw() {
+		if (mView != null) {
+			render(mView);
+		}
 	}
 
 	/**
