@@ -6,7 +6,6 @@ import android.graphics.Canvas;
 import android.os.Bundle;
 import android.text.Layout;
 import android.text.TextPaint;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
 
@@ -14,6 +13,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import me.chan.lib.log.Log;
 import me.chan.texas.renderer.core.WorkerScheduler;
 import me.chan.texas.renderer.core.graphics.TexturePicture;
 import me.chan.texas.utils.TexasUtils;
@@ -30,6 +30,8 @@ public class MainActivity extends AppCompatActivity {
 		super.onCreate(savedInstanceState);
 		setContentView(me.chan.texas.debug.R.layout.activity_main);
 
+		Log.init(this, getDir("log", MODE_PRIVATE).getAbsolutePath());
+		Log.setConsoleLogEnable(true);
 		ActivityCompat.requestPermissions(this, new String[]{
 				Manifest.permission.INTERNET,
 				Manifest.permission.WRITE_EXTERNAL_STORAGE,
