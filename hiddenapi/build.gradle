@@ -4,10 +4,17 @@ android {
     compileSdkVersion 34
 
     defaultConfig {
-        minSdkVersion 26
+        minSdkVersion 23
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles "consumer-rules.pro"
+        externalNativeBuild {
+            cmake {
+                cppFlags "-std=c++11"
+                arguments '-DANDROID_STL=c++_static'
+                version "3.31.1"
+            }
+        }
     }
 
     buildTypes {
@@ -20,6 +27,13 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
+    
+    externalNativeBuild {
+        cmake {
+            path file('src/main/cpp/CMakeLists.txt')
+        }
+    }
+    ndkVersion '21.3.6528147'
 }
 
 dependencies {
