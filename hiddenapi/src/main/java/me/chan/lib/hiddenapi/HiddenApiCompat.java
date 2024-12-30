@@ -1,7 +1,6 @@
 package me.chan.lib.hiddenapi;
 
 import android.content.Context;
-import android.content.pm.ApplicationInfo;
 import android.os.Build;
 import android.util.Log;
 
@@ -20,29 +19,10 @@ public class HiddenApiCompat {
 
 		i("sdk : " + Build.VERSION.SDK_INT + " preview sdk: " + Build.VERSION.PREVIEW_SDK_INT);
 
-		ApplicationInfo applicationInfo = context.getApplicationInfo();
-		int targetSdkVersion = applicationInfo.targetSdkVersion;
-		if (targetSdkVersion <= Build.VERSION_CODES.Q) {
-			boolean result = fixByHookVm(context, android.os.Build.VERSION.SDK_INT, targetSdkVersion, Build.FINGERPRINT);
-			i("try to fix by hook vm: " + result);
-			if (result) {
-				return true;
-			}
-		}
-
 		// so 加载错误考虑使用java代码修复，此方法不能再所有机器上奏效
 		boolean rtn = fixBySetVmRuntime(context);
 		i("try to fix by set vm runtime: " + rtn);
 		return rtn;
-	}
-
-	private static boolean fixByHookVm(Context context, int osVersion, int targetSdkVersion, String fingerprint) {
-		if (!loadIfSo(context)) {
-			i("load so failed");
-			return false;
-		}
-
-		return fixByHookVm(osVersion, targetSdkVersion, fingerprint) == 0;
 	}
 
 	private static boolean loadIfSo(Context context) {
@@ -127,8 +107,6 @@ public class HiddenApiCompat {
 			return null;
 		}
 	}
-
-	private static native int fixByHookVm(int osVersion, int targetSdkVersion, String fingerprint);
 
 	/**
 	 * @param rtnClazz 为了在jni层能够查找到我们需要的class，因为实现问题，jni的class loader找不到我们的自定义类
