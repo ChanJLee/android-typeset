@@ -7,7 +7,7 @@
     },
     {
       "level": "INFO",
-      "message": "ndk.dir in local.properties is not set"
+      "message": "ndk.dir in local.properties is /Users/chan/Library/Android/sdk/ndk/21.3.6528147"
     },
     {
       "level": "INFO",
@@ -16,6 +16,10 @@
     {
       "level": "INFO",
       "message": "sdkFolder is /Users/chan/Library/Android/sdk"
+    },
+    {
+      "level": "INFO",
+      "message": "Considering /Users/chan/Library/Android/sdk/ndk/21.3.6528147 by ndk.dir"
     },
     {
       "level": "INFO",
@@ -39,7 +43,7 @@
     },
     {
       "level": "INFO",
-      "message": "Found requested NDK version 21.3.6528147 at /Users/chan/Library/Android/sdk/ndk/21.3.6528147"
+      "message": "Choosing /Users/chan/Library/Android/sdk/ndk/21.3.6528147 from ndk.dir which had the requested version 21.3.6528147"
     }
   ]
 }
