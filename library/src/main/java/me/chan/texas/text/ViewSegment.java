@@ -10,6 +10,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 
 import me.chan.texas.misc.DefaultRecyclable;
+import me.chan.texas.renderer.ui.TexasRendererAdapter;
 
 /**
  * 用户自定义视图片段
@@ -65,16 +66,15 @@ public abstract class ViewSegment extends DefaultRecyclable implements Segment {
 		return mDisableReuse;
 	}
 
-	private View mView;
+	private TexasRendererAdapter mAdapter;
 
 	public final void render(View view) {
-		mView = view;
 		onRender(view);
 	}
 
 	protected void requestRedraw() {
-		if (mView != null) {
-			render(mView);
+		if (mAdapter != null) {
+			mAdapter.sendSignal(this, TexasRendererAdapter.SIG_REDRAW);
 		}
 	}
 
@@ -124,7 +124,7 @@ public abstract class ViewSegment extends DefaultRecyclable implements Segment {
 
 	@RestrictTo(LIBRARY)
 	@Override
-	public final void attachToWindow() {
+	public final void attachToWindow(TexasRendererAdapter adapter) {
 		onAttachedToWindow();
 	}
 
@@ -133,8 +133,8 @@ public abstract class ViewSegment extends DefaultRecyclable implements Segment {
 
 	@RestrictTo(LIBRARY)
 	@Override
-	public final void detachFromWindow() {
-		mView = null;
+	public final void detachFromWindow(TexasRendererAdapter adapter) {
+		mAdapter = null;
 		onDetachedFromWindow();
 	}
 
