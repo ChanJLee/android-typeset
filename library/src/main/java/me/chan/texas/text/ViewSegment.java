@@ -72,7 +72,7 @@ public abstract class ViewSegment extends DefaultRecyclable implements Segment {
 		onRender(view);
 	}
 
-	protected void requestRedraw() {
+	public final void requestRedraw() {
 		if (mAdapter != null) {
 			mAdapter.sendSignal(this, TexasRendererAdapter.SIG_REDRAW);
 		}
