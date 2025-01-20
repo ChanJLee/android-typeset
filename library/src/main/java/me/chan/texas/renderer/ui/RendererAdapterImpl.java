@@ -242,7 +242,7 @@ public class RendererAdapterImpl extends RecyclerView.Adapter<RendererAdapterImp
 	public void onViewAttachedToWindow(@NonNull Renderer holder) {
 		Segment segment = getItem(holder.getAdapterPosition());
 		if (segment != null) {
-			segment.attachToWindow();
+			segment.attachToWindow(this);
 		}
 	}
 
@@ -250,7 +250,7 @@ public class RendererAdapterImpl extends RecyclerView.Adapter<RendererAdapterImp
 	public void onViewDetachedFromWindow(@NonNull Renderer holder) {
 		Segment segment = getItem(holder.getAdapterPosition());
 		if (segment != null) {
-			segment.detachFromWindow();
+			segment.detachFromWindow(this);
 		}
 	}
 

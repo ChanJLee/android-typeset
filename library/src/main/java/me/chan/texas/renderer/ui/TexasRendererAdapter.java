@@ -22,5 +22,7 @@ public interface TexasRendererAdapter {
 
 	Object SIG_SELECTION_CHANGED = new Object();
 
+	Object SIG_REDRAW = new Object();
+
 	int indexOf(Segment segment);
 }

@@ -7,6 +7,8 @@ import androidx.annotation.RestrictTo;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
+import me.chan.texas.renderer.ui.TexasRendererAdapter;
+
 /**
  * 渲染的最小单元
  */
@@ -40,11 +42,11 @@ public interface Segment {
 	int getId();
 
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
-	default void attachToWindow() {
+	default void attachToWindow(TexasRendererAdapter adapter) {
 	}
 
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
-	default void detachFromWindow() {
+	default void detachFromWindow(TexasRendererAdapter adapter) {
 	}
 
 	static int nextId() {
