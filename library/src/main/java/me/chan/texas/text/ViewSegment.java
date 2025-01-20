@@ -125,6 +125,7 @@ public abstract class ViewSegment extends DefaultRecyclable implements Segment {
 	@RestrictTo(LIBRARY)
 	@Override
 	public final void attachToWindow(TexasRendererAdapter adapter) {
+		mAdapter = adapter;
 		onAttachedToWindow();
 	}
 
