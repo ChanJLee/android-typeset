@@ -229,7 +229,7 @@ public final class TextBox extends Box {
 	}
 
 	@Override
-	public void draw(Canvas canvas, Paint paint, float x, float y, boolean isSelected) {
+	public void draw(Canvas canvas, Paint paint, float x, float y, StateList states) {
 		if (mAttribute != ATTRIBUTE_NONE) {
 			if (hasAttribute(ATTRIBUTE_ZOOM_OUT)) {
 				paint.setTextSize(paint.getTextSize() * ZOOM_OUT_FACTOR);

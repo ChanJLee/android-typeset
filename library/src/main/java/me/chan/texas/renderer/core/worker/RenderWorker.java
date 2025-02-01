@@ -33,6 +33,7 @@ import me.chan.texas.text.TextStyles;
 import me.chan.texas.text.layout.Box;
 import me.chan.texas.text.layout.Layout;
 import me.chan.texas.text.layout.Line;
+import me.chan.texas.text.layout.StateList;
 import me.chan.texas.text.layout.TextBox;
 import me.chan.texas.utils.concurrency.TaskQueue;
 
@@ -235,6 +236,7 @@ public class RenderWorker implements TaskQueue.Task<RenderWorker.Args, Void>, Ta
 	private final static class DrawVisitor extends ParagraphVisitor {
 		private static final int STEP_DRAW_BACKGROUND = 0;
 		private static final int STEP_DRAW_CONTENT = 1;
+		private final StateList mStates = new StateList();
 
 		private Canvas mCanvas;
 		private Line mLine;
@@ -289,6 +291,8 @@ public class RenderWorker implements TaskQueue.Task<RenderWorker.Args, Void>, Ta
 		@Override
 		public void onVisitBox(Box box, RectF inner, RectF outer, @NonNull RendererContext context) {
 			boolean isSelected = isBoxSelected(mSelection, box);
+			mStates.clear();
+			mStates.setSelected(isSelected);
 			if (mStep == STEP_DRAW_BACKGROUND) {
 				drawBackground(box, inner, outer, context);
 				return;
@@ -313,7 +317,7 @@ public class RenderWorker implements TaskQueue.Task<RenderWorker.Args, Void>, Ta
 				}
 			}
 
-			drawContent(box, workPaint, inner, isSelected);
+			drawContent(box, workPaint, inner, mStates);
 
 			drawForeground(box, inner, outer, context);
 		}
@@ -326,8 +330,8 @@ public class RenderWorker implements TaskQueue.Task<RenderWorker.Args, Void>, Ta
 			}
 		}
 
-		private void drawContent(Box box, TextPaint workPaint, RectF inner, boolean isSelected) {
-			box.draw(mCanvas, workPaint, inner.left, inner.bottom - mLine.getBaselineOffset(), isSelected);
+		private void drawContent(Box box, TextPaint workPaint, RectF inner, StateList states) {
+			box.draw(mCanvas, workPaint, inner.left, inner.bottom - mLine.getBaselineOffset(), states);
 		}
 
 		private void drawBackground(Box box, RectF inner, RectF outer, RendererContext context) {
