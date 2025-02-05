@@ -1110,7 +1110,6 @@ public class ParagraphUnitTest {
 		Assert.assertEquals(Glue.TERMINAL, paragraph.getElement(5));
 		Assert.assertEquals(Penalty.FORCE_BREAK, paragraph.getElement(6));
 
-
 		builder = Paragraph.Builder.newBuilder(texasOption)
 				.breakStrategy(BreakStrategy.SIMPLE);
 		builder.text("triangle");
