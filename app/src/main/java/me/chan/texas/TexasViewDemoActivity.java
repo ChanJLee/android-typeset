@@ -79,14 +79,6 @@ public class TexasViewDemoActivity extends AppCompatActivity {
 		setupData();
 
 		// 更多api见 book parser
-
-		mTexasView.postDelayed(new Runnable() {
-			@Override
-			public void run() {
-				BlurWindowHelper blurWindowHelper = new BlurWindowHelper(TexasViewDemoActivity.this);
-				blurWindowHelper.showWindow();
-			}
-		}, 2000);
 	}
 
 	private void setupClickPredicate() {
