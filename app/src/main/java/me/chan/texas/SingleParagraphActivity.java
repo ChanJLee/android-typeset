@@ -2,6 +2,10 @@ package me.chan.texas;
 
 import android.annotation.SuppressLint;
 import android.os.Bundle;
+import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.TextPaint;
+import android.text.style.ScaleXSpan;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewParent;
@@ -13,6 +17,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import java.lang.reflect.Method;
 
+import me.chan.texas.debug.R;
 import me.chan.texas.renderer.SpanTouchEventHandler;
 import me.chan.texas.renderer.TouchEvent;
 import me.chan.texas.renderer.ui.text.ParagraphView;
@@ -26,6 +31,32 @@ public class SingleParagraphActivity extends AppCompatActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(me.chan.texas.debug.R.layout.activity_single_paragraph);
+
+		Spannable spannable = new SpannableString("Hello, world!");
+		spannable.setSpan(new ScaleXSpan(2.0f) {
+			@Override
+			public void updateDrawState(TextPaint ds) {
+				super.updateDrawState(ds);
+			}
+
+			@Override
+			public void updateMeasureState(TextPaint ds) {
+				super.updateMeasureState(ds);
+			}
+		}, 0, 5, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+		spannable.setSpan(new ScaleXSpan(2.0f) {
+			@Override
+			public void updateDrawState(TextPaint ds) {
+				super.updateDrawState(ds);
+			}
+
+			@Override
+			public void updateMeasureState(TextPaint ds) {
+				super.updateMeasureState(ds);
+			}
+		}, 7, 12, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+		TextView demo = findViewById(R.id.clock);
+		demo.setText(spannable);
 
 		// String msg = "\ud83d\ude4b\uff08\u062a\u0645 \u062a\u0643\u0631\u0627\u0631 \u0643\u0644\u0645\u0629 '\u0643\u0648\u0628' \u0628\u0634\u0643\u0644 \u063a\u064a\u0631 \u0636\u0631\u0648\u0631\u064a.\uff09";
 		String msg = "\u0067\u0308";
