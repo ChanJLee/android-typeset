@@ -78,7 +78,7 @@ public class BoxUnitTest {
 		}
 
 		@Override
-		public void draw(Canvas canvas, Paint paint, float x, float y, boolean isSelected) {
+		public void draw(Canvas canvas, Paint paint, float x, float y, StateList states) {
 
 		}
 
