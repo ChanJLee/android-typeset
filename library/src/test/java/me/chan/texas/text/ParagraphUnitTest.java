@@ -1079,4 +1079,44 @@ public class ParagraphUnitTest {
 		Paragraph paragraph = builder.build();
 		Assert.assertNotNull(paragraph);
 	}
+
+	@Test
+	public void testBuilderDisableHyphen() {
+		RenderOption renderOption = new RenderOption();
+		renderOption.setBreakStrategy(BreakStrategy.SIMPLE);
+
+		TexasOption texasOption = new TexasOption(Hyphenation.getInstance(), mMeasurer, mTextAttribute, renderOption);
+		Paragraph.Builder builder = Paragraph.Builder.newBuilder(texasOption);
+		builder.text("triangle");
+		Paragraph paragraph = builder.build();
+		Assert.assertEquals(3, paragraph.getElementCount());
+		Assert.assertEquals("triangle", paragraph.getElement(0).toString());
+		Assert.assertEquals(Glue.TERMINAL, paragraph.getElement(1));
+		Assert.assertEquals(Penalty.FORCE_BREAK, paragraph.getElement(2));
+
+		renderOption.setBreakStrategy(BreakStrategy.BALANCED);
+		texasOption = new TexasOption(Hyphenation.getInstance(), mMeasurer, mTextAttribute, renderOption);
+		builder = Paragraph.Builder.newBuilder(texasOption);
+		builder.text("triangle");
+		paragraph = builder.build();
+		Assert.assertEquals(7, paragraph.getElementCount());
+		Assert.assertEquals("tri", paragraph.getElement(0).toString());
+		Penalty penalty = (Penalty) paragraph.getElement(1);
+		Assert.assertTrue(penalty.isFlag());
+		Assert.assertEquals("an", paragraph.getElement(2).toString());
+		penalty = (Penalty) paragraph.getElement(3);
+		Assert.assertTrue(penalty.isFlag());
+		Assert.assertEquals("gle", paragraph.getElement(4).toString());
+		Assert.assertEquals(Glue.TERMINAL, paragraph.getElement(5));
+		Assert.assertEquals(Penalty.FORCE_BREAK, paragraph.getElement(6));
+
+		builder = Paragraph.Builder.newBuilder(texasOption)
+				.breakStrategy(BreakStrategy.SIMPLE);
+		builder.text("triangle");
+		paragraph = builder.build();
+		Assert.assertEquals(3, paragraph.getElementCount());
+		Assert.assertEquals("triangle", paragraph.getElement(0).toString());
+		Assert.assertEquals(Glue.TERMINAL, paragraph.getElement(1));
+		Assert.assertEquals(Penalty.FORCE_BREAK, paragraph.getElement(2));
+	}
 }
