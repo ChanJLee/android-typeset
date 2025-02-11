@@ -29,6 +29,7 @@ import me.chan.texas.hyphenation.Hyphenation;
 import me.chan.texas.measurer.AndroidMeasurer;
 import me.chan.texas.misc.PaintSet;
 import me.chan.texas.renderer.RenderOption;
+import me.chan.texas.renderer.SpanTouchEventHandler;
 import me.chan.texas.renderer.TexasView;
 import me.chan.texas.renderer.TouchEvent;
 import me.chan.texas.text.BreakStrategy;
@@ -38,7 +39,6 @@ import me.chan.texas.text.TextAttribute;
 import me.chan.texas.text.layout.Box;
 import me.chan.texas.utils.TexasUtils;
 
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 public class EditableParagraphView extends FrameLayout {
 
 	private final PaintSet mPaintSet;
@@ -46,6 +46,22 @@ public class EditableParagraphView extends FrameLayout {
 	private final TextAttribute mTextAttribute;
 	private final TextureParagraphView0 mRender;
 	private RenderOption mRenderOption;
+	private final SpanTouchEventHandler mSpanTouchEventHandler = new SpanTouchEventHandler() {
+		@Override
+		public boolean isSpanClickable(@Nullable Object tag) {
+			return false;
+		}
+
+		@Override
+		public boolean applySpanClicked(@Nullable Object clickedTag, @Nullable Object otherTag) {
+			return false;
+		}
+
+		@Override
+		public boolean applySpanLongClicked(@Nullable Object clickedTag, @Nullable Object otherTag) {
+			return false;
+		}
+	};
 
 	public EditableParagraphView(Context context, @Nullable AttributeSet attrs) {
 		this(context, attrs, 0);
@@ -220,6 +236,7 @@ public class EditableParagraphView extends FrameLayout {
 		Paragraph paragraph = Paragraph.Builder.newBuilder(option)
 				.text(text, start, end)
 				.build();
+		mRender.render(paragraph, mPaintSet, mRenderOption, null, mSpanTouchEventHandler);
 	}
 
 	private static void checkUIThreadPriority() {
