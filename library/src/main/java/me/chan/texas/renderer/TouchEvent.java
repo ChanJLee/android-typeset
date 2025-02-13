@@ -65,7 +65,7 @@ public class TouchEvent extends DefaultRecyclable {
 
 		ViewGroup parent = (ViewGroup) mSourceView.getParent();
 		if (parent == null) {
-			throw new IllegalStateException("source view has no parent");
+			return;
 		}
 
 		adjust0(parent);
@@ -73,7 +73,7 @@ public class TouchEvent extends DefaultRecyclable {
 			mSourceView = parent;
 			parent = (ViewGroup) parent.getParent();
 			if (parent == null) {
-				throw new IllegalStateException("source view is not in the root view");
+				break;
 			}
 
 			adjust0(parent);
