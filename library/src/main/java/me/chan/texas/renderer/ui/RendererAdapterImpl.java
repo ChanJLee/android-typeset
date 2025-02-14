@@ -137,6 +137,7 @@ public class RendererAdapterImpl extends RecyclerView.Adapter<RendererAdapterImp
 	}
 
 	private final SparseArrayCompat<View> mSingletonViewCache = new SparseArrayCompat<>();
+
 	private Renderer createViewSegment(int type) {
 		SegmentItemFragmentLayout root = new SegmentItemFragmentLayout(mView);
 		boolean disableReuseType = isDisableReuseType(type);
@@ -372,6 +373,16 @@ public class RendererAdapterImpl extends RecyclerView.Adapter<RendererAdapterImp
 		}
 
 		return mDocument.indexOfSegment(segment);
+	}
+
+	@Override
+	public void notifySegmentInserted(Document document, int index, Segment segment) {
+		if (mDocument != document) {
+			// 不属于当前正在渲染的
+			return;
+		}
+
+		notifyItemInserted(index);
 	}
 
 	abstract class Renderer<T extends Segment> extends RecyclerView.ViewHolder {

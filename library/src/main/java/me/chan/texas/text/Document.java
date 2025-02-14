@@ -1,11 +1,14 @@
 package me.chan.texas.text;
 
 import me.chan.texas.Texas;
+import me.chan.texas.renderer.ui.RendererAdapterImpl;
+import me.chan.texas.renderer.ui.TexasRendererAdapter;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import androidx.annotation.RestrictTo;
+import androidx.annotation.UiThread;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
@@ -14,10 +17,16 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY;
  */
 public final class Document {
 	private List<Segment> mSegments;
+	private TexasRendererAdapter mAdapter;
 
 	private Document() {
 		Texas.MemoryOption memoryOption = Texas.getMemoryOption();
 		mSegments = new ArrayList<>(memoryOption.getDocumentSegmentInitialCapacity());
+	}
+
+	@RestrictTo(LIBRARY)
+	public void attach(TexasRendererAdapter adapter) {
+		mAdapter = adapter;
 	}
 
 	/**
@@ -74,8 +83,18 @@ public final class Document {
 		mSegments.addAll(segments);
 	}
 
+	public void addSegment(int index, Segment segment) {
+		mSegments.add(index, segment);
+		if (mAdapter != null) {
+			mAdapter.notifySegmentInserted(this, index, segment);
+		}
+	}
+
 	public void addSegment(Segment segment) {
 		mSegments.add(segment);
+		if (mAdapter != null) {
+			mAdapter.notifySegmentInserted(this, mSegments.size() - 1, segment);
+		}
 	}
 
 	@RestrictTo(LIBRARY)
