@@ -277,6 +277,7 @@ public class RendererAdapterImpl extends RecyclerView.Adapter<RendererAdapterImp
 		}
 	}
 
+	// todo refactor
 	@SuppressLint("NotifyDataSetChanged")
 	public void render(LoadingStrategy strategy, PaintSet paintSet, Document document, int start, int end, RenderOption renderOption) {
 		d("render");
@@ -285,6 +286,7 @@ public class RendererAdapterImpl extends RecyclerView.Adapter<RendererAdapterImp
 		mRenderOption = renderOption;
 		Document prev = mDocument;
 		mDocument = document;
+		document.attach(this);
 
 		// refresh content
 		if (prev != document ||
