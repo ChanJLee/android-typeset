@@ -104,6 +104,10 @@ public class ParagraphViewMotion {
 			return false;
 		}
 
+		if (mParagraph == null) {
+			return false;
+		}
+
 		return mParagraphDecor.handleTouchEvent(e, mParagraph, mRenderOption, mView.getWidth(), mView.getHeight());
 	}
 
