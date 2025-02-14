@@ -69,23 +69,4 @@
         <attr name="me_chan_texas_LoadingIndicatorView_loadingColor" format="color" />
         <attr name="me_chan_texas_LoadingIndicatorView_loadingBackgroundColor" format="color" />
     </declare-styleable>
-
-    <declare-styleable name="me_chan_texas_EditableParagraphView">
-        <attr name="me_chan_texas_EditableParagraphView_textColor" format="color" />
-        <attr name="me_chan_texas_EditableParagraphView_typefaceAssets" format="string" />
-        <attr name="me_chan_texas_EditableParagraphView_textSize" format="dimension" />
-        <attr name="me_chan_texas_EditableParagraphView_lineSpace" format="dimension" />
-        <attr name="me_chan_texas_EditableParagraphView_selectedBackgroundColor" format="color" />
-        <attr name="me_chan_texas_EditableParagraphView_selectedTextColor" format="color" />
-        <attr name="me_chan_texas_EditableParagraphView_breakStrategy" format="enum">
-            <enum name="simple" value="1" />
-            <enum name="balance" value="2" />
-        </attr>
-        <attr name="me_chan_texas_EditableParagraphView_hyphenStrategy" format="enum">
-            <enum name="us" value="1" />
-            <enum name="uk" value="2" />
-        </attr>
-        <attr name="me_chan_texas_EditableParagraphView_selectedBackgroundRoundRadius" format="dimension" />
-        <attr name="me_chan_texas_EditableParagraphView_text" format="string" />
-    </declare-styleable>
 </resources>
