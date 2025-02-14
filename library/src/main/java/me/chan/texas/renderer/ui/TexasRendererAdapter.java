@@ -25,4 +25,6 @@ public interface TexasRendererAdapter {
 	Object SIG_REDRAW = new Object();
 
 	int indexOf(Segment segment);
+
+	void notifySegmentInserted(Document document, int index, Segment segment);
 }
