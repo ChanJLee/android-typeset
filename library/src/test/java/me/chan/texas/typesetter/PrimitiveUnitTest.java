@@ -39,7 +39,7 @@ public class PrimitiveUnitTest {
 		builder.newSpanBuilder()
 				.next("1 2 3")
 				.next("4 5")
-				.buildSpan();
+				.finish();
 		checkContent(builder.build(), 6, BreakStrategy.SIMPLE,
 				"1 2 3",
 				"4 5"
@@ -50,7 +50,7 @@ public class PrimitiveUnitTest {
 		builder = Paragraph.Builder.newBuilder(mTexasOption);
 		builder.newSpanBuilder()
 				.next("1 2 3 ")
-				.buildSpan();
+				.finish();
 		checkContent(builder.build(), 6, BreakStrategy.SIMPLE,
 				"1 2 3"
 		);
@@ -60,7 +60,7 @@ public class PrimitiveUnitTest {
 		builder = Paragraph.Builder.newBuilder(mTexasOption);
 		builder.newSpanBuilder()
 				.next("1")
-				.buildSpan();
+				.finish();
 		checkContent(builder.build(), 6, BreakStrategy.SIMPLE,
 				"1"
 		);
@@ -72,30 +72,30 @@ public class PrimitiveUnitTest {
 		Paragraph.Builder builder = Paragraph.Builder.newBuilder(mTexasOption);
 		builder.newSpanBuilder()
 				.next("1")
-				.buildSpan()
+				.finish()
 				.brk()
 				.newSpanBuilder()
 				.next(" 2")
-				.buildSpan()
+				.finish()
 				.brk()
 				.newSpanBuilder()
 				.next("3")
-				.buildSpan();
+				.finish();
 		checkContent(builder.build(), 8, BreakStrategy.SIMPLE, "1", "2", "3");
 
 		System.out.println(">>>>> tex force break 0");
 		builder = Paragraph.Builder.newBuilder(mTexasOption);
 		builder.newSpanBuilder()
 				.next("1")
-				.buildSpan()
+				.finish()
 				.brk()
 				.newSpanBuilder()
 				.next(" 2")
-				.buildSpan()
+				.finish()
 				.brk()
 				.newSpanBuilder()
 				.next("3")
-				.buildSpan();
+				.finish();
 		checkContent(builder.build(), 8, BreakStrategy.BALANCED, "1", "2", "3");
 	}
 
@@ -106,7 +106,7 @@ public class PrimitiveUnitTest {
 		Paragraph.Builder builder = Paragraph.Builder.newBuilder(mTexasOption);
 		builder.newSpanBuilder()
 				.next("1112 3, 4 5")
-				.buildSpan();
+				.finish();
 		checkContent(builder.build(), 6, BreakStrategy.SIMPLE,
 				"1112",
 				"3, 4 5"
@@ -120,7 +120,7 @@ public class PrimitiveUnitTest {
 				builder = Paragraph.Builder.newBuilder(mTexasOption);
 				builder.newSpanBuilder()
 						.next("1111 < 3 4 5")
-						.buildSpan();
+						.finish();
 				checkContent(builder.build(), 6, BreakStrategy.SIMPLE,
 						"1111",
 						"<3 4 5"
@@ -133,7 +133,7 @@ public class PrimitiveUnitTest {
 				builder = Paragraph.Builder.newBuilder(mTexasOption);
 				builder.newSpanBuilder()
 						.next("1234567 89")
-						.buildSpan();
+						.finish();
 				checkContent(builder.build(), 6, BreakStrategy.SIMPLE,
 						"1234567",
 						"89"
@@ -146,7 +146,7 @@ public class PrimitiveUnitTest {
 				builder = Paragraph.Builder.newBuilder(mTexasOption);
 				builder.newSpanBuilder()
 						.next("triangle")
-						.buildSpan();
+						.finish();
 				checkContent(builder.build(), 6, BreakStrategy.SIMPLE,
 						"trian-",
 						"gle"
@@ -162,7 +162,7 @@ public class PrimitiveUnitTest {
 		Paragraph.Builder builder = Paragraph.Builder.newBuilder(mTexasOption);
 		builder.newSpanBuilder()
 				.next("1 2 3, 4 5")
-				.buildSpan();
+				.finish();
 		checkContent(builder.build(), 6, BreakStrategy.BALANCED,
 				"1 2 3,",
 				"4 5"
@@ -176,7 +176,7 @@ public class PrimitiveUnitTest {
 				builder = Paragraph.Builder.newBuilder(mTexasOption);
 				builder.newSpanBuilder()
 						.next("111 < 3 4 5")
-						.buildSpan();
+						.finish();
 				checkContent(builder.build(), 6, BreakStrategy.BALANCED,
 						"111 <3",
 						"4 5"
@@ -189,7 +189,7 @@ public class PrimitiveUnitTest {
 				builder = Paragraph.Builder.newBuilder(mTexasOption);
 				builder.newSpanBuilder()
 						.next("1234567 89")
-						.buildSpan();
+						.finish();
 				checkContent(builder.build(), 6, BreakStrategy.BALANCED
 				);
 			}
@@ -200,7 +200,7 @@ public class PrimitiveUnitTest {
 				builder = Paragraph.Builder.newBuilder(mTexasOption);
 				builder.newSpanBuilder()
 						.next("triangle")
-						.buildSpan();
+						.finish();
 				checkContent(builder.build(), 6, BreakStrategy.BALANCED,
 						"trian-",
 						"gle"
@@ -216,7 +216,7 @@ public class PrimitiveUnitTest {
 		Paragraph.Builder builder = Paragraph.Builder.newBuilder(mTexasOption);
 		builder.newSpanBuilder()
 				.next("1 2 3 4 5")
-				.buildSpan();
+				.finish();
 		checkContent(builder.build(), 6, BreakStrategy.BALANCED,
 				"1 2 3",
 				"4 5"
@@ -238,7 +238,7 @@ public class PrimitiveUnitTest {
 		Paragraph.Builder builder = Paragraph.Builder.newBuilder(texasOption, Paragraph.TYPESET_POLICY_DEFAULT);
 		builder.newSpanBuilder()
 				.next("一二三，四五，")
-				.buildSpan();
+				.finish();
 		Paragraph paragraph = builder.build();
 		checkContent(paragraph, 12, BreakStrategy.BALANCED,
 				"一 二 三， 四",
@@ -250,7 +250,7 @@ public class PrimitiveUnitTest {
 				.clearTypesetPolicy();
 		builder.newSpanBuilder()
 				.next("一二三，四五，")
-				.buildSpan();
+				.finish();
 		paragraph = builder.build();
 		checkContent(paragraph, 12, BreakStrategy.BALANCED,
 				"一 二 三， 四",

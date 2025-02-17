@@ -49,7 +49,7 @@ public class SelectionUnitTest {
 			builder.newSpanBuilder()
 					.next(text)
 					.tag(i)
-					.buildSpan();
+					.finish();
 		}
 
 		ParagraphTypesetter texTypesetter = new ParagraphTypesetter();

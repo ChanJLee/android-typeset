@@ -11,11 +11,9 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 
 import me.chan.texas.Texas;
-import me.chan.texas.TexasOption;
 import me.chan.texas.misc.DefaultRecyclable;
 import me.chan.texas.misc.ObjectPool;
 import me.chan.texas.renderer.selection.ParagraphSelection;
-import me.chan.texas.renderer.ui.decor.ParagraphDecor;
 import me.chan.texas.text.layout.Element;
 import me.chan.texas.text.layout.Layout;
 import me.chan.texas.text.tokenizer.Token;
@@ -28,8 +26,7 @@ import java.util.List;
 /**
  * 段落
  */
-public final class Paragraph extends DefaultRecyclable implements Segment {
-	private static final ObjectPool<Paragraph> POOL = new ObjectPool<>(Texas.getMemoryOption().getParagraphBufferSize());
+public final class Paragraph implements Segment {
 
 	@NonNull
 	@RestrictTo(LIBRARY)
@@ -38,8 +35,8 @@ public final class Paragraph extends DefaultRecyclable implements Segment {
 	@RestrictTo(LIBRARY)
 	final List<Element> mElements;
 
-	@RestrictTo(RestrictTo.Scope.LIBRARY)
-	Object mTag;
+	private final Builder mBuilder;
+
 	/**
 	 * 默认
 	 */
@@ -68,7 +65,7 @@ public final class Paragraph extends DefaultRecyclable implements Segment {
 	@Nullable
 	@Override
 	public Object getTag() {
-		return mTag;
+		return mBuilder.mTag;
 	}
 
 	@Override
@@ -87,9 +84,17 @@ public final class Paragraph extends DefaultRecyclable implements Segment {
 		mLayout.setRect(rect);
 	}
 
-	private ParagraphSelection mSelection;
+	@Override
+	public void recycle() {
+		mLayout.recycle();
+	}
 
-	private ParagraphDecor mDecor;
+	@Override
+	public boolean isRecycled() {
+		return mLayout.isRecycled();
+	}
+
+	private ParagraphSelection mSelection;
 
 	@RestrictTo(LIBRARY)
 	@Nullable
@@ -102,10 +107,11 @@ public final class Paragraph extends DefaultRecyclable implements Segment {
 		mSelection = selection;
 	}
 
-	private Paragraph(Object tag) {
-		mTag = tag;
+	private Paragraph(Builder builder) {
+		mBuilder = builder;
 		Texas.MemoryOption memoryOption = Texas.getMemoryOption();
 		mElements = new ArrayList<>(memoryOption.getParagraphElementInitialCapacity());
+		mLayout = Layout.obtain();
 	}
 
 	@RestrictTo(LIBRARY)
@@ -114,22 +120,6 @@ public final class Paragraph extends DefaultRecyclable implements Segment {
 		Layout old = mLayout;
 		mLayout = layout;
 		return old;
-	}
-
-	@Override
-	protected void onRecycle() {
-		mId = 0;
-		mLayout.clear();
-		for (int i = 0; i < mElements.size(); ++i) {
-			mElements.get(i).recycle();
-		}
-		mElements.clear();
-		mTag = null;
-		if (mSelection != null) {
-			mSelection.recycle();
-			mSelection = null;
-		}
-		POOL.release(this);
 	}
 
 	@Override
@@ -151,260 +141,21 @@ public final class Paragraph extends DefaultRecyclable implements Segment {
 		return mElements.get(index);
 	}
 
-	@RestrictTo(LIBRARY)
-	public static void clean() {
-		POOL.clean();
-	}
-
+	@NonNull
 	@RestrictTo(LIBRARY)
 	public Layout getLayout() {
 		return mLayout;
 	}
 
-	@RestrictTo(LIBRARY)
-	static Paragraph obtain() {
-		Paragraph paragraph = POOL.acquire();
-		if (paragraph == null) {
-			paragraph = new Paragraph(null);
-		}
-		paragraph.reuse();
-		return paragraph;
-	}
-
-	/**
-	 * 构造器，注意要尽量避免重复创建
-	 */
-	public static class Builder extends DefaultRecyclable {
-		private static final ObjectPool<Builder> POOL = new ObjectPool<>(8);
-
-		// real builder
-		private final ParagraphBuilderInternal mBuilder0;
-
-		private Builder() {
-			mBuilder0 = new ParagraphBuilderInternal(this);
-		}
-
-		public Builder lineSpace(float lineSpace) {
-			mBuilder0.lineSpace(lineSpace);
-			return this;
-		}
-
-		public Builder breakStrategy(BreakStrategy breakStrategy) {
-			mBuilder0.breakStrategy(breakStrategy);
-			return this;
-		}
-
-		/**
-		 * @param tag 设置paragraph的额外信息，用来标识这个paragraph，因此需要保持唯一
-		 * @return 当前对象
-		 */
-		public Builder tag(Object tag) {
-			mBuilder0.tag(tag);
-			return this;
-		}
-
-		/**
-		 * @param text 文本
-		 * @return 当前对象
-		 */
-		public Builder text(CharSequence text) {
-			return text(text, 0, text.length());
-		}
-
-		/**
-		 * @param text  文本
-		 * @param start 开始下标
-		 * @param end   结束下标
-		 * @return 当前对象
-		 */
-		public Builder text(CharSequence text, int start, int end) {
-			mBuilder0.text(text, start, end);
-			return this;
-		}
-
-		/**
-		 * 创建一个span，span是一段富文本内容，内部有多段组成
-		 * 每个组成部分可以设置文本样式，以及相应点击事件
-		 * 另外一个span可以响应长按事件
-		 *
-		 * @return 当前对象
-		 */
-		public SpanBuilder newSpanBuilder() {
-			return mBuilder0.newSpanBuilder();
-		}
-
-		/**
-		 * 以stream流的模式设置文本
-		 * 以文本 "Hi, World..." 为例
-		 * 词法引擎回去解析这段文本，并解析成
-		 * [Hi, 0-2]
-		 * [,, 2-3]
-		 * [World, 4-9]
-		 * [..., 9-12]
-		 * 的单词流，客户端根据下标 去确定当前的单词流样式
-		 * <p>
-		 * 该方法保证 下标间永不重叠，并且递增
-		 * 下标的规则是 左闭右开即 [0, 3) 包含 0, 1, 2这三个下标
-		 *
-		 * @param text       text
-		 * @param spanReader span 读取
-		 * @return 当前对象
-		 */
-		public Builder stream(CharSequence text, SpanReader spanReader) {
-			return stream(text, 0, text.length(), spanReader);
-		}
-
-		/**
-		 * 以stream流的模式设置文本
-		 * 以文本 "Hi, World..." 为例
-		 * 词法引擎回去解析这段文本，并解析成
-		 * [Hi, 0-2]
-		 * [,, 2-3]
-		 * [World, 4-9]
-		 * [..., 9-12]
-		 * 的单词流，客户端根据下标 去确定当前的单词流样式
-		 * <p>
-		 * 该方法保证 下标间永不重叠，并且递增
-		 * 下标的规则是 左闭右开即 [0, 3) 包含 0, 1, 2这三个下标
-		 *
-		 * @param text       text
-		 * @param start      开始位置
-		 * @param end        起始位置
-		 * @param spanReader span 读取
-		 * @return 当前对象
-		 */
-		public Builder stream(CharSequence text, int start, int end, SpanReader spanReader) {
-			mBuilder0.stream(text, start, end, spanReader);
-			return this;
-		}
-
-		public interface SpanReader {
-			Span read(Token token);
-		}
-
-		/**
-		 * 颜文字
-		 *
-		 * @param emoticon 颜文字
-		 * @return 当前对象
-		 */
-		public Builder emoticon(Emoticon emoticon) {
-			mBuilder0.emoticon(emoticon);
-			return this;
-		}
-
-		/**
-		 * 强行断行
-		 *
-		 * @return 当前对象
-		 */
-		public Builder brk() {
-			mBuilder0.brk();
-			return this;
-		}
-
-		public Builder addTypesetPolicy(@TypesetPolicy int policy) {
-			mBuilder0.addTypesetPolicy(policy);
-			return this;
-		}
-
-		public Builder clearTypesetPolicy() {
-			mBuilder0.clearTypesetPolicy();
-			return this;
-		}
-
-		public Builder setTypesetPolicy(@TypesetPolicy int policy) {
-			clearTypesetPolicy();
-			addTypesetPolicy(policy);
-			return this;
-		}
-
-		/**
-		 * 构造一个paragraph
-		 * <p/>
-		 * Tips: 该方法会在段落默认添加一个换行，如果不需要，请参考 {@link #build(boolean)}
-		 *
-		 * @return paragraph
-		 */
-		public Paragraph build() {
-			return build(true);
-		}
-
-		/**
-		 * 构造一个paragraph
-		 *
-		 * @param brk 是否追加一个换行
-		 * @return paragraph
-		 */
-		public Paragraph build(boolean brk) {
-			if (isRecycled()) {
-				throw new IllegalStateException("call build twice");
-			}
-
-			Paragraph paragraph = mBuilder0.build(brk);
-			recycle();
-			return paragraph;
-		}
-
-		@Override
-		protected void onRecycle() {
-			mBuilder0.reset();
-			POOL.release(this);
-		}
-
-		/**
-		 * use {@link #newBuilder(TexasOption)} & {@link #addTypesetPolicy(int)} instead
-		 * <p>
-		 * more {@link #clearTypesetPolicy()}
-		 * </p>
-		 *
-		 * @param texasOption texas option
-		 * @return 当前对象
-		 */
-		@Deprecated
-		public static Builder newBuilder(TexasOption texasOption,
-										 @TypesetPolicy int typesetPolicy) {
-			return newBuilder(texasOption)
-					.setTypesetPolicy(typesetPolicy);
-		}
-
-		/**
-		 * @param texasOption texas option
-		 * @return 当前对象
-		 */
-		public static Builder newBuilder(TexasOption texasOption) {
-			Builder builder = POOL.acquire();
-			if (builder == null) {
-				builder = new Builder();
-			}
-
-			builder.mBuilder0.reset(texasOption);
-			builder.reuse();
-			return builder;
-		}
-
-		public static void clean() {
-			POOL.clean();
-		}
-	}
-
 	/**
 	 * span构造器
 	 */
-	public static class SpanBuilder implements Builder.SpanReader {
+	public static class SpanBuilder {
 		private final Builder mBuilder;
 		private Span mSpan;
 
-		SpanBuilder(Builder builder) {
+		private SpanBuilder(Builder builder) {
 			mBuilder = builder;
-		}
-
-		@RestrictTo(LIBRARY)
-		void reset() {
-			if (mSpan != null) {
-				mSpan.recycle();
-				mSpan = null;
-			}
 		}
 
 		/**
@@ -489,10 +240,8 @@ public final class Paragraph extends DefaultRecyclable implements Segment {
 				return;
 			}
 
-			mBuilder.mBuilder0.stream(mSpan.mText, mSpan.mStart, mSpan.mEnd, this);
-
-			// reset
-			reset();
+			mBuilder.mRecords.add(mSpan);
+			mSpan = null;
 		}
 
 		/**
@@ -500,24 +249,16 @@ public final class Paragraph extends DefaultRecyclable implements Segment {
 		 *
 		 * @return span
 		 */
-		public Builder buildSpan() {
+		public Builder finish() {
 			flush();
 			return mBuilder;
-		}
-
-		@Override
-		@RestrictTo(LIBRARY)
-		public final Span read(Token token) {
-			Span span = Span.obtain(mSpan.mText, mSpan.mStart, mSpan.mEnd);
-			span.copy(mSpan);
-			return span;
 		}
 	}
 
 	/**
 	 * 文本的样式
 	 */
-	public static class Span extends DefaultRecyclable {
+	public static class Span extends DefaultRecyclable implements TextEditRecord {
 		private static final ObjectPool<Span> POOL = new ObjectPool<>(32);
 
 		private CharSequence mText;
@@ -659,6 +400,78 @@ public final class Paragraph extends DefaultRecyclable implements Segment {
 		}
 	}
 
+	// TODO test recycle
+	@RestrictTo(LIBRARY)
+	public static class StreamEditRecord extends DefaultRecyclable implements TextEditRecord {
+		private static final ObjectPool<StreamEditRecord> POOL = new ObjectPool<>(32);
+
+		private CharSequence mText;
+		private int mStart;
+		private int mEnd;
+		private Builder.SpanReader mSpanReader;
+
+		private StreamEditRecord() {
+		}
+
+		public static TextEditRecord obtain(CharSequence text, int start, int end, Builder.SpanReader spanReader) {
+			StreamEditRecord record = POOL.acquire();
+			if (record == null) {
+				record = new StreamEditRecord();
+			}
+
+			record.mText = text;
+			record.mStart = start;
+			record.mEnd = end;
+			record.mSpanReader = spanReader;
+			record.reuse();
+			return record;
+		}
+
+		public CharSequence getText() {
+			return mText;
+		}
+
+		public int getStart() {
+			return mStart;
+		}
+
+		public int getEnd() {
+			return mEnd;
+		}
+
+		public Builder.SpanReader getSpanReader() {
+			return mSpanReader;
+		}
+
+		@Override
+		protected void onRecycle() {
+			mText = null;
+			mStart = mEnd = 0;
+			mSpanReader = null;
+			POOL.release(this);
+		}
+
+		@NonNull
+		@Override
+		public String toString() {
+			if (mText == null) {
+				return "";
+			}
+
+			return mText.subSequence(mStart, mEnd).toString();
+		}
+	}
+
+	@RestrictTo(LIBRARY)
+	public static class BrkEditRecord implements TextEditRecord {
+		public static final BrkEditRecord BRK = new BrkEditRecord();
+
+		@Override
+		public String toString() {
+			return "BRK";
+		}
+	}
+
 	@NonNull
 	@Override
 	public String toString() {
@@ -671,5 +484,183 @@ public final class Paragraph extends DefaultRecyclable implements Segment {
 			digest = builder.toString();
 		}
 		return digest;
+	}
+
+	/**
+	 * 构造器，注意要尽量避免重复创建
+	 */
+	public static class Builder {
+		@RestrictTo(LIBRARY)
+		int mTypesetPolicy;
+		@RestrictTo(LIBRARY)
+		float mLineSpace;
+		@RestrictTo(LIBRARY)
+		BreakStrategy mBreakStrategy;
+		@RestrictTo(LIBRARY)
+		Object mTag;
+		@RestrictTo(LIBRARY)
+		List<TextEditRecord> mRecords = new ArrayList<>(32);
+
+		public Builder(@TypesetPolicy int typesetPolicy) {
+			mTypesetPolicy = typesetPolicy;
+		}
+
+		public Builder lineSpace(float lineSpace) {
+			mLineSpace = lineSpace;
+			return this;
+		}
+
+		public Builder breakStrategy(BreakStrategy breakStrategy) {
+			mBreakStrategy = breakStrategy;
+			return this;
+		}
+
+		/**
+		 * @param tag 设置paragraph的额外信息，用来标识这个paragraph，因此需要保持唯一
+		 * @return 当前对象
+		 */
+		public Builder tag(Object tag) {
+			mTag = tag;
+			return this;
+		}
+
+		/**
+		 * @param text 文本
+		 * @return 当前对象
+		 */
+		public Builder text(CharSequence text) {
+			return text(text, 0, text.length());
+		}
+
+		/**
+		 * @param text  文本
+		 * @param start 开始下标
+		 * @param end   结束下标
+		 * @return 当前对象
+		 */
+		public Builder text(CharSequence text, int start, int end) {
+			mRecords.add(Span.obtain(text, start, end));
+			return this;
+		}
+
+		/**
+		 * 创建一个span，span是一段富文本内容，内部有多段组成
+		 * 每个组成部分可以设置文本样式，以及相应点击事件
+		 * 另外一个span可以响应长按事件
+		 *
+		 * @return 当前对象
+		 */
+		public SpanBuilder newSpanBuilder() {
+			return new SpanBuilder(this);
+		}
+
+		/**
+		 * 以stream流的模式设置文本
+		 * 以文本 "Hi, World..." 为例
+		 * 词法引擎回去解析这段文本，并解析成
+		 * [Hi, 0-2]
+		 * [,, 2-3]
+		 * [World, 4-9]
+		 * [..., 9-12]
+		 * 的单词流，客户端根据下标 去确定当前的单词流样式
+		 * <p>
+		 * 该方法保证 下标间永不重叠，并且递增
+		 * 下标的规则是 左闭右开即 [0, 3) 包含 0, 1, 2这三个下标
+		 *
+		 * @param text       text
+		 * @param spanReader span 读取
+		 * @return 当前对象
+		 */
+		public Builder stream(CharSequence text, SpanReader spanReader) {
+			return stream(text, 0, text.length(), spanReader);
+		}
+
+		/**
+		 * 以stream流的模式设置文本
+		 * 以文本 "Hi, World..." 为例
+		 * 词法引擎回去解析这段文本，并解析成
+		 * [Hi, 0-2]
+		 * [,, 2-3]
+		 * [World, 4-9]
+		 * [..., 9-12]
+		 * 的单词流，客户端根据下标 去确定当前的单词流样式
+		 * <p>
+		 * 该方法保证 下标间永不重叠，并且递增
+		 * 下标的规则是 左闭右开即 [0, 3) 包含 0, 1, 2这三个下标
+		 *
+		 * @param text       text
+		 * @param start      开始位置
+		 * @param end        起始位置
+		 * @param spanReader span 读取
+		 * @return 当前对象
+		 */
+		public Builder stream(CharSequence text, int start, int end, SpanReader spanReader) {
+			mRecords.add(StreamEditRecord.obtain(text, start, end, spanReader));
+			return this;
+		}
+
+		public interface SpanReader {
+			Span read(Token token);
+		}
+
+		/**
+		 * 颜文字
+		 *
+		 * @param emoticon 颜文字
+		 * @return 当前对象
+		 */
+		public Builder emoticon(Emoticon emoticon) {
+			mRecords.add(emoticon);
+			return this;
+		}
+
+		/**
+		 * 强行断行
+		 *
+		 * @return 当前对象
+		 */
+		public Builder brk() {
+			mRecords.add(BrkEditRecord.BRK);
+			return this;
+		}
+
+		public Builder addTypesetPolicy(@TypesetPolicy int policy) {
+			mTypesetPolicy |= policy;
+			return this;
+		}
+
+		public Builder clearTypesetPolicy() {
+			mTypesetPolicy = 0;
+			return this;
+		}
+
+		public Builder setTypesetPolicy(@TypesetPolicy int policy) {
+			mTypesetPolicy = policy;
+			return this;
+		}
+
+		/**
+		 * 构造一个paragraph
+		 * <p/>
+		 * Tips: 该方法会在段落默认添加一个换行，如果不需要，请参考 {@link #build(boolean)}
+		 *
+		 * @return paragraph
+		 */
+		public Paragraph build() {
+			return build(true);
+		}
+
+		/**
+		 * 构造一个paragraph
+		 *
+		 * @param brk 是否追加一个换行
+		 * @return paragraph
+		 */
+		public Paragraph build(boolean brk) {
+			if (brk) {
+				mRecords.add(BrkEditRecord.BRK);
+			}
+			return new Paragraph(this);
+		}
 	}
 }

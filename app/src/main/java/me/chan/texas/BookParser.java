@@ -128,7 +128,7 @@ public class BookParser extends TexasView.Adapter<CharSequence> {
 						textPaint.setFakeBoldText(true);
 					}
 				})
-				.buildSpan()
+				.finish()
 				.build();
 		document.addSegment(paragraph);
 	}

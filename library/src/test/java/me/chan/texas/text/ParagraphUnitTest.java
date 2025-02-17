@@ -19,7 +19,6 @@ import me.chan.texas.text.layout.Line;
 import me.chan.texas.text.layout.Penalty;
 import me.chan.texas.text.layout.SymbolGlue;
 import me.chan.texas.text.layout.TextBox;
-import me.chan.texas.text.tokenizer.Token;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -109,9 +108,9 @@ public class ParagraphUnitTest {
 		DotUnderLine dotUnderLine = new DotUnderLine(10);
 		String tag = "msg";
 		Paragraph.SpanBuilder spanBuilder = builder.newSpanBuilder().next("triangle").setBackground(background).setForeground(dotUnderLine).tag(tag).setTextStyle(TextStyle.BOLD);
-		spanBuilder.buildSpan();
+		spanBuilder.finish();
 
-		builder.newSpanBuilder().next("ok").buildSpan();
+		builder.newSpanBuilder().next("ok").finish();
 
 		paragraph = builder.build();
 		layout = paragraph.getLayout();
