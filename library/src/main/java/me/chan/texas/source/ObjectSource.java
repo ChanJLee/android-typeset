@@ -1,7 +1,5 @@
 package me.chan.texas.source;
 
-import me.chan.texas.renderer.LoadingStrategy;
-
 /**
  * 直接返回已经读好的对象
  */

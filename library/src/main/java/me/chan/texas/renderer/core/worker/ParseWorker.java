@@ -7,7 +7,6 @@ import androidx.annotation.RestrictTo;
 
 import me.chan.texas.misc.DefaultRecyclable;
 import me.chan.texas.misc.ObjectPool;
-import me.chan.texas.renderer.LoadingStrategy;
 import me.chan.texas.renderer.core.sync.WorkerMessager;
 import me.chan.texas.source.Source;
 import me.chan.texas.text.Paragraph;

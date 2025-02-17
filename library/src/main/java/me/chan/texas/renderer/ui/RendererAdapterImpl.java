@@ -21,7 +21,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import me.chan.texas.BuildConfig;
 import me.chan.texas.image.ImageLoader;
 import me.chan.texas.misc.PaintSet;
-import me.chan.texas.renderer.LoadingStrategy;
 import me.chan.texas.renderer.RenderOption;
 import me.chan.texas.renderer.TouchEvent;
 import me.chan.texas.renderer.selection.SelectionManager;
@@ -172,12 +171,6 @@ public class RendererAdapterImpl extends RecyclerView.Adapter<RendererAdapterImp
 	@Override
 	@SuppressWarnings("unchecked")
 	public void onBindViewHolder(@NonNull Renderer renderer, int position) {
-		if (position == getItemCount() - 1) {
-			mListener.onLoadingMore(position);
-		} else if (position == 0) {
-			mListener.onLoadingPrevious();
-		}
-
 		onBindViewHolder0(renderer, position);
 	}
 
@@ -279,33 +272,14 @@ public class RendererAdapterImpl extends RecyclerView.Adapter<RendererAdapterImp
 
 	// todo refactor
 	@SuppressLint("NotifyDataSetChanged")
-	public void render(LoadingStrategy strategy, PaintSet paintSet, Document document, int start, int end, RenderOption renderOption) {
+	public void render(PaintSet paintSet, Document document, int start, int end, RenderOption renderOption) {
 		d("render");
 		mView.stopScroll();
 		mPaintSet = paintSet;
 		mRenderOption = renderOption;
 		Document prev = mDocument;
 		mDocument = document;
-		document.attach(this);
-
-		// refresh content
-		if (prev != document ||
-				strategy == LoadingStrategy.INIT) {
-			notifyDataSetChanged();
-			return;
-		}
-
-		if (strategy == LoadingStrategy.LOAD_MORE || strategy == LoadingStrategy.LOAD_PREVIOUS) {
-			notifyItemRangeInserted(start, end - start);
-			return;
-		}
-
-		if (strategy == LoadingStrategy.TYPESET_ONLY) {
-			notifyItemRangeChanged(start, end - start);
-			return;
-		}
-
-		throw new IllegalArgumentException("illegal argument, loading strategy: " + strategy);
+		notifyDataSetChanged();
 	}
 
 	public void updateRenderOption(RenderOption renderOption) {
@@ -612,10 +586,6 @@ public class RendererAdapterImpl extends RecyclerView.Adapter<RendererAdapterImp
 		void onSegmentClicked(TouchEvent event, Object tag);
 
 		void onSegmentDoubleClicked(TouchEvent event, Object tag);
-
-		void onLoadingMore(int count);
-
-		void onLoadingPrevious();
 	}
 
 	public int sendSignal(Segment segment, Object signal) {

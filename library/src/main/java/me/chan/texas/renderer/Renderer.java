@@ -91,18 +91,18 @@ public class Renderer implements SelectionManager.Listener {
 
 	private TypesetEngine.Listener mListener = new TypesetEngine.Listener() {
 		@Override
-		public void onStart(LoadingStrategy strategy) {
-			mTexasView.notifyRenderStart(strategy);
+		public void onStart() {
+			mTexasView.notifyRenderStart();
 		}
 
 		@Override
-		public void onFailure(LoadingStrategy strategy, Throwable throwable) {
-			mTexasView.notifyRenderError(strategy, throwable);
+		public void onFailure(Throwable throwable) {
+			mTexasView.notifyRenderError(throwable);
 		}
 
 		@Override
-		public void onSuccess(LoadingStrategy strategy, PaintSet paintSet, Document doc, int start, int end) {
-			render(strategy, paintSet, doc, start, end);
+		public void onSuccess(PaintSet paintSet, Document doc, int start, int end) {
+			render(paintSet, doc, start, end);
 		}
 	};
 
@@ -144,16 +144,6 @@ public class Renderer implements SelectionManager.Listener {
 			public void onSegmentDoubleClicked(TouchEvent event, Object tag) {
 				mTexasView.notifySegmentDoubleClicked(event, tag);
 			}
-
-			@Override
-			public void onLoadingMore(int count) {
-				mTexasView.scheduleLoadMore();
-			}
-
-			@Override
-			public void onLoadingPrevious() {
-				mTexasView.scheduleLoadPrevious();
-			}
 		});
 		mImpl.addItemDecoration(new SegmentItemDecoration(mAdapter));
 
@@ -174,7 +164,7 @@ public class Renderer implements SelectionManager.Listener {
 	/**
 	 * @param width 期望的宽度，如果是负值，那么就忽略排版，只会解析
 	 */
-	public void load(String reason, int width, LoadingStrategy strategy) {
+	public void load(String reason, int width) {
 		d("load, reason: " + reason);
 
 		if (mTypesetEngine == null) {
@@ -182,28 +172,25 @@ public class Renderer implements SelectionManager.Listener {
 			return;
 		}
 
-		mTypesetEngine.load(reason, width, strategy, mTexasView.getAdapter(), mListener);
+		mTypesetEngine.load(reason, width, mTexasView.getAdapter(), mListener);
 	}
 
-	public void typeset(String reason, int width, LoadingStrategy strategy) {
+	public void typeset(String reason, int width) {
 		if (BuildConfig.DEBUG) {
 			Log.d("TexasRenderer", "typeset, reason: " + reason);
 		}
 
 		// 重新排版会将之前的解析任务都失效
-		mTypesetEngine.resize(reason, width, strategy, mListener);
+		mTypesetEngine.resize(reason, width, mListener);
 	}
 
-	private void render(LoadingStrategy strategy, PaintSet paintSet, Document document, int start, int end) {
-		if (strategy != LoadingStrategy.LOAD_PREVIOUS &&
-				strategy != LoadingStrategy.LOAD_MORE) {
-			clearHighlight();
-			clearSelection();
-		}
+	private void render(PaintSet paintSet, Document document, int start, int end) {
+		clearHighlight();
+		clearSelection();
 
-		mAdapter.render(strategy, paintSet, document, start, end, mRenderOption);
+		mAdapter.render(paintSet, document, start, end, mRenderOption);
 
-		mTexasView.notifyRenderEnd(strategy);
+		mTexasView.notifyRenderEnd();
 	}
 
 	@CallSuper
@@ -240,11 +227,11 @@ public class Renderer implements SelectionManager.Listener {
 
 		if (cmpType == TexasUtils.CmpType.CMP_LOAD) {
 			d("render option changed, load");
-			load("render option changed", mTypesetEngine.getWidth(), LoadingStrategy.INIT);
+			load("render option changed", mTypesetEngine.getWidth());
 			return;
 		} else if (cmpType == TexasUtils.CmpType.CMP_TYPESET) {
 			d("render option changed, typeset");
-			mTypesetEngine.resize("Renderer.refresh", LoadingStrategy.TYPESET_ONLY, mListener);
+			mTypesetEngine.resize("Renderer.refresh", mListener);
 			return;
 		}
 
@@ -436,7 +423,7 @@ public class Renderer implements SelectionManager.Listener {
 		}
 
 		mTypesetEngine.setSegmentDecoration(segmentDecoration);
-		mTypesetEngine.resize("Renderer.setSegmentDecoration", LoadingStrategy.TYPESET_ONLY, mListener);
+		mTypesetEngine.resize("Renderer.setSegmentDecoration", mListener);
 	}
 
 	private static void d(String msg) {

@@ -356,24 +356,14 @@ public final class TexasView extends FrameLayout {
 	}
 
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
-	public void notifyRenderStart(LoadingStrategy loadingStrategy) {
-		if (loadingStrategy == LoadingStrategy.LOAD_MORE) {
-			if (mBottomLoadingIndicator != null) {
-				mBottomLoadingIndicator.renderLoading();
-			}
-		} else {
-			if (mTopLoadingIndicator != null) {
-				mTopLoadingIndicator.renderLoading();
-			}
-		}
-
+	public void notifyRenderStart() {
 		if (mRenderListener != null) {
-			mRenderListener.onStart(TexasView.this, loadingStrategy);
+			mRenderListener.onStart(TexasView.this);
 		}
 	}
 
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
-	public void notifyRenderEnd(LoadingStrategy loadingStrategy) {
+	public void notifyRenderEnd() {
 		if (mBottomLoadingIndicator != null) {
 			mBottomLoadingIndicator.dismiss();
 		}
@@ -383,12 +373,12 @@ public final class TexasView extends FrameLayout {
 		}
 
 		if (mRenderListener != null) {
-			mRenderListener.onEnd(TexasView.this, loadingStrategy);
+			mRenderListener.onEnd(TexasView.this);
 		}
 	}
 
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
-	public void notifyRenderError(LoadingStrategy strategy, Throwable throwable) {
+	public void notifyRenderError(Throwable throwable) {
 		if (mBottomLoadingIndicator != null) {
 			mBottomLoadingIndicator.dismiss();
 		}
@@ -398,7 +388,7 @@ public final class TexasView extends FrameLayout {
 		}
 
 		if (mRenderListener != null) {
-			mRenderListener.onError(TexasView.this, strategy, throwable);
+			mRenderListener.onError(TexasView.this, throwable);
 		}
 	}
 
@@ -410,12 +400,12 @@ public final class TexasView extends FrameLayout {
 		mRenderer.setSegmentDecoration(segmentDecoration);
 	}
 
-	private void load(String reason, LoadingStrategy loadingStrategy) {
+	private void load(String reason) {
 		if (mRenderer == null) {
 			return;
 		}
 
-		mRenderer.load(reason, getRenderWidth(), loadingStrategy);
+		mRenderer.load(reason, getRenderWidth());
 	}
 
 	@Override
@@ -423,7 +413,7 @@ public final class TexasView extends FrameLayout {
 		super.onSizeChanged(w, h, oldw, oldh);
 		/* render if size changed */
 		if (w != oldw) {
-			mRenderer.typeset("onSizeChanged", getRenderWidth(), LoadingStrategy.TYPESET_ONLY);
+			mRenderer.typeset("onSizeChanged", getRenderWidth());
 		}
 	}
 
@@ -631,6 +621,7 @@ public final class TexasView extends FrameLayout {
 
 	/**
 	 * 滚动偏移量
+	 *
 	 * @param dx 水平滚动距离
 	 * @param dy 垂直滚动距离
 	 */
@@ -862,14 +853,14 @@ public final class TexasView extends FrameLayout {
 		 *
 		 * @param texasView view
 		 */
-		void onStart(TexasView texasView, LoadingStrategy loadingStrategy);
+		void onStart(TexasView texasView);
 
 		/**
 		 * 渲染结束的时候调用
 		 *
 		 * @param texasView view
 		 */
-		void onEnd(TexasView texasView, LoadingStrategy loadingStrategy);
+		void onEnd(TexasView texasView);
 
 		/**
 		 * 发生错误的时候调用
@@ -877,7 +868,7 @@ public final class TexasView extends FrameLayout {
 		 * @param texasView view
 		 * @param throwable 错误
 		 */
-		void onError(TexasView texasView, LoadingStrategy loadingStrategy, Throwable throwable);
+		void onError(TexasView texasView, Throwable throwable);
 	}
 
 	private static void d(String msg) {
@@ -913,7 +904,7 @@ public final class TexasView extends FrameLayout {
 		private void attach(@NonNull TexasView view) {
 			mTexasView = view;
 			if (mSource != null) {
-				view.load("adapter attached", LoadingStrategy.INIT);
+				view.load("adapter attached");
 			}
 		}
 
@@ -951,7 +942,7 @@ public final class TexasView extends FrameLayout {
 
 			// start load more
 			if (mTexasView != null && previous != mSource) {
-				mTexasView.load("new source", LoadingStrategy.INIT);
+				mTexasView.load("new source");
 			}
 
 			if (previous != null && previous != source) {
@@ -979,59 +970,24 @@ public final class TexasView extends FrameLayout {
 			return null;
 		}
 
-		@VisibleForTesting
-		public final Document getDocument(TexasOption option) throws SourceOpenException, ParseException {
-			LoadingWorker.LoadingResult result = getDocument(option, LoadingStrategy.INIT);
-			return result.getDocument();
-		}
-
-		private static final Document EMPTY_DOCUMENT = Document.obtain();
+		private static final Document EMPTY_DOCUMENT = new Document.Builder()
+				.build();
 
 		@NonNull
 		@RestrictTo(RestrictTo.Scope.LIBRARY)
-		public final LoadingWorker.LoadingResult getDocument(TexasOption texasOption, LoadingStrategy loadType) throws SourceOpenException, ParseException {
+		public final LoadingWorker.LoadingResult getDocument(TexasOption texasOption) throws SourceOpenException, ParseException {
 			if (mSource == null) {
-				return LoadingWorker.LoadingResult.obtainWithoutContent(loadType, mDocument == null ? EMPTY_DOCUMENT : mDocument);
+				return LoadingWorker.LoadingResult.obtainWithoutContent(mDocument == null ? EMPTY_DOCUMENT : mDocument);
 			}
 
-			T value = mSource.open(loadType);
+			T value = mSource.open();
 			if (value == null) {
-				return LoadingWorker.LoadingResult.obtainWithoutContent(loadType, mDocument == null ? EMPTY_DOCUMENT : mDocument);
+				return LoadingWorker.LoadingResult.obtainWithoutContent(mDocument == null ? EMPTY_DOCUMENT : mDocument);
 			}
 
-			if (loadType == LoadingStrategy.INIT) {
-				mDocument = parse(value, texasOption);
-				return LoadingWorker.LoadingResult.obtain(loadType, mDocument);
-			}
-
-			if (mDocument == null) {
-				throw new IllegalStateException("document is null");
-			}
-
-			List<Segment> segments = parseIncremental(value, texasOption);
-			if (segments == null) {
-				return LoadingWorker.LoadingResult.obtainWithoutContent(loadType, mDocument);
-			}
-
-			if (loadType == LoadingStrategy.LOAD_PREVIOUS) {
-				mDocument.insertHead(segments);
-				return LoadingWorker.LoadingResult.obtain(loadType, mDocument, 0, segments.size());
-			} else if (loadType == LoadingStrategy.LOAD_MORE) {
-				int start = mDocument.getSegmentCount();
-				mDocument.insertTail(segments);
-				return LoadingWorker.LoadingResult.obtain(loadType, mDocument, start, start + segments.size());
-			} else {
-				throw new IllegalStateException("unknown load type: " + loadType);
-			}
+			mDocument = parse(value, texasOption);
+			return LoadingWorker.LoadingResult.obtain(mDocument);
 		}
-	}
-
-	void scheduleLoadMore() {
-		load("load more", LoadingStrategy.LOAD_MORE);
-	}
-
-	void scheduleLoadPrevious() {
-		load("load previous", LoadingStrategy.LOAD_PREVIOUS);
 	}
 
 	/**

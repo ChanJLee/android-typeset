@@ -12,7 +12,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-import me.chan.texas.renderer.LoadingStrategy;
 import me.chan.texas.source.SourceOpenException;
 import me.chan.texas.source.StreamTextSource;
 

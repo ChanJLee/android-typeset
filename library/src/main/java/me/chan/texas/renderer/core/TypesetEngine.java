@@ -7,7 +7,6 @@ import android.util.Log;
 import androidx.annotation.RestrictTo;
 
 import me.chan.texas.misc.PaintSet;
-import me.chan.texas.renderer.LoadingStrategy;
 import me.chan.texas.renderer.RenderOption;
 import me.chan.texas.renderer.TexasView;
 import me.chan.texas.renderer.core.worker.LoadingWorker;
@@ -46,15 +45,15 @@ public class TypesetEngine {
 		}
 	}
 
-	public void resize(String reason, LoadingStrategy strategy, Listener listener) {
-		resize0(reason, mWidth, strategy, listener, EVENT_ALL);
+	public void resize(String reason, Listener listener) {
+		resize0(reason, mWidth, listener, EVENT_ALL);
 	}
 
-	public void resize(String reason, int width, LoadingStrategy strategy, Listener listener) {
-		resize0(reason, width, strategy, listener, EVENT_NONE);
+	public void resize(String reason, int width, Listener listener) {
+		resize0(reason, width, listener, EVENT_NONE);
 	}
 
-	private void resize0(String reason, int width, LoadingStrategy strategy, Listener listener, int focusEvents) {
+	private void resize0(String reason, int width, Listener listener, int focusEvents) {
 		if (width > 0) {
 			mWidth = width;
 		}
@@ -62,7 +61,7 @@ public class TypesetEngine {
 		if (mDocument == null || width <= 0) {
 			return;
 		}
-		typeset0(reason, mDocument, 0, mDocument.getSegmentCount(), strategy, listener, focusEvents);
+		typeset0(reason, mDocument, 0, mDocument.getSegmentCount(), listener, focusEvents);
 	}
 
 	/**
@@ -72,35 +71,33 @@ public class TypesetEngine {
 	 */
 	private void typeset0(String reason,
 						  Document document, int start, int end,
-						  LoadingStrategy strategy, Listener listener,
+						  Listener listener,
 						  int focusEvents) {
-		d("typeset, reason: " + reason + ", strategy: " + strategy + ", start: " + start + ", end: " + end);
+		d("typeset, reason: " + reason + ", start: " + start + ", end: " + end);
 
 		if (document == null) {
 			w("typeset, document is null");
 			if (listener != null && (focusEvents & EVENT_FAILURE) != 0) {
-				listener.onFailure(strategy, new IllegalArgumentException("document is null"));
+				listener.onFailure(new IllegalArgumentException("document is null"));
 			}
 			return;
 		}
 
 		// 先取消之前已经提交的排版任务
-		if (strategy == LoadingStrategy.INIT || strategy == LoadingStrategy.TYPESET_ONLY) {
-			WorkerScheduler.mix().cancel(mToken);
-		}
+		WorkerScheduler.mix().cancel(mToken);
 
 		mDocument = document;
-		MixWorker.Args args = MixWorker.Args.obtain(mWidth, mRenderOption, document, strategy,
+		MixWorker.Args args = MixWorker.Args.obtain(mWidth, mRenderOption, document,
 				new MixWorker.Listener() {
 					@Override
-					public void onStart(LoadingStrategy strategy) {
+					public void onStart() {
 						if (listener != null && (focusEvents & EVENT_START) != 0) {
-							listener.onStart(strategy);
+							listener.onStart();
 						}
 					}
 
 					@Override
-					public void onFailure(LoadingStrategy strategy, Throwable throwable) {
+					public void onFailure(Throwable throwable) {
 						if (throwable instanceof TaskQueue.TokenExpiredException) {
 							if (DEBUG) {
 								w(throwable);
@@ -109,14 +106,14 @@ public class TypesetEngine {
 						}
 
 						if (listener != null && (focusEvents & EVENT_FAILURE) != 0) {
-							listener.onFailure(strategy, throwable);
+							listener.onFailure(throwable);
 						}
 					}
 
 					@Override
-					public void onSuccess(LoadingStrategy strategy, MixWorker.TypesetResult result) {
+					public void onSuccess(MixWorker.TypesetResult result) {
 						if (listener != null && (focusEvents & EVENT_SUCCESS) != 0) {
-							listener.onSuccess(strategy, result.paintSet, result.doc, result.start, result.end);
+							listener.onSuccess(result.paintSet, result.doc, result.start, result.end);
 						}
 					}
 				}, mSegmentDecoration, start, end);
@@ -131,19 +128,17 @@ public class TypesetEngine {
 		mDocument = null;
 	}
 
-	public void load(String reason, int width, LoadingStrategy strategy, TexasView.Adapter<?> adapter, Listener listener) {
+	public void load(String reason, int width, TexasView.Adapter<?> adapter, Listener listener) {
 		// 非增量的加载，都需要取消之前的任务
-		if (strategy == LoadingStrategy.INIT) {
-			cancel();
-		}
+		cancel();
 
 		mWidth = width;
-		LoadingWorker.Args args = LoadingWorker.Args.obtain(mRenderOption, adapter, strategy, new LoadingWorker.Listener() {
+		LoadingWorker.Args args = LoadingWorker.Args.obtain(mRenderOption, adapter, new LoadingWorker.Listener() {
 			@Override
 			public void onStart() {
-				d("try loading doc, width: " + width + ", strategy: " + strategy);
+				d("try loading doc, width: " + width);
 				if (listener != null) {
-					listener.onStart(strategy);
+					listener.onStart();
 				}
 			}
 
@@ -157,13 +152,13 @@ public class TypesetEngine {
 				}
 
 				if (listener != null) {
-					listener.onFailure(strategy, throwable);
+					listener.onFailure(throwable);
 				}
 			}
 
 			@Override
-			public void onSuccess(LoadingStrategy strategy, Document document, int start, int end) {
-				typeset0(reason, document, start, end, strategy, listener, EVENT_FAILURE | EVENT_SUCCESS);
+			public void onSuccess(Document document, int start, int end) {
+				typeset0(reason, document, start, end, listener, EVENT_FAILURE | EVENT_SUCCESS);
 			}
 		});
 		WorkerScheduler.loading().submit(mToken, args);
@@ -215,10 +210,10 @@ public class TypesetEngine {
 	}
 
 	public interface Listener {
-		void onStart(LoadingStrategy strategy);
+		void onStart();
 
-		void onFailure(LoadingStrategy strategy, Throwable throwable);
+		void onFailure(Throwable throwable);
 
-		void onSuccess(LoadingStrategy strategy, PaintSet paintSet, Document doc, int start, int end);
+		void onSuccess(PaintSet paintSet, Document doc, int start, int end);
 	}
 }

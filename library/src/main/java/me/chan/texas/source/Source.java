@@ -4,7 +4,6 @@ import androidx.annotation.AnyThread;
 import androidx.annotation.Nullable;
 
 import me.chan.texas.TexasOption;
-import me.chan.texas.renderer.LoadingStrategy;
 
 /**
  * 设置texas数据源的读取来源
@@ -21,16 +20,15 @@ public abstract class Source<T> {
 	 */
 	@AnyThread
 	@Nullable
-	public final synchronized T open(LoadingStrategy strategy) throws SourceOpenException {
-		return onOpen(strategy);
+	public final synchronized T open() throws SourceOpenException {
+		return onOpen();
 	}
 
 	/**
-	 * @param strategy 加载策略 {@link me.chan.texas.renderer.TexasView.Adapter#parseIncremental(Object, TexasOption)}
 	 * @return 数据
 	 * @throws SourceOpenException 打开异常
 	 */
-	protected abstract T onOpen(LoadingStrategy strategy) throws SourceOpenException;
+	protected abstract T onOpen() throws SourceOpenException;
 
 	/**
 	 * 读取完毕，关闭source
