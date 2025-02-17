@@ -26,7 +26,6 @@ import me.chan.texas.measurer.Measurer;
 import me.chan.texas.misc.DefaultRecyclable;
 import me.chan.texas.misc.ObjectPool;
 import me.chan.texas.misc.PaintSet;
-import me.chan.texas.renderer.LoadingStrategy;
 import me.chan.texas.renderer.RenderOption;
 import me.chan.texas.renderer.TexasView;
 import me.chan.texas.renderer.core.WorkerScheduler;
@@ -70,11 +69,11 @@ public class MixWorker implements TaskQueue.Listener<MixWorker.Args, MixWorker.T
 			}
 
 			if (value.type() == TYPE_START) {
-				args.listener.onStart(args.strategy);
+				args.listener.onStart();
 			} else if (value.type() == TYPE_SUCCESS) {
-				args.listener.onSuccess(args.strategy, value.value());
+				args.listener.onSuccess(value.value());
 			} else if (value.type() == TYPE_ERROR) {
-				args.listener.onFailure(args.strategy, value.error());
+				args.listener.onFailure(value.error());
 			} else {
 				throw new IllegalStateException("unknown mix's message type");
 			}
@@ -283,11 +282,11 @@ public class MixWorker implements TaskQueue.Listener<MixWorker.Args, MixWorker.T
 	}
 
 	public interface Listener {
-		void onStart(LoadingStrategy strategy);
+		void onStart();
 
-		void onFailure(LoadingStrategy strategy, Throwable throwable);
+		void onFailure(Throwable throwable);
 
-		void onSuccess(LoadingStrategy strategy, TypesetResult result);
+		void onSuccess(TypesetResult result);
 	}
 
 	public static class Args extends DefaultRecyclable {
@@ -302,8 +301,6 @@ public class MixWorker implements TaskQueue.Listener<MixWorker.Args, MixWorker.T
 		private int start;
 
 		private int end;
-		private LoadingStrategy strategy;
-
 
 		private Args() {
 		}
@@ -316,14 +313,12 @@ public class MixWorker implements TaskQueue.Listener<MixWorker.Args, MixWorker.T
 			listener = null;
 			segmentDecoration = null;
 			start = end = 0;
-			strategy = null;
 			POOL.release(this);
 		}
 
 		public static Args obtain(@NonNull int outWidth,
 								  RenderOption option,
 								  Document document,
-								  LoadingStrategy strategy,
 								  Listener listener,
 								  TexasView.SegmentDecoration segmentDecoration,
 								  int start,
@@ -340,7 +335,6 @@ public class MixWorker implements TaskQueue.Listener<MixWorker.Args, MixWorker.T
 			args.segmentDecoration = segmentDecoration;
 			args.start = start;
 			args.end = end;
-			args.strategy = strategy;
 			args.reuse();
 			return args;
 		}

@@ -11,11 +11,9 @@ import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.util.TypedValue;
-import android.view.MotionEvent;
 import android.view.View;
 import android.widget.FrameLayout;
 
-import androidx.annotation.AnyThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
@@ -24,27 +22,23 @@ import me.chan.texas.BuildConfig;
 import me.chan.texas.R;
 import me.chan.texas.Texas;
 import me.chan.texas.TexasOption;
-import me.chan.texas.annotations.Internal;
-import me.chan.texas.hyphenation.Hyphenation;
-import me.chan.texas.hyphenation.HyphenationPattern;
 import me.chan.texas.measurer.AndroidMeasurer;
 import me.chan.texas.measurer.Measurer;
 import me.chan.texas.misc.PaintSet;
-import me.chan.texas.renderer.LoadingStrategy;
 import me.chan.texas.renderer.ParagraphVisitor;
 import me.chan.texas.renderer.RenderOption;
 import me.chan.texas.renderer.SpanTouchEventHandler;
 import me.chan.texas.renderer.TexasView;
 import me.chan.texas.renderer.TouchEvent;
 import me.chan.texas.renderer.core.WorkerScheduler;
+import me.chan.texas.renderer.core.worker.LoadingWorker;
 import me.chan.texas.renderer.core.worker.ParseWorker;
 import me.chan.texas.renderer.core.worker.ParagraphTypesetWorker;
 import me.chan.texas.renderer.SpanPredicate;
 import me.chan.texas.renderer.selection.ParagraphSelection;
 import me.chan.texas.renderer.selection.visitor.SelectedTextByClickedVisitor;
-import me.chan.texas.source.Source;
+import me.chan.texas.source.ParagraphSource;
 import me.chan.texas.source.SourceCloseException;
-import me.chan.texas.source.SourceOpenException;
 import me.chan.texas.text.BreakStrategy;
 import me.chan.texas.text.HyphenStrategy;
 import me.chan.texas.text.Paragraph;
@@ -430,7 +424,7 @@ public class ParagraphView extends FrameLayout {
 		clearSelection();
 
 		// 赋予
-		source.owner = this;
+		source.setLoader(s -> LoadingWorker.createTexasOption(mTextAttribute, mMeasurer, mRenderOption));
 
 		// cache last source
 		mSource = source;
@@ -544,41 +538,6 @@ public class ParagraphView extends FrameLayout {
 	 */
 	public void setOnClickedListener(OnClickedListener onClickedListener) {
 		mOnClickedListener = onClickedListener;
-	}
-
-	/**
-	 * 设置paragraph source
-	 */
-	public static abstract class ParagraphSource extends Source<Paragraph> {
-
-		@Internal
-		private ParagraphView owner;
-
-		@Override
-		protected Paragraph onOpen(LoadingStrategy strategy) throws SourceOpenException {
-			// 选择断字策略
-			Hyphenation hyphenation = null;
-			HyphenStrategy hyphenStrategy = owner.mRenderOption.getHyphenStrategy();
-			if (hyphenStrategy == HyphenStrategy.US) {
-				hyphenation = Hyphenation.getInstance(HyphenationPattern.EN_US);
-			} else if (hyphenStrategy == HyphenStrategy.UK) {
-				hyphenation = Hyphenation.getInstance(HyphenationPattern.EN_GB);
-			} else {
-				throw new IllegalArgumentException("unknown hyphen strategy");
-			}
-
-			TexasOption texasOption = new TexasOption(hyphenation, owner.mMeasurer, owner.mTextAttribute, owner.mRenderOption);
-			return onOpen(texasOption);
-		}
-
-		/**
-		 * see {@link Paragraph.Builder#newBuilder(TexasOption)} for more information
-		 *
-		 * @param option option
-		 * @return paragraph
-		 */
-		@AnyThread
-		protected abstract Paragraph onOpen(TexasOption option);
 	}
 
 	/**
