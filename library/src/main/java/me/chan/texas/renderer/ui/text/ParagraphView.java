@@ -572,7 +572,7 @@ public class ParagraphView extends FrameLayout {
 		}
 
 		/**
-		 * see {@link Paragraph.Builder#newBuilder(TexasOption)} for more information
+		 * see {@link Paragraph.Builder()} for more information
 		 *
 		 * @param option option
 		 * @return paragraph
@@ -781,7 +781,7 @@ public class ParagraphView extends FrameLayout {
 				return mParagraph;
 			}
 
-			return mParagraph = Paragraph.Builder.newBuilder(option)
+			return mParagraph = new Paragraph.Builder()
 					.text(mText, mStart, mEnd)
 					.build();
 		}

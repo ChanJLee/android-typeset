@@ -129,11 +129,9 @@ public class Texas {
 			TextBox.clean();
 			Glue.clean();
 			Line.clean();
-			Paragraph.clean();
 			Penalty.clean();
 			Figure.clean();
 			DrawableBox.clean();
-			Paragraph.Builder.clean();
 			Emoticon.clean();
 			for (LifecycleCallback callback : LIFECYCLE_CALLBACKS) {
 				try {

@@ -125,7 +125,7 @@ public class ParagraphTypesetWorker implements TaskQueue.Task<ParagraphTypesetWo
 	 * 预测宽高
 	 *
 	 * @param paragraph 段落
-	 * @param region     段落的宽高
+	 * @param region    段落的宽高
 	 * @param option    渲染选项
 	 * @return true表示成功
 	 */

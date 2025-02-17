@@ -539,6 +539,11 @@ public final class Paragraph implements Segment {
 		@RestrictTo(LIBRARY)
 		List<TextEditRecord> mRecords = new ArrayList<>(32);
 
+		public Builder() {
+			// TODO check prev-value
+			this(TYPESET_POLICY_CJK_MIX_OPTIMIZATION);
+		}
+
 		public Builder(@TypesetPolicy int typesetPolicy) {
 			mTypesetPolicy = typesetPolicy;
 		}
