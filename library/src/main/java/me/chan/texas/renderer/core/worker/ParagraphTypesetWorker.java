@@ -21,6 +21,7 @@ import me.chan.texas.text.layout.Glue;
 import me.chan.texas.text.layout.Layout;
 import me.chan.texas.text.layout.Penalty;
 import me.chan.texas.typesetter.ParagraphTypesetter;
+import me.chan.texas.typesetter.utils.ElementStream;
 import me.chan.texas.utils.concurrency.TaskQueue;
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -130,7 +131,9 @@ public class ParagraphTypesetWorker implements TaskQueue.Task<ParagraphTypesetWo
 	 * @return true表示成功
 	 */
 	public boolean desire(@NonNull Paragraph paragraph, @NonNull Region region, RenderOption option) {
-		if (!paragraph.hasContent()) {
+		// TODO paragraph view 的 source 内部进行load
+		ElementStream stream = paragraph.tryGetElementStream();
+		if (stream == null || stream.isEmpty()) {
 			return false;
 		}
 
@@ -141,9 +144,9 @@ public class ParagraphTypesetWorker implements TaskQueue.Task<ParagraphTypesetWo
 
 			int tmpWidth = 0;
 			int lineHeight = -1;
-			int count = paragraph.getElementCount();
+			int count = stream.size();
 			for (int i = 0; i < count; ++i) {
-				Element element = paragraph.getElement(i);
+				Element element = stream.get(i);
 				if (element == Penalty.FORCE_BREAK || i + 1 == count) {
 					if (tmpWidth >= width) {
 						width = tmpWidth;

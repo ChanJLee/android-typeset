@@ -80,7 +80,7 @@ public final class ElementStream {
 	@Override
 	public String toString() {
 		StringBuilder stringBuilder = new StringBuilder(32);
-		stringBuilder.append("ElementStream{0...");
+		stringBuilder.append("ElementStream{0..");
 		stringBuilder.append(mElements.size());
 		stringBuilder.append("}, state: ");
 		stringBuilder.append(mIndex);

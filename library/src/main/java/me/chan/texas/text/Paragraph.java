@@ -152,6 +152,11 @@ public final class Paragraph implements Segment {
 		return mElementStream;
 	}
 
+	@Nullable
+	public ElementStream tryGetElementStream() {
+		return mElementStream;
+	}
+
 	/**
 	 * span构造器
 	 */
