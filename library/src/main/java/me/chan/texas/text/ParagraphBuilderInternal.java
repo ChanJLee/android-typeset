@@ -4,6 +4,7 @@ import static me.chan.texas.text.Paragraph.TYPESET_POLICY_CJK_MIX_OPTIMIZATION;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
 
 
 import com.ibm.icu.text.Bidi;
@@ -23,6 +24,7 @@ import me.chan.texas.text.layout.SymbolGlue;
 import me.chan.texas.text.layout.TextBox;
 import me.chan.texas.text.tokenizer.Token;
 import me.chan.texas.text.tokenizer.TokenStream;
+import me.chan.texas.typesetter.utils.ElementStream;
 import me.chan.texas.utils.IntArray;
 import me.chan.texas.utils.TexasUtils;
 
@@ -32,6 +34,7 @@ import java.util.List;
 /*
  * 把文本添加过程抽离出来了，因为太复杂了，需要在另外一个文件里面单独写明
  * */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 class ParagraphBuilderInternal {
 	private static final int MIN_HYPER_LEN = 4;
 
@@ -39,113 +42,67 @@ class ParagraphBuilderInternal {
 	private Measurer mMeasurer;
 	private Hyphenation mHyphenation;
 	private TextAttribute mTextAttribute;
-	private Paragraph mParagraph;
 	private RenderOption mRenderOption;
-	private Object mTag;
-	private final Paragraph.SpanBuilder mSpanBuilder;
-
-	private float mLineSpace = -1;
-	private BreakStrategy mBreakStrategy;
 	private Token mLastToken;
-
 	private Glue mCommonGlue;
 	private Glue mStretchOnlyGlue;
 
-	public ParagraphBuilderInternal(Paragraph.Builder builder) {
-		mSpanBuilder = new Paragraph.SpanBuilder(builder);
-	}
+	private final List<TextEditRecord> mRecords;
+	private final Layout.Advise mAdvise;
+	private final ElementStream mElementStream;
 
-	public void lineSpace(float lineSpace) {
-		mLineSpace = lineSpace;
-	}
-
-	public void breakStrategy(BreakStrategy breakStrategy) {
-		mBreakStrategy = breakStrategy;
-	}
-
-	public void tag(Object tag) {
-		mTag = tag;
-	}
-
-	public void text(CharSequence text, int start, int end) {
-		appendSent(text, start, end, null);
-	}
-
-	public Paragraph.SpanBuilder newSpanBuilder() {
-		mSpanBuilder.reset();
-		return mSpanBuilder;
-	}
-
-	public void stream(CharSequence text, int start, int end, Paragraph.Builder.SpanReader spanReader) {
-		appendSent(text, start, end, spanReader);
-	}
-
-	/**
-	 * 颜文字
-	 *
-	 * @param emoticon 颜文字
-	 */
-	public void emoticon(Emoticon emoticon) {
-		if (mParagraph == null) {
-			throw new IllegalStateException("call newParagraph first");
-		}
-
-		appendEmoticon(emoticon);
-	}
-
-	/**
-	 * @param brk 是否需要添加一个换行符
-	 * @return paragraph
-	 */
-	public Paragraph build(boolean brk) {
-		if (brk) {
-			brk();
-		}
-
-		Layout.Advise advise = mParagraph.mLayout.getAdvise();
-		advise.setLineSpace(mLineSpace);
-		advise.setBreakStrategy(mBreakStrategy);
-		mParagraph.mTag = mTag;
-		mParagraph.mId = Segment.nextId();
-		return mParagraph;
-	}
-
-	public void reset() {
-		mParagraph = null;
-		mMeasurer = null;
-		mRenderOption = null;
-		mTextAttribute = null;
-		mHyphenation = null;
-		mHyphenated.clear();
-		mTag = null;
-		mSpanBuilder.reset();
-		mLineSpace = -1;
-		mLastToken = null;
-		mBreakStrategy = null;
-		mStretchOnlyGlue = null;
-		mCommonGlue = null;
-	}
-
-	public void reset(TexasOption texasOption) {
+	public ParagraphBuilderInternal(TexasOption texasOption,
+									List<TextEditRecord> records,
+									Layout.Advise advise) {
 		mRenderOption = texasOption.getRenderOption();
 		mMeasurer = texasOption.getMeasurer();
 		mHyphenation = texasOption.getHyphenation();
 		mTextAttribute = texasOption.getTextAttribute();
-		mParagraph = Paragraph.obtain();
-		mParagraph.mLayout = Layout.obtain();
 		mCommonGlue = Glue.obtain(mTextAttribute);
-		mStretchOnlyGlue = Glue.obtain(
-				0, 0, mTextAttribute.getSpaceStretch(), 0
-		);
+		mStretchOnlyGlue = Glue.obtain(0, 0, mTextAttribute.getSpaceStretch(), 0);
 		mLastToken = null;
+		mRecords = records;
+		mAdvise = advise;
+		mElementStream = new ElementStream();
 	}
 
-	public void addTypesetPolicy(int policy) {
-		mParagraph.mLayout.getAdvise().addTypesetPolicy(policy);
+	public ElementStream parse() {
+		for (TextEditRecord textEditRecord : mRecords) {
+			if (textEditRecord instanceof Paragraph.Span) {
+				// TODO 解决内存消耗问题
+				Paragraph.Span raw = (Paragraph.Span) textEditRecord;
+				stream(raw.getText(),
+						raw.getStart(),
+						raw.getEnd(),
+						new Paragraph.Builder.SpanReader() {
+							@Override
+							public Paragraph.Span read(Token token) {
+								Paragraph.Span span = Paragraph.Span.obtain(token);
+								span.copyMeta(raw);
+								return span;
+							}
+						});
+			} else if (textEditRecord instanceof Paragraph.StreamEditRecord) {
+				Paragraph.StreamEditRecord streamEditRecord = (Paragraph.StreamEditRecord) textEditRecord;
+				stream(streamEditRecord.getText(),
+						streamEditRecord.getStart(),
+						streamEditRecord.getEnd(),
+						streamEditRecord.getSpanReader());
+			} else if (textEditRecord instanceof Paragraph.BrkEditRecord) {
+				brk();
+			} else if (textEditRecord instanceof Paragraph.EmoticonEditRecord) {
+				Paragraph.EmoticonEditRecord emoticonEditRecord = (Paragraph.EmoticonEditRecord) textEditRecord;
+				appendEmoticon(emoticonEditRecord.getEmoticon());
+			} else {
+				throw new IllegalStateException("unknown text edit record");
+			}
+		}
+
+		return mElementStream;
 	}
 
-	public void clearTypesetPolicy() {
-		mParagraph.mLayout.getAdvise().clearTypesetPolicy();
+	private void stream(CharSequence text, int start, int end, Paragraph.Builder.SpanReader spanReader) {
+		appendSent(text, start, end, spanReader);
 	}
 
 	private void appendEmoticon(Emoticon emoticon) {
@@ -162,16 +119,11 @@ class ParagraphBuilderInternal {
 			throw new RuntimeException("call build twice");
 		}
 
-		if (mParagraph == null) {
-			throw new IllegalStateException("call newParagraph first");
-		}
-
 		if (start >= end) {
 			return;
 		}
 
-		Layout.Advise advise = mParagraph.mLayout.getAdvise();
-		if (!advise.checkTypesetPolicy(Paragraph.TYPESET_POLICY_BIDI_TEXT)) {
+		if (!mAdvise.checkTypesetPolicy(Paragraph.TYPESET_POLICY_BIDI_TEXT)) {
 			appendRun(text, start, end, reader, false);
 			return;
 		}
@@ -301,9 +253,7 @@ class ParagraphBuilderInternal {
 	private void appendCjkWordToken(CharSequence text,
 									Paragraph.Builder.SpanReader spanReader,
 									Token token) {
-		Layout layout = mParagraph.getLayout();
-		Layout.Advise advise = layout.getAdvise();
-		boolean cjkOptimization = advise.checkTypesetPolicy(TYPESET_POLICY_CJK_MIX_OPTIMIZATION);
+		boolean cjkOptimization = mAdvise.checkTypesetPolicy(TYPESET_POLICY_CJK_MIX_OPTIMIZATION);
 		Element linkElement = cjkOptimization ? Penalty.ADVISE_BREAK : mStretchOnlyGlue;
 
 		Paragraph.Span span = null;
@@ -399,18 +349,17 @@ class ParagraphBuilderInternal {
 	}
 
 	private void appendElement(Element element) {
-		if (Texas.CHECK_RULES_TRANSLATE && !mParagraph.mElements.isEmpty()) {
-			Element last = mParagraph.mElements.get(mParagraph.mElements.size() - 1);
+		if (Texas.CHECK_RULES_TRANSLATE && !mElementStream.isEmpty()) {
+			Element last = mElementStream.get(mElementStream.size() - 1);
 			if (last == element) {
 				throw new IllegalStateException("append same element twice");
 			}
 		}
-		mParagraph.mElements.add(element);
+		mElementStream.push(element);
 	}
 
 	private void appendControlToken(Token token) {
-		Layout.Advise advise = mParagraph.mLayout.getAdvise();
-		if (!advise.checkTypesetPolicy(Paragraph.TYPESET_POLICY_ACCEPT_CONTROL_CHAR)) {
+		if (!mAdvise.checkTypesetPolicy(Paragraph.TYPESET_POLICY_ACCEPT_CONTROL_CHAR)) {
 			appendElement(mCommonGlue);
 			return;
 		}
@@ -454,7 +403,7 @@ class ParagraphBuilderInternal {
 							  Appearance background,
 							  Appearance foreground) {
 		int len = end - start;
-		boolean ignoreHyphen = mBreakStrategy == BreakStrategy.SIMPLE ||
+		boolean ignoreHyphen = mAdvise.getBreakStrategy() == BreakStrategy.SIMPLE ||
 				mRenderOption.getBreakStrategy() == BreakStrategy.SIMPLE;
 		if (ignoreHyphen || len <= MIN_HYPER_LEN) {
 			appendElement(TextBox.obtain(text, start, end,
@@ -687,8 +636,7 @@ class ParagraphBuilderInternal {
 				return false;
 			}
 
-			Layout.Advise advise = builder.mParagraph.mLayout.getAdvise();
-			if (advise.checkTypesetPolicy(Paragraph.TYPESET_POLICY_ACCEPT_CONTROL_CHAR) &&
+			if (builder.mAdvise.checkTypesetPolicy(Paragraph.TYPESET_POLICY_ACCEPT_CONTROL_CHAR) &&
 					current.checkAttribute(Token.CONTROL_ATTRIBUTE_NEW_LINE)) {
 				builder.appendControlToken(current);
 				accept(Token.obtain());
@@ -1019,7 +967,7 @@ class ParagraphBuilderInternal {
 	}
 
 	private static Glue obtainSymbolGlueFromStack(ParagraphBuilderInternal builder) {
-		Element last = builder.mParagraph.mElements.get(builder.mParagraph.mElements.size() - 1);
+		Element last = builder.mElementStream.get(builder.mElementStream.size() - 1);
 		if (BuildConfig.DEBUG && !(last instanceof TextBox)) {
 			throw new IllegalStateException("last element must be TextBox");
 		}

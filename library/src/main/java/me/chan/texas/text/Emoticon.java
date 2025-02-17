@@ -15,7 +15,7 @@ import me.chan.texas.text.layout.DrawableBox;
 /**
  * 颜文字
  */
-public final class Emoticon extends DefaultRecyclable implements TextEditRecord {
+public final class Emoticon extends DefaultRecyclable {
 	private static final ObjectPool<Emoticon> POOL = new ObjectPool<>(Texas.getMemoryOption().getEmoticonBufferSize());
 
 	@VisibleForTesting

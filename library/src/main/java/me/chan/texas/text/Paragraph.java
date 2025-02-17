@@ -9,14 +9,15 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
+import androidx.annotation.WorkerThread;
 
-import me.chan.texas.Texas;
+import me.chan.texas.TexasOption;
 import me.chan.texas.misc.DefaultRecyclable;
 import me.chan.texas.misc.ObjectPool;
 import me.chan.texas.renderer.selection.ParagraphSelection;
-import me.chan.texas.text.layout.Element;
 import me.chan.texas.text.layout.Layout;
 import me.chan.texas.text.tokenizer.Token;
+import me.chan.texas.typesetter.utils.ElementStream;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -32,10 +33,9 @@ public final class Paragraph implements Segment {
 	@RestrictTo(LIBRARY)
 	volatile Layout mLayout;
 
-	@RestrictTo(LIBRARY)
-	final List<Element> mElements;
-
 	private final Builder mBuilder;
+
+	private volatile ElementStream mElementStream;
 
 	/**
 	 * 默认
@@ -60,7 +60,7 @@ public final class Paragraph implements Segment {
 	public @interface TypesetPolicy {
 	}
 
-	int mId;
+	final int mId;
 
 	@Nullable
 	@Override
@@ -109,9 +109,12 @@ public final class Paragraph implements Segment {
 
 	private Paragraph(Builder builder) {
 		mBuilder = builder;
-		Texas.MemoryOption memoryOption = Texas.getMemoryOption();
-		mElements = new ArrayList<>(memoryOption.getParagraphElementInitialCapacity());
 		mLayout = Layout.obtain();
+		Layout.Advise advise = mLayout.getAdvise();
+		advise.setLineSpace(builder.mLineSpace);
+		advise.setBreakStrategy(builder.mBreakStrategy);
+		advise.setTypesetPolicies(builder.mTypesetPolicy);
+		mId = Segment.nextId();
 	}
 
 	@RestrictTo(LIBRARY)
@@ -127,24 +130,26 @@ public final class Paragraph implements Segment {
 		return mId;
 	}
 
-	public boolean hasContent() {
-		return !mElements.isEmpty();
-	}
-
-	@RestrictTo(LIBRARY)
-	public int getElementCount() {
-		return mElements.size();
-	}
-
-	@RestrictTo(LIBRARY)
-	public Element getElement(int index) {
-		return mElements.get(index);
-	}
-
 	@NonNull
 	@RestrictTo(LIBRARY)
 	public Layout getLayout() {
 		return mLayout;
+	}
+
+	@RestrictTo(LIBRARY)
+	@WorkerThread
+	public synchronized ElementStream getElementStream(TexasOption option) {
+		if (mElementStream == null) {
+			List<TextEditRecord> records = mBuilder.mRecords;
+			ParagraphBuilderInternal builderInternal = new ParagraphBuilderInternal(option, records, mLayout.getAdvise());
+			mElementStream = builderInternal.parse();
+			for (TextEditRecord record : records) {
+				record.recycle();
+			}
+			records.clear();
+		}
+
+		return mElementStream;
 	}
 
 	/**
@@ -272,10 +277,19 @@ public final class Paragraph implements Segment {
 		private Span() {
 		}
 
-		public void copy(Span other) {
-			this.mText = other.mText;
-			this.mStart = other.mStart;
-			this.mEnd = other.mEnd;
+		public CharSequence getText() {
+			return mText;
+		}
+
+		public int getStart() {
+			return mStart;
+		}
+
+		public int getEnd() {
+			return mEnd;
+		}
+
+		public void copyMeta(Span other) {
 			this.mStyles.copy(other.mStyles);
 			this.mTag = other.mTag;
 		}
@@ -470,6 +484,29 @@ public final class Paragraph implements Segment {
 		public String toString() {
 			return "BRK";
 		}
+
+		@Override
+		public void recycle() {
+
+		}
+	}
+
+	@RestrictTo(LIBRARY)
+	public static class EmoticonEditRecord implements TextEditRecord {
+		private final Emoticon mEmoticon;
+
+		public EmoticonEditRecord(Emoticon emoticon) {
+			mEmoticon = emoticon;
+		}
+
+		public Emoticon getEmoticon() {
+			return mEmoticon;
+		}
+
+		@Override
+		public void recycle() {
+
+		}
 	}
 
 	@NonNull
@@ -489,6 +526,7 @@ public final class Paragraph implements Segment {
 	/**
 	 * 构造器，注意要尽量避免重复创建
 	 */
+	// todo 回归测试builder的策略有没有设定好
 	public static class Builder {
 		@RestrictTo(LIBRARY)
 		int mTypesetPolicy;
@@ -610,7 +648,7 @@ public final class Paragraph implements Segment {
 		 * @return 当前对象
 		 */
 		public Builder emoticon(Emoticon emoticon) {
-			mRecords.add(emoticon);
+			mRecords.add(new EmoticonEditRecord(emoticon));
 			return this;
 		}
 
@@ -630,7 +668,7 @@ public final class Paragraph implements Segment {
 		}
 
 		public Builder clearTypesetPolicy() {
-			mTypesetPolicy = 0;
+			mTypesetPolicy = TYPESET_POLICY_DEFAULT;
 			return this;
 		}
 

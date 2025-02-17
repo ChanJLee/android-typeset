@@ -275,12 +275,8 @@ public class Layout extends DefaultRecyclable {
 			return (mTypesetPolicies & typesetPolicy) != 0;
 		}
 
-		public void addTypesetPolicy(@Paragraph.TypesetPolicy int typesetPolicy) {
-			mTypesetPolicies |= typesetPolicy;
-		}
-
-		public void clearTypesetPolicy() {
-			mTypesetPolicies = TYPESET_POLICY_DEFAULT;
+		public void setTypesetPolicies(int typesetPolicies) {
+			mTypesetPolicies = typesetPolicies;
 		}
 
 		private void clear() {

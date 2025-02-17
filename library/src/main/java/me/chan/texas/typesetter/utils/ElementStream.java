@@ -3,17 +3,28 @@ package me.chan.texas.typesetter.utils;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 
-import me.chan.texas.text.Paragraph;
+import java.util.ArrayList;
+import java.util.List;
+
+import me.chan.texas.Texas;
 import me.chan.texas.text.layout.Element;
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public final class ElementStream {
-	private final Paragraph mParagraph;
-	private int mIndex;
+	private final List<Element> mElements;
+	private int mIndex = 0;
 
-	public ElementStream(Paragraph paragraph) {
-		mParagraph = paragraph;
-		mIndex = 0;
+	public ElementStream() {
+		Texas.MemoryOption memoryOption = Texas.getMemoryOption();
+		mElements = new ArrayList<>(memoryOption.getParagraphElementInitialCapacity());
+	}
+
+	public void push(Element element) {
+		mElements.add(element);
+	}
+
+	public boolean isEmpty() {
+		return mElements.isEmpty();
 	}
 
 	public int state() {
@@ -34,7 +45,7 @@ public final class ElementStream {
 
 	@Nullable
 	public Element next() {
-		return next(mParagraph.getElementCount());
+		return next(mElements.size());
 	}
 
 	@Nullable
@@ -43,7 +54,7 @@ public final class ElementStream {
 			return null;
 		}
 
-		return mParagraph.getElement(mIndex++);
+		return mElements.get(mIndex++);
 	}
 
 	@Nullable
@@ -54,23 +65,23 @@ public final class ElementStream {
 	@Nullable
 	public Element tryGet(int state, int offset) {
 		int index = state + offset;
-		if (index >= mParagraph.getElementCount() || index < 0) {
+		if (index >= mElements.size() || index < 0) {
 			return null;
 		}
 
-		return mParagraph.getElement(index);
+		return mElements.get(index);
 	}
 
 
 	public boolean eof() {
-		return mIndex >= mParagraph.getElementCount();
+		return mIndex >= mElements.size();
 	}
 
 	@Override
 	public String toString() {
 		StringBuilder stringBuilder = new StringBuilder(32);
 		stringBuilder.append("ElementStream{0...");
-		stringBuilder.append(mParagraph == null || mParagraph.isRecycled() ? 0 : mParagraph.getElementCount());
+		stringBuilder.append(mElements.size());
 		stringBuilder.append("}, state: ");
 		stringBuilder.append(mIndex);
 		return stringBuilder.toString();
@@ -78,5 +89,13 @@ public final class ElementStream {
 
 	public static int index2State(int index) {
 		return index;
+	}
+
+	public int size() {
+		return mElements.size();
+	}
+
+	public Element get(int index) {
+		return mElements.get(index);
 	}
 }

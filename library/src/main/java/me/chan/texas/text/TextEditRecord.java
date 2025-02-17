@@ -8,4 +8,5 @@ import androidx.annotation.RestrictTo;
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public interface TextEditRecord {
+	void recycle();
 }
