@@ -2,6 +2,7 @@ package me.chan.texas.source;
 
 import androidx.annotation.AnyThread;
 import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
 
 import me.chan.texas.TexasOption;
 
@@ -14,6 +15,7 @@ public abstract class Source<T> {
 
 	private TexasOptionLoader mLoader;
 
+	@RestrictTo(RestrictTo.Scope.LIBRARY)
 	public final void setLoader(TexasOptionLoader loader) {
 		mLoader = loader;
 	}
@@ -39,6 +41,7 @@ public abstract class Source<T> {
 	 */
 	protected abstract T onRead(TexasOption option);
 
+	@RestrictTo(RestrictTo.Scope.LIBRARY)
 	public interface TexasOptionLoader {
 		TexasOption load();
 	}
