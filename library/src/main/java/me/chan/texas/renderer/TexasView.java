@@ -23,7 +23,6 @@ import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
-import androidx.annotation.UiThread;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -34,17 +33,17 @@ import java.util.HashMap;
 import java.util.Map;
 
 import javax.inject.Inject;
-import javax.inject.Named;
 
 import me.chan.texas.BuildConfig;
 import me.chan.texas.R;
 import me.chan.texas.Texas;
 import me.chan.texas.TexasOption;
-import me.chan.texas.adapter.ParseException;
 import me.chan.texas.di.TexasComponent;
 import me.chan.texas.di.core.TextEngineCoreComponent;
+import me.chan.texas.measurer.MeasureFactory;
+import me.chan.texas.measurer.Measurer;
+import me.chan.texas.misc.PaintSet;
 import me.chan.texas.misc.ResourceManager;
-import me.chan.texas.renderer.core.WorkerScheduler;
 import me.chan.texas.renderer.core.worker.LoadingWorker;
 import me.chan.texas.renderer.selection.Selection;
 import me.chan.texas.renderer.ui.decor.ParagraphDecor;
@@ -54,6 +53,7 @@ import me.chan.texas.text.BreakStrategy;
 import me.chan.texas.text.Document;
 import me.chan.texas.text.HyphenStrategy;
 import me.chan.texas.text.Segment;
+import me.chan.texas.text.TextAttribute;
 import me.chan.texas.utils.TexasUtils;
 import me.chan.texas.utils.concurrency.TaskQueue;
 
@@ -119,10 +119,10 @@ public final class TexasView extends FrameLayout {
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
 	public final static Map<String, WeakReference<Typeface>> TYPEFACE_CACHE = new HashMap<>();
 
+	private DocumentSource mSource;
 	private Renderer mRenderer;
 	private RenderListener mRenderListener;
 	private OnClickedListener mOnClickedListener;
-	private Adapter<?> mAdapter;
 	private OnScrollListener mOnScrollListener;
 	private OnDragSelectListener mOnDragSelectListener;
 
@@ -434,35 +434,34 @@ public final class TexasView extends FrameLayout {
 	}
 
 	/**
-	 * 设置adapter
+	 * 设置数据源
 	 *
-	 * @param adapter adapter
+	 * @param source source
 	 */
-	public void setAdapter(@NonNull Adapter<?> adapter) {
+	public void setSource(@NonNull DocumentSource source) {
 		d("set adapter");
 		if (mRenderer == null) {
 			return;
 		}
 
-		if (mAdapter != null) {
+		if (mSource != null) {
 			d("detach prev adapter");
-			mAdapter.detach();
-			mAdapter = null;
+			mSource.detach();
+			mSource = null;
 		}
 
 		d("bind adapter");
-		mAdapter = adapter;
-		adapter.attach(this);
+		mSource = source;
+		source.attach(this);
+		load("setSource");
 	}
 
 	/**
-	 * 获取当前adapter
-	 *
-	 * @return 当前adapter
+	 * @return 当前数据源
 	 */
 	@Nullable
-	public Adapter<?> getAdapter() {
-		return mAdapter;
+	public DocumentSource getSource() {
+		return mSource;
 	}
 
 	/**
@@ -491,9 +490,9 @@ public final class TexasView extends FrameLayout {
 	 */
 	public void release() {
 		i("release");
-		if (mAdapter != null) {
-			mAdapter.detach();
-			mAdapter = null;
+		if (mSource != null) {
+			mSource.detach();
+			mSource = null;
 		}
 		mRenderListener = null;
 		mOnClickedListener = null;
@@ -874,33 +873,30 @@ public final class TexasView extends FrameLayout {
 		Log.i("TexasView", msg);
 	}
 
-	/**
-	 * Adapter
-	 *
-	 * @param <T> Adapter接受的数据类型
-	 */
-	public abstract static class Adapter<T> {
-		private Source<T> mSource;
+	public static abstract class DocumentSource extends Source<Document> {
 		private TexasView mTexasView;
 
 		@Nullable
 		private Document mDocument;
 
 		@Inject
-		@Named("ComputeTask")
-		TaskQueue mComputeTaskQueue;
+		MeasureFactory mMeasureFactory;
 
-		public Adapter() {
+		public DocumentSource() {
 			TexasComponent texasComponent = Texas.getTexasComponent();
 			TextEngineCoreComponent textEngineCoreComponent = texasComponent.coreComponent().create();
-			textEngineCoreComponent.inject((TexasView.Adapter<Object>) this);
+			textEngineCoreComponent.inject(this);
 		}
 
 		private void attach(@NonNull TexasView view) {
 			mTexasView = view;
-			if (mSource != null) {
-				view.load("adapter attached");
-			}
+			setLoader(() -> {
+				RenderOption option = mTexasView.getRendererOption();
+				PaintSet paintSet = new PaintSet(option);
+				Measurer measurer = mMeasureFactory.create(paintSet);
+				TextAttribute textAttribute = new TextAttribute(measurer);
+				return LoadingWorker.createTexasOption(textAttribute, measurer, option);
+			});
 		}
 
 		private void detach() {
@@ -908,49 +904,27 @@ public final class TexasView extends FrameLayout {
 				return;
 			}
 
+			setLoader(null);
 			mTexasView = null;
 		}
 
-		// TODO test
-		@UiThread
-		public final void setSource(Source<T> source) {
-			Source<?> previous = mSource;
-			mSource = source;
-
-			// start load more
-			if (mTexasView != null && previous != mSource) {
-				mTexasView.load("new source");
+		@Override
+		protected final Document onRead(TexasOption option) {
+			if (mTexasView == null) {
+				return null;
 			}
+
+			return onRead(option, mTexasView.getDocument());
 		}
 
 		/**
-		 * @param content     内容 {@link Source}
-		 * @param texasOption texas option
-		 * @return 文档
-		 * @throws ParseException 解析错误的时候抛出
+		 * @param option           当前的option
+		 * @param previousDocument 上一次的document
+		 * @return 数据
+		 * <p>
+		 * {@link Document.Builder(Document)} 增量更新内容
 		 */
-		@Nullable
-		@AnyThread
-		protected abstract Document parse(@NonNull T content, TexasOption texasOption) throws ParseException;
-
-		private static final Document EMPTY_DOCUMENT = new Document.Builder()
-				.build();
-
-		@NonNull
-		@RestrictTo(RestrictTo.Scope.LIBRARY)
-		public final LoadingWorker.LoadingResult getDocument(TexasOption texasOption) throws ParseException {
-			if (mSource == null) {
-				return LoadingWorker.LoadingResult.obtainWithoutContent(mDocument == null ? EMPTY_DOCUMENT : mDocument);
-			}
-
-			T value = mSource.read();
-			if (value == null) {
-				return LoadingWorker.LoadingResult.obtainWithoutContent(mDocument == null ? EMPTY_DOCUMENT : mDocument);
-			}
-
-			mDocument = parse(value, texasOption);
-			return LoadingWorker.LoadingResult.obtain(mDocument);
-		}
+		protected abstract Document onRead(TexasOption option, @Nullable Document previousDocument);
 	}
 
 	/**

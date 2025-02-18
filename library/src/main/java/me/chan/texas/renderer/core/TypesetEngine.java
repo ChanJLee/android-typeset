@@ -128,12 +128,12 @@ public class TypesetEngine {
 		mDocument = null;
 	}
 
-	public void load(String reason, int width, TexasView.Adapter<?> adapter, Listener listener) {
+	public void load(String reason, int width, TexasView.DocumentSource source, Listener listener) {
 		// 非增量的加载，都需要取消之前的任务
 		cancel();
 
 		mWidth = width;
-		LoadingWorker.Args args = LoadingWorker.Args.obtain(mRenderOption, adapter, new LoadingWorker.Listener() {
+		LoadingWorker.Args args = LoadingWorker.Args.obtain(source, new LoadingWorker.Listener() {
 			@Override
 			public void onStart() {
 				d("try loading doc, width: " + width);

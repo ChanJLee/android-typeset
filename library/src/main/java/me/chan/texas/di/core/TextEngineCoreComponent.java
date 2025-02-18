@@ -23,5 +23,5 @@ public interface TextEngineCoreComponent {
 
 	void inject(LoadingWorker worker);
 
-	void inject(TexasView.Adapter<Object> adapter);
+	void inject(TexasView.DocumentSource source);
 }

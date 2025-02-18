@@ -37,7 +37,7 @@ import me.chan.texas.renderer.core.worker.ParagraphTypesetWorker;
 import me.chan.texas.renderer.SpanPredicate;
 import me.chan.texas.renderer.selection.ParagraphSelection;
 import me.chan.texas.renderer.selection.visitor.SelectedTextByClickedVisitor;
-import me.chan.texas.source.ParagraphSource;
+import me.chan.texas.source.Source;
 import me.chan.texas.text.BreakStrategy;
 import me.chan.texas.text.HyphenStrategy;
 import me.chan.texas.text.Paragraph;
@@ -423,13 +423,13 @@ public class ParagraphView extends FrameLayout {
 		clearSelection();
 
 		// 赋予
-		source.setLoader(s -> LoadingWorker.createTexasOption(mTextAttribute, mMeasurer, mRenderOption));
+		source.setLoader(() -> LoadingWorker.createTexasOption(mTextAttribute, mMeasurer, mRenderOption));
 
 		// cache last source
 		mSource = source;
 
 		// 提交解析任务
-		ParseWorker.Args args = ParseWorker.Args.obtain(source, LoadingStrategy.LOAD_MORE, mParseListener);
+		ParseWorker.Args args = ParseWorker.Args.obtain(source, mParseListener);
 		ParseWorker worker = WorkerScheduler.parse();
 		if (!isInEditMode()) {
 			worker.submit(mRender.getToken(), args);
@@ -489,7 +489,7 @@ public class ParagraphView extends FrameLayout {
 			clearSelection();
 
 			// 提交解析任务
-			ParseWorker.Args args = ParseWorker.Args.obtain(mSource, LoadingStrategy.INIT, mParseListener);
+			ParseWorker.Args args = ParseWorker.Args.obtain(mSource, mParseListener);
 			ParseWorker worker = WorkerScheduler.parse();
 			worker.submit(mRender.getToken(), args);
 		} else if (cmpType == TexasUtils.CmpType.CMP_TYPESET) {
@@ -721,6 +721,13 @@ public class ParagraphView extends FrameLayout {
 		}
 	}
 
+	/**
+	 * 设置paragraph source
+	 */
+	public static abstract class ParagraphSource extends Source<Paragraph> {
+		/* NOOP */
+	}
+
 	private static class TextParagraphSource extends ParagraphSource {
 		private final CharSequence mText;
 		private final int mStart;
@@ -742,11 +749,6 @@ public class ParagraphView extends FrameLayout {
 			return mParagraph = Paragraph.Builder.newBuilder(option)
 					.text(mText, mStart, mEnd)
 					.build();
-		}
-
-		@Override
-		protected void onClose() throws SourceCloseException {
-			/* do nothing */
 		}
 	}
 }

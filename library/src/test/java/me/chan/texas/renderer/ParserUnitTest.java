@@ -3,7 +3,6 @@ package me.chan.texas.renderer;
 import me.chan.texas.Texas;
 import me.chan.texas.TexasOption;
 import me.chan.texas.adapter.ParseException;
-import me.chan.texas.adapter.TextAdapter;
 import me.chan.texas.hyphenation.Hyphenation;
 import me.chan.texas.measurer.Measurer;
 import me.chan.texas.measurer.MockMeasurer;

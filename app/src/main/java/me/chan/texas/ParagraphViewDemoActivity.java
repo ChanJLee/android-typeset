@@ -13,7 +13,6 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import me.chan.texas.renderer.ui.text.ParagraphView;
-import me.chan.texas.source.ParagraphSource;
 import me.chan.texas.text.Paragraph;
 
 import java.util.ArrayList;
@@ -27,7 +26,7 @@ public class ParagraphViewDemoActivity extends AppCompatActivity {
 		setContentView(me.chan.texas.debug.R.layout.activity_paragraph_view_demo);
 
 		RecyclerView recyclerView = findViewById(me.chan.texas.debug.R.id.recycler_view);
-		List<ParagraphSource> sources = new ArrayList<>();
+		List<ParagraphView.ParagraphSource> sources = new ArrayList<>();
 
 		sources.add(new MySource("1 Mr. and Mrs. Dursley, of number four, Privet Drive, were proud to say that they were perfectly normal, thank you very much. They were the last people you'd expect to be involved in anything strange or mysterious, because they just didn't hold with such nonsense.\n"));
 		sources.add(new MySource("2 Mr. and Mrs. Dursley, of number four, Privet Drive, were proud to say that they were perfectly normal, thank you very much. They were the last people you'd expect to be involved in anything strange or mysterious, because they just didn't hold with such nonsense.\n"));
@@ -55,7 +54,7 @@ public class ParagraphViewDemoActivity extends AppCompatActivity {
 		recyclerView.setAdapter(new Adapter(this, sources));
 	}
 
-	private static class MySource extends ParagraphSource {
+	private static class MySource extends ParagraphView.ParagraphSource {
 
 		private final String mText;
 
@@ -69,18 +68,13 @@ public class ParagraphViewDemoActivity extends AppCompatActivity {
 					.text(mText)
 					.build();
 		}
-
-		@Override
-		protected void onClose() throws SourceCloseException {
-
-		}
 	}
 
 	private static class Adapter extends RecyclerView.Adapter<MyViewHolder> {
-		private final List<ParagraphSource> mSources;
+		private final List<ParagraphView.ParagraphSource> mSources;
 		private final LayoutInflater mLayoutInflater;
 
-		public Adapter(Context context, List<ParagraphSource> sources) {
+		public Adapter(Context context, List<ParagraphView.ParagraphSource> sources) {
 			mSources = sources;
 			mLayoutInflater = LayoutInflater.from(context);
 		}
