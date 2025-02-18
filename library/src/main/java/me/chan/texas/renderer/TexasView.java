@@ -23,6 +23,7 @@ import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.annotation.UiThread;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -47,7 +48,6 @@ import me.chan.texas.misc.ResourceManager;
 import me.chan.texas.renderer.core.worker.LoadingWorker;
 import me.chan.texas.renderer.selection.Selection;
 import me.chan.texas.renderer.ui.decor.ParagraphDecor;
-import me.chan.texas.renderer.ui.indicator.LoadingIndicator;
 import me.chan.texas.source.Source;
 import me.chan.texas.text.BreakStrategy;
 import me.chan.texas.text.Document;
@@ -125,10 +125,6 @@ public final class TexasView extends FrameLayout {
 	private OnClickedListener mOnClickedListener;
 	private OnScrollListener mOnScrollListener;
 	private OnDragSelectListener mOnDragSelectListener;
-
-	private LoadingIndicator mTopLoadingIndicator;
-
-	private LoadingIndicator mBottomLoadingIndicator;
 
 	public TexasView(Context context, AttributeSet attrs) {
 		this(context, attrs, 0);
@@ -307,27 +303,6 @@ public final class TexasView extends FrameLayout {
 				typedArray.getBoolean(R.styleable.me_chan_texas_TexasView_me_chan_texas_TexasView_compatMode, false)
 		);
 
-		LayoutInflater inflater = LayoutInflater.from(context);
-		int indicatorId = typedArray.getResourceId(R.styleable.me_chan_texas_TexasView_me_chan_texas_TexasView_bottomIndicator,
-				R.layout.me_chan_texas_bottom_loading_indicator);
-		if (indicatorId != NO_ID) {
-			View view = inflater.inflate(indicatorId, this, false);
-			if (!(view instanceof LoadingIndicator)) {
-				throw new IllegalArgumentException("bottom loading indicator should implements me.chan.texas.renderer.ui.indicator.LoadingIndicator");
-			}
-			mBottomLoadingIndicator = (LoadingIndicator) view;
-		}
-
-		indicatorId = typedArray.getResourceId(R.styleable.me_chan_texas_TexasView_me_chan_texas_TexasView_topLoadingIndicator,
-				R.layout.me_chan_texas_top_loading_indicator);
-		if (indicatorId != NO_ID) {
-			View view = inflater.inflate(indicatorId, this, false);
-			if (!(view instanceof LoadingIndicator)) {
-				throw new IllegalArgumentException("top loading indicator should implements me.chan.texas.renderer.ui.indicator.LoadingIndicator");
-			}
-			mTopLoadingIndicator = (LoadingIndicator) view;
-		}
-
 		// 如果开启了非兼容模式，且系统版本小于6.0，关闭硬件加速
 		// {@link me.chan.texas.renderer.core.graphics.TextureScene}
 		if (!renderOption.isCompatMode() && Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
@@ -335,19 +310,6 @@ public final class TexasView extends FrameLayout {
 		}
 
 		mRenderer = new Renderer(this, renderOption, mToken);
-
-		if (mTopLoadingIndicator != null) {
-			View view = (View) mTopLoadingIndicator;
-			addView(view);
-		}
-
-		if (mBottomLoadingIndicator != null) {
-			View view = (View) mBottomLoadingIndicator;
-			FrameLayout.LayoutParams layoutParams = (LayoutParams) view.getLayoutParams();
-			layoutParams.gravity = android.view.Gravity.BOTTOM;
-			view.setLayoutParams(layoutParams);
-			addView(view, layoutParams);
-		}
 	}
 
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -359,14 +321,6 @@ public final class TexasView extends FrameLayout {
 
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
 	public void notifyRenderEnd() {
-		if (mBottomLoadingIndicator != null) {
-			mBottomLoadingIndicator.dismiss();
-		}
-
-		if (mTopLoadingIndicator != null) {
-			mTopLoadingIndicator.dismiss();
-		}
-
 		if (mRenderListener != null) {
 			mRenderListener.onEnd(TexasView.this);
 		}
@@ -374,14 +328,6 @@ public final class TexasView extends FrameLayout {
 
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
 	public void notifyRenderError(Throwable throwable) {
-		if (mBottomLoadingIndicator != null) {
-			mBottomLoadingIndicator.dismiss();
-		}
-
-		if (mTopLoadingIndicator != null) {
-			mTopLoadingIndicator.dismiss();
-		}
-
 		if (mRenderListener != null) {
 			mRenderListener.onError(TexasView.this, throwable);
 		}
@@ -438,6 +384,7 @@ public final class TexasView extends FrameLayout {
 	 *
 	 * @param source source
 	 */
+	@UiThread
 	public void setSource(@NonNull DocumentSource source) {
 		d("set adapter");
 		if (mRenderer == null) {
@@ -460,6 +407,7 @@ public final class TexasView extends FrameLayout {
 	 * @return 当前数据源
 	 */
 	@Nullable
+	@RestrictTo(RestrictTo.Scope.LIBRARY)
 	public DocumentSource getSource() {
 		return mSource;
 	}
