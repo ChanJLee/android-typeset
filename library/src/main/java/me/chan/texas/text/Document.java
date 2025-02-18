@@ -68,6 +68,11 @@ public final class Document {
 	public static class Builder {
 		private final ReferenceCountingPointer<List<Segment>> mSegments;
 
+		/**
+		 * 拷贝这个document的内容，并且可以编辑
+		 *
+		 * @param document document
+		 */
 		public Builder(Document document) {
 			mSegments = new ReferenceCountingPointer<List<Segment>>(document.mSegments) {
 				@Override
@@ -115,6 +120,22 @@ public final class Document {
 
 		public void addSegments(List<Segment> segments) {
 			mSegments.get().addAll(segments);
+		}
+
+		public void removeSegment(int index) {
+			mSegments.get().remove(index);
+		}
+
+		public void removeSegment(Segment segment) {
+			mSegments.get().remove(segment);
+		}
+
+		public void updateSegment(int index, Segment segment) {
+			mSegments.get().set(index, segment);
+		}
+
+		public Segment getSegment(int index) {
+			return mSegments.get().get(index);
 		}
 
 		public Document build() {

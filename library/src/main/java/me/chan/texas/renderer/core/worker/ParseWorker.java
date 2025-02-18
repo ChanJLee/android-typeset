@@ -74,7 +74,7 @@ public class ParseWorker implements TaskQueue.Task<ParseWorker.Args, Paragraph>,
 	@Override
 	public Paragraph run(TaskQueue.Token token, Args args) throws Throwable {
 		try {
-			return args.source.open(args.strategy);
+			return args.source.read(args.strategy);
 		} finally {
 			try {
 				args.source.close();

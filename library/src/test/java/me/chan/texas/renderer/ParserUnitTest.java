@@ -6,8 +6,6 @@ import me.chan.texas.adapter.ParseException;
 import me.chan.texas.adapter.TextAdapter;
 import me.chan.texas.hyphenation.Hyphenation;
 import me.chan.texas.measurer.Measurer;
-import me.chan.texas.source.SourceCloseException;
-import me.chan.texas.source.SourceOpenException;
 import me.chan.texas.measurer.MockMeasurer;
 import me.chan.texas.text.layout.Box;
 import me.chan.texas.text.Document;
