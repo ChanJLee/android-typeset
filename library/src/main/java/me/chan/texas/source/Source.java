@@ -26,6 +26,10 @@ public abstract class Source<T> {
 	@AnyThread
 	@Nullable
 	public final synchronized T read() {
+		if (mLoader == null) {
+			return null;
+		}
+
 		TexasOption option = mLoader.load();
 		return onRead(option);
 	}

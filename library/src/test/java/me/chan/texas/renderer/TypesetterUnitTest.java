@@ -15,7 +15,6 @@ import me.chan.texas.test.mock.MockTextPaint;
 
 import me.chan.texas.Texas;
 import me.chan.texas.adapter.ParseException;
-import me.chan.texas.adapter.TextAdapter;
 import me.chan.texas.di.DaggerFakeTexasComponent;
 import me.chan.texas.di.FakeMeasureFactory;
 import me.chan.texas.hyphenation.Hyphenation;

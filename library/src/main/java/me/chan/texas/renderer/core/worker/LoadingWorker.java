@@ -8,7 +8,6 @@ import javax.inject.Inject;
 
 import me.chan.texas.Texas;
 import me.chan.texas.TexasOption;
-import me.chan.texas.adapter.ParseException;
 import me.chan.texas.di.TexasComponent;
 import me.chan.texas.di.core.TextEngineCoreComponent;
 import me.chan.texas.hyphenation.Hyphenation;
@@ -17,7 +16,6 @@ import me.chan.texas.measurer.MeasureFactory;
 import me.chan.texas.measurer.Measurer;
 import me.chan.texas.misc.DefaultRecyclable;
 import me.chan.texas.misc.ObjectPool;
-import me.chan.texas.misc.PaintSet;
 import me.chan.texas.renderer.RenderOption;
 import me.chan.texas.renderer.TexasView;
 import me.chan.texas.renderer.core.sync.WorkerMessager;
@@ -94,34 +92,12 @@ public class LoadingWorker implements TaskQueue.Listener<LoadingWorker.Args, Loa
 
 	@Override
 	public LoadingResult run(TaskQueue.Token token, LoadingWorker.Args args) throws Throwable {
-		PaintSet paintSet = new PaintSet(args.option);
-		Measurer measurer = mMeasureFactory.create(paintSet);
-		TextAttribute textAttribute = new TextAttribute(measurer);
-
-		return parse(token, textAttribute, measurer, args.option, args.adapter);
-	}
-
-	private LoadingResult parse(TaskQueue.Token token, TextAttribute textAttribute, Measurer measurer, RenderOption option, TexasView.Adapter<?> adapter) throws TaskQueue.TokenExpiredException, ParseException {
-		// 选择断字策略
-		Hyphenation hyphenation = null;
-		HyphenStrategy hyphenStrategy = option.getHyphenStrategy();
-		if (hyphenStrategy == HyphenStrategy.US) {
-			hyphenation = Hyphenation.getInstance(HyphenationPattern.EN_US);
-		} else if (hyphenStrategy == HyphenStrategy.UK) {
-			hyphenation = Hyphenation.getInstance(HyphenationPattern.EN_GB);
-		} else if (hyphenStrategy == HyphenStrategy.NONE) {
-			hyphenation = Hyphenation.getInstance(HyphenationPattern.NONE);
-		} else {
-			throw new IllegalArgumentException("unknown hyphen strategy");
-		}
-
-		// 已经发生了中断，那么直接返回
 		if (token.isExpired()) {
 			throw new TaskQueue.TokenExpiredException("stop parse, token expired", token);
 		}
 
-		TexasOption texasOption = new TexasOption(hyphenation, measurer, textAttribute, option);
-		return adapter.getDocument(texasOption);
+		Document document = args.source.read();
+		return LoadingResult.obtain(document);
 	}
 
 	public static TexasOption createTexasOption(TextAttribute textAttribute, Measurer measurer, RenderOption option) {
@@ -199,32 +175,28 @@ public class LoadingWorker implements TaskQueue.Listener<LoadingWorker.Args, Loa
 
 	public static class Args extends DefaultRecyclable {
 		private static final ObjectPool<LoadingWorker.Args> POOL = new ObjectPool<>(32);
-		private RenderOption option;
 		private LoadingWorker.Listener listener;
-		private TexasView.Adapter<?> adapter;
+		private TexasView.DocumentSource source;
 
 		private Args() {
 		}
 
 		@Override
 		protected void onRecycle() {
-			option = null;
 			listener = null;
-			adapter = null;
+			source = null;
 			POOL.release(this);
 		}
 
-		public static LoadingWorker.Args obtain(RenderOption option,
-												TexasView.Adapter<?> adapter,
+		public static LoadingWorker.Args obtain(TexasView.DocumentSource source,
 												LoadingWorker.Listener listener) {
 			LoadingWorker.Args args = POOL.acquire();
 			if (args == null) {
 				args = new LoadingWorker.Args();
 			}
 
-			args.option = option;
 			args.listener = listener;
-			args.adapter = adapter;
+			args.source = source;
 			args.reuse();
 			return args;
 		}

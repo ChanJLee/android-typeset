@@ -172,7 +172,7 @@ public class Renderer implements SelectionManager.Listener {
 			return;
 		}
 
-		mTypesetEngine.load(reason, width, mTexasView.getAdapter(), mListener);
+		mTypesetEngine.load(reason, width, mTexasView.getSource(), mListener);
 	}
 
 	public void typeset(String reason, int width) {
