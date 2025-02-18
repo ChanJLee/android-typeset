@@ -21,7 +21,6 @@ import me.chan.texas.misc.PaintSet;
 import me.chan.texas.renderer.RenderOption;
 import me.chan.texas.renderer.TexasView;
 import me.chan.texas.renderer.core.sync.WorkerMessager;
-import me.chan.texas.source.SourceOpenException;
 import me.chan.texas.text.Document;
 import me.chan.texas.text.HyphenStrategy;
 import me.chan.texas.text.TextAttribute;
@@ -102,7 +101,7 @@ public class LoadingWorker implements TaskQueue.Listener<LoadingWorker.Args, Loa
 		return parse(token, textAttribute, measurer, args.option, args.adapter);
 	}
 
-	private LoadingResult parse(TaskQueue.Token token, TextAttribute textAttribute, Measurer measurer, RenderOption option, TexasView.Adapter<?> adapter) throws TaskQueue.TokenExpiredException, SourceOpenException, ParseException {
+	private LoadingResult parse(TaskQueue.Token token, TextAttribute textAttribute, Measurer measurer, RenderOption option, TexasView.Adapter<?> adapter) throws TaskQueue.TokenExpiredException, ParseException {
 		// 选择断字策略
 		Hyphenation hyphenation = null;
 		HyphenStrategy hyphenStrategy = option.getHyphenStrategy();

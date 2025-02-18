@@ -24,7 +24,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.UiThread;
-import androidx.annotation.VisibleForTesting;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -32,7 +31,6 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.ref.WeakReference;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import javax.inject.Inject;
@@ -51,14 +49,11 @@ import me.chan.texas.renderer.core.worker.LoadingWorker;
 import me.chan.texas.renderer.selection.Selection;
 import me.chan.texas.renderer.ui.decor.ParagraphDecor;
 import me.chan.texas.renderer.ui.indicator.LoadingIndicator;
-import me.chan.texas.source.ObjectSource;
 import me.chan.texas.source.Source;
-import me.chan.texas.source.SourceOpenException;
 import me.chan.texas.text.BreakStrategy;
 import me.chan.texas.text.Document;
 import me.chan.texas.text.HyphenStrategy;
 import me.chan.texas.text.Segment;
-import me.chan.texas.text.TextStyles;
 import me.chan.texas.utils.TexasUtils;
 import me.chan.texas.utils.concurrency.TaskQueue;
 
@@ -913,28 +908,10 @@ public final class TexasView extends FrameLayout {
 				return;
 			}
 
-			TaskQueue.Token token = mTexasView.mToken;
 			mTexasView = null;
-			if (mSource != null) {
-				WorkerScheduler.odd().submit(token, mComputeTaskQueue, new Runnable() {
-					@Override
-					public void run() {
-						try {
-							d("source destroy");
-							mSource.close();
-						} catch (Throwable ignore) {
-							/* do nothing */
-						}
-					}
-				});
-			}
 		}
 
-		@UiThread
-		public final void setData(T data) {
-			setSource(new ObjectSource<>(data));
-		}
-
+		// TODO test
 		@UiThread
 		public final void setSource(Source<T> source) {
 			Source<?> previous = mSource;
@@ -943,14 +920,6 @@ public final class TexasView extends FrameLayout {
 			// start load more
 			if (mTexasView != null && previous != mSource) {
 				mTexasView.load("new source");
-			}
-
-			if (previous != null && previous != source) {
-				try {
-					previous.close();
-				} catch (Throwable ignore) {
-					/* noop */
-				}
 			}
 		}
 
@@ -964,23 +933,17 @@ public final class TexasView extends FrameLayout {
 		@AnyThread
 		protected abstract Document parse(@NonNull T content, TexasOption texasOption) throws ParseException;
 
-		@Nullable
-		@AnyThread
-		protected List<Segment> parseIncremental(@NonNull T content, TexasOption texasOption) throws ParseException {
-			return null;
-		}
-
 		private static final Document EMPTY_DOCUMENT = new Document.Builder()
 				.build();
 
 		@NonNull
 		@RestrictTo(RestrictTo.Scope.LIBRARY)
-		public final LoadingWorker.LoadingResult getDocument(TexasOption texasOption) throws SourceOpenException, ParseException {
+		public final LoadingWorker.LoadingResult getDocument(TexasOption texasOption) throws ParseException {
 			if (mSource == null) {
 				return LoadingWorker.LoadingResult.obtainWithoutContent(mDocument == null ? EMPTY_DOCUMENT : mDocument);
 			}
 
-			T value = mSource.open();
+			T value = mSource.read();
 			if (value == null) {
 				return LoadingWorker.LoadingResult.obtainWithoutContent(mDocument == null ? EMPTY_DOCUMENT : mDocument);
 			}

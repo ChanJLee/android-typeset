@@ -38,7 +38,6 @@ import me.chan.texas.renderer.SpanPredicate;
 import me.chan.texas.renderer.selection.ParagraphSelection;
 import me.chan.texas.renderer.selection.visitor.SelectedTextByClickedVisitor;
 import me.chan.texas.source.ParagraphSource;
-import me.chan.texas.source.SourceCloseException;
 import me.chan.texas.text.BreakStrategy;
 import me.chan.texas.text.HyphenStrategy;
 import me.chan.texas.text.Paragraph;
@@ -735,7 +734,7 @@ public class ParagraphView extends FrameLayout {
 		}
 
 		@Override
-		protected Paragraph onOpen(TexasOption option) {
+		protected Paragraph onRead(TexasOption option) {
 			if (mParagraph != null) {
 				return mParagraph;
 			}

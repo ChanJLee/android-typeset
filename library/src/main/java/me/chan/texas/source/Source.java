@@ -12,37 +12,30 @@ import me.chan.texas.TexasOption;
  */
 public abstract class Source<T> {
 
+	private TexasOptionLoader mLoader;
+
+	public final void setLoader(TexasOptionLoader loader) {
+		mLoader = loader;
+	}
+
 	/**
 	 * 打开开始读取内容
 	 *
 	 * @return 数据 返回空则代表已经没有根多数据
-	 * @throws Throwable 异常的时候抛出
 	 */
 	@AnyThread
 	@Nullable
-	public final synchronized T open() throws SourceOpenException {
-		return onOpen();
+	public final synchronized T read() {
+		TexasOption option = mLoader.load();
+		return onRead(option);
 	}
 
 	/**
 	 * @return 数据
-	 * @throws SourceOpenException 打开异常
 	 */
-	protected abstract T onOpen() throws SourceOpenException;
+	protected abstract T onRead(TexasOption option);
 
-	/**
-	 * 读取完毕，关闭source
-	 *
-	 * @throws SourceCloseException
-	 */
-	@AnyThread
-	public synchronized final void close() {
-		try {
-			onClose();
-		} catch (Throwable ignore) {
-			/* noop */
-		}
+	public interface TexasOptionLoader {
+		TexasOption load();
 	}
-
-	protected abstract void onClose() throws SourceCloseException;
 }

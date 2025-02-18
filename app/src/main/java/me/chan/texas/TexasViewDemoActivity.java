@@ -31,7 +31,6 @@ import me.chan.texas.renderer.SpanTouchEventHandler;
 import me.chan.texas.renderer.TexasView;
 import me.chan.texas.renderer.TouchEvent;
 import me.chan.texas.renderer.ui.decor.ParagraphDecor;
-import me.chan.texas.source.AssetsTextSource;
 import me.chan.texas.text.BreakStrategy;
 import me.chan.texas.text.Document;
 import me.chan.texas.text.Figure;

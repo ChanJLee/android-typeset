@@ -22,7 +22,6 @@ import me.chan.texas.renderer.SpanTouchEventHandler;
 import me.chan.texas.renderer.TouchEvent;
 import me.chan.texas.renderer.ui.text.ParagraphView;
 import me.chan.texas.source.ParagraphSource;
-import me.chan.texas.source.SourceCloseException;
 import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.tokenizer.Token;
 
@@ -107,7 +106,7 @@ public class SingleParagraphActivity extends AppCompatActivity {
 		});
 		paragraphView.setSource(new ParagraphSource() {
 			@Override
-			protected Paragraph onOpen(TexasOption option) {
+			protected Paragraph onRead(TexasOption option) {
 				Paragraph.Builder builder = Paragraph.Builder.newBuilder(option);
 				builder.stream(msg, 0, msg.length(), token -> {
 					Paragraph.Span span = Paragraph.Span.obtain(token);
