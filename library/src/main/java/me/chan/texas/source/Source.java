@@ -20,6 +20,11 @@ public abstract class Source<T> {
 		mLoader = loader;
 	}
 
+	@RestrictTo(RestrictTo.Scope.LIBRARY)
+	public TexasOptionLoader getLoader() {
+		return mLoader;
+	}
+
 	/**
 	 * 打开开始读取内容
 	 *
@@ -27,12 +32,11 @@ public abstract class Source<T> {
 	 */
 	@AnyThread
 	@Nullable
-	public final synchronized T read() {
+	public final synchronized T read(TexasOption option) {
 		if (mLoader == null) {
 			return null;
 		}
 
-		TexasOption option = mLoader.load();
 		return onRead(option);
 	}
 

@@ -126,6 +126,9 @@ public final class TexasView extends FrameLayout {
 	private OnScrollListener mOnScrollListener;
 	private OnDragSelectListener mOnDragSelectListener;
 
+	@Inject
+	MeasureFactory mMeasureFactory;
+
 	public TexasView(Context context, AttributeSet attrs) {
 		this(context, attrs, 0);
 	}
@@ -133,6 +136,11 @@ public final class TexasView extends FrameLayout {
 	public TexasView(Context context, AttributeSet attrs, int defStyleAttr) {
 		super(context, attrs, defStyleAttr);
 		init(context, attrs, defStyleAttr);
+
+		TexasComponent texasComponent = Texas.getTexasComponent();
+		TextEngineCoreComponent textEngineCoreComponent = texasComponent.coreComponent().create();
+		textEngineCoreComponent.inject(this);
+
 		checkUIThreadPriority();
 	}
 
@@ -786,6 +794,15 @@ public final class TexasView extends FrameLayout {
 		}
 	}
 
+	@NonNull
+	TexasOption createTexasOption() {
+		RenderOption option = getRendererOption();
+		PaintSet paintSet = new PaintSet(option);
+		Measurer measurer = mMeasureFactory.create(paintSet);
+		TextAttribute textAttribute = new TextAttribute(measurer);
+		return LoadingWorker.createTexasOption(paintSet, textAttribute, measurer, option);
+	}
+
 	/**
 	 * 渲染监听器
 	 */
@@ -824,27 +841,9 @@ public final class TexasView extends FrameLayout {
 	public static abstract class DocumentSource extends Source<Document> {
 		private TexasView mTexasView;
 
-		@Nullable
-		private Document mDocument;
-
-		@Inject
-		MeasureFactory mMeasureFactory;
-
-		public DocumentSource() {
-			TexasComponent texasComponent = Texas.getTexasComponent();
-			TextEngineCoreComponent textEngineCoreComponent = texasComponent.coreComponent().create();
-			textEngineCoreComponent.inject(this);
-		}
-
 		private void attach(@NonNull TexasView view) {
 			mTexasView = view;
-			setLoader(() -> {
-				RenderOption option = mTexasView.getRendererOption();
-				PaintSet paintSet = new PaintSet(option);
-				Measurer measurer = mMeasureFactory.create(paintSet);
-				TextAttribute textAttribute = new TextAttribute(measurer);
-				return LoadingWorker.createTexasOption(textAttribute, measurer, option);
-			});
+			setLoader(() -> mTexasView.createTexasOption());
 		}
 
 		private void detach() {

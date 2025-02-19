@@ -1,7 +1,5 @@
 package me.chan.texas.renderer.core.worker;
 
-import android.util.Log;
-
 import androidx.annotation.RestrictTo;
 
 import javax.inject.Inject;
@@ -14,8 +12,7 @@ import me.chan.texas.hyphenation.Hyphenation;
 import me.chan.texas.hyphenation.HyphenationPattern;
 import me.chan.texas.measurer.MeasureFactory;
 import me.chan.texas.measurer.Measurer;
-import me.chan.texas.misc.DefaultRecyclable;
-import me.chan.texas.misc.ObjectPool;
+import me.chan.texas.misc.PaintSet;
 import me.chan.texas.renderer.RenderOption;
 import me.chan.texas.renderer.TexasView;
 import me.chan.texas.renderer.core.sync.WorkerMessager;
@@ -53,7 +50,7 @@ public class LoadingWorker implements TaskQueue.Listener<LoadingWorker.Args, Loa
 				args.listener.onStart();
 			} else if (value.type() == TYPE_SUCCESS) {
 				LoadingResult result = value.value();
-				args.listener.onSuccess(result.document, result.start, result.end);
+				args.listener.onSuccess(result.option, result.document);
 			} else if (value.type() == TYPE_ERROR) {
 				args.listener.onFailure(value.error());
 			} else {
@@ -96,11 +93,12 @@ public class LoadingWorker implements TaskQueue.Listener<LoadingWorker.Args, Loa
 			throw new TaskQueue.TokenExpiredException("stop parse, token expired", token);
 		}
 
-		Document document = args.source.read();
-		return LoadingResult.obtain(document);
+		TexasOption option = args.source.getLoader().load();
+		Document document = args.source.read(option);
+		return new LoadingResult(option, document);
 	}
 
-	public static TexasOption createTexasOption(TextAttribute textAttribute, Measurer measurer, RenderOption option) {
+	public static TexasOption createTexasOption(PaintSet paintSet, TextAttribute textAttribute, Measurer measurer, RenderOption option) {
 		// 选择断字策略
 		Hyphenation hyphenation = null;
 		HyphenStrategy hyphenStrategy = option.getHyphenStrategy();
@@ -114,7 +112,7 @@ public class LoadingWorker implements TaskQueue.Listener<LoadingWorker.Args, Loa
 			throw new IllegalArgumentException("unknown hyphen strategy");
 		}
 
-		return new TexasOption(hyphenation, measurer, textAttribute, option);
+		return new TexasOption(paintSet, hyphenation, measurer, textAttribute, option);
 	}
 
 	public void cancel(TaskQueue.Token token) {
@@ -127,90 +125,26 @@ public class LoadingWorker implements TaskQueue.Listener<LoadingWorker.Args, Loa
 
 		void onFailure(Throwable throwable);
 
-		void onSuccess(Document document, int start, int end);
+		void onSuccess(TexasOption option, Document document);
 	}
 
-	public static class LoadingResult extends DefaultRecyclable {
-		private static final ObjectPool<LoadingWorker.LoadingResult> POOL = new ObjectPool<>(32);
+	public static class LoadingResult {
+		public final Document document;
+		public final TexasOption option;
 
-		private Document document;
-		private int start;
-		private int end;
-
-		private LoadingResult() {
-
-		}
-
-		public static LoadingResult obtainWithoutContent(Document document) {
-			final int size = document.getSegmentCount();
-			return obtain(document, size, size);
-		}
-
-		public static LoadingResult obtain(Document document) {
-			return obtain(document, 0, document.getSegmentCount());
-		}
-
-		public static LoadingResult obtain(Document document, int start, int end) {
-			LoadingResult result = POOL.acquire();
-			if (result == null) {
-				result = new LoadingResult();
-			}
-
-			result.document = document;
-			result.start = start;
-			result.end = end;
-			result.reuse();
-			return result;
-		}
-
-		public Document getDocument() {
-			return document;
-		}
-
-		@Override
-		protected void onRecycle() {
-			/* NOOP */
+		public LoadingResult(TexasOption option, Document document) {
+			this.option = option;
+			this.document = document;
 		}
 	}
 
-	public static class Args extends DefaultRecyclable {
-		private static final ObjectPool<LoadingWorker.Args> POOL = new ObjectPool<>(32);
-		private LoadingWorker.Listener listener;
-		private TexasView.DocumentSource source;
+	public static class Args {
+		private final TexasView.DocumentSource source;
+		private final LoadingWorker.Listener listener;
 
-		private Args() {
+		public Args(TexasView.DocumentSource source, Listener listener) {
+			this.source = source;
+			this.listener = listener;
 		}
-
-		@Override
-		protected void onRecycle() {
-			listener = null;
-			source = null;
-			POOL.release(this);
-		}
-
-		public static LoadingWorker.Args obtain(TexasView.DocumentSource source,
-												LoadingWorker.Listener listener) {
-			LoadingWorker.Args args = POOL.acquire();
-			if (args == null) {
-				args = new LoadingWorker.Args();
-			}
-
-			args.listener = listener;
-			args.source = source;
-			args.reuse();
-			return args;
-		}
-	}
-
-	private static void d(String msg) {
-		Log.d("LoadingTask", msg);
-	}
-
-	private static void i(String msg) {
-		Log.i("LoadingTask", msg);
-	}
-
-	private static void w(String msg) {
-		Log.w("LoadingTask", msg);
 	}
 }

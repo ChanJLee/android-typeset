@@ -73,7 +73,8 @@ public class ParseWorker implements TaskQueue.Task<ParseWorker.Args, Paragraph>,
 
 	@Override
 	public Paragraph run(TaskQueue.Token token, Args args) throws Throwable {
-		return args.source.read();
+		Source.TexasOptionLoader loader = args.source.getLoader();
+		return args.source.read(loader.load());
 	}
 
 	public interface Listener {
