@@ -133,7 +133,7 @@ public class Renderer implements SelectionManager.Listener {
 		);
 		mRecyclerView.addOnScrollListener(mOnScrollListener);
 
-		mAdapter = new RendererAdapterImpl(layoutInflater, imageLoader, mRecyclerView.getRecycledViewPool(), mRecyclerView);
+		mAdapter = new RendererAdapterImpl(token, layoutInflater, imageLoader, mRecyclerView.getRecycledViewPool(), mRecyclerView);
 		mAdapter.setListener(new RendererAdapterImpl.Listener() {
 			@Override
 			public void onSegmentClicked(TouchEvent event, Object tag) {

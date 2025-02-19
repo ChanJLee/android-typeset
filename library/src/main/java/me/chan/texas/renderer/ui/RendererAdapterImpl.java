@@ -20,10 +20,15 @@ import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.RecyclerView;
 
 import me.chan.texas.BuildConfig;
+import me.chan.texas.Texas;
+import me.chan.texas.di.TexasComponent;
+import me.chan.texas.di.core.TextEngineCoreComponent;
 import me.chan.texas.image.ImageLoader;
 import me.chan.texas.misc.PaintSet;
 import me.chan.texas.renderer.RenderOption;
 import me.chan.texas.renderer.TouchEvent;
+import me.chan.texas.renderer.core.WorkerScheduler;
+import me.chan.texas.renderer.core.worker.OddWorker;
 import me.chan.texas.renderer.selection.SelectionManager;
 import me.chan.texas.renderer.ui.decor.ParagraphDecor;
 import me.chan.texas.renderer.ui.figure.FigureView;
@@ -38,9 +43,13 @@ import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.Segment;
 import me.chan.texas.text.ViewSegment;
 import me.chan.texas.text.layout.Layout;
+import me.chan.texas.utils.concurrency.TaskQueue;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import javax.inject.Inject;
+import javax.inject.Named;
 
 /**
  * 点击事件通知约定：
@@ -83,10 +92,21 @@ public class RendererAdapterImpl extends RecyclerView.Adapter<RendererAdapterImp
 	private final SparseArrayCompat<TextureParagraph> mTextureParagraphRecord = new SparseArrayCompat<>();
 	private Listener mListener;
 
-	public RendererAdapterImpl(LayoutInflater layoutInflater,
-							   ImageLoader imageLoader,
-							   RecyclerView.RecycledViewPool pool,
-							   TexasRecyclerViewImpl view) {
+	// handler需要设置线程可见性，这样一旦释放了handler，工作线程能立马看到
+	// 滞后的消息就不会发到主线程
+	@Inject
+	@Named("MiscTask")
+	TaskQueue mMiscTaskQueue;
+
+	private final TaskQueue.Token mToken;
+
+	public RendererAdapterImpl(
+			TaskQueue.Token token,
+			LayoutInflater layoutInflater,
+			ImageLoader imageLoader,
+			RecyclerView.RecycledViewPool pool,
+			TexasRecyclerViewImpl view) {
+		mToken = token;
 		mLayoutInflater = layoutInflater;
 		mImageLoader = imageLoader;
 		mPool = pool;
@@ -94,6 +114,10 @@ public class RendererAdapterImpl extends RecyclerView.Adapter<RendererAdapterImp
 
 		// 前提是Document没有变化
 		setHasStableIds(true);
+
+		TexasComponent texasComponent = Texas.getTexasComponent();
+		TextEngineCoreComponent textEngineCoreComponent = texasComponent.coreComponent().create();
+		textEngineCoreComponent.inject(this);
 	}
 
 	public void setListener(Listener listener) {
@@ -312,6 +336,7 @@ public class RendererAdapterImpl extends RecyclerView.Adapter<RendererAdapterImp
 	@SuppressLint("NotifyDataSetChanged")
 	public void release() {
 		mView.stopScroll();
+		Document prev = mDocument;
 		mDocument = null;
 
 		try {
@@ -327,6 +352,10 @@ public class RendererAdapterImpl extends RecyclerView.Adapter<RendererAdapterImp
 			if (BuildConfig.DEBUG) {
 				throw new RuntimeException(throwable);
 			}
+		}
+
+		if (prev != null) {
+			WorkerScheduler.odd().submit(mToken, mMiscTaskQueue, prev::release);
 		}
 	}
 
