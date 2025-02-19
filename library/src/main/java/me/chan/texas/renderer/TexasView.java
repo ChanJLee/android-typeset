@@ -855,11 +855,7 @@ public final class TexasView extends FrameLayout {
 
 		@Override
 		protected final Document onRead(TexasOption option) {
-			if (mTexasView == null) {
-				return null;
-			}
-
-			return onRead(option, mTexasView.getDocument());
+			return onRead(option, mTexasView == null ? null : mTexasView.getDocument());
 		}
 
 		/**
