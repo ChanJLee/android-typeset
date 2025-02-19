@@ -14,6 +14,7 @@ import me.chan.texas.TexasOption;
 import me.chan.texas.hyphenation.Hyphenation;
 import me.chan.texas.measurer.Measurer;
 import me.chan.texas.measurer.MockMeasurer;
+import me.chan.texas.misc.PaintSet;
 import me.chan.texas.renderer.RenderOption;
 import me.chan.texas.test.mock.MockTextPaint;
 import me.chan.texas.text.Paragraph;
@@ -23,16 +24,19 @@ import me.chan.texas.text.layout.TextBox;
 public class ParagraphExUnitTest {
 	private Measurer mMeasurer;
 	private TextAttribute mTextAttribute;
+	private PaintSet mPaintSet;
 
 	@Before
 	public void setup() {
-		mMeasurer = new MockMeasurer(new MockTextPaint(20));
+		MockTextPaint paint = new MockTextPaint(20);
+		mMeasurer = new MockMeasurer(paint);
 		mTextAttribute = new TextAttribute(mMeasurer);
+		mPaintSet = new PaintSet(paint);
 	}
 
 	@Test
 	public void testRtl() {
-		TexasOption texasOption = new TexasOption(Hyphenation.getInstance(), mMeasurer, mTextAttribute, new RenderOption());
+		TexasOption texasOption = new TexasOption(mPaintSet, Hyphenation.getInstance(), mMeasurer, mTextAttribute, new RenderOption());
 		Paragraph.Builder builder = Paragraph.Builder.newBuilder(texasOption)
 				.setTypesetPolicy(Paragraph.TYPESET_POLICY_BIDI_TEXT);
 
@@ -96,7 +100,7 @@ public class ParagraphExUnitTest {
 
 	@Test
 	public void testRtlButDisable() {
-		TexasOption texasOption = new TexasOption(Hyphenation.getInstance(), mMeasurer, mTextAttribute, new RenderOption());
+		TexasOption texasOption = new TexasOption(mPaintSet, Hyphenation.getInstance(), mMeasurer, mTextAttribute, new RenderOption());
 		Paragraph.Builder builder = Paragraph.Builder.newBuilder(texasOption);
 
 		List<Token> tokens = new ArrayList<>();

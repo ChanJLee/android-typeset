@@ -4,6 +4,7 @@ import me.chan.texas.TexasOption;
 import me.chan.texas.hyphenation.Hyphenation;
 import me.chan.texas.measurer.Measurer;
 import me.chan.texas.measurer.MockMeasurer;
+import me.chan.texas.misc.PaintSet;
 import me.chan.texas.renderer.BoundCheckDrawer;
 import me.chan.texas.renderer.RenderOption;
 import me.chan.texas.test.mock.MockTextPaint;
@@ -28,7 +29,7 @@ public class PrimitiveUnitTest {
 		Measurer measurer = new MockMeasurer(textPaint);
 		TextAttribute textAttribute = new TextAttribute(measurer);
 
-		mTexasOption = new TexasOption(Hyphenation.getInstance(), measurer, textAttribute, new RenderOption());
+		mTexasOption = new TexasOption(new PaintSet(textPaint), Hyphenation.getInstance(), measurer, textAttribute, new RenderOption());
 	}
 
 	@Test
@@ -231,7 +232,7 @@ public class PrimitiveUnitTest {
 		Measurer measurer = new MockMeasurer(textPaint);
 		TextAttribute textAttribute = new TextAttribute(measurer);
 
-		TexasOption texasOption = new TexasOption(Hyphenation.getInstance(), measurer, textAttribute, new RenderOption());
+		TexasOption texasOption = new TexasOption(new PaintSet(textPaint), Hyphenation.getInstance(), measurer, textAttribute, new RenderOption());
 
 		// multi line
 		System.out.println(">>>>> tex cn");

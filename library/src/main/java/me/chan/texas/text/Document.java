@@ -105,36 +105,51 @@ public final class Document {
 			};
 		}
 
-		public void addSegment(Segment segment) {
+		public Builder addSegment(Segment segment) {
 			mSegments.get().add(segment);
+			return this;
 		}
 
-		public void addSegment(int index, Segment segment) {
+		public Builder addSegment(int index, Segment segment) {
 			mSegments.get().add(index, segment);
+			return this;
 		}
 
-		public void addSegments(int index, List<Segment> segments) {
+		public Builder addSegments(int index, List<Segment> segments) {
 			mSegments.get().addAll(index, segments);
+			return this;
 		}
 
-		public void addSegments(List<Segment> segments) {
+		public Builder addSegments(List<Segment> segments) {
 			mSegments.get().addAll(segments);
+			return this;
 		}
 
-		public void removeSegment(int index) {
+		public Builder removeSegment(int index) {
 			mSegments.get().remove(index);
+			return this;
 		}
 
-		public void removeSegment(Segment segment) {
+		public Builder removeSegment(Segment segment) {
 			mSegments.get().remove(segment);
+			return this;
 		}
 
-		public void updateSegment(int index, Segment segment) {
+		public Builder updateSegment(int index, Segment segment) {
 			mSegments.get().set(index, segment);
+			return this;
 		}
 
 		public Segment getSegment(int index) {
 			return mSegments.get().get(index);
+		}
+
+		public int getSegmentCount() {
+			return mSegments.get().size();
+		}
+
+		public int indexOfSegment(Segment segment) {
+			return mSegments.get().indexOf(segment);
 		}
 
 		public Document build() {

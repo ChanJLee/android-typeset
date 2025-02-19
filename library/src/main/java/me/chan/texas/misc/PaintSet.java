@@ -5,6 +5,7 @@ import android.text.TextPaint;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
+import androidx.annotation.VisibleForTesting;
 
 import me.chan.texas.Texas;
 import me.chan.texas.compat.TextPaintCompat;
@@ -15,7 +16,7 @@ import me.chan.texas.utils.TexasUtils;
 public class PaintSet {
 	private final TextPaint mPaint;
 
-	public PaintSet() {
+	public PaintSet(RenderOption renderOption) {
 		mPaint = TextPaintCompat.create(TextPaint.ANTI_ALIAS_FLAG);
 
 		// support default typeface
@@ -25,11 +26,13 @@ public class PaintSet {
 		}
 
 		TexasUtils.setupTextPaint(mPaint);
+
+		refresh(renderOption);
 	}
 
-	public PaintSet(RenderOption renderOption) {
-		this();
-		refresh(renderOption);
+	@VisibleForTesting
+	public PaintSet(TextPaint paint) {
+		mPaint = paint;
 	}
 
 	public void refresh(RenderOption renderOption) {
