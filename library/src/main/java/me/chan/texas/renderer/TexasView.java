@@ -14,8 +14,6 @@ import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.util.TypedValue;
-import android.view.LayoutInflater;
-import android.view.View;
 import android.widget.FrameLayout;
 
 import androidx.annotation.AnyThread;
@@ -362,7 +360,7 @@ public final class TexasView extends FrameLayout {
 		super.onSizeChanged(w, h, oldw, oldh);
 		/* render if size changed */
 		if (w != oldw) {
-			mRenderer.typeset("onSizeChanged", getRenderWidth());
+			mRenderer.resize("onSizeChanged", getRenderWidth());
 		}
 	}
 
