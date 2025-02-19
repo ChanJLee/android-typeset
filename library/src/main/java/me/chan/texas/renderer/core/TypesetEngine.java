@@ -4,10 +4,10 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
 import android.util.Log;
 
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 
-import me.chan.texas.misc.PaintSet;
-import me.chan.texas.renderer.RenderOption;
+import me.chan.texas.TexasOption;
 import me.chan.texas.renderer.TexasView;
 import me.chan.texas.renderer.core.worker.LoadingWorker;
 import me.chan.texas.renderer.core.worker.MixWorker;
@@ -31,13 +31,10 @@ public class TypesetEngine {
 	private int mWidth = 0;
 	private Document mDocument = null;
 
-	private RenderOption mRenderOption;
 	private TexasView.SegmentDecoration mSegmentDecoration;
 
 	public TypesetEngine(
-			RenderOption renderOption,
 			TaskQueue.Token token) {
-		mRenderOption = renderOption;
 		mToken = token;
 
 		if (DEBUG) {
@@ -45,15 +42,16 @@ public class TypesetEngine {
 		}
 	}
 
-	public void resize(String reason, Listener listener) {
-		resize0(reason, mWidth, listener, EVENT_ALL);
+	public void resize(String reason, TexasOption option, Listener listener) {
+		resize0(reason, option, mWidth, listener, EVENT_ALL);
 	}
 
-	public void resize(String reason, int width, Listener listener) {
-		resize0(reason, width, listener, EVENT_NONE);
+	public void resize(String reason, TexasOption option, int width, Listener listener) {
+		resize0(reason, option, width, listener, EVENT_NONE);
 	}
 
-	private void resize0(String reason, int width, Listener listener, int focusEvents) {
+	private void resize0(String reason,
+						 TexasOption option, int width, Listener listener, int focusEvents) {
 		if (width > 0) {
 			mWidth = width;
 		}
@@ -61,7 +59,7 @@ public class TypesetEngine {
 		if (mDocument == null || width <= 0) {
 			return;
 		}
-		typeset0(reason, mDocument, 0, mDocument.getSegmentCount(), listener, focusEvents);
+		typeset0(reason, option, null /* 需要的是全量更新 */, mDocument, listener, focusEvents);
 	}
 
 	/**
@@ -70,10 +68,12 @@ public class TypesetEngine {
 	 * @param document document
 	 */
 	private void typeset0(String reason,
-						  Document document, int start, int end,
+						  TexasOption option,
+						  @Nullable Document prev /* 传空就是全量更新 */,
+						  Document document,
 						  Listener listener,
 						  int focusEvents) {
-		d("typeset, reason: " + reason + ", start: " + start + ", end: " + end);
+		d("typeset, reason: " + reason);
 
 		if (document == null) {
 			w("typeset, document is null");
@@ -87,7 +87,7 @@ public class TypesetEngine {
 		WorkerScheduler.mix().cancel(mToken);
 
 		mDocument = document;
-		MixWorker.Args args = MixWorker.Args.obtain(mWidth, mRenderOption, document,
+		MixWorker.Args args = MixWorker.Args.obtain(mWidth, option, prev, document,
 				new MixWorker.Listener() {
 					@Override
 					public void onStart() {
@@ -113,10 +113,10 @@ public class TypesetEngine {
 					@Override
 					public void onSuccess(MixWorker.TypesetResult result) {
 						if (listener != null && (focusEvents & EVENT_SUCCESS) != 0) {
-							listener.onSuccess(result.paintSet, result.doc, result.start, result.end);
+							listener.onSuccess(result);
 						}
 					}
-				}, mSegmentDecoration, start, end);
+				}, mSegmentDecoration);
 		WorkerScheduler.mix().submit(mToken, args);
 	}
 
@@ -128,15 +128,19 @@ public class TypesetEngine {
 		mDocument = null;
 	}
 
-	public void load(String reason, int width, TexasView.DocumentSource source, Listener listener) {
+	public Document getDocument() {
+		return mDocument;
+	}
+
+	public void load(String reason, int width, TexasView.DocumentSource source, @Nullable Document prev, Listener listener) {
 		// 非增量的加载，都需要取消之前的任务
 		cancel();
 
 		mWidth = width;
-		LoadingWorker.Args args = LoadingWorker.Args.obtain(source, new LoadingWorker.Listener() {
+		LoadingWorker.Args args = new LoadingWorker.Args(source, new LoadingWorker.Listener() {
 			@Override
 			public void onStart() {
-				d("try loading doc, width: " + width);
+				d("try loading doc, width: " + width + ", reason: " + reason);
 				if (listener != null) {
 					listener.onStart();
 				}
@@ -144,6 +148,7 @@ public class TypesetEngine {
 
 			@Override
 			public void onFailure(Throwable throwable) {
+				d("loading doc failure, width: " + width + ", reason: " + reason);
 				if (throwable instanceof TaskQueue.TokenExpiredException) {
 					if (DEBUG) {
 						w(throwable);
@@ -157,8 +162,9 @@ public class TypesetEngine {
 			}
 
 			@Override
-			public void onSuccess(Document document, int start, int end) {
-				typeset0(reason, document, start, end, listener, EVENT_FAILURE | EVENT_SUCCESS);
+			public void onSuccess(TexasOption option, Document document) {
+				d("loading doc success, width: " + width + ", reason: " + reason);
+				typeset0(reason, option, prev, document, listener, EVENT_FAILURE | EVENT_SUCCESS);
 			}
 		});
 		WorkerScheduler.loading().submit(mToken, args);
@@ -175,14 +181,6 @@ public class TypesetEngine {
 		// 取消准备发送的消息
 		WorkerScheduler.loading().cancel(mToken);
 		WorkerScheduler.mix().cancel(mToken);
-	}
-
-	public Document getDocument() {
-		return mDocument;
-	}
-
-	public void updateRenderOption(RenderOption renderOption) {
-		mRenderOption = renderOption;
 	}
 
 	public void setSegmentDecoration(TexasView.SegmentDecoration segmentDecoration) {
@@ -214,6 +212,6 @@ public class TypesetEngine {
 
 		void onFailure(Throwable throwable);
 
-		void onSuccess(PaintSet paintSet, Document doc, int start, int end);
+		void onSuccess(MixWorker.TypesetResult result);
 	}
 }

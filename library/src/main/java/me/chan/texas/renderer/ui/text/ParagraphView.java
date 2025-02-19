@@ -22,7 +22,9 @@ import me.chan.texas.BuildConfig;
 import me.chan.texas.R;
 import me.chan.texas.Texas;
 import me.chan.texas.TexasOption;
-import me.chan.texas.measurer.AndroidMeasurer;
+import me.chan.texas.di.TexasComponent;
+import me.chan.texas.di.core.TextEngineCoreComponent;
+import me.chan.texas.measurer.MeasureFactory;
 import me.chan.texas.measurer.Measurer;
 import me.chan.texas.misc.PaintSet;
 import me.chan.texas.renderer.ParagraphVisitor;
@@ -49,6 +51,8 @@ import me.chan.texas.utils.TexasUtils;
 
 import java.lang.ref.WeakReference;
 
+import javax.inject.Inject;
+
 /**
  * 用于显示文本内容
  * <p>
@@ -62,10 +66,7 @@ public class ParagraphView extends FrameLayout {
 	@NonNull
 	private final TextureParagraph mRender;
 
-	private final PaintSet mPaintSet;
 	private RenderOption mRenderOption;
-	private final Measurer mMeasurer;
-	private final TextAttribute mTextAttribute;
 
 	/*
 	 * 只会在parse后被赋值
@@ -114,14 +115,17 @@ public class ParagraphView extends FrameLayout {
 		this(context, attrs, 0);
 	}
 
+	@Inject
+	MeasureFactory mMeasureFactory;
+
+	private final PaintSet mUiThreadPaintSet;
+
 	public ParagraphView(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
 		super(context, attrs, defStyleAttr);
 		TypedArray typedArray = context.obtainStyledAttributes(attrs, R.styleable.me_chan_texas_ParagraphView, defStyleAttr, 0);
 		try {
 			mRenderOption = createRenderOption(context, typedArray);
-			mPaintSet = new PaintSet(mRenderOption);
-			mMeasurer = new AndroidMeasurer(mPaintSet);
-			mTextAttribute = new TextAttribute(mMeasurer);
+			mUiThreadPaintSet = new PaintSet(mRenderOption);
 			mRender = mRenderOption.isCompatMode() || Build.VERSION.SDK_INT < Build.VERSION_CODES.M ?
 					new TextureParagraphView0Compat(context) : new TextureParagraphView0(context);
 			addView((View) mRender, new FrameLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
@@ -142,6 +146,10 @@ public class ParagraphView extends FrameLayout {
 			if (!TextUtils.isEmpty(text)) {
 				setText(text);
 			}
+
+			TexasComponent texasComponent = Texas.getTexasComponent();
+			TextEngineCoreComponent textEngineCoreComponent = texasComponent.coreComponent().create();
+			textEngineCoreComponent.inject(this);
 			checkUIThreadPriority();
 		} finally {
 			typedArray.recycle();
@@ -365,7 +373,7 @@ public class ParagraphView extends FrameLayout {
 			Log.d(TAG, "render0: paragraph = " + paragraph);
 		}
 
-		mRender.render(paragraph, mPaintSet, mRenderOption, null, mSpanTouchEventHandler);
+		mRender.render(paragraph, mUiThreadPaintSet, mRenderOption, null, mSpanTouchEventHandler);
 	}
 
 	/**
@@ -423,7 +431,13 @@ public class ParagraphView extends FrameLayout {
 		clearSelection();
 
 		// 赋予
-		source.setLoader(() -> LoadingWorker.createTexasOption(mTextAttribute, mMeasurer, mRenderOption));
+		source.setLoader(() -> {
+			RenderOption option = mRenderOption;
+			PaintSet paintSet = new PaintSet(option);
+			Measurer measurer = mMeasureFactory.create(paintSet);
+			TextAttribute textAttribute = new TextAttribute(measurer);
+			return LoadingWorker.createTexasOption(paintSet, textAttribute, measurer, option);
+		});
 
 		// cache last source
 		mSource = source;
@@ -479,7 +493,7 @@ public class ParagraphView extends FrameLayout {
 		int cmpType = TexasUtils.cmp(mRenderOption, renderOption);
 
 		mRenderOption = renderOption;
-		mPaintSet.refresh(renderOption);
+		mUiThreadPaintSet.refresh(renderOption);
 
 		if (cmpType == TexasUtils.CmpType.CMP_LOAD) {
 			// 丢弃之前的任务

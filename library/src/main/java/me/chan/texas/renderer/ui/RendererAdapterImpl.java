@@ -16,6 +16,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.collection.SparseArrayCompat;
+import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.RecyclerView;
 
 import me.chan.texas.BuildConfig;
@@ -270,16 +271,14 @@ public class RendererAdapterImpl extends RecyclerView.Adapter<RendererAdapterImp
 		}
 	}
 
-	// todo refactor
 	@SuppressLint("NotifyDataSetChanged")
-	public void render(PaintSet paintSet, Document document, int start, int end, RenderOption renderOption) {
+	public void render(Document document, PaintSet paintSet, RenderOption renderOption, DiffUtil.DiffResult diff) {
 		d("render");
 		mView.stopScroll();
 		mPaintSet = paintSet;
 		mRenderOption = renderOption;
-		Document prev = mDocument;
 		mDocument = document;
-		notifyDataSetChanged();
+		diff.dispatchUpdatesTo(this);
 	}
 
 	public void updateRenderOption(RenderOption renderOption) {
