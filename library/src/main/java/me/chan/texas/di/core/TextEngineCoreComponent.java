@@ -7,6 +7,7 @@ import me.chan.texas.renderer.core.WorkerScheduler;
 import dagger.Subcomponent;
 import me.chan.texas.renderer.core.worker.LoadingWorker;
 import me.chan.texas.renderer.core.worker.MixWorker;
+import me.chan.texas.renderer.ui.RendererAdapterImpl;
 import me.chan.texas.renderer.ui.text.ParagraphView;
 
 @Subcomponent
@@ -27,4 +28,6 @@ public interface TextEngineCoreComponent {
 	void inject(TexasView view);
 
 	void inject(ParagraphView view);
+
+	void inject(RendererAdapterImpl adapter);
 }

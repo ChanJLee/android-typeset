@@ -53,7 +53,6 @@ public final class Document {
 		return mSegments.get().get(index);
 	}
 
-	// todo release
 	@RestrictTo(LIBRARY)
 	public void release() {
 		clear();
