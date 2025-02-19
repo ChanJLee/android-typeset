@@ -22,7 +22,6 @@ public class TypesetEngine {
 	private static final int EVENT_START = 1;
 	private static final int EVENT_SUCCESS = 2;
 	private static final int EVENT_FAILURE = 3;
-	private static final int EVENT_ALL = EVENT_FAILURE | EVENT_START | EVENT_SUCCESS;
 
 	private static final int EVENT_NONE = 0;
 
@@ -43,15 +42,15 @@ public class TypesetEngine {
 	}
 
 	public void resize(String reason, TexasOption option, Listener listener) {
-		resize0(reason, option, mWidth, listener, EVENT_ALL);
+		resize0(reason, option, mWidth, listener);
 	}
 
 	public void resize(String reason, TexasOption option, int width, Listener listener) {
-		resize0(reason, option, width, listener, EVENT_NONE);
+		resize0(reason, option, width, listener);
 	}
 
 	private void resize0(String reason,
-						 TexasOption option, int width, Listener listener, int focusEvents) {
+						 TexasOption option, int width, Listener listener) {
 		if (width > 0) {
 			mWidth = width;
 		}
@@ -59,7 +58,7 @@ public class TypesetEngine {
 		if (mDocument == null || width <= 0) {
 			return;
 		}
-		typeset0(reason, option, null /* 需要的是全量更新 */, mDocument, listener, focusEvents);
+		typeset0(reason, option, null /* 需要的是全量更新 */, mDocument, listener, EVENT_NONE);
 	}
 
 	/**
@@ -87,7 +86,7 @@ public class TypesetEngine {
 		WorkerScheduler.mix().cancel(mToken);
 
 		mDocument = document;
-		MixWorker.Args args = MixWorker.Args.obtain(mWidth, option, prev, document,
+		MixWorker.Args args = new MixWorker.Args(mWidth, option, prev, document,
 				new MixWorker.Listener() {
 					@Override
 					public void onStart() {
