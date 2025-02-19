@@ -175,7 +175,7 @@ public class Renderer implements SelectionManager.Listener {
 		mTypesetEngine.load(reason, width, mTexasView.getSource(), getDocument(), mListener);
 	}
 
-	public void typeset(String reason, int width) {
+	public void resize(String reason, int width) {
 		if (BuildConfig.DEBUG) {
 			Log.d("TexasRenderer", "typeset, reason: " + reason);
 		}
