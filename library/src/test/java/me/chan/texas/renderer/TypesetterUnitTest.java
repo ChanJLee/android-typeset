@@ -11,19 +11,19 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 
+import me.chan.texas.MockTextSource;
+import me.chan.texas.TexasOption;
+import me.chan.texas.measurer.Measurer;
+import me.chan.texas.measurer.MockMeasurer;
 import me.chan.texas.test.mock.MockTextPaint;
 
 import me.chan.texas.Texas;
-import me.chan.texas.adapter.ParseException;
-import me.chan.texas.adapter.TextAdapter;
 import me.chan.texas.di.DaggerFakeTexasComponent;
 import me.chan.texas.di.FakeMeasureFactory;
 import me.chan.texas.hyphenation.Hyphenation;
 import me.chan.texas.renderer.core.WorkerScheduler;
 import me.chan.texas.renderer.core.worker.LoadingWorker;
-import me.chan.texas.source.ObjectSource;
-import me.chan.texas.source.SourceCloseException;
-import me.chan.texas.source.SourceOpenException;
+import me.chan.texas.text.TextAttribute;
 import me.chan.texas.text.layout.Box;
 import me.chan.texas.text.BreakStrategy;
 import me.chan.texas.text.Document;
@@ -96,7 +96,7 @@ public class TypesetterUnitTest {
 	}
 
 	@Test
-	public void testTypesetterSimplePreCondition() throws InterruptedException, SourceCloseException, SourceOpenException, ParseException, NoSuchFieldException, IllegalAccessException {
+	public void testTypesetterSimplePreCondition() throws InterruptedException, NoSuchFieldException, IllegalAccessException {
 		checkContentPredication("hello world", BreakStrategy.SIMPLE, 10, 1, Paragraph.TYPESET_POLICY_DEFAULT, new String[]{
 				"hello",
 				"world"
@@ -124,7 +124,7 @@ public class TypesetterUnitTest {
 	}
 
 	@Test
-	public void testTypesetterBalancePreCondition() throws IllegalAccessException, InterruptedException, ParseException, SourceOpenException, SourceCloseException, NoSuchFieldException {
+	public void testTypesetterBalancePreCondition() throws IllegalAccessException, InterruptedException, NoSuchFieldException {
 		checkContentPredication("hello world", BreakStrategy.BALANCED, 10, 1, Paragraph.TYPESET_POLICY_DEFAULT, new String[]{
 				"hello",
 				"world"
@@ -153,7 +153,7 @@ public class TypesetterUnitTest {
 	}
 
 	@Test
-	public void testParagraphVisit() throws SourceCloseException, SourceOpenException, ParseException, NoSuchFieldException, InterruptedException, IllegalAccessException, ParagraphVisitor.VisitException {
+	public void testParagraphVisit() throws NoSuchFieldException, InterruptedException, IllegalAccessException, ParagraphVisitor.VisitException {
 		Paragraph paragraph = checkContentPredication("一二三四五六七八九一二三四", BreakStrategy.BALANCED, 5, 1, Paragraph.TYPESET_POLICY_DEFAULT, new String[]{
 				"一 二 三 四 五",
 				"六 七 八 九 一",
@@ -370,7 +370,7 @@ public class TypesetterUnitTest {
 	}
 
 	@Test
-	public void testTypesetter() throws IOException, InterruptedException, SourceCloseException, SourceOpenException, ParseException, NoSuchFieldException, IllegalAccessException {
+	public void testTypesetter() throws IOException, InterruptedException, NoSuchFieldException, IllegalAccessException {
 		for (int i = 1; i <= 6; ++i) {
 			File file = new File("../app/src/main/assets/harry" + i + ".txt");
 			System.out.println(file.getAbsolutePath());
@@ -406,19 +406,17 @@ public class TypesetterUnitTest {
 		}
 	}
 
-	private Paragraph checkContentPredication(String text, BreakStrategy breakStrategy, float lineWidth, int textSize, int policy, String[] exceptedLines) throws InterruptedException, SourceCloseException, SourceOpenException, ParseException, NoSuchFieldException, IllegalAccessException {
+	private Paragraph checkContentPredication(String text, BreakStrategy breakStrategy, float lineWidth, int textSize, int policy, String[] exceptedLines) throws InterruptedException, NoSuchFieldException, IllegalAccessException {
 		System.out.println("check content predication, width: " + lineWidth + " text size: " + textSize + " " + breakStrategy + "->" + text);
 
 		FakeMeasureFactory factory = FakeMeasureFactory.getInstance();
 		factory.getMockTextPaint().setMockTextSize(textSize);
 
 		ParagraphTypesetter texTypesetter = new ParagraphTypesetter();
-		TextAdapter textParser = new TextAdapter(policy);
 		RenderOption renderOption = new RenderOption();
-		textParser.setSource(new ObjectSource<>(text));
-
+		Measurer measurer = new MockMeasurer(factory.getMockTextPaint());
 		LoadingJoinListener listener = new LoadingJoinListener();
-		LoadingWorker.Args args = LoadingWorker.Args.obtain(new RenderOption(), textParser, LoadingStrategy.INIT, listener);
+		LoadingWorker.Args args = new LoadingWorker.Args(new MockTextSource(renderOption, new TextAttribute(measurer), measurer, text), listener);
 		WorkerScheduler.loading().submit(TaskQueue.Token.newInstance(), args);
 
 		if (listener.mThrowable != null) {
@@ -453,22 +451,21 @@ public class TypesetterUnitTest {
 		return paragraph;
 	}
 
-	private void checkContent(String text, BreakStrategy breakStrategy, float lineWidth, int textSize) throws SourceCloseException, SourceOpenException, ParseException, NoSuchFieldException, InterruptedException, IllegalAccessException {
+	private void checkContent(String text, BreakStrategy breakStrategy, float lineWidth, int textSize) throws NoSuchFieldException, InterruptedException, IllegalAccessException {
 		checkContent(text, breakStrategy, lineWidth, textSize, true);
 	}
 
-	private void checkContent(String text, BreakStrategy breakStrategy, float lineWidth, int textSize, boolean enableBoundCheck) throws InterruptedException, SourceCloseException, SourceOpenException, ParseException, NoSuchFieldException, IllegalAccessException {
+	private void checkContent(String text, BreakStrategy breakStrategy, float lineWidth, int textSize, boolean enableBoundCheck) throws InterruptedException, NoSuchFieldException, IllegalAccessException {
 		System.out.println("check content, width: " + lineWidth + " text size: " + textSize + " " + breakStrategy);
 
 		FakeMeasureFactory factory = FakeMeasureFactory.getInstance();
 		factory.getMockTextPaint().setMockTextSize(textSize);
 
 		ParagraphTypesetter texTypesetter = new ParagraphTypesetter();
-		TextAdapter textParser = new TextAdapter();
 		RenderOption renderOption = new RenderOption();
-		textParser.setSource(new ObjectSource<>(text));
 		LoadingJoinListener listener = new LoadingJoinListener();
-		LoadingWorker.Args args = LoadingWorker.Args.obtain(new RenderOption(), textParser, LoadingStrategy.INIT, listener);
+		Measurer measurer = new MockMeasurer(factory.getMockTextPaint());
+		LoadingWorker.Args args = new LoadingWorker.Args(new MockTextSource(renderOption, new TextAttribute(measurer), measurer, text), listener);
 		WorkerScheduler.loading().submit(TaskQueue.Token.newInstance(), args);
 
 		if (listener.mThrowable != null) {
@@ -785,7 +782,7 @@ public class TypesetterUnitTest {
 		}
 
 		@Override
-		public void onSuccess(LoadingStrategy strategy, Document document, int start, int end) {
+		public void onSuccess(TexasOption option, Document document) {
 			mDocument = document;
 		}
 	}

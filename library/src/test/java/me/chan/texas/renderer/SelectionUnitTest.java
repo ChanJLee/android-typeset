@@ -5,6 +5,7 @@ import android.graphics.RectF;
 import androidx.annotation.NonNull;
 
 import me.chan.texas.TestUtils;
+import me.chan.texas.misc.PaintSet;
 import me.chan.texas.test.mock.MockTextPaint;
 
 import me.chan.texas.TexasOption;
@@ -31,9 +32,12 @@ public class SelectionUnitTest {
 
 	private final MockMeasurer mMeasurer;
 	private final TextAttribute mTextAttribute;
+	private final PaintSet mPaintSet;
 
 	public SelectionUnitTest() throws IOException {
-		mMeasurer = new MockMeasurer(new MockTextPaint(1));
+		MockTextPaint textPaint = new MockTextPaint(1);
+		mPaintSet = new PaintSet(textPaint);
+		mMeasurer = new MockMeasurer(textPaint);
 		mTextAttribute = new TextAttribute(mMeasurer);
 	}
 
@@ -41,7 +45,7 @@ public class SelectionUnitTest {
 	public void testParagraphSelection() throws ParagraphVisitor.VisitException {
 		RenderOption renderOption = new RenderOption();
 
-		TexasOption texasOption = new TexasOption(Hyphenation.getInstance(), mMeasurer, mTextAttribute, renderOption);
+		TexasOption texasOption = new TexasOption(mPaintSet, Hyphenation.getInstance(), mMeasurer, mTextAttribute, renderOption);
 		Paragraph.Builder builder = Paragraph.Builder.newBuilder(texasOption);
 
 		for (int i = 0; i < 20; ++i) {

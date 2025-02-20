@@ -2,9 +2,9 @@ package me.chan.texas.source;
 
 import androidx.annotation.AnyThread;
 import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
 
 import me.chan.texas.TexasOption;
-import me.chan.texas.renderer.LoadingStrategy;
 
 /**
  * 设置texas数据源的读取来源
@@ -13,38 +13,40 @@ import me.chan.texas.renderer.LoadingStrategy;
  */
 public abstract class Source<T> {
 
+	private TexasOptionLoader mLoader;
+
+	@RestrictTo(RestrictTo.Scope.LIBRARY)
+	public final void setLoader(TexasOptionLoader loader) {
+		mLoader = loader;
+	}
+
+	@RestrictTo(RestrictTo.Scope.LIBRARY)
+	public TexasOptionLoader getLoader() {
+		return mLoader;
+	}
+
 	/**
 	 * 打开开始读取内容
 	 *
 	 * @return 数据 返回空则代表已经没有根多数据
-	 * @throws Throwable 异常的时候抛出
 	 */
 	@AnyThread
 	@Nullable
-	public final synchronized T open(LoadingStrategy strategy) throws SourceOpenException {
-		return onOpen(strategy);
-	}
-
-	/**
-	 * @param strategy 加载策略 {@link me.chan.texas.renderer.TexasView.Adapter#parseIncremental(Object, TexasOption)}
-	 * @return 数据
-	 * @throws SourceOpenException 打开异常
-	 */
-	protected abstract T onOpen(LoadingStrategy strategy) throws SourceOpenException;
-
-	/**
-	 * 读取完毕，关闭source
-	 *
-	 * @throws SourceCloseException
-	 */
-	@AnyThread
-	public synchronized final void close() {
-		try {
-			onClose();
-		} catch (Throwable ignore) {
-			/* noop */
+	public final synchronized T read(TexasOption option) {
+		if (mLoader == null) {
+			return null;
 		}
+
+		return onRead(option);
 	}
 
-	protected abstract void onClose() throws SourceCloseException;
+	/**
+	 * @return 数据
+	 */
+	protected abstract T onRead(TexasOption option);
+
+	@RestrictTo(RestrictTo.Scope.LIBRARY)
+	public interface TexasOptionLoader {
+		TexasOption load();
+	}
 }

@@ -509,7 +509,7 @@ public final class Paragraph extends DefaultRecyclable implements Segment {
 		@RestrictTo(LIBRARY)
 		public final Span read(Token token) {
 			Span span = Span.obtain(mSpan.mText, mSpan.mStart, mSpan.mEnd);
-			span.copy(mSpan);
+			span.copyMeta(mSpan);
 			return span;
 		}
 	}
@@ -531,10 +531,8 @@ public final class Paragraph extends DefaultRecyclable implements Segment {
 		private Span() {
 		}
 
-		public void copy(Span other) {
-			this.mText = other.mText;
-			this.mStart = other.mStart;
-			this.mEnd = other.mEnd;
+		@RestrictTo(LIBRARY)
+		public void copyMeta(Span other) {
 			this.mStyles.copy(other.mStyles);
 			this.mTag = other.mTag;
 		}

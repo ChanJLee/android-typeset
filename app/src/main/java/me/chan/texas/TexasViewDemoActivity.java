@@ -23,7 +23,6 @@ import androidx.core.content.ContextCompat;
 
 import java.io.IOException;
 
-import me.chan.texas.adapter.TextAdapter;
 import me.chan.texas.renderer.ParagraphPredicates;
 import me.chan.texas.renderer.ParagraphVisitor;
 import me.chan.texas.renderer.RenderOption;
@@ -31,7 +30,6 @@ import me.chan.texas.renderer.SpanTouchEventHandler;
 import me.chan.texas.renderer.TexasView;
 import me.chan.texas.renderer.TouchEvent;
 import me.chan.texas.renderer.ui.decor.ParagraphDecor;
-import me.chan.texas.source.AssetsTextSource;
 import me.chan.texas.text.BreakStrategy;
 import me.chan.texas.text.Document;
 import me.chan.texas.text.Figure;
@@ -101,9 +99,9 @@ public class TexasViewDemoActivity extends AppCompatActivity {
 					return true;
 				}
 
-				if (clickedTag instanceof BookParser.SpanTag && otherTag instanceof BookParser.SpanTag) {
-					BookParser.SpanTag lhs = (BookParser.SpanTag) clickedTag;
-					BookParser.SpanTag rhs = (BookParser.SpanTag) otherTag;
+				if (clickedTag instanceof BookSource.SpanTag && otherTag instanceof BookSource.SpanTag) {
+					BookSource.SpanTag lhs = (BookSource.SpanTag) clickedTag;
+					BookSource.SpanTag rhs = (BookSource.SpanTag) otherTag;
 					return TexasUtils.equals(lhs.sentId, rhs.sentId);
 				}
 
@@ -165,13 +163,8 @@ public class TexasViewDemoActivity extends AppCompatActivity {
 	 * 加载数据
 	 */
 	private void setupData() {
-		BookParser adapter = new BookParser(this, mTexasView, Paragraph.TYPESET_POLICY_CJK_MIX_OPTIMIZATION);
-		mTexasView.setAdapter(adapter);
-		try {
-			adapter.setSource(new AssetsTextSource(this, "CnEnMix.xml"));
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		BookSource source = new BookSource(this, mTexasView, Paragraph.TYPESET_POLICY_CJK_MIX_OPTIMIZATION, "CnEnMix.xml");
+		mTexasView.setSource(source);
 	}
 
 	/**
@@ -182,11 +175,11 @@ public class TexasViewDemoActivity extends AppCompatActivity {
 				mTexasView.highlightParagraphs(new ParagraphPredicates() {
 					@Override
 					public boolean acceptSpan(@Nullable Object spanTag) {
-						if (!(spanTag instanceof BookParser.SpanTag)) {
+						if (!(spanTag instanceof BookSource.SpanTag)) {
 							return false;
 						}
 
-						BookParser.SpanTag tag = (BookParser.SpanTag) spanTag;
+						BookSource.SpanTag tag = (BookSource.SpanTag) spanTag;
 						return "A9127P127017S210459".equals(tag.sentId);
 					}
 
@@ -249,11 +242,11 @@ public class TexasViewDemoActivity extends AppCompatActivity {
 			@Override
 			protected int onLayoutDecor(Paragraph paragraph, Object spanTag, RectF spanOuter, RectF spanInner, Rect decorOuter, Rect decorInner) {
 				// 准备decor的布局
-				if (!(spanTag instanceof BookParser.SpanTag)) {
+				if (!(spanTag instanceof BookSource.SpanTag)) {
 					return ParagraphVisitor.SIG_NORMAL;
 				}
 
-				BookParser.SpanTag tag = (BookParser.SpanTag) spanTag;
+				BookSource.SpanTag tag = (BookSource.SpanTag) spanTag;
 				if (!"A9127P126972S210390".equals(tag.sentId)) {
 					return ParagraphVisitor.SIG_NORMAL;
 				}
@@ -293,11 +286,11 @@ public class TexasViewDemoActivity extends AppCompatActivity {
 					mTexasView.selectParagraphs(new ParagraphPredicates() {
 						@Override
 						public boolean acceptSpan(@Nullable Object spanTag) {
-							if (!(spanTag instanceof BookParser.SpanTag)) {
+							if (!(spanTag instanceof BookSource.SpanTag)) {
 								return false;
 							}
 
-							BookParser.SpanTag tag = (BookParser.SpanTag) spanTag;
+							BookSource.SpanTag tag = (BookSource.SpanTag) spanTag;
 							return "A9127P126972S210390".equals(tag.sentId);
 						}
 
@@ -326,13 +319,7 @@ public class TexasViewDemoActivity extends AppCompatActivity {
 	}
 
 	private void render(final String name, final TexasView texasView) {
-		try {
-			TextAdapter adapter = new TextAdapter();
-			adapter.setSource(new AssetsTextSource(this, name));
-			texasView.setAdapter(adapter);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		texasView.setSource(new BookSource(this, texasView, Paragraph.TYPESET_POLICY_CJK_MIX_OPTIMIZATION, name));
 	}
 
 	private void setupDebug() {
