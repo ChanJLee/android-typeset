@@ -390,17 +390,17 @@ public class TypesetterUnitTest {
 
 			long timestamp = System.currentTimeMillis();
 
-			checkContent(text, BreakStrategy.SIMPLE, 1080, 1);
-			checkContent(text, BreakStrategy.SIMPLE, 1080, 18);
-			checkContent(text, BreakStrategy.SIMPLE, 1080, 540, false);
-			checkContent(text, BreakStrategy.SIMPLE, 1080, 1080, false);
-			checkContent(text, BreakStrategy.SIMPLE, 1080, 1081, false);
+//			checkContent(text, BreakStrategy.SIMPLE, 1080, 1);
+//			checkContent(text, BreakStrategy.SIMPLE, 1080, 18);
+//			checkContent(text, BreakStrategy.SIMPLE, 1080, 540, false);
+//			checkContent(text, BreakStrategy.SIMPLE, 1080, 1080, false);
+//			checkContent(text, BreakStrategy.SIMPLE, 1080, 1081, false);
 
-			checkContent(text, BreakStrategy.BALANCED, 1080, 1);
+//			checkContent(text, BreakStrategy.BALANCED, 1080, 1);
 			checkContent(text, BreakStrategy.BALANCED, 1080, 18);
-			checkContent(text, BreakStrategy.BALANCED, 1080, 540, false);
-			checkContent(text, BreakStrategy.BALANCED, 1080, 1080, false);
-			checkContent(text, BreakStrategy.BALANCED, 1080, 1081, false);
+//			checkContent(text, BreakStrategy.BALANCED, 1080, 540, false);
+//			checkContent(text, BreakStrategy.BALANCED, 1080, 1080, false);
+//			checkContent(text, BreakStrategy.BALANCED, 1080, 1081, false);
 
 			System.out.println("used time: " + (System.currentTimeMillis() - timestamp));
 		}

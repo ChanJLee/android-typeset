@@ -38,7 +38,7 @@ public class TexParagraphTypesetter extends AbsParagraphTypesetter {
 	public boolean typeset(Paragraph paragraph, BreakStrategy breakStrategy, int width) {
 		TypesetArgs args = buildTypesetArgs(paragraph, breakStrategy, width);
 
-		int typesetRound = 1;
+		int typesetRound = 21;
 		boolean success = false;
 		for (; typesetRound < args.retryTimes; ++typesetRound) {
 			if (typeset0(args)) {
