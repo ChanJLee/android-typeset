@@ -13,7 +13,6 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import me.chan.texas.renderer.ui.text.ParagraphView;
-import me.chan.texas.source.SourceCloseException;
 import me.chan.texas.text.Paragraph;
 
 import java.util.ArrayList;
@@ -64,15 +63,10 @@ public class ParagraphViewDemoActivity extends AppCompatActivity {
 		}
 
 		@Override
-		protected Paragraph onOpen(TexasOption option) {
+		protected Paragraph onRead(TexasOption option) {
 			return Paragraph.Builder.newBuilder(option)
 					.text(mText)
 					.build();
-		}
-
-		@Override
-		protected void onClose() throws SourceCloseException {
-
 		}
 	}
 

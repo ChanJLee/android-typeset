@@ -63,9 +63,9 @@ public class SelectionManagerUnitTest {
 
 		Measurer measurer = new MockMeasurer(textPaint);
 		TextAttribute textAttribute = new TextAttribute(measurer);
-		TexasOption texasOption = new TexasOption(Hyphenation.getInstance(), measurer, textAttribute, mRenderOption = new RenderOption());
+		TexasOption texasOption = new TexasOption(new PaintSet(textPaint), Hyphenation.getInstance(), measurer, textAttribute, mRenderOption = new RenderOption());
 
-		mDocument = Document.obtain();
+		Document.Builder builder = new Document.Builder();
 		List<Segment> list = new ArrayList<>();
 		list.add(Paragraph.Builder.newBuilder(texasOption).tag("p1")
 				.stream("1 2 3 4 5 6 7 8 9", token -> Paragraph.Span.obtain(token)
@@ -74,7 +74,8 @@ public class SelectionManagerUnitTest {
 				Paragraph.Span.obtain(token).tag(token.getCharSequence().subSequence(token.getStart(), token.getEnd()).toString())).build());
 		list.add(Paragraph.Builder.newBuilder(texasOption).setTypesetPolicy(Paragraph.TYPESET_POLICY_DEFAULT).tag("p3").stream("一 二 三 四 五 六 七 八 九", token -> Paragraph.Span.obtain(token)
 				.tag(token.getCharSequence().subSequence(token.getStart(), token.getEnd()).toString())).build());
-		mDocument.insertTail(list);
+		builder.addSegments(0, list);
+		mDocument = builder.build();
 
 		ParagraphTypesetter texTypesetter = new ParagraphTypesetter();
 
@@ -695,6 +696,11 @@ public class SelectionManagerUnitTest {
 		@Override
 		public int indexOf(Segment segment) {
 			return mDocument.indexOfSegment(segment);
+		}
+
+		@Override
+		public void notifySegmentInserted(Document document, int index, Segment segment) {
+
 		}
 	}
 

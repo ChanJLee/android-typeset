@@ -455,7 +455,7 @@ public class DataUnitTest {
 	@Test
 	public void testDocument() {
 		String msg = "hello";
-		Document document = Document.obtain();
+		Document.Builder document = new Document.Builder();
 		Assert.assertNotNull(document);
 		Assert.assertEquals(document.getSegmentCount(), 0);
 		try {
@@ -467,7 +467,7 @@ public class DataUnitTest {
 		List<Segment> segments = new ArrayList<>();
 		Figure figure = Figure.obtain("", 1, 2);
 		segments.add(figure);
-		document.insertTail(segments);
+		document.addSegments(segments);
 		Assert.assertEquals(document.getSegmentCount(), 1);
 		Assert.assertEquals(0, document.indexOfSegment(figure));
 		Assert.assertEquals(-1, document.indexOfSegment(Figure.obtain("", 1, 2)));
@@ -488,28 +488,12 @@ public class DataUnitTest {
 		};
 		segments.clear();
 		segments.add(viewSegment);
-		document.insertHead(segments);
+		document.addSegments(0, segments);
 
 		Assert.assertEquals(document.indexOfSegment(null), -1);
 		Assert.assertEquals(document.indexOfSegment(figure), 1);
 		Assert.assertEquals(document.indexOfSegment(viewSegment), 0);
 		Assert.assertEquals(document.getSegmentCount(), 2);
-
-		document.release();
-		Assert.assertEquals(-1, document.indexOfSegment(figure));
-
-		// test recycle twice
-		document.release();
-
-		document = Document.obtain();
-		Assert.assertNotNull(document);
-		Assert.assertEquals(document.getSegmentCount(), 0);
-		try {
-			document.getSegment(0);
-			fail("test document get segment");
-		} catch (IndexOutOfBoundsException e) {
-		}
-		Assert.assertNotSame(document, Document.obtain());
 	}
 
 	@Test

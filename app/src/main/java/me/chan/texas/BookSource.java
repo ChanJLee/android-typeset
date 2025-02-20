@@ -14,7 +14,6 @@ import android.util.Xml;
 import android.view.View;
 import android.widget.Toast;
 
-import me.chan.texas.adapter.ParseException;
 import me.chan.texas.renderer.TexasView;
 import me.chan.texas.text.Appearance;
 import me.chan.texas.text.Document;
@@ -32,14 +31,14 @@ import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
-import java.io.StringReader;
+import java.io.InputStreamReader;
 import java.util.regex.Pattern;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 
-public class BookParser extends TexasView.Adapter<CharSequence> {
+public class BookSource extends TexasView.DocumentSource {
 	private static final Pattern PATTERN = Pattern.compile("\\p{Z}+|\\t|\\r|\\n");
 
 	private final android.content.Context mContext;
@@ -64,7 +63,9 @@ public class BookParser extends TexasView.Adapter<CharSequence> {
 
 	private final int mPolicy;
 
-	public BookParser(android.content.Context context, TexasView texasView, int policy) {
+	private final String mBook;
+
+	public BookSource(android.content.Context context, TexasView texasView, int policy, String book) {
 		mContext = context;
 		mPolicy = policy;
 		Resources resources = context.getResources();
@@ -72,17 +73,17 @@ public class BookParser extends TexasView.Adapter<CharSequence> {
 		mFlagHeight = resources.getDimension(me.chan.texas.debug.R.dimen.com_shanbay_lib_texas_flag_height);
 		// for test
 		mTexasView = texasView;
+		mBook = book;
 	}
 
-	@NonNull
 	@Override
-	public Document parse(@NonNull CharSequence charSequence, TexasOption texasOption) throws ParseException {
-		XmlPullParser xmlPullParser = Xml.newPullParser();
+	protected Document onRead(TexasOption option, @Nullable Document previousDocument) {
 		try {
-			xmlPullParser.setInput(new StringReader((String) charSequence));
-			return parse(xmlPullParser, texasOption);
+			XmlPullParser xmlPullParser = Xml.newPullParser();
+			xmlPullParser.setInput(new InputStreamReader(mContext.getResources().getAssets().open(mBook)));
+			return parse(xmlPullParser, option);
 		} catch (Throwable e) {
-			throw new ParseException("parse document failed", e);
+			throw new RuntimeException(e);
 		}
 	}
 
@@ -105,7 +106,7 @@ public class BookParser extends TexasView.Adapter<CharSequence> {
 		return null;
 	}
 
-	private void setupUserDefineView(Document document) {
+	private void setupUserDefineView(Document.Builder document) {
 		// 添加自定义的视图
 		document.addSegment(new ViewSegment(me.chan.texas.debug.R.layout.test_header) {
 
@@ -116,7 +117,7 @@ public class BookParser extends TexasView.Adapter<CharSequence> {
 		});
 	}
 
-	private void setupLongWordUnitTest(Document document, TexasOption texasOption) {
+	private void setupLongWordUnitTest(Document.Builder document, TexasOption texasOption) {
 		// 用于测试超长单词
 		Paragraph.Builder builder = Paragraph.Builder.newBuilder(texasOption);
 		Paragraph paragraph = builder.newSpanBuilder()
@@ -137,8 +138,8 @@ public class BookParser extends TexasView.Adapter<CharSequence> {
 	// 因为文本引擎可能会渲染特别长的内容，因此会使用回收机制保证内存占用的稳定性
 	// 当视图不可见时就会被回收
 	// 增量更新就是不会参与页面内容的回收，都使用一个实例
-	private void setupIncrementalUserDefineView(Document document) {
-		document.addSegment(new ViewSegment(me.chan.texas.debug.R.layout.test_layout, true) {
+	private void setupIncrementalUserDefineView(Document.Builder builder) {
+		builder.addSegment(new ViewSegment(me.chan.texas.debug.R.layout.test_layout, true) {
 			@Override
 			protected void onRender(View view) {
 				if (view.getTag() != null) {
@@ -157,13 +158,13 @@ public class BookParser extends TexasView.Adapter<CharSequence> {
 				view.setTag("fuck");
 			}
 		});
-		document.addSegment(new ViewSegment(me.chan.texas.debug.R.layout.test_layout2, true) {
+		builder.addSegment(new ViewSegment(me.chan.texas.debug.R.layout.test_layout2, true) {
 			@Override
 			protected void onRender(View view) {
 				Log.d("chan_debug", "渲染隐含元素");
 			}
 		});
-		document.addSegment(new ViewSegment(me.chan.texas.debug.R.layout.test_layout2, true) {
+		builder.addSegment(new ViewSegment(me.chan.texas.debug.R.layout.test_layout2, true) {
 			@Override
 			protected void onRender(View view) {
 				Log.d("chan_debug", "渲染隐含元素2");
@@ -175,12 +176,12 @@ public class BookParser extends TexasView.Adapter<CharSequence> {
 		parser.require(XmlPullParser.START_TAG, null, "article_content");
 		final String id = parser.getAttributeValue(null, "id");
 
-		Document document = Document.obtain();
-		setupUserDefineView(document);
+		Document.Builder builder = new Document.Builder();
+		setupUserDefineView(builder);
 
-		setupLongWordUnitTest(document, texasOption);
+		setupLongWordUnitTest(builder, texasOption);
 
-		setupIncrementalUserDefineView(document);
+		setupIncrementalUserDefineView(builder);
 
 		while (parser.next() != XmlPullParser.END_TAG) {
 			int eventType = parser.getEventType();
@@ -189,14 +190,14 @@ public class BookParser extends TexasView.Adapter<CharSequence> {
 			}
 			String name = parser.getName();
 			if (name.equals("para")) {
-				parsePara(parser, document, texasOption);
+				parsePara(parser, builder, texasOption);
 			} else {
 				skip(parser);
 			}
 		}
 
 		// 测试页面滚动
-		document.addSegment(new ViewSegment(me.chan.texas.debug.R.layout.test_layout) {
+		builder.addSegment(new ViewSegment(me.chan.texas.debug.R.layout.test_layout) {
 
 			@Override
 			protected void onRender(View view) {
@@ -209,7 +210,7 @@ public class BookParser extends TexasView.Adapter<CharSequence> {
 			}
 		});
 
-		return document;
+		return builder.build();
 	}
 
 	private static final int STATE_NONE = 0;
@@ -217,7 +218,7 @@ public class BookParser extends TexasView.Adapter<CharSequence> {
 	private static final int STATE_IMG = 2;
 	private static final int STATE_SUBTITLE = 3;
 
-	private void parsePara(XmlPullParser parser, Document document, TexasOption texasOption) throws IOException, XmlPullParserException {
+	private void parsePara(XmlPullParser parser, Document.Builder documentBuilder, TexasOption texasOption) throws IOException, XmlPullParserException {
 		parser.require(XmlPullParser.START_TAG, null, "para");
 		String id = parser.getAttributeValue(null, "id");
 
@@ -241,7 +242,7 @@ public class BookParser extends TexasView.Adapter<CharSequence> {
 					firstSent = sent;
 				}
 			} else if (TextUtils.equals("img", name)) {
-				parseImage(parser, document);
+				parseImage(parser, documentBuilder);
 				lastState = STATE_IMG;
 			} else if (TextUtils.equals("subtitle", name)) {
 				parseSubtitle(parser, builder);
@@ -260,20 +261,20 @@ public class BookParser extends TexasView.Adapter<CharSequence> {
 		Paragraph paragraph = builder.build();
 		Log.d("BookParser", "para element count: " + paragraph.getElementCount());
 		if (paragraph.getElementCount() > 0) {
-			document.addSegment(paragraph);
+			documentBuilder.addSegment(paragraph);
 			// todo support focus
 //			if ("A9127P127029".equals(id)) {
-//				document.setFocusSegment(paragraph);
+//				builder.setFocusSegment(paragraph);
 //			}
 		}
 
 		if (firstSent != null) {
-			document.addSegment(new RecycleableViewSegment(firstSent));
-			document.addSegment(new NotRecycleableViewSegment());
+			documentBuilder.addSegment(new RecycleableViewSegment(firstSent));
+			documentBuilder.addSegment(new NotRecycleableViewSegment());
 		}
 	}
 
-	private void parseImage(XmlPullParser parser, Document document) throws XmlPullParserException, IOException {
+	private void parseImage(XmlPullParser parser, Document.Builder builder) throws XmlPullParserException, IOException {
 
 		String url = null;
 		float width = -1;
@@ -304,7 +305,7 @@ public class BookParser extends TexasView.Adapter<CharSequence> {
 		}
 
 		Figure figure = Figure.obtain(url, width, height);
-		document.addSegment(figure);
+		builder.addSegment(figure);
 	}
 
 	private float safeNextFloat(XmlPullParser parser) throws IOException, XmlPullParserException {

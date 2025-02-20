@@ -17,6 +17,7 @@ import androidx.annotation.CallSuper;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.lang.reflect.Field;
@@ -24,9 +25,10 @@ import java.lang.reflect.Method;
 
 import me.chan.texas.BuildConfig;
 import me.chan.texas.R;
+import me.chan.texas.TexasOption;
 import me.chan.texas.image.ImageLoader;
-import me.chan.texas.misc.PaintSet;
 import me.chan.texas.renderer.core.TypesetEngine;
+import me.chan.texas.renderer.core.worker.MixWorker;
 import me.chan.texas.renderer.selection.Selection;
 import me.chan.texas.renderer.selection.SelectionManager;
 import me.chan.texas.renderer.selection.overlay.DragSelectViewImpl;
@@ -45,7 +47,6 @@ import me.chan.texas.utils.concurrency.TaskQueue;
  */
 @RestrictTo(LIBRARY)
 public class Renderer implements SelectionManager.Listener {
-	private final TaskQueue.Token mToken;
 
 	/**
 	 * 显示参数
@@ -67,7 +68,7 @@ public class Renderer implements SelectionManager.Listener {
 	/**
 	 * 视图显示窗口
 	 */
-	private final TexasRecyclerViewImpl mImpl;
+	private final TexasRecyclerViewImpl mRecyclerView;
 	/**
 	 * 视图排版子系统
 	 */
@@ -89,25 +90,24 @@ public class Renderer implements SelectionManager.Listener {
 		}
 	};
 
-	private TypesetEngine.Listener mListener = new TypesetEngine.Listener() {
+	private final TypesetEngine.Listener mListener = new TypesetEngine.Listener() {
 		@Override
-		public void onStart(LoadingStrategy strategy) {
-			mTexasView.notifyRenderStart(strategy);
+		public void onStart() {
+			mTexasView.notifyRenderStart();
 		}
 
 		@Override
-		public void onFailure(LoadingStrategy strategy, Throwable throwable) {
-			mTexasView.notifyRenderError(strategy, throwable);
+		public void onFailure(Throwable throwable) {
+			mTexasView.notifyRenderError(throwable);
 		}
 
 		@Override
-		public void onSuccess(LoadingStrategy strategy, PaintSet paintSet, Document doc, int start, int end) {
-			render(strategy, paintSet, doc, start, end);
+		public void onSuccess(MixWorker.TypesetResult result) {
+			render(result.texasOption, result.doc, result.diff);
 		}
 	};
 
 	public Renderer(final TexasView texasView, RenderOption renderOption, TaskQueue.Token token) {
-		mToken = token;
 		mTexasView = texasView;
 		mRenderOption = renderOption;
 
@@ -117,23 +117,23 @@ public class Renderer implements SelectionManager.Listener {
 		LayoutInflater layoutInflater = LayoutInflater.from(context);
 
 		// core
-		mTypesetEngine = new TypesetEngine(mRenderOption, mToken);
+		mTypesetEngine = new TypesetEngine(token);
 
 		// rv
 		mLinearLayoutManager = new TexasLinearLayoutManagerImpl(context);
-		mImpl = new TexasRecyclerViewImpl(new ContextThemeWrapper(context, R.style.me_chan_texas_TexasRecyclerView), mLinearLayoutManager);
-		mImpl.setClipToPadding(false);
-		mImpl.setClipChildren(false);
-		mImpl.setOnClickedListener(mTexasView::notifyEmptyClicked);
-		mImpl.setLayoutManager(mLinearLayoutManager);
-		texasView.addView(mImpl,
+		mRecyclerView = new TexasRecyclerViewImpl(new ContextThemeWrapper(context, R.style.me_chan_texas_TexasRecyclerView), mLinearLayoutManager);
+		mRecyclerView.setClipToPadding(false);
+		mRecyclerView.setClipChildren(false);
+		mRecyclerView.setOnClickedListener(mTexasView::notifyEmptyClicked);
+		mRecyclerView.setLayoutManager(mLinearLayoutManager);
+		texasView.addView(mRecyclerView,
 				new TexasView.LayoutParams(
 						ViewGroup.LayoutParams.MATCH_PARENT,
 						ViewGroup.LayoutParams.MATCH_PARENT)
 		);
-		mImpl.addOnScrollListener(mOnScrollListener);
+		mRecyclerView.addOnScrollListener(mOnScrollListener);
 
-		mAdapter = new RendererAdapterImpl(layoutInflater, imageLoader, mImpl.getRecycledViewPool(), mImpl);
+		mAdapter = new RendererAdapterImpl(token, layoutInflater, imageLoader, mRecyclerView.getRecycledViewPool(), mRecyclerView);
 		mAdapter.setListener(new RendererAdapterImpl.Listener() {
 			@Override
 			public void onSegmentClicked(TouchEvent event, Object tag) {
@@ -144,18 +144,8 @@ public class Renderer implements SelectionManager.Listener {
 			public void onSegmentDoubleClicked(TouchEvent event, Object tag) {
 				mTexasView.notifySegmentDoubleClicked(event, tag);
 			}
-
-			@Override
-			public void onLoadingMore(int count) {
-				mTexasView.scheduleLoadMore();
-			}
-
-			@Override
-			public void onLoadingPrevious() {
-				mTexasView.scheduleLoadPrevious();
-			}
 		});
-		mImpl.addItemDecoration(new SegmentItemDecoration(mAdapter));
+		mRecyclerView.addItemDecoration(new SegmentItemDecoration(mAdapter));
 
 		// selection
 		DragSelectViewImpl selectionDragView = new DragSelectViewImpl(texasView.getContext(), texasView);
@@ -164,17 +154,17 @@ public class Renderer implements SelectionManager.Listener {
 						ViewGroup.LayoutParams.MATCH_PARENT,
 						ViewGroup.LayoutParams.MATCH_PARENT)
 		);
-		mSelectionManager = new SelectionManager(mAdapter, mLinearLayoutManager, this, selectionDragView, mImpl);
+		mSelectionManager = new SelectionManager(mAdapter, mLinearLayoutManager, this, selectionDragView, mRecyclerView);
 		mAdapter.setSelectionManager(mSelectionManager);
 
 		// adapter
-		mImpl.setAdapter(mAdapter);
+		mRecyclerView.setAdapter(mAdapter);
 	}
 
 	/**
 	 * @param width 期望的宽度，如果是负值，那么就忽略排版，只会解析
 	 */
-	public void load(String reason, int width, LoadingStrategy strategy) {
+	public void load(String reason, int width) {
 		d("load, reason: " + reason);
 
 		if (mTypesetEngine == null) {
@@ -182,28 +172,24 @@ public class Renderer implements SelectionManager.Listener {
 			return;
 		}
 
-		mTypesetEngine.load(reason, width, strategy, mTexasView.getAdapter(), mListener);
+		mTypesetEngine.load(reason, width, mTexasView.getSource(), getDocument(), mListener);
 	}
 
-	public void typeset(String reason, int width, LoadingStrategy strategy) {
+	public void resize(String reason, int width) {
 		if (BuildConfig.DEBUG) {
 			Log.d("TexasRenderer", "typeset, reason: " + reason);
 		}
 
 		// 重新排版会将之前的解析任务都失效
-		mTypesetEngine.resize(reason, width, strategy, mListener);
+		mTypesetEngine.resize(reason, mTexasView.createTexasOption(), width, mListener);
 	}
 
-	private void render(LoadingStrategy strategy, PaintSet paintSet, Document document, int start, int end) {
-		if (strategy != LoadingStrategy.LOAD_PREVIOUS &&
-				strategy != LoadingStrategy.LOAD_MORE) {
-			clearHighlight();
-			clearSelection();
-		}
+	private void render(TexasOption texasOption, Document document, DiffUtil.DiffResult diff) {
+		clearHighlight();
+		clearSelection();
 
-		mAdapter.render(strategy, paintSet, document, start, end, mRenderOption);
-
-		mTexasView.notifyRenderEnd(strategy);
+		mAdapter.render(document, texasOption.getPaintSet(), texasOption.getRenderOption(), diff);
+		mTexasView.notifyRenderEnd();
 	}
 
 	@CallSuper
@@ -236,15 +222,14 @@ public class Renderer implements SelectionManager.Listener {
 		mRenderOption = renderOption;
 		mAdapter.updateRenderOption(mRenderOption);
 		mSelectionManager.updateRenderOption(mRenderOption);
-		mTypesetEngine.updateRenderOption(mRenderOption);
 
 		if (cmpType == TexasUtils.CmpType.CMP_LOAD) {
 			d("render option changed, load");
-			load("render option changed", mTypesetEngine.getWidth(), LoadingStrategy.INIT);
+			load("render option changed", mTypesetEngine.getWidth());
 			return;
 		} else if (cmpType == TexasUtils.CmpType.CMP_TYPESET) {
 			d("render option changed, typeset");
-			mTypesetEngine.resize("Renderer.refresh", LoadingStrategy.TYPESET_ONLY, mListener);
+			mTypesetEngine.resize("Renderer.refresh", mTexasView.createTexasOption(), mListener);
 			return;
 		}
 
@@ -282,7 +267,7 @@ public class Renderer implements SelectionManager.Listener {
 	}
 
 	public void scrollToPosition(int position, boolean smooth, int offset) {
-		mImpl.scrollToPosition(position, smooth, offset);
+		mRecyclerView.scrollToPosition(position, smooth, offset);
 	}
 
 	public void highlightParagraphs(ParagraphPredicates predicates, boolean scrollTo, int offset) {
@@ -292,7 +277,7 @@ public class Renderer implements SelectionManager.Listener {
 		}
 
 		Paragraph paragraph = selection.getParagraph(0);
-		mImpl.scrollToPosition(mAdapter.indexOf(paragraph), true, offset);
+		mRecyclerView.scrollToPosition(mAdapter.indexOf(paragraph), true, offset);
 	}
 
 	public void clearHighlight() {
@@ -304,7 +289,7 @@ public class Renderer implements SelectionManager.Listener {
 	}
 
 	public int getScrollState() {
-		int state = mImpl.getScrollState();
+		int state = mRecyclerView.getScrollState();
 		return rvState2InternalState(state);
 	}
 
@@ -321,18 +306,18 @@ public class Renderer implements SelectionManager.Listener {
 	}
 
 	public void setScrollBarEnable(boolean enable) {
-		mImpl.setVerticalScrollBarEnabled(enable);
+		mRecyclerView.setVerticalScrollBarEnabled(enable);
 	}
 
 	public void onRelease() {
-		mImpl.removeOnScrollListener(mOnScrollListener);
-		mImpl.stopScroll();
+		mRecyclerView.removeOnScrollListener(mOnScrollListener);
+		mRecyclerView.stopScroll();
 		mAdapter.release();
 	}
 
 	public void setScrollBarDrawable(Drawable drawable) {
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-			mImpl.setVerticalScrollbarThumbDrawable(drawable);
+			mRecyclerView.setVerticalScrollbarThumbDrawable(drawable);
 		} else {
 			setScrollBarDrawableLowQ(drawable);
 		}
@@ -340,7 +325,7 @@ public class Renderer implements SelectionManager.Listener {
 
 	public Drawable getScrollBarDrawable() {
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-			return mImpl.getVerticalScrollbarThumbDrawable();
+			return mRecyclerView.getVerticalScrollbarThumbDrawable();
 		} else {
 			return getScrollBarDrawableLowQ();
 		}
@@ -353,7 +338,7 @@ public class Renderer implements SelectionManager.Listener {
 			@SuppressLint({"DiscouragedPrivateApi", "SoonBlockedPrivateApi"})
 			Method method = clazz.getDeclaredMethod("getScrollCache");
 			method.setAccessible(true);
-			Object cache = method.invoke(mImpl);
+			Object cache = method.invoke(mRecyclerView);
 			if (cache == null) {
 				Log.w("SlidingTexasRenderer", "get cache failed");
 				return null;
@@ -427,7 +412,7 @@ public class Renderer implements SelectionManager.Listener {
 	}
 
 	public void setPadding(int paddingLeft, int paddingTop, int paddingRight, int paddingBottom) {
-		mImpl.setPadding(paddingLeft, paddingTop, paddingRight, paddingBottom);
+		mRecyclerView.setPadding(paddingLeft, paddingTop, paddingRight, paddingBottom);
 	}
 
 	public void setSegmentDecoration(TexasView.SegmentDecoration segmentDecoration) {
@@ -436,7 +421,7 @@ public class Renderer implements SelectionManager.Listener {
 		}
 
 		mTypesetEngine.setSegmentDecoration(segmentDecoration);
-		mTypesetEngine.resize("Renderer.setSegmentDecoration", LoadingStrategy.TYPESET_ONLY, mListener);
+		mTypesetEngine.resize("Renderer.setSegmentDecoration", mTexasView.createTexasOption(), mListener);
 	}
 
 	private static void d(String msg) {
@@ -460,7 +445,7 @@ public class Renderer implements SelectionManager.Listener {
 	}
 
 	public int getPaddingWidth() {
-		return mImpl.getPaddingLeft() + mImpl.getPaddingRight();
+		return mRecyclerView.getPaddingLeft() + mRecyclerView.getPaddingRight();
 	}
 
 	@SuppressLint("NotifyDataSetChanged")
@@ -529,7 +514,7 @@ public class Renderer implements SelectionManager.Listener {
 	}
 
 	public void setHasFixedSize(boolean enable) {
-		mImpl.setHasFixedSize(enable);
+		mRecyclerView.setHasFixedSize(enable);
 	}
 
 	public int getWidth() {
@@ -547,6 +532,6 @@ public class Renderer implements SelectionManager.Listener {
 	}
 
 	public void smoothScrollBy(int dx, int dy) {
-		mImpl.smoothScrollBy(dx, dy);
+		mRecyclerView.smoothScrollBy(dx, dy);
 	}
 }

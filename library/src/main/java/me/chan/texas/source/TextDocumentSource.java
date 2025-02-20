@@ -1,51 +1,42 @@
-package me.chan.texas.adapter;
+package me.chan.texas.source;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.RestrictTo;
-
-import java.util.ArrayList;
-import java.util.List;
+import androidx.annotation.Nullable;
 
 import me.chan.texas.TexasOption;
 import me.chan.texas.renderer.TexasView;
 import me.chan.texas.text.Document;
 import me.chan.texas.text.Paragraph;
-import me.chan.texas.text.Segment;
 
-/**
- * 最简单的文本解析器
- */
-@RestrictTo(LIBRARY)
-public class TextAdapter extends TexasView.Adapter<CharSequence> {
+public class TextDocumentSource extends TexasView.DocumentSource {
+	private final CharSequence mText;
 
 	@Paragraph.TypesetPolicy
 	private final int mTypesetPolicy;
 
-	public TextAdapter() {
-		this(Paragraph.TYPESET_POLICY_DEFAULT);
+	public TextDocumentSource(CharSequence text) {
+		this(text, Paragraph.TYPESET_POLICY_DEFAULT);
 	}
 
-	public TextAdapter(int typesetPolicy) {
+	public TextDocumentSource(CharSequence text, int typesetPolicy) {
 		mTypesetPolicy = typesetPolicy;
+		mText = text;
 	}
 
 	@Override
-	@NonNull
-	protected Document parse(CharSequence charSequence, TexasOption texasOption) {
-		Document document = Document.obtain();
-		int len = charSequence.length();
-		for (int i = skipBlank(charSequence, 0, len); i < len; ) {
-			int last = findNewline(charSequence, i, len);
+	protected Document onRead(TexasOption option, @Nullable Document previousDocument) {
+		Document.Builder build = new Document.Builder();
+		int len = mText.length();
+		for (int i = skipBlank(mText, 0, len); i < len; ) {
+			int last = findNewline(mText, i, len);
 			if (i != last) {
-				Paragraph.Builder builder = Paragraph.Builder.newBuilder(texasOption, mTypesetPolicy);
-				parse(charSequence, i, last, builder);
-				document.addSegment(builder.build());
+				Paragraph.Builder builder = Paragraph.Builder.newBuilder(option)
+						.setTypesetPolicy(mTypesetPolicy);
+				parse(mText, i, last, builder);
+				build.addSegment(builder.build());
 			}
-			i = skipBlank(charSequence, last, len);
+			i = skipBlank(mText, last, len);
 		}
-		return document;
+		return build.build();
 	}
 
 	private static void parse(CharSequence paragraph, int start, int end, Paragraph.Builder builder) {
@@ -80,6 +71,7 @@ public class TextAdapter extends TexasView.Adapter<CharSequence> {
 	}
 
 	private static final char CN_SPACE = 0x3000;
+
 	private static int skip(CharSequence charSequence, int start, int end, boolean untilBlank) {
 		for (; start < end; ++start) {
 			char ch = charSequence.charAt(start);

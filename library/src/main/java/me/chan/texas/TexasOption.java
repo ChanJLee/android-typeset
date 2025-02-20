@@ -4,6 +4,7 @@ import androidx.annotation.RestrictTo;
 
 import me.chan.texas.hyphenation.Hyphenation;
 import me.chan.texas.measurer.Measurer;
+import me.chan.texas.misc.PaintSet;
 import me.chan.texas.renderer.RenderOption;
 import me.chan.texas.text.TextAttribute;
 
@@ -17,13 +18,20 @@ public class TexasOption {
 	private final Measurer mMeasurer;
 	private final TextAttribute mTextAttribute;
 	private final RenderOption mRenderOption;
+	private final PaintSet mPaintSet;
 
 	@RestrictTo(LIBRARY)
-	public TexasOption(Hyphenation hyphenation, Measurer measurer, TextAttribute textAttribute, RenderOption renderOption) {
+	public TexasOption(PaintSet paintSet, Hyphenation hyphenation, Measurer measurer, TextAttribute textAttribute, RenderOption renderOption) {
+		mPaintSet = paintSet;
 		mHyphenation = hyphenation;
 		mMeasurer = measurer;
 		mTextAttribute = textAttribute;
 		mRenderOption = renderOption;
+	}
+
+	@RestrictTo(LIBRARY)
+	public PaintSet getPaintSet() {
+		return mPaintSet;
 	}
 
 	@RestrictTo(LIBRARY)

@@ -6,8 +6,10 @@ import android.os.Environment;
 import android.os.SystemClock;
 import android.util.Log;
 
-import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.recyclerview.widget.DiffUtil;
+import androidx.recyclerview.widget.ListUpdateCallback;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -18,15 +20,12 @@ import java.util.List;
 import javax.inject.Inject;
 
 import me.chan.texas.Texas;
+import me.chan.texas.TexasOption;
 import me.chan.texas.di.TexasComponent;
 import me.chan.texas.di.core.TextEngineCoreComponent;
 import me.chan.texas.measurer.AndroidMeasurer;
 import me.chan.texas.measurer.MeasureFactory;
 import me.chan.texas.measurer.Measurer;
-import me.chan.texas.misc.DefaultRecyclable;
-import me.chan.texas.misc.ObjectPool;
-import me.chan.texas.misc.PaintSet;
-import me.chan.texas.renderer.LoadingStrategy;
 import me.chan.texas.renderer.RenderOption;
 import me.chan.texas.renderer.TexasView;
 import me.chan.texas.renderer.core.WorkerScheduler;
@@ -70,11 +69,11 @@ public class MixWorker implements TaskQueue.Listener<MixWorker.Args, MixWorker.T
 			}
 
 			if (value.type() == TYPE_START) {
-				args.listener.onStart(args.strategy);
+				args.listener.onStart();
 			} else if (value.type() == TYPE_SUCCESS) {
-				args.listener.onSuccess(args.strategy, value.value());
+				args.listener.onSuccess(value.value());
 			} else if (value.type() == TYPE_ERROR) {
-				args.listener.onFailure(args.strategy, value.error());
+				args.listener.onFailure(value.error());
 			} else {
 				throw new IllegalStateException("unknown mix's message type");
 			}
@@ -111,10 +110,6 @@ public class MixWorker implements TaskQueue.Listener<MixWorker.Args, MixWorker.T
 
 	@Override
 	public TypesetResult run(TaskQueue.Token token, Args args) throws Throwable {
-		PaintSet paintSet = new PaintSet(args.option);
-		Measurer measurer = mMeasureFactory.create(paintSet);
-		TextAttribute textAttribute = new TextAttribute(measurer);
-
 		long startTimestamp = 0;
 		if (DEBUG) {
 			startTimestamp = SystemClock.elapsedRealtime();
@@ -126,20 +121,34 @@ public class MixWorker implements TaskQueue.Listener<MixWorker.Args, MixWorker.T
 			d("parse or refresh used time: " + (parseTimestamp - startTimestamp));
 		}
 
-		typesetDocument(
-				token,
-				args.outWidth,
-				args.document,
-				args.option,
-				args.segmentDecoration,
-				measurer,
-				textAttribute,
-				args.start,
-				args.end
-		);
+		final Document prev = args.prev == null ? new Document.Builder().build() : args.prev;
+		DiffUtil.DiffResult diff = DiffUtil.calculateDiff(new DiffUtil.Callback() {
+			@Override
+			public int getOldListSize() {
+				return prev.getSegmentCount();
+			}
+
+			@Override
+			public int getNewListSize() {
+				return args.document.getSegmentCount();
+			}
+
+			@Override
+			public boolean areItemsTheSame(int oldItemPosition, int newItemPosition) {
+				return prev.getSegment(oldItemPosition) == args.document.getSegment(newItemPosition);
+			}
+
+			@Override
+			public boolean areContentsTheSame(int oldItemPosition, int newItemPosition) {
+				return areItemsTheSame(oldItemPosition, newItemPosition);
+			}
+		}, true);
+
+		typesetDocument(token, args.outWidth, args.document, args.option, args.segmentDecoration, diff);
 
 		if (DEBUG) {
 			d("typeset used time: " + (SystemClock.elapsedRealtime() - parseTimestamp));
+			Measurer measurer = args.option.getMeasurer();
 			if (measurer instanceof AndroidMeasurer) {
 				AndroidMeasurer androidMeasurer = (AndroidMeasurer) measurer;
 				d("measure stats: " + androidMeasurer.stats());
@@ -147,19 +156,75 @@ public class MixWorker implements TaskQueue.Listener<MixWorker.Args, MixWorker.T
 			d("status: " + WorkerScheduler.typeset().stats());
 		}
 
-		return new TypesetResult(paintSet, args.document, args.start, args.end);
+		return new TypesetResult(args.option, args.document, diff);
 	}
 
 	private void typesetDocument(TaskQueue.Token token,
 								 final int outWidth,
 								 Document document,
-								 RenderOption option,
+								 TexasOption option,
 								 TexasView.SegmentDecoration segmentDecoration,
-								 Measurer measurer,
-								 TextAttribute textAttribute,
-								 int start,
-								 int end) throws Throwable {
+								 DiffUtil.DiffResult diff) throws Throwable {
+		RenderOption renderOption = option.getRenderOption();
+
+		diff.dispatchUpdatesTo(new ListUpdateCallback() {
+			@Override
+			public void onInserted(int position, int count) {
+				if (token.isExpired()) {
+					return;
+				}
+
+				try {
+					typesetSegments(token, outWidth, document, option, segmentDecoration, position, position + count);
+				} catch (Throwable ignore) {
+					/* NOOP */
+				}
+			}
+
+			@Override
+			public void onRemoved(int position, int count) {
+				/* NOOP */
+			}
+
+			@Override
+			public void onMoved(int fromPosition, int toPosition) {
+				/* NOOP */
+			}
+
+			@Override
+			public void onChanged(int position, int count, @Nullable Object payload) {
+				if (token.isExpired()) {
+					return;
+				}
+
+				try {
+					typesetSegments(token, outWidth, document, option, segmentDecoration, position, position + count);
+				} catch (Throwable ignore) {
+					/* NOOP */
+				}
+			}
+		});
+
+		if (token.isExpired()) {
+			throw new TaskQueue.TokenExpiredException("stop typeset document, reason: token expired", token);
+		}
+
+		if (renderOption.isEnableDebug()) {
+			analyzeDocument(document);
+		}
+	}
+
+	private void typesetSegments(
+			TaskQueue.Token token,
+			final int outWidth,
+			Document document,
+			TexasOption option,
+			TexasView.SegmentDecoration segmentDecoration,
+			int start, int end) throws Throwable {
 		int size = document.getSegmentCount();
+		RenderOption renderOption = option.getRenderOption();
+		Measurer measurer = option.getMeasurer();
+		TextAttribute textAttribute = option.getTextAttribute();
 
 		// typeset
 		for (int i = start; i < end && !token.isExpired(); ++i) {
@@ -182,20 +247,12 @@ public class MixWorker implements TaskQueue.Listener<MixWorker.Args, MixWorker.T
 				typesetFigure((Figure) segment, width);
 			} else if (segment instanceof Paragraph) {
 				Paragraph paragraph = (Paragraph) segment;
-				typesetParagraph(token, paragraph, width, option, measurer, textAttribute);
+				typesetParagraph(token, paragraph, width, renderOption, measurer, textAttribute);
 			} else if (segment instanceof ViewSegment) {
 				typesetViewSegment((ViewSegment) segment);
 			} else {
 				throw new RuntimeException("unknown segment type");
 			}
-		}
-
-		if (token.isExpired()) {
-			throw new TaskQueue.TokenExpiredException("stop typeset document, reason: token expired", token);
-		}
-
-		if (option.isEnableDebug()) {
-			analyzeDocument(document);
 		}
 	}
 
@@ -283,66 +340,28 @@ public class MixWorker implements TaskQueue.Listener<MixWorker.Args, MixWorker.T
 	}
 
 	public interface Listener {
-		void onStart(LoadingStrategy strategy);
+		void onStart();
 
-		void onFailure(LoadingStrategy strategy, Throwable throwable);
+		void onFailure(Throwable throwable);
 
-		void onSuccess(LoadingStrategy strategy, TypesetResult result);
+		void onSuccess(TypesetResult result);
 	}
 
-	public static class Args extends DefaultRecyclable {
-		private static final ObjectPool<Args> POOL = new ObjectPool<>(32);
+	public static class Args {
+		private final int outWidth;
+		private final TexasOption option;
+		private final Document prev;
+		private final Document document;
+		private final Listener listener;
+		private final TexasView.SegmentDecoration segmentDecoration;
 
-		private int outWidth;
-		private RenderOption option;
-		private Document document;
-		private Listener listener;
-		private TexasView.SegmentDecoration segmentDecoration;
-
-		private int start;
-
-		private int end;
-		private LoadingStrategy strategy;
-
-
-		private Args() {
-		}
-
-		@Override
-		protected void onRecycle() {
-			outWidth = 0;
-			option = null;
-			document = null;
-			listener = null;
-			segmentDecoration = null;
-			start = end = 0;
-			strategy = null;
-			POOL.release(this);
-		}
-
-		public static Args obtain(@NonNull int outWidth,
-								  RenderOption option,
-								  Document document,
-								  LoadingStrategy strategy,
-								  Listener listener,
-								  TexasView.SegmentDecoration segmentDecoration,
-								  int start,
-								  int end) {
-			Args args = POOL.acquire();
-			if (args == null) {
-				args = new Args();
-			}
-
-			args.outWidth = outWidth;
-			args.option = option;
-			args.document = document;
-			args.listener = listener;
-			args.segmentDecoration = segmentDecoration;
-			args.start = start;
-			args.end = end;
-			args.strategy = strategy;
-			args.reuse();
-			return args;
+		public Args(int outWidth, TexasOption option, Document prev, Document document, Listener listener, TexasView.SegmentDecoration segmentDecoration) {
+			this.outWidth = outWidth;
+			this.option = option;
+			this.prev = prev;
+			this.document = document;
+			this.listener = listener;
+			this.segmentDecoration = segmentDecoration;
 		}
 	}
 
@@ -486,18 +505,23 @@ public class MixWorker implements TaskQueue.Listener<MixWorker.Args, MixWorker.T
 	}
 
 	public static class TypesetResult {
-		public final PaintSet paintSet;
+		/**
+		 * 运行的参数
+		 */
+		public final TexasOption texasOption;
+		/**
+		 * 现在的文档
+		 */
 		public final Document doc;
+		/**
+		 * 变更diff
+		 */
+		public final DiffUtil.DiffResult diff;
 
-		public final int start;
-
-		public final int end;
-
-		public TypesetResult(PaintSet paintSet, Document doc, int start, int end) {
-			this.paintSet = paintSet;
+		public TypesetResult(TexasOption texasOption, Document doc, DiffUtil.DiffResult diff) {
+			this.texasOption = texasOption;
 			this.doc = doc;
-			this.start = start;
-			this.end = end;
+			this.diff = diff;
 		}
 	}
 }
