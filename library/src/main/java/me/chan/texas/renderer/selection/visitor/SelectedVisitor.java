@@ -30,18 +30,6 @@ public abstract class SelectedVisitor extends ParagraphVisitor {
 	protected RenderOption mRenderOption;
 
 	/**
-	 * @param isLongClicked 是否长按
-	 * @param renderOption  render option
-	 */
-	public void reset(boolean isLongClicked, Paragraph paragraph, RenderOption renderOption) {
-		if (mSelection != null) {
-			throw new IllegalStateException("missing call clear before reuse visitor?");
-		}
-		mSelection = ParagraphSelection.obtain(isLongClicked, paragraph);
-		mRenderOption = renderOption;
-	}
-
-	/**
 	 * @param styles       styles
 	 * @param renderOption render option
 	 */

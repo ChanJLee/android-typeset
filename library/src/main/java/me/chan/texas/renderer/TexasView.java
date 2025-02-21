@@ -638,6 +638,15 @@ public final class TexasView extends FrameLayout {
 	 */
 	@Nullable
 	public Selection selectParagraphs(ParagraphPredicates predicates, @Nullable Selection.Styles styles) {
+		if (styles == null) {
+			RenderOption renderOption = getRendererOption();
+			if (renderOption == null) {
+				return null;
+			}
+
+			styles = Selection.Styles.createFromTouch(renderOption, true);
+			styles.setEnableDrag(true);
+		}
 		return mRenderer == null ? null : mRenderer.selectParagraphs(predicates, styles);
 	}
 

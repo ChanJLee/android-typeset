@@ -159,30 +159,12 @@ public class ParagraphSelection extends DefaultRecyclable {
 		POOL.release(this);
 	}
 
-	@RestrictTo(LIBRARY)
-	public static ParagraphSelection obtain(boolean isLongClicked, Paragraph paragraph) {
-		ParagraphSelection paragraphSelection = POOL.acquire();
-		if (paragraphSelection == null) {
-			paragraphSelection = new ParagraphSelection();
-		}
-
-		paragraphSelection.reuse();
-		paragraphSelection.mInternalTextStyle.reset(isLongClicked);
-		paragraphSelection.reset(paragraphSelection.mInternalTextStyle);
-		paragraphSelection.mParagraph = paragraph;
-		return paragraphSelection;
-	}
-
 	/**
 	 * @param styles 渲染样式
 	 * @return selection selection
 	 */
 	@RestrictTo(LIBRARY)
-	public static ParagraphSelection obtain(Selection.Styles styles, Paragraph paragraph) {
-		if (styles == null) {
-			return obtain(true, paragraph);
-		}
-
+	public static ParagraphSelection obtain(@NonNull Selection.Styles styles, Paragraph paragraph) {
 		ParagraphSelection paragraphSelection = POOL.acquire();
 		if (paragraphSelection == null) {
 			paragraphSelection = new ParagraphSelection();
@@ -236,7 +218,7 @@ public class ParagraphSelection extends DefaultRecyclable {
 	}
 
 	public void drawBackground(Canvas canvas, Paint paint, RenderOption option) {
-		mStyle.update(option);
+		mStyle.update();
 
 		float radius = option.getSelectedBackgroundRoundRadius();
 		paint.setColor(mStyle.mBackgroundColor);
@@ -336,34 +318,16 @@ public class ParagraphSelection extends DefaultRecyclable {
 
 	private static class InternalSelectionStyle extends TextStyle {
 		private int mTextColor = 0;
-		private boolean mIsLongClicked;
 		private Selection.Styles mStyles;
 		private int mBackgroundColor = 0;
-
-		public void reset(boolean isLongClicked) {
-			mIsLongClicked = isLongClicked;
-			mStyles = null;
-		}
 
 		public void reset(Selection.Styles styles) {
 			mStyles = styles;
 		}
 
-		public void update(RenderOption option) {
-			if (mStyles != null) {
-				mTextColor = mStyles.getTextColor();
-				mBackgroundColor = mStyles.getBackgroundColor();
-				return;
-			}
-
-			if (mIsLongClicked) {
-				mTextColor = option.getSelectedByLongClickTextColor();
-				mBackgroundColor = option.getSelectedByLongClickBackgroundColor();
-				return;
-			}
-
-			mTextColor = option.getSelectedTextColor();
-			mBackgroundColor = option.getSelectedBackgroundColor();
+		public void update() {
+			mTextColor = mStyles.getTextColor();
+			mBackgroundColor = mStyles.getBackgroundColor();
 		}
 
 		@Override
