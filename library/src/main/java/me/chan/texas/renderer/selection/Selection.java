@@ -9,8 +9,10 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 
+import me.chan.texas.R;
 import me.chan.texas.misc.DefaultRecyclable;
 import me.chan.texas.misc.ObjectPool;
+import me.chan.texas.renderer.RenderOption;
 import me.chan.texas.renderer.ui.RendererAdapterImpl;
 import me.chan.texas.renderer.ui.rv.TexasLayoutManager;
 import me.chan.texas.renderer.ui.rv.TexasRecyclerView;
@@ -32,8 +34,8 @@ public final class Selection extends DefaultRecyclable {
 	private Selection() {
 	}
 
-	public void setStyles(Styles styles) {
-		mStyles = styles;
+	public Styles getStyles() {
+		return mStyles;
 	}
 
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -201,9 +203,8 @@ public final class Selection extends DefaultRecyclable {
 			throw new IllegalArgumentException("listener or animator is null");
 		}
 
-		// TODO
 		mAnimator = animator;
-//		mAnimator.addListener();
+		mAnimator.addUpdateListener(animation -> listener.onUpdate(animation, mStyles));
 	}
 
 	private void cancel() {
@@ -249,13 +250,14 @@ public final class Selection extends DefaultRecyclable {
 		}
 	}
 
-	public static Selection obtain(TexasRecyclerView container) {
+	public static Selection obtain(TexasRecyclerView container, Styles styles) {
 		Selection selection = POOL.acquire();
 		if (selection == null) {
 			selection = new Selection();
 		}
 
 		selection.mContainer = container;
+		selection.mStyles = styles;
 		selection.reuse();
 		return selection;
 	}
@@ -279,6 +281,7 @@ public final class Selection extends DefaultRecyclable {
 			return mTextColor;
 		}
 
+		@RestrictTo(RestrictTo.Scope.LIBRARY)
 		public boolean isEnableDrag() {
 			return mEnableDrag;
 		}
@@ -300,10 +303,25 @@ public final class Selection extends DefaultRecyclable {
 		@Override
 		public String toString() {
 			return "Styles{" +
-					"mBackgroundColor=" + String.format("#%x", mBackgroundColor) +
-					", mTextColor=" + String.format("#%x", mTextColor) +
+					"mBackgroundColor=" + String.format("#%08x", mBackgroundColor) +
+					", mTextColor=" + String.format("#%08x", mTextColor) +
 					", mEnableDrag=" + mEnableDrag +
 					'}';
+		}
+
+		@RestrictTo(RestrictTo.Scope.LIBRARY)
+		public static Selection.Styles createFromTouch(RenderOption option, boolean isLongClicked) {
+			if (isLongClicked) {
+				return new Selection.Styles(
+						option.getSelectedByLongClickBackgroundColor(),
+						option.getSelectedByLongClickTextColor()
+				);
+			}
+
+			return new Selection.Styles(
+					option.getSelectedBackgroundColor(),
+					option.getSelectedTextColor()
+			).setEnableDrag(false);
 		}
 	}
 

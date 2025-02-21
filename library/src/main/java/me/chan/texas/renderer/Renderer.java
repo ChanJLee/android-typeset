@@ -276,8 +276,10 @@ public class Renderer implements SelectionManager.Listener {
 			return;
 		}
 
-		Paragraph paragraph = selection.getParagraph(0);
-		mRecyclerView.scrollToPosition(mAdapter.indexOf(paragraph), true, offset);
+		if (scrollTo) {
+			Paragraph paragraph = selection.getParagraph(0);
+			mRecyclerView.scrollToPosition(mAdapter.indexOf(paragraph), true, offset);
+		}
 	}
 
 	public void clearHighlight() {
@@ -440,7 +442,7 @@ public class Renderer implements SelectionManager.Listener {
 		return mRenderOption;
 	}
 
-	public Selection selectParagraphs(ParagraphPredicates predicates, @Nullable Selection.Styles styles) {
+	public Selection selectParagraphs(ParagraphPredicates predicates, @NonNull Selection.Styles styles) {
 		return mSelectionManager.selectParagraphs(predicates, styles);
 	}
 
