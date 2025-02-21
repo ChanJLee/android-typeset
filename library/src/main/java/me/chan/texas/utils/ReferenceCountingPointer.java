@@ -7,6 +7,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  *
  * @param <T> 指针类型
  */
+// TODO unit test
 public abstract class ReferenceCountingPointer<T> {
 	private final T mPointer;
 	private final AtomicInteger mRefCount;
