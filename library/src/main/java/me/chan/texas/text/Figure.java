@@ -137,4 +137,9 @@ public final class Figure extends DefaultRecyclable implements Segment {
 
 		mAdapter.updateSegment(mHolder, this);
 	}
+
+	@Override
+	public int getIndex() {
+		return mHolder == null ? -1 : mHolder.getAdapterPosition();
+	}
 }

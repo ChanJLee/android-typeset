@@ -699,7 +699,7 @@ public class SelectionManagerUnitTest {
 		}
 
 		@Override
-		public void notifySegmentInserted(Document document, int index, Segment segment) {
+		public void updateSegment(RecyclerView.ViewHolder holder, Segment segment) {
 
 		}
 	}

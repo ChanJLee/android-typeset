@@ -158,6 +158,7 @@ public class RendererAdapterImpl extends RecyclerView.Adapter<RendererAdapterImp
 				d("onViewRecycled: " + paragraphRenderer.mRender.getToken());
 			}
 		}
+		holder.itemView.setTag(R.id.me_chan_texas_item_tag, null);
 	}
 
 	private final SparseArrayCompat<View> mSingletonViewCache = new SparseArrayCompat<>();
@@ -201,6 +202,7 @@ public class RendererAdapterImpl extends RecyclerView.Adapter<RendererAdapterImp
 
 	private void onBindViewHolder0(@NonNull Renderer renderer, int position) {
 		Segment segment = getItem(position);
+		renderer.itemView.setTag(R.id.me_chan_texas_item_tag, segment);
 		updateSegment(renderer, segment);
 	}
 
@@ -271,7 +273,6 @@ public class RendererAdapterImpl extends RecyclerView.Adapter<RendererAdapterImp
 	@Override
 	public void onViewAttachedToWindow(@NonNull Renderer holder) {
 		Segment segment = getItem(holder.getAdapterPosition());
-		holder.itemView.setTag(R.id.me_chan_texas_item_tag, segment);
 		if (segment != null) {
 			segment.attachToWindow(this, holder);
 		}
@@ -283,7 +284,6 @@ public class RendererAdapterImpl extends RecyclerView.Adapter<RendererAdapterImp
 		if (segment != null) {
 			segment.detachFromWindow(this, holder);
 		}
-		holder.itemView.setTag(R.id.me_chan_texas_item_tag, null);
 	}
 
 	@SuppressLint("NotifyDataSetChanged")

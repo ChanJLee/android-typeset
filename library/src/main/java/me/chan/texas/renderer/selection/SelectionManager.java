@@ -347,7 +347,8 @@ public class SelectionManager implements OnSelectedChangedListener {
 		mSelectionDiffBucket.clear();
 		for (int i = 0; i < currentSelection.size(); ++i) {
 			Paragraph paragraph = currentSelection.getParagraph(i);
-			int index = mAdapter.sendSignal(paragraph, TexasRendererAdapter.SIG_SELECTION_CHANGED);
+			paragraph.requestRedraw();
+			int index = paragraph.getIndex();
 			if (index < 0) {
 				continue;
 			}
@@ -364,7 +365,7 @@ public class SelectionManager implements OnSelectedChangedListener {
 						paragraphSelection.recycle();
 						paragraph.setSelection(null);
 					}
-					mAdapter.sendSignal(index, RendererAdapterImpl.SIG_SELECTION_CHANGED);
+					paragraph.requestRedraw();
 				}
 			}
 			prevSelection.recycle();
@@ -461,7 +462,7 @@ public class SelectionManager implements OnSelectedChangedListener {
 		addParagraphSelection(mCurrentSelection, paragraph);
 
 		try {
-			mAdapter.sendSignal(index, RendererAdapterImpl.SIG_SELECTION_CHANGED);
+			paragraph.requestRedraw();
 		} catch (Throwable ignore) {
 			/* do nothing */
 		}
