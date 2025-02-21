@@ -6,7 +6,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import me.chan.texas.renderer.ui.text.TextureParagraph;
 import me.chan.texas.text.Document;
-import me.chan.texas.text.Segment;
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public interface TexasRecyclerView {
