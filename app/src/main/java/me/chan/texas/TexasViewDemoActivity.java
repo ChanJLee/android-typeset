@@ -473,6 +473,24 @@ public class TexasViewDemoActivity extends AppCompatActivity {
 		renderOption = mTexasView.createRendererOption();
 		renderOption.setTypeface(typeface);
 		mTexasView.refresh(renderOption);
+
+		findViewById(me.chan.texas.debug.R.id.add_content).setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				mTexasView.setSource(new TexasView.DocumentSource() {
+					@Override
+					protected Document onRead(TexasOption option, @Nullable Document previousDocument) {
+						return new Document.Builder(previousDocument)
+								.addSegment(
+										Paragraph.Builder.newBuilder(option)
+												.text("hello world")
+												.build()
+								)
+								.build();
+					}
+				});
+			}
+		});
 	}
 
 	// 有些机型有问题，息屏后渲染会空白
