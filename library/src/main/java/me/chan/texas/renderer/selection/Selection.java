@@ -1,5 +1,6 @@
 package me.chan.texas.renderer.selection;
 
+import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.ValueAnimator;
 import android.graphics.Color;
@@ -204,7 +205,9 @@ public final class Selection extends DefaultRecyclable {
 		}
 
 		mAnimator = animator;
-		mAnimator.addUpdateListener(animation -> listener.onUpdate(animation, mStyles));
+		listener.setStyles(mStyles);
+		mAnimator.addListener(listener);
+		mAnimator.addUpdateListener(listener);
 	}
 
 	private void cancel() {
@@ -385,11 +388,91 @@ public final class Selection extends DefaultRecyclable {
 		}
 	}
 
-	public static abstract class SelectionAnimatorListener extends AnimatorListenerAdapter {
-		private void update(ValueAnimator animation, Styles styles) {
-			onUpdate(animation, styles);
+	public static abstract class SelectionAnimatorListener extends AnimatorListenerAdapter implements ValueAnimator.AnimatorUpdateListener {
+		private Styles mStyles;
+
+		public void setStyles(Styles styles) {
+			mStyles = styles;
+		}
+
+		@Override
+		public void onAnimationUpdate(@NonNull ValueAnimator animation) {
+			onUpdate(animation, mStyles);
 		}
 
 		protected abstract void onUpdate(ValueAnimator animation, Styles styles);
+
+		@Override
+		public void onAnimationCancel(Animator animation) {
+			onAnimationCancel(animation, mStyles);
+		}
+
+		protected void onAnimationCancel(Animator animation, Styles styles) {
+
+		}
+
+		// 实现 AnimatorListenerAdapter 剩下的接口
+		@Override
+		public void onAnimationEnd(Animator animation) {
+			onAnimationEnd(animation, mStyles);
+		}
+
+		@Override
+		public void onAnimationRepeat(Animator animation) {
+			onAnimationRepeat(animation, mStyles);
+		}
+
+		@Override
+		public void onAnimationStart(Animator animation) {
+			onAnimationStart(animation, mStyles);
+		}
+
+		@Override
+		public void onAnimationPause(Animator animation) {
+			onAnimationPause(animation, mStyles);
+		}
+
+		@Override
+		public void onAnimationResume(Animator animation) {
+			onAnimationResume(animation, mStyles);
+		}
+
+		protected void onAnimationEnd(Animator animation, Styles styles) {
+
+		}
+
+		protected void onAnimationRepeat(Animator animation, Styles styles) {
+
+		}
+
+		protected void onAnimationStart(Animator animation, Styles styles) {
+
+		}
+
+		protected void onAnimationPause(Animator animation, Styles styles) {
+
+		}
+
+		protected void onAnimationResume(Animator animation, Styles styles) {
+
+		}
+
+		@Override
+		public void onAnimationStart(@NonNull Animator animation, boolean isReverse) {
+			onAnimationStart(animation, isReverse, mStyles);
+		}
+
+		@Override
+		public void onAnimationEnd(@NonNull Animator animation, boolean isReverse) {
+			onAnimationEnd(animation, isReverse, mStyles);
+		}
+
+		protected void onAnimationStart(Animator animation, boolean isReverse, Styles styles) {
+
+		}
+
+		protected void onAnimationEnd(Animator animation, boolean isReverse, Styles styles) {
+
+		}
 	}
 }
