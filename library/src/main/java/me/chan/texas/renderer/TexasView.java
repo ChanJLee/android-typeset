@@ -631,6 +631,7 @@ public final class TexasView extends FrameLayout {
 
 	/**
 	 * 选中文本
+	 * {@link Selection.Styles#create(int, int)}
 	 *
 	 * @param predicates predicate
 	 * @param styles     选中文本的样式，为空就为默认样式 {@link RenderOption#setSelectedByLongClickTextColor(int)} (int)} ...

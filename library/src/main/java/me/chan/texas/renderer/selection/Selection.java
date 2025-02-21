@@ -2,6 +2,7 @@ package me.chan.texas.renderer.selection;
 
 import android.animation.AnimatorListenerAdapter;
 import android.animation.ValueAnimator;
+import android.graphics.Color;
 import android.graphics.RectF;
 import android.util.Log;
 
@@ -9,7 +10,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 
-import me.chan.texas.R;
 import me.chan.texas.misc.DefaultRecyclable;
 import me.chan.texas.misc.ObjectPool;
 import me.chan.texas.renderer.RenderOption;
@@ -266,11 +266,19 @@ public final class Selection extends DefaultRecyclable {
 		private int mBackgroundColor;
 		private int mTextColor;
 
+		private final Source mSource;
+
 		private boolean mEnableDrag = true;
 
-		public Styles(int backgroundColor, int textColor) {
+		private Styles(int backgroundColor, int textColor, Source source) {
 			mBackgroundColor = backgroundColor;
 			mTextColor = textColor;
+			mSource = source;
+		}
+
+		@RestrictTo(RestrictTo.Scope.LIBRARY)
+		public Source getSource() {
+			return mSource;
 		}
 
 		public int getBackgroundColor() {
@@ -314,14 +322,66 @@ public final class Selection extends DefaultRecyclable {
 			if (isLongClicked) {
 				return new Selection.Styles(
 						option.getSelectedByLongClickBackgroundColor(),
-						option.getSelectedByLongClickTextColor()
+						option.getSelectedByLongClickTextColor(),
+						Source.LONG_CLICKED
 				);
 			}
 
 			return new Selection.Styles(
 					option.getSelectedBackgroundColor(),
-					option.getSelectedTextColor()
+					option.getSelectedTextColor(),
+					Source.CLICKED
 			).setEnableDrag(false);
+		}
+
+		@RestrictTo(RestrictTo.Scope.LIBRARY)
+		public static Selection.Styles createFromHighLight(RenderOption option) {
+				return new Selection.Styles(
+						Color.TRANSPARENT,
+						option.getSpanHighlightTextColor(),
+						Source.HIGHLIGHT
+				);
+		}
+
+		public static Selection.Styles create(int backgroundColor, int textColor) {
+			return new Selection.Styles(backgroundColor, textColor, Source.USER_DEFINED);
+		}
+
+		public void update(RenderOption option) {
+			if (mSource == Source.USER_DEFINED) {
+				return;
+			}
+
+			if (mSource == Source.CLICKED) {
+				mBackgroundColor = option.getSelectedBackgroundColor();
+				mTextColor = option.getSelectedTextColor();
+			} else if (mSource == Source.LONG_CLICKED) {
+				mBackgroundColor = option.getSelectedByLongClickBackgroundColor();
+				mTextColor = option.getSelectedByLongClickTextColor();
+			} else if (mSource == Source.HIGHLIGHT) {
+				mBackgroundColor = Color.TRANSPARENT;
+				mTextColor = option.getSpanHighlightTextColor();
+			}
+		}
+
+		@RestrictTo(RestrictTo.Scope.LIBRARY)
+		public enum Source {
+			/**
+			 * 点击
+			 */
+			CLICKED,
+			/**
+			 * 长按
+			 */
+			LONG_CLICKED,
+			/**
+			 * 用户自定义
+			 */
+			USER_DEFINED,
+			/**
+			 * 高亮
+			 */
+			HIGHLIGHT
 		}
 	}
 
