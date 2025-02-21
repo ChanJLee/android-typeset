@@ -1,15 +1,17 @@
 package me.chan.texas.renderer.selection;
 
+import android.animation.AnimatorListenerAdapter;
+import android.animation.ValueAnimator;
 import android.graphics.RectF;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 
 import me.chan.texas.misc.DefaultRecyclable;
 import me.chan.texas.misc.ObjectPool;
 import me.chan.texas.renderer.ui.RendererAdapterImpl;
-import me.chan.texas.renderer.ui.TexasRendererAdapter;
 import me.chan.texas.renderer.ui.rv.TexasLayoutManager;
 import me.chan.texas.renderer.ui.rv.TexasRecyclerView;
 import me.chan.texas.renderer.ui.text.TextureParagraph;
@@ -25,8 +27,13 @@ public final class Selection extends DefaultRecyclable {
 	private TexasRecyclerView mContainer;
 	private final List<Paragraph> mParagraphs = new ArrayList<>();
 	private final RectEdge mRectEdge = new RectEdge();
+	private Styles mStyles;
 
 	private Selection() {
+	}
+
+	public void setStyles(Styles styles) {
+		mStyles = styles;
 	}
 
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -153,6 +160,7 @@ public final class Selection extends DefaultRecyclable {
 		mContainer = null;
 		mRectEdge.bottomX = mRectEdge.topX =
 				mRectEdge.bottomY = mRectEdge.topY = mRectEdge.lineHeight = 0;
+		mStyles = null;
 		POOL.release(this);
 	}
 
@@ -184,6 +192,24 @@ public final class Selection extends DefaultRecyclable {
 
 	public boolean isEmpty() {
 		return mParagraphs.isEmpty();
+	}
+
+	private ValueAnimator mAnimator;
+
+	public void setAnimator(@NonNull ValueAnimator animator, @NonNull SelectionAnimatorListener listener) {
+		if (listener == null || animator == null) {
+			throw new IllegalArgumentException("listener or animator is null");
+		}
+
+		// TODO
+		mAnimator = animator;
+//		mAnimator.addListener();
+	}
+
+	private void cancel() {
+		if (mAnimator != null) {
+			mAnimator.cancel();
+		}
 	}
 
 	@Override
@@ -235,8 +261,8 @@ public final class Selection extends DefaultRecyclable {
 	}
 
 	public static class Styles {
-		private final int mBackgroundColor;
-		private final int mTextColor;
+		private int mBackgroundColor;
+		private int mTextColor;
 
 		private boolean mEnableDrag = true;
 
@@ -257,9 +283,18 @@ public final class Selection extends DefaultRecyclable {
 			return mEnableDrag;
 		}
 
+		@RestrictTo(RestrictTo.Scope.LIBRARY)
 		public Styles setEnableDrag(boolean enableDrag) {
 			mEnableDrag = enableDrag;
 			return this;
+		}
+
+		public void setBackgroundColor(int backgroundColor) {
+			mBackgroundColor = backgroundColor;
+		}
+
+		public void setTextColor(int textColor) {
+			mTextColor = textColor;
 		}
 
 		@Override
@@ -270,5 +305,13 @@ public final class Selection extends DefaultRecyclable {
 					", mEnableDrag=" + mEnableDrag +
 					'}';
 		}
+	}
+
+	public static abstract class SelectionAnimatorListener extends AnimatorListenerAdapter {
+		private void update(ValueAnimator animation, Styles styles) {
+			onUpdate(animation, styles);
+		}
+
+		protected abstract void onUpdate(ValueAnimator animation, Styles styles);
 	}
 }

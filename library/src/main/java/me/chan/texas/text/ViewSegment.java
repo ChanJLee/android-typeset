@@ -24,6 +24,11 @@ public abstract class ViewSegment extends DefaultRecyclable implements Segment {
 
 	private int mId;
 
+	/*
+	 * 这个地方只能用layout id来做，不能用view，用id的话，实例是引擎内部创建，
+	 * 这样复用的时候不会出现问题，否则的话上层瞎用就会导致不可预见的bug
+	 * */
+
 	/**
 	 * 用户自定义视图
 	 *
