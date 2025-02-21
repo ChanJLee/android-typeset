@@ -4,6 +4,7 @@ import android.graphics.Rect;
 
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -42,11 +43,11 @@ public interface Segment {
 	int getId();
 
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
-	default void attachToWindow(TexasRendererAdapter adapter) {
+	default void attachToWindow(TexasRendererAdapter adapter, RecyclerView.ViewHolder holder) {
 	}
 
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
-	default void detachFromWindow(TexasRendererAdapter adapter) {
+	default void detachFromWindow(TexasRendererAdapter adapter, RecyclerView.ViewHolder holder) {
 	}
 
 	void requestRedraw();

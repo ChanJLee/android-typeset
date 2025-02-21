@@ -3,18 +3,22 @@ package me.chan.texas.text;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
 import android.graphics.Rect;
+import android.view.View;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
+import androidx.recyclerview.widget.RecyclerView;
 
+import me.chan.texas.R;
 import me.chan.texas.Texas;
 import me.chan.texas.TexasOption;
 import me.chan.texas.misc.DefaultRecyclable;
 import me.chan.texas.misc.ObjectPool;
 import me.chan.texas.renderer.selection.ParagraphSelection;
+import me.chan.texas.renderer.ui.TexasRendererAdapter;
 import me.chan.texas.renderer.ui.decor.ParagraphDecor;
 import me.chan.texas.text.layout.Element;
 import me.chan.texas.text.layout.Layout;
@@ -135,6 +139,30 @@ public final class Paragraph extends DefaultRecyclable implements Segment {
 	@Override
 	public int getId() {
 		return mId;
+	}
+
+	private RecyclerView.ViewHolder mHolder;
+	private TexasRendererAdapter mAdapter;
+
+	@Override
+	public void attachToWindow(TexasRendererAdapter adapter, RecyclerView.ViewHolder holder) {
+		mAdapter = adapter;
+		mHolder = holder;
+	}
+
+	@Override
+	public void detachFromWindow(TexasRendererAdapter adapter, RecyclerView.ViewHolder holder) {
+		mAdapter = null;
+		mHolder = null;
+	}
+
+	@Override
+	public void requestRedraw() {
+		if (mAdapter == null) {
+			return;
+		}
+
+		mAdapter.updateSegment(mHolder, this);
 	}
 
 	public boolean hasContent() {
