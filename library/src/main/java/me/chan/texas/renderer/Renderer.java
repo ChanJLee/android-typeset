@@ -269,16 +269,22 @@ public class Renderer implements SelectionManager.Listener {
 		mRecyclerView.scrollToPosition(position, smooth, offset);
 	}
 
-	public void highlightParagraphs(ParagraphPredicates predicates, boolean scrollTo, int offset) {
-		Selection selection = selectParagraphs(predicates, Selection.Styles.createFromHighLight(mRenderOption).setEnableDrag(false));
+	public Selection highlightParagraphs(ParagraphPredicates predicates, boolean scrollTo, int offset, Selection.Styles styles) {
+		Selection selection = selectParagraphs(
+				predicates,
+				styles == null ? Selection.Styles.createFromHighLight(mRenderOption).setEnableDrag(false) :
+				styles.setEnableDrag(false)
+		);
 		if (selection == null || selection.isEmpty()) {
-			return;
+			return selection;
 		}
 
 		if (scrollTo) {
 			Paragraph paragraph = selection.getParagraph(0);
 			mRecyclerView.scrollToPosition(mAdapter.indexOf(paragraph), true, offset);
 		}
+
+		return selection;
 	}
 
 	public void clearHighlight() {

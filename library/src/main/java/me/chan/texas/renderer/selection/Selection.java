@@ -14,7 +14,6 @@ import androidx.annotation.RestrictTo;
 import me.chan.texas.misc.DefaultRecyclable;
 import me.chan.texas.misc.ObjectPool;
 import me.chan.texas.renderer.RenderOption;
-import me.chan.texas.renderer.ui.RendererAdapterImpl;
 import me.chan.texas.renderer.ui.rv.TexasLayoutManager;
 import me.chan.texas.renderer.ui.rv.TexasRecyclerView;
 import me.chan.texas.renderer.ui.text.TextureParagraph;
@@ -199,19 +198,20 @@ public final class Selection extends DefaultRecyclable {
 
 	private ValueAnimator mAnimator;
 
-	public void setAnimator(@NonNull ValueAnimator animator, @NonNull SelectionAnimatorListener listener) {
+	public void startAnimator(@NonNull ValueAnimator animator, @NonNull SelectionAnimatorListener listener) {
 		if (listener == null || animator == null) {
 			throw new IllegalArgumentException("listener or animator is null");
 		}
 
-		cancel();
+		stopAnimator();
 		mAnimator = animator;
 		listener.setStyles(this);
 		mAnimator.addListener(listener);
 		mAnimator.addUpdateListener(listener);
+		mAnimator.start();
 	}
 
-	private void cancel() {
+	public void stopAnimator() {
 		if (mAnimator != null) {
 			mAnimator.cancel();
 		}
@@ -260,6 +260,7 @@ public final class Selection extends DefaultRecyclable {
 		}
 	}
 
+	@RestrictTo(RestrictTo.Scope.LIBRARY)
 	public static Selection obtain(TexasRecyclerView container, Styles styles) {
 		Selection selection = POOL.acquire();
 		if (selection == null) {
@@ -356,11 +357,11 @@ public final class Selection extends DefaultRecyclable {
 
 		@RestrictTo(RestrictTo.Scope.LIBRARY)
 		public static Selection.Styles createFromHighLight(RenderOption option) {
-				return new Selection.Styles(
-						Color.TRANSPARENT,
-						option.getSpanHighlightTextColor(),
-						Source.HIGHLIGHT
-				);
+			return new Selection.Styles(
+					Color.TRANSPARENT,
+					option.getSpanHighlightTextColor(),
+					Source.HIGHLIGHT
+			);
 		}
 
 		public static Selection.Styles create(int backgroundColor, int textColor) {
@@ -416,7 +417,7 @@ public final class Selection extends DefaultRecyclable {
 		}
 
 		@Override
-		public void onAnimationUpdate(@NonNull ValueAnimator animation) {
+		public final void onAnimationUpdate(@NonNull ValueAnimator animation) {
 			int v = mStyles.getVersion();
 			onUpdate(animation, mStyles);
 			if (v != mStyles.getVersion()) {
@@ -427,7 +428,7 @@ public final class Selection extends DefaultRecyclable {
 		protected abstract void onUpdate(ValueAnimator animation, Styles styles);
 
 		@Override
-		public void onAnimationCancel(Animator animation) {
+		public final void onAnimationCancel(Animator animation) {
 			int v = mStyles.getVersion();
 			onAnimationCancel(animation, mStyles);
 			if (v != mStyles.getVersion()) {
@@ -441,7 +442,7 @@ public final class Selection extends DefaultRecyclable {
 
 		// 实现 AnimatorListenerAdapter 剩下的接口
 		@Override
-		public void onAnimationEnd(Animator animation) {
+		public final void onAnimationEnd(Animator animation) {
 			int v = mStyles.getVersion();
 			onAnimationEnd(animation, mStyles);
 			if (v != mStyles.getVersion()) {
@@ -450,7 +451,7 @@ public final class Selection extends DefaultRecyclable {
 		}
 
 		@Override
-		public void onAnimationRepeat(Animator animation) {
+		public final void onAnimationRepeat(Animator animation) {
 			int v = mStyles.getVersion();
 			onAnimationRepeat(animation, mStyles);
 			if (v != mStyles.getVersion()) {
@@ -459,7 +460,7 @@ public final class Selection extends DefaultRecyclable {
 		}
 
 		@Override
-		public void onAnimationStart(Animator animation) {
+		public final void onAnimationStart(Animator animation) {
 			int v = mStyles.getVersion();
 			onAnimationStart(animation, mStyles);
 			if (v != mStyles.getVersion()) {
@@ -468,7 +469,7 @@ public final class Selection extends DefaultRecyclable {
 		}
 
 		@Override
-		public void onAnimationPause(Animator animation) {
+		public final void onAnimationPause(Animator animation) {
 			int v = mStyles.getVersion();
 			onAnimationPause(animation, mStyles);
 			if (v != mStyles.getVersion()) {
@@ -477,7 +478,7 @@ public final class Selection extends DefaultRecyclable {
 		}
 
 		@Override
-		public void onAnimationResume(Animator animation) {
+		public final void onAnimationResume(Animator animation) {
 			int v = mStyles.getVersion();
 			onAnimationResume(animation, mStyles);
 			if (v != mStyles.getVersion()) {
@@ -506,7 +507,7 @@ public final class Selection extends DefaultRecyclable {
 		}
 
 		@Override
-		public void onAnimationStart(@NonNull Animator animation, boolean isReverse) {
+		public final void onAnimationStart(@NonNull Animator animation, boolean isReverse) {
 			int v = mStyles.getVersion();
 			onAnimationStart(animation, isReverse, mStyles);
 			if (v != mStyles.getVersion()) {
@@ -515,7 +516,7 @@ public final class Selection extends DefaultRecyclable {
 		}
 
 		@Override
-		public void onAnimationEnd(@NonNull Animator animation, boolean isReverse) {
+		public final void onAnimationEnd(@NonNull Animator animation, boolean isReverse) {
 			int v = mStyles.getVersion();
 			onAnimationEnd(animation, isReverse, mStyles);
 			if (v != mStyles.getVersion()) {
