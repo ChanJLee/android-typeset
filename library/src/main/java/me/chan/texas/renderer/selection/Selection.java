@@ -204,8 +204,9 @@ public final class Selection extends DefaultRecyclable {
 			throw new IllegalArgumentException("listener or animator is null");
 		}
 
+		cancel();
 		mAnimator = animator;
-		listener.setStyles(mStyles);
+		listener.setStyles(this);
 		mAnimator.addListener(listener);
 		mAnimator.addUpdateListener(listener);
 	}
@@ -213,6 +214,12 @@ public final class Selection extends DefaultRecyclable {
 	private void cancel() {
 		if (mAnimator != null) {
 			mAnimator.cancel();
+		}
+	}
+
+	private void refresh() {
+		for (Paragraph paragraph : mParagraphs) {
+			paragraph.requestRedraw();
 		}
 	}
 
@@ -273,10 +280,18 @@ public final class Selection extends DefaultRecyclable {
 
 		private boolean mEnableDrag = true;
 
+		private int mVersion = 0;
+
 		private Styles(int backgroundColor, int textColor, Source source) {
 			mBackgroundColor = backgroundColor;
 			mTextColor = textColor;
 			mSource = source;
+		}
+
+		// TODO support unit test
+		@RestrictTo(RestrictTo.Scope.LIBRARY)
+		public int getVersion() {
+			return mVersion;
 		}
 
 		@RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -305,10 +320,12 @@ public final class Selection extends DefaultRecyclable {
 
 		public void setBackgroundColor(int backgroundColor) {
 			mBackgroundColor = backgroundColor;
+			++mVersion;
 		}
 
 		public void setTextColor(int textColor) {
 			mTextColor = textColor;
+			++mVersion;
 		}
 
 		@Override
@@ -365,6 +382,7 @@ public final class Selection extends DefaultRecyclable {
 				mBackgroundColor = Color.TRANSPARENT;
 				mTextColor = option.getSpanHighlightTextColor();
 			}
+			++mVersion;
 		}
 
 		@RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -390,21 +408,31 @@ public final class Selection extends DefaultRecyclable {
 
 	public static abstract class SelectionAnimatorListener extends AnimatorListenerAdapter implements ValueAnimator.AnimatorUpdateListener {
 		private Styles mStyles;
+		private Selection mSelection;
 
-		public void setStyles(Styles styles) {
-			mStyles = styles;
+		public void setStyles(Selection selection) {
+			mStyles = selection.getStyles();
+			mSelection = selection;
 		}
 
 		@Override
 		public void onAnimationUpdate(@NonNull ValueAnimator animation) {
+			int v = mStyles.getVersion();
 			onUpdate(animation, mStyles);
+			if (v != mStyles.getVersion()) {
+				mSelection.refresh();
+			}
 		}
 
 		protected abstract void onUpdate(ValueAnimator animation, Styles styles);
 
 		@Override
 		public void onAnimationCancel(Animator animation) {
+			int v = mStyles.getVersion();
 			onAnimationCancel(animation, mStyles);
+			if (v != mStyles.getVersion()) {
+				mSelection.refresh();
+			}
 		}
 
 		protected void onAnimationCancel(Animator animation, Styles styles) {
@@ -414,27 +442,47 @@ public final class Selection extends DefaultRecyclable {
 		// 实现 AnimatorListenerAdapter 剩下的接口
 		@Override
 		public void onAnimationEnd(Animator animation) {
+			int v = mStyles.getVersion();
 			onAnimationEnd(animation, mStyles);
+			if (v != mStyles.getVersion()) {
+				mSelection.refresh();
+			}
 		}
 
 		@Override
 		public void onAnimationRepeat(Animator animation) {
+			int v = mStyles.getVersion();
 			onAnimationRepeat(animation, mStyles);
+			if (v != mStyles.getVersion()) {
+				mSelection.refresh();
+			}
 		}
 
 		@Override
 		public void onAnimationStart(Animator animation) {
+			int v = mStyles.getVersion();
 			onAnimationStart(animation, mStyles);
+			if (v != mStyles.getVersion()) {
+				mSelection.refresh();
+			}
 		}
 
 		@Override
 		public void onAnimationPause(Animator animation) {
+			int v = mStyles.getVersion();
 			onAnimationPause(animation, mStyles);
+			if (v != mStyles.getVersion()) {
+				mSelection.refresh();
+			}
 		}
 
 		@Override
 		public void onAnimationResume(Animator animation) {
+			int v = mStyles.getVersion();
 			onAnimationResume(animation, mStyles);
+			if (v != mStyles.getVersion()) {
+				mSelection.refresh();
+			}
 		}
 
 		protected void onAnimationEnd(Animator animation, Styles styles) {
@@ -459,12 +507,20 @@ public final class Selection extends DefaultRecyclable {
 
 		@Override
 		public void onAnimationStart(@NonNull Animator animation, boolean isReverse) {
+			int v = mStyles.getVersion();
 			onAnimationStart(animation, isReverse, mStyles);
+			if (v != mStyles.getVersion()) {
+				mSelection.refresh();
+			}
 		}
 
 		@Override
 		public void onAnimationEnd(@NonNull Animator animation, boolean isReverse) {
+			int v = mStyles.getVersion();
 			onAnimationEnd(animation, isReverse, mStyles);
+			if (v != mStyles.getVersion()) {
+				mSelection.refresh();
+			}
 		}
 
 		protected void onAnimationStart(Animator animation, boolean isReverse, Styles styles) {

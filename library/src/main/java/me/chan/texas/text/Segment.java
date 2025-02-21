@@ -49,6 +49,8 @@ public interface Segment {
 	default void detachFromWindow(TexasRendererAdapter adapter) {
 	}
 
+	void requestRedraw();
+
 	static int nextId() {
 		int id = SEGMENT_UUID.incrementAndGet();
 		if (id <= 0) {
