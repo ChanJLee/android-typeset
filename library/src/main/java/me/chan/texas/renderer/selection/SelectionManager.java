@@ -477,12 +477,12 @@ public class SelectionManager implements OnSelectedChangedListener {
 
 	public void updateRenderOption(RenderOption renderOption) {
 		mDropView.setColor(renderOption.getDragViewColor());
+		if (mCurrentSelection == null) {
+			return;
+		}
 
-		// TODO 支持更新style
-//		if (mCurrentSelection != null) {
-//			Selection.Styles styles = mCurrentSelection.getStyles();
-//			styles.update(renderOption);
-//		}
+		Selection.Styles styles = mCurrentSelection.getStyles();
+		styles.update(renderOption);
 	}
 
 	public void autoScrollUp() {
