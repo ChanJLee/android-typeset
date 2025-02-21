@@ -1,5 +1,7 @@
 package me.chan.texas;
 
+import android.animation.Animator;
+import android.animation.ValueAnimator;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -21,14 +23,13 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
-import java.io.IOException;
-
 import me.chan.texas.renderer.ParagraphPredicates;
 import me.chan.texas.renderer.ParagraphVisitor;
 import me.chan.texas.renderer.RenderOption;
 import me.chan.texas.renderer.SpanTouchEventHandler;
 import me.chan.texas.renderer.TexasView;
 import me.chan.texas.renderer.TouchEvent;
+import me.chan.texas.renderer.selection.Selection;
 import me.chan.texas.renderer.ui.decor.ParagraphDecor;
 import me.chan.texas.text.BreakStrategy;
 import me.chan.texas.text.Document;
@@ -490,6 +491,42 @@ public class TexasViewDemoActivity extends AppCompatActivity {
 					}
 				});
 			}
+		});
+
+		findViewById(me.chan.texas.debug.R.id.anim).setOnClickListener(v -> {
+			Selection selection = mTexasView.highlightParagraphs(new ParagraphPredicates() {
+				@Override
+				public boolean acceptSpan(@Nullable Object spanTag) {
+					return true;
+				}
+
+				@Override
+				public boolean acceptParagraph(@Nullable Object paragraphTag) {
+					return "A9127P126972".equals(paragraphTag);
+				}
+			}, Selection.Styles.create(Color.BLUE, Color.RED));
+			if (selection == null) {
+				return;
+			}
+
+			ValueAnimator valueAnimator = ValueAnimator.ofFloat(0, 1f);
+			valueAnimator.setDuration(3000);
+			valueAnimator.setRepeatCount(3);
+			selection.startAnimator(valueAnimator, new Selection.SelectionAnimatorListener() {
+				@Override
+				protected void onUpdate(ValueAnimator animation, Selection.Styles styles) {
+					int backgroundColor = (int) styles.getBackgroundColor();
+					int textColor = styles.getTextColor();
+					float v = (float) animation.getAnimatedValue();
+					styles.setTextColor(Color.argb((int) (255 * v), Color.red(textColor), Color.green(textColor), Color.blue(textColor)));
+					styles.setBackgroundColor(Color.argb((int) (255 * v), Color.red(backgroundColor), Color.green(backgroundColor), Color.blue(backgroundColor)));
+				}
+
+				@Override
+				protected void onAnimationEnd(Animator animation, boolean isReverse, Selection.Styles styles) {
+					selection.clear();
+				}
+			});
 		});
 	}
 
