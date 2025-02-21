@@ -17,14 +17,6 @@ public interface TexasRendererAdapter {
 
 	RenderOption getRenderOption();
 
-	int sendSignal(Segment segment, Object sig);
-
-	int sendSignal(int index, Object sig);
-
-	Object SIG_SELECTION_CHANGED = new Object();
-
-	Object SIG_REDRAW = new Object();
-
 	int indexOf(Segment segment);
 
 	void updateSegment(RecyclerView.ViewHolder holder, Segment segment);

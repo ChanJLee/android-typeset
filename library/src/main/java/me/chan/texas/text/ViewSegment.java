@@ -150,4 +150,9 @@ public abstract class ViewSegment extends DefaultRecyclable implements Segment {
 
 	protected void onDetachedFromWindow() {
 	}
+
+	@Override
+	public final int getIndex() {
+		return mViewHolder == null ? -1 : mViewHolder.getAdapterPosition();
+	}
 }

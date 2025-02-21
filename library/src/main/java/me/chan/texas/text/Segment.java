@@ -52,6 +52,12 @@ public interface Segment {
 
 	void requestRedraw();
 
+	/**
+	 * @return 获得最终显示内容时候的下标
+	 */
+	@RestrictTo(RestrictTo.Scope.LIBRARY)
+	int getIndex();
+
 	static int nextId() {
 		int id = SEGMENT_UUID.incrementAndGet();
 		if (id <= 0) {

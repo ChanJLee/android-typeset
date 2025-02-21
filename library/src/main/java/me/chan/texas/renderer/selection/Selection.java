@@ -184,7 +184,7 @@ public final class Selection extends DefaultRecyclable {
 
 			paragraph.setSelection(null);
 			try {
-				mContainer.sendSignal(paragraph, RendererAdapterImpl.SIG_SELECTION_CHANGED);
+				paragraph.requestRedraw();
 			} catch (Throwable ignore) {
 				/* do nothing */
 			}

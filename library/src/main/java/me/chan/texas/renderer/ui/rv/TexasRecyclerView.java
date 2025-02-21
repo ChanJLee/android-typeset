@@ -26,6 +26,4 @@ public interface TexasRecyclerView {
 
 	@Nullable
 	Document getDocument();
-
-	void sendSignal(Segment segment, Object sig);
 }
