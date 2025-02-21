@@ -8,6 +8,7 @@ import android.view.View;
 import androidx.annotation.LayoutRes;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.recyclerview.widget.RecyclerView;
 
 import me.chan.texas.misc.DefaultRecyclable;
 import me.chan.texas.renderer.ui.TexasRendererAdapter;
@@ -72,6 +73,7 @@ public abstract class ViewSegment extends DefaultRecyclable implements Segment {
 	}
 
 	private TexasRendererAdapter mAdapter;
+	private RecyclerView.ViewHolder mViewHolder;
 
 	public final void render(View view) {
 		onRender(view);
@@ -79,7 +81,7 @@ public abstract class ViewSegment extends DefaultRecyclable implements Segment {
 
 	public final void requestRedraw() {
 		if (mAdapter != null) {
-			mAdapter.sendSignal(this, TexasRendererAdapter.SIG_REDRAW);
+			mAdapter.updateSegment(mViewHolder, this);
 		}
 	}
 
@@ -129,8 +131,9 @@ public abstract class ViewSegment extends DefaultRecyclable implements Segment {
 
 	@RestrictTo(LIBRARY)
 	@Override
-	public final void attachToWindow(TexasRendererAdapter adapter) {
+	public final void attachToWindow(TexasRendererAdapter adapter, RecyclerView.ViewHolder viewHolder) {
 		mAdapter = adapter;
+		mViewHolder = viewHolder;
 		onAttachedToWindow();
 	}
 
@@ -139,9 +142,10 @@ public abstract class ViewSegment extends DefaultRecyclable implements Segment {
 
 	@RestrictTo(LIBRARY)
 	@Override
-	public final void detachFromWindow(TexasRendererAdapter adapter) {
-		mAdapter = null;
+	public final void detachFromWindow(TexasRendererAdapter adapter,  RecyclerView.ViewHolder viewHolder) {
 		onDetachedFromWindow();
+		mAdapter = null;
+		mViewHolder = null;
 	}
 
 	protected void onDetachedFromWindow() {

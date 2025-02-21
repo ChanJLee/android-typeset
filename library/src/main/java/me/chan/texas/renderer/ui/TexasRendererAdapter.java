@@ -1,6 +1,7 @@
 package me.chan.texas.renderer.ui;
 
 import androidx.annotation.RestrictTo;
+import androidx.recyclerview.widget.RecyclerView;
 
 import me.chan.texas.renderer.RenderOption;
 import me.chan.texas.text.Document;
@@ -26,5 +27,5 @@ public interface TexasRendererAdapter {
 
 	int indexOf(Segment segment);
 
-	void notifySegmentInserted(Document document, int index, Segment segment);
+	void updateSegment(RecyclerView.ViewHolder holder, Segment segment);
 }

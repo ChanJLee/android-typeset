@@ -20,6 +20,7 @@ import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.RecyclerView;
 
 import me.chan.texas.BuildConfig;
+import me.chan.texas.R;
 import me.chan.texas.Texas;
 import me.chan.texas.di.TexasComponent;
 import me.chan.texas.di.core.TextEngineCoreComponent;
@@ -28,7 +29,6 @@ import me.chan.texas.misc.PaintSet;
 import me.chan.texas.renderer.RenderOption;
 import me.chan.texas.renderer.TouchEvent;
 import me.chan.texas.renderer.core.WorkerScheduler;
-import me.chan.texas.renderer.core.worker.OddWorker;
 import me.chan.texas.renderer.selection.SelectionManager;
 import me.chan.texas.renderer.ui.decor.ParagraphDecor;
 import me.chan.texas.renderer.ui.figure.FigureView;
@@ -201,11 +201,22 @@ public class RendererAdapterImpl extends RecyclerView.Adapter<RendererAdapterImp
 
 	private void onBindViewHolder0(@NonNull Renderer renderer, int position) {
 		Segment segment = getItem(position);
+		updateSegment(renderer, segment);
+	}
+
+	@Override
+	public void updateSegment(RecyclerView.ViewHolder holder, Segment segment) {
 		if (segment == null) {
 			w("segment is null, ignore onBindViewHolder");
 			return;
 		}
 
+		Segment expected = (Segment) holder.itemView.getTag(R.id.me_chan_texas_item_tag);
+		if (expected != segment) {
+			throw new IllegalStateException("holder and segment not match");
+		}
+
+		Renderer renderer = (Renderer) holder;
 		renderer.render(segment);
 	}
 
@@ -260,8 +271,9 @@ public class RendererAdapterImpl extends RecyclerView.Adapter<RendererAdapterImp
 	@Override
 	public void onViewAttachedToWindow(@NonNull Renderer holder) {
 		Segment segment = getItem(holder.getAdapterPosition());
+		holder.itemView.setTag(R.id.me_chan_texas_item_tag, segment);
 		if (segment != null) {
-			segment.attachToWindow(this);
+			segment.attachToWindow(this, holder);
 		}
 	}
 
@@ -269,8 +281,9 @@ public class RendererAdapterImpl extends RecyclerView.Adapter<RendererAdapterImp
 	public void onViewDetachedFromWindow(@NonNull Renderer holder) {
 		Segment segment = getItem(holder.getAdapterPosition());
 		if (segment != null) {
-			segment.detachFromWindow(this);
+			segment.detachFromWindow(this, holder);
 		}
+		holder.itemView.setTag(R.id.me_chan_texas_item_tag, null);
 	}
 
 	@SuppressLint("NotifyDataSetChanged")
@@ -377,16 +390,6 @@ public class RendererAdapterImpl extends RecyclerView.Adapter<RendererAdapterImp
 		}
 
 		return mDocument.indexOfSegment(segment);
-	}
-
-	@Override
-	public void notifySegmentInserted(Document document, int index, Segment segment) {
-		if (mDocument != document) {
-			// 不属于当前正在渲染的
-			return;
-		}
-
-		notifyItemInserted(index);
 	}
 
 	abstract class Renderer<T extends Segment> extends RecyclerView.ViewHolder {
