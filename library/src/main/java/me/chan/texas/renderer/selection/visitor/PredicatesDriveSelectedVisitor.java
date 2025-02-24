@@ -18,20 +18,20 @@ import me.chan.texas.text.layout.Box;
 public class PredicatesDriveSelectedVisitor extends SelectedVisitor {
 	private ParagraphPredicates mPredicates;
 
-	public void reset(RenderOption renderOption, ParagraphPredicates predicates, Paragraph paragraph, @NonNull Selection.Styles styles) {
+	public void reset(Selection.Type type, RenderOption renderOption, ParagraphPredicates predicates, Paragraph paragraph, @NonNull Selection.Styles styles) {
 		mPredicates = predicates;
 
-		super.reset(styles, paragraph, renderOption);
+		super.reset(type, styles, paragraph, renderOption);
 	}
 
 	@Override
 	protected void onVisitParagraphStart(Paragraph paragraph) {
 		if (!mPredicates.acceptParagraph(paragraph.getTag())) {
-			ParagraphSelection prev = paragraph.getSelection();
+			ParagraphSelection prev = paragraph.getSelection(mType);
 			if (prev != null) {
 				prev.recycle();
 			}
-			paragraph.setSelection(null);
+			paragraph.setSelection(mType, null);
 			sendVisitSig(SIG_STOP_PARA_VISIT);
 		}
 	}

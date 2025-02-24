@@ -26,17 +26,13 @@ import java.util.List;
 public class Selection extends DefaultRecyclable {
 	private static final ObjectPool<Selection> POOL = new ObjectPool<>(8);
 
+	private Type mType;
 	private TexasRecyclerView mContainer;
 	protected final List<Paragraph> mParagraphs = new ArrayList<>();
 	private final RectEdge mRectEdge = new RectEdge();
 	private Styles mStyles;
 
-	protected Selection() {
-	}
-
-	protected Selection(TexasRecyclerView container, Styles styles) {
-		mContainer = container;
-		mStyles = styles;
+	private Selection() {
 	}
 
 	public Styles getStyles() {
@@ -51,7 +47,11 @@ public class Selection extends DefaultRecyclable {
 	@Nullable
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
 	ParagraphSelection getParagraphSelection(Paragraph paragraph) {
-		return paragraph.getSelection();
+		return paragraph.getSelection(mType);
+	}
+
+	public Type getType() {
+		return mType;
 	}
 
 	/**
@@ -80,7 +80,7 @@ public class Selection extends DefaultRecyclable {
 		boolean hasModified = false;
 		for (int i = 0; i < size; ++i) {
 			Paragraph paragraph = mParagraphs.get(i);
-			ParagraphSelection paragraphSelection = paragraph.getSelection();
+			ParagraphSelection paragraphSelection = paragraph.getSelection(mType);
 			if (paragraphSelection == null || paragraphSelection.isSelectedRegionEmpty()) {
 				continue;
 			}
@@ -102,7 +102,7 @@ public class Selection extends DefaultRecyclable {
 
 		for (int i = size - 1; i >= 0; --i) {
 			Paragraph paragraph = mParagraphs.get(i);
-			ParagraphSelection paragraphSelection = paragraph.getSelection();
+			ParagraphSelection paragraphSelection = paragraph.getSelection(mType);
 			if (paragraphSelection == null || paragraphSelection.isSelectedRegionEmpty()) {
 				continue;
 			}
@@ -158,7 +158,7 @@ public class Selection extends DefaultRecyclable {
 	}
 
 	public ParagraphSelection get(int index) {
-		return getParagraph(index).getSelection();
+		return getParagraph(index).getSelection(mType);
 	}
 
 	@Override
@@ -181,12 +181,12 @@ public class Selection extends DefaultRecyclable {
 				continue;
 			}
 
-			ParagraphSelection paragraphSelection = paragraph.getSelection();
+			ParagraphSelection paragraphSelection = paragraph.getSelection(mType);
 			if (paragraphSelection == null) {
 				continue;
 			}
 
-			paragraph.setSelection(null);
+			paragraph.setSelection(mType,null);
 			try {
 				paragraph.requestRedraw();
 			} catch (Throwable ignore) {
@@ -232,7 +232,7 @@ public class Selection extends DefaultRecyclable {
 	public String toString() {
 		StringBuilder builder = new StringBuilder("[");
 		for (Paragraph paragraph : mParagraphs) {
-			builder.append(paragraph.getSelection().toString(paragraph)).append(", ");
+			builder.append(paragraph.getSelection(mType).toString(paragraph)).append(", ");
 		}
 		builder.append("]");
 		return builder.toString();
@@ -266,12 +266,13 @@ public class Selection extends DefaultRecyclable {
 	}
 
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
-	public static Selection obtain(TexasRecyclerView container, Styles styles) {
+	public static Selection obtain(Type type, TexasRecyclerView container, Styles styles) {
 		Selection selection = POOL.acquire();
 		if (selection == null) {
 			selection = new Selection();
 		}
 
+		selection.mType = type;
 		selection.mContainer = container;
 		selection.mStyles = styles;
 		selection.reuse();
@@ -544,5 +545,10 @@ public class Selection extends DefaultRecyclable {
 		protected void onAnimationEnd(Animator animation, boolean isReverse, Styles styles) {
 
 		}
+	}
+
+	public enum Type {
+		HIGHLIGHT,
+		SELECTION
 	}
 }

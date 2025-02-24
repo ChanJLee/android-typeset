@@ -33,6 +33,7 @@ import me.chan.texas.text.layout.Line;
 /**
  * 文本选中区域
  */
+@RestrictTo(LIBRARY)
 public class ParagraphSelection extends DefaultRecyclable {
 	private static final ObjectPool<ParagraphSelection> POOL = new ObjectPool<>(32);
 	private static final AtomicInteger UUID = new AtomicInteger(0);
@@ -41,10 +42,15 @@ public class ParagraphSelection extends DefaultRecyclable {
 	private int mId;
 	private final BitBucket mSet = new BitBucket(128);
 	private final List<RectF> mBackgrounds = new ArrayList<>();
+	private Selection.Type mType;
 
 	private Paragraph mParagraph;
 
 	private ParagraphSelection() {
+	}
+
+	public Selection.Type getType() {
+		return mType;
 	}
 
 	private void reset(InternalSelectionStyle style) {
@@ -109,42 +115,35 @@ public class ParagraphSelection extends DefaultRecyclable {
 		return mParagraph;
 	}
 
-	@NonNull
-	@MainThread
-	public List<Object> getSelectedTags() {
-		return getSelectedTags(mParagraph);
-	}
-
 	private static final List<Object> EMPTY = Collections.unmodifiableList(new ArrayList<>());
 
 	/**
 	 * @return 因为排版的时候单词会被拆分，因此会导致用户设置的tag重复，这个方法内部还需要去去重，但是无法对空tag去重，所以忽略空tag
 	 */
 	@NonNull
-	@RestrictTo(LIBRARY)
 	@MainThread
-	public static List<Object> getSelectedTags(Paragraph paragraph) {
-		List<Object> list = getSelectedTags0(paragraph);
+	public List<Object> getSelectedTags() {
+		List<Object> list = getSelectedTags0(mParagraph);
 		if (list == null) {
 			return EMPTY;
 		}
 		return list;
 	}
 
-	private static List<Object> getSelectedTags0(Paragraph paragraph) {
+	private List<Object> getSelectedTags0(Paragraph paragraph) {
 		Layout layout = paragraph.getLayout();
 		if (paragraph.isRecycled() || layout == null || layout.isRecycled()) {
 			return null;
 		}
 
 		try {
-			GET_SELECTED_TAG_VISITOR.visit(paragraph);
-			return GET_SELECTED_TAG_VISITOR.tags;
+			mGetSelectedTagVisitor.visit(paragraph);
+			return mGetSelectedTagVisitor.tags;
 		} catch (Throwable ignored) {
 			return null;
 		} finally {
-			GET_SELECTED_TAG_VISITOR.tags = null;
-			GET_SELECTED_TAG_VISITOR.selection = null;
+			mGetSelectedTagVisitor.tags = null;
+			mGetSelectedTagVisitor.selection = null;
 		}
 	}
 
@@ -156,6 +155,7 @@ public class ParagraphSelection extends DefaultRecyclable {
 		mId = 0;
 		mParagraph = null;
 		mFirst = mLast = null;
+		mType = null;
 		POOL.release(this);
 	}
 
@@ -164,12 +164,13 @@ public class ParagraphSelection extends DefaultRecyclable {
 	 * @return selection selection
 	 */
 	@RestrictTo(LIBRARY)
-	public static ParagraphSelection obtain(@NonNull Selection.Styles styles, Paragraph paragraph) {
+	public static ParagraphSelection obtain(Selection.Type type, @NonNull Selection.Styles styles, Paragraph paragraph) {
 		ParagraphSelection paragraphSelection = POOL.acquire();
 		if (paragraphSelection == null) {
 			paragraphSelection = new ParagraphSelection();
 		}
 
+		paragraphSelection.mType = type;
 		paragraphSelection.mInternalTextStyle.reset(styles);
 		paragraphSelection.reset(paragraphSelection.mInternalTextStyle);
 		paragraphSelection.mParagraph = paragraph;
@@ -234,16 +235,16 @@ public class ParagraphSelection extends DefaultRecyclable {
 		}
 	}
 
-	private final static GetSelectedTagVisitor GET_SELECTED_TAG_VISITOR = new GetSelectedTagVisitor();
+	private final GetSelectedTagVisitor mGetSelectedTagVisitor = new GetSelectedTagVisitor();
 
-	private static class GetSelectedTagVisitor extends ParagraphVisitor {
+	private class GetSelectedTagVisitor extends ParagraphVisitor {
 		public List<Object> tags;
 		public ParagraphSelection selection;
 
 		@Override
 		protected void onVisitParagraphStart(Paragraph paragraph) {
 			tags = new ArrayList<>();
-			selection = paragraph.getSelection();
+			selection = paragraph.getSelection(mType);
 		}
 
 		@Override
