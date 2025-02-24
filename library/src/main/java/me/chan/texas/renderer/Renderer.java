@@ -255,8 +255,8 @@ public class Renderer implements SelectionManager.Listener {
 		return mTypesetEngine.getDocument();
 	}
 
-	public Selection getSelection() {
-		return mSelectionManager.getCurrentSelection();
+	public Selection getSelection(Selection.Type type) {
+		return mSelectionManager.getCurrentSelection(type);
 	}
 
 	public int getFirstVisibleSegmentIndex(boolean completelyVisible) {
@@ -270,25 +270,25 @@ public class Renderer implements SelectionManager.Listener {
 	}
 
 	public Selection highlightParagraphs(ParagraphPredicates predicates, boolean scrollTo, int offset, Selection.Styles styles) {
-		Selection selection = selectParagraphs(
+		Selection highlight = mSelectionManager.highlightParagraphs(
 				predicates,
 				styles == null ? Selection.Styles.createFromHighLight(mRenderOption).setEnableDrag(false) :
-				styles.setEnableDrag(false)
+						styles.setEnableDrag(false)
 		);
-		if (selection == null || selection.isEmpty()) {
-			return selection;
+		if (highlight == null || highlight.isEmpty()) {
+			return highlight;
 		}
 
 		if (scrollTo) {
-			Paragraph paragraph = selection.getParagraph(0);
+			Paragraph paragraph = highlight.getParagraph(0);
 			mRecyclerView.scrollToPosition(mAdapter.indexOf(paragraph), true, offset);
 		}
 
-		return selection;
+		return highlight;
 	}
 
 	public void clearHighlight() {
-		clearSelection();
+		mSelectionManager.clearHighlight();
 	}
 
 	public void clearSelection() {

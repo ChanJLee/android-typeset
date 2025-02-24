@@ -61,7 +61,7 @@ public class SelectionUnitTest {
 		Paragraph paragraph = builder.build();
 		texTypesetter.typeset(paragraph, BreakStrategy.SIMPLE, 10, 1);
 
-		ParagraphSelection paragraphSelection = ParagraphSelection.obtain(Selection.Styles.createFromTouch(renderOption, true), paragraph);
+		ParagraphSelection paragraphSelection = ParagraphSelection.obtain(Selection.Type.SELECTION, Selection.Styles.createFromTouch(renderOption, true), paragraph);
 
 		Assert.assertTrue(paragraphSelection.isEmpty());
 		Box box = TextBox.obtain(
@@ -108,9 +108,9 @@ public class SelectionUnitTest {
 				paragraphSelection.appendBox(box1);
 			}
 		}
-		paragraph.setSelection(paragraphSelection);
+		paragraph.setSelection(Selection.Type.SELECTION, paragraphSelection);
 
-		Set<Object> tags = new HashSet<>(ParagraphSelection.getSelectedTags(paragraph));
+		Set<Object> tags = new HashSet<>(paragraphSelection.getSelectedTags());
 
 		TestBoxVisitor visitor = new TestBoxVisitor(set, paragraphSelection);
 		visitor.test(paragraph, renderOption);

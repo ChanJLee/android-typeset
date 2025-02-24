@@ -13,6 +13,7 @@ import androidx.annotation.RestrictTo;
 
 import me.chan.texas.misc.DefaultRecyclable;
 import me.chan.texas.misc.ObjectPool;
+import me.chan.texas.renderer.ParagraphPredicates;
 import me.chan.texas.renderer.RenderOption;
 import me.chan.texas.renderer.ui.rv.TexasLayoutManager;
 import me.chan.texas.renderer.ui.rv.TexasRecyclerView;
@@ -23,11 +24,12 @@ import me.chan.texas.text.Paragraph;
 import java.util.ArrayList;
 import java.util.List;
 
-public final class Selection extends DefaultRecyclable {
+public class Selection extends DefaultRecyclable {
 	private static final ObjectPool<Selection> POOL = new ObjectPool<>(8);
 
+	private Type mType;
 	private TexasRecyclerView mContainer;
-	private final List<Paragraph> mParagraphs = new ArrayList<>();
+	protected final List<Paragraph> mParagraphs = new ArrayList<>();
 	private final RectEdge mRectEdge = new RectEdge();
 	private Styles mStyles;
 
@@ -46,7 +48,11 @@ public final class Selection extends DefaultRecyclable {
 	@Nullable
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
 	ParagraphSelection getParagraphSelection(Paragraph paragraph) {
-		return paragraph.getSelection();
+		return paragraph.getSelection(mType);
+	}
+
+	public Type getType() {
+		return mType;
 	}
 
 	/**
@@ -75,7 +81,7 @@ public final class Selection extends DefaultRecyclable {
 		boolean hasModified = false;
 		for (int i = 0; i < size; ++i) {
 			Paragraph paragraph = mParagraphs.get(i);
-			ParagraphSelection paragraphSelection = paragraph.getSelection();
+			ParagraphSelection paragraphSelection = paragraph.getSelection(mType);
 			if (paragraphSelection == null || paragraphSelection.isSelectedRegionEmpty()) {
 				continue;
 			}
@@ -97,7 +103,7 @@ public final class Selection extends DefaultRecyclable {
 
 		for (int i = size - 1; i >= 0; --i) {
 			Paragraph paragraph = mParagraphs.get(i);
-			ParagraphSelection paragraphSelection = paragraph.getSelection();
+			ParagraphSelection paragraphSelection = paragraph.getSelection(mType);
 			if (paragraphSelection == null || paragraphSelection.isSelectedRegionEmpty()) {
 				continue;
 			}
@@ -153,7 +159,7 @@ public final class Selection extends DefaultRecyclable {
 	}
 
 	public ParagraphSelection get(int index) {
-		return getParagraph(index).getSelection();
+		return getParagraph(index).getSelection(mType);
 	}
 
 	@Override
@@ -176,12 +182,12 @@ public final class Selection extends DefaultRecyclable {
 				continue;
 			}
 
-			ParagraphSelection paragraphSelection = paragraph.getSelection();
+			ParagraphSelection paragraphSelection = paragraph.getSelection(mType);
 			if (paragraphSelection == null) {
 				continue;
 			}
 
-			paragraph.setSelection(null);
+			paragraph.setSelection(mType, null);
 			try {
 				paragraph.requestRedraw();
 			} catch (Throwable ignore) {
@@ -227,7 +233,7 @@ public final class Selection extends DefaultRecyclable {
 	public String toString() {
 		StringBuilder builder = new StringBuilder("[");
 		for (Paragraph paragraph : mParagraphs) {
-			builder.append(paragraph.getSelection().toString(paragraph)).append(", ");
+			builder.append(paragraph.getSelection(mType).toString(paragraph)).append(", ");
 		}
 		builder.append("]");
 		return builder.toString();
@@ -261,12 +267,13 @@ public final class Selection extends DefaultRecyclable {
 	}
 
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
-	public static Selection obtain(TexasRecyclerView container, Styles styles) {
+	public static Selection obtain(Type type, TexasRecyclerView container, Styles styles) {
 		Selection selection = POOL.acquire();
 		if (selection == null) {
 			selection = new Selection();
 		}
 
+		selection.mType = type;
 		selection.mContainer = container;
 		selection.mStyles = styles;
 		selection.reuse();
@@ -277,7 +284,7 @@ public final class Selection extends DefaultRecyclable {
 		private int mBackgroundColor;
 		private int mTextColor;
 
-		private final Source mSource;
+		private Source mSource;
 
 		private boolean mEnableDrag = true;
 
@@ -310,6 +317,11 @@ public final class Selection extends DefaultRecyclable {
 		@RestrictTo(RestrictTo.Scope.LIBRARY)
 		public boolean isEnableDrag() {
 			return mEnableDrag;
+		}
+
+		@RestrictTo(RestrictTo.Scope.LIBRARY)
+		public void setSource(Source source) {
+			mSource = source;
 		}
 
 		@RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -534,5 +546,20 @@ public final class Selection extends DefaultRecyclable {
 		protected void onAnimationEnd(Animator animation, boolean isReverse, Styles styles) {
 
 		}
+	}
+
+	/**
+	 * 选中类型，不同的选中类型允许同时存在，相同的选中类型只有一个
+	 */
+	public enum Type {
+		/**
+		 * 高亮 {@link me.chan.texas.renderer.TexasView#highlightParagraphs(ParagraphPredicates)}
+		 */
+		HIGHLIGHT,
+		/**
+		 * 选中，选中可以分为单击、长按、自由选择。其中自由选择和长按效果默认一致，当然你也可以自己定义
+		 * {@link me.chan.texas.renderer.TexasView#selectParagraphs(ParagraphPredicates)}
+		 */
+		SELECTION
 	}
 }

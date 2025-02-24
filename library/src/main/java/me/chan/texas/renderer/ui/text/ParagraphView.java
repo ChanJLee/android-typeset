@@ -257,6 +257,7 @@ public class ParagraphView extends FrameLayout {
 	private boolean handleParagraphSelected0(Paragraph paragraph, boolean isLongClicked, Box box, SpanPredicate predicate) throws ParagraphVisitor.VisitException {
 		try {
 			mSelectedTextByClickedVisitor.reset(
+					Selection.Type.SELECTION,
 					Selection.Styles.createFromTouch(mRenderOption, isLongClicked)
 							.setEnableDrag(false),
 					paragraph,
@@ -287,12 +288,12 @@ public class ParagraphView extends FrameLayout {
 			return;
 		}
 
-		ParagraphSelection selection = mParagraph.getSelection();
+		ParagraphSelection selection = mParagraph.getSelection(Selection.Type.SELECTION);
 		if (selection == null) {
 			return;
 		}
 
-		mParagraph.setSelection(null);
+		mParagraph.setSelection(Selection.Type.SELECTION, null);
 		selection.recycle();
 
 		if (mParagraph != null) {
