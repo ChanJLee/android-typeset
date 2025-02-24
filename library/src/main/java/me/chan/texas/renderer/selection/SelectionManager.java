@@ -348,7 +348,7 @@ public class SelectionManager implements OnSelectedChangedListener {
 		for (int i = 0; i < currentSelection.size(); ++i) {
 			Paragraph paragraph = currentSelection.getParagraph(i);
 			paragraph.requestRedraw();
-			int index = paragraph.getIndex();
+			int index = mAdapter.indexOf(paragraph);
 			if (index < 0) {
 				continue;
 			}
