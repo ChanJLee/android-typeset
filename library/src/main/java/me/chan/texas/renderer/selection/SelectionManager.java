@@ -462,19 +462,12 @@ public class SelectionManager implements OnSelectedChangedListener {
 			mCurrentSelection = Selection.obtain(mContentView, styles);
 		}
 
-		addParagraphHighlight(mCurrentSelection, paragraph);
+		addParagraphSelection(mCurrentSelection, paragraph);
 
 		try {
 			paragraph.requestRedraw();
 		} catch (Throwable ignore) {
 			/* do nothing */
-		}
-	}
-
-	private void addParagraphHighlight(Selection selection, Paragraph paragraph) {
-		ParagraphSelection paragraphSelection = paragraph.getHighlight();
-		if (paragraphSelection != null) {
-			selection.add(paragraph);
 		}
 	}
 
@@ -560,12 +553,19 @@ public class SelectionManager implements OnSelectedChangedListener {
 			mCurrentHighlightSelection = new Highlight(mContentView, styles);
 		}
 
-		addParagraphSelection(mCurrentSelection, paragraph);
+		addParagraphHighlight(mCurrentSelection, paragraph);
 
 		try {
 			paragraph.requestRedraw();
 		} catch (Throwable ignore) {
 			/* do nothing */
+		}
+	}
+
+	private void addParagraphHighlight(Selection selection, Paragraph paragraph) {
+		ParagraphSelection paragraphSelection = paragraph.getHighlight();
+		if (paragraphSelection != null) {
+			selection.add(paragraph);
 		}
 	}
 
