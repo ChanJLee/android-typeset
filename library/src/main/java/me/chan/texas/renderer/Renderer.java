@@ -255,8 +255,8 @@ public class Renderer implements SelectionManager.Listener {
 		return mTypesetEngine.getDocument();
 	}
 
-	public Selection getSelection() {
-		return mSelectionManager.getCurrentSelection();
+	public Selection getSelection(Selection.Type type) {
+		return mSelectionManager.getCurrentSelection(type);
 	}
 
 	public int getFirstVisibleSegmentIndex(boolean completelyVisible) {
