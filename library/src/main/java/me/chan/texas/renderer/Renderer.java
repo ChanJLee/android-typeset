@@ -28,6 +28,7 @@ import me.chan.texas.TexasOption;
 import me.chan.texas.image.ImageLoader;
 import me.chan.texas.renderer.core.TypesetEngine;
 import me.chan.texas.renderer.core.worker.MixWorker;
+import me.chan.texas.renderer.highlight.Highlight;
 import me.chan.texas.renderer.selection.Selection;
 import me.chan.texas.renderer.selection.SelectionManager;
 import me.chan.texas.renderer.selection.overlay.DragSelectViewImpl;
@@ -269,22 +270,22 @@ public class Renderer implements SelectionManager.Listener {
 		mRecyclerView.scrollToPosition(position, smooth, offset);
 	}
 
-	public Selection highlightParagraphs(ParagraphPredicates predicates, boolean scrollTo, int offset, Selection.Styles styles) {
-		Selection selection = mSelectionManager.highlightParagraphs(
+	public Highlight highlightParagraphs(ParagraphPredicates predicates, boolean scrollTo, int offset, Selection.Styles styles) {
+		Highlight highlight = mSelectionManager.highlightParagraphs(
 				predicates,
 				styles == null ? Selection.Styles.createFromHighLight(mRenderOption).setEnableDrag(false) :
 						styles.setEnableDrag(false)
 		);
-		if (selection == null || selection.isEmpty()) {
-			return selection;
+		if (highlight == null || highlight.isEmpty()) {
+			return highlight;
 		}
 
 		if (scrollTo) {
-			Paragraph paragraph = selection.getParagraph(0);
+			Paragraph paragraph = highlight.getParagraph(0);
 			mRecyclerView.scrollToPosition(mAdapter.indexOf(paragraph), true, offset);
 		}
 
-		return selection;
+		return highlight;
 	}
 
 	public void clearHighlight() {

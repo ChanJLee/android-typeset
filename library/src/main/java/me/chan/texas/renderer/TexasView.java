@@ -44,6 +44,7 @@ import me.chan.texas.measurer.Measurer;
 import me.chan.texas.misc.PaintSet;
 import me.chan.texas.misc.ResourceManager;
 import me.chan.texas.renderer.core.worker.LoadingWorker;
+import me.chan.texas.renderer.highlight.Highlight;
 import me.chan.texas.renderer.selection.Selection;
 import me.chan.texas.renderer.ui.decor.ParagraphDecor;
 import me.chan.texas.source.Source;
@@ -586,7 +587,7 @@ public final class TexasView extends FrameLayout {
 	 * @return 选中区域
 	 */
 	@Nullable
-	public Selection highlightParagraphs(ParagraphPredicates predicates) {
+	public Highlight highlightParagraphs(ParagraphPredicates predicates) {
 		return highlightParagraphs(predicates, null);
 	}
 
@@ -598,7 +599,7 @@ public final class TexasView extends FrameLayout {
 	 * @return 选中区域
 	 */
 	@Nullable
-	public Selection highlightParagraphs(ParagraphPredicates predicates, Selection.Styles styles) {
+	public Highlight highlightParagraphs(ParagraphPredicates predicates, Selection.Styles styles) {
 		return highlightParagraphs(predicates, false, 0, styles);
 	}
 
@@ -611,7 +612,7 @@ public final class TexasView extends FrameLayout {
 	 * @return 选中区域
 	 */
 	@Nullable
-	public Selection highlightParagraphs(ParagraphPredicates predicates, boolean scrollTo, int offset) {
+	public Highlight highlightParagraphs(ParagraphPredicates predicates, boolean scrollTo, int offset) {
 		return highlightParagraphs(predicates, scrollTo, offset, null);
 	}
 
@@ -625,7 +626,7 @@ public final class TexasView extends FrameLayout {
 	 * @return 选中区域
 	 */
 	@Nullable
-	public Selection highlightParagraphs(ParagraphPredicates predicates, boolean scrollTo, int offset, Selection.Styles styles) {
+	public Highlight highlightParagraphs(ParagraphPredicates predicates, boolean scrollTo, int offset, Selection.Styles styles) {
 		if (mRenderer == null) {
 			return null;
 		}

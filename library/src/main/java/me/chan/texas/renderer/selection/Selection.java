@@ -23,15 +23,20 @@ import me.chan.texas.text.Paragraph;
 import java.util.ArrayList;
 import java.util.List;
 
-public final class Selection extends DefaultRecyclable {
+public class Selection extends DefaultRecyclable {
 	private static final ObjectPool<Selection> POOL = new ObjectPool<>(8);
 
 	private TexasRecyclerView mContainer;
-	private final List<Paragraph> mParagraphs = new ArrayList<>();
+	protected final List<Paragraph> mParagraphs = new ArrayList<>();
 	private final RectEdge mRectEdge = new RectEdge();
 	private Styles mStyles;
 
-	private Selection() {
+	protected Selection() {
+	}
+
+	protected Selection(TexasRecyclerView container, Styles styles) {
+		mContainer = container;
+		mStyles = styles;
 	}
 
 	public Styles getStyles() {
