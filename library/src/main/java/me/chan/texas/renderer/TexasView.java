@@ -599,7 +599,7 @@ public final class TexasView extends FrameLayout {
 	 */
 	@Nullable
 	public Selection highlightParagraphs(ParagraphPredicates predicates, Selection.Styles styles) {
-		return highlightParagraphs(predicates, false, 0);
+		return highlightParagraphs(predicates, false, 0, styles);
 	}
 
 	/**
@@ -612,11 +612,7 @@ public final class TexasView extends FrameLayout {
 	 */
 	@Nullable
 	public Selection highlightParagraphs(ParagraphPredicates predicates, boolean scrollTo, int offset) {
-		if (mRenderer == null) {
-			return null;
-		}
-
-		return mRenderer.highlightParagraphs(predicates, scrollTo, offset, null);
+		return highlightParagraphs(predicates, scrollTo, offset, null);
 	}
 
 	/**

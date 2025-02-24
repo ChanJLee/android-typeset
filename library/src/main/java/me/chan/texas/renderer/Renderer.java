@@ -270,10 +270,10 @@ public class Renderer implements SelectionManager.Listener {
 	}
 
 	public Selection highlightParagraphs(ParagraphPredicates predicates, boolean scrollTo, int offset, Selection.Styles styles) {
-		Selection selection = selectParagraphs(
+		Selection selection = mSelectionManager.highlightParagraphs(
 				predicates,
 				styles == null ? Selection.Styles.createFromHighLight(mRenderOption).setEnableDrag(false) :
-				styles.setEnableDrag(false)
+						styles.setEnableDrag(false)
 		);
 		if (selection == null || selection.isEmpty()) {
 			return selection;
@@ -288,7 +288,7 @@ public class Renderer implements SelectionManager.Listener {
 	}
 
 	public void clearHighlight() {
-		clearSelection();
+		mSelectionManager.clearHighlight();
 	}
 
 	public void clearSelection() {

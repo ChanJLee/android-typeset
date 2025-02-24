@@ -44,6 +44,7 @@ import me.chan.texas.text.layout.Box;
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class SelectionManager implements OnSelectedChangedListener {
 	private Selection mCurrentSelection;
+	private Selection mCurrentHighlightSelection;
 
 	private final TexasRendererAdapter mAdapter;
 	private final TexasLayoutManager mLayoutManager;
@@ -478,12 +479,16 @@ public class SelectionManager implements OnSelectedChangedListener {
 
 	public void updateRenderOption(RenderOption renderOption) {
 		mDropView.setColor(renderOption.getDragViewColor());
-		if (mCurrentSelection == null) {
-			return;
+
+		if (mCurrentSelection != null) {
+			Selection.Styles styles = mCurrentSelection.getStyles();
+			styles.update(renderOption);
 		}
 
-		Selection.Styles styles = mCurrentSelection.getStyles();
-		styles.update(renderOption);
+		if (mCurrentHighlightSelection != null) {
+			Selection.Styles styles = mCurrentHighlightSelection.getStyles();
+			styles.update(renderOption);
+		}
 	}
 
 	public void autoScrollUp() {
@@ -506,6 +511,17 @@ public class SelectionManager implements OnSelectedChangedListener {
 
 	public SpanTouchEventHandler getSpanTouchEventHandler() {
 		return mSpanTouchEventHandler;
+	}
+
+	public Selection highlightParagraphs(ParagraphPredicates predicates, Selection.Styles styles) {
+
+	}
+
+	public void clearHighlight() {
+		if (mCurrentHighlightSelection != null) {
+			// TODO remove highlight
+			mCurrentHighlightSelection.clear();
+		}
 	}
 
 	public interface Listener {
