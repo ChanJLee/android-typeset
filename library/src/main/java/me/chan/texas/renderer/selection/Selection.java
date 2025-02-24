@@ -277,7 +277,7 @@ public final class Selection extends DefaultRecyclable {
 		private int mBackgroundColor;
 		private int mTextColor;
 
-		private final Source mSource;
+		private Source mSource;
 
 		private boolean mEnableDrag = true;
 
@@ -310,6 +310,11 @@ public final class Selection extends DefaultRecyclable {
 		@RestrictTo(RestrictTo.Scope.LIBRARY)
 		public boolean isEnableDrag() {
 			return mEnableDrag;
+		}
+
+		@RestrictTo(RestrictTo.Scope.LIBRARY)
+		public void setSource(Source source) {
+			mSource = source;
 		}
 
 		@RestrictTo(RestrictTo.Scope.LIBRARY)
