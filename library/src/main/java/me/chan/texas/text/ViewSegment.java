@@ -8,6 +8,7 @@ import android.view.View;
 import androidx.annotation.LayoutRes;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.recyclerview.widget.RecyclerView;
 
 import me.chan.texas.misc.DefaultRecyclable;
 import me.chan.texas.renderer.ui.TexasRendererAdapter;
@@ -23,6 +24,11 @@ public abstract class ViewSegment extends DefaultRecyclable implements Segment {
 	private Rect mRect;
 
 	private int mId;
+
+	/*
+	 * 这个地方只能用layout id来做，不能用view，用id的话，实例是引擎内部创建，
+	 * 这样复用的时候不会出现问题，否则的话上层瞎用就会导致不可预见的bug
+	 * */
 
 	/**
 	 * 用户自定义视图
@@ -67,6 +73,7 @@ public abstract class ViewSegment extends DefaultRecyclable implements Segment {
 	}
 
 	private TexasRendererAdapter mAdapter;
+	private RecyclerView.ViewHolder mViewHolder;
 
 	public final void render(View view) {
 		onRender(view);
@@ -74,7 +81,7 @@ public abstract class ViewSegment extends DefaultRecyclable implements Segment {
 
 	public final void requestRedraw() {
 		if (mAdapter != null) {
-			mAdapter.sendSignal(this, TexasRendererAdapter.SIG_REDRAW);
+			mAdapter.updateSegment(mViewHolder, this);
 		}
 	}
 
@@ -124,8 +131,9 @@ public abstract class ViewSegment extends DefaultRecyclable implements Segment {
 
 	@RestrictTo(LIBRARY)
 	@Override
-	public final void attachToWindow(TexasRendererAdapter adapter) {
+	public final void attachToWindow(TexasRendererAdapter adapter, RecyclerView.ViewHolder viewHolder) {
 		mAdapter = adapter;
+		mViewHolder = viewHolder;
 		onAttachedToWindow();
 	}
 
@@ -134,11 +142,17 @@ public abstract class ViewSegment extends DefaultRecyclable implements Segment {
 
 	@RestrictTo(LIBRARY)
 	@Override
-	public final void detachFromWindow(TexasRendererAdapter adapter) {
-		mAdapter = null;
+	public final void detachFromWindow(TexasRendererAdapter adapter,  RecyclerView.ViewHolder viewHolder) {
 		onDetachedFromWindow();
+		mAdapter = null;
+		mViewHolder = null;
 	}
 
 	protected void onDetachedFromWindow() {
+	}
+
+	@Override
+	public final int getIndex() {
+		return mViewHolder == null ? -1 : mViewHolder.getAdapterPosition();
 	}
 }

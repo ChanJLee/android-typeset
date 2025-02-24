@@ -6,6 +6,7 @@ import me.chan.texas.utils.ReferenceCountingPointer;
 import java.util.ArrayList;
 import java.util.List;
 
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
@@ -72,22 +73,13 @@ public final class Document {
 		 *
 		 * @param document document
 		 */
-		public Builder(Document document) {
-			mSegments = new ReferenceCountingPointer<List<Segment>>(document.mSegments) {
-				@Override
-				protected List<Segment> onAcquire(List<Segment> value) {
-					return new ArrayList<>(value);
-				}
+		public Builder(@Nullable Document document) {
+			this();
 
-				@Override
-				protected void onRelease(List<Segment> segments) {
-					final int count = segments.size();
-					for (int i = 0; i < count; ++i) {
-						Segment segment = segments.get(i);
-						segment.recycle();
-					}
-				}
-			};
+			// copy content
+			if (document != null) {
+				mSegments.get().addAll(document.mSegments.get());
+			}
 		}
 
 		public Builder() {

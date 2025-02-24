@@ -4,7 +4,6 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.util.Log;
@@ -270,14 +269,22 @@ public class Renderer implements SelectionManager.Listener {
 		mRecyclerView.scrollToPosition(position, smooth, offset);
 	}
 
-	public void highlightParagraphs(ParagraphPredicates predicates, boolean scrollTo, int offset) {
-		Selection selection = selectParagraphs(predicates, new Selection.Styles(Color.TRANSPARENT, mRenderOption.getSpanHighlightTextColor()).setEnableDrag(false));
+	public Selection highlightParagraphs(ParagraphPredicates predicates, boolean scrollTo, int offset, Selection.Styles styles) {
+		Selection selection = selectParagraphs(
+				predicates,
+				styles == null ? Selection.Styles.createFromHighLight(mRenderOption).setEnableDrag(false) :
+				styles.setEnableDrag(false)
+		);
 		if (selection == null || selection.isEmpty()) {
-			return;
+			return selection;
 		}
 
-		Paragraph paragraph = selection.getParagraph(0);
-		mRecyclerView.scrollToPosition(mAdapter.indexOf(paragraph), true, offset);
+		if (scrollTo) {
+			Paragraph paragraph = selection.getParagraph(0);
+			mRecyclerView.scrollToPosition(mAdapter.indexOf(paragraph), true, offset);
+		}
+
+		return selection;
 	}
 
 	public void clearHighlight() {
@@ -440,7 +447,7 @@ public class Renderer implements SelectionManager.Listener {
 		return mRenderOption;
 	}
 
-	public Selection selectParagraphs(ParagraphPredicates predicates, @Nullable Selection.Styles styles) {
+	public Selection selectParagraphs(ParagraphPredicates predicates, @NonNull Selection.Styles styles) {
 		return mSelectionManager.selectParagraphs(predicates, styles);
 	}
 
