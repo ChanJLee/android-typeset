@@ -508,7 +508,7 @@ public final class TexasView extends FrameLayout {
 	/**
 	 * 获取选中信息
 	 *
-	 * @return 选中信息, 默认类型为 {@link Selection.Type#SELECTION
+	 * @return 选中信息, 默认类型为 {@link Selection.Type#SELECTION}
 	 */
 	@Nullable
 	public Selection getSelection() {
