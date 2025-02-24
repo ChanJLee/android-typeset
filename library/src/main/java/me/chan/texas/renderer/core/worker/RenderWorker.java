@@ -23,6 +23,7 @@ import me.chan.texas.renderer.ParagraphVisitor;
 import me.chan.texas.renderer.RenderOption;
 import me.chan.texas.renderer.core.sync.WorkerMessager;
 import me.chan.texas.renderer.selection.ParagraphSelection;
+import me.chan.texas.renderer.selection.Selection;
 import me.chan.texas.renderer.ui.decor.ParagraphDecor;
 import me.chan.texas.renderer.ui.text.TextureParagraph;
 import me.chan.texas.text.Appearance;
@@ -136,7 +137,7 @@ public class RenderWorker implements TaskQueue.Task<RenderWorker.Args, Void>, Ta
 		}
 
 		try {
-			ParagraphSelection selection = paragraph.getSelection();
+			ParagraphSelection selection = paragraph.getSelection(Selection.Type.SELECTION);
 			if (selection != null) {
 				TextPaint workPaint = args.paintSet.getWorkPaint(mWorkPaint);
 				selection.drawBackground(canvas, workPaint, args.option);
@@ -270,7 +271,7 @@ public class RenderWorker implements TaskQueue.Task<RenderWorker.Args, Void>, Ta
 
 		@Override
 		protected void onVisitParagraphStart(Paragraph paragraph) {
-			mSelection = paragraph.getSelection();
+			mSelection = paragraph.getSelection(Selection.Type.SELECTION);
 		}
 
 		@Override
@@ -424,7 +425,7 @@ public class RenderWorker implements TaskQueue.Task<RenderWorker.Args, Void>, Ta
 			workPaint.setColor(Color.RED);
 			workPaint.setStrokeWidth(10);
 			int x = mArgs.width - 100;
-			ParagraphSelection selection = paragraph.getSelection();
+			ParagraphSelection selection = paragraph.getSelection(Selection.Type.SELECTION);
 			if (selection == null || selection.isEmpty()) {
 				return;
 			}

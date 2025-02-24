@@ -18,6 +18,7 @@ import me.chan.texas.TexasOption;
 import me.chan.texas.misc.DefaultRecyclable;
 import me.chan.texas.misc.ObjectPool;
 import me.chan.texas.renderer.selection.ParagraphSelection;
+import me.chan.texas.renderer.selection.Selection;
 import me.chan.texas.renderer.ui.TexasRendererAdapter;
 import me.chan.texas.renderer.ui.decor.ParagraphDecor;
 import me.chan.texas.text.layout.Element;
@@ -99,21 +100,25 @@ public final class Paragraph extends DefaultRecyclable implements Segment {
 
 	@RestrictTo(LIBRARY)
 	@Nullable
-	public ParagraphSelection getSelection() {
-		return mSelection;
+	public ParagraphSelection getSelection(Selection.Type type) {
+		if (type == Selection.Type.SELECTION) {
+			return mSelection;
+		} else if (type == Selection.Type.HIGHLIGHT) {
+			return mHighlight;
+		} else {
+			throw new IllegalArgumentException("unknown type: " + type);
+		}
 	}
 
 	@RestrictTo(LIBRARY)
-	public void setSelection(ParagraphSelection selection) {
-		mSelection = selection;
-	}
-
-	public ParagraphSelection getHighlight() {
-		return mHighlight;
-	}
-
-	public void setHighlight(ParagraphSelection highlight) {
-		mHighlight = highlight;
+	public void setSelection(Selection.Type type, ParagraphSelection selection) {
+		if (type == Selection.Type.SELECTION) {
+			mSelection = selection;
+		} else if (type == Selection.Type.HIGHLIGHT) {
+			mHighlight = selection;
+		} else {
+			throw new IllegalArgumentException("unknown type: " + type);
+		}
 	}
 
 	private Paragraph(Object tag) {
