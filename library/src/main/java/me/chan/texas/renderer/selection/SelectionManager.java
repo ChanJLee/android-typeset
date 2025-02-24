@@ -108,12 +108,23 @@ public class SelectionManager implements OnSelectedChangedListener {
 		mSpanTouchEventHandler = listener;
 	}
 
+	@Nullable
+	public Selection getCurrentSelection() {
+		return getCurrentSelection(Selection.Type.SELECTION);
+	}
+
 	/**
 	 * @return 获取当前的选中信息
 	 */
 	@Nullable
-	public Selection getCurrentSelection() {
-		return mCurrentSelection;
+	public Selection getCurrentSelection(Selection.Type type) {
+		if (type == Selection.Type.SELECTION) {
+			return mCurrentSelection;
+		} else if (type == Selection.Type.HIGHLIGHT) {
+			return mCurrentHighlightSelection;
+		}
+
+		throw new IllegalArgumentException("Unknown selection type: " + type);
 	}
 
 	@Override

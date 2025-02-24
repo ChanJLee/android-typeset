@@ -13,6 +13,7 @@ import androidx.annotation.RestrictTo;
 
 import me.chan.texas.misc.DefaultRecyclable;
 import me.chan.texas.misc.ObjectPool;
+import me.chan.texas.renderer.ParagraphPredicates;
 import me.chan.texas.renderer.RenderOption;
 import me.chan.texas.renderer.ui.rv.TexasLayoutManager;
 import me.chan.texas.renderer.ui.rv.TexasRecyclerView;
@@ -186,7 +187,7 @@ public class Selection extends DefaultRecyclable {
 				continue;
 			}
 
-			paragraph.setSelection(mType,null);
+			paragraph.setSelection(mType, null);
 			try {
 				paragraph.requestRedraw();
 			} catch (Throwable ignore) {
@@ -547,8 +548,18 @@ public class Selection extends DefaultRecyclable {
 		}
 	}
 
+	/**
+	 * 选中类型，不同的选中类型允许同时存在，相同的选中类型只有一个
+	 */
 	public enum Type {
+		/**
+		 * 高亮 {@link me.chan.texas.renderer.TexasView#highlightParagraphs(ParagraphPredicates)}
+		 */
 		HIGHLIGHT,
+		/**
+		 * 选中，选中可以分为单击、长按、自由选择。其中自由选择和长按效果默认一致，当然你也可以自己定义
+		 * {@link me.chan.texas.renderer.TexasView#selectParagraphs(ParagraphPredicates)}
+		 */
 		SELECTION
 	}
 }

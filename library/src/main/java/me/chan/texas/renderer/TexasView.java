@@ -508,11 +508,11 @@ public final class TexasView extends FrameLayout {
 	/**
 	 * 获取选中信息
 	 *
-	 * @return 选中信息
+	 * @return 选中信息, 默认类型为 {@link Selection.Type#SELECTION
 	 */
 	@Nullable
 	public Selection getSelection() {
-		return mRenderer == null ? null : mRenderer.getSelection();
+		return getSelection(Selection.Type.SELECTION);
 	}
 
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -640,6 +640,17 @@ public final class TexasView extends FrameLayout {
 		if (mRenderer != null) {
 			mRenderer.clearHighlight();
 		}
+	}
+
+	/**
+	 * 获取选中信息
+	 *
+	 * @param type 选中类型
+	 * @return 选中信息
+	 */
+	@Nullable
+	public Selection getSelection(Selection.Type type) {
+		return mRenderer == null ? null : mRenderer.getSelection(type);
 	}
 
 	public void setSpanTouchEventHandler(SpanTouchEventHandler listener) {
