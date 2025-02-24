@@ -289,7 +289,6 @@ public final class Selection extends DefaultRecyclable {
 			mSource = source;
 		}
 
-		// TODO support unit test
 		@RestrictTo(RestrictTo.Scope.LIBRARY)
 		public int getVersion() {
 			return mVersion;
@@ -320,13 +319,17 @@ public final class Selection extends DefaultRecyclable {
 		}
 
 		public void setBackgroundColor(int backgroundColor) {
+			if (mBackgroundColor != backgroundColor) {
+				++mVersion;
+			}
 			mBackgroundColor = backgroundColor;
-			++mVersion;
 		}
 
 		public void setTextColor(int textColor) {
+			if (mTextColor != textColor) {
+				++mVersion;
+			}
 			mTextColor = textColor;
-			++mVersion;
 		}
 
 		@Override
