@@ -52,12 +52,20 @@ public abstract class SelectedVisitor extends ParagraphVisitor {
 	}
 
 	public void startVisit(Paragraph paragraph) throws VisitException {
+		onClearSelection(paragraph);
+		super.visit(paragraph);
+		onSetSelection(paragraph, mSelection);
+	}
+
+	protected void onClearSelection(Paragraph paragraph) {
 		ParagraphSelection prev = paragraph.getSelection();
 		paragraph.setSelection(null);
-		super.visit(paragraph);
 		if (prev != null) {
 			prev.recycle();
 		}
+	}
+
+	protected void onSetSelection(Paragraph paragraph, ParagraphSelection selection) {
 		if (mSelection.isEmpty()) {
 			mSelection.recycle();
 		} else {

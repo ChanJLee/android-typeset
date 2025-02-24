@@ -93,6 +93,8 @@ public final class Paragraph extends DefaultRecyclable implements Segment {
 
 	private ParagraphSelection mSelection;
 
+	private ParagraphSelection mHighlight;
+
 	private ParagraphDecor mDecor;
 
 	@RestrictTo(LIBRARY)
@@ -104,6 +106,14 @@ public final class Paragraph extends DefaultRecyclable implements Segment {
 	@RestrictTo(LIBRARY)
 	public void setSelection(ParagraphSelection selection) {
 		mSelection = selection;
+	}
+
+	public ParagraphSelection getHighlight() {
+		return mHighlight;
+	}
+
+	public void setHighlight(ParagraphSelection highlight) {
+		mHighlight = highlight;
 	}
 
 	private Paragraph(Object tag) {
@@ -132,6 +142,10 @@ public final class Paragraph extends DefaultRecyclable implements Segment {
 		if (mSelection != null) {
 			mSelection.recycle();
 			mSelection = null;
+		}
+		if (mHighlight != null) {
+			mHighlight.recycle();
+			mHighlight = null;
 		}
 		POOL.release(this);
 	}
