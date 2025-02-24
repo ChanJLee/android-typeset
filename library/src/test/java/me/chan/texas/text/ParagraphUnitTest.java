@@ -827,7 +827,6 @@ public class ParagraphUnitTest {
 			paragraph = builder.build();
 			checkContent(paragraph, "😜", Penalty.ADVISE_BREAK, "😜", blank, "yes", Glue.TERMINAL, Penalty.FORCE_BREAK);
 
-			// todo symbol test
 			builder = Paragraph.Builder.newBuilder(texasOption);
 			builder.text("😜😜 《");
 			paragraph = builder.build();

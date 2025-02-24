@@ -583,9 +583,23 @@ public final class TexasView extends FrameLayout {
 	 * 高亮paragraph中的文本，只在渲染出document后生效
 	 *
 	 * @param predicates 谓词
+	 * @return 选中区域
 	 */
-	public void highlightParagraphs(ParagraphPredicates predicates) {
-		highlightParagraphs(predicates, false, 0);
+	@Nullable
+	public Selection highlightParagraphs(ParagraphPredicates predicates) {
+		return highlightParagraphs(predicates, null);
+	}
+
+	/**
+	 * 高亮paragraph中的文本，只在渲染出document后生效
+	 *
+	 * @param predicates 谓词
+	 * @param styles     {@link Selection.Styles#create(int, int)}
+	 * @return 选中区域
+	 */
+	@Nullable
+	public Selection highlightParagraphs(ParagraphPredicates predicates, Selection.Styles styles) {
+		return highlightParagraphs(predicates, false, 0);
 	}
 
 	/**
@@ -594,13 +608,33 @@ public final class TexasView extends FrameLayout {
 	 * @param predicates 谓词
 	 * @param scrollTo   是否滚动到高亮区域
 	 * @param offset     滚动偏移
+	 * @return 选中区域
 	 */
-	public void highlightParagraphs(ParagraphPredicates predicates, boolean scrollTo, int offset) {
+	@Nullable
+	public Selection highlightParagraphs(ParagraphPredicates predicates, boolean scrollTo, int offset) {
 		if (mRenderer == null) {
-			return;
+			return null;
 		}
 
-		mRenderer.highlightParagraphs(predicates, scrollTo, offset);
+		return mRenderer.highlightParagraphs(predicates, scrollTo, offset, null);
+	}
+
+	/**
+	 * 高亮paragraph中的文本，只在渲染出document后生效
+	 *
+	 * @param predicates 谓词
+	 * @param scrollTo   是否滚动到高亮区域
+	 * @param offset     滚动偏移
+	 * @param styles     {@link Selection.Styles#create(int, int)}
+	 * @return 选中区域
+	 */
+	@Nullable
+	public Selection highlightParagraphs(ParagraphPredicates predicates, boolean scrollTo, int offset, Selection.Styles styles) {
+		if (mRenderer == null) {
+			return null;
+		}
+
+		return mRenderer.highlightParagraphs(predicates, scrollTo, offset, styles);
 	}
 
 	/**
@@ -631,6 +665,7 @@ public final class TexasView extends FrameLayout {
 
 	/**
 	 * 选中文本
+	 * {@link Selection.Styles#create(int, int)}
 	 *
 	 * @param predicates predicate
 	 * @param styles     选中文本的样式，为空就为默认样式 {@link RenderOption#setSelectedByLongClickTextColor(int)} (int)} ...
@@ -638,6 +673,15 @@ public final class TexasView extends FrameLayout {
 	 */
 	@Nullable
 	public Selection selectParagraphs(ParagraphPredicates predicates, @Nullable Selection.Styles styles) {
+		if (styles == null) {
+			RenderOption renderOption = getRendererOption();
+			if (renderOption == null) {
+				return null;
+			}
+
+			styles = Selection.Styles.createFromTouch(renderOption, true);
+			styles.setEnableDrag(true);
+		}
 		return mRenderer == null ? null : mRenderer.selectParagraphs(predicates, styles);
 	}
 

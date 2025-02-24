@@ -38,6 +38,7 @@ import me.chan.texas.renderer.core.worker.ParseWorker;
 import me.chan.texas.renderer.core.worker.ParagraphTypesetWorker;
 import me.chan.texas.renderer.SpanPredicate;
 import me.chan.texas.renderer.selection.ParagraphSelection;
+import me.chan.texas.renderer.selection.Selection;
 import me.chan.texas.renderer.selection.visitor.SelectedTextByClickedVisitor;
 import me.chan.texas.source.Source;
 import me.chan.texas.text.BreakStrategy;
@@ -256,7 +257,8 @@ public class ParagraphView extends FrameLayout {
 	private boolean handleParagraphSelected0(Paragraph paragraph, boolean isLongClicked, Box box, SpanPredicate predicate) throws ParagraphVisitor.VisitException {
 		try {
 			mSelectedTextByClickedVisitor.reset(
-					isLongClicked,
+					Selection.Styles.createFromTouch(mRenderOption, isLongClicked)
+							.setEnableDrag(false),
 					paragraph,
 					mRenderOption
 			);

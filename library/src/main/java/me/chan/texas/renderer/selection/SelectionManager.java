@@ -206,8 +206,9 @@ public class SelectionManager implements OnSelectedChangedListener {
 											Object boxTag,
 											int index) throws ParagraphVisitor.VisitException {
 		try {
+			Selection.Styles styles = Selection.Styles.createFromTouch(mAdapter.getRenderOption(), isLongClicked);
 			mSelectedTextByClickedVisitor.reset(
-					isLongClicked,
+					styles,
 					paragraph,
 					renderOption
 			);
@@ -215,7 +216,9 @@ public class SelectionManager implements OnSelectedChangedListener {
 			mSelectedTextByClickedVisitor.startVisit(
 					paragraph
 			);
-			handleParagraphSelected(paragraph, index);
+
+			handleParagraphSelected(paragraph, index, styles);
+
 			return mSelectedTextByClickedVisitor.isHandled();
 		} finally {
 			mSelectedTextByClickedVisitor.clear();
@@ -293,7 +296,7 @@ public class SelectionManager implements OnSelectedChangedListener {
 
 		RenderOption renderOption = mAdapter.getRenderOption();
 
-		Selection currentSelection = Selection.obtain(mContentView);
+		Selection currentSelection = Selection.obtain(mContentView, prevSelection.getStyles());
 		for (int i = firstVisibleItemPosition; i <= lastVisibleItemPosition; ++i) {
 			TextureParagraph textureParagraph = mLayoutManager.findTextureParagraphByPosition(i);
 			if (textureParagraph == null) {
@@ -311,7 +314,7 @@ public class SelectionManager implements OnSelectedChangedListener {
 
 			try {
 				Paragraph paragraph = textureParagraph.getParagraph();
-				mSelectedTextByDragVisitor.reset(true, paragraph, renderOption);
+				mSelectedTextByDragVisitor.reset(mCurrentSelection.getStyles(), paragraph, renderOption);
 				float tempX1 = x1 - mLocations[0];
 				float tempY1 = y1 - mLocations[1];
 				float tempX2 = x2 - mLocations[0];
@@ -344,7 +347,8 @@ public class SelectionManager implements OnSelectedChangedListener {
 		mSelectionDiffBucket.clear();
 		for (int i = 0; i < currentSelection.size(); ++i) {
 			Paragraph paragraph = currentSelection.getParagraph(i);
-			int index = mAdapter.sendSignal(paragraph, TexasRendererAdapter.SIG_SELECTION_CHANGED);
+			paragraph.requestRedraw();
+			int index = mAdapter.indexOf(paragraph);
 			if (index < 0) {
 				continue;
 			}
@@ -361,7 +365,7 @@ public class SelectionManager implements OnSelectedChangedListener {
 						paragraphSelection.recycle();
 						paragraph.setSelection(null);
 					}
-					mAdapter.sendSignal(index, RendererAdapterImpl.SIG_SELECTION_CHANGED);
+					paragraph.requestRedraw();
 				}
 			}
 			prevSelection.recycle();
@@ -395,7 +399,7 @@ public class SelectionManager implements OnSelectedChangedListener {
 	 * @return 选中区域
 	 */
 	@Nullable
-	public Selection selectParagraphs(ParagraphPredicates predicates, @Nullable Selection.Styles styles) {
+	public Selection selectParagraphs(ParagraphPredicates predicates, @NonNull Selection.Styles styles) {
 		Document document = mAdapter.getDocument();
 		clearSelection();
 
@@ -408,14 +412,14 @@ public class SelectionManager implements OnSelectedChangedListener {
 			selectParagraph((Paragraph) segment, predicates, i, styles);
 		}
 
-		if (styles == null || styles.isEnableDrag()) {
+		if (styles.isEnableDrag()) {
 			notifyUpdateSelectionDropView();
 		}
 
 		return mCurrentSelection;
 	}
 
-	private void selectParagraph(Paragraph paragraph, ParagraphPredicates predicates, int index, @Nullable Selection.Styles styles) {
+	private void selectParagraph(Paragraph paragraph, ParagraphPredicates predicates, int index, @NonNull Selection.Styles styles) {
 		if (paragraph == null) {
 			return;
 		}
@@ -424,7 +428,7 @@ public class SelectionManager implements OnSelectedChangedListener {
 			RenderOption renderOption = mAdapter.getRenderOption();
 			mPredicatesDriveSelectedVisitor.reset(renderOption, predicates, paragraph, styles);
 			mPredicatesDriveSelectedVisitor.startVisit(paragraph);
-			handleParagraphSelected(paragraph, index);
+			handleParagraphSelected(paragraph, index, styles);
 		} catch (ParagraphVisitor.VisitException ignored) {
 			/* do nothing */
 		} finally {
@@ -445,9 +449,9 @@ public class SelectionManager implements OnSelectedChangedListener {
 	 * @param paragraph paragraph
 	 * @param index     index
 	 */
-	private void handleParagraphSelected(Paragraph paragraph, int index) {
+	private void handleParagraphSelected(Paragraph paragraph, int index, Selection.Styles styles) {
 		if (mCurrentSelection == null) {
-			mCurrentSelection = Selection.obtain(mContentView);
+			mCurrentSelection = Selection.obtain(mContentView, styles);
 		}
 
 		if (index < 0) {
@@ -458,7 +462,7 @@ public class SelectionManager implements OnSelectedChangedListener {
 		addParagraphSelection(mCurrentSelection, paragraph);
 
 		try {
-			mAdapter.sendSignal(index, RendererAdapterImpl.SIG_SELECTION_CHANGED);
+			paragraph.requestRedraw();
 		} catch (Throwable ignore) {
 			/* do nothing */
 		}
@@ -474,6 +478,12 @@ public class SelectionManager implements OnSelectedChangedListener {
 
 	public void updateRenderOption(RenderOption renderOption) {
 		mDropView.setColor(renderOption.getDragViewColor());
+		if (mCurrentSelection == null) {
+			return;
+		}
+
+		Selection.Styles styles = mCurrentSelection.getStyles();
+		styles.update(renderOption);
 	}
 
 	public void autoScrollUp() {
