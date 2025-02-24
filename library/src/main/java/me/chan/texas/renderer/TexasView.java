@@ -643,6 +643,13 @@ public final class TexasView extends FrameLayout {
 	}
 
 	/**
+	 * @return 获取高亮区域
+	 */
+	public Selection getHighlight() {
+		return getSelection(Selection.Type.HIGHLIGHT);
+	}
+
+	/**
 	 * 获取选中信息
 	 *
 	 * @param type 选中类型
