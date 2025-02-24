@@ -35,7 +35,17 @@ public class StateList {
 
 	public static final int STATE_SELECTED = 1;
 
-	@IntDef(flag = true, value = {STATE_SELECTED})
+	public static final int STATE_HIGHLIGHT = 2;
+
+	public void setHighlighted(boolean isHighlighted) {
+		if (isHighlighted) {
+			mBits.set(STATE_HIGHLIGHT);
+		} else {
+			mBits.clear(STATE_HIGHLIGHT);
+		}
+	}
+
+	@IntDef(flag = true, value = {STATE_SELECTED, STATE_HIGHLIGHT})
 	public @interface StateCode {
 	}
 }

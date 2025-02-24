@@ -18,6 +18,7 @@ import me.chan.texas.TexasOption;
 import me.chan.texas.misc.DefaultRecyclable;
 import me.chan.texas.misc.ObjectPool;
 import me.chan.texas.renderer.selection.ParagraphSelection;
+import me.chan.texas.renderer.selection.Selection;
 import me.chan.texas.renderer.ui.TexasRendererAdapter;
 import me.chan.texas.renderer.ui.decor.ParagraphDecor;
 import me.chan.texas.text.layout.Element;
@@ -93,17 +94,31 @@ public final class Paragraph extends DefaultRecyclable implements Segment {
 
 	private ParagraphSelection mSelection;
 
+	private ParagraphSelection mHighlight;
+
 	private ParagraphDecor mDecor;
 
 	@RestrictTo(LIBRARY)
 	@Nullable
-	public ParagraphSelection getSelection() {
-		return mSelection;
+	public ParagraphSelection getSelection(Selection.Type type) {
+		if (type == Selection.Type.SELECTION) {
+			return mSelection;
+		} else if (type == Selection.Type.HIGHLIGHT) {
+			return mHighlight;
+		} else {
+			throw new IllegalArgumentException("unknown type: " + type);
+		}
 	}
 
 	@RestrictTo(LIBRARY)
-	public void setSelection(ParagraphSelection selection) {
-		mSelection = selection;
+	public void setSelection(Selection.Type type, ParagraphSelection selection) {
+		if (type == Selection.Type.SELECTION) {
+			mSelection = selection;
+		} else if (type == Selection.Type.HIGHLIGHT) {
+			mHighlight = selection;
+		} else {
+			throw new IllegalArgumentException("unknown type: " + type);
+		}
 	}
 
 	private Paragraph(Object tag) {
@@ -132,6 +147,10 @@ public final class Paragraph extends DefaultRecyclable implements Segment {
 		if (mSelection != null) {
 			mSelection.recycle();
 			mSelection = null;
+		}
+		if (mHighlight != null) {
+			mHighlight.recycle();
+			mHighlight = null;
 		}
 		POOL.release(this);
 	}
