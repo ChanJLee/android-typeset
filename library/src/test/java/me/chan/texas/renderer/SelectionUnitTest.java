@@ -6,6 +6,7 @@ import androidx.annotation.NonNull;
 
 import me.chan.texas.TestUtils;
 import me.chan.texas.misc.PaintSet;
+import me.chan.texas.renderer.selection.Selection;
 import me.chan.texas.test.mock.MockTextPaint;
 
 import me.chan.texas.TexasOption;
@@ -60,7 +61,7 @@ public class SelectionUnitTest {
 		Paragraph paragraph = builder.build();
 		texTypesetter.typeset(paragraph, BreakStrategy.SIMPLE, 10, 1);
 
-		ParagraphSelection paragraphSelection = ParagraphSelection.obtain(true, paragraph);
+		ParagraphSelection paragraphSelection = ParagraphSelection.obtain(Selection.Styles.createFromTouch(renderOption, true), paragraph);
 
 		Assert.assertTrue(paragraphSelection.isEmpty());
 		Box box = TextBox.obtain(

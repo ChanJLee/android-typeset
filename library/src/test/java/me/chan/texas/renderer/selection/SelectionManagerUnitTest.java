@@ -140,7 +140,7 @@ public class SelectionManagerUnitTest {
 			public boolean acceptParagraph(@Nullable Object paragraphTag) {
 				return false;
 			}
-		}, new Selection.Styles(1, 2).setEnableDrag(false));
+		}, Selection.Styles.create(1, 2).setEnableDrag(false));
 		Assert.assertTrue(selection.isEmpty());
 
 		Selection prev = selection;
@@ -154,7 +154,7 @@ public class SelectionManagerUnitTest {
 			public boolean acceptParagraph(@Nullable Object paragraphTag) {
 				return "p1".equals(paragraphTag) || "p3".equals(paragraphTag);
 			}
-		}, new Selection.Styles(1, 2).setEnableDrag(false));
+		}, Selection.Styles.create(1, 2).setEnableDrag(false));
 
 		Assert.assertNotSame(prev, selection);
 		Assert.assertFalse(selection.isEmpty());
@@ -461,12 +461,6 @@ public class SelectionManagerUnitTest {
 		public Document getDocument() {
 			return mDocument;
 		}
-
-		@Override
-		public void sendSignal(Segment segment, Object sig) {
-
-		}
-
 	}
 
 	enum SelectionEvent {
@@ -681,16 +675,6 @@ public class SelectionManagerUnitTest {
 		@Override
 		public RenderOption getRenderOption() {
 			return mRenderOption;
-		}
-
-		@Override
-		public int sendSignal(Segment segment, Object sig) {
-			return mDocument.indexOfSegment(segment);
-		}
-
-		@Override
-		public int sendSignal(int index, Object sig) {
-			return index;
 		}
 
 		@Override
