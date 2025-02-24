@@ -55,21 +55,18 @@ public class RenderWorker implements TaskQueue.Task<RenderWorker.Args, Void>, Ta
 	public RenderWorker(TaskQueue taskQueue, WorkerMessager messager) {
 		mTaskQueue = taskQueue;
 		mMessager = messager;
-		mMessager.addListener(new WorkerMessager.Listener() {
-			@Override
-			public boolean handleMessage(TaskQueue.Token token, WorkerMessager.WorkerMessage value) {
-				Args args = value.asArg(Args.class);
-				if (args == null) {
-					return false;
-				}
-
-				if (DEBUG && Looper.myLooper() != Looper.getMainLooper()) {
-					throw new RuntimeException("invalid thread");
-				}
-
-				args.renderer.syncUI();
-				return true;
+		mMessager.addListener((token, value) -> {
+			Args args = value.asArg(Args.class);
+			if (args == null) {
+				return false;
 			}
+
+			if (DEBUG && Looper.myLooper() != Looper.getMainLooper()) {
+				throw new RuntimeException("invalid thread");
+			}
+
+			args.renderer.syncUI();
+			return true;
 		});
 	}
 
