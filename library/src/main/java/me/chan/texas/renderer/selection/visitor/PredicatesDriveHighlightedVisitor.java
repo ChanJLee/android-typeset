@@ -33,12 +33,10 @@ public class PredicatesDriveHighlightedVisitor extends SelectedVisitor {
 	}
 
 	@Override
-	protected final void onClearSelection(Paragraph paragraph) {
+	protected final ParagraphSelection onClearSelection(Paragraph paragraph) {
 		ParagraphSelection prev = paragraph.getHighlight();
 		paragraph.setHighlight(null);
-		if (prev != null) {
-			prev.recycle();
-		}
+		return prev;
 	}
 
 	@Override
