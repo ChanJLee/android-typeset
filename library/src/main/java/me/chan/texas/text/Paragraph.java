@@ -712,6 +712,10 @@ public final class Paragraph extends DefaultRecyclable implements Segment {
 	@NonNull
 	@Override
 	public String toString() {
+		if (mLayout.getLineCount() == 0) {
+			return mTag == null ? super.toString() : mTag.toString();
+		}
+
 		String digest = mLayout.toString();
 		final int max = 16;
 		if (digest.length() > max) {
