@@ -8,6 +8,7 @@ import android.util.Log;
 
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.annotation.VisibleForTesting;
 import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.ListUpdateCallback;
 
@@ -122,27 +123,7 @@ public class MixWorker implements TaskQueue.Listener<MixWorker.Args, MixWorker.T
 		}
 
 		final Document prev = args.prev == null ? new Document.Builder().build() : args.prev;
-		DiffUtil.DiffResult diff = DiffUtil.calculateDiff(new DiffUtil.Callback() {
-			@Override
-			public int getOldListSize() {
-				return prev.getSegmentCount();
-			}
-
-			@Override
-			public int getNewListSize() {
-				return args.document.getSegmentCount();
-			}
-
-			@Override
-			public boolean areItemsTheSame(int oldItemPosition, int newItemPosition) {
-				return prev.getSegment(oldItemPosition) == args.document.getSegment(newItemPosition);
-			}
-
-			@Override
-			public boolean areContentsTheSame(int oldItemPosition, int newItemPosition) {
-				return areItemsTheSame(oldItemPosition, newItemPosition);
-			}
-		}, true);
+		DiffUtil.DiffResult diff = diff(prev, args.document);
 
 		typesetDocument(token, args.outWidth, args.document, args.option, args.segmentDecoration, diff);
 
@@ -157,6 +138,31 @@ public class MixWorker implements TaskQueue.Listener<MixWorker.Args, MixWorker.T
 		}
 
 		return new TypesetResult(args.option, args.document, diff);
+	}
+
+	@VisibleForTesting
+	static DiffUtil.DiffResult diff(Document prev, Document current) {
+		return DiffUtil.calculateDiff(new DiffUtil.Callback() {
+			@Override
+			public int getOldListSize() {
+				return prev.getSegmentCount();
+			}
+
+			@Override
+			public int getNewListSize() {
+				return current.getSegmentCount();
+			}
+
+			@Override
+			public boolean areItemsTheSame(int oldItemPosition, int newItemPosition) {
+				return prev.getSegment(oldItemPosition) == current.getSegment(newItemPosition);
+			}
+
+			@Override
+			public boolean areContentsTheSame(int oldItemPosition, int newItemPosition) {
+				return areItemsTheSame(oldItemPosition, newItemPosition);
+			}
+		}, true);
 	}
 
 	private void typesetDocument(TaskQueue.Token token,
