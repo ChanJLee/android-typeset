@@ -163,7 +163,7 @@ public class TypesetEngine {
 			@Override
 			public void onSuccess(TexasOption option, Document document) {
 				d("loading doc success, width: " + width + ", reason: " + reason);
-				typeset0(reason, option, prev, document, listener, EVENT_FAILURE | EVENT_SUCCESS);
+				typeset0(reason, option, document.isCopy() ? prev : null, document, listener, EVENT_FAILURE | EVENT_SUCCESS);
 			}
 		});
 		WorkerScheduler.loading().submit(mToken, args);
