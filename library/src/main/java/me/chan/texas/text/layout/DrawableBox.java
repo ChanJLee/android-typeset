@@ -40,11 +40,11 @@ public class DrawableBox extends Box {
 	}
 
 	@Override
-	public void draw(Canvas canvas, Paint paint, float x, float y, boolean isSelected) {
+	public void draw(Canvas canvas, Paint paint, float x, float y, StateList states) {
 		Drawable drawable = mDrawable;
 		if (mDrawable instanceof StateListDrawable) {
 			StateListDrawable stateListDrawable = (StateListDrawable) mDrawable;
-			stateListDrawable.setState(isSelected ? STATE_PRESSED : STATE_NORMAL);
+			stateListDrawable.setState(states.isSelected() ? STATE_PRESSED : STATE_NORMAL);
 			drawable = stateListDrawable.getCurrent();
 		}
 

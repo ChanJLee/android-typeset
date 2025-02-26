@@ -6,8 +6,10 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 
 import androidx.annotation.CallSuper;
+import androidx.annotation.IntDef;
 import androidx.annotation.RestrictTo;
 
+import me.chan.texas.misc.BitBucket32;
 import me.chan.texas.text.Appearance;
 import me.chan.texas.utils.TexasUtils;
 
@@ -104,7 +106,7 @@ public abstract class Box extends Element {
 		return mTag;
 	}
 
-	public abstract void draw(Canvas canvas, Paint paint, float x, float y, boolean isSelected);
+	public abstract void draw(Canvas canvas, Paint paint, float x, float y, StateList states);
 
 	@Override
 	public boolean equals(Object o) {

@@ -11,11 +11,9 @@ import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.util.TypedValue;
-import android.view.MotionEvent;
 import android.view.View;
 import android.widget.FrameLayout;
 
-import androidx.annotation.AnyThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
@@ -24,27 +22,25 @@ import me.chan.texas.BuildConfig;
 import me.chan.texas.R;
 import me.chan.texas.Texas;
 import me.chan.texas.TexasOption;
-import me.chan.texas.annotations.Internal;
-import me.chan.texas.hyphenation.Hyphenation;
-import me.chan.texas.hyphenation.HyphenationPattern;
-import me.chan.texas.measurer.AndroidMeasurer;
+import me.chan.texas.di.TexasComponent;
+import me.chan.texas.di.core.TextEngineCoreComponent;
+import me.chan.texas.measurer.MeasureFactory;
 import me.chan.texas.measurer.Measurer;
 import me.chan.texas.misc.PaintSet;
-import me.chan.texas.renderer.LoadingStrategy;
 import me.chan.texas.renderer.ParagraphVisitor;
 import me.chan.texas.renderer.RenderOption;
 import me.chan.texas.renderer.SpanTouchEventHandler;
 import me.chan.texas.renderer.TexasView;
 import me.chan.texas.renderer.TouchEvent;
 import me.chan.texas.renderer.core.WorkerScheduler;
+import me.chan.texas.renderer.core.worker.LoadingWorker;
 import me.chan.texas.renderer.core.worker.ParseWorker;
 import me.chan.texas.renderer.core.worker.ParagraphTypesetWorker;
 import me.chan.texas.renderer.SpanPredicate;
 import me.chan.texas.renderer.selection.ParagraphSelection;
+import me.chan.texas.renderer.selection.Selection;
 import me.chan.texas.renderer.selection.visitor.SelectedTextByClickedVisitor;
 import me.chan.texas.source.Source;
-import me.chan.texas.source.SourceCloseException;
-import me.chan.texas.source.SourceOpenException;
 import me.chan.texas.text.BreakStrategy;
 import me.chan.texas.text.HyphenStrategy;
 import me.chan.texas.text.Paragraph;
@@ -55,6 +51,8 @@ import me.chan.texas.text.layout.Region;
 import me.chan.texas.utils.TexasUtils;
 
 import java.lang.ref.WeakReference;
+
+import javax.inject.Inject;
 
 /**
  * 用于显示文本内容
@@ -69,10 +67,7 @@ public class ParagraphView extends FrameLayout {
 	@NonNull
 	private final TextureParagraph mRender;
 
-	private final PaintSet mPaintSet;
 	private RenderOption mRenderOption;
-	private final Measurer mMeasurer;
-	private final TextAttribute mTextAttribute;
 
 	/*
 	 * 只会在parse后被赋值
@@ -121,14 +116,17 @@ public class ParagraphView extends FrameLayout {
 		this(context, attrs, 0);
 	}
 
+	@Inject
+	MeasureFactory mMeasureFactory;
+
+	private final PaintSet mUiThreadPaintSet;
+
 	public ParagraphView(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
 		super(context, attrs, defStyleAttr);
 		TypedArray typedArray = context.obtainStyledAttributes(attrs, R.styleable.me_chan_texas_ParagraphView, defStyleAttr, 0);
 		try {
 			mRenderOption = createRenderOption(context, typedArray);
-			mPaintSet = new PaintSet(mRenderOption);
-			mMeasurer = new AndroidMeasurer(mPaintSet);
-			mTextAttribute = new TextAttribute(mMeasurer);
+			mUiThreadPaintSet = new PaintSet(mRenderOption);
 			mRender = mRenderOption.isCompatMode() || Build.VERSION.SDK_INT < Build.VERSION_CODES.M ?
 					new TextureParagraphView0Compat(context) : new TextureParagraphView0(context);
 			addView((View) mRender, new FrameLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
@@ -149,6 +147,10 @@ public class ParagraphView extends FrameLayout {
 			if (!TextUtils.isEmpty(text)) {
 				setText(text);
 			}
+
+			TexasComponent texasComponent = Texas.getTexasComponent();
+			TextEngineCoreComponent textEngineCoreComponent = texasComponent.coreComponent().create();
+			textEngineCoreComponent.inject(this);
 			checkUIThreadPriority();
 		} finally {
 			typedArray.recycle();
@@ -255,7 +257,9 @@ public class ParagraphView extends FrameLayout {
 	private boolean handleParagraphSelected0(Paragraph paragraph, boolean isLongClicked, Box box, SpanPredicate predicate) throws ParagraphVisitor.VisitException {
 		try {
 			mSelectedTextByClickedVisitor.reset(
-					isLongClicked,
+					Selection.Type.SELECTION,
+					Selection.Styles.createFromTouch(mRenderOption, isLongClicked)
+							.setEnableDrag(false),
 					paragraph,
 					mRenderOption
 			);
@@ -284,12 +288,12 @@ public class ParagraphView extends FrameLayout {
 			return;
 		}
 
-		ParagraphSelection selection = mParagraph.getSelection();
+		ParagraphSelection selection = mParagraph.getSelection(Selection.Type.SELECTION);
 		if (selection == null) {
 			return;
 		}
 
-		mParagraph.setSelection(null);
+		mParagraph.setSelection(Selection.Type.SELECTION, null);
 		selection.recycle();
 
 		if (mParagraph != null) {
@@ -372,7 +376,7 @@ public class ParagraphView extends FrameLayout {
 			Log.d(TAG, "render0: paragraph = " + paragraph);
 		}
 
-		mRender.render(paragraph, mPaintSet, mRenderOption, null, mSpanTouchEventHandler);
+		mRender.render(paragraph, mUiThreadPaintSet, mRenderOption, null, mSpanTouchEventHandler);
 	}
 
 	/**
@@ -430,13 +434,19 @@ public class ParagraphView extends FrameLayout {
 		clearSelection();
 
 		// 赋予
-		source.owner = this;
+		source.setLoader(() -> {
+			RenderOption option = mRenderOption;
+			PaintSet paintSet = new PaintSet(option);
+			Measurer measurer = mMeasureFactory.create(paintSet);
+			TextAttribute textAttribute = new TextAttribute(measurer);
+			return LoadingWorker.createTexasOption(paintSet, textAttribute, measurer, option);
+		});
 
 		// cache last source
 		mSource = source;
 
 		// 提交解析任务
-		ParseWorker.Args args = ParseWorker.Args.obtain(source, LoadingStrategy.LOAD_MORE, mParseListener);
+		ParseWorker.Args args = ParseWorker.Args.obtain(source, mParseListener);
 		ParseWorker worker = WorkerScheduler.parse();
 		if (!isInEditMode()) {
 			worker.submit(mRender.getToken(), args);
@@ -486,7 +496,7 @@ public class ParagraphView extends FrameLayout {
 		int cmpType = TexasUtils.cmp(mRenderOption, renderOption);
 
 		mRenderOption = renderOption;
-		mPaintSet.refresh(renderOption);
+		mUiThreadPaintSet.refresh(renderOption);
 
 		if (cmpType == TexasUtils.CmpType.CMP_LOAD) {
 			// 丢弃之前的任务
@@ -496,7 +506,7 @@ public class ParagraphView extends FrameLayout {
 			clearSelection();
 
 			// 提交解析任务
-			ParseWorker.Args args = ParseWorker.Args.obtain(mSource, LoadingStrategy.INIT, mParseListener);
+			ParseWorker.Args args = ParseWorker.Args.obtain(mSource, mParseListener);
 			ParseWorker worker = WorkerScheduler.parse();
 			worker.submit(mRender.getToken(), args);
 		} else if (cmpType == TexasUtils.CmpType.CMP_TYPESET) {
@@ -544,41 +554,6 @@ public class ParagraphView extends FrameLayout {
 	 */
 	public void setOnClickedListener(OnClickedListener onClickedListener) {
 		mOnClickedListener = onClickedListener;
-	}
-
-	/**
-	 * 设置paragraph source
-	 */
-	public static abstract class ParagraphSource extends Source<Paragraph> {
-
-		@Internal
-		private ParagraphView owner;
-
-		@Override
-		protected Paragraph onOpen(LoadingStrategy strategy) throws SourceOpenException {
-			// 选择断字策略
-			Hyphenation hyphenation = null;
-			HyphenStrategy hyphenStrategy = owner.mRenderOption.getHyphenStrategy();
-			if (hyphenStrategy == HyphenStrategy.US) {
-				hyphenation = Hyphenation.getInstance(HyphenationPattern.EN_US);
-			} else if (hyphenStrategy == HyphenStrategy.UK) {
-				hyphenation = Hyphenation.getInstance(HyphenationPattern.EN_GB);
-			} else {
-				throw new IllegalArgumentException("unknown hyphen strategy");
-			}
-
-			TexasOption texasOption = new TexasOption(hyphenation, owner.mMeasurer, owner.mTextAttribute, owner.mRenderOption);
-			return onOpen(texasOption);
-		}
-
-		/**
-		 * see {@link Paragraph.Builder#newBuilder(TexasOption)} for more information
-		 *
-		 * @param option option
-		 * @return paragraph
-		 */
-		@AnyThread
-		protected abstract Paragraph onOpen(TexasOption option);
 	}
 
 	/**
@@ -763,6 +738,13 @@ public class ParagraphView extends FrameLayout {
 		}
 	}
 
+	/**
+	 * 设置paragraph source
+	 */
+	public static abstract class ParagraphSource extends Source<Paragraph> {
+		/* NOOP */
+	}
+
 	private static class TextParagraphSource extends ParagraphSource {
 		private final CharSequence mText;
 		private final int mStart;
@@ -776,7 +758,7 @@ public class ParagraphView extends FrameLayout {
 		}
 
 		@Override
-		protected Paragraph onOpen(TexasOption option) {
+		protected Paragraph onRead(TexasOption option) {
 			if (mParagraph != null) {
 				return mParagraph;
 			}
@@ -784,11 +766,6 @@ public class ParagraphView extends FrameLayout {
 			return mParagraph = Paragraph.Builder.newBuilder(option)
 					.text(mText, mStart, mEnd)
 					.build();
-		}
-
-		@Override
-		protected void onClose() throws SourceCloseException {
-			/* do nothing */
 		}
 	}
 }

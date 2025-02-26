@@ -2,6 +2,7 @@ package me.chan.texas.renderer.selection.visitor;
 
 import android.graphics.RectF;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 
@@ -17,26 +18,20 @@ import me.chan.texas.text.layout.Box;
 public class PredicatesDriveSelectedVisitor extends SelectedVisitor {
 	private ParagraphPredicates mPredicates;
 
-	public void reset(RenderOption renderOption, ParagraphPredicates predicates, Paragraph paragraph, @Nullable Selection.Styles styles) {
+	public void reset(Selection.Type type, RenderOption renderOption, ParagraphPredicates predicates, Paragraph paragraph, @NonNull Selection.Styles styles) {
 		mPredicates = predicates;
 
-		// 如果样式为空，则按照长按的效果来处理
-		if (styles == null) {
-			super.reset(true, paragraph, renderOption);
-			return;
-		}
-
-		super.reset(styles, paragraph, renderOption);
+		super.reset(type, styles, paragraph, renderOption);
 	}
 
 	@Override
 	protected void onVisitParagraphStart(Paragraph paragraph) {
 		if (!mPredicates.acceptParagraph(paragraph.getTag())) {
-			ParagraphSelection prev = paragraph.getSelection();
+			ParagraphSelection prev = paragraph.getSelection(mType);
 			if (prev != null) {
 				prev.recycle();
 			}
-			paragraph.setSelection(null);
+			paragraph.setSelection(mType, null);
 			sendVisitSig(SIG_STOP_PARA_VISIT);
 		}
 	}

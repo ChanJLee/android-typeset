@@ -14,8 +14,6 @@ import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.util.TypedValue;
-import android.view.LayoutInflater;
-import android.view.View;
 import android.widget.FrameLayout;
 
 import androidx.annotation.AnyThread;
@@ -24,7 +22,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.UiThread;
-import androidx.annotation.VisibleForTesting;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -32,33 +29,29 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.ref.WeakReference;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import javax.inject.Inject;
-import javax.inject.Named;
 
 import me.chan.texas.BuildConfig;
 import me.chan.texas.R;
 import me.chan.texas.Texas;
 import me.chan.texas.TexasOption;
-import me.chan.texas.adapter.ParseException;
 import me.chan.texas.di.TexasComponent;
 import me.chan.texas.di.core.TextEngineCoreComponent;
+import me.chan.texas.measurer.MeasureFactory;
+import me.chan.texas.measurer.Measurer;
+import me.chan.texas.misc.PaintSet;
 import me.chan.texas.misc.ResourceManager;
-import me.chan.texas.renderer.core.WorkerScheduler;
 import me.chan.texas.renderer.core.worker.LoadingWorker;
 import me.chan.texas.renderer.selection.Selection;
 import me.chan.texas.renderer.ui.decor.ParagraphDecor;
-import me.chan.texas.renderer.ui.indicator.LoadingIndicator;
-import me.chan.texas.source.ObjectSource;
 import me.chan.texas.source.Source;
-import me.chan.texas.source.SourceOpenException;
 import me.chan.texas.text.BreakStrategy;
 import me.chan.texas.text.Document;
 import me.chan.texas.text.HyphenStrategy;
 import me.chan.texas.text.Segment;
-import me.chan.texas.text.TextStyles;
+import me.chan.texas.text.TextAttribute;
 import me.chan.texas.utils.TexasUtils;
 import me.chan.texas.utils.concurrency.TaskQueue;
 
@@ -124,16 +117,15 @@ public final class TexasView extends FrameLayout {
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
 	public final static Map<String, WeakReference<Typeface>> TYPEFACE_CACHE = new HashMap<>();
 
+	private DocumentSource mSource;
 	private Renderer mRenderer;
 	private RenderListener mRenderListener;
 	private OnClickedListener mOnClickedListener;
-	private Adapter<?> mAdapter;
 	private OnScrollListener mOnScrollListener;
 	private OnDragSelectListener mOnDragSelectListener;
 
-	private LoadingIndicator mTopLoadingIndicator;
-
-	private LoadingIndicator mBottomLoadingIndicator;
+	@Inject
+	MeasureFactory mMeasureFactory;
 
 	public TexasView(Context context, AttributeSet attrs) {
 		this(context, attrs, 0);
@@ -142,6 +134,11 @@ public final class TexasView extends FrameLayout {
 	public TexasView(Context context, AttributeSet attrs, int defStyleAttr) {
 		super(context, attrs, defStyleAttr);
 		init(context, attrs, defStyleAttr);
+
+		TexasComponent texasComponent = Texas.getTexasComponent();
+		TextEngineCoreComponent textEngineCoreComponent = texasComponent.coreComponent().create();
+		textEngineCoreComponent.inject(this);
+
 		checkUIThreadPriority();
 	}
 
@@ -312,27 +309,6 @@ public final class TexasView extends FrameLayout {
 				typedArray.getBoolean(R.styleable.me_chan_texas_TexasView_me_chan_texas_TexasView_compatMode, false)
 		);
 
-		LayoutInflater inflater = LayoutInflater.from(context);
-		int indicatorId = typedArray.getResourceId(R.styleable.me_chan_texas_TexasView_me_chan_texas_TexasView_bottomIndicator,
-				R.layout.me_chan_texas_bottom_loading_indicator);
-		if (indicatorId != NO_ID) {
-			View view = inflater.inflate(indicatorId, this, false);
-			if (!(view instanceof LoadingIndicator)) {
-				throw new IllegalArgumentException("bottom loading indicator should implements me.chan.texas.renderer.ui.indicator.LoadingIndicator");
-			}
-			mBottomLoadingIndicator = (LoadingIndicator) view;
-		}
-
-		indicatorId = typedArray.getResourceId(R.styleable.me_chan_texas_TexasView_me_chan_texas_TexasView_topLoadingIndicator,
-				R.layout.me_chan_texas_top_loading_indicator);
-		if (indicatorId != NO_ID) {
-			View view = inflater.inflate(indicatorId, this, false);
-			if (!(view instanceof LoadingIndicator)) {
-				throw new IllegalArgumentException("top loading indicator should implements me.chan.texas.renderer.ui.indicator.LoadingIndicator");
-			}
-			mTopLoadingIndicator = (LoadingIndicator) view;
-		}
-
 		// 如果开启了非兼容模式，且系统版本小于6.0，关闭硬件加速
 		// {@link me.chan.texas.renderer.core.graphics.TextureScene}
 		if (!renderOption.isCompatMode() && Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
@@ -340,65 +316,26 @@ public final class TexasView extends FrameLayout {
 		}
 
 		mRenderer = new Renderer(this, renderOption, mToken);
+	}
 
-		if (mTopLoadingIndicator != null) {
-			View view = (View) mTopLoadingIndicator;
-			addView(view);
-		}
-
-		if (mBottomLoadingIndicator != null) {
-			View view = (View) mBottomLoadingIndicator;
-			FrameLayout.LayoutParams layoutParams = (LayoutParams) view.getLayoutParams();
-			layoutParams.gravity = android.view.Gravity.BOTTOM;
-			view.setLayoutParams(layoutParams);
-			addView(view, layoutParams);
+	@RestrictTo(RestrictTo.Scope.LIBRARY)
+	public void notifyRenderStart() {
+		if (mRenderListener != null) {
+			mRenderListener.onStart(TexasView.this);
 		}
 	}
 
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
-	public void notifyRenderStart(LoadingStrategy loadingStrategy) {
-		if (loadingStrategy == LoadingStrategy.LOAD_MORE) {
-			if (mBottomLoadingIndicator != null) {
-				mBottomLoadingIndicator.renderLoading();
-			}
-		} else {
-			if (mTopLoadingIndicator != null) {
-				mTopLoadingIndicator.renderLoading();
-			}
-		}
-
+	public void notifyRenderEnd() {
 		if (mRenderListener != null) {
-			mRenderListener.onStart(TexasView.this, loadingStrategy);
+			mRenderListener.onEnd(TexasView.this);
 		}
 	}
 
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
-	public void notifyRenderEnd(LoadingStrategy loadingStrategy) {
-		if (mBottomLoadingIndicator != null) {
-			mBottomLoadingIndicator.dismiss();
-		}
-
-		if (mTopLoadingIndicator != null) {
-			mTopLoadingIndicator.dismiss();
-		}
-
+	public void notifyRenderError(Throwable throwable) {
 		if (mRenderListener != null) {
-			mRenderListener.onEnd(TexasView.this, loadingStrategy);
-		}
-	}
-
-	@RestrictTo(RestrictTo.Scope.LIBRARY)
-	public void notifyRenderError(LoadingStrategy strategy, Throwable throwable) {
-		if (mBottomLoadingIndicator != null) {
-			mBottomLoadingIndicator.dismiss();
-		}
-
-		if (mTopLoadingIndicator != null) {
-			mTopLoadingIndicator.dismiss();
-		}
-
-		if (mRenderListener != null) {
-			mRenderListener.onError(TexasView.this, strategy, throwable);
+			mRenderListener.onError(TexasView.this, throwable);
 		}
 	}
 
@@ -410,12 +347,12 @@ public final class TexasView extends FrameLayout {
 		mRenderer.setSegmentDecoration(segmentDecoration);
 	}
 
-	private void load(String reason, LoadingStrategy loadingStrategy) {
+	private void load(String reason) {
 		if (mRenderer == null) {
 			return;
 		}
 
-		mRenderer.load(reason, getRenderWidth(), loadingStrategy);
+		mRenderer.load(reason, getRenderWidth());
 	}
 
 	@Override
@@ -423,7 +360,7 @@ public final class TexasView extends FrameLayout {
 		super.onSizeChanged(w, h, oldw, oldh);
 		/* render if size changed */
 		if (w != oldw) {
-			mRenderer.typeset("onSizeChanged", getRenderWidth(), LoadingStrategy.TYPESET_ONLY);
+			mRenderer.resize("onSizeChanged", getRenderWidth());
 		}
 	}
 
@@ -449,35 +386,36 @@ public final class TexasView extends FrameLayout {
 	}
 
 	/**
-	 * 设置adapter
+	 * 设置数据源
 	 *
-	 * @param adapter adapter
+	 * @param source source
 	 */
-	public void setAdapter(@NonNull Adapter<?> adapter) {
+	@UiThread
+	public void setSource(@NonNull DocumentSource source) {
 		d("set adapter");
 		if (mRenderer == null) {
 			return;
 		}
 
-		if (mAdapter != null) {
+		if (mSource != null) {
 			d("detach prev adapter");
-			mAdapter.detach();
-			mAdapter = null;
+			mSource.detach();
+			mSource = null;
 		}
 
 		d("bind adapter");
-		mAdapter = adapter;
-		adapter.attach(this);
+		mSource = source;
+		source.attach(this);
+		load("setSource");
 	}
 
 	/**
-	 * 获取当前adapter
-	 *
-	 * @return 当前adapter
+	 * @return 当前数据源
 	 */
 	@Nullable
-	public Adapter<?> getAdapter() {
-		return mAdapter;
+	@RestrictTo(RestrictTo.Scope.LIBRARY)
+	public DocumentSource getSource() {
+		return mSource;
 	}
 
 	/**
@@ -506,9 +444,9 @@ public final class TexasView extends FrameLayout {
 	 */
 	public void release() {
 		i("release");
-		if (mAdapter != null) {
-			mAdapter.detach();
-			mAdapter = null;
+		if (mSource != null) {
+			mSource.detach();
+			mSource = null;
 		}
 		mRenderListener = null;
 		mOnClickedListener = null;
@@ -570,11 +508,11 @@ public final class TexasView extends FrameLayout {
 	/**
 	 * 获取选中信息
 	 *
-	 * @return 选中信息
+	 * @return 选中信息, 默认类型为 {@link Selection.Type#SELECTION}
 	 */
 	@Nullable
 	public Selection getSelection() {
-		return mRenderer == null ? null : mRenderer.getSelection();
+		return getSelection(Selection.Type.SELECTION);
 	}
 
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -631,6 +569,7 @@ public final class TexasView extends FrameLayout {
 
 	/**
 	 * 滚动偏移量
+	 *
 	 * @param dx 水平滚动距离
 	 * @param dy 垂直滚动距离
 	 */
@@ -644,9 +583,23 @@ public final class TexasView extends FrameLayout {
 	 * 高亮paragraph中的文本，只在渲染出document后生效
 	 *
 	 * @param predicates 谓词
+	 * @return 选中区域
 	 */
-	public void highlightParagraphs(ParagraphPredicates predicates) {
-		highlightParagraphs(predicates, false, 0);
+	@Nullable
+	public Selection highlightParagraphs(ParagraphPredicates predicates) {
+		return highlightParagraphs(predicates, null);
+	}
+
+	/**
+	 * 高亮paragraph中的文本，只在渲染出document后生效
+	 *
+	 * @param predicates 谓词
+	 * @param styles     {@link Selection.Styles#create(int, int)}
+	 * @return 选中区域
+	 */
+	@Nullable
+	public Selection highlightParagraphs(ParagraphPredicates predicates, Selection.Styles styles) {
+		return highlightParagraphs(predicates, false, 0, styles);
 	}
 
 	/**
@@ -655,13 +608,29 @@ public final class TexasView extends FrameLayout {
 	 * @param predicates 谓词
 	 * @param scrollTo   是否滚动到高亮区域
 	 * @param offset     滚动偏移
+	 * @return 选中区域
 	 */
-	public void highlightParagraphs(ParagraphPredicates predicates, boolean scrollTo, int offset) {
+	@Nullable
+	public Selection highlightParagraphs(ParagraphPredicates predicates, boolean scrollTo, int offset) {
+		return highlightParagraphs(predicates, scrollTo, offset, null);
+	}
+
+	/**
+	 * 高亮paragraph中的文本，只在渲染出document后生效
+	 *
+	 * @param predicates 谓词
+	 * @param scrollTo   是否滚动到高亮区域
+	 * @param offset     滚动偏移
+	 * @param styles     {@link Selection.Styles#create(int, int)}
+	 * @return 选中区域
+	 */
+	@Nullable
+	public Selection highlightParagraphs(ParagraphPredicates predicates, boolean scrollTo, int offset, Selection.Styles styles) {
 		if (mRenderer == null) {
-			return;
+			return null;
 		}
 
-		mRenderer.highlightParagraphs(predicates, scrollTo, offset);
+		return mRenderer.highlightParagraphs(predicates, scrollTo, offset, styles);
 	}
 
 	/**
@@ -671,6 +640,24 @@ public final class TexasView extends FrameLayout {
 		if (mRenderer != null) {
 			mRenderer.clearHighlight();
 		}
+	}
+
+	/**
+	 * @return 获取高亮区域
+	 */
+	public Selection getHighlight() {
+		return getSelection(Selection.Type.HIGHLIGHT);
+	}
+
+	/**
+	 * 获取选中信息
+	 *
+	 * @param type 选中类型
+	 * @return 选中信息
+	 */
+	@Nullable
+	public Selection getSelection(Selection.Type type) {
+		return mRenderer == null ? null : mRenderer.getSelection(type);
 	}
 
 	public void setSpanTouchEventHandler(SpanTouchEventHandler listener) {
@@ -692,6 +679,7 @@ public final class TexasView extends FrameLayout {
 
 	/**
 	 * 选中文本
+	 * {@link Selection.Styles#create(int, int)}
 	 *
 	 * @param predicates predicate
 	 * @param styles     选中文本的样式，为空就为默认样式 {@link RenderOption#setSelectedByLongClickTextColor(int)} (int)} ...
@@ -699,6 +687,15 @@ public final class TexasView extends FrameLayout {
 	 */
 	@Nullable
 	public Selection selectParagraphs(ParagraphPredicates predicates, @Nullable Selection.Styles styles) {
+		if (styles == null) {
+			RenderOption renderOption = getRendererOption();
+			if (renderOption == null) {
+				return null;
+			}
+
+			styles = Selection.Styles.createFromTouch(renderOption, true);
+			styles.setEnableDrag(true);
+		}
 		return mRenderer == null ? null : mRenderer.selectParagraphs(predicates, styles);
 	}
 
@@ -853,6 +850,15 @@ public final class TexasView extends FrameLayout {
 		}
 	}
 
+	@NonNull
+	TexasOption createTexasOption() {
+		RenderOption option = getRendererOption();
+		PaintSet paintSet = new PaintSet(option);
+		Measurer measurer = mMeasureFactory.create(paintSet);
+		TextAttribute textAttribute = new TextAttribute(measurer);
+		return LoadingWorker.createTexasOption(paintSet, textAttribute, measurer, option);
+	}
+
 	/**
 	 * 渲染监听器
 	 */
@@ -862,14 +868,14 @@ public final class TexasView extends FrameLayout {
 		 *
 		 * @param texasView view
 		 */
-		void onStart(TexasView texasView, LoadingStrategy loadingStrategy);
+		void onStart(TexasView texasView);
 
 		/**
 		 * 渲染结束的时候调用
 		 *
 		 * @param texasView view
 		 */
-		void onEnd(TexasView texasView, LoadingStrategy loadingStrategy);
+		void onEnd(TexasView texasView);
 
 		/**
 		 * 发生错误的时候调用
@@ -877,7 +883,7 @@ public final class TexasView extends FrameLayout {
 		 * @param texasView view
 		 * @param throwable 错误
 		 */
-		void onError(TexasView texasView, LoadingStrategy loadingStrategy, Throwable throwable);
+		void onError(TexasView texasView, Throwable throwable);
 	}
 
 	private static void d(String msg) {
@@ -888,33 +894,12 @@ public final class TexasView extends FrameLayout {
 		Log.i("TexasView", msg);
 	}
 
-	/**
-	 * Adapter
-	 *
-	 * @param <T> Adapter接受的数据类型
-	 */
-	public abstract static class Adapter<T> {
-		private Source<T> mSource;
+	public static abstract class DocumentSource extends Source<Document> {
 		private TexasView mTexasView;
-
-		@Nullable
-		private Document mDocument;
-
-		@Inject
-		@Named("ComputeTask")
-		TaskQueue mComputeTaskQueue;
-
-		public Adapter() {
-			TexasComponent texasComponent = Texas.getTexasComponent();
-			TextEngineCoreComponent textEngineCoreComponent = texasComponent.coreComponent().create();
-			textEngineCoreComponent.inject((TexasView.Adapter<Object>) this);
-		}
 
 		private void attach(@NonNull TexasView view) {
 			mTexasView = view;
-			if (mSource != null) {
-				view.load("adapter attached", LoadingStrategy.INIT);
-			}
+			setLoader(() -> mTexasView.createTexasOption());
 		}
 
 		private void detach() {
@@ -922,116 +907,23 @@ public final class TexasView extends FrameLayout {
 				return;
 			}
 
-			TaskQueue.Token token = mTexasView.mToken;
+			setLoader(null);
 			mTexasView = null;
-			if (mSource != null) {
-				WorkerScheduler.odd().submit(token, mComputeTaskQueue, new Runnable() {
-					@Override
-					public void run() {
-						try {
-							d("source destroy");
-							mSource.close();
-						} catch (Throwable ignore) {
-							/* do nothing */
-						}
-					}
-				});
-			}
 		}
 
-		@UiThread
-		public final void setData(T data) {
-			setSource(new ObjectSource<>(data));
-		}
-
-		@UiThread
-		public final void setSource(Source<T> source) {
-			Source<?> previous = mSource;
-			mSource = source;
-
-			// start load more
-			if (mTexasView != null && previous != mSource) {
-				mTexasView.load("new source", LoadingStrategy.INIT);
-			}
-
-			if (previous != null && previous != source) {
-				try {
-					previous.close();
-				} catch (Throwable ignore) {
-					/* noop */
-				}
-			}
+		@Override
+		protected final Document onRead(TexasOption option) {
+			return onRead(option, mTexasView == null ? null : mTexasView.getDocument());
 		}
 
 		/**
-		 * @param content     内容 {@link Source}
-		 * @param texasOption texas option
-		 * @return 文档
-		 * @throws ParseException 解析错误的时候抛出
+		 * @param option           当前的option
+		 * @param previousDocument 上一次的document
+		 * @return 数据
+		 * <p>
+		 * {@link Document.Builder(Document)} 增量更新内容
 		 */
-		@Nullable
-		@AnyThread
-		protected abstract Document parse(@NonNull T content, TexasOption texasOption) throws ParseException;
-
-		@Nullable
-		@AnyThread
-		protected List<Segment> parseIncremental(@NonNull T content, TexasOption texasOption) throws ParseException {
-			return null;
-		}
-
-		@VisibleForTesting
-		public final Document getDocument(TexasOption option) throws SourceOpenException, ParseException {
-			LoadingWorker.LoadingResult result = getDocument(option, LoadingStrategy.INIT);
-			return result.getDocument();
-		}
-
-		private static final Document EMPTY_DOCUMENT = Document.obtain();
-
-		@NonNull
-		@RestrictTo(RestrictTo.Scope.LIBRARY)
-		public final LoadingWorker.LoadingResult getDocument(TexasOption texasOption, LoadingStrategy loadType) throws SourceOpenException, ParseException {
-			if (mSource == null) {
-				return LoadingWorker.LoadingResult.obtainWithoutContent(loadType, mDocument == null ? EMPTY_DOCUMENT : mDocument);
-			}
-
-			T value = mSource.open(loadType);
-			if (value == null) {
-				return LoadingWorker.LoadingResult.obtainWithoutContent(loadType, mDocument == null ? EMPTY_DOCUMENT : mDocument);
-			}
-
-			if (loadType == LoadingStrategy.INIT) {
-				mDocument = parse(value, texasOption);
-				return LoadingWorker.LoadingResult.obtain(loadType, mDocument);
-			}
-
-			if (mDocument == null) {
-				throw new IllegalStateException("document is null");
-			}
-
-			List<Segment> segments = parseIncremental(value, texasOption);
-			if (segments == null) {
-				return LoadingWorker.LoadingResult.obtainWithoutContent(loadType, mDocument);
-			}
-
-			if (loadType == LoadingStrategy.LOAD_PREVIOUS) {
-				mDocument.insertHead(segments);
-				return LoadingWorker.LoadingResult.obtain(loadType, mDocument, 0, segments.size());
-			} else if (loadType == LoadingStrategy.LOAD_MORE) {
-				int start = mDocument.getSegmentCount();
-				mDocument.insertTail(segments);
-				return LoadingWorker.LoadingResult.obtain(loadType, mDocument, start, start + segments.size());
-			} else {
-				throw new IllegalStateException("unknown load type: " + loadType);
-			}
-		}
-	}
-
-	void scheduleLoadMore() {
-		load("load more", LoadingStrategy.LOAD_MORE);
-	}
-
-	void scheduleLoadPrevious() {
-		load("load previous", LoadingStrategy.LOAD_PREVIOUS);
+		protected abstract Document onRead(TexasOption option, @Nullable Document previousDocument);
 	}
 
 	/**

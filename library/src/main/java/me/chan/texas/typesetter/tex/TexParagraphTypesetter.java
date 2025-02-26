@@ -546,6 +546,13 @@ public class TexParagraphTypesetter extends AbsParagraphTypesetter {
 		public void adjustMaxTolerance(int typesetRound) {
 			maxTolerance = toleranceInterceptor.intercept(maxTolerance, typesetRound);
 		}
+
+		@Override
+		public String toString() {
+			return "TypesetArgs{" +
+					"width=" + width +
+					'}';
+		}
 	}
 
 	private static class Context {
@@ -560,6 +567,14 @@ public class TexParagraphTypesetter extends AbsParagraphTypesetter {
 			this.stream = new ElementStream(args.paragraph);
 			this.total = Sum.obtain();
 			this.args = args;
+		}
+
+		@Override
+		public String toString() {
+			return "Context{" +
+					"total=" + total +
+					", args=" + args +
+					'}';
 		}
 	}
 

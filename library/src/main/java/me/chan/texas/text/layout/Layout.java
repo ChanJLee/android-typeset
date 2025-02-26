@@ -20,6 +20,7 @@ import java.util.List;
 
 public class Layout extends DefaultRecyclable {
 	private static final ObjectPool<Layout> POOL = new ObjectPool<>(Texas.getMemoryOption().getParagraphBufferSize());
+	public static final String ALGORITHM_UNKNOWN = "unknown";
 
 	private final Advise mAdvise = new Advise();
 
@@ -28,7 +29,7 @@ public class Layout extends DefaultRecyclable {
 	private Rect mRect;
 	private float mLineSpace = 0;
 
-	private String mAlgorithm = "unknown";
+	private String mAlgorithm = ALGORITHM_UNKNOWN;
 
 	private Layout() {
 		Texas.MemoryOption memoryOption = Texas.getMemoryOption();
@@ -61,7 +62,7 @@ public class Layout extends DefaultRecyclable {
 		mLineWidth = -1;
 		mAdvise.clear();
 		mRect = null;
-		mAlgorithm = "unknown";
+		mAlgorithm = ALGORITHM_UNKNOWN;
 		POOL.release(this);
 	}
 

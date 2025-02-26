@@ -6,10 +6,12 @@ import android.graphics.Rect;
 
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.recyclerview.widget.RecyclerView;
 
 import me.chan.texas.Texas;
 import me.chan.texas.misc.DefaultRecyclable;
 import me.chan.texas.misc.ObjectPool;
+import me.chan.texas.renderer.ui.TexasRendererAdapter;
 
 /**
  * 插图
@@ -110,5 +112,34 @@ public final class Figure extends DefaultRecyclable implements Segment {
 	@Override
 	public void setRect(Rect rect) {
 		mRect = rect;
+	}
+
+	private RecyclerView.ViewHolder mHolder;
+	private TexasRendererAdapter mAdapter;
+
+	@Override
+	public void attachToWindow(TexasRendererAdapter adapter, RecyclerView.ViewHolder holder) {
+		mAdapter = adapter;
+		mHolder = holder;
+	}
+
+	@Override
+	public void detachFromWindow(TexasRendererAdapter adapter, RecyclerView.ViewHolder holder) {
+		mAdapter = null;
+		mHolder = null;
+	}
+
+	@Override
+	public void requestRedraw() {
+		if (mAdapter == null) {
+			return;
+		}
+
+		mAdapter.updateSegment(mHolder, this);
+	}
+
+	@Override
+	public int getIndex() {
+		return mHolder == null ? -1 : mHolder.getAdapterPosition();
 	}
 }

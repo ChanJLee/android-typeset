@@ -3,18 +3,23 @@ package me.chan.texas.text;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
 import android.graphics.Rect;
+import android.view.View;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
+import androidx.recyclerview.widget.RecyclerView;
 
+import me.chan.texas.R;
 import me.chan.texas.Texas;
 import me.chan.texas.TexasOption;
 import me.chan.texas.misc.DefaultRecyclable;
 import me.chan.texas.misc.ObjectPool;
 import me.chan.texas.renderer.selection.ParagraphSelection;
+import me.chan.texas.renderer.selection.Selection;
+import me.chan.texas.renderer.ui.TexasRendererAdapter;
 import me.chan.texas.renderer.ui.decor.ParagraphDecor;
 import me.chan.texas.text.layout.Element;
 import me.chan.texas.text.layout.Layout;
@@ -89,17 +94,31 @@ public final class Paragraph extends DefaultRecyclable implements Segment {
 
 	private ParagraphSelection mSelection;
 
+	private ParagraphSelection mHighlight;
+
 	private ParagraphDecor mDecor;
 
 	@RestrictTo(LIBRARY)
 	@Nullable
-	public ParagraphSelection getSelection() {
-		return mSelection;
+	public ParagraphSelection getSelection(Selection.Type type) {
+		if (type == Selection.Type.SELECTION) {
+			return mSelection;
+		} else if (type == Selection.Type.HIGHLIGHT) {
+			return mHighlight;
+		} else {
+			throw new IllegalArgumentException("unknown type: " + type);
+		}
 	}
 
 	@RestrictTo(LIBRARY)
-	public void setSelection(ParagraphSelection selection) {
-		mSelection = selection;
+	public void setSelection(Selection.Type type, ParagraphSelection selection) {
+		if (type == Selection.Type.SELECTION) {
+			mSelection = selection;
+		} else if (type == Selection.Type.HIGHLIGHT) {
+			mHighlight = selection;
+		} else {
+			throw new IllegalArgumentException("unknown type: " + type);
+		}
 	}
 
 	private Paragraph(Object tag) {
@@ -129,12 +148,45 @@ public final class Paragraph extends DefaultRecyclable implements Segment {
 			mSelection.recycle();
 			mSelection = null;
 		}
+		if (mHighlight != null) {
+			mHighlight.recycle();
+			mHighlight = null;
+		}
 		POOL.release(this);
 	}
 
 	@Override
 	public int getId() {
 		return mId;
+	}
+
+	private RecyclerView.ViewHolder mHolder;
+	private TexasRendererAdapter mAdapter;
+
+	@Override
+	public void attachToWindow(TexasRendererAdapter adapter, RecyclerView.ViewHolder holder) {
+		mAdapter = adapter;
+		mHolder = holder;
+	}
+
+	@Override
+	public void detachFromWindow(TexasRendererAdapter adapter, RecyclerView.ViewHolder holder) {
+		mAdapter = null;
+		mHolder = null;
+	}
+
+	@Override
+	public void requestRedraw() {
+		if (mAdapter == null) {
+			return;
+		}
+
+		mAdapter.updateSegment(mHolder, this);
+	}
+
+	@Override
+	public int getIndex() {
+		return mHolder == null ? -1 : mHolder.getAdapterPosition();
 	}
 
 	public boolean hasContent() {
@@ -509,7 +561,7 @@ public final class Paragraph extends DefaultRecyclable implements Segment {
 		@RestrictTo(LIBRARY)
 		public final Span read(Token token) {
 			Span span = Span.obtain(mSpan.mText, mSpan.mStart, mSpan.mEnd);
-			span.copy(mSpan);
+			span.copyMeta(mSpan);
 			return span;
 		}
 	}
@@ -531,10 +583,8 @@ public final class Paragraph extends DefaultRecyclable implements Segment {
 		private Span() {
 		}
 
-		public void copy(Span other) {
-			this.mText = other.mText;
-			this.mStart = other.mStart;
-			this.mEnd = other.mEnd;
+		@RestrictTo(LIBRARY)
+		public void copyMeta(Span other) {
 			this.mStyles.copy(other.mStyles);
 			this.mTag = other.mTag;
 		}
@@ -662,6 +712,10 @@ public final class Paragraph extends DefaultRecyclable implements Segment {
 	@NonNull
 	@Override
 	public String toString() {
+		if (mLayout.getLineCount() == 0) {
+			return mTag == null ? super.toString() : mTag.toString();
+		}
+
 		String digest = mLayout.toString();
 		final int max = 16;
 		if (digest.length() > max) {

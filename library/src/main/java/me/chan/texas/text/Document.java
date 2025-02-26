@@ -1,10 +1,12 @@
 package me.chan.texas.text;
 
 import me.chan.texas.Texas;
+import me.chan.texas.utils.ReferenceCountingPointer;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
@@ -13,11 +15,10 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY;
  * 文档
  */
 public final class Document {
-	private List<Segment> mSegments;
+	private ReferenceCountingPointer<List<Segment>> mSegments;
 
-	private Document() {
-		Texas.MemoryOption memoryOption = Texas.getMemoryOption();
-		mSegments = new ArrayList<>(memoryOption.getDocumentSegmentInitialCapacity());
+	private Document(Builder builder) {
+		mSegments = builder.mSegments;
 	}
 
 	/**
@@ -29,7 +30,7 @@ public final class Document {
 			return -1;
 		}
 
-		return mSegments.indexOf(segment);
+		return mSegments.get().indexOf(segment);
 	}
 
 	/**
@@ -38,7 +39,7 @@ public final class Document {
 	 * @return 段落数目
 	 */
 	public int getSegmentCount() {
-		return mSegments == null ? 0 : mSegments.size();
+		return mSegments == null ? 0 : mSegments.get().size();
 	}
 
 	/**
@@ -50,7 +51,7 @@ public final class Document {
 	 *                                   (<tt>index &lt; 0 || index &gt;= size()</tt>)
 	 */
 	public Segment getSegment(int index) {
-		return mSegments.get(index);
+		return mSegments.get().get(index);
 	}
 
 	@RestrictTo(LIBRARY)
@@ -59,36 +60,93 @@ public final class Document {
 		mSegments = null;
 	}
 
-	public static Document obtain() {
-		return new Document();
-	}
-
-	@RestrictTo(LIBRARY)
-	public void insertHead(List<Segment> segments) {
-		segments.addAll(mSegments);
-		mSegments = segments;
-	}
-
-	@RestrictTo(LIBRARY)
-	public void insertTail(List<Segment> segments) {
-		mSegments.addAll(segments);
-	}
-
-	public void addSegment(Segment segment) {
-		mSegments.add(segment);
-	}
-
 	@RestrictTo(LIBRARY)
 	public void clear() {
-		if (mSegments == null || mSegments.isEmpty()) {
-			return;
+		mSegments.release();
+	}
+
+	@RestrictTo(LIBRARY)
+	public boolean isCopy() {
+		return mSegments.getRefCount() > 1;
+	}
+
+	public static class Builder {
+		private final ReferenceCountingPointer<List<Segment>> mSegments;
+
+		/**
+		 * 拷贝这个document的内容，并且可以编辑
+		 *
+		 * @param document document
+		 */
+		public Builder(@Nullable Document document) {
+			mSegments = new ReferenceCountingPointer<List<Segment>>(document.mSegments) {
+				@Override
+				protected List<Segment> onAcquire(List<Segment> value) {
+					return new ArrayList<>(value);
+				}
+			};
 		}
 
-		final int count = mSegments.size();
-		for (int i = 0; i < count; ++i) {
-			Segment segment = mSegments.get(i);
-			segment.recycle();
+		public Builder() {
+			Texas.MemoryOption memoryOption = Texas.getMemoryOption();
+			mSegments = new ReferenceCountingPointer<>(new ArrayList<>(memoryOption.getDocumentSegmentInitialCapacity()), segments -> {
+				final int count = segments.size();
+				for (int i = 0; i < count; ++i) {
+					Segment segment = segments.get(i);
+					segment.recycle();
+				}
+			});
 		}
-		mSegments.clear();
+
+		public Builder addSegment(Segment segment) {
+			mSegments.get().add(segment);
+			return this;
+		}
+
+		public Builder addSegment(int index, Segment segment) {
+			mSegments.get().add(index, segment);
+			return this;
+		}
+
+		public Builder addSegments(int index, List<Segment> segments) {
+			mSegments.get().addAll(index, segments);
+			return this;
+		}
+
+		public Builder addSegments(List<Segment> segments) {
+			mSegments.get().addAll(segments);
+			return this;
+		}
+
+		public Builder removeSegment(int index) {
+			mSegments.get().remove(index);
+			return this;
+		}
+
+		public Builder removeSegment(Segment segment) {
+			mSegments.get().remove(segment);
+			return this;
+		}
+
+		public Builder updateSegment(int index, Segment segment) {
+			mSegments.get().set(index, segment);
+			return this;
+		}
+
+		public Segment getSegment(int index) {
+			return mSegments.get().get(index);
+		}
+
+		public int getSegmentCount() {
+			return mSegments.get().size();
+		}
+
+		public int indexOfSegment(Segment segment) {
+			return mSegments.get().indexOf(segment);
+		}
+
+		public Document build() {
+			return new Document(this);
+		}
 	}
 }
