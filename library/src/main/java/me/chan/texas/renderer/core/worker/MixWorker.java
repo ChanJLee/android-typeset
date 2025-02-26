@@ -42,6 +42,7 @@ import me.chan.texas.text.layout.Glue;
 import me.chan.texas.text.layout.Layout;
 import me.chan.texas.text.layout.Line;
 import me.chan.texas.text.layout.Penalty;
+import me.chan.texas.utils.IntSet;
 import me.chan.texas.utils.concurrency.TaskQueue;
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -125,7 +126,7 @@ public class MixWorker implements TaskQueue.Listener<MixWorker.Args, MixWorker.T
 		final Document prev = args.prev == null ? new Document.Builder().build() : args.prev;
 		DiffUtil.DiffResult diff = diff(prev, args.document);
 
-		typesetDocument(token, args.outWidth, args.document, args.option, args.segmentDecoration, diff);
+		typesetDocument(token, args.outWidth, args.prev, args.document, args.option, args.segmentDecoration);
 
 		if (DEBUG) {
 			d("typeset used time: " + (SystemClock.elapsedRealtime() - parseTimestamp));
@@ -162,79 +163,29 @@ public class MixWorker implements TaskQueue.Listener<MixWorker.Args, MixWorker.T
 			public boolean areContentsTheSame(int oldItemPosition, int newItemPosition) {
 				return areItemsTheSame(oldItemPosition, newItemPosition);
 			}
-		}, true);
+		}, false);
 	}
 
 	private void typesetDocument(TaskQueue.Token token,
 								 final int outWidth,
+								 Document prev,
 								 Document document,
 								 TexasOption option,
-								 TexasView.SegmentDecoration segmentDecoration,
-								 DiffUtil.DiffResult diff) throws Throwable {
+								 TexasView.SegmentDecoration segmentDecoration) throws Throwable {
 		RenderOption renderOption = option.getRenderOption();
-
-		diff.dispatchUpdatesTo(new ListUpdateCallback() {
-			@Override
-			public void onInserted(int position, int count) {
-				if (token.isExpired()) {
-					return;
-				}
-
-				try {
-					typesetSegments(token, outWidth, document, option, segmentDecoration, position, position + count);
-				} catch (Throwable ignore) {
-					/* NOOP */
-				}
-			}
-
-			@Override
-			public void onRemoved(int position, int count) {
-				/* NOOP */
-			}
-
-			@Override
-			public void onMoved(int fromPosition, int toPosition) {
-				/* NOOP */
-			}
-
-			@Override
-			public void onChanged(int position, int count, @Nullable Object payload) {
-				if (token.isExpired()) {
-					return;
-				}
-
-				try {
-					typesetSegments(token, outWidth, document, option, segmentDecoration, position, position + count);
-				} catch (Throwable ignore) {
-					/* NOOP */
-				}
-			}
-		});
-
-		if (token.isExpired()) {
-			throw new TaskQueue.TokenExpiredException("stop typeset document, reason: token expired", token);
-		}
-
-		if (renderOption.isEnableDebug()) {
-			analyzeDocument(document);
-		}
-	}
-
-	private void typesetSegments(
-			TaskQueue.Token token,
-			final int outWidth,
-			Document document,
-			TexasOption option,
-			TexasView.SegmentDecoration segmentDecoration,
-			int start, int end) throws Throwable {
 		int size = document.getSegmentCount();
-		RenderOption renderOption = option.getRenderOption();
 		Measurer measurer = option.getMeasurer();
 		TextAttribute textAttribute = option.getTextAttribute();
 
+		IntSet diff = createDocumentIdSet(prev);
+
 		// typeset
-		for (int i = start; i < end && !token.isExpired(); ++i) {
+		for (int i = 0; i < size && !token.isExpired(); ++i) {
 			Segment segment = document.getSegment(i);
+			if (diff.contains(segment.getId())) {
+				continue;
+			}
+
 			int width = outWidth;
 
 			// avoid recreate
@@ -260,6 +211,29 @@ public class MixWorker implements TaskQueue.Listener<MixWorker.Args, MixWorker.T
 				throw new RuntimeException("unknown segment type");
 			}
 		}
+
+		if (token.isExpired()) {
+			throw new TaskQueue.TokenExpiredException("stop typeset document, reason: token expired", token);
+		}
+
+		if (renderOption.isEnableDebug()) {
+			analyzeDocument(document);
+		}
+	}
+
+	private static IntSet createDocumentIdSet(Document document) {
+		IntSet set = new IntSet();
+		if (document == null) {
+			return set;
+		}
+
+		int size = document.getSegmentCount();
+		for (int i = 0; i < size; ++i) {
+			Segment segment = document.getSegment(i);
+			set.add(segment.getId());
+		}
+
+		return set;
 	}
 
 	private static void analyzeDocument(Document document) {
@@ -361,7 +335,7 @@ public class MixWorker implements TaskQueue.Listener<MixWorker.Args, MixWorker.T
 		private final Listener listener;
 		private final TexasView.SegmentDecoration segmentDecoration;
 
-		public Args(int outWidth, TexasOption option, Document prev, Document document, Listener listener, TexasView.SegmentDecoration segmentDecoration) {
+		public Args(int outWidth, TexasOption option, Document prev /* 不为空的话就是增量更新 */, Document document, Listener listener, TexasView.SegmentDecoration segmentDecoration) {
 			this.outWidth = outWidth;
 			this.option = option;
 			this.prev = prev;

@@ -42,4 +42,8 @@ public abstract class ReferenceCountingPointer<T> {
 	protected T onAcquire(T value) {
 		return value;
 	}
+
+	public int getRefCount() {
+		return mRefCount.get();
+	}
 }
