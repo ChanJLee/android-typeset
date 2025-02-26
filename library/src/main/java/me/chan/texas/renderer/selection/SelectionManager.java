@@ -21,7 +21,6 @@ import me.chan.texas.renderer.selection.overlay.DragSelectView;
 import me.chan.texas.renderer.selection.visitor.SelectedTextByClickedVisitor;
 import me.chan.texas.renderer.selection.visitor.SelectedTextByDragVisitor;
 import me.chan.texas.renderer.selection.visitor.PredicatesDriveSelectedVisitor;
-import me.chan.texas.renderer.ui.RendererAdapterImpl;
 import me.chan.texas.renderer.ui.TexasRendererAdapter;
 import me.chan.texas.renderer.ui.rv.TexasLayoutManager;
 import me.chan.texas.renderer.ui.rv.TexasRecyclerView;
@@ -44,6 +43,7 @@ import me.chan.texas.text.layout.Box;
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class SelectionManager implements OnSelectedChangedListener {
 	private Selection mCurrentSelection;
+	private Selection mCurrentHighlightSelection;
 
 	private final TexasRendererAdapter mAdapter;
 	private final TexasLayoutManager mLayoutManager;
@@ -108,12 +108,23 @@ public class SelectionManager implements OnSelectedChangedListener {
 		mSpanTouchEventHandler = listener;
 	}
 
+	@Nullable
+	public Selection getCurrentSelection() {
+		return getCurrentSelection(Selection.Type.SELECTION);
+	}
+
 	/**
 	 * @return 获取当前的选中信息
 	 */
 	@Nullable
-	public Selection getCurrentSelection() {
-		return mCurrentSelection;
+	public Selection getCurrentSelection(Selection.Type type) {
+		if (type == Selection.Type.SELECTION) {
+			return mCurrentSelection;
+		} else if (type == Selection.Type.HIGHLIGHT) {
+			return mCurrentHighlightSelection;
+		}
+
+		throw new IllegalArgumentException("Unknown selection type: " + type);
 	}
 
 	@Override
@@ -206,8 +217,10 @@ public class SelectionManager implements OnSelectedChangedListener {
 											Object boxTag,
 											int index) throws ParagraphVisitor.VisitException {
 		try {
+			Selection.Styles styles = Selection.Styles.createFromTouch(mAdapter.getRenderOption(), isLongClicked);
 			mSelectedTextByClickedVisitor.reset(
-					isLongClicked,
+					Selection.Type.SELECTION,
+					styles,
 					paragraph,
 					renderOption
 			);
@@ -215,7 +228,9 @@ public class SelectionManager implements OnSelectedChangedListener {
 			mSelectedTextByClickedVisitor.startVisit(
 					paragraph
 			);
-			handleParagraphSelected(paragraph, index);
+
+			handleParagraphSelected(paragraph, styles);
+
 			return mSelectedTextByClickedVisitor.isHandled();
 		} finally {
 			mSelectedTextByClickedVisitor.clear();
@@ -293,7 +308,7 @@ public class SelectionManager implements OnSelectedChangedListener {
 
 		RenderOption renderOption = mAdapter.getRenderOption();
 
-		Selection currentSelection = Selection.obtain(mContentView);
+		Selection currentSelection = Selection.obtain(mCurrentSelection.getType(), mContentView, prevSelection.getStyles());
 		for (int i = firstVisibleItemPosition; i <= lastVisibleItemPosition; ++i) {
 			TextureParagraph textureParagraph = mLayoutManager.findTextureParagraphByPosition(i);
 			if (textureParagraph == null) {
@@ -311,7 +326,7 @@ public class SelectionManager implements OnSelectedChangedListener {
 
 			try {
 				Paragraph paragraph = textureParagraph.getParagraph();
-				mSelectedTextByDragVisitor.reset(true, paragraph, renderOption);
+				mSelectedTextByDragVisitor.reset(mCurrentSelection.getType(), mCurrentSelection.getStyles(), paragraph, renderOption);
 				float tempX1 = x1 - mLocations[0];
 				float tempY1 = y1 - mLocations[1];
 				float tempX2 = x2 - mLocations[0];
@@ -344,7 +359,8 @@ public class SelectionManager implements OnSelectedChangedListener {
 		mSelectionDiffBucket.clear();
 		for (int i = 0; i < currentSelection.size(); ++i) {
 			Paragraph paragraph = currentSelection.getParagraph(i);
-			int index = mAdapter.sendSignal(paragraph, TexasRendererAdapter.SIG_SELECTION_CHANGED);
+			paragraph.requestRedraw();
+			int index = mAdapter.indexOf(paragraph);
 			if (index < 0) {
 				continue;
 			}
@@ -359,9 +375,9 @@ public class SelectionManager implements OnSelectedChangedListener {
 					ParagraphSelection paragraphSelection = prevSelection.getParagraphSelection(paragraph);
 					if (paragraphSelection != null) {
 						paragraphSelection.recycle();
-						paragraph.setSelection(null);
+						paragraph.setSelection(Selection.Type.SELECTION, null);
 					}
-					mAdapter.sendSignal(index, RendererAdapterImpl.SIG_SELECTION_CHANGED);
+					paragraph.requestRedraw();
 				}
 			}
 			prevSelection.recycle();
@@ -395,7 +411,7 @@ public class SelectionManager implements OnSelectedChangedListener {
 	 * @return 选中区域
 	 */
 	@Nullable
-	public Selection selectParagraphs(ParagraphPredicates predicates, @Nullable Selection.Styles styles) {
+	public Selection selectParagraphs(ParagraphPredicates predicates, @NonNull Selection.Styles styles) {
 		Document document = mAdapter.getDocument();
 		clearSelection();
 
@@ -405,26 +421,26 @@ public class SelectionManager implements OnSelectedChangedListener {
 				continue;
 			}
 
-			selectParagraph((Paragraph) segment, predicates, i, styles);
+			selectParagraph((Paragraph) segment, predicates, styles);
 		}
 
-		if (styles == null || styles.isEnableDrag()) {
+		if (styles.isEnableDrag()) {
 			notifyUpdateSelectionDropView();
 		}
 
 		return mCurrentSelection;
 	}
 
-	private void selectParagraph(Paragraph paragraph, ParagraphPredicates predicates, int index, @Nullable Selection.Styles styles) {
+	private void selectParagraph(Paragraph paragraph, ParagraphPredicates predicates, @NonNull Selection.Styles styles) {
 		if (paragraph == null) {
 			return;
 		}
 
 		try {
 			RenderOption renderOption = mAdapter.getRenderOption();
-			mPredicatesDriveSelectedVisitor.reset(renderOption, predicates, paragraph, styles);
+			mPredicatesDriveSelectedVisitor.reset(Selection.Type.SELECTION, renderOption, predicates, paragraph, styles);
 			mPredicatesDriveSelectedVisitor.startVisit(paragraph);
-			handleParagraphSelected(paragraph, index);
+			handleParagraphSelected(paragraph, styles);
 		} catch (ParagraphVisitor.VisitException ignored) {
 			/* do nothing */
 		} finally {
@@ -433,7 +449,7 @@ public class SelectionManager implements OnSelectedChangedListener {
 	}
 
 	private void addParagraphSelection(Selection selection, Paragraph paragraph) {
-		ParagraphSelection paragraphSelection = paragraph.getSelection();
+		ParagraphSelection paragraphSelection = paragraph.getSelection(selection.getType());
 		if (paragraphSelection != null) {
 			selection.add(paragraph);
 		}
@@ -443,22 +459,16 @@ public class SelectionManager implements OnSelectedChangedListener {
 	 * 处理 paragraph 被选中
 	 *
 	 * @param paragraph paragraph
-	 * @param index     index
 	 */
-	private void handleParagraphSelected(Paragraph paragraph, int index) {
+	private void handleParagraphSelected(Paragraph paragraph, Selection.Styles styles) {
 		if (mCurrentSelection == null) {
-			mCurrentSelection = Selection.obtain(mContentView);
-		}
-
-		if (index < 0) {
-			Document document = mAdapter.getDocument();
-			index = document.indexOfSegment(paragraph);
+			mCurrentSelection = Selection.obtain(Selection.Type.SELECTION, mContentView, styles);
 		}
 
 		addParagraphSelection(mCurrentSelection, paragraph);
 
 		try {
-			mAdapter.sendSignal(index, RendererAdapterImpl.SIG_SELECTION_CHANGED);
+			paragraph.requestRedraw();
 		} catch (Throwable ignore) {
 			/* do nothing */
 		}
@@ -474,6 +484,16 @@ public class SelectionManager implements OnSelectedChangedListener {
 
 	public void updateRenderOption(RenderOption renderOption) {
 		mDropView.setColor(renderOption.getDragViewColor());
+
+		if (mCurrentSelection != null) {
+			Selection.Styles styles = mCurrentSelection.getStyles();
+			styles.update(renderOption);
+		}
+
+		if (mCurrentHighlightSelection != null) {
+			Selection.Styles styles = mCurrentHighlightSelection.getStyles();
+			styles.update(renderOption);
+		}
 	}
 
 	public void autoScrollUp() {
@@ -496,6 +516,67 @@ public class SelectionManager implements OnSelectedChangedListener {
 
 	public SpanTouchEventHandler getSpanTouchEventHandler() {
 		return mSpanTouchEventHandler;
+	}
+
+	public Selection highlightParagraphs(ParagraphPredicates predicates, Selection.Styles styles) {
+		Document document = mAdapter.getDocument();
+		clearHighlight();
+
+		for (int i = 0; i < document.getSegmentCount(); ++i) {
+			Segment segment = document.getSegment(i);
+			if (!(segment instanceof Paragraph)) {
+				continue;
+			}
+
+			highlightParagraph((Paragraph) segment, predicates, styles);
+		}
+
+		return mCurrentHighlightSelection;
+	}
+
+	private void highlightParagraph(Paragraph paragraph, ParagraphPredicates predicates, @NonNull Selection.Styles styles) {
+		if (paragraph == null) {
+			return;
+		}
+
+		try {
+			RenderOption renderOption = mAdapter.getRenderOption();
+			mPredicatesDriveSelectedVisitor.reset(Selection.Type.HIGHLIGHT, renderOption, predicates, paragraph, styles);
+			mPredicatesDriveSelectedVisitor.startVisit(paragraph);
+			handleParagraphHighlighted(paragraph, styles);
+		} catch (ParagraphVisitor.VisitException ignored) {
+			/* do nothing */
+		} finally {
+			mPredicatesDriveSelectedVisitor.clear();
+		}
+	}
+
+	private void handleParagraphHighlighted(Paragraph paragraph, Selection.Styles styles) {
+		if (mCurrentHighlightSelection == null) {
+			mCurrentHighlightSelection = Selection.obtain(Selection.Type.HIGHLIGHT, mContentView, styles);
+		}
+
+		addParagraphHighlight(mCurrentHighlightSelection, paragraph);
+
+		try {
+			paragraph.requestRedraw();
+		} catch (Throwable ignore) {
+			/* do nothing */
+		}
+	}
+
+	private void addParagraphHighlight(Selection selection, Paragraph paragraph) {
+		ParagraphSelection paragraphSelection = paragraph.getSelection(selection.getType());
+		if (paragraphSelection != null) {
+			selection.add(paragraph);
+		}
+	}
+
+	public void clearHighlight() {
+		if (mCurrentHighlightSelection != null) {
+			mCurrentHighlightSelection.clear();
+			mCurrentHighlightSelection = null;
+		}
 	}
 
 	public interface Listener {

@@ -122,14 +122,6 @@ public class TexasRecyclerViewImpl extends RecyclerView implements TexasRecycler
 		return adapter == null ? null : adapter.getDocument();
 	}
 
-	@Override
-	public void sendSignal(Segment segment, Object sig) {
-		TexasRendererAdapter adapter = (TexasRendererAdapter) getAdapter();
-		if (adapter != null) {
-			adapter.sendSignal(segment, sig);
-		}
-	}
-
 	public void allowHandleTouchEvent() {
 		mDisallowHandleTouchEvent = false;
 	}

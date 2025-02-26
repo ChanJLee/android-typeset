@@ -20,8 +20,5 @@ public class MyApplication extends Application {
 		Texas.init(this, memoryOption);
 		Texas.setTDMSEnable(true);
 		Texas.setDefaultTypeface(Typeface.createFromAsset(getAssets(), "opposans_r.ttf"));
-
-		LocaleListCompat appLocale = LocaleListCompat.forLanguageTags("ar");
-		AppCompatDelegate.setApplicationLocales(appLocale);
 	}
 }

@@ -11,6 +11,9 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
+            android:name="me.chan.texas.EditableParagraphViewActivity"
+            android:exported="false" />
+        <activity
             android:name="me.chan.texas.LoadingIndicatorActivity"
             android:exported="false" />
         <activity

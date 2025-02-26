@@ -3,6 +3,7 @@ package me.chan.texas.text;
 import android.graphics.drawable.ColorDrawable;
 
 import me.chan.texas.TestUtils;
+import me.chan.texas.misc.PaintSet;
 import me.chan.texas.test.mock.MockTextPaint;
 
 import me.chan.texas.Texas;
@@ -30,12 +31,15 @@ public class ParagraphUnitTest {
 
 	private Measurer mMeasurer;
 	private TextAttribute mTextAttribute;
+	private PaintSet mPaintSet;
 
 
 	@Before
 	public void setup() {
-		mMeasurer = new MockMeasurer(new MockTextPaint(20));
+		MockTextPaint mockTextPaint = new MockTextPaint(20);
+		mMeasurer = new MockMeasurer(mockTextPaint);
 		mTextAttribute = new TextAttribute(mMeasurer);
+		mPaintSet = new PaintSet(mockTextPaint);
 	}
 
 	@Test
@@ -75,7 +79,7 @@ public class ParagraphUnitTest {
 	@Test
 	public void testBuilder() {
 		String msg = "hello";
-		TexasOption texasOption = new TexasOption(Hyphenation.getInstance(), mMeasurer, mTextAttribute, new RenderOption());
+		TexasOption texasOption = new TexasOption(mPaintSet, Hyphenation.getInstance(), mMeasurer, mTextAttribute, new RenderOption());
 		Paragraph.Builder builder = Paragraph.Builder.newBuilder(texasOption);
 		builder.lineSpace(2);
 		Paragraph paragraph = builder.build();
@@ -188,7 +192,7 @@ public class ParagraphUnitTest {
 
 	@Test
 	public void testStream() {
-		TexasOption texasOption = new TexasOption(Hyphenation.getInstance(), mMeasurer, mTextAttribute, new RenderOption());
+		TexasOption texasOption = new TexasOption(mPaintSet, Hyphenation.getInstance(), mMeasurer, mTextAttribute, new RenderOption());
 		Paragraph.Builder builder = Paragraph.Builder.newBuilder(texasOption);
 
 		mIndex = 0;
@@ -204,7 +208,7 @@ public class ParagraphUnitTest {
 
 	@Test
 	public void testTextPenaltyWithTag() {
-		TexasOption texasOption = new TexasOption(Hyphenation.getInstance(), mMeasurer, mTextAttribute, new RenderOption());
+		TexasOption texasOption = new TexasOption(mPaintSet, Hyphenation.getInstance(), mMeasurer, mTextAttribute, new RenderOption());
 		Paragraph.Builder builder = Paragraph.Builder.newBuilder(texasOption);
 
 		mIndex = 0;
@@ -233,7 +237,7 @@ public class ParagraphUnitTest {
 
 	@Test
 	public void testTextPenaltyWithoutTag() {
-		TexasOption texasOption = new TexasOption(Hyphenation.getInstance(), mMeasurer, mTextAttribute, new RenderOption());
+		TexasOption texasOption = new TexasOption(mPaintSet, Hyphenation.getInstance(), mMeasurer, mTextAttribute, new RenderOption());
 		Paragraph.Builder builder = Paragraph.Builder.newBuilder(texasOption);
 
 		mIndex = 0;
@@ -262,7 +266,7 @@ public class ParagraphUnitTest {
 
 	@Test
 	public void testWordSent() {
-		TexasOption texasOption = new TexasOption(Hyphenation.getInstance(), mMeasurer, mTextAttribute, new RenderOption());
+		TexasOption texasOption = new TexasOption(mPaintSet, Hyphenation.getInstance(), mMeasurer, mTextAttribute, new RenderOption());
 		Glue blank = Glue.obtain(mTextAttribute);
 
 		{
@@ -341,7 +345,7 @@ public class ParagraphUnitTest {
 
 	@Test
 	public void testSymbolSent() {
-		TexasOption texasOption = new TexasOption(Hyphenation.getInstance(), mMeasurer, mTextAttribute, new RenderOption());
+		TexasOption texasOption = new TexasOption(mPaintSet, Hyphenation.getInstance(), mMeasurer, mTextAttribute, new RenderOption());
 		Glue blank = Glue.obtain(mTextAttribute);
 
 		testSymbolSent2();
@@ -379,7 +383,7 @@ public class ParagraphUnitTest {
 	}
 
 	private void testSymbolSent1() {
-		TexasOption texasOption = new TexasOption(Hyphenation.getInstance(), mMeasurer, mTextAttribute, new RenderOption());
+		TexasOption texasOption = new TexasOption(mPaintSet, Hyphenation.getInstance(), mMeasurer, mTextAttribute, new RenderOption());
 		Glue blank = Glue.obtain(mTextAttribute);
 
 		{
@@ -676,7 +680,7 @@ public class ParagraphUnitTest {
 	}
 
 	private void testSymbolSent2() {
-		TexasOption texasOption = new TexasOption(Hyphenation.getInstance(), mMeasurer, mTextAttribute, new RenderOption());
+		TexasOption texasOption = new TexasOption(mPaintSet, Hyphenation.getInstance(), mMeasurer, mTextAttribute, new RenderOption());
 		Glue blank = Glue.obtain(mTextAttribute);
 
 		Paragraph.Builder builder = Paragraph.Builder.newBuilder(texasOption);
@@ -708,7 +712,7 @@ public class ParagraphUnitTest {
 
 	@Test
 	public void testUnknownSent() {
-		TexasOption texasOption = new TexasOption(Hyphenation.getInstance(), mMeasurer, mTextAttribute, new RenderOption());
+		TexasOption texasOption = new TexasOption(mPaintSet, Hyphenation.getInstance(), mMeasurer, mTextAttribute, new RenderOption());
 		Glue blank = Glue.obtain(mTextAttribute);
 
 		{
@@ -770,7 +774,7 @@ public class ParagraphUnitTest {
 
 	@Test
 	public void testBlankSent() {
-		TexasOption texasOption = new TexasOption(Hyphenation.getInstance(), mMeasurer, mTextAttribute, new RenderOption());
+		TexasOption texasOption = new TexasOption(mPaintSet, Hyphenation.getInstance(), mMeasurer, mTextAttribute, new RenderOption());
 		Glue blank = Glue.obtain(mTextAttribute);
 
 		{
@@ -823,7 +827,6 @@ public class ParagraphUnitTest {
 			paragraph = builder.build();
 			checkContent(paragraph, "😜", Penalty.ADVISE_BREAK, "😜", blank, "yes", Glue.TERMINAL, Penalty.FORCE_BREAK);
 
-			// todo symbol test
 			builder = Paragraph.Builder.newBuilder(texasOption);
 			builder.text("😜😜 《");
 			paragraph = builder.build();
@@ -986,7 +989,7 @@ public class ParagraphUnitTest {
 
 	@Test
 	public void testParagraph() {
-		TexasOption texasOption = new TexasOption(Hyphenation.getInstance(), mMeasurer, mTextAttribute, new RenderOption());
+		TexasOption texasOption = new TexasOption(mPaintSet, Hyphenation.getInstance(), mMeasurer, mTextAttribute, new RenderOption());
 		Paragraph.Builder builder = Paragraph.Builder.newBuilder(texasOption);
 		String msg = "xxx";
 		builder.tag(msg);
@@ -1062,7 +1065,7 @@ public class ParagraphUnitTest {
 
 	@Test
 	public void testForDebug() {
-		TexasOption texasOption = new TexasOption(Hyphenation.getInstance(), mMeasurer, mTextAttribute, new RenderOption());
+		TexasOption texasOption = new TexasOption(mPaintSet, Hyphenation.getInstance(), mMeasurer, mTextAttribute, new RenderOption());
 		Paragraph.Builder builder = Paragraph.Builder.newBuilder(texasOption);
 
 		builder.text("we can't help it even now, you see — and I shouldn't like elegant society and you would, and you'd hate my scribbling");
@@ -1072,11 +1075,51 @@ public class ParagraphUnitTest {
 
 	@Test
 	public void testForDebug2() {
-		TexasOption texasOption = new TexasOption(Hyphenation.getInstance(), mMeasurer, mTextAttribute, new RenderOption());
+		TexasOption texasOption = new TexasOption(mPaintSet, Hyphenation.getInstance(), mMeasurer, mTextAttribute, new RenderOption());
 		Paragraph.Builder builder = Paragraph.Builder.newBuilder(texasOption);
 
 		builder.text("cos-triangleok");
 		Paragraph paragraph = builder.build();
 		Assert.assertNotNull(paragraph);
+	}
+
+	@Test
+	public void testBuilderDisableHyphen() {
+		RenderOption renderOption = new RenderOption();
+		renderOption.setBreakStrategy(BreakStrategy.SIMPLE);
+
+		TexasOption texasOption = new TexasOption(mPaintSet, Hyphenation.getInstance(), mMeasurer, mTextAttribute, renderOption);
+		Paragraph.Builder builder = Paragraph.Builder.newBuilder(texasOption);
+		builder.text("triangle");
+		Paragraph paragraph = builder.build();
+		Assert.assertEquals(3, paragraph.getElementCount());
+		Assert.assertEquals("triangle", paragraph.getElement(0).toString());
+		Assert.assertEquals(Glue.TERMINAL, paragraph.getElement(1));
+		Assert.assertEquals(Penalty.FORCE_BREAK, paragraph.getElement(2));
+
+		renderOption.setBreakStrategy(BreakStrategy.BALANCED);
+		texasOption = new TexasOption(mPaintSet, Hyphenation.getInstance(), mMeasurer, mTextAttribute, renderOption);
+		builder = Paragraph.Builder.newBuilder(texasOption);
+		builder.text("triangle");
+		paragraph = builder.build();
+		Assert.assertEquals(7, paragraph.getElementCount());
+		Assert.assertEquals("tri", paragraph.getElement(0).toString());
+		Penalty penalty = (Penalty) paragraph.getElement(1);
+		Assert.assertTrue(penalty.isFlag());
+		Assert.assertEquals("an", paragraph.getElement(2).toString());
+		penalty = (Penalty) paragraph.getElement(3);
+		Assert.assertTrue(penalty.isFlag());
+		Assert.assertEquals("gle", paragraph.getElement(4).toString());
+		Assert.assertEquals(Glue.TERMINAL, paragraph.getElement(5));
+		Assert.assertEquals(Penalty.FORCE_BREAK, paragraph.getElement(6));
+
+		builder = Paragraph.Builder.newBuilder(texasOption)
+				.breakStrategy(BreakStrategy.SIMPLE);
+		builder.text("triangle");
+		paragraph = builder.build();
+		Assert.assertEquals(3, paragraph.getElementCount());
+		Assert.assertEquals("triangle", paragraph.getElement(0).toString());
+		Assert.assertEquals(Glue.TERMINAL, paragraph.getElement(1));
+		Assert.assertEquals(Penalty.FORCE_BREAK, paragraph.getElement(2));
 	}
 }

@@ -26,30 +26,20 @@ public abstract class SelectedVisitor extends ParagraphVisitor {
 	private RectF mRectF;
 	private float mLastLineBottom;
 	private float mLastLineTop;
+	protected Selection.Type mType;
 
 	protected RenderOption mRenderOption;
-
-	/**
-	 * @param isLongClicked 是否长按
-	 * @param renderOption  render option
-	 */
-	public void reset(boolean isLongClicked, Paragraph paragraph, RenderOption renderOption) {
-		if (mSelection != null) {
-			throw new IllegalStateException("missing call clear before reuse visitor?");
-		}
-		mSelection = ParagraphSelection.obtain(isLongClicked, paragraph);
-		mRenderOption = renderOption;
-	}
 
 	/**
 	 * @param styles       styles
 	 * @param renderOption render option
 	 */
-	public void reset(Selection.Styles styles, Paragraph paragraph, RenderOption renderOption) {
+	public void reset(Selection.Type type, Selection.Styles styles, Paragraph paragraph, RenderOption renderOption) {
 		if (mSelection != null) {
 			throw new IllegalStateException("missing call clear before reuse visitor?");
 		}
-		mSelection = ParagraphSelection.obtain(styles, paragraph);
+		mType = type;
+		mSelection = ParagraphSelection.obtain(type, styles, paragraph);
 		mRenderOption = renderOption;
 	}
 
@@ -64,8 +54,8 @@ public abstract class SelectedVisitor extends ParagraphVisitor {
 	}
 
 	public void startVisit(Paragraph paragraph) throws VisitException {
-		ParagraphSelection prev = paragraph.getSelection();
-		paragraph.setSelection(null);
+		ParagraphSelection prev = paragraph.getSelection(mType);
+		paragraph.setSelection(mType, null);
 		super.visit(paragraph);
 		if (prev != null) {
 			prev.recycle();
@@ -73,7 +63,7 @@ public abstract class SelectedVisitor extends ParagraphVisitor {
 		if (mSelection.isEmpty()) {
 			mSelection.recycle();
 		} else {
-			paragraph.setSelection(mSelection);
+			paragraph.setSelection(mType, mSelection);
 		}
 	}
 

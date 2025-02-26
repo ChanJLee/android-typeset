@@ -63,9 +63,9 @@ public class SelectionManagerUnitTest {
 
 		Measurer measurer = new MockMeasurer(textPaint);
 		TextAttribute textAttribute = new TextAttribute(measurer);
-		TexasOption texasOption = new TexasOption(Hyphenation.getInstance(), measurer, textAttribute, mRenderOption = new RenderOption());
+		TexasOption texasOption = new TexasOption(new PaintSet(textPaint), Hyphenation.getInstance(), measurer, textAttribute, mRenderOption = new RenderOption());
 
-		mDocument = Document.obtain();
+		Document.Builder builder = new Document.Builder();
 		List<Segment> list = new ArrayList<>();
 		list.add(Paragraph.Builder.newBuilder(texasOption).tag("p1")
 				.stream("1 2 3 4 5 6 7 8 9", token -> Paragraph.Span.obtain(token)
@@ -74,7 +74,8 @@ public class SelectionManagerUnitTest {
 				Paragraph.Span.obtain(token).tag(token.getCharSequence().subSequence(token.getStart(), token.getEnd()).toString())).build());
 		list.add(Paragraph.Builder.newBuilder(texasOption).setTypesetPolicy(Paragraph.TYPESET_POLICY_DEFAULT).tag("p3").stream("一 二 三 四 五 六 七 八 九", token -> Paragraph.Span.obtain(token)
 				.tag(token.getCharSequence().subSequence(token.getStart(), token.getEnd()).toString())).build());
-		mDocument.insertTail(list);
+		builder.addSegments(0, list);
+		mDocument = builder.build();
 
 		ParagraphTypesetter texTypesetter = new ParagraphTypesetter();
 
@@ -129,6 +130,8 @@ public class SelectionManagerUnitTest {
 
 	@Test
 	public void testPredicate() {
+		mSelectionManager.clearSelection();
+		Assert.assertNull(mSelectionManager.getCurrentSelection());
 		Selection selection = mSelectionManager.selectParagraphs(new ParagraphPredicates() {
 			@Override
 			public boolean acceptSpan(@Nullable Object spanTag) {
@@ -139,8 +142,9 @@ public class SelectionManagerUnitTest {
 			public boolean acceptParagraph(@Nullable Object paragraphTag) {
 				return false;
 			}
-		}, new Selection.Styles(1, 2).setEnableDrag(false));
+		}, Selection.Styles.create(1, 2).setEnableDrag(false));
 		Assert.assertTrue(selection.isEmpty());
+		Assert.assertSame(selection, mSelectionManager.getCurrentSelection());
 
 		Selection prev = selection;
 		selection = mSelectionManager.selectParagraphs(new ParagraphPredicates() {
@@ -153,7 +157,8 @@ public class SelectionManagerUnitTest {
 			public boolean acceptParagraph(@Nullable Object paragraphTag) {
 				return "p1".equals(paragraphTag) || "p3".equals(paragraphTag);
 			}
-		}, new Selection.Styles(1, 2).setEnableDrag(false));
+		}, Selection.Styles.create(1, 2).setEnableDrag(false));
+		Assert.assertSame(selection, mSelectionManager.getCurrentSelection());
 
 		Assert.assertNotSame(prev, selection);
 		Assert.assertFalse(selection.isEmpty());
@@ -199,6 +204,82 @@ public class SelectionManagerUnitTest {
 	}
 
 	@Test
+	public void testHighlight() {
+		Assert.assertNull(mSelectionManager.getCurrentSelection());
+		Selection selection = mSelectionManager.highlightParagraphs(new ParagraphPredicates() {
+			@Override
+			public boolean acceptSpan(@Nullable Object spanTag) {
+				return false;
+			}
+
+			@Override
+			public boolean acceptParagraph(@Nullable Object paragraphTag) {
+				return false;
+			}
+		}, Selection.Styles.create(1, 2).setEnableDrag(false));
+		Assert.assertTrue(selection.isEmpty());
+		Assert.assertNull(mSelectionManager.getCurrentSelection());
+
+		Selection prev = selection;
+		selection = mSelectionManager.highlightParagraphs(new ParagraphPredicates() {
+			@Override
+			public boolean acceptSpan(@Nullable Object spanTag) {
+				return "1".equals(spanTag) || "一".equals(spanTag) || "二".equals(spanTag) || "三".equals(spanTag) || "四".equals(spanTag);
+			}
+
+			@Override
+			public boolean acceptParagraph(@Nullable Object paragraphTag) {
+				return "p1".equals(paragraphTag) || "p3".equals(paragraphTag);
+			}
+		}, Selection.Styles.create(1, 2).setEnableDrag(false));
+
+		Assert.assertNotSame(prev, selection);
+		Assert.assertFalse(selection.isEmpty());
+		Assert.assertEquals(2, selection.size());
+
+		ParagraphSelection paragraphSelection = selection.get(0);
+		RectF first = paragraphSelection.getFirstRegion();
+		RectF last = paragraphSelection.getLastRegion();
+		Assert.assertSame(first, last);
+
+		Assert.assertEquals(first.left, 0, 0.1);
+		Assert.assertEquals(first.top, 0, 0.1);
+		Assert.assertEquals(first.right, 1.5, 0.1);
+		Assert.assertEquals(first.bottom, 1, 0.1);
+		Assert.assertFalse(paragraphSelection.isEmpty());
+		Assert.assertFalse(paragraphSelection.isSelectedRegionEmpty());
+
+		List<Object> list = paragraphSelection.getSelectedTags();
+		Assert.assertEquals(list.size(), 1);
+		Assert.assertEquals(list.get(0), "1");
+
+		paragraphSelection = selection.get(1);
+		first = paragraphSelection.getFirstRegion();
+		last = paragraphSelection.getLastRegion();
+		Assert.assertNotSame(first, last);
+
+		Assert.assertEquals(first.left, 0, 0.1);
+		Assert.assertEquals(first.top, 0, 0.1);
+		Assert.assertEquals(first.right, 5, 0.1);
+		Assert.assertEquals(first.bottom, 1, 0.1);
+
+		Assert.assertEquals(last.left, 0, 0.1);
+		Assert.assertEquals(last.top, 2, 0.1);
+		Assert.assertEquals(last.right, 1.5, 0.1);
+		Assert.assertEquals(last.bottom, 3, 0.1);
+
+		list = paragraphSelection.getSelectedTags();
+		Assert.assertEquals(list.size(), 4);
+		Assert.assertEquals(list.get(0), "一");
+		Assert.assertEquals(list.get(1), "二");
+		Assert.assertEquals(list.get(2), "三");
+		Assert.assertEquals(list.get(3), "四");
+
+		mSelectionManager.clearHighlight();
+		Assert.assertTrue(selection.isEmpty());
+	}
+
+	@Test
 	public void testMotion() {
 		// 0-----1-----2-----3-----4-----5
 		// |--1--|-----|--2--|-----|--3--|
@@ -223,14 +304,14 @@ public class SelectionManagerUnitTest {
 		Box box = (Box) paragraph.getElement(0);
 		Assert.assertTrue(mSelectionManager.onBoxSelected(touchEvent, paragraph, OnSelectedChangedListener.EVENT_LONG_CLICKED, box));
 		Assert.assertEquals(SelectionEvent.SPAN_LONG_CLICKED, mSelectionListener.mEvent);
-		Assert.assertNotNull(paragraph.getSelection());
+		Assert.assertNotNull(paragraph.getSelection(Selection.Type.SELECTION));
 		Assert.assertTrue(mSelectionManager.onBoxSelected(touchEvent, paragraph, OnSelectedChangedListener.EVENT_CLICKED, box));
 		Assert.assertEquals(SelectionEvent.SPAN_CLICKED, mSelectionListener.mEvent);
 		mSelectionManager.handleClickNothing();
 
 		for (TextureParagraph textureParagraph : mTextureParagraphs) {
 			Paragraph tmp = textureParagraph.getParagraph();
-			Assert.assertNull(tmp.getSelection());
+			Assert.assertNull(tmp.getSelection(Selection.Type.SELECTION));
 		}
 
 		Assert.assertEquals(View.GONE, mDragSelectView.mVisibility);
@@ -460,12 +541,6 @@ public class SelectionManagerUnitTest {
 		public Document getDocument() {
 			return mDocument;
 		}
-
-		@Override
-		public void sendSignal(Segment segment, Object sig) {
-
-		}
-
 	}
 
 	enum SelectionEvent {
@@ -683,18 +758,13 @@ public class SelectionManagerUnitTest {
 		}
 
 		@Override
-		public int sendSignal(Segment segment, Object sig) {
-			return mDocument.indexOfSegment(segment);
-		}
-
-		@Override
-		public int sendSignal(int index, Object sig) {
-			return index;
-		}
-
-		@Override
 		public int indexOf(Segment segment) {
 			return mDocument.indexOfSegment(segment);
+		}
+
+		@Override
+		public void updateSegment(RecyclerView.ViewHolder holder, Segment segment) {
+
 		}
 	}
 

@@ -1,8 +1,11 @@
 package me.chan.texas.typesetter.utils;
 
+import android.text.TextPaint;
+
 import me.chan.texas.TexasOption;
 import me.chan.texas.hyphenation.Hyphenation;
 import me.chan.texas.measurer.MockMeasurer;
+import me.chan.texas.misc.PaintSet;
 import me.chan.texas.renderer.RenderOption;
 import me.chan.texas.test.mock.MockTextPaint;
 import me.chan.texas.text.Paragraph;
@@ -15,9 +18,10 @@ public class ElementStreamUnitTest {
 
 	@Test
 	public void test() {
-		MockMeasurer measurer = new MockMeasurer(new MockTextPaint(20));
+		MockTextPaint paint = new MockTextPaint(20);
+		MockMeasurer measurer = new MockMeasurer(paint);
 		TextAttribute attribute = new TextAttribute(measurer);
-		TexasOption texasOption = new TexasOption(Hyphenation.getInstance(), measurer, attribute, new RenderOption());
+		TexasOption texasOption = new TexasOption(new PaintSet(paint), Hyphenation.getInstance(), measurer, attribute, new RenderOption());
 		Paragraph.Builder builder = Paragraph.Builder.newBuilder(texasOption);
 
 		builder.text("hello world");
