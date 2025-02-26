@@ -7,19 +7,22 @@ import java.util.concurrent.atomic.AtomicInteger;
  *
  * @param <T> 指针类型
  */
-public abstract class ReferenceCountingPointer<T> {
+public class ReferenceCountingPointer<T> {
 	private final T mPointer;
 	private final AtomicInteger mRefCount;
+	private final Listener<T> mListener;
 
-	public ReferenceCountingPointer(T pointer) {
+	public ReferenceCountingPointer(T pointer, Listener<T> listener) {
 		mPointer = pointer;
 		mRefCount = new AtomicInteger(1);
+		mListener = listener;
 	}
 
 	public ReferenceCountingPointer(ReferenceCountingPointer<T> other) {
 		mRefCount = other.mRefCount;
 		mRefCount.incrementAndGet();
 		mPointer = onAcquire(other.mPointer);
+		mListener = other.mListener;
 	}
 
 	public T get() {
@@ -33,11 +36,9 @@ public abstract class ReferenceCountingPointer<T> {
 		}
 
 		if (v == 0) {
-			onRelease(mPointer);
+			mListener.onRelease(mPointer);
 		}
 	}
-
-	protected abstract void onRelease(T value);
 
 	protected T onAcquire(T value) {
 		return value;
@@ -45,5 +46,9 @@ public abstract class ReferenceCountingPointer<T> {
 
 	public int getRefCount() {
 		return mRefCount.get();
+	}
+
+	public interface Listener<T> {
+		void onRelease(T v);
 	}
 }
