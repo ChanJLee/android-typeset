@@ -12,19 +12,14 @@ public class ReferenceCountingPointerUnitTest {
 		Glue glue = Glue.obtain(0, 0, 0, 0);
 		Assert.assertFalse(glue.isRecycled());
 
-		ReferenceCountingPointer<Glue> pointer = new ReferenceCountingPointer<Glue>(glue) {
+		ReferenceCountingPointer<Glue> pointer = new ReferenceCountingPointer<Glue>(glue, new ReferenceCountingPointer.Listener<Glue>() {
 			@Override
-			protected void onRelease(Glue value) {
-				value.recycle();
+			public void onRelease(Glue v) {
+				v.recycle();
 			}
-		};
+		});
 
-		ReferenceCountingPointer<Glue> copy = new ReferenceCountingPointer<Glue>(pointer) {
-			@Override
-			protected void onRelease(Glue value) {
-				glue.recycle();
-			}
-		};
+		ReferenceCountingPointer<Glue> copy = new ReferenceCountingPointer<Glue>(pointer);
 
 		pointer.release();
 		Assert.assertFalse(glue.isRecycled());
