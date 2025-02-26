@@ -79,27 +79,23 @@ public final class Document {
 		 * @param document document
 		 */
 		public Builder(@Nullable Document document) {
-			this();
-
-			// copy content
-			if (document != null) {
-				mSegments.get().addAll(document.mSegments.get());
-			}
+			mSegments = new ReferenceCountingPointer<List<Segment>>(document.mSegments) {
+				@Override
+				protected List<Segment> onAcquire(List<Segment> value) {
+					return new ArrayList<>(value);
+				}
+			};
 		}
 
 		public Builder() {
 			Texas.MemoryOption memoryOption = Texas.getMemoryOption();
-			mSegments = new ReferenceCountingPointer<List<Segment>>(new ArrayList<>(memoryOption.getDocumentSegmentInitialCapacity())) {
-
-				@Override
-				protected void onRelease(List<Segment> segments) {
-					final int count = segments.size();
-					for (int i = 0; i < count; ++i) {
-						Segment segment = segments.get(i);
-						segment.recycle();
-					}
+			mSegments = new ReferenceCountingPointer<>(new ArrayList<>(memoryOption.getDocumentSegmentInitialCapacity()), segments -> {
+				final int count = segments.size();
+				for (int i = 0; i < count; ++i) {
+					Segment segment = segments.get(i);
+					segment.recycle();
 				}
-			};
+			});
 		}
 
 		public Builder addSegment(Segment segment) {
