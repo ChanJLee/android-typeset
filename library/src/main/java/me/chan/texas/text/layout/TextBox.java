@@ -79,7 +79,8 @@ public final class TextBox extends Box {
 	@Internal
 	private int mAttribute = ATTRIBUTE_NONE;
 
-	private int mGroupId = Hyphenation.NONE_GROUP_ID;
+	@VisibleForTesting
+	int mGroupId = Hyphenation.NONE_GROUP_ID;
 
 	private TextBox(float width, float height) {
 		super(width, height);
@@ -121,7 +122,6 @@ public final class TextBox extends Box {
 		mGroupId = other.mGroupId;
 	}
 
-	// todo fix unit test
 	public boolean merge(@NonNull TextBox box) {
 		if (this.mGroupId != box.mGroupId) {
 			if (BuildConfig.DEBUG) {
