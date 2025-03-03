@@ -1122,4 +1122,37 @@ public class ParagraphUnitTest {
 		Assert.assertEquals(Glue.TERMINAL, paragraph.getElement(1));
 		Assert.assertEquals(Penalty.FORCE_BREAK, paragraph.getElement(2));
 	}
+
+
+	@Test
+	public void testTextBoxSpanAttributes() {
+		TextStyle expectedTextStyle = TextStyle.BOLD;
+		Object expectedTag = "testTag";
+		Appearance expectedBackground = new RectGround(10);
+		Appearance expectedForeground = new DotUnderLine(10);
+
+		TexasOption texasOption = new TexasOption(mPaintSet, Hyphenation.getInstance(), mMeasurer, mTextAttribute, new RenderOption());
+		Paragraph.Builder builder = Paragraph.Builder.newBuilder(texasOption);
+		builder.stream("你好", new Paragraph.Builder.SpanReader() {
+			@Override
+			public Paragraph.Span read(Token token) {
+				return Paragraph.Span.obtain(token)
+						.tag(expectedTag)
+						.setTextStyle(expectedTextStyle)
+						.setBackground(expectedBackground)
+						.setForeground(expectedForeground);
+			}
+		});
+		Paragraph paragraph = builder.build();
+
+		for (int i = 0; i < paragraph.getElementCount(); i++) {
+			Element element = paragraph.getElement(i);
+			if (element instanceof TextBox) {
+				TextBox textBox = (TextBox) element;
+				Assert.assertEquals(expectedTag, textBox.getTag());
+				Assert.assertEquals(expectedBackground, textBox.getBackground());
+				Assert.assertEquals(expectedForeground, textBox.getForeground());
+			}
+		}
+	}
 }
