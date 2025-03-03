@@ -61,6 +61,25 @@ public class TextBoxUnitTest {
 		};
 	}
 
+	@Test
+	public void testMerge() {
+		String text = "hello world";
+
+		TextBox textBox1 = TextBox.obtain(text, 0, 6, mMockMeasurer, mTextStyle, null, null, null);
+		TextBox textBox2 = TextBox.obtain(text, 6, text.length(), mMockMeasurer, mTextStyle, null, null, null);
+
+		// Set the same group ID to allow merging
+		textBox1.mGroupId = 1;
+		textBox2.mGroupId = 1;
+
+		boolean merged = textBox1.merge(textBox2);
+
+		Assert.assertTrue("TextBoxes should be merged", merged);
+		Assert.assertEquals("Merged text should be 'helloworld'", "hello world", textBox1.getText().toString());
+		Assert.assertEquals("Merged width should be the sum of both widths", text.length() * mMockTextPaint.getMockTextSize(), textBox1.getWidth(), 0);
+		Assert.assertEquals("Merged height should be the maximum of both heights", Math.max(textBox1.getHeight(), textBox2.getHeight()), textBox1.getHeight(), 0);
+	}
+
 	/**
 	 * 测试前置条件，比如
 	 */
