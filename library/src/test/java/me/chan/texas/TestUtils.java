@@ -17,7 +17,6 @@ public class TestUtils {
 		try {
 			Class<?> clazz = recyclable.getClass();
 			while (clazz != null && clazz != Object.class) {
-				// TODO for test
 				if (clazz == Recyclable.class || clazz == DefaultRecyclable.class) {
 					clazz = clazz.getSuperclass();
 					continue;
