@@ -15,6 +15,7 @@ import me.chan.texas.MockTextSource;
 import me.chan.texas.TexasOption;
 import me.chan.texas.measurer.Measurer;
 import me.chan.texas.measurer.MockMeasurer;
+import me.chan.texas.misc.PaintSet;
 import me.chan.texas.test.mock.MockTextPaint;
 
 import me.chan.texas.Texas;
@@ -32,6 +33,7 @@ import me.chan.texas.text.layout.Layout;
 import me.chan.texas.text.layout.Line;
 import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.Segment;
+import me.chan.texas.text.layout.Region;
 import me.chan.texas.text.layout.TextBox;
 import me.chan.texas.typesetter.ParagraphTypesetter;
 
@@ -548,223 +550,129 @@ public class TypesetterUnitTest {
 		}
 	}
 
-//	@Test
-//	public void testMixTypesetter() {
-//		testMixNormal();
-//		testMixFull();
-//		testMix();
-//	}
-//
-//	private void testMix() {
-//		Document mockDocument(20, 20, 100, BreakStrategy.SIMPLE, "123", "123");
-//		Assert.assertNotNull(document);
-//		Assert.assertEquals(document.getSegmentCount(), 1);
-//		Assert.assertEquals(document.getSegment(0).getClass(), Paragraph.class);
-//		Paragraph paragraph = (Paragraph) document.getSegment(0);
-//
-//		Layout layout = paragraph.getLayout();
-//		Assert.assertNotNull(paragraph);
-//		Assert.assertEquals(layout.getLineCount(), 2);
-//
-//		Line line1 = layout.getLine(0);
-//		Line line2 = layout.getLine(1);
-//
-//		Assert.assertEquals(line1.getCount(), 2);
-//		Assert.assertEquals(line1.getElement(0).getClass(), TextBox.class);
-//		Assert.assertEquals(line1.getElement(1).getClass(), DrawableBox.class);
-//		Assert.assertEquals(line2.getCount(), 2);
-//		Assert.assertEquals(line2.getElement(0).getClass(), TextBox.class);
-//		Assert.assertEquals(line2.getElement(1).getClass(), DrawableBox.class);
-//
-//		mockDocument(20, 20, 100, BreakStrategy.BALANCED, "123", "123");
-//		Assert.assertNotNull(document);
-//		Assert.assertEquals(document.getSegmentCount(), 1);
-//		Assert.assertEquals(document.getSegment(0).getClass(), Paragraph.class);
-//		paragraph = (Paragraph) document.getSegment(0);
-//		layout = paragraph.getLayout();
-//
-//		Assert.assertNotNull(paragraph);
-//		Assert.assertEquals(layout.getLineCount(), 2);
-//
-//		line1 = layout.getLine(0);
-//		line2 = layout.getLine(1);
-//
-//		Assert.assertEquals(line1.getCount(), 2);
-//		Assert.assertEquals(line1.getElement(0).getClass(), TextBox.class);
-//		Assert.assertEquals(line1.getElement(1).getClass(), DrawableBox.class);
-//		Assert.assertEquals(line2.getCount(), 2);
-//		Assert.assertEquals(line2.getElement(0).getClass(), TextBox.class);
-//		Assert.assertEquals(line2.getElement(1).getClass(), DrawableBox.class);
-//	}
-//
-//	private void testMixNormal() {
-//		Document mockDocument(20, 20, 100, BreakStrategy.SIMPLE, "123");
-//		Assert.assertNotNull(document);
-//		Assert.assertEquals(document.getSegmentCount(), 1);
-//		Assert.assertEquals(document.getSegment(0).getClass(), Paragraph.class);
-//		Paragraph paragraph = (Paragraph) document.getSegment(0);
-//		Layout layout = paragraph.getLayout();
-//
-//		Assert.assertNotNull(paragraph);
-//		Assert.assertEquals(layout.getLineCount(), 1);
-//
-//		Line line1 = layout.getLine(0);
-//
-//		Assert.assertEquals(line1.getCount(), 2);
-//		Assert.assertEquals(line1.getElement(0).getClass(), TextBox.class);
-//		Assert.assertEquals(line1.getElement(1).getClass(), DrawableBox.class);
-//
-//		mockDocument(20, 20, 100, BreakStrategy.BALANCED, "123");
-//		Assert.assertNotNull(document);
-//		Assert.assertEquals(document.getSegmentCount(), 1);
-//		Assert.assertEquals(document.getSegment(0).getClass(), Paragraph.class);
-//		paragraph = (Paragraph) document.getSegment(0);
-//
-//		Assert.assertNotNull(paragraph);
-//		layout = paragraph.getLayout();
-//		Assert.assertEquals(layout.getLineCount(), 1);
-//
-//		line1 = layout.getLine(0);
-//
-//		Assert.assertEquals(line1.getCount(), 2);
-//		Assert.assertEquals(line1.getElement(0).getClass(), TextBox.class);
-//		Assert.assertEquals(line1.getElement(1).getClass(), DrawableBox.class);
-//	}
-//
-//	private void testMixFull() {
-//		Document mockDocument(20, 20, 100, BreakStrategy.SIMPLE, "12345");
-//		Assert.assertNotNull(document);
-//		Assert.assertEquals(document.getSegmentCount(), 1);
-//		Assert.assertEquals(document.getSegment(0).getClass(), Paragraph.class);
-//		Paragraph paragraph = (Paragraph) document.getSegment(0);
-//		Layout layout = paragraph.getLayout();
-//
-//		Assert.assertNotNull(paragraph);
-//		Assert.assertEquals(layout.getLineCount(), 2);
-//
-//		Line line1 = layout.getLine(0);
-//		Line line2 = layout.getLine(1);
-//
-//		Assert.assertEquals(line2.getCount(), 1);
-//		Assert.assertEquals(line2.getElement(0).getClass(), DrawableBox.class);
-//		Assert.assertEquals(line1.getCount(), 1);
-//		Assert.assertEquals(line1.getElement(0).getClass(), TextBox.class);
-//
-//		mockDocument(20, 20, 100, BreakStrategy.BALANCED, "12345");
-//		Assert.assertNotNull(document);
-//		Assert.assertEquals(document.getSegmentCount(), 1);
-//		Assert.assertEquals(document.getSegment(0).getClass(), Paragraph.class);
-//		paragraph = (Paragraph) document.getSegment(0);
-//		layout = paragraph.getLayout();
-//
-//		Assert.assertNotNull(paragraph);
-//		Assert.assertEquals(layout.getLineCount(), 2);
-//
-//		line1 = layout.getLine(0);
-//		line2 = layout.getLine(1);
-//
-//		Assert.assertEquals(line2.getCount(), 1);
-//		Assert.assertEquals(line2.getElement(0).getClass(), DrawableBox.class);
-//		Assert.assertEquals(line1.getCount(), 1);
-//		Assert.assertEquals(line1.getElement(0).getClass(), TextBox.class);
-//	}
-//
-//	private Document mockDocument(int textSize, float drawableWidth, float width, BreakStrategy breakStrategy, CharSequence... s) {
-//		MockTextPaint textPaint = new MockTextPaint(textSize);
-//		Measurer measurer = new MockMeasurer(textPaint);
-//		Document Document.obtain();
-//		MockTextAttribute attribute = new MockTextAttribute(textPaint);
-//		TexasOption texasOption = new TexasOption(Hyphenation.getInstance(), measurer, attribute, null);
-//		Paragraph.Builder builder = Paragraph.Builder.newBuilder(texasOption);
-//		for (int i = 0; i < s.length; ++i) {
-//			builder.text(s[i], 0, s[i].length());
-//			builder.emoticon(Emoticon.obtain(new ColorDrawable(10), drawableWidth, 20));
-//		}
-//		List<Segment> list = new ArrayList<>();
-//		list.add(builder.build());
-//		document.insertTail(list);
-//
-//		ParagraphTypesetter typesetter = new ParagraphTypesetter();
-//		for (int i = 0; i < document.getSegmentCount(); ++i) {
-//			typesetter.typeset((Paragraph) document.getSegment(i), breakStrategy, (int) width, 1);
-//		}
-//
-//		return document;
-//	}
-//
-//	@Test
-//	public void testEmptyLineWithBrk() {
-//		RenderOption renderOption = new RenderOption();
-//		TexasOption texasOption = new TexasOption(Hyphenation.getInstance(), mMockMeasurer, mMockTextAttribute, renderOption);
-//
-//		Paragraph.Builder builder = Paragraph.Builder.newBuilder(texasOption);
-//
-//		Paragraph paragraph = builder.build(true);
-//		Layout layout = paragraph.getLayout();
-//
-//		ParagraphTypesetter typesetter = new ParagraphTypesetter();
-//		typesetter.typeset(paragraph, BreakStrategy.SIMPLE, 100, 1);
-//		Layout current = paragraph.getLayout();
-//		Assert.assertNotSame(layout, current);
-//
-//		assertEquals(0, current.getLineCount());
-//	}
-//
-//	@Test
-//	public void testEmptyLineWithoutBrk() {
-//		RenderOption renderOption = new RenderOption();
-//		TexasOption texasOption = new TexasOption(Hyphenation.getInstance(), mMockMeasurer, mMockTextAttribute, renderOption);
-//
-//		Paragraph.Builder builder = Paragraph.Builder.newBuilder(texasOption);
-//
-//		Paragraph paragraph = builder.build(false);
-//		Layout layout = paragraph.getLayout();
-//
-//		ParagraphTypesetter typesetter = new ParagraphTypesetter();
-//		typesetter.typeset(paragraph, BreakStrategy.SIMPLE, 100, 1);
-//		Layout current = paragraph.getLayout();
-//		Assert.assertNotSame(layout, current);
-//
-//		assertEquals(0, current.getLineCount());
-//	}
-//
-//	@Test
-//	public void testDesire() {
-//		RenderOption renderOption = new RenderOption();
-//		renderOption.setLineSpace(1);
-//		mPaint.setMockTextSize(1);
-//		TexasOption texasOption = new TexasOption(Hyphenation.getInstance(), mMockMeasurer, mMockTextAttribute, renderOption);
-//
-//		Paragraph.Builder builder = Paragraph.Builder.newBuilder(texasOption);
-//
-//		Paragraph paragraph = builder.build(false);
-//		Region region = new Region(100, 10);
-//		Assert.assertFalse(WorkerScheduler.typeset().desire(paragraph, region, renderOption));
-//
-//		// TODO 只有一个换行符 按理说这里要留一个行高的空间
-//		builder = Paragraph.Builder.newBuilder(texasOption);
-//		paragraph = builder.build(true);
-//		Assert.assertTrue(WorkerScheduler.typeset().desire(paragraph, region, renderOption));
-//		Assert.assertEquals(region.getWidth(), 0);
-//		Assert.assertEquals(region.getHeight(), 0);
-//
-//
-//		builder = Paragraph.Builder.newBuilder(texasOption);
-//		builder.text("12345")
-//				.brk()
-//				.text("12");
-//		paragraph = builder.build(true);
-//		Assert.assertTrue(WorkerScheduler.typeset().desire(paragraph, region, renderOption));
-//		Assert.assertEquals(5, region.getWidth());
-//		Assert.assertEquals(3, region.getHeight());
-//
-//		builder = Paragraph.Builder.newBuilder(texasOption);
-//		builder.text("12345");
-//		paragraph = builder.build(true);
-//		Assert.assertTrue(WorkerScheduler.typeset().desire(paragraph, region, renderOption));
-//		Assert.assertEquals(5, region.getWidth());
-//		Assert.assertEquals(1, region.getHeight());
-//	}
+	@Test
+	public void testEmptyLineWithBrk() {
+		RenderOption renderOption = new RenderOption();
+		renderOption.setLineSpace(1);
+		FakeMeasureFactory factory = FakeMeasureFactory.getInstance();
+		factory.getMockTextPaint().setMockTextSize(1);
+		Measurer measurer = new MockMeasurer(factory.getMockTextPaint());
+		PaintSet paintSet = new PaintSet(factory.getMockTextPaint());
+		TextAttribute textAttribute = new TextAttribute(measurer);
+		TexasOption texasOption = new TexasOption(paintSet, Hyphenation.getInstance(), measurer, textAttribute, renderOption);
+
+		Paragraph.Builder builder = Paragraph.Builder.newBuilder(texasOption);
+
+		Paragraph paragraph = builder.build(true);
+		Layout layout = paragraph.getLayout();
+
+		ParagraphTypesetter typesetter = new ParagraphTypesetter();
+		typesetter.typeset(paragraph, BreakStrategy.SIMPLE, 100, 1);
+		Layout current = paragraph.getLayout();
+		Assert.assertNotSame(layout, current);
+
+		assertEquals(0, current.getLineCount());
+	}
+
+	@Test
+	public void testEmptyLineWithoutBrk() {
+		RenderOption renderOption = new RenderOption();
+		renderOption.setLineSpace(1);
+		FakeMeasureFactory factory = FakeMeasureFactory.getInstance();
+		factory.getMockTextPaint().setMockTextSize(1);
+		Measurer measurer = new MockMeasurer(factory.getMockTextPaint());
+		PaintSet paintSet = new PaintSet(factory.getMockTextPaint());
+		TextAttribute textAttribute = new TextAttribute(measurer);
+		TexasOption texasOption = new TexasOption(paintSet, Hyphenation.getInstance(), measurer, textAttribute, renderOption);
+
+		Paragraph.Builder builder = Paragraph.Builder.newBuilder(texasOption);
+
+		Paragraph paragraph = builder.build(false);
+		Layout layout = paragraph.getLayout();
+
+		ParagraphTypesetter typesetter = new ParagraphTypesetter();
+		typesetter.typeset(paragraph, BreakStrategy.SIMPLE, 100, 1);
+		Layout current = paragraph.getLayout();
+		Assert.assertNotSame(layout, current);
+
+		assertEquals(0, current.getLineCount());
+	}
+
+	@Test
+	public void testDesire() {
+		RenderOption renderOption = new RenderOption();
+		renderOption.setLineSpace(1);
+		FakeMeasureFactory factory = FakeMeasureFactory.getInstance();
+		factory.getMockTextPaint().setMockTextSize(1);
+		Measurer measurer = new MockMeasurer(factory.getMockTextPaint());
+		PaintSet paintSet = new PaintSet(factory.getMockTextPaint());
+		TextAttribute textAttribute = new TextAttribute(measurer);
+		TexasOption texasOption = new TexasOption(paintSet, Hyphenation.getInstance(), measurer, textAttribute, renderOption);
+
+		Paragraph.Builder builder = Paragraph.Builder.newBuilder(texasOption);
+
+		Paragraph paragraph = builder.build(false);
+		Region region = new Region(100, 10);
+		Assert.assertFalse(WorkerScheduler.typeset().desire(paragraph, region, renderOption));
+
+		builder = Paragraph.Builder.newBuilder(texasOption);
+		paragraph = builder.build(true);
+		Assert.assertTrue(WorkerScheduler.typeset().desire(paragraph, region, renderOption));
+		Assert.assertEquals(region.getWidth(), 0);
+		Assert.assertEquals(region.getHeight(), 0);
+
+
+		builder = Paragraph.Builder.newBuilder(texasOption);
+		builder.text("12345")
+				.brk()
+				.text("12");
+		paragraph = builder.build(true);
+		Assert.assertTrue(WorkerScheduler.typeset().desire(paragraph, region, renderOption));
+		Assert.assertEquals(5, region.getWidth());
+		Assert.assertEquals(3, region.getHeight());
+
+		builder = Paragraph.Builder.newBuilder(texasOption);
+		builder.text("12345");
+		paragraph = builder.build(true);
+		Assert.assertTrue(WorkerScheduler.typeset().desire(paragraph, region, renderOption));
+		Assert.assertEquals(5, region.getWidth());
+		Assert.assertEquals(1, region.getHeight());
+	}
+
+	@Test
+	public void testNewLine() {
+		FakeMeasureFactory factory = FakeMeasureFactory.getInstance();
+		factory.getMockTextPaint().setMockTextSize(1);
+
+		RenderOption renderOption = new RenderOption();
+		Measurer measurer = new MockMeasurer(factory.getMockTextPaint());
+		PaintSet paintSet = new PaintSet(factory.getMockTextPaint());
+		TextAttribute textAttribute = new TextAttribute(measurer);
+
+		TexasOption texasOption = new TexasOption(paintSet, Hyphenation.getInstance(), measurer, textAttribute, renderOption);
+		Paragraph.Builder builder = Paragraph.Builder.newBuilder(texasOption)
+				.setTypesetPolicy(Paragraph.TYPESET_POLICY_ACCEPT_CONTROL_CHAR);
+
+		String msg = " hello \n\t\r world";
+		builder.text(msg);
+
+		ParagraphTypesetter texTypesetter = new ParagraphTypesetter();
+		Paragraph paragraph = builder.build();
+		texTypesetter.typeset(paragraph, BreakStrategy.SIMPLE, 100, 1);
+
+		Layout layout = paragraph.getLayout();
+		Assert.assertEquals(2, layout.getLineCount());
+		Assert.assertEquals("hello", layout.getLine(0).toString());
+		Assert.assertEquals("world", layout.getLine(1).toString());
+
+		texTypesetter.typeset(paragraph, BreakStrategy.BALANCED, 100, 1);
+
+		layout = paragraph.getLayout();
+		Assert.assertEquals(2, layout.getLineCount());
+		Assert.assertEquals("hello", layout.getLine(0).toString());
+		Assert.assertEquals("world", layout.getLine(1).toString());
+	}
+
 
 	private static class LoadingJoinListener implements LoadingWorker.Listener {
 
