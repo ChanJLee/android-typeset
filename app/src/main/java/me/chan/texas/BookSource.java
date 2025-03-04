@@ -262,10 +262,6 @@ public class BookSource extends TexasView.DocumentSource {
 		Log.d("BookParser", "para element count: " + paragraph.getElementCount());
 		if (paragraph.getElementCount() > 0) {
 			documentBuilder.addSegment(paragraph);
-			// todo support focus
-//			if ("A9127P127029".equals(id)) {
-//				builder.setFocusSegment(paragraph);
-//			}
 		}
 
 		if (firstSent != null) {

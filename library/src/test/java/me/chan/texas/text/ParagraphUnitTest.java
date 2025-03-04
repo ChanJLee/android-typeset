@@ -204,6 +204,36 @@ public class ParagraphUnitTest {
 			Assert.assertEquals(arr[mIndex++], s);
 			return null;
 		});
+
+		Assert.assertEquals(arr.length, mIndex);
+	}
+
+	@Test
+	public void testNewline() {
+		TexasOption texasOption = new TexasOption(mPaintSet, Hyphenation.getInstance(), mMeasurer, mTextAttribute, new RenderOption());
+		Paragraph.Builder builder = Paragraph.Builder.newBuilder(texasOption)
+				.setTypesetPolicy(Paragraph.TYPESET_POLICY_ACCEPT_CONTROL_CHAR);
+
+		mIndex = 0;
+		String msg = " hello \n\t\r world";
+		String[] arr = {"hello", "world"};
+		builder.stream(msg, 0, msg.length(), token -> {
+			String s = (String) msg.subSequence(token.getStart(), token.getEnd());
+			System.out.println(s);
+			Assert.assertEquals(arr[mIndex++], s);
+			return null;
+		});
+
+		Assert.assertEquals(arr.length, mIndex);
+
+		Paragraph paragraph = builder.build();
+		Assert.assertEquals(6, paragraph.getElementCount());
+		Assert.assertEquals("hello", paragraph.getElement(0).toString());
+		Assert.assertSame(Glue.TERMINAL, paragraph.getElement(1));
+		Assert.assertSame(Penalty.FORCE_BREAK, paragraph.getElement(2));
+		Assert.assertEquals("world", paragraph.getElement(3).toString());
+		Assert.assertSame(Glue.TERMINAL, paragraph.getElement(4));
+		Assert.assertSame(Penalty.FORCE_BREAK, paragraph.getElement(5));
 	}
 
 	@Test
