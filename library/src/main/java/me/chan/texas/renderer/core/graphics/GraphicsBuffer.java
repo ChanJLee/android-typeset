@@ -141,12 +141,13 @@ public class GraphicsBuffer {
 		@MainThread
 		@Override
 		public void release() {
+			mReleased = true;
 			WorkerScheduler.odd().submit(mToken /* 基本上是一个不可能的值 */, WorkerScheduler.getTaskQueue(TASK_QUEUE_RENDER), this);
 		}
 
 		@Override
 		public void draw(Canvas canvas) {
-			for (int i = 0; i < 3; ++i) {
+			for (int i = 0; i < 3 && !mReleased; ++i) {
 				TexturePicture picture = mDrewPicture;
 				if (picture == null) {
 					break;
