@@ -3,6 +3,7 @@ package me.chan.texas.renderer.core.graphics;
 import static me.chan.texas.renderer.core.WorkerScheduler.TASK_QUEUE_RENDER;
 
 import android.graphics.Canvas;
+import android.graphics.Picture;
 import android.graphics.RenderNode;
 import android.os.Build;
 import android.os.SystemClock;
@@ -30,7 +31,7 @@ public class GraphicsBuffer {
 	@MainThread
 	public void attach(TaskQueue.Token token) {
 		if (mBuffer == null) {
-			mBuffer = new RendererBufferCompat(token);
+			mBuffer = new RendererBuffer28(token);
 		}
 		mAttached = true;
 	}
@@ -173,7 +174,7 @@ public class GraphicsBuffer {
 		}
 	}
 
-	private static class RendererBufferCompat implements Runnable, RendererBuffer {
+	private static class RendererBufferCompat implements RendererBuffer {
 		private volatile TexturePicture mPicture;
 		private boolean mReleased = false;
 		private final TaskQueue.Token mToken;
@@ -199,13 +200,28 @@ public class GraphicsBuffer {
 		@WorkerThread
 		@Override
 		public void unlockCanvas() {
+			TexturePicture picture = mPicture;
+			if (picture == null) {
+				return;
+			}
+
 			mPicture.endRecording();
 		}
 
 		@MainThread
 		@Override
 		public void release() {
-			WorkerScheduler.odd().submit(mToken /* 基本上是一个不可能的值 */, WorkerScheduler.getTaskQueue(TASK_QUEUE_RENDER), this);
+			mReleased = true;
+			final TexturePicture picture = mPicture;
+			mPicture = null;
+			WorkerScheduler.odd().submit(mToken /* 基本上是一个不可能的值 */, WorkerScheduler.getTaskQueue(TASK_QUEUE_RENDER), new Runnable() {
+				@Override
+				public void run() {
+					if (picture != null) {
+						TexturePicture.releasePicture(picture);
+					}
+				}
+			});
 		}
 
 		@Override
@@ -224,15 +240,6 @@ public class GraphicsBuffer {
 				if (DEBUG) {
 					Log.d("RendererBuffer", "draw failed, retry");
 				}
-			}
-		}
-
-		@Override
-		public void run() {
-			mReleased = true;
-			if (mPicture != null) {
-				TexturePicture.releasePicture(mPicture);
-				mPicture = null;
 			}
 		}
 	}
