@@ -216,7 +216,6 @@ public class LibraryLoader {
 
 	@SuppressWarnings("deprecation")
 	private static String getJniNameInApk(String libName) {
-		// TODO(aurimas): Build.CPU_ABI has been deprecated. Replace it when final L SDK is public.
 		return "lib/" + Build.CPU_ABI + "/" + System.mapLibraryName(libName);
 	}
 

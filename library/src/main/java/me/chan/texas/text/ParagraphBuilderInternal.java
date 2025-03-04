@@ -418,6 +418,7 @@ class ParagraphBuilderInternal {
 			appendElement(mCommonGlue);
 			return;
 		}
+
 		if (token.checkAttribute(Token.CONTROL_ATTRIBUTE_NEW_LINE)) {
 			appendElement(Glue.TERMINAL);
 			appendElement(Penalty.FORCE_BREAK);
@@ -425,12 +426,11 @@ class ParagraphBuilderInternal {
 		}
 
 		if (token.checkAttribute(Token.CONTROL_ATTRIBUTE_TAB_HORIZONTAL)) {
-			// todo support tab
-			appendElement(mCommonGlue);
+			appendElement(Glue.obtain(mTextAttribute.getSpaceWidth() * 4, 0, 0, 0));
 			return;
 		}
 
-		// TODO how to fix it.
+		appendElement(mCommonGlue);
 	}
 
 	/**
