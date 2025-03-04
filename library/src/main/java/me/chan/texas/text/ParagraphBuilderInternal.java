@@ -734,7 +734,6 @@ class ParagraphBuilderInternal {
 			if (token.checkAttribute(Token.CONTROL_ATTRIBUTE_SPACE)) {
 				builder.appendElement(builder.mCommonGlue);
 			} else if (token.checkAttribute(Token.CONTROL_ATTRIBUTE_TAB_HORIZONTAL)) {
-				// todo support tab
 				builder.appendElement(builder.mCommonGlue);
 			}
 		}
