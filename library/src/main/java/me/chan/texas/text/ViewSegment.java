@@ -131,8 +131,7 @@ public abstract class ViewSegment extends DefaultRecyclable implements Segment {
 
 	@RestrictTo(LIBRARY)
 	@Override
-	public final void attachToWindow(TexasRendererAdapter adapter, RecyclerView.ViewHolder viewHolder) {
-		mAdapter = adapter;
+	public final void attachToWindow(RecyclerView.ViewHolder viewHolder) {
 		mViewHolder = viewHolder;
 		onAttachedToWindow();
 	}
@@ -142,10 +141,14 @@ public abstract class ViewSegment extends DefaultRecyclable implements Segment {
 
 	@RestrictTo(LIBRARY)
 	@Override
-	public final void detachFromWindow(TexasRendererAdapter adapter,  RecyclerView.ViewHolder viewHolder) {
+	public final void detachFromWindow(RecyclerView.ViewHolder viewHolder) {
 		onDetachedFromWindow();
-		mAdapter = null;
 		mViewHolder = null;
+	}
+
+	@Override
+	public final void bind(TexasRendererAdapter adapter) {
+		mAdapter = adapter;
 	}
 
 	protected void onDetachedFromWindow() {
@@ -153,6 +156,6 @@ public abstract class ViewSegment extends DefaultRecyclable implements Segment {
 
 	@Override
 	public final int getIndex() {
-		return mViewHolder == null ? -1 : mViewHolder.getAdapterPosition();
+		return mAdapter == null ? -1 : mAdapter.indexOf(this);
 	}
 }

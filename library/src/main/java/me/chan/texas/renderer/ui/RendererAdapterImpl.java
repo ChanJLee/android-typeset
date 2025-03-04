@@ -274,7 +274,7 @@ public class RendererAdapterImpl extends RecyclerView.Adapter<RendererAdapterImp
 	public void onViewAttachedToWindow(@NonNull Renderer holder) {
 		Segment segment = getItem(holder.getAdapterPosition());
 		if (segment != null) {
-			segment.attachToWindow(this, holder);
+			segment.attachToWindow(holder);
 		}
 	}
 
@@ -282,7 +282,7 @@ public class RendererAdapterImpl extends RecyclerView.Adapter<RendererAdapterImp
 	public void onViewDetachedFromWindow(@NonNull Renderer holder) {
 		Segment segment = getItem(holder.getAdapterPosition());
 		if (segment != null) {
-			segment.detachFromWindow(this, holder);
+			segment.detachFromWindow(holder);
 		}
 	}
 
@@ -315,6 +315,10 @@ public class RendererAdapterImpl extends RecyclerView.Adapter<RendererAdapterImp
 		mPaintSet = paintSet;
 		mRenderOption = renderOption;
 		mDocument = document;
+		for (int i = 0; i < document.getSegmentCount(); i++) {
+			Segment segment = document.getSegment(i);
+			segment.bind(this);
+		}
 		diff.dispatchUpdatesTo(this);
 	}
 

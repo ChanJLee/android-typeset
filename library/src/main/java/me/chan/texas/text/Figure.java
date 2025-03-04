@@ -118,15 +118,18 @@ public final class Figure extends DefaultRecyclable implements Segment {
 	private TexasRendererAdapter mAdapter;
 
 	@Override
-	public void attachToWindow(TexasRendererAdapter adapter, RecyclerView.ViewHolder holder) {
-		mAdapter = adapter;
+	public void attachToWindow(RecyclerView.ViewHolder holder) {
 		mHolder = holder;
 	}
 
 	@Override
-	public void detachFromWindow(TexasRendererAdapter adapter, RecyclerView.ViewHolder holder) {
-		mAdapter = null;
+	public void detachFromWindow(RecyclerView.ViewHolder holder) {
 		mHolder = null;
+	}
+
+	@Override
+	public void bind(TexasRendererAdapter adapter) {
+		mAdapter = adapter;
 	}
 
 	@Override
@@ -140,6 +143,6 @@ public final class Figure extends DefaultRecyclable implements Segment {
 
 	@Override
 	public int getIndex() {
-		return mHolder == null ? -1 : mHolder.getAdapterPosition();
+		return mAdapter == null ? -1 : mAdapter.indexOf(this);
 	}
 }
