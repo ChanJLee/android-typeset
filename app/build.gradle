@@ -45,6 +45,6 @@ dependencies {
     implementation 'com.squareup.retrofit2:adapter-rxjava2:+'
     implementation 'io.reactivex.rxjava2:rxandroid:2.0.1'
     implementation 'com.squareup.retrofit2:converter-gson:+'
-    implementation "me.chan.lib:hiddenapi:1.0.0"
-    implementation "me.chan.lib:log:1.0.0"
+//    implementation "me.chan.lib:hiddenapi:1.0.0"
+//    implementation "me.chan.lib:log:1.0.0"
 }
