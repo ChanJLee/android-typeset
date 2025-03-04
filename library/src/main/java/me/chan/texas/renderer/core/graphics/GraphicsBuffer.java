@@ -30,9 +30,7 @@ public class GraphicsBuffer {
 	@MainThread
 	public void attach(TaskQueue.Token token) {
 		if (mBuffer == null) {
-			mBuffer = Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q ?
-					new RendererBuffer28(token) :
-					new RendererBufferCompat(token);
+			mBuffer = new RendererBufferCompat(token);
 		}
 		mAttached = true;
 	}
@@ -93,6 +91,86 @@ public class GraphicsBuffer {
 		void release();
 
 		void draw(Canvas canvas);
+	}
+
+	private static class DoubleBufferCompat implements Runnable, RendererBuffer {
+		private volatile TexturePicture mDrewPicture;
+		private TexturePicture mDrawingPicture;
+
+		private boolean mReleased = false;
+
+		private final TaskQueue.Token mToken;
+
+		public DoubleBufferCompat(TaskQueue.Token token) {
+			mToken = token;
+		}
+
+		@WorkerThread
+		@Override
+		public Canvas lockCanvas(int width, int height) {
+			if (mReleased) {
+				return null;
+			}
+
+			if (mDrawingPicture == null) {
+				mDrawingPicture = TexturePicture.createPicture();
+			}
+
+			return mDrawingPicture.beginRecording(width, height);
+		}
+
+		@WorkerThread
+		@Override
+		public void unlockCanvas() {
+			mDrawingPicture.endRecording();
+
+			// ready recycle
+			TexturePicture tmp = mDrewPicture;
+
+			// 读写栏栅，不然draw的时候会闪烁
+			mDrewPicture = mDrawingPicture;
+			mDrawingPicture = null;
+			TexturePicture.releasePicture(tmp);
+		}
+
+		@MainThread
+		@Override
+		public void release() {
+			WorkerScheduler.odd().submit(mToken /* 基本上是一个不可能的值 */, WorkerScheduler.getTaskQueue(TASK_QUEUE_RENDER), this);
+		}
+
+		@Override
+		public void draw(Canvas canvas) {
+			for (int i = 0; i < 3; ++i) {
+				TexturePicture picture = mDrewPicture;
+				if (picture == null) {
+					break;
+				}
+
+				canvas.drawPicture(picture);
+				if (!picture.isHackIsDrawFailed__()) {
+					break;
+				}
+
+				if (DEBUG) {
+					Log.d("RendererBuffer", "draw failed, retry");
+				}
+			}
+		}
+
+		@Override
+		public void run() {
+			mReleased = true;
+			if (mDrewPicture != null) {
+				TexturePicture.releasePicture(mDrewPicture);
+				mDrewPicture = null;
+			}
+
+			if (mDrawingPicture != null) {
+				TexturePicture.releasePicture(mDrawingPicture);
+				mDrawingPicture = null;
+			}
+		}
 	}
 
 	private static class RendererBufferCompat implements Runnable, RendererBuffer {
