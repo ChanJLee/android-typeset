@@ -3,12 +3,17 @@ package me.chan.texas.renderer.core.graphics;
 import static me.chan.texas.renderer.core.WorkerScheduler.TASK_QUEUE_RENDER;
 
 import android.graphics.Canvas;
+import android.graphics.RenderNode;
+import android.os.Build;
 import android.os.SystemClock;
 import android.util.Log;
 
 import androidx.annotation.MainThread;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.WorkerThread;
+
+import java.util.concurrent.atomic.AtomicInteger;
 
 import me.chan.texas.renderer.core.WorkerScheduler;
 import me.chan.texas.utils.concurrency.TaskQueue;
@@ -25,7 +30,9 @@ public class GraphicsBuffer {
 	@MainThread
 	public void attach(TaskQueue.Token token) {
 		if (mBuffer == null) {
-			mBuffer = new DoubleBuffer(token);
+			mBuffer = Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q ?
+					new DoubleBuffer28(token) :
+					new DoubleBufferCompat(token);
 		}
 		mAttached = true;
 	}
@@ -70,28 +77,25 @@ public class GraphicsBuffer {
 			ts = SystemClock.elapsedRealtime();
 		}
 
-		for (int i = 0; i < 3; ++i) {
-			TexturePicture picture = mBuffer.getPicture();
-			if (picture == null) {
-				break;
-			}
-
-			canvas.drawPicture(picture);
-			if (!picture.isHackIsDrawFailed__()) {
-				break;
-			}
-
-			if (DEBUG) {
-				Log.d("RendererBuffer", "draw failed, retry");
-			}
-		}
+		mBuffer.draw(canvas);
 
 		if (DEBUG) {
 			Log.d("RendererBuffer", "draw time: " + (SystemClock.elapsedRealtime() - ts));
 		}
 	}
 
-	private static class DoubleBuffer implements Runnable {
+	private interface DoubleBuffer {
+
+		Canvas lockCanvas(int width, int height);
+
+		void unlockCanvas();
+
+		void release();
+
+		void draw(Canvas canvas);
+	}
+
+	private static class DoubleBufferCompat implements Runnable, DoubleBuffer {
 		private volatile TexturePicture mDrewPicture;
 		private TexturePicture mDrawingPicture;
 
@@ -99,11 +103,12 @@ public class GraphicsBuffer {
 
 		private final TaskQueue.Token mToken;
 
-		public DoubleBuffer(TaskQueue.Token token) {
+		public DoubleBufferCompat(TaskQueue.Token token) {
 			mToken = token;
 		}
 
 		@WorkerThread
+		@Override
 		public Canvas lockCanvas(int width, int height) {
 			if (mReleased) {
 				return null;
@@ -117,6 +122,7 @@ public class GraphicsBuffer {
 		}
 
 		@WorkerThread
+		@Override
 		public void unlockCanvas() {
 			mDrawingPicture.endRecording();
 
@@ -130,13 +136,28 @@ public class GraphicsBuffer {
 		}
 
 		@MainThread
+		@Override
 		public void release() {
 			WorkerScheduler.odd().submit(mToken /* 基本上是一个不可能的值 */, WorkerScheduler.getTaskQueue(TASK_QUEUE_RENDER), this);
 		}
 
-		@MainThread
-		public TexturePicture getPicture() {
-			return mDrewPicture;
+		@Override
+		public void draw(Canvas canvas) {
+			for (int i = 0; i < 3; ++i) {
+				TexturePicture picture = mDrewPicture;
+				if (picture == null) {
+					break;
+				}
+
+				canvas.drawPicture(picture);
+				if (!picture.isHackIsDrawFailed__()) {
+					break;
+				}
+
+				if (DEBUG) {
+					Log.d("RendererBuffer", "draw failed, retry");
+				}
+			}
 		}
 
 		@Override
@@ -151,6 +172,85 @@ public class GraphicsBuffer {
 				TexturePicture.releasePicture(mDrawingPicture);
 				mDrawingPicture = null;
 			}
+		}
+	}
+
+	@RequiresApi(api = Build.VERSION_CODES.Q)
+	private static class DoubleBuffer28 implements Runnable, DoubleBuffer {
+		private volatile RenderNode mDrewPicture;
+		private RenderNode mDrawingPicture;
+
+		private boolean mReleased = false;
+
+		private final TaskQueue.Token mToken;
+		private static final AtomicInteger UUID = new AtomicInteger();
+
+		public DoubleBuffer28(TaskQueue.Token token) {
+			mToken = token;
+		}
+
+		@WorkerThread
+		@Override
+		public Canvas lockCanvas(int width, int height) {
+			if (mReleased) {
+				return null;
+			}
+
+			if (mDrawingPicture == null) {
+				mDrawingPicture = new RenderNode("buffer" + UUID.incrementAndGet());
+			}
+
+			mDrawingPicture.setPosition(0, 0, width, height);
+			return mDrawingPicture.beginRecording(width, height);
+		}
+
+		@WorkerThread
+		@Override
+		public void unlockCanvas() {
+			mDrawingPicture.endRecording();
+
+			// ready recycle
+			RenderNode tmp = mDrewPicture;
+
+			// 读写栏栅，不然draw的时候会闪烁
+			mDrewPicture = mDrawingPicture;
+			mDrawingPicture = null;
+
+			release(tmp);
+		}
+
+		@MainThread
+		@Override
+		public void release() {
+			WorkerScheduler.odd().submit(mToken /* 基本上是一个不可能的值 */, WorkerScheduler.getTaskQueue(TASK_QUEUE_RENDER), this);
+		}
+
+		@Override
+		public void run() {
+			mReleased = true;
+			if (mDrewPicture != null) {
+				release(mDrewPicture);
+				mDrewPicture = null;
+			}
+
+			if (mDrawingPicture != null) {
+				release(mDrawingPicture);
+				mDrawingPicture = null;
+			}
+		}
+
+		@Override
+		public void draw(Canvas canvas) {
+			RenderNode node = mDrewPicture;
+			if (node == null) {
+				return;
+			}
+
+			canvas.drawRenderNode(node);
+		}
+
+		private static void release(RenderNode node) {
+			// TODO
 		}
 	}
 }
