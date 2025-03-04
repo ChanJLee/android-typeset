@@ -43,12 +43,13 @@ public interface Segment {
 	int getId();
 
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
-	default void attachToWindow(TexasRendererAdapter adapter, RecyclerView.ViewHolder holder) {
-	}
+	void bind(TexasRendererAdapter adapter);
 
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
-	default void detachFromWindow(TexasRendererAdapter adapter, RecyclerView.ViewHolder holder) {
-	}
+	void attachToWindow(RecyclerView.ViewHolder holder);
+
+	@RestrictTo(RestrictTo.Scope.LIBRARY)
+	void detachFromWindow(RecyclerView.ViewHolder holder);
 
 	void requestRedraw();
 
