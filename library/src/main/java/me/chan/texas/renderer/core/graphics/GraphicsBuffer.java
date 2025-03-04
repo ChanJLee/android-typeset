@@ -118,6 +118,10 @@ public class GraphicsBuffer {
 
 		@WorkerThread
 		public void unlockCanvas() {
+			if (mReleased) {
+				return;
+			}
+
 			mDrawingPicture.endRecording();
 
 			// ready recycle
@@ -131,12 +135,13 @@ public class GraphicsBuffer {
 
 		@MainThread
 		public void release() {
+			mReleased = true;
 			WorkerScheduler.odd().submit(mToken /* 基本上是一个不可能的值 */, WorkerScheduler.getTaskQueue(TASK_QUEUE_RENDER), this);
 		}
 
 		@MainThread
 		public TexturePicture getPicture() {
-			return mDrewPicture;
+			return mReleased ? null : mDrewPicture;
 		}
 
 		@Override
