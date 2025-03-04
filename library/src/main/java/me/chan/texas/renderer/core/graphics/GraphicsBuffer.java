@@ -25,14 +25,14 @@ public class GraphicsBuffer {
 
 	private boolean mAttached = false;
 
-	private DoubleBuffer mBuffer;
+	private RendererBuffer mBuffer;
 
 	@MainThread
 	public void attach(TaskQueue.Token token) {
 		if (mBuffer == null) {
 			mBuffer = Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q ?
-					new DoubleBuffer28(token) :
-					new DoubleBufferCompat(token);
+					new RendererBuffer28(token) :
+					new RendererBufferCompat(token);
 		}
 		mAttached = true;
 	}
@@ -84,7 +84,7 @@ public class GraphicsBuffer {
 		}
 	}
 
-	private interface DoubleBuffer {
+	private interface RendererBuffer {
 
 		Canvas lockCanvas(int width, int height);
 
@@ -95,15 +95,12 @@ public class GraphicsBuffer {
 		void draw(Canvas canvas);
 	}
 
-	private static class DoubleBufferCompat implements Runnable, DoubleBuffer {
-		private volatile TexturePicture mDrewPicture;
-		private TexturePicture mDrawingPicture;
-
+	private static class RendererBufferCompat implements Runnable, RendererBuffer {
+		private volatile TexturePicture mPicture;
 		private boolean mReleased = false;
-
 		private final TaskQueue.Token mToken;
 
-		public DoubleBufferCompat(TaskQueue.Token token) {
+		public RendererBufferCompat(TaskQueue.Token token) {
 			mToken = token;
 		}
 
@@ -114,25 +111,17 @@ public class GraphicsBuffer {
 				return null;
 			}
 
-			if (mDrawingPicture == null) {
-				mDrawingPicture = TexturePicture.createPicture();
+			if (mPicture == null) {
+				mPicture = TexturePicture.createPicture();
 			}
 
-			return mDrawingPicture.beginRecording(width, height);
+			return mPicture.beginRecording(width, height);
 		}
 
 		@WorkerThread
 		@Override
 		public void unlockCanvas() {
-			mDrawingPicture.endRecording();
-
-			// ready recycle
-			TexturePicture tmp = mDrewPicture;
-
-			// 读写栏栅，不然draw的时候会闪烁
-			mDrewPicture = mDrawingPicture;
-			mDrawingPicture = null;
-			TexturePicture.releasePicture(tmp);
+			mPicture.endRecording();
 		}
 
 		@MainThread
@@ -144,7 +133,7 @@ public class GraphicsBuffer {
 		@Override
 		public void draw(Canvas canvas) {
 			for (int i = 0; i < 3; ++i) {
-				TexturePicture picture = mDrewPicture;
+				TexturePicture picture = mPicture;
 				if (picture == null) {
 					break;
 				}
@@ -163,29 +152,23 @@ public class GraphicsBuffer {
 		@Override
 		public void run() {
 			mReleased = true;
-			if (mDrewPicture != null) {
-				TexturePicture.releasePicture(mDrewPicture);
-				mDrewPicture = null;
-			}
-
-			if (mDrawingPicture != null) {
-				TexturePicture.releasePicture(mDrawingPicture);
-				mDrawingPicture = null;
+			if (mPicture != null) {
+				TexturePicture.releasePicture(mPicture);
+				mPicture = null;
 			}
 		}
 	}
 
 	@RequiresApi(api = Build.VERSION_CODES.Q)
-	private static class DoubleBuffer28 implements Runnable, DoubleBuffer {
-		private volatile RenderNode mDrewPicture;
-		private RenderNode mDrawingPicture;
+	private static class RendererBuffer28 implements Runnable, RendererBuffer {
+		private volatile RenderNode mBuffer;
 
 		private boolean mReleased = false;
 
 		private final TaskQueue.Token mToken;
 		private static final AtomicInteger UUID = new AtomicInteger();
 
-		public DoubleBuffer28(TaskQueue.Token token) {
+		public RendererBuffer28(TaskQueue.Token token) {
 			mToken = token;
 		}
 
@@ -196,27 +179,18 @@ public class GraphicsBuffer {
 				return null;
 			}
 
-			if (mDrawingPicture == null) {
-				mDrawingPicture = new RenderNode("buffer" + UUID.incrementAndGet());
+			if (mBuffer == null) {
+				mBuffer = new RenderNode("buffer" + UUID.incrementAndGet());
 			}
 
-			mDrawingPicture.setPosition(0, 0, width, height);
-			return mDrawingPicture.beginRecording(width, height);
+			mBuffer.setPosition(0, 0, width, height);
+			return mBuffer.beginRecording(width, height);
 		}
 
 		@WorkerThread
 		@Override
 		public void unlockCanvas() {
-			mDrawingPicture.endRecording();
-
-			// ready recycle
-			RenderNode tmp = mDrewPicture;
-
-			// 读写栏栅，不然draw的时候会闪烁
-			mDrewPicture = mDrawingPicture;
-			mDrawingPicture = null;
-
-			release(tmp);
+			mBuffer.endRecording();
 		}
 
 		@MainThread
@@ -228,20 +202,15 @@ public class GraphicsBuffer {
 		@Override
 		public void run() {
 			mReleased = true;
-			if (mDrewPicture != null) {
-				release(mDrewPicture);
-				mDrewPicture = null;
-			}
-
-			if (mDrawingPicture != null) {
-				release(mDrawingPicture);
-				mDrawingPicture = null;
+			if (mBuffer != null) {
+				release(mBuffer);
+				mBuffer = null;
 			}
 		}
 
 		@Override
 		public void draw(Canvas canvas) {
-			RenderNode node = mDrewPicture;
+			RenderNode node = mBuffer;
 			if (node == null) {
 				return;
 			}
