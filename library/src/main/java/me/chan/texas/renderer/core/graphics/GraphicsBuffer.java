@@ -31,7 +31,11 @@ public class GraphicsBuffer {
 	@MainThread
 	public void attach(TaskQueue.Token token) {
 		if (mBuffer == null) {
-			mBuffer = new RendererBuffer28(token);
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+				mBuffer = new RendererBuffer28(token);
+			} else {
+				mBuffer = new DoubleBufferCompat(token);
+			}
 		}
 		mAttached = true;
 	}
