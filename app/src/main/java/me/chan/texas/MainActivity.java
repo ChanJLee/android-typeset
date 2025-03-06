@@ -105,7 +105,6 @@ public class MainActivity extends AppCompatActivity {
 	@Override
 	protected void onResume() {
 		super.onResume();
-
-		Log.d("chan_debug", "onResume: " + TexturePicture.getPictureStats() + " " + WorkerScheduler.render().getStats());
+		findViewById(me.chan.texas.debug.R.id.free_picture).postDelayed(() -> Log.d("chan_debug", "onResume: " + TexturePicture.getPictureStats() + " " + WorkerScheduler.render().getStats()), 2000);
 	}
 }
