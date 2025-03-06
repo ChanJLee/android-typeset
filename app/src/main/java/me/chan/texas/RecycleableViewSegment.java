@@ -1,7 +1,6 @@
 package me.chan.texas;
 
 import android.graphics.Color;
-import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
@@ -20,7 +19,6 @@ public class RecycleableViewSegment extends ViewSegment {
 
 	@Override
 	protected void onRender(View view) {
-		Log.d("chan_debug", "onRender: " + this + " " + view + " " + text);
 		TextView current = view.findViewById(R.id.text);
 		current.setBackgroundColor(Color.RED);
 		current.setText(text);

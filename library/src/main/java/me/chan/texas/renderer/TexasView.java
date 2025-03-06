@@ -33,7 +33,6 @@ import java.util.Map;
 
 import javax.inject.Inject;
 
-import me.chan.texas.BuildConfig;
 import me.chan.texas.R;
 import me.chan.texas.Texas;
 import me.chan.texas.TexasOption;
@@ -42,7 +41,6 @@ import me.chan.texas.di.core.TextEngineCoreComponent;
 import me.chan.texas.measurer.MeasureFactory;
 import me.chan.texas.measurer.Measurer;
 import me.chan.texas.misc.PaintSet;
-import me.chan.texas.misc.ResourceManager;
 import me.chan.texas.renderer.core.worker.LoadingWorker;
 import me.chan.texas.renderer.selection.Selection;
 import me.chan.texas.renderer.ui.decor.ParagraphDecor;
@@ -454,10 +452,6 @@ public final class TexasView extends FrameLayout {
 		if (mRenderer != null) {
 			mRenderer.release();
 			mRenderer = null;
-		}
-
-		if (BuildConfig.DEBUG) {
-			ResourceManager.check();
 		}
 	}
 
