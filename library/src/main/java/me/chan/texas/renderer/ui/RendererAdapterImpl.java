@@ -89,7 +89,6 @@ public class RendererAdapterImpl extends RecyclerView.Adapter<RendererAdapterImp
 	private final RecyclerView.RecycledViewPool mPool;
 	private ParagraphDecor mParagraphDecor;
 
-	private final SparseArrayCompat<TextureParagraph> mTextureParagraphRecord = new SparseArrayCompat<>();
 	private Listener mListener;
 
 	// handler需要设置线程可见性，这样一旦释放了handler，工作线程能立马看到
@@ -150,14 +149,6 @@ public class RendererAdapterImpl extends RecyclerView.Adapter<RendererAdapterImp
 
 	@Override
 	public void onViewRecycled(@NonNull Renderer holder) {
-		if (holder instanceof ParagraphRenderer) {
-			ParagraphRenderer paragraphRenderer = (ParagraphRenderer) holder;
-			mTextureParagraphRecord.remove(paragraphRenderer.mRender.getToken().getId());
-			paragraphRenderer.mRender.clear();
-			if (DEBUG) {
-				d("onViewRecycled: " + paragraphRenderer.mRender.getToken());
-			}
-		}
 		holder.itemView.setTag(R.id.me_chan_texas_item_tag, null);
 	}
 
@@ -356,21 +347,6 @@ public class RendererAdapterImpl extends RecyclerView.Adapter<RendererAdapterImp
 		Document prev = mDocument;
 		mDocument = null;
 
-		try {
-			int count = mTextureParagraphRecord.size();
-			for (int i = 0; i < count; i++) {
-				TextureParagraph textureParagraph = mTextureParagraphRecord.valueAt(i);
-				textureParagraph.clear();
-				if (DEBUG) {
-					d("release texture paragraph record " + textureParagraph.getToken());
-				}
-			}
-		} catch (Throwable throwable) {
-			if (BuildConfig.DEBUG) {
-				throw new RuntimeException(throwable);
-			}
-		}
-
 		if (prev != null) {
 			WorkerScheduler.odd().submit(mToken, mMiscTaskQueue, prev::release);
 		}
@@ -482,8 +458,6 @@ public class RendererAdapterImpl extends RecyclerView.Adapter<RendererAdapterImp
 					mRenderOption,
 					mParagraphDecor,
 					mSelectionManager.getSpanTouchEventHandler());
-
-			mTextureParagraphRecord.put(mRender.getToken().getId(), mRender);
 			if (DEBUG) {
 				d("onCreateViewHolder: " + mRender.getToken());
 			}

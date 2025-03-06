@@ -172,12 +172,6 @@ public class ParagraphView extends FrameLayout {
 		render0(mParagraph);
 	}
 
-	@Override
-	protected void onDetachedFromWindow() {
-		mRender.clear();
-		super.onDetachedFromWindow();
-	}
-
 	private boolean handleParagraphSelected(TouchEvent event, Paragraph paragraph, @OnSelectedChangedListener.EventType int eventType, Box box) {
 		if (mOnClickedListener == null) {
 			return false;
