@@ -13,9 +13,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class TexturePicture extends Picture {
 
-	public static final AtomicInteger CREATE_PICTURE_COUNT = new AtomicInteger(0);
-	public static final AtomicInteger RELEASE_PICTURE_COUNT = new AtomicInteger(0);
-
+	public static final AtomicInteger ALIVE_COUNT = new AtomicInteger(0);
 
 	private static final boolean DEBUG = false;
 
@@ -80,7 +78,7 @@ public class TexturePicture extends Picture {
 
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
 	public static TexturePicture createPicture() {
-		CREATE_PICTURE_COUNT.incrementAndGet();
+		ALIVE_COUNT.incrementAndGet();
 		return new TexturePicture();
 	}
 
@@ -91,11 +89,11 @@ public class TexturePicture extends Picture {
 		}
 
 		picture.releaseHack__();
-		RELEASE_PICTURE_COUNT.incrementAndGet();
+		ALIVE_COUNT.decrementAndGet();
 	}
 
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
 	public static String getPictureStats() {
-		return "Create: " + CREATE_PICTURE_COUNT.get() + ", Release: " + RELEASE_PICTURE_COUNT.get();
+		return "alive picture: " + ALIVE_COUNT.get();
 	}
 }
