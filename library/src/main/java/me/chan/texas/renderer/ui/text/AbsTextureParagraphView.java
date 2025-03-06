@@ -85,6 +85,12 @@ public abstract class AbsTextureParagraphView extends View implements TexturePar
 	}
 
 	@Override
+	protected final void onDetachedFromWindow() {
+		clear();
+		super.onDetachedFromWindow();
+	}
+
+	@Override
 	@CallSuper
 	public void clear() {
 		mParagraph = null;
