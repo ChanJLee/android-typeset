@@ -3,12 +3,15 @@ package me.chan.texas.renderer.core.graphics;
 import static me.chan.texas.renderer.core.WorkerScheduler.TASK_QUEUE_RENDER;
 
 import android.graphics.Canvas;
+import android.graphics.Picture;
 import android.os.SystemClock;
 import android.util.Log;
 
 import androidx.annotation.MainThread;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.WorkerThread;
+
+import java.util.concurrent.atomic.AtomicReference;
 
 import me.chan.texas.renderer.core.WorkerScheduler;
 import me.chan.texas.utils.concurrency.TaskQueue;
@@ -91,11 +94,10 @@ public class GraphicsBuffer {
 		}
 	}
 
-	private static class DoubleBuffer implements Runnable {
-		private volatile TexturePicture mDrewPicture;
+	private static class DoubleBuffer {
+		private static final Picture EMPTY_PICTURE = new Picture();
+		private final AtomicReference<Picture> mDrewPicture = new AtomicReference<>(EMPTY_PICTURE);
 		private TexturePicture mDrawingPicture;
-
-		private boolean mReleased = false;
 
 		private final TaskQueue.Token mToken;
 
@@ -105,57 +107,57 @@ public class GraphicsBuffer {
 
 		@WorkerThread
 		public Canvas lockCanvas(int width, int height) {
-			if (mReleased) {
+			if (mDrewPicture.get() == null) {
 				return null;
 			}
 
-			if (mDrawingPicture == null) {
-				mDrawingPicture = TexturePicture.createPicture();
+			if (mDrawingPicture != null) {
+				throw new IllegalStateException("drawing picture is not null");
 			}
 
+			mDrawingPicture = TexturePicture.createPicture();
 			return mDrawingPicture.beginRecording(width, height);
 		}
 
 		@WorkerThread
 		public void unlockCanvas() {
-			if (mReleased) {
+			mDrawingPicture.endRecording();
+			TexturePicture current = mDrawingPicture;
+			mDrawingPicture = null;
+
+			// ready recycle
+			Picture old = mDrewPicture.getAndSet(current);
+			if (old == null) {
+				TexturePicture.releasePicture(current);
 				return;
 			}
 
-			mDrawingPicture.endRecording();
-
-			// ready recycle
-			TexturePicture tmp = mDrewPicture;
-
-			// 读写栏栅，不然draw的时候会闪烁
-			mDrewPicture = mDrawingPicture;
-			mDrawingPicture = null;
-			TexturePicture.releasePicture(tmp);
+			if (old != EMPTY_PICTURE) {
+				TexturePicture.releasePicture((TexturePicture) old);
+			}
 		}
 
 		@MainThread
 		public void release() {
-			mReleased = true;
-			WorkerScheduler.odd().submit(mToken /* 基本上是一个不可能的值 */, WorkerScheduler.getTaskQueue(TASK_QUEUE_RENDER), this);
+			final Picture picture = mDrewPicture.getAndSet(null);
+			if (picture == null ||picture == EMPTY_PICTURE) {
+				return;
+			}
+
+			WorkerScheduler.odd().submit(
+					mToken /* 基本上是一个不可能的值 */,
+					WorkerScheduler.getTaskQueue(TASK_QUEUE_RENDER),
+					() -> TexturePicture.releasePicture((TexturePicture) picture));
 		}
 
 		@MainThread
 		public TexturePicture getPicture() {
-			return mReleased ? null : mDrewPicture;
-		}
-
-		@Override
-		public void run() {
-			mReleased = true;
-			if (mDrewPicture != null) {
-				TexturePicture.releasePicture(mDrewPicture);
-				mDrewPicture = null;
+			Picture picture = mDrewPicture.get();
+			if (picture == EMPTY_PICTURE) {
+				return null;
 			}
 
-			if (mDrawingPicture != null) {
-				TexturePicture.releasePicture(mDrawingPicture);
-				mDrawingPicture = null;
-			}
+			return (TexturePicture) picture;
 		}
 	}
 }
