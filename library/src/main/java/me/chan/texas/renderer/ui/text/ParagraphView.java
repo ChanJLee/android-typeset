@@ -40,10 +40,12 @@ import me.chan.texas.renderer.SpanPredicate;
 import me.chan.texas.renderer.selection.ParagraphSelection;
 import me.chan.texas.renderer.selection.Selection;
 import me.chan.texas.renderer.selection.visitor.SelectedTextByClickedVisitor;
+import me.chan.texas.renderer.ui.RendererHost;
 import me.chan.texas.source.Source;
 import me.chan.texas.text.BreakStrategy;
 import me.chan.texas.text.HyphenStrategy;
 import me.chan.texas.text.Paragraph;
+import me.chan.texas.text.Segment;
 import me.chan.texas.text.TextAttribute;
 import me.chan.texas.text.layout.Box;
 import me.chan.texas.text.layout.Layout;
@@ -103,12 +105,22 @@ public class ParagraphView extends FrameLayout {
 			}
 
 			mParagraph = paragraph;
+			paragraph.bind(mHost);
 			requestLayout();
 		}
 
 		@Override
 		public void onParseFailure(Throwable throwable) {
 			Log.w(TAG, throwable);
+		}
+	};
+
+	private final RendererHost mHost = new RendererHost() {
+		@Override
+		public void updateSegment(Object unit, Segment segment) {
+			if (segment == mParagraph) {
+				redraw();
+			}
 		}
 	};
 
@@ -424,9 +436,6 @@ public class ParagraphView extends FrameLayout {
 		// 丢弃之前的任务
 		discard(false);
 
-		// 清除之前的 selection
-		clearSelection();
-
 		// 赋予
 		source.setLoader(() -> {
 			RenderOption option = mRenderOption;
@@ -495,9 +504,6 @@ public class ParagraphView extends FrameLayout {
 		if (cmpType == TexasUtils.CmpType.CMP_LOAD) {
 			// 丢弃之前的任务
 			discard(false);
-
-			// 清除之前的 selection
-			clearSelection();
 
 			// 提交解析任务
 			ParseWorker.Args args = ParseWorker.Args.obtain(mSource, mParseListener);

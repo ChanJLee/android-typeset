@@ -8,7 +8,7 @@ import me.chan.texas.text.Document;
 import me.chan.texas.text.Segment;
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-public interface TexasRendererAdapter {
+public interface TexasRendererAdapter extends RendererHost {
 	int getItemCount();
 
 	Segment getItem(int position);
@@ -18,6 +18,4 @@ public interface TexasRendererAdapter {
 	RenderOption getRenderOption();
 
 	int indexOf(Segment segment);
-
-	void updateSegment(RecyclerView.ViewHolder holder, Segment segment);
 }

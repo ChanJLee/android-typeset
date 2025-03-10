@@ -3,7 +3,6 @@ package me.chan.texas.text;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
 import android.graphics.Rect;
-import android.view.View;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
@@ -12,15 +11,13 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.recyclerview.widget.RecyclerView;
 
-import me.chan.texas.R;
 import me.chan.texas.Texas;
 import me.chan.texas.TexasOption;
 import me.chan.texas.misc.DefaultRecyclable;
 import me.chan.texas.misc.ObjectPool;
 import me.chan.texas.renderer.selection.ParagraphSelection;
 import me.chan.texas.renderer.selection.Selection;
-import me.chan.texas.renderer.ui.TexasRendererAdapter;
-import me.chan.texas.renderer.ui.decor.ParagraphDecor;
+import me.chan.texas.renderer.ui.RendererHost;
 import me.chan.texas.text.layout.Element;
 import me.chan.texas.text.layout.Layout;
 import me.chan.texas.text.tokenizer.Token;
@@ -96,8 +93,6 @@ public final class Paragraph extends DefaultRecyclable implements Segment {
 
 	private ParagraphSelection mHighlight;
 
-	private ParagraphDecor mDecor;
-
 	@RestrictTo(LIBRARY)
 	@Nullable
 	public ParagraphSelection getSelection(Selection.Type type) {
@@ -152,6 +147,8 @@ public final class Paragraph extends DefaultRecyclable implements Segment {
 			mHighlight.recycle();
 			mHighlight = null;
 		}
+		mHost = null;
+		mHolder = null;
 		POOL.release(this);
 	}
 
@@ -161,11 +158,11 @@ public final class Paragraph extends DefaultRecyclable implements Segment {
 	}
 
 	private RecyclerView.ViewHolder mHolder;
-	private TexasRendererAdapter mAdapter;
+	private RendererHost mHost;
 
 	@Override
-	public void bind(TexasRendererAdapter adapter) {
-		mAdapter = adapter;
+	public void bind(RendererHost host) {
+		mHost = host;
 	}
 
 	@Override
@@ -180,16 +177,16 @@ public final class Paragraph extends DefaultRecyclable implements Segment {
 
 	@Override
 	public void requestRedraw() {
-		if (mAdapter == null) {
+		if (mHost == null) {
 			return;
 		}
 
-		mAdapter.updateSegment(mHolder, this);
+		mHost.updateSegment(mHolder, this);
 	}
 
 	@Override
 	public int getIndex() {
-		return mAdapter == null ? -1 : mAdapter.indexOf(this);
+		return mHost == null ? -1 : mHost.indexOf(this);
 	}
 
 	public boolean hasContent() {

@@ -188,6 +188,7 @@ public class RendererAdapterImpl extends RecyclerView.Adapter<RendererAdapterImp
 	@Override
 	@SuppressWarnings("unchecked")
 	public void onBindViewHolder(@NonNull Renderer renderer, int position) {
+		Log.d("chan_debug", "full update:" + position);
 		onBindViewHolder0(renderer, position);
 	}
 
@@ -198,12 +199,13 @@ public class RendererAdapterImpl extends RecyclerView.Adapter<RendererAdapterImp
 	}
 
 	@Override
-	public void updateSegment(RecyclerView.ViewHolder holder, Segment segment) {
+	public void updateSegment(Object unit, Segment segment) {
 		if (segment == null) {
 			w("segment is null, ignore onBindViewHolder");
 			return;
 		}
 
+		RecyclerView.ViewHolder holder = (RecyclerView.ViewHolder) unit;
 		Segment expected = (Segment) holder.itemView.getTag(R.id.me_chan_texas_item_tag);
 		if (expected != segment) {
 			throw new IllegalStateException("holder and segment not match");
@@ -611,6 +613,7 @@ public class RendererAdapterImpl extends RecyclerView.Adapter<RendererAdapterImp
 
 	@Override
 	public void onBindViewHolder(@NonNull Renderer renderer, int position, @NonNull List<Object> payloads) {
+		Log.d("chan_debug", "part update:" + position);
 		onBindViewHolder0(renderer, position);
 	}
 }

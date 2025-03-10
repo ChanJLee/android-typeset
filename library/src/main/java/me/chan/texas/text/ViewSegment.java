@@ -11,7 +11,7 @@ import androidx.annotation.RestrictTo;
 import androidx.recyclerview.widget.RecyclerView;
 
 import me.chan.texas.misc.DefaultRecyclable;
-import me.chan.texas.renderer.ui.TexasRendererAdapter;
+import me.chan.texas.renderer.ui.RendererHost;
 
 /**
  * 用户自定义视图片段
@@ -72,16 +72,16 @@ public abstract class ViewSegment extends DefaultRecyclable implements Segment {
 		return mDisableReuse;
 	}
 
-	private TexasRendererAdapter mAdapter;
-	private RecyclerView.ViewHolder mViewHolder;
+	private RendererHost mHost;
+	private RecyclerView.ViewHolder mHolder;
 
 	public final void render(View view) {
 		onRender(view);
 	}
 
 	public final void requestRedraw() {
-		if (mAdapter != null) {
-			mAdapter.updateSegment(mViewHolder, this);
+		if (mHost != null) {
+			mHost.updateSegment(mHolder, this);
 		}
 	}
 
@@ -99,6 +99,8 @@ public abstract class ViewSegment extends DefaultRecyclable implements Segment {
 		mDisableReuse = false;
 		mLayout = 0;
 		mId = 0;
+		mHost = null;
+		mHolder = null;
 	}
 
 	@Nullable
@@ -132,7 +134,7 @@ public abstract class ViewSegment extends DefaultRecyclable implements Segment {
 	@RestrictTo(LIBRARY)
 	@Override
 	public final void attachToWindow(RecyclerView.ViewHolder viewHolder) {
-		mViewHolder = viewHolder;
+		mHolder = viewHolder;
 		onAttachedToWindow();
 	}
 
@@ -143,12 +145,12 @@ public abstract class ViewSegment extends DefaultRecyclable implements Segment {
 	@Override
 	public final void detachFromWindow(RecyclerView.ViewHolder viewHolder) {
 		onDetachedFromWindow();
-		mViewHolder = null;
+		mHolder = null;
 	}
 
 	@Override
-	public final void bind(TexasRendererAdapter adapter) {
-		mAdapter = adapter;
+	public final void bind(RendererHost host) {
+		mHost = host;
 	}
 
 	protected void onDetachedFromWindow() {
@@ -156,6 +158,6 @@ public abstract class ViewSegment extends DefaultRecyclable implements Segment {
 
 	@Override
 	public final int getIndex() {
-		return mAdapter == null ? -1 : mAdapter.indexOf(this);
+		return mHost == null ? -1 : mHost.indexOf(this);
 	}
 }
