@@ -96,8 +96,8 @@ public class GraphicsBuffer {
 
 	private static class DoubleBuffer {
 		private static final Picture EMPTY_PICTURE = new Picture();
-		private final AtomicReference<Picture> mDrewPicture = new AtomicReference<>(EMPTY_PICTURE);
-		private TexturePicture mDrawingPicture;
+		private final AtomicReference<Picture> mPicture = new AtomicReference<>(EMPTY_PICTURE);
+		private TexturePicture mPendingPicture;
 
 		private final TaskQueue.Token mToken;
 
@@ -107,28 +107,32 @@ public class GraphicsBuffer {
 
 		@WorkerThread
 		public Canvas lockCanvas(int width, int height) {
-			if (mDrewPicture.get() == null) {
+			if (mPicture.get() == null) {
 				return null;
 			}
 
-			if (mDrawingPicture != null) {
+			if (mPendingPicture != null) {
 				throw new IllegalStateException("drawing picture is not null");
 			}
 
-			mDrawingPicture = TexturePicture.createPicture();
-			return mDrawingPicture.beginRecording(width, height);
+			mPendingPicture = TexturePicture.createPicture();
+			return mPendingPicture.beginRecording(width, height);
 		}
 
 		@WorkerThread
 		public void unlockCanvas() {
-			mDrawingPicture.endRecording();
-			TexturePicture current = mDrawingPicture;
-			mDrawingPicture = null;
+			// Ensure that a drawing operation was in progress.
+			if (mPendingPicture == null) {
+				throw new IllegalStateException("No drawing operation is in progress.");
+			}
+			mPendingPicture.endRecording();
 
+			TexturePicture pending = mPendingPicture;
+			mPendingPicture = null;
 			// ready recycle
-			Picture old = mDrewPicture.getAndSet(current);
+			Picture old = mPicture.getAndSet(pending);
 			if (old == null) {
-				TexturePicture.releasePicture(current);
+				TexturePicture.releasePicture(pending);
 				return;
 			}
 
@@ -139,8 +143,8 @@ public class GraphicsBuffer {
 
 		@MainThread
 		public void release() {
-			final Picture picture = mDrewPicture.getAndSet(null);
-			if (picture == null ||picture == EMPTY_PICTURE) {
+			final Picture picture = mPicture.getAndSet(null);
+			if (picture == null || picture == EMPTY_PICTURE) {
 				return;
 			}
 
@@ -152,7 +156,7 @@ public class GraphicsBuffer {
 
 		@MainThread
 		public TexturePicture getPicture() {
-			Picture picture = mDrewPicture.get();
+			Picture picture = mPicture.get();
 			if (picture == EMPTY_PICTURE) {
 				return null;
 			}
