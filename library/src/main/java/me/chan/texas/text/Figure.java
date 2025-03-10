@@ -11,7 +11,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import me.chan.texas.Texas;
 import me.chan.texas.misc.DefaultRecyclable;
 import me.chan.texas.misc.ObjectPool;
-import me.chan.texas.renderer.ui.TexasRendererAdapter;
+import me.chan.texas.renderer.ui.RendererHost;
 
 /**
  * 插图
@@ -61,6 +61,8 @@ public final class Figure extends DefaultRecyclable implements Segment {
 		mUrl = null;
 		mTag = null;
 		mRect = null;
+		mHost = null;
+		mHolder = null;
 		POOL.release(this);
 	}
 
@@ -115,7 +117,7 @@ public final class Figure extends DefaultRecyclable implements Segment {
 	}
 
 	private RecyclerView.ViewHolder mHolder;
-	private TexasRendererAdapter mAdapter;
+	private RendererHost mHost;
 
 	@Override
 	public void attachToWindow(RecyclerView.ViewHolder holder) {
@@ -128,21 +130,21 @@ public final class Figure extends DefaultRecyclable implements Segment {
 	}
 
 	@Override
-	public void bind(TexasRendererAdapter adapter) {
-		mAdapter = adapter;
+	public void bind(RendererHost host) {
+		mHost = host;
 	}
 
 	@Override
 	public void requestRedraw() {
-		if (mAdapter == null) {
+		if (mHost == null) {
 			return;
 		}
 
-		mAdapter.updateSegment(mHolder, this);
+		mHost.updateSegment(mHolder, this);
 	}
 
 	@Override
 	public int getIndex() {
-		return mAdapter == null ? -1 : mAdapter.indexOf(this);
+		return mHost == null ? -1 : mHost.indexOf(this);
 	}
 }

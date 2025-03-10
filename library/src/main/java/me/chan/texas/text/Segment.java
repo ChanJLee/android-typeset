@@ -8,6 +8,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
+import me.chan.texas.renderer.ui.RendererHost;
 import me.chan.texas.renderer.ui.TexasRendererAdapter;
 
 /**
@@ -43,7 +44,7 @@ public interface Segment {
 	int getId();
 
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
-	void bind(TexasRendererAdapter adapter);
+	void bind(RendererHost host);
 
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
 	void attachToWindow(RecyclerView.ViewHolder holder);
