@@ -63,6 +63,10 @@ public class ParagraphSelection extends DefaultRecyclable {
 		return mStyle;
 	}
 
+	public Selection.Styles getSelectionStyle() {
+		return mStyle.mStyles;
+	}
+
 	@RestrictTo(LIBRARY)
 	public int getId() {
 		return mId;

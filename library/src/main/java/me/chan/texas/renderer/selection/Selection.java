@@ -41,7 +41,7 @@ public class Selection extends DefaultRecyclable {
 	}
 
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
-	void add(Paragraph paragraph) {
+	public void add(Paragraph paragraph) {
 		mParagraphs.add(paragraph);
 	}
 
@@ -72,10 +72,32 @@ public class Selection extends DefaultRecyclable {
 	 */
 	private final int[] mLocations = new int[2];
 
+	private RectEdge getSelectedRectEdgeSingle() {
+		Paragraph paragraph = mParagraphs.get(0);
+		ParagraphSelection paragraphSelection = paragraph.getSelection(mType);
+		if (paragraphSelection == null || paragraphSelection.isSelectedRegionEmpty()) {
+			return null;
+		}
+
+		RectF firstRegion = paragraphSelection.getFirstRegion();
+		mRectEdge.topY = firstRegion.top;
+		mRectEdge.topX = firstRegion.left;
+		mRectEdge.lineHeight = firstRegion.bottom - firstRegion.top;
+
+		RectF lastRegion = paragraphSelection.getLastRegion();
+		mRectEdge.bottomY = lastRegion.bottom;
+		mRectEdge.bottomX = lastRegion.right;
+		return mRectEdge;
+	}
+
 	public RectEdge getSelectedRectEdge() {
 		int size = mParagraphs.size();
 		if (size == 0) {
 			return null;
+		}
+
+		if (size == 1) {
+			return getSelectedRectEdgeSingle();
 		}
 
 		boolean hasModified = false;
@@ -267,7 +289,12 @@ public class Selection extends DefaultRecyclable {
 	}
 
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
-	public static Selection obtain(Type type, TexasRecyclerView container, Styles styles) {
+	public static Selection obtain(Type type, Styles styles) {
+		return obtain(type, null, styles);
+	}
+
+	@RestrictTo(RestrictTo.Scope.LIBRARY)
+	public static Selection obtain(Type type, @Nullable TexasRecyclerView container, Styles styles) {
 		Selection selection = POOL.acquire();
 		if (selection == null) {
 			selection = new Selection();
