@@ -27,6 +27,7 @@ import me.chan.texas.di.core.TextEngineCoreComponent;
 import me.chan.texas.measurer.MeasureFactory;
 import me.chan.texas.measurer.Measurer;
 import me.chan.texas.misc.PaintSet;
+import me.chan.texas.renderer.ParagraphPredicates;
 import me.chan.texas.renderer.ParagraphVisitor;
 import me.chan.texas.renderer.RenderOption;
 import me.chan.texas.renderer.SpanTouchEventHandler;
@@ -39,6 +40,7 @@ import me.chan.texas.renderer.core.worker.ParagraphTypesetWorker;
 import me.chan.texas.renderer.SpanPredicate;
 import me.chan.texas.renderer.selection.ParagraphSelection;
 import me.chan.texas.renderer.selection.Selection;
+import me.chan.texas.renderer.selection.visitor.PredicatesDriveSelectedVisitor;
 import me.chan.texas.renderer.selection.visitor.SelectedTextByClickedVisitor;
 import me.chan.texas.renderer.ui.RendererHost;
 import me.chan.texas.source.Source;
@@ -79,6 +81,13 @@ public class ParagraphView extends FrameLayout {
 	private OnClickedListener mOnClickedListener;
 
 	private final SelectedTextByClickedVisitor mSelectedTextByClickedVisitor = new SelectedTextByClickedVisitor();
+
+	/**
+	 * 用于自驱式的选中文本
+	 * <p>
+	 * 即主动调用 {@link TexasView#selectParagraphs} 接口，而不是通过点击操作
+	 */
+	private final PredicatesDriveSelectedVisitor mPredicatesDriveSelectedVisitor = new PredicatesDriveSelectedVisitor();
 
 	private final Region mRegion = new Region();
 
@@ -533,6 +542,82 @@ public class ParagraphView extends FrameLayout {
 		if (mParagraph != null) {
 			render0(mParagraph);
 		}
+	}
+
+	@Nullable
+	public Selection getSelection() {
+		return getSelection(Selection.Type.SELECTION);
+	}
+
+	@Nullable
+	public Selection getHighlight() {
+		return getSelection(Selection.Type.HIGHLIGHT);
+	}
+
+	private Selection getSelection(Selection.Type type) {
+		if (mParagraph == null) {
+			return null;
+		}
+
+		ParagraphSelection paragraphSelection = mParagraph.getSelection(type);
+		if (paragraphSelection == null) {
+			return null;
+		}
+
+		Selection.Styles styles = paragraphSelection.getSelectionStyle();
+		if (styles == null) {
+			return null;
+		}
+
+		Selection selection = Selection.obtain(type, styles);
+		selection.add(mParagraph);
+		return selection;
+	}
+
+	/**
+	 * 高亮paragraph中的文本，只在渲染出document后生效
+	 *
+	 * @param predicates 谓词
+	 * @return 选中区域
+	 */
+	@Nullable
+	public Selection highlightParagraphs(ParagraphPredicates predicates) {
+		return highlightParagraphs(predicates, null);
+	}
+
+	/**
+	 * 高亮paragraph中的文本，只在渲染出document后生效
+	 *
+	 * @param predicates 谓词
+	 * @param styles     {@link Selection.Styles#create(int, int)}
+	 * @return 选中区域
+	 */
+	@Nullable
+	public Selection highlightParagraphs(ParagraphPredicates predicates, Selection.Styles styles) {
+		if (mParagraph == null) {
+			return null;
+		}
+
+		if (styles == null) {
+			styles = Selection.Styles.createFromHighLight(mRenderOption).setEnableDrag(false);
+		}
+
+		try {
+			mPredicatesDriveSelectedVisitor.reset(Selection.Type.HIGHLIGHT, mRenderOption, predicates, mParagraph, styles);
+			mPredicatesDriveSelectedVisitor.startVisit(mParagraph);
+			ParagraphSelection paragraphSelection = mParagraph.getSelection(Selection.Type.HIGHLIGHT);
+			if (paragraphSelection != null) {
+				Selection selection = Selection.obtain(Selection.Type.HIGHLIGHT, styles);
+				selection.add(mParagraph);
+				return selection;
+			}
+		} catch (ParagraphVisitor.VisitException ignored) {
+			/* do nothing */
+		} finally {
+			mPredicatesDriveSelectedVisitor.clear();
+		}
+
+		return null;
 	}
 
 	/**
