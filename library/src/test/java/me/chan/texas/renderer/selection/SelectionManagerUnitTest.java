@@ -763,7 +763,7 @@ public class SelectionManagerUnitTest {
 		}
 
 		@Override
-		public void updateSegment(RecyclerView.ViewHolder holder, Segment segment) {
+		public void updateSegment(Object holder, Segment segment) {
 
 		}
 	}

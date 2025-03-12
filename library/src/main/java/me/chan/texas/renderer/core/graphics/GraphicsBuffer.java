@@ -8,7 +8,9 @@ import android.os.SystemClock;
 import android.util.Log;
 
 import androidx.annotation.MainThread;
+import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
+import androidx.annotation.VisibleForTesting;
 import androidx.annotation.WorkerThread;
 
 import java.util.concurrent.atomic.AtomicReference;
@@ -26,7 +28,11 @@ public class GraphicsBuffer {
 	private DoubleBuffer mBuffer;
 
 	@MainThread
-	public void attach(TaskQueue.Token token) {
+	public void attach(@NonNull TaskQueue.Token token) {
+		if (token == null) {
+			throw new IllegalArgumentException("invalid argument");
+		}
+
 		if (mBuffer == null) {
 			mBuffer = new DoubleBuffer(token);
 		}
@@ -94,7 +100,8 @@ public class GraphicsBuffer {
 		}
 	}
 
-	private static class DoubleBuffer {
+	@VisibleForTesting
+	static class DoubleBuffer {
 		private static final Picture EMPTY_PICTURE = new Picture();
 		private final AtomicReference<Picture> mPicture = new AtomicReference<>(EMPTY_PICTURE);
 		private TexturePicture mPendingPicture;
