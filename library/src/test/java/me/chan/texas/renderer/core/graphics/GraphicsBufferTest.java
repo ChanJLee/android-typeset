@@ -1,5 +1,7 @@
 package me.chan.texas.renderer.core.graphics;
 
+import android.graphics.Picture;
+
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -29,6 +31,19 @@ public class GraphicsBufferTest {
 
 		graphicsBuffer.detach();
 		Assert.assertFalse(graphicsBuffer.isAttached());
+	}
+
+	@Test
+	public void testDraw() {
+		GraphicsBuffer.DoubleBuffer buffer = new GraphicsBuffer.DoubleBuffer(TaskQueue.Token.newInstance());
+		buffer.lockCanvas(1, 1);
+		buffer.unlockCanvas();
+
+		Picture picture = buffer.getPicture();
+		Assert.assertNotNull(picture);
+
+		buffer.release();
+		Assert.assertNull(buffer.getPicture());
 	}
 
 	@Test

@@ -148,7 +148,8 @@ public class GraphicsBuffer {
 		}
 
 		@MainThread
-		private TexturePicture getPicture() {
+		@VisibleForTesting
+		final TexturePicture getPicture() {
 			Picture picture = mPicture.get();
 			if (picture == EMPTY_PICTURE) {
 				return null;
