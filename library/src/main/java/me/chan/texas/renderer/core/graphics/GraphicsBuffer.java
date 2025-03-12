@@ -79,21 +79,7 @@ public class GraphicsBuffer {
 			ts = SystemClock.elapsedRealtime();
 		}
 
-		for (int i = 0; i < 3; ++i) {
-			TexturePicture picture = mBuffer.getPicture();
-			if (picture == null) {
-				break;
-			}
-
-			canvas.drawPicture(picture);
-			if (!picture.isHackIsDrawFailed__()) {
-				break;
-			}
-
-			if (DEBUG) {
-				Log.d("RendererBuffer", "draw failed, retry");
-			}
-		}
+		mBuffer.draw(canvas);
 
 		if (DEBUG) {
 			Log.d("RendererBuffer", "draw time: " + (SystemClock.elapsedRealtime() - ts));
@@ -162,13 +148,26 @@ public class GraphicsBuffer {
 		}
 
 		@MainThread
-		public TexturePicture getPicture() {
+		private TexturePicture getPicture() {
 			Picture picture = mPicture.get();
 			if (picture == EMPTY_PICTURE) {
 				return null;
 			}
 
 			return (TexturePicture) picture;
+		}
+
+		@MainThread
+		public void draw(Canvas canvas) {
+			TexturePicture picture = getPicture();
+			if (picture == null) {
+				return;
+			}
+
+			canvas.drawPicture(picture);
+			if (DEBUG && picture.isHackIsDrawFailed__()) {
+				Log.d("RendererBuffer", "draw failed, retry");
+			}
 		}
 	}
 }

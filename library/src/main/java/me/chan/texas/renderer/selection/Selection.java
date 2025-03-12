@@ -96,7 +96,7 @@ public class Selection extends DefaultRecyclable {
 			return null;
 		}
 
-		if (size == 1) {
+		if (mContainer == null) {
 			return getSelectedRectEdgeSingle();
 		}
 
