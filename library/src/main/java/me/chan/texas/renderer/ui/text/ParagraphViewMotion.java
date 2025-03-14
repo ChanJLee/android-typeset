@@ -112,7 +112,7 @@ public class ParagraphViewMotion {
 	}
 
 	private boolean handleBoxModeMotion(MotionEvent e, @OnSelectedChangedListener.EventType int eventType) {
-		if (mLastTouchBox == null || mOnTextSelectedListener == null) {
+		if (mLastTouchBox == null || mOnTextSelectedListener == null || mParagraph == null) {
 			return false;
 		}
 
