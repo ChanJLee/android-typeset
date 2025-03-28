@@ -27,6 +27,8 @@ public class AndroidMeasurer implements Measurer {
 
 	private final TextPaint mWorkPaint = TextPaintCompat.create();
 
+	private final Paint.FontMetrics mFontMetrics = new Paint.FontMetrics();
+
 	public AndroidMeasurer(PaintSet context) {
 		mPaintSet = context;
 	}
@@ -59,7 +61,8 @@ public class AndroidMeasurer implements Measurer {
 		} else {
 			width = (float) Math.ceil(BoringLayout.getDesiredWidth(charSequence, start, end, textPaint));
 		}
-		Paint.FontMetrics fontMetrics = textPaint.getFontMetrics();
+		textPaint.getFontMetrics(mFontMetrics);
+		Paint.FontMetrics fontMetrics = mFontMetrics;
 		float height = (float) Math.ceil(fontMetrics.descent - fontMetrics.ascent);
 		float bottomPadding = (float) Math.ceil(fontMetrics.bottom - fontMetrics.descent);
 		bottomPadding = Math.min(bottomPadding, 1);
