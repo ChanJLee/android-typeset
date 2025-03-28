@@ -8,6 +8,9 @@ import androidx.annotation.RestrictTo;
 import me.chan.texas.misc.BitBucket32;
 
 public class StateList {
+	public static final int STATE_SELECTED = 1;
+	public static final int STATE_HIGHLIGHT = 2;
+
 	private final BitBucket32 mBits = new BitBucket32();
 
 	@RestrictTo(LIBRARY)
@@ -32,17 +35,16 @@ public class StateList {
 		mBits.clear();
 	}
 
-
-	public static final int STATE_SELECTED = 1;
-
-	public static final int STATE_HIGHLIGHT = 2;
-
 	public void setHighlighted(boolean isHighlighted) {
 		if (isHighlighted) {
 			mBits.set(STATE_HIGHLIGHT);
 		} else {
 			mBits.clear(STATE_HIGHLIGHT);
 		}
+	}
+
+	public boolean isHighlighted() {
+		return getState(STATE_HIGHLIGHT);
 	}
 
 	@IntDef(flag = true, value = {STATE_SELECTED, STATE_HIGHLIGHT})
