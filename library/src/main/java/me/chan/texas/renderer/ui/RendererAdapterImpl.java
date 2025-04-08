@@ -316,7 +316,7 @@ public class RendererAdapterImpl extends RecyclerView.Adapter<RendererAdapterImp
 			segment.bind(this);
 		}
 
-		if (prev == result.base) {
+		if (prev == result.base && result.diff != null) {
 			result.diff.dispatchUpdatesTo(this);
 			return;
 		}

@@ -121,8 +121,7 @@ public class MixWorker implements TaskQueue.Listener<MixWorker.Args, MixWorker.T
 			d("parse or refresh used time: " + (parseTimestamp - startTimestamp));
 		}
 
-		final Document prev = args.prev == null ? new Document.Builder().build() : args.prev;
-		DiffUtil.DiffResult diff = diff(prev, args.document);
+		DiffUtil.DiffResult diff = args.prev == null ? null : diff(args.prev, args.document);
 
 		typesetDocument(token, args.outWidth, args.prev, args.document, args.option, args.segmentDecoration);
 
@@ -136,7 +135,7 @@ public class MixWorker implements TaskQueue.Listener<MixWorker.Args, MixWorker.T
 			d("status: " + WorkerScheduler.typeset().stats());
 		}
 
-		return new TypesetResult(args.option, args.document, prev, diff);
+		return new TypesetResult(args.option, args.document, args.prev, diff);
 	}
 
 	@VisibleForTesting
