@@ -38,6 +38,15 @@ public class TexasLinearLayoutManagerImpl extends LinearLayoutManager implements
 		scrollToPositionWithOffset(position, mOffset);
 	}
 
+	@Override
+	public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state) {
+		try {
+			super.onLayoutChildren(recycler, state);
+		} catch (Throwable throwable) {
+			throw new RuntimeException("LayoutChildren error", throwable);
+		}
+	}
+
 	@Nullable
 	@Override
 	public TextureParagraph findTextureParagraphByPosition(int index) {
