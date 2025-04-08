@@ -33,7 +33,6 @@ import me.chan.texas.text.layout.Line;
 /**
  * 文本选中区域
  */
-@RestrictTo(LIBRARY)
 public class ParagraphSelection extends DefaultRecyclable {
 	private static final ObjectPool<ParagraphSelection> POOL = new ObjectPool<>(32);
 	private static final AtomicInteger UUID = new AtomicInteger(0);
