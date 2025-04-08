@@ -195,24 +195,44 @@ public class RendererAdapterImpl extends RecyclerView.Adapter<RendererAdapterImp
 	private void onBindViewHolder0(@NonNull Renderer renderer, int position) {
 		Segment segment = getItem(position);
 		renderer.itemView.setTag(R.id.me_chan_texas_item_tag, segment);
-		updateSegment(renderer, segment);
+		updateSegmentFast(renderer, segment);
 	}
+
+	private static final Object SIG_UPDATE_SEGMENT = new Object();
 
 	@Override
 	public void updateSegment(Object unit, Segment segment) {
-		if (segment == null || unit == null) {
-			w("segment is null or unit is null, ignore onBindViewHolder");
+		if (segment == null) {
+			w("segment is null, ignore updateSegment");
 			return;
+		}
+
+		if (updateSegmentFast(unit, segment)) {
+			return;
+		}
+
+		int index = segment.getIndex();
+		if (index >= 0 && index < getItemCount()) {
+			notifyItemChanged(index, SIG_UPDATE_SEGMENT);
+		}
+	}
+
+	private boolean updateSegmentFast(Object unit, Segment segment) {
+		if (unit == null) {
+			w("unit is null, ignore updateSegmentFast");
+			return false;
 		}
 
 		RecyclerView.ViewHolder holder = (RecyclerView.ViewHolder) unit;
 		Segment expected = (Segment) holder.itemView.getTag(R.id.me_chan_texas_item_tag);
 		if (expected != segment) {
-			throw new IllegalStateException("holder and segment not match");
+			w("holder information not match, ignore updateSegmentFast");
+			return false;
 		}
 
 		Renderer renderer = (Renderer) holder;
 		renderer.render(segment);
+		return true;
 	}
 
 	@Override
