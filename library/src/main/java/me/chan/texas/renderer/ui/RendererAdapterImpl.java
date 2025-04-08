@@ -200,8 +200,8 @@ public class RendererAdapterImpl extends RecyclerView.Adapter<RendererAdapterImp
 
 	@Override
 	public void updateSegment(Object unit, Segment segment) {
-		if (segment == null) {
-			w("segment is null, ignore onBindViewHolder");
+		if (segment == null || unit == null) {
+			w("segment is null or unit is null, ignore onBindViewHolder");
 			return;
 		}
 
@@ -381,6 +381,16 @@ public class RendererAdapterImpl extends RecyclerView.Adapter<RendererAdapterImp
 		}
 
 		return mDocument.indexOfSegment(segment);
+	}
+
+	public void redraw(int start, int end) {
+		while (start < end) {
+			Segment segment = getItem(start);
+			if (segment != null) {
+				segment.requestRedraw();
+			}
+			start++;
+		}
 	}
 
 	abstract class Renderer<T extends Segment> extends RecyclerView.ViewHolder {

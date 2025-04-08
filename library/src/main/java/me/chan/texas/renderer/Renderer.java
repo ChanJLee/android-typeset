@@ -412,7 +412,7 @@ public class Renderer implements SelectionManager.Listener {
 		}
 
 		try {
-			mAdapter.notifyItemRangeChanged(start, end - start);
+			mAdapter.redraw(start, end);
 		} catch (Throwable ignore) {
 			/* update */
 		}
