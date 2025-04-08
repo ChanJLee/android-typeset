@@ -188,7 +188,6 @@ public class RendererAdapterImpl extends RecyclerView.Adapter<RendererAdapterImp
 	@Override
 	@SuppressWarnings("unchecked")
 	public void onBindViewHolder(@NonNull Renderer renderer, int position) {
-		Log.d("chan_debug", "full update:" + position);
 		onBindViewHolder0(renderer, position);
 	}
 
@@ -613,7 +612,6 @@ public class RendererAdapterImpl extends RecyclerView.Adapter<RendererAdapterImp
 
 	@Override
 	public void onBindViewHolder(@NonNull Renderer renderer, int position, @NonNull List<Object> payloads) {
-		Log.d("chan_debug", "part update:" + position);
 		onBindViewHolder0(renderer, position);
 	}
 }
