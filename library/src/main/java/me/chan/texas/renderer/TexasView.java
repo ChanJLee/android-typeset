@@ -411,7 +411,6 @@ public final class TexasView extends FrameLayout {
 	 * @return 当前数据源
 	 */
 	@Nullable
-	@RestrictTo(RestrictTo.Scope.LIBRARY)
 	public DocumentSource getSource() {
 		return mSource;
 	}
