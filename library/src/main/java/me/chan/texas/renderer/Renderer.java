@@ -102,7 +102,7 @@ public class Renderer implements SelectionManager.Listener {
 
 		@Override
 		public void onSuccess(MixWorker.TypesetResult result) {
-			render(result.texasOption, result.doc, result.diff);
+			render(result);
 		}
 	};
 
@@ -183,11 +183,11 @@ public class Renderer implements SelectionManager.Listener {
 		mTypesetEngine.resize(reason, mTexasView.createTexasOption(), width, mListener);
 	}
 
-	private void render(TexasOption texasOption, Document document, DiffUtil.DiffResult diff) {
+	private void render(MixWorker.TypesetResult result) {
 		clearHighlight();
 		clearSelection();
 
-		mAdapter.render(document, texasOption.getPaintSet(), texasOption.getRenderOption(), diff);
+		mAdapter.render(result);
 		mTexasView.notifyRenderEnd();
 	}
 

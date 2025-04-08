@@ -19,9 +19,9 @@ import androidx.collection.SparseArrayCompat;
 import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.RecyclerView;
 
-import me.chan.texas.BuildConfig;
 import me.chan.texas.R;
 import me.chan.texas.Texas;
+import me.chan.texas.TexasOption;
 import me.chan.texas.di.TexasComponent;
 import me.chan.texas.di.core.TextEngineCoreComponent;
 import me.chan.texas.image.ImageLoader;
@@ -29,6 +29,7 @@ import me.chan.texas.misc.PaintSet;
 import me.chan.texas.renderer.RenderOption;
 import me.chan.texas.renderer.TouchEvent;
 import me.chan.texas.renderer.core.WorkerScheduler;
+import me.chan.texas.renderer.core.worker.MixWorker;
 import me.chan.texas.renderer.selection.SelectionManager;
 import me.chan.texas.renderer.ui.decor.ParagraphDecor;
 import me.chan.texas.renderer.ui.figure.FigureView;
@@ -301,17 +302,26 @@ public class RendererAdapterImpl extends RecyclerView.Adapter<RendererAdapterImp
 	}
 
 	@SuppressLint("NotifyDataSetChanged")
-	public void render(Document document, PaintSet paintSet, RenderOption renderOption, DiffUtil.DiffResult diff) {
+	public void render(MixWorker.TypesetResult result) {
 		d("render");
 		mView.stopScroll();
-		mPaintSet = paintSet;
-		mRenderOption = renderOption;
+		TexasOption option = result.texasOption;
+		mPaintSet = option.getPaintSet();
+		mRenderOption = option.getRenderOption();
+		Document prev = mDocument;
+		Document document = result.doc;
 		mDocument = document;
 		for (int i = 0; i < document.getSegmentCount(); i++) {
 			Segment segment = document.getSegment(i);
 			segment.bind(this);
 		}
-		diff.dispatchUpdatesTo(this);
+
+		if (prev == result.base) {
+			result.diff.dispatchUpdatesTo(this);
+			return;
+		}
+
+		notifyDataSetChanged();
 	}
 
 	public void updateRenderOption(RenderOption renderOption) {

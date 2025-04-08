@@ -6,11 +6,9 @@ import android.os.Environment;
 import android.os.SystemClock;
 import android.util.Log;
 
-import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.recyclerview.widget.DiffUtil;
-import androidx.recyclerview.widget.ListUpdateCallback;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -138,7 +136,7 @@ public class MixWorker implements TaskQueue.Listener<MixWorker.Args, MixWorker.T
 			d("status: " + WorkerScheduler.typeset().stats());
 		}
 
-		return new TypesetResult(args.option, args.document, diff);
+		return new TypesetResult(args.option, args.document, prev, diff);
 	}
 
 	@VisibleForTesting
@@ -494,13 +492,18 @@ public class MixWorker implements TaskQueue.Listener<MixWorker.Args, MixWorker.T
 		 */
 		public final Document doc;
 		/**
+		 * 基准文档
+		 */
+		public final Document base;
+		/**
 		 * 变更diff
 		 */
 		public final DiffUtil.DiffResult diff;
 
-		public TypesetResult(TexasOption texasOption, Document doc, DiffUtil.DiffResult diff) {
+		public TypesetResult(TexasOption texasOption, Document doc, Document base, DiffUtil.DiffResult diff) {
 			this.texasOption = texasOption;
 			this.doc = doc;
+			this.base = base;
 			this.diff = diff;
 		}
 	}
