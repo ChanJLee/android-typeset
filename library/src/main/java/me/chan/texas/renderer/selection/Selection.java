@@ -241,6 +241,11 @@ public class Selection extends DefaultRecyclable {
 			if (!mSet.contains(selection.getId())) {
 				return true;
 			}
+
+			Paragraph paragraph = selection.getParagraph();
+			if (paragraph == null || paragraph.getSelection(mType) != selection) {
+				return true;
+			}
 		}
 
 		return false;
