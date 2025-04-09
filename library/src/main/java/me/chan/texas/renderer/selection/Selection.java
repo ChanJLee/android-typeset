@@ -29,7 +29,7 @@ public class Selection extends DefaultRecyclable {
 
 	private Type mType;
 	private TexasRecyclerView mContainer;
-	protected final List<Paragraph> mParagraphs = new ArrayList<>();
+	protected final List<ParagraphSelection> mParagraphSelections = new ArrayList<>();
 	private final RectEdge mRectEdge = new RectEdge();
 	private Styles mStyles;
 
@@ -41,8 +41,8 @@ public class Selection extends DefaultRecyclable {
 	}
 
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
-	public void add(Paragraph paragraph) {
-		mParagraphs.add(paragraph);
+	public void add(ParagraphSelection selection) {
+		mParagraphSelections.add(selection);
 	}
 
 	@Nullable
@@ -60,11 +60,16 @@ public class Selection extends DefaultRecyclable {
 	 */
 	@Nullable
 	public List<Paragraph> getSelectedParagraphs() {
-		if (mParagraphs.isEmpty()) {
+		if (mParagraphSelections.isEmpty() || isInvalidate()) {
 			return null;
 		}
 
-		return mParagraphs;
+		List<Paragraph> list = new ArrayList<>();
+		for (ParagraphSelection selection : mParagraphSelections) {
+			Paragraph paragraph = selection.getParagraph();
+			list.add(paragraph);
+		}
+		return list;
 	}
 
 	/**
@@ -73,9 +78,12 @@ public class Selection extends DefaultRecyclable {
 	private final int[] mLocations = new int[2];
 
 	private RectEdge getSelectedRectEdgeSingle() {
-		Paragraph paragraph = mParagraphs.get(0);
-		ParagraphSelection paragraphSelection = paragraph.getSelection(mType);
-		if (paragraphSelection == null || paragraphSelection.isSelectedRegionEmpty()) {
+		if (mParagraphSelections.isEmpty()) {
+			return null;
+		}
+
+		ParagraphSelection paragraphSelection = mParagraphSelections.get(0);
+		if (paragraphSelection.isSelectedRegionEmpty()) {
 			return null;
 		}
 
@@ -91,7 +99,7 @@ public class Selection extends DefaultRecyclable {
 	}
 
 	public RectEdge getSelectedRectEdge() {
-		int size = mParagraphs.size();
+		int size = mParagraphSelections.size();
 		if (size == 0) {
 			return null;
 		}
@@ -102,9 +110,12 @@ public class Selection extends DefaultRecyclable {
 
 		boolean hasModified = false;
 		for (int i = 0; i < size; ++i) {
-			Paragraph paragraph = mParagraphs.get(i);
-			ParagraphSelection paragraphSelection = paragraph.getSelection(mType);
-			if (paragraphSelection == null || paragraphSelection.isSelectedRegionEmpty()) {
+			ParagraphSelection paragraphSelection = mParagraphSelections.get(i);
+			Paragraph paragraph = paragraphSelection.getParagraph();
+			if (paragraph == null || paragraph.getSelection(mType) != paragraphSelection) {
+				return null;
+			}
+			if (paragraphSelection.isSelectedRegionEmpty()) {
 				continue;
 			}
 
@@ -124,9 +135,12 @@ public class Selection extends DefaultRecyclable {
 		}
 
 		for (int i = size - 1; i >= 0; --i) {
-			Paragraph paragraph = mParagraphs.get(i);
-			ParagraphSelection paragraphSelection = paragraph.getSelection(mType);
-			if (paragraphSelection == null || paragraphSelection.isSelectedRegionEmpty()) {
+			ParagraphSelection paragraphSelection = mParagraphSelections.get(i);
+			Paragraph paragraph = paragraphSelection.getParagraph();
+			if (paragraph == null || paragraph.getSelection(mType) != paragraphSelection) {
+				return null;
+			}
+			if (paragraphSelection.isSelectedRegionEmpty()) {
 				continue;
 			}
 
@@ -173,20 +187,20 @@ public class Selection extends DefaultRecyclable {
 	}
 
 	public int size() {
-		return mParagraphs.size();
+		return mParagraphSelections.size();
 	}
 
 	public Paragraph getParagraph(int index) {
-		return mParagraphs.get(index);
+		return mParagraphSelections.get(index).getParagraph();
 	}
 
 	public ParagraphSelection get(int index) {
-		return getParagraph(index).getSelection(mType);
+		return mParagraphSelections.get(index);
 	}
 
 	@Override
 	protected void onRecycle() {
-		mParagraphs.clear();
+		mParagraphSelections.clear();
 		mContainer = null;
 		mRectEdge.bottomX = mRectEdge.topX =
 				mRectEdge.bottomY = mRectEdge.topY = mRectEdge.lineHeight = 0;
@@ -198,17 +212,13 @@ public class Selection extends DefaultRecyclable {
 	 * 清除选中
 	 */
 	public void clear() {
+		if (isInvalidate()) {
+			return;
+		}
+
 		// 通知内容被清除的时候还需要
-		for (Paragraph paragraph : mParagraphs) {
-			if (paragraph.isRecycled()) {
-				continue;
-			}
-
-			ParagraphSelection paragraphSelection = paragraph.getSelection(mType);
-			if (paragraphSelection == null) {
-				continue;
-			}
-
+		for (ParagraphSelection paragraphSelection : mParagraphSelections) {
+			Paragraph paragraph = paragraphSelection.getParagraph();
 			paragraph.setSelection(mType, null);
 			try {
 				paragraph.requestRedraw();
@@ -217,11 +227,26 @@ public class Selection extends DefaultRecyclable {
 			}
 			paragraphSelection.recycle();
 		}
-		mParagraphs.clear();
+		mParagraphSelections.clear();
+	}
+
+	private boolean isInvalidate() {
+		for (ParagraphSelection selection : mParagraphSelections) {
+			Paragraph paragraph = selection.getParagraph();
+			if (paragraph == null) {
+				return true;
+			}
+
+			if (paragraph.getSelection(mType) != selection) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	public boolean isEmpty() {
-		return mParagraphs.isEmpty();
+		return mParagraphSelections.isEmpty();
 	}
 
 	private ValueAnimator mAnimator;
@@ -246,16 +271,19 @@ public class Selection extends DefaultRecyclable {
 	}
 
 	private void refresh() {
-		for (Paragraph paragraph : mParagraphs) {
-			paragraph.requestRedraw();
+		for (ParagraphSelection selection : mParagraphSelections) {
+			Paragraph paragraph = selection.getParagraph();
+			if (paragraph != null) {
+				paragraph.requestRedraw();
+			}
 		}
 	}
 
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder("[");
-		for (Paragraph paragraph : mParagraphs) {
-			builder.append(paragraph.getSelection(mType).toString(paragraph)).append(", ");
+		for (ParagraphSelection selection : mParagraphSelections) {
+			builder.append(selection.toString(selection.getParagraph())).append(", ");
 		}
 		builder.append("]");
 		return builder.toString();

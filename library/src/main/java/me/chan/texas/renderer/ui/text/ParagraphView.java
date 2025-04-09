@@ -570,7 +570,7 @@ public class ParagraphView extends FrameLayout {
 		}
 
 		Selection selection = Selection.obtain(type, styles);
-		selection.add(mParagraph);
+		selection.add(paragraphSelection);
 		return selection;
 	}
 
@@ -608,7 +608,7 @@ public class ParagraphView extends FrameLayout {
 			ParagraphSelection paragraphSelection = mParagraph.getSelection(Selection.Type.HIGHLIGHT);
 			if (paragraphSelection != null) {
 				Selection selection = Selection.obtain(Selection.Type.HIGHLIGHT, styles);
-				selection.add(mParagraph);
+				selection.add(paragraphSelection);
 				return selection;
 			}
 		} catch (ParagraphVisitor.VisitException ignored) {

@@ -370,6 +370,10 @@ public class SelectionManager implements OnSelectedChangedListener {
 		if (prevSelection != null) {
 			for (int i = 0; i < prevSelection.size(); ++i) {
 				Paragraph paragraph = prevSelection.getParagraph(i);
+				if (paragraph == null) {
+					continue;
+				}
+
 				int index = mAdapter.indexOf(paragraph);
 				if (!mSelectionDiffBucket.get(index)) {
 					ParagraphSelection paragraphSelection = prevSelection.getParagraphSelection(paragraph);
@@ -451,7 +455,7 @@ public class SelectionManager implements OnSelectedChangedListener {
 	private void addParagraphSelection(Selection selection, Paragraph paragraph) {
 		ParagraphSelection paragraphSelection = paragraph.getSelection(selection.getType());
 		if (paragraphSelection != null) {
-			selection.add(paragraph);
+			selection.add(paragraphSelection);
 		}
 	}
 
@@ -568,7 +572,7 @@ public class SelectionManager implements OnSelectedChangedListener {
 	private void addParagraphHighlight(Selection selection, Paragraph paragraph) {
 		ParagraphSelection paragraphSelection = paragraph.getSelection(selection.getType());
 		if (paragraphSelection != null) {
-			selection.add(paragraph);
+			selection.add(paragraphSelection);
 		}
 	}
 
