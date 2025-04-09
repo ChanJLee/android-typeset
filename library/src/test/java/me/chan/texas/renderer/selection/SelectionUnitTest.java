@@ -3,7 +3,15 @@ package me.chan.texas.renderer.selection;
 import org.junit.Assert;
 import org.junit.Test;
 
+import me.chan.texas.TexasOption;
+import me.chan.texas.di.FakeMeasureFactory;
+import me.chan.texas.hyphenation.Hyphenation;
+import me.chan.texas.measurer.Measurer;
+import me.chan.texas.measurer.MockMeasurer;
+import me.chan.texas.misc.PaintSet;
 import me.chan.texas.renderer.RenderOption;
+import me.chan.texas.text.Paragraph;
+import me.chan.texas.text.TextAttribute;
 
 public class SelectionUnitTest {
 
@@ -46,5 +54,34 @@ public class SelectionUnitTest {
 		Assert.assertEquals(5, styles.getTextColor());
 		Assert.assertEquals(0, styles.getBackgroundColor());
 		Assert.assertEquals(Selection.Styles.Source.HIGHLIGHT, styles.getSource());
+	}
+
+	@Test
+	public void checkValidate() {
+		Selection selection = Selection.obtain(Selection.Type.SELECTION, Selection.Styles.create(1, 2));
+		Assert.assertFalse(selection.isInvalidate());
+
+		RenderOption renderOption = new RenderOption();
+		renderOption.setLineSpace(1);
+		FakeMeasureFactory factory = FakeMeasureFactory.getInstance();
+		factory.getMockTextPaint().setMockTextSize(1);
+		Measurer measurer = new MockMeasurer(factory.getMockTextPaint());
+		PaintSet paintSet = new PaintSet(factory.getMockTextPaint());
+		TextAttribute textAttribute = new TextAttribute(measurer);
+		TexasOption texasOption = new TexasOption(paintSet, Hyphenation.getInstance(), measurer, textAttribute, renderOption);
+		Paragraph paragraph = Paragraph.Builder.newBuilder(texasOption)
+				.text("hello")
+				.build();
+
+		ParagraphSelection paragraphSelection = ParagraphSelection.obtain(Selection.Type.SELECTION, selection.getStyles(), paragraph);
+		paragraph.setSelection(Selection.Type.SELECTION, paragraphSelection);
+		selection.add(paragraphSelection);
+		Assert.assertFalse(selection.isInvalidate());
+
+		paragraphSelection.clear();
+		Assert.assertFalse(selection.isInvalidate());
+
+		paragraphSelection.recycle();
+		Assert.assertTrue(selection.isInvalidate());
 	}
 }
