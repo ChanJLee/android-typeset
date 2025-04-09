@@ -83,5 +83,11 @@ public class SelectionUnitTest {
 
 		paragraphSelection.recycle();
 		Assert.assertTrue(selection.isInvalidate());
+
+		ParagraphSelection prev = paragraphSelection;
+		paragraphSelection = ParagraphSelection.obtain(Selection.Type.SELECTION, selection.getStyles(), paragraph);
+		paragraph.setSelection(Selection.Type.SELECTION, paragraphSelection);
+		Assert.assertSame(prev, paragraphSelection);
+		Assert.assertTrue(selection.isInvalidate());
 	}
 }

@@ -21,16 +21,17 @@ import me.chan.texas.renderer.ui.rv.TexasRecyclerView;
 import me.chan.texas.renderer.ui.text.TextureParagraph;
 import me.chan.texas.text.Document;
 import me.chan.texas.text.Paragraph;
+import me.chan.texas.utils.IntSet;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class Selection extends DefaultRecyclable {
 	private static final ObjectPool<Selection> POOL = new ObjectPool<>(8);
-
 	private Type mType;
 	private TexasRecyclerView mContainer;
 	protected final List<ParagraphSelection> mParagraphSelections = new ArrayList<>();
+	private final IntSet mSet = new IntSet();
 	private final RectEdge mRectEdge = new RectEdge();
 	private Styles mStyles;
 
@@ -44,6 +45,7 @@ public class Selection extends DefaultRecyclable {
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
 	public void add(ParagraphSelection selection) {
 		mParagraphSelections.add(selection);
+		mSet.add(selection.getId());
 	}
 
 	@Nullable
@@ -202,6 +204,7 @@ public class Selection extends DefaultRecyclable {
 	@Override
 	protected void onRecycle() {
 		mParagraphSelections.clear();
+		mSet.clear();
 		mContainer = null;
 		mRectEdge.bottomX = mRectEdge.topX =
 				mRectEdge.bottomY = mRectEdge.topY = mRectEdge.lineHeight = 0;
@@ -229,17 +232,13 @@ public class Selection extends DefaultRecyclable {
 			paragraphSelection.recycle();
 		}
 		mParagraphSelections.clear();
+		mSet.clear();
 	}
 
 	@VisibleForTesting
 	boolean isInvalidate() {
 		for (ParagraphSelection selection : mParagraphSelections) {
-			Paragraph paragraph = selection.getParagraph();
-			if (paragraph == null) {
-				return true;
-			}
-
-			if (paragraph.getSelection(mType) != selection) {
+			if (!mSet.contains(selection.getId())) {
 				return true;
 			}
 		}
