@@ -18,7 +18,6 @@ package me.chan.texas.utils;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
 
 /**
  * SparseArrays map integers to Objects.  Unlike a normal array of Objects,
@@ -48,7 +47,6 @@ import androidx.annotation.RestrictTo;
  * keys in ascending order, or the values corresponding to the keys in ascending
  * order in the case of <code>valueAt(int)</code>.</p>
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 public class IntMap<E> implements Cloneable {
 	private static final Object DELETED = new Object();
 	private boolean mGarbage = false;

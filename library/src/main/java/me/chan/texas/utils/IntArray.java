@@ -4,12 +4,10 @@ import static java.util.Arrays.fill;
 
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
-import androidx.annotation.RestrictTo;
 
 import java.util.Arrays;
 import java.util.Collection;
 
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 public class IntArray {
 	static final int DEFAULT_SIZE = 16;
 
