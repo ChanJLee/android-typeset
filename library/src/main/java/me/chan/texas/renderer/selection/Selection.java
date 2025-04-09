@@ -10,6 +10,7 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.annotation.VisibleForTesting;
 
 import me.chan.texas.misc.DefaultRecyclable;
 import me.chan.texas.misc.ObjectPool;
@@ -230,7 +231,8 @@ public class Selection extends DefaultRecyclable {
 		mParagraphSelections.clear();
 	}
 
-	private boolean isInvalidate() {
+	@VisibleForTesting
+	boolean isInvalidate() {
 		for (ParagraphSelection selection : mParagraphSelections) {
 			Paragraph paragraph = selection.getParagraph();
 			if (paragraph == null) {

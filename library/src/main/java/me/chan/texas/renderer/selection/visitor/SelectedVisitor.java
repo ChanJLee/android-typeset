@@ -57,13 +57,13 @@ public abstract class SelectedVisitor extends ParagraphVisitor {
 		ParagraphSelection prev = paragraph.getSelection(mType);
 		paragraph.setSelection(mType, null);
 		super.visit(paragraph);
-		if (prev != null) {
-			prev.recycle();
-		}
 		if (mSelection.isEmpty()) {
 			mSelection.recycle();
 		} else {
 			paragraph.setSelection(mType, mSelection);
+		}
+		if (prev != null) {
+			prev.recycle();
 		}
 	}
 
