@@ -42,6 +42,11 @@ public final class Document {
 		return mSegments == null ? 0 : mSegments.get().size();
 	}
 
+	@RestrictTo(LIBRARY)
+	public boolean isCopy() {
+		return mSegments.getRefCount() > 1;
+	}
+
 	/**
 	 * 获取segment
 	 *
