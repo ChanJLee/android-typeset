@@ -434,6 +434,14 @@ public class ParagraphView extends FrameLayout {
 
 	private ParagraphSource mSource;
 
+	private TexasOption createTexasOption() {
+		RenderOption option = mRenderOption;
+		PaintSet paintSet = new PaintSet(option);
+		Measurer measurer = mMeasureFactory.create(paintSet);
+		TextAttribute textAttribute = new TextAttribute(measurer);
+		return LoadingWorker.createTexasOption(paintSet, textAttribute, measurer, option);
+	}
+
 	/**
 	 * @param source 段落源
 	 */
@@ -445,17 +453,9 @@ public class ParagraphView extends FrameLayout {
 		// 丢弃之前的任务
 		discard(false);
 
-		// 赋予
-		source.setLoader(() -> {
-			RenderOption option = mRenderOption;
-			PaintSet paintSet = new PaintSet(option);
-			Measurer measurer = mMeasureFactory.create(paintSet);
-			TextAttribute textAttribute = new TextAttribute(measurer);
-			return LoadingWorker.createTexasOption(paintSet, textAttribute, measurer, option);
-		});
-
 		// cache last source
 		mSource = source;
+		source.attach(this);
 
 		// 提交解析任务
 		ParseWorker.Args args = ParseWorker.Args.obtain(source, mParseListener);
@@ -827,7 +827,23 @@ public class ParagraphView extends FrameLayout {
 	 * 设置paragraph source
 	 */
 	public static abstract class ParagraphSource extends Source<Paragraph> {
-		/* NOOP */
+		private ParagraphView mParagraphView;
+
+		private void attach(ParagraphView paragraphView) {
+			mParagraphView = paragraphView;
+		}
+
+		@Nullable
+		@Override
+		protected final Paragraph onRead() {
+			if (mParagraphView == null) {
+				return null;
+			}
+
+			return onRead(mParagraphView.createTexasOption());
+		}
+
+		protected abstract Paragraph onRead(TexasOption option);
 	}
 
 	private static class TextParagraphSource extends ParagraphSource {
