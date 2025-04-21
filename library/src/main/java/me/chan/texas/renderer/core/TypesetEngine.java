@@ -131,7 +131,7 @@ public class TypesetEngine {
 		return mDocument;
 	}
 
-	public void load(String reason, int width, TexasView.DocumentSource source, @Nullable Document prev, Listener listener) {
+	public void load(String reason, int width, TexasView.DocumentSource source, Listener listener) {
 		// 非增量的加载，都需要取消之前的任务
 		cancel();
 
@@ -161,9 +161,9 @@ public class TypesetEngine {
 			}
 
 			@Override
-			public void onSuccess(TexasOption option, Document document) {
+			public void onSuccess(TexasOption option, Document prev, Document document) {
 				d("loading doc success, width: " + width + ", reason: " + reason);
-				typeset0(reason, option, document.isCopy() ? prev : null, document, listener, EVENT_FAILURE | EVENT_SUCCESS);
+				typeset0(reason, option, prev, document, listener, EVENT_FAILURE | EVENT_SUCCESS);
 			}
 		});
 		WorkerScheduler.loading().submit(mToken, args);

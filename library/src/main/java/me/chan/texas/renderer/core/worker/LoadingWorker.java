@@ -50,7 +50,7 @@ public class LoadingWorker implements TaskQueue.Listener<LoadingWorker.Args, Loa
 				args.listener.onStart();
 			} else if (value.type() == TYPE_SUCCESS) {
 				LoadingResult result = value.value();
-				args.listener.onSuccess(result.option, result.document);
+				args.listener.onSuccess(result.option, result.prev, result.document);
 			} else if (value.type() == TYPE_ERROR) {
 				args.listener.onFailure(value.error());
 			} else {
@@ -95,7 +95,8 @@ public class LoadingWorker implements TaskQueue.Listener<LoadingWorker.Args, Loa
 
 		TexasOption option = args.source.getLoader().load();
 		Document document = args.source.read(option);
-		return new LoadingResult(option, document);
+		Document prev = args.source.getBaseDocument();
+		return new LoadingResult(option, prev, document);
 	}
 
 	public static TexasOption createTexasOption(PaintSet paintSet, TextAttribute textAttribute, Measurer measurer, RenderOption option) {
@@ -125,15 +126,17 @@ public class LoadingWorker implements TaskQueue.Listener<LoadingWorker.Args, Loa
 
 		void onFailure(Throwable throwable);
 
-		void onSuccess(TexasOption option, Document document);
+		void onSuccess(TexasOption option, Document prev, Document document);
 	}
 
 	public static class LoadingResult {
+		public final Document prev;
 		public final Document document;
 		public final TexasOption option;
 
-		public LoadingResult(TexasOption option, Document document) {
+		public LoadingResult(TexasOption option, Document prev, Document document) {
 			this.option = option;
+			this.prev = prev;
 			this.document = document;
 		}
 	}

@@ -65,11 +65,6 @@ public final class Document {
 		mSegments.release();
 	}
 
-	@RestrictTo(LIBRARY)
-	public boolean isCopy() {
-		return mSegments.getRefCount() > 1;
-	}
-
 	public static class Builder {
 		private final ReferenceCountingPointer<List<Segment>> mSegments;
 

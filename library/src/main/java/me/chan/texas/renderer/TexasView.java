@@ -887,7 +887,7 @@ public final class TexasView extends FrameLayout {
 		Log.i("TexasView", msg);
 	}
 
-	public static abstract class DocumentSource extends Source<Document> {
+	public static abstract class DocumentSource extends Source<LoadingWorker.LoadingResult> {
 		private TexasView mTexasView;
 
 		private void attach(@NonNull TexasView view) {
@@ -905,8 +905,10 @@ public final class TexasView extends FrameLayout {
 		}
 
 		@Override
-		protected final Document onRead(TexasOption option) {
-			return onRead(option, mTexasView == null ? null : mTexasView.getDocument());
+		protected final LoadingWorker.LoadingResult onRead(TexasOption option) {
+			Document prev = mTexasView == null ? null : mTexasView.getDocument();
+			Document document = onRead(option, prev);
+			return new LoadingWorker.LoadingResult(option, prev, document);
 		}
 
 		/**
