@@ -171,7 +171,7 @@ public class Renderer implements SelectionManager.Listener {
 			return;
 		}
 
-		mTypesetEngine.load(reason, width, mTexasView.getSource(), getDocument(), mListener);
+		mTypesetEngine.load(reason, width, mTexasView.getSource(), mListener);
 	}
 
 	public void resize(String reason, int width) {
