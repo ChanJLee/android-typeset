@@ -93,10 +93,12 @@ public class LoadingWorker implements TaskQueue.Listener<LoadingWorker.Args, Loa
 			throw new TaskQueue.TokenExpiredException("stop parse, token expired", token);
 		}
 
-		TexasOption option = args.source.getLoader().load();
-		Document document = args.source.read(option);
-		Document prev = args.source.getBaseDocument();
-		return new LoadingResult(option, prev, document);
+		LoadingResult result = args.source.read();
+		if (result == null) {
+			throw new IllegalStateException("read failed");
+		}
+
+		return result;
 	}
 
 	public static TexasOption createTexasOption(PaintSet paintSet, TextAttribute textAttribute, Measurer measurer, RenderOption option) {

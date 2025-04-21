@@ -892,7 +892,6 @@ public final class TexasView extends FrameLayout {
 
 		private void attach(@NonNull TexasView view) {
 			mTexasView = view;
-			setLoader(() -> mTexasView.createTexasOption());
 		}
 
 		private void detach() {
@@ -900,13 +899,17 @@ public final class TexasView extends FrameLayout {
 				return;
 			}
 
-			setLoader(null);
 			mTexasView = null;
 		}
 
 		@Override
-		protected final LoadingWorker.LoadingResult onRead(TexasOption option) {
-			Document prev = mTexasView == null ? null : mTexasView.getDocument();
+		protected final LoadingWorker.LoadingResult onRead() {
+			if (mTexasView == null) {
+				return null;
+			}
+
+			TexasOption option = mTexasView.createTexasOption();
+			Document prev = mTexasView.getDocument();
 			Document document = onRead(option, prev);
 			return new LoadingWorker.LoadingResult(option, prev, document);
 		}
