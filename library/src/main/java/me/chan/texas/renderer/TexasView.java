@@ -909,9 +909,12 @@ public final class TexasView extends FrameLayout {
 			}
 
 			TexasOption option = mTexasView.createTexasOption();
-			Document prev = mTexasView.getDocument();
-			Document document = onRead(option, prev);
-			return new LoadingWorker.LoadingResult(option, prev, document);
+			Document base = mTexasView.getDocument();
+			Document document = onRead(option, base);
+			if (!document.isCopy()) {
+				base = null;
+			}
+			return new LoadingWorker.LoadingResult(option, base, document);
 		}
 
 		/**
