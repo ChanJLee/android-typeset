@@ -22,6 +22,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.UiThread;
+import androidx.annotation.VisibleForTesting;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -908,13 +909,18 @@ public final class TexasView extends FrameLayout {
 				return null;
 			}
 
-			TexasOption option = mTexasView.createTexasOption();
+			TexasOption option = createTexasOption();
 			Document base = mTexasView.getDocument();
 			Document document = onRead(option, base);
 			if (!document.isCopy()) {
 				base = null;
 			}
 			return new LoadingWorker.LoadingResult(option, base, document);
+		}
+
+		@VisibleForTesting
+		protected TexasOption createTexasOption() {
+			return mTexasView.createTexasOption();
 		}
 
 		/**

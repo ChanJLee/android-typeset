@@ -8,8 +8,19 @@ import me.chan.texas.text.TextAttribute;
 
 public class MockTextSource extends TextDocumentSource {
 
+	private Measurer measurer;
+	private TextAttribute textAttribute;
+	private RenderOption option;
+
 	public MockTextSource(RenderOption option, TextAttribute textAttribute, Measurer measurer, String text) {
 		super(text);
-		setLoader(() -> new TexasOption(null, Hyphenation.getInstance(), measurer, textAttribute, option));
+		this.option = option;
+		this.textAttribute = textAttribute;
+		this.measurer = measurer;
+	}
+
+	@Override
+	protected TexasOption createTexasOption() {
+		return new TexasOption(null, Hyphenation.getInstance(), measurer, textAttribute, option);
 	}
 }

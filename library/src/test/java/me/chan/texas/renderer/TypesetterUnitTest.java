@@ -690,7 +690,7 @@ public class TypesetterUnitTest {
 		}
 
 		@Override
-		public void onSuccess(TexasOption option, Document document) {
+		public void onSuccess(TexasOption option, Document prev, Document document) {
 			mDocument = document;
 		}
 	}
