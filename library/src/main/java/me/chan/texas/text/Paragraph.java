@@ -19,7 +19,9 @@ import me.chan.texas.renderer.selection.ParagraphSelection;
 import me.chan.texas.renderer.selection.Selection;
 import me.chan.texas.renderer.ui.RendererHost;
 import me.chan.texas.text.layout.Element;
+import me.chan.texas.text.layout.Glue;
 import me.chan.texas.text.layout.Layout;
+import me.chan.texas.text.layout.Penalty;
 import me.chan.texas.text.tokenizer.Token;
 
 import java.lang.annotation.Retention;
@@ -190,7 +192,16 @@ public final class Paragraph extends DefaultRecyclable implements Segment {
 	}
 
 	public boolean hasContent() {
-		return !mElements.isEmpty();
+		int size = mElements.size();
+		if (size > 2) {
+			return true;
+		}
+
+		if (size == 2) {
+			return mElements.get(0) != Glue.TERMINAL || mElements.get(1) != Penalty.FORCE_BREAK;
+		}
+
+		return size > 0;
 	}
 
 	@RestrictTo(LIBRARY)

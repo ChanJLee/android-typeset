@@ -1185,4 +1185,26 @@ public class ParagraphUnitTest {
 			}
 		}
 	}
+
+	@Test
+	public void testHasContent() {
+		TexasOption texasOption = new TexasOption(mPaintSet, Hyphenation.getInstance(), mMeasurer, mTextAttribute, new RenderOption());
+		Paragraph.Builder builder = Paragraph.Builder.newBuilder(texasOption);
+		Paragraph paragraph = builder.build();
+		Assert.assertFalse(paragraph.hasContent());
+
+		builder = Paragraph.Builder.newBuilder(texasOption);
+		paragraph = builder.build(false);
+		Assert.assertFalse(paragraph.hasContent());
+
+		builder = Paragraph.Builder.newBuilder(texasOption)
+				.text("hello");
+		paragraph = builder.build(false);
+		Assert.assertTrue(paragraph.hasContent());
+
+		builder = Paragraph.Builder.newBuilder(texasOption)
+				.text("hello");
+		paragraph = builder.build();
+		Assert.assertTrue(paragraph.hasContent());
+	}
 }
