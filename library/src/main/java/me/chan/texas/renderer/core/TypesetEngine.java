@@ -58,7 +58,7 @@ public class TypesetEngine {
 		if (mDocument == null || width <= 0) {
 			return;
 		}
-		typeset0(reason, option, null /* 需要的是全量更新 */, mDocument, listener, EVENT_NONE);
+		typeset0(reason, option, null /* 需要的是全量更新 */, mDocument, listener, EVENT_SUCCESS);
 	}
 
 	/**
