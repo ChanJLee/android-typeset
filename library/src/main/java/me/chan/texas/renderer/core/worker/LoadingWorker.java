@@ -2,15 +2,9 @@ package me.chan.texas.renderer.core.worker;
 
 import androidx.annotation.RestrictTo;
 
-import javax.inject.Inject;
-
-import me.chan.texas.Texas;
 import me.chan.texas.TexasOption;
-import me.chan.texas.di.TexasComponent;
-import me.chan.texas.di.core.TextEngineCoreComponent;
 import me.chan.texas.hyphenation.Hyphenation;
 import me.chan.texas.hyphenation.HyphenationPattern;
-import me.chan.texas.measurer.MeasureFactory;
 import me.chan.texas.measurer.Measurer;
 import me.chan.texas.misc.PaintSet;
 import me.chan.texas.renderer.RenderOption;
@@ -34,9 +28,6 @@ public class LoadingWorker implements TaskQueue.Listener<LoadingWorker.Args, Loa
 	private final TaskQueue mTaskQueue;
 	private final WorkerMessager mMessager;
 
-	@Inject
-	MeasureFactory mMeasureFactory;
-
 	public LoadingWorker(TaskQueue taskQueue, WorkerMessager messager) {
 		mTaskQueue = taskQueue;
 		mMessager = messager;
@@ -59,10 +50,6 @@ public class LoadingWorker implements TaskQueue.Listener<LoadingWorker.Args, Loa
 
 			return true;
 		});
-
-		TexasComponent texasComponent = Texas.getTexasComponent();
-		TextEngineCoreComponent textEngineCoreComponent = texasComponent.coreComponent().create();
-		textEngineCoreComponent.inject(this);
 	}
 
 	public void submit(TaskQueue.Token token, LoadingWorker.Args args) {
