@@ -1203,6 +1203,12 @@ public class ParagraphUnitTest {
 		Assert.assertTrue(paragraph.hasContent());
 
 		builder = Paragraph.Builder.newBuilder(texasOption)
+				.text("hello")
+				.text("world");
+		paragraph = builder.build(false);
+		Assert.assertTrue(paragraph.hasContent());
+
+		builder = Paragraph.Builder.newBuilder(texasOption)
 				.text("hello");
 		paragraph = builder.build();
 		Assert.assertTrue(paragraph.hasContent());
