@@ -82,8 +82,7 @@ public class TextureParagraphView0 extends AbsTextureParagraphView {
 	}
 
 	@Override
-	public void clear() {
-		super.clear();
+	protected void onClear() {
 		mGraphicsBuffer.detach();
 	}
 }

@@ -103,10 +103,12 @@ public abstract class AbsTextureParagraphView extends View implements TexturePar
 	}
 
 	@Override
-	@CallSuper
-	public void clear() {
-		/* NOOP */
+	public final void clear() {
+		onClear();
 	}
+
+	@CallSuper
+	protected abstract void onClear();
 
 	protected abstract void onRender();
 

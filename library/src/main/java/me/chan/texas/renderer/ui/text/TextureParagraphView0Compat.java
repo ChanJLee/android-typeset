@@ -19,6 +19,11 @@ public class TextureParagraphView0Compat extends AbsTextureParagraphView {
 	}
 
 	@Override
+	protected void onClear() {
+		/* NOOP */
+	}
+
+	@Override
 	protected void onRender() {
 		invalidate();
 	}
