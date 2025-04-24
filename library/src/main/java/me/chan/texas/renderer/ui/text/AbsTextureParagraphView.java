@@ -73,14 +73,26 @@ public abstract class AbsTextureParagraphView extends View implements TexturePar
 		mParagraphDecor = decor;
 		mParagraphViewMotion.setup(paragraph, renderOption, decor, spanClickedEventHandler);
 
+		scheduleRender();
+	}
+
+	private void scheduleRender() {
 		onRender();
 
 		// request layout
-		Layout layout = paragraph.getLayout();
+		Layout layout = mParagraph.getLayout();
 		boolean relayout = getWidth() != layout.getWidth() || getHeight() != layout.getHeight();
 		if (relayout) {
 			// 尽可能减少 requestLayout 的调用
 			requestLayout();
+		}
+	}
+
+	@Override
+	protected void onAttachedToWindow() {
+		super.onAttachedToWindow();
+		if (mParagraph != null) {
+			scheduleRender();
 		}
 	}
 
@@ -93,11 +105,7 @@ public abstract class AbsTextureParagraphView extends View implements TexturePar
 	@Override
 	@CallSuper
 	public void clear() {
-		mParagraph = null;
-		mPaintSet = null;
-		mRenderOption = null;
-		mParagraphDecor = null;
-		mParagraphViewMotion.clear();
+		/* NOOP */
 	}
 
 	protected abstract void onRender();
