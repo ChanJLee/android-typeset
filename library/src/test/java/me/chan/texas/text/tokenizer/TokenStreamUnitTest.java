@@ -337,7 +337,7 @@ public class TokenStreamUnitTest {
 
 	@Test
 	public void print3() {
-		String msg = "oh fuck...";
+		String msg = "Twenty-five: Eating dinner";
 		TokenStream reader = TokenStream.obtain(msg, 0, msg.length());
 		while (reader.hasNext()) {
 			Token token = reader.next();
