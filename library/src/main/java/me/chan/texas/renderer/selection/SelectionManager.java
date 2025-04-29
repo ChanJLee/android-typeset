@@ -267,10 +267,19 @@ public class SelectionManager implements OnSelectedChangedListener {
 	 * 点击空白
 	 */
 	public void handleClickNothing() {
+		handleClickNothing(false);
+	}
+
+	/**
+	 * 点击空白
+	 */
+	public void handleClickNothing(boolean silence) {
 		mContentView.allowHandleTouchEvent();
 		mDropView.setVisibility(View.GONE);
 		clearSelection();
-		mListener.onDragDismiss();
+		if (!silence) {
+			mListener.onDragDismiss();
+		}
 	}
 
 	/**
