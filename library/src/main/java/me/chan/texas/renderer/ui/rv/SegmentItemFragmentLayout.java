@@ -18,11 +18,20 @@ public class SegmentItemFragmentLayout extends FrameLayout {
 	private OnClickedListener mOnClickedListener;
 	private GestureDetector mGestureDetector;
 	private EventListener mEventListener;
+	private boolean mDisableDecoration = false;
 
 	public SegmentItemFragmentLayout(TexasRecyclerViewImpl recyclerView) {
 		super(recyclerView.getContext());
 
 		mRecyclerView = recyclerView;
+	}
+
+	public boolean isDisableDecoration() {
+		return mDisableDecoration;
+	}
+
+	public void setDisableDecoration(boolean disable) {
+		mDisableDecoration = disable;
 	}
 
 	@Override
