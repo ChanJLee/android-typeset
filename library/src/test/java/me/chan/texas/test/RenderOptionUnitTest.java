@@ -31,7 +31,7 @@ public class RenderOptionUnitTest {
 		renderOption.setSelectedTextColor(5);
 		renderOption.setBreakStrategy(BreakStrategy.SIMPLE);
 		renderOption.setWordSelectable(true);
-		renderOption.setEnableDebug(true);
+		renderOption.setDebugEnable(true);
 		renderOption.setSelectedByLongClickBackgroundColor(6);
 		renderOption.setSelectedByLongClickTextColor(7);
 		renderOption.setHyphenStrategy(HyphenStrategy.UK);
@@ -47,7 +47,7 @@ public class RenderOptionUnitTest {
 		Assert.assertEquals(renderOption.getSelectedTextColor(), 5);
 		Assert.assertEquals(renderOption.getBreakStrategy(), BreakStrategy.SIMPLE);
 		Assert.assertTrue(renderOption.isWordSelectable());
-		Assert.assertTrue(renderOption.isEnableDebug());
+		Assert.assertTrue(renderOption.isDebugEnable());
 		Assert.assertEquals(renderOption.getSelectedByLongClickBackgroundColor(), 6);
 		Assert.assertEquals(renderOption.getSelectedByLongClickTextColor(), 7);
 		Assert.assertEquals(renderOption.getHyphenStrategy(), HyphenStrategy.UK);
@@ -64,7 +64,7 @@ public class RenderOptionUnitTest {
 		Assert.assertEquals(renderOption.getSelectedTextColor(), copy.getSelectedTextColor());
 		Assert.assertEquals(renderOption.getBreakStrategy(), copy.getBreakStrategy());
 		Assert.assertEquals(renderOption.isWordSelectable(), copy.isWordSelectable());
-		Assert.assertEquals(renderOption.isEnableDebug(), copy.isEnableDebug());
+		Assert.assertEquals(renderOption.isDebugEnable(), copy.isDebugEnable());
 		Assert.assertEquals(renderOption.getSelectedByLongClickBackgroundColor(), copy.getSelectedByLongClickBackgroundColor());
 		Assert.assertEquals(renderOption.getSelectedByLongClickTextColor(), copy.getSelectedByLongClickTextColor());
 		Assert.assertEquals(renderOption.getHyphenStrategy(), copy.getHyphenStrategy());
@@ -82,7 +82,7 @@ public class RenderOptionUnitTest {
 		copy.setSelectedTextColor(-5);
 		copy.setBreakStrategy(BreakStrategy.BALANCED);
 		copy.setWordSelectable(false);
-		copy.setEnableDebug(false);
+		copy.setDebugEnable(false);
 		copy.setSelectedByLongClickBackgroundColor(-6);
 		copy.setSelectedByLongClickTextColor(-7);
 		copy.setHyphenStrategy(HyphenStrategy.US);
@@ -98,7 +98,7 @@ public class RenderOptionUnitTest {
 		Assert.assertNotEquals(renderOption.getSelectedTextColor(), copy.getSelectedTextColor());
 		Assert.assertNotEquals(renderOption.getBreakStrategy(), copy.getBreakStrategy());
 		Assert.assertNotEquals(renderOption.isWordSelectable(), copy.isWordSelectable());
-		Assert.assertNotEquals(renderOption.isEnableDebug(), copy.isEnableDebug());
+		Assert.assertNotEquals(renderOption.isDebugEnable(), copy.isDebugEnable());
 		Assert.assertNotEquals(renderOption.getSelectedByLongClickBackgroundColor(), copy.getSelectedByLongClickBackgroundColor());
 		Assert.assertNotEquals(renderOption.getSelectedByLongClickTextColor(), copy.getSelectedByLongClickTextColor());
 		Assert.assertNotEquals(renderOption.getHyphenStrategy(), copy.getHyphenStrategy());

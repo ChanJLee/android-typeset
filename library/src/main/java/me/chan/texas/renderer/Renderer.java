@@ -16,7 +16,6 @@ import androidx.annotation.CallSuper;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
-import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.lang.reflect.Field;
@@ -24,7 +23,6 @@ import java.lang.reflect.Method;
 
 import me.chan.texas.BuildConfig;
 import me.chan.texas.R;
-import me.chan.texas.TexasOption;
 import me.chan.texas.image.ImageLoader;
 import me.chan.texas.renderer.core.TypesetEngine;
 import me.chan.texas.renderer.core.worker.MixWorker;
@@ -148,6 +146,7 @@ public class Renderer implements SelectionManager.Listener {
 
 		// selection
 		DragSelectViewImpl selectionDragView = new DragSelectViewImpl(texasView.getContext(), texasView);
+		selectionDragView.setEnable(renderOption.isDragToSelectEnable());
 		texasView.addView(selectionDragView,
 				new TexasView.LayoutParams(
 						ViewGroup.LayoutParams.MATCH_PARENT,

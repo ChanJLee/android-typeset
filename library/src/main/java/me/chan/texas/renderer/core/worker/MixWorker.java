@@ -213,7 +213,7 @@ public class MixWorker implements TaskQueue.Listener<MixWorker.Args, MixWorker.T
 			throw new TaskQueue.TokenExpiredException("stop typeset document, reason: token expired", token);
 		}
 
-		if (renderOption.isEnableDebug()) {
+		if (renderOption.isDebugEnable()) {
 			analyzeDocument(document);
 		}
 	}

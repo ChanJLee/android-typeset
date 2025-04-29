@@ -35,10 +35,11 @@ public class RenderOption {
 	private int mSelectedTextColor;
 	private BreakStrategy mBreakStrategy;
 	private boolean mWordSelectable;
-	private boolean mEnableDebug;
-	private boolean mEnableOnDrawTsDebug;
-	private boolean mEnableAsyncDrawTsDebug;
-	private boolean mEnableFullWithSymbolOptimization = true;
+	private boolean mDebugEnable;
+	private boolean mOnDrawTsDebugEnable;
+	private boolean mAsyncDrawTsDebugEnable;
+	private boolean mFullWithSymbolOptimizationEnable = true;
+	private boolean mDragToSelectEnable = true;
 
 	@Override
 	public boolean equals(Object o) {
@@ -53,9 +54,9 @@ public class RenderOption {
 		if (mSelectedBackgroundColor != that.mSelectedBackgroundColor) return false;
 		if (mSelectedTextColor != that.mSelectedTextColor) return false;
 		if (mWordSelectable != that.mWordSelectable) return false;
-		if (mEnableDebug != that.mEnableDebug) return false;
-		if (mEnableOnDrawTsDebug != that.mEnableOnDrawTsDebug) return false;
-		if (mEnableAsyncDrawTsDebug != that.mEnableAsyncDrawTsDebug) return false;
+		if (mDebugEnable != that.mDebugEnable) return false;
+		if (mOnDrawTsDebugEnable != that.mOnDrawTsDebugEnable) return false;
+		if (mAsyncDrawTsDebugEnable != that.mAsyncDrawTsDebugEnable) return false;
 		if (mSelectedByLongClickBackgroundColor != that.mSelectedByLongClickBackgroundColor)
 			return false;
 		if (mSelectedByLongClickTextColor != that.mSelectedByLongClickTextColor) return false;
@@ -71,6 +72,7 @@ public class RenderOption {
 			return false;
 		if (mBreakStrategy != that.mBreakStrategy) return false;
 		if (mHyphenStrategy != that.mHyphenStrategy) return false;
+		if (mDragToSelectEnable != that.mDragToSelectEnable) return false;
 		return mHyphenStrategy == that.mHyphenStrategy;
 	}
 
@@ -84,9 +86,9 @@ public class RenderOption {
 		result = 31 * result + mSelectedTextColor;
 		result = 31 * result + (mBreakStrategy != null ? mBreakStrategy.hashCode() : 0);
 		result = 31 * result + (mWordSelectable ? 1 : 0);
-		result = 31 * result + (mEnableDebug ? 1 : 0);
-		result = 31 * result + (mEnableOnDrawTsDebug ? 1 : 0);
-		result = 31 * result + (mEnableAsyncDrawTsDebug ? 1 : 0);
+		result = 31 * result + (mDebugEnable ? 1 : 0);
+		result = 31 * result + (mOnDrawTsDebugEnable ? 1 : 0);
+		result = 31 * result + (mAsyncDrawTsDebugEnable ? 1 : 0);
 		result = 31 * result + mSelectedByLongClickBackgroundColor;
 		result = 31 * result + mSelectedByLongClickTextColor;
 		result = 31 * result + (mHyphenStrategy != null ? mHyphenStrategy.hashCode() : 0);
@@ -97,7 +99,8 @@ public class RenderOption {
 		result = 31 * result + mDragViewColor;
 		result = 31 * result + (mCompatMode ? 1 : 0);
 		result = 31 * result + (mSelectedBackgroundRoundRadius != +0.0f ? Float.floatToIntBits(mSelectedBackgroundRoundRadius) : 0);
-		result = 31 * result + (mEnableFullWithSymbolOptimization ? 1 : 0);
+		result = 31 * result + (mFullWithSymbolOptimizationEnable ? 1 : 0);
+		result = 31 * result + (mDragToSelectEnable ? 1 : 0);
 		return result;
 	}
 
@@ -127,7 +130,7 @@ public class RenderOption {
 		this.mSelectedTextColor = other.mSelectedTextColor;
 		this.mBreakStrategy = other.mBreakStrategy;
 		this.mWordSelectable = other.mWordSelectable;
-		this.mEnableDebug = other.mEnableDebug;
+		this.mDebugEnable = other.mDebugEnable;
 		this.mSelectedByLongClickBackgroundColor = other.mSelectedByLongClickBackgroundColor;
 		this.mSelectedByLongClickTextColor = other.mSelectedByLongClickTextColor;
 		this.mHyphenStrategy = other.mHyphenStrategy;
@@ -138,9 +141,10 @@ public class RenderOption {
 		this.mDragViewColor = other.mDragViewColor;
 		this.mCompatMode = other.mCompatMode;
 		this.mSelectedBackgroundRoundRadius = other.mSelectedBackgroundRoundRadius;
-		this.mEnableAsyncDrawTsDebug = other.mEnableAsyncDrawTsDebug;
-		this.mEnableOnDrawTsDebug = other.mEnableAsyncDrawTsDebug;
-		this.mEnableFullWithSymbolOptimization = other.mEnableFullWithSymbolOptimization;
+		this.mAsyncDrawTsDebugEnable = other.mAsyncDrawTsDebugEnable;
+		this.mOnDrawTsDebugEnable = other.mAsyncDrawTsDebugEnable;
+		this.mFullWithSymbolOptimizationEnable = other.mFullWithSymbolOptimizationEnable;
+		this.mDragToSelectEnable = other.mDragToSelectEnable;
 	}
 
 	/**
@@ -164,18 +168,18 @@ public class RenderOption {
 	/**
 	 * @return 是否是debug模式
 	 */
-	public boolean isEnableDebug() {
-		return mEnableDebug;
+	public boolean isDebugEnable() {
+		return mDebugEnable;
 	}
 
 	/**
 	 * 开启debug模式
 	 *
-	 * @param enableDebug 是否开启
+	 * @param debugEnable 是否开启
 	 * @return 当前对象
 	 */
-	public RenderOption setEnableDebug(boolean enableDebug) {
-		mEnableDebug = enableDebug;
+	public RenderOption setDebugEnable(boolean debugEnable) {
+		mDebugEnable = debugEnable;
 		return this;
 	}
 
@@ -495,36 +499,36 @@ public class RenderOption {
 	/**
 	 * @return 是否开启onDraw时间戳debug
 	 */
-	public boolean isEnableOnDrawTsDebug() {
-		return mEnableOnDrawTsDebug;
+	public boolean isOnDrawTsDebugEnable() {
+		return mOnDrawTsDebugEnable;
 	}
 
 	/**
 	 * @param enable 开启onDraw时间戳debug
 	 */
-	public void setEnableOnDrawTsDebug(boolean enable) {
-		mEnableOnDrawTsDebug = enable;
+	public void setOnDrawTsDebugEnable(boolean enable) {
+		mOnDrawTsDebugEnable = enable;
 	}
 
 	/**
 	 * @return 是否开启异步渲染时间戳debug
 	 */
-	public boolean isEnableAsyncDrawTsDebug() {
-		return mEnableAsyncDrawTsDebug;
+	public boolean isAsyncDrawTsDebugEnable() {
+		return mAsyncDrawTsDebugEnable;
 	}
 
 	/**
 	 * @param enable 开启异步渲染时间戳debug
 	 */
-	public void setEnableAsyncDrawTsDebug(boolean enable) {
-		mEnableAsyncDrawTsDebug = enable;
+	public void setAsyncDrawTsDebugEnable(boolean enable) {
+		mAsyncDrawTsDebugEnable = enable;
 	}
 
 	/**
 	 * @return 是否开启全角符号优化
 	 */
-	public boolean isEnableFullWithSymbolOptimization() {
-		return mEnableFullWithSymbolOptimization;
+	public boolean isFullWithSymbolOptimizationEnable() {
+		return mFullWithSymbolOptimizationEnable;
 	}
 
 	/**
@@ -532,8 +536,22 @@ public class RenderOption {
 	 *
 	 * @param enable 是否开启全角符号优化
 	 */
-	public void setEnableFullWithSymbolOptimization(boolean enable) {
-		mEnableFullWithSymbolOptimization = enable;
+	public void setFullWithSymbolOptimizationEnable(boolean enable) {
+		mFullWithSymbolOptimizationEnable = enable;
+	}
+
+	/**
+	 * @return 是否开启拖拽选择
+	 */
+	public boolean isDragToSelectEnable() {
+		return mDragToSelectEnable;
+	}
+
+	/**
+	 * @param enable 是否开启拖拽选择
+	 */
+	public void setDragToSelectEnable(boolean enable) {
+		mDragToSelectEnable = enable;
 	}
 
 	@Override
@@ -547,9 +565,9 @@ public class RenderOption {
 				", mSelectedTextColor=" + mSelectedTextColor +
 				", mBreakStrategy=" + mBreakStrategy +
 				", mWordSelectable=" + mWordSelectable +
-				", mEnableDebug=" + mEnableDebug +
-				", mEnableOnDrawTsDebug=" + mEnableOnDrawTsDebug +
-				", mEnableAsyncDrawTsDebug=" + mEnableAsyncDrawTsDebug +
+				", mEnableDebug=" + mDebugEnable +
+				", mEnableOnDrawTsDebug=" + mOnDrawTsDebugEnable +
+				", mEnableAsyncDrawTsDebug=" + mAsyncDrawTsDebugEnable +
 				", mSelectedByLongClickBackgroundColor=" + mSelectedByLongClickBackgroundColor +
 				", mSelectedByLongClickTextColor=" + mSelectedByLongClickTextColor +
 				", mHyphenStrategy=" + mHyphenStrategy +
@@ -560,7 +578,8 @@ public class RenderOption {
 				", mDragViewColor=" + mDragViewColor +
 				", mCompatMode=" + mCompatMode +
 				", mSelectedBackgroundRoundRadius=" + mSelectedBackgroundRoundRadius +
-				", mEnableFullWithSymbolOptimization=" + mEnableFullWithSymbolOptimization +
+				", mEnableFullWithSymbolOptimization=" + mFullWithSymbolOptimizationEnable +
+				", mEnableDragToSelect=" + mDragToSelectEnable +
 				'}';
 	}
 }

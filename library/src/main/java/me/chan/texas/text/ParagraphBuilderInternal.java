@@ -650,7 +650,7 @@ class ParagraphBuilderInternal {
 				builder.appendElement(builder.mCommonGlue);
 				builder.appendElementExcludeAdvise(adviseElement);
 			} else if (checkSymbolTokenAttributeSafe(accepted, Token.SYMBOL_ATTRIBUTE_SQUISH_RIGHT)) {
-				if (builder.mRenderOption.isEnableFullWithSymbolOptimization()) {
+				if (builder.mRenderOption.isFullWithSymbolOptimizationEnable()) {
 					builder.appendElementExcludeAdvise(adviseElement);
 					builder.appendElement(obtainSymbolGlueFromStack(builder));
 					builder.appendElementExcludeAdvise(adviseElement);
@@ -769,11 +769,11 @@ class ParagraphBuilderInternal {
 			if (prevType == Token.TYPE_NONE) {
 				TextBox textBox = builder.appendSymbolToken(text, spanReader, current);
 				if (checkSymbolTokenAttributeSafe(current, Token.SYMBOL_ATTRIBUTE_SQUISH_LEFT)) {
-					if (builder.mRenderOption.isEnableFullWithSymbolOptimization()) {
+					if (builder.mRenderOption.isFullWithSymbolOptimizationEnable()) {
 						textBox.addAttribute(TextBox.ATTRIBUTE_SQUISH_LEFT);
 					}
 				} else if (checkSymbolTokenAttributeSafe(current, Token.SYMBOL_ATTRIBUTE_SQUISH_RIGHT)) {
-					if (builder.mRenderOption.isEnableFullWithSymbolOptimization()) {
+					if (builder.mRenderOption.isFullWithSymbolOptimizationEnable()) {
 						textBox.addAttribute(TextBox.ATTRIBUTE_SQUISH_RIGHT);
 					}
 				}
@@ -807,11 +807,11 @@ class ParagraphBuilderInternal {
 			// 生成一个 symbol
 			TextBox box = builder.obtainSymbolTextBox(text, spanReader, current);
 			if (checkSymbolTokenAttributeSafe(current, Token.SYMBOL_ATTRIBUTE_SQUISH_LEFT)) {
-				if (builder.mRenderOption.isEnableFullWithSymbolOptimization()) {
+				if (builder.mRenderOption.isFullWithSymbolOptimizationEnable()) {
 					box.addAttribute(TextBox.ATTRIBUTE_SQUISH_LEFT);
 				}
 			} else if (checkSymbolTokenAttributeSafe(current, Token.SYMBOL_ATTRIBUTE_SQUISH_RIGHT)) {
-				if (builder.mRenderOption.isEnableFullWithSymbolOptimization()) {
+				if (builder.mRenderOption.isFullWithSymbolOptimizationEnable()) {
 					box.addAttribute(TextBox.ATTRIBUTE_SQUISH_RIGHT);
 				}
 			}
@@ -827,7 +827,7 @@ class ParagraphBuilderInternal {
 				// 但是填充空格的时候需要收到当前current的约束
 				Token realPrev = stream.tryGet(state, -1);
 				if (checkSymbolTokenAttributeSafe(current, Token.SYMBOL_ATTRIBUTE_SQUISH_LEFT)) {
-					if (builder.mRenderOption.isEnableFullWithSymbolOptimization()) {
+					if (builder.mRenderOption.isFullWithSymbolOptimizationEnable()) {
 						builder.appendElementExcludeAdvise(adviseElement);
 						builder.appendElement(SymbolGlue.obtain(box));
 						builder.appendElementExcludeAdvise(adviseElement);
@@ -868,11 +868,11 @@ class ParagraphBuilderInternal {
 
 			TextBox box = builder.obtainSymbolTextBox(text, spanReader, current);
 			if (checkSymbolTokenAttributeSafe(current, Token.SYMBOL_ATTRIBUTE_SQUISH_LEFT)) {
-				if (builder.mRenderOption.isEnableFullWithSymbolOptimization()) {
+				if (builder.mRenderOption.isFullWithSymbolOptimizationEnable()) {
 					box.addAttribute(TextBox.ATTRIBUTE_SQUISH_LEFT);
 				}
 			} else if (checkSymbolTokenAttributeSafe(current, Token.SYMBOL_ATTRIBUTE_SQUISH_RIGHT)) {
-				if (builder.mRenderOption.isEnableFullWithSymbolOptimization()) {
+				if (builder.mRenderOption.isFullWithSymbolOptimizationEnable()) {
 					box.addAttribute(TextBox.ATTRIBUTE_SQUISH_RIGHT);
 				}
 			}
@@ -1002,7 +1002,7 @@ class ParagraphBuilderInternal {
 
 		private void performState1AdviseSymbolPadding(ParagraphBuilderInternal builder,
 													  TextBox box, Element adviseElement) {
-			if (builder.mRenderOption.isEnableFullWithSymbolOptimization()) {
+			if (builder.mRenderOption.isFullWithSymbolOptimizationEnable()) {
 				builder.appendElementExcludeAdvise(adviseElement);
 				builder.appendElement(SymbolGlue.obtain(box));
 				builder.appendElementExcludeAdvise(adviseElement);

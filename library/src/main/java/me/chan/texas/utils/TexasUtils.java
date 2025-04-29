@@ -350,7 +350,7 @@ public class TexasUtils {
 
 		if (prev.getTextSize() != current.getTextSize() ||
 				!TexasUtils.equals(prev.getTypeface(), current.getTypeface()) ||
-				prev.isEnableFullWithSymbolOptimization() != current.isEnableFullWithSymbolOptimization()) {
+				prev.isFullWithSymbolOptimizationEnable() != current.isFullWithSymbolOptimizationEnable()) {
 			return CmpType.CMP_TYPESET;
 		}
 

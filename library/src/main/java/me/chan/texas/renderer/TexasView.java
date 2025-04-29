@@ -314,6 +314,11 @@ public final class TexasView extends FrameLayout {
 			setLayerType(LAYER_TYPE_SOFTWARE, null);
 		}
 
+		// 是否开启拖拽选择
+		renderOption.setDragToSelectEnable(
+				typedArray.getBoolean(R.styleable.me_chan_texas_TexasView_me_chan_texas_TexasView_dragToSelectionEnable, true)
+		);
+
 		mRenderer = new Renderer(this, renderOption, mToken);
 	}
 
