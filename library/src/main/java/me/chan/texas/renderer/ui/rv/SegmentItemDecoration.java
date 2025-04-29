@@ -19,9 +19,11 @@ public class SegmentItemDecoration extends RecyclerView.ItemDecoration {
 
 	@Override
 	public void getItemOffsets(@NonNull Rect outRect, @NonNull View view, @NonNull RecyclerView parent, @NonNull RecyclerView.State state) {
-		if (view.getVisibility() == View.GONE) {
-			outRect.set(0, 0, 0, 0);
-			return;
+		if (view instanceof SegmentItemFragmentLayout) {
+			SegmentItemFragmentLayout layout = (SegmentItemFragmentLayout) view;
+			if (layout.isDisableDecoration()) {
+				return;
+			}
 		}
 
 		int position = parent.getChildAdapterPosition(view);

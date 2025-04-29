@@ -4,6 +4,7 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.graphics.Rect;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,7 +17,6 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.collection.SparseArrayCompat;
-import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.RecyclerView;
 
 import me.chan.texas.R;
@@ -525,8 +525,9 @@ public class RendererAdapterImpl extends RecyclerView.Adapter<RendererAdapterImp
 
 	class ViewSegmentRenderer extends Renderer<ViewSegment> {
 
-		ViewSegmentRenderer(@NonNull View root) {
+		ViewSegmentRenderer(@NonNull SegmentItemFragmentLayout root) {
 			super(root);
+			root.setDisableDecoration(true);
 		}
 
 		@Override
@@ -536,16 +537,20 @@ public class RendererAdapterImpl extends RecyclerView.Adapter<RendererAdapterImp
 
 		@Override
 		protected void onRender(final ViewSegment data) {
-			data.render(itemView);
+			SegmentItemFragmentLayout layout = (SegmentItemFragmentLayout) itemView;
+
+			View content = layout.getContent();
+			data.render(content);
 
 			// 当内容被设置为GONE后，当前的item还是会在rv里占用一个格子，这会导致界面上出现大片空白
 			// 因此当发现内容为gone要把当前item高度设置为0
-			ViewGroup.LayoutParams params = itemView.getLayoutParams();
-			if (params == null) {
-				return;
+			if (content.getVisibility() == View.GONE) {
+				layout.setPadding(0, 0, 0, 0);
+			} else {
+				Rect rect = data.getRect();
+				assert rect != null;
+				layout.setPadding(rect.left, rect.top, rect.right, rect.bottom);
 			}
-
-			params.height = itemView.getVisibility() == View.GONE ? 0 : ViewGroup.LayoutParams.WRAP_CONTENT;
 		}
 	}
 
