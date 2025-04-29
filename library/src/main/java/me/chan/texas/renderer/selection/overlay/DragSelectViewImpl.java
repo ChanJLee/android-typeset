@@ -143,7 +143,7 @@ public class DragSelectViewImpl extends View implements DragSelectView {
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
 		if (!mEnable) {
-			mSelectionManager.handleDragEnd(TouchEvent.obtain(this, event));
+			mSelectionManager.handleClickNothing(true);
 			return true;
 		}
 
