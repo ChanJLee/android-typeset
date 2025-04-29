@@ -80,6 +80,10 @@ public class Texas {
 	 * @param memoryOption 内存选项
 	 */
 	public static void init(Application application, MemoryOption memoryOption) {
+		if (sAppContext != null) {
+			return;
+		}
+
 		sAppContext = application;
 		sMemoryOption = memoryOption;
 		application.registerComponentCallbacks(new ComponentCallbacks() {
