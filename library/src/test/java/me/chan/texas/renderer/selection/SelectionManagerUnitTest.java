@@ -654,6 +654,11 @@ public class SelectionManagerUnitTest {
 		public void setColor(int color) {
 
 		}
+
+		@Override
+		public void setEnable(boolean enable) {
+
+		}
 	}
 
 	private class MySelectionListener implements SelectionManager.Listener {
