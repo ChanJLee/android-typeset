@@ -345,7 +345,7 @@ public class TexasViewDemoActivity extends AppCompatActivity {
 			@Override
 			public void onClick(View v) {
 				RenderOption renderOption = mTexasView.createRendererOption();
-				renderOption.setEnableDebug(!renderOption.isEnableDebug());
+				renderOption.setDebugEnable(!renderOption.isDebugEnable());
 				mTexasView.refresh(renderOption);
 			}
 		});

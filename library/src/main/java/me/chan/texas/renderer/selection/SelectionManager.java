@@ -488,6 +488,7 @@ public class SelectionManager implements OnSelectedChangedListener {
 
 	public void updateRenderOption(RenderOption renderOption) {
 		mDropView.setColor(renderOption.getDragViewColor());
+		mDropView.setEnable(renderOption.isDragToSelectEnable());
 
 		if (mCurrentSelection != null) {
 			Selection.Styles styles = mCurrentSelection.getStyles();

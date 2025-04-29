@@ -180,7 +180,7 @@ public class RenderWorker implements TaskQueue.Task<RenderWorker.Args, Void>, Ta
 	}
 
 	private void renderDebug(int taskId, Canvas canvas, Paragraph paragraph, Args args) {
-		if (!args.option.isEnableDebug()) {
+		if (!args.option.isDebugEnable()) {
 			return;
 		}
 

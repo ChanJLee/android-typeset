@@ -49,6 +49,7 @@ public class DragSelectViewImpl extends View implements DragSelectView {
 	private float mTouchSlopThresholdSquare;
 	private final LongPressMotionDispatcher mLongPressMotionDispatcher;
 	private final Region mMotionRegion = new Region();
+	private boolean mEnable = true;
 
 	public DragSelectViewImpl(Context context, ViewGroup parent) {
 		super(context, null, 0);
@@ -79,6 +80,10 @@ public class DragSelectViewImpl extends View implements DragSelectView {
 
 	@Override
 	protected void onDraw(@NonNull Canvas canvas) {
+		if (!mEnable) {
+			return;
+		}
+
 		// 手指中心
 		if (mTouchPoint.x >= 0 || mTouchPoint.y >= 0) {
 			canvas.drawCircle(mTouchPoint.x, mTouchPoint.y, 10, mPaint);
@@ -137,6 +142,11 @@ public class DragSelectViewImpl extends View implements DragSelectView {
 	@SuppressLint("ClickableViewAccessibility")
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
+		if (!mEnable) {
+			mSelectionManager.handleDragEnd(TouchEvent.obtain(this, event));
+			return true;
+		}
+
 		int action = event.getAction();
 		float x = event.getX();
 		float y = event.getY();
@@ -316,6 +326,13 @@ public class DragSelectViewImpl extends View implements DragSelectView {
 
 	public void setColor(@ColorInt int color) {
 		mPaint.setColor(color);
+		invalidate();
+	}
+
+	@Override
+	public void setEnable(boolean enable) {
+		mEnable = enable;
+		invalidate();
 	}
 
 	public void updateContentScrollY(int dy) {
