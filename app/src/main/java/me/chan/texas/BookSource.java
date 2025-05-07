@@ -81,6 +81,7 @@ public class BookSource extends TexasView.DocumentSource {
 		try {
 			XmlPullParser xmlPullParser = Xml.newPullParser();
 			xmlPullParser.setInput(new InputStreamReader(mContext.getResources().getAssets().open(mBook)));
+			mSeq = 0;
 			return parse(xmlPullParser, option);
 		} catch (Throwable e) {
 			throw new RuntimeException(e);
@@ -218,13 +219,15 @@ public class BookSource extends TexasView.DocumentSource {
 	private static final int STATE_IMG = 2;
 	private static final int STATE_SUBTITLE = 3;
 
+	// FOR TEST
+	private int mSeq = 0;
 	private void parsePara(XmlPullParser parser, Document.Builder documentBuilder, TexasOption texasOption) throws IOException, XmlPullParserException {
 		parser.require(XmlPullParser.START_TAG, null, "para");
 		String id = parser.getAttributeValue(null, "id");
 
 		Paragraph.Builder builder = Paragraph.Builder.newBuilder(texasOption, mPolicy);
-
-		builder.tag(id);
+		builder.tag(id)
+				.text((mSeq++) + ". ");
 		int lastState = STATE_NONE;
 
 		String firstSent = null;
