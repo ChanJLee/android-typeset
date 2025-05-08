@@ -72,6 +72,18 @@ public class BitmapUnitTest {
 		Assert.assertFalse(bitmap.get(63));
 		Assert.assertEquals(0, bitmap.getRange(0, 32));
 		Assert.assertEquals(0, bitmap.getRange(32, 64));
+
+		Assert.assertEquals(128, bitmap.size());
+		// 访问长度大于原先的两倍扩展长度
+		bitmap.set(257, true);
+	}
+
+	@Test
+	public void testAdj() {
+		Assert.assertEquals(0, BitBucket.adjust(0));
+		Assert.assertEquals(1, BitBucket.adjust(1));
+		Assert.assertEquals(1, BitBucket.adjust(32));
+		Assert.assertEquals(2, BitBucket.adjust(34));
 	}
 
 	@Test

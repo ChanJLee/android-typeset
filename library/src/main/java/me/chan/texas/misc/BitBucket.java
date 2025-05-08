@@ -12,7 +12,7 @@ public class BitBucket {
 	}
 
 	public BitBucket(int size) {
-		mBits = new int[((size + SIZE_MASK) & ~SIZE_MASK) / SIZE_OF_BUCKET];
+		mBits = new int[adjust(size)];
 	}
 
 	/**
@@ -26,7 +26,7 @@ public class BitBucket {
 
 		int bucketIndex = index / SIZE_OF_BUCKET;
 		if (bucketIndex >= mBits.length) {
-			resize();
+			resize(adjust(index));
 		}
 
 		int bucketOffset = index % SIZE_OF_BUCKET;
@@ -46,8 +46,8 @@ public class BitBucket {
 		set(index, false);
 	}
 
-	private void resize() {
-		int[] bits = new int[mBits.length * 2];
+	private void resize(int limit) {
+		int[] bits = new int[Math.max(mBits.length * 2, limit)];
 		System.arraycopy(mBits, 0, bits, 0, mBits.length);
 		mBits = bits;
 	}
@@ -111,5 +111,11 @@ public class BitBucket {
 		long mask = (1L << (range)) - 1;
 		value = (value & mask);
 		return (int) value;
+	}
+
+	static int adjust(int size) {
+		int bits = (size + SIZE_MASK) & ~SIZE_MASK;
+		int ret = bits / SIZE_OF_BUCKET;
+		return ret;
 	}
 }
