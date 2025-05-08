@@ -3,6 +3,7 @@ package me.chan.texas.renderer.ui.text;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Canvas;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -78,7 +79,10 @@ public class TextureParagraphView0 extends AbsTextureParagraphView {
 
 	@Override
 	protected void onDraw(@NonNull Canvas canvas) {
-		mGraphicsBuffer.draw(canvas);
+		boolean ret = mGraphicsBuffer.draw(canvas);
+		if (GraphicsBuffer.DEBUG && !ret) {
+			Log.d("TextureParagraphView", "draw failed: " + mParagraph);
+		}
 	}
 
 	@Override

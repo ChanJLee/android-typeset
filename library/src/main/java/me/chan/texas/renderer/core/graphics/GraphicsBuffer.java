@@ -21,7 +21,7 @@ import me.chan.texas.utils.concurrency.TaskQueue;
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class GraphicsBuffer {
 
-	private static final boolean DEBUG = false;
+	public static final boolean DEBUG = false;
 
 	private boolean mAttached = false;
 
@@ -69,9 +69,12 @@ public class GraphicsBuffer {
 	}
 
 	@MainThread
-	public void draw(Canvas canvas) {
+	public boolean draw(Canvas canvas) {
 		if (!mAttached || mBuffer == null) {
-			return;
+			if (DEBUG) {
+				Log.d("RendererBuffer", "draw failed, not attached");
+			}
+			return false;
 		}
 
 		long ts = 0;
@@ -79,11 +82,12 @@ public class GraphicsBuffer {
 			ts = SystemClock.elapsedRealtime();
 		}
 
-		mBuffer.draw(canvas);
+		boolean ret = mBuffer.draw(canvas);
 
 		if (DEBUG) {
 			Log.d("RendererBuffer", "draw time: " + (SystemClock.elapsedRealtime() - ts));
 		}
+		return ret;
 	}
 
 	@VisibleForTesting
@@ -159,16 +163,23 @@ public class GraphicsBuffer {
 		}
 
 		@MainThread
-		public void draw(Canvas canvas) {
+		public boolean draw(Canvas canvas) {
 			TexturePicture picture = getPicture();
 			if (picture == null) {
-				return;
+				if (DEBUG) {
+					Log.d("RendererBuffer", "draw failed, picture is null");
+				}
+				return false;
 			}
 
 			canvas.drawPicture(picture);
-			if (DEBUG && picture.isHackIsDrawFailed__()) {
+			boolean ret = picture.isHackIsDrawFailed__();
+
+			if (DEBUG && ret) {
 				Log.d("RendererBuffer", "draw failed, retry");
 			}
+
+			return ret;
 		}
 	}
 }
