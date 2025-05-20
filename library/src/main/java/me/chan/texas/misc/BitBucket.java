@@ -12,7 +12,7 @@ public class BitBucket {
 	}
 
 	public BitBucket(int size) {
-		mBits = new int[adjust(size)];
+		mBits = new int[adviceSize(size)];
 	}
 
 	/**
@@ -26,7 +26,7 @@ public class BitBucket {
 
 		int bucketIndex = index / SIZE_OF_BUCKET;
 		if (bucketIndex >= mBits.length) {
-			resize(adjust(index));
+			resize(adviceSize(index));
 		}
 
 		int bucketOffset = index % SIZE_OF_BUCKET;
@@ -113,9 +113,8 @@ public class BitBucket {
 		return (int) value;
 	}
 
-	static int adjust(int size) {
+	static int adviceSize(int size) {
 		int bits = (size + SIZE_MASK) & ~SIZE_MASK;
-		int ret = bits / SIZE_OF_BUCKET;
-		return ret;
+		return bits / SIZE_OF_BUCKET;
 	}
 }

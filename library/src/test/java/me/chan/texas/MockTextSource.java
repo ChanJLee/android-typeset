@@ -4,6 +4,7 @@ import me.chan.texas.hyphenation.Hyphenation;
 import me.chan.texas.measurer.Measurer;
 import me.chan.texas.renderer.RenderOption;
 import me.chan.texas.source.TextDocumentSource;
+import me.chan.texas.text.Document;
 import me.chan.texas.text.TextAttribute;
 
 public class MockTextSource extends TextDocumentSource {
@@ -22,5 +23,10 @@ public class MockTextSource extends TextDocumentSource {
 	@Override
 	protected TexasOption createTexasOption() {
 		return new TexasOption(null, Hyphenation.getInstance(), measurer, textAttribute, option);
+	}
+
+	@Override
+	protected Document createBaseDocument() {
+		return null;
 	}
 }

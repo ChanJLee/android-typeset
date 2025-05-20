@@ -617,10 +617,7 @@ public class TypesetterUnitTest {
 
 		builder = Paragraph.Builder.newBuilder(texasOption);
 		paragraph = builder.build(true);
-		Assert.assertTrue(WorkerScheduler.typeset().desire(paragraph, region, renderOption));
-		Assert.assertEquals(region.getWidth(), 0);
-		Assert.assertEquals(region.getHeight(), 0);
-
+		Assert.assertFalse(WorkerScheduler.typeset().desire(paragraph, region, renderOption));
 
 		builder = Paragraph.Builder.newBuilder(texasOption);
 		builder.text("12345")
