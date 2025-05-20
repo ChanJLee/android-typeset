@@ -46,6 +46,7 @@ class ParagraphBuilderInternal {
 
 	private float mLineSpace = -1;
 	private BreakStrategy mBreakStrategy;
+	private TextGravity mTextGravity;
 	private Token mLastToken;
 
 	private Glue mCommonGlue;
@@ -61,6 +62,10 @@ class ParagraphBuilderInternal {
 
 	public void breakStrategy(BreakStrategy breakStrategy) {
 		mBreakStrategy = breakStrategy;
+	}
+
+	public void textGravity(TextGravity textGravity) {
+		mTextGravity = textGravity;
 	}
 
 	public void tag(Object tag) {
@@ -105,6 +110,7 @@ class ParagraphBuilderInternal {
 		Layout.Advise advise = mParagraph.mLayout.getAdvise();
 		advise.setLineSpace(mLineSpace);
 		advise.setBreakStrategy(mBreakStrategy);
+		advise.setTextGravity(mTextGravity);
 		mParagraph.mTag = mTag;
 		mParagraph.mId = Segment.nextId();
 		return mParagraph;
@@ -122,6 +128,7 @@ class ParagraphBuilderInternal {
 		mLineSpace = -1;
 		mLastToken = null;
 		mBreakStrategy = null;
+		mTextGravity = null;
 		mStretchOnlyGlue = null;
 		mCommonGlue = null;
 	}
