@@ -14,6 +14,7 @@ import me.chan.texas.misc.DefaultRecyclable;
 import me.chan.texas.misc.ObjectPool;
 import me.chan.texas.text.BreakStrategy;
 import me.chan.texas.text.Paragraph;
+import me.chan.texas.text.TextGravity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -255,6 +256,7 @@ public class Layout extends DefaultRecyclable {
 		private float mLineSpace = -1;
 		private BreakStrategy mBreakStrategy;
 		private int mTypesetPolicies = TYPESET_POLICY_CJK_MIX_OPTIMIZATION;
+		private TextGravity mTextGravity;
 
 		public float getLineSpace() {
 			return mLineSpace;
@@ -270,6 +272,14 @@ public class Layout extends DefaultRecyclable {
 
 		public void setBreakStrategy(BreakStrategy breakStrategy) {
 			mBreakStrategy = breakStrategy;
+		}
+
+		public TextGravity getTextGravity() {
+			return mTextGravity;
+		}
+
+		public void setTextGravity(TextGravity textGravity) {
+			mTextGravity = textGravity;
 		}
 
 		public boolean checkTypesetPolicy(@Paragraph.TypesetPolicy int typesetPolicy) {
@@ -288,12 +298,14 @@ public class Layout extends DefaultRecyclable {
 			mLineSpace = -1;
 			mBreakStrategy = null;
 			mTypesetPolicies = TYPESET_POLICY_DEFAULT;
+			mTextGravity = TextGravity.START;
 		}
 
 		public void copy(Advise advise) {
 			mLineSpace = advise.mLineSpace;
 			mTypesetPolicies = advise.mTypesetPolicies;
 			mBreakStrategy = advise.mBreakStrategy;
+			mTextGravity = advise.mTextGravity;
 		}
 	}
 }
