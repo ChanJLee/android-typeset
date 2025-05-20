@@ -7,6 +7,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 
 import me.chan.texas.text.Paragraph;
+import me.chan.texas.text.TextGravity;
 import me.chan.texas.text.layout.Box;
 import me.chan.texas.text.layout.Element;
 import me.chan.texas.text.layout.Glue;
@@ -45,16 +46,34 @@ public abstract class ParagraphVisitor {
 
 	private final RendererContext mTypesetContext = new RendererContext();
 
-	public void visit(Paragraph paragraph) throws VisitException {
+	public void visit(RenderOption option, Paragraph paragraph) throws VisitException {
 		try {
 			onVisitParagraphStart(paragraph);
 			Layout layout = paragraph.getLayout();
-			float x = layout.getPaddingLeft();
+			Layout.Advise advise = layout.getAdvise();
+			TextGravity gravity = advise.getTextGravity();
+			if (gravity == null) {
+				gravity = option.getTextGravity();
+			}
+
+			layout.getPaddingLeft();
+			float x;
 			float y = layout.getPaddingTop();
 			int end = layout.getLineCount();
 			for (int i = 0; i < end && mVisitSig != SIG_STOP_PARA_VISIT; ++i) {
 				Line line = layout.getLine(i);
 				y += line.getLineHeight();
+
+				// TODO support RTL lang
+				if (gravity == TextGravity.START) {
+					x = layout.getPaddingLeft();
+				} else if (gravity == TextGravity.CENTER_HORIZONTAL) {
+					x = (layout.getWidth() - layout.getPaddingRight() - layout.getPaddingLeft() - line.getLineWidth()) / 2.0f;
+				} else if (gravity == TextGravity.END) {
+					x = layout.getWidth() - layout.getPaddingRight() - line.getLineWidth();
+				} else {
+					throw new IllegalStateException("unknown text gravity");
+				}
 
 				mTypesetContext.clear();
 				mTypesetContext.setParagraphLocationAttribute(RendererContext.LOCATION_PARAGRAPH_START, i == 0);
