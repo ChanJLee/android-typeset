@@ -51,6 +51,7 @@ import me.chan.texas.text.Document;
 import me.chan.texas.text.HyphenStrategy;
 import me.chan.texas.text.Segment;
 import me.chan.texas.text.TextAttribute;
+import me.chan.texas.text.TextGravity;
 import me.chan.texas.utils.TexasUtils;
 import me.chan.texas.utils.concurrency.TaskQueue;
 
@@ -76,6 +77,12 @@ public final class TexasView extends FrameLayout {
 	public static final int DEFAULT_TEXT_SIZE = 18;
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
 	public static final int DEFAULT_LINE_SPACE = 12;
+	@RestrictTo(RestrictTo.Scope.LIBRARY)
+	public static final int TEXT_GRAVITY_START = 1;
+	@RestrictTo(RestrictTo.Scope.LIBRARY)
+	public static final int TEXT_GRAVITY_END = 2;
+	@RestrictTo(RestrictTo.Scope.LIBRARY)
+	public static final int TEXT_GRAVITY_CENTER_HORIZONTAL = 3;
 
 	/**
 	 * TexasView 是禁止的
@@ -318,6 +325,16 @@ public final class TexasView extends FrameLayout {
 		renderOption.setDragToSelectEnable(
 				typedArray.getBoolean(R.styleable.me_chan_texas_TexasView_me_chan_texas_TexasView_dragToSelectionEnable, true)
 		);
+
+		// 文字居中形式
+		int textGravity = typedArray.getInt(R.styleable.me_chan_texas_TexasView_me_chan_texas_TexasView_textGravity, TexasView.TEXT_GRAVITY_START);
+		if (textGravity == TexasView.TEXT_GRAVITY_START) {
+			renderOption.setTextGravity(TextGravity.START);
+		} else if (textGravity == TexasView.TEXT_GRAVITY_END) {
+			renderOption.setTextGravity(TextGravity.END);
+		} else if (textGravity == TexasView.TEXT_GRAVITY_CENTER_HORIZONTAL) {
+			renderOption.setTextGravity(TextGravity.CENTER_HORIZONTAL);
+		}
 
 		mRenderer = new Renderer(this, renderOption, mToken);
 	}
