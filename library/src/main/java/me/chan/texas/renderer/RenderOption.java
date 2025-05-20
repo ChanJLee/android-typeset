@@ -13,6 +13,7 @@ import androidx.annotation.RestrictTo;
 
 import me.chan.texas.text.BreakStrategy;
 import me.chan.texas.text.HyphenStrategy;
+import me.chan.texas.text.TextGravity;
 import me.chan.texas.utils.TexasUtils;
 
 /**
@@ -40,6 +41,7 @@ public class RenderOption {
 	private boolean mAsyncDrawTsDebugEnable;
 	private boolean mFullWithSymbolOptimizationEnable = true;
 	private boolean mDragToSelectEnable = true;
+	private TextGravity mTextGravity  = TextGravity.START;
 
 	@Override
 	public boolean equals(Object o) {
@@ -73,6 +75,7 @@ public class RenderOption {
 		if (mBreakStrategy != that.mBreakStrategy) return false;
 		if (mHyphenStrategy != that.mHyphenStrategy) return false;
 		if (mDragToSelectEnable != that.mDragToSelectEnable) return false;
+		if (mTextGravity != that.mTextGravity) return false;
 		return mHyphenStrategy == that.mHyphenStrategy;
 	}
 
@@ -101,6 +104,7 @@ public class RenderOption {
 		result = 31 * result + (mSelectedBackgroundRoundRadius != +0.0f ? Float.floatToIntBits(mSelectedBackgroundRoundRadius) : 0);
 		result = 31 * result + (mFullWithSymbolOptimizationEnable ? 1 : 0);
 		result = 31 * result + (mDragToSelectEnable ? 1 : 0);
+		result = 31 * result + (mTextGravity != null ? mTextGravity.hashCode() : 0);
 		return result;
 	}
 
@@ -145,6 +149,7 @@ public class RenderOption {
 		this.mOnDrawTsDebugEnable = other.mAsyncDrawTsDebugEnable;
 		this.mFullWithSymbolOptimizationEnable = other.mFullWithSymbolOptimizationEnable;
 		this.mDragToSelectEnable = other.mDragToSelectEnable;
+		this.mTextGravity = other.mTextGravity;
 	}
 
 	/**
@@ -554,6 +559,20 @@ public class RenderOption {
 		mDragToSelectEnable = enable;
 	}
 
+	/**
+	 * @return 获取文字对齐方式
+	 */
+	public TextGravity getTextGravity() {
+		return mTextGravity;
+	}
+
+	/**
+	 * @param textGravity 文字对齐方式 {@link TextGravity}
+	 */
+	public void setTextGravity(TextGravity textGravity) {
+		mTextGravity = textGravity;
+	}
+
 	@Override
 	public String toString() {
 		return "RenderOption{" +
@@ -580,6 +599,7 @@ public class RenderOption {
 				", mSelectedBackgroundRoundRadius=" + mSelectedBackgroundRoundRadius +
 				", mEnableFullWithSymbolOptimization=" + mFullWithSymbolOptimizationEnable +
 				", mEnableDragToSelect=" + mDragToSelectEnable +
+				", mGravity=" + mTextGravity +
 				'}';
 	}
 }
