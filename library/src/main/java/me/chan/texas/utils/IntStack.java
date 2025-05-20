@@ -22,11 +22,11 @@ public final class IntStack {
 		mStack = Arrays.copyOf(other.mStack, other.mStack.length);
 	}
 
-	public void push(int state) {
+	public void push(int v) {
 		if (mTop + 1 > mStack.length) {
 			mStack = Arrays.copyOf(mStack, mStack.length * 2);
 		}
-		mStack[mTop++] = state;
+		mStack[mTop++] = v;
 	}
 
 	public int pop() {
