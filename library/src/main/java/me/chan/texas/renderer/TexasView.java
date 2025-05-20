@@ -923,6 +923,7 @@ public final class TexasView extends FrameLayout {
 			return new LoadingWorker.LoadingResult(option, base, document);
 		}
 
+		@VisibleForTesting
 		@Nullable
 		protected Document createBaseDocument() {
 			return mTexasView.getDocument();
