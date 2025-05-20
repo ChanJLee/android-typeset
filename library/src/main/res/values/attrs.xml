@@ -32,8 +32,8 @@
         <attr name="me_chan_texas_TexasView_dragToSelectionEnable" format="boolean" />
         <attr name="me_chan_texas_TexasView_textGravity" format="enum">
             <enum name="start" value="1" />
-            <enum name="center_horizontal" value="2" />
-            <enum name="end" value="3" />
+            <enum name="end" value="2" />
+            <enum name="center_horizontal" value="3" />
         </attr>
     </declare-styleable>
 
@@ -70,8 +70,8 @@
         <attr name="me_chan_texas_ParagraphView_dragToSelectionEnable" format="boolean" />
         <attr name="me_chan_texas_ParagraphView_textGravity" format="enum">
             <enum name="start" value="1" />
-            <enum name="center_horizontal" value="2" />
-            <enum name="end" value="3" />
+            <enum name="end" value="2" />
+            <enum name="center_horizontal" value="3" />
         </attr>
     </declare-styleable>
 </resources>

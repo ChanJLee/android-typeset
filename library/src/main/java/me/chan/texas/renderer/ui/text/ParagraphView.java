@@ -49,6 +49,7 @@ import me.chan.texas.text.HyphenStrategy;
 import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.Segment;
 import me.chan.texas.text.TextAttribute;
+import me.chan.texas.text.TextGravity;
 import me.chan.texas.text.layout.Box;
 import me.chan.texas.text.layout.Layout;
 import me.chan.texas.text.layout.Region;
@@ -797,6 +798,16 @@ public class ParagraphView extends FrameLayout {
 		renderOption.setCompatMode(
 				typedArray.getBoolean(R.styleable.me_chan_texas_ParagraphView_me_chan_texas_ParagraphView_compatMode, false)
 		);
+
+		// 文字居中形式
+		int textGravity = typedArray.getInt(R.styleable.me_chan_texas_ParagraphView_me_chan_texas_ParagraphView_textGravity, TexasView.TEXT_GRAVITY_START);
+		if (textGravity == TexasView.TEXT_GRAVITY_START) {
+			renderOption.setTextGravity(TextGravity.START);
+		} else if (textGravity == TexasView.TEXT_GRAVITY_END) {
+			renderOption.setTextGravity(TextGravity.END);
+		} else if (textGravity == TexasView.TEXT_GRAVITY_CENTER_HORIZONTAL) {
+			renderOption.setTextGravity(TextGravity.CENTER_HORIZONTAL);
+		}
 
 		return renderOption;
 	}
