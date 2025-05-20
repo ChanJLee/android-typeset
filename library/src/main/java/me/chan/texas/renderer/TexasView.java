@@ -910,12 +910,12 @@ public final class TexasView extends FrameLayout {
 
 		@Override
 		protected final LoadingWorker.LoadingResult onRead() {
-			if (mTexasView == null) {
+			TexasOption option = createTexasOption();
+			if (option == null) {
 				return null;
 			}
 
-			TexasOption option = createTexasOption();
-			Document base = mTexasView.getDocument();
+			Document base = createBaseDocument();
 			Document document = onRead(option, base);
 			if (!document.isCopy()) {
 				base = null;
@@ -923,9 +923,14 @@ public final class TexasView extends FrameLayout {
 			return new LoadingWorker.LoadingResult(option, base, document);
 		}
 
+		@Nullable
+		protected Document createBaseDocument() {
+			return mTexasView.getDocument();
+		}
+
 		@VisibleForTesting
 		protected TexasOption createTexasOption() {
-			return mTexasView.createTexasOption();
+			return mTexasView == null ? null : mTexasView.createTexasOption();
 		}
 
 		/**

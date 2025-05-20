@@ -80,10 +80,10 @@ public class BitmapUnitTest {
 
 	@Test
 	public void testAdj() {
-		Assert.assertEquals(0, BitBucket.adjust(0));
-		Assert.assertEquals(1, BitBucket.adjust(1));
-		Assert.assertEquals(1, BitBucket.adjust(32));
-		Assert.assertEquals(2, BitBucket.adjust(34));
+		Assert.assertEquals(0, BitBucket.adviceSize(0));
+		Assert.assertEquals(1, BitBucket.adviceSize(1));
+		Assert.assertEquals(1, BitBucket.adviceSize(32));
+		Assert.assertEquals(2, BitBucket.adviceSize(34));
 	}
 
 	@Test
