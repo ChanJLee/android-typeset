@@ -334,6 +334,11 @@ public class ParagraphView extends FrameLayout {
 
 		int expectedWidthMode = MeasureSpec.getMode(widthMeasureSpec);
 		int expectedHeightMode = MeasureSpec.getMode(heightMeasureSpec);
+		if (expectedWidthMode == MeasureSpec.EXACTLY && expectedHeightMode == MeasureSpec.EXACTLY) {
+			super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+			return;
+		}
+
 		int expectedWidth = MeasureSpec.getSize(widthMeasureSpec);
 		int expectedHeight = MeasureSpec.getSize(heightMeasureSpec);
 
