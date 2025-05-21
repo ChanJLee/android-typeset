@@ -476,7 +476,8 @@ public class RenderWorker implements TaskQueue.Task<RenderWorker.Args, Void>, Ta
 		@Override
 		public void onVisitLineEnd(Line line, float x, float y) {
 			float startX = 0;
-			float startY = y + mArgs.option.getLineSpace();
+			float lineSpace = mArgs.paragraph.getLayout().getLineSpace();
+			float startY = y + lineSpace;
 			Rect rect = new Rect();
 			String debugInfo = line.getInfoMsg();
 			mDebugPaint.getTextBounds(debugInfo, 0, debugInfo.length(), rect);

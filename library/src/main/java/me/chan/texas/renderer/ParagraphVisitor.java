@@ -46,15 +46,12 @@ public abstract class ParagraphVisitor {
 
 	private final RendererContext mTypesetContext = new RendererContext();
 
-	public void visit(RenderOption option, Paragraph paragraph) throws VisitException {
+	public void visit(Paragraph paragraph) throws VisitException {
 		try {
 			onVisitParagraphStart(paragraph);
 			Layout layout = paragraph.getLayout();
 			Layout.Advise advise = layout.getAdvise();
 			TextGravity gravity = advise.getTextGravity();
-			if (gravity == null) {
-				gravity = option.getTextGravity();
-			}
 
 			layout.getPaddingLeft();
 			float x;

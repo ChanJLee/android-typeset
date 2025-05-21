@@ -46,7 +46,6 @@ public class ParagraphTypesetter {
 		if (typeset0(paragraph, breakStrategy, width)) {
 			Layout layout = paragraph.getLayout();
 			layout.setLineWidth(width);
-			layout.setLineSpace(lineSpace);
 			return true;
 		}
 

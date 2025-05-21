@@ -351,8 +351,6 @@ public class RendererAdapterImpl extends RecyclerView.Adapter<RendererAdapterImp
 			return;
 		}
 
-		float expectedLineSpace = renderOption.getLineSpace();
-
 		mPaintSet.refresh(renderOption);
 		mRenderOption = renderOption;
 
