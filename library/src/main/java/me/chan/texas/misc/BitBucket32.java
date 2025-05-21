@@ -93,4 +93,8 @@ public class BitBucket32 {
 	public int hashCode() {
 		return mBits;
 	}
+
+	public void copy(BitBucket32 other) {
+		mBits = other.mBits;
+	}
 }
