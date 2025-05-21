@@ -613,25 +613,25 @@ public class TypesetterUnitTest {
 
 		Paragraph paragraph = builder.build(false);
 		Region region = new Region(100, 10);
-		Assert.assertFalse(WorkerScheduler.typeset().desire(paragraph, region, renderOption));
+		Assert.assertFalse(WorkerScheduler.typeset().desire(paragraph, region));
 
 		builder = Paragraph.Builder.newBuilder(texasOption);
 		paragraph = builder.build(true);
-		Assert.assertFalse(WorkerScheduler.typeset().desire(paragraph, region, renderOption));
+		Assert.assertFalse(WorkerScheduler.typeset().desire(paragraph, region));
 
 		builder = Paragraph.Builder.newBuilder(texasOption);
 		builder.text("12345")
 				.brk()
 				.text("12");
 		paragraph = builder.build(true);
-		Assert.assertTrue(WorkerScheduler.typeset().desire(paragraph, region, renderOption));
+		Assert.assertTrue(WorkerScheduler.typeset().desire(paragraph, region));
 		Assert.assertEquals(5, region.getWidth());
 		Assert.assertEquals(3, region.getHeight());
 
 		builder = Paragraph.Builder.newBuilder(texasOption);
 		builder.text("12345");
 		paragraph = builder.build(true);
-		Assert.assertTrue(WorkerScheduler.typeset().desire(paragraph, region, renderOption));
+		Assert.assertTrue(WorkerScheduler.typeset().desire(paragraph, region));
 		Assert.assertEquals(5, region.getWidth());
 		Assert.assertEquals(1, region.getHeight());
 	}

@@ -347,7 +347,7 @@ public class ParagraphView extends FrameLayout {
 		} else {
 			mRegion.setWidth(0);
 			mRegion.setHeight(0);
-			if (!WorkerScheduler.typeset().desire(mParagraph, mRegion, mRenderOption) || mRegion.getWidth() <= 0 || mRegion.getHeight() <= 0) {
+			if (!WorkerScheduler.typeset().desire(mParagraph, mRegion) || mRegion.getWidth() <= 0 || mRegion.getHeight() <= 0) {
 				super.onMeasure(widthMeasureSpec, heightMeasureSpec);
 				return;
 			}
@@ -375,7 +375,7 @@ public class ParagraphView extends FrameLayout {
 	private boolean typeset0(int width) {
 		try {
 			ParagraphTypesetWorker worker = WorkerScheduler.typeset();
-			ParagraphTypesetWorker.Args args = ParagraphTypesetWorker.Args.obtain(mParagraph, mRenderOption, width);
+			ParagraphTypesetWorker.Args args = ParagraphTypesetWorker.Args.obtain(mParagraph, width);
 			worker.submitSync(mRender.getToken(), args);
 			return true;
 		} catch (Throwable e) {

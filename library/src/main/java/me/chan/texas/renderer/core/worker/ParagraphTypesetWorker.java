@@ -10,7 +10,6 @@ import androidx.annotation.VisibleForTesting;
 
 import me.chan.texas.misc.DefaultRecyclable;
 import me.chan.texas.misc.ObjectPool;
-import me.chan.texas.renderer.RenderOption;
 import me.chan.texas.renderer.core.sync.WorkerMessager;
 import me.chan.texas.text.BreakStrategy;
 import me.chan.texas.text.Paragraph;
@@ -106,15 +105,7 @@ public class ParagraphTypesetWorker implements TaskQueue.Task<ParagraphTypesetWo
 
 		Layout.Advise advise = layout.getAdvise();
 		BreakStrategy breakStrategy = advise.getBreakStrategy();
-		if (breakStrategy == null) {
-			breakStrategy = args.option.getBreakStrategy();
-		}
-
 		float lineSpace = advise.getLineSpace();
-		if (lineSpace < 0) {
-			lineSpace = args.option.getLineSpace();
-		}
-
 		if (!mTypesetter.typeset(paragraph, breakStrategy, args.width, lineSpace)) {
 			throw new RuntimeException("typeset failed");
 		}
@@ -125,11 +116,10 @@ public class ParagraphTypesetWorker implements TaskQueue.Task<ParagraphTypesetWo
 	 * 预测宽高
 	 *
 	 * @param paragraph 段落
-	 * @param region     段落的宽高
-	 * @param option    渲染选项
+	 * @param region    段落的宽高
 	 * @return true表示成功
 	 */
-	public boolean desire(@NonNull Paragraph paragraph, @NonNull Region region, RenderOption option) {
+	public boolean desire(@NonNull Paragraph paragraph, @NonNull Region region) {
 		if (!paragraph.hasContent()) {
 			return false;
 		}
@@ -175,9 +165,6 @@ public class ParagraphTypesetWorker implements TaskQueue.Task<ParagraphTypesetWo
 			Layout.Advise advise = layout.getAdvise();
 
 			float lineSpace = advise.getLineSpace();
-			if (lineSpace < 0) {
-				lineSpace = option.getLineSpace();
-			}
 			height += (int) ((lineCount - 1) * lineSpace);
 
 			region.setWidth(width);
@@ -199,7 +186,6 @@ public class ParagraphTypesetWorker implements TaskQueue.Task<ParagraphTypesetWo
 	public static class Args extends DefaultRecyclable {
 		private static final ObjectPool<Args> POOL = new ObjectPool<>(32);
 		private Paragraph paragraph;
-		private RenderOption option;
 		private int width;
 
 		private Listener listener;
@@ -210,20 +196,17 @@ public class ParagraphTypesetWorker implements TaskQueue.Task<ParagraphTypesetWo
 		@Override
 		protected void onRecycle() {
 			paragraph = null;
-			option = null;
 			listener = null;
 			width = 0;
 			POOL.release(this);
 		}
 
 		public static Args obtain(@NonNull Paragraph paragraph,
-								  @NonNull RenderOption option,
 								  @IntRange(from = 1) int width) {
-			return obtain(paragraph, option, width, null);
+			return obtain(paragraph, width, null);
 		}
 
 		public static Args obtain(@NonNull Paragraph paragraph,
-								  @NonNull RenderOption option,
 								  @IntRange(from = 1) int width,
 								  @Nullable Listener listener) {
 			Args args = POOL.acquire();
@@ -232,7 +215,6 @@ public class ParagraphTypesetWorker implements TaskQueue.Task<ParagraphTypesetWo
 			}
 
 			args.paragraph = paragraph;
-			args.option = option;
 			args.width = width;
 			args.listener = listener;
 			args.reuse();

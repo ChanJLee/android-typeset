@@ -201,7 +201,7 @@ public class MixWorker implements TaskQueue.Listener<MixWorker.Args, MixWorker.T
 				typesetFigure((Figure) segment, width);
 			} else if (segment instanceof Paragraph) {
 				Paragraph paragraph = (Paragraph) segment;
-				typesetParagraph(token, paragraph, width, renderOption, measurer, textAttribute);
+				typesetParagraph(token, paragraph, width, measurer, textAttribute);
 			} else if (segment instanceof ViewSegment) {
 				typesetViewSegment((ViewSegment) segment);
 			} else {
@@ -257,11 +257,10 @@ public class MixWorker implements TaskQueue.Listener<MixWorker.Args, MixWorker.T
 	private void typesetParagraph(TaskQueue.Token token,
 								  Paragraph paragraph,
 								  int width,
-								  RenderOption option,
 								  Measurer measurer,
 								  TextAttribute textAttribute) throws Throwable {
 		measureParagraph(token, paragraph, measurer, textAttribute);
-		ParagraphTypesetWorker.Args args = ParagraphTypesetWorker.Args.obtain(paragraph, option, width);
+		ParagraphTypesetWorker.Args args = ParagraphTypesetWorker.Args.obtain(paragraph, width);
 		WorkerScheduler.typeset().submitSync(token, args);
 	}
 

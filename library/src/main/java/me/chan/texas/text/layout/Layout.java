@@ -29,7 +29,6 @@ public class Layout extends DefaultRecyclable {
 	private final List<Line> mLines;
 	private int mLineWidth = -1;
 	private Rect mRect;
-	private float mLineSpace = 0;
 	private String mAlgorithm = ALGORITHM_UNKNOWN;
 
 	private Layout() {
@@ -59,7 +58,6 @@ public class Layout extends DefaultRecyclable {
 	@Override
 	protected void onRecycle() {
 		clear();
-		mLineSpace = -1;
 		mLineWidth = -1;
 		mAdvise.clear();
 		mRect = null;
@@ -193,7 +191,7 @@ public class Layout extends DefaultRecyclable {
 			}
 
 			if (lineCount > 1) {
-				height += ((lineCount - 1) * mLineSpace);
+				height += ((lineCount - 1) * getLineSpace());
 			}
 
 			return (int) Math.ceil(height);
@@ -202,17 +200,12 @@ public class Layout extends DefaultRecyclable {
 	}
 
 	@RestrictTo(LIBRARY)
-	public void setLineSpace(float lineSpace) {
-		mLineSpace = lineSpace;
-	}
-
-	@RestrictTo(LIBRARY)
 	public Advise getAdvise() {
 		return mAdvise;
 	}
 
 	public float getLineSpace() {
-		return mLineSpace;
+		return mAdvise.getLineSpace();
 	}
 
 	@Override
