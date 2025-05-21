@@ -52,7 +52,6 @@ import me.chan.texas.text.TextAttribute;
 import me.chan.texas.text.TextGravity;
 import me.chan.texas.text.layout.Box;
 import me.chan.texas.text.layout.Layout;
-import me.chan.texas.text.layout.Region;
 import me.chan.texas.utils.TexasUtils;
 
 import java.lang.ref.WeakReference;
@@ -89,8 +88,6 @@ public class ParagraphView extends FrameLayout {
 	 * 即主动调用 {@link TexasView#selectParagraphs} 接口，而不是通过点击操作
 	 */
 	private final PredicatesDriveSelectedVisitor mPredicatesDriveSelectedVisitor = new PredicatesDriveSelectedVisitor();
-
-	private final Region mRegion = new Region();
 
 	private SpanTouchEventHandler mSpanTouchEventHandler;
 
@@ -165,15 +162,15 @@ public class ParagraphView extends FrameLayout {
 			};
 			mRender.setOnTextSelectedListener(onSelectedChangedListener);
 
-			String text = typedArray.getString(R.styleable.me_chan_texas_ParagraphView_me_chan_texas_ParagraphView_text);
-			if (!TextUtils.isEmpty(text)) {
-				setText(text);
-			}
-
 			TexasComponent texasComponent = Texas.getTexasComponent();
 			TextEngineCoreComponent textEngineCoreComponent = texasComponent.coreComponent().create();
 			textEngineCoreComponent.inject(this);
 			checkUIThreadPriority();
+
+			String text = typedArray.getString(R.styleable.me_chan_texas_ParagraphView_me_chan_texas_ParagraphView_text);
+			if (!TextUtils.isEmpty(text)) {
+				setText(text);
+			}
 		} finally {
 			typedArray.recycle();
 		}
@@ -327,51 +324,47 @@ public class ParagraphView extends FrameLayout {
 	 */
 	@Override
 	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-		if (mParagraph == null) {
-			super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-			return;
-		}
-
-		int expectedWidthMode = MeasureSpec.getMode(widthMeasureSpec);
-		int expectedHeightMode = MeasureSpec.getMode(heightMeasureSpec);
-		if (expectedWidthMode == MeasureSpec.EXACTLY && expectedHeightMode == MeasureSpec.EXACTLY) {
-			super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-			return;
-		}
-
-		int expectedWidth = MeasureSpec.getSize(widthMeasureSpec);
-		int expectedHeight = MeasureSpec.getSize(heightMeasureSpec);
-
-		int width = expectedWidth;
-		if (expectedWidthMode == MeasureSpec.EXACTLY ||
-				expectedWidthMode == MeasureSpec.AT_MOST) {
-			if (!typeset0(expectedWidth - getPaddingLeft() - getPaddingRight())) {
-				super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-				return;
-			}
-		} else {
-			mRegion.setWidth(0);
-			mRegion.setHeight(0);
-			if (!WorkerScheduler.typeset().desire(mParagraph, mRegion) || mRegion.getWidth() <= 0 || mRegion.getHeight() <= 0) {
-				super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-				return;
-			}
-			width = mRegion.getWidth() + getPaddingLeft() + getPaddingRight();
-		}
-
-		Layout layout = mParagraph.getLayout();
-		int height = layout.getHeight();
-		if (expectedHeightMode == MeasureSpec.EXACTLY) {
-			height = expectedHeight;
-		} else if (expectedHeightMode == MeasureSpec.AT_MOST) {
-			height = Math.min(height, expectedHeight);
-		}
-
-		super.onMeasure(MeasureSpec.makeMeasureSpec(width, MeasureSpec.EXACTLY), MeasureSpec.makeMeasureSpec(height, MeasureSpec.EXACTLY));
 		if (BuildConfig.DEBUG) {
 			Log.d(TAG, "onMeasure: widthSpec = " + MeasureSpec.toString(widthMeasureSpec) +
 					", heightSpec = " + MeasureSpec.toString(heightMeasureSpec) +
-					", width = " + getMeasuredWidth() +
+					", tag = " + getTag());
+		}
+
+		if (mParagraph == null) {
+			super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+			if (BuildConfig.DEBUG) {
+				Log.d(TAG, "paragraph is null, width = " + getMeasuredWidth() +
+						", height = " + getMeasuredHeight() +
+						", tag = " + getTag());
+			}
+			return;
+		}
+
+		int widthMode = MeasureSpec.getMode(widthMeasureSpec);
+		int heightMode = MeasureSpec.getMode(heightMeasureSpec);
+		int width = MeasureSpec.getSize(widthMeasureSpec);
+		if (widthMode == MeasureSpec.UNSPECIFIED) {
+			width = getResources().getDisplayMetrics().widthPixels;
+		}
+
+		if (heightMode != MeasureSpec.EXACTLY) {
+			if (BuildConfig.DEBUG) {
+				Log.d(TAG, "try to describe paragraph, width = " + width);
+			}
+			if (WorkerScheduler.typeset().desire(mParagraph, mRender.getToken(), width)) {
+				Layout layout = mParagraph.getLayout();
+				int height = layout.getHeight();
+				height = heightMode == MeasureSpec.AT_MOST ? Math.min(height, MeasureSpec.getSize(heightMeasureSpec)) : height;
+				setMeasuredDimension(width, height);
+			} else {
+				super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+			}
+		} else {
+			super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+		}
+
+		if (BuildConfig.DEBUG) {
+			Log.d(TAG, " width = " + getMeasuredWidth() +
 					", height = " + getMeasuredHeight() +
 					", tag = " + getTag());
 		}
