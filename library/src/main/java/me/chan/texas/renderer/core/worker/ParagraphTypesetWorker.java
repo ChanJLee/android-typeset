@@ -105,8 +105,7 @@ public class ParagraphTypesetWorker implements TaskQueue.Task<ParagraphTypesetWo
 
 		Layout.Advise advise = layout.getAdvise();
 		BreakStrategy breakStrategy = advise.getBreakStrategy();
-		float lineSpace = advise.getLineSpace();
-		if (!mTypesetter.typeset(paragraph, breakStrategy, args.width, lineSpace)) {
+		if (!mTypesetter.typeset(paragraph, breakStrategy, args.width)) {
 			throw new RuntimeException("typeset failed");
 		}
 		return paragraph;

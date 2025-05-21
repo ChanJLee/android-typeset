@@ -27,7 +27,7 @@ public class Layout extends DefaultRecyclable {
 
 	private final Advise mAdvise = new Advise();
 	private final List<Line> mLines;
-	private int mLineWidth = -1;
+	private int mWidth = -1;
 	private Rect mRect;
 	private String mAlgorithm = ALGORITHM_UNKNOWN;
 
@@ -58,7 +58,7 @@ public class Layout extends DefaultRecyclable {
 	@Override
 	protected void onRecycle() {
 		clear();
-		mLineWidth = -1;
+		mWidth = -1;
 		mAdvise.reset();
 		mRect = null;
 		mAlgorithm = ALGORITHM_UNKNOWN;
@@ -103,8 +103,8 @@ public class Layout extends DefaultRecyclable {
 	}
 
 	@RestrictTo(LIBRARY)
-	public void setLineWidth(int lineWidth) {
-		mLineWidth = lineWidth;
+	public void setWidth(int width) {
+		mWidth = width;
 	}
 
 	@RestrictTo(LIBRARY)
@@ -160,7 +160,7 @@ public class Layout extends DefaultRecyclable {
 
 	@RestrictTo(LIBRARY)
 	public int getWidth() {
-		return mLineWidth + getPaddingLeft() + getPaddingRight();
+		return mWidth + getPaddingLeft() + getPaddingRight();
 	}
 
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -251,7 +251,7 @@ public class Layout extends DefaultRecyclable {
 		 */
 		private float mLineSpace;
 		private BreakStrategy mBreakStrategy;
-		private TextGravity mTextGravity;
+		private int mTextGravity;
 		private int mTypesetPolicies = TYPESET_POLICY_CJK_MIX_OPTIMIZATION;
 		private final BitBucket32 mAttributesReference = new BitBucket32();
 
@@ -273,12 +273,12 @@ public class Layout extends DefaultRecyclable {
 			mAttributesReference.set(INDEX_BREAK_STRATEGY);
 		}
 
-		public TextGravity getTextGravity() {
+		public int getTextGravity() {
 			return mTextGravity;
 		}
 
-		public void setTextGravity(TextGravity textGravity) {
-			mTextGravity = textGravity;
+		public void setTextGravity(@TextGravity.GravityMask int gravity) {
+			mTextGravity = RenderOption.adviceTextGravityMask(gravity);
 			mAttributesReference.set(INDEX_TEXT_GRAVITY);
 		}
 
@@ -298,7 +298,7 @@ public class Layout extends DefaultRecyclable {
 			mLineSpace = -1;
 			mBreakStrategy = null;
 			mTypesetPolicies = TYPESET_POLICY_DEFAULT;
-			mTextGravity = TextGravity.START;
+			mTextGravity = TextGravity.START | TextGravity.TOP;
 			mAttributesReference.clear();
 		}
 

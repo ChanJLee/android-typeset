@@ -61,8 +61,8 @@ class ParagraphBuilderInternal {
 		mParagraph.mLayout.getAdvise().setBreakStrategy(breakStrategy);
 	}
 
-	public void textGravity(TextGravity textGravity) {
-		mParagraph.mLayout.getAdvise().setTextGravity(textGravity);
+	public void textGravity(int gravity) {
+		mParagraph.mLayout.getAdvise().setTextGravity(gravity);
 	}
 
 	public void tag(Object tag) {

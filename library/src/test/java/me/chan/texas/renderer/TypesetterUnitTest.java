@@ -416,6 +416,7 @@ public class TypesetterUnitTest {
 
 		ParagraphTypesetter texTypesetter = new ParagraphTypesetter();
 		RenderOption renderOption = new RenderOption();
+		renderOption.setLineSpace(1);
 		Measurer measurer = new MockMeasurer(factory.getMockTextPaint());
 		LoadingJoinListener listener = new LoadingJoinListener();
 		LoadingWorker.Args args = new LoadingWorker.Args(new MockTextSource(renderOption, new TextAttribute(measurer), measurer, text), listener);
@@ -433,7 +434,7 @@ public class TypesetterUnitTest {
 		Segment segment = document.getSegment(0);
 
 		Paragraph paragraph = (Paragraph) segment;
-		texTypesetter.typeset(paragraph, breakStrategy, (int) lineWidth, 1);
+		texTypesetter.typeset(paragraph, breakStrategy, (int) lineWidth);
 		assertNotNull(paragraph);
 		Layout layout = paragraph.getLayout();
 		assertEquals(layout.getLineCount(), exceptedLines.length);
@@ -485,7 +486,7 @@ public class TypesetterUnitTest {
 			}
 
 			Paragraph paragraph = (Paragraph) segment;
-			texTypesetter.typeset(paragraph, breakStrategy, (int) lineWidth, 1);
+			texTypesetter.typeset(paragraph, breakStrategy, (int) lineWidth);
 			assertNotNull(paragraph);
 			Layout layout = paragraph.getLayout();
 			assertNotEquals(layout.getLineCount(), 0);
@@ -567,7 +568,7 @@ public class TypesetterUnitTest {
 		Layout layout = paragraph.getLayout();
 
 		ParagraphTypesetter typesetter = new ParagraphTypesetter();
-		typesetter.typeset(paragraph, BreakStrategy.SIMPLE, 100, 1);
+		typesetter.typeset(paragraph, BreakStrategy.SIMPLE, 100);
 		Layout current = paragraph.getLayout();
 		Assert.assertNotSame(layout, current);
 
@@ -591,7 +592,7 @@ public class TypesetterUnitTest {
 		Layout layout = paragraph.getLayout();
 
 		ParagraphTypesetter typesetter = new ParagraphTypesetter();
-		typesetter.typeset(paragraph, BreakStrategy.SIMPLE, 100, 1);
+		typesetter.typeset(paragraph, BreakStrategy.SIMPLE, 100);
 		Layout current = paragraph.getLayout();
 		Assert.assertNotSame(layout, current);
 
@@ -642,6 +643,7 @@ public class TypesetterUnitTest {
 		factory.getMockTextPaint().setMockTextSize(1);
 
 		RenderOption renderOption = new RenderOption();
+		renderOption.setLineSpace(1);
 		Measurer measurer = new MockMeasurer(factory.getMockTextPaint());
 		PaintSet paintSet = new PaintSet(factory.getMockTextPaint());
 		TextAttribute textAttribute = new TextAttribute(measurer);
@@ -655,14 +657,14 @@ public class TypesetterUnitTest {
 
 		ParagraphTypesetter texTypesetter = new ParagraphTypesetter();
 		Paragraph paragraph = builder.build();
-		texTypesetter.typeset(paragraph, BreakStrategy.SIMPLE, 100, 1);
+		texTypesetter.typeset(paragraph, BreakStrategy.SIMPLE, 100);
 
 		Layout layout = paragraph.getLayout();
 		Assert.assertEquals(2, layout.getLineCount());
 		Assert.assertEquals("hello", layout.getLine(0).toString());
 		Assert.assertEquals("world", layout.getLine(1).toString());
 
-		texTypesetter.typeset(paragraph, BreakStrategy.BALANCED, 100, 1);
+		texTypesetter.typeset(paragraph, BreakStrategy.BALANCED, 100);
 
 		layout = paragraph.getLayout();
 		Assert.assertEquals(2, layout.getLineCount());
