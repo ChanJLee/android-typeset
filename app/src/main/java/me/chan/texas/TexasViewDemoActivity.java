@@ -388,14 +388,14 @@ public class TexasViewDemoActivity extends AppCompatActivity {
 			}
 		});
 
-		findViewById(me.chan.texas.debug.R.id.button2).setOnClickListener(new View.OnClickListener() {
+		findViewById(me.chan.texas.debug.R.id.basetest).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				render("harry2.txt", mTexasView);
 			}
 		});
 
-		findViewById(me.chan.texas.debug.R.id.button3).setOnClickListener(new View.OnClickListener() {
+		findViewById(me.chan.texas.debug.R.id.raw_paragraph_view).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				render("harry3.txt", mTexasView);
