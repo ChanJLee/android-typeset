@@ -34,7 +34,7 @@ public class RenderOption {
 	private float mLineSpace;
 	private int mSelectedBackgroundColor;
 	private int mSelectedTextColor;
-	private BreakStrategy mBreakStrategy;
+	private BreakStrategy mBreakStrategy = BreakStrategy.SIMPLE;
 	private boolean mWordSelectable;
 	private boolean mDebugEnable;
 	private boolean mOnDrawTsDebugEnable;
