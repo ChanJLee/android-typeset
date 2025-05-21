@@ -86,7 +86,7 @@ public class SelectionManagerUnitTest {
 			}
 
 			Paragraph paragraph = (Paragraph) segment;
-			texTypesetter.typeset(paragraph, BreakStrategy.SIMPLE, 5, 1);
+			texTypesetter.typeset(paragraph, BreakStrategy.SIMPLE, 5);
 			assertNotNull(paragraph);
 			Layout layout = paragraph.getLayout();
 			Assert.assertEquals(layout.getLineCount(), 3);

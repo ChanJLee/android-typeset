@@ -257,8 +257,8 @@ public final class Paragraph extends DefaultRecyclable implements Segment {
 			return this;
 		}
 
-		public Builder textGravity(TextGravity textGravity) {
-			mBuilder0.textGravity(textGravity);
+		public Builder textGravity(int gravity) {
+			mBuilder0.textGravity(gravity);
 			return this;
 		}
 

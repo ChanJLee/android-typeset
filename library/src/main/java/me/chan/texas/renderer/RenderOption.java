@@ -41,7 +41,7 @@ public class RenderOption {
 	private boolean mAsyncDrawTsDebugEnable;
 	private boolean mFullWithSymbolOptimizationEnable = true;
 	private boolean mDragToSelectEnable = true;
-	private TextGravity mTextGravity  = TextGravity.START;
+	private int mTextGravity = TextGravity.START | TextGravity.TOP;
 
 	@Override
 	public boolean equals(Object o) {
@@ -104,7 +104,7 @@ public class RenderOption {
 		result = 31 * result + (mSelectedBackgroundRoundRadius != +0.0f ? Float.floatToIntBits(mSelectedBackgroundRoundRadius) : 0);
 		result = 31 * result + (mFullWithSymbolOptimizationEnable ? 1 : 0);
 		result = 31 * result + (mDragToSelectEnable ? 1 : 0);
-		result = 31 * result + (mTextGravity != null ? mTextGravity.hashCode() : 0);
+		result = 31 * result + mTextGravity;
 		return result;
 	}
 
@@ -562,15 +562,28 @@ public class RenderOption {
 	/**
 	 * @return 获取文字对齐方式
 	 */
-	public TextGravity getTextGravity() {
+	public int getTextGravity() {
 		return mTextGravity;
 	}
 
 	/**
-	 * @param textGravity 文字对齐方式 {@link TextGravity}
+	 * @param gravity 文字对齐方式
 	 */
-	public void setTextGravity(TextGravity textGravity) {
-		mTextGravity = textGravity;
+	public void setTextGravity(int gravity) {
+		mTextGravity = adviceTextGravityMask(gravity);
+	}
+
+	@RestrictTo(RestrictTo.Scope.LIBRARY)
+	public static int adviceTextGravityMask(@TextGravity.GravityMask int gravity) {
+		if ((gravity & TextGravity.HORIZONTAL_MASK) == 0) {
+			gravity |= TextGravity.START;
+		}
+
+		if ((gravity & TextGravity.VERTICAL_MASK) == 0) {
+			gravity |= TextGravity.TOP;
+		}
+
+		return gravity;
 	}
 
 	@Override

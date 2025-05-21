@@ -33,7 +33,7 @@ public class AdviseUnitTest {
 		Layout.Advise advise = paragraph.getLayout().getAdvise();
 		Assert.assertEquals(BreakStrategy.SIMPLE, advise.getBreakStrategy());
 		Assert.assertEquals(1f, advise.getLineSpace(), 0.001f);
-		Assert.assertEquals(TextGravity.START, advise.getTextGravity());
+		Assert.assertEquals(TextGravity.START | TextGravity.TOP, advise.getTextGravity());
 
 		renderOption.setLineSpace(2);
 		renderOption.setBreakStrategy(BreakStrategy.BALANCED);
@@ -42,7 +42,7 @@ public class AdviseUnitTest {
 
 		Assert.assertEquals(BreakStrategy.BALANCED, advise.getBreakStrategy());
 		Assert.assertEquals(2f, advise.getLineSpace(), 0.001f);
-		Assert.assertEquals(TextGravity.CENTER_HORIZONTAL, advise.getTextGravity());
+		Assert.assertEquals(TextGravity.CENTER_HORIZONTAL | TextGravity.TOP, advise.getTextGravity());
 
 		builder = Paragraph.Builder.newBuilder(texasOption);
 		builder.breakStrategy(BreakStrategy.SIMPLE);
@@ -53,7 +53,7 @@ public class AdviseUnitTest {
 		advise = paragraph.getLayout().getAdvise();
 		Assert.assertEquals(BreakStrategy.SIMPLE, advise.getBreakStrategy());
 		Assert.assertEquals(3f, advise.getLineSpace(), 0.001f);
-		Assert.assertEquals(TextGravity.END, advise.getTextGravity());
+		Assert.assertEquals(TextGravity.END | TextGravity.TOP, advise.getTextGravity());
 
 		// 用户不是用的默认值就不变更值
 		renderOption.setBreakStrategy(BreakStrategy.UNKNOWN);
@@ -62,12 +62,12 @@ public class AdviseUnitTest {
 		advise.copy(renderOption);
 		Assert.assertEquals(BreakStrategy.SIMPLE, advise.getBreakStrategy());
 		Assert.assertEquals(3f, advise.getLineSpace(), 0.001f);
-		Assert.assertEquals(TextGravity.END, advise.getTextGravity());
+		Assert.assertEquals(TextGravity.END | TextGravity.TOP, advise.getTextGravity());
 
 		advise.reset();
 		advise.copy(renderOption);
 		Assert.assertEquals(BreakStrategy.UNKNOWN, advise.getBreakStrategy());
 		Assert.assertEquals(4f, advise.getLineSpace(), 0.001f);
-		Assert.assertEquals(TextGravity.START, advise.getTextGravity());
+		Assert.assertEquals(TextGravity.START | TextGravity.TOP, advise.getTextGravity());
 	}
 }

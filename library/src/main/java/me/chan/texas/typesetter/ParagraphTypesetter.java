@@ -35,17 +35,16 @@ public class ParagraphTypesetter {
 	 * @param paragraph     要排版的段落
 	 * @param breakStrategy 排版策略
 	 * @param width         排版的宽度
-	 * @param lineSpace
 	 * @return 排版是否成功
 	 */
-	public boolean typeset(Paragraph paragraph, BreakStrategy breakStrategy, int width, float lineSpace) {
+	public boolean typeset(Paragraph paragraph, BreakStrategy breakStrategy, int width) {
 		if (width <= 0) {
 			throw new IllegalArgumentException("width must be positive: " + width);
 		}
 
 		if (typeset0(paragraph, breakStrategy, width)) {
 			Layout layout = paragraph.getLayout();
-			layout.setLineWidth(width);
+			layout.setWidth(width);
 			return true;
 		}
 

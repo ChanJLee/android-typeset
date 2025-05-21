@@ -51,23 +51,25 @@ public abstract class ParagraphVisitor {
 			onVisitParagraphStart(paragraph);
 			Layout layout = paragraph.getLayout();
 			Layout.Advise advise = layout.getAdvise();
-			TextGravity gravity = advise.getTextGravity();
+			int gravity = advise.getTextGravity();
 
 			layout.getPaddingLeft();
 			float x;
 			float y = layout.getPaddingTop();
 			int end = layout.getLineCount();
+
+			int horizontalGravity = gravity & TextGravity.HORIZONTAL_MASK;
 			for (int i = 0; i < end && mVisitSig != SIG_STOP_PARA_VISIT; ++i) {
 				Line line = layout.getLine(i);
 				y += line.getLineHeight();
 
-				// TODO support RTL lang
-				if (gravity == TextGravity.START) {
+				if (horizontalGravity == TextGravity.START) {
 					x = layout.getPaddingLeft();
-				} else if (gravity == TextGravity.CENTER_HORIZONTAL) {
-					x = (layout.getWidth() - layout.getPaddingRight() - layout.getPaddingLeft() - line.getLineWidth()) / 2.0f;
-				} else if (gravity == TextGravity.END) {
-					x = layout.getWidth() - layout.getPaddingRight() - line.getLineWidth();
+				} else if (horizontalGravity == TextGravity.CENTER_HORIZONTAL) {
+					x = layout.getPaddingLeft() + (layout.getWidth() - line.getLineWidth()) / 2.0f;
+				} else if (horizontalGravity == TextGravity.END) {
+					int windowWidth = layout.getWidth() + layout.getPaddingLeft() + layout.getPaddingRight();
+					x = windowWidth - line.getLineWidth() - layout.getPaddingRight();
 				} else {
 					throw new IllegalStateException("unknown text gravity");
 				}
