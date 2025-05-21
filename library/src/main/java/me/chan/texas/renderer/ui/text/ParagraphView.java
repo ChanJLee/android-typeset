@@ -330,8 +330,17 @@ public class ParagraphView extends FrameLayout {
 					", tag = " + getTag());
 		}
 
+		int widthMode = MeasureSpec.getMode(widthMeasureSpec);
+		int heightMode = MeasureSpec.getMode(heightMeasureSpec);
 		if (mParagraph == null) {
-			super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+			if (widthMode == MeasureSpec.EXACTLY && heightMode == MeasureSpec.EXACTLY) {
+				super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+			} else {
+				super.onMeasure(
+						MeasureSpec.makeMeasureSpec(0, MeasureSpec.EXACTLY),
+						MeasureSpec.makeMeasureSpec(0, MeasureSpec.EXACTLY)
+				);
+			}
 			if (BuildConfig.DEBUG) {
 				Log.d(TAG, "paragraph is null, width = " + getMeasuredWidth() +
 						", height = " + getMeasuredHeight() +
@@ -340,31 +349,27 @@ public class ParagraphView extends FrameLayout {
 			return;
 		}
 
-		int widthMode = MeasureSpec.getMode(widthMeasureSpec);
-		int heightMode = MeasureSpec.getMode(heightMeasureSpec);
 		int width = MeasureSpec.getSize(widthMeasureSpec);
 		if (widthMode == MeasureSpec.UNSPECIFIED) {
-			width = getResources().getDisplayMetrics().widthPixels;
+			width = Integer.MAX_VALUE;
 		}
 
 		if (heightMode != MeasureSpec.EXACTLY) {
 			if (BuildConfig.DEBUG) {
 				Log.d(TAG, "try to describe paragraph, width = " + width);
 			}
-			if (WorkerScheduler.typeset().desire(mParagraph, mRender.getToken(), width)) {
+
+			if (WorkerScheduler.typeset().desire(mParagraph, mRender.getToken(), width - getPaddingLeft() - getPaddingRight())) {
 				Layout layout = mParagraph.getLayout();
-				int height = layout.getHeight();
+				int height = layout.getHeight() + getPaddingTop() + getPaddingBottom();
 				height = heightMode == MeasureSpec.AT_MOST ? Math.min(height, MeasureSpec.getSize(heightMeasureSpec)) : height;
-				setMeasuredDimension(width, height);
-			} else {
-				super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+				heightMeasureSpec = MeasureSpec.makeMeasureSpec(height, MeasureSpec.EXACTLY);
 			}
-		} else {
-			super.onMeasure(widthMeasureSpec, heightMeasureSpec);
 		}
 
+		super.onMeasure(widthMeasureSpec, heightMeasureSpec);
 		if (BuildConfig.DEBUG) {
-			Log.d(TAG, " width = " + getMeasuredWidth() +
+			Log.d(TAG, "width = " + getMeasuredWidth() +
 					", height = " + getMeasuredHeight() +
 					", tag = " + getTag());
 		}
