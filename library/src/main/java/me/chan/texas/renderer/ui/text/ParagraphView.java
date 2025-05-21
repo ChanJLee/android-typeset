@@ -63,7 +63,7 @@ import javax.inject.Inject;
  * 当前内容都是异步渲染的，所以当你不需要显示某个内容的时候，就调用 {@link #discard()} 丢弃之前的任务
  */
 public class ParagraphView extends FrameLayout {
-	private static final boolean DEBUG = false;
+	private static final boolean DEBUG = true;
 
 	private static final String TAG = "ParagraphViewTag";
 
@@ -188,6 +188,14 @@ public class ParagraphView extends FrameLayout {
 		}
 
 		render0(mParagraph);
+	}
+
+	@Override
+	protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+		super.onSizeChanged(w, h, oldw, oldh);
+		if (DEBUG) {
+			Log.d(TAG, "onSizeChanged: " + w + "x" + h);
+		}
 	}
 
 	private boolean handleParagraphSelected(TouchEvent event, Paragraph paragraph, @OnSelectedChangedListener.EventType int eventType, Box box) {
@@ -409,7 +417,7 @@ public class ParagraphView extends FrameLayout {
 	@Override
 	protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
 		if (DEBUG) {
-			Log.d(TAG, "onLayout: changed = " + mParagraph);
+			Log.d(TAG, "onLayout, changed " + changed + ", left " + left + ", top " + top + ", right " + right + ", bottom " + bottom + ", " + mParagraph);
 		}
 
 		super.onLayout(changed, left, top, right, bottom);

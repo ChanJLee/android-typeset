@@ -7,32 +7,41 @@
     android:orientation="vertical"
     tools:context="me.chan.texas.SingleParagraphActivity">
 
-<!--    <me.chan.texas.renderer.ui.text.ParagraphView-->
-<!--        android:layout_width="match_parent"-->
-<!--        android:layout_height="100dp"-->
-<!--        android:background="#4CAF50"-->
-<!--        app:me_chan_texas_ParagraphView_text="width: match_parent, height: 100dp"-->
-<!--        app:me_chan_texas_ParagraphView_textSize="20dp" />-->
+    <!--    <me.chan.texas.renderer.ui.text.ParagraphView-->
+    <!--        android:layout_width="match_parent"-->
+    <!--        android:layout_height="100dp"-->
+    <!--        android:background="#4CAF50"-->
+    <!--        app:me_chan_texas_ParagraphView_text="width: match_parent, height: 100dp"-->
+    <!--        app:me_chan_texas_ParagraphView_textSize="20dp" />-->
 
-<!--    <me.chan.texas.renderer.ui.text.ParagraphView-->
-<!--        android:layout_width="100dp"-->
-<!--        android:layout_height="100dp"-->
-<!--        android:background="#E91E63"-->
-<!--        app:me_chan_texas_ParagraphView_text="width: 100dp, height: 100dp"-->
-<!--        app:me_chan_texas_ParagraphView_textSize="20dp" />-->
+    <!--    <me.chan.texas.renderer.ui.text.ParagraphView-->
+    <!--        android:layout_width="100dp"-->
+    <!--        android:layout_height="100dp"-->
+    <!--        android:background="#E91E63"-->
+    <!--        app:me_chan_texas_ParagraphView_text="width: 100dp, height: 100dp"-->
+    <!--        app:me_chan_texas_ParagraphView_textSize="20dp" />-->
 
-<!--    <me.chan.texas.renderer.ui.text.ParagraphView-->
-<!--        android:layout_width="wrap_content"-->
-<!--        android:layout_height="100dp"-->
-<!--        android:background="#4CAF50"-->
-<!--        android:minWidth="100dp"-->
-<!--        app:me_chan_texas_ParagraphView_text="width: wrap_content and min width 100dp, height: 100dp"-->
-<!--        app:me_chan_texas_ParagraphView_textSize="20dp" />-->
+    <!--    <me.chan.texas.renderer.ui.text.ParagraphView-->
+    <!--        android:layout_width="wrap_content"-->
+    <!--        android:layout_height="100dp"-->
+    <!--        android:background="#4CAF50"-->
+    <!--        android:minWidth="100dp"-->
+    <!--        app:me_chan_texas_ParagraphView_text="width: wrap_content and min width 100dp, height: 100dp"-->
+    <!--        app:me_chan_texas_ParagraphView_textSize="20dp" />-->
+
+    <Button
+        android:id="@+id/change_padding"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="change padding" />
 
     <me.chan.texas.renderer.ui.text.ParagraphView
+        android:id="@+id/paragraph_view"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:background="#4CAF50"
-        app:me_chan_texas_ParagraphView_text="width: wrap_content, height: wrap_content"
+        android:maxWidth="100dp"
+        android:padding="10dp"
+        app:me_chan_texas_ParagraphView_text="width: wrap_content, height: wrap_contentdsadasdasdasdasd"
         app:me_chan_texas_ParagraphView_textSize="20dp" />
 </LinearLayout>
