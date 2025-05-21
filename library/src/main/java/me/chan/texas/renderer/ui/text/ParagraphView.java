@@ -18,7 +18,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 
-import me.chan.texas.BuildConfig;
 import me.chan.texas.R;
 import me.chan.texas.Texas;
 import me.chan.texas.TexasOption;
@@ -324,7 +323,7 @@ public class ParagraphView extends FrameLayout {
 	 */
 	@Override
 	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-		if (BuildConfig.DEBUG) {
+		if (DEBUG) {
 			Log.d(TAG, "onMeasure: widthSpec = " + MeasureSpec.toString(widthMeasureSpec) +
 					", heightSpec = " + MeasureSpec.toString(heightMeasureSpec) +
 					", tag = " + getTag());
@@ -341,7 +340,7 @@ public class ParagraphView extends FrameLayout {
 						MeasureSpec.makeMeasureSpec(0, MeasureSpec.EXACTLY)
 				);
 			}
-			if (BuildConfig.DEBUG) {
+			if (DEBUG) {
 				Log.d(TAG, "paragraph is null, width = " + getMeasuredWidth() +
 						", height = " + getMeasuredHeight() +
 						", tag = " + getTag());
@@ -355,7 +354,7 @@ public class ParagraphView extends FrameLayout {
 		}
 
 		if (heightMode != MeasureSpec.EXACTLY) {
-			if (BuildConfig.DEBUG) {
+			if (DEBUG) {
 				Log.d(TAG, "try to describe paragraph, width = " + width);
 			}
 
@@ -368,7 +367,7 @@ public class ParagraphView extends FrameLayout {
 		}
 
 		super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-		if (BuildConfig.DEBUG) {
+		if (DEBUG) {
 			Log.d(TAG, "width = " + getMeasuredWidth() +
 					", height = " + getMeasuredHeight() +
 					", tag = " + getTag());
