@@ -10,15 +10,11 @@ import androidx.annotation.VisibleForTesting;
 
 import me.chan.texas.misc.DefaultRecyclable;
 import me.chan.texas.misc.ObjectPool;
+import me.chan.texas.renderer.core.WorkerScheduler;
 import me.chan.texas.renderer.core.sync.WorkerMessager;
 import me.chan.texas.text.BreakStrategy;
 import me.chan.texas.text.Paragraph;
-import me.chan.texas.text.layout.Box;
-import me.chan.texas.text.layout.Region;
-import me.chan.texas.text.layout.Element;
-import me.chan.texas.text.layout.Glue;
 import me.chan.texas.text.layout.Layout;
-import me.chan.texas.text.layout.Penalty;
 import me.chan.texas.typesetter.ParagraphTypesetter;
 import me.chan.texas.utils.concurrency.TaskQueue;
 
@@ -114,65 +110,35 @@ public class ParagraphTypesetWorker implements TaskQueue.Task<ParagraphTypesetWo
 	/**
 	 * 预测宽高
 	 *
-	 * @param paragraph 段落
-	 * @param region    段落的宽高
+	 * @param paragraph     段落
+	 * @param token         令牌
+	 * @param expectedWidth 期望宽度
 	 * @return true表示成功
 	 */
-	public boolean desire(@NonNull Paragraph paragraph, @NonNull Region region) {
+	public boolean desire(@NonNull Paragraph paragraph, TaskQueue.Token token, int expectedWidth) {
 		if (!paragraph.hasContent()) {
 			return false;
 		}
 
+		ParagraphTypesetWorker worker = WorkerScheduler.typeset();
+		ParagraphTypesetWorker.Args args = ParagraphTypesetWorker.Args.obtain(paragraph, expectedWidth);
 		try {
-			int width = 0;
-			int height = 0;
-			int lineCount = 0;
-
-			int tmpWidth = 0;
-			int lineHeight = -1;
-			int count = paragraph.getElementCount();
-			for (int i = 0; i < count; ++i) {
-				Element element = paragraph.getElement(i);
-				if (element == Penalty.FORCE_BREAK || i + 1 == count) {
-					if (tmpWidth >= width) {
-						width = tmpWidth;
-					}
-
-					++lineCount;
-					if (lineHeight > 0) {
-						height += lineHeight;
-					}
-					lineHeight = -1;
-					tmpWidth = 0;
-					continue;
-				}
-
-				if (element instanceof Box) {
-					Box box = (Box) element;
-					tmpWidth += box.getWidth();
-					float boxHeight = box.getHeight();
-					if (boxHeight > lineHeight) {
-						lineHeight = (int) boxHeight;
-					}
-				} else if (element instanceof Glue && element != Glue.TERMINAL && element != Glue.EMPTY) {
-					Glue glue = (Glue) element;
-					tmpWidth += glue.getWidth();
-				}
-			}
-
-			Layout layout = paragraph.getLayout();
-			Layout.Advise advise = layout.getAdvise();
-
-			float lineSpace = advise.getLineSpace();
-			height += (int) ((lineCount - 1) * lineSpace);
-
-			region.setWidth(width);
-			region.setHeight(height);
-
-			return true;
-		} catch (Throwable ignore) {
+			worker.submitSync(token, args);
+		} catch (Throwable e) {
 			return false;
 		}
+		return true;
+	}
+
+	/**
+	 * 预测宽高
+	 *
+	 * @param paragraph 段落
+	 * @param token     令牌
+	 * @return true表示成功
+	 */
+	public boolean desire(@NonNull Paragraph paragraph, TaskQueue.Token token) {
+		return desire(paragraph, token, Integer.MAX_VALUE);
 	}
 
 	public interface Listener {
