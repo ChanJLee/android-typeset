@@ -257,6 +257,11 @@ public final class Paragraph extends DefaultRecyclable implements Segment {
 			return this;
 		}
 
+		public Builder textGravity(TextGravity textGravity) {
+			mBuilder0.textGravity(textGravity);
+			return this;
+		}
+
 		/**
 		 * @param tag 设置paragraph的额外信息，用来标识这个paragraph，因此需要保持唯一
 		 * @return 当前对象

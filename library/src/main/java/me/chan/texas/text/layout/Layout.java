@@ -59,7 +59,7 @@ public class Layout extends DefaultRecyclable {
 	protected void onRecycle() {
 		clear();
 		mLineWidth = -1;
-		mAdvise.clear();
+		mAdvise.reset();
 		mRect = null;
 		mAlgorithm = ALGORITHM_UNKNOWN;
 		POOL.release(this);
@@ -294,7 +294,7 @@ public class Layout extends DefaultRecyclable {
 			mTypesetPolicies = TYPESET_POLICY_DEFAULT;
 		}
 
-		private void clear() {
+		void reset() {
 			mLineSpace = -1;
 			mBreakStrategy = null;
 			mTypesetPolicies = TYPESET_POLICY_DEFAULT;
