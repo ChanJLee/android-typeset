@@ -7,32 +7,38 @@
     tools:context="me.chan.texas.MainActivity">
 
     <Button
-        android:id="@+id/button2"
+        android:id="@+id/basetest"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="测试全文本" />
+        android:text="测试TexasView" />
 
     <Button
-        android:id="@+id/button3"
+        android:id="@+id/raw_paragraph_view"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="android原生" />
+        android:text="android原生和ParagraphView" />
+
+    <Button
+        android:id="@+id/raw_paragraph_view_with_height"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="android原生和ParagraphView且固定宽高" />
 
     <Button
         android:id="@+id/alloc_picture"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="alloc picture" />
+        android:text="创建picture" />
 
     <Button
         android:id="@+id/free_picture"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="free picture" />
+        android:text="释放picture" />
 
     <Button
-        android:id="@+id/paragraph_view_demo"
+        android:id="@+id/paragraph_view_rv"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="paragraph view demo"/>
+        android:text="paragraph view with recyclerview" />
 </LinearLayout>
