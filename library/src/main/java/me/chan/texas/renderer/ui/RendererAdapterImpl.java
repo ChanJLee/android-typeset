@@ -352,21 +352,18 @@ public class RendererAdapterImpl extends RecyclerView.Adapter<RendererAdapterImp
 		}
 
 		float expectedLineSpace = renderOption.getLineSpace();
-		boolean isLineSpaceChanged = mRenderOption != null && expectedLineSpace != mRenderOption.getLineSpace();
 
 		mPaintSet.refresh(renderOption);
 		mRenderOption = renderOption;
 
-		if (isLineSpaceChanged && mDocument != null) {
+		if (mDocument != null) {
 			for (int i = 0; i < mDocument.getSegmentCount(); i++) {
 				Segment segment = mDocument.getSegment(i);
 				if (segment instanceof Paragraph) {
 					Paragraph paragraph = (Paragraph) segment;
 					Layout layout = paragraph.getLayout();
-					float lineSpace = layout.getAdvise().getLineSpace();
-					if (lineSpace < 0) {
-						layout.setLineSpace(expectedLineSpace);
-					}
+					Layout.Advise advise = layout.getAdvise();
+					advise.copy(renderOption);
 				}
 			}
 		}

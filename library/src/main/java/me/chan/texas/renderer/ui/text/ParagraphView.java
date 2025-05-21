@@ -510,6 +510,11 @@ public class ParagraphView extends FrameLayout {
 
 		mRenderOption = renderOption;
 		mUiThreadPaintSet.refresh(renderOption);
+		if (mParagraph != null) {
+			Layout layout = mParagraph.getLayout();
+			Layout.Advise advise = layout.getAdvise();
+			advise.copy(renderOption);
+		}
 
 		if (cmpType == TexasUtils.CmpType.CMP_LOAD) {
 			// 丢弃之前的任务

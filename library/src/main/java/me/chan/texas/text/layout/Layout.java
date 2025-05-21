@@ -10,6 +10,7 @@ import android.graphics.Rect;
 import androidx.annotation.RestrictTo;
 
 import me.chan.texas.Texas;
+import me.chan.texas.misc.BitBucket32;
 import me.chan.texas.misc.DefaultRecyclable;
 import me.chan.texas.misc.ObjectPool;
 import me.chan.texas.renderer.RenderOption;
@@ -25,12 +26,10 @@ public class Layout extends DefaultRecyclable {
 	public static final String ALGORITHM_UNKNOWN = "unknown";
 
 	private final Advise mAdvise = new Advise();
-
 	private final List<Line> mLines;
 	private int mLineWidth = -1;
 	private Rect mRect;
 	private float mLineSpace = 0;
-
 	private String mAlgorithm = ALGORITHM_UNKNOWN;
 
 	private Layout() {
@@ -251,13 +250,17 @@ public class Layout extends DefaultRecyclable {
 
 	@RestrictTo(LIBRARY)
 	public static class Advise {
+		private final static int INDEX_LINE_SPACE = 0;
+		private final static int INDEX_BREAK_STRATEGY = 1;
+		private final static int INDEX_TEXT_GRAVITY = 2;
 		/**
 		 * 排版建议
 		 */
 		private float mLineSpace = -1;
 		private BreakStrategy mBreakStrategy;
-		private int mTypesetPolicies = TYPESET_POLICY_CJK_MIX_OPTIMIZATION;
 		private TextGravity mTextGravity;
+		private int mTypesetPolicies = TYPESET_POLICY_CJK_MIX_OPTIMIZATION;
+		private final BitBucket32 mAttributesReference = new BitBucket32();
 
 		public float getLineSpace() {
 			return mLineSpace;
@@ -265,6 +268,7 @@ public class Layout extends DefaultRecyclable {
 
 		public void setLineSpace(float lineSpace) {
 			mLineSpace = lineSpace;
+			mAttributesReference.set(INDEX_LINE_SPACE);
 		}
 
 		public BreakStrategy getBreakStrategy() {
@@ -273,6 +277,7 @@ public class Layout extends DefaultRecyclable {
 
 		public void setBreakStrategy(BreakStrategy breakStrategy) {
 			mBreakStrategy = breakStrategy;
+			mAttributesReference.set(INDEX_BREAK_STRATEGY);
 		}
 
 		public TextGravity getTextGravity() {
@@ -281,6 +286,7 @@ public class Layout extends DefaultRecyclable {
 
 		public void setTextGravity(TextGravity textGravity) {
 			mTextGravity = textGravity;
+			mAttributesReference.set(INDEX_TEXT_GRAVITY);
 		}
 
 		public boolean checkTypesetPolicy(@Paragraph.TypesetPolicy int typesetPolicy) {
@@ -300,6 +306,19 @@ public class Layout extends DefaultRecyclable {
 			mBreakStrategy = null;
 			mTypesetPolicies = TYPESET_POLICY_DEFAULT;
 			mTextGravity = TextGravity.START;
+			mAttributesReference.clear();
+		}
+
+		public void copy(RenderOption option) {
+			if (!mAttributesReference.get(INDEX_LINE_SPACE)) {
+				mLineSpace = option.getLineSpace();
+			}
+			if (!mAttributesReference.get(INDEX_BREAK_STRATEGY)) {
+				mBreakStrategy = option.getBreakStrategy();
+			}
+			if (!mAttributesReference.get(INDEX_TEXT_GRAVITY)) {
+				mTextGravity = option.getTextGravity();
+			}
 		}
 
 		public void copy(Advise advise) {
@@ -307,6 +326,7 @@ public class Layout extends DefaultRecyclable {
 			mTypesetPolicies = advise.mTypesetPolicies;
 			mBreakStrategy = advise.mBreakStrategy;
 			mTextGravity = advise.mTextGravity;
+			mAttributesReference.copy(advise.mAttributesReference);
 		}
 	}
 }
