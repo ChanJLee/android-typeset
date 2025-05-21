@@ -451,10 +451,7 @@ class ParagraphBuilderInternal {
 							  Appearance background,
 							  Appearance foreground) {
 		int len = end - start;
-		Layout.Advise advise = mParagraph.mLayout.getAdvise();
-		BreakStrategy breakStrategy = advise.getBreakStrategy();
-		boolean ignoreHyphen = breakStrategy == BreakStrategy.SIMPLE;
-		if (ignoreHyphen || len <= MIN_HYPER_LEN) {
+		if (len <= MIN_HYPER_LEN) {
 			appendElement(TextBox.obtain(text, start, end,
 					mMeasurer,
 					textStyle,
