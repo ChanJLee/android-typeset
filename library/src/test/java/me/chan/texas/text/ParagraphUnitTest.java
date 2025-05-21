@@ -79,7 +79,7 @@ public class ParagraphUnitTest {
 	@Test
 	public void testBuilder() {
 		String msg = "hello";
-		TexasOption texasOption = new TexasOption(mPaintSet, Hyphenation.getInstance(), mMeasurer, mTextAttribute, new RenderOption());
+		TexasOption texasOption = new TexasOption(mPaintSet, Hyphenation.getInstance(), mMeasurer, mTextAttribute, new RenderOption().setLineSpace(1));
 		Paragraph.Builder builder = Paragraph.Builder.newBuilder(texasOption);
 		builder.lineSpace(2);
 		Paragraph paragraph = builder.build();
@@ -99,7 +99,6 @@ public class ParagraphUnitTest {
 
 		// test recycle twice
 		Paragraph.Builder p = builder;
-		builder.lineSpace(1);
 		builder = Paragraph.Builder.newBuilder(texasOption);
 		Assert.assertSame(p, builder);
 		Assert.assertNotSame(builder, Paragraph.Builder.newBuilder(texasOption));
@@ -112,7 +111,12 @@ public class ParagraphUnitTest {
 		RectGround background = new RectGround(10);
 		DotUnderLine dotUnderLine = new DotUnderLine(10);
 		String tag = "msg";
-		Paragraph.SpanBuilder spanBuilder = builder.newSpanBuilder().next("triangle").setBackground(background).setForeground(dotUnderLine).tag(tag).setTextStyle(TextStyle.BOLD);
+		Paragraph.SpanBuilder spanBuilder = builder.newSpanBuilder()
+				.next("triangle")
+				.setBackground(background)
+				.setForeground(dotUnderLine)
+				.tag(tag)
+				.setTextStyle(TextStyle.BOLD);
 		spanBuilder.buildSpan();
 
 		builder.newSpanBuilder().next("ok").buildSpan();
@@ -1028,7 +1032,7 @@ public class ParagraphUnitTest {
 		Layout layout = paragraph.getLayout();
 		Layout.Advise advise = layout.getAdvise();
 		Assert.assertSame(msg, paragraph.getTag());
-		Assert.assertEquals(advise.getLineSpace(), -1, 0);
+		Assert.assertEquals(advise.getLineSpace(), 0, 0);
 		Assert.assertEquals(layout.getLineCount(), 0);
 		Assert.assertEquals(paragraph.getElementCount(), 3);
 
@@ -1122,10 +1126,20 @@ public class ParagraphUnitTest {
 		Paragraph.Builder builder = Paragraph.Builder.newBuilder(texasOption);
 		builder.text("triangle");
 		Paragraph paragraph = builder.build();
-		Assert.assertEquals(3, paragraph.getElementCount());
-		Assert.assertEquals("triangle", paragraph.getElement(0).toString());
-		Assert.assertEquals(Glue.TERMINAL, paragraph.getElement(1));
-		Assert.assertEquals(Penalty.FORCE_BREAK, paragraph.getElement(2));
+//		Assert.assertEquals(7, paragraph.getElementCount());
+//		Assert.assertEquals("triangle", paragraph.getElement(0).toString());
+//		Assert.assertEquals(Glue.TERMINAL, paragraph.getElement(1));
+//		Assert.assertEquals(Penalty.FORCE_BREAK, paragraph.getElement(2));
+		Assert.assertEquals(7, paragraph.getElementCount());
+		Assert.assertEquals("tri", paragraph.getElement(0).toString());
+		Penalty penalty = (Penalty) paragraph.getElement(1);
+		Assert.assertTrue(penalty.isFlag());
+		Assert.assertEquals("an", paragraph.getElement(2).toString());
+		penalty = (Penalty) paragraph.getElement(3);
+		Assert.assertTrue(penalty.isFlag());
+		Assert.assertEquals("gle", paragraph.getElement(4).toString());
+		Assert.assertEquals(Glue.TERMINAL, paragraph.getElement(5));
+		Assert.assertEquals(Penalty.FORCE_BREAK, paragraph.getElement(6));
 
 		renderOption.setBreakStrategy(BreakStrategy.BALANCED);
 		texasOption = new TexasOption(mPaintSet, Hyphenation.getInstance(), mMeasurer, mTextAttribute, renderOption);
@@ -1134,7 +1148,7 @@ public class ParagraphUnitTest {
 		paragraph = builder.build();
 		Assert.assertEquals(7, paragraph.getElementCount());
 		Assert.assertEquals("tri", paragraph.getElement(0).toString());
-		Penalty penalty = (Penalty) paragraph.getElement(1);
+		penalty = (Penalty) paragraph.getElement(1);
 		Assert.assertTrue(penalty.isFlag());
 		Assert.assertEquals("an", paragraph.getElement(2).toString());
 		penalty = (Penalty) paragraph.getElement(3);
@@ -1147,12 +1161,21 @@ public class ParagraphUnitTest {
 				.breakStrategy(BreakStrategy.SIMPLE);
 		builder.text("triangle");
 		paragraph = builder.build();
-		Assert.assertEquals(3, paragraph.getElementCount());
-		Assert.assertEquals("triangle", paragraph.getElement(0).toString());
-		Assert.assertEquals(Glue.TERMINAL, paragraph.getElement(1));
-		Assert.assertEquals(Penalty.FORCE_BREAK, paragraph.getElement(2));
+//		Assert.assertEquals(3, paragraph.getElementCount());
+//		Assert.assertEquals("triangle", paragraph.getElement(0).toString());
+//		Assert.assertEquals(Glue.TERMINAL, paragraph.getElement(1));
+//		Assert.assertEquals(Penalty.FORCE_BREAK, paragraph.getElement(2));
+		Assert.assertEquals(7, paragraph.getElementCount());
+		Assert.assertEquals("tri", paragraph.getElement(0).toString());
+		penalty = (Penalty) paragraph.getElement(1);
+		Assert.assertTrue(penalty.isFlag());
+		Assert.assertEquals("an", paragraph.getElement(2).toString());
+		penalty = (Penalty) paragraph.getElement(3);
+		Assert.assertTrue(penalty.isFlag());
+		Assert.assertEquals("gle", paragraph.getElement(4).toString());
+		Assert.assertEquals(Glue.TERMINAL, paragraph.getElement(5));
+		Assert.assertEquals(Penalty.FORCE_BREAK, paragraph.getElement(6));
 	}
-
 
 	@Test
 	public void testTextBoxSpanAttributes() {

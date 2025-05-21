@@ -249,7 +249,7 @@ public class Layout extends DefaultRecyclable {
 		/**
 		 * 排版建议
 		 */
-		private float mLineSpace = -1;
+		private float mLineSpace;
 		private BreakStrategy mBreakStrategy;
 		private TextGravity mTextGravity;
 		private int mTypesetPolicies = TYPESET_POLICY_CJK_MIX_OPTIMIZATION;
