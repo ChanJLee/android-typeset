@@ -9,6 +9,7 @@ import android.text.StaticLayout;
 import android.text.TextPaint;
 import android.text.TextUtils;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
 
 import androidx.annotation.NonNull;
@@ -35,6 +36,8 @@ public class TestView extends View {
 	@Override
 	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
 		super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+
+		Log.d("ParagraphViewTag", "onMeasure for test: " + MeasureSpec.toString(widthMeasureSpec));
 
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !TextUtils.isEmpty(mText)) {
 			mLayout = StaticLayout.Builder.obtain(mText, 0, mText.length(), mPaint, getMeasuredWidth()).build();

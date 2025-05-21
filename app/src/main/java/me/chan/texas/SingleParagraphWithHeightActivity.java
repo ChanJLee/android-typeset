@@ -31,5 +31,13 @@ public class SingleParagraphWithHeightActivity extends Activity {
 	protected void onCreate(@Nullable Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_single_paragraph_with_height);
+
+		ParagraphView paragraphView = findViewById(R.id.paragraph_view);
+		findViewById(R.id.change_padding).setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View view) {
+				paragraphView.setPadding(paragraphView.getPaddingLeft(), paragraphView.getPaddingTop() + 50, paragraphView.getPaddingRight(), paragraphView.getPaddingBottom());
+			}
+		});
 	}
 }
