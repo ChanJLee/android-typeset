@@ -453,8 +453,7 @@ public class ParagraphView extends FrameLayout {
 	private boolean typeset0(int width) {
 		try {
 			ParagraphTypesetWorker worker = WorkerScheduler.typeset();
-			ParagraphTypesetWorker.Args args = ParagraphTypesetWorker.Args.obtain(mParagraph, width);
-			worker.submitSync(mRender.getToken(), args);
+			worker.desire(mParagraph, mRender.getToken(), width);
 			return true;
 		} catch (Throwable e) {
 			return false;
@@ -513,6 +512,7 @@ public class ParagraphView extends FrameLayout {
 		// 因为 padding 发生了变化
 		if (layout.getWidth() != width) {
 			Log.w(TAG, "paragraph width is changed, from " + layout.getWidth() + " to " + width + ", missing call onMeasure");
+			typeset0(width);
 		}
 
 		render0(mParagraph);
