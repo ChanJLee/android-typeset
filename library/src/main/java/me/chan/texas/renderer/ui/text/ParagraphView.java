@@ -848,14 +848,8 @@ public class ParagraphView extends FrameLayout {
 		);
 
 		// 文字居中形式
-		int textGravity = typedArray.getInt(R.styleable.me_chan_texas_ParagraphView_me_chan_texas_ParagraphView_textGravity, TexasView.TEXT_GRAVITY_START);
-		if (textGravity == TexasView.TEXT_GRAVITY_START) {
-			renderOption.setTextGravity(TextGravity.START);
-		} else if (textGravity == TexasView.TEXT_GRAVITY_END) {
-			renderOption.setTextGravity(TextGravity.END);
-		} else if (textGravity == TexasView.TEXT_GRAVITY_CENTER_HORIZONTAL) {
-			renderOption.setTextGravity(TextGravity.CENTER_HORIZONTAL);
-		}
+		int textGravity = typedArray.getInt(R.styleable.me_chan_texas_ParagraphView_me_chan_texas_ParagraphView_textGravity, TextGravity.TOP | TextGravity.START);
+		renderOption.setTextGravity(textGravity);
 
 		return renderOption;
 	}

@@ -34,10 +34,10 @@
             <enum name="start" value="1" />
             <enum name="end" value="2" />
             <enum name="center_horizontal" value="3" />
-            <enum name="center_vertical" value="4" />
-            <enum name="center" value="5" />
-            <enum name="top" value="6" />
-            <enum name="bottom" value="7" />
+            <enum name="top" value="4" />
+            <enum name="bottom" value="8" />
+            <enum name="center_vertical" value="12" />
+            <enum name="center" value="15" />
         </attr>
     </declare-styleable>
 
@@ -76,10 +76,10 @@
             <enum name="start" value="1" />
             <enum name="end" value="2" />
             <enum name="center_horizontal" value="3" />
-            <enum name="center_vertical" value="4" />
-            <enum name="center" value="5" />
-            <enum name="top" value="6" />
-            <enum name="bottom" value="7" />
+            <enum name="top" value="4" />
+            <enum name="bottom" value="8" />
+            <enum name="center_vertical" value="12" />
+            <enum name="center" value="15" />
         </attr>
     </declare-styleable>
 </resources>
