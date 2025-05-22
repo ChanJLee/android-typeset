@@ -6,6 +6,7 @@ import static me.chan.texas.text.Paragraph.TYPESET_POLICY_CJK_MIX_OPTIMIZATION;
 import static me.chan.texas.text.Paragraph.TYPESET_POLICY_DEFAULT;
 
 import android.graphics.Rect;
+import android.text.TextUtils;
 
 import androidx.annotation.RestrictTo;
 
@@ -100,6 +101,10 @@ public class Layout extends DefaultRecyclable {
 	@RestrictTo(LIBRARY)
 	public String getAlgorithm() {
 		return mAlgorithm;
+	}
+
+	public boolean isLayout() {
+		return !TextUtils.equals(mAlgorithm, ALGORITHM_UNKNOWN);
 	}
 
 	@RestrictTo(LIBRARY)

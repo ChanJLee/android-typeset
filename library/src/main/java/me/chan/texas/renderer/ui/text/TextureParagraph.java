@@ -77,4 +77,6 @@ public interface TextureParagraph {
 	ViewGroup.LayoutParams getLayoutParams();
 
 	void setLayoutParams(ViewGroup.LayoutParams layoutParams);
+
+	void setOnMeasureInterceptor(OnMeasureInterceptor interceptor);
 }
