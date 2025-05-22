@@ -2,6 +2,7 @@ package me.chan.texas.renderer.ui.text;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -10,6 +11,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 
+import me.chan.texas.BuildConfig;
 import me.chan.texas.misc.PaintSet;
 import me.chan.texas.renderer.RenderOption;
 import me.chan.texas.renderer.SpanTouchEventHandler;
@@ -28,10 +30,23 @@ public abstract class AbsTextureParagraphView extends View implements TexturePar
 	protected ParagraphDecor mParagraphDecor;
 	@NonNull
 	private final ParagraphViewMotion mParagraphViewMotion;
+	private final RelayoutPredicate mRelayoutPredicate;
+	protected static final RelayoutPredicate DEFAULT_RELAYOUT_PREDICATE = new RelayoutPredicate() {
+
+		@Override
+		public boolean apply(AbsTextureParagraphView view, Paragraph paragraph) {
+			return true;
+		}
+	};
 
 	public AbsTextureParagraphView(Context context) {
+		this(context, DEFAULT_RELAYOUT_PREDICATE);
+	}
+
+	public AbsTextureParagraphView(Context context, RelayoutPredicate relayoutPredicate) {
 		super(context);
 		mParagraphViewMotion = new ParagraphViewMotion(context, this);
+		mRelayoutPredicate = relayoutPredicate;
 	}
 
 	@Override
@@ -81,9 +96,16 @@ public abstract class AbsTextureParagraphView extends View implements TexturePar
 
 		// request layout
 		Layout layout = mParagraph.getLayout();
-		boolean relayout = getWidth() != layout.getWidth() || getHeight() != layout.getHeight();
-		if (relayout) {
+		int width = layout.getWidth();
+		int height = layout.getHeight();
+		int windowWidth = getWidth();
+		int windowHeight = getHeight();
+		boolean sizeChanged = width != windowWidth || height != windowHeight;
+		if (sizeChanged && mRelayoutPredicate.apply(this, mParagraph)) {
 			// 尽可能减少 requestLayout 的调用
+			if (BuildConfig.DEBUG) {
+				Log.d("ParagraphViewTag", "scheduleRender: requestLayout");
+			}
 			requestLayout();
 		}
 	}
@@ -120,5 +142,15 @@ public abstract class AbsTextureParagraphView extends View implements TexturePar
 	@Override
 	public Paragraph getParagraph() {
 		return mParagraph;
+	}
+
+	public interface RelayoutPredicate {
+
+		/**
+		 * @param view      当前的view
+		 * @param paragraph 新的paragraph
+		 * @return true 表示需要重新布局，false 表示不需要重新布局
+		 */
+		boolean apply(AbsTextureParagraphView view, Paragraph paragraph);
 	}
 }

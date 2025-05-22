@@ -12,6 +12,7 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
 import androidx.annotation.NonNull;
@@ -145,8 +146,20 @@ public class ParagraphView extends FrameLayout {
 		try {
 			mRenderOption = createRenderOption(context, typedArray);
 			mUiThreadPaintSet = new PaintSet(mRenderOption);
-			mRender = mRenderOption.isCompatMode() || Build.VERSION.SDK_INT < Build.VERSION_CODES.M ?
-					new TextureParagraphView0Compat(context) : new TextureParagraphView0(context);
+			AbsTextureParagraphView.RelayoutPredicate relayoutPredicate = (view, paragraph) -> {
+				ViewGroup.LayoutParams layoutParams = getLayoutParams();
+				if (layoutParams == null) {
+					return true;
+				}
+
+				Layout layout = paragraph.getLayout();
+				if (layout.getHeight() != view.getHeight()) {
+					return layoutParams.height == ViewGroup.LayoutParams.WRAP_CONTENT;
+				}
+
+				return false;
+			};
+			mRender = mRenderOption.isCompatMode() ? new TextureParagraphView0Compat(context, relayoutPredicate) : new TextureParagraphView0(context, relayoutPredicate);
 			addView((View) mRender, new FrameLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
 			OnSelectedChangedListener onSelectedChangedListener = new OnSelectedChangedListener() {
 				@Override
