@@ -38,7 +38,7 @@
     <me.chan.texas.renderer.ui.text.ParagraphView
         android:id="@+id/paragraph_view"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="200dp"
         android:background="#4CAF50"
         android:maxWidth="100dp"
         android:padding="10dp"
