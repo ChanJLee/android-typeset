@@ -161,7 +161,7 @@ public class ParagraphView extends FrameLayout {
 				return false;
 			};
 			mRender = mRenderOption.isCompatMode() ? new TextureParagraphView0Compat(context, relayoutPredicate) : new TextureParagraphView0(context, relayoutPredicate);
-			addView((View) mRender, new FrameLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+			addView((View) mRender, new FrameLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
 			OnSelectedChangedListener onSelectedChangedListener = new OnSelectedChangedListener() {
 				@Override
 				public boolean onSegmentClicked(TouchEvent e, Paragraph paragraph, int eventType) {
@@ -174,6 +174,8 @@ public class ParagraphView extends FrameLayout {
 				}
 			};
 			mRender.setOnTextSelectedListener(onSelectedChangedListener);
+			mRender.setOnMeasureInterceptor(this::handleMeasureRenderer);
+			setVerticalAlignment(mRenderOption);
 
 			TexasComponent texasComponent = Texas.getTexasComponent();
 			TextEngineCoreComponent textEngineCoreComponent = texasComponent.coreComponent().create();
@@ -400,6 +402,45 @@ public class ParagraphView extends FrameLayout {
 		}
 	}
 
+	private boolean handleMeasureRenderer(OnMeasureInterceptor.MeasureSpecs specs) {
+		if (mParagraph == null) {
+			return false;
+		}
+
+		Layout layout = mParagraph.getLayout();
+		if (!layout.isLayout()) {
+			return false;
+		}
+
+		int height = layout.getHeight();
+		int exceptedHeight = MeasureSpec.getSize(specs.heightSpec);
+		int heightMode = MeasureSpec.getMode(specs.heightSpec);
+		if (heightMode == MeasureSpec.AT_MOST) {
+			height = Math.min(height, exceptedHeight);
+		} else if (heightMode == MeasureSpec.EXACTLY) {
+			height = exceptedHeight;
+		}
+		specs.heightSpec = MeasureSpec.makeMeasureSpec(height, MeasureSpec.EXACTLY);
+		return true;
+	}
+
+	private void setVerticalAlignment(RenderOption renderOption) {
+		FrameLayout.LayoutParams layoutParams = (FrameLayout.LayoutParams) mRender.getLayoutParams();
+		if (layoutParams == null) {
+			return;
+		}
+
+		int textGravity = renderOption.getTextGravity() & TextGravity.VERTICAL_MASK;
+		if (textGravity == TextGravity.CENTER_VERTICAL) {
+			layoutParams.gravity = Gravity.CENTER_VERTICAL;
+		} else if (textGravity == TextGravity.TOP) {
+			layoutParams.gravity = Gravity.TOP;
+		} else if (textGravity == TextGravity.BOTTOM) {
+			layoutParams.gravity = Gravity.BOTTOM;
+		}
+		mRender.setLayoutParams(layoutParams);
+	}
+
 	private boolean typeset0(int width) {
 		try {
 			ParagraphTypesetWorker worker = WorkerScheduler.typeset();
@@ -543,6 +584,7 @@ public class ParagraphView extends FrameLayout {
 			Layout.Advise advise = layout.getAdvise();
 			advise.copy(renderOption);
 		}
+		setVerticalAlignment(renderOption);
 
 		if (cmpType == TexasUtils.CmpType.CMP_LOAD) {
 			// 丢弃之前的任务

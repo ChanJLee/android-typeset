@@ -65,9 +65,11 @@ public abstract class AbsTextureParagraphView extends View implements TexturePar
 					", heightMeasureSpec = " + MeasureSpec.toString(heightMeasureSpec));
 		}
 
-		if (onInterceptMeasure(widthMeasureSpec, heightMeasureSpec)) {
+		OnMeasureInterceptor.MeasureSpecs measureSpecs = onInterceptMeasure(widthMeasureSpec, heightMeasureSpec);
+		if (measureSpecs != null) {
+			super.onMeasure(measureSpecs.widthSpec, measureSpecs.heightSpec);
 			if (ParagraphView.DEBUG) {
-				Log.d("AbsParagraphView", "onMeasure: width = " + getMeasuredWidth() + " height = " + getMeasuredHeight());
+				Log.d("AbsParagraphView", "onMeasure from onInterceptMeasure: width = " + getMeasuredWidth() + " height = " + getMeasuredHeight());
 			}
 			return;
 		}
@@ -98,20 +100,20 @@ public abstract class AbsTextureParagraphView extends View implements TexturePar
 		}
 	}
 
-	private MeasureSpecs mMeasureSpecs;
+	private OnMeasureInterceptor.MeasureSpecs mMeasureSpecs;
 
-	private boolean onInterceptMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+	private OnMeasureInterceptor.MeasureSpecs onInterceptMeasure(int widthMeasureSpec, int heightMeasureSpec) {
 		if (mOnMeasureInterceptor == null) {
-			return false;
+			return null;
 		}
 
 		if (mMeasureSpecs == null) {
-			mMeasureSpecs = new MeasureSpecs();
+			mMeasureSpecs = new OnMeasureInterceptor.MeasureSpecs();
 		}
 
 		mMeasureSpecs.widthSpec = widthMeasureSpec;
 		mMeasureSpecs.heightSpec = heightMeasureSpec;
-		return mOnMeasureInterceptor.onMeasure(mMeasureSpecs);
+		return mOnMeasureInterceptor.onMeasure(mMeasureSpecs) ? mMeasureSpecs : null;
 	}
 
 	@Override
@@ -190,21 +192,5 @@ public abstract class AbsTextureParagraphView extends View implements TexturePar
 		 * @return true 表示需要重新布局，false 表示不需要重新布局
 		 */
 		boolean apply(AbsTextureParagraphView view, Paragraph paragraph);
-	}
-
-	/**
-	 * 测量拦截器
-	 */
-	public interface OnMeasureInterceptor {
-		/**
-		 * @param specs 测量的规格
-		 * @return true 表示拦截测量，false 表示不拦截测量
-		 */
-		boolean onMeasure(MeasureSpecs specs);
-	}
-
-	public static class MeasureSpecs {
-		int widthSpec;
-		int heightSpec;
 	}
 }
