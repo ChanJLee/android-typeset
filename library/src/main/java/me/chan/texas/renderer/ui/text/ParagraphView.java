@@ -5,8 +5,10 @@ import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.nfc.Tag;
 import android.os.Build;
 import android.os.Process;
+import android.os.SystemClock;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -377,12 +379,18 @@ public class ParagraphView extends FrameLayout {
 			width = Integer.MAX_VALUE;
 		}
 
+		long ts = DEBUG ? SystemClock.elapsedRealtime() : 0;
+		boolean typesetResult = typeset0(width - getPaddingLeft() - getPaddingRight());
+		if (DEBUG) {
+			Log.d(TAG, "desire paragraph, width = " + width + ", cost = " + (SystemClock.elapsedRealtime() - ts));
+		}
+
 		if (heightMode != MeasureSpec.EXACTLY) {
 			if (DEBUG) {
 				Log.d(TAG, "try to desire paragraph, width = " + width);
 			}
 
-			if (WorkerScheduler.typeset().desire(mParagraph, mRender.getToken(), width - getPaddingLeft() - getPaddingRight())) {
+			if (typesetResult) {
 				Layout layout = mParagraph.getLayout();
 				int layoutHeight = layout.getHeight();
 				if (DEBUG) {
@@ -409,6 +417,7 @@ public class ParagraphView extends FrameLayout {
 
 		Layout layout = mParagraph.getLayout();
 		if (!layout.isLayout()) {
+			Log.d(TAG, "paragraph is not layout, ignore intercept measure");
 			return false;
 		}
 
@@ -488,15 +497,22 @@ public class ParagraphView extends FrameLayout {
 			return;
 		}
 
+		Layout layout = mParagraph.getLayout();
+		if (!layout.isLayout()) {
+			return;
+		}
+
 		int paddingLeft = getPaddingLeft();
 		int paddingRight = getPaddingRight();
 
 		int width = right - left - paddingLeft - paddingRight;
-		Layout layout = mParagraph.getLayout();
+		if (DEBUG) {
+			Log.d(TAG, "onLayout0: width = " + width + ", layout width = " + layout.getWidth());
+		}
 
 		// 因为 padding 发生了变化
-		if (layout.getWidth() != width && !typeset0(width)) {
-			return;
+		if (layout.getWidth() != width) {
+			Log.w(TAG, "paragraph width is changed, from " + layout.getWidth() + " to " + width + ", missing call onMeasure");
 		}
 
 		render0(mParagraph);
