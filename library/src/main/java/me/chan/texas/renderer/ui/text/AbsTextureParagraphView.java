@@ -31,13 +31,7 @@ public abstract class AbsTextureParagraphView extends View implements TexturePar
 	@NonNull
 	private final ParagraphViewMotion mParagraphViewMotion;
 	private final RelayoutPredicate mRelayoutPredicate;
-	protected static final RelayoutPredicate DEFAULT_RELAYOUT_PREDICATE = new RelayoutPredicate() {
-
-		@Override
-		public boolean apply(AbsTextureParagraphView view, Paragraph paragraph) {
-			return true;
-		}
-	};
+	protected static final RelayoutPredicate DEFAULT_RELAYOUT_PREDICATE = (view, paragraph) -> true;
 
 	public AbsTextureParagraphView(Context context) {
 		this(context, DEFAULT_RELAYOUT_PREDICATE);
