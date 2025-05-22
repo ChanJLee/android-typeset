@@ -144,7 +144,7 @@ public abstract class AbsTextureParagraphView extends View implements TexturePar
 		if (sizeChanged && mRelayoutPredicate.apply(this, mParagraph)) {
 			// 尽可能减少 requestLayout 的调用
 			if (ParagraphView.DEBUG) {
-				Log.d("AbsParagraphView", "scheduleRender: requestLayout");
+				Log.d("AbsParagraphView", "scheduleRender, requestLayout, width = " + width + ", height = " + height + ", windowWidth = " + windowWidth + ", windowHeight = " + windowHeight);
 			}
 			requestLayout();
 		}
