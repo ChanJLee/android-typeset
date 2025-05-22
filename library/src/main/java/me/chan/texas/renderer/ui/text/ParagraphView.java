@@ -11,6 +11,7 @@ import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.util.TypedValue;
+import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
@@ -161,6 +162,7 @@ public class ParagraphView extends FrameLayout {
 			};
 			mRender = mRenderOption.isCompatMode() ? new TextureParagraphView0Compat(context, relayoutPredicate) : new TextureParagraphView0(context, relayoutPredicate);
 			addView((View) mRender, new FrameLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+			setVerticalAlignment(mRenderOption);
 			OnSelectedChangedListener onSelectedChangedListener = new OnSelectedChangedListener() {
 				@Override
 				public boolean onSegmentClicked(TouchEvent e, Paragraph paragraph, int eventType) {
@@ -539,6 +541,7 @@ public class ParagraphView extends FrameLayout {
 			advise.copy(renderOption);
 		}
 
+		setVerticalAlignment(renderOption);
 		if (cmpType == TexasUtils.CmpType.CMP_LOAD) {
 			// 丢弃之前的任务
 			discard(false);
@@ -562,6 +565,23 @@ public class ParagraphView extends FrameLayout {
 		if (mParagraph != null) {
 			render0(mParagraph);
 		}
+	}
+
+	private void setVerticalAlignment(RenderOption renderOption) {
+		FrameLayout.LayoutParams layoutParams = (FrameLayout.LayoutParams) mRender.getLayoutParams();
+		if (layoutParams == null) {
+			return;
+		}
+
+		int textGravity = renderOption.getTextGravity() & TextGravity.VERTICAL_MASK;
+		if (textGravity == TextGravity.CENTER_VERTICAL) {
+			layoutParams.gravity = Gravity.CENTER_VERTICAL;
+		} else if (textGravity == TextGravity.TOP) {
+			layoutParams.gravity = Gravity.TOP;
+		} else if (textGravity == TextGravity.BOTTOM) {
+			layoutParams.gravity = Gravity.BOTTOM;
+		}
+		mRender.setLayoutParams(layoutParams);
 	}
 
 	/**

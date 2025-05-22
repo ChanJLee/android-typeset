@@ -1,6 +1,7 @@
 package me.chan.texas.renderer.ui.text;
 
 import android.graphics.Canvas;
+import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -72,4 +73,8 @@ public interface TextureParagraph {
 	void clear();
 
 	int getHeight();
+
+	ViewGroup.LayoutParams getLayoutParams();
+
+	void setLayoutParams(ViewGroup.LayoutParams layoutParams);
 }
