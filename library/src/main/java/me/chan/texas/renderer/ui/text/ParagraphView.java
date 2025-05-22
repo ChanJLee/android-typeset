@@ -65,9 +65,9 @@ import javax.inject.Inject;
  * 当前内容都是异步渲染的，所以当你不需要显示某个内容的时候，就调用 {@link #discard()} 丢弃之前的任务
  */
 public class ParagraphView extends FrameLayout {
-	private static final boolean DEBUG = true;
+	public static final boolean DEBUG = true;
 
-	private static final String TAG = "ParagraphViewTag";
+	private static final String TAG = "ParagraphView";
 
 	@NonNull
 	private final TextureParagraph mRender;
@@ -162,7 +162,6 @@ public class ParagraphView extends FrameLayout {
 			};
 			mRender = mRenderOption.isCompatMode() ? new TextureParagraphView0Compat(context, relayoutPredicate) : new TextureParagraphView0(context, relayoutPredicate);
 			addView((View) mRender, new FrameLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
-			setVerticalAlignment(mRenderOption);
 			OnSelectedChangedListener onSelectedChangedListener = new OnSelectedChangedListener() {
 				@Override
 				public boolean onSegmentClicked(TouchEvent e, Paragraph paragraph, int eventType) {
@@ -378,12 +377,16 @@ public class ParagraphView extends FrameLayout {
 
 		if (heightMode != MeasureSpec.EXACTLY) {
 			if (DEBUG) {
-				Log.d(TAG, "try to describe paragraph, width = " + width);
+				Log.d(TAG, "try to desire paragraph, width = " + width);
 			}
 
 			if (WorkerScheduler.typeset().desire(mParagraph, mRender.getToken(), width - getPaddingLeft() - getPaddingRight())) {
 				Layout layout = mParagraph.getLayout();
-				int height = layout.getHeight() + getPaddingTop() + getPaddingBottom();
+				int layoutHeight = layout.getHeight();
+				if (DEBUG) {
+					Log.d(TAG, "paragraph is desired, width = " + width + ", height = " + layoutHeight);
+				}
+				int height = layoutHeight + getPaddingTop() + getPaddingBottom();
 				height = heightMode == MeasureSpec.AT_MOST ? Math.min(height, MeasureSpec.getSize(heightMeasureSpec)) : height;
 				heightMeasureSpec = MeasureSpec.makeMeasureSpec(height, MeasureSpec.EXACTLY);
 			}
@@ -541,7 +544,6 @@ public class ParagraphView extends FrameLayout {
 			advise.copy(renderOption);
 		}
 
-		setVerticalAlignment(renderOption);
 		if (cmpType == TexasUtils.CmpType.CMP_LOAD) {
 			// 丢弃之前的任务
 			discard(false);
@@ -565,23 +567,6 @@ public class ParagraphView extends FrameLayout {
 		if (mParagraph != null) {
 			render0(mParagraph);
 		}
-	}
-
-	private void setVerticalAlignment(RenderOption renderOption) {
-		FrameLayout.LayoutParams layoutParams = (FrameLayout.LayoutParams) mRender.getLayoutParams();
-		if (layoutParams == null) {
-			return;
-		}
-
-		int textGravity = renderOption.getTextGravity() & TextGravity.VERTICAL_MASK;
-		if (textGravity == TextGravity.CENTER_VERTICAL) {
-			layoutParams.gravity = Gravity.CENTER_VERTICAL;
-		} else if (textGravity == TextGravity.TOP) {
-			layoutParams.gravity = Gravity.TOP;
-		} else if (textGravity == TextGravity.BOTTOM) {
-			layoutParams.gravity = Gravity.BOTTOM;
-		}
-		mRender.setLayoutParams(layoutParams);
 	}
 
 	/**
