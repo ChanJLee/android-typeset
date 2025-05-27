@@ -340,7 +340,7 @@ public class Line extends DefaultRecyclable {
 			}
 
 			float totalWidth = glueWidth + boxWidth;
-			line.setLineWidth(lineWidth);
+			line.setLineWidth(totalWidth);
 			line.setLineHeight(lineHeight);
 			if (breakStrategy == BreakStrategy.SIMPLE) {
 				line.setRatio(0);

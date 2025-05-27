@@ -193,6 +193,7 @@ public class SelectedTextByDragVisitor extends SelectedVisitor {
 
 		String debug = null;
 
+		// TODO 支持text gravity
 		mLeft = 0;
 		mRight = line.getLineWidth();
 		if (sig != SIG_NORMAL) {

@@ -66,7 +66,10 @@ public abstract class ParagraphVisitor {
 				if (horizontalGravity == TextGravity.START) {
 					x = layout.getPaddingLeft();
 				} else if (horizontalGravity == TextGravity.CENTER_HORIZONTAL) {
-					x = layout.getPaddingLeft() + (layout.getWidth() - line.getLineWidth()) / 2.0f;
+					float layoutWidth = layout.getWidth();
+					float lineWidth = line.getLineWidth();
+					float offsetX = (layoutWidth - lineWidth) / 2.0f;
+					x = layout.getPaddingLeft() + offsetX;
 				} else if (horizontalGravity == TextGravity.END) {
 					int windowWidth = layout.getWidth() + layout.getPaddingLeft() + layout.getPaddingRight();
 					x = windowWidth - line.getLineWidth() - layout.getPaddingRight();
