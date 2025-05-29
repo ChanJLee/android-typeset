@@ -132,6 +132,10 @@ public class TypesetEngine {
 	}
 
 	public void load(String reason, int width, TexasView.DocumentSource source, Listener listener) {
+		if (source == null) {
+			return;
+		}
+
 		// 非增量的加载，都需要取消之前的任务
 		cancel();
 
