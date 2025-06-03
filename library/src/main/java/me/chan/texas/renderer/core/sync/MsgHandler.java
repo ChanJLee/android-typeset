@@ -10,7 +10,10 @@ import me.chan.texas.utils.concurrency.TaskQueue;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class WorkerMessager {
+/**
+ * 跟主ui线程通信的消息处理器
+ */
+public abstract class MsgHandler {
 
 	protected List<Listener> mListeners = new ArrayList<>();
 
@@ -21,13 +24,13 @@ public abstract class WorkerMessager {
 	/**
 	 * 发送消息
 	 *
-	 * @param token      id
+	 * @param token   id
 	 * @param message 消息附带的值
 	 */
-	public abstract void send(TaskQueue.Token token, WorkerMessage message);
+	public abstract void send(TaskQueue.Token token, Msg message);
 
 	/**
-	 * 清空消息
+	 * 清空token对应的消息
 	 */
 	public abstract void clear(TaskQueue.Token token);
 
@@ -35,14 +38,14 @@ public abstract class WorkerMessager {
 		/**
 		 * 处理消息
 		 *
-		 * @param token
-		 * @param value
+		 * @param token token
+		 * @param msg   消息
 		 */
-		boolean handleMessage(TaskQueue.Token token, WorkerMessage value);
+		boolean handle(TaskQueue.Token token, Msg msg);
 	}
 
-	public static class WorkerMessage extends DefaultRecyclable {
-		private static final ObjectPool<WorkerMessage> POOL = new ObjectPool<>(32);
+	public static class Msg extends DefaultRecyclable {
+		private static final ObjectPool<Msg> POOL = new ObjectPool<>(32);
 
 		private int mType;
 		private Object mArg;
@@ -50,7 +53,7 @@ public abstract class WorkerMessager {
 
 		private TaskQueue.Token mToken;
 
-		private WorkerMessage() {
+		private Msg() {
 		}
 
 		public int type() {
@@ -106,10 +109,10 @@ public abstract class WorkerMessager {
 			mToken = token;
 		}
 
-		public static WorkerMessage obtain(int type, Object arg, Object value) {
-			WorkerMessage message = POOL.acquire();
+		public static Msg obtain(int type, Object arg, Object value) {
+			Msg message = POOL.acquire();
 			if (message == null) {
-				message = new WorkerMessage();
+				message = new Msg();
 			}
 
 			message.mType = type;
@@ -118,6 +121,5 @@ public abstract class WorkerMessager {
 			message.reuse();
 			return message;
 		}
-
 	}
 }

@@ -9,7 +9,7 @@ import me.chan.texas.measurer.Measurer;
 import me.chan.texas.misc.PaintSet;
 import me.chan.texas.renderer.RenderOption;
 import me.chan.texas.renderer.TexasView;
-import me.chan.texas.renderer.core.sync.WorkerMessager;
+import me.chan.texas.renderer.core.sync.MsgHandler;
 import me.chan.texas.text.Document;
 import me.chan.texas.text.HyphenStrategy;
 import me.chan.texas.text.TextAttribute;
@@ -26,12 +26,12 @@ public class LoadingWorker implements TaskQueue.Listener<LoadingWorker.Args, Loa
 	public static final boolean DEBUG = false;
 
 	private final TaskQueue mTaskQueue;
-	private final WorkerMessager mMessager;
+	private final MsgHandler mMsgHandler;
 
-	public LoadingWorker(TaskQueue taskQueue, WorkerMessager messager) {
+	public LoadingWorker(TaskQueue taskQueue, MsgHandler msgHandler) {
 		mTaskQueue = taskQueue;
-		mMessager = messager;
-		mMessager.addListener((id, value) -> {
+		mMsgHandler = msgHandler;
+		mMsgHandler.addListener((id, value) -> {
 			LoadingWorker.Args args = value.asArg(LoadingWorker.Args.class);
 			if (args == null) {
 				return false;
@@ -58,20 +58,20 @@ public class LoadingWorker implements TaskQueue.Listener<LoadingWorker.Args, Loa
 
 	@Override
 	public void onStart(TaskQueue.Token token, LoadingWorker.Args args) {
-		WorkerMessager.WorkerMessage message = WorkerMessager.WorkerMessage.obtain(TYPE_START, args, null);
-		mMessager.send(token, message);
+		MsgHandler.Msg message = MsgHandler.Msg.obtain(TYPE_START, args, null);
+		mMsgHandler.send(token, message);
 	}
 
 	@Override
 	public void onSuccess(TaskQueue.Token token, LoadingWorker.Args args, LoadingResult ret) {
-		WorkerMessager.WorkerMessage message = WorkerMessager.WorkerMessage.obtain(TYPE_SUCCESS, args, ret);
-		mMessager.send(token, message);
+		MsgHandler.Msg message = MsgHandler.Msg.obtain(TYPE_SUCCESS, args, ret);
+		mMsgHandler.send(token, message);
 	}
 
 	@Override
 	public void onError(TaskQueue.Token token, LoadingWorker.Args args, Throwable throwable) {
-		WorkerMessager.WorkerMessage message = WorkerMessager.WorkerMessage.obtain(TYPE_ERROR, args, throwable);
-		mMessager.send(token, message);
+		MsgHandler.Msg message = MsgHandler.Msg.obtain(TYPE_ERROR, args, throwable);
+		mMsgHandler.send(token, message);
 	}
 
 	@Override
@@ -107,7 +107,7 @@ public class LoadingWorker implements TaskQueue.Listener<LoadingWorker.Args, Loa
 
 	public void cancel(TaskQueue.Token token) {
 		mTaskQueue.cancel(token);
-		mMessager.clear(token);
+		mMsgHandler.clear(token);
 	}
 
 	public interface Listener {

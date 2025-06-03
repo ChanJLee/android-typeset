@@ -11,7 +11,7 @@ import androidx.annotation.VisibleForTesting;
 import me.chan.texas.misc.DefaultRecyclable;
 import me.chan.texas.misc.ObjectPool;
 import me.chan.texas.renderer.core.WorkerScheduler;
-import me.chan.texas.renderer.core.sync.WorkerMessager;
+import me.chan.texas.renderer.core.sync.MsgHandler;
 import me.chan.texas.text.BreakStrategy;
 import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.layout.Layout;
@@ -27,9 +27,9 @@ public class ParagraphTypesetWorker implements TaskQueue.Task<ParagraphTypesetWo
 
 	private final ParagraphTypesetter mTypesetter;
 	private final TaskQueue mTaskQueue;
-	private final WorkerMessager mMessager;
+	private final MsgHandler mMessager;
 
-	public ParagraphTypesetWorker(TaskQueue taskQueue, WorkerMessager messager) {
+	public ParagraphTypesetWorker(TaskQueue taskQueue, MsgHandler messager) {
 		mTaskQueue = taskQueue;
 		mMessager = messager;
 		mTypesetter = new ParagraphTypesetter();
@@ -84,14 +84,14 @@ public class ParagraphTypesetWorker implements TaskQueue.Task<ParagraphTypesetWo
 
 	@Override
 	public void onSuccess(TaskQueue.Token token, Args args, Paragraph ret) {
-		WorkerMessager.WorkerMessage message = WorkerMessager.WorkerMessage.obtain(TYPE_SUCCESS, args, ret);
+		MsgHandler.Msg message = MsgHandler.Msg.obtain(TYPE_SUCCESS, args, ret);
 		mMessager.send(token, message);
 	}
 
 	@Override
 	public void onError(TaskQueue.Token token, Args args, Throwable throwable) {
 		Log.w("TypesetWorker", throwable);
-		WorkerMessager.WorkerMessage message = WorkerMessager.WorkerMessage.obtain(TYPE_ERROR, args, throwable);
+		MsgHandler.Msg message = MsgHandler.Msg.obtain(TYPE_ERROR, args, throwable);
 		mMessager.send(token, message);
 	}
 

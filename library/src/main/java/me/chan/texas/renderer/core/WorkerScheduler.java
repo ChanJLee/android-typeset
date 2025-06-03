@@ -11,7 +11,7 @@ import javax.inject.Named;
 import me.chan.texas.Texas;
 import me.chan.texas.di.TexasComponent;
 import me.chan.texas.di.core.TextEngineCoreComponent;
-import me.chan.texas.renderer.core.sync.WorkerMessager;
+import me.chan.texas.renderer.core.sync.MsgHandler;
 import me.chan.texas.renderer.core.worker.LoadingWorker;
 import me.chan.texas.renderer.core.worker.MixWorker;
 import me.chan.texas.renderer.core.worker.OddWorker;
@@ -42,7 +42,7 @@ public class WorkerScheduler {
     TaskQueue mComputeTaskQueue;
 
     @Inject
-    WorkerMessager mMessager;
+    MsgHandler mMessager;
 
     private final RenderWorker mRenderWorker;
     private final ParagraphTypesetWorker mTypesetWorker;

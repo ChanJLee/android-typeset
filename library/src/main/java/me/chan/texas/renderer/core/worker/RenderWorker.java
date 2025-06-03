@@ -21,7 +21,7 @@ import me.chan.texas.misc.ObjectPool;
 import me.chan.texas.misc.PaintSet;
 import me.chan.texas.renderer.ParagraphVisitor;
 import me.chan.texas.renderer.RenderOption;
-import me.chan.texas.renderer.core.sync.WorkerMessager;
+import me.chan.texas.renderer.core.sync.MsgHandler;
 import me.chan.texas.renderer.selection.ParagraphSelection;
 import me.chan.texas.renderer.selection.Selection;
 import me.chan.texas.renderer.ui.decor.ParagraphDecor;
@@ -46,13 +46,13 @@ public class RenderWorker implements TaskQueue.Task<RenderWorker.Args, Void>, Ta
 	private static final String TAG = "RenderWorker";
 
 	private final TaskQueue mTaskQueue;
-	private final WorkerMessager mMessager;
+	private final MsgHandler mMessager;
 
 	private Stats mStats;
 
 	private final TextPaint mWorkPaint = TextPaintCompat.create();
 
-	public RenderWorker(TaskQueue taskQueue, WorkerMessager messager) {
+	public RenderWorker(TaskQueue taskQueue, MsgHandler messager) {
 		mTaskQueue = taskQueue;
 		mMessager = messager;
 		mMessager.addListener((token, value) -> {
@@ -221,14 +221,14 @@ public class RenderWorker implements TaskQueue.Task<RenderWorker.Args, Void>, Ta
 
 	@Override
 	public void onSuccess(TaskQueue.Token token, Args args, Void ret) {
-		WorkerMessager.WorkerMessage message = WorkerMessager.WorkerMessage.obtain(TYPE_SUCCESS, args, ret);
+		MsgHandler.Msg message = MsgHandler.Msg.obtain(TYPE_SUCCESS, args, ret);
 		mMessager.send(token, message);
 	}
 
 	@Override
 	public void onError(TaskQueue.Token token, Args args, Throwable throwable) {
 		Log.w(TAG, throwable);
-		WorkerMessager.WorkerMessage message = WorkerMessager.WorkerMessage.obtain(TYPE_ERROR, args, throwable);
+		MsgHandler.Msg message = MsgHandler.Msg.obtain(TYPE_ERROR, args, throwable);
 		mMessager.send(token, message);
 	}
 

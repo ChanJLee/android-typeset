@@ -6,19 +6,19 @@ import javax.inject.Named;
 
 import dagger.Module;
 import dagger.Provides;
-import me.chan.texas.renderer.core.sync.WorkerMessager;
+import me.chan.texas.renderer.core.sync.MsgHandler;
 import me.chan.texas.utils.concurrency.TaskQueue;
 
 @Module
 public class FakeConcurrencyModule {
 
 	@Provides
-	public WorkerMessager provideWorkerMessager() {
-		return new WorkerMessager() {
+	public MsgHandler provideWorkerMessager() {
+		return new MsgHandler() {
 			@Override
-			public void send(TaskQueue.Token token, WorkerMessage message) {
+			public void send(TaskQueue.Token token, Msg message) {
 				for (Listener listener : mListeners) {
-					if (listener.handleMessage(token, message)) {
+					if (listener.handle(token, message)) {
 						return;
 					}
 				}

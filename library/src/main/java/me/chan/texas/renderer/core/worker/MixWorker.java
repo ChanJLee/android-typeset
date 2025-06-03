@@ -28,7 +28,7 @@ import me.chan.texas.measurer.Measurer;
 import me.chan.texas.renderer.RenderOption;
 import me.chan.texas.renderer.TexasView;
 import me.chan.texas.renderer.core.WorkerScheduler;
-import me.chan.texas.renderer.core.sync.WorkerMessager;
+import me.chan.texas.renderer.core.sync.MsgHandler;
 import me.chan.texas.text.Document;
 import me.chan.texas.text.Figure;
 import me.chan.texas.text.Paragraph;
@@ -54,12 +54,12 @@ public class MixWorker implements TaskQueue.Listener<MixWorker.Args, MixWorker.T
 	public static final boolean DEBUG = false;
 
 	private final TaskQueue mTaskQueue;
-	private final WorkerMessager mMessager;
+	private final MsgHandler mMessager;
 
 	@Inject
 	MeasureFactory mMeasureFactory;
 
-	public MixWorker(TaskQueue taskQueue, WorkerMessager messager) {
+	public MixWorker(TaskQueue taskQueue, MsgHandler messager) {
 		mTaskQueue = taskQueue;
 		mMessager = messager;
 		mMessager.addListener((id, value) -> {
@@ -92,19 +92,19 @@ public class MixWorker implements TaskQueue.Listener<MixWorker.Args, MixWorker.T
 
 	@Override
 	public void onStart(TaskQueue.Token token, Args args) {
-		WorkerMessager.WorkerMessage message = WorkerMessager.WorkerMessage.obtain(TYPE_START, args, null);
+		MsgHandler.Msg message = MsgHandler.Msg.obtain(TYPE_START, args, null);
 		mMessager.send(token, message);
 	}
 
 	@Override
 	public void onSuccess(TaskQueue.Token token, Args args, TypesetResult ret) {
-		WorkerMessager.WorkerMessage message = WorkerMessager.WorkerMessage.obtain(TYPE_SUCCESS, args, ret);
+		MsgHandler.Msg message = MsgHandler.Msg.obtain(TYPE_SUCCESS, args, ret);
 		mMessager.send(token, message);
 	}
 
 	@Override
 	public void onError(TaskQueue.Token token, Args args, Throwable throwable) {
-		WorkerMessager.WorkerMessage message = WorkerMessager.WorkerMessage.obtain(TYPE_ERROR, args, throwable);
+		MsgHandler.Msg message = MsgHandler.Msg.obtain(TYPE_ERROR, args, throwable);
 		mMessager.send(token, message);
 	}
 
