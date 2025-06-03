@@ -25,107 +25,109 @@ import me.chan.texas.utils.concurrency.Worker;
  */
 @RestrictTo(LIBRARY)
 public class WorkerScheduler {
-    private static volatile WorkerScheduler sInstance;
+	private static volatile WorkerScheduler sInstance;
 
-    // handler需要设置线程可见性，这样一旦释放了handler，工作线程能立马看到
-    // 滞后的消息就不会发到主线程
-    @Inject
-    @Named("MiscTask")
-    Worker mMiscWorker;
+	// handler需要设置线程可见性，这样一旦释放了handler，工作线程能立马看到
+	// 滞后的消息就不会发到主线程
+	@Inject
+	@Named("MiscTask")
+	Worker mMiscWorker;
 
-    @Inject
-    @Named("RendererTask")
-    Worker mRendererWorker;
+	@Inject
+	@Named("RendererTask")
+	Worker mRendererWorker;
 
-    @Inject
-    @Named("ComputeTask")
-    Worker mComputeWorker;
+	@Inject
+	@Named("ComputeTask")
+	Worker mComputeWorker;
 
-    @Inject
-    MsgHandler mMsgHandler;
+	@Inject
+	MsgHandler mMsgHandler;
 
-    private final RenderWorker mRenderWorker;
-    private final ParagraphTypesetWorker mTypesetWorker;
-    private final ParseWorker mParseWorker;
-    private final OddWorker mOddWorker;
-    private final MixWorker mMixWorker;
+	private final RenderWorker mRenderWorker;
+	private final ParagraphTypesetWorker mTypesetWorker;
+	private final ParseWorker mParseWorker;
+	private final OddWorker mOddWorker;
+	private final MixWorker mMixWorker;
 
-    private final LoadingWorker mLoadingWorker;
+	private final LoadingWorker mLoadingWorker;
 
-    private WorkerScheduler() {
-        TexasComponent texasComponent = Texas.getTexasComponent();
-        TextEngineCoreComponent textEngineCoreComponent = texasComponent.coreComponent().create();
-        textEngineCoreComponent.inject(this);
+	private WorkerScheduler() {
+		TexasComponent texasComponent = Texas.getTexasComponent();
+		TextEngineCoreComponent textEngineCoreComponent = texasComponent.coreComponent().create();
+		textEngineCoreComponent.inject(this);
 
-        mRenderWorker = new RenderWorker(mRendererWorker, mMsgHandler);
-        mTypesetWorker = new ParagraphTypesetWorker(mMiscWorker, mMsgHandler);
-        mParseWorker = new ParseWorker(mMiscWorker, mMsgHandler);
-        mOddWorker = new OddWorker();
-        mMixWorker = new MixWorker(mComputeWorker, mMsgHandler);
-        mLoadingWorker = new LoadingWorker(mComputeWorker, mMsgHandler);
-    }
+		mRenderWorker = new RenderWorker(mRendererWorker, mMsgHandler);
+		mTypesetWorker = new ParagraphTypesetWorker();
+		mParseWorker = new ParseWorker(mMiscWorker, mMsgHandler);
+		mOddWorker = new OddWorker();
+		mMixWorker = new MixWorker(mComputeWorker, mMsgHandler);
+		mLoadingWorker = new LoadingWorker(mComputeWorker, mMsgHandler);
+	}
 
-    private static synchronized WorkerScheduler getInstance() {
-        if (sInstance == null) {
-            sInstance = new WorkerScheduler();
-        }
-        return sInstance;
-    }
+	private static synchronized WorkerScheduler getInstance() {
+		if (sInstance == null) {
+			sInstance = new WorkerScheduler();
+		}
+		return sInstance;
+	}
 
-    public static ParseWorker parse() {
-        return getInstance().mParseWorker;
-    }
+	public static ParseWorker parse() {
+		return getInstance().mParseWorker;
+	}
 
-    public static RenderWorker render() {
-        return getInstance().mRenderWorker;
-    }
+	public static RenderWorker render() {
+		return getInstance().mRenderWorker;
+	}
 
-    public static ParagraphTypesetWorker typeset() {
-        return getInstance().mTypesetWorker;
-    }
+	public static ParagraphTypesetWorker typeset() {
+		return getInstance().mTypesetWorker;
+	}
 
-    public static OddWorker odd() {
-        return getInstance().mOddWorker;
-    }
+	public static OddWorker odd() {
+		return getInstance().mOddWorker;
+	}
 
-    /*
-    * 合并排版结果
-    * */
-    public static MixWorker mix() {
-        return getInstance().mMixWorker;
-    }
+	/*
+	 * 合并排版结果
+	 * */
+	public static MixWorker mix() {
+		return getInstance().mMixWorker;
+	}
 
-    public static LoadingWorker loading() { return getInstance().mLoadingWorker; }
+	public static LoadingWorker loading() {
+		return getInstance().mLoadingWorker;
+	}
 
-    public static final int TASK_QUEUE_RENDER = 1;
-    public static final int TASK_QUEUE_TYPESET = 2;
-    public static final int TASK_QUEUE_PARSE = 3;
-    public static final int TASK_QUEUE_COMPUTE = 4;
+	public static final int TASK_QUEUE_RENDER = 1;
+	public static final int TASK_QUEUE_TYPESET = 2;
+	public static final int TASK_QUEUE_PARSE = 3;
+	public static final int TASK_QUEUE_COMPUTE = 4;
 
-    @IntDef({TASK_QUEUE_RENDER, TASK_QUEUE_TYPESET, TASK_QUEUE_PARSE})
-    public @interface TaskQueueType {
+	@IntDef({TASK_QUEUE_RENDER, TASK_QUEUE_TYPESET, TASK_QUEUE_PARSE})
+	public @interface TaskQueueType {
 
-    }
+	}
 
-    public static Worker getTaskQueue(@TaskQueueType int type) {
-        if (type == TASK_QUEUE_RENDER) {
-            return getInstance().mRendererWorker;
-        } else if (type == TASK_QUEUE_TYPESET) {
-            return getInstance().mMiscWorker;
-        } else if (type == TASK_QUEUE_PARSE) {
-            return getInstance().mMiscWorker;
-        } else if (type == TASK_QUEUE_COMPUTE) {
-            return getInstance().mComputeWorker;
-        }
+	public static Worker getTaskQueue(@TaskQueueType int type) {
+		if (type == TASK_QUEUE_RENDER) {
+			return getInstance().mRendererWorker;
+		} else if (type == TASK_QUEUE_TYPESET) {
+			return getInstance().mMiscWorker;
+		} else if (type == TASK_QUEUE_PARSE) {
+			return getInstance().mMiscWorker;
+		} else if (type == TASK_QUEUE_COMPUTE) {
+			return getInstance().mComputeWorker;
+		}
 
-        throw new IllegalArgumentException("unknown task queue type");
-    }
+		throw new IllegalArgumentException("unknown task queue type");
+	}
 
-    public static void cancelAll(Worker.Token token) {
-        WorkerScheduler scheduler = getInstance();
-        scheduler.mMiscWorker.cancel(token);
-        scheduler.mRendererWorker.cancel(token);
-        scheduler.mComputeWorker.cancel(token);
-        scheduler.mMsgHandler.clear(token);
-    }
+	public static void cancelAll(Worker.Token token) {
+		WorkerScheduler scheduler = getInstance();
+		scheduler.mMiscWorker.cancel(token);
+		scheduler.mRendererWorker.cancel(token);
+		scheduler.mComputeWorker.cancel(token);
+		scheduler.mMsgHandler.clear(token);
+	}
 }
