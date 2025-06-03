@@ -182,13 +182,13 @@ public class ParagraphUnitTest {
 
 		glue = (Glue) paragraph.getElement(11);
 		Assert.assertEquals(glue.getWidth(), 0, 0);
-		Assert.assertEquals(glue.getStretch(), Texas.INFINITY, 0);
+		Assert.assertEquals(glue.getStretch(), Texas.INFINITY_PENALTY, 0);
 		Assert.assertEquals(glue.getShrink(), 0, 0);
 
 		Penalty penalty = (Penalty) paragraph.getElement(12);
 		Assert.assertEquals(penalty.getWidth(), 0, 0);
 		Assert.assertEquals(penalty.getHeight(), 0, 0);
-		Assert.assertEquals(penalty.getPenalty(), -Texas.INFINITY, 0);
+		Assert.assertEquals(penalty.getPenalty(), -Texas.INFINITY_PENALTY, 0);
 		Assert.assertTrue(penalty.isFlag());
 	}
 

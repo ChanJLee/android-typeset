@@ -1,7 +1,7 @@
 package me.chan.texas.typesetter.tex;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
-import static me.chan.texas.Texas.INFINITY;
+import static me.chan.texas.Texas.INFINITY_PENALTY;
 
 import android.util.Log;
 
@@ -103,7 +103,7 @@ public class TexParagraphTypesetterCompat extends AbsParagraphTypesetter {
 				Glue glue = (Glue) element;
 				sum.increase(glue);
 			} else if (element instanceof Penalty &&
-					((Penalty) element).getPenalty() != INFINITY) {
+					((Penalty) element).getPenalty() != INFINITY_PENALTY) {
 				typesetLine(i, paragraph, activeNodes, sum, tolerance, candidates, lineWidth);
 			}
 		}
@@ -150,7 +150,7 @@ public class TexParagraphTypesetterCompat extends AbsParagraphTypesetter {
 
 				int save = stream.state();
 				Element element = stream.next();
-				if (element instanceof Box || (element instanceof Penalty && ((Penalty) element).getPenalty() == -INFINITY)) {
+				if (element instanceof Box || (element instanceof Penalty && ((Penalty) element).getPenalty() == -INFINITY_PENALTY)) {
 					stream.restore(save);
 					break;
 				}
@@ -243,7 +243,7 @@ public class TexParagraphTypesetterCompat extends AbsParagraphTypesetter {
 				// 如果当前node对于当前元素压缩的太多了，那么就移除当前节点
 				// 或者当前节点就是一个强制断点
 				if (ratio < MIN_SHRINK_RATIO || (element instanceof Penalty &&
-						((Penalty) element).getPenalty() == -INFINITY)) {
+						((Penalty) element).getPenalty() == -INFINITY_PENALTY)) {
 					activeNodes.remove(active);
 				}
 
@@ -367,10 +367,10 @@ public class TexParagraphTypesetterCompat extends AbsParagraphTypesetter {
 		// 同理则需要收缩
 		if (width < lineLength) {
 			float stretch = sum.getStretch() - node.totals.getStretch();
-			return stretch > 0 ? (lineLength - width) / stretch : INFINITY;
+			return stretch > 0 ? (lineLength - width) / stretch : INFINITY_PENALTY;
 		} else if (width > lineLength) {
 			float shrink = sum.getShrink() - node.totals.getShrink();
-			return shrink > 0 ? (lineLength - width) / shrink : INFINITY;
+			return shrink > 0 ? (lineLength - width) / shrink : INFINITY_PENALTY;
 		}
 
 		return 0;
@@ -394,7 +394,7 @@ public class TexParagraphTypesetterCompat extends AbsParagraphTypesetter {
 			demerits = (float) (
 					Math.pow(DEMERITS_LINE + badness + ((Penalty) element).getPenalty(), 2)
 			);
-		} else if (element instanceof Penalty && ((Penalty) element).getPenalty() != -INFINITY) {
+		} else if (element instanceof Penalty && ((Penalty) element).getPenalty() != -INFINITY_PENALTY) {
 			demerits = (float) (
 					Math.pow(DEMERITS_LINE + badness, 2) -
 							Math.pow(((Penalty) element).getPenalty(), 2)
@@ -441,7 +441,7 @@ public class TexParagraphTypesetterCompat extends AbsParagraphTypesetter {
 				result.increase(glue);
 			} else if (element instanceof Box ||
 					(element instanceof Penalty &&
-							((Penalty) element).getPenalty() == -INFINITY && i > index)) {
+							((Penalty) element).getPenalty() == -INFINITY_PENALTY && i > index)) {
 				break;
 			}
 		}

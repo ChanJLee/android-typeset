@@ -15,6 +15,7 @@ import me.chan.texas.renderer.core.sync.WorkerMessager;
 import me.chan.texas.text.BreakStrategy;
 import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.layout.Layout;
+import me.chan.texas.typesetter.AbsParagraphTypesetter;
 import me.chan.texas.typesetter.ParagraphTypesetter;
 import me.chan.texas.utils.concurrency.TaskQueue;
 
@@ -138,7 +139,7 @@ public class ParagraphTypesetWorker implements TaskQueue.Task<ParagraphTypesetWo
 	 * @return true表示成功
 	 */
 	public boolean desire(@NonNull Paragraph paragraph, TaskQueue.Token token) {
-		return desire(paragraph, token, Integer.MAX_VALUE);
+		return desire(paragraph, token, AbsParagraphTypesetter.INFINITY_WIDTH);
 	}
 
 	public interface Listener {

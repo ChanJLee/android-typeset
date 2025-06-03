@@ -24,7 +24,7 @@ public class Glue extends Element {
 		}
 
 		public float getStretch() {
-			return Texas.INFINITY;
+			return Texas.INFINITY_PENALTY;
 		}
 
 		public float getShrink() {

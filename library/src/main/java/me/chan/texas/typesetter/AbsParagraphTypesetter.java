@@ -15,6 +15,7 @@ import me.chan.texas.typesetter.utils.ElementStream;
 @RestrictTo(LIBRARY)
 public abstract class AbsParagraphTypesetter {
 	public static final boolean DEBUG = false;
+	public static final int INFINITY_WIDTH = Integer.MAX_VALUE;
 
 
 	public abstract boolean typeset(Paragraph paragraph, BreakStrategy breakStrategy, int lineWidth);

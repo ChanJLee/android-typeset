@@ -5,6 +5,7 @@ import static org.junit.Assert.assertNotNull;
 import android.graphics.Canvas;
 import android.graphics.RectF;
 import android.view.View;
+import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -32,6 +33,7 @@ import me.chan.texas.renderer.ui.TexasRendererAdapter;
 import me.chan.texas.renderer.ui.decor.ParagraphDecor;
 import me.chan.texas.renderer.ui.rv.TexasLayoutManager;
 import me.chan.texas.renderer.ui.rv.TexasRecyclerView;
+import me.chan.texas.renderer.ui.text.OnMeasureInterceptor;
 import me.chan.texas.renderer.ui.text.OnSelectedChangedListener;
 import me.chan.texas.renderer.ui.text.TextureParagraph;
 import me.chan.texas.test.mock.MockTextPaint;
@@ -613,6 +615,21 @@ public class SelectionManagerUnitTest {
 		@Override
 		public int getHeight() {
 			return mParagraph.getLayout().getHeight();
+		}
+
+		@Override
+		public ViewGroup.LayoutParams getLayoutParams() {
+			return null;
+		}
+
+		@Override
+		public void setLayoutParams(ViewGroup.LayoutParams layoutParams) {
+
+		}
+
+		@Override
+		public void setOnMeasureInterceptor(OnMeasureInterceptor interceptor) {
+
 		}
 	}
 
