@@ -20,20 +20,42 @@ import me.chan.texas.typesetter.ParagraphTypesetter;
 import me.chan.texas.utils.concurrency.Worker;
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-public class ParagraphTypesetWorker implements Worker.Task<ParagraphTypesetWorker.Args, Paragraph>,
-		Worker.Listener<ParagraphTypesetWorker.Args, Paragraph> {
+public class ParagraphTypesetWorker {
 	private static final int TYPE_SUCCESS = 1;
 	private static final int TYPE_ERROR = 2;
 
 	private final ParagraphTypesetter mTypesetter;
-	private final Worker mTaskQueue;
-	private final MsgHandler mMessager;
+	private final Worker mWorker;
+	private final MsgHandler mMsgHandler;
 
-	public ParagraphTypesetWorker(Worker taskQueue, MsgHandler messager) {
-		mTaskQueue = taskQueue;
-		mMessager = messager;
+	private final Worker.Task<ParagraphTypesetWorker.Args, Paragraph> mTask;
+
+	private final Worker.Listener<ParagraphTypesetWorker.Args, Paragraph> mListener = new Worker.Listener<ParagraphTypesetWorker.Args, Paragraph>() {
+		@Override
+		public void onStart(Worker.Token token, Args args) {
+			/* do nothing */
+		}
+
+		@Override
+		public void onSuccess(Worker.Token token, Args args, Paragraph ret) {
+			MsgHandler.Msg message = MsgHandler.Msg.obtain(TYPE_SUCCESS, args, ret);
+			mMsgHandler.send(token, message);
+		}
+
+		@Override
+		public void onError(Worker.Token token, Args args, Throwable error) {
+			Log.w("TypesetWorker", error);
+			MsgHandler.Msg message = MsgHandler.Msg.obtain(TYPE_ERROR, args, error);
+			mMsgHandler.send(token, message);
+		}
+
+	};
+
+	public ParagraphTypesetWorker(Worker worker, MsgHandler msgHandler) {
+		mWorker = worker;
+		mMsgHandler = msgHandler;
 		mTypesetter = new ParagraphTypesetter();
-		mMessager.addListener((id, message) -> {
+		mMsgHandler.addListener((id, message) -> {
 			Args args = message.asArg(Args.class);
 			if (args == null) {
 				return false;
@@ -54,6 +76,23 @@ public class ParagraphTypesetWorker implements Worker.Task<ParagraphTypesetWorke
 			args.recycle();
 			return true;
 		});
+		mTask = (token, args) -> {
+			Paragraph paragraph = args.paragraph;
+			Layout layout = paragraph.getLayout();
+
+			Layout.Advise advise = layout.getAdvise();
+			BreakStrategy breakStrategy = advise.getBreakStrategy();
+			if (args.desired) {
+				if (!mTypesetter.desire(paragraph, breakStrategy)) {
+					throw new RuntimeException("desire failed");
+				}
+			} else {
+				if (!mTypesetter.typeset(paragraph, breakStrategy, args.width)) {
+					throw new RuntimeException("typeset failed");
+				}
+			}
+			return paragraph;
+		};
 	}
 
 	public String stats() {
@@ -61,57 +100,20 @@ public class ParagraphTypesetWorker implements Worker.Task<ParagraphTypesetWorke
 	}
 
 	public void submit(Worker.Token token, Args args) {
-		mTaskQueue.async(token, args, this, this);
+		mWorker.async(token, args, mTask, mListener);
 	}
 
 	public Paragraph submitSync(Worker.Token token, Args args) throws Throwable {
-		return mTaskQueue.sync(token, args, this);
+		return mWorker.sync(token, args, mTask);
 	}
 
 	public void cancel(Worker.Token token) {
-		mTaskQueue.cancel(token);
+		mWorker.cancel(token);
 	}
 
 	@VisibleForTesting
 	public Object getTypesetterInternalState() {
 		return mTypesetter.getInternalState();
-	}
-
-	@Override
-	public void onStart(Worker.Token token, Args args) {
-		/* do nothing */
-	}
-
-	@Override
-	public void onSuccess(Worker.Token token, Args args, Paragraph ret) {
-		MsgHandler.Msg message = MsgHandler.Msg.obtain(TYPE_SUCCESS, args, ret);
-		mMessager.send(token, message);
-	}
-
-	@Override
-	public void onError(Worker.Token token, Args args, Throwable error) {
-		Log.w("TypesetWorker", error);
-		MsgHandler.Msg message = MsgHandler.Msg.obtain(TYPE_ERROR, args, error);
-		mMessager.send(token, message);
-	}
-
-	@Override
-	public Paragraph run(Worker.Token token, Args args) throws Throwable {
-		Paragraph paragraph = args.paragraph;
-		Layout layout = paragraph.getLayout();
-
-		Layout.Advise advise = layout.getAdvise();
-		BreakStrategy breakStrategy = advise.getBreakStrategy();
-		if (args.desired) {
-			if (!mTypesetter.desire(paragraph, breakStrategy)) {
-				throw new RuntimeException("desire failed");
-			}
-		} else {
-			if (!mTypesetter.typeset(paragraph, breakStrategy, args.width)) {
-				throw new RuntimeException("typeset failed");
-			}
-		}
-		return paragraph;
 	}
 
 	/**

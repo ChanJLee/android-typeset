@@ -16,7 +16,7 @@ import me.chan.texas.text.TextAttribute;
 import me.chan.texas.utils.concurrency.Worker;
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-public class LoadingWorker implements Worker.Listener<LoadingWorker.Args, LoadingWorker.LoadingResult>, Worker.Task<LoadingWorker.Args, LoadingWorker.LoadingResult> {
+public class LoadingWorker {
 	private static final int TYPE_SUCCESS = 1;
 
 	private static final int TYPE_ERROR = 2;
@@ -25,11 +25,43 @@ public class LoadingWorker implements Worker.Listener<LoadingWorker.Args, Loadin
 
 	public static final boolean DEBUG = false;
 
-	private final Worker mTaskQueue;
+	private final Worker mWorker;
 	private final MsgHandler mMsgHandler;
 
-	public LoadingWorker(Worker taskQueue, MsgHandler msgHandler) {
-		mTaskQueue = taskQueue;
+	private final Worker.Listener<LoadingWorker.Args, LoadingWorker.LoadingResult> mListener = new Worker.Listener<Args, LoadingResult>() {
+		@Override
+		public void onStart(Worker.Token token, LoadingWorker.Args args) {
+			MsgHandler.Msg message = MsgHandler.Msg.obtain(TYPE_START, args, null);
+			mMsgHandler.send(token, message);
+		}
+
+		@Override
+		public void onSuccess(Worker.Token token, LoadingWorker.Args args, LoadingResult ret) {
+			MsgHandler.Msg message = MsgHandler.Msg.obtain(TYPE_SUCCESS, args, ret);
+			mMsgHandler.send(token, message);
+		}
+
+		@Override
+		public void onError(Worker.Token token, LoadingWorker.Args args, Throwable error) {
+			MsgHandler.Msg message = MsgHandler.Msg.obtain(TYPE_ERROR, args, error);
+			mMsgHandler.send(token, message);
+		}
+	};
+	private final Worker.Task<LoadingWorker.Args, LoadingWorker.LoadingResult> mTask = (token, args) -> {
+		if (token.isExpired()) {
+			throw new Worker.TokenExpiredException("stop parse, token expired", token);
+		}
+
+		LoadingResult result = args.source.read();
+		if (result == null) {
+			throw new IllegalStateException("read failed");
+		}
+
+		return result;
+	};
+
+	public LoadingWorker(Worker worker, MsgHandler msgHandler) {
+		mWorker = worker;
 		mMsgHandler = msgHandler;
 		mMsgHandler.addListener((id, value) -> {
 			LoadingWorker.Args args = value.asArg(LoadingWorker.Args.class);
@@ -53,39 +85,7 @@ public class LoadingWorker implements Worker.Listener<LoadingWorker.Args, Loadin
 	}
 
 	public void submit(Worker.Token token, LoadingWorker.Args args) {
-		mTaskQueue.async(token, args, this, this);
-	}
-
-	@Override
-	public void onStart(Worker.Token token, LoadingWorker.Args args) {
-		MsgHandler.Msg message = MsgHandler.Msg.obtain(TYPE_START, args, null);
-		mMsgHandler.send(token, message);
-	}
-
-	@Override
-	public void onSuccess(Worker.Token token, LoadingWorker.Args args, LoadingResult ret) {
-		MsgHandler.Msg message = MsgHandler.Msg.obtain(TYPE_SUCCESS, args, ret);
-		mMsgHandler.send(token, message);
-	}
-
-	@Override
-	public void onError(Worker.Token token, LoadingWorker.Args args, Throwable error) {
-		MsgHandler.Msg message = MsgHandler.Msg.obtain(TYPE_ERROR, args, error);
-		mMsgHandler.send(token, message);
-	}
-
-	@Override
-	public LoadingResult run(Worker.Token token, LoadingWorker.Args args) throws Throwable {
-		if (token.isExpired()) {
-			throw new Worker.TokenExpiredException("stop parse, token expired", token);
-		}
-
-		LoadingResult result = args.source.read();
-		if (result == null) {
-			throw new IllegalStateException("read failed");
-		}
-
-		return result;
+		mWorker.async(token, args, mTask, mListener);
 	}
 
 	public static TexasOption createTexasOption(PaintSet paintSet, TextAttribute textAttribute, Measurer measurer, RenderOption option) {
@@ -106,7 +106,7 @@ public class LoadingWorker implements Worker.Listener<LoadingWorker.Args, Loadin
 	}
 
 	public void cancel(Worker.Token token) {
-		mTaskQueue.cancel(token);
+		mWorker.cancel(token);
 		mMsgHandler.clear(token);
 	}
 

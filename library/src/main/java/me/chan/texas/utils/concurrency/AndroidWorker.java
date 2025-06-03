@@ -44,7 +44,7 @@ public class AndroidWorker implements Worker {
 
 	@Override
 	public <A, R> R sync(Token token, @NonNull A args, @NonNull Task<A, R> task) throws Throwable {
-		return task.run(token, args);
+		return task.exec(token, args);
 	}
 
 	@Override

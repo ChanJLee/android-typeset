@@ -20,19 +20,19 @@ public class ConcurrencyModule {
 
 	@Provides
 	@Named("MiscTask")
-	public Worker provideMiscTaskQueue() {
+	public Worker provideMiscWorker() {
 		return new AndroidWorker("MiscTask");
 	}
 
 	@Provides
 	@Named("RendererTask")
-	public Worker provideRendererTaskQueue() {
+	public Worker provideRendererWorker() {
 		return new AndroidWorker("RendererTask");
 	}
 
 	@Provides
 	@Named("ComputeTask")
-	public Worker provideComputeQueue() {
+	public Worker provideComputeWorker() {
 		return new AndroidWorker("ComputeTask");
 	}
 }

@@ -38,22 +38,52 @@ import me.chan.texas.text.layout.TextBox;
 import me.chan.texas.utils.concurrency.Worker;
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-public class RenderWorker implements Worker.Task<RenderWorker.Args, Void>, Worker.Listener<RenderWorker.Args, Void> {
+public class RenderWorker {
 	private static final boolean DEBUG = false;
 
 	private static final int TYPE_SUCCESS = 1;
 	private static final int TYPE_ERROR = 2;
 	private static final String TAG = "RenderWorker";
 
-	private final Worker mTaskQueue;
+	private final Worker mWorker;
 	private final MsgHandler mMsgHandler;
 
 	private Stats mStats;
 
 	private final TextPaint mWorkPaint = TextPaintCompat.create();
 
-	public RenderWorker(Worker taskQueue, MsgHandler msgHandler) {
-		mTaskQueue = taskQueue;
+	private final Worker.Listener<RenderWorker.Args, Void> mListener = new Worker.Listener<RenderWorker.Args, Void>() {
+		@Override
+		public void onStart(Worker.Token token, Args args) {
+			/* do nothing */
+		}
+
+		@Override
+		public void onSuccess(Worker.Token token, Args args, Void ret) {
+			MsgHandler.Msg message = MsgHandler.Msg.obtain(TYPE_SUCCESS, args, ret);
+			mMsgHandler.send(token, message);
+		}
+
+		@Override
+		public void onError(Worker.Token token, Args args, Throwable error) {
+			Log.w(TAG, error);
+			MsgHandler.Msg message = MsgHandler.Msg.obtain(TYPE_ERROR, args, error);
+			mMsgHandler.send(token, message);
+		}
+	};
+	private final Worker.Task<RenderWorker.Args, Void> mTask = (token, args) -> {
+		if (mStats != null) {
+			++mStats.handleCount;
+		}
+
+		if (args.width > 0) {
+			render(token, args.paragraph, args);
+		}
+		return null;
+	};
+
+	public RenderWorker(Worker worker, MsgHandler msgHandler) {
+		mWorker = worker;
 		mMsgHandler = msgHandler;
 		mMsgHandler.addListener((token, value) -> {
 			Args args = value.asArg(Args.class);
@@ -74,13 +104,13 @@ public class RenderWorker implements Worker.Task<RenderWorker.Args, Void>, Worke
 		if (mStats != null) {
 			++mStats.requestCount;
 		}
-		mTaskQueue.cancel(token);
-		mTaskQueue.async(token, args, this, this);
+		mWorker.cancel(token);
+		mWorker.async(token, args, mTask, mListener);
 	}
 
 	public void submitSync(Worker.Token token, Args args) {
 		try {
-			mTaskQueue.sync(token, args, this);
+			mWorker.sync(token, args, mTask);
 			args.recycle();
 		} catch (Throwable e) {
 			Log.w(TAG, e);
@@ -202,38 +232,8 @@ public class RenderWorker implements Worker.Task<RenderWorker.Args, Void>, Worke
 
 	private final DrawVisitor mDrawVisitor = new DrawVisitor(mWorkPaint);
 
-	@Override
-	public Void run(Worker.Token token, Args args) throws Throwable {
-		if (mStats != null) {
-			++mStats.handleCount;
-		}
-
-		if (args.width > 0) {
-			render(token, args.paragraph, args);
-		}
-		return null;
-	}
-
-	@Override
-	public void onStart(Worker.Token token, Args args) {
-		/* do nothing */
-	}
-
-	@Override
-	public void onSuccess(Worker.Token token, Args args, Void ret) {
-		MsgHandler.Msg message = MsgHandler.Msg.obtain(TYPE_SUCCESS, args, ret);
-		mMsgHandler.send(token, message);
-	}
-
-	@Override
-	public void onError(Worker.Token token, Args args, Throwable error) {
-		Log.w(TAG, error);
-		MsgHandler.Msg message = MsgHandler.Msg.obtain(TYPE_ERROR, args, error);
-		mMsgHandler.send(token, message);
-	}
-
 	public void cancel(Worker.Token token) {
-		mTaskQueue.cancel(token);
+		mWorker.cancel(token);
 	}
 
 	private final static class DrawVisitor extends ParagraphVisitor {

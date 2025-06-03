@@ -44,7 +44,7 @@ import me.chan.texas.utils.IntSet;
 import me.chan.texas.utils.concurrency.Worker;
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-public class MixWorker implements Worker.Listener<MixWorker.Args, MixWorker.TypesetResult>, Worker.Task<MixWorker.Args, MixWorker.TypesetResult> {
+public class MixWorker {
 	private static final int TYPE_SUCCESS = 1;
 
 	private static final int TYPE_ERROR = 2;
@@ -53,63 +53,32 @@ public class MixWorker implements Worker.Listener<MixWorker.Args, MixWorker.Type
 
 	public static final boolean DEBUG = false;
 
-	private final Worker mTaskQueue;
-	private final MsgHandler mMessager;
+	private final Worker mWorker;
+	private final MsgHandler mMsgHandler;
 
 	@Inject
 	MeasureFactory mMeasureFactory;
 
-	public MixWorker(Worker taskQueue, MsgHandler messager) {
-		mTaskQueue = taskQueue;
-		mMessager = messager;
-		mMessager.addListener((id, value) -> {
-			Args args = value.asArg(Args.class);
-			if (args == null) {
-				return false;
-			}
+	private final Worker.Listener<MixWorker.Args, MixWorker.TypesetResult> mListener = new Worker.Listener<Args, TypesetResult>() {
+		@Override
+		public void onStart(Worker.Token token, Args args) {
+			MsgHandler.Msg message = MsgHandler.Msg.obtain(TYPE_START, args, null);
+			mMsgHandler.send(token, message);
+		}
 
-			if (value.type() == TYPE_START) {
-				args.listener.onStart();
-			} else if (value.type() == TYPE_SUCCESS) {
-				args.listener.onSuccess(value.value());
-			} else if (value.type() == TYPE_ERROR) {
-				args.listener.onFailure(value.error());
-			} else {
-				throw new IllegalStateException("unknown mix's message type");
-			}
+		@Override
+		public void onSuccess(Worker.Token token, Args args, TypesetResult ret) {
+			MsgHandler.Msg message = MsgHandler.Msg.obtain(TYPE_SUCCESS, args, ret);
+			mMsgHandler.send(token, message);
+		}
 
-			return true;
-		});
-
-		TexasComponent texasComponent = Texas.getTexasComponent();
-		TextEngineCoreComponent textEngineCoreComponent = texasComponent.coreComponent().create();
-		textEngineCoreComponent.inject(this);
-	}
-
-	public void submit(Worker.Token token, Args args) {
-		mTaskQueue.async(token, args, this, this);
-	}
-
-	@Override
-	public void onStart(Worker.Token token, Args args) {
-		MsgHandler.Msg message = MsgHandler.Msg.obtain(TYPE_START, args, null);
-		mMessager.send(token, message);
-	}
-
-	@Override
-	public void onSuccess(Worker.Token token, Args args, TypesetResult ret) {
-		MsgHandler.Msg message = MsgHandler.Msg.obtain(TYPE_SUCCESS, args, ret);
-		mMessager.send(token, message);
-	}
-
-	@Override
-	public void onError(Worker.Token token, Args args, Throwable error) {
-		MsgHandler.Msg message = MsgHandler.Msg.obtain(TYPE_ERROR, args, error);
-		mMessager.send(token, message);
-	}
-
-	@Override
-	public TypesetResult run(Worker.Token token, Args args) throws Throwable {
+		@Override
+		public void onError(Worker.Token token, Args args, Throwable error) {
+			MsgHandler.Msg message = MsgHandler.Msg.obtain(TYPE_ERROR, args, error);
+			mMsgHandler.send(token, message);
+		}
+	};
+	private final Worker.Task<MixWorker.Args, MixWorker.TypesetResult> mTask = (token, args) -> {
 		long startTimestamp = 0;
 		if (DEBUG) {
 			startTimestamp = SystemClock.elapsedRealtime();
@@ -136,6 +105,37 @@ public class MixWorker implements Worker.Listener<MixWorker.Args, MixWorker.Type
 		}
 
 		return new TypesetResult(args.option, args.document, args.prev, diff);
+	};
+
+	public MixWorker(Worker worker, MsgHandler msgHandler) {
+		mWorker = worker;
+		mMsgHandler = msgHandler;
+		mMsgHandler.addListener((id, value) -> {
+			Args args = value.asArg(Args.class);
+			if (args == null) {
+				return false;
+			}
+
+			if (value.type() == TYPE_START) {
+				args.listener.onStart();
+			} else if (value.type() == TYPE_SUCCESS) {
+				args.listener.onSuccess(value.value());
+			} else if (value.type() == TYPE_ERROR) {
+				args.listener.onFailure(value.error());
+			} else {
+				throw new IllegalStateException("unknown mix's message type");
+			}
+
+			return true;
+		});
+
+		TexasComponent texasComponent = Texas.getTexasComponent();
+		TextEngineCoreComponent textEngineCoreComponent = texasComponent.coreComponent().create();
+		textEngineCoreComponent.inject(this);
+	}
+
+	public void submit(Worker.Token token, Args args) {
+		mWorker.async(token, args, mTask, mListener);
 	}
 
 	@VisibleForTesting
@@ -311,8 +311,8 @@ public class MixWorker implements Worker.Listener<MixWorker.Args, MixWorker.Type
 	}
 
 	public void cancel(Worker.Token token) {
-		mTaskQueue.cancel(token);
-		mMessager.clear(token);
+		mWorker.cancel(token);
+		mMsgHandler.clear(token);
 	}
 
 	public interface Listener {

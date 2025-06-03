@@ -31,18 +31,18 @@ public class WorkerScheduler {
     // 滞后的消息就不会发到主线程
     @Inject
     @Named("MiscTask")
-    Worker mMiscTaskQueue;
+    Worker mMiscWorker;
 
     @Inject
     @Named("RendererTask")
-    Worker mRendererTaskQueue;
+    Worker mRendererWorker;
 
     @Inject
     @Named("ComputeTask")
-    Worker mComputeTaskQueue;
+    Worker mComputeWorker;
 
     @Inject
-    MsgHandler mMessager;
+    MsgHandler mMsgHandler;
 
     private final RenderWorker mRenderWorker;
     private final ParagraphTypesetWorker mTypesetWorker;
@@ -57,12 +57,12 @@ public class WorkerScheduler {
         TextEngineCoreComponent textEngineCoreComponent = texasComponent.coreComponent().create();
         textEngineCoreComponent.inject(this);
 
-        mRenderWorker = new RenderWorker(mRendererTaskQueue, mMessager);
-        mTypesetWorker = new ParagraphTypesetWorker(mMiscTaskQueue, mMessager);
-        mParseWorker = new ParseWorker(mMiscTaskQueue, mMessager);
+        mRenderWorker = new RenderWorker(mRendererWorker, mMsgHandler);
+        mTypesetWorker = new ParagraphTypesetWorker(mMiscWorker, mMsgHandler);
+        mParseWorker = new ParseWorker(mMiscWorker, mMsgHandler);
         mOddWorker = new OddWorker();
-        mMixWorker = new MixWorker(mComputeTaskQueue, mMessager);
-        mLoadingWorker = new LoadingWorker(mComputeTaskQueue, mMessager);
+        mMixWorker = new MixWorker(mComputeWorker, mMsgHandler);
+        mLoadingWorker = new LoadingWorker(mComputeWorker, mMsgHandler);
     }
 
     private static synchronized WorkerScheduler getInstance() {
@@ -109,13 +109,13 @@ public class WorkerScheduler {
 
     public static Worker getTaskQueue(@TaskQueueType int type) {
         if (type == TASK_QUEUE_RENDER) {
-            return getInstance().mRendererTaskQueue;
+            return getInstance().mRendererWorker;
         } else if (type == TASK_QUEUE_TYPESET) {
-            return getInstance().mMiscTaskQueue;
+            return getInstance().mMiscWorker;
         } else if (type == TASK_QUEUE_PARSE) {
-            return getInstance().mMiscTaskQueue;
+            return getInstance().mMiscWorker;
         } else if (type == TASK_QUEUE_COMPUTE) {
-            return getInstance().mComputeTaskQueue;
+            return getInstance().mComputeWorker;
         }
 
         throw new IllegalArgumentException("unknown task queue type");
@@ -123,9 +123,9 @@ public class WorkerScheduler {
 
     public static void cancelAll(Worker.Token token) {
         WorkerScheduler scheduler = getInstance();
-        scheduler.mMiscTaskQueue.cancel(token);
-        scheduler.mRendererTaskQueue.cancel(token);
-        scheduler.mComputeTaskQueue.cancel(token);
-        scheduler.mMessager.clear(token);
+        scheduler.mMiscWorker.cancel(token);
+        scheduler.mRendererWorker.cancel(token);
+        scheduler.mComputeWorker.cancel(token);
+        scheduler.mMsgHandler.clear(token);
     }
 }
