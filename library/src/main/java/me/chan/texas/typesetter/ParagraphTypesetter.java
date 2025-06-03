@@ -45,27 +45,32 @@ public class ParagraphTypesetter {
 		}
 
 		if (typeset0(paragraph, breakStrategy, width)) {
-			setupLayoutWidth(paragraph, width);
+			Layout layout = paragraph.getLayout();
+			layout.setWidth(width);
 			return true;
 		}
 
 		return false;
 	}
 
-	private static void setupLayoutWidth(Paragraph paragraph, int width) {
-		Layout layout = paragraph.getLayout();
-		if (width != AbsParagraphTypesetter.INFINITY_WIDTH /* use desire flag? */) {
-			layout.setWidth(width);
-			return;
+	/**
+	 * @param paragraph     要排版的段落
+	 * @param breakStrategy 排版策略
+	 * @return 排版是否成功
+	 */
+	public boolean desire(Paragraph paragraph, BreakStrategy breakStrategy) {
+		if (!typeset0(paragraph, breakStrategy, AbsParagraphTypesetter.INFINITY_WIDTH)) {
+			return false;
 		}
 
+		Layout layout = paragraph.getLayout();
 		float actualWidth = 0;
 		for (int i = 0; i < layout.getLineCount(); ++i) {
 			Line line = layout.getLine(i);
 			actualWidth = Math.max(line.getLineWidth(), actualWidth);
 		}
-
 		layout.setWidth((int) Math.ceil(actualWidth));
+		return true;
 	}
 
 	private boolean typeset0(Paragraph paragraph, BreakStrategy breakStrategy, int width) {

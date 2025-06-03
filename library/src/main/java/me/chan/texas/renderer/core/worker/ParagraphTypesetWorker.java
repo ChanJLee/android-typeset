@@ -102,8 +102,14 @@ public class ParagraphTypesetWorker implements TaskQueue.Task<ParagraphTypesetWo
 
 		Layout.Advise advise = layout.getAdvise();
 		BreakStrategy breakStrategy = advise.getBreakStrategy();
-		if (!mTypesetter.typeset(paragraph, breakStrategy, args.width)) {
-			throw new RuntimeException("typeset failed");
+		if (args.desired) {
+			if (!mTypesetter.desire(paragraph, breakStrategy)) {
+				throw new RuntimeException("desire failed");
+			}
+		} else {
+			if (!mTypesetter.typeset(paragraph, breakStrategy, args.width)) {
+				throw new RuntimeException("typeset failed");
+			}
 		}
 		return paragraph;
 	}
@@ -111,9 +117,8 @@ public class ParagraphTypesetWorker implements TaskQueue.Task<ParagraphTypesetWo
 	/**
 	 * 预测宽高
 	 *
-	 * @param paragraph     段落
-	 * @param token         令牌
-	 * @param expectedWidth 期望宽度
+	 * @param paragraph 段落
+	 * @param token     令牌
 	 * @return true表示成功
 	 */
 	public boolean desire(@NonNull Paragraph paragraph, TaskQueue.Token token, int expectedWidth) {
@@ -139,7 +144,18 @@ public class ParagraphTypesetWorker implements TaskQueue.Task<ParagraphTypesetWo
 	 * @return true表示成功
 	 */
 	public boolean desire(@NonNull Paragraph paragraph, TaskQueue.Token token) {
-		return desire(paragraph, token, AbsParagraphTypesetter.INFINITY_WIDTH);
+		if (!paragraph.hasContent()) {
+			return false;
+		}
+
+		ParagraphTypesetWorker worker = WorkerScheduler.typeset();
+		ParagraphTypesetWorker.Args args = ParagraphTypesetWorker.Args.desire(paragraph);
+		try {
+			worker.submitSync(token, args);
+		} catch (Throwable e) {
+			return false;
+		}
+		return true;
 	}
 
 	public interface Listener {
@@ -153,6 +169,7 @@ public class ParagraphTypesetWorker implements TaskQueue.Task<ParagraphTypesetWo
 		private static final ObjectPool<Args> POOL = new ObjectPool<>(32);
 		private Paragraph paragraph;
 		private int width;
+		private boolean desired;
 
 		private Listener listener;
 
@@ -164,6 +181,7 @@ public class ParagraphTypesetWorker implements TaskQueue.Task<ParagraphTypesetWo
 			paragraph = null;
 			listener = null;
 			width = 0;
+			desired = false;
 			POOL.release(this);
 		}
 
@@ -182,7 +200,22 @@ public class ParagraphTypesetWorker implements TaskQueue.Task<ParagraphTypesetWo
 
 			args.paragraph = paragraph;
 			args.width = width;
+			args.desired = false;
 			args.listener = listener;
+			args.reuse();
+			return args;
+		}
+
+		public static Args desire(@NonNull Paragraph paragraph) {
+			Args args = POOL.acquire();
+			if (args == null) {
+				args = new Args();
+			}
+
+			args.paragraph = paragraph;
+			args.width = AbsParagraphTypesetter.INFINITY_WIDTH;
+			args.desired = true;
+			args.listener = null;
 			args.reuse();
 			return args;
 		}
