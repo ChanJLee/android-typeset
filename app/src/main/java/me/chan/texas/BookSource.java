@@ -16,12 +16,14 @@ import android.widget.Toast;
 
 import me.chan.texas.renderer.TexasView;
 import me.chan.texas.text.Appearance;
+import me.chan.texas.text.BreakStrategy;
 import me.chan.texas.text.Document;
 import me.chan.texas.text.RectGround;
 import me.chan.texas.renderer.RendererContext;
 import me.chan.texas.text.Emoticon;
 import me.chan.texas.text.Figure;
 import me.chan.texas.text.Paragraph;
+import me.chan.texas.text.TextGravity;
 import me.chan.texas.text.TextStyle;
 import me.chan.texas.text.DotUnderLine;
 import me.chan.texas.text.ViewSegment;
@@ -221,6 +223,7 @@ public class BookSource extends TexasView.DocumentSource {
 
 	// FOR TEST
 	private int mSeq = 0;
+
 	private void parsePara(XmlPullParser parser, Document.Builder documentBuilder, TexasOption texasOption) throws IOException, XmlPullParserException {
 		parser.require(XmlPullParser.START_TAG, null, "para");
 		String id = parser.getAttributeValue(null, "id");
@@ -229,6 +232,17 @@ public class BookSource extends TexasView.DocumentSource {
 		builder.tag(id)
 				.text((mSeq++) + ". ");
 		int lastState = STATE_NONE;
+
+		if (TextUtils.equals("A9127P127023", id)) {
+			builder.breakStrategy(BreakStrategy.SIMPLE)
+					.textGravity(TextGravity.END);
+		} else if (TextUtils.equals("A9127P127029", id)) {
+			builder.breakStrategy(BreakStrategy.SIMPLE)
+					.textGravity(TextGravity.CENTER_HORIZONTAL);
+		} else if (TextUtils.equals("A9127P127035", id)) {
+			builder.breakStrategy(BreakStrategy.SIMPLE)
+					.textGravity(TextGravity.START);
+		}
 
 		String firstSent = null;
 		while (parser.next() != XmlPullParser.END_TAG) {
