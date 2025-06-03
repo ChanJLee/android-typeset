@@ -47,6 +47,7 @@ public class ParseWorker {
 			if (args == null) {
 				return false;
 			}
+
 			switch (value.type()) {
 				case TYPE_SUCCESS:
 					if (args.listener != null) {

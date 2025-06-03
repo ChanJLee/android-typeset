@@ -1,7 +1,5 @@
 package me.chan.texas.renderer.core.worker;
 
-import android.util.Log;
-
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
@@ -9,88 +7,40 @@ import androidx.annotation.VisibleForTesting;
 
 import me.chan.texas.misc.DefaultRecyclable;
 import me.chan.texas.misc.ObjectPool;
-import me.chan.texas.renderer.core.WorkerScheduler;
-import me.chan.texas.renderer.core.sync.MsgHandler;
 import me.chan.texas.text.BreakStrategy;
 import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.layout.Layout;
 import me.chan.texas.typesetter.AbsParagraphTypesetter;
 import me.chan.texas.typesetter.ParagraphTypesetter;
-import me.chan.texas.utils.concurrency.Worker;
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class ParagraphTypesetWorker {
-	private static final int TYPE_SUCCESS = 1;
-	private static final int TYPE_ERROR = 2;
-
 	private final ParagraphTypesetter mTypesetter;
-	private final Worker mWorker;
-	private final MsgHandler mMsgHandler;
 
-	private final Worker.Task<ParagraphTypesetWorker.Args, Paragraph> mTask;
-
-	public ParagraphTypesetWorker(Worker worker, MsgHandler msgHandler) {
-		mWorker = worker;
-		mMsgHandler = msgHandler;
+	public ParagraphTypesetWorker() {
 		mTypesetter = new ParagraphTypesetter();
-		mMsgHandler.addListener((id, message) -> {
-			Args args = message.asArg(Args.class);
-			if (args == null) {
-				return false;
-			}
-
-			args.recycle();
-			return true;
-		});
-		mTask = new Worker.Task<ParagraphTypesetWorker.Args, Paragraph>() {
-			@Override
-			public void onSuccess(Worker.Token token, Args args, Paragraph ret) {
-				MsgHandler.Msg message = MsgHandler.Msg.obtain(TYPE_SUCCESS, args, ret);
-				mMsgHandler.send(token, message);
-			}
-
-			@Override
-			public void onError(Worker.Token token, Args args, Throwable error) {
-				Log.w("TypesetWorker", error);
-				MsgHandler.Msg message = MsgHandler.Msg.obtain(TYPE_ERROR, args, error);
-				mMsgHandler.send(token, message);
-			}
-
-			@Override
-			protected Paragraph onExec(Worker.Token token, Args args) {
-				Paragraph paragraph = args.paragraph;
-				Layout layout = paragraph.getLayout();
-
-				Layout.Advise advise = layout.getAdvise();
-				BreakStrategy breakStrategy = advise.getBreakStrategy();
-				if (args.desired) {
-					if (!mTypesetter.desire(paragraph, breakStrategy)) {
-						throw new RuntimeException("desire failed");
-					}
-				} else {
-					if (!mTypesetter.typeset(paragraph, breakStrategy, args.width)) {
-						throw new RuntimeException("typeset failed");
-					}
-				}
-				return paragraph;
-			}
-		};
 	}
 
 	public String stats() {
 		return mTypesetter.stats();
 	}
 
-	public void submit(Worker.Token token, Args args) {
-		mWorker.async(token, args, mTask);
-	}
+	public Paragraph submitSync(Args args) {
+		Paragraph paragraph = args.paragraph;
+		Layout layout = paragraph.getLayout();
 
-	public Paragraph submitSync(Worker.Token token, Args args) throws Throwable {
-		return mWorker.sync(token, args, mTask);
-	}
-
-	public void cancel(Worker.Token token) {
-		mWorker.cancel(token);
+		Layout.Advise advise = layout.getAdvise();
+		BreakStrategy breakStrategy = advise.getBreakStrategy();
+		if (args.desired) {
+			if (!mTypesetter.desire(paragraph, breakStrategy)) {
+				throw new RuntimeException("desire failed");
+			}
+		} else {
+			if (!mTypesetter.typeset(paragraph, breakStrategy, args.width)) {
+				throw new RuntimeException("typeset failed");
+			}
+		}
+		return paragraph;
 	}
 
 	@VisibleForTesting
@@ -102,18 +52,16 @@ public class ParagraphTypesetWorker {
 	 * 预测宽高
 	 *
 	 * @param paragraph 段落
-	 * @param token     令牌
 	 * @return true表示成功
 	 */
-	public boolean desire(@NonNull Paragraph paragraph, Worker.Token token, int expectedWidth) {
+	public boolean desire(@NonNull Paragraph paragraph, int expectedWidth) {
 		if (!paragraph.hasContent()) {
 			return false;
 		}
 
-		ParagraphTypesetWorker worker = WorkerScheduler.typeset();
 		ParagraphTypesetWorker.Args args = ParagraphTypesetWorker.Args.obtain(paragraph, expectedWidth);
 		try {
-			worker.submitSync(token, args);
+			submitSync(args);
 		} catch (Throwable e) {
 			return false;
 		}
@@ -124,18 +72,16 @@ public class ParagraphTypesetWorker {
 	 * 预测宽高
 	 *
 	 * @param paragraph 段落
-	 * @param token     令牌
 	 * @return true表示成功
 	 */
-	public boolean desire(@NonNull Paragraph paragraph, Worker.Token token) {
+	public boolean desire(@NonNull Paragraph paragraph) {
 		if (!paragraph.hasContent()) {
 			return false;
 		}
 
-		ParagraphTypesetWorker worker = WorkerScheduler.typeset();
 		ParagraphTypesetWorker.Args args = ParagraphTypesetWorker.Args.desire(paragraph);
 		try {
-			worker.submitSync(token, args);
+			submitSync(args);
 		} catch (Throwable e) {
 			return false;
 		}
