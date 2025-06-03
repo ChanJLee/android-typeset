@@ -4,6 +4,7 @@ import android.graphics.RectF;
 import android.util.Log;
 
 import androidx.annotation.RestrictTo;
+import androidx.annotation.VisibleForTesting;
 
 import me.chan.texas.Texas;
 import me.chan.texas.misc.PointF;
@@ -25,6 +26,7 @@ public class SelectedTextByDragVisitor extends SelectedVisitor {
 	private final List<Float> mLinesWidthBuffer = new ArrayList<>();
 	private final PointF mP1 = new PointF();
 	private final PointF mP2 = new PointF();
+	private final LineRange mLineRange = new LineRange();
 
 	@Override
 	protected void onVisitParagraphStart(Paragraph paragraph) {
@@ -175,55 +177,77 @@ public class SelectedTextByDragVisitor extends SelectedVisitor {
 		}
 	}
 
-	private float mLeft, mRight;
-
 	@Override
 	public void onVisitLineStart(Line line, float bottomX, float bottomY) {
 		mLineSelected = false;
 		mLastBoxX = 0;
-		int sig = SIG_NORMAL;
-		float top = bottomY - line.getLineHeight();
-		if (bottomY < mP1.y) {
-			sig = SIG_STOP_LINE_VISIT;
-		}
 
-		if (top >= mP2.y) {
-			sig = SIG_STOP_PARA_VISIT;
-		}
-
-		String debug = null;
-
-		mLeft = bottomX;
-		mRight = bottomX + line.getLineWidth();
-		if (sig != SIG_NORMAL) {
-			sendVisitSig(sig);
-		} else {
-			if (top <= mP1.y) {
-				if (bottomY < mP2.y) {
-					mLeft = mP1.x;
-					debug = "right";
-				} else {
-					mLeft = Math.min(mP1.x, mP2.x);
-					mRight = Math.max(mP1.x, mP2.x);
-					debug = "between";
-				}
-			} else {
-				if (bottomY < mP2.y) {
-					mLeft = bottomX;
-					mRight = bottomX + line.getLineWidth();
-					debug = "all";
-				} else {
-					mRight = mP2.x;
-					debug = "left";
-				}
-			}
+		updateLineRange(line, bottomX, bottomY, mP1, mP2, mLineRange);
+		if (mLineRange.sig != SIG_NORMAL) {
+			sendVisitSig(mLineRange.sig);
 		}
 
 		if (Texas.DEBUG_DRAG) {
-			Log.d("drag_debug.visitor", "line wide: [" + mLeft + " - " + mRight + "]" + debug);
+			Log.d("drag_debug.visitor", mLineRange.toString());
 		}
 
 		super.onVisitLineStart(line, bottomX, bottomY);
+	}
+
+	@VisibleForTesting
+	static void updateLineRange(Line line, float bottomX, float bottomY, PointF p1, PointF p2, LineRange lineRange) {
+		lineRange.sig = SIG_NORMAL;
+		lineRange.startX = lineRange.endX = 0;
+		lineRange.policy = "";
+		if (bottomY < p1.y) {
+			lineRange.sig = SIG_STOP_LINE_VISIT;
+			return;
+		}
+
+		float top = bottomY - line.getLineHeight();
+		if (top >= p2.y) {
+			lineRange.sig = SIG_STOP_PARA_VISIT;
+			return;
+		}
+
+		lineRange.startX = bottomX;
+		lineRange.endX = bottomX + line.getLineWidth();
+
+		if (top <= p1.y) {
+			if (bottomY < p2.y) {
+				lineRange.startX = p1.x;
+				lineRange.policy = "right";
+			} else {
+				lineRange.startX = Math.min(p1.x, p2.x);
+				lineRange.endX = Math.max(p1.x, p2.x);
+				lineRange.policy = "between";
+			}
+		} else {
+			if (bottomY < p2.y) {
+				lineRange.startX = bottomX;
+				lineRange.endX = bottomX + line.getLineWidth();
+				lineRange.policy = "all";
+			} else {
+				lineRange.endX = p2.x;
+				lineRange.policy = "left";
+			}
+		}
+	}
+
+	public static class LineRange {
+		private float startX, endX;
+		public String policy;
+		public int sig;
+
+		@Override
+		public String toString() {
+			return "LineRange{" +
+					"startX=" + startX +
+					", endX=" + endX +
+					", policy='" + policy + '\'' +
+					", sig=" + sig +
+					'}';
+		}
 	}
 
 	@Override
@@ -268,8 +292,8 @@ public class SelectedTextByDragVisitor extends SelectedVisitor {
 		}
 
 		mLastBoxX = inner.right;
-		return (inner.left >= mLeft && inner.left <= mRight) ||
-				(inner.right >= mLeft && inner.right <= mRight);
+		return (inner.left >= mLineRange.startX && inner.left <= mLineRange.endX) ||
+				(inner.right >= mLineRange.startX && inner.right <= mLineRange.endX);
 	}
 
 	@Override
