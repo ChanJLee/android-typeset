@@ -46,7 +46,7 @@ import me.chan.texas.text.layout.Box;
 import me.chan.texas.text.layout.Layout;
 import me.chan.texas.typesetter.ParagraphTypesetter;
 import me.chan.texas.utils.TexasUtils;
-import me.chan.texas.utils.concurrency.TaskQueue;
+import me.chan.texas.utils.concurrency.Worker;
 
 public class SelectionManagerUnitTest {
 	private Document mDocument;
@@ -593,7 +593,7 @@ public class SelectionManagerUnitTest {
 		}
 
 		@Override
-		public TaskQueue.Token getToken() {
+		public Worker.Token getToken() {
 			return null;
 		}
 

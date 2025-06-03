@@ -10,17 +10,17 @@ import me.chan.texas.misc.ObjectPool;
 import me.chan.texas.renderer.core.sync.MsgHandler;
 import me.chan.texas.source.Source;
 import me.chan.texas.text.Paragraph;
-import me.chan.texas.utils.concurrency.TaskQueue;
+import me.chan.texas.utils.concurrency.Worker;
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-public class ParseWorker implements TaskQueue.Task<ParseWorker.Args, Paragraph>, TaskQueue.Listener<ParseWorker.Args, Paragraph> {
+public class ParseWorker implements Worker.Task<ParseWorker.Args, Paragraph>, Worker.Listener<ParseWorker.Args, Paragraph> {
 	private static final int TYPE_SUCCESS = 1;
 	private static final int TYPE_ERROR = 2;
 
-	private final TaskQueue mTaskQueue;
+	private final Worker mTaskQueue;
 	private final MsgHandler mMessager;
 
-	public ParseWorker(TaskQueue taskQueue, MsgHandler messager) {
+	public ParseWorker(Worker taskQueue, MsgHandler messager) {
 		mTaskQueue = taskQueue;
 		mMessager = messager;
 		mMessager.addListener((token, value) -> {
@@ -45,34 +45,34 @@ public class ParseWorker implements TaskQueue.Task<ParseWorker.Args, Paragraph>,
 		});
 	}
 
-	public void submit(TaskQueue.Token token, Args args) {
-		mTaskQueue.submit(token, args, this, this);
+	public void submit(Worker.Token token, Args args) {
+		mTaskQueue.async(token, args, this, this);
 	}
 
-	public Paragraph submitSync(TaskQueue.Token token, Args args) throws Throwable {
-		return mTaskQueue.submitSync(token, args, this);
+	public Paragraph submitSync(Worker.Token token, Args args) throws Throwable {
+		return mTaskQueue.sync(token, args, this);
 	}
 
 	@Override
-	public void onStart(TaskQueue.Token token, Args args) {
+	public void onStart(Worker.Token token, Args args) {
 		/* do nothing */
 	}
 
 	@Override
-	public void onSuccess(TaskQueue.Token token, Args args, Paragraph ret) {
+	public void onSuccess(Worker.Token token, Args args, Paragraph ret) {
 		MsgHandler.Msg message = MsgHandler.Msg.obtain(TYPE_SUCCESS, args, ret);
 		mMessager.send(token, message);
 	}
 
 	@Override
-	public void onError(TaskQueue.Token token, Args args, Throwable throwable) {
-		Log.w("ParseWorker", throwable);
-		MsgHandler.Msg message = MsgHandler.Msg.obtain(TYPE_ERROR, args, throwable);
+	public void onError(Worker.Token token, Args args, Throwable error) {
+		Log.w("ParseWorker", error);
+		MsgHandler.Msg message = MsgHandler.Msg.obtain(TYPE_ERROR, args, error);
 		mMessager.send(token, message);
 	}
 
 	@Override
-	public Paragraph run(TaskQueue.Token token, Args args) throws Throwable {
+	public Paragraph run(Worker.Token token, Args args) throws Throwable {
 		return args.source.read();
 	}
 

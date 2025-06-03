@@ -2,32 +2,32 @@ package me.chan.texas.renderer.core.worker;
 
 import androidx.annotation.RestrictTo;
 
-import me.chan.texas.utils.concurrency.TaskQueue;
+import me.chan.texas.utils.concurrency.Worker;
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-public class OddWorker implements TaskQueue.Listener<Runnable, Void>, TaskQueue.Task<Runnable, Void> {
+public class OddWorker implements Worker.Listener<Runnable, Void>, Worker.Task<Runnable, Void> {
 
-	public void submit(TaskQueue.Token token, TaskQueue taskQueue, Runnable runnable) {
-		taskQueue.submit(token, runnable, this, this);
+	public void submit(Worker.Token token, Worker taskQueue, Runnable runnable) {
+		taskQueue.async(token, runnable, this, this);
 	}
 
 	@Override
-	public void onStart(TaskQueue.Token token, Runnable args) {
-
-	}
-
-	@Override
-	public void onSuccess(TaskQueue.Token token, Runnable args, Void ret) {
+	public void onStart(Worker.Token token, Runnable args) {
 
 	}
 
 	@Override
-	public void onError(TaskQueue.Token token, Runnable args, Throwable throwable) {
+	public void onSuccess(Worker.Token token, Runnable args, Void ret) {
 
 	}
 
 	@Override
-	public Void run(TaskQueue.Token token, Runnable args) throws Throwable {
+	public void onError(Worker.Token token, Runnable args, Throwable error) {
+
+	}
+
+	@Override
+	public Void run(Worker.Token token, Runnable args) throws Throwable {
 		try {
 			args.run();
 		} catch (Throwable ignore) {

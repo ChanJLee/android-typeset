@@ -12,7 +12,7 @@ import me.chan.texas.renderer.RenderOption;
 import me.chan.texas.renderer.SpanTouchEventHandler;
 import me.chan.texas.renderer.ui.decor.ParagraphDecor;
 import me.chan.texas.text.Paragraph;
-import me.chan.texas.utils.concurrency.TaskQueue;
+import me.chan.texas.utils.concurrency.Worker;
 
 /**
  * 段落渲染器
@@ -58,7 +58,7 @@ public interface TextureParagraph {
 	/**
 	 * @return 用于标识一个渲染对象
 	 */
-	TaskQueue.Token getToken();
+	Worker.Token getToken();
 
 	/**
 	 * 通知刷新UI

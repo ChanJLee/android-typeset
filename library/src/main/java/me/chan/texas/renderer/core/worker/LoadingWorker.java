@@ -13,10 +13,10 @@ import me.chan.texas.renderer.core.sync.MsgHandler;
 import me.chan.texas.text.Document;
 import me.chan.texas.text.HyphenStrategy;
 import me.chan.texas.text.TextAttribute;
-import me.chan.texas.utils.concurrency.TaskQueue;
+import me.chan.texas.utils.concurrency.Worker;
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-public class LoadingWorker implements TaskQueue.Listener<LoadingWorker.Args, LoadingWorker.LoadingResult>, TaskQueue.Task<LoadingWorker.Args, LoadingWorker.LoadingResult> {
+public class LoadingWorker implements Worker.Listener<LoadingWorker.Args, LoadingWorker.LoadingResult>, Worker.Task<LoadingWorker.Args, LoadingWorker.LoadingResult> {
 	private static final int TYPE_SUCCESS = 1;
 
 	private static final int TYPE_ERROR = 2;
@@ -25,10 +25,10 @@ public class LoadingWorker implements TaskQueue.Listener<LoadingWorker.Args, Loa
 
 	public static final boolean DEBUG = false;
 
-	private final TaskQueue mTaskQueue;
+	private final Worker mTaskQueue;
 	private final MsgHandler mMsgHandler;
 
-	public LoadingWorker(TaskQueue taskQueue, MsgHandler msgHandler) {
+	public LoadingWorker(Worker taskQueue, MsgHandler msgHandler) {
 		mTaskQueue = taskQueue;
 		mMsgHandler = msgHandler;
 		mMsgHandler.addListener((id, value) -> {
@@ -52,32 +52,32 @@ public class LoadingWorker implements TaskQueue.Listener<LoadingWorker.Args, Loa
 		});
 	}
 
-	public void submit(TaskQueue.Token token, LoadingWorker.Args args) {
-		mTaskQueue.submit(token, args, this, this);
+	public void submit(Worker.Token token, LoadingWorker.Args args) {
+		mTaskQueue.async(token, args, this, this);
 	}
 
 	@Override
-	public void onStart(TaskQueue.Token token, LoadingWorker.Args args) {
+	public void onStart(Worker.Token token, LoadingWorker.Args args) {
 		MsgHandler.Msg message = MsgHandler.Msg.obtain(TYPE_START, args, null);
 		mMsgHandler.send(token, message);
 	}
 
 	@Override
-	public void onSuccess(TaskQueue.Token token, LoadingWorker.Args args, LoadingResult ret) {
+	public void onSuccess(Worker.Token token, LoadingWorker.Args args, LoadingResult ret) {
 		MsgHandler.Msg message = MsgHandler.Msg.obtain(TYPE_SUCCESS, args, ret);
 		mMsgHandler.send(token, message);
 	}
 
 	@Override
-	public void onError(TaskQueue.Token token, LoadingWorker.Args args, Throwable throwable) {
-		MsgHandler.Msg message = MsgHandler.Msg.obtain(TYPE_ERROR, args, throwable);
+	public void onError(Worker.Token token, LoadingWorker.Args args, Throwable error) {
+		MsgHandler.Msg message = MsgHandler.Msg.obtain(TYPE_ERROR, args, error);
 		mMsgHandler.send(token, message);
 	}
 
 	@Override
-	public LoadingResult run(TaskQueue.Token token, LoadingWorker.Args args) throws Throwable {
+	public LoadingResult run(Worker.Token token, LoadingWorker.Args args) throws Throwable {
 		if (token.isExpired()) {
-			throw new TaskQueue.TokenExpiredException("stop parse, token expired", token);
+			throw new Worker.TokenExpiredException("stop parse, token expired", token);
 		}
 
 		LoadingResult result = args.source.read();
@@ -105,7 +105,7 @@ public class LoadingWorker implements TaskQueue.Listener<LoadingWorker.Args, Loa
 		return new TexasOption(paintSet, hyphenation, measurer, textAttribute, option);
 	}
 
-	public void cancel(TaskQueue.Token token) {
+	public void cancel(Worker.Token token) {
 		mTaskQueue.cancel(token);
 		mMsgHandler.clear(token);
 	}

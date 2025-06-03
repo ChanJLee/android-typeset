@@ -17,11 +17,11 @@ import me.chan.texas.renderer.SpanTouchEventHandler;
 import me.chan.texas.renderer.ui.decor.ParagraphDecor;
 import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.layout.Layout;
-import me.chan.texas.utils.concurrency.TaskQueue;
+import me.chan.texas.utils.concurrency.Worker;
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public abstract class AbsTextureParagraphView extends View implements TextureParagraph {
-	private final TaskQueue.Token mToken = TaskQueue.Token.newInstance();
+	private final Worker.Token mToken = Worker.Token.newInstance();
 
 	protected RenderOption mRenderOption;
 	protected Paragraph mParagraph;
@@ -175,7 +175,7 @@ public abstract class AbsTextureParagraphView extends View implements TexturePar
 	protected abstract void onRender();
 
 	@Override
-	public TaskQueue.Token getToken() {
+	public Worker.Token getToken() {
 		return mToken;
 	}
 

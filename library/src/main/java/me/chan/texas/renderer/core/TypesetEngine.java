@@ -12,7 +12,7 @@ import me.chan.texas.renderer.TexasView;
 import me.chan.texas.renderer.core.worker.LoadingWorker;
 import me.chan.texas.renderer.core.worker.MixWorker;
 import me.chan.texas.text.Document;
-import me.chan.texas.utils.concurrency.TaskQueue;
+import me.chan.texas.utils.concurrency.Worker;
 
 /**
  * 排版核心
@@ -26,14 +26,14 @@ public class TypesetEngine {
 	private static final int EVENT_NONE = 0;
 
 	public static final boolean DEBUG = false;
-	private final TaskQueue.Token mToken;
+	private final Worker.Token mToken;
 	private int mWidth = 0;
 	private Document mDocument = null;
 
 	private TexasView.SegmentDecoration mSegmentDecoration;
 
 	public TypesetEngine(
-			TaskQueue.Token token) {
+			Worker.Token token) {
 		mToken = token;
 
 		if (DEBUG) {
@@ -97,7 +97,7 @@ public class TypesetEngine {
 
 					@Override
 					public void onFailure(Throwable throwable) {
-						if (throwable instanceof TaskQueue.TokenExpiredException) {
+						if (throwable instanceof Worker.TokenExpiredException) {
 							if (DEBUG) {
 								w(throwable);
 							}
@@ -152,7 +152,7 @@ public class TypesetEngine {
 			@Override
 			public void onFailure(Throwable throwable) {
 				d("loading doc failure, width: " + width + ", reason: " + reason);
-				if (throwable instanceof TaskQueue.TokenExpiredException) {
+				if (throwable instanceof Worker.TokenExpiredException) {
 					if (DEBUG) {
 						w(throwable);
 					}

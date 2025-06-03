@@ -2,8 +2,8 @@ package me.chan.texas.di;
 
 import me.chan.texas.renderer.core.sync.AndroidMsgHandler;
 import me.chan.texas.renderer.core.sync.MsgHandler;
-import me.chan.texas.utils.concurrency.AndroidTaskQueue;
-import me.chan.texas.utils.concurrency.TaskQueue;
+import me.chan.texas.utils.concurrency.AndroidWorker;
+import me.chan.texas.utils.concurrency.Worker;
 
 import javax.inject.Named;
 
@@ -20,19 +20,19 @@ public class ConcurrencyModule {
 
 	@Provides
 	@Named("MiscTask")
-	public TaskQueue provideMiscTaskQueue() {
-		return new AndroidTaskQueue("MiscTask");
+	public Worker provideMiscTaskQueue() {
+		return new AndroidWorker("MiscTask");
 	}
 
 	@Provides
 	@Named("RendererTask")
-	public TaskQueue provideRendererTaskQueue() {
-		return new AndroidTaskQueue("RendererTask");
+	public Worker provideRendererTaskQueue() {
+		return new AndroidWorker("RendererTask");
 	}
 
 	@Provides
 	@Named("ComputeTask")
-	public TaskQueue provideComputeQueue() {
-		return new AndroidTaskQueue("ComputeTask");
+	public Worker provideComputeQueue() {
+		return new AndroidWorker("ComputeTask");
 	}
 }

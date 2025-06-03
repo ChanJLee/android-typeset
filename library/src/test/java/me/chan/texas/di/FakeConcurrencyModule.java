@@ -7,7 +7,7 @@ import javax.inject.Named;
 import dagger.Module;
 import dagger.Provides;
 import me.chan.texas.renderer.core.sync.MsgHandler;
-import me.chan.texas.utils.concurrency.TaskQueue;
+import me.chan.texas.utils.concurrency.Worker;
 
 @Module
 public class FakeConcurrencyModule {
@@ -16,7 +16,7 @@ public class FakeConcurrencyModule {
 	public MsgHandler provideWorkerMessager() {
 		return new MsgHandler() {
 			@Override
-			public void send(TaskQueue.Token token, Msg message) {
+			public void send(Worker.Token token, Msg message) {
 				for (Listener listener : mListeners) {
 					if (listener.handle(token, message)) {
 						return;
@@ -25,7 +25,7 @@ public class FakeConcurrencyModule {
 			}
 
 			@Override
-			public void clear(TaskQueue.Token token) {
+			public void clear(Worker.Token token) {
 
 			}
 		};
@@ -33,26 +33,26 @@ public class FakeConcurrencyModule {
 
 	@Provides
 	@Named("MiscTask")
-	public TaskQueue provideMiscTaskQueue() {
+	public Worker provideMiscTaskQueue() {
 		return new MockTaskQueue();
 	}
 
 	@Provides
 	@Named("RendererTask")
-	public TaskQueue provideRendererTaskQueue() {
+	public Worker provideRendererTaskQueue() {
 		return new MockTaskQueue();
 	}
 
 	@Provides
 	@Named("ComputeTask")
-	public TaskQueue provideComputeQueue() {
+	public Worker provideComputeQueue() {
 		return new MockTaskQueue();
 	}
 
-	private static class MockTaskQueue implements TaskQueue {
+	private static class MockTaskQueue implements Worker {
 
 		@Override
-		public <A, R> void submit(Token token, @NonNull A args, @NonNull Task<A, R> task, @NonNull Listener<A, R> listener) {
+		public <A, R> void async(Token token, @NonNull A args, @NonNull Task<A, R> task, @NonNull Listener<A, R> listener) {
 			try {
 				listener.onStart(token, args);
 				listener.onSuccess(token, args, task.run(token, args));
@@ -62,7 +62,7 @@ public class FakeConcurrencyModule {
 		}
 
 		@Override
-		public <A, R> R submitSync(Token token, @NonNull A args, @NonNull Task<A, R> task) throws Throwable {
+		public <A, R> R sync(Token token, @NonNull A args, @NonNull Task<A, R> task) throws Throwable {
 			return task.run(token, args);
 		}
 

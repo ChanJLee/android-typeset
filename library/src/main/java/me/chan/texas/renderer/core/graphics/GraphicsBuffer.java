@@ -16,7 +16,7 @@ import androidx.annotation.WorkerThread;
 import java.util.concurrent.atomic.AtomicReference;
 
 import me.chan.texas.renderer.core.WorkerScheduler;
-import me.chan.texas.utils.concurrency.TaskQueue;
+import me.chan.texas.utils.concurrency.Worker;
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class GraphicsBuffer {
@@ -28,7 +28,7 @@ public class GraphicsBuffer {
 	private DoubleBuffer mBuffer;
 
 	@MainThread
-	public void attach(@NonNull TaskQueue.Token token) {
+	public void attach(@NonNull Worker.Token token) {
 		if (token == null) {
 			throw new IllegalArgumentException("invalid argument");
 		}
@@ -96,9 +96,9 @@ public class GraphicsBuffer {
 		private final AtomicReference<Picture> mPicture = new AtomicReference<>(EMPTY_PICTURE);
 		private TexturePicture mPendingPicture;
 
-		private final TaskQueue.Token mToken;
+		private final Worker.Token mToken;
 
-		public DoubleBuffer(TaskQueue.Token token) {
+		public DoubleBuffer(Worker.Token token) {
 			mToken = token;
 		}
 
