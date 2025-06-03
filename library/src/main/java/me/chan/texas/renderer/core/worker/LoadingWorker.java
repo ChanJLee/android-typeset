@@ -28,7 +28,7 @@ public class LoadingWorker {
 	private final Worker mWorker;
 	private final MsgHandler mMsgHandler;
 
-	private final Worker.Listener<LoadingWorker.Args, LoadingWorker.LoadingResult> mListener = new Worker.Listener<Args, LoadingResult>() {
+	private final Worker.Task<LoadingWorker.Args, LoadingWorker.LoadingResult> mTask = new Worker.Task<LoadingWorker.Args, LoadingWorker.LoadingResult>() {
 		@Override
 		public void onStart(Worker.Token token, LoadingWorker.Args args) {
 			MsgHandler.Msg message = MsgHandler.Msg.obtain(TYPE_START, args, null);
@@ -46,18 +46,20 @@ public class LoadingWorker {
 			MsgHandler.Msg message = MsgHandler.Msg.obtain(TYPE_ERROR, args, error);
 			mMsgHandler.send(token, message);
 		}
-	};
-	private final Worker.Task<LoadingWorker.Args, LoadingWorker.LoadingResult> mTask = (token, args) -> {
-		if (token.isExpired()) {
-			throw new Worker.TokenExpiredException("stop parse, token expired", token);
-		}
 
-		LoadingResult result = args.source.read();
-		if (result == null) {
-			throw new IllegalStateException("read failed");
-		}
+		@Override
+		protected LoadingResult onExec(Worker.Token token, Args args) throws Throwable {
+			if (token.isExpired()) {
+				throw new Worker.TokenExpiredException("stop parse, token expired", token);
+			}
 
-		return result;
+			LoadingResult result = args.source.read();
+			if (result == null) {
+				throw new IllegalStateException("read failed");
+			}
+
+			return result;
+		}
 	};
 
 	public LoadingWorker(Worker worker, MsgHandler msgHandler) {
@@ -85,7 +87,7 @@ public class LoadingWorker {
 	}
 
 	public void submit(Worker.Token token, LoadingWorker.Args args) {
-		mWorker.async(token, args, mTask, mListener);
+		mWorker.async(token, args, mTask);
 	}
 
 	public static TexasOption createTexasOption(PaintSet paintSet, TextAttribute textAttribute, Measurer measurer, RenderOption option) {

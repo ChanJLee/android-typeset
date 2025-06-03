@@ -19,12 +19,7 @@ public class ParseWorker {
 
 	private final Worker mWorker;
 	private final MsgHandler mMsgHandler;
-	private final Worker.Listener<ParseWorker.Args, Paragraph> mListener = new Worker.Listener<ParseWorker.Args, Paragraph>() {
-		@Override
-		public void onStart(Worker.Token token, Args args) {
-			/* do nothing */
-		}
-
+	private final Worker.Task<ParseWorker.Args, Paragraph> mTask = new Worker.Task<Args, Paragraph>() {
 		@Override
 		public void onSuccess(Worker.Token token, Args args, Paragraph ret) {
 			MsgHandler.Msg message = MsgHandler.Msg.obtain(TYPE_SUCCESS, args, ret);
@@ -37,8 +32,12 @@ public class ParseWorker {
 			MsgHandler.Msg message = MsgHandler.Msg.obtain(TYPE_ERROR, args, error);
 			mMsgHandler.send(token, message);
 		}
+
+		@Override
+		protected Paragraph onExec(Worker.Token token, Args args) throws Throwable {
+			return args.source.read();
+		}
 	};
-	private final Worker.Task<ParseWorker.Args, Paragraph> mTask = (token, args) -> args.source.read();
 
 	public ParseWorker(Worker worker, MsgHandler msgHandler) {
 		mWorker = worker;
@@ -66,7 +65,7 @@ public class ParseWorker {
 	}
 
 	public void submit(Worker.Token token, Args args) {
-		mWorker.async(token, args, mTask, mListener);
+		mWorker.async(token, args, mTask);
 	}
 
 	public Paragraph submitSync(Worker.Token token, Args args) throws Throwable {

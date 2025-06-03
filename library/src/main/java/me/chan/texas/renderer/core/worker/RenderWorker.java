@@ -52,12 +52,7 @@ public class RenderWorker {
 
 	private final TextPaint mWorkPaint = TextPaintCompat.create();
 
-	private final Worker.Listener<RenderWorker.Args, Void> mListener = new Worker.Listener<RenderWorker.Args, Void>() {
-		@Override
-		public void onStart(Worker.Token token, Args args) {
-			/* do nothing */
-		}
-
+	private final Worker.Task<RenderWorker.Args, Void> mTask = new Worker.Task<Args, Void>() {
 		@Override
 		public void onSuccess(Worker.Token token, Args args, Void ret) {
 			MsgHandler.Msg message = MsgHandler.Msg.obtain(TYPE_SUCCESS, args, ret);
@@ -70,16 +65,18 @@ public class RenderWorker {
 			MsgHandler.Msg message = MsgHandler.Msg.obtain(TYPE_ERROR, args, error);
 			mMsgHandler.send(token, message);
 		}
-	};
-	private final Worker.Task<RenderWorker.Args, Void> mTask = (token, args) -> {
-		if (mStats != null) {
-			++mStats.handleCount;
-		}
 
-		if (args.width > 0) {
-			render(token, args.paragraph, args);
+		@Override
+		protected Void onExec(Worker.Token token, Args args) throws Throwable {
+			if (mStats != null) {
+				++mStats.handleCount;
+			}
+
+			if (args.width > 0) {
+				render(token, args.paragraph, args);
+			}
+			return null;
 		}
-		return null;
 	};
 
 	public RenderWorker(Worker worker, MsgHandler msgHandler) {
@@ -105,15 +102,16 @@ public class RenderWorker {
 			++mStats.requestCount;
 		}
 		mWorker.cancel(token);
-		mWorker.async(token, args, mTask, mListener);
+		mWorker.async(token, args, mTask);
 	}
 
 	public void submitSync(Worker.Token token, Args args) {
 		try {
 			mWorker.sync(token, args, mTask);
-			args.recycle();
 		} catch (Throwable e) {
 			Log.w(TAG, e);
+		} finally {
+			args.recycle();
 		}
 	}
 
