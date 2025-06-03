@@ -55,7 +55,7 @@ public class FakeConcurrencyModule {
 		public <A, R> void async(Token token, @NonNull A args, @NonNull Task<A, R> task, @NonNull Listener<A, R> listener) {
 			try {
 				listener.onStart(token, args);
-				listener.onSuccess(token, args, task.run(token, args));
+				listener.onSuccess(token, args, task.exec(token, args));
 			} catch (Throwable throwable) {
 				listener.onError(token, args, throwable);
 			}
@@ -63,7 +63,7 @@ public class FakeConcurrencyModule {
 
 		@Override
 		public <A, R> R sync(Token token, @NonNull A args, @NonNull Task<A, R> task) throws Throwable {
-			return task.run(token, args);
+			return task.exec(token, args);
 		}
 
 		@Override

@@ -26,7 +26,7 @@ public interface Worker {
 	}
 
 	interface Task<A, R> {
-		R run(Token token, A args) throws Throwable;
+		R exec(Token token, A args) throws Throwable;
 	}
 
 	class Token {
