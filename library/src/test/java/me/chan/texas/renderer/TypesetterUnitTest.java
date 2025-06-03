@@ -33,7 +33,6 @@ import me.chan.texas.text.layout.Layout;
 import me.chan.texas.text.layout.Line;
 import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.Segment;
-import me.chan.texas.text.layout.Region;
 import me.chan.texas.text.layout.TextBox;
 import me.chan.texas.typesetter.ParagraphTypesetter;
 
@@ -613,28 +612,30 @@ public class TypesetterUnitTest {
 		Paragraph.Builder builder = Paragraph.Builder.newBuilder(texasOption);
 
 		Paragraph paragraph = builder.build(false);
-		Region region = new Region(100, 10);
-		Assert.assertFalse(WorkerScheduler.typeset().desire(paragraph, region));
+		TaskQueue.Token token = TaskQueue.Token.newInstance();
+		Assert.assertFalse(WorkerScheduler.typeset().desire(paragraph, token));
 
 		builder = Paragraph.Builder.newBuilder(texasOption);
 		paragraph = builder.build(true);
-		Assert.assertFalse(WorkerScheduler.typeset().desire(paragraph, region));
+		Assert.assertFalse(WorkerScheduler.typeset().desire(paragraph, token));
 
 		builder = Paragraph.Builder.newBuilder(texasOption);
 		builder.text("12345")
 				.brk()
 				.text("12");
 		paragraph = builder.build(true);
-		Assert.assertTrue(WorkerScheduler.typeset().desire(paragraph, region));
-		Assert.assertEquals(5, region.getWidth());
-		Assert.assertEquals(3, region.getHeight());
+		Assert.assertTrue(WorkerScheduler.typeset().desire(paragraph, token));
+		Layout layout = paragraph.getLayout();
+		Assert.assertEquals(5, layout.getWidth());
+		Assert.assertEquals(3, layout.getHeight());
 
 		builder = Paragraph.Builder.newBuilder(texasOption);
 		builder.text("12345");
 		paragraph = builder.build(true);
-		Assert.assertTrue(WorkerScheduler.typeset().desire(paragraph, region));
-		Assert.assertEquals(5, region.getWidth());
-		Assert.assertEquals(1, region.getHeight());
+		Assert.assertTrue(WorkerScheduler.typeset().desire(paragraph, token));
+		layout = paragraph.getLayout();
+		Assert.assertEquals(5, layout.getWidth());
+		Assert.assertEquals(1, layout.getHeight());
 	}
 
 	@Test

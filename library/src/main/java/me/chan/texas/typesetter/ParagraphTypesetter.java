@@ -12,6 +12,7 @@ import me.chan.texas.Texas;
 import me.chan.texas.text.BreakStrategy;
 import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.layout.Layout;
+import me.chan.texas.text.layout.Line;
 import me.chan.texas.typesetter.simple.SimpleParagraphTypesetter;
 import me.chan.texas.typesetter.tex.TexParagraphTypesetter;
 import me.chan.texas.typesetter.tex.TexParagraphTypesetterCompat;
@@ -39,16 +40,32 @@ public class ParagraphTypesetter {
 	 */
 	public boolean typeset(Paragraph paragraph, BreakStrategy breakStrategy, int width) {
 		if (width <= 0) {
-			throw new IllegalArgumentException("width must be positive: " + width);
+			Log.w("ParagraphTypesetter", "width must be positive");
+			return false;
 		}
 
 		if (typeset0(paragraph, breakStrategy, width)) {
-			Layout layout = paragraph.getLayout();
-			layout.setWidth(width);
+			setupLayoutWidth(paragraph, width);
 			return true;
 		}
 
 		return false;
+	}
+
+	private static void setupLayoutWidth(Paragraph paragraph, int width) {
+		Layout layout = paragraph.getLayout();
+		if (width != AbsParagraphTypesetter.INFINITY_WIDTH /* use desire flag? */) {
+			layout.setWidth(width);
+			return;
+		}
+
+		float actualWidth = 0;
+		for (int i = 0; i < layout.getLineCount(); ++i) {
+			Line line = layout.getLine(i);
+			actualWidth = Math.max(line.getLineWidth(), actualWidth);
+		}
+
+		layout.setWidth((int) Math.ceil(actualWidth));
 	}
 
 	private boolean typeset0(Paragraph paragraph, BreakStrategy breakStrategy, int width) {
