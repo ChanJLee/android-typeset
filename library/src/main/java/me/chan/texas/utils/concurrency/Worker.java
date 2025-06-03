@@ -62,6 +62,7 @@ public interface Worker {
 			mExpired = true;
 		}
 
+		@NonNull
 		@Override
 		public String toString() {
 			return "Token{" +
@@ -87,6 +88,7 @@ public interface Worker {
 			return mToken;
 		}
 
+		@NonNull
 		@Override
 		public String toString() {
 			return "TokenExpiredException{" +
