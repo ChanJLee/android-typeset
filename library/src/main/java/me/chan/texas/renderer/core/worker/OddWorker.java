@@ -7,32 +7,20 @@ import me.chan.texas.utils.concurrency.Worker;
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class OddWorker {
 
-	private final Worker.Listener<Runnable, Void> mListener = new Worker.Listener<Runnable, Void>() {
-		@Override
-		public void onStart(Worker.Token token, Runnable args) {
-
-		}
+	private final Worker.Task<Runnable, Void> mTask = new Worker.Task<Runnable, Void>() {
 
 		@Override
-		public void onSuccess(Worker.Token token, Runnable args, Void ret) {
-
+		protected Void onExec(Worker.Token token, Runnable args) {
+			try {
+				args.run();
+			} catch (Throwable ignore) {
+				/* do nothing */
+			}
+			return null;
 		}
-
-		@Override
-		public void onError(Worker.Token token, Runnable args, Throwable error) {
-
-		}
-	};
-	private final Worker.Task<Runnable, Void> mTask = (token, args) -> {
-		try {
-			args.run();
-		} catch (Throwable ignore) {
-			/* do nothing */
-		}
-		return null;
 	};
 
 	public void submit(Worker.Token token, Worker taskQueue, Runnable runnable) {
-		taskQueue.async(token, runnable, mTask, mListener);
+		taskQueue.async(token, runnable, mTask);
 	}
 }

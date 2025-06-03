@@ -4,7 +4,6 @@ import android.util.Log;
 
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 
@@ -30,27 +29,6 @@ public class ParagraphTypesetWorker {
 
 	private final Worker.Task<ParagraphTypesetWorker.Args, Paragraph> mTask;
 
-	private final Worker.Listener<ParagraphTypesetWorker.Args, Paragraph> mListener = new Worker.Listener<ParagraphTypesetWorker.Args, Paragraph>() {
-		@Override
-		public void onStart(Worker.Token token, Args args) {
-			/* do nothing */
-		}
-
-		@Override
-		public void onSuccess(Worker.Token token, Args args, Paragraph ret) {
-			MsgHandler.Msg message = MsgHandler.Msg.obtain(TYPE_SUCCESS, args, ret);
-			mMsgHandler.send(token, message);
-		}
-
-		@Override
-		public void onError(Worker.Token token, Args args, Throwable error) {
-			Log.w("TypesetWorker", error);
-			MsgHandler.Msg message = MsgHandler.Msg.obtain(TYPE_ERROR, args, error);
-			mMsgHandler.send(token, message);
-		}
-
-	};
-
 	public ParagraphTypesetWorker(Worker worker, MsgHandler msgHandler) {
 		mWorker = worker;
 		mMsgHandler = msgHandler;
@@ -61,37 +39,41 @@ public class ParagraphTypesetWorker {
 				return false;
 			}
 
-			switch (message.type()) {
-				case TYPE_SUCCESS:
-					if (args.listener != null) {
-						args.listener.onTypesetSuccess(message.value());
-					}
-					break;
-				case TYPE_ERROR:
-					if (args.listener != null) {
-						args.listener.onTypesetFailure(message.error());
-					}
-					break;
-			}
 			args.recycle();
 			return true;
 		});
-		mTask = (token, args) -> {
-			Paragraph paragraph = args.paragraph;
-			Layout layout = paragraph.getLayout();
-
-			Layout.Advise advise = layout.getAdvise();
-			BreakStrategy breakStrategy = advise.getBreakStrategy();
-			if (args.desired) {
-				if (!mTypesetter.desire(paragraph, breakStrategy)) {
-					throw new RuntimeException("desire failed");
-				}
-			} else {
-				if (!mTypesetter.typeset(paragraph, breakStrategy, args.width)) {
-					throw new RuntimeException("typeset failed");
-				}
+		mTask = new Worker.Task<ParagraphTypesetWorker.Args, Paragraph>() {
+			@Override
+			public void onSuccess(Worker.Token token, Args args, Paragraph ret) {
+				MsgHandler.Msg message = MsgHandler.Msg.obtain(TYPE_SUCCESS, args, ret);
+				mMsgHandler.send(token, message);
 			}
-			return paragraph;
+
+			@Override
+			public void onError(Worker.Token token, Args args, Throwable error) {
+				Log.w("TypesetWorker", error);
+				MsgHandler.Msg message = MsgHandler.Msg.obtain(TYPE_ERROR, args, error);
+				mMsgHandler.send(token, message);
+			}
+
+			@Override
+			protected Paragraph onExec(Worker.Token token, Args args) {
+				Paragraph paragraph = args.paragraph;
+				Layout layout = paragraph.getLayout();
+
+				Layout.Advise advise = layout.getAdvise();
+				BreakStrategy breakStrategy = advise.getBreakStrategy();
+				if (args.desired) {
+					if (!mTypesetter.desire(paragraph, breakStrategy)) {
+						throw new RuntimeException("desire failed");
+					}
+				} else {
+					if (!mTypesetter.typeset(paragraph, breakStrategy, args.width)) {
+						throw new RuntimeException("typeset failed");
+					}
+				}
+				return paragraph;
+			}
 		};
 	}
 
@@ -100,7 +82,7 @@ public class ParagraphTypesetWorker {
 	}
 
 	public void submit(Worker.Token token, Args args) {
-		mWorker.async(token, args, mTask, mListener);
+		mWorker.async(token, args, mTask);
 	}
 
 	public Paragraph submitSync(Worker.Token token, Args args) throws Throwable {
@@ -160,20 +142,11 @@ public class ParagraphTypesetWorker {
 		return true;
 	}
 
-	public interface Listener {
-
-		void onTypesetSuccess(Paragraph paragraph);
-
-		void onTypesetFailure(Throwable throwable);
-	}
-
 	public static class Args extends DefaultRecyclable {
 		private static final ObjectPool<Args> POOL = new ObjectPool<>(32);
 		private Paragraph paragraph;
 		private int width;
 		private boolean desired;
-
-		private Listener listener;
 
 		private Args() {
 		}
@@ -181,7 +154,6 @@ public class ParagraphTypesetWorker {
 		@Override
 		protected void onRecycle() {
 			paragraph = null;
-			listener = null;
 			width = 0;
 			desired = false;
 			POOL.release(this);
@@ -189,12 +161,6 @@ public class ParagraphTypesetWorker {
 
 		public static Args obtain(@NonNull Paragraph paragraph,
 								  @IntRange(from = 1) int width) {
-			return obtain(paragraph, width, null);
-		}
-
-		public static Args obtain(@NonNull Paragraph paragraph,
-								  @IntRange(from = 1) int width,
-								  @Nullable Listener listener) {
 			Args args = POOL.acquire();
 			if (args == null) {
 				args = new Args();
@@ -203,7 +169,6 @@ public class ParagraphTypesetWorker {
 			args.paragraph = paragraph;
 			args.width = width;
 			args.desired = false;
-			args.listener = listener;
 			args.reuse();
 			return args;
 		}
@@ -217,7 +182,6 @@ public class ParagraphTypesetWorker {
 			args.paragraph = paragraph;
 			args.width = AbsParagraphTypesetter.INFINITY_WIDTH;
 			args.desired = true;
-			args.listener = null;
 			args.reuse();
 			return args;
 		}

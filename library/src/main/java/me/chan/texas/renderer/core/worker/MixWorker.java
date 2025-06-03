@@ -59,7 +59,8 @@ public class MixWorker {
 	@Inject
 	MeasureFactory mMeasureFactory;
 
-	private final Worker.Listener<MixWorker.Args, MixWorker.TypesetResult> mListener = new Worker.Listener<Args, TypesetResult>() {
+	private final Worker.Task<MixWorker.Args, MixWorker.TypesetResult> mTask = new Worker.Task<MixWorker.Args, MixWorker.TypesetResult>() {
+
 		@Override
 		public void onStart(Worker.Token token, Args args) {
 			MsgHandler.Msg message = MsgHandler.Msg.obtain(TYPE_START, args, null);
@@ -77,34 +78,36 @@ public class MixWorker {
 			MsgHandler.Msg message = MsgHandler.Msg.obtain(TYPE_ERROR, args, error);
 			mMsgHandler.send(token, message);
 		}
-	};
-	private final Worker.Task<MixWorker.Args, MixWorker.TypesetResult> mTask = (token, args) -> {
-		long startTimestamp = 0;
-		if (DEBUG) {
-			startTimestamp = SystemClock.elapsedRealtime();
-		}
 
-		long parseTimestamp = 0;
-		if (DEBUG) {
-			parseTimestamp = SystemClock.elapsedRealtime();
-			d("parse or refresh used time: " + (parseTimestamp - startTimestamp));
-		}
-
-		DiffUtil.DiffResult diff = args.prev == null ? null : diff(args.prev, args.document);
-
-		typesetDocument(token, args.outWidth, args.prev, args.document, args.option, args.segmentDecoration);
-
-		if (DEBUG) {
-			d("typeset used time: " + (SystemClock.elapsedRealtime() - parseTimestamp));
-			Measurer measurer = args.option.getMeasurer();
-			if (measurer instanceof AndroidMeasurer) {
-				AndroidMeasurer androidMeasurer = (AndroidMeasurer) measurer;
-				d("measure stats: " + androidMeasurer.stats());
+		@Override
+		protected TypesetResult onExec(Worker.Token token, Args args) throws Throwable {
+			long startTimestamp = 0;
+			if (DEBUG) {
+				startTimestamp = SystemClock.elapsedRealtime();
 			}
-			d("status: " + WorkerScheduler.typeset().stats());
-		}
 
-		return new TypesetResult(args.option, args.document, args.prev, diff);
+			long parseTimestamp = 0;
+			if (DEBUG) {
+				parseTimestamp = SystemClock.elapsedRealtime();
+				d("parse or refresh used time: " + (parseTimestamp - startTimestamp));
+			}
+
+			DiffUtil.DiffResult diff = args.prev == null ? null : diff(args.prev, args.document);
+
+			typesetDocument(token, args.outWidth, args.prev, args.document, args.option, args.segmentDecoration);
+
+			if (DEBUG) {
+				d("typeset used time: " + (SystemClock.elapsedRealtime() - parseTimestamp));
+				Measurer measurer = args.option.getMeasurer();
+				if (measurer instanceof AndroidMeasurer) {
+					AndroidMeasurer androidMeasurer = (AndroidMeasurer) measurer;
+					d("measure stats: " + androidMeasurer.stats());
+				}
+				d("status: " + WorkerScheduler.typeset().stats());
+			}
+
+			return new TypesetResult(args.option, args.document, args.prev, diff);
+		}
 	};
 
 	public MixWorker(Worker worker, MsgHandler msgHandler) {
@@ -135,7 +138,7 @@ public class MixWorker {
 	}
 
 	public void submit(Worker.Token token, Args args) {
-		mWorker.async(token, args, mTask, mListener);
+		mWorker.async(token, args, mTask);
 	}
 
 	@VisibleForTesting

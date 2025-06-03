@@ -8,25 +8,32 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public interface Worker {
-	<A, R> void async(Token token, @NonNull A args, @NonNull Task<A, R> task, @NonNull Listener<A, R> listener);
+	<A, R> void async(Token token, @NonNull A args, @NonNull Task<A, R> task);
 
 	<A, R> R sync(Token token, @NonNull A args, @NonNull Task<A, R> task) throws Throwable;
 
 	void cancel(Token token);
 
-	interface Listener<A, R> {
-		@WorkerThread
-		void onStart(Token token, A args);
+	abstract class Task<A, R> {
 
 		@WorkerThread
-		void onSuccess(Token token, A args, R ret);
+		public R exec(Token token, A args) throws Throwable {
+			return onExec(token, args);
+		}
+
+		protected abstract R onExec(Token token, A args) throws Throwable;
 
 		@WorkerThread
-		void onError(Token token, A args, Throwable error);
-	}
+		protected void onStart(Token token, A args) {
+		}
 
-	interface Task<A, R> {
-		R exec(Token token, A args) throws Throwable;
+		@WorkerThread
+		protected void onSuccess(Token token, A args, R ret) {
+		}
+
+		@WorkerThread
+		protected void onError(Token token, A args, Throwable error) {
+		}
 	}
 
 	class Token {
