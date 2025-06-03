@@ -264,7 +264,7 @@ public class MixWorker {
 								  TextAttribute textAttribute) throws Throwable {
 		measureParagraph(token, paragraph, measurer, textAttribute);
 		ParagraphTypesetWorker.Args args = ParagraphTypesetWorker.Args.obtain(paragraph, width);
-		WorkerScheduler.typeset().submitSync(args);
+		WorkerScheduler.typeset().typeset(args);
 	}
 
 	private void measureParagraph(Worker.Token token,

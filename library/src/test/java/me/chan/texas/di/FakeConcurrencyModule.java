@@ -1,12 +1,11 @@
 package me.chan.texas.di;
 
-import androidx.annotation.NonNull;
-
 import javax.inject.Named;
 
 import dagger.Module;
 import dagger.Provides;
 import me.chan.texas.renderer.core.sync.MsgHandler;
+import me.chan.texas.utils.concurrency.MockTaskQueue;
 import me.chan.texas.utils.concurrency.Worker;
 
 @Module
@@ -47,28 +46,5 @@ public class FakeConcurrencyModule {
 	@Named("ComputeTask")
 	public Worker provideComputeQueue() {
 		return new MockTaskQueue();
-	}
-
-	private static class MockTaskQueue implements Worker {
-
-		@Override
-		public <A, R> void async(Token token, @NonNull A args, @NonNull Task<A, R> task, @NonNull Listener<A, R> listener) {
-			try {
-				listener.onStart(token, args);
-				listener.onSuccess(token, args, task.exec(token, args));
-			} catch (Throwable throwable) {
-				listener.onError(token, args, throwable);
-			}
-		}
-
-		@Override
-		public <A, R> R sync(Token token, @NonNull A args, @NonNull Task<A, R> task) throws Throwable {
-			return task.exec(token, args);
-		}
-
-		@Override
-		public void cancel(Token token) {
-
-		}
 	}
 }

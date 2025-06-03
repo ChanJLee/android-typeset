@@ -25,7 +25,7 @@ public class ParagraphTypesetWorker {
 		return mTypesetter.stats();
 	}
 
-	public Paragraph submitSync(Args args) {
+	public void typeset(Args args) {
 		Paragraph paragraph = args.paragraph;
 		Layout layout = paragraph.getLayout();
 
@@ -40,7 +40,6 @@ public class ParagraphTypesetWorker {
 				throw new RuntimeException("typeset failed");
 			}
 		}
-		return paragraph;
 	}
 
 	@VisibleForTesting
@@ -61,7 +60,7 @@ public class ParagraphTypesetWorker {
 
 		ParagraphTypesetWorker.Args args = ParagraphTypesetWorker.Args.obtain(paragraph, expectedWidth);
 		try {
-			submitSync(args);
+			typeset(args);
 		} catch (Throwable e) {
 			return false;
 		}
@@ -81,7 +80,7 @@ public class ParagraphTypesetWorker {
 
 		ParagraphTypesetWorker.Args args = ParagraphTypesetWorker.Args.desire(paragraph);
 		try {
-			submitSync(args);
+			typeset(args);
 		} catch (Throwable e) {
 			return false;
 		}

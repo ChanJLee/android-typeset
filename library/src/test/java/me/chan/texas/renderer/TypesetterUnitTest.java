@@ -613,18 +613,18 @@ public class TypesetterUnitTest {
 
 		Paragraph paragraph = builder.build(false);
 		Worker.Token token = Worker.Token.newInstance();
-		Assert.assertFalse(WorkerScheduler.typeset().desire(paragraph, token));
+		Assert.assertFalse(WorkerScheduler.typeset().desire(paragraph));
 
 		builder = Paragraph.Builder.newBuilder(texasOption);
 		paragraph = builder.build(true);
-		Assert.assertFalse(WorkerScheduler.typeset().desire(paragraph, token));
+		Assert.assertFalse(WorkerScheduler.typeset().desire(paragraph));
 
 		builder = Paragraph.Builder.newBuilder(texasOption);
 		builder.text("12345")
 				.brk()
 				.text("12");
 		paragraph = builder.build(true);
-		Assert.assertTrue(WorkerScheduler.typeset().desire(paragraph, token));
+		Assert.assertTrue(WorkerScheduler.typeset().desire(paragraph));
 		Layout layout = paragraph.getLayout();
 		Assert.assertEquals(5, layout.getWidth());
 		Assert.assertEquals(3, layout.getHeight());
@@ -632,7 +632,7 @@ public class TypesetterUnitTest {
 		builder = Paragraph.Builder.newBuilder(texasOption);
 		builder.text("12345");
 		paragraph = builder.build(true);
-		Assert.assertTrue(WorkerScheduler.typeset().desire(paragraph, token));
+		Assert.assertTrue(WorkerScheduler.typeset().desire(paragraph));
 		layout = paragraph.getLayout();
 		Assert.assertEquals(5, layout.getWidth());
 		Assert.assertEquals(1, layout.getHeight());
