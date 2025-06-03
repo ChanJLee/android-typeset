@@ -50,7 +50,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import me.chan.texas.utils.concurrency.TaskQueue;
+import me.chan.texas.utils.concurrency.Worker;
 
 /**
  * Example local unit test, which will execute on the development machine (host).
@@ -419,7 +419,7 @@ public class TypesetterUnitTest {
 		Measurer measurer = new MockMeasurer(factory.getMockTextPaint());
 		LoadingJoinListener listener = new LoadingJoinListener();
 		LoadingWorker.Args args = new LoadingWorker.Args(new MockTextSource(renderOption, new TextAttribute(measurer), measurer, text), listener);
-		WorkerScheduler.loading().submit(TaskQueue.Token.newInstance(), args);
+		WorkerScheduler.loading().submit(Worker.Token.newInstance(), args);
 
 		if (listener.mThrowable != null) {
 			throw new RuntimeException(listener.mThrowable);
@@ -468,7 +468,7 @@ public class TypesetterUnitTest {
 		LoadingJoinListener listener = new LoadingJoinListener();
 		Measurer measurer = new MockMeasurer(factory.getMockTextPaint());
 		LoadingWorker.Args args = new LoadingWorker.Args(new MockTextSource(renderOption, new TextAttribute(measurer), measurer, text), listener);
-		WorkerScheduler.loading().submit(TaskQueue.Token.newInstance(), args);
+		WorkerScheduler.loading().submit(Worker.Token.newInstance(), args);
 
 		if (listener.mThrowable != null) {
 			throw new RuntimeException(listener.mThrowable);
@@ -612,7 +612,7 @@ public class TypesetterUnitTest {
 		Paragraph.Builder builder = Paragraph.Builder.newBuilder(texasOption);
 
 		Paragraph paragraph = builder.build(false);
-		TaskQueue.Token token = TaskQueue.Token.newInstance();
+		Worker.Token token = Worker.Token.newInstance();
 		Assert.assertFalse(WorkerScheduler.typeset().desire(paragraph, token));
 
 		builder = Paragraph.Builder.newBuilder(texasOption);

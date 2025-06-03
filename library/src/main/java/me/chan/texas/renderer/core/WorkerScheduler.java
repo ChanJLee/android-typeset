@@ -18,7 +18,7 @@ import me.chan.texas.renderer.core.worker.OddWorker;
 import me.chan.texas.renderer.core.worker.ParagraphTypesetWorker;
 import me.chan.texas.renderer.core.worker.ParseWorker;
 import me.chan.texas.renderer.core.worker.RenderWorker;
-import me.chan.texas.utils.concurrency.TaskQueue;
+import me.chan.texas.utils.concurrency.Worker;
 
 /**
  * 工作调度
@@ -31,15 +31,15 @@ public class WorkerScheduler {
     // 滞后的消息就不会发到主线程
     @Inject
     @Named("MiscTask")
-    TaskQueue mMiscTaskQueue;
+    Worker mMiscTaskQueue;
 
     @Inject
     @Named("RendererTask")
-    TaskQueue mRendererTaskQueue;
+    Worker mRendererTaskQueue;
 
     @Inject
     @Named("ComputeTask")
-    TaskQueue mComputeTaskQueue;
+    Worker mComputeTaskQueue;
 
     @Inject
     MsgHandler mMessager;
@@ -107,7 +107,7 @@ public class WorkerScheduler {
 
     }
 
-    public static TaskQueue getTaskQueue(@TaskQueueType int type) {
+    public static Worker getTaskQueue(@TaskQueueType int type) {
         if (type == TASK_QUEUE_RENDER) {
             return getInstance().mRendererTaskQueue;
         } else if (type == TASK_QUEUE_TYPESET) {
@@ -121,7 +121,7 @@ public class WorkerScheduler {
         throw new IllegalArgumentException("unknown task queue type");
     }
 
-    public static void cancelAll(TaskQueue.Token token) {
+    public static void cancelAll(Worker.Token token) {
         WorkerScheduler scheduler = getInstance();
         scheduler.mMiscTaskQueue.cancel(token);
         scheduler.mRendererTaskQueue.cancel(token);

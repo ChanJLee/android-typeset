@@ -53,13 +53,13 @@ import me.chan.texas.text.Segment;
 import me.chan.texas.text.TextAttribute;
 import me.chan.texas.text.TextGravity;
 import me.chan.texas.utils.TexasUtils;
-import me.chan.texas.utils.concurrency.TaskQueue;
+import me.chan.texas.utils.concurrency.Worker;
 
 /**
  * 渲染引擎入口视图
  */
 public final class TexasView extends FrameLayout {
-	private final TaskQueue.Token mToken = TaskQueue.Token.newInstance();
+	private final Worker.Token mToken = Worker.Token.newInstance();
 	/**
 	 * 非正常下标
 	 */

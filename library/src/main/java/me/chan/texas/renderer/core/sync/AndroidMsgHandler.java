@@ -3,7 +3,7 @@ package me.chan.texas.renderer.core.sync;
 import android.os.Handler;
 import android.os.Looper;
 
-import me.chan.texas.utils.concurrency.TaskQueue;
+import me.chan.texas.utils.concurrency.Worker;
 
 public class AndroidMsgHandler extends MsgHandler {
 	private final Handler mHandler;
@@ -23,7 +23,7 @@ public class AndroidMsgHandler extends MsgHandler {
 	}
 
 	@Override
-	public void send(TaskQueue.Token token, Msg message) {
+	public void send(Worker.Token token, Msg message) {
 		android.os.Message msg = android.os.Message.obtain();
 		msg.what = token.getId();
 		msg.obj = message;
@@ -32,7 +32,7 @@ public class AndroidMsgHandler extends MsgHandler {
 	}
 
 	@Override
-	public void clear(TaskQueue.Token token) {
+	public void clear(Worker.Token token) {
 		mHandler.removeMessages(token.getId());
 	}
 }

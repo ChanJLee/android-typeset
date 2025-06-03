@@ -41,10 +41,10 @@ import me.chan.texas.text.layout.Layout;
 import me.chan.texas.text.layout.Line;
 import me.chan.texas.text.layout.Penalty;
 import me.chan.texas.utils.IntSet;
-import me.chan.texas.utils.concurrency.TaskQueue;
+import me.chan.texas.utils.concurrency.Worker;
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-public class MixWorker implements TaskQueue.Listener<MixWorker.Args, MixWorker.TypesetResult>, TaskQueue.Task<MixWorker.Args, MixWorker.TypesetResult> {
+public class MixWorker implements Worker.Listener<MixWorker.Args, MixWorker.TypesetResult>, Worker.Task<MixWorker.Args, MixWorker.TypesetResult> {
 	private static final int TYPE_SUCCESS = 1;
 
 	private static final int TYPE_ERROR = 2;
@@ -53,13 +53,13 @@ public class MixWorker implements TaskQueue.Listener<MixWorker.Args, MixWorker.T
 
 	public static final boolean DEBUG = false;
 
-	private final TaskQueue mTaskQueue;
+	private final Worker mTaskQueue;
 	private final MsgHandler mMessager;
 
 	@Inject
 	MeasureFactory mMeasureFactory;
 
-	public MixWorker(TaskQueue taskQueue, MsgHandler messager) {
+	public MixWorker(Worker taskQueue, MsgHandler messager) {
 		mTaskQueue = taskQueue;
 		mMessager = messager;
 		mMessager.addListener((id, value) -> {
@@ -86,30 +86,30 @@ public class MixWorker implements TaskQueue.Listener<MixWorker.Args, MixWorker.T
 		textEngineCoreComponent.inject(this);
 	}
 
-	public void submit(TaskQueue.Token token, Args args) {
-		mTaskQueue.submit(token, args, this, this);
+	public void submit(Worker.Token token, Args args) {
+		mTaskQueue.async(token, args, this, this);
 	}
 
 	@Override
-	public void onStart(TaskQueue.Token token, Args args) {
+	public void onStart(Worker.Token token, Args args) {
 		MsgHandler.Msg message = MsgHandler.Msg.obtain(TYPE_START, args, null);
 		mMessager.send(token, message);
 	}
 
 	@Override
-	public void onSuccess(TaskQueue.Token token, Args args, TypesetResult ret) {
+	public void onSuccess(Worker.Token token, Args args, TypesetResult ret) {
 		MsgHandler.Msg message = MsgHandler.Msg.obtain(TYPE_SUCCESS, args, ret);
 		mMessager.send(token, message);
 	}
 
 	@Override
-	public void onError(TaskQueue.Token token, Args args, Throwable throwable) {
-		MsgHandler.Msg message = MsgHandler.Msg.obtain(TYPE_ERROR, args, throwable);
+	public void onError(Worker.Token token, Args args, Throwable error) {
+		MsgHandler.Msg message = MsgHandler.Msg.obtain(TYPE_ERROR, args, error);
 		mMessager.send(token, message);
 	}
 
 	@Override
-	public TypesetResult run(TaskQueue.Token token, Args args) throws Throwable {
+	public TypesetResult run(Worker.Token token, Args args) throws Throwable {
 		long startTimestamp = 0;
 		if (DEBUG) {
 			startTimestamp = SystemClock.elapsedRealtime();
@@ -163,7 +163,7 @@ public class MixWorker implements TaskQueue.Listener<MixWorker.Args, MixWorker.T
 		}, false);
 	}
 
-	private void typesetDocument(TaskQueue.Token token,
+	private void typesetDocument(Worker.Token token,
 								 final int outWidth,
 								 Document prev,
 								 Document document,
@@ -210,7 +210,7 @@ public class MixWorker implements TaskQueue.Listener<MixWorker.Args, MixWorker.T
 		}
 
 		if (token.isExpired()) {
-			throw new TaskQueue.TokenExpiredException("stop typeset document, reason: token expired", token);
+			throw new Worker.TokenExpiredException("stop typeset document, reason: token expired", token);
 		}
 
 		if (renderOption.isDebugEnable()) {
@@ -254,7 +254,7 @@ public class MixWorker implements TaskQueue.Listener<MixWorker.Args, MixWorker.T
 		d("total: \n" + resultEvaluation.get());
 	}
 
-	private void typesetParagraph(TaskQueue.Token token,
+	private void typesetParagraph(Worker.Token token,
 								  Paragraph paragraph,
 								  int width,
 								  Measurer measurer,
@@ -264,10 +264,10 @@ public class MixWorker implements TaskQueue.Listener<MixWorker.Args, MixWorker.T
 		WorkerScheduler.typeset().submitSync(token, args);
 	}
 
-	private void measureParagraph(TaskQueue.Token token,
+	private void measureParagraph(Worker.Token token,
 								  Paragraph paragraph,
 								  Measurer measurer,
-								  TextAttribute textAttribute) throws TaskQueue.TokenExpiredException {
+								  TextAttribute textAttribute) throws Worker.TokenExpiredException {
 		Layout layout = paragraph.getLayout();
 		layout.clear();
 
@@ -285,7 +285,7 @@ public class MixWorker implements TaskQueue.Listener<MixWorker.Args, MixWorker.T
 		}
 
 		if (token.isExpired()) {
-			throw new TaskQueue.TokenExpiredException("stop typeset paragraph, reason: token is expired", token);
+			throw new Worker.TokenExpiredException("stop typeset paragraph, reason: token is expired", token);
 		}
 	}
 
@@ -310,7 +310,7 @@ public class MixWorker implements TaskQueue.Listener<MixWorker.Args, MixWorker.T
 		figure.resize(lineWidth, lineWidth * ratio);
 	}
 
-	public void cancel(TaskQueue.Token token) {
+	public void cancel(Worker.Token token) {
 		mTaskQueue.cancel(token);
 		mMessager.clear(token);
 	}

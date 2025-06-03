@@ -17,19 +17,19 @@ import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.layout.Layout;
 import me.chan.texas.typesetter.AbsParagraphTypesetter;
 import me.chan.texas.typesetter.ParagraphTypesetter;
-import me.chan.texas.utils.concurrency.TaskQueue;
+import me.chan.texas.utils.concurrency.Worker;
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-public class ParagraphTypesetWorker implements TaskQueue.Task<ParagraphTypesetWorker.Args, Paragraph>,
-		TaskQueue.Listener<ParagraphTypesetWorker.Args, Paragraph> {
+public class ParagraphTypesetWorker implements Worker.Task<ParagraphTypesetWorker.Args, Paragraph>,
+		Worker.Listener<ParagraphTypesetWorker.Args, Paragraph> {
 	private static final int TYPE_SUCCESS = 1;
 	private static final int TYPE_ERROR = 2;
 
 	private final ParagraphTypesetter mTypesetter;
-	private final TaskQueue mTaskQueue;
+	private final Worker mTaskQueue;
 	private final MsgHandler mMessager;
 
-	public ParagraphTypesetWorker(TaskQueue taskQueue, MsgHandler messager) {
+	public ParagraphTypesetWorker(Worker taskQueue, MsgHandler messager) {
 		mTaskQueue = taskQueue;
 		mMessager = messager;
 		mTypesetter = new ParagraphTypesetter();
@@ -60,15 +60,15 @@ public class ParagraphTypesetWorker implements TaskQueue.Task<ParagraphTypesetWo
 		return mTypesetter.stats();
 	}
 
-	public void submit(TaskQueue.Token token, Args args) {
-		mTaskQueue.submit(token, args, this, this);
+	public void submit(Worker.Token token, Args args) {
+		mTaskQueue.async(token, args, this, this);
 	}
 
-	public Paragraph submitSync(TaskQueue.Token token, Args args) throws Throwable {
-		return mTaskQueue.submitSync(token, args, this);
+	public Paragraph submitSync(Worker.Token token, Args args) throws Throwable {
+		return mTaskQueue.sync(token, args, this);
 	}
 
-	public void cancel(TaskQueue.Token token) {
+	public void cancel(Worker.Token token) {
 		mTaskQueue.cancel(token);
 	}
 
@@ -78,25 +78,25 @@ public class ParagraphTypesetWorker implements TaskQueue.Task<ParagraphTypesetWo
 	}
 
 	@Override
-	public void onStart(TaskQueue.Token token, Args args) {
+	public void onStart(Worker.Token token, Args args) {
 		/* do nothing */
 	}
 
 	@Override
-	public void onSuccess(TaskQueue.Token token, Args args, Paragraph ret) {
+	public void onSuccess(Worker.Token token, Args args, Paragraph ret) {
 		MsgHandler.Msg message = MsgHandler.Msg.obtain(TYPE_SUCCESS, args, ret);
 		mMessager.send(token, message);
 	}
 
 	@Override
-	public void onError(TaskQueue.Token token, Args args, Throwable throwable) {
-		Log.w("TypesetWorker", throwable);
-		MsgHandler.Msg message = MsgHandler.Msg.obtain(TYPE_ERROR, args, throwable);
+	public void onError(Worker.Token token, Args args, Throwable error) {
+		Log.w("TypesetWorker", error);
+		MsgHandler.Msg message = MsgHandler.Msg.obtain(TYPE_ERROR, args, error);
 		mMessager.send(token, message);
 	}
 
 	@Override
-	public Paragraph run(TaskQueue.Token token, Args args) throws Throwable {
+	public Paragraph run(Worker.Token token, Args args) throws Throwable {
 		Paragraph paragraph = args.paragraph;
 		Layout layout = paragraph.getLayout();
 
@@ -121,7 +121,7 @@ public class ParagraphTypesetWorker implements TaskQueue.Task<ParagraphTypesetWo
 	 * @param token     令牌
 	 * @return true表示成功
 	 */
-	public boolean desire(@NonNull Paragraph paragraph, TaskQueue.Token token, int expectedWidth) {
+	public boolean desire(@NonNull Paragraph paragraph, Worker.Token token, int expectedWidth) {
 		if (!paragraph.hasContent()) {
 			return false;
 		}
@@ -143,7 +143,7 @@ public class ParagraphTypesetWorker implements TaskQueue.Task<ParagraphTypesetWo
 	 * @param token     令牌
 	 * @return true表示成功
 	 */
-	public boolean desire(@NonNull Paragraph paragraph, TaskQueue.Token token) {
+	public boolean desire(@NonNull Paragraph paragraph, Worker.Token token) {
 		if (!paragraph.hasContent()) {
 			return false;
 		}

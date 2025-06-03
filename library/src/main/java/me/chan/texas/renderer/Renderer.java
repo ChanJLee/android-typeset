@@ -34,11 +34,10 @@ import me.chan.texas.renderer.ui.decor.ParagraphDecor;
 import me.chan.texas.renderer.ui.rv.SegmentItemDecoration;
 import me.chan.texas.renderer.ui.rv.TexasLinearLayoutManagerImpl;
 import me.chan.texas.renderer.ui.rv.TexasRecyclerViewImpl;
-import me.chan.texas.source.Source;
 import me.chan.texas.text.Document;
 import me.chan.texas.text.Paragraph;
 import me.chan.texas.utils.TexasUtils;
-import me.chan.texas.utils.concurrency.TaskQueue;
+import me.chan.texas.utils.concurrency.Worker;
 
 /**
  * 协调各个组件一起工作
@@ -105,7 +104,7 @@ public class Renderer implements SelectionManager.Listener {
 		}
 	};
 
-	public Renderer(final TexasView texasView, RenderOption renderOption, TaskQueue.Token token) {
+	public Renderer(final TexasView texasView, RenderOption renderOption, Worker.Token token) {
 		mTexasView = texasView;
 		mRenderOption = renderOption;
 

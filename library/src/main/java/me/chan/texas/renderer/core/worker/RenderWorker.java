@@ -35,27 +35,27 @@ import me.chan.texas.text.layout.Layout;
 import me.chan.texas.text.layout.Line;
 import me.chan.texas.text.layout.StateList;
 import me.chan.texas.text.layout.TextBox;
-import me.chan.texas.utils.concurrency.TaskQueue;
+import me.chan.texas.utils.concurrency.Worker;
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-public class RenderWorker implements TaskQueue.Task<RenderWorker.Args, Void>, TaskQueue.Listener<RenderWorker.Args, Void> {
+public class RenderWorker implements Worker.Task<RenderWorker.Args, Void>, Worker.Listener<RenderWorker.Args, Void> {
 	private static final boolean DEBUG = false;
 
 	private static final int TYPE_SUCCESS = 1;
 	private static final int TYPE_ERROR = 2;
 	private static final String TAG = "RenderWorker";
 
-	private final TaskQueue mTaskQueue;
-	private final MsgHandler mMessager;
+	private final Worker mTaskQueue;
+	private final MsgHandler mMsgHandler;
 
 	private Stats mStats;
 
 	private final TextPaint mWorkPaint = TextPaintCompat.create();
 
-	public RenderWorker(TaskQueue taskQueue, MsgHandler messager) {
+	public RenderWorker(Worker taskQueue, MsgHandler msgHandler) {
 		mTaskQueue = taskQueue;
-		mMessager = messager;
-		mMessager.addListener((token, value) -> {
+		mMsgHandler = msgHandler;
+		mMsgHandler.addListener((token, value) -> {
 			Args args = value.asArg(Args.class);
 			if (args == null) {
 				return false;
@@ -70,17 +70,17 @@ public class RenderWorker implements TaskQueue.Task<RenderWorker.Args, Void>, Ta
 		});
 	}
 
-	public void submit(TaskQueue.Token token, Args args) {
+	public void submit(Worker.Token token, Args args) {
 		if (mStats != null) {
 			++mStats.requestCount;
 		}
 		mTaskQueue.cancel(token);
-		mTaskQueue.submit(token, args, this, this);
+		mTaskQueue.async(token, args, this, this);
 	}
 
-	public void submitSync(TaskQueue.Token token, Args args) {
+	public void submitSync(Worker.Token token, Args args) {
 		try {
-			mTaskQueue.submitSync(token, args, this);
+			mTaskQueue.sync(token, args, this);
 			args.recycle();
 		} catch (Throwable e) {
 			Log.w(TAG, e);
@@ -103,7 +103,7 @@ public class RenderWorker implements TaskQueue.Task<RenderWorker.Args, Void>, Ta
 		return mStats;
 	}
 
-	private void render(TaskQueue.Token token, Paragraph paragraph, Args args) {
+	private void render(Worker.Token token, Paragraph paragraph, Args args) {
 		if (args.width <= 0) {
 			return;
 		}
@@ -203,7 +203,7 @@ public class RenderWorker implements TaskQueue.Task<RenderWorker.Args, Void>, Ta
 	private final DrawVisitor mDrawVisitor = new DrawVisitor(mWorkPaint);
 
 	@Override
-	public Void run(TaskQueue.Token token, Args args) throws Throwable {
+	public Void run(Worker.Token token, Args args) throws Throwable {
 		if (mStats != null) {
 			++mStats.handleCount;
 		}
@@ -215,24 +215,24 @@ public class RenderWorker implements TaskQueue.Task<RenderWorker.Args, Void>, Ta
 	}
 
 	@Override
-	public void onStart(TaskQueue.Token token, Args args) {
+	public void onStart(Worker.Token token, Args args) {
 		/* do nothing */
 	}
 
 	@Override
-	public void onSuccess(TaskQueue.Token token, Args args, Void ret) {
+	public void onSuccess(Worker.Token token, Args args, Void ret) {
 		MsgHandler.Msg message = MsgHandler.Msg.obtain(TYPE_SUCCESS, args, ret);
-		mMessager.send(token, message);
+		mMsgHandler.send(token, message);
 	}
 
 	@Override
-	public void onError(TaskQueue.Token token, Args args, Throwable throwable) {
-		Log.w(TAG, throwable);
-		MsgHandler.Msg message = MsgHandler.Msg.obtain(TYPE_ERROR, args, throwable);
-		mMessager.send(token, message);
+	public void onError(Worker.Token token, Args args, Throwable error) {
+		Log.w(TAG, error);
+		MsgHandler.Msg message = MsgHandler.Msg.obtain(TYPE_ERROR, args, error);
+		mMsgHandler.send(token, message);
 	}
 
-	public void cancel(TaskQueue.Token token) {
+	public void cancel(Worker.Token token) {
 		mTaskQueue.cancel(token);
 	}
 

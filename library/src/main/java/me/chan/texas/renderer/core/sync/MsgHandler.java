@@ -5,7 +5,7 @@ import androidx.annotation.Nullable;
 
 import me.chan.texas.misc.DefaultRecyclable;
 import me.chan.texas.misc.ObjectPool;
-import me.chan.texas.utils.concurrency.TaskQueue;
+import me.chan.texas.utils.concurrency.Worker;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,12 +27,12 @@ public abstract class MsgHandler {
 	 * @param token   id
 	 * @param message 消息附带的值
 	 */
-	public abstract void send(TaskQueue.Token token, Msg message);
+	public abstract void send(Worker.Token token, Msg message);
 
 	/**
 	 * 清空token对应的消息
 	 */
-	public abstract void clear(TaskQueue.Token token);
+	public abstract void clear(Worker.Token token);
 
 	public interface Listener {
 		/**
@@ -41,7 +41,7 @@ public abstract class MsgHandler {
 		 * @param token token
 		 * @param msg   消息
 		 */
-		boolean handle(TaskQueue.Token token, Msg msg);
+		boolean handle(Worker.Token token, Msg msg);
 	}
 
 	public static class Msg extends DefaultRecyclable {
@@ -51,7 +51,7 @@ public abstract class MsgHandler {
 		private Object mArg;
 		private Object mValue;
 
-		private TaskQueue.Token mToken;
+		private Worker.Token mToken;
 
 		private Msg() {
 		}
@@ -101,11 +101,11 @@ public abstract class MsgHandler {
 			POOL.release(this);
 		}
 
-		public TaskQueue.Token getToken() {
+		public Worker.Token getToken() {
 			return mToken;
 		}
 
-		public void setToken(TaskQueue.Token token) {
+		public void setToken(Worker.Token token) {
 			mToken = token;
 		}
 

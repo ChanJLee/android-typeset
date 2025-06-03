@@ -44,7 +44,7 @@ import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.Segment;
 import me.chan.texas.text.ViewSegment;
 import me.chan.texas.text.layout.Layout;
-import me.chan.texas.utils.concurrency.TaskQueue;
+import me.chan.texas.utils.concurrency.Worker;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -96,12 +96,12 @@ public class RendererAdapterImpl extends RecyclerView.Adapter<RendererAdapterImp
 	// 滞后的消息就不会发到主线程
 	@Inject
 	@Named("MiscTask")
-	TaskQueue mMiscTaskQueue;
+	Worker mMiscTaskQueue;
 
-	private final TaskQueue.Token mToken;
+	private final Worker.Token mToken;
 
 	public RendererAdapterImpl(
-			TaskQueue.Token token,
+			Worker.Token token,
 			LayoutInflater layoutInflater,
 			ImageLoader imageLoader,
 			RecyclerView.RecycledViewPool pool,
