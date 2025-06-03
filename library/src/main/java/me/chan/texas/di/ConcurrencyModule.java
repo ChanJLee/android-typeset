@@ -1,7 +1,7 @@
 package me.chan.texas.di;
 
-import me.chan.texas.renderer.core.sync.AndroidWorkerMessager;
-import me.chan.texas.renderer.core.sync.WorkerMessager;
+import me.chan.texas.renderer.core.sync.AndroidMsgHandler;
+import me.chan.texas.renderer.core.sync.MsgHandler;
 import me.chan.texas.utils.concurrency.AndroidTaskQueue;
 import me.chan.texas.utils.concurrency.TaskQueue;
 
@@ -14,8 +14,8 @@ import dagger.Provides;
 public class ConcurrencyModule {
 
 	@Provides
-	public WorkerMessager provideWorkerMessager() {
-		return new AndroidWorkerMessager();
+	public MsgHandler provideMsgHandler() {
+		return new AndroidMsgHandler();
 	}
 
 	@Provides

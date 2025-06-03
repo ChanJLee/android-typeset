@@ -7,7 +7,7 @@ import androidx.annotation.RestrictTo;
 
 import me.chan.texas.misc.DefaultRecyclable;
 import me.chan.texas.misc.ObjectPool;
-import me.chan.texas.renderer.core.sync.WorkerMessager;
+import me.chan.texas.renderer.core.sync.MsgHandler;
 import me.chan.texas.source.Source;
 import me.chan.texas.text.Paragraph;
 import me.chan.texas.utils.concurrency.TaskQueue;
@@ -18,9 +18,9 @@ public class ParseWorker implements TaskQueue.Task<ParseWorker.Args, Paragraph>,
 	private static final int TYPE_ERROR = 2;
 
 	private final TaskQueue mTaskQueue;
-	private final WorkerMessager mMessager;
+	private final MsgHandler mMessager;
 
-	public ParseWorker(TaskQueue taskQueue, WorkerMessager messager) {
+	public ParseWorker(TaskQueue taskQueue, MsgHandler messager) {
 		mTaskQueue = taskQueue;
 		mMessager = messager;
 		mMessager.addListener((token, value) -> {
@@ -60,14 +60,14 @@ public class ParseWorker implements TaskQueue.Task<ParseWorker.Args, Paragraph>,
 
 	@Override
 	public void onSuccess(TaskQueue.Token token, Args args, Paragraph ret) {
-		WorkerMessager.WorkerMessage message = WorkerMessager.WorkerMessage.obtain(TYPE_SUCCESS, args, ret);
+		MsgHandler.Msg message = MsgHandler.Msg.obtain(TYPE_SUCCESS, args, ret);
 		mMessager.send(token, message);
 	}
 
 	@Override
 	public void onError(TaskQueue.Token token, Args args, Throwable throwable) {
 		Log.w("ParseWorker", throwable);
-		WorkerMessager.WorkerMessage message = WorkerMessager.WorkerMessage.obtain(TYPE_ERROR, args, throwable);
+		MsgHandler.Msg message = MsgHandler.Msg.obtain(TYPE_ERROR, args, throwable);
 		mMessager.send(token, message);
 	}
 
