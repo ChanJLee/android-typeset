@@ -213,7 +213,7 @@ public class Line extends DefaultRecyclable {
 			mergeText(mLine, mElements);
 
 			// measure line
-			measureLine(mLine, lineWidth);
+			measureLine(mLine, breakStrategy, lineWidth);
 
 			// adjust
 			if (mContainTerminal && mLine.mRatio > 0) {
@@ -309,7 +309,7 @@ public class Line extends DefaultRecyclable {
 			}
 		}
 
-		private static void measureLine(Line line, int lineWidth) {
+		private static void measureLine(Line line, BreakStrategy breakStrategy, int lineWidth) {
 			float lineHeight = 0;
 			float boxWidth = 0;
 			float glueWidth = 0;
@@ -340,9 +340,14 @@ public class Line extends DefaultRecyclable {
 			}
 
 			float totalWidth = glueWidth + boxWidth;
-			line.setLineWidth(totalWidth);
 			line.setLineHeight(lineHeight);
+			if (breakStrategy == BreakStrategy.SIMPLE) {
+				line.setLineWidth(totalWidth);
+				line.setRatio(0);
+				return;
+			}
 
+			line.setLineWidth(lineWidth);
 			float ratio = 0;
 			if (totalWidth == lineWidth) {
 				ratio = 0;
