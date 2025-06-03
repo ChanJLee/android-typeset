@@ -433,7 +433,7 @@ public class Texas {
 		public float spaceShrinkFactor;
 
 		public TypesetFactor() {
-			this(1f, 0.4f, 0.2f);
+			this(1f, 0.6f, 0.2f);
 		}
 
 		public TypesetFactor(float spaceWidthFactor, float spaceStretchFactor, float spaceShrinkFactor) {
