@@ -5,7 +5,7 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import static me.chan.texas.text.Paragraph.TYPESET_POLICY_CJK_MIX_OPTIMIZATION;
 import static me.chan.texas.text.Paragraph.TYPESET_POLICY_DEFAULT;
 
-import android.graphics.Rect;
+import me.chan.texas.misc.Rect;
 import android.text.TextUtils;
 
 import androidx.annotation.RestrictTo;

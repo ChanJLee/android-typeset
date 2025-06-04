@@ -16,7 +16,6 @@ import me.chan.texas.text.layout.Element;
 import me.chan.texas.text.layout.Layout;
 import me.chan.texas.text.layout.Line;
 import me.chan.texas.text.layout.TextBox;
-import me.chan.texas.utils.FloatArray;
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class SelectedTextByDragVisitor extends SelectedVisitor {
@@ -30,11 +29,10 @@ public class SelectedTextByDragVisitor extends SelectedVisitor {
 	public static final String LINE_RANGE_POLICY_BETWEEN_P1X_P2X = "between p1's and p2's x";
 
 	private Line mFirstSelectedLine, mLastSelectedLine;
-	private final FloatArray mLineEndEdgeBuffer = new FloatArray(128);
-	private final FloatArray mLineStartEdgeBuffer = new FloatArray(128);
 	private final PointF mP1 = new PointF();
 	private final PointF mP2 = new PointF();
 	private final LineRange mLineRange = new LineRange();
+	private final RectF mLineBound = new RectF();
 
 	@Override
 	protected void onVisitParagraphStart(Paragraph paragraph) {
@@ -94,9 +92,8 @@ public class SelectedTextByDragVisitor extends SelectedVisitor {
 				return;
 			}
 
-			float bottom = rectF.top - layout.getLineSpace();
-			float right = mLineEndEdgeBuffer.get(index);
-			rectF = new RectF(right - box.getWidth(), bottom - line.getLineHeight(), right, bottom);
+			layout.getLineBounds(index, mLineBound);
+			rectF = new RectF(mLineBound.right - box.getWidth(), mLineBound.top, mLineBound.right, mLineBound.bottom);
 			mSelection.prependRegion(rectF);
 			mSelection.prependBox(textBox);
 			index = link(line, count - 2, false, rectF);
@@ -189,9 +186,6 @@ public class SelectedTextByDragVisitor extends SelectedVisitor {
 	@Override
 	public void onVisitLineStart(Line line, float bottomX, float bottomY) {
 		mLineSelected = false;
-		mLineEndEdgeBuffer.add(bottomX + line.getLineWidth());
-		mLineStartEdgeBuffer.add(bottomX);
-
 		updateLineRange(line, bottomX, bottomY, mP1, mP2, mLineRange);
 		if (mLineRange.sig != SIG_NORMAL) {
 			sendVisitSig(mLineRange.sig);
@@ -307,8 +301,6 @@ public class SelectedTextByDragVisitor extends SelectedVisitor {
 	@Override
 	public void clear() {
 		mFirstSelectedLine = mLastSelectedLine = null;
-		mLineEndEdgeBuffer.clear();
-		mLineStartEdgeBuffer.clear();
 		super.clear();
 	}
 

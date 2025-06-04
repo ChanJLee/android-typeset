@@ -4,7 +4,7 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.graphics.Rect;
+import me.chan.texas.misc.Rect;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
