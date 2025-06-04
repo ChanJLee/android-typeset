@@ -89,8 +89,9 @@ public class SelectedTextByDragVisitor extends SelectedVisitor {
 				return;
 			}
 
-			layout.getLineBounds(index, mLineBound);
-			RectF rectF = new RectF(mLineBound.right - box.getWidth(), mLineBound.top, mLineBound.right, mLineBound.bottom);
+			// TODO 测试边界是否对
+			layout.getLineBounds(lineIndex, mLineBound);
+			RectF rectF = new RectF(mLineBound.right - textBox.getWidth(), mLineBound.top, mLineBound.right, mLineBound.bottom);
 			mSelection.prependRegion(rectF);
 			mSelection.prependBox(textBox);
 			index = linkText(line, count - 2, false, rectF);
@@ -151,8 +152,8 @@ public class SelectedTextByDragVisitor extends SelectedVisitor {
 
 		Layout layout = paragraph.getLayout();
 		int lineCount = layout.getLineCount();
-		for (int indexOfLine = layout.indexOf(line) + 1; indexOfLine < lineCount; ++indexOfLine) {
-			line = layout.getLine(indexOfLine);
+		for (int lineIndex = layout.indexOf(line) + 1; lineIndex < lineCount; ++lineIndex) {
+			line = layout.getLine(lineIndex);
 
 			int count = line.getCount();
 			if (count == 0) {
@@ -165,7 +166,7 @@ public class SelectedTextByDragVisitor extends SelectedVisitor {
 			}
 
 			textBox = (TextBox) element;
-			layout.getLineBounds(indexOfLine, mLineBound);
+			layout.getLineBounds(lineIndex, mLineBound);
 			RectF rectF = new RectF(mLineBound.left, mLineBound.top, textBox.getWidth() + mLineBound.left, mLineBound.bottom);
 			mSelection.appendRegion(rectF);
 			mSelection.appendBox(textBox);
