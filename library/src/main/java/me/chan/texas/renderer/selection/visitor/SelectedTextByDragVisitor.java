@@ -54,28 +54,25 @@ public class SelectedTextByDragVisitor extends SelectedVisitor {
 	}
 
 	private void linkHead(Paragraph paragraph, Line line, Box box) {
-		if (line == null || box == null) {
+		if (line == null || !(box instanceof TextBox)) {
 			return;
 		}
 
-		int index = line.indexOf(box) - 1;
-		if (index < 0) {
+		int index = line.indexOf(box);
+		if (index != 0 /* 不是第一个 */) {
+			RectF rectF = mSelection.getFirstRegion();
+			assert rectF != null;
+			index = linkText(line, index - 1, false, rectF);
+		}
+
+		if (index != 0) {
 			return;
 		}
 
-		RectF rectF = mSelection.getFirstRegion();
-		assert rectF != null;
-
-		index = link(line, index, false, rectF);
-		if (index >= 0) {
-			return;
-		}
-
-		Layout layout = paragraph.getLayout();
 		// 需要找上一行
-		for (int indexOfLine = layout.indexOf(line) - 1;
-			 index < 0 && indexOfLine >= 0; --indexOfLine) {
-			line = layout.getLine(indexOfLine);
+		Layout layout = paragraph.getLayout();
+		for (int lineIndex = layout.indexOf(line) - 1; lineIndex >= 0; --lineIndex) {
+			line = layout.getLine(lineIndex);
 
 			int count = line.getCount();
 			if (count == 0) {
@@ -93,16 +90,19 @@ public class SelectedTextByDragVisitor extends SelectedVisitor {
 			}
 
 			layout.getLineBounds(index, mLineBound);
-			rectF = new RectF(mLineBound.right - box.getWidth(), mLineBound.top, mLineBound.right, mLineBound.bottom);
+			RectF rectF = new RectF(mLineBound.right - box.getWidth(), mLineBound.top, mLineBound.right, mLineBound.bottom);
 			mSelection.prependRegion(rectF);
 			mSelection.prependBox(textBox);
-			index = link(line, count - 2, false, rectF);
+			index = linkText(line, count - 2, false, rectF);
+			if (index != 0) {
+				return;
+			}
 		}
 	}
 
-	private int link(Line line, int index, boolean toRight, RectF rectF) {
+	private int linkText(Line line, int index, boolean backward, RectF rectF) {
 		int size = line.getCount();
-		int step = toRight ? 1 : -1;
+		int step = backward ? 1 : -1;
 		for (; index >= 0 && index < size; index += step) {
 			Element element = line.getElement(index);
 			if (!(element instanceof Box)) {
@@ -110,7 +110,7 @@ public class SelectedTextByDragVisitor extends SelectedVisitor {
 			}
 
 			Box box = (Box) element;
-			if (toRight) {
+			if (backward) {
 				mSelection.appendBox(box);
 				rectF.right += box.getWidth();
 			} else {
@@ -123,26 +123,19 @@ public class SelectedTextByDragVisitor extends SelectedVisitor {
 	}
 
 	private void linkTail(Paragraph paragraph, Line line, Box box) {
-		if (line == null || box == null) {
+		if (line == null || !(box instanceof TextBox)) {
 			return;
 		}
 
-		int index = line.indexOf(box) + 1;
+		int index = line.indexOf(box);
 		int size = line.getCount();
-		if (index >= size) {
-			if (!(box instanceof TextBox) ||
-					!((TextBox) box).isPenalty()) {
-				return;
-			}
+		if (index != size - 1) {
+			RectF rectF = mSelection.getLastRegion();
+			assert rectF != null;
+			index = linkText(line, index + 1, true, rectF);
 		}
 
-		RectF rectF = mSelection.getLastRegion();
-		assert rectF != null;
-
-		index = link(line, index, true, rectF);
-
-		// 需要找下一行
-		if (index < size) {
+		if (index != size - 1) {
 			return;
 		}
 
@@ -158,8 +151,7 @@ public class SelectedTextByDragVisitor extends SelectedVisitor {
 
 		Layout layout = paragraph.getLayout();
 		int lineCount = layout.getLineCount();
-		for (int indexOfLine = layout.indexOf(line) + 1;
-			 indexOfLine < lineCount && index >= size; ++indexOfLine) {
+		for (int indexOfLine = layout.indexOf(line) + 1; indexOfLine < lineCount; ++indexOfLine) {
 			line = layout.getLine(indexOfLine);
 
 			int count = line.getCount();
@@ -173,13 +165,26 @@ public class SelectedTextByDragVisitor extends SelectedVisitor {
 			}
 
 			textBox = (TextBox) element;
-			float top = rectF.bottom + layout.getLineSpace();
-			// TODO
-			rectF = new RectF(layout.getPaddingLeft(), top, textBox.getWidth() + layout.getPaddingLeft(), top + textBox.getHeight());
+			layout.getLineBounds(indexOfLine, mLineBound);
+			RectF rectF = new RectF(mLineBound.left, mLineBound.top, textBox.getWidth() + mLineBound.left, mLineBound.bottom);
 			mSelection.appendRegion(rectF);
 			mSelection.appendBox(textBox);
-			index = link(line, 1, true, rectF);
+			index = linkText(line, 1, true, rectF);
 			size = count;
+
+			if (index != size - 1) {
+				return;
+			}
+
+			element = line.getElement(size - 1);
+			if (!(element instanceof TextBox)) {
+				return;
+			}
+
+			textBox = (TextBox) element;
+			if (!textBox.isPenalty()) {
+				return;
+			}
 		}
 	}
 
