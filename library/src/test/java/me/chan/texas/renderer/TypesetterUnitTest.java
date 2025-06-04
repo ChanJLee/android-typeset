@@ -58,8 +58,7 @@ import me.chan.texas.utils.concurrency.Worker;
  * @see <a href="http://d.android.com/tools/testing">Testing documentation</a>
  */
 public class TypesetterUnitTest {
-	@Mock
-	private android.graphics.Rect mRect;
+	private final Rect mRect = new Rect();
 
 	static {
 		Texas.setTexasComponent(DaggerFakeTexasComponent.factory().create());
@@ -67,17 +66,6 @@ public class TypesetterUnitTest {
 
 	@Before
 	public void setup() {
-		MockitoAnnotations.initMocks(this);
-		Mockito.doAnswer(invocation -> {
-			Rect rect = (Rect) invocation.getMock();
-			return rect.right - rect.left;
-		}).when(mRect).width();
-
-		Mockito.doAnswer(invocation -> {
-			Rect rect = (Rect) invocation.getMock();
-			return rect.bottom - rect.top;
-		}).when(mRect).height();
-
 		Hyphenation.getInstance();
 	}
 
@@ -120,7 +108,7 @@ public class TypesetterUnitTest {
 
 		checkContentPredication("一二三四五六七八九", BreakStrategy.SIMPLE, 5, 1, Paragraph.TYPESET_POLICY_DEFAULT, new String[]{
 				"一 二 三 四 五",
-				"六 七 八 九"
+				"六 七 八 九",
 		});
 	}
 

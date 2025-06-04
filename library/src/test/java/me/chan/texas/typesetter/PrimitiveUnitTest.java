@@ -1,6 +1,7 @@
 package me.chan.texas.typesetter;
 
 import me.chan.texas.TexasOption;
+import me.chan.texas.di.FakeMeasureFactory;
 import me.chan.texas.hyphenation.Hyphenation;
 import me.chan.texas.measurer.Measurer;
 import me.chan.texas.measurer.MockMeasurer;
@@ -284,5 +285,28 @@ public class PrimitiveUnitTest {
 		} catch (Throwable e) {
 			e.printStackTrace();
 		}
+	}
+
+	@Test
+	public void testPenaltyOverflow() {
+		FakeMeasureFactory factory = FakeMeasureFactory.getInstance();
+		factory.getMockTextPaint().setMockTextSize(1);
+
+		RenderOption renderOption = new RenderOption();
+		renderOption.setLineSpace(1);
+		Measurer measurer = new MockMeasurer(factory.getMockTextPaint());
+		PaintSet paintSet = new PaintSet(factory.getMockTextPaint());
+		TextAttribute textAttribute = new TextAttribute(measurer);
+
+		TexasOption texasOption = new TexasOption(paintSet, Hyphenation.getInstance(), measurer, textAttribute, renderOption);
+		Paragraph.Builder builder = Paragraph.Builder.newBuilder(texasOption)
+				.text("triangle");
+		Paragraph paragraph = builder.build();
+
+		ParagraphTypesetter texTypesetter = new ParagraphTypesetter();
+		texTypesetter.typeset(paragraph, BreakStrategy.SIMPLE, 5);
+
+		Layout layout = paragraph.getLayout();
+		Assert.assertEquals(3, layout.getLineCount());
 	}
 }
