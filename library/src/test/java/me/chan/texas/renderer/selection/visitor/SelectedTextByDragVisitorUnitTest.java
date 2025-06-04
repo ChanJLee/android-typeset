@@ -3,14 +3,28 @@ package me.chan.texas.renderer.selection.visitor;
 import org.junit.Assert;
 import org.junit.Test;
 
+import me.chan.texas.TexasOption;
+import me.chan.texas.di.FakeMeasureFactory;
+import me.chan.texas.hyphenation.Hyphenation;
+import me.chan.texas.measurer.Measurer;
+import me.chan.texas.measurer.MockMeasurer;
+import me.chan.texas.misc.PaintSet;
 import me.chan.texas.misc.PointF;
 import me.chan.texas.renderer.ParagraphVisitor;
+import me.chan.texas.renderer.RenderOption;
+import me.chan.texas.renderer.selection.ParagraphSelection;
+import me.chan.texas.renderer.selection.Selection;
+import me.chan.texas.text.BreakStrategy;
+import me.chan.texas.text.Paragraph;
+import me.chan.texas.text.TextAttribute;
+import me.chan.texas.text.layout.Layout;
 import me.chan.texas.text.layout.Line;
+import me.chan.texas.typesetter.ParagraphTypesetter;
 
 public class SelectedTextByDragVisitorUnitTest {
 
 	@Test
-	public void test() {
+	public void testLineRange() {
 		PointF p1 = new PointF(10, 20);
 		PointF p2 = new PointF(20, 30);
 
@@ -87,5 +101,42 @@ public class SelectedTextByDragVisitorUnitTest {
 		Assert.assertEquals(SelectedTextByDragVisitor.LINE_RANGE_POLICY_ALL, lineRange.policy);
 		Assert.assertEquals(10, lineRange.startX, 0);
 		Assert.assertEquals(50, lineRange.endX, 0);
+	}
+
+	@Test
+	public void testLineLink() throws ParagraphVisitor.VisitException {
+		FakeMeasureFactory factory = FakeMeasureFactory.getInstance();
+		factory.getMockTextPaint().setMockTextSize(1);
+
+		RenderOption renderOption = new RenderOption();
+		renderOption.setLineSpace(1);
+		Measurer measurer = new MockMeasurer(factory.getMockTextPaint());
+		PaintSet paintSet = new PaintSet(factory.getMockTextPaint());
+		TextAttribute textAttribute = new TextAttribute(measurer);
+
+		TexasOption texasOption = new TexasOption(paintSet, Hyphenation.getInstance(), measurer, textAttribute, renderOption);
+		Paragraph.Builder builder = Paragraph.Builder.newBuilder(texasOption)
+				.text("triangle");
+		Paragraph paragraph = builder.build();
+
+		ParagraphTypesetter texTypesetter = new ParagraphTypesetter();
+		texTypesetter.typeset(paragraph, BreakStrategy.SIMPLE, 4);
+
+		Layout layout = paragraph.getLayout();
+		Assert.assertEquals(3, layout.getLineCount());
+
+		SelectedTextByDragVisitor selectedTextByDragVisitor = new SelectedTextByDragVisitor();
+		selectedTextByDragVisitor.reset(Selection.Type.SELECTION, Selection.Styles.create(0, 0), paragraph, renderOption);
+		float tempX1 = 0;
+		float tempY1 = 2.5f;
+		float tempX2 = 4;
+		float tempY2 = 3;
+		selectedTextByDragVisitor.setRegion(tempX1, tempY1, tempX2, tempY2);
+		selectedTextByDragVisitor.startVisit(paragraph);
+
+		ParagraphSelection paragraphSelection = paragraph.getSelection(Selection.Type.SELECTION);
+		Assert.assertNotNull(paragraphSelection);
+
+		// TODO fix link head
 	}
 }

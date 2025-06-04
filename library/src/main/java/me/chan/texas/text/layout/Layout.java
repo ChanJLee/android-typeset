@@ -14,6 +14,7 @@ import me.chan.texas.Texas;
 import me.chan.texas.misc.BitBucket32;
 import me.chan.texas.misc.DefaultRecyclable;
 import me.chan.texas.misc.ObjectPool;
+import me.chan.texas.misc.RectF;
 import me.chan.texas.renderer.RenderOption;
 import me.chan.texas.text.BreakStrategy;
 import me.chan.texas.text.Paragraph;
@@ -161,6 +162,54 @@ public class Layout extends DefaultRecyclable {
 			bottom += line.getBottomPadding();
 		}
 		return bottom;
+	}
+
+	@RestrictTo(LIBRARY)
+	public void getLineBoundsIncremental(int index, RectF bounds) {
+		if (index < 0 || index >= getLineCount()) {
+			return;
+		}
+		Line line = getLine(index);
+		getLineHorizontalBounds(line, bounds);
+		bounds.top = bounds.bottom + getLineSpace();
+		bounds.bottom = bounds.top + line.getLineHeight();
+	}
+
+	public void getLineBounds(int index, RectF bounds) {
+		if (index < 0 || index >= getLineCount()) {
+			return;
+		}
+
+		Line line = getLine(index);
+		getLineHorizontalBounds(line, bounds);
+		getLineVerticalBounds(index, bounds);
+	}
+
+	private void getLineHorizontalBounds(Line line, RectF bounds) {
+		int horizontalGravity = mAdvise.getTextGravity() & TextGravity.HORIZONTAL_MASK;
+		if (horizontalGravity == TextGravity.START) {
+			bounds.left = getPaddingLeft();
+		} else if (horizontalGravity == TextGravity.CENTER_HORIZONTAL) {
+			float offsetX = (mWidth - line.getLineWidth()) / 2.0f;
+			bounds.left = getPaddingLeft() + offsetX;
+		} else if (horizontalGravity == TextGravity.END) {
+			float offsetX = mWidth - line.getLineWidth();
+			bounds.left = getPaddingLeft() + offsetX;
+		} else {
+			throw new IllegalStateException("unknown text gravity");
+		}
+		bounds.right = bounds.left + line.getLineWidth();
+	}
+
+	private void getLineVerticalBounds(int index, RectF bounds) {
+		bounds.top = getPaddingTop();
+		float lineSpace = getLineSpace();
+		for (int i = 0; i < index; ++i) {
+			Line prev = getLine(i);
+			bounds.top = bounds.top + prev.getLineHeight() + lineSpace;
+		}
+		Line line = getLine(index);
+		bounds.bottom = bounds.top + line.getLineHeight();
 	}
 
 	@RestrictTo(LIBRARY)

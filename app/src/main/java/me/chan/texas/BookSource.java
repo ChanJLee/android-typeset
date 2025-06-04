@@ -5,7 +5,9 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
-import android.graphics.RectF;
+
+import me.chan.texas.misc.RectF;
+
 import android.graphics.drawable.Drawable;
 import android.text.TextPaint;
 import android.text.TextUtils;
@@ -393,7 +395,7 @@ public class BookSource extends TexasView.DocumentSource {
 
 						// 独立的单元，左右都要有圆角
 						if (!checkTagIsSelected(context.getPrevTag()) && !checkTagIsSelected(context.getNextTag())) {
-							canvas.drawRoundRect(outer, 20, 20, paint);
+							canvas.drawRoundRect(outer.left, outer.top, outer.right, outer.bottom, 20, 20, paint);
 							return;
 						}
 
@@ -401,7 +403,7 @@ public class BookSource extends TexasView.DocumentSource {
 						if (checkTagIsSelected(context.getPrevTag())) {
 							mPath.reset();
 							mPath.addRoundRect(
-									outer,
+									outer.left, outer.top, outer.right, outer.bottom,
 									mLeftRound,
 									Path.Direction.CW
 							);
@@ -410,14 +412,14 @@ public class BookSource extends TexasView.DocumentSource {
 							// 后面没有单词
 							mPath.reset();
 							mPath.addRoundRect(
-									outer,
+									outer.left, outer.top, outer.right, outer.bottom,
 									mRightRound,
 									Path.Direction.CW
 							);
 							canvas.drawPath(mPath, paint);
 						} else {
 							// 夹在中间
-							canvas.drawRect(outer, paint);
+							canvas.drawRect(outer.left, outer.top, outer.right, outer.bottom, paint);
 						}
 					}
 

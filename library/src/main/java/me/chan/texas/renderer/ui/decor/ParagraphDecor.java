@@ -2,7 +2,9 @@ package me.chan.texas.renderer.ui.decor;
 
 import android.graphics.Canvas;
 import android.graphics.Rect;
-import android.graphics.RectF;
+
+import me.chan.texas.misc.RectF;
+
 import android.view.MotionEvent;
 
 import me.chan.texas.renderer.ParagraphVisitor;

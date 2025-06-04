@@ -4,7 +4,9 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
-import android.graphics.RectF;
+
+import me.chan.texas.misc.RectF;
+
 import android.os.Looper;
 import android.os.SystemClock;
 import android.text.TextPaint;
@@ -489,7 +491,7 @@ public class RenderWorker {
 		@Override
 		public void onVisitBox(Box box, RectF inner, RectF outer, @NonNull RendererContext context) {
 			mDebugPaint.setColor(Color.GREEN);
-			mCanvas.drawRect(inner, mDebugPaint);
+			mCanvas.drawRect(inner.left, inner.top, inner.right, inner.bottom, mDebugPaint);
 		}
 	}
 

@@ -2,7 +2,7 @@ package me.chan.texas.text.layout;
 
 import android.graphics.Canvas;
 import android.graphics.Paint;
-import android.graphics.RectF;
+import me.chan.texas.misc.RectF;
 import android.text.TextPaint;
 
 import androidx.annotation.NonNull;
