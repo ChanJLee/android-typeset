@@ -21,6 +21,15 @@ import java.util.List;
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class SelectedTextByDragVisitor extends SelectedVisitor {
+	@VisibleForTesting
+	static final String LINE_RANGE_POLICY_ALL = "all";
+	@VisibleForTesting
+	public static final String LINE_RANGE_POLICY_START_TO_P2X = "line start to p2's x";
+	@VisibleForTesting
+	public static final String LINE_RANGE_POLICY_P1X_TO_END = "p1'x to line end";
+	@VisibleForTesting
+	public static final String LINE_RANGE_POLICY_BETWEEN_P1X_P2X = "between p1's and p2's x";
+
 	private Line mFirstSelectedLine, mLastSelectedLine;
 	private float mLastBoxX;
 	private final List<Float> mLinesWidthBuffer = new ArrayList<>();
@@ -198,7 +207,8 @@ public class SelectedTextByDragVisitor extends SelectedVisitor {
 	static void updateLineRange(Line line, float bottomX, float bottomY, PointF p1, PointF p2, LineRange lineRange) {
 		lineRange.sig = SIG_NORMAL;
 		lineRange.startX = lineRange.endX = 0;
-		lineRange.policy = "";
+		lineRange.policy = null;
+
 		if (bottomY < p1.y) {
 			lineRange.sig = SIG_STOP_LINE_VISIT;
 			return;
@@ -216,26 +226,26 @@ public class SelectedTextByDragVisitor extends SelectedVisitor {
 		if (top <= p1.y) {
 			if (bottomY < p2.y) {
 				lineRange.startX = p1.x;
-				lineRange.policy = "right";
+				lineRange.policy = LINE_RANGE_POLICY_P1X_TO_END;
 			} else {
 				lineRange.startX = Math.min(p1.x, p2.x);
 				lineRange.endX = Math.max(p1.x, p2.x);
-				lineRange.policy = "between";
+				lineRange.policy = LINE_RANGE_POLICY_BETWEEN_P1X_P2X;
 			}
 		} else {
 			if (bottomY < p2.y) {
 				lineRange.startX = bottomX;
 				lineRange.endX = bottomX + line.getLineWidth();
-				lineRange.policy = "all";
+				lineRange.policy = LINE_RANGE_POLICY_ALL;
 			} else {
 				lineRange.endX = p2.x;
-				lineRange.policy = "left";
+				lineRange.policy = LINE_RANGE_POLICY_START_TO_P2X;
 			}
 		}
 	}
 
 	public static class LineRange {
-		private float startX, endX;
+		public float startX, endX;
 		public String policy;
 		public int sig;
 
