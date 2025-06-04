@@ -1,6 +1,6 @@
 package me.chan.texas.text;
 
-import android.graphics.Rect;
+import me.chan.texas.misc.Rect;
 
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;

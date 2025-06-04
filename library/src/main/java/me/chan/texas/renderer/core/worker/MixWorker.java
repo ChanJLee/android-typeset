@@ -1,7 +1,7 @@
 package me.chan.texas.renderer.core.worker;
 
 import android.annotation.SuppressLint;
-import android.graphics.Rect;
+import me.chan.texas.misc.Rect;
 import android.os.Environment;
 import android.os.SystemClock;
 import android.util.Log;

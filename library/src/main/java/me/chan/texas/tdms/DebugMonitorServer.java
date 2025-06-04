@@ -1,6 +1,6 @@
 package me.chan.texas.tdms;
 
-import android.graphics.Rect;
+import me.chan.texas.misc.Rect;
 
 import me.chan.texas.misc.RectF;
 

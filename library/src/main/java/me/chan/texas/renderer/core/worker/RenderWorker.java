@@ -3,7 +3,7 @@ package me.chan.texas.renderer.core.worker;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.Rect;
+import me.chan.texas.misc.Rect;
 
 import me.chan.texas.misc.RectF;
 
@@ -478,7 +478,7 @@ public class RenderWorker {
 			float startX = 0;
 			float lineSpace = mArgs.paragraph.getLayout().getLineSpace();
 			float startY = y + lineSpace;
-			Rect rect = new Rect();
+			android.graphics.Rect rect = new android.graphics.Rect();
 			String debugInfo = line.getInfoMsg();
 			mDebugPaint.getTextBounds(debugInfo, 0, debugInfo.length(), rect);
 			mDebugPaint.setColor(Color.BLUE);

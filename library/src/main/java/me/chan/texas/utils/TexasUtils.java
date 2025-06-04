@@ -382,6 +382,13 @@ public class TexasUtils {
 		dest.right = src.right;
 	}
 
+	public static void copyRect(android.graphics.Rect dest, Rect src) {
+		dest.top = src.top;
+		dest.bottom = src.bottom;
+		dest.left = src.left;
+		dest.right = src.right;
+	}
+
 	public static void copyRect(RectF dest, RectF src) {
 		dest.top = src.top;
 		dest.bottom = src.bottom;

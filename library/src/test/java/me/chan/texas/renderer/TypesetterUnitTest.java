@@ -5,7 +5,7 @@ import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import android.graphics.Rect;
+import me.chan.texas.misc.Rect;
 import me.chan.texas.misc.RectF;
 import android.util.Log;
 
@@ -59,7 +59,7 @@ import me.chan.texas.utils.concurrency.Worker;
  */
 public class TypesetterUnitTest {
 	@Mock
-	private Rect mRect;
+	private android.graphics.Rect mRect;
 
 	static {
 		Texas.setTexasComponent(DaggerFakeTexasComponent.factory().create());

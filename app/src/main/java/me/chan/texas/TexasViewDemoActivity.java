@@ -5,7 +5,7 @@ import android.animation.ValueAnimator;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.Rect;
+import me.chan.texas.misc.Rect;
 import me.chan.texas.misc.RectF;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
