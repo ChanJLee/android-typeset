@@ -44,6 +44,19 @@ public abstract class ParagraphVisitor {
 
 	}
 
+	public static String sigToString(@VisitSig int sig) {
+		switch (sig) {
+			case SIG_NORMAL:
+				return "SIG_NORMAL";
+			case SIG_STOP_LINE_VISIT:
+				return "SIG_STOP_LINE_VISIT";
+			case SIG_STOP_PARA_VISIT:
+				return "SIG_STOP_PARA_VISIT";
+			default:
+				return "unknown sig";
+		}
+	}
+
 	private final RendererContext mTypesetContext = new RendererContext();
 
 	public void visit(Paragraph paragraph) throws VisitException {
