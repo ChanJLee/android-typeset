@@ -10,6 +10,8 @@ import me.chan.texas.measurer.Measurer;
 import me.chan.texas.measurer.MockMeasurer;
 import me.chan.texas.misc.PaintSet;
 import me.chan.texas.misc.PointF;
+import me.chan.texas.misc.Rect;
+import me.chan.texas.misc.RectF;
 import me.chan.texas.renderer.ParagraphVisitor;
 import me.chan.texas.renderer.RenderOption;
 import me.chan.texas.renderer.selection.ParagraphSelection;
@@ -123,6 +125,13 @@ public class SelectedTextByDragVisitorUnitTest {
 		// TODO 5的时候有bug
 		texTypesetter.typeset(paragraph, BreakStrategy.SIMPLE, 4);
 
+		//0-1 123
+		//1-2
+		//2-3 tri-
+		//3-4
+		//4-5 an-
+		//5-6
+		//6-7 gle
 		Layout layout = paragraph.getLayout();
 		Assert.assertEquals(5, layout.getLineCount());
 
@@ -138,6 +147,18 @@ public class SelectedTextByDragVisitorUnitTest {
 		ParagraphSelection paragraphSelection = paragraph.getSelection(Selection.Type.SELECTION);
 		Assert.assertNotNull(paragraphSelection);
 
-		// TODO fix link head
+		RectF rectF = paragraphSelection.getLastRegion();
+		Assert.assertNotNull(rectF);
+		Assert.assertEquals(0, rectF.left, 0.001);
+		Assert.assertEquals(3f, rectF.right, 0.001);
+		Assert.assertEquals(6, rectF.top, 0.001);
+		Assert.assertEquals(7, rectF.bottom, 0.001);
+
+		rectF = paragraphSelection.getFirstRegion();
+		Assert.assertNotNull(rectF);
+		Assert.assertEquals(0, rectF.left, 0.001);
+		Assert.assertEquals(4f, rectF.right, 0.001);
+		Assert.assertEquals(2, rectF.top, 0.001);
+		Assert.assertEquals(3, rectF.bottom, 0.001);
 	}
 }
