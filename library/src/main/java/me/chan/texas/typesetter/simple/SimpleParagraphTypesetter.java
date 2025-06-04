@@ -95,16 +95,23 @@ public class SimpleParagraphTypesetter extends AbsParagraphTypesetter {
 
 		// pre-typeset
 		int left = lineWidth;
-		while (!stream.eof() && left >= 0) {
+		while (!stream.eof() && left > 0) {
 			left = tryTypesetUnit(stream, stack, left);
 		}
 
 		// 记录pre-typeset后的位置
 		int lastState = stream.state();
+		if (left == 0 && !stack.empty() && stream.tryGet(-1) instanceof Box) {
+			Element element = stream.tryGet(0);
+			if (element != Penalty.FORBIDDEN_BREAK) {
+				stack.push(lastState);
+			}
+		}
 
 		// 回退状态
 		stream.restore(prevState);
 
+		// TODO UNIT TEST
 		// 没有找到合适的位置可以断行
 		if (stack.empty()) {
 			forceBreak(stream, stack, prevState, stream.pickState(lastState, -1) /* 最后一个元素已经被读入了 */);
@@ -126,8 +133,8 @@ public class SimpleParagraphTypesetter extends AbsParagraphTypesetter {
 
 		if (element instanceof Glue) {
 			if (element == Glue.TERMINAL) {
-				// 这个依赖外部输入
-				return 0;
+				stack.push(save);
+				return -1;
 			}
 
 			Glue glue = (Glue) element;
@@ -147,7 +154,7 @@ public class SimpleParagraphTypesetter extends AbsParagraphTypesetter {
 
 		if (penalty == Penalty.FORCE_BREAK) {
 			stack.push(save);
-			return 0;
+			return -1;
 		}
 
 		if (isDenotation(penalty)) {
