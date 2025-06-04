@@ -226,7 +226,7 @@ public class TexasViewDemoActivity extends AppCompatActivity {
 		ParagraphDecor paragraphDecor = new ParagraphDecor() {
 			private boolean mClicked = false;
 			private boolean mDraw = false;
-			private final Rect mDest = new Rect();
+			private final android.graphics.Rect mDest = new android.graphics.Rect();
 
 			@Override
 			protected void onStartLayoutParagraph(Paragraph paragraph, Rect viewportOuter, Rect viewportInner) {
