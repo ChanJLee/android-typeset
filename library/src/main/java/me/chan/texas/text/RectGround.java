@@ -2,7 +2,8 @@ package me.chan.texas.text;
 
 import android.graphics.Canvas;
 import android.graphics.Paint;
-import android.graphics.RectF;
+
+import me.chan.texas.misc.RectF;
 
 import me.chan.texas.renderer.RendererContext;
 
@@ -57,9 +58,9 @@ public class RectGround extends Appearance {
 	public void draw(Canvas canvas, Paint paint, RectF inner, RectF outer, RendererContext context) {
 		paint.setColor(mColor);
 		if (mRadius > 0) {
-			canvas.drawRoundRect(inner, mRadius, mRadius, paint);
+			canvas.drawRoundRect(inner.left, inner.top, inner.right, inner.bottom, mRadius, mRadius, paint);
 		} else {
-			canvas.drawRect(inner, paint);
+			canvas.drawRect(inner.left, inner.top, inner.right, inner.bottom, paint);
 		}
 	}
 }

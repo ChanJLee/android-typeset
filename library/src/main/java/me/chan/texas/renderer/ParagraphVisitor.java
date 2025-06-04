@@ -1,13 +1,11 @@
 package me.chan.texas.renderer;
 
-import android.graphics.RectF;
-
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 
+import me.chan.texas.misc.RectF;
 import me.chan.texas.text.Paragraph;
-import me.chan.texas.text.TextGravity;
 import me.chan.texas.text.layout.Box;
 import me.chan.texas.text.layout.Element;
 import me.chan.texas.text.layout.Glue;
@@ -23,6 +21,7 @@ public abstract class ParagraphVisitor {
 
 	private final RectF mInnerRect = new RectF();
 	private final RectF mOuterRect = new RectF();
+	private final RectF mLineRect = new RectF();
 	private int mVisitSig = SIG_NORMAL;
 
 	/**
@@ -63,41 +62,22 @@ public abstract class ParagraphVisitor {
 		try {
 			onVisitParagraphStart(paragraph);
 			Layout layout = paragraph.getLayout();
-			Layout.Advise advise = layout.getAdvise();
-			int gravity = advise.getTextGravity();
-
-			layout.getPaddingLeft();
-			float x;
-			float y = layout.getPaddingTop();
 			int end = layout.getLineCount();
-
-			int horizontalGravity = gravity & TextGravity.HORIZONTAL_MASK;
+			RectF lineRect = null;
 			for (int i = 0; i < end && mVisitSig != SIG_STOP_PARA_VISIT; ++i) {
 				Line line = layout.getLine(i);
-				y += line.getLineHeight();
-
-				if (horizontalGravity == TextGravity.START) {
-					x = layout.getPaddingLeft();
-				} else if (horizontalGravity == TextGravity.CENTER_HORIZONTAL) {
-					float layoutWidth = layout.getWidth();
-					float lineWidth = line.getLineWidth();
-					float offsetX = (layoutWidth - lineWidth) / 2.0f;
-					x = layout.getPaddingLeft() + offsetX;
-				} else if (horizontalGravity == TextGravity.END) {
-					int windowWidth = layout.getWidth() + layout.getPaddingLeft() + layout.getPaddingRight();
-					x = windowWidth - line.getLineWidth() - layout.getPaddingRight();
+				if (lineRect != null) {
+					layout.getLineBoundsIncremental(i, lineRect);
 				} else {
-					throw new IllegalStateException("unknown text gravity");
+					lineRect = mLineRect;
+					layout.getLineBounds(i, lineRect);
 				}
 
 				mTypesetContext.clear();
 				mTypesetContext.setParagraphLocationAttribute(RendererContext.LOCATION_PARAGRAPH_START, i == 0);
 				mTypesetContext.setParagraphLocationAttribute(RendererContext.LOCATION_PARAGRAPH_END, i == end - 1);
 
-				visitLine(line, x, y);
-
-				float lineSpace = layout.getLineSpace();
-				y += lineSpace;
+				visitLine(line, lineRect.left, lineRect.bottom);
 			}
 			onVisitParagraphEnd(paragraph);
 		} catch (Throwable throwable) {

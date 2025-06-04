@@ -6,7 +6,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import android.graphics.Rect;
-import android.graphics.RectF;
+import me.chan.texas.misc.RectF;
 import android.util.Log;
 
 import androidx.annotation.NonNull;

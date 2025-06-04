@@ -1,6 +1,5 @@
 package me.chan.texas.renderer.selection.visitor;
 
-import android.graphics.RectF;
 import android.util.Log;
 
 import androidx.annotation.RestrictTo;
@@ -8,6 +7,7 @@ import androidx.annotation.VisibleForTesting;
 
 import me.chan.texas.Texas;
 import me.chan.texas.misc.PointF;
+import me.chan.texas.misc.RectF;
 import me.chan.texas.renderer.ParagraphVisitor;
 import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.layout.Box;
@@ -16,9 +16,7 @@ import me.chan.texas.text.layout.Element;
 import me.chan.texas.text.layout.Layout;
 import me.chan.texas.text.layout.Line;
 import me.chan.texas.text.layout.TextBox;
-
-import java.util.ArrayList;
-import java.util.List;
+import me.chan.texas.utils.FloatArray;
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class SelectedTextByDragVisitor extends SelectedVisitor {
@@ -32,8 +30,8 @@ public class SelectedTextByDragVisitor extends SelectedVisitor {
 	public static final String LINE_RANGE_POLICY_BETWEEN_P1X_P2X = "between p1's and p2's x";
 
 	private Line mFirstSelectedLine, mLastSelectedLine;
-	private float mLastBoxX;
-	private final List<Float> mLinesWidthBuffer = new ArrayList<>();
+	private final FloatArray mLineEndEdgeBuffer = new FloatArray(128);
+	private final FloatArray mLineStartEdgeBuffer = new FloatArray(128);
 	private final PointF mP1 = new PointF();
 	private final PointF mP2 = new PointF();
 	private final LineRange mLineRange = new LineRange();
@@ -97,7 +95,7 @@ public class SelectedTextByDragVisitor extends SelectedVisitor {
 			}
 
 			float bottom = rectF.top - layout.getLineSpace();
-			float right = mLinesWidthBuffer.get(index);
+			float right = mLineEndEdgeBuffer.get(index);
 			rectF = new RectF(right - box.getWidth(), bottom - line.getLineHeight(), right, bottom);
 			mSelection.prependRegion(rectF);
 			mSelection.prependBox(textBox);
@@ -179,6 +177,7 @@ public class SelectedTextByDragVisitor extends SelectedVisitor {
 
 			textBox = (TextBox) element;
 			float top = rectF.bottom + layout.getLineSpace();
+			// TODO
 			rectF = new RectF(layout.getPaddingLeft(), top, textBox.getWidth() + layout.getPaddingLeft(), top + textBox.getHeight());
 			mSelection.appendRegion(rectF);
 			mSelection.appendBox(textBox);
@@ -190,7 +189,8 @@ public class SelectedTextByDragVisitor extends SelectedVisitor {
 	@Override
 	public void onVisitLineStart(Line line, float bottomX, float bottomY) {
 		mLineSelected = false;
-		mLastBoxX = 0;
+		mLineEndEdgeBuffer.add(bottomX + line.getLineWidth());
+		mLineStartEdgeBuffer.add(bottomX);
 
 		updateLineRange(line, bottomX, bottomY, mP1, mP2, mLineRange);
 		if (mLineRange.sig != SIG_NORMAL) {
@@ -264,8 +264,6 @@ public class SelectedTextByDragVisitor extends SelectedVisitor {
 	@Override
 	public void onVisitLineEnd(Line line, float x, float y) {
 		super.onVisitLineEnd(line, x, y);
-		mLinesWidthBuffer.add(mLastBoxX);
-
 		if (!mLineSelected) {
 			return;
 		}
@@ -302,7 +300,6 @@ public class SelectedTextByDragVisitor extends SelectedVisitor {
 			return false;
 		}
 
-		mLastBoxX = inner.right;
 		return (inner.left >= mLineRange.startX && inner.left <= mLineRange.endX) ||
 				(inner.right >= mLineRange.startX && inner.right <= mLineRange.endX);
 	}
@@ -310,7 +307,8 @@ public class SelectedTextByDragVisitor extends SelectedVisitor {
 	@Override
 	public void clear() {
 		mFirstSelectedLine = mLastSelectedLine = null;
-		mLinesWidthBuffer.clear();
+		mLineEndEdgeBuffer.clear();
+		mLineStartEdgeBuffer.clear();
 		super.clear();
 	}
 

@@ -3,7 +3,9 @@ package me.chan.texas.renderer.selection;
 import static org.junit.Assert.assertNotNull;
 
 import android.graphics.Canvas;
-import android.graphics.RectF;
+
+import me.chan.texas.misc.RectF;
+
 import android.view.View;
 import android.view.ViewGroup;
 

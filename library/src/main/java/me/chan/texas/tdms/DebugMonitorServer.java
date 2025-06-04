@@ -1,7 +1,9 @@
 package me.chan.texas.tdms;
 
 import android.graphics.Rect;
-import android.graphics.RectF;
+
+import me.chan.texas.misc.RectF;
+
 import android.text.TextPaint;
 import android.text.TextUtils;
 
