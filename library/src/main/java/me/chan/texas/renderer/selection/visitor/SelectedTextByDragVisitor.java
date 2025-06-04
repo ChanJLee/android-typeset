@@ -8,6 +8,7 @@ import androidx.annotation.VisibleForTesting;
 
 import me.chan.texas.Texas;
 import me.chan.texas.misc.PointF;
+import me.chan.texas.renderer.ParagraphVisitor;
 import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.layout.Box;
 import me.chan.texas.text.layout.DrawableBox;
@@ -255,7 +256,7 @@ public class SelectedTextByDragVisitor extends SelectedVisitor {
 					"startX=" + startX +
 					", endX=" + endX +
 					", policy='" + policy + '\'' +
-					", sig=" + sig +
+					", sig=" + ParagraphVisitor.sigToString(sig) +
 					'}';
 		}
 	}
