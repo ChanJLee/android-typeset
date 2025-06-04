@@ -116,7 +116,7 @@ public class SelectedTextByDragVisitorUnitTest {
 
 		TexasOption texasOption = new TexasOption(paintSet, Hyphenation.getInstance(), measurer, textAttribute, renderOption);
 		Paragraph.Builder builder = Paragraph.Builder.newBuilder(texasOption)
-				.text("triangle");
+				.text("123 triangle 1");
 		Paragraph paragraph = builder.build();
 
 		ParagraphTypesetter texTypesetter = new ParagraphTypesetter();
@@ -124,14 +124,14 @@ public class SelectedTextByDragVisitorUnitTest {
 		texTypesetter.typeset(paragraph, BreakStrategy.SIMPLE, 4);
 
 		Layout layout = paragraph.getLayout();
-		Assert.assertEquals(3, layout.getLineCount());
+		Assert.assertEquals(5, layout.getLineCount());
 
 		SelectedTextByDragVisitor selectedTextByDragVisitor = new SelectedTextByDragVisitor();
 		selectedTextByDragVisitor.reset(Selection.Type.SELECTION, Selection.Styles.create(0, 0), paragraph, renderOption);
 		float tempX1 = 0;
-		float tempY1 = 2.5f;
-		float tempX2 = 4;
-		float tempY2 = 3;
+		float tempY1 = 4.5f;
+		float tempX2 = 6;
+		float tempY2 = 5;
 		selectedTextByDragVisitor.setRegion(tempX1, tempY1, tempX2, tempY2);
 		selectedTextByDragVisitor.startVisit(paragraph);
 
