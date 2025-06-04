@@ -3,6 +3,7 @@ package me.chan.texas.renderer.selection.visitor;
 import org.junit.Assert;
 import org.junit.Test;
 
+import me.chan.texas.R;
 import me.chan.texas.TexasOption;
 import me.chan.texas.di.FakeMeasureFactory;
 import me.chan.texas.hyphenation.Hyphenation;
@@ -160,5 +161,32 @@ public class SelectedTextByDragVisitorUnitTest {
 		Assert.assertEquals(4f, rectF.right, 0.001);
 		Assert.assertEquals(2, rectF.top, 0.001);
 		Assert.assertEquals(3, rectF.bottom, 0.001);
+
+		selectedTextByDragVisitor.clear();
+		paragraph.setRect(new Rect(1, 2, 3, 4));
+		selectedTextByDragVisitor.reset(Selection.Type.SELECTION, Selection.Styles.create(0, 0), paragraph, renderOption);
+		tempX1 = 0;
+		tempY1 = 6.5f;
+		tempX2 = 6;
+		tempY2 = 7;
+		selectedTextByDragVisitor.setRegion(tempX1, tempY1, tempX2, tempY2);
+		selectedTextByDragVisitor.startVisit(paragraph);
+
+		paragraphSelection = paragraph.getSelection(Selection.Type.SELECTION);
+		Assert.assertNotNull(paragraphSelection);
+
+		rectF = paragraphSelection.getLastRegion();
+		Assert.assertNotNull(rectF);
+		Assert.assertEquals(1, rectF.left, 0.001);
+		Assert.assertEquals(4f, rectF.right, 0.001);
+		Assert.assertEquals(8, rectF.top, 0.001);
+		Assert.assertEquals(9, rectF.bottom, 0.001);
+
+		rectF = paragraphSelection.getFirstRegion();
+		Assert.assertNotNull(rectF);
+		Assert.assertEquals(1, rectF.left, 0.001);
+		Assert.assertEquals(5f, rectF.right, 0.001);
+		Assert.assertEquals(4, rectF.top, 0.001);
+		Assert.assertEquals(5, rectF.bottom, 0.001);
 	}
 }
