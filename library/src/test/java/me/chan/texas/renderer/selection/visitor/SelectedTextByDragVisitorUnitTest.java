@@ -120,6 +120,7 @@ public class SelectedTextByDragVisitorUnitTest {
 		Paragraph paragraph = builder.build();
 
 		ParagraphTypesetter texTypesetter = new ParagraphTypesetter();
+		// TODO 5的时候有bug
 		texTypesetter.typeset(paragraph, BreakStrategy.SIMPLE, 4);
 
 		Layout layout = paragraph.getLayout();
