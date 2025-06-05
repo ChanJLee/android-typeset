@@ -308,5 +308,9 @@ public class PrimitiveUnitTest {
 
 		Layout layout = paragraph.getLayout();
 		Assert.assertEquals(3, layout.getLineCount());
+
+		Assert.assertEquals("tri-", layout.getLine(0).toString());
+		Assert.assertEquals("an-", layout.getLine(1).toString());
+		Assert.assertEquals("gle", layout.getLine(2).toString());
 	}
 }

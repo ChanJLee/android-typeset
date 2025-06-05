@@ -79,4 +79,8 @@ public final class ElementStream {
 	public static int index2State(int index) {
 		return index;
 	}
+
+	public int distance(int startState, int endState) {
+		return endState - startState;
+	}
 }
