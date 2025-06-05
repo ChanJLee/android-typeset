@@ -13,6 +13,7 @@ import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.layout.Box;
 import me.chan.texas.text.layout.DrawableBox;
 import me.chan.texas.text.layout.Element;
+import me.chan.texas.text.layout.Glue;
 import me.chan.texas.text.layout.Layout;
 import me.chan.texas.text.layout.Line;
 import me.chan.texas.text.layout.TextBox;
@@ -90,11 +91,10 @@ public class SelectedTextByDragVisitor extends SelectedVisitor {
 			}
 
 			layout.getLineBounds(lineIndex, mLineBound);
-			RectF rectF = new RectF(mLineBound.right - textBox.getWidth(), mLineBound.top, mLineBound.right, mLineBound.bottom);
+			RectF rectF = new RectF(mLineBound.right, mLineBound.top, mLineBound.right, mLineBound.bottom);
 			mSelection.prependRegion(rectF);
-			mSelection.prependBox(textBox);
-			index = linkText(line, count - 2, false, rectF);
-			if (index != 0) {
+			index = linkText(line, count - 1, false, rectF);
+			if (index != -1) {
 				return;
 			}
 		}
@@ -103,12 +103,23 @@ public class SelectedTextByDragVisitor extends SelectedVisitor {
 	private int linkText(Line line, int index, boolean backward, RectF rectF) {
 		int size = line.getCount();
 		int step = backward ? 1 : -1;
+		boolean shouldAdjustEdge = false;
 		for (; index >= 0 && index < size; index += step) {
 			Element element = line.getElement(index);
 			if (!(element instanceof Box)) {
+				if (shouldAdjustEdge && element instanceof Glue && element != Glue.TERMINAL) {
+					Glue glue = (Glue) element;
+					float offset = glue.getWidth() / 2f;
+					if (backward) {
+						rectF.right += offset;
+					} else {
+						rectF.left -= offset;
+					}
+				}
 				return index;
 			}
 
+			shouldAdjustEdge = true;
 			Box box = (Box) element;
 			if (backward) {
 				mSelection.appendBox(box);
@@ -164,15 +175,13 @@ public class SelectedTextByDragVisitor extends SelectedVisitor {
 				return;
 			}
 
-			textBox = (TextBox) element;
 			layout.getLineBounds(lineIndex, mLineBound);
-			RectF rectF = new RectF(mLineBound.left, mLineBound.top, textBox.getWidth() + mLineBound.left, mLineBound.bottom);
+			RectF rectF = new RectF(mLineBound.left, mLineBound.top, mLineBound.left, mLineBound.bottom);
 			mSelection.appendRegion(rectF);
-			mSelection.appendBox(textBox);
-			index = linkText(line, 1, true, rectF);
+			index = linkText(line, 0, true, rectF);
 			size = count;
 
-			if (index != size - 1) {
+			if (index != size) {
 				return;
 			}
 
