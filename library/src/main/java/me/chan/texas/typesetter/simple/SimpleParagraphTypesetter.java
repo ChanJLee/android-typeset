@@ -161,6 +161,27 @@ public class SimpleParagraphTypesetter extends AbsParagraphTypesetter {
 		return left;
 	}
 
+	/**
+	 * @param glue glue
+	 * @return 能显示为一个空格的glue
+	 */
+	private static boolean isDenotation(Glue glue) {
+		return glue != null && glue != Glue.EMPTY && glue != Glue.TERMINAL;
+	}
+
+	/**
+	 * @param penalty penalty
+	 * @return 能追加到 text box后面的连字符
+	 */
+	private static boolean isDenotation(Penalty penalty) {
+		return penalty != null && !penalty.isFlag() &&
+				penalty != Penalty.FORBIDDEN_BREAK && penalty != Penalty.FORCE_BREAK;
+	}
+
+	/**
+	 * @param stream stream
+	 * @return 是否可以断行
+	 */
 	private static boolean isBreakable(ElementStream stream) {
 		Element prev = stream.tryGet(-2);
 		Element next = stream.tryGet(0);
