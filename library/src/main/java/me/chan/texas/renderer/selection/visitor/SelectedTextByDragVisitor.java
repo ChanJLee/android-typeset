@@ -89,7 +89,6 @@ public class SelectedTextByDragVisitor extends SelectedVisitor {
 				return;
 			}
 
-			// TODO 测试边界是否对
 			layout.getLineBounds(lineIndex, mLineBound);
 			RectF rectF = new RectF(mLineBound.right - textBox.getWidth(), mLineBound.top, mLineBound.right, mLineBound.bottom);
 			mSelection.prependRegion(rectF);

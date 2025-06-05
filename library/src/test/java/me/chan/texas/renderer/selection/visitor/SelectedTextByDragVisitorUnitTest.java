@@ -3,6 +3,8 @@ package me.chan.texas.renderer.selection.visitor;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.util.List;
+
 import me.chan.texas.R;
 import me.chan.texas.TexasOption;
 import me.chan.texas.di.FakeMeasureFactory;
@@ -187,5 +189,32 @@ public class SelectedTextByDragVisitorUnitTest {
 		Assert.assertEquals(5f, rectF.right, 0.001);
 		Assert.assertEquals(4, rectF.top, 0.001);
 		Assert.assertEquals(5, rectF.bottom, 0.001);
+
+		builder = Paragraph.Builder.newBuilder(texasOption)
+				.text("123 triangle 1");
+		paragraph = builder.build();
+
+		texTypesetter = new ParagraphTypesetter();
+		texTypesetter.typeset(paragraph, BreakStrategy.BALANCED, 8);
+		layout = paragraph.getLayout();
+		Assert.assertEquals(2, layout.getLineCount());
+
+		selectedTextByDragVisitor.clear();
+		selectedTextByDragVisitor.reset(Selection.Type.SELECTION, Selection.Styles.create(0, 0), paragraph, renderOption);
+		tempX1 = 0;
+		tempY1 = 2f;
+		tempX2 = 2;
+		tempY2 = 3;
+		selectedTextByDragVisitor.setRegion(tempX1, tempY1, tempX2, tempY2);
+		selectedTextByDragVisitor.startVisit(paragraph);
+
+		paragraphSelection = paragraph.getSelection(Selection.Type.SELECTION);
+		Assert.assertNotNull(paragraphSelection);
+		List<RectF> regions = paragraphSelection.getBackgrounds();
+		Assert.assertEquals(2, regions.size());
+		RectF excepted = new RectF(3.5f, 0, 8, 1);
+		Assert.assertEquals(excepted, regions.get(0));
+		excepted = new RectF(0, 2, 5.5f, 3);
+		Assert.assertEquals(excepted, regions.get(1));
 	}
 }

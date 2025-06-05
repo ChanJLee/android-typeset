@@ -196,6 +196,12 @@ public class ParagraphSelection extends DefaultRecyclable {
 		return mBackgrounds.get(mBackgrounds.size() - 1);
 	}
 
+	@RestrictTo(LIBRARY)
+	@VisibleForTesting
+	public List<RectF> getBackgrounds() {
+		return mBackgrounds;
+	}
+
 	@Nullable
 	public Box getFirstBox() {
 		return mFirst;
