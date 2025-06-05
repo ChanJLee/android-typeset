@@ -41,7 +41,7 @@ public class SimpleParagraphTypesetter extends AbsParagraphTypesetter {
 							 IntStack stack) {
 		Layout layout = Layout.obtain(paragraph.getLayout());
 		layout.setAlgorithm("simple");
-
+		eat(stream);
 		while (!stream.eof()) {
 			int state = stream.state();
 			typesetLine(stream,
@@ -54,6 +54,8 @@ public class SimpleParagraphTypesetter extends AbsParagraphTypesetter {
 			if (stream.checkState(state)) {
 				throw new IllegalStateException("state not changed");
 			}
+
+			eat(stream);
 		}
 
 		layout = paragraph.swap(layout);
@@ -71,8 +73,10 @@ public class SimpleParagraphTypesetter extends AbsParagraphTypesetter {
 							 Layout layout,
 							 IntStack breaks) {
 		breaks.clear();
+		typesetLine0(stream, breakStrategy, lineWidth, layout, breaks);
+	}
 
-		// 剔除非box开头项
+	private void eat(ElementStream stream) {
 		while (!stream.eof()) {
 			int save = stream.state();
 			Element element = stream.next();
@@ -81,8 +85,6 @@ public class SimpleParagraphTypesetter extends AbsParagraphTypesetter {
 				break;
 			}
 		}
-
-		typesetLine0(stream, breakStrategy, lineWidth, layout, breaks);
 	}
 
 	private void typesetLine0(ElementStream stream,
@@ -91,32 +93,24 @@ public class SimpleParagraphTypesetter extends AbsParagraphTypesetter {
 							  Layout layout,
 							  IntStack breaks) {
 		// 保存现在的状态
-		int prevState = stream.state();
+		int beforeState = stream.state();
 
 		// pre-typeset
 		int left = lineWidth;
-		while (!stream.eof() && left > 0) {
+		while (!stream.eof() && left >= 0) {
 			left = tryTypesetUnit(stream, breaks, left);
 		}
 
 		// 记录pre-typeset后的位置
-		int lastState = stream.state();
-
-		// 看看能不能把最后一个box包裹进来
-		if (left == 0 && !breaks.empty() && stream.tryGet(-1) instanceof Box) {
-			Element element = stream.tryGet(0);
-			if (element != Penalty.FORBIDDEN_BREAK) {
-				breaks.push(lastState);
-			}
-		}
+		int afterState = stream.state();
 
 		// 回退状态
-		stream.restore(prevState);
+		stream.restore(beforeState);
 
 		// TODO UNIT TEST
 		// 没有找到合适的位置可以断行
 		if (breaks.empty()) {
-			forceBreak(stream, breaks, prevState, stream.pickState(lastState, -1) /* 最后一个元素已经被读入了 */);
+			forceBreak(stream, breaks, beforeState, stream.pickState(afterState, -1) /* 最后一个元素已经被读入了 */);
 		}
 
 		typesetUnit(layout, stream, breaks.top(), breakStrategy, lineWidth);
@@ -135,16 +129,13 @@ public class SimpleParagraphTypesetter extends AbsParagraphTypesetter {
 		if (element instanceof Glue) {
 			if (element == Glue.TERMINAL) {
 				breaks.push(save);
-				return -1;
+				return 0;
 			}
 
 			Glue glue = (Glue) element;
 			left -= glue.getWidth();
 
-			Element prev = stream.tryGet(-2);
-			Element next = stream.tryGet(0);
-			if (prev != Penalty.FORBIDDEN_BREAK &&
-					next != Penalty.FORBIDDEN_BREAK) {
+			if (isBreakable(stream)) {
 				breaks.push(save);
 			}
 			return left;
@@ -155,16 +146,26 @@ public class SimpleParagraphTypesetter extends AbsParagraphTypesetter {
 
 		if (penalty == Penalty.FORCE_BREAK) {
 			breaks.push(save);
-			return -1;
+			return 0;
 		}
 
 		if (isDenotation(penalty)) {
 			left -= penalty.getWidth();
+			if (left >= 0 && isBreakable(stream)) {
+				breaks.push(stream.state());
+			}
 			return left;
 		}
 
 		/* do nothing */
 		return left;
+	}
+
+	private static boolean isBreakable(ElementStream stream) {
+		Element prev = stream.tryGet(-2);
+		Element next = stream.tryGet(0);
+		return prev != Penalty.FORBIDDEN_BREAK &&
+				next != Penalty.FORBIDDEN_BREAK;
 	}
 
 	private void forceBreak(ElementStream stream,
@@ -174,7 +175,7 @@ public class SimpleParagraphTypesetter extends AbsParagraphTypesetter {
 		// pre-condition 第一个元素一定是box
 
 		// 不能前进一步就是当前box实在太大了
-		if (startState == endState) {
+		if (startState == endState || stream.distance(startState, endState) == 1) {
 			breaks.push(stream.pickState(startState, 1));
 			return;
 		}
