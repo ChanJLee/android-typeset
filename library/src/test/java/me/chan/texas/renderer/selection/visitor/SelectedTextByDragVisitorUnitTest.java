@@ -216,5 +216,23 @@ public class SelectedTextByDragVisitorUnitTest {
 		Assert.assertEquals(excepted, regions.get(0));
 		excepted = new RectF(0, 2, 5.5f, 3);
 		Assert.assertEquals(excepted, regions.get(1));
+
+		selectedTextByDragVisitor.clear();
+		selectedTextByDragVisitor.reset(Selection.Type.SELECTION, Selection.Styles.create(0, 0), paragraph, renderOption);
+		tempX1 = 4;
+		tempY1 = 1f;
+		tempX2 = 5;
+		tempY2 = 1;
+		selectedTextByDragVisitor.setRegion(tempX1, tempY1, tempX2, tempY2);
+		selectedTextByDragVisitor.startVisit(paragraph);
+
+		paragraphSelection = paragraph.getSelection(Selection.Type.SELECTION);
+		Assert.assertNotNull(paragraphSelection);
+		regions = paragraphSelection.getBackgrounds();
+		Assert.assertEquals(2, regions.size());
+		excepted = new RectF(3.5f, 0, 8, 1);
+		Assert.assertEquals(excepted, regions.get(0));
+		excepted = new RectF(0, 2, 5.5f, 3);
+		Assert.assertEquals(excepted, regions.get(1));
 	}
 }
