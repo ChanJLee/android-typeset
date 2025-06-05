@@ -46,21 +46,4 @@ public abstract class AbsParagraphTypesetter {
 		builder.recycle();
 		return line;
 	}
-
-	/**
-	 * @param glue glue
-	 * @return 能显示为一个空格的glue
-	 */
-	public static boolean isDenotation(Glue glue) {
-		return glue != null && glue != Glue.EMPTY && glue != Glue.TERMINAL;
-	}
-
-	/**
-	 * @param penalty penalty
-	 * @return 能追加到 text box后面的连字符
-	 */
-	public static boolean isDenotation(Penalty penalty) {
-		return penalty != null && !penalty.isFlag() &&
-				penalty != Penalty.FORBIDDEN_BREAK && penalty != Penalty.FORCE_BREAK;
-	}
 }
