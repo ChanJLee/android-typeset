@@ -34,16 +34,25 @@ public final class ElementStream {
 
 	@Nullable
 	public Element next() {
-		return next(mParagraph.getElementCount());
+		return next0(mParagraph.getElementCount());
 	}
 
 	@Nullable
-	public Element next(int end) {
+	private Element next0(int end) {
 		if (mIndex + 1 > end) {
 			return null;
 		}
 
 		return mParagraph.getElement(mIndex++);
+	}
+
+	@Nullable
+	public Element prev() {
+		int index = mIndex - 1;
+		if (index < 0 || index >= mParagraph.getElementCount()) {
+			return null;
+		}
+		return mParagraph.getElement(--mIndex);
 	}
 
 	@Nullable
@@ -61,6 +70,13 @@ public final class ElementStream {
 		return mParagraph.getElement(index);
 	}
 
+	@Nullable
+	public Element pick(int state) {
+		if (state >= mParagraph.getElementCount() || state < 0) {
+			return null;
+		}
+		return mParagraph.getElement(state);
+	}
 
 	public boolean eof() {
 		return mIndex >= mParagraph.getElementCount();

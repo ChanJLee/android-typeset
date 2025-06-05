@@ -307,10 +307,9 @@ public class PrimitiveUnitTest {
 		texTypesetter.typeset(paragraph, BreakStrategy.SIMPLE, 5);
 
 		Layout layout = paragraph.getLayout();
-		Assert.assertEquals(3, layout.getLineCount());
+		Assert.assertEquals(2, layout.getLineCount());
 
 		Assert.assertEquals("tri-", layout.getLine(0).toString());
-		Assert.assertEquals("an-", layout.getLine(1).toString());
-		Assert.assertEquals("gle", layout.getLine(2).toString());
+		Assert.assertEquals("angle", layout.getLine(1).toString());
 	}
 }

@@ -96,9 +96,9 @@ public class SimpleParagraphTypesetter extends AbsParagraphTypesetter {
 		int beforeState = stream.state();
 
 		// pre-typeset
-		int left = lineWidth;
-		while (!stream.eof() && left >= 0) {
-			left = tryTypesetUnit(stream, breaks, left);
+		float leftWidth = lineWidth;
+		while (!stream.eof() && leftWidth >= 0) {
+			leftWidth = tryTypesetUnit(stream, breaks, leftWidth);
 		}
 
 		// 记录pre-typeset后的位置
@@ -107,23 +107,29 @@ public class SimpleParagraphTypesetter extends AbsParagraphTypesetter {
 		// 回退状态
 		stream.restore(beforeState);
 
-		// TODO UNIT TEST
 		// 没有找到合适的位置可以断行
 		if (breaks.empty()) {
-			forceBreak(stream, breaks, beforeState, stream.pickState(afterState, -1) /* 最后一个元素已经被读入了 */);
+			forceBreak(stream, breaks, beforeState, afterState, leftWidth);
 		}
+
+		if (breaks.empty()) {
+			throw new IllegalStateException("no break found");
+		}
+
+		// 回退状态
+		stream.restore(beforeState);
 
 		typesetUnit(layout, stream, breaks.top(), breakStrategy, lineWidth);
 	}
 
-	private int tryTypesetUnit(ElementStream stream, IntStack breaks, int left) {
+	private float tryTypesetUnit(ElementStream stream, IntStack breaks, float width) {
 		int save = stream.state();
 
 		Element element = stream.next();
 		if (element instanceof Box) {
 			Box box = (Box) element;
-			left -= box.getWidth();
-			return left;
+			width -= box.getWidth();
+			return width;
 		}
 
 		if (element instanceof Glue) {
@@ -133,12 +139,12 @@ public class SimpleParagraphTypesetter extends AbsParagraphTypesetter {
 			}
 
 			Glue glue = (Glue) element;
-			left -= glue.getWidth();
+			width -= glue.getWidth();
 
 			if (isBreakable(stream)) {
 				breaks.push(save);
 			}
-			return left;
+			return width;
 		}
 
 		Penalty penalty = (Penalty) element;
@@ -150,15 +156,15 @@ public class SimpleParagraphTypesetter extends AbsParagraphTypesetter {
 		}
 
 		if (isDenotation(penalty)) {
-			left -= penalty.getWidth();
-			if (left >= 0 && isBreakable(stream)) {
+			width -= penalty.getWidth();
+			if (width >= 0 && isBreakable(stream)) {
 				breaks.push(stream.state());
 			}
-			return left;
+			return width;
 		}
 
 		/* do nothing */
-		return left;
+		return width;
 	}
 
 	/**
@@ -178,6 +184,32 @@ public class SimpleParagraphTypesetter extends AbsParagraphTypesetter {
 				penalty != Penalty.FORBIDDEN_BREAK && penalty != Penalty.FORCE_BREAK;
 	}
 
+	private static float getElementWidth(Element element) {
+		if (element == null) {
+			return 0;
+		}
+
+		if (element instanceof Box) {
+			return ((Box) element).getWidth();
+		}
+
+		if (element instanceof Glue) {
+			if (element == Glue.TERMINAL) {
+				return 0;
+			}
+			return ((Glue) element).getWidth();
+		}
+
+		Penalty penalty = (Penalty) element;
+		if (penalty != Penalty.FORBIDDEN_BREAK &&
+				penalty != Penalty.FORCE_BREAK &&
+				penalty != Penalty.ADVISE_BREAK) {
+			return penalty.getWidth();
+		}
+
+		return 0;
+	}
+
 	/**
 	 * @param stream stream
 	 * @return 是否可以断行
@@ -191,37 +223,45 @@ public class SimpleParagraphTypesetter extends AbsParagraphTypesetter {
 
 	private void forceBreak(ElementStream stream,
 							IntStack breaks,
-							int startState,
-							int endState) {
+							final int startState,
+							final int endState,
+							float leftWidth) {
 		// pre-condition 第一个元素一定是box
-
-		// 不能前进一步就是当前box实在太大了
-		if (startState == endState || stream.distance(startState, endState) == 1) {
-			breaks.push(stream.pickState(startState, 1));
-			return;
+		if (startState >= endState) {
+			throw new IllegalStateException("startState >= endState");
 		}
 
-		try {
-			stream.restore(startState);
-			Element first = stream.next();
-
-			stream.restore(endState);
-			// 从后往前找，找到空格就允许断
-			int offset = 0;
-			Element last = null;
-			while ((last = stream.tryGet(--offset)) != first && last != null) {
-				if (last instanceof Glue && isDenotation((Glue) last)) {
-					breaks.push(stream.pickState(endState, offset));
-					return;
-				}
+		stream.restore(endState);
+		while (stream.state() != startState) {
+			Element element = stream.prev();
+			if (!(element instanceof Penalty) ||
+					element == Penalty.FORBIDDEN_BREAK ||
+					element == Penalty.FORCE_BREAK ||
+					element == Penalty.ADVISE_BREAK) {
+				leftWidth += getElementWidth(element);
+				continue;
 			}
 
-			// 实在找不到断点
-			// 一般情况不存在
-			breaks.push(endState);
-		} finally {
-			stream.restore(startState);
+			float elementWidth = getElementWidth(element);
+			if (leftWidth - elementWidth >= 0) {
+				int candidate = stream.pickState(stream.state(), 1);
+				breaks.push(candidate);
+				return;
+			}
 		}
+
+		stream.restore(endState);
+		while (stream.state() != startState) {
+			Element element = stream.prev();
+			if (element instanceof Glue && isDenotation((Glue) element)) {
+				breaks.push(stream.pickState(stream.state(), 1));
+				return;
+			}
+		}
+
+		// 实在找不到断点
+		// 一般情况不存在
+		breaks.push(endState);
 	}
 
 	private void typesetUnit(Layout layout, ElementStream stream, int endState,
