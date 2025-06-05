@@ -254,7 +254,7 @@ public class SimpleParagraphTypesetter extends AbsParagraphTypesetter {
 		while (stream.state() != startState) {
 			Element element = stream.prev();
 			if (element instanceof Glue && isDenotation((Glue) element)) {
-				breaks.push(stream.pickState(stream.state(), 1));
+				breaks.push(stream.state());
 				return;
 			}
 		}
