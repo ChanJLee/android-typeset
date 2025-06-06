@@ -14,6 +14,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import me.chan.texas.debug.R;
 import me.chan.texas.renderer.core.WorkerScheduler;
 import me.chan.texas.renderer.core.graphics.TexturePicture;
 import me.chan.texas.utils.TexasUtils;
@@ -51,7 +52,7 @@ public class MainActivity extends AppCompatActivity {
 
 		WorkerScheduler.render().setStatsEnable(true);
 
-		findViewById(me.chan.texas.debug.R.id.button2).setOnClickListener(new View.OnClickListener() {
+		findViewById(me.chan.texas.debug.R.id.basetest).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				Intent intent = new Intent(v.getContext(), TexasViewDemoActivity.class);
@@ -59,7 +60,7 @@ public class MainActivity extends AppCompatActivity {
 			}
 		});
 
-		findViewById(me.chan.texas.debug.R.id.button3).setOnClickListener(new View.OnClickListener() {
+		findViewById(me.chan.texas.debug.R.id.raw_paragraph_view).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				Intent intent = new Intent(v.getContext(), SingleParagraphActivity.class);
@@ -93,10 +94,18 @@ public class MainActivity extends AppCompatActivity {
 			}
 		});
 
-		findViewById(me.chan.texas.debug.R.id.paragraph_view_demo).setOnClickListener(new View.OnClickListener() {
+		findViewById(me.chan.texas.debug.R.id.paragraph_view_rv).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				Intent intent = new Intent(v.getContext(), ParagraphViewDemoActivity.class);
+				startActivity(intent);
+			}
+		});
+
+		findViewById(me.chan.texas.debug.R.id.raw_paragraph_view_with_height).setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				Intent intent = new Intent(v.getContext(), SingleParagraphWithHeightActivity.class);
 				startActivity(intent);
 			}
 		});

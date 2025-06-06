@@ -30,6 +30,15 @@
         <attr name="me_chan_texas_TexasView_selectedBackgroundRoundRadius" format="dimension" />
         <attr name="me_chan_texas_TexasView_compatMode" format="boolean" />
         <attr name="me_chan_texas_TexasView_dragToSelectionEnable" format="boolean" />
+        <attr name="me_chan_texas_TexasView_textGravity" format="enum">
+            <enum name="start" value="1" />
+            <enum name="end" value="2" />
+            <enum name="center_horizontal" value="3" />
+            <enum name="top" value="4" />
+            <enum name="bottom" value="8" />
+            <enum name="center_vertical" value="12" />
+            <enum name="center" value="15" />
+        </attr>
     </declare-styleable>
 
     <style name="me_chan_texas_TexasRecyclerView" parent="android:Widget">
@@ -62,10 +71,15 @@
         <attr name="me_chan_texas_ParagraphView_selectedBackgroundRoundRadius" format="dimension" />
         <attr name="me_chan_texas_ParagraphView_compatMode" format="boolean" />
         <attr name="me_chan_texas_ParagraphView_text" format="string" />
-    </declare-styleable>
-
-    <declare-styleable name="me_chan_texas_LoadingIndicatorView">
-        <attr name="me_chan_texas_LoadingIndicatorView_loadingColor" format="color" />
-        <attr name="me_chan_texas_LoadingIndicatorView_loadingBackgroundColor" format="color" />
+        <attr name="me_chan_texas_ParagraphView_dragToSelectionEnable" format="boolean" />
+        <attr name="me_chan_texas_ParagraphView_textGravity">
+            <flag name="start" value="1" />
+            <flag name="end" value="2" />
+            <flag name="center_horizontal" value="3" />
+            <flag name="top" value="4" />
+            <flag name="bottom" value="8" />
+            <flag name="center_vertical" value="12" />
+            <flag name="center" value="15" />
+        </attr>
     </declare-styleable>
 </resources>

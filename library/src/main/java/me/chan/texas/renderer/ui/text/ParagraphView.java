@@ -5,20 +5,23 @@ import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.nfc.Tag;
 import android.os.Build;
 import android.os.Process;
+import android.os.SystemClock;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.util.TypedValue;
+import android.view.Gravity;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 
-import me.chan.texas.BuildConfig;
 import me.chan.texas.R;
 import me.chan.texas.Texas;
 import me.chan.texas.TexasOption;
@@ -49,9 +52,9 @@ import me.chan.texas.text.HyphenStrategy;
 import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.Segment;
 import me.chan.texas.text.TextAttribute;
+import me.chan.texas.text.TextGravity;
 import me.chan.texas.text.layout.Box;
 import me.chan.texas.text.layout.Layout;
-import me.chan.texas.text.layout.Region;
 import me.chan.texas.utils.TexasUtils;
 
 import java.lang.ref.WeakReference;
@@ -64,9 +67,9 @@ import javax.inject.Inject;
  * 当前内容都是异步渲染的，所以当你不需要显示某个内容的时候，就调用 {@link #discard()} 丢弃之前的任务
  */
 public class ParagraphView extends FrameLayout {
-	private static final boolean DEBUG = false;
+	public static final boolean DEBUG = true;
 
-	private static final String TAG = "ParagraphViewTag";
+	private static final String TAG = "ParagraphView";
 
 	@NonNull
 	private final TextureParagraph mRender;
@@ -88,8 +91,6 @@ public class ParagraphView extends FrameLayout {
 	 * 即主动调用 {@link TexasView#selectParagraphs} 接口，而不是通过点击操作
 	 */
 	private final PredicatesDriveSelectedVisitor mPredicatesDriveSelectedVisitor = new PredicatesDriveSelectedVisitor();
-
-	private final Region mRegion = new Region();
 
 	private SpanTouchEventHandler mSpanTouchEventHandler;
 
@@ -148,9 +149,21 @@ public class ParagraphView extends FrameLayout {
 		try {
 			mRenderOption = createRenderOption(context, typedArray);
 			mUiThreadPaintSet = new PaintSet(mRenderOption);
-			mRender = mRenderOption.isCompatMode() || Build.VERSION.SDK_INT < Build.VERSION_CODES.M ?
-					new TextureParagraphView0Compat(context) : new TextureParagraphView0(context);
-			addView((View) mRender, new FrameLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+			AbsTextureParagraphView.RelayoutPredicate relayoutPredicate = (view, paragraph) -> {
+				ViewGroup.LayoutParams layoutParams = getLayoutParams();
+				if (layoutParams == null) {
+					return true;
+				}
+
+				Layout layout = paragraph.getLayout();
+				if (layout.getHeight() != view.getHeight()) {
+					return layoutParams.height == ViewGroup.LayoutParams.WRAP_CONTENT;
+				}
+
+				return false;
+			};
+			mRender = mRenderOption.isCompatMode() ? new TextureParagraphView0Compat(context, relayoutPredicate) : new TextureParagraphView0(context, relayoutPredicate);
+			addView((View) mRender, new FrameLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
 			OnSelectedChangedListener onSelectedChangedListener = new OnSelectedChangedListener() {
 				@Override
 				public boolean onSegmentClicked(TouchEvent e, Paragraph paragraph, int eventType) {
@@ -163,16 +176,18 @@ public class ParagraphView extends FrameLayout {
 				}
 			};
 			mRender.setOnTextSelectedListener(onSelectedChangedListener);
-
-			String text = typedArray.getString(R.styleable.me_chan_texas_ParagraphView_me_chan_texas_ParagraphView_text);
-			if (!TextUtils.isEmpty(text)) {
-				setText(text);
-			}
+			mRender.setOnMeasureInterceptor(this::handleMeasureRenderer);
+			setVerticalAlignment(mRenderOption);
 
 			TexasComponent texasComponent = Texas.getTexasComponent();
 			TextEngineCoreComponent textEngineCoreComponent = texasComponent.coreComponent().create();
 			textEngineCoreComponent.inject(this);
 			checkUIThreadPriority();
+
+			String text = typedArray.getString(R.styleable.me_chan_texas_ParagraphView_me_chan_texas_ParagraphView_text);
+			if (!TextUtils.isEmpty(text)) {
+				setText(text);
+			}
 		} finally {
 			typedArray.recycle();
 		}
@@ -191,6 +206,14 @@ public class ParagraphView extends FrameLayout {
 		}
 
 		render0(mParagraph);
+	}
+
+	@Override
+	protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+		super.onSizeChanged(w, h, oldw, oldh);
+		if (DEBUG) {
+			Log.d(TAG, "onSizeChanged: " + w + "x" + h);
+		}
 	}
 
 	private boolean handleParagraphSelected(TouchEvent event, Paragraph paragraph, @OnSelectedChangedListener.EventType int eventType, Box box) {
@@ -326,56 +349,111 @@ public class ParagraphView extends FrameLayout {
 	 */
 	@Override
 	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+		if (DEBUG) {
+			Log.d(TAG, "onMeasure: widthSpec = " + MeasureSpec.toString(widthMeasureSpec) +
+					", heightSpec = " + MeasureSpec.toString(heightMeasureSpec) +
+					", tag = " + getTag());
+		}
+
+		int widthMode = MeasureSpec.getMode(widthMeasureSpec);
+		int heightMode = MeasureSpec.getMode(heightMeasureSpec);
 		if (mParagraph == null) {
-			super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+			if (widthMode == MeasureSpec.EXACTLY && heightMode == MeasureSpec.EXACTLY) {
+				super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+			} else {
+				super.onMeasure(
+						MeasureSpec.makeMeasureSpec(0, MeasureSpec.EXACTLY),
+						MeasureSpec.makeMeasureSpec(0, MeasureSpec.EXACTLY)
+				);
+			}
+			if (DEBUG) {
+				Log.d(TAG, "paragraph is null, width = " + getMeasuredWidth() +
+						", height = " + getMeasuredHeight() +
+						", tag = " + getTag());
+			}
 			return;
 		}
 
-		int expectedWidthMode = MeasureSpec.getMode(widthMeasureSpec);
-		int expectedHeightMode = MeasureSpec.getMode(heightMeasureSpec);
-		int expectedWidth = MeasureSpec.getSize(widthMeasureSpec);
-		int expectedHeight = MeasureSpec.getSize(heightMeasureSpec);
-
-		int width = expectedWidth;
-		if (expectedWidthMode == MeasureSpec.EXACTLY ||
-				expectedWidthMode == MeasureSpec.AT_MOST) {
-			if (!typeset0(expectedWidth - getPaddingLeft() - getPaddingRight())) {
-				super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-				return;
-			}
-		} else {
-			mRegion.setWidth(0);
-			mRegion.setHeight(0);
-			if (!WorkerScheduler.typeset().desire(mParagraph, mRegion, mRenderOption) || mRegion.getWidth() <= 0 || mRegion.getHeight() <= 0) {
-				super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-				return;
-			}
-			width = mRegion.getWidth() + getPaddingLeft() + getPaddingRight();
+		int width = MeasureSpec.getSize(widthMeasureSpec);
+		if (widthMode == MeasureSpec.UNSPECIFIED) {
+			width = Integer.MAX_VALUE;
 		}
 
-		Layout layout = mParagraph.getLayout();
-		int height = layout.getHeight();
-		if (expectedHeightMode == MeasureSpec.EXACTLY) {
-			height = expectedHeight;
-		} else if (expectedHeightMode == MeasureSpec.AT_MOST) {
-			height = Math.min(height, expectedHeight);
+		long ts = DEBUG ? SystemClock.elapsedRealtime() : 0;
+		boolean typesetResult = typeset0(width - getPaddingLeft() - getPaddingRight());
+		if (DEBUG) {
+			Log.d(TAG, "desire paragraph, width = " + width + ", cost = " + (SystemClock.elapsedRealtime() - ts));
 		}
 
-		super.onMeasure(MeasureSpec.makeMeasureSpec(width, MeasureSpec.EXACTLY), MeasureSpec.makeMeasureSpec(height, MeasureSpec.EXACTLY));
-		if (BuildConfig.DEBUG) {
-			Log.d(TAG, "onMeasure: widthSpec = " + MeasureSpec.toString(widthMeasureSpec) +
-					", heightSpec = " + MeasureSpec.toString(heightMeasureSpec) +
-					", width = " + getMeasuredWidth() +
+		if (heightMode != MeasureSpec.EXACTLY) {
+			if (DEBUG) {
+				Log.d(TAG, "try to desire paragraph, width = " + width);
+			}
+
+			if (typesetResult) {
+				Layout layout = mParagraph.getLayout();
+				int layoutHeight = layout.getHeight();
+				if (DEBUG) {
+					Log.d(TAG, "paragraph is desired, width = " + width + ", height = " + layoutHeight);
+				}
+				int height = layoutHeight + getPaddingTop() + getPaddingBottom();
+				height = heightMode == MeasureSpec.AT_MOST ? Math.min(height, MeasureSpec.getSize(heightMeasureSpec)) : height;
+				heightMeasureSpec = MeasureSpec.makeMeasureSpec(height, MeasureSpec.EXACTLY);
+			}
+		}
+
+		super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+		if (DEBUG) {
+			Log.d(TAG, "width = " + getMeasuredWidth() +
 					", height = " + getMeasuredHeight() +
 					", tag = " + getTag());
 		}
 	}
 
+	private boolean handleMeasureRenderer(OnMeasureInterceptor.MeasureSpecs specs) {
+		if (mParagraph == null) {
+			return false;
+		}
+
+		Layout layout = mParagraph.getLayout();
+		if (!layout.isLayout()) {
+			Log.d(TAG, "paragraph is not layout, ignore intercept measure");
+			return false;
+		}
+
+		int height = layout.getHeight();
+		int exceptedHeight = MeasureSpec.getSize(specs.heightSpec);
+		int heightMode = MeasureSpec.getMode(specs.heightSpec);
+		if (heightMode == MeasureSpec.AT_MOST) {
+			height = Math.min(height, exceptedHeight);
+		} else if (heightMode == MeasureSpec.EXACTLY) {
+			height = exceptedHeight;
+		}
+		specs.heightSpec = MeasureSpec.makeMeasureSpec(height, MeasureSpec.EXACTLY);
+		return true;
+	}
+
+	private void setVerticalAlignment(RenderOption renderOption) {
+		FrameLayout.LayoutParams layoutParams = (FrameLayout.LayoutParams) mRender.getLayoutParams();
+		if (layoutParams == null) {
+			return;
+		}
+
+		int textGravity = renderOption.getTextGravity() & TextGravity.VERTICAL_MASK;
+		if (textGravity == TextGravity.CENTER_VERTICAL) {
+			layoutParams.gravity = Gravity.CENTER_VERTICAL;
+		} else if (textGravity == TextGravity.TOP) {
+			layoutParams.gravity = Gravity.TOP;
+		} else if (textGravity == TextGravity.BOTTOM) {
+			layoutParams.gravity = Gravity.BOTTOM;
+		}
+		mRender.setLayoutParams(layoutParams);
+	}
+
 	private boolean typeset0(int width) {
 		try {
 			ParagraphTypesetWorker worker = WorkerScheduler.typeset();
-			ParagraphTypesetWorker.Args args = ParagraphTypesetWorker.Args.obtain(mParagraph, mRenderOption, width);
-			worker.submitSync(mRender.getToken(), args);
+			worker.desire(mParagraph, width);
 			return true;
 		} catch (Throwable e) {
 			return false;
@@ -406,7 +484,7 @@ public class ParagraphView extends FrameLayout {
 	@Override
 	protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
 		if (DEBUG) {
-			Log.d(TAG, "onLayout: changed = " + mParagraph);
+			Log.d(TAG, "onLayout, changed " + changed + ", left " + left + ", top " + top + ", right " + right + ", bottom " + bottom + ", " + mParagraph);
 		}
 
 		super.onLayout(changed, left, top, right, bottom);
@@ -418,15 +496,23 @@ public class ParagraphView extends FrameLayout {
 			return;
 		}
 
+		Layout layout = mParagraph.getLayout();
+		if (!layout.isLayout()) {
+			return;
+		}
+
 		int paddingLeft = getPaddingLeft();
 		int paddingRight = getPaddingRight();
 
 		int width = right - left - paddingLeft - paddingRight;
-		Layout layout = mParagraph.getLayout();
+		if (DEBUG) {
+			Log.d(TAG, "onLayout0: width = " + width + ", layout width = " + layout.getWidth());
+		}
 
 		// 因为 padding 发生了变化
-		if (layout.getWidth() != width && !typeset0(width)) {
-			return;
+		if (layout.getWidth() != width) {
+			Log.w(TAG, "paragraph width is changed, from " + layout.getWidth() + " to " + width + ", missing call onMeasure");
+			typeset0(width);
 		}
 
 		render0(mParagraph);
@@ -509,6 +595,12 @@ public class ParagraphView extends FrameLayout {
 
 		mRenderOption = renderOption;
 		mUiThreadPaintSet.refresh(renderOption);
+		if (mParagraph != null) {
+			Layout layout = mParagraph.getLayout();
+			Layout.Advise advise = layout.getAdvise();
+			advise.copy(renderOption);
+		}
+		setVerticalAlignment(renderOption);
 
 		if (cmpType == TexasUtils.CmpType.CMP_LOAD) {
 			// 丢弃之前的任务
@@ -797,6 +889,10 @@ public class ParagraphView extends FrameLayout {
 		renderOption.setCompatMode(
 				typedArray.getBoolean(R.styleable.me_chan_texas_ParagraphView_me_chan_texas_ParagraphView_compatMode, false)
 		);
+
+		// 文字居中形式
+		int textGravity = typedArray.getInt(R.styleable.me_chan_texas_ParagraphView_me_chan_texas_ParagraphView_textGravity, TextGravity.TOP | TextGravity.START);
+		renderOption.setTextGravity(textGravity);
 
 		return renderOption;
 	}

@@ -3,8 +3,10 @@ package me.chan.texas.renderer.core.worker;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.Rect;
-import android.graphics.RectF;
+import me.chan.texas.misc.Rect;
+
+import me.chan.texas.misc.RectF;
+
 import android.os.Looper;
 import android.os.SystemClock;
 import android.text.TextPaint;
@@ -21,7 +23,7 @@ import me.chan.texas.misc.ObjectPool;
 import me.chan.texas.misc.PaintSet;
 import me.chan.texas.renderer.ParagraphVisitor;
 import me.chan.texas.renderer.RenderOption;
-import me.chan.texas.renderer.core.sync.WorkerMessager;
+import me.chan.texas.renderer.core.sync.MsgHandler;
 import me.chan.texas.renderer.selection.ParagraphSelection;
 import me.chan.texas.renderer.selection.Selection;
 import me.chan.texas.renderer.ui.decor.ParagraphDecor;
@@ -35,27 +37,54 @@ import me.chan.texas.text.layout.Layout;
 import me.chan.texas.text.layout.Line;
 import me.chan.texas.text.layout.StateList;
 import me.chan.texas.text.layout.TextBox;
-import me.chan.texas.utils.concurrency.TaskQueue;
+import me.chan.texas.utils.concurrency.Worker;
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-public class RenderWorker implements TaskQueue.Task<RenderWorker.Args, Void>, TaskQueue.Listener<RenderWorker.Args, Void> {
+public class RenderWorker {
 	private static final boolean DEBUG = false;
 
 	private static final int TYPE_SUCCESS = 1;
 	private static final int TYPE_ERROR = 2;
 	private static final String TAG = "RenderWorker";
 
-	private final TaskQueue mTaskQueue;
-	private final WorkerMessager mMessager;
+	private final Worker mWorker;
+	private final MsgHandler mMsgHandler;
 
 	private Stats mStats;
 
 	private final TextPaint mWorkPaint = TextPaintCompat.create();
 
-	public RenderWorker(TaskQueue taskQueue, WorkerMessager messager) {
-		mTaskQueue = taskQueue;
-		mMessager = messager;
-		mMessager.addListener((token, value) -> {
+	private final Worker.Task<RenderWorker.Args, Void> mTask = new Worker.Task<Args, Void>() {
+		@Override
+		public void onSuccess(Worker.Token token, Args args, Void ret) {
+			MsgHandler.Msg message = MsgHandler.Msg.obtain(TYPE_SUCCESS, args, ret);
+			mMsgHandler.send(token, message);
+		}
+
+		@Override
+		public void onError(Worker.Token token, Args args, Throwable error) {
+			Log.w(TAG, error);
+			MsgHandler.Msg message = MsgHandler.Msg.obtain(TYPE_ERROR, args, error);
+			mMsgHandler.send(token, message);
+		}
+
+		@Override
+		protected Void onExec(Worker.Token token, Args args) throws Throwable {
+			if (mStats != null) {
+				++mStats.handleCount;
+			}
+
+			if (args.width > 0) {
+				render(token, args.paragraph, args);
+			}
+			return null;
+		}
+	};
+
+	public RenderWorker(Worker worker, MsgHandler msgHandler) {
+		mWorker = worker;
+		mMsgHandler = msgHandler;
+		mMsgHandler.addListener((token, value) -> {
 			Args args = value.asArg(Args.class);
 			if (args == null) {
 				return false;
@@ -70,20 +99,21 @@ public class RenderWorker implements TaskQueue.Task<RenderWorker.Args, Void>, Ta
 		});
 	}
 
-	public void submit(TaskQueue.Token token, Args args) {
+	public void submit(Worker.Token token, Args args) {
 		if (mStats != null) {
 			++mStats.requestCount;
 		}
-		mTaskQueue.cancel(token);
-		mTaskQueue.submit(token, args, this, this);
+		mWorker.cancel(token);
+		mWorker.async(token, args, mTask);
 	}
 
-	public void submitSync(TaskQueue.Token token, Args args) {
+	public void submitSync(Worker.Token token, Args args) {
 		try {
-			mTaskQueue.submitSync(token, args, this);
-			args.recycle();
+			mWorker.sync(token, args, mTask);
 		} catch (Throwable e) {
 			Log.w(TAG, e);
+		} finally {
+			args.recycle();
 		}
 	}
 
@@ -103,7 +133,7 @@ public class RenderWorker implements TaskQueue.Task<RenderWorker.Args, Void>, Ta
 		return mStats;
 	}
 
-	private void render(TaskQueue.Token token, Paragraph paragraph, Args args) {
+	private void render(Worker.Token token, Paragraph paragraph, Args args) {
 		if (args.width <= 0) {
 			return;
 		}
@@ -202,38 +232,8 @@ public class RenderWorker implements TaskQueue.Task<RenderWorker.Args, Void>, Ta
 
 	private final DrawVisitor mDrawVisitor = new DrawVisitor(mWorkPaint);
 
-	@Override
-	public Void run(TaskQueue.Token token, Args args) throws Throwable {
-		if (mStats != null) {
-			++mStats.handleCount;
-		}
-
-		if (args.width > 0) {
-			render(token, args.paragraph, args);
-		}
-		return null;
-	}
-
-	@Override
-	public void onStart(TaskQueue.Token token, Args args) {
-		/* do nothing */
-	}
-
-	@Override
-	public void onSuccess(TaskQueue.Token token, Args args, Void ret) {
-		WorkerMessager.WorkerMessage message = WorkerMessager.WorkerMessage.obtain(TYPE_SUCCESS, args, ret);
-		mMessager.send(token, message);
-	}
-
-	@Override
-	public void onError(TaskQueue.Token token, Args args, Throwable throwable) {
-		Log.w(TAG, throwable);
-		WorkerMessager.WorkerMessage message = WorkerMessager.WorkerMessage.obtain(TYPE_ERROR, args, throwable);
-		mMessager.send(token, message);
-	}
-
-	public void cancel(TaskQueue.Token token) {
-		mTaskQueue.cancel(token);
+	public void cancel(Worker.Token token) {
+		mWorker.cancel(token);
 	}
 
 	private final static class DrawVisitor extends ParagraphVisitor {
@@ -476,8 +476,9 @@ public class RenderWorker implements TaskQueue.Task<RenderWorker.Args, Void>, Ta
 		@Override
 		public void onVisitLineEnd(Line line, float x, float y) {
 			float startX = 0;
-			float startY = y + mArgs.option.getLineSpace();
-			Rect rect = new Rect();
+			float lineSpace = mArgs.paragraph.getLayout().getLineSpace();
+			float startY = y + lineSpace;
+			android.graphics.Rect rect = new android.graphics.Rect();
 			String debugInfo = line.getInfoMsg();
 			mDebugPaint.getTextBounds(debugInfo, 0, debugInfo.length(), rect);
 			mDebugPaint.setColor(Color.BLUE);
@@ -490,7 +491,7 @@ public class RenderWorker implements TaskQueue.Task<RenderWorker.Args, Void>, Ta
 		@Override
 		public void onVisitBox(Box box, RectF inner, RectF outer, @NonNull RendererContext context) {
 			mDebugPaint.setColor(Color.GREEN);
-			mCanvas.drawRect(inner, mDebugPaint);
+			mCanvas.drawRect(inner.left, inner.top, inner.right, inner.bottom, mDebugPaint);
 		}
 	}
 

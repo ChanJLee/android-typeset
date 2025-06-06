@@ -15,6 +15,7 @@ import me.chan.texas.typesetter.utils.ElementStream;
 @RestrictTo(LIBRARY)
 public abstract class AbsParagraphTypesetter {
 	public static final boolean DEBUG = false;
+	public static final int INFINITY_WIDTH = Integer.MAX_VALUE;
 
 
 	public abstract boolean typeset(Paragraph paragraph, BreakStrategy breakStrategy, int lineWidth);
@@ -44,22 +45,5 @@ public abstract class AbsParagraphTypesetter {
 		Line line = builder.build(breakStrategy, lineWidth);
 		builder.recycle();
 		return line;
-	}
-
-	/**
-	 * @param glue glue
-	 * @return 能显示为一个空格的glue
-	 */
-	public static boolean isDenotation(Glue glue) {
-		return glue != null && glue != Glue.EMPTY && glue != Glue.TERMINAL;
-	}
-
-	/**
-	 * @param penalty penalty
-	 * @return 能追加到 text box后面的连字符
-	 */
-	public static boolean isDenotation(Penalty penalty) {
-		return penalty != null && !penalty.isFlag() &&
-				penalty != Penalty.FORBIDDEN_BREAK && penalty != Penalty.FORCE_BREAK;
 	}
 }

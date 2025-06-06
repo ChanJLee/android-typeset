@@ -104,13 +104,13 @@
                 android:text="渲染《harry1》" />
 
             <Button
-                android:id="@+id/button2"
+                android:id="@+id/basetest"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="渲染《harry2》" />
 
             <Button
-                android:id="@+id/button3"
+                android:id="@+id/raw_paragraph_view"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="渲染《harry3》" />

@@ -4,7 +4,9 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.ValueAnimator;
 import android.graphics.Color;
-import android.graphics.RectF;
+
+import me.chan.texas.misc.RectF;
+
 import android.util.Log;
 
 import androidx.annotation.NonNull;

@@ -1,11 +1,10 @@
 package me.chan.texas.renderer;
 
-import android.graphics.RectF;
-
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 
+import me.chan.texas.misc.RectF;
 import me.chan.texas.text.layout.Box;
 import me.chan.texas.utils.TexasUtils;
 

@@ -5,7 +5,9 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
-import android.graphics.RectF;
+
+import me.chan.texas.misc.RectF;
+
 import android.graphics.drawable.Drawable;
 import android.text.TextPaint;
 import android.text.TextUtils;
@@ -16,12 +18,14 @@ import android.widget.Toast;
 
 import me.chan.texas.renderer.TexasView;
 import me.chan.texas.text.Appearance;
+import me.chan.texas.text.BreakStrategy;
 import me.chan.texas.text.Document;
 import me.chan.texas.text.RectGround;
 import me.chan.texas.renderer.RendererContext;
 import me.chan.texas.text.Emoticon;
 import me.chan.texas.text.Figure;
 import me.chan.texas.text.Paragraph;
+import me.chan.texas.text.TextGravity;
 import me.chan.texas.text.TextStyle;
 import me.chan.texas.text.DotUnderLine;
 import me.chan.texas.text.ViewSegment;
@@ -221,6 +225,7 @@ public class BookSource extends TexasView.DocumentSource {
 
 	// FOR TEST
 	private int mSeq = 0;
+
 	private void parsePara(XmlPullParser parser, Document.Builder documentBuilder, TexasOption texasOption) throws IOException, XmlPullParserException {
 		parser.require(XmlPullParser.START_TAG, null, "para");
 		String id = parser.getAttributeValue(null, "id");
@@ -229,6 +234,17 @@ public class BookSource extends TexasView.DocumentSource {
 		builder.tag(id)
 				.text((mSeq++) + ". ");
 		int lastState = STATE_NONE;
+
+		if (TextUtils.equals("A9127P127023", id)) {
+			builder.breakStrategy(BreakStrategy.SIMPLE)
+					.textGravity(TextGravity.END);
+		} else if (TextUtils.equals("A9127P127029", id)) {
+			builder.breakStrategy(BreakStrategy.SIMPLE)
+					.textGravity(TextGravity.CENTER_HORIZONTAL);
+		} else if (TextUtils.equals("A9127P127035", id)) {
+			builder.breakStrategy(BreakStrategy.SIMPLE)
+					.textGravity(TextGravity.START);
+		}
 
 		String firstSent = null;
 		while (parser.next() != XmlPullParser.END_TAG) {
@@ -379,7 +395,7 @@ public class BookSource extends TexasView.DocumentSource {
 
 						// 独立的单元，左右都要有圆角
 						if (!checkTagIsSelected(context.getPrevTag()) && !checkTagIsSelected(context.getNextTag())) {
-							canvas.drawRoundRect(outer, 20, 20, paint);
+							canvas.drawRoundRect(outer.left, outer.top, outer.right, outer.bottom, 20, 20, paint);
 							return;
 						}
 
@@ -387,7 +403,7 @@ public class BookSource extends TexasView.DocumentSource {
 						if (checkTagIsSelected(context.getPrevTag())) {
 							mPath.reset();
 							mPath.addRoundRect(
-									outer,
+									outer.left, outer.top, outer.right, outer.bottom,
 									mLeftRound,
 									Path.Direction.CW
 							);
@@ -396,14 +412,14 @@ public class BookSource extends TexasView.DocumentSource {
 							// 后面没有单词
 							mPath.reset();
 							mPath.addRoundRect(
-									outer,
+									outer.left, outer.top, outer.right, outer.bottom,
 									mRightRound,
 									Path.Direction.CW
 							);
 							canvas.drawPath(mPath, paint);
 						} else {
 							// 夹在中间
-							canvas.drawRect(outer, paint);
+							canvas.drawRect(outer.left, outer.top, outer.right, outer.bottom, paint);
 						}
 					}
 

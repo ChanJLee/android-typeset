@@ -1,7 +1,7 @@
 package me.chan.texas.renderer.core.worker;
 
 import android.annotation.SuppressLint;
-import android.graphics.Rect;
+import me.chan.texas.misc.Rect;
 import android.os.Environment;
 import android.os.SystemClock;
 import android.util.Log;
@@ -28,7 +28,7 @@ import me.chan.texas.measurer.Measurer;
 import me.chan.texas.renderer.RenderOption;
 import me.chan.texas.renderer.TexasView;
 import me.chan.texas.renderer.core.WorkerScheduler;
-import me.chan.texas.renderer.core.sync.WorkerMessager;
+import me.chan.texas.renderer.core.sync.MsgHandler;
 import me.chan.texas.text.Document;
 import me.chan.texas.text.Figure;
 import me.chan.texas.text.Paragraph;
@@ -41,10 +41,10 @@ import me.chan.texas.text.layout.Layout;
 import me.chan.texas.text.layout.Line;
 import me.chan.texas.text.layout.Penalty;
 import me.chan.texas.utils.IntSet;
-import me.chan.texas.utils.concurrency.TaskQueue;
+import me.chan.texas.utils.concurrency.Worker;
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-public class MixWorker implements TaskQueue.Listener<MixWorker.Args, MixWorker.TypesetResult>, TaskQueue.Task<MixWorker.Args, MixWorker.TypesetResult> {
+public class MixWorker {
 	private static final int TYPE_SUCCESS = 1;
 
 	private static final int TYPE_ERROR = 2;
@@ -53,16 +53,67 @@ public class MixWorker implements TaskQueue.Listener<MixWorker.Args, MixWorker.T
 
 	public static final boolean DEBUG = false;
 
-	private final TaskQueue mTaskQueue;
-	private final WorkerMessager mMessager;
+	private final Worker mWorker;
+	private final MsgHandler mMsgHandler;
 
 	@Inject
 	MeasureFactory mMeasureFactory;
 
-	public MixWorker(TaskQueue taskQueue, WorkerMessager messager) {
-		mTaskQueue = taskQueue;
-		mMessager = messager;
-		mMessager.addListener((id, value) -> {
+	private final Worker.Task<MixWorker.Args, MixWorker.TypesetResult> mTask = new Worker.Task<MixWorker.Args, MixWorker.TypesetResult>() {
+
+		@Override
+		public void onStart(Worker.Token token, Args args) {
+			MsgHandler.Msg message = MsgHandler.Msg.obtain(TYPE_START, args, null);
+			mMsgHandler.send(token, message);
+		}
+
+		@Override
+		public void onSuccess(Worker.Token token, Args args, TypesetResult ret) {
+			MsgHandler.Msg message = MsgHandler.Msg.obtain(TYPE_SUCCESS, args, ret);
+			mMsgHandler.send(token, message);
+		}
+
+		@Override
+		public void onError(Worker.Token token, Args args, Throwable error) {
+			MsgHandler.Msg message = MsgHandler.Msg.obtain(TYPE_ERROR, args, error);
+			mMsgHandler.send(token, message);
+		}
+
+		@Override
+		protected TypesetResult onExec(Worker.Token token, Args args) throws Throwable {
+			long startTimestamp = 0;
+			if (DEBUG) {
+				startTimestamp = SystemClock.elapsedRealtime();
+			}
+
+			long parseTimestamp = 0;
+			if (DEBUG) {
+				parseTimestamp = SystemClock.elapsedRealtime();
+				d("parse or refresh used time: " + (parseTimestamp - startTimestamp));
+			}
+
+			DiffUtil.DiffResult diff = args.prev == null ? null : diff(args.prev, args.document);
+
+			typesetDocument(token, args.outWidth, args.prev, args.document, args.option, args.segmentDecoration);
+
+			if (DEBUG) {
+				d("typeset used time: " + (SystemClock.elapsedRealtime() - parseTimestamp));
+				Measurer measurer = args.option.getMeasurer();
+				if (measurer instanceof AndroidMeasurer) {
+					AndroidMeasurer androidMeasurer = (AndroidMeasurer) measurer;
+					d("measure stats: " + androidMeasurer.stats());
+				}
+				d("status: " + WorkerScheduler.typeset().stats());
+			}
+
+			return new TypesetResult(args.option, args.document, args.prev, diff);
+		}
+	};
+
+	public MixWorker(Worker worker, MsgHandler msgHandler) {
+		mWorker = worker;
+		mMsgHandler = msgHandler;
+		mMsgHandler.addListener((id, value) -> {
 			Args args = value.asArg(Args.class);
 			if (args == null) {
 				return false;
@@ -86,56 +137,8 @@ public class MixWorker implements TaskQueue.Listener<MixWorker.Args, MixWorker.T
 		textEngineCoreComponent.inject(this);
 	}
 
-	public void submit(TaskQueue.Token token, Args args) {
-		mTaskQueue.submit(token, args, this, this);
-	}
-
-	@Override
-	public void onStart(TaskQueue.Token token, Args args) {
-		WorkerMessager.WorkerMessage message = WorkerMessager.WorkerMessage.obtain(TYPE_START, args, null);
-		mMessager.send(token, message);
-	}
-
-	@Override
-	public void onSuccess(TaskQueue.Token token, Args args, TypesetResult ret) {
-		WorkerMessager.WorkerMessage message = WorkerMessager.WorkerMessage.obtain(TYPE_SUCCESS, args, ret);
-		mMessager.send(token, message);
-	}
-
-	@Override
-	public void onError(TaskQueue.Token token, Args args, Throwable throwable) {
-		WorkerMessager.WorkerMessage message = WorkerMessager.WorkerMessage.obtain(TYPE_ERROR, args, throwable);
-		mMessager.send(token, message);
-	}
-
-	@Override
-	public TypesetResult run(TaskQueue.Token token, Args args) throws Throwable {
-		long startTimestamp = 0;
-		if (DEBUG) {
-			startTimestamp = SystemClock.elapsedRealtime();
-		}
-
-		long parseTimestamp = 0;
-		if (DEBUG) {
-			parseTimestamp = SystemClock.elapsedRealtime();
-			d("parse or refresh used time: " + (parseTimestamp - startTimestamp));
-		}
-
-		DiffUtil.DiffResult diff = args.prev == null ? null : diff(args.prev, args.document);
-
-		typesetDocument(token, args.outWidth, args.prev, args.document, args.option, args.segmentDecoration);
-
-		if (DEBUG) {
-			d("typeset used time: " + (SystemClock.elapsedRealtime() - parseTimestamp));
-			Measurer measurer = args.option.getMeasurer();
-			if (measurer instanceof AndroidMeasurer) {
-				AndroidMeasurer androidMeasurer = (AndroidMeasurer) measurer;
-				d("measure stats: " + androidMeasurer.stats());
-			}
-			d("status: " + WorkerScheduler.typeset().stats());
-		}
-
-		return new TypesetResult(args.option, args.document, args.prev, diff);
+	public void submit(Worker.Token token, Args args) {
+		mWorker.async(token, args, mTask);
 	}
 
 	@VisibleForTesting
@@ -163,7 +166,7 @@ public class MixWorker implements TaskQueue.Listener<MixWorker.Args, MixWorker.T
 		}, false);
 	}
 
-	private void typesetDocument(TaskQueue.Token token,
+	private void typesetDocument(Worker.Token token,
 								 final int outWidth,
 								 Document prev,
 								 Document document,
@@ -201,7 +204,7 @@ public class MixWorker implements TaskQueue.Listener<MixWorker.Args, MixWorker.T
 				typesetFigure((Figure) segment, width);
 			} else if (segment instanceof Paragraph) {
 				Paragraph paragraph = (Paragraph) segment;
-				typesetParagraph(token, paragraph, width, renderOption, measurer, textAttribute);
+				typesetParagraph(token, paragraph, width, measurer, textAttribute);
 			} else if (segment instanceof ViewSegment) {
 				typesetViewSegment((ViewSegment) segment);
 			} else {
@@ -210,7 +213,7 @@ public class MixWorker implements TaskQueue.Listener<MixWorker.Args, MixWorker.T
 		}
 
 		if (token.isExpired()) {
-			throw new TaskQueue.TokenExpiredException("stop typeset document, reason: token expired", token);
+			throw new Worker.TokenExpiredException("stop typeset document, reason: token expired", token);
 		}
 
 		if (renderOption.isDebugEnable()) {
@@ -254,21 +257,20 @@ public class MixWorker implements TaskQueue.Listener<MixWorker.Args, MixWorker.T
 		d("total: \n" + resultEvaluation.get());
 	}
 
-	private void typesetParagraph(TaskQueue.Token token,
+	private void typesetParagraph(Worker.Token token,
 								  Paragraph paragraph,
 								  int width,
-								  RenderOption option,
 								  Measurer measurer,
 								  TextAttribute textAttribute) throws Throwable {
 		measureParagraph(token, paragraph, measurer, textAttribute);
-		ParagraphTypesetWorker.Args args = ParagraphTypesetWorker.Args.obtain(paragraph, option, width);
-		WorkerScheduler.typeset().submitSync(token, args);
+		ParagraphTypesetWorker.Args args = ParagraphTypesetWorker.Args.obtain(paragraph, width);
+		WorkerScheduler.typeset().typeset(args);
 	}
 
-	private void measureParagraph(TaskQueue.Token token,
+	private void measureParagraph(Worker.Token token,
 								  Paragraph paragraph,
 								  Measurer measurer,
-								  TextAttribute textAttribute) throws TaskQueue.TokenExpiredException {
+								  TextAttribute textAttribute) throws Worker.TokenExpiredException {
 		Layout layout = paragraph.getLayout();
 		layout.clear();
 
@@ -286,7 +288,7 @@ public class MixWorker implements TaskQueue.Listener<MixWorker.Args, MixWorker.T
 		}
 
 		if (token.isExpired()) {
-			throw new TaskQueue.TokenExpiredException("stop typeset paragraph, reason: token is expired", token);
+			throw new Worker.TokenExpiredException("stop typeset paragraph, reason: token is expired", token);
 		}
 	}
 
@@ -311,9 +313,9 @@ public class MixWorker implements TaskQueue.Listener<MixWorker.Args, MixWorker.T
 		figure.resize(lineWidth, lineWidth * ratio);
 	}
 
-	public void cancel(TaskQueue.Token token) {
-		mTaskQueue.cancel(token);
-		mMessager.clear(token);
+	public void cancel(Worker.Token token) {
+		mWorker.cancel(token);
+		mMsgHandler.clear(token);
 	}
 
 	public interface Listener {

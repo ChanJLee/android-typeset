@@ -3,8 +3,11 @@ package me.chan.texas.renderer.selection;
 import static org.junit.Assert.assertNotNull;
 
 import android.graphics.Canvas;
-import android.graphics.RectF;
+
+import me.chan.texas.misc.RectF;
+
 import android.view.View;
+import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -32,6 +35,7 @@ import me.chan.texas.renderer.ui.TexasRendererAdapter;
 import me.chan.texas.renderer.ui.decor.ParagraphDecor;
 import me.chan.texas.renderer.ui.rv.TexasLayoutManager;
 import me.chan.texas.renderer.ui.rv.TexasRecyclerView;
+import me.chan.texas.renderer.ui.text.OnMeasureInterceptor;
 import me.chan.texas.renderer.ui.text.OnSelectedChangedListener;
 import me.chan.texas.renderer.ui.text.TextureParagraph;
 import me.chan.texas.test.mock.MockTextPaint;
@@ -44,7 +48,7 @@ import me.chan.texas.text.layout.Box;
 import me.chan.texas.text.layout.Layout;
 import me.chan.texas.typesetter.ParagraphTypesetter;
 import me.chan.texas.utils.TexasUtils;
-import me.chan.texas.utils.concurrency.TaskQueue;
+import me.chan.texas.utils.concurrency.Worker;
 
 public class SelectionManagerUnitTest {
 	private Document mDocument;
@@ -63,7 +67,7 @@ public class SelectionManagerUnitTest {
 
 		Measurer measurer = new MockMeasurer(textPaint);
 		TextAttribute textAttribute = new TextAttribute(measurer);
-		TexasOption texasOption = new TexasOption(new PaintSet(textPaint), Hyphenation.getInstance(), measurer, textAttribute, mRenderOption = new RenderOption());
+		TexasOption texasOption = new TexasOption(new PaintSet(textPaint), Hyphenation.getInstance(), measurer, textAttribute, mRenderOption = new RenderOption().setLineSpace(1));
 
 		Document.Builder builder = new Document.Builder();
 		List<Segment> list = new ArrayList<>();
@@ -86,7 +90,7 @@ public class SelectionManagerUnitTest {
 			}
 
 			Paragraph paragraph = (Paragraph) segment;
-			texTypesetter.typeset(paragraph, BreakStrategy.SIMPLE, 5, 1);
+			texTypesetter.typeset(paragraph, BreakStrategy.SIMPLE, 5);
 			assertNotNull(paragraph);
 			Layout layout = paragraph.getLayout();
 			Assert.assertEquals(layout.getLineCount(), 3);
@@ -591,7 +595,7 @@ public class SelectionManagerUnitTest {
 		}
 
 		@Override
-		public TaskQueue.Token getToken() {
+		public Worker.Token getToken() {
 			return null;
 		}
 
@@ -613,6 +617,21 @@ public class SelectionManagerUnitTest {
 		@Override
 		public int getHeight() {
 			return mParagraph.getLayout().getHeight();
+		}
+
+		@Override
+		public ViewGroup.LayoutParams getLayoutParams() {
+			return null;
+		}
+
+		@Override
+		public void setLayoutParams(ViewGroup.LayoutParams layoutParams) {
+
+		}
+
+		@Override
+		public void setOnMeasureInterceptor(OnMeasureInterceptor interceptor) {
+
 		}
 	}
 

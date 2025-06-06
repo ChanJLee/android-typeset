@@ -15,7 +15,11 @@ public class TextureParagraphView0Compat extends AbsTextureParagraphView {
 	private Canvas mCanvas;
 
 	public TextureParagraphView0Compat(Context context) {
-		super(context);
+		this(context, DEFAULT_RELAYOUT_PREDICATE);
+	}
+
+	public TextureParagraphView0Compat(Context context, RelayoutPredicate onSizeChangedListener) {
+		super(context, onSizeChangedListener);
 	}
 
 	@Override

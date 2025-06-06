@@ -6,26 +6,24 @@ import android.os.Looper;
 import android.os.Message;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
 
 import me.chan.texas.misc.DefaultRecyclable;
 import me.chan.texas.misc.ObjectPool;
 
-public class AndroidTaskQueue implements TaskQueue {
+@RestrictTo(RestrictTo.Scope.LIBRARY)
+public class AndroidWorker implements Worker {
 	private volatile H mHandler;
 
 	private final String mName;
 
-	public AndroidTaskQueue(String name) {
+	public AndroidWorker(String name) {
 		mName = name;
 	}
 
-	private synchronized H getHandler(boolean create) {
+	private synchronized H getHandler() {
 		if (mHandler != null) {
 			return mHandler;
-		}
-
-		if (!create) {
-			return null;
 		}
 
 		HandlerThread thread = new HandlerThread(mName);
@@ -36,26 +34,34 @@ public class AndroidTaskQueue implements TaskQueue {
 	}
 
 	@Override
-	public <A, R> void submit(Token token, @NonNull A args, @NonNull Task<A, R> task, @NonNull Listener<A, R> listener) {
+	public <A, R> void async(Token token, @NonNull A args, @NonNull Task<A, R> task) {
 		Message message = Message.obtain();
 		message.what = token.getId();
-		message.obj = Args.obtain(token, args, task, listener);
-		Handler handler = getHandler(true);
+		message.obj = Args.obtain(token, args, task);
+		Handler handler = getHandler();
 		handler.sendMessage(message);
 	}
 
 	@Override
-	public <A, R> R submitSync(Token token, @NonNull A args, @NonNull Task<A, R> task) throws Throwable {
-		return task.run(token, args);
+	public <A, R> R sync(Token token, @NonNull A args, @NonNull Task<A, R> task) throws Throwable {
+		try {
+			task.onStart(token, args);
+			R ret = task.exec(token, args);
+			task.onSuccess(token, args, ret);
+			return ret;
+		} catch (Throwable error) {
+			task.onError(token, args, error);
+			throw error;
+		}
 	}
 
 	@Override
 	public synchronized void cancel(Token token) {
-		Handler handler = getHandler(false);
-		if (handler == null) {
+		if (mHandler == null) {
 			return;
 		}
-		handler.removeMessages(token.getId());
+
+		mHandler.removeMessages(token.getId());
 	}
 
 	@Override
@@ -77,22 +83,13 @@ public class AndroidTaskQueue implements TaskQueue {
 			Args obj = (Args) msg.obj;
 			Token token = obj.token;
 
-			Listener listener = obj.listener;
-			if (listener != null) {
-				listener.onStart(token, obj.args);
-			}
-
 			Task task = obj.task;
 			Object args = obj.args;
+
 			try {
-				Object ret = submitSync(token, args, task);
-				if (listener != null) {
-					listener.onSuccess(token, args, ret);
-				}
-			} catch (Throwable throwable) {
-				if (listener != null) {
-					listener.onError(token, args, throwable);
-				}
+				sync(token, args, task);
+			} catch (Throwable ignore) {
+				/* do nothing */
 			}
 		}
 	}
@@ -100,8 +97,7 @@ public class AndroidTaskQueue implements TaskQueue {
 	public static class Args extends DefaultRecyclable {
 		private static final ObjectPool<Args> POOL = new ObjectPool<>(32);
 
-		private Task task;
-		private Listener listener;
+		private Task<?, ?> task;
 
 		private Object args;
 
@@ -113,14 +109,15 @@ public class AndroidTaskQueue implements TaskQueue {
 		@Override
 		protected void onRecycle() {
 			task = null;
-			listener = null;
 			args = null;
 			token = null;
 			POOL.release(this);
 		}
 
 		@SuppressWarnings("unchecked")
-		public static Args obtain(Token token, Object args, @NonNull Task task, @NonNull Listener listener) {
+		public static <A> Args obtain(Token token,
+									  A args,
+									  @NonNull Task<A, ?> task) {
 			Args obj = POOL.acquire();
 			if (obj == null) {
 				obj = new Args();
@@ -128,7 +125,6 @@ public class AndroidTaskQueue implements TaskQueue {
 
 			obj.token = token;
 			obj.task = task;
-			obj.listener = listener;
 			obj.args = args;
 			obj.reuse();
 			return obj;

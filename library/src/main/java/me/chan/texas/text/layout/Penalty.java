@@ -30,7 +30,7 @@ public class Penalty extends Element {
 
 		@Override
 		public float getPenalty() {
-			return -Texas.INFINITY;
+			return -Texas.INFINITY_PENALTY;
 		}
 
 		@Override
@@ -80,7 +80,7 @@ public class Penalty extends Element {
 
 		@Override
 		public float getPenalty() {
-			return Texas.INFINITY;
+			return Texas.INFINITY_PENALTY;
 		}
 
 		@Override

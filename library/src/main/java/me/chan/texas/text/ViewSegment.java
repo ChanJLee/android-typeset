@@ -2,7 +2,7 @@ package me.chan.texas.text;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
-import android.graphics.Rect;
+import me.chan.texas.misc.Rect;
 import android.view.View;
 
 import androidx.annotation.LayoutRes;

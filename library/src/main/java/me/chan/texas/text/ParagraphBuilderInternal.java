@@ -44,8 +44,6 @@ class ParagraphBuilderInternal {
 	private Object mTag;
 	private final Paragraph.SpanBuilder mSpanBuilder;
 
-	private float mLineSpace = -1;
-	private BreakStrategy mBreakStrategy;
 	private Token mLastToken;
 
 	private Glue mCommonGlue;
@@ -56,11 +54,15 @@ class ParagraphBuilderInternal {
 	}
 
 	public void lineSpace(float lineSpace) {
-		mLineSpace = lineSpace;
+		mParagraph.mLayout.getAdvise().setLineSpace(lineSpace);
 	}
 
 	public void breakStrategy(BreakStrategy breakStrategy) {
-		mBreakStrategy = breakStrategy;
+		mParagraph.mLayout.getAdvise().setBreakStrategy(breakStrategy);
+	}
+
+	public void textGravity(int gravity) {
+		mParagraph.mLayout.getAdvise().setTextGravity(gravity);
 	}
 
 	public void tag(Object tag) {
@@ -102,9 +104,6 @@ class ParagraphBuilderInternal {
 			brk();
 		}
 
-		Layout.Advise advise = mParagraph.mLayout.getAdvise();
-		advise.setLineSpace(mLineSpace);
-		advise.setBreakStrategy(mBreakStrategy);
 		mParagraph.mTag = mTag;
 		mParagraph.mId = Segment.nextId();
 		return mParagraph;
@@ -119,9 +118,7 @@ class ParagraphBuilderInternal {
 		mHyphenated.clear();
 		mTag = null;
 		mSpanBuilder.reset();
-		mLineSpace = -1;
 		mLastToken = null;
-		mBreakStrategy = null;
 		mStretchOnlyGlue = null;
 		mCommonGlue = null;
 	}
@@ -133,6 +130,7 @@ class ParagraphBuilderInternal {
 		mTextAttribute = texasOption.getTextAttribute();
 		mParagraph = Paragraph.obtain();
 		mParagraph.mLayout = Layout.obtain();
+		mParagraph.mLayout.getAdvise().copy(mRenderOption);
 		mCommonGlue = Glue.obtain(mTextAttribute);
 		mStretchOnlyGlue = Glue.obtain(
 				0, 0, mTextAttribute.getSpaceStretch(), 0
@@ -453,9 +451,7 @@ class ParagraphBuilderInternal {
 							  Appearance background,
 							  Appearance foreground) {
 		int len = end - start;
-		boolean ignoreHyphen = mBreakStrategy == BreakStrategy.SIMPLE ||
-				mRenderOption.getBreakStrategy() == BreakStrategy.SIMPLE;
-		if (ignoreHyphen || len <= MIN_HYPER_LEN) {
+		if (len <= MIN_HYPER_LEN) {
 			appendElement(TextBox.obtain(text, start, end,
 					mMeasurer,
 					textStyle,

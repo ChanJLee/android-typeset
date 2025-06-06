@@ -2,37 +2,25 @@ package me.chan.texas.renderer.core.worker;
 
 import androidx.annotation.RestrictTo;
 
-import me.chan.texas.utils.concurrency.TaskQueue;
+import me.chan.texas.utils.concurrency.Worker;
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-public class OddWorker implements TaskQueue.Listener<Runnable, Void>, TaskQueue.Task<Runnable, Void> {
+public class OddWorker {
 
-	public void submit(TaskQueue.Token token, TaskQueue taskQueue, Runnable runnable) {
-		taskQueue.submit(token, runnable, this, this);
-	}
+	private final Worker.Task<Runnable, Void> mTask = new Worker.Task<Runnable, Void>() {
 
-	@Override
-	public void onStart(TaskQueue.Token token, Runnable args) {
-
-	}
-
-	@Override
-	public void onSuccess(TaskQueue.Token token, Runnable args, Void ret) {
-
-	}
-
-	@Override
-	public void onError(TaskQueue.Token token, Runnable args, Throwable throwable) {
-
-	}
-
-	@Override
-	public Void run(TaskQueue.Token token, Runnable args) throws Throwable {
-		try {
-			args.run();
-		} catch (Throwable ignore) {
-			/* do nothing */
+		@Override
+		protected Void onExec(Worker.Token token, Runnable args) {
+			try {
+				args.run();
+			} catch (Throwable ignore) {
+				/* do nothing */
+			}
+			return null;
 		}
-		return null;
+	};
+
+	public void submit(Worker.Token token, Worker taskQueue, Runnable runnable) {
+		taskQueue.async(token, runnable, mTask);
 	}
 }

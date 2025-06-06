@@ -4,7 +4,7 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.graphics.Rect;
+import me.chan.texas.misc.Rect;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -44,7 +44,7 @@ import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.Segment;
 import me.chan.texas.text.ViewSegment;
 import me.chan.texas.text.layout.Layout;
-import me.chan.texas.utils.concurrency.TaskQueue;
+import me.chan.texas.utils.concurrency.Worker;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -95,13 +95,13 @@ public class RendererAdapterImpl extends RecyclerView.Adapter<RendererAdapterImp
 	// handler需要设置线程可见性，这样一旦释放了handler，工作线程能立马看到
 	// 滞后的消息就不会发到主线程
 	@Inject
-	@Named("MiscTask")
-	TaskQueue mMiscTaskQueue;
+	@Named("BackgroundWorker")
+	Worker mBackgroundWorker;
 
-	private final TaskQueue.Token mToken;
+	private final Worker.Token mToken;
 
 	public RendererAdapterImpl(
-			TaskQueue.Token token,
+			Worker.Token token,
 			LayoutInflater layoutInflater,
 			ImageLoader imageLoader,
 			RecyclerView.RecycledViewPool pool,
@@ -351,22 +351,17 @@ public class RendererAdapterImpl extends RecyclerView.Adapter<RendererAdapterImp
 			return;
 		}
 
-		float expectedLineSpace = renderOption.getLineSpace();
-		boolean isLineSpaceChanged = mRenderOption != null && expectedLineSpace != mRenderOption.getLineSpace();
-
 		mPaintSet.refresh(renderOption);
 		mRenderOption = renderOption;
 
-		if (isLineSpaceChanged && mDocument != null) {
+		if (mDocument != null) {
 			for (int i = 0; i < mDocument.getSegmentCount(); i++) {
 				Segment segment = mDocument.getSegment(i);
 				if (segment instanceof Paragraph) {
 					Paragraph paragraph = (Paragraph) segment;
 					Layout layout = paragraph.getLayout();
-					float lineSpace = layout.getAdvise().getLineSpace();
-					if (lineSpace < 0) {
-						layout.setLineSpace(expectedLineSpace);
-					}
+					Layout.Advise advise = layout.getAdvise();
+					advise.copy(renderOption);
 				}
 			}
 		}
@@ -379,7 +374,7 @@ public class RendererAdapterImpl extends RecyclerView.Adapter<RendererAdapterImp
 		mDocument = null;
 
 		if (prev != null) {
-			WorkerScheduler.odd().submit(mToken, mMiscTaskQueue, prev::release);
+			WorkerScheduler.odd().submit(mToken, mBackgroundWorker, prev::release);
 		}
 	}
 

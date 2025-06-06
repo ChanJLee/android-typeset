@@ -2,22 +2,19 @@ package me.chan.texas.renderer.core.sync;
 
 import android.os.Handler;
 import android.os.Looper;
-import android.os.Message;
 
-import androidx.annotation.NonNull;
+import me.chan.texas.utils.concurrency.Worker;
 
-import me.chan.texas.utils.concurrency.TaskQueue;
-
-public class AndroidWorkerMessager extends WorkerMessager {
+public class AndroidMsgHandler extends MsgHandler {
 	private final Handler mHandler;
 
-	public AndroidWorkerMessager() {
+	public AndroidMsgHandler() {
 		mHandler = new Handler(Looper.getMainLooper(), msg -> {
 			int count = mListeners.size();
 			for (int i = 0; i < count; ++i) {
 				Listener listener = mListeners.get(i);
-				WorkerMessage message = (WorkerMessage) msg.obj;
-				if (listener.handleMessage(message.getToken(), message)) {
+				Msg message = (Msg) msg.obj;
+				if (listener.handle(message.getToken(), message)) {
 					break;
 				}
 			}
@@ -26,7 +23,7 @@ public class AndroidWorkerMessager extends WorkerMessager {
 	}
 
 	@Override
-	public void send(TaskQueue.Token token, WorkerMessage message) {
+	public void send(Worker.Token token, Msg message) {
 		android.os.Message msg = android.os.Message.obtain();
 		msg.what = token.getId();
 		msg.obj = message;
@@ -35,7 +32,7 @@ public class AndroidWorkerMessager extends WorkerMessager {
 	}
 
 	@Override
-	public void clear(TaskQueue.Token token) {
+	public void clear(Worker.Token token) {
 		mHandler.removeMessages(token.getId());
 	}
 }

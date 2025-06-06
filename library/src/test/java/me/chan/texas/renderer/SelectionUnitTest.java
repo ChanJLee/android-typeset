@@ -1,6 +1,6 @@
 package me.chan.texas.renderer;
 
-import android.graphics.RectF;
+import me.chan.texas.misc.RectF;
 
 import androidx.annotation.NonNull;
 
@@ -45,6 +45,7 @@ public class SelectionUnitTest {
 	@Test
 	public void testParagraphSelection() throws ParagraphVisitor.VisitException {
 		RenderOption renderOption = new RenderOption();
+		renderOption.setLineSpace(1);
 
 		TexasOption texasOption = new TexasOption(mPaintSet, Hyphenation.getInstance(), mMeasurer, mTextAttribute, renderOption);
 		Paragraph.Builder builder = Paragraph.Builder.newBuilder(texasOption);
@@ -59,7 +60,7 @@ public class SelectionUnitTest {
 
 		ParagraphTypesetter texTypesetter = new ParagraphTypesetter();
 		Paragraph paragraph = builder.build();
-		texTypesetter.typeset(paragraph, BreakStrategy.SIMPLE, 10, 1);
+		texTypesetter.typeset(paragraph, BreakStrategy.SIMPLE, 10);
 
 		ParagraphSelection paragraphSelection = ParagraphSelection.obtain(Selection.Type.SELECTION, Selection.Styles.createFromTouch(renderOption, true), paragraph);
 

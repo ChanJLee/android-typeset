@@ -12,6 +12,7 @@ import me.chan.texas.Texas;
 import me.chan.texas.text.BreakStrategy;
 import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.layout.Layout;
+import me.chan.texas.text.layout.Line;
 import me.chan.texas.typesetter.simple.SimpleParagraphTypesetter;
 import me.chan.texas.typesetter.tex.TexParagraphTypesetter;
 import me.chan.texas.typesetter.tex.TexParagraphTypesetterCompat;
@@ -35,22 +36,41 @@ public class ParagraphTypesetter {
 	 * @param paragraph     要排版的段落
 	 * @param breakStrategy 排版策略
 	 * @param width         排版的宽度
-	 * @param lineSpace
 	 * @return 排版是否成功
 	 */
-	public boolean typeset(Paragraph paragraph, BreakStrategy breakStrategy, int width, float lineSpace) {
+	public boolean typeset(Paragraph paragraph, BreakStrategy breakStrategy, int width) {
 		if (width <= 0) {
-			throw new IllegalArgumentException("width must be positive: " + width);
+			Log.w("ParagraphTypesetter", "width must be positive");
+			return false;
 		}
 
 		if (typeset0(paragraph, breakStrategy, width)) {
 			Layout layout = paragraph.getLayout();
-			layout.setLineWidth(width);
-			layout.setLineSpace(lineSpace);
+			layout.setWidth(width);
 			return true;
 		}
 
 		return false;
+	}
+
+	/**
+	 * @param paragraph     要排版的段落
+	 * @param breakStrategy 排版策略
+	 * @return 排版是否成功
+	 */
+	public boolean desire(Paragraph paragraph, BreakStrategy breakStrategy) {
+		if (!typeset0(paragraph, breakStrategy, AbsParagraphTypesetter.INFINITY_WIDTH)) {
+			return false;
+		}
+
+		Layout layout = paragraph.getLayout();
+		float actualWidth = 0;
+		for (int i = 0; i < layout.getLineCount(); ++i) {
+			Line line = layout.getLine(i);
+			actualWidth = Math.max(line.getLineWidth(), actualWidth);
+		}
+		layout.setWidth((int) Math.ceil(actualWidth));
+		return true;
 	}
 
 	private boolean typeset0(Paragraph paragraph, BreakStrategy breakStrategy, int width) {

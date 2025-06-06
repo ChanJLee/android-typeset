@@ -7,27 +7,47 @@ import androidx.annotation.RestrictTo;
 
 import me.chan.texas.misc.DefaultRecyclable;
 import me.chan.texas.misc.ObjectPool;
-import me.chan.texas.renderer.core.sync.WorkerMessager;
+import me.chan.texas.renderer.core.sync.MsgHandler;
 import me.chan.texas.source.Source;
 import me.chan.texas.text.Paragraph;
-import me.chan.texas.utils.concurrency.TaskQueue;
+import me.chan.texas.utils.concurrency.Worker;
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-public class ParseWorker implements TaskQueue.Task<ParseWorker.Args, Paragraph>, TaskQueue.Listener<ParseWorker.Args, Paragraph> {
+public class ParseWorker {
 	private static final int TYPE_SUCCESS = 1;
 	private static final int TYPE_ERROR = 2;
 
-	private final TaskQueue mTaskQueue;
-	private final WorkerMessager mMessager;
+	private final Worker mWorker;
+	private final MsgHandler mMsgHandler;
+	private final Worker.Task<ParseWorker.Args, Paragraph> mTask = new Worker.Task<Args, Paragraph>() {
+		@Override
+		public void onSuccess(Worker.Token token, Args args, Paragraph ret) {
+			MsgHandler.Msg message = MsgHandler.Msg.obtain(TYPE_SUCCESS, args, ret);
+			mMsgHandler.send(token, message);
+		}
 
-	public ParseWorker(TaskQueue taskQueue, WorkerMessager messager) {
-		mTaskQueue = taskQueue;
-		mMessager = messager;
-		mMessager.addListener((token, value) -> {
+		@Override
+		public void onError(Worker.Token token, Args args, Throwable error) {
+			Log.w("ParseWorker", error);
+			MsgHandler.Msg message = MsgHandler.Msg.obtain(TYPE_ERROR, args, error);
+			mMsgHandler.send(token, message);
+		}
+
+		@Override
+		protected Paragraph onExec(Worker.Token token, Args args) throws Throwable {
+			return args.source.read();
+		}
+	};
+
+	public ParseWorker(Worker worker, MsgHandler msgHandler) {
+		mWorker = worker;
+		mMsgHandler = msgHandler;
+		mMsgHandler.addListener((token, value) -> {
 			Args args = value.asArg(Args.class);
 			if (args == null) {
 				return false;
 			}
+
 			switch (value.type()) {
 				case TYPE_SUCCESS:
 					if (args.listener != null) {
@@ -45,35 +65,12 @@ public class ParseWorker implements TaskQueue.Task<ParseWorker.Args, Paragraph>,
 		});
 	}
 
-	public void submit(TaskQueue.Token token, Args args) {
-		mTaskQueue.submit(token, args, this, this);
+	public void submit(Worker.Token token, Args args) {
+		mWorker.async(token, args, mTask);
 	}
 
-	public Paragraph submitSync(TaskQueue.Token token, Args args) throws Throwable {
-		return mTaskQueue.submitSync(token, args, this);
-	}
-
-	@Override
-	public void onStart(TaskQueue.Token token, Args args) {
-		/* do nothing */
-	}
-
-	@Override
-	public void onSuccess(TaskQueue.Token token, Args args, Paragraph ret) {
-		WorkerMessager.WorkerMessage message = WorkerMessager.WorkerMessage.obtain(TYPE_SUCCESS, args, ret);
-		mMessager.send(token, message);
-	}
-
-	@Override
-	public void onError(TaskQueue.Token token, Args args, Throwable throwable) {
-		Log.w("ParseWorker", throwable);
-		WorkerMessager.WorkerMessage message = WorkerMessager.WorkerMessage.obtain(TYPE_ERROR, args, throwable);
-		mMessager.send(token, message);
-	}
-
-	@Override
-	public Paragraph run(TaskQueue.Token token, Args args) throws Throwable {
-		return args.source.read();
+	public Paragraph submitSync(Worker.Token token, Args args) throws Throwable {
+		return mWorker.sync(token, args, mTask);
 	}
 
 	public interface Listener {

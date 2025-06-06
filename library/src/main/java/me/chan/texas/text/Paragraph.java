@@ -2,7 +2,7 @@ package me.chan.texas.text;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
-import android.graphics.Rect;
+import me.chan.texas.misc.Rect;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
@@ -254,6 +254,11 @@ public final class Paragraph extends DefaultRecyclable implements Segment {
 
 		public Builder breakStrategy(BreakStrategy breakStrategy) {
 			mBuilder0.breakStrategy(breakStrategy);
+			return this;
+		}
+
+		public Builder textGravity(int gravity) {
+			mBuilder0.textGravity(gravity);
 			return this;
 		}
 

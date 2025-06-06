@@ -1,6 +1,6 @@
 package me.chan.texas.typesetter;
 
-import android.graphics.Rect;
+import me.chan.texas.misc.Rect;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.text.TextPaint;

@@ -340,13 +340,14 @@ public class Line extends DefaultRecyclable {
 			}
 
 			float totalWidth = glueWidth + boxWidth;
-			line.setLineWidth(lineWidth);
 			line.setLineHeight(lineHeight);
 			if (breakStrategy == BreakStrategy.SIMPLE) {
+				line.setLineWidth(totalWidth);
 				line.setRatio(0);
 				return;
 			}
 
+			line.setLineWidth(lineWidth);
 			float ratio = 0;
 			if (totalWidth == lineWidth) {
 				ratio = 0;

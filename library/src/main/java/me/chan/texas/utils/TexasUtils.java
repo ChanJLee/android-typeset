@@ -4,8 +4,6 @@ import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.res.Resources;
 import android.graphics.Point;
-import android.graphics.Rect;
-import android.graphics.RectF;
 import android.graphics.Typeface;
 import android.text.GetChars;
 import android.text.TextPaint;
@@ -18,6 +16,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 
 import me.chan.texas.compat.TextPaintCompat;
+import me.chan.texas.misc.Rect;
+import me.chan.texas.misc.RectF;
 import me.chan.texas.renderer.RenderOption;
 import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.layout.Layout;
@@ -382,6 +382,13 @@ public class TexasUtils {
 		dest.right = src.right;
 	}
 
+	public static void copyRect(android.graphics.Rect dest, Rect src) {
+		dest.top = src.top;
+		dest.bottom = src.bottom;
+		dest.left = src.left;
+		dest.right = src.right;
+	}
+
 	public static void copyRect(RectF dest, RectF src) {
 		dest.top = src.top;
 		dest.bottom = src.bottom;
@@ -411,7 +418,7 @@ public class TexasUtils {
 	 * @param a The first rectangle being tested for intersection
 	 * @param b The second rectangle being tested for intersection
 	 * @return true iff the two specified rectangles intersect. In no event are
-	 *              either of the rectangles modified.
+	 * either of the rectangles modified.
 	 */
 	public static boolean intersects(@NonNull RectF a, @NonNull RectF b) {
 		return a.left < b.right && b.left < a.right
