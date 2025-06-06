@@ -95,8 +95,8 @@ public class RendererAdapterImpl extends RecyclerView.Adapter<RendererAdapterImp
 	// handler需要设置线程可见性，这样一旦释放了handler，工作线程能立马看到
 	// 滞后的消息就不会发到主线程
 	@Inject
-	@Named("MiscTask")
-	Worker mMiscTaskQueue;
+	@Named("BackgroundWorker")
+	Worker mBackgroundWorker;
 
 	private final Worker.Token mToken;
 
@@ -374,7 +374,7 @@ public class RendererAdapterImpl extends RecyclerView.Adapter<RendererAdapterImp
 		mDocument = null;
 
 		if (prev != null) {
-			WorkerScheduler.odd().submit(mToken, mMiscTaskQueue, prev::release);
+			WorkerScheduler.odd().submit(mToken, mBackgroundWorker, prev::release);
 		}
 	}
 
