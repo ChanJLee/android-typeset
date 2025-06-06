@@ -111,6 +111,7 @@ public class RenderOptionUnitTest {
 
 	@Test
 	public void testTextGravity() {
+		Assert.assertEquals(TextGravity.TOP | TextGravity.START, RenderOption.adviceTextGravityMask(0));
 		Assert.assertEquals(TextGravity.TOP | TextGravity.START, RenderOption.adviceTextGravityMask(TextGravity.TOP));
 		Assert.assertEquals(TextGravity.TOP | TextGravity.START, RenderOption.adviceTextGravityMask(TextGravity.START));
 
