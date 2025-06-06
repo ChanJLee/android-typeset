@@ -63,21 +63,16 @@ public abstract class ParagraphVisitor {
 			onVisitParagraphStart(paragraph);
 			Layout layout = paragraph.getLayout();
 			int end = layout.getLineCount();
-			RectF lineRect = null;
+			layout.prepareGetLineBoundsIncremental(mLineRect);
 			for (int i = 0; i < end && mVisitSig != SIG_STOP_PARA_VISIT; ++i) {
 				Line line = layout.getLine(i);
-				if (lineRect != null) {
-					layout.getLineBoundsIncremental(i, lineRect);
-				} else {
-					lineRect = mLineRect;
-					layout.getLineBounds(i, lineRect);
-				}
+				layout.getLineBoundsIncremental(i, mLineRect);
 
 				mTypesetContext.clear();
 				mTypesetContext.setParagraphLocationAttribute(RendererContext.LOCATION_PARAGRAPH_START, i == 0);
 				mTypesetContext.setParagraphLocationAttribute(RendererContext.LOCATION_PARAGRAPH_END, i == end - 1);
 
-				visitLine(line, lineRect.left, lineRect.bottom);
+				visitLine(line, mLineRect.left, mLineRect.bottom);
 			}
 			onVisitParagraphEnd(paragraph);
 		} catch (Throwable throwable) {
