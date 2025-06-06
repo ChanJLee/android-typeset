@@ -27,19 +27,13 @@ import me.chan.texas.utils.concurrency.Worker;
 public class WorkerScheduler {
 	private static volatile WorkerScheduler sInstance;
 
-	// handler需要设置线程可见性，这样一旦释放了handler，工作线程能立马看到
-	// 滞后的消息就不会发到主线程
 	@Inject
-	@Named("MiscTask")
-	Worker mMiscWorker;
-
-	@Inject
-	@Named("RendererTask")
+	@Named("RendererWorker")
 	Worker mRendererWorker;
 
 	@Inject
-	@Named("ComputeTask")
-	Worker mComputeWorker;
+	@Named("BackgroundWorker")
+	Worker mBackgroundWorker;
 
 	@Inject
 	MsgHandler mMsgHandler;
@@ -59,10 +53,10 @@ public class WorkerScheduler {
 
 		mRenderWorker = new RenderWorker(mRendererWorker, mMsgHandler);
 		mTypesetWorker = new ParagraphTypesetWorker();
-		mParseWorker = new ParseWorker(mMiscWorker, mMsgHandler);
+		mParseWorker = new ParseWorker(mBackgroundWorker, mMsgHandler);
 		mOddWorker = new OddWorker();
-		mMixWorker = new MixWorker(mComputeWorker, mMsgHandler);
-		mLoadingWorker = new LoadingWorker(mComputeWorker, mMsgHandler);
+		mMixWorker = new MixWorker(mBackgroundWorker, mMsgHandler);
+		mLoadingWorker = new LoadingWorker(mBackgroundWorker, mMsgHandler);
 	}
 
 	private static synchronized WorkerScheduler getInstance() {
@@ -113,11 +107,11 @@ public class WorkerScheduler {
 		if (type == TASK_QUEUE_RENDER) {
 			return getInstance().mRendererWorker;
 		} else if (type == TASK_QUEUE_TYPESET) {
-			return getInstance().mMiscWorker;
+			return getInstance().mBackgroundWorker;
 		} else if (type == TASK_QUEUE_PARSE) {
-			return getInstance().mMiscWorker;
+			return getInstance().mBackgroundWorker;
 		} else if (type == TASK_QUEUE_COMPUTE) {
-			return getInstance().mComputeWorker;
+			return getInstance().mBackgroundWorker;
 		}
 
 		throw new IllegalArgumentException("unknown task queue type");
@@ -125,9 +119,9 @@ public class WorkerScheduler {
 
 	public static void cancelAll(Worker.Token token) {
 		WorkerScheduler scheduler = getInstance();
-		scheduler.mMiscWorker.cancel(token);
+		scheduler.mBackgroundWorker.cancel(token);
 		scheduler.mRendererWorker.cancel(token);
-		scheduler.mComputeWorker.cancel(token);
+		scheduler.mBackgroundWorker.cancel(token);
 		scheduler.mMsgHandler.clear(token);
 	}
 }

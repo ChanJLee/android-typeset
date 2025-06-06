@@ -6,6 +6,7 @@ import me.chan.texas.TestUtils;
 import me.chan.texas.renderer.RenderOption;
 import me.chan.texas.text.BreakStrategy;
 import me.chan.texas.text.HyphenStrategy;
+import me.chan.texas.text.TextGravity;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -106,5 +107,15 @@ public class RenderOptionUnitTest {
 		Assert.assertNotEquals(renderOption.getLoadingBackgroundColor(), copy.getLoadingBackgroundColor());
 		Assert.assertNotEquals(renderOption.isDrawEmoticonSelection(), copy.isDrawEmoticonSelection());
 		Assert.assertNotEquals(renderOption, copy);
+	}
+
+	@Test
+	public void testTextGravity() {
+		Assert.assertEquals(TextGravity.TOP | TextGravity.START, RenderOption.adviceTextGravityMask(TextGravity.TOP));
+		Assert.assertEquals(TextGravity.TOP | TextGravity.START, RenderOption.adviceTextGravityMask(TextGravity.START));
+
+		Assert.assertEquals(TextGravity.BOTTOM | TextGravity.END, RenderOption.adviceTextGravityMask(TextGravity.BOTTOM | TextGravity.END));
+		Assert.assertEquals(TextGravity.END | TextGravity.CENTER_VERTICAL, RenderOption.adviceTextGravityMask(TextGravity.END | TextGravity.BOTTOM | TextGravity.CENTER_VERTICAL));
+		Assert.assertEquals(TextGravity.BOTTOM | TextGravity.CENTER_HORIZONTAL, RenderOption.adviceTextGravityMask(TextGravity.BOTTOM | TextGravity.END | TextGravity.CENTER_HORIZONTAL));
 	}
 }

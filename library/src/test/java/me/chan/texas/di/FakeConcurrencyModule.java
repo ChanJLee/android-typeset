@@ -31,19 +31,13 @@ public class FakeConcurrencyModule {
 	}
 
 	@Provides
-	@Named("MiscTask")
-	public Worker provideMiscTaskQueue() {
-		return new MockTaskQueue();
-	}
-
-	@Provides
-	@Named("RendererTask")
+	@Named("RendererWorker")
 	public Worker provideRendererTaskQueue() {
 		return new MockTaskQueue();
 	}
 
 	@Provides
-	@Named("ComputeTask")
+	@Named("BackgroundWorker")
 	public Worker provideComputeQueue() {
 		return new MockTaskQueue();
 	}
