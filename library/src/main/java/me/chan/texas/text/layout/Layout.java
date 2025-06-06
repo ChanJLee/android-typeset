@@ -6,6 +6,7 @@ import static me.chan.texas.text.Paragraph.TYPESET_POLICY_CJK_MIX_OPTIMIZATION;
 import static me.chan.texas.text.Paragraph.TYPESET_POLICY_DEFAULT;
 
 import me.chan.texas.misc.Rect;
+
 import android.text.TextUtils;
 
 import androidx.annotation.RestrictTo;
@@ -146,7 +147,8 @@ public class Layout extends DefaultRecyclable {
 	public int getPaddingTop() {
 		Rect rect = getRect();
 		int top = rect == null ? 0 : rect.top;
-		if (getLineCount() != 0) {
+		int lineCount = getLineCount();
+		if (lineCount != 0) {
 			Line line = getLine(0);
 			top += line.getTopPadding();
 		}
@@ -157,11 +159,20 @@ public class Layout extends DefaultRecyclable {
 	public int getPaddingBottom() {
 		Rect rect = getRect();
 		int bottom = rect == null ? 0 : rect.bottom;
-		if (getLineCount() != 0) {
-			Line line = getLine(getLineCount() - 1);
+		int lineCount = getLineCount();
+		if (lineCount != 0) {
+			Line line = getLine(lineCount - 1);
 			bottom += line.getBottomPadding();
 		}
 		return bottom;
+	}
+
+	@RestrictTo(LIBRARY)
+	public void prepareGetLineBoundsIncremental(RectF bounds) {
+		bounds.left = getPaddingLeft();
+		bounds.right = bounds.left + mWidth;
+		bounds.top = 0;
+		bounds.bottom = getPaddingTop() - getLineSpace();
 	}
 
 	@RestrictTo(LIBRARY)
@@ -169,6 +180,7 @@ public class Layout extends DefaultRecyclable {
 		if (index < 0 || index >= getLineCount()) {
 			return;
 		}
+
 		Line line = getLine(index);
 		getLineHorizontalBounds(line, bounds);
 		bounds.top = bounds.bottom + getLineSpace();
