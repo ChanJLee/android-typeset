@@ -2,6 +2,7 @@ package me.chan.texas.renderer.ui.text;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -16,11 +17,11 @@ import me.chan.texas.renderer.SpanTouchEventHandler;
 import me.chan.texas.renderer.ui.decor.ParagraphDecor;
 import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.layout.Layout;
-import me.chan.texas.utils.concurrency.TaskQueue;
+import me.chan.texas.utils.concurrency.Worker;
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public abstract class AbsTextureParagraphView extends View implements TextureParagraph {
-	private final TaskQueue.Token mToken = TaskQueue.Token.newInstance();
+	private final Worker.Token mToken = Worker.Token.newInstance();
 
 	protected RenderOption mRenderOption;
 	protected Paragraph mParagraph;
@@ -28,10 +29,18 @@ public abstract class AbsTextureParagraphView extends View implements TexturePar
 	protected ParagraphDecor mParagraphDecor;
 	@NonNull
 	private final ParagraphViewMotion mParagraphViewMotion;
+	private final RelayoutPredicate mRelayoutPredicate;
+	protected static final RelayoutPredicate DEFAULT_RELAYOUT_PREDICATE = (view, paragraph) -> true;
+	private OnMeasureInterceptor mOnMeasureInterceptor;
 
 	public AbsTextureParagraphView(Context context) {
+		this(context, DEFAULT_RELAYOUT_PREDICATE);
+	}
+
+	public AbsTextureParagraphView(Context context, RelayoutPredicate relayoutPredicate) {
 		super(context);
 		mParagraphViewMotion = new ParagraphViewMotion(context, this);
+		mRelayoutPredicate = relayoutPredicate;
 	}
 
 	@Override
@@ -45,10 +54,36 @@ public abstract class AbsTextureParagraphView extends View implements TexturePar
 		return mParagraphViewMotion.onTouchEvent(event);
 	}
 
+	public void setOnMeasureInterceptor(OnMeasureInterceptor onMeasureInterceptor) {
+		mOnMeasureInterceptor = onMeasureInterceptor;
+	}
+
 	@Override
 	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-		int heightMode = 0;
-		if (mParagraph != null && (heightMode = MeasureSpec.getMode(heightMeasureSpec)) != MeasureSpec.EXACTLY) {
+		if (ParagraphView.DEBUG) {
+			Log.d("AbsParagraphView", "onMeasure: widthMeasureSpec = " + MeasureSpec.toString(widthMeasureSpec) +
+					", heightMeasureSpec = " + MeasureSpec.toString(heightMeasureSpec));
+		}
+
+		OnMeasureInterceptor.MeasureSpecs measureSpecs = onInterceptMeasure(widthMeasureSpec, heightMeasureSpec);
+		if (measureSpecs != null) {
+			super.onMeasure(measureSpecs.widthSpec, measureSpecs.heightSpec);
+			if (ParagraphView.DEBUG) {
+				Log.d("AbsParagraphView", "onMeasure from onInterceptMeasure: width = " + getMeasuredWidth() + " height = " + getMeasuredHeight());
+			}
+			return;
+		}
+
+		if (mParagraph == null) {
+			super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+			if (ParagraphView.DEBUG) {
+				Log.d("AbsParagraphView", "onMeasure: width = " + getMeasuredWidth() + " height = " + getMeasuredHeight());
+			}
+			return;
+		}
+
+		int heightMode = MeasureSpec.getMode(heightMeasureSpec);
+		if (heightMode != MeasureSpec.EXACTLY) {
 			int height = mParagraph.getLayout().getHeight();
 			if (heightMode == MeasureSpec.AT_MOST) {
 				height = Math.min(height, MeasureSpec.getSize(heightMeasureSpec));
@@ -59,6 +94,26 @@ public abstract class AbsTextureParagraphView extends View implements TexturePar
 			);
 		}
 		super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+
+		if (ParagraphView.DEBUG) {
+			Log.d("AbsParagraphView", "onMeasure: width = " + getMeasuredWidth() + " height = " + getMeasuredHeight());
+		}
+	}
+
+	private OnMeasureInterceptor.MeasureSpecs mMeasureSpecs;
+
+	private OnMeasureInterceptor.MeasureSpecs onInterceptMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+		if (mOnMeasureInterceptor == null) {
+			return null;
+		}
+
+		if (mMeasureSpecs == null) {
+			mMeasureSpecs = new OnMeasureInterceptor.MeasureSpecs();
+		}
+
+		mMeasureSpecs.widthSpec = widthMeasureSpec;
+		mMeasureSpecs.heightSpec = heightMeasureSpec;
+		return mOnMeasureInterceptor.onMeasure(mMeasureSpecs) ? mMeasureSpecs : null;
 	}
 
 	@Override
@@ -81,9 +136,16 @@ public abstract class AbsTextureParagraphView extends View implements TexturePar
 
 		// request layout
 		Layout layout = mParagraph.getLayout();
-		boolean relayout = getWidth() != layout.getWidth() || getHeight() != layout.getHeight();
-		if (relayout) {
+		int width = layout.getWidth();
+		int height = layout.getHeight();
+		int windowWidth = getWidth();
+		int windowHeight = getHeight();
+		boolean sizeChanged = width != windowWidth || height != windowHeight;
+		if (sizeChanged && mRelayoutPredicate.apply(this, mParagraph)) {
 			// 尽可能减少 requestLayout 的调用
+			if (ParagraphView.DEBUG) {
+				Log.d("AbsParagraphView", "scheduleRender, requestLayout, width = " + width + ", height = " + height + ", windowWidth = " + windowWidth + ", windowHeight = " + windowHeight);
+			}
 			requestLayout();
 		}
 	}
@@ -113,12 +175,22 @@ public abstract class AbsTextureParagraphView extends View implements TexturePar
 	protected abstract void onRender();
 
 	@Override
-	public TaskQueue.Token getToken() {
+	public Worker.Token getToken() {
 		return mToken;
 	}
 
 	@Override
 	public Paragraph getParagraph() {
 		return mParagraph;
+	}
+
+	public interface RelayoutPredicate {
+
+		/**
+		 * @param view      当前的view
+		 * @param paragraph 新的paragraph
+		 * @return true 表示需要重新布局，false 表示不需要重新布局
+		 */
+		boolean apply(AbsTextureParagraphView view, Paragraph paragraph);
 	}
 }

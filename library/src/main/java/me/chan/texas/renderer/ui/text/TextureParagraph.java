@@ -1,6 +1,7 @@
 package me.chan.texas.renderer.ui.text;
 
 import android.graphics.Canvas;
+import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -11,7 +12,7 @@ import me.chan.texas.renderer.RenderOption;
 import me.chan.texas.renderer.SpanTouchEventHandler;
 import me.chan.texas.renderer.ui.decor.ParagraphDecor;
 import me.chan.texas.text.Paragraph;
-import me.chan.texas.utils.concurrency.TaskQueue;
+import me.chan.texas.utils.concurrency.Worker;
 
 /**
  * 段落渲染器
@@ -57,7 +58,7 @@ public interface TextureParagraph {
 	/**
 	 * @return 用于标识一个渲染对象
 	 */
-	TaskQueue.Token getToken();
+	Worker.Token getToken();
 
 	/**
 	 * 通知刷新UI
@@ -72,4 +73,10 @@ public interface TextureParagraph {
 	void clear();
 
 	int getHeight();
+
+	ViewGroup.LayoutParams getLayoutParams();
+
+	void setLayoutParams(ViewGroup.LayoutParams layoutParams);
+
+	void setOnMeasureInterceptor(OnMeasureInterceptor interceptor);
 }

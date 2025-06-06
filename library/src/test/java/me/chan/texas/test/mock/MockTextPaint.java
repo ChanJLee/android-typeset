@@ -1,6 +1,5 @@
 package me.chan.texas.test.mock;
 
-import android.graphics.Rect;
 import android.text.TextPaint;
 
 public class MockTextPaint extends TextPaint {
@@ -33,8 +32,7 @@ public class MockTextPaint extends TextPaint {
 		return new FontMetrics();
 	}
 
-	@Override
-	public void getTextBounds(String text, int start, int end, Rect bounds) {
+	public void getTextBounds(String text, int start, int end, me.chan.texas.misc.Rect bounds) {
 		bounds.left = bounds.top = 0;
 		bounds.right = (end - start) * getMockTextSize();
 		bounds.bottom = getMockTextHeight();

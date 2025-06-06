@@ -5,7 +5,7 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.Color;
-import android.graphics.Rect;
+import me.chan.texas.misc.Rect;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
@@ -51,14 +51,15 @@ import me.chan.texas.text.Document;
 import me.chan.texas.text.HyphenStrategy;
 import me.chan.texas.text.Segment;
 import me.chan.texas.text.TextAttribute;
+import me.chan.texas.text.TextGravity;
 import me.chan.texas.utils.TexasUtils;
-import me.chan.texas.utils.concurrency.TaskQueue;
+import me.chan.texas.utils.concurrency.Worker;
 
 /**
  * 渲染引擎入口视图
  */
 public final class TexasView extends FrameLayout {
-	private final TaskQueue.Token mToken = TaskQueue.Token.newInstance();
+	private final Worker.Token mToken = Worker.Token.newInstance();
 	/**
 	 * 非正常下标
 	 */
@@ -318,6 +319,10 @@ public final class TexasView extends FrameLayout {
 		renderOption.setDragToSelectEnable(
 				typedArray.getBoolean(R.styleable.me_chan_texas_TexasView_me_chan_texas_TexasView_dragToSelectionEnable, true)
 		);
+
+		// 文字居中形式
+		int textGravity = typedArray.getInt(R.styleable.me_chan_texas_TexasView_me_chan_texas_TexasView_textGravity, TextGravity.TOP | TextGravity.START);
+		renderOption.setTextGravity(textGravity);
 
 		mRenderer = new Renderer(this, renderOption, mToken);
 	}

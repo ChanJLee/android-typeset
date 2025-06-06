@@ -4,7 +4,6 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
 import android.graphics.Canvas;
 import android.graphics.Paint;
-import android.graphics.RectF;
 import android.text.TextPaint;
 
 import androidx.annotation.MainThread;
@@ -21,6 +20,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import me.chan.texas.misc.BitBucket;
 import me.chan.texas.misc.DefaultRecyclable;
 import me.chan.texas.misc.ObjectPool;
+import me.chan.texas.misc.RectF;
 import me.chan.texas.renderer.ParagraphVisitor;
 import me.chan.texas.renderer.RenderOption;
 import me.chan.texas.renderer.RendererContext;
@@ -196,6 +196,12 @@ public class ParagraphSelection extends DefaultRecyclable {
 		return mBackgrounds.get(mBackgrounds.size() - 1);
 	}
 
+	@RestrictTo(LIBRARY)
+	@VisibleForTesting
+	public List<RectF> getBackgrounds() {
+		return mBackgrounds;
+	}
+
 	@Nullable
 	public Box getFirstBox() {
 		return mFirst;
@@ -228,13 +234,13 @@ public class ParagraphSelection extends DefaultRecyclable {
 		paint.setColor(mStyle.mBackgroundColor);
 		if (radius <= 0) {
 			for (RectF rectF : mBackgrounds) {
-				canvas.drawRect(rectF, paint);
+				canvas.drawRect(rectF.left, rectF.top, rectF.right, rectF.bottom, paint);
 			}
 			return;
 		}
 
 		for (RectF rectF : mBackgrounds) {
-			canvas.drawRoundRect(rectF, radius, radius, paint);
+			canvas.drawRoundRect(rectF.left, rectF.top, rectF.right, rectF.bottom, radius, radius, paint);
 		}
 	}
 

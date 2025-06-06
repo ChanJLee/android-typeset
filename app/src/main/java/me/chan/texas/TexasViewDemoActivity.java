@@ -5,8 +5,8 @@ import android.animation.ValueAnimator;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.Rect;
-import android.graphics.RectF;
+import me.chan.texas.misc.Rect;
+import me.chan.texas.misc.RectF;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -226,7 +226,7 @@ public class TexasViewDemoActivity extends AppCompatActivity {
 		ParagraphDecor paragraphDecor = new ParagraphDecor() {
 			private boolean mClicked = false;
 			private boolean mDraw = false;
-			private final Rect mDest = new Rect();
+			private final android.graphics.Rect mDest = new android.graphics.Rect();
 
 			@Override
 			protected void onStartLayoutParagraph(Paragraph paragraph, Rect viewportOuter, Rect viewportInner) {
@@ -388,14 +388,14 @@ public class TexasViewDemoActivity extends AppCompatActivity {
 			}
 		});
 
-		findViewById(me.chan.texas.debug.R.id.button2).setOnClickListener(new View.OnClickListener() {
+		findViewById(me.chan.texas.debug.R.id.basetest).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				render("harry2.txt", mTexasView);
 			}
 		});
 
-		findViewById(me.chan.texas.debug.R.id.button3).setOnClickListener(new View.OnClickListener() {
+		findViewById(me.chan.texas.debug.R.id.raw_paragraph_view).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				render("harry3.txt", mTexasView);

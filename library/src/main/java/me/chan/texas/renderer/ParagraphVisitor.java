@@ -1,11 +1,10 @@
 package me.chan.texas.renderer;
 
-import android.graphics.RectF;
-
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 
+import me.chan.texas.misc.RectF;
 import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.layout.Box;
 import me.chan.texas.text.layout.Element;
@@ -22,6 +21,7 @@ public abstract class ParagraphVisitor {
 
 	private final RectF mInnerRect = new RectF();
 	private final RectF mOuterRect = new RectF();
+	private final RectF mLineRect = new RectF();
 	private int mVisitSig = SIG_NORMAL;
 
 	/**
@@ -43,27 +43,36 @@ public abstract class ParagraphVisitor {
 
 	}
 
+	public static String sigToString(@VisitSig int sig) {
+		switch (sig) {
+			case SIG_NORMAL:
+				return "SIG_NORMAL";
+			case SIG_STOP_LINE_VISIT:
+				return "SIG_STOP_LINE_VISIT";
+			case SIG_STOP_PARA_VISIT:
+				return "SIG_STOP_PARA_VISIT";
+			default:
+				return "unknown sig";
+		}
+	}
+
 	private final RendererContext mTypesetContext = new RendererContext();
 
 	public void visit(Paragraph paragraph) throws VisitException {
 		try {
 			onVisitParagraphStart(paragraph);
 			Layout layout = paragraph.getLayout();
-			float x = layout.getPaddingLeft();
-			float y = layout.getPaddingTop();
 			int end = layout.getLineCount();
+			layout.prepareGetLineBoundsIncremental(mLineRect);
 			for (int i = 0; i < end && mVisitSig != SIG_STOP_PARA_VISIT; ++i) {
 				Line line = layout.getLine(i);
-				y += line.getLineHeight();
+				layout.getLineBoundsIncremental(i, mLineRect);
 
 				mTypesetContext.clear();
 				mTypesetContext.setParagraphLocationAttribute(RendererContext.LOCATION_PARAGRAPH_START, i == 0);
 				mTypesetContext.setParagraphLocationAttribute(RendererContext.LOCATION_PARAGRAPH_END, i == end - 1);
 
-				visitLine(line, x, y);
-
-				float lineSpace = layout.getLineSpace();
-				y += lineSpace;
+				visitLine(line, mLineRect.left, mLineRect.bottom);
 			}
 			onVisitParagraphEnd(paragraph);
 		} catch (Throwable throwable) {

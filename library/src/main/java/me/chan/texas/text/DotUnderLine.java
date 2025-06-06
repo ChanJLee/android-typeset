@@ -5,7 +5,8 @@ import android.graphics.DashPathEffect;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.PathEffect;
-import android.graphics.RectF;
+
+import me.chan.texas.misc.RectF;
 
 import me.chan.texas.renderer.RendererContext;
 

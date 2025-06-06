@@ -1,6 +1,6 @@
 package me.chan.texas.renderer.ui.decor;
 
-import android.graphics.Rect;
+import me.chan.texas.misc.Rect;
 
 import me.chan.texas.renderer.ParagraphVisitor;
 import me.chan.texas.text.Paragraph;

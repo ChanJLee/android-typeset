@@ -5,15 +5,21 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import static me.chan.texas.text.Paragraph.TYPESET_POLICY_CJK_MIX_OPTIMIZATION;
 import static me.chan.texas.text.Paragraph.TYPESET_POLICY_DEFAULT;
 
-import android.graphics.Rect;
+import me.chan.texas.misc.Rect;
+
+import android.text.TextUtils;
 
 import androidx.annotation.RestrictTo;
 
 import me.chan.texas.Texas;
+import me.chan.texas.misc.BitBucket32;
 import me.chan.texas.misc.DefaultRecyclable;
 import me.chan.texas.misc.ObjectPool;
+import me.chan.texas.misc.RectF;
+import me.chan.texas.renderer.RenderOption;
 import me.chan.texas.text.BreakStrategy;
 import me.chan.texas.text.Paragraph;
+import me.chan.texas.text.TextGravity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,12 +29,9 @@ public class Layout extends DefaultRecyclable {
 	public static final String ALGORITHM_UNKNOWN = "unknown";
 
 	private final Advise mAdvise = new Advise();
-
 	private final List<Line> mLines;
-	private int mLineWidth = -1;
+	private int mWidth = -1;
 	private Rect mRect;
-	private float mLineSpace = 0;
-
 	private String mAlgorithm = ALGORITHM_UNKNOWN;
 
 	private Layout() {
@@ -58,9 +61,8 @@ public class Layout extends DefaultRecyclable {
 	@Override
 	protected void onRecycle() {
 		clear();
-		mLineSpace = -1;
-		mLineWidth = -1;
-		mAdvise.clear();
+		mWidth = -1;
+		mAdvise.reset();
 		mRect = null;
 		mAlgorithm = ALGORITHM_UNKNOWN;
 		POOL.release(this);
@@ -103,9 +105,13 @@ public class Layout extends DefaultRecyclable {
 		return mAlgorithm;
 	}
 
+	public boolean isLayout() {
+		return !TextUtils.equals(mAlgorithm, ALGORITHM_UNKNOWN);
+	}
+
 	@RestrictTo(LIBRARY)
-	public void setLineWidth(int lineWidth) {
-		mLineWidth = lineWidth;
+	public void setWidth(int width) {
+		mWidth = width;
 	}
 
 	@RestrictTo(LIBRARY)
@@ -141,7 +147,8 @@ public class Layout extends DefaultRecyclable {
 	public int getPaddingTop() {
 		Rect rect = getRect();
 		int top = rect == null ? 0 : rect.top;
-		if (getLineCount() != 0) {
+		int lineCount = getLineCount();
+		if (lineCount != 0) {
 			Line line = getLine(0);
 			top += line.getTopPadding();
 		}
@@ -152,16 +159,74 @@ public class Layout extends DefaultRecyclable {
 	public int getPaddingBottom() {
 		Rect rect = getRect();
 		int bottom = rect == null ? 0 : rect.bottom;
-		if (getLineCount() != 0) {
-			Line line = getLine(getLineCount() - 1);
+		int lineCount = getLineCount();
+		if (lineCount != 0) {
+			Line line = getLine(lineCount - 1);
 			bottom += line.getBottomPadding();
 		}
 		return bottom;
 	}
 
 	@RestrictTo(LIBRARY)
+	public void prepareGetLineBoundsIncremental(RectF bounds) {
+		bounds.left = getPaddingLeft();
+		bounds.right = bounds.left + mWidth;
+		bounds.top = 0;
+		bounds.bottom = getPaddingTop() - getLineSpace();
+	}
+
+	@RestrictTo(LIBRARY)
+	public void getLineBoundsIncremental(int index, RectF bounds) {
+		if (index < 0 || index >= getLineCount()) {
+			return;
+		}
+
+		Line line = getLine(index);
+		getLineHorizontalBounds(line, bounds);
+		bounds.top = bounds.bottom + getLineSpace();
+		bounds.bottom = bounds.top + line.getLineHeight();
+	}
+
+	public void getLineBounds(int index, RectF bounds) {
+		if (index < 0 || index >= getLineCount()) {
+			return;
+		}
+
+		Line line = getLine(index);
+		getLineHorizontalBounds(line, bounds);
+		getLineVerticalBounds(index, bounds);
+	}
+
+	private void getLineHorizontalBounds(Line line, RectF bounds) {
+		int horizontalGravity = mAdvise.getTextGravity() & TextGravity.HORIZONTAL_MASK;
+		if (horizontalGravity == TextGravity.START) {
+			bounds.left = getPaddingLeft();
+		} else if (horizontalGravity == TextGravity.CENTER_HORIZONTAL) {
+			float offsetX = (mWidth - line.getLineWidth()) / 2.0f;
+			bounds.left = getPaddingLeft() + offsetX;
+		} else if (horizontalGravity == TextGravity.END) {
+			float offsetX = mWidth - line.getLineWidth();
+			bounds.left = getPaddingLeft() + offsetX;
+		} else {
+			throw new IllegalStateException("unknown text gravity");
+		}
+		bounds.right = bounds.left + line.getLineWidth();
+	}
+
+	private void getLineVerticalBounds(int index, RectF bounds) {
+		bounds.top = getPaddingTop();
+		float lineSpace = getLineSpace();
+		for (int i = 0; i < index; ++i) {
+			Line prev = getLine(i);
+			bounds.top = bounds.top + prev.getLineHeight() + lineSpace;
+		}
+		Line line = getLine(index);
+		bounds.bottom = bounds.top + line.getLineHeight();
+	}
+
+	@RestrictTo(LIBRARY)
 	public int getWidth() {
-		return mLineWidth + getPaddingLeft() + getPaddingRight();
+		return mWidth + getPaddingLeft() + getPaddingRight();
 	}
 
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -192,7 +257,7 @@ public class Layout extends DefaultRecyclable {
 			}
 
 			if (lineCount > 1) {
-				height += ((lineCount - 1) * mLineSpace);
+				height += ((lineCount - 1) * getLineSpace());
 			}
 
 			return (int) Math.ceil(height);
@@ -201,17 +266,12 @@ public class Layout extends DefaultRecyclable {
 	}
 
 	@RestrictTo(LIBRARY)
-	public void setLineSpace(float lineSpace) {
-		mLineSpace = lineSpace;
-	}
-
-	@RestrictTo(LIBRARY)
 	public Advise getAdvise() {
 		return mAdvise;
 	}
 
 	public float getLineSpace() {
-		return mLineSpace;
+		return mAdvise.getLineSpace();
 	}
 
 	@Override
@@ -249,12 +309,17 @@ public class Layout extends DefaultRecyclable {
 
 	@RestrictTo(LIBRARY)
 	public static class Advise {
+		private final static int INDEX_LINE_SPACE = 0;
+		private final static int INDEX_BREAK_STRATEGY = 1;
+		private final static int INDEX_TEXT_GRAVITY = 2;
 		/**
 		 * 排版建议
 		 */
-		private float mLineSpace = -1;
+		private float mLineSpace;
 		private BreakStrategy mBreakStrategy;
+		private int mTextGravity;
 		private int mTypesetPolicies = TYPESET_POLICY_CJK_MIX_OPTIMIZATION;
+		private final BitBucket32 mAttributesReference = new BitBucket32();
 
 		public float getLineSpace() {
 			return mLineSpace;
@@ -262,6 +327,7 @@ public class Layout extends DefaultRecyclable {
 
 		public void setLineSpace(float lineSpace) {
 			mLineSpace = lineSpace;
+			mAttributesReference.set(INDEX_LINE_SPACE);
 		}
 
 		public BreakStrategy getBreakStrategy() {
@@ -270,6 +336,16 @@ public class Layout extends DefaultRecyclable {
 
 		public void setBreakStrategy(BreakStrategy breakStrategy) {
 			mBreakStrategy = breakStrategy;
+			mAttributesReference.set(INDEX_BREAK_STRATEGY);
+		}
+
+		public int getTextGravity() {
+			return mTextGravity;
+		}
+
+		public void setTextGravity(@TextGravity.GravityMask int gravity) {
+			mTextGravity = RenderOption.adviceTextGravityMask(gravity);
+			mAttributesReference.set(INDEX_TEXT_GRAVITY);
 		}
 
 		public boolean checkTypesetPolicy(@Paragraph.TypesetPolicy int typesetPolicy) {
@@ -284,16 +360,32 @@ public class Layout extends DefaultRecyclable {
 			mTypesetPolicies = TYPESET_POLICY_DEFAULT;
 		}
 
-		private void clear() {
+		void reset() {
 			mLineSpace = -1;
 			mBreakStrategy = null;
 			mTypesetPolicies = TYPESET_POLICY_DEFAULT;
+			mTextGravity = TextGravity.START | TextGravity.TOP;
+			mAttributesReference.clear();
+		}
+
+		public void copy(RenderOption option) {
+			if (!mAttributesReference.get(INDEX_LINE_SPACE)) {
+				mLineSpace = option.getLineSpace();
+			}
+			if (!mAttributesReference.get(INDEX_BREAK_STRATEGY)) {
+				mBreakStrategy = option.getBreakStrategy();
+			}
+			if (!mAttributesReference.get(INDEX_TEXT_GRAVITY)) {
+				mTextGravity = option.getTextGravity();
+			}
 		}
 
 		public void copy(Advise advise) {
 			mLineSpace = advise.mLineSpace;
 			mTypesetPolicies = advise.mTypesetPolicies;
 			mBreakStrategy = advise.mBreakStrategy;
+			mTextGravity = advise.mTextGravity;
+			mAttributesReference.copy(advise.mAttributesReference);
 		}
 	}
 }

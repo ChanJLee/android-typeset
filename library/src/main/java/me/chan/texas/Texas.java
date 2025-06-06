@@ -34,7 +34,7 @@ public class Texas {
 	@RestrictTo(LIBRARY)
 	public static final boolean DEBUG_DRAG = false;
 
-	public static final float INFINITY = 1000;
+	public static final float INFINITY_PENALTY = 1000;
 	public static final int HYPHEN_PENALTY = 20;
 
 	private static MemoryOption sMemoryOption;
@@ -433,7 +433,7 @@ public class Texas {
 		public float spaceShrinkFactor;
 
 		public TypesetFactor() {
-			this(1f, 0.4f, 0.2f);
+			this(1f, 0.6f, 0.2f);
 		}
 
 		public TypesetFactor(float spaceWidthFactor, float spaceStretchFactor, float spaceShrinkFactor) {

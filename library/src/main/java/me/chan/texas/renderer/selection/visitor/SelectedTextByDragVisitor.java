@@ -1,30 +1,39 @@
 package me.chan.texas.renderer.selection.visitor;
 
-import android.graphics.RectF;
 import android.util.Log;
 
 import androidx.annotation.RestrictTo;
+import androidx.annotation.VisibleForTesting;
 
 import me.chan.texas.Texas;
 import me.chan.texas.misc.PointF;
+import me.chan.texas.misc.RectF;
+import me.chan.texas.renderer.ParagraphVisitor;
 import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.layout.Box;
 import me.chan.texas.text.layout.DrawableBox;
 import me.chan.texas.text.layout.Element;
+import me.chan.texas.text.layout.Glue;
 import me.chan.texas.text.layout.Layout;
 import me.chan.texas.text.layout.Line;
 import me.chan.texas.text.layout.TextBox;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class SelectedTextByDragVisitor extends SelectedVisitor {
+	@VisibleForTesting
+	static final String LINE_RANGE_POLICY_ALL = "all";
+	@VisibleForTesting
+	public static final String LINE_RANGE_POLICY_START_TO_P2X = "line start to p2's x";
+	@VisibleForTesting
+	public static final String LINE_RANGE_POLICY_P1X_TO_END = "p1'x to line end";
+	@VisibleForTesting
+	public static final String LINE_RANGE_POLICY_BETWEEN_P1X_P2X = "between p1's and p2's x";
+
 	private Line mFirstSelectedLine, mLastSelectedLine;
-	private float mLastBoxX;
-	private final List<Float> mLinesWidthBuffer = new ArrayList<>();
 	private final PointF mP1 = new PointF();
 	private final PointF mP2 = new PointF();
+	private final LineRange mLineRange = new LineRange();
+	private final RectF mLineBound = new RectF();
 
 	@Override
 	protected void onVisitParagraphStart(Paragraph paragraph) {
@@ -46,28 +55,25 @@ public class SelectedTextByDragVisitor extends SelectedVisitor {
 	}
 
 	private void linkHead(Paragraph paragraph, Line line, Box box) {
-		if (line == null || box == null) {
+		if (line == null || !(box instanceof TextBox)) {
 			return;
 		}
 
-		int index = line.indexOf(box) - 1;
-		if (index < 0) {
+		int index = line.indexOf(box);
+		if (index != 0 /* 不是第一个 */) {
+			RectF rectF = mSelection.getFirstRegion();
+			assert rectF != null;
+			index = linkText(line, index - 1, false, rectF);
+		}
+
+		if (index != 0) {
 			return;
 		}
 
-		RectF rectF = mSelection.getFirstRegion();
-		assert rectF != null;
-
-		index = link(line, index, false, rectF);
-		if (index >= 0) {
-			return;
-		}
-
-		Layout layout = paragraph.getLayout();
 		// 需要找上一行
-		for (int indexOfLine = layout.indexOf(line) - 1;
-			 index < 0 && indexOfLine >= 0; --indexOfLine) {
-			line = layout.getLine(indexOfLine);
+		Layout layout = paragraph.getLayout();
+		for (int lineIndex = layout.indexOf(line) - 1; lineIndex >= 0; --lineIndex) {
+			line = layout.getLine(lineIndex);
 
 			int count = line.getCount();
 			if (count == 0) {
@@ -84,26 +90,38 @@ public class SelectedTextByDragVisitor extends SelectedVisitor {
 				return;
 			}
 
-			float bottom = rectF.top - layout.getLineSpace();
-			float right = mLinesWidthBuffer.get(index);
-			rectF = new RectF(right - box.getWidth(), bottom - line.getLineHeight(), right, bottom);
+			layout.getLineBounds(lineIndex, mLineBound);
+			RectF rectF = new RectF(mLineBound.right, mLineBound.top, mLineBound.right, mLineBound.bottom);
 			mSelection.prependRegion(rectF);
-			mSelection.prependBox(textBox);
-			index = link(line, count - 2, false, rectF);
+			index = linkText(line, count - 1, false, rectF);
+			if (index != -1) {
+				return;
+			}
 		}
 	}
 
-	private int link(Line line, int index, boolean toRight, RectF rectF) {
+	private int linkText(Line line, int index, boolean backward, RectF rectF) {
 		int size = line.getCount();
-		int step = toRight ? 1 : -1;
+		int step = backward ? 1 : -1;
+		boolean shouldAdjustEdge = false;
 		for (; index >= 0 && index < size; index += step) {
 			Element element = line.getElement(index);
 			if (!(element instanceof Box)) {
+				if (shouldAdjustEdge && element instanceof Glue && element != Glue.TERMINAL) {
+					Glue glue = (Glue) element;
+					float offset = glue.getWidth() / 2f;
+					if (backward) {
+						rectF.right += offset;
+					} else {
+						rectF.left -= offset;
+					}
+				}
 				return index;
 			}
 
+			shouldAdjustEdge = true;
 			Box box = (Box) element;
-			if (toRight) {
+			if (backward) {
 				mSelection.appendBox(box);
 				rectF.right += box.getWidth();
 			} else {
@@ -116,26 +134,19 @@ public class SelectedTextByDragVisitor extends SelectedVisitor {
 	}
 
 	private void linkTail(Paragraph paragraph, Line line, Box box) {
-		if (line == null || box == null) {
+		if (line == null || !(box instanceof TextBox)) {
 			return;
 		}
 
-		int index = line.indexOf(box) + 1;
+		int index = line.indexOf(box);
 		int size = line.getCount();
-		if (index >= size) {
-			if (!(box instanceof TextBox) ||
-					!((TextBox) box).isPenalty()) {
-				return;
-			}
+		if (index != size - 1) {
+			RectF rectF = mSelection.getLastRegion();
+			assert rectF != null;
+			index = linkText(line, index + 1, true, rectF);
 		}
 
-		RectF rectF = mSelection.getLastRegion();
-		assert rectF != null;
-
-		index = link(line, index, true, rectF);
-
-		// 需要找下一行
-		if (index < size) {
+		if (index != size - 1) {
 			return;
 		}
 
@@ -151,9 +162,8 @@ public class SelectedTextByDragVisitor extends SelectedVisitor {
 
 		Layout layout = paragraph.getLayout();
 		int lineCount = layout.getLineCount();
-		for (int indexOfLine = layout.indexOf(line) + 1;
-			 indexOfLine < lineCount && index >= size; ++indexOfLine) {
-			line = layout.getLine(indexOfLine);
+		for (int lineIndex = layout.indexOf(line) + 1; lineIndex < lineCount; ++lineIndex) {
+			line = layout.getLine(lineIndex);
 
 			int count = line.getCount();
 			if (count == 0) {
@@ -165,72 +175,103 @@ public class SelectedTextByDragVisitor extends SelectedVisitor {
 				return;
 			}
 
-			textBox = (TextBox) element;
-			float top = rectF.bottom + layout.getLineSpace();
-			rectF = new RectF(layout.getPaddingLeft(), top, textBox.getWidth() + layout.getPaddingLeft(), top + textBox.getHeight());
+			layout.getLineBounds(lineIndex, mLineBound);
+			RectF rectF = new RectF(mLineBound.left, mLineBound.top, mLineBound.left, mLineBound.bottom);
 			mSelection.appendRegion(rectF);
-			mSelection.appendBox(textBox);
-			index = link(line, 1, true, rectF);
+			index = linkText(line, 0, true, rectF);
 			size = count;
+
+			if (index != size) {
+				return;
+			}
+
+			element = line.getElement(size - 1);
+			if (!(element instanceof TextBox)) {
+				return;
+			}
+
+			textBox = (TextBox) element;
+			if (!textBox.isPenalty()) {
+				return;
+			}
 		}
 	}
-
-	private float mLeft, mRight;
 
 	@Override
 	public void onVisitLineStart(Line line, float bottomX, float bottomY) {
 		mLineSelected = false;
-		mLastBoxX = 0;
-		int sig = SIG_NORMAL;
-		float top = bottomY - line.getLineHeight();
-		if (bottomY < mP1.y) {
-			sig = SIG_STOP_LINE_VISIT;
-		}
-
-		if (top >= mP2.y) {
-			sig = SIG_STOP_PARA_VISIT;
-		}
-
-		String debug = null;
-
-		mLeft = 0;
-		mRight = line.getLineWidth();
-		if (sig != SIG_NORMAL) {
-			sendVisitSig(sig);
-		} else {
-			if (top <= mP1.y) {
-				if (bottomY < mP2.y) {
-					mLeft = mP1.x;
-					debug = "right";
-				} else {
-					mLeft = Math.min(mP1.x, mP2.x);
-					mRight = Math.max(mP1.x, mP2.x);
-					debug = "between";
-				}
-			} else {
-				if (bottomY < mP2.y) {
-					mLeft = 0;
-					mRight = line.getLineWidth();
-					debug = "all";
-				} else {
-					mRight = mP2.x;
-					debug = "left";
-				}
-			}
+		updateLineRange(line, bottomX, bottomY, mP1, mP2, mLineRange);
+		if (mLineRange.sig != SIG_NORMAL) {
+			sendVisitSig(mLineRange.sig);
 		}
 
 		if (Texas.DEBUG_DRAG) {
-			Log.d("drag_debug.visitor", "line wide: [" + mLeft + " - " + mRight + "]" + debug);
+			Log.d("drag_debug.visitor", mLineRange.toString());
 		}
 
 		super.onVisitLineStart(line, bottomX, bottomY);
 	}
 
+	@VisibleForTesting
+	static void updateLineRange(Line line, float bottomX, float bottomY, PointF p1, PointF p2, LineRange lineRange) {
+		lineRange.sig = SIG_NORMAL;
+		lineRange.startX = lineRange.endX = 0;
+		lineRange.policy = null;
+
+		if (bottomY < p1.y) {
+			lineRange.sig = SIG_STOP_LINE_VISIT;
+			return;
+		}
+
+		float top = bottomY - line.getLineHeight();
+		if (top >= p2.y) {
+			lineRange.sig = SIG_STOP_PARA_VISIT;
+			return;
+		}
+
+		lineRange.startX = bottomX;
+		lineRange.endX = bottomX + line.getLineWidth();
+
+		if (top <= p1.y) {
+			if (bottomY < p2.y) {
+				lineRange.startX = p1.x;
+				lineRange.policy = LINE_RANGE_POLICY_P1X_TO_END;
+			} else {
+				lineRange.startX = Math.min(p1.x, p2.x);
+				lineRange.endX = Math.max(p1.x, p2.x);
+				lineRange.policy = LINE_RANGE_POLICY_BETWEEN_P1X_P2X;
+			}
+		} else {
+			if (bottomY < p2.y) {
+				lineRange.startX = bottomX;
+				lineRange.endX = bottomX + line.getLineWidth();
+				lineRange.policy = LINE_RANGE_POLICY_ALL;
+			} else {
+				lineRange.endX = p2.x;
+				lineRange.policy = LINE_RANGE_POLICY_START_TO_P2X;
+			}
+		}
+	}
+
+	public static class LineRange {
+		public float startX, endX;
+		public String policy;
+		public int sig;
+
+		@Override
+		public String toString() {
+			return "LineRange{" +
+					"startX=" + startX +
+					", endX=" + endX +
+					", policy='" + policy + '\'' +
+					", sig=" + ParagraphVisitor.sigToString(sig) +
+					'}';
+		}
+	}
+
 	@Override
 	public void onVisitLineEnd(Line line, float x, float y) {
 		super.onVisitLineEnd(line, x, y);
-		mLinesWidthBuffer.add(mLastBoxX);
-
 		if (!mLineSelected) {
 			return;
 		}
@@ -267,15 +308,13 @@ public class SelectedTextByDragVisitor extends SelectedVisitor {
 			return false;
 		}
 
-		mLastBoxX = inner.right;
-		return (inner.left >= mLeft && inner.left <= mRight) ||
-				(inner.right >= mLeft && inner.right <= mRight);
+		return (inner.left >= mLineRange.startX && inner.left <= mLineRange.endX) ||
+				(inner.right >= mLineRange.startX && inner.right <= mLineRange.endX);
 	}
 
 	@Override
 	public void clear() {
 		mFirstSelectedLine = mLastSelectedLine = null;
-		mLinesWidthBuffer.clear();
 		super.clear();
 	}
 

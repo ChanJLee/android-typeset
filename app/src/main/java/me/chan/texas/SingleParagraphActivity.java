@@ -26,10 +26,14 @@ import me.chan.texas.text.tokenizer.Token;
 
 public class SingleParagraphActivity extends AppCompatActivity {
 
+	protected int geContentViewId() {
+		return me.chan.texas.debug.R.layout.activity_single_paragraph;
+	}
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(me.chan.texas.debug.R.layout.activity_single_paragraph);
+		setContentView(geContentViewId());
 
 		Spannable spannable = new SpannableString("Hello, world!");
 		spannable.setSpan(new ScaleXSpan(2.0f) {

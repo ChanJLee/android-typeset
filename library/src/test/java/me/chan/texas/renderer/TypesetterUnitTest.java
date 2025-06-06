@@ -5,8 +5,8 @@ import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import android.graphics.Rect;
-import android.graphics.RectF;
+import me.chan.texas.misc.Rect;
+import me.chan.texas.misc.RectF;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -33,7 +33,6 @@ import me.chan.texas.text.layout.Layout;
 import me.chan.texas.text.layout.Line;
 import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.Segment;
-import me.chan.texas.text.layout.Region;
 import me.chan.texas.text.layout.TextBox;
 import me.chan.texas.typesetter.ParagraphTypesetter;
 
@@ -51,7 +50,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import me.chan.texas.utils.concurrency.TaskQueue;
+import me.chan.texas.utils.concurrency.Worker;
 
 /**
  * Example local unit test, which will execute on the development machine (host).
@@ -59,8 +58,7 @@ import me.chan.texas.utils.concurrency.TaskQueue;
  * @see <a href="http://d.android.com/tools/testing">Testing documentation</a>
  */
 public class TypesetterUnitTest {
-	@Mock
-	private Rect mRect;
+	private final Rect mRect = new Rect();
 
 	static {
 		Texas.setTexasComponent(DaggerFakeTexasComponent.factory().create());
@@ -68,17 +66,6 @@ public class TypesetterUnitTest {
 
 	@Before
 	public void setup() {
-		MockitoAnnotations.initMocks(this);
-		Mockito.doAnswer(invocation -> {
-			Rect rect = (Rect) invocation.getMock();
-			return rect.right - rect.left;
-		}).when(mRect).width();
-
-		Mockito.doAnswer(invocation -> {
-			Rect rect = (Rect) invocation.getMock();
-			return rect.bottom - rect.top;
-		}).when(mRect).height();
-
 		Hyphenation.getInstance();
 	}
 
@@ -121,7 +108,7 @@ public class TypesetterUnitTest {
 
 		checkContentPredication("一二三四五六七八九", BreakStrategy.SIMPLE, 5, 1, Paragraph.TYPESET_POLICY_DEFAULT, new String[]{
 				"一 二 三 四 五",
-				"六 七 八 九"
+				"六 七 八 九",
 		});
 	}
 
@@ -416,10 +403,11 @@ public class TypesetterUnitTest {
 
 		ParagraphTypesetter texTypesetter = new ParagraphTypesetter();
 		RenderOption renderOption = new RenderOption();
+		renderOption.setLineSpace(1);
 		Measurer measurer = new MockMeasurer(factory.getMockTextPaint());
 		LoadingJoinListener listener = new LoadingJoinListener();
 		LoadingWorker.Args args = new LoadingWorker.Args(new MockTextSource(renderOption, new TextAttribute(measurer), measurer, text), listener);
-		WorkerScheduler.loading().submit(TaskQueue.Token.newInstance(), args);
+		WorkerScheduler.loading().submit(Worker.Token.newInstance(), args);
 
 		if (listener.mThrowable != null) {
 			throw new RuntimeException(listener.mThrowable);
@@ -433,7 +421,7 @@ public class TypesetterUnitTest {
 		Segment segment = document.getSegment(0);
 
 		Paragraph paragraph = (Paragraph) segment;
-		texTypesetter.typeset(paragraph, breakStrategy, (int) lineWidth, 1);
+		texTypesetter.typeset(paragraph, breakStrategy, (int) lineWidth);
 		assertNotNull(paragraph);
 		Layout layout = paragraph.getLayout();
 		assertEquals(layout.getLineCount(), exceptedLines.length);
@@ -468,7 +456,7 @@ public class TypesetterUnitTest {
 		LoadingJoinListener listener = new LoadingJoinListener();
 		Measurer measurer = new MockMeasurer(factory.getMockTextPaint());
 		LoadingWorker.Args args = new LoadingWorker.Args(new MockTextSource(renderOption, new TextAttribute(measurer), measurer, text), listener);
-		WorkerScheduler.loading().submit(TaskQueue.Token.newInstance(), args);
+		WorkerScheduler.loading().submit(Worker.Token.newInstance(), args);
 
 		if (listener.mThrowable != null) {
 			throw new RuntimeException(listener.mThrowable);
@@ -485,7 +473,7 @@ public class TypesetterUnitTest {
 			}
 
 			Paragraph paragraph = (Paragraph) segment;
-			texTypesetter.typeset(paragraph, breakStrategy, (int) lineWidth, 1);
+			texTypesetter.typeset(paragraph, breakStrategy, (int) lineWidth);
 			assertNotNull(paragraph);
 			Layout layout = paragraph.getLayout();
 			assertNotEquals(layout.getLineCount(), 0);
@@ -567,7 +555,7 @@ public class TypesetterUnitTest {
 		Layout layout = paragraph.getLayout();
 
 		ParagraphTypesetter typesetter = new ParagraphTypesetter();
-		typesetter.typeset(paragraph, BreakStrategy.SIMPLE, 100, 1);
+		typesetter.typeset(paragraph, BreakStrategy.SIMPLE, 100);
 		Layout current = paragraph.getLayout();
 		Assert.assertNotSame(layout, current);
 
@@ -591,7 +579,7 @@ public class TypesetterUnitTest {
 		Layout layout = paragraph.getLayout();
 
 		ParagraphTypesetter typesetter = new ParagraphTypesetter();
-		typesetter.typeset(paragraph, BreakStrategy.SIMPLE, 100, 1);
+		typesetter.typeset(paragraph, BreakStrategy.SIMPLE, 100);
 		Layout current = paragraph.getLayout();
 		Assert.assertNotSame(layout, current);
 
@@ -612,28 +600,30 @@ public class TypesetterUnitTest {
 		Paragraph.Builder builder = Paragraph.Builder.newBuilder(texasOption);
 
 		Paragraph paragraph = builder.build(false);
-		Region region = new Region(100, 10);
-		Assert.assertFalse(WorkerScheduler.typeset().desire(paragraph, region, renderOption));
+		Worker.Token token = Worker.Token.newInstance();
+		Assert.assertFalse(WorkerScheduler.typeset().desire(paragraph));
 
 		builder = Paragraph.Builder.newBuilder(texasOption);
 		paragraph = builder.build(true);
-		Assert.assertFalse(WorkerScheduler.typeset().desire(paragraph, region, renderOption));
+		Assert.assertFalse(WorkerScheduler.typeset().desire(paragraph));
 
 		builder = Paragraph.Builder.newBuilder(texasOption);
 		builder.text("12345")
 				.brk()
 				.text("12");
 		paragraph = builder.build(true);
-		Assert.assertTrue(WorkerScheduler.typeset().desire(paragraph, region, renderOption));
-		Assert.assertEquals(5, region.getWidth());
-		Assert.assertEquals(3, region.getHeight());
+		Assert.assertTrue(WorkerScheduler.typeset().desire(paragraph));
+		Layout layout = paragraph.getLayout();
+		Assert.assertEquals(5, layout.getWidth());
+		Assert.assertEquals(3, layout.getHeight());
 
 		builder = Paragraph.Builder.newBuilder(texasOption);
 		builder.text("12345");
 		paragraph = builder.build(true);
-		Assert.assertTrue(WorkerScheduler.typeset().desire(paragraph, region, renderOption));
-		Assert.assertEquals(5, region.getWidth());
-		Assert.assertEquals(1, region.getHeight());
+		Assert.assertTrue(WorkerScheduler.typeset().desire(paragraph));
+		layout = paragraph.getLayout();
+		Assert.assertEquals(5, layout.getWidth());
+		Assert.assertEquals(1, layout.getHeight());
 	}
 
 	@Test
@@ -642,6 +632,7 @@ public class TypesetterUnitTest {
 		factory.getMockTextPaint().setMockTextSize(1);
 
 		RenderOption renderOption = new RenderOption();
+		renderOption.setLineSpace(1);
 		Measurer measurer = new MockMeasurer(factory.getMockTextPaint());
 		PaintSet paintSet = new PaintSet(factory.getMockTextPaint());
 		TextAttribute textAttribute = new TextAttribute(measurer);
@@ -655,14 +646,14 @@ public class TypesetterUnitTest {
 
 		ParagraphTypesetter texTypesetter = new ParagraphTypesetter();
 		Paragraph paragraph = builder.build();
-		texTypesetter.typeset(paragraph, BreakStrategy.SIMPLE, 100, 1);
+		texTypesetter.typeset(paragraph, BreakStrategy.SIMPLE, 100);
 
 		Layout layout = paragraph.getLayout();
 		Assert.assertEquals(2, layout.getLineCount());
 		Assert.assertEquals("hello", layout.getLine(0).toString());
 		Assert.assertEquals("world", layout.getLine(1).toString());
 
-		texTypesetter.typeset(paragraph, BreakStrategy.BALANCED, 100, 1);
+		texTypesetter.typeset(paragraph, BreakStrategy.BALANCED, 100);
 
 		layout = paragraph.getLayout();
 		Assert.assertEquals(2, layout.getLineCount());

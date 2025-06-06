@@ -8,7 +8,7 @@ import org.junit.Test;
 import java.util.concurrent.CountDownLatch;
 
 import me.chan.texas.Texas;
-import me.chan.texas.utils.concurrency.TaskQueue;
+import me.chan.texas.utils.concurrency.Worker;
 import me.chan.texas.di.DaggerFakeTexasComponent;
 
 public class GraphicsBufferTest {
@@ -26,7 +26,7 @@ public class GraphicsBufferTest {
 			/* NOOP */
 		}
 
-		graphicsBuffer.attach(TaskQueue.Token.newInstance());
+		graphicsBuffer.attach(Worker.Token.newInstance());
 		Assert.assertTrue(graphicsBuffer.isAttached());
 
 		graphicsBuffer.detach();
@@ -35,7 +35,7 @@ public class GraphicsBufferTest {
 
 	@Test
 	public void testDraw() {
-		GraphicsBuffer.DoubleBuffer buffer = new GraphicsBuffer.DoubleBuffer(TaskQueue.Token.newInstance());
+		GraphicsBuffer.DoubleBuffer buffer = new GraphicsBuffer.DoubleBuffer(Worker.Token.newInstance());
 		buffer.lockCanvas(1, 1);
 		buffer.unlockCanvas();
 
@@ -48,7 +48,7 @@ public class GraphicsBufferTest {
 
 	@Test
 	public void testReleaseWhenDraw() {
-		GraphicsBuffer.DoubleBuffer buffer = new GraphicsBuffer.DoubleBuffer(TaskQueue.Token.newInstance());
+		GraphicsBuffer.DoubleBuffer buffer = new GraphicsBuffer.DoubleBuffer(Worker.Token.newInstance());
 		CountDownLatch drawLatch = new CountDownLatch(1);
 		CountDownLatch releaseLatch = new CountDownLatch(1);
 		new Thread(() -> {
@@ -82,7 +82,7 @@ public class GraphicsBufferTest {
 
 	@Test
 	public void testReleaseBeforeDraw() {
-		GraphicsBuffer.DoubleBuffer buffer = new GraphicsBuffer.DoubleBuffer(TaskQueue.Token.newInstance());
+		GraphicsBuffer.DoubleBuffer buffer = new GraphicsBuffer.DoubleBuffer(Worker.Token.newInstance());
 		buffer.release();
 		Assert.assertEquals(0, TexturePicture.ALIVE_COUNT.get());
 		new Thread(() -> {
@@ -92,7 +92,7 @@ public class GraphicsBufferTest {
 
 	@Test
 	public void testReleaseAfterDraw() {
-		GraphicsBuffer.DoubleBuffer buffer = new GraphicsBuffer.DoubleBuffer(TaskQueue.Token.newInstance());
+		GraphicsBuffer.DoubleBuffer buffer = new GraphicsBuffer.DoubleBuffer(Worker.Token.newInstance());
 		CountDownLatch releaseLatch = new CountDownLatch(1);
 		new Thread(() -> {
 			buffer.lockCanvas(1, 1);
