@@ -37,7 +37,6 @@ import me.chan.texas.renderer.ui.rv.SegmentItemDecoration;
 import me.chan.texas.renderer.ui.rv.TexasLinearLayoutManagerImpl;
 import me.chan.texas.renderer.ui.rv.TexasRecyclerViewImpl;
 import me.chan.texas.text.Document;
-import me.chan.texas.text.Paragraph;
 import me.chan.texas.utils.TexasUtils;
 import me.chan.texas.utils.concurrency.Worker;
 
