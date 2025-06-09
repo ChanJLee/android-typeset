@@ -24,8 +24,10 @@ import java.lang.reflect.Method;
 import me.chan.texas.BuildConfig;
 import me.chan.texas.R;
 import me.chan.texas.image.ImageLoader;
+import me.chan.texas.misc.RectF;
 import me.chan.texas.renderer.core.TypesetEngine;
 import me.chan.texas.renderer.core.worker.MixWorker;
+import me.chan.texas.renderer.selection.ParagraphSelection;
 import me.chan.texas.renderer.selection.Selection;
 import me.chan.texas.renderer.selection.SelectionManager;
 import me.chan.texas.renderer.selection.overlay.DragSelectViewImpl;
@@ -279,8 +281,13 @@ public class Renderer implements SelectionManager.Listener {
 		}
 
 		if (scrollTo) {
-			Paragraph paragraph = highlight.getParagraph(0);
-			mRecyclerView.scrollToPosition(mAdapter.indexOf(paragraph), true, offset);
+			ParagraphSelection selection = highlight.get(0);
+			int index = mAdapter.indexOf(selection.getParagraph());
+			RectF region = selection.getFirstRegion();
+			if (region != null) {
+				offset = (int) (-region.top + offset);
+			}
+			mRecyclerView.scrollToPosition(index, true, offset);
 		}
 
 		return highlight;
