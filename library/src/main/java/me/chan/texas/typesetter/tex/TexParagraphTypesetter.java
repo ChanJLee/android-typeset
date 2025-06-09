@@ -239,14 +239,7 @@ public class TexParagraphTypesetter extends AbsParagraphTypesetter {
 	}
 
 	private void selectCandidate(Context context, Node active, int state) {
-		boolean hasCandidates = false;
-		for (Candidate candidate : context.candidates) {
-			if (candidate != null) {
-				hasCandidates = true;
-				break;
-			}
-		}
-		if (!hasCandidates) {
+		if (context.candidates.isEmpty()) {
 			return;
 		}
 
@@ -258,13 +251,7 @@ public class TexParagraphTypesetter extends AbsParagraphTypesetter {
 		left.recycle();
 
 		// 清空候选名单
-		for (int i = 0; i < context.candidates.length; ++i) {
-			Candidate candidate = context.candidates[i];
-			if (candidate != null) {
-				candidate.recycle();
-				context.candidates[i] = null;
-			}
-		}
+		context.candidates.clear();
 	}
 
 	private Node typesetLine0(Context context, Node active, Element element) {
@@ -286,17 +273,8 @@ public class TexParagraphTypesetter extends AbsParagraphTypesetter {
 				int fitness = computeFitness(ratio);
 				// 计算如果从当前节点断点会有多差
 				float demerits = computeDemerits(element, context, ratio, active, fitness);
-
 				// 记录本行排版时同等级下最好的节点
-				if (context.candidates[fitness] == null || demerits < context.candidates[fitness].demerits) {
-					if (context.candidates[fitness] == null) {
-						context.candidates[fitness] = Candidate.obtain();
-					}
-					Candidate candidate = context.candidates[fitness];
-					candidate.active = active;
-					candidate.demerits = demerits;
-					candidate.ratio = ratio;
-				}
+				context.candidates.update(fitness, demerits, active, ratio);
 			}
 
 			active = next;
@@ -313,20 +291,19 @@ public class TexParagraphTypesetter extends AbsParagraphTypesetter {
 	/**
 	 * 把候选者都加入到active 列表中
 	 *
-	 * @param context
+	 * @param context 上下文信息0
 	 * @param active  前一个active节点
 	 * @param sum     当前元素的总长
-	 * @param state
+	 * @param state   状态
 	 */
 	private void createActiveNode(Context context,
 								  Node active,
 								  Sum sum,
 								  int state) {
-		Candidate[] candidates = context.candidates;
 		ActiveNodes actives = context.actives;
 
-		for (int i = 0; i < candidates.length; ++i) {
-			Candidate candidate = candidates[i];
+		for (int i = 0; i < context.candidates.size(); ++i) {
+			Candidate candidate = context.candidates.get(i);
 			if (candidate == null) {
 				continue;
 			}
@@ -560,8 +537,7 @@ public class TexParagraphTypesetter extends AbsParagraphTypesetter {
 		private final ActiveNodes actives = new ActiveNodes();
 		private final Sum total;
 		private final TypesetArgs args;
-
-		private final Candidate[] candidates = new Candidate[4];
+		private final Candidates candidates = new Candidates();
 
 		public Context(TypesetArgs args) {
 			this.stream = new ElementStream(args.paragraph);
