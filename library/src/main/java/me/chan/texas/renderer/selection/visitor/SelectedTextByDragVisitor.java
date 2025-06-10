@@ -146,7 +146,7 @@ public class SelectedTextByDragVisitor extends SelectedVisitor {
 			index = linkText(line, index + 1, true, rectF);
 		}
 
-		if (index != size - 1) {
+		if (index != size) {
 			return;
 		}
 
