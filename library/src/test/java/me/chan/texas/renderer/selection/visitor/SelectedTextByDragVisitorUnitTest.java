@@ -109,6 +109,55 @@ public class SelectedTextByDragVisitorUnitTest {
 	}
 
 	@Test
+	public void testLinkWithTail() throws ParagraphVisitor.VisitException {
+		FakeMeasureFactory factory = FakeMeasureFactory.getInstance();
+		factory.getMockTextPaint().setMockTextSize(1);
+
+		RenderOption renderOption = new RenderOption();
+		renderOption.setLineSpace(1);
+		Measurer measurer = new MockMeasurer(factory.getMockTextPaint());
+		PaintSet paintSet = new PaintSet(factory.getMockTextPaint());
+		TextAttribute textAttribute = new TextAttribute(measurer);
+
+		TexasOption texasOption = new TexasOption(paintSet, Hyphenation.getInstance(), measurer, textAttribute, renderOption);
+		Paragraph.Builder builder = Paragraph.Builder.newBuilder(texasOption)
+				.text("triangle 1");
+		Paragraph paragraph = builder.build();
+
+		ParagraphTypesetter texTypesetter = new ParagraphTypesetter();
+		texTypesetter.typeset(paragraph, BreakStrategy.SIMPLE, 6);
+
+		Layout layout = paragraph.getLayout();
+		Assert.assertEquals(2, layout.getLineCount());
+
+		SelectedTextByDragVisitor selectedTextByDragVisitor = new SelectedTextByDragVisitor();
+		selectedTextByDragVisitor.reset(Selection.Type.SELECTION, Selection.Styles.create(0, 0), paragraph, renderOption);
+		float tempX1 = 0;
+		float tempY1 = 0f;
+		float tempX2 = 2;
+		float tempY2 = 1;
+		selectedTextByDragVisitor.setRegion(tempX1, tempY1, tempX2, tempY2);
+		selectedTextByDragVisitor.startVisit(paragraph);
+
+		ParagraphSelection paragraphSelection = paragraph.getSelection(Selection.Type.SELECTION);
+		Assert.assertNotNull(paragraphSelection);
+
+		RectF rectF = paragraphSelection.getFirstRegion();
+		Assert.assertNotNull(rectF);
+		Assert.assertEquals(0, rectF.left, 0.001);
+		Assert.assertEquals(6f, rectF.right, 0.001);
+		Assert.assertEquals(0, rectF.top, 0.001);
+		Assert.assertEquals(1, rectF.bottom, 0.001);
+
+		rectF = paragraphSelection.getLastRegion();
+		Assert.assertNotNull(rectF);
+		Assert.assertEquals(0, rectF.left, 0.001);
+		Assert.assertEquals(3.5, rectF.right, 0.001);
+		Assert.assertEquals(2, rectF.top, 0.001);
+		Assert.assertEquals(3, rectF.bottom, 0.001);
+	}
+
+	@Test
 	public void testLineLink() throws ParagraphVisitor.VisitException {
 		FakeMeasureFactory factory = FakeMeasureFactory.getInstance();
 		factory.getMockTextPaint().setMockTextSize(1);
