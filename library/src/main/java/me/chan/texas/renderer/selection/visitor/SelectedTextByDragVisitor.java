@@ -64,9 +64,11 @@ public class SelectedTextByDragVisitor extends SelectedVisitor {
 			RectF rectF = mSelection.getFirstRegion();
 			assert rectF != null;
 			index = linkText(line, index - 1, false, rectF);
+		} else {
+			index = -1;
 		}
 
-		if (index != 0) {
+		if (index != -1) {
 			return;
 		}
 
@@ -94,7 +96,7 @@ public class SelectedTextByDragVisitor extends SelectedVisitor {
 			RectF rectF = new RectF(mLineBound.right, mLineBound.top, mLineBound.right, mLineBound.bottom);
 			mSelection.prependRegion(rectF);
 			index = linkText(line, count - 1, false, rectF);
-			if (index != -1) {
+			if (index != 0) {
 				return;
 			}
 		}
@@ -133,6 +135,11 @@ public class SelectedTextByDragVisitor extends SelectedVisitor {
 		return index;
 	}
 
+	/**
+	 * @param paragraph
+	 * @param line
+	 * @param box
+	 */
 	private void linkTail(Paragraph paragraph, Line line, Box box) {
 		if (line == null || !(box instanceof TextBox)) {
 			return;
@@ -144,6 +151,8 @@ public class SelectedTextByDragVisitor extends SelectedVisitor {
 			RectF rectF = mSelection.getLastRegion();
 			assert rectF != null;
 			index = linkText(line, index + 1, true, rectF);
+		} else {
+			index = size;
 		}
 
 		if (index != size) {
