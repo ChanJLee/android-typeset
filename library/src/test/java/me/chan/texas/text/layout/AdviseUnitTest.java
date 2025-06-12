@@ -46,7 +46,7 @@ public class AdviseUnitTest {
 
 		builder = Paragraph.Builder.newBuilder(texasOption);
 		builder.breakStrategy(BreakStrategy.SIMPLE);
-		builder.lineSpace(3);
+		builder.lineSpacingExtra(3);
 		builder.textGravity(TextGravity.END);
 		paragraph = builder.build();
 
