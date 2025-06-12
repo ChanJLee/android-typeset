@@ -41,4 +41,10 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="paragraph view with recyclerview" />
+
+    <Button
+        android:id="@+id/benchmark"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="benchmark" />
 </LinearLayout>

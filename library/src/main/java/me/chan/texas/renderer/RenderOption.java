@@ -31,7 +31,7 @@ public class RenderOption {
 	private int mTextColor;
 	private Typeface mTypeface;
 	private float mTextSize;
-	private float mLineSpace;
+	private float mLineSpacingExtra;
 	private int mSelectedBackgroundColor;
 	private int mSelectedTextColor;
 	private BreakStrategy mBreakStrategy = BreakStrategy.SIMPLE;
@@ -52,7 +52,7 @@ public class RenderOption {
 
 		if (mTextColor != that.mTextColor) return false;
 		if (Float.compare(that.mTextSize, mTextSize) != 0) return false;
-		if (Float.compare(that.mLineSpace, mLineSpace) != 0) return false;
+		if (Float.compare(that.mLineSpacingExtra, mLineSpacingExtra) != 0) return false;
 		if (mSelectedBackgroundColor != that.mSelectedBackgroundColor) return false;
 		if (mSelectedTextColor != that.mSelectedTextColor) return false;
 		if (mWordSelectable != that.mWordSelectable) return false;
@@ -84,7 +84,7 @@ public class RenderOption {
 		int result = mTextColor;
 		result = 31 * result + (mTypeface != null ? mTypeface.hashCode() : 0);
 		result = 31 * result + (mTextSize != +0.0f ? Float.floatToIntBits(mTextSize) : 0);
-		result = 31 * result + (mLineSpace != +0.0f ? Float.floatToIntBits(mLineSpace) : 0);
+		result = 31 * result + (mLineSpacingExtra != +0.0f ? Float.floatToIntBits(mLineSpacingExtra) : 0);
 		result = 31 * result + mSelectedBackgroundColor;
 		result = 31 * result + mSelectedTextColor;
 		result = 31 * result + (mBreakStrategy != null ? mBreakStrategy.hashCode() : 0);
@@ -129,7 +129,7 @@ public class RenderOption {
 		this.mTextColor = other.mTextColor;
 		this.mTypeface = other.mTypeface;
 		this.mTextSize = other.mTextSize;
-		this.mLineSpace = other.mLineSpace;
+		this.mLineSpacingExtra = other.mLineSpacingExtra;
 		this.mSelectedBackgroundColor = other.mSelectedBackgroundColor;
 		this.mSelectedTextColor = other.mSelectedTextColor;
 		this.mBreakStrategy = other.mBreakStrategy;
@@ -303,20 +303,20 @@ public class RenderOption {
 	}
 
 	/**
-	 * @return 获取行间距
+	 * @return 获取额外行间距
 	 */
-	public float getLineSpace() {
-		return mLineSpace;
+	public float getLineSpacingExtra() {
+		return mLineSpacingExtra;
 	}
 
 	/**
-	 * 设置行间距
+	 * 设置额外行间距
 	 *
 	 * @param lineSpace 行间距
 	 * @return 当前对象
 	 */
-	public RenderOption setLineSpace(float lineSpace) {
-		mLineSpace = lineSpace;
+	public RenderOption setLineSpacingExtra(float lineSpace) {
+		mLineSpacingExtra = lineSpace;
 		return this;
 	}
 
@@ -592,7 +592,7 @@ public class RenderOption {
 				"mTextColor=" + mTextColor +
 				", mTypeface=" + mTypeface +
 				", mTextSize=" + mTextSize +
-				", mLineSpace=" + mLineSpace +
+				", mLineSpace=" + mLineSpacingExtra +
 				", mSelectedBackgroundColor=" + mSelectedBackgroundColor +
 				", mSelectedTextColor=" + mSelectedTextColor +
 				", mBreakStrategy=" + mBreakStrategy +

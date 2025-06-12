@@ -61,14 +61,11 @@ public class AndroidMeasurer implements Measurer {
 		} else {
 			width = (float) Math.ceil(BoringLayout.getDesiredWidth(charSequence, start, end, textPaint));
 		}
+
 		textPaint.getFontMetrics(mFontMetrics);
 		Paint.FontMetrics fontMetrics = mFontMetrics;
-		float height = (float) Math.ceil(fontMetrics.descent - fontMetrics.ascent);
-		float bottomPadding = (float) Math.ceil(fontMetrics.bottom - fontMetrics.descent);
-		bottomPadding = Math.min(bottomPadding, 1);
-		float topPadding = (float) Math.ceil(fontMetrics.ascent - fontMetrics.top);
-
-		spec.reset(width, height, topPadding, bottomPadding, (float) Math.ceil(fontMetrics.descent));
+		float height = (float) Math.ceil(fontMetrics.descent - fontMetrics.ascent + fontMetrics.leading);
+		spec.reset(width, height, (float) Math.ceil(fontMetrics.descent));
 	}
 
 	public String stats() {

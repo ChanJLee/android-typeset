@@ -287,7 +287,7 @@ public class TexasUtils {
 	public static float getLineSpace(Paragraph paragraph) {
 		Layout layout = paragraph.getLayout();
 		Layout.Advise advise = layout.getAdvise();
-		float lineSpace = advise.getLineSpace();
+		float lineSpace = advise.getLineSpacingExtra();
 		if (lineSpace < 0) {
 			lineSpace = layout.getLineSpace();
 		}

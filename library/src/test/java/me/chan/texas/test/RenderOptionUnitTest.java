@@ -27,7 +27,7 @@ public class RenderOptionUnitTest {
 		renderOption.setTextColor(1);
 		renderOption.setTypeface(typeface);
 		renderOption.setTextSize(2);
-		renderOption.setLineSpace(3);
+		renderOption.setLineSpacingExtra(3);
 		renderOption.setSelectedBackgroundColor(4);
 		renderOption.setSelectedTextColor(5);
 		renderOption.setBreakStrategy(BreakStrategy.SIMPLE);
@@ -43,7 +43,7 @@ public class RenderOptionUnitTest {
 		Assert.assertEquals(renderOption.getTextColor(), 1);
 		Assert.assertSame(renderOption.getTypeface(), typeface);
 		Assert.assertEquals(renderOption.getTextSize(), 2, 0);
-		Assert.assertEquals(renderOption.getLineSpace(), 3, 0);
+		Assert.assertEquals(renderOption.getLineSpacingExtra(), 3, 0);
 		Assert.assertEquals(renderOption.getSelectedBackgroundColor(), 4);
 		Assert.assertEquals(renderOption.getSelectedTextColor(), 5);
 		Assert.assertEquals(renderOption.getBreakStrategy(), BreakStrategy.SIMPLE);
@@ -60,7 +60,7 @@ public class RenderOptionUnitTest {
 		Assert.assertEquals(renderOption.getTextColor(), copy.getTextColor());
 		Assert.assertSame(renderOption.getTypeface(), copy.getTypeface());
 		Assert.assertEquals(renderOption.getTextSize(), copy.getTextSize(), 0);
-		Assert.assertEquals(renderOption.getLineSpace(), copy.getLineSpace(), 0);
+		Assert.assertEquals(renderOption.getLineSpacingExtra(), copy.getLineSpacingExtra(), 0);
 		Assert.assertEquals(renderOption.getSelectedBackgroundColor(), copy.getSelectedBackgroundColor());
 		Assert.assertEquals(renderOption.getSelectedTextColor(), copy.getSelectedTextColor());
 		Assert.assertEquals(renderOption.getBreakStrategy(), copy.getBreakStrategy());
@@ -78,7 +78,7 @@ public class RenderOptionUnitTest {
 		copy.setTextColor(-1);
 		copy.setTypeface((Typeface) constructor.newInstance());
 		copy.setTextSize(-2);
-		copy.setLineSpace(-3);
+		copy.setLineSpacingExtra(-3);
 		copy.setSelectedBackgroundColor(-4);
 		copy.setSelectedTextColor(-5);
 		copy.setBreakStrategy(BreakStrategy.BALANCED);
@@ -94,7 +94,7 @@ public class RenderOptionUnitTest {
 		Assert.assertNotEquals(renderOption.getTextColor(), copy.getTextColor());
 		Assert.assertNotSame(renderOption.getTypeface(), copy.getTypeface());
 		Assert.assertNotEquals(renderOption.getTextSize(), copy.getTextSize(), 0);
-		Assert.assertNotEquals(renderOption.getLineSpace(), copy.getLineSpace(), 0);
+		Assert.assertNotEquals(renderOption.getLineSpacingExtra(), copy.getLineSpacingExtra(), 0);
 		Assert.assertNotEquals(renderOption.getSelectedBackgroundColor(), copy.getSelectedBackgroundColor());
 		Assert.assertNotEquals(renderOption.getSelectedTextColor(), copy.getSelectedTextColor());
 		Assert.assertNotEquals(renderOption.getBreakStrategy(), copy.getBreakStrategy());

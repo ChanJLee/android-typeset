@@ -146,25 +146,13 @@ public class Layout extends DefaultRecyclable {
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
 	public int getPaddingTop() {
 		Rect rect = getRect();
-		int top = rect == null ? 0 : rect.top;
-		int lineCount = getLineCount();
-		if (lineCount != 0) {
-			Line line = getLine(0);
-			top += line.getTopPadding();
-		}
-		return top;
+		return rect == null ? 0 : rect.top;
 	}
 
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
 	public int getPaddingBottom() {
 		Rect rect = getRect();
-		int bottom = rect == null ? 0 : rect.bottom;
-		int lineCount = getLineCount();
-		if (lineCount != 0) {
-			Line line = getLine(lineCount - 1);
-			bottom += line.getBottomPadding();
-		}
-		return bottom;
+		return rect == null ? 0 : rect.bottom;
 	}
 
 	@RestrictTo(LIBRARY)
@@ -271,7 +259,7 @@ public class Layout extends DefaultRecyclable {
 	}
 
 	public float getLineSpace() {
-		return mAdvise.getLineSpace();
+		return mAdvise.getLineSpacingExtra();
 	}
 
 	@Override
@@ -315,18 +303,18 @@ public class Layout extends DefaultRecyclable {
 		/**
 		 * 排版建议
 		 */
-		private float mLineSpace;
+		private float mLineSpacingExtra;
 		private BreakStrategy mBreakStrategy;
 		private int mTextGravity;
 		private int mTypesetPolicies = TYPESET_POLICY_CJK_MIX_OPTIMIZATION;
 		private final BitBucket32 mAttributesReference = new BitBucket32();
 
-		public float getLineSpace() {
-			return mLineSpace;
+		public float getLineSpacingExtra() {
+			return mLineSpacingExtra;
 		}
 
-		public void setLineSpace(float lineSpace) {
-			mLineSpace = lineSpace;
+		public void setLineSpacingExtra(float lineSpacingExtra) {
+			mLineSpacingExtra = lineSpacingExtra;
 			mAttributesReference.set(INDEX_LINE_SPACE);
 		}
 
@@ -361,7 +349,7 @@ public class Layout extends DefaultRecyclable {
 		}
 
 		void reset() {
-			mLineSpace = -1;
+			mLineSpacingExtra = -1;
 			mBreakStrategy = null;
 			mTypesetPolicies = TYPESET_POLICY_DEFAULT;
 			mTextGravity = TextGravity.START | TextGravity.TOP;
@@ -370,7 +358,7 @@ public class Layout extends DefaultRecyclable {
 
 		public void copy(RenderOption option) {
 			if (!mAttributesReference.get(INDEX_LINE_SPACE)) {
-				mLineSpace = option.getLineSpace();
+				mLineSpacingExtra = option.getLineSpacingExtra();
 			}
 			if (!mAttributesReference.get(INDEX_BREAK_STRATEGY)) {
 				mBreakStrategy = option.getBreakStrategy();
@@ -381,7 +369,7 @@ public class Layout extends DefaultRecyclable {
 		}
 
 		public void copy(Advise advise) {
-			mLineSpace = advise.mLineSpace;
+			mLineSpacingExtra = advise.mLineSpacingExtra;
 			mTypesetPolicies = advise.mTypesetPolicies;
 			mBreakStrategy = advise.mBreakStrategy;
 			mTextGravity = advise.mTextGravity;
