@@ -81,7 +81,7 @@ public class ParagraphUnitTest {
 		String msg = "hello";
 		TexasOption texasOption = new TexasOption(mPaintSet, Hyphenation.getInstance(), mMeasurer, mTextAttribute, new RenderOption().setLineSpacingExtra(1));
 		Paragraph.Builder builder = Paragraph.Builder.newBuilder(texasOption);
-		builder.lineSpace(2);
+		builder.lineSpacingExtra(2);
 		Paragraph paragraph = builder.build();
 		Layout layout = paragraph.getLayout();
 		Layout.Advise advise = layout.getAdvise();
@@ -1111,6 +1111,43 @@ public class ParagraphUnitTest {
 		builder.text("cos-triangleok");
 		Paragraph paragraph = builder.build();
 		Assert.assertNotNull(paragraph);
+	}
+
+	@Test
+	public void testAppendSpace() {
+		TexasOption texasOption = new TexasOption(mPaintSet, Hyphenation.getInstance(), mMeasurer, mTextAttribute, new RenderOption());
+		Paragraph.Builder builder = Paragraph.Builder.newBuilder(texasOption)
+				.text("b")
+				.text("c")
+				.appendSpaceEnable(false)
+				.text("d")
+				.appendSpaceEnable(true)
+				.text("e")
+				.appendSpaceEnable(false);
+		Paragraph paragraph = builder.build();
+		Assert.assertNotNull(paragraph);
+
+		Assert.assertTrue(paragraph.getElement(0) instanceof TextBox);
+		Assert.assertTrue(paragraph.getElement(1) instanceof Glue);
+		Assert.assertTrue(paragraph.getElement(2) instanceof TextBox);
+		// TODO should support?
+		Assert.assertTrue(paragraph.getElement(3) == Penalty.ADVISE_BREAK);
+		Assert.assertTrue(paragraph.getElement(4) instanceof TextBox);
+		Assert.assertTrue(paragraph.getElement(5) instanceof Glue);
+		Assert.assertTrue(paragraph.getElement(6) instanceof TextBox);
+		Assert.assertTrue(paragraph.getElement(7) == Glue.TERMINAL);
+		Assert.assertTrue(paragraph.getElement(8) == Penalty.FORCE_BREAK);
+
+		Paragraph.Builder builder1 = Paragraph.Builder.newBuilder(texasOption);
+		Assert.assertSame(builder1, builder);
+		builder1.text("b")
+				.text("c");
+		paragraph = builder1.build();
+		Assert.assertTrue(paragraph.getElement(0) instanceof TextBox);
+		Assert.assertTrue(paragraph.getElement(1) instanceof Glue);
+		Assert.assertTrue(paragraph.getElement(2) instanceof TextBox);
+		Assert.assertTrue(paragraph.getElement(3) == Glue.TERMINAL);
+		Assert.assertTrue(paragraph.getElement(4) == Penalty.FORCE_BREAK);
 	}
 
 	@Test
