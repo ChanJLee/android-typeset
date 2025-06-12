@@ -1,5 +1,6 @@
 package me.chan.texas;
 
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.text.TextPaint;
 import android.util.Log;
@@ -13,6 +14,7 @@ import androidx.core.view.WindowInsetsCompat;
 import me.chan.texas.debug.R;
 import me.chan.texas.renderer.RenderOption;
 import me.chan.texas.renderer.ui.text.ParagraphView;
+import me.chan.texas.utils.TexasUtils;
 
 public class BenchmarkActivity extends AppCompatActivity {
 
@@ -27,9 +29,9 @@ public class BenchmarkActivity extends AppCompatActivity {
 		});
 
 		TextView textView = findViewById(R.id.raw);
+		textView.setTypeface(TexasUtils.createTypefaceFromAsset(this, "opposans_r.ttf"));
 		TextPaint textPaint = textView.getPaint();
 		Log.d("BenchmarkActivity", "textPaint: " + textPaint.getTextSize() + " -> " + textPaint.getFontMetrics());
-
 
 		ParagraphView paragraphView = findViewById(R.id.paragraph);
 		RenderOption option = paragraphView.createRendererOption();

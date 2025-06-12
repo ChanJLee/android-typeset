@@ -5,7 +5,9 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.Color;
+
 import me.chan.texas.misc.Rect;
+
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
@@ -213,13 +215,9 @@ public final class TexasView extends FrameLayout {
 		);
 
 		// 行间距
-		renderOption.setLineSpace(
-				typedArray.getDimension(R.styleable.me_chan_texas_TexasView_me_chan_texas_TexasView_lineSpace,
-						TypedValue.applyDimension(
-								TypedValue.COMPLEX_UNIT_DIP,
-								DEFAULT_LINE_SPACE,
-								resources.getDisplayMetrics()
-						)
+		renderOption.setLineSpacingExtra(
+				typedArray.getDimension(R.styleable.me_chan_texas_TexasView_me_chan_texas_TexasView_lineSpacingExtra,
+						0
 				)
 		);
 
