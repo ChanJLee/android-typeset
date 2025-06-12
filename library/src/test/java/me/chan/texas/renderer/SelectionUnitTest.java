@@ -45,7 +45,7 @@ public class SelectionUnitTest {
 	@Test
 	public void testParagraphSelection() throws ParagraphVisitor.VisitException {
 		RenderOption renderOption = new RenderOption();
-		renderOption.setLineSpace(1);
+		renderOption.setLineSpacingExtra(1);
 
 		TexasOption texasOption = new TexasOption(mPaintSet, Hyphenation.getInstance(), mMeasurer, mTextAttribute, renderOption);
 		Paragraph.Builder builder = Paragraph.Builder.newBuilder(texasOption);

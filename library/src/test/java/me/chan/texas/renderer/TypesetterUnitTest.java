@@ -39,9 +39,6 @@ import me.chan.texas.typesetter.ParagraphTypesetter;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -403,7 +400,7 @@ public class TypesetterUnitTest {
 
 		ParagraphTypesetter texTypesetter = new ParagraphTypesetter();
 		RenderOption renderOption = new RenderOption();
-		renderOption.setLineSpace(1);
+		renderOption.setLineSpacingExtra(1);
 		Measurer measurer = new MockMeasurer(factory.getMockTextPaint());
 		LoadingJoinListener listener = new LoadingJoinListener();
 		LoadingWorker.Args args = new LoadingWorker.Args(new MockTextSource(renderOption, new TextAttribute(measurer), measurer, text), listener);
@@ -541,7 +538,7 @@ public class TypesetterUnitTest {
 	@Test
 	public void testEmptyLineWithBrk() {
 		RenderOption renderOption = new RenderOption();
-		renderOption.setLineSpace(1);
+		renderOption.setLineSpacingExtra(1);
 		FakeMeasureFactory factory = FakeMeasureFactory.getInstance();
 		factory.getMockTextPaint().setMockTextSize(1);
 		Measurer measurer = new MockMeasurer(factory.getMockTextPaint());
@@ -565,7 +562,7 @@ public class TypesetterUnitTest {
 	@Test
 	public void testEmptyLineWithoutBrk() {
 		RenderOption renderOption = new RenderOption();
-		renderOption.setLineSpace(1);
+		renderOption.setLineSpacingExtra(1);
 		FakeMeasureFactory factory = FakeMeasureFactory.getInstance();
 		factory.getMockTextPaint().setMockTextSize(1);
 		Measurer measurer = new MockMeasurer(factory.getMockTextPaint());
@@ -589,7 +586,7 @@ public class TypesetterUnitTest {
 	@Test
 	public void testDesire() {
 		RenderOption renderOption = new RenderOption();
-		renderOption.setLineSpace(1);
+		renderOption.setLineSpacingExtra(1);
 		FakeMeasureFactory factory = FakeMeasureFactory.getInstance();
 		factory.getMockTextPaint().setMockTextSize(1);
 		Measurer measurer = new MockMeasurer(factory.getMockTextPaint());
@@ -632,7 +629,7 @@ public class TypesetterUnitTest {
 		factory.getMockTextPaint().setMockTextSize(1);
 
 		RenderOption renderOption = new RenderOption();
-		renderOption.setLineSpace(1);
+		renderOption.setLineSpacingExtra(1);
 		Measurer measurer = new MockMeasurer(factory.getMockTextPaint());
 		PaintSet paintSet = new PaintSet(factory.getMockTextPaint());
 		TextAttribute textAttribute = new TextAttribute(measurer);

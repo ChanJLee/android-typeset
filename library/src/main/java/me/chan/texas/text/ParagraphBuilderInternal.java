@@ -54,7 +54,7 @@ class ParagraphBuilderInternal {
 	}
 
 	public void lineSpace(float lineSpace) {
-		mParagraph.mLayout.getAdvise().setLineSpace(lineSpace);
+		mParagraph.mLayout.getAdvise().setLineSpacingExtra(lineSpace);
 	}
 
 	public void breakStrategy(BreakStrategy breakStrategy) {

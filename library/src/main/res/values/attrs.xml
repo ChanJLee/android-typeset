@@ -9,7 +9,7 @@
         <attr name="me_chan_texas_TexasView_textColor" format="color" />
         <attr name="me_chan_texas_TexasView_typefaceAssets" format="string" />
         <attr name="me_chan_texas_TexasView_textSize" format="dimension" />
-        <attr name="me_chan_texas_TexasView_lineSpace" format="dimension" />
+        <attr name="me_chan_texas_TexasView_lineSpacingExtra" format="dimension" />
         <attr name="me_chan_texas_TexasView_selectedBackgroundColor" format="color" />
         <attr name="me_chan_texas_TexasView_selectedTextColor" format="color" />
         <attr name="me_chan_texas_TexasView_spanSelectedBackgroundColor" format="color" />
@@ -51,7 +51,7 @@
         <attr name="me_chan_texas_ParagraphView_debugEnable" format="boolean" />
         <attr name="me_chan_texas_ParagraphView_typefaceAssets" format="string" />
         <attr name="me_chan_texas_ParagraphView_textSize" format="dimension" />
-        <attr name="me_chan_texas_ParagraphView_lineSpace" format="dimension" />
+        <attr name="me_chan_texas_ParagraphView_lineSpacingExtra" format="dimension" />
         <attr name="me_chan_texas_ParagraphView_selectedBackgroundColor" format="color" />
         <attr name="me_chan_texas_ParagraphView_selectedTextColor" format="color" />
         <attr name="me_chan_texas_ParagraphView_spanSelectedBackgroundColor" format="color" />

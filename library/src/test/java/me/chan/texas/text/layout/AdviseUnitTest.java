@@ -24,7 +24,7 @@ public class AdviseUnitTest {
 		PaintSet paintSet = new PaintSet(textPaint);
 
 		RenderOption renderOption = new RenderOption();
-		renderOption.setLineSpace(1f);
+		renderOption.setLineSpacingExtra(1f);
 		TexasOption texasOption = new TexasOption(paintSet, Hyphenation.getInstance(), measurer, textAttribute, renderOption);
 
 		Paragraph.Builder builder = Paragraph.Builder.newBuilder(texasOption);
@@ -32,16 +32,16 @@ public class AdviseUnitTest {
 
 		Layout.Advise advise = paragraph.getLayout().getAdvise();
 		Assert.assertEquals(BreakStrategy.SIMPLE, advise.getBreakStrategy());
-		Assert.assertEquals(1f, advise.getLineSpace(), 0.001f);
+		Assert.assertEquals(1f, advise.getLineSpacingExtra(), 0.001f);
 		Assert.assertEquals(TextGravity.START | TextGravity.TOP, advise.getTextGravity());
 
-		renderOption.setLineSpace(2);
+		renderOption.setLineSpacingExtra(2);
 		renderOption.setBreakStrategy(BreakStrategy.BALANCED);
 		renderOption.setTextGravity(TextGravity.CENTER_HORIZONTAL);
 		advise.copy(renderOption);
 
 		Assert.assertEquals(BreakStrategy.BALANCED, advise.getBreakStrategy());
-		Assert.assertEquals(2f, advise.getLineSpace(), 0.001f);
+		Assert.assertEquals(2f, advise.getLineSpacingExtra(), 0.001f);
 		Assert.assertEquals(TextGravity.CENTER_HORIZONTAL | TextGravity.TOP, advise.getTextGravity());
 
 		builder = Paragraph.Builder.newBuilder(texasOption);
@@ -52,22 +52,22 @@ public class AdviseUnitTest {
 
 		advise = paragraph.getLayout().getAdvise();
 		Assert.assertEquals(BreakStrategy.SIMPLE, advise.getBreakStrategy());
-		Assert.assertEquals(3f, advise.getLineSpace(), 0.001f);
+		Assert.assertEquals(3f, advise.getLineSpacingExtra(), 0.001f);
 		Assert.assertEquals(TextGravity.END | TextGravity.TOP, advise.getTextGravity());
 
 		// 用户不是用的默认值就不变更值
 		renderOption.setBreakStrategy(BreakStrategy.UNKNOWN);
-		renderOption.setLineSpace(4);
+		renderOption.setLineSpacingExtra(4);
 		renderOption.setTextGravity(TextGravity.START);
 		advise.copy(renderOption);
 		Assert.assertEquals(BreakStrategy.SIMPLE, advise.getBreakStrategy());
-		Assert.assertEquals(3f, advise.getLineSpace(), 0.001f);
+		Assert.assertEquals(3f, advise.getLineSpacingExtra(), 0.001f);
 		Assert.assertEquals(TextGravity.END | TextGravity.TOP, advise.getTextGravity());
 
 		advise.reset();
 		advise.copy(renderOption);
 		Assert.assertEquals(BreakStrategy.UNKNOWN, advise.getBreakStrategy());
-		Assert.assertEquals(4f, advise.getLineSpace(), 0.001f);
+		Assert.assertEquals(4f, advise.getLineSpacingExtra(), 0.001f);
 		Assert.assertEquals(TextGravity.START | TextGravity.TOP, advise.getTextGravity());
 	}
 }

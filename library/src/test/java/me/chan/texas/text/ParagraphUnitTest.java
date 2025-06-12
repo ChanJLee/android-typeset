@@ -79,13 +79,13 @@ public class ParagraphUnitTest {
 	@Test
 	public void testBuilder() {
 		String msg = "hello";
-		TexasOption texasOption = new TexasOption(mPaintSet, Hyphenation.getInstance(), mMeasurer, mTextAttribute, new RenderOption().setLineSpace(1));
+		TexasOption texasOption = new TexasOption(mPaintSet, Hyphenation.getInstance(), mMeasurer, mTextAttribute, new RenderOption().setLineSpacingExtra(1));
 		Paragraph.Builder builder = Paragraph.Builder.newBuilder(texasOption);
 		builder.lineSpace(2);
 		Paragraph paragraph = builder.build();
 		Layout layout = paragraph.getLayout();
 		Layout.Advise advise = layout.getAdvise();
-		Assert.assertEquals(advise.getLineSpace(), 2, 0);
+		Assert.assertEquals(advise.getLineSpacingExtra(), 2, 0);
 		Assert.assertTrue(builder.isRecycled());
 		Assert.assertFalse(paragraph.isRecycled());
 		Assert.assertTrue(builder.isRecycled());
@@ -124,7 +124,7 @@ public class ParagraphUnitTest {
 		paragraph = builder.build();
 		layout = paragraph.getLayout();
 		advise = layout.getAdvise();
-		Assert.assertEquals(advise.getLineSpace(), 1, 0);
+		Assert.assertEquals(advise.getLineSpacingExtra(), 1, 0);
 		Assert.assertEquals(paragraph.getElementCount(), 13);
 		DrawableBox drawableBox = (DrawableBox) paragraph.getElement(0);
 		Assert.assertSame(drawableBox.getDrawable(), colorDrawable);
@@ -1032,7 +1032,7 @@ public class ParagraphUnitTest {
 		Layout layout = paragraph.getLayout();
 		Layout.Advise advise = layout.getAdvise();
 		Assert.assertSame(msg, paragraph.getTag());
-		Assert.assertEquals(advise.getLineSpace(), 0, 0);
+		Assert.assertEquals(advise.getLineSpacingExtra(), 0, 0);
 		Assert.assertEquals(layout.getLineCount(), 0);
 		Assert.assertEquals(paragraph.getElementCount(), 3);
 

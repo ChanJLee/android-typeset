@@ -62,7 +62,7 @@ public class SelectionUnitTest {
 		Assert.assertFalse(selection.isInvalidate());
 
 		RenderOption renderOption = new RenderOption();
-		renderOption.setLineSpace(1);
+		renderOption.setLineSpacingExtra(1);
 		FakeMeasureFactory factory = FakeMeasureFactory.getInstance();
 		factory.getMockTextPaint().setMockTextSize(1);
 		Measurer measurer = new MockMeasurer(factory.getMockTextPaint());
