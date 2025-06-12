@@ -45,7 +45,7 @@ class ParagraphBuilderInternal {
 	private final Paragraph.SpanBuilder mSpanBuilder;
 
 	private Token mLastToken;
-	private boolean mAppendSpaceBetweenSpan = true;
+	private boolean mAppendSpaceEnable = true;
 
 	private Glue mCommonGlue;
 	private Glue mStretchOnlyGlue;
@@ -62,8 +62,8 @@ class ParagraphBuilderInternal {
 		mParagraph.mLayout.getAdvise().setBreakStrategy(breakStrategy);
 	}
 
-	public void appendSpaceBetweenSpan(boolean appendSpaceBetweenSpan) {
-		mAppendSpaceBetweenSpan = appendSpaceBetweenSpan;
+	public void appendSpaceEnable(boolean enable) {
+		mAppendSpaceEnable = enable;
 	}
 
 	public void textGravity(int gravity) {
@@ -124,7 +124,7 @@ class ParagraphBuilderInternal {
 		mTag = null;
 		mSpanBuilder.reset();
 		mLastToken = null;
-		mAppendSpaceBetweenSpan = true;
+		mAppendSpaceEnable = true;
 		mStretchOnlyGlue = null;
 		mCommonGlue = null;
 	}
@@ -142,7 +142,7 @@ class ParagraphBuilderInternal {
 				0, 0, mTextAttribute.getSpaceStretch(), 0
 		);
 		mLastToken = null;
-		mAppendSpaceBetweenSpan = true;
+		mAppendSpaceEnable = true;
 	}
 
 	public void addTypesetPolicy(int policy) {
@@ -202,7 +202,7 @@ class ParagraphBuilderInternal {
 
 			// 追加一个空格
 			// 这个未来还能不能适用，就要看状态推导图了，目前看一个token后接blank和none不影响状态机的跳转
-			if (mAppendSpaceBetweenSpan && mLastToken != null && tokenStream.hasNext()) {
+			if (mAppendSpaceEnable && mLastToken != null && tokenStream.hasNext()) {
 				tokenStream = TokenStream.link(TokenStream.obtain(" ", 0, 1), tokenStream);
 			}
 
@@ -523,10 +523,6 @@ class ParagraphBuilderInternal {
 
 		appendElement(Glue.TERMINAL);
 		appendElement(Penalty.FORCE_BREAK);
-	}
-
-	public void autoAppendSpace(boolean enable) {
-		mAppendSpaceBetweenSpan = enable;
 	}
 
 	private static abstract class TypesetRule {

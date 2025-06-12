@@ -351,7 +351,7 @@ public final class Paragraph extends DefaultRecyclable implements Segment {
 		 * @return 当前对象
 		 */
 		public Builder appendSpaceEnable(boolean enable) {
-			mBuilder0.appendSpaceBetweenSpan(enable);
+			mBuilder0.appendSpaceEnable(enable);
 			return this;
 		}
 
