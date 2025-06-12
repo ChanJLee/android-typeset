@@ -247,8 +247,8 @@ public final class Paragraph extends DefaultRecyclable implements Segment {
 			mBuilder0 = new ParagraphBuilderInternal(this);
 		}
 
-		public Builder lineSpace(float lineSpace) {
-			mBuilder0.lineSpace(lineSpace);
+		public Builder lineSpacingExtra(float lineSpace) {
+			mBuilder0.lineSpacingExtra(lineSpace);
 			return this;
 		}
 
@@ -343,6 +343,15 @@ public final class Paragraph extends DefaultRecyclable implements Segment {
 		 */
 		public Builder stream(CharSequence text, int start, int end, SpanReader spanReader) {
 			mBuilder0.stream(text, start, end, spanReader);
+			return this;
+		}
+
+		/**
+		 * @param enable 是否在每次添加文本后追加空格来自动分割不同的句子，默认打开
+		 * @return 当前对象
+		 */
+		public Builder appendSpaceEnable(boolean enable) {
+			mBuilder0.appendSpaceEnable(enable);
 			return this;
 		}
 
