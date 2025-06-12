@@ -220,7 +220,6 @@ public final class TextBox extends Box {
 
 	@Override
 	public void draw(Canvas canvas, Paint paint, float x, float y, StateList states) {
-		y -= mBaselineOffset;
 		if (mAttribute != ATTRIBUTE_NONE) {
 			if (hasAttribute(ATTRIBUTE_ZOOM_OUT)) {
 				paint.setTextSize(paint.getTextSize() * ZOOM_OUT_FACTOR);
@@ -387,5 +386,9 @@ public final class TextBox extends Box {
 		}
 
 		return height;
+	}
+
+	public float getBaselineOffset() {
+		return mBaselineOffset;
 	}
 }
