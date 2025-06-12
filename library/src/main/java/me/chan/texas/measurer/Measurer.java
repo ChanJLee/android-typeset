@@ -41,19 +41,15 @@ public interface Measurer {
 
 		private float mWidth;
 		private float mHeight;
-		private float mFontTopPadding;
-		private float mFontBottomPadding;
-		private float mBaselineHeight;
+		private float mBaselineOffset;
 
 		CharSequenceSpec() {
 		}
 
-		public void reset(float width, float height, float fontTopPadding, float fontBottomPadding, float baselineHeight) {
+		public void reset(float width, float height, float baselineOffset) {
 			mWidth = width;
 			mHeight = height;
-			mFontTopPadding = fontTopPadding;
-			mFontBottomPadding = fontBottomPadding;
-			mBaselineHeight = baselineHeight;
+			mBaselineOffset = baselineOffset;
 		}
 
 		public float getWidth() {
@@ -64,16 +60,8 @@ public interface Measurer {
 			return mHeight;
 		}
 
-		public float getFontTopPadding() {
-			return mFontTopPadding;
-		}
-
-		public float getFontBottomPadding() {
-			return mFontBottomPadding;
-		}
-
 		public float getBaselineOffset() {
-			return mBaselineHeight;
+			return mBaselineOffset;
 		}
 
 		public static CharSequenceSpec obtain() {
@@ -87,7 +75,7 @@ public interface Measurer {
 
 		@Override
 		protected void onRecycle() {
-			mWidth = mHeight = mFontBottomPadding = mFontTopPadding = mBaselineHeight = 0;
+			mWidth = mHeight = mBaselineOffset = 0;
 			POOL.release(this);
 		}
 	}

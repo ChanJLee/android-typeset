@@ -127,7 +127,7 @@ public abstract class ParagraphVisitor {
 				float width = box.getWidth();
 				meta.inner.left = bottomX;
 				meta.inner.right = bottomX + width;
-				meta.inner.top = bottomY - line.getLineHeight() - line.getTopPadding();
+				meta.inner.top = bottomY - line.getLineHeight();
 				meta.inner.bottom = bottomY;
 				meta.box = box;
 				meta.index = index;

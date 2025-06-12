@@ -10,6 +10,9 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
+            android:name="me.chan.texas.BenchmarkActivity"
+            android:exported="false" />
+        <activity
             android:name="me.chan.texas.ParagraphViewDemoActivity"
             android:exported="false" />
         <activity

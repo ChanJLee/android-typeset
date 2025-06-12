@@ -48,6 +48,7 @@
 
     <declare-styleable name="me_chan_texas_ParagraphView">
         <attr name="me_chan_texas_ParagraphView_textColor" format="color" />
+        <attr name="me_chan_texas_ParagraphView_debugEnable" format="boolean" />
         <attr name="me_chan_texas_ParagraphView_typefaceAssets" format="string" />
         <attr name="me_chan_texas_ParagraphView_textSize" format="dimension" />
         <attr name="me_chan_texas_ParagraphView_lineSpace" format="dimension" />

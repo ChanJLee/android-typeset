@@ -109,6 +109,15 @@ public class MainActivity extends AppCompatActivity {
 				startActivity(intent);
 			}
 		});
+
+		findViewById(me.chan.texas.debug.R.id.benchmark).setOnClickListener(new View.OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				Intent intent = new Intent(v.getContext(), BenchmarkActivity.class);
+				startActivity(intent);
+			}
+		});
 	}
 
 	@Override

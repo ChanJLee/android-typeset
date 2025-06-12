@@ -72,8 +72,6 @@ public final class TextBox extends Box {
 	private int mStart;
 	private int mEnd;
 	private TextStyle mTextStyle;
-	private float mTopPadding;
-	private float mBottomPadding;
 	private float mBaselineOffset;
 
 	@Internal
@@ -115,8 +113,6 @@ public final class TextBox extends Box {
 		// internal data
 		mAttribute = other.mAttribute;
 
-		mTopPadding = other.mTopPadding;
-		mBottomPadding = other.mBottomPadding;
 		mBaselineOffset = other.mBaselineOffset;
 
 		mGroupId = other.mGroupId;
@@ -141,8 +137,6 @@ public final class TextBox extends Box {
 		this.mHeight = Math.max(this.mHeight, box.mHeight);
 		this.mEnd = box.mEnd;
 		this.mAttribute |= box.mAttribute;
-		this.mTopPadding = Math.max(this.mTopPadding, box.mTopPadding);
-		this.mBottomPadding = Math.max(this.mBottomPadding, box.mBottomPadding);
 		this.mBaselineOffset = Math.max(this.mBaselineOffset, box.mBaselineOffset);
 		return true;
 	}
@@ -158,7 +152,7 @@ public final class TextBox extends Box {
 		mStart = mEnd = 0;
 		mTextStyle = null;
 		mAttribute = ATTRIBUTE_NONE;
-		mTopPadding = mBottomPadding = mBaselineOffset = 0;
+		mBaselineOffset = 0;
 		mGroupId = Hyphenation.NONE_GROUP_ID;
 		POOL.release(this);
 	}
@@ -173,8 +167,6 @@ public final class TextBox extends Box {
 
 		if (mStart != textBox.mStart) return false;
 		if (mEnd != textBox.mEnd) return false;
-		if (Float.compare(textBox.mTopPadding, mTopPadding) != 0) return false;
-		if (Float.compare(textBox.mBottomPadding, mBottomPadding) != 0) return false;
 		if (Float.compare(textBox.mBaselineOffset, mBaselineOffset) != 0) return false;
 		if (mAttribute != textBox.mAttribute) return false;
 		if (mText != null ? !mText.equals(textBox.mText) : textBox.mText != null) return false;
@@ -188,8 +180,6 @@ public final class TextBox extends Box {
 		result = 31 * result + mStart;
 		result = 31 * result + mEnd;
 		result = 31 * result + (mTextStyle != null ? mTextStyle.hashCode() : 0);
-		result = 31 * result + (mTopPadding != +0.0f ? Float.floatToIntBits(mTopPadding) : 0);
-		result = 31 * result + (mBottomPadding != +0.0f ? Float.floatToIntBits(mBottomPadding) : 0);
 		result = 31 * result + (mBaselineOffset != +0.0f ? Float.floatToIntBits(mBaselineOffset) : 0);
 		result = 31 * result + mAttribute;
 		result = 31 * result + mGroupId;
@@ -230,6 +220,7 @@ public final class TextBox extends Box {
 
 	@Override
 	public void draw(Canvas canvas, Paint paint, float x, float y, StateList states) {
+		y -= mBaselineOffset;
 		if (mAttribute != ATTRIBUTE_NONE) {
 			if (hasAttribute(ATTRIBUTE_ZOOM_OUT)) {
 				paint.setTextSize(paint.getTextSize() * ZOOM_OUT_FACTOR);
@@ -274,14 +265,6 @@ public final class TextBox extends Box {
 	@VisibleForTesting
 	void setStart(int start) {
 		mStart = start;
-	}
-
-	float getTopPadding() {
-		return mTopPadding;
-	}
-
-	float getBottomPadding() {
-		return mBottomPadding;
 	}
 
 	public static TextBox obtain(@NonNull CharSequence charSequence, int start, int end,
@@ -341,8 +324,6 @@ public final class TextBox extends Box {
 		measurer.measure(mText, mStart, mEnd, getTextStyle(), getTag(), spec);
 		mWidth = spec.getWidth();
 		mHeight = spec.getHeight();
-		mBottomPadding = spec.getFontBottomPadding();
-		mTopPadding = spec.getFontTopPadding();
 		mBaselineOffset = spec.getBaselineOffset();
 		spec.recycle();
 	}
@@ -406,9 +387,5 @@ public final class TextBox extends Box {
 		}
 
 		return height;
-	}
-
-	public float getBaselineOffset() {
-		return mBaselineOffset;
 	}
 }

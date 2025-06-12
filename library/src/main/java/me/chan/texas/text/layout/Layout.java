@@ -146,25 +146,13 @@ public class Layout extends DefaultRecyclable {
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
 	public int getPaddingTop() {
 		Rect rect = getRect();
-		int top = rect == null ? 0 : rect.top;
-		int lineCount = getLineCount();
-		if (lineCount != 0) {
-			Line line = getLine(0);
-			top += line.getTopPadding();
-		}
-		return top;
+		return rect == null ? 0 : rect.top;
 	}
 
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
 	public int getPaddingBottom() {
 		Rect rect = getRect();
-		int bottom = rect == null ? 0 : rect.bottom;
-		int lineCount = getLineCount();
-		if (lineCount != 0) {
-			Line line = getLine(lineCount - 1);
-			bottom += line.getBottomPadding();
-		}
-		return bottom;
+		return rect == null ? 0 : rect.bottom;
 	}
 
 	@RestrictTo(LIBRARY)

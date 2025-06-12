@@ -894,6 +894,11 @@ public class ParagraphView extends FrameLayout {
 		int textGravity = typedArray.getInt(R.styleable.me_chan_texas_ParagraphView_me_chan_texas_ParagraphView_textGravity, TextGravity.TOP | TextGravity.START);
 		renderOption.setTextGravity(textGravity);
 
+		// 开启debug
+		renderOption.setDebugEnable(
+				typedArray.getBoolean(R.styleable.me_chan_texas_ParagraphView_me_chan_texas_ParagraphView_debugEnable, false)
+		);
+
 		return renderOption;
 	}
 

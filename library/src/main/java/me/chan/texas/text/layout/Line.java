@@ -24,9 +24,6 @@ public class Line extends DefaultRecyclable {
 	private float mLineHeight;
 	private float mLineWidth;
 	private float mRatio;
-	private float mTopPadding;
-	private float mBottomPadding;
-	private float mBaselineOffset;
 
 	private Line() {
 		Texas.MemoryOption memoryOption = Texas.getMemoryOption();
@@ -38,7 +35,6 @@ public class Line extends DefaultRecyclable {
 		mElements.clear();
 		mLineHeight = -1;
 		mRatio = -1;
-		mBottomPadding = mTopPadding = mBaselineOffset = 0;
 	}
 
 	public float getLineHeight() {
@@ -63,18 +59,6 @@ public class Line extends DefaultRecyclable {
 
 	public void setRatio(float ratio) {
 		mRatio = ratio;
-	}
-
-	public float getTopPadding() {
-		return mTopPadding;
-	}
-
-	public float getBottomPadding() {
-		return mBottomPadding;
-	}
-
-	public float getBaselineOffset() {
-		return mBaselineOffset;
 	}
 
 	@Override
@@ -323,13 +307,6 @@ public class Line extends DefaultRecyclable {
 					boxWidth += box.getWidth();
 					if (lineHeight < box.getHeight()) {
 						lineHeight = box.getHeight();
-					}
-
-					if (box instanceof TextBox) {
-						TextBox textBox = (TextBox) box;
-						line.mBottomPadding = Math.max(textBox.getBottomPadding(), line.mBottomPadding);
-						line.mTopPadding = Math.max(textBox.getTopPadding(), line.mTopPadding);
-						line.mBaselineOffset = Math.max(textBox.getBaselineOffset(), line.mBaselineOffset);
 					}
 				} else if (element instanceof Glue) {
 					Glue glue = (Glue) element;
