@@ -3,6 +3,7 @@ package me.chan.texas.renderer.core.worker;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+
 import me.chan.texas.misc.Rect;
 
 import me.chan.texas.misc.RectF;
@@ -353,7 +354,7 @@ public class RenderWorker {
 		}
 
 		private void drawContent(Box box, TextPaint workPaint, RectF inner, StateList states) {
-			box.draw(mCanvas, workPaint, inner.left, inner.bottom - mLine.getBaselineOffset(), states);
+			box.draw(mCanvas, workPaint, inner.left, inner.bottom, states);
 		}
 
 		private void drawBackground(Box box, RectF inner, RectF outer, RendererContext context) {
