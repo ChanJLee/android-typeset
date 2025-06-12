@@ -1,6 +1,5 @@
 package me.chan.texas;
 
-import android.graphics.Typeface;
 import android.os.Bundle;
 import android.text.TextPaint;
 import android.util.Log;
@@ -14,6 +13,7 @@ import androidx.core.view.WindowInsetsCompat;
 import me.chan.texas.debug.R;
 import me.chan.texas.renderer.RenderOption;
 import me.chan.texas.renderer.ui.text.ParagraphView;
+import me.chan.texas.text.Paragraph;
 import me.chan.texas.utils.TexasUtils;
 
 public class BenchmarkActivity extends AppCompatActivity {
@@ -35,6 +35,16 @@ public class BenchmarkActivity extends AppCompatActivity {
 
 		ParagraphView paragraphView = findViewById(R.id.paragraph);
 		RenderOption option = paragraphView.createRendererOption();
+		paragraphView.setSource(new ParagraphView.ParagraphSource() {
+			@Override
+			protected Paragraph onRead(TexasOption option) {
+				return Paragraph.Builder.newBuilder(option)
+						.appendSpaceEnable(false)
+						.text("AVAV")
+						.text("WAWA asdasdasd")
+						.build();
+			}
+		});
 		Log.d("BenchmarkActivity", "option: " + option.getTextSize());
 	}
 }
