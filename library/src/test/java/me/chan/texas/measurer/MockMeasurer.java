@@ -20,7 +20,6 @@ public class MockMeasurer implements Measurer {
 	@Override
 	public void measure(CharSequence charSequence, int start, int end, TextStyle textStyle, Object tag, CharSequenceSpec spec) {
 		spec.reset((end - start) * mMockTextPaint.getMockTextSize(),
-				mMockTextPaint.getMockTextHeight(),
-				0, 0, 0);
+				mMockTextPaint.getMockTextHeight(), 0);
 	}
 }
