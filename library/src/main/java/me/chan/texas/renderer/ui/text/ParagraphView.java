@@ -5,7 +5,6 @@ import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.graphics.Typeface;
-import android.nfc.Tag;
 import android.os.Build;
 import android.os.Process;
 import android.os.SystemClock;
@@ -789,8 +788,8 @@ public class ParagraphView extends FrameLayout {
 
 		// 设置字体大小
 		renderOption.setTextSize(
-				typedArray.getDimension(R.styleable.me_chan_texas_ParagraphView_me_chan_texas_ParagraphView_textSize,
-						TypedValue.applyDimension(
+				typedArray.getDimensionPixelSize(R.styleable.me_chan_texas_ParagraphView_me_chan_texas_ParagraphView_textSize,
+						(int) TypedValue.applyDimension(
 								TypedValue.COMPLEX_UNIT_SP,
 								TexasView.DEFAULT_TEXT_SIZE,
 								resources.getDisplayMetrics()
@@ -799,14 +798,8 @@ public class ParagraphView extends FrameLayout {
 		);
 
 		// 行间距
-		renderOption.setLineSpace(
-				typedArray.getDimension(R.styleable.me_chan_texas_ParagraphView_me_chan_texas_ParagraphView_lineSpace,
-						TypedValue.applyDimension(
-								TypedValue.COMPLEX_UNIT_DIP,
-								TexasView.DEFAULT_LINE_SPACE,
-								resources.getDisplayMetrics()
-						)
-				)
+		renderOption.setLineSpacingExtra(
+				typedArray.getDimensionPixelSize(R.styleable.me_chan_texas_ParagraphView_me_chan_texas_ParagraphView_lineSpacingExtra, 0)
 		);
 
 		// 选中字体的背景色
@@ -893,6 +886,11 @@ public class ParagraphView extends FrameLayout {
 		// 文字居中形式
 		int textGravity = typedArray.getInt(R.styleable.me_chan_texas_ParagraphView_me_chan_texas_ParagraphView_textGravity, TextGravity.TOP | TextGravity.START);
 		renderOption.setTextGravity(textGravity);
+
+		// 开启debug
+		renderOption.setDebugEnable(
+				typedArray.getBoolean(R.styleable.me_chan_texas_ParagraphView_me_chan_texas_ParagraphView_debugEnable, false)
+		);
 
 		return renderOption;
 	}

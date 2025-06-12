@@ -3,6 +3,7 @@ package me.chan.texas.renderer.core.worker;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+
 import me.chan.texas.misc.Rect;
 
 import me.chan.texas.misc.RectF;

@@ -335,8 +335,8 @@ public class TexasViewDemoActivity extends AppCompatActivity {
 			@Override
 			public void onClick(View v) {
 				RenderOption renderOption = mTexasView.createRendererOption();
-				renderOption.setLineSpace(renderOption.getLineSpace() + 200);
-				Log.i("TexasCore", "set line space: " + renderOption.getLineSpace());
+				renderOption.setLineSpacingExtra(renderOption.getLineSpacingExtra() + 200);
+				Log.i("TexasCore", "set line space: " + renderOption.getLineSpacingExtra());
 				mTexasView.refresh(renderOption);
 			}
 		});

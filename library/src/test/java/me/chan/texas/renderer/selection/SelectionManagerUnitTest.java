@@ -67,7 +67,7 @@ public class SelectionManagerUnitTest {
 
 		Measurer measurer = new MockMeasurer(textPaint);
 		TextAttribute textAttribute = new TextAttribute(measurer);
-		TexasOption texasOption = new TexasOption(new PaintSet(textPaint), Hyphenation.getInstance(), measurer, textAttribute, mRenderOption = new RenderOption().setLineSpace(1));
+		TexasOption texasOption = new TexasOption(new PaintSet(textPaint), Hyphenation.getInstance(), measurer, textAttribute, mRenderOption = new RenderOption().setLineSpacingExtra(1));
 
 		Document.Builder builder = new Document.Builder();
 		List<Segment> list = new ArrayList<>();

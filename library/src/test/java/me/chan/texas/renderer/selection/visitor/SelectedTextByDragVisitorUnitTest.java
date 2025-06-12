@@ -5,7 +5,6 @@ import org.junit.Test;
 
 import java.util.List;
 
-import me.chan.texas.R;
 import me.chan.texas.TexasOption;
 import me.chan.texas.di.FakeMeasureFactory;
 import me.chan.texas.hyphenation.Hyphenation;
@@ -114,7 +113,7 @@ public class SelectedTextByDragVisitorUnitTest {
 		factory.getMockTextPaint().setMockTextSize(1);
 
 		RenderOption renderOption = new RenderOption();
-		renderOption.setLineSpace(1);
+		renderOption.setLineSpacingExtra(1);
 		Measurer measurer = new MockMeasurer(factory.getMockTextPaint());
 		PaintSet paintSet = new PaintSet(factory.getMockTextPaint());
 		TextAttribute textAttribute = new TextAttribute(measurer);
@@ -163,7 +162,7 @@ public class SelectedTextByDragVisitorUnitTest {
 		factory.getMockTextPaint().setMockTextSize(1);
 
 		RenderOption renderOption = new RenderOption();
-		renderOption.setLineSpace(1);
+		renderOption.setLineSpacingExtra(1);
 		Measurer measurer = new MockMeasurer(factory.getMockTextPaint());
 		PaintSet paintSet = new PaintSet(factory.getMockTextPaint());
 		TextAttribute textAttribute = new TextAttribute(measurer);

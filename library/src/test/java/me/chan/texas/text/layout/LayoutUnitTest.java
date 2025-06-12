@@ -27,7 +27,7 @@ public class LayoutUnitTest {
 		factory.getMockTextPaint().setMockTextSize(1);
 
 		RenderOption renderOption = new RenderOption();
-		renderOption.setLineSpace(1);
+		renderOption.setLineSpacingExtra(1);
 		Measurer measurer = new MockMeasurer(factory.getMockTextPaint());
 		PaintSet paintSet = new PaintSet(factory.getMockTextPaint());
 		TextAttribute textAttribute = new TextAttribute(measurer);
