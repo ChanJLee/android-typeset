@@ -354,7 +354,7 @@ public class RenderWorker {
 		}
 
 		private void drawContent(Box box, TextPaint workPaint, RectF inner, StateList states) {
-			box.draw(mCanvas, workPaint, inner.left, inner.bottom, states);
+			box.draw(mCanvas, workPaint, inner.left, inner.bottom - mLine.getBaselineOffset(), states);
 		}
 
 		private void drawBackground(Box box, RectF inner, RectF outer, RendererContext context) {
