@@ -1074,11 +1074,9 @@ public class ParagraphUnitTest {
 	public void testSpec() {
 		Measurer.CharSequenceSpec spec = Measurer.CharSequenceSpec.obtain();
 		Assert.assertNotNull(spec);
-		spec.reset(1, 2, 3, 4, 5);
+		spec.reset(1, 2, 5);
 		Assert.assertEquals(spec.getWidth(), 1, 0);
 		Assert.assertEquals(spec.getHeight(), 2, 0);
-		Assert.assertEquals(spec.getFontTopPadding(), 3, 0);
-		Assert.assertEquals(spec.getFontBottomPadding(), 4, 0);
 		Assert.assertEquals(spec.getBaselineOffset(), 5, 0);
 
 		spec.recycle();
@@ -1087,11 +1085,9 @@ public class ParagraphUnitTest {
 
 		Measurer.CharSequenceSpec spec1 = Measurer.CharSequenceSpec.obtain();
 		Assert.assertSame(spec1, spec);
-		spec1.reset(2, 3, 4, 5, 6);
+		spec1.reset(2, 3, 6);
 		Assert.assertEquals(spec.getWidth(), 2, 0);
 		Assert.assertEquals(spec.getHeight(), 3, 0);
-		Assert.assertEquals(spec.getFontTopPadding(), 4, 0);
-		Assert.assertEquals(spec.getFontBottomPadding(), 5, 0);
 		Assert.assertEquals(spec.getBaselineOffset(), 6, 0);
 
 		Assert.assertNotSame(spec1, Measurer.CharSequenceSpec.obtain());
