@@ -36,14 +36,14 @@ public class Token extends DefaultRecyclable {
 
     }
 
+    // mask bit field
+    // 0...8 type
+    // 8...31 mask
+    // - 8...16 category
+    // - 16...31 attributes
+    // 31...32 direction
 
-
-
-
-
-
-
-
+    // bit field
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public static final int BIT_TYPE_START = 0;
     @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -57,21 +57,21 @@ public class Token extends DefaultRecyclable {
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public static final int BIT_ATTRIBUTES_END = 31;
 
+    // type
+    public static final byte TYPE_NONE = 0; /* 什么也不是 */
+    public static final byte TYPE_SYMBOL = 1; /* 符号+标点符号 */
+    public static final byte TYPE_CONTROL = 2; /* 空格、制表符等 */
+    public static final byte TYPE_WORD = 3; /* 单词 */
 
-    public static final byte TYPE_NONE = 0; 
-    public static final byte TYPE_SYMBOL = 1; 
-    public static final byte TYPE_CONTROL = 2; 
-    public static final byte TYPE_WORD = 3; 
+    // category
+    public static final byte CATEGORY_SYMBOL = 8; /* 符号 emoji */
+    public static final byte CATEGORY_PUNCTUATION = 9; /* 标点符号 */
+    public static final byte CATEGORY_UNKNOWN_LETTER = 10; /* 未知字符 */
+    public static final byte CATEGORY_NORMAL = 11; /* 正常的单词 [a-z]... */
+    public static final byte CATEGORY_NUMBER = 12; /* 数字 */
+    public static final byte CATEGORY_CJK = 13; /* CJK */
 
-
-    public static final byte CATEGORY_SYMBOL = 8; 
-    public static final byte CATEGORY_PUNCTUATION = 9; 
-    public static final byte CATEGORY_UNKNOWN_LETTER = 10; 
-    public static final byte CATEGORY_NORMAL = 11; 
-    public static final byte CATEGORY_NUMBER = 12; 
-    public static final byte CATEGORY_CJK = 13; 
-
-
+    // symbol attributes
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public static final int SYMBOL_ATTRIBUTE_KINSOKU_AVOID_HEADER = 16;
     @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -92,7 +92,7 @@ public class Token extends DefaultRecyclable {
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public static final int CONTROL_ATTRIBUTE_NEW_LINE = 18;
 
-
+    // direction
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public static final byte DIRECTION_RTL = 31;
 
@@ -330,7 +330,7 @@ public class Token extends DefaultRecyclable {
 
     @VisibleForTesting
     static int numberOfTrailingZeros(int i) {
-
+        // HD, Count trailing 0's
         i = ~i & (i - 1);
         if (i <= 0) return i & 32;
         int n = 1;

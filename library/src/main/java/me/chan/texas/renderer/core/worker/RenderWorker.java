@@ -176,13 +176,13 @@ public class RenderWorker {
 				selection.drawBackground(canvas, workPaint, args.option);
 			}
 
-
+			// draw content
 			renderContent(canvas, paragraph, args);
 
-
+			// render decor
 			renderDecor(canvas, paragraph, args);
 
-
+			// render debug info
 			renderDebug(taskId, canvas, paragraph, args);
 		} finally {
 			args.renderer.unlockCanvasAndPost(canvas);
@@ -293,7 +293,7 @@ public class RenderWorker {
 
 		@Override
 		protected void onVisitLineEnd(Line line, float x, float y) {
-			
+			/* noop */
 		}
 
 		@Override
@@ -322,7 +322,7 @@ public class RenderWorker {
 			}
 
 			TextBox textBox = (TextBox) box;
-
+			// 显示高亮
 			Object tag = textBox.getTag();
 
 			TextStyle textStyle = textBox.getTextStyle();
@@ -551,13 +551,21 @@ public class RenderWorker {
 	}
 
 	private static class Stats {
-		
+		/**
+		 * 请求的次数
+		 */
 		private int requestCount;
-		
+		/**
+		 * 被处理的次数
+		 */
 		private int handleCount;
-		
+		/**
+		 * 绘制的次数
+		 */
 		private int drawCount;
-		
+		/**
+		 * 使用时间
+		 */
 		private long drawUsageMs;
 
 		@Override

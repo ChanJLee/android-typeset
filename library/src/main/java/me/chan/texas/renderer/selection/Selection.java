@@ -60,7 +60,9 @@ public class Selection extends DefaultRecyclable {
 		return mType;
 	}
 
-	
+	/**
+	 * @return 获取当前选中的tags，忽略空tag
+	 */
 	@Nullable
 	public List<Paragraph> getSelectedParagraphs() {
 		if (mParagraphSelections.isEmpty() || isInvalidate()) {
@@ -75,7 +77,9 @@ public class Selection extends DefaultRecyclable {
 		return list;
 	}
 
-	
+	/**
+	 * @return 选中区域边界
+	 */
 	private final int[] mLocations = new int[2];
 
 	private RectEdge getSelectedRectEdgeSingle() {
@@ -210,20 +214,22 @@ public class Selection extends DefaultRecyclable {
 		POOL.release(this);
 	}
 
-	
+	/**
+	 * 清除选中
+	 */
 	public void clear() {
 		if (isInvalidate()) {
 			return;
 		}
 
-
+		// 通知内容被清除的时候还需要
 		for (ParagraphSelection paragraphSelection : mParagraphSelections) {
 			Paragraph paragraph = paragraphSelection.getParagraph();
 			paragraph.setSelection(mType, null);
 			try {
 				paragraph.requestRedraw();
 			} catch (Throwable ignore) {
-				
+				/* do nothing */
 			}
 			paragraphSelection.recycle();
 		}
@@ -295,7 +301,9 @@ public class Selection extends DefaultRecyclable {
 		Log.w("TexasSelection", msg);
 	}
 
-	
+	/**
+	 * Coordinate system base on screen
+	 */
 	public static class RectEdge {
 		public float topY = -1;
 		public float bottomY = -1;
@@ -458,13 +466,21 @@ public class Selection extends DefaultRecyclable {
 
 		@RestrictTo(RestrictTo.Scope.LIBRARY)
 		public enum Source {
-			
+			/**
+			 * 点击
+			 */
 			CLICKED,
-			
+			/**
+			 * 长按
+			 */
 			LONG_CLICKED,
-			
+			/**
+			 * 用户自定义
+			 */
 			USER_DEFINED,
-			
+			/**
+			 * 高亮
+			 */
 			HIGHLIGHT
 		}
 	}
@@ -502,7 +518,7 @@ public class Selection extends DefaultRecyclable {
 
 		}
 
-
+		// 实现 AnimatorListenerAdapter 剩下的接口
 		@Override
 		public final void onAnimationEnd(Animator animation) {
 			int v = mStyles.getVersion();
@@ -595,11 +611,18 @@ public class Selection extends DefaultRecyclable {
 		}
 	}
 
-	
+	/**
+	 * 选中类型，不同的选中类型允许同时存在，相同的选中类型只有一个
+	 */
 	public enum Type {
-		
+		/**
+		 * 高亮 {@link me.chan.texas.renderer.TexasView#highlightParagraphs(ParagraphPredicates)}
+		 */
 		HIGHLIGHT,
-		
+		/**
+		 * 选中，选中可以分为单击、长按、自由选择。其中自由选择和长按效果默认一致，当然你也可以自己定义
+		 * {@link me.chan.texas.renderer.TexasView#selectParagraphs(ParagraphPredicates)}
+		 */
 		SELECTION
 	}
 }

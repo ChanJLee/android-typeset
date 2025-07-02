@@ -89,7 +89,7 @@ public class AndroidWorker implements Worker {
 			try {
 				sync(token, args, task);
 			} catch (Throwable ignore) {
-				
+				/* do nothing */
 			}
 		}
 	}

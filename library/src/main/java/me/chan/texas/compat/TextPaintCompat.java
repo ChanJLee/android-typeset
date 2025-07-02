@@ -43,10 +43,10 @@ public class TextPaintCompat extends TextPaint {
 		return super.setTypeface(typeface);
 	}
 
-
+	// save mem
 	private static final List<FontFamily> EMPTY_LIST = new ArrayList<>(0);
 
-	
+	/* fix miui 的负优化 */
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
 	public static void fixMiuiOpt(Typeface typeface) {
 		if (!sIsMiUi || sField == null) {

@@ -3,7 +3,9 @@ package me.chan.texas.text;
 import androidx.annotation.IntDef;
 import androidx.annotation.RestrictTo;
 
-
+/**
+ * 行gravity信息
+ */
 public class TextGravity {
 	public static final int START = 1;
 	public static final int END = 2;

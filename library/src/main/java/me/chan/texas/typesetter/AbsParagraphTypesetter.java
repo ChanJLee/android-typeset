@@ -20,12 +20,20 @@ public abstract class AbsParagraphTypesetter {
 
 	public abstract boolean typeset(Paragraph paragraph, BreakStrategy breakStrategy, int lineWidth);
 
-	
+	/**
+	 * @return debug 信息
+	 */
 	public Object getInternalState() {
 		return null;
 	}
 
-	
+	/**
+	 * 创建行
+	 *
+	 * @param stream   stream
+	 * @param endState 结束位置
+	 * @return 行
+	 */
 	protected static Line createLine(ElementStream stream, int endState, BreakStrategy breakStrategy, int lineWidth) {
 		Line.Builder builder = Line.Builder.obtain();
 

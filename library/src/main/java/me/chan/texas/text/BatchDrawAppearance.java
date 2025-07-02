@@ -7,7 +7,9 @@ import me.chan.texas.misc.RectF;
 
 import me.chan.texas.renderer.RendererContext;
 
-
+/**
+ * 批量绘制Appearance，会更有效率一点
+ */
 public abstract class BatchDrawAppearance extends Appearance {
 
 	private final RectF mInner = new RectF();

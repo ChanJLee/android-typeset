@@ -2,7 +2,11 @@ package me.chan.texas.utils;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-
+/**
+ * 引用计数器
+ *
+ * @param <T> 指针类型
+ */
 public class ReferenceCountingPointer<T> {
 	private final T mPointer;
 	private final AtomicInteger mRefCount;

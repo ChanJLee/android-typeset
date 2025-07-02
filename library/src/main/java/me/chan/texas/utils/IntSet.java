@@ -32,7 +32,7 @@ public class IntSet {
 			mBuckets = Arrays.copyOf(mBuckets, mBuckets.length * 2);
 		}
 
-
+		// 将index后的元素向后移动一位，从后往前
 		System.arraycopy(mBuckets, index, mBuckets, index + 1, mSize - index);
 		mBuckets[index] = v;
 		++mSize;

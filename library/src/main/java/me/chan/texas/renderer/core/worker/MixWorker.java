@@ -179,7 +179,7 @@ public class MixWorker {
 
 		IntSet diff = createDocumentIdSet(prev);
 
-
+		// typeset
 		for (int i = 0; i < size && !token.isExpired(); ++i) {
 			Segment segment = document.getSegment(i);
 			if (diff.contains(segment.getId())) {
@@ -188,7 +188,7 @@ public class MixWorker {
 
 			int width = outWidth;
 
-
+			// avoid recreate
 			Rect outRect = segment.getRect();
 			if (outRect == null) {
 				outRect = new Rect();
@@ -293,7 +293,7 @@ public class MixWorker {
 	}
 
 	private void typesetViewSegment(ViewSegment viewSegment) {
-		
+		/* do nothing */
 	}
 
 	private void typesetFigure(Figure figure, float lineWidth) {
@@ -334,7 +334,7 @@ public class MixWorker {
 		private final Listener listener;
 		private final TexasView.SegmentDecoration segmentDecoration;
 
-		public Args(int outWidth, TexasOption option, Document prev , Document document, Listener listener, TexasView.SegmentDecoration segmentDecoration) {
+		public Args(int outWidth, TexasOption option, Document prev /* 不为空的话就是增量更新 */, Document document, Listener listener, TexasView.SegmentDecoration segmentDecoration) {
 			this.outWidth = outWidth;
 			this.option = option;
 			this.prev = prev;
@@ -344,25 +344,27 @@ public class MixWorker {
 		}
 	}
 
-	
+	/**
+	 * 用来衡量算法质量
+	 */
 	private static class ResultEvaluation {
 		private float mSum = 0;
 		private final List<Float> mSamples = new ArrayList<>();
-
+		// 0
 		private int mBestCount = 0;
-
+		// (0, 1]
 		private int mStretchLevel0Count = 0;
-
+		// (1, 2]
 		private int mStretchLevel1Count = 0;
-
+		// (2, 3]
 		private int mStretchLevel2Count = 0;
-
+		// (3, 4]
 		private int mStretchLevel3Count;
-
+		// (4, 无穷)
 		private int mStretchLevel4Count;
-
+		// [-0.2, 0)
 		private int mShrinkLevel0Count;
-
+		// (负无穷, -0.2)
 		private int mShrinkLevel1Count;
 
 		public void add(float sample) {
@@ -482,13 +484,21 @@ public class MixWorker {
 	}
 
 	public static class TypesetResult {
-		
+		/**
+		 * 运行的参数
+		 */
 		public final TexasOption texasOption;
-		
+		/**
+		 * 现在的文档
+		 */
 		public final Document doc;
-		
+		/**
+		 * 基准文档
+		 */
 		public final Document base;
-		
+		/**
+		 * 变更diff
+		 */
 		public final DiffUtil.DiffResult diff;
 
 		public TypesetResult(TexasOption texasOption, Document doc, Document base, DiffUtil.DiffResult diff) {

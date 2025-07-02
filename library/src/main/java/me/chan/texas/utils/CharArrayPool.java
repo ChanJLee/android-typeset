@@ -63,11 +63,11 @@ public class CharArrayPool {
 				return chunk;
 			}
 
-
+			// alloc chunk size buffer
 			return new char[detail.getChunkSize()];
 		}
 
-
+		// alloc direct
 		return new char[size];
 	}
 
@@ -118,7 +118,9 @@ public class CharArrayPool {
 		return stringBuilder.toString();
 	}
 
-	
+	/**
+	 * 回收chunk string资源
+	 */
 	public void recycle() {
 		mStrategy.recycle();
 	}

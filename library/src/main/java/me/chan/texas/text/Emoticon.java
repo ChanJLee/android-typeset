@@ -12,7 +12,9 @@ import me.chan.texas.misc.DefaultRecyclable;
 import me.chan.texas.misc.ObjectPool;
 import me.chan.texas.text.layout.DrawableBox;
 
-
+/**
+ * 颜文字
+ */
 public final class Emoticon extends DefaultRecyclable {
 	private static final ObjectPool<Emoticon> POOL = new ObjectPool<>(Texas.getMemoryOption().getEmoticonBufferSize());
 
@@ -38,22 +40,34 @@ public final class Emoticon extends DefaultRecyclable {
 		POOL.release(this);
 	}
 
-	
+	/**
+	 * @return 颜文字的宽
+	 */
 	public float getWidth() {
 		return mDrawableBox == null ? 0 : mDrawableBox.getWidth();
 	}
 
-	
+	/**
+	 * @return 颜文字的高
+	 */
 	public float getHeight() {
 		return mDrawableBox == null ? 0 : mDrawableBox.getHeight();
 	}
 
-	
+	/**
+	 * @return drawable绘制对象
+	 */
 	public Drawable getDrawable() {
 		return mDrawableBox == null ? null : mDrawableBox.getDrawable();
 	}
 
-	
+	/**
+	 * 设置绘制对象
+	 * <p>
+	 * 如果新的绘制对象和之前的不一致，可能会导致绘制对象被拉伸或者压缩
+	 *
+	 * @param drawable 新的绘制对象
+	 */
 	public void setDrawable(@NonNull Drawable drawable) {
 		if (mDrawableBox == null) {
 			return;
@@ -66,7 +80,11 @@ public final class Emoticon extends DefaultRecyclable {
 		mDrawableBox.setDrawable(drawable);
 	}
 
-	
+	/**
+	 * 设置唯一标识
+	 *
+	 * @param tag tag
+	 */
 	public void setTag(Object tag) {
 		if (mDrawableBox == null) {
 			return;
@@ -75,12 +93,27 @@ public final class Emoticon extends DefaultRecyclable {
 		mDrawableBox.setTag(tag);
 	}
 
-	
+	/**
+	 * 获取Emoticon
+	 *
+	 * @param drawable 绘制对象
+	 * @param width    宽，如果宽小于0，那么行为将是未定义的
+	 * @param height   高，如果高小于0，那么行为将是未定义的
+	 * @return 颜文字对象
+	 */
 	public static Emoticon obtain(Drawable drawable, float width, float height) {
 		return obtain(drawable, width, height, null, null, null);
 	}
 
-	
+	/**
+	 * 获取Emoticon
+	 *
+	 * @param drawable 绘制对象
+	 * @param width    宽，如果宽小于0，那么行为将是未定义的
+	 * @param height   高，如果高小于0，那么行为将是未定义的
+	 * @param tag      tag 唯一标识
+	 * @return 颜文字对象
+	 */
 	public static Emoticon obtain(Drawable drawable, float width, float height, Object tag, Appearance background, Appearance foreground) {
 		Emoticon emoticon = POOL.acquire();
 		if (emoticon == null) {

@@ -65,35 +65,35 @@ public class SegmentItemFragmentLayout extends FrameLayout {
 	private class EventListener implements GestureDetector.OnGestureListener, GestureDetector.OnDoubleTapListener {
 		@Override
 		public boolean onDown(MotionEvent e) {
-			
+			/* do nothing */
 			return true;
 		}
 
 		@Override
 		public void onShowPress(MotionEvent e) {
-			
+			/* do nothing */
 		}
 
 		@Override
 		public boolean onSingleTapUp(MotionEvent e) {
-			
+			/* do nothing */
 			return false;
 		}
 
 		@Override
 		public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
-			
+			/* do nothing */
 			return false;
 		}
 
 		@Override
 		public void onLongPress(MotionEvent e) {
-			
+			/* do nothing */
 		}
 
 		@Override
 		public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-			
+			/* do nothing */
 			return false;
 		}
 
