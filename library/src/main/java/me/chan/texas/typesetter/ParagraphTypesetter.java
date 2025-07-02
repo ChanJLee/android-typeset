@@ -30,14 +30,7 @@ public class ParagraphTypesetter {
 		mStatus = DEBUG ? new Status() : null;
 	}
 
-	/**
-	 * width must be positive
-	 *
-	 * @param paragraph     要排版的段落
-	 * @param breakStrategy 排版策略
-	 * @param width         排版的宽度
-	 * @return 排版是否成功
-	 */
+	
 	public boolean typeset(Paragraph paragraph, BreakStrategy breakStrategy, int width) {
 		if (width <= 0) {
 			Log.w("ParagraphTypesetter", "width must be positive");
@@ -53,11 +46,7 @@ public class ParagraphTypesetter {
 		return false;
 	}
 
-	/**
-	 * @param paragraph     要排版的段落
-	 * @param breakStrategy 排版策略
-	 * @return 排版是否成功
-	 */
+	
 	public boolean desire(Paragraph paragraph, BreakStrategy breakStrategy) {
 		if (!typeset0(paragraph, breakStrategy, AbsParagraphTypesetter.INFINITY_WIDTH)) {
 			return false;
@@ -84,8 +73,8 @@ public class ParagraphTypesetter {
 		}
 
 		if (!mTexTypesetter.typeset(paragraph, breakStrategy, width)) {
-			// tex 存在找不到完美解的情况，如果在这种case下
-			// 回归到朴素的排版算法
+
+
 			if (DEBUG) {
 				++mStatus.mFallbackCount;
 				Log.w("ParagraphTypesetter", "can not find active nodes: " + paragraph);

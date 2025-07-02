@@ -12,10 +12,7 @@ public class BitBucket32 {
 		mBits = bits;
 	}
 
-	/**
-	 * @param index index
-	 * @param v     值
-	 */
+	
 	public void set(int index, boolean v) {
 		if (index < 0 || index >= SIZE_OF_BUCKET) {
 			throw new IllegalArgumentException("invalid index");
@@ -36,10 +33,7 @@ public class BitBucket32 {
 		set(index, false);
 	}
 
-	/**
-	 * @param index 获取对应位置
-	 * @return true
-	 */
+	
 	public boolean get(int index) {
 		if (index < 0 || index >= SIZE_OF_BUCKET) {
 			throw new IllegalArgumentException("invalid index");
@@ -48,9 +42,7 @@ public class BitBucket32 {
 		return (mBits & (1 << index)) != 0;
 	}
 
-	/**
-	 * 清除所有bit位
-	 */
+	
 	public void clear() {
 		reset(0);
 	}

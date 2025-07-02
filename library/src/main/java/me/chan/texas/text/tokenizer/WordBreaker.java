@@ -42,33 +42,33 @@ class WordBreaker {
 			"^$ExFm+;\n" +
 			"[^$CR$LF$Newline$ExFm]$ExFm*;\n" +
 			"$Numeric$ExFm*{100};\n" +
-			"$ALetterPlus$ExFm*{200};\n" +  /* 英文等返回200 */
-			"$HangulSyllable{400};\n" +      /* 韩文返回400 */
-			"$Hebrew_Letter$ExFm*{201};\n" + /* 希伯来文返回201 */
-			"$Katakana$ExFm*{400};\n" +      /* 片假名返回400 */
-			"$Hiragana$ExFm*{400};\n" +      /* 平假名返回400 */
-			"$Ideographic$ExFm*{400};\n" +   /* 汉字返回400 */
+			"$ALetterPlus$ExFm*{200};\n" +  
+			"$HangulSyllable{400};\n" +      
+			"$Hebrew_Letter$ExFm*{201};\n" + 
+			"$Katakana$ExFm*{400};\n" +      
+			"$Hiragana$ExFm*{400};\n" +      
+			"$Ideographic$ExFm*{400};\n" +   
 			"($ALetterPlus|$Hebrew_Letter)$ExFm*($ALetterPlus|$Hebrew_Letter);\n" +
 			"($ALetterPlus|$Hebrew_Letter)$ExFm*($MidLetter|$MidNumLet|$Single_Quote)$ExFm*($ALetterPlus|$Hebrew_Letter){200};\n" +
-			"$Hebrew_Letter$ExFm*$Single_Quote{201};\n" + /* 希伯来文带单引号返回201 */
+			"$Hebrew_Letter$ExFm*$Single_Quote{201};\n" + 
 			"$Hebrew_Letter$ExFm*$Double_Quote$ExFm*$Hebrew_Letter;\n" +
 			"$Numeric$ExFm*$Numeric;\n" +
 			"($ALetterPlus|$Hebrew_Letter)$ExFm*$Numeric;\n" +
 			"$Numeric$ExFm*($ALetterPlus|$Hebrew_Letter);\n" +
 			"$Numeric$ExFm*($MidNum|$MidNumLet|$Single_Quote)$ExFm*$Numeric;\n" +
-			"$Katakana$ExFm*$Katakana{400};\n" + /* 片假名返回400 */
-			"$ALetterPlus$ExFm*$ExtendNumLet{200};\n" + /* 英文+ExtendNumLet返回200 */
-			"$Hebrew_Letter$ExFm*$ExtendNumLet{201};\n" + /* 希伯来文返回201 */
+			"$Katakana$ExFm*$Katakana{400};\n" + 
+			"$ALetterPlus$ExFm*$ExtendNumLet{200};\n" + 
+			"$Hebrew_Letter$ExFm*$ExtendNumLet{201};\n" + 
 			"$Numeric$ExFm*$ExtendNumLet{100};\n" +
-			"$Katakana$ExFm*$ExtendNumLet{400};\n" + /* 片假名返回400 */
-			"$ExtendNumLet$ExFm*$ExtendNumLet{201};\n" + /* 其他ExtendNumLet返回201 */
-			"$ExtendNumLet$ExFm*$ALetterPlus{200};\n" + /* 英文返回200 */
-			"$ExtendNumLet$ExFm*$Hebrew_Letter{201};\n" + /* 希伯来文返回201 */
+			"$Katakana$ExFm*$ExtendNumLet{400};\n" + 
+			"$ExtendNumLet$ExFm*$ExtendNumLet{201};\n" + 
+			"$ExtendNumLet$ExFm*$ALetterPlus{200};\n" + 
+			"$ExtendNumLet$ExFm*$Hebrew_Letter{201};\n" + 
 			"$ExtendNumLet$ExFm*$Numeric{100};\n" +
-			"$ExtendNumLet$ExFm*$Katakana{400};\n" + /* 片假名返回400 */
+			"$ExtendNumLet$ExFm*$Katakana{400};\n" + 
 			"^$Regional_Indicator$ExFm*$Regional_Indicator;\n" +
-			"$HangulSyllable$HangulSyllable{400};\n" + /* 韩文返回400 */
-			"$KanaKanji$KanaKanji{400};\n" + /* 日文假名和汉字返回400 */
+			"$HangulSyllable$HangulSyllable{400};\n" + 
+			"$KanaKanji$KanaKanji{400};\n" + 
 			".;\n";
 
 	private static BreakIterator sWordBreakIterator;

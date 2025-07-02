@@ -47,12 +47,7 @@ public class ParagraphTypesetWorker {
 		return mTypesetter.getInternalState();
 	}
 
-	/**
-	 * 预测宽高
-	 *
-	 * @param paragraph 段落
-	 * @return true表示成功
-	 */
+	
 	public boolean desire(@NonNull Paragraph paragraph, int expectedWidth) {
 		if (!paragraph.hasContent()) {
 			return false;
@@ -67,12 +62,7 @@ public class ParagraphTypesetWorker {
 		return true;
 	}
 
-	/**
-	 * 预测宽高
-	 *
-	 * @param paragraph 段落
-	 * @return true表示成功
-	 */
+	
 	public boolean desire(@NonNull Paragraph paragraph) {
 		if (!paragraph.hasContent()) {
 			return false;

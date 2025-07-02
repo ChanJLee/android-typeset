@@ -14,9 +14,7 @@ import me.chan.texas.renderer.core.worker.MixWorker;
 import me.chan.texas.text.Document;
 import me.chan.texas.utils.concurrency.Worker;
 
-/**
- * 排版核心
- */
+
 @RestrictTo(LIBRARY)
 public class TypesetEngine {
 	private static final int EVENT_START = 1;
@@ -58,17 +56,13 @@ public class TypesetEngine {
 		if (mDocument == null || width <= 0) {
 			return;
 		}
-		typeset0(reason, option, null /* 需要的是全量更新 */, mDocument, listener, EVENT_SUCCESS);
+		typeset0(reason, option, null , mDocument, listener, EVENT_SUCCESS);
 	}
 
-	/**
-	 * typeset content
-	 *
-	 * @param document document
-	 */
+	
 	private void typeset0(String reason,
 						  TexasOption option,
-						  @Nullable Document prev /* 传空就是全量更新 */,
+						  @Nullable Document prev ,
 						  Document document,
 						  Listener listener,
 						  int focusEvents) {
@@ -82,7 +76,7 @@ public class TypesetEngine {
 			return;
 		}
 
-		// 先取消之前已经提交的排版任务
+
 		WorkerScheduler.mix().cancel(mToken);
 
 		mDocument = document;
@@ -136,7 +130,7 @@ public class TypesetEngine {
 			return;
 		}
 
-		// 非增量的加载，都需要取消之前的任务
+
 		cancel();
 
 		mWidth = width;
@@ -181,7 +175,7 @@ public class TypesetEngine {
 	}
 
 	private void cancel() {
-		// 取消准备发送的消息
+
 		WorkerScheduler.loading().cancel(mToken);
 		WorkerScheduler.mix().cancel(mToken);
 	}

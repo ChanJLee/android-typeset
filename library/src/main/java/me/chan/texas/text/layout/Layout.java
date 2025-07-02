@@ -300,9 +300,7 @@ public class Layout extends DefaultRecyclable {
 		private final static int INDEX_LINE_SPACE = 0;
 		private final static int INDEX_BREAK_STRATEGY = 1;
 		private final static int INDEX_TEXT_GRAVITY = 2;
-		/**
-		 * 排版建议
-		 */
+		
 		private float mLineSpacingExtra;
 		private BreakStrategy mBreakStrategy;
 		private int mTextGravity;

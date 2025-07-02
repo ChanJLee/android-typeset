@@ -16,7 +16,7 @@ abstract class DecorParagraphVisitor extends ParagraphVisitor {
 		try {
 			visit(paragraph);
 		} catch (Throwable ignore) {
-			/* noop */
+			
 		} finally {
 			mViewportOuter = null;
 			mViewportInner = null;

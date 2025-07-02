@@ -13,9 +13,7 @@ import me.chan.texas.misc.DefaultRecyclable;
 import me.chan.texas.misc.ObjectPool;
 import me.chan.texas.renderer.ui.RendererHost;
 
-/**
- * 插图
- */
+
 public final class Figure extends DefaultRecyclable implements Segment {
 	private static final ObjectPool<Figure> POOL = new ObjectPool<>(Texas.getMemoryOption().getFigureBufferSize());
 

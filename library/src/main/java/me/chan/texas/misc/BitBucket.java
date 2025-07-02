@@ -15,10 +15,7 @@ public class BitBucket {
 		mBits = new int[adviceSize(size)];
 	}
 
-	/**
-	 * @param index index
-	 * @param v     值
-	 */
+	
 	public void set(int index, boolean v) {
 		if (index < 0) {
 			throw new IllegalArgumentException("invalid index");
@@ -52,10 +49,7 @@ public class BitBucket {
 		mBits = bits;
 	}
 
-	/**
-	 * @param index 获取对应位置
-	 * @return true
-	 */
+	
 	public boolean get(int index) {
 		if (index < 0) {
 			throw new IllegalArgumentException("invalid index");
@@ -70,16 +64,12 @@ public class BitBucket {
 		return (mBits[bucketIndex] & (1 << bucketOffset)) != 0;
 	}
 
-	/**
-	 * 清除所有bit位
-	 */
+	
 	public void clear() {
 		Arrays.fill(mBits, 0);
 	}
 
-	/**
-	 * @return 能存储的最大bit位
-	 */
+	
 	public int size() {
 		return mBits.length * SIZE_OF_BUCKET;
 	}
@@ -94,7 +84,7 @@ public class BitBucket {
 		}
 
 		int range = end - start;
-		// 获得start到end 之间的bit位
+
 		int index = start / SIZE_OF_BUCKET;
 		int offset = start % SIZE_OF_BUCKET;
 		long value = mBits[index] & 0xFFFFFFFFL;

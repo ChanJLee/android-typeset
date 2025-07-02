@@ -31,15 +31,7 @@ import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.Segment;
 import me.chan.texas.text.layout.Box;
 
-/**
- * 负责处理select paragraph
- * <p>
- * 目前有三个地方会触发选中
- * 1. 长按 & 点击 操作
- * 2. 主动调用 {@link TexasView#selectParagraphs} 接口
- * 3. 长按后拖动水滴
- * Created by Otway on 2021/11/12.
- */
+
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class SelectionManager implements OnSelectedChangedListener {
 	private Selection mCurrentSelection;
@@ -51,24 +43,14 @@ public class SelectionManager implements OnSelectedChangedListener {
 	private DragSelectView mDropView;
 	private final TexasRecyclerView mContentView;
 
-	/**
-	 * 用于自驱式的选中文本
-	 * <p>
-	 * 即主动调用 {@link TexasView#selectParagraphs} 接口，而不是通过点击操作
-	 */
+	
 	private final PredicatesDriveSelectedVisitor mPredicatesDriveSelectedVisitor = new PredicatesDriveSelectedVisitor();
-	/**
-	 * 用于拖拽时选中文本 {@link SelectionManager#handleMoveToSelection(float, float, float, float)}
-	 */
+	
 	private final SelectedTextByDragVisitor mSelectedTextByDragVisitor = new SelectedTextByDragVisitor();
-	/**
-	 * 用于点击是选中文本 {@link SelectionManager#onBoxSelected(TouchEvent, Paragraph, int, Box)}
-	 */
+	
 	private final SelectedTextByClickedVisitor mSelectedTextByClickedVisitor = new SelectedTextByClickedVisitor();
 
-	/**
-	 * 拖拽时定位用
-	 */
+	
 	private final int[] mLocations = new int[2];
 	private SpanTouchEventHandler mSpanTouchEventHandler;
 	private final SpanPredicate mOnSpanClickedPredicate = new SpanPredicate() {
@@ -113,9 +95,7 @@ public class SelectionManager implements OnSelectedChangedListener {
 		return getCurrentSelection(Selection.Type.SELECTION);
 	}
 
-	/**
-	 * @return 获取当前的选中信息
-	 */
+	
 	@Nullable
 	public Selection getCurrentSelection(Selection.Type type) {
 		if (type == Selection.Type.SELECTION) {
@@ -146,14 +126,7 @@ public class SelectionManager implements OnSelectedChangedListener {
 		return false;
 	}
 
-	/**
-	 * 由用户 长按 & 点击触发选中
-	 *
-	 * @param e         点击事件
-	 * @param paragraph paragraph
-	 * @param box       被选中的box
-	 * @return 是否有box被选中
-	 */
+	
 	@Override
 	public boolean onBoxSelected(TouchEvent e, Paragraph paragraph, @EventType int eventType, Box box) {
 		if (eventType == OnSelectedChangedListener.EVENT_CLICKED ||
@@ -252,27 +225,23 @@ public class SelectionManager implements OnSelectedChangedListener {
 			return;
 		}
 
-		// 为了让交换的时候能正确的判定区域，需要在底部和顶部各收缩一像素
-		// 这样针对非focus点可以用适用非严格的边界判断规则
+
+
 		mContentView.disallowHandleTouchEvent();
 		mDropView.setVisibility(View.VISIBLE);
 		mDropView.renderRegion(selectedRectEdge.topX,
-				selectedRectEdge.topY + 1 /* trick */,
+				selectedRectEdge.topY + 1 ,
 				selectedRectEdge.bottomX,
-				selectedRectEdge.bottomY - 1 /* trick */,
+				selectedRectEdge.bottomY - 1 ,
 				selectedRectEdge.lineHeight);
 	}
 
-	/**
-	 * 点击空白
-	 */
+	
 	public void handleClickNothing() {
 		handleClickNothing(false);
 	}
 
-	/**
-	 * 点击空白
-	 */
+	
 	public void handleClickNothing(boolean silence) {
 		mContentView.allowHandleTouchEvent();
 		mDropView.setVisibility(View.GONE);
@@ -282,32 +251,17 @@ public class SelectionManager implements OnSelectedChangedListener {
 		}
 	}
 
-	/**
-	 * 开始拖拽水滴
-	 *
-	 * @param event 事件
-	 */
+	
 	public void handleDragStart(TouchEvent event) {
 		mListener.onDragStart(event);
 	}
 
-	/**
-	 * 结束拖拽水滴
-	 *
-	 * @param event 事件
-	 */
+	
 	public void handleDragEnd(TouchEvent event) {
 		mListener.onDragEnd(event);
 	}
 
-	/**
-	 * 长按后滑动选中
-	 *
-	 * @param x1 x1
-	 * @param y1 y1
-	 * @param x2 x2
-	 * @param y2 y2
-	 */
+	
 	@SuppressLint("NotifyDataSetChanged")
 	public void handleMoveToSelection(float x1, float y1, float x2, float y2) {
 		int firstVisibleItemPosition = mLayoutManager.findFirstVisibleItemPosition();
@@ -356,7 +310,7 @@ public class SelectionManager implements OnSelectedChangedListener {
 	private BitBucket mSelectionDiffBucket;
 
 	private void updateMotionSelection(@Nullable Selection prevSelection, Selection currentSelection) {
-		// 先置换下 因为 adapter 在绘制的时候会先查这里
+
 		mCurrentSelection = currentSelection;
 
 		int size = mAdapter.getItemCount();
@@ -364,7 +318,7 @@ public class SelectionManager implements OnSelectedChangedListener {
 			mSelectionDiffBucket = new BitBucket(size);
 		}
 
-		// 因此 需要变化的 item 都在 两个集合里了
+
 		mSelectionDiffBucket.clear();
 		for (int i = 0; i < currentSelection.size(); ++i) {
 			Paragraph paragraph = currentSelection.getParagraph(i);
@@ -399,9 +353,7 @@ public class SelectionManager implements OnSelectedChangedListener {
 		notifyUpdateSelectionDropView();
 	}
 
-	/**
-	 * 清除选中区域
-	 */
+	
 	public void clearSelection() {
 		if (mCurrentSelection != null) {
 			mCurrentSelection.clear();
@@ -409,20 +361,13 @@ public class SelectionManager implements OnSelectedChangedListener {
 		}
 	}
 
-	/**
-	 * 清除所有选中效果
-	 */
+	
 	public void clear() {
 		clearSelection();
 		notifyUpdateSelectionDropView();
 	}
 
-	/**
-	 * 主动 选择 paragraph
-	 *
-	 * @param predicates 谓词
-	 * @return 选中区域
-	 */
+	
 	@Nullable
 	public Selection selectParagraphs(ParagraphPredicates predicates, @NonNull Selection.Styles styles) {
 		Document document = mAdapter.getDocument();
@@ -455,7 +400,7 @@ public class SelectionManager implements OnSelectedChangedListener {
 			mPredicatesDriveSelectedVisitor.startVisit(paragraph);
 			handleParagraphSelected(paragraph, styles);
 		} catch (ParagraphVisitor.VisitException ignored) {
-			/* do nothing */
+			
 		} finally {
 			mPredicatesDriveSelectedVisitor.clear();
 		}
@@ -468,11 +413,7 @@ public class SelectionManager implements OnSelectedChangedListener {
 		}
 	}
 
-	/**
-	 * 处理 paragraph 被选中
-	 *
-	 * @param paragraph paragraph
-	 */
+	
 	private void handleParagraphSelected(Paragraph paragraph, Selection.Styles styles) {
 		if (mCurrentSelection == null) {
 			mCurrentSelection = Selection.obtain(Selection.Type.SELECTION, mContentView, styles);
@@ -483,7 +424,7 @@ public class SelectionManager implements OnSelectedChangedListener {
 		try {
 			paragraph.requestRedraw();
 		} catch (Throwable ignore) {
-			/* do nothing */
+			
 		}
 	}
 
@@ -559,7 +500,7 @@ public class SelectionManager implements OnSelectedChangedListener {
 			mPredicatesDriveSelectedVisitor.startVisit(paragraph);
 			handleParagraphHighlighted(paragraph, styles);
 		} catch (ParagraphVisitor.VisitException ignored) {
-			/* do nothing */
+			
 		} finally {
 			mPredicatesDriveSelectedVisitor.clear();
 		}
@@ -575,7 +516,7 @@ public class SelectionManager implements OnSelectedChangedListener {
 		try {
 			paragraph.requestRedraw();
 		} catch (Throwable ignore) {
-			/* do nothing */
+			
 		}
 	}
 

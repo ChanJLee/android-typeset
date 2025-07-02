@@ -9,30 +9,14 @@ import me.chan.texas.misc.ObjectPool;
 import me.chan.texas.text.TextStyle;
 import me.chan.texas.text.Paragraph;
 
-/**
- * 文字测量器
- */
+
 @RestrictTo(LIBRARY)
 public interface Measurer {
 
-	/**
-	 * @param charSequence 文本
-	 * @param start        文本开始下表
-	 * @param end          文本结束下标
-	 * @param textStyle    text style
-	 * @param tag          {@link Paragraph.SpanBuilder#tag(Object)}
-	 * @return 文本高度
-	 */
+	
 	CharSequenceSpec measure(CharSequence charSequence, int start, int end, TextStyle textStyle, Object tag);
 
-	/**
-	 * @param charSequence 文本
-	 * @param start        文本开始下表
-	 * @param end          文本结束下标
-	 * @param textStyle    text style
-	 * @param tag          {@link Paragraph.SpanBuilder#tag(Object)}
-	 * @param spec         输出
-	 */
+	
 	void measure(CharSequence charSequence, int start, int end, TextStyle textStyle, Object tag, CharSequenceSpec spec);
 
 	@RestrictTo(LIBRARY)

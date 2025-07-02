@@ -10,9 +10,7 @@ import me.chan.texas.text.Figure;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
-/**
- * 显示插图的控件
- */
+
 @RestrictTo(LIBRARY)
 public class FigureView extends androidx.appcompat.widget.AppCompatImageView {
 	private Figure mFigure;

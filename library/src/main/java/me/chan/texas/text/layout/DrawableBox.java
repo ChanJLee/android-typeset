@@ -17,9 +17,7 @@ import me.chan.texas.text.Appearance;
 import me.chan.texas.text.Emoticon;
 import me.chan.texas.text.TextAttribute;
 
-/**
- * 可绘制box，可以是图片，表情
- */
+
 @RestrictTo(LIBRARY)
 public class DrawableBox extends Box {
 	private static final ObjectPool<DrawableBox> POOL = new ObjectPool<>(Texas.getMemoryOption().getEmoticonBufferSize());
@@ -100,6 +98,6 @@ public class DrawableBox extends Box {
 
 	@Override
 	public void measure(Measurer measurer, TextAttribute textAttribute) {
-		/* do nothing */
+		
 	}
 }

@@ -7,9 +7,7 @@ import me.chan.texas.misc.RectF;
 
 import me.chan.texas.renderer.RendererContext;
 
-/**
- * 下划线
- */
+
 public class UnderLine extends Appearance {
 	private static final int DEFAULT_WIDTH = 6;
 

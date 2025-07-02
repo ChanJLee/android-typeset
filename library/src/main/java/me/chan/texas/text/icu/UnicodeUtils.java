@@ -3,53 +3,48 @@ package me.chan.texas.text.icu;
 import androidx.annotation.RestrictTo;
 
 public class UnicodeUtils {
-	/**
-	 * cjkv字符
-	 *
-	 * @param codePoint unicode
-	 * @return 是否是全角
-	 */
+	
 	public static boolean isIdeographic(int codePoint) {
-		/* 大部分的cjkv字符 */
-		// https://www.compart.com/en/unicode/block/U+FF00
+		
+
 		return Character.isIdeographic(codePoint);
 	}
 
-	// Returns true if the character's presence could affect RTL layout.
-	//
-	// In order to be fast, the code is intentionally rough and quite conservative in its
-	// considering inclusion of any non-BMP or surrogate characters or anything in the bidi
-	// blocks or any bidi formatting characters with a potential to affect RTL layout.
+
+
+
+
+
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
 	public static boolean couldAffectRtl(int c) {
-		return (0x0590 <= c && c <= 0x08FF) ||  // RTL scripts
-				c == 0x200E ||  // Bidi format character
-				c == 0x200F ||  // Bidi format character
-				(0x202A <= c && c <= 0x202E) ||  // Bidi format characters
-				(0x2066 <= c && c <= 0x2069) ||  // Bidi format characters
-				(0xD800 <= c && c <= 0xDFFF) ||  // Surrogate pairs
-				(0xFB1D <= c && c <= 0xFDFF) ||  // Hebrew and Arabic presentation forms
-				(0xFE70 <= c && c <= 0xFEFE);  // Arabic presentation forms
+		return (0x0590 <= c && c <= 0x08FF) ||  
+				c == 0x200E ||  
+				c == 0x200F ||  
+				(0x202A <= c && c <= 0x202E) ||  
+				(0x2066 <= c && c <= 0x2069) ||  
+				(0xD800 <= c && c <= 0xDFFF) ||  
+				(0xFB1D <= c && c <= 0xFDFF) ||  
+				(0xFE70 <= c && c <= 0xFEFE);  
 	}
 
 	public static boolean isCJKExtends(int codePoint) {
-		//CJK Unified Ideographs: U+4E00 - U+9FFF
-		//CJK Unified Ideographs Extension A: U+3400 - U+4DBF
-		//CJK Unified Ideographs Extension B: U+20000 - U+2A6DF
-		//CJK Unified Ideographs Extension C: U+2A700 - U+2B73F
-		//CJK Unified Ideographs Extension D: U+2B740 - U+2B81F
-		//CJK Unified Ideographs Extension E: U+2B820 - U+2CEAF
-		//CJK Unified Ideographs Extension F: U+2CEB0 - U+2EBEF
-		//CJK Compatibility Ideographs: U+F900 - U+FAFF, U+FF00 – U+FFEF
-		//CJK Radicals Supplement: U+2E80 - U+2EFF
-		//Kangxi Radicals: U+2F00 - U+2FDF
-		//Ideographic Description Characters: U+2FF0 - U+2FFF
-		// 平假名（Hiragana）：U+3040 – U+309F
-		// 片假名（Katakana）：U+30A0 – U+30FF
-		// 半角片假名（Halfwidth Katakana）：U+FF60 – U+FF9F
-		// 扩展片假名：U+31F0 – U+31FF
-		// 韩文字母 (Hangul)：U+AC00 – U+D7AF：Hangul 音节
-		// Hangul 字母: U+1100 – U+11FF
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 		return (codePoint >= 0x4e00 && codePoint <= 0x9fff) ||
 				(codePoint >= 0x3400 && codePoint <= 0x4dbf) ||
 				(codePoint >= 0x20000 && codePoint <= 0x2a6df) ||
@@ -70,25 +65,15 @@ public class UnicodeUtils {
 	}
 
 
-	/**
-	 * use {@link #isLatinLetter(int)} instead
-	 *
-	 * @param codePoint unicode
-	 * @return 是否是空白字符
-	 */
+	
 	@Deprecated
 	public static boolean isLetter(int codePoint) {
 		return isLatinLetter(codePoint);
 	}
 
-	/**
-	 * @param codePoint unicode
-	 * @return 是否是拉丁字母 a-z A-Z
-	 */
+	
 	public static boolean isLatinLetter(int codePoint) {
-		/*
-		 * 优先自主判断
-		 * */
+		
 		return (codePoint >= 'a' && codePoint <= 'z') ||
 				(codePoint >= 'A' && codePoint <= 'Z') ||
 				isLetterLatin0(Character.getType(codePoint));
@@ -100,19 +85,13 @@ public class UnicodeUtils {
 				type == Character.LOWERCASE_LETTER;
 	}
 
-	/**
-	 * @param codePoint unicode
-	 * @return 是否是数字
-	 */
+	
 	public static boolean isDigit(int codePoint) {
-		// https://www.compart.com/en/unicode/block/U+0000
+
 		return (0x30 <= codePoint && codePoint <= 0x39);
 	}
 
-	/**
-	 * @param codePoint unicode
-	 * @return 是否是符号
-	 */
+	
 	public static boolean isSymbolsAndPunctuation(int codePoint) {
 		final int type = Character.getType(codePoint);
 		return isSymbolsAndPunctuation0(type);
@@ -126,23 +105,23 @@ public class UnicodeUtils {
 				|| type == Character.INITIAL_QUOTE_PUNCTUATION
 				|| type == Character.OTHER_PUNCTUATION
 				|| type == Character.START_PUNCTUATION
-				/* https://www.compart.com/en/unicode/category/Sm */
+				
 				|| type == Character.MATH_SYMBOL
-				/* https://www.compart.com/en/unicode/category/Sc */
+				
 				|| type == Character.CURRENCY_SYMBOL
-				/* https://www.compart.com/en/unicode/category/Sk */
+				
 				|| type == Character.MODIFIER_SYMBOL
-				/* https://www.compart.com/en/unicode/category/So */
+				
 				|| type == Character.OTHER_SYMBOL
-				/* https://www.compart.com/en/unicode/category/Lm */
+				
 				|| type == Character.MODIFIER_LETTER);
 	}
 
 	public static boolean isSpace(int codePoint) {
-		// https://www.compart.com/en/unicode/category/Zs
-		// https://www.compart.com/en/unicode/category/Zp
-		// https://www.compart.com/en/unicode/category/Zl
-		// etc
+
+
+
+
 		return Character.isSpaceChar(codePoint);
 	}
 

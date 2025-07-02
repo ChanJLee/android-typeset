@@ -60,11 +60,7 @@ import java.lang.ref.WeakReference;
 
 import javax.inject.Inject;
 
-/**
- * 用于显示文本内容
- * <p>
- * 当前内容都是异步渲染的，所以当你不需要显示某个内容的时候，就调用 {@link #discard()} 丢弃之前的任务
- */
+
 public class ParagraphView extends FrameLayout {
 	public static final boolean DEBUG = true;
 
@@ -75,20 +71,14 @@ public class ParagraphView extends FrameLayout {
 
 	private RenderOption mRenderOption;
 
-	/*
-	 * 只会在parse后被赋值
-	 * */
+	
 	private Paragraph mParagraph;
 
 	private OnClickedListener mOnClickedListener;
 
 	private final SelectedTextByClickedVisitor mSelectedTextByClickedVisitor = new SelectedTextByClickedVisitor();
 
-	/**
-	 * 用于自驱式的选中文本
-	 * <p>
-	 * 即主动调用 {@link TexasView#selectParagraphs} 接口，而不是通过点击操作
-	 */
+	
 	private final PredicatesDriveSelectedVisitor mPredicatesDriveSelectedVisitor = new PredicatesDriveSelectedVisitor();
 
 	private SpanTouchEventHandler mSpanTouchEventHandler;
@@ -257,7 +247,7 @@ public class ParagraphView extends FrameLayout {
 	}
 
 	private boolean handleParagraphSelected(TouchEvent event, Paragraph paragraph, boolean isLongClicked, Box box) {
-		// 1. clear prev selection
+
 		clearSelection();
 
 		SpanPredicate predicate = isLongClicked ? mOnSpanLongClickedPredicate : mOnSpanClickedPredicate;
@@ -285,7 +275,7 @@ public class ParagraphView extends FrameLayout {
 			}
 			event.recycle();
 		} catch (ParagraphVisitor.VisitException ex) {
-			/* do nothing */
+			
 		}
 
 		return true;
@@ -305,7 +295,7 @@ public class ParagraphView extends FrameLayout {
 					box.getTag()
 			);
 
-			// update ui
+
 			mSelectedTextByClickedVisitor.startVisit(
 					paragraph
 			);
@@ -317,9 +307,7 @@ public class ParagraphView extends FrameLayout {
 		}
 	}
 
-	/**
-	 * 清除选中区域
-	 */
+	
 	public void clearSelection() {
 		if (mParagraph == null) {
 			return;
@@ -338,14 +326,7 @@ public class ParagraphView extends FrameLayout {
 		}
 	}
 
-	/**
-	 * @param widthMeasureSpec  horizontal space requirements as imposed by the parent.
-	 *                          The requirements are encoded with
-	 *                          {@link android.view.View.MeasureSpec}.
-	 * @param heightMeasureSpec vertical space requirements as imposed by the parent.
-	 *                          The requirements are encoded with
-	 *                          {@link android.view.View.MeasureSpec}.
-	 */
+	
 	@Override
 	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
 		if (DEBUG) {
@@ -471,15 +452,7 @@ public class ParagraphView extends FrameLayout {
 		mRender.render(paragraph, mUiThreadPaintSet, mRenderOption, null, mSpanTouchEventHandler);
 	}
 
-	/**
-	 * 因为需要动态调整paragraph的宽度，所以需要在onLayout中重新调整paragraph的宽度
-	 *
-	 * @param changed This is a new size or position for this view
-	 * @param left    Left position, relative to parent
-	 * @param top     Top position, relative to parent
-	 * @param right   Right position, relative to parent
-	 * @param bottom  Bottom position, relative to parent
-	 */
+	
 	@Override
 	protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
 		if (DEBUG) {
@@ -508,7 +481,7 @@ public class ParagraphView extends FrameLayout {
 			Log.d(TAG, "onLayout0: width = " + width + ", layout width = " + layout.getWidth());
 		}
 
-		// 因为 padding 发生了变化
+
 		if (layout.getWidth() != width) {
 			Log.w(TAG, "paragraph width is changed, from " + layout.getWidth() + " to " + width + ", missing call onMeasure");
 			typeset0(width);
@@ -527,22 +500,20 @@ public class ParagraphView extends FrameLayout {
 		return LoadingWorker.createTexasOption(paintSet, textAttribute, measurer, option);
 	}
 
-	/**
-	 * @param source 段落源
-	 */
+	
 	public void setSource(@NonNull ParagraphSource source) {
 		if (DEBUG) {
 			Log.d(TAG, "setSource: source = " + source);
 		}
 
-		// 丢弃之前的任务
+
 		discard(false);
 
-		// cache last source
+
 		mSource = source;
 		source.attach(this);
 
-		// 提交解析任务
+
 		ParseWorker.Args args = ParseWorker.Args.obtain(source, mParseListener);
 		ParseWorker worker = WorkerScheduler.parse();
 		if (!isInEditMode()) {
@@ -573,22 +544,13 @@ public class ParagraphView extends FrameLayout {
 		setSource(new TextParagraphSource(text, start, end));
 	}
 
-	/**
-	 * 创建一个新的渲染参数 结束后调用 {@link TexasView#refresh(RenderOption)} 刷新样式
-	 * 这个操作是批量的，所以效率更高
-	 *
-	 * @return option 批量修改属性
-	 */
+	
 	@NonNull
 	public RenderOption createRendererOption() {
 		return new RenderOption(mRenderOption);
 	}
 
-	/**
-	 * 刷新内容，可能会重新排版 {@link TexasView#redraw()}
-	 *
-	 * @param renderOption option
-	 */
+	
 	public void refresh(@NonNull RenderOption renderOption) {
 		int cmpType = TexasUtils.cmp(mRenderOption, renderOption);
 
@@ -602,10 +564,10 @@ public class ParagraphView extends FrameLayout {
 		setVerticalAlignment(renderOption);
 
 		if (cmpType == TexasUtils.CmpType.CMP_LOAD) {
-			// 丢弃之前的任务
+
 			discard(false);
 
-			// 提交解析任务
+
 			ParseWorker.Args args = ParseWorker.Args.obtain(mSource, mParseListener);
 			ParseWorker worker = WorkerScheduler.parse();
 			worker.submit(mRender.getToken(), args);
@@ -626,9 +588,7 @@ public class ParagraphView extends FrameLayout {
 		}
 	}
 
-	/**
-	 * 只是简单的重新绘制内容
-	 */
+	
 	public void redraw() {
 		if (mParagraph != null) {
 			render0(mParagraph);
@@ -665,24 +625,13 @@ public class ParagraphView extends FrameLayout {
 		return selection;
 	}
 
-	/**
-	 * 高亮paragraph中的文本，只在渲染出document后生效
-	 *
-	 * @param predicates 谓词
-	 * @return 选中区域
-	 */
+	
 	@Nullable
 	public Selection highlightParagraphs(ParagraphPredicates predicates) {
 		return highlightParagraphs(predicates, null);
 	}
 
-	/**
-	 * 高亮paragraph中的文本，只在渲染出document后生效
-	 *
-	 * @param predicates 谓词
-	 * @param styles     {@link Selection.Styles#create(int, int)}
-	 * @return 选中区域
-	 */
+	
 	@Nullable
 	public Selection highlightParagraphs(ParagraphPredicates predicates, Selection.Styles styles) {
 		if (mParagraph == null) {
@@ -703,7 +652,7 @@ public class ParagraphView extends FrameLayout {
 				return selection;
 			}
 		} catch (ParagraphVisitor.VisitException ignored) {
-			/* do nothing */
+			
 		} finally {
 			mPredicatesDriveSelectedVisitor.clear();
 		}
@@ -711,9 +660,7 @@ public class ParagraphView extends FrameLayout {
 		return null;
 	}
 
-	/**
-	 * 丢弃当前的所有内容
-	 */
+	
 	public void discard() {
 		discard(true);
 	}
@@ -725,37 +672,23 @@ public class ParagraphView extends FrameLayout {
 		WorkerScheduler.cancelAll(mRender.getToken());
 	}
 
-	/**
-	 * @param onClickedListener 设置点击事件
-	 */
+	
 	public void setOnClickedListener(OnClickedListener onClickedListener) {
 		mOnClickedListener = onClickedListener;
 	}
 
-	/**
-	 * 点击事件
-	 */
+	
 	public interface OnClickedListener {
-		/**
-		 * @param paragraphView 被点击的段落
-		 * @param tag           被点击的text tag
-		 */
+		
 		void onSpanClicked(ParagraphView paragraphView, TouchEvent event, Object tag);
 
-		/**
-		 * @param paragraphView 被点击的段落
-		 * @param tag           被点击的text tag
-		 */
+		
 		void onSpanLongClicked(ParagraphView paragraphView, TouchEvent event, Object tag);
 
-		/**
-		 * @param paragraphView 被点击的段落
-		 */
+		
 		void onEmptyClicked(ParagraphView paragraphView, TouchEvent event);
 
-		/**
-		 * @param paragraphView 被点击的段落
-		 */
+		
 		void onDoubleClicked(ParagraphView paragraphView, TouchEvent event);
 	}
 
@@ -763,14 +696,14 @@ public class ParagraphView extends FrameLayout {
 		Resources resources = getResources();
 		RenderOption renderOption = new RenderOption();
 
-		// 设置字体颜色
+
 		renderOption.setTextColor(
 				typedArray.getColor(R.styleable.me_chan_texas_ParagraphView_me_chan_texas_ParagraphView_textColor,
 						ContextCompat.getColor(context, R.color.me_chan_texas_text_color)
 				)
 		);
 
-		// 设置字体
+
 		renderOption.setTypeface(Texas.getDefaultTypeface());
 		String typefacePath = typedArray.getString(R.styleable.me_chan_texas_ParagraphView_me_chan_texas_ParagraphView_typefaceAssets);
 		if (!TextUtils.isEmpty(typefacePath)) {
@@ -786,7 +719,7 @@ public class ParagraphView extends FrameLayout {
 			}
 		}
 
-		// 设置字体大小
+
 		renderOption.setTextSize(
 				typedArray.getDimensionPixelSize(R.styleable.me_chan_texas_ParagraphView_me_chan_texas_ParagraphView_textSize,
 						(int) TypedValue.applyDimension(
@@ -797,76 +730,76 @@ public class ParagraphView extends FrameLayout {
 				)
 		);
 
-		// 行间距
+
 		renderOption.setLineSpacingExtra(
 				typedArray.getDimensionPixelSize(R.styleable.me_chan_texas_ParagraphView_me_chan_texas_ParagraphView_lineSpacingExtra, 0)
 		);
 
-		// 选中字体的背景色
+
 		renderOption.setSelectedBackgroundColor(
 				typedArray.getColor(R.styleable.me_chan_texas_ParagraphView_me_chan_texas_ParagraphView_selectedBackgroundColor,
 						ContextCompat.getColor(context, R.color.me_chan_texas_theme_color)
 				)
 		);
 
-		// 选中字体的颜色
+
 		renderOption.setSelectedTextColor(
 				typedArray.getColor(R.styleable.me_chan_texas_ParagraphView_me_chan_texas_ParagraphView_selectedTextColor, Color.WHITE)
 		);
 
-		// 选中span的背景色
+
 		renderOption.setSelectedByLongClickBackgroundColor(
 				typedArray.getColor(R.styleable.me_chan_texas_ParagraphView_me_chan_texas_ParagraphView_spanSelectedBackgroundColor,
 						ContextCompat.getColor(context, R.color.me_chan_texas_span_bg_color)
 				)
 		);
 
-		// 选中span的字体颜色
+
 		renderOption.setSelectedByLongClickTextColor(
 				typedArray.getColor(R.styleable.me_chan_texas_ParagraphView_me_chan_texas_ParagraphView_spanSelectedTextColor,
 						ContextCompat.getColor(context, R.color.me_chan_texas_text_color))
 		);
 
-		// 断字策略
+
 		int breakStrategy = typedArray.getInt(R.styleable.me_chan_texas_ParagraphView_me_chan_texas_ParagraphView_breakStrategy, TexasView.BREAK_STRATEGY_BALANCE);
 		renderOption.setBreakStrategy(
 				breakStrategy == TexasView.BREAK_STRATEGY_SIMPLE ?
 						BreakStrategy.SIMPLE : BreakStrategy.BALANCED
 		);
 
-		// 是否可选单词
+
 		renderOption.setWordSelectable(
 				typedArray.getBoolean(R.styleable.me_chan_texas_ParagraphView_me_chan_texas_ParagraphView_wordSelectable, true)
 		);
 
-		// 断字策略
+
 		int hyphenStrategy = typedArray.getInt(R.styleable.me_chan_texas_ParagraphView_me_chan_texas_ParagraphView_hyphenStrategy, TexasView.HYPHEN_STRATEGY_US);
 		renderOption.setHyphenStrategy(
 				hyphenStrategy == TexasView.HYPHEN_STRATEGY_UK ?
 						HyphenStrategy.UK : HyphenStrategy.US
 		);
 
-		// lazy 渲染模式优化
+
 		renderOption.setEnableLazyRender(
 				false
 		);
 
-		// 高亮span文字颜色
+
 		renderOption.setSpanHighlightTextColor(
 				ContextCompat.getColor(context, R.color.me_chan_texas_theme_color)
 		);
 
-		// 加载中背景色
+
 		renderOption.setLoadingBackgroundColor(
 				ContextCompat.getColor(context, R.color.me_chan_texas_loading_bg)
 		);
 
-		// 自由划线水滴颜色
+
 		renderOption.setDragViewColor(
 				ContextCompat.getColor(context, R.color.me_chan_texas_drag_view_color)
 		);
 
-		// 设置选中圆角半径
+
 		renderOption.setSelectedBackgroundRoundRadius(
 				typedArray.getDimension(
 						R.styleable.me_chan_texas_ParagraphView_me_chan_texas_ParagraphView_selectedBackgroundRoundRadius,
@@ -878,16 +811,16 @@ public class ParagraphView extends FrameLayout {
 				)
 		);
 
-		// 是否开启兼容模式
+
 		renderOption.setCompatMode(
 				typedArray.getBoolean(R.styleable.me_chan_texas_ParagraphView_me_chan_texas_ParagraphView_compatMode, false)
 		);
 
-		// 文字居中形式
+
 		int textGravity = typedArray.getInt(R.styleable.me_chan_texas_ParagraphView_me_chan_texas_ParagraphView_textGravity, TextGravity.TOP | TextGravity.START);
 		renderOption.setTextGravity(textGravity);
 
-		// 开启debug
+
 		renderOption.setDebugEnable(
 				typedArray.getBoolean(R.styleable.me_chan_texas_ParagraphView_me_chan_texas_ParagraphView_debugEnable, false)
 		);
@@ -896,9 +829,9 @@ public class ParagraphView extends FrameLayout {
 	}
 
 	private static void checkUIThreadPriority() {
-		// On Android 8+, UI thread's priority already increase from 0 to -10(THREAD_PRIORITY_VIDEO),
-		// higher than URGENT_DISPLAY (-8), we at least adjust to URGENT_DISPLAY when on 7 or under,
-		// and it will help to improve TextureView performance
+
+
+
 		try {
 			int priority = Process.getThreadPriority(0);
 			if (priority <= Process.THREAD_PRIORITY_URGENT_DISPLAY) {
@@ -917,9 +850,7 @@ public class ParagraphView extends FrameLayout {
 		}
 	}
 
-	/**
-	 * 设置paragraph source
-	 */
+	
 	public static abstract class ParagraphSource extends Source<Paragraph> {
 		private ParagraphView mParagraphView;
 

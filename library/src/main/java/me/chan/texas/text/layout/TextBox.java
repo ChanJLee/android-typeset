@@ -21,30 +21,18 @@ import me.chan.texas.text.TextStyle;
 import me.chan.texas.utils.CharArrayPool;
 import me.chan.texas.utils.TexasUtils;
 
-/**
- * 文本元素
- */
+
 @RestrictTo(LIBRARY)
 public final class TextBox extends Box {
-	/**
-	 * 什么属性都没有
-	 */
+	
 	public static final int ATTRIBUTE_NONE = 0;
-	/**
-	 * 是否是被追加了 -
-	 */
+	
 	public static final int ATTRIBUTE_PENALTY = 1;
-	/**
-	 * 是否需要缩放
-	 */
+	
 	public static final int ATTRIBUTE_ZOOM_OUT = 2;
-	/**
-	 * 是否需要缩小左边的距离
-	 */
+	
 	public static final int ATTRIBUTE_SQUISH_LEFT = 4;
-	/**
-	 * 是否需要缩小右边的距离
-	 */
+	
 	public static final int ATTRIBUTE_SQUISH_RIGHT = 8;
 
 	public static final int ATTRIBUTE_PENDED_HYPHEN = 16;
@@ -63,11 +51,7 @@ public final class TextBox extends Box {
 		return !POOL.isEmpty();
 	}
 
-	/**
-	 * 修改内容关注
-	 * {@link #copy(TextBox)}
-	 * {@link #equals(Object)}
-	 */
+	
 	private CharSequence mText;
 	private int mStart;
 	private int mEnd;
@@ -110,7 +94,7 @@ public final class TextBox extends Box {
 		mEnd = other.mEnd;
 		mTextStyle = other.mTextStyle;
 
-		// internal data
+
 		mAttribute = other.mAttribute;
 
 		mBaselineOffset = other.mBaselineOffset;
@@ -126,8 +110,8 @@ public final class TextBox extends Box {
 			return false;
 		}
 
-		// 目前因为符号问题不能合并的case大概占比 1%不到
-		// 但是能提高 30% 后续遍历的性能
+
+
 		// TODO 优化下
 		if (mAttribute != box.mAttribute) {
 			return false;
@@ -187,11 +171,9 @@ public final class TextBox extends Box {
 	}
 
 
-	/**
-	 * @param penalty 累加另外一个元素的文本值
-	 */
+	
 	public void merge(Penalty penalty) {
-		// check tag ?
+
 		if (isPenalty()) {
 			throw new IllegalStateException("set text box penalty twice");
 		}

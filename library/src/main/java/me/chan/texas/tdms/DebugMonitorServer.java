@@ -44,28 +44,28 @@ public class DebugMonitorServer {
 		StringBuilder builder = new StringBuilder(2048);
 		builder.append("{");
 
-		// write version
+
 		builder.append("\"version\":")
 				.append("\"1.0.0\"")
 				.append(",");
 
-		// write density
+
 		builder.append("\"density\":")
 				.append(TexasUtils.getDensity())
 				.append(",");
 
-		// 单个西文字符宽度
+
 		builder.append("\"font_width\":")
 				.append(attribute.getHyphenWidth())
 				.append(",");
 
-		// 文字大小
+
 		TextPaint paint = paintSet.getPaint();
 		builder.append("\"text_size\":")
 				.append(paint.getTextSize())
 				.append(",");
 
-		// 行宽
+
 		builder.append("\"width\":")
 				.append(width)
 				.append(",");
@@ -84,7 +84,7 @@ public class DebugMonitorServer {
 			try {
 				visitor.visit(paragraph);
 			} catch (ParagraphVisitor.VisitException ignore) {
-				/* do nothing */
+				
 			}
 		}
 		builder.append("]}");
@@ -108,7 +108,7 @@ public class DebugMonitorServer {
 			mFirstParagraph = false;
 			mBuilder.append("{");
 
-			// write padding
+
 			Rect rect = paragraph.getRect();
 			if (rect != null) {
 				mBuilder.append("\"padding\":[")
@@ -148,7 +148,7 @@ public class DebugMonitorServer {
 					.append(y)
 					.append(",");
 
-			// spans
+
 			mBuilder.append("\"spans\":[");
 			mNewline = true;
 		}

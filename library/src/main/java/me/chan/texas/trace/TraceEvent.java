@@ -127,7 +127,7 @@ public class TraceEvent {
 
         @Override
         public void send() {
-            /* noop */
+            
         }
     }
 }

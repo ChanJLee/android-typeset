@@ -2,9 +2,7 @@ package me.chan.texas.misc;
 
 import me.chan.texas.annotations.TexasUnitTest;
 
-/**
- * 默认可回收实现类
- */
+
 public abstract class DefaultRecyclable implements Recyclable {
 
 	@TexasUnitTest("true")

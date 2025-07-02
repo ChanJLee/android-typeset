@@ -9,9 +9,7 @@ import androidx.annotation.RestrictTo;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-/**
- * 文字样式
- */
+
 public abstract class TextStyle {
 
 	private static final AtomicInteger UUID = new AtomicInteger(Integer.MIN_VALUE);
@@ -19,7 +17,7 @@ public abstract class TextStyle {
 	public static final TextStyle NONE = new TextStyle() {
 		@Override
 		public void update(TextPaint textPaint, @Nullable Object tag) {
-			/* do nothing */
+			
 		}
 	};
 	public static final TextStyle BOLD = new TextStyle() {
@@ -55,15 +53,10 @@ public abstract class TextStyle {
 		return mId;
 	}
 
-	// 文字样式没法给定 DrawContext，因为 DrawContext 一定是排版完成后准备绘制才有
-	// 但是我们需要在排版前就得用 text style 去确定文字大小
 
-	/**
-	 * 更新text paint的样式
-	 *
-	 * @param textPaint text paint
-	 * @param tag       {@link Paragraph.SpanBuilder#tag(Object)}
-	 */
+
+
+	
 	@AnyThread
 	public abstract void update(@NonNull TextPaint textPaint, @Nullable Object tag);
 }

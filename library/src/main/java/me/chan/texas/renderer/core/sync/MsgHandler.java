@@ -10,9 +10,7 @@ import me.chan.texas.utils.concurrency.Worker;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * 跟主ui线程通信的消息处理器
- */
+
 public abstract class MsgHandler {
 
 	protected List<Listener> mListeners = new ArrayList<>();
@@ -21,26 +19,14 @@ public abstract class MsgHandler {
 		mListeners.add(listener);
 	}
 
-	/**
-	 * 发送消息
-	 *
-	 * @param token   id
-	 * @param message 消息附带的值
-	 */
+	
 	public abstract void send(Worker.Token token, Msg message);
 
-	/**
-	 * 清空token对应的消息
-	 */
+	
 	public abstract void clear(Worker.Token token);
 
 	public interface Listener {
-		/**
-		 * 处理消息
-		 *
-		 * @param token token
-		 * @param msg   消息
-		 */
+		
 		boolean handle(Worker.Token token, Msg msg);
 	}
 

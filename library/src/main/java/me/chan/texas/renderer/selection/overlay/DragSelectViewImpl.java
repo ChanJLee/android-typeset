@@ -23,9 +23,7 @@ import me.chan.texas.renderer.selection.SelectionManager;
 import me.chan.texas.renderer.selection.magnifier.MagnifierView;
 import me.chan.texas.renderer.selection.magnifier.MagnifierViewFactory;
 
-/**
- * Created by Otway on 2021/11/16.
- */
+
 @SuppressLint("ViewConstructor")
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class DragSelectViewImpl extends View implements DragSelectView {
@@ -84,7 +82,7 @@ public class DragSelectViewImpl extends View implements DragSelectView {
 			return;
 		}
 
-		// 手指中心
+
 		if (mTouchPoint.x >= 0 || mTouchPoint.y >= 0) {
 			canvas.drawCircle(mTouchPoint.x, mTouchPoint.y, 10, mPaint);
 		}
@@ -183,7 +181,7 @@ public class DragSelectViewImpl extends View implements DragSelectView {
 
 		renderPrompt(action, x, y);
 
-		/* 防止事件传递到下面 */
+		
 		return true;
 	}
 
@@ -197,7 +195,7 @@ public class DragSelectViewImpl extends View implements DragSelectView {
 		mTouchPoint.x = x;
 		mTouchPoint.y = y;
 
-		// render magnifier
+
 		if (action == MotionEvent.ACTION_CANCEL || action == MotionEvent.ACTION_UP) {
 			dismissPrompt();
 			return;
@@ -267,12 +265,12 @@ public class DragSelectViewImpl extends View implements DragSelectView {
 
 		if (handled) {
 			mFocusPoint.offset(x - mFocusPoint.x, y - mFocusPoint.y);
-			// 通知上层开始拖拽
+
 			mSelectionManager.handleDragStart(TouchEvent.obtain(this, event));
 			return true;
 		}
 
-		// 通知上层没有点击到
+
 		mSelectionManager.handleClickNothing();
 
 		dismissPrompt();
@@ -306,13 +304,7 @@ public class DragSelectViewImpl extends View implements DragSelectView {
 		mSelectionManager = selectionManager;
 	}
 
-	/**
-	 * @param x1            顶点x
-	 * @param y1            顶点y
-	 * @param x2            底点x
-	 * @param y2            底点y
-	 * @param adviseOffsetY 绘制方向建议的y偏移量
-	 */
+	
 	public void renderRegion(float x1, float y1, float x2, float y2, float adviseOffsetY) {
 		if (Texas.DEBUG_DRAG) {
 			Log.d("drag_debug.view", "update selection: " + x1 + " " + y1 + " " + x2 + " " + y2);

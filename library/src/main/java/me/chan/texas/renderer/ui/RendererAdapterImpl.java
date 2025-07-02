@@ -52,23 +52,19 @@ import java.util.concurrent.atomic.AtomicInteger;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-/**
- * 点击事件通知约定：
- * 发生一次点击作为一次事务，之后除非发生另外一次点击，后面所有的高亮都算作这一次事务附带的事件
- * 每一次点击需要清除上一次的记录，因此通过点击发生selection后，重新高亮不会触发点击事件的回调
- */
+
 @RestrictTo(LIBRARY)
 public class RendererAdapterImpl extends RecyclerView.Adapter<RendererAdapterImpl.Renderer> implements TexasRendererAdapter {
 	private static final boolean DEBUG = false;
 
-	// 内部自定义的type必须小于0
+
 	private static final int TYPE_PARAGRAPH = -1;
 	private static final int TYPE_FIGURE = -2;
 	private static final int TYPE_PARAGRAPH_COMPAT = -3;
 	public static final int UNREUSABLE_TYPE_START = -4;
 
 	static {
-		// runtime check
+
 		if (TYPE_PARAGRAPH >= 0 || TYPE_FIGURE >= 0 || TYPE_PARAGRAPH_COMPAT >= 0) {
 			throw new IllegalStateException("internal view type must be less than 0");
 		}
@@ -81,9 +77,7 @@ public class RendererAdapterImpl extends RecyclerView.Adapter<RendererAdapterImp
 	private final ImageLoader mImageLoader;
 	private RenderOption mRenderOption;
 
-	/**
-	 * 选中效果属于编辑器内部的状态了，所有直接由adapter管理而不需要通知外部组件
-	 */
+	
 	private final ViewSegmentManager mViewSegmentManager = new ViewSegmentManager();
 	private SelectionManager mSelectionManager;
 	private PaintSet mPaintSet;
@@ -92,8 +86,8 @@ public class RendererAdapterImpl extends RecyclerView.Adapter<RendererAdapterImp
 
 	private Listener mListener;
 
-	// handler需要设置线程可见性，这样一旦释放了handler，工作线程能立马看到
-	// 滞后的消息就不会发到主线程
+
+
 	@Inject
 	@Named("BackgroundWorker")
 	Worker mBackgroundWorker;
@@ -112,7 +106,7 @@ public class RendererAdapterImpl extends RecyclerView.Adapter<RendererAdapterImp
 		mPool = pool;
 		mView = view;
 
-		// 前提是Document没有变化
+
 		setHasStableIds(true);
 
 		TexasComponent texasComponent = Texas.getTexasComponent();
@@ -317,7 +311,7 @@ public class RendererAdapterImpl extends RecyclerView.Adapter<RendererAdapterImp
 		try {
 			notifyItemRangeRemoved(0, count);
 		} catch (Throwable ignore) {
-			/* ignore */
+			
 		}
 	}
 
@@ -527,7 +521,7 @@ public class RendererAdapterImpl extends RecyclerView.Adapter<RendererAdapterImp
 
 		@Override
 		protected void onCreate(View view) {
-			/* do nothing */
+			
 		}
 
 		@Override
@@ -537,8 +531,8 @@ public class RendererAdapterImpl extends RecyclerView.Adapter<RendererAdapterImp
 			View content = layout.getContent();
 			data.render(content);
 
-			// 当内容被设置为GONE后，当前的item还是会在rv里占用一个格子，这会导致界面上出现大片空白
-			// 因此当发现内容为gone要把当前item高度设置为0
+
+
 			if (content.getVisibility() == View.GONE) {
 				layout.setPadding(0, 0, 0, 0);
 			} else {
@@ -551,13 +545,7 @@ public class RendererAdapterImpl extends RecyclerView.Adapter<RendererAdapterImp
 
 	@RestrictTo(LIBRARY)
 	public static class ViewSegmentManager {
-		/**
-		 * view segment type计算算法：
-		 * {@link ViewSegment#ViewSegment(int)} 接受R.layout作为构造函数参数
-		 * R.layout是唯一的。当检测到R.layout没有创建过type，就通atomic int自增一来产生一个唯一的type
-		 * 这个自增的id从1开始 {@link RendererAdapterImpl#getItemViewType(int)}
-		 * 而内部保留id则是小于0的 {@link RendererAdapterImpl#TYPE_FIGURE} etc.
-		 */
+		
 		private final SparseArrayCompat<Integer> mTypeBuffer = new SparseArrayCompat<>(4);
 		private final SparseArrayCompat<Integer> mLayoutBuffer = new SparseArrayCompat<>(4);
 		private final AtomicInteger mViewUUID = new AtomicInteger(UNREUSABLE_TYPE_START);
@@ -627,11 +615,7 @@ public class RendererAdapterImpl extends RecyclerView.Adapter<RendererAdapterImp
 		Log.w("TexasAdapter", msg);
 	}
 
-	/**
-	 * {@link  me.chan.texas.renderer.ui.text.ParagraphViewMotion}
-	 * 处理paragraph的事件
-	 * 其它由 {@link SegmentItemFragmentLayout}
-	 */
+	
 	public interface Listener {
 		void onSegmentClicked(TouchEvent event, Object tag);
 

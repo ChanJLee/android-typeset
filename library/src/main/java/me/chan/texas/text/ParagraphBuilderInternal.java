@@ -29,9 +29,7 @@ import me.chan.texas.utils.TexasUtils;
 import java.util.ArrayList;
 import java.util.List;
 
-/*
- * 把文本添加过程抽离出来了，因为太复杂了，需要在另外一个文件里面单独写明
- * */
+
 class ParagraphBuilderInternal {
 	private static final int MIN_HYPER_LEN = 4;
 
@@ -87,11 +85,7 @@ class ParagraphBuilderInternal {
 		appendSent(text, start, end, spanReader);
 	}
 
-	/**
-	 * 颜文字
-	 *
-	 * @param emoticon 颜文字
-	 */
+	
 	public void emoticon(Emoticon emoticon) {
 		if (mParagraph == null) {
 			throw new IllegalStateException("call newParagraph first");
@@ -100,10 +94,7 @@ class ParagraphBuilderInternal {
 		appendEmoticon(emoticon);
 	}
 
-	/**
-	 * @param brk 是否需要添加一个换行符
-	 * @return paragraph
-	 */
+	
 	public Paragraph build(boolean brk) {
 		if (brk) {
 			brk();
@@ -159,9 +150,7 @@ class ParagraphBuilderInternal {
 		mLastToken = token;
 	}
 
-	/**
-	 * 以下的代码都是为了将一个句子添加到当前段落中，并追加一个glue
-	 */
+	
 	private void appendSent(CharSequence text, int start, int end, @Nullable Paragraph.Builder.SpanReader reader) {
 		if (text == null) {
 			throw new RuntimeException("call build twice");
@@ -195,13 +184,13 @@ class ParagraphBuilderInternal {
 
 	private void appendRun(CharSequence text, int start, int end,
 						   @Nullable Paragraph.Builder.SpanReader reader, boolean rtl) {
-		// 将句子转换为单词流
-		// 单词流会分析出一个句子中每个字符所代表的语义，这样可以精确的识别诸如： isn't、1920s 为一个单词
+
+
 		TokenStream tokenStream = TokenStream.obtain(text, start, end, rtl);
 		try {
 
-			// 追加一个空格
-			// 这个未来还能不能适用，就要看状态推导图了，目前看一个token后接blank和none不影响状态机的跳转
+
+
 			if (mAppendSpaceEnable && mLastToken != null && tokenStream.hasNext()) {
 				tokenStream = TokenStream.link(TokenStream.obtain(" ", 0, 1), tokenStream);
 			}
@@ -342,7 +331,7 @@ class ParagraphBuilderInternal {
 					background,
 					foreground);
 
-			// 英文模式下 要对中文进行缩放
+
 			if (cjkOptimization) {
 				textBox.addAttribute(TextBox.ATTRIBUTE_ZOOM_OUT);
 			}
@@ -438,12 +427,7 @@ class ParagraphBuilderInternal {
 		appendElement(mCommonGlue);
 	}
 
-	/**
-	 * 用于在添加glue前后使用，因为glue本身代表可以断点
-	 * 所以没必要再添加advise break
-	 *
-	 * @param element element
-	 */
+	
 	private void appendElementExcludeAdvise(Element element) {
 
 		if (element == Penalty.ADVISE_BREAK) {
@@ -568,20 +552,16 @@ class ParagraphBuilderInternal {
 	}
 
 	static {
-		// control 实际上可以约减掉了，但是因为为了后期好理解所以保留
-		// 因为control存在，我们需要关心下一个token是什么，所以如果control删除，那么rules的api接口就要修改
+
+
 		TYPESET_RULES = new ArrayList<>();
 		TYPESET_RULES.add(new WordRules());
 		TYPESET_RULES.add(new SymbolRules());
 		TYPESET_RULES.add(new ControlRules());
 	}
 
-	/**
-	 * 规则见根目录的推导文件 rules.txt
-	 *
-	 * @return 实际被接受的token
-	 */
-	private Token accept(@Nullable Token accepted, /* 之前被接受的token */
+	
+	private Token accept(@Nullable Token accepted, 
 						 TokenStream stream,
 						 CharSequence text,
 						 Paragraph.Builder.SpanReader spanReader) {
@@ -611,10 +591,10 @@ class ParagraphBuilderInternal {
 				return false;
 			}
 
-			// 1: word -> state 2
-			// 2: control -> noop
-			// 3: none -> noop
-			// 4: symbol -> prefix state 1
+
+
+
+
 			int acceptedType = getTokenTypeSafe(accepted);
 			if (acceptedType == Token.TYPE_WORD) {
 				performPrefixState2(builder, accepted, current);
@@ -629,9 +609,9 @@ class ParagraphBuilderInternal {
 		}
 
 		private static void performPrefixState2(ParagraphBuilderInternal builder, @NonNull Token accepted, Token current) {
-			// 其实就是不同文字类型之间分割
-			// 比如字母和数字之间加空格
-			// 否则就是可以断点
+
+
+
 			if (accepted.getCategory() != current.getCategory()) {
 				builder.appendElement(builder.mCommonGlue);
 			} else {
@@ -640,13 +620,13 @@ class ParagraphBuilderInternal {
 		}
 
 		private static void performPrefixState1(ParagraphBuilderInternal builder, @NonNull Token accepted, TokenStream stream, int state) {
-			// 先获取建议
+
 			Element adviseElement = checkSymbolTokenAttributeSafe(accepted, Token.SYMBOL_ATTRIBUTE_KINSOKU_AVOID_TAIL) ?
 					Penalty.FORBIDDEN_BREAK : Penalty.ADVISE_BREAK;
 
-			// 是否添加空格取决于前一个符号
-			// 如果它要，那么就添加
-			// 不要的话尝试用原先单词流中的数据填充，不过要注意，如果前面的单词不让填充空格，那么也是什么都不能做的
+
+
+
 
 			if (checkSymbolTokenAttributeSafe(accepted, Token.SYMBOL_ATTRIBUTE_STRETCH_RIGHT)) {
 				builder.appendElementExcludeAdvise(adviseElement);
@@ -659,7 +639,7 @@ class ParagraphBuilderInternal {
 					builder.appendElementExcludeAdvise(adviseElement);
 				}
 			} else {
-				// 那就要看原始的流中有没有要求添加空格
+
 				Token realPrev = stream.tryGet(state, -1);
 				if (realPrev != accepted &&
 						getTokenTypeSafe(realPrev) == Token.TYPE_CONTROL &&
@@ -698,16 +678,16 @@ class ParagraphBuilderInternal {
 			}
 
 			Token next = stream.tryGet(0);
-			//--------------------v next ----------
-			// 				word		symbol		control		none
-			//----------|-----------------------------
-			// word    	|   direct 		trans		noop		noop
-			// symbol 	|   trans		trans		noop		noop < 本质上都是丢给后面的人处理
-			// control	|	noop		noop		noop		noop < 规避多个空格
-			// none		|   noop  		noop		noop		noop < 首行不留白，这个可能作为 future 未来支持开启
-			//-----------------------------------------
-			//  ^ prev
-			// trans 就要上面的规则去检查是否丢弃了 control，但是当前的规则不需要处理，所以本质上是noop
+
+
+
+
+
+
+
+
+
+
 
 			int prevType = getTokenTypeSafe(accepted);
 			int nextType = getTokenTypeSafe(next);
@@ -757,16 +737,16 @@ class ParagraphBuilderInternal {
 				return false;
 			}
 
-			//--------------------v next ----------
-			// 				word	unknown		symbol		control		none
-			//----------|-----------------------------
-			// word    	|   state2  state2		state2		state2		state2
-			// unknown 	|   state2  state2		state2		state2		state2
-			// symbol 	|   state1	state1		state1		state1		state1
-			// control	|	-		-			-			-			-
-			// none		|   直接进 	直接进 		直接进		直接进		直接进
-			//-----------------------------------------
-			//  ^ prev
+
+
+
+
+
+
+
+
+
+
 
 			int prevType = getTokenTypeSafe(accepted);
 			if (prevType == Token.TYPE_NONE) {
@@ -785,7 +765,7 @@ class ParagraphBuilderInternal {
 			}
 
 			if (prevType == Token.TYPE_CONTROL) {
-				// never
+
 				throw new IllegalStateException("symbol's rules under invalid sate");
 			}
 
@@ -802,12 +782,12 @@ class ParagraphBuilderInternal {
 								   CharSequence text, Paragraph.Builder.SpanReader spanReader,
 								   TokenStream stream, int state) {
 
-			// 前置条件就是 prev 是单词
+
 
 			Element adviseElement = checkSymbolTokenAttributeSafe(current, Token.SYMBOL_ATTRIBUTE_KINSOKU_AVOID_HEADER) ?
 					Penalty.FORBIDDEN_BREAK : Penalty.ADVISE_BREAK;
 
-			// 生成一个 symbol
+
 			TextBox box = builder.obtainSymbolTextBox(text, spanReader, current);
 			if (checkSymbolTokenAttributeSafe(current, Token.SYMBOL_ATTRIBUTE_SQUISH_LEFT)) {
 				if (builder.mRenderOption.isFullWithSymbolOptimizationEnable()) {
@@ -819,15 +799,15 @@ class ParagraphBuilderInternal {
 				}
 			}
 
-			// 明确的需要拉升左边
+
 			if (checkSymbolTokenAttributeSafe(current, Token.SYMBOL_ATTRIBUTE_STRETCH_LEFT)) {
 				builder.appendElementExcludeAdvise(adviseElement);
 				builder.appendElement(builder.mCommonGlue);
 				builder.appendElementExcludeAdvise(adviseElement);
 			} else {
-				// 看情况是否要填充空格
-				// 找真实的解析buffer，看当前token在原文中是否有空格，如果有，且没有要求squish，那么就要填充空格
-				// 但是填充空格的时候需要收到当前current的约束
+
+
+
 				Token realPrev = stream.tryGet(state, -1);
 				if (checkSymbolTokenAttributeSafe(current, Token.SYMBOL_ATTRIBUTE_SQUISH_LEFT)) {
 					if (builder.mRenderOption.isFullWithSymbolOptimizationEnable()) {
@@ -852,15 +832,15 @@ class ParagraphBuilderInternal {
 		private void preformState1(ParagraphBuilderInternal builder, Token accepted, Token current,
 								   CharSequence text, Paragraph.Builder.SpanReader spanReader,
 								   TokenStream stream, int state) {
-			// advance penalty state table
-			//--------------------v current -------------------------
-			// 					avoid-header	avoid-tail  none
-			//--------------|------------------------------------
-			// avoid-header |   fb-brk			advise_brk	advise_brk
-			// avoid-tail 	|	fb-brk			fb-brk		fb-brk
-			// none 		|	fb-brk			advise_brk	advise_brk
-			//---------------------------------------------------
-			//  ^ prev
+
+
+
+
+
+
+
+
+
 			Element adviseElement = null;
 			if (checkSymbolTokenAttributeSafe(accepted, Token.SYMBOL_ATTRIBUTE_KINSOKU_AVOID_TAIL) ||
 					checkSymbolTokenAttributeSafe(current, Token.SYMBOL_ATTRIBUTE_KINSOKU_AVOID_HEADER)) {
@@ -880,7 +860,7 @@ class ParagraphBuilderInternal {
 				}
 			}
 
-			// 添加 advise
+
 			preformState1Advise(builder, accepted, current, stream, state, box, adviseElement);
 
 			builder.appendElement(box);
@@ -888,30 +868,28 @@ class ParagraphBuilderInternal {
 			accept(current);
 		}
 
-		/**
-		 * 标点挤压逻辑
-		 */
+		
 		private void preformState1Advise(ParagraphBuilderInternal builder,
 										 Token accepted, Token current,
 										 TokenStream stream, int state,
 										 TextBox box, Element adviseElement) {
-			// 之前没有吞入任何元素
+
 			if (accepted == null) {
 				return;
 			}
 
-			// 已经推入的符号现在都是没有额外空格的
-			// padding state table
-			//--------------------------v current ----------------------------------------------------------------------------
-			// 						|	stretch-left('<')	squish-left('《') 	stretch-right('>') 	squish-right('》') 	none
-			//----------------------|-----------------------------------------------------------------------------------------
-			// stretch-right('>')	|   padding				padding  			noop				raw					raw
-			// squish-right('》') 	|	padding				symbol-padding		noop				noop				raw
-			// stretch-left('<')    |	noop				noop 				raw				    raw					raw
-			// squish-left('《')   	|	raw					noop				raw					raw					raw
-			// none 				|	raw					raw					raw					raw					raw
-			//----------------------------------------------------------------------------------------------------------------
-			// ^ accepted
+
+
+
+
+
+
+
+
+
+
+
+
 
 			if (checkSymbolTokenAttributeSafe(accepted, Token.SYMBOL_ATTRIBUTE_STRETCH_RIGHT)) {
 
@@ -990,8 +968,8 @@ class ParagraphBuilderInternal {
 
 		private void performState1AdviseRaw(ParagraphBuilderInternal builder,
 											TokenStream stream, int state, Element adviseElement) {
-			// noop 后续多了一些操作，要保留原始数据中的空格
-			// 但是不能是 开头、有压缩的需求
+
+
 			Token realPrev = stream.tryGet(state, -1);
 			if (getTokenTypeSafe(realPrev) == Token.TYPE_CONTROL) {
 				builder.appendElementExcludeAdvise(adviseElement);

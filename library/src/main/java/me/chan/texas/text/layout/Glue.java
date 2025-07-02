@@ -12,9 +12,7 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
 import android.annotation.SuppressLint;
 
-/**
- * 代表一个空格
- */
+
 @RestrictTo(LIBRARY)
 public class Glue extends Element {
 	private final static ObjectPool<Glue> POOL = new ObjectPool<>(16);
@@ -68,13 +66,9 @@ public class Glue extends Element {
 		}
 	};
 
-	/**
-	 * stretch ability
-	 */
+	
 	protected float mStretch;
-	/**
-	 * shrink ability
-	 */
+	
 	protected float mShrink;
 
 	protected float mWidth;
