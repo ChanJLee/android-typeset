@@ -96,7 +96,7 @@ public class SelectedTextByDragVisitor extends SelectedVisitor {
 			RectF rectF = new RectF(mLineBound.right, mLineBound.top, mLineBound.right, mLineBound.bottom);
 			mSelection.prependRegion(rectF);
 			index = linkText(line, count - 1, false, rectF);
-			if (index != 0) {
+			if (index != -1) {
 				return;
 			}
 		}

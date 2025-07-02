@@ -21,8 +21,11 @@ import me.chan.texas.renderer.selection.Selection;
 import me.chan.texas.text.BreakStrategy;
 import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.TextAttribute;
+import me.chan.texas.text.layout.Glue;
 import me.chan.texas.text.layout.Layout;
 import me.chan.texas.text.layout.Line;
+import me.chan.texas.text.layout.Penalty;
+import me.chan.texas.text.layout.TextBox;
 import me.chan.texas.typesetter.ParagraphTypesetter;
 
 public class SelectedTextByDragVisitorUnitTest {
@@ -282,5 +285,129 @@ public class SelectedTextByDragVisitorUnitTest {
 		Assert.assertEquals(excepted, regions.get(0));
 		excepted = new RectF(0, 2, 5.5f, 3);
 		Assert.assertEquals(excepted, regions.get(1));
+	}
+
+	@Test
+	public void testLineLinkWithMock() throws ParagraphVisitor.VisitException {
+		FakeMeasureFactory factory = FakeMeasureFactory.getInstance();
+		factory.getMockTextPaint().setMockTextSize(1);
+
+		RenderOption renderOption = new RenderOption();
+		renderOption.setLineSpacingExtra(1);
+		Measurer measurer = new MockMeasurer(factory.getMockTextPaint());
+		PaintSet paintSet = new PaintSet(factory.getMockTextPaint());
+		TextAttribute textAttribute = new TextAttribute(measurer);
+
+		TexasOption texasOption = new TexasOption(paintSet, Hyphenation.getInstance(), measurer, textAttribute, renderOption);
+		Paragraph.Builder builder = Paragraph.Builder.newBuilder(texasOption)
+				.text("123 triangle 1");
+		Paragraph paragraph = builder.build();
+
+		TextBox box123 = (TextBox) paragraph.getElement(0);
+		TextBox triBox = (TextBox) paragraph.getElement(2);
+		TextBox angBox = (TextBox) paragraph.getElement(4);
+
+		Glue glue = (Glue) paragraph.getElement(1);
+
+		Assert.assertEquals("123", box123.toString());
+		Assert.assertEquals("tri", triBox.toString());
+		Assert.assertEquals("an", angBox.toString());
+
+		angBox.merge(Penalty.obtain(1, null, null, measurer, textAttribute));
+		Assert.assertEquals("an-", angBox.toString());
+
+		Layout layout = Layout.obtain(paragraph.getLayout());
+
+		Line line = Line.obtain();
+		line.add(box123);
+		line.add(glue);
+		line.add(triBox);
+		line.add(angBox);
+		line.setLineWidth(glue.getWidth() + box123.getWidth() + triBox.getWidth() + angBox.getWidth());
+		line.setRatio(0);
+		line.setLineHeight(1);
+		layout.addLine(line);
+
+		line = Line.obtain();
+		line.add(triBox);
+		line.add(angBox);
+		line.setLineWidth(triBox.getWidth() + angBox.getWidth());
+		line.setRatio(0);
+		line.setLineHeight(1);
+		layout.addLine(line);
+
+		line = Line.obtain();
+		line.add(triBox);
+		line.add(angBox);
+		line.setLineWidth(triBox.getWidth() + angBox.getWidth());
+		line.setRatio(0);
+		line.setLineHeight(1);
+		layout.addLine(line);
+
+		line = Line.obtain();
+		line.add(triBox);
+		line.add(angBox);
+		line.setLineWidth(triBox.getWidth() + angBox.getWidth());
+		line.setRatio(0);
+		line.setLineHeight(1);
+		layout.addLine(line);
+
+		line = Line.obtain();
+		line.add(triBox);
+		line.add(angBox);
+		line.setLineWidth(triBox.getWidth() + angBox.getWidth());
+		line.setRatio(0);
+		line.setLineHeight(1);
+		layout.addLine(line);
+
+		line = Line.obtain();
+		line.add(triBox);
+		line.add(angBox);
+		line.add(glue);
+		line.add(box123);
+		line.setLineWidth(glue.getWidth() + box123.getWidth() + triBox.getWidth() + angBox.getWidth());
+		line.setRatio(0);
+		line.setLineHeight(1);
+		layout.addLine(line);
+
+		layout.setWidth(10);
+		paragraph.swap(layout);
+
+		//0-1 123 trian-
+		//1-2
+		//2-3 trian-
+		//3-4
+		//4-5 trian-
+		//5-6
+		//6-7 trian-
+		//7-8
+		//8-9 trian-
+		//9-10
+		//10-11 trian- 123
+		SelectedTextByDragVisitor selectedTextByDragVisitor = new SelectedTextByDragVisitor();
+		selectedTextByDragVisitor.reset(Selection.Type.SELECTION, Selection.Styles.create(0, 0), paragraph, renderOption);
+		float tempX1 = 4;
+		float tempY1 = 4f;
+		float tempX2 = 6;
+		float tempY2 = 4.5f;
+		selectedTextByDragVisitor.setRegion(tempX1, tempY1, tempX2, tempY2);
+		selectedTextByDragVisitor.startVisit(paragraph);
+
+		ParagraphSelection paragraphSelection = paragraph.getSelection(Selection.Type.SELECTION);
+		Assert.assertNotNull(paragraphSelection);
+
+		RectF rectF = paragraphSelection.getLastRegion();
+		Assert.assertNotNull(rectF);
+		Assert.assertEquals(0, rectF.left, 0.001);
+		Assert.assertEquals(6.5f, rectF.right, 0.001);
+		Assert.assertEquals(10, rectF.top, 0.001);
+		Assert.assertEquals(11, rectF.bottom, 0.001);
+
+		rectF = paragraphSelection.getFirstRegion();
+		Assert.assertNotNull(rectF);
+		Assert.assertEquals(3.5, rectF.left, 0.001);
+		Assert.assertEquals(10, rectF.right, 0.001);
+		Assert.assertEquals(0, rectF.top, 0.001);
+		Assert.assertEquals(1, rectF.bottom, 0.001);
 	}
 }
