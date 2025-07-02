@@ -29,30 +29,22 @@ public class TouchEvent extends DefaultRecyclable {
 		POOL.release(this);
 	}
 
-	/**
-	 * @return view中的x
-	 */
+	
 	public float getX() {
 		return mX;
 	}
 
-	/**
-	 * @return view 中的y
-	 */
+	
 	public float getY() {
 		return mY;
 	}
 
-	/**
-	 * @return 屏幕中的x
-	 */
+	
 	public float getRawX() {
 		return mRawX;
 	}
 
-	/**
-	 * @return 屏幕中的y
-	 */
+	
 	public float getRawY() {
 		return mRawY;
 	}

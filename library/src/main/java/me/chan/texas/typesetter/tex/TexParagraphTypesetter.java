@@ -85,13 +85,13 @@ public class TexParagraphTypesetter extends AbsParagraphTypesetter {
 	}
 
 	private boolean typeset0(TypesetArgs args) {
-		// 先获取active list，尽量从最小的伸缩度来计算
+
 		ActiveNodes activeList = createActiveNodes(args);
 		if (activeList == null || activeList.isEmpty()) {
 			return false;
 		}
 
-		// 选择断点
+
 		IntStack breakPoints = selectBreakPoints(activeList);
 		if (DEBUG) {
 			__stackInternal = new IntStack(breakPoints);
@@ -101,19 +101,14 @@ public class TexParagraphTypesetter extends AbsParagraphTypesetter {
 			return false;
 		}
 
-		// 将断点转换成行信息
+
 		typesetParagraph(args.paragraph, breakPoints, args.breakStrategy, args.width);
 		activeList.recycle();
 
 		return true;
 	}
 
-	/**
-	 * 获取 active node 列表
-	 *
-	 * @param args 排版参数
-	 * @return active node 列表
-	 */
+	
 	private ActiveNodes createActiveNodes(TypesetArgs args) {
 		Context context = new Context(args);
 
@@ -143,13 +138,7 @@ public class TexParagraphTypesetter extends AbsParagraphTypesetter {
 		}
 	}
 
-	/**
-	 * 对段落进行排版
-	 *
-	 * @param paragraph   段落
-	 * @param breakPoints 可能的断点
-	 * @return 排版好的段落
-	 */
+	
 	private Paragraph typesetParagraph(Paragraph paragraph,
 									   IntStack breakPoints,
 									   BreakStrategy breakStrategy,
@@ -174,7 +163,7 @@ public class TexParagraphTypesetter extends AbsParagraphTypesetter {
 				}
 			}
 
-			// 防止越界
+
 			int lineEnd = breakPoint + 1;
 			if (lineEnd > size) {
 				lineEnd = size;
@@ -196,12 +185,7 @@ public class TexParagraphTypesetter extends AbsParagraphTypesetter {
 		return paragraph;
 	}
 
-	/**
-	 * 选择可能的断点
-	 *
-	 * @param activeNodes active node list
-	 * @return 断点集合
-	 */
+	
 	private IntStack selectBreakPoints(ActiveNodes activeNodes) {
 		IntStack breaks = new IntStack();
 		Node tempNode = null;
@@ -211,15 +195,15 @@ public class TexParagraphTypesetter extends AbsParagraphTypesetter {
 				continue;
 			}
 
-			// 找到当前 active node 里缺陷评估值最小的节点
+
 			if (tempNode.demerits > node.demerits) {
 				tempNode = node;
 			}
 		}
 
-		// 把它之前的节点都找出来
+
 		while (tempNode != null) {
-			// 剔除0
+
 			if (tempNode.state > 0) {
 				breaks.push(tempNode.state);
 			}
@@ -243,14 +227,14 @@ public class TexParagraphTypesetter extends AbsParagraphTypesetter {
 			return;
 		}
 
-		// 好于同等级下最好的节点就要加入 active list
-		// 计算当前节点后距离下一个文字/强制断点的长度
+
+
 		Sum left = computeSumAfter(context, state);
-		// 插入节点
+
 		createActiveNode(context, active, left, state);
 		left.recycle();
 
-		// 清空候选名单
+
 		context.candidates.clear();
 	}
 
@@ -260,26 +244,26 @@ public class TexParagraphTypesetter extends AbsParagraphTypesetter {
 			int currentLine = active.line + 1;
 			float ratio = computeAdjustRatio(element, active, context, context.args.width);
 
-			// 如果当前node对于当前元素压缩的太多了，那么就移除当前节点
-			// 或者当前节点就是一个强制断点
+
+
 			if (ratio < context.args.minTolerance || (element instanceof Penalty &&
 					((Penalty) element).getPenalty() == -INFINITY_PENALTY)) {
 				context.actives.remove(active);
 			}
 
-			// 如果当前的元素在可接受的排版空间里
+
 			if (ratio >= context.args.minTolerance && ratio <= context.args.maxTolerance) {
-				// 计算下当前属于那种等级
+
 				int fitness = computeFitness(ratio);
-				// 计算如果从当前节点断点会有多差
+
 				float demerits = computeDemerits(element, context, ratio, active, fitness);
-				// 记录本行排版时同等级下最好的节点
+
 				context.candidates.update(fitness, demerits, active, ratio);
 			}
 
 			active = next;
 
-			// 铺满一行为一次分界
+
 			if (active != null && active.line >= currentLine) {
 				break;
 			}
@@ -288,14 +272,7 @@ public class TexParagraphTypesetter extends AbsParagraphTypesetter {
 		return active;
 	}
 
-	/**
-	 * 把候选者都加入到active 列表中
-	 *
-	 * @param context 上下文信息0
-	 * @param active  前一个active节点
-	 * @param sum     当前元素的总长
-	 * @param state   状态
-	 */
+	
 	private void createActiveNode(Context context,
 								  Node active,
 								  Sum sum,
@@ -325,13 +302,10 @@ public class TexParagraphTypesetter extends AbsParagraphTypesetter {
 		}
 	}
 
-	/**
-	 * @param ratio ratio 调整比例
-	 * @return fitness 类别
-	 */
+	
 	private int computeFitness(float ratio) {
-		// 0.5 为一档
-		// class 1 为最好
+
+
 		if (ratio < -0.5) {
 			return CLASS_0;
 		} else if (ratio <= 0.5) {
@@ -343,15 +317,7 @@ public class TexParagraphTypesetter extends AbsParagraphTypesetter {
 		}
 	}
 
-	/**
-	 * 计算拉升收缩的调整比例
-	 *
-	 * @param element   当前的元素
-	 * @param node      active node
-	 * @param context   上下文信息
-	 * @param lineWidth 行长度
-	 * @return 调整比例
-	 */
+	
 	private float computeAdjustRatio(Element element, Node node, Context context, float lineWidth) {
 		float width = context.total.getWidth() - node.totals.getWidth();
 		if (element instanceof Penalty) {
@@ -359,8 +325,8 @@ public class TexParagraphTypesetter extends AbsParagraphTypesetter {
 			width += penalty.getWidth();
 		}
 
-		// 当前长度小于 行长度，那么就需要拉伸
-		// 同理则需要收缩
+
+
 		if (width < lineWidth) {
 			float stretch = context.total.getStretch() - node.totals.getStretch();
 			return stretch > 0 ? (lineWidth - width) / stretch : INFINITY_PENALTY;
@@ -372,20 +338,11 @@ public class TexParagraphTypesetter extends AbsParagraphTypesetter {
 		return 0;
 	}
 
-	/**
-	 * 计算从当前节点分行的话，缺陷评估值是多少
-	 *
-	 * @param element 当前元素
-	 * @param context context
-	 * @param ratio   伸缩比
-	 * @param active  前一个active节点
-	 * @param fitness 当前的fitness类别
-	 * @return 缺陷评估值
-	 */
+	
 	private float computeDemerits(Element element, Context context, float ratio, Node active, int fitness) {
 		float demerits = computeElementDemerits(element, context, ratio);
 
-		// 额外附加的
+
 		if (element instanceof Penalty) {
 			Penalty penalty = (Penalty) element;
 			Element prev = context.stream.tryGet(active.state, 0);
@@ -401,7 +358,7 @@ public class TexParagraphTypesetter extends AbsParagraphTypesetter {
 			demerits += context.args.demeritsFitness;
 		}
 
-		// 叠加total demerits
+
 		demerits += active.demerits;
 
 		return demerits;
@@ -430,10 +387,7 @@ public class TexParagraphTypesetter extends AbsParagraphTypesetter {
 		);
 	}
 
-	/**
-	 * @param context
-	 * @return 计算当前节点后距离下一个文字/强制断点的长度
-	 */
+	
 	private Sum computeSumAfter(Context context, int state) {
 		Sum after = Sum.obtain(context.total);
 		ElementStream stream = context.stream;
@@ -504,9 +458,9 @@ public class TexParagraphTypesetter extends AbsParagraphTypesetter {
 
 		private final float demeritsLine = 1;
 
-		// 对应 α
+
 		private final float demeritsFlagged = 100;
-		// 对应 γ
+
 		private final float demeritsFitness = 3000;
 
 		private int retryTimes = 60;
@@ -563,15 +517,7 @@ public class TexParagraphTypesetter extends AbsParagraphTypesetter {
 		private int mTypesetCount = 0;
 		private int mLineCount = 0;
 
-		/*
-		 * 0 ~ 0.2
-		 * 0.2 ~ 0.4
-		 * 0.4 ~ 0.6
-		 * 0.6 ~ 0.8
-		 * 0.8 ~ 1
-		 * 1 ~ 1.2
-		 * etc
-		 * */
+		
 		private final IntArray mLevelMap = new IntArray(8);
 
 		public Stats() {

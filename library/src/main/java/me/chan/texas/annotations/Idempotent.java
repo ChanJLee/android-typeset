@@ -9,9 +9,7 @@ import java.lang.annotation.Target;
 import static java.lang.annotation.ElementType.METHOD;
 import static java.lang.annotation.RetentionPolicy.CLASS;
 
-/**
- * 标记幂等函数
- */
+
 @Documented
 @Retention(CLASS)
 @Target({METHOD})

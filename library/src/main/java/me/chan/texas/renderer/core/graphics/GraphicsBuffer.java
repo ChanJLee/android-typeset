@@ -118,7 +118,7 @@ public class GraphicsBuffer {
 
 		@WorkerThread
 		public void unlockCanvas() {
-			// Ensure that a drawing operation was in progress.
+
 			if (mPendingPicture == null) {
 				throw new IllegalStateException("No drawing operation is in progress.");
 			}
@@ -126,7 +126,7 @@ public class GraphicsBuffer {
 
 			TexturePicture pending = mPendingPicture;
 			mPendingPicture = null;
-			// ready recycle
+
 			Picture old = mPicture.getAndSet(pending);
 			if (old == null) {
 				TexturePicture.releasePicture(pending);
@@ -146,7 +146,7 @@ public class GraphicsBuffer {
 			}
 
 			WorkerScheduler.odd().submit(
-					mToken /* 基本上是一个不可能的值 */,
+					mToken ,
 					WorkerScheduler.getTaskQueue(TASK_QUEUE_RENDER),
 					() -> TexturePicture.releasePicture((TexturePicture) picture));
 		}

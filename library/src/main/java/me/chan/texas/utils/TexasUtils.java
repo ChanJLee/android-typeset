@@ -80,11 +80,7 @@ public class TexasUtils {
 		return sScreenWidth;
 	}
 
-	/**
-	 * @param lhs lhs
-	 * @param rhs rhs
-	 * @return 返回两个对象是否相同
-	 */
+	
 	public static boolean equals(Object lhs, Object rhs) {
 		return (lhs == rhs) || (lhs != null && lhs.equals(rhs));
 	}
@@ -95,130 +91,17 @@ public class TexasUtils {
 		return typeface;
 	}
 
-	/**
-	 * Parses the string argument as a signed integer in the radix
-	 * specified by the second argument. The characters in the string
-	 * must all be digits of the specified radix (as determined by
-	 * whether {@link java.lang.Character#digit(char, int)} returns a
-	 * nonnegative value), except that the first character may be an
-	 * ASCII minus sign {@code '-'} ({@code '\u005Cu002D'}) to
-	 * indicate a negative value or an ASCII plus sign {@code '+'}
-	 * ({@code '\u005Cu002B'}) to indicate a positive value. The
-	 * resulting integer value is returned.
-	 *
-	 * <p>An exception of type {@code NumberFormatException} is
-	 * thrown if any of the following situations occurs:
-	 * <ul>
-	 * <li>The first argument is {@code null} or is a string of
-	 * length zero.
-	 *
-	 * <li>The radix is either smaller than
-	 * {@link java.lang.Character#MIN_RADIX} or
-	 * larger than {@link java.lang.Character#MAX_RADIX}.
-	 *
-	 * <li>Any character of the string is not a digit of the specified
-	 * radix, except that the first character may be a minus sign
-	 * {@code '-'} ({@code '\u005Cu002D'}) or plus sign
-	 * {@code '+'} ({@code '\u005Cu002B'}) provided that the
-	 * string is longer than length 1.
-	 *
-	 * <li>The value represented by the string is not a value of type
-	 * {@code int}.
-	 * </ul>
-	 *
-	 * <p>Examples:
-	 * <blockquote><pre>
-	 * parseInt("0", 10) returns 0
-	 * parseInt("473", 10) returns 473
-	 * parseInt("+42", 10) returns 42
-	 * parseInt("-0", 10) returns 0
-	 * parseInt("-FF", 16) returns -255
-	 * parseInt("1100110", 2) returns 102
-	 * parseInt("2147483647", 10) returns 2147483647
-	 * parseInt("-2147483648", 10) returns -2147483648
-	 * parseInt("2147483648", 10) throws a NumberFormatException
-	 * parseInt("99", 8) throws a NumberFormatException
-	 * parseInt("Kona", 10) throws a NumberFormatException
-	 * parseInt("Kona", 27) returns 411787
-	 * </pre></blockquote>
-	 *
-	 * @param s     string
-	 * @param start start
-	 * @param end   end
-	 * @return the integer represented by the string argument in the
-	 * specified radix.
-	 * @throws NumberFormatException if the {@code String}
-	 *                               does not contain a parsable {@code int}.
-	 */
+	
 	public static int parseInt(CharSequence s, int start, int end) {
 		return parseInt(s, start, end, 10);
 	}
 
-	/**
-	 * Parses the string argument as a signed integer in the radix
-	 * specified by the second argument. The characters in the string
-	 * must all be digits of the specified radix (as determined by
-	 * whether {@link java.lang.Character#digit(char, int)} returns a
-	 * nonnegative value), except that the first character may be an
-	 * ASCII minus sign {@code '-'} ({@code '\u005Cu002D'}) to
-	 * indicate a negative value or an ASCII plus sign {@code '+'}
-	 * ({@code '\u005Cu002B'}) to indicate a positive value. The
-	 * resulting integer value is returned.
-	 *
-	 * <p>An exception of type {@code NumberFormatException} is
-	 * thrown if any of the following situations occurs:
-	 * <ul>
-	 * <li>The first argument is {@code null} or is a string of
-	 * length zero.
-	 *
-	 * <li>The radix is either smaller than
-	 * {@link java.lang.Character#MIN_RADIX} or
-	 * larger than {@link java.lang.Character#MAX_RADIX}.
-	 *
-	 * <li>Any character of the string is not a digit of the specified
-	 * radix, except that the first character may be a minus sign
-	 * {@code '-'} ({@code '\u005Cu002D'}) or plus sign
-	 * {@code '+'} ({@code '\u005Cu002B'}) provided that the
-	 * string is longer than length 1.
-	 *
-	 * <li>The value represented by the string is not a value of type
-	 * {@code int}.
-	 * </ul>
-	 *
-	 * <p>Examples:
-	 * <blockquote><pre>
-	 * parseInt("0", 10) returns 0
-	 * parseInt("473", 10) returns 473
-	 * parseInt("+42", 10) returns 42
-	 * parseInt("-0", 10) returns 0
-	 * parseInt("-FF", 16) returns -255
-	 * parseInt("1100110", 2) returns 102
-	 * parseInt("2147483647", 10) returns 2147483647
-	 * parseInt("-2147483648", 10) returns -2147483648
-	 * parseInt("2147483648", 10) throws a NumberFormatException
-	 * parseInt("99", 8) throws a NumberFormatException
-	 * parseInt("Kona", 10) throws a NumberFormatException
-	 * parseInt("Kona", 27) returns 411787
-	 * </pre></blockquote>
-	 *
-	 * @param s     string
-	 * @param start start
-	 * @param end   end
-	 * @param radix radix
-	 * @return the integer represented by the string argument in the
-	 * specified radix.
-	 * @throws NumberFormatException if the {@code String}
-	 *                               does not contain a parsable {@code int}.
-	 */
+	
 	public static int parseInt(CharSequence s, int start, int end, int radix) {
-		/*
-		 * WARNING: This method may be invoked early during VM initialization
-		 * before IntegerCache is initialized. Care must be taken to not use
-		 * the valueOf method.
-		 */
+		
 
 		if (s == null) {
-			// Android-changed: Improve exception message for parseInt.
+
 			throw new NumberFormatException("s == null");
 		}
 
@@ -241,20 +124,20 @@ public class TexasUtils {
 
 		if (len > 0) {
 			char firstChar = s.charAt(start);
-			if (firstChar < '0') { // Possible leading "+" or "-"
+			if (firstChar < '0') { 
 				if (firstChar == '-') {
 					negative = true;
 					limit = Integer.MIN_VALUE;
 				} else if (firstChar != '+')
 					throw forInputString(s);
 
-				if (len == 1) // Cannot have lone "+" or "-"
+				if (len == 1) 
 					throw forInputString(s);
 				i++;
 			}
 			multmin = limit / radix;
 			while (i < end) {
-				// Accumulating negatively avoids surprises near MAX_VALUE
+
 				digit = Character.digit(s.charAt(i++), radix);
 				if (digit < 0) {
 					throw forInputString(s);
@@ -296,17 +179,11 @@ public class TexasUtils {
 
 	@IntDef({CmpType.CMP_DRAW, CmpType.CMP_TYPESET, CmpType.CMP_LOAD})
 	public @interface CmpType {
-		/**
-		 * 需要重新排版
-		 */
+		
 		int CMP_TYPESET = 1;
-		/**
-		 * 需要重新加载
-		 */
+		
 		int CMP_LOAD = 2;
-		/**
-		 * 需要重新绘制
-		 */
+		
 		int CMP_DRAW = 3;
 	}
 
@@ -324,18 +201,7 @@ public class TexasUtils {
 		}
 	}
 
-	/**
-	 * 1. 字体变化了需要重新reload
-	 * 2. 字体大小变化了需要重新reload
-	 * 3. 更改了断字策略
-	 * 4. 渲染模式发生改变
-	 * 5. 断字策略发生变化
-	 * 6. 全角符号优化变化
-	 *
-	 * @param prev    之前的render option
-	 * @param current 现在的render option
-	 * @return 是否需要重新reload
-	 */
+	
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
 	@CmpType
 	public static int cmp(RenderOption prev, RenderOption current) {
@@ -410,16 +276,7 @@ public class TexasUtils {
 		dest.bottom = bottom;
 	}
 
-	/**
-	 * Returns true iff the two specified rectangles intersect. In no event are
-	 * either of the rectangles modified. To record the intersection,
-	 * use intersect() or setIntersect().
-	 *
-	 * @param a The first rectangle being tested for intersection
-	 * @param b The second rectangle being tested for intersection
-	 * @return true iff the two specified rectangles intersect. In no event are
-	 * either of the rectangles modified.
-	 */
+	
 	public static boolean intersects(@NonNull RectF a, @NonNull RectF b) {
 		return a.left < b.right && b.left < a.right
 				&& a.top < b.bottom && b.top < a.bottom;

@@ -30,7 +30,7 @@ public interface TokenStream extends Recyclable {
 
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
 	static TokenStream link(TokenStream stream1, TokenStream stream2) {
-		// 目前只需要支持两个
+
 		return LinkedTokenStream.obtain(stream1, stream2);
 	}
 }

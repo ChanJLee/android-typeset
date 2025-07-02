@@ -40,40 +40,24 @@ import me.chan.texas.text.Document;
 import me.chan.texas.utils.TexasUtils;
 import me.chan.texas.utils.concurrency.Worker;
 
-/**
- * 协调各个组件一起工作
- */
+
 @RestrictTo(LIBRARY)
 public class Renderer implements SelectionManager.Listener {
 
-	/**
-	 * 显示参数
-	 */
+	
 	private RenderOption mRenderOption;
-	/**
-	 * 显示总窗口
-	 */
+	
 	private final TexasView mTexasView;
 
-	/**
-	 * 排版子系统
-	 */
+	
 	private TypesetEngine mTypesetEngine;
-	/**
-	 * 数据子系统
-	 */
+	
 	private final RendererAdapterImpl mAdapter;
-	/**
-	 * 视图显示窗口
-	 */
+	
 	private final TexasRecyclerViewImpl mRecyclerView;
-	/**
-	 * 视图排版子系统
-	 */
+	
 	private final TexasLinearLayoutManagerImpl mLinearLayoutManager;
-	/**
-	 * 内容选择子系统
-	 */
+	
 	private final SelectionManager mSelectionManager;
 
 	private final RecyclerView.OnScrollListener mOnScrollListener = new RecyclerView.OnScrollListener() {
@@ -109,15 +93,15 @@ public class Renderer implements SelectionManager.Listener {
 		mTexasView = texasView;
 		mRenderOption = renderOption;
 
-		// misc modules
+
 		Context context = texasView.getContext();
 		ImageLoader imageLoader = new ImageLoader(context);
 		LayoutInflater layoutInflater = LayoutInflater.from(context);
 
-		// core
+
 		mTypesetEngine = new TypesetEngine(token);
 
-		// rv
+
 		mLinearLayoutManager = new TexasLinearLayoutManagerImpl(context);
 		mRecyclerView = new TexasRecyclerViewImpl(new ContextThemeWrapper(context, R.style.me_chan_texas_TexasRecyclerView), mLinearLayoutManager);
 		mRecyclerView.setClipToPadding(false);
@@ -145,7 +129,7 @@ public class Renderer implements SelectionManager.Listener {
 		});
 		mRecyclerView.addItemDecoration(new SegmentItemDecoration(mAdapter));
 
-		// selection
+
 		DragSelectViewImpl selectionDragView = new DragSelectViewImpl(texasView.getContext(), texasView);
 		selectionDragView.setEnable(renderOption.isDragToSelectEnable());
 		texasView.addView(selectionDragView,
@@ -156,13 +140,11 @@ public class Renderer implements SelectionManager.Listener {
 		mSelectionManager = new SelectionManager(mAdapter, mLinearLayoutManager, this, selectionDragView, mRecyclerView);
 		mAdapter.setSelectionManager(mSelectionManager);
 
-		// adapter
+
 		mRecyclerView.setAdapter(mAdapter);
 	}
 
-	/**
-	 * @param width 期望的宽度，如果是负值，那么就忽略排版，只会解析
-	 */
+	
 	public void load(String reason, int width) {
 		d("load, reason: " + reason);
 
@@ -179,7 +161,7 @@ public class Renderer implements SelectionManager.Listener {
 			Log.d("TexasRenderer", "typeset, reason: " + reason);
 		}
 
-		// 重新排版会将之前的解析任务都失效
+
 		mTypesetEngine.resize(reason, mTexasView.createTexasOption(), width, mListener);
 	}
 
@@ -209,7 +191,7 @@ public class Renderer implements SelectionManager.Listener {
 
 	public void refresh(RenderOption renderOption) {
 		if (mTypesetEngine == null) {
-			// fix https://bugly.qq.com/v2/crash-reporting/crashes/900021510/404021/report?pid=1&search=texas&searchType=detail&bundleId=&channelId=&version=all&tagList=&start=0&date=all
+
 			w("ignore refresh, typeset engine is null");
 			return;
 		}
@@ -237,7 +219,7 @@ public class Renderer implements SelectionManager.Listener {
 			throw new IllegalStateException("unknown cmp type: " + cmpType);
 		}
 
-		// compat mode 改变了 只需要重新加载
+
 		if (prev.isCompatMode() != mRenderOption.isCompatMode()) {
 			reload();
 			return;
@@ -419,7 +401,7 @@ public class Renderer implements SelectionManager.Listener {
 		try {
 			mAdapter.redraw(start, end);
 		} catch (Throwable ignore) {
-			/* update */
+			
 		}
 	}
 
@@ -465,7 +447,7 @@ public class Renderer implements SelectionManager.Listener {
 		try {
 			mAdapter.notifyItemRangeChanged(0, mAdapter.getItemCount());
 		} catch (Throwable ignore) {
-			/* ignore */
+			
 		}
 	}
 
@@ -474,15 +456,15 @@ public class Renderer implements SelectionManager.Listener {
 	}
 
 	private void redrawInternal() {
-		// 修复部分机型 在切换到后台后白屏的bug
-		// Activity#makeVisible
-		// see https://cs.android.com/android/platform/superproject/+/master:frameworks/base/core/java/android/app/Activity.java;drc=c7282e57cd01f1576baac04356bf99bee34e4c18;l=4246
+
+
+
 
 		redraw(0, mAdapter.getItemCount());
 	}
 
 	public void pause() {
-		/* do nothing */
+		
 	}
 
 	public void setParagraphDecor(ParagraphDecor decor) {

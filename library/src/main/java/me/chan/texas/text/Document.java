@@ -11,9 +11,7 @@ import androidx.annotation.RestrictTo;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
-/**
- * 文档
- */
+
 public final class Document {
 	private ReferenceCountingPointer<List<Segment>> mSegments;
 
@@ -21,10 +19,7 @@ public final class Document {
 		mSegments = builder.mSegments;
 	}
 
-	/**
-	 * @param segment segment
-	 * @return segment在document中的下标
-	 */
+	
 	public int indexOfSegment(Segment segment) {
 		if (segment == null || mSegments == null) {
 			return -1;
@@ -33,11 +28,7 @@ public final class Document {
 		return mSegments.get().indexOf(segment);
 	}
 
-	/**
-	 * 获取段落数目
-	 *
-	 * @return 段落数目
-	 */
+	
 	public int getSegmentCount() {
 		return mSegments == null ? 0 : mSegments.get().size();
 	}
@@ -47,14 +38,7 @@ public final class Document {
 		return mSegments.getRefCount() > 1;
 	}
 
-	/**
-	 * 获取segment
-	 *
-	 * @param index 下标
-	 * @return segment
-	 * @throws IndexOutOfBoundsException if the index is out of range
-	 *                                   (<tt>index &lt; 0 || index &gt;= size()</tt>)
-	 */
+	
 	public Segment getSegment(int index) {
 		return mSegments.get().get(index);
 	}
@@ -73,11 +57,7 @@ public final class Document {
 	public static class Builder {
 		private final ReferenceCountingPointer<List<Segment>> mSegments;
 
-		/**
-		 * 拷贝这个document的内容，并且可以编辑
-		 *
-		 * @param document document
-		 */
+		
 		public Builder(@Nullable Document document) {
 			mSegments = new ReferenceCountingPointer<List<Segment>>(document.mSegments) {
 				@Override

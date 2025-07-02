@@ -7,24 +7,17 @@ import me.chan.texas.misc.RectF;
 
 import me.chan.texas.renderer.RendererContext;
 
-/**
- * 前景/背景颜色
- */
+
 public class RectGround extends Appearance {
 	private int mColor;
 	private int mRadius;
 
-	/**
-	 * @param color 颜色
-	 */
+	
 	public RectGround(int color) {
 		this(color, 0);
 	}
 
-	/**
-	 * @param color  颜色
-	 * @param radius 圆角半径
-	 */
+	
 	public RectGround(int color, int radius) {
 		mColor = color;
 		mRadius = radius;

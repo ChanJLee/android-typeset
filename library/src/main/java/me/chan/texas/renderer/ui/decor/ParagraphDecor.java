@@ -20,11 +20,7 @@ import androidx.annotation.AnyThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 
-/**
- * {@link TexasView.SegmentDecoration}
- * <p>
- * 帮助你绘制 paragraph 的 sidebar
- */
+
 public abstract class ParagraphDecor {
 
 	private Canvas mCanvas;
@@ -68,13 +64,7 @@ public abstract class ParagraphDecor {
 		}
 	}
 
-	/**
-	 * 准备绘制decor
-	 *
-	 * @param paragraph     当前paragraph
-	 * @param viewportOuter 整个view的外部轮廓轮廓
-	 * @param viewportInner 整个view真实轮廓即包含decor margin的矩形位置
-	 */
+	
 	@AnyThread
 	protected abstract void onStartLayoutParagraph(Paragraph paragraph, Rect viewportOuter, Rect viewportInner);
 
@@ -86,39 +76,16 @@ public abstract class ParagraphDecor {
 	protected void onEndLayoutLine() {
 	}
 
-	/**
-	 * 收集 decor 渲染信息（针对每个真实的span内容）
-	 *
-	 * @param paragraph  当前paragraph
-	 * @param spanTag    行内的span tag
-	 * @param spanOuter  当前 box outer rect
-	 * @param spanInner  当前 box inner rect
-	 * @param decorOuter 整个view的外部轮廓轮廓
-	 * @param decorInner 整个view真实轮廓即包含decor margin的矩形位置
-	 * @return true 代表收集完成，false 继续
-	 */
+	
 	@AnyThread
 	@ParagraphVisitor.VisitSig
 	protected abstract int onLayoutDecor(Paragraph paragraph, Object spanTag, RectF spanOuter, RectF spanInner, Rect decorOuter, Rect decorInner);
 
-	/**
-	 * 开始绘制decor
-	 *
-	 * @param canvas     canvas
-	 * @param paragraph  当前paragraph
-	 * @param decorOuter 整个view的外部轮廓轮廓
-	 * @param decorInner 整个view真实轮廓即包含decor margin的矩形位置
-	 */
+	
 	@AnyThread
 	protected abstract void onDrawDecor(Canvas canvas, Paragraph paragraph, Rect decorOuter, Rect decorInner);
 
-	/**
-	 * @param event      event
-	 * @param paragraph  paragraph
-	 * @param decorOuter 整个view的外部轮廓轮廓
-	 * @param decorInner 整个view真实轮廓即包含decor margin的矩形位置
-	 * @return true 代表消费事件
-	 */
+	
 	protected abstract boolean onTouchEvent(MotionEvent event, Paragraph paragraph, Rect decorOuter, Rect decorInner);
 
 	private final DecorParagraphVisitor mDrawVisitor = new DecorParagraphVisitor() {

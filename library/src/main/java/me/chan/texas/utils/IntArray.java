@@ -23,9 +23,7 @@ public class IntArray {
 		mIndex = 0;
 	}
 
-	/**
-	 * @param collection 集合
-	 */
+	
 	public IntArray(@NonNull Collection<Integer> collection) {
 		this(collection.size());
 		for (Integer i : collection) {
@@ -33,9 +31,7 @@ public class IntArray {
 		}
 	}
 
-	/**
-	 * @param v 元素
-	 */
+	
 	public void add(int v) {
 		if (mIndex + 1 > mContainer.length) {
 			mContainer = Arrays.copyOf(mContainer, mContainer.length * 2);
@@ -43,38 +39,27 @@ public class IntArray {
 		mContainer[mIndex++] = v;
 	}
 
-	/**
-	 * @return 是否为空
-	 */
+	
 	public boolean empty() {
 		return mIndex == 0;
 	}
 
-	/**
-	 * 清空元素
-	 */
+	
 	public void clear() {
 		mIndex = 0;
 	}
 
-	/**
-	 * @return 当前大小
-	 */
+	
 	public int size() {
 		return mIndex;
 	}
 
-	/**
-	 * @param index 索引
-	 * @return 索引对应的值
-	 */
+	
 	public int get(int index) {
 		return mContainer[index];
 	}
 
-	/**
-	 * 反转内容
-	 */
+	
 	public void reverse() {
 		int size = size();
 		for (int i = 0, mid = size >> 1, j = size - 1; i < mid; i++, j--) {
@@ -84,21 +69,12 @@ public class IntArray {
 		}
 	}
 
-	/**
-	 * 设置指定位置的值
-	 *
-	 * @param index 索引
-	 * @param value 值
-	 */
+	
 	public void set(int index, int value) {
 		mContainer[index] = value;
 	}
 
-	/**
-	 * 内容清零并将大小调整到对应的size
-	 *
-	 * @param size 需要的大小
-	 */
+	
 	public void zero(int size) {
 		size = idealByteArraySize(size);
 		if (mContainer.length < size) {
@@ -111,10 +87,7 @@ public class IntArray {
 		mIndex = size;
 	}
 
-	/**
-	 * @param value 元素
-	 * @return 是否包含
-	 */
+	
 	public boolean contains(int value) {
 		for (int i = 0; i < mIndex; i++) {
 			if (mContainer[i] == value) {
@@ -124,10 +97,7 @@ public class IntArray {
 		return false;
 	}
 
-	/**
-	 * @param index 移除的位置
-	 * @return 是否移除成功
-	 */
+	
 	public boolean removeAt(int index) {
 		if (index >= mIndex || index < 0) {
 			return false;

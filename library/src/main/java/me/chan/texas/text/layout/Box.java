@@ -13,40 +13,24 @@ import me.chan.texas.misc.BitBucket32;
 import me.chan.texas.text.Appearance;
 import me.chan.texas.utils.TexasUtils;
 
-/**
- * 一个box为排版中的绘制单元
- * <p>
- * 比如一个单词，一张图片
- */
+
 @RestrictTo(LIBRARY)
 public abstract class Box extends Element {
-	/**
-	 * 增加修改内容参考
-	 * {@link #equals(Object)}
-	 */
+	
 	protected float mWidth;
 	protected float mHeight;
 
-	/**
-	 * 唯一标识
-	 */
+	
 	protected Object mTag;
-	/**
-	 * 背景
-	 */
+	
 	protected Appearance mBackground;
-	/**
-	 * 前景
-	 */
+	
 	protected Appearance mForeground;
 
 	private int mSeq;
 
 
-	/**
-	 * @param width  宽度
-	 * @param height 高度
-	 */
+	
 	protected Box(float width, float height) {
 		mWidth = width;
 		mHeight = height;

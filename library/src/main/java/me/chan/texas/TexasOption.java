@@ -10,9 +10,7 @@ import me.chan.texas.text.TextAttribute;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
-/**
- * texas选项，包括各种解析参数
- */
+
 public class TexasOption {
 	private final Hyphenation mHyphenation;
 	private final Measurer mMeasurer;

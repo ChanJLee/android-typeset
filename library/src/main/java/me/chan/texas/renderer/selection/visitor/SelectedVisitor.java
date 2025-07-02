@@ -22,7 +22,7 @@ public abstract class SelectedVisitor extends ParagraphVisitor {
 
 	protected ParagraphSelection mSelection;
 
-	// 绘制背景用
+
 	private RectF mRectF;
 	private float mLastLineBottom;
 	private float mLastLineTop;
@@ -30,10 +30,7 @@ public abstract class SelectedVisitor extends ParagraphVisitor {
 
 	protected RenderOption mRenderOption;
 
-	/**
-	 * @param styles       styles
-	 * @param renderOption render option
-	 */
+	
 	public void reset(Selection.Type type, Selection.Styles styles, Paragraph paragraph, RenderOption renderOption) {
 		if (mSelection != null) {
 			throw new IllegalStateException("missing call clear before reuse visitor?");
@@ -107,9 +104,7 @@ public abstract class SelectedVisitor extends ParagraphVisitor {
 		}
 	}
 
-	/**
-	 * @return 是否可选中非文本的box
-	 */
+	
 	protected boolean includeSelectNonTextBoxRegion() {
 		return mRenderOption.isDrawEmoticonSelection();
 	}

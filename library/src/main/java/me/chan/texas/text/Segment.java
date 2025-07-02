@@ -11,16 +11,12 @@ import java.util.concurrent.atomic.AtomicInteger;
 import me.chan.texas.renderer.ui.RendererHost;
 import me.chan.texas.renderer.ui.TexasRendererAdapter;
 
-/**
- * 渲染的最小单元
- */
+
 public interface Segment {
 
 	AtomicInteger SEGMENT_UUID = new AtomicInteger(0);
 
-	/**
-	 * @return 获取当前segment的唯一标识
-	 */
+	
 	@Nullable
 	Object getTag();
 
@@ -54,9 +50,7 @@ public interface Segment {
 
 	void requestRedraw();
 
-	/**
-	 * @return 获得最终显示内容时候的下标
-	 */
+	
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
 	int getIndex();
 

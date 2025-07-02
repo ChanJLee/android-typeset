@@ -15,9 +15,7 @@ import me.chan.texas.text.TextStyle;
 import me.chan.texas.utils.CharArrayPool;
 import me.chan.texas.utils.TexasUtils;
 
-/**
- * android的文本测量器
- */
+
 @RestrictTo(LIBRARY)
 public class AndroidMeasurer implements Measurer {
 
@@ -48,9 +46,9 @@ public class AndroidMeasurer implements Measurer {
 			textStyle.update(textPaint, tag);
 		}
 
-		// 不能使用 TextPaint getTextBounds
-		// vivo 手机使用这个方法慢的出奇
-		// BoringLayout 是用来测量单行文本的
+
+
+
 		float width = 0;
 		if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
 			int size = end - start;

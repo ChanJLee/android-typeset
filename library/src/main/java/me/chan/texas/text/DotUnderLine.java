@@ -10,9 +10,7 @@ import me.chan.texas.misc.RectF;
 
 import me.chan.texas.renderer.RendererContext;
 
-/**
- * 点下划线
- */
+
 public class DotUnderLine extends Appearance {
 	private static final PathEffect DASH_EFFECT = new DashPathEffect(new float[]{12, 6, 12, 6}, 0);
 	private static final int DEFAULT_WIDTH = 4;

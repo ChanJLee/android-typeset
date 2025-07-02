@@ -14,11 +14,11 @@ import androidx.collection.SparseArrayCompat;
 @SuppressLint("FieldCodeStyle")
 public class HyphenationPattern {
 
-	// The en-GB hyphenation patterns are retrieved from
-	// http://tug_org/svn/texhyphen/trunk/collaboration/repository/hyphenator/
+
+
 	public static final int EN_GB = 1;
-	// The en-US hyphenation patterns are retrieved from
-	// http://tug_org/svn/texhyphen/trunk/collaboration/repository/hyphenator/
+
+
 	public static final int EN_US = 2;
 
 	public static final int NONE = 0;

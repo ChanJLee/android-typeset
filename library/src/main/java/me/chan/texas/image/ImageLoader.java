@@ -30,9 +30,7 @@ import java.security.MessageDigest;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
-/**
- * 图片加载器
- */
+
 @RestrictTo(LIBRARY)
 public class ImageLoader {
 	private final RequestManager mRequestManager;
@@ -43,64 +41,35 @@ public class ImageLoader {
 		mHandler = new Handler(Looper.getMainLooper());
 	}
 
-	/**
-	 * load image from file
-	 *
-	 * @param path file path
-	 * @return request
-	 */
+	
 	public Request file(String path) {
 		return file(new File(path));
 	}
 
-	/**
-	 * load image from emoticon
-	 *
-	 * @param id resource's id
-	 * @return request
-	 */
+	
 	public Request drawable(@DrawableRes int id) {
 		return new Request(id);
 	}
 
-	/**
-	 * load image from file
-	 *
-	 * @param file file path
-	 * @return
-	 */
+	
 	public Request file(File file) {
 		return uri(Uri.fromFile(file));
 	}
 
-	/**
-	 * load image from uri
-	 *
-	 * @param uri uri
-	 * @return
-	 */
+	
 	public Request uri(String uri) {
 		return uri(Uri.parse(uri));
 	}
 
-	/**
-	 * load image from uri
-	 *
-	 * @param uri uri
-	 * @return
-	 */
+	
 	public Request uri(Uri uri) {
 		return new Request(uri);
 	}
 
-	/**
-	 * Image Request
-	 */
+	
 	public class Request {
 		private final RequestOptions mRequestOptions;
-		/**
-		 * 记录是否调用过into
-		 */
+		
 		private volatile boolean mDead = false;
 		private final Object mSources;
 
@@ -109,94 +78,54 @@ public class ImageLoader {
 			mRequestOptions = new RequestOptions();
 		}
 
-		/**
-		 * 图片加载时候的预览图
-		 *
-		 * @param resId 预览资源
-		 * @return
-		 */
+		
 		@SuppressLint("CheckResult")
 		public Request preview(@DrawableRes int resId) {
 			mRequestOptions.placeholder(resId);
 			return this;
 		}
 
-		/**
-		 * 图片加载时候的预览图
-		 *
-		 * @param drawable 预览图
-		 * @return
-		 */
+		
 		@SuppressLint("CheckResult")
 		public Request preview(@NonNull Drawable drawable) {
 			mRequestOptions.placeholder(drawable);
 			return this;
 		}
 
-		/**
-		 * 图片加载失败的时候显示的图片
-		 *
-		 * @param resId 错误资源
-		 * @return
-		 */
+		
 		@SuppressLint("CheckResult")
 		public Request error(@DrawableRes int resId) {
 			mRequestOptions.error(resId);
 			return this;
 		}
 
-		/**
-		 * 图片加载失败的时候显示的图片
-		 *
-		 * @param drawable 错误图片
-		 * @return
-		 */
+		
 		@SuppressLint("CheckResult")
 		public Request error(@NonNull Drawable drawable) {
 			mRequestOptions.error(drawable);
 			return this;
 		}
 
-		/**
-		 * 设置大小
-		 *
-		 * @param size 大小
-		 * @return
-		 */
+		
 		public Request size(int size) {
 			return size(size, size);
 		}
 
-		/**
-		 * 设置大小
-		 *
-		 * @param width  宽度
-		 * @param height 高度
-		 * @return
-		 */
+		
 		@SuppressLint("CheckResult")
 		public Request size(int width, int height) {
 			mRequestOptions.override(width, height);
 			return this;
 		}
 
-		/**
-		 * 关闭加载时候的动画效果
-		 *
-		 * @return request
-		 */
+		
 		@SuppressLint("CheckResult")
 		public Request dontAnimate() {
 			mRequestOptions.dontAnimate();
 			return this;
 		}
 
-		/**
-		 * 用于唯一识别本次请求
-		 *
-		 * @param id 用于识别本次请求
-		 * @return request
-		 */
+		
 		@SuppressLint("CheckResult")
 		public Request id(@NonNull final String id) {
 			if (!TextUtils.isEmpty(id)) {
@@ -211,12 +140,7 @@ public class ImageLoader {
 			return this;
 		}
 
-		/**
-		 * 将获取的图片渲染到ImageView里
-		 *
-		 * @param imageView imageView
-		 * @throws IllegalStateException 每个request只可以调用一次，如果调用多次那么触发{@link IllegalStateException}异常
-		 */
+		
 		@SuppressLint("CheckResult")
 		public void into(@NonNull ImageView imageView) {
 			if (mDead) {
@@ -231,22 +155,12 @@ public class ImageLoader {
 			target.waitForLayout();
 		}
 
-		/**
-		 * 异步调用
-		 *
-		 * @param listener listener
-		 * @throws IllegalStateException 每个request只可以调用一次，如果调用多次那么触发{@link IllegalStateException}异常，回调执行在主线程
-		 */
+		
 		public void asDrawable(@NonNull Listener<Drawable> listener) {
 			as(mRequestManager.asDrawable(), listener);
 		}
 
-		/**
-		 * 异步调用
-		 *
-		 * @param listener listener
-		 * @throws IllegalStateException 每个request只可以调用一次，如果调用多次那么触发{@link IllegalStateException}异常，回调执行在主线程
-		 */
+		
 		public void asBitmap(@NonNull Listener<Bitmap> listener) {
 			as(mRequestManager.asBitmap(), listener);
 		}
@@ -255,9 +169,7 @@ public class ImageLoader {
 			as(mRequestManager.as(byte[].class), listener);
 		}
 
-		/**
-		 * @param listener 作为文件
-		 */
+		
 		public void asFile(Listener<File> listener) {
 			as(mRequestManager.asFile(), listener);
 		}

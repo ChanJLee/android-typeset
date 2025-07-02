@@ -19,58 +19,40 @@ public final class RendererContext {
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
 	BoxMetaInfo nextBoxMetaInfo = new BoxMetaInfo();
 
-	/**
-	 * @return 获得当前元素的tag
-	 */
+	
 	@Nullable
 	public Object getTag() {
 		return currentBoxMetaInfo.box.getTag();
 	}
 
-	/**
-	 * @return 获得前一个绘制元素的tag
-	 */
+	
 	@Nullable
 	public Object getPrevTag() {
 		return prevBoxMetaInfo.box == null ? null : prevBoxMetaInfo.box.getTag();
 	}
 
-	/**
-	 * @return 获得后一个绘制元素的tag
-	 */
+	
 	@Nullable
 	public Object getNextTag() {
 		return nextBoxMetaInfo.box == null ? null : nextBoxMetaInfo.box.getTag();
 	}
 
-	/**
-	 * 行首
-	 */
+	
 	public static final int LOCATION_LINE_START = 1;
 
-	/**
-	 * 行尾
-	 */
+	
 	public static final int LOCATION_LINE_END = 2;
 
-	/**
-	 * 行中
-	 */
+	
 	public static final int LOCATION_LINE_MIDDLE = 4;
 
-	/**
-	 * 段首
-	 */
+	
 	public static final int LOCATION_PARAGRAPH_START = 8;
 
-	/**
-	 * 段尾
-	 */
+	
 	public static final int LOCATION_PARAGRAPH_END = 16;
 
-	/**
-	 * 段中
-	 */
+	
 	public static final int LOCATION_PARAGRAPH_MIDDLE = 32;
 
 	public void clear() {
@@ -96,10 +78,7 @@ public final class RendererContext {
 		}
 	}
 
-	/**
-	 * @param location {@link #LOCATION_LINE_START} or {@link #LOCATION_LINE_END}
-	 * @return 是否包含指定位置的属性
-	 */
+	
 	public boolean checkLocation(@LocationType int location) {
 		if (location == LOCATION_LINE_START) {
 			return prevBoxMetaInfo.box == null;
