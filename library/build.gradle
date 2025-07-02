@@ -77,3 +77,21 @@ dependencies {
     // https://mvnrepository.com/artifact/com.ibm.icu/icu4j
     implementation 'com.ibm.icu:icu4j:75.1'
 }
+
+
+task cleanComments() {
+    def commentRemover = new com.commentremover.app.CommentRemover.CommentRemoverBuilder()
+            .removeJava(true) // Remove Java file Comments....
+            .removeJavaScript(true) // Remove JavaScript file Comments....
+            .removeJSP(true) // etc.. goes like that
+            .removeTodos(false) //  Do Not Touch Todos (leave them alone)
+            .removeSingleLines(true) // Remove single line type comments
+            .removeMultiLines(true) // Remove multiple type comments
+            .preserveJavaClassHeaders(true) // Preserves class header comment
+            .preserveCopyRightHeaders(true) // Preserves copyright comment
+            .startInternalPath("library.src.main.java") // Starts from {rootDir}/src/main/app , leave it empty string when you want to start from root dir
+            .build();
+
+    def commentProcessor = new com.commentremover.app.CommentProcessor(commentRemover);
+    commentProcessor.start();
+}
