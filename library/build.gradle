@@ -79,19 +79,21 @@ dependencies {
 }
 
 
-task cleanComments() {
-    def commentRemover = new com.commentremover.app.CommentRemover.CommentRemoverBuilder()
-            .removeJava(true) // Remove Java file Comments....
-            .removeJavaScript(true) // Remove JavaScript file Comments....
-            .removeJSP(true) // etc.. goes like that
-            .removeTodos(false) //  Do Not Touch Todos (leave them alone)
-            .removeSingleLines(true) // Remove single line type comments
-            .removeMultiLines(true) // Remove multiple type comments
-            .preserveJavaClassHeaders(true) // Preserves class header comment
-            .preserveCopyRightHeaders(true) // Preserves copyright comment
-            .startInternalPath("library.src.main.java") // Starts from {rootDir}/src/main/app , leave it empty string when you want to start from root dir
-            .build();
+tasks.register('cleanComments', Delete) {
+    doLast {
+        def commentRemover = new com.commentremover.app.CommentRemover.CommentRemoverBuilder()
+                .removeJava(true) // Remove Java file Comments....
+                .removeJavaScript(true) // Remove JavaScript file Comments....
+                .removeJSP(true) // etc.. goes like that
+                .removeTodos(false) //  Do Not Touch Todos (leave them alone)
+                .removeSingleLines(true) // Remove single line type comments
+                .removeMultiLines(true) // Remove multiple type comments
+                .preserveJavaClassHeaders(true) // Preserves class header comment
+                .preserveCopyRightHeaders(true) // Preserves copyright comment
+                .startInternalPath("library.src.main.java") // Starts from {rootDir}/src/main/app , leave it empty string when you want to start from root dir
+                .build();
 
-    def commentProcessor = new com.commentremover.app.CommentProcessor(commentRemover);
-    commentProcessor.start();
+        def commentProcessor = new com.commentremover.app.CommentProcessor(commentRemover);
+        commentProcessor.start();
+    }
 }
