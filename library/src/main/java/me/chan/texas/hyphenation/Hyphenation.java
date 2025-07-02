@@ -15,7 +15,9 @@ import me.chan.texas.misc.ObjectPool;
 import me.chan.texas.utils.IntArray;
 import me.chan.texas.utils.Lazy;
 
-
+/**
+ * 断字器
+ */
 @RestrictTo(LIBRARY)
 public class Hyphenation {
 	private static final ObjectPool<IntArray> POOL = new ObjectPool<>(4);
@@ -151,7 +153,7 @@ public class Hyphenation {
 					digitStart = p;
 				}
 				if (p == end - 1) {
-
+					// last number in the pattern
 					array.add(parseInt(value, digitStart, end));
 				}
 			} else if (digitStart >= 0) {
@@ -209,10 +211,10 @@ public class Hyphenation {
 						point - start == 1 &&
 						word.charAt(start) == '-' &&
 						!result.empty()) {
-
-
-
-
+					// 修复 self-complacency 这个单词
+					// 如果不这么改
+					// 会是这样的序列：self, -, com, pla, cency
+					// 我们期望的 self-, com, pla, cency
 					result.set(result.size() - 1, point);
 				} else {
 					result.add(point);

@@ -13,7 +13,9 @@ import androidx.recyclerview.widget.RecyclerView;
 import me.chan.texas.misc.DefaultRecyclable;
 import me.chan.texas.renderer.ui.RendererHost;
 
-
+/**
+ * 用户自定义视图片段
+ */
 public abstract class ViewSegment extends DefaultRecyclable implements Segment {
 	private int mLayout;
 	private boolean mDisableReuse;
@@ -23,19 +25,37 @@ public abstract class ViewSegment extends DefaultRecyclable implements Segment {
 
 	private int mId;
 
-	
+	/*
+	 * 这个地方只能用layout id来做，不能用view，用id的话，实例是引擎内部创建，
+	 * 这样复用的时候不会出现问题，否则的话上层瞎用就会导致不可预见的bug
+	 * */
 
-	
+	/**
+	 * 用户自定义视图
+	 *
+	 * @param layout layout id
+	 */
 	public ViewSegment(@LayoutRes int layout) {
 		this(layout, false);
 	}
 
-	
+	/**
+	 * 用户自定义视图
+	 *
+	 * @param layout       layout id
+	 * @param disableReuse 是否需要复用
+	 */
 	public ViewSegment(@LayoutRes int layout, boolean disableReuse) {
 		this(layout, disableReuse, null);
 	}
 
-	
+	/**
+	 * 用户自定义视图
+	 *
+	 * @param layout       layout id
+	 * @param disableReuse 是否需要复用
+	 * @param tag          唯一标识
+	 */
 	public ViewSegment(@LayoutRes int layout, boolean disableReuse, Object tag) {
 		mTag = tag;
 		mLayout = layout;
@@ -65,7 +85,11 @@ public abstract class ViewSegment extends DefaultRecyclable implements Segment {
 		}
 	}
 
-	
+	/**
+	 * 开始渲染
+	 *
+	 * @param view 当前所要捆绑data的视图
+	 */
 	protected abstract void onRender(View view);
 
 	@Override

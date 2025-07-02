@@ -14,7 +14,7 @@ public class OddWorker {
 			try {
 				args.run();
 			} catch (Throwable ignore) {
-				
+				/* do nothing */
 			}
 			return null;
 		}

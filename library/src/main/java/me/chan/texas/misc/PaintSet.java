@@ -19,7 +19,7 @@ public class PaintSet {
 	public PaintSet(RenderOption renderOption) {
 		mPaint = TextPaintCompat.create(TextPaint.ANTI_ALIAS_FLAG);
 
-
+		// support default typeface
 		Typeface defaultTypeface = Texas.getDefaultTypeface();
 		if (defaultTypeface != null) {
 			mPaint.setTypeface(defaultTypeface);
@@ -48,7 +48,10 @@ public class PaintSet {
 		return mPaint;
 	}
 
-	
+	/**
+	 * @param copy 用于复制的TextPaint
+	 * @return copy
+	 */
 	public TextPaint getWorkPaint(@NonNull TextPaint copy) {
 		copy.set(mPaint);
 		return copy;

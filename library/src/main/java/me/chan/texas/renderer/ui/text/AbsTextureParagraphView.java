@@ -134,7 +134,7 @@ public abstract class AbsTextureParagraphView extends View implements TexturePar
 	private void scheduleRender() {
 		onRender();
 
-
+		// request layout
 		Layout layout = mParagraph.getLayout();
 		int width = layout.getWidth();
 		int height = layout.getHeight();
@@ -142,7 +142,7 @@ public abstract class AbsTextureParagraphView extends View implements TexturePar
 		int windowHeight = getHeight();
 		boolean sizeChanged = width != windowWidth || height != windowHeight;
 		if (sizeChanged && mRelayoutPredicate.apply(this, mParagraph)) {
-
+			// 尽可能减少 requestLayout 的调用
 			if (ParagraphView.DEBUG) {
 				Log.d("AbsParagraphView", "scheduleRender, requestLayout, width = " + width + ", height = " + height + ", windowWidth = " + windowWidth + ", windowHeight = " + windowHeight);
 			}
@@ -186,7 +186,11 @@ public abstract class AbsTextureParagraphView extends View implements TexturePar
 
 	public interface RelayoutPredicate {
 
-		
+		/**
+		 * @param view      当前的view
+		 * @param paragraph 新的paragraph
+		 * @return true 表示需要重新布局，false 表示不需要重新布局
+		 */
 		boolean apply(AbsTextureParagraphView view, Paragraph paragraph);
 	}
 }

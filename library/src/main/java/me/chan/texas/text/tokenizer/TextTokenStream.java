@@ -40,7 +40,7 @@ class TextTokenStream extends DefaultRecyclable implements TokenStream {
 	}
 
 	void setText(CharSequence text, int start, int end, boolean rtl) {
-		synchronized (TextTokenStream.class ) {
+		synchronized (TextTokenStream.class /* 粒度必须要粗 */) {
 			setText0(text, start, end, rtl);
 		}
 	}
@@ -120,7 +120,7 @@ class TextTokenStream extends DefaultRecyclable implements TokenStream {
 	}
 
 	private void appendUnknown(BrkArray brk, CharSequence text, int end) {
-
+		// https://www.compart.com/en/unicode/category
 		final int start = (int) brk.last();
 
 		int codePoint = text.charAt(start);
@@ -131,11 +131,11 @@ class TextTokenStream extends DefaultRecyclable implements TokenStream {
 
 		int type = Character.getType(codePoint);
 		if (type == Character.MATH_SYMBOL
-				
+				/* https://www.compart.com/en/unicode/category/Sc */
 				|| type == Character.CURRENCY_SYMBOL
-				
+				/* https://www.compart.com/en/unicode/category/Sk */
 				|| type == Character.MODIFIER_SYMBOL
-				
+				/* https://www.compart.com/en/unicode/category/So */
 				|| type == Character.OTHER_SYMBOL) {
 			appendSymbolOrPunctuation(brk, Token.CATEGORY_SYMBOL, type, codePoint, end);
 			if (end - start > 1) {
@@ -175,10 +175,10 @@ class TextTokenStream extends DefaultRecyclable implements TokenStream {
 	}
 
 	private void appendControl(BrkArray brk, byte type, int codePoint, int index) {
-
-
-
-
+		// https://www.compart.com/en/unicode/category/Cc 0x00-0x9f
+		// https://www.compart.com/en/unicode/category/Zs 0x20-0x3000
+		// https://www.compart.com/en/unicode/category/Zp 0x2028
+		// https://www.compart.com/en/unicode/category/Zl 0x2029
 		mBits.clear();
 		mBits.set(Token.TYPE_CONTROL);
 		if (type == Character.SPACE_SEPARATOR) {
@@ -349,216 +349,216 @@ class TextTokenStream extends DefaultRecyclable implements TokenStream {
 
 	@VisibleForTesting
 	public static final char[] SQUISH_RIGHT_MAP = {
-			'〉', 
-			'、', 
-			'。', 
-			'〉', 
-			'》', 
-			'」', 
-			'』', 
-			'】', 
-			'〕', 
-			'〗', 
-			'〙', 
-			'〛', 
-			'〞', 
-			'〟', 
-			'﹂', 
-			'﹄', 
-			'﹚', 
-			'﹜', 
-			'﹞', 
-			'！', 
-			'）', 
-			'，', 
-			'．', 
-			'：', 
-			'；', 
-			'？', 
-			'］', 
-			'｠', 
+			'〉', /* \u232a */
+			'、', /* \u3001 */
+			'。', /* \u3002 */
+			'〉', /* \u3009 */
+			'》', /* \u300b */
+			'」', /* \u300d */
+			'』', /* \u300f */
+			'】', /* \u3011 */
+			'〕', /* \u3015 */
+			'〗', /* \u3017 */
+			'〙', /* \u3019 */
+			'〛', /* \u301b */
+			'〞', /* \u301e */
+			'〟', /* \u301f */
+			'﹂', /* \ufe42 */
+			'﹄', /* \ufe44 */
+			'﹚', /* \ufe5a */
+			'﹜', /* \ufe5c */
+			'﹞', /* \ufe5e */
+			'！', /* \uff01 */
+			'）', /* \uff09 */
+			'，', /* \uff0c */
+			'．', /* \uff0e */
+			'：', /* \uff1a */
+			'；', /* \uff1b */
+			'？', /* \uff1f */
+			'］', /* \uff3d */
+			'｠', /* \uff60 */
 	};
 	@VisibleForTesting
 	public static final char[] SQUISH_LEFT_MAP = {
-			'〈', 
-			'〈', 
-			'《', 
-			'「', 
-			'『', 
-			'【', 
-			'〔', 
-			'〖', 
-			'〘', 
-			'〚', 
-			'〝', 
-			'︐', 
-			'︑', 
-			'︒', 
-			'︓', 
-			'︔', 
-			'︕', 
-			'︖', 
-			'﹁', 
-			'﹃', 
-			'﹙', 
-			'﹛', 
-			'﹝', 
-			'（', 
-			'［', 
-			'｟', 
+			'〈', /* \u2329 */
+			'〈', /* \u3008 */
+			'《', /* \u300a */
+			'「', /* \u300c */
+			'『', /* \u300e */
+			'【', /* \u3010 */
+			'〔', /* \u3014 */
+			'〖', /* \u3016 */
+			'〘', /* \u3018 */
+			'〚', /* \u301a */
+			'〝', /* \u301d */
+			'︐', /* \ufe10 */
+			'︑', /* \ufe11 */
+			'︒', /* \ufe12 */
+			'︓', /* \ufe13 */
+			'︔', /* \ufe14 */
+			'︕', /* \ufe15 */
+			'︖', /* \ufe16 */
+			'﹁', /* \ufe41 */
+			'﹃', /* \ufe43 */
+			'﹙', /* \ufe59 */
+			'﹛', /* \ufe5b */
+			'﹝', /* \ufe5d */
+			'（', /* \uff08 */
+			'［', /* \uff3b */
+			'｟', /* \uff5f */
 	};
 
 	@VisibleForTesting
 	public static final char[] STRETCH_RIGHT_MAP = {
-			'!', 
-			')', 
-			',', 
-			'.', 
-			':', 
-			';', 
-			'>', 
-			'?', 
-			']', 
-			'}', 
-			'»', 
-			';', 
-			'༻', 
-			'༽', 
-			'᚜', 
-			'’', 
-			'”', 
-			'›', 
-			'⁆', 
-			'⁾', 
-			'₎', 
-			'⌉', 
-			'⌋', 
-			'〉', 
-			'❩', 
-			'❫', 
-			'❭', 
-			'❯', 
-			'❱', 
-			'❳', 
-			'❵', 
-			'⟆', 
-			'⟧', 
-			'⟩', 
-			'⟫', 
-			'⟭', 
-			'⟯', 
-			'⦄', 
-			'⦆', 
-			'⦈', 
-			'⦊', 
-			'⦌', 
-			'⦎', 
-			'⦐', 
-			'⦒', 
-			'⦔', 
-			'⦖', 
-			'⦘', 
-			'⧙', 
-			'⧛', 
-			'⧽', 
-			'⸃', 
-			'⸅', 
-			'⸊', 
-			'⸍', 
-			'⸝', 
-			'⸡', 
-			'⸣', 
-			'⸥', 
-			'⸧', 
-			'⸩', 
-			'﴾', 
-			'︘', 
-			'︶', 
-			'︸', 
-			'︺', 
-			'︼', 
-			'︾', 
-			'﹀', 
-			'﹂', 
-			'﹄', 
-			'﹈', 
-			'｝', 
-			'｡', 
-			'｣', 
-			'､', 
+			'!', /* \u0021 */
+			')', /* \u0029 */
+			',', /* \u002c */
+			'.', /* \u002e */
+			':', /* \u003a */
+			';', /* \u003b */
+			'>', /* \u003e */
+			'?', /* \u003f */
+			']', /* \u005d */
+			'}', /* \u007d */
+			'»', /* \u00bb */
+			';', /* \u037e */
+			'༻', /* \u0f3b */
+			'༽', /* \u0f3d */
+			'᚜', /* \u169c */
+			'’', /* \u2019 */
+			'”', /* \u201d */
+			'›', /* \u203a */
+			'⁆', /* \u2046 */
+			'⁾', /* \u207e */
+			'₎', /* \u208e */
+			'⌉', /* \u2309 */
+			'⌋', /* \u230b */
+			'〉', /* \u232a */
+			'❩', /* \u2769 */
+			'❫', /* \u276b */
+			'❭', /* \u276d */
+			'❯', /* \u276f */
+			'❱', /* \u2771 */
+			'❳', /* \u2773 */
+			'❵', /* \u2775 */
+			'⟆', /* \u27c6 */
+			'⟧', /* \u27e7 */
+			'⟩', /* \u27e9 */
+			'⟫', /* \u27eb */
+			'⟭', /* \u27ed */
+			'⟯', /* \u27ef */
+			'⦄', /* \u2984 */
+			'⦆', /* \u2986 */
+			'⦈', /* \u2988 */
+			'⦊', /* \u298a */
+			'⦌', /* \u298c */
+			'⦎', /* \u298e */
+			'⦐', /* \u2990 */
+			'⦒', /* \u2992 */
+			'⦔', /* \u2994 */
+			'⦖', /* \u2996 */
+			'⦘', /* \u2998 */
+			'⧙', /* \u29d9 */
+			'⧛', /* \u29db */
+			'⧽', /* \u29fd */
+			'⸃', /* \u2e03 */
+			'⸅', /* \u2e05 */
+			'⸊', /* \u2e0a */
+			'⸍', /* \u2e0d */
+			'⸝', /* \u2e1d */
+			'⸡', /* \u2e21 */
+			'⸣', /* \u2e23 */
+			'⸥', /* \u2e25 */
+			'⸧', /* \u2e27 */
+			'⸩', /* \u2e29 */
+			'﴾', /* \ufd3e */
+			'︘', /* \ufe18 */
+			'︶', /* \ufe36 */
+			'︸', /* \ufe38 */
+			'︺', /* \ufe3a */
+			'︼', /* \ufe3c */
+			'︾', /* \ufe3e */
+			'﹀', /* \ufe40 */
+			'﹂', /* \ufe42 */
+			'﹄', /* \ufe44 */
+			'﹈', /* \ufe48 */
+			'｝', /* \uff5d */
+			'｡', /* \uff61 */
+			'｣', /* \uff63 */
+			'､', /* \uff64 */
 	};
 
 	@VisibleForTesting
 	public static final char[] STRETCH_LEFT_MAP = {
-			'(', 
-			'<', 
-			'[', 
-			'{', 
-			'«', 
-			'¿', 
-			'༺', 
-			'༼', 
-			'᚛', 
-			'‘', 
-			'‚', 
-			'‛', 
-			'“', 
-			'„', 
-			'‟', 
-			'‹', 
-			'⁅', 
-			'⁽', 
-			'₍', 
-			'⌈', 
-			'⌊', 
-			'〈', 
-			'❨', 
-			'❪', 
-			'❬', 
-			'❮', 
-			'❰', 
-			'❲', 
-			'❴', 
-			'⟅', 
-			'⟦', 
-			'⟨', 
-			'⟪', 
-			'⟬', 
-			'⟮', 
-			'⦃', 
-			'⦅', 
-			'⦇', 
-			'⦉', 
-			'⦋', 
-			'⦍', 
-			'⦏', 
-			'⦑', 
-			'⦓', 
-			'⦕', 
-			'⦗', 
-			'⧘', 
-			'⧚', 
-			'⧼', 
-			'⸂', 
-			'⸄', 
-			'⸉', 
-			'⸌', 
-			'⸜', 
-			'⸠', 
-			'⸢', 
-			'⸤', 
-			'⸦', 
-			'⸨', 
-			'︗', 
-			'︵', 
-			'︷', 
-			'︹', 
-			'︻', 
-			'︽', 
-			'︿', 
-			'﹇', 
-			'｛', 
-			'｢', 
+			'(', /* \u0028 */
+			'<', /* \u003c */
+			'[', /* \u005b */
+			'{', /* \u007b */
+			'«', /* \u00ab */
+			'¿', /* \u00bf */
+			'༺', /* \u0f3a */
+			'༼', /* \u0f3c */
+			'᚛', /* \u169b */
+			'‘', /* \u2018 */
+			'‚', /* \u201a */
+			'‛', /* \u201b */
+			'“', /* \u201c */
+			'„', /* \u201e */
+			'‟', /* \u201f */
+			'‹', /* \u2039 */
+			'⁅', /* \u2045 */
+			'⁽', /* \u207d */
+			'₍', /* \u208d */
+			'⌈', /* \u2308 */
+			'⌊', /* \u230a */
+			'〈', /* \u2329 */
+			'❨', /* \u2768 */
+			'❪', /* \u276a */
+			'❬', /* \u276c */
+			'❮', /* \u276e */
+			'❰', /* \u2770 */
+			'❲', /* \u2772 */
+			'❴', /* \u2774 */
+			'⟅', /* \u27c5 */
+			'⟦', /* \u27e6 */
+			'⟨', /* \u27e8 */
+			'⟪', /* \u27ea */
+			'⟬', /* \u27ec */
+			'⟮', /* \u27ee */
+			'⦃', /* \u2983 */
+			'⦅', /* \u2985 */
+			'⦇', /* \u2987 */
+			'⦉', /* \u2989 */
+			'⦋', /* \u298b */
+			'⦍', /* \u298d */
+			'⦏', /* \u298f */
+			'⦑', /* \u2991 */
+			'⦓', /* \u2993 */
+			'⦕', /* \u2995 */
+			'⦗', /* \u2997 */
+			'⧘', /* \u29d8 */
+			'⧚', /* \u29da */
+			'⧼', /* \u29fc */
+			'⸂', /* \u2e02 */
+			'⸄', /* \u2e04 */
+			'⸉', /* \u2e09 */
+			'⸌', /* \u2e0c */
+			'⸜', /* \u2e1c */
+			'⸠', /* \u2e20 */
+			'⸢', /* \u2e22 */
+			'⸤', /* \u2e24 */
+			'⸦', /* \u2e26 */
+			'⸨', /* \u2e28 */
+			'︗', /* \ufe17 */
+			'︵', /* \ufe35 */
+			'︷', /* \ufe37 */
+			'︹', /* \ufe39 */
+			'︻', /* \ufe3b */
+			'︽', /* \ufe3d */
+			'︿', /* \ufe3f */
+			'﹇', /* \ufe47 */
+			'｛', /* \uff5b */
+			'｢', /* \uff62 */
 	};
 
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -606,10 +606,10 @@ class TextTokenStream extends DefaultRecyclable implements TokenStream {
 				bits.set(Token.SYMBOL_ATTRIBUTE_KINSOKU_AVOID_TAIL);
 				return true;
 			}
-
-
-
-
+//
+//			if (codePoint == '"' || codePoint == '\'') {
+//				return Token.SYMBOL_KINSOKU_AVOID_HEADER;
+//			}
 
 			bits.set(Token.SYMBOL_ATTRIBUTE_KINSOKU_AVOID_HEADER);
 			return true;
@@ -649,7 +649,7 @@ class TextTokenStream extends DefaultRecyclable implements TokenStream {
 		int lo = 0;
 		int hi = array.length - 1;
 
-
+		// not found
 		if (value < array[lo] || value > array[hi]) {
 			return -1;
 		}
@@ -663,11 +663,11 @@ class TextTokenStream extends DefaultRecyclable implements TokenStream {
 			} else if (midVal > value) {
 				hi = mid - 1;
 			} else {
-				return mid;  
+				return mid;  // value found
 			}
 		}
 
-		
+		/* not found */
 		return -1;
 	}
 

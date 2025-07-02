@@ -20,7 +20,9 @@ import me.chan.texas.renderer.core.worker.ParseWorker;
 import me.chan.texas.renderer.core.worker.RenderWorker;
 import me.chan.texas.utils.concurrency.Worker;
 
-
+/**
+ * 工作调度
+ */
 @RestrictTo(LIBRARY)
 public class WorkerScheduler {
 	private static volatile WorkerScheduler sInstance;
@@ -80,7 +82,9 @@ public class WorkerScheduler {
 		return getInstance().mOddWorker;
 	}
 
-	
+	/*
+	 * 合并排版结果
+	 * */
 	public static MixWorker mix() {
 		return getInstance().mMixWorker;
 	}

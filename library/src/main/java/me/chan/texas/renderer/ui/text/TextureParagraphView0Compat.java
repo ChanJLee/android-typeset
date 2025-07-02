@@ -24,7 +24,7 @@ public class TextureParagraphView0Compat extends AbsTextureParagraphView {
 
 	@Override
 	protected void onClear() {
-		
+		/* NOOP */
 	}
 
 	@Override
@@ -44,7 +44,7 @@ public class TextureParagraphView0Compat extends AbsTextureParagraphView {
 
 	@Override
 	public void syncUI() {
-		
+		/* do nothing */
 	}
 
 	@Override

@@ -35,8 +35,8 @@ public abstract class SingleClickOnTouchListener implements View.OnTouchListener
 	public boolean onTouch(View v, MotionEvent event) {
 		int action = event.getAction();
 
-
-
+		// 按下操作，记录按下的坐标
+		// 并改变背景
 		if (action == MotionEvent.ACTION_DOWN) {
 			mDownX = event.getX();
 			mDownY = event.getY();
@@ -50,7 +50,7 @@ public abstract class SingleClickOnTouchListener implements View.OnTouchListener
 			return true;
 		}
 
-
+		// 移动，发现如果超过一定距离，就不响应
 		if (action == MotionEvent.ACTION_MOVE) {
 			if (mIgnore) {
 				return false;
@@ -68,7 +68,7 @@ public abstract class SingleClickOnTouchListener implements View.OnTouchListener
 			return true;
 		}
 
-
+		// 变更背景为正常
 		Drawable drawable = v.getBackground();
 		if (drawable instanceof StateListDrawable) {
 			StateListDrawable stateListDrawable = (StateListDrawable) drawable;
@@ -76,12 +76,12 @@ public abstract class SingleClickOnTouchListener implements View.OnTouchListener
 			v.invalidate();
 		}
 
-
+		// 抬起手的时候看有没有滑动过度，滑动过度不判定为点击
 		if (action == MotionEvent.ACTION_UP && !mIgnore) {
 			onClicked(event);
 		}
 
-
+		// 返回值看有没有忽略滑动
 		return !mIgnore;
 	}
 

@@ -9,7 +9,9 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
 import android.util.Log;
 
-
+/**
+ * 文本属性
+ */
 @RestrictTo(LIBRARY)
 public class TextAttribute {
 
@@ -36,27 +38,37 @@ public class TextAttribute {
 		i(toString());
 	}
 
-	
+	/**
+	 * @return 返回字符'-'的宽度
+	 */
 	public float getHyphenWidth() {
 		return mHyphenWidth;
 	}
 
-	
+	/**
+	 * @return 获取字符'-'的高度
+	 */
 	public float getHyphenHeight() {
 		return mHyphenHeight;
 	}
 
-	
+	/**
+	 * @return 返回空格宽度
+	 */
 	public float getSpaceWidth() {
 		return mSpaceWidth;
 	}
 
-	
+	/**
+	 * @return 返回空格拉伸后的宽度
+	 */
 	public float getSpaceStretch() {
 		return mSpaceStretch;
 	}
 
-	
+	/**
+	 * @return 返回空格拉压缩后的宽度
+	 */
 	public float getSpaceShrink() {
 		return mSpaceShrink;
 	}

@@ -30,7 +30,9 @@ import me.chan.texas.text.layout.Box;
 import me.chan.texas.text.layout.Layout;
 import me.chan.texas.text.layout.Line;
 
-
+/**
+ * 文本选中区域
+ */
 public class ParagraphSelection extends DefaultRecyclable {
 	private static final ObjectPool<ParagraphSelection> POOL = new ObjectPool<>(32);
 	private static final AtomicInteger UUID = new AtomicInteger(0);
@@ -105,7 +107,9 @@ public class ParagraphSelection extends DefaultRecyclable {
 		mLast = box;
 	}
 
-	
+	/**
+	 * @return 选中区域是空的
+	 */
 	public boolean isSelectedRegionEmpty() {
 		return mBackgrounds.isEmpty();
 	}
@@ -116,7 +120,9 @@ public class ParagraphSelection extends DefaultRecyclable {
 
 	private static final List<Object> EMPTY = Collections.unmodifiableList(new ArrayList<>());
 
-	
+	/**
+	 * @return 因为排版的时候单词会被拆分，因此会导致用户设置的tag重复，这个方法内部还需要去去重，但是无法对空tag去重，所以忽略空tag
+	 */
 	@NonNull
 	@MainThread
 	public List<Object> getSelectedTags() {
@@ -156,7 +162,10 @@ public class ParagraphSelection extends DefaultRecyclable {
 		POOL.release(this);
 	}
 
-	
+	/**
+	 * @param styles 渲染样式
+	 * @return selection selection
+	 */
 	@RestrictTo(LIBRARY)
 	public static ParagraphSelection obtain(Selection.Type type, @NonNull Selection.Styles styles, Paragraph paragraph) {
 		ParagraphSelection paragraphSelection = POOL.acquire();

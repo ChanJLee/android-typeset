@@ -18,7 +18,7 @@ import me.chan.texas.utils.IntStack;
 
 @RestrictTo(LIBRARY)
 public class SimpleParagraphTypesetter extends AbsParagraphTypesetter {
-
+	// 添加分析
 
 	@Override
 	public boolean typeset(Paragraph paragraph,
@@ -63,7 +63,7 @@ public class SimpleParagraphTypesetter extends AbsParagraphTypesetter {
 			layout.recycle();
 		}
 
-		
+		/* always true */
 		return true;
 	}
 
@@ -92,22 +92,22 @@ public class SimpleParagraphTypesetter extends AbsParagraphTypesetter {
 							  int lineWidth,
 							  Layout layout,
 							  IntStack breaks) {
-
+		// 保存现在的状态
 		int beforeState = stream.state();
 
-
+		// pre-typeset
 		float leftWidth = lineWidth;
 		while (!stream.eof() && leftWidth >= 0) {
 			leftWidth = tryTypesetUnit(stream, breaks, leftWidth);
 		}
 
-
+		// 记录pre-typeset后的位置
 		int afterState = stream.state();
 
-
+		// 回退状态
 		stream.restore(beforeState);
 
-
+		// 没有找到合适的位置可以断行
 		if (breaks.empty()) {
 			forceBreak(stream, breaks, beforeState, afterState, leftWidth);
 		}
@@ -116,7 +116,7 @@ public class SimpleParagraphTypesetter extends AbsParagraphTypesetter {
 			throw new IllegalStateException("no break found");
 		}
 
-
+		// 回退状态
 		stream.restore(beforeState);
 
 		typesetUnit(layout, stream, breaks.top(), breakStrategy, lineWidth);
@@ -163,16 +163,22 @@ public class SimpleParagraphTypesetter extends AbsParagraphTypesetter {
 			return width;
 		}
 
-		
+		/* do nothing */
 		return width;
 	}
 
-	
+	/**
+	 * @param glue glue
+	 * @return 能显示为一个空格的glue
+	 */
 	private static boolean isDenotation(Glue glue) {
 		return glue != null && glue != Glue.EMPTY && glue != Glue.TERMINAL;
 	}
 
-	
+	/**
+	 * @param penalty penalty
+	 * @return 能追加到 text box后面的连字符
+	 */
 	private static boolean isDenotation(Penalty penalty) {
 		return penalty != null && !penalty.isFlag() &&
 				penalty != Penalty.FORBIDDEN_BREAK && penalty != Penalty.FORCE_BREAK;
@@ -204,7 +210,10 @@ public class SimpleParagraphTypesetter extends AbsParagraphTypesetter {
 		return 0;
 	}
 
-	
+	/**
+	 * @param stream stream
+	 * @return 是否可以断行
+	 */
 	private static boolean isBreakable(ElementStream stream) {
 		Element prev = stream.tryGet(-2);
 		Element next = stream.tryGet(0);
@@ -217,7 +226,7 @@ public class SimpleParagraphTypesetter extends AbsParagraphTypesetter {
 							final int startState,
 							final int endState,
 							float leftWidth) {
-
+		// pre-condition 第一个元素一定是box
 		if (startState >= endState) {
 			throw new IllegalStateException("startState >= endState");
 		}
@@ -250,8 +259,8 @@ public class SimpleParagraphTypesetter extends AbsParagraphTypesetter {
 			}
 		}
 
-
-
+		// 实在找不到断点
+		// 一般情况不存在
 		breaks.push(endState);
 	}
 

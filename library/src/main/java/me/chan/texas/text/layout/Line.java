@@ -12,7 +12,9 @@ import me.chan.texas.text.BreakStrategy;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
-
+/**
+ * 绘制行
+ */
 @RestrictTo(LIBRARY)
 public class Line extends DefaultRecyclable {
 	private static final ObjectPool<Line> POOL = new ObjectPool<>(Texas.getMemoryOption().getLineBufferSize());
@@ -159,7 +161,7 @@ public class Line extends DefaultRecyclable {
 		}
 
 		public void add(Element element) {
-
+			// 剔除typeset建议语义
 			if (element == Penalty.FORBIDDEN_BREAK ||
 					element == Penalty.ADVISE_BREAK ||
 					element == Penalty.FORCE_BREAK) {
@@ -180,7 +182,7 @@ public class Line extends DefaultRecyclable {
 					mLastTextElement = element;
 				}
 			} else if (element instanceof Glue) {
-
+				// glue
 				mElements.add(element);
 			} else {
 				throw new IllegalStateException("unknown element");
@@ -188,22 +190,22 @@ public class Line extends DefaultRecyclable {
 		}
 
 		public Line build(BreakStrategy breakStrategy, int lineWidth) {
-
+			// strip blank
 			strip(mElements);
 			if (mElements.isEmpty()) {
 				return mLine;
 			}
 
-
+			// 添加 -
 			appendIfSuffix(mElements, mLastTextElement);
 
-
+			// 合並
 			mergeText(mLine, mElements);
 
-
+			// measure line
 			measureLine(mLine, breakStrategy, lineWidth);
 
-
+			// adjust
 			if (mContainTerminal && mLine.mRatio > 0) {
 				mLine.mRatio = 0;
 			}

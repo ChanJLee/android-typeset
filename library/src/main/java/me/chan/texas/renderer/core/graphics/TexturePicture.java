@@ -17,14 +17,16 @@ public class TexturePicture extends Picture {
 
 	private static final boolean DEBUG = false;
 
-	
+	/**
+	 * 5.0 以下的系统，会在Picture.finalize()中调用native_destroy()，导致指针重复free
+	 */
 	private boolean mHackIsReleased__ = false;
 
 	private boolean mHackIsDrawFailed__ = false;
 
 	@Override
 	protected void finalize() throws Throwable {
-		
+		/* avoid 5.0 指针重复free的bug */
 		releaseHack__();
 	}
 
@@ -37,7 +39,7 @@ public class TexturePicture extends Picture {
 			super.finalize();
 			mHackIsReleased__ = true;
 		} catch (Throwable ignored) {
-			
+			/* do nothing */
 		}
 	}
 
@@ -66,7 +68,7 @@ public class TexturePicture extends Picture {
 
 	@Override
 	public synchronized void endRecording() {
-
+		// 主线程会在draw的时候主动call一下end，如果已经释放了，那么就崩溃了
 		if (mHackIsReleased__) {
 			return;
 		}

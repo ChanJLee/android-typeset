@@ -11,7 +11,9 @@ import me.chan.texas.text.TextStyle;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
-
+/**
+ * 代表添加的'-'符号
+ */
 @RestrictTo(LIBRARY)
 public class Penalty extends Element {
 	private final static ObjectPool<Penalty> POOL = new ObjectPool<>(16);
@@ -38,7 +40,7 @@ public class Penalty extends Element {
 
 		@Override
 		protected void onRecycle() {
-			
+			/* NOOP */
 		}
 
 		@Override
@@ -62,7 +64,9 @@ public class Penalty extends Element {
 	};
 	public final static Element ADVISE_BREAK = Glue.EMPTY;
 
-	
+	/**
+	 * 禁止断字
+	 */
 	public final static Penalty FORBIDDEN_BREAK = new Penalty() {
 		@Override
 		public float getHeight() {
@@ -86,7 +90,7 @@ public class Penalty extends Element {
 
 		@Override
 		protected void onRecycle() {
-			
+			/* NOOP */
 		}
 
 		@Override
@@ -198,7 +202,7 @@ public class Penalty extends Element {
 	}
 
 	@NonNull
-	public static Penalty obtain(float penalty, boolean flag,
+	public static Penalty obtain(float penalty, boolean flag/* 不是连字符 true, 连字符 false */,
 								 Object tag, TextStyle textStyle, Measurer measurer, TextAttribute textAttribute) {
 		Penalty p = POOL.acquire();
 		if (p == null) {

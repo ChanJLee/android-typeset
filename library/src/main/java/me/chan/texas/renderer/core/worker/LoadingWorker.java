@@ -91,7 +91,7 @@ public class LoadingWorker {
 	}
 
 	public static TexasOption createTexasOption(PaintSet paintSet, TextAttribute textAttribute, Measurer measurer, RenderOption option) {
-
+		// 选择断字策略
 		Hyphenation hyphenation = null;
 		HyphenStrategy hyphenStrategy = option.getHyphenStrategy();
 		if (hyphenStrategy == HyphenStrategy.US) {

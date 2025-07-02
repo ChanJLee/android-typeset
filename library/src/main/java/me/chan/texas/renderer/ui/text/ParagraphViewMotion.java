@@ -97,7 +97,7 @@ public class ParagraphViewMotion {
 			return false;
 		}
 
-
+		// 通知上层有元素被选中
 		return mOnTextSelectedListener.onSegmentClicked(TouchEvent.obtain(mView, e), mParagraph, eventType);
 	}
 
@@ -128,7 +128,7 @@ public class ParagraphViewMotion {
 			return false;
 		}
 
-
+		// 通知上层有元素被选中
 		return mOnTextSelectedListener.onBoxSelected(TouchEvent.obtain(mView, e), mParagraph, eventType, mLastTouchBox);
 	}
 
@@ -215,7 +215,7 @@ public class ParagraphViewMotion {
 
 		@Override
 		public void onVisitBox(Box box, RectF inner, RectF outer, @NonNull RendererContext context) {
-
+			// 增大点击热区
 			if (outer.left <= mX &&
 					outer.right >= mX) {
 				mBox = box;
@@ -277,7 +277,7 @@ public class ParagraphViewMotion {
 
 		@Override
 		public void onShowPress(MotionEvent e) {
-			
+			/* do nothing */
 		}
 
 		@Override
@@ -301,7 +301,7 @@ public class ParagraphViewMotion {
 
 		@Override
 		public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-			
+			/* do nothing */
 			return false;
 		}
 
