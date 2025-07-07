@@ -7,6 +7,7 @@ import android.graphics.drawable.StateListDrawable;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.VisibleForTesting;
 
 import me.chan.texas.text.layout.StateList;
 
@@ -29,6 +30,11 @@ public final class Emoticon extends HypeSpan {
 		setForeground(foreground);
 		setTag(tag);
 		mDrawable = drawable;
+	}
+
+	@VisibleForTesting
+	Drawable getDrawable() {
+		return mDrawable;
 	}
 
 	@Override

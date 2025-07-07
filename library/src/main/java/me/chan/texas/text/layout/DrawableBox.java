@@ -7,6 +7,7 @@ import android.graphics.Paint;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
+import androidx.annotation.VisibleForTesting;
 
 import me.chan.texas.Texas;
 import me.chan.texas.measurer.Measurer;
@@ -21,7 +22,7 @@ import me.chan.texas.text.TextAttribute;
 public class DrawableBox extends Box {
 	private static final ObjectPool<DrawableBox> POOL = new ObjectPool<>(Texas.getMemoryOption().getEmoticonBufferSize());
 
-	private HypeSpan mDrawable;
+	private HypeSpan mSpan;
 
 	private DrawableBox() {
 		super(0, 0);
@@ -29,17 +30,22 @@ public class DrawableBox extends Box {
 
 	@Override
 	public void draw(Canvas canvas, Paint paint, float x, float y, StateList states) {
-		mDrawable.draw(canvas, paint, x, y, states);
+		mSpan.draw(canvas, paint, x, y, states);
+	}
+
+	@VisibleForTesting
+	public HypeSpan getSpan() {
+		return mSpan;
 	}
 
 	@Override
 	protected void onRecycle() {
 		super.onRecycle();
-		mDrawable = null;
+		mSpan = null;
 		POOL.release(this);
 	}
 
-	public static DrawableBox obtain(@NonNull HypeSpan drawable, float width, float height) {
+	public static DrawableBox obtain(@NonNull HypeSpan span, float width, float height) {
 		DrawableBox drawableBox = POOL.acquire();
 		if (drawableBox == null) {
 			drawableBox = new DrawableBox();
@@ -47,7 +53,7 @@ public class DrawableBox extends Box {
 
 		drawableBox.mWidth = width;
 		drawableBox.mHeight = height;
-		drawableBox.mDrawable = drawable;
+		drawableBox.mSpan = span;
 		drawableBox.reuse();
 		return drawableBox;
 	}
