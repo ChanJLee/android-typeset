@@ -310,6 +310,10 @@ public class SelectionManager implements OnSelectedChangedListener {
 	 */
 	@SuppressLint("NotifyDataSetChanged")
 	public void handleMoveToSelection(float x1, float y1, float x2, float y2) {
+		if (mCurrentSelection == null) {
+			return;
+		}
+
 		int firstVisibleItemPosition = mLayoutManager.findFirstVisibleItemPosition();
 		int lastVisibleItemPosition = mLayoutManager.findLastVisibleItemPosition();
 
