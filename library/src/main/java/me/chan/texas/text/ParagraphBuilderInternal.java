@@ -161,9 +161,9 @@ class ParagraphBuilderInternal {
 		mParagraph.mLayout.getAdvise().clearTypesetPolicy();
 	}
 
-	private void appendHypeSpan(HypeSpan drawable) {
+	private void appendHypeSpan(HypeSpan span) {
 		Token token = Token.obtainOtherWord();
-		appendElement(DrawableBox.obtain(drawable));
+		appendElement(span.getDrawableBox());
 		mLastToken = token;
 	}
 

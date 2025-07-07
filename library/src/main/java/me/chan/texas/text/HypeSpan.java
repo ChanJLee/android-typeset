@@ -3,36 +3,35 @@ package me.chan.texas.text;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 
+import androidx.annotation.RestrictTo;
+
+import me.chan.texas.text.layout.DrawableBox;
+import me.chan.texas.text.layout.Element;
 import me.chan.texas.text.layout.StateList;
 
 public abstract class HypeSpan {
-	private Object mTag;
-	private Appearance background;
-	private Appearance foreground;
-	private final float mWidth;
-	private final float mHeight;
+	private final DrawableBox mDrawableBox;
 
 	public HypeSpan(float width, float height) {
-		mWidth = width;
-		mHeight = height;
+		mDrawableBox = DrawableBox.obtain(this, width, height);
 	}
 
 	/**
 	 * @return 颜文字的宽
 	 */
 	public final float getWidth() {
-		return mWidth;
+		return mDrawableBox.getWidth();
 	}
 
 	/**
 	 * @return 颜文字的高
 	 */
 	public final float getHeight() {
-		return mHeight;
+		return mDrawableBox.getHeight();
 	}
 
 	public final void draw(Canvas canvas, Paint paint, float x, float y, StateList states) {
-		onDraw(canvas, paint, x, y, states, mTag);
+		onDraw(canvas, paint, x, y, states, mDrawableBox.getTag());
 	}
 
 	protected abstract void onDraw(Canvas canvas, Paint paint, float x, float y, StateList states, Object tag);
@@ -43,26 +42,19 @@ public abstract class HypeSpan {
 	 * @param tag tag
 	 */
 	public final void setTag(Object tag) {
-		mTag = tag;
-	}
-
-	public final Object getTag() {
-		return mTag;
-	}
-
-	public final Appearance getBackground() {
-		return background;
+		mDrawableBox.setTag(tag);
 	}
 
 	public final void setBackground(Appearance background) {
-		this.background = background;
-	}
-
-	public final Appearance getForeground() {
-		return foreground;
+		mDrawableBox.setBackground(background);
 	}
 
 	public final void setForeground(Appearance foreground) {
-		this.foreground = foreground;
+		mDrawableBox.setForeground(foreground);
+	}
+
+	@RestrictTo(RestrictTo.Scope.LIBRARY)
+	public Element getDrawableBox() {
+		return mDrawableBox;
 	}
 }
