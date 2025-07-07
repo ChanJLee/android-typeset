@@ -2,12 +2,11 @@ apply plugin: 'com.android.library'
 apply from: '../publish.gradle'
 
 android {
-    compileSdkVersion 34
+    compileSdkVersion 35
 
     defaultConfig {
         minSdkVersion 23
-        //noinspection OldTargetApi
-        targetSdkVersion 34
+        targetSdkVersion 35
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles "proguard-rules.pro"

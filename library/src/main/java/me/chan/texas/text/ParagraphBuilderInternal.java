@@ -15,6 +15,7 @@ import me.chan.texas.hyphenation.Hyphenation;
 import me.chan.texas.measurer.Measurer;
 import me.chan.texas.renderer.RenderOption;
 import me.chan.texas.text.icu.UnicodeUtils;
+import me.chan.texas.text.layout.DrawableBox;
 import me.chan.texas.text.layout.Element;
 import me.chan.texas.text.layout.Glue;
 import me.chan.texas.text.layout.Layout;
@@ -93,11 +94,15 @@ class ParagraphBuilderInternal {
 	 * @param emoticon 颜文字
 	 */
 	public void emoticon(Emoticon emoticon) {
+		hypeDrawable(emoticon);
+	}
+
+	public void hypeDrawable(HypeDrawable drawable) {
 		if (mParagraph == null) {
 			throw new IllegalStateException("call newParagraph first");
 		}
 
-		appendEmoticon(emoticon);
+		appendHypeDrawable(drawable);
 	}
 
 	/**
@@ -153,9 +158,9 @@ class ParagraphBuilderInternal {
 		mParagraph.mLayout.getAdvise().clearTypesetPolicy();
 	}
 
-	private void appendEmoticon(Emoticon emoticon) {
+	private void appendHypeDrawable(HypeDrawable drawable) {
 		Token token = Token.obtainOtherWord();
-		appendElement(emoticon.getDrawableBox());
+		appendElement(DrawableBox.obtain(drawable));
 		mLastToken = token;
 	}
 
