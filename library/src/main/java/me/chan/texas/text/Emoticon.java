@@ -13,7 +13,7 @@ import me.chan.texas.text.layout.StateList;
 /**
  * 颜文字
  */
-public final class Emoticon extends HypeDrawable {
+public final class Emoticon extends HypeSpan {
 	private static final int[] STATE_PRESSED = {
 			android.R.attr.state_pressed,
 	};

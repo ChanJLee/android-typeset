@@ -5,14 +5,14 @@ import android.graphics.Paint;
 
 import me.chan.texas.text.layout.StateList;
 
-public abstract class HypeDrawable {
+public abstract class HypeSpan {
 	private Object mTag;
 	private Appearance background;
 	private Appearance foreground;
 	private final float mWidth;
 	private final float mHeight;
 
-	public HypeDrawable(float width, float height) {
+	public HypeSpan(float width, float height) {
 		mWidth = width;
 		mHeight = height;
 	}
