@@ -9,6 +9,9 @@ import me.chan.texas.text.layout.DrawableBox;
 import me.chan.texas.text.layout.Element;
 import me.chan.texas.text.layout.StateList;
 
+/**
+ * 超文字
+ */
 public abstract class HypeSpan {
 	private final DrawableBox mDrawableBox;
 
