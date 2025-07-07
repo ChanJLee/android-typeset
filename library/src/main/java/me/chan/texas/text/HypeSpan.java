@@ -37,18 +37,38 @@ public abstract class HypeSpan {
 		return mDrawableBox.getHeight();
 	}
 
+	@RestrictTo(RestrictTo.Scope.LIBRARY)
 	public final void draw(Canvas canvas, Paint paint, float x, float y, StateList states) {
 		onDraw(canvas, paint, x, y, states, mDrawableBox.getTag());
 	}
 
+	/**
+	 * @param canvas canvas
+	 * @param paint  paint
+	 * @param x      x
+	 * @param y      y
+	 * @param states states
+	 * @param tag    tag
+	 */
 	protected abstract void onDraw(Canvas canvas, Paint paint, float x, float y, StateList states, Object tag);
 
+	@RestrictTo(RestrictTo.Scope.LIBRARY)
 	public final void measure() {
 		onMeasure();
 	}
 
+	/**
+	 * 开始测量的时候调用，测量完成后调用{@link #setMeasuredSize(float, float)}
+	 * <p>
+	 */
 	protected abstract void onMeasure();
 
+	/**
+	 * 设置测量后的大小
+	 *
+	 * @param width  宽度
+	 * @param height 高度
+	 */
 	protected final void setMeasuredSize(float width, float height) {
 		mDrawableBox.resize(width, height);
 	}
