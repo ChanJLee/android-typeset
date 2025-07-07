@@ -23,9 +23,8 @@ public class DrawableBox extends Box {
 
 	private HypeSpan mDrawable;
 
-	public DrawableBox(@NonNull HypeSpan drawable) {
-		super(drawable.getWidth(), drawable.getHeight());
-		mDrawable = drawable;
+	private DrawableBox() {
+		super(0, 0);
 	}
 
 	@Override
@@ -40,17 +39,14 @@ public class DrawableBox extends Box {
 		POOL.release(this);
 	}
 
-	public static DrawableBox obtain(HypeSpan drawable) {
+	public static DrawableBox obtain(@NonNull HypeSpan drawable, float width, float height) {
 		DrawableBox drawableBox = POOL.acquire();
 		if (drawableBox == null) {
-			drawableBox = new DrawableBox(drawable);
+			drawableBox = new DrawableBox();
 		}
 
-		drawableBox.mWidth = drawable.getWidth();
-		drawableBox.mHeight = drawable.getHeight();
-		drawableBox.mTag = drawable.getTag();
-		drawableBox.mBackground = drawable.getBackground();
-		drawableBox.mForeground = drawable.getForeground();
+		drawableBox.mWidth = width;
+		drawableBox.mHeight = height;
 		drawableBox.mDrawable = drawable;
 		drawableBox.reuse();
 		return drawableBox;
