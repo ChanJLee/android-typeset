@@ -11,7 +11,7 @@ import androidx.annotation.RestrictTo;
 import me.chan.texas.Texas;
 import me.chan.texas.measurer.Measurer;
 import me.chan.texas.misc.ObjectPool;
-import me.chan.texas.text.HypeDrawable;
+import me.chan.texas.text.HypeSpan;
 import me.chan.texas.text.TextAttribute;
 
 /**
@@ -21,9 +21,9 @@ import me.chan.texas.text.TextAttribute;
 public class DrawableBox extends Box {
 	private static final ObjectPool<DrawableBox> POOL = new ObjectPool<>(Texas.getMemoryOption().getEmoticonBufferSize());
 
-	private HypeDrawable mDrawable;
+	private HypeSpan mDrawable;
 
-	public DrawableBox(@NonNull HypeDrawable drawable) {
+	public DrawableBox(@NonNull HypeSpan drawable) {
 		super(drawable.getWidth(), drawable.getHeight());
 		mDrawable = drawable;
 	}
@@ -40,7 +40,7 @@ public class DrawableBox extends Box {
 		POOL.release(this);
 	}
 
-	public static DrawableBox obtain(HypeDrawable drawable) {
+	public static DrawableBox obtain(HypeSpan drawable) {
 		DrawableBox drawableBox = POOL.acquire();
 		if (drawableBox == null) {
 			drawableBox = new DrawableBox(drawable);

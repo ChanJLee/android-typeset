@@ -94,15 +94,18 @@ class ParagraphBuilderInternal {
 	 * @param emoticon 颜文字
 	 */
 	public void emoticon(Emoticon emoticon) {
-		hypeDrawable(emoticon);
+		hypeSpan(emoticon);
 	}
 
-	public void hypeDrawable(HypeDrawable drawable) {
+	/**
+	 * @param span 超文字，可以是任意的可以绘制的对象
+	 */
+	public void hypeSpan(HypeSpan span) {
 		if (mParagraph == null) {
 			throw new IllegalStateException("call newParagraph first");
 		}
 
-		appendHypeDrawable(drawable);
+		appendHypeSpan(span);
 	}
 
 	/**
@@ -158,7 +161,7 @@ class ParagraphBuilderInternal {
 		mParagraph.mLayout.getAdvise().clearTypesetPolicy();
 	}
 
-	private void appendHypeDrawable(HypeDrawable drawable) {
+	private void appendHypeSpan(HypeSpan drawable) {
 		Token token = Token.obtainOtherWord();
 		appendElement(DrawableBox.obtain(drawable));
 		mLastToken = token;
