@@ -4,17 +4,15 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
 import android.graphics.Canvas;
 import android.graphics.Paint;
-import android.graphics.drawable.Drawable;
-import android.graphics.drawable.StateListDrawable;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
+import androidx.annotation.VisibleForTesting;
 
 import me.chan.texas.Texas;
 import me.chan.texas.measurer.Measurer;
 import me.chan.texas.misc.ObjectPool;
-import me.chan.texas.text.Appearance;
-import me.chan.texas.text.Emoticon;
+import me.chan.texas.text.HypeSpan;
 import me.chan.texas.text.TextAttribute;
 
 /**
@@ -23,79 +21,50 @@ import me.chan.texas.text.TextAttribute;
 @RestrictTo(LIBRARY)
 public class DrawableBox extends Box {
 	private static final ObjectPool<DrawableBox> POOL = new ObjectPool<>(Texas.getMemoryOption().getEmoticonBufferSize());
-	private static final int[] STATE_PRESSED = {
-			android.R.attr.state_pressed,
-	};
-	private static final int[] STATE_NORMAL = {
-			-android.R.attr.state_pressed
-	};
 
-	private Drawable mDrawable;
-	private Emoticon mEmoticon;
+	private HypeSpan mSpan;
 
-	public DrawableBox(@NonNull Drawable drawable, float width, float height, Emoticon emoticon) {
-		super(width, height);
-		mDrawable = drawable;
-		mEmoticon = emoticon;
+	private DrawableBox() {
+		super(0, 0);
 	}
 
 	@Override
 	public void draw(Canvas canvas, Paint paint, float x, float y, StateList states) {
-		Drawable drawable = mDrawable;
-		if (mDrawable instanceof StateListDrawable) {
-			StateListDrawable stateListDrawable = (StateListDrawable) mDrawable;
-			stateListDrawable.setState(states.isSelected() ? STATE_PRESSED : STATE_NORMAL);
-			drawable = stateListDrawable.getCurrent();
-		}
-
-		drawable.setBounds((int) x, (int) (y - getHeight()), (int) (x + getWidth()), (int) y);
-		drawable.draw(canvas);
+		mSpan.draw(canvas, paint, x, y, states);
 	}
 
-	public Drawable getDrawable() {
-		return mDrawable;
-	}
-
-	public void setDrawable(Drawable drawable) {
-		mDrawable = drawable;
-	}
-
-	public Emoticon getEmoticon() {
-		return mEmoticon;
+	@VisibleForTesting
+	public HypeSpan getSpan() {
+		return mSpan;
 	}
 
 	@Override
 	protected void onRecycle() {
 		super.onRecycle();
-		mDrawable = null;
-		mEmoticon.recycle();
-		mEmoticon = null;
+		mSpan = null;
 		POOL.release(this);
 	}
 
-	public static DrawableBox obtain(Drawable drawable,
-									 float width, float height,
-									 Emoticon emoticon, Object tag,
-									 Appearance background,
-									 Appearance foreground) {
+	public static DrawableBox obtain(@NonNull HypeSpan span, float width, float height) {
 		DrawableBox drawableBox = POOL.acquire();
 		if (drawableBox == null) {
-			drawableBox = new DrawableBox(drawable, width, height, emoticon);
+			drawableBox = new DrawableBox();
 		}
 
 		drawableBox.mWidth = width;
 		drawableBox.mHeight = height;
-		drawableBox.mTag = tag;
-		drawableBox.mBackground = background;
-		drawableBox.mForeground = foreground;
-		drawableBox.mDrawable = drawable;
-		drawableBox.mEmoticon = emoticon;
+		drawableBox.mSpan = span;
 		drawableBox.reuse();
 		return drawableBox;
 	}
 
 	public static void clean() {
 		POOL.clean();
+	}
+
+	public void resize(float width, float height) {
+		mWidth = width;
+		mHeight = height;
 	}
 
 	@Override

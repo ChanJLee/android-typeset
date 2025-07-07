@@ -15,6 +15,7 @@ import me.chan.texas.hyphenation.Hyphenation;
 import me.chan.texas.measurer.Measurer;
 import me.chan.texas.renderer.RenderOption;
 import me.chan.texas.text.icu.UnicodeUtils;
+import me.chan.texas.text.layout.DrawableBox;
 import me.chan.texas.text.layout.Element;
 import me.chan.texas.text.layout.Glue;
 import me.chan.texas.text.layout.Layout;
@@ -93,11 +94,18 @@ class ParagraphBuilderInternal {
 	 * @param emoticon 颜文字
 	 */
 	public void emoticon(Emoticon emoticon) {
+		hypeSpan(emoticon);
+	}
+
+	/**
+	 * @param span 超文字，可以是任意的可以绘制的对象
+	 */
+	public void hypeSpan(HypeSpan span) {
 		if (mParagraph == null) {
 			throw new IllegalStateException("call newParagraph first");
 		}
 
-		appendEmoticon(emoticon);
+		appendHypeSpan(span);
 	}
 
 	/**
@@ -153,9 +161,10 @@ class ParagraphBuilderInternal {
 		mParagraph.mLayout.getAdvise().clearTypesetPolicy();
 	}
 
-	private void appendEmoticon(Emoticon emoticon) {
+	private void appendHypeSpan(HypeSpan span) {
 		Token token = Token.obtainOtherWord();
-		appendElement(emoticon.getDrawableBox());
+		span.measure();
+		appendElement(span.getDrawableBox());
 		mLastToken = token;
 	}
 

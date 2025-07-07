@@ -17,7 +17,6 @@ import me.chan.texas.di.DaggerTexasComponent;
 import me.chan.texas.di.TexasComponent;
 import me.chan.texas.issue.IssueSystem;
 import me.chan.texas.tdms.DebugMonitorServer;
-import me.chan.texas.text.Emoticon;
 import me.chan.texas.text.Figure;
 import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.layout.DrawableBox;
@@ -138,7 +137,6 @@ public class Texas {
 			Figure.clean();
 			DrawableBox.clean();
 			Paragraph.Builder.clean();
-			Emoticon.clean();
 			for (LifecycleCallback callback : LIFECYCLE_CALLBACKS) {
 				try {
 					Log.i("Texas", "release: " + callback);

@@ -52,15 +52,11 @@ public class AndroidMeasurer implements Measurer {
 		// vivo 手机使用这个方法慢的出奇
 		// BoringLayout 是用来测量单行文本的
 		float width = 0;
-		if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
-			int size = end - start;
-			char[] buf = POOL.obtain(size);
-			TexasUtils.getChars(charSequence, start, end, buf, 0);
-			width = textPaint.getRunAdvance(buf, 0, size, 0, size, false, size);
-			POOL.release(buf);
-		} else {
-			width = (float) Math.ceil(BoringLayout.getDesiredWidth(charSequence, start, end, textPaint));
-		}
+		int size = end - start;
+		char[] buf = POOL.obtain(size);
+		TexasUtils.getChars(charSequence, start, end, buf, 0);
+		width = textPaint.getRunAdvance(buf, 0, size, 0, size, false, size);
+		POOL.release(buf);
 
 		textPaint.getFontMetrics(mFontMetrics);
 		Paint.FontMetrics fontMetrics = mFontMetrics;
