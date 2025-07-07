@@ -38,7 +38,7 @@ public final class Emoticon extends HypeSpan {
 	}
 
 	@Override
-	protected void onDraw(Canvas canvas, Paint paint, float x, float y, StateList states, Object tag) {
+	protected void onDraw(Canvas canvas, Paint paint, float x, float y, StateList states) {
 		Drawable drawable = mDrawable;
 		if (mDrawable instanceof StateListDrawable) {
 			StateListDrawable stateListDrawable = (StateListDrawable) mDrawable;

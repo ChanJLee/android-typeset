@@ -15,7 +15,7 @@ import me.chan.texas.text.layout.StateList;
  * class MyHypeSpan extends HypeSpan {
  *
  *    &#64;Override
- *    protected void onDraw(Canvas canvas, Paint paint, float x, float y, StateList states, Object tag) {
+ *    protected void onDraw(Canvas canvas, Paint paint, float x, float y, StateList states) {
  * 		canvas.drawText("hello", x, y, paint);
  *    }
  *
@@ -53,7 +53,7 @@ public abstract class HypeSpan {
 
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
 	public final void draw(Canvas canvas, Paint paint, float x, float y, StateList states) {
-		onDraw(canvas, paint, x, y, states, mDrawableBox.getTag());
+		onDraw(canvas, paint, x, y, states);
 	}
 
 	/**
@@ -62,9 +62,8 @@ public abstract class HypeSpan {
 	 * @param x      x
 	 * @param y      y
 	 * @param states states
-	 * @param tag    tag
 	 */
-	protected abstract void onDraw(Canvas canvas, Paint paint, float x, float y, StateList states, Object tag);
+	protected abstract void onDraw(Canvas canvas, Paint paint, float x, float y, StateList states);
 
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
 	public final void measure() {

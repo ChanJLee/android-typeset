@@ -8,6 +8,7 @@ import org.junit.Test;
 
 import me.chan.texas.misc.RectF;
 import me.chan.texas.renderer.RendererContext;
+import me.chan.texas.test.mock.MockTextPaint;
 import me.chan.texas.text.layout.DrawableBox;
 import me.chan.texas.text.layout.StateList;
 
@@ -46,7 +47,7 @@ public class HypeUnitTest {
 class MyHypeSpan extends HypeSpan {
 
 	@Override
-	protected void onDraw(Canvas canvas, Paint paint, float x, float y, StateList states, Object tag) {
+	protected void onDraw(Canvas canvas, Paint paint, float x, float y, StateList states) {
 		canvas.drawText("hello", x, y, paint);
 	}
 
