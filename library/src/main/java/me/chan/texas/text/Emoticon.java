@@ -50,6 +50,11 @@ public final class Emoticon extends HypeSpan {
 		drawable.draw(canvas);
 	}
 
+	@Override
+	protected void onMeasure() {
+		/* NOOP */
+	}
+
 	/**
 	 * 设置绘制对象
 	 * <p>

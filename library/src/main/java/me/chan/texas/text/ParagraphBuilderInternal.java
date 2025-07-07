@@ -163,6 +163,7 @@ class ParagraphBuilderInternal {
 
 	private void appendHypeSpan(HypeSpan span) {
 		Token token = Token.obtainOtherWord();
+		span.measure();
 		appendElement(span.getDrawableBox());
 		mLastToken = token;
 	}
