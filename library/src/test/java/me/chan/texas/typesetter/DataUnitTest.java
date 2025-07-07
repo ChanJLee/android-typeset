@@ -1,6 +1,7 @@
 package me.chan.texas.typesetter;
 
 import me.chan.texas.misc.Rect;
+
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.text.TextPaint;
@@ -249,76 +250,32 @@ public class DataUnitTest {
 		Drawable drawable = new ColorDrawable(19);
 
 		Emoticon emoticon = Emoticon.obtain(drawable, 1, 2);
-		DrawableBox drawableBox = DrawableBox.obtain(drawable, 1, 2, emoticon, null, null, null);
+		DrawableBox drawableBox = (DrawableBox) emoticon.getDrawableBox();
 		Assert.assertNotNull(drawableBox);
 		Assert.assertFalse(drawableBox.isRecycled());
-		Assert.assertSame(emoticon, drawableBox.getEmoticon());
-		Assert.assertSame(drawable, drawableBox.getDrawable());
 		Assert.assertEquals(drawableBox.getWidth(), 1, 0);
 		Assert.assertEquals(drawableBox.getHeight(), 2, 0);
 
 		DrawableBox p = drawableBox;
 		drawableBox.recycle();
 		Assert.assertTrue(drawableBox.isRecycled());
-		Assert.assertTrue(emoticon.isRecycled());
-		Assert.assertNull(drawableBox.getEmoticon());
-		Assert.assertNotSame(drawable, drawableBox.getDrawable());
+		Assert.assertNotSame(drawable, drawableBox.getSpan());
 		Assert.assertNotEquals(drawableBox.getWidth(), 1, 0);
 		Assert.assertNotEquals(drawableBox.getHeight(), 2, 0);
-		Assert.assertNull(drawableBox.getEmoticon());
+		Assert.assertNull(drawableBox.getSpan());
 
 		// test recycle twice
 		drawableBox.recycle();
 
-		drawableBox = DrawableBox.obtain(new ColorDrawable(19), 1, 2, emoticon, null, null, null);
-		Assert.assertNotSame(drawable, drawableBox.getDrawable());
+		Emoticon emoticon1 = Emoticon.obtain(drawable, 2, 3);
+		drawableBox = (DrawableBox) emoticon1.getDrawableBox();
+		Assert.assertNotSame(emoticon, drawableBox.getSpan());
 		Assert.assertFalse(drawableBox.isRecycled());
-		Assert.assertEquals(drawableBox.getWidth(), 1, 0);
-		Assert.assertEquals(drawableBox.getHeight(), 2, 0);
+		Assert.assertEquals(drawableBox.getWidth(), 2, 0);
+		Assert.assertEquals(drawableBox.getHeight(), 3, 0);
 		Assert.assertSame(p, drawableBox);
-		Assert.assertSame(emoticon, drawableBox.getEmoticon());
-		Assert.assertTrue(emoticon.isRecycled());
-		Assert.assertNotSame(drawableBox, DrawableBox.obtain(new ColorDrawable(19), 1, 2, emoticon, null, null, null));
-	}
-
-	@Test
-	public void testEmoticon() throws NoSuchFieldException, IllegalAccessException {
-		Drawable drawable = new ColorDrawable(19);
-		Emoticon emoticon = Emoticon.obtain(drawable, 1, 2);
-		Assert.assertFalse(emoticon.isRecycled());
-		Assert.assertNotNull(emoticon);
-		Assert.assertSame(emoticon.getDrawable(), drawable);
-		Assert.assertEquals(emoticon.getWidth(), 1, 0);
-		Assert.assertEquals(emoticon.getHeight(), 2, 0);
-		Drawable drawable1 = new ColorDrawable(20);
-		emoticon.setDrawable(drawable1);
-		Assert.assertSame(drawable1, emoticon.getDrawable());
-
-		Field field = emoticon.getClass().getDeclaredField("mDrawableBox");
-		field.setAccessible(true);
-		DrawableBox drawableBox = (DrawableBox) field.get(emoticon);
-		Assert.assertSame(drawableBox.getEmoticon(), emoticon);
-
-		emoticon.recycle();
-		Assert.assertTrue(emoticon.isRecycled());
-		Assert.assertNull(emoticon.getDrawable());
-		Assert.assertEquals(0, emoticon.getWidth(), 0);
-		Assert.assertEquals(0, emoticon.getHeight(), 0);
-		Assert.assertNull(field.get(emoticon));
-		emoticon.setDrawable(new ColorDrawable(100));
-		Assert.assertNull(emoticon.getDrawable());
-
-		// test recycle twice
-		emoticon.recycle();
-		Assert.assertTrue(emoticon.isRecycled());
-
-		Emoticon prev = emoticon;
-		emoticon = Emoticon.obtain(drawable, 2, 3);
-		Assert.assertSame(prev, emoticon);
-		Assert.assertFalse(emoticon.isRecycled());
-		Assert.assertEquals(emoticon.getWidth(), 2, 0);
-		Assert.assertEquals(emoticon.getHeight(), 3, 0);
-		drawableBox = (DrawableBox) field.get(emoticon);
+		Assert.assertSame(emoticon1, drawableBox.getSpan());
+		Assert.assertNotSame(drawableBox, DrawableBox.obtain(emoticon1, 1, 2));
 	}
 
 	@Test

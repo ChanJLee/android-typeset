@@ -1,64 +1,58 @@
 package me.chan.texas.text;
 
+import android.graphics.Canvas;
+import android.graphics.Paint;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.StateListDrawable;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 
-import me.chan.texas.Texas;
-import me.chan.texas.misc.DefaultRecyclable;
-import me.chan.texas.misc.ObjectPool;
-import me.chan.texas.text.layout.DrawableBox;
+import me.chan.texas.text.layout.StateList;
 
 /**
  * 颜文字
  */
-public final class Emoticon extends DefaultRecyclable {
-	private static final ObjectPool<Emoticon> POOL = new ObjectPool<>(Texas.getMemoryOption().getEmoticonBufferSize());
+public final class Emoticon extends HypeSpan {
+	private static final int[] STATE_PRESSED = {
+			android.R.attr.state_pressed,
+	};
+	private static final int[] STATE_NORMAL = {
+			-android.R.attr.state_pressed
+	};
 
-	@VisibleForTesting
-	public static boolean hasBuffered() {
-		return !POOL.isEmpty();
-	}
-
-	private DrawableBox mDrawableBox;
+	private Drawable mDrawable;
 
 	private Emoticon(@NonNull Drawable drawable, float width, float height, Object tag, Appearance background, Appearance foreground) {
-		mDrawableBox = DrawableBox.obtain(drawable, width, height, this, tag, background, foreground);
+		super(width, height);
+		setBackground(background);
+		setForeground(foreground);
+		setTag(tag);
+		mDrawable = drawable;
 	}
 
-	@RestrictTo(RestrictTo.Scope.LIBRARY)
-	public DrawableBox getDrawableBox() {
-		return mDrawableBox;
+	@VisibleForTesting
+	Drawable getDrawable() {
+		return mDrawable;
 	}
 
 	@Override
-	protected void onRecycle() {
-		mDrawableBox = null;
-		POOL.release(this);
+	protected void onDraw(Canvas canvas, Paint paint, float x, float y, StateList states) {
+		Drawable drawable = mDrawable;
+		if (mDrawable instanceof StateListDrawable) {
+			StateListDrawable stateListDrawable = (StateListDrawable) mDrawable;
+			stateListDrawable.setState(states.isSelected() ? STATE_PRESSED : STATE_NORMAL);
+			drawable = stateListDrawable.getCurrent();
+		}
+
+		drawable.setBounds((int) x, (int) (y - getHeight()), (int) (x + getWidth()), (int) y);
+		drawable.draw(canvas);
 	}
 
-	/**
-	 * @return 颜文字的宽
-	 */
-	public float getWidth() {
-		return mDrawableBox == null ? 0 : mDrawableBox.getWidth();
-	}
-
-	/**
-	 * @return 颜文字的高
-	 */
-	public float getHeight() {
-		return mDrawableBox == null ? 0 : mDrawableBox.getHeight();
-	}
-
-	/**
-	 * @return drawable绘制对象
-	 */
-	public Drawable getDrawable() {
-		return mDrawableBox == null ? null : mDrawableBox.getDrawable();
+	@Override
+	protected void onMeasure() {
+		/* NOOP */
 	}
 
 	/**
@@ -69,7 +63,7 @@ public final class Emoticon extends DefaultRecyclable {
 	 * @param drawable 新的绘制对象
 	 */
 	public void setDrawable(@NonNull Drawable drawable) {
-		if (mDrawableBox == null) {
+		if (mDrawable == null) {
 			return;
 		}
 
@@ -77,21 +71,9 @@ public final class Emoticon extends DefaultRecyclable {
 				drawable.getIntrinsicHeight() != getHeight()) {
 			Log.w("Emoticon", "drawable size changed, may be cause some problem");
 		}
-		mDrawableBox.setDrawable(drawable);
+		mDrawable = drawable;
 	}
 
-	/**
-	 * 设置唯一标识
-	 *
-	 * @param tag tag
-	 */
-	public void setTag(Object tag) {
-		if (mDrawableBox == null) {
-			return;
-		}
-
-		mDrawableBox.setTag(tag);
-	}
 
 	/**
 	 * 获取Emoticon
@@ -115,17 +97,6 @@ public final class Emoticon extends DefaultRecyclable {
 	 * @return 颜文字对象
 	 */
 	public static Emoticon obtain(Drawable drawable, float width, float height, Object tag, Appearance background, Appearance foreground) {
-		Emoticon emoticon = POOL.acquire();
-		if (emoticon == null) {
-			return new Emoticon(drawable, width, height, tag, background, foreground);
-		}
-
-		emoticon.mDrawableBox = DrawableBox.obtain(drawable, width, height, emoticon, tag, background, foreground);
-		emoticon.reuse();
-		return emoticon;
-	}
-
-	public static void clean() {
-		POOL.clean();
+		return new Emoticon(drawable, width, height, tag, background, foreground);
 	}
 }
