@@ -62,6 +62,11 @@ public class DrawableBox extends Box {
 		POOL.clean();
 	}
 
+	public void resize(float width, float height) {
+		mWidth = width;
+		mHeight = height;
+	}
+
 	@Override
 	public void measure(Measurer measurer, TextAttribute textAttribute) {
 		/* do nothing */

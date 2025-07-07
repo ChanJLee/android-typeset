@@ -15,19 +15,23 @@ import me.chan.texas.text.layout.StateList;
 public abstract class HypeSpan {
 	private final DrawableBox mDrawableBox;
 
+	public HypeSpan() {
+		this(0, 0);
+	}
+
 	public HypeSpan(float width, float height) {
 		mDrawableBox = DrawableBox.obtain(this, width, height);
 	}
 
 	/**
-	 * @return 颜文字的宽
+	 * @return 超文字的宽
 	 */
 	public final float getWidth() {
 		return mDrawableBox.getWidth();
 	}
 
 	/**
-	 * @return 颜文字的高
+	 * @return 超文字的高
 	 */
 	public final float getHeight() {
 		return mDrawableBox.getHeight();
@@ -38,6 +42,16 @@ public abstract class HypeSpan {
 	}
 
 	protected abstract void onDraw(Canvas canvas, Paint paint, float x, float y, StateList states, Object tag);
+
+	public final void measure() {
+		onMeasure();
+	}
+
+	protected abstract void onMeasure();
+
+	protected final void setMeasuredSize(float width, float height) {
+		mDrawableBox.resize(width, height);
+	}
 
 	/**
 	 * 设置唯一标识
@@ -57,7 +71,7 @@ public abstract class HypeSpan {
 	}
 
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
-	public Element getDrawableBox() {
+	public final Element getDrawableBox() {
 		return mDrawableBox;
 	}
 }
