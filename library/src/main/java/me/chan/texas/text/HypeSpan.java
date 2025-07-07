@@ -11,6 +11,20 @@ import me.chan.texas.text.layout.StateList;
 
 /**
  * 超文字
+ * <pre><code>
+ * class MyHypeSpan extends HypeSpan {
+ *
+ *    &#64;Override
+ *    protected void onDraw(Canvas canvas, Paint paint, float x, float y, StateList states, Object tag) {
+ * 		canvas.drawText("hello", x, y, paint);
+ *    }
+ *
+ *    &#64;Override
+ *    protected void onMeasure() {
+ * 		setMeasuredSize(10, 20);
+ *    }
+ * }
+ * </code></pre>
  */
 public abstract class HypeSpan {
 	private final DrawableBox mDrawableBox;
