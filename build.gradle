@@ -39,6 +39,9 @@ allprojects {
         }
 
         mavenLocal()
+
+        mavenCentral()
+
         google()
     }
 }
