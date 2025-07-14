@@ -20,6 +20,7 @@ public class TextAttribute {
 	private float mSpaceStretch;
 	private float mSpaceShrink;
 	private float mHyphenHeight;
+	private float mLineHeight;
 
 	public TextAttribute(Measurer measurer) {
 		refresh(measurer);
@@ -29,6 +30,7 @@ public class TextAttribute {
 		Measurer.CharSequenceSpec spec = measurer.measure("-", 0, 1, null, null);
 		mHyphenWidth = spec.getWidth();
 		mHyphenHeight = spec.getHeight();
+		mLineHeight = spec.getHeight();
 
 		Texas.TypesetFactor factor = Texas.getTypesetFactor();
 		mSpaceWidth = (float) Math.ceil(mHyphenWidth * factor.spaceWidthFactor);
@@ -36,6 +38,10 @@ public class TextAttribute {
 		mSpaceShrink = mHyphenWidth * factor.spaceShrinkFactor;
 
 		i(toString());
+	}
+
+	public float getLineHeight() {
+		return mLineHeight;
 	}
 
 	/**

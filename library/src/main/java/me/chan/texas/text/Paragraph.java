@@ -371,6 +371,17 @@ public final class Paragraph extends DefaultRecyclable implements Segment {
 		}
 
 		/**
+		 * 超文本
+		 *
+		 * @param span span
+		 * @return 当前对象
+		 */
+		public Builder hypeSpan(HypeSpan span) {
+			mBuilder0.hypeSpan(span);
+			return this;
+		}
+
+		/**
 		 * 强行断行
 		 *
 		 * @return 当前对象

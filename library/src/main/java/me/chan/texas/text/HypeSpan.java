@@ -66,15 +66,16 @@ public abstract class HypeSpan {
 	protected abstract void onDraw(Canvas canvas, Paint paint, float x, float y, StateList states);
 
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
-	public final void measure() {
-		onMeasure();
+	public final void measure(float lineHeight) {
+		onMeasure(lineHeight);
 	}
 
 	/**
 	 * 开始测量的时候调用，测量完成后调用{@link #setMeasuredSize(float, float)}
 	 * <p>
+	 * @param lineHeight 默认的行高
 	 */
-	protected abstract void onMeasure();
+	protected abstract void onMeasure(float lineHeight);
 
 	/**
 	 * 设置测量后的大小
