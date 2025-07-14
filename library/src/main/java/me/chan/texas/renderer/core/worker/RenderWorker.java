@@ -311,7 +311,7 @@ public class RenderWorker {
 			TextPaint workPaint = mArgs.paintSet.getWorkPaint(mWorkPaint);
 			setupTextStyles(workPaint, box, isSelected, isHighlighted);
 
-			drawContent(box, workPaint, inner, mStates);
+			drawContent(box, workPaint, inner, outer, mStates);
 
 			drawForeground(box, inner, outer, context);
 		}
@@ -353,8 +353,8 @@ public class RenderWorker {
 			}
 		}
 
-		private void drawContent(Box box, TextPaint workPaint, RectF inner, StateList states) {
-			box.draw(mCanvas, workPaint, inner.left, inner.bottom - mLine.getBaselineOffset(), states);
+		private void drawContent(Box box, TextPaint workPaint, RectF inner, RectF outer, StateList states) {
+			box.draw(mCanvas, workPaint, inner, outer, mLine.getBaselineOffset(), states);
 		}
 
 		private void drawBackground(Box box, RectF inner, RectF outer, RendererContext context) {

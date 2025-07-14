@@ -9,6 +9,7 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.annotation.VisibleForTesting;
 
+import me.chan.texas.misc.RectF;
 import me.chan.texas.text.layout.StateList;
 
 /**
@@ -38,7 +39,9 @@ public final class Emoticon extends HypeSpan {
 	}
 
 	@Override
-	protected void onDraw(Canvas canvas, Paint paint, float x, float y, StateList states) {
+	protected void onDraw(Canvas canvas, Paint paint, RectF inner, RectF outer, float baselineOffset, StateList states) {
+		float x = inner.left;
+		float y = inner.bottom - baselineOffset;
 		Drawable drawable = mDrawable;
 		if (mDrawable instanceof StateListDrawable) {
 			StateListDrawable stateListDrawable = (StateListDrawable) mDrawable;

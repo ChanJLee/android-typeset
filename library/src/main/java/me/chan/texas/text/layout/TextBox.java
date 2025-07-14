@@ -15,6 +15,7 @@ import me.chan.texas.annotations.Internal;
 import me.chan.texas.hyphenation.Hyphenation;
 import me.chan.texas.measurer.Measurer;
 import me.chan.texas.misc.ObjectPool;
+import me.chan.texas.misc.RectF;
 import me.chan.texas.text.Appearance;
 import me.chan.texas.text.TextAttribute;
 import me.chan.texas.text.TextStyle;
@@ -219,7 +220,8 @@ public final class TextBox extends Box {
 	}
 
 	@Override
-	public void draw(Canvas canvas, Paint paint, float x, float y, StateList states) {
+	public void draw(Canvas canvas, Paint paint, RectF inner, RectF outer, float baselineOffset, StateList states) {
+		float x = inner.left;
 		if (mAttribute != ATTRIBUTE_NONE) {
 			if (hasAttribute(ATTRIBUTE_ZOOM_OUT)) {
 				paint.setTextSize(paint.getTextSize() * ZOOM_OUT_FACTOR);
@@ -233,7 +235,7 @@ public final class TextBox extends Box {
 		int size = mEnd - mStart;
 		char[] buf = CHAR_ARRAY_POOL.obtain(size);
 		TexasUtils.getChars(mText, mStart, mEnd, buf, 0);
-		canvas.drawTextRun(buf, 0, size, 0, size, x, y, hasAttribute(ATTRIBUTE_RTL), paint);
+		canvas.drawTextRun(buf, 0, size, 0, size, x, inner.bottom - baselineOffset, hasAttribute(ATTRIBUTE_RTL), paint);
 		CHAR_ARRAY_POOL.release(buf);
 	}
 
