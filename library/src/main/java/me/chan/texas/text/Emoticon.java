@@ -54,7 +54,7 @@ public final class Emoticon extends HypeSpan {
 	}
 
 	@Override
-	protected void onMeasure(float lineHeight) {
+	protected void onMeasure(float lineHeight, float baselineOffset) {
 		/* NOOP */
 	}
 
