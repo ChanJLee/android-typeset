@@ -5,6 +5,7 @@ import android.graphics.Paint;
 
 import androidx.annotation.RestrictTo;
 
+import me.chan.texas.misc.RectF;
 import me.chan.texas.text.layout.DrawableBox;
 import me.chan.texas.text.layout.Element;
 import me.chan.texas.text.layout.StateList;
@@ -52,18 +53,19 @@ public abstract class HypeSpan {
 	}
 
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
-	public final void draw(Canvas canvas, Paint paint, float x, float y, StateList states) {
-		onDraw(canvas, paint, x, y, states);
+	public final void draw(Canvas canvas, Paint paint, RectF inner, RectF outer, float baselineOffset, StateList states) {
+		onDraw(canvas, paint, inner, outer, baselineOffset, states);
 	}
 
 	/**
 	 * @param canvas canvas
 	 * @param paint  paint
-	 * @param x      x
-	 * @param y      y
+	 * @param inner	包裹文字的壳子
+	 * @param outer	包括文字间隔的壳子
+	 * @param baselineOffset 文字绘制基准线
 	 * @param states states
 	 */
-	protected abstract void onDraw(Canvas canvas, Paint paint, float x, float y, StateList states);
+	protected abstract void onDraw(Canvas canvas, Paint paint, RectF inner, RectF outer, float baselineOffset, StateList states);
 
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
 	public final void measure(float lineHeight) {

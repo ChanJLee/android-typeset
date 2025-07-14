@@ -12,6 +12,7 @@ import androidx.annotation.VisibleForTesting;
 import me.chan.texas.Texas;
 import me.chan.texas.measurer.Measurer;
 import me.chan.texas.misc.ObjectPool;
+import me.chan.texas.misc.RectF;
 import me.chan.texas.text.HypeSpan;
 import me.chan.texas.text.TextAttribute;
 
@@ -29,8 +30,8 @@ public class DrawableBox extends Box {
 	}
 
 	@Override
-	public void draw(Canvas canvas, Paint paint, float x, float y, StateList states) {
-		mSpan.draw(canvas, paint, x, y, states);
+	public void draw(Canvas canvas, Paint paint, RectF inner, RectF outer, float baselineOffset, StateList states) {
+		mSpan.draw(canvas, paint, inner, outer, baselineOffset, states);
 	}
 
 	@VisibleForTesting

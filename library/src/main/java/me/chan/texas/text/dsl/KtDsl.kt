@@ -19,17 +19,18 @@ internal class HypeSpanDsl(
     private val _para: Paragraph.Builder,
     private val _width: Float,
     private val _height: Float,
-    block: (canvas: Canvas, paint: Paint, x: Float, y: Float, states: StateList) -> Unit
+    block: (canvas: Canvas, paint: Paint, inner: RectF, outer: RectF, baselineOffset: Float, states: StateList) -> Unit
 ) {
     private val _span = object : HypeSpan() {
         override fun onDraw(
             canvas: Canvas,
             paint: Paint,
-            x: Float,
-            y: Float,
+            inner: RectF,
+            outer: RectF,
+            baselineOffset: Float,
             states: StateList
         ) {
-            block(canvas, paint, x, y, states)
+            block(canvas, paint, inner, outer, baselineOffset, states)
         }
 
         override fun onMeasure(lineHeight: Float) {
@@ -106,7 +107,7 @@ class ParaDsl(option: TexasOption, typesetPolicy: Int) {
     }
 
     fun hypeSpan(width: Float, height: Float, tag: Any? = null,
-                 block: (canvas: Canvas, paint: Paint, x: Float, y: Float, states: StateList) -> Unit) {
+                 block: (canvas: Canvas, paint: Paint, inner: RectF, outer: RectF, baselineOffset: Float, states: StateList) -> Unit) {
         val span = HypeSpanDsl(_para, width, height, block)
         span.tag(tag)
         span.build()
