@@ -33,7 +33,7 @@ internal class HypeSpanDsl(
             block(canvas, paint, inner, outer, baselineOffset, states)
         }
 
-        override fun onMeasure(lineHeight: Float) {
+        override fun onMeasure(lineHeight: Float, baselineOffset: Float) {
             setMeasuredSize(_width, _height)
         }
     }

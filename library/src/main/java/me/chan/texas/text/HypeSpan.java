@@ -16,12 +16,12 @@ import me.chan.texas.text.layout.StateList;
  * class MyHypeSpan extends HypeSpan {
  *
  *    &#64;Override
- *    protected void onDraw(Canvas canvas, Paint paint, float x, float y, StateList states) {
- * 		canvas.drawText("hello", x, y, paint);
+ *    protected void onDraw(Canvas canvas, Paint paint, RectF inner, RectF outer, float baselineOffset, StateList states) {
+ * 		canvas.drawText("hello", inner.bottom, inner.bottom - baselineOffset, paint);
  *    }
  *
  *    &#64;Override
- *    protected void onMeasure() {
+ *    protected void onMeasure(float lineHeight, float baselineOffset) {
  * 		setMeasuredSize(10, 20);
  *    }
  * }
@@ -68,8 +68,8 @@ public abstract class HypeSpan {
 	protected abstract void onDraw(Canvas canvas, Paint paint, RectF inner, RectF outer, float baselineOffset, StateList states);
 
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
-	public final void measure(float lineHeight) {
-		onMeasure(lineHeight);
+	public final void measure(float lineHeight, float baselineOffset) {
+		onMeasure(lineHeight, baselineOffset);
 	}
 
 	/**
@@ -77,7 +77,7 @@ public abstract class HypeSpan {
 	 * <p>
 	 * @param lineHeight 默认的行高
 	 */
-	protected abstract void onMeasure(float lineHeight);
+	protected abstract void onMeasure(float lineHeight, float baselineOffset);
 
 	/**
 	 * 设置测量后的大小
