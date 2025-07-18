@@ -18,6 +18,7 @@ import me.chan.texas.misc.Rect;
 import android.graphics.Region;
 import android.graphics.RenderNode;
 import android.graphics.Shader;
+import android.graphics.drawable.Drawable;
 import android.graphics.fonts.Font;
 import android.graphics.text.MeasuredText;
 import android.os.Build;
@@ -646,6 +647,16 @@ public class TexasCanvasImpl implements TexasCanvas {
 	@RequiresApi(api = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
 	public void drawMesh(@NonNull Mesh mesh, @Nullable BlendMode blendMode, @NonNull TexasPaint paint) {
 		getCanvas(false).drawMesh(mesh, blendMode, paint.getPaint());
+	}
+
+	@Override
+	public void draw(Drawable drawable) {
+		drawable.draw(getCanvas(false));
+	}
+
+	@Override
+	public Canvas getCanvas() {
+		return mCanvas;
 	}
 
 	private android.graphics.RectF toRaw(@Nullable RectF rect) {

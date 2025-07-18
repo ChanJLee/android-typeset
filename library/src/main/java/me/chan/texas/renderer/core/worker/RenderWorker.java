@@ -4,13 +4,10 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 
-import me.chan.texas.misc.Rect;
-
 import me.chan.texas.misc.RectF;
 
 import android.os.Looper;
 import android.os.SystemClock;
-import android.text.TextPaint;
 import android.util.Log;
 
 import androidx.annotation.IntRange;
@@ -18,12 +15,15 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 
-import me.chan.texas.compat.TextPaintCompat;
 import me.chan.texas.misc.DefaultRecyclable;
 import me.chan.texas.misc.ObjectPool;
 import me.chan.texas.misc.PaintSet;
 import me.chan.texas.renderer.ParagraphVisitor;
 import me.chan.texas.renderer.RenderOption;
+import me.chan.texas.renderer.core.graphics.TexasCanvas;
+import me.chan.texas.renderer.core.graphics.TexasCanvasImpl;
+import me.chan.texas.renderer.core.graphics.TexasPaint;
+import me.chan.texas.renderer.core.graphics.TexasPaintImpl;
 import me.chan.texas.renderer.core.sync.MsgHandler;
 import me.chan.texas.renderer.selection.ParagraphSelection;
 import me.chan.texas.renderer.selection.Selection;
@@ -52,8 +52,8 @@ public class RenderWorker {
 	private final MsgHandler mMsgHandler;
 
 	private Stats mStats;
-
-	private final TextPaint mWorkPaint = TextPaintCompat.create();
+	private final TexasPaintImpl mTexasPaint = new TexasPaintImpl();
+	private final TexasCanvasImpl mCanvas = new TexasCanvasImpl();
 
 	private final Worker.Task<RenderWorker.Args, Void> mTask = new Worker.Task<Args, Void>() {
 		@Override
@@ -158,38 +158,39 @@ public class RenderWorker {
 		}
 
 		Layout layout = paragraph.getLayout();
-		Canvas canvas = args.renderer.lockCanvas(layout.getWidth(), layout.getHeight());
-		if (canvas == null) {
+		Canvas rawCanvas = args.renderer.lockCanvas(layout.getWidth(), layout.getHeight());
+		if (rawCanvas == null) {
 			return;
 		}
 
 		try {
+			mCanvas.reset(rawCanvas);
 			ParagraphSelection selection = paragraph.getSelection(Selection.Type.SELECTION);
 			if (selection != null) {
-				TextPaint workPaint = args.paintSet.getWorkPaint(mWorkPaint);
-				selection.drawBackground(canvas, workPaint, args.option);
+				mTexasPaint.reset(args.paintSet);
+				selection.drawBackground(mCanvas, mTexasPaint, args.option);
 			}
 
 			selection = paragraph.getSelection(Selection.Type.HIGHLIGHT);
 			if (selection != null) {
-				TextPaint workPaint = args.paintSet.getWorkPaint(mWorkPaint);
-				selection.drawBackground(canvas, workPaint, args.option);
+				mTexasPaint.reset(args.paintSet);
+				selection.drawBackground(mCanvas, mTexasPaint, args.option);
 			}
 
 			// draw content
-			renderContent(canvas, paragraph, args);
+			renderContent(mCanvas, paragraph, args);
 
 			// render decor
-			renderDecor(canvas, paragraph, args);
+			renderDecor(mCanvas, paragraph, args);
 
 			// render debug info
-			renderDebug(taskId, canvas, paragraph, args);
+			renderDebug(taskId, mCanvas, paragraph, args);
 		} finally {
-			args.renderer.unlockCanvasAndPost(canvas);
+			args.renderer.unlockCanvasAndPost(rawCanvas);
 		}
 	}
 
-	private void renderDecor(Canvas canvas, Paragraph paragraph, Args args) {
+	private void renderDecor(TexasCanvas canvas, Paragraph paragraph, Args args) {
 		if (args.decor == null) {
 			return;
 		}
@@ -198,7 +199,7 @@ public class RenderWorker {
 		args.decor.draw(canvas, paragraph, args.width, layout.getHeight());
 	}
 
-	private void renderContent(Canvas canvas, Paragraph paragraph, Args args) {
+	private void renderContent(TexasCanvas canvas, Paragraph paragraph, Args args) {
 		try {
 			mDrawVisitor.setCanvas(canvas);
 			mDrawVisitor.setRenderContext(args);
@@ -210,13 +211,13 @@ public class RenderWorker {
 		}
 	}
 
-	private void renderDebug(int taskId, Canvas canvas, Paragraph paragraph, Args args) {
+	private void renderDebug(int taskId, TexasCanvas canvas, Paragraph paragraph, Args args) {
 		if (!args.option.isDebugEnable()) {
 			return;
 		}
 
 		if (mDebugDrawVisitor == null) {
-			mDebugDrawVisitor = new DebugDrawVisitor(mWorkPaint);
+			mDebugDrawVisitor = new DebugDrawVisitor(mTexasPaint);
 		}
 
 		try {
@@ -231,7 +232,7 @@ public class RenderWorker {
 		}
 	}
 
-	private final DrawVisitor mDrawVisitor = new DrawVisitor(mWorkPaint);
+	private final DrawVisitor mDrawVisitor = new DrawVisitor(mTexasPaint);
 
 	public void cancel(Worker.Token token) {
 		mWorker.cancel(token);
@@ -242,23 +243,23 @@ public class RenderWorker {
 		private static final int STEP_DRAW_CONTENT = 1;
 		private final StateList mStates = new StateList();
 
-		private Canvas mCanvas;
+		private TexasCanvas mCanvas;
 		private Line mLine;
 		private Args mArgs;
 		private boolean mIsInterrupted = false;
 		private int mStep = STEP_DRAW_BACKGROUND;
 
-		private final TextPaint mWorkPaint;
+		private final TexasPaint mWorkPaint;
 
 		private ParagraphSelection mSelection;
 
 		private ParagraphSelection mHighlight;
 
-		public DrawVisitor(TextPaint workPaint) {
+		public DrawVisitor(TexasPaint workPaint) {
 			mWorkPaint = workPaint;
 		}
 
-		void setCanvas(Canvas canvas) {
+		void setCanvas(TexasCanvas canvas) {
 			mCanvas = canvas;
 		}
 
@@ -308,15 +309,15 @@ public class RenderWorker {
 				return;
 			}
 
-			TextPaint workPaint = mArgs.paintSet.getWorkPaint(mWorkPaint);
-			setupTextStyles(workPaint, box, isSelected, isHighlighted);
+			mWorkPaint.reset(mArgs.paintSet);
+			setupTextStyles(mWorkPaint, box, isSelected, isHighlighted);
 
-			drawContent(box, workPaint, inner, outer, mStates);
+			drawContent(box, mWorkPaint, inner, outer, mStates);
 
 			drawForeground(box, inner, outer, context);
 		}
 
-		private void setupTextStyles(TextPaint workPaint, Box box, boolean isSelected, boolean isHighlighted) {
+		private void setupTextStyles(TexasPaint workPaint, Box box, boolean isSelected, boolean isHighlighted) {
 			if (!(box instanceof TextBox)) {
 				return;
 			}
@@ -348,20 +349,20 @@ public class RenderWorker {
 		private void drawForeground(Box box, RectF inner, RectF outer, RendererContext context) {
 			Appearance foreground = box.getForeground();
 			if (foreground != null) {
-				TextPaint workPaint = mArgs.paintSet.getWorkPaint(mWorkPaint);
-				foreground.draw(mCanvas, workPaint, inner, outer, context);
+				mWorkPaint.reset(mArgs.paintSet);
+				foreground.draw(mCanvas, mWorkPaint, inner, outer, context);
 			}
 		}
 
-		private void drawContent(Box box, TextPaint workPaint, RectF inner, RectF outer, StateList states) {
+		private void drawContent(Box box, TexasPaint workPaint, RectF inner, RectF outer, StateList states) {
 			box.draw(mCanvas, workPaint, inner, outer, mLine.getBaselineOffset(), states);
 		}
 
 		private void drawBackground(Box box, RectF inner, RectF outer, RendererContext context) {
 			Appearance background = box.getBackground();
 			if (background != null) {
-				TextPaint workPaint = mArgs.paintSet.getWorkPaint(mWorkPaint);
-				background.draw(mCanvas, workPaint, inner, outer, context);
+				mWorkPaint.reset(mArgs.paintSet);
+				background.draw(mCanvas, mWorkPaint, inner, outer, context);
 			}
 		}
 
@@ -397,7 +398,7 @@ public class RenderWorker {
 
 	private final static class DebugDrawVisitor extends ParagraphVisitor {
 		private final Paint mDebugPaint;
-		private Canvas mCanvas;
+		private TexasCanvas mCanvas;
 		private Args mArgs;
 		private static final int[] BACKGROUND = {
 				0x33ff0000,
@@ -407,9 +408,9 @@ public class RenderWorker {
 
 		private int mTaskId;
 
-		private final TextPaint mWorkPaint;
+		private final TexasPaint mWorkPaint;
 
-		DebugDrawVisitor(TextPaint workerPaint) {
+		DebugDrawVisitor(TexasPaint workerPaint) {
 			super();
 			mDebugPaint = new Paint();
 			mDebugPaint.setColor(Color.GREEN);
@@ -422,7 +423,7 @@ public class RenderWorker {
 			mArgs = args;
 		}
 
-		void setCanvas(Canvas canvas) {
+		void setCanvas(TexasCanvas canvas) {
 			mCanvas = canvas;
 		}
 
@@ -436,24 +437,24 @@ public class RenderWorker {
 
 		@Override
 		protected void onVisitParagraphStart(Paragraph paragraph) {
-			TextPaint workPaint = mArgs.paintSet.getWorkPaint(mWorkPaint);
-			workPaint.set(mDebugPaint);
-			workPaint.setColor(BACKGROUND[paragraph.getId() % BACKGROUND.length]);
-			workPaint.setStyle(Paint.Style.FILL);
+			mWorkPaint.reset(mArgs.paintSet);
+			mWorkPaint.set(mDebugPaint);
+			mWorkPaint.setColor(BACKGROUND[paragraph.getId() % BACKGROUND.length]);
+			mWorkPaint.setStyle(Paint.Style.FILL);
 			Layout layout = paragraph.getLayout();
-			mCanvas.drawRect(0, 0, mArgs.width, layout.getHeight(), workPaint);
+			mCanvas.drawRect(0, 0, mArgs.width, layout.getHeight(), mWorkPaint);
 
-			workPaint.setColor(Color.BLACK);
-			mCanvas.drawText("task id: " + mTaskId + " " + layout.getAlgorithm(), 0, 40, workPaint);
+			mWorkPaint.setColor(Color.BLACK);
+			mCanvas.drawText("task id: " + mTaskId + " " + layout.getAlgorithm(), 0, 40, mWorkPaint);
 		}
 
 		@Override
 		public void onVisitParagraphEnd(Paragraph paragraph) {
-			TextPaint workPaint = mArgs.paintSet.getWorkPaint(mWorkPaint);
-			workPaint.setStyle(Paint.Style.STROKE);
-			workPaint.set(mDebugPaint);
-			workPaint.setColor(Color.RED);
-			workPaint.setStrokeWidth(10);
+			mWorkPaint.reset(mArgs.paintSet);
+			mWorkPaint.setStyle(Paint.Style.STROKE);
+			mWorkPaint.set(mDebugPaint);
+			mWorkPaint.setColor(Color.RED);
+			mWorkPaint.setStrokeWidth(10);
 			int x = mArgs.width - 100;
 			ParagraphSelection selection = paragraph.getSelection(Selection.Type.SELECTION);
 			if (selection == null || selection.isEmpty()) {
@@ -466,7 +467,7 @@ public class RenderWorker {
 					first != null ? first.top : -1,
 					x,
 					last != null ? last.bottom : -1,
-					workPaint);
+					mWorkPaint);
 		}
 
 		@Override
@@ -484,15 +485,15 @@ public class RenderWorker {
 			mDebugPaint.getTextBounds(debugInfo, 0, debugInfo.length(), rect);
 			mDebugPaint.setColor(Color.BLUE);
 			rect.offset((int) startX, (int) startY);
-			mCanvas.drawRect(rect, mDebugPaint);
+			mCanvas.getCanvas().drawRect(rect, mDebugPaint);
 			mDebugPaint.setColor(Color.RED);
-			mCanvas.drawText(debugInfo, startX, startY, mDebugPaint);
+			mCanvas.getCanvas().drawText(debugInfo, startX, startY, mDebugPaint);
 		}
 
 		@Override
 		public void onVisitBox(Box box, RectF inner, RectF outer, @NonNull RendererContext context) {
 			mDebugPaint.setColor(Color.GREEN);
-			mCanvas.drawRect(inner.left, inner.top, inner.right, inner.bottom, mDebugPaint);
+			mCanvas.getCanvas().drawRect(inner.left, inner.top, inner.right, inner.bottom, mDebugPaint);
 		}
 	}
 

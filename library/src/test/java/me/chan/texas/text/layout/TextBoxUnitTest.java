@@ -1,14 +1,13 @@
 package me.chan.texas.text.layout;
 
-import android.graphics.Canvas;
-import android.graphics.Paint;
 import me.chan.texas.misc.RectF;
-import android.text.TextPaint;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import me.chan.texas.TestUtils;
+import me.chan.texas.renderer.core.graphics.TexasCanvas;
+import me.chan.texas.renderer.core.graphics.TexasPaint;
 import me.chan.texas.test.mock.MockTextPaint;
 
 import me.chan.texas.measurer.Measurer;
@@ -42,20 +41,20 @@ public class TextBoxUnitTest {
 
 		mBg = new Appearance() {
 			@Override
-			public void draw(Canvas canvas, Paint textPaint, RectF inner, RectF outer, RendererContext context) {
+			public void draw(TexasCanvas canvas, TexasPaint textPaint, RectF inner, RectF outer, RendererContext context) {
 
 			}
 		};
 		mFg = new Appearance() {
 			@Override
-			public void draw(Canvas canvas, Paint textPaint, RectF inner, RectF outer, RendererContext context) {
+			public void draw(TexasCanvas canvas, TexasPaint textPaint, RectF inner, RectF outer, RendererContext context) {
 
 			}
 		};
 		mTag = "hello";
 		mTextStyle = new TextStyle() {
 			@Override
-			public void update(@NonNull TextPaint textPaint, @Nullable Object tag) {
+			public void update(@NonNull TexasPaint textPaint, @Nullable Object tag) {
 
 			}
 		};
@@ -109,19 +108,19 @@ public class TextBoxUnitTest {
 		// test obtain after recycle
 		Appearance bg = new Appearance() {
 			@Override
-			public void draw(Canvas canvas, Paint textPaint, RectF inner, RectF outer, RendererContext context) {
+			public void draw(TexasCanvas canvas, TexasPaint textPaint, RectF inner, RectF outer, RendererContext context) {
 
 			}
 		};
 		Appearance fg = new Appearance() {
 			@Override
-			public void draw(Canvas canvas, Paint textPaint, RectF inner, RectF outer, RendererContext context) {
+			public void draw(TexasCanvas canvas, TexasPaint textPaint, RectF inner, RectF outer, RendererContext context) {
 
 			}
 		};
 		TextStyle textStyle = new TextStyle() {
 			@Override
-			public void update(@NonNull TextPaint textPaint, @Nullable Object tag) {
+			public void update(@NonNull TexasPaint textPaint, @Nullable Object tag) {
 
 			}
 		};
@@ -354,19 +353,19 @@ public class TextBoxUnitTest {
 		// test obtain after recycle
 		Appearance bg = new Appearance() {
 			@Override
-			public void draw(Canvas canvas, Paint textPaint, RectF inner, RectF outer, RendererContext context) {
+			public void draw(TexasCanvas canvas, TexasPaint textPaint, RectF inner, RectF outer, RendererContext context) {
 
 			}
 		};
 		Appearance fg = new Appearance() {
 			@Override
-			public void draw(Canvas canvas, Paint textPaint, RectF inner, RectF outer, RendererContext context) {
+			public void draw(TexasCanvas canvas, TexasPaint textPaint, RectF inner, RectF outer, RendererContext context) {
 
 			}
 		};
 		TextStyle textStyle = new TextStyle() {
 			@Override
-			public void update(@NonNull TextPaint textPaint, @Nullable Object tag) {
+			public void update(@NonNull TexasPaint textPaint, @Nullable Object tag) {
 
 			}
 		};

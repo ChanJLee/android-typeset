@@ -12,6 +12,7 @@ import androidx.annotation.Nullable;
 
 import me.chan.texas.Texas;
 import me.chan.texas.measurer.MockMeasurer;
+import me.chan.texas.renderer.core.graphics.TexasPaint;
 import me.chan.texas.text.RectGround;
 import me.chan.texas.text.Document;
 import me.chan.texas.text.Segment;
@@ -100,7 +101,7 @@ public class DataUnitTest {
 
 		TextStyle textStyle = new TextStyle() {
 			@Override
-			public void update(@NonNull TextPaint textPaint, @Nullable Object tag) {
+			public void update(@NonNull TexasPaint textPaint, @Nullable Object tag) {
 
 			}
 		};
@@ -132,7 +133,7 @@ public class DataUnitTest {
 		mTextAttribute.refresh(mMockMeasurer);
 		TextStyle textStyle1 = new TextStyle() {
 			@Override
-			public void update(@NonNull TextPaint textPaint, @Nullable Object tag) {
+			public void update(@NonNull TexasPaint textPaint, @Nullable Object tag) {
 
 			}
 		};
@@ -149,7 +150,7 @@ public class DataUnitTest {
 		Assert.assertFalse("check flag", penalty.isFlag());
 		Assert.assertNotSame(penalty, Penalty.obtain(10, true, "fuck2", new TextStyle() {
 			@Override
-			public void update(@NonNull TextPaint textPaint, @Nullable Object tag) {
+			public void update(@NonNull TexasPaint textPaint, @Nullable Object tag) {
 
 			}
 		}, mMockMeasurer, mTextAttribute));

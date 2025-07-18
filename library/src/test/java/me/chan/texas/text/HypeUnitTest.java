@@ -8,6 +8,8 @@ import org.junit.Test;
 
 import me.chan.texas.misc.RectF;
 import me.chan.texas.renderer.RendererContext;
+import me.chan.texas.renderer.core.graphics.TexasCanvas;
+import me.chan.texas.renderer.core.graphics.TexasPaint;
 import me.chan.texas.test.mock.MockTextPaint;
 import me.chan.texas.text.layout.DrawableBox;
 import me.chan.texas.text.layout.StateList;
@@ -18,13 +20,13 @@ public class HypeUnitTest {
 	public void test() {
 		Appearance bg = new Appearance() {
 			@Override
-			public void draw(Canvas canvas, Paint paint, RectF inner, RectF outer, RendererContext context) {
+			public void draw(TexasCanvas canvas, TexasPaint paint, RectF inner, RectF outer, RendererContext context) {
 
 			}
 		};
 		Appearance fg = new Appearance() {
 			@Override
-			public void draw(Canvas canvas, Paint paint, RectF inner, RectF outer, RendererContext context) {
+			public void draw(TexasCanvas canvas, TexasPaint paint, RectF inner, RectF outer, RendererContext context) {
 
 			}
 		};
@@ -47,7 +49,7 @@ public class HypeUnitTest {
 class MyHypeSpan extends HypeSpan {
 
 	@Override
-	protected void onDraw(Canvas canvas, Paint paint, RectF inner, RectF outer, float baselineOffset, StateList states) {
+	protected void onDraw(TexasCanvas canvas, TexasPaint paint, RectF inner, RectF outer, float baselineOffset, StateList states) {
 		canvas.drawText("hello", inner.left, inner.bottom - baselineOffset, paint);
 	}
 

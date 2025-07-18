@@ -6,7 +6,6 @@ import android.graphics.MaskFilter;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.PathEffect;
-import android.graphics.Rect;
 import android.graphics.Shader;
 import android.graphics.Typeface;
 import android.graphics.Xfermode;
@@ -22,6 +21,8 @@ import androidx.annotation.RestrictTo;
 import java.util.Locale;
 
 import me.chan.texas.misc.PaintSet;
+import me.chan.texas.misc.RectF;
+import me.chan.texas.misc.Rect;
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class TexasPaintImpl implements TexasPaint {
@@ -29,7 +30,10 @@ public class TexasPaintImpl implements TexasPaint {
 	@NonNull
 	private PaintSet mPaintSet;
 	private final TextPaint mWorkPaint = new TextPaint();
+	private android.graphics.RectF mRawRectF;
+	private android.graphics.Rect mRawRect;
 
+	@Override
 	public final void reset(@NonNull PaintSet paintSet) {
 		mPaintSet = paintSet;
 		mPaint = paintSet.getPaint();
@@ -677,18 +681,18 @@ public class TexasPaintImpl implements TexasPaint {
 
 	@Override
 	public void getTextBounds(String text, int start, int end, Rect bounds) {
-		getPaint(true).getTextBounds(text, start, end, bounds);
+		getPaint(true).getTextBounds(text, start, end, toRaw(bounds));
 	}
 
 	@RequiresApi(api = Build.VERSION_CODES.Q)
 	@Override
 	public void getTextBounds(@NonNull CharSequence text, int start, int end, @NonNull Rect bounds) {
-		getPaint(true).getTextBounds(text, start, end, bounds);
+		getPaint(true).getTextBounds(text, start, end, toRaw(bounds));
 	}
 
 	@Override
 	public void getTextBounds(char[] text, int index, int count, Rect bounds) {
-		getPaint(true).getTextBounds(text, index, count, bounds);
+		getPaint(true).getTextBounds(text, index, count, toRaw(bounds));
 	}
 
 	@Override
@@ -737,5 +741,36 @@ public class TexasPaintImpl implements TexasPaint {
 	@Override
 	public Paint getPaint() {
 		return getPaint(true);
+	}
+
+	@Override
+	public void set(Paint paint) {
+		getPaint(false).set(paint);
+	}
+
+	private android.graphics.RectF toRaw(@Nullable RectF rect) {
+		if (rect == null) {
+			return null;
+		}
+
+		if (mRawRectF == null) {
+			mRawRectF = new android.graphics.RectF();
+		}
+
+		mRawRectF.set(rect.left, rect.top, rect.right, rect.bottom);
+		return mRawRectF;
+	}
+
+	private android.graphics.Rect toRaw(@Nullable me.chan.texas.misc.Rect rect) {
+		if (rect == null) {
+			return null;
+		}
+
+		if (mRawRect == null) {
+			mRawRect = new android.graphics.Rect();
+		}
+
+		mRawRect.set(rect.left, rect.top, rect.right, rect.bottom);
+		return mRawRect;
 	}
 }

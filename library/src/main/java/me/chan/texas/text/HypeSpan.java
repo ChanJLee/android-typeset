@@ -1,11 +1,10 @@
 package me.chan.texas.text;
 
-import android.graphics.Canvas;
-import android.graphics.Paint;
-
 import androidx.annotation.RestrictTo;
 
 import me.chan.texas.misc.RectF;
+import me.chan.texas.renderer.core.graphics.TexasCanvas;
+import me.chan.texas.renderer.core.graphics.TexasPaint;
 import me.chan.texas.text.layout.DrawableBox;
 import me.chan.texas.text.layout.Element;
 import me.chan.texas.text.layout.StateList;
@@ -16,7 +15,7 @@ import me.chan.texas.text.layout.StateList;
  * class MyHypeSpan extends HypeSpan {
  *
  *    &#64;Override
- *    protected void onDraw(Canvas canvas, Paint paint, RectF inner, RectF outer, float baselineOffset, StateList states) {
+ *    protected void onDraw(TexasCanvas canvas, TexasPaint paint, RectF inner, RectF outer, float baselineOffset, StateList states) {
  * 		canvas.drawText("hello", inner.bottom, inner.bottom - baselineOffset, paint);
  *    }
  *
@@ -53,19 +52,19 @@ public abstract class HypeSpan implements Measurable {
 	}
 
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
-	public final void draw(Canvas canvas, Paint paint, RectF inner, RectF outer, float baselineOffset, StateList states) {
+	public final void draw(TexasCanvas canvas, TexasPaint paint, RectF inner, RectF outer, float baselineOffset, StateList states) {
 		onDraw(canvas, paint, inner, outer, baselineOffset, states);
 	}
 
 	/**
-	 * @param canvas canvas
-	 * @param paint  paint
-	 * @param inner	包裹文字的壳子
-	 * @param outer	包括文字间隔的壳子
+	 * @param canvas         canvas
+	 * @param paint          paint
+	 * @param inner          包裹文字的壳子
+	 * @param outer          包括文字间隔的壳子
 	 * @param baselineOffset 文字绘制基准线
-	 * @param states states
+	 * @param states         states
 	 */
-	protected abstract void onDraw(Canvas canvas, Paint paint, RectF inner, RectF outer, float baselineOffset, StateList states);
+	protected abstract void onDraw(TexasCanvas canvas, TexasPaint paint, RectF inner, RectF outer, float baselineOffset, StateList states);
 
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
 	public final void measure(float lineHeight, float baselineOffset) {
@@ -75,6 +74,7 @@ public abstract class HypeSpan implements Measurable {
 	/**
 	 * 开始测量的时候调用，测量完成后调用{@link #setMeasuredSize(float, float)}
 	 * <p>
+	 *
 	 * @param lineHeight 默认的行高
 	 */
 	protected abstract void onMeasure(float lineHeight, float baselineOffset);
