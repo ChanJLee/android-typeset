@@ -162,19 +162,16 @@ public class TexasCanvasImpl implements TexasCanvas {
 
 	@Override
 	public void translate(float dx, float dy) {
-
 		mCanvas.translate(dx, dy);
 	}
 
 	@Override
 	public void scale(float sx, float sy) {
-
 		mCanvas.scale(sx, sy);
 	}
 
 	@Override
 	public void scale(float sx, float sy, float px, float py) {
-
 		mCanvas.scale(sx, sy, px, py);
 	}
 
@@ -224,7 +221,6 @@ public class TexasCanvasImpl implements TexasCanvas {
 
 	@Override
 	public boolean clipRect(@NonNull RectF rect, @NonNull Region.Op op) {
-
 		return mCanvas.clipRect(toRaw(rect), op);
 	}
 
