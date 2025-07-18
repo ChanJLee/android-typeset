@@ -11,8 +11,10 @@ import android.graphics.NinePatch;
 import android.graphics.Path;
 import android.graphics.Picture;
 import android.graphics.PorterDuff;
-import android.graphics.Rect;
-import android.graphics.RectF;
+
+import me.chan.texas.misc.RectF;
+import me.chan.texas.misc.Rect;
+
 import android.graphics.Region;
 import android.graphics.RenderNode;
 import android.graphics.Shader;
@@ -28,6 +30,8 @@ import androidx.annotation.RestrictTo;
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class TexasCanvasImpl implements TexasCanvas {
 	private Canvas mCanvas;
+	private android.graphics.RectF mRawRectF;
+	private android.graphics.Rect mRawRect;
 
 	public void reset(Canvas canvas) {
 		mCanvas = canvas;
@@ -97,12 +101,12 @@ public class TexasCanvasImpl implements TexasCanvas {
 
 	@Override
 	public int saveLayer(@Nullable RectF bounds, @Nullable TexasPaint paint, int saveFlags) {
-		return mCanvas.saveLayer(bounds, paint != null ? paint.getPaint() : null, saveFlags);
+		return mCanvas.saveLayer(toRaw(bounds), paint != null ? paint.getPaint() : null, saveFlags);
 	}
 
 	@Override
 	public int saveLayer(@Nullable RectF bounds, @Nullable TexasPaint paint) {
-		return mCanvas.saveLayer(bounds, paint != null ? paint.getPaint() : null);
+		return mCanvas.saveLayer(toRaw(bounds), paint != null ? paint.getPaint() : null);
 	}
 
 	@Override
@@ -117,12 +121,12 @@ public class TexasCanvasImpl implements TexasCanvas {
 
 	@Override
 	public int saveLayerAlpha(@Nullable RectF bounds, int alpha, int saveFlags) {
-		return mCanvas.saveLayerAlpha(bounds, alpha, saveFlags);
+		return mCanvas.saveLayerAlpha(toRaw(bounds), alpha, saveFlags);
 	}
 
 	@Override
 	public int saveLayerAlpha(@Nullable RectF bounds, int alpha) {
-		return mCanvas.saveLayerAlpha(bounds, alpha);
+		return mCanvas.saveLayerAlpha(toRaw(bounds), alpha);
 	}
 
 	@Override
@@ -342,13 +346,14 @@ public class TexasCanvasImpl implements TexasCanvas {
 
 	@Override
 	public boolean getClipBounds(@NonNull Rect bounds) {
-		return mCanvas.getClipBounds(bounds);
+		return mCanvas.getClipBounds(toRaw(bounds));
 	}
 
 	@NonNull
 	@Override
 	public Rect getClipBounds() {
-		return mCanvas.getClipBounds();
+		android.graphics.Rect rect = mCanvas.getClipBounds();
+		return new Rect(rect.left, rect.top, rect.right, rect.bottom);
 	}
 
 	@Override
@@ -630,5 +635,31 @@ public class TexasCanvasImpl implements TexasCanvas {
 	@RequiresApi(api = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
 	public void drawMesh(@NonNull Mesh mesh, @Nullable BlendMode blendMode, @NonNull TexasPaint paint) {
 		mCanvas.drawMesh(mesh, blendMode, paint.getPaint());
+	}
+
+	private android.graphics.RectF toRaw(@Nullable RectF rect) {
+		if (rect == null) {
+			return null;
+		}
+
+		if (mRawRectF == null) {
+			mRawRectF = new android.graphics.RectF();
+		}
+
+		mRawRectF.set(rect.left, rect.top, rect.right, rect.bottom);
+		return mRawRectF;
+	}
+
+	private android.graphics.Rect toRaw(@Nullable Rect rect) {
+		if (rect == null) {
+			return null;
+		}
+
+		if (mRawRect == null) {
+			mRawRect = new android.graphics.Rect();
+		}
+
+		mRawRect.set(rect.left, rect.top, rect.right, rect.bottom);
+		return mRawRect;
 	}
 }

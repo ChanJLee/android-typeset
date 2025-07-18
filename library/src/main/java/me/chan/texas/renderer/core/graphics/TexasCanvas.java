@@ -11,8 +11,10 @@ import android.graphics.NinePatch;
 import android.graphics.Path;
 import android.graphics.Picture;
 import android.graphics.PorterDuff;
-import android.graphics.Rect;
-import android.graphics.RectF;
+
+import me.chan.texas.misc.RectF;
+import me.chan.texas.misc.Rect;
+
 import android.graphics.Region;
 import android.graphics.RenderNode;
 import android.graphics.Shader;
