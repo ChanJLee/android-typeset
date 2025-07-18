@@ -38,7 +38,7 @@ public class HypeUnitTest {
 		Assert.assertSame(bg, box.getBackground());
 		Assert.assertSame(fg, box.getForeground());
 		Assert.assertSame(fg, box.getTag());
-		myHypeSpan.measure();
+		myHypeSpan.measure(1, 1);
 		Assert.assertEquals(10, box.getWidth(), 0);
 		Assert.assertEquals(20, box.getHeight(), 0);
 	}
@@ -47,12 +47,12 @@ public class HypeUnitTest {
 class MyHypeSpan extends HypeSpan {
 
 	@Override
-	protected void onDraw(Canvas canvas, Paint paint, float x, float y, StateList states) {
-		canvas.drawText("hello", x, y, paint);
+	protected void onDraw(Canvas canvas, Paint paint, RectF inner, RectF outer, float baselineOffset, StateList states) {
+		canvas.drawText("hello", inner.left, inner.bottom - baselineOffset, paint);
 	}
 
 	@Override
-	protected void onMeasure() {
+	protected void onMeasure(float lineHeight, float baselineOffset) {
 		setMeasuredSize(10, 20);
 	}
 }
