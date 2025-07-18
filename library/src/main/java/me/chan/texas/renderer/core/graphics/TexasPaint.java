@@ -280,4 +280,6 @@ public interface TexasPaint {
 	int getOffsetForAdvance(CharSequence text, int start, int end, int contextStart, int contextEnd, boolean isRtl, float advance);
 
 	boolean equalsForTextMeasurement(@NonNull Paint other);
+
+	Paint getPaint();
 }
