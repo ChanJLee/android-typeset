@@ -107,52 +107,52 @@ public class TexasCanvasImpl implements TexasCanvas {
 
 	@Override
 	public int save() {
-		return getCanvas(true).save();
+		return getCanvas(false).save();
 	}
 
 	@Override
 	public int saveLayer(@Nullable RectF bounds, @Nullable TexasPaint paint, int saveFlags) {
-		return getCanvas(true).saveLayer(toRaw(bounds), paint != null ? paint.getPaint() : null, saveFlags);
+		return getCanvas(false).saveLayer(toRaw(bounds), paint != null ? paint.getPaint() : null, saveFlags);
 	}
 
 	@Override
 	public int saveLayer(@Nullable RectF bounds, @Nullable TexasPaint paint) {
-		return getCanvas(true).saveLayer(toRaw(bounds), paint != null ? paint.getPaint() : null);
+		return getCanvas(false).saveLayer(toRaw(bounds), paint != null ? paint.getPaint() : null);
 	}
 
 	@Override
 	public int saveLayer(float left, float top, float right, float bottom, @Nullable TexasPaint paint, int saveFlags) {
-		return getCanvas(true).saveLayer(left, top, right, bottom, paint != null ? paint.getPaint() : null, saveFlags);
+		return getCanvas(false).saveLayer(left, top, right, bottom, paint != null ? paint.getPaint() : null, saveFlags);
 	}
 
 	@Override
 	public int saveLayer(float left, float top, float right, float bottom, @Nullable TexasPaint paint) {
-		return getCanvas(true).saveLayer(left, top, right, bottom, paint != null ? paint.getPaint() : null);
+		return getCanvas(false).saveLayer(left, top, right, bottom, paint != null ? paint.getPaint() : null);
 	}
 
 	@Override
 	public int saveLayerAlpha(@Nullable RectF bounds, int alpha, int saveFlags) {
-		return getCanvas(true).saveLayerAlpha(toRaw(bounds), alpha, saveFlags);
+		return getCanvas(false).saveLayerAlpha(toRaw(bounds), alpha, saveFlags);
 	}
 
 	@Override
 	public int saveLayerAlpha(@Nullable RectF bounds, int alpha) {
-		return getCanvas(true).saveLayerAlpha(toRaw(bounds), alpha);
+		return getCanvas(false).saveLayerAlpha(toRaw(bounds), alpha);
 	}
 
 	@Override
 	public int saveLayerAlpha(float left, float top, float right, float bottom, int alpha, int saveFlags) {
-		return getCanvas(true).saveLayerAlpha(left, top, right, bottom, alpha, saveFlags);
+		return getCanvas(false).saveLayerAlpha(left, top, right, bottom, alpha, saveFlags);
 	}
 
 	@Override
 	public int saveLayerAlpha(float left, float top, float right, float bottom, int alpha) {
-		return getCanvas(true).saveLayerAlpha(left, top, right, bottom, alpha);
+		return getCanvas(false).saveLayerAlpha(left, top, right, bottom, alpha);
 	}
 
 	@Override
 	public void restore() {
-		getCanvas(true).restore();
+		getCanvas(false).restore();
 	}
 
 	@Override
@@ -162,7 +162,7 @@ public class TexasCanvasImpl implements TexasCanvas {
 
 	@Override
 	public void restoreToCount(int saveCount) {
-		getCanvas(true).restoreToCount(saveCount);
+		getCanvas(false).restoreToCount(saveCount);
 	}
 
 	@Override
