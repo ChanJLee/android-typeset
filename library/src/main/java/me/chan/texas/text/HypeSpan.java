@@ -27,7 +27,7 @@ import me.chan.texas.text.layout.StateList;
  * }
  * </code></pre>
  */
-public abstract class HypeSpan {
+public abstract class HypeSpan implements Measurable {
 	private final DrawableBox mDrawableBox;
 
 	public HypeSpan() {
@@ -85,7 +85,7 @@ public abstract class HypeSpan {
 	 * @param width  宽度
 	 * @param height 高度
 	 */
-	protected final void setMeasuredSize(float width, float height) {
+	public final void setMeasuredSize(float width, float height) {
 		mDrawableBox.resize(width, height);
 	}
 
