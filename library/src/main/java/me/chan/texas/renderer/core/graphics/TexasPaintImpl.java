@@ -49,7 +49,7 @@ public class TexasPaintImpl implements TexasPaint {
 		}
 
 		if (mPaint != mWorkPaint) {
-			mPaintSet.getWorkPaint(mWorkPaint);
+			mPaintSet.copyTo(mWorkPaint);
 			mPaint = mWorkPaint;
 		}
 		return mPaint;
