@@ -79,10 +79,9 @@ public class BoxUnitTest {
 		}
 
 		@Override
-		public void draw(Canvas canvas, Paint paint, float x, float y, StateList states) {
+		public void draw(Canvas canvas, Paint paint, RectF inner, RectF outer, float baselineOffset, StateList states) {
 
 		}
-
 
 		@Override
 		public void measure(Measurer measurer, TextAttribute textAttribute) {
