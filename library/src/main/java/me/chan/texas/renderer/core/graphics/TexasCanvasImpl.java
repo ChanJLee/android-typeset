@@ -43,18 +43,16 @@ public class TexasCanvasImpl implements TexasCanvas {
 		mCanvas.setBitmap(bitmap);
 	}
 
+	@RequiresApi(api = Build.VERSION_CODES.Q)
 	@Override
 	public void enableZ() {
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-			mCanvas.enableZ();
-		}
+		mCanvas.enableZ();
 	}
 
+	@RequiresApi(api = Build.VERSION_CODES.Q)
 	@Override
 	public void disableZ() {
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-			mCanvas.disableZ();
-		}
+		mCanvas.disableZ();
 	}
 
 	@Override
@@ -226,12 +224,10 @@ public class TexasCanvasImpl implements TexasCanvas {
 		return mCanvas.clipRect(rect);
 	}
 
+	@RequiresApi(api = Build.VERSION_CODES.O)
 	@Override
 	public boolean clipOutRect(@NonNull RectF rect) {
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-			return mCanvas.clipOutRect(rect);
-		}
-		return false;
+		return mCanvas.clipOutRect(rect);
 	}
 
 	@Override
@@ -239,12 +235,10 @@ public class TexasCanvasImpl implements TexasCanvas {
 		return mCanvas.clipRect(rect);
 	}
 
+	@RequiresApi(api = Build.VERSION_CODES.O)
 	@Override
 	public boolean clipOutRect(@NonNull Rect rect) {
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-			return mCanvas.clipOutRect(rect);
-		}
-		return false;
+		return mCanvas.clipOutRect(rect);
 	}
 
 	@Override
@@ -257,12 +251,10 @@ public class TexasCanvasImpl implements TexasCanvas {
 		return mCanvas.clipRect(left, top, right, bottom);
 	}
 
+	@RequiresApi(api = Build.VERSION_CODES.O)
 	@Override
 	public boolean clipOutRect(float left, float top, float right, float bottom) {
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-			return mCanvas.clipOutRect(left, top, right, bottom);
-		}
-		return false;
+		return mCanvas.clipOutRect(left, top, right, bottom);
 	}
 
 	@Override
@@ -270,12 +262,10 @@ public class TexasCanvasImpl implements TexasCanvas {
 		return mCanvas.clipRect(left, top, right, bottom);
 	}
 
+	@RequiresApi(api = Build.VERSION_CODES.O)
 	@Override
 	public boolean clipOutRect(int left, int top, int right, int bottom) {
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-			return mCanvas.clipOutRect(left, top, right, bottom);
-		}
-		return false;
+		return mCanvas.clipOutRect(left, top, right, bottom);
 	}
 
 	@Override
@@ -288,12 +278,10 @@ public class TexasCanvasImpl implements TexasCanvas {
 		return mCanvas.clipPath(path);
 	}
 
+	@RequiresApi(api = Build.VERSION_CODES.O)
 	@Override
 	public boolean clipOutPath(@NonNull Path path) {
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-			return mCanvas.clipOutPath(path);
-		}
-		return false;
+		return mCanvas.clipOutPath(path);
 	}
 
 	@RequiresApi(api = Build.VERSION_CODES.VANILLA_ICE_CREAM)
