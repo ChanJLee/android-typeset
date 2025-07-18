@@ -11,14 +11,14 @@ import me.chan.texas.renderer.ui.text.ParagraphView.ParagraphSource
 import me.chan.texas.text.Appearance
 import me.chan.texas.text.Document
 import me.chan.texas.text.HypeSpan
+import me.chan.texas.text.Measurable
 import me.chan.texas.text.Paragraph
 import me.chan.texas.text.TextStyle
 import me.chan.texas.text.layout.StateList
 
 internal class HypeSpanDsl(
     private val _para: Paragraph.Builder,
-    private val _width: Float,
-    private val _height: Float,
+    private val _onMeasure: (measurable: Measurable, lineHeight: Float, baselineOffset: Float) -> Unit,
     block: (canvas: Canvas, paint: Paint, inner: RectF, outer: RectF, baselineOffset: Float, states: StateList) -> Unit
 ) {
     private val _span = object : HypeSpan() {
@@ -34,7 +34,7 @@ internal class HypeSpanDsl(
         }
 
         override fun onMeasure(lineHeight: Float, baselineOffset: Float) {
-            setMeasuredSize(_width, _height)
+            _onMeasure(this, lineHeight, baselineOffset)
         }
     }
 
@@ -82,7 +82,7 @@ class SpanDsl(private val _span: Paragraph.SpanBuilder) {
                 inner: RectF,
                 outer: RectF,
                 context: RendererContext
-            )   {
+            ) {
                 block(canvas, paint, inner, outer, context)
             }
         })
@@ -93,11 +93,30 @@ class SpanDsl(private val _span: Paragraph.SpanBuilder) {
     }
 }
 
+interface Size {
+
+    companion object : Size {}
+}
+
+fun Size.fixed(
+    width: Float,
+    height: Float
+): (measurable: Measurable, lineHeight: Float, baselineOffset: Float) -> Unit {
+    return { measureable, lineHeight, baselineOffset ->
+        measureable.setMeasuredSize(width, height)
+    }
+}
+
 class ParaDsl(option: TexasOption, typesetPolicy: Int) {
     private val _para = Paragraph.Builder.newBuilder(option)
         .setTypesetPolicy(typesetPolicy)
 
-    fun span(text: CharSequence, start: Int = 0, end: Int = text.length, block: (SpanDsl.() -> Unit)? = null) {
+    fun span(
+        text: CharSequence,
+        start: Int = 0,
+        end: Int = text.length,
+        block: (SpanDsl.() -> Unit)? = null
+    ) {
         val span = SpanDsl(
             _para.newSpanBuilder()
                 .next(text, start, end)
@@ -106,9 +125,20 @@ class ParaDsl(option: TexasOption, typesetPolicy: Int) {
         span.build()
     }
 
-    fun hypeSpan(width: Float, height: Float, tag: Any? = null,
-                 block: (canvas: Canvas, paint: Paint, inner: RectF, outer: RectF, baselineOffset: Float, states: StateList) -> Unit) {
-        val span = HypeSpanDsl(_para, width, height, block)
+    fun hypeSpan(
+        width: Float,
+        height: Float,
+        block: (canvas: Canvas, paint: Paint, inner: RectF, outer: RectF, baselineOffset: Float, states: StateList) -> Unit
+    ) {
+        hypeSpan(onMeasure = Size.fixed(width, height), block = block)
+    }
+
+    fun hypeSpan(
+        tag: Any? = null,
+        onMeasure: (measurable: Measurable, lineHeight: Float, baselineOffset: Float) -> Unit,
+        block: (canvas: Canvas, paint: Paint, inner: RectF, outer: RectF, baselineOffset: Float, states: StateList) -> Unit
+    ) {
+        val span = HypeSpanDsl(_para, onMeasure, block)
         span.tag(tag)
         span.build()
     }
@@ -126,20 +156,31 @@ class DocumentDsl(private val _option: TexasOption, private val _prevDoc: Docume
         return _document.build()
     }
 
-    fun para(typesetPolicy: Int = Paragraph.TYPESET_POLICY_ACCEPT_CONTROL_CHAR, block: ParaDsl.() -> Unit) {
+    fun para(
+        typesetPolicy: Int = Paragraph.TYPESET_POLICY_ACCEPT_CONTROL_CHAR,
+        block: ParaDsl.() -> Unit
+    ) {
         val para = ParaDsl(_option, typesetPolicy)
         para.block()
         _document.addSegment(para.build())
     }
 }
 
-fun DocumentSource.document(option: TexasOption, prevDoc: Document?, block: DocumentDsl.() -> Unit): Document {
+fun DocumentSource.document(
+    option: TexasOption,
+    prevDoc: Document?,
+    block: DocumentDsl.() -> Unit
+): Document {
     val doc = DocumentDsl(option, prevDoc)
     doc.block()
     return doc.build()
 }
 
-fun ParagraphSource.para(option: TexasOption, typesetPolicy: Int = Paragraph.TYPESET_POLICY_ACCEPT_CONTROL_CHAR, block: ParaDsl.() -> Unit): Paragraph {
+fun ParagraphSource.para(
+    option: TexasOption,
+    typesetPolicy: Int = Paragraph.TYPESET_POLICY_ACCEPT_CONTROL_CHAR,
+    block: ParaDsl.() -> Unit
+): Paragraph {
     val para = ParaDsl(option, typesetPolicy)
     para.block()
     return para.build()
