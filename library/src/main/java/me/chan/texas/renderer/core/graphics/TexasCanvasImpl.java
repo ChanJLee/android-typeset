@@ -40,17 +40,21 @@ public class TexasCanvasImpl implements TexasCanvas {
 
 	@Override
 	public void setBitmap(@Nullable Bitmap bitmap) {
-
+		mCanvas.setBitmap(bitmap);
 	}
 
 	@Override
 	public void enableZ() {
-
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+			mCanvas.enableZ();
+		}
 	}
 
 	@Override
 	public void disableZ() {
-
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+			mCanvas.disableZ();
+		}
 	}
 
 	@Override
@@ -75,7 +79,7 @@ public class TexasCanvasImpl implements TexasCanvas {
 
 	@Override
 	public void setDensity(int density) {
-
+		mCanvas.setDensity(density);
 	}
 
 	@Override
@@ -100,7 +104,7 @@ public class TexasCanvasImpl implements TexasCanvas {
 
 	@Override
 	public int saveLayer(@Nullable RectF bounds, @Nullable TexasPaint paint) {
-		return 0;
+		return mCanvas.saveLayer(bounds, paint != null ? paint.getPaint() : null);
 	}
 
 	@Override
@@ -110,27 +114,27 @@ public class TexasCanvasImpl implements TexasCanvas {
 
 	@Override
 	public int saveLayer(float left, float top, float right, float bottom, @Nullable TexasPaint paint) {
-		return 0;
+		return mCanvas.saveLayer(left, top, right, bottom, paint != null ? paint.getPaint() : null);
 	}
 
 	@Override
 	public int saveLayerAlpha(@Nullable RectF bounds, int alpha, int saveFlags) {
-		return 0;
+		return mCanvas.saveLayerAlpha(bounds, alpha, saveFlags);
 	}
 
 	@Override
 	public int saveLayerAlpha(@Nullable RectF bounds, int alpha) {
-		return 0;
+		return mCanvas.saveLayerAlpha(bounds, alpha);
 	}
 
 	@Override
 	public int saveLayerAlpha(float left, float top, float right, float bottom, int alpha, int saveFlags) {
-		return 0;
+		return mCanvas.saveLayerAlpha(left, top, right, bottom, alpha, saveFlags);
 	}
 
 	@Override
 	public int saveLayerAlpha(float left, float top, float right, float bottom, int alpha) {
-		return 0;
+		return mCanvas.saveLayerAlpha(left, top, right, bottom, alpha);
 	}
 
 	@Override
@@ -224,41 +228,53 @@ public class TexasCanvasImpl implements TexasCanvas {
 
 	@Override
 	public boolean clipOutRect(@NonNull RectF rect) {
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+			return mCanvas.clipOutRect(rect);
+		}
 		return false;
 	}
 
 	@Override
 	public boolean clipRect(@NonNull Rect rect) {
-		return false;
+		return mCanvas.clipRect(rect);
 	}
 
 	@Override
 	public boolean clipOutRect(@NonNull Rect rect) {
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+			return mCanvas.clipOutRect(rect);
+		}
 		return false;
 	}
 
 	@Override
 	public boolean clipRect(float left, float top, float right, float bottom, @NonNull Region.Op op) {
-		return false;
+		return mCanvas.clipRect(left, top, right, bottom, op);
 	}
 
 	@Override
 	public boolean clipRect(float left, float top, float right, float bottom) {
-		return false;
+		return mCanvas.clipRect(left, top, right, bottom);
 	}
 
 	@Override
 	public boolean clipOutRect(float left, float top, float right, float bottom) {
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+			return mCanvas.clipOutRect(left, top, right, bottom);
+		}
 		return false;
 	}
 
 	@Override
 	public boolean clipRect(int left, int top, int right, int bottom) {
-		return false;
+		return mCanvas.clipRect(left, top, right, bottom);
 	}
 
 	@Override
 	public boolean clipOutRect(int left, int top, int right, int bottom) {
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+			return mCanvas.clipOutRect(left, top, right, bottom);
+		}
 		return false;
 	}
 
@@ -274,84 +290,92 @@ public class TexasCanvasImpl implements TexasCanvas {
 
 	@Override
 	public boolean clipOutPath(@NonNull Path path) {
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+			return mCanvas.clipOutPath(path);
+		}
 		return false;
 	}
 
+	@RequiresApi(api = Build.VERSION_CODES.VANILLA_ICE_CREAM)
 	@Override
 	public void clipShader(@NonNull Shader shader) {
-
+		mCanvas.clipShader(shader);
 	}
 
+	@RequiresApi(api = Build.VERSION_CODES.VANILLA_ICE_CREAM)
 	@Override
 	public void clipOutShader(@NonNull Shader shader) {
-
+		mCanvas.clipOutShader(shader);
 	}
 
 	@Nullable
 	@Override
 	public DrawFilter getDrawFilter() {
-		return null;
+		return mCanvas.getDrawFilter();
 	}
 
 	@Override
 	public void setDrawFilter(@Nullable DrawFilter filter) {
-
+		mCanvas.setDrawFilter(filter);
 	}
 
 	@Override
 	public boolean quickReject(@NonNull RectF rect, @NonNull Canvas.EdgeType type) {
-		return false;
+		return mCanvas.quickReject(rect, type);
 	}
 
+	@RequiresApi(api = Build.VERSION_CODES.R)
 	@Override
 	public boolean quickReject(@NonNull RectF rect) {
-		return false;
+		return mCanvas.quickReject(rect);
 	}
 
 	@Override
 	public boolean quickReject(@NonNull Path path, @NonNull Canvas.EdgeType type) {
-		return false;
+		return mCanvas.quickReject(path, type);
 	}
 
+	@RequiresApi(api = Build.VERSION_CODES.R)
 	@Override
 	public boolean quickReject(@NonNull Path path) {
-		return false;
+		return mCanvas.quickReject(path);
 	}
 
 	@Override
 	public boolean quickReject(float left, float top, float right, float bottom, @NonNull Canvas.EdgeType type) {
-		return false;
+		return mCanvas.quickReject(left, top, right, bottom, type);
 	}
 
+	@RequiresApi(api = Build.VERSION_CODES.R)
 	@Override
 	public boolean quickReject(float left, float top, float right, float bottom) {
-		return false;
+		return mCanvas.quickReject(left, top, right, bottom);
 	}
 
 	@Override
 	public boolean getClipBounds(@NonNull Rect bounds) {
-		return false;
+		return mCanvas.getClipBounds(bounds);
 	}
 
 	@NonNull
 	@Override
 	public Rect getClipBounds() {
-		return null;
+		return mCanvas.getClipBounds();
 	}
 
 	@Override
 	public void drawPicture(@NonNull Picture picture) {
-
+		mCanvas.drawPicture(picture);
 	}
 
 	@Override
 	public void drawPicture(@NonNull Picture picture, @NonNull RectF dst) {
-
+		mCanvas.drawPicture(picture, dst);
 	}
 
 	@Override
 	public void drawPicture(@NonNull Picture picture, @NonNull Rect dst) {
-
+		mCanvas.drawPicture(picture, dst);
 	}
 
 	@Override
@@ -361,12 +385,12 @@ public class TexasCanvasImpl implements TexasCanvas {
 
 	@Override
 	public void drawArc(float left, float top, float right, float bottom, float startAngle, float sweepAngle, boolean useCenter, @NonNull TexasPaint paint) {
-
+		mCanvas.drawArc(left, top, right, bottom, startAngle, sweepAngle, useCenter, paint.getPaint());
 	}
 
 	@Override
 	public void drawARGB(int a, int r, int g, int b) {
-
+		mCanvas.drawARGB(a, r, g, b);
 	}
 
 	@Override
@@ -386,12 +410,12 @@ public class TexasCanvasImpl implements TexasCanvas {
 
 	@Override
 	public void drawBitmap(@NonNull int[] colors, int offset, int stride, float x, float y, int width, int height, boolean hasAlpha, @Nullable TexasPaint paint) {
-
+		mCanvas.drawBitmap(colors, offset, stride, x, y, width, height, hasAlpha, paint != null ? paint.getPaint() : null);
 	}
 
 	@Override
 	public void drawBitmap(@NonNull int[] colors, int offset, int stride, int x, int y, int width, int height, boolean hasAlpha, @Nullable TexasPaint paint) {
-
+		mCanvas.drawBitmap(colors, offset, stride, x, y, width, height, hasAlpha, paint != null ? paint.getPaint() : null);
 	}
 
 	@Override
@@ -401,7 +425,7 @@ public class TexasCanvasImpl implements TexasCanvas {
 
 	@Override
 	public void drawBitmapMesh(@NonNull Bitmap bitmap, int meshWidth, int meshHeight, @NonNull float[] verts, int vertOffset, @Nullable int[] colors, int colorOffset, @Nullable TexasPaint paint) {
-
+		mCanvas.drawBitmapMesh(bitmap, meshWidth, meshHeight, verts, vertOffset, colors, colorOffset, paint != null ? paint.getPaint() : null);
 	}
 
 	@Override
@@ -414,6 +438,7 @@ public class TexasCanvasImpl implements TexasCanvas {
 		mCanvas.drawColor(color);
 	}
 
+	@RequiresApi(api = Build.VERSION_CODES.Q)
 	@Override
 	public void drawColor(long color) {
 		mCanvas.drawColor(color);
@@ -424,11 +449,13 @@ public class TexasCanvasImpl implements TexasCanvas {
 		mCanvas.drawColor(color, mode);
 	}
 
+	@RequiresApi(api = Build.VERSION_CODES.Q)
 	@Override
 	public void drawColor(int color, @NonNull BlendMode mode) {
 		mCanvas.drawColor(color, mode);
 	}
 
+	@RequiresApi(api = Build.VERSION_CODES.Q)
 	@Override
 	public void drawColor(long color, @NonNull BlendMode mode) {
 		mCanvas.drawColor(color, mode);
@@ -464,14 +491,16 @@ public class TexasCanvasImpl implements TexasCanvas {
 		mCanvas.drawPaint(paint.getPaint());
 	}
 
+	@RequiresApi(api = Build.VERSION_CODES.S)
 	@Override
 	public void drawPatch(@NonNull NinePatch patch, @NonNull Rect dst, @Nullable TexasPaint paint) {
-
+		mCanvas.drawPatch(patch, dst, paint != null ? paint.getPaint() : null);
 	}
 
+	@RequiresApi(api = Build.VERSION_CODES.S)
 	@Override
 	public void drawPatch(@NonNull NinePatch patch, @NonNull RectF dst, @Nullable TexasPaint paint) {
-
+		mCanvas.drawPatch(patch, dst, paint != null ? paint.getPaint() : null);
 	}
 
 	@Override
@@ -481,7 +510,7 @@ public class TexasCanvasImpl implements TexasCanvas {
 
 	@Override
 	public void drawPoint(float x, float y, @NonNull TexasPaint paint) {
-
+		mCanvas.drawPoint(x, y, paint.getPaint());
 	}
 
 	@Override
@@ -491,17 +520,17 @@ public class TexasCanvasImpl implements TexasCanvas {
 
 	@Override
 	public void drawPoints(@NonNull float[] pts, @NonNull TexasPaint paint) {
-
+		mCanvas.drawPoints(pts, paint.getPaint());
 	}
 
 	@Override
 	public void drawPosText(@NonNull char[] text, int index, int count, @NonNull float[] pos, @NonNull TexasPaint paint) {
-
+		mCanvas.drawPosText(text, index, count, pos, paint.getPaint());
 	}
 
 	@Override
 	public void drawPosText(@NonNull String text, @NonNull float[] pos, @NonNull TexasPaint paint) {
-
+		mCanvas.drawPosText(text, pos, paint.getPaint());
 	}
 
 	@Override
@@ -511,7 +540,7 @@ public class TexasCanvasImpl implements TexasCanvas {
 
 	@Override
 	public void drawRect(@NonNull Rect r, @NonNull TexasPaint paint) {
-
+		mCanvas.drawRect(r, paint.getPaint());
 	}
 
 	@Override
@@ -521,7 +550,7 @@ public class TexasCanvasImpl implements TexasCanvas {
 
 	@Override
 	public void drawRGB(int r, int g, int b) {
-
+		mCanvas.drawRGB(r, g, b);
 	}
 
 	@Override
@@ -534,80 +563,21 @@ public class TexasCanvasImpl implements TexasCanvas {
 		mCanvas.drawRoundRect(left, top, right, bottom, rx, ry, paint.getPaint());
 	}
 
+	@RequiresApi(api = Build.VERSION_CODES.Q)
 	@Override
 	public void drawDoubleRoundRect(@NonNull RectF outer, float outerRx, float outerRy, @NonNull RectF inner, float innerRx, float innerRy, @NonNull TexasPaint paint) {
 		mCanvas.drawDoubleRoundRect(outer, outerRx, outerRy, inner, innerRx, innerRy, paint.getPaint());
 	}
 
-	@Override
-	public void drawDoubleRoundRect(@NonNull RectF outer, @NonNull float[] outerRadii, @NonNull RectF inner, @NonNull float[] innerRadii, @NonNull TexasPaint paint) {
-
-	}
-
-	@Override
-	public void drawGlyphs(@NonNull int[] glyphIds, int glyphIdOffset, @NonNull float[] positions, int positionOffset, int glyphCount, @NonNull Font font, @NonNull TexasPaint paint) {
-
-	}
-
-	@Override
-	public void drawText(@NonNull char[] text, int index, int count, float x, float y, @NonNull TexasPaint paint) {
-
-	}
-
-	@Override
-	public void drawText(@NonNull String text, float x, float y, @NonNull TexasPaint paint) {
-		mCanvas.drawText(text, x, y, paint.getPaint());
-	}
-
-	@Override
-	public void drawText(@NonNull String text, int start, int end, float x, float y, @NonNull TexasPaint paint) {
-
-	}
-
-	@Override
-	public void drawText(@NonNull CharSequence text, int start, int end, float x, float y, @NonNull TexasPaint paint) {
-
-	}
-
-	@Override
-	public void drawTextOnPath(@NonNull char[] text, int index, int count, @NonNull Path path, float hOffset, float vOffset, @NonNull TexasPaint paint) {
-
-	}
-
-	@Override
-	public void drawTextOnPath(@NonNull String text, @NonNull Path path, float hOffset, float vOffset, @NonNull TexasPaint paint) {
-
-	}
-
-	@Override
-	public void drawTextRun(@NonNull char[] text, int index, int count, int contextIndex, int contextCount, float x, float y, boolean isRtl, @NonNull TexasPaint paint) {
-
-	}
-
-	@Override
-	public void drawTextRun(@NonNull CharSequence text, int start, int end, int contextStart, int contextEnd, float x, float y, boolean isRtl, @NonNull TexasPaint paint) {
-
-	}
-
-	@Override
-	public void drawTextRun(@NonNull MeasuredText text, int start, int end, int contextStart, int contextEnd, float x, float y, boolean isRtl, @NonNull TexasPaint paint) {
-
-	}
-
-	@Override
-	public void drawVertices(@NonNull Canvas.VertexMode mode, int vertexCount, @NonNull float[] verts, int vertOffset, @Nullable float[] texs, int texOffset, @Nullable int[] colors, int colorOffset, @Nullable short[] indices, int indexOffset, int indexCount, @NonNull TexasPaint paint) {
-		mCanvas.drawVertices(mode, vertexCount, verts, vertOffset, texs, texOffset, colors, colorOffset, indices, indexOffset, indexCount, paint.getPaint());
-	}
-
 	@RequiresApi(api = Build.VERSION_CODES.Q)
 	@Override
-	public void drawRenderNode(@NonNull RenderNode renderNode) {
-		mCanvas.drawRenderNode(renderNode);
+	public void drawDoubleRoundRect(@NonNull RectF outer, @NonNull float[] outerRadii, @NonNull RectF inner, @NonNull float[] innerRadii, @NonNull TexasPaint paint) {
+		mCanvas.drawDoubleRoundRect(outer, outerRadii, inner, innerRadii, paint.getPaint());
 	}
 
-	@RequiresApi(api = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+	@RequiresApi(api = Build.VERSION_CODES.S)
 	@Override
-	public void drawMesh(@NonNull Mesh mesh, @Nullable BlendMode blendMode, @NonNull TexasPaint paint) {
-		mCanvas.drawMesh(mesh, blendMode, paint.getPaint());
+	public void drawGlyphs(@NonNull int[] glyphIds, int glyphIdOffset, @NonNull float[] positions, int positionOffset, int glyphCount, @NonNull Font font, @NonNull TexasPaint paint) {
+		mCanvas.drawGlyphs(glyphIds, glyphIdOffset, positions, positionOffset, glyphCount, font, paint.getPaint());
 	}
 }
