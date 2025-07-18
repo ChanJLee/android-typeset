@@ -1,35 +1,55 @@
 package me.chan.texas.renderer.core.graphics;
 
 import android.graphics.Paint;
+import android.os.Build;
+
+import androidx.annotation.RequiresApi;
 
 public interface TexasPaint {
-	public static final int ANTI_ALIAS_FLAG = Paint.ANTI_ALIAS_FLAG;
-	public static final int CURSOR_AFTER = Paint.CURSOR_AFTER;
-	public static final int CURSOR_AT = 4;
-	public static final int CURSOR_AT_OR_AFTER = 1;
-	public static final int CURSOR_AT_OR_BEFORE = 3;
-	public static final int CURSOR_BEFORE = 2;
-	public static final int DEV_KERN_TEXT_FLAG = 256;
-	public static final int DITHER_FLAG = 4;
-	public static final int EMBEDDED_BITMAP_TEXT_FLAG = 1024;
-	public static final int END_HYPHEN_EDIT_INSERT_ARMENIAN_HYPHEN = 3;
-	public static final int END_HYPHEN_EDIT_INSERT_HYPHEN = 2;
-	public static final int END_HYPHEN_EDIT_INSERT_MAQAF = 4;
-	public static final int END_HYPHEN_EDIT_INSERT_UCAS_HYPHEN = 5;
-	public static final int END_HYPHEN_EDIT_INSERT_ZWJ_AND_HYPHEN = 6;
-	public static final int END_HYPHEN_EDIT_NO_EDIT = 0;
-	public static final int END_HYPHEN_EDIT_REPLACE_WITH_HYPHEN = 1;
-	public static final int FAKE_BOLD_TEXT_FLAG = 32;
-	public static final int FILTER_BITMAP_FLAG = 2;
-	public static final int HINTING_OFF = 0;
-	public static final int HINTING_ON = 1;
-	public static final int LINEAR_TEXT_FLAG = 64;
-	public static final int START_HYPHEN_EDIT_INSERT_HYPHEN = 1;
-	public static final int START_HYPHEN_EDIT_INSERT_ZWJ = 2;
-	public static final int START_HYPHEN_EDIT_NO_EDIT = 0;
-	public static final int STRIKE_THRU_TEXT_FLAG = 16;
-	public static final int SUBPIXEL_TEXT_FLAG = 128;
-	public static final int TEXT_RUN_FLAG_LEFT_EDGE = 8192;
-	public static final int TEXT_RUN_FLAG_RIGHT_EDGE = 16384;
-	public static final int UNDERLINE_TEXT_FLAG = 8;
+	int ANTI_ALIAS_FLAG = Paint.ANTI_ALIAS_FLAG;
+	@RequiresApi(api = Build.VERSION_CODES.Q)
+	int CURSOR_AFTER = Paint.CURSOR_AFTER;
+	@RequiresApi(api = Build.VERSION_CODES.Q)
+	int CURSOR_AT = Paint.CURSOR_AT;
+	@RequiresApi(api = Build.VERSION_CODES.Q)
+	int CURSOR_AT_OR_AFTER = Paint.CURSOR_AT_OR_AFTER;
+	@RequiresApi(api = Build.VERSION_CODES.Q)
+	int CURSOR_AT_OR_BEFORE = Paint.CURSOR_AT_OR_BEFORE;
+	@RequiresApi(api = Build.VERSION_CODES.Q)
+	int CURSOR_BEFORE = Paint.CURSOR_BEFORE;
+	int DEV_KERN_TEXT_FLAG = Paint.DEV_KERN_TEXT_FLAG;
+	int DITHER_FLAG = Paint.DITHER_FLAG;
+	int EMBEDDED_BITMAP_TEXT_FLAG = Paint.EMBEDDED_BITMAP_TEXT_FLAG;
+	@RequiresApi(api = Build.VERSION_CODES.Q)
+	int END_HYPHEN_EDIT_INSERT_ARMENIAN_HYPHEN = Paint.END_HYPHEN_EDIT_INSERT_ARMENIAN_HYPHEN;
+	@RequiresApi(api = Build.VERSION_CODES.Q)
+	int END_HYPHEN_EDIT_INSERT_HYPHEN = Paint.END_HYPHEN_EDIT_INSERT_HYPHEN;
+	@RequiresApi(api = Build.VERSION_CODES.Q)
+	int END_HYPHEN_EDIT_INSERT_MAQAF = Paint.END_HYPHEN_EDIT_INSERT_MAQAF;
+	@RequiresApi(api = Build.VERSION_CODES.Q)
+	int END_HYPHEN_EDIT_INSERT_UCAS_HYPHEN = Paint.END_HYPHEN_EDIT_INSERT_UCAS_HYPHEN;
+	@RequiresApi(api = Build.VERSION_CODES.Q)
+	int END_HYPHEN_EDIT_INSERT_ZWJ_AND_HYPHEN = Paint.END_HYPHEN_EDIT_INSERT_ZWJ_AND_HYPHEN;
+	@RequiresApi(api = Build.VERSION_CODES.Q)
+	int END_HYPHEN_EDIT_NO_EDIT = Paint.END_HYPHEN_EDIT_NO_EDIT;
+	@RequiresApi(api = Build.VERSION_CODES.Q)
+	int END_HYPHEN_EDIT_REPLACE_WITH_HYPHEN = Paint.END_HYPHEN_EDIT_REPLACE_WITH_HYPHEN;
+	int FAKE_BOLD_TEXT_FLAG = Paint.FAKE_BOLD_TEXT_FLAG;
+	int FILTER_BITMAP_FLAG = Paint.FILTER_BITMAP_FLAG;
+	int HINTING_OFF = Paint.HINTING_OFF;
+	int HINTING_ON = Paint.HINTING_ON;
+	int LINEAR_TEXT_FLAG = Paint.LINEAR_TEXT_FLAG;
+	@RequiresApi(api = Build.VERSION_CODES.Q)
+	int START_HYPHEN_EDIT_INSERT_HYPHEN = Paint.START_HYPHEN_EDIT_INSERT_HYPHEN;
+	@RequiresApi(api = Build.VERSION_CODES.Q)
+	int START_HYPHEN_EDIT_INSERT_ZWJ = Paint.START_HYPHEN_EDIT_INSERT_ZWJ;
+	@RequiresApi(api = Build.VERSION_CODES.Q)
+	int START_HYPHEN_EDIT_NO_EDIT = Paint.START_HYPHEN_EDIT_NO_EDIT;
+	int STRIKE_THRU_TEXT_FLAG = Paint.STRIKE_THRU_TEXT_FLAG;
+	int SUBPIXEL_TEXT_FLAG = Paint.SUBPIXEL_TEXT_FLAG;
+	@RequiresApi(api = Build.VERSION_CODES.VANILLA_ICE_CREAM)
+	int TEXT_RUN_FLAG_LEFT_EDGE = Paint.TEXT_RUN_FLAG_LEFT_EDGE;
+	@RequiresApi(api = Build.VERSION_CODES.VANILLA_ICE_CREAM)
+	int TEXT_RUN_FLAG_RIGHT_EDGE = Paint.TEXT_RUN_FLAG_RIGHT_EDGE;
+	int UNDERLINE_TEXT_FLAG = Paint.UNDERLINE_TEXT_FLAG;
 }
