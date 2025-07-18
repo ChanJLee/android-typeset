@@ -18,9 +18,11 @@ import android.graphics.RenderNode;
 import android.graphics.Shader;
 import android.graphics.fonts.Font;
 import android.graphics.text.MeasuredText;
+import android.os.Build;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -53,22 +55,22 @@ public class TexasCanvasImpl implements TexasCanvas {
 
 	@Override
 	public boolean isOpaque() {
-		return false;
+		return mCanvas.isOpaque();
 	}
 
 	@Override
 	public int getWidth() {
-		return 0;
+		return mCanvas.getWidth();
 	}
 
 	@Override
 	public int getHeight() {
-		return 0;
+		return mCanvas.getHeight();
 	}
 
 	@Override
 	public int getDensity() {
-		return 0;
+		return mCanvas.getDensity();
 	}
 
 	@Override
@@ -78,22 +80,22 @@ public class TexasCanvasImpl implements TexasCanvas {
 
 	@Override
 	public int getMaximumBitmapWidth() {
-		return 0;
+		return mCanvas.getMaximumBitmapWidth();
 	}
 
 	@Override
 	public int getMaximumBitmapHeight() {
-		return 0;
+		return mCanvas.getMaximumBitmapHeight();
 	}
 
 	@Override
 	public int save() {
-		return 0;
+		return mCanvas.save();
 	}
 
 	@Override
 	public int saveLayer(@Nullable RectF bounds, @Nullable TexasPaint paint, int saveFlags) {
-		return 0;
+		return mCanvas.saveLayer(bounds, paint != null ? paint.getPaint() : null, saveFlags);
 	}
 
 	@Override
@@ -103,7 +105,7 @@ public class TexasCanvasImpl implements TexasCanvas {
 
 	@Override
 	public int saveLayer(float left, float top, float right, float bottom, @Nullable TexasPaint paint, int saveFlags) {
-		return 0;
+		return mCanvas.saveLayer(left, top, right, bottom, paint != null ? paint.getPaint() : null, saveFlags);
 	}
 
 	@Override
@@ -133,88 +135,91 @@ public class TexasCanvasImpl implements TexasCanvas {
 
 	@Override
 	public void restore() {
-
+		mCanvas.restore();
 	}
 
 	@Override
 	public int getSaveCount() {
-		return 0;
+		return mCanvas.getSaveCount();
 	}
 
 	@Override
 	public void restoreToCount(int saveCount) {
-
+		mCanvas.restoreToCount(saveCount);
 	}
 
 	@Override
 	public void translate(float dx, float dy) {
-
+		mCanvas.translate(dx, dy);
 	}
 
 	@Override
 	public void scale(float sx, float sy) {
-
+		mCanvas.scale(sx, sy);
 	}
 
 	@Override
 	public void scale(float sx, float sy, float px, float py) {
-
+		mCanvas.scale(sx, sy, px, py);
 	}
 
 	@Override
 	public void rotate(float degrees) {
-
+		mCanvas.rotate(degrees);
 	}
 
 	@Override
 	public void rotate(float degrees, float px, float py) {
-
+		mCanvas.rotate(degrees, px, py);
 	}
 
 	@Override
 	public void skew(float sx, float sy) {
-
+		mCanvas.skew(sx, sy);
 	}
 
 	@Override
 	public void concat(@Nullable Matrix matrix) {
-
+		mCanvas.concat(matrix);
 	}
 
+	@RequiresApi(api = Build.VERSION_CODES.VANILLA_ICE_CREAM)
 	@Override
 	public void concat(@Nullable Matrix44 m) {
-
+		mCanvas.concat(m);
 	}
 
 	@Override
 	public void setMatrix(@Nullable Matrix matrix) {
-
+		mCanvas.setMatrix(matrix);
 	}
 
 	@Override
 	public void getMatrix(@NonNull Matrix ctm) {
-
+		mCanvas.getMatrix(ctm);
 	}
 
 	@NonNull
 	@Override
 	public Matrix getMatrix() {
-		return null;
+		Matrix matrix = new Matrix();
+		mCanvas.getMatrix(matrix);
+		return matrix;
 	}
 
 	@Override
 	public boolean clipRect(@NonNull RectF rect, @NonNull Region.Op op) {
-		return false;
+		return mCanvas.clipRect(rect, op);
 	}
 
 	@Override
 	public boolean clipRect(@NonNull Rect rect, @NonNull Region.Op op) {
-		return false;
+		return mCanvas.clipRect(rect, op);
 	}
 
 	@Override
 	public boolean clipRect(@NonNull RectF rect) {
-		return false;
+		return mCanvas.clipRect(rect);
 	}
 
 	@Override
@@ -259,12 +264,12 @@ public class TexasCanvasImpl implements TexasCanvas {
 
 	@Override
 	public boolean clipPath(@NonNull Path path, @NonNull Region.Op op) {
-		return false;
+		return mCanvas.clipPath(path, op);
 	}
 
 	@Override
 	public boolean clipPath(@NonNull Path path) {
-		return false;
+		return mCanvas.clipPath(path);
 	}
 
 	@Override
@@ -351,7 +356,7 @@ public class TexasCanvasImpl implements TexasCanvas {
 
 	@Override
 	public void drawArc(@NonNull RectF oval, float startAngle, float sweepAngle, boolean useCenter, @NonNull TexasPaint paint) {
-
+		mCanvas.drawArc(oval, startAngle, sweepAngle, useCenter, paint.getPaint());
 	}
 
 	@Override
@@ -366,17 +371,17 @@ public class TexasCanvasImpl implements TexasCanvas {
 
 	@Override
 	public void drawBitmap(@NonNull Bitmap bitmap, float left, float top, @Nullable TexasPaint paint) {
-
+		mCanvas.drawBitmap(bitmap, left, top, paint != null ? paint.getPaint() : null);
 	}
 
 	@Override
 	public void drawBitmap(@NonNull Bitmap bitmap, @Nullable Rect src, @NonNull RectF dst, @Nullable TexasPaint paint) {
-
+		mCanvas.drawBitmap(bitmap, src, dst, paint != null ? paint.getPaint() : null);
 	}
 
 	@Override
 	public void drawBitmap(@NonNull Bitmap bitmap, @Nullable Rect src, @NonNull Rect dst, @Nullable TexasPaint paint) {
-
+		mCanvas.drawBitmap(bitmap, src, dst, paint != null ? paint.getPaint() : null);
 	}
 
 	@Override
@@ -391,7 +396,7 @@ public class TexasCanvasImpl implements TexasCanvas {
 
 	@Override
 	public void drawBitmap(@NonNull Bitmap bitmap, @NonNull Matrix matrix, @Nullable TexasPaint paint) {
-
+		mCanvas.drawBitmap(bitmap, matrix, paint != null ? paint.getPaint() : null);
 	}
 
 	@Override
@@ -401,62 +406,62 @@ public class TexasCanvasImpl implements TexasCanvas {
 
 	@Override
 	public void drawCircle(float cx, float cy, float radius, @NonNull TexasPaint paint) {
-
+		mCanvas.drawCircle(cx, cy, radius, paint.getPaint());
 	}
 
 	@Override
 	public void drawColor(int color) {
-
+		mCanvas.drawColor(color);
 	}
 
 	@Override
 	public void drawColor(long color) {
-
+		mCanvas.drawColor(color);
 	}
 
 	@Override
 	public void drawColor(int color, @NonNull PorterDuff.Mode mode) {
-
+		mCanvas.drawColor(color, mode);
 	}
 
 	@Override
 	public void drawColor(int color, @NonNull BlendMode mode) {
-
+		mCanvas.drawColor(color, mode);
 	}
 
 	@Override
 	public void drawColor(long color, @NonNull BlendMode mode) {
-
+		mCanvas.drawColor(color, mode);
 	}
 
 	@Override
 	public void drawLine(float startX, float startY, float stopX, float stopY, @NonNull TexasPaint paint) {
-
+		mCanvas.drawLine(startX, startY, stopX, stopY, paint.getPaint());
 	}
 
 	@Override
 	public void drawLines(@NonNull float[] pts, int offset, int count, @NonNull TexasPaint paint) {
-
+		mCanvas.drawLines(pts, offset, count, paint.getPaint());
 	}
 
 	@Override
 	public void drawLines(@NonNull float[] pts, @NonNull TexasPaint paint) {
-
+		mCanvas.drawLines(pts, paint.getPaint());
 	}
 
 	@Override
 	public void drawOval(@NonNull RectF oval, @NonNull TexasPaint paint) {
-
+		mCanvas.drawOval(oval, paint.getPaint());
 	}
 
 	@Override
 	public void drawOval(float left, float top, float right, float bottom, @NonNull TexasPaint paint) {
-
+		mCanvas.drawOval(left, top, right, bottom, paint.getPaint());
 	}
 
 	@Override
 	public void drawPaint(@NonNull TexasPaint paint) {
-
+		mCanvas.drawPaint(paint.getPaint());
 	}
 
 	@Override
@@ -471,7 +476,7 @@ public class TexasCanvasImpl implements TexasCanvas {
 
 	@Override
 	public void drawPath(@NonNull Path path, @NonNull TexasPaint paint) {
-
+		mCanvas.drawPath(path, paint.getPaint());
 	}
 
 	@Override
@@ -481,7 +486,7 @@ public class TexasCanvasImpl implements TexasCanvas {
 
 	@Override
 	public void drawPoints(float[] pts, int offset, int count, @NonNull TexasPaint paint) {
-
+		mCanvas.drawPoints(pts, offset, count, paint.getPaint());
 	}
 
 	@Override
@@ -501,7 +506,7 @@ public class TexasCanvasImpl implements TexasCanvas {
 
 	@Override
 	public void drawRect(@NonNull RectF rect, @NonNull TexasPaint paint) {
-
+		mCanvas.drawRect(rect, paint.getPaint());
 	}
 
 	@Override
@@ -511,7 +516,7 @@ public class TexasCanvasImpl implements TexasCanvas {
 
 	@Override
 	public void drawRect(float left, float top, float right, float bottom, @NonNull TexasPaint paint) {
-
+		mCanvas.drawRect(left, top, right, bottom, paint.getPaint());
 	}
 
 	@Override
@@ -521,17 +526,17 @@ public class TexasCanvasImpl implements TexasCanvas {
 
 	@Override
 	public void drawRoundRect(@NonNull RectF rect, float rx, float ry, @NonNull TexasPaint paint) {
-
+		mCanvas.drawRoundRect(rect, rx, ry, paint.getPaint());
 	}
 
 	@Override
 	public void drawRoundRect(float left, float top, float right, float bottom, float rx, float ry, @NonNull TexasPaint paint) {
-
+		mCanvas.drawRoundRect(left, top, right, bottom, rx, ry, paint.getPaint());
 	}
 
 	@Override
 	public void drawDoubleRoundRect(@NonNull RectF outer, float outerRx, float outerRy, @NonNull RectF inner, float innerRx, float innerRy, @NonNull TexasPaint paint) {
-
+		mCanvas.drawDoubleRoundRect(outer, outerRx, outerRy, inner, innerRx, innerRy, paint.getPaint());
 	}
 
 	@Override
@@ -551,7 +556,7 @@ public class TexasCanvasImpl implements TexasCanvas {
 
 	@Override
 	public void drawText(@NonNull String text, float x, float y, @NonNull TexasPaint paint) {
-
+		mCanvas.drawText(text, x, y, paint.getPaint());
 	}
 
 	@Override
@@ -591,16 +596,18 @@ public class TexasCanvasImpl implements TexasCanvas {
 
 	@Override
 	public void drawVertices(@NonNull Canvas.VertexMode mode, int vertexCount, @NonNull float[] verts, int vertOffset, @Nullable float[] texs, int texOffset, @Nullable int[] colors, int colorOffset, @Nullable short[] indices, int indexOffset, int indexCount, @NonNull TexasPaint paint) {
-
+		mCanvas.drawVertices(mode, vertexCount, verts, vertOffset, texs, texOffset, colors, colorOffset, indices, indexOffset, indexCount, paint.getPaint());
 	}
 
+	@RequiresApi(api = Build.VERSION_CODES.Q)
 	@Override
 	public void drawRenderNode(@NonNull RenderNode renderNode) {
-
+		mCanvas.drawRenderNode(renderNode);
 	}
 
+	@RequiresApi(api = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
 	@Override
 	public void drawMesh(@NonNull Mesh mesh, @Nullable BlendMode blendMode, @NonNull TexasPaint paint) {
-
+		mCanvas.drawMesh(mesh, blendMode, paint.getPaint());
 	}
 }
