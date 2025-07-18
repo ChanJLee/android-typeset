@@ -1,15 +1,12 @@
 package me.chan.texas;
 
 import android.content.res.Resources;
-import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.Paint;
 import android.graphics.Path;
 
 import me.chan.texas.misc.RectF;
 
 import android.graphics.drawable.Drawable;
-import android.text.TextPaint;
 import android.text.TextUtils;
 import android.util.Log;
 import android.util.Xml;
@@ -17,6 +14,8 @@ import android.view.View;
 import android.widget.Toast;
 
 import me.chan.texas.renderer.TexasView;
+import me.chan.texas.renderer.core.graphics.TexasCanvas;
+import me.chan.texas.renderer.core.graphics.TexasPaint;
 import me.chan.texas.text.Appearance;
 import me.chan.texas.text.BreakStrategy;
 import me.chan.texas.text.Document;
@@ -129,7 +128,7 @@ public class BookSource extends TexasView.DocumentSource {
 				.next("QWERTYUIOPASDFGHJKLZXCVBNM")
 				.setTextStyle(new TextStyle() {
 					@Override
-					public void update(@NonNull TextPaint textPaint, @Nullable Object tag) {
+					public void update(@NonNull TexasPaint textPaint, @Nullable Object tag) {
 						textPaint.setTextSize(120);
 						textPaint.setFakeBoldText(true);
 					}
@@ -390,7 +389,7 @@ public class BookSource extends TexasView.DocumentSource {
 					};
 
 					@Override
-					public void draw(Canvas canvas, Paint paint, RectF inner, RectF outer, RendererContext context) {
+					public void draw(TexasCanvas canvas, TexasPaint paint, RectF inner, RectF outer, RendererContext context) {
 						paint.setColor(Color.GREEN);
 
 						// 独立的单元，左右都要有圆角
