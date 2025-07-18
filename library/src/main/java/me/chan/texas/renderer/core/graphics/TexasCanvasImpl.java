@@ -580,4 +580,67 @@ public class TexasCanvasImpl implements TexasCanvas {
 	public void drawGlyphs(@NonNull int[] glyphIds, int glyphIdOffset, @NonNull float[] positions, int positionOffset, int glyphCount, @NonNull Font font, @NonNull TexasPaint paint) {
 		mCanvas.drawGlyphs(glyphIds, glyphIdOffset, positions, positionOffset, glyphCount, font, paint.getPaint());
 	}
+
+	@Override
+	public void drawText(@NonNull char[] text, int index, int count, float x, float y, @NonNull TexasPaint paint) {
+		mCanvas.drawText(text, index, count, x, y, paint.getPaint());
+	}
+
+	@Override
+	public void drawText(@NonNull String text, float x, float y, @NonNull TexasPaint paint) {
+		mCanvas.drawText(text, x, y, paint.getPaint());
+	}
+
+	@Override
+	public void drawText(@NonNull String text, int start, int end, float x, float y, @NonNull TexasPaint paint) {
+		mCanvas.drawText(text, start, end, x, y, paint.getPaint());
+	}
+
+	@Override
+	public void drawText(@NonNull CharSequence text, int start, int end, float x, float y, @NonNull TexasPaint paint) {
+		mCanvas.drawText(text, start, end, x, y, paint.getPaint());
+	}
+
+	@Override
+	public void drawTextOnPath(@NonNull char[] text, int index, int count, @NonNull Path path, float hOffset, float vOffset, @NonNull TexasPaint paint) {
+		mCanvas.drawTextOnPath(text, index, count, path, hOffset, vOffset, paint.getPaint());
+	}
+
+	@Override
+	public void drawTextOnPath(@NonNull String text, @NonNull Path path, float hOffset, float vOffset, @NonNull TexasPaint paint) {
+		mCanvas.drawTextOnPath(text, path, hOffset, vOffset, paint.getPaint());
+	}
+
+	@Override
+	public void drawTextRun(@NonNull char[] text, int index, int count, int contextIndex, int contextCount, float x, float y, boolean isRtl, @NonNull TexasPaint paint) {
+		mCanvas.drawTextRun(text, index, count, contextIndex, contextCount, x, y, isRtl, paint.getPaint());
+	}
+
+	@Override
+	public void drawTextRun(@NonNull CharSequence text, int start, int end, int contextStart, int contextEnd, float x, float y, boolean isRtl, @NonNull TexasPaint paint) {
+		mCanvas.drawTextRun(text, start, end, contextStart, contextEnd, x, y, isRtl, paint.getPaint());
+	}
+
+	@RequiresApi(api = Build.VERSION_CODES.Q)
+	@Override
+	public void drawTextRun(@NonNull MeasuredText text, int start, int end, int contextStart, int contextEnd, float x, float y, boolean isRtl, @NonNull TexasPaint paint) {
+		mCanvas.drawTextRun(text, start, end, contextStart, contextEnd, x, y, isRtl, paint.getPaint());
+	}
+
+	@Override
+	public void drawVertices(@NonNull Canvas.VertexMode mode, int vertexCount, @NonNull float[] verts, int vertOffset, @Nullable float[] texs, int texOffset, @Nullable int[] colors, int colorOffset, @Nullable short[] indices, int indexOffset, int indexCount, @NonNull TexasPaint paint) {
+		mCanvas.drawVertices(mode, vertexCount, verts, vertOffset, texs, texOffset, colors, colorOffset, indices, indexOffset, indexCount, paint.getPaint());
+	}
+
+	@Override
+	@RequiresApi(api = Build.VERSION_CODES.Q)
+	public void drawRenderNode(@NonNull RenderNode renderNode) {
+		mCanvas.drawRenderNode(renderNode);
+	}
+
+	@Override
+	@RequiresApi(api = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+	public void drawMesh(@NonNull Mesh mesh, @Nullable BlendMode blendMode, @NonNull TexasPaint paint) {
+		mCanvas.drawMesh(mesh, blendMode, paint.getPaint());
+	}
 }
