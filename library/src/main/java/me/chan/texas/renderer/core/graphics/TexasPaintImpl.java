@@ -733,4 +733,9 @@ public class TexasPaintImpl implements TexasPaint {
 	public boolean equalsForTextMeasurement(@NonNull Paint other) {
 		return getPaint(true).equalsForTextMeasurement(other);
 	}
+
+	@Override
+	public Paint getPaint() {
+		return getPaint(true);
+	}
 }

@@ -28,4 +28,12 @@ public class PaintUnitTest {
 		texasPaint.getColor();
 		Assert.assertTrue(texasPaint.isModified());
 	}
+
+	@Test
+	public void testApi() {
+		MockTextPaint textPaint = new MockTextPaint();
+		textPaint.setMockTextSize(1);
+		PaintSet paintSet = new PaintSet(textPaint);
+		TexasPaintImpl texasPaint = new TexasPaintImpl();
+	}
 }
