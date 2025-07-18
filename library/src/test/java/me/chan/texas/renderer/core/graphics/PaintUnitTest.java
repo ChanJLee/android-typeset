@@ -21,7 +21,11 @@ public class PaintUnitTest {
 		texasPaint.reset(paintSet);
 		Assert.assertFalse(texasPaint.isModified());
 
+		texasPaint.getColor();
+		Assert.assertFalse(texasPaint.isModified());
 		texasPaint.setColor(Color.RED);
+		Assert.assertTrue(texasPaint.isModified());
+		texasPaint.getColor();
 		Assert.assertTrue(texasPaint.isModified());
 	}
 }
