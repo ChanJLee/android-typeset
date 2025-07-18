@@ -18,13 +18,15 @@ import me.chan.texas.misc.Rect;
 import android.graphics.Region;
 import android.graphics.RenderNode;
 import android.graphics.Shader;
+import android.graphics.drawable.Drawable;
 import android.graphics.fonts.Font;
 import android.graphics.text.MeasuredText;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
 
-interface TexasCanvas {
+public interface TexasCanvas {
 	boolean isHardwareAccelerated();
 
 	void setBitmap(@Nullable Bitmap bitmap);
@@ -323,4 +325,9 @@ interface TexasCanvas {
 	void drawRenderNode(@NonNull RenderNode renderNode);
 
 	void drawMesh(@NonNull Mesh mesh, @Nullable BlendMode blendMode, @NonNull TexasPaint paint);
+
+	void draw(Drawable drawable);
+
+	@RestrictTo(RestrictTo.Scope.LIBRARY)
+	Canvas getCanvas();
 }

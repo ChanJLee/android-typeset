@@ -1,11 +1,12 @@
 package me.chan.texas.text;
 
-import android.graphics.Canvas;
 import android.graphics.Paint;
 
 import me.chan.texas.misc.RectF;
 
 import me.chan.texas.renderer.RendererContext;
+import me.chan.texas.renderer.core.graphics.TexasCanvas;
+import me.chan.texas.renderer.core.graphics.TexasPaint;
 
 /**
  * 下划线
@@ -52,7 +53,7 @@ public class UnderLine extends Appearance {
 	}
 
 	@Override
-	public void draw(Canvas canvas, Paint paint, RectF inner, RectF outer, RendererContext context) {
+	public void draw(TexasCanvas canvas, TexasPaint paint, RectF inner, RectF outer, RendererContext context) {
 		paint.setStyle(Paint.Style.FILL);
 		paint.setStrokeWidth(mWidth);
 		paint.setColor(mColor);

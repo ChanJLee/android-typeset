@@ -1,7 +1,5 @@
 package me.chan.texas.text;
 
-import android.graphics.Canvas;
-import android.graphics.Paint;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.StateListDrawable;
 import android.util.Log;
@@ -10,6 +8,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.VisibleForTesting;
 
 import me.chan.texas.misc.RectF;
+import me.chan.texas.renderer.core.graphics.TexasCanvas;
+import me.chan.texas.renderer.core.graphics.TexasPaint;
 import me.chan.texas.text.layout.StateList;
 
 /**
@@ -39,7 +39,7 @@ public final class Emoticon extends HypeSpan {
 	}
 
 	@Override
-	protected void onDraw(Canvas canvas, Paint paint, RectF inner, RectF outer, float baselineOffset, StateList states) {
+	protected void onDraw(TexasCanvas canvas, TexasPaint paint, RectF inner, RectF outer, float baselineOffset, StateList states) {
 		float x = inner.left;
 		float y = inner.bottom - baselineOffset;
 		Drawable drawable = mDrawable;
@@ -50,7 +50,7 @@ public final class Emoticon extends HypeSpan {
 		}
 
 		drawable.setBounds((int) x, (int) (y - getHeight()), (int) (x + getWidth()), (int) y);
-		drawable.draw(canvas);
+		canvas.draw(drawable);
 	}
 
 	@Override

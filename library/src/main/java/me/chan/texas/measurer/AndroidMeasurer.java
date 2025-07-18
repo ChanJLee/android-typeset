@@ -3,14 +3,11 @@ package me.chan.texas.measurer;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
 import android.graphics.Paint;
-import android.text.BoringLayout;
-import android.text.TextPaint;
-import android.text.TextUtils;
 
 import androidx.annotation.RestrictTo;
 
-import me.chan.texas.compat.TextPaintCompat;
 import me.chan.texas.misc.PaintSet;
+import me.chan.texas.renderer.core.graphics.TexasPaintImpl;
 import me.chan.texas.text.TextStyle;
 import me.chan.texas.utils.CharArrayPool;
 import me.chan.texas.utils.TexasUtils;
@@ -24,8 +21,7 @@ public class AndroidMeasurer implements Measurer {
 	private static final CharArrayPool POOL = new CharArrayPool();
 
 	private final PaintSet mPaintSet;
-
-	private final TextPaint mWorkPaint = TextPaintCompat.create();
+	private final TexasPaintImpl mTexasPaint = new TexasPaintImpl();
 
 	private final Paint.FontMetrics mFontMetrics = new Paint.FontMetrics();
 
@@ -42,11 +38,11 @@ public class AndroidMeasurer implements Measurer {
 
 	@Override
 	public void measure(CharSequence charSequence, int start, int end, TextStyle textStyle, Object tag, CharSequenceSpec spec) {
-		TextPaint textPaint = mPaintSet.getPaint();
+		mTexasPaint.reset(mPaintSet);
 		if (textStyle != null) {
-			textPaint = mPaintSet.getWorkPaint(mWorkPaint);
-			textStyle.update(textPaint, tag);
+			textStyle.update(mTexasPaint, tag);
 		}
+		Paint paint = mTexasPaint.getPaint();
 
 		// 不能使用 TextPaint getTextBounds
 		// vivo 手机使用这个方法慢的出奇
@@ -55,10 +51,10 @@ public class AndroidMeasurer implements Measurer {
 		int size = end - start;
 		char[] buf = POOL.obtain(size);
 		TexasUtils.getChars(charSequence, start, end, buf, 0);
-		width = textPaint.getRunAdvance(buf, 0, size, 0, size, false, size);
+		width = paint.getRunAdvance(buf, 0, size, 0, size, false, size);
 		POOL.release(buf);
 
-		textPaint.getFontMetrics(mFontMetrics);
+		paint.getFontMetrics(mFontMetrics);
 		Paint.FontMetrics fontMetrics = mFontMetrics;
 		float height = (float) Math.ceil(fontMetrics.descent - fontMetrics.ascent + fontMetrics.leading);
 		spec.reset(width, height, (float) Math.ceil(fontMetrics.descent));

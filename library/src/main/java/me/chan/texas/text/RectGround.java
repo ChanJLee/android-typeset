@@ -1,11 +1,10 @@
 package me.chan.texas.text;
 
-import android.graphics.Canvas;
-import android.graphics.Paint;
-
 import me.chan.texas.misc.RectF;
 
 import me.chan.texas.renderer.RendererContext;
+import me.chan.texas.renderer.core.graphics.TexasCanvas;
+import me.chan.texas.renderer.core.graphics.TexasPaint;
 
 /**
  * 前景/背景颜色
@@ -55,7 +54,7 @@ public class RectGround extends Appearance {
 	}
 
 	@Override
-	public void draw(Canvas canvas, Paint paint, RectF inner, RectF outer, RendererContext context) {
+	public void draw(TexasCanvas canvas, TexasPaint paint, RectF inner, RectF outer, RendererContext context) {
 		paint.setColor(mColor);
 		if (mRadius > 0) {
 			canvas.drawRoundRect(inner.left, inner.top, inner.right, inner.bottom, mRadius, mRadius, paint);

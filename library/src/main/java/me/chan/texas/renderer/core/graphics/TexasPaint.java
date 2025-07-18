@@ -6,7 +6,6 @@ import android.graphics.MaskFilter;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.PathEffect;
-import android.graphics.Rect;
 import android.graphics.Shader;
 import android.graphics.Typeface;
 import android.graphics.Xfermode;
@@ -14,10 +13,17 @@ import android.os.LocaleList;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
 
 import java.util.Locale;
 
+import me.chan.texas.misc.PaintSet;
+import me.chan.texas.misc.Rect;
+
 public interface TexasPaint {
+	@RestrictTo(RestrictTo.Scope.LIBRARY)
+	void reset(PaintSet set);
+
 	void reset();
 
 	/* void set(Paint src); */
@@ -281,5 +287,9 @@ public interface TexasPaint {
 
 	boolean equalsForTextMeasurement(@NonNull Paint other);
 
+	@RestrictTo(RestrictTo.Scope.LIBRARY)
 	Paint getPaint();
+
+	@RestrictTo(RestrictTo.Scope.LIBRARY)
+	void set(Paint paint);
 }

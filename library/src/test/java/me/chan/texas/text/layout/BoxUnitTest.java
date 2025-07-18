@@ -1,12 +1,11 @@
 package me.chan.texas.text.layout;
 
-import android.graphics.Canvas;
-import android.graphics.Paint;
-
 import me.chan.texas.misc.RectF;
 
 import me.chan.texas.TestUtils;
 import me.chan.texas.measurer.Measurer;
+import me.chan.texas.renderer.core.graphics.TexasCanvas;
+import me.chan.texas.renderer.core.graphics.TexasPaint;
 import me.chan.texas.text.Appearance;
 import me.chan.texas.renderer.RendererContext;
 import me.chan.texas.text.TextAttribute;
@@ -36,7 +35,7 @@ public class BoxUnitTest {
 		// test set bg
 		Appearance bg = new Appearance() {
 			@Override
-			public void draw(Canvas canvas, Paint textPaint, RectF inner, RectF outer, RendererContext context) {
+			public void draw(TexasCanvas canvas, TexasPaint textPaint, RectF inner, RectF outer, RendererContext context) {
 
 			}
 		};
@@ -46,7 +45,7 @@ public class BoxUnitTest {
 		// test set fg
 		Appearance fg = new Appearance() {
 			@Override
-			public void draw(Canvas canvas, Paint textPaint, RectF inner, RectF outer, RendererContext context) {
+			public void draw(TexasCanvas canvas, TexasPaint textPaint, RectF inner, RectF outer, RendererContext context) {
 
 			}
 		};
@@ -79,7 +78,7 @@ public class BoxUnitTest {
 		}
 
 		@Override
-		public void draw(Canvas canvas, Paint paint, RectF inner, RectF outer, float baselineOffset, StateList states) {
+		public void draw(TexasCanvas canvas, TexasPaint paint, RectF inner, RectF outer, float baselineOffset, StateList states) {
 
 		}
 

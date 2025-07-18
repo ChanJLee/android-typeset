@@ -1,12 +1,11 @@
 package me.chan.texas.text.dsl
 
-import android.graphics.Canvas
-import android.graphics.Paint
-import android.text.TextPaint
 import me.chan.texas.TexasOption
 import me.chan.texas.misc.RectF
 import me.chan.texas.renderer.RendererContext
 import me.chan.texas.renderer.TexasView.DocumentSource
+import me.chan.texas.renderer.core.graphics.TexasCanvas
+import me.chan.texas.renderer.core.graphics.TexasPaint
 import me.chan.texas.renderer.ui.text.ParagraphView.ParagraphSource
 import me.chan.texas.text.Appearance
 import me.chan.texas.text.Document
@@ -19,12 +18,12 @@ import me.chan.texas.text.layout.StateList
 internal class HypeSpanDsl(
     private val _para: Paragraph.Builder,
     private val _onMeasure: (measurable: Measurable, lineHeight: Float, baselineOffset: Float) -> Unit,
-    block: (canvas: Canvas, paint: Paint, inner: RectF, outer: RectF, baselineOffset: Float, states: StateList) -> Unit
+    block: (canvas: TexasCanvas, paint: TexasPaint, inner: RectF, outer: RectF, baselineOffset: Float, states: StateList) -> Unit
 ) {
     private val _span = object : HypeSpan() {
         override fun onDraw(
-            canvas: Canvas,
-            paint: Paint,
+            canvas: TexasCanvas,
+            paint: TexasPaint,
             inner: RectF,
             outer: RectF,
             baselineOffset: Float,
@@ -52,19 +51,19 @@ class SpanDsl(private val _span: Paragraph.SpanBuilder) {
         _span.tag(tag)
     }
 
-    fun style(block: (textPaint: TextPaint, tag: Any?) -> Unit) {
+    fun style(block: (textPaint: TexasPaint, tag: Any?) -> Unit) {
         _span.setTextStyle(object : TextStyle() {
-            override fun update(textPaint: TextPaint, tag: Any?) {
+            override fun update(textPaint: TexasPaint, tag: Any?) {
                 block(textPaint, tag)
             }
         })
     }
 
-    fun background(block: (canvas: Canvas, paint: Paint, inner: RectF, outer: RectF, context: RendererContext) -> Unit) {
+    fun background(block: (canvas: TexasCanvas, paint: TexasPaint, inner: RectF, outer: RectF, context: RendererContext) -> Unit) {
         _span.setBackground(object : Appearance() {
             override fun draw(
-                canvas: Canvas,
-                paint: Paint,
+                canvas: TexasCanvas,
+                paint: TexasPaint,
                 inner: RectF,
                 outer: RectF,
                 context: RendererContext
@@ -74,11 +73,11 @@ class SpanDsl(private val _span: Paragraph.SpanBuilder) {
         })
     }
 
-    fun foreground(block: (canvas: Canvas, paint: Paint, inner: RectF, outer: RectF, context: RendererContext) -> Unit) {
+    fun foreground(block: (canvas: TexasCanvas, paint: TexasPaint, inner: RectF, outer: RectF, context: RendererContext) -> Unit) {
         _span.setForeground(object : Appearance() {
             override fun draw(
-                canvas: Canvas,
-                paint: Paint,
+                canvas: TexasCanvas,
+                paint: TexasPaint,
                 inner: RectF,
                 outer: RectF,
                 context: RendererContext
@@ -128,7 +127,7 @@ class ParaDsl(option: TexasOption, typesetPolicy: Int) {
     fun hypeSpan(
         width: Float,
         height: Float,
-        block: (canvas: Canvas, paint: Paint, inner: RectF, outer: RectF, baselineOffset: Float, states: StateList) -> Unit
+        block: (canvas: TexasCanvas, paint: TexasPaint, inner: RectF, outer: RectF, baselineOffset: Float, states: StateList) -> Unit
     ) {
         hypeSpan(onMeasure = Size.fixed(width, height), block = block)
     }
@@ -136,7 +135,7 @@ class ParaDsl(option: TexasOption, typesetPolicy: Int) {
     fun hypeSpan(
         tag: Any? = null,
         onMeasure: (measurable: Measurable, lineHeight: Float, baselineOffset: Float) -> Unit,
-        block: (canvas: Canvas, paint: Paint, inner: RectF, outer: RectF, baselineOffset: Float, states: StateList) -> Unit
+        block: (canvas: TexasCanvas, paint: TexasPaint, inner: RectF, outer: RectF, baselineOffset: Float, states: StateList) -> Unit
     ) {
         val span = HypeSpanDsl(_para, onMeasure, block)
         span.tag(tag)
