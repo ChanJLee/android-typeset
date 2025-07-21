@@ -17,8 +17,8 @@ import me.chan.texas.text.layout.StateList
 
 internal class HypeSpanDsl(
     private val _para: Paragraph.Builder,
-    private val _onMeasure: (measurable: Measurable, lineHeight: Float, baselineOffset: Float) -> Unit,
-    onDraw: (canvas: TexasCanvas, paint: TexasPaint, inner: RectF, outer: RectF, baselineOffset: Float, states: StateList) -> Unit
+    private val _onMeasure: Measurable.(lineHeight: Float, baselineOffset: Float) -> Unit,
+    onDraw: TexasCanvas.(paint: TexasPaint, inner: RectF, outer: RectF, baselineOffset: Float, states: StateList) -> Unit
 ) {
     private val _span = object : HypeSpan() {
         override fun onDraw(
@@ -29,7 +29,7 @@ internal class HypeSpanDsl(
             baselineOffset: Float,
             states: StateList
         ) {
-            onDraw(canvas, paint, inner, outer, baselineOffset, states)
+            canvas.onDraw(paint, inner, outer, baselineOffset, states)
         }
 
         override fun onMeasure(lineHeight: Float, baselineOffset: Float) {
@@ -51,15 +51,15 @@ class SpanDsl(private val _span: Paragraph.SpanBuilder) {
         _span.tag(tag)
     }
 
-    fun style(block: (textPaint: TexasPaint, tag: Any?) -> Unit) {
+    fun style(block: TexasPaint.(tag: Any?) -> Unit) {
         _span.setTextStyle(object : TextStyle() {
             override fun update(textPaint: TexasPaint, tag: Any?) {
-                block(textPaint, tag)
+                textPaint.block(tag)
             }
         })
     }
 
-    fun background(block: (canvas: TexasCanvas, paint: TexasPaint, inner: RectF, outer: RectF, context: RendererContext) -> Unit) {
+    fun background(block: TexasCanvas.(paint: TexasPaint, inner: RectF, outer: RectF, context: RendererContext) -> Unit) {
         _span.setBackground(object : Appearance() {
             override fun draw(
                 canvas: TexasCanvas,
@@ -73,7 +73,7 @@ class SpanDsl(private val _span: Paragraph.SpanBuilder) {
         })
     }
 
-    fun foreground(block: (canvas: TexasCanvas, paint: TexasPaint, inner: RectF, outer: RectF, context: RendererContext) -> Unit) {
+    fun foreground(block: TexasCanvas.(paint: TexasPaint, inner: RectF, outer: RectF, context: RendererContext) -> Unit) {
         _span.setForeground(object : Appearance() {
             override fun draw(
                 canvas: TexasCanvas,
@@ -100,9 +100,9 @@ interface Size {
 fun Size.fixed(
     width: Float,
     height: Float
-): (measurable: Measurable, lineHeight: Float, baselineOffset: Float) -> Unit {
-    return { measureable, lineHeight, baselineOffset ->
-        measureable.setMeasuredSize(width, height)
+): Measurable.(lineHeight: Float, baselineOffset: Float) -> Unit {
+    return { lineHeight, baselineOffset ->
+        setMeasuredSize(width, height)
     }
 }
 
@@ -134,8 +134,8 @@ class ParaDsl(option: TexasOption, typesetPolicy: Int) {
 
     fun hypeSpan(
         tag: Any? = null,
-        onMeasure: (measurable: Measurable, lineHeight: Float, baselineOffset: Float) -> Unit,
-        onDraw: (canvas: TexasCanvas, paint: TexasPaint, inner: RectF, outer: RectF, baselineOffset: Float, states: StateList) -> Unit
+        onMeasure: Measurable.(lineHeight: Float, baselineOffset: Float) -> Unit,
+        onDraw: TexasCanvas.(paint: TexasPaint, inner: RectF, outer: RectF, baselineOffset: Float, states: StateList) -> Unit
     ) {
         val span = HypeSpanDsl(_para, onMeasure, onDraw)
         span.tag(tag)

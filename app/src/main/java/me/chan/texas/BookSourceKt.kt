@@ -13,13 +13,13 @@ class BookSourceKt : DocumentSource() {
                     span("title $i\n") {
                         tag(i)
 
-                        style { textPaint, _ ->
-                            textPaint.textSize = 20f
+                        style { _ ->
+                            textSize = 20f
                         }
 
-                        foreground { canvas, paint, inner, outer, context ->
+                        foreground { paint, inner, outer, context ->
                             paint.color = 0x11ff0000
-                            canvas.drawRect(inner.left, inner.top, inner.right, inner.bottom, paint)
+                            drawRect(inner.left, inner.top, inner.right, inner.bottom, paint)
                         }
                     }
 
