@@ -1,16 +1,20 @@
 package me.chan.texas.renderer.core.graphics;
 
+import android.graphics.BlendMode;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.Matrix44;
 import android.graphics.Path;
 import android.graphics.Picture;
+import android.graphics.PorterDuff;
 
 import org.junit.Assert;
 import org.junit.Test;
 
+import me.chan.texas.misc.PaintSet;
 import me.chan.texas.misc.Rect;
 import me.chan.texas.misc.RectF;
+import me.chan.texas.test.mock.MockTextPaint;
 
 public class CanvasUnitTest {
 
@@ -19,6 +23,11 @@ public class CanvasUnitTest {
 	 */
 	@Test
 	public void test() {
+		MockTextPaint textPaint = new MockTextPaint();
+		textPaint.setMockTextSize(1);
+		PaintSet paintSet = new PaintSet(textPaint);
+		TexasPaintImpl texasPaint = new TexasPaintImpl();
+
 		TexasCanvasImpl canvas = new TexasCanvasImpl();
 		Canvas raw = new Canvas();
 
@@ -320,6 +329,223 @@ public class CanvasUnitTest {
 		Assert.assertFalse(canvas.isModified());
 		canvas.drawPicture(new Picture());
 		Assert.assertTrue(canvas.isModified());
+
+		canvas.reset(raw);
+		Assert.assertFalse(canvas.isModified());
+		canvas.drawPicture(new Picture(), new RectF());
+		Assert.assertTrue(canvas.isModified());
+
+		canvas.reset(raw);
+		Assert.assertFalse(canvas.isModified());
+		canvas.drawPicture(new Picture(), new Rect());
+		Assert.assertTrue(canvas.isModified());
+		canvas.reset(raw);
+
+		canvas.reset(raw);
+		Assert.assertFalse(canvas.isModified());
+		canvas.drawArc(new RectF(), 0, 0, false, texasPaint);
+		Assert.assertTrue(canvas.isModified());
+
+		canvas.reset(raw);
+		Assert.assertFalse(canvas.isModified());
+		canvas.drawArc(0f, 0f, 0f, 0f, 1, 1, false, texasPaint);
+		Assert.assertTrue(canvas.isModified());
+
+		canvas.reset(raw);
+		Assert.assertFalse(canvas.isModified());
+		canvas.drawARGB(1, 1, 1, 1);
+		Assert.assertTrue(canvas.isModified());
+
+		canvas.reset(raw);
+		Assert.assertFalse(canvas.isModified());
+		canvas.drawBitmap(null, 0, 0, texasPaint);
+		Assert.assertTrue(canvas.isModified());
+
+		canvas.reset(raw);
+		Assert.assertFalse(canvas.isModified());
+		canvas.drawBitmap(null, new Rect(), new RectF(), texasPaint);
+		Assert.assertTrue(canvas.isModified());
+
+		canvas.reset(raw);
+		Assert.assertFalse(canvas.isModified());
+		canvas.drawBitmap(null, new Rect(), new Rect(), texasPaint);
+		Assert.assertTrue(canvas.isModified());
+
+		canvas.reset(raw);
+		Assert.assertFalse(canvas.isModified());
+		canvas.drawBitmap(new int[1], 0, 0, 0, 0, 1, 1, false, texasPaint);
+		Assert.assertTrue(canvas.isModified());
+
+		canvas.reset(raw);
+		Assert.assertFalse(canvas.isModified());
+		canvas.drawBitmap(null, null, texasPaint);
+		Assert.assertTrue(canvas.isModified());
+
+		canvas.reset(raw);
+		Assert.assertFalse(canvas.isModified());
+		canvas.drawBitmapMesh(null, 1, 1, null, 0, null, 0, texasPaint);
+		Assert.assertTrue(canvas.isModified());
+
+		canvas.reset(raw);
+		Assert.assertFalse(canvas.isModified());
+		canvas.drawCircle(0, 0, 0, texasPaint);
+		Assert.assertTrue(canvas.isModified());
+
+		canvas.reset(raw);
+		Assert.assertFalse(canvas.isModified());
+		canvas.drawColor(0);
+		Assert.assertTrue(canvas.isModified());
+
+		canvas.reset(raw);
+		Assert.assertFalse(canvas.isModified());
+		canvas.drawColor(0L);
+		Assert.assertTrue(canvas.isModified());
+
+		canvas.reset(raw);
+		Assert.assertFalse(canvas.isModified());
+		canvas.drawColor(0, PorterDuff.Mode.ADD);
+		Assert.assertTrue(canvas.isModified());
+
+		canvas.reset(raw);
+		Assert.assertFalse(canvas.isModified());
+		canvas.drawColor(0, BlendMode.CLEAR);
+		Assert.assertTrue(canvas.isModified());
+
+		canvas.reset(raw);
+		Assert.assertFalse(canvas.isModified());
+		canvas.drawColor(0L, BlendMode.CLEAR);
+		Assert.assertTrue(canvas.isModified());
+
+		canvas.reset(raw);
+		Assert.assertFalse(canvas.isModified());
+		canvas.drawLine(0, 0, 0, 0, texasPaint);
+		Assert.assertTrue(canvas.isModified());
+
+		canvas.reset(raw);
+		Assert.assertFalse(canvas.isModified());
+		canvas.drawLines(null, 0, 0, texasPaint);
+		Assert.assertTrue(canvas.isModified());
+
+		canvas.reset(raw);
+		Assert.assertFalse(canvas.isModified());
+		canvas.drawLines(null, texasPaint);
+		Assert.assertTrue(canvas.isModified());
+
+		canvas.reset(raw);
+		Assert.assertFalse(canvas.isModified());
+		canvas.drawOval(new RectF(), texasPaint);
+		Assert.assertTrue(canvas.isModified());
+
+		canvas.reset(raw);
+		Assert.assertFalse(canvas.isModified());
+		canvas.drawOval(0f, 0f, 0f, 0f, texasPaint);
+		Assert.assertTrue(canvas.isModified());
+
+		canvas.reset(raw);
+		Assert.assertFalse(canvas.isModified());
+		canvas.drawPaint(texasPaint);
+		Assert.assertTrue(canvas.isModified());
+
+		canvas.reset(raw);
+		Assert.assertFalse(canvas.isModified());
+		canvas.drawPatch(null, new Rect(), texasPaint);
+		Assert.assertTrue(canvas.isModified());
+
+		canvas.reset(raw);
+		Assert.assertFalse(canvas.isModified());
+		canvas.drawPatch(null, new RectF(), texasPaint);
+		Assert.assertTrue(canvas.isModified());
+
+		canvas.reset(raw);
+		Assert.assertFalse(canvas.isModified());
+		canvas.drawPoint(0f, 0f, texasPaint);
+		Assert.assertTrue(canvas.isModified());
+
+		canvas.reset(raw);
+		Assert.assertFalse(canvas.isModified());
+		canvas.drawPoints(null, 0, 0, texasPaint);
+		Assert.assertTrue(canvas.isModified());
+
+		canvas.reset(raw);
+		Assert.assertFalse(canvas.isModified());
+		canvas.drawPoints(null, texasPaint);
+		Assert.assertTrue(canvas.isModified());
+
+		canvas.reset(raw);
+		Assert.assertFalse(canvas.isModified());
+		canvas.drawPosText((char[]) null, 1, 1, null, texasPaint);
+		Assert.assertTrue(canvas.isModified());
+
+		canvas.reset(raw);
+		Assert.assertFalse(canvas.isModified());
+		canvas.drawPosText(null, null, texasPaint);
+		Assert.assertTrue(canvas.isModified());
+
+		canvas.reset(raw);
+		Assert.assertFalse(canvas.isModified());
+		canvas.drawRect(new RectF(), texasPaint);
+		Assert.assertTrue(canvas.isModified());
+
+		canvas.reset(raw);
+		Assert.assertFalse(canvas.isModified());
+		canvas.drawRect(new Rect(), texasPaint);
+		Assert.assertTrue(canvas.isModified());
+
+		canvas.reset(raw);
+		Assert.assertFalse(canvas.isModified());
+		canvas.drawRect(1, 1, 1, 1, texasPaint);
+		Assert.assertTrue(canvas.isModified());
+
+		canvas.reset(raw);
+		Assert.assertFalse(canvas.isModified());
+		canvas.drawRGB(1, 1, 1);
+		Assert.assertTrue(canvas.isModified());
+
+		canvas.reset(raw);
+		Assert.assertFalse(canvas.isModified());
+		canvas.drawRoundRect(new RectF(), 0, 0, texasPaint);
+		Assert.assertTrue(canvas.isModified());
+
+		canvas.reset(raw);
+		Assert.assertFalse(canvas.isModified());
+		canvas.drawRoundRect(0, 0, 0, 0, 0, 0, texasPaint);
+		Assert.assertTrue(canvas.isModified());
+
+		canvas.reset(raw);
+		Assert.assertFalse(canvas.isModified());
+		canvas.drawDoubleRoundRect(new RectF(), 0, 0, new RectF(), 0, 0, texasPaint);
+		Assert.assertTrue(canvas.isModified());
+
+		canvas.reset(raw);
+		Assert.assertFalse(canvas.isModified());
+		canvas.drawDoubleRoundRect(new RectF(), null, new RectF(), null, texasPaint);
+		Assert.assertTrue(canvas.isModified());
+
+		canvas.reset(raw);
+		Assert.assertFalse(canvas.isModified());
+		canvas.drawGlyphs(null, 0, null, 0, 0, null, texasPaint);
+		Assert.assertTrue(canvas.isModified());
+
+		canvas.reset(raw);
+		Assert.assertFalse(canvas.isModified());
+		canvas.drawText((char[]) null, 0, 0, 0, 0, texasPaint);
+		Assert.assertTrue(canvas.isModified());
+
+		canvas.reset(raw);
+		Assert.assertFalse(canvas.isModified());
+		canvas.drawText((String) null, 0, 0, texasPaint);
+		Assert.assertTrue(canvas.isModified());
+
+		canvas.reset(raw);
+		Assert.assertFalse(canvas.isModified());
+		canvas.drawText((String) null, 0, 0, 0, 0, texasPaint);
+		Assert.assertTrue(canvas.isModified());
+
+		canvas.reset(raw);
+		Assert.assertFalse(canvas.isModified());
+		canvas.drawText((CharSequence) null, 0, 0, 0, 0, texasPaint);
+		Assert.assertTrue(canvas.isModified());
+
 
 	}
 }
