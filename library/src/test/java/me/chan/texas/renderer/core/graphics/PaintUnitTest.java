@@ -2,9 +2,12 @@ package me.chan.texas.renderer.core.graphics;
 
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.os.LocaleList;
 
 import org.junit.Assert;
 import org.junit.Test;
+
+import java.util.Locale;
 
 import me.chan.texas.misc.PaintSet;
 import me.chan.texas.test.mock.MockTextPaint;
@@ -274,5 +277,277 @@ public class PaintUnitTest {
 		Assert.assertFalse(texasPaint.isModified());
 		texasPaint.setColorFilter(null);
 		Assert.assertTrue(texasPaint.isModified());
+
+		texasPaint.reset(paintSet);
+		Assert.assertFalse(texasPaint.isModified());
+		texasPaint.getXfermode();
+		Assert.assertFalse(texasPaint.isModified());
+
+		texasPaint.reset(paintSet);
+		Assert.assertFalse(texasPaint.isModified());
+		texasPaint.getBlendMode();
+		Assert.assertFalse(texasPaint.isModified());
+
+		texasPaint.reset(paintSet);
+		Assert.assertFalse(texasPaint.isModified());
+		texasPaint.setXfermode(null);
+		Assert.assertTrue(texasPaint.isModified());
+
+		texasPaint.reset(paintSet);
+		Assert.assertFalse(texasPaint.isModified());
+		texasPaint.setBlendMode(null);
+		Assert.assertTrue(texasPaint.isModified());
+
+		texasPaint.reset(paintSet);
+		Assert.assertFalse(texasPaint.isModified());
+		texasPaint.getPathEffect();
+		Assert.assertFalse(texasPaint.isModified());
+
+		texasPaint.reset(paintSet);
+		Assert.assertFalse(texasPaint.isModified());
+		texasPaint.setPathEffect(null);
+		Assert.assertTrue(texasPaint.isModified());
+
+		texasPaint.reset(paintSet);
+		Assert.assertFalse(texasPaint.isModified());
+		texasPaint.getMaskFilter();
+		Assert.assertFalse(texasPaint.isModified());
+
+		texasPaint.reset(paintSet);
+		Assert.assertFalse(texasPaint.isModified());
+		texasPaint.setMaskFilter(null);
+		Assert.assertTrue(texasPaint.isModified());
+
+		texasPaint.reset(paintSet);
+		Assert.assertFalse(texasPaint.isModified());
+		texasPaint.getTypeface();
+		Assert.assertFalse(texasPaint.isModified());
+
+		texasPaint.reset(paintSet);
+		Assert.assertFalse(texasPaint.isModified());
+		texasPaint.setTypeface(null);
+		Assert.assertTrue(texasPaint.isModified());
+
+		texasPaint.reset(paintSet);
+		Assert.assertFalse(texasPaint.isModified());
+		texasPaint.setShadowLayer(1, 1, 1, 1);
+		Assert.assertTrue(texasPaint.isModified());
+
+		texasPaint.reset(paintSet);
+		Assert.assertFalse(texasPaint.isModified());
+		texasPaint.setShadowLayer(1, 1, 1, 1L);
+		Assert.assertTrue(texasPaint.isModified());
+
+		texasPaint.reset(paintSet);
+		Assert.assertFalse(texasPaint.isModified());
+		texasPaint.clearShadowLayer();
+		Assert.assertTrue(texasPaint.isModified());
+
+		texasPaint.reset(paintSet);
+		Assert.assertFalse(texasPaint.isModified());
+		texasPaint.getShadowLayerRadius();
+		Assert.assertFalse(texasPaint.isModified());
+
+		texasPaint.reset(paintSet);
+		Assert.assertFalse(texasPaint.isModified());
+		texasPaint.getShadowLayerDx();
+		Assert.assertFalse(texasPaint.isModified());
+
+		texasPaint.reset(paintSet);
+		Assert.assertFalse(texasPaint.isModified());
+		texasPaint.getShadowLayerDy();
+		Assert.assertFalse(texasPaint.isModified());
+
+		texasPaint.reset(paintSet);
+		Assert.assertFalse(texasPaint.isModified());
+		texasPaint.getShadowLayerColor();
+		Assert.assertFalse(texasPaint.isModified());
+
+		texasPaint.reset(paintSet);
+		Assert.assertFalse(texasPaint.isModified());
+		texasPaint.getShadowLayerColorLong();
+		Assert.assertFalse(texasPaint.isModified());
+
+		texasPaint.reset(paintSet);
+		Assert.assertFalse(texasPaint.isModified());
+		texasPaint.getTextAlign();
+		Assert.assertFalse(texasPaint.isModified());
+
+		texasPaint.reset(paintSet);
+		Assert.assertFalse(texasPaint.isModified());
+		texasPaint.setTextAlign(Paint.Align.CENTER);
+		Assert.assertTrue(texasPaint.isModified());
+
+		texasPaint.reset(paintSet);
+		Assert.assertFalse(texasPaint.isModified());
+		texasPaint.getTextLocale();
+		Assert.assertFalse(texasPaint.isModified());
+
+		texasPaint.reset(paintSet);
+		Assert.assertFalse(texasPaint.isModified());
+		texasPaint.setTextLocale(Locale.CHINA);
+		Assert.assertTrue(texasPaint.isModified());
+
+		texasPaint.reset(paintSet);
+		Assert.assertFalse(texasPaint.isModified());
+		texasPaint.setTextLocales(LocaleList.forLanguageTags("zh-CN"));
+		Assert.assertTrue(texasPaint.isModified());
+
+		texasPaint.reset(paintSet);
+		Assert.assertFalse(texasPaint.isModified());
+		texasPaint.isElegantTextHeight();
+		Assert.assertFalse(texasPaint.isModified());
+
+		texasPaint.reset(paintSet);
+		Assert.assertFalse(texasPaint.isModified());
+		texasPaint.setElegantTextHeight(true);
+		Assert.assertTrue(texasPaint.isModified());
+
+		texasPaint.reset(paintSet);
+		Assert.assertFalse(texasPaint.isModified());
+		texasPaint.getTextSize();
+		Assert.assertFalse(texasPaint.isModified());
+
+		texasPaint.reset(paintSet);
+		Assert.assertFalse(texasPaint.isModified());
+		texasPaint.setTextSize(1);
+		Assert.assertTrue(texasPaint.isModified());
+
+		texasPaint.reset(paintSet);
+		Assert.assertFalse(texasPaint.isModified());
+		texasPaint.getTextScaleX();
+		Assert.assertFalse(texasPaint.isModified());
+
+		texasPaint.reset(paintSet);
+		Assert.assertFalse(texasPaint.isModified());
+		texasPaint.setTextScaleX(1);
+		Assert.assertTrue(texasPaint.isModified());
+
+		texasPaint.reset(paintSet);
+		Assert.assertFalse(texasPaint.isModified());
+		texasPaint.getTextSkewX();
+		Assert.assertFalse(texasPaint.isModified());
+
+		texasPaint.reset(paintSet);
+		Assert.assertFalse(texasPaint.isModified());
+		texasPaint.setTextSkewX(1);
+		Assert.assertTrue(texasPaint.isModified());
+
+		texasPaint.reset(paintSet);
+		Assert.assertFalse(texasPaint.isModified());
+		texasPaint.getLetterSpacing();
+		Assert.assertFalse(texasPaint.isModified());
+
+		texasPaint.reset(paintSet);
+		Assert.assertFalse(texasPaint.isModified());
+		texasPaint.setLetterSpacing(1);
+		Assert.assertTrue(texasPaint.isModified());
+
+		texasPaint.reset(paintSet);
+		Assert.assertFalse(texasPaint.isModified());
+		texasPaint.getWordSpacing();
+		Assert.assertFalse(texasPaint.isModified());
+
+		texasPaint.reset(paintSet);
+		Assert.assertFalse(texasPaint.isModified());
+		texasPaint.setWordSpacing(1);
+		Assert.assertTrue(texasPaint.isModified());
+
+		texasPaint.reset(paintSet);
+		Assert.assertFalse(texasPaint.isModified());
+		texasPaint.getFontFeatureSettings();
+		Assert.assertFalse(texasPaint.isModified());
+
+		texasPaint.reset(paintSet);
+		Assert.assertFalse(texasPaint.isModified());
+		texasPaint.setFontFeatureSettings("");
+		Assert.assertTrue(texasPaint.isModified());
+
+		texasPaint.reset(paintSet);
+		Assert.assertFalse(texasPaint.isModified());
+		texasPaint.getFontVariationSettings();
+		Assert.assertFalse(texasPaint.isModified());
+
+		texasPaint.reset(paintSet);
+		Assert.assertFalse(texasPaint.isModified());
+		texasPaint.setFontVariationSettings("");
+		Assert.assertTrue(texasPaint.isModified());
+
+		texasPaint.reset(paintSet);
+		Assert.assertFalse(texasPaint.isModified());
+		texasPaint.getStartHyphenEdit();
+		Assert.assertFalse(texasPaint.isModified());
+
+		texasPaint.reset(paintSet);
+		Assert.assertFalse(texasPaint.isModified());
+		texasPaint.getEndHyphenEdit();
+		Assert.assertFalse(texasPaint.isModified());
+
+		texasPaint.reset(paintSet);
+		Assert.assertFalse(texasPaint.isModified());
+		texasPaint.setStartHyphenEdit(1);
+		Assert.assertTrue(texasPaint.isModified());
+
+		texasPaint.reset(paintSet);
+		Assert.assertFalse(texasPaint.isModified());
+		texasPaint.setEndHyphenEdit(1);
+		Assert.assertTrue(texasPaint.isModified());
+
+		texasPaint.reset(paintSet);
+		Assert.assertFalse(texasPaint.isModified());
+		texasPaint.ascent();
+		Assert.assertFalse(texasPaint.isModified());
+
+		texasPaint.reset(paintSet);
+		Assert.assertFalse(texasPaint.isModified());
+		texasPaint.descent();
+		Assert.assertFalse(texasPaint.isModified());
+
+		texasPaint.reset(paintSet);
+		Assert.assertFalse(texasPaint.isModified());
+		texasPaint.getFontMetrics(null);
+		Assert.assertFalse(texasPaint.isModified());
+
+		texasPaint.reset(paintSet);
+		Assert.assertFalse(texasPaint.isModified());
+		texasPaint.getFontMetrics();
+		Assert.assertFalse(texasPaint.isModified());
+
+		texasPaint.reset(paintSet);
+		Assert.assertFalse(texasPaint.isModified());
+		texasPaint.getFontMetricsForLocale(null);
+		Assert.assertFalse(texasPaint.isModified());
+
+		texasPaint.reset(paintSet);
+		Assert.assertFalse(texasPaint.isModified());
+		texasPaint.getFontMetricsInt("", 1, 1, 1, 1, true, null);
+		Assert.assertFalse(texasPaint.isModified());
+
+		texasPaint.reset(paintSet);
+		Assert.assertFalse(texasPaint.isModified());
+		texasPaint.getFontMetricsInt(new char[1], 1, 1, 1, 1, true, null);
+		Assert.assertFalse(texasPaint.isModified());
+
+		texasPaint.reset(paintSet);
+		Assert.assertFalse(texasPaint.isModified());
+		texasPaint.getFontMetricsInt(null);
+		Assert.assertFalse(texasPaint.isModified());
+
+		texasPaint.reset(paintSet);
+		Assert.assertFalse(texasPaint.isModified());
+		texasPaint.getFontMetricsInt();
+		Assert.assertFalse(texasPaint.isModified());
+
+		texasPaint.reset(paintSet);
+		Assert.assertFalse(texasPaint.isModified());
+		texasPaint.getFontMetricsIntForLocale(null);
+		Assert.assertFalse(texasPaint.isModified());
+
+		texasPaint.reset(paintSet);
+		Assert.assertFalse(texasPaint.isModified());
+		texasPaint.getFontSpacing();
+		Assert.assertFalse(texasPaint.isModified());
+
+
 	}
 }
