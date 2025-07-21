@@ -18,7 +18,7 @@ import me.chan.texas.text.layout.StateList
 internal class HypeSpanDsl(
     private val _para: Paragraph.Builder,
     private val _onMeasure: (measurable: Measurable, lineHeight: Float, baselineOffset: Float) -> Unit,
-    block: (canvas: TexasCanvas, paint: TexasPaint, inner: RectF, outer: RectF, baselineOffset: Float, states: StateList) -> Unit
+    onDraw: (canvas: TexasCanvas, paint: TexasPaint, inner: RectF, outer: RectF, baselineOffset: Float, states: StateList) -> Unit
 ) {
     private val _span = object : HypeSpan() {
         override fun onDraw(
@@ -29,7 +29,7 @@ internal class HypeSpanDsl(
             baselineOffset: Float,
             states: StateList
         ) {
-            block(canvas, paint, inner, outer, baselineOffset, states)
+            onDraw(canvas, paint, inner, outer, baselineOffset, states)
         }
 
         override fun onMeasure(lineHeight: Float, baselineOffset: Float) {
@@ -127,17 +127,17 @@ class ParaDsl(option: TexasOption, typesetPolicy: Int) {
     fun hypeSpan(
         width: Float,
         height: Float,
-        block: (canvas: TexasCanvas, paint: TexasPaint, inner: RectF, outer: RectF, baselineOffset: Float, states: StateList) -> Unit
+        onDraw: (canvas: TexasCanvas, paint: TexasPaint, inner: RectF, outer: RectF, baselineOffset: Float, states: StateList) -> Unit
     ) {
-        hypeSpan(onMeasure = Size.fixed(width, height), block = block)
+        hypeSpan(onMeasure = Size.fixed(width, height), onDraw = onDraw)
     }
 
     fun hypeSpan(
         tag: Any? = null,
         onMeasure: (measurable: Measurable, lineHeight: Float, baselineOffset: Float) -> Unit,
-        block: (canvas: TexasCanvas, paint: TexasPaint, inner: RectF, outer: RectF, baselineOffset: Float, states: StateList) -> Unit
+        onDraw: (canvas: TexasCanvas, paint: TexasPaint, inner: RectF, outer: RectF, baselineOffset: Float, states: StateList) -> Unit
     ) {
-        val span = HypeSpanDsl(_para, onMeasure, block)
+        val span = HypeSpanDsl(_para, onMeasure, onDraw)
         span.tag(tag)
         span.build()
     }
