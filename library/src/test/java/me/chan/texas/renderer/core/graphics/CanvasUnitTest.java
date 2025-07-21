@@ -7,6 +7,8 @@ import android.graphics.Matrix44;
 import android.graphics.Path;
 import android.graphics.Picture;
 import android.graphics.PorterDuff;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.text.MeasuredText;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -546,6 +548,49 @@ public class CanvasUnitTest {
 		canvas.drawText((CharSequence) null, 0, 0, 0, 0, texasPaint);
 		Assert.assertTrue(canvas.isModified());
 
+		canvas.reset(raw);
+		Assert.assertFalse(canvas.isModified());
+		canvas.drawTextOnPath((char[]) null, 1, 1, null, 0, 0, texasPaint);
+		Assert.assertTrue(canvas.isModified());
 
+		canvas.reset(raw);
+		Assert.assertFalse(canvas.isModified());
+		canvas.drawTextOnPath((String) null, null, 0, 0, texasPaint);
+		Assert.assertTrue(canvas.isModified());
+
+		canvas.reset(raw);
+		Assert.assertFalse(canvas.isModified());
+		canvas.drawTextRun((char[]) null, 1, 1, 1, 1, 0, 0, false, texasPaint);
+		Assert.assertTrue(canvas.isModified());
+
+		canvas.reset(raw);
+		Assert.assertFalse(canvas.isModified());
+		canvas.drawTextRun((CharSequence) null, 1, 1, 1, 1, 0, 0, false, texasPaint);
+		Assert.assertTrue(canvas.isModified());
+
+		canvas.reset(raw);
+		Assert.assertFalse(canvas.isModified());
+		canvas.drawTextRun((MeasuredText) null, 1, 1, 1, 1, 0, 0, false, texasPaint);
+		Assert.assertTrue(canvas.isModified());
+
+		canvas.reset(raw);
+		Assert.assertFalse(canvas.isModified());
+		canvas.drawVertices(Canvas.VertexMode.TRIANGLE_FAN, 1, new float[1], 1, new float[1], 1, new int[1], 1, new short[1], 1, 1, texasPaint);
+		Assert.assertTrue(canvas.isModified());
+
+		canvas.reset(raw);
+		Assert.assertFalse(canvas.isModified());
+		canvas.drawRenderNode(null);
+		Assert.assertTrue(canvas.isModified());
+
+		canvas.reset(raw);
+		Assert.assertFalse(canvas.isModified());
+		canvas.drawMesh(null, null, texasPaint);
+		Assert.assertTrue(canvas.isModified());
+
+		canvas.reset(raw);
+		Assert.assertFalse(canvas.isModified());
+		canvas.draw(new ColorDrawable(1));
+		Assert.assertTrue(canvas.isModified());
 	}
 }
