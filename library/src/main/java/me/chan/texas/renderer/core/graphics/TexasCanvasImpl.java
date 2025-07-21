@@ -325,35 +325,35 @@ public class TexasCanvasImpl implements TexasCanvas {
 
 	@Override
 	public boolean quickReject(@NonNull RectF rect, @NonNull Canvas.EdgeType type) {
-		return getCanvas(false).quickReject(toRaw(rect), type);
+		return getCanvas(true).quickReject(toRaw(rect), type);
 	}
 
 	@RequiresApi(api = Build.VERSION_CODES.R)
 	@Override
 	public boolean quickReject(@NonNull RectF rect) {
-		return getCanvas(false).quickReject(toRaw(rect));
+		return getCanvas(true).quickReject(toRaw(rect));
 	}
 
 	@Override
 	public boolean quickReject(@NonNull Path path, @NonNull Canvas.EdgeType type) {
-		return getCanvas(false).quickReject(path, type);
+		return getCanvas(true).quickReject(path, type);
 	}
 
 	@RequiresApi(api = Build.VERSION_CODES.R)
 	@Override
 	public boolean quickReject(@NonNull Path path) {
-		return getCanvas(false).quickReject(path);
+		return getCanvas(true).quickReject(path);
 	}
 
 	@Override
 	public boolean quickReject(float left, float top, float right, float bottom, @NonNull Canvas.EdgeType type) {
-		return getCanvas(false).quickReject(left, top, right, bottom, type);
+		return getCanvas(true).quickReject(left, top, right, bottom, type);
 	}
 
 	@RequiresApi(api = Build.VERSION_CODES.R)
 	@Override
 	public boolean quickReject(float left, float top, float right, float bottom) {
-		return getCanvas(false).quickReject(left, top, right, bottom);
+		return getCanvas(true).quickReject(left, top, right, bottom);
 	}
 
 	@Override

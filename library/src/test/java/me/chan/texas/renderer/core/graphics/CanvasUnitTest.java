@@ -291,27 +291,27 @@ public class CanvasUnitTest {
 		canvas.reset(raw);
 		Assert.assertFalse(canvas.isModified());
 		canvas.quickReject(new RectF(), null);
-		Assert.assertTrue(canvas.isModified());
+		Assert.assertFalse(canvas.isModified());
 
 		canvas.reset(raw);
 		Assert.assertFalse(canvas.isModified());
 		canvas.quickReject(new RectF());
-		Assert.assertTrue(canvas.isModified());
+		Assert.assertFalse(canvas.isModified());
 
 		canvas.reset(raw);
 		Assert.assertFalse(canvas.isModified());
 		canvas.quickReject(new Path());
-		Assert.assertTrue(canvas.isModified());
+		Assert.assertFalse(canvas.isModified());
 
 		canvas.reset(raw);
 		Assert.assertFalse(canvas.isModified());
 		canvas.quickReject(1F, 1F, 1F, 1F, null);
-		Assert.assertTrue(canvas.isModified());
+		Assert.assertFalse(canvas.isModified());
 
 		canvas.reset(raw);
 		Assert.assertFalse(canvas.isModified());
 		canvas.quickReject(1F, 1F, 1F, 1F);
-		Assert.assertTrue(canvas.isModified());
+		Assert.assertFalse(canvas.isModified());
 
 		canvas.reset(raw);
 		Assert.assertFalse(canvas.isModified());
