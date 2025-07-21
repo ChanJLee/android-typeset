@@ -548,6 +548,231 @@ public class PaintUnitTest {
 		texasPaint.getFontSpacing();
 		Assert.assertFalse(texasPaint.isModified());
 
+		texasPaint.reset(paintSet);
+		Assert.assertFalse(texasPaint.isModified());
+		texasPaint.measureText(new char[1], 1, 1);
+		Assert.assertFalse(texasPaint.isModified());
 
+		texasPaint.reset(paintSet);
+		Assert.assertFalse(texasPaint.isModified());
+		texasPaint.measureText("", 1, 1);
+		Assert.assertFalse(texasPaint.isModified());
+
+		texasPaint.reset(paintSet);
+		Assert.assertFalse(texasPaint.isModified());
+		texasPaint.measureText("");
+		Assert.assertFalse(texasPaint.isModified());
+
+		texasPaint.reset(paintSet);
+		Assert.assertFalse(texasPaint.isModified());
+		texasPaint.measureText((CharSequence) "", 1, 1);
+		Assert.assertFalse(texasPaint.isModified());
+
+		texasPaint.reset(paintSet);
+		Assert.assertFalse(texasPaint.isModified());
+		texasPaint.breakText(new char[1], 1, 1, 1, new float[1]);
+		Assert.assertFalse(texasPaint.isModified());
+
+		texasPaint.reset(paintSet);
+		Assert.assertFalse(texasPaint.isModified());
+		texasPaint.breakText("", false, 1, new float[1]);
+		Assert.assertFalse(texasPaint.isModified());
+
+		texasPaint.reset(paintSet);
+		Assert.assertFalse(texasPaint.isModified());
+		texasPaint.breakText("", 1, 1, false, 1, new float[1]);
+		Assert.assertFalse(texasPaint.isModified());
+
+		// @Override
+		//	public int getTextWidths(char[] text, int index, int count, float[] widths) {
+		//		return getPaint(true).getTextWidths(text, index, count, widths);
+		//	}
+		//
+		//	@Override
+		//	public int getTextWidths(CharSequence text, int start, int end, float[] widths) {
+		//		return getPaint(true).getTextWidths(text, start, end, widths);
+		//	}
+		//
+		//	@Override
+		//	public int getTextWidths(String text, int start, int end, float[] widths) {
+		//		return getPaint(true).getTextWidths(text, start, end, widths);
+		//	}
+		//
+		//	@Override
+		//	public int getTextWidths(String text, float[] widths) {
+		//		return getPaint(true).getTextWidths(text, widths);
+		//	}
+		//
+		//	@RequiresApi(api = Build.VERSION_CODES.Q)
+		//	@Override
+		//	public float getTextRunAdvances(@NonNull char[] chars, int index, int count, int contextIndex, int contextCount, boolean isRtl, @Nullable float[] advances, int advancesIndex) {
+		//		return getPaint(true).getTextRunAdvances(chars, index, count, contextIndex, contextCount, isRtl, advances, advancesIndex);
+		//	}
+		//
+		//	@RequiresApi(api = Build.VERSION_CODES.Q)
+		//	@Override
+		//	public int getTextRunCursor(@NonNull char[] text, int contextStart, int contextLength, boolean isRtl, int offset, int cursorOpt) {
+		//		return getPaint(true).getTextRunCursor(text, contextStart, contextLength, isRtl, offset, cursorOpt);
+		//	}
+		//
+		//	@RequiresApi(api = Build.VERSION_CODES.Q)
+		//	@Override
+		//	public int getTextRunCursor(@NonNull CharSequence text, int contextStart, int contextEnd, boolean isRtl, int offset, int cursorOpt) {
+		//		return getPaint(true).getTextRunCursor(text, contextStart, contextEnd, isRtl, offset, cursorOpt);
+		//	}
+		//
+		//	@Override
+		//	public void getTextPath(char[] text, int index, int count, float x, float y, Path path) {
+		//		getPaint(true).getTextPath(text, index, count, x, y, path);
+		//	}
+		//
+		//	@Override
+		//	public void getTextPath(String text, int start, int end, float x, float y, Path path) {
+		//		getPaint(true).getTextPath(text, start, end, x, y, path);
+		//	}
+		//
+		//	@Override
+		//	public void getTextBounds(String text, int start, int end, Rect bounds) {
+		//		getPaint(true).getTextBounds(text, start, end, toRaw(bounds));
+		//	}
+		//
+		//	@RequiresApi(api = Build.VERSION_CODES.Q)
+		//	@Override
+		//	public void getTextBounds(@NonNull CharSequence text, int start, int end, @NonNull Rect bounds) {
+		//		getPaint(true).getTextBounds(text, start, end, toRaw(bounds));
+		//	}
+		//
+		//	@Override
+		//	public void getTextBounds(char[] text, int index, int count, Rect bounds) {
+		//		getPaint(true).getTextBounds(text, index, count, toRaw(bounds));
+		//	}
+		//
+		//	@Override
+		//	public boolean hasGlyph(String string) {
+		//		return getPaint(true).hasGlyph(string);
+		//	}
+		//
+		//	@Override
+		//	public float getRunAdvance(char[] text, int start, int end, int contextStart, int contextEnd, boolean isRtl, int offset) {
+		//		return getPaint(true).getRunAdvance(text, start, end, contextStart, contextEnd, isRtl, offset);
+		//	}
+		//
+		//	@Override
+		//	public float getRunAdvance(CharSequence text, int start, int end, int contextStart, int contextEnd, boolean isRtl, int offset) {
+		//		return getPaint(true).getRunAdvance(text, start, end, contextStart, contextEnd, isRtl, offset);
+		//	}
+		//
+		//	@RequiresApi(api = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+		//	@Override
+		//	public float getRunCharacterAdvance(@NonNull char[] text, int start, int end, int contextStart, int contextEnd, boolean isRtl, int offset, @Nullable float[] advances, int advancesIndex) {
+		//		return getPaint(true).getRunCharacterAdvance(text, start, end, contextStart, contextEnd, isRtl, offset, advances, advancesIndex);
+		//	}
+		//
+		//	@RequiresApi(api = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+		//	@Override
+		//	public float getRunCharacterAdvance(@NonNull CharSequence text, int start, int end, int contextStart, int contextEnd, boolean isRtl, int offset, @Nullable float[] advances, int advancesIndex) {
+		//		return getPaint(true).getRunCharacterAdvance(text, start, end, contextStart, contextEnd, isRtl, offset, advances, advancesIndex);
+		//	}
+		//
+		//	@Override
+		//	public int getOffsetForAdvance(char[] text, int start, int end, int contextStart, int contextEnd, boolean isRtl, float advance) {
+		//		return getPaint(true).getOffsetForAdvance(text, start, end, contextStart, contextEnd, isRtl, advance);
+		//	}
+		//
+		//	@Override
+		//	public int getOffsetForAdvance(CharSequence text, int start, int end, int contextStart, int contextEnd, boolean isRtl, float advance) {
+		//		return getPaint(true).getOffsetForAdvance(text, start, end, contextStart, contextEnd, isRtl, advance);
+		//	}
+		//
+		//	@RequiresApi(api = Build.VERSION_CODES.P)
+		//	@Override
+		//	public boolean equalsForTextMeasurement(@NonNull Paint other) {
+		//		return getPaint(true).equalsForTextMeasurement(other);
+		//	}
+
+		texasPaint.reset(paintSet);
+		Assert.assertFalse(texasPaint.isModified());
+		texasPaint.getTextWidths(new char[1], 1, 1, new float[1]);
+		Assert.assertFalse(texasPaint.isModified());
+
+		texasPaint.reset(paintSet);
+		Assert.assertFalse(texasPaint.isModified());
+		texasPaint.getTextWidths((CharSequence) "", 1, 1, new float[1]);
+		Assert.assertFalse(texasPaint.isModified());
+
+		texasPaint.reset(paintSet);
+		Assert.assertFalse(texasPaint.isModified());
+		texasPaint.getTextWidths("", 1, 1, new float[1]);
+		Assert.assertFalse(texasPaint.isModified());
+
+		texasPaint.reset(paintSet);
+		Assert.assertFalse(texasPaint.isModified());
+		texasPaint.getTextWidths("", new float[1]);
+		Assert.assertFalse(texasPaint.isModified());
+
+		texasPaint.reset(paintSet);
+		Assert.assertFalse(texasPaint.isModified());
+		texasPaint.getTextRunAdvances(new char[1], 1, 1, 1, 1, true, null, 1);
+		Assert.assertFalse(texasPaint.isModified());
+
+		texasPaint.reset(paintSet);
+		Assert.assertFalse(texasPaint.isModified());
+		texasPaint.getTextRunCursor(new char[1], 1, 1, true, 1, 1);
+		Assert.assertFalse(texasPaint.isModified());
+
+		texasPaint.reset(paintSet);
+		Assert.assertFalse(texasPaint.isModified());
+		texasPaint.getTextRunCursor((CharSequence) "", 1, 1, true, 1, 1);
+		Assert.assertFalse(texasPaint.isModified());
+
+		texasPaint.reset(paintSet);
+		Assert.assertFalse(texasPaint.isModified());
+		texasPaint.getTextPath(new char[1], 1, 1, 1, 1, null);
+		Assert.assertFalse(texasPaint.isModified());
+
+		texasPaint.reset(paintSet);
+		Assert.assertFalse(texasPaint.isModified());
+		texasPaint.getTextPath("", 1, 1, 1, 1, null);
+		Assert.assertFalse(texasPaint.isModified());
+
+		texasPaint.reset(paintSet);
+		Assert.assertFalse(texasPaint.isModified());
+		texasPaint.getTextBounds(new char[1], 1, 1, null);
+		Assert.assertFalse(texasPaint.isModified());
+
+		texasPaint.reset(paintSet);
+		Assert.assertFalse(texasPaint.isModified());
+		texasPaint.getTextBounds((CharSequence) "", 1, 1, null);
+		Assert.assertFalse(texasPaint.isModified());
+
+		texasPaint.reset(paintSet);
+		Assert.assertFalse(texasPaint.isModified());
+		texasPaint.hasGlyph("");
+		Assert.assertFalse(texasPaint.isModified());
+
+		texasPaint.reset(paintSet);
+		Assert.assertFalse(texasPaint.isModified());
+		texasPaint.getRunAdvance(new char[1], 1, 1, 1, 1, true, 1);
+		Assert.assertFalse(texasPaint.isModified());
+
+		texasPaint.reset(paintSet);
+		Assert.assertFalse(texasPaint.isModified());
+		texasPaint.getRunAdvance((CharSequence) "", 1, 1, 1, 1, true, 1);
+		Assert.assertFalse(texasPaint.isModified());
+
+		texasPaint.reset(paintSet);
+		Assert.assertFalse(texasPaint.isModified());
+		texasPaint.getOffsetForAdvance(new char[1], 1, 1, 1, 1, true, 1);
+		Assert.assertFalse(texasPaint.isModified());
+
+		texasPaint.reset(paintSet);
+		Assert.assertFalse(texasPaint.isModified());
+		texasPaint.getOffsetForAdvance((CharSequence) "", 1, 1, 1, 1, true, 1);
+		Assert.assertFalse(texasPaint.isModified());
+
+		texasPaint.reset(paintSet);
+		Assert.assertFalse(texasPaint.isModified());
+		texasPaint.equalsForTextMeasurement(null);
+		Assert.assertFalse(texasPaint.isModified());
 	}
 }
