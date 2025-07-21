@@ -51,7 +51,7 @@ public class TexasCanvasImpl implements TexasCanvas {
 
 	@Override
 	public boolean isHardwareAccelerated() {
-		return getCanvas(false).isHardwareAccelerated();
+		return getCanvas(true).isHardwareAccelerated();
 	}
 
 	@Override
