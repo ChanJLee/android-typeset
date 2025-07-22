@@ -139,18 +139,12 @@ class ParaDsl(option: TexasOption, typesetPolicy: Int) {
     }
 
     fun hypeSpan(
-        width: Float,
-        height: Float,
-        onDraw: (canvas: TexasCanvas, paint: TexasPaint, inner: RectF, outer: RectF, baselineOffset: Float, states: StateList) -> Unit
-    ) {
-        hypeSpan(onMeasure = Size.fixed(width, height), onDraw = onDraw)
-    }
-
-    fun hypeSpan(
         onMeasure: Measurable.(lineHeight: Float, baselineOffset: Float) -> Unit,
+        tag: Any? = null,
         onDraw: TexasCanvas.(paint: TexasPaint, inner: RectF, outer: RectF, baselineOffset: Float, states: StateList) -> Unit
     ) {
         val span = HypeSpanDsl(_para, onMeasure, onDraw)
+        span.tag(tag)
         span.build()
     }
 
