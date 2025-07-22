@@ -29,7 +29,7 @@ public class ParagraphViewDemoActivity extends AppCompatActivity {
 		List<ParagraphView.ParagraphSource> sources = new ArrayList<>();
 
 		for (int i = 0; i < 10; ++i) {
-			sources.add(new ParagraphSourceKt(i));
+			sources.add(new ParagraphSourceKt(i, this));
 		}
 
 		recyclerView.setLayoutManager(new LinearLayoutManager(this));

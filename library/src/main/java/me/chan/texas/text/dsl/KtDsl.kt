@@ -106,6 +106,20 @@ fun Size.fixed(
     }
 }
 
+fun Size.ratio(ratio: Float /* width / height = ratio */): Measurable.(lineHeight: Float, baselineOffset: Float) -> Unit {
+    return { lineHeight, baselineOffset ->
+        val height = lineHeight - baselineOffset
+        setMeasuredSize(height / ratio, height)
+    }
+}
+
+fun Size.ratio(
+    width: Float,
+    height: Float
+): Measurable.(lineHeight: Float, baselineOffset: Float) -> Unit {
+    return ratio(width / height)
+}
+
 class ParaDsl(option: TexasOption, typesetPolicy: Int) {
     private val _para = Paragraph.Builder.newBuilder(option)
         .setTypesetPolicy(typesetPolicy)
@@ -133,12 +147,10 @@ class ParaDsl(option: TexasOption, typesetPolicy: Int) {
     }
 
     fun hypeSpan(
-        tag: Any? = null,
         onMeasure: Measurable.(lineHeight: Float, baselineOffset: Float) -> Unit,
         onDraw: TexasCanvas.(paint: TexasPaint, inner: RectF, outer: RectF, baselineOffset: Float, states: StateList) -> Unit
     ) {
         val span = HypeSpanDsl(_para, onMeasure, onDraw)
-        span.tag(tag)
         span.build()
     }
 
