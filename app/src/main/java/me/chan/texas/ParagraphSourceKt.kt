@@ -6,11 +6,12 @@ import android.graphics.drawable.StateListDrawable
 import androidx.core.content.ContextCompat
 import me.chan.texas.renderer.ui.text.ParagraphView
 import me.chan.texas.text.Paragraph
-import me.chan.texas.text.dsl.Size
+import me.chan.texas.text.dsl.SpanSize
 import me.chan.texas.text.dsl.para
 import me.chan.texas.text.dsl.ratio
 
-class ParagraphSourceKt(private val _index: Int, context: Context) : ParagraphView.ParagraphSource() {
+class ParagraphSourceKt(private val _index: Int, context: Context) :
+    ParagraphView.ParagraphSource() {
     private val mFlagWidth: Float
     private val mFlagHeight: Float
     private val mFlag: Drawable
@@ -42,22 +43,21 @@ class ParagraphSourceKt(private val _index: Int, context: Context) : ParagraphVi
             span("this is content")
 
             hypeSpan(
-                Size.ratio(
+                SpanSize.ratio(
                     mFlagWidth,
                     mFlagHeight
                 )
             ) { paint, inner, outer, baselineOffset, states ->
-                val x = inner.left
-                val y = inner.bottom - baselineOffset
                 if (mFlag is StateListDrawable) {
                     mFlag.setState(if (states.isSelected) STATE_PRESSED else STATE_NORMAL);
                 }
 
+                inner.offset(0f, -baselineOffset)
                 mFlag.setBounds(
-                    x.toInt(),
-                    (y - inner.height()).toInt(),
-                    (x + inner.width()).toInt(),
-                    y.toInt()
+                    inner.left.toInt(),
+                    inner.top.toInt(),
+                    inner.right.toInt(),
+                    inner.bottom.toInt()
                 )
                 draw(mFlag)
             }

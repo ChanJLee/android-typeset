@@ -1,5 +1,6 @@
 package me.chan.texas.text.dsl
 
+import android.view.View
 import me.chan.texas.TexasOption
 import me.chan.texas.misc.RectF
 import me.chan.texas.renderer.RendererContext
@@ -13,6 +14,7 @@ import me.chan.texas.text.HypeSpan
 import me.chan.texas.text.Measurable
 import me.chan.texas.text.Paragraph
 import me.chan.texas.text.TextStyle
+import me.chan.texas.text.ViewSegment
 import me.chan.texas.text.layout.StateList
 
 internal class HypeSpanDsl(
@@ -92,12 +94,12 @@ class SpanDsl(private val _span: Paragraph.SpanBuilder) {
     }
 }
 
-interface Size {
+interface SpanSize {
 
-    companion object : Size {}
+    companion object : SpanSize {}
 }
 
-fun Size.fixed(
+fun SpanSize.fixed(
     width: Float,
     height: Float
 ): Measurable.(lineHeight: Float, baselineOffset: Float) -> Unit {
@@ -106,18 +108,25 @@ fun Size.fixed(
     }
 }
 
-fun Size.ratio(ratio: Float /* width / height = ratio */): Measurable.(lineHeight: Float, baselineOffset: Float) -> Unit {
+/**
+ * 计算宽高比
+ */
+fun SpanSize.ratio(
+    ratio: Float /* width / height = ratio */,
+    excludeBaselineOffset: Boolean = true
+): Measurable.(lineHeight: Float, baselineOffset: Float) -> Unit {
     return { lineHeight, baselineOffset ->
-        val height = lineHeight - baselineOffset
-        setMeasuredSize(height / ratio, height)
+        val height = if (excludeBaselineOffset) lineHeight - baselineOffset else lineHeight
+        setMeasuredSize(height * ratio, height)
     }
 }
 
-fun Size.ratio(
+fun SpanSize.ratio(
     width: Float,
-    height: Float
+    height: Float,
+    excludeBaselineOffset: Boolean = true
 ): Measurable.(lineHeight: Float, baselineOffset: Float) -> Unit {
-    return ratio(width / height)
+    return ratio(width / height, excludeBaselineOffset)
 }
 
 class ParaDsl(option: TexasOption, typesetPolicy: Int) {
@@ -154,8 +163,35 @@ class ParaDsl(option: TexasOption, typesetPolicy: Int) {
     }
 }
 
-class DocumentDsl(private val _option: TexasOption, private val _prevDoc: Document? = null) {
-    private val _document = Document.Builder(_prevDoc)
+class ViewDsl(
+    layoutId: Int,
+    disableReuse: Boolean = false,
+    tag: Any? = null,
+    onRenderer: (View.() -> Unit)
+) {
+    private val _view = object : ViewSegment(layoutId, disableReuse, tag) {
+
+        override fun onAttachedToWindow() {
+            super.onAttachedToWindow()
+        }
+
+        override fun onDetachedFromWindow() {
+            super.onDetachedFromWindow()
+        }
+
+        override fun onRender(view: View) {
+            onRenderer(view)
+        }
+    }
+
+    // build 函数只有当前文件可见
+    internal fun build(): ViewSegment {
+        return _view
+    }
+}
+
+class DocumentDsl(private val _option: TexasOption, prevDoc: Document? = null) {
+    private val _document = Document.Builder(prevDoc)
 
     internal fun build(): Document {
         return _document.build()
@@ -168,6 +204,14 @@ class DocumentDsl(private val _option: TexasOption, private val _prevDoc: Docume
         val para = ParaDsl(_option, typesetPolicy)
         para.block()
         _document.addSegment(para.build())
+    }
+
+    fun view(
+        layoutId: Int, disableReuse: Boolean = false, tag: Any? = null,
+        onRenderer: (View.() -> Unit)
+    ) {
+        val view = ViewDsl(layoutId, disableReuse, tag, onRenderer)
+        _document.addSegment(view.build())
     }
 }
 
