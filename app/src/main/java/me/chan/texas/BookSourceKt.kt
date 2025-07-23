@@ -6,7 +6,7 @@ import android.graphics.drawable.StateListDrawable
 import androidx.core.content.ContextCompat
 import me.chan.texas.renderer.TexasView.DocumentSource
 import me.chan.texas.text.Document
-import me.chan.texas.text.dsl.Size
+import me.chan.texas.text.dsl.SpanSize
 import me.chan.texas.text.dsl.document
 import me.chan.texas.text.dsl.ratio
 
@@ -46,7 +46,7 @@ class BookSourceKt(context: Context) : DocumentSource() {
                     span("this is content")
 
                     hypeSpan(
-                        Size.ratio(
+                        SpanSize.ratio(
                             mFlagWidth,
                             mFlagHeight
                         )
