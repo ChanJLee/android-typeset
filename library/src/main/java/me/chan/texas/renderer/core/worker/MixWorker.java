@@ -273,15 +273,7 @@ public class MixWorker {
 								  Paragraph paragraph,
 								  Measurer measurer,
 								  TextAttribute textAttribute) throws Worker.TokenExpiredException {
-		Layout layout = paragraph.getLayout();
-		layout.clear();
-
-		int elementSize = paragraph.getElementCount();
-		for (int j = 0; j < elementSize && !token.isExpired(); ++j) {
-			Element element = paragraph.getElement(j);
-			element.measure(measurer, textAttribute);
-		}
-
+		paragraph.measure(measurer, textAttribute);
 		if (token.isExpired()) {
 			throw new Worker.TokenExpiredException("stop typeset paragraph, reason: token is expired", token);
 		}
