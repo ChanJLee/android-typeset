@@ -11,9 +11,9 @@ public class MockMeasurer implements Measurer {
 	}
 
 	@Override
-	public CharSequenceSpec measure(CharSequence charSequence, int start, int end, TextStyle textStyle, Object tag) {
+	public CharSequenceSpec getBaseSpec() {
 		CharSequenceSpec spec = new CharSequenceSpec();
-		measure(charSequence, start, end, textStyle, tag, spec);
+		measure("-", 0, 1, null, null, spec);
 		return spec;
 	}
 

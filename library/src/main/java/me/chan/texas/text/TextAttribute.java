@@ -1,6 +1,7 @@
 package me.chan.texas.text;
 
 import androidx.annotation.RestrictTo;
+import androidx.annotation.VisibleForTesting;
 
 import me.chan.texas.Texas;
 import me.chan.texas.measurer.Measurer;
@@ -24,11 +25,17 @@ public class TextAttribute {
 	private float mBaselineOffset;
 
 	public TextAttribute(Measurer measurer) {
-		refresh(measurer);
+		refresh0(measurer);
 	}
 
-	public void refresh(Measurer measurer) {
-		Measurer.CharSequenceSpec spec = measurer.measure("-", 0, 1, null, null);
+	@VisibleForTesting
+	protected void refresh(Measurer measurer) {
+		refresh0(measurer);
+		i(toString());
+	}
+
+	private void refresh0(Measurer measurer) {
+		Measurer.CharSequenceSpec spec = measurer.getBaseSpec();
 		mHyphenWidth = spec.getWidth();
 		mHyphenHeight = spec.getHeight();
 		mLineHeight = spec.getHeight();
@@ -38,8 +45,6 @@ public class TextAttribute {
 		mSpaceWidth = (float) Math.ceil(mHyphenWidth * factor.spaceWidthFactor);
 		mSpaceStretch = mHyphenWidth * factor.spaceStretchFactor;
 		mSpaceShrink = mHyphenWidth * factor.spaceShrinkFactor;
-
-		i(toString());
 	}
 
 	public float getBaselineOffset() {
