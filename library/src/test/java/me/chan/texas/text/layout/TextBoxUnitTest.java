@@ -65,7 +65,9 @@ public class TextBoxUnitTest {
 		String text = "hello world";
 
 		TextBox textBox1 = TextBox.obtain(text, 0, 6, mTextStyle, null, null, null);
+		textBox1.measure(mMockMeasurer, mTextAttribute);
 		TextBox textBox2 = TextBox.obtain(text, 6, text.length(), mTextStyle, null, null, null);
+		textBox2.measure(mMockMeasurer, mTextAttribute);
 
 		// Set the same group ID to allow merging
 		textBox1.mGroupId = 1;
@@ -158,6 +160,7 @@ public class TextBoxUnitTest {
 		// 下标不是从0开始的内容
 		msg = "abc";
 		textBox = TextBox.obtain(msg, 1, msg.length() - 1, mTextStyle, mTag, mBg, mFg);
+		textBox.measure(mMockMeasurer, mTextAttribute);
 		Assert.assertEquals(textBox.getWidth(), mMockTextPaint.getMockTextSize(), 0);
 		Assert.assertEquals(textBox.getHeight(), mMockTextPaint.getMockTextHeight(), 0);
 		Assert.assertEquals(textBox.getTag(), mTag);
@@ -223,6 +226,7 @@ public class TextBoxUnitTest {
 		// 下标不是从0开始的内容
 		msg = "abc";
 		textBox = TextBox.obtain(msg, 1, msg.length() - 1, mTextStyle, mTag, mBg, mFg);
+		textBox.measure(mMockMeasurer, mTextAttribute);
 		Assert.assertEquals(textBox.getWidth(), mMockTextPaint.getMockTextSize(), 0);
 		Assert.assertEquals(textBox.getHeight(), mMockTextPaint.getMockTextHeight(), 0);
 		Assert.assertEquals(textBox.getTag(), mTag);
@@ -287,6 +291,7 @@ public class TextBoxUnitTest {
 
 		String msg = "hello";
 		TextBox textBox = TextBox.obtain(msg, 0, msg.length(), mTextStyle, mTag, mBg, mFg);
+		textBox.measure(mMockMeasurer, mTextAttribute);
 		Assert.assertNotNull(textBox);
 		// box
 		Assert.assertEquals(textBox.getWidth(), msg.length() * mMockTextPaint.getMockTextSize(), 0);
@@ -316,6 +321,7 @@ public class TextBoxUnitTest {
 		// test obtain not recycle
 		String subStr = "ell";
 		textBox = TextBox.obtain(msg, 1, msg.length() - 1, mTextStyle, mTag, mBg, mFg);
+		textBox.measure(mMockMeasurer, mTextAttribute);
 		Assert.assertNotNull(textBox);
 		Assert.assertNotEquals(prev1, textBox);
 		// box
@@ -340,6 +346,7 @@ public class TextBoxUnitTest {
 		Assert.assertEquals(height, textBox.getHeight(), 0.1f);
 
 		Penalty penalty = Penalty.obtain(0, true, null, null);
+		penalty.measure(mMockMeasurer, mTextAttribute);
 		Assert.assertFalse(textBox.isPenalty());
 		textBox.merge(penalty);
 		Assert.assertTrue(textBox.isPenalty());
@@ -374,6 +381,7 @@ public class TextBoxUnitTest {
 		};
 		String tag = "foo";
 		textBox = TextBox.obtain(msg, 0, msg.length(), textStyle, tag, bg, fg);
+		textBox.measure(mMockMeasurer, mTextAttribute);
 		Assert.assertNotNull(textBox);
 		Assert.assertSame(prev2, textBox);
 		// box
