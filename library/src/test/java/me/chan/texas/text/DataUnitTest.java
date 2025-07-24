@@ -54,7 +54,7 @@ public class DataUnitTest {
 		mMockTextPaint.setMockTextSize(1);
 		mTextAttribute.refresh(mMockMeasurer);
 
-		Glue glue = Glue.obtain(mTextAttribute);
+		Glue glue = Glue.obtain();
 		Assert.assertNotNull(glue);
 
 		Assert.assertFalse(glue.isRecycled());
@@ -74,14 +74,14 @@ public class DataUnitTest {
 
 		mMockTextPaint.setMockTextSize(2);
 		mTextAttribute.refresh(mMockMeasurer);
-		glue = Glue.obtain(mTextAttribute);
+		glue = Glue.obtain();
 		Assert.assertNotNull(glue);
 		Assert.assertSame(previous, glue);
 		Assert.assertFalse(glue.isRecycled());
 		Assert.assertEquals("check width: ", glue.getWidth(), mTextAttribute.getSpaceWidth(), 0);
 		Assert.assertEquals("check stretch: ", glue.getStretch(), mTextAttribute.getSpaceStretch(), 0);
 		Assert.assertEquals("check shrink: ", glue.getShrink(), mTextAttribute.getSpaceShrink(), 0);
-		Assert.assertNotSame(glue, Glue.obtain(mTextAttribute));
+		Assert.assertNotSame(glue, Glue.obtain());
 	}
 
 	@Test
@@ -96,7 +96,7 @@ public class DataUnitTest {
 			}
 		};
 		String tag = "hello";
-		Penalty penalty = Penalty.obtain(2, true, tag, textStyle, mMockMeasurer, mTextAttribute);
+		Penalty penalty = Penalty.obtain(2, true, tag, textStyle, mTextAttribute);
 		Assert.assertNotNull(penalty);
 
 		Assert.assertFalse(penalty.isRecycled());
@@ -128,7 +128,7 @@ public class DataUnitTest {
 			}
 		};
 		String tag2 = "fuck2";
-		penalty = Penalty.obtain(5, false, tag2, textStyle1, mMockMeasurer, mTextAttribute);
+		penalty = Penalty.obtain(5, false, tag2, textStyle1, mTextAttribute);
 		Assert.assertNotNull(penalty);
 		Assert.assertSame(penalty, prev);
 		Assert.assertFalse(penalty.isRecycled());
@@ -143,7 +143,7 @@ public class DataUnitTest {
 			public void update(@NonNull TexasPaint textPaint, @Nullable Object tag) {
 
 			}
-		}, mMockMeasurer, mTextAttribute));
+		}, mTextAttribute));
 	}
 
 	@Test
@@ -211,7 +211,7 @@ public class DataUnitTest {
 
 		mMockTextPaint.setMockTextSize(4);
 		mTextAttribute.refresh(mMockMeasurer);
-		boxes.add(TextBox.obtain("hello", 0, 1, mMockMeasurer, null, null, null, null));
+		boxes.add(TextBox.obtain("hello", 0, 1, null, null, null, null));
 		Assert.assertFalse(boxes.isEmpty());
 
 		Line prev = line;
@@ -274,7 +274,7 @@ public class DataUnitTest {
 		Sum sum = Sum.obtain();
 		Assert.assertNotNull(sum);
 
-		Glue glue = Glue.obtain(mTextAttribute);
+		Glue glue = Glue.obtain();
 		Assert.assertNotNull(glue);
 		Assert.assertFalse(glue.isRecycled());
 		sum.increase(glue);

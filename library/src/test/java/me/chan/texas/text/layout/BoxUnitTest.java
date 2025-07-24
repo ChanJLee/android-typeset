@@ -83,7 +83,7 @@ public class BoxUnitTest {
 		}
 
 		@Override
-		public void measure(Measurer measurer, TextAttribute textAttribute) {
+		public void onMeasure(Measurer measurer, TextAttribute textAttribute) {
 
 		}
 	}

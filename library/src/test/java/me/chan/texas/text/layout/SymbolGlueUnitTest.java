@@ -19,7 +19,7 @@ public class SymbolGlueUnitTest {
 		mockTextPaint.setMockTextSize(2);
 		MockMeasurer measure = new MockMeasurer(mockTextPaint);
 
-		TextBox box = TextBox.obtain("《", 0, 1, measure, null, null, null, null);
+		TextBox box = TextBox.obtain("《", 0, 1, null, null, null, null);
 		Assert.assertEquals(box.getWidth(), 2, 0);
 
 		box.addAttribute(TextBox.ATTRIBUTE_SQUISH_LEFT);
@@ -34,7 +34,7 @@ public class SymbolGlueUnitTest {
 		TestUtils.testRecycled(glue);
 
 		Object tmp = glue;
-		Glue o = Glue.obtain(1, 1, 1, 0);
+		Glue o = Glue.obtain();
 		Assert.assertNotSame(o, tmp);
 
 		glue = SymbolGlue.obtain(box);
