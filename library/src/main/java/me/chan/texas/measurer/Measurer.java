@@ -15,15 +15,7 @@ import me.chan.texas.text.Paragraph;
 @RestrictTo(LIBRARY)
 public interface Measurer {
 
-	/**
-	 * @param charSequence 文本
-	 * @param start        文本开始下表
-	 * @param end          文本结束下标
-	 * @param textStyle    text style
-	 * @param tag          {@link Paragraph.SpanBuilder#tag(Object)}
-	 * @return 文本高度
-	 */
-	CharSequenceSpec measure(CharSequence charSequence, int start, int end, TextStyle textStyle, Object tag);
+	CharSequenceSpec getBaseSpec();
 
 	/**
 	 * @param charSequence 文本
@@ -48,6 +40,11 @@ public interface Measurer {
 
 		public void reset(float width, float height, float baselineOffset) {
 			mWidth = width;
+			mHeight = height;
+			mBaselineOffset = baselineOffset;
+		}
+
+		public void updateTextAttribute(float height, float baselineOffset) {
 			mHeight = height;
 			mBaselineOffset = baselineOffset;
 		}

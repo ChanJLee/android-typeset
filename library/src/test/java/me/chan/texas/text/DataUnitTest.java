@@ -1,10 +1,9 @@
-package me.chan.texas.typesetter;
+package me.chan.texas.text;
 
 import me.chan.texas.misc.Rect;
 
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
-import android.text.TextPaint;
 import android.view.View;
 
 import androidx.annotation.NonNull;
@@ -13,20 +12,11 @@ import androidx.annotation.Nullable;
 import me.chan.texas.Texas;
 import me.chan.texas.measurer.MockMeasurer;
 import me.chan.texas.renderer.core.graphics.TexasPaint;
-import me.chan.texas.text.RectGround;
-import me.chan.texas.text.Document;
-import me.chan.texas.text.Segment;
 import me.chan.texas.text.layout.DrawableBox;
-import me.chan.texas.text.Emoticon;
-import me.chan.texas.text.Figure;
 import me.chan.texas.text.layout.Glue;
 import me.chan.texas.text.layout.Line;
 import me.chan.texas.text.layout.Penalty;
-import me.chan.texas.text.TextAttribute;
 import me.chan.texas.text.layout.TextBox;
-import me.chan.texas.text.TextStyle;
-import me.chan.texas.text.DotUnderLine;
-import me.chan.texas.text.ViewSegment;
 import me.chan.texas.typesetter.tex.Candidate;
 import me.chan.texas.typesetter.tex.Node;
 import me.chan.texas.typesetter.tex.Sum;
