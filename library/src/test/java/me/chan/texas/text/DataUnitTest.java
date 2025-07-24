@@ -96,7 +96,8 @@ public class DataUnitTest {
 			}
 		};
 		String tag = "hello";
-		Penalty penalty = Penalty.obtain(2, true, tag, textStyle, mTextAttribute);
+		Penalty penalty = Penalty.obtain(2, true, tag, textStyle);
+		penalty.measure(mMockMeasurer, mTextAttribute);
 		Assert.assertNotNull(penalty);
 
 		Assert.assertFalse(penalty.isRecycled());
@@ -128,7 +129,8 @@ public class DataUnitTest {
 			}
 		};
 		String tag2 = "fuck2";
-		penalty = Penalty.obtain(5, false, tag2, textStyle1, mTextAttribute);
+		penalty = Penalty.obtain(5, false, tag2, textStyle1);
+		penalty.measure(mMockMeasurer, mTextAttribute);
 		Assert.assertNotNull(penalty);
 		Assert.assertSame(penalty, prev);
 		Assert.assertFalse(penalty.isRecycled());
@@ -143,7 +145,7 @@ public class DataUnitTest {
 			public void update(@NonNull TexasPaint textPaint, @Nullable Object tag) {
 
 			}
-		}, mTextAttribute));
+		}));
 	}
 
 	@Test
@@ -275,6 +277,7 @@ public class DataUnitTest {
 		Assert.assertNotNull(sum);
 
 		Glue glue = Glue.obtain();
+		glue.measure(mMockMeasurer, mTextAttribute);
 		Assert.assertNotNull(glue);
 		Assert.assertFalse(glue.isRecycled());
 		sum.increase(glue);

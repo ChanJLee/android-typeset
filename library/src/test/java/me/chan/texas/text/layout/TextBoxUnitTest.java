@@ -101,7 +101,9 @@ public class TextBoxUnitTest {
 	}
 
 	private TextBox create(String msg) {
-		return TextBox.obtain(msg, 0, msg.length(), mTextStyle, mTag, mBg, mFg);
+		TextBox textBox = TextBox.obtain(msg, 0, msg.length(), mTextStyle, mTag, mBg, mFg);
+		textBox.measure(mMockMeasurer, mTextAttribute);
+		return textBox;
 	}
 
 	private TextBox createRandom(String msg) {
@@ -197,7 +199,8 @@ public class TextBoxUnitTest {
 		Assert.assertFalse(textBox.isPenalty());
 		Assert.assertFalse(textBox.isRecycled());
 
-		Penalty penalty = Penalty.obtain(10, true, null, null, mTextAttribute);
+		Penalty penalty = Penalty.obtain(10, true, null, null);
+		penalty.measure(mMockMeasurer, new TextAttribute(mMockMeasurer));
 		textBox.merge(penalty);
 
 		// check content not changed except text
@@ -336,7 +339,7 @@ public class TextBoxUnitTest {
 		Assert.assertEquals(width, textBox.getWidth(), 0.1f);
 		Assert.assertEquals(height, textBox.getHeight(), 0.1f);
 
-		Penalty penalty = Penalty.obtain(0, true, null, null, mTextAttribute);
+		Penalty penalty = Penalty.obtain(0, true, null, null);
 		Assert.assertFalse(textBox.isPenalty());
 		textBox.merge(penalty);
 		Assert.assertTrue(textBox.isPenalty());
@@ -411,7 +414,8 @@ public class TextBoxUnitTest {
 		Assert.assertNotEquals(lhs.getBackground(), rhs.getBackground());
 		Assert.assertNotEquals(lhs.getForeground(), rhs.getForeground());
 
-		Penalty penalty = Penalty.obtain(1, true, null, null, mTextAttribute);
+		Penalty penalty = Penalty.obtain(1, true, null, null);
+		penalty.measure(mMockMeasurer, mTextAttribute);
 		rhs.merge(penalty);
 
 		// text box

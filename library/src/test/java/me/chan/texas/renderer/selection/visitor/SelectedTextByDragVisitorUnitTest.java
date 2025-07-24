@@ -317,7 +317,9 @@ public class SelectedTextByDragVisitorUnitTest {
 		Assert.assertEquals("tri", triBox.toString());
 		Assert.assertEquals("an", angBox.toString());
 
-		angBox.merge(Penalty.obtain(1, null, null, textAttribute));
+		Penalty penalty = Penalty.obtain(1, null, null);
+		penalty.measure(measurer, textAttribute);
+		angBox.merge(penalty);
 		Assert.assertEquals("an-", angBox.toString());
 
 		Layout layout = Layout.obtain(paragraph.getLayout());
