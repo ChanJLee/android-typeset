@@ -589,7 +589,6 @@ public class ParagraphView extends FrameLayout {
 	 *
 	 * @param renderOption option
 	 */
-	// TODO 现在解析完已经不是测量过的了，需要重新measure
 	public void refresh(@NonNull RenderOption renderOption) {
 		int cmpType = TexasUtils.cmp(mRenderOption, renderOption);
 
@@ -602,7 +601,7 @@ public class ParagraphView extends FrameLayout {
 		}
 		setVerticalAlignment(renderOption);
 
-		if (cmpType == TexasUtils.CmpType.CMP_LOAD) {
+		if (cmpType != TexasUtils.CmpType.CMP_DRAW) {
 			// 丢弃之前的任务
 			discard(false);
 
@@ -610,16 +609,7 @@ public class ParagraphView extends FrameLayout {
 			ParseWorker.Args args = ParseWorker.Args.obtain(mSource, mParseListener);
 			ParseWorker worker = WorkerScheduler.parse();
 			worker.submit(mRender.getToken(), args);
-		} else if (cmpType == TexasUtils.CmpType.CMP_TYPESET) {
-			int width = getWidth() - getPaddingLeft() - getPaddingRight();
-			if (width > 0) {
-				typeset0(width);
-			}
 			return;
-		}
-
-		if (cmpType != TexasUtils.CmpType.CMP_DRAW) {
-			throw new IllegalStateException("unknown cmp type: " + cmpType);
 		}
 
 		if (mParagraph != null) {
@@ -935,7 +925,10 @@ public class ParagraphView extends FrameLayout {
 				return null;
 			}
 
-			return onRead(mParagraphView.createTexasOption());
+			TexasOption option = mParagraphView.createTexasOption();
+			Paragraph paragraph = onRead(mParagraphView.createTexasOption());
+			paragraph.measure(option.getMeasurer(), option.getTextAttribute());
+			return paragraph;
 		}
 
 		protected abstract Paragraph onRead(TexasOption option);
