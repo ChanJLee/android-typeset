@@ -55,6 +55,7 @@ public class DataUnitTest {
 		mTextAttribute.refresh(mMockMeasurer);
 
 		Glue glue = Glue.obtain();
+		glue.measure(mMockMeasurer, mTextAttribute);
 		Assert.assertNotNull(glue);
 
 		Assert.assertFalse(glue.isRecycled());
@@ -75,6 +76,7 @@ public class DataUnitTest {
 		mMockTextPaint.setMockTextSize(2);
 		mTextAttribute.refresh(mMockMeasurer);
 		glue = Glue.obtain();
+		glue.measure(mMockMeasurer, mTextAttribute);
 		Assert.assertNotNull(glue);
 		Assert.assertSame(previous, glue);
 		Assert.assertFalse(glue.isRecycled());
