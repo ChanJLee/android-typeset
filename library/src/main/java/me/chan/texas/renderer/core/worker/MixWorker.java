@@ -208,7 +208,8 @@ public class MixWorker {
 				Paragraph paragraph = (Paragraph) segment;
 				typesetParagraph(token, paragraph, width, measurer, textAttribute);
 			} else if (segment instanceof ViewSegment) {
-				typesetViewSegment((ViewSegment) segment);
+				/* NOOP */
+				continue;
 			} else {
 				throw new RuntimeException("unknown segment type");
 			}
@@ -264,23 +265,12 @@ public class MixWorker {
 								  int width,
 								  Measurer measurer,
 								  TextAttribute textAttribute) throws Throwable {
-		measureParagraph(token, paragraph, measurer, textAttribute);
-		ParagraphTypesetWorker.Args args = ParagraphTypesetWorker.Args.obtain(paragraph, width);
-		WorkerScheduler.typeset().typeset(args);
-	}
-
-	private void measureParagraph(Worker.Token token,
-								  Paragraph paragraph,
-								  Measurer measurer,
-								  TextAttribute textAttribute) throws Worker.TokenExpiredException {
 		paragraph.measure(measurer, textAttribute);
 		if (token.isExpired()) {
 			throw new Worker.TokenExpiredException("stop typeset paragraph, reason: token is expired", token);
 		}
-	}
-
-	private void typesetViewSegment(ViewSegment viewSegment) {
-		/* do nothing */
+		ParagraphTypesetWorker.Args args = ParagraphTypesetWorker.Args.obtain(paragraph, width);
+		WorkerScheduler.typeset().typeset(args);
 	}
 
 	private void typesetFigure(Figure figure, float lineWidth) {
