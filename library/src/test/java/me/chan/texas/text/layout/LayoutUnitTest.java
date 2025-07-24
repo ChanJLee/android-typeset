@@ -40,6 +40,7 @@ public class LayoutUnitTest {
 		paragraph.setRect(new Rect(1, 2, 3, 4));
 
 		ParagraphTypesetter texTypesetter = new ParagraphTypesetter();
+		paragraph.measure(measurer, textAttribute);
 		texTypesetter.typeset(paragraph, BreakStrategy.SIMPLE, 10);
 
 		RectF bounds = new RectF();
@@ -58,6 +59,7 @@ public class LayoutUnitTest {
 		paragraph.setRect(new Rect(1, 2, 3, 4));
 
 		texTypesetter = new ParagraphTypesetter();
+		paragraph.measure(measurer, textAttribute);
 		texTypesetter.typeset(paragraph, BreakStrategy.SIMPLE, 10);
 
 		bounds = new RectF();
@@ -75,6 +77,7 @@ public class LayoutUnitTest {
 		paragraph.setRect(new Rect(1, 2, 3, 4));
 
 		texTypesetter = new ParagraphTypesetter();
+		paragraph.measure(measurer, textAttribute);
 		texTypesetter.typeset(paragraph, BreakStrategy.SIMPLE, 10);
 
 		bounds = new RectF();
