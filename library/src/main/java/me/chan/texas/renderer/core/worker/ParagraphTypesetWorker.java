@@ -25,6 +25,7 @@ public class ParagraphTypesetWorker {
 		return mTypesetter.stats();
 	}
 
+	// TODO 调用之前检查measure被刷新了
 	public void typeset(Args args) {
 		Paragraph paragraph = args.paragraph;
 		Layout layout = paragraph.getLayout();

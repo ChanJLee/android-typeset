@@ -32,6 +32,11 @@ public class Glue extends Element {
 		}
 
 		@Override
+		protected void onMeasure(Measurer measurer, TextAttribute textAttribute) {
+			/* NOOP */
+		}
+
+		@Override
 		public String toString() {
 			return "TERMINAL_GLUE";
 		}
@@ -54,6 +59,11 @@ public class Glue extends Element {
 
 		public float getShrink() {
 			return 0;
+		}
+
+		@Override
+		protected void onMeasure(Measurer measurer, TextAttribute textAttribute) {
+			/* NOOP */
 		}
 
 		@Override
@@ -144,7 +154,7 @@ public class Glue extends Element {
 	}
 
 	@Override
-	public void measure(Measurer measurer, TextAttribute textAttribute) {
+	protected void onMeasure(Measurer measurer, TextAttribute textAttribute) {
 		if ((mRefreshFlag & FLAG_WIDTH) != 0) {
 			mWidth = textAttribute.getSpaceWidth();
 		}

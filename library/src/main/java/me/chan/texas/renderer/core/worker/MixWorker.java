@@ -279,13 +279,6 @@ public class MixWorker {
 		int elementSize = paragraph.getElementCount();
 		for (int j = 0; j < elementSize && !token.isExpired(); ++j) {
 			Element element = paragraph.getElement(j);
-			if (element == Glue.TERMINAL ||
-					element == Penalty.FORCE_BREAK ||
-					element == Penalty.ADVISE_BREAK ||
-					element == Penalty.FORBIDDEN_BREAK) {
-				continue;
-			}
-
 			element.measure(measurer, textAttribute);
 		}
 

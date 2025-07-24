@@ -275,7 +275,7 @@ public final class TextBox extends Box {
 		return obtain(charSequence, start, end, textStyle, tag, background, foreground, Hyphenation.NONE_GROUP_ID);
 	}
 
-	private static TextBox obtain(@NonNull CharSequence charSequence, int start, int end,
+	public static TextBox obtain(@NonNull CharSequence charSequence, int start, int end,
 								  TextStyle textStyle,
 								  Object tag,
 								  Appearance background,
@@ -303,7 +303,7 @@ public final class TextBox extends Box {
 	}
 
 	@Override
-	public void measure(Measurer measurer, TextAttribute textAttribute) {
+	protected void onMeasure(Measurer measurer, TextAttribute textAttribute) {
 		Measurer.CharSequenceSpec spec = Measurer.CharSequenceSpec.obtain();
 		measurer.measure(mText, mStart, mEnd, getTextStyle(), getTag(), spec);
 		mWidth = spec.getWidth();
