@@ -268,30 +268,14 @@ public final class TextBox extends Box {
 	}
 
 	public static TextBox obtain(@NonNull CharSequence charSequence, int start, int end,
-								 Measurer measurer,
 								 TextStyle textStyle,
 								 Object tag,
 								 Appearance background,
 								 Appearance foreground) {
-		return obtain(charSequence, start, end, measurer, textStyle, tag, background, foreground, Hyphenation.NONE_GROUP_ID);
-	}
-
-	public static TextBox obtain(@NonNull CharSequence charSequence, int start, int end,
-								 Measurer measurer,
-								 TextStyle textStyle,
-								 Object tag,
-								 Appearance background,
-								 Appearance foreground, int groupId) {
-		TextBox textBox = obtain(
-				charSequence, start, end, 0, 0,
-				textStyle, tag, background, foreground, groupId
-		);
-		textBox.measure(measurer, null);
-		return textBox;
+		return obtain(charSequence, start, end, textStyle, tag, background, foreground, Hyphenation.NONE_GROUP_ID);
 	}
 
 	private static TextBox obtain(@NonNull CharSequence charSequence, int start, int end,
-								  float width, float height,
 								  TextStyle textStyle,
 								  Object tag,
 								  Appearance background,
@@ -299,10 +283,10 @@ public final class TextBox extends Box {
 								  int groupId) {
 		TextBox box = POOL.acquire();
 		if (box == null) {
-			box = new TextBox(charSequence, start, end, width, height, textStyle);
+			box = new TextBox(charSequence, start, end, 0, 0, textStyle);
 		}
-		box.mWidth = width;
-		box.mHeight = height;
+		box.mWidth = 0;
+		box.mHeight = 0;
 		box.mTag = tag;
 		box.mBackground = background;
 		box.mForeground = foreground;
