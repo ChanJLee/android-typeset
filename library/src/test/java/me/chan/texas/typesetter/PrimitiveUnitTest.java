@@ -42,7 +42,7 @@ public class PrimitiveUnitTest {
 				.next("1 2 3")
 				.next("4 5")
 				.buildSpan();
-		checkContent(builder.build(), 6, BreakStrategy.SIMPLE,
+		checkContent(mTexasOption.getMeasurer(), mTexasOption.getTextAttribute(), builder.build(), 6, BreakStrategy.SIMPLE,
 				"1 2 3",
 				"4 5"
 		);
@@ -53,7 +53,7 @@ public class PrimitiveUnitTest {
 		builder.newSpanBuilder()
 				.next("1 2 3 ")
 				.buildSpan();
-		checkContent(builder.build(), 6, BreakStrategy.SIMPLE,
+		checkContent(mTexasOption.getMeasurer(), mTexasOption.getTextAttribute(), builder.build(), 6, BreakStrategy.SIMPLE,
 				"1 2 3"
 		);
 
@@ -63,7 +63,7 @@ public class PrimitiveUnitTest {
 		builder.newSpanBuilder()
 				.next("1")
 				.buildSpan();
-		checkContent(builder.build(), 6, BreakStrategy.SIMPLE,
+		checkContent(mTexasOption.getMeasurer(), mTexasOption.getTextAttribute(), builder.build(), 6, BreakStrategy.SIMPLE,
 				"1"
 		);
 	}
@@ -83,7 +83,7 @@ public class PrimitiveUnitTest {
 				.newSpanBuilder()
 				.next("3")
 				.buildSpan();
-		checkContent(builder.build(), 8, BreakStrategy.SIMPLE, "1", "2", "3");
+		checkContent(mTexasOption.getMeasurer(), mTexasOption.getTextAttribute(), builder.build(), 8, BreakStrategy.SIMPLE, "1", "2", "3");
 
 		System.out.println(">>>>> tex force break 0");
 		builder = Paragraph.Builder.newBuilder(mTexasOption);
@@ -98,7 +98,7 @@ public class PrimitiveUnitTest {
 				.newSpanBuilder()
 				.next("3")
 				.buildSpan();
-		checkContent(builder.build(), 8, BreakStrategy.BALANCED, "1", "2", "3");
+		checkContent(mTexasOption.getMeasurer(), mTexasOption.getTextAttribute(), builder.build(), 8, BreakStrategy.BALANCED, "1", "2", "3");
 	}
 
 	@Test
@@ -109,7 +109,7 @@ public class PrimitiveUnitTest {
 		builder.newSpanBuilder()
 				.next("1112 3, 4 5")
 				.buildSpan();
-		checkContent(builder.build(), 6, BreakStrategy.SIMPLE,
+		checkContent(mTexasOption.getMeasurer(), mTexasOption.getTextAttribute(), builder.build(), 6, BreakStrategy.SIMPLE,
 				"1112",
 				"3, 4 5"
 		);
@@ -123,7 +123,7 @@ public class PrimitiveUnitTest {
 				builder.newSpanBuilder()
 						.next("1111 < 3 4 5")
 						.buildSpan();
-				checkContent(builder.build(), 6, BreakStrategy.SIMPLE,
+				checkContent(mTexasOption.getMeasurer(), mTexasOption.getTextAttribute(), builder.build(), 6, BreakStrategy.SIMPLE,
 						"1111",
 						"<3 4 5"
 				);
@@ -136,7 +136,7 @@ public class PrimitiveUnitTest {
 				builder.newSpanBuilder()
 						.next("1234567 89")
 						.buildSpan();
-				checkContent(builder.build(), 6, BreakStrategy.SIMPLE,
+				checkContent(mTexasOption.getMeasurer(), mTexasOption.getTextAttribute(), builder.build(), 6, BreakStrategy.SIMPLE,
 						"1234567",
 						"89"
 				);
@@ -149,7 +149,7 @@ public class PrimitiveUnitTest {
 				builder.newSpanBuilder()
 						.next("triangle")
 						.buildSpan();
-				checkContent(builder.build(), 6, BreakStrategy.SIMPLE,
+				checkContent(mTexasOption.getMeasurer(), mTexasOption.getTextAttribute(), builder.build(), 6, BreakStrategy.SIMPLE,
 						"trian-",
 						"gle"
 				);
@@ -165,7 +165,7 @@ public class PrimitiveUnitTest {
 		builder.newSpanBuilder()
 				.next("1 2 3, 4 5")
 				.buildSpan();
-		checkContent(builder.build(), 6, BreakStrategy.BALANCED,
+		checkContent(mTexasOption.getMeasurer(), mTexasOption.getTextAttribute(), builder.build(), 6, BreakStrategy.BALANCED,
 				"1 2 3,",
 				"4 5"
 		);
@@ -179,7 +179,7 @@ public class PrimitiveUnitTest {
 				builder.newSpanBuilder()
 						.next("111 < 3 4 5")
 						.buildSpan();
-				checkContent(builder.build(), 6, BreakStrategy.BALANCED,
+				checkContent(mTexasOption.getMeasurer(), mTexasOption.getTextAttribute(), builder.build(), 6, BreakStrategy.BALANCED,
 						"111 <3",
 						"4 5"
 				);
@@ -192,7 +192,7 @@ public class PrimitiveUnitTest {
 				builder.newSpanBuilder()
 						.next("1234567 89")
 						.buildSpan();
-				checkContent(builder.build(), 6, BreakStrategy.BALANCED
+				checkContent(mTexasOption.getMeasurer(), mTexasOption.getTextAttribute(), builder.build(), 6, BreakStrategy.BALANCED
 				);
 			}
 
@@ -203,7 +203,7 @@ public class PrimitiveUnitTest {
 				builder.newSpanBuilder()
 						.next("triangle")
 						.buildSpan();
-				checkContent(builder.build(), 6, BreakStrategy.BALANCED,
+				checkContent(mTexasOption.getMeasurer(), mTexasOption.getTextAttribute(), builder.build(), 6, BreakStrategy.BALANCED,
 						"trian-",
 						"gle"
 				);
@@ -219,7 +219,7 @@ public class PrimitiveUnitTest {
 		builder.newSpanBuilder()
 				.next("1 2 3 4 5")
 				.buildSpan();
-		checkContent(builder.build(), 6, BreakStrategy.BALANCED,
+		checkContent(mTexasOption.getMeasurer(), mTexasOption.getTextAttribute(), builder.build(), 6, BreakStrategy.BALANCED,
 				"1 2 3",
 				"4 5"
 		);
@@ -242,7 +242,7 @@ public class PrimitiveUnitTest {
 				.next("一二三，四五，")
 				.buildSpan();
 		Paragraph paragraph = builder.build();
-		checkContent(paragraph, 12, BreakStrategy.BALANCED,
+		checkContent(measurer, textAttribute, paragraph, 12, BreakStrategy.BALANCED,
 				"一 二 三， 四",
 				"五，"
 		);
@@ -254,21 +254,23 @@ public class PrimitiveUnitTest {
 				.next("一二三，四五，")
 				.buildSpan();
 		paragraph = builder.build();
-		checkContent(paragraph, 12, BreakStrategy.BALANCED,
+		checkContent(measurer, textAttribute, paragraph, 12, BreakStrategy.BALANCED,
 				"一 二 三， 四",
 				"五，"
 		);
 	}
 
-	private static void checkContent(Paragraph paragraph, int width, BreakStrategy strategy, String... lines) {
+	private static void checkContent(Measurer measurer, TextAttribute textAttribute, Paragraph paragraph, int width, BreakStrategy strategy, String... lines) {
 		checkContent(
+				measurer, textAttribute,
 				paragraph, width,
 				strategy == BreakStrategy.SIMPLE ? new SimpleParagraphTypesetter() : new TexParagraphTypesetter(),
 				strategy, lines
 		);
 	}
 
-	private static void checkContent(Paragraph paragraph, int width, AbsParagraphTypesetter typesetter, BreakStrategy breakStrategy, String... lines) {
+	private static void checkContent(Measurer measurer, TextAttribute textAttribute, Paragraph paragraph, int width, AbsParagraphTypesetter typesetter, BreakStrategy breakStrategy, String... lines) {
+		paragraph.measure(measurer, textAttribute);
 		typesetter.typeset(paragraph, breakStrategy, width);
 
 		Layout layout = paragraph.getLayout();
@@ -304,6 +306,7 @@ public class PrimitiveUnitTest {
 		Paragraph paragraph = builder.build();
 
 		ParagraphTypesetter texTypesetter = new ParagraphTypesetter();
+		paragraph.measure(measurer, textAttribute);
 		texTypesetter.typeset(paragraph, BreakStrategy.SIMPLE, 5);
 
 		Layout layout = paragraph.getLayout();
