@@ -6,6 +6,7 @@ import androidx.annotation.RestrictTo;
 
 import me.chan.texas.misc.DefaultRecyclable;
 import me.chan.texas.misc.ObjectPool;
+import me.chan.texas.misc.PaintSet;
 import me.chan.texas.text.TextStyle;
 import me.chan.texas.text.Paragraph;
 
@@ -26,6 +27,8 @@ public interface Measurer {
 	 * @param spec         输出
 	 */
 	void measure(CharSequence charSequence, int start, int end, TextStyle textStyle, Object tag, CharSequenceSpec spec);
+
+	void refresh(PaintSet paintSet);
 
 	@RestrictTo(LIBRARY)
 	class CharSequenceSpec extends DefaultRecyclable {
