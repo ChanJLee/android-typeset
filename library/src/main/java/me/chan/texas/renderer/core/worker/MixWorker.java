@@ -38,10 +38,8 @@ import me.chan.texas.text.Segment;
 import me.chan.texas.text.TextAttribute;
 import me.chan.texas.text.ViewSegment;
 import me.chan.texas.text.layout.Element;
-import me.chan.texas.text.layout.Glue;
 import me.chan.texas.text.layout.Layout;
 import me.chan.texas.text.layout.Line;
-import me.chan.texas.text.layout.Penalty;
 import me.chan.texas.utils.IntSet;
 import me.chan.texas.utils.concurrency.Worker;
 
@@ -177,7 +175,9 @@ public class MixWorker {
 		RenderOption renderOption = option.getRenderOption();
 		int size = document.getSegmentCount();
 		Measurer measurer = option.getMeasurer();
+		measurer.refresh(option.getPaintSet());
 		TextAttribute textAttribute = option.getTextAttribute();
+		textAttribute.refresh(measurer);
 
 		IntSet diff = createDocumentIdSet(prev);
 

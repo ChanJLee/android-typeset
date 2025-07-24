@@ -69,6 +69,6 @@ public class DrawableBox extends Box {
 
 	@Override
 	protected void onMeasure(Measurer measurer, TextAttribute textAttribute) {
-		/* do nothing */
+		mSpan.measure(textAttribute.getLineHeight(), textAttribute.getBaselineOffset());
 	}
 }

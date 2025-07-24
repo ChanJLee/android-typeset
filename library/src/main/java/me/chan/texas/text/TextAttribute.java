@@ -1,5 +1,6 @@
 package me.chan.texas.text;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 
@@ -7,8 +8,6 @@ import me.chan.texas.Texas;
 import me.chan.texas.measurer.Measurer;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
-
-import android.util.Log;
 
 /**
  * 文本属性
@@ -29,9 +28,8 @@ public class TextAttribute {
 	}
 
 	@VisibleForTesting
-	protected void refresh(Measurer measurer) {
+	public void refresh(Measurer measurer) {
 		refresh0(measurer);
-		i(toString());
 	}
 
 	private void refresh0(Measurer measurer) {
@@ -90,25 +88,20 @@ public class TextAttribute {
 		return mSpaceShrink;
 	}
 
-	private static void i(String msg) {
-		Log.i("TexasText", msg);
-	}
-
+	@NonNull
 	@Override
 	public String toString() {
-		return new StringBuilder(64)
-				.append("TextAttribute{")
-				.append("mHyphenWidth=")
-				.append(mHyphenWidth)
-				.append(", mSpaceWidth=")
-				.append(mSpaceWidth)
-				.append(", mSpaceStretch=")
-				.append(mSpaceStretch)
-				.append(", mSpaceShrink=")
-				.append(mSpaceShrink)
-				.append(", mHyphenHeight=")
-				.append(mHyphenHeight)
-				.append('}')
-				.toString();
+		return "TextAttribute{" +
+				"mHyphenWidth=" +
+				mHyphenWidth +
+				", mSpaceWidth=" +
+				mSpaceWidth +
+				", mSpaceStretch=" +
+				mSpaceStretch +
+				", mSpaceShrink=" +
+				mSpaceShrink +
+				", mHyphenHeight=" +
+				mHyphenHeight +
+				'}';
 	}
 }

@@ -589,6 +589,7 @@ public class ParagraphView extends FrameLayout {
 	 *
 	 * @param renderOption option
 	 */
+	// TODO 现在解析完已经不是测量过的了，需要重新measure
 	public void refresh(@NonNull RenderOption renderOption) {
 		int cmpType = TexasUtils.cmp(mRenderOption, renderOption);
 

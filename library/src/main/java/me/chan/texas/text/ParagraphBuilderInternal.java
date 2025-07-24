@@ -140,10 +140,8 @@ class ParagraphBuilderInternal {
 		mParagraph = Paragraph.obtain();
 		mParagraph.mLayout = Layout.obtain();
 		mParagraph.mLayout.getAdvise().copy(mRenderOption);
-		mCommonGlue = Glue.obtain(mTextAttribute);
-		mStretchOnlyGlue = Glue.obtain(
-				0, 0, mTextAttribute.getSpaceStretch(), 0
-		);
+		mCommonGlue = Glue.obtain();
+		mStretchOnlyGlue = Glue.obtain(Glue.FLAG_STRETCH);
 		mLastToken = null;
 		mAppendSpaceEnable = true;
 	}
@@ -158,7 +156,6 @@ class ParagraphBuilderInternal {
 
 	private void appendHypeSpan(HypeSpan span) {
 		Token token = Token.obtainOtherWord();
-		span.measure(mTextAttribute.getLineHeight(), mTextAttribute.getBaselineOffset());
 		appendElement(span.getDrawableBox());
 		mLastToken = token;
 	}
@@ -434,7 +431,7 @@ class ParagraphBuilderInternal {
 		}
 
 		if (token.checkAttribute(Token.CONTROL_ATTRIBUTE_TAB_HORIZONTAL)) {
-			appendElement(Glue.obtain(mTextAttribute.getSpaceWidth() * 4, 0, 0, 0));
+			appendElement(Glue.obtain(Glue.FLAG_WIDTH | Glue.FLAG_4X_SCALE));
 			return;
 		}
 
