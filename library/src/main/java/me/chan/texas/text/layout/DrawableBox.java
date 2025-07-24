@@ -68,7 +68,7 @@ public class DrawableBox extends Box {
 	}
 
 	@Override
-	public void measure(Measurer measurer, TextAttribute textAttribute) {
+	protected void onMeasure(Measurer measurer, TextAttribute textAttribute) {
 		/* do nothing */
 	}
 }

@@ -29,7 +29,7 @@ public class SymbolGlue extends Glue {
 	}
 
 	@Override
-	public void measure(Measurer measurer, TextAttribute textAttribute) {
+	protected void onMeasure(Measurer measurer, TextAttribute textAttribute) {
 		mTextBox.measure(measurer, textAttribute);
 		mWidth = mTextBox.getWidth();
 		mShrink = mTextBox.mWidth * MAGIC_FACTOR;

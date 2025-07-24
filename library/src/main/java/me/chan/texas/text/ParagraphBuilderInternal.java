@@ -12,10 +12,8 @@ import me.chan.texas.BuildConfig;
 import me.chan.texas.Texas;
 import me.chan.texas.TexasOption;
 import me.chan.texas.hyphenation.Hyphenation;
-import me.chan.texas.measurer.Measurer;
 import me.chan.texas.renderer.RenderOption;
 import me.chan.texas.text.icu.UnicodeUtils;
-import me.chan.texas.text.layout.DrawableBox;
 import me.chan.texas.text.layout.Element;
 import me.chan.texas.text.layout.Glue;
 import me.chan.texas.text.layout.Layout;
@@ -37,7 +35,6 @@ class ParagraphBuilderInternal {
 	private static final int MIN_HYPER_LEN = 4;
 
 	private final IntArray mHyphenated = new IntArray();
-	private Measurer mMeasurer;
 	private Hyphenation mHyphenation;
 	private TextAttribute mTextAttribute;
 	private Paragraph mParagraph;
@@ -124,7 +121,6 @@ class ParagraphBuilderInternal {
 
 	public void reset() {
 		mParagraph = null;
-		mMeasurer = null;
 		mRenderOption = null;
 		mTextAttribute = null;
 		mHyphenation = null;
@@ -139,7 +135,6 @@ class ParagraphBuilderInternal {
 
 	public void reset(TexasOption texasOption) {
 		mRenderOption = texasOption.getRenderOption();
-		mMeasurer = texasOption.getMeasurer();
 		mHyphenation = texasOption.getHyphenation();
 		mTextAttribute = texasOption.getTextAttribute();
 		mParagraph = Paragraph.obtain();
@@ -268,8 +263,7 @@ class ParagraphBuilderInternal {
 			foreground = styles.getForeground();
 		}
 
-		TextBox textBox = TextBox.obtain(text, start, end,
-				mMeasurer, textStyle,
+		TextBox textBox = TextBox.obtain(text, start, end, textStyle,
 				tag,
 				background,
 				foreground);
@@ -346,7 +340,7 @@ class ParagraphBuilderInternal {
 			}
 
 			TextBox textBox = TextBox.obtain(text, start, end,
-					mMeasurer, textStyle,
+					textStyle,
 					tag,
 					background,
 					foreground);
@@ -399,7 +393,7 @@ class ParagraphBuilderInternal {
 		}
 
 		TextBox textBox = TextBox.obtain(text, token.getStart(), token.getEnd(),
-				mMeasurer, textStyle,
+				textStyle,
 				tag,
 				background,
 				foreground);
@@ -469,7 +463,6 @@ class ParagraphBuilderInternal {
 		int len = end - start;
 		if (len <= MIN_HYPER_LEN) {
 			appendElement(TextBox.obtain(text, start, end,
-					mMeasurer,
 					textStyle,
 					tag,
 					background,
@@ -483,7 +476,6 @@ class ParagraphBuilderInternal {
 		int size = mHyphenated.size();
 		if (size == 0) {
 			appendElement(TextBox.obtain(text, start, end,
-					mMeasurer,
 					textStyle,
 					tag,
 					background,
@@ -498,7 +490,6 @@ class ParagraphBuilderInternal {
 				}
 
 				TextBox box = TextBox.obtain(text, start, point,
-						mMeasurer,
 						textStyle,
 						tag,
 						background,
@@ -514,7 +505,6 @@ class ParagraphBuilderInternal {
 						appendElement(Penalty.obtain(Texas.HYPHEN_PENALTY,
 								tag,
 								textStyle,
-								mMeasurer,
 								mTextAttribute
 						));
 					}
