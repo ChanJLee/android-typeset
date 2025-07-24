@@ -122,6 +122,7 @@ public class ParagraphUnitTest {
 		builder.newSpanBuilder().next("ok").buildSpan();
 
 		paragraph = builder.build();
+		paragraph.measure(mMeasurer, mTextAttribute);
 		layout = paragraph.getLayout();
 		advise = layout.getAdvise();
 		Assert.assertEquals(advise.getLineSpacingExtra(), 1, 0);
@@ -130,6 +131,7 @@ public class ParagraphUnitTest {
 		Emoticon hypeSpan = (Emoticon) drawableBox.getSpan();
 		Assert.assertSame(hypeSpan.getDrawable(), colorDrawable);
 		Glue glue = (Glue) paragraph.getElement(1);
+		glue.measure(mMeasurer, mTextAttribute);
 		Assert.assertEquals(glue.getWidth(), mTextAttribute.getSpaceWidth(), 0);
 		Assert.assertEquals(glue.getShrink(), mTextAttribute.getSpaceShrink(), 0);
 		Assert.assertEquals(glue.getStretch(), mTextAttribute.getSpaceStretch(), 0);
