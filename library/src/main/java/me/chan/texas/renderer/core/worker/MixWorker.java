@@ -174,8 +174,10 @@ public class MixWorker {
 								 TexasView.SegmentDecoration segmentDecoration) throws Throwable {
 		RenderOption renderOption = option.getRenderOption();
 		int size = document.getSegmentCount();
+
 		Measurer measurer = option.getMeasurer();
 		measurer.refresh(option.getPaintSet());
+
 		TextAttribute textAttribute = option.getTextAttribute();
 		textAttribute.refresh(measurer);
 

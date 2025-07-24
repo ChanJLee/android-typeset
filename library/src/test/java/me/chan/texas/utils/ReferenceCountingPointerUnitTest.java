@@ -9,7 +9,7 @@ public class ReferenceCountingPointerUnitTest {
 
 	@Test
 	public void test() {
-		Glue glue = Glue.obtain(0, 0, 0, 0);
+		Glue glue = Glue.obtain();
 		Assert.assertFalse(glue.isRecycled());
 
 		ReferenceCountingPointer<Glue> pointer = new ReferenceCountingPointer<Glue>(glue, new ReferenceCountingPointer.Listener<Glue>() {

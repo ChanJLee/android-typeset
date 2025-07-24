@@ -1,5 +1,6 @@
 package me.chan.texas.measurer;
 
+import me.chan.texas.misc.PaintSet;
 import me.chan.texas.test.mock.MockTextPaint;
 import me.chan.texas.text.TextStyle;
 
@@ -21,5 +22,10 @@ public class MockMeasurer implements Measurer {
 	public void measure(CharSequence charSequence, int start, int end, TextStyle textStyle, Object tag, CharSequenceSpec spec) {
 		spec.reset((end - start) * mMockTextPaint.getMockTextSize(),
 				mMockTextPaint.getMockTextHeight(), 0);
+	}
+
+	@Override
+	public void refresh(PaintSet paintSet) {
+		// NOOP
 	}
 }

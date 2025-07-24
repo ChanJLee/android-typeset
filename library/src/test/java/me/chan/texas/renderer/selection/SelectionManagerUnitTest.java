@@ -90,6 +90,7 @@ public class SelectionManagerUnitTest {
 			}
 
 			Paragraph paragraph = (Paragraph) segment;
+			paragraph.measure(measurer, textAttribute);
 			texTypesetter.typeset(paragraph, BreakStrategy.SIMPLE, 5);
 			assertNotNull(paragraph);
 			Layout layout = paragraph.getLayout();

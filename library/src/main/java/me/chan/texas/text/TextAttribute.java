@@ -2,7 +2,6 @@ package me.chan.texas.text;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
-import androidx.annotation.VisibleForTesting;
 
 import me.chan.texas.Texas;
 import me.chan.texas.measurer.Measurer;
@@ -24,15 +23,10 @@ public class TextAttribute {
 	private float mBaselineOffset;
 
 	public TextAttribute(Measurer measurer) {
-		refresh0(measurer);
+		refresh(measurer);
 	}
 
-	@VisibleForTesting
 	public void refresh(Measurer measurer) {
-		refresh0(measurer);
-	}
-
-	private void refresh0(Measurer measurer) {
 		Measurer.CharSequenceSpec spec = measurer.getBaseSpec();
 		mHyphenWidth = spec.getWidth();
 		mHyphenHeight = spec.getHeight();
