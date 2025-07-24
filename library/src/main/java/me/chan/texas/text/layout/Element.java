@@ -13,5 +13,10 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY;
  */
 @RestrictTo(LIBRARY)
 public abstract class Element extends DefaultRecyclable {
-	public abstract void measure(Measurer measurer, TextAttribute textAttribute);
+
+	public final void measure(Measurer measurer, TextAttribute textAttribute) {
+		onMeasure(measurer, textAttribute);
+	}
+
+	protected abstract void onMeasure(Measurer measurer, TextAttribute textAttribute);
 }
