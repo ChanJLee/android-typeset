@@ -44,11 +44,6 @@ public interface Measurer {
 			mBaselineOffset = baselineOffset;
 		}
 
-		public void updateTextAttribute(float height, float baselineOffset) {
-			mHeight = height;
-			mBaselineOffset = baselineOffset;
-		}
-
 		public float getWidth() {
 			return mWidth;
 		}
