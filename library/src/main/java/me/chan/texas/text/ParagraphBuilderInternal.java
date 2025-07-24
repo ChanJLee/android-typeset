@@ -501,8 +501,7 @@ class ParagraphBuilderInternal {
 					} else {
 						appendElement(Penalty.obtain(Texas.HYPHEN_PENALTY,
 								tag,
-								textStyle,
-								mTextAttribute
+								textStyle
 						));
 					}
 				}
