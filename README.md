@@ -8,18 +8,21 @@ Texas是一款支持图文混排的文本渲染库，目前支持两边对齐，
 
 ## 支持的特性
 
-1. 字体颜色
-2. 字体
-3. 字体大小
-4. 行间距
-5. 首行缩进
-6. 选中字体背景色
-7. 选中字体颜色
-8. 片段间间距
-9. 断字策略
-10. 是否可选中
-11. 自定义解析
-12. 资源复用，内存/cpu高度优化
+### Android没有的特性
+- 全平台的断字功能，比如triangle可以因为换行显示成tri-angle
+- 和tex相同算法的两边对齐排版算法
+- 自定义插入内容，你可以选择在渲染文章的时候插入视频、图片等任何你想要的视图
+
+### 文字样式修改
+比如：
+- 颜色
+- 大小
+- 粗细
+等等更多功能
+
+## 段落样式修改
+- 段落间距
+- 段落标注，比如句子高亮
 
 ## 实例代码
 
@@ -48,43 +51,22 @@ public class MyApplication extends Application {
 3. 渲染文本
 
 ```java
-TextAdapter adapter = new TextAdapter();
-texasView.setAdapter(adapter);
-adapter.setSource(new AssetsTextSource(content, "sample.txt"));
+texasView.setSource(new TextDocumentSource("hello world"));
 ```
 
 4. 页面销毁的时候，销毁渲染引擎，释放资源
 ```java
-texasView.release()
+texasView.release();
 ```
 
 ## 高级内容
 
-1. 设置Texas内容读取源
-
+### 解析自定义数据
 ```java
-void setData(Object o)
-void setSource(final Source<?> source)
+
 ```
 
-Source读取数据并返回，因为Source是泛型的，所以你可以返回任何你想要的数据结构，比如对象，或者直接是二进制内容。
-
-2. Adapter
-
-adapter负责将Source读取的内容识别为Texas引擎识别的内容。可以理解为adapter，具体的信息见后面自定义显示内容一节。
-
-3. 设置文本样式
-
-通过调用 texas.createRendererOption()获取当前的渲染选项。通过设置RendererOption内容来设置文本属性。
-目前支持修改字体，修改字号，行间距等。在修改完属性之后，通过调用
-
-```java
-void refresh(RenderOption renderOption)
-```
-
-进行刷新。详见API
-
-## 自定义显示内容
+### 自定义显示内容
 
 在texas内部，文本引擎处理的最小单元叫Segment，一个个Segment由上而下排列组成了渲染内容。拿文章举例，我们可以设置文章Title为一个Segment，
 顶部的插图为一个Segment，正文由很多段落Segment组成。每个Segment都是占满文本引擎窗口TexasView的宽度进行显示。最终用户看到的，便是由上而下

@@ -57,12 +57,12 @@ import me.chan.texas.utils.TexasUtils;
 import me.chan.texas.utils.concurrency.Worker;
 
 /**
- * 渲染引擎入口视图
+ * Rendering engine entry view
  */
 public final class TexasView extends FrameLayout {
 	private final Worker.Token mToken = Worker.Token.newInstance();
 	/**
-	 * 非正常下标
+	 * Invalid position index
 	 */
 	public static final int NO_POSITION = RecyclerView.NO_POSITION;
 
@@ -78,17 +78,17 @@ public final class TexasView extends FrameLayout {
 	public static final int DEFAULT_TEXT_SIZE = 18;
 
 	/**
-	 * TexasView 是禁止的
+	 * TexasView is idle
 	 */
 	public static final int SCROLL_STATE_IDLE = 0;
 
 	/**
-	 * TexasView 正在被用户拖动
+	 * TexasView is being dragged by the user
 	 */
 	public static final int SCROLL_STATE_DRAGGING = 1;
 
 	/**
-	 * TexasView 正在滚动，但不是因为用户的拖动导致的，比如动画导致TexasView滚动
+	 * TexasView is scrolling, but not due to user dragging, such as animation causing TexasView to scroll
 	 */
 	public static final int SCROLL_STATE_SETTLING = 2;
 
@@ -153,14 +153,14 @@ public final class TexasView extends FrameLayout {
 		Resources resources = getResources();
 		RenderOption renderOption = new RenderOption();
 
-		// 设置字体颜色
+		// Set text color
 		renderOption.setTextColor(
 				typedArray.getColor(R.styleable.me_chan_texas_TexasView_me_chan_texas_TexasView_textColor,
 						ContextCompat.getColor(context, R.color.me_chan_texas_text_color)
 				)
 		);
 
-		// 设置字体
+		// Set typeface
 		renderOption.setTypeface(Texas.getDefaultTypeface());
 		String typefacePath = typedArray.getString(R.styleable.me_chan_texas_TexasView_me_chan_texas_TexasView_typefaceAssets);
 		if (!TextUtils.isEmpty(typefacePath)) {
@@ -176,7 +176,7 @@ public final class TexasView extends FrameLayout {
 			}
 		}
 
-		// 设置字体大小
+		// Set text size
 		renderOption.setTextSize(
 				typedArray.getDimension(R.styleable.me_chan_texas_TexasView_me_chan_texas_TexasView_textSize,
 						TypedValue.applyDimension(
@@ -187,83 +187,83 @@ public final class TexasView extends FrameLayout {
 				)
 		);
 
-		// 行间距
+		// Line spacing
 		renderOption.setLineSpacingExtra(
 				typedArray.getDimension(R.styleable.me_chan_texas_TexasView_me_chan_texas_TexasView_lineSpacingExtra,
 						0
 				)
 		);
 
-		// 选中字体的背景色
+		// Selected text background color
 		renderOption.setSelectedBackgroundColor(
 				typedArray.getColor(R.styleable.me_chan_texas_TexasView_me_chan_texas_TexasView_selectedBackgroundColor,
 						ContextCompat.getColor(context, R.color.me_chan_texas_theme_color)
 				)
 		);
 
-		// 选中字体的颜色
+		// Selected text color
 		renderOption.setSelectedTextColor(
 				typedArray.getColor(R.styleable.me_chan_texas_TexasView_me_chan_texas_TexasView_selectedTextColor, Color.WHITE)
 		);
 
-		// 选中span的背景色
+		// Selected span background color
 		renderOption.setSelectedByLongClickBackgroundColor(
 				typedArray.getColor(R.styleable.me_chan_texas_TexasView_me_chan_texas_TexasView_spanSelectedBackgroundColor,
 						ContextCompat.getColor(context, R.color.me_chan_texas_span_bg_color)
 				)
 		);
 
-		// 选中span的字体颜色
+		// Selected span text color
 		renderOption.setSelectedByLongClickTextColor(
 				typedArray.getColor(R.styleable.me_chan_texas_TexasView_me_chan_texas_TexasView_spanSelectedTextColor,
 						ContextCompat.getColor(context, R.color.me_chan_texas_text_color))
 		);
 
-		// 断字策略
+		// Line break strategy
 		int breakStrategy = typedArray.getInt(R.styleable.me_chan_texas_TexasView_me_chan_texas_TexasView_breakStrategy, BREAK_STRATEGY_BALANCE);
 		renderOption.setBreakStrategy(
 				breakStrategy == BREAK_STRATEGY_SIMPLE ?
 						BreakStrategy.SIMPLE : BreakStrategy.BALANCED
 		);
 
-		// 是否可选单词
+		// Whether words are selectable
 		renderOption.setWordSelectable(
 				typedArray.getBoolean(R.styleable.me_chan_texas_TexasView_me_chan_texas_TexasView_wordSelectable, true)
 		);
 
-		// 断字策略
+		// Hyphenation strategy
 		int hyphenStrategy = typedArray.getInt(R.styleable.me_chan_texas_TexasView_me_chan_texas_TexasView_hyphenStrategy, HYPHEN_STRATEGY_US);
 		renderOption.setHyphenStrategy(
 				hyphenStrategy == HYPHEN_STRATEGY_UK ?
 						HyphenStrategy.UK : HyphenStrategy.US
 		);
 
-		// lazy 渲染模式优化
+		// Lazy rendering mode optimization
 		renderOption.setEnableLazyRender(
 				typedArray.getBoolean(R.styleable.me_chan_texas_TexasView_me_chan_texas_TexasView_lazyRender, true)
 		);
 
-		// 高亮span文字颜色
+		// Highlighted span text color
 		renderOption.setSpanHighlightTextColor(
 				typedArray.getColor(R.styleable.me_chan_texas_TexasView_me_chan_texas_TexasView_spanHighlightTextColor,
 						ContextCompat.getColor(context, R.color.me_chan_texas_theme_color)
 				)
 		);
 
-		// 加载中背景色
+		// Loading background color
 		renderOption.setLoadingBackgroundColor(
 				typedArray.getColor(R.styleable.me_chan_texas_TexasView_me_chan_texas_TexasView_loadingBackgroundColor,
 						ContextCompat.getColor(context, R.color.me_chan_texas_loading_bg)
 				)
 		);
 
-		// 自由划线水滴颜色
+		// Drag handle color
 		renderOption.setDragViewColor(
 				typedArray.getColor(R.styleable.me_chan_texas_TexasView_me_chan_texas_TexasView_dragViewColor,
 						ContextCompat.getColor(context, R.color.me_chan_texas_drag_view_color))
 		);
 
-		// 设置选中圆角半径
+		// Set selected background round radius
 		renderOption.setSelectedBackgroundRoundRadius(
 				typedArray.getDimension(
 						R.styleable.me_chan_texas_TexasView_me_chan_texas_TexasView_selectedBackgroundRoundRadius,
@@ -275,27 +275,27 @@ public final class TexasView extends FrameLayout {
 				)
 		);
 
-		// 是否开启兼容模式
+		// Whether to enable compatibility mode
 		renderOption.setCompatMode(
 				typedArray.getBoolean(R.styleable.me_chan_texas_TexasView_me_chan_texas_TexasView_compatMode, false)
 		);
 
-		// 如果开启了非兼容模式，且系统版本小于6.0，关闭硬件加速
+		// If non-compatibility mode is enabled and system version is less than 6.0, disable hardware acceleration
 		// {@link me.chan.texas.renderer.core.graphics.TextureScene}
 		if (!renderOption.isCompatMode() && Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
 			setLayerType(LAYER_TYPE_SOFTWARE, null);
 		}
 
-		// 是否开启拖拽选择
+		// Whether to enable drag to select
 		renderOption.setDragToSelectEnable(
 				typedArray.getBoolean(R.styleable.me_chan_texas_TexasView_me_chan_texas_TexasView_dragToSelectionEnable, true)
 		);
 
-		// 文字居中形式
+		// Text gravity
 		int textGravity = typedArray.getInt(R.styleable.me_chan_texas_TexasView_me_chan_texas_TexasView_textGravity, TextGravity.TOP | TextGravity.START);
 		renderOption.setTextGravity(textGravity);
 
-		// 开启双向文本
+		// Enable bidirectional text
 		renderOption.setBidiEnable(
 				typedArray.getBoolean(R.styleable.me_chan_texas_TexasView_me_chan_texas_TexasView_bidiEnable, false)
 		);
@@ -355,7 +355,7 @@ public final class TexasView extends FrameLayout {
 	}
 
 	/**
-	 * 创建一个新的渲染参数 结束后调用 {@link TexasView#refresh(RenderOption)} 刷新样式
+	 * Create a new render option. Call {@link TexasView#refresh(RenderOption)} to refresh styles after completion
 	 *
 	 * @return option
 	 */
@@ -371,7 +371,7 @@ public final class TexasView extends FrameLayout {
 	}
 
 	/**
-	 * 设置数据源
+	 * Set data source
 	 *
 	 * @param source source
 	 */
@@ -395,7 +395,7 @@ public final class TexasView extends FrameLayout {
 	}
 
 	/**
-	 * @return 当前数据源
+	 * @return current data source
 	 */
 	@Nullable
 	public DocumentSource getSource() {
@@ -403,7 +403,7 @@ public final class TexasView extends FrameLayout {
 	}
 
 	/**
-	 * 刷新内容，可能会重新排版 {@link TexasView#redraw()}
+	 * Refresh content, may re-layout {@link TexasView#redraw()}
 	 *
 	 * @param renderOption option
 	 */
@@ -415,7 +415,7 @@ public final class TexasView extends FrameLayout {
 	}
 
 	/**
-	 * 重新绘制内容
+	 * Redraw content
 	 */
 	public void redraw() {
 		if (mRenderer != null) {
@@ -424,7 +424,7 @@ public final class TexasView extends FrameLayout {
 	}
 
 	/**
-	 * 释放资源
+	 * Release resources
 	 */
 	public void release() {
 		i("release");
@@ -442,7 +442,7 @@ public final class TexasView extends FrameLayout {
 	}
 
 	/**
-	 * @param decor paragraph 装饰器
+	 * @param decor paragraph decorator
 	 */
 	public void setParagraphDecor(ParagraphDecor decor) {
 		if (mRenderer != null) {
@@ -451,25 +451,25 @@ public final class TexasView extends FrameLayout {
 	}
 
 	/**
-	 * 获取第一个可见segment下标
+	 * Get the first visible segment index
 	 *
-	 * @param completelyVisible 是否要完全可见的segment
-	 * @return 第一个可见segment下标，没有则为 {@link TexasView#NO_POSITION}
+	 * @param completelyVisible whether to require completely visible segment
+	 * @return first visible segment index, {@link TexasView#NO_POSITION} if none
 	 */
 	public int getFirstVisibleSegmentIndex(boolean completelyVisible) {
 		return mRenderer == null ? NO_POSITION : mRenderer.getFirstVisibleSegmentIndex(completelyVisible);
 	}
 
 	/**
-	 * @param completelyVisible 是否要完全可见的segment
-	 * @return 最后一个可见segment下标，没有则为 {@link TexasView#NO_POSITION}
+	 * @param completelyVisible whether to require completely visible segment
+	 * @return last visible segment index, {@link TexasView#NO_POSITION} if none
 	 */
 	public int getLastVisibleSegmentIndex(boolean completelyVisible) {
 		return mRenderer == null ? NO_POSITION : mRenderer.getLastVisibleSegmentIndex(completelyVisible);
 	}
 
 	/**
-	 * 返回当前正在渲染的document
+	 * Return the document currently being rendered
 	 *
 	 * @return document
 	 */
@@ -479,16 +479,16 @@ public final class TexasView extends FrameLayout {
 	}
 
 	/**
-	 * @param renderListener 渲染监听器 {@link RenderListener}
+	 * @param renderListener render listener {@link RenderListener}
 	 */
 	public void setRenderListener(RenderListener renderListener) {
 		mRenderListener = renderListener;
 	}
 
 	/**
-	 * 获取选中信息
+	 * Get selection information
 	 *
-	 * @return 选中信息, 默认类型为 {@link Selection.Type#SELECTION}
+	 * @return selection information, default type is {@link Selection.Type#SELECTION}
 	 */
 	@Nullable
 	public Selection getSelection() {
@@ -509,7 +509,7 @@ public final class TexasView extends FrameLayout {
 	}
 
 	/**
-	 * @param onClickedListener 设置点击事件
+	 * @param onClickedListener set click event listener
 	 */
 	public void setOnClickedListener(OnClickedListener onClickedListener) {
 		mOnClickedListener = onClickedListener;
@@ -525,21 +525,21 @@ public final class TexasView extends FrameLayout {
 	}
 
 	/**
-	 * 滚动到document的某个segment
+	 * Scroll to a certain segment of the document
 	 *
 	 * @param position segment index {@link Document#indexOfSegment(Segment)} {@link me.chan.texas.text.Paragraph}
-	 * @param smooth   滚动的时候是否平滑滚动
+	 * @param smooth   whether to scroll smoothly
 	 */
 	public void scrollToPosition(int position, boolean smooth) {
 		scrollToPosition(position, smooth, 0);
 	}
 
 	/**
-	 * 滚动到document的某个segment
+	 * Scroll to a certain segment of the document
 	 *
-	 * @param position segment index {@link Document#indexOfSegment(Segment)} (Segment)} {@link me.chan.texas.text.Paragraph}
-	 * @param smooth   滚动的时候是否平滑滚动
-	 * @param offset   滑动方向上的offset
+	 * @param position segment index {@link Document#indexOfSegment(Segment)} {@link me.chan.texas.text.Paragraph}
+	 * @param smooth   whether to scroll smoothly
+	 * @param offset   offset in the scroll direction
 	 */
 	public void scrollToPosition(int position, boolean smooth, int offset) {
 		if (mRenderer != null) {
@@ -548,10 +548,10 @@ public final class TexasView extends FrameLayout {
 	}
 
 	/**
-	 * 滚动偏移量
+	 * Scroll offset
 	 *
-	 * @param dx 水平滚动距离
-	 * @param dy 垂直滚动距离
+	 * @param dx horizontal scroll distance
+	 * @param dy vertical scroll distance
 	 */
 	public void smoothScrollBy(int dx, int dy) {
 		if (mRenderer != null) {
@@ -560,10 +560,10 @@ public final class TexasView extends FrameLayout {
 	}
 
 	/**
-	 * 高亮paragraph中的文本，只在渲染出document后生效
+	 * Highlight text in paragraphs, only takes effect after document is rendered
 	 *
-	 * @param predicates 谓词
-	 * @return 选中区域
+	 * @param predicates predicates
+	 * @return selected area
 	 */
 	@Nullable
 	public Selection highlightParagraphs(ParagraphPredicates predicates) {
@@ -571,11 +571,11 @@ public final class TexasView extends FrameLayout {
 	}
 
 	/**
-	 * 高亮paragraph中的文本，只在渲染出document后生效
+	 * Highlight text in paragraphs, only takes effect after document is rendered
 	 *
-	 * @param predicates 谓词
+	 * @param predicates predicates
 	 * @param styles     {@link Selection.Styles#create(int, int)}
-	 * @return 选中区域
+	 * @return selected area
 	 */
 	@Nullable
 	public Selection highlightParagraphs(ParagraphPredicates predicates, Selection.Styles styles) {
@@ -583,12 +583,12 @@ public final class TexasView extends FrameLayout {
 	}
 
 	/**
-	 * 高亮paragraph中的文本，只在渲染出document后生效
+	 * Highlight text in paragraphs, only takes effect after document is rendered
 	 *
-	 * @param predicates 谓词
-	 * @param scrollTo   是否滚动到高亮区域
-	 * @param offset     滚动偏移
-	 * @return 选中区域
+	 * @param predicates predicates
+	 * @param scrollTo   whether to scroll to highlighted area
+	 * @param offset     scroll offset
+	 * @return selected area
 	 */
 	@Nullable
 	public Selection highlightParagraphs(ParagraphPredicates predicates, boolean scrollTo, int offset) {
@@ -596,13 +596,13 @@ public final class TexasView extends FrameLayout {
 	}
 
 	/**
-	 * 高亮paragraph中的文本，只在渲染出document后生效
+	 * Highlight text in paragraphs, only takes effect after document is rendered
 	 *
-	 * @param predicates 谓词
-	 * @param scrollTo   是否滚动到高亮区域
-	 * @param offset     滚动偏移
+	 * @param predicates predicates
+	 * @param scrollTo   whether to scroll to highlighted area
+	 * @param offset     scroll offset
 	 * @param styles     {@link Selection.Styles#create(int, int)}
-	 * @return 选中区域
+	 * @return selected area
 	 */
 	@Nullable
 	public Selection highlightParagraphs(ParagraphPredicates predicates, boolean scrollTo, int offset, Selection.Styles styles) {
@@ -614,7 +614,7 @@ public final class TexasView extends FrameLayout {
 	}
 
 	/**
-	 * 清除高亮
+	 * Clear highlight
 	 */
 	public void clearHighlight() {
 		if (mRenderer != null) {
@@ -623,17 +623,17 @@ public final class TexasView extends FrameLayout {
 	}
 
 	/**
-	 * @return 获取高亮区域
+	 * @return get highlighted area
 	 */
 	public Selection getHighlight() {
 		return getSelection(Selection.Type.HIGHLIGHT);
 	}
 
 	/**
-	 * 获取选中信息
+	 * Get selection information
 	 *
-	 * @param type 选中类型
-	 * @return 选中信息
+	 * @param type selection type
+	 * @return selection information
 	 */
 	@Nullable
 	public Selection getSelection(Selection.Type type) {
@@ -647,10 +647,10 @@ public final class TexasView extends FrameLayout {
 	}
 
 	/**
-	 * 选中文本
+	 * Select text
 	 *
 	 * @param predicates predicate
-	 * @return 选中区域
+	 * @return selected area
 	 */
 	@Nullable
 	public Selection selectParagraphs(ParagraphPredicates predicates) {
@@ -658,12 +658,12 @@ public final class TexasView extends FrameLayout {
 	}
 
 	/**
-	 * 选中文本
+	 * Select text
 	 * {@link Selection.Styles#create(int, int)}
 	 *
 	 * @param predicates predicate
-	 * @param styles     选中文本的样式，为空就为默认样式 {@link RenderOption#setSelectedByLongClickTextColor(int)} (int)} ...
-	 * @return 选中区域
+	 * @param styles     style of selected text, default style if null {@link RenderOption#setSelectedByLongClickTextColor(int)} ...
+	 * @return selected area
 	 */
 	@Nullable
 	public Selection selectParagraphs(ParagraphPredicates predicates, @Nullable Selection.Styles styles) {
@@ -680,7 +680,7 @@ public final class TexasView extends FrameLayout {
 	}
 
 	/**
-	 * 清除选中区域并隐藏水滴
+	 * Clear selection area and hide drag handles
 	 */
 	public void clearSelection() {
 		if (mRenderer != null) {
@@ -689,7 +689,7 @@ public final class TexasView extends FrameLayout {
 	}
 
 	/**
-	 * 获取滚动状态
+	 * Get scroll state
 	 *
 	 * @return {@link #SCROLL_STATE_DRAGGING} {@link #SCROLL_STATE_IDLE} {@link #SCROLL_STATE_SETTLING}
 	 */
@@ -702,9 +702,9 @@ public final class TexasView extends FrameLayout {
 	}
 
 	/**
-	 * 设置是否有滚动条
+	 * Set whether to enable scroll bar
 	 *
-	 * @param enable 是否开启
+	 * @param enable whether to enable
 	 */
 	public void setScrollBarEnable(boolean enable) {
 		if (mRenderer != null) {
@@ -719,9 +719,9 @@ public final class TexasView extends FrameLayout {
 	}
 
 	/**
-	 * 设置进度条样式
+	 * Set scroll bar style
 	 *
-	 * @param drawable 样式
+	 * @param drawable style
 	 */
 	public void setScrollBarDrawable(Drawable drawable) {
 		if (mRenderer != null) {
@@ -730,7 +730,7 @@ public final class TexasView extends FrameLayout {
 	}
 
 	/**
-	 * @return 获取进度条样式
+	 * @return get scroll bar style
 	 */
 	@Nullable
 	public Drawable getScrollBarDrawable() {
@@ -781,7 +781,7 @@ public final class TexasView extends FrameLayout {
 	}
 
 	/**
-	 * 通知引擎开始响应
+	 * Notify engine to start responding
 	 */
 	public void resume() {
 		if (mRenderer != null) {
@@ -790,7 +790,7 @@ public final class TexasView extends FrameLayout {
 	}
 
 	/**
-	 * 通知引擎可以停止响应
+	 * Notify engine to stop responding
 	 */
 	public void pause() {
 		if (mRenderer != null) {
@@ -799,9 +799,9 @@ public final class TexasView extends FrameLayout {
 	}
 
 	/**
-	 * 如果texas view有固定大小，可以设置这个flag来提高性能
+	 * If texas view has fixed size, you can set this flag to improve performance
 	 *
-	 * @param enable 设置是否固定大小
+	 * @param enable whether to set fixed size
 	 */
 	public void setHasFixedSize(boolean enable) {
 		if (mRenderer != null) {
@@ -810,7 +810,7 @@ public final class TexasView extends FrameLayout {
 	}
 
 	/**
-	 * @param listener 设置滚动状态监听器
+	 * @param listener set scroll state listener
 	 */
 	public void setOnScrollListener(OnScrollListener listener) {
 		mOnScrollListener = listener;
@@ -840,28 +840,28 @@ public final class TexasView extends FrameLayout {
 	}
 
 	/**
-	 * 渲染监听器
+	 * Render listener
 	 */
 	public interface RenderListener {
 		/**
-		 * 开始渲染的时候调用
+		 * Called when rendering starts
 		 *
 		 * @param texasView view
 		 */
 		void onStart(TexasView texasView);
 
 		/**
-		 * 渲染结束的时候调用
+		 * Called when rendering ends
 		 *
 		 * @param texasView view
 		 */
 		void onEnd(TexasView texasView);
 
 		/**
-		 * 发生错误的时候调用
+		 * Called when an error occurs
 		 *
 		 * @param texasView view
-		 * @param throwable 错误
+		 * @param throwable error
 		 */
 		void onError(TexasView texasView, Throwable throwable);
 	}
@@ -916,34 +916,34 @@ public final class TexasView extends FrameLayout {
 		}
 
 		/**
-		 * @param option           当前的option
-		 * @param previousDocument 上一次的document
-		 * @return 数据
+		 * @param option           current option
+		 * @param previousDocument previous document
+		 * @return data
 		 * <p>
-		 * {@link Document.Builder(Document)} 增量更新内容
+		 * {@link Document.Builder(Document)} incremental content update
 		 */
 		protected abstract Document onRead(TexasOption option, @Nullable Document previousDocument);
 	}
 
 	/**
-	 * 点击事件
+	 * Click event listener
 	 */
 	public interface OnClickedListener {
 		/**
 		 * @param event touch event
-		 * @param tag   被点击的text tag
+		 * @param tag   clicked text tag
 		 */
 		void onSpanClicked(TouchEvent event, Object tag);
 
 		/**
 		 * @param event touch event
-		 * @param tag   被点击的text tag
+		 * @param tag   clicked text tag
 		 */
 		void onSpanLongClicked(TouchEvent event, Object tag);
 
 		/**
 		 * @param event touch event
-		 * @param tag   被点击的segment tag
+		 * @param tag   clicked segment tag
 		 */
 		void onSegmentClicked(TouchEvent event, Object tag);
 
@@ -954,32 +954,32 @@ public final class TexasView extends FrameLayout {
 
 		/**
 		 * @param event touch event
-		 * @param tag   被点击的segment tag
+		 * @param tag   clicked segment tag
 		 */
 		void onSegmentDoubleClicked(TouchEvent event, Object tag);
 	}
 
 	/**
-	 * segment修饰器
+	 * Segment decorator
 	 */
 	public interface SegmentDecoration {
 		/**
-		 * 装饰一个segment，可以修饰其边缘
+		 * Decorate a segment, can modify its edges
 		 * <p>
-		 * outRect.set(10, 10, 10, 10) 即代表在当前segment周围包裹10px的空间
+		 * outRect.set(10, 10, 10, 10) means wrapping 10px space around the current segment
 		 *
-		 * @param index    当前所在的下标
-		 * @param count    总个数
-		 * @param segment  当前需要装饰的segment
-		 * @param document segment所在的文档
-		 * @param outRect  输出边缘
+		 * @param index    current index
+		 * @param count    total count
+		 * @param segment  current segment to decorate
+		 * @param document document containing the segment
+		 * @param outRect  output edges
 		 */
 		@AnyThread
 		void onDecorateSegment(int index, int count, Segment segment, Document document, Rect outRect);
 	}
 
 	/**
-	 * 滚动状态监听
+	 * Scroll state listener
 	 */
 	public interface OnScrollListener {
 		/**
@@ -992,7 +992,7 @@ public final class TexasView extends FrameLayout {
 	}
 
 	/**
-	 * 拖动监听
+	 * Drag listener
 	 */
 	public interface OnDragSelectListener {
 		/**
