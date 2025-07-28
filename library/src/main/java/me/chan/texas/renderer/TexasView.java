@@ -322,6 +322,11 @@ public final class TexasView extends FrameLayout {
 		int textGravity = typedArray.getInt(R.styleable.me_chan_texas_TexasView_me_chan_texas_TexasView_textGravity, TextGravity.TOP | TextGravity.START);
 		renderOption.setTextGravity(textGravity);
 
+		// 开启双向文本
+		renderOption.setBidiEnable(
+				typedArray.getBoolean(R.styleable.me_chan_texas_TexasView_me_chan_texas_TexasView_bidiEnable, false)
+		);
+
 		mRenderer = new Renderer(this, renderOption, mToken);
 	}
 
