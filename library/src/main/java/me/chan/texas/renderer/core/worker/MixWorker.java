@@ -1,7 +1,9 @@
 package me.chan.texas.renderer.core.worker;
 
 import android.annotation.SuppressLint;
+
 import me.chan.texas.misc.Rect;
+
 import android.os.Environment;
 import android.os.SystemClock;
 import android.util.Log;
@@ -36,10 +38,8 @@ import me.chan.texas.text.Segment;
 import me.chan.texas.text.TextAttribute;
 import me.chan.texas.text.ViewSegment;
 import me.chan.texas.text.layout.Element;
-import me.chan.texas.text.layout.Glue;
 import me.chan.texas.text.layout.Layout;
 import me.chan.texas.text.layout.Line;
-import me.chan.texas.text.layout.Penalty;
 import me.chan.texas.utils.IntSet;
 import me.chan.texas.utils.concurrency.Worker;
 
@@ -174,8 +174,12 @@ public class MixWorker {
 								 TexasView.SegmentDecoration segmentDecoration) throws Throwable {
 		RenderOption renderOption = option.getRenderOption();
 		int size = document.getSegmentCount();
+
 		Measurer measurer = option.getMeasurer();
+		measurer.refresh(option.getPaintSet());
+
 		TextAttribute textAttribute = option.getTextAttribute();
+		textAttribute.refresh(measurer);
 
 		IntSet diff = createDocumentIdSet(prev);
 
@@ -206,7 +210,8 @@ public class MixWorker {
 				Paragraph paragraph = (Paragraph) segment;
 				typesetParagraph(token, paragraph, width, measurer, textAttribute);
 			} else if (segment instanceof ViewSegment) {
-				typesetViewSegment((ViewSegment) segment);
+				/* NOOP */
+				continue;
 			} else {
 				throw new RuntimeException("unknown segment type");
 			}
@@ -262,38 +267,12 @@ public class MixWorker {
 								  int width,
 								  Measurer measurer,
 								  TextAttribute textAttribute) throws Throwable {
-		measureParagraph(token, paragraph, measurer, textAttribute);
-		ParagraphTypesetWorker.Args args = ParagraphTypesetWorker.Args.obtain(paragraph, width);
-		WorkerScheduler.typeset().typeset(args);
-	}
-
-	private void measureParagraph(Worker.Token token,
-								  Paragraph paragraph,
-								  Measurer measurer,
-								  TextAttribute textAttribute) throws Worker.TokenExpiredException {
-		Layout layout = paragraph.getLayout();
-		layout.clear();
-
-		int elementSize = paragraph.getElementCount();
-		for (int j = 0; j < elementSize && !token.isExpired(); ++j) {
-			Element element = paragraph.getElement(j);
-			if (element == Glue.TERMINAL ||
-					element == Penalty.FORCE_BREAK ||
-					element == Penalty.ADVISE_BREAK ||
-					element == Penalty.FORBIDDEN_BREAK) {
-				continue;
-			}
-
-			element.measure(measurer, textAttribute);
-		}
-
+		paragraph.measure(measurer, textAttribute);
 		if (token.isExpired()) {
 			throw new Worker.TokenExpiredException("stop typeset paragraph, reason: token is expired", token);
 		}
-	}
-
-	private void typesetViewSegment(ViewSegment viewSegment) {
-		/* do nothing */
+		ParagraphTypesetWorker.Args args = ParagraphTypesetWorker.Args.obtain(paragraph, width);
+		WorkerScheduler.typeset().typeset(args);
 	}
 
 	private void typesetFigure(Figure figure, float lineWidth) {

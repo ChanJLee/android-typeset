@@ -2,10 +2,6 @@ package me.chan.texas.renderer.selection;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
-import android.graphics.Canvas;
-import android.graphics.Paint;
-import android.text.TextPaint;
-
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -24,6 +20,8 @@ import me.chan.texas.misc.RectF;
 import me.chan.texas.renderer.ParagraphVisitor;
 import me.chan.texas.renderer.RenderOption;
 import me.chan.texas.renderer.RendererContext;
+import me.chan.texas.renderer.core.graphics.TexasCanvas;
+import me.chan.texas.renderer.core.graphics.TexasPaint;
 import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.TextStyle;
 import me.chan.texas.text.layout.Box;
@@ -227,7 +225,7 @@ public class ParagraphSelection extends DefaultRecyclable {
 		mBackgrounds.clear();
 	}
 
-	public void drawBackground(Canvas canvas, Paint paint, RenderOption option) {
+	public void drawBackground(TexasCanvas canvas, TexasPaint paint, RenderOption option) {
 		mStyle.update();
 
 		float radius = option.getSelectedBackgroundRoundRadius();
@@ -341,7 +339,7 @@ public class ParagraphSelection extends DefaultRecyclable {
 		}
 
 		@Override
-		public void update(@NonNull TextPaint textPaint, @Nullable Object tag) {
+		public void update(@NonNull TexasPaint textPaint, @Nullable Object tag) {
 			textPaint.setColor(mTextColor);
 		}
 	}

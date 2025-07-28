@@ -122,6 +122,7 @@ public class ParagraphUnitTest {
 		builder.newSpanBuilder().next("ok").buildSpan();
 
 		paragraph = builder.build();
+		paragraph.measure(mMeasurer, mTextAttribute);
 		layout = paragraph.getLayout();
 		advise = layout.getAdvise();
 		Assert.assertEquals(advise.getLineSpacingExtra(), 1, 0);
@@ -130,6 +131,7 @@ public class ParagraphUnitTest {
 		Emoticon hypeSpan = (Emoticon) drawableBox.getSpan();
 		Assert.assertSame(hypeSpan.getDrawable(), colorDrawable);
 		Glue glue = (Glue) paragraph.getElement(1);
+		glue.measure(mMeasurer, mTextAttribute);
 		Assert.assertEquals(glue.getWidth(), mTextAttribute.getSpaceWidth(), 0);
 		Assert.assertEquals(glue.getShrink(), mTextAttribute.getSpaceShrink(), 0);
 		Assert.assertEquals(glue.getStretch(), mTextAttribute.getSpaceStretch(), 0);
@@ -302,7 +304,7 @@ public class ParagraphUnitTest {
 	@Test
 	public void testWordSent() {
 		TexasOption texasOption = new TexasOption(mPaintSet, Hyphenation.getInstance(), mMeasurer, mTextAttribute, new RenderOption());
-		Glue blank = Glue.obtain(mTextAttribute);
+		Glue blank = Glue.obtain();
 
 		{
 			// case 1
@@ -381,7 +383,7 @@ public class ParagraphUnitTest {
 	@Test
 	public void testSymbolSent() {
 		TexasOption texasOption = new TexasOption(mPaintSet, Hyphenation.getInstance(), mMeasurer, mTextAttribute, new RenderOption());
-		Glue blank = Glue.obtain(mTextAttribute);
+		Glue blank = Glue.obtain();
 
 		testSymbolSent2();
 
@@ -419,7 +421,7 @@ public class ParagraphUnitTest {
 
 	private void testSymbolSent1() {
 		TexasOption texasOption = new TexasOption(mPaintSet, Hyphenation.getInstance(), mMeasurer, mTextAttribute, new RenderOption());
-		Glue blank = Glue.obtain(mTextAttribute);
+		Glue blank = Glue.obtain();
 
 		{
 			Paragraph.Builder builder = Paragraph.Builder.newBuilder(texasOption);
@@ -716,7 +718,7 @@ public class ParagraphUnitTest {
 
 	private void testSymbolSent2() {
 		TexasOption texasOption = new TexasOption(mPaintSet, Hyphenation.getInstance(), mMeasurer, mTextAttribute, new RenderOption());
-		Glue blank = Glue.obtain(mTextAttribute);
+		Glue blank = Glue.obtain();
 
 		Paragraph.Builder builder = Paragraph.Builder.newBuilder(texasOption);
 		builder.text("no》yes");
@@ -748,7 +750,7 @@ public class ParagraphUnitTest {
 	@Test
 	public void testUnknownSent() {
 		TexasOption texasOption = new TexasOption(mPaintSet, Hyphenation.getInstance(), mMeasurer, mTextAttribute, new RenderOption());
-		Glue blank = Glue.obtain(mTextAttribute);
+		Glue blank = Glue.obtain();
 
 		{
 			Paragraph.Builder builder = Paragraph.Builder.newBuilder(texasOption);
@@ -810,7 +812,7 @@ public class ParagraphUnitTest {
 	@Test
 	public void testBlankSent() {
 		TexasOption texasOption = new TexasOption(mPaintSet, Hyphenation.getInstance(), mMeasurer, mTextAttribute, new RenderOption());
-		Glue blank = Glue.obtain(mTextAttribute);
+		Glue blank = Glue.obtain();
 
 		{
 			// word

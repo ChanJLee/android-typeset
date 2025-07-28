@@ -601,7 +601,7 @@ public class ParagraphView extends FrameLayout {
 		}
 		setVerticalAlignment(renderOption);
 
-		if (cmpType == TexasUtils.CmpType.CMP_LOAD) {
+		if (cmpType != TexasUtils.CmpType.CMP_DRAW) {
 			// 丢弃之前的任务
 			discard(false);
 
@@ -609,16 +609,7 @@ public class ParagraphView extends FrameLayout {
 			ParseWorker.Args args = ParseWorker.Args.obtain(mSource, mParseListener);
 			ParseWorker worker = WorkerScheduler.parse();
 			worker.submit(mRender.getToken(), args);
-		} else if (cmpType == TexasUtils.CmpType.CMP_TYPESET) {
-			int width = getWidth() - getPaddingLeft() - getPaddingRight();
-			if (width > 0) {
-				typeset0(width);
-			}
 			return;
-		}
-
-		if (cmpType != TexasUtils.CmpType.CMP_DRAW) {
-			throw new IllegalStateException("unknown cmp type: " + cmpType);
 		}
 
 		if (mParagraph != null) {
@@ -892,6 +883,11 @@ public class ParagraphView extends FrameLayout {
 				typedArray.getBoolean(R.styleable.me_chan_texas_ParagraphView_me_chan_texas_ParagraphView_debugEnable, false)
 		);
 
+		// 开启双向文本
+		renderOption.setBidiEnable(
+				typedArray.getBoolean(R.styleable.me_chan_texas_ParagraphView_me_chan_texas_ParagraphView_bidiEnable, false)
+		);
+
 		return renderOption;
 	}
 
@@ -934,7 +930,10 @@ public class ParagraphView extends FrameLayout {
 				return null;
 			}
 
-			return onRead(mParagraphView.createTexasOption());
+			TexasOption option = mParagraphView.createTexasOption();
+			Paragraph paragraph = onRead(mParagraphView.createTexasOption());
+			paragraph.measure(option.getMeasurer(), option.getTextAttribute());
+			return paragraph;
 		}
 
 		protected abstract Paragraph onRead(TexasOption option);

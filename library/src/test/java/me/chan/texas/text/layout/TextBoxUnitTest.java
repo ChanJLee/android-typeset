@@ -1,14 +1,13 @@
 package me.chan.texas.text.layout;
 
-import android.graphics.Canvas;
-import android.graphics.Paint;
 import me.chan.texas.misc.RectF;
-import android.text.TextPaint;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import me.chan.texas.TestUtils;
+import me.chan.texas.renderer.core.graphics.TexasCanvas;
+import me.chan.texas.renderer.core.graphics.TexasPaint;
 import me.chan.texas.test.mock.MockTextPaint;
 
 import me.chan.texas.measurer.Measurer;
@@ -42,20 +41,20 @@ public class TextBoxUnitTest {
 
 		mBg = new Appearance() {
 			@Override
-			public void draw(Canvas canvas, Paint textPaint, RectF inner, RectF outer, RendererContext context) {
+			public void draw(TexasCanvas canvas, TexasPaint textPaint, RectF inner, RectF outer, RendererContext context) {
 
 			}
 		};
 		mFg = new Appearance() {
 			@Override
-			public void draw(Canvas canvas, Paint textPaint, RectF inner, RectF outer, RendererContext context) {
+			public void draw(TexasCanvas canvas, TexasPaint textPaint, RectF inner, RectF outer, RendererContext context) {
 
 			}
 		};
 		mTag = "hello";
 		mTextStyle = new TextStyle() {
 			@Override
-			public void update(@NonNull TextPaint textPaint, @Nullable Object tag) {
+			public void update(@NonNull TexasPaint textPaint, @Nullable Object tag) {
 
 			}
 		};
@@ -65,8 +64,10 @@ public class TextBoxUnitTest {
 	public void testMerge() {
 		String text = "hello world";
 
-		TextBox textBox1 = TextBox.obtain(text, 0, 6, mMockMeasurer, mTextStyle, null, null, null);
-		TextBox textBox2 = TextBox.obtain(text, 6, text.length(), mMockMeasurer, mTextStyle, null, null, null);
+		TextBox textBox1 = TextBox.obtain(text, 0, 6, mTextStyle, null, null, null);
+		textBox1.measure(mMockMeasurer, mTextAttribute);
+		TextBox textBox2 = TextBox.obtain(text, 6, text.length(), mTextStyle, null, null, null);
+		textBox2.measure(mMockMeasurer, mTextAttribute);
 
 		// Set the same group ID to allow merging
 		textBox1.mGroupId = 1;
@@ -102,31 +103,33 @@ public class TextBoxUnitTest {
 	}
 
 	private TextBox create(String msg) {
-		return TextBox.obtain(msg, 0, msg.length(), mMockMeasurer, mTextStyle, mTag, mBg, mFg);
+		TextBox textBox = TextBox.obtain(msg, 0, msg.length(), mTextStyle, mTag, mBg, mFg);
+		textBox.measure(mMockMeasurer, mTextAttribute);
+		return textBox;
 	}
 
 	private TextBox createRandom(String msg) {
 		// test obtain after recycle
 		Appearance bg = new Appearance() {
 			@Override
-			public void draw(Canvas canvas, Paint textPaint, RectF inner, RectF outer, RendererContext context) {
+			public void draw(TexasCanvas canvas, TexasPaint textPaint, RectF inner, RectF outer, RendererContext context) {
 
 			}
 		};
 		Appearance fg = new Appearance() {
 			@Override
-			public void draw(Canvas canvas, Paint textPaint, RectF inner, RectF outer, RendererContext context) {
+			public void draw(TexasCanvas canvas, TexasPaint textPaint, RectF inner, RectF outer, RendererContext context) {
 
 			}
 		};
 		TextStyle textStyle = new TextStyle() {
 			@Override
-			public void update(@NonNull TextPaint textPaint, @Nullable Object tag) {
+			public void update(@NonNull TexasPaint textPaint, @Nullable Object tag) {
 
 			}
 		};
 		String tag = "foo";
-		return TextBox.obtain(msg, 0, msg.length(), mMockMeasurer, textStyle, tag, bg, fg);
+		return TextBox.obtain(msg, 0, msg.length(), textStyle, tag, bg, fg);
 	}
 
 	@Test
@@ -156,7 +159,8 @@ public class TextBoxUnitTest {
 
 		// 下标不是从0开始的内容
 		msg = "abc";
-		textBox = TextBox.obtain(msg, 1, msg.length() - 1, mMockMeasurer, mTextStyle, mTag, mBg, mFg);
+		textBox = TextBox.obtain(msg, 1, msg.length() - 1, mTextStyle, mTag, mBg, mFg);
+		textBox.measure(mMockMeasurer, mTextAttribute);
 		Assert.assertEquals(textBox.getWidth(), mMockTextPaint.getMockTextSize(), 0);
 		Assert.assertEquals(textBox.getHeight(), mMockTextPaint.getMockTextHeight(), 0);
 		Assert.assertEquals(textBox.getTag(), mTag);
@@ -198,7 +202,8 @@ public class TextBoxUnitTest {
 		Assert.assertFalse(textBox.isPenalty());
 		Assert.assertFalse(textBox.isRecycled());
 
-		Penalty penalty = Penalty.obtain(10, true, null, null, mMockMeasurer, mTextAttribute);
+		Penalty penalty = Penalty.obtain(10, true, null, null);
+		penalty.measure(mMockMeasurer, new TextAttribute(mMockMeasurer));
 		textBox.merge(penalty);
 
 		// check content not changed except text
@@ -220,7 +225,8 @@ public class TextBoxUnitTest {
 
 		// 下标不是从0开始的内容
 		msg = "abc";
-		textBox = TextBox.obtain(msg, 1, msg.length() - 1, mMockMeasurer, mTextStyle, mTag, mBg, mFg);
+		textBox = TextBox.obtain(msg, 1, msg.length() - 1, mTextStyle, mTag, mBg, mFg);
+		textBox.measure(mMockMeasurer, mTextAttribute);
 		Assert.assertEquals(textBox.getWidth(), mMockTextPaint.getMockTextSize(), 0);
 		Assert.assertEquals(textBox.getHeight(), mMockTextPaint.getMockTextHeight(), 0);
 		Assert.assertEquals(textBox.getTag(), mTag);
@@ -284,7 +290,8 @@ public class TextBoxUnitTest {
 		TextBox.clean();
 
 		String msg = "hello";
-		TextBox textBox = TextBox.obtain(msg, 0, msg.length(), mMockMeasurer, mTextStyle, mTag, mBg, mFg);
+		TextBox textBox = TextBox.obtain(msg, 0, msg.length(), mTextStyle, mTag, mBg, mFg);
+		textBox.measure(mMockMeasurer, mTextAttribute);
 		Assert.assertNotNull(textBox);
 		// box
 		Assert.assertEquals(textBox.getWidth(), msg.length() * mMockTextPaint.getMockTextSize(), 0);
@@ -313,7 +320,8 @@ public class TextBoxUnitTest {
 
 		// test obtain not recycle
 		String subStr = "ell";
-		textBox = TextBox.obtain(msg, 1, msg.length() - 1, mMockMeasurer, mTextStyle, mTag, mBg, mFg);
+		textBox = TextBox.obtain(msg, 1, msg.length() - 1, mTextStyle, mTag, mBg, mFg);
+		textBox.measure(mMockMeasurer, mTextAttribute);
 		Assert.assertNotNull(textBox);
 		Assert.assertNotEquals(prev1, textBox);
 		// box
@@ -337,7 +345,8 @@ public class TextBoxUnitTest {
 		Assert.assertEquals(width, textBox.getWidth(), 0.1f);
 		Assert.assertEquals(height, textBox.getHeight(), 0.1f);
 
-		Penalty penalty = Penalty.obtain(0, true, null, null, mMockMeasurer, mTextAttribute);
+		Penalty penalty = Penalty.obtain(0, true, null, null);
+		penalty.measure(mMockMeasurer, mTextAttribute);
 		Assert.assertFalse(textBox.isPenalty());
 		textBox.merge(penalty);
 		Assert.assertTrue(textBox.isPenalty());
@@ -354,24 +363,25 @@ public class TextBoxUnitTest {
 		// test obtain after recycle
 		Appearance bg = new Appearance() {
 			@Override
-			public void draw(Canvas canvas, Paint textPaint, RectF inner, RectF outer, RendererContext context) {
+			public void draw(TexasCanvas canvas, TexasPaint textPaint, RectF inner, RectF outer, RendererContext context) {
 
 			}
 		};
 		Appearance fg = new Appearance() {
 			@Override
-			public void draw(Canvas canvas, Paint textPaint, RectF inner, RectF outer, RendererContext context) {
+			public void draw(TexasCanvas canvas, TexasPaint textPaint, RectF inner, RectF outer, RendererContext context) {
 
 			}
 		};
 		TextStyle textStyle = new TextStyle() {
 			@Override
-			public void update(@NonNull TextPaint textPaint, @Nullable Object tag) {
+			public void update(@NonNull TexasPaint textPaint, @Nullable Object tag) {
 
 			}
 		};
 		String tag = "foo";
-		textBox = TextBox.obtain(msg, 0, msg.length(), mMockMeasurer, textStyle, tag, bg, fg);
+		textBox = TextBox.obtain(msg, 0, msg.length(), textStyle, tag, bg, fg);
+		textBox.measure(mMockMeasurer, mTextAttribute);
 		Assert.assertNotNull(textBox);
 		Assert.assertSame(prev2, textBox);
 		// box
@@ -412,7 +422,8 @@ public class TextBoxUnitTest {
 		Assert.assertNotEquals(lhs.getBackground(), rhs.getBackground());
 		Assert.assertNotEquals(lhs.getForeground(), rhs.getForeground());
 
-		Penalty penalty = Penalty.obtain(1, true, null, null, mMockMeasurer, mTextAttribute);
+		Penalty penalty = Penalty.obtain(1, true, null, null);
+		penalty.measure(mMockMeasurer, mTextAttribute);
 		rhs.merge(penalty);
 
 		// text box

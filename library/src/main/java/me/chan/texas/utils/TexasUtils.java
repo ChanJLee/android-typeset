@@ -3,13 +3,11 @@ package me.chan.texas.utils;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.res.Resources;
-import android.graphics.Point;
 import android.graphics.Typeface;
 import android.text.GetChars;
 import android.text.TextPaint;
 import android.util.DisplayMetrics;
 import android.util.Log;
-import android.view.WindowManager;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
@@ -23,15 +21,12 @@ import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.layout.Layout;
 
 public class TexasUtils {
-	private static int sScreenWidth = 1080;
-	private static int sScreenHeight = 2000;
 	private static boolean sIsDebug = true;
 
 	private static float sDensity = 1.0f;
 
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
 	public static void init(Context context) {
-		initWindowInfo(context);
 		initDebugInfo(context);
 
 		Resources resources = context.getResources();
@@ -56,28 +51,6 @@ public class TexasUtils {
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
 	public static boolean isDebug() {
 		return sIsDebug;
-	}
-
-	private static void initWindowInfo(Context context) {
-		WindowManager windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
-		if (windowManager == null) {
-			return;
-		}
-
-		Point point = new Point();
-		windowManager.getDefaultDisplay().getSize(point);
-		sScreenWidth = point.x;
-		sScreenHeight = point.y;
-	}
-
-	@RestrictTo(RestrictTo.Scope.LIBRARY)
-	public static int getScreenHeight() {
-		return sScreenHeight;
-	}
-
-	@RestrictTo(RestrictTo.Scope.LIBRARY)
-	public static int getScreenWidth() {
-		return sScreenWidth;
 	}
 
 	/**
@@ -344,7 +317,8 @@ public class TexasUtils {
 		}
 
 		if (prev.getBreakStrategy() != current.getBreakStrategy() ||
-				prev.getHyphenStrategy() != current.getHyphenStrategy()) {
+				prev.getHyphenStrategy() != current.getHyphenStrategy() ||
+				prev.isBidiEnable() != current.isBidiEnable()) {
 			return CmpType.CMP_LOAD;
 		}
 

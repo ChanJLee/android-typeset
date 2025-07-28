@@ -41,7 +41,7 @@ public class BenchmarkActivity extends AppCompatActivity {
 				return Paragraph.Builder.newBuilder(option)
 						.appendSpaceEnable(false)
 						.text("AVAV")
-						.text("WAWA asdasdasd")
+						.text("WAWA asdasdasd (תפוח) 123")
 						.build();
 			}
 		});

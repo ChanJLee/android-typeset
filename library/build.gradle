@@ -1,4 +1,5 @@
 apply plugin: 'com.android.library'
+apply plugin: 'kotlin-android'
 apply from: '../publish.gradle'
 
 android {
@@ -15,6 +16,10 @@ android {
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    kotlinOptions {
+        jvmTarget = "1.8"
     }
 
     testOptions {
@@ -75,6 +80,8 @@ dependencies {
 
     // https://mvnrepository.com/artifact/com.ibm.icu/icu4j
     implementation 'com.ibm.icu:icu4j:75.1'
+    implementation 'androidx.core:core-ktx:1.0.0'
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
 }
 
 

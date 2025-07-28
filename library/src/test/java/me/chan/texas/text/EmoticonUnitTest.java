@@ -10,6 +10,8 @@ import org.junit.Test;
 
 import me.chan.texas.misc.RectF;
 import me.chan.texas.renderer.RendererContext;
+import me.chan.texas.renderer.core.graphics.TexasCanvas;
+import me.chan.texas.renderer.core.graphics.TexasPaint;
 import me.chan.texas.text.layout.DrawableBox;
 
 public class EmoticonUnitTest {
@@ -30,19 +32,20 @@ public class EmoticonUnitTest {
 		DrawableBox drawableBox = (DrawableBox) emoticon.getDrawableBox();
 		Assert.assertSame(drawableBox.getSpan(), emoticon);
 	}
+
 	@Test
 	public void test() {
 		ColorDrawable colorDrawable = new ColorDrawable(1);
 		String tag = "msg";
 		Appearance bg = new Appearance() {
 			@Override
-			public void draw(Canvas canvas, Paint textPaint, RectF inner, RectF outer, RendererContext context) {
+			public void draw(TexasCanvas canvas, TexasPaint textPaint, RectF inner, RectF outer, RendererContext context) {
 
 			}
 		};
 		Appearance fg = new Appearance() {
 			@Override
-			public void draw(Canvas canvas, Paint textPaint, RectF inner, RectF outer, RendererContext context) {
+			public void draw(TexasCanvas canvas, TexasPaint textPaint, RectF inner, RectF outer, RendererContext context) {
 
 			}
 		};

@@ -127,6 +127,7 @@ public class SelectedTextByDragVisitorUnitTest {
 		Paragraph paragraph = builder.build();
 
 		ParagraphTypesetter texTypesetter = new ParagraphTypesetter();
+		paragraph.measure(measurer, textAttribute);
 		texTypesetter.typeset(paragraph, BreakStrategy.SIMPLE, 6);
 
 		Layout layout = paragraph.getLayout();
@@ -176,6 +177,7 @@ public class SelectedTextByDragVisitorUnitTest {
 		Paragraph paragraph = builder.build();
 
 		ParagraphTypesetter texTypesetter = new ParagraphTypesetter();
+		paragraph.measure(measurer, textAttribute);
 		texTypesetter.typeset(paragraph, BreakStrategy.SIMPLE, 4);
 
 		//0-1 123
@@ -246,6 +248,7 @@ public class SelectedTextByDragVisitorUnitTest {
 		paragraph = builder.build();
 
 		texTypesetter = new ParagraphTypesetter();
+		paragraph.measure(measurer, textAttribute);
 		texTypesetter.typeset(paragraph, BreakStrategy.BALANCED, 8);
 		layout = paragraph.getLayout();
 		Assert.assertEquals(2, layout.getLineCount());
@@ -302,6 +305,7 @@ public class SelectedTextByDragVisitorUnitTest {
 		Paragraph.Builder builder = Paragraph.Builder.newBuilder(texasOption)
 				.text("123 triangle 1");
 		Paragraph paragraph = builder.build();
+		paragraph.measure(measurer, textAttribute);
 
 		TextBox box123 = (TextBox) paragraph.getElement(0);
 		TextBox triBox = (TextBox) paragraph.getElement(2);
@@ -313,7 +317,9 @@ public class SelectedTextByDragVisitorUnitTest {
 		Assert.assertEquals("tri", triBox.toString());
 		Assert.assertEquals("an", angBox.toString());
 
-		angBox.merge(Penalty.obtain(1, null, null, measurer, textAttribute));
+		Penalty penalty = Penalty.obtain(1, null, null);
+		penalty.measure(measurer, textAttribute);
+		angBox.merge(penalty);
 		Assert.assertEquals("an-", angBox.toString());
 
 		Layout layout = Layout.obtain(paragraph.getLayout());

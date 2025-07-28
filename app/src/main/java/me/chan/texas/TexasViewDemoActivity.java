@@ -29,6 +29,7 @@ import me.chan.texas.renderer.RenderOption;
 import me.chan.texas.renderer.SpanTouchEventHandler;
 import me.chan.texas.renderer.TexasView;
 import me.chan.texas.renderer.TouchEvent;
+import me.chan.texas.renderer.core.graphics.TexasCanvas;
 import me.chan.texas.renderer.selection.Selection;
 import me.chan.texas.renderer.ui.decor.ParagraphDecor;
 import me.chan.texas.text.BreakStrategy;
@@ -258,7 +259,7 @@ public class TexasViewDemoActivity extends AppCompatActivity {
 			}
 
 			@Override
-			protected void onDrawDecor(Canvas canvas, Paragraph paragraph, Rect decorOuter, Rect decorInner) {
+			protected void onDrawDecor(TexasCanvas canvas, Paragraph paragraph, Rect decorOuter, Rect decorInner) {
 				if (!mDraw) {
 					return;
 				}
@@ -267,7 +268,7 @@ public class TexasViewDemoActivity extends AppCompatActivity {
 
 				// 选中了就变色
 				fireDrawable.setTint(mClicked ? Color.RED : Color.GRAY);
-				fireDrawable.draw(canvas);
+				canvas.draw(fireDrawable);
 			}
 
 			@Override
