@@ -5,8 +5,6 @@ import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.graphics.Typeface;
-import android.os.Build;
-import android.os.Process;
 import android.os.SystemClock;
 import android.text.TextUtils;
 import android.util.AttributeSet;
@@ -181,7 +179,6 @@ public class ParagraphView extends FrameLayout {
 			TexasComponent texasComponent = Texas.getTexasComponent();
 			TextEngineCoreComponent textEngineCoreComponent = texasComponent.coreComponent().create();
 			textEngineCoreComponent.inject(this);
-			checkUIThreadPriority();
 
 			String text = typedArray.getString(R.styleable.me_chan_texas_ParagraphView_me_chan_texas_ParagraphView_text);
 			if (!TextUtils.isEmpty(text)) {
@@ -889,28 +886,6 @@ public class ParagraphView extends FrameLayout {
 		);
 
 		return renderOption;
-	}
-
-	private static void checkUIThreadPriority() {
-		// On Android 8+, UI thread's priority already increase from 0 to -10(THREAD_PRIORITY_VIDEO),
-		// higher than URGENT_DISPLAY (-8), we at least adjust to URGENT_DISPLAY when on 7 or under,
-		// and it will help to improve TextureView performance
-		try {
-			int priority = Process.getThreadPriority(0);
-			if (priority <= Process.THREAD_PRIORITY_URGENT_DISPLAY) {
-				Log.i("Texas", "UI thread priority=" + priority + ", don't need to raise!");
-				return;
-			}
-
-			Log.i("Texas", "UI thread priority=" + priority + ", need to raise!");
-			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-				Process.setThreadPriority(Process.THREAD_PRIORITY_VIDEO);
-			} else {
-				Process.setThreadPriority(Process.THREAD_PRIORITY_URGENT_DISPLAY);
-			}
-		} catch (Throwable t) {
-			Log.w("Texas", t);
-		}
 	}
 
 	/**
