@@ -36,7 +36,6 @@ class ParagraphBuilderInternal {
 
 	private final IntArray mHyphenated = new IntArray();
 	private Hyphenation mHyphenation;
-	private TextAttribute mTextAttribute;
 	private Paragraph mParagraph;
 	private RenderOption mRenderOption;
 	private Object mTag;
@@ -122,7 +121,6 @@ class ParagraphBuilderInternal {
 	public void reset() {
 		mParagraph = null;
 		mRenderOption = null;
-		mTextAttribute = null;
 		mHyphenation = null;
 		mHyphenated.clear();
 		mTag = null;
@@ -136,7 +134,6 @@ class ParagraphBuilderInternal {
 	public void reset(TexasOption texasOption) {
 		mRenderOption = texasOption.getRenderOption();
 		mHyphenation = texasOption.getHyphenation();
-		mTextAttribute = texasOption.getTextAttribute();
 		mParagraph = Paragraph.obtain();
 		mParagraph.mLayout = Layout.obtain();
 		mParagraph.mLayout.getAdvise().copy(mRenderOption);
@@ -144,6 +141,9 @@ class ParagraphBuilderInternal {
 		mStretchOnlyGlue = Glue.obtain(Glue.FLAG_STRETCH);
 		mLastToken = null;
 		mAppendSpaceEnable = true;
+		if (mRenderOption.isBidiEnable()) {
+			addTypesetPolicy(Paragraph.TYPESET_POLICY_BIDI_TEXT);
+		}
 	}
 
 	public void addTypesetPolicy(int policy) {

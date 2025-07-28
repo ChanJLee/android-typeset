@@ -883,6 +883,11 @@ public class ParagraphView extends FrameLayout {
 				typedArray.getBoolean(R.styleable.me_chan_texas_ParagraphView_me_chan_texas_ParagraphView_debugEnable, false)
 		);
 
+		// 开启双向文本
+		renderOption.setBidiEnable(
+				typedArray.getBoolean(R.styleable.me_chan_texas_ParagraphView_me_chan_texas_ParagraphView_bidiEnable, false)
+		);
+
 		return renderOption;
 	}
 

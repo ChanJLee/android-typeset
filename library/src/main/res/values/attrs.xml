@@ -35,6 +35,7 @@
             <flag name="end" value="2" />
             <flag name="center_horizontal" value="3" />
         </attr>
+        <attr name="me_chan_texas_TexasView_bidiEnable" format="boolean" />
     </declare-styleable>
 
     <style name="me_chan_texas_TexasRecyclerView" parent="android:Widget">
@@ -78,5 +79,6 @@
             <flag name="center_vertical" value="12" />
             <flag name="center" value="15" />
         </attr>
+        <attr name="me_chan_texas_ParagraphView_bidiEnable" format="boolean" />
     </declare-styleable>
 </resources>
