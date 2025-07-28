@@ -2,6 +2,7 @@ package me.chan.texas.text;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
+import me.chan.texas.measurer.Measurer;
 import me.chan.texas.misc.Rect;
 
 import androidx.annotation.IntDef;
@@ -9,6 +10,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
+import androidx.annotation.WorkerThread;
 import androidx.recyclerview.widget.RecyclerView;
 
 import me.chan.texas.Texas;
@@ -367,6 +369,17 @@ public final class Paragraph extends DefaultRecyclable implements Segment {
 		 */
 		public Builder emoticon(Emoticon emoticon) {
 			mBuilder0.emoticon(emoticon);
+			return this;
+		}
+
+		/**
+		 * 超文本
+		 *
+		 * @param span span
+		 * @return 当前对象
+		 */
+		public Builder hypeSpan(HypeSpan span) {
+			mBuilder0.hypeSpan(span);
 			return this;
 		}
 
@@ -731,6 +744,19 @@ public final class Paragraph extends DefaultRecyclable implements Segment {
 		@VisibleForTesting
 		public Object getTag() {
 			return mTag;
+		}
+	}
+
+	@WorkerThread
+	@RestrictTo(LIBRARY)
+	public void measure(Measurer measurer, TextAttribute textAttribute) {
+		Layout layout = getLayout();
+		layout.clear();
+
+		int elementSize = getElementCount();
+		for (int j = 0; j < elementSize; ++j) {
+			Element element = getElement(j);
+			element.measure(measurer, textAttribute);
 		}
 	}
 

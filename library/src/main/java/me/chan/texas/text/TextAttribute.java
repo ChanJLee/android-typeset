@@ -1,13 +1,12 @@
 package me.chan.texas.text;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 
 import me.chan.texas.Texas;
 import me.chan.texas.measurer.Measurer;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
-
-import android.util.Log;
 
 /**
  * 文本属性
@@ -20,22 +19,32 @@ public class TextAttribute {
 	private float mSpaceStretch;
 	private float mSpaceShrink;
 	private float mHyphenHeight;
+	private float mLineHeight;
+	private float mBaselineOffset;
 
 	public TextAttribute(Measurer measurer) {
 		refresh(measurer);
 	}
 
 	public void refresh(Measurer measurer) {
-		Measurer.CharSequenceSpec spec = measurer.measure("-", 0, 1, null, null);
+		Measurer.CharSequenceSpec spec = measurer.getBaseSpec();
 		mHyphenWidth = spec.getWidth();
 		mHyphenHeight = spec.getHeight();
+		mLineHeight = spec.getHeight();
+		mBaselineOffset = spec.getBaselineOffset();
 
 		Texas.TypesetFactor factor = Texas.getTypesetFactor();
 		mSpaceWidth = (float) Math.ceil(mHyphenWidth * factor.spaceWidthFactor);
 		mSpaceStretch = mHyphenWidth * factor.spaceStretchFactor;
 		mSpaceShrink = mHyphenWidth * factor.spaceShrinkFactor;
+	}
 
-		i(toString());
+	public float getBaselineOffset() {
+		return mBaselineOffset;
+	}
+
+	public float getLineHeight() {
+		return mLineHeight;
 	}
 
 	/**
@@ -73,25 +82,20 @@ public class TextAttribute {
 		return mSpaceShrink;
 	}
 
-	private static void i(String msg) {
-		Log.i("TexasText", msg);
-	}
-
+	@NonNull
 	@Override
 	public String toString() {
-		return new StringBuilder(64)
-				.append("TextAttribute{")
-				.append("mHyphenWidth=")
-				.append(mHyphenWidth)
-				.append(", mSpaceWidth=")
-				.append(mSpaceWidth)
-				.append(", mSpaceStretch=")
-				.append(mSpaceStretch)
-				.append(", mSpaceShrink=")
-				.append(mSpaceShrink)
-				.append(", mHyphenHeight=")
-				.append(mHyphenHeight)
-				.append('}')
-				.toString();
+		return "TextAttribute{" +
+				"mHyphenWidth=" +
+				mHyphenWidth +
+				", mSpaceWidth=" +
+				mSpaceWidth +
+				", mSpaceStretch=" +
+				mSpaceStretch +
+				", mSpaceShrink=" +
+				mSpaceShrink +
+				", mHyphenHeight=" +
+				mHyphenHeight +
+				'}';
 	}
 }

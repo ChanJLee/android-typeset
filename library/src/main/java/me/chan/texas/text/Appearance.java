@@ -1,13 +1,12 @@
 package me.chan.texas.text;
 
-import android.graphics.Canvas;
-import android.graphics.Paint;
-
 import me.chan.texas.misc.RectF;
 
 import androidx.annotation.AnyThread;
 
 import me.chan.texas.renderer.RendererContext;
+import me.chan.texas.renderer.core.graphics.TexasPaint;
+import me.chan.texas.renderer.core.graphics.TexasCanvas;
 
 /**
  * 外观，用于内容绘制
@@ -29,5 +28,5 @@ public abstract class Appearance {
 	 * @param context 绘制上下文，可以知道当前绘制单元前后位置
 	 */
 	@AnyThread
-	public abstract void draw(Canvas canvas, Paint paint, RectF inner, RectF outer, RendererContext context);
+	public abstract void draw(TexasCanvas canvas, TexasPaint paint, RectF inner, RectF outer, RendererContext context);
 }

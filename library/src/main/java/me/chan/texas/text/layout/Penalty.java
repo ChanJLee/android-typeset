@@ -44,7 +44,7 @@ public class Penalty extends Element {
 		}
 
 		@Override
-		public void measure(Measurer measurer, TextAttribute textAttribute) {
+		public void onMeasure(Measurer measurer, TextAttribute textAttribute) {
 		}
 
 		@Override
@@ -94,7 +94,7 @@ public class Penalty extends Element {
 		}
 
 		@Override
-		public void measure(Measurer measurer, TextAttribute textAttribute) {
+		protected void onMeasure(Measurer measurer, TextAttribute textAttribute) {
 		}
 
 		@Override
@@ -168,7 +168,7 @@ public class Penalty extends Element {
 	}
 
 	@Override
-	public void measure(Measurer measurer, TextAttribute textAttribute) {
+	protected void onMeasure(Measurer measurer, TextAttribute textAttribute) {
 		if (!mFlag) {
 			mWidth = mHeight = 0;
 			return;
@@ -192,18 +192,17 @@ public class Penalty extends Element {
 	}
 
 	public static Penalty obtainFakePenalty(float penalty) {
-		return obtain(penalty, false, null, null, null, null);
+		return obtain(penalty, false, null, null);
 	}
 
 	public static Penalty obtain(float penalty,
-								 Object tag, TextStyle textStyle,
-								 Measurer measurer, TextAttribute textAttribute) {
-		return obtain(penalty, true, tag, textStyle, measurer, textAttribute);
+								 Object tag, TextStyle textStyle) {
+		return obtain(penalty, true, tag, textStyle);
 	}
 
 	@NonNull
 	public static Penalty obtain(float penalty, boolean flag/* 不是连字符 true, 连字符 false */,
-								 Object tag, TextStyle textStyle, Measurer measurer, TextAttribute textAttribute) {
+								 Object tag, TextStyle textStyle) {
 		Penalty p = POOL.acquire();
 		if (p == null) {
 			p = new Penalty();
@@ -214,7 +213,6 @@ public class Penalty extends Element {
 		p.mPenalty = penalty;
 		p.mTag = tag;
 		p.mTextStyle = textStyle;
-		p.measure(measurer, textAttribute);
 		return p;
 	}
 }

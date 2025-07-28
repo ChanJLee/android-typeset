@@ -49,12 +49,10 @@ public class PaintSet {
 	}
 
 	/**
-	 * @param copy 用于复制的TextPaint
-	 * @return copy
+	 * @param dest 用于复制的TextPaint
 	 */
-	public TextPaint getWorkPaint(@NonNull TextPaint copy) {
-		copy.set(mPaint);
-		return copy;
+	public void copyTo(@NonNull TextPaint dest) {
+		dest.set(mPaint);
 	}
 
 	public void set(PaintSet other) {

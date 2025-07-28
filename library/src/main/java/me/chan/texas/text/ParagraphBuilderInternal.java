@@ -12,10 +12,8 @@ import me.chan.texas.BuildConfig;
 import me.chan.texas.Texas;
 import me.chan.texas.TexasOption;
 import me.chan.texas.hyphenation.Hyphenation;
-import me.chan.texas.measurer.Measurer;
 import me.chan.texas.renderer.RenderOption;
 import me.chan.texas.text.icu.UnicodeUtils;
-import me.chan.texas.text.layout.DrawableBox;
 import me.chan.texas.text.layout.Element;
 import me.chan.texas.text.layout.Glue;
 import me.chan.texas.text.layout.Layout;
@@ -37,9 +35,7 @@ class ParagraphBuilderInternal {
 	private static final int MIN_HYPER_LEN = 4;
 
 	private final IntArray mHyphenated = new IntArray();
-	private Measurer mMeasurer;
 	private Hyphenation mHyphenation;
-	private TextAttribute mTextAttribute;
 	private Paragraph mParagraph;
 	private RenderOption mRenderOption;
 	private Object mTag;
@@ -124,9 +120,7 @@ class ParagraphBuilderInternal {
 
 	public void reset() {
 		mParagraph = null;
-		mMeasurer = null;
 		mRenderOption = null;
-		mTextAttribute = null;
 		mHyphenation = null;
 		mHyphenated.clear();
 		mTag = null;
@@ -139,18 +133,17 @@ class ParagraphBuilderInternal {
 
 	public void reset(TexasOption texasOption) {
 		mRenderOption = texasOption.getRenderOption();
-		mMeasurer = texasOption.getMeasurer();
 		mHyphenation = texasOption.getHyphenation();
-		mTextAttribute = texasOption.getTextAttribute();
 		mParagraph = Paragraph.obtain();
 		mParagraph.mLayout = Layout.obtain();
 		mParagraph.mLayout.getAdvise().copy(mRenderOption);
-		mCommonGlue = Glue.obtain(mTextAttribute);
-		mStretchOnlyGlue = Glue.obtain(
-				0, 0, mTextAttribute.getSpaceStretch(), 0
-		);
+		mCommonGlue = Glue.obtain();
+		mStretchOnlyGlue = Glue.obtain(Glue.FLAG_STRETCH);
 		mLastToken = null;
 		mAppendSpaceEnable = true;
+		if (mRenderOption.isBidiEnable()) {
+			addTypesetPolicy(Paragraph.TYPESET_POLICY_BIDI_TEXT);
+		}
 	}
 
 	public void addTypesetPolicy(int policy) {
@@ -163,7 +156,6 @@ class ParagraphBuilderInternal {
 
 	private void appendHypeSpan(HypeSpan span) {
 		Token token = Token.obtainOtherWord();
-		span.measure();
 		appendElement(span.getDrawableBox());
 		mLastToken = token;
 	}
@@ -268,8 +260,7 @@ class ParagraphBuilderInternal {
 			foreground = styles.getForeground();
 		}
 
-		TextBox textBox = TextBox.obtain(text, start, end,
-				mMeasurer, textStyle,
+		TextBox textBox = TextBox.obtain(text, start, end, textStyle,
 				tag,
 				background,
 				foreground);
@@ -346,7 +337,7 @@ class ParagraphBuilderInternal {
 			}
 
 			TextBox textBox = TextBox.obtain(text, start, end,
-					mMeasurer, textStyle,
+					textStyle,
 					tag,
 					background,
 					foreground);
@@ -399,7 +390,7 @@ class ParagraphBuilderInternal {
 		}
 
 		TextBox textBox = TextBox.obtain(text, token.getStart(), token.getEnd(),
-				mMeasurer, textStyle,
+				textStyle,
 				tag,
 				background,
 				foreground);
@@ -440,7 +431,7 @@ class ParagraphBuilderInternal {
 		}
 
 		if (token.checkAttribute(Token.CONTROL_ATTRIBUTE_TAB_HORIZONTAL)) {
-			appendElement(Glue.obtain(mTextAttribute.getSpaceWidth() * 4, 0, 0, 0));
+			appendElement(Glue.obtain(Glue.FLAG_WIDTH | Glue.FLAG_4X_SCALE));
 			return;
 		}
 
@@ -469,7 +460,6 @@ class ParagraphBuilderInternal {
 		int len = end - start;
 		if (len <= MIN_HYPER_LEN) {
 			appendElement(TextBox.obtain(text, start, end,
-					mMeasurer,
 					textStyle,
 					tag,
 					background,
@@ -483,7 +473,6 @@ class ParagraphBuilderInternal {
 		int size = mHyphenated.size();
 		if (size == 0) {
 			appendElement(TextBox.obtain(text, start, end,
-					mMeasurer,
 					textStyle,
 					tag,
 					background,
@@ -498,7 +487,6 @@ class ParagraphBuilderInternal {
 				}
 
 				TextBox box = TextBox.obtain(text, start, point,
-						mMeasurer,
 						textStyle,
 						tag,
 						background,
@@ -513,9 +501,7 @@ class ParagraphBuilderInternal {
 					} else {
 						appendElement(Penalty.obtain(Texas.HYPHEN_PENALTY,
 								tag,
-								textStyle,
-								mMeasurer,
-								mTextAttribute
+								textStyle
 						));
 					}
 				}

@@ -32,6 +32,11 @@ public class Glue extends Element {
 		}
 
 		@Override
+		protected void onMeasure(Measurer measurer, TextAttribute textAttribute) {
+			/* NOOP */
+		}
+
+		@Override
 		public String toString() {
 			return "TERMINAL_GLUE";
 		}
@@ -54,6 +59,11 @@ public class Glue extends Element {
 
 		public float getShrink() {
 			return 0;
+		}
+
+		@Override
+		protected void onMeasure(Measurer measurer, TextAttribute textAttribute) {
+			/* NOOP */
 		}
 
 		@Override
@@ -105,6 +115,18 @@ public class Glue extends Element {
 				'}';
 	}
 
+	public void setStretch(float stretch) {
+		mStretch = stretch;
+	}
+
+	public void setShrink(float shrink) {
+		mShrink = shrink;
+	}
+
+	public void setWidth(float width) {
+		mWidth = width;
+	}
+
 	@CallSuper
 	@Override
 	protected void onRecycle() {
@@ -113,28 +135,17 @@ public class Glue extends Element {
 		POOL.release(this);
 	}
 
-	public static Glue obtain(TextAttribute textAttribute) {
-		Glue glue = POOL.acquire();
-		if (glue == null) {
-			glue = new Glue();
-		} else {
-			glue.reuse();
-		}
-		glue.mRefreshFlag = FLAG_WIDTH | FLAG_SHRINK | FLAG_STRETCH;
-		glue.measure(null, textAttribute);
-		return glue;
+	public static Glue obtain() {
+		return obtain(FLAG_SHRINK | FLAG_STRETCH | FLAG_WIDTH);
 	}
 
-	public static Glue obtain(float width, float shrink, float stretch, int flag) {
+	public static Glue obtain(int flag) {
 		Glue glue = POOL.acquire();
 		if (glue == null) {
 			glue = new Glue();
 		} else {
 			glue.reuse();
 		}
-		glue.mWidth = width;
-		glue.mShrink = shrink;
-		glue.mStretch = stretch;
 		glue.mRefreshFlag = flag;
 		return glue;
 	}
@@ -144,21 +155,23 @@ public class Glue extends Element {
 	}
 
 	@Override
-	public void measure(Measurer measurer, TextAttribute textAttribute) {
+	protected void onMeasure(Measurer measurer, TextAttribute textAttribute) {
+		float scale = (mRefreshFlag & FLAG_4X_SCALE) != 0 ? 4 : 1;
 		if ((mRefreshFlag & FLAG_WIDTH) != 0) {
-			mWidth = textAttribute.getSpaceWidth();
+			mWidth = textAttribute.getSpaceWidth() * scale;
 		}
 
 		if ((mRefreshFlag & FLAG_SHRINK) != 0) {
-			mShrink = textAttribute.getSpaceShrink();
+			mShrink = textAttribute.getSpaceShrink() * scale;
 		}
 
 		if ((mRefreshFlag & FLAG_STRETCH) != 0) {
-			mStretch = textAttribute.getSpaceStretch();
+			mStretch = textAttribute.getSpaceStretch() * scale;
 		}
 	}
 
 	public static final int FLAG_WIDTH = 1;
 	public static final int FLAG_SHRINK = 1 << 1;
 	public static final int FLAG_STRETCH = 1 << 2;
+	public static final int FLAG_4X_SCALE = 1 << 3;
 }

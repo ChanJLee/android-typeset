@@ -1,6 +1,5 @@
 package me.chan.texas.renderer.ui.decor;
 
-import android.graphics.Canvas;
 import me.chan.texas.misc.Rect;
 
 import me.chan.texas.misc.RectF;
@@ -10,6 +9,7 @@ import android.view.MotionEvent;
 import me.chan.texas.renderer.ParagraphVisitor;
 import me.chan.texas.renderer.RenderOption;
 import me.chan.texas.renderer.TexasView;
+import me.chan.texas.renderer.core.graphics.TexasCanvas;
 import me.chan.texas.text.Paragraph;
 import me.chan.texas.renderer.RendererContext;
 import me.chan.texas.text.layout.Box;
@@ -27,14 +27,14 @@ import androidx.annotation.RestrictTo;
  */
 public abstract class ParagraphDecor {
 
-	private Canvas mCanvas;
+	private TexasCanvas mCanvas;
 	private Paragraph mParagraph;
 
 	private final Rect mDrawOutRect = new Rect();
 	private final Rect mDrawInRect = new Rect();
 
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
-	public final void draw(Canvas canvas, Paragraph paragraph, int width, int height) {
+	public final void draw(TexasCanvas canvas, Paragraph paragraph, int width, int height) {
 		mParagraph = paragraph;
 		mCanvas = canvas;
 		try {
@@ -110,7 +110,7 @@ public abstract class ParagraphDecor {
 	 * @param decorInner 整个view真实轮廓即包含decor margin的矩形位置
 	 */
 	@AnyThread
-	protected abstract void onDrawDecor(Canvas canvas, Paragraph paragraph, Rect decorOuter, Rect decorInner);
+	protected abstract void onDrawDecor(TexasCanvas canvas, Paragraph paragraph, Rect decorOuter, Rect decorInner);
 
 	/**
 	 * @param event      event

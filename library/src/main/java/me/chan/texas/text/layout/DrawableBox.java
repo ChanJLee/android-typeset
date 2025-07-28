@@ -2,9 +2,6 @@ package me.chan.texas.text.layout;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
-import android.graphics.Canvas;
-import android.graphics.Paint;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
@@ -12,6 +9,9 @@ import androidx.annotation.VisibleForTesting;
 import me.chan.texas.Texas;
 import me.chan.texas.measurer.Measurer;
 import me.chan.texas.misc.ObjectPool;
+import me.chan.texas.misc.RectF;
+import me.chan.texas.renderer.core.graphics.TexasCanvas;
+import me.chan.texas.renderer.core.graphics.TexasPaint;
 import me.chan.texas.text.HypeSpan;
 import me.chan.texas.text.TextAttribute;
 
@@ -29,8 +29,8 @@ public class DrawableBox extends Box {
 	}
 
 	@Override
-	public void draw(Canvas canvas, Paint paint, float x, float y, StateList states) {
-		mSpan.draw(canvas, paint, x, y, states);
+	public void draw(TexasCanvas canvas, TexasPaint paint, RectF inner, RectF outer, float baselineOffset, StateList states) {
+		mSpan.draw(canvas, paint, inner, outer, baselineOffset, states);
 	}
 
 	@VisibleForTesting
@@ -68,7 +68,7 @@ public class DrawableBox extends Box {
 	}
 
 	@Override
-	public void measure(Measurer measurer, TextAttribute textAttribute) {
-		/* do nothing */
+	protected void onMeasure(Measurer measurer, TextAttribute textAttribute) {
+		mSpan.measure(textAttribute.getLineHeight(), textAttribute.getBaselineOffset());
 	}
 }

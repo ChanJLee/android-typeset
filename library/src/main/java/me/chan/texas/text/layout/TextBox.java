@@ -2,9 +2,6 @@ package me.chan.texas.text.layout;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
-import android.graphics.Canvas;
-import android.graphics.Paint;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
@@ -15,6 +12,9 @@ import me.chan.texas.annotations.Internal;
 import me.chan.texas.hyphenation.Hyphenation;
 import me.chan.texas.measurer.Measurer;
 import me.chan.texas.misc.ObjectPool;
+import me.chan.texas.misc.RectF;
+import me.chan.texas.renderer.core.graphics.TexasCanvas;
+import me.chan.texas.renderer.core.graphics.TexasPaint;
 import me.chan.texas.text.Appearance;
 import me.chan.texas.text.TextAttribute;
 import me.chan.texas.text.TextStyle;
@@ -219,7 +219,8 @@ public final class TextBox extends Box {
 	}
 
 	@Override
-	public void draw(Canvas canvas, Paint paint, float x, float y, StateList states) {
+	public void draw(TexasCanvas canvas, TexasPaint paint, RectF inner, RectF outer, float baselineOffset, StateList states) {
+		float x = inner.left;
 		if (mAttribute != ATTRIBUTE_NONE) {
 			if (hasAttribute(ATTRIBUTE_ZOOM_OUT)) {
 				paint.setTextSize(paint.getTextSize() * ZOOM_OUT_FACTOR);
@@ -233,7 +234,7 @@ public final class TextBox extends Box {
 		int size = mEnd - mStart;
 		char[] buf = CHAR_ARRAY_POOL.obtain(size);
 		TexasUtils.getChars(mText, mStart, mEnd, buf, 0);
-		canvas.drawTextRun(buf, 0, size, 0, size, x, y, hasAttribute(ATTRIBUTE_RTL), paint);
+		canvas.drawTextRun(buf, 0, size, 0, size, x, inner.bottom - baselineOffset, hasAttribute(ATTRIBUTE_RTL), paint);
 		CHAR_ARRAY_POOL.release(buf);
 	}
 
@@ -267,30 +268,14 @@ public final class TextBox extends Box {
 	}
 
 	public static TextBox obtain(@NonNull CharSequence charSequence, int start, int end,
-								 Measurer measurer,
 								 TextStyle textStyle,
 								 Object tag,
 								 Appearance background,
 								 Appearance foreground) {
-		return obtain(charSequence, start, end, measurer, textStyle, tag, background, foreground, Hyphenation.NONE_GROUP_ID);
+		return obtain(charSequence, start, end, textStyle, tag, background, foreground, Hyphenation.NONE_GROUP_ID);
 	}
 
 	public static TextBox obtain(@NonNull CharSequence charSequence, int start, int end,
-								 Measurer measurer,
-								 TextStyle textStyle,
-								 Object tag,
-								 Appearance background,
-								 Appearance foreground, int groupId) {
-		TextBox textBox = obtain(
-				charSequence, start, end, 0, 0,
-				textStyle, tag, background, foreground, groupId
-		);
-		textBox.measure(measurer, null);
-		return textBox;
-	}
-
-	private static TextBox obtain(@NonNull CharSequence charSequence, int start, int end,
-								  float width, float height,
 								  TextStyle textStyle,
 								  Object tag,
 								  Appearance background,
@@ -298,10 +283,10 @@ public final class TextBox extends Box {
 								  int groupId) {
 		TextBox box = POOL.acquire();
 		if (box == null) {
-			box = new TextBox(charSequence, start, end, width, height, textStyle);
+			box = new TextBox(charSequence, start, end, 0, 0, textStyle);
 		}
-		box.mWidth = width;
-		box.mHeight = height;
+		box.mWidth = 0;
+		box.mHeight = 0;
 		box.mTag = tag;
 		box.mBackground = background;
 		box.mForeground = foreground;
@@ -318,7 +303,7 @@ public final class TextBox extends Box {
 	}
 
 	@Override
-	public void measure(Measurer measurer, TextAttribute textAttribute) {
+	protected void onMeasure(Measurer measurer, TextAttribute textAttribute) {
 		Measurer.CharSequenceSpec spec = Measurer.CharSequenceSpec.obtain();
 		measurer.measure(mText, mStart, mEnd, getTextStyle(), getTag(), spec);
 		mWidth = spec.getWidth();

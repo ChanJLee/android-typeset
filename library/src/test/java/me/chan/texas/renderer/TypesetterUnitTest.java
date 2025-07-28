@@ -418,6 +418,7 @@ public class TypesetterUnitTest {
 		Segment segment = document.getSegment(0);
 
 		Paragraph paragraph = (Paragraph) segment;
+		paragraph.measure(measurer, new TextAttribute(measurer));
 		texTypesetter.typeset(paragraph, breakStrategy, (int) lineWidth);
 		assertNotNull(paragraph);
 		Layout layout = paragraph.getLayout();
@@ -609,6 +610,7 @@ public class TypesetterUnitTest {
 				.brk()
 				.text("12");
 		paragraph = builder.build(true);
+		paragraph.measure(measurer, textAttribute);
 		Assert.assertTrue(WorkerScheduler.typeset().desire(paragraph));
 		Layout layout = paragraph.getLayout();
 		Assert.assertEquals(5, layout.getWidth());
@@ -617,6 +619,7 @@ public class TypesetterUnitTest {
 		builder = Paragraph.Builder.newBuilder(texasOption);
 		builder.text("12345");
 		paragraph = builder.build(true);
+		paragraph.measure(measurer, textAttribute);
 		Assert.assertTrue(WorkerScheduler.typeset().desire(paragraph));
 		layout = paragraph.getLayout();
 		Assert.assertEquals(5, layout.getWidth());
@@ -643,6 +646,7 @@ public class TypesetterUnitTest {
 
 		ParagraphTypesetter texTypesetter = new ParagraphTypesetter();
 		Paragraph paragraph = builder.build();
+		paragraph.measure(measurer, textAttribute);
 		texTypesetter.typeset(paragraph, BreakStrategy.SIMPLE, 100);
 
 		Layout layout = paragraph.getLayout();
@@ -650,6 +654,7 @@ public class TypesetterUnitTest {
 		Assert.assertEquals("hello", layout.getLine(0).toString());
 		Assert.assertEquals("world", layout.getLine(1).toString());
 
+		paragraph.measure(measurer, textAttribute);
 		texTypesetter.typeset(paragraph, BreakStrategy.BALANCED, 100);
 
 		layout = paragraph.getLayout();

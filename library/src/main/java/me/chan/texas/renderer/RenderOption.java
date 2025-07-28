@@ -42,6 +42,7 @@ public class RenderOption {
 	private boolean mFullWithSymbolOptimizationEnable = true;
 	private boolean mDragToSelectEnable = true;
 	private int mTextGravity = TextGravity.START | TextGravity.TOP;
+	private boolean mBidiEnable = false;
 
 	@Override
 	public boolean equals(Object o) {
@@ -76,6 +77,7 @@ public class RenderOption {
 		if (mHyphenStrategy != that.mHyphenStrategy) return false;
 		if (mDragToSelectEnable != that.mDragToSelectEnable) return false;
 		if (mTextGravity != that.mTextGravity) return false;
+		if (mBidiEnable != that.mBidiEnable) return false;
 		return mHyphenStrategy == that.mHyphenStrategy;
 	}
 
@@ -105,6 +107,7 @@ public class RenderOption {
 		result = 31 * result + (mFullWithSymbolOptimizationEnable ? 1 : 0);
 		result = 31 * result + (mDragToSelectEnable ? 1 : 0);
 		result = 31 * result + mTextGravity;
+		result = 31 * result + (mBidiEnable ? 1 : 0);
 		return result;
 	}
 
@@ -150,6 +153,7 @@ public class RenderOption {
 		this.mFullWithSymbolOptimizationEnable = other.mFullWithSymbolOptimizationEnable;
 		this.mDragToSelectEnable = other.mDragToSelectEnable;
 		this.mTextGravity = other.mTextGravity;
+		this.mBidiEnable = other.mBidiEnable;
 	}
 
 	/**
@@ -586,6 +590,22 @@ public class RenderOption {
 		return gravity;
 	}
 
+	/**
+	 * @return 是否开启双文本
+	 */
+	public boolean isBidiEnable() {
+		return mBidiEnable;
+	}
+
+	/**
+	 * @param enable 设置是否开启双向文本
+	 * @return 当前对象
+	 */
+	public RenderOption setBidiEnable(boolean enable) {
+		mBidiEnable = enable;
+		return this;
+	}
+
 	@Override
 	public String toString() {
 		return "RenderOption{" +
@@ -613,6 +633,7 @@ public class RenderOption {
 				", mEnableFullWithSymbolOptimization=" + mFullWithSymbolOptimizationEnable +
 				", mEnableDragToSelect=" + mDragToSelectEnable +
 				", mGravity=" + mTextGravity +
+				", mBidiEnable=" + mBidiEnable +
 				'}';
 	}
 }

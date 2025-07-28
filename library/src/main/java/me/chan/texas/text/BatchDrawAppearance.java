@@ -1,11 +1,10 @@
 package me.chan.texas.text;
 
-import android.graphics.Canvas;
-import android.graphics.Paint;
-
 import me.chan.texas.misc.RectF;
 
 import me.chan.texas.renderer.RendererContext;
+import me.chan.texas.renderer.core.graphics.TexasCanvas;
+import me.chan.texas.renderer.core.graphics.TexasPaint;
 
 /**
  * 批量绘制Appearance，会更有效率一点
@@ -18,7 +17,7 @@ public abstract class BatchDrawAppearance extends Appearance {
 	private boolean mShouldReset = false;
 
 	@Override
-	public final void draw(Canvas canvas, Paint paint, RectF inner, RectF outer, RendererContext context) {
+	public final void draw(TexasCanvas canvas, TexasPaint paint, RectF inner, RectF outer, RendererContext context) {
 		if (!isEnable()) {
 			return;
 		}
@@ -42,11 +41,11 @@ public abstract class BatchDrawAppearance extends Appearance {
 		}
 	}
 
-	private void scheduleDraw(Canvas canvas, Paint paint, RendererContext context) {
+	private void scheduleDraw(TexasCanvas canvas, TexasPaint paint, RendererContext context) {
 		onDraw(canvas, paint, mInner, mOuter, context);
 	}
 
-	protected abstract void onDraw(Canvas canvas, Paint paint, RectF inner, RectF outer, RendererContext context);
+	protected abstract void onDraw(TexasCanvas canvas, TexasPaint paint, RectF inner, RectF outer, RendererContext context);
 
 	protected abstract boolean isSameGroup(RendererContext context);
 

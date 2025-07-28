@@ -1,6 +1,5 @@
 package me.chan.texas.text;
 
-import android.graphics.Canvas;
 import android.graphics.DashPathEffect;
 import android.graphics.Paint;
 import android.graphics.Path;
@@ -9,6 +8,8 @@ import android.graphics.PathEffect;
 import me.chan.texas.misc.RectF;
 
 import me.chan.texas.renderer.RendererContext;
+import me.chan.texas.renderer.core.graphics.TexasCanvas;
+import me.chan.texas.renderer.core.graphics.TexasPaint;
 
 /**
  * 点下划线
@@ -59,7 +60,7 @@ public class DotUnderLine extends Appearance {
 	}
 
 	@Override
-	public void draw(Canvas canvas, Paint paint, RectF inner, RectF outer, RendererContext context) {
+	public void draw(TexasCanvas canvas, TexasPaint paint, RectF inner, RectF outer, RendererContext context) {
 		paint.setStyle(Paint.Style.STROKE);
 		paint.setStrokeWidth(mWidth);
 		paint.setColor(mColor);
