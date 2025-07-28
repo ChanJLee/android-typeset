@@ -34,11 +34,6 @@ public class TexasUtils {
 		sDensity = displayMetrics.density;
 	}
 
-	@RestrictTo(RestrictTo.Scope.LIBRARY)
-	public static float getDensity() {
-		return sDensity;
-	}
-
 	private static void initDebugInfo(Context context) {
 		try {
 			ApplicationInfo applicationInfo = context.getApplicationInfo();

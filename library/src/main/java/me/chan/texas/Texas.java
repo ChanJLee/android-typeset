@@ -16,7 +16,6 @@ import androidx.annotation.VisibleForTesting;
 import me.chan.texas.di.DaggerTexasComponent;
 import me.chan.texas.di.TexasComponent;
 import me.chan.texas.issue.IssueSystem;
-import me.chan.texas.tdms.DebugMonitorServer;
 import me.chan.texas.text.Figure;
 import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.layout.DrawableBox;
@@ -380,26 +379,6 @@ public class Texas {
 
 	public static void setEnableTexCompat(boolean enable) {
 		sEnableTexCompat = enable;
-	}
-
-	private static boolean sTDMSEnable = false;
-
-	public static boolean isTDMSEnable() {
-		return sTDMSEnable;
-	}
-
-	/**
-	 * @param enable 是否开启TDMS
-	 */
-	public static void setTDMSEnable(boolean enable) {
-		sTDMSEnable = enable;
-	}
-
-	/**
-	 * @param url 设置tdms地址
-	 */
-	public static void setTDMSUrl(@NonNull String url) {
-		DebugMonitorServer.setServerUrl(url);
 	}
 
 	private static Typeface sDefaultTypeface = Typeface.DEFAULT;
