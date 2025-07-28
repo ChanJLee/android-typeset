@@ -344,7 +344,8 @@ public class TexasUtils {
 		}
 
 		if (prev.getBreakStrategy() != current.getBreakStrategy() ||
-				prev.getHyphenStrategy() != current.getHyphenStrategy()) {
+				prev.getHyphenStrategy() != current.getHyphenStrategy() ||
+				prev.isBidiEnable() != current.isBidiEnable()) {
 			return CmpType.CMP_LOAD;
 		}
 
