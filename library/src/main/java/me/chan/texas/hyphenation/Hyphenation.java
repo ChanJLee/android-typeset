@@ -39,20 +39,20 @@ public class Hyphenation {
 
 	private static final Lazy<Hyphenation> EN_US = new Lazy<Hyphenation>() {
 		@Override
-		protected Hyphenation create() {
+		protected Hyphenation onCreate() {
 			return new Hyphenation(HyphenationPattern.newInstance(HyphenationPattern.EN_US));
 		}
 	};
 
 	private static final Lazy<Hyphenation> EN_GB = new Lazy<Hyphenation>() {
 		@Override
-		protected Hyphenation create() {
+		protected Hyphenation onCreate() {
 			return new Hyphenation(HyphenationPattern.newInstance(HyphenationPattern.EN_GB));
 		}
 	};
 	private static final Lazy<Hyphenation> NONE = new Lazy<Hyphenation>() {
 		@Override
-		protected Hyphenation create() {
+		protected Hyphenation onCreate() {
 			return new Hyphenation();
 		}
 	};
