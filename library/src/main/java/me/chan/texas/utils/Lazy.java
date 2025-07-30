@@ -8,10 +8,10 @@ public abstract class Lazy<T> {
 
 	public synchronized final T value() {
 		if (mValue == null) {
-			mValue = create();
+			mValue = onCreate();
 		}
 		return mValue;
 	}
 
-	protected abstract T create();
+	protected abstract T onCreate();
 }
