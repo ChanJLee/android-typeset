@@ -17,6 +17,10 @@ import me.chan.texas.text.TextStyle
 import me.chan.texas.text.ViewSegment
 import me.chan.texas.text.layout.StateList
 
+@DslMarker
+annotation class TexasDslMarker
+
+@TexasDslMarker
 internal class HypeSpanDsl(
     private val _para: Paragraph.Builder,
     private val _onMeasure: Measurable.(lineHeight: Float, baselineOffset: Float) -> Unit,
@@ -48,6 +52,7 @@ internal class HypeSpanDsl(
     }
 }
 
+@TexasDslMarker
 class SpanDsl(private val _span: Paragraph.SpanBuilder) {
     fun tag(tag: Any?) {
         _span.tag(tag)
@@ -129,6 +134,7 @@ fun SpanSize.ratio(
     return ratio(width / height, excludeBaselineOffset)
 }
 
+@TexasDslMarker
 class ParaDsl(option: TexasOption, typesetPolicy: Int) {
     private val _para = Paragraph.Builder.newBuilder(option)
         .setTypesetPolicy(typesetPolicy)
@@ -163,6 +169,7 @@ class ParaDsl(option: TexasOption, typesetPolicy: Int) {
     }
 }
 
+@TexasDslMarker
 class ViewDsl(
     layoutId: Int,
     disableReuse: Boolean = false,
@@ -190,6 +197,7 @@ class ViewDsl(
     }
 }
 
+@TexasDslMarker
 class DocumentDsl(private val _option: TexasOption, prevDoc: Document? = null) {
     private val _document = Document.Builder(prevDoc)
 
