@@ -95,7 +95,7 @@ public final class TexasView extends FrameLayout {
 	void notifySegmentClicked(TouchEvent event, Object tag) {
 		if (mOnClickedListener != null) {
 			event.adjust(this);
-			mOnClickedListener.onSegmentClicked(event, tag);
+			mOnClickedListener.onSegmentClicked(this, event, tag);
 		}
 		event.recycle();
 	}
@@ -103,7 +103,7 @@ public final class TexasView extends FrameLayout {
 	void notifySegmentDoubleClicked(TouchEvent event, Object tag) {
 		if (mOnClickedListener != null) {
 			event.adjust(this);
-			mOnClickedListener.onSegmentDoubleClicked(event, tag);
+			mOnClickedListener.onSegmentDoubleClicked(this, event, tag);
 		}
 		event.recycle();
 	}
@@ -499,7 +499,7 @@ public final class TexasView extends FrameLayout {
 	public void notifyEmptyClicked(TouchEvent event) {
 		if (mOnClickedListener != null) {
 			event.adjust(this);
-			mOnClickedListener.onEmptyClicked(event);
+			mOnClickedListener.onEmptyClicked(this, event);
 		}
 		event.recycle();
 	}
@@ -741,7 +741,7 @@ public final class TexasView extends FrameLayout {
 	public void notifySpanLongClicked(TouchEvent event, Object tag) {
 		if (mOnClickedListener != null) {
 			event.adjust(this);
-			mOnClickedListener.onSpanLongClicked(event, tag);
+			mOnClickedListener.onSpanLongClicked(this, event, tag);
 		}
 		event.recycle();
 	}
@@ -750,7 +750,7 @@ public final class TexasView extends FrameLayout {
 	public void notifySpanClicked(TouchEvent event, Object tag) {
 		if (mOnClickedListener != null) {
 			event.adjust(this);
-			mOnClickedListener.onSpanClicked(event, tag);
+			mOnClickedListener.onSpanClicked(this, event, tag);
 		}
 		event.recycle();
 	}
@@ -759,7 +759,7 @@ public final class TexasView extends FrameLayout {
 	public void notifyDragStart(TouchEvent event) {
 		if (mOnDragSelectListener != null) {
 			event.adjust(this);
-			mOnDragSelectListener.onDragStart(event);
+			mOnDragSelectListener.onDragStart(this, event);
 		}
 		event.recycle();
 	}
@@ -768,7 +768,7 @@ public final class TexasView extends FrameLayout {
 	public void notifyDragEnd(TouchEvent event) {
 		if (mOnDragSelectListener != null) {
 			event.adjust(this);
-			mOnDragSelectListener.onDragEnd(event);
+			mOnDragSelectListener.onDragEnd(this, event);
 		}
 		event.recycle();
 	}
@@ -776,7 +776,7 @@ public final class TexasView extends FrameLayout {
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
 	public void notifyDragDismiss() {
 		if (mOnDragSelectListener != null) {
-			mOnDragSelectListener.onDragDismiss();
+			mOnDragSelectListener.onDragDismiss(this);
 		}
 	}
 
@@ -826,7 +826,7 @@ public final class TexasView extends FrameLayout {
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
 	public void notifyScrollChanged(int dx, int dy) {
 		if (mOnScrollListener != null) {
-			mOnScrollListener.onScrolled(dx, dy);
+			mOnScrollListener.onScrolled(this, dx, dy);
 		}
 	}
 
@@ -930,33 +930,38 @@ public final class TexasView extends FrameLayout {
 	 */
 	public interface OnClickedListener {
 		/**
+		 * @param view  view
 		 * @param event touch event
 		 * @param tag   clicked text tag
 		 */
-		void onSpanClicked(TouchEvent event, Object tag);
+		void onSpanClicked(TexasView view, TouchEvent event, Object tag);
 
 		/**
+		 * @param view  view
 		 * @param event touch event
 		 * @param tag   clicked text tag
 		 */
-		void onSpanLongClicked(TouchEvent event, Object tag);
+		void onSpanLongClicked(TexasView view, TouchEvent event, Object tag);
 
 		/**
+		 * @param view  view
 		 * @param event touch event
 		 * @param tag   clicked segment tag
 		 */
-		void onSegmentClicked(TouchEvent event, Object tag);
+		void onSegmentClicked(TexasView view, TouchEvent event, Object tag);
 
 		/**
+		 * @param view  view
 		 * @param event touch event
 		 */
-		void onEmptyClicked(TouchEvent event);
+		void onEmptyClicked(TexasView view, TouchEvent event);
 
 		/**
+		 * @param view  view
 		 * @param event touch event
 		 * @param tag   clicked segment tag
 		 */
-		void onSegmentDoubleClicked(TouchEvent event, Object tag);
+		void onSegmentDoubleClicked(TexasView view, TouchEvent event, Object tag);
 	}
 
 	/**
@@ -988,7 +993,12 @@ public final class TexasView extends FrameLayout {
 		 */
 		void onScrollStateChanged(TexasView view, int state);
 
-		void onScrolled(int dx, int dy);
+		/**
+		 * @param view view
+		 * @param dx   horizontal scroll distance
+		 * @param dy   vertical scroll distance
+		 */
+		void onScrolled(TexasView view, int dx, int dy);
 	}
 
 	/**
@@ -999,13 +1009,19 @@ public final class TexasView extends FrameLayout {
 		 * @param event touch event
 		 */
 
-		void onDragStart(TouchEvent event);
+		void onDragStart(TexasView view, TouchEvent event);
 
 		/**
+		 * @param view  texas view
 		 * @param event touch event
 		 */
-		void onDragEnd(TouchEvent event);
+		void onDragEnd(TexasView view, TouchEvent event);
 
-		void onDragDismiss();
+		/**
+		 * cancel drag
+		 *
+		 * @param view texas view
+		 */
+		void onDragDismiss(TexasView view);
 	}
 }
