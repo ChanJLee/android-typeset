@@ -118,44 +118,44 @@ public class TexasViewDemoActivity extends AppCompatActivity {
 	void setupListener() {
 		mTexasView.setOnClickedListener(new TexasView.OnClickedListener() {
 			@Override
-			public void onSpanClicked(TouchEvent event, Object tag) {
+			public void onSpanClicked(TexasView view, TouchEvent event, Object tag) {
 
 			}
 
 			@Override
-			public void onSpanLongClicked(TouchEvent event, Object tag) {
+			public void onSpanLongClicked(TexasView view, TouchEvent event, Object tag) {
 
 			}
 
 			@Override
-			public void onSegmentClicked(TouchEvent event, Object tag) {
+			public void onSegmentClicked(TexasView view, TouchEvent event, Object tag) {
 				Toast.makeText(TexasViewDemoActivity.this, "点击了Segment", Toast.LENGTH_SHORT).show();
 			}
 
 			@Override
-			public void onEmptyClicked(TouchEvent event) {
+			public void onEmptyClicked(TexasView view, TouchEvent event) {
 				Toast.makeText(TexasViewDemoActivity.this, "点击了空白", Toast.LENGTH_SHORT).show();
 			}
 
 			@Override
-			public void onSegmentDoubleClicked(TouchEvent event, Object tag) {
+			public void onSegmentDoubleClicked(TexasView view, TouchEvent event, Object tag) {
 				Toast.makeText(TexasViewDemoActivity.this, "双击", Toast.LENGTH_SHORT).show();
 			}
 		});
 
 		mTexasView.setOnDragSelectListener(new TexasView.OnDragSelectListener() {
 			@Override
-			public void onDragStart(TouchEvent event) {
+			public void onDragStart(TexasView view, TouchEvent event) {
 
 			}
 
 			@Override
-			public void onDragEnd(TouchEvent event) {
+			public void onDragEnd(TexasView view, TouchEvent event) {
 
 			}
 
 			@Override
-			public void onDragDismiss() {
+			public void onDragDismiss(TexasView view) {
 
 			}
 		});
