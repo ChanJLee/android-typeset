@@ -59,7 +59,7 @@ public class AndroidMeasurer implements Measurer {
 
 		float height = mBase.getHeight();
 		float baselineOffset = mBase.getBaselineOffset();
-		if (force || mTexasPaint.isModified()) {
+		if (mTexasPaint.isModified() || force) {
 			paint.getFontMetrics(mFontMetrics);
 			Paint.FontMetrics fontMetrics = mFontMetrics;
 			height = (float) Math.ceil(fontMetrics.descent - fontMetrics.ascent + fontMetrics.leading);
