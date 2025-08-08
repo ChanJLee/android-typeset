@@ -22,9 +22,9 @@ public class BitBucket8 {
 		}
 
 		if (v) {
-			mBits |= (1 << index);
+			mBits |= (byte) (1 << index);
 		} else {
-			mBits &= ~(1 << index);
+			mBits &= (byte) ~(1 << index);
 		}
 	}
 
@@ -45,7 +45,7 @@ public class BitBucket8 {
 			throw new IllegalArgumentException("invalid index");
 		}
 
-		return (mBits & (1 << index)) != 0;
+		return (mBits & (byte) (1 << index)) != 0;
 	}
 
 	/**
