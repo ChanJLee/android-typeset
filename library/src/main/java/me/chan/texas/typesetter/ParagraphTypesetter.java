@@ -46,7 +46,12 @@ public class ParagraphTypesetter {
 
 		if (typeset0(paragraph, breakStrategy, width)) {
 			Layout layout = paragraph.getLayout();
-			layout.setWidth(width);
+			int height = 0;
+			for (int i = 0; i < layout.getLineCount(); ++i) {
+				Line line = layout.getLine(i);
+				height += line.getLineHeight();
+			}
+			layout.setContentSize(width, height);
 			return true;
 		}
 
@@ -65,11 +70,13 @@ public class ParagraphTypesetter {
 
 		Layout layout = paragraph.getLayout();
 		float actualWidth = 0;
+		float actualHeight = 0;
 		for (int i = 0; i < layout.getLineCount(); ++i) {
 			Line line = layout.getLine(i);
 			actualWidth = Math.max(line.getLineWidth(), actualWidth);
+			actualHeight += line.getLineHeight();
 		}
-		layout.setWidth((int) Math.ceil(actualWidth));
+		layout.setContentSize((int) Math.ceil(actualWidth), (int) Math.ceil(actualHeight));
 		return true;
 	}
 
