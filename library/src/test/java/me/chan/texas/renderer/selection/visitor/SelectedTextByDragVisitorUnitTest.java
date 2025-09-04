@@ -376,7 +376,7 @@ public class SelectedTextByDragVisitorUnitTest {
 		line.setLineHeight(1);
 		layout.addLine(line);
 
-		layout.setWidth(10);
+		layout.setContentSize(10, 6);
 		paragraph.swap(layout);
 
 		//0-1 123 trian-
