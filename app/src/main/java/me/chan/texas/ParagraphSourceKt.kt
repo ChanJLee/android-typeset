@@ -42,7 +42,7 @@ class ParagraphSourceKt(private val _index: Int, context: Context) :
 
             span("this is content")
 
-            hypeSpan(
+            hyperSpan(
                 SpanSize.ratio(
                     mFlagWidth,
                     mFlagHeight

@@ -10,7 +10,7 @@ import me.chan.texas.renderer.core.graphics.TexasPaint
 import me.chan.texas.renderer.ui.text.ParagraphView.ParagraphSource
 import me.chan.texas.text.Appearance
 import me.chan.texas.text.Document
-import me.chan.texas.text.HypeSpan
+import me.chan.texas.text.HyperSpan
 import me.chan.texas.text.Measurable
 import me.chan.texas.text.Paragraph
 import me.chan.texas.text.TextStyle
@@ -21,12 +21,12 @@ import me.chan.texas.text.layout.StateList
 annotation class TexasDslMarker
 
 @TexasDslMarker
-internal class HypeSpanDsl(
+internal class HyperSpanDsl(
     private val _para: Paragraph.Builder,
     private val _onMeasure: Measurable.(lineHeight: Float, baselineOffset: Float) -> Unit,
     onDraw: TexasCanvas.(paint: TexasPaint, inner: RectF, outer: RectF, baselineOffset: Float, states: StateList) -> Unit
 ) {
-    private val _span = object : HypeSpan() {
+    private val _span = object : HyperSpan() {
         override fun onDraw(
             canvas: TexasCanvas,
             paint: TexasPaint,
@@ -48,7 +48,7 @@ internal class HypeSpanDsl(
     }
 
     internal fun build() {
-        _para.hypeSpan(_span)
+        _para.hyperSpan(_span)
     }
 }
 
@@ -153,12 +153,12 @@ class ParaDsl(option: TexasOption, typesetPolicy: Int) {
         span.build()
     }
 
-    fun hypeSpan(
+    fun hyperSpan(
         onMeasure: Measurable.(lineHeight: Float, baselineOffset: Float) -> Unit,
         tag: Any? = null,
         onDraw: TexasCanvas.(paint: TexasPaint, inner: RectF, outer: RectF, baselineOffset: Float, states: StateList) -> Unit
     ) {
-        val span = HypeSpanDsl(_para, onMeasure, onDraw)
+        val span = HyperSpanDsl(_para, onMeasure, onDraw)
         span.tag(tag)
         span.build()
     }
