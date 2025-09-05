@@ -15,7 +15,7 @@ import me.chan.texas.text.layout.StateList;
 /**
  * 颜文字
  */
-public final class Emoticon extends HypeSpan {
+public final class Emoticon extends HyperSpan {
 	private static final int[] STATE_PRESSED = {
 			android.R.attr.state_pressed,
 	};

@@ -12,7 +12,7 @@ import me.chan.texas.misc.ObjectPool;
 import me.chan.texas.misc.RectF;
 import me.chan.texas.renderer.core.graphics.TexasCanvas;
 import me.chan.texas.renderer.core.graphics.TexasPaint;
-import me.chan.texas.text.HypeSpan;
+import me.chan.texas.text.HyperSpan;
 import me.chan.texas.text.TextAttribute;
 
 /**
@@ -22,7 +22,7 @@ import me.chan.texas.text.TextAttribute;
 public class DrawableBox extends Box {
 	private static final ObjectPool<DrawableBox> POOL = new ObjectPool<>(Texas.getMemoryOption().getEmoticonBufferSize());
 
-	private HypeSpan mSpan;
+	private HyperSpan mSpan;
 
 	private DrawableBox() {
 		super(0, 0);
@@ -34,7 +34,7 @@ public class DrawableBox extends Box {
 	}
 
 	@VisibleForTesting
-	public HypeSpan getSpan() {
+	public HyperSpan getSpan() {
 		return mSpan;
 	}
 
@@ -45,7 +45,7 @@ public class DrawableBox extends Box {
 		POOL.release(this);
 	}
 
-	public static DrawableBox obtain(@NonNull HypeSpan span, float width, float height) {
+	public static DrawableBox obtain(@NonNull HyperSpan span, float width, float height) {
 		DrawableBox drawableBox = POOL.acquire();
 		if (drawableBox == null) {
 			drawableBox = new DrawableBox();

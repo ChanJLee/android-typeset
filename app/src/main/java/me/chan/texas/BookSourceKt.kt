@@ -45,7 +45,7 @@ class BookSourceKt(context: Context) : DocumentSource() {
 
                     span("this is content")
 
-                    hypeSpan(
+                    hyperSpan(
                         SpanSize.ratio(
                             mFlagWidth,
                             mFlagHeight

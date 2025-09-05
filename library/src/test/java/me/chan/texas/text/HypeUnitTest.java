@@ -1,8 +1,5 @@
 package me.chan.texas.text;
 
-import android.graphics.Canvas;
-import android.graphics.Paint;
-
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -10,7 +7,6 @@ import me.chan.texas.misc.RectF;
 import me.chan.texas.renderer.RendererContext;
 import me.chan.texas.renderer.core.graphics.TexasCanvas;
 import me.chan.texas.renderer.core.graphics.TexasPaint;
-import me.chan.texas.test.mock.MockTextPaint;
 import me.chan.texas.text.layout.DrawableBox;
 import me.chan.texas.text.layout.StateList;
 
@@ -46,7 +42,7 @@ public class HypeUnitTest {
 	}
 }
 
-class MyHypeSpan extends HypeSpan {
+class MyHypeSpan extends HyperSpan {
 
 	@Override
 	protected void onDraw(TexasCanvas canvas, TexasPaint paint, RectF inner, RectF outer, float baselineOffset, StateList states) {

@@ -12,7 +12,7 @@ import me.chan.texas.text.layout.StateList;
 /**
  * 超文字
  * <pre><code>
- * class MyHypeSpan extends HypeSpan {
+ * class MyHyperSpan extends HyperSpan {
  *
  *    &#64;Override
  *    protected void onDraw(TexasCanvas canvas, TexasPaint paint, RectF inner, RectF outer, float baselineOffset, StateList states) {
@@ -26,14 +26,14 @@ import me.chan.texas.text.layout.StateList;
  * }
  * </code></pre>
  */
-public abstract class HypeSpan implements Measurable {
+public abstract class HyperSpan implements Measurable {
 	private final DrawableBox mDrawableBox;
 
-	public HypeSpan() {
+	public HyperSpan() {
 		this(0, 0);
 	}
 
-	public HypeSpan(float width, float height) {
+	public HyperSpan(float width, float height) {
 		mDrawableBox = DrawableBox.obtain(this, width, height);
 	}
 
