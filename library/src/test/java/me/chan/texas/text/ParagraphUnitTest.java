@@ -21,6 +21,7 @@ import me.chan.texas.text.layout.Penalty;
 import me.chan.texas.text.layout.SymbolGlue;
 import me.chan.texas.text.layout.TextBox;
 import me.chan.texas.text.tokenizer.Token;
+import me.chan.texas.text.util.TexasIterator;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -40,6 +41,50 @@ public class ParagraphUnitTest {
 		mMeasurer = new MockMeasurer(mockTextPaint);
 		mTextAttribute = new TextAttribute(mMeasurer);
 		mPaintSet = new PaintSet(mockTextPaint);
+	}
+
+	@Test
+	public void testIterator() {
+		Paragraph paragraph = Paragraph.obtain();
+		Layout layout = Layout.obtain();
+		paragraph.swap(layout);
+
+		Line l1 = Line.obtain();
+		Line l2 = Line.obtain();
+		Line l3 = Line.obtain();
+
+		layout.addLine(l1);
+		layout.addLine(l2);
+		layout.addLine(l3);
+
+		TexasIterator<Line> iterator = paragraph.iterator();
+
+		Assert.assertNull(iterator.current());
+		Assert.assertNull(iterator.prev());
+
+		Assert.assertSame(l1, iterator.next());
+		Assert.assertSame(l1, iterator.current());
+		Assert.assertNull(iterator.prev());
+
+		Assert.assertSame(l2, iterator.next());
+		Assert.assertSame(l2, iterator.current());
+		Assert.assertSame(l1, iterator.prev());
+
+		// test prev
+		int state = iterator.save();
+		Assert.assertSame(l2, iterator.next());
+		Assert.assertSame(l2, iterator.current());
+		Assert.assertSame(l1, iterator.prev());
+		iterator.next();
+
+		Assert.assertSame(l3, iterator.next());
+		Assert.assertSame(l3, iterator.current());
+		Assert.assertNull(iterator.next());
+
+		Assert.assertSame(l1, iterator.restore(state));
+		Assert.assertSame(l2, iterator.next());
+		Assert.assertSame(l2, iterator.current());
+		Assert.assertSame(l1, iterator.prev());
 	}
 
 	@Test

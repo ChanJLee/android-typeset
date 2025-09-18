@@ -23,8 +23,10 @@ import me.chan.texas.renderer.ui.RendererHost;
 import me.chan.texas.text.layout.Element;
 import me.chan.texas.text.layout.Glue;
 import me.chan.texas.text.layout.Layout;
+import me.chan.texas.text.layout.Line;
 import me.chan.texas.text.layout.Penalty;
 import me.chan.texas.text.tokenizer.Token;
+import me.chan.texas.text.util.TexasIterator;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -224,6 +226,43 @@ public final class Paragraph extends DefaultRecyclable implements Segment {
 	@RestrictTo(LIBRARY)
 	public Layout getLayout() {
 		return mLayout;
+	}
+
+	public TexasIterator<Line> iterator() {
+		return new TexasIterator<Line>() {
+			private int mIndex = -1;
+
+			@Override
+			public Line next() {
+				return restore(mIndex + 1);
+			}
+
+			@Override
+			public Line prev() {
+				return restore(mIndex - 1);
+			}
+
+			@Nullable
+			@Override
+			public Line current() {
+				return restore(mIndex);
+			}
+
+			@Override
+			public Line restore(int state) {
+				Layout layout = getLayout();
+				if (layout == null || state < 0 || state >= layout.getLineCount()) {
+					return null;
+				}
+
+				return layout.getLine(mIndex = state);
+			}
+
+			@Override
+			public int save() {
+				return mIndex;
+			}
+		};
 	}
 
 	@RestrictTo(LIBRARY)
