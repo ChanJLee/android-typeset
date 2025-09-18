@@ -17,6 +17,7 @@ import me.chan.texas.text.layout.Glue;
 import me.chan.texas.text.layout.Line;
 import me.chan.texas.text.layout.Penalty;
 import me.chan.texas.text.layout.TextBox;
+import me.chan.texas.text.util.TexasIterator;
 import me.chan.texas.typesetter.tex.Candidate;
 import me.chan.texas.typesetter.tex.Node;
 import me.chan.texas.typesetter.tex.Sum;
@@ -403,6 +404,38 @@ public class DataUnitTest {
 		Assert.assertSame(node, candidate.active);
 		Assert.assertSame(p, candidate);
 		Assert.assertNotSame(candidate, Candidate.obtain(1, 2, node));
+	}
+
+	@Test
+	public void testDocumentIterator() {
+		Figure f1 = Figure.obtain("", 1, 2);
+		Figure f2 = Figure.obtain("", 1, 2);
+		Figure f3 = Figure.obtain("", 1, 2);
+		Document.Builder builder = new Document.Builder();
+		builder.addSegment(f1).addSegment(f2).addSegment(f3);
+		Document document = builder.build();
+
+		TexasIterator<Segment> iterator = document.iterator();
+		Assert.assertNull(iterator.current());
+		Assert.assertNull(iterator.prev());
+
+		Assert.assertSame(f1, iterator.next());
+		Assert.assertSame(f1, iterator.current());
+		Assert.assertNull(iterator.prev());
+
+		Assert.assertSame(f2, iterator.next());
+		Assert.assertSame(f2, iterator.current());
+		Assert.assertSame(f1, iterator.prev());
+
+		// test prev
+		Assert.assertSame(f2, iterator.next());
+		Assert.assertSame(f2, iterator.current());
+		Assert.assertSame(f1, iterator.prev());
+		iterator.next();
+
+		Assert.assertSame(f3, iterator.next());
+		Assert.assertSame(f3, iterator.current());
+		Assert.assertNull(iterator.next());
 	}
 
 	@Test
