@@ -77,22 +77,22 @@ public final class Document {
 
 			@Override
 			public Segment next() {
-				return seek(mIndex + 1);
+				return restore(mIndex + 1);
 			}
 
 			@Override
 			public Segment prev() {
-				return seek(mIndex - 1);
+				return restore(mIndex - 1);
 			}
 
 			@Nullable
 			@Override
 			public Segment current() {
-				return seek(mIndex);
+				return restore(mIndex);
 			}
 
 			@Override
-			public Segment seek(int state) {
+			public Segment restore(int state) {
 				if (state < 0 || state >= getSegmentCount()) {
 					return null;
 				}
@@ -103,11 +103,6 @@ public final class Document {
 			@Override
 			public int save() {
 				return mIndex;
-			}
-
-			@Override
-			public void restore(int state) {
-				mIndex = state;
 			}
 		};
 	}

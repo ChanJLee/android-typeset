@@ -428,6 +428,7 @@ public class DataUnitTest {
 		Assert.assertSame(f1, iterator.prev());
 
 		// test prev
+		int state = iterator.save();
 		Assert.assertSame(f2, iterator.next());
 		Assert.assertSame(f2, iterator.current());
 		Assert.assertSame(f1, iterator.prev());
@@ -436,6 +437,11 @@ public class DataUnitTest {
 		Assert.assertSame(f3, iterator.next());
 		Assert.assertSame(f3, iterator.current());
 		Assert.assertNull(iterator.next());
+
+		Assert.assertSame(f1, iterator.restore(state));
+		Assert.assertSame(f2, iterator.next());
+		Assert.assertSame(f2, iterator.current());
+		Assert.assertSame(f1, iterator.prev());
 	}
 
 	@Test
