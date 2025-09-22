@@ -79,6 +79,8 @@ public class ParagraphTypesetter {
 				if (element instanceof Box) {
 					Box current = (Box) element;
 					mBoxRect.right = mBoxRect.left + current.getWidth();
+					current.setOuterBounds(mBoxRect);
+					current.setInnerBounds(mBoxRect);
 					if (prev != null) {
 						linkBox(prev, current);
 					}
