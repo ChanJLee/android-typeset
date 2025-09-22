@@ -1,5 +1,6 @@
 package me.chan.texas.text.layout;
 
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 
 import java.util.ArrayList;
@@ -8,7 +9,9 @@ import java.util.List;
 import me.chan.texas.Texas;
 import me.chan.texas.misc.DefaultRecyclable;
 import me.chan.texas.misc.ObjectPool;
+import me.chan.texas.renderer.ParagraphVisitor;
 import me.chan.texas.text.BreakStrategy;
+import me.chan.texas.text.util.TexasIterator;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
@@ -357,6 +360,10 @@ public class Line extends DefaultRecyclable {
 			BUILDER_POOL.release(this);
 		}
 
+		public TexasIterator<Box> iterator() {
+			return new BoxIteratorImpl();
+		}
+
 		public static Builder obtain() {
 			Builder builder = BUILDER_POOL.acquire();
 			if (builder == null) {
@@ -366,6 +373,39 @@ public class Line extends DefaultRecyclable {
 			builder.reuse();
 			builder.mLine = Line.obtain();
 			return builder;
+		}
+
+		private class BoxIteratorImpl implements TexasIterator<Box> {
+			private final ParagraphVisitor.State mState = new ParagraphVisitor.State();
+
+			@Nullable
+			@Override
+			public Box next() {
+				return null;
+			}
+
+			@Nullable
+			@Override
+			public Box prev() {
+				return null;
+			}
+
+			@Nullable
+			@Override
+			public Box current() {
+				return null;
+			}
+
+			@Nullable
+			@Override
+			public Box restore(int state) {
+				return null;
+			}
+
+			@Override
+			public int save() {
+				return 0;
+			}
 		}
 	}
 }

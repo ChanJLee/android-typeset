@@ -80,6 +80,14 @@ public final class RendererContext {
 		mParagraphLocationAttribute = 0;
 	}
 
+	@RestrictTo(RestrictTo.Scope.LIBRARY)
+	public void copy(RendererContext context) {
+		context.currentBoxMetaInfo.copy(currentBoxMetaInfo);
+		context.prevBoxMetaInfo.copy(prevBoxMetaInfo);
+		context.nextBoxMetaInfo.copy(nextBoxMetaInfo);
+		context.mParagraphLocationAttribute = mParagraphLocationAttribute;
+	}
+
 	@IntDef({LOCATION_LINE_START, LOCATION_LINE_END, LOCATION_LINE_MIDDLE,
 			LOCATION_PARAGRAPH_START, LOCATION_PARAGRAPH_END, LOCATION_PARAGRAPH_MIDDLE})
 	public @interface LocationType {
@@ -145,6 +153,12 @@ public final class RendererContext {
 			this.box = meta.box;
 			this.index = meta.index;
 			TexasUtils.copyRect(this.inner, meta.inner);
+		}
+
+		public void copy(BoxMetaInfo other) {
+			other.box = box;
+			other.index = index;
+			TexasUtils.copyRect(other.inner, inner);
 		}
 	}
 
