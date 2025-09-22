@@ -19,11 +19,7 @@ import java.lang.annotation.RetentionPolicy;
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public abstract class ParagraphVisitor {
 
-	private final RectF mInnerRect = new RectF();
-	private final RectF mOuterRect = new RectF();
-	private final RectF mLineRect = new RectF();
-	private int mVisitSig = SIG_NORMAL;
-
+	private final State mState = new State();
 	/**
 	 * 正常模式
 	 */
@@ -56,30 +52,28 @@ public abstract class ParagraphVisitor {
 		}
 	}
 
-	private final RendererContext mTypesetContext = new RendererContext();
-
 	public void visit(Paragraph paragraph) throws VisitException {
 		try {
 			onVisitParagraphStart(paragraph);
 			Layout layout = paragraph.getLayout();
 			int end = layout.getLineCount();
-			layout.prepareGetLineBoundsIncremental(mLineRect);
-			for (int i = 0; i < end && mVisitSig != SIG_STOP_PARA_VISIT; ++i) {
+			layout.prepareGetLineBoundsIncremental(mState.lineRect);
+			for (int i = 0; i < end && mState.visitSig != SIG_STOP_PARA_VISIT; ++i) {
 				Line line = layout.getLine(i);
-				layout.getLineBoundsIncremental(i, mLineRect);
+				layout.getLineBoundsIncremental(i, mState.lineRect);
 
-				mTypesetContext.clear();
-				mTypesetContext.setParagraphLocationAttribute(RendererContext.LOCATION_PARAGRAPH_START, i == 0);
-				mTypesetContext.setParagraphLocationAttribute(RendererContext.LOCATION_PARAGRAPH_END, i == end - 1);
+				mState.context.clear();
+				mState.context.setParagraphLocationAttribute(RendererContext.LOCATION_PARAGRAPH_START, i == 0);
+				mState.context.setParagraphLocationAttribute(RendererContext.LOCATION_PARAGRAPH_END, i == end - 1);
 
-				visitLine(line, mLineRect.left, mLineRect.bottom);
+				visitLine(line, mState.lineRect.left, mState.lineRect.bottom);
 			}
 			onVisitParagraphEnd(paragraph);
 		} catch (Throwable throwable) {
 			// 忽略因为 release，而visit依旧在运行，导致访问内部数据结构出错的问题
 			throw new VisitException(throwable);
 		} finally {
-			mVisitSig = SIG_NORMAL;
+			mState.visitSig = SIG_NORMAL;
 		}
 	}
 
@@ -87,35 +81,35 @@ public abstract class ParagraphVisitor {
 		onVisitLineStart(line, bottomX, bottomY);
 
 		int size = line.getCount();
-		assignBoxMeta(line, 0, size, bottomX, bottomY, mTypesetContext.currentBoxMetaInfo);
-		if (mTypesetContext.currentBoxMetaInfo.isValid() && mVisitSig == SIG_NORMAL) {
+		assignBoxMeta(line, 0, size, bottomX, bottomY, mState.context.currentBoxMetaInfo);
+		if (mState.context.currentBoxMetaInfo.isValid() && mState.visitSig == SIG_NORMAL) {
 			do {
-				TexasUtils.copyRect(mInnerRect, mTypesetContext.currentBoxMetaInfo.inner);
-				TexasUtils.copyRect(mOuterRect, mTypesetContext.currentBoxMetaInfo.inner);
-				if (mTypesetContext.prevBoxMetaInfo.isValid()) {
-					mOuterRect.left = (mTypesetContext.prevBoxMetaInfo.inner.right + mTypesetContext.currentBoxMetaInfo.inner.left) / 2.0f;
+				TexasUtils.copyRect(mState.innerRect, mState.context.currentBoxMetaInfo.inner);
+				TexasUtils.copyRect(mState.outerRect, mState.context.currentBoxMetaInfo.inner);
+				if (mState.context.prevBoxMetaInfo.isValid()) {
+					mState.outerRect.left = (mState.context.prevBoxMetaInfo.inner.right + mState.context.currentBoxMetaInfo.inner.left) / 2.0f;
 				}
 
-				assignBoxMeta(line, mTypesetContext.currentBoxMetaInfo.index + 1, size, mTypesetContext.currentBoxMetaInfo.inner.right, bottomY, mTypesetContext.nextBoxMetaInfo);
-				if (mTypesetContext.nextBoxMetaInfo.isValid()) {
-					mOuterRect.right = (mTypesetContext.nextBoxMetaInfo.inner.left + mTypesetContext.currentBoxMetaInfo.inner.right) / 2.0f;
+				assignBoxMeta(line, mState.context.currentBoxMetaInfo.index + 1, size, mState.context.currentBoxMetaInfo.inner.right, bottomY, mState.context.nextBoxMetaInfo);
+				if (mState.context.nextBoxMetaInfo.isValid()) {
+					mState.outerRect.right = (mState.context.nextBoxMetaInfo.inner.left + mState.context.currentBoxMetaInfo.inner.right) / 2.0f;
 				}
 
-				onVisitBox(mTypesetContext.currentBoxMetaInfo.box, mInnerRect, mOuterRect, mTypesetContext);
-				if (!mTypesetContext.nextBoxMetaInfo.isValid() || mVisitSig != SIG_NORMAL) {
+				onVisitBox(mState.context.currentBoxMetaInfo.box, mState.innerRect, mState.outerRect, mState.context);
+				if (!mState.context.nextBoxMetaInfo.isValid() || mState.visitSig != SIG_NORMAL) {
 					break;
 				}
 
-				mTypesetContext.prevBoxMetaInfo.set(mTypesetContext.currentBoxMetaInfo);
-				mTypesetContext.currentBoxMetaInfo.set(mTypesetContext.nextBoxMetaInfo);
-				mTypesetContext.nextBoxMetaInfo.clear();
+				mState.context.prevBoxMetaInfo.set(mState.context.currentBoxMetaInfo);
+				mState.context.currentBoxMetaInfo.set(mState.context.nextBoxMetaInfo);
+				mState.context.nextBoxMetaInfo.clear();
 			} while (true);
 		}
 
 		onVisitLineEnd(line, bottomX, bottomY);
 		// 如果是暂停当前行的visit，那么下一次开始的时候要清空状态
-		if (mVisitSig == SIG_STOP_LINE_VISIT) {
-			mVisitSig = SIG_NORMAL;
+		if (mState.visitSig == SIG_STOP_LINE_VISIT) {
+			mState.visitSig = SIG_NORMAL;
 		}
 	}
 
@@ -154,7 +148,7 @@ public abstract class ParagraphVisitor {
 	 * @param sig 通知 visitor下一步动作
 	 */
 	protected void sendVisitSig(@VisitSig int sig) {
-		mVisitSig = sig;
+		mState.visitSig = sig;
 	}
 
 	protected abstract void onVisitParagraphStart(Paragraph paragraph);
@@ -172,12 +166,39 @@ public abstract class ParagraphVisitor {
 	 */
 	protected abstract void onVisitBox(Box box, RectF inner, RectF outer, @NonNull RendererContext context);
 
+	@RestrictTo(RestrictTo.Scope.LIBRARY)
+	public void saveTo(State state) {
+
+	}
+
+	@RestrictTo(RestrictTo.Scope.LIBRARY)
+	public void restore(State state) {
+
+	}
+
 	/**
 	 * 访问异常，可能因为paragraph被回收，然而访问还在进行时抛出
 	 */
 	public static class VisitException extends Exception {
 		public VisitException(Throwable cause) {
 			super(cause);
+		}
+	}
+
+	@RestrictTo(RestrictTo.Scope.LIBRARY)
+	public static class State {
+		private final RectF innerRect = new RectF();
+		private final RectF outerRect = new RectF();
+		private final RectF lineRect = new RectF();
+		private int visitSig = SIG_NORMAL;
+		private final RendererContext context = new RendererContext();
+
+		public void copy(State state) {
+			TexasUtils.copyRect(state.innerRect, innerRect);
+			TexasUtils.copyRect(state.outerRect, outerRect);
+			TexasUtils.copyRect(state.lineRect, lineRect);
+			state.visitSig = visitSig;
+			state.context.copy(context);
 		}
 	}
 }
