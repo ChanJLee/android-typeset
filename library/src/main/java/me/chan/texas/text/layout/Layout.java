@@ -295,6 +295,11 @@ public class Layout extends DefaultRecyclable {
 	}
 
 	@RestrictTo(LIBRARY)
+	public int getHorizontalGravity() {
+		return mAdvise.getTextGravity() & TextGravity.HORIZONTAL_MASK;
+	}
+
+	@RestrictTo(LIBRARY)
 	public static class Advise {
 		private final static int INDEX_LINE_SPACE = 0;
 		private final static int INDEX_BREAK_STRATEGY = 1;

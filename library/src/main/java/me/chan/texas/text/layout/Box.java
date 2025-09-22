@@ -102,12 +102,12 @@ public abstract class Box extends Element {
 	}
 
 	@RestrictTo(LIBRARY)
-	public final RectF getInnerBounds() {
+	public RectF getInner() {
 		return mInner;
 	}
 
 	@RestrictTo(LIBRARY)
-	public final RectF getOuterBounds() {
+	public RectF getOuter() {
 		return mOuter;
 	}
 

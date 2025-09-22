@@ -9,8 +9,13 @@ import android.util.Log;
 import androidx.annotation.RestrictTo;
 
 import me.chan.texas.Texas;
+import me.chan.texas.misc.RectF;
 import me.chan.texas.text.BreakStrategy;
 import me.chan.texas.text.Paragraph;
+import me.chan.texas.text.TextGravity;
+import me.chan.texas.text.layout.Box;
+import me.chan.texas.text.layout.Element;
+import me.chan.texas.text.layout.Glue;
 import me.chan.texas.text.layout.Layout;
 import me.chan.texas.text.layout.Line;
 import me.chan.texas.typesetter.simple.SimpleParagraphTypesetter;
@@ -45,27 +50,83 @@ public class ParagraphTypesetter {
 		}
 
 		if (typeset0(paragraph, breakStrategy, width)) {
-			Layout layout = paragraph.getLayout();
-			int height = 0;
-			for (int i = 0; i < layout.getLineCount(); ++i) {
-				Line line = layout.getLine(i);
-				height += line.getLineHeight();
-			}
-			layout.setContentSize(width, height);
+			buildLayoutBounds(paragraph, width);
 			return true;
 		}
 
 		return false;
 	}
 
-	private void updateContent(Paragraph paragraph, int width) {
+	private final RectF mLineRect = new RectF();
+	private final RectF mBoxRect = new RectF();
+
+	private void buildLayoutBounds(Paragraph paragraph, int width) {
 		Layout layout = paragraph.getLayout();
-		int contentHeight = 0;
+		mLineRect.top = 0;
+		int horizontalGravity = layout.getHorizontalGravity();
+		int paddingLeft = layout.getPaddingLeft();
+		float lineSpacingExtra = (int) layout.getLineSpacingExtra();
+		mLineRect.bottom = layout.getPaddingTop() - lineSpacingExtra /* 为了方便叠加spacing */;
 		for (int i = 0; i < layout.getLineCount(); ++i) {
 			Line line = layout.getLine(i);
-			contentHeight += line.getLineHeight();
+			getLineHorizontalBounds(horizontalGravity, line, mLineRect, width, paddingLeft);
+			mLineRect.top = mLineRect.bottom + lineSpacingExtra;
+			mLineRect.bottom = mLineRect.top + line.getLineHeight();
+			Box prev = null;
+			mBoxRect.set(mLineRect.left, mLineRect.top, mLineRect.left, mLineRect.bottom);
+			for (int j = 0; j < line.getCount(); ++j) {
+				Element element = line.getElement(j);
+				if (element instanceof Box) {
+					Box current = (Box) element;
+					mBoxRect.right = mBoxRect.left + current.getWidth();
+					if (prev != null) {
+						linkBox(prev, current);
+					}
+					prev = current;
+					mBoxRect.left = mBoxRect.right;
+					continue;
+				}
+				mBoxRect.left += getAdjustGlueWidth(line, (Glue) element);
+			}
 		}
-		layout.setContentSize(width, contentHeight);
+	}
+
+	private static void linkBox(Box lhs, Box rhs) {
+		RectF lhsInner = lhs.getInner();
+		RectF lhsOuter = lhs.getOuter();
+		RectF rhsInner = rhs.getInner();
+		RectF rhsOuter = rhs.getOuter();
+
+		float mid = (lhsInner.right + rhsInner.left) / 2.0f;
+		lhsOuter.right = rhsOuter.left = mid;
+	}
+
+	private static float getAdjustGlueWidth(Line line, Glue glue) {
+		float ratio = line.getRatio();
+		if (ratio == 0) {
+			return glue.getWidth();
+		}
+
+		if (ratio > 0) {
+			return glue.getWidth() + ratio * glue.getStretch();
+		}
+
+		return glue.getWidth() + ratio * glue.getShrink();
+	}
+
+	private static void getLineHorizontalBounds(int horizontalGravity, Line line, RectF bounds, int width, int paddingLeft) {
+		if (horizontalGravity == TextGravity.START) {
+			bounds.left = paddingLeft;
+		} else if (horizontalGravity == TextGravity.CENTER_HORIZONTAL) {
+			float offsetX = (width - line.getLineWidth()) / 2.0f;
+			bounds.left = paddingLeft + offsetX;
+		} else if (horizontalGravity == TextGravity.END) {
+			float offsetX = width - line.getLineWidth();
+			bounds.left = paddingLeft + offsetX;
+		} else {
+			throw new IllegalStateException("unknown text gravity");
+		}
+		bounds.right = bounds.left + line.getLineWidth();
 	}
 
 	/**
@@ -78,16 +139,13 @@ public class ParagraphTypesetter {
 			return false;
 		}
 
-		// TODO
 		Layout layout = paragraph.getLayout();
 		float actualWidth = 0;
-		float actualHeight = 0;
 		for (int i = 0; i < layout.getLineCount(); ++i) {
 			Line line = layout.getLine(i);
 			actualWidth = Math.max(line.getLineWidth(), actualWidth);
-			actualHeight += line.getLineHeight();
 		}
-		layout.setContentSize((int) Math.ceil(actualWidth), (int) Math.ceil(actualHeight));
+		buildLayoutBounds(paragraph, (int) Math.ceil(actualWidth));
 		return true;
 	}
 
