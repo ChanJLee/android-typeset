@@ -67,26 +67,6 @@ public class ParagraphTypesetWorker {
 		return true;
 	}
 
-	/**
-	 * 预测宽高
-	 *
-	 * @param paragraph 段落
-	 * @return true表示成功
-	 */
-	public boolean desire(@NonNull Paragraph paragraph) {
-		if (!paragraph.hasContent()) {
-			return false;
-		}
-
-		ParagraphTypesetWorker.Args args = ParagraphTypesetWorker.Args.desire(paragraph);
-		try {
-			typeset(args);
-		} catch (Throwable e) {
-			return false;
-		}
-		return true;
-	}
-
 	public static class Args extends DefaultRecyclable {
 		private static final ObjectPool<Args> POOL = new ObjectPool<>(32);
 		private Paragraph paragraph;

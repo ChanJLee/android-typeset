@@ -39,7 +39,8 @@ public abstract class Box extends Element {
 	protected Appearance mForeground;
 
 	private int mSeq;
-
+	private final RectF mInner = new RectF();
+	private final RectF mOuter = new RectF();
 
 	/**
 	 * @param width  宽度
@@ -80,6 +81,34 @@ public abstract class Box extends Element {
 
 		mBackground = null;
 		mForeground = null;
+	}
+
+	@RestrictTo(LIBRARY)
+	public final void setInnerBounds(RectF rectF) {
+		TexasUtils.copyRect(mInner, rectF);
+	}
+
+	public final void getInnerBounds(RectF rectF) {
+		TexasUtils.copyRect(rectF, mInner);
+	}
+
+	@RestrictTo(LIBRARY)
+	public final void setOuterBounds(RectF rectF) {
+		TexasUtils.copyRect(mOuter, rectF);
+	}
+
+	public final void getOuterBounds(RectF rectF) {
+		TexasUtils.copyRect(rectF, mOuter);
+	}
+
+	@RestrictTo(LIBRARY)
+	public final RectF getInnerBounds() {
+		return mInner;
+	}
+
+	@RestrictTo(LIBRARY)
+	public final RectF getOuterBounds() {
+		return mOuter;
 	}
 
 	@RestrictTo(LIBRARY)

@@ -257,7 +257,7 @@ public class TexasUtils {
 		Layout.Advise advise = layout.getAdvise();
 		float lineSpace = advise.getLineSpacingExtra();
 		if (lineSpace < 0) {
-			lineSpace = layout.getLineSpace();
+			lineSpace = layout.getLineSpacingExtra();
 		}
 		return lineSpace;
 	}
@@ -319,7 +319,8 @@ public class TexasUtils {
 
 		if (prev.getTextSize() != current.getTextSize() ||
 				!TexasUtils.equals(prev.getTypeface(), current.getTypeface()) ||
-				prev.isFullWithSymbolOptimizationEnable() != current.isFullWithSymbolOptimizationEnable()) {
+				prev.isFullWithSymbolOptimizationEnable() != current.isFullWithSymbolOptimizationEnable() ||
+				Float.compare(prev.getLineSpacingExtra(), current.getLineSpacingExtra()) != 0) {
 			return CmpType.CMP_TYPESET;
 		}
 

@@ -139,7 +139,7 @@ public class ParagraphViewMotion {
 
 	public Box checkIfClicked(float x, float y) {
 		mMotionEventVisitor.setMotionLocation(x, y);
-		float lineSpace = mParagraph.getLayout().getLineSpace();
+		float lineSpace = mParagraph.getLayout().getLineSpacingExtra();
 		mMotionEventVisitor.setLineSpace(lineSpace);
 		try {
 			mMotionEventVisitor.visit(mParagraph);
