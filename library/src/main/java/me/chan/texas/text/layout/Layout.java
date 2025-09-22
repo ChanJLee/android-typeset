@@ -163,7 +163,7 @@ public class Layout extends DefaultRecyclable {
 		bounds.left = getPaddingLeft();
 		bounds.right = bounds.left + mWidth;
 		bounds.top = 0;
-		bounds.bottom = getPaddingTop() - getLineSpace();
+		bounds.bottom = getPaddingTop() - getLineSpacingExtra();
 	}
 
 	@RestrictTo(LIBRARY)
@@ -174,7 +174,7 @@ public class Layout extends DefaultRecyclable {
 
 		Line line = getLine(index);
 		getLineHorizontalBounds(line, bounds);
-		bounds.top = bounds.bottom + getLineSpace();
+		bounds.top = bounds.bottom + getLineSpacingExtra();
 		bounds.bottom = bounds.top + line.getLineHeight();
 	}
 
@@ -206,10 +206,10 @@ public class Layout extends DefaultRecyclable {
 
 	private void getLineVerticalBounds(int index, RectF bounds) {
 		bounds.top = getPaddingTop();
-		float lineSpace = getLineSpace();
+		float lineSpacingExtra = getLineSpacingExtra();
 		for (int i = 0; i < index; ++i) {
 			Line prev = getLine(i);
-			bounds.top = bounds.top + prev.getLineHeight() + lineSpace;
+			bounds.top = bounds.top + prev.getLineHeight() + lineSpacingExtra;
 		}
 		Line line = getLine(index);
 		bounds.bottom = bounds.top + line.getLineHeight();
@@ -234,6 +234,7 @@ public class Layout extends DefaultRecyclable {
 		return 0;
 	}
 
+	// TODO
 	private int getHeight0() {
 		if (isRecycled()) {
 			return 0;
@@ -243,7 +244,7 @@ public class Layout extends DefaultRecyclable {
 		if (lineCount > 0) {
 			float height = mHeight;
 			if (lineCount > 1) {
-				height += ((lineCount - 1) * getLineSpace());
+				height += ((lineCount - 1) * getLineSpacingExtra());
 			}
 
 			return (int) Math.ceil(height);
@@ -256,7 +257,7 @@ public class Layout extends DefaultRecyclable {
 		return mAdvise;
 	}
 
-	public float getLineSpace() {
+	public float getLineSpacingExtra() {
 		return mAdvise.getLineSpacingExtra();
 	}
 

@@ -478,7 +478,7 @@ public class RenderWorker {
 		@Override
 		public void onVisitLineEnd(Line line, float x, float y) {
 			float startX = 0;
-			float lineSpace = mArgs.paragraph.getLayout().getLineSpace();
+			float lineSpace = mArgs.paragraph.getLayout().getLineSpacingExtra();
 			float startY = y + lineSpace;
 			android.graphics.Rect rect = new android.graphics.Rect();
 			String debugInfo = line.getInfoMsg();

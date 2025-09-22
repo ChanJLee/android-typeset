@@ -58,6 +58,16 @@ public class ParagraphTypesetter {
 		return false;
 	}
 
+	private void updateContent(Paragraph paragraph, int width) {
+		Layout layout = paragraph.getLayout();
+		int contentHeight = 0;
+		for (int i = 0; i < layout.getLineCount(); ++i) {
+			Line line = layout.getLine(i);
+			contentHeight += line.getLineHeight();
+		}
+		layout.setContentSize(width, contentHeight);
+	}
+
 	/**
 	 * @param paragraph     要排版的段落
 	 * @param breakStrategy 排版策略
@@ -68,6 +78,7 @@ public class ParagraphTypesetter {
 			return false;
 		}
 
+		// TODO
 		Layout layout = paragraph.getLayout();
 		float actualWidth = 0;
 		float actualHeight = 0;
