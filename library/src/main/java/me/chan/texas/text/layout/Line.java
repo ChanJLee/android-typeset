@@ -43,6 +43,7 @@ public class Line extends DefaultRecyclable {
 		mLineHeight = -1;
 		mRatio = -1;
 		mBaselineOffset = 0;
+		mBounds.setEmpty();
 	}
 
 	public float getLineHeight() {
@@ -116,18 +117,21 @@ public class Line extends DefaultRecyclable {
 	@Override
 	public String toString() {
 		int size = mElements.size();
-		if (size == 0) {
+		if (size == 0 || mBounds.isEmpty()) {
 			return "";
 		}
 
+		Box prev = null;
 		StringBuilder stringBuilder = new StringBuilder();
-		for (Element element : mElements) {
-			if (element instanceof Glue) {
-				if (element != Glue.TERMINAL) {
+		for (int i = 0; i < mElements.size(); ++i) {
+			Element element = mElements.get(i);
+			if (element instanceof Box) {
+				Box current = (Box) element;
+				if (prev != null && Float.compare(prev.getInnerBounds().right, current.getInnerBounds().left) == 0) {
 					stringBuilder.append(" ");
 				}
-			} else {
-				stringBuilder.append(element.toString());
+				stringBuilder.append(current);
+				prev = current;
 			}
 		}
 		return stringBuilder.toString();

@@ -426,7 +426,7 @@ public class TypesetterUnitTest {
 
 		for (int i = 0; i < layout.getLineCount(); ++i) {
 			Line line = layout.getLine(i);
-			Assert.assertEquals(line.toString(), exceptedLines[i]);
+			Assert.assertEquals(exceptedLines[i], line.toString());
 		}
 
 		BoundCheckDrawer drawer = new BoundCheckDrawer(lineWidth);
