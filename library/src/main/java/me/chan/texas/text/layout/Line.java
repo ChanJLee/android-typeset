@@ -157,6 +157,8 @@ public class Line extends DefaultRecyclable {
 		// 1. 给定一个数组，里面有两种元素，一种是box，另一种是其他
 		// 2. 移除数组中非box的元素且保证box的顺序
 		// 3. 尝试用o(n)的方法合并
+		// 例子：
+		// 一个数组内容[b, o, b, o, o] 其中b代表box，合并数组后内容变成[b, b]
 		int writeIndex = findAnchor();
 		for (int i = writeIndex + 1; i < mElements.size(); ++i) {
 			Element element = mElements.get(i);
@@ -406,7 +408,6 @@ public class Line extends DefaultRecyclable {
 		}
 
 		private class BoxIteratorImpl implements TexasIterator<Box> {
-			private final ParagraphVisitor.State mState = new ParagraphVisitor.State();
 
 			@Nullable
 			@Override
