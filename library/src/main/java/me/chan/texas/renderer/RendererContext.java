@@ -26,6 +26,7 @@ public final class RendererContext {
 		return mBox.getTag();
 	}
 
+	// TODO UNIT TEST
 	/**
 	 * @return 获得前一个绘制元素的tag
 	 */
