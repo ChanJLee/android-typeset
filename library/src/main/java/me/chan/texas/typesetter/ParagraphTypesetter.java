@@ -90,6 +90,7 @@ public class ParagraphTypesetter {
 				}
 				mBoxRect.left += getAdjustGlueWidth(line, (Glue) element);
 			}
+			line.trim();
 		}
 	}
 

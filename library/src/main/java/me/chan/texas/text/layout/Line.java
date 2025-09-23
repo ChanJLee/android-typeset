@@ -152,6 +152,36 @@ public class Line extends DefaultRecyclable {
 		return mElements.indexOf(element);
 	}
 
+	@RestrictTo(LIBRARY)
+	public void trim() {
+		// 1. 给定一个数组，里面有两种元素，一种是box，另一种是其他
+		// 2. 移除数组中非box的元素且保证box的顺序
+		// 3. 尝试用o(n)的方法合并
+		int writeIndex = findAnchor();
+		for (int i = writeIndex + 1; i < mElements.size(); ++i) {
+			Element element = mElements.get(i);
+			if (element instanceof Box) {
+				mElements.set(writeIndex++, element);
+			}
+		}
+
+		int count = mElements.size() - writeIndex;
+		for (int i = 0; i < count; ++i) {
+			mElements.remove(mElements.size() - 1);
+		}
+	}
+
+	private int findAnchor() {
+		int i = 0;
+		for (; i < mElements.size(); ++i) {
+			Element element = mElements.get(i);
+			if (!(element instanceof Box)) {
+				return i;
+			}
+		}
+		return i;
+	}
+
 	public static class Builder extends DefaultRecyclable {
 		private Line mLine;
 		private Element mLastTextElement;
