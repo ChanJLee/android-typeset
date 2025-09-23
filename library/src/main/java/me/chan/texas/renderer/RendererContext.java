@@ -6,25 +6,24 @@ import androidx.annotation.RestrictTo;
 
 import me.chan.texas.misc.RectF;
 import me.chan.texas.text.layout.Box;
-import me.chan.texas.utils.TexasUtils;
+import me.chan.texas.text.layout.Line;
+import me.chan.texas.text.layout.TextBox;
 
 public final class RendererContext {
+	private static final Box NONVALUE = TextBox.obtain("x", 0, 1, null, null, null, null);
 
-	@RestrictTo(RestrictTo.Scope.LIBRARY)
-	BoxMetaInfo currentBoxMetaInfo = new BoxMetaInfo();
-
-	@RestrictTo(RestrictTo.Scope.LIBRARY)
-	BoxMetaInfo prevBoxMetaInfo = new BoxMetaInfo();
-
-	@RestrictTo(RestrictTo.Scope.LIBRARY)
-	BoxMetaInfo nextBoxMetaInfo = new BoxMetaInfo();
+	private Box mBox;
+	private int mIndex;
+	private Line mLine;
+	private Box mPrev;
+	private Box mNext;
 
 	/**
 	 * @return 获得当前元素的tag
 	 */
 	@Nullable
 	public Object getTag() {
-		return currentBoxMetaInfo.box.getTag();
+		return mBox.getTag();
 	}
 
 	/**
@@ -32,7 +31,27 @@ public final class RendererContext {
 	 */
 	@Nullable
 	public Object getPrevTag() {
-		return prevBoxMetaInfo.box == null ? null : prevBoxMetaInfo.box.getTag();
+		if (mIndex == 0) {
+			return null;
+		}
+
+		if (mPrev == NONVALUE) {
+			return null;
+		}
+
+		if (mPrev != null) {
+			return mPrev.getTag();
+		}
+
+		Box prev = (Box) mLine.getElement(mIndex - 1);
+		RectF prevBounds = prev.getInnerBounds();
+		if (Float.compare(prevBounds.right, mBox.getInnerBounds().left) == 0) {
+			mPrev = prev;
+			return prev.getTag();
+		}
+
+		mPrev = NONVALUE;
+		return null;
 	}
 
 	/**
@@ -40,7 +59,27 @@ public final class RendererContext {
 	 */
 	@Nullable
 	public Object getNextTag() {
-		return nextBoxMetaInfo.box == null ? null : nextBoxMetaInfo.box.getTag();
+		if (mIndex == mLine.getCount() - 1) {
+			return null;
+		}
+
+		if (mNext == NONVALUE) {
+			return null;
+		}
+
+		if (mNext != null) {
+			return mNext.getTag();
+		}
+
+		Box next = (Box) mLine.getElement(mIndex + 1);
+		RectF nextBounds = next.getInnerBounds();
+		if (Float.compare(nextBounds.left, mBox.getInnerBounds().right) == 0) {
+			mNext = next;
+			return next.getTag();
+		}
+
+		mNext = NONVALUE;
+		return null;
 	}
 
 	/**
@@ -73,19 +112,19 @@ public final class RendererContext {
 	 */
 	public static final int LOCATION_PARAGRAPH_MIDDLE = 32;
 
-	public void clear() {
-		currentBoxMetaInfo.clear();
-		prevBoxMetaInfo.clear();
-		nextBoxMetaInfo.clear();
+	@RestrictTo(RestrictTo.Scope.LIBRARY)
+	void clear() {
 		mParagraphLocationAttribute = 0;
+		mBox = null;
+		mLine = null;
+		mIndex = 0;
 	}
 
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
-	public void copy(RendererContext context) {
-		context.currentBoxMetaInfo.copy(currentBoxMetaInfo);
-		context.prevBoxMetaInfo.copy(prevBoxMetaInfo);
-		context.nextBoxMetaInfo.copy(nextBoxMetaInfo);
-		context.mParagraphLocationAttribute = mParagraphLocationAttribute;
+	void setBoxLocationAttribute(Line line, Box box, int index) {
+		mLine = line;
+		mBox = box;
+		mIndex = index;
 	}
 
 	@IntDef({LOCATION_LINE_START, LOCATION_LINE_END, LOCATION_LINE_MIDDLE,
@@ -110,11 +149,11 @@ public final class RendererContext {
 	 */
 	public boolean checkLocation(@LocationType int location) {
 		if (location == LOCATION_LINE_START) {
-			return prevBoxMetaInfo.box == null;
+			return mIndex == 0;
 		} else if (location == LOCATION_LINE_END) {
-			return nextBoxMetaInfo.box == null;
+			return mIndex == mLine.getCount();
 		} else if (location == LOCATION_LINE_MIDDLE) {
-			return prevBoxMetaInfo.box != null && nextBoxMetaInfo.box != null;
+			return mIndex > 0 && mIndex < mLine.getCount();
 		} else if (location == LOCATION_PARAGRAPH_START) {
 			return (mParagraphLocationAttribute & LOCATION_PARAGRAPH_START) != 0;
 		} else if (location == LOCATION_PARAGRAPH_END) {
@@ -125,45 +164,5 @@ public final class RendererContext {
 		}
 
 		throw new IllegalArgumentException("unknown location type: " + location);
-	}
-
-	@RestrictTo(RestrictTo.Scope.LIBRARY)
-	public static final class BoxMetaInfo {
-		public final RectF inner = new RectF();
-		public Box box;
-		public int index;
-
-		public void clear() {
-			inner.top = inner.left = inner.right = inner.bottom = 0;
-			box = null;
-			index = -1;
-		}
-
-		public boolean isValid() {
-			return box != null;
-		}
-
-		public void set(Box box, int index, RectF inner) {
-			this.box = box;
-			this.index = index;
-			TexasUtils.copyRect(this.inner, inner);
-		}
-
-		public void set(BoxMetaInfo meta) {
-			this.box = meta.box;
-			this.index = meta.index;
-			TexasUtils.copyRect(this.inner, meta.inner);
-		}
-
-		public void copy(BoxMetaInfo other) {
-			other.box = box;
-			other.index = index;
-			TexasUtils.copyRect(other.inner, inner);
-		}
-	}
-
-	@RestrictTo(RestrictTo.Scope.LIBRARY)
-	public BoxMetaInfo getCurrentBoxMetaInfo() {
-		return currentBoxMetaInfo;
 	}
 }

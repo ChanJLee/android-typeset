@@ -43,9 +43,8 @@ public class LayoutUnitTest {
 		paragraph.measure(measurer, textAttribute);
 		texTypesetter.typeset(paragraph, BreakStrategy.SIMPLE, 10);
 
-		RectF bounds = new RectF();
 		Layout layout = paragraph.getLayout();
-		layout.getLineBounds(0, bounds);
+		RectF bounds = layout.getLine(0).getBounds();
 		Assert.assertEquals(1, bounds.left, 0.0001);
 		Assert.assertEquals(2, bounds.top, 0.0001);
 		Assert.assertEquals(9, bounds.right, 0.0001);
@@ -64,7 +63,7 @@ public class LayoutUnitTest {
 
 		bounds = new RectF();
 		layout = paragraph.getLayout();
-		layout.getLineBounds(0, bounds);
+		bounds = layout.getLine(0).getBounds();
 		Assert.assertEquals(3, bounds.left, 0.0001);
 		Assert.assertEquals(2, bounds.top, 0.0001);
 		Assert.assertEquals(11, bounds.right, 0.0001);
@@ -80,9 +79,8 @@ public class LayoutUnitTest {
 		paragraph.measure(measurer, textAttribute);
 		texTypesetter.typeset(paragraph, BreakStrategy.SIMPLE, 10);
 
-		bounds = new RectF();
 		layout = paragraph.getLayout();
-		layout.getLineBounds(0, bounds);
+		bounds = layout.getLine(0).getBounds();
 		Assert.assertEquals(2, bounds.left, 0.0001);
 		Assert.assertEquals(2, bounds.top, 0.0001);
 		Assert.assertEquals(10, bounds.right, 0.0001);
