@@ -9,9 +9,11 @@ import java.util.List;
 import me.chan.texas.Texas;
 import me.chan.texas.misc.DefaultRecyclable;
 import me.chan.texas.misc.ObjectPool;
+import me.chan.texas.misc.RectF;
 import me.chan.texas.renderer.ParagraphVisitor;
 import me.chan.texas.text.BreakStrategy;
 import me.chan.texas.text.util.TexasIterator;
+import me.chan.texas.utils.TexasUtils;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
@@ -28,6 +30,7 @@ public class Line extends DefaultRecyclable {
 	private float mLineWidth;
 	private float mRatio;
 	private float mBaselineOffset;
+	private final RectF mBounds = new RectF();
 
 	private Line() {
 		Texas.MemoryOption memoryOption = Texas.getMemoryOption();
@@ -182,6 +185,15 @@ public class Line extends DefaultRecyclable {
 			}
 		}
 		return i;
+	}
+
+	@RestrictTo(LIBRARY)
+	public void setBounds(RectF bounds) {
+		TexasUtils.copyRect(mBounds, bounds);
+	}
+
+	public RectF getBounds() {
+		return mBounds;
 	}
 
 	public static class Builder extends DefaultRecyclable {

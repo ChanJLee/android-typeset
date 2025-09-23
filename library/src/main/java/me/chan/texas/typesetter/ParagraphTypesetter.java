@@ -72,6 +72,7 @@ public class ParagraphTypesetter {
 			getLineHorizontalBounds(horizontalGravity, line, mLineRect, width, paddingLeft);
 			mLineRect.top = mLineRect.bottom + lineSpacingExtra;
 			mLineRect.bottom = mLineRect.top + line.getLineHeight();
+			line.setBounds(mLineRect);
 			Box prev = null;
 			mBoxRect.set(mLineRect.left, mLineRect.top, mLineRect.left, mLineRect.bottom);
 			for (int j = 0; j < line.getCount(); ++j) {
@@ -82,7 +83,7 @@ public class ParagraphTypesetter {
 					current.setOuterBounds(mBoxRect);
 					current.setInnerBounds(mBoxRect);
 					if (prev != null) {
-						linkBox(prev, current);
+						prev.linkBounds(current);
 					}
 					prev = current;
 					mBoxRect.left = mBoxRect.right;
@@ -92,16 +93,6 @@ public class ParagraphTypesetter {
 			}
 			line.trim();
 		}
-	}
-
-	private static void linkBox(Box lhs, Box rhs) {
-		RectF lhsInner = lhs.getInner();
-		RectF lhsOuter = lhs.getOuter();
-		RectF rhsInner = rhs.getInner();
-		RectF rhsOuter = rhs.getOuter();
-
-		float mid = (lhsInner.right + rhsInner.left) / 2.0f;
-		lhsOuter.right = rhsOuter.left = mid;
 	}
 
 	private static float getAdjustGlueWidth(Line line, Glue glue) {

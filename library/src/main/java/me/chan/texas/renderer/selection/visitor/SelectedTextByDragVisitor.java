@@ -33,7 +33,6 @@ public class SelectedTextByDragVisitor extends SelectedVisitor {
 	private final PointF mP1 = new PointF();
 	private final PointF mP2 = new PointF();
 	private final LineRange mLineRange = new LineRange();
-	private final RectF mLineBound = new RectF();
 
 	@Override
 	protected void onVisitParagraphStart(Paragraph paragraph) {
@@ -92,8 +91,9 @@ public class SelectedTextByDragVisitor extends SelectedVisitor {
 				return;
 			}
 
-			layout.getLineBounds(lineIndex, mLineBound);
-			RectF rectF = new RectF(mLineBound.right, mLineBound.top, mLineBound.right, mLineBound.bottom);
+			Line tmp = layout.getLine(lineIndex);
+			RectF bounds = tmp.getBounds();
+			RectF rectF = new RectF(bounds.right, bounds.top, bounds.right, bounds.bottom);
 			mSelection.prependRegion(rectF);
 			index = linkText(line, count - 1, false, rectF);
 			if (index != -1) {
@@ -184,8 +184,9 @@ public class SelectedTextByDragVisitor extends SelectedVisitor {
 				return;
 			}
 
-			layout.getLineBounds(lineIndex, mLineBound);
-			RectF rectF = new RectF(mLineBound.left, mLineBound.top, mLineBound.left, mLineBound.bottom);
+			Line tmp = layout.getLine(lineIndex);
+			RectF bounds = tmp.getBounds();
+			RectF rectF = new RectF(bounds.left, bounds.top, bounds.left, bounds.bottom);
 			mSelection.appendRegion(rectF);
 			index = linkText(line, 0, true, rectF);
 			size = count;

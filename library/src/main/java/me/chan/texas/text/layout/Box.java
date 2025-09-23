@@ -88,8 +88,8 @@ public abstract class Box extends Element {
 		TexasUtils.copyRect(mInner, rectF);
 	}
 
-	public final void getInnerBounds(RectF rectF) {
-		TexasUtils.copyRect(rectF, mInner);
+	public RectF getInnerBounds() {
+		return mInner;
 	}
 
 	@RestrictTo(LIBRARY)
@@ -97,17 +97,7 @@ public abstract class Box extends Element {
 		TexasUtils.copyRect(mOuter, rectF);
 	}
 
-	public final void getOuterBounds(RectF rectF) {
-		TexasUtils.copyRect(rectF, mOuter);
-	}
-
-	@RestrictTo(LIBRARY)
-	public RectF getInner() {
-		return mInner;
-	}
-
-	@RestrictTo(LIBRARY)
-	public RectF getOuter() {
+	public RectF getOuterBounds() {
 		return mOuter;
 	}
 
@@ -145,5 +135,11 @@ public abstract class Box extends Element {
 				TexasUtils.equals(mTag, box.mTag) &&
 				TexasUtils.equals(mBackground, box.mBackground) &&
 				TexasUtils.equals(mForeground, box.mForeground);
+	}
+
+	@RestrictTo(LIBRARY)
+	public void linkBounds(Box current) {
+		float mid = (mInner.right + current.mInner.left) / 2.0f;
+		mOuter.right = current.mOuter.left = mid;
 	}
 }

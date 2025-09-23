@@ -159,63 +159,6 @@ public class Layout extends DefaultRecyclable {
 	}
 
 	@RestrictTo(LIBRARY)
-	public void prepareGetLineBoundsIncremental(RectF bounds) {
-		bounds.left = getPaddingLeft();
-		bounds.right = bounds.left + mWidth;
-		bounds.top = 0;
-		bounds.bottom = getPaddingTop() - getLineSpacingExtra();
-	}
-
-	@RestrictTo(LIBRARY)
-	public void getLineBoundsIncremental(int index, RectF bounds) {
-		if (index < 0 || index >= getLineCount()) {
-			return;
-		}
-
-		Line line = getLine(index);
-		getLineHorizontalBounds(line, bounds);
-		bounds.top = bounds.bottom + getLineSpacingExtra();
-		bounds.bottom = bounds.top + line.getLineHeight();
-	}
-
-	public void getLineBounds(int index, RectF bounds) {
-		if (index < 0 || index >= getLineCount()) {
-			return;
-		}
-
-		Line line = getLine(index);
-		getLineHorizontalBounds(line, bounds);
-		getLineVerticalBounds(index, bounds);
-	}
-
-	private void getLineHorizontalBounds(Line line, RectF bounds) {
-		int horizontalGravity = mAdvise.getTextGravity() & TextGravity.HORIZONTAL_MASK;
-		if (horizontalGravity == TextGravity.START) {
-			bounds.left = getPaddingLeft();
-		} else if (horizontalGravity == TextGravity.CENTER_HORIZONTAL) {
-			float offsetX = (mWidth - line.getLineWidth()) / 2.0f;
-			bounds.left = getPaddingLeft() + offsetX;
-		} else if (horizontalGravity == TextGravity.END) {
-			float offsetX = mWidth - line.getLineWidth();
-			bounds.left = getPaddingLeft() + offsetX;
-		} else {
-			throw new IllegalStateException("unknown text gravity");
-		}
-		bounds.right = bounds.left + line.getLineWidth();
-	}
-
-	private void getLineVerticalBounds(int index, RectF bounds) {
-		bounds.top = getPaddingTop();
-		float lineSpacingExtra = getLineSpacingExtra();
-		for (int i = 0; i < index; ++i) {
-			Line prev = getLine(i);
-			bounds.top = bounds.top + prev.getLineHeight() + lineSpacingExtra;
-		}
-		Line line = getLine(index);
-		bounds.bottom = bounds.top + line.getLineHeight();
-	}
-
-	@RestrictTo(LIBRARY)
 	public int getWidth() {
 		return mWidth + getPaddingLeft() + getPaddingRight();
 	}
