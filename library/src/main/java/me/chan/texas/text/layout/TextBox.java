@@ -158,6 +158,14 @@ public final class TextBox extends Box {
 	}
 
 	@Override
+	public final boolean isIsolate(boolean backward) {
+		if (backward) {
+			return mInner.right != mOuter.right;
+		}
+		return mInner.left != mOuter.left;
+	}
+
+	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
@@ -276,11 +284,11 @@ public final class TextBox extends Box {
 	}
 
 	public static TextBox obtain(@NonNull CharSequence charSequence, int start, int end,
-								  TextStyle textStyle,
-								  Object tag,
-								  Appearance background,
-								  Appearance foreground,
-								  int groupId) {
+								 TextStyle textStyle,
+								 Object tag,
+								 Appearance background,
+								 Appearance foreground,
+								 int groupId) {
 		TextBox box = POOL.acquire();
 		if (box == null) {
 			box = new TextBox(charSequence, start, end, 0, 0, textStyle);

@@ -45,6 +45,11 @@ public class DrawableBox extends Box {
 		POOL.release(this);
 	}
 
+	@Override
+	public final boolean isIsolate(boolean backward) {
+		return true;
+	}
+
 	public static DrawableBox obtain(@NonNull HyperSpan span, float width, float height) {
 		DrawableBox drawableBox = POOL.acquire();
 		if (drawableBox == null) {

@@ -39,8 +39,8 @@ public abstract class Box extends Element {
 	protected Appearance mForeground;
 
 	private int mSeq;
-	private final RectF mInner = new RectF();
-	private final RectF mOuter = new RectF();
+	protected final RectF mInner = new RectF();
+	protected final RectF mOuter = new RectF();
 
 	/**
 	 * @param width  宽度
@@ -82,6 +82,12 @@ public abstract class Box extends Element {
 		mBackground = null;
 		mForeground = null;
 	}
+
+	/**
+	 * @param backward 向后遍历
+	 * @return 是否是孤立的，孤立的意思是旁边是空格
+	 */
+	public abstract boolean isIsolate(boolean backward);
 
 	@RestrictTo(LIBRARY)
 	public final void setInnerBounds(RectF rectF) {
