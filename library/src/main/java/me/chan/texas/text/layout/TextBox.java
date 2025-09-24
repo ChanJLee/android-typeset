@@ -51,6 +51,10 @@ public final class TextBox extends Box {
 
 	public static final int ATTRIBUTE_RTL = 32;
 
+	public static final int ATTRIBUTE_LINE_HEADER = 64;
+
+	public static final int ATTRIBUTE_LINE_TAILER = 128;
+
 	static final float ZOOM_OUT_FACTOR = 0.8333f;
 
 	static final int SQUISH_FACTOR = 2;
@@ -162,9 +166,9 @@ public final class TextBox extends Box {
 	@Override
 	public final boolean isIsolate(boolean backward) {
 		if (backward) {
-			return mInner.right != mOuter.right;
+			return mInner.right != mOuter.right || hasAttribute(ATTRIBUTE_LINE_TAILER);
 		}
-		return mInner.left != mOuter.left;
+		return mInner.left != mOuter.left || hasAttribute(ATTRIBUTE_LINE_HEADER);
 	}
 
 	@Override

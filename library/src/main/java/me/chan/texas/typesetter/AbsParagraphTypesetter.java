@@ -14,6 +14,7 @@ import me.chan.texas.text.layout.Element;
 import me.chan.texas.text.layout.Glue;
 import me.chan.texas.text.layout.Layout;
 import me.chan.texas.text.layout.Line;
+import me.chan.texas.text.layout.TextBox;
 import me.chan.texas.typesetter.utils.ElementStream;
 
 @RestrictTo(LIBRARY)
@@ -116,6 +117,21 @@ public abstract class AbsParagraphTypesetter {
 				boxRect.left += getAdjustGlueWidth(line, (Glue) element);
 			}
 			line.trim();
+
+			int size = line.getCount();
+			if (size != 0) {
+				Box element = (Box) line.getElement(0);
+				if (element instanceof TextBox) {
+					TextBox textBox = (TextBox) element;
+					textBox.addAttribute(TextBox.ATTRIBUTE_LINE_HEADER);
+				}
+
+				element = (Box) line.getElement(size - 1);
+				if (element instanceof TextBox) {
+					TextBox textBox = (TextBox) element;
+					textBox.addAttribute(TextBox.ATTRIBUTE_LINE_TAILER);
+				}
+			}
 		}
 
 		width = width + paddingLeft + layout.getPaddingRight();
