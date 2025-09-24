@@ -21,7 +21,7 @@ public class SimpleParagraphTypesetter extends AbsParagraphTypesetter {
 	// 添加分析
 
 	@Override
-	public boolean typeset(Paragraph paragraph,
+	protected boolean onTypeset(Paragraph paragraph,
 						   BreakStrategy breakStrategy,
 						   int width) {
 

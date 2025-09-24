@@ -35,7 +35,7 @@ public class TexParagraphTypesetter extends AbsParagraphTypesetter {
 
 	@Nullable
 	@Override
-	public boolean typeset(Paragraph paragraph, BreakStrategy breakStrategy, int width) {
+	protected boolean onTypeset(Paragraph paragraph, BreakStrategy breakStrategy, int width) {
 		TypesetArgs args = buildTypesetArgs(paragraph, breakStrategy, width);
 
 		int typesetRound = 1;
