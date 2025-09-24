@@ -497,19 +497,19 @@ public class TextBoxUnitTest {
 		Assert.assertEquals(4, line.getCount());
 
 		Box box = (Box) line.getElement(0);
-		Assert.assertTrue(box.isIsolate(false, 0, line.getCount()));
-		Assert.assertTrue(box.isIsolate(true, 0, line.getCount()));
+		Assert.assertTrue(box.isIsolate(false));
+		Assert.assertTrue(box.isIsolate(true));
 
 		box = (Box) line.getElement(1);
-		Assert.assertTrue(box.isIsolate(false, 1, line.getCount()));
-		Assert.assertFalse(box.isIsolate(true, 1, line.getCount()));
+		Assert.assertTrue(box.isIsolate(false));
+		Assert.assertFalse(box.isIsolate(true));
 
 		box = (Box) line.getElement(2);
-		Assert.assertFalse(box.isIsolate(false, 2, line.getCount()));
-		Assert.assertTrue(box.isIsolate(true, 2, line.getCount()));
+		Assert.assertFalse(box.isIsolate(false));
+		Assert.assertTrue(box.isIsolate(true));
 
 		box = (Box) line.getElement(3);
-		Assert.assertTrue(box.isIsolate(false, 3, line.getCount()));
-		Assert.assertTrue(box.isIsolate(true, 3, line.getCount()));
+		Assert.assertTrue(box.isIsolate(false));
+		Assert.assertTrue(box.isIsolate(true));
 	}
 }

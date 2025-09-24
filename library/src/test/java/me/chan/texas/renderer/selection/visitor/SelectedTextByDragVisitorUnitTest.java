@@ -374,7 +374,7 @@ public class SelectedTextByDragVisitorUnitTest {
 		line.add(TextBox.obtain(triBox));
 		line.add(TextBox.obtain(angBox));
 		line.add(glue);
-		line.add(box123);
+		line.add(TextBox.obtain(box123));
 		line.setLineWidth(glue.getWidth() + box123.getWidth() + triBox.getWidth() + angBox.getWidth());
 		line.setRatio(0);
 		line.setLineHeight(1);

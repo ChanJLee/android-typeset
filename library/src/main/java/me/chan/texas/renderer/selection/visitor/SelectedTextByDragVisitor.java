@@ -112,7 +112,7 @@ public class SelectedTextByDragVisitor extends SelectedVisitor {
 				rectF.left = box.getOuterBounds().left;
 			}
 
-			if (box.isIsolate(backward, prevIndex, size)) {
+			if (box.isIsolate(backward)) {
 				break;
 			}
 		}
