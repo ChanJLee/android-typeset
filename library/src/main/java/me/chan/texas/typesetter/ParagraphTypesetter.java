@@ -57,42 +57,51 @@ public class ParagraphTypesetter {
 		return false;
 	}
 
-	private final RectF mLineRect = new RectF();
-	private final RectF mBoxRect = new RectF();
-
-	private void buildLayoutBounds(Paragraph paragraph, int width) {
+	private static void buildLayoutBounds(Paragraph paragraph, int width) {
+		RectF lineRect = new RectF();
+		RectF boxRect = new RectF();
 		Layout layout = paragraph.getLayout();
-		mLineRect.top = 0;
 		int horizontalGravity = layout.getHorizontalGravity();
 		int paddingLeft = layout.getPaddingLeft();
 		float lineSpacingExtra = (int) layout.getLineSpacingExtra();
-		mLineRect.bottom = layout.getPaddingTop() - lineSpacingExtra /* 为了方便叠加spacing */;
-		for (int i = 0; i < layout.getLineCount(); ++i) {
+		lineRect.bottom = layout.getPaddingTop() - lineSpacingExtra /* 为了方便叠加spacing */;
+
+		int height = 0;
+		int lineCount = layout.getLineCount();
+		for (int i = 0; i < lineCount; ++i) {
 			Line line = layout.getLine(i);
-			getLineHorizontalBounds(horizontalGravity, line, mLineRect, width, paddingLeft);
-			mLineRect.top = mLineRect.bottom + lineSpacingExtra;
-			mLineRect.bottom = mLineRect.top + line.getLineHeight();
-			line.setBounds(mLineRect);
+			height += line.getLineHeight();
+			getLineHorizontalBounds(horizontalGravity, line, lineRect, width, paddingLeft);
+			lineRect.top = lineRect.bottom + lineSpacingExtra;
+			lineRect.bottom = lineRect.top + line.getLineHeight();
+			line.setBounds(lineRect);
 			Box prev = null;
-			mBoxRect.set(mLineRect.left, mLineRect.top, mLineRect.left, mLineRect.bottom);
+			boxRect.set(lineRect.left, lineRect.top, lineRect.left, lineRect.bottom);
 			for (int j = 0; j < line.getCount(); ++j) {
 				Element element = line.getElement(j);
 				if (element instanceof Box) {
 					Box current = (Box) element;
-					mBoxRect.right = mBoxRect.left + current.getWidth();
-					current.setOuterBounds(mBoxRect);
-					current.setInnerBounds(mBoxRect);
+					boxRect.right = boxRect.left + current.getWidth();
+					current.setOuterBounds(boxRect);
+					current.setInnerBounds(boxRect);
 					if (prev != null) {
 						prev.linkBounds(current);
 					}
 					prev = current;
-					mBoxRect.left = mBoxRect.right;
+					boxRect.left = boxRect.right;
 					continue;
 				}
-				mBoxRect.left += getAdjustGlueWidth(line, (Glue) element);
+				boxRect.left += getAdjustGlueWidth(line, (Glue) element);
 			}
 			line.trim();
 		}
+
+		width = width + paddingLeft + layout.getPaddingRight();
+		height = height + layout.getPaddingTop() + layout.getPaddingBottom();
+		if (lineCount != 0) {
+			height += (int) Math.ceil((lineSpacingExtra * (lineCount - 1)));
+		}
+		layout.setContentSize(width, height);
 	}
 
 	private static float getAdjustGlueWidth(Line line, Glue glue) {
