@@ -116,6 +116,8 @@ public final class TextBox extends Box {
 		mBaselineOffset = other.mBaselineOffset;
 
 		mGroupId = other.mGroupId;
+		TexasUtils.copyRect(mInner, other.mInner);
+		TexasUtils.copyRect(mOuter, other.mOuter);
 	}
 
 	public boolean merge(@NonNull TextBox box) {

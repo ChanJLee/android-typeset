@@ -59,14 +59,8 @@ public class SelectedTextByDragVisitor extends SelectedVisitor {
 		}
 
 		int index = line.indexOf(box);
-		if (index != 0 /* 不是第一个 */) {
-			RectF rectF = mSelection.getFirstRegion();
-			assert rectF != null;
-			index = linkText(line, index, false, rectF);
-		} else {
-			index = -1;
-		}
-
+		RectF rectF = mSelection.getFirstRegion();
+		index = linkText(line, index, false, rectF);
 		if (index != -1) {
 			return;
 		}
@@ -93,7 +87,7 @@ public class SelectedTextByDragVisitor extends SelectedVisitor {
 
 			Line tmp = layout.getLine(lineIndex);
 			RectF bounds = tmp.getBounds();
-			RectF rectF = new RectF(bounds.right, bounds.top, bounds.right, bounds.bottom);
+			rectF = new RectF(bounds.right, bounds.top, bounds.right, bounds.bottom);
 			mSelection.prependRegion(rectF);
 			index = linkText(line, count - 1, false, rectF);
 			if (index != -1) {
@@ -105,8 +99,9 @@ public class SelectedTextByDragVisitor extends SelectedVisitor {
 	private int linkText(Line line, int index, boolean backward, RectF rectF) {
 		int size = line.getCount();
 		int step = backward ? 1 : -1;
-		for (; index >= 0 && index < size; index += step) {
+		for (; index >= 0 && index < size; ) {
 			Element element = line.getElement(index);
+			index += step;
 			Box box = (Box) element;
 			if (backward) {
 				mSelection.appendBox(box);
@@ -136,14 +131,9 @@ public class SelectedTextByDragVisitor extends SelectedVisitor {
 
 		int index = line.indexOf(box);
 		int size = line.getCount();
-		if (index != size - 1) {
-			RectF rectF = mSelection.getLastRegion();
-			assert rectF != null;
-			index = linkText(line, index, true, rectF);
-		} else {
-			index = size;
-		}
 
+		RectF rectF = mSelection.getLastRegion();
+		index = linkText(line, index, true, rectF);
 		if (index != size) {
 			return;
 		}
@@ -175,7 +165,7 @@ public class SelectedTextByDragVisitor extends SelectedVisitor {
 
 			Line tmp = layout.getLine(lineIndex);
 			RectF bounds = tmp.getBounds();
-			RectF rectF = new RectF(bounds.left, bounds.top, bounds.left, bounds.bottom);
+			rectF = new RectF(bounds.left, bounds.top, bounds.left, bounds.bottom);
 			mSelection.appendRegion(rectF);
 			index = linkText(line, 0, true, rectF);
 			size = count;
