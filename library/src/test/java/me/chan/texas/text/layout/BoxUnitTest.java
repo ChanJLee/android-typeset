@@ -78,7 +78,7 @@ public class BoxUnitTest {
 		}
 
 		@Override
-		public boolean isIsolate(boolean backward) {
+		public boolean isIsolate(boolean backward, int index, int count) {
 			return false;
 		}
 
