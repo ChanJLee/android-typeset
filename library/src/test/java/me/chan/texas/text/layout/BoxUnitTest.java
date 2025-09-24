@@ -78,6 +78,11 @@ public class BoxUnitTest {
 		}
 
 		@Override
+		public boolean isIsolate(boolean backward) {
+			return false;
+		}
+
+		@Override
 		public void draw(TexasCanvas canvas, TexasPaint paint, RectF inner, RectF outer, float baselineOffset, StateList states) {
 
 		}

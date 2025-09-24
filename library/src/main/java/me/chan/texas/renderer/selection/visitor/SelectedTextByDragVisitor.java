@@ -62,7 +62,7 @@ public class SelectedTextByDragVisitor extends SelectedVisitor {
 		if (index != 0 /* 不是第一个 */) {
 			RectF rectF = mSelection.getFirstRegion();
 			assert rectF != null;
-			index = linkText(line, index - 1, false, rectF);
+			index = linkText(line, index, false, rectF);
 		} else {
 			index = -1;
 		}
@@ -105,30 +105,19 @@ public class SelectedTextByDragVisitor extends SelectedVisitor {
 	private int linkText(Line line, int index, boolean backward, RectF rectF) {
 		int size = line.getCount();
 		int step = backward ? 1 : -1;
-		boolean shouldAdjustEdge = false;
 		for (; index >= 0 && index < size; index += step) {
 			Element element = line.getElement(index);
-			if (!(element instanceof Box)) {
-				if (shouldAdjustEdge && element instanceof Glue && element != Glue.TERMINAL) {
-					Glue glue = (Glue) element;
-					float offset = glue.getWidth() / 2f;
-					if (backward) {
-						rectF.right += offset;
-					} else {
-						rectF.left -= offset;
-					}
-				}
-				return index;
-			}
-
-			shouldAdjustEdge = true;
 			Box box = (Box) element;
 			if (backward) {
 				mSelection.appendBox(box);
-				rectF.right += box.getWidth();
+				rectF.right = box.getOuterBounds().right;
 			} else {
 				mSelection.prependBox(box);
-				rectF.left -= box.getWidth();
+				rectF.left = box.getOuterBounds().left;
+			}
+
+			if (box.isIsolate(backward)) {
+				break;
 			}
 		}
 
@@ -150,7 +139,7 @@ public class SelectedTextByDragVisitor extends SelectedVisitor {
 		if (index != size - 1) {
 			RectF rectF = mSelection.getLastRegion();
 			assert rectF != null;
-			index = linkText(line, index + 1, true, rectF);
+			index = linkText(line, index, true, rectF);
 		} else {
 			index = size;
 		}
