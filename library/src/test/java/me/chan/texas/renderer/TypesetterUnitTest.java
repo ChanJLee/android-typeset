@@ -104,8 +104,8 @@ public class TypesetterUnitTest {
 		});
 
 		checkContentPredication("一二三四五六七八九", BreakStrategy.SIMPLE, 5, 1, Paragraph.TYPESET_POLICY_DEFAULT, new String[]{
-				"一 二 三 四 五",
-				"六 七 八 九",
+				"一二三四五",
+				"六七八九",
 		});
 	}
 
@@ -132,10 +132,9 @@ public class TypesetterUnitTest {
 		});
 
 		checkContentPredication("一二三四五六七八九", BreakStrategy.BALANCED, 5, 1, Paragraph.TYPESET_POLICY_DEFAULT, new String[]{
-				"一 二 三 四 五",
-				"六 七 八 九"
+				"一二三四五",
+				"六七八九"
 		});
-
 	}
 
 	@Test
