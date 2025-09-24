@@ -3,6 +3,7 @@ package me.chan.texas.typesetter;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
 import androidx.annotation.RestrictTo;
+import androidx.annotation.VisibleForTesting;
 
 import me.chan.texas.misc.RectF;
 import me.chan.texas.text.BreakStrategy;
@@ -13,7 +14,6 @@ import me.chan.texas.text.layout.Element;
 import me.chan.texas.text.layout.Glue;
 import me.chan.texas.text.layout.Layout;
 import me.chan.texas.text.layout.Line;
-import me.chan.texas.text.layout.Penalty;
 import me.chan.texas.typesetter.utils.ElementStream;
 
 @RestrictTo(LIBRARY)
@@ -27,14 +27,19 @@ public abstract class AbsParagraphTypesetter {
 		}
 
 		if (desire) {
-			lineWidth = getDesireWidth(paragraph);
+			lineWidth = getDesiredWidth(paragraph);
 		}
 
 		buildLayoutBounds(paragraph, lineWidth);
 		return true;
 	}
 
-	private int getDesireWidth(Paragraph paragraph) {
+	@VisibleForTesting
+	public final boolean typeset(Paragraph paragraph, BreakStrategy breakStrategy, int lineWidth) {
+		return typeset(paragraph, breakStrategy, lineWidth, false);
+	}
+
+	private static int getDesiredWidth(Paragraph paragraph) {
 		Layout layout = paragraph.getLayout();
 		float actualWidth = 0;
 		for (int i = 0; i < layout.getLineCount(); ++i) {
