@@ -46,7 +46,7 @@ public class DrawableBox extends Box {
 	}
 
 	@Override
-	public final boolean isIsolate(boolean backward, int index, int size) {
+	public final boolean isIsolate(boolean backward) {
 		return true;
 	}
 

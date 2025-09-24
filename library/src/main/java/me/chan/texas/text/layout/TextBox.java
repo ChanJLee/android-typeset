@@ -160,11 +160,7 @@ public final class TextBox extends Box {
 	}
 
 	@Override
-	public final boolean isIsolate(boolean backward, int index, int size) {
-		if (index == 0 || index == size - 1) {
-			return true;
-		}
-
+	public final boolean isIsolate(boolean backward) {
 		if (backward) {
 			return mInner.right != mOuter.right;
 		}
