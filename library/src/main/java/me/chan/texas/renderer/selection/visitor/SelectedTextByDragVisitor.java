@@ -101,6 +101,7 @@ public class SelectedTextByDragVisitor extends SelectedVisitor {
 		int step = backward ? 1 : -1;
 		for (; index >= 0 && index < size; ) {
 			Element element = line.getElement(index);
+			int prevIndex = index;
 			index += step;
 			Box box = (Box) element;
 			if (backward) {
@@ -111,7 +112,7 @@ public class SelectedTextByDragVisitor extends SelectedVisitor {
 				rectF.left = box.getOuterBounds().left;
 			}
 
-			if (box.isIsolate(backward)) {
+			if (box.isIsolate(backward, prevIndex, size)) {
 				break;
 			}
 		}

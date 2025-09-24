@@ -85,9 +85,11 @@ public abstract class Box extends Element {
 
 	/**
 	 * @param backward 向后遍历
+	 * @param index    当前索引
+	 * @param count    当前行的长度
 	 * @return 是否是孤立的，孤立的意思是旁边是空格
 	 */
-	public abstract boolean isIsolate(boolean backward);
+	public abstract boolean isIsolate(boolean backward, int index, int count);
 
 	@RestrictTo(LIBRARY)
 	public final void setInnerBounds(RectF rectF) {
