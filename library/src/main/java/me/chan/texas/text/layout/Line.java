@@ -126,7 +126,7 @@ public class Line extends DefaultRecyclable {
 			if (element instanceof Box) {
 				Box current = (Box) element;
 				stringBuilder.append(current);
-				if (Float.compare(current.getInnerBounds().right, current.getOuterBounds().left) == 0) {
+				if (Float.compare(current.getInnerBounds().right, current.getOuterBounds().right) != 0) {
 					stringBuilder.append(" ");
 				}
 			}
