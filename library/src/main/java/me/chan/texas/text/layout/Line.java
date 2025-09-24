@@ -10,7 +10,6 @@ import me.chan.texas.Texas;
 import me.chan.texas.misc.DefaultRecyclable;
 import me.chan.texas.misc.ObjectPool;
 import me.chan.texas.misc.RectF;
-import me.chan.texas.renderer.ParagraphVisitor;
 import me.chan.texas.text.BreakStrategy;
 import me.chan.texas.text.util.TexasIterator;
 import me.chan.texas.utils.TexasUtils;
@@ -121,17 +120,15 @@ public class Line extends DefaultRecyclable {
 			return "";
 		}
 
-		Box prev = null;
 		StringBuilder stringBuilder = new StringBuilder();
 		for (int i = 0; i < mElements.size(); ++i) {
 			Element element = mElements.get(i);
 			if (element instanceof Box) {
 				Box current = (Box) element;
-				if (prev != null && Float.compare(prev.getInnerBounds().right, current.getInnerBounds().left) == 0) {
+				stringBuilder.append(current);
+				if (Float.compare(current.getInnerBounds().right, current.getOuterBounds().left) == 0) {
 					stringBuilder.append(" ");
 				}
-				stringBuilder.append(current);
-				prev = current;
 			}
 		}
 		return stringBuilder.toString();

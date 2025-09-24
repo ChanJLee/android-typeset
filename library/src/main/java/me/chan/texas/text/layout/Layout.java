@@ -160,39 +160,12 @@ public class Layout extends DefaultRecyclable {
 
 	@RestrictTo(LIBRARY)
 	public int getWidth() {
-		return mWidth + getPaddingLeft() + getPaddingRight();
+		return mWidth;
 	}
 
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
 	public int getHeight() {
-		if (isRecycled()) {
-			return 0;
-		}
-
-		int lineCount = getLineCount();
-		if (lineCount > 0) {
-			float height = getPaddingTop() + getPaddingBottom() + getHeight0();
-			return (int) Math.ceil(height);
-		}
-		return 0;
-	}
-
-	// TODO
-	private int getHeight0() {
-		if (isRecycled()) {
-			return 0;
-		}
-
-		int lineCount = getLineCount();
-		if (lineCount > 0) {
-			float height = mHeight;
-			if (lineCount > 1) {
-				height += ((lineCount - 1) * getLineSpacingExtra());
-			}
-
-			return (int) Math.ceil(height);
-		}
-		return 0;
+		return mHeight;
 	}
 
 	@RestrictTo(LIBRARY)
