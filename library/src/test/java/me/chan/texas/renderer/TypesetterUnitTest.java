@@ -141,9 +141,9 @@ public class TypesetterUnitTest {
 	@Test
 	public void testParagraphVisit() throws NoSuchFieldException, InterruptedException, IllegalAccessException, ParagraphVisitor.VisitException {
 		Paragraph paragraph = checkContentPredication("一二三四五六七八九一二三四", BreakStrategy.BALANCED, 5, 1, Paragraph.TYPESET_POLICY_DEFAULT, new String[]{
-				"一 二 三 四 五",
-				"六 七 八 九 一",
-				"二 三 四"
+				"一二三四五",
+				"六七八九一",
+				"二三四"
 		});
 		new ParagraphVisitor() {
 

@@ -218,6 +218,9 @@ public class SelectedTextByDragVisitorUnitTest {
 
 		selectedTextByDragVisitor.clear();
 		paragraph.setRect(new Rect(1, 2, 3, 4));
+		texTypesetter = new ParagraphTypesetter();
+		paragraph.measure(measurer, textAttribute);
+		texTypesetter.typeset(paragraph, BreakStrategy.SIMPLE, 4);
 		selectedTextByDragVisitor.reset(Selection.Type.SELECTION, Selection.Styles.create(0, 0), paragraph, renderOption);
 		tempX1 = 0;
 		tempY1 = 6.5f;
