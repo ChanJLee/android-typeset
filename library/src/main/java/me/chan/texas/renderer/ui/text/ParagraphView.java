@@ -135,7 +135,7 @@ public class ParagraphView extends FrameLayout {
 		}
 	};
 	private ParagraphDecor mParagraphDecor;
-	private Listener mRenderListener;
+	private RenderListener mRenderListener;
 
 	public ParagraphView(@NonNull Context context, @Nullable AttributeSet attrs) {
 		this(context, attrs, 0);
@@ -918,7 +918,7 @@ public class ParagraphView extends FrameLayout {
 		return renderOption;
 	}
 
-	public void setRenderListener(Listener renderListener) {
+	public void setRenderListener(RenderListener renderListener) {
 		mRenderListener = renderListener;
 	}
 
@@ -975,16 +975,16 @@ public class ParagraphView extends FrameLayout {
 	/**
 	 * Render listener
 	 */
-	public interface Listener {
+	public interface RenderListener {
 		/**
-		 * Called when rendering starts
+		 * Called when parse source
 		 *
 		 * @param view view
 		 */
 		void onStart(ParagraphView view, ParagraphSource source);
 
 		/**
-		 * Called when rendering ends
+		 * Called when render paragraph
 		 *
 		 * @param view      view
 		 * @param paragraph paragraph
