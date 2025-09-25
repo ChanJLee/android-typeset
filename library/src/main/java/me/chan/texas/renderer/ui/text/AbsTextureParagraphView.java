@@ -32,6 +32,7 @@ public abstract class AbsTextureParagraphView extends View implements TexturePar
 	private final RelayoutPredicate mRelayoutPredicate;
 	protected static final RelayoutPredicate DEFAULT_RELAYOUT_PREDICATE = (view, paragraph) -> true;
 	private OnMeasureInterceptor mOnMeasureInterceptor;
+	private RendererListener mRendererListener;
 
 	public AbsTextureParagraphView(Context context) {
 		this(context, DEFAULT_RELAYOUT_PREDICATE);
@@ -175,6 +176,16 @@ public abstract class AbsTextureParagraphView extends View implements TexturePar
 	protected abstract void onRender();
 
 	@Override
+	public final void syncUI() {
+		onSyncUI();
+		if (mRendererListener != null) {
+			mRendererListener.onSyncUI(this);
+		}
+	}
+
+	protected abstract void onSyncUI();
+
+	@Override
 	public Worker.Token getToken() {
 		return mToken;
 	}
@@ -182,6 +193,11 @@ public abstract class AbsTextureParagraphView extends View implements TexturePar
 	@Override
 	public Paragraph getParagraph() {
 		return mParagraph;
+	}
+
+	@Override
+	public void setRendererListener(RendererListener rendererListener) {
+		mRendererListener = rendererListener;
 	}
 
 	public interface RelayoutPredicate {
