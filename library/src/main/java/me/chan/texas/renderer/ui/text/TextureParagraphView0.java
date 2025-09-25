@@ -77,7 +77,7 @@ public class TextureParagraphView0 extends AbsTextureParagraphView {
 	}
 
 	@Override
-	public void syncUI() {
+	protected void onSyncUI() {
 		invalidate();
 	}
 

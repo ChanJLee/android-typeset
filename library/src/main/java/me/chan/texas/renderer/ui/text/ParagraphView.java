@@ -120,6 +120,9 @@ public class ParagraphView extends FrameLayout {
 		@Override
 		public void onParseFailure(Throwable throwable) {
 			Log.w(TAG, throwable);
+			if (mRenderListener != null) {
+				mRenderListener.onError(ParagraphView.this, throwable);
+			}
 		}
 	};
 
@@ -132,6 +135,7 @@ public class ParagraphView extends FrameLayout {
 		}
 	};
 	private ParagraphDecor mParagraphDecor;
+	private Listener mRenderListener;
 
 	public ParagraphView(@NonNull Context context, @Nullable AttributeSet attrs) {
 		this(context, attrs, 0);
@@ -176,6 +180,7 @@ public class ParagraphView extends FrameLayout {
 			};
 			mRender.setOnTextSelectedListener(onSelectedChangedListener);
 			mRender.setOnMeasureInterceptor(this::handleMeasureRenderer);
+			mRender.setRendererListener(this::handleRendererSuccess);
 			setVerticalAlignment(mRenderOption);
 
 			TexasComponent texasComponent = Texas.getTexasComponent();
@@ -188,6 +193,17 @@ public class ParagraphView extends FrameLayout {
 			}
 		} finally {
 			typedArray.recycle();
+		}
+	}
+
+	private void handleRendererSuccess(TextureParagraph textureParagraph) {
+		Paragraph paragraph = textureParagraph.getParagraph();
+		if (paragraph == null) {
+			return;
+		}
+
+		if (mRenderListener != null) {
+			mRenderListener.onRender(this, paragraph);
 		}
 	}
 
@@ -542,6 +558,9 @@ public class ParagraphView extends FrameLayout {
 		source.attach(this);
 
 		// 提交解析任务
+		if (mRenderListener != null) {
+			mRenderListener.onStart(this, source);
+		}
 		ParseWorker.Args args = ParseWorker.Args.obtain(source, mParseListener);
 		ParseWorker worker = WorkerScheduler.parse();
 		if (!isInEditMode()) {
@@ -899,6 +918,10 @@ public class ParagraphView extends FrameLayout {
 		return renderOption;
 	}
 
+	public void setRenderListener(Listener renderListener) {
+		mRenderListener = renderListener;
+	}
+
 	/**
 	 * 设置paragraph source
 	 */
@@ -947,5 +970,33 @@ public class ParagraphView extends FrameLayout {
 					.text(mText, mStart, mEnd)
 					.build();
 		}
+	}
+
+	/**
+	 * Render listener
+	 */
+	public interface Listener {
+		/**
+		 * Called when rendering starts
+		 *
+		 * @param view view
+		 */
+		void onStart(ParagraphView view, ParagraphSource source);
+
+		/**
+		 * Called when rendering ends
+		 *
+		 * @param view      view
+		 * @param paragraph paragraph
+		 */
+		void onRender(ParagraphView view, Paragraph paragraph);
+
+		/**
+		 * Called when an error occurs
+		 *
+		 * @param view      view
+		 * @param throwable error
+		 */
+		void onError(ParagraphView view, Throwable throwable);
 	}
 }

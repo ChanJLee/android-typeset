@@ -313,7 +313,7 @@ public final class TexasView extends FrameLayout {
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
 	public void notifyRenderEnd() {
 		if (mRenderListener != null) {
-			mRenderListener.onEnd(TexasView.this);
+			mRenderListener.onEnd(TexasView.this, getDocument());
 		}
 	}
 
@@ -855,7 +855,7 @@ public final class TexasView extends FrameLayout {
 		 *
 		 * @param texasView view
 		 */
-		void onEnd(TexasView texasView);
+		void onEnd(TexasView texasView, Document document);
 
 		/**
 		 * Called when an error occurs

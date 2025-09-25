@@ -43,7 +43,7 @@ public class TextureParagraphView0Compat extends AbsTextureParagraphView {
 	}
 
 	@Override
-	public void syncUI() {
+	protected void onSyncUI() {
 		/* do nothing */
 	}
 

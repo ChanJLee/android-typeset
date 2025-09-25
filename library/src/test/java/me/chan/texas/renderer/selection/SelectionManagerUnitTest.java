@@ -634,6 +634,11 @@ public class SelectionManagerUnitTest {
 		public void setOnMeasureInterceptor(OnMeasureInterceptor interceptor) {
 
 		}
+
+		@Override
+		public void setRendererListener(RendererListener rendererListener) {
+
+		}
 	}
 
 	private class MyDragView implements DragSelectView {

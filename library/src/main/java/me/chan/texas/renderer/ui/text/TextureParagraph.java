@@ -79,4 +79,10 @@ public interface TextureParagraph {
 	void setLayoutParams(ViewGroup.LayoutParams layoutParams);
 
 	void setOnMeasureInterceptor(OnMeasureInterceptor interceptor);
+
+	void setRendererListener(RendererListener rendererListener);
+
+	interface RendererListener {
+		void onSyncUI(TextureParagraph view);
+	}
 }
