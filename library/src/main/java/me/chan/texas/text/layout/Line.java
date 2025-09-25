@@ -197,6 +197,42 @@ public class Line extends DefaultRecyclable {
 		return mBounds;
 	}
 
+	public TexasIterator<Box> iterator() {
+		return new TexasIterator<Box>() {
+			private int mIndex = -1;
+
+			@Override
+			public Box next() {
+				return restore(mIndex + 1);
+			}
+
+			@Override
+			public Box prev() {
+				return restore(mIndex - 1);
+			}
+
+			@Nullable
+			@Override
+			public Box current() {
+				return restore(mIndex);
+			}
+
+			@Override
+			public Box restore(int state) {
+				if (state < 0 || state >= getCount()) {
+					return null;
+				}
+
+				return (Box) getElement(mIndex = state);
+			}
+
+			@Override
+			public int save() {
+				return mIndex;
+			}
+		};
+	}
+
 	public static class Builder extends DefaultRecyclable {
 		private Line mLine;
 		private Element mLastTextElement;
@@ -405,10 +441,6 @@ public class Line extends DefaultRecyclable {
 			BUILDER_POOL.release(this);
 		}
 
-		public TexasIterator<Box> iterator() {
-			return new BoxIteratorImpl();
-		}
-
 		public static Builder obtain() {
 			Builder builder = BUILDER_POOL.acquire();
 			if (builder == null) {
@@ -418,38 +450,6 @@ public class Line extends DefaultRecyclable {
 			builder.reuse();
 			builder.mLine = Line.obtain();
 			return builder;
-		}
-
-		private class BoxIteratorImpl implements TexasIterator<Box> {
-
-			@Nullable
-			@Override
-			public Box next() {
-				return null;
-			}
-
-			@Nullable
-			@Override
-			public Box prev() {
-				return null;
-			}
-
-			@Nullable
-			@Override
-			public Box current() {
-				return null;
-			}
-
-			@Nullable
-			@Override
-			public Box restore(int state) {
-				return null;
-			}
-
-			@Override
-			public int save() {
-				return 0;
-			}
 		}
 	}
 }
