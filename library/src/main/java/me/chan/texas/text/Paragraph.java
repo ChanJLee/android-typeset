@@ -224,7 +224,6 @@ public final class Paragraph extends DefaultRecyclable implements Segment {
 		POOL.clean();
 	}
 
-	@RestrictTo(LIBRARY)
 	public Layout getLayout() {
 		return mLayout;
 	}
