@@ -45,8 +45,7 @@ public class TextureParagraphView0 extends AbsTextureParagraphView {
 				mRenderOption,
 				this,
 				layout.getWidth(),
-				mPaintSet,
-				mParagraphDecor
+				mPaintSet
 		);
 
 		if (!isInEditMode()) {

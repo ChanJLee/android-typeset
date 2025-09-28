@@ -442,15 +442,6 @@ public final class TexasView extends FrameLayout {
 	}
 
 	/**
-	 * @param decor paragraph decorator
-	 */
-	public void setParagraphDecor(ParagraphDecor decor) {
-		if (mRenderer != null) {
-			mRenderer.setParagraphDecor(decor);
-		}
-	}
-
-	/**
 	 * Get the first visible segment index
 	 *
 	 * @param completelyVisible whether to require completely visible segment

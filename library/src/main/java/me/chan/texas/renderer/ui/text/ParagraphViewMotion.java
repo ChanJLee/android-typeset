@@ -34,8 +34,6 @@ public class ParagraphViewMotion {
 	private OnSelectedChangedListener mOnTextSelectedListener;
 	private Box mLastTouchBox = null;
 	private final Context mContext;
-	@Nullable
-	private ParagraphDecor mParagraphDecor;
 	private final View mView;
 
 	private EventListener mEventListener;
@@ -48,18 +46,15 @@ public class ParagraphViewMotion {
 
 	public void setup(@NonNull Paragraph paragraph,
 					  @NonNull RenderOption renderOption,
-					  @Nullable ParagraphDecor paragraphDecor,
 					  @Nullable SpanTouchEventHandler spanClickedEventHandler) {
 		mParagraph = paragraph;
 		mRenderOption = renderOption;
-		mParagraphDecor = paragraphDecor;
 		mSpanClickedEventHandler = spanClickedEventHandler;
 	}
 
 	public void clear() {
 		mParagraph = null;
 		mRenderOption = null;
-		mParagraphDecor = null;
 	}
 
 	public void setOnTextSelectedListener(OnSelectedChangedListener onTextSelectedListener) {
@@ -102,15 +97,16 @@ public class ParagraphViewMotion {
 	}
 
 	private boolean handleDecorModeMotion(MotionEvent e, @OnSelectedChangedListener.EventType int eventType) {
-		if (mParagraphDecor == null || eventType != OnSelectedChangedListener.EVENT_CLICKED) {
-			return false;
-		}
-
 		if (mParagraph == null) {
 			return false;
 		}
 
-		return mParagraphDecor.handleTouchEvent(e, mParagraph, mRenderOption, mView.getWidth(), mView.getHeight());
+		ParagraphDecor decor = mParagraph.getDecor();
+		if (decor == null || eventType != OnSelectedChangedListener.EVENT_CLICKED) {
+			return false;
+		}
+
+		return decor.handleTouchEvent(e, mParagraph, mRenderOption, mView.getWidth(), mView.getHeight());
 	}
 
 	private boolean handleBoxModeMotion(MotionEvent e, @OnSelectedChangedListener.EventType int eventType) {
@@ -265,7 +261,8 @@ public class ParagraphViewMotion {
 				return false;
 			}
 
-			if (mParagraphDecor != null && mParagraphDecor.handleTouchEvent(e, mParagraph, mRenderOption, mView.getWidth(), mView.getHeight())) {
+			ParagraphDecor decor = mParagraph.getDecor();
+			if (decor != null && decor.handleTouchEvent(e, mParagraph, mRenderOption, mView.getWidth(), mView.getHeight())) {
 				mMode = MODE_DECOR;
 				return true;
 			}
@@ -282,8 +279,13 @@ public class ParagraphViewMotion {
 
 		@Override
 		public boolean onSingleTapUp(MotionEvent e) {
-			if (mMode == MODE_DECOR && mParagraphDecor != null) {
-				return mParagraphDecor.handleTouchEvent(e, mParagraph, mRenderOption, mView.getWidth(), mView.getHeight());
+			if (mParagraph == null) {
+				return false;
+			}
+
+			ParagraphDecor decor = mParagraph.getDecor();
+			if (mMode == MODE_DECOR && decor != null) {
+				return decor.handleTouchEvent(e, mParagraph, mRenderOption, mView.getWidth(), mView.getHeight());
 			}
 
 			return true;

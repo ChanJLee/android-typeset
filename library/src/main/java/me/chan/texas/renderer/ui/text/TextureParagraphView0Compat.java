@@ -60,8 +60,7 @@ public class TextureParagraphView0Compat extends AbsTextureParagraphView {
 				mRenderOption,
 				this,
 				layout.getWidth(),
-				mPaintSet,
-				mParagraphDecor
+				mPaintSet
 		);
 		WorkerScheduler.render().submitSync(getToken(), args);
 	}
