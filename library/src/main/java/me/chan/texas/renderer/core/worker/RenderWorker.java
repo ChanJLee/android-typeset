@@ -196,7 +196,8 @@ public class RenderWorker {
 		}
 
 		Layout layout = paragraph.getLayout();
-		args.decor.draw(canvas, paragraph, args.width, layout.getHeight());
+		mTexasPaint.reset(args.paintSet);
+		args.decor.draw(canvas, mTexasPaint, paragraph, args.width, layout.getHeight());
 	}
 
 	private void renderContent(TexasCanvas canvas, Paragraph paragraph, Args args) {
