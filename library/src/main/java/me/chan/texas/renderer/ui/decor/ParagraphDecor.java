@@ -10,6 +10,7 @@ import me.chan.texas.renderer.ParagraphVisitor;
 import me.chan.texas.renderer.RenderOption;
 import me.chan.texas.renderer.TexasView;
 import me.chan.texas.renderer.core.graphics.TexasCanvas;
+import me.chan.texas.renderer.core.graphics.TexasPaint;
 import me.chan.texas.text.Paragraph;
 import me.chan.texas.renderer.RendererContext;
 import me.chan.texas.text.layout.Box;
@@ -32,11 +33,13 @@ public abstract class ParagraphDecor {
 
 	private final Rect mDrawOutRect = new Rect();
 	private final Rect mDrawInRect = new Rect();
+	private TexasPaint mPaint;
 
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
-	public final void draw(TexasCanvas canvas, Paragraph paragraph, int width, int height) {
+	public final void draw(TexasCanvas canvas, TexasPaint paint, Paragraph paragraph, int width, int height) {
 		mParagraph = paragraph;
 		mCanvas = canvas;
+		mPaint = paint;
 		try {
 			mDrawOutRect.set(0, 0, width, height);
 			Layout layout = paragraph.getLayout();
@@ -45,6 +48,7 @@ public abstract class ParagraphDecor {
 		} finally {
 			mCanvas = null;
 			mParagraph = null;
+			mPaint = null;
 		}
 	}
 
@@ -105,12 +109,13 @@ public abstract class ParagraphDecor {
 	 * 开始绘制decor
 	 *
 	 * @param canvas     canvas
+	 * @param paint      paint
 	 * @param paragraph  当前paragraph
 	 * @param decorOuter 整个view的外部轮廓轮廓
 	 * @param decorInner 整个view真实轮廓即包含decor margin的矩形位置
 	 */
 	@AnyThread
-	protected abstract void onDrawDecor(TexasCanvas canvas, Paragraph paragraph, Rect decorOuter, Rect decorInner);
+	protected abstract void onDrawDecor(TexasCanvas canvas, TexasPaint paint, Paragraph paragraph, Rect decorOuter, Rect decorInner);
 
 	/**
 	 * @param event      event
@@ -127,7 +132,7 @@ public abstract class ParagraphDecor {
 		protected void onVisitParagraphEnd(Paragraph paragraph) {
 			super.onVisitParagraphEnd(paragraph);
 			onEndLayoutParagraph(mParagraph, mViewportOuter, mViewportInner);
-			onDrawDecor(mCanvas, mParagraph, mViewportOuter, mViewportInner);
+			onDrawDecor(mCanvas, mPaint, mParagraph, mViewportOuter, mViewportInner);
 		}
 
 		@Override
