@@ -16,7 +16,6 @@ import me.chan.texas.utils.TexasUtils;
  * <p>
  * 比如一个单词，一张图片
  */
-@RestrictTo(LIBRARY)
 public abstract class Box extends Element {
 	/**
 	 * 增加修改内容参考
@@ -51,14 +50,17 @@ public abstract class Box extends Element {
 		mHeight = height;
 	}
 
+	@RestrictTo(LIBRARY)
 	public void setTag(Object tag) {
 		mTag = tag;
 	}
 
+	@RestrictTo(LIBRARY)
 	public void setBackground(Appearance background) {
 		mBackground = background;
 	}
 
+	@RestrictTo(LIBRARY)
 	public void setForeground(Appearance foreground) {
 		mForeground = foreground;
 	}

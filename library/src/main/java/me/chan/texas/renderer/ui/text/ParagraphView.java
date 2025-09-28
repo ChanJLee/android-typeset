@@ -467,7 +467,8 @@ public class ParagraphView extends FrameLayout {
 	private boolean typeset0(int width) {
 		try {
 			ParagraphTypesetWorker worker = WorkerScheduler.typeset();
-			worker.desire(mParagraph, width);
+			Layout layout = mParagraph.getLayout();
+			worker.desire(mParagraph, width - layout.getPaddingRight() - layout.getPaddingLeft());
 			return true;
 		} catch (Throwable e) {
 			return false;
