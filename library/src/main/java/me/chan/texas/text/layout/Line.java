@@ -19,7 +19,6 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 /**
  * 绘制行
  */
-@RestrictTo(LIBRARY)
 public class Line extends DefaultRecyclable {
 	private static final ObjectPool<Line> POOL = new ObjectPool<>(Texas.getMemoryOption().getLineBufferSize());
 	private static final ObjectPool<Builder> BUILDER_POOL = new ObjectPool<>(4);
@@ -49,14 +48,17 @@ public class Line extends DefaultRecyclable {
 		return mLineHeight;
 	}
 
+	@RestrictTo(LIBRARY)
 	public void setLineWidth(float lineWidth) {
 		mLineWidth = lineWidth;
 	}
 
+	@RestrictTo(LIBRARY)
 	public float getRatio() {
 		return mRatio;
 	}
 
+	@RestrictTo(LIBRARY)
 	public void setLineHeight(float lineHeight) {
 		mLineHeight = lineHeight;
 	}
@@ -65,6 +67,7 @@ public class Line extends DefaultRecyclable {
 		return mLineWidth;
 	}
 
+	@RestrictTo(LIBRARY)
 	public void setRatio(float ratio) {
 		mRatio = ratio;
 	}
@@ -75,20 +78,20 @@ public class Line extends DefaultRecyclable {
 		POOL.release(this);
 	}
 
+	@RestrictTo(LIBRARY)
 	public int getCount() {
 		return mElements.size();
+	}
+
+	public int getBoxCount() {
+		return getCount();
 	}
 
 	public float getBaselineOffset() {
 		return mBaselineOffset;
 	}
 
-	public void addAll(List<? extends Element> list) {
-		for (Element element : list) {
-			add(element);
-		}
-	}
-
+	@RestrictTo(LIBRARY)
 	public void add(Element element) {
 		mElements.add(element);
 	}
@@ -97,18 +100,26 @@ public class Line extends DefaultRecyclable {
 		return mElements.isEmpty();
 	}
 
+	@RestrictTo(LIBRARY)
 	public Element getElement(int index) {
 		return mElements.get(index);
 	}
 
+	public Box getBox(int index) {
+		return (Box) getElement(index);
+	}
+
+	@RestrictTo(LIBRARY)
 	public void replace(int prevIndex, Box box) {
 		mElements.set(prevIndex, box);
 	}
 
+	@RestrictTo(LIBRARY)
 	public static void clean() {
 		POOL.clean();
 	}
 
+	@RestrictTo(LIBRARY)
 	public String getInfoMsg() {
 		return String.valueOf(getRatio());
 	}
@@ -134,6 +145,7 @@ public class Line extends DefaultRecyclable {
 		return stringBuilder.toString();
 	}
 
+	@RestrictTo(LIBRARY)
 	public static Line obtain() {
 		Line line = POOL.acquire();
 		if (line == null) {
@@ -144,14 +156,7 @@ public class Line extends DefaultRecyclable {
 		return line;
 	}
 
-	public void removeLast(int start) {
-		int targetSize = start + 1;
-		int size = 0;
-		while ((size = mElements.size()) > targetSize) {
-			mElements.remove(size - 1);
-		}
-	}
-
+	@RestrictTo(LIBRARY)
 	public int indexOf(Element element) {
 		return mElements.indexOf(element);
 	}
@@ -233,6 +238,7 @@ public class Line extends DefaultRecyclable {
 		};
 	}
 
+	@RestrictTo(LIBRARY)
 	public static class Builder extends DefaultRecyclable {
 		private Line mLine;
 		private Element mLastTextElement;

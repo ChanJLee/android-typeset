@@ -24,7 +24,6 @@ import me.chan.texas.utils.TexasUtils;
 /**
  * 文本元素
  */
-@RestrictTo(LIBRARY)
 public final class TextBox extends Box {
 	/**
 	 * 什么属性都没有
@@ -98,6 +97,7 @@ public final class TextBox extends Box {
 		mTextStyle = textStyle;
 	}
 
+	@RestrictTo(LIBRARY)
 	public void copy(@NonNull TextBox other) {
 		if (other.isRecycled() || isRecycled()) {
 			throw new IllegalStateException("other is recycled or current is recycled");
@@ -124,6 +124,7 @@ public final class TextBox extends Box {
 		TexasUtils.copyRect(mOuter, other.mOuter);
 	}
 
+	@RestrictTo(LIBRARY)
 	public boolean merge(@NonNull TextBox box) {
 		if (this.mGroupId != box.mGroupId) {
 			if (BuildConfig.DEBUG) {
@@ -204,6 +205,7 @@ public final class TextBox extends Box {
 	/**
 	 * @param penalty 累加另外一个元素的文本值
 	 */
+	@RestrictTo(LIBRARY)
 	public void merge(Penalty penalty) {
 		// check tag ?
 		if (isPenalty()) {
@@ -224,6 +226,7 @@ public final class TextBox extends Box {
 		mEnd = mText.length();
 	}
 
+	@RestrictTo(LIBRARY)
 	public boolean isSameGroup(TextBox box) {
 		if (mGroupId == Hyphenation.NONE_GROUP_ID) {
 			return false;
@@ -233,6 +236,7 @@ public final class TextBox extends Box {
 	}
 
 	@Override
+	@RestrictTo(LIBRARY)
 	public void draw(TexasCanvas canvas, TexasPaint paint, RectF inner, RectF outer, float baselineOffset, StateList states) {
 		float x = inner.left;
 		if (mAttribute != ATTRIBUTE_NONE) {
@@ -257,6 +261,7 @@ public final class TextBox extends Box {
 		return String.valueOf(mText.subSequence(mStart, mEnd));
 	}
 
+	@RestrictTo(LIBRARY)
 	public static void clean() {
 		POOL.clean();
 	}
@@ -277,10 +282,12 @@ public final class TextBox extends Box {
 	}
 
 	@VisibleForTesting
+	@RestrictTo(LIBRARY)
 	void setStart(int start) {
 		mStart = start;
 	}
 
+	@RestrictTo(LIBRARY)
 	public static TextBox obtain(@NonNull CharSequence charSequence, int start, int end,
 								 TextStyle textStyle,
 								 Object tag,
@@ -289,6 +296,7 @@ public final class TextBox extends Box {
 		return obtain(charSequence, start, end, textStyle, tag, background, foreground, Hyphenation.NONE_GROUP_ID);
 	}
 
+	@RestrictTo(LIBRARY)
 	public static TextBox obtain(@NonNull CharSequence charSequence, int start, int end,
 								 TextStyle textStyle,
 								 Object tag,
@@ -326,6 +334,7 @@ public final class TextBox extends Box {
 		spec.recycle();
 	}
 
+	@RestrictTo(LIBRARY)
 	public static TextBox obtain(TextBox raw) {
 		TextBox box = POOL.acquire();
 		if (box == null) {
@@ -340,18 +349,22 @@ public final class TextBox extends Box {
 		return hasAttribute(ATTRIBUTE_PENALTY);
 	}
 
+	@RestrictTo(LIBRARY)
 	public void clearAttribute(int flag) {
 		mAttribute &= ~flag;
 	}
 
+	@RestrictTo(LIBRARY)
 	public int getAttribute() {
 		return mAttribute;
 	}
 
+	@RestrictTo(LIBRARY)
 	public void addAttribute(int flag) {
 		mAttribute |= flag;
 	}
 
+	@RestrictTo(LIBRARY)
 	public boolean hasAttribute(int flag) {
 		return (mAttribute & flag) != 0;
 	}

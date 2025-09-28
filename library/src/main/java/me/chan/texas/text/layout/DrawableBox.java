@@ -18,7 +18,6 @@ import me.chan.texas.text.TextAttribute;
 /**
  * 可绘制box，可以是图片，表情
  */
-@RestrictTo(LIBRARY)
 public class DrawableBox extends Box {
 	private static final ObjectPool<DrawableBox> POOL = new ObjectPool<>(Texas.getMemoryOption().getEmoticonBufferSize());
 
@@ -34,6 +33,7 @@ public class DrawableBox extends Box {
 	}
 
 	@VisibleForTesting
+	@RestrictTo(LIBRARY)
 	public HyperSpan getSpan() {
 		return mSpan;
 	}
@@ -63,10 +63,12 @@ public class DrawableBox extends Box {
 		return drawableBox;
 	}
 
+	@RestrictTo(LIBRARY)
 	public static void clean() {
 		POOL.clean();
 	}
 
+	@RestrictTo(LIBRARY)
 	public void resize(float width, float height) {
 		mWidth = width;
 		mHeight = height;
