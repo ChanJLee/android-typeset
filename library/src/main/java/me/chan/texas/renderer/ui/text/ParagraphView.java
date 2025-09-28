@@ -43,7 +43,6 @@ import me.chan.texas.renderer.selection.Selection;
 import me.chan.texas.renderer.selection.visitor.PredicatesDriveSelectedVisitor;
 import me.chan.texas.renderer.selection.visitor.SelectedTextByClickedVisitor;
 import me.chan.texas.renderer.ui.RendererHost;
-import me.chan.texas.renderer.ui.decor.ParagraphDecor;
 import me.chan.texas.source.Source;
 import me.chan.texas.text.BreakStrategy;
 import me.chan.texas.text.HyphenStrategy;
@@ -134,7 +133,6 @@ public class ParagraphView extends FrameLayout {
 			}
 		}
 	};
-	private ParagraphDecor mParagraphDecor;
 	private RenderListener mRenderListener;
 
 	public ParagraphView(@NonNull Context context, @Nullable AttributeSet attrs) {
@@ -484,7 +482,7 @@ public class ParagraphView extends FrameLayout {
 			Log.d(TAG, "render0: paragraph = " + paragraph);
 		}
 
-		mRender.render(paragraph, mUiThreadPaintSet, mRenderOption, mParagraphDecor, mSpanTouchEventHandler);
+		mRender.render(paragraph, mUiThreadPaintSet, mRenderOption, mSpanTouchEventHandler);
 	}
 
 	/**
@@ -740,15 +738,6 @@ public class ParagraphView extends FrameLayout {
 	 */
 	public void setOnClickedListener(OnClickedListener onClickedListener) {
 		mOnClickedListener = onClickedListener;
-	}
-
-
-	/**
-	 * @param decor paragraph decor
-	 */
-	public void setParagraphDecor(ParagraphDecor decor) {
-		mParagraphDecor = decor;
-		redraw();
 	}
 
 	/**

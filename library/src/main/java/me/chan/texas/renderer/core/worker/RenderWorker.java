@@ -191,14 +191,14 @@ public class RenderWorker {
 	}
 
 	private void renderDecor(TexasCanvas canvas, Paragraph paragraph, Args args) {
-		if (args.decor == null) {
+		ParagraphDecor decor = paragraph.getDecor();
+		if (decor == null) {
 			return;
 		}
 
 		Layout layout = paragraph.getLayout();
-		args.decor.layout(paragraph, args.width, layout.getHeight());
 		mTexasPaint.reset(args.paintSet);
-		args.decor.draw(canvas, mTexasPaint, paragraph, args.width, layout.getHeight());
+		decor.draw(canvas, mTexasPaint, paragraph, args.width, layout.getHeight());
 	}
 
 	private void renderContent(TexasCanvas canvas, Paragraph paragraph, Args args) {
@@ -506,7 +506,6 @@ public class RenderWorker {
 		private PaintSet paintSet;
 		private RenderOption option;
 		private TextureParagraph renderer;
-		private ParagraphDecor decor;
 		private int width;
 
 		private Args() {
@@ -515,7 +514,6 @@ public class RenderWorker {
 		@Override
 		protected void onRecycle() {
 			paintSet = null;
-			decor = null;
 			paragraph = null;
 			option = null;
 			renderer = null;
@@ -528,22 +526,12 @@ public class RenderWorker {
 								  @NonNull TextureParagraph render,
 								  @IntRange(from = 1) int width,
 								  @NonNull PaintSet paintSet) {
-			return obtain(source, option, render, width, paintSet, null);
-		}
-
-		public static Args obtain(@NonNull Paragraph source,
-								  @NonNull RenderOption option,
-								  @NonNull TextureParagraph render,
-								  @IntRange(from = 1) int width,
-								  @NonNull PaintSet paintSet,
-								  @Nullable ParagraphDecor decor) {
 			Args args = POOL.acquire();
 			if (args == null) {
 				args = new Args();
 			}
 
 			args.paintSet = paintSet;
-			args.decor = decor;
 			args.paragraph = source;
 			args.option = option;
 			args.width = width;

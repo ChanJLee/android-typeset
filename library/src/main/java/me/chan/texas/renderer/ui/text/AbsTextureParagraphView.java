@@ -26,7 +26,6 @@ public abstract class AbsTextureParagraphView extends View implements TexturePar
 	protected RenderOption mRenderOption;
 	protected Paragraph mParagraph;
 	protected PaintSet mPaintSet;
-	protected ParagraphDecor mParagraphDecor;
 	@NonNull
 	private final ParagraphViewMotion mParagraphViewMotion;
 	private final RelayoutPredicate mRelayoutPredicate;
@@ -121,13 +120,11 @@ public abstract class AbsTextureParagraphView extends View implements TexturePar
 	public void render(@NonNull Paragraph paragraph,
 					   @NonNull PaintSet paintSet,
 					   @NonNull RenderOption renderOption,
-					   @Nullable ParagraphDecor decor,
 					   @Nullable SpanTouchEventHandler spanClickedEventHandler) {
 		mParagraph = paragraph;
 		mPaintSet = paintSet;
 		mRenderOption = renderOption;
-		mParagraphDecor = decor;
-		mParagraphViewMotion.setup(paragraph, renderOption, decor, spanClickedEventHandler);
+		mParagraphViewMotion.setup(paragraph, renderOption, spanClickedEventHandler);
 
 		scheduleRender();
 	}

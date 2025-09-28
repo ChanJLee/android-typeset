@@ -20,6 +20,7 @@ import me.chan.texas.misc.ObjectPool;
 import me.chan.texas.renderer.selection.ParagraphSelection;
 import me.chan.texas.renderer.selection.Selection;
 import me.chan.texas.renderer.ui.RendererHost;
+import me.chan.texas.renderer.ui.decor.ParagraphDecor;
 import me.chan.texas.text.layout.Element;
 import me.chan.texas.text.layout.Glue;
 import me.chan.texas.text.layout.Layout;
@@ -48,6 +49,9 @@ public final class Paragraph extends DefaultRecyclable implements Segment {
 
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
 	Object mTag;
+
+	ParagraphDecor mDecor;
+
 	/**
 	 * 默认
 	 */
@@ -64,6 +68,12 @@ public final class Paragraph extends DefaultRecyclable implements Segment {
 	 * 是否接受文本中存在的control符号，比如\n
 	 */
 	public static final int TYPESET_POLICY_ACCEPT_CONTROL_CHAR = 4;
+
+	@RestrictTo(LIBRARY)
+	@Nullable
+	public ParagraphDecor getDecor() {
+		return mDecor;
+	}
 
 	@Retention(RetentionPolicy.SOURCE)
 	@IntDef({TYPESET_POLICY_DEFAULT, TYPESET_POLICY_CJK_MIX_OPTIMIZATION, TYPESET_POLICY_BIDI_TEXT,
@@ -146,6 +156,7 @@ public final class Paragraph extends DefaultRecyclable implements Segment {
 		}
 		mElements.clear();
 		mTag = null;
+		mDecor = null;
 		if (mSelection != null) {
 			mSelection.recycle();
 			mSelection = null;
@@ -323,6 +334,14 @@ public final class Paragraph extends DefaultRecyclable implements Segment {
 		 */
 		public Builder text(CharSequence text) {
 			return text(text, 0, text.length());
+		}
+
+		/**
+		 * @return 设置decor
+		 */
+		public Builder decor(ParagraphDecor decor) {
+			mBuilder0.decor(decor);
+			return this;
 		}
 
 		/**

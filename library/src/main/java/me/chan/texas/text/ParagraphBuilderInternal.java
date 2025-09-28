@@ -14,6 +14,7 @@ import me.chan.texas.TexasOption;
 import me.chan.texas.hyphenation.Hyphenation;
 import me.chan.texas.misc.Rect;
 import me.chan.texas.renderer.RenderOption;
+import me.chan.texas.renderer.ui.decor.ParagraphDecor;
 import me.chan.texas.text.icu.UnicodeUtils;
 import me.chan.texas.text.layout.Element;
 import me.chan.texas.text.layout.Glue;
@@ -523,6 +524,10 @@ class ParagraphBuilderInternal {
 
 	public void setPadding(Rect padding) {
 		mParagraph.setPadding(padding);
+	}
+
+	public void decor(ParagraphDecor decor) {
+		mParagraph.mDecor = decor;
 	}
 
 	private static abstract class TypesetRule {

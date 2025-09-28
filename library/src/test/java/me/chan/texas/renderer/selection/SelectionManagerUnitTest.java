@@ -586,7 +586,7 @@ public class SelectionManagerUnitTest {
 		}
 
 		@Override
-		public void render(@NonNull Paragraph paragraph, @NonNull PaintSet paintSet, @NonNull RenderOption renderOption, @Nullable ParagraphDecor decor, @Nullable SpanTouchEventHandler spanClickedEventHandler) {
+		public void render(@NonNull Paragraph paragraph, @NonNull PaintSet paintSet, @NonNull RenderOption renderOption, @Nullable SpanTouchEventHandler spanClickedEventHandler) {
 
 		}
 
