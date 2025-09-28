@@ -37,7 +37,7 @@ public class LayoutUnitTest {
 				.textGravity(TextGravity.START)
 				.text("triangle");
 		Paragraph paragraph = builder.build();
-		paragraph.setRect(new Rect(1, 2, 3, 4));
+		paragraph.setPadding(new Rect(1, 2, 3, 4));
 
 		ParagraphTypesetter texTypesetter = new ParagraphTypesetter();
 		paragraph.measure(measurer, textAttribute);
@@ -55,7 +55,7 @@ public class LayoutUnitTest {
 				.textGravity(TextGravity.END)
 				.text("triangle");
 		paragraph = builder.build();
-		paragraph.setRect(new Rect(1, 2, 3, 4));
+		paragraph.setPadding(new Rect(1, 2, 3, 4));
 
 		texTypesetter = new ParagraphTypesetter();
 		paragraph.measure(measurer, textAttribute);
@@ -73,7 +73,7 @@ public class LayoutUnitTest {
 				.textGravity(TextGravity.CENTER_HORIZONTAL)
 				.text("triangle");
 		paragraph = builder.build();
-		paragraph.setRect(new Rect(1, 2, 3, 4));
+		paragraph.setPadding(new Rect(1, 2, 3, 4));
 
 		texTypesetter = new ParagraphTypesetter();
 		paragraph.measure(measurer, textAttribute);

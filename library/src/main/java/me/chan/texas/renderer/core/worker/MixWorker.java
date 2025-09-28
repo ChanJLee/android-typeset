@@ -37,7 +37,6 @@ import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.Segment;
 import me.chan.texas.text.TextAttribute;
 import me.chan.texas.text.ViewSegment;
-import me.chan.texas.text.layout.Element;
 import me.chan.texas.text.layout.Layout;
 import me.chan.texas.text.layout.Line;
 import me.chan.texas.utils.IntSet;
@@ -203,7 +202,7 @@ public class MixWorker {
 				width = outWidth - outRect.left - outRect.right;
 			}
 
-			segment.setRect(outRect);
+			segment.setPadding(outRect);
 			if (segment instanceof Figure) {
 				typesetFigure((Figure) segment, width);
 			} else if (segment instanceof Paragraph) {

@@ -9,7 +9,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import me.chan.texas.renderer.ui.RendererHost;
-import me.chan.texas.renderer.ui.TexasRendererAdapter;
 
 /**
  * 渲染的最小单元
@@ -32,7 +31,7 @@ public interface Segment {
 	Rect getRect();
 
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
-	void setRect(Rect rect);
+	void setPadding(Rect rect);
 
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
 	void recycle();

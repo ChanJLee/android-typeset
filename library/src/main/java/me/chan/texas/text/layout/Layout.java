@@ -15,7 +15,6 @@ import me.chan.texas.Texas;
 import me.chan.texas.misc.BitBucket32;
 import me.chan.texas.misc.DefaultRecyclable;
 import me.chan.texas.misc.ObjectPool;
-import me.chan.texas.misc.RectF;
 import me.chan.texas.renderer.RenderOption;
 import me.chan.texas.text.BreakStrategy;
 import me.chan.texas.text.Paragraph;
@@ -118,7 +117,7 @@ public class Layout extends DefaultRecyclable {
 	}
 
 	@RestrictTo(LIBRARY)
-	public void getRect(Rect rect) {
+	public void getPadding(Rect rect) {
 		if (mRect == null) {
 			return;
 		}
@@ -126,35 +125,35 @@ public class Layout extends DefaultRecyclable {
 	}
 
 	@RestrictTo(LIBRARY)
-	public void setRect(Rect rect) {
+	public void setPadding(Rect rect) {
 		mRect = rect;
 	}
 
-	public Rect getRect() {
+	public Rect getPadding() {
 		return mRect;
 	}
 
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
 	public int getPaddingLeft() {
-		Rect rect = getRect();
+		Rect rect = getPadding();
 		return rect == null ? 0 : rect.left;
 	}
 
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
 	public int getPaddingRight() {
-		Rect rect = getRect();
+		Rect rect = getPadding();
 		return rect == null ? 0 : rect.right;
 	}
 
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
 	public int getPaddingTop() {
-		Rect rect = getRect();
+		Rect rect = getPadding();
 		return rect == null ? 0 : rect.top;
 	}
 
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
 	public int getPaddingBottom() {
-		Rect rect = getRect();
+		Rect rect = getPadding();
 		return rect == null ? 0 : rect.bottom;
 	}
 
