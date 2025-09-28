@@ -81,18 +81,19 @@ public final class Paragraph extends DefaultRecyclable implements Segment {
 
 	@Override
 	public void getRect(@NonNull Rect rect) {
-		mLayout.getRect(rect);
+		mLayout.getPadding(rect);
 	}
 
 	@Nullable
 	@Override
 	public Rect getRect() {
-		return mLayout.getRect();
+		return mLayout.getPadding();
 	}
 
 	@Override
-	public void setRect(Rect rect) {
-		mLayout.setRect(rect);
+	@RestrictTo(LIBRARY)
+	public void setPadding(Rect rect) {
+		mLayout.setPadding(rect);
 	}
 
 	private ParagraphSelection mSelection;
@@ -295,6 +296,11 @@ public final class Paragraph extends DefaultRecyclable implements Segment {
 
 		public Builder breakStrategy(BreakStrategy breakStrategy) {
 			mBuilder0.breakStrategy(breakStrategy);
+			return this;
+		}
+
+		public Builder setPadding(Rect padding) {
+			mBuilder0.setPadding(padding);
 			return this;
 		}
 

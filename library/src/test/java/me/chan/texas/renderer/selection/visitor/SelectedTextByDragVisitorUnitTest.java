@@ -218,7 +218,7 @@ public class SelectedTextByDragVisitorUnitTest {
 		Assert.assertEquals(3, rectF.bottom, 0.001);
 
 		selectedTextByDragVisitor.clear();
-		paragraph.setRect(new Rect(1, 2, 3, 4));
+		paragraph.setPadding(new Rect(1, 2, 3, 4));
 		texTypesetter = new ParagraphTypesetter();
 		paragraph.measure(measurer, textAttribute);
 		texTypesetter.typeset(paragraph, BreakStrategy.SIMPLE, 4);

@@ -484,7 +484,7 @@ public class TextBoxUnitTest {
 				.textGravity(TextGravity.START)
 				.text("123 123, trangle");
 		Paragraph paragraph = builder.build();
-		paragraph.setRect(new Rect(1, 2, 3, 4));
+		paragraph.setPadding(new Rect(1, 2, 3, 4));
 
 		ParagraphTypesetter texTypesetter = new ParagraphTypesetter();
 		paragraph.measure(measurer, textAttribute);

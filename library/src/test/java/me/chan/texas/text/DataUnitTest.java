@@ -522,7 +522,7 @@ public class DataUnitTest {
 
 			}
 		};
-		viewSegment.setRect(rect);
+		viewSegment.setPadding(rect);
 
 		Assert.assertNotSame(viewSegment, p);
 		Assert.assertSame(viewSegment.getRect(), rect);
