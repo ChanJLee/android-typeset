@@ -39,7 +39,6 @@ public class Layout extends DefaultRecyclable {
 		mLines = new ArrayList<>(memoryOption.getParagraphLineInitialCapacity());
 	}
 
-	@RestrictTo(LIBRARY)
 	public Line getLine(int index) {
 		return mLines.get(index);
 	}
