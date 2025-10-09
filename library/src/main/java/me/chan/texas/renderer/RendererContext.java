@@ -15,73 +15,6 @@ public final class RendererContext {
 	private Box mBox;
 	private int mIndex;
 	private Line mLine;
-	private Box mPrev;
-	private Box mNext;
-
-	/**
-	 * @return 获得当前元素的tag
-	 */
-	@Nullable
-	public Object getTag() {
-		return mBox.getTag();
-	}
-
-	// TODO UNIT TEST
-	/**
-	 * @return 获得前一个绘制元素的tag
-	 */
-	@Nullable
-	public Object getPrevTag() {
-		if (mIndex == 0) {
-			return null;
-		}
-
-		if (mPrev == NONVALUE) {
-			return null;
-		}
-
-		if (mPrev != null) {
-			return mPrev.getTag();
-		}
-
-		Box prev = (Box) mLine.getElement(mIndex - 1);
-		RectF prevBounds = prev.getInnerBounds();
-		if (Float.compare(prevBounds.right, mBox.getInnerBounds().left) == 0) {
-			mPrev = prev;
-			return prev.getTag();
-		}
-
-		mPrev = NONVALUE;
-		return null;
-	}
-
-	/**
-	 * @return 获得后一个绘制元素的tag
-	 */
-	@Nullable
-	public Object getNextTag() {
-		if (mIndex == mLine.getCount() - 1) {
-			return null;
-		}
-
-		if (mNext == NONVALUE) {
-			return null;
-		}
-
-		if (mNext != null) {
-			return mNext.getTag();
-		}
-
-		Box next = (Box) mLine.getElement(mIndex + 1);
-		RectF nextBounds = next.getInnerBounds();
-		if (Float.compare(nextBounds.left, mBox.getInnerBounds().right) == 0) {
-			mNext = next;
-			return next.getTag();
-		}
-
-		mNext = NONVALUE;
-		return null;
-	}
 
 	/**
 	 * 行首
@@ -165,5 +98,17 @@ public final class RendererContext {
 		}
 
 		throw new IllegalArgumentException("unknown location type: " + location);
+	}
+
+	public Box getBox() {
+		return mBox;
+	}
+
+	public int getIndex() {
+		return mIndex;
+	}
+
+	public Line getLine() {
+		return mLine;
 	}
 }
