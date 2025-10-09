@@ -2,17 +2,14 @@ package me.chan.texas;
 
 import android.animation.Animator;
 import android.animation.ValueAnimator;
-import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import me.chan.texas.misc.Rect;
-import me.chan.texas.misc.RectF;
+
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.util.TypedValue;
-import android.view.MotionEvent;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
@@ -24,19 +21,15 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
 import me.chan.texas.renderer.ParagraphPredicates;
-import me.chan.texas.renderer.ParagraphVisitor;
 import me.chan.texas.renderer.RenderOption;
 import me.chan.texas.renderer.SpanTouchEventHandler;
 import me.chan.texas.renderer.TexasView;
 import me.chan.texas.renderer.TouchEvent;
-import me.chan.texas.renderer.core.graphics.TexasCanvas;
 import me.chan.texas.renderer.selection.Selection;
-import me.chan.texas.renderer.ui.decor.ParagraphDecor;
 import me.chan.texas.text.BreakStrategy;
 import me.chan.texas.text.Document;
 import me.chan.texas.text.Figure;
 import me.chan.texas.text.Paragraph;
-import me.chan.texas.text.Segment;
 import me.chan.texas.utils.TexasUtils;
 
 public class TexasViewDemoActivity extends AppCompatActivity {
@@ -197,115 +190,13 @@ public class TexasViewDemoActivity extends AppCompatActivity {
 		final int paddingVertical = 20;
 
 		// 设置每个segment周边的空白
-		mTexasView.setSegmentDecoration(new TexasView.SegmentDecoration() {
-			@Override
-			public void onDecorateSegment(int index, int count, Segment segment, Document document, Rect outRect) {
-				if (segment instanceof Figure) {
-					outRect.set(0, index == 0 ? 0 : paddingVertical, 0, index == count - 1 ? 0 : paddingVertical);
-				} else {
-					outRect.set(paddingHorizontal, index == 0 ? 0 : paddingVertical, paddingHorizontal, index == count - 1 ? 0 : paddingVertical);
-				}
+		mTexasView.setSegmentDecoration((index, count, segment, document, outRect) -> {
+			if (segment instanceof Figure) {
+				outRect.set(0, index == 0 ? 0 : paddingVertical, 0, index == count - 1 ? 0 : paddingVertical);
+			} else {
+				outRect.set(paddingHorizontal, index == 0 ? 0 : paddingVertical, paddingHorizontal, index == count - 1 ? 0 : paddingVertical);
 			}
 		});
-
-		// 安装文章边缘的🔥按钮
-		setupSidebar();
-	}
-
-	/**
-	 * 安装side bar控件
-	 */
-	private void setupSidebar() {
-		// side bar 的渲染和 普通view一样 都会经历 layout 的过程
-		// 不过文本引擎里有点特别
-		// 会先 onPreDrawDecor，用户可以在这个接口里做一些清理工作
-		// 因为 ParagraphDecor 是全局共享的，每绘制一个 Paragraph 都会调用
-		// 调用完 然后经历 onLayoutDecor 让你去准备这一段落的 渲染信息，比如你探测到这段
-		// 有句子id是 A9127P126972S210390，我便在这个句子旁边画个🔥
-		// 最后会 onDrawDecor 让你去绘制🔥
-		final Drawable fireDrawable = ContextCompat.getDrawable(this, me.chan.texas.debug.R.drawable.fire);
-		ParagraphDecor paragraphDecor = new ParagraphDecor() {
-			private boolean mClicked = false;
-			private boolean mDraw = false;
-			private final android.graphics.Rect mDest = new android.graphics.Rect();
-
-			@Override
-			protected void onStartLayoutParagraph(Paragraph paragraph, Rect viewportOuter, Rect viewportInner) {
-				// 准备绘制 decor
-				mClicked = false;
-				mDraw = false;
-			}
-
-			@Override
-			protected void onEndLayoutParagraph(Paragraph paragraph, Rect viewportOuter, Rect viewportInner) {
-				// noop
-			}
-
-			@Override
-			protected int onLayoutDecor(Paragraph paragraph, Object spanTag, RectF spanOuter, RectF spanInner, Rect decorOuter, Rect decorInner) {
-				// 准备decor的布局
-				if (!(spanTag instanceof BookSource.SpanTag)) {
-					return ParagraphVisitor.SIG_NORMAL;
-				}
-
-				BookSource.SpanTag tag = (BookSource.SpanTag) spanTag;
-				if (!"A9127P126972S210390".equals(tag.sentId)) {
-					return ParagraphVisitor.SIG_NORMAL;
-				}
-
-				mDraw = true;
-				mDest.set(decorOuter.right - 20, (int) spanOuter.bottom - 40, decorOuter.right + 20, (int) spanOuter.bottom);
-				return ParagraphVisitor.SIG_STOP_PARA_VISIT;
-			}
-
-			@Override
-			protected void onDrawDecor(TexasCanvas canvas, Paragraph paragraph, Rect decorOuter, Rect decorInner) {
-				if (!mDraw) {
-					return;
-				}
-
-				fireDrawable.setBounds(mDest);
-
-				// 选中了就变色
-				fireDrawable.setTint(mClicked ? Color.RED : Color.GRAY);
-				canvas.draw(fireDrawable);
-			}
-
-			@Override
-			protected boolean onTouchEvent(MotionEvent event, Paragraph paragraph, Rect decorOuter, Rect decorInner) {
-				// 需要根据 onCollectDecorRenderInfo 缓存区域去判断事件点击
-				int action = event.getAction();
-				if (action == MotionEvent.ACTION_DOWN) {
-					float x = event.getX();
-					float y = event.getY();
-					if (mDest.top - 10 < y && mDest.bottom + 10 > y &&
-							mDest.left - 10 < x && mDest.right + 10 > x) {
-						mClicked = true;
-						return true;
-					}
-					return false;
-				} else if (action == MotionEvent.ACTION_UP) {
-					mTexasView.selectParagraphs(new ParagraphPredicates() {
-						@Override
-						public boolean acceptSpan(@Nullable Object spanTag) {
-							if (!(spanTag instanceof BookSource.SpanTag)) {
-								return false;
-							}
-
-							BookSource.SpanTag tag = (BookSource.SpanTag) spanTag;
-							return "A9127P126972S210390".equals(tag.sentId);
-						}
-
-						@Override
-						public boolean acceptParagraph(@Nullable Object paragraphTag) {
-							return true;
-						}
-					});
-				}
-				return true;
-			}
-		};
-		mTexasView.setParagraphDecor(paragraphDecor);
 	}
 
 	/**

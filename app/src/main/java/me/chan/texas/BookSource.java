@@ -4,18 +4,22 @@ import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.Path;
 
+import me.chan.texas.misc.Rect;
 import me.chan.texas.misc.RectF;
 
 import android.graphics.drawable.Drawable;
 import android.text.TextUtils;
 import android.util.Log;
 import android.util.Xml;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Toast;
 
+import me.chan.texas.renderer.ParagraphPredicates;
 import me.chan.texas.renderer.TexasView;
 import me.chan.texas.renderer.core.graphics.TexasCanvas;
 import me.chan.texas.renderer.core.graphics.TexasPaint;
+import me.chan.texas.renderer.ui.decor.ParagraphDecor;
 import me.chan.texas.text.Appearance;
 import me.chan.texas.text.BreakStrategy;
 import me.chan.texas.text.Document;
@@ -28,6 +32,9 @@ import me.chan.texas.text.TextGravity;
 import me.chan.texas.text.TextStyle;
 import me.chan.texas.text.DotUnderLine;
 import me.chan.texas.text.ViewSegment;
+import me.chan.texas.text.layout.Box;
+import me.chan.texas.text.layout.Layout;
+import me.chan.texas.text.layout.Line;
 import me.chan.texas.text.tokenizer.Token;
 
 import org.xmlpull.v1.XmlPullParser;
@@ -245,6 +252,10 @@ public class BookSource extends TexasView.DocumentSource {
 					.textGravity(TextGravity.START);
 		}
 
+		if (TextUtils.equals("A9127P127008", id)) {
+			setupSidebar(builder);
+		}
+
 		String firstSent = null;
 		while (parser.next() != XmlPullParser.END_TAG) {
 			int eventType = parser.getEventType();
@@ -393,13 +404,14 @@ public class BookSource extends TexasView.DocumentSource {
 						paint.setColor(Color.GREEN);
 
 						// 独立的单元，左右都要有圆角
-						if (!checkTagIsSelected(context.getPrevTag()) && !checkTagIsSelected(context.getNextTag())) {
+						Box box = context.getBox();
+						if (box.isIsolate(true) && box.isIsolate(false)) {
 							canvas.drawRoundRect(outer.left, outer.top, outer.right, outer.bottom, 20, 20, paint);
 							return;
 						}
 
 						// 前面没有单词
-						if (checkTagIsSelected(context.getPrevTag())) {
+						if (box.isIsolate(false)) {
 							mPath.reset();
 							mPath.addRoundRect(
 									outer.left, outer.top, outer.right, outer.bottom,
@@ -407,7 +419,7 @@ public class BookSource extends TexasView.DocumentSource {
 									Path.Direction.CW
 							);
 							canvas.drawPath(mPath, paint);
-						} else if (checkTagIsSelected(context.getNextTag())) {
+						} else if (box.isIsolate(true)) {
 							// 后面没有单词
 							mPath.reset();
 							mPath.addRoundRect(
@@ -420,11 +432,6 @@ public class BookSource extends TexasView.DocumentSource {
 							// 夹在中间
 							canvas.drawRect(outer.left, outer.top, outer.right, outer.bottom, paint);
 						}
-					}
-
-					private boolean checkTagIsSelected(Object tag) {
-						// 你这里改成自己的逻辑
-						return true;
 					}
 				});
 			}
@@ -458,5 +465,98 @@ public class BookSource extends TexasView.DocumentSource {
 					break;
 			}
 		}
+	}
+
+
+	/**
+	 * 安装side bar控件
+	 */
+	private void setupSidebar(Paragraph.Builder builder) {
+		// side bar 的渲染和 普通view一样 都会经历 layout 的过程
+		// 不过文本引擎里有点特别
+		// 会先 onPreDrawDecor，用户可以在这个接口里做一些清理工作
+		// 因为 ParagraphDecor 是全局共享的，每绘制一个 Paragraph 都会调用
+		// 调用完 然后经历 onLayoutDecor 让你去准备这一段落的 渲染信息，比如你探测到这段
+		// 有句子id是 A9127P126972S210390，我便在这个句子旁边画个🔥
+		// 最后会 onDrawDecor 让你去绘制🔥
+		final Drawable fireDrawable = ContextCompat.getDrawable(mContext, me.chan.texas.debug.R.drawable.fire);
+		ParagraphDecor paragraphDecor = new ParagraphDecor() {
+			private boolean mClicked = false;
+			private boolean mDraw = false;
+			private final android.graphics.Rect mDest = new android.graphics.Rect();
+
+			@Override
+			protected void onLayoutDecor(Paragraph paragraph, Rect decorOuter, Rect decorInner) {
+				Layout layout = paragraph.getLayout();
+				for (int l = 0; l < layout.getLineCount(); ++l) {
+					Line line = layout.getLine(l);
+					for (int b = 0; b < line.getBoxCount(); ++b) {
+						Box box = line.getBox(b);
+						Object spanTag = box.getTag();
+						if (!(spanTag instanceof BookSource.SpanTag)) {
+							continue;
+						}
+
+						BookSource.SpanTag tag = (BookSource.SpanTag) spanTag;
+						if (!"A9127P127008S210441".equals(tag.sentId)) {
+							continue;
+						}
+
+						RectF spanOuter = box.getOuterBounds();
+						mDraw = true;
+						mDest.set(decorOuter.right - 20, (int) spanOuter.bottom - 40, decorOuter.right + 20, (int) spanOuter.bottom);
+						return;
+					}
+				}
+			}
+
+			@Override
+			protected void onDrawDecor(TexasCanvas canvas, TexasPaint paint, Paragraph paragraph, Rect decorOuter, Rect decorInner) {
+				if (!mDraw) {
+					return;
+				}
+
+				fireDrawable.setBounds(mDest);
+
+				// 选中了就变色
+				fireDrawable.setTint(mClicked ? Color.RED : Color.GRAY);
+				canvas.draw(fireDrawable);
+			}
+
+			@Override
+			protected boolean onTouchEvent(MotionEvent event, Paragraph paragraph, Rect decorOuter, Rect decorInner) {
+				// 需要根据 onCollectDecorRenderInfo 缓存区域去判断事件点击
+				int action = event.getAction();
+				if (action == MotionEvent.ACTION_DOWN) {
+					float x = event.getX();
+					float y = event.getY();
+					if (mDest.top - 10 < y && mDest.bottom + 10 > y &&
+							mDest.left - 10 < x && mDest.right + 10 > x) {
+						mClicked = true;
+						return true;
+					}
+					return false;
+				} else if (action == MotionEvent.ACTION_UP) {
+					mTexasView.selectParagraphs(new ParagraphPredicates() {
+						@Override
+						public boolean acceptSpan(@Nullable Object spanTag) {
+							if (!(spanTag instanceof BookSource.SpanTag)) {
+								return false;
+							}
+
+							BookSource.SpanTag tag = (BookSource.SpanTag) spanTag;
+							return "A9127P127008S210441".equals(tag.sentId);
+						}
+
+						@Override
+						public boolean acceptParagraph(@Nullable Object paragraphTag) {
+							return true;
+						}
+					});
+				}
+				return true;
+			}
+		};
+		builder.decor(paragraphDecor);
 	}
 }
