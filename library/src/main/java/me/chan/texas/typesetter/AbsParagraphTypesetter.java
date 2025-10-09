@@ -20,10 +20,22 @@ import me.chan.texas.typesetter.utils.ElementStream;
 
 @RestrictTo(LIBRARY)
 public abstract class AbsParagraphTypesetter {
-	public static final boolean DEBUG = false;
+	public static final boolean DEBUG = true;
 	public static final int INFINITY_WIDTH = Integer.MAX_VALUE;
 
 	public final boolean typeset(Paragraph paragraph, BreakStrategy breakStrategy, int lineWidth, boolean desire) {
+		if (DEBUG) {
+			for (int i = 0; i < paragraph.getElementCount(); ++i) {
+				Element element = paragraph.getElement(i);
+				if (element instanceof TextBox) {
+					TextBox textBox = (TextBox) element;
+					if (!textBox.hasAttribute(TextBox.ATTRIBUTE_MEASURED)) {
+						throw new IllegalStateException("text box not measured");
+					}
+				}
+			}
+		}
+
 		if (!onTypeset(paragraph, breakStrategy, lineWidth)) {
 			return false;
 		}
