@@ -470,6 +470,7 @@ public class TypesetterUnitTest {
 			}
 
 			Paragraph paragraph = (Paragraph) segment;
+			paragraph.measure(measurer, new TextAttribute(measurer));
 			texTypesetter.typeset(paragraph, breakStrategy, (int) lineWidth);
 			assertNotNull(paragraph);
 			Layout layout = paragraph.getLayout();
