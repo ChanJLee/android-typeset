@@ -28,39 +28,52 @@ public final class TextBox extends Box {
 	/**
 	 * 什么属性都没有
 	 */
+	@RestrictTo(LIBRARY)
 	public static final int ATTRIBUTE_NONE = 0;
 	/**
 	 * 是否是被追加了 -
 	 */
+	@RestrictTo(LIBRARY)
 	public static final int ATTRIBUTE_PENALTY = 1;
 	/**
 	 * 是否需要缩放
 	 */
+	@RestrictTo(LIBRARY)
 	public static final int ATTRIBUTE_ZOOM_OUT = 2;
 	/**
 	 * 是否需要缩小左边的距离
 	 */
+	@RestrictTo(LIBRARY)
 	public static final int ATTRIBUTE_SQUISH_LEFT = 4;
 	/**
 	 * 是否需要缩小右边的距离
 	 */
+	@RestrictTo(LIBRARY)
 	public static final int ATTRIBUTE_SQUISH_RIGHT = 8;
 
+	@RestrictTo(LIBRARY)
 	public static final int ATTRIBUTE_PENDED_HYPHEN = 16;
 
+	@RestrictTo(LIBRARY)
 	public static final int ATTRIBUTE_RTL = 32;
 
+	@RestrictTo(LIBRARY)
 	public static final int ATTRIBUTE_LINE_HEADER = 64;
 
+	@RestrictTo(LIBRARY)
 	public static final int ATTRIBUTE_LINE_TAILER = 128;
 
+	@RestrictTo(LIBRARY)
 	public static final int ATTRIBUTE_MEASURED = 256;
 
+	@RestrictTo(LIBRARY)
 	static final float ZOOM_OUT_FACTOR = 0.8333f;
 
+	@RestrictTo(LIBRARY)
 	static final int SQUISH_FACTOR = 2;
 
 	private final static ObjectPool<TextBox> POOL = new ObjectPool<>(Texas.getMemoryOption().getTextBufferSize());
+	@RestrictTo(LIBRARY)
 	public final static CharArrayPool CHAR_ARRAY_POOL = new CharArrayPool();
 
 	@VisibleForTesting
