@@ -1,6 +1,7 @@
 package me.chan.texas.renderer;
 
 import androidx.annotation.IntDef;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 
@@ -100,6 +101,7 @@ public final class RendererContext {
 		throw new IllegalArgumentException("unknown location type: " + location);
 	}
 
+	@NonNull
 	public Box getBox() {
 		return mBox;
 	}
@@ -108,7 +110,13 @@ public final class RendererContext {
 		return mIndex;
 	}
 
+	@NonNull
 	public Line getLine() {
 		return mLine;
+	}
+
+	@Nullable
+	public Object getTag() {
+		return mBox.getTag();
 	}
 }
