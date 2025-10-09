@@ -5,13 +5,10 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 
-import me.chan.texas.misc.RectF;
 import me.chan.texas.text.layout.Box;
 import me.chan.texas.text.layout.Line;
-import me.chan.texas.text.layout.TextBox;
 
 public final class RendererContext {
-	private static final Box NONVALUE = TextBox.obtain("x", 0, 1, null, null, null, null);
 
 	private Box mBox;
 	private int mIndex;
@@ -86,9 +83,9 @@ public final class RendererContext {
 		if (location == LOCATION_LINE_START) {
 			return mIndex == 0;
 		} else if (location == LOCATION_LINE_END) {
-			return mIndex == mLine.getCount();
+			return mIndex == mLine.getCount() - 1;
 		} else if (location == LOCATION_LINE_MIDDLE) {
-			return mIndex > 0 && mIndex < mLine.getCount();
+			return mIndex > 0 && mIndex < mLine.getCount() - 1;
 		} else if (location == LOCATION_PARAGRAPH_START) {
 			return (mParagraphLocationAttribute & LOCATION_PARAGRAPH_START) != 0;
 		} else if (location == LOCATION_PARAGRAPH_END) {
@@ -101,20 +98,32 @@ public final class RendererContext {
 		throw new IllegalArgumentException("unknown location type: " + location);
 	}
 
+	/**
+	 * @return 当前对应的box
+	 */
 	@NonNull
 	public Box getBox() {
 		return mBox;
 	}
 
+	/**
+	 * @return 当前box在行中的下标
+	 */
 	public int getIndex() {
 		return mIndex;
 	}
 
+	/**
+	 * @return 当前box所在的行
+	 */
 	@NonNull
 	public Line getLine() {
 		return mLine;
 	}
 
+	/**
+	 * @return 当前box对应的tag
+	 */
 	@Nullable
 	public Object getTag() {
 		return mBox.getTag();

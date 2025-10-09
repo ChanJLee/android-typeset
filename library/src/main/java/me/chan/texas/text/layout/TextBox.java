@@ -54,6 +54,8 @@ public final class TextBox extends Box {
 
 	public static final int ATTRIBUTE_LINE_TAILER = 128;
 
+	public static final int ATTRIBUTE_MEASURED = 256;
+
 	static final float ZOOM_OUT_FACTOR = 0.8333f;
 
 	static final int SQUISH_FACTOR = 2;
@@ -331,6 +333,7 @@ public final class TextBox extends Box {
 		mWidth = spec.getWidth();
 		mHeight = spec.getHeight();
 		mBaselineOffset = spec.getBaselineOffset();
+		addAttribute(ATTRIBUTE_MEASURED);
 		spec.recycle();
 	}
 
