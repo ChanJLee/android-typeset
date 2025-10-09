@@ -318,7 +318,7 @@ public class TextBoxUnitTest {
 		Assert.assertEquals(textBox.getTextStyle(), mTextStyle);
 		Assert.assertFalse(textBox.isPenalty());
 		Assert.assertFalse(textBox.isRecycled());
-		Assert.assertEquals(textBox.getAttribute(), TextBox.ATTRIBUTE_NONE);
+		Assert.assertEquals(textBox.getAttribute(), TextBox.ATTRIBUTE_MEASURED);
 		float width = textBox.getWidth() / TextBox.SQUISH_FACTOR;
 		textBox.addAttribute(TextBox.ATTRIBUTE_SQUISH_LEFT);
 		Assert.assertNotEquals(textBox.getAttribute(), TextBox.ATTRIBUTE_NONE);
