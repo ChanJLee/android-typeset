@@ -5,10 +5,13 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import androidx.annotation.CallSuper;
 import androidx.annotation.RestrictTo;
 
+import me.chan.texas.measurer.Measurer;
+import me.chan.texas.misc.DefaultRecyclable;
 import me.chan.texas.misc.RectF;
 import me.chan.texas.renderer.core.graphics.TexasCanvas;
 import me.chan.texas.renderer.core.graphics.TexasPaint;
 import me.chan.texas.text.Appearance;
+import me.chan.texas.text.TextAttribute;
 import me.chan.texas.utils.TexasUtils;
 
 /**
@@ -16,7 +19,7 @@ import me.chan.texas.utils.TexasUtils;
  * <p>
  * 比如一个单词，一张图片
  */
-public abstract class Box extends Element {
+public abstract class Box extends DefaultRecyclable implements Element {
 	/**
 	 * 增加修改内容参考
 	 * {@link #equals(Object)}
@@ -153,4 +156,11 @@ public abstract class Box extends Element {
 		float mid = (mInner.right + current.mInner.left) / 2.0f;
 		mOuter.right = current.mOuter.left = mid;
 	}
+
+	@Override
+	public final void measure(Measurer measurer, TextAttribute textAttribute) {
+		onMeasure(measurer, textAttribute);
+	}
+
+	abstract protected void onMeasure(Measurer measurer, TextAttribute textAttribute);
 }
