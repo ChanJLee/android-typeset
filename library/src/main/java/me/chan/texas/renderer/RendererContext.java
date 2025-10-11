@@ -1,47 +1,18 @@
 package me.chan.texas.renderer;
 
 import androidx.annotation.IntDef;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 
-import me.chan.texas.misc.RectF;
 import me.chan.texas.text.layout.Box;
-import me.chan.texas.utils.TexasUtils;
+import me.chan.texas.text.layout.Line;
 
 public final class RendererContext {
 
-	@RestrictTo(RestrictTo.Scope.LIBRARY)
-	BoxMetaInfo currentBoxMetaInfo = new BoxMetaInfo();
-
-	@RestrictTo(RestrictTo.Scope.LIBRARY)
-	BoxMetaInfo prevBoxMetaInfo = new BoxMetaInfo();
-
-	@RestrictTo(RestrictTo.Scope.LIBRARY)
-	BoxMetaInfo nextBoxMetaInfo = new BoxMetaInfo();
-
-	/**
-	 * @return 获得当前元素的tag
-	 */
-	@Nullable
-	public Object getTag() {
-		return currentBoxMetaInfo.box.getTag();
-	}
-
-	/**
-	 * @return 获得前一个绘制元素的tag
-	 */
-	@Nullable
-	public Object getPrevTag() {
-		return prevBoxMetaInfo.box == null ? null : prevBoxMetaInfo.box.getTag();
-	}
-
-	/**
-	 * @return 获得后一个绘制元素的tag
-	 */
-	@Nullable
-	public Object getNextTag() {
-		return nextBoxMetaInfo.box == null ? null : nextBoxMetaInfo.box.getTag();
-	}
+	private Box mBox;
+	private int mIndex;
+	private Line mLine;
 
 	/**
 	 * 行首
@@ -73,11 +44,19 @@ public final class RendererContext {
 	 */
 	public static final int LOCATION_PARAGRAPH_MIDDLE = 32;
 
-	public void clear() {
-		currentBoxMetaInfo.clear();
-		prevBoxMetaInfo.clear();
-		nextBoxMetaInfo.clear();
+	@RestrictTo(RestrictTo.Scope.LIBRARY)
+	void clear() {
 		mParagraphLocationAttribute = 0;
+		mBox = null;
+		mLine = null;
+		mIndex = 0;
+	}
+
+	@RestrictTo(RestrictTo.Scope.LIBRARY)
+	void setBoxLocationAttribute(Line line, Box box, int index) {
+		mLine = line;
+		mBox = box;
+		mIndex = index;
 	}
 
 	@IntDef({LOCATION_LINE_START, LOCATION_LINE_END, LOCATION_LINE_MIDDLE,
@@ -102,11 +81,11 @@ public final class RendererContext {
 	 */
 	public boolean checkLocation(@LocationType int location) {
 		if (location == LOCATION_LINE_START) {
-			return prevBoxMetaInfo.box == null;
+			return mIndex == 0;
 		} else if (location == LOCATION_LINE_END) {
-			return nextBoxMetaInfo.box == null;
+			return mIndex == mLine.getBoxCount() - 1;
 		} else if (location == LOCATION_LINE_MIDDLE) {
-			return prevBoxMetaInfo.box != null && nextBoxMetaInfo.box != null;
+			return mIndex > 0 && mIndex < mLine.getBoxCount() - 1;
 		} else if (location == LOCATION_PARAGRAPH_START) {
 			return (mParagraphLocationAttribute & LOCATION_PARAGRAPH_START) != 0;
 		} else if (location == LOCATION_PARAGRAPH_END) {
@@ -119,37 +98,34 @@ public final class RendererContext {
 		throw new IllegalArgumentException("unknown location type: " + location);
 	}
 
-	@RestrictTo(RestrictTo.Scope.LIBRARY)
-	public static final class BoxMetaInfo {
-		public final RectF inner = new RectF();
-		public Box box;
-		public int index;
-
-		public void clear() {
-			inner.top = inner.left = inner.right = inner.bottom = 0;
-			box = null;
-			index = -1;
-		}
-
-		public boolean isValid() {
-			return box != null;
-		}
-
-		public void set(Box box, int index, RectF inner) {
-			this.box = box;
-			this.index = index;
-			TexasUtils.copyRect(this.inner, inner);
-		}
-
-		public void set(BoxMetaInfo meta) {
-			this.box = meta.box;
-			this.index = meta.index;
-			TexasUtils.copyRect(this.inner, meta.inner);
-		}
+	/**
+	 * @return 当前对应的box
+	 */
+	@NonNull
+	public Box getBox() {
+		return mBox;
 	}
 
-	@RestrictTo(RestrictTo.Scope.LIBRARY)
-	public BoxMetaInfo getCurrentBoxMetaInfo() {
-		return currentBoxMetaInfo;
+	/**
+	 * @return 当前box在行中的下标
+	 */
+	public int getIndex() {
+		return mIndex;
+	}
+
+	/**
+	 * @return 当前box所在的行
+	 */
+	@NonNull
+	public Line getLine() {
+		return mLine;
+	}
+
+	/**
+	 * @return 当前box对应的tag
+	 */
+	@Nullable
+	public Object getTag() {
+		return mBox.getTag();
 	}
 }

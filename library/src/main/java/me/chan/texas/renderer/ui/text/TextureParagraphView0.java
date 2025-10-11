@@ -45,8 +45,7 @@ public class TextureParagraphView0 extends AbsTextureParagraphView {
 				mRenderOption,
 				this,
 				layout.getWidth(),
-				mPaintSet,
-				mParagraphDecor
+				mPaintSet
 		);
 
 		if (!isInEditMode()) {
@@ -77,7 +76,7 @@ public class TextureParagraphView0 extends AbsTextureParagraphView {
 	}
 
 	@Override
-	public void syncUI() {
+	protected void onSyncUI() {
 		invalidate();
 	}
 

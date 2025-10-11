@@ -485,11 +485,6 @@ public class Renderer implements SelectionManager.Listener {
 		/* do nothing */
 	}
 
-	public void setParagraphDecor(ParagraphDecor decor) {
-		mAdapter.setParagraphDecor(decor);
-		redrawInternal();
-	}
-
 	@Override
 	public void onSpanClicked(TouchEvent event, Object tag) {
 		mTexasView.notifySpanClicked(event, tag);

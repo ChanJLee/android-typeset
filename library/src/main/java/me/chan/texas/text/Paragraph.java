@@ -20,11 +20,14 @@ import me.chan.texas.misc.ObjectPool;
 import me.chan.texas.renderer.selection.ParagraphSelection;
 import me.chan.texas.renderer.selection.Selection;
 import me.chan.texas.renderer.ui.RendererHost;
+import me.chan.texas.renderer.ui.decor.ParagraphDecor;
 import me.chan.texas.text.layout.Element;
 import me.chan.texas.text.layout.Glue;
 import me.chan.texas.text.layout.Layout;
+import me.chan.texas.text.layout.Line;
 import me.chan.texas.text.layout.Penalty;
 import me.chan.texas.text.tokenizer.Token;
+import me.chan.texas.text.util.TexasIterator;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -46,6 +49,9 @@ public final class Paragraph extends DefaultRecyclable implements Segment {
 
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
 	Object mTag;
+
+	ParagraphDecor mDecor;
+
 	/**
 	 * 默认
 	 */
@@ -63,6 +69,12 @@ public final class Paragraph extends DefaultRecyclable implements Segment {
 	 */
 	public static final int TYPESET_POLICY_ACCEPT_CONTROL_CHAR = 4;
 
+	@RestrictTo(LIBRARY)
+	@Nullable
+	public ParagraphDecor getDecor() {
+		return mDecor;
+	}
+
 	@Retention(RetentionPolicy.SOURCE)
 	@IntDef({TYPESET_POLICY_DEFAULT, TYPESET_POLICY_CJK_MIX_OPTIMIZATION, TYPESET_POLICY_BIDI_TEXT,
 			TYPESET_POLICY_ACCEPT_CONTROL_CHAR})
@@ -79,18 +91,19 @@ public final class Paragraph extends DefaultRecyclable implements Segment {
 
 	@Override
 	public void getRect(@NonNull Rect rect) {
-		mLayout.getRect(rect);
+		mLayout.getPadding(rect);
 	}
 
 	@Nullable
 	@Override
 	public Rect getRect() {
-		return mLayout.getRect();
+		return mLayout.getPadding();
 	}
 
 	@Override
-	public void setRect(Rect rect) {
-		mLayout.setRect(rect);
+	@RestrictTo(LIBRARY)
+	public void setPadding(Rect rect) {
+		mLayout.setPadding(rect);
 	}
 
 	private ParagraphSelection mSelection;
@@ -143,6 +156,7 @@ public final class Paragraph extends DefaultRecyclable implements Segment {
 		}
 		mElements.clear();
 		mTag = null;
+		mDecor = null;
 		if (mSelection != null) {
 			mSelection.recycle();
 			mSelection = null;
@@ -221,9 +235,45 @@ public final class Paragraph extends DefaultRecyclable implements Segment {
 		POOL.clean();
 	}
 
-	@RestrictTo(LIBRARY)
 	public Layout getLayout() {
 		return mLayout;
+	}
+
+	public TexasIterator<Line> iterator() {
+		return new TexasIterator<Line>() {
+			private int mIndex = -1;
+
+			@Override
+			public Line next() {
+				return restore(mIndex + 1);
+			}
+
+			@Override
+			public Line prev() {
+				return restore(mIndex - 1);
+			}
+
+			@Nullable
+			@Override
+			public Line current() {
+				return restore(mIndex);
+			}
+
+			@Override
+			public Line restore(int state) {
+				Layout layout = getLayout();
+				if (layout == null || state < 0 || state >= layout.getLineCount()) {
+					return null;
+				}
+
+				return layout.getLine(mIndex = state);
+			}
+
+			@Override
+			public int save() {
+				return mIndex;
+			}
+		};
 	}
 
 	@RestrictTo(LIBRARY)
@@ -259,6 +309,11 @@ public final class Paragraph extends DefaultRecyclable implements Segment {
 			return this;
 		}
 
+		public Builder setPadding(Rect padding) {
+			mBuilder0.setPadding(padding);
+			return this;
+		}
+
 		public Builder textGravity(int gravity) {
 			mBuilder0.textGravity(gravity);
 			return this;
@@ -279,6 +334,14 @@ public final class Paragraph extends DefaultRecyclable implements Segment {
 		 */
 		public Builder text(CharSequence text) {
 			return text(text, 0, text.length());
+		}
+
+		/**
+		 * @return 设置decor
+		 */
+		public Builder decor(ParagraphDecor decor) {
+			mBuilder0.decor(decor);
+			return this;
 		}
 
 		/**

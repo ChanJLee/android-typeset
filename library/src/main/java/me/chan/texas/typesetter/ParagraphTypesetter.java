@@ -9,8 +9,13 @@ import android.util.Log;
 import androidx.annotation.RestrictTo;
 
 import me.chan.texas.Texas;
+import me.chan.texas.misc.RectF;
 import me.chan.texas.text.BreakStrategy;
 import me.chan.texas.text.Paragraph;
+import me.chan.texas.text.TextGravity;
+import me.chan.texas.text.layout.Box;
+import me.chan.texas.text.layout.Element;
+import me.chan.texas.text.layout.Glue;
 import me.chan.texas.text.layout.Layout;
 import me.chan.texas.text.layout.Line;
 import me.chan.texas.typesetter.simple.SimpleParagraphTypesetter;
@@ -44,18 +49,7 @@ public class ParagraphTypesetter {
 			return false;
 		}
 
-		if (typeset0(paragraph, breakStrategy, width)) {
-			Layout layout = paragraph.getLayout();
-			int height = 0;
-			for (int i = 0; i < layout.getLineCount(); ++i) {
-				Line line = layout.getLine(i);
-				height += line.getLineHeight();
-			}
-			layout.setContentSize(width, height);
-			return true;
-		}
-
-		return false;
+		return typeset0(paragraph, breakStrategy, width, false);
 	}
 
 	/**
@@ -64,33 +58,20 @@ public class ParagraphTypesetter {
 	 * @return 排版是否成功
 	 */
 	public boolean desire(Paragraph paragraph, BreakStrategy breakStrategy) {
-		if (!typeset0(paragraph, breakStrategy, AbsParagraphTypesetter.INFINITY_WIDTH)) {
-			return false;
-		}
-
-		Layout layout = paragraph.getLayout();
-		float actualWidth = 0;
-		float actualHeight = 0;
-		for (int i = 0; i < layout.getLineCount(); ++i) {
-			Line line = layout.getLine(i);
-			actualWidth = Math.max(line.getLineWidth(), actualWidth);
-			actualHeight += line.getLineHeight();
-		}
-		layout.setContentSize((int) Math.ceil(actualWidth), (int) Math.ceil(actualHeight));
-		return true;
+		return typeset0(paragraph, breakStrategy, AbsParagraphTypesetter.INFINITY_WIDTH, true);
 	}
 
-	private boolean typeset0(Paragraph paragraph, BreakStrategy breakStrategy, int width) {
+	private boolean typeset0(Paragraph paragraph, BreakStrategy breakStrategy, int width, boolean desire) {
 		if (DEBUG) {
 			++mStatus.mCount;
 			mStatus.mInternalState = null;
 		}
 
 		if (breakStrategy == BreakStrategy.SIMPLE) {
-			return mSimpleTypesetter.typeset(paragraph, breakStrategy, width);
+			return mSimpleTypesetter.typeset(paragraph, breakStrategy, width, desire);
 		}
 
-		if (!mTexTypesetter.typeset(paragraph, breakStrategy, width)) {
+		if (!mTexTypesetter.typeset(paragraph, breakStrategy, width, desire)) {
 			// tex 存在找不到完美解的情况，如果在这种case下
 			// 回归到朴素的排版算法
 			if (DEBUG) {
@@ -98,7 +79,7 @@ public class ParagraphTypesetter {
 				Log.w("ParagraphTypesetter", "can not find active nodes: " + paragraph);
 			}
 
-			return mSimpleTypesetter.typeset(paragraph, breakStrategy, width);
+			return mSimpleTypesetter.typeset(paragraph, breakStrategy, width, desire);
 		}
 
 		if (DEBUG) {

@@ -41,13 +41,11 @@ public interface TextureParagraph {
 	 * @param paragraph               绘制的段落
 	 * @param paintSet                画笔集合
 	 * @param renderOption            绘制选项
-	 * @param decor                   装饰的内容
 	 * @param spanClickedEventHandler 点击事件处理器
 	 */
 	void render(@NonNull Paragraph paragraph,
 				@NonNull PaintSet paintSet,
 				@NonNull RenderOption renderOption,
-				@Nullable ParagraphDecor decor,
 				@Nullable SpanTouchEventHandler spanClickedEventHandler);
 
 	/**
@@ -79,4 +77,10 @@ public interface TextureParagraph {
 	void setLayoutParams(ViewGroup.LayoutParams layoutParams);
 
 	void setOnMeasureInterceptor(OnMeasureInterceptor interceptor);
+
+	void setRendererListener(RendererListener rendererListener);
+
+	interface RendererListener {
+		void onSyncUI(TextureParagraph view);
+	}
 }

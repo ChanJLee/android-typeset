@@ -119,6 +119,9 @@ public class ParagraphView extends FrameLayout {
 		@Override
 		public void onParseFailure(Throwable throwable) {
 			Log.w(TAG, throwable);
+			if (mRenderListener != null) {
+				mRenderListener.onError(ParagraphView.this, throwable);
+			}
 		}
 	};
 
@@ -130,6 +133,7 @@ public class ParagraphView extends FrameLayout {
 			}
 		}
 	};
+	private RenderListener mRenderListener;
 
 	public ParagraphView(@NonNull Context context, @Nullable AttributeSet attrs) {
 		this(context, attrs, 0);
@@ -174,6 +178,7 @@ public class ParagraphView extends FrameLayout {
 			};
 			mRender.setOnTextSelectedListener(onSelectedChangedListener);
 			mRender.setOnMeasureInterceptor(this::handleMeasureRenderer);
+			mRender.setRendererListener(this::handleRendererSuccess);
 			setVerticalAlignment(mRenderOption);
 
 			TexasComponent texasComponent = Texas.getTexasComponent();
@@ -186,6 +191,17 @@ public class ParagraphView extends FrameLayout {
 			}
 		} finally {
 			typedArray.recycle();
+		}
+	}
+
+	private void handleRendererSuccess(TextureParagraph textureParagraph) {
+		Paragraph paragraph = textureParagraph.getParagraph();
+		if (paragraph == null) {
+			return;
+		}
+
+		if (mRenderListener != null) {
+			mRenderListener.onRender(this, paragraph);
 		}
 	}
 
@@ -449,7 +465,8 @@ public class ParagraphView extends FrameLayout {
 	private boolean typeset0(int width) {
 		try {
 			ParagraphTypesetWorker worker = WorkerScheduler.typeset();
-			worker.desire(mParagraph, width);
+			Layout layout = mParagraph.getLayout();
+			worker.desire(mParagraph, width - layout.getPaddingRight() - layout.getPaddingLeft());
 			return true;
 		} catch (Throwable e) {
 			return false;
@@ -465,7 +482,7 @@ public class ParagraphView extends FrameLayout {
 			Log.d(TAG, "render0: paragraph = " + paragraph);
 		}
 
-		mRender.render(paragraph, mUiThreadPaintSet, mRenderOption, null, mSpanTouchEventHandler);
+		mRender.render(paragraph, mUiThreadPaintSet, mRenderOption, mSpanTouchEventHandler);
 	}
 
 	/**
@@ -540,6 +557,9 @@ public class ParagraphView extends FrameLayout {
 		source.attach(this);
 
 		// 提交解析任务
+		if (mRenderListener != null) {
+			mRenderListener.onStart(this, source);
+		}
 		ParseWorker.Args args = ParseWorker.Args.obtain(source, mParseListener);
 		ParseWorker worker = WorkerScheduler.parse();
 		if (!isInEditMode()) {
@@ -888,6 +908,10 @@ public class ParagraphView extends FrameLayout {
 		return renderOption;
 	}
 
+	public void setRenderListener(RenderListener renderListener) {
+		mRenderListener = renderListener;
+	}
+
 	/**
 	 * 设置paragraph source
 	 */
@@ -936,5 +960,33 @@ public class ParagraphView extends FrameLayout {
 					.text(mText, mStart, mEnd)
 					.build();
 		}
+	}
+
+	/**
+	 * Render listener
+	 */
+	public interface RenderListener {
+		/**
+		 * Called when parse source
+		 *
+		 * @param view view
+		 */
+		void onStart(ParagraphView view, ParagraphSource source);
+
+		/**
+		 * Called when render paragraph
+		 *
+		 * @param view      view
+		 * @param paragraph paragraph
+		 */
+		void onRender(ParagraphView view, Paragraph paragraph);
+
+		/**
+		 * Called when an error occurs
+		 *
+		 * @param view      view
+		 * @param throwable error
+		 */
+		void onError(ParagraphView view, Throwable throwable);
 	}
 }

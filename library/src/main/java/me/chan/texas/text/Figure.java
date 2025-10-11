@@ -112,7 +112,7 @@ public final class Figure extends DefaultRecyclable implements Segment {
 	}
 
 	@Override
-	public void setRect(Rect rect) {
+	public void setPadding(Rect rect) {
 		mRect = rect;
 	}
 

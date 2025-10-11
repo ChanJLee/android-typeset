@@ -1,6 +1,7 @@
 package me.chan.texas.text;
 
 import me.chan.texas.Texas;
+import me.chan.texas.text.util.TexasIterator;
 import me.chan.texas.utils.ReferenceCountingPointer;
 
 import java.util.ArrayList;
@@ -68,6 +69,42 @@ public final class Document {
 	@RestrictTo(LIBRARY)
 	public void clear() {
 		mSegments.release();
+	}
+
+	public TexasIterator<Segment> iterator() {
+		return new TexasIterator<Segment>() {
+			private int mIndex = -1;
+
+			@Override
+			public Segment next() {
+				return restore(mIndex + 1);
+			}
+
+			@Override
+			public Segment prev() {
+				return restore(mIndex - 1);
+			}
+
+			@Nullable
+			@Override
+			public Segment current() {
+				return restore(mIndex);
+			}
+
+			@Override
+			public Segment restore(int state) {
+				if (state < 0 || state >= getSegmentCount()) {
+					return null;
+				}
+
+				return getSegment(mIndex = state);
+			}
+
+			@Override
+			public int save() {
+				return mIndex;
+			}
+		};
 	}
 
 	public static class Builder {

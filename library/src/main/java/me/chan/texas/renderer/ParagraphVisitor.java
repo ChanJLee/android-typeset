@@ -7,21 +7,14 @@ import androidx.annotation.RestrictTo;
 import me.chan.texas.misc.RectF;
 import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.layout.Box;
-import me.chan.texas.text.layout.Element;
-import me.chan.texas.text.layout.Glue;
 import me.chan.texas.text.layout.Layout;
 import me.chan.texas.text.layout.Line;
-import me.chan.texas.utils.TexasUtils;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public abstract class ParagraphVisitor {
-
-	private final RectF mInnerRect = new RectF();
-	private final RectF mOuterRect = new RectF();
-	private final RectF mLineRect = new RectF();
 	private int mVisitSig = SIG_NORMAL;
 
 	/**
@@ -63,16 +56,15 @@ public abstract class ParagraphVisitor {
 			onVisitParagraphStart(paragraph);
 			Layout layout = paragraph.getLayout();
 			int end = layout.getLineCount();
-			layout.prepareGetLineBoundsIncremental(mLineRect);
 			for (int i = 0; i < end && mVisitSig != SIG_STOP_PARA_VISIT; ++i) {
 				Line line = layout.getLine(i);
-				layout.getLineBoundsIncremental(i, mLineRect);
 
 				mTypesetContext.clear();
 				mTypesetContext.setParagraphLocationAttribute(RendererContext.LOCATION_PARAGRAPH_START, i == 0);
 				mTypesetContext.setParagraphLocationAttribute(RendererContext.LOCATION_PARAGRAPH_END, i == end - 1);
 
-				visitLine(line, mLineRect.left, mLineRect.bottom);
+				RectF lineRect = line.getBounds();
+				visitLine(line, lineRect.left, lineRect.bottom);
 			}
 			onVisitParagraphEnd(paragraph);
 		} catch (Throwable throwable) {
@@ -86,30 +78,11 @@ public abstract class ParagraphVisitor {
 	private void visitLine(Line line, float bottomX, float bottomY) {
 		onVisitLineStart(line, bottomX, bottomY);
 
-		int size = line.getCount();
-		assignBoxMeta(line, 0, size, bottomX, bottomY, mTypesetContext.currentBoxMetaInfo);
-		if (mTypesetContext.currentBoxMetaInfo.isValid() && mVisitSig == SIG_NORMAL) {
-			do {
-				TexasUtils.copyRect(mInnerRect, mTypesetContext.currentBoxMetaInfo.inner);
-				TexasUtils.copyRect(mOuterRect, mTypesetContext.currentBoxMetaInfo.inner);
-				if (mTypesetContext.prevBoxMetaInfo.isValid()) {
-					mOuterRect.left = (mTypesetContext.prevBoxMetaInfo.inner.right + mTypesetContext.currentBoxMetaInfo.inner.left) / 2.0f;
-				}
-
-				assignBoxMeta(line, mTypesetContext.currentBoxMetaInfo.index + 1, size, mTypesetContext.currentBoxMetaInfo.inner.right, bottomY, mTypesetContext.nextBoxMetaInfo);
-				if (mTypesetContext.nextBoxMetaInfo.isValid()) {
-					mOuterRect.right = (mTypesetContext.nextBoxMetaInfo.inner.left + mTypesetContext.currentBoxMetaInfo.inner.right) / 2.0f;
-				}
-
-				onVisitBox(mTypesetContext.currentBoxMetaInfo.box, mInnerRect, mOuterRect, mTypesetContext);
-				if (!mTypesetContext.nextBoxMetaInfo.isValid() || mVisitSig != SIG_NORMAL) {
-					break;
-				}
-
-				mTypesetContext.prevBoxMetaInfo.set(mTypesetContext.currentBoxMetaInfo);
-				mTypesetContext.currentBoxMetaInfo.set(mTypesetContext.nextBoxMetaInfo);
-				mTypesetContext.nextBoxMetaInfo.clear();
-			} while (true);
+		int size = line.getElementCount();
+		for (int i = 0; i < size && mVisitSig == SIG_NORMAL; ++i) {
+			Box box = (Box) line.getElement(i);
+			mTypesetContext.setBoxLocationAttribute(line, box, i);
+			onVisitBox(box, box.getInnerBounds(), box.getOuterBounds(), mTypesetContext);
 		}
 
 		onVisitLineEnd(line, bottomX, bottomY);
@@ -117,37 +90,6 @@ public abstract class ParagraphVisitor {
 		if (mVisitSig == SIG_STOP_LINE_VISIT) {
 			mVisitSig = SIG_NORMAL;
 		}
-	}
-
-	private void assignBoxMeta(Line line, int start, int end, float bottomX, float bottomY, RendererContext.BoxMetaInfo meta) {
-		for (int index = start; index < end; ++index) {
-			Element element = line.getElement(index);
-			if (element instanceof Box) {
-				Box box = (Box) element;
-				float width = box.getWidth();
-				meta.inner.left = bottomX;
-				meta.inner.right = bottomX + width;
-				meta.inner.top = bottomY - line.getLineHeight();
-				meta.inner.bottom = bottomY;
-				meta.box = box;
-				meta.index = index;
-				return;
-			}
-			bottomX += getAdjustGlueWidth(line, (Glue) element);
-		}
-	}
-
-	private float getAdjustGlueWidth(Line line, Glue glue) {
-		float ratio = line.getRatio();
-		if (ratio == 0) {
-			return glue.getWidth();
-		}
-
-		if (ratio > 0) {
-			return glue.getWidth() + ratio * glue.getStretch();
-		}
-
-		return glue.getWidth() + ratio * glue.getShrink();
 	}
 
 	/**

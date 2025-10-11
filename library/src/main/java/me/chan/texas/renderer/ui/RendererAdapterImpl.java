@@ -88,7 +88,6 @@ public class RendererAdapterImpl extends RecyclerView.Adapter<RendererAdapterImp
 	private SelectionManager mSelectionManager;
 	private PaintSet mPaintSet;
 	private final RecyclerView.RecycledViewPool mPool;
-	private ParagraphDecor mParagraphDecor;
 
 	private Listener mListener;
 
@@ -386,10 +385,6 @@ public class RendererAdapterImpl extends RecyclerView.Adapter<RendererAdapterImp
 		return mDocument;
 	}
 
-	public void setParagraphDecor(ParagraphDecor decor) {
-		mParagraphDecor = decor;
-	}
-
 	public int indexOf(Segment segment) {
 		if (mDocument == null) {
 			return -1;
@@ -492,7 +487,6 @@ public class RendererAdapterImpl extends RecyclerView.Adapter<RendererAdapterImp
 					data,
 					mPaintSet,
 					mRenderOption,
-					mParagraphDecor,
 					mSelectionManager.getSpanTouchEventHandler());
 			if (DEBUG) {
 				d("onCreateViewHolder: " + mRender.getToken());

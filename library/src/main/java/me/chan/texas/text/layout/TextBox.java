@@ -24,38 +24,56 @@ import me.chan.texas.utils.TexasUtils;
 /**
  * 文本元素
  */
-@RestrictTo(LIBRARY)
 public final class TextBox extends Box {
 	/**
 	 * 什么属性都没有
 	 */
+	@RestrictTo(LIBRARY)
 	public static final int ATTRIBUTE_NONE = 0;
 	/**
 	 * 是否是被追加了 -
 	 */
+	@RestrictTo(LIBRARY)
 	public static final int ATTRIBUTE_PENALTY = 1;
 	/**
 	 * 是否需要缩放
 	 */
+	@RestrictTo(LIBRARY)
 	public static final int ATTRIBUTE_ZOOM_OUT = 2;
 	/**
 	 * 是否需要缩小左边的距离
 	 */
+	@RestrictTo(LIBRARY)
 	public static final int ATTRIBUTE_SQUISH_LEFT = 4;
 	/**
 	 * 是否需要缩小右边的距离
 	 */
+	@RestrictTo(LIBRARY)
 	public static final int ATTRIBUTE_SQUISH_RIGHT = 8;
 
+	@RestrictTo(LIBRARY)
 	public static final int ATTRIBUTE_PENDED_HYPHEN = 16;
 
+	@RestrictTo(LIBRARY)
 	public static final int ATTRIBUTE_RTL = 32;
 
+	@RestrictTo(LIBRARY)
+	public static final int ATTRIBUTE_LINE_HEADER = 64;
+
+	@RestrictTo(LIBRARY)
+	public static final int ATTRIBUTE_LINE_TAILER = 128;
+
+	@RestrictTo(LIBRARY)
+	public static final int ATTRIBUTE_MEASURED = 256;
+
+	@RestrictTo(LIBRARY)
 	static final float ZOOM_OUT_FACTOR = 0.8333f;
 
+	@RestrictTo(LIBRARY)
 	static final int SQUISH_FACTOR = 2;
 
 	private final static ObjectPool<TextBox> POOL = new ObjectPool<>(Texas.getMemoryOption().getTextBufferSize());
+	@RestrictTo(LIBRARY)
 	public final static CharArrayPool CHAR_ARRAY_POOL = new CharArrayPool();
 
 	@VisibleForTesting
@@ -94,6 +112,7 @@ public final class TextBox extends Box {
 		mTextStyle = textStyle;
 	}
 
+	@RestrictTo(LIBRARY)
 	public void copy(@NonNull TextBox other) {
 		if (other.isRecycled() || isRecycled()) {
 			throw new IllegalStateException("other is recycled or current is recycled");
@@ -116,8 +135,11 @@ public final class TextBox extends Box {
 		mBaselineOffset = other.mBaselineOffset;
 
 		mGroupId = other.mGroupId;
+		TexasUtils.copyRect(mInner, other.mInner);
+		TexasUtils.copyRect(mOuter, other.mOuter);
 	}
 
+	@RestrictTo(LIBRARY)
 	public boolean merge(@NonNull TextBox box) {
 		if (this.mGroupId != box.mGroupId) {
 			if (BuildConfig.DEBUG) {
@@ -128,7 +150,6 @@ public final class TextBox extends Box {
 
 		// 目前因为符号问题不能合并的case大概占比 1%不到
 		// 但是能提高 30% 后续遍历的性能
-		// TODO 优化下
 		if (mAttribute != box.mAttribute) {
 			return false;
 		}
@@ -141,6 +162,7 @@ public final class TextBox extends Box {
 		return true;
 	}
 
+	@RestrictTo(LIBRARY)
 	public TextStyle getTextStyle() {
 		return mTextStyle;
 	}
@@ -155,6 +177,14 @@ public final class TextBox extends Box {
 		mBaselineOffset = 0;
 		mGroupId = Hyphenation.NONE_GROUP_ID;
 		POOL.release(this);
+	}
+
+	@Override
+	public boolean isIsolate(boolean backward) {
+		if (backward) {
+			return mInner.right != mOuter.right || hasAttribute(ATTRIBUTE_LINE_TAILER);
+		}
+		return mInner.left != mOuter.left || hasAttribute(ATTRIBUTE_LINE_HEADER);
 	}
 
 	@Override
@@ -190,6 +220,7 @@ public final class TextBox extends Box {
 	/**
 	 * @param penalty 累加另外一个元素的文本值
 	 */
+	@RestrictTo(LIBRARY)
 	public void merge(Penalty penalty) {
 		// check tag ?
 		if (isPenalty()) {
@@ -210,6 +241,7 @@ public final class TextBox extends Box {
 		mEnd = mText.length();
 	}
 
+	@RestrictTo(LIBRARY)
 	public boolean isSameGroup(TextBox box) {
 		if (mGroupId == Hyphenation.NONE_GROUP_ID) {
 			return false;
@@ -219,6 +251,7 @@ public final class TextBox extends Box {
 	}
 
 	@Override
+	@RestrictTo(LIBRARY)
 	public void draw(TexasCanvas canvas, TexasPaint paint, RectF inner, RectF outer, float baselineOffset, StateList states) {
 		float x = inner.left;
 		if (mAttribute != ATTRIBUTE_NONE) {
@@ -243,6 +276,7 @@ public final class TextBox extends Box {
 		return String.valueOf(mText.subSequence(mStart, mEnd));
 	}
 
+	@RestrictTo(LIBRARY)
 	public static void clean() {
 		POOL.clean();
 	}
@@ -253,20 +287,24 @@ public final class TextBox extends Box {
 	}
 
 	@VisibleForTesting
+	@RestrictTo(LIBRARY)
 	public int getStart() {
 		return mStart;
 	}
 
+	@VisibleForTesting
 	@RestrictTo(LIBRARY)
 	public int getEnd() {
 		return mEnd;
 	}
 
 	@VisibleForTesting
+	@RestrictTo(LIBRARY)
 	void setStart(int start) {
 		mStart = start;
 	}
 
+	@RestrictTo(LIBRARY)
 	public static TextBox obtain(@NonNull CharSequence charSequence, int start, int end,
 								 TextStyle textStyle,
 								 Object tag,
@@ -275,12 +313,13 @@ public final class TextBox extends Box {
 		return obtain(charSequence, start, end, textStyle, tag, background, foreground, Hyphenation.NONE_GROUP_ID);
 	}
 
+	@RestrictTo(LIBRARY)
 	public static TextBox obtain(@NonNull CharSequence charSequence, int start, int end,
-								  TextStyle textStyle,
-								  Object tag,
-								  Appearance background,
-								  Appearance foreground,
-								  int groupId) {
+								 TextStyle textStyle,
+								 Object tag,
+								 Appearance background,
+								 Appearance foreground,
+								 int groupId) {
 		TextBox box = POOL.acquire();
 		if (box == null) {
 			box = new TextBox(charSequence, start, end, 0, 0, textStyle);
@@ -309,9 +348,11 @@ public final class TextBox extends Box {
 		mWidth = spec.getWidth();
 		mHeight = spec.getHeight();
 		mBaselineOffset = spec.getBaselineOffset();
+		addAttribute(ATTRIBUTE_MEASURED);
 		spec.recycle();
 	}
 
+	@RestrictTo(LIBRARY)
 	public static TextBox obtain(TextBox raw) {
 		TextBox box = POOL.acquire();
 		if (box == null) {
@@ -322,22 +363,27 @@ public final class TextBox extends Box {
 		return box;
 	}
 
+	@RestrictTo(LIBRARY)
 	public boolean isPenalty() {
 		return hasAttribute(ATTRIBUTE_PENALTY);
 	}
 
+	@RestrictTo(LIBRARY)
 	public void clearAttribute(int flag) {
 		mAttribute &= ~flag;
 	}
 
+	@RestrictTo(LIBRARY)
 	public int getAttribute() {
 		return mAttribute;
 	}
 
+	@RestrictTo(LIBRARY)
 	public void addAttribute(int flag) {
 		mAttribute |= flag;
 	}
 
+	@RestrictTo(LIBRARY)
 	public boolean hasAttribute(int flag) {
 		return (mAttribute & flag) != 0;
 	}

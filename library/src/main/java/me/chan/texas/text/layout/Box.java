@@ -5,10 +5,13 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import androidx.annotation.CallSuper;
 import androidx.annotation.RestrictTo;
 
+import me.chan.texas.measurer.Measurer;
+import me.chan.texas.misc.DefaultRecyclable;
 import me.chan.texas.misc.RectF;
 import me.chan.texas.renderer.core.graphics.TexasCanvas;
 import me.chan.texas.renderer.core.graphics.TexasPaint;
 import me.chan.texas.text.Appearance;
+import me.chan.texas.text.TextAttribute;
 import me.chan.texas.utils.TexasUtils;
 
 /**
@@ -16,8 +19,7 @@ import me.chan.texas.utils.TexasUtils;
  * <p>
  * 比如一个单词，一张图片
  */
-@RestrictTo(LIBRARY)
-public abstract class Box extends Element {
+public abstract class Box extends DefaultRecyclable implements Element {
 	/**
 	 * 增加修改内容参考
 	 * {@link #equals(Object)}
@@ -39,7 +41,8 @@ public abstract class Box extends Element {
 	protected Appearance mForeground;
 
 	private int mSeq;
-
+	protected final RectF mInner = new RectF();
+	protected final RectF mOuter = new RectF();
 
 	/**
 	 * @param width  宽度
@@ -50,14 +53,17 @@ public abstract class Box extends Element {
 		mHeight = height;
 	}
 
+	@RestrictTo(LIBRARY)
 	public void setTag(Object tag) {
 		mTag = tag;
 	}
 
+	@RestrictTo(LIBRARY)
 	public void setBackground(Appearance background) {
 		mBackground = background;
 	}
 
+	@RestrictTo(LIBRARY)
 	public void setForeground(Appearance foreground) {
 		mForeground = foreground;
 	}
@@ -82,6 +88,30 @@ public abstract class Box extends Element {
 		mForeground = null;
 	}
 
+	/**
+	 * @param backward 向后遍历
+	 * @return 是否是孤立的，孤立的意思是旁边是空格
+	 */
+	public abstract boolean isIsolate(boolean backward);
+
+	@RestrictTo(LIBRARY)
+	public final void setInnerBounds(RectF rectF) {
+		TexasUtils.copyRect(mInner, rectF);
+	}
+
+	public RectF getInnerBounds() {
+		return mInner;
+	}
+
+	@RestrictTo(LIBRARY)
+	public final void setOuterBounds(RectF rectF) {
+		TexasUtils.copyRect(mOuter, rectF);
+	}
+
+	public RectF getOuterBounds() {
+		return mOuter;
+	}
+
 	@RestrictTo(LIBRARY)
 	public int getSeq() {
 		return mSeq;
@@ -92,10 +122,12 @@ public abstract class Box extends Element {
 		mSeq = seq;
 	}
 
+	@RestrictTo(LIBRARY)
 	public Appearance getBackground() {
 		return mBackground;
 	}
 
+	@RestrictTo(LIBRARY)
 	public Appearance getForeground() {
 		return mForeground;
 	}
@@ -104,6 +136,7 @@ public abstract class Box extends Element {
 		return mTag;
 	}
 
+	@RestrictTo(LIBRARY)
 	public abstract void draw(TexasCanvas canvas, TexasPaint paint, RectF inner, RectF outer, float baselineOffset, StateList states);
 
 	@Override
@@ -117,4 +150,17 @@ public abstract class Box extends Element {
 				TexasUtils.equals(mBackground, box.mBackground) &&
 				TexasUtils.equals(mForeground, box.mForeground);
 	}
+
+	@RestrictTo(LIBRARY)
+	public void linkBounds(Box current) {
+		float mid = (mInner.right + current.mInner.left) / 2.0f;
+		mOuter.right = current.mOuter.left = mid;
+	}
+
+	@Override
+	public final void measure(Measurer measurer, TextAttribute textAttribute) {
+		onMeasure(measurer, textAttribute);
+	}
+
+	abstract protected void onMeasure(Measurer measurer, TextAttribute textAttribute);
 }

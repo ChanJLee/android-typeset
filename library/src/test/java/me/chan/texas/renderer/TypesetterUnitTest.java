@@ -104,8 +104,8 @@ public class TypesetterUnitTest {
 		});
 
 		checkContentPredication("一二三四五六七八九", BreakStrategy.SIMPLE, 5, 1, Paragraph.TYPESET_POLICY_DEFAULT, new String[]{
-				"一 二 三 四 五",
-				"六 七 八 九",
+				"一二三四五",
+				"六七八九",
 		});
 	}
 
@@ -132,18 +132,17 @@ public class TypesetterUnitTest {
 		});
 
 		checkContentPredication("一二三四五六七八九", BreakStrategy.BALANCED, 5, 1, Paragraph.TYPESET_POLICY_DEFAULT, new String[]{
-				"一 二 三 四 五",
-				"六 七 八 九"
+				"一二三四五",
+				"六七八九"
 		});
-
 	}
 
 	@Test
 	public void testParagraphVisit() throws NoSuchFieldException, InterruptedException, IllegalAccessException, ParagraphVisitor.VisitException {
 		Paragraph paragraph = checkContentPredication("一二三四五六七八九一二三四", BreakStrategy.BALANCED, 5, 1, Paragraph.TYPESET_POLICY_DEFAULT, new String[]{
-				"一 二 三 四 五",
-				"六 七 八 九 一",
-				"二 三 四"
+				"一二三四五",
+				"六七八九一",
+				"二三四"
 		});
 		new ParagraphVisitor() {
 
@@ -341,7 +340,7 @@ public class TypesetterUnitTest {
 			for (int j = 0; j < layout.getLineCount(); ++j) {
 				Line line = layout.getLine(j);
 				StringBuilder stringBuilder = new StringBuilder();
-				for (int k = 0; k < line.getCount(); ++k) {
+				for (int k = 0; k < line.getElementCount(); ++k) {
 					Element element = line.getElement(k);
 					if (element instanceof TextBox) {
 						TextBox box = (TextBox) element;
@@ -426,7 +425,7 @@ public class TypesetterUnitTest {
 
 		for (int i = 0; i < layout.getLineCount(); ++i) {
 			Line line = layout.getLine(i);
-			Assert.assertEquals(line.toString(), exceptedLines[i]);
+			Assert.assertEquals(exceptedLines[i], line.toString());
 		}
 
 		BoundCheckDrawer drawer = new BoundCheckDrawer(lineWidth);
@@ -471,6 +470,7 @@ public class TypesetterUnitTest {
 			}
 
 			Paragraph paragraph = (Paragraph) segment;
+			paragraph.measure(measurer, new TextAttribute(measurer));
 			texTypesetter.typeset(paragraph, breakStrategy, (int) lineWidth);
 			assertNotNull(paragraph);
 			Layout layout = paragraph.getLayout();
@@ -479,7 +479,7 @@ public class TypesetterUnitTest {
 			for (int j = 0; j < layout.getLineCount(); ++j) {
 				Line l = layout.getLine(j);
 
-				for (int x = 0; x < l.getCount(); ++x) {
+				for (int x = 0; x < l.getElementCount(); ++x) {
 					Element element = l.getElement(x);
 					if (!(element instanceof TextBox)) {
 						continue;

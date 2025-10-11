@@ -43,7 +43,7 @@ public class TexParagraphTypesetterCompat extends AbsParagraphTypesetter {
 
 	@Nullable
 	@Override
-	public boolean typeset(Paragraph paragraph, BreakStrategy breakStrategy, int width) {
+	protected boolean onTypeset(Paragraph paragraph, BreakStrategy breakStrategy, int width) {
 		// 先获取active list，尽量从最小的伸缩度来计算
 		ActiveNodes activeList = null;
 		float tolerance = 1 - STRETCH_STEP_RATIO;
