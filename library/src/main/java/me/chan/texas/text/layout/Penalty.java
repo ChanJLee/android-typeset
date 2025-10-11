@@ -5,7 +5,6 @@ import androidx.annotation.RestrictTo;
 
 import me.chan.texas.Texas;
 import me.chan.texas.measurer.Measurer;
-import me.chan.texas.misc.ObjectPool;
 import me.chan.texas.text.TextAttribute;
 import me.chan.texas.text.TextStyle;
 
@@ -15,8 +14,7 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY;
  * 代表添加的'-'符号
  */
 @RestrictTo(LIBRARY)
-public class Penalty extends Element {
-	private final static ObjectPool<Penalty> POOL = new ObjectPool<>(16);
+public class Penalty implements Element {
 	public final static Penalty FORCE_BREAK = new Penalty() {
 		@Override
 		public float getHeight() {
@@ -36,15 +34,6 @@ public class Penalty extends Element {
 		@Override
 		public float getWidth() {
 			return 0;
-		}
-
-		@Override
-		protected void onRecycle() {
-			/* NOOP */
-		}
-
-		@Override
-		public void onMeasure(Measurer measurer, TextAttribute textAttribute) {
 		}
 
 		@Override
@@ -86,15 +75,6 @@ public class Penalty extends Element {
 		@Override
 		public float getWidth() {
 			return 0;
-		}
-
-		@Override
-		protected void onRecycle() {
-			/* NOOP */
-		}
-
-		@Override
-		protected void onMeasure(Measurer measurer, TextAttribute textAttribute) {
 		}
 
 		@Override
@@ -158,17 +138,7 @@ public class Penalty extends Element {
 	}
 
 	@Override
-	protected void onRecycle() {
-		mWidth = mHeight = 0;
-		mPenalty = 0;
-		mFlag = false;
-		mTag = null;
-		mTextStyle = null;
-		POOL.release(this);
-	}
-
-	@Override
-	protected void onMeasure(Measurer measurer, TextAttribute textAttribute) {
+	public void measure(Measurer measurer, TextAttribute textAttribute) {
 		if (!mFlag) {
 			mWidth = mHeight = 0;
 			return;
@@ -187,10 +157,6 @@ public class Penalty extends Element {
 		spec.recycle();
 	}
 
-	public static void clean() {
-		POOL.clean();
-	}
-
 	public static Penalty obtainFakePenalty(float penalty) {
 		return obtain(penalty, false, null, null);
 	}
@@ -203,12 +169,7 @@ public class Penalty extends Element {
 	@NonNull
 	public static Penalty obtain(float penalty, boolean flag/* 不是连字符 true, 连字符 false */,
 								 Object tag, TextStyle textStyle) {
-		Penalty p = POOL.acquire();
-		if (p == null) {
-			p = new Penalty();
-		} else {
-			p.reuse();
-		}
+		Penalty p = new Penalty();
 		p.mFlag = flag;
 		p.mPenalty = penalty;
 		p.mTag = tag;

@@ -3,20 +3,15 @@ package me.chan.texas.text.layout;
 import androidx.annotation.RestrictTo;
 
 import me.chan.texas.measurer.Measurer;
-import me.chan.texas.misc.DefaultRecyclable;
 import me.chan.texas.text.TextAttribute;
-
-import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
 /**
  * 排版算法中基本元素的接口
  */
-@RestrictTo(LIBRARY)
-public abstract class Element extends DefaultRecyclable {
+@RestrictTo(RestrictTo.Scope.LIBRARY)
+public interface Element {
 
-	public final void measure(Measurer measurer, TextAttribute textAttribute) {
-		onMeasure(measurer, textAttribute);
-	}
+	void measure(Measurer measurer, TextAttribute textAttribute);
 
-	protected abstract void onMeasure(Measurer measurer, TextAttribute textAttribute);
+	default void recycle() {}
 }
