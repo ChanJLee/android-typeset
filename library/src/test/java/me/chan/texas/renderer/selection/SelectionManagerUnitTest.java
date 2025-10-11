@@ -586,7 +586,7 @@ public class SelectionManagerUnitTest {
 		}
 
 		@Override
-		public void render(@NonNull Paragraph paragraph, @NonNull PaintSet paintSet, @NonNull RenderOption renderOption, @Nullable ParagraphDecor decor, @Nullable SpanTouchEventHandler spanClickedEventHandler) {
+		public void render(@NonNull Paragraph paragraph, @NonNull PaintSet paintSet, @NonNull RenderOption renderOption, @Nullable SpanTouchEventHandler spanClickedEventHandler) {
 
 		}
 
@@ -632,6 +632,11 @@ public class SelectionManagerUnitTest {
 
 		@Override
 		public void setOnMeasureInterceptor(OnMeasureInterceptor interceptor) {
+
+		}
+
+		@Override
+		public void setRendererListener(RendererListener rendererListener) {
 
 		}
 	}

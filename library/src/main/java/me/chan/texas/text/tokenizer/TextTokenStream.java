@@ -10,7 +10,6 @@ import me.chan.texas.misc.BitBucket32;
 import me.chan.texas.misc.DefaultRecyclable;
 import me.chan.texas.misc.ObjectPool;
 import me.chan.texas.text.icu.UnicodeUtils;
-import me.chan.texas.trace.TraceEvent;
 import me.chan.texas.utils.LongArray;
 
 class TextTokenStream extends DefaultRecyclable implements TokenStream {
@@ -138,9 +137,6 @@ class TextTokenStream extends DefaultRecyclable implements TokenStream {
 				/* https://www.compart.com/en/unicode/category/So */
 				|| type == Character.OTHER_SYMBOL) {
 			appendSymbolOrPunctuation(brk, Token.CATEGORY_SYMBOL, type, codePoint, end);
-			if (end - start > 1) {
-				TraceEvent.error("TokenStream, unknown symbol1: " + text.subSequence(start, end));
-			}
 			return;
 		}
 
@@ -151,9 +147,6 @@ class TextTokenStream extends DefaultRecyclable implements TokenStream {
 				|| type == Character.OTHER_PUNCTUATION
 				|| type == Character.START_PUNCTUATION) {
 			appendSymbolOrPunctuation(brk, Token.CATEGORY_PUNCTUATION, type, codePoint, end);
-			if (end - start > 1) {
-				TraceEvent.error("TokenStream, unknown symbol2: " + text.subSequence(start, end));
-			}
 			return;
 		}
 

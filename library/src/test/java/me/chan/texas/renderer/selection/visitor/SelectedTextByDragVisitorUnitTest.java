@@ -26,6 +26,7 @@ import me.chan.texas.text.layout.Layout;
 import me.chan.texas.text.layout.Line;
 import me.chan.texas.text.layout.Penalty;
 import me.chan.texas.text.layout.TextBox;
+import me.chan.texas.typesetter.AbsParagraphTypesetter;
 import me.chan.texas.typesetter.ParagraphTypesetter;
 
 public class SelectedTextByDragVisitorUnitTest {
@@ -217,7 +218,10 @@ public class SelectedTextByDragVisitorUnitTest {
 		Assert.assertEquals(3, rectF.bottom, 0.001);
 
 		selectedTextByDragVisitor.clear();
-		paragraph.setRect(new Rect(1, 2, 3, 4));
+		paragraph.setPadding(new Rect(1, 2, 3, 4));
+		texTypesetter = new ParagraphTypesetter();
+		paragraph.measure(measurer, textAttribute);
+		texTypesetter.typeset(paragraph, BreakStrategy.SIMPLE, 4);
 		selectedTextByDragVisitor.reset(Selection.Type.SELECTION, Selection.Styles.create(0, 0), paragraph, renderOption);
 		tempX1 = 0;
 		tempY1 = 6.5f;
@@ -335,49 +339,49 @@ public class SelectedTextByDragVisitorUnitTest {
 		layout.addLine(line);
 
 		line = Line.obtain();
-		line.add(triBox);
-		line.add(angBox);
+		line.add(TextBox.obtain(triBox));
+		line.add(TextBox.obtain(angBox));
 		line.setLineWidth(triBox.getWidth() + angBox.getWidth());
 		line.setRatio(0);
 		line.setLineHeight(1);
 		layout.addLine(line);
 
 		line = Line.obtain();
-		line.add(triBox);
-		line.add(angBox);
+		line.add(TextBox.obtain(triBox));
+		line.add(TextBox.obtain(angBox));
 		line.setLineWidth(triBox.getWidth() + angBox.getWidth());
 		line.setRatio(0);
 		line.setLineHeight(1);
 		layout.addLine(line);
 
 		line = Line.obtain();
-		line.add(triBox);
-		line.add(angBox);
+		line.add(TextBox.obtain(triBox));
+		line.add(TextBox.obtain(angBox));
 		line.setLineWidth(triBox.getWidth() + angBox.getWidth());
 		line.setRatio(0);
 		line.setLineHeight(1);
 		layout.addLine(line);
 
 		line = Line.obtain();
-		line.add(triBox);
-		line.add(angBox);
+		line.add(TextBox.obtain(triBox));
+		line.add(TextBox.obtain(angBox));
 		line.setLineWidth(triBox.getWidth() + angBox.getWidth());
 		line.setRatio(0);
 		line.setLineHeight(1);
 		layout.addLine(line);
 
 		line = Line.obtain();
-		line.add(triBox);
-		line.add(angBox);
+		line.add(TextBox.obtain(triBox));
+		line.add(TextBox.obtain(angBox));
 		line.add(glue);
-		line.add(box123);
+		line.add(TextBox.obtain(box123));
 		line.setLineWidth(glue.getWidth() + box123.getWidth() + triBox.getWidth() + angBox.getWidth());
 		line.setRatio(0);
 		line.setLineHeight(1);
 		layout.addLine(line);
 
-		layout.setContentSize(10, 6);
 		paragraph.swap(layout);
+		AbsParagraphTypesetter.buildLayoutBounds(paragraph, 10);
 
 		//0-1 123 trian-
 		//1-2

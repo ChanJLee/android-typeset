@@ -2,8 +2,14 @@ package me.chan.texas.text;
 
 import android.graphics.drawable.ColorDrawable;
 
+import androidx.annotation.NonNull;
+
 import me.chan.texas.TestUtils;
+import me.chan.texas.di.FakeMeasureFactory;
 import me.chan.texas.misc.PaintSet;
+import me.chan.texas.misc.RectF;
+import me.chan.texas.renderer.ParagraphVisitor;
+import me.chan.texas.renderer.RendererContext;
 import me.chan.texas.test.mock.MockTextPaint;
 
 import me.chan.texas.Texas;
@@ -12,6 +18,7 @@ import me.chan.texas.hyphenation.Hyphenation;
 import me.chan.texas.measurer.Measurer;
 import me.chan.texas.measurer.MockMeasurer;
 import me.chan.texas.renderer.RenderOption;
+import me.chan.texas.text.layout.Box;
 import me.chan.texas.text.layout.DrawableBox;
 import me.chan.texas.text.layout.Element;
 import me.chan.texas.text.layout.Glue;
@@ -21,6 +28,8 @@ import me.chan.texas.text.layout.Penalty;
 import me.chan.texas.text.layout.SymbolGlue;
 import me.chan.texas.text.layout.TextBox;
 import me.chan.texas.text.tokenizer.Token;
+import me.chan.texas.text.util.TexasIterator;
+import me.chan.texas.typesetter.ParagraphTypesetter;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -40,6 +49,50 @@ public class ParagraphUnitTest {
 		mMeasurer = new MockMeasurer(mockTextPaint);
 		mTextAttribute = new TextAttribute(mMeasurer);
 		mPaintSet = new PaintSet(mockTextPaint);
+	}
+
+	@Test
+	public void testIterator() {
+		Paragraph paragraph = Paragraph.obtain();
+		Layout layout = Layout.obtain();
+		paragraph.swap(layout);
+
+		Line l1 = Line.obtain();
+		Line l2 = Line.obtain();
+		Line l3 = Line.obtain();
+
+		layout.addLine(l1);
+		layout.addLine(l2);
+		layout.addLine(l3);
+
+		TexasIterator<Line> iterator = paragraph.iterator();
+
+		Assert.assertNull(iterator.current());
+		Assert.assertNull(iterator.prev());
+
+		Assert.assertSame(l1, iterator.next());
+		Assert.assertSame(l1, iterator.current());
+		Assert.assertNull(iterator.prev());
+
+		Assert.assertSame(l2, iterator.next());
+		Assert.assertSame(l2, iterator.current());
+		Assert.assertSame(l1, iterator.prev());
+
+		// test prev
+		int state = iterator.save();
+		Assert.assertSame(l2, iterator.next());
+		Assert.assertSame(l2, iterator.current());
+		Assert.assertSame(l1, iterator.prev());
+		iterator.next();
+
+		Assert.assertSame(l3, iterator.next());
+		Assert.assertSame(l3, iterator.current());
+		Assert.assertNull(iterator.next());
+
+		Assert.assertSame(l1, iterator.restore(state));
+		Assert.assertSame(l2, iterator.next());
+		Assert.assertSame(l2, iterator.current());
+		Assert.assertSame(l1, iterator.prev());
 	}
 
 	@Test
@@ -1133,7 +1186,6 @@ public class ParagraphUnitTest {
 		Assert.assertTrue(paragraph.getElement(0) instanceof TextBox);
 		Assert.assertTrue(paragraph.getElement(1) instanceof Glue);
 		Assert.assertTrue(paragraph.getElement(2) instanceof TextBox);
-		// TODO should support?
 		Assert.assertTrue(paragraph.getElement(3) == Penalty.ADVISE_BREAK);
 		Assert.assertTrue(paragraph.getElement(4) instanceof TextBox);
 		Assert.assertTrue(paragraph.getElement(5) instanceof Glue);
@@ -1271,5 +1323,197 @@ public class ParagraphUnitTest {
 				.text("hello");
 		paragraph = builder.build();
 		Assert.assertTrue(paragraph.hasContent());
+	}
+
+	@Test
+	public void testRendererContext() throws ParagraphVisitor.VisitException {
+		FakeMeasureFactory factory = FakeMeasureFactory.getInstance();
+		factory.getMockTextPaint().setMockTextSize(1);
+
+		RenderOption renderOption = new RenderOption();
+		renderOption.setLineSpacingExtra(1);
+		Measurer measurer = new MockMeasurer(factory.getMockTextPaint());
+
+		TexasOption texasOption = new TexasOption(new PaintSet(factory.getMockTextPaint()), Hyphenation.getInstance(), measurer, new TextAttribute(measurer), new RenderOption());
+		Paragraph.Builder builder = Paragraph.Builder.newBuilder(texasOption);
+		Paragraph paragraph = builder
+				.text("1 2 3")
+				.brk()
+				.text("4 5 6")
+				.brk()
+				.text("7 8 9")
+				.brk()
+				.build();
+
+		ParagraphTypesetter texTypesetter = new ParagraphTypesetter();
+
+		paragraph.measure(measurer, new TextAttribute(measurer));
+		texTypesetter.typeset(paragraph, BreakStrategy.SIMPLE, 10);
+
+		Layout layout = paragraph.getLayout();
+		Assert.assertEquals(3, layout.getLineCount());
+
+		ParagraphVisitor visitor = new ParagraphVisitor() {
+			@Override
+			protected void onVisitParagraphStart(Paragraph paragraph) {
+
+			}
+
+			@Override
+			protected void onVisitParagraphEnd(Paragraph paragraph) {
+
+			}
+
+			@Override
+			protected void onVisitLineStart(Line line, float x, float y) {
+
+			}
+
+			@Override
+			protected void onVisitLineEnd(Line line, float x, float y) {
+
+			}
+
+			@Override
+			protected void onVisitBox(Box box, RectF inner, RectF outer, @NonNull RendererContext context) {
+				Assert.assertSame(box, context.getBox());
+				if ("1".equals(box.toString())) {
+					Assert.assertTrue(context.checkLocation(RendererContext.LOCATION_LINE_START));
+					Assert.assertFalse(context.checkLocation(RendererContext.LOCATION_LINE_END));
+					Assert.assertFalse(context.checkLocation(RendererContext.LOCATION_LINE_MIDDLE));
+					Assert.assertTrue(context.checkLocation(RendererContext.LOCATION_PARAGRAPH_START));
+					Assert.assertFalse(context.checkLocation(RendererContext.LOCATION_PARAGRAPH_END));
+					Assert.assertFalse(context.checkLocation(RendererContext.LOCATION_PARAGRAPH_MIDDLE));
+					Assert.assertTrue(box.isIsolate(true));
+					Assert.assertTrue(box.isIsolate(false));
+					Assert.assertEquals(0, context.getIndex());
+				} else if ("2".equals(box.toString())) {
+					Assert.assertFalse(context.checkLocation(RendererContext.LOCATION_LINE_START));
+					Assert.assertFalse(context.checkLocation(RendererContext.LOCATION_LINE_END));
+					Assert.assertTrue(context.checkLocation(RendererContext.LOCATION_LINE_MIDDLE));
+					Assert.assertTrue(context.checkLocation(RendererContext.LOCATION_PARAGRAPH_START));
+					Assert.assertFalse(context.checkLocation(RendererContext.LOCATION_PARAGRAPH_END));
+					Assert.assertFalse(context.checkLocation(RendererContext.LOCATION_PARAGRAPH_MIDDLE));
+					Assert.assertTrue(box.isIsolate(true));
+					Assert.assertTrue(box.isIsolate(false));
+					Assert.assertEquals(1, context.getIndex());
+				} else if ("3".equals(box.toString())) {
+					Assert.assertFalse(context.checkLocation(RendererContext.LOCATION_LINE_START));
+					Assert.assertTrue(context.checkLocation(RendererContext.LOCATION_LINE_END));
+					Assert.assertFalse(context.checkLocation(RendererContext.LOCATION_LINE_MIDDLE));
+					Assert.assertTrue(context.checkLocation(RendererContext.LOCATION_PARAGRAPH_START));
+					Assert.assertFalse(context.checkLocation(RendererContext.LOCATION_PARAGRAPH_END));
+					Assert.assertFalse(context.checkLocation(RendererContext.LOCATION_PARAGRAPH_MIDDLE));
+					Assert.assertTrue(box.isIsolate(true));
+					Assert.assertTrue(box.isIsolate(false));
+					Assert.assertEquals(2, context.getIndex());
+				} else if ("4".equals(box.toString())) {
+					Assert.assertTrue(context.checkLocation(RendererContext.LOCATION_LINE_START));
+					Assert.assertFalse(context.checkLocation(RendererContext.LOCATION_LINE_END));
+					Assert.assertFalse(context.checkLocation(RendererContext.LOCATION_LINE_MIDDLE));
+					Assert.assertFalse(context.checkLocation(RendererContext.LOCATION_PARAGRAPH_START));
+					Assert.assertFalse(context.checkLocation(RendererContext.LOCATION_PARAGRAPH_END));
+					Assert.assertTrue(context.checkLocation(RendererContext.LOCATION_PARAGRAPH_MIDDLE));
+					Assert.assertTrue(box.isIsolate(true));
+					Assert.assertTrue(box.isIsolate(false));
+					Assert.assertEquals(0, context.getIndex());
+				} else if ("5".equals(box.toString())) {
+					Assert.assertFalse(context.checkLocation(RendererContext.LOCATION_LINE_START));
+					Assert.assertFalse(context.checkLocation(RendererContext.LOCATION_LINE_END));
+					Assert.assertTrue(context.checkLocation(RendererContext.LOCATION_LINE_MIDDLE));
+					Assert.assertFalse(context.checkLocation(RendererContext.LOCATION_PARAGRAPH_START));
+					Assert.assertFalse(context.checkLocation(RendererContext.LOCATION_PARAGRAPH_END));
+					Assert.assertTrue(context.checkLocation(RendererContext.LOCATION_PARAGRAPH_MIDDLE));
+					Assert.assertTrue(box.isIsolate(true));
+					Assert.assertTrue(box.isIsolate(false));
+					Assert.assertEquals(1, context.getIndex());
+				} else if ("6".equals(box.toString())) {
+					Assert.assertFalse(context.checkLocation(RendererContext.LOCATION_LINE_START));
+					Assert.assertTrue(context.checkLocation(RendererContext.LOCATION_LINE_END));
+					Assert.assertFalse(context.checkLocation(RendererContext.LOCATION_LINE_MIDDLE));
+					Assert.assertFalse(context.checkLocation(RendererContext.LOCATION_PARAGRAPH_START));
+					Assert.assertFalse(context.checkLocation(RendererContext.LOCATION_PARAGRAPH_END));
+					Assert.assertTrue(context.checkLocation(RendererContext.LOCATION_PARAGRAPH_MIDDLE));
+					Assert.assertTrue(box.isIsolate(true));
+					Assert.assertTrue(box.isIsolate(false));
+					Assert.assertEquals(2, context.getIndex());
+				} else if ("7".equals(box.toString())) {
+					Assert.assertTrue(context.checkLocation(RendererContext.LOCATION_LINE_START));
+					Assert.assertFalse(context.checkLocation(RendererContext.LOCATION_LINE_END));
+					Assert.assertFalse(context.checkLocation(RendererContext.LOCATION_LINE_MIDDLE));
+					Assert.assertFalse(context.checkLocation(RendererContext.LOCATION_PARAGRAPH_START));
+					Assert.assertTrue(context.checkLocation(RendererContext.LOCATION_PARAGRAPH_END));
+					Assert.assertFalse(context.checkLocation(RendererContext.LOCATION_PARAGRAPH_MIDDLE));
+					Assert.assertTrue(box.isIsolate(true));
+					Assert.assertTrue(box.isIsolate(false));
+				} else if ("8".equals(box.toString())) {
+					Assert.assertFalse(context.checkLocation(RendererContext.LOCATION_LINE_START));
+					Assert.assertFalse(context.checkLocation(RendererContext.LOCATION_LINE_END));
+					Assert.assertTrue(context.checkLocation(RendererContext.LOCATION_LINE_MIDDLE));
+					Assert.assertFalse(context.checkLocation(RendererContext.LOCATION_PARAGRAPH_START));
+					Assert.assertTrue(context.checkLocation(RendererContext.LOCATION_PARAGRAPH_END));
+					Assert.assertFalse(context.checkLocation(RendererContext.LOCATION_PARAGRAPH_MIDDLE));
+					Assert.assertTrue(box.isIsolate(true));
+					Assert.assertTrue(box.isIsolate(false));
+					Assert.assertEquals(1, context.getIndex());
+				} else {
+					Assert.assertFalse(context.checkLocation(RendererContext.LOCATION_LINE_START));
+					Assert.assertTrue(context.checkLocation(RendererContext.LOCATION_LINE_END));
+					Assert.assertFalse(context.checkLocation(RendererContext.LOCATION_LINE_MIDDLE));
+					Assert.assertFalse(context.checkLocation(RendererContext.LOCATION_PARAGRAPH_START));
+					Assert.assertTrue(context.checkLocation(RendererContext.LOCATION_PARAGRAPH_END));
+					Assert.assertFalse(context.checkLocation(RendererContext.LOCATION_PARAGRAPH_MIDDLE));
+					Assert.assertTrue(box.isIsolate(true));
+					Assert.assertTrue(box.isIsolate(false));
+					Assert.assertEquals(2, context.getIndex());
+				}
+			}
+		};
+		visitor.visit(paragraph);
+
+
+		builder = Paragraph.Builder.newBuilder(texasOption);
+		paragraph = builder
+				.text("1")
+				.brk()
+				.build();
+
+		paragraph.measure(measurer, new TextAttribute(measurer));
+		texTypesetter.typeset(paragraph, BreakStrategy.SIMPLE, 10);
+
+		layout = paragraph.getLayout();
+		Assert.assertEquals(1, layout.getLineCount());
+		visitor = new ParagraphVisitor() {
+			@Override
+			protected void onVisitParagraphStart(Paragraph paragraph) {
+
+			}
+
+			@Override
+			protected void onVisitParagraphEnd(Paragraph paragraph) {
+
+			}
+
+			@Override
+			protected void onVisitLineStart(Line line, float x, float y) {
+
+			}
+
+			@Override
+			protected void onVisitLineEnd(Line line, float x, float y) {
+
+			}
+
+			@Override
+			protected void onVisitBox(Box box, RectF inner, RectF outer, @NonNull RendererContext context) {
+				Assert.assertTrue(context.checkLocation(RendererContext.LOCATION_LINE_START));
+				Assert.assertTrue(context.checkLocation(RendererContext.LOCATION_LINE_END));
+				Assert.assertFalse(context.checkLocation(RendererContext.LOCATION_LINE_MIDDLE));
+				Assert.assertTrue(context.checkLocation(RendererContext.LOCATION_PARAGRAPH_START));
+				Assert.assertTrue(context.checkLocation(RendererContext.LOCATION_PARAGRAPH_END));
+				Assert.assertFalse(context.checkLocation(RendererContext.LOCATION_PARAGRAPH_MIDDLE));
+			}
+		};
+		visitor.visit(paragraph);
 	}
 }

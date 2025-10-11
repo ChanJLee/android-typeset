@@ -129,10 +129,8 @@ public class Texas {
 			// do clean
 			// add engine clean code
 			TextBox.clean();
-			Glue.clean();
 			Line.clean();
 			Paragraph.clean();
-			Penalty.clean();
 			Figure.clean();
 			DrawableBox.clean();
 			Paragraph.Builder.clean();

@@ -17,6 +17,7 @@ import me.chan.texas.text.layout.Glue;
 import me.chan.texas.text.layout.Line;
 import me.chan.texas.text.layout.Penalty;
 import me.chan.texas.text.layout.TextBox;
+import me.chan.texas.text.util.TexasIterator;
 import me.chan.texas.typesetter.tex.Candidate;
 import me.chan.texas.typesetter.tex.Node;
 import me.chan.texas.typesetter.tex.Sum;
@@ -58,17 +59,17 @@ public class DataUnitTest {
 		glue.measure(mMockMeasurer, mTextAttribute);
 		Assert.assertNotNull(glue);
 
-		Assert.assertFalse(glue.isRecycled());
+//		Assert.assertFalse(glue.isRecycled());
 		Assert.assertEquals("check width: ", glue.getWidth(), mTextAttribute.getSpaceWidth(), 0);
 		Assert.assertEquals("check stretch: ", glue.getStretch(), mTextAttribute.getSpaceStretch(), 0);
 		Assert.assertEquals("check shrink: ", glue.getShrink(), mTextAttribute.getSpaceShrink(), 0);
 
 		Glue previous = glue;
 		glue.recycle();
-		Assert.assertTrue(glue.isRecycled());
-		Assert.assertEquals("check width: ", glue.getWidth(), 0, 0);
-		Assert.assertEquals("check stretch: ", glue.getStretch(), 0, 0);
-		Assert.assertEquals("check shrink: ", glue.getShrink(), 0, 0);
+		//Assert.assertTrue(glue.isRecycled());
+		Assert.assertEquals("check width: ", glue.getWidth(), mTextAttribute.getSpaceWidth(), 0);
+		Assert.assertEquals("check stretch: ", glue.getStretch(), mTextAttribute.getSpaceStretch(), 0);
+		Assert.assertEquals("check shrink: ", glue.getShrink(), mTextAttribute.getSpaceShrink(), 0);
 
 		// test recycle twice
 		glue.recycle();
@@ -78,8 +79,8 @@ public class DataUnitTest {
 		glue = Glue.obtain();
 		glue.measure(mMockMeasurer, mTextAttribute);
 		Assert.assertNotNull(glue);
-		Assert.assertSame(previous, glue);
-		Assert.assertFalse(glue.isRecycled());
+		Assert.assertNotSame(previous, glue);
+//		Assert.assertFalse(glue.isRecycled());
 		Assert.assertEquals("check width: ", glue.getWidth(), mTextAttribute.getSpaceWidth(), 0);
 		Assert.assertEquals("check stretch: ", glue.getStretch(), mTextAttribute.getSpaceStretch(), 0);
 		Assert.assertEquals("check shrink: ", glue.getShrink(), mTextAttribute.getSpaceShrink(), 0);
@@ -102,7 +103,7 @@ public class DataUnitTest {
 		penalty.measure(mMockMeasurer, mTextAttribute);
 		Assert.assertNotNull(penalty);
 
-		Assert.assertFalse(penalty.isRecycled());
+//		Assert.assertFalse(penalty.isRecycled());
 		Assert.assertEquals("check width: ", penalty.getWidth(), mTextAttribute.getHyphenWidth(), 0);
 		Assert.assertEquals("check height: ", penalty.getHeight(), mTextAttribute.getHyphenHeight(), 0);
 		Assert.assertEquals("check penalty: ", penalty.getPenalty(), 2, 0);
@@ -117,7 +118,7 @@ public class DataUnitTest {
 //		Assert.assertEquals("check height: ", penalty.getHeight(), -1, 0);
 //		Assert.assertEquals("check penalty: ", penalty.getPenalty(), -1, 0);
 //		Assert.assertFalse("check flag", penalty.isFlag());
-		TestUtils.testRecycled(penalty);
+//		TestUtils.testRecycled(penalty);
 
 		// test recycle twice
 		penalty.recycle();
@@ -134,8 +135,8 @@ public class DataUnitTest {
 		penalty = Penalty.obtain(5, false, tag2, textStyle1);
 		penalty.measure(mMockMeasurer, mTextAttribute);
 		Assert.assertNotNull(penalty);
-		Assert.assertSame(penalty, prev);
-		Assert.assertFalse(penalty.isRecycled());
+		Assert.assertNotSame(penalty, prev);
+//		Assert.assertFalse(penalty.isRecycled());
 		Assert.assertSame(penalty.getTextStyle(), textStyle1);
 		Assert.assertSame(penalty.getTag(), tag2);
 		Assert.assertEquals("check width: ", penalty.getWidth(), 0, 0);
@@ -281,7 +282,7 @@ public class DataUnitTest {
 		Glue glue = Glue.obtain();
 		glue.measure(mMockMeasurer, mTextAttribute);
 		Assert.assertNotNull(glue);
-		Assert.assertFalse(glue.isRecycled());
+//		Assert.assertFalse(glue.isRecycled());
 		sum.increase(glue);
 		Assert.assertEquals(sum.getWidth(), glue.getWidth(), 0);
 		Assert.assertEquals(sum.getShrink(), glue.getShrink(), 0);
@@ -406,6 +407,44 @@ public class DataUnitTest {
 	}
 
 	@Test
+	public void testDocumentIterator() {
+		Figure f1 = Figure.obtain("", 1, 2);
+		Figure f2 = Figure.obtain("", 1, 2);
+		Figure f3 = Figure.obtain("", 1, 2);
+		Document.Builder builder = new Document.Builder();
+		builder.addSegment(f1).addSegment(f2).addSegment(f3);
+		Document document = builder.build();
+
+		TexasIterator<Segment> iterator = document.iterator();
+		Assert.assertNull(iterator.current());
+		Assert.assertNull(iterator.prev());
+
+		Assert.assertSame(f1, iterator.next());
+		Assert.assertSame(f1, iterator.current());
+		Assert.assertNull(iterator.prev());
+
+		Assert.assertSame(f2, iterator.next());
+		Assert.assertSame(f2, iterator.current());
+		Assert.assertSame(f1, iterator.prev());
+
+		// test prev
+		int state = iterator.save();
+		Assert.assertSame(f2, iterator.next());
+		Assert.assertSame(f2, iterator.current());
+		Assert.assertSame(f1, iterator.prev());
+		iterator.next();
+
+		Assert.assertSame(f3, iterator.next());
+		Assert.assertSame(f3, iterator.current());
+		Assert.assertNull(iterator.next());
+
+		Assert.assertSame(f1, iterator.restore(state));
+		Assert.assertSame(f2, iterator.next());
+		Assert.assertSame(f2, iterator.current());
+		Assert.assertSame(f1, iterator.prev());
+	}
+
+	@Test
 	public void testDocument() {
 		String msg = "hello";
 		Document.Builder document = new Document.Builder();
@@ -483,7 +522,7 @@ public class DataUnitTest {
 
 			}
 		};
-		viewSegment.setRect(rect);
+		viewSegment.setPadding(rect);
 
 		Assert.assertNotSame(viewSegment, p);
 		Assert.assertSame(viewSegment.getRect(), rect);

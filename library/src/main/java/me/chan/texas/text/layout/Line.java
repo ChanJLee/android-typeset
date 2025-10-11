@@ -1,5 +1,6 @@
 package me.chan.texas.text.layout;
 
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 
 import java.util.ArrayList;
@@ -8,14 +9,16 @@ import java.util.List;
 import me.chan.texas.Texas;
 import me.chan.texas.misc.DefaultRecyclable;
 import me.chan.texas.misc.ObjectPool;
+import me.chan.texas.misc.RectF;
 import me.chan.texas.text.BreakStrategy;
+import me.chan.texas.text.util.TexasIterator;
+import me.chan.texas.utils.TexasUtils;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
 /**
  * 绘制行
  */
-@RestrictTo(LIBRARY)
 public class Line extends DefaultRecyclable {
 	private static final ObjectPool<Line> POOL = new ObjectPool<>(Texas.getMemoryOption().getLineBufferSize());
 	private static final ObjectPool<Builder> BUILDER_POOL = new ObjectPool<>(4);
@@ -25,6 +28,7 @@ public class Line extends DefaultRecyclable {
 	private float mLineWidth;
 	private float mRatio;
 	private float mBaselineOffset;
+	private final RectF mBounds = new RectF();
 
 	private Line() {
 		Texas.MemoryOption memoryOption = Texas.getMemoryOption();
@@ -37,20 +41,24 @@ public class Line extends DefaultRecyclable {
 		mLineHeight = -1;
 		mRatio = -1;
 		mBaselineOffset = 0;
+		mBounds.setEmpty();
 	}
 
 	public float getLineHeight() {
 		return mLineHeight;
 	}
 
+	@RestrictTo(LIBRARY)
 	public void setLineWidth(float lineWidth) {
 		mLineWidth = lineWidth;
 	}
 
+	@RestrictTo(LIBRARY)
 	public float getRatio() {
 		return mRatio;
 	}
 
+	@RestrictTo(LIBRARY)
 	public void setLineHeight(float lineHeight) {
 		mLineHeight = lineHeight;
 	}
@@ -59,6 +67,7 @@ public class Line extends DefaultRecyclable {
 		return mLineWidth;
 	}
 
+	@RestrictTo(LIBRARY)
 	public void setRatio(float ratio) {
 		mRatio = ratio;
 	}
@@ -69,20 +78,20 @@ public class Line extends DefaultRecyclable {
 		POOL.release(this);
 	}
 
-	public int getCount() {
+	@RestrictTo(LIBRARY)
+	public int getElementCount() {
 		return mElements.size();
+	}
+
+	public int getBoxCount() {
+		return getElementCount();
 	}
 
 	public float getBaselineOffset() {
 		return mBaselineOffset;
 	}
 
-	public void addAll(List<? extends Element> list) {
-		for (Element element : list) {
-			add(element);
-		}
-	}
-
+	@RestrictTo(LIBRARY)
 	public void add(Element element) {
 		mElements.add(element);
 	}
@@ -91,18 +100,26 @@ public class Line extends DefaultRecyclable {
 		return mElements.isEmpty();
 	}
 
+	@RestrictTo(LIBRARY)
 	public Element getElement(int index) {
 		return mElements.get(index);
 	}
 
+	public Box getBox(int index) {
+		return (Box) getElement(index);
+	}
+
+	@RestrictTo(LIBRARY)
 	public void replace(int prevIndex, Box box) {
 		mElements.set(prevIndex, box);
 	}
 
+	@RestrictTo(LIBRARY)
 	public static void clean() {
 		POOL.clean();
 	}
 
+	@RestrictTo(LIBRARY)
 	public String getInfoMsg() {
 		return String.valueOf(getRatio());
 	}
@@ -110,23 +127,25 @@ public class Line extends DefaultRecyclable {
 	@Override
 	public String toString() {
 		int size = mElements.size();
-		if (size == 0) {
+		if (size == 0 || mBounds.isEmpty()) {
 			return "";
 		}
 
 		StringBuilder stringBuilder = new StringBuilder();
-		for (Element element : mElements) {
-			if (element instanceof Glue) {
-				if (element != Glue.TERMINAL) {
+		for (int i = 0; i < mElements.size(); ++i) {
+			Element element = mElements.get(i);
+			if (element instanceof Box) {
+				Box current = (Box) element;
+				stringBuilder.append(current);
+				if (Float.compare(current.getInnerBounds().right, current.getOuterBounds().right) != 0) {
 					stringBuilder.append(" ");
 				}
-			} else {
-				stringBuilder.append(element.toString());
 			}
 		}
 		return stringBuilder.toString();
 	}
 
+	@RestrictTo(LIBRARY)
 	public static Line obtain() {
 		Line line = POOL.acquire();
 		if (line == null) {
@@ -137,18 +156,89 @@ public class Line extends DefaultRecyclable {
 		return line;
 	}
 
-	public void removeLast(int start) {
-		int targetSize = start + 1;
-		int size = 0;
-		while ((size = mElements.size()) > targetSize) {
-			mElements.remove(size - 1);
-		}
-	}
-
+	@RestrictTo(LIBRARY)
 	public int indexOf(Element element) {
 		return mElements.indexOf(element);
 	}
 
+	@RestrictTo(LIBRARY)
+	public void trim() {
+		// 1. 给定一个数组，里面有两种元素，一种是box，另一种是其他
+		// 2. 移除数组中非box的元素且保证box的顺序
+		// 3. 尝试用o(n)的方法合并
+		// 例子：
+		// 一个数组内容[b, o, b, o, o] 其中b代表box，合并数组后内容变成[b, b]
+		int writeIndex = findWritePoint();
+		for (int i = writeIndex + 1; i < mElements.size(); ++i) {
+			Element element = mElements.get(i);
+			if (element instanceof Box) {
+				mElements.set(writeIndex++, element);
+			}
+		}
+
+		int count = mElements.size() - writeIndex;
+		for (int i = 0; i < count; ++i) {
+			mElements.remove(mElements.size() - 1);
+		}
+	}
+
+	private int findWritePoint() {
+		int i = 0;
+		for (; i < mElements.size(); ++i) {
+			Element element = mElements.get(i);
+			if (!(element instanceof Box)) {
+				return i;
+			}
+		}
+		return i;
+	}
+
+	@RestrictTo(LIBRARY)
+	public void setBounds(RectF bounds) {
+		TexasUtils.copyRect(mBounds, bounds);
+	}
+
+	public RectF getBounds() {
+		return mBounds;
+	}
+
+	public TexasIterator<Box> iterator() {
+		return new TexasIterator<Box>() {
+			private int mIndex = -1;
+
+			@Override
+			public Box next() {
+				return restore(mIndex + 1);
+			}
+
+			@Override
+			public Box prev() {
+				return restore(mIndex - 1);
+			}
+
+			@Nullable
+			@Override
+			public Box current() {
+				return restore(mIndex);
+			}
+
+			@Override
+			public Box restore(int state) {
+				if (state < 0 || state >= getElementCount()) {
+					return null;
+				}
+
+				return (Box) getElement(mIndex = state);
+			}
+
+			@Override
+			public int save() {
+				return mIndex;
+			}
+		};
+	}
+
+	@RestrictTo(LIBRARY)
 	public static class Builder extends DefaultRecyclable {
 		private Line mLine;
 		private Element mLastTextElement;
@@ -306,7 +396,7 @@ public class Line extends DefaultRecyclable {
 			float glueShrink = 0;
 			float glueStretch = 0;
 
-			for (int i = 0; i < line.getCount(); ++i) {
+			for (int i = 0; i < line.getElementCount(); ++i) {
 				Element element = line.getElement(i);
 				if (element instanceof Box) {
 					Box box = (Box) element;

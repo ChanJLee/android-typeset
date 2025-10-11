@@ -116,7 +116,7 @@ public abstract class ViewSegment extends DefaultRecyclable implements Segment {
 	}
 
 	@Override
-	public void setRect(Rect rect) {
+	public void setPadding(Rect rect) {
 		mRect = rect;
 	}
 

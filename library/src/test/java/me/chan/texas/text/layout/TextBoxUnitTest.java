@@ -1,11 +1,17 @@
 package me.chan.texas.text.layout;
 
+import me.chan.texas.TexasOption;
+import me.chan.texas.di.FakeMeasureFactory;
+import me.chan.texas.hyphenation.Hyphenation;
+import me.chan.texas.misc.PaintSet;
+import me.chan.texas.misc.Rect;
 import me.chan.texas.misc.RectF;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import me.chan.texas.TestUtils;
+import me.chan.texas.renderer.RenderOption;
 import me.chan.texas.renderer.core.graphics.TexasCanvas;
 import me.chan.texas.renderer.core.graphics.TexasPaint;
 import me.chan.texas.test.mock.MockTextPaint;
@@ -14,8 +20,12 @@ import me.chan.texas.measurer.Measurer;
 import me.chan.texas.measurer.MockMeasurer;
 import me.chan.texas.text.Appearance;
 import me.chan.texas.renderer.RendererContext;
+import me.chan.texas.text.BreakStrategy;
+import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.TextAttribute;
+import me.chan.texas.text.TextGravity;
 import me.chan.texas.text.TextStyle;
+import me.chan.texas.typesetter.ParagraphTypesetter;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -308,7 +318,7 @@ public class TextBoxUnitTest {
 		Assert.assertEquals(textBox.getTextStyle(), mTextStyle);
 		Assert.assertFalse(textBox.isPenalty());
 		Assert.assertFalse(textBox.isRecycled());
-		Assert.assertEquals(textBox.getAttribute(), TextBox.ATTRIBUTE_NONE);
+		Assert.assertEquals(textBox.getAttribute(), TextBox.ATTRIBUTE_MEASURED);
 		float width = textBox.getWidth() / TextBox.SQUISH_FACTOR;
 		textBox.addAttribute(TextBox.ATTRIBUTE_SQUISH_LEFT);
 		Assert.assertNotEquals(textBox.getAttribute(), TextBox.ATTRIBUTE_NONE);
@@ -438,6 +448,8 @@ public class TextBoxUnitTest {
 		Assert.assertNotEquals(lhs.isRecycled(), rhs.isRecycled());
 
 		rhs.reuse();
+		lhs.getInnerBounds().set(1, 2, 3, 4);
+		lhs.getOuterBounds().set(5, 6, 7, 8);
 		rhs.copy(lhs);
 
 		Assert.assertEquals(lhs.toString(), rhs.toString());
@@ -447,8 +459,57 @@ public class TextBoxUnitTest {
 		Assert.assertEquals(lhs.getTextStyle(), rhs.getTextStyle());
 		Assert.assertEquals(lhs.isPenalty(), rhs.isPenalty());
 		Assert.assertEquals(lhs.isRecycled(), rhs.isRecycled());
+		Assert.assertEquals(lhs.getInnerBounds(), rhs.getInnerBounds());
+		Assert.assertEquals(lhs.getOuterBounds(), rhs.getOuterBounds());
+		Assert.assertEquals(new RectF(1, 2, 3, 4), lhs.getInnerBounds());
+		Assert.assertEquals(new RectF(5, 6, 7, 8), lhs.getOuterBounds());
 
 		Assert.assertEquals(lhs, rhs);
 		Assert.assertTrue(TestUtils.reflectCompare(lhs, rhs, "mId"));
+	}
+
+	@Test
+	public void testBoxIsolate() {
+		FakeMeasureFactory factory = FakeMeasureFactory.getInstance();
+		factory.getMockTextPaint().setMockTextSize(1);
+
+		RenderOption renderOption = new RenderOption();
+		renderOption.setLineSpacingExtra(1);
+		Measurer measurer = new MockMeasurer(factory.getMockTextPaint());
+		PaintSet paintSet = new PaintSet(factory.getMockTextPaint());
+		TextAttribute textAttribute = new TextAttribute(measurer);
+
+		TexasOption texasOption = new TexasOption(paintSet, Hyphenation.getInstance(), measurer, textAttribute, renderOption);
+		Paragraph.Builder builder = Paragraph.Builder.newBuilder(texasOption)
+				.textGravity(TextGravity.START)
+				.text("123 123, trangle");
+		Paragraph paragraph = builder.build();
+		paragraph.setPadding(new Rect(1, 2, 3, 4));
+
+		ParagraphTypesetter texTypesetter = new ParagraphTypesetter();
+		paragraph.measure(measurer, textAttribute);
+		texTypesetter.typeset(paragraph, BreakStrategy.BALANCED, 100);
+
+		Layout layout = paragraph.getLayout();
+		Assert.assertEquals(1, layout.getLineCount());
+
+		Line line = layout.getLine(0);
+		Assert.assertEquals(4, line.getElementCount());
+
+		Box box = (Box) line.getElement(0);
+		Assert.assertTrue(box.isIsolate(false));
+		Assert.assertTrue(box.isIsolate(true));
+
+		box = (Box) line.getElement(1);
+		Assert.assertTrue(box.isIsolate(false));
+		Assert.assertFalse(box.isIsolate(true));
+
+		box = (Box) line.getElement(2);
+		Assert.assertFalse(box.isIsolate(false));
+		Assert.assertTrue(box.isIsolate(true));
+
+		box = (Box) line.getElement(3);
+		Assert.assertTrue(box.isIsolate(false));
+		Assert.assertTrue(box.isIsolate(true));
 	}
 }

@@ -15,7 +15,6 @@ import me.chan.texas.Texas;
 import me.chan.texas.misc.BitBucket32;
 import me.chan.texas.misc.DefaultRecyclable;
 import me.chan.texas.misc.ObjectPool;
-import me.chan.texas.misc.RectF;
 import me.chan.texas.renderer.RenderOption;
 import me.chan.texas.text.BreakStrategy;
 import me.chan.texas.text.Paragraph;
@@ -40,7 +39,6 @@ public class Layout extends DefaultRecyclable {
 		mLines = new ArrayList<>(memoryOption.getParagraphLineInitialCapacity());
 	}
 
-	@RestrictTo(LIBRARY)
 	public Line getLine(int index) {
 		return mLines.get(index);
 	}
@@ -118,7 +116,7 @@ public class Layout extends DefaultRecyclable {
 	}
 
 	@RestrictTo(LIBRARY)
-	public void getRect(Rect rect) {
+	public void getPadding(Rect rect) {
 		if (mRect == null) {
 			return;
 		}
@@ -126,129 +124,46 @@ public class Layout extends DefaultRecyclable {
 	}
 
 	@RestrictTo(LIBRARY)
-	public void setRect(Rect rect) {
+	public void setPadding(Rect rect) {
 		mRect = rect;
 	}
 
-	public Rect getRect() {
+	public Rect getPadding() {
 		return mRect;
 	}
 
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
 	public int getPaddingLeft() {
-		Rect rect = getRect();
+		Rect rect = getPadding();
 		return rect == null ? 0 : rect.left;
 	}
 
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
 	public int getPaddingRight() {
-		Rect rect = getRect();
+		Rect rect = getPadding();
 		return rect == null ? 0 : rect.right;
 	}
 
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
 	public int getPaddingTop() {
-		Rect rect = getRect();
+		Rect rect = getPadding();
 		return rect == null ? 0 : rect.top;
 	}
 
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
 	public int getPaddingBottom() {
-		Rect rect = getRect();
+		Rect rect = getPadding();
 		return rect == null ? 0 : rect.bottom;
 	}
 
 	@RestrictTo(LIBRARY)
-	public void prepareGetLineBoundsIncremental(RectF bounds) {
-		bounds.left = getPaddingLeft();
-		bounds.right = bounds.left + mWidth;
-		bounds.top = 0;
-		bounds.bottom = getPaddingTop() - getLineSpace();
-	}
-
-	@RestrictTo(LIBRARY)
-	public void getLineBoundsIncremental(int index, RectF bounds) {
-		if (index < 0 || index >= getLineCount()) {
-			return;
-		}
-
-		Line line = getLine(index);
-		getLineHorizontalBounds(line, bounds);
-		bounds.top = bounds.bottom + getLineSpace();
-		bounds.bottom = bounds.top + line.getLineHeight();
-	}
-
-	public void getLineBounds(int index, RectF bounds) {
-		if (index < 0 || index >= getLineCount()) {
-			return;
-		}
-
-		Line line = getLine(index);
-		getLineHorizontalBounds(line, bounds);
-		getLineVerticalBounds(index, bounds);
-	}
-
-	private void getLineHorizontalBounds(Line line, RectF bounds) {
-		int horizontalGravity = mAdvise.getTextGravity() & TextGravity.HORIZONTAL_MASK;
-		if (horizontalGravity == TextGravity.START) {
-			bounds.left = getPaddingLeft();
-		} else if (horizontalGravity == TextGravity.CENTER_HORIZONTAL) {
-			float offsetX = (mWidth - line.getLineWidth()) / 2.0f;
-			bounds.left = getPaddingLeft() + offsetX;
-		} else if (horizontalGravity == TextGravity.END) {
-			float offsetX = mWidth - line.getLineWidth();
-			bounds.left = getPaddingLeft() + offsetX;
-		} else {
-			throw new IllegalStateException("unknown text gravity");
-		}
-		bounds.right = bounds.left + line.getLineWidth();
-	}
-
-	private void getLineVerticalBounds(int index, RectF bounds) {
-		bounds.top = getPaddingTop();
-		float lineSpace = getLineSpace();
-		for (int i = 0; i < index; ++i) {
-			Line prev = getLine(i);
-			bounds.top = bounds.top + prev.getLineHeight() + lineSpace;
-		}
-		Line line = getLine(index);
-		bounds.bottom = bounds.top + line.getLineHeight();
-	}
-
-	@RestrictTo(LIBRARY)
 	public int getWidth() {
-		return mWidth + getPaddingLeft() + getPaddingRight();
+		return mWidth;
 	}
 
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
 	public int getHeight() {
-		if (isRecycled()) {
-			return 0;
-		}
-
-		int lineCount = getLineCount();
-		if (lineCount > 0) {
-			float height = getPaddingTop() + getPaddingBottom() + getHeight0();
-			return (int) Math.ceil(height);
-		}
-		return 0;
-	}
-
-	private int getHeight0() {
-		if (isRecycled()) {
-			return 0;
-		}
-
-		int lineCount = getLineCount();
-		if (lineCount > 0) {
-			float height = mHeight;
-			if (lineCount > 1) {
-				height += ((lineCount - 1) * getLineSpace());
-			}
-
-			return (int) Math.ceil(height);
-		}
-		return 0;
+		return mHeight;
 	}
 
 	@RestrictTo(LIBRARY)
@@ -256,7 +171,7 @@ public class Layout extends DefaultRecyclable {
 		return mAdvise;
 	}
 
-	public float getLineSpace() {
+	public float getLineSpacingExtra() {
 		return mAdvise.getLineSpacingExtra();
 	}
 
@@ -283,7 +198,7 @@ public class Layout extends DefaultRecyclable {
 		int seq = 0;
 		for (int i = 0; i < mLines.size(); ++i) {
 			Line line = mLines.get(i);
-			for (int j = 0; j < line.getCount(); ++j) {
+			for (int j = 0; j < line.getElementCount(); ++j) {
 				Element element = line.getElement(j);
 				if (element instanceof Box) {
 					Box box = (Box) element;
@@ -291,6 +206,11 @@ public class Layout extends DefaultRecyclable {
 				}
 			}
 		}
+	}
+
+	@RestrictTo(LIBRARY)
+	public int getHorizontalGravity() {
+		return mAdvise.getTextGravity() & TextGravity.HORIZONTAL_MASK;
 	}
 
 	@RestrictTo(LIBRARY)
