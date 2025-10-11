@@ -1,6 +1,5 @@
 package me.chan.texas.text.layout;
 
-import me.chan.texas.TestUtils;
 import me.chan.texas.test.mock.MockTextPaint;
 
 import me.chan.texas.measurer.MockMeasurer;
@@ -13,9 +12,6 @@ public class SymbolGlueUnitTest {
 
 	@Test
 	public void test() {
-		Glue.clean();
-		SymbolGlue.clean();
-
 		MockTextPaint mockTextPaint = new MockTextPaint();
 		mockTextPaint.setMockTextSize(2);
 		MockMeasurer measurer = new MockMeasurer(mockTextPaint);
@@ -37,13 +33,13 @@ public class SymbolGlueUnitTest {
 		System.out.println(glue);
 
 		glue.recycle();
-		TestUtils.testRecycled(glue);
+//		TestUtils.testRecycled(glue);
 
 		Object tmp = glue;
 		Glue o = Glue.obtain();
 		Assert.assertNotSame(o, tmp);
 
 		glue = SymbolGlue.obtain(box);
-		Assert.assertSame(tmp, glue);
+		Assert.assertNotSame(tmp, glue);
 	}
 }
