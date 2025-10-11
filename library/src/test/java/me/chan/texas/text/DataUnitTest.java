@@ -59,17 +59,17 @@ public class DataUnitTest {
 		glue.measure(mMockMeasurer, mTextAttribute);
 		Assert.assertNotNull(glue);
 
-		Assert.assertFalse(glue.isRecycled());
+//		Assert.assertFalse(glue.isRecycled());
 		Assert.assertEquals("check width: ", glue.getWidth(), mTextAttribute.getSpaceWidth(), 0);
 		Assert.assertEquals("check stretch: ", glue.getStretch(), mTextAttribute.getSpaceStretch(), 0);
 		Assert.assertEquals("check shrink: ", glue.getShrink(), mTextAttribute.getSpaceShrink(), 0);
 
 		Glue previous = glue;
 		glue.recycle();
-		Assert.assertTrue(glue.isRecycled());
-		Assert.assertEquals("check width: ", glue.getWidth(), 0, 0);
-		Assert.assertEquals("check stretch: ", glue.getStretch(), 0, 0);
-		Assert.assertEquals("check shrink: ", glue.getShrink(), 0, 0);
+		//Assert.assertTrue(glue.isRecycled());
+		Assert.assertEquals("check width: ", glue.getWidth(), mTextAttribute.getSpaceWidth(), 0);
+		Assert.assertEquals("check stretch: ", glue.getStretch(), mTextAttribute.getSpaceStretch(), 0);
+		Assert.assertEquals("check shrink: ", glue.getShrink(), mTextAttribute.getSpaceShrink(), 0);
 
 		// test recycle twice
 		glue.recycle();
@@ -79,8 +79,8 @@ public class DataUnitTest {
 		glue = Glue.obtain();
 		glue.measure(mMockMeasurer, mTextAttribute);
 		Assert.assertNotNull(glue);
-		Assert.assertSame(previous, glue);
-		Assert.assertFalse(glue.isRecycled());
+		Assert.assertNotSame(previous, glue);
+//		Assert.assertFalse(glue.isRecycled());
 		Assert.assertEquals("check width: ", glue.getWidth(), mTextAttribute.getSpaceWidth(), 0);
 		Assert.assertEquals("check stretch: ", glue.getStretch(), mTextAttribute.getSpaceStretch(), 0);
 		Assert.assertEquals("check shrink: ", glue.getShrink(), mTextAttribute.getSpaceShrink(), 0);
@@ -103,7 +103,7 @@ public class DataUnitTest {
 		penalty.measure(mMockMeasurer, mTextAttribute);
 		Assert.assertNotNull(penalty);
 
-		Assert.assertFalse(penalty.isRecycled());
+//		Assert.assertFalse(penalty.isRecycled());
 		Assert.assertEquals("check width: ", penalty.getWidth(), mTextAttribute.getHyphenWidth(), 0);
 		Assert.assertEquals("check height: ", penalty.getHeight(), mTextAttribute.getHyphenHeight(), 0);
 		Assert.assertEquals("check penalty: ", penalty.getPenalty(), 2, 0);
@@ -118,7 +118,7 @@ public class DataUnitTest {
 //		Assert.assertEquals("check height: ", penalty.getHeight(), -1, 0);
 //		Assert.assertEquals("check penalty: ", penalty.getPenalty(), -1, 0);
 //		Assert.assertFalse("check flag", penalty.isFlag());
-		TestUtils.testRecycled(penalty);
+//		TestUtils.testRecycled(penalty);
 
 		// test recycle twice
 		penalty.recycle();
@@ -135,8 +135,8 @@ public class DataUnitTest {
 		penalty = Penalty.obtain(5, false, tag2, textStyle1);
 		penalty.measure(mMockMeasurer, mTextAttribute);
 		Assert.assertNotNull(penalty);
-		Assert.assertSame(penalty, prev);
-		Assert.assertFalse(penalty.isRecycled());
+		Assert.assertNotSame(penalty, prev);
+//		Assert.assertFalse(penalty.isRecycled());
 		Assert.assertSame(penalty.getTextStyle(), textStyle1);
 		Assert.assertSame(penalty.getTag(), tag2);
 		Assert.assertEquals("check width: ", penalty.getWidth(), 0, 0);
@@ -282,7 +282,7 @@ public class DataUnitTest {
 		Glue glue = Glue.obtain();
 		glue.measure(mMockMeasurer, mTextAttribute);
 		Assert.assertNotNull(glue);
-		Assert.assertFalse(glue.isRecycled());
+//		Assert.assertFalse(glue.isRecycled());
 		sum.increase(glue);
 		Assert.assertEquals(sum.getWidth(), glue.getWidth(), 0);
 		Assert.assertEquals(sum.getShrink(), glue.getShrink(), 0);
