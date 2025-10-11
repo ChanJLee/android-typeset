@@ -177,11 +177,14 @@ public class RenderWorker {
 				selection.drawBackground(mCanvas, mTexasPaint, args.option);
 			}
 
+			// render background decor
+			renderDecor(mCanvas, paragraph, args, true);
+
 			// draw content
 			renderContent(mCanvas, paragraph, args);
 
 			// render decor
-			renderDecor(mCanvas, paragraph, args);
+			renderDecor(mCanvas, paragraph, args, false);
 
 			// render debug info
 			renderDebug(taskId, mCanvas, paragraph, args);
@@ -190,7 +193,7 @@ public class RenderWorker {
 		}
 	}
 
-	private void renderDecor(TexasCanvas canvas, Paragraph paragraph, Args args) {
+	private void renderDecor(TexasCanvas canvas, Paragraph paragraph, Args args, boolean background) {
 		ParagraphDecor decor = paragraph.getDecor();
 		if (decor == null) {
 			return;
@@ -198,7 +201,7 @@ public class RenderWorker {
 
 		Layout layout = paragraph.getLayout();
 		mTexasPaint.reset(args.paintSet);
-		decor.draw(canvas, mTexasPaint, paragraph, args.width, layout.getHeight());
+		decor.draw(canvas, mTexasPaint, paragraph, args.width, layout.getHeight(), background);
 	}
 
 	private void renderContent(TexasCanvas canvas, Paragraph paragraph, Args args) {

@@ -29,15 +29,19 @@ public abstract class ParagraphDecor {
 		mDrawOutRect.set(0, 0, width, height);
 		Layout layout = paragraph.getLayout();
 		mDrawInRect.set(layout.getPaddingLeft(), layout.getPaddingTop(), width - layout.getPaddingRight(), height - layout.getPaddingBottom());
-		onLayoutDecor(paragraph, mDrawOutRect, mDrawInRect);
+		onLayout(paragraph, mDrawOutRect, mDrawInRect);
 	}
 
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
-	public final void draw(TexasCanvas canvas, TexasPaint paint, Paragraph paragraph, int width, int height) {
+	public final void draw(TexasCanvas canvas, TexasPaint paint, Paragraph paragraph, int width, int height, boolean background) {
 		mDrawOutRect.set(0, 0, width, height);
 		Layout layout = paragraph.getLayout();
 		mDrawInRect.set(layout.getPaddingLeft(), layout.getPaddingTop(), width - layout.getPaddingRight(), height - layout.getPaddingBottom());
-		onDrawDecor(canvas, paint, paragraph, mDrawOutRect, mDrawInRect);
+		if (background) {
+			onDrawBackground(canvas, paint, paragraph, mDrawOutRect, mDrawInRect);
+			return;
+		}
+		onDraw(canvas, paint, paragraph, mDrawOutRect, mDrawInRect);
 	}
 
 	private final Rect mTouchOutRect = new Rect();
@@ -64,7 +68,7 @@ public abstract class ParagraphDecor {
 	 * @return true 代表收集完成，false 继续
 	 */
 	@AnyThread
-	protected abstract void onLayoutDecor(Paragraph paragraph, Rect decorOuter, Rect decorInner);
+	protected abstract void onLayout(Paragraph paragraph, Rect decorOuter, Rect decorInner);
 
 	/**
 	 * 开始绘制decor
@@ -76,7 +80,20 @@ public abstract class ParagraphDecor {
 	 * @param decorInner 整个view真实轮廓即包含decor margin的矩形位置
 	 */
 	@AnyThread
-	protected abstract void onDrawDecor(TexasCanvas canvas, TexasPaint paint, Paragraph paragraph, Rect decorOuter, Rect decorInner);
+	protected abstract void onDraw(TexasCanvas canvas, TexasPaint paint, Paragraph paragraph, Rect decorOuter, Rect decorInner);
+
+	/**
+	 * 开始绘制decor背景，背景存在于文字之下
+	 *
+	 * @param canvas     canvas
+	 * @param paint      paint
+	 * @param paragraph  当前paragraph
+	 * @param decorOuter 整个view的外部轮廓轮廓
+	 * @param decorInner 整个view真实轮廓即包含decor margin的矩形位置
+	 */
+	@AnyThread
+	protected void onDrawBackground(TexasCanvas canvas, TexasPaint paint, Paragraph paragraph, Rect decorOuter, Rect decorInner) {
+	}
 
 	/**
 	 * @param event      event
