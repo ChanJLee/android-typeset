@@ -83,9 +83,9 @@ public final class RendererContext {
 		if (location == LOCATION_LINE_START) {
 			return mIndex == 0;
 		} else if (location == LOCATION_LINE_END) {
-			return mIndex == mLine.getCount() - 1;
+			return mIndex == mLine.getBoxCount() - 1;
 		} else if (location == LOCATION_LINE_MIDDLE) {
-			return mIndex > 0 && mIndex < mLine.getCount() - 1;
+			return mIndex > 0 && mIndex < mLine.getBoxCount() - 1;
 		} else if (location == LOCATION_PARAGRAPH_START) {
 			return (mParagraphLocationAttribute & LOCATION_PARAGRAPH_START) != 0;
 		} else if (location == LOCATION_PARAGRAPH_END) {

@@ -113,7 +113,7 @@ public abstract class AbsParagraphTypesetter {
 			line.setBounds(lineRect);
 			Box prev = null;
 			boxRect.set(lineRect.left, lineRect.top, lineRect.left, lineRect.bottom);
-			for (int j = 0; j < line.getCount(); ++j) {
+			for (int j = 0; j < line.getElementCount(); ++j) {
 				Element element = line.getElement(j);
 				if (element instanceof Box) {
 					Box current = (Box) element;
@@ -131,7 +131,7 @@ public abstract class AbsParagraphTypesetter {
 			}
 			line.trim();
 
-			int size = line.getCount();
+			int size = line.getElementCount();
 			if (size != 0) {
 				Box element = (Box) line.getElement(0);
 				if (element instanceof TextBox) {

@@ -198,7 +198,7 @@ public class Layout extends DefaultRecyclable {
 		int seq = 0;
 		for (int i = 0; i < mLines.size(); ++i) {
 			Line line = mLines.get(i);
-			for (int j = 0; j < line.getCount(); ++j) {
+			for (int j = 0; j < line.getElementCount(); ++j) {
 				Element element = line.getElement(j);
 				if (element instanceof Box) {
 					Box box = (Box) element;

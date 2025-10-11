@@ -1186,7 +1186,6 @@ public class ParagraphUnitTest {
 		Assert.assertTrue(paragraph.getElement(0) instanceof TextBox);
 		Assert.assertTrue(paragraph.getElement(1) instanceof Glue);
 		Assert.assertTrue(paragraph.getElement(2) instanceof TextBox);
-		// TODO should support?
 		Assert.assertTrue(paragraph.getElement(3) == Penalty.ADVISE_BREAK);
 		Assert.assertTrue(paragraph.getElement(4) instanceof TextBox);
 		Assert.assertTrue(paragraph.getElement(5) instanceof Glue);

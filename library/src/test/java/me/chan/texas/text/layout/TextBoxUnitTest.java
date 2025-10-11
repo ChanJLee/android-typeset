@@ -494,7 +494,7 @@ public class TextBoxUnitTest {
 		Assert.assertEquals(1, layout.getLineCount());
 
 		Line line = layout.getLine(0);
-		Assert.assertEquals(4, line.getCount());
+		Assert.assertEquals(4, line.getElementCount());
 
 		Box box = (Box) line.getElement(0);
 		Assert.assertTrue(box.isIsolate(false));

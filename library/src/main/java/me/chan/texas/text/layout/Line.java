@@ -79,12 +79,12 @@ public class Line extends DefaultRecyclable {
 	}
 
 	@RestrictTo(LIBRARY)
-	public int getCount() {
+	public int getElementCount() {
 		return mElements.size();
 	}
 
 	public int getBoxCount() {
-		return getCount();
+		return getElementCount();
 	}
 
 	public float getBaselineOffset() {
@@ -168,7 +168,7 @@ public class Line extends DefaultRecyclable {
 		// 3. 尝试用o(n)的方法合并
 		// 例子：
 		// 一个数组内容[b, o, b, o, o] 其中b代表box，合并数组后内容变成[b, b]
-		int writeIndex = findAnchor();
+		int writeIndex = findWritePoint();
 		for (int i = writeIndex + 1; i < mElements.size(); ++i) {
 			Element element = mElements.get(i);
 			if (element instanceof Box) {
@@ -182,7 +182,7 @@ public class Line extends DefaultRecyclable {
 		}
 	}
 
-	private int findAnchor() {
+	private int findWritePoint() {
 		int i = 0;
 		for (; i < mElements.size(); ++i) {
 			Element element = mElements.get(i);
@@ -224,7 +224,7 @@ public class Line extends DefaultRecyclable {
 
 			@Override
 			public Box restore(int state) {
-				if (state < 0 || state >= getCount()) {
+				if (state < 0 || state >= getElementCount()) {
 					return null;
 				}
 
@@ -396,7 +396,7 @@ public class Line extends DefaultRecyclable {
 			float glueShrink = 0;
 			float glueStretch = 0;
 
-			for (int i = 0; i < line.getCount(); ++i) {
+			for (int i = 0; i < line.getElementCount(); ++i) {
 				Element element = line.getElement(i);
 				if (element instanceof Box) {
 					Box box = (Box) element;
