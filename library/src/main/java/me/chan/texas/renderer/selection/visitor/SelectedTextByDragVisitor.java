@@ -13,7 +13,6 @@ import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.layout.Box;
 import me.chan.texas.text.layout.DrawableBox;
 import me.chan.texas.text.layout.Element;
-import me.chan.texas.text.layout.Glue;
 import me.chan.texas.text.layout.Layout;
 import me.chan.texas.text.layout.Line;
 import me.chan.texas.text.layout.TextBox;
@@ -70,7 +69,7 @@ public class SelectedTextByDragVisitor extends SelectedVisitor {
 		for (int lineIndex = layout.indexOf(line) - 1; lineIndex >= 0; --lineIndex) {
 			line = layout.getLine(lineIndex);
 
-			int count = line.getCount();
+			int count = line.getElementCount();
 			if (count == 0) {
 				return;
 			}
@@ -97,7 +96,7 @@ public class SelectedTextByDragVisitor extends SelectedVisitor {
 	}
 
 	private int linkText(Line line, int index, boolean backward, RectF rectF) {
-		int size = line.getCount();
+		int size = line.getElementCount();
 		int step = backward ? 1 : -1;
 		for (; index >= 0 && index < size; ) {
 			Element element = line.getElement(index);
@@ -131,7 +130,7 @@ public class SelectedTextByDragVisitor extends SelectedVisitor {
 		}
 
 		int index = line.indexOf(box);
-		int size = line.getCount();
+		int size = line.getElementCount();
 
 		RectF rectF = mSelection.getLastRegion();
 		index = linkText(line, index, true, rectF);
@@ -154,7 +153,7 @@ public class SelectedTextByDragVisitor extends SelectedVisitor {
 		for (int lineIndex = layout.indexOf(line) + 1; lineIndex < lineCount; ++lineIndex) {
 			line = layout.getLine(lineIndex);
 
-			int count = line.getCount();
+			int count = line.getElementCount();
 			if (count == 0) {
 				return;
 			}

@@ -150,7 +150,6 @@ public final class TextBox extends Box {
 
 		// 目前因为符号问题不能合并的case大概占比 1%不到
 		// 但是能提高 30% 后续遍历的性能
-		// TODO 优化下
 		if (mAttribute != box.mAttribute) {
 			return false;
 		}
@@ -163,6 +162,7 @@ public final class TextBox extends Box {
 		return true;
 	}
 
+	@RestrictTo(LIBRARY)
 	public TextStyle getTextStyle() {
 		return mTextStyle;
 	}
@@ -180,7 +180,7 @@ public final class TextBox extends Box {
 	}
 
 	@Override
-	public final boolean isIsolate(boolean backward) {
+	public boolean isIsolate(boolean backward) {
 		if (backward) {
 			return mInner.right != mOuter.right || hasAttribute(ATTRIBUTE_LINE_TAILER);
 		}
@@ -287,10 +287,12 @@ public final class TextBox extends Box {
 	}
 
 	@VisibleForTesting
+	@RestrictTo(LIBRARY)
 	public int getStart() {
 		return mStart;
 	}
 
+	@VisibleForTesting
 	@RestrictTo(LIBRARY)
 	public int getEnd() {
 		return mEnd;
@@ -361,6 +363,7 @@ public final class TextBox extends Box {
 		return box;
 	}
 
+	@RestrictTo(LIBRARY)
 	public boolean isPenalty() {
 		return hasAttribute(ATTRIBUTE_PENALTY);
 	}

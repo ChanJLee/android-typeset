@@ -78,7 +78,7 @@ public abstract class ParagraphVisitor {
 	private void visitLine(Line line, float bottomX, float bottomY) {
 		onVisitLineStart(line, bottomX, bottomY);
 
-		int size = line.getCount();
+		int size = line.getElementCount();
 		for (int i = 0; i < size && mVisitSig == SIG_NORMAL; ++i) {
 			Box box = (Box) line.getElement(i);
 			mTypesetContext.setBoxLocationAttribute(line, box, i);

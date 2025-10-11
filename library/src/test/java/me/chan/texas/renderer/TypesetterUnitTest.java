@@ -340,7 +340,7 @@ public class TypesetterUnitTest {
 			for (int j = 0; j < layout.getLineCount(); ++j) {
 				Line line = layout.getLine(j);
 				StringBuilder stringBuilder = new StringBuilder();
-				for (int k = 0; k < line.getCount(); ++k) {
+				for (int k = 0; k < line.getElementCount(); ++k) {
 					Element element = line.getElement(k);
 					if (element instanceof TextBox) {
 						TextBox box = (TextBox) element;
@@ -479,7 +479,7 @@ public class TypesetterUnitTest {
 			for (int j = 0; j < layout.getLineCount(); ++j) {
 				Line l = layout.getLine(j);
 
-				for (int x = 0; x < l.getCount(); ++x) {
+				for (int x = 0; x < l.getElementCount(); ++x) {
 					Element element = l.getElement(x);
 					if (!(element instanceof TextBox)) {
 						continue;

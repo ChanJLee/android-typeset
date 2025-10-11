@@ -24,8 +24,8 @@ public class LineUnitTest {
 		line.add(b5);
 		line.add(Glue.EMPTY);
 
-		Assert.assertSame(10, line.getCount());
+		Assert.assertSame(10, line.getElementCount());
 		line.trim();
-		Assert.assertSame(5, line.getCount());
+		Assert.assertSame(5, line.getElementCount());
 	}
 }

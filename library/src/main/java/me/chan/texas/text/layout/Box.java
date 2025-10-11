@@ -119,10 +119,12 @@ public abstract class Box extends Element {
 		mSeq = seq;
 	}
 
+	@RestrictTo(LIBRARY)
 	public Appearance getBackground() {
 		return mBackground;
 	}
 
+	@RestrictTo(LIBRARY)
 	public Appearance getForeground() {
 		return mForeground;
 	}
@@ -131,6 +133,7 @@ public abstract class Box extends Element {
 		return mTag;
 	}
 
+	@RestrictTo(LIBRARY)
 	public abstract void draw(TexasCanvas canvas, TexasPaint paint, RectF inner, RectF outer, float baselineOffset, StateList states);
 
 	@Override
