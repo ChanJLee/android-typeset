@@ -486,7 +486,7 @@ public class BookSource extends TexasView.DocumentSource {
 			private final android.graphics.Rect mDest = new android.graphics.Rect();
 
 			@Override
-			protected void onLayoutDecor(Paragraph paragraph, Rect decorOuter, Rect decorInner) {
+			protected void onLayout(Paragraph paragraph, Rect decorOuter, Rect decorInner) {
 				Layout layout = paragraph.getLayout();
 				for (int l = 0; l < layout.getLineCount(); ++l) {
 					Line line = layout.getLine(l);
@@ -511,7 +511,7 @@ public class BookSource extends TexasView.DocumentSource {
 			}
 
 			@Override
-			protected void onDrawDecor(TexasCanvas canvas, TexasPaint paint, Paragraph paragraph, Rect decorOuter, Rect decorInner) {
+			protected void onDraw(TexasCanvas canvas, TexasPaint paint, Paragraph paragraph, Rect decorOuter, Rect decorInner) {
 				if (!mDraw) {
 					return;
 				}
