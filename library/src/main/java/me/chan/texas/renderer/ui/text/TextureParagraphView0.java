@@ -21,11 +21,11 @@ public class TextureParagraphView0 extends AbsTextureParagraphView {
 	private final GraphicsBuffer mGraphicsBuffer;
 
 	public TextureParagraphView0(Context context) {
-		this(context, DEFAULT_RELAYOUT_PREDICATE);
+		this(context, DEFAULT_LAYOUT_PREDICATE);
 	}
 
-	public TextureParagraphView0(Context context, RelayoutPredicate onSizeChangedListener) {
-		super(context, onSizeChangedListener);
+	public TextureParagraphView0(Context context, LayoutPredicate layoutPredicate) {
+		super(context, layoutPredicate);
 		mGraphicsBuffer = new GraphicsBuffer();
 	}
 

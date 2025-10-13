@@ -150,7 +150,7 @@ public class ParagraphView extends FrameLayout {
 		try {
 			mRenderOption = createRenderOption(context, typedArray);
 			mUiThreadPaintSet = new PaintSet(mRenderOption);
-			AbsTextureParagraphView.RelayoutPredicate relayoutPredicate = (view, paragraph) -> {
+			AbsTextureParagraphView.LayoutPredicate relayoutPredicate = (view, paragraph) -> {
 				ViewGroup.LayoutParams layoutParams = getLayoutParams();
 				if (layoutParams == null) {
 					return true;
