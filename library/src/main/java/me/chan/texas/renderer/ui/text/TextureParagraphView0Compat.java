@@ -18,8 +18,8 @@ public class TextureParagraphView0Compat extends AbsTextureParagraphView {
 		this(context, DEFAULT_LAYOUT_PREDICATE);
 	}
 
-	public TextureParagraphView0Compat(Context context, LayoutPredicate onSizeChangedListener) {
-		super(context, onSizeChangedListener);
+	public TextureParagraphView0Compat(Context context, LayoutPredicate layoutPredicate) {
+		super(context, layoutPredicate);
 	}
 
 	@Override
