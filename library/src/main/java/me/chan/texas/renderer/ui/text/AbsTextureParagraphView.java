@@ -14,7 +14,6 @@ import androidx.annotation.RestrictTo;
 import me.chan.texas.misc.PaintSet;
 import me.chan.texas.renderer.RenderOption;
 import me.chan.texas.renderer.SpanTouchEventHandler;
-import me.chan.texas.renderer.ui.decor.ParagraphDecor;
 import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.layout.Layout;
 import me.chan.texas.utils.concurrency.Worker;
@@ -28,19 +27,19 @@ public abstract class AbsTextureParagraphView extends View implements TexturePar
 	protected PaintSet mPaintSet;
 	@NonNull
 	private final ParagraphViewMotion mParagraphViewMotion;
-	private final RelayoutPredicate mRelayoutPredicate;
-	protected static final RelayoutPredicate DEFAULT_RELAYOUT_PREDICATE = (view, paragraph) -> true;
+	private final LayoutPredicate mLayoutPredicate;
+	protected static final LayoutPredicate DEFAULT_LAYOUT_PREDICATE = (view, paragraph) -> true;
 	private OnMeasureInterceptor mOnMeasureInterceptor;
 	private RendererListener mRendererListener;
 
 	public AbsTextureParagraphView(Context context) {
-		this(context, DEFAULT_RELAYOUT_PREDICATE);
+		this(context, DEFAULT_LAYOUT_PREDICATE);
 	}
 
-	public AbsTextureParagraphView(Context context, RelayoutPredicate relayoutPredicate) {
+	public AbsTextureParagraphView(Context context, LayoutPredicate layoutPredicate) {
 		super(context);
 		mParagraphViewMotion = new ParagraphViewMotion(context, this);
-		mRelayoutPredicate = relayoutPredicate;
+		mLayoutPredicate = layoutPredicate;
 	}
 
 	@Override
@@ -139,7 +138,7 @@ public abstract class AbsTextureParagraphView extends View implements TexturePar
 		int windowWidth = getWidth();
 		int windowHeight = getHeight();
 		boolean sizeChanged = width != windowWidth || height != windowHeight;
-		if (sizeChanged && mRelayoutPredicate.apply(this, mParagraph)) {
+		if (sizeChanged && mLayoutPredicate.apply(this, mParagraph)) {
 			// 尽可能减少 requestLayout 的调用
 			if (ParagraphView.DEBUG) {
 				Log.d("AbsParagraphView", "scheduleRender, requestLayout, width = " + width + ", height = " + height + ", windowWidth = " + windowWidth + ", windowHeight = " + windowHeight);
@@ -197,7 +196,7 @@ public abstract class AbsTextureParagraphView extends View implements TexturePar
 		mRendererListener = rendererListener;
 	}
 
-	public interface RelayoutPredicate {
+	public interface LayoutPredicate {
 
 		/**
 		 * @param view      当前的view
