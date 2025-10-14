@@ -47,8 +47,21 @@ public class CharStream {
 		return mText.charAt(index) == codePoint;
 	}
 
+	public boolean eatIf(int codePoint) {
+		if (peek() == codePoint) {
+			eat();
+			return true;
+		}
+
+		return false;
+	}
+
 	public int peek(int index) {
 		return mText.charAt(index);
+	}
+
+	public int peek() {
+		return mText.charAt(mIndex);
 	}
 
 	public void reset(CharSequence text, int start, int end) {
@@ -77,5 +90,14 @@ public class CharStream {
 
 	public void back() {
 		adjust(-1);
+	}
+
+	public void consumeCommand(String cmd) {
+		// TODO
+		adjust(cmd.length());
+	}
+
+	public String peekCommand() {
+		throw new RuntimeException("Stub!");
 	}
 }

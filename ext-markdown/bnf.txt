@@ -1,0 +1,57 @@
+<math> ::= <math_list>
+
+<math_list> ::= <math_atom> { <math_atom> }
+
+<math_atom> ::= <ord_atom>
+               | <sup_sub>
+               | <frac>
+               | <sqrt>
+               | <delimited>
+               | <function_call>
+               | <matrix>
+               | <operator_expr>
+               | <symbol>
+               | <group>
+
+<ord_atom> ::= <variable> | <number> | <plain_symbol>
+
+<variable> ::= <letter> | "\mathrm{" <letters> "}"
+
+<number> ::= <digit> { <digit> } [ "." <digit> { <digit> } ]
+
+<plain_symbol> ::= <single_symbol>
+                 | "\" <symbol_name>
+
+<symbol_name> ::= letter / letters / known_symbol_command  (* 如 alpha, beta, times, cdot 等 *)
+
+<sup_sub> ::= <base> ( "^" <group_or_atom> | "_" <group_or_atom> | "^" <group_or_atom> "_" <group_or_atom> | "_" <group_or_atom> "^" <group_or_atom> )
+
+<base> ::= <ord_atom> | <group> | <delimited> | <function_call>
+
+<group_or_atom> ::= <group> | <ord_atom>
+
+<group> ::= "{" <math_list> "}"
+
+<frac> ::= "\frac" "{" <math_list> "}" "{" <math_list> "}"
+
+<sqrt> ::= "\sqrt" [ "[" <math_list> "]" ] "{" <math_list> "}"
+
+<delimited> ::= "\left" <delimiter> <math_list> "\right" <delimiter>
+
+<delimiter> ::= "(" | ")" | "[" | "]" | "|" | "\langle" | "\rangle" | "\lvert" | "\rvert" | …
+
+<function_call> ::= "\" <function_name> <group_or_atom>
+
+<function_name> ::= "sin" | "cos" | "tan" | "log" | "ln" | "exp" | "max" | "min" | "lim" | "sum" | "prod" | …
+
+<operator_expr> ::= <math_list> <operator> <math_list>
+
+<operator> ::= "+" | "-" | "*" | "/" | "=" | "<" | ">" | "\times" | "\cdot" | "\le" | "\ge" | "\pm" | "\neq" | …
+
+<matrix> ::= "\begin{" <matrix_env> "}" <matrix_rows> "\end{" <matrix_env> "}"
+
+<matrix_env> ::= "matrix" | "pmatrix" | "bmatrix" | "vmatrix" | "Bmatrix"
+
+<matrix_rows> ::= <matrix_row> { "\\" <matrix_row> }
+
+<matrix_row> ::= <math_list> { "&" <math_list> }
