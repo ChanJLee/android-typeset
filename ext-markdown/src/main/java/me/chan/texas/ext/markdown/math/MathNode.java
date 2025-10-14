@@ -1,50 +1,42 @@
 package me.chan.texas.ext.markdown.math;
 
-import androidx.annotation.Nullable;
-
-import java.util.ArrayList;
-import java.util.List;
-
 import me.chan.texas.misc.RectF;
+import me.chan.texas.renderer.core.graphics.TexasCanvas;
 
 public abstract class MathNode {
 
-	@Nullable
-	private List<MathNode> mChildren;
-
-	public void addChild(MathNode node) {
-		addChild(getChildCount(), node);
-	}
-
-	public final void addChild(int index, MathNode node) {
-		if (mChildren == null) {
-			mChildren = new ArrayList<>();
-		}
-
-		mChildren.add(index, node);
-	}
-
-	public final int getChildCount() {
-		return mChildren == null ? 0 : mChildren.size();
-	}
-
-	public final MathNode getChild(int index) {
-		if (mChildren == null) {
-			throw new IndexOutOfBoundsException();
-		}
-
-		return mChildren.get(index);
-	}
-
 	public final void measure() {
-		/* TODO */
+		onMeasure();
 	}
 
 	public final void layout(RectF bounds) {
-		/* TODO */
+		onLayout(bounds);
 	}
 
-	public final void draw() {
-		/* TODO */
+	public final void draw(TexasCanvas canvas) {
+		onDraw(canvas);
 	}
+
+	protected abstract void onMeasure();
+
+	protected abstract void onLayout(RectF bounds);
+
+	protected abstract void onDraw(TexasCanvas canvas);
+
+	public static final MathNode EMPTY = new MathNode() {
+		@Override
+		protected void onMeasure() {
+
+		}
+
+		@Override
+		protected void onLayout(RectF bounds) {
+
+		}
+
+		@Override
+		protected void onDraw(TexasCanvas canvas) {
+
+		}
+	};
 }
