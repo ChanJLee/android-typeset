@@ -1,4 +1,4 @@
-package me.chan.lib.log;
+package me.chan.texas.ext.markdown;
 
 import org.junit.Test;
 

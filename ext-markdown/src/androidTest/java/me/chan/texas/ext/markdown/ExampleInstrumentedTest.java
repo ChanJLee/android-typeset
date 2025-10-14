@@ -1,4 +1,4 @@
-package me.chan.lib.log;
+package me.chan.texas.ext.markdown;
 
 import android.content.Context;
 
@@ -21,6 +21,6 @@ public class ExampleInstrumentedTest {
 	public void useAppContext() {
 		// Context of the app under test.
 		Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
-		assertEquals("me.chan.lib.log.test", appContext.getPackageName());
+		assertEquals("me.chan.texas.ext.markdown.test", appContext.getPackageName());
 	}
 }
