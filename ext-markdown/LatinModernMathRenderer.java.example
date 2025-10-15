@@ -1,0 +1,517 @@
+/**
+ * 使用 Latin Modern Math 字体渲染数学公式
+ * 
+ * 基于预提取的 MATH 表数据
+ * 支持 Android 11+ 的原生字形渲染，低版本降级到 Path 绘制
+ */
+
+package me.chan.texas.math.render;
+
+import android.content.Context;
+import android.graphics.*;
+import android.os.Build;
+import android.text.TextPaint;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
+
+// ==================== 数据模型 ====================
+
+class MathConstants {
+    // 根号相关（单位：字体单位）
+    public int radicalVerticalGap;
+    public int radicalRuleThickness;
+    public int radicalExtraAscender;
+    public int radicalKernBeforeDegree;
+    public int radicalKernAfterDegree;
+    public int radicalDegreeBottomRaisePercent;
+    
+    // 分式相关
+    public int fractionNumeratorShiftUp;
+    public int fractionDenominatorShiftDown;
+    public int fractionRuleThickness;
+    
+    // 上下标相关
+    public int superscriptShiftUp;
+    public int subscriptShiftDown;
+    public int scriptPercentScaleDown;
+    
+    // 轴线
+    public int axisHeight;
+    
+    public static MathConstants fromJSON(JSONObject obj) throws Exception {
+        MathConstants c = new MathConstants();
+        c.radicalVerticalGap = obj.optInt("RadicalVerticalGap");
+        c.radicalRuleThickness = obj.optInt("RadicalRuleThickness");
+        c.radicalExtraAscender = obj.optInt("RadicalExtraAscender");
+        c.radicalKernBeforeDegree = obj.optInt("RadicalKernBeforeDegree");
+        c.radicalKernAfterDegree = obj.optInt("RadicalKernAfterDegree");
+        c.radicalDegreeBottomRaisePercent = obj.optInt("RadicalDegreeBottomRaisePercent", 65);
+        
+        c.fractionNumeratorShiftUp = obj.optInt("FractionNumeratorShiftUp");
+        c.fractionDenominatorShiftDown = obj.optInt("FractionDenominatorShiftDown");
+        c.fractionRuleThickness = obj.optInt("FractionRuleThickness");
+        
+        c.superscriptShiftUp = obj.optInt("SuperscriptShiftUp");
+        c.subscriptShiftDown = obj.optInt("SubscriptShiftDown");
+        c.scriptPercentScaleDown = obj.optInt("ScriptPercentScaleDown", 70);
+        
+        c.axisHeight = obj.optInt("AxisHeight");
+        
+        return c;
+    }
+}
+
+class GlyphVariant {
+    public int glyphId;
+    public String glyphName;
+    public int advance;  // 字体单位
+    public RectF bbox;
+    
+    public static GlyphVariant fromJSON(JSONObject obj) throws Exception {
+        GlyphVariant v = new GlyphVariant();
+        v.glyphId = obj.getInt("glyphId");
+        v.glyphName = obj.getString("glyphName");
+        v.advance = obj.getInt("advance");
+        
+        JSONArray bboxArray = obj.getJSONArray("bbox");
+        v.bbox = new RectF(
+            (float) bboxArray.getDouble(0),
+            (float) bboxArray.getDouble(1),
+            (float) bboxArray.getDouble(2),
+            (float) bboxArray.getDouble(3)
+        );
+        
+        return v;
+    }
+}
+
+class GlyphPart {
+    public int glyphId;
+    public String glyphName;
+    public int startConnector;
+    public int endConnector;
+    public int fullAdvance;
+    public boolean isExtender;
+    
+    public static GlyphPart fromJSON(JSONObject obj) throws Exception {
+        GlyphPart p = new GlyphPart();
+        p.glyphId = obj.getInt("glyphId");
+        p.glyphName = obj.getString("glyphName");
+        p.startConnector = obj.getInt("startConnector");
+        p.endConnector = obj.getInt("endConnector");
+        p.fullAdvance = obj.getInt("fullAdvance");
+        p.isExtender = obj.getBoolean("isExtender");
+        return p;
+    }
+}
+
+class RadicalData {
+    public int baseGlyphId;
+    public String baseGlyphName;
+    public List<GlyphVariant> variants = new ArrayList<>();
+    public List<GlyphPart> parts = new ArrayList<>();
+    
+    public static RadicalData fromJSON(JSONObject obj) throws Exception {
+        RadicalData r = new RadicalData();
+        r.baseGlyphId = obj.getInt("baseGlyphId");
+        r.baseGlyphName = obj.getString("baseGlyphName");
+        
+        JSONArray variantsArray = obj.getJSONArray("variants");
+        for (int i = 0; i < variantsArray.length(); i++) {
+            r.variants.add(GlyphVariant.fromJSON(variantsArray.getJSONObject(i)));
+        }
+        
+        JSONArray partsArray = obj.getJSONArray("parts");
+        for (int i = 0; i < partsArray.length(); i++) {
+            r.parts.add(GlyphPart.fromJSON(partsArray.getJSONObject(i)));
+        }
+        
+        return r;
+    }
+}
+
+// ==================== 数据加载器 ====================
+
+class LatinModernMathData {
+    public String fontName;
+    public int unitsPerEm;
+    public MathConstants constants;
+    public RadicalData radical;
+    
+    public static LatinModernMathData load(Context context, String assetPath) {
+        try {
+            InputStream is = context.getAssets().open(assetPath);
+            byte[] buffer = new byte[is.available()];
+            is.read(buffer);
+            is.close();
+            
+            String json = new String(buffer, StandardCharsets.UTF_8);
+            JSONObject root = new JSONObject(json);
+            
+            LatinModernMathData data = new LatinModernMathData();
+            data.fontName = root.getString("fontName");
+            data.unitsPerEm = root.getInt("unitsPerEm");
+            data.constants = MathConstants.fromJSON(root.getJSONObject("constants"));
+            data.radical = RadicalData.fromJSON(root.getJSONObject("radical"));
+            
+            return data;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+    
+    /**
+     * 将字体单位转换为像素
+     */
+    public float toPixels(int fontUnits, float fontSize) {
+        return fontUnits * fontSize / unitsPerEm;
+    }
+    
+    /**
+     * 选择合适的根号变体
+     */
+    public GlyphVariant selectRadicalVariant(float targetHeightInFontUnits) {
+        for (GlyphVariant variant : radical.variants) {
+            if (variant.advance >= targetHeightInFontUnits) {
+                return variant;
+            }
+        }
+        // 返回最大的变体
+        return radical.variants.isEmpty() ? null : 
+               radical.variants.get(radical.variants.size() - 1);
+    }
+    
+    /**
+     * 计算需要的扩展部件数量
+     */
+    public int calculateExtenderCount(float targetHeightInFontUnits) {
+        int fixedHeight = 0;
+        int extenderHeight = 0;
+        
+        for (GlyphPart part : radical.parts) {
+            if (part.isExtender) {
+                extenderHeight = part.fullAdvance;
+            } else {
+                fixedHeight += part.fullAdvance;
+            }
+        }
+        
+        if (extenderHeight == 0) {
+            return 0;
+        }
+        
+        int remainingHeight = (int) (targetHeightInFontUnits - fixedHeight);
+        return Math.max(0, (int) Math.ceil((float) remainingHeight / extenderHeight));
+    }
+}
+
+// ==================== 根号渲染器 ====================
+
+public class LatinModernRadicalRenderer {
+    private Context context;
+    private LatinModernMathData mathData;
+    private Typeface mathFont;
+    private TextPaint paint;
+    
+    public LatinModernRadicalRenderer(Context context) {
+        this.context = context;
+        
+        // 加载数学数据
+        mathData = LatinModernMathData.load(context, "latin_modern_math_data.json");
+        
+        // 加载字体
+        mathFont = Typeface.createFromAsset(context.getAssets(), "fonts/latinmodern-math.otf");
+        
+        paint = new TextPaint();
+        paint.setTypeface(mathFont);
+        paint.setAntiAlias(true);
+        paint.setColor(Color.BLACK);
+    }
+    
+    /**
+     * 渲染根号
+     * 
+     * @param canvas 画布
+     * @param x 起始x坐标
+     * @param y 基线y坐标
+     * @param contentHeight 内容的高度（像素）
+     * @param contentDepth 内容的深度（像素）
+     * @param fontSize 字号（像素）
+     * @param rootIndex 根指数（可选，null表示平方根）
+     * @return 根号的总宽度（像素）
+     */
+    public float renderRadical(Canvas canvas, float x, float y,
+                              float contentHeight, float contentDepth,
+                              float fontSize, MathBox rootIndex) {
+        if (mathData == null) {
+            // 降级到简单绘制
+            return renderRadicalFallback(canvas, x, y, contentHeight, contentDepth, fontSize);
+        }
+        
+        paint.setTextSize(fontSize);
+        
+        // 1. 计算所需的根号高度（像素）
+        float gap = mathData.toPixels(mathData.constants.radicalVerticalGap, fontSize);
+        float ruleThickness = mathData.toPixels(mathData.constants.radicalRuleThickness, fontSize);
+        float extraAscender = mathData.toPixels(mathData.constants.radicalExtraAscender, fontSize);
+        
+        float totalContentHeight = contentHeight + contentDepth;
+        float targetHeight = totalContentHeight + gap + ruleThickness + extraAscender;
+        
+        // 2. 转换为字体单位
+        float targetHeightFU = targetHeight * mathData.unitsPerEm / fontSize;
+        
+        // 3. 选择合适的变体
+        GlyphVariant variant = mathData.selectRadicalVariant(targetHeightFU);
+        
+        float radicalWidth;
+        
+        if (variant != null && variant.advance >= targetHeightFU * 0.95f) {
+            // 使用预制变体
+            radicalWidth = renderPrebuiltRadical(canvas, x, y, variant, targetHeight, fontSize);
+        } else if (!mathData.radical.parts.isEmpty()) {
+            // 使用部件拼接
+            radicalWidth = renderAssembledRadical(canvas, x, y, targetHeight, fontSize);
+        } else {
+            // 降级方案
+            radicalWidth = renderRadicalFallback(canvas, x, y, contentHeight, contentDepth, fontSize);
+        }
+        
+        // 4. 绘制根指数（如果有）
+        if (rootIndex != null) {
+            float kernBefore = mathData.toPixels(mathData.constants.radicalKernBeforeDegree, fontSize);
+            float degreeRaise = totalContentHeight * 
+                mathData.constants.radicalDegreeBottomRaisePercent / 100f;
+            
+            float rootX = x + kernBefore;
+            float rootY = y - contentHeight - degreeRaise;
+            
+            // 根指数使用更小的字号
+            float savedSize = fontSize;
+            paint.setTextSize(fontSize * 0.6f);
+            
+            // 绘制根指数（这里简化，实际应该递归渲染）
+            // renderMathBox(canvas, rootX, rootY, rootIndex);
+            
+            paint.setTextSize(savedSize);
+        }
+        
+        return radicalWidth;
+    }
+    
+    /**
+     * 使用预制变体渲染
+     */
+    private float renderPrebuiltRadical(Canvas canvas, float x, float y,
+                                       GlyphVariant variant, float targetHeight,
+                                       float fontSize) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            // Android 11+ 可以直接绘制字形ID
+            canvas.save();
+            
+            // 计算缩放比例
+            float scale = fontSize / mathData.unitsPerEm;
+            float scaleY = targetHeight / mathData.toPixels(variant.advance, fontSize);
+            
+            canvas.translate(x, y);
+            canvas.scale(scale, scale * scaleY);
+            
+            // 绘制字形
+            int[] glyphIds = { variant.glyphId };
+            float[] positions = { 0, 0 };
+            
+            paint.setTextSize(mathData.unitsPerEm);
+            canvas.drawGlyphs(glyphIds, 0, positions, 0, 1, mathFont, paint);
+            paint.setTextSize(fontSize);
+            
+            canvas.restore();
+            
+            return mathData.toPixels(variant.bbox.width(), fontSize);
+        } else {
+            // 降级：使用 Unicode 根号字符
+            canvas.save();
+            
+            // 纵向拉伸
+            float scaleY = targetHeight / (fontSize * 1.2f);
+            canvas.scale(1, scaleY, x, y - fontSize);
+            
+            paint.setTextSize(fontSize);
+            canvas.drawText("√", x, y, paint);
+            
+            canvas.restore();
+            
+            return paint.measureText("√");
+        }
+    }
+    
+    /**
+     * 使用部件拼接渲染
+     */
+    private float renderAssembledRadical(Canvas canvas, float x, float y,
+                                        float targetHeight, float fontSize) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
+            // 不支持字形绘制，降级
+            return renderRadicalFallback(canvas, x, y, targetHeight * 0.7f, 
+                                        targetHeight * 0.3f, fontSize);
+        }
+        
+        float scale = fontSize / mathData.unitsPerEm;
+        float currentY = y - targetHeight;
+        
+        // 计算需要多少个扩展部件
+        float targetHeightFU = targetHeight * mathData.unitsPerEm / fontSize;
+        int extenderCount = mathData.calculateExtenderCount(targetHeightFU);
+        
+        float maxWidth = 0;
+        
+        canvas.save();
+        canvas.translate(x, 0);
+        
+        // 从顶部开始绘制
+        for (int i = mathData.radical.parts.size() - 1; i >= 0; i--) {
+            GlyphPart part = mathData.radical.parts.get(i);
+            
+            if (part.isExtender) {
+                // 绘制多次扩展部件
+                for (int j = 0; j < extenderCount; j++) {
+                    drawGlyphPart(canvas, 0, currentY, part, scale);
+                    currentY += part.fullAdvance * scale;
+                }
+            } else {
+                // 绘制固定部件
+                drawGlyphPart(canvas, 0, currentY, part, scale);
+                currentY += part.fullAdvance * scale;
+            }
+            
+            // 更新最大宽度（简化，实际应该查询字形边界）
+            maxWidth = Math.max(maxWidth, fontSize * 0.4f);
+        }
+        
+        canvas.restore();
+        
+        return maxWidth;
+    }
+    
+    /**
+     * 绘制单个字形部件
+     */
+    private void drawGlyphPart(Canvas canvas, float x, float y,
+                              GlyphPart part, float scale) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            canvas.save();
+            canvas.scale(scale, scale, x, y);
+            
+            int[] glyphIds = { part.glyphId };
+            float[] positions = { x / scale, y / scale };
+            
+            paint.setTextSize(mathData.unitsPerEm);
+            canvas.drawGlyphs(glyphIds, 0, positions, 0, 1, mathFont, paint);
+            
+            canvas.restore();
+        }
+    }
+    
+    /**
+     * 降级方案：使用 Path 绘制
+     */
+    private float renderRadicalFallback(Canvas canvas, float x, float y,
+                                       float contentHeight, float contentDepth,
+                                       float fontSize) {
+        float totalHeight = contentHeight + contentDepth;
+        
+        // 基于 Latin Modern Math 的实际比例
+        float hookWidth = fontSize * 0.166f;
+        float hookHeight = fontSize * 0.4f;
+        float surdWidth = fontSize * 0.25f;
+        float thickness = fontSize * 0.06f;
+        float extraHeight = fontSize * 0.1f;
+        
+        Path path = new Path();
+        
+        // 小勾起点
+        float x0 = x;
+        float y0 = y + contentDepth * 0.8f;
+        
+        // 小勾转折
+        float x1 = x0 + hookWidth;
+        float y1 = y0 - hookHeight;
+        path.moveTo(x0, y0);
+        path.lineTo(x1, y1);
+        
+        // 到底部
+        float x2 = x1 + hookWidth * 0.3f;
+        float y2 = y + contentDepth;
+        path.lineTo(x2, y2);
+        
+        // 到顶部
+        float x3 = x2 + surdWidth;
+        float y3 = y - contentHeight - extraHeight;
+        path.lineTo(x3, y3);
+        
+        // 上横线延伸一点
+        float x4 = x3 + thickness;
+        path.lineTo(x4, y3);
+        
+        // 绘制
+        paint.setStyle(Paint.Style.STROKE);
+        paint.setStrokeWidth(thickness);
+        paint.setStrokeCap(Paint.Cap.ROUND);
+        paint.setStrokeJoin(Paint.Join.ROUND);
+        canvas.drawPath(path, paint);
+        paint.setStyle(Paint.Style.FILL);
+        
+        return x3 - x0 + thickness;
+    }
+}
+
+// ==================== 使用示例 ====================
+
+/*
+// 在自定义 View 中使用
+public class MathView extends View {
+    private LatinModernRadicalRenderer radicalRenderer;
+    
+    public MathView(Context context) {
+        super(context);
+        radicalRenderer = new LatinModernRadicalRenderer(context);
+    }
+    
+    @Override
+    protected void onDraw(Canvas canvas) {
+        super.onDraw(canvas);
+        
+        // 渲染 √(x²+y²)
+        float x = 100;
+        float y = 200;  // 基线
+        float fontSize = 48;
+        
+        // 内容的高度和深度（简化，实际应该测量）
+        float contentHeight = fontSize * 0.7f;
+        float contentDepth = fontSize * 0.3f;
+        
+        // 绘制根号
+        float radicalWidth = radicalRenderer.renderRadical(
+            canvas, x, y,
+            contentHeight, contentDepth,
+            fontSize, null  // 平方根
+        );
+        
+        // 绘制内容（x²+y²）
+        Paint textPaint = new Paint();
+        textPaint.setTextSize(fontSize);
+        canvas.drawText("x²+y²", x + radicalWidth, y, textPaint);
+    }
+}
+
+// 需要准备的文件：
+// 1. assets/fonts/latinmodern-math.otf
+// 2. assets/latin_modern_math_data.json
+*/
+

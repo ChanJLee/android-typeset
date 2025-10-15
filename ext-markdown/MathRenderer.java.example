@@ -1,0 +1,667 @@
+/**
+ * Android数学公式渲染器
+ * 
+ * 基于TeX的盒子模型实现
+ * 支持：数字、变量、上下标、分式、根号、希腊字母等
+ */
+
+package me.chan.texas.math.render;
+
+import android.graphics.*;
+import android.text.TextPaint;
+
+import java.util.*;
+
+// ==================== 盒子模型 ====================
+
+/**
+ * 数学元素的盒子
+ * 基于TeX的盒子模型：width, height, depth
+ */
+class MathBox {
+    float width;    // 宽度
+    float height;   // 基线以上的高度
+    float depth;    // 基线以下的深度
+    
+    public MathBox() {}
+    
+    public MathBox(float width, float height, float depth) {
+        this.width = width;
+        this.height = height;
+        this.depth = depth;
+    }
+    
+    /** 总高度 = height + depth */
+    public float totalHeight() {
+        return height + depth;
+    }
+    
+    /** 中心轴位置（用于分数线等） */
+    public float axis() {
+        return (height - depth) / 2;
+    }
+}
+
+// ==================== 渲染上下文 ====================
+
+/**
+ * 渲染上下文
+ * 包含画布、画笔、字体参数等
+ */
+class RenderContext {
+    Canvas canvas;
+    TextPaint paint;
+    float fontSize;
+    
+    // 当前位置
+    float x;
+    float y;  // 基线y坐标
+    
+    // 字体度量
+    Paint.FontMetrics fontMetrics;
+    float xHeight;      // x字符的高度
+    float quad;         // em大小
+    float axisHeight;   // 中心轴高度
+    
+    // TeX参数（基于fontSize的比例）
+    static final float SUP_SHIFT_UP = 0.413f;
+    static final float SUB_SHIFT_DOWN = 0.15f;
+    static final float SCRIPT_SIZE = 0.7f;
+    static final float NUM_SHIFT_UP = 0.677f;
+    static final float DENOM_SHIFT_DOWN = 0.686f;
+    static final float FRAC_LINE_THICKNESS = 0.04f;
+    static final float SQRT_EXTRA_HEIGHT = 0.1f;
+    static final float SQRT_LINE_THICKNESS = 0.04f;
+    static final float SQRT_ROOT_SIZE = 0.6f;
+    
+    public RenderContext(Canvas canvas, float fontSize) {
+        this.canvas = canvas;
+        this.fontSize = fontSize;
+        
+        paint = new TextPaint();
+        paint.setTextSize(fontSize);
+        paint.setAntiAlias(true);
+        paint.setColor(Color.BLACK);
+        
+        updateFontMetrics();
+    }
+    
+    private void updateFontMetrics() {
+        fontMetrics = paint.getFontMetrics();
+        
+        // 测量x的高度作为参考
+        Rect bounds = new Rect();
+        paint.getTextBounds("x", 0, 1, bounds);
+        xHeight = bounds.height();
+        
+        quad = fontSize;
+        axisHeight = xHeight * 0.25f;
+    }
+    
+    /** 设置新的字号并更新度量 */
+    public void setFontSize(float newSize) {
+        this.fontSize = newSize;
+        paint.setTextSize(newSize);
+        updateFontMetrics();
+    }
+    
+    /** 保存当前字号 */
+    public float saveFontSize() {
+        return fontSize;
+    }
+    
+    /** 恢复字号 */
+    public void restoreFontSize(float savedSize) {
+        setFontSize(savedSize);
+    }
+}
+
+// ==================== 数学渲染器 ====================
+
+public class MathRenderer {
+    private RenderContext ctx;
+    
+    public MathRenderer(Canvas canvas, float fontSize) {
+        this.ctx = new RenderContext(canvas, fontSize);
+    }
+    
+    /**
+     * 渲染数学表达式
+     * @param ast 解析后的AST
+     * @param x 起始x坐标
+     * @param y 起始基线y坐标
+     * @return 渲染后的盒子
+     */
+    public MathBox render(MathList ast, float x, float y) {
+        ctx.x = x;
+        ctx.y = y;
+        
+        float startX = x;
+        float maxHeight = 0;
+        float maxDepth = 0;
+        
+        for (int i = 0; i < ast.terms.size(); i++) {
+            // 渲染term
+            MathBox box = renderTerm(ast.terms.get(i));
+            maxHeight = Math.max(maxHeight, box.height);
+            maxDepth = Math.max(maxDepth, box.depth);
+            
+            // 渲染运算符
+            if (i < ast.operators.size()) {
+                String op = ast.operators.get(i);
+                MathBox opBox = renderOperator(op);
+                maxHeight = Math.max(maxHeight, opBox.height);
+                maxDepth = Math.max(maxDepth, opBox.depth);
+            }
+        }
+        
+        return new MathBox(ctx.x - startX, maxHeight, maxDepth);
+    }
+    
+    /**
+     * 渲染term（atom + 可选的上下标）
+     */
+    private MathBox renderTerm(Term term) {
+        MathBox atomBox = renderAtom(term.atom);
+        
+        if (term.suffix != null) {
+            return renderSupSub(atomBox, term.suffix);
+        }
+        
+        return atomBox;
+    }
+    
+    /**
+     * 渲染atom
+     */
+    private MathBox renderAtom(Atom atom) {
+        if (atom instanceof NumberAtom) {
+            return renderNumber((NumberAtom) atom);
+        } else if (atom instanceof VariableAtom) {
+            return renderVariable((VariableAtom) atom);
+        } else if (atom instanceof GreekLetterAtom) {
+            return renderGreekLetter((GreekLetterAtom) atom);
+        } else if (atom instanceof GroupAtom) {
+            return render(((GroupAtom) atom).content, ctx.x, ctx.y);
+        } else if (atom instanceof FracAtom) {
+            return renderFrac((FracAtom) atom);
+        } else if (atom instanceof SqrtAtom) {
+            return renderSqrt((SqrtAtom) atom);
+        } else if (atom instanceof FunctionCallAtom) {
+            return renderFunction((FunctionCallAtom) atom);
+        } else if (atom instanceof LargeOperatorAtom) {
+            return renderLargeOperator((LargeOperatorAtom) atom);
+        } else if (atom instanceof TextAtom) {
+            return renderText((TextAtom) atom);
+        }
+        
+        // 未知类型，返回空盒子
+        return new MathBox(0, 0, 0);
+    }
+    
+    // ==================== 基础元素渲染 ====================
+    
+    private MathBox renderNumber(NumberAtom atom) {
+        return renderText(atom.value, false);
+    }
+    
+    private MathBox renderVariable(VariableAtom atom) {
+        // 变量使用斜体
+        ctx.paint.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.ITALIC));
+        MathBox box = renderText(String.valueOf(atom.name), false);
+        ctx.paint.setTypeface(Typeface.DEFAULT);
+        return box;
+    }
+    
+    private MathBox renderGreekLetter(GreekLetterAtom atom) {
+        // 希腊字母的Unicode映射
+        String unicode = getGreekUnicode(atom.symbol);
+        
+        // 希腊字母使用斜体
+        ctx.paint.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.ITALIC));
+        MathBox box = renderText(unicode, false);
+        ctx.paint.setTypeface(Typeface.DEFAULT);
+        return box;
+    }
+    
+    private MathBox renderText(TextAtom atom) {
+        // 文本模式使用正体
+        return renderText(atom.text, false);
+    }
+    
+    /**
+     * 渲染文本字符串
+     * @param text 文本内容
+     * @param move 是否移动x位置
+     */
+    private MathBox renderText(String text, boolean move) {
+        // 测量尺寸
+        float width = ctx.paint.measureText(text);
+        
+        Rect bounds = new Rect();
+        ctx.paint.getTextBounds(text, 0, text.length(), bounds);
+        
+        float height = -bounds.top;  // 基线以上
+        float depth = bounds.bottom;  // 基线以下
+        
+        // 绘制
+        ctx.canvas.drawText(text, ctx.x, ctx.y, ctx.paint);
+        
+        // 移动x位置
+        if (move) {
+            ctx.x += width;
+        }
+        
+        return new MathBox(width, height, depth);
+    }
+    
+    private MathBox renderOperator(String op) {
+        // 运算符前后留间距
+        float spacing = ctx.fontSize * 0.2f;
+        ctx.x += spacing;
+        
+        String symbol = op;
+        if (op.startsWith("\\")) {
+            symbol = getOperatorSymbol(op.substring(1));
+        }
+        
+        MathBox box = renderText(symbol, false);
+        ctx.x += box.width + spacing;
+        
+        return new MathBox(box.width + spacing * 2, box.height, box.depth);
+    }
+    
+    // ==================== 上下标渲染 ====================
+    
+    private MathBox renderSupSub(MathBox base, SupSubSuffix suffix) {
+        float baseX = ctx.x;
+        float baseY = ctx.y;
+        
+        float totalWidth = base.width;
+        float totalHeight = base.height;
+        float totalDepth = base.depth;
+        
+        // 保存原字号
+        float savedSize = ctx.saveFontSize();
+        ctx.setFontSize(savedSize * RenderContext.SCRIPT_SIZE);
+        
+        // 渲染上标
+        if (suffix.superscript != null) {
+            MathBox supBox = computeScriptBox(suffix.superscript);
+            
+            float supX = baseX + base.width;
+            float supY = baseY - base.height - savedSize * RenderContext.SUP_SHIFT_UP;
+            
+            ctx.x = supX;
+            ctx.y = supY;
+            renderScriptArg(suffix.superscript);
+            
+            totalWidth = Math.max(totalWidth, base.width + supBox.width);
+            totalHeight = Math.max(totalHeight, 
+                base.height + savedSize * RenderContext.SUP_SHIFT_UP + supBox.height);
+        }
+        
+        // 渲染下标
+        if (suffix.subscript != null) {
+            MathBox subBox = computeScriptBox(suffix.subscript);
+            
+            float subX = baseX + base.width;
+            float subY = baseY + base.depth + savedSize * RenderContext.SUB_SHIFT_DOWN;
+            
+            ctx.x = subX;
+            ctx.y = subY;
+            renderScriptArg(suffix.subscript);
+            
+            totalWidth = Math.max(totalWidth, base.width + subBox.width);
+            totalDepth = Math.max(totalDepth,
+                base.depth + savedSize * RenderContext.SUB_SHIFT_DOWN + subBox.depth);
+        }
+        
+        // 恢复字号和位置
+        ctx.restoreFontSize(savedSize);
+        ctx.x = baseX + totalWidth;
+        ctx.y = baseY;
+        
+        return new MathBox(totalWidth, totalHeight, totalDepth);
+    }
+    
+    private void renderScriptArg(ScriptArg arg) {
+        if (arg instanceof SingleTokenScriptArg) {
+            String token = ((SingleTokenScriptArg) arg).token;
+            renderText(token, false);
+        } else if (arg instanceof GroupScriptArg) {
+            render(((GroupScriptArg) arg).content, ctx.x, ctx.y);
+        }
+    }
+    
+    private MathBox computeScriptBox(ScriptArg arg) {
+        // 临时计算尺寸（不实际绘制）
+        float savedX = ctx.x;
+        float savedY = ctx.y;
+        float savedSize = ctx.saveFontSize();
+        
+        ctx.setFontSize(savedSize * RenderContext.SCRIPT_SIZE);
+        
+        MathBox box;
+        if (arg instanceof SingleTokenScriptArg) {
+            String token = ((SingleTokenScriptArg) arg).token;
+            box = new MathBox();
+            box.width = ctx.paint.measureText(token);
+            
+            Rect bounds = new Rect();
+            ctx.paint.getTextBounds(token, 0, token.length(), bounds);
+            box.height = -bounds.top;
+            box.depth = bounds.bottom;
+        } else {
+            box = computeBox(((GroupScriptArg) arg).content);
+        }
+        
+        ctx.restoreFontSize(savedSize);
+        ctx.x = savedX;
+        ctx.y = savedY;
+        
+        return box;
+    }
+    
+    // ==================== 分式渲染 ====================
+    
+    private MathBox renderFrac(FracAtom atom) {
+        float savedSize = ctx.saveFontSize();
+        ctx.setFontSize(savedSize * RenderContext.SCRIPT_SIZE);
+        
+        // 计算分子分母的盒子
+        MathBox numBox = computeBox(atom.numerator);
+        MathBox denomBox = computeBox(atom.denominator);
+        
+        // 总宽度（取较大者，留边距）
+        float margin = savedSize * 0.1f;
+        float width = Math.max(numBox.width, denomBox.width) + margin * 2;
+        
+        // 分数线位置和粗细
+        float lineY = ctx.y - ctx.axisHeight;
+        float lineThickness = savedSize * RenderContext.FRAC_LINE_THICKNESS;
+        
+        // 分子位置（分数线上方）
+        float numY = lineY - savedSize * RenderContext.NUM_SHIFT_UP;
+        float numX = ctx.x + (width - numBox.width) / 2;
+        
+        // 分母位置（分数线下方）
+        float denomY = lineY + savedSize * RenderContext.DENOM_SHIFT_DOWN;
+        float denomX = ctx.x + (width - denomBox.width) / 2;
+        
+        // 绘制分子
+        ctx.x = numX;
+        ctx.y = numY;
+        render(atom.numerator, ctx.x, ctx.y);
+        
+        // 绘制分数线
+        ctx.paint.setStrokeWidth(lineThickness);
+        ctx.canvas.drawLine(
+            ctx.x - numBox.width / 2, lineY,
+            ctx.x - numBox.width / 2 + width, lineY,
+            ctx.paint
+        );
+        
+        // 绘制分母
+        ctx.x = denomX;
+        ctx.y = denomY;
+        render(atom.denominator, ctx.x, ctx.y);
+        
+        // 恢复状态
+        ctx.restoreFontSize(savedSize);
+        ctx.x = ctx.x - denomBox.width + width;
+        
+        // 计算总盒子
+        float totalHeight = numBox.height + savedSize * RenderContext.NUM_SHIFT_UP + lineThickness / 2;
+        float totalDepth = denomBox.depth + savedSize * RenderContext.DENOM_SHIFT_DOWN + lineThickness / 2;
+        
+        return new MathBox(width, totalHeight, totalDepth);
+    }
+    
+    // ==================== 根号渲染 ====================
+    
+    private MathBox renderSqrt(SqrtAtom atom) {
+        float savedSize = ctx.saveFontSize();
+        
+        // 计算内容盒子
+        MathBox contentBox = computeBox(atom.content);
+        
+        float contentHeight = contentBox.height + contentBox.depth;
+        float sqrtHeight = contentHeight + savedSize * RenderContext.SQRT_EXTRA_HEIGHT;
+        
+        // 根号路径
+        Path path = new Path();
+        float thickness = savedSize * RenderContext.SQRT_LINE_THICKNESS;
+        
+        float x0 = ctx.x;
+        float y0 = ctx.y;
+        
+        // 小勾
+        float hookWidth = savedSize * 0.1f;
+        float hookHeight = contentHeight * 0.2f;
+        path.moveTo(x0, y0);
+        path.lineTo(x0 + hookWidth, y0 - hookHeight);
+        
+        // 到底部
+        float bottomX = x0 + hookWidth + savedSize * 0.05f;
+        float bottomY = y0 + contentBox.depth;
+        path.lineTo(bottomX, bottomY);
+        
+        // 到顶部
+        float topX = bottomX + savedSize * 0.15f;
+        float topY = y0 - contentBox.height - savedSize * RenderContext.SQRT_EXTRA_HEIGHT;
+        path.lineTo(topX, topY);
+        
+        // 上横线
+        float lineEndX = topX + contentBox.width + savedSize * 0.1f;
+        path.lineTo(lineEndX, topY);
+        
+        // 绘制根号
+        ctx.paint.setStyle(Paint.Style.STROKE);
+        ctx.paint.setStrokeWidth(thickness);
+        ctx.paint.setStrokeCap(Paint.Cap.ROUND);
+        ctx.paint.setStrokeJoin(Paint.Join.ROUND);
+        ctx.canvas.drawPath(path, ctx.paint);
+        ctx.paint.setStyle(Paint.Style.FILL);
+        
+        // 绘制内容
+        float contentX = topX + savedSize * 0.05f;
+        ctx.x = contentX;
+        render(atom.content, ctx.x, ctx.y);
+        
+        // 绘制根指数（如果有）
+        if (atom.root != null) {
+            ctx.setFontSize(savedSize * RenderContext.SQRT_ROOT_SIZE);
+            
+            MathBox rootBox = computeBox(atom.root);
+            float rootX = x0 + savedSize * 0.05f;
+            float rootY = topY - savedSize * 0.2f;
+            
+            ctx.x = rootX;
+            ctx.y = rootY;
+            render(atom.root, ctx.x, ctx.y);
+            
+            ctx.restoreFontSize(savedSize);
+        }
+        
+        // 更新位置
+        ctx.x = lineEndX;
+        
+        float totalWidth = lineEndX - x0;
+        float totalHeight = contentBox.height + savedSize * RenderContext.SQRT_EXTRA_HEIGHT;
+        float totalDepth = contentBox.depth;
+        
+        return new MathBox(totalWidth, totalHeight, totalDepth);
+    }
+    
+    // ==================== 函数和运算符渲染 ====================
+    
+    private MathBox renderFunction(FunctionCallAtom atom) {
+        // 函数名使用正体
+        String funcName = atom.functionName;
+        MathBox nameBox = renderText(funcName, false);
+        ctx.x += nameBox.width;
+        
+        float totalWidth = nameBox.width;
+        float totalHeight = nameBox.height;
+        float totalDepth = nameBox.depth;
+        
+        // 如果有下标/上标
+        if (atom.subscript != null || atom.superscript != null) {
+            SupSubSuffix suffix = new SupSubSuffix(atom.superscript, atom.subscript);
+            MathBox scriptBox = renderSupSub(nameBox, suffix);
+            totalWidth = scriptBox.width;
+            totalHeight = Math.max(totalHeight, scriptBox.height);
+            totalDepth = Math.max(totalDepth, scriptBox.depth);
+        }
+        
+        // 函数参数（可选）
+        if (atom.argument != null) {
+            ctx.x += ctx.fontSize * 0.1f;  // 小间距
+            MathBox argBox = renderAtom((Atom) atom.argument);
+            totalWidth += ctx.fontSize * 0.1f + argBox.width;
+            totalHeight = Math.max(totalHeight, argBox.height);
+            totalDepth = Math.max(totalDepth, argBox.depth);
+        }
+        
+        return new MathBox(totalWidth, totalHeight, totalDepth);
+    }
+    
+    private MathBox renderLargeOperator(LargeOperatorAtom atom) {
+        // 大型运算符使用更大的字号
+        float savedSize = ctx.saveFontSize();
+        ctx.setFontSize(savedSize * 1.4f);
+        
+        String symbol = getLargeOperatorSymbol(atom.operatorName);
+        MathBox symbolBox = renderText(symbol, false);
+        ctx.x += symbolBox.width;
+        
+        ctx.restoreFontSize(savedSize);
+        
+        float totalWidth = symbolBox.width;
+        float totalHeight = symbolBox.height;
+        float totalDepth = symbolBox.depth;
+        
+        // 上下标（在运算符正上方/正下方）
+        if (atom.subscript != null || atom.superscript != null) {
+            // TODO: 实现正上方/正下方的上下标
+            // 这需要将上下标居中对齐在运算符上
+        }
+        
+        return new MathBox(totalWidth, totalHeight, totalDepth);
+    }
+    
+    // ==================== 辅助方法 ====================
+    
+    /**
+     * 计算盒子尺寸（不实际渲染）
+     */
+    private MathBox computeBox(MathList list) {
+        // 保存状态
+        float savedX = ctx.x;
+        float savedY = ctx.y;
+        
+        // 临时渲染到一个不显示的canvas
+        // 实际应该有更高效的方法，这里简化处理
+        MathBox box = render(list, 0, 0);
+        
+        // 恢复状态
+        ctx.x = savedX;
+        ctx.y = savedY;
+        
+        return box;
+    }
+    
+    // ==================== 符号映射 ====================
+    
+    private String getGreekUnicode(String name) {
+        Map<String, String> map = new HashMap<>();
+        map.put("alpha", "α");
+        map.put("beta", "β");
+        map.put("gamma", "γ");
+        map.put("delta", "δ");
+        map.put("epsilon", "ε");
+        map.put("theta", "θ");
+        map.put("lambda", "λ");
+        map.put("mu", "μ");
+        map.put("pi", "π");
+        map.put("sigma", "σ");
+        map.put("phi", "φ");
+        map.put("omega", "ω");
+        // 大写
+        map.put("Gamma", "Γ");
+        map.put("Delta", "Δ");
+        map.put("Theta", "Θ");
+        map.put("Lambda", "Λ");
+        map.put("Sigma", "Σ");
+        map.put("Phi", "Φ");
+        map.put("Omega", "Ω");
+        
+        return map.getOrDefault(name, name);
+    }
+    
+    private String getOperatorSymbol(String op) {
+        Map<String, String> map = new HashMap<>();
+        map.put("times", "×");
+        map.put("cdot", "·");
+        map.put("div", "÷");
+        map.put("pm", "±");
+        map.put("neq", "≠");
+        map.put("le", "≤");
+        map.put("ge", "≥");
+        map.put("leq", "≤");
+        map.put("geq", "≥");
+        map.put("in", "∈");
+        map.put("notin", "∉");
+        map.put("subset", "⊂");
+        map.put("to", "→");
+        map.put("rightarrow", "→");
+        map.put("Rightarrow", "⇒");
+        
+        return map.getOrDefault(op, op);
+    }
+    
+    private String getLargeOperatorSymbol(String name) {
+        Map<String, String> map = new HashMap<>();
+        map.put("sum", "∑");
+        map.put("prod", "∏");
+        map.put("int", "∫");
+        map.put("oint", "∮");
+        map.put("bigcup", "⋃");
+        map.put("bigcap", "⋂");
+        
+        return map.getOrDefault(name, name);
+    }
+}
+
+// ==================== 使用示例 ====================
+
+/*
+// 在自定义View中使用
+public class MathView extends View {
+    private MathList ast;
+    private float fontSize = 48;
+    
+    public void setFormula(String latex) {
+        try {
+            CharStream stream = new CharStream(latex, 0, latex.length());
+            MathParser parser = new MathParser(stream);
+            ast = parser.parse();
+            invalidate();
+        } catch (MathParseException e) {
+            e.printStackTrace();
+        }
+    }
+    
+    @Override
+    protected void onDraw(Canvas canvas) {
+        super.onDraw(canvas);
+        
+        if (ast != null) {
+            MathRenderer renderer = new MathRenderer(canvas, fontSize);
+            renderer.render(ast, 50, 100);
+        }
+    }
+}
+*/
+

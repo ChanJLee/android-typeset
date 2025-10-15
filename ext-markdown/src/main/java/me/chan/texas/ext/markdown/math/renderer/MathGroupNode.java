@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import me.chan.texas.renderer.core.graphics.TexasCanvas;
+import me.chan.texas.renderer.core.graphics.TexasPaint;
 
 public abstract class MathGroupNode extends MathNode {
 
@@ -37,11 +38,11 @@ public abstract class MathGroupNode extends MathNode {
 	}
 
 	@Override
-	protected void onMeasure() {
+	protected void onMeasure(TexasPaint paint) {
 		int size = getChildCount();
 		for (int i = 0; i < size; ++i) {
 			MathNode child = getChildAt(i);
-			child.measure();
+			child.measure(paint);
 		}
 	}
 

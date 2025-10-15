@@ -2,6 +2,7 @@ package me.chan.texas.ext.markdown.math.renderer;
 
 import me.chan.texas.misc.RectF;
 import me.chan.texas.renderer.core.graphics.TexasCanvas;
+import me.chan.texas.renderer.core.graphics.TexasPaint;
 
 public class TextMathNode extends MathNode {
 	private CharSequence mText;
@@ -19,7 +20,7 @@ public class TextMathNode extends MathNode {
 	}
 
 	@Override
-	protected void onMeasure() {
+	protected void onMeasure(TexasPaint paint) {
 		throw new RuntimeException("Stub!");
 	}
 

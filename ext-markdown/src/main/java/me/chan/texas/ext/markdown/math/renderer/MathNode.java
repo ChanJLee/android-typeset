@@ -2,11 +2,12 @@ package me.chan.texas.ext.markdown.math.renderer;
 
 import me.chan.texas.misc.RectF;
 import me.chan.texas.renderer.core.graphics.TexasCanvas;
+import me.chan.texas.renderer.core.graphics.TexasPaint;
 
 public abstract class MathNode {
 
-	public final void measure() {
-		onMeasure();
+	public final void measure(TexasPaint paint) {
+		onMeasure(paint);
 	}
 
 	public final void layout(RectF bounds) {
@@ -17,7 +18,7 @@ public abstract class MathNode {
 		onDraw(canvas);
 	}
 
-	protected abstract void onMeasure();
+	protected abstract void onMeasure(TexasPaint paint);
 
 	protected abstract void onLayout(RectF bounds);
 
@@ -25,7 +26,7 @@ public abstract class MathNode {
 
 	public static final MathNode EMPTY = new MathNode() {
 		@Override
-		protected void onMeasure() {
+		protected void onMeasure(TexasPaint paint) {
 
 		}
 
