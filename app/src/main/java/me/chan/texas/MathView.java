@@ -3,6 +3,7 @@ package me.chan.texas;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.graphics.Typeface;
 import android.util.AttributeSet;
 import android.view.View;
 
@@ -20,6 +21,8 @@ public class MathView extends View {
 		super(context, attrs);
 		radicalRenderer = new LatinModernRadicalRenderer(context);
 		textPaint = new Paint();
+
+		textPaint.setTypeface(Typeface.createFromAsset(context.getAssets(), "texas_markdown_ext/latinmodern-math.otf"));
 		textPaint.setTextSize(48);
 	}
 
@@ -37,13 +40,14 @@ public class MathView extends View {
 		float contentDepth = fontSize * 0.3f;
 
 		// 绘制根号
+
+		// 绘制内容（x²+y²）
+		canvas.drawText("x²+y²", x + radicalWidth, y, textPaint);
+
 		float radicalWidth = radicalRenderer.renderRadical(
 				canvas, x, y,
 				contentHeight, contentDepth,
 				fontSize
 		);
-
-		// 绘制内容（x²+y²）
-		canvas.drawText("x²+y²", x + radicalWidth, y, textPaint);
 	}
 }

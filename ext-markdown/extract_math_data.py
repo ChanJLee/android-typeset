@@ -327,12 +327,27 @@ def extract_all_data(font_path):
             if symbol_data:
                 extracted_symbols[category][name] = symbol_data
     
+    # 为了向后兼容，在顶层也添加 radical 字段
+    radical_data = None
+    if 'miscSymbols' in extracted_symbols and 'radical' in extracted_symbols['miscSymbols']:
+        radical_symbol = extracted_symbols['miscSymbols']['radical']
+        radical_data = {
+            'baseGlyphId': radical_symbol['glyphId'],
+            'baseGlyphName': radical_symbol['glyphName'],
+            'variants': radical_symbol['variants'],
+            'parts': radical_symbol['parts']
+        }
+    
     data = {
         'fontName': str(font['name'].getDebugName(1)),  # Family name
         'unitsPerEm': units_per_em,
         'constants': extract_math_constants(math_table),
         'symbols': extracted_symbols,
     }
+    
+    # 添加 radical 字段（如果存在）
+    if radical_data:
+        data['radical'] = radical_data
     
     font.close()
     return data

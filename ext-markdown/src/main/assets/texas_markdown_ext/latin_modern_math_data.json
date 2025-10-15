@@ -979,5 +979,11 @@
         "parts": []
       }
     }
+  },
+  "radical": {
+    "baseGlyphId": 3077,
+    "baseGlyphName": "radical",
+    "variants": [],
+    "parts": []
   }
 }
