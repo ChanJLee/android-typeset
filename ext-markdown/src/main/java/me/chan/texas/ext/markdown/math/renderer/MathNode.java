@@ -1,4 +1,4 @@
-package me.chan.texas.ext.markdown.math;
+package me.chan.texas.ext.markdown.math.renderer;
 
 import me.chan.texas.misc.RectF;
 import me.chan.texas.renderer.core.graphics.TexasCanvas;

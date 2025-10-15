@@ -1,0 +1,228 @@
+(* 
+ * LaTeX数学公式BNF范式 - 改进版
+ * 特点：
+ * 1. 避免左递归和无限递归
+ * 2. 使用右递归和迭代形式
+ * 3. 明确的终止条件
+ * 4. 覆盖常用LaTeX数学语法
+ *)
+
+(* ============ 顶层结构 ============ *)
+
+<math> ::= <math_list>
+
+(* 使用迭代避免左递归，运算符作为连接符而非独立atom *)
+<math_list> ::= <term> { <binary_op> <term> }
+
+<term> ::= <atom> [ <sup_sub_suffix> ]
+
+(* ============ 原子表达式（终止节点） ============ *)
+
+<atom> ::= <number>
+         | <variable>
+         | <plain_symbol>
+         | <greek_letter>
+         | <group>
+         | <frac>
+         | <sqrt>
+         | <delimited>
+         | <function_call>
+         | <large_operator>
+         | <matrix>
+         | <text>
+         | <accent>
+         | <spacing>
+
+(* ============ 基础元素 ============ *)
+
+<number> ::= <digit> { <digit> } [ "." <digit> { <digit> } ]
+
+<digit> ::= "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9"
+
+<variable> ::= <letter>
+
+<letter> ::= "a" | "b" | "c" | ... | "z" | "A" | "B" | ... | "Z"
+
+(* ============ 符号 ============ *)
+
+<plain_symbol> ::= "+" | "-" | "*" | "/" | "=" | "<" | ">" | "(" | ")" | "[" | "]" | "|" | "!" | "?" | ":" | ";" | "," | "."
+
+<greek_letter> ::= "\alpha" | "\beta" | "\gamma" | "\delta" | "\epsilon" | "\varepsilon" 
+                 | "\zeta" | "\eta" | "\theta" | "\vartheta" | "\iota" | "\kappa" 
+                 | "\lambda" | "\mu" | "\nu" | "\xi" | "\pi" | "\varpi" | "\rho" | "\varrho"
+                 | "\sigma" | "\varsigma" | "\tau" | "\upsilon" | "\phi" | "\varphi" 
+                 | "\chi" | "\psi" | "\omega"
+                 | "\Gamma" | "\Delta" | "\Theta" | "\Lambda" | "\Xi" | "\Pi" 
+                 | "\Sigma" | "\Upsilon" | "\Phi" | "\Psi" | "\Omega"
+
+<binary_op> ::= "+" | "-" | "*" | "/"
+              | "\times" | "\cdot" | "\div" | "\pm" | "\mp"
+              | "=" | "\neq" | "\equiv" | "\approx" | "\cong" | "\sim"
+              | "<" | ">" | "\le" | "\ge" | "\leq" | "\geq" | "\ll" | "\gg"
+              | "\in" | "\notin" | "\subset" | "\supset" | "\subseteq" | "\supseteq"
+              | "\cup" | "\cap" | "\wedge" | "\vee"
+              | "\to" | "\rightarrow" | "\leftarrow" | "\leftrightarrow" | "\Rightarrow" | "\Leftarrow" | "\Leftrightarrow"
+
+(* ============ 分组（递归有界） ============ *)
+
+<group> ::= "{" <math_list> "}"
+
+(* ============ 上下标（明确的递归终止） ============ *)
+
+<sup_sub_suffix> ::= "^" <script_arg>
+                   | "_" <script_arg>
+                   | "^" <script_arg> "_" <script_arg>
+                   | "_" <script_arg> "^" <script_arg>
+
+(* script_arg 只能是单个token或group，避免无限递归 *)
+<script_arg> ::= <single_token> | <group>
+
+<single_token> ::= <number>
+                 | <letter>
+                 | <greek_letter>
+                 | <plain_symbol>
+
+(* ============ 分式 ============ *)
+
+<frac> ::= "\frac" "{" <math_list> "}" "{" <math_list> "}"
+         | "\dfrac" "{" <math_list> "}" "{" <math_list> "}"
+         | "\tfrac" "{" <math_list> "}" "{" <math_list> "}"
+         | "\cfrac" "{" <math_list> "}" "{" <math_list> "}"
+
+(* ============ 根式 ============ *)
+
+<sqrt> ::= "\sqrt" "{" <math_list> "}"
+         | "\sqrt" "[" <math_list> "]" "{" <math_list> "}"
+
+(* ============ 定界符 ============ *)
+
+<delimited> ::= "\left" <delimiter> <math_list> "\right" <delimiter>
+              | "\bigl" <delimiter> <math_list> "\bigr" <delimiter>
+              | "\Bigl" <delimiter> <math_list> "\Bigr" <delimiter>
+              | "\biggl" <delimiter> <math_list> "\biggr" <delimiter>
+              | "\Biggl" <delimiter> <math_list> "\Biggr" <delimiter>
+
+<delimiter> ::= "(" | ")" | "[" | "]" | "\{" | "\}" | "|" | "\|"
+              | "\langle" | "\rangle"
+              | "\lfloor" | "\rfloor"
+              | "\lceil" | "\rceil"
+              | "\lvert" | "\rvert"
+              | "\lVert" | "\rVert"
+              | "." (* 表示空定界符 *)
+
+(* ============ 函数 ============ *)
+
+<function_call> ::= "\" <function_name> [ "_" <script_arg> ] [ "^" <script_arg> ] [ <function_arg> ]
+
+<function_name> ::= "sin" | "cos" | "tan" | "cot" | "sec" | "csc"
+                  | "arcsin" | "arccos" | "arctan"
+                  | "sinh" | "cosh" | "tanh" | "coth"
+                  | "log" | "ln" | "lg" | "exp"
+                  | "max" | "min" | "sup" | "inf"
+                  | "lim" | "limsup" | "liminf"
+                  | "arg" | "deg" | "det" | "dim" | "gcd" | "hom" | "ker"
+                  | "Pr" | "bmod" | "pmod"
+
+(* 函数参数只能是单个token或group，避免吃掉后续内容 *)
+<function_arg> ::= <single_token> | <group> | <delimited>
+
+(* ============ 大型运算符 ============ *)
+
+<large_operator> ::= "\" <large_op_name> [ "_" <script_arg> ] [ "^" <script_arg> ]
+
+<large_op_name> ::= "sum" | "prod" | "coprod"
+                  | "int" | "iint" | "iiint" | "oint" | "oiint" | "oiiint"
+                  | "bigcup" | "bigcap" | "bigvee" | "bigwedge"
+                  | "bigoplus" | "bigotimes" | "bigodot"
+                  | "biguplus" | "bigsqcup"
+
+(* ============ 矩阵 ============ *)
+
+<matrix> ::= "\begin{" <matrix_env> "}" <matrix_rows> "\end{" <matrix_env> "}"
+
+<matrix_env> ::= "matrix" | "pmatrix" | "bmatrix" | "Bmatrix" | "vmatrix" | "Vmatrix"
+               | "smallmatrix" | "array" | "cases"
+
+<matrix_rows> ::= <matrix_row> { "\\" <matrix_row> }
+
+<matrix_row> ::= <math_list> { "&" <math_list> }
+
+(* ============ 文本模式 ============ *)
+
+<text> ::= "\text" "{" <text_content> "}"
+         | "\mbox" "{" <text_content> "}"
+         | "\textrm" "{" <text_content> "}"
+         | "\textit" "{" <text_content> "}"
+         | "\textbf" "{" <text_content> "}"
+
+<text_content> ::= <any_unicode_char> { <any_unicode_char> }
+
+(* ============ 字体命令 ============ *)
+
+<font_command> ::= <font_cmd_name> "{" <math_list> "}"
+
+<font_cmd_name> ::= "\mathrm" | "\mathit" | "\mathbf" | "\mathsf" | "\mathtt"
+                  | "\mathcal" | "\mathbb" | "\mathfrak" | "\mathscr"
+                  | "\boldsymbol" | "\bm"
+
+(* ============ 重音符号 ============ *)
+
+<accent> ::= <accent_cmd> "{" <math_list> "}"
+           | <accent_cmd> <single_token>
+
+<accent_cmd> ::= "\hat" | "\widehat" | "\tilde" | "\widetilde"
+               | "\bar" | "\overline" | "\underline"
+               | "\vec" | "\overrightarrow" | "\overleftarrow"
+               | "\dot" | "\ddot" | "\dddot"
+               | "\acute" | "\grave" | "\breve" | "\check"
+               | "\mathring"
+               | "\overbrace" | "\underbrace"
+               | "\overgroup" | "\undergroup"
+
+(* ============ 空格命令 ============ *)
+
+<spacing> ::= "\," | "\:" | "\;" | "\!"
+            | "\quad" | "\qquad"
+            | "\hspace" "{" <length> "}"
+            | "\hphantom" "{" <math_list> "}"
+            | "\vphantom" "{" <math_list> "}"
+            | "\phantom" "{" <math_list> "}"
+
+<length> ::= <number> <unit>
+
+<unit> ::= "em" | "ex" | "pt" | "px" | "cm" | "mm" | "in"
+
+(* ============ 特殊结构 ============ *)
+
+<color> ::= "\color{" <color_name> "}" "{" <math_list> "}"
+
+<color_name> ::= "red" | "blue" | "green" | "black" | "white" | "cyan" | "magenta" | "yellow"
+               | "#" <hex_digit> <hex_digit> <hex_digit> <hex_digit> <hex_digit> <hex_digit>
+
+<hex_digit> ::= <digit> | "a" | "b" | "c" | "d" | "e" | "f" | "A" | "B" | "C" | "D" | "E" | "F"
+
+(* ============ 多行公式 ============ *)
+
+<multiline> ::= "\begin{" <multiline_env> "}" <multiline_rows> "\end{" <multiline_env> "}"
+
+<multiline_env> ::= "align" | "align*" | "aligned" | "gather" | "gather*" | "multline" | "multline*"
+                  | "split" | "eqnarray" | "eqnarray*"
+
+<multiline_rows> ::= <math_list> { "\\" <math_list> }
+
+(* ============ 关键约束 ============ *)
+
+(*
+ * 递归安全性保证：
+ * 1. math_list 只递归到 term，term 只递归到 atom
+ * 2. 所有从 atom 到 math_list 的递归都有明确的界定符（{...}, \left...\right 等）
+ * 3. 上下标只接受 script_arg，不能直接递归到 math_list
+ * 4. 函数参数只接受受限的 function_arg，避免贪婪匹配
+ * 5. 使用 {...} 迭代而非递归，避免左递归
+ * 
+ * 歧义消除：
+ * 1. 运算符优先级通过解析器实现（本BNF只定义语法结构）
+ * 2. 最长匹配原则：\alpha 优先于 \a
+ * 3. 贪婪匹配：{...} 总是尽可能匹配到最近的 }
+ *)
+
