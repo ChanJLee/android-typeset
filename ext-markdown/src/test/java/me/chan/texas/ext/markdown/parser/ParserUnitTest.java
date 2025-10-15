@@ -364,6 +364,40 @@ public class ParserUnitTest {
 		assertParses("\\overrightarrow{AB}");
 	}
 
+	@Test
+	public void testExtendedAccents() {
+		System.out.println("\n=== 测试扩展重音符号 ===");
+		assertParses("\\grave{a}");
+		assertParses("\\acute{a}");
+		assertParses("\\breve{a}");
+		assertParses("\\check{a}");
+		assertParses("\\dot{y}");
+		assertParses("\\ddot{y}");
+		assertParses("\\overbrace{a+b+c}");
+		assertParses("\\underbrace{a+b+c}");
+		assertParses("\\widetilde{xyz}");
+		assertParses("\\widehat{AB}");
+	}
+
+	@Test
+	public void testAccentErrors() {
+		System.out.println("\n=== 测试重音符号错误 ===");
+		assertParseFails("\\hat{}");          // 缺少内容
+		assertParseFails("\\bar");            // 缺少花括号
+		assertParseFails("\\overline");       // 缺少参数
+		assertParseFails("\\dot{");           // 不完整参数
+	}
+
+	@Test
+	public void testNestedAccents() {
+		System.out.println("\n=== 测试嵌套重音结构 ===");
+		assertParses("\\hat{x_i}");
+		assertParses("\\vec{x^2}");
+		assertParses("\\bar{\\frac{a}{b}}");
+		assertParses("\\tilde{\\sqrt{x}}");
+		assertParses("\\overrightarrow{\\hat{v}}");
+	}
+
 	// ============ 13. 复杂表达式测试 ============
 
 	@Test
@@ -506,5 +540,25 @@ public class ParserUnitTest {
 		assertParses("x_a^b");
 
 		System.out.println("\n✅ BNF 覆盖率测试完成!");
+	}
+
+	// ============ 20. 错误恢复与健壮性 ============
+
+	@Test
+	public void testErrorRecovery() {
+		System.out.println("\n=== 测试解析器错误恢复能力 ===");
+		String[] badInputs = {
+				"\\frac{1}{",        // 缺右括号
+				"\\sqrt[",           // 缺指数参数
+				"\\left(x",          // 缺 right
+				"\\hat",             // 缺花括号
+				"\\text",            // 缺参数
+				"\\sum_{i=1}^{",     // 不完整上下标
+				"{x",                // 括号未闭合
+		};
+
+		for (String input : badInputs) {
+			assertParseFails(input);
+		}
 	}
 }

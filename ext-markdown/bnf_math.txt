@@ -55,6 +55,8 @@
                  | "\Gamma" | "\Delta" | "\Theta" | "\Lambda" | "\Xi" | "\Pi" 
                  | "\Sigma" | "\Upsilon" | "\Phi" | "\Psi" | "\Omega"
 
+<unary_op> ::= "+" | "-" | "\pm" | "\mp"
+
 <binary_op> ::= "+" | "-" | "*" | "/"
               | "\times" | "\cdot" | "\div" | "\pm" | "\mp"
               | "=" | "\neq" | "\equiv" | "\approx" | "\cong" | "\sim"
