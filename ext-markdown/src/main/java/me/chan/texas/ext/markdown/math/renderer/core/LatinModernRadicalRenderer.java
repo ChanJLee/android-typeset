@@ -232,14 +232,14 @@ public class LatinModernRadicalRenderer {
 		this.context = context;
 
 		// 加载数学数据
-		mathData = LatinModernMathData.load(context, "latin_modern_math_data.json");
+		mathData = LatinModernMathData.load(context, "texas_markdown_ext/latin_modern_math_data.json");
 
 		// 加载字体
-		mathTypeface = Typeface.createFromAsset(context.getAssets(), "fonts/latinmodern-math.otf");
+		mathTypeface = Typeface.createFromAsset(context.getAssets(), "texas_markdown_ext/latinmodern-math.otf");
 
 		// Android S+ 创建 Font 对象
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-			mathFont = new Font.Builder(context.getAssets(), "fonts/latinmodern-math.otf").build();
+			mathFont = new Font.Builder(context.getAssets(), "texas_markdown_ext/latinmodern-math.otf").build();
 		}
 
 		paint = new TextPaint();
