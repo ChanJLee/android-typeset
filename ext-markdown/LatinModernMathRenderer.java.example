@@ -2,13 +2,19 @@
  * 使用 Latin Modern Math 字体渲染数学公式
  * 
  * 基于预提取的 MATH 表数据
- * 支持 Android 11+ 的原生字形渲染，低版本降级到 Path 绘制
+ * 
+ * 版本要求：
+ * - Android 12 (S, API 31)+ : 使用 drawGlyphs() 原生字形渲染（最佳效果）
+ * - Android 11 及以下 : 降级到 Unicode 字符 + Path 绘制
+ * 
+ * 注意：drawGlyphs() 需要 android.graphics.fonts.Font (API 31+)
  */
 
 package me.chan.texas.math.render;
 
 import android.content.Context;
 import android.graphics.*;
+import android.graphics.fonts.Font;
 import android.os.Build;
 import android.text.TextPaint;
 
@@ -217,7 +223,8 @@ class LatinModernMathData {
 public class LatinModernRadicalRenderer {
     private Context context;
     private LatinModernMathData mathData;
-    private Typeface mathFont;
+    private Typeface mathTypeface;
+    private Font mathFont;  // Android S+ 需要 Font
     private TextPaint paint;
     
     public LatinModernRadicalRenderer(Context context) {
@@ -227,10 +234,15 @@ public class LatinModernRadicalRenderer {
         mathData = LatinModernMathData.load(context, "latin_modern_math_data.json");
         
         // 加载字体
-        mathFont = Typeface.createFromAsset(context.getAssets(), "fonts/latinmodern-math.otf");
+        mathTypeface = Typeface.createFromAsset(context.getAssets(), "fonts/latinmodern-math.otf");
+        
+        // Android S+ 创建 Font 对象
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            mathFont = new Font.Builder(mathTypeface).build();
+        }
         
         paint = new TextPaint();
-        paint.setTypeface(mathFont);
+        paint.setTypeface(mathTypeface);
         paint.setAntiAlias(true);
         paint.setColor(Color.BLACK);
     }
@@ -312,8 +324,8 @@ public class LatinModernRadicalRenderer {
     private float renderPrebuiltRadical(Canvas canvas, float x, float y,
                                        GlyphVariant variant, float targetHeight,
                                        float fontSize) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            // Android 11+ 可以直接绘制字形ID
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            // Android 12+ (S) 可以直接绘制字形ID
             canvas.save();
             
             // 计算缩放比例
@@ -323,7 +335,7 @@ public class LatinModernRadicalRenderer {
             canvas.translate(x, y);
             canvas.scale(scale, scale * scaleY);
             
-            // 绘制字形
+            // 绘制字形（使用 Font 而非 Typeface）
             int[] glyphIds = { variant.glyphId };
             float[] positions = { 0, 0 };
             
@@ -335,7 +347,7 @@ public class LatinModernRadicalRenderer {
             
             return mathData.toPixels(variant.bbox.width(), fontSize);
         } else {
-            // 降级：使用 Unicode 根号字符
+            // 降级：使用 Unicode 根号字符（Android 11 及以下）
             canvas.save();
             
             // 纵向拉伸
@@ -356,8 +368,8 @@ public class LatinModernRadicalRenderer {
      */
     private float renderAssembledRadical(Canvas canvas, float x, float y,
                                         float targetHeight, float fontSize) {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
-            // 不支持字形绘制，降级
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
+            // Android 12 以下不支持字形绘制，降级
             return renderRadicalFallback(canvas, x, y, targetHeight * 0.7f, 
                                         targetHeight * 0.3f, fontSize);
         }
@@ -404,7 +416,7 @@ public class LatinModernRadicalRenderer {
      */
     private void drawGlyphPart(Canvas canvas, float x, float y,
                               GlyphPart part, float scale) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             canvas.save();
             canvas.scale(scale, scale, x, y);
             
@@ -412,6 +424,7 @@ public class LatinModernRadicalRenderer {
             float[] positions = { x / scale, y / scale };
             
             paint.setTextSize(mathData.unitsPerEm);
+            // 使用 Font 而非 Typeface
             canvas.drawGlyphs(glyphIds, 0, positions, 0, 1, mathFont, paint);
             
             canvas.restore();
@@ -497,6 +510,8 @@ public class MathView extends View {
         float contentDepth = fontSize * 0.3f;
         
         // 绘制根号
+        // Android 12+ 使用字形ID渲染（最佳效果）
+        // Android 11- 自动降级到 Unicode + Path
         float radicalWidth = radicalRenderer.renderRadical(
             canvas, x, y,
             contentHeight, contentDepth,
@@ -513,5 +528,9 @@ public class MathView extends View {
 // 需要准备的文件：
 // 1. assets/fonts/latinmodern-math.otf
 // 2. assets/latin_modern_math_data.json
+//
+// 版本兼容性：
+// - minSdkVersion: 21 (支持所有版本，自动降级)
+// - targetSdkVersion: 31+ (获得最佳字形渲染效果)
 */
 
