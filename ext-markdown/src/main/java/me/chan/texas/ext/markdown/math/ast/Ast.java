@@ -1,6 +1,6 @@
 package me.chan.texas.ext.markdown.math.ast;
 
-public interface Node {
+public interface Ast {
 	String toLatex();
 }
 

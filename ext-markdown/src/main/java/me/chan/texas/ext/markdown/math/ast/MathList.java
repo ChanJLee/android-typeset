@@ -2,7 +2,7 @@ package me.chan.texas.ext.markdown.math.ast;
 
 import java.util.List;
 
-public class MathList implements Node {
+public class MathList implements Ast {
 	List<Term> terms;
 	List<String> operators;
 

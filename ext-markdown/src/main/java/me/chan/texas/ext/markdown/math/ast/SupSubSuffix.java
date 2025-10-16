@@ -1,6 +1,6 @@
 package me.chan.texas.ext.markdown.math.ast;
 
-public class SupSubSuffix implements Node {
+public class SupSubSuffix implements Ast {
 	ScriptArg superscript;
 	ScriptArg subscript;
 

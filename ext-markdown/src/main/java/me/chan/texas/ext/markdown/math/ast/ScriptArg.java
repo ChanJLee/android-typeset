@@ -1,4 +1,4 @@
 package me.chan.texas.ext.markdown.math.ast;
 
-public interface ScriptArg extends Node {
+public interface ScriptArg extends Ast {
 }

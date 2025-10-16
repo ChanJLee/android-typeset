@@ -59,12 +59,14 @@ public class MathView extends View {
 		float unit = 1000;
 		float scale = fontSize / unit;
 
+		canvas.drawLine(x - fontSize, y + 10, x, y + 10, textPaint);
 		canvas.translate(x, y);
+
 		canvas.scale(scale, scale);
 
 		// 绘制字形（使用 Font 而非 Typeface）
-		int[] glyphIds = { 3077 };
-		float[] positions = { 0, 0 };
+		int[] glyphIds = {3077};
+		float[] positions = {0, 0};
 
 		paint.setTextSize(unit);
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {

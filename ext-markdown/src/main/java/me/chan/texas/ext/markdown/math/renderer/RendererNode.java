@@ -4,7 +4,12 @@ import me.chan.texas.misc.RectF;
 import me.chan.texas.renderer.core.graphics.TexasCanvas;
 import me.chan.texas.renderer.core.graphics.TexasPaint;
 
-public abstract class MathNode {
+public abstract class RendererNode {
+	private final float mScale;
+
+	public RendererNode(float scale) {
+		mScale = scale;
+	}
 
 	public final void measure(TexasPaint paint) {
 		onMeasure(paint);
@@ -24,7 +29,7 @@ public abstract class MathNode {
 
 	protected abstract void onDraw(TexasCanvas canvas);
 
-	public static final MathNode EMPTY = new MathNode() {
+	public static final RendererNode EMPTY = new RendererNode(1) {
 		@Override
 		protected void onMeasure(TexasPaint paint) {
 
