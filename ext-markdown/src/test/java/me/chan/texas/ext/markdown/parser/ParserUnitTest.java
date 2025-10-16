@@ -180,6 +180,8 @@ public class ParserUnitTest {
 		assertParses("x^a");
 		assertParses("e^{-x}");
 		assertParses("x^\\alpha");
+		assertParses("e^{\\pm x}");
+		assertParses("e^{\\mp x}");
 	}
 
 	@Test

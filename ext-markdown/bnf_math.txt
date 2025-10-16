@@ -14,7 +14,7 @@
 (* 使用迭代避免左递归，运算符作为连接符而非独立atom *)
 <math_list> ::= <term> { <binary_op> <term> }
 
-<term> ::= <atom> [ <sup_sub_suffix> ]
+<term> ::= [ <unary_op> ] <atom> [ <sup_sub_suffix> ]
 
 (* ============ 原子表达式（终止节点） ============ *)
 
@@ -47,15 +47,16 @@
 
 <plain_symbol> ::= "+" | "-" | "*" | "/" | "=" | "<" | ">" | "(" | ")" | "[" | "]" | "|" | "!" | "?" | ":" | ";" | "," | "."
 
-<greek_letter> ::= "\alpha" | "\beta" | "\gamma" | "\delta" | "\epsilon" | "\varepsilon" 
-                 | "\zeta" | "\eta" | "\theta" | "\vartheta" | "\iota" | "\kappa" 
+<unary_op> ::= "+" | "-" | "\pm" | "\mp"
+
+<greek_letter> ::= "\alpha" | "\beta" | "\gamma" | "\delta" | "\epsilon" | "\varepsilon"
+                 | "\zeta" | "\eta" | "\theta" | "\vartheta" | "\iota" | "\kappa"
                  | "\lambda" | "\mu" | "\nu" | "\xi" | "\pi" | "\varpi" | "\rho" | "\varrho"
-                 | "\sigma" | "\varsigma" | "\tau" | "\upsilon" | "\phi" | "\varphi" 
+                 | "\sigma" | "\varsigma" | "\tau" | "\upsilon" | "\phi" | "\varphi"
                  | "\chi" | "\psi" | "\omega"
-                 | "\Gamma" | "\Delta" | "\Theta" | "\Lambda" | "\Xi" | "\Pi" 
+                 | "\Gamma" | "\Delta" | "\Theta" | "\Lambda" | "\Xi" | "\Pi"
                  | "\Sigma" | "\Upsilon" | "\Phi" | "\Psi" | "\Omega"
 
-<unary_op> ::= "+" | "-" | "\pm" | "\mp"
 
 <binary_op> ::= "+" | "-" | "*" | "/"
               | "\times" | "\cdot" | "\div" | "\pm" | "\mp"
@@ -221,6 +222,7 @@
  * 3. 上下标只接受 script_arg，不能直接递归到 math_list
  * 4. 函数参数只接受受限的 function_arg，避免贪婪匹配
  * 5. 使用 {...} 迭代而非递归，避免左递归
+ * 6. 一元运算符是可选的前缀，不会导致递归问题
  * 
  * 歧义消除：
  * 1. 运算符优先级通过解析器实现（本BNF只定义语法结构）
