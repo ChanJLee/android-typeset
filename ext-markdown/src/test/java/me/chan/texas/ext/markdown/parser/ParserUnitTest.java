@@ -85,6 +85,11 @@ public class ParserUnitTest {
 		assertParses("abc");
 	}
 
+	@Test
+	public void testUnaryOp() {
+		assertParses("- a+b");
+	}
+
 	// ============ 2. 希腊字母测试 (BNF 第 50-56 行) ============
 
 	@Test

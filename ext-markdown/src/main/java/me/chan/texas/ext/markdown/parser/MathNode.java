@@ -467,12 +467,13 @@ class MathParser {
 					stream.restore(saved);
 				}
 			} else if (c == '\\') {
+				int saved = stream.save();
 				stream.eat();
 				String cmd = scanCommandName();
 				if ("pm".equals(cmd) || "mp".equals(cmd)) {
 					return "\\" + cmd;
 				}
-				throw new MathParseException("Expected unary operator, got \\" + cmd, stream.save());
+				stream.restore(saved);
 			}
 		}
 
