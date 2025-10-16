@@ -320,6 +320,10 @@ class MathParseException extends Exception {
 		super(message + " at position " + position);
 		this.position = position;
 	}
+
+	public int getPosition() {
+		return position;
+	}
 }
 
 // ==================== 基于CharStream的解析器 ====================
@@ -373,7 +377,10 @@ class MathParser {
 			"hat", "widehat", "tilde", "widetilde",
 			"bar", "overline", "underline",
 			"vec", "overrightarrow", "overleftarrow",
-			"dot", "ddot", "dddot"
+			"dot", "ddot", "dddot",
+			"acute", "grave", "breve", "check",
+			"mathring", "overbrace", "underbrace", "overgroup",
+			"overgroup"
 	));
 
 	// 定界符映射

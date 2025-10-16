@@ -1,6 +1,7 @@
 package me.chan.texas.ext.markdown.parser;
 
 import org.junit.Test;
+
 import static org.junit.Assert.*;
 
 import me.chan.texas.utils.CharStream;
@@ -34,7 +35,7 @@ public class ParserUnitTest {
 			assertNotNull("输出不应为null", output);
 			System.out.println("✅ " + input + " → " + output);
 		} catch (MathParseException e) {
-			fail("解析失败: " + e.getMessage() + " - 输入: " + input);
+			fail("解析失败: " + e.getMessage() + " - 输入: " + input + " -> [" + input.substring(e.position) + "]");
 		}
 	}
 
@@ -412,6 +413,9 @@ public class ParserUnitTest {
 		System.out.println("\n=== 测试复杂表达式 ===");
 		// 二次公式
 		assertParses("\\frac{-b\\pm\\sqrt{b^2-4ac}}{2a}");
+
+		// 极限
+		assertParses("\\frac{\\sin x}{x}");
 
 		// 极限
 		assertParses("\\lim_{x\\to 0}\\frac{\\sin x}{x}");
