@@ -447,7 +447,7 @@ class MathParser {
 		return new Term(unaryOp, atom, suffix);
 	}
 
-	private String parseUnaryOp() {
+	private String parseUnaryOp() throws MathParseException {
 		if (!stream.eof()) {
 			char c = (char) stream.peek();
 			if (c == '+' || c == '-') {
@@ -467,7 +467,12 @@ class MathParser {
 					stream.restore(saved);
 				}
 			} else if (c == '\\') {
-				throw new RuntimeException("Stub!");
+				stream.eat();
+				String cmd = scanCommandName();
+				if ("pm".equals(cmd) || "mp".equals(cmd)) {
+					return "\\" + cmd;
+				}
+				throw new MathParseException("Expected unary operator, got \\" + cmd, stream.save());
 			}
 		}
 
