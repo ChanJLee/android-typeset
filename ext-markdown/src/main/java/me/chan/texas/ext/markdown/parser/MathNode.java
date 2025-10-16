@@ -365,7 +365,7 @@ class MathParser {
 			"sigma", "varsigma", "tau", "upsilon", "phi", "varphi",
 			"chi", "psi", "omega",
 			"Gamma", "Delta", "Theta", "Lambda", "Xi", "Pi",
-			"Sigma", "Upsilon", "Phi", "Psi", "Omega"
+			"Sigma", "Upsilon", "Phi", "Psi", "Omega", "infty"
 	));
 
 	// 重音符号集合
