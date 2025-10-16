@@ -1,335 +1,38 @@
-/**
- * LaTeX数学公式解析器 - 基于CharStream的移动端优化版本
- * <p>
- * 特点：
- * 1. 零字符串拷贝，适合移动端
- * 2. 使用CharStream避免substring操作
- * 3. 基于改进版BNF范式，无递归陷阱
- * 4. 递归深度限制
- */
-
 package me.chan.texas.ext.markdown.parser;
 
+import me.chan.texas.ext.markdown.math.ast.AccentAtom;
+import me.chan.texas.ext.markdown.math.ast.Atom;
+import me.chan.texas.ext.markdown.math.ast.DelimitedAtom;
+import me.chan.texas.ext.markdown.math.ast.FracAtom;
+import me.chan.texas.ext.markdown.math.ast.FunctionCallAtom;
+import me.chan.texas.ext.markdown.math.ast.GreekLetterAtom;
+import me.chan.texas.ext.markdown.math.ast.GroupAtom;
+import me.chan.texas.ext.markdown.math.ast.GroupScriptArg;
+import me.chan.texas.ext.markdown.math.ast.LargeOperatorAtom;
+import me.chan.texas.ext.markdown.math.ast.MathList;
+import me.chan.texas.ext.markdown.math.ast.MathNode;
+import me.chan.texas.ext.markdown.math.ast.MathParseException;
+import me.chan.texas.ext.markdown.math.ast.NumberAtom;
+import me.chan.texas.ext.markdown.math.ast.ScriptArg;
+import me.chan.texas.ext.markdown.math.ast.SingleTokenScriptArg;
+import me.chan.texas.ext.markdown.math.ast.SqrtAtom;
+import me.chan.texas.ext.markdown.math.ast.SupSubSuffix;
+import me.chan.texas.ext.markdown.math.ast.Term;
+import me.chan.texas.ext.markdown.math.ast.TextAtom;
+import me.chan.texas.ext.markdown.math.ast.VariableAtom;
 import me.chan.texas.utils.CharStream;
 
 import java.util.*;
 
 // ==================== AST节点定义 ====================
 
-interface MathNode {
-	String toLatex();
-}
-
-class MathList implements MathNode {
-	List<Term> terms;
-	List<String> operators;
-
-	public MathList(List<Term> terms, List<String> operators) {
-		this.terms = terms;
-		this.operators = operators;
-	}
-
-	@Override
-	public String toLatex() {
-		StringBuilder sb = new StringBuilder();
-		for (int i = 0; i < terms.size(); i++) {
-			sb.append(terms.get(i).toLatex());
-			if (i < operators.size()) {
-				sb.append(operators.get(i));
-			}
-		}
-		return sb.toString();
-	}
-}
-
-class Term implements MathNode {
-	String unaryOp;       // 可选，一元运算符 "+" 或 "-"
-	Atom atom;
-	SupSubSuffix suffix;  // 可选
-
-	public Term(String unaryOp, Atom atom, SupSubSuffix suffix) {
-		this.unaryOp = unaryOp;
-		this.atom = atom;
-		this.suffix = suffix;
-	}
-
-	@Override
-	public String toLatex() {
-		String result = "";
-		if (unaryOp != null) {
-			result += unaryOp;
-		}
-		result += atom.toLatex();
-		if (suffix != null) {
-			result += suffix.toLatex();
-		}
-		return result;
-	}
-}
-
-interface  Atom extends MathNode {
-}
-
-class NumberAtom implements Atom {
-	String value;
-
-	public NumberAtom(String value) {
-		this.value = value;
-	}
-
-	@Override
-	public String toLatex() {
-		return value;
-	}
-}
-
-class VariableAtom implements Atom {
-	char name;
-
-	public VariableAtom(char name) {
-		this.name = name;
-	}
-
-	@Override
-	public String toLatex() {
-		return String.valueOf(name);
-	}
-}
-
-class GreekLetterAtom implements Atom {
-	String symbol;  // 如 "alpha", "beta"
-
-	public GreekLetterAtom(String symbol) {
-		this.symbol = symbol;
-	}
-
-	@Override
-	public String toLatex() {
-		return "\\" + symbol;
-	}
-}
-
-class GroupAtom implements Atom {
-	MathList content;
-
-	public GroupAtom(MathList content) {
-		this.content = content;
-	}
-
-	@Override
-	public String toLatex() {
-		return "{" + content.toLatex() + "}";
-	}
-}
-
-class FracAtom implements Atom {
-	MathList numerator;
-	MathList denominator;
-	String command;  // "frac", "dfrac", "tfrac"
-
-	public FracAtom(String command, MathList numerator, MathList denominator) {
-		this.command = command;
-		this.numerator = numerator;
-		this.denominator = denominator;
-	}
-
-	@Override
-	public String toLatex() {
-		return "\\" + command + "{" + numerator.toLatex() + "}{" + denominator.toLatex() + "}";
-	}
-}
-
-class SqrtAtom implements Atom {
-	MathList content;
-	MathList root;  // 可选，n次根
-
-	public SqrtAtom(MathList content, MathList root) {
-		this.content = content;
-		this.root = root;
-	}
-
-	@Override
-	public String toLatex() {
-		String result = "\\sqrt";
-		if (root != null) {
-			result += "[" + root.toLatex() + "]";
-		}
-		result += "{" + content.toLatex() + "}";
-		return result;
-	}
-}
-
-class DelimitedAtom implements Atom {
-	String leftDelim;
-	MathList content;
-	String rightDelim;
-
-	public DelimitedAtom(String leftDelim, MathList content, String rightDelim) {
-		this.leftDelim = leftDelim;
-		this.content = content;
-		this.rightDelim = rightDelim;
-	}
-
-	@Override
-	public String toLatex() {
-		return "\\left" + leftDelim + content.toLatex() + "\\right" + rightDelim;
-	}
-}
-
-class FunctionCallAtom implements Atom {
-	String functionName;
-	ScriptArg subscript;     // 可选
-	ScriptArg superscript;   // 可选
-	MathNode argument;       // 可选
-
-	public FunctionCallAtom(String functionName, ScriptArg subscript,
-							ScriptArg superscript, MathNode argument) {
-		this.functionName = functionName;
-		this.subscript = subscript;
-		this.superscript = superscript;
-		this.argument = argument;
-	}
-
-	@Override
-	public String toLatex() {
-		String result = "\\" + functionName;
-		if (subscript != null) {
-			result += "_" + subscript.toLatex();
-		}
-		if (superscript != null) {
-			result += "^" + superscript.toLatex();
-		}
-		if (argument != null) {
-			result += argument.toLatex();
-		}
-		return result;
-	}
-}
-
-class LargeOperatorAtom implements Atom {
-	String operatorName;  // "sum", "int", "prod"
-	ScriptArg subscript;
-	ScriptArg superscript;
-
-	public LargeOperatorAtom(String operatorName, ScriptArg subscript, ScriptArg superscript) {
-		this.operatorName = operatorName;
-		this.subscript = subscript;
-		this.superscript = superscript;
-	}
-
-	@Override
-	public String toLatex() {
-		String result = "\\" + operatorName;
-		if (subscript != null) {
-			result += "_" + subscript.toLatex();
-		}
-		if (superscript != null) {
-			result += "^" + superscript.toLatex();
-		}
-		return result;
-	}
-}
-
-class TextAtom implements Atom {
-	String text;
-	String command;  // "text", "mbox"
-
-	public TextAtom(String command, String text) {
-		this.command = command;
-		this.text = text;
-	}
-
-	@Override
-	public String toLatex() {
-		return "\\" + command + "{" + text + "}";
-	}
-}
-
-class AccentAtom implements Atom {
-	String accentCmd;  // "hat", "bar", "vec"
-	MathNode content;
-
-	public AccentAtom(String accentCmd, MathNode content) {
-		this.accentCmd = accentCmd;
-		this.content = content;
-	}
-
-	@Override
-	public String toLatex() {
-		return "\\" + accentCmd + "{" + content.toLatex() + "}";
-	}
-}
-
-class SupSubSuffix implements MathNode {
-	ScriptArg superscript;
-	ScriptArg subscript;
-
-	public SupSubSuffix(ScriptArg superscript, ScriptArg subscript) {
-		this.superscript = superscript;
-		this.subscript = subscript;
-	}
-
-	@Override
-	public String toLatex() {
-		String result = "";
-		if (superscript != null) {
-			result += "^" + superscript.toLatex();
-		}
-		if (subscript != null) {
-			result += "_" + subscript.toLatex();
-		}
-		return result;
-	}
-}
-
-interface ScriptArg extends MathNode {
-}
-
-class SingleTokenScriptArg implements ScriptArg {
-	String token;
-
-	public SingleTokenScriptArg(String token) {
-		this.token = token;
-	}
-
-	@Override
-	public String toLatex() {
-		return token;
-	}
-}
-
-class GroupScriptArg implements ScriptArg {
-	MathList content;
-
-	public GroupScriptArg(MathList content) {
-		this.content = content;
-	}
-
-	@Override
-	public String toLatex() {
-		return "{" + content.toLatex() + "}";
-	}
-}
 
 // ==================== 异常类 ====================
 
-class MathParseException extends Exception {
-	int position;
-
-	public MathParseException(String message, int position) {
-		super(message + " at position " + position);
-		this.position = position;
-	}
-
-	public int getPosition() {
-		return position;
-	}
-}
-
 // ==================== 基于CharStream的解析器 ====================
 
-class MathParser {
-	private CharStream stream;
+public class MathParser {
+	private final CharStream stream;
 	private int recursionDepth = 0;
 	private static final int MAX_RECURSION_DEPTH = 100;
 
@@ -394,8 +97,6 @@ class MathParser {
 		this.stream = stream;
 	}
 
-	// ========== 主入口 ==========
-
 	public MathList parse() throws MathParseException {
 		skipWhitespace();
 		MathList result = parseMathList();
@@ -407,8 +108,6 @@ class MathParser {
 
 		return result;
 	}
-
-	// ========== 递归下降解析方法 ==========
 
 	/**
 	 * <math_list> ::= <term> { <binary_op> <term> }
@@ -945,7 +644,7 @@ class MathParser {
 
 		if (stream.peek() == '{') {
 			GroupAtom group = parseGroup();
-			return new GroupScriptArg(group.content);
+			return new GroupScriptArg(group.getContent());
 		} else if (isSingleTokenStart()) {
 			String token = scanSingleToken();
 			return new SingleTokenScriptArg(token);
@@ -1149,43 +848,3 @@ class MathParser {
 		stream.eat();
 	}
 }
-
-// ==================== 使用示例 ====================
-
-class MathParserExample {
-	public static void main(String[] args) {
-		String[] testCases = {
-				"x^2",
-				"x^{n+1}",
-				"x^a+b",
-				"\\frac{1}{2}",
-				"\\sqrt{x+1}",
-				"\\sqrt[3]{27}",
-				"\\sum_{i=1}^{n} i^2",
-				"\\sin x + y",
-				"\\sin{x+y}",
-				"\\alpha + \\beta",
-				"a+b*c",
-				"\\left( \\frac{a}{b} \\right)",
-				"\\text{当x趋近于0时}",
-				"\\hat{x} + \\vec{v}",
-				"\\log_2 n"
-		};
-
-		for (String testCase : testCases) {
-			System.out.println("\n输入: " + testCase);
-			try {
-				CharStream stream = new CharStream(testCase, 0, testCase.length());
-				MathParser parser = new MathParser(stream);
-				MathList ast = parser.parse();
-
-				System.out.println("✅ 解析成功!");
-				System.out.println("输出: " + ast.toLatex());
-
-			} catch (MathParseException e) {
-				System.out.println("❌ 解析错误: " + e.getMessage());
-			}
-		}
-	}
-}
-

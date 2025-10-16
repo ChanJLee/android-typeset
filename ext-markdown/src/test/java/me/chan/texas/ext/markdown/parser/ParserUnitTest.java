@@ -4,6 +4,8 @@ import org.junit.Test;
 
 import static org.junit.Assert.*;
 
+import me.chan.texas.ext.markdown.math.ast.*;
+
 import me.chan.texas.utils.CharStream;
 
 /**
@@ -35,7 +37,7 @@ public class ParserUnitTest {
 			assertNotNull("输出不应为null", output);
 			System.out.println("✅ " + input + " → " + output);
 		} catch (MathParseException e) {
-			fail("解析失败: " + e.getMessage() + " - 输入: " + input + " -> [" + input.substring(e.position) + "]");
+			fail("解析失败: " + e.getMessage() + " - 输入: " + input + " -> [" + input.substring(e.getPosition()) + "]");
 		}
 	}
 
