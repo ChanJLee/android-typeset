@@ -419,14 +419,45 @@ class MathParser {
 
 		// 后续的 op term 对
 		skipWhitespace();
-		while (!stream.eof() && isBinaryOperator()) {
-			operators.add(consumeBinaryOperator());
+		while (!stream.eof()) {
+			if (isBinaryOperator()) {
+				operators.add(consumeBinaryOperator());
+			} else if (isTermEnd()) {
+				break;
+			}
 			skipWhitespace();
 			terms.add(parseTerm());
 			skipWhitespace();
 		}
 
 		return new MathList(terms, operators);
+	}
+
+	/**
+	 * 辅助方法：判断当前是否是 term 的结束位置
+	 * 例如，当遇到右括号、\right 命令或文件末尾时
+	 */
+	private boolean isTermEnd() {
+		if (stream.eof()) {
+			return true;
+		}
+		char c = (char) stream.peek();
+		if (c == '}') { // 组结束
+			return true;
+		}
+		if (c == ']') { // 组结束
+			return true;
+		}
+
+		if (c == '\\') {
+			int savedPos = stream.save();
+			stream.eat(); // consume '\'
+			String cmd = scanCommandName();
+			stream.restore(savedPos);
+			// \right 和 \end 是明确的结束标志
+			return cmd.equals("right") || cmd.equals("end");
+		}
+		return false;
 	}
 
 	/**

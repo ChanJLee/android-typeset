@@ -12,7 +12,7 @@
 <math> ::= <math_list>
 
 (* 使用迭代避免左递归，运算符作为连接符而非独立atom *)
-<math_list> ::= <term> { <binary_op> <term> }
+<math_list> ::= <term> { <binary_op> <term> | term }
 
 <term> ::= [ <unary_op> ] <atom> [ <sup_sub_suffix> ]
 
