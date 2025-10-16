@@ -2,9 +2,9 @@ package me.chan.texas.ext.markdown.math.ast;
 
 public class AccentAtom implements Atom {
 	String accentCmd;  // "hat", "bar", "vec"
-	MathNode content;
+	Node content;
 
-	public AccentAtom(String accentCmd, MathNode content) {
+	public AccentAtom(String accentCmd, Node content) {
 		this.accentCmd = accentCmd;
 		this.content = content;
 	}

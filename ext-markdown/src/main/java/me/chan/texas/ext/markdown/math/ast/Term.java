@@ -1,6 +1,6 @@
 package me.chan.texas.ext.markdown.math.ast;
 
-public class Term implements MathNode {
+public class Term implements Node {
 	String unaryOp;       // 可选，一元运算符 "+" 或 "-"
 	Atom atom;
 	SupSubSuffix suffix;  // 可选

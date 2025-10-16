@@ -12,7 +12,7 @@ import me.chan.texas.utils.CharStream;
  * LaTeX 数学公式解析器单元测试
  * 覆盖 bnf_math.txt 中定义的所有语法规则
  */
-public class ParserUnitTest {
+public class MathParserUnitTest {
 
 	// ============ 辅助方法 ============
 

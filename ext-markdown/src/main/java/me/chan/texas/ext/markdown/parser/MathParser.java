@@ -10,7 +10,7 @@ import me.chan.texas.ext.markdown.math.ast.GroupAtom;
 import me.chan.texas.ext.markdown.math.ast.GroupScriptArg;
 import me.chan.texas.ext.markdown.math.ast.LargeOperatorAtom;
 import me.chan.texas.ext.markdown.math.ast.MathList;
-import me.chan.texas.ext.markdown.math.ast.MathNode;
+import me.chan.texas.ext.markdown.math.ast.Node;
 import me.chan.texas.ext.markdown.math.ast.MathParseException;
 import me.chan.texas.ext.markdown.math.ast.NumberAtom;
 import me.chan.texas.ext.markdown.math.ast.ScriptArg;
@@ -499,7 +499,7 @@ public class MathParser {
 		}
 
 		// 函数参数（可选，只吃一个token或group）
-		MathNode argument = null;
+		Node argument = null;
 		if (!stream.eof()) {
 			char c = (char) stream.peek();
 			if (c == '{') {

@@ -4,10 +4,10 @@ public class FunctionCallAtom implements Atom {
 	String functionName;
 	ScriptArg subscript;     // 可选
 	ScriptArg superscript;   // 可选
-	MathNode argument;       // 可选
+	Node argument;       // 可选
 
 	public FunctionCallAtom(String functionName, ScriptArg subscript,
-							ScriptArg superscript, MathNode argument) {
+							ScriptArg superscript, Node argument) {
 		this.functionName = functionName;
 		this.subscript = subscript;
 		this.superscript = superscript;
