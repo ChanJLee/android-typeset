@@ -67,7 +67,7 @@ class Term implements MathNode {
 	}
 }
 
-interface Atom extends MathNode {
+interface  Atom extends MathNode {
 }
 
 class NumberAtom implements Atom {
@@ -348,7 +348,6 @@ class MathParser {
 			"arcsin", "arccos", "arctan",
 			"sinh", "cosh", "tanh",
 			"log", "ln", "lg", "exp",
-			"lim", "limsup", "liminf",
 			"max", "min", "sup", "inf",
 			"det", "dim", "gcd", "ker"
 	));
@@ -358,7 +357,8 @@ class MathParser {
 			"sum", "prod", "coprod",
 			"int", "iint", "iiint", "oint", "oiint",
 			"bigcup", "bigcap", "bigvee", "bigwedge",
-			"bigoplus", "bigotimes", "bigodot"
+			"bigoplus", "bigotimes", "bigodot",
+			"lim", "limsup", "liminf"
 	));
 
 	// 希腊字母集合

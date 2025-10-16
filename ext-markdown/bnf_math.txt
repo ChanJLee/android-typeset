@@ -122,7 +122,6 @@
                   | "sinh" | "cosh" | "tanh" | "coth"
                   | "log" | "ln" | "lg" | "exp"
                   | "max" | "min" | "sup" | "inf"
-                  | "lim" | "limsup" | "liminf"
                   | "arg" | "deg" | "det" | "dim" | "gcd" | "hom" | "ker"
                   | "Pr" | "bmod" | "pmod"
 
@@ -137,7 +136,8 @@
                   | "int" | "iint" | "iiint" | "oint" | "oiint" | "oiiint"
                   | "bigcup" | "bigcap" | "bigvee" | "bigwedge"
                   | "bigoplus" | "bigotimes" | "bigodot"
-                  | "biguplus" | "bigsqcup"
+                  | "biguplus" | "bigsqcup"  | "lim" | "limsup" | "liminf"
+
 
 (* ============ 矩阵 ============ *)
 
