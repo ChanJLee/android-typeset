@@ -4,6 +4,7 @@ import org.junit.Test;
 
 import static org.junit.Assert.*;
 
+import me.chan.texas.ext.markdown.math.ast.MathParser;
 import me.chan.texas.ext.markdown.math.ast.*;
 
 import me.chan.texas.utils.CharStream;

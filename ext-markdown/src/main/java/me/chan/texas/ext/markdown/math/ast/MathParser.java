@@ -1,25 +1,5 @@
-package me.chan.texas.ext.markdown.parser;
+package me.chan.texas.ext.markdown.math.ast;
 
-import me.chan.texas.ext.markdown.math.ast.AccentAtom;
-import me.chan.texas.ext.markdown.math.ast.Atom;
-import me.chan.texas.ext.markdown.math.ast.DelimitedAtom;
-import me.chan.texas.ext.markdown.math.ast.FracAtom;
-import me.chan.texas.ext.markdown.math.ast.FunctionCallAtom;
-import me.chan.texas.ext.markdown.math.ast.GreekLetterAtom;
-import me.chan.texas.ext.markdown.math.ast.GroupAtom;
-import me.chan.texas.ext.markdown.math.ast.GroupScriptArg;
-import me.chan.texas.ext.markdown.math.ast.LargeOperatorAtom;
-import me.chan.texas.ext.markdown.math.ast.MathList;
-import me.chan.texas.ext.markdown.math.ast.Ast;
-import me.chan.texas.ext.markdown.math.ast.MathParseException;
-import me.chan.texas.ext.markdown.math.ast.NumberAtom;
-import me.chan.texas.ext.markdown.math.ast.ScriptArg;
-import me.chan.texas.ext.markdown.math.ast.SingleTokenScriptArg;
-import me.chan.texas.ext.markdown.math.ast.SqrtAtom;
-import me.chan.texas.ext.markdown.math.ast.SupSubSuffix;
-import me.chan.texas.ext.markdown.math.ast.Term;
-import me.chan.texas.ext.markdown.math.ast.TextAtom;
-import me.chan.texas.ext.markdown.math.ast.VariableAtom;
 import me.chan.texas.utils.CharStream;
 
 import java.util.*;

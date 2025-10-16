@@ -33,8 +33,8 @@ public abstract class RendererNode {
 		onLayout(left, top, right, bottom);
 	}
 
-	public final void draw(TexasCanvas canvas) {
-		onDraw(canvas);
+	public final void draw(TexasCanvas canvas, TexasPaint paint) {
+		onDraw(canvas, paint);
 	}
 
 	protected abstract void onMeasure(TexasPaint paint);
@@ -42,7 +42,7 @@ public abstract class RendererNode {
 	protected void onLayout(float left, float top, float right, float bottom) {
 	}
 
-	protected abstract void onDraw(TexasCanvas canvas);
+	protected abstract void onDraw(TexasCanvas canvas, TexasPaint paint);
 
 	public final int getWidth() {
 		return (int) (mWidth * mScale);
@@ -50,5 +50,21 @@ public abstract class RendererNode {
 
 	public final int getHeight() {
 		return (int) (mHeight * mScale);
+	}
+
+	public float getLeft() {
+		return mLeft;
+	}
+
+	public float getTop() {
+		return mTop;
+	}
+
+	public float getRight() {
+		return mRight;
+	}
+
+	public float getBottom() {
+		return mBottom;
 	}
 }
