@@ -6,6 +6,8 @@ import me.chan.texas.renderer.core.graphics.TexasPaint;
 
 public abstract class RendererNode {
 	private final float mScale;
+	private int mWidth;
+	private int mHeight;
 
 	public RendererNode(float scale) {
 		mScale = scale;
@@ -13,6 +15,11 @@ public abstract class RendererNode {
 
 	public final void measure(TexasPaint paint) {
 		onMeasure(paint);
+	}
+
+	protected final void setMeasuredSize(int width, int height) {
+		mWidth = width;
+		mHeight = height;
 	}
 
 	public final void layout(RectF bounds) {
@@ -28,6 +35,14 @@ public abstract class RendererNode {
 	protected abstract void onLayout(RectF bounds);
 
 	protected abstract void onDraw(TexasCanvas canvas);
+
+	public int getWidth() {
+		return mWidth;
+	}
+
+	public int getHeight() {
+		return mHeight;
+	}
 
 	public static final RendererNode EMPTY = new RendererNode(1) {
 		@Override
