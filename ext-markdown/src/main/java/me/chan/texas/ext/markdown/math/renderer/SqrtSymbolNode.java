@@ -40,7 +40,8 @@ public class SqrtSymbolNode extends RendererNode {
 	}
 
 	public float getKernAfterDegree() {
-		return MathFontOptions.RADICAL_KERN_AFTER_DEGREE / MathFontOptions.UNITS_PER_EM * mTextSize;
+//		return MathFontOptions.RADICAL_KERN_AFTER_DEGREE / MathFontOptions.UNITS_PER_EM * mTextSize;
+		return 0;
 	}
 
 	public float getDegreeBottomRaisePercent() {
@@ -57,11 +58,18 @@ public class SqrtSymbolNode extends RendererNode {
 
 	@Override
 	protected void onDraw(TexasCanvas canvas, TexasPaint paint) {
+		float textSize = paint.getTextSize();
+
 		float y = getExtraAscender();
 		canvas.drawText("√", 0, y, paint);
 
+		float thickness = getRuleThickness();
+		paint.setTextSize(thickness);
 		float startX = getWidth();
+		y -= (thickness / 2);
 		canvas.drawLine(startX, y, startX + mContentWidth, y, paint);
+
+		paint.setTextSize(textSize);
 	}
 
 	@Override

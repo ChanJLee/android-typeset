@@ -6,7 +6,7 @@ import me.chan.texas.renderer.core.graphics.TexasCanvas;
 import me.chan.texas.renderer.core.graphics.TexasPaint;
 
 public abstract class RendererNode {
-	public static final boolean DEBUG = true;
+	public static final boolean DEBUG = false;
 
 	private float mScale = 1;
 	private int mWidth;
