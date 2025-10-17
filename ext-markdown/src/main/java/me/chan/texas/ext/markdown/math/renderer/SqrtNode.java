@@ -28,25 +28,24 @@ public class SqrtNode extends RendererNode {
 		mContent.measure(paint);
 		mSymbol.measure(paint);
 		mSymbol.setContentWidth(mContent.getWidth() + mSymbol.getKernAfterDegree());
-
-		int width = (int) Math.ceil(mSymbol.getWidth() + mSymbol.getContentWidth());
-		float bottom = Math.max(mSymbol.getHeight(), mContent.getHeight() + mSymbol.getVerticalGap());
-		float top = 0;
 		if (mRoot != null) {
 			mRoot.measure(paint);
-			width += (int) Math.ceil(mRoot.getWidth() - mSymbol.getKernBeforeDegree());
-
-			float dy = mSymbol.getHeight() * (1 - mSymbol.getDegreeBottomRaisePercent()) - mRoot.getHeight();
-			if (dy < 0) {
-				top = dy;
-			}
 		}
 
-		setMeasuredSize(width, (int) Math.ceil(bottom - top));
+		preLayout();
+		float left = mSymbol.getLeft();
+		float top = mSymbol.getTop();
+		float right = mContent.getRight();
+		float bottom = mContent.getBottom();
+		if (mRoot != null) {
+			left = mRoot.getLeft();
+			top = mRoot.getTop();
+		}
+
+		setMeasuredSize((int) Math.ceil(right - left), (int) Math.ceil(bottom - top));
 	}
 
-	@Override
-	protected void onLayoutChildren() {
+	private void preLayout() {
 		float left = 0;
 		float top = 0;
 		if (mRoot != null) {
