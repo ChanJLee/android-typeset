@@ -8,7 +8,7 @@ import me.chan.texas.utils.CharArrayPool;
 import me.chan.texas.utils.TexasUtils;
 
 public class TextNode extends RendererNode {
-	private static final boolean DEBUG = false;
+	private static final boolean DEBUG = true;
 	private static final CharArrayPool POOL = new CharArrayPool();
 
 	private final String mContent;
@@ -38,10 +38,10 @@ public class TextNode extends RendererNode {
 
 	@Override
 	protected void onDraw(TexasCanvas canvas, TexasPaint paint) {
-		canvas.drawText(mContent, 0, mBaselineOffset, paint);
+		canvas.drawText(mContent, 0, getBottom() - mBaselineOffset, paint);
 
 		if (DEBUG) {
-			canvas.drawRect(0, 0, 0, 0, paint);
+			canvas.drawRect(0, 0, getWidth(), getHeight(), paint);
 		}
 	}
 }

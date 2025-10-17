@@ -2,6 +2,7 @@ package me.chan.texas;
 
 import android.content.Context;
 import android.graphics.Canvas;
+import android.graphics.Paint;
 import android.graphics.Typeface;
 import android.graphics.fonts.Font;
 import android.os.Build;
@@ -37,6 +38,7 @@ public class MathView extends View {
 
 		textPaint.setTypeface(Typeface.createFromAsset(context.getAssets(), "texas_markdown_ext/latinmodern-math.otf"));
 		textPaint.setTextSize(48);
+		textPaint.setStyle(Paint.Style.STROKE);
 
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
 			mathFont = new Font.Builder(context.getAssets(), "texas_markdown_ext/latinmodern-math.otf").build();
@@ -60,7 +62,7 @@ public class MathView extends View {
 	@Override
 	protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
 		super.onLayout(changed, left, top, right, bottom);
-		mRendererNode.layout(left, top, right, bottom);
+		mRendererNode.layout(left + 10, top + 10, right - 10, bottom - 10);
 	}
 
 	@Override

@@ -26,20 +26,28 @@ public abstract class RendererNode {
 	}
 
 	public final void layout(float left, float top, float right, float bottom) {
-		mLeft = left;
-		mTop = top;
-		mRight = right;
-		mBottom = bottom;
+		setLayoutBounds(left, top, mLeft + getWidth(), top + getHeight());
 		onLayout(left, top, right, bottom);
 	}
 
 	public final void draw(TexasCanvas canvas, TexasPaint paint) {
+		canvas.save();
+		canvas.translate(getLeft(), getTop());
+		canvas.scale(mScale, mScale);
 		onDraw(canvas, paint);
+		canvas.restore();
 	}
 
 	protected abstract void onMeasure(TexasPaint paint);
 
 	protected void onLayout(float left, float top, float right, float bottom) {
+	}
+
+	protected final void setLayoutBounds(float left, float top, float right, float bottom) {
+		mLeft = left;
+		mTop = top;
+		mRight = right;
+		mBottom = bottom;
 	}
 
 	protected abstract void onDraw(TexasCanvas canvas, TexasPaint paint);
@@ -66,5 +74,18 @@ public abstract class RendererNode {
 
 	public float getBottom() {
 		return mBottom;
+	}
+
+	@Override
+	public String toString() {
+		return "RendererNode{" +
+				"mScale=" + mScale +
+				", mWidth=" + mWidth +
+				", mHeight=" + mHeight +
+				", mLeft=" + mLeft +
+				", mTop=" + mTop +
+				", mRight=" + mRight +
+				", mBottom=" + mBottom +
+				'}';
 	}
 }

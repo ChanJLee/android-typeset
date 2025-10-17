@@ -46,9 +46,9 @@ public class SqrtNode extends RendererNode {
 
 	@Override
 	protected void onDraw(TexasCanvas canvas, TexasPaint paint) {
-		canvas.save();
-		canvas.translate(mContent.getLeft() - getLeft(), mContent.getTop() - getTop());
 		mContent.draw(canvas, paint);
-		canvas.restore();
+		if (mRoot != null) {
+			mRoot.draw(canvas, paint);
+		}
 	}
 }
