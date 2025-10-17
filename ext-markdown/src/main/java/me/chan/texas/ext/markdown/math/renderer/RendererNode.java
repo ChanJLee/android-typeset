@@ -41,13 +41,18 @@ public abstract class RendererNode {
 		if (DEBUG) {
 			Paint.Style style = paint.getStyle();
 			paint.setStyle(Paint.Style.STROKE);
-			Log.d("MathRenderer", "translate(" + mLeft + "," + mTop + "), " + toPretty());
+			Log.d("MathRenderer", "translate(" + mLeft + "," + mTop + "), size(" + getWidth() + "," + getHeight() + ")," + toPretty());
 			canvas.drawRect(0, 0, getWidth(), getHeight(), paint);
 			paint.setStyle(style);
 		}
 
 		onDraw(canvas, paint);
 		canvas.restore();
+	}
+
+	public final void translate(float dx, float dy) {
+		mLeft += dx;
+		mTop += dy;
 	}
 
 	protected abstract void onMeasure(TexasPaint paint);

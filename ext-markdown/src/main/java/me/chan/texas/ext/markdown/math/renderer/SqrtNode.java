@@ -18,9 +18,9 @@ public class SqrtNode extends RendererNode {
 		mContent = content;
 		mRoot = root;
 		mSymbol = new SqrtSymbolNode();
-		if (mRoot != null) {
-			mRoot.setScale(0.5f);
-		}
+//		if (mRoot != null) {
+//			mRoot.setScale(0.5f);
+//		}
 	}
 
 	@Override
@@ -71,9 +71,12 @@ public class SqrtNode extends RendererNode {
 		}
 
 		if (DEBUG) {
-			paint.setColor(color);
+			paint.setColor(Color.BLACK);
 		}
 		mSymbol.draw(canvas, paint);
+		if (DEBUG) {
+			paint.setColor(color);
+		}
 	}
 
 	@Override
