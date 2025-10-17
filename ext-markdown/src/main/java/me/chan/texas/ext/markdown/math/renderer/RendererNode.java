@@ -41,7 +41,7 @@ public abstract class RendererNode {
 		if (DEBUG) {
 			Paint.Style style = paint.getStyle();
 			paint.setStyle(Paint.Style.STROKE);
-			Log.d("MathRenderer", "translate(" + mLeft + "," + mTop + "), size(" + getWidth() + "," + getHeight() + ")," + toPretty());
+			Log.d("MathRenderer", this + "->" + toPretty());
 			canvas.drawRect(0, 0, getWidth(), getHeight(), paint);
 			paint.setStyle(style);
 		}
@@ -95,11 +95,12 @@ public abstract class RendererNode {
 
 	@Override
 	public String toString() {
-		return "RendererNode{" +
-				", mWidth=" + mWidth +
-				", mHeight=" + mHeight +
-				", mLeft=" + mLeft +
-				", mTop=" + mTop +
-				'}';
+		return "(w=" + mWidth +
+				", h=" + mHeight +
+				",[" + mLeft +
+				", " + mTop +
+				", " + getRight() +
+				", " + getRight() +
+				"])";
 	}
 }
