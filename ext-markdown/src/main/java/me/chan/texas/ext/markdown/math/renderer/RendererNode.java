@@ -36,8 +36,6 @@ public abstract class RendererNode {
 	public final void draw(TexasCanvas canvas, TexasPaint paint) {
 		canvas.save();
 		canvas.translate(mLeft, mTop);
-		canvas.scale(mScale, mScale);
-
 		if (DEBUG) {
 			Paint.Style style = paint.getStyle();
 			paint.setStyle(Paint.Style.STROKE);
@@ -46,8 +44,14 @@ public abstract class RendererNode {
 			paint.setStyle(style);
 		}
 
+		canvas.scale(mScale, mScale);
+
 		onDraw(canvas, paint);
 		canvas.restore();
+	}
+
+	public float getScale() {
+		return mScale;
 	}
 
 	public final void translate(float dx, float dy) {

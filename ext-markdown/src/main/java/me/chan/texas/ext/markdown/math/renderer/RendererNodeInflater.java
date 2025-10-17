@@ -17,6 +17,6 @@ public class RendererNodeInflater {
 
 	@VisibleForTesting
 	public static RendererNode mockSqrt() {
-		return new SqrtNode(mockText("x + y"), mockText("xyz"));
+		return new SqrtNode(mockText("x + y"), mockText("x + y + z"));
 	}
 }
