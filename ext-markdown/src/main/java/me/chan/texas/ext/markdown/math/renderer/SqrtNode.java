@@ -18,9 +18,9 @@ public class SqrtNode extends RendererNode {
 		mContent = content;
 		mRoot = root;
 		mSymbol = new SqrtSymbolNode();
-//		if (mRoot != null) {
-//			mRoot.setScale(0.5f);
-//		}
+		if (mRoot != null) {
+			mRoot.setScale(0.5f);
+		}
 	}
 
 	@Override
@@ -50,12 +50,12 @@ public class SqrtNode extends RendererNode {
 		float top = 0;
 		if (mRoot != null) {
 			mRoot.layout(left, top);
-			left += (mRoot.getWidth() - mSymbol.getKernBeforeDegree());
-			top += (mSymbol.getHeight() * (mSymbol.getDegreeBottomRaisePercent()));
+			left = (mRoot.getRight() - mSymbol.getKernBeforeDegree());
+			top = (mRoot.getBottom() + mSymbol.getHeight() * (mSymbol.getDegreeBottomRaisePercent()) - mSymbol.getHeight());
 		}
 
 		mSymbol.layout(left, top);
-		left += (mSymbol.getWidth() + mSymbol.getKernAfterDegree());
+		left = (mSymbol.getRight() + mSymbol.getKernAfterDegree());
 
 		mContent.layout(left, top + mSymbol.getTopPadding() + mSymbol.getVerticalGap());
 	}
