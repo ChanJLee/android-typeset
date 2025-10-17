@@ -32,7 +32,7 @@ public class SqrtNode extends RendererNode {
 		int width = (int) Math.ceil(mSymbol.getWidth() + mSymbol.getContentWidth());
 		if (mRoot != null) {
 			mRoot.measure(paint);
-			width += (int) Math.ceil(mRoot.getWidth() + mSymbol.getKernBeforeDegree());
+			width += (int) Math.ceil(mRoot.getWidth() - mSymbol.getKernBeforeDegree());
 		}
 
 		setMeasuredSize(width, mSymbol.getHeight());
