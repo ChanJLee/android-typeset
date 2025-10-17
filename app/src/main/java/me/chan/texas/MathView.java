@@ -46,7 +46,7 @@ public class MathView extends View {
 		}
 
 //		mRendererNode = new TextNode(1f, "Hello World!");
-		mRendererNode = RendererNodeInflater.mockSqrt();
+		mRendererNode = RendererNodeInflater.mockText("ABgface");
 
 		mTexasPaint = new TexasPaintImpl();
 		mTexasPaint.reset(new PaintSet(textPaint));

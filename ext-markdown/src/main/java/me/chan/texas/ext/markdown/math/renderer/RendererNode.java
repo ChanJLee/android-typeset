@@ -32,7 +32,7 @@ public abstract class RendererNode {
 
 	public final void draw(TexasCanvas canvas, TexasPaint paint) {
 		canvas.save();
-		canvas.translate(getLeft(), getTop());
+		canvas.translate(mLeft, mTop);
 		canvas.scale(mScale, mScale);
 		onDraw(canvas, paint);
 		canvas.restore();
@@ -58,22 +58,6 @@ public abstract class RendererNode {
 
 	public final int getHeight() {
 		return (int) (mHeight * mScale);
-	}
-
-	public float getLeft() {
-		return mLeft;
-	}
-
-	public float getTop() {
-		return mTop;
-	}
-
-	public float getRight() {
-		return mRight;
-	}
-
-	public float getBottom() {
-		return mBottom;
 	}
 
 	@Override
