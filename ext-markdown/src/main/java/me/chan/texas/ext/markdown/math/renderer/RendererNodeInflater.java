@@ -12,11 +12,11 @@ public class RendererNodeInflater {
 
 	@VisibleForTesting
 	public static RendererNode mockText(String text) {
-		return new TextNode(1.0f, text);
+		return new TextNode(text);
 	}
 
 	@VisibleForTesting
 	public static RendererNode mockSqrt() {
-		return new SqrtNode(1.0f, mockText("x + y"), mockText("xyz"));
+		return new SqrtNode(mockText("x + y"), mockText("xyz"));
 	}
 }

@@ -10,45 +10,46 @@ public class SqrtNode extends RendererNode {
 
 	@Nullable
 	private final RendererNode mRoot;
-	private final RendererNode mSymbol;
+	private final SqrtSymbolNode mSymbol;
 
-	public SqrtNode(float scale, RendererNode content, @Nullable RendererNode root) {
-		super(scale);
+	public SqrtNode(RendererNode content, @Nullable RendererNode root) {
 		mContent = content;
 		mRoot = root;
-		mSymbol = new TextNode(scale, "√");
+		mSymbol = new SqrtSymbolNode();
+		if (mRoot != null) {
+			mRoot.setScale(0.5f);
+		}
 	}
 
 	@Override
 	protected void onMeasure(TexasPaint paint) {
 		mContent.measure(paint);
-		int width = mContent.getWidth();
-		int height = mContent.getHeight();
+		mSymbol.measure(paint);
+		mSymbol.setContentWidth(mContent.getWidth() + mSymbol.getKernAfterDegree());
 
+		int width = (int) Math.ceil(mSymbol.getWidth() + mSymbol.getContentWidth());
 		if (mRoot != null) {
 			mRoot.measure(paint);
-			width += mRoot.getWidth();
+			width += (int) Math.ceil(mRoot.getWidth() + mSymbol.getKernBeforeDegree());
 		}
 
-		mSymbol.measure(paint);
-		width += mSymbol.getWidth();
-
-		setMeasuredSize(width, height);
+		setMeasuredSize(width, mSymbol.getHeight());
 	}
 
 	@Override
 	protected void onLayoutChildren() {
 		float left = 0;
 		float top = 0;
+		float bottom = top + getHeight();
 		if (mRoot != null) {
-			mRoot.layout(left, top);
-			left += mRoot.getWidth();
+			mRoot.layout(left, bottom - mSymbol.getDegreeBottomRaisePercent() * mSymbol.getHeight() - mRoot.getHeight());
+			left += (mRoot.getWidth() - mSymbol.getKernBeforeDegree());
 		}
 
 		mSymbol.layout(left, top);
-		left += mSymbol.getWidth();
+		left += (mSymbol.getWidth() + mSymbol.getKernAfterDegree());
 
-		mContent.layout(left, top);
+		mContent.layout(left, top + mSymbol.getExtraAscender() + mSymbol.getRuleThickness() + mSymbol.getVerticalGap());
 	}
 
 	@Override
@@ -57,6 +58,7 @@ public class SqrtNode extends RendererNode {
 		if (mRoot != null) {
 			mRoot.draw(canvas, paint);
 		}
+
 		mSymbol.draw(canvas, paint);
 	}
 

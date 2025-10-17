@@ -11,8 +11,7 @@ public class TextNode extends RendererNode {
 	private final Paint.FontMetrics mFontMetrics = new Paint.FontMetrics();
 	private float mBaselineOffset;
 
-	public TextNode(float scale, String content) {
-		super(scale);
+	public TextNode(String content) {
 		mContent = content;
 	}
 
@@ -27,6 +26,14 @@ public class TextNode extends RendererNode {
 		int width = (int) Math.ceil(paint.getRunAdvance(mContent, 0, size, 0, size, false, size));
 
 		setMeasuredSize(width, height);
+	}
+
+	public void setBaselineOffset(float baselineOffset) {
+		mBaselineOffset = baselineOffset;
+	}
+
+	public float getBaselineOffset() {
+		return mBaselineOffset;
 	}
 
 	@Override

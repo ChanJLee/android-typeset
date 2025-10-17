@@ -8,18 +8,18 @@ import me.chan.texas.renderer.core.graphics.TexasPaint;
 public abstract class RendererNode {
 	public static final boolean DEBUG = true;
 
-	private final float mScale;
+	private float mScale = 1;
 	private int mWidth;
 	private int mHeight;
 	private float mLeft;
 	private float mTop;
 
-	public RendererNode(float scale) {
-		mScale = scale;
-	}
-
 	public final void measure(TexasPaint paint) {
 		onMeasure(paint);
+	}
+
+	public void setScale(float scale) {
+		mScale = scale;
 	}
 
 	protected final void setMeasuredSize(int width, int height) {
@@ -38,7 +38,7 @@ public abstract class RendererNode {
 		canvas.scale(mScale, mScale);
 
 		if (DEBUG) {
-			Log.d("MathRenderer", "translate(" + mLeft + "," + mTop + ")" + ", scale:" + mScale + ", " + toPretty());
+			Log.d("MathRenderer", "translate(" + mLeft + "," + mTop + "), " + toPretty());
 			canvas.drawRect(0, 0, getWidth(), getHeight(), paint);
 		}
 
@@ -71,7 +71,6 @@ public abstract class RendererNode {
 	@Override
 	public String toString() {
 		return "RendererNode{" +
-				"mScale=" + mScale +
 				", mWidth=" + mWidth +
 				", mHeight=" + mHeight +
 				", mLeft=" + mLeft +
