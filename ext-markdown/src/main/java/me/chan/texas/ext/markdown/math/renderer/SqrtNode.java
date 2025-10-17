@@ -37,7 +37,9 @@ public class SqrtNode extends RendererNode {
 	}
 
 	@Override
-	protected void onLayout(float left, float top) {
+	protected void onLayoutChildren() {
+		float left = 0;
+		float top = 0;
 		if (mRoot != null) {
 			mRoot.layout(left, top);
 			left += mRoot.getWidth();

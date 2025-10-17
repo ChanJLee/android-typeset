@@ -20,7 +20,7 @@ public class TextNode extends RendererNode {
 	protected void onMeasure(TexasPaint paint) {
 		paint.getFontMetrics(mFontMetrics);
 		Paint.FontMetrics fontMetrics = mFontMetrics;
-		int height = (int) Math.ceil(fontMetrics.descent - fontMetrics.ascent + fontMetrics.leading);
+		int height = (int) Math.ceil(fontMetrics.descent - fontMetrics.ascent);
 		mBaselineOffset = (float) Math.ceil(fontMetrics.descent);
 
 		int size = mContent.length();

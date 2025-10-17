@@ -29,7 +29,7 @@ public abstract class RendererNode {
 
 	public final void layout(float left, float top) {
 		setLayoutBounds(left, top);
-		onLayout(left, top);
+		onLayoutChildren();
 	}
 
 	public final void draw(TexasCanvas canvas, TexasPaint paint) {
@@ -48,7 +48,7 @@ public abstract class RendererNode {
 
 	protected abstract void onMeasure(TexasPaint paint);
 
-	protected void onLayout(float left, float top) {
+	protected void onLayoutChildren() {
 	}
 
 	protected final void setLayoutBounds(float left, float top) {
