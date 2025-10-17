@@ -6,7 +6,6 @@ import me.chan.texas.renderer.core.graphics.TexasCanvas;
 import me.chan.texas.renderer.core.graphics.TexasPaint;
 
 public class TextNode extends RendererNode {
-	private static final boolean DEBUG = true;
 
 	private final String mContent;
 	private final Paint.FontMetrics mFontMetrics = new Paint.FontMetrics();
@@ -33,9 +32,10 @@ public class TextNode extends RendererNode {
 	@Override
 	protected void onDraw(TexasCanvas canvas, TexasPaint paint) {
 		canvas.drawText(mContent, 0, getHeight() - mBaselineOffset, paint);
+	}
 
-		if (DEBUG) {
-			canvas.drawRect(0, 0, getWidth(), getHeight(), paint);
-		}
+	@Override
+	protected String toPretty() {
+		return "text: " + mContent;
 	}
 }

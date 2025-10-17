@@ -4,8 +4,6 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Typeface;
-import android.graphics.fonts.Font;
-import android.os.Build;
 import android.text.TextPaint;
 import android.util.AttributeSet;
 import android.view.View;
@@ -16,16 +14,12 @@ import java.io.IOException;
 
 import me.chan.texas.ext.markdown.math.renderer.RendererNode;
 import me.chan.texas.ext.markdown.math.renderer.RendererNodeInflater;
-import me.chan.texas.ext.markdown.math.renderer.TextNode;
-import me.chan.texas.ext.markdown.math.renderer.core.LatinModernRadicalRenderer;
 import me.chan.texas.misc.PaintSet;
 import me.chan.texas.renderer.core.graphics.TexasCanvasImpl;
 import me.chan.texas.renderer.core.graphics.TexasPaint;
 import me.chan.texas.renderer.core.graphics.TexasPaintImpl;
 
 public class MathView extends View {
-	private LatinModernRadicalRenderer radicalRenderer;
-	private Font mathFont;
 
 	private RendererNode mRendererNode;
 
@@ -34,19 +28,15 @@ public class MathView extends View {
 
 	public MathView(Context context, @Nullable AttributeSet attrs) throws IOException {
 		super(context, attrs);
-		radicalRenderer = new LatinModernRadicalRenderer(context);
 		TextPaint textPaint = new TextPaint();
 
 		textPaint.setTypeface(Typeface.createFromAsset(context.getAssets(), "texas_markdown_ext/latinmodern-math.otf"));
 		textPaint.setTextSize(48);
 		textPaint.setStyle(Paint.Style.STROKE);
 
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-			mathFont = new Font.Builder(context.getAssets(), "texas_markdown_ext/latinmodern-math.otf").build();
-		}
-
 //		mRendererNode = new TextNode(1f, "Hello World!");
-		mRendererNode = RendererNodeInflater.mockText("ABgface");
+//		mRendererNode = RendererNodeInflater.mockText("ABgface");
+		mRendererNode = RendererNodeInflater.mockSqrt();
 
 		mTexasPaint = new TexasPaintImpl();
 		mTexasPaint.reset(new PaintSet(textPaint));
@@ -64,7 +54,7 @@ public class MathView extends View {
 	@Override
 	protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
 		super.onLayout(changed, left, top, right, bottom);
-		mRendererNode.layout(left + 10, top + 10, right - 10, bottom - 10);
+		mRendererNode.layout(left + 10, top + 10);
 	}
 
 	@Override

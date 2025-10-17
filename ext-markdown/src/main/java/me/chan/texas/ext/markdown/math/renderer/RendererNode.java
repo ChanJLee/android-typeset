@@ -1,16 +1,18 @@
 package me.chan.texas.ext.markdown.math.renderer;
 
+import android.util.Log;
+
 import me.chan.texas.renderer.core.graphics.TexasCanvas;
 import me.chan.texas.renderer.core.graphics.TexasPaint;
 
 public abstract class RendererNode {
+	public static final boolean DEBUG = true;
+
 	private final float mScale;
 	private int mWidth;
 	private int mHeight;
 	private float mLeft;
 	private float mTop;
-	private float mRight;
-	private float mBottom;
 
 	public RendererNode(float scale) {
 		mScale = scale;
@@ -25,29 +27,33 @@ public abstract class RendererNode {
 		mHeight = height;
 	}
 
-	public final void layout(float left, float top, float right, float bottom) {
-		setLayoutBounds(left, top, mLeft + getWidth(), top + getHeight());
-		onLayout(left, top, right, bottom);
+	public final void layout(float left, float top) {
+		setLayoutBounds(left, top);
+		onLayout(left, top);
 	}
 
 	public final void draw(TexasCanvas canvas, TexasPaint paint) {
 		canvas.save();
 		canvas.translate(mLeft, mTop);
 		canvas.scale(mScale, mScale);
+
+		if (DEBUG) {
+			Log.d("MathRenderer", "translate(" + mLeft + "," + mTop + ")" + ", scale:" + mScale + ", " + toPretty());
+			canvas.drawRect(0, 0, getWidth(), getHeight(), paint);
+		}
+
 		onDraw(canvas, paint);
 		canvas.restore();
 	}
 
 	protected abstract void onMeasure(TexasPaint paint);
 
-	protected void onLayout(float left, float top, float right, float bottom) {
+	protected void onLayout(float left, float top) {
 	}
 
-	protected final void setLayoutBounds(float left, float top, float right, float bottom) {
+	protected final void setLayoutBounds(float left, float top) {
 		mLeft = left;
 		mTop = top;
-		mRight = right;
-		mBottom = bottom;
 	}
 
 	protected abstract void onDraw(TexasCanvas canvas, TexasPaint paint);
@@ -60,6 +66,8 @@ public abstract class RendererNode {
 		return (int) (mHeight * mScale);
 	}
 
+	protected abstract String toPretty();
+
 	@Override
 	public String toString() {
 		return "RendererNode{" +
@@ -68,8 +76,6 @@ public abstract class RendererNode {
 				", mHeight=" + mHeight +
 				", mLeft=" + mLeft +
 				", mTop=" + mTop +
-				", mRight=" + mRight +
-				", mBottom=" + mBottom +
 				'}';
 	}
 }

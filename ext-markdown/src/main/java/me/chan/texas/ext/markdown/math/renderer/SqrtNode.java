@@ -10,38 +10,43 @@ public class SqrtNode extends RendererNode {
 
 	@Nullable
 	private final RendererNode mRoot;
-	// TODO 从配置中读取
-	private final int mVerticalOffset = 50;
-	private final int mHorizontalOffset = 50;
+	private final RendererNode mSymbol;
 
 	public SqrtNode(float scale, RendererNode content, @Nullable RendererNode root) {
 		super(scale);
 		mContent = content;
 		mRoot = root;
+		mSymbol = new TextNode(scale, "√");
 	}
 
 	@Override
 	protected void onMeasure(TexasPaint paint) {
 		mContent.measure(paint);
-		int width = mContent.getWidth() + mVerticalOffset;
-		int height = mContent.getHeight() + mHorizontalOffset;
+		int width = mContent.getWidth();
+		int height = mContent.getHeight();
 
 		if (mRoot != null) {
 			mRoot.measure(paint);
 			width += mRoot.getWidth();
 		}
 
+		mSymbol.measure(paint);
+		width += mSymbol.getWidth();
+
 		setMeasuredSize(width, height);
 	}
 
 	@Override
-	protected void onLayout(float left, float top, float right, float bottom) {
+	protected void onLayout(float left, float top) {
 		if (mRoot != null) {
-			mRoot.layout(left, top + mVerticalOffset, left + mRoot.getWidth(), top + mVerticalOffset + mRoot.getHeight());
+			mRoot.layout(left, top);
 			left += mRoot.getWidth();
 		}
 
-		mContent.layout(left, top + mVerticalOffset, left + mContent.getWidth(), top + mVerticalOffset + mContent.getHeight());
+		mSymbol.layout(left, top);
+		left += mSymbol.getWidth();
+
+		mContent.layout(left, top);
 	}
 
 	@Override
@@ -50,5 +55,11 @@ public class SqrtNode extends RendererNode {
 		if (mRoot != null) {
 			mRoot.draw(canvas, paint);
 		}
+		mSymbol.draw(canvas, paint);
+	}
+
+	@Override
+	protected String toPretty() {
+		return "sqrt {}";
 	}
 }
