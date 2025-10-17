@@ -17,7 +17,7 @@ public class SqrtSymbolNode extends RendererNode {
 		Paint.FontMetrics fontMetrics = mFontMetrics;
 		mTextSize = paint.getTextSize();
 
-		int height = (int) Math.ceil(fontMetrics.descent - fontMetrics.ascent + getExtraAscender() + getRuleThickness());
+		int height = (int) Math.ceil(fontMetrics.descent - fontMetrics.ascent + getTopPadding());
 		int width = (int) Math.ceil(paint.getRunAdvance("√", 0, 1, 0, 1, false, 1));
 
 		setMeasuredSize(width, height);
@@ -56,17 +56,21 @@ public class SqrtSymbolNode extends RendererNode {
 		return mContentWidth;
 	}
 
+	public float getTopPadding() {
+		return getExtraAscender() + getRuleThickness() / 2;
+	}
+
 	@Override
 	protected void onDraw(TexasCanvas canvas, TexasPaint paint) {
 		float textSize = paint.getTextSize();
 
-		float y = getExtraAscender();
+		float thickness = getRuleThickness();
+		float y = getTopPadding();
 		canvas.drawText("√", 0, y, paint);
 
-		float thickness = getRuleThickness();
 		paint.setTextSize(thickness);
 		float startX = getWidth();
-		y -= (thickness / 2);
+		y -= (thickness);
 		canvas.drawLine(startX, y, startX + mContentWidth, y, paint);
 
 		paint.setTextSize(textSize);

@@ -75,6 +75,22 @@ public abstract class RendererNode {
 		return (int) (mHeight * mScale);
 	}
 
+	public final float getLeft() {
+		return mLeft;
+	}
+
+	public final float getTop() {
+		return mTop;
+	}
+
+	public final float getRight() {
+		return mLeft + getWidth();
+	}
+
+	public final float getBottom() {
+		return mTop + getHeight();
+	}
+
 	protected abstract String toPretty();
 
 	@Override

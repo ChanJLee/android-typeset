@@ -30,28 +30,35 @@ public class SqrtNode extends RendererNode {
 		mSymbol.setContentWidth(mContent.getWidth() + mSymbol.getKernAfterDegree());
 
 		int width = (int) Math.ceil(mSymbol.getWidth() + mSymbol.getContentWidth());
+		float bottom = Math.max(mSymbol.getHeight(), mContent.getHeight() + mSymbol.getVerticalGap());
+		float top = 0;
 		if (mRoot != null) {
 			mRoot.measure(paint);
 			width += (int) Math.ceil(mRoot.getWidth() - mSymbol.getKernBeforeDegree());
+
+			float dy = mSymbol.getHeight() * (1 - mSymbol.getDegreeBottomRaisePercent()) - mRoot.getHeight();
+			if (dy < 0) {
+				top = dy;
+			}
 		}
 
-		setMeasuredSize(width, mSymbol.getHeight());
+		setMeasuredSize(width, (int) Math.ceil(bottom - top));
 	}
 
 	@Override
 	protected void onLayoutChildren() {
 		float left = 0;
 		float top = 0;
-		float bottom = top + getHeight();
 		if (mRoot != null) {
-			mRoot.layout(left, bottom - mSymbol.getDegreeBottomRaisePercent() * mSymbol.getHeight() - mRoot.getHeight());
+			mRoot.layout(left, top);
 			left += (mRoot.getWidth() - mSymbol.getKernBeforeDegree());
+			top += (mSymbol.getHeight() * (mSymbol.getDegreeBottomRaisePercent()));
 		}
 
 		mSymbol.layout(left, top);
 		left += (mSymbol.getWidth() + mSymbol.getKernAfterDegree());
 
-		mContent.layout(left, top + mSymbol.getExtraAscender() + mSymbol.getRuleThickness() + mSymbol.getVerticalGap());
+		mContent.layout(left, top + mSymbol.getTopPadding() + mSymbol.getVerticalGap());
 	}
 
 	@Override
