@@ -15,6 +15,7 @@ import androidx.annotation.Nullable;
 import java.io.IOException;
 
 import me.chan.texas.ext.markdown.math.renderer.RendererNode;
+import me.chan.texas.ext.markdown.math.renderer.RendererNodeInflater;
 import me.chan.texas.ext.markdown.math.renderer.TextNode;
 import me.chan.texas.ext.markdown.math.renderer.core.LatinModernRadicalRenderer;
 import me.chan.texas.misc.PaintSet;
@@ -44,7 +45,8 @@ public class MathView extends View {
 			mathFont = new Font.Builder(context.getAssets(), "texas_markdown_ext/latinmodern-math.otf").build();
 		}
 
-		mRendererNode = new TextNode(1f, "Hello World!");
+//		mRendererNode = new TextNode(1f, "Hello World!");
+		mRendererNode = RendererNodeInflater.mockSqrt();
 
 		mTexasPaint = new TexasPaintImpl();
 		mTexasPaint.reset(new PaintSet(textPaint));
