@@ -1,12 +1,13 @@
 package me.chan.texas.ext.markdown.math.renderer;
 
+import android.graphics.Paint;
 import android.util.Log;
 
 import me.chan.texas.renderer.core.graphics.TexasCanvas;
 import me.chan.texas.renderer.core.graphics.TexasPaint;
 
 public abstract class RendererNode {
-	public static final boolean DEBUG = false;
+	public static final boolean DEBUG = true;
 
 	private float mScale = 1;
 	private int mWidth;
@@ -38,8 +39,11 @@ public abstract class RendererNode {
 		canvas.scale(mScale, mScale);
 
 		if (DEBUG) {
+			Paint.Style style = paint.getStyle();
+			paint.setStyle(Paint.Style.STROKE);
 			Log.d("MathRenderer", "translate(" + mLeft + "," + mTop + "), " + toPretty());
 			canvas.drawRect(0, 0, getWidth(), getHeight(), paint);
+			paint.setStyle(style);
 		}
 
 		onDraw(canvas, paint);

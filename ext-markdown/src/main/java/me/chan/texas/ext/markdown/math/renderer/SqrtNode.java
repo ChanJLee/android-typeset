@@ -1,5 +1,7 @@
 package me.chan.texas.ext.markdown.math.renderer;
 
+import android.graphics.Color;
+
 import androidx.annotation.Nullable;
 
 import me.chan.texas.renderer.core.graphics.TexasCanvas;
@@ -54,11 +56,23 @@ public class SqrtNode extends RendererNode {
 
 	@Override
 	protected void onDraw(TexasCanvas canvas, TexasPaint paint) {
+		int color = paint.getColor();
+
+		if (DEBUG) {
+			paint.setColor(Color.RED);
+		}
 		mContent.draw(canvas, paint);
+
+		if (DEBUG) {
+			paint.setColor(Color.BLUE);
+		}
 		if (mRoot != null) {
 			mRoot.draw(canvas, paint);
 		}
 
+		if (DEBUG) {
+			paint.setColor(color);
+		}
 		mSymbol.draw(canvas, paint);
 	}
 
