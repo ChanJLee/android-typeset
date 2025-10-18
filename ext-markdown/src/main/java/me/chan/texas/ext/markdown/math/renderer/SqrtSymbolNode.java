@@ -11,6 +11,10 @@ public class SqrtSymbolNode extends RendererNode {
 	private float mTextSize;
 	private float mContentWidth = 0;
 
+	public SqrtSymbolNode(float scale) {
+		super(scale);
+	}
+
 	@Override
 	protected void onMeasure(TexasPaint paint) {
 		paint.getFontMetrics(mFontMetrics);

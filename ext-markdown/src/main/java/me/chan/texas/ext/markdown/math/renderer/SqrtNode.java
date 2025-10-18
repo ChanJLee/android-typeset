@@ -14,13 +14,11 @@ public class SqrtNode extends RendererNode {
 	private final RendererNode mRoot;
 	private final SqrtSymbolNode mSymbol;
 
-	public SqrtNode(RendererNode content, @Nullable RendererNode root) {
+	public SqrtNode(float scale, RendererNode content, @Nullable RendererNode root) {
+		super(scale);
 		mContent = content;
 		mRoot = root;
-		mSymbol = new SqrtSymbolNode();
-		if (mRoot != null) {
-			mRoot.setScale(0.5f);
-		}
+		mSymbol = new SqrtSymbolNode(scale);
 	}
 
 	@Override

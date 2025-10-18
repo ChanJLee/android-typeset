@@ -55,7 +55,7 @@ public class MathView extends View {
 	@Override
 	protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
 		super.onLayout(changed, left, top, right, bottom);
-		mRendererNode.layout(left + 10, top + 10);
+		mRendererNode.layout(left + 50, top + 50);
 	}
 
 	@Override

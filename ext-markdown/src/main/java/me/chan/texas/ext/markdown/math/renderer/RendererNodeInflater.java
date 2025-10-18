@@ -12,11 +12,22 @@ public class RendererNodeInflater {
 
 	@VisibleForTesting
 	public static RendererNode mockText(String text) {
-		return new TextNode(text);
+		return new TextNode(1f, text);
+	}
+
+	@VisibleForTesting
+	public static RendererNode mockText(float scale, String text) {
+		return new TextNode(scale, text);
 	}
 
 	@VisibleForTesting
 	public static RendererNode mockSqrt() {
-		return new SqrtNode(mockText("x + y"), mockText("x + y + z"));
+		SqrtNode node1 = mockSqrt(1f, mockText(1f, "x1 + y1"));
+		return mockSqrt(2, node1);
+	}
+
+	@VisibleForTesting
+	public static SqrtNode mockSqrt(float scale, RendererNode content) {
+		return new SqrtNode(scale, content, mockText(scale * 0.3f, "x + y + z"));
 	}
 }

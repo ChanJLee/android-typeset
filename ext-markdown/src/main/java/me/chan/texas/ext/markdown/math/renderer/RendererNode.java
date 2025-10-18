@@ -7,13 +7,17 @@ import me.chan.texas.renderer.core.graphics.TexasCanvas;
 import me.chan.texas.renderer.core.graphics.TexasPaint;
 
 public abstract class RendererNode {
-	public static final boolean DEBUG = true;
+	public static final boolean DEBUG = false;
 
-	private float mScale = 1;
+	private final float mScale;
 	private int mWidth;
 	private int mHeight;
 	private float mLeft;
 	private float mTop;
+
+	public RendererNode(float scale) {
+		mScale = scale;
+	}
 
 	public final void measure(TexasPaint paint) {
 		float textSize = paint.getTextSize();
@@ -25,10 +29,6 @@ public abstract class RendererNode {
 		if (mScale != 1f) {
 			paint.setTextSize(textSize);
 		}
-	}
-
-	public void setScale(float scale) {
-		mScale = scale;
 	}
 
 	protected final void setMeasuredSize(int width, int height) {
