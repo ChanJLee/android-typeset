@@ -4,7 +4,7 @@ public class MathFontOptions {
 	public static final float UNITS_PER_EM = 1000F;
 	public static final float RADICAL_VERTICAL_GAP = 50;
 	public static final float RADICAL_DISPLAY_STYLE_VERTICAL_GAP = 148;
-	public static final float RADICAL_RULE_THICKNESS = 40;
+	public static final float RADICAL_RULE_THICKNESS = 80;
 	public static final float RADICAL_EXTRA_ASCENDER = 40;
 	public static final float RADICAL_KERN_BEFORE_DEGREE = 278;
 	public static final float RADICAL_KERN_AFTER_DEGREE = -556;
