@@ -36,6 +36,10 @@ public abstract class RendererNode {
 	public final void draw(TexasCanvas canvas, TexasPaint paint) {
 		canvas.save();
 		canvas.translate(mLeft, mTop);
+		if (mScale != 1) {
+			canvas.scale(mScale, mScale);
+		}
+
 		if (DEBUG) {
 			Paint.Style style = paint.getStyle();
 			paint.setStyle(Paint.Style.STROKE);
@@ -43,8 +47,6 @@ public abstract class RendererNode {
 			canvas.drawRect(0, 0, getWidth(), getHeight(), paint);
 			paint.setStyle(style);
 		}
-
-		canvas.scale(mScale, mScale);
 
 		onDraw(canvas, paint);
 		canvas.restore();
@@ -72,11 +74,19 @@ public abstract class RendererNode {
 	protected abstract void onDraw(TexasCanvas canvas, TexasPaint paint);
 
 	public final int getWidth() {
-		return (int) (mWidth * mScale);
+		return mWidth;
 	}
 
 	public final int getHeight() {
-		return (int) (mHeight * mScale);
+		return mHeight;
+	}
+
+	public final int getMeasuredWidth() {
+		return (int) Math.ceil(mWidth * getScale());
+	}
+
+	public final int getMeasuredHeight() {
+		return (int) Math.ceil(mHeight * getScale());
 	}
 
 	public final float getLeft() {
@@ -104,7 +114,7 @@ public abstract class RendererNode {
 				",[" + mLeft +
 				", " + mTop +
 				", " + getRight() +
-				", " + getRight() +
+				", " + getBottom() +
 				"])";
 	}
 }
