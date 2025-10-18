@@ -34,7 +34,7 @@ public class SqrtNode extends RendererNode {
 		float left = mSymbol.getLeft();
 		float top = mSymbol.getTop();
 		float right = mContent.getRight();
-		float bottom = mContent.getBottom();
+		float bottom = Math.max(mContent.getBottom(), mSymbol.getBottom());
 		if (mRoot != null) {
 			left = mRoot.getLeft();
 		}
