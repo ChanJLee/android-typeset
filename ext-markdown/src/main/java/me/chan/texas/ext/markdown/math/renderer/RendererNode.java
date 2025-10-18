@@ -98,11 +98,11 @@ public abstract class RendererNode {
 	}
 
 	public final float getRight() {
-		return mLeft + getWidth();
+		return mLeft + getMeasuredWidth();
 	}
 
 	public final float getBottom() {
-		return mTop + getHeight();
+		return mTop + getMeasuredHeight();
 	}
 
 	protected abstract String toPretty();

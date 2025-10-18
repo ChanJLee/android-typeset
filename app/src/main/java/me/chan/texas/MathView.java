@@ -35,9 +35,9 @@ public class MathView extends View {
 		textPaint.setStyle(Paint.Style.STROKE);
 
 //		mRendererNode = new TextNode(1f, "Hello World!");
-		mRendererNode = RendererNodeInflater.mockText("ABgface + x + y");
-		mRendererNode.setScale(0.5f);
-//		mRendererNode = RendererNodeInflater.mockSqrt();
+//		mRendererNode = RendererNodeInflater.mockText("ABgface + x + y");
+//		mRendererNode.setScale(0.5f);
+		mRendererNode = RendererNodeInflater.mockSqrt();
 
 		mTexasPaint = new TexasPaintImpl();
 		mTexasPaint.reset(new PaintSet(textPaint));
