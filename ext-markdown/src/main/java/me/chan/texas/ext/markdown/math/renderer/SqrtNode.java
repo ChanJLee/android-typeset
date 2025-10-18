@@ -37,7 +37,6 @@ public class SqrtNode extends RendererNode {
 		float bottom = mContent.getBottom();
 		if (mRoot != null) {
 			left = mRoot.getLeft();
-			top = mRoot.getTop();
 		}
 
 		setMeasuredSize((int) Math.ceil(right - left), (int) Math.ceil(bottom - top));
@@ -49,13 +48,23 @@ public class SqrtNode extends RendererNode {
 		if (mRoot != null) {
 			mRoot.layout(left, top);
 			left = (mRoot.getRight() - mSymbol.getKernBeforeDegree());
-			top = (mRoot.getBottom() + mSymbol.getHeight() * (mSymbol.getDegreeBottomRaisePercent()) - mSymbol.getHeight());
+			top = (mRoot.getBottom() + mSymbol.getHeight() * mSymbol.getDegreeBottomRaisePercent() - mSymbol.getHeight());
 		}
 
 		mSymbol.layout(left, top);
 		left = (mSymbol.getRight() + mSymbol.getKernAfterDegree());
 
 		mContent.layout(left, top + mSymbol.getTopPadding() + mSymbol.getVerticalGap());
+
+		top = mSymbol.getTop();
+		if (top < 0) {
+			float dy = -top;
+			if (mRoot != null) {
+				mRoot.translate(0, dy);
+			}
+			mSymbol.translate(0, dy);
+			mContent.translate(0, dy);
+		}
 	}
 
 	@Override
