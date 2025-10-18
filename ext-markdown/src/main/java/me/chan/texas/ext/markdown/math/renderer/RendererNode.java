@@ -16,7 +16,15 @@ public abstract class RendererNode {
 	private float mTop;
 
 	public final void measure(TexasPaint paint) {
+		float textSize = paint.getTextSize();
+		if (mScale != 1f) {
+			paint.setTextSize(textSize * mScale);
+		}
 		onMeasure(paint);
+
+		if (mScale != 1f) {
+			paint.setTextSize(textSize);
+		}
 	}
 
 	public void setScale(float scale) {
@@ -36,8 +44,10 @@ public abstract class RendererNode {
 	public final void draw(TexasCanvas canvas, TexasPaint paint) {
 		canvas.save();
 		canvas.translate(mLeft, mTop);
-		if (mScale != 1) {
-			canvas.scale(mScale, mScale);
+
+		float textSize = paint.getTextSize();
+		if (mScale != 1f) {
+			paint.setTextSize(textSize * mScale);
 		}
 
 		if (DEBUG) {
@@ -49,11 +59,11 @@ public abstract class RendererNode {
 		}
 
 		onDraw(canvas, paint);
-		canvas.restore();
-	}
 
-	public float getScale() {
-		return mScale;
+		if (mScale != 1f) {
+			paint.setTextSize(textSize);
+		}
+		canvas.restore();
 	}
 
 	public final void translate(float dx, float dy) {
@@ -81,14 +91,6 @@ public abstract class RendererNode {
 		return mHeight;
 	}
 
-	public final int getMeasuredWidth() {
-		return (int) Math.ceil(mWidth * getScale());
-	}
-
-	public final int getMeasuredHeight() {
-		return (int) Math.ceil(mHeight * getScale());
-	}
-
 	public final float getLeft() {
 		return mLeft;
 	}
@@ -98,11 +100,11 @@ public abstract class RendererNode {
 	}
 
 	public final float getRight() {
-		return mLeft + getMeasuredWidth();
+		return mLeft + getWidth();
 	}
 
 	public final float getBottom() {
-		return mTop + getMeasuredHeight();
+		return mTop + getHeight();
 	}
 
 	protected abstract String toPretty();
