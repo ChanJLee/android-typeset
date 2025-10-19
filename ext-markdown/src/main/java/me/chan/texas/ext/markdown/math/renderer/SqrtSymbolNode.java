@@ -62,8 +62,6 @@ public class SqrtSymbolNode extends RendererNode {
 
 	@Override
 	protected void onDraw(TexasCanvas canvas, TexasPaint paint) {
-		float textSize = paint.getTextSize();
-
 		float thickness = getRuleThickness();
 		float y = getTopPadding() + thickness / 2;
 		canvas.drawText("√", 0, y, paint);
