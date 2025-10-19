@@ -32,7 +32,7 @@ public class MathView extends View {
 
 		textPaint.setTypeface(Typeface.createFromAsset(context.getAssets(), "texas_markdown_ext/latinmodern-math.otf"));
 		textPaint.setTextSize(48);
-		textPaint.setStyle(Paint.Style.STROKE);
+		textPaint.setStyle(Paint.Style.FILL);
 
 //		mRendererNode = new TextNode(1f, "Hello World!");
 //		mRendererNode = RendererNodeInflater.mockText("ABgface + x + y");

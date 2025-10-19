@@ -68,12 +68,12 @@ public class SqrtSymbolNode extends RendererNode {
 		float y = getTopPadding() + thickness / 2;
 		canvas.drawText("√", 0, y, paint);
 
-		paint.setTextSize(thickness);
+		float strokeWidth = paint.getStrokeWidth();
+		paint.setStrokeWidth(thickness);
 		float startX = getWidth();
 		y = getTopPadding();
 		canvas.drawLine(startX, y, startX + mContentWidth, y, paint);
-
-		paint.setTextSize(textSize);
+		paint.setStrokeWidth(strokeWidth);
 	}
 
 	@Override
