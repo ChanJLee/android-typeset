@@ -51,7 +51,7 @@ public class FractionNode extends RendererNode {
 		float thickness = getThickness(paint);
 		paint.setStrokeWidth(thickness);
 
-		float y = (mNumerator.getBottom() + mDenominator.getTop() - thickness) / 2.0f;
+		float y = (mNumerator.getBottom() + mDenominator.getTop()) / 2.0f;
 		canvas.drawLine(0, y, getWidth(), y, paint);
 
 		paint.setStrokeWidth(strokeWidth);
