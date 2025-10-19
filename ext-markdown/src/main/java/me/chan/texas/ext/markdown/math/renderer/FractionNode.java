@@ -18,7 +18,7 @@ public class FractionNode extends RendererNode {
 		mNumerator.measure(paint);
 		mDenominator.measure(paint);
 
-		int width = (int) Math.ceil(Math.max(mDenominator.getWidth(), mNumerator.getWidth()) * 1.2f);
+		int width = (int) Math.ceil(Math.max(mDenominator.getWidth(), mNumerator.getWidth()) * 1.04f);
 		int height = (int) Math.ceil(mDenominator.getHeight() + mNumerator.getHeight() +
 				getThickness(paint) + getDenominatorVerticalGap(paint) + getNumeratorVerticalGap(paint));
 		setMeasuredSize(width, height);
