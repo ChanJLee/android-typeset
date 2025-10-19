@@ -37,7 +37,8 @@ public class MathView extends View {
 //		mRendererNode = new TextNode(1f, "Hello World!");
 //		mRendererNode = RendererNodeInflater.mockText("ABgface + x + y");
 //		mRendererNode.setScale(0.5f);
-		mRendererNode = RendererNodeInflater.mockSqrt();
+//		mRendererNode = RendererNodeInflater.mockSqrt();
+		mRendererNode = RendererNodeInflater.mockFractionNode();
 
 		mTexasPaint = new TexasPaintImpl();
 		mTexasPaint.reset(new PaintSet(textPaint));
@@ -47,15 +48,15 @@ public class MathView extends View {
 
 	@Override
 	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-		super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-
 		mRendererNode.measure(mTexasPaint);
+		super.onMeasure(MeasureSpec.makeMeasureSpec(mRendererNode.getWidth(), MeasureSpec.EXACTLY),
+				heightMeasureSpec);
 	}
 
 	@Override
 	protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
 		super.onLayout(changed, left, top, right, bottom);
-		mRendererNode.layout(left + 50, top + 50);
+		mRendererNode.layout(left, top);
 	}
 
 	@Override

@@ -27,6 +27,10 @@ public class RendererNodeInflater {
 //		return node1;
 	}
 
+	public static RendererNode mockFractionNode() {
+		return new FractionNode(2, mockSqrt(), mockSqrt());
+	}
+
 	@VisibleForTesting
 	public static SqrtNode mockSqrt(float scale, RendererNode content) {
 		return new SqrtNode(scale, content, mockText(scale * 0.3f, "x + y + z"));
