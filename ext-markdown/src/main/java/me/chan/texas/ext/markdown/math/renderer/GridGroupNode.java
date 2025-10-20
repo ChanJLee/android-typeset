@@ -17,7 +17,7 @@ public class GridGroupNode extends RendererNode {
 	}
 
 	@Override
-	protected void onMeasure(MathPaint paint) {
+	protected void onMeasure(MathPaint paint, int widthSpec, int heightSpec) {
 		for (RendererNode node : mNodes) {
 			node.measure(paint);
 		}

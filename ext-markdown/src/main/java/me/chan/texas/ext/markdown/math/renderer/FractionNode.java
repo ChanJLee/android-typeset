@@ -15,7 +15,7 @@ public class FractionNode extends RendererNode {
 	}
 
 	@Override
-	protected void onMeasure(MathPaint paint) {
+	protected void onMeasure(MathPaint paint, int widthSpec, int heightSpec) {
 		mNumerator.measure(paint);
 		mDenominator.measure(paint);
 

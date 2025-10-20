@@ -17,7 +17,7 @@ public class TextNode extends RendererNode {
 	}
 
 	@Override
-	protected void onMeasure(MathPaint paint) {
+	protected void onMeasure(MathPaint paint, int widthSpec, int heightSpec) {
 		paint.getFontMetrics(mFontMetrics);
 		Paint.FontMetrics fontMetrics = mFontMetrics;
 		int height = (int) Math.ceil(fontMetrics.descent - fontMetrics.ascent);

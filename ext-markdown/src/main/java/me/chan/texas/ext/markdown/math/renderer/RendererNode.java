@@ -2,6 +2,9 @@ package me.chan.texas.ext.markdown.math.renderer;
 
 import android.graphics.Paint;
 import android.util.Log;
+import android.view.View;
+
+import androidx.annotation.IntRange;
 
 import me.chan.texas.ext.markdown.math.renderer.core.MathCanvas;
 import me.chan.texas.ext.markdown.math.renderer.core.MathPaint;
@@ -20,12 +23,16 @@ public abstract class RendererNode {
 	}
 
 	public final void measure(MathPaint paint) {
+		measure(paint, View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED), View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED));
+	}
+
+	public final void measure(MathPaint paint, int widthSpec, int heightSpec) {
 		float textSize = paint.getTextSize();
 		if (mScale != 1f) {
 			paint.setTextSize(textSize * mScale);
 		}
 
-		onMeasure(paint);
+		onMeasure(paint, widthSpec, heightSpec);
 
 		if (mScale != 1f) {
 			paint.setTextSize(textSize);
@@ -72,7 +79,7 @@ public abstract class RendererNode {
 		mTop += dy;
 	}
 
-	protected abstract void onMeasure(MathPaint paint);
+	protected abstract void onMeasure(MathPaint paint, int widthSpec, int heightSpec);
 
 	protected void onLayoutChildren() {
 	}
@@ -119,5 +126,26 @@ public abstract class RendererNode {
 				", " + getRight() +
 				", " + getBottom() +
 				"])";
+	}
+
+	private static final int MODE_SHIFT = 30;
+	private static final int MODE_MASK = 0x3 << MODE_SHIFT;
+
+	public static final int UNSPECIFIED = 0 << MODE_SHIFT;
+	public static final int EXACTLY = 1 << MODE_SHIFT;
+	public static final int AT_MOST = 2 << MODE_SHIFT;
+
+	public static int getMode(int measureSpec) {
+		//noinspection ResourceType
+		return (measureSpec & MODE_MASK);
+	}
+
+	public static int getSize(int measureSpec) {
+		return (measureSpec & ~MODE_MASK);
+	}
+
+	public static int makeMeasureSpec(@IntRange(from = 0, to = (1 << MODE_SHIFT) - 1) int size,
+									  int mode) {
+		return (size & ~MODE_MASK) | (mode & MODE_MASK);
 	}
 }

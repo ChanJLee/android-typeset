@@ -23,7 +23,7 @@ public class SqrtNode extends RendererNode {
 	}
 
 	@Override
-	protected void onMeasure(MathPaint paint) {
+	protected void onMeasure(MathPaint paint, int widthSpec, int heightSpec) {
 		mContent.measure(paint);
 		mSymbol.measure(paint);
 		mSymbol.setContentWidth(mContent.getWidth() + mSymbol.getKernAfterDegree());

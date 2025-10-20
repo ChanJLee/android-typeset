@@ -42,7 +42,12 @@ public class MathView extends View {
 //		mRendererNode = RendererNodeInflater.mockText("ABgface + x + y");
 //		mRendererNode.setScale(0.5f);
 //		mRendererNode = RendererNodeInflater.mockSqrt();
-		mRendererNode = RendererNodeInflater.mockFractionNode();
+//		mRendererNode = RendererNodeInflater.mockFractionNode();
+
+		{
+			mRendererNode = RendererNodeInflater.mockText();
+			textPaint.setTextSize(48);
+		}
 
 		TexasPaintImpl paint = new TexasPaintImpl();
 		paint.reset(new PaintSet(textPaint));

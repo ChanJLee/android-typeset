@@ -16,7 +16,7 @@ public class SqrtSymbolNode extends RendererNode {
 	}
 
 	@Override
-	protected void onMeasure(MathPaint paint) {
+	protected void onMeasure(MathPaint paint, int widthSpec, int heightSpec) {
 		paint.getFontMetrics(mFontMetrics);
 		Paint.FontMetrics fontMetrics = mFontMetrics;
 		mTextSize = paint.getTextSize();

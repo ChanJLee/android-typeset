@@ -16,6 +16,11 @@ public class RendererNodeInflater {
 	}
 
 	@VisibleForTesting
+	public static RendererNode mockText() {
+		return new TextNode(1f, MathFontOptions.toList());
+	}
+
+	@VisibleForTesting
 	public static RendererNode mockText(float scale, String text) {
 		return new TextNode(scale, text);
 	}
