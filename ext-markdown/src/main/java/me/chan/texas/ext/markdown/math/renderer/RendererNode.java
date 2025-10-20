@@ -3,8 +3,8 @@ package me.chan.texas.ext.markdown.math.renderer;
 import android.graphics.Paint;
 import android.util.Log;
 
-import me.chan.texas.renderer.core.graphics.TexasCanvas;
-import me.chan.texas.renderer.core.graphics.TexasPaint;
+import me.chan.texas.ext.markdown.math.renderer.core.MathCanvas;
+import me.chan.texas.ext.markdown.math.renderer.core.MathPaint;
 
 public abstract class RendererNode {
 	public static final boolean DEBUG = true;
@@ -19,7 +19,7 @@ public abstract class RendererNode {
 		mScale = scale;
 	}
 
-	public final void measure(TexasPaint paint) {
+	public final void measure(MathPaint paint) {
 		float textSize = paint.getTextSize();
 		if (mScale != 1f) {
 			paint.setTextSize(textSize * mScale);
@@ -42,7 +42,7 @@ public abstract class RendererNode {
 		onLayoutChildren();
 	}
 
-	public final void draw(TexasCanvas canvas, TexasPaint paint) {
+	public final void draw(MathCanvas canvas, MathPaint paint) {
 		canvas.save();
 		canvas.translate(mLeft, mTop);
 
@@ -72,7 +72,7 @@ public abstract class RendererNode {
 		mTop += dy;
 	}
 
-	protected abstract void onMeasure(TexasPaint paint);
+	protected abstract void onMeasure(MathPaint paint);
 
 	protected void onLayoutChildren() {
 	}
@@ -82,7 +82,7 @@ public abstract class RendererNode {
 		mTop = top;
 	}
 
-	protected abstract void onDraw(TexasCanvas canvas, TexasPaint paint);
+	protected abstract void onDraw(MathCanvas canvas, MathPaint paint);
 
 	public final int getWidth() {
 		return mWidth;

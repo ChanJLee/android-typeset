@@ -4,8 +4,9 @@ import android.graphics.Color;
 
 import androidx.annotation.Nullable;
 
-import me.chan.texas.renderer.core.graphics.TexasCanvas;
-import me.chan.texas.renderer.core.graphics.TexasPaint;
+import me.chan.texas.ext.markdown.math.renderer.core.MathCanvas;
+import me.chan.texas.ext.markdown.math.renderer.core.MathPaint;
+
 
 public class SqrtNode extends RendererNode {
 	private final RendererNode mContent;
@@ -22,7 +23,7 @@ public class SqrtNode extends RendererNode {
 	}
 
 	@Override
-	protected void onMeasure(TexasPaint paint) {
+	protected void onMeasure(MathPaint paint) {
 		mContent.measure(paint);
 		mSymbol.measure(paint);
 		mSymbol.setContentWidth(mContent.getWidth() + mSymbol.getKernAfterDegree());
@@ -68,7 +69,7 @@ public class SqrtNode extends RendererNode {
 	}
 
 	@Override
-	protected void onDraw(TexasCanvas canvas, TexasPaint paint) {
+	protected void onDraw(MathCanvas canvas, MathPaint paint) {
 		int color = paint.getColor();
 
 		if (DEBUG) {

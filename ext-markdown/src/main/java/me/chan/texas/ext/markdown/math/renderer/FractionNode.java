@@ -1,7 +1,8 @@
 package me.chan.texas.ext.markdown.math.renderer;
 
-import me.chan.texas.renderer.core.graphics.TexasCanvas;
-import me.chan.texas.renderer.core.graphics.TexasPaint;
+
+import me.chan.texas.ext.markdown.math.renderer.core.MathCanvas;
+import me.chan.texas.ext.markdown.math.renderer.core.MathPaint;
 
 public class FractionNode extends RendererNode {
 	private final RendererNode mNumerator;
@@ -14,7 +15,7 @@ public class FractionNode extends RendererNode {
 	}
 
 	@Override
-	protected void onMeasure(TexasPaint paint) {
+	protected void onMeasure(MathPaint paint) {
 		mNumerator.measure(paint);
 		mDenominator.measure(paint);
 
@@ -24,15 +25,15 @@ public class FractionNode extends RendererNode {
 		setMeasuredSize(width, height);
 	}
 
-	private float getDenominatorVerticalGap(TexasPaint paint) {
+	private float getDenominatorVerticalGap(MathPaint paint) {
 		return MathFontOptions.FRACTION_DENOMINATOR_GAP_MIN / MathFontOptions.UNITS_PER_EM * paint.getTextSize();
 	}
 
-	private float getNumeratorVerticalGap(TexasPaint paint) {
+	private float getNumeratorVerticalGap(MathPaint paint) {
 		return MathFontOptions.FRACTION_NUMERATOR_GAP_MIN / MathFontOptions.UNITS_PER_EM * paint.getTextSize();
 	}
 
-	private float getThickness(TexasPaint paint) {
+	private float getThickness(MathPaint paint) {
 		return MathFontOptions.FRACTION_RULE_THICKNESS / MathFontOptions.UNITS_PER_EM * paint.getTextSize();
 	}
 
@@ -43,7 +44,7 @@ public class FractionNode extends RendererNode {
 	}
 
 	@Override
-	protected void onDraw(TexasCanvas canvas, TexasPaint paint) {
+	protected void onDraw(MathCanvas canvas, MathPaint paint) {
 		mNumerator.draw(canvas, paint);
 		mDenominator.draw(canvas, paint);
 

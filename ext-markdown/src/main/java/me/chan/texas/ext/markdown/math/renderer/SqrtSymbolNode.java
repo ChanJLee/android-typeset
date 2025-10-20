@@ -2,8 +2,8 @@ package me.chan.texas.ext.markdown.math.renderer;
 
 import android.graphics.Paint;
 
-import me.chan.texas.renderer.core.graphics.TexasCanvas;
-import me.chan.texas.renderer.core.graphics.TexasPaint;
+import me.chan.texas.ext.markdown.math.renderer.core.MathCanvas;
+import me.chan.texas.ext.markdown.math.renderer.core.MathPaint;
 
 public class SqrtSymbolNode extends RendererNode {
 
@@ -16,7 +16,7 @@ public class SqrtSymbolNode extends RendererNode {
 	}
 
 	@Override
-	protected void onMeasure(TexasPaint paint) {
+	protected void onMeasure(MathPaint paint) {
 		paint.getFontMetrics(mFontMetrics);
 		Paint.FontMetrics fontMetrics = mFontMetrics;
 		mTextSize = paint.getTextSize();
@@ -61,7 +61,7 @@ public class SqrtSymbolNode extends RendererNode {
 	}
 
 	@Override
-	protected void onDraw(TexasCanvas canvas, TexasPaint paint) {
+	protected void onDraw(MathCanvas canvas, MathPaint paint) {
 		float thickness = getRuleThickness();
 		float y = getTopPadding() + thickness / 2;
 		canvas.drawText("√", 0, y, paint);
