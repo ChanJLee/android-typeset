@@ -94,12 +94,23 @@ public class MathPaintImpl implements MathPaint {
 		mImpl.setFakeBoldText(isBold);
 	}
 
+	@Override
+	public boolean isItalicText() {
+		return mImpl.getTextSkewX() != 0;
+	}
+
+	@Override
+	public void setItalicText(boolean isItalic) {
+		mImpl.setTextSkewX(isItalic ? -0.25f : 0);
+	}
+
 	public static class Styles {
 		private final float mTextSize;
 		private final Paint.Style mStyle;
 		private final float mStrokeWidth;
 		private final int mColor;
 		private final boolean mIsBold;
+		private final boolean mIsItalic;
 
 		public Styles(MathPaint paint) {
 			mTextSize = paint.getTextSize();
@@ -107,6 +118,16 @@ public class MathPaintImpl implements MathPaint {
 			mStrokeWidth = paint.getStrokeWidth();
 			mColor = paint.getColor();
 			mIsBold = paint.isBoldText();
+			mIsItalic = paint.isItalicText();
+		}
+
+		public boolean isModified(MathPaint paint) {
+			return mTextSize != paint.getTextSize() ||
+					mStyle != paint.getStyle() ||
+					mStrokeWidth != paint.getStrokeWidth() ||
+					mColor != paint.getColor() ||
+					mIsBold != paint.isBoldText() ||
+					mIsItalic != paint.isItalicText();
 		}
 
 		public void restore(MathPaint paint) {
@@ -115,6 +136,7 @@ public class MathPaintImpl implements MathPaint {
 			paint.setStrokeWidth(mStrokeWidth);
 			paint.setColor(mColor);
 			paint.setBoldText(mIsBold);
+			paint.setItalicText(mIsItalic);
 		}
 	}
 }

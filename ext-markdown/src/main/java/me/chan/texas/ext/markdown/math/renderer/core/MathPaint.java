@@ -38,4 +38,8 @@ public interface MathPaint {
 	boolean isBoldText();
 
 	void setBoldText(boolean isBold);
+
+	boolean isItalicText();
+
+	void setItalicText(boolean isItalic);
 }
