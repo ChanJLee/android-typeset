@@ -42,4 +42,40 @@ public interface MathPaint {
 	boolean isItalicText();
 
 	void setItalicText(boolean isItalic);
+
+	class Styles {
+		private final float mTextSize;
+		private final Paint.Style mStyle;
+		private final float mStrokeWidth;
+		private final int mColor;
+		private final boolean mIsBold;
+		private final boolean mIsItalic;
+
+		public Styles(MathPaint paint) {
+			mTextSize = paint.getTextSize();
+			mStyle = paint.getStyle();
+			mStrokeWidth = paint.getStrokeWidth();
+			mColor = paint.getColor();
+			mIsBold = paint.isBoldText();
+			mIsItalic = paint.isItalicText();
+		}
+
+		public boolean isModified(MathPaint paint) {
+			return mTextSize != paint.getTextSize() ||
+					mStyle != paint.getStyle() ||
+					mStrokeWidth != paint.getStrokeWidth() ||
+					mColor != paint.getColor() ||
+					mIsBold != paint.isBoldText() ||
+					mIsItalic != paint.isItalicText();
+		}
+
+		public void restore(MathPaint paint) {
+			paint.setTextSize(mTextSize);
+			paint.setStyle(mStyle);
+			paint.setStrokeWidth(mStrokeWidth);
+			paint.setColor(mColor);
+			paint.setBoldText(mIsBold);
+			paint.setItalicText(mIsItalic);
+		}
+	}
 }
