@@ -27,7 +27,15 @@ public interface MathPaint {
 
 	TexasPaint getCore();
 
+	default float toPixelSize(float units, float unitsPerEm) {
+		return units / unitsPerEm * getTextSize();
+	}
+
 	void save();
 
 	void restore();
+
+	boolean isBoldText();
+
+	void setBoldText(boolean isBold);
 }

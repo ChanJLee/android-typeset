@@ -8,7 +8,7 @@ import me.chan.texas.renderer.core.graphics.TexasPaint;
 
 public class MathPaintImpl implements MathPaint {
 	private final TexasPaint mImpl;
-	private final Stack<State> mStates = new Stack<>();
+	private final Stack<Styles> mStates = new Stack<>();
 
 	public MathPaintImpl(TexasPaint impl) {
 		mImpl = impl;
@@ -71,7 +71,7 @@ public class MathPaintImpl implements MathPaint {
 
 	@Override
 	public void save() {
-		mStates.push(new State(this));
+		mStates.push(new Styles(this));
 	}
 
 	@Override
@@ -80,21 +80,33 @@ public class MathPaintImpl implements MathPaint {
 			throw new IllegalStateException("No saved state");
 		}
 
-		State state = mStates.pop();
+		Styles state = mStates.pop();
 		state.restore(this);
 	}
 
-	private static class State {
+	@Override
+	public boolean isBoldText() {
+		return mImpl.isFakeBoldText();
+	}
+
+	@Override
+	public void setBoldText(boolean isBold) {
+		mImpl.setFakeBoldText(isBold);
+	}
+
+	public static class Styles {
 		private final float mTextSize;
 		private final Paint.Style mStyle;
 		private final float mStrokeWidth;
 		private final int mColor;
+		private final boolean mIsBold;
 
-		public State(MathPaint paint) {
+		public Styles(MathPaint paint) {
 			mTextSize = paint.getTextSize();
 			mStyle = paint.getStyle();
 			mStrokeWidth = paint.getStrokeWidth();
 			mColor = paint.getColor();
+			mIsBold = paint.isBoldText();
 		}
 
 		public void restore(MathPaint paint) {
@@ -102,6 +114,7 @@ public class MathPaintImpl implements MathPaint {
 			paint.setStyle(mStyle);
 			paint.setStrokeWidth(mStrokeWidth);
 			paint.setColor(mColor);
+			paint.setBoldText(mIsBold);
 		}
 	}
 }
