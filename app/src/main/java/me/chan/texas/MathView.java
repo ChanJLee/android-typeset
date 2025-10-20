@@ -14,6 +14,10 @@ import java.io.IOException;
 
 import me.chan.texas.ext.markdown.math.renderer.RendererNode;
 import me.chan.texas.ext.markdown.math.renderer.RendererNodeInflater;
+import me.chan.texas.ext.markdown.math.renderer.core.MathCanvas;
+import me.chan.texas.ext.markdown.math.renderer.core.MathCanvasImpl;
+import me.chan.texas.ext.markdown.math.renderer.core.MathPaint;
+import me.chan.texas.ext.markdown.math.renderer.core.MathPaintImpl;
 import me.chan.texas.misc.PaintSet;
 import me.chan.texas.renderer.core.graphics.TexasCanvasImpl;
 import me.chan.texas.renderer.core.graphics.TexasPaint;
@@ -23,15 +27,15 @@ public class MathView extends View {
 
 	private RendererNode mRendererNode;
 
-	private TexasPaint mTexasPaint;
-	private TexasCanvasImpl mCanvas;
+	private MathPaint mTexasPaint;
+	private MathCanvas mCanvas;
 
 	public MathView(Context context, @Nullable AttributeSet attrs) throws IOException {
 		super(context, attrs);
 		TextPaint textPaint = new TextPaint();
 
 		textPaint.setTypeface(Typeface.createFromAsset(context.getAssets(), "texas_markdown_ext/latinmodern-math.otf"));
-		textPaint.setTextSize(48);
+		textPaint.setTextSize(16);
 		textPaint.setStyle(Paint.Style.FILL);
 
 //		mRendererNode = new TextNode(1f, "Hello World!");
@@ -40,10 +44,11 @@ public class MathView extends View {
 //		mRendererNode = RendererNodeInflater.mockSqrt();
 		mRendererNode = RendererNodeInflater.mockFractionNode();
 
-		mTexasPaint = new TexasPaintImpl();
-		mTexasPaint.reset(new PaintSet(textPaint));
+		TexasPaintImpl paint = new TexasPaintImpl();
+		paint.reset(new PaintSet(textPaint));
+		mTexasPaint = new MathPaintImpl(paint);
 
-		mCanvas = new TexasCanvasImpl();
+		mCanvas = new MathCanvasImpl(new TexasCanvasImpl());
 	}
 
 	@Override
