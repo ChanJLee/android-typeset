@@ -208,8 +208,11 @@ public class MathFontOptions {
 	}
 
 	@Nullable
-	public static String getGlyph(String name) {
-		return GLYPHS.get(name);
+	public static String formatSymbol(String ref) {
+		if (ref.startsWith("\\")) {
+			return GLYPHS.get(ref);
+		}
+		return ref;
 	}
 
 	public static Map<String, String> toMap() {

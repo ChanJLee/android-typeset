@@ -13,14 +13,13 @@ import androidx.annotation.Nullable;
 import java.io.IOException;
 
 import me.chan.texas.ext.markdown.math.renderer.RendererNode;
-import me.chan.texas.ext.markdown.math.renderer.RendererNodeInflater;
+import me.chan.texas.ext.markdown.math.renderer.MathRendererInflater;
 import me.chan.texas.ext.markdown.math.renderer.core.MathCanvas;
 import me.chan.texas.ext.markdown.math.renderer.core.MathCanvasImpl;
 import me.chan.texas.ext.markdown.math.renderer.core.MathPaint;
 import me.chan.texas.ext.markdown.math.renderer.core.MathPaintImpl;
 import me.chan.texas.misc.PaintSet;
 import me.chan.texas.renderer.core.graphics.TexasCanvasImpl;
-import me.chan.texas.renderer.core.graphics.TexasPaint;
 import me.chan.texas.renderer.core.graphics.TexasPaintImpl;
 
 public class MathView extends View {
@@ -49,7 +48,7 @@ public class MathView extends View {
 //		}
 //
 		{
-			mRendererNode = RendererNodeInflater.mockDecor();
+			mRendererNode = MathRendererInflater.mockDecor();
 			textPaint.setTextSize(48);
 		}
 

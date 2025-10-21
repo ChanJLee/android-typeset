@@ -23,4 +23,16 @@ public class Term implements Ast {
 		}
 		return result;
 	}
+
+	public String getUnaryOp() {
+		return unaryOp;
+	}
+
+	public Atom getAtom() {
+		return atom;
+	}
+
+	public SupSubSuffix getSuffix() {
+		return suffix;
+	}
 }

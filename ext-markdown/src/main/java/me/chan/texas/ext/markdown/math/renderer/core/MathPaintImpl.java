@@ -81,7 +81,7 @@ public class MathPaintImpl implements MathPaint {
 		}
 
 		Styles state = mStates.pop();
-		state.restore(this);
+		state.apply(this);
 	}
 
 	@Override

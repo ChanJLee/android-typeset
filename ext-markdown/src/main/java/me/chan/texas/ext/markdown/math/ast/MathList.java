@@ -22,4 +22,12 @@ public class MathList implements Ast {
 		}
 		return sb.toString();
 	}
+
+	public List<Term> getTerms() {
+		return terms;
+	}
+
+	public List<String> getOperators() {
+		return operators;
+	}
 }

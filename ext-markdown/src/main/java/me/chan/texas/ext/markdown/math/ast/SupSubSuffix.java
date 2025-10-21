@@ -20,4 +20,12 @@ public class SupSubSuffix implements Ast {
 		}
 		return result;
 	}
+
+	public ScriptArg getSuperscript() {
+		return superscript;
+	}
+
+	public ScriptArg getSubscript() {
+		return subscript;
+	}
 }

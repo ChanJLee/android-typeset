@@ -69,7 +69,7 @@ public interface MathPaint {
 					mIsItalic != paint.isItalicText();
 		}
 
-		public void restore(MathPaint paint) {
+		public void apply(MathPaint paint) {
 			paint.setTextSize(mTextSize);
 			paint.setStyle(mStyle);
 			paint.setStrokeWidth(mStrokeWidth);

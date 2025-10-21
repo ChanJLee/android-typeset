@@ -45,6 +45,10 @@ public abstract class RendererNode {
 		mHeight = height;
 	}
 
+	public float getScale() {
+		return mScale;
+	}
+
 	public final void layout(float left, float top) {
 		setLayoutBounds(left, top);
 		onLayoutChildren();
