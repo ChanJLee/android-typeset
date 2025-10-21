@@ -207,8 +207,15 @@ public class MathFontOptions {
 		GLYPHS.put("odot", "⊙");
 	}
 
-	@Nullable
 	public static String formatSymbol(String ref) {
+		String ret = formatSymbol0(ref);
+		if (ret == null || ret.isEmpty()) {
+			throw new IllegalArgumentException("Unknown symbol: " + ref);
+		}
+		return ret;
+	}
+
+	private static String formatSymbol0(String ref) {
 		if (ref.startsWith("\\")) {
 			return GLYPHS.get(ref);
 		}

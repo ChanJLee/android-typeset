@@ -10,8 +10,10 @@ import java.util.List;
 import java.util.Map;
 
 import me.chan.texas.ext.markdown.math.ast.Atom;
+import me.chan.texas.ext.markdown.math.ast.GroupScriptArg;
 import me.chan.texas.ext.markdown.math.ast.MathList;
 import me.chan.texas.ext.markdown.math.ast.ScriptArg;
+import me.chan.texas.ext.markdown.math.ast.SingleTokenScriptArg;
 import me.chan.texas.ext.markdown.math.ast.SupSubSuffix;
 import me.chan.texas.ext.markdown.math.ast.Term;
 
@@ -63,7 +65,30 @@ public class MathRendererInflater {
 	}
 
 	private RendererNode inflateScriptArg(float scale, ScriptArg scriptArg) {
-		throw new RuntimeException("Stub!");
+		if (scriptArg instanceof GroupScriptArg) {
+			GroupScriptArg group = (GroupScriptArg) scriptArg;
+			return inflateScriptArg(scale, group);
+		}
+
+		if (scriptArg instanceof SingleTokenScriptArg) {
+			SingleTokenScriptArg token = (SingleTokenScriptArg) scriptArg;
+			return inflateScriptArg(scale, token);
+		}
+
+		throw new IllegalArgumentException("Unknown script arg: " + scriptArg);
+	}
+
+	private RendererNode inflateScriptArg(float scale, GroupScriptArg group) {
+		return inflate0(scale, group.getContent());
+	}
+
+	private RendererNode inflateScriptArg(float scale, SingleTokenScriptArg singleTokenScriptArg) {
+		String token = singleTokenScriptArg.getToken();
+		if (token.startsWith("\\")) {
+			return new TextNode(scale, MathFontOptions.formatSymbol(token));
+		}
+
+		return new TextNode(scale, token);
 	}
 
 	private RendererNode inflateAtom(float scale, Atom atom) {

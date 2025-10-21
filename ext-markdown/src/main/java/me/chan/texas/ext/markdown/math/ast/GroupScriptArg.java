@@ -11,4 +11,8 @@ public class GroupScriptArg implements ScriptArg {
 	public String toLatex() {
 		return "{" + content.toLatex() + "}";
 	}
+
+	public MathList getContent() {
+		return content;
+	}
 }

@@ -11,4 +11,8 @@ public class SingleTokenScriptArg implements ScriptArg {
 	public String toLatex() {
 		return token;
 	}
+
+	public String getToken() {
+		return token;
+	}
 }
