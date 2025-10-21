@@ -9,6 +9,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import me.chan.texas.ext.markdown.math.ast.AccentAtom;
+import me.chan.texas.ext.markdown.math.ast.Ast;
 import me.chan.texas.ext.markdown.math.ast.Atom;
 import me.chan.texas.ext.markdown.math.ast.GroupScriptArg;
 import me.chan.texas.ext.markdown.math.ast.MathList;
@@ -92,6 +94,19 @@ public class MathRendererInflater {
 	}
 
 	private RendererNode inflateAtom(float scale, Atom atom) {
+		if (atom instanceof AccentAtom) {
+			AccentAtom accentAtom = (AccentAtom) atom;
+			return inflateAccentAtom(scale, accentAtom);
+		}
+
+		throw new IllegalArgumentException("Unknown atom: " + atom);
+	}
+
+	private RendererNode inflateAccentAtom(float scale, AccentAtom accentAtom) {
+		return new AccentNode(scale, accentAtom.getAccentCmd(), inflateAst(scale, accentAtom.getContent()));
+	}
+
+	private RendererNode inflateAst(float scale, Ast ast) {
 		throw new RuntimeException("Stub!");
 	}
 

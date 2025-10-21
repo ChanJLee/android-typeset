@@ -13,4 +13,12 @@ public class AccentAtom implements Atom {
 	public String toLatex() {
 		return "\\" + accentCmd + "{" + content.toLatex() + "}";
 	}
+
+	public String getAccentCmd() {
+		return accentCmd;
+	}
+
+	public Ast getContent() {
+		return content;
+	}
 }
