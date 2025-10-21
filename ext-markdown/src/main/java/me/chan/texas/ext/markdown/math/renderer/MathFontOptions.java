@@ -37,17 +37,15 @@ public class MathFontOptions {
 	private static final Map<String, String> GLYPHS = new HashMap<>();
 
 	static {
-		// Greek letters (lowercase)
+		// Greek letters (lowercase) from JSON
 		GLYPHS.put("alpha", "α");
 		GLYPHS.put("beta", "β");
 		GLYPHS.put("gamma", "γ");
 		GLYPHS.put("delta", "δ");
-		GLYPHS.put("epsilon", "ϵ");
-		GLYPHS.put("varepsilon", "ε");
+		GLYPHS.put("epsilon", "ε"); // Note: JSON has a different epsilon, this keeps the existing one
 		GLYPHS.put("zeta", "ζ");
 		GLYPHS.put("eta", "η");
 		GLYPHS.put("theta", "θ");
-		GLYPHS.put("vartheta", "ϑ");
 		GLYPHS.put("iota", "ι");
 		GLYPHS.put("kappa", "κ");
 		GLYPHS.put("lambda", "λ");
@@ -55,20 +53,24 @@ public class MathFontOptions {
 		GLYPHS.put("nu", "ν");
 		GLYPHS.put("xi", "ξ");
 		GLYPHS.put("pi", "π");
-		GLYPHS.put("varpi", "ϖ");
 		GLYPHS.put("rho", "ρ");
-		GLYPHS.put("varrho", "ϱ");
 		GLYPHS.put("sigma", "σ");
-		GLYPHS.put("varsigma", "ς");
 		GLYPHS.put("tau", "τ");
 		GLYPHS.put("upsilon", "υ");
-		GLYPHS.put("phi", "ϕ");
-		GLYPHS.put("varphi", "φ");
+		GLYPHS.put("phi", "φ"); // Note: JSON has a different phi, this keeps the existing one
 		GLYPHS.put("chi", "χ");
 		GLYPHS.put("psi", "ψ");
 		GLYPHS.put("omega", "ω");
+		// Symbols from existing code not in this part of JSON
+		GLYPHS.put("varepsilon", "ε");
+		GLYPHS.put("vartheta", "ϑ");
+		GLYPHS.put("varpi", "ϖ");
+		GLYPHS.put("varrho", "ϱ");
+		GLYPHS.put("varsigma", "ς");
+		GLYPHS.put("varphi", "φ");
 
-		// Greek letters (uppercase)
+
+		// Greek letters (uppercase) from JSON
 		GLYPHS.put("Gamma", "Γ");
 		GLYPHS.put("Delta", "Δ");
 		GLYPHS.put("Theta", "Θ");
@@ -81,80 +83,128 @@ public class MathFontOptions {
 		GLYPHS.put("Psi", "Ψ");
 		GLYPHS.put("Omega", "Ω");
 
-		// Binary operators
+		// Basic operators from JSON
+		GLYPHS.put("plus", "+");
+		GLYPHS.put("minus", "-");
 		GLYPHS.put("times", "×");
-		GLYPHS.put("div", "÷");
+		GLYPHS.put("divide", "÷");
+		GLYPHS.put("equals", "=");
+		GLYPHS.put("plusminus", "±");
+		GLYPHS.put("minusplus", "∓");
 		GLYPHS.put("cdot", "⋅");
-		GLYPHS.put("pm", "±");
-		GLYPHS.put("mp", "∓");
 		GLYPHS.put("ast", "∗");
 		GLYPHS.put("star", "⋆");
+		// Symbols from existing code not in this part of JSON
+		GLYPHS.put("div", "÷");
+		GLYPHS.put("pm", "±");
+		GLYPHS.put("mp", "∓");
 		GLYPHS.put("circ", "∘");
 		GLYPHS.put("bullet", "∙");
-		GLYPHS.put("cap", "∩");
-		GLYPHS.put("cup", "∪");
-		GLYPHS.put("vee", "∨");
-		GLYPHS.put("wedge", "∧");
-		GLYPHS.put("oplus", "⊕");
-		GLYPHS.put("otimes", "⊗");
-		GLYPHS.put("odot", "⊙");
 
-		// Relation operators
+		// Relations from JSON
+		GLYPHS.put("lt", "<");
+		GLYPHS.put("gt", ">");
+		GLYPHS.put("le", "≤");
+		GLYPHS.put("ge", "≥");
 		GLYPHS.put("leq", "≤");
 		GLYPHS.put("geq", "≥");
-		GLYPHS.put("neq", "≠");
-		GLYPHS.put("approx", "≈");
 		GLYPHS.put("equiv", "≡");
-		GLYPHS.put("cong", "≅");
+		GLYPHS.put("approx", "≈");
+		GLYPHS.put("neq", "≠");
 		GLYPHS.put("sim", "∼");
+		GLYPHS.put("cong", "≅");
 		GLYPHS.put("propto", "∝");
+
+		// Set Operators from JSON
 		GLYPHS.put("in", "∈");
 		GLYPHS.put("notin", "∉");
-		GLYPHS.put("ni", "∋");
 		GLYPHS.put("subset", "⊂");
 		GLYPHS.put("supset", "⊃");
 		GLYPHS.put("subseteq", "⊆");
 		GLYPHS.put("supseteq", "⊇");
+		GLYPHS.put("cup", "∪");
+		GLYPHS.put("cap", "∩");
+		GLYPHS.put("emptyset", "∅");
+		GLYPHS.put("exists", "∃");
+		GLYPHS.put("forall", "∀");
+		// Symbols from existing code not in this part of JSON
+		GLYPHS.put("ni", "∋");
 
-		// Arrows
-		GLYPHS.put("to", "→");
-		GLYPHS.put("rightarrow", "→");
+		// Arrows from JSON
 		GLYPHS.put("leftarrow", "←");
-		GLYPHS.put("leftrightarrow", "↔");
-		GLYPHS.put("Rightarrow", "⇒");
-		GLYPHS.put("Leftarrow", "⇐");
-		GLYPHS.put("Leftrightarrow", "⇔");
-		GLYPHS.put("mapsto", "↦");
+		GLYPHS.put("rightarrow", "→");
 		GLYPHS.put("uparrow", "↑");
 		GLYPHS.put("downarrow", "↓");
+		GLYPHS.put("leftrightarrow", "↔");
+		GLYPHS.put("Leftarrow", "⇐");
+		GLYPHS.put("Rightarrow", "⇒");
+		GLYPHS.put("Leftrightarrow", "⇔");
+		GLYPHS.put("mapsto", "↦");
+		// Symbols from existing code not in this part of JSON
+		GLYPHS.put("to", "→");
 		GLYPHS.put("updownarrow", "↕");
 
-		// Delimiters and misc
-		GLYPHS.put("forall", "∀");
-		GLYPHS.put("exists", "∃");
-		GLYPHS.put("partial", "∂");
-		GLYPHS.put("nabla", "∇");
-		GLYPHS.put("infty", "∞");
-		GLYPHS.put("angle", "∠");
-		GLYPHS.put("ldots", "…");
-		GLYPHS.put("cdots", "⋯");
-		GLYPHS.put("vdots", "⋮");
-		GLYPHS.put("ddots", "⋱");
-		GLYPHS.put("prime", "′");
-		GLYPHS.put("hbar", "ħ");
-		GLYPHS.put("ell", "ℓ");
-		GLYPHS.put("wp", "℘");
-		GLYPHS.put("Re", "ℜ");
-		GLYPHS.put("Im", "ℑ");
-		GLYPHS.put("surd", "√");
+		// Large Operators from JSON
+		GLYPHS.put("sum", "∑");
+		GLYPHS.put("prod", "∏");
+		GLYPHS.put("coprod", "∐");
+		GLYPHS.put("int", "∫");
+		GLYPHS.put("iint", "∬");
+		GLYPHS.put("iiint", "∭");
+		GLYPHS.put("oint", "∮");
+		GLYPHS.put("bigcup", "⋃");
+		GLYPHS.put("bigcap", "⋂");
+		GLYPHS.put("bigvee", "⋁");
+		GLYPHS.put("bigwedge", "⋀");
 
-		// Brackets
+		// Delimiters from JSON
+		GLYPHS.put("lparen", "(");
+		GLYPHS.put("rparen", ")");
+		GLYPHS.put("lbracket", "[");
+		GLYPHS.put("rbracket", "]");
+		GLYPHS.put("lbrace", "{");
+		GLYPHS.put("rbrace", "}");
 		GLYPHS.put("langle", "⟨");
 		GLYPHS.put("rangle", "⟩");
 		GLYPHS.put("lfloor", "⌊");
 		GLYPHS.put("rfloor", "⌋");
 		GLYPHS.put("lceil", "⌈");
 		GLYPHS.put("rceil", "⌉");
+		GLYPHS.put("vert", "|");
+		GLYPHS.put("Vert", "‖");
+
+		// Misc Symbols from JSON
+		GLYPHS.put("infty", "∞");
+		GLYPHS.put("partial", "∂");
+		GLYPHS.put("nabla", "∇");
+		GLYPHS.put("angle", "∠");
+		GLYPHS.put("parallel", "∥");
+		GLYPHS.put("perp", "⊥");
+		GLYPHS.put("prime", "′");
+		GLYPHS.put("hbar", "ℏ");
+		GLYPHS.put("ell", "ℓ");
+		GLYPHS.put("radical", "√");
+		// Symbols from existing code not in this part of JSON
+		GLYPHS.put("ldots", "…");
+		GLYPHS.put("cdots", "⋯");
+		GLYPHS.put("vdots", "⋮");
+		GLYPHS.put("ddots", "⋱");
+		GLYPHS.put("wp", "℘");
+		GLYPHS.put("Re", "ℜ");
+		GLYPHS.put("Im", "ℑ");
+		GLYPHS.put("surd", "√");
+
+		// Logic Symbols from JSON
+		GLYPHS.put("neg", "¬");
+		GLYPHS.put("wedge", "∧");
+		GLYPHS.put("vee", "∨");
+		GLYPHS.put("implies", "⇒");
+		GLYPHS.put("iff", "⇔");
+
+		// Set operators from existing code that were under "Binary operators"
+		GLYPHS.put("oplus", "⊕");
+		GLYPHS.put("otimes", "⊗");
+		GLYPHS.put("odot", "⊙");
 	}
 
 	@Nullable
@@ -162,11 +212,7 @@ public class MathFontOptions {
 		return GLYPHS.get(name);
 	}
 
-	public static String toList() {
-		StringBuilder sb = new StringBuilder();
-		for (Map.Entry<String, String> entry : GLYPHS.entrySet()) {
-			sb.append(entry.getKey()).append("=").append(entry.getValue()).append(" ");
-		}
-		return sb.toString();
+	public static Map<String, String> toMap() {
+		return GLYPHS;
 	}
 }

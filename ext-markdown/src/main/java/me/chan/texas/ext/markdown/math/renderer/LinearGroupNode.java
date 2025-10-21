@@ -20,6 +20,25 @@ public class LinearGroupNode extends RendererNode {
 		for (RendererNode node : mNodes) {
 			node.measure(paint);
 		}
+
+		if (mGravity == Gravity.HORIZONTAL) {
+			float height = 0;
+			float width = 0;
+			for (RendererNode node : mNodes) {
+				height = Math.max(height, node.getHeight());
+				width += node.getWidth();
+			}
+			setMeasuredSize((int) Math.ceil(width), (int) Math.ceil(height));
+			return;
+		}
+
+		float height = 0;
+		float width = 0;
+		for (RendererNode node : mNodes) {
+			height += node.getWidth();
+			width = Math.max(width, node.getHeight());
+		}
+		setMeasuredSize((int) Math.ceil(height), (int) Math.ceil(width));
 	}
 
 	@Override

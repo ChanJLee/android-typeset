@@ -1,6 +1,12 @@
 package me.chan.texas.ext.markdown.math.renderer;
 
+import android.util.Log;
+
 import androidx.annotation.VisibleForTesting;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 import me.chan.texas.ext.markdown.math.ast.MathList;
 
@@ -13,11 +19,6 @@ public class RendererNodeInflater {
 	@VisibleForTesting
 	public static RendererNode mockText(String text) {
 		return new TextNode(1f, text);
-	}
-
-	@VisibleForTesting
-	public static RendererNode mockText() {
-		return new TextNode(1f, MathFontOptions.toList());
 	}
 
 	@VisibleForTesting
@@ -34,6 +35,27 @@ public class RendererNodeInflater {
 
 	public static RendererNode mockFractionNode() {
 		return new FractionNode(2, mockSqrt(), mockSqrt());
+	}
+
+	public static RendererNode mockDecor() {
+		DecorGroupNode.Builder builder = new DecorGroupNode.Builder(3, new TextNode(3, "∫"));
+		builder.top(new TextNode(1, "x + y"));
+		builder.bottom(new TextNode(1, "y + z"));
+		builder.leftTop(new TextNode(1, "z + y"));
+		builder.leftBottom(new TextNode(1, "y + x"));
+		builder.rightTop(new TextNode(1, "x + z"));
+		builder.rightBottom(new TextNode(1, "z + x"));
+		return builder.build();
+	}
+
+	public static RendererNode mockList() {
+		List<RendererNode> list = new ArrayList<>();
+		for (Map.Entry<String, String> entry : MathFontOptions.toMap().entrySet()) {
+			list.add(new TextNode(1, entry.getKey()));
+			list.add(new TextNode(1, entry.getValue()));
+			Log.d("chan_debug", "key: " + entry.getKey() + " value: " + entry.getValue());
+		}
+		return new LinearGroupNode(1, list, LinearGroupNode.Gravity.HORIZONTAL);
 	}
 
 	@VisibleForTesting

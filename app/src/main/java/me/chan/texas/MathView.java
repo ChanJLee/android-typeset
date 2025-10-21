@@ -43,9 +43,13 @@ public class MathView extends View {
 //		mRendererNode.setScale(0.5f);
 //		mRendererNode = RendererNodeInflater.mockSqrt();
 //		mRendererNode = RendererNodeInflater.mockFractionNode();
-
+//		{
+//			mRendererNode = RendererNodeInflater.mockText();
+//			textPaint.setTextSize(48);
+//		}
+//
 		{
-			mRendererNode = RendererNodeInflater.mockText();
+			mRendererNode = RendererNodeInflater.mockDecor();
 			textPaint.setTextSize(48);
 		}
 
@@ -59,7 +63,7 @@ public class MathView extends View {
 	@Override
 	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
 		mRendererNode.measure(mTexasPaint);
-		super.onMeasure(MeasureSpec.makeMeasureSpec(mRendererNode.getWidth(), MeasureSpec.EXACTLY),
+		super.onMeasure(MeasureSpec.makeMeasureSpec(Math.max(MeasureSpec.getSize(widthMeasureSpec), mRendererNode.getWidth()), MeasureSpec.EXACTLY),
 				heightMeasureSpec);
 	}
 
