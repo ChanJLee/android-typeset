@@ -107,7 +107,7 @@ public class DecorGroupNode extends RendererNode {
 	}
 
 	private void preLayout() {
-		float offsetYPercent = 0.3f;
+		float offsetYPercent = 0.5f;
 		mBuilder.center.layout(0, 0);
 		if (mBuilder.leftTop != null) {
 			mBuilder.leftTop.layout(-mBuilder.leftTop.getWidth(), -mBuilder.leftTop.getHeight() * offsetYPercent);
@@ -197,7 +197,6 @@ public class DecorGroupNode extends RendererNode {
 			rightBottom = node;
 			return this;
 		}
-
 
 		public Builder top(RendererNode node) {
 			top = node;

@@ -17,6 +17,7 @@ public abstract class RendererNode {
 	private int mHeight;
 	private float mLeft;
 	private float mTop;
+	private Object mTag;
 
 	public RendererNode(float scale) {
 		mScale = scale;
@@ -113,6 +114,14 @@ public abstract class RendererNode {
 
 	public final float getBottom() {
 		return mTop + getHeight();
+	}
+
+	public Object getTag() {
+		return mTag;
+	}
+
+	public void setTag(Object tag) {
+		mTag = tag;
 	}
 
 	protected abstract String toPretty();
