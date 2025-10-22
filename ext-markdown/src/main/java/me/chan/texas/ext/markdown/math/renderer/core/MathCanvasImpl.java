@@ -47,4 +47,9 @@ public class MathCanvasImpl implements MathCanvas {
 	public void reset(Canvas canvas) {
 		mImpl.reset(canvas);
 	}
+
+	@Override
+	public void rotate(float degrees, float x, float y) {
+		mImpl.rotate(degrees, x, y);
+	}
 }

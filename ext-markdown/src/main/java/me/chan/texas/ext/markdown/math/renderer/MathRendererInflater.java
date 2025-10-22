@@ -124,6 +124,10 @@ public class MathRendererInflater {
 		return new TextNode(scale, text);
 	}
 
+	public static RendererNode mockAccent() {
+		return new AccentNode(1f, "underbrace", mockText("hello world"));
+	}
+
 	@VisibleForTesting
 	public static RendererNode mockSqrt() {
 		SqrtNode node1 = mockSqrt(1f, mockText(1f, "x1 + y1"));

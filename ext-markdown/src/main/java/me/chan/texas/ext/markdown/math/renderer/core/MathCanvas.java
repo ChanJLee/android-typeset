@@ -18,4 +18,6 @@ public interface MathCanvas {
 	void drawText(@NonNull String text, float x, float y, MathPaint paint);
 
 	void reset(Canvas canvas);
+
+	void rotate(float degrees, float x, float y);
 }

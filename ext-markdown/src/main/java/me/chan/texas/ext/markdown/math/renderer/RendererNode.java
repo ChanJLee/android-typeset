@@ -120,6 +120,14 @@ public abstract class RendererNode {
 		return mTop + getHeight();
 	}
 
+	public final float getCenterX() {
+		return (getLeft() + getRight()) / 2;
+	}
+
+	public final float getCenterY() {
+		return (getTop() + getBottom()) / 2;
+	}
+
 	public Object getTag() {
 		return mTag;
 	}
