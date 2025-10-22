@@ -180,7 +180,6 @@
                | "\acute" | "\grave" | "\breve" | "\check"
                | "\mathring"
                | "\overbrace" | "\underbrace"
-               | "\overgroup" | "\undergroup"
 
 (* ============ 空格命令 ============ *)
 

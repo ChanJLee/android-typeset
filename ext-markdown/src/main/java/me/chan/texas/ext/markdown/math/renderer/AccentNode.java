@@ -21,20 +21,21 @@ public class AccentNode extends RendererNode {
 	protected void onMeasure(MathPaint paint, int widthSpec, int heightSpec) {
 		mContent.measure(paint);
 		paint.getFontMetrics(mFontMetrics);
-		setMeasuredSize(mContent.getWidth(), getMeasuredTextSize() + mContent.getHeight());
+		setMeasuredSize(mContent.getWidth(), getAccentCmdHeight() + mContent.getHeight());
 	}
 
 	@Override
 	protected void onLayoutChildren() {
-		mContent.layout(0, getMeasuredTextSize());
+		float top = getAccentCmdHeight();
+//		mContent.layout(0, getMeasuredTextSize());
 	}
 
-	private int getMeasuredTextSize() {
-		return (int) Math.ceil(mFontMetrics.descent - mFontMetrics.ascent);
+	private int getAccentCmdHeight() {
+		return 0;
 	}
 
-	private int getBaselineOffset() {
-		return (int) Math.ceil(mFontMetrics.descent);
+	private boolean isUnderCmd() {
+		return "underline".equals(mCmd) || "underbrace".equals(mCmd);
 	}
 
 	@Override

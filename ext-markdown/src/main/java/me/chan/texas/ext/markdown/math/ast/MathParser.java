@@ -62,8 +62,7 @@ public class MathParser {
 			"vec", "overrightarrow", "overleftarrow",
 			"dot", "ddot", "dddot",
 			"acute", "grave", "breve", "check",
-			"mathring", "overbrace", "underbrace", "overgroup",
-			"overgroup"
+			"mathring", "overbrace", "underbrace"
 	));
 
 	// 定界符映射

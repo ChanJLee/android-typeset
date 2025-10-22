@@ -48,7 +48,7 @@ public class MathView extends View {
 //		}
 //
 		{
-			mRendererNode = MathRendererInflater.mockDecor();
+			mRendererNode = MathRendererInflater.mockText("123");
 			textPaint.setTextSize(48);
 		}
 
