@@ -8,7 +8,7 @@ import me.chan.texas.ext.markdown.math.renderer.core.MathPaint;
 public class AccentNode extends RendererNode {
 	private final String mCmd;
 	private final RendererNode mContent;
-	private final RendererNode mCmdNode;
+	private final TextNode mCmdNode;
 
 	public AccentNode(float scale, String cmd, RendererNode content) {
 		super(scale);
@@ -26,6 +26,7 @@ public class AccentNode extends RendererNode {
 		paint.setTextSize(mContent.getWidth());
 		mCmdNode.measure(paint);
 		paint.restore();
+		mCmdNode.setBaselineOffset(mCmdNode.getBaselineOffset() * 1.28f);
 		setMeasuredSize(mContent.getWidth(), mCmdNode.getWidth() + mContent.getHeight());
 	}
 
