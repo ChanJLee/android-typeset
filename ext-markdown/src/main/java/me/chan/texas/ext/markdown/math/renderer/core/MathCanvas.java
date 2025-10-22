@@ -20,4 +20,6 @@ public interface MathCanvas {
 	void reset(Canvas canvas);
 
 	void rotate(float degrees, float x, float y);
+
+	void scale(float sx, float sy);
 }

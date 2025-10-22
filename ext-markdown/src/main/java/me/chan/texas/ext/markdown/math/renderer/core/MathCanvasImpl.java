@@ -52,4 +52,9 @@ public class MathCanvasImpl implements MathCanvas {
 	public void rotate(float degrees, float x, float y) {
 		mImpl.rotate(degrees, x, y);
 	}
+
+	@Override
+	public void scale(float sx, float sy) {
+		mImpl.scale(sx, sy);
+	}
 }

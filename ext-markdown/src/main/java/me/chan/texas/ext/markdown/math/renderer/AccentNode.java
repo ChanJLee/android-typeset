@@ -1,7 +1,5 @@
 package me.chan.texas.ext.markdown.math.renderer;
 
-import android.graphics.Paint;
-
 import me.chan.texas.ext.markdown.math.renderer.core.MathCanvas;
 import me.chan.texas.ext.markdown.math.renderer.core.MathPaint;
 
@@ -27,13 +25,13 @@ public class AccentNode extends RendererNode {
 		mCmdNode.measure(paint);
 		paint.restore();
 		mCmdNode.setBaselineOffset(mCmdNode.getBaselineOffset() * 1.28f);
-		setMeasuredSize(mContent.getWidth(), mCmdNode.getWidth() + mContent.getHeight());
+		setMeasuredSize(mContent.getWidth(), mContent.getHeight() * 2);
 	}
 
 	@Override
 	protected void onLayoutChildren() {
 		mCmdNode.layout(0, 0);
-		mContent.layout(0, mCmdNode.getWidth());
+		mContent.layout(0, mContent.getHeight());
 	}
 
 	private int getAccentCmdHeight() {
@@ -57,6 +55,7 @@ public class AccentNode extends RendererNode {
 
 		canvas.save();
 		canvas.rotate(90, mCmdNode.getRight(), mCmdNode.getCenterY());
+		canvas.scale(mContent.getHeight() * 1.0f / mCmdNode.getWidth(), 1f);
 		paint.save();
 		paint.setTextSize(mContent.getWidth());
 		mCmdNode.draw(canvas, paint);
