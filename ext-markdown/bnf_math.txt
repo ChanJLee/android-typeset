@@ -214,18 +214,20 @@
 
 (* ============ 关键约束 ============ *)
 
-(*
- * 递归安全性保证：
- * 1. math_list 只递归到 term，term 只递归到 atom
- * 2. 所有从 atom 到 math_list 的递归都有明确的界定符（{...}, \left...\right 等）
- * 3. 上下标只接受 script_arg，不能直接递归到 math_list
- * 4. 函数参数只接受受限的 function_arg，避免贪婪匹配
- * 5. 使用 {...} 迭代而非递归，避免左递归
- * 6. 一元运算符是可选的前缀，不会导致递归问题
- * 
- * 歧义消除：
- * 1. 运算符优先级通过解析器实现（本BNF只定义语法结构）
- * 2. 最长匹配原则：\alpha 优先于 \a
- * 3. 贪婪匹配：{...} 总是尽可能匹配到最近的 }
- *)
+(* 环境嵌套支持 *)
+<environment> ::= "\begin{" <env_name> "}" <content> "\end{" <env_name> "}"
+(* cases环境特殊语法 *)
+<cases> ::= "\begin{cases}" <case_rows> "\end{cases}"
+<case_row> ::= <math_list> "&" <text> [ "\\" <case_row> ]
+(* array环境对齐 *)
+<array> ::= "\begin{array}" "{" <align_spec> "}" <matrix_rows> "\end{array}"
+<align_spec> ::= "l" | "c" | "r" | "lcr" | "lcr" { "lcr" }
+(* 标签和引用 *)
+<equation_ref> ::= "\label{" <label_name> "}" | "\eqref{" <label_name> "}"
 
+(* 颜色命令 *)
+<color_cmd> ::= "\color{" <color_spec> "}" <math_list>
+              | "\textcolor{" <color_spec> "}" "{" <math_list> "}"
+(* 尺寸命令 *)
+<size_cmd> ::= "\tiny" | "\scriptsize" | "\small" | "\normalsize" 
+             | "\large" | "\Large" | "\LARGE" | "\huge" | "\Huge"
