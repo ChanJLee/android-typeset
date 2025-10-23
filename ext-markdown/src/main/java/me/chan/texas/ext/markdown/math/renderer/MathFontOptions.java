@@ -617,6 +617,10 @@ public class MathFontOptions {
 		GLYPHS.put("breve", "\u02D8");
 		// DOT ABOVE ˙
 		GLYPHS.put("dotaccent", "\u02D9");
+		// DOT ABOVE ˙
+		GLYPHS.put("ddotaccent", "\u02D9\u02D9");
+		// DOT ABOVE ˙
+		GLYPHS.put("dddotaccent", "\u02D9\u02D9\u02D9");
 		// RING ABOVE ˚
 		GLYPHS.put("ring", "\u02DA");
 		// OGONEK ˛
@@ -4139,10 +4143,7 @@ public class MathFontOptions {
 	}
 
 	private static String formatSymbol0(String ref) {
-		if (ref.startsWith("\\")) {
-			return GLYPHS.get(ref);
-		}
-		return ref;
+		return GLYPHS.get(ref);
 	}
 
 	public static Map<String, String> toMap() {

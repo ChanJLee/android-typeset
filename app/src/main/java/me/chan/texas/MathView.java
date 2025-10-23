@@ -49,7 +49,7 @@ public class MathView extends View {
 //
 		{
 			textPaint.setTextSize(48);
-			mRendererNode = MathRendererInflater.mockFonts();
+			mRendererNode = MathRendererInflater.mockAccent();
 		}
 
 		TexasPaintImpl paint = new TexasPaintImpl();

@@ -13,7 +13,7 @@ public class AccentNode extends RendererNode {
 
 		mCmd = cmd;
 		mContent = content;
-		mCmdNode = new TextNode(scale, cmdToSymbol());
+		mCmdNode = isBrace() || isGlyph() ? new TextNode(scale, cmdToSymbol()) : null;
 	}
 
 	@Override
@@ -21,7 +21,17 @@ public class AccentNode extends RendererNode {
 		mContent.measure(paint);
 		if (isBrace()) {
 			measureBrace(paint);
+			return;
 		}
+
+		if (isGlyph()) {
+			measureGlyph(paint);
+			return;
+		}
+	}
+
+	private void measureGlyph(MathPaint paint) {
+		mCmdNode.measure(paint);
 	}
 
 	private void measureBrace(MathPaint paint) {
@@ -37,7 +47,19 @@ public class AccentNode extends RendererNode {
 	protected void onLayoutChildren() {
 		if (isBrace()) {
 			layoutBrace();
+			return;
 		}
+
+		if (isGlyph()) {
+			layoutGlyph();
+			return;
+		}
+	}
+
+	private void layoutGlyph() {
+		// TODO support wide glyph
+		mCmdNode.layout((mContent.getWidth() - mCmdNode.getWidth()) / 2.0f, 0);
+		mContent.layout(0, mCmdNode.getHeight());
 	}
 
 	private void layoutBrace() {
@@ -56,37 +78,51 @@ public class AccentNode extends RendererNode {
 	}
 
 	private boolean isGlyph() {
-		return "hat".equals(mCmd) || "widehat".equals(mCmd) || "tilde".equals(mCmd) || "widetilde".equals(mCmd) || "dot".equals(mCmd) || "ddot".equals(mCmd) || "dddot".equals(mCmd)
+		return "hat".equals(mCmd) || "widehat".equals(mCmd) ||
+				"tilde".equals(mCmd) || "widetilde".equals(mCmd) ||
+				"dot".equals(mCmd) || "ddot".equals(mCmd) || "dddot".equals(mCmd)
 				|| "acute".equals(mCmd) || "grave".equals(mCmd) || "breve".equals(mCmd) || "check".equals(mCmd);
 	}
 
 	private String cmdToSymbol() {
 		if (isBrace()) {
-			return "{";
+			return MathFontOptions.formatSymbol("braceleft");
 		}
 
 		if ("hat".equals(mCmd) || "widehat".equals(mCmd)) {
-			return "^";
+			return MathFontOptions.formatSymbol("asciicircum");
 		}
 
 		if ("tilde".equals(mCmd) || "widetilde".equals(mCmd)) {
-			return "~";
+			return MathFontOptions.formatSymbol("asciitilde");
 		}
 
 		if ("dot".equals(mCmd)) {
-			return "⋆";
+			return MathFontOptions.formatSymbol("dotaccent");
 		}
 
 		if ("ddot".equals(mCmd)) {
-			return "⋆⋆";
+			return MathFontOptions.formatSymbol("ddotaccent");
 		}
 
 		if ("dddot".equals(mCmd)) {
-			return "⋆⋆⋆";
+			return MathFontOptions.formatSymbol("ddotaccent");
 		}
 
 		if ("acute".equals(mCmd)) {
-			return "′";
+			return MathFontOptions.formatSymbol("acute");
+		}
+
+		if ("check".equals(mCmd)) {
+			return MathFontOptions.formatSymbol("checkmark");
+		}
+
+		if ("grave".equals(mCmd)) {
+			return MathFontOptions.formatSymbol("grave");
+		}
+
+		if ("breve".equals(mCmd)) {
+			return MathFontOptions.formatSymbol("breve");
 		}
 
 		throw new RuntimeException("unknown cmd: " + mCmd);
@@ -97,7 +133,17 @@ public class AccentNode extends RendererNode {
 		mContent.draw(canvas, paint);
 		if (isBrace()) {
 			drawBrace(canvas, paint);
+			return;
 		}
+
+		if (isGlyph()) {
+			drawGlyph(canvas, paint);
+			return;
+		}
+	}
+
+	private void drawGlyph(MathCanvas canvas, MathPaint paint) {
+		mCmdNode.draw(canvas, paint);
 	}
 
 	@Override
