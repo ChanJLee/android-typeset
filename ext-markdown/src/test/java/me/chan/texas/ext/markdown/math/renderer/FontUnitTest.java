@@ -6,6 +6,7 @@ public class FontUnitTest {
 
 	@Test
 	public void test() {
-
+		String s = "\u0025";
+		System.out.println(s);
 	}
 }

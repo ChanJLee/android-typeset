@@ -55,11 +55,41 @@ public class AccentNode extends RendererNode {
 		return "underbrace".equals(mCmd) || "overbrace".equals(mCmd);
 	}
 
+	private boolean isGlyph() {
+		return "hat".equals(mCmd) || "widehat".equals(mCmd) || "tilde".equals(mCmd) || "widetilde".equals(mCmd) || "dot".equals(mCmd) || "ddot".equals(mCmd) || "dddot".equals(mCmd)
+				|| "acute".equals(mCmd) || "grave".equals(mCmd) || "breve".equals(mCmd) || "check".equals(mCmd);
+	}
+
 	private String cmdToSymbol() {
 		if (isBrace()) {
 			return "{";
 		}
-		return "";
+
+		if ("hat".equals(mCmd) || "widehat".equals(mCmd)) {
+			return "^";
+		}
+
+		if ("tilde".equals(mCmd) || "widetilde".equals(mCmd)) {
+			return "~";
+		}
+
+		if ("dot".equals(mCmd)) {
+			return "⋆";
+		}
+
+		if ("ddot".equals(mCmd)) {
+			return "⋆⋆";
+		}
+
+		if ("dddot".equals(mCmd)) {
+			return "⋆⋆⋆";
+		}
+
+		if ("acute".equals(mCmd)) {
+			return "′";
+		}
+
+		throw new RuntimeException("unknown cmd: " + mCmd);
 	}
 
 	@Override
