@@ -94,28 +94,27 @@ public class MathParser {
 	private MathList parseMathList() throws MathParseException {
 		checkRecursionDepth();
 
-		List<Term> terms = new ArrayList<>();
-		List<String> operators = new ArrayList<>();
+		List<Ast> ast = new ArrayList<>();
 
 		skipWhitespace();
 
 		// 第一个term
-		terms.add(parseTerm());
+		ast.add(parseTerm());
 
 		// 后续的 op term 对
 		skipWhitespace();
 		while (!stream.eof()) {
 			if (isBinaryOperator()) {
-				operators.add(consumeBinaryOperator());
+				ast.add(new BinOpAtom(consumeBinaryOperator()));
 			} else if (isTermEnd()) {
 				break;
 			}
 			skipWhitespace();
-			terms.add(parseTerm());
+			ast.add(parseTerm());
 			skipWhitespace();
 		}
 
-		return new MathList(terms, operators);
+		return new MathList(ast);
 	}
 
 	/**

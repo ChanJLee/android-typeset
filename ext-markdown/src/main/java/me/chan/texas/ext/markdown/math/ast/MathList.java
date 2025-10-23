@@ -3,31 +3,22 @@ package me.chan.texas.ext.markdown.math.ast;
 import java.util.List;
 
 public class MathList implements Ast {
-	List<Term> terms;
-	List<String> operators;
+	List<Ast> ast;
 
-	public MathList(List<Term> terms, List<String> operators) {
-		this.terms = terms;
-		this.operators = operators;
+	public MathList(List<Ast> ast) {
+		this.ast = ast;
+	}
+
+	public List<Ast> getAtoms() {
+		return ast;
 	}
 
 	@Override
 	public String toLatex() {
 		StringBuilder sb = new StringBuilder();
-		for (int i = 0; i < terms.size(); i++) {
-			sb.append(terms.get(i).toLatex());
-			if (i < operators.size()) {
-				sb.append(operators.get(i));
-			}
+		for (int i = 0; i < ast.size(); i++) {
+			sb.append(ast.get(i).toLatex());
 		}
 		return sb.toString();
-	}
-
-	public List<Term> getTerms() {
-		return terms;
-	}
-
-	public List<String> getOperators() {
-		return operators;
 	}
 }
