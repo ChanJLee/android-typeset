@@ -4136,7 +4136,7 @@ public class MathFontOptions {
 
 	public static String formatSymbol(String ref) {
 		String ret = formatSymbol0(ref);
-		if (ret == null || ret.isEmpty()) {
+		if (ret == null) {
 			throw new IllegalArgumentException("Unknown symbol: " + ref);
 		}
 		return ret;
