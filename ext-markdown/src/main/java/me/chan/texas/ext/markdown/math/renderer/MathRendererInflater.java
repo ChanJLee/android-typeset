@@ -5,13 +5,13 @@ import android.util.Log;
 import androidx.annotation.VisibleForTesting;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 import me.chan.texas.ext.markdown.math.ast.AccentAtom;
 import me.chan.texas.ext.markdown.math.ast.Ast;
 import me.chan.texas.ext.markdown.math.ast.Atom;
+import me.chan.texas.ext.markdown.math.ast.BinOpAtom;
 import me.chan.texas.ext.markdown.math.ast.GroupScriptArg;
 import me.chan.texas.ext.markdown.math.ast.MathList;
 import me.chan.texas.ext.markdown.math.ast.ScriptArg;
@@ -27,13 +27,13 @@ public class MathRendererInflater {
 
 	public RendererNode inflate0(float scale, MathList math) {
 		List<RendererNode> list = new ArrayList<>();
-
-		Iterator<Term> term = math.getTerms().iterator();
-		Iterator<String> operators = math.getOperators().iterator();
-		while (term.hasNext()) {
-			inflateTerm(list, scale, term.next());
-			if (operators.hasNext()) {
-				inflateSymbol(list, scale, operators.next());
+		for (Ast ast : math.getAst()) {
+			if (ast instanceof Term) {
+				inflateTerm(list, scale, (Term) ast);
+			} else if (ast instanceof BinOpAtom) {
+				inflateBinOp(list, scale, (BinOpAtom) ast);
+			} else {
+				throw new IllegalArgumentException("Unknown ast: " + ast);
 			}
 		}
 
@@ -108,6 +108,10 @@ public class MathRendererInflater {
 
 	private RendererNode inflateAst(float scale, Ast ast) {
 		throw new RuntimeException("Stub!");
+	}
+
+	private void inflateBinOp(List<RendererNode> nodes, float scale, BinOpAtom atom) {
+		inflateSymbol(nodes, scale, atom.getOp());
 	}
 
 	private void inflateSymbol(List<RendererNode> nodes, float scale, String symbol) {
