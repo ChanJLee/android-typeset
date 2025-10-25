@@ -125,7 +125,23 @@ public class MathRendererInflater {
 	}
 
 	public static RendererNode mockAccent() {
-		return new AccentNode(1f, "underbrace", mockText("hello world"));
+		List<RendererNode> list = new ArrayList<>();
+		list.add(new AccentNode(1f, "hat", mockText("hello world")));
+		list.add(new AccentNode(1f, "widehat", mockText("hello world")));
+		list.add(new AccentNode(1f, "tilde", mockText("hello world")));
+		list.add(new AccentNode(1f, "widetilde", mockText("hello world")));
+		list.add(new AccentNode(1f, "dot", mockText("hello world")));
+		list.add(new AccentNode(1f, "ddot", mockText("hello world")));
+		list.add(new AccentNode(1f, "dddot", mockText("hello world")));
+		list.add(new AccentNode(1f, "acute", mockText("hello world")));
+		list.add(new AccentNode(1f, "breve", mockText("hello world")));
+		list.add(new AccentNode(1f, "check", mockText("hello world")));
+		list.add(new AccentNode(1f, "underbrace", mockText("hello world")));
+		list.add(new AccentNode(1f, "overbrace", mockText("hello world")));
+//		list.add(new AccentNode(1f, "underbrace", mockText("hello world")));
+//		list.add(new AccentNode(1f, "underbrace", mockText("hello world")));
+//		list.add(new AccentNode(1f, "underbrace", mockText("hello world")));
+		return new LinearGroupNode(1, list, LinearGroupNode.Gravity.HORIZONTAL);
 	}
 
 	@VisibleForTesting

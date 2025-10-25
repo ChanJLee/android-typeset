@@ -113,16 +113,16 @@ public class AccentNode extends RendererNode {
 			return MathFontOptions.formatSymbol("acute");
 		}
 
-		if ("check".equals(mCmd)) {
-			return MathFontOptions.formatSymbol("checkmark");
-		}
-
 		if ("grave".equals(mCmd)) {
 			return MathFontOptions.formatSymbol("grave");
 		}
 
 		if ("breve".equals(mCmd)) {
 			return MathFontOptions.formatSymbol("breve");
+		}
+
+		if ("check".equals(mCmd)) {
+			return MathFontOptions.formatSymbol("checkmark");
 		}
 
 		throw new RuntimeException("unknown cmd: " + mCmd);
