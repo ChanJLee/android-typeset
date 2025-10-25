@@ -9,7 +9,7 @@ public class MathList implements Ast {
 		this.ast = ast;
 	}
 
-	public List<Ast> getAtoms() {
+	public List<Ast> getAst() {
 		return ast;
 	}
 
