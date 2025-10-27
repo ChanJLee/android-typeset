@@ -65,7 +65,7 @@ import javax.inject.Inject;
  * 当前内容都是异步渲染的，所以当你不需要显示某个内容的时候，就调用 {@link #discard()} 丢弃之前的任务
  */
 public class ParagraphView extends FrameLayout {
-	public static final boolean DEBUG = true;
+	public static final boolean DEBUG = false;
 	private static final String TAG = "ParagraphView";
 
 	@NonNull
