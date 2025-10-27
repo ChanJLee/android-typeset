@@ -52,6 +52,7 @@ import me.chan.texas.text.TextAttribute;
 import me.chan.texas.text.TextGravity;
 import me.chan.texas.text.layout.Box;
 import me.chan.texas.text.layout.Layout;
+import me.chan.texas.text.layout.Line;
 import me.chan.texas.utils.TexasUtils;
 
 import java.lang.ref.WeakReference;
@@ -65,13 +66,15 @@ import javax.inject.Inject;
  */
 public class ParagraphView extends FrameLayout {
 	public static final boolean DEBUG = false;
-
 	private static final String TAG = "ParagraphView";
 
 	@NonNull
 	private final TextureParagraph mRender;
 
 	private RenderOption mRenderOption;
+
+	private int mMaxLines = Integer.MAX_VALUE;
+	private int mMinLines = 0;
 
 	/*
 	 * 只会在parse后被赋值
@@ -150,6 +153,11 @@ public class ParagraphView extends FrameLayout {
 		try {
 			mRenderOption = createRenderOption(context, typedArray);
 			mUiThreadPaintSet = new PaintSet(mRenderOption);
+			setMaxLines0(typedArray.getInt(R.styleable.me_chan_texas_ParagraphView_me_chan_texas_ParagraphView_maxLines, Integer.MAX_VALUE));
+			setMinLines0(typedArray.getInt(R.styleable.me_chan_texas_ParagraphView_me_chan_texas_ParagraphView_minLines, 0));
+			if (typedArray.hasValue(R.styleable.me_chan_texas_ParagraphView_me_chan_texas_ParagraphView_lines)) {
+				setLines0(typedArray.getInt(R.styleable.me_chan_texas_ParagraphView_me_chan_texas_ParagraphView_lines, 0));
+			}
 			AbsTextureParagraphView.LayoutPredicate relayoutPredicate = (view, paragraph) -> {
 				ViewGroup.LayoutParams layoutParams = getLayoutParams();
 				if (layoutParams == null) {
@@ -157,7 +165,7 @@ public class ParagraphView extends FrameLayout {
 				}
 
 				Layout layout = paragraph.getLayout();
-				if (layout.getHeight() != view.getHeight()) {
+				if (getLayoutHeight(layout) != view.getHeight()) {
 					return layoutParams.height == ViewGroup.LayoutParams.WRAP_CONTENT;
 				}
 
@@ -433,7 +441,7 @@ public class ParagraphView extends FrameLayout {
 			return false;
 		}
 
-		int height = layout.getHeight();
+		int height = getLayoutHeight(layout);
 		int exceptedHeight = MeasureSpec.getSize(specs.heightSpec);
 		int heightMode = MeasureSpec.getMode(specs.heightSpec);
 		if (heightMode == MeasureSpec.AT_MOST) {
@@ -443,6 +451,48 @@ public class ParagraphView extends FrameLayout {
 		}
 		specs.heightSpec = MeasureSpec.makeMeasureSpec(height, MeasureSpec.EXACTLY);
 		return true;
+	}
+
+	private int getLayoutHeight(Layout layout) {
+		int height = layout.getHeight();
+		int lineCount = layout.getLineCount();
+		if (DEBUG) {
+			Log.d("ParagraphView", "getLayoutHeight, height = " + height + ", lineCount = " + lineCount + ", minLines = " + mMinLines + ", maxLines = " + mMaxLines);
+		}
+		if (lineCount >= mMinLines && lineCount <= mMaxLines) {
+			return height;
+		}
+
+		float minHeight = getSuggestedMinHeight(height, layout);
+		float maxHeight = getSuggestedMaxHeight(height, layout);
+		if (DEBUG) {
+			Log.d("ParagraphView", "getLayoutHeight, minHeight = " + minHeight + ", maxHeight = " + maxHeight);
+		}
+
+		if (height < minHeight) {
+			return (int) Math.ceil(minHeight);
+		}
+		return (int) Math.ceil(maxHeight);
+	}
+
+	private float getSuggestedMaxHeight(int defaultHeight, Layout layout) {
+		int lineCount = layout.getLineCount();
+		if (lineCount <= mMaxLines) {
+			return defaultHeight;
+		}
+
+		Line first = layout.getLine(0);
+		Line last = layout.getLine(mMaxLines - 1);
+		return (int) Math.ceil(last.getBounds().bottom - first.getBounds().top);
+	}
+
+	private int getSuggestedMinHeight(int defaultHeight, Layout layout) {
+		int lineCount = layout.getLineCount();
+		if (lineCount >= mMinLines) {
+			return defaultHeight;
+		}
+
+		return (int) Math.ceil(defaultHeight * (mMinLines * 1.0f / lineCount));
 	}
 
 	private void setVerticalAlignment(RenderOption renderOption) {
@@ -738,6 +788,56 @@ public class ParagraphView extends FrameLayout {
 	 */
 	public void setOnClickedListener(OnClickedListener onClickedListener) {
 		mOnClickedListener = onClickedListener;
+	}
+
+	public void setMinLines(int lines) {
+		setMinLines0(lines);
+		requestLayout();
+	}
+
+	private void setMinLines0(int lines) {
+		if (lines < 0) {
+			throw new IllegalArgumentException("lines must be >= 0");
+		}
+		if (lines > mMaxLines) {
+			throw new IllegalArgumentException("lines must be <= maxLines");
+		}
+
+		mMinLines = lines;
+	}
+
+	public void setMaxLines(int lines) {
+		setMaxLines0(lines);
+		requestLayout();
+	}
+
+	private void setMaxLines0(int lines) {
+		if (lines < 0) {
+			throw new IllegalArgumentException("lines must be >= 0");
+		}
+		if (lines < mMinLines) {
+			throw new IllegalArgumentException("lines must be >= minLines");
+		}
+
+		mMaxLines = lines;
+	}
+
+	private void setLines0(int lines) {
+		setMinLines0(lines);
+		setMaxLines0(lines);
+	}
+
+	public void setLines(int lines) {
+		setLines0(lines);
+		requestLayout();
+	}
+
+	public int getMaxLines() {
+		return mMaxLines;
+	}
+
+	public int getMinLines() {
+		return mMinLines;
 	}
 
 	/**
