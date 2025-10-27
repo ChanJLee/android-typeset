@@ -65,7 +65,7 @@ import javax.inject.Inject;
  * 当前内容都是异步渲染的，所以当你不需要显示某个内容的时候，就调用 {@link #discard()} 丢弃之前的任务
  */
 public class ParagraphView extends FrameLayout {
-	public static final boolean DEBUG = false;
+	public static final boolean DEBUG = true;
 	private static final String TAG = "ParagraphView";
 
 	@NonNull
@@ -456,12 +456,19 @@ public class ParagraphView extends FrameLayout {
 	private int getLayoutHeight(Layout layout) {
 		int height = layout.getHeight();
 		int lineCount = layout.getLineCount();
+		if (DEBUG) {
+			Log.d("ParagraphView", "getLayoutHeight, height = " + height + ", lineCount = " + lineCount + ", minLines = " + mMinLines + ", maxLines = " + mMaxLines);
+		}
 		if (lineCount >= mMinLines && lineCount <= mMaxLines) {
 			return height;
 		}
 
 		float minHeight = getSuggestedMinHeight(height, layout);
 		float maxHeight = getSuggestedMaxHeight(height, layout);
+		if (DEBUG) {
+			Log.d("ParagraphView", "getLayoutHeight, minHeight = " + minHeight + ", maxHeight = " + maxHeight);
+		}
+
 		if (height < minHeight) {
 			return (int) Math.ceil(minHeight);
 		}
@@ -475,7 +482,7 @@ public class ParagraphView extends FrameLayout {
 		}
 
 		Line first = layout.getLine(0);
-		Line last = layout.getLine(mMaxLines);
+		Line last = layout.getLine(mMaxLines - 1);
 		return (int) Math.ceil(last.getBounds().bottom - first.getBounds().top);
 	}
 
