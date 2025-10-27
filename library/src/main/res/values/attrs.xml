@@ -80,5 +80,8 @@
             <flag name="center" value="15" />
         </attr>
         <attr name="me_chan_texas_ParagraphView_bidiEnable" format="boolean" />
+        <attr name="me_chan_texas_ParagraphView_minLines" format="integer" />
+        <attr name="me_chan_texas_ParagraphView_maxLines" format="integer" />
+        <attr name="me_chan_texas_ParagraphView_lines" format="integer" />
     </declare-styleable>
 </resources>
