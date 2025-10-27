@@ -73,8 +73,8 @@ public class ParagraphView extends FrameLayout {
 
 	private RenderOption mRenderOption;
 
-	private int mMaximumLines = Integer.MAX_VALUE;
-	private int mMinimumLines = 0;
+	private int mMaxLines = Integer.MAX_VALUE;
+	private int mMinLines = 0;
 
 	/*
 	 * 只会在parse后被赋值
@@ -153,6 +153,11 @@ public class ParagraphView extends FrameLayout {
 		try {
 			mRenderOption = createRenderOption(context, typedArray);
 			mUiThreadPaintSet = new PaintSet(mRenderOption);
+			setMaxLines0(typedArray.getInt(R.styleable.me_chan_texas_ParagraphView_me_chan_texas_ParagraphView_maxLines, Integer.MAX_VALUE));
+			setMinLines0(typedArray.getInt(R.styleable.me_chan_texas_ParagraphView_me_chan_texas_ParagraphView_minLines, 0));
+			if (typedArray.hasValue(R.styleable.me_chan_texas_ParagraphView_me_chan_texas_ParagraphView_lines)) {
+				setLines0(typedArray.getInt(R.styleable.me_chan_texas_ParagraphView_me_chan_texas_ParagraphView_lines, 0));
+			}
 			AbsTextureParagraphView.LayoutPredicate relayoutPredicate = (view, paragraph) -> {
 				ViewGroup.LayoutParams layoutParams = getLayoutParams();
 				if (layoutParams == null) {
@@ -451,7 +456,7 @@ public class ParagraphView extends FrameLayout {
 	private int getLayoutHeight(Layout layout) {
 		int height = layout.getHeight();
 		int lineCount = layout.getLineCount();
-		if (lineCount >= mMinimumLines && lineCount <= mMaximumLines) {
+		if (lineCount >= mMinLines && lineCount <= mMaxLines) {
 			return height;
 		}
 
@@ -465,22 +470,22 @@ public class ParagraphView extends FrameLayout {
 
 	private float getSuggestedMaxHeight(int defaultHeight, Layout layout) {
 		int lineCount = layout.getLineCount();
-		if (lineCount <= mMaximumLines) {
+		if (lineCount <= mMaxLines) {
 			return defaultHeight;
 		}
 
 		Line first = layout.getLine(0);
-		Line last = layout.getLine(mMaximumLines);
+		Line last = layout.getLine(mMaxLines);
 		return (int) Math.ceil(last.getBounds().bottom - first.getBounds().top);
 	}
 
 	private int getSuggestedMinHeight(int defaultHeight, Layout layout) {
 		int lineCount = layout.getLineCount();
-		if (lineCount >= mMinimumLines) {
+		if (lineCount >= mMinLines) {
 			return defaultHeight;
 		}
 
-		return (int) Math.ceil(defaultHeight * (mMinimumLines * 1.0f / lineCount));
+		return (int) Math.ceil(defaultHeight * (mMinLines * 1.0f / lineCount));
 	}
 
 	private void setVerticalAlignment(RenderOption renderOption) {
@@ -778,36 +783,54 @@ public class ParagraphView extends FrameLayout {
 		mOnClickedListener = onClickedListener;
 	}
 
-	public void setMinimumLines(int lines) {
+	public void setMinLines(int lines) {
+		setMinLines0(lines);
+		requestLayout();
+	}
+
+	private void setMinLines0(int lines) {
 		if (lines < 0) {
 			throw new IllegalArgumentException("lines must be >= 0");
 		}
-		if (lines > mMaximumLines) {
+		if (lines > mMaxLines) {
 			throw new IllegalArgumentException("lines must be <= maxLines");
 		}
 
-		mMinimumLines = lines;
+		mMinLines = lines;
+	}
+
+	public void setMaxLines(int lines) {
+		setMaxLines0(lines);
 		requestLayout();
 	}
 
-	public void setMaximumLines(int lines) {
+	private void setMaxLines0(int lines) {
 		if (lines < 0) {
 			throw new IllegalArgumentException("lines must be >= 0");
 		}
-		if (lines < mMinimumLines) {
+		if (lines < mMinLines) {
 			throw new IllegalArgumentException("lines must be >= minLines");
 		}
 
-		mMaximumLines = lines;
+		mMaxLines = lines;
+	}
+
+	private void setLines0(int lines) {
+		setMinLines0(lines);
+		setMaxLines0(lines);
+	}
+
+	public void setLines(int lines) {
+		setLines0(lines);
 		requestLayout();
 	}
 
-	public int getMaximumLines() {
-		return mMaximumLines;
+	public int getMaxLines() {
+		return mMaxLines;
 	}
 
-	public int getMinimumLines() {
-		return mMinimumLines;
+	public int getMinLines() {
+		return mMinLines;
 	}
 
 	/**
