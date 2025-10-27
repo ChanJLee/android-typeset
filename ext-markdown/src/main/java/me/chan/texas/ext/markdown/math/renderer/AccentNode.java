@@ -32,6 +32,18 @@ public class AccentNode extends RendererNode {
 
 	private void measureGlyph(MathPaint paint) {
 		mCmdNode.measure(paint);
+		if ("check".equals(mCmd)) {
+			setMeasuredSize(
+					(int) Math.ceil(Math.max(mCmdNode.getWidth(), mContent.getWidth())),
+					(int) Math.ceil(mCmdNode.getHeight() + mContent.getHeight())
+			);
+			return;
+		}
+
+		setMeasuredSize(
+				(int) Math.ceil(Math.max(mCmdNode.getWidth(), mContent.getWidth())),
+				(int) Math.ceil(mCmdNode.getHeight() / 2.0f + mContent.getHeight())
+		);
 	}
 
 	private void measureBrace(MathPaint paint) {
@@ -57,7 +69,12 @@ public class AccentNode extends RendererNode {
 	}
 
 	private void layoutGlyph() {
-		// TODO support wide glyph
+		if ("check".equals(mCmd)) {
+			mCmdNode.layout((mContent.getWidth() - mCmdNode.getWidth()) / 2.0f, 0);
+			mContent.layout(0, mCmdNode.getHeight());
+			return;
+		}
+
 		mCmdNode.layout((mContent.getWidth() - mCmdNode.getWidth()) / 2.0f, 0);
 		mContent.layout(0, mCmdNode.getHeight());
 	}
@@ -106,7 +123,7 @@ public class AccentNode extends RendererNode {
 		}
 
 		if ("dddot".equals(mCmd)) {
-			return MathFontOptions.formatSymbol("ddotaccent");
+			return MathFontOptions.formatSymbol("dddotaccent");
 		}
 
 		if ("acute".equals(mCmd)) {
