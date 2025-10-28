@@ -69,6 +69,8 @@ public class Layout extends DefaultRecyclable {
 	}
 
 	public void clear() {
+		mAlgorithm = ALGORITHM_UNKNOWN;
+		setContentSize(0, 0);
 		for (int i = 0; i < mLines.size(); ++i) {
 			mLines.get(i).recycle();
 		}
