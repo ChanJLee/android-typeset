@@ -22,14 +22,13 @@ public class LinearGroupNode extends RendererNode {
 			node.measure(paint);
 		}
 
+		if (mNodes.isEmpty()) {
+			setMeasuredSize(0, 0);
+			return;
+		}
+
 		if (mGravity == Gravity.HORIZONTAL) {
-			float height = 0;
-			float width = 0;
-			for (RendererNode node : mNodes) {
-				height = Math.max(height, node.getHeight());
-				width += node.getWidth();
-			}
-			setMeasuredSize((int) Math.ceil(width), (int) Math.ceil(height));
+			preLayout();
 			return;
 		}
 
@@ -42,33 +41,50 @@ public class LinearGroupNode extends RendererNode {
 		setMeasuredSize((int) Math.ceil(height), (int) Math.ceil(width));
 	}
 
-	@Override
-	protected void onLayoutChildren() {
-		if (mGravity == Gravity.HORIZONTAL) {
-			layoutHorizontal();
+	private void preLayout() {
+		if (mGravity != Gravity.HORIZONTAL) {
 			return;
 		}
 
-		layoutVertical();
+		float left = 0;
+		for (RendererNode node : mNodes) {
+			node.layout(left, 0);
+			left = node.getRight();
+		}
+
+		RendererNode anchor = mNodes.get(0);
+		for (int i = 1; i < mNodes.size(); ++i) {
+			RendererNode node = mNodes.get(i);
+			if (node.getBaseline() > anchor.getBaseline()) {
+				anchor = node;
+			}
+		}
+
+		float top = 0;
+		for (RendererNode node : mNodes) {
+			node.translate(0, anchor.getBaseline() - node.getBaseline());
+			top = Math.min(node.getTop(), top);
+		}
+
+		float bottom = 0;
+		for (RendererNode node : mNodes) {
+			node.translate(0, -top);
+			bottom = Math.max(node.getBottom(), bottom);
+		}
+
+		setMeasuredSize((int) Math.ceil(left), (int) Math.ceil(bottom));
+	}
+
+	@Override
+	protected void onLayoutChildren() {
+		if (mGravity == Gravity.VERTICAL) {
+			layoutVertical();
+		}
 	}
 
 	@Override
 	public float getBaseline() {
 		return mBaseline;
-	}
-
-	private void layoutHorizontal() {
-		float left = 0;
-		float bottom = 0;
-		for (RendererNode node : mNodes) {
-			node.layout(left, 0);
-			left = node.getRight();
-			bottom = Math.max(bottom, node.getBottom());
-		}
-
-		for (RendererNode node : mNodes) {
-			node.translate(0, (bottom - node.getHeight()) / 2);
-		}
 	}
 
 	private void layoutVertical() {
