@@ -130,15 +130,16 @@ public class MathRendererInflater {
 
 	public static RendererNode mockAccent() {
 		List<RendererNode> list = new ArrayList<>();
-		list.add(new AccentNode(1f, "hat", mockText("hello world")));
-		list.add(new AccentNode(1f, "widehat", mockText("hello world")));
-		list.add(new AccentNode(1f, "tilde", mockText("hello world")));
-		list.add(new AccentNode(1f, "widetilde", mockText("hello world")));
-		list.add(new AccentNode(1f, "dot", mockText("hello world")));
-		list.add(new AccentNode(1f, "ddot", mockText("hello world")));
-		list.add(new AccentNode(1f, "dddot", mockText("hello world")));
-		list.add(new AccentNode(1f, "acute", mockText("hello world")));
-		list.add(new AccentNode(1f, "breve", mockText("hello world")));
+		list.add(new AccentNode(1f, "hat", mockText("hat")));
+		list.add(new AccentNode(1f, "widehat", mockText("widehat")));
+		list.add(new AccentNode(1f, "tilde", mockText("tilde")));
+		list.add(new AccentNode(1f, "widetilde", mockText("widetilde")));
+		list.add(new AccentNode(1f, "dot", mockText("dot")));
+		list.add(new AccentNode(1f, "ddot", mockText("ddot")));
+		list.add(new AccentNode(1f, "dddot", mockText("dddot")));
+		list.add(new AccentNode(1f, "acute", mockText("acute")));
+		list.add(new AccentNode(1f, "grave", mockText("grave")));
+		list.add(new AccentNode(1f, "breve", mockText("breve")));
 		list.add(new AccentNode(1f, "check", mockText("hello world")));
 		list.add(new AccentNode(1f, "underbrace", mockText("hello world")));
 		list.add(new AccentNode(1f, "overbrace", mockText("hello world")));
