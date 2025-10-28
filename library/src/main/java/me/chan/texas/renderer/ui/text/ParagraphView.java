@@ -108,24 +108,12 @@ public class ParagraphView extends FrameLayout {
 	};
 
 	private final ParseWorker.Listener mParseListener = new ParseWorker.Listener() {
-		private Paragraph mPrev;
-		private int mPrevId;
-
 		@Override
 		public void onParseSuccess(Paragraph paragraph) {
 			if (DEBUG) {
 				Log.d(TAG, "onParseSuccess: " + paragraph);
 			}
 
-			if (mPrev == paragraph && mPrevId == paragraph.getId()) {
-				if (DEBUG) {
-					Log.d(TAG, "ignore update");
-				}
-				return;
-			}
-
-			mPrev = paragraph;
-			mPrevId = paragraph.getId();
 			mParagraph = paragraph;
 			paragraph.bind(mHost);
 			requestLayout();
