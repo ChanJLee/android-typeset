@@ -516,7 +516,12 @@ public class ParagraphView extends FrameLayout {
 		try {
 			ParagraphTypesetWorker worker = WorkerScheduler.typeset();
 			Layout layout = mParagraph.getLayout();
-			worker.desire(mParagraph, width - layout.getPaddingRight() - layout.getPaddingLeft());
+			int exceptedWidth = width - layout.getPaddingRight() - layout.getPaddingLeft();
+			if (layout.isLayout() && layout.getWidth() == exceptedWidth) {
+				return true;
+			}
+
+			worker.desire(mParagraph, exceptedWidth);
 			return true;
 		} catch (Throwable e) {
 			return false;
@@ -658,6 +663,9 @@ public class ParagraphView extends FrameLayout {
 	 */
 	public void refresh(@NonNull RenderOption renderOption) {
 		int cmpType = TexasUtils.cmp(mRenderOption, renderOption);
+		if (cmpType == TexasUtils.CmpType.CMP_IGNORE) {
+			return;
+		}
 
 		mRenderOption = renderOption;
 		mUiThreadPaintSet.refresh(renderOption);
@@ -668,6 +676,9 @@ public class ParagraphView extends FrameLayout {
 		}
 		setVerticalAlignment(renderOption);
 
+		if (mSource == null) {
+			return;
+		}
 		if (cmpType != TexasUtils.CmpType.CMP_DRAW) {
 			// 丢弃之前的任务
 			discard(false);
@@ -791,6 +802,10 @@ public class ParagraphView extends FrameLayout {
 	}
 
 	public void setMinLines(int lines) {
+		if (mMinLines == lines) {
+			return;
+		}
+
 		setMinLines0(lines);
 		requestLayout();
 	}
@@ -807,6 +822,10 @@ public class ParagraphView extends FrameLayout {
 	}
 
 	public void setMaxLines(int lines) {
+		if (mMaxLines == lines) {
+			return;
+		}
+
 		setMaxLines0(lines);
 		requestLayout();
 	}

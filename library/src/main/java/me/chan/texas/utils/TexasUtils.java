@@ -262,7 +262,7 @@ public class TexasUtils {
 		return lineSpace;
 	}
 
-	@IntDef({CmpType.CMP_DRAW, CmpType.CMP_TYPESET, CmpType.CMP_LOAD})
+	@IntDef({CmpType.CMP_DRAW, CmpType.CMP_TYPESET, CmpType.CMP_LOAD, CmpType.CMP_IGNORE})
 	public @interface CmpType {
 		/**
 		 * 需要重新排版
@@ -276,6 +276,10 @@ public class TexasUtils {
 		 * 需要重新绘制
 		 */
 		int CMP_DRAW = 3;
+		/**
+		 * 忽略
+		 */
+		int CMP_IGNORE = 0;
 	}
 
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -287,6 +291,8 @@ public class TexasUtils {
 				return "CMP_TYPESET";
 			case CmpType.CMP_LOAD:
 				return "CMP_LOAD";
+			case CmpType.CMP_IGNORE:
+				return "CMP_IGNORE";
 			default:
 				return "UNKNOWN";
 		}
@@ -322,6 +328,10 @@ public class TexasUtils {
 				prev.isFullWithSymbolOptimizationEnable() != current.isFullWithSymbolOptimizationEnable() ||
 				Float.compare(prev.getLineSpacingExtra(), current.getLineSpacingExtra()) != 0) {
 			return CmpType.CMP_TYPESET;
+		}
+
+		if (prev.equals(current)) {
+			return CmpType.CMP_IGNORE;
 		}
 
 		return CmpType.CMP_DRAW;
