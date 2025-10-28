@@ -8,6 +8,7 @@ import me.chan.texas.ext.markdown.math.renderer.core.MathPaint;
 public class LinearGroupNode extends RendererNode {
 	private final List<RendererNode> mNodes;
 	private final Gravity mGravity;
+	private float mBaseline;
 
 	public LinearGroupNode(float scale, List<RendererNode> nodes, Gravity gravity) {
 		super(scale);
@@ -51,6 +52,11 @@ public class LinearGroupNode extends RendererNode {
 		layoutVertical();
 	}
 
+	@Override
+	public float getBaseline() {
+		return mBaseline;
+	}
+
 	private void layoutHorizontal() {
 		float left = 0;
 		float bottom = 0;
@@ -77,6 +83,7 @@ public class LinearGroupNode extends RendererNode {
 		for (RendererNode node : mNodes) {
 			node.translate((right - node.getWidth()) / 2, 0);
 		}
+		mBaseline = getCenterY();
 	}
 
 	@Override

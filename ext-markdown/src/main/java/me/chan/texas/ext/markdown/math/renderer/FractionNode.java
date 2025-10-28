@@ -44,6 +44,11 @@ public class FractionNode extends RendererNode {
 	}
 
 	@Override
+	public float getBaseline() {
+		return getCenterY();
+	}
+
+	@Override
 	protected void onDraw(MathCanvas canvas, MathPaint paint) {
 		mNumerator.draw(canvas, paint);
 		mDenominator.draw(canvas, paint);

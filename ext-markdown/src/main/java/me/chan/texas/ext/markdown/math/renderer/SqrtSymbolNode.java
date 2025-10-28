@@ -27,6 +27,11 @@ public class SqrtSymbolNode extends RendererNode {
 		setMeasuredSize(width, height);
 	}
 
+	@Override
+	public float getBaseline() {
+		return 0;
+	}
+
 	public float getVerticalGap() {
 		return MathFontOptions.RADICAL_VERTICAL_GAP / MathFontOptions.UNITS_PER_EM * mTextSize;
 	}

@@ -29,6 +29,11 @@ public class TextNode extends RendererNode {
 		setMeasuredSize(width, height);
 	}
 
+	@Override
+	public float getBaseline() {
+		return getBottom() - mBaselineOffset;
+	}
+
 	public void setBaselineOffset(float baselineOffset) {
 		mBaselineOffset = baselineOffset;
 	}

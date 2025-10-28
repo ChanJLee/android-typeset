@@ -68,6 +68,11 @@ public class AccentNode extends RendererNode {
 		}
 	}
 
+	@Override
+	public float getBaseline() {
+		return mContent.getBaseline();
+	}
+
 	private void layoutGlyph() {
 		if ("hat".equals(mCmd) || "widehat".equals(mCmd) ||
 				"dot".equals(mCmd) || "ddot".equals(mCmd) || "dddot".equals(mCmd) ||

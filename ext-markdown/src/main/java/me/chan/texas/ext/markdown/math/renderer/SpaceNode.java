@@ -20,6 +20,11 @@ public class SpaceNode extends RendererNode {
 	}
 
 	@Override
+	public float getBaseline() {
+		return getBottom();
+	}
+
+	@Override
 	protected void onDraw(MathCanvas canvas, MathPaint paint) {
 		/* NOOP */
 	}

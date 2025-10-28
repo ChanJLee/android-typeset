@@ -66,7 +66,7 @@ public abstract class RendererNode {
 		if (DEBUG) {
 			Paint.Style style = paint.getStyle();
 			paint.setStyle(Paint.Style.STROKE);
-			Log.d("MathRenderer", this + "->" + toPretty() + "[" + getWidth() +"," + getHeight() + "], textSize: " + textSize);
+			Log.d("MathRenderer", this + "->" + toPretty() + "[" + getWidth() + "," + getHeight() + "], textSize: " + textSize);
 			canvas.drawRect(0, 0, getWidth(), getHeight(), paint);
 			paint.setStyle(style);
 		}
@@ -93,6 +93,8 @@ public abstract class RendererNode {
 		mLeft = left;
 		mTop = top;
 	}
+
+	public abstract float getBaseline();
 
 	protected abstract void onDraw(MathCanvas canvas, MathPaint paint);
 
