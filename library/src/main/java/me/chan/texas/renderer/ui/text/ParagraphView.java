@@ -668,6 +668,9 @@ public class ParagraphView extends FrameLayout {
 		}
 		setVerticalAlignment(renderOption);
 
+		if (mSource == null) {
+			return;
+		}
 		if (cmpType != TexasUtils.CmpType.CMP_DRAW) {
 			// 丢弃之前的任务
 			discard(false);
@@ -791,6 +794,10 @@ public class ParagraphView extends FrameLayout {
 	}
 
 	public void setMinLines(int lines) {
+		if (mMinLines == lines) {
+			return;
+		}
+
 		setMinLines0(lines);
 		requestLayout();
 	}
@@ -807,6 +814,10 @@ public class ParagraphView extends FrameLayout {
 	}
 
 	public void setMaxLines(int lines) {
+		if (mMaxLines == lines) {
+			return;
+		}
+
 		setMaxLines0(lines);
 		requestLayout();
 	}
