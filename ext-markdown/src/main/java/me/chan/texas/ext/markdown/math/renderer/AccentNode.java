@@ -13,7 +13,17 @@ public class AccentNode extends RendererNode {
 
 		mCmd = cmd;
 		mContent = content;
-		mCmdNode = isBrace() || isGlyph() ? new TextNode(scale, cmdToSymbol()) : null;
+		if (isBrace()) {
+			mCmdNode = new TextNode(scale, cmdToSymbol());
+		} else if (isGlyph()) {
+			if ("check".equals(mCmd)) {
+				mCmdNode = new TextNode(scale * 0.5f, cmdToSymbol());
+			} else {
+				mCmdNode = new TextNode(scale, cmdToSymbol());
+			}
+		} else {
+			mCmdNode = null;
+		}
 	}
 
 	@Override
