@@ -1,5 +1,6 @@
 package me.chan.texas.ext.markdown.math.renderer;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import me.chan.texas.ext.markdown.math.renderer.core.MathCanvas;
@@ -7,66 +8,73 @@ import me.chan.texas.ext.markdown.math.renderer.core.MathPaint;
 
 public class GridGroupNode extends RendererNode {
 
-	private final List<RendererNode> mNodes;
+	private final List<LinearGroupNode> mNodes = new ArrayList<>();
 	private final int mColumnCount;
 
 	public GridGroupNode(float scale, int columnCount, List<RendererNode> nodes) {
 		super(scale);
 		mColumnCount = columnCount;
-		mNodes = nodes;
+
+		// spilt nodes
+		int size = nodes.size() / columnCount;
+		for (int i = 0; i < size; ++i) {
+			mNodes.add(new LinearGroupNode(scale, nodes.subList(i * columnCount, (i + 1) * columnCount), LinearGroupNode.Gravity.HORIZONTAL));
+		}
+		if (nodes.size() % columnCount != 0) {
+			mNodes.add(new LinearGroupNode(scale, nodes.subList(size * columnCount, nodes.size()), LinearGroupNode.Gravity.HORIZONTAL));
+		}
 	}
 
 	@Override
 	protected void onMeasure(MathPaint paint, int widthSpec, int heightSpec) {
+		float height = 0;
+		float width = 0;
 		for (RendererNode node : mNodes) {
 			node.measure(paint);
+			width = Math.max(width, node.getWidth());
+			height += node.getHeight();
 		}
+		setMeasuredSize((int) Math.ceil(width), (int) Math.ceil(height));
 	}
 
 	@Override
 	protected void onLayoutChildren() {
-		int size = mNodes.size();
-		int rowCount = size / mColumnCount;
-		if (size % mColumnCount != 0) {
-			++rowCount;
-		}
-
-		float top = 0;
-		for (int r = 0; r < rowCount; ++r) {
-			float left = 0;
-			float bottom = 0;
-			for (int c = 0; c < mColumnCount; ++c) {
-				int i = r * mColumnCount + c;
-				RendererNode node = mNodes.get(i);
-				node.layout(left, top);
-				left = node.getRight();
-				bottom = Math.max(node.getBottom(), bottom);
-			}
-
-			for (int c = 0; c < mColumnCount; ++c) {
-				int i = r * mColumnCount + c;
-				RendererNode node = mNodes.get(i);
-				node.translate(0, (bottom - top - node.getHeight()) / 2);
-			}
-
-			top = bottom;
-		}
-
-		float left = 0;
 		for (int c = 0; c < mColumnCount; ++c) {
-			float right = 0;
-			for (int r = 0; r < rowCount; ++r) {
-				int i = r * mColumnCount + c;
-				RendererNode node = mNodes.get(i);
-				right = Math.max(node.getRight(), right);
+			RendererNode anchor = null;
+			for (int r = 0; r < mNodes.size(); ++r) {
+				LinearGroupNode group = mNodes.get(r);
+				RendererNode node = group.tryGetChildAt(c);
+				if (anchor == null) {
+					anchor = node;
+					continue;
+				}
+
+				if (node == null) {
+					continue;
+				}
+
+				if (node.getRight() > anchor.getRight()) {
+					anchor = node;
+				}
+			}
+			if (anchor == null) {
+				continue;
 			}
 
-			for (int r = 0; r < rowCount; ++r) {
-				int i = r * mColumnCount + c;
-				RendererNode node = mNodes.get(i);
-				node.translate((right - left - node.getWidth()) / 2, 0);
+			for (int r = 0; r < mNodes.size(); ++r) {
+				LinearGroupNode group = mNodes.get(r);
+				RendererNode node = group.tryGetChildAt(c);
+				if (node == null || node == anchor) {
+					continue;
+				}
+
+				node.translate(anchor.getCenterX() - node.getCenterX(), 0);
 			}
-			left = right;
+		}
+
+		for (int r = 0; r < mNodes.size(); ++r) {
+			LinearGroupNode group = mNodes.get(r);
+			group.resize();
 		}
 	}
 
@@ -86,6 +94,4 @@ public class GridGroupNode extends RendererNode {
 	protected String toPretty() {
 		return "Grid[]";
 	}
-
-
 }

@@ -1,5 +1,7 @@
 package me.chan.texas.ext.markdown.math.renderer;
 
+import androidx.annotation.Nullable;
+
 import java.util.List;
 
 import me.chan.texas.ext.markdown.math.renderer.core.MathCanvas;
@@ -112,6 +114,32 @@ public class LinearGroupNode extends RendererNode {
 	@Override
 	protected String toPretty() {
 		return "[]";
+	}
+
+	public int getChildCount() {
+		return mNodes.size();
+	}
+
+	public RendererNode getChildAt(int index) {
+		return mNodes.get(index);
+	}
+
+	@Nullable
+	public RendererNode tryGetChildAt(int index) {
+		if (index < 0 || index >= mNodes.size()) {
+			return null;
+		}
+		return mNodes.get(index);
+	}
+
+	void resize() {
+		if (mNodes.isEmpty()) {
+			return;
+		}
+
+		RendererNode first = mNodes.get(0);
+		RendererNode last = mNodes.get(mNodes.size() - 1);
+		setMeasuredSize((int) Math.ceil(last.getRight() - first.getLeft()), getHeight());
 	}
 
 	public enum Gravity {
