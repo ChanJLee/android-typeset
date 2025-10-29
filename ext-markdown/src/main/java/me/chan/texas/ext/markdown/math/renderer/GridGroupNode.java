@@ -39,6 +39,7 @@ public class GridGroupNode extends RendererNode {
 
 	@Override
 	protected void onLayoutChildren() {
+		float right = 0;
 		for (int c = 0; c < mColumnCount; ++c) {
 			RendererNode anchor = null;
 			for (int r = 0; r < mNodes.size(); ++r) {
@@ -53,7 +54,7 @@ public class GridGroupNode extends RendererNode {
 					continue;
 				}
 
-				if (node.getRight() > anchor.getRight()) {
+				if (node.getWidth() > anchor.getWidth()) {
 					anchor = node;
 				}
 			}
@@ -61,6 +62,7 @@ public class GridGroupNode extends RendererNode {
 				continue;
 			}
 
+			anchor.translate(right - anchor.getLeft(), 0);
 			for (int r = 0; r < mNodes.size(); ++r) {
 				LinearGroupNode group = mNodes.get(r);
 				RendererNode node = group.tryGetChildAt(c);
@@ -70,11 +72,15 @@ public class GridGroupNode extends RendererNode {
 
 				node.translate(anchor.getCenterX() - node.getCenterX(), 0);
 			}
+			right = anchor.getRight();
 		}
 
+		float top = 0;
 		for (int r = 0; r < mNodes.size(); ++r) {
 			LinearGroupNode group = mNodes.get(r);
 			group.resize();
+			group.layout(0, top);
+			top = group.getBottom();
 		}
 	}
 
