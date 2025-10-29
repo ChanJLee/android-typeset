@@ -74,7 +74,6 @@ public class AccentNode extends RendererNode {
 
 		if (isGlyph()) {
 			layoutGlyph();
-			return;
 		}
 	}
 
@@ -84,7 +83,19 @@ public class AccentNode extends RendererNode {
 	}
 
 	private void layoutGlyph() {
-		if ("hat".equals(mCmd) || "widehat".equals(mCmd) ||
+		if ("widehat".equals(mCmd)) {
+			mCmdNode.layout(0, 0);
+			mContent.layout(0, mCmdNode.getHeight() / 2.0f);
+			return;
+		}
+
+		if ("widetilde".equals(mCmd)) {
+			mCmdNode.layout(0, -mCmdNode.getHeight() / 2f);
+			mContent.layout(0, mCmdNode.getBottom());
+			return;
+		}
+
+		if ("hat".equals(mCmd) ||
 				"dot".equals(mCmd) || "ddot".equals(mCmd) || "dddot".equals(mCmd) ||
 				"acute".equals(mCmd) || "grave".equals(mCmd) || "breve".equals(mCmd)) {
 			mCmdNode.layout((mContent.getWidth() - mCmdNode.getWidth()) / 2.0f, 0);
@@ -92,7 +103,7 @@ public class AccentNode extends RendererNode {
 			return;
 		}
 
-		if ("tilde".equals(mCmd) || "widetilde".equals(mCmd)) {
+		if ("tilde".equals(mCmd)) {
 			mCmdNode.layout((mContent.getWidth() - mCmdNode.getWidth()) / 2.0f, -mCmdNode.getHeight() / 2f);
 			mContent.layout(0, mCmdNode.getBottom());
 			return;
@@ -168,6 +179,10 @@ public class AccentNode extends RendererNode {
 		throw new RuntimeException("unknown cmd: " + mCmd);
 	}
 
+	private boolean isWideGlyph() {
+		return "widehat".equals(mCmd) || "widetilde".equals(mCmd);
+	}
+
 	@Override
 	protected void onDraw(MathCanvas canvas, MathPaint paint) {
 		mContent.draw(canvas, paint);
@@ -176,9 +191,18 @@ public class AccentNode extends RendererNode {
 			return;
 		}
 
+		boolean scaleX = "widehat".equals(mCmd) || "widetilde".equals(mCmd);
+		if (scaleX) {
+			canvas.save();
+			canvas.scale(mContent.getWidth() * 1.0f / mCmdNode.getWidth(), 1);
+		}
+
 		if (isGlyph()) {
 			drawGlyph(canvas, paint);
-			return;
+		}
+
+		if (scaleX) {
+			canvas.restore();
 		}
 	}
 
