@@ -34,6 +34,8 @@ public class MathFontOptions {
 	public static final float AXIS_HEIGHT = 250;
 	public static final float SCRIPT_PERCENT_SCALE_DOWN = 70;
 	public static final float SCRIPT_SCRIPT_PERCENT_SCALE_DOWN = 50;
+
+	public static final float BRACT_BASELINE_OFFSET_FACTOR = 1.235f;
 	private static final Map<String, String> GLYPHS = new HashMap<>();
 
 	static {

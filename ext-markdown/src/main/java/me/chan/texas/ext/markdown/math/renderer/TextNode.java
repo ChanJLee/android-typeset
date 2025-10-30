@@ -34,8 +34,8 @@ public class TextNode extends RendererNode {
 		return getBottom() - mBaselineOffset;
 	}
 
-	public void setBaselineOffset(float baselineOffset) {
-		mBaselineOffset = baselineOffset;
+	public void setBaselineOffsetFactor(float factor) {
+		mBaselineOffset = mBaselineOffset * factor;
 	}
 
 	public float getBaselineOffset() {

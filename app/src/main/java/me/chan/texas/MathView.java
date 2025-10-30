@@ -52,7 +52,7 @@ public class MathView extends View {
 //
 		{
 			textPaint.setTextSize(48);
-			mRendererNode = MathRendererInflater.mockGrid();
+			mRendererNode = MathRendererInflater.mockBrace();
 		}
 
 		TexasPaintImpl paint = new TexasPaintImpl();

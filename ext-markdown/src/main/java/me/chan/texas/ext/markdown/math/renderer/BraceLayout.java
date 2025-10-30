@@ -9,8 +9,8 @@ import me.chan.texas.ext.markdown.math.renderer.core.MathPaint;
 
 public class BraceLayout extends RendererNode {
 
-	private final RendererNode mLeftSymbol;
-	private final RendererNode mRightSymbol;
+	private final TextNode mLeftSymbol;
+	private final TextNode mRightSymbol;
 	private final RendererNode mContent;
 
 	public BraceLayout(float scale, @Nullable String leftSymbol, RendererNode content, @Nullable String rightSymbol) {
@@ -30,12 +30,14 @@ public class BraceLayout extends RendererNode {
 		if (mLeftSymbol != null) {
 			mLeftSymbol.setScale(scale);
 			mLeftSymbol.measure(paint);
+			mLeftSymbol.setBaselineOffsetFactor(MathFontOptions.BRACT_BASELINE_OFFSET_FACTOR);
 			width += mLeftSymbol.getWidth();
 		}
 
 		if (mRightSymbol != null) {
 			mRightSymbol.setScale(scale);
 			mRightSymbol.measure(paint);
+			mRightSymbol.setBaselineOffsetFactor(MathFontOptions.BRACT_BASELINE_OFFSET_FACTOR);
 			width += mRightSymbol.getWidth();
 		}
 

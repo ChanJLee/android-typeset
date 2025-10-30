@@ -59,7 +59,7 @@ public class AccentNode extends RendererNode {
 
 	private void measureBrace(MathPaint paint) {
 		mCmdNode.measure(paint);
-		mCmdNode.setBaselineOffset(mCmdNode.getBaselineOffset() * 1.2f);
+		mCmdNode.setBaselineOffsetFactor(MathFontOptions.BRACT_BASELINE_OFFSET_FACTOR);
 		setMeasuredSize(mContent.getWidth(), mContent.getHeight() + mCmdNode.getWidth());
 	}
 
