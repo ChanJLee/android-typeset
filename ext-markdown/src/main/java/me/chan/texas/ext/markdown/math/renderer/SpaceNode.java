@@ -8,6 +8,10 @@ public class SpaceNode extends RendererNode {
 	private final int mWidth;
 	private final int mHeight;
 
+	public SpaceNode(int width, int height) {
+		this(1, width, height);
+	}
+
 	public SpaceNode(float scale, int width, int height) {
 		super(scale);
 		mWidth = width;
@@ -21,7 +25,7 @@ public class SpaceNode extends RendererNode {
 
 	@Override
 	public float getBaseline() {
-		return getBottom();
+		return getCenterX();
 	}
 
 	@Override

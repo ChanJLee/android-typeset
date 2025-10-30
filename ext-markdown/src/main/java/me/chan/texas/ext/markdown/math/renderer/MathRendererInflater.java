@@ -184,6 +184,31 @@ public class MathRendererInflater {
 		return new BraceLayout(1, "[", mockGrid(), "]");
 	}
 
+	public static RendererNode mockCondition() {
+		List<RendererNode> rendererNodes = new ArrayList<>();
+		rendererNodes.add(new TextNode(1f, "f(x)"));
+		rendererNodes.add(new SpaceNode(100, 1));
+		rendererNodes.add(new BraceLayout(1, "{", mockConditionDetail(), null));
+		return new LinearGroupNode(1F, rendererNodes, LinearGroupNode.Gravity.HORIZONTAL);
+	}
+
+	private static RendererNode mockConditionDetail() {
+		List<RendererNode> list = new ArrayList<>();
+		list.add(mockText("Hello World"));
+		list.add(new SpaceNode(100, 1));
+		list.add(mockText("x < 0"));
+
+		list.add(mockFractionNode());
+		list.add(new SpaceNode(100, 1));
+		list.add(mockText("x >= 0 且 x < 10"));
+
+		list.add(new AccentNode(1f, "overbrace", mockText("hello world")));
+		list.add(new SpaceNode(100, 1));
+		list.add(mockText("x >= 10"));
+
+		return new GridGroupNode(1, 3, list);
+	}
+
 	public static RendererNode mockDecor() {
 		DecorGroupNode.Builder builder = new DecorGroupNode.Builder(3, new TextNode(3, "∫"));
 		builder.top(new TextNode(1, "x + y"));
