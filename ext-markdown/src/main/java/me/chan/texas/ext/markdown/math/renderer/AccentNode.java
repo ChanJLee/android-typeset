@@ -36,8 +36,9 @@ public class AccentNode extends RendererNode {
 
 		if (isGlyph()) {
 			measureGlyph(paint);
-			return;
 		}
+
+		throw new IllegalArgumentException("unknown cmd: " + mCmd);
 	}
 
 	private void measureGlyph(MathPaint paint) {
@@ -57,12 +58,9 @@ public class AccentNode extends RendererNode {
 	}
 
 	private void measureBrace(MathPaint paint) {
-		paint.save();
-		paint.setTextSize(mContent.getWidth());
 		mCmdNode.measure(paint);
-		paint.restore();
-		mCmdNode.setBaselineOffset(mCmdNode.getBaselineOffset() * 1.28f);
-		setMeasuredSize(mContent.getWidth(), mContent.getHeight() * 2);
+		mCmdNode.setBaselineOffset(mCmdNode.getBaselineOffset() * 1.2f);
+		setMeasuredSize(mContent.getWidth(), mContent.getHeight() + mCmdNode.getWidth());
 	}
 
 	@Override
@@ -115,13 +113,17 @@ public class AccentNode extends RendererNode {
 
 	private void layoutBrace() {
 		if ("overbrace".equals(mCmd)) {
-			mCmdNode.layout(0, 0);
-			mContent.layout(0, mContent.getHeight() /* brace 高度会被压缩 */);
+			float x = 0;
+			float y = mCmdNode.getWidth();
+			mCmdNode.layout(x - mCmdNode.getWidth(), y - mCmdNode.getHeight());
+			mContent.layout(0, y);
 			return;
 		}
 
+		float x = 0;
+		float y = mContent.getHeight();
 		mContent.layout(0, 0);
-		mCmdNode.layout(0, mContent.getHeight());
+		mCmdNode.layout(x - mCmdNode.getWidth(), y);
 	}
 
 	private boolean isBrace() {
@@ -217,24 +219,21 @@ public class AccentNode extends RendererNode {
 
 	private void drawUnderBrace(MathCanvas canvas, MathPaint paint) {
 		canvas.save();
-		canvas.translate(0, mContent.getHeight());
-		canvas.rotate(270, mCmdNode.getLeft(), mContent.getBottom());
-		canvas.scale(mContent.getHeight() * 1.0f / mCmdNode.getWidth(), 1f);
-		paint.save();
-		paint.setTextSize(mContent.getWidth());
+		float x = 0;
+		float y = mContent.getHeight();
+		canvas.rotate(270, x, y);
+		canvas.scale(1f, mContent.getWidth() * 1.0f / mContent.getHeight(), x, y);
 		mCmdNode.draw(canvas, paint);
-		paint.restore();
 		canvas.restore();
 	}
 
 	private void drawOverBrace(MathCanvas canvas, MathPaint paint) {
+		float x = 0;
+		float y = mCmdNode.getWidth();
 		canvas.save();
-		canvas.rotate(90, mCmdNode.getRight(), mCmdNode.getCenterY());
-		canvas.scale(mContent.getHeight() * 1.0f / mCmdNode.getWidth(), 1f);
-		paint.save();
-		paint.setTextSize(mContent.getWidth());
+		canvas.rotate(90, x, y);
+		canvas.scale(1f, mContent.getWidth() * 1.0f / mContent.getHeight(), x, y);
 		mCmdNode.draw(canvas, paint);
-		paint.restore();
 		canvas.restore();
 	}
 

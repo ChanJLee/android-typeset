@@ -1,5 +1,7 @@
 package me.chan.texas;
 
+import static me.chan.texas.ext.markdown.math.renderer.MathRendererInflater.mockText;
+
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
@@ -12,6 +14,7 @@ import androidx.annotation.Nullable;
 
 import java.io.IOException;
 
+import me.chan.texas.ext.markdown.math.renderer.AccentNode;
 import me.chan.texas.ext.markdown.math.renderer.RendererNode;
 import me.chan.texas.ext.markdown.math.renderer.MathRendererInflater;
 import me.chan.texas.ext.markdown.math.renderer.core.MathCanvas;

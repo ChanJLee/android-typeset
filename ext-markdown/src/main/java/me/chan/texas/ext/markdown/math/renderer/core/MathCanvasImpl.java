@@ -57,4 +57,9 @@ public class MathCanvasImpl implements MathCanvas {
 	public void scale(float sx, float sy) {
 		mImpl.scale(sx, sy);
 	}
+
+	@Override
+	public void scale(float sx, float sy, float px, float py) {
+		mImpl.scale(sx, sy, px, py);
+	}
 }

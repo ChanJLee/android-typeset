@@ -22,4 +22,6 @@ public interface MathCanvas {
 	void rotate(float degrees, float x, float y);
 
 	void scale(float sx, float sy);
+
+	void scale(float sx, float sy, float px, float py);
 }
