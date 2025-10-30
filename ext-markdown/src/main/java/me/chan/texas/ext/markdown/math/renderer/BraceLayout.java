@@ -4,8 +4,6 @@ import android.text.TextUtils;
 
 import androidx.annotation.Nullable;
 
-import java.util.List;
-
 import me.chan.texas.ext.markdown.math.renderer.core.MathCanvas;
 import me.chan.texas.ext.markdown.math.renderer.core.MathPaint;
 
@@ -26,19 +24,39 @@ public class BraceLayout extends RendererNode {
 	@Override
 	protected void onMeasure(MathPaint paint, int widthSpec, int heightSpec) {
 		float width = 0;
+		mContent.measure(paint);
+		float scale = mContent.getHeight() * 1.0f / paint.getTextSize();
+
 		if (mLeftSymbol != null) {
+			mLeftSymbol.setScale(scale);
 			mLeftSymbol.measure(paint);
 			width += mLeftSymbol.getWidth();
 		}
 
 		if (mRightSymbol != null) {
+			mRightSymbol.setScale(scale);
 			mRightSymbol.measure(paint);
 			width += mRightSymbol.getWidth();
 		}
 
-		mContent.measure(paint);
 		width += mContent.getWidth();
 		setMeasuredSize((int) Math.ceil(width), mContent.getHeight());
+	}
+
+	@Override
+	protected void onLayoutChildren() {
+		float left = 0;
+		if (mLeftSymbol != null) {
+			mLeftSymbol.layout(left, 0);
+			left = mLeftSymbol.getRight();
+		}
+
+		mContent.layout(left, 0);
+		left = mContent.getRight();
+
+		if (mRightSymbol != null) {
+			mRightSymbol.layout(left, 0);
+		}
 	}
 
 	@Override
@@ -49,10 +67,12 @@ public class BraceLayout extends RendererNode {
 	@Override
 	protected void onDraw(MathCanvas canvas, MathPaint paint) {
 		mContent.draw(canvas, paint);
-	}
-
-	private void drawLeftSymbol() {
-
+		if (mLeftSymbol != null) {
+			mLeftSymbol.draw(canvas, paint);
+		}
+		if (mRightSymbol != null) {
+			mRightSymbol.draw(canvas, paint);
+		}
 	}
 
 	@Override

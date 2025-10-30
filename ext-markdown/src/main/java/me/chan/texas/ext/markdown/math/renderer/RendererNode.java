@@ -10,9 +10,9 @@ import me.chan.texas.ext.markdown.math.renderer.core.MathCanvas;
 import me.chan.texas.ext.markdown.math.renderer.core.MathPaint;
 
 public abstract class RendererNode {
-	public static final boolean DEBUG = false;
+	public static final boolean DEBUG = true;
 
-	private final float mScale;
+	private float mScale;
 	private int mWidth;
 	private int mHeight;
 	private float mLeft;
@@ -20,6 +20,10 @@ public abstract class RendererNode {
 	private Object mTag;
 
 	public RendererNode(float scale) {
+		mScale = scale;
+	}
+
+	public void setScale(float scale) {
 		mScale = scale;
 	}
 

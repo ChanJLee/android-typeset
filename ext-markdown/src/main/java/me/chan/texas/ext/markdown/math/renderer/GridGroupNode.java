@@ -39,7 +39,14 @@ public class GridGroupNode extends RendererNode {
 
 	@Override
 	protected void onLayoutChildren() {
-		float right = 0;
+		float top = 0;
+		for (int r = 0; r < mNodes.size(); ++r) {
+			LinearGroupNode group = mNodes.get(r);
+			group.layout(0, top);
+			top = group.getBottom();
+		}
+
+		float edge = 0;
 		for (int c = 0; c < mColumnCount; ++c) {
 			RendererNode anchor = null;
 			for (int r = 0; r < mNodes.size(); ++r) {
@@ -62,7 +69,7 @@ public class GridGroupNode extends RendererNode {
 				continue;
 			}
 
-			anchor.translate(right - anchor.getLeft(), 0);
+			anchor.translate(edge - anchor.getLeft(), 0);
 			for (int r = 0; r < mNodes.size(); ++r) {
 				LinearGroupNode group = mNodes.get(r);
 				RendererNode node = group.tryGetChildAt(c);
@@ -72,16 +79,18 @@ public class GridGroupNode extends RendererNode {
 
 				node.translate(anchor.getCenterX() - node.getCenterX(), 0);
 			}
-			right = anchor.getRight();
+			edge = anchor.getRight();
 		}
 
-		float top = 0;
+		// align size
+		edge = 0;
 		for (int r = 0; r < mNodes.size(); ++r) {
 			LinearGroupNode group = mNodes.get(r);
 			group.resize();
-			group.layout(0, top);
-			top = group.getBottom();
+			edge = Math.max(edge, group.getRight());
 		}
+
+		setMeasuredSize((int) Math.ceil(edge), getHeight());
 	}
 
 	@Override

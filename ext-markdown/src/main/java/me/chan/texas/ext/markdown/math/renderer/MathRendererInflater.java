@@ -180,6 +180,10 @@ public class MathRendererInflater {
 		return new GridGroupNode(1, 3, list);
 	}
 
+	public static RendererNode mockBrace() {
+		return new BraceLayout(1, "[", mockGrid(), "]");
+	}
+
 	public static RendererNode mockDecor() {
 		DecorGroupNode.Builder builder = new DecorGroupNode.Builder(3, new TextNode(3, "∫"));
 		builder.top(new TextNode(1, "x + y"));

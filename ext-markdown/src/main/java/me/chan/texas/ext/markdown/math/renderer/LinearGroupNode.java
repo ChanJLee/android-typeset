@@ -137,9 +137,8 @@ public class LinearGroupNode extends RendererNode {
 			return;
 		}
 
-		RendererNode first = mNodes.get(0);
 		RendererNode last = mNodes.get(mNodes.size() - 1);
-		setMeasuredSize((int) Math.ceil(last.getRight() - first.getLeft()), getHeight());
+		setMeasuredSize((int) Math.ceil(last.getRight()), getHeight());
 	}
 
 	public enum Gravity {
