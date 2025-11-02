@@ -4,17 +4,17 @@ import me.chan.texas.ext.markdown.math.renderer.core.MathCanvas;
 import me.chan.texas.ext.markdown.math.renderer.core.MathPaint;
 
 public class StretchyNode extends RendererNode {
-	private final RendererNode mTop;
-	private final RendererNode mMiddle;
-	private final RendererNode mBottom;
-	private final RendererNode mExtension;
+	private final SymbolNode mTop;
+	private final SymbolNode mMiddle;
+	private final SymbolNode mBottom;
+	private final SymbolNode mExtension;
 
-	public StretchyNode(float scale, String top, String middle, String extension, String bottom) {
+	public StretchyNode(float scale, String top, String middle, String bottom, String extension) {
 		super(scale);
-		mTop = new TextNode(scale, top);
-		mMiddle = new TextNode(scale, middle);
-		mBottom = new TextNode(scale, bottom);
-		mExtension = new TextNode(scale, extension);
+		mTop = new SymbolNode(scale, top, false);
+		mMiddle = new SymbolNode(scale, middle, true);
+		mBottom = new SymbolNode(scale, bottom, false);
+		mExtension = new SymbolNode(scale, extension, false);
 	}
 
 	@Override
@@ -27,26 +27,26 @@ public class StretchyNode extends RendererNode {
 		float height = RendererNode.getSize(heightSpec);
 		float width = RendererNode.getSize(widthSpec);
 		if (RendererNode.getMode(widthSpec) == RendererNode.UNSPECIFIED) {
-			width = Math.max(mTop.getWidth(), Math.max(mMiddle.getWidth(), mBottom.getWidth()));
+			width = mMiddle.getWidth();
 		}
 
 		if (RendererNode.getMode(heightSpec) != RendererNode.EXACTLY) {
-			throw new IllegalArgumentException("height must be EXACTLY");
+			height = mTop.getHeight() + mMiddle.getHeight() + mBottom.getHeight() + mExtension.getHeight();
 		}
 		setMeasuredSize((int) Math.ceil(width), (int) Math.ceil(height));
 	}
 
 	@Override
 	protected void onLayoutChildren() {
-		float centerX = getCenterX();
-		float centerY = getCenterY();
+		float left = (getWidth() - mMiddle.getWidth()) / 2.0f;
+		float centerY = getHeight() / 2.0f;
 
-		mTop.layout(centerX - mTop.getWidth() / 2.0f, 0);
-		mMiddle.layout(centerX - mMiddle.getWidth() / 2.0f, centerY - mMiddle.getHeight() / 2.0f);
-		mBottom.layout(centerX - mBottom.getWidth() / 2.0f, centerY + mBottom.getHeight());
+		mTop.layout(left, 0);
+		mMiddle.layout(left, centerY - mMiddle.getHeight() / 2.0f);
+		mBottom.layout(left, getHeight() - mBottom.getHeight());
 
 		// extension
-		mExtension.layout(centerX - mExtension.getWidth() / 2.0f, 0);
+		mExtension.layout(left, 0);
 	}
 
 	@Override

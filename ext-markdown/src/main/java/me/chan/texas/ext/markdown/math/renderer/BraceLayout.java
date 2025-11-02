@@ -9,15 +9,15 @@ import me.chan.texas.ext.markdown.math.renderer.core.MathPaint;
 
 public class BraceLayout extends RendererNode {
 
-	private final TextNode mLeftSymbol;
-	private final TextNode mRightSymbol;
+	private final StretchyNode mLeftSymbol;
+	private final StretchyNode mRightSymbol;
 	private final RendererNode mContent;
 
-	public BraceLayout(float scale, @Nullable String leftSymbol, RendererNode content, @Nullable String rightSymbol) {
+	public BraceLayout(float scale, @Nullable StretchyNode leftSymbol, RendererNode content, @Nullable StretchyNode rightSymbol) {
 		super(scale);
 
-		mLeftSymbol = TextUtils.isEmpty(leftSymbol) ? null : new TextNode(scale, leftSymbol);
-		mRightSymbol = TextUtils.isEmpty(rightSymbol) ? null : new TextNode(scale, rightSymbol);
+		mLeftSymbol = leftSymbol;
+		mRightSymbol = rightSymbol;
 		mContent = content;
 	}
 
@@ -25,19 +25,14 @@ public class BraceLayout extends RendererNode {
 	protected void onMeasure(MathPaint paint, int widthSpec, int heightSpec) {
 		float width = 0;
 		mContent.measure(paint);
-		float scale = mContent.getHeight() * 1.0f / paint.getTextSize();
 
 		if (mLeftSymbol != null) {
-			mLeftSymbol.setScale(scale);
-			mLeftSymbol.measure(paint);
-			mLeftSymbol.setBaselineOffsetFactor(MathFontOptions.BRACT_BASELINE_OFFSET_FACTOR);
+			mLeftSymbol.measure(paint, RendererNode.makeMeasureSpec(0, RendererNode.UNSPECIFIED), RendererNode.makeMeasureSpec(mContent.getHeight(), RendererNode.EXACTLY));
 			width += mLeftSymbol.getWidth();
 		}
 
 		if (mRightSymbol != null) {
-			mRightSymbol.setScale(scale);
-			mRightSymbol.measure(paint);
-			mRightSymbol.setBaselineOffsetFactor(MathFontOptions.BRACT_BASELINE_OFFSET_FACTOR);
+			mRightSymbol.measure(paint, RendererNode.makeMeasureSpec(0, RendererNode.UNSPECIFIED), RendererNode.makeMeasureSpec(mContent.getHeight(), RendererNode.EXACTLY));
 			width += mRightSymbol.getWidth();
 		}
 

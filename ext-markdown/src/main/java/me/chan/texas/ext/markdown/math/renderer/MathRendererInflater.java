@@ -181,15 +181,23 @@ public class MathRendererInflater {
 	}
 
 	public static RendererNode mockBrace() {
-		return new BraceLayout(1, "[", mockGrid(), "]");
+		return new BraceLayout(1, mockStretchyLeft(), mockGrid(), mockStretchyRight());
 	}
 
 	public static RendererNode mockCondition() {
 		List<RendererNode> rendererNodes = new ArrayList<>();
 		rendererNodes.add(new TextNode(1f, "f(x)"));
 		rendererNodes.add(new SpaceNode(100, 1));
-		rendererNodes.add(new BraceLayout(1, "{", mockConditionDetail(), null));
+		rendererNodes.add(new BraceLayout(1, mockStretchyLeft(), mockConditionDetail(), mockStretchyRight()));
 		return new LinearGroupNode(1F, rendererNodes, LinearGroupNode.Gravity.HORIZONTAL);
+	}
+
+	public static StretchyNode mockStretchyLeft() {
+		return new StretchyNode(1, MathFontOptions.formatSymbol("uni23A7"), MathFontOptions.formatSymbol("uni23A8"), MathFontOptions.formatSymbol("uni23A9"), MathFontOptions.formatSymbol("uni23AA"));
+	}
+
+	public static StretchyNode mockStretchyRight() {
+		return new StretchyNode(1, MathFontOptions.formatSymbol("uni23AB"), MathFontOptions.formatSymbol("uni23AC"), MathFontOptions.formatSymbol("uni23AD"), MathFontOptions.formatSymbol("uni23AA"));
 	}
 
 	private static RendererNode mockConditionDetail() {
@@ -224,7 +232,7 @@ public class MathRendererInflater {
 		List<RendererNode> list = new ArrayList<>();
 		for (Map.Entry<String, String> entry : MathFontOptions.toMap().entrySet()) {
 			list.add(new TextNode(1, entry.getKey()));
-			list.add(new TextNode(1, entry.getValue()));
+			list.add(new SymbolNode(1, entry.getValue()));
 			Log.d("chan_debug", "key: " + entry.getKey() + " value: " + entry.getValue());
 		}
 		return new LinearGroupNode(1, list, LinearGroupNode.Gravity.HORIZONTAL);
