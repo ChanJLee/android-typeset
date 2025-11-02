@@ -117,14 +117,16 @@ public class AccentNode extends RendererNode {
 	}
 
 	private void layoutBrace() {
+		float x = 0;
+		float y = mContent.getHeight();
 		if ("overbrace".equals(mCmd)) {
-			mCmdNode.layout(0, 0);
+			mCmdNode.layout(x - mCmdNode.getWidth(), y - mCmdNode.getHeight());
 			mContent.layout(0, mContent.getHeight() /* brace 高度会被压缩 */);
 			return;
 		}
 
 		mContent.layout(0, 0);
-		mCmdNode.layout(0, mContent.getHeight());
+		mCmdNode.layout(x - mCmdNode.getWidth(), y);
 	}
 
 	private boolean isBrace() {
@@ -216,24 +218,15 @@ public class AccentNode extends RendererNode {
 
 	private void drawUnderBrace(MathCanvas canvas, MathPaint paint) {
 		canvas.save();
-		canvas.translate(0, mContent.getHeight());
-		canvas.rotate(270, mCmdNode.getLeft(), mContent.getBottom());
-		canvas.scale(mContent.getHeight() * 1.0f / mCmdNode.getWidth(), 1f);
-		paint.save();
-		paint.setTextSize(mContent.getWidth());
+		canvas.rotate(270, mCmdNode.getRight(), mCmdNode.getTop());
 		mCmdNode.draw(canvas, paint);
-		paint.restore();
 		canvas.restore();
 	}
 
 	private void drawOverBrace(MathCanvas canvas, MathPaint paint) {
 		canvas.save();
-		canvas.rotate(90, mCmdNode.getRight(), mCmdNode.getCenterY());
-		canvas.scale(mContent.getHeight() * 1.0f / mCmdNode.getWidth(), 1f);
-		paint.save();
-		paint.setTextSize(mContent.getWidth());
+		canvas.rotate(90, mCmdNode.getRight(), mCmdNode.getBottom());
 		mCmdNode.draw(canvas, paint);
-		paint.restore();
 		canvas.restore();
 	}
 

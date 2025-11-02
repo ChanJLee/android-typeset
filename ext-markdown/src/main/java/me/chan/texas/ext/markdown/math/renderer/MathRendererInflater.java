@@ -210,7 +210,7 @@ public class MathRendererInflater {
 		list.add(new SpaceNode(100, 1));
 		list.add(mockText("x >= 0 且 x < 10"));
 
-		list.add(new AccentNode(1f, "overbrace", mockText("hello world")));
+		list.add(new AccentNode(1f, "underbrace", mockText("hello world")));
 		list.add(new SpaceNode(100, 1));
 		list.add(mockText("x >= 10"));
 
