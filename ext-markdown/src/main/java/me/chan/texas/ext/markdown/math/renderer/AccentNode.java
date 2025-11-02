@@ -6,7 +6,7 @@ import me.chan.texas.ext.markdown.math.renderer.core.MathPaint;
 public class AccentNode extends RendererNode {
 	private final String mCmd;
 	private final RendererNode mContent;
-	private final TextNode mCmdNode;
+	private final RendererNode mCmdNode;
 
 	public AccentNode(float scale, String cmd, RendererNode content) {
 		super(scale);
@@ -14,7 +14,7 @@ public class AccentNode extends RendererNode {
 		mCmd = cmd;
 		mContent = content;
 		if (isBrace()) {
-			mCmdNode = new TextNode(scale, cmdToSymbol());
+			mCmdNode = new StretchyNode(1, MathFontOptions.formatSymbol("uni23A7"), MathFontOptions.formatSymbol("uni23A8"), MathFontOptions.formatSymbol("uni23A9"), MathFontOptions.formatSymbol("uni23AA"));
 		} else if (isGlyph()) {
 			if ("check".equals(mCmd)) {
 				mCmdNode = new TextNode(scale * 0.5f, cmdToSymbol());
@@ -56,13 +56,16 @@ public class AccentNode extends RendererNode {
 		);
 	}
 
+	// TODO
 	private void measureBrace(MathPaint paint) {
-		paint.save();
-		paint.setTextSize(mContent.getWidth());
-		mCmdNode.measure(paint);
-		paint.restore();
-		mCmdNode.setBaselineOffsetFactor(MathFontOptions.BRACT_BASELINE_OFFSET_FACTOR);
-		setMeasuredSize(mContent.getWidth(), mContent.getHeight() * 2);
+		mCmdNode.measure(paint,
+				RendererNode.makeMeasureSpec(
+						mContent.getHeight(), RendererNode.EXACTLY
+				),
+				RendererNode.makeMeasureSpec(
+						mContent.getWidth(), RendererNode.EXACTLY
+				));
+		setMeasuredSize(mContent.getWidth(), mContent.getHeight() + mCmdNode.getWidth());
 	}
 
 	@Override
@@ -136,10 +139,6 @@ public class AccentNode extends RendererNode {
 	}
 
 	private String cmdToSymbol() {
-		if (isBrace()) {
-			return MathFontOptions.formatSymbol("braceleft");
-		}
-
 		if ("hat".equals(mCmd) || "widehat".equals(mCmd)) {
 			return MathFontOptions.formatSymbol("asciicircum");
 		}
