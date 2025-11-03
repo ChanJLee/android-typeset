@@ -52,7 +52,7 @@ public class MathView extends View {
 //
 		{
 			textPaint.setTextSize(48);
-			mRendererNode = MathRendererInflater.mockCondition();
+			mRendererNode = MathRendererInflater.mockDecor();
 		}
 
 		TexasPaintImpl paint = new TexasPaintImpl();

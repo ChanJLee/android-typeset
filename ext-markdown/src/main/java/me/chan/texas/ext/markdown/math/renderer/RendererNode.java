@@ -162,7 +162,7 @@ public abstract class RendererNode {
 	private static final int MODE_SHIFT = 30;
 	private static final int MODE_MASK = 0x3 << MODE_SHIFT;
 
-	public static final int UNSPECIFIED = 0 << MODE_SHIFT;
+	public static final int UNSPECIFIED = 0;
 	public static final int EXACTLY = 1 << MODE_SHIFT;
 	public static final int AT_MOST = 2 << MODE_SHIFT;
 
