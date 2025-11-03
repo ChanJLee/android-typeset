@@ -37,4 +37,9 @@ public class SpaceNode extends RendererNode {
 	protected String toPretty() {
 		return "SPACE";
 	}
+
+	@Override
+	protected void onDrawDebug(MathCanvas canvas, MathPaint paint) {
+		/* NOOP */
+	}
 }

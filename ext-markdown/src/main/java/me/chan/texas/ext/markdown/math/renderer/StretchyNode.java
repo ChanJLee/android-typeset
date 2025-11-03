@@ -57,6 +57,7 @@ public class StretchyNode extends RendererNode {
 	@Override
 	protected void onDraw(MathCanvas canvas, MathPaint paint) {
 		mTop.draw(canvas, paint);
+
 		float top = mTop.getBottom();
 		float bottom = mMiddle.getTop();
 		float scaleY = (bottom - top) / mExtension.getHeight();

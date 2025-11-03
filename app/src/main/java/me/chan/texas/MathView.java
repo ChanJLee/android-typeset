@@ -65,14 +65,14 @@ public class MathView extends View {
 	@Override
 	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
 		mRendererNode.measure(mTexasPaint);
-		super.onMeasure(MeasureSpec.makeMeasureSpec(Math.max(MeasureSpec.getSize(widthMeasureSpec), mRendererNode.getWidth()), MeasureSpec.EXACTLY),
+		super.onMeasure(MeasureSpec.makeMeasureSpec(mRendererNode.getWidth(), MeasureSpec.EXACTLY),
 				heightMeasureSpec);
 	}
 
 	@Override
 	protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
 		super.onLayout(changed, left, top, right, bottom);
-		mRendererNode.layout(left, top);
+		mRendererNode.layout(0, 0);
 	}
 
 	@Override

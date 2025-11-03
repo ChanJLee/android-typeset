@@ -67,13 +67,7 @@ public abstract class RendererNode {
 			paint.setTextSize(textSize * mScale);
 		}
 
-		if (DEBUG) {
-			Paint.Style style = paint.getStyle();
-			paint.setStyle(Paint.Style.STROKE);
-			Log.d("MathRenderer", this + "->" + toPretty() + "[" + getWidth() + "," + getHeight() + "], textSize: " + textSize);
-			canvas.drawRect(0, 0, getWidth(), getHeight(), paint);
-			paint.setStyle(style);
-		}
+		onDrawDebug(canvas, paint);
 
 		onDraw(canvas, paint);
 
@@ -81,6 +75,16 @@ public abstract class RendererNode {
 			paint.setTextSize(textSize);
 		}
 		canvas.restore();
+	}
+
+	protected void onDrawDebug(MathCanvas canvas, MathPaint paint) {
+		if (DEBUG) {
+			Paint.Style style = paint.getStyle();
+			paint.setStyle(Paint.Style.STROKE);
+			Log.d("MathRenderer", this + "->" + toPretty() + "[" + getWidth() + "," + getHeight() + "]");
+			canvas.drawRect(0, 0, getWidth(), getHeight(), paint);
+			paint.setStyle(style);
+		}
 	}
 
 	public final void translate(float dx, float dy) {

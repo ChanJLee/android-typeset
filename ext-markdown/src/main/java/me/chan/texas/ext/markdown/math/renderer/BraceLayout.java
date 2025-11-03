@@ -26,25 +26,11 @@ public class BraceLayout extends RendererNode {
 		float width = 0;
 		mContent.measure(paint);
 
-		if (mLeftSymbol != null) {
-			mLeftSymbol.measure(paint, RendererNode.makeMeasureSpec(0, RendererNode.UNSPECIFIED), RendererNode.makeMeasureSpec(mContent.getHeight(), RendererNode.EXACTLY));
-			width += mLeftSymbol.getWidth();
-		}
-
-		if (mRightSymbol != null) {
-			mRightSymbol.measure(paint, RendererNode.makeMeasureSpec(0, RendererNode.UNSPECIFIED), RendererNode.makeMeasureSpec(mContent.getHeight(), RendererNode.EXACTLY));
-			width += mRightSymbol.getWidth();
-		}
-
-		width += mContent.getWidth();
-		setMeasuredSize((int) Math.ceil(width), mContent.getHeight());
-	}
-
-	@Override
-	protected void onLayoutChildren() {
 		float left = 0;
 		if (mLeftSymbol != null) {
+			mLeftSymbol.measure(paint, RendererNode.makeMeasureSpec(0, RendererNode.UNSPECIFIED), RendererNode.makeMeasureSpec(mContent.getHeight(), RendererNode.EXACTLY));
 			mLeftSymbol.layout(left, 0);
+			width += mLeftSymbol.getWidth();
 			left = mLeftSymbol.getRight();
 		}
 
@@ -52,8 +38,13 @@ public class BraceLayout extends RendererNode {
 		left = mContent.getRight();
 
 		if (mRightSymbol != null) {
+			mRightSymbol.measure(paint, RendererNode.makeMeasureSpec(0, RendererNode.UNSPECIFIED), RendererNode.makeMeasureSpec(mContent.getHeight(), RendererNode.EXACTLY));
 			mRightSymbol.layout(left, 0);
+			width += mRightSymbol.getWidth();
 		}
+
+		width += mContent.getWidth();
+		setMeasuredSize((int) Math.ceil(width), mContent.getHeight());
 	}
 
 	@Override
