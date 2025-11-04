@@ -5,20 +5,20 @@ import android.graphics.Paint;
 import me.chan.texas.ext.markdown.math.renderer.core.MathCanvas;
 import me.chan.texas.ext.markdown.math.renderer.core.MathPaint;
 
-public class OpNode extends RendererNode {
+public class SymbolNode extends RendererNode {
 	private final String mContent;
 	private final Paint.FontMetrics mFontMetrics = new Paint.FontMetrics();
 	private final boolean mIncludePadding;
 
-	public OpNode(String content) {
+	public SymbolNode(String content) {
 		this(1, content);
 	}
 
-	public OpNode(float scale, String content) {
+	public SymbolNode(float scale, String content) {
 		this(scale, content, false);
 	}
 
-	public OpNode(float scale, String content, boolean includePadding) {
+	public SymbolNode(float scale, String content, boolean includePadding) {
 		super(scale);
 		mContent = content;
 		mIncludePadding = includePadding;
