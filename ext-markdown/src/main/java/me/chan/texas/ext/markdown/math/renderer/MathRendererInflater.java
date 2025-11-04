@@ -232,7 +232,7 @@ public class MathRendererInflater {
 		List<RendererNode> list = new ArrayList<>();
 		for (Map.Entry<String, String> entry : MathFontOptions.toMap().entrySet()) {
 			list.add(new TextNode(1, entry.getKey()));
-			list.add(new SymbolNode(1, entry.getValue()));
+			list.add(new OpNode(1, entry.getValue(), MathFontOptions.includePadding(entry.getKey())));
 			Log.d("chan_debug", "key: " + entry.getKey() + " value: " + entry.getValue());
 		}
 		return new LinearGroupNode(1, list, LinearGroupNode.Gravity.HORIZONTAL);

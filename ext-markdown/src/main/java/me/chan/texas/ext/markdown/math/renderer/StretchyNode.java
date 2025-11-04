@@ -4,17 +4,17 @@ import me.chan.texas.ext.markdown.math.renderer.core.MathCanvas;
 import me.chan.texas.ext.markdown.math.renderer.core.MathPaint;
 
 public class StretchyNode extends RendererNode {
-	private final SymbolNode mTop;
-	private final SymbolNode mMiddle;
-	private final SymbolNode mBottom;
-	private final SymbolNode mExtension;
+	private final OpNode mTop;
+	private final OpNode mMiddle;
+	private final OpNode mBottom;
+	private final OpNode mExtension;
 
 	public StretchyNode(float scale, String top, String middle, String bottom, String extension) {
 		super(scale);
-		mTop = new SymbolNode(scale, top, false);
-		mMiddle = new SymbolNode(scale, middle, true);
-		mBottom = new SymbolNode(scale, bottom, false);
-		mExtension = new SymbolNode(scale, extension, false);
+		mTop = new OpNode(scale, top, false);
+		mMiddle = new OpNode(scale, middle, true);
+		mBottom = new OpNode(scale, bottom, false);
+		mExtension = new OpNode(scale, extension, false);
 	}
 
 	@Override

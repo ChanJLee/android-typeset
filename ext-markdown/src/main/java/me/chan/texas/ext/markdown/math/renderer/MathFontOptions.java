@@ -3,7 +3,9 @@ package me.chan.texas.ext.markdown.math.renderer;
 import androidx.annotation.Nullable;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 public class MathFontOptions {
 	public static final float UNITS_PER_EM = 1000F;
@@ -37,6 +39,7 @@ public class MathFontOptions {
 
 	public static final float BRACT_BASELINE_OFFSET_FACTOR = 1.235f;
 	private static final Map<String, String> GLYPHS = new HashMap<>();
+	private static final Set<String> INCLUDE_PADDING = new HashSet<>();
 
 	static {
 		// SPACE
@@ -4134,6 +4137,7 @@ public class MathFontOptions {
 		// MATHEMATICAL MONOSPACE DIGIT NINE 𝟿
 		GLYPHS.put("u1D7FF", "\u1D7FF");
 
+		INCLUDE_PADDING.add("angleleft");
 	}
 
 	public static String formatSymbol(String ref) {
@@ -4150,5 +4154,10 @@ public class MathFontOptions {
 
 	public static Map<String, String> toMap() {
 		return GLYPHS;
+	}
+
+	public static boolean includePadding(String ref) {
+//		return INCLUDE_PADDING.contains(ref);
+		return true;
 	}
 }
