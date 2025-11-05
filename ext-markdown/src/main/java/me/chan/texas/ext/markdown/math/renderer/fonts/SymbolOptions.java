@@ -1231,23 +1231,23 @@ public class SymbolOptions {
 		// REVERSE SOLIDUS \
 		Po.put("backslash", new Symbol("\\"));
 		// INVERTED EXCLAMATION MARK ¡
-		Po.put("exclamdown", new Symbol("\u00A1", Symbol.FLAG_WITH_BASELINE));
+		Po.put("exclamdown", new Symbol("\u00A1", Symbol.FLAG_USE_BASELINE));
 		// SECTION SIGN §
-		Po.put("section", new Symbol("\u00A7", Symbol.FLAG_WITH_BASELINE | Symbol.FLAG_INCLUDE_PADDING));
+		Po.put("section", new Symbol("\u00A7", Symbol.FLAG_USE_BASELINE | Symbol.FLAG_INCLUDE_PADDING));
 		// PILCROW SIGN ¶
-		Po.put("paragraph", new Symbol("\u00B6", Symbol.FLAG_WITH_BASELINE | Symbol.FLAG_INCLUDE_PADDING));
+		Po.put("paragraph", new Symbol("\u00B6", Symbol.FLAG_USE_BASELINE | Symbol.FLAG_INCLUDE_PADDING));
 		// MIDDLE DOT ·
 		Po.put("periodcentered", new Symbol("\u00B7"));
 		// INVERTED QUESTION MARK ¿
-		Po.put("questiondown", new Symbol("\u00BF", Symbol.FLAG_WITH_BASELINE));
+		Po.put("questiondown", new Symbol("\u00BF", Symbol.FLAG_USE_BASELINE));
 		// DOUBLE VERTICAL LINE ‖
 		Po.put("dblverticalbar", new Symbol("\u2016"));
 		// DOUBLE LOW LINE ‗
-		Po.put("uni2017", new Symbol("\u2017", Symbol.FLAG_WITH_BASELINE | Symbol.FLAG_INCLUDE_PADDING));
+		Po.put("uni2017", new Symbol("\u2017", Symbol.FLAG_USE_BASELINE | Symbol.FLAG_INCLUDE_PADDING));
 		// DAGGER †
 		Po.put("dagger", new Symbol("\u2020"));
 		// DOUBLE DAGGER ‡
-		Po.put("daggerdbl", new Symbol("\u2021", Symbol.FLAG_WITH_BASELINE));
+		Po.put("daggerdbl", new Symbol("\u2021", Symbol.FLAG_USE_BASELINE));
 		// BULLET •
 		Po.put("bullet", new Symbol("\u2022"));
 		// HORIZONTAL ELLIPSIS …

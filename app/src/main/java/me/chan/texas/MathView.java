@@ -51,7 +51,7 @@ public class MathView extends View {
 //		}
 //
 		{
-			textPaint.setTextSize(48);
+			textPaint.setTextSize(128);
 			mRendererNode = MathRendererInflater.mockList();
 		}
 
@@ -82,7 +82,12 @@ public class MathView extends View {
 		mRendererNode.draw(mCanvas, mTexasPaint);
 	}
 
-//	private void drawRadical(Canvas canvas, float fontSize, float x, float y, Paint paint) {
+	public void setRendererNode(RendererNode rendererNode) {
+		mRendererNode = rendererNode;
+		requestLayout();
+	}
+
+	//	private void drawRadical(Canvas canvas, float fontSize, float x, float y, Paint paint) {
 //		canvas.save();
 //
 //		// 计算缩放比例

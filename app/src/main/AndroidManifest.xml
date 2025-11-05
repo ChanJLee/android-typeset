@@ -10,6 +10,9 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
+            android:name="me.chan.texas.MathSymbolBenchmarkActivity"
+            android:exported="false" />
+        <activity
             android:name="me.chan.texas.MathDemoActivity"
             android:exported="false" />
         <activity

@@ -53,4 +53,10 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="math" />
+
+    <Button
+        android:id="@+id/math_symbol_benchmark"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="math symbol benchmark" />
 </LinearLayout>

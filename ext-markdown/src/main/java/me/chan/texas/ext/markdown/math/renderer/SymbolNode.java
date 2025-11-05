@@ -50,7 +50,7 @@ public class SymbolNode extends RendererNode {
 	@Override
 	protected void onDraw(MathCanvas canvas, MathPaint paint) {
 		float y = getHeight();
-		if ((mSymbol.flags & Symbol.FLAG_WITH_BASELINE) != 0) {
+		if ((mSymbol.flags & Symbol.FLAG_USE_BASELINE) != 0) {
 			y -= mAxisHeight;
 		}
 		canvas.drawText(mSymbol.unicode, 0, y, paint);
