@@ -17,4 +17,5 @@ public class Symbol {
 	public static final int FLAG_BOTTOM_PADDING = 2;
 	public static final int FLAG_USE_CONST_TEXT_HEIGHT_LARGE = 4;
 	public static final int FLAG_USE_CONST_TEXT_HEIGHT_SMALL = 8;
+	public static final int FLAG_USE_BASELINE = 16;
 }

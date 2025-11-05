@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.CompoundButton;
+import android.widget.RadioGroup;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -14,11 +15,17 @@ import com.google.gson.Gson;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
+import me.chan.texas.debug.R;
 import me.chan.texas.debug.databinding.ActivityMathSymbolBenchmarkBinding;
+import me.chan.texas.ext.markdown.math.renderer.LinearGroupNode;
+import me.chan.texas.ext.markdown.math.renderer.RendererNode;
 import me.chan.texas.ext.markdown.math.renderer.SymbolNode;
+import me.chan.texas.ext.markdown.math.renderer.TextNode;
 import me.chan.texas.ext.markdown.math.renderer.fonts.Symbol;
 import me.chan.texas.ext.markdown.math.renderer.fonts.SymbolOptions;
 
@@ -59,12 +66,16 @@ public class MathSymbolBenchmarkActivity extends AppCompatActivity {
 				Symbol symbol = options.all.get(key);
 				binding.includeTopPadding.setOnCheckedChangeListener(null);
 				binding.includeBottomPadding.setOnCheckedChangeListener(null);
-				binding.useConstHeight.setOnCheckedChangeListener(null);
-				binding.useConstHeight2.setOnCheckedChangeListener(null);
+				binding.height.setOnCheckedChangeListener(null);
 				binding.includeTopPadding.setChecked((symbol.flags & Symbol.FLAG_TOP_PADDING) != 0);
 				binding.includeBottomPadding.setChecked((symbol.flags & Symbol.FLAG_BOTTOM_PADDING) != 0);
-				binding.useConstHeight.setChecked((symbol.flags & Symbol.FLAG_USE_CONST_TEXT_HEIGHT_LARGE) != 0);
-				binding.useConstHeight2.setChecked((symbol.flags & Symbol.FLAG_USE_CONST_TEXT_HEIGHT_SMALL) != 0);
+				if ((symbol.flags & Symbol.FLAG_USE_CONST_TEXT_HEIGHT_LARGE) != 0) {
+					binding.height.check(me.chan.texas.debug.R.id.large);
+				} else if ((symbol.flags & Symbol.FLAG_USE_CONST_TEXT_HEIGHT_SMALL) != 0) {
+					binding.height.check(me.chan.texas.debug.R.id.small);
+				} else {
+					binding.height.clearCheck();
+				}
 				binding.indicator.setText("name: " + key);
 				binding.includeTopPadding.setOnCheckedChangeListener((buttonView, isChecked) -> {
 					if (isChecked) {
@@ -72,36 +83,26 @@ public class MathSymbolBenchmarkActivity extends AppCompatActivity {
 					} else {
 						symbol.flags = symbol.flags & (~Symbol.FLAG_TOP_PADDING);
 					}
-					binding.mathView.setRendererNode(new SymbolNode(1.0f, symbol));
+					renderSymbol(binding, symbol);
 				});
+
 				binding.includeBottomPadding.setOnCheckedChangeListener((buttonView, isChecked) -> {
 					if (isChecked) {
 						symbol.flags = symbol.flags | Symbol.FLAG_BOTTOM_PADDING;
 					} else {
 						symbol.flags = symbol.flags & (~Symbol.FLAG_BOTTOM_PADDING);
 					}
-					binding.mathView.setRendererNode(new SymbolNode(1.0f, symbol));
+					renderSymbol(binding, symbol);
 				});
-				binding.useConstHeight.setOnCheckedChangeListener((buttonView, isChecked) -> {
-					symbol.flags = symbol.flags & (~Symbol.FLAG_USE_CONST_TEXT_HEIGHT_SMALL);
-					if (isChecked) {
-						symbol.flags = symbol.flags | Symbol.FLAG_USE_CONST_TEXT_HEIGHT_LARGE;
+				binding.height.setOnCheckedChangeListener((group, checkedId) -> {
+					if (checkedId == R.id.large) {
+						selectedLarge(binding, symbol);
 					} else {
-						symbol.flags = symbol.flags & (~Symbol.FLAG_USE_CONST_TEXT_HEIGHT_LARGE);
+						selectedSmall(binding, symbol);
 					}
-					binding.mathView.setRendererNode(new SymbolNode(1.0f, symbol));
-				});
-				binding.useConstHeight2.setOnCheckedChangeListener((buttonView, isChecked) -> {
-					symbol.flags = symbol.flags & (~Symbol.FLAG_USE_CONST_TEXT_HEIGHT_LARGE);
-					if (isChecked) {
-						symbol.flags = symbol.flags | Symbol.FLAG_USE_CONST_TEXT_HEIGHT_SMALL;
-					} else {
-						symbol.flags = symbol.flags & (~Symbol.FLAG_USE_CONST_TEXT_HEIGHT_SMALL);
-					}
-					binding.mathView.setRendererNode(new SymbolNode(1.0f, symbol));
 				});
 
-				binding.mathView.setRendererNode(new SymbolNode(1.0f, symbol));
+				renderSymbol(binding, symbol);
 			}
 		});
 
@@ -123,5 +124,25 @@ public class MathSymbolBenchmarkActivity extends AppCompatActivity {
 				throw new RuntimeException(e);
 			}
 		});
+	}
+
+	private void selectedLarge(ActivityMathSymbolBenchmarkBinding binding, Symbol symbol) {
+		symbol.flags = symbol.flags & (~Symbol.FLAG_USE_CONST_TEXT_HEIGHT_SMALL);
+		symbol.flags = symbol.flags | Symbol.FLAG_USE_CONST_TEXT_HEIGHT_LARGE;
+		renderSymbol(binding, symbol);
+	}
+
+	private void selectedSmall(ActivityMathSymbolBenchmarkBinding binding, Symbol symbol) {
+		symbol.flags = symbol.flags & (~Symbol.FLAG_USE_CONST_TEXT_HEIGHT_LARGE);
+		symbol.flags = symbol.flags | Symbol.FLAG_USE_CONST_TEXT_HEIGHT_SMALL;
+		binding.mathView.setRendererNode(new SymbolNode(1.0f, symbol));
+	}
+
+	private void renderSymbol(ActivityMathSymbolBenchmarkBinding binding, Symbol symbol) {
+		List<RendererNode> list = new ArrayList<>();
+		list.add(new TextNode(1f, "fg"));
+		list.add(new SymbolNode(1f, symbol));
+		list.add(new TextNode(1f, "fg"));
+		binding.mathView.setRendererNode(new LinearGroupNode(1F, list, LinearGroupNode.Gravity.HORIZONTAL));
 	}
 }
