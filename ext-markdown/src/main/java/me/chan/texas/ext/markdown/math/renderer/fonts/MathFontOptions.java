@@ -1,10 +1,8 @@
-package me.chan.texas.ext.markdown.math.renderer;
-
-import androidx.annotation.Nullable;
+package me.chan.texas.ext.markdown.math.renderer.fonts;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
+import java.util.HashSet;
 import java.util.Set;
 
 public class MathFontOptions {
@@ -4136,8 +4134,6 @@ public class MathFontOptions {
 		GLYPHS.put("u1D7FE", "\u1D7FE");
 		// MATHEMATICAL MONOSPACE DIGIT NINE 𝟿
 		GLYPHS.put("u1D7FF", "\u1D7FF");
-
-		INCLUDE_PADDING.add("angleleft");
 	}
 
 	public static String formatSymbol(String ref) {

@@ -4,6 +4,7 @@ import android.graphics.Paint;
 
 import me.chan.texas.ext.markdown.math.renderer.core.MathCanvas;
 import me.chan.texas.ext.markdown.math.renderer.core.MathPaint;
+import me.chan.texas.ext.markdown.math.renderer.fonts.MathFontOptions;
 
 public class OpNode extends RendererNode {
 	private final String mContent;

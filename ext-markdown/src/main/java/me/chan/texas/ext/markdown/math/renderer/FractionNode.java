@@ -3,6 +3,7 @@ package me.chan.texas.ext.markdown.math.renderer;
 
 import me.chan.texas.ext.markdown.math.renderer.core.MathCanvas;
 import me.chan.texas.ext.markdown.math.renderer.core.MathPaint;
+import me.chan.texas.ext.markdown.math.renderer.fonts.MathFontOptions;
 
 public class FractionNode extends RendererNode {
 	private final RendererNode mNumerator;

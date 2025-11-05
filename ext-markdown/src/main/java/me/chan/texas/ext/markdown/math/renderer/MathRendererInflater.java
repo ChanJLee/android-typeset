@@ -18,6 +18,7 @@ import me.chan.texas.ext.markdown.math.ast.ScriptArg;
 import me.chan.texas.ext.markdown.math.ast.SingleTokenScriptArg;
 import me.chan.texas.ext.markdown.math.ast.SupSubSuffix;
 import me.chan.texas.ext.markdown.math.ast.Term;
+import me.chan.texas.ext.markdown.math.renderer.fonts.MathFontOptions;
 
 public class MathRendererInflater {
 

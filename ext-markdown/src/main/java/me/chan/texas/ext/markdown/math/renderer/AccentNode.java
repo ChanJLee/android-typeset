@@ -2,6 +2,7 @@ package me.chan.texas.ext.markdown.math.renderer;
 
 import me.chan.texas.ext.markdown.math.renderer.core.MathCanvas;
 import me.chan.texas.ext.markdown.math.renderer.core.MathPaint;
+import me.chan.texas.ext.markdown.math.renderer.fonts.MathFontOptions;
 
 public class AccentNode extends RendererNode {
 	private final String mCmd;
