@@ -67,14 +67,16 @@ public class MathSymbolBenchmarkActivity extends AppCompatActivity {
 				binding.includeTopPadding.setOnCheckedChangeListener(null);
 				binding.includeBottomPadding.setOnCheckedChangeListener(null);
 				binding.height.setOnCheckedChangeListener(null);
+				binding.baseline.setOnCheckedChangeListener(null);
 				binding.includeTopPadding.setChecked((symbol.flags & Symbol.FLAG_TOP_PADDING) != 0);
 				binding.includeBottomPadding.setChecked((symbol.flags & Symbol.FLAG_BOTTOM_PADDING) != 0);
+				binding.baseline.setChecked((symbol.flags & Symbol.FLAG_USE_BASELINE) != 0);
 				if ((symbol.flags & Symbol.FLAG_USE_CONST_TEXT_HEIGHT_LARGE) != 0) {
 					binding.height.check(me.chan.texas.debug.R.id.large);
 				} else if ((symbol.flags & Symbol.FLAG_USE_CONST_TEXT_HEIGHT_SMALL) != 0) {
 					binding.height.check(me.chan.texas.debug.R.id.small);
 				} else {
-					binding.height.clearCheck();
+					binding.height.check(me.chan.texas.debug.R.id.nothing);
 				}
 				binding.indicator.setText("name: " + key);
 				binding.includeTopPadding.setOnCheckedChangeListener((buttonView, isChecked) -> {
@@ -94,11 +96,21 @@ public class MathSymbolBenchmarkActivity extends AppCompatActivity {
 					}
 					renderSymbol(binding, symbol);
 				});
+				binding.baseline.setOnCheckedChangeListener((buttonView, isChecked) -> {
+					if (isChecked) {
+						symbol.flags = symbol.flags | Symbol.FLAG_USE_BASELINE;
+					} else {
+						symbol.flags = symbol.flags & (~Symbol.FLAG_USE_BASELINE);
+					}
+					renderSymbol(binding, symbol);
+				});
 				binding.height.setOnCheckedChangeListener((group, checkedId) -> {
 					if (checkedId == R.id.large) {
 						selectedLarge(binding, symbol);
-					} else {
+					} else if (checkedId == R.id.small) {
 						selectedSmall(binding, symbol);
+					} else {
+						selectedAndroid(binding, symbol);
 					}
 				});
 
@@ -135,7 +147,13 @@ public class MathSymbolBenchmarkActivity extends AppCompatActivity {
 	private void selectedSmall(ActivityMathSymbolBenchmarkBinding binding, Symbol symbol) {
 		symbol.flags = symbol.flags & (~Symbol.FLAG_USE_CONST_TEXT_HEIGHT_LARGE);
 		symbol.flags = symbol.flags | Symbol.FLAG_USE_CONST_TEXT_HEIGHT_SMALL;
-		binding.mathView.setRendererNode(new SymbolNode(1.0f, symbol));
+		renderSymbol(binding, symbol);
+	}
+
+	private void selectedAndroid(ActivityMathSymbolBenchmarkBinding binding, Symbol symbol) {
+		symbol.flags = symbol.flags & (~Symbol.FLAG_USE_CONST_TEXT_HEIGHT_LARGE);
+		symbol.flags = symbol.flags & (~Symbol.FLAG_USE_CONST_TEXT_HEIGHT_SMALL);
+		renderSymbol(binding, symbol);
 	}
 
 	private void renderSymbol(ActivityMathSymbolBenchmarkBinding binding, Symbol symbol) {
