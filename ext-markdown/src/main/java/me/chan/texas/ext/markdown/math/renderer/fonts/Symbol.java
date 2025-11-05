@@ -12,4 +12,8 @@ public class Symbol {
 		this.unicode = unicode;
 		this.flags = flags;
 	}
+
+	public static final int FLAG_INCLUDE_PADDING = 1;
+	public static final int FLAG_WITH_BASELINE = 2;
+	public static final int FLAG_USE_CONST_TEXT_HEIGHT = 4;
 }

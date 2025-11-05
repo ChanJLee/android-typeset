@@ -29,6 +29,7 @@ public class MathFontOptions {
 	public static final float SUBSCRIPT_TOP_MAX = 344;
 	public static final float SUB_SUPERSCRIPT_GAP_MIN = 160;
 	public static final float AXIS_HEIGHT = 250;
+	public static final float ACCENT_BASE_HEIGHT = 450;
 	public static final float SCRIPT_PERCENT_SCALE_DOWN = 70;
 	public static final float SCRIPT_SCRIPT_PERCENT_SCALE_DOWN = 50;
 

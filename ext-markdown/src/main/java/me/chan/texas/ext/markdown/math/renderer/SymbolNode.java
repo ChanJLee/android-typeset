@@ -19,15 +19,22 @@ public class SymbolNode extends RendererNode {
 
 	@Override
 	protected void onMeasure(MathPaint paint, int widthSpec, int heightSpec) {
-		paint.getFontMetrics(mFontMetrics);
-		Paint.FontMetrics fontMetrics = mFontMetrics;
-		mAxisHeight = MathFontOptions.AXIS_HEIGHT / MathFontOptions.UNITS_PER_EM * paint.getTextSize();
-		int height = (int) Math.ceil(fontMetrics.descent - fontMetrics.ascent);
-//		if (mIncludePadding) {
-//			height += (int) Math.ceil(baselineOffset * 2);
-//		} else {
-//			height -= (int) Math.ceil(baselineOffset);
-//		}
+		float textSize = paint.getTextSize();
+		mAxisHeight = MathFontOptions.AXIS_HEIGHT / MathFontOptions.UNITS_PER_EM * textSize;
+
+		int height;
+		if ((mSymbol.flags & Symbol.FLAG_USE_CONST_TEXT_HEIGHT) == 0) {
+			paint.getFontMetrics(mFontMetrics);
+			height = (int) Math.ceil(mFontMetrics.descent - mFontMetrics.ascent);
+		} else {
+			height = (int) Math.ceil(MathFontOptions.ACCENT_BASE_HEIGHT / MathFontOptions.UNITS_PER_EM * textSize);
+		}
+
+		if ((mSymbol.flags & Symbol.FLAG_INCLUDE_PADDING) != 0) {
+			height += (int) Math.ceil(mAxisHeight * 2);
+		} else {
+			height -= (int) Math.ceil(mAxisHeight);
+		}
 
 		int size = mSymbol.unicode.length();
 		int width = (int) Math.ceil(paint.getRunAdvance(mSymbol.unicode, 0, size, 0, size, false, size));
@@ -42,7 +49,11 @@ public class SymbolNode extends RendererNode {
 
 	@Override
 	protected void onDraw(MathCanvas canvas, MathPaint paint) {
-		canvas.drawText(mSymbol.unicode, 0, getHeight(), paint);
+		float y = getHeight();
+		if ((mSymbol.flags & Symbol.FLAG_WITH_BASELINE) != 0) {
+			y -= mAxisHeight;
+		}
+		canvas.drawText(mSymbol.unicode, 0, y, paint);
 	}
 
 	@Override
