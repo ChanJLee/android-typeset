@@ -60,13 +60,13 @@ public class FontUnitTest {
 				continue;
 			}
 
-			stringBuilder.append("\tpublic final Map<String, String> ")
+			stringBuilder.append("\tpublic final Map<String, Symbol> ")
 					.append(key)
 					.append(" = new HashMap<>();\n");
 			entries.add(entry);
 		}
 
-		stringBuilder.append("\tpublic final Map<String, String> ")
+		stringBuilder.append("\tpublic final Map<String, Symbol> ")
 				.append("all")
 				.append(" = new HashMap<>();\n");
 
@@ -84,14 +84,14 @@ public class FontUnitTest {
 				stringBuilder
 						.append("\t\t")
 						.append(entry.getKey())
-						.append(".put(\"").append(font.glyph).append("\",\"");
+						.append(".put(\"").append(font.glyph).append("\", new Symbol(\"");
 				String v = font.unicode;
 				if ("\"".equals(font.c) || "\\".equals(font.c)) {
 					stringBuilder.append("\\").append(font.c);
 				} else {
 					stringBuilder.append("\\u").append(v);
 				}
-				stringBuilder.append("\");\n");
+				stringBuilder.append("\"));\n");
 			}
 			stringBuilder.append("\n\t\tall.putAll(")
 					.append(key).append(");\n");

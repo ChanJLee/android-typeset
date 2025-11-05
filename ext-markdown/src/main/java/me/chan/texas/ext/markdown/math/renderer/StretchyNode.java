@@ -2,6 +2,7 @@ package me.chan.texas.ext.markdown.math.renderer;
 
 import me.chan.texas.ext.markdown.math.renderer.core.MathCanvas;
 import me.chan.texas.ext.markdown.math.renderer.core.MathPaint;
+import me.chan.texas.ext.markdown.math.renderer.fonts.Symbol;
 
 public class StretchyNode extends RendererNode {
 	private final SymbolNode mTop;
@@ -9,12 +10,12 @@ public class StretchyNode extends RendererNode {
 	private final SymbolNode mBottom;
 	private final SymbolNode mExtension;
 
-	public StretchyNode(float scale, String top, String middle, String bottom, String extension) {
+	public StretchyNode(float scale, Symbol top, Symbol middle, Symbol bottom, Symbol extension) {
 		super(scale);
-		mTop = new SymbolNode(scale, top, false);
-		mMiddle = new SymbolNode(scale, middle, true);
-		mBottom = new SymbolNode(scale, bottom, false);
-		mExtension = new SymbolNode(scale, extension, false);
+		mTop = new SymbolNode(scale, top);
+		mMiddle = new SymbolNode(scale, middle);
+		mBottom = new SymbolNode(scale, bottom);
+		mExtension = new SymbolNode(scale, extension);
 	}
 
 	@Override

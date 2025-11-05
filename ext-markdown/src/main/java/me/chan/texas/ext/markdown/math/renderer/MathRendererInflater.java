@@ -19,6 +19,8 @@ import me.chan.texas.ext.markdown.math.ast.SingleTokenScriptArg;
 import me.chan.texas.ext.markdown.math.ast.SupSubSuffix;
 import me.chan.texas.ext.markdown.math.ast.Term;
 import me.chan.texas.ext.markdown.math.renderer.fonts.MathFontOptions;
+import me.chan.texas.ext.markdown.math.renderer.fonts.Symbol;
+import me.chan.texas.ext.markdown.math.renderer.fonts.SymbolOptions;
 
 public class MathRendererInflater {
 
@@ -194,11 +196,11 @@ public class MathRendererInflater {
 	}
 
 	public static StretchyNode mockStretchyLeft() {
-		return new StretchyNode(1, MathFontOptions.formatSymbol("uni23A7"), MathFontOptions.formatSymbol("uni23A8"), MathFontOptions.formatSymbol("uni23A9"), MathFontOptions.formatSymbol("uni23AA"));
+		return new StretchyNode(1, MathFontOptions.symbol("uni23A7"), MathFontOptions.symbol("uni23A8"), MathFontOptions.symbol("uni23A9"), MathFontOptions.symbol("uni23AA"));
 	}
 
 	public static StretchyNode mockStretchyRight() {
-		return new StretchyNode(1, MathFontOptions.formatSymbol("uni23AB"), MathFontOptions.formatSymbol("uni23AC"), MathFontOptions.formatSymbol("uni23AD"), MathFontOptions.formatSymbol("uni23AA"));
+		return new StretchyNode(1, MathFontOptions.symbol("uni23AB"), MathFontOptions.symbol("uni23AC"), MathFontOptions.symbol("uni23AD"), MathFontOptions.symbol("uni23AA"));
 	}
 
 	private static RendererNode mockConditionDetail() {
@@ -231,9 +233,10 @@ public class MathRendererInflater {
 
 	public static RendererNode mockList() {
 		List<RendererNode> list = new ArrayList<>();
-		for (Map.Entry<String, String> entry : MathFontOptions.toMap().entrySet()) {
+		SymbolOptions options = new SymbolOptions();
+		for (Map.Entry<String, Symbol> entry : options.Po.entrySet()) {
 			list.add(new TextNode(1, entry.getKey()));
-			list.add(new SymbolNode(1, entry.getValue(), MathFontOptions.includePadding(entry.getKey())));
+			list.add(new SymbolNode(1, entry.getValue()));
 			Log.d("chan_debug", "key: " + entry.getKey() + " value: " + entry.getValue());
 		}
 		return new LinearGroupNode(1, list, LinearGroupNode.Gravity.HORIZONTAL);
