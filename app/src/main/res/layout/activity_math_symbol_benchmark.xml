@@ -25,6 +25,12 @@
             android:text="使用常量高度Large" />
 
         <CheckBox
+            android:id="@+id/use_const_height2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="使用常量高度Small" />
+
+        <CheckBox
             android:id="@+id/include_top_padding"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

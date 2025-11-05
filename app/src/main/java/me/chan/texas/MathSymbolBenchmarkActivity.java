@@ -60,42 +60,45 @@ public class MathSymbolBenchmarkActivity extends AppCompatActivity {
 				binding.includeTopPadding.setOnCheckedChangeListener(null);
 				binding.includeBottomPadding.setOnCheckedChangeListener(null);
 				binding.useConstHeight.setOnCheckedChangeListener(null);
+				binding.useConstHeight2.setOnCheckedChangeListener(null);
 				binding.includeTopPadding.setChecked((symbol.flags & Symbol.FLAG_TOP_PADDING) != 0);
 				binding.includeBottomPadding.setChecked((symbol.flags & Symbol.FLAG_BOTTOM_PADDING) != 0);
 				binding.useConstHeight.setChecked((symbol.flags & Symbol.FLAG_USE_CONST_TEXT_HEIGHT_LARGE) != 0);
+				binding.useConstHeight2.setChecked((symbol.flags & Symbol.FLAG_USE_CONST_TEXT_HEIGHT_SMALL) != 0);
 				binding.indicator.setText("name: " + key);
-				binding.includeTopPadding.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-					@Override
-					public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-						if (isChecked) {
-							symbol.flags = symbol.flags | Symbol.FLAG_TOP_PADDING;
-						} else {
-							symbol.flags = symbol.flags & (~Symbol.FLAG_TOP_PADDING);
-						}
-						binding.mathView.setRendererNode(new SymbolNode(1.0f, symbol));
+				binding.includeTopPadding.setOnCheckedChangeListener((buttonView, isChecked) -> {
+					if (isChecked) {
+						symbol.flags = symbol.flags | Symbol.FLAG_TOP_PADDING;
+					} else {
+						symbol.flags = symbol.flags & (~Symbol.FLAG_TOP_PADDING);
 					}
+					binding.mathView.setRendererNode(new SymbolNode(1.0f, symbol));
 				});
-				binding.includeBottomPadding.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-					@Override
-					public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-						if (isChecked) {
-							symbol.flags = symbol.flags | Symbol.FLAG_BOTTOM_PADDING;
-						} else {
-							symbol.flags = symbol.flags & (~Symbol.FLAG_BOTTOM_PADDING);
-						}
-						binding.mathView.setRendererNode(new SymbolNode(1.0f, symbol));
+				binding.includeBottomPadding.setOnCheckedChangeListener((buttonView, isChecked) -> {
+					if (isChecked) {
+						symbol.flags = symbol.flags | Symbol.FLAG_BOTTOM_PADDING;
+					} else {
+						symbol.flags = symbol.flags & (~Symbol.FLAG_BOTTOM_PADDING);
 					}
+					binding.mathView.setRendererNode(new SymbolNode(1.0f, symbol));
 				});
-				binding.useConstHeight.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-					@Override
-					public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-						if (isChecked) {
-							symbol.flags = symbol.flags | Symbol.FLAG_USE_CONST_TEXT_HEIGHT_LARGE;
-						} else {
-							symbol.flags = symbol.flags & (~Symbol.FLAG_USE_CONST_TEXT_HEIGHT_LARGE);
-						}
-						binding.mathView.setRendererNode(new SymbolNode(1.0f, symbol));
+				binding.useConstHeight.setOnCheckedChangeListener((buttonView, isChecked) -> {
+					symbol.flags = symbol.flags & (~Symbol.FLAG_USE_CONST_TEXT_HEIGHT_SMALL);
+					if (isChecked) {
+						symbol.flags = symbol.flags | Symbol.FLAG_USE_CONST_TEXT_HEIGHT_LARGE;
+					} else {
+						symbol.flags = symbol.flags & (~Symbol.FLAG_USE_CONST_TEXT_HEIGHT_LARGE);
 					}
+					binding.mathView.setRendererNode(new SymbolNode(1.0f, symbol));
+				});
+				binding.useConstHeight2.setOnCheckedChangeListener((buttonView, isChecked) -> {
+					symbol.flags = symbol.flags & (~Symbol.FLAG_USE_CONST_TEXT_HEIGHT_LARGE);
+					if (isChecked) {
+						symbol.flags = symbol.flags | Symbol.FLAG_USE_CONST_TEXT_HEIGHT_SMALL;
+					} else {
+						symbol.flags = symbol.flags & (~Symbol.FLAG_USE_CONST_TEXT_HEIGHT_SMALL);
+					}
+					binding.mathView.setRendererNode(new SymbolNode(1.0f, symbol));
 				});
 
 				binding.mathView.setRendererNode(new SymbolNode(1.0f, symbol));
