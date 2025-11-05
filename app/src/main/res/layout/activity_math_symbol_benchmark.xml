@@ -22,19 +22,19 @@
             android:id="@+id/use_const_height"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="使用常量高度" />
+            android:text="使用常量高度Large" />
 
         <CheckBox
-            android:id="@+id/include_padding"
+            android:id="@+id/include_top_padding"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="包含padding" />
+            android:text="包含top padding" />
 
         <CheckBox
-            android:id="@+id/use_baseline"
+            android:id="@+id/include_bottom_padding"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="抬高基准线" />
+            android:text="包含bottom padding" />
 
         <TextView
             android:id="@+id/indicator"

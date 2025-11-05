@@ -13,7 +13,8 @@ public class Symbol {
 		this.flags = flags;
 	}
 
-	public static final int FLAG_INCLUDE_PADDING = 1;
-	public static final int FLAG_USE_BASELINE = 2;
-	public static final int FLAG_USE_CONST_TEXT_HEIGHT = 4;
+	public static final int FLAG_TOP_PADDING = 1;
+	public static final int FLAG_BOTTOM_PADDING = 2;
+	public static final int FLAG_USE_CONST_TEXT_HEIGHT_LARGE = 4;
+	public static final int FLAG_USE_CONST_TEXT_HEIGHT_SMALL = 8;
 }

@@ -23,17 +23,21 @@ public class SymbolNode extends RendererNode {
 		mAxisHeight = MathFontOptions.AXIS_HEIGHT / MathFontOptions.UNITS_PER_EM * textSize;
 
 		int height;
-		if ((mSymbol.flags & Symbol.FLAG_USE_CONST_TEXT_HEIGHT) == 0) {
+		if ((mSymbol.flags & Symbol.FLAG_USE_CONST_TEXT_HEIGHT_LARGE) != 0) {
+			height = (int) Math.ceil(MathFontOptions.ACCENT_BASE_HEIGHT / MathFontOptions.UNITS_PER_EM * textSize);
+		} else if ((mSymbol.flags & Symbol.FLAG_USE_CONST_TEXT_HEIGHT_SMALL) != 0) {
+			height = (int) Math.ceil(mAxisHeight);
+		} else {
 			paint.getFontMetrics(mFontMetrics);
 			height = (int) Math.ceil(mFontMetrics.descent - mFontMetrics.ascent);
-		} else {
-			height = (int) Math.ceil(MathFontOptions.ACCENT_BASE_HEIGHT / MathFontOptions.UNITS_PER_EM * textSize);
 		}
 
-		if ((mSymbol.flags & Symbol.FLAG_INCLUDE_PADDING) != 0) {
-			height += (int) Math.ceil(mAxisHeight * 2);
-		} else {
-			height -= (int) Math.ceil(mAxisHeight);
+		if ((mSymbol.flags & Symbol.FLAG_TOP_PADDING) != 0) {
+			height += (int) Math.ceil(mAxisHeight);
+		}
+
+		if ((mSymbol.flags & Symbol.FLAG_BOTTOM_PADDING) != 0) {
+			height += (int) Math.ceil(mAxisHeight);
 		}
 
 		int size = mSymbol.unicode.length();
@@ -50,7 +54,7 @@ public class SymbolNode extends RendererNode {
 	@Override
 	protected void onDraw(MathCanvas canvas, MathPaint paint) {
 		float y = getHeight();
-		if ((mSymbol.flags & Symbol.FLAG_USE_BASELINE) != 0) {
+		if ((mSymbol.flags & Symbol.FLAG_BOTTOM_PADDING) != 0) {
 			y -= mAxisHeight;
 		}
 		canvas.drawText(mSymbol.unicode, 0, y, paint);

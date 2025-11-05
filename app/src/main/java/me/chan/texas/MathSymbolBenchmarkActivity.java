@@ -57,31 +57,31 @@ public class MathSymbolBenchmarkActivity extends AppCompatActivity {
 
 				String key = it.next();
 				Symbol symbol = options.all.get(key);
-				binding.includePadding.setOnCheckedChangeListener(null);
-				binding.useBaseline.setOnCheckedChangeListener(null);
+				binding.includeTopPadding.setOnCheckedChangeListener(null);
+				binding.includeBottomPadding.setOnCheckedChangeListener(null);
 				binding.useConstHeight.setOnCheckedChangeListener(null);
-				binding.includePadding.setChecked((symbol.flags & Symbol.FLAG_INCLUDE_PADDING) != 0);
-				binding.useBaseline.setChecked((symbol.flags & Symbol.FLAG_USE_BASELINE) != 0);
-				binding.useConstHeight.setChecked((symbol.flags & Symbol.FLAG_USE_CONST_TEXT_HEIGHT) != 0);
+				binding.includeTopPadding.setChecked((symbol.flags & Symbol.FLAG_TOP_PADDING) != 0);
+				binding.includeBottomPadding.setChecked((symbol.flags & Symbol.FLAG_BOTTOM_PADDING) != 0);
+				binding.useConstHeight.setChecked((symbol.flags & Symbol.FLAG_USE_CONST_TEXT_HEIGHT_LARGE) != 0);
 				binding.indicator.setText("name: " + key);
-				binding.includePadding.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+				binding.includeTopPadding.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
 					@Override
 					public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
 						if (isChecked) {
-							symbol.flags = symbol.flags | Symbol.FLAG_INCLUDE_PADDING;
+							symbol.flags = symbol.flags | Symbol.FLAG_TOP_PADDING;
 						} else {
-							symbol.flags = symbol.flags & (~Symbol.FLAG_INCLUDE_PADDING);
+							symbol.flags = symbol.flags & (~Symbol.FLAG_TOP_PADDING);
 						}
 						binding.mathView.setRendererNode(new SymbolNode(1.0f, symbol));
 					}
 				});
-				binding.useBaseline.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+				binding.includeBottomPadding.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
 					@Override
 					public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
 						if (isChecked) {
-							symbol.flags = symbol.flags | Symbol.FLAG_USE_BASELINE;
+							symbol.flags = symbol.flags | Symbol.FLAG_BOTTOM_PADDING;
 						} else {
-							symbol.flags = symbol.flags & (~Symbol.FLAG_USE_BASELINE);
+							symbol.flags = symbol.flags & (~Symbol.FLAG_BOTTOM_PADDING);
 						}
 						binding.mathView.setRendererNode(new SymbolNode(1.0f, symbol));
 					}
@@ -90,9 +90,9 @@ public class MathSymbolBenchmarkActivity extends AppCompatActivity {
 					@Override
 					public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
 						if (isChecked) {
-							symbol.flags = symbol.flags | Symbol.FLAG_USE_CONST_TEXT_HEIGHT;
+							symbol.flags = symbol.flags | Symbol.FLAG_USE_CONST_TEXT_HEIGHT_LARGE;
 						} else {
-							symbol.flags = symbol.flags & (~Symbol.FLAG_USE_CONST_TEXT_HEIGHT);
+							symbol.flags = symbol.flags & (~Symbol.FLAG_USE_CONST_TEXT_HEIGHT_LARGE);
 						}
 						binding.mathView.setRendererNode(new SymbolNode(1.0f, symbol));
 					}
@@ -115,6 +115,7 @@ public class MathSymbolBenchmarkActivity extends AppCompatActivity {
 				os.flush();
 				os.close();
 				Log.d("chan_debug", "write to : " + file.getAbsolutePath());
+				Toast.makeText(v.getContext(), "保存成功", Toast.LENGTH_SHORT).show();
 			} catch (Throwable e) {
 				throw new RuntimeException(e);
 			}
