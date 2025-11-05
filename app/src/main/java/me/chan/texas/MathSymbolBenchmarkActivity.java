@@ -13,7 +13,9 @@ import com.google.gson.Gson;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.lang.reflect.Field;
 import java.util.Iterator;
+import java.util.Map;
 
 import me.chan.texas.debug.databinding.ActivityMathSymbolBenchmarkBinding;
 import me.chan.texas.ext.markdown.math.renderer.SymbolNode;
@@ -34,8 +36,17 @@ public class MathSymbolBenchmarkActivity extends AppCompatActivity {
 //			return insets;
 //		});
 
+		String name = "Ps";
 		SymbolOptions options = new SymbolOptions();
-		Iterator<String> it = options.all.keySet().iterator();
+		Iterator<String> temp = null;
+		try {
+			Field field = SymbolOptions.class.getDeclaredField(name);
+			Map<String, Symbol> map = (Map<String, Symbol>) field.get(options);
+			temp = options.all.keySet().iterator();
+		} catch (Throwable e) {
+			throw new RuntimeException(e);
+		}
+		Iterator<String> it = temp;
 		binding.indicator.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
@@ -91,12 +102,13 @@ public class MathSymbolBenchmarkActivity extends AppCompatActivity {
 			}
 		});
 
+		binding.save.setText("保存：" + name);
 		binding.save.setOnClickListener(v -> {
 			String json = new Gson().toJson(options);
 			File dir = getDir("options", Context.MODE_PRIVATE);
 			dir.mkdirs();
 
-			File file = new File(dir, System.currentTimeMillis() + "_config.json");
+			File file = new File(dir, name + "_config.json");
 			try {
 				FileOutputStream os = new FileOutputStream(file);
 				os.write(json.getBytes());

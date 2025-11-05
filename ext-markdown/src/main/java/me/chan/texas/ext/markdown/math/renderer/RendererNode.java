@@ -83,6 +83,10 @@ public abstract class RendererNode {
 			paint.setStyle(Paint.Style.STROKE);
 			Log.d("MathRenderer", this + "->" + toPretty() + "[" + getWidth() + "," + getHeight() + "]");
 			canvas.drawRect(0, 0, getWidth(), getHeight(), paint);
+
+			canvas.drawLine(0, 0, getWidth(), getHeight(), paint);
+			canvas.drawLine(getWidth(), 0, 0, getHeight(), paint);
+
 			paint.setStyle(style);
 		}
 	}
