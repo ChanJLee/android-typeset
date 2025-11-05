@@ -5,7 +5,7 @@ public class Symbol {
 	public int flags;
 
 	public Symbol(String unicode) {
-		this(unicode, 0);
+		this(unicode, FLAG_USE_BASELINE);
 	}
 
 	public Symbol(String unicode, int flags) {
