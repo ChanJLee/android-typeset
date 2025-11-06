@@ -138,7 +138,7 @@ public class MathRendererInflater {
 	}
 
 	private RendererNode inflateFracAtom(float scale, FracAtom atom) {
-		return new FractionNode(scale, inflate0(scale, atom.numerator), inflate0(scale, atom.))
+		return new FractionNode(scale, inflate0(scale, atom.numerator), inflate0(scale, atom.denominator));
 	}
 
 	private RendererNode inflateGroupAtom(float scale, GroupAtom groupAtom) {
