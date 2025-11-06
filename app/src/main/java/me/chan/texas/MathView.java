@@ -86,29 +86,4 @@ public class MathView extends View {
 		mRendererNode = rendererNode;
 		requestLayout();
 	}
-
-	//	private void drawRadical(Canvas canvas, float fontSize, float x, float y, Paint paint) {
-//		canvas.save();
-//
-//		// 计算缩放比例
-//		float unit = 1000;
-//		float scale = fontSize / unit;
-//
-//		canvas.drawLine(x - fontSize, y + 10, x, y + 10, textPaint);
-//		canvas.translate(x, y);
-//
-//		canvas.scale(scale, scale);
-//
-//		// 绘制字形（使用 Font 而非 Typeface）
-//		int[] glyphIds = {3077};
-//		float[] positions = {0, 0};
-//
-//		paint.setTextSize(unit);
-//		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-//			canvas.drawGlyphs(glyphIds, 0, positions, 0, 1, mathFont, paint);
-//		}
-//		paint.setTextSize(fontSize);
-//
-//		canvas.restore();
-//	}
 }

@@ -2,12 +2,10 @@ package me.chan.texas.ext.markdown.math.renderer.fonts;
 
 public class Symbol {
 	public final String unicode;
-	public int xMin;
-	public int ascent;
-	public int xMax;
-	public int descent;
-
-	public int flags;
+	public final int xMin;
+	public final int ascent;
+	public final int xMax;
+	public final int descent;
 
 	public Symbol(String unicode, int xMin, int ascent, int xMax, int descent) {
 		this.unicode = unicode;
@@ -16,19 +14,4 @@ public class Symbol {
 		this.xMax = xMax;
 		this.descent = descent;
 	}
-
-	public Symbol(String unicode) {
-		this(unicode, FLAG_USE_BASELINE);
-	}
-
-	public Symbol(String unicode, int flags) {
-		this.unicode = unicode;
-		this.flags = flags;
-	}
-
-	public static final int FLAG_TOP_PADDING = 1;
-	public static final int FLAG_BOTTOM_PADDING = 2;
-	public static final int FLAG_USE_CONST_TEXT_HEIGHT_LARGE = 4;
-	public static final int FLAG_USE_CONST_TEXT_HEIGHT_SMALL = 8;
-	public static final int FLAG_USE_BASELINE = 16;
 }
