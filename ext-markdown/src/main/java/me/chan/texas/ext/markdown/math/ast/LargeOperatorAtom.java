@@ -1,9 +1,9 @@
 package me.chan.texas.ext.markdown.math.ast;
 
 public class LargeOperatorAtom implements Atom {
-	String operatorName;  // "sum", "int", "prod"
-	ScriptArg subscript;
-	ScriptArg superscript;
+	public final String operatorName;  // "sum", "int", "prod"
+	public final ScriptArg subscript;
+	public final ScriptArg superscript;
 
 	public LargeOperatorAtom(String operatorName, ScriptArg subscript, ScriptArg superscript) {
 		this.operatorName = operatorName;

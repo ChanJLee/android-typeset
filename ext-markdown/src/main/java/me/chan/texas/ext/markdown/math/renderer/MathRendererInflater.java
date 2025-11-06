@@ -83,7 +83,7 @@ public class MathRendererInflater {
 	private RendererNode inflateScriptArg(float scale, SingleTokenScriptArg singleTokenScriptArg) {
 		String token = singleTokenScriptArg.getToken();
 		if (token.startsWith("\\")) {
-			return new SymbolNode(scale, MathFontOptions.symbol(token));
+			return new SymbolNode(scale, MathFontOptions.formatByRef(token));
 		}
 
 		return new TextNode(scale, token);
@@ -111,6 +111,6 @@ public class MathRendererInflater {
 	}
 
 	private void inflateSymbol(List<RendererNode> nodes, float scale, String symbol) {
-		nodes.add(new SymbolNode(scale, MathFontOptions.symbol(symbol)));
+		nodes.add(new SymbolNode(scale, MathFontOptions.formatByRef(symbol)));
 	}
 }

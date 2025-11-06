@@ -16,7 +16,7 @@ public class AccentNode extends RendererNode {
 		mCmd = cmd;
 		mContent = content;
 		if (isBrace()) {
-			mCmdNode = new StretchyNode(1, MathFontOptions.symbol("uni23A7"), MathFontOptions.symbol("uni23A8"), MathFontOptions.symbol("uni23A9"), MathFontOptions.symbol("uni23AA"));
+			mCmdNode = new StretchyNode(1, MathFontOptions.formatByRef("uni23A7"), MathFontOptions.formatByRef("uni23A8"), MathFontOptions.formatByRef("uni23A9"), MathFontOptions.formatByRef("uni23AA"));
 		} else if (isGlyph()) {
 			if ("check".equals(mCmd)) {
 				mCmdNode = new SymbolNode(scale * 0.5f, cmdToSymbol());
@@ -142,39 +142,39 @@ public class AccentNode extends RendererNode {
 
 	private Symbol cmdToSymbol() {
 		if ("hat".equals(mCmd) || "widehat".equals(mCmd)) {
-			return MathFontOptions.symbol("asciicircum");
+			return MathFontOptions.formatByRef("asciicircum");
 		}
 
 		if ("tilde".equals(mCmd) || "widetilde".equals(mCmd)) {
-			return MathFontOptions.symbol("asciitilde");
+			return MathFontOptions.formatByRef("asciitilde");
 		}
 
 		if ("dot".equals(mCmd)) {
-			return MathFontOptions.symbol("dotaccent");
+			return MathFontOptions.formatByRef("dotaccent");
 		}
 
 		if ("ddot".equals(mCmd)) {
-			return MathFontOptions.symbol("ddotaccent");
+			return MathFontOptions.formatByRef("ddotaccent");
 		}
 
 		if ("dddot".equals(mCmd)) {
-			return MathFontOptions.symbol("dddotaccent");
+			return MathFontOptions.formatByRef("dddotaccent");
 		}
 
 		if ("acute".equals(mCmd)) {
-			return MathFontOptions.symbol("acute");
+			return MathFontOptions.formatByRef("acute");
 		}
 
 		if ("grave".equals(mCmd)) {
-			return MathFontOptions.symbol("grave");
+			return MathFontOptions.formatByRef("grave");
 		}
 
 		if ("breve".equals(mCmd)) {
-			return MathFontOptions.symbol("breve");
+			return MathFontOptions.formatByRef("breve");
 		}
 
 		if ("check".equals(mCmd)) {
-			return MathFontOptions.symbol("checkmark");
+			return MathFontOptions.formatByRef("checkmark");
 		}
 
 		throw new RuntimeException("unknown cmd: " + mCmd);

@@ -28,7 +28,7 @@ public class SymbolNode extends RendererNode {
 
 	@Override
 	public float getBaseline() {
-		return getBottom() + mOffsetY;
+		return getBottom();
 	}
 
 	@Override
