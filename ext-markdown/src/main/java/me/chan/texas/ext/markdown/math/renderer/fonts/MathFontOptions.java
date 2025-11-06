@@ -37,15 +37,6 @@ public class MathFontOptions {
 
 	private static final SymbolOptions SYMBOL = new SymbolOptions();
 
-	// TODO remove
-	public static String formatSymbol(String ref) {
-		Symbol ret = SYMBOL.all.get(ref);
-		if (ret == null) {
-			throw new IllegalArgumentException("Unknown symbol: " + ref);
-		}
-		return ret.unicode;
-	}
-
 	public static Symbol symbol(String ref) {
 		Symbol ret = SYMBOL.all.get(ref);
 		if (ret == null) {

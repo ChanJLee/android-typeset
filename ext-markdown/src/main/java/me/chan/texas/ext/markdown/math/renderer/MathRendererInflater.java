@@ -90,7 +90,7 @@ public class MathRendererInflater {
 	private RendererNode inflateScriptArg(float scale, SingleTokenScriptArg singleTokenScriptArg) {
 		String token = singleTokenScriptArg.getToken();
 		if (token.startsWith("\\")) {
-			return new TextNode(scale, MathFontOptions.formatSymbol(token));
+			return new SymbolNode(scale, MathFontOptions.symbol(token));
 		}
 
 		return new TextNode(scale, token);
@@ -118,7 +118,7 @@ public class MathRendererInflater {
 	}
 
 	private void inflateSymbol(List<RendererNode> nodes, float scale, String symbol) {
-		nodes.add(new TextNode(scale, MathFontOptions.formatSymbol(symbol)));
+		nodes.add(new SymbolNode(scale, MathFontOptions.symbol(symbol)));
 	}
 
 	@VisibleForTesting
@@ -146,9 +146,6 @@ public class MathRendererInflater {
 		list.add(new AccentNode(1f, "check", mockText("hello world")));
 		list.add(new AccentNode(1f, "underbrace", mockText("hello world")));
 		list.add(new AccentNode(1f, "overbrace", mockText("hello world")));
-//		list.add(new AccentNode(1f, "underbrace", mockText("hello world")));
-//		list.add(new AccentNode(1f, "underbrace", mockText("hello world")));
-//		list.add(new AccentNode(1f, "underbrace", mockText("hello world")));
 		return new LinearGroupNode(1, list, LinearGroupNode.Gravity.HORIZONTAL);
 	}
 

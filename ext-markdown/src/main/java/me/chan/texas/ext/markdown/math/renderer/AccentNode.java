@@ -3,6 +3,7 @@ package me.chan.texas.ext.markdown.math.renderer;
 import me.chan.texas.ext.markdown.math.renderer.core.MathCanvas;
 import me.chan.texas.ext.markdown.math.renderer.core.MathPaint;
 import me.chan.texas.ext.markdown.math.renderer.fonts.MathFontOptions;
+import me.chan.texas.ext.markdown.math.renderer.fonts.Symbol;
 
 public class AccentNode extends RendererNode {
 	private final String mCmd;
@@ -18,9 +19,9 @@ public class AccentNode extends RendererNode {
 			mCmdNode = new StretchyNode(1, MathFontOptions.symbol("uni23A7"), MathFontOptions.symbol("uni23A8"), MathFontOptions.symbol("uni23A9"), MathFontOptions.symbol("uni23AA"));
 		} else if (isGlyph()) {
 			if ("check".equals(mCmd)) {
-				mCmdNode = new TextNode(scale * 0.5f, cmdToSymbol());
+				mCmdNode = new SymbolNode(scale * 0.5f, cmdToSymbol());
 			} else {
-				mCmdNode = new TextNode(scale, cmdToSymbol());
+				mCmdNode = new SymbolNode(scale, cmdToSymbol());
 			}
 		} else {
 			mCmdNode = null;
@@ -37,7 +38,6 @@ public class AccentNode extends RendererNode {
 
 		if (isGlyph()) {
 			measureGlyph(paint);
-			return;
 		}
 	}
 
@@ -57,7 +57,6 @@ public class AccentNode extends RendererNode {
 		);
 	}
 
-	// TODO
 	private void measureBrace(MathPaint paint) {
 		mCmdNode.measure(paint,
 				RendererNode.makeMeasureSpec(
@@ -141,48 +140,44 @@ public class AccentNode extends RendererNode {
 				|| "acute".equals(mCmd) || "grave".equals(mCmd) || "breve".equals(mCmd) || "check".equals(mCmd);
 	}
 
-	private String cmdToSymbol() {
+	private Symbol cmdToSymbol() {
 		if ("hat".equals(mCmd) || "widehat".equals(mCmd)) {
-			return MathFontOptions.formatSymbol("asciicircum");
+			return MathFontOptions.symbol("asciicircum");
 		}
 
 		if ("tilde".equals(mCmd) || "widetilde".equals(mCmd)) {
-			return MathFontOptions.formatSymbol("asciitilde");
+			return MathFontOptions.symbol("asciitilde");
 		}
 
 		if ("dot".equals(mCmd)) {
-			return MathFontOptions.formatSymbol("dotaccent");
+			return MathFontOptions.symbol("dotaccent");
 		}
 
 		if ("ddot".equals(mCmd)) {
-			return MathFontOptions.formatSymbol("ddotaccent");
+			return MathFontOptions.symbol("ddotaccent");
 		}
 
 		if ("dddot".equals(mCmd)) {
-			return MathFontOptions.formatSymbol("dddotaccent");
+			return MathFontOptions.symbol("dddotaccent");
 		}
 
 		if ("acute".equals(mCmd)) {
-			return MathFontOptions.formatSymbol("acute");
+			return MathFontOptions.symbol("acute");
 		}
 
 		if ("grave".equals(mCmd)) {
-			return MathFontOptions.formatSymbol("grave");
+			return MathFontOptions.symbol("grave");
 		}
 
 		if ("breve".equals(mCmd)) {
-			return MathFontOptions.formatSymbol("breve");
+			return MathFontOptions.symbol("breve");
 		}
 
 		if ("check".equals(mCmd)) {
-			return MathFontOptions.formatSymbol("checkmark");
+			return MathFontOptions.symbol("checkmark");
 		}
 
 		throw new RuntimeException("unknown cmd: " + mCmd);
-	}
-
-	private boolean isWideGlyph() {
-		return "widehat".equals(mCmd) || "widetilde".equals(mCmd);
 	}
 
 	@Override
