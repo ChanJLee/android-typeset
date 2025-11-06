@@ -37,6 +37,11 @@ public class SymbolNode extends RendererNode {
 		canvas.drawText(mSymbol.unicode, mOffsetX, y, paint);
 	}
 
+	public final void layout(float top) {
+		setLayoutBounds(-mOffsetX, top);
+		onLayoutChildren();
+	}
+
 	@Override
 	protected String toPretty() {
 		return "symbol: " + mSymbol.unicode;

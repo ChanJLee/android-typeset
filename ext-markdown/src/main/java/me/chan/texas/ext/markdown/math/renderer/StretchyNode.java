@@ -27,27 +27,41 @@ public class StretchyNode extends RendererNode {
 
 		float height = RendererNode.getSize(heightSpec);
 		float width = RendererNode.getSize(widthSpec);
-		if (RendererNode.getMode(widthSpec) == RendererNode.UNSPECIFIED) {
-			width = mMiddle.getWidth();
-		}
 
 		if (RendererNode.getMode(heightSpec) != RendererNode.EXACTLY) {
 			height = mTop.getHeight() + mMiddle.getHeight() + mBottom.getHeight() + mExtension.getHeight();
 		}
-		setMeasuredSize((int) Math.ceil(width), (int) Math.ceil(height));
-	}
 
-	@Override
-	protected void onLayoutChildren() {
-		float left = (getWidth() - mMiddle.getWidth()) / 2.0f;
-		float centerY = getHeight() / 2.0f;
-
-		mTop.layout(left, 0);
-		mMiddle.layout(left, centerY - mMiddle.getHeight() / 2.0f);
-		mBottom.layout(left, getHeight() - mBottom.getHeight());
+		float centerY = height / 2.0f;
+		mTop.layout(0);
+		mMiddle.layout(centerY - mMiddle.getHeight() / 2.0f);
+		mBottom.layout(height - mBottom.getHeight());
 
 		// extension
-		mExtension.layout(left, 0);
+		mExtension.layout(0);
+
+		float left = Math.min(
+				mTop.getLeft(),
+				Math.min(
+						mBottom.getLeft(),
+						Math.min(mMiddle.getLeft(), mExtension.getLeft()))
+		);
+		if (RendererNode.getMode(widthSpec) == RendererNode.UNSPECIFIED) {
+			float right = Math.max(
+					mTop.getRight(),
+					Math.max(
+							mBottom.getRight(),
+							Math.max(mMiddle.getRight(), mExtension.getRight()))
+			);
+			width = right - left;
+		}
+
+		float dx = -left;
+		mTop.translate(dx, 0);
+		mBottom.translate(dx, 0);
+		mMiddle.translate(dx, 0);
+		mExtension.translate(dx, 0);
+		setMeasuredSize((int) Math.ceil(width), (int) Math.ceil(height));
 	}
 
 	@Override

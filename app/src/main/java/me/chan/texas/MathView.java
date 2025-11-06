@@ -51,8 +51,8 @@ public class MathView extends View {
 //		}
 //
 		{
-			textPaint.setTextSize(128);
-			mRendererNode = MathRendererInflater.mockList();
+			textPaint.setTextSize(48);
+			mRendererNode = MathRendererInflater.mockGrid();
 		}
 
 		TexasPaintImpl paint = new TexasPaintImpl();
@@ -65,7 +65,7 @@ public class MathView extends View {
 	@Override
 	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
 		mRendererNode.measure(mTexasPaint);
-		super.onMeasure(MeasureSpec.makeMeasureSpec(mRendererNode.getWidth(), MeasureSpec.EXACTLY),
+		super.onMeasure(MeasureSpec.makeMeasureSpec(Math.max(MeasureSpec.getSize(widthMeasureSpec), mRendererNode.getWidth()), MeasureSpec.EXACTLY),
 				heightMeasureSpec);
 	}
 
