@@ -9,7 +9,6 @@ import me.chan.texas.ext.markdown.math.renderer.fonts.Symbol;
 
 public class SymbolNode extends RendererNode {
 	private final Symbol mSymbol;
-	private final Paint.FontMetrics mFontMetrics = new Paint.FontMetrics();
 	private float mAxisHeight;
 
 	public SymbolNode(float scale, Symbol symbol) {
@@ -20,28 +19,9 @@ public class SymbolNode extends RendererNode {
 	@Override
 	protected void onMeasure(MathPaint paint, int widthSpec, int heightSpec) {
 		float textSize = paint.getTextSize();
-		mAxisHeight = MathFontOptions.AXIS_HEIGHT / MathFontOptions.UNITS_PER_EM * textSize;
-
-		int height;
-		if ((mSymbol.flags & Symbol.FLAG_USE_CONST_TEXT_HEIGHT_LARGE) != 0) {
-			height = (int) Math.ceil(MathFontOptions.ACCENT_BASE_HEIGHT / MathFontOptions.UNITS_PER_EM * textSize);
-		} else if ((mSymbol.flags & Symbol.FLAG_USE_CONST_TEXT_HEIGHT_SMALL) != 0) {
-			height = (int) Math.ceil(mAxisHeight);
-		} else {
-			paint.getFontMetrics(mFontMetrics);
-			height = (int) Math.ceil(mFontMetrics.descent - mFontMetrics.ascent);
-		}
-
-		if ((mSymbol.flags & Symbol.FLAG_TOP_PADDING) != 0) {
-			height += (int) Math.ceil(mAxisHeight);
-		}
-
-		if ((mSymbol.flags & Symbol.FLAG_BOTTOM_PADDING) != 0) {
-			height += (int) Math.ceil(mAxisHeight);
-		}
-
-		int size = mSymbol.unicode.length();
-		int width = (int) Math.ceil(paint.getRunAdvance(mSymbol.unicode, 0, size, 0, size, false, size));
+		mAxisHeight = mSymbol.descent / MathFontOptions.UNITS_PER_EM * textSize;
+		int width = (int) Math.ceil((mSymbol.xMax - mSymbol.xMin) / MathFontOptions.UNITS_PER_EM * textSize);
+		int height = (int) Math.ceil((mSymbol.descent - mSymbol.ascent) / MathFontOptions.UNITS_PER_EM * textSize);
 
 		setMeasuredSize(width, height);
 	}
@@ -53,10 +33,7 @@ public class SymbolNode extends RendererNode {
 
 	@Override
 	protected void onDraw(MathCanvas canvas, MathPaint paint) {
-		float y = getHeight();
-		if ((mSymbol.flags & Symbol.FLAG_USE_BASELINE) != 0) {
-			y -= mAxisHeight;
-		}
+		float y = getHeight() - mAxisHeight;
 		canvas.drawText(mSymbol.unicode, 0, y, paint);
 	}
 

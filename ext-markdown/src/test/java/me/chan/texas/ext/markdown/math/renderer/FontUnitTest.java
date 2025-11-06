@@ -84,7 +84,7 @@ public class FontUnitTest {
 				stringBuilder
 						.append("\t\t")
 						.append(entry.getKey())
-						.append(".put(\"").append(font.glyph).append("\", new Symbol(\"");
+						.append(".put(\"").append(font.name).append("\", new Symbol(\"");
 				String v = font.unicode;
 				if ("\"".equals(font.c) || "\\".equals(font.c)) {
 					stringBuilder.append("\\").append(font.c);
@@ -143,7 +143,6 @@ public class FontUnitTest {
 		public String unicode;
 		@SerializedName("char")
 		public String c;
-		public String glyph;
 		public String category;
 		public float[] bbox;
 	}

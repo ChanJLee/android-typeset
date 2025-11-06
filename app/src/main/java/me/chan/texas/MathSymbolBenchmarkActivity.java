@@ -49,7 +49,7 @@ public class MathSymbolBenchmarkActivity extends AppCompatActivity {
 		try {
 			Field field = SymbolOptions.class.getDeclaredField(name);
 			Map<String, Symbol> map = (Map<String, Symbol>) field.get(options);
-			temp = options.all.keySet().iterator();
+			temp = map.keySet().iterator();
 		} catch (Throwable e) {
 			throw new RuntimeException(e);
 		}
