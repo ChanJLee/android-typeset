@@ -102,13 +102,13 @@ public class AccentNode extends RendererNode {
 				"dot".equals(mCmd) || "ddot".equals(mCmd) || "dddot".equals(mCmd) ||
 				"acute".equals(mCmd) || "grave".equals(mCmd) || "breve".equals(mCmd)) {
 			mCmdNode.layout((mContent.getWidth() - mCmdNode.getWidth()) / 2.0f, 0);
-			mContent.layout(0, mCmdNode.getHeight() / 2.0f);
+			mContent.layout(0, mCmdNode.getHeight());
 			return;
 		}
 
 		if ("tilde".equals(mCmd)) {
 			mCmdNode.layout((mContent.getWidth() - mCmdNode.getWidth()) / 2.0f, -mCmdNode.getHeight() / 2f);
-			mContent.layout(0, mCmdNode.getBottom());
+			mContent.layout(0, mCmdNode.getHeight());
 			return;
 		}
 

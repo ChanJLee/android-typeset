@@ -9,6 +9,7 @@ public class StretchyNode extends RendererNode {
 	private final SymbolNode mMiddle;
 	private final SymbolNode mBottom;
 	private final SymbolNode mExtension;
+	private int mActualWidth;
 
 	public StretchyNode(float scale, Symbol top, Symbol middle, Symbol bottom, Symbol extension) {
 		super(scale);
@@ -46,14 +47,15 @@ public class StretchyNode extends RendererNode {
 						mBottom.getLeft(),
 						Math.min(mMiddle.getLeft(), mExtension.getLeft()))
 		);
+		float right = Math.max(
+				mTop.getRight(),
+				Math.max(
+						mBottom.getRight(),
+						Math.max(mMiddle.getRight(), mExtension.getRight()))
+		);
+		mActualWidth = (int) Math.ceil(right - left);
 		if (RendererNode.getMode(widthSpec) == RendererNode.UNSPECIFIED) {
-			float right = Math.max(
-					mTop.getRight(),
-					Math.max(
-							mBottom.getRight(),
-							Math.max(mMiddle.getRight(), mExtension.getRight()))
-			);
-			width = right - left;
+			width = mActualWidth;
 		}
 
 		float dx = -left;
@@ -71,6 +73,12 @@ public class StretchyNode extends RendererNode {
 
 	@Override
 	protected void onDraw(MathCanvas canvas, MathPaint paint) {
+		int width = getWidth();
+		if (width != mActualWidth) {
+			canvas.save();
+			canvas.scale(width * 1.0f / mActualWidth, 1f);
+		}
+
 		mTop.draw(canvas, paint);
 
 		float top = mTop.getBottom();
@@ -95,6 +103,10 @@ public class StretchyNode extends RendererNode {
 		}
 
 		mBottom.draw(canvas, paint);
+
+		if (width != mActualWidth) {
+			canvas.restore();
+		}
 	}
 
 	@Override
