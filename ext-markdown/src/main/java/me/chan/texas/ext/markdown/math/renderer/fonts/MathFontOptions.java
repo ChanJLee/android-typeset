@@ -2,6 +2,7 @@ package me.chan.texas.ext.markdown.math.renderer.fonts;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import me.chan.texas.ext.markdown.math.ast.LargeOperatorAtom;
 
@@ -40,6 +41,7 @@ public class MathFontOptions {
 
 	private static final SymbolOptions SYMBOL = new SymbolOptions();
 	private static final Map<String, String> AST = new HashMap<>();
+	private static final Map<String, String> TEXT_OPERATORS = new HashMap<>();
 
 	static {
 		// 大型运算符 (Large Operators)
@@ -158,6 +160,17 @@ public class MathFontOptions {
 		AST.put("Phi", "\u03A6");        // Φ
 		AST.put("Psi", "\u03A8");        // Ψ
 		AST.put("Omega", "\u03A9");      // Ω
+
+		TEXT_OPERATORS.put("lim", "lim");
+		TEXT_OPERATORS.put("limsup", "lim sup");
+		TEXT_OPERATORS.put("liminf", "lim inf");
+		TEXT_OPERATORS.put("sin", "sin");
+		TEXT_OPERATORS.put("cos", "cos");
+		TEXT_OPERATORS.put("tan", "tan");
+		TEXT_OPERATORS.put("log", "log");
+		TEXT_OPERATORS.put("ln", "ln");
+		TEXT_OPERATORS.put("max", "max");
+		TEXT_OPERATORS.put("min", "min");
 	}
 
 	public static Symbol formatByRef(String ref) {
