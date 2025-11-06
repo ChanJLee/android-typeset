@@ -1,8 +1,8 @@
 package me.chan.texas.ext.markdown.math.ast;
 
 public class FracAtom implements Atom {
-	MathList numerator;
-	MathList denominator;
+	public final MathList numerator;
+	public final MathList denominator;
 	String command;  // "frac", "dfrac", "tfrac"
 
 	public FracAtom(String command, MathList numerator, MathList denominator) {
