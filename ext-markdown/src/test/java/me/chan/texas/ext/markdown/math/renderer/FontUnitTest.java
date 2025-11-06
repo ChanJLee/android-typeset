@@ -22,7 +22,7 @@ public class FontUnitTest {
 
 	@Test
 	public void test() throws IOException {
-		File file = new File("./font_list.json");
+		File file = new File("./font_info.json");
 		System.out.println(file.getAbsolutePath());
 
 		Gson gson = new Gson();
@@ -91,7 +91,15 @@ public class FontUnitTest {
 				} else {
 					stringBuilder.append("\\u").append(v);
 				}
-				stringBuilder.append("\"));\n");
+				stringBuilder.append("\"");
+
+				if (font.bbox != null) {
+					for (float f : font.bbox) {
+						stringBuilder.append(", ")
+								.append((int) Math.ceil(f));
+					}
+				}
+				stringBuilder.append("));\n");
 			}
 			stringBuilder.append("\n\t\tall.putAll(")
 					.append(key).append(");\n");
@@ -111,12 +119,12 @@ public class FontUnitTest {
 
 	@Test
 	public void testCodepoints() {
-		Map<String, String> v = MathFontOptions.toMap();
-		for (Map.Entry<String, String> entry : v.entrySet()) {
-			print(entry.getKey(), entry.getValue());
-		}
-
-		print("emoji", "😂");
+//		Map<String, String> v = MathFontOptions.toMap();
+//		for (Map.Entry<String, String> entry : v.entrySet()) {
+//			print(entry.getKey(), entry.getValue());
+//		}
+//
+//		print("emoji", "😂");
 	}
 
 	private void print(String key, String value) {
@@ -137,5 +145,6 @@ public class FontUnitTest {
 		public String c;
 		public String glyph;
 		public String category;
+		public float[] bbox;
 	}
 }
