@@ -68,7 +68,7 @@ public class MathView extends View {
 //
 		{
 			textPaint.setTextSize(48);
-			mRendererNode = mockAccent();
+			mRendererNode = mockStretchyLeft();
 		}
 
 		TexasPaintImpl paint = new TexasPaintImpl();

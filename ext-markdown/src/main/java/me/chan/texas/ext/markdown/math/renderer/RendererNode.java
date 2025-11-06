@@ -1,5 +1,6 @@
 package me.chan.texas.ext.markdown.math.renderer;
 
+import android.graphics.Color;
 import android.graphics.Paint;
 import android.util.Log;
 import android.view.View;
@@ -10,7 +11,7 @@ import me.chan.texas.ext.markdown.math.renderer.core.MathCanvas;
 import me.chan.texas.ext.markdown.math.renderer.core.MathPaint;
 
 public abstract class RendererNode {
-	public static final boolean DEBUG = true;
+	public static final boolean DEBUG = false;
 
 	private float mScale;
 	private int mWidth;
@@ -67,9 +68,9 @@ public abstract class RendererNode {
 			paint.setTextSize(textSize * mScale);
 		}
 
-		onDrawDebug(canvas, paint);
-
 		onDraw(canvas, paint);
+
+		onDrawDebug(canvas, paint);
 
 		if (mScale != 1f) {
 			paint.setTextSize(textSize);
@@ -79,15 +80,16 @@ public abstract class RendererNode {
 
 	protected void onDrawDebug(MathCanvas canvas, MathPaint paint) {
 		if (DEBUG) {
-			Paint.Style style = paint.getStyle();
+			paint.save();
+			paint.setColor(Color.BLUE);
 			paint.setStyle(Paint.Style.STROKE);
 			Log.d("MathRenderer", this + "->" + toPretty() + "[" + getWidth() + "," + getHeight() + "]");
 			canvas.drawRect(0, 0, getWidth(), getHeight(), paint);
 
-//			canvas.drawLine(0, 0, getWidth(), getHeight(), paint);
-//			canvas.drawLine(getWidth(), 0, 0, getHeight(), paint);
+			canvas.drawLine(0, 0, getWidth(), getHeight(), paint);
+			canvas.drawLine(getWidth(), 0, 0, getHeight(), paint);
 
-			paint.setStyle(style);
+			paint.restore();
 		}
 	}
 
