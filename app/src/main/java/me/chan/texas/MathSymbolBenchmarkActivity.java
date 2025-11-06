@@ -27,7 +27,7 @@ public class MathSymbolBenchmarkActivity extends AppCompatActivity {
 		ActivityMathSymbolBenchmarkBinding binding = ActivityMathSymbolBenchmarkBinding.inflate(getLayoutInflater());
 		setContentView(binding.getRoot());
 
-		String name = "Ps";
+		String name = "Pd";
 		SymbolOptions options = new SymbolOptions();
 		Iterator<String> temp = null;
 		try {
