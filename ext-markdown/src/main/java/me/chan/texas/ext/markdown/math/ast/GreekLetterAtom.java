@@ -1,7 +1,7 @@
 package me.chan.texas.ext.markdown.math.ast;
 
 public class GreekLetterAtom implements Atom {
-	String symbol;  // 如 "alpha", "beta"
+	public final String symbol;  // 如 "alpha", "beta"
 
 	public GreekLetterAtom(String symbol) {
 		this.symbol = symbol;

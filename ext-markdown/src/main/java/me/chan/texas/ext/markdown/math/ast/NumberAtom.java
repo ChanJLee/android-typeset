@@ -1,7 +1,7 @@
 package me.chan.texas.ext.markdown.math.ast;
 
 public class NumberAtom implements Atom {
-	String value;
+	public final String value;
 
 	public NumberAtom(String value) {
 		this.value = value;

@@ -7,12 +7,15 @@ import me.chan.texas.ext.markdown.math.ast.AccentAtom;
 import me.chan.texas.ext.markdown.math.ast.Ast;
 import me.chan.texas.ext.markdown.math.ast.Atom;
 import me.chan.texas.ext.markdown.math.ast.BinOpAtom;
+import me.chan.texas.ext.markdown.math.ast.GreekLetterAtom;
 import me.chan.texas.ext.markdown.math.ast.GroupScriptArg;
 import me.chan.texas.ext.markdown.math.ast.MathList;
+import me.chan.texas.ext.markdown.math.ast.NumberAtom;
 import me.chan.texas.ext.markdown.math.ast.ScriptArg;
 import me.chan.texas.ext.markdown.math.ast.SingleTokenScriptArg;
 import me.chan.texas.ext.markdown.math.ast.SupSubSuffix;
 import me.chan.texas.ext.markdown.math.ast.Term;
+import me.chan.texas.ext.markdown.math.ast.VariableAtom;
 import me.chan.texas.ext.markdown.math.renderer.fonts.MathFontOptions;
 
 public class MathRendererInflater {
@@ -90,9 +93,22 @@ public class MathRendererInflater {
 	}
 
 	private RendererNode inflateAtom(float scale, Atom atom) {
+		if (atom instanceof NumberAtom) {
+			return new TextNode(scale, ((NumberAtom) atom).value);
+		}
+
+		if (atom instanceof VariableAtom) {
+			return new TextNode(scale, String.valueOf(((VariableAtom) atom).name));
+		}
+
+		// TODO plain symbol
+
+		if (atom instanceof GreekLetterAtom) {
+			return new SymbolNode(scale, MathFontOptions.ast((GreekLetterAtom) atom));
+		}
+
 		if (atom instanceof AccentAtom) {
-			AccentAtom accentAtom = (AccentAtom) atom;
-			return inflateAccentAtom(scale, accentAtom);
+			return inflateAccentAtom(scale, (AccentAtom) atom);
 		}
 
 		throw new IllegalArgumentException("Unknown atom: " + atom);
