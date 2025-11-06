@@ -2,7 +2,6 @@ package me.chan.texas.ext.markdown.math.renderer.fonts;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 import me.chan.texas.ext.markdown.math.ast.LargeOperatorAtom;
 
@@ -63,7 +62,7 @@ public class MathFontOptions {
 		AST.put("bigodot", "uni2A00");
 		AST.put("biguplus", "uni2A04");
 		AST.put("bigsqcup", "uni2A06");
-		
+
 		// 二元运算符 (Binary Operators)
 		AST.put("times", "multiply");
 		AST.put("cdot", "uni22C5");
@@ -97,7 +96,7 @@ public class MathFontOptions {
 		AST.put("Rightarrow", "arrowdblright");
 		AST.put("Leftarrow", "arrowdblleft");
 		AST.put("Leftrightarrow", "arrowdblboth");
-		
+
 		// 其他常用符号
 		AST.put("infty", "infinity");
 		AST.put("partial", "partialdiff");
@@ -107,7 +106,7 @@ public class MathFontOptions {
 		AST.put("exists", "existential");
 		AST.put("neg", "logicalnot");
 		AST.put("sqrt", "radical");
-		
+
 		// 定界符 (Delimiters)
 		AST.put("langle", "angleleft");
 		AST.put("rangle", "angleright");
@@ -115,7 +114,7 @@ public class MathFontOptions {
 		AST.put("rfloor", "uni230B");
 		AST.put("lceil", "uni2308");
 		AST.put("rceil", "uni2309");
-		
+
 		// 希腊字母 - 小写 (Greek Letters - Lowercase)
 		// 注意：这些可能需要直接使用Unicode字符，而不是符号名称
 		AST.put("alpha", "\u03B1");      // α
@@ -147,7 +146,7 @@ public class MathFontOptions {
 		AST.put("chi", "\u03C7");        // χ
 		AST.put("psi", "\u03C8");        // ψ
 		AST.put("omega", "\u03C9");      // ω
-		
+
 		// 希腊字母 - 大写 (Greek Letters - Uppercase)
 		AST.put("Gamma", "\u0393");      // Γ
 		AST.put("Delta", "\u0394");      // Δ
@@ -173,7 +172,7 @@ public class MathFontOptions {
 		TEXT_OPERATORS.put("min", "min");
 	}
 
-	public static Symbol formatByRef(String ref) {
+	public static Symbol ref(String ref) {
 		Symbol ret = SYMBOL.all.get(ref);
 		if (ret == null) {
 			throw new IllegalArgumentException("Unknown symbol: " + ref);
@@ -181,7 +180,15 @@ public class MathFontOptions {
 		return ret;
 	}
 
-	public static Symbol format(LargeOperatorAtom atom) {
-		throw new RuntimeException("Stub!");
+	public static Symbol ast(LargeOperatorAtom atom) {
+		String ref = AST.get(atom.operatorName);
+		if (ref == null) {
+			throw new IllegalArgumentException("Unknown ast op: " + atom.operatorName);
+		}
+		return ref(ref);
+	}
+
+	public static String textOp(String name) {
+		return TEXT_OPERATORS.get(name);
 	}
 }
