@@ -113,8 +113,8 @@ public class MathParser {
 	}
 
 	/**
-	 * <math_list> ::= <math_element> { <math_element> }
-	 * <math_element> ::= <term_with_binop> | <spacing>
+	 * <math_list> ::= <element> { <element> }
+	 * <element> ::= <expression> | <spacing>
 	 */
 	private MathList parseMathList() throws MathParseException {
 		checkRecursionDepth();
@@ -126,19 +126,43 @@ public class MathParser {
 			if (isSpacingCommand()) {
 				ast.add(parseSpacing());
 			} else {
-				// 解析 term
-				ast.add(parseTerm());
-				skipWhitespace();
-
-				// 检查后续的二元运算符
-				if (isBinaryOperator()) {
-					ast.add(new BinOpAtom(consumeBinaryOperator()));
-				}
+				// 解析表达式（term序列，term之间用二元运算符连接）
+				ast.add(parseExpression());
 			}
 			skipWhitespace();
 		}
 
 		return new MathList(ast);
+	}
+
+	/**
+	 * <expression> ::= <term> { <binary_op> <term> }
+	 * 确保每个二元运算符后面必须跟一个term
+	 */
+	private Expression parseExpression() throws MathParseException {
+		List<Ast> elements = new ArrayList<>();
+
+		// 第一个term
+		elements.add(parseTerm());
+		skipWhitespace();
+
+		// 后续的 binary_op term 对
+		while (!stream.eof() && !isTermEnd() && isBinaryOperator()) {
+			// 消费二元运算符
+			elements.add(new BinOpAtom(consumeBinaryOperator()));
+			skipWhitespace();
+
+			// 运算符后面必须有term
+			if (stream.eof() || isTermEnd()) {
+				throw new MathParseException("Binary operator must be followed by a term", stream.save());
+			}
+
+			// 解析运算符后面的term
+			elements.add(parseTerm());
+			skipWhitespace();
+		}
+
+		return new Expression(elements);
 	}
 
 	/**

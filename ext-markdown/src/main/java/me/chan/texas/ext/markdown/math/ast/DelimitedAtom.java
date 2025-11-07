@@ -13,35 +13,11 @@ public class DelimitedAtom implements Atom {
 		this.level = level;
 	}
 
-	// TODO unit test
 	@Override
 	public String toLatex() {
-		if (level == LEVEL_L0) {
-			return "\\left" + leftDelimiter + content.toLatex() + "\\right" + rightDelimiter;
-		}
-
-		if (level == LEVEL_L1) {
-			return "\\bigl" + leftDelimiter + content.toLatex() + "\\bigr" + rightDelimiter;
-		}
-
-		if (level == LEVEL_L2) {
-			return "\\Bigl" + leftDelimiter + content.toLatex() + "\\Bigr" + rightDelimiter;
-		}
-
-		if (level == LEVEL_L3) {
-			return "\\biggl" + leftDelimiter + content.toLatex() + "\\biggr" + rightDelimiter;
-		}
-
-		if (level == LEVEL_L4) {
-			return "\\Biggl" + leftDelimiter + content.toLatex() + "\\Biggr" + rightDelimiter;
-		}
-
-		throw new IllegalArgumentException("unknown level");
+		return "\\" + MathParser.DELIMITER_LEVELS[level][0] + " " +
+				leftDelimiter + " " +
+				content.toLatex() +
+				" \\" + MathParser.DELIMITER_LEVELS[level][1] + rightDelimiter;
 	}
-
-	public static final int LEVEL_L0 = 0;
-	public static final int LEVEL_L1 = 1;
-	public static final int LEVEL_L2 = 2;
-	public static final int LEVEL_L3 = 3;
-	public static final int LEVEL_L4 = 4;
 }
