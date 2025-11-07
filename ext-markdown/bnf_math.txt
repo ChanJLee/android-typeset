@@ -1,17 +1,23 @@
 (* 
  * LaTeX数学公式BNF范式 - 修正版
  * 修正内容：
- * 1. 移除 <plain_symbol> 中的运算符，避免与二元/一元运算符冲突
- * 2. 运算符只能作为 <unary_op> 或 <binary_op> 出现
- * 3. 明确了各类符号的使用场景
+ * 1. 移除了 <plain_symbol> 中的运算符，避免与二元/一元运算符冲突
+ * 2. 运算符只能作为 <unary_op> 或 <binary_op> 出现，不能作为独立 atom
+ * 3. <spacing> 从 <atom> 中移除，作为 <math_list> 级别的独立元素
+ * 4. 明确了各类符号的使用场景，避免语法歧义
  *)
 
 (* ============ 顶层结构 ============ *)
 
 <math> ::= <math_list>
 
-(* 使用迭代避免左递归，运算符作为连接符 *)
-<math_list> ::= <term> { <binary_op> <term> }
+(* math_list 包含多个元素：term（可能带二元运算符）或 spacing *)
+<math_list> ::= <math_element> { <math_element> }
+
+<math_element> ::= <term_with_binop> | <spacing>
+
+(* term 可能后跟二元运算符 *)
+<term_with_binop> ::= <term> [ <binary_op> ]
 
 <term> ::= [ <unary_op> ] <atom> [ <sup_sub_suffix> ]
 
@@ -29,9 +35,11 @@
          | <matrix>
          | <text>
          | <accent>
-         | <spacing>
 
-(* 注意：移除了 <plain_symbol>，因为运算符不应作为独立 atom 出现 *)
+(* 注意：移除了 <plain_symbol> 和 <spacing>
+ * - 运算符不能作为独立 atom 出现
+ * - spacing 在 <math_list> 级别独立处理
+ *)
 
 (* ============ 基础元素 ============ *)
 
@@ -57,6 +65,7 @@
               | "\cup" | "\cap" | "\wedge" | "\vee"
               | "\to" | "\rightarrow" | "\leftarrow" | "\leftrightarrow"
               | "\Rightarrow" | "\Leftarrow" | "\Leftrightarrow"
+              | "\implies" | "\iff"
 
 (* 希腊字母 *)
 <greek_letter> ::= "\alpha" | "\beta" | "\gamma" | "\delta" | "\epsilon" | "\varepsilon"
@@ -65,7 +74,8 @@
                  | "\sigma" | "\varsigma" | "\tau" | "\upsilon" | "\phi" | "\varphi"
                  | "\chi" | "\psi" | "\omega"
                  | "\Gamma" | "\Delta" | "\Theta" | "\Lambda" | "\Xi" | "\Pi"
-                 | "\Sigma" | "\Upsilon" | "\Phi" | "\Psi" | "\Omega" | "\infty"
+                 | "\Sigma" | "\Upsilon" | "\Phi" | "\Psi" | "\Omega"
+                 | "\infty"
 
 (* ============ 分组（递归有界） ============ *)
 
@@ -81,14 +91,15 @@
 (* script_arg 只能是单个token或group，避免无限递归 *)
 <script_arg> ::= <single_token> | <group>
 
-(* 单个 token：数字、字母、希腊字母、或运算符符号（仅在上下标中允许） *)
+(* 单个 token：数字、字母、希腊字母、或运算符符号 *)
 <single_token> ::= <digit>
                  | <letter>
                  | <greek_letter>
-                 | <operator_symbol>  (* 允许在上下标中使用运算符符号 *)
+                 | <operator_symbol>
 
 (* 运算符符号：仅在特定上下文（如上下标）中允许作为单独符号 *)
 <operator_symbol> ::= "+" | "-" | "*" | "/" | "=" | "<" | ">"
+                    | "\pm" | "\mp"
 
 (* ============ 分式 ============ *)
 
@@ -186,7 +197,7 @@
                | "\mathring"
                | "\overbrace" | "\underbrace"
 
-(* ============ 空格命令 ============ *)
+(* ============ 空格命令（独立元素，不是 atom） ============ *)
 
 <spacing> ::= "\," | "\:" | "\;" | "\!"
             | "\quad" | "\qquad"
@@ -198,3 +209,9 @@
 <length> ::= <number> <unit>
 
 <unit> ::= "em" | "ex" | "pt" | "px" | "cm" | "mm" | "in"
+
+(* ============ 特殊符号 ============ *)
+
+<special_symbol> ::= "\dots" | "\ldots" | "\cdots" | "\vdots" | "\ddots"
+                   | "\therefore" | "\because"
+                   | "\angle" | "\perp" | "\parallel"
