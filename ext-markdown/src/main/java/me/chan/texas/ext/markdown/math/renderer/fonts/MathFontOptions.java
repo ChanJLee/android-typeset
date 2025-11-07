@@ -194,6 +194,6 @@ public class MathFontOptions {
 		if (ref == null) {
 			throw new IllegalArgumentException("Unknown greek letter: " + atom.symbol);
 		}
-		return ref(ref);
+		return symbol(ref);
 	}
 }

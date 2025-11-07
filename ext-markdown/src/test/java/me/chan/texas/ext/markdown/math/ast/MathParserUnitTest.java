@@ -13,6 +13,10 @@ import me.chan.texas.utils.CharStream;
 public class MathParserUnitTest {
 
 	// ============ 辅助方法 ============
+	@Test
+	public void assertPlainSymbol() {
+		assertParses(",");
+	}
 
 	/**
 	 * 解析并验证输入
