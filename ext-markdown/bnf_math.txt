@@ -1,18 +1,17 @@
 (* 
- * LaTeX数学公式BNF范式 - 改进版
- * 特点：
- * 1. 避免左递归和无限递归
- * 2. 使用右递归和迭代形式
- * 3. 明确的终止条件
- * 4. 覆盖常用LaTeX数学语法
+ * LaTeX数学公式BNF范式 - 修正版
+ * 修正内容：
+ * 1. 移除 <plain_symbol> 中的运算符，避免与二元/一元运算符冲突
+ * 2. 运算符只能作为 <unary_op> 或 <binary_op> 出现
+ * 3. 明确了各类符号的使用场景
  *)
 
 (* ============ 顶层结构 ============ *)
 
 <math> ::= <math_list>
 
-(* 使用迭代避免左递归，运算符作为连接符而非独立atom *)
-<math_list> ::= <term> { <binary_op> <term> | term }
+(* 使用迭代避免左递归，运算符作为连接符 *)
+<math_list> ::= <term> { <binary_op> <term> }
 
 <term> ::= [ <unary_op> ] <atom> [ <sup_sub_suffix> ]
 
@@ -20,7 +19,6 @@
 
 <atom> ::= <number>
          | <variable>
-         | <plain_symbol>
          | <greek_letter>
          | <group>
          | <frac>
@@ -32,6 +30,8 @@
          | <text>
          | <accent>
          | <spacing>
+
+(* 注意：移除了 <plain_symbol>，因为运算符不应作为独立 atom 出现 *)
 
 (* ============ 基础元素 ============ *)
 
@@ -45,10 +45,20 @@
 
 (* ============ 符号 ============ *)
 
-<plain_symbol> ::= "+" | "-" | "*" | "/" | "=" | "<" | ">" | "(" | ")" | "[" | "]" | "|" | "!" | "?" | ":" | ";" | "," | "."
-
+(* 一元运算符：只能出现在 term 开头 *)
 <unary_op> ::= "+" | "-" | "\pm" | "\mp"
 
+(* 二元运算符：只能出现在两个 term 之间 *)
+<binary_op> ::= "+" | "-" | "*" | "/"
+              | "\times" | "\cdot" | "\div" | "\pm" | "\mp"
+              | "=" | "\neq" | "\equiv" | "\approx" | "\cong" | "\sim"
+              | "<" | ">" | "\le" | "\ge" | "\leq" | "\geq" | "\ll" | "\gg"
+              | "\in" | "\notin" | "\subset" | "\supset" | "\subseteq" | "\supseteq"
+              | "\cup" | "\cap" | "\wedge" | "\vee"
+              | "\to" | "\rightarrow" | "\leftarrow" | "\leftrightarrow"
+              | "\Rightarrow" | "\Leftarrow" | "\Leftrightarrow"
+
+(* 希腊字母 *)
 <greek_letter> ::= "\alpha" | "\beta" | "\gamma" | "\delta" | "\epsilon" | "\varepsilon"
                  | "\zeta" | "\eta" | "\theta" | "\vartheta" | "\iota" | "\kappa"
                  | "\lambda" | "\mu" | "\nu" | "\xi" | "\pi" | "\varpi" | "\rho" | "\varrho"
@@ -56,15 +66,6 @@
                  | "\chi" | "\psi" | "\omega"
                  | "\Gamma" | "\Delta" | "\Theta" | "\Lambda" | "\Xi" | "\Pi"
                  | "\Sigma" | "\Upsilon" | "\Phi" | "\Psi" | "\Omega" | "\infty"
-
-
-<binary_op> ::= "+" | "-" | "*" | "/"
-              | "\times" | "\cdot" | "\div" | "\pm" | "\mp"
-              | "=" | "\neq" | "\equiv" | "\approx" | "\cong" | "\sim"
-              | "<" | ">" | "\le" | "\ge" | "\leq" | "\geq" | "\ll" | "\gg"
-              | "\in" | "\notin" | "\subset" | "\supset" | "\subseteq" | "\supseteq"
-              | "\cup" | "\cap" | "\wedge" | "\vee"
-              | "\to" | "\rightarrow" | "\leftarrow" | "\leftrightarrow" | "\Rightarrow" | "\Leftarrow" | "\Leftrightarrow"
 
 (* ============ 分组（递归有界） ============ *)
 
@@ -80,10 +81,14 @@
 (* script_arg 只能是单个token或group，避免无限递归 *)
 <script_arg> ::= <single_token> | <group>
 
-<single_token> ::= <number>
+(* 单个 token：数字、字母、希腊字母、或运算符符号（仅在上下标中允许） *)
+<single_token> ::= <digit>
                  | <letter>
                  | <greek_letter>
-                 | <plain_symbol>
+                 | <operator_symbol>  (* 允许在上下标中使用运算符符号 *)
+
+(* 运算符符号：仅在特定上下文（如上下标）中允许作为单独符号 *)
+<operator_symbol> ::= "+" | "-" | "*" | "/" | "=" | "<" | ">"
 
 (* ============ 分式 ============ *)
 
@@ -136,8 +141,8 @@
                   | "int" | "iint" | "iiint" | "oint" | "oiint" | "oiiint"
                   | "bigcup" | "bigcap" | "bigvee" | "bigwedge"
                   | "bigoplus" | "bigotimes" | "bigodot"
-                  | "biguplus" | "bigsqcup"  | "lim" | "limsup" | "liminf"
-
+                  | "biguplus" | "bigsqcup"
+                  | "lim" | "limsup" | "liminf"
 
 (* ============ 矩阵 ============ *)
 
@@ -193,41 +198,3 @@
 <length> ::= <number> <unit>
 
 <unit> ::= "em" | "ex" | "pt" | "px" | "cm" | "mm" | "in"
-
-(* ============ 特殊结构 ============ *)
-
-<color> ::= "\color{" <color_name> "}" "{" <math_list> "}"
-
-<color_name> ::= "red" | "blue" | "green" | "black" | "white" | "cyan" | "magenta" | "yellow"
-               | "#" <hex_digit> <hex_digit> <hex_digit> <hex_digit> <hex_digit> <hex_digit>
-
-<hex_digit> ::= <digit> | "a" | "b" | "c" | "d" | "e" | "f" | "A" | "B" | "C" | "D" | "E" | "F"
-
-(* ============ 多行公式 ============ *)
-
-<multiline> ::= "\begin{" <multiline_env> "}" <multiline_rows> "\end{" <multiline_env> "}"
-
-<multiline_env> ::= "align" | "align*" | "aligned" | "gather" | "gather*" | "multline" | "multline*"
-                  | "split" | "eqnarray" | "eqnarray*"
-
-<multiline_rows> ::= <math_list> { "\\" <math_list> }
-
-(* ============ 关键约束 ============ *)
-
-(* 环境嵌套支持 *)
-<environment> ::= "\begin{" <env_name> "}" <content> "\end{" <env_name> "}"
-(* cases环境特殊语法 *)
-<cases> ::= "\begin{cases}" <case_rows> "\end{cases}"
-<case_row> ::= <math_list> "&" <text> [ "\\" <case_row> ]
-(* array环境对齐 *)
-<array> ::= "\begin{array}" "{" <align_spec> "}" <matrix_rows> "\end{array}"
-<align_spec> ::= "l" | "c" | "r" | "lcr" | "lcr" { "lcr" }
-(* 标签和引用 *)
-<equation_ref> ::= "\label{" <label_name> "}" | "\eqref{" <label_name> "}"
-
-(* 颜色命令 *)
-<color_cmd> ::= "\color{" <color_spec> "}" <math_list>
-              | "\textcolor{" <color_spec> "}" "{" <math_list> "}"
-(* 尺寸命令 *)
-<size_cmd> ::= "\tiny" | "\scriptsize" | "\small" | "\normalsize" 
-             | "\large" | "\Large" | "\LARGE" | "\huge" | "\Huge"

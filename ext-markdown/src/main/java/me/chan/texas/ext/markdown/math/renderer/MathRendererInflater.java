@@ -7,6 +7,7 @@ import me.chan.texas.ext.markdown.math.ast.AccentAtom;
 import me.chan.texas.ext.markdown.math.ast.Ast;
 import me.chan.texas.ext.markdown.math.ast.Atom;
 import me.chan.texas.ext.markdown.math.ast.BinOpAtom;
+import me.chan.texas.ext.markdown.math.ast.DelimitedAtom;
 import me.chan.texas.ext.markdown.math.ast.FracAtom;
 import me.chan.texas.ext.markdown.math.ast.GreekLetterAtom;
 import me.chan.texas.ext.markdown.math.ast.GroupAtom;
@@ -105,8 +106,6 @@ public class MathRendererInflater {
 			return new TextNode(scale, String.valueOf(((VariableAtom) atom).name));
 		}
 
-		// TODO plain symbol
-
 		if (atom instanceof GreekLetterAtom) {
 			return new SymbolNode(scale, MathFontOptions.ast((GreekLetterAtom) atom));
 		}
@@ -123,11 +122,21 @@ public class MathRendererInflater {
 			return inflateSqrtAtom(scale, (SqrtAtom) atom);
 		}
 
+		if (atom instanceof DelimitedAtom) {
+			return inflateDelimitedAtom(scale, (DelimitedAtom) atom);
+		}
+
 		if (atom instanceof AccentAtom) {
 			return inflateAccentAtom(scale, (AccentAtom) atom);
 		}
 
 		throw new IllegalArgumentException("Unknown atom: " + atom);
+	}
+
+	private RendererNode inflateDelimitedAtom(float scale, DelimitedAtom atom) {
+		List<RendererNode> nodes = new ArrayList<>();
+		// TODO
+		return new LinearGroupNode(scale, nodes, LinearGroupNode.Gravity.HORIZONTAL);
 	}
 
 	private RendererNode inflateSqrtAtom(float scale, SqrtAtom sqrtAtom) {

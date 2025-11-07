@@ -71,6 +71,23 @@ public class MathParser {
 			"langle", "rangle", "lfloor", "rfloor", "lceil", "rceil",
 			"lvert", "rvert", "lVert", "rVert"
 	));
+	public static final String[][] DELIMITER_LEVELS = {
+			{
+					"left", "right"
+			},
+			{
+					"bigl", "bigr"
+			},
+			{
+					"Bigl", "Bigr"
+			},
+			{
+					"biggl", "biggr"
+			},
+			{
+					"Biggl", "Biggr"
+			}
+	};
 
 	public MathParser(CharStream stream) {
 		this.stream = stream;
@@ -255,8 +272,10 @@ public class MathParser {
 		}
 
 		// 定界符
-		if (cmd.equals("left")) {
-			return parseDelimited();
+		int level = -1;
+		if ((level = getDelimitedLevel(cmd)) >= 0) {
+			stream.restore(startPos);
+			return parseDelimited(level);
 		}
 
 		// 函数
@@ -392,7 +411,9 @@ public class MathParser {
 	/**
 	 * <delimited> ::= "\left" <delimiter> <math_list> "\right" <delimiter>
 	 */
-	private DelimitedAtom parseDelimited() throws MathParseException {
+	private DelimitedAtom parseDelimited(int level) throws MathParseException {
+		skipWhitespace();
+		expectCommand(DELIMITER_LEVELS[level][0]);
 		skipWhitespace();
 
 		// 解析左定界符
@@ -403,12 +424,12 @@ public class MathParser {
 			MathList content = parseMathList();
 
 			skipWhitespace();
-			expectCommand("right");
+			expectCommand(DELIMITER_LEVELS[level][1]);
 			skipWhitespace();
 
 			String rightDelim = parseDelimiter();
 
-			return new DelimitedAtom(leftDelim, content, rightDelim);
+			return new DelimitedAtom(level, leftDelim, content, rightDelim);
 		} finally {
 			recursionDepth--;
 		}
@@ -480,16 +501,39 @@ public class MathParser {
 		Ast argument = null;
 		if (!stream.eof()) {
 			char c = (char) stream.peek();
+			int level = -1;
 			if (c == '{') {
 				argument = parseGroup();
-			} else if (c == '\\' && peekCommand("left")) {
-				argument = parseDelimited();
+			} else if (c == '\\' && (level = peekDelimitedLevel()) >= 0) {
+				argument = parseDelimited(level);
 			} else if (isSingleTokenStart()) {
 				argument = new SingleTokenScriptArg(scanSingleToken());
 			}
 		}
 
 		return new FunctionCallAtom(functionName, subscript, superscript, argument);
+	}
+
+	private int peekDelimitedLevel() {
+		if (stream.eof() || stream.peek() != '\\') {
+			return -1;
+		}
+
+		int saved = stream.save();
+		stream.eat();  // 跳过 \
+		String cmd = scanCommandName();
+		stream.restore(saved);
+
+		return getDelimitedLevel(cmd);
+	}
+
+	private int getDelimitedLevel(String cmd) {
+		for (int i = 0; i < DELIMITER_LEVELS.length; ++i) {
+			if (cmd.equals(DELIMITER_LEVELS[i][0])) {
+				return i;
+			}
+		}
+		return -1;
 	}
 
 	/**
@@ -736,6 +780,10 @@ public class MathParser {
 	/**
 	 * 扫描单个token（数字、字母或希腊字母命令）
 	 */
+	/**
+	 * 扫描单个token（数字、字母、希腊字母命令或运算符符号）
+	 * 用于上下标等场景
+	 */
 	private String scanSingleToken() throws MathParseException {
 		if (stream.eof()) {
 			throw new MathParseException("Expected single token", stream.save());
@@ -753,11 +801,20 @@ public class MathParser {
 			return String.valueOf((char) stream.eat());
 		}
 
+		// 运算符符号（允许在上下标中使用）
+		if ("+-*/=<>".indexOf(c) >= 0) {
+			return String.valueOf((char) stream.eat());
+		}
+
 		// 命令（如 \alpha）
 		if (c == '\\') {
 			stream.eat();
 			String cmd = scanCommandName();
 			if (GREEK_LETTERS.contains(cmd)) {
+				return "\\" + cmd;
+			}
+			// 也可以是命令形式的运算符
+			if (BINARY_OPERATORS.contains(cmd)) {
 				return "\\" + cmd;
 			}
 			throw new MathParseException("Expected single token, got \\" + cmd, stream.save());
