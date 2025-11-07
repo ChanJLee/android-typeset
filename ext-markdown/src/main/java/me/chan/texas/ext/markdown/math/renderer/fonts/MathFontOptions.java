@@ -3,6 +3,7 @@ package me.chan.texas.ext.markdown.math.renderer.fonts;
 import java.util.HashMap;
 import java.util.Map;
 
+import me.chan.texas.ext.markdown.math.ast.GreekLetterAtom;
 import me.chan.texas.ext.markdown.math.ast.LargeOperatorAtom;
 
 public class MathFontOptions {
@@ -186,5 +187,13 @@ public class MathFontOptions {
 
 	public static String textOp(String name) {
 		return TEXT_OPERATORS.get(name);
+	}
+
+	public static Symbol ast(GreekLetterAtom atom) {
+		String ref = AST.get(atom.symbol);
+		if (ref == null) {
+			throw new IllegalArgumentException("Unknown greek letter: " + atom.symbol);
+		}
+		return ref(ref);
 	}
 }

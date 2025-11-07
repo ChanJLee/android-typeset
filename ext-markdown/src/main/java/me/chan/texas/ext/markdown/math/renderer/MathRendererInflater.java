@@ -7,12 +7,18 @@ import me.chan.texas.ext.markdown.math.ast.AccentAtom;
 import me.chan.texas.ext.markdown.math.ast.Ast;
 import me.chan.texas.ext.markdown.math.ast.Atom;
 import me.chan.texas.ext.markdown.math.ast.BinOpAtom;
+import me.chan.texas.ext.markdown.math.ast.FracAtom;
+import me.chan.texas.ext.markdown.math.ast.GreekLetterAtom;
+import me.chan.texas.ext.markdown.math.ast.GroupAtom;
 import me.chan.texas.ext.markdown.math.ast.GroupScriptArg;
 import me.chan.texas.ext.markdown.math.ast.MathList;
+import me.chan.texas.ext.markdown.math.ast.NumberAtom;
 import me.chan.texas.ext.markdown.math.ast.ScriptArg;
 import me.chan.texas.ext.markdown.math.ast.SingleTokenScriptArg;
+import me.chan.texas.ext.markdown.math.ast.SqrtAtom;
 import me.chan.texas.ext.markdown.math.ast.SupSubSuffix;
 import me.chan.texas.ext.markdown.math.ast.Term;
+import me.chan.texas.ext.markdown.math.ast.VariableAtom;
 import me.chan.texas.ext.markdown.math.renderer.fonts.MathFontOptions;
 import me.chan.texas.ext.markdown.math.renderer.fonts.Symbol;
 
@@ -91,12 +97,53 @@ public class MathRendererInflater {
 	}
 
 	private RendererNode inflateAtom(float scale, Atom atom) {
+		if (atom instanceof NumberAtom) {
+			return new TextNode(scale, ((NumberAtom) atom).value);
+		}
+
+		if (atom instanceof VariableAtom) {
+			return new TextNode(scale, String.valueOf(((VariableAtom) atom).name));
+		}
+
+		// TODO plain symbol
+
+		if (atom instanceof GreekLetterAtom) {
+			return new SymbolNode(scale, MathFontOptions.ast((GreekLetterAtom) atom));
+		}
+
+		if (atom instanceof GroupAtom) {
+			return inflateGroupAtom(scale, (GroupAtom) atom);
+		}
+
+		if (atom instanceof FracAtom) {
+			return inflateFracAtom(scale, (FracAtom) atom);
+		}
+
+		if (atom instanceof SqrtAtom) {
+			return inflateSqrtAtom(scale, (SqrtAtom) atom);
+		}
+
 		if (atom instanceof AccentAtom) {
-			AccentAtom accentAtom = (AccentAtom) atom;
-			return inflateAccentAtom(scale, accentAtom);
+			return inflateAccentAtom(scale, (AccentAtom) atom);
 		}
 
 		throw new IllegalArgumentException("Unknown atom: " + atom);
+	}
+
+	private RendererNode inflateSqrtAtom(float scale, SqrtAtom sqrtAtom) {
+		RendererNode root = null;
+		if (sqrtAtom.root != null) {
+			root = inflate0(scale * 0.4f, sqrtAtom.root);
+		}
+		return new SqrtNode(scale, root, inflate0(scale, sqrtAtom.content));
+	}
+
+	private RendererNode inflateFracAtom(float scale, FracAtom atom) {
+		return new FractionNode(scale, inflate0(scale, atom.numerator), inflate0(scale, atom.denominator));
+	}
+
+	private RendererNode inflateGroupAtom(float scale, GroupAtom groupAtom) {
+		return inflate0(scale, groupAtom.getContent());
 	}
 
 	private RendererNode inflateAccentAtom(float scale, AccentAtom accentAtom) {
