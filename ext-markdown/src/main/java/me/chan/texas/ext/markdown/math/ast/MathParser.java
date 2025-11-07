@@ -194,7 +194,7 @@ public class MathParser {
 		return new Spacing(cmd, null);
 	}
 
-	private Length parseLength() {
+	private Length parseLength() throws MathParseException {
 		NumberAtom size = parseNumber();
 		Unit unit = parseUnit();
 		return new Length(size, unit);
