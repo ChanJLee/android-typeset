@@ -14,6 +14,7 @@ import me.chan.texas.ext.markdown.math.ast.SingleTokenScriptArg;
 import me.chan.texas.ext.markdown.math.ast.SupSubSuffix;
 import me.chan.texas.ext.markdown.math.ast.Term;
 import me.chan.texas.ext.markdown.math.renderer.fonts.MathFontOptions;
+import me.chan.texas.ext.markdown.math.renderer.fonts.Symbol;
 
 public class MathRendererInflater {
 
@@ -83,7 +84,7 @@ public class MathRendererInflater {
 	private RendererNode inflateScriptArg(float scale, SingleTokenScriptArg singleTokenScriptArg) {
 		String token = singleTokenScriptArg.getToken();
 		if (token.startsWith("\\")) {
-			return new SymbolNode(scale, MathFontOptions.ref(token));
+			return new SymbolNode(scale, MathFontOptions.symbol(token));
 		}
 
 		return new TextNode(scale, token);
@@ -111,6 +112,22 @@ public class MathRendererInflater {
 	}
 
 	private void inflateSymbol(List<RendererNode> nodes, float scale, String symbol) {
-		nodes.add(new SymbolNode(scale, MathFontOptions.ref(symbol)));
+		if (symbol.startsWith("\\")) {
+			symbol = symbol.substring(1);
+			Symbol s = MathFontOptions.symbol(symbol);
+			if (s != null) {
+				nodes.add(new SymbolNode(scale, s));
+				return;
+			}
+
+			String o = MathFontOptions.textOp(symbol);
+			if (o != null) {
+				nodes.add(new TextNode(scale, o));
+			}
+
+			throw new IllegalArgumentException("unknown symbol");
+		}
+
+		nodes.add(new TextNode(scale, symbol));
 	}
 }

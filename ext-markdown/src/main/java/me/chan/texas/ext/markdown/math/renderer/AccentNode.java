@@ -16,7 +16,7 @@ public class AccentNode extends RendererNode {
 		mCmd = cmd;
 		mContent = content;
 		if (isBrace()) {
-			mCmdNode = new StretchyNode(1, MathFontOptions.ref("uni23A7"), MathFontOptions.ref("uni23A8"), MathFontOptions.ref("uni23A9"), MathFontOptions.ref("uni23AA"));
+			mCmdNode = new StretchyNode(1, MathFontOptions.symbol("uni23A7"), MathFontOptions.symbol("uni23A8"), MathFontOptions.symbol("uni23A9"), MathFontOptions.symbol("uni23AA"));
 		} else if (isGlyph()) {
 			if ("check".equals(mCmd)) {
 				mCmdNode = new SymbolNode(scale * 0.5f, cmdToSymbol());
@@ -142,39 +142,39 @@ public class AccentNode extends RendererNode {
 
 	private Symbol cmdToSymbol() {
 		if ("hat".equals(mCmd) || "widehat".equals(mCmd)) {
-			return MathFontOptions.ref("asciicircum");
+			return MathFontOptions.symbol("asciicircum");
 		}
 
 		if ("tilde".equals(mCmd) || "widetilde".equals(mCmd)) {
-			return MathFontOptions.ref("asciitilde");
+			return MathFontOptions.symbol("asciitilde");
 		}
 
 		if ("dot".equals(mCmd)) {
-			return MathFontOptions.ref("dotaccent");
+			return MathFontOptions.symbol("dotaccent");
 		}
 
 		if ("ddot".equals(mCmd)) {
-			return MathFontOptions.ref("ddotaccent");
+			return MathFontOptions.symbol("ddotaccent");
 		}
 
 		if ("dddot".equals(mCmd)) {
-			return MathFontOptions.ref("dddotaccent");
+			return MathFontOptions.symbol("dddotaccent");
 		}
 
 		if ("acute".equals(mCmd)) {
-			return MathFontOptions.ref("acute");
+			return MathFontOptions.symbol("acute");
 		}
 
 		if ("grave".equals(mCmd)) {
-			return MathFontOptions.ref("grave");
+			return MathFontOptions.symbol("grave");
 		}
 
 		if ("breve".equals(mCmd)) {
-			return MathFontOptions.ref("breve");
+			return MathFontOptions.symbol("breve");
 		}
 
 		if ("check".equals(mCmd)) {
-			return MathFontOptions.ref("checkmark");
+			return MathFontOptions.symbol("checkmark");
 		}
 
 		throw new RuntimeException("unknown cmd: " + mCmd);

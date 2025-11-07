@@ -176,11 +176,11 @@ public class MathView extends View {
 	}
 
 	public static StretchyNode mockStretchyLeft() {
-		return new StretchyNode(1, MathFontOptions.ref("uni23A7"), MathFontOptions.ref("uni23A8"), MathFontOptions.ref("uni23A9"), MathFontOptions.ref("uni23AA"));
+		return new StretchyNode(1, MathFontOptions.symbol("uni23A7"), MathFontOptions.symbol("uni23A8"), MathFontOptions.symbol("uni23A9"), MathFontOptions.symbol("uni23AA"));
 	}
 
 	public static StretchyNode mockStretchyRight() {
-		return new StretchyNode(1, MathFontOptions.ref("uni23AB"), MathFontOptions.ref("uni23AC"), MathFontOptions.ref("uni23AD"), MathFontOptions.ref("uni23AA"));
+		return new StretchyNode(1, MathFontOptions.symbol("uni23AB"), MathFontOptions.symbol("uni23AC"), MathFontOptions.symbol("uni23AD"), MathFontOptions.symbol("uni23AA"));
 	}
 
 	private static RendererNode mockConditionDetail() {

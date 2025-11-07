@@ -172,12 +172,8 @@ public class MathFontOptions {
 		TEXT_OPERATORS.put("min", "min");
 	}
 
-	public static Symbol ref(String ref) {
-		Symbol ret = SYMBOL.all.get(ref);
-		if (ret == null) {
-			throw new IllegalArgumentException("Unknown symbol: " + ref);
-		}
-		return ret;
+	public static Symbol symbol(String ref) {
+		return SYMBOL.all.get(ref);
 	}
 
 	public static Symbol ast(LargeOperatorAtom atom) {
@@ -185,7 +181,7 @@ public class MathFontOptions {
 		if (ref == null) {
 			throw new IllegalArgumentException("Unknown ast op: " + atom.operatorName);
 		}
-		return ref(ref);
+		return symbol(ref);
 	}
 
 	public static String textOp(String name) {
