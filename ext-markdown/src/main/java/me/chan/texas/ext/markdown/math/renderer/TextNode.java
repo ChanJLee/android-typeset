@@ -10,18 +10,19 @@ public class TextNode extends RendererNode {
 	private final String mContent;
 	private final Paint.FontMetrics mFontMetrics = new Paint.FontMetrics();
 	private float mBaselineOffset;
-	private TextStyle mTextStyle;
+	private final TextStyle mTextStyle;
 
 	public TextNode(String content) {
 		this(1, content);
 	}
 
 	public TextNode(float scale, String content) {
-		super(scale);
-		mContent = content;
+		this(scale, content, null);
 	}
 
-	public void setTextStyle(TextStyle textStyle) {
+	public TextNode(float scale, String content, TextStyle textStyle) {
+		super(scale);
+		mContent = content;
 		mTextStyle = textStyle;
 	}
 

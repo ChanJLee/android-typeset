@@ -1,10 +1,10 @@
 package me.chan.texas.ext.markdown.math.ast;
 
 public class FunctionCallAtom implements Atom {
-	String functionName;
-	ScriptArg subscript;     // 可选
-	ScriptArg superscript;   // 可选
-	Ast argument;       // 可选
+	public String functionName;
+	public ScriptArg subscript;     // 可选
+	public ScriptArg superscript;   // 可选
+	public Ast argument;       // 可选
 
 	public FunctionCallAtom(String functionName, ScriptArg subscript,
 							ScriptArg superscript, Ast argument) {

@@ -9,6 +9,7 @@ import me.chan.texas.ext.markdown.math.ast.Atom;
 import me.chan.texas.ext.markdown.math.ast.BinOpAtom;
 import me.chan.texas.ext.markdown.math.ast.DelimitedAtom;
 import me.chan.texas.ext.markdown.math.ast.FracAtom;
+import me.chan.texas.ext.markdown.math.ast.FunctionCallAtom;
 import me.chan.texas.ext.markdown.math.ast.GreekLetterAtom;
 import me.chan.texas.ext.markdown.math.ast.GroupAtom;
 import me.chan.texas.ext.markdown.math.ast.GroupScriptArg;
@@ -134,9 +135,16 @@ public class MathRendererInflater {
 	}
 
 	private RendererNode inflateDelimitedAtom(float scale, DelimitedAtom atom) {
-		List<RendererNode> nodes = new ArrayList<>();
-		// TODO
-		return new LinearGroupNode(scale, nodes, LinearGroupNode.Gravity.HORIZONTAL);
+//		List<RendererNode> nodes = new ArrayList<>();
+//		if (atom.level == DelimitedAtom.LEVEL_L0) {
+//
+//		}
+//		return new LinearGroupNode(scale, nodes, LinearGroupNode.Gravity.HORIZONTAL);
+		throw new RuntimeException("Stub!");
+	}
+
+	private RendererNode inflateFunctionCallAtom(float scale, FunctionCallAtom functionCallAtom) {
+
 	}
 
 	private RendererNode inflateSqrtAtom(float scale, SqrtAtom sqrtAtom) {
