@@ -35,6 +35,7 @@
          | <matrix>
          | <text>
          | <accent>
+         | <special_symbol>
 
 (* 注意：移除了 <plain_symbol> 和 <spacing>
  * - 运算符不能作为独立 atom 出现
