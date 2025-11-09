@@ -144,7 +144,7 @@ public class MathRendererInflater {
 	}
 
 	private RendererNode inflateFunctionCallAtom(float scale, FunctionCallAtom functionCallAtom) {
-
+		throw new RuntimeException("Stub!");
 	}
 
 	private RendererNode inflateSqrtAtom(float scale, SqrtAtom sqrtAtom) {
