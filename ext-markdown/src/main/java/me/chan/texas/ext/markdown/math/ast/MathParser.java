@@ -88,6 +88,23 @@ public class MathParser {
 	private static final Set<String> UNITS = new HashSet<>(Arrays.asList(
 			"em", "ex", "pt", "px", "cm", "mm", "in"
 	));
+	private static final Set<String> FONT_COMMANDS = new HashSet<>(Arrays.asList(
+			"mathrm", "mathit", "mathbf", "mathsf", "mathtt"
+			, "mathcal", "mathbb", "mathfrak", "mathscr"
+			, "boldsymbol", "bm"
+	));
+	private static final Set<String> TEXT_COMMANDS = new HashSet<>(Arrays.asList(
+			"text", "mbox", "textrm", "textit", "textbf")
+	);
+	private static final Set<String> FRAC_COMMANDS = new HashSet<>(
+			Arrays.asList(
+					"frac", "dfrac", "tfrac", "cfrac"
+			)
+	);
+	private static final Set<String> MATRIX_COMMANDS = new HashSet<>(
+			Arrays.asList("matrix", "pmatrix", "bmatrix", "Bmatrix", "vmatrix", "Vmatrix",
+					"smallmatrix", "array", "cases")
+	);
 
 	public MathParser(CharStream stream) {
 		this.stream = stream;
@@ -107,7 +124,7 @@ public class MathParser {
 
 	/**
 	 * <math_list> ::= <element> { <element> }
-	 * <element> ::= <expression> | <spacing>
+	 * <element> ::= <expression>,<spacing>
 	 */
 	private MathList parseMathList() throws MathParseException {
 		checkRecursionDepth();
@@ -174,7 +191,7 @@ public class MathParser {
 
 	/**
 	 * 解析空格命令
-	 * <spacing> ::= "\," | "\:" | "\;" | "\!" | "\quad" | "\qquad" | "\hspace" "{" <length> "}" | ...
+	 * <spacing> ::= "\,","\:","\;","\!","\quad","\qquad","\hspace" "{" <length> "}",...
 	 */
 	private Spacing parseSpacing() throws MathParseException {
 		expect('\\');
@@ -217,7 +234,7 @@ public class MathParser {
 		skipWhitespace();
 		NumberAtom size = parseNumber();
 		skipWhitespace();
-		Unit unit = parseUnit();
+		SizeUnit unit = parseUnit();
 		return new Length(size, unit);
 	}
 
@@ -271,7 +288,7 @@ public class MathParser {
 
 	/**
 	 * 解析一元运算符
-	 * <unary_op> ::= "+" | "-" | "\pm" | "\mp"
+	 * <unary_op> ::= "+","-","\pm","\mp"
 	 */
 	private String parseUnaryOp() throws MathParseException {
 		if (!stream.eof()) {
@@ -309,9 +326,9 @@ public class MathParser {
 	}
 
 	/**
-	 * <atom> ::= <number> | <variable> | <greek_letter> | <group>
-	 * | <frac> | <sqrt> | <delimited> | <function_call> | <large_operator>
-	 * | <matrix> | <text> | <accent>
+	 * <atom> ::= <number>,<variable>,<greek_letter>,<group>
+	 * ,<frac>,<sqrt>,<delimited>,<function_call>,<large_operator>
+	 * ,<matrix>,<text>,<accent>
 	 * <p>
 	 * 注意：不包含 spacing 和 plain_symbol（运算符）
 	 */
@@ -341,7 +358,7 @@ public class MathParser {
 
 		// 命令（以\开头）
 		if (c == '\\') {
-			return parseCommand();
+			return parseAtom0();
 		}
 
 		throw new MathParseException("Expected atom, got '" + c + "'", stream.save());
@@ -350,7 +367,7 @@ public class MathParser {
 	/**
 	 * 解析命令（\开头的）
 	 */
-	private Atom parseCommand() throws MathParseException {
+	private Atom parseAtom0() throws MathParseException {
 		int startPos = stream.save();
 		expect('\\');
 
@@ -360,8 +377,13 @@ public class MathParser {
 			throw new MathParseException("Empty command", startPos);
 		}
 
+		// 希腊字母
+		if (GREEK_LETTERS.contains(cmd)) {
+			return new GreekLetterAtom(cmd);
+		}
+
 		// 分式
-		if (cmd.equals("frac") || cmd.equals("dfrac") || cmd.equals("tfrac") || cmd.equals("cfrac")) {
+		if (FRAC_COMMANDS.contains(cmd)) {
 			return parseFrac(cmd);
 		}
 
@@ -387,14 +409,12 @@ public class MathParser {
 			return parseLargeOperator(cmd);
 		}
 
-		// 希腊字母
-		if (GREEK_LETTERS.contains(cmd)) {
-			return new GreekLetterAtom(cmd);
+		if ("begin".equals(cmd)) {
+			return parseMatrix();
 		}
 
 		// 文本命令
-		if (cmd.equals("text") || cmd.equals("mbox") || cmd.equals("textrm")
-				|| cmd.equals("textit") || cmd.equals("textbf")) {
+		if (TEXT_COMMANDS.contains(cmd)) {
 			return parseText(cmd);
 		}
 
@@ -403,7 +423,90 @@ public class MathParser {
 			return parseAccent(cmd);
 		}
 
+		if (FONT_COMMANDS.contains(cmd)) {
+			return parseFont(cmd);
+		}
+
 		throw new MathParseException("Unknown command: \\" + cmd, startPos);
+	}
+
+	private Atom parseMatrix() throws MathParseException {
+		skipWhitespace();
+		expect('{');
+		skipWhitespace();
+		int position = stream.save();
+		String lhsEnv = parseMatrixEnv();
+		if (!MATRIX_COMMANDS.contains(lhsEnv)) {
+			throw new MathParseException("Unknown matrix environment: \\" + lhsEnv, position);
+		}
+
+		skipWhitespace();
+		expect('}');
+
+		List<MatrixRow> rows = parseMatrixRows();
+		skipWhitespace();
+		expect('{');
+		skipWhitespace();
+		position = stream.save();
+		String rhsEnv = parseMatrixEnv();
+		if (!lhsEnv.equals(rhsEnv)) {
+			throw new MathParseException("Matrix environment mismatch: [\"" + lhsEnv + "\",\"" + rhsEnv + "\"]", position);
+		}
+		skipWhitespace();
+		expect('}');
+
+		return new MatrixAtom(lhsEnv, rows);
+	}
+
+	private List<MatrixRow> parseMatrixRows() throws MathParseException {
+		List<MatrixRow> rows = new ArrayList<>();
+		while (!stream.eof()) {
+			rows.add(parseMatrixRow());
+			skipWhitespace();
+			expect('\\');
+			if (!stream.eof() && Character.isWhitespace(stream.peek())) {
+				skipWhitespace();
+				continue;
+			}
+
+			int position = stream.save();
+			String cmd = scanCommandName();
+			if (cmd.equals("end")) {
+				break;
+			} else {
+				throw new MathParseException("Expected \\end, got \\" + cmd, position);
+			}
+		}
+
+		return rows;
+	}
+
+	private String parseMatrixEnv() {
+		return scanCommandName();
+	}
+
+	private MatrixRow parseMatrixRow() throws MathParseException {
+		List<Ast> elements = new ArrayList<>();
+		while (!stream.eof()) {
+			elements.add(parseMathList());
+			skipWhitespace();
+
+			if (!stream.eof() && stream.peek() == '&') {
+				continue;
+			}
+
+			break;
+		}
+		return new MatrixRow(elements);
+	}
+
+	private Atom parseFont(String cmd) throws MathParseException {
+		skipWhitespace();
+		expect('{');
+		Ast ast = parseMathList();
+		skipWhitespace();
+		expect('}');
+		return new FontAtom(cmd, ast);
 	}
 
 	/**
@@ -428,7 +531,7 @@ public class MathParser {
 		return new NumberAtom(sb.toString());
 	}
 
-	private Unit parseUnit() throws MathParseException {
+	private SizeUnit parseUnit() throws MathParseException {
 		// 整数部分
 		StringBuilder sb = new StringBuilder();
 		while (!stream.eof() && Character.isLetter(((char) stream.peek()))) {
@@ -438,7 +541,7 @@ public class MathParser {
 		if (!UNITS.contains(unit)) {
 			throw new MathParseException("Expected unit, got \\" + unit, stream.save());
 		}
-		return new Unit(unit);
+		return new SizeUnit(unit);
 	}
 
 	/**
@@ -556,7 +659,7 @@ public class MathParser {
 
 	/**
 	 * 解析定界符
-	 * <delimiter> ::= "(" | ")" | "[" | "]" | "\{" | "\}" | "|" | "." | "\langle" | ...
+	 * <delimiter> ::= "(",")","[","]","\{","\}","|",".","\langle",...
 	 */
 	private String parseDelimiter() throws MathParseException {
 		skipWhitespace();
@@ -737,9 +840,9 @@ public class MathParser {
 	}
 
 	/**
-	 * <sup_sub_suffix> ::= "^" <script_arg> | "_" <script_arg>
-	 * | "^" <script_arg> "_" <script_arg>
-	 * | "_" <script_arg> "^" <script_arg>
+	 * <sup_sub_suffix> ::= "^" <script_arg>,"_" <script_arg>
+	 * ,"^" <script_arg> "_" <script_arg>
+	 * ,"_" <script_arg> "^" <script_arg>
 	 */
 	private SupSubSuffix tryParseSupSubSuffix() throws MathParseException {
 		skipWhitespace();
@@ -783,7 +886,7 @@ public class MathParser {
 	}
 
 	/**
-	 * <script_arg> ::= <single_token> | <group>
+	 * <script_arg> ::= <single_token>,<group>
 	 */
 	private ScriptArg parseScriptArg() throws MathParseException {
 		skipWhitespace();
@@ -908,7 +1011,7 @@ public class MathParser {
 	/**
 	 * 扫描单个token（数字、字母、希腊字母命令或运算符符号）
 	 * 用于上下标等场景
-	 * <single_token> ::= <digit> | <letter> | <greek_letter> | <operator_symbol>
+	 * <single_token> ::= <digit>,<letter>,<greek_letter>,<operator_symbol>
 	 */
 	private String scanSingleToken() throws MathParseException {
 		if (stream.eof()) {

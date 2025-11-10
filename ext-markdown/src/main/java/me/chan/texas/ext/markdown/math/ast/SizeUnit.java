@@ -1,9 +1,9 @@
 package me.chan.texas.ext.markdown.math.ast;
 
-public class Unit implements Atom {
+public class SizeUnit implements Atom {
 	public final String unit;
 
-	public Unit(String unit) {
+	public SizeUnit(String unit) {
 		this.unit = unit;
 	}
 
