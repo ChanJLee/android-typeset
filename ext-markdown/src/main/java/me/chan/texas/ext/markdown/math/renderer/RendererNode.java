@@ -13,19 +13,15 @@ import me.chan.texas.ext.markdown.math.renderer.core.MathPaint;
 public abstract class RendererNode {
 	public static final boolean DEBUG = true;
 
-	private float mScale;
+	private final MathPaint.Styles mStyles;
 	private int mWidth;
 	private int mHeight;
 	private float mLeft;
 	private float mTop;
 	private Object mTag;
 
-	public RendererNode(float scale) {
-		mScale = scale;
-	}
-
-	public void setScale(float scale) {
-		mScale = scale;
+	public RendererNode(MathPaint.Styles styles) {
+		mStyles = styles;
 	}
 
 	public final void measure(MathPaint paint) {
@@ -33,25 +29,20 @@ public abstract class RendererNode {
 	}
 
 	public final void measure(MathPaint paint, int widthSpec, int heightSpec) {
-		float textSize = paint.getTextSize();
-		if (mScale != 1f) {
-			paint.setTextSize(textSize * mScale);
+		if (mStyles != null) {
+			paint.save(mStyles);
 		}
 
 		onMeasure(paint, widthSpec, heightSpec);
 
-		if (mScale != 1f) {
-			paint.setTextSize(textSize);
+		if (mStyles != null) {
+			paint.restore();
 		}
 	}
 
 	protected final void setMeasuredSize(int width, int height) {
 		mWidth = width;
 		mHeight = height;
-	}
-
-	public float getScale() {
-		return mScale;
 	}
 
 	public final void layout(float left, float top) {
@@ -63,17 +54,16 @@ public abstract class RendererNode {
 		canvas.save();
 		canvas.translate(mLeft, mTop);
 
-		float textSize = paint.getTextSize();
-		if (mScale != 1f) {
-			paint.setTextSize(textSize * mScale);
+		if (mStyles != null) {
+			paint.save(mStyles);
 		}
 
 		onDraw(canvas, paint);
 
 		onDrawDebug(canvas, paint);
 
-		if (mScale != 1f) {
-			paint.setTextSize(textSize);
+		if (mStyles != null) {
+			paint.restore();
 		}
 		canvas.restore();
 	}

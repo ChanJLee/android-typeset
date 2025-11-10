@@ -11,12 +11,12 @@ public class StretchyNode extends RendererNode {
 	private final SymbolNode mExtension;
 	private int mActualWidth;
 
-	public StretchyNode(float scale, Symbol top, Symbol middle, Symbol bottom, Symbol extension) {
-		super(scale);
-		mTop = new SymbolNode(scale, top);
-		mMiddle = new SymbolNode(scale, middle);
-		mBottom = new SymbolNode(scale, bottom);
-		mExtension = new SymbolNode(scale, extension);
+	public StretchyNode(MathPaint.Styles styles, Symbol top, Symbol middle, Symbol bottom, Symbol extension) {
+		super(styles);
+		mTop = new SymbolNode(styles, top);
+		mMiddle = new SymbolNode(styles, middle);
+		mBottom = new SymbolNode(styles, bottom);
+		mExtension = new SymbolNode(styles, extension);
 	}
 
 	@Override

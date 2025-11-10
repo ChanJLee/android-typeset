@@ -21,38 +21,39 @@ import me.chan.texas.ext.markdown.math.ast.SqrtAtom;
 import me.chan.texas.ext.markdown.math.ast.SupSubSuffix;
 import me.chan.texas.ext.markdown.math.ast.Term;
 import me.chan.texas.ext.markdown.math.ast.VariableAtom;
+import me.chan.texas.ext.markdown.math.renderer.core.MathPaint;
 import me.chan.texas.ext.markdown.math.renderer.fonts.MathFontOptions;
 import me.chan.texas.ext.markdown.math.renderer.fonts.Symbol;
 
 public class MathRendererInflater {
 
-	public RendererNode inflate(MathList math) {
-		return inflate0(1, math);
+	public RendererNode inflate(MathPaint.Styles styles, MathList math) {
+		return inflate0(styles, math);
 	}
 
-	public RendererNode inflate0(float scale, MathList math) {
+	public RendererNode inflate0(MathPaint.Styles styles, MathList math) {
 		List<RendererNode> list = new ArrayList<>();
 		for (Ast ast : math.getAst()) {
 			if (ast instanceof Term) {
-				inflateTerm(list, scale, (Term) ast);
+				inflateTerm(list, styles, (Term) ast);
 			} else if (ast instanceof BinOpAtom) {
-				inflateBinOp(list, scale, (BinOpAtom) ast);
+				inflateBinOp(list, styles, (BinOpAtom) ast);
 			} else {
 				throw new IllegalArgumentException("Unknown ast: " + ast);
 			}
 		}
 
-		return new LinearGroupNode(1, list, LinearGroupNode.Gravity.HORIZONTAL);
+		return new LinearGroupNode(styles, list, LinearGroupNode.Gravity.HORIZONTAL);
 	}
 
-	private void inflateTerm(List<RendererNode> nodes, float scale, Term term) {
+	private void inflateTerm(List<RendererNode> nodes, MathPaint.Styles styles, Term term) {
 		String op = term.getUnaryOp();
 		if (op != null) {
-			inflateSymbol(nodes, scale, op);
+			inflateSymbol(nodes, styles, op);
 		}
 
 		Atom atom = term.getAtom();
-		DecorGroupNode.Builder builder = new DecorGroupNode.Builder(scale, inflateAtom(scale, atom));
+		DecorGroupNode.Builder builder = new DecorGroupNode.Builder(styles, inflateAtom(styles, atom));
 		SupSubSuffix suffix = term.getSuffix();
 		if (suffix == null) {
 			nodes.add(builder.build());
@@ -61,137 +62,137 @@ public class MathRendererInflater {
 
 		ScriptArg scriptArg = suffix.getSuperscript();
 		if (scriptArg != null) {
-			builder.rightTop(inflateScriptArg(scale * 0.4f, scriptArg));
+			builder.rightTop(inflateScriptArg(new MathPaint.Styles(styles).setTextSize(styles.getTextSize() * 0.4f), scriptArg));
 		}
 
 		scriptArg = suffix.getSubscript();
 		if (scriptArg != null) {
-			builder.rightBottom(inflateScriptArg(scale * 0.4f, scriptArg));
+			builder.rightBottom(inflateScriptArg(new MathPaint.Styles(styles).setTextSize(styles.getTextSize() * 0.4f), scriptArg));
 		}
 		nodes.add(builder.build());
 	}
 
-	private RendererNode inflateScriptArg(float scale, ScriptArg scriptArg) {
+	private RendererNode inflateScriptArg(MathPaint.Styles styles, ScriptArg scriptArg) {
 		if (scriptArg instanceof GroupScriptArg) {
 			GroupScriptArg group = (GroupScriptArg) scriptArg;
-			return inflateScriptArg(scale, group);
+			return inflateScriptArg(styles, group);
 		}
 
 		if (scriptArg instanceof SingleTokenScriptArg) {
 			SingleTokenScriptArg token = (SingleTokenScriptArg) scriptArg;
-			return inflateScriptArg(scale, token);
+			return inflateScriptArg(styles, token);
 		}
 
 		throw new IllegalArgumentException("Unknown script arg: " + scriptArg);
 	}
 
-	private RendererNode inflateScriptArg(float scale, GroupScriptArg group) {
-		return inflate0(scale, group.getContent());
+	private RendererNode inflateScriptArg(MathPaint.Styles styles, GroupScriptArg group) {
+		return inflate0(styles, group.getContent());
 	}
 
-	private RendererNode inflateScriptArg(float scale, SingleTokenScriptArg singleTokenScriptArg) {
+	private RendererNode inflateScriptArg(MathPaint.Styles styles, SingleTokenScriptArg singleTokenScriptArg) {
 		String token = singleTokenScriptArg.getToken();
 		if (token.startsWith("\\")) {
-			return new SymbolNode(scale, MathFontOptions.symbol(token));
+			return new SymbolNode(styles, MathFontOptions.symbol(token));
 		}
 
-		return new TextNode(scale, token);
+		return new TextNode(styles, token);
 	}
 
-	private RendererNode inflateAtom(float scale, Atom atom) {
+	private RendererNode inflateAtom(MathPaint.Styles styles, Atom atom) {
 		if (atom instanceof NumberAtom) {
-			return new TextNode(scale, ((NumberAtom) atom).value);
+			return new TextNode(styles, ((NumberAtom) atom).value);
 		}
 
 		if (atom instanceof VariableAtom) {
-			return new TextNode(scale, String.valueOf(((VariableAtom) atom).name));
+			return new TextNode(styles, String.valueOf(((VariableAtom) atom).name));
 		}
 
 		if (atom instanceof GreekLetterAtom) {
-			return new SymbolNode(scale, MathFontOptions.ast((GreekLetterAtom) atom));
+			return new SymbolNode(styles, MathFontOptions.ast((GreekLetterAtom) atom));
 		}
 
 		if (atom instanceof GroupAtom) {
-			return inflateGroupAtom(scale, (GroupAtom) atom);
+			return inflateGroupAtom(styles, (GroupAtom) atom);
 		}
 
 		if (atom instanceof FracAtom) {
-			return inflateFracAtom(scale, (FracAtom) atom);
+			return inflateFracAtom(styles, (FracAtom) atom);
 		}
 
 		if (atom instanceof SqrtAtom) {
-			return inflateSqrtAtom(scale, (SqrtAtom) atom);
+			return inflateSqrtAtom(styles, (SqrtAtom) atom);
 		}
 
 		if (atom instanceof DelimitedAtom) {
-			return inflateDelimitedAtom(scale, (DelimitedAtom) atom);
+			return inflateDelimitedAtom(styles, (DelimitedAtom) atom);
 		}
 
 		if (atom instanceof AccentAtom) {
-			return inflateAccentAtom(scale, (AccentAtom) atom);
+			return inflateAccentAtom(styles, (AccentAtom) atom);
 		}
 
 		throw new IllegalArgumentException("Unknown atom: " + atom);
 	}
 
-	private RendererNode inflateDelimitedAtom(float scale, DelimitedAtom atom) {
+	private RendererNode inflateDelimitedAtom(MathPaint.Styles styles, DelimitedAtom atom) {
 //		List<RendererNode> nodes = new ArrayList<>();
 //		if (atom.level == DelimitedAtom.LEVEL_L0) {
 //
 //		}
-//		return new LinearGroupNode(scale, nodes, LinearGroupNode.Gravity.HORIZONTAL);
+//		return new LinearGroupNode( styles, nodes, LinearGroupNode.Gravity.HORIZONTAL);
 		throw new RuntimeException("Stub!");
 	}
 
-	private RendererNode inflateFunctionCallAtom(float scale, FunctionCallAtom functionCallAtom) {
+	private RendererNode inflateFunctionCallAtom(MathPaint.Styles styles, FunctionCallAtom functionCallAtom) {
 		throw new RuntimeException("Stub!");
 	}
 
-	private RendererNode inflateSqrtAtom(float scale, SqrtAtom sqrtAtom) {
+	private RendererNode inflateSqrtAtom(MathPaint.Styles styles, SqrtAtom sqrtAtom) {
 		RendererNode root = null;
 		if (sqrtAtom.root != null) {
-			root = inflate0(scale * 0.4f, sqrtAtom.root);
+			root = inflate0(new MathPaint.Styles(styles).setTextSize(styles.getTextSize() * 0.4f), sqrtAtom.root);
 		}
-		return new SqrtNode(scale, root, inflate0(scale, sqrtAtom.content));
+		return new SqrtNode(styles, root, inflate0(styles, sqrtAtom.content));
 	}
 
-	private RendererNode inflateFracAtom(float scale, FracAtom atom) {
-		return new FractionNode(scale, inflate0(scale, atom.numerator), inflate0(scale, atom.denominator));
+	private RendererNode inflateFracAtom(MathPaint.Styles styles, FracAtom atom) {
+		return new FractionNode(styles, inflate0(styles, atom.numerator), inflate0(styles, atom.denominator));
 	}
 
-	private RendererNode inflateGroupAtom(float scale, GroupAtom groupAtom) {
-		return inflate0(scale, groupAtom.getContent());
+	private RendererNode inflateGroupAtom(MathPaint.Styles styles, GroupAtom groupAtom) {
+		return inflate0(styles, groupAtom.getContent());
 	}
 
-	private RendererNode inflateAccentAtom(float scale, AccentAtom accentAtom) {
-		return new AccentNode(scale, accentAtom.getAccentCmd(), inflateAst(scale, accentAtom.getContent()));
+	private RendererNode inflateAccentAtom(MathPaint.Styles styles, AccentAtom accentAtom) {
+		return new AccentNode(styles, accentAtom.getAccentCmd(), inflateAst(styles, accentAtom.getContent()));
 	}
 
-	private RendererNode inflateAst(float scale, Ast ast) {
+	private RendererNode inflateAst(MathPaint.Styles styles, Ast ast) {
 		throw new RuntimeException("Stub!");
 	}
 
-	private void inflateBinOp(List<RendererNode> nodes, float scale, BinOpAtom atom) {
-		inflateSymbol(nodes, scale, atom.getOp());
+	private void inflateBinOp(List<RendererNode> nodes, MathPaint.Styles styles, BinOpAtom atom) {
+		inflateSymbol(nodes, styles, atom.getOp());
 	}
 
-	private void inflateSymbol(List<RendererNode> nodes, float scale, String symbol) {
+	private void inflateSymbol(List<RendererNode> nodes, MathPaint.Styles styles, String symbol) {
 		if (symbol.startsWith("\\")) {
 			symbol = symbol.substring(1);
 			Symbol s = MathFontOptions.symbol(symbol);
 			if (s != null) {
-				nodes.add(new SymbolNode(scale, s));
+				nodes.add(new SymbolNode(styles, s));
 				return;
 			}
 
 			String o = MathFontOptions.textOp(symbol);
 			if (o != null) {
-				nodes.add(new TextNode(scale, o));
+				nodes.add(new TextNode(styles, o));
 			}
 
 			throw new IllegalArgumentException("unknown symbol");
 		}
 
-		nodes.add(new TextNode(scale, symbol));
+		nodes.add(new TextNode(styles, symbol));
 	}
 }

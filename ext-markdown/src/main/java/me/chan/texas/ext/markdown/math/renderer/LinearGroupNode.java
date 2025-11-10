@@ -12,12 +12,12 @@ public class LinearGroupNode extends RendererNode {
 	private final Gravity mGravity;
 	private float mBaseline;
 
-	public LinearGroupNode(float scale, List<RendererNode> nodes) {
-		this(scale, nodes, Gravity.HORIZONTAL);
+	public LinearGroupNode(MathPaint.Styles styles, List<RendererNode> nodes) {
+		this(styles, nodes, Gravity.HORIZONTAL);
 	}
 
-	public LinearGroupNode(float scale, List<RendererNode> nodes, Gravity gravity) {
-		super(scale);
+	public LinearGroupNode(MathPaint.Styles styles, List<RendererNode> nodes, Gravity gravity) {
+		super(styles);
 		mNodes = nodes;
 		mGravity = gravity;
 	}

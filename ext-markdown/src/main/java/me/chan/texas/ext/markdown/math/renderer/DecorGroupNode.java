@@ -8,8 +8,8 @@ import me.chan.texas.ext.markdown.math.renderer.core.MathPaint;
 public class DecorGroupNode extends RendererNode {
 	private final Builder mBuilder;
 
-	private DecorGroupNode(float scale, Builder builder) {
-		super(scale);
+	private DecorGroupNode(MathPaint.Styles styles, Builder builder) {
+		super(styles);
 		mBuilder = builder;
 	}
 
@@ -164,7 +164,7 @@ public class DecorGroupNode extends RendererNode {
 
 	public static class Builder {
 		private final RendererNode center;
-		private final float mScale;
+		private final MathPaint.Styles mStyles;
 		@Nullable
 		private RendererNode leftTop;
 		@Nullable
@@ -178,8 +178,8 @@ public class DecorGroupNode extends RendererNode {
 		@Nullable
 		private RendererNode bottom;
 
-		public Builder(float scale, RendererNode centerNode) {
-			mScale = scale;
+		public Builder(MathPaint.Styles styles, RendererNode centerNode) {
+			mStyles = styles;
 			center = centerNode;
 		}
 
@@ -214,7 +214,7 @@ public class DecorGroupNode extends RendererNode {
 		}
 
 		public DecorGroupNode build() {
-			return new DecorGroupNode(mScale, this);
+			return new DecorGroupNode(mStyles, this);
 		}
 	}
 }

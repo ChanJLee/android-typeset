@@ -15,11 +15,11 @@ public class SqrtNode extends RendererNode {
 	private final RendererNode mRoot;
 	private final SqrtSymbolNode mSymbol;
 
-	public SqrtNode(float scale, RendererNode content, @Nullable RendererNode root) {
-		super(scale);
+	public SqrtNode(MathPaint.Styles styles, RendererNode content, @Nullable RendererNode root) {
+		super(styles);
 		mContent = content;
 		mRoot = root;
-		mSymbol = new SqrtSymbolNode(scale);
+		mSymbol = new SqrtSymbolNode(styles);
 	}
 
 	@Override

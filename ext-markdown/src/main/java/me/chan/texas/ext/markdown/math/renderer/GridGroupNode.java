@@ -11,17 +11,17 @@ public class GridGroupNode extends RendererNode {
 	private final List<LinearGroupNode> mNodes = new ArrayList<>();
 	private final int mColumnCount;
 
-	public GridGroupNode(float scale, int columnCount, List<RendererNode> nodes) {
-		super(scale);
+	public GridGroupNode(MathPaint.Styles styles, int columnCount, List<RendererNode> nodes) {
+		super(styles);
 		mColumnCount = columnCount;
 
 		// spilt nodes
 		int size = nodes.size() / columnCount;
 		for (int i = 0; i < size; ++i) {
-			mNodes.add(new LinearGroupNode(scale, nodes.subList(i * columnCount, (i + 1) * columnCount), LinearGroupNode.Gravity.HORIZONTAL));
+			mNodes.add(new LinearGroupNode(styles, nodes.subList(i * columnCount, (i + 1) * columnCount), LinearGroupNode.Gravity.HORIZONTAL));
 		}
 		if (nodes.size() % columnCount != 0) {
-			mNodes.add(new LinearGroupNode(scale, nodes.subList(size * columnCount, nodes.size()), LinearGroupNode.Gravity.HORIZONTAL));
+			mNodes.add(new LinearGroupNode(styles, nodes.subList(size * columnCount, nodes.size()), LinearGroupNode.Gravity.HORIZONTAL));
 		}
 	}
 

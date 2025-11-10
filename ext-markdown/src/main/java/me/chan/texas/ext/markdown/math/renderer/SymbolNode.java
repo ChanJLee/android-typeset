@@ -10,8 +10,8 @@ public class SymbolNode extends RendererNode {
 	private float mOffsetY;
 	private float mOffsetX;
 
-	public SymbolNode(float scale, Symbol symbol) {
-		super(scale);
+	public SymbolNode(MathPaint.Styles styles, Symbol symbol) {
+		super(styles);
 		mSymbol = symbol;
 	}
 

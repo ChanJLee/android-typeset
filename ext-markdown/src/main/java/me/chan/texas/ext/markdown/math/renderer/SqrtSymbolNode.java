@@ -12,8 +12,8 @@ public class SqrtSymbolNode extends RendererNode {
 	private float mTextSize;
 	private float mContentWidth = 0;
 
-	public SqrtSymbolNode(float scale) {
-		super(scale);
+	public SqrtSymbolNode(MathPaint.Styles styles) {
+		super(styles);
 	}
 
 	@Override

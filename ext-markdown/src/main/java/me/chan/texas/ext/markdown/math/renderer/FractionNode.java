@@ -9,8 +9,8 @@ public class FractionNode extends RendererNode {
 	private final RendererNode mNumerator;
 	private final RendererNode mDenominator;
 
-	public FractionNode(float scale, RendererNode numerator, RendererNode denominator) {
-		super(scale);
+	public FractionNode(MathPaint.Styles styles, RendererNode numerator, RendererNode denominator) {
+		super(styles);
 		mNumerator = numerator;
 		mDenominator = denominator;
 	}

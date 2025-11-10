@@ -5,8 +5,8 @@ import me.chan.texas.ext.markdown.math.renderer.core.MathPaint;
 
 public class BraceNode extends RendererNode {
 
-	public BraceNode(float scale) {
-		super(scale);
+	public BraceNode(MathPaint.Styles styles) {
+		super(styles);
 	}
 
 	@Override

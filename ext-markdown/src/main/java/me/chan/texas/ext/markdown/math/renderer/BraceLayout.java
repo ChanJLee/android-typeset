@@ -11,8 +11,8 @@ public class BraceLayout extends RendererNode {
 	private final StretchyNode mRightSymbol;
 	private final RendererNode mContent;
 
-	public BraceLayout(float scale, @Nullable StretchyNode leftSymbol, RendererNode content, @Nullable StretchyNode rightSymbol) {
-		super(scale);
+	public BraceLayout(MathPaint.Styles styles, @Nullable StretchyNode leftSymbol, RendererNode content, @Nullable StretchyNode rightSymbol) {
+		super(styles);
 
 		mLeftSymbol = leftSymbol;
 		mRightSymbol = rightSymbol;

@@ -5,8 +5,8 @@ import me.chan.texas.ext.markdown.math.renderer.core.MathPaint;
 
 public class LargeOpNode extends RendererNode {
 
-	public LargeOpNode(float scale) {
-		super(scale);
+	public LargeOpNode(MathPaint.Styles styles) {
+		super(styles);
 	}
 
 	@Override

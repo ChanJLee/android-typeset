@@ -75,48 +75,54 @@ public interface MathPaint {
 			return mTextSize;
 		}
 
-		public void setTextSize(float textSize) {
+		public Styles setTextSize(float textSize) {
 			mTextSize = textSize;
+			return this;
 		}
 
 		public Paint.Style getStyle() {
 			return mStyle;
 		}
 
-		public void setStyle(Paint.Style style) {
+		public Styles setStyle(Paint.Style style) {
 			mStyle = style;
+			return this;
 		}
 
 		public float getStrokeWidth() {
 			return mStrokeWidth;
 		}
 
-		public void setStrokeWidth(float strokeWidth) {
+		public Styles setStrokeWidth(float strokeWidth) {
 			mStrokeWidth = strokeWidth;
+			return this;
 		}
 
 		public int getColor() {
 			return mColor;
 		}
 
-		public void setColor(int color) {
+		public Styles setColor(int color) {
 			mColor = color;
+			return this;
 		}
 
 		public boolean isBold() {
 			return mIsBold;
 		}
 
-		public void setBold(boolean bold) {
+		public Styles setBold(boolean bold) {
 			mIsBold = bold;
+			return this;
 		}
 
 		public boolean isItalic() {
 			return mIsItalic;
 		}
 
-		public void setItalic(boolean italic) {
+		public Styles setItalic(boolean italic) {
 			mIsItalic = italic;
+			return this;
 		}
 
 		public void apply(MathPaint paint) {

@@ -10,18 +10,18 @@ public class AccentNode extends RendererNode {
 	private final RendererNode mContent;
 	private final RendererNode mCmdNode;
 
-	public AccentNode(float scale, String cmd, RendererNode content) {
-		super(scale);
+	public AccentNode(MathPaint.Styles styles, String cmd, RendererNode content) {
+		super(styles);
 
 		mCmd = cmd;
 		mContent = content;
 		if (isBrace()) {
-			mCmdNode = new StretchyNode(1, MathFontOptions.symbol("uni23A7"), MathFontOptions.symbol("uni23A8"), MathFontOptions.symbol("uni23A9"), MathFontOptions.symbol("uni23AA"));
+			mCmdNode = new StretchyNode(styles, MathFontOptions.symbol("uni23A7"), MathFontOptions.symbol("uni23A8"), MathFontOptions.symbol("uni23A9"), MathFontOptions.symbol("uni23AA"));
 		} else if (isGlyph()) {
 			if ("check".equals(mCmd)) {
-				mCmdNode = new SymbolNode(scale * 0.5f, cmdToSymbol());
+				mCmdNode = new SymbolNode(new MathPaint.Styles(styles).setTextSize(styles.getTextSize() * 0.5f), cmdToSymbol());
 			} else {
-				mCmdNode = new SymbolNode(scale, cmdToSymbol());
+				mCmdNode = new SymbolNode(styles, cmdToSymbol());
 			}
 		} else {
 			mCmdNode = null;

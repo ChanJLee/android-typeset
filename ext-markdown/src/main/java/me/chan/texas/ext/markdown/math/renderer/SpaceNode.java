@@ -7,13 +7,9 @@ public class SpaceNode extends RendererNode {
 
 	private final int mWidth;
 	private final int mHeight;
-
-	public SpaceNode(int width, int height) {
-		this(1, width, height);
-	}
-
-	public SpaceNode(float scale, int width, int height) {
-		super(scale);
+	
+	public SpaceNode(MathPaint.Styles styles, int width, int height) {
+		super(styles);
 		mWidth = width;
 		mHeight = height;
 	}
