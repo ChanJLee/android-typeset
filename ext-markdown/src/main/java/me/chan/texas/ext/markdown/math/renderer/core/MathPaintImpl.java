@@ -71,7 +71,12 @@ public class MathPaintImpl implements MathPaint {
 
 	@Override
 	public void save() {
-		mStates.push(new Styles(this));
+		save(new Styles(this));
+	}
+
+	@Override
+	public void save(Styles styles) {
+		mStates.push(styles);
 	}
 
 	@Override

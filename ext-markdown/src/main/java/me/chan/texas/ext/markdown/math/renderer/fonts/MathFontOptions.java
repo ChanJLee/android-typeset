@@ -63,7 +63,7 @@ public class MathFontOptions {
 		AST.put("bigodot", "uni2A00");
 		AST.put("biguplus", "uni2A04");
 		AST.put("bigsqcup", "uni2A06");
-
+	
 		// 二元运算符 (Binary Operators)
 		AST.put("times", "multiply");
 		AST.put("cdot", "uni22C5");
@@ -73,6 +73,7 @@ public class MathFontOptions {
 		AST.put("neq", "notequal");
 		AST.put("equiv", "equivalence");
 		AST.put("approx", "approxequal");
+		AST.put("cong", "uni2245");           // ≅ 新增
 		AST.put("sim", "similar");
 		AST.put("le", "lessequal");
 		AST.put("ge", "greaterequal");
@@ -97,7 +98,9 @@ public class MathFontOptions {
 		AST.put("Rightarrow", "arrowdblright");
 		AST.put("Leftarrow", "arrowdblleft");
 		AST.put("Leftrightarrow", "arrowdblboth");
-
+		AST.put("implies", "arrowdblright");   // ⇒ 新增（与 Rightarrow 相同）
+		AST.put("iff", "arrowdblboth");        // ⇔ 新增（与 Leftrightarrow 相同）
+	
 		// 其他常用符号
 		AST.put("infty", "infinity");
 		AST.put("partial", "partialdiff");
@@ -107,7 +110,7 @@ public class MathFontOptions {
 		AST.put("exists", "existential");
 		AST.put("neg", "logicalnot");
 		AST.put("sqrt", "radical");
-
+	
 		// 定界符 (Delimiters)
 		AST.put("langle", "angleleft");
 		AST.put("rangle", "angleright");
@@ -115,9 +118,20 @@ public class MathFontOptions {
 		AST.put("rfloor", "uni230B");
 		AST.put("lceil", "uni2308");
 		AST.put("rceil", "uni2309");
-
+	
+		// 特殊符号 (Special Symbols) - 新增
+		AST.put("dots", "ellipsis");           // … (水平省略号)
+		AST.put("ldots", "ellipsis");          // … (同 dots)
+		AST.put("cdots", "uni22EF");           // ⋯ (居中点)
+		AST.put("vdots", "uni22EE");           // ⋮ (垂直点)
+		AST.put("ddots", "uni22F1");           // ⋱ (对角点)
+		AST.put("therefore", "therefore");     // ∴ (因此)
+		AST.put("because", "because");         // ∵ (因为)
+		AST.put("angle", "uni2220");           // ∠ (角)
+		AST.put("perp", "uni27C2");            // ⟂ (垂直)
+		AST.put("parallel", "parallel");       // ∥ (平行)
+	
 		// 希腊字母 - 小写 (Greek Letters - Lowercase)
-		// 注意：这些可能需要直接使用Unicode字符，而不是符号名称
 		AST.put("alpha", "\u03B1");      // α
 		AST.put("beta", "\u03B2");       // β
 		AST.put("gamma", "\u03B3");      // γ
@@ -147,7 +161,7 @@ public class MathFontOptions {
 		AST.put("chi", "\u03C7");        // χ
 		AST.put("psi", "\u03C8");        // ψ
 		AST.put("omega", "\u03C9");      // ω
-
+	
 		// 希腊字母 - 大写 (Greek Letters - Uppercase)
 		AST.put("Gamma", "\u0393");      // Γ
 		AST.put("Delta", "\u0394");      // Δ
@@ -160,17 +174,29 @@ public class MathFontOptions {
 		AST.put("Phi", "\u03A6");        // Φ
 		AST.put("Psi", "\u03A8");        // Ψ
 		AST.put("Omega", "\u03A9");      // Ω
-
+	
+		// 文本运算符（以罗马字体渲染）
 		TEXT_OPERATORS.put("lim", "lim");
 		TEXT_OPERATORS.put("limsup", "lim sup");
 		TEXT_OPERATORS.put("liminf", "lim inf");
 		TEXT_OPERATORS.put("sin", "sin");
 		TEXT_OPERATORS.put("cos", "cos");
 		TEXT_OPERATORS.put("tan", "tan");
+		TEXT_OPERATORS.put("cot", "cot");
+		TEXT_OPERATORS.put("sec", "sec");
+		TEXT_OPERATORS.put("csc", "csc");
 		TEXT_OPERATORS.put("log", "log");
 		TEXT_OPERATORS.put("ln", "ln");
+		TEXT_OPERATORS.put("lg", "lg");
+		TEXT_OPERATORS.put("exp", "exp");
 		TEXT_OPERATORS.put("max", "max");
 		TEXT_OPERATORS.put("min", "min");
+		TEXT_OPERATORS.put("sup", "sup");
+		TEXT_OPERATORS.put("inf", "inf");
+		TEXT_OPERATORS.put("det", "det");
+		TEXT_OPERATORS.put("dim", "dim");
+		TEXT_OPERATORS.put("gcd", "gcd");
+		TEXT_OPERATORS.put("ker", "ker");
 	}
 
 	public static Symbol symbol(String ref) {

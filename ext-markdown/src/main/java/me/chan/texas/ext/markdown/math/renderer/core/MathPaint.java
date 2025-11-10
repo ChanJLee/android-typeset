@@ -33,6 +33,8 @@ public interface MathPaint {
 
 	void save();
 
+	void save(Styles styles);
+
 	void restore();
 
 	boolean isBoldText();
@@ -44,12 +46,12 @@ public interface MathPaint {
 	void setItalicText(boolean isItalic);
 
 	class Styles {
-		private final float mTextSize;
-		private final Paint.Style mStyle;
-		private final float mStrokeWidth;
-		private final int mColor;
-		private final boolean mIsBold;
-		private final boolean mIsItalic;
+		private float mTextSize;
+		private Paint.Style mStyle;
+		private float mStrokeWidth;
+		private int mColor;
+		private boolean mIsBold;
+		private boolean mIsItalic;
 
 		public Styles(MathPaint paint) {
 			mTextSize = paint.getTextSize();
@@ -60,13 +62,61 @@ public interface MathPaint {
 			mIsItalic = paint.isItalicText();
 		}
 
-		public boolean isModified(MathPaint paint) {
-			return mTextSize != paint.getTextSize() ||
-					mStyle != paint.getStyle() ||
-					mStrokeWidth != paint.getStrokeWidth() ||
-					mColor != paint.getColor() ||
-					mIsBold != paint.isBoldText() ||
-					mIsItalic != paint.isItalicText();
+		public Styles(Styles other) {
+			mTextSize = other.mTextSize;
+			mStyle = other.mStyle;
+			mStrokeWidth = other.mStrokeWidth;
+			mColor = other.mColor;
+			mIsBold = other.mIsBold;
+			mIsItalic = other.mIsItalic;
+		}
+
+		public float getTextSize() {
+			return mTextSize;
+		}
+
+		public void setTextSize(float textSize) {
+			mTextSize = textSize;
+		}
+
+		public Paint.Style getStyle() {
+			return mStyle;
+		}
+
+		public void setStyle(Paint.Style style) {
+			mStyle = style;
+		}
+
+		public float getStrokeWidth() {
+			return mStrokeWidth;
+		}
+
+		public void setStrokeWidth(float strokeWidth) {
+			mStrokeWidth = strokeWidth;
+		}
+
+		public int getColor() {
+			return mColor;
+		}
+
+		public void setColor(int color) {
+			mColor = color;
+		}
+
+		public boolean isBold() {
+			return mIsBold;
+		}
+
+		public void setBold(boolean bold) {
+			mIsBold = bold;
+		}
+
+		public boolean isItalic() {
+			return mIsItalic;
+		}
+
+		public void setItalic(boolean italic) {
+			mIsItalic = italic;
 		}
 
 		public void apply(MathPaint paint) {

@@ -4,13 +4,6 @@ import me.chan.texas.utils.CharStream;
 
 import java.util.*;
 
-// ==================== AST节点定义 ====================
-
-
-// ==================== 异常类 ====================
-
-// ==================== 基于CharStream的解析器 ====================
-
 public class MathParser {
 	private final CharStream stream;
 	private int recursionDepth = 0;
