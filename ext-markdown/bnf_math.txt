@@ -161,7 +161,9 @@
 
 (* ============ 矩阵 ============ *)
 
-<matrix> ::= "\begin{" <matrix_env> "}" <matrix_rows> "\end{" <matrix_env> "}"
+<matrix> ::= "\begin{" <matrix_env> "}" {  "{" <matrix_gravity> "}"  } <matrix_rows> "\end{" <matrix_env> "}"
+
+<matrix_gravity> ::= "l" | "c" | "r"
 
 <matrix_env> ::= "matrix" | "pmatrix" | "bmatrix" | "Bmatrix" | "vmatrix" | "Vmatrix"
                | "smallmatrix" | "array" | "cases"

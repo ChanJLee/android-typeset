@@ -4,10 +4,12 @@ import java.util.List;
 
 public class MatrixAtom implements Atom {
 	public final String env;
+	public final String gravity;
 	public final List<MatrixRow> rows;
 
-	public MatrixAtom(String env, List<MatrixRow> rows) {
+	public MatrixAtom(String env, String gravity, List<MatrixRow> rows) {
 		this.env = env;
+		this.gravity = gravity;
 		this.rows = rows;
 	}
 

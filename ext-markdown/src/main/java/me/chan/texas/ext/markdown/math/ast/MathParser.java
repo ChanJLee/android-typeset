@@ -443,6 +443,8 @@ public class MathParser {
 		skipWhitespace();
 		expect('}');
 
+		String gravity = parseMatrixGravity();
+
 		List<MatrixRow> rows = parseMatrixRows();
 		skipWhitespace();
 		expect('{');
@@ -455,7 +457,7 @@ public class MathParser {
 		skipWhitespace();
 		expect('}');
 
-		return new MatrixAtom(lhsEnv, rows);
+		return new MatrixAtom(lhsEnv, gravity, rows);
 	}
 
 	private List<MatrixRow> parseMatrixRows() throws MathParseException {
@@ -483,6 +485,31 @@ public class MathParser {
 
 	private String parseMatrixEnv() {
 		return scanCommandName();
+	}
+
+	private String parseMatrixGravity() throws MathParseException {
+		int save = stream.save();
+		skipWhitespace();
+		if (stream.peek() != '{') {
+			stream.restore(save);
+			return null;
+		}
+
+		skipWhitespace();
+		if (stream.eof()) {
+			return null;
+		}
+
+		char gravity = (char) stream.eat();
+		if ("clr".indexOf(gravity) == -1) {
+			stream.restore(save);
+			return null;
+		}
+
+		skipWhitespace();
+		expect('}');
+		skipWhitespace();
+		return String.valueOf(gravity);
 	}
 
 	private MatrixRow parseMatrixRow() throws MathParseException {
@@ -1074,19 +1101,6 @@ public class MathParser {
 		}
 
 		return sb.toString();
-	}
-
-	private boolean peekCommand(String expectedCmd) {
-		if (stream.eof() || stream.peek() != '\\') {
-			return false;
-		}
-
-		int saved = stream.save();
-		stream.eat();  // 跳过 \
-		String cmd = scanCommandName();
-		stream.restore(saved);
-
-		return cmd.equals(expectedCmd);
 	}
 
 	private void expectCommand(String expectedCmd) throws MathParseException {
