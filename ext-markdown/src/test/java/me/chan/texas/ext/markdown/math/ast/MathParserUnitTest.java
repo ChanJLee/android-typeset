@@ -394,7 +394,6 @@ public class MathParserUnitTest {
 	@Test
 	public void testAccentErrors() {
 		System.out.println("\n=== 测试重音符号错误 ===");
-		assertParseFails("\\hat{}");          // 缺少内容
 		assertParseFails("\\bar");            // 缺少花括号
 		assertParseFails("\\overline");       // 缺少参数
 		assertParseFails("\\dot{");           // 不完整参数

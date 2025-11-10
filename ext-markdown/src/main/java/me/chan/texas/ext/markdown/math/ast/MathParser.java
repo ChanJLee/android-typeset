@@ -147,13 +147,13 @@ public class MathParser {
 		skipWhitespace();
 
 		// 后续的 binary_op term 对
-		while (!stream.eof() && !isTermEnd() && isBinaryOperator()) {
+		while (!stream.eof() && isBinaryOperator()) {
 			// 消费二元运算符
 			elements.add(new BinOpAtom(consumeBinaryOperator()));
 			skipWhitespace();
 
 			// 运算符后面必须有term
-			if (stream.eof() || isTermEnd()) {
+			if (stream.eof()) {
 				throw new MathParseException("Binary operator must be followed by a term", stream.save());
 			}
 
