@@ -165,7 +165,7 @@ public class MathRendererInflater {
 	}
 
 	private RendererNode inflateAccentAtom(MathPaint.Styles styles, AccentAtom accentAtom) {
-		return new AccentNode(styles, accentAtom.getAccentCmd(), inflateAst(styles, accentAtom.getContent()));
+		return new AccentNode(styles, accentAtom.getCmd(), inflateAst(styles, accentAtom.getContent()));
 	}
 
 	private RendererNode inflateAst(MathPaint.Styles styles, Ast ast) {

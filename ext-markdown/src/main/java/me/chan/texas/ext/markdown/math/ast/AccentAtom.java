@@ -1,21 +1,21 @@
 package me.chan.texas.ext.markdown.math.ast;
 
 public class AccentAtom implements Atom {
-	String accentCmd;  // "hat", "bar", "vec"
-	Ast content;
+	public final String cmd;  // "hat", "bar", "vec"
+	public final Ast content;
 
-	public AccentAtom(String accentCmd, Ast content) {
-		this.accentCmd = accentCmd;
+	public AccentAtom(String cmd, Ast content) {
+		this.cmd = cmd;
 		this.content = content;
 	}
 
 	@Override
 	public String toLatex() {
-		return "\\" + accentCmd + "{" + content.toLatex() + "}";
+		return "\\" + cmd + "{" + content.toLatex() + "}";
 	}
 
-	public String getAccentCmd() {
-		return accentCmd;
+	public String getCmd() {
+		return cmd;
 	}
 
 	public Ast getContent() {

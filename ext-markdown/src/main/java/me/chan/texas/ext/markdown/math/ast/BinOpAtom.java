@@ -1,7 +1,7 @@
 package me.chan.texas.ext.markdown.math.ast;
 
 public class BinOpAtom implements Atom {
-	private final String op;
+	public final String op;
 
 	public BinOpAtom(String op) {
 		this.op = op;
