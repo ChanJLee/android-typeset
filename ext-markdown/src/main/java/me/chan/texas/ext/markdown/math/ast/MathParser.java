@@ -196,6 +196,7 @@ public class MathParser {
 			skipWhitespace();
 			expect('{');
 			Length lengthAtom = parseLength();
+			skipWhitespace();
 			expect('}');
 			return new Spacing(cmd, lengthAtom);
 		}
@@ -207,6 +208,7 @@ public class MathParser {
 			recursionDepth++;
 			try {
 				MathList content = parseMathList();
+				skipWhitespace();
 				expect('}');
 				return new Spacing(cmd, content);
 			} finally {
@@ -219,7 +221,9 @@ public class MathParser {
 	}
 
 	private Length parseLength() throws MathParseException {
+		skipWhitespace();
 		NumberAtom size = parseNumber();
+		skipWhitespace();
 		Unit unit = parseUnit();
 		return new Length(size, unit);
 	}
@@ -431,7 +435,6 @@ public class MathParser {
 	}
 
 	private Unit parseUnit() throws MathParseException {
-		skipWhitespace();
 		// 整数部分
 		StringBuilder sb = new StringBuilder();
 		while (!stream.eof() && Character.isLetter(((char) stream.peek()))) {
@@ -461,6 +464,7 @@ public class MathParser {
 		recursionDepth++;
 		try {
 			MathList content = parseMathList();
+			skipWhitespace();
 			expect('}');
 			return new GroupAtom(content);
 		} finally {
@@ -478,11 +482,13 @@ public class MathParser {
 		recursionDepth++;
 		try {
 			MathList numerator = parseMathList();
+			skipWhitespace();
 			expect('}');
 
 			skipWhitespace();
 			expect('{');
 			MathList denominator = parseMathList();
+			skipWhitespace();
 			expect('}');
 
 			return new FracAtom(cmd, numerator, denominator);
@@ -505,6 +511,7 @@ public class MathParser {
 			recursionDepth++;
 			try {
 				root = parseMathList();
+				skipWhitespace();
 				expect(']');
 			} finally {
 				recursionDepth--;
@@ -517,6 +524,7 @@ public class MathParser {
 		recursionDepth++;
 		try {
 			MathList content = parseMathList();
+			skipWhitespace();
 			expect('}');
 			return new SqrtAtom(content, root);
 		} finally {
@@ -711,6 +719,7 @@ public class MathParser {
 			sb.append((char) stream.eat());
 		}
 
+		skipWhitespace();
 		expect('}');
 		return new TextAtom(command, sb.toString());
 	}
@@ -725,6 +734,7 @@ public class MathParser {
 		recursionDepth++;
 		try {
 			MathList content = parseMathList();
+			skipWhitespace();
 			expect('}');
 			return new AccentAtom(accentCmd, content);
 		} finally {

@@ -15,7 +15,7 @@ public class MathParserUnitTest {
 	// ============ 辅助方法 ============
 	@Test
 	public void assertPlainSymbol() {
-		assertParses(",");
+		assertParses("\\hspace { 100px }");
 	}
 
 	/**
