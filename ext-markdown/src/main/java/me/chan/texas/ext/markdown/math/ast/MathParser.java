@@ -347,7 +347,7 @@ public class MathParser {
 		}
 
 		// 字母（变量）
-		if (Character.isLetter(c) && c != '\\') {
+		if (isVariableLetter(c)) {
 			return parseVariable();
 		}
 
@@ -572,11 +572,24 @@ public class MathParser {
 	}
 
 	/**
-	 * <variable> ::= <letter>
+	 * <variable> ::= <letter> { <letter> }
 	 */
-	private VariableAtom parseVariable() throws MathParseException {
-		char c = (char) stream.eat();
-		return new VariableAtom(c);
+	private VariableAtom parseVariable() {
+		StringBuilder builder = new StringBuilder()
+				.append((char) stream.eat());
+		while (!stream.eof()) {
+			char c = (char) stream.peek();
+			if (isVariableLetter(c)) {
+				builder.append((char) stream.eat());
+			} else {
+				break;
+			}
+		}
+		return new VariableAtom(builder.toString());
+	}
+
+	private boolean isVariableLetter(char c) {
+		return Character.isLetter(c) && c != '\\';
 	}
 
 	/**
