@@ -11,7 +11,7 @@ import me.chan.texas.ext.markdown.math.renderer.core.MathCanvas;
 import me.chan.texas.ext.markdown.math.renderer.core.MathPaint;
 
 public abstract class RendererNode {
-	public static final boolean DEBUG = false;
+	public static final boolean DEBUG = true;
 
 	private float mScale;
 	private int mWidth;

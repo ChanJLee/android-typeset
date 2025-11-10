@@ -1,7 +1,5 @@
 package me.chan.texas.ext.markdown.math.renderer;
 
-import android.text.TextUtils;
-
 import androidx.annotation.Nullable;
 
 import me.chan.texas.ext.markdown.math.renderer.core.MathCanvas;
