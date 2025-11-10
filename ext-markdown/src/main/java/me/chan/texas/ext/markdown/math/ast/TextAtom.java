@@ -10,7 +10,7 @@ public class TextAtom implements Atom {
 	}
 
 	@Override
-	public String toLatex() {
+	public String toString() {
 		return "\\" + command + "{" + text + "}";
 	}
 }

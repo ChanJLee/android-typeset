@@ -8,8 +8,8 @@ public class GroupAtom implements Atom {
 	}
 
 	@Override
-	public String toLatex() {
-		return "{" + content.toLatex() + "}";
+	public String toString() {
+		return "{" + content.toString() + "}";
 	}
 
 	public MathList getContent() {

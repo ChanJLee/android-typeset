@@ -10,7 +10,7 @@ public class Length implements Ast {
 	}
 
 	@Override
-	public String toLatex() {
-		return size.toLatex() + unit.toLatex();
+	public String toString() {
+		return size.toString() + unit.toString();
 	}
 }

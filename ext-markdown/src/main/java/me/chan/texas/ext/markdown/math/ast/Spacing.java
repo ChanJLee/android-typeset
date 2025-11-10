@@ -10,7 +10,7 @@ public class Spacing implements Atom {
 	}
 
 	@Override
-	public String toLatex() {
+	public String toString() {
 		return "";
 	}
 }

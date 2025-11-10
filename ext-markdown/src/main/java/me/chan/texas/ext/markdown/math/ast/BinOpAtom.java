@@ -12,7 +12,7 @@ public class BinOpAtom implements Atom {
 	}
 
 	@Override
-	public String toLatex() {
+	public String toString() {
 		return op;
 	}
 }

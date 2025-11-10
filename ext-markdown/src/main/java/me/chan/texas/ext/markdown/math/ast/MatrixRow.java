@@ -10,11 +10,11 @@ public class MatrixRow implements Ast {
 	}
 
 	@Override
-	public String toLatex() {
+	public String toString() {
 		StringBuilder builder = new StringBuilder();
 		String join = " & ";
 		for (Ast element : elements) {
-			builder.append(element.toLatex());
+			builder.append(element.toString());
 			builder.append(join);
 		}
 

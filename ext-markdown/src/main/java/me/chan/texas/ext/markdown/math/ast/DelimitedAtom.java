@@ -14,10 +14,10 @@ public class DelimitedAtom implements Atom {
 	}
 
 	@Override
-	public String toLatex() {
+	public String toString() {
 		return "\\" + MathParser.DELIMITER_LEVELS[level][0] + " " +
 				leftDelimiter + " " +
-				content.toLatex() +
+				content.toString() +
 				" \\" + MathParser.DELIMITER_LEVELS[level][1] + rightDelimiter;
 	}
 }

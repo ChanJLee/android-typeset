@@ -8,8 +8,8 @@ public class GroupScriptArg implements ScriptArg {
 	}
 
 	@Override
-	public String toLatex() {
-		return "{" + content.toLatex() + "}";
+	public String toString() {
+		return "{" + content.toString() + "}";
 	}
 
 	public MathList getContent() {

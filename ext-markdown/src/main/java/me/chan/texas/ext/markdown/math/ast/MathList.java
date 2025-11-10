@@ -14,10 +14,10 @@ public class MathList implements Ast {
 	}
 
 	@Override
-	public String toLatex() {
+	public String toString() {
 		StringBuilder sb = new StringBuilder();
 		for (int i = 0; i < ast.size(); i++) {
-			sb.append(ast.get(i).toLatex());
+			sb.append(ast.get(i).toString());
 		}
 		return sb.toString();
 	}

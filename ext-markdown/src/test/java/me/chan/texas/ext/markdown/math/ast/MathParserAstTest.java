@@ -630,43 +630,43 @@ public class MathParserAstTest {
 
 		System.out.println("✅ 复杂表达式AST结构测试通过");
 	}
-//
-//	@Test
-//	public void testMultipleTermsExpression() throws MathParseException {
-//		System.out.println("\n=== 测试多项式表达式 ===");
-//
-//		// ax^2 + bx + c
-//		MathList result = parse("ax^2+bx+c");
-//		Expression expr = getFirstExpression(result);
-//		List<Ast> elements = expr.getElements();
-//
-//		// 应该有5个元素: Term(ax^2) BinOp(+) Term(bx) BinOp(+) Term(c)
-//		assertEquals("应该有5个元素", 5, elements.size());
-//
-//		// 验证第一项
-//		assertTrue("第1个应该是Term", elements.get(0) instanceof Term);
-//		Term term1 = (Term) elements.get(0);
-//		assertTrue("第1项的Atom应该是VariableAtom", term1.getAtom() instanceof VariableAtom);
-//		assertNotNull("第1项应该有上标", term1.getSuffix());
-//
-//		// 验证运算符
-//		assertTrue("第2个应该是BinOpAtom", elements.get(1) instanceof BinOpAtom);
-//		BinOpAtom op1 = (BinOpAtom) elements.get(1);
-//		assertEquals("第1个运算符应该是+", "+", op1.op);
-//
-//		// 验证第二项
-//		assertTrue("第3个应该是Term", elements.get(2) instanceof Term);
-//
-//		// 验证第二个运算符
-//		assertTrue("第4个应该是BinOpAtom", elements.get(3) instanceof BinOpAtom);
-//		BinOpAtom op2 = (BinOpAtom) elements.get(3);
-//		assertEquals("第2个运算符应该是+", "+", op2.op);
-//
-//		// 验证第三项
-//		assertTrue("第5个应该是Term", elements.get(4) instanceof Term);
-//
-//		System.out.println("✅ 多项式表达式测试通过");
-//	}
+
+	@Test
+	public void testMultipleTermsExpression() throws MathParseException {
+		System.out.println("\n=== 测试多项式表达式 ===");
+
+		// ax^2 + bx + c
+		MathList result = parse("ax^2+bx+c");
+		Expression expr = getFirstExpression(result);
+		List<Ast> elements = expr.getElements();
+
+		// 应该有5个元素: Term(ax^2) BinOp(+) Term(bx) BinOp(+) Term(c)
+		assertEquals("应该有5个元素", 5, elements.size());
+
+		// 验证第一项
+		assertTrue("第1个应该是Term", elements.get(0) instanceof Term);
+		Term term1 = (Term) elements.get(0);
+		assertTrue("第1项的Atom应该是VariableAtom", term1.getAtom() instanceof VariableAtom);
+		assertNotNull("第1项应该有上标", term1.getSuffix());
+
+		// 验证运算符
+		assertTrue("第2个应该是BinOpAtom", elements.get(1) instanceof BinOpAtom);
+		BinOpAtom op1 = (BinOpAtom) elements.get(1);
+		assertEquals("第1个运算符应该是+", "+", op1.op);
+
+		// 验证第二项
+		assertTrue("第3个应该是Term", elements.get(2) instanceof Term);
+
+		// 验证第二个运算符
+		assertTrue("第4个应该是BinOpAtom", elements.get(3) instanceof BinOpAtom);
+		BinOpAtom op2 = (BinOpAtom) elements.get(3);
+		assertEquals("第2个运算符应该是+", "+", op2.op);
+
+		// 验证第三项
+		assertTrue("第5个应该是Term", elements.get(4) instanceof Term);
+
+		System.out.println("✅ 多项式表达式测试通过");
+	}
 
 	// ============ 18. MathList结构测试 ============
 
@@ -682,7 +682,7 @@ public class MathParserAstTest {
 		assertTrue("AST应该包含元素", ast.size() > 0);
 
 		// 验证toLatex方法
-		String latex = result.toLatex();
+		String latex = result.toString();
 		assertNotNull("toLatex输出不应为null", latex);
 		assertTrue("toLatex输出不应为空", latex.length() > 0);
 
@@ -777,7 +777,7 @@ public class MathParserAstTest {
 			MathList result = parse(input);
 			assertNotNull("解析结果不应为null: " + input, result);
 
-			String latex = result.toLatex();
+			String latex = result.toString();
 			assertNotNull("toLatex结果不应为null: " + input, latex);
 			assertTrue("toLatex结果不应为空: " + input, latex.length() > 0);
 

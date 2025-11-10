@@ -8,7 +8,7 @@ public class SpecialSymbolAtom implements Atom {
 	}
 
 	@Override
-	public String toLatex() {
+	public String toString() {
 		return "\\" + symbol;
 	}
 }

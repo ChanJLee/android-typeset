@@ -10,13 +10,13 @@ public class SupSubSuffix implements Ast {
 	}
 
 	@Override
-	public String toLatex() {
+	public String toString() {
 		String result = "";
 		if (superscript != null) {
-			result += "^" + superscript.toLatex();
+			result += "^" + superscript.toString();
 		}
 		if (subscript != null) {
-			result += "_" + subscript.toLatex();
+			result += "_" + subscript.toString();
 		}
 		return result;
 	}

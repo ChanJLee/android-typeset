@@ -35,7 +35,7 @@ public class MathParserUnitTest {
 	private void assertParses(String input) {
 		try {
 			MathList result = parseAndVerify(input);
-			String output = result.toLatex();
+			String output = result.toString();
 			assertNotNull("输出不应为null", output);
 			System.out.println("✅ " + input + " → " + output);
 		} catch (MathParseException e) {

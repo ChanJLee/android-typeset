@@ -14,11 +14,11 @@ public class MatrixAtom implements Atom {
 	}
 
 	@Override
-	public String toLatex() {
+	public String toString() {
 		StringBuilder stringBuilder = new StringBuilder();
 		stringBuilder.append("\\begin{").append(env).append("}\n");
 		for (MatrixRow row : rows) {
-			stringBuilder.append(row.toLatex());
+			stringBuilder.append(row.toString());
 		}
 		stringBuilder.append("\\end{").append(env).append("}\n");
 		return stringBuilder.toString();

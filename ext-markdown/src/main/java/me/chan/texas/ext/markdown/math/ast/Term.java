@@ -12,14 +12,14 @@ public class Term implements Ast {
 	}
 
 	@Override
-	public String toLatex() {
+	public String toString() {
 		String result = "";
 		if (unaryOp != null) {
 			result += unaryOp;
 		}
-		result += atom.toLatex();
+		result += atom.toString();
 		if (suffix != null) {
-			result += suffix.toLatex();
+			result += suffix.toString();
 		}
 		return result;
 	}

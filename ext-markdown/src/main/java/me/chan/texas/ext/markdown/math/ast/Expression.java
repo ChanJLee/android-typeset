@@ -18,7 +18,7 @@ public class Expression implements Ast {
 	}
 
 	@Override
-	public String toLatex() {
+	public String toString() {
 		return "Expression(" + elements + ")";
 	}
 }

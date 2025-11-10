@@ -8,7 +8,7 @@ public class SizeUnit implements Atom {
 	}
 
 	@Override
-	public String toLatex() {
+	public String toString() {
 		return unit;
 	}
 }

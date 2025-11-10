@@ -12,7 +12,7 @@ public class FracAtom implements Atom {
 	}
 
 	@Override
-	public String toLatex() {
-		return "\\" + command + "{" + numerator.toLatex() + "}{" + denominator.toLatex() + "}";
+	public String toString() {
+		return "\\" + command + "{" + numerator.toString() + "}{" + denominator.toString() + "}";
 	}
 }

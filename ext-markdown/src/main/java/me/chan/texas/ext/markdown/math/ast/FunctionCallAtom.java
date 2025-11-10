@@ -15,16 +15,16 @@ public class FunctionCallAtom implements Atom {
 	}
 
 	@Override
-	public String toLatex() {
+	public String toString() {
 		String result = "\\" + functionName;
 		if (subscript != null) {
-			result += "_" + subscript.toLatex();
+			result += "_" + subscript.toString();
 		}
 		if (superscript != null) {
-			result += "^" + superscript.toLatex();
+			result += "^" + superscript.toString();
 		}
 		if (argument != null) {
-			result += argument.toLatex();
+			result += argument.toString();
 		}
 		return result;
 	}

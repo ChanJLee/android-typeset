@@ -10,8 +10,8 @@ public class AccentAtom implements Atom {
 	}
 
 	@Override
-	public String toLatex() {
-		return "\\" + cmd + "{" + content.toLatex() + "}";
+	public String toString() {
+		return "\\" + cmd + "{" + content.toString() + "}";
 	}
 
 	public String getCmd() {

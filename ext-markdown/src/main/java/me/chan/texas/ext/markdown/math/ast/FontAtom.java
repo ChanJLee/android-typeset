@@ -10,7 +10,7 @@ public class FontAtom implements Atom {
 	}
 
 	@Override
-	public String toLatex() {
-		return "\\" + styles + " { " + ast.toLatex() + " }";
+	public String toString() {
+		return "\\" + styles + " { " + ast.toString() + " }";
 	}
 }

@@ -8,7 +8,7 @@ public class GreekLetterAtom implements Atom {
 	}
 
 	@Override
-	public String toLatex() {
+	public String toString() {
 		return "\\" + symbol;
 	}
 }

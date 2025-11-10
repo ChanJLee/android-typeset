@@ -12,13 +12,13 @@ public class LargeOperatorAtom implements Atom {
 	}
 
 	@Override
-	public String toLatex() {
+	public String toString() {
 		String result = "\\" + operatorName;
 		if (subscript != null) {
-			result += "_" + subscript.toLatex();
+			result += "_" + subscript.toString();
 		}
 		if (superscript != null) {
-			result += "^" + superscript.toLatex();
+			result += "^" + superscript.toString();
 		}
 		return result;
 	}

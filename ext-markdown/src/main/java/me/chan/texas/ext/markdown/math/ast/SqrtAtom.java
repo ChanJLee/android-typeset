@@ -10,12 +10,12 @@ public class SqrtAtom implements Atom {
 	}
 
 	@Override
-	public String toLatex() {
+	public String toString() {
 		String result = "\\sqrt";
 		if (root != null) {
-			result += "[" + root.toLatex() + "]";
+			result += "[" + root.toString() + "]";
 		}
-		result += "{" + content.toLatex() + "}";
+		result += "{" + content.toString() + "}";
 		return result;
 	}
 }

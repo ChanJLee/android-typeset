@@ -8,7 +8,7 @@ public class VariableAtom implements Atom {
 	}
 
 	@Override
-	public String toLatex() {
+	public String toString() {
 		return String.valueOf(name);
 	}
 }

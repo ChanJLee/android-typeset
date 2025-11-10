@@ -8,7 +8,7 @@ public class SingleTokenScriptArg implements ScriptArg {
 	}
 
 	@Override
-	public String toLatex() {
+	public String toString() {
 		return token;
 	}
 
