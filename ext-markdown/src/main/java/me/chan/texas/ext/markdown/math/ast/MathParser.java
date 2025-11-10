@@ -121,7 +121,7 @@ public class MathParser {
 		List<Ast> ast = new ArrayList<>();
 		skipWhitespace();
 
-		while (!stream.eof() && !isTermEnd()) {
+		while (!isMathListEnd()) {
 			// 检查是否是 spacing 命令
 			if (isSpacingCommand()) {
 				ast.add(parseSpacing());
@@ -232,10 +232,11 @@ public class MathParser {
 	 * 辅助方法：判断当前是否是 term 的结束位置
 	 * 例如，当遇到右括号、\right 命令或文件末尾时
 	 */
-	private boolean isTermEnd() {
+	private boolean isMathListEnd() {
 		if (stream.eof()) {
 			return true;
 		}
+
 		char c = (char) stream.peek();
 		if (c == '}') { // 组结束
 			return true;
