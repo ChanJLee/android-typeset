@@ -213,6 +213,10 @@ public class DecorGroupNode extends RendererNode {
 			return this;
 		}
 
+		public Builder left(RendererNode node) {
+			throw new RuntimeException("Stub!");
+		}
+
 		public DecorGroupNode build() {
 			return new DecorGroupNode(mStyles, this);
 		}

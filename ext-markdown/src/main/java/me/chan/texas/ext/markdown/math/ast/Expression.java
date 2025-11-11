@@ -7,14 +7,10 @@ import java.util.List;
  * <expression> ::= <term> { <binary_op> <term> }
  */
 public class Expression implements Ast {
-	private final List<Ast> elements;
+	public final List<Ast> elements;
 
 	public Expression(List<Ast> elements) {
 		this.elements = elements;
-	}
-
-	public List<Ast> getElements() {
-		return elements;
 	}
 
 	@Override

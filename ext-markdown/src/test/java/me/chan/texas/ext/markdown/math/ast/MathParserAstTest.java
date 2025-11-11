@@ -30,7 +30,7 @@ public class MathParserAstTest {
 	 */
 	private Expression getFirstExpression(MathList mathList) {
 		assertNotNull("MathList不应为null", mathList);
-		List<Ast> elements = mathList.getAst();
+		List<Ast> elements = mathList.getElements();
 		assertTrue("MathList应至少包含一个元素", elements.size() > 0);
 		assertTrue("第一个元素应是Expression", elements.get(0) instanceof Expression);
 		return (Expression) elements.get(0);
@@ -161,6 +161,18 @@ public class MathParserAstTest {
 		term = getFirstTerm(expr);
 
 		assertEquals("一元运算符应该是+", "+", term.getUnaryOp());
+
+		result = parse("\\pm a");
+		expr = getFirstExpression(result);
+		term = getFirstTerm(expr);
+
+		assertEquals("一元运算符应该是\\pm", "\\pm", term.getUnaryOp());
+
+		result = parse("\\mp a");
+		expr = getFirstExpression(result);
+		term = getFirstTerm(expr);
+
+		assertEquals("一元运算符应该是\\pm", "\\mp", term.getUnaryOp());
 
 		System.out.println("✅ 一元运算符测试通过");
 	}
@@ -302,11 +314,11 @@ public class MathParserAstTest {
 		assertNotNull("分母不应为null", frac.denominator);
 
 		// 验证分子的内容
-		List<Ast> numeratorElements = frac.numerator.getAst();
+		List<Ast> numeratorElements = frac.numerator.getElements();
 		assertEquals("分子应该有1个元素", 1, numeratorElements.size());
 
 		// 验证分母的内容
-		List<Ast> denominatorElements = frac.denominator.getAst();
+		List<Ast> denominatorElements = frac.denominator.getElements();
 		assertEquals("分母应该有1个元素", 1, denominatorElements.size());
 
 		System.out.println("✅ FracAtom测试通过");
@@ -346,7 +358,7 @@ public class MathParserAstTest {
 		assertNotNull("外层分式不应为null", outerFrac);
 
 		// 验证分子是一个分式
-		List<Ast> numeratorElements = outerFrac.numerator.getAst();
+		List<Ast> numeratorElements = outerFrac.numerator.getElements();
 		assertTrue("分子应该包含元素", numeratorElements.size() > 0);
 
 		Expression innerExpr = (Expression) numeratorElements.get(0);
@@ -392,7 +404,7 @@ public class MathParserAstTest {
 		assertNotNull("应该有根次数", sqrt.root);
 
 		// 验证根次数
-		List<Ast> rootElements = sqrt.root.getAst();
+		List<Ast> rootElements = sqrt.root.getElements();
 		assertTrue("根次数应该包含元素", rootElements.size() > 0);
 
 		System.out.println("✅ 带根次数的SqrtAtom测试通过");
@@ -499,7 +511,7 @@ public class MathParserAstTest {
 		GroupAtom group = (GroupAtom) atom;
 
 		assertNotNull("分组内容不应为null", group.getContent());
-		List<Ast> content = group.getContent().getAst();
+		List<Ast> content = group.getContent().getElements();
 		assertTrue("分组应该包含元素", content.size() > 0);
 
 		System.out.println("✅ GroupAtom测试通过");
@@ -594,7 +606,7 @@ public class MathParserAstTest {
 		System.out.println("\n=== 测试Spacing节点 ===");
 
 		MathList result = parse("a\\quad b");
-		List<Ast> elements = result.getAst();
+		List<Ast> elements = result.getElements();
 
 		// 应该有3个元素：Expression(a), Spacing, Expression(b)
 		assertTrue("应该至少有3个元素", elements.size() >= 3);
@@ -622,11 +634,11 @@ public class MathParserAstTest {
 
 		// 验证分子包含内容
 		assertNotNull("分子不应为null", frac.numerator);
-		assertTrue("分子应该包含元素", frac.numerator.getAst().size() > 0);
+		assertTrue("分子应该包含元素", frac.numerator.getElements().size() > 0);
 
 		// 验证分母包含内容
 		assertNotNull("分母不应为null", frac.denominator);
-		assertTrue("分母应该包含元素", frac.denominator.getAst().size() > 0);
+		assertTrue("分母应该包含元素", frac.denominator.getElements().size() > 0);
 
 		System.out.println("✅ 复杂表达式AST结构测试通过");
 	}
@@ -677,7 +689,7 @@ public class MathParserAstTest {
 		MathList result = parse("x+y");
 		assertNotNull("MathList不应为null", result);
 
-		List<Ast> ast = result.getAst();
+		List<Ast> ast = result.getElements();
 		assertNotNull("AST列表不应为null", ast);
 		assertTrue("AST应该包含元素", ast.size() > 0);
 
@@ -701,7 +713,7 @@ public class MathParserAstTest {
 		GroupAtom group = (GroupAtom) getAtom(term);
 
 		assertNotNull("分组内容不应为null", group.getContent());
-		assertEquals("空分组应该有0个元素", 0, group.getContent().getAst().size());
+		assertEquals("空分组应该有0个元素", 0, group.getContent().getElements().size());
 
 		System.out.println("✅ 空分组测试通过");
 	}
@@ -734,7 +746,7 @@ public class MathParserAstTest {
 
 		// 验证MathList
 		assertNotNull("MathList不应为null", result);
-		List<Ast> topElements = result.getAst();
+		List<Ast> topElements = result.getElements();
 		assertTrue("应该包含元素", topElements.size() > 0);
 
 		// 获取第一个Expression
