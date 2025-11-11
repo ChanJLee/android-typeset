@@ -942,7 +942,7 @@ public class MathParser {
 
 		if (stream.peek() == '{') {
 			GroupAtom group = parseGroup();
-			return new GroupScriptArg(group.getContent());
+			return new GroupScriptArg(group);
 		} else if (isSingleTokenStart()) {
 			String token = scanSingleToken();
 			return new SingleTokenScriptArg(token);

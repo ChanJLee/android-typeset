@@ -1,18 +1,14 @@
 package me.chan.texas.ext.markdown.math.ast;
 
 public class GroupScriptArg implements ScriptArg {
-	MathList content;
+	public GroupAtom content;
 
-	public GroupScriptArg(MathList content) {
+	public GroupScriptArg(GroupAtom content) {
 		this.content = content;
 	}
 
 	@Override
 	public String toString() {
 		return "{" + content.toString() + "}";
-	}
-
-	public MathList getContent() {
-		return content;
 	}
 }

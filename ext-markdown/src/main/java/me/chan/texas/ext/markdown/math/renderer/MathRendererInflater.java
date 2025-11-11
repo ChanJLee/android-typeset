@@ -74,12 +74,12 @@ public class MathRendererInflater {
 			return builder.build();
 		}
 
-		ScriptArg scriptArg = suffix.getSuperscript();
+		ScriptArg scriptArg = suffix.superscript;
 		if (scriptArg != null) {
 			builder.rightTop(inflateScriptArg(new MathPaint.Styles(styles).setTextSize(styles.getTextSize() * 0.4f), scriptArg));
 		}
 
-		scriptArg = suffix.getSubscript();
+		scriptArg = suffix.subscript;
 		if (scriptArg != null) {
 			builder.rightBottom(inflateScriptArg(new MathPaint.Styles(styles).setTextSize(styles.getTextSize() * 0.4f), scriptArg));
 		}
@@ -101,11 +101,11 @@ public class MathRendererInflater {
 	}
 
 	private RendererNode inflateScriptArg(MathPaint.Styles styles, GroupScriptArg group) {
-		return inflate(styles, group.getContent());
+		return inflate(styles, group.content.content);
 	}
 
 	private RendererNode inflateScriptArg(MathPaint.Styles styles, SingleTokenScriptArg singleTokenScriptArg) {
-		String token = singleTokenScriptArg.getToken();
+		String token = singleTokenScriptArg.token;
 		if (token.startsWith("\\")) {
 			return new SymbolNode(styles, MathFontOptions.symbol(token));
 		}
@@ -175,7 +175,7 @@ public class MathRendererInflater {
 	}
 
 	private RendererNode inflateGroupAtom(MathPaint.Styles styles, GroupAtom groupAtom) {
-		return inflate(styles, groupAtom.getContent());
+		return inflate(styles, groupAtom.content);
 	}
 
 	private RendererNode inflateAccentAtom(MathPaint.Styles styles, AccentAtom accentAtom) {

@@ -220,13 +220,13 @@ public class MathParserAstTest {
 
 		SupSubSuffix suffix = term.suffix;
 		assertNotNull("应该有上下标后缀", suffix);
-		assertNotNull("应该有上标", suffix.getSuperscript());
-		assertNull("不应该有下标", suffix.getSubscript());
+		assertNotNull("应该有上标", suffix.superscript);
+		assertNull("不应该有下标", suffix.subscript);
 
 		assertTrue("上标应该是SingleTokenScriptArg",
-				suffix.getSuperscript() instanceof SingleTokenScriptArg);
-		SingleTokenScriptArg superscript = (SingleTokenScriptArg) suffix.getSuperscript();
-		assertEquals("上标内容应该是2", "2", superscript.getToken());
+				suffix.superscript instanceof SingleTokenScriptArg);
+		SingleTokenScriptArg superscript = (SingleTokenScriptArg) suffix.superscript;
+		assertEquals("上标内容应该是2", "2", superscript.token);
 
 		System.out.println("✅ 上标测试通过");
 	}
@@ -241,13 +241,13 @@ public class MathParserAstTest {
 
 		SupSubSuffix suffix = term.suffix;
 		assertNotNull("应该有上下标后缀", suffix);
-		assertNull("不应该有上标", suffix.getSuperscript());
-		assertNotNull("应该有下标", suffix.getSubscript());
+		assertNull("不应该有上标", suffix.superscript);
+		assertNotNull("应该有下标", suffix.subscript);
 
 		assertTrue("下标应该是SingleTokenScriptArg",
-				suffix.getSubscript() instanceof SingleTokenScriptArg);
-		SingleTokenScriptArg subscript = (SingleTokenScriptArg) suffix.getSubscript();
-		assertEquals("下标内容应该是1", "1", subscript.getToken());
+				suffix.subscript instanceof SingleTokenScriptArg);
+		SingleTokenScriptArg subscript = (SingleTokenScriptArg) suffix.subscript;
+		assertEquals("下标内容应该是1", "1", subscript.token);
 
 		System.out.println("✅ 下标测试通过");
 	}
@@ -262,14 +262,14 @@ public class MathParserAstTest {
 
 		SupSubSuffix suffix = term.suffix;
 		assertNotNull("应该有上下标后缀", suffix);
-		assertNotNull("应该有上标", suffix.getSuperscript());
-		assertNotNull("应该有下标", suffix.getSubscript());
+		assertNotNull("应该有上标", suffix.superscript);
+		assertNotNull("应该有下标", suffix.subscript);
 
-		SingleTokenScriptArg superscript = (SingleTokenScriptArg) suffix.getSuperscript();
-		SingleTokenScriptArg subscript = (SingleTokenScriptArg) suffix.getSubscript();
+		SingleTokenScriptArg superscript = (SingleTokenScriptArg) suffix.superscript;
+		SingleTokenScriptArg subscript = (SingleTokenScriptArg) suffix.subscript;
 
-		assertEquals("上标内容应该是2", "2", superscript.getToken());
-		assertEquals("下标内容应该是1", "1", subscript.getToken());
+		assertEquals("上标内容应该是2", "2", superscript.token);
+		assertEquals("下标内容应该是1", "1", subscript.token);
 
 		System.out.println("✅ 上下标组合测试通过");
 	}
@@ -286,10 +286,10 @@ public class MathParserAstTest {
 		assertNotNull("应该有上下标后缀", suffix);
 
 		assertTrue("上标应该是GroupScriptArg",
-				suffix.getSuperscript() instanceof GroupScriptArg);
-		GroupScriptArg groupArg = (GroupScriptArg) suffix.getSuperscript();
+				suffix.superscript instanceof GroupScriptArg);
+		GroupScriptArg groupArg = (GroupScriptArg) suffix.superscript;
 
-		MathList content = groupArg.getContent();
+		MathList content = groupArg.content.content;
 		assertNotNull("GroupScriptArg的内容不应为null", content);
 
 		System.out.println("✅ GroupScriptArg测试通过");
@@ -450,7 +450,7 @@ public class MathParserAstTest {
 		assertTrue("下标应该是SingleTokenScriptArg",
 				func.subscript instanceof SingleTokenScriptArg);
 		SingleTokenScriptArg subscript = (SingleTokenScriptArg) func.subscript;
-		assertEquals("下标内容应该是2", "2", subscript.getToken());
+		assertEquals("下标内容应该是2", "2", subscript.token);
 
 		System.out.println("✅ 带下标的函数测试通过");
 	}
@@ -510,8 +510,8 @@ public class MathParserAstTest {
 		assertTrue("应该是GroupAtom", atom instanceof GroupAtom);
 		GroupAtom group = (GroupAtom) atom;
 
-		assertNotNull("分组内容不应为null", group.getContent());
-		List<Ast> content = group.getContent().elements;
+		assertNotNull("分组内容不应为null", group.content);
+		List<Ast> content = group.content.elements;
 		assertTrue("分组应该包含元素", content.size() > 0);
 
 		System.out.println("✅ GroupAtom测试通过");
@@ -712,8 +712,8 @@ public class MathParserAstTest {
 		Term term = getFirstTerm(expr);
 		GroupAtom group = (GroupAtom) getAtom(term);
 
-		assertNotNull("分组内容不应为null", group.getContent());
-		assertEquals("空分组应该有0个元素", 0, group.getContent().elements.size());
+		assertNotNull("分组内容不应为null", group.content);
+		assertEquals("空分组应该有0个元素", 0, group.content.elements.size());
 
 		System.out.println("✅ 空分组测试通过");
 	}
@@ -766,8 +766,8 @@ public class MathParserAstTest {
 			Term xTerm = (Term) exprElements.get(1);
 			assertNotNull("x项应该有上下标", xTerm.suffix);
 			SupSubSuffix suffix = xTerm.suffix;
-			assertNotNull("应该有上标", suffix.getSuperscript());
-			assertNotNull("应该有下标", suffix.getSubscript());
+			assertNotNull("应该有上标", suffix.superscript);
+			assertNotNull("应该有下标", suffix.subscript);
 		}
 
 		System.out.println("✅ 完整AST遍历测试通过");
