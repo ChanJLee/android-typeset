@@ -34,6 +34,12 @@ public class DecorGroupNode extends RendererNode {
 		if (mBuilder.bottom != null) {
 			mBuilder.bottom.measure(paint);
 		}
+		if (mBuilder.left != null) {
+			mBuilder.left.measure(paint);
+		}
+		if (mBuilder.right != null) {
+			mBuilder.right.measure(paint);
+		}
 
 		preLayout();
 
@@ -74,6 +80,18 @@ public class DecorGroupNode extends RendererNode {
 			right = Math.max(right, mBuilder.bottom.getRight());
 		}
 
+		if (mBuilder.left != null) {
+			left = Math.min(left, mBuilder.left.getLeft());
+			top = Math.min(top, mBuilder.left.getTop());
+			bottom = Math.max(bottom, mBuilder.left.getBottom());
+		}
+
+		if (mBuilder.right != null) {
+			right = Math.max(right, mBuilder.right.getRight());
+			top = Math.min(top, mBuilder.right.getTop());
+			bottom = Math.max(bottom, mBuilder.right.getBottom());
+		}
+
 		setMeasuredSize((int) Math.ceil(right - left), (int) Math.ceil(bottom - top));
 
 		float dx = 0;
@@ -104,6 +122,12 @@ public class DecorGroupNode extends RendererNode {
 		if (mBuilder.bottom != null) {
 			mBuilder.bottom.translate(dx, dy);
 		}
+		if (mBuilder.left != null) {
+			mBuilder.left.translate(dx, dy);
+		}
+		if (mBuilder.right != null) {
+			mBuilder.right.translate(dx, dy);
+		}
 	}
 
 	@Override
@@ -132,6 +156,12 @@ public class DecorGroupNode extends RendererNode {
 		if (mBuilder.bottom != null) {
 			mBuilder.bottom.layout(0, mBuilder.center.getBottom());
 		}
+		if (mBuilder.left != null) {
+			mBuilder.left.layout(-mBuilder.left.getWidth(), (mBuilder.center.getCenterY() - mBuilder.left.getHeight()) / 2f);
+		}
+		if (mBuilder.right != null) {
+			mBuilder.right.layout(mBuilder.center.getRight(), (mBuilder.center.getCenterY() - mBuilder.right.getHeight()) / 2f);
+		}
 	}
 
 	@Override
@@ -155,6 +185,12 @@ public class DecorGroupNode extends RendererNode {
 		if (mBuilder.bottom != null) {
 			mBuilder.bottom.draw(canvas, paint);
 		}
+		if (mBuilder.left != null) {
+			mBuilder.left.draw(canvas, paint);
+		}
+		if (mBuilder.right != null) {
+			mBuilder.right.draw(canvas, paint);
+		}
 	}
 
 	@Override
@@ -177,6 +213,10 @@ public class DecorGroupNode extends RendererNode {
 		private RendererNode top;
 		@Nullable
 		private RendererNode bottom;
+		@Nullable
+		private RendererNode left;
+		@Nullable
+		private RendererNode right;
 
 		public Builder(MathPaint.Styles styles, RendererNode centerNode) {
 			mStyles = styles;
@@ -214,7 +254,13 @@ public class DecorGroupNode extends RendererNode {
 		}
 
 		public Builder left(RendererNode node) {
-			throw new RuntimeException("Stub!");
+			left = node;
+			return this;
+		}
+
+		public Builder right(RendererNode node) {
+			right = node;
+			return this;
 		}
 
 		public DecorGroupNode build() {

@@ -29,9 +29,9 @@ import me.chan.texas.ext.markdown.math.renderer.fonts.Symbol;
 
 public class MathRendererInflater {
 
-	public RendererNode inflate(MathPaint.Styles styles, MathList math) {
+	public RendererNode inflate(MathPaint.Styles styles, MathList mathList) {
 		List<RendererNode> list = new ArrayList<>();
-		for (Ast ast : math.elements) {
+		for (Ast ast : mathList.elements) {
 			if (ast instanceof Expression) {
 				list.add(inflateExpression(styles, (Expression) ast));
 			} else if (ast instanceof Spacing) {
@@ -59,7 +59,7 @@ public class MathRendererInflater {
 	}
 
 	private RendererNode inflateSpacing(MathPaint.Styles styles, Spacing spacing) {
-
+		throw new RuntimeException("Stub!");
 	}
 
 	private RendererNode inflateTerm(MathPaint.Styles styles, Term term) {
@@ -181,11 +181,7 @@ public class MathRendererInflater {
 	}
 
 	private RendererNode inflateAccentAtom(MathPaint.Styles styles, AccentAtom accentAtom) {
-		return new AccentNode(styles, accentAtom.getCmd(), inflateAst(styles, accentAtom.getContent()));
-	}
-
-	private RendererNode inflateAst(MathPaint.Styles styles, Ast ast) {
-		throw new RuntimeException("Stub!");
+		return new AccentNode(styles, accentAtom.cmd, inflate(styles, accentAtom.content));
 	}
 
 	private RendererNode inflateBinOp(MathPaint.Styles styles, BinOpAtom atom) {
