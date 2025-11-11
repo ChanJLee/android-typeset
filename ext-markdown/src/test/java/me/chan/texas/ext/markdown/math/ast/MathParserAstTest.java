@@ -30,7 +30,7 @@ public class MathParserAstTest {
 	 */
 	private Expression getFirstExpression(MathList mathList) {
 		assertNotNull("MathList不应为null", mathList);
-		List<Ast> elements = mathList.getElements();
+		List<Ast> elements = mathList.elements;
 		assertTrue("MathList应至少包含一个元素", elements.size() > 0);
 		assertTrue("第一个元素应是Expression", elements.get(0) instanceof Expression);
 		return (Expression) elements.get(0);
@@ -41,7 +41,7 @@ public class MathParserAstTest {
 	 */
 	private Term getFirstTerm(Expression expr) {
 		assertNotNull("Expression不应为null", expr);
-		List<Ast> elements = expr.getElements();
+		List<Ast> elements = expr.elements;
 		assertTrue("Expression应至少包含一个元素", elements.size() > 0);
 		assertTrue("第一个元素应是Term", elements.get(0) instanceof Term);
 		return (Term) elements.get(0);
@@ -52,7 +52,7 @@ public class MathParserAstTest {
 	 */
 	private Atom getAtom(Term term) {
 		assertNotNull("Term不应为null", term);
-		Atom atom = term.getAtom();
+		Atom atom = term.atom;
 		assertNotNull("Atom不应为null", atom);
 		return atom;
 	}
@@ -99,7 +99,7 @@ public class MathParserAstTest {
 
 		assertTrue("应该是VariableAtom", atom instanceof VariableAtom);
 		VariableAtom var = (VariableAtom) atom;
-		assertEquals("变量名应该是x", 'x', var.name);
+		assertEquals("变量名应该是x", "x", var.name);
 
 		// 测试大写字母
 		result = parse("A");
@@ -109,7 +109,7 @@ public class MathParserAstTest {
 
 		assertTrue("应该是VariableAtom", atom instanceof VariableAtom);
 		var = (VariableAtom) atom;
-		assertEquals("变量名应该是A", 'A', var.name);
+		assertEquals("变量名应该是A", "A", var.name);
 
 		System.out.println("✅ VariableAtom测试通过");
 	}
@@ -152,27 +152,27 @@ public class MathParserAstTest {
 		Expression expr = getFirstExpression(result);
 		Term term = getFirstTerm(expr);
 
-		assertEquals("一元运算符应该是-", "-", term.getUnaryOp());
-		assertTrue("Atom应该是VariableAtom", term.getAtom() instanceof VariableAtom);
+		assertEquals("一元运算符应该是-", "-", term.unaryOp.toString());
+		assertTrue("Atom应该是VariableAtom", term.atom instanceof VariableAtom);
 
 		// 测试正号
 		result = parse("+y");
 		expr = getFirstExpression(result);
 		term = getFirstTerm(expr);
 
-		assertEquals("一元运算符应该是+", "+", term.getUnaryOp());
+		assertEquals("一元运算符应该是+", "+", term.unaryOp.toString());
 
 		result = parse("\\pm a");
 		expr = getFirstExpression(result);
 		term = getFirstTerm(expr);
 
-		assertEquals("一元运算符应该是\\pm", "\\pm", term.getUnaryOp());
+		assertEquals("一元运算符应该是\\pm", "\\pm", term.unaryOp.toString());
 
 		result = parse("\\mp a");
 		expr = getFirstExpression(result);
 		term = getFirstTerm(expr);
 
-		assertEquals("一元运算符应该是\\pm", "\\mp", term.getUnaryOp());
+		assertEquals("一元运算符应该是\\pm", "\\mp", term.unaryOp.toString());
 
 		System.out.println("✅ 一元运算符测试通过");
 	}
@@ -185,7 +185,7 @@ public class MathParserAstTest {
 
 		MathList result = parse("a+b");
 		Expression expr = getFirstExpression(result);
-		List<Ast> elements = expr.getElements();
+		List<Ast> elements = expr.elements;
 
 		// 应该有3个元素：Term, BinOpAtom, Term
 		assertEquals("应该有3个元素", 3, elements.size());
@@ -200,7 +200,7 @@ public class MathParserAstTest {
 		// 测试LaTeX运算符
 		result = parse("a\\times b");
 		expr = getFirstExpression(result);
-		elements = expr.getElements();
+		elements = expr.elements;
 
 		binOp = (BinOpAtom) elements.get(1);
 		assertEquals("运算符应该是\\times", "\\times", binOp.op);
@@ -218,7 +218,7 @@ public class MathParserAstTest {
 		Expression expr = getFirstExpression(result);
 		Term term = getFirstTerm(expr);
 
-		SupSubSuffix suffix = term.getSuffix();
+		SupSubSuffix suffix = term.suffix;
 		assertNotNull("应该有上下标后缀", suffix);
 		assertNotNull("应该有上标", suffix.getSuperscript());
 		assertNull("不应该有下标", suffix.getSubscript());
@@ -239,7 +239,7 @@ public class MathParserAstTest {
 		Expression expr = getFirstExpression(result);
 		Term term = getFirstTerm(expr);
 
-		SupSubSuffix suffix = term.getSuffix();
+		SupSubSuffix suffix = term.suffix;
 		assertNotNull("应该有上下标后缀", suffix);
 		assertNull("不应该有上标", suffix.getSuperscript());
 		assertNotNull("应该有下标", suffix.getSubscript());
@@ -260,7 +260,7 @@ public class MathParserAstTest {
 		Expression expr = getFirstExpression(result);
 		Term term = getFirstTerm(expr);
 
-		SupSubSuffix suffix = term.getSuffix();
+		SupSubSuffix suffix = term.suffix;
 		assertNotNull("应该有上下标后缀", suffix);
 		assertNotNull("应该有上标", suffix.getSuperscript());
 		assertNotNull("应该有下标", suffix.getSubscript());
@@ -282,7 +282,7 @@ public class MathParserAstTest {
 		Expression expr = getFirstExpression(result);
 		Term term = getFirstTerm(expr);
 
-		SupSubSuffix suffix = term.getSuffix();
+		SupSubSuffix suffix = term.suffix;
 		assertNotNull("应该有上下标后缀", suffix);
 
 		assertTrue("上标应该是GroupScriptArg",
@@ -314,11 +314,11 @@ public class MathParserAstTest {
 		assertNotNull("分母不应为null", frac.denominator);
 
 		// 验证分子的内容
-		List<Ast> numeratorElements = frac.numerator.getElements();
+		List<Ast> numeratorElements = frac.numerator.elements;
 		assertEquals("分子应该有1个元素", 1, numeratorElements.size());
 
 		// 验证分母的内容
-		List<Ast> denominatorElements = frac.denominator.getElements();
+		List<Ast> denominatorElements = frac.denominator.elements;
 		assertEquals("分母应该有1个元素", 1, denominatorElements.size());
 
 		System.out.println("✅ FracAtom测试通过");
@@ -358,14 +358,14 @@ public class MathParserAstTest {
 		assertNotNull("外层分式不应为null", outerFrac);
 
 		// 验证分子是一个分式
-		List<Ast> numeratorElements = outerFrac.numerator.getElements();
+		List<Ast> numeratorElements = outerFrac.numerator.elements;
 		assertTrue("分子应该包含元素", numeratorElements.size() > 0);
 
 		Expression innerExpr = (Expression) numeratorElements.get(0);
-		Term innerTerm = (Term) innerExpr.getElements().get(0);
-		assertTrue("分子应该包含FracAtom", innerTerm.getAtom() instanceof FracAtom);
+		Term innerTerm = (Term) innerExpr.elements.get(0);
+		assertTrue("分子应该包含FracAtom", innerTerm.atom instanceof FracAtom);
 
-		FracAtom innerFrac = (FracAtom) innerTerm.getAtom();
+		FracAtom innerFrac = (FracAtom) innerTerm.atom;
 		assertNotNull("内层分式不应为null", innerFrac);
 
 		System.out.println("✅ 嵌套分式测试通过");
@@ -404,7 +404,7 @@ public class MathParserAstTest {
 		assertNotNull("应该有根次数", sqrt.root);
 
 		// 验证根次数
-		List<Ast> rootElements = sqrt.root.getElements();
+		List<Ast> rootElements = sqrt.root.elements;
 		assertTrue("根次数应该包含元素", rootElements.size() > 0);
 
 		System.out.println("✅ 带根次数的SqrtAtom测试通过");
@@ -418,11 +418,11 @@ public class MathParserAstTest {
 
 		MathList result = parse("\\sin x");
 		Expression expr = getFirstExpression(result);
-		List<Ast> elements = expr.getElements();
+		List<Ast> elements = expr.elements;
 
 		// 第一个元素应该是包含FunctionCallAtom的Term
 		Term funcTerm = (Term) elements.get(0);
-		Atom atom = funcTerm.getAtom();
+		Atom atom = funcTerm.atom;
 
 		assertTrue("应该是FunctionCallAtom", atom instanceof FunctionCallAtom);
 		FunctionCallAtom func = (FunctionCallAtom) atom;
@@ -441,8 +441,8 @@ public class MathParserAstTest {
 
 		MathList result = parse("\\log_2 n");
 		Expression expr = getFirstExpression(result);
-		Term funcTerm = (Term) expr.getElements().get(0);
-		FunctionCallAtom func = (FunctionCallAtom) funcTerm.getAtom();
+		Term funcTerm = (Term) expr.elements.get(0);
+		FunctionCallAtom func = (FunctionCallAtom) funcTerm.atom;
 
 		assertEquals("函数名应该是log", "log", func.functionName);
 		assertNotNull("应该有下标", func.subscript);
@@ -511,7 +511,7 @@ public class MathParserAstTest {
 		GroupAtom group = (GroupAtom) atom;
 
 		assertNotNull("分组内容不应为null", group.getContent());
-		List<Ast> content = group.getContent().getElements();
+		List<Ast> content = group.getContent().elements;
 		assertTrue("分组应该包含元素", content.size() > 0);
 
 		System.out.println("✅ GroupAtom测试通过");
@@ -606,7 +606,7 @@ public class MathParserAstTest {
 		System.out.println("\n=== 测试Spacing节点 ===");
 
 		MathList result = parse("a\\quad b");
-		List<Ast> elements = result.getElements();
+		List<Ast> elements = result.elements;
 
 		// 应该有3个元素：Expression(a), Spacing, Expression(b)
 		assertTrue("应该至少有3个元素", elements.size() >= 3);
@@ -629,16 +629,16 @@ public class MathParserAstTest {
 		Expression expr = getFirstExpression(result);
 		Term term = getFirstTerm(expr);
 
-		assertTrue("根节点应该是FracAtom", term.getAtom() instanceof FracAtom);
-		FracAtom frac = (FracAtom) term.getAtom();
+		assertTrue("根节点应该是FracAtom", term.atom instanceof FracAtom);
+		FracAtom frac = (FracAtom) term.atom;
 
 		// 验证分子包含内容
 		assertNotNull("分子不应为null", frac.numerator);
-		assertTrue("分子应该包含元素", frac.numerator.getElements().size() > 0);
+		assertTrue("分子应该包含元素", frac.numerator.elements.size() > 0);
 
 		// 验证分母包含内容
 		assertNotNull("分母不应为null", frac.denominator);
-		assertTrue("分母应该包含元素", frac.denominator.getElements().size() > 0);
+		assertTrue("分母应该包含元素", frac.denominator.elements.size() > 0);
 
 		System.out.println("✅ 复杂表达式AST结构测试通过");
 	}
@@ -650,7 +650,7 @@ public class MathParserAstTest {
 		// ax^2 + bx + c
 		MathList result = parse("ax^2+bx+c");
 		Expression expr = getFirstExpression(result);
-		List<Ast> elements = expr.getElements();
+		List<Ast> elements = expr.elements;
 
 		// 应该有5个元素: Term(ax^2) BinOp(+) Term(bx) BinOp(+) Term(c)
 		assertEquals("应该有5个元素", 5, elements.size());
@@ -658,8 +658,8 @@ public class MathParserAstTest {
 		// 验证第一项
 		assertTrue("第1个应该是Term", elements.get(0) instanceof Term);
 		Term term1 = (Term) elements.get(0);
-		assertTrue("第1项的Atom应该是VariableAtom", term1.getAtom() instanceof VariableAtom);
-		assertNotNull("第1项应该有上标", term1.getSuffix());
+		assertTrue("第1项的Atom应该是VariableAtom", term1.atom instanceof VariableAtom);
+		assertNotNull("第1项应该有上标", term1.suffix);
 
 		// 验证运算符
 		assertTrue("第2个应该是BinOpAtom", elements.get(1) instanceof BinOpAtom);
@@ -689,7 +689,7 @@ public class MathParserAstTest {
 		MathList result = parse("x+y");
 		assertNotNull("MathList不应为null", result);
 
-		List<Ast> ast = result.getElements();
+		List<Ast> ast = result.elements;
 		assertNotNull("AST列表不应为null", ast);
 		assertTrue("AST应该包含元素", ast.size() > 0);
 
@@ -713,7 +713,7 @@ public class MathParserAstTest {
 		GroupAtom group = (GroupAtom) getAtom(term);
 
 		assertNotNull("分组内容不应为null", group.getContent());
-		assertEquals("空分组应该有0个元素", 0, group.getContent().getElements().size());
+		assertEquals("空分组应该有0个元素", 0, group.getContent().elements.size());
 
 		System.out.println("✅ 空分组测试通过");
 	}
@@ -728,8 +728,8 @@ public class MathParserAstTest {
 		NumberAtom num = (NumberAtom) getAtom(term);
 
 		assertEquals("数字应该是5", "5", num.value);
-		assertNull("不应该有一元运算符", term.getUnaryOp());
-		assertNull("不应该有上下标", term.getSuffix());
+		assertNull("不应该有一元运算符", term.unaryOp);
+		assertNull("不应该有上下标", term.suffix);
 
 		System.out.println("✅ 单个数字测试通过");
 	}
@@ -746,17 +746,17 @@ public class MathParserAstTest {
 
 		// 验证MathList
 		assertNotNull("MathList不应为null", result);
-		List<Ast> topElements = result.getElements();
+		List<Ast> topElements = result.elements;
 		assertTrue("应该包含元素", topElements.size() > 0);
 
 		// 获取第一个Expression
 		Expression expr = (Expression) topElements.get(0);
-		List<Ast> exprElements = expr.getElements();
+		List<Ast> exprElements = expr.elements;
 
 		// 第一个Term应该包含LargeOperatorAtom
 		Term sumTerm = (Term) exprElements.get(0);
-		assertTrue("应该是LargeOperatorAtom", sumTerm.getAtom() instanceof LargeOperatorAtom);
-		LargeOperatorAtom sumOp = (LargeOperatorAtom) sumTerm.getAtom();
+		assertTrue("应该是LargeOperatorAtom", sumTerm.atom instanceof LargeOperatorAtom);
+		LargeOperatorAtom sumOp = (LargeOperatorAtom) sumTerm.atom;
 		assertEquals("运算符应该是sum", "sum", sumOp.operatorName);
 		assertNotNull("sum应该有下标", sumOp.subscript);
 		assertNotNull("sum应该有上标", sumOp.superscript);
@@ -764,8 +764,8 @@ public class MathParserAstTest {
 		// 应该有第二个Term (x_i^2)
 		if (exprElements.size() > 1) {
 			Term xTerm = (Term) exprElements.get(1);
-			assertNotNull("x项应该有上下标", xTerm.getSuffix());
-			SupSubSuffix suffix = xTerm.getSuffix();
+			assertNotNull("x项应该有上下标", xTerm.suffix);
+			SupSubSuffix suffix = xTerm.suffix;
 			assertNotNull("应该有上标", suffix.getSuperscript());
 			assertNotNull("应该有下标", suffix.getSubscript());
 		}
