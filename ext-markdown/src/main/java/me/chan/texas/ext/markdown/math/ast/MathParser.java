@@ -1,5 +1,6 @@
 package me.chan.texas.ext.markdown.math.ast;
 
+import me.chan.texas.ext.markdown.math.UnaryOp;
 import me.chan.texas.utils.CharStream;
 
 import java.util.*;
@@ -278,7 +279,11 @@ public class MathParser {
 		skipWhitespace();
 
 		// 尝试解析可选的一元运算符
-		String unaryOp = parseUnaryOp();
+		String op = parseUnaryOp();
+		UnaryOp unaryOp = null;
+		if (op != null) {
+			unaryOp = new UnaryOp(op);
+		}
 
 		Atom atom = parseAtom();
 		skipWhitespace();

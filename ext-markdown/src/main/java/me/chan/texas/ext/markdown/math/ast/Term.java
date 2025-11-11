@@ -1,11 +1,13 @@
 package me.chan.texas.ext.markdown.math.ast;
 
-public class Term implements Ast {
-	String unaryOp;       // 可选，一元运算符 "+" 或 "-"
-	Atom atom;
-	SupSubSuffix suffix;  // 可选
+import me.chan.texas.ext.markdown.math.UnaryOp;
 
-	public Term(String unaryOp, Atom atom, SupSubSuffix suffix) {
+public class Term implements Ast {
+	public final UnaryOp unaryOp;       // 可选，一元运算符 "+" 或 "-"
+	public final Atom atom;
+	public final SupSubSuffix suffix;  // 可选
+
+	public Term(UnaryOp unaryOp, Atom atom, SupSubSuffix suffix) {
 		this.unaryOp = unaryOp;
 		this.atom = atom;
 		this.suffix = suffix;
@@ -22,17 +24,5 @@ public class Term implements Ast {
 			result += suffix.toString();
 		}
 		return result;
-	}
-
-	public String getUnaryOp() {
-		return unaryOp;
-	}
-
-	public Atom getAtom() {
-		return atom;
-	}
-
-	public SupSubSuffix getSuffix() {
-		return suffix;
 	}
 }

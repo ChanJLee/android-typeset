@@ -157,10 +157,10 @@ public class DecorGroupNode extends RendererNode {
 			mBuilder.bottom.layout(0, mBuilder.center.getBottom());
 		}
 		if (mBuilder.left != null) {
-			mBuilder.left.layout(-mBuilder.left.getWidth(), (mBuilder.center.getCenterY() - mBuilder.left.getHeight()) / 2f);
+			mBuilder.left.layout(-mBuilder.left.getWidth(), mBuilder.center.getBottom() - mBuilder.left.getHeight());
 		}
 		if (mBuilder.right != null) {
-			mBuilder.right.layout(mBuilder.center.getRight(), (mBuilder.center.getCenterY() - mBuilder.right.getHeight()) / 2f);
+			mBuilder.right.layout(mBuilder.center.getRight(), mBuilder.center.getBottom() - mBuilder.right.getHeight());
 		}
 	}
 

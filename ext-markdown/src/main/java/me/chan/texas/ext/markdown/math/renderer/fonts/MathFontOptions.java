@@ -3,6 +3,7 @@ package me.chan.texas.ext.markdown.math.renderer.fonts;
 import java.util.HashMap;
 import java.util.Map;
 
+import me.chan.texas.ext.markdown.math.UnaryOp;
 import me.chan.texas.ext.markdown.math.ast.GreekLetterAtom;
 import me.chan.texas.ext.markdown.math.ast.LargeOperatorAtom;
 
@@ -63,8 +64,12 @@ public class MathFontOptions {
 		AST.put("bigodot", "uni2A00");
 		AST.put("biguplus", "uni2A04");
 		AST.put("bigsqcup", "uni2A06");
-	
+
 		// 二元运算符 (Binary Operators)
+		AST.put("+", "plus");
+		AST.put("-", "minus");
+		AST.put("*", "multiply");
+		AST.put("/", "divide");
 		AST.put("times", "multiply");
 		AST.put("cdot", "uni22C5");
 		AST.put("div", "divide");
@@ -100,7 +105,7 @@ public class MathFontOptions {
 		AST.put("Leftrightarrow", "arrowdblboth");
 		AST.put("implies", "arrowdblright");   // ⇒ 新增（与 Rightarrow 相同）
 		AST.put("iff", "arrowdblboth");        // ⇔ 新增（与 Leftrightarrow 相同）
-	
+
 		// 其他常用符号
 		AST.put("infty", "infinity");
 		AST.put("partial", "partialdiff");
@@ -110,7 +115,7 @@ public class MathFontOptions {
 		AST.put("exists", "existential");
 		AST.put("neg", "logicalnot");
 		AST.put("sqrt", "radical");
-	
+
 		// 定界符 (Delimiters)
 		AST.put("langle", "angleleft");
 		AST.put("rangle", "angleright");
@@ -118,7 +123,7 @@ public class MathFontOptions {
 		AST.put("rfloor", "uni230B");
 		AST.put("lceil", "uni2308");
 		AST.put("rceil", "uni2309");
-	
+
 		// 特殊符号 (Special Symbols) - 新增
 		AST.put("dots", "ellipsis");           // … (水平省略号)
 		AST.put("ldots", "ellipsis");          // … (同 dots)
@@ -130,7 +135,7 @@ public class MathFontOptions {
 		AST.put("angle", "uni2220");           // ∠ (角)
 		AST.put("perp", "uni27C2");            // ⟂ (垂直)
 		AST.put("parallel", "parallel");       // ∥ (平行)
-	
+
 		// 希腊字母 - 小写 (Greek Letters - Lowercase)
 		AST.put("alpha", "\u03B1");      // α
 		AST.put("beta", "\u03B2");       // β
@@ -161,7 +166,7 @@ public class MathFontOptions {
 		AST.put("chi", "\u03C7");        // χ
 		AST.put("psi", "\u03C8");        // ψ
 		AST.put("omega", "\u03C9");      // ω
-	
+
 		// 希腊字母 - 大写 (Greek Letters - Uppercase)
 		AST.put("Gamma", "\u0393");      // Γ
 		AST.put("Delta", "\u0394");      // Δ
@@ -174,7 +179,7 @@ public class MathFontOptions {
 		AST.put("Phi", "\u03A6");        // Φ
 		AST.put("Psi", "\u03A8");        // Ψ
 		AST.put("Omega", "\u03A9");      // Ω
-	
+
 		// 文本运算符（以罗马字体渲染）
 		TEXT_OPERATORS.put("lim", "lim");
 		TEXT_OPERATORS.put("limsup", "lim sup");
@@ -201,6 +206,14 @@ public class MathFontOptions {
 
 	public static Symbol symbol(String ref) {
 		return SYMBOL.all.get(ref);
+	}
+
+	public static Symbol ast(UnaryOp atom) {
+		String ref = AST.get(atom.op);
+		if (ref == null) {
+			throw new IllegalArgumentException("Unknown ast op: " + atom.op);
+		}
+		return symbol(ref);
 	}
 
 	public static Symbol ast(LargeOperatorAtom atom) {

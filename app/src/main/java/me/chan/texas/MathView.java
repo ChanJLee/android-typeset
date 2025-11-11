@@ -18,12 +18,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import me.chan.texas.ext.markdown.math.ast.MathParseException;
+import me.chan.texas.ext.markdown.math.ast.MathParser;
 import me.chan.texas.ext.markdown.math.renderer.AccentNode;
 import me.chan.texas.ext.markdown.math.renderer.BraceLayout;
 import me.chan.texas.ext.markdown.math.renderer.DecorGroupNode;
 import me.chan.texas.ext.markdown.math.renderer.FractionNode;
 import me.chan.texas.ext.markdown.math.renderer.GridGroupNode;
 import me.chan.texas.ext.markdown.math.renderer.LinearGroupNode;
+import me.chan.texas.ext.markdown.math.renderer.MathRendererInflater;
 import me.chan.texas.ext.markdown.math.renderer.RendererNode;
 import me.chan.texas.ext.markdown.math.renderer.SpaceNode;
 import me.chan.texas.ext.markdown.math.renderer.SqrtNode;
@@ -40,6 +43,7 @@ import me.chan.texas.ext.markdown.math.renderer.fonts.SymbolOptions;
 import me.chan.texas.misc.PaintSet;
 import me.chan.texas.renderer.core.graphics.TexasCanvasImpl;
 import me.chan.texas.renderer.core.graphics.TexasPaintImpl;
+import me.chan.texas.utils.CharStream;
 
 public class MathView extends View {
 
@@ -66,16 +70,17 @@ public class MathView extends View {
 //			textPaint.setTextSize(48);
 //		}
 //
-		{
-			textPaint.setTextSize(48);
-			mRendererNode = mockStretchyBenchmark();
-		}
 
 		TexasPaintImpl paint = new TexasPaintImpl();
 		paint.reset(new PaintSet(textPaint));
 		mTexasPaint = new MathPaintImpl(paint);
 
 		mCanvas = new MathCanvasImpl(new TexasCanvasImpl());
+
+		{
+			textPaint.setTextSize(128);
+			mRendererNode = mockDecor();
+		}
 	}
 
 	@Override
@@ -211,5 +216,15 @@ public class MathView extends View {
 	@VisibleForTesting
 	public SqrtNode mockSqrt(MathPaint.Styles scale, RendererNode content) {
 		return new SqrtNode(scale, content, mockText(new MathPaint.Styles(scale).setTextSize(scale.getTextSize() * 0.3f), "x + y + z"));
+	}
+
+	public RendererNode mockDecor() {
+		MathParser parser = new MathParser(new CharStream("-x + y + z"));
+		MathRendererInflater inflater = new MathRendererInflater();
+		try {
+			return inflater.inflate(new MathPaint.Styles(mTexasPaint), parser.parse());
+		} catch (MathParseException e) {
+			throw new RuntimeException(e);
+		}
 	}
 }

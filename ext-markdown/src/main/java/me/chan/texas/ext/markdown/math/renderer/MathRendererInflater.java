@@ -63,15 +63,13 @@ public class MathRendererInflater {
 	}
 
 	private RendererNode inflateTerm(MathPaint.Styles styles, Term term) {
-		Atom atom = term.getAtom();
-		DecorGroupNode.Builder builder = new DecorGroupNode.Builder(styles, inflateAtom(styles, atom));
+		DecorGroupNode.Builder builder = new DecorGroupNode.Builder(styles, inflateAtom(styles, term.atom));
 
-		String op = term.getUnaryOp();
-		if (op != null) {
-			builder.left(inflateSymbol(styles, op));
+		if (term.unaryOp != null) {
+			builder.left(inflateSymbol(styles, term.unaryOp.op));
 		}
 
-		SupSubSuffix suffix = term.getSuffix();
+		SupSubSuffix suffix = term.suffix;
 		if (suffix == null) {
 			return builder.build();
 		}

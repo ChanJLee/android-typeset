@@ -46,16 +46,16 @@ public class MathSymbolBenchmarkActivity extends AppCompatActivity {
 
 			String key = it.next();
 			Symbol symbol = options.all.get(key);
-			renderSymbol(binding, key, symbol);
+//			renderSymbol(binding, key, symbol);
 		});
 	}
 
-	private void renderSymbol(ActivityMathSymbolBenchmarkBinding binding, String name, Symbol symbol) {
-		List<RendererNode> list = new ArrayList<>();
-		list.add(new TextNode(1f, "fg"));
-		list.add(new SymbolNode(1f, symbol));
-		list.add(new TextNode(1f, "fg"));
-		binding.indicator.setText("当前： " + name);
-		binding.mathView.setRendererNode(new LinearGroupNode(1F, list, LinearGroupNode.Gravity.HORIZONTAL));
-	}
+//	private void renderSymbol(ActivityMathSymbolBenchmarkBinding binding, String name, Symbol symbol) {
+//		List<RendererNode> list = new ArrayList<>();
+//		list.add(new TextNode(1f, "fg"));
+//		list.add(new SymbolNode(1f, symbol));
+//		list.add(new TextNode(1f, "fg"));
+//		binding.indicator.setText("当前： " + name);
+//		binding.mathView.setRendererNode(new LinearGroupNode(1F, list, LinearGroupNode.Gravity.HORIZONTAL));
+//	}
 }

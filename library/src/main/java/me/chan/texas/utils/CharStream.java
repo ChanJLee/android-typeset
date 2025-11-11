@@ -14,6 +14,10 @@ public class CharStream {
 		this(null, 0, 0);
 	}
 
+	public CharStream(CharSequence text) {
+		this(text, 0, text.length());
+	}
+
 	public CharStream(CharSequence text, int start, int end) {
 		reset(text, start, end);
 	}
