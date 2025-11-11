@@ -1,6 +1,4 @@
-package me.chan.texas.ext.markdown.math;
-
-import me.chan.texas.ext.markdown.math.ast.Ast;
+package me.chan.texas.ext.markdown.math.ast;
 
 public class UnaryOp implements Ast {
 	public final String op;

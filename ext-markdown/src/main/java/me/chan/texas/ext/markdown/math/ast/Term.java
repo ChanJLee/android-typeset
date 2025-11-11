@@ -1,7 +1,5 @@
 package me.chan.texas.ext.markdown.math.ast;
 
-import me.chan.texas.ext.markdown.math.UnaryOp;
-
 public class Term implements Ast {
 	public final UnaryOp unaryOp;       // 可选，一元运算符 "+" 或 "-"
 	public final Atom atom;

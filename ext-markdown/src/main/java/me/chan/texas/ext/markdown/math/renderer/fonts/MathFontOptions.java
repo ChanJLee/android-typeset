@@ -3,7 +3,7 @@ package me.chan.texas.ext.markdown.math.renderer.fonts;
 import java.util.HashMap;
 import java.util.Map;
 
-import me.chan.texas.ext.markdown.math.UnaryOp;
+import me.chan.texas.ext.markdown.math.ast.UnaryOp;
 import me.chan.texas.ext.markdown.math.ast.GreekLetterAtom;
 import me.chan.texas.ext.markdown.math.ast.LargeOperatorAtom;
 

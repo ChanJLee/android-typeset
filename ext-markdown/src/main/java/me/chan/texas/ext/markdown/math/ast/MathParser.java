@@ -1,6 +1,5 @@
 package me.chan.texas.ext.markdown.math.ast;
 
-import me.chan.texas.ext.markdown.math.UnaryOp;
 import me.chan.texas.utils.CharStream;
 
 import java.util.*;
