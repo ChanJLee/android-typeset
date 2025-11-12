@@ -80,6 +80,11 @@ public interface MathPaint {
 			return this;
 		}
 
+		public Styles setTextSizeFactor(float factor) {
+			mTextSize *= factor;
+			return this;
+		}
+
 		public Paint.Style getStyle() {
 			return mStyle;
 		}

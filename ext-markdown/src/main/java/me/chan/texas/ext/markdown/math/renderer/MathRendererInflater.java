@@ -76,12 +76,12 @@ public class MathRendererInflater {
 
 		ScriptArg scriptArg = suffix.superscript;
 		if (scriptArg != null) {
-			builder.rightTop(inflateScriptArg(new MathPaint.Styles(styles).setTextSize(styles.getTextSize() * 0.4f), scriptArg));
+			builder.rightTop(inflateScriptArg(new MathPaint.Styles(styles).setTextSizeFactor(0.4F), scriptArg));
 		}
 
 		scriptArg = suffix.subscript;
 		if (scriptArg != null) {
-			builder.rightBottom(inflateScriptArg(new MathPaint.Styles(styles).setTextSize(styles.getTextSize() * 0.4f), scriptArg));
+			builder.rightBottom(inflateScriptArg(new MathPaint.Styles(styles).setTextSizeFactor(0.4F), scriptArg));
 		}
 		return builder.build();
 	}
@@ -165,7 +165,7 @@ public class MathRendererInflater {
 	private RendererNode inflateSqrtAtom(MathPaint.Styles styles, SqrtAtom sqrtAtom) {
 		RendererNode root = null;
 		if (sqrtAtom.root != null) {
-			root = inflate(new MathPaint.Styles(styles).setTextSize(styles.getTextSize() * 0.4f), sqrtAtom.root);
+			root = inflate(new MathPaint.Styles(styles).setTextSizeFactor(0.4F), sqrtAtom.root);
 		}
 		return new SqrtNode(styles, root, inflate(styles, sqrtAtom.content));
 	}
