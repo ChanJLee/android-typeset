@@ -9,19 +9,24 @@ import me.chan.texas.ext.markdown.math.ast.Atom;
 import me.chan.texas.ext.markdown.math.ast.BinOpAtom;
 import me.chan.texas.ext.markdown.math.ast.DelimitedAtom;
 import me.chan.texas.ext.markdown.math.ast.Expression;
+import me.chan.texas.ext.markdown.math.ast.FontAtom;
 import me.chan.texas.ext.markdown.math.ast.FracAtom;
 import me.chan.texas.ext.markdown.math.ast.FunctionCallAtom;
 import me.chan.texas.ext.markdown.math.ast.GreekLetterAtom;
 import me.chan.texas.ext.markdown.math.ast.GroupAtom;
 import me.chan.texas.ext.markdown.math.ast.GroupScriptArg;
+import me.chan.texas.ext.markdown.math.ast.LargeOperatorAtom;
 import me.chan.texas.ext.markdown.math.ast.MathList;
+import me.chan.texas.ext.markdown.math.ast.MatrixAtom;
 import me.chan.texas.ext.markdown.math.ast.NumberAtom;
 import me.chan.texas.ext.markdown.math.ast.ScriptArg;
 import me.chan.texas.ext.markdown.math.ast.SingleTokenScriptArg;
 import me.chan.texas.ext.markdown.math.ast.Spacing;
+import me.chan.texas.ext.markdown.math.ast.SpecialSymbolAtom;
 import me.chan.texas.ext.markdown.math.ast.SqrtAtom;
 import me.chan.texas.ext.markdown.math.ast.SupSubSuffix;
 import me.chan.texas.ext.markdown.math.ast.Term;
+import me.chan.texas.ext.markdown.math.ast.TextAtom;
 import me.chan.texas.ext.markdown.math.ast.VariableAtom;
 import me.chan.texas.ext.markdown.math.renderer.core.MathPaint;
 import me.chan.texas.ext.markdown.math.renderer.fonts.MathFontOptions;
@@ -142,11 +147,55 @@ public class MathRendererInflater {
 			return inflateDelimitedAtom(styles, (DelimitedAtom) atom);
 		}
 
+		if (atom instanceof FunctionCallAtom) {
+			return inflateFunctionCallAtom(styles, (FunctionCallAtom) atom);
+		}
+
+		if (atom instanceof LargeOperatorAtom) {
+			return inflateLargeOperatorAtom(styles, (LargeOperatorAtom) atom);
+		}
+
+		if (atom instanceof MatrixAtom) {
+			return inflateMatrixAtom(styles, (MatrixAtom) atom);
+		}
+
+		if (atom instanceof TextAtom) {
+			return inflateTextAtom(styles, (TextAtom) atom);
+		}
+
 		if (atom instanceof AccentAtom) {
 			return inflateAccentAtom(styles, (AccentAtom) atom);
 		}
 
+		if (atom instanceof FontAtom) {
+			return inflateFontAtom(styles, (FontAtom) atom);
+		}
+
+		if (atom instanceof SpecialSymbolAtom) {
+			return inflateSpecialSymbolAtom(styles, (SpecialSymbolAtom) atom);
+		}
+
 		throw new IllegalArgumentException("Unknown atom: " + atom);
+	}
+
+	private RendererNode inflateSpecialSymbolAtom(MathPaint.Styles styles, SpecialSymbolAtom atom) {
+		throw new RuntimeException("Stub!");
+	}
+
+	private RendererNode inflateFontAtom(MathPaint.Styles styles, FontAtom atom) {
+		throw new RuntimeException("Stub!");
+	}
+
+	private RendererNode inflateTextAtom(MathPaint.Styles styles, TextAtom atom) {
+		throw new RuntimeException("Stub!");
+	}
+
+	private RendererNode inflateMatrixAtom(MathPaint.Styles styles, MatrixAtom atom) {
+		throw new RuntimeException("Stub!");
+	}
+
+	private RendererNode inflateLargeOperatorAtom(MathPaint.Styles styles, LargeOperatorAtom atom) {
+		throw new RuntimeException("Stub!");
 	}
 
 	private RendererNode inflateDelimitedAtom(MathPaint.Styles styles, DelimitedAtom atom) {
