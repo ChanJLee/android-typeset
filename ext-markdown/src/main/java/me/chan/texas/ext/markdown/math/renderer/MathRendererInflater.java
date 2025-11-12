@@ -128,7 +128,7 @@ public class MathRendererInflater {
 		}
 
 		if (atom instanceof GreekLetterAtom) {
-			return new SymbolNode(styles, MathFontOptions.ast((GreekLetterAtom) atom));
+			return new TextNode(styles, MathFontOptions.ast((GreekLetterAtom) atom));
 		}
 
 		if (atom instanceof GroupAtom) {

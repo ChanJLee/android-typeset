@@ -137,48 +137,48 @@ public class MathFontOptions {
 		AST.put("parallel", "parallel");       // ∥ (平行)
 
 		// 希腊字母 - 小写 (Greek Letters - Lowercase)
-		AST.put("alpha", "\u03B1");      // α
-		AST.put("beta", "\u03B2");       // β
-		AST.put("gamma", "\u03B3");      // γ
-		AST.put("delta", "\u03B4");      // δ
-		AST.put("epsilon", "\u03B5");    // ε
-		AST.put("varepsilon", "\u03F5"); // ϵ
-		AST.put("zeta", "\u03B6");       // ζ
-		AST.put("eta", "\u03B7");        // η
-		AST.put("theta", "\u03B8");      // θ
-		AST.put("vartheta", "\u03D1");   // ϑ
-		AST.put("iota", "\u03B9");       // ι
-		AST.put("kappa", "\u03BA");      // κ
-		AST.put("lambda", "\u03BB");     // λ
-		AST.put("mu", "\u03BC");         // μ
-		AST.put("nu", "\u03BD");         // ν
-		AST.put("xi", "\u03BE");         // ξ
-		AST.put("pi", "\u03C0");         // π
-		AST.put("varpi", "\u03D6");      // ϖ
-		AST.put("rho", "\u03C1");        // ρ
-		AST.put("varrho", "\u03F1");     // ϱ
-		AST.put("sigma", "\u03C3");      // σ
-		AST.put("varsigma", "\u03C2");   // ς
-		AST.put("tau", "\u03C4");        // τ
-		AST.put("upsilon", "\u03C5");    // υ
-		AST.put("phi", "\u03C6");        // φ
-		AST.put("varphi", "\u03D5");     // ϕ
-		AST.put("chi", "\u03C7");        // χ
-		AST.put("psi", "\u03C8");        // ψ
-		AST.put("omega", "\u03C9");      // ω
+		TEXT_OPERATORS.put("alpha", "\u03B1");      // α
+		TEXT_OPERATORS.put("beta", "\u03B2");       // β
+		TEXT_OPERATORS.put("gamma", "\u03B3");      // γ
+		TEXT_OPERATORS.put("delta", "\u03B4");      // δ
+		TEXT_OPERATORS.put("epsilon", "\u03B5");    // ε
+		TEXT_OPERATORS.put("varepsilon", "\u03F5"); // ϵ
+		TEXT_OPERATORS.put("zeta", "\u03B6");       // ζ
+		TEXT_OPERATORS.put("eta", "\u03B7");        // η
+		TEXT_OPERATORS.put("theta", "\u03B8");      // θ
+		TEXT_OPERATORS.put("vartheta", "\u03D1");   // ϑ
+		TEXT_OPERATORS.put("iota", "\u03B9");       // ι
+		TEXT_OPERATORS.put("kappa", "\u03BA");      // κ
+		TEXT_OPERATORS.put("lambda", "\u03BB");     // λ
+		TEXT_OPERATORS.put("mu", "\u03BC");         // μ
+		TEXT_OPERATORS.put("nu", "\u03BD");         // ν
+		TEXT_OPERATORS.put("xi", "\u03BE");         // ξ
+		TEXT_OPERATORS.put("pi", "\u03C0");         // π
+		TEXT_OPERATORS.put("varpi", "\u03D6");      // ϖ
+		TEXT_OPERATORS.put("rho", "\u03C1");        // ρ
+		TEXT_OPERATORS.put("varrho", "\u03F1");     // ϱ
+		TEXT_OPERATORS.put("sigma", "\u03C3");      // σ
+		TEXT_OPERATORS.put("varsigma", "\u03C2");   // ς
+		TEXT_OPERATORS.put("tau", "\u03C4");        // τ
+		TEXT_OPERATORS.put("upsilon", "\u03C5");    // υ
+		TEXT_OPERATORS.put("phi", "\u03C6");        // φ
+		TEXT_OPERATORS.put("varphi", "\u03D5");     // ϕ
+		TEXT_OPERATORS.put("chi", "\u03C7");        // χ
+		TEXT_OPERATORS.put("psi", "\u03C8");        // ψ
+		TEXT_OPERATORS.put("omega", "\u03C9");      // ω
 
 		// 希腊字母 - 大写 (Greek Letters - Uppercase)
-		AST.put("Gamma", "\u0393");      // Γ
-		AST.put("Delta", "\u0394");      // Δ
-		AST.put("Theta", "\u0398");      // Θ
-		AST.put("Lambda", "\u039B");     // Λ
-		AST.put("Xi", "\u039E");         // Ξ
-		AST.put("Pi", "\u03A0");         // Π
-		AST.put("Sigma", "\u03A3");      // Σ
-		AST.put("Upsilon", "\u03A5");    // Υ
-		AST.put("Phi", "\u03A6");        // Φ
-		AST.put("Psi", "\u03A8");        // Ψ
-		AST.put("Omega", "\u03A9");      // Ω
+		TEXT_OPERATORS.put("Gamma", "\u0393");      // Γ
+		TEXT_OPERATORS.put("Delta", "\u0394");      // Δ
+		TEXT_OPERATORS.put("Theta", "\u0398");      // Θ
+		TEXT_OPERATORS.put("Lambda", "\u039B");     // Λ
+		TEXT_OPERATORS.put("Xi", "\u039E");         // Ξ
+		TEXT_OPERATORS.put("Pi", "\u03A0");         // Π
+		TEXT_OPERATORS.put("Sigma", "\u03A3");      // Σ
+		TEXT_OPERATORS.put("Upsilon", "\u03A5");    // Υ
+		TEXT_OPERATORS.put("Phi", "\u03A6");        // Φ
+		TEXT_OPERATORS.put("Psi", "\u03A8");        // Ψ
+		TEXT_OPERATORS.put("Omega", "\u03A9");      // Ω
 
 		// 文本运算符（以罗马字体渲染）
 		TEXT_OPERATORS.put("lim", "lim");
@@ -228,11 +228,7 @@ public class MathFontOptions {
 		return TEXT_OPERATORS.get(name);
 	}
 
-	public static Symbol ast(GreekLetterAtom atom) {
-		String ref = AST.get(atom.symbol);
-		if (ref == null) {
-			throw new IllegalArgumentException("Unknown greek letter: " + atom.symbol);
-		}
-		return symbol(ref);
+	public static String ast(GreekLetterAtom atom) {
+		return textOp(atom.symbol);
 	}
 }
