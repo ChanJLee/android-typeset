@@ -11,4 +11,8 @@ public class NumberAtom implements Atom {
 	public String toString() {
 		return value;
 	}
+
+	public float toValue() {
+		return Float.parseFloat(value);
+	}
 }
