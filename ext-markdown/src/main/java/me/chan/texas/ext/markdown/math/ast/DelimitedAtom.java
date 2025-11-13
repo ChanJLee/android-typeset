@@ -1,6 +1,6 @@
 package me.chan.texas.ext.markdown.math.ast;
 
-public class DelimitedAtom implements Atom {
+public class  DelimitedAtom implements Atom {
 	public final int level;
 	public final String leftDelimiter;
 	public final MathList content;
