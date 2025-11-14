@@ -199,12 +199,54 @@ public class MathRendererInflater {
 	}
 
 	private RendererNode inflateDelimitedAtom(MathPaint.Styles styles, DelimitedAtom atom) {
-//		List<RendererNode> nodes = new ArrayList<>();
-//		if (atom.level == DelimitedAtom.LEVEL_L0) {
-//
-//		}
-//		return new LinearGroupNode( styles, nodes, LinearGroupNode.Gravity.HORIZONTAL);
-		throw new RuntimeException("Stub!");
+		return new BraceLayout(
+				styles, atom.level,
+				inflateDelimiter(styles, atom.leftDelimiter),
+				inflate(styles, atom.content),
+				inflateDelimiter(styles, atom.rightDelimiter)
+		);
+	}
+
+	private RendererNode inflateDelimiter(MathPaint.Styles styles, String delimiter) {
+		if (delimiter == null || delimiter.isEmpty() || ".".equals(delimiter)) {
+			return null;
+		}
+
+		if ("lfloor".equals(delimiter)) {
+			return new StretchyNode(styles,
+					MathFontOptions.symbol("uni23A2"),
+					MathFontOptions.symbol("uni23A2"),
+					MathFontOptions.symbol("uni23A3"),
+					MathFontOptions.symbol("uni23A2")
+			);
+		}
+		if ("rfloor".equals(delimiter)) {
+			return new StretchyNode(styles,
+					MathFontOptions.symbol("uni23A5"),
+					MathFontOptions.symbol("uni23A5"),
+					MathFontOptions.symbol("uni23A6"),
+					MathFontOptions.symbol("uni23A5")
+			);
+		}
+
+		if ("lceil".equals(delimiter)) {
+			return new StretchyNode(styles,
+					MathFontOptions.symbol("uni23A1"),
+					MathFontOptions.symbol("uni23A2"),
+					MathFontOptions.symbol("uni23A2"),
+					MathFontOptions.symbol("uni23A2")
+			);
+		}
+		if ("rceil".equals(delimiter)) {
+			return new StretchyNode(styles,
+					MathFontOptions.symbol("uni23A4"),
+					MathFontOptions.symbol("uni23A5"),
+					MathFontOptions.symbol("uni23A5"),
+					MathFontOptions.symbol("uni23A5")
+			);
+		}
+
+		throw new IllegalArgumentException("unknown delimiter: " + delimiter);
 	}
 
 	private RendererNode inflateFunctionCallAtom(MathPaint.Styles styles, FunctionCallAtom functionCallAtom) {

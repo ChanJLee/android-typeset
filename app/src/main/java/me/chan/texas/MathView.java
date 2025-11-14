@@ -159,14 +159,14 @@ public class MathView extends View {
 	}
 
 	public RendererNode mockBrace() {
-		return new BraceLayout(new MathPaint.Styles(mTexasPaint), mockStretchyLeft(), mockGrid(), mockStretchyRight());
+		return new BraceLayout(new MathPaint.Styles(mTexasPaint), 1, mockStretchyLeft(), mockGrid(), mockStretchyRight());
 	}
 
 	public RendererNode mockCondition() {
 		List<RendererNode> rendererNodes = new ArrayList<>();
 		rendererNodes.add(new TextNode(new MathPaint.Styles(mTexasPaint), "f(x)"));
 		rendererNodes.add(new SpaceNode(new MathPaint.Styles(mTexasPaint).setTextSize(100f), 1, 1));
-		rendererNodes.add(new BraceLayout(new MathPaint.Styles(mTexasPaint), mockStretchyLeft(), mockConditionDetail(), mockStretchyRight()));
+		rendererNodes.add(new BraceLayout(new MathPaint.Styles(mTexasPaint), 1, mockStretchyLeft(), mockConditionDetail(), mockStretchyRight()));
 		return new LinearGroupNode(new MathPaint.Styles(mTexasPaint), rendererNodes);
 	}
 

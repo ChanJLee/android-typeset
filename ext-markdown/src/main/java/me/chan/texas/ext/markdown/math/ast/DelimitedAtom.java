@@ -20,4 +20,10 @@ public class  DelimitedAtom implements Atom {
 				content.toString() +
 				" \\" + MathParser.DELIMITER_LEVELS[level][1] + rightDelimiter;
 	}
+
+	public static final int LEVEL_L0 = 0;
+	public static final int LEVEL_L1 = 1;
+	public static final int LEVEL_L2 = 2;
+	public static final int LEVEL_L3 = 3;
+	public static final int LEVEL_L4 = 4;
 }
