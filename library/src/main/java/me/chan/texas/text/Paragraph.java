@@ -37,8 +37,7 @@ import java.util.List;
 /**
  * 段落
  */
-public final class Paragraph extends DefaultRecyclable implements Segment {
-	private static final ObjectPool<Paragraph> POOL = new ObjectPool<>(Texas.getMemoryOption().getParagraphBufferSize());
+public final class Paragraph implements Segment {
 
 	@NonNull
 	@RestrictTo(LIBRARY)
@@ -148,7 +147,7 @@ public final class Paragraph extends DefaultRecyclable implements Segment {
 	}
 
 	@Override
-	protected void onRecycle() {
+	public void recycle() {
 		mId = 0;
 		mLayout.clear();
 		for (int i = 0; i < mElements.size(); ++i) {
@@ -167,7 +166,11 @@ public final class Paragraph extends DefaultRecyclable implements Segment {
 		}
 		mHost = null;
 		mHolder = null;
-		POOL.release(this);
+	}
+
+	@Override
+	public boolean isRecycled() {
+		return mId == 0;
 	}
 
 	@Override
@@ -230,11 +233,6 @@ public final class Paragraph extends DefaultRecyclable implements Segment {
 		return mElements.get(index);
 	}
 
-	@RestrictTo(LIBRARY)
-	public static void clean() {
-		POOL.clean();
-	}
-
 	public Layout getLayout() {
 		return mLayout;
 	}
@@ -278,12 +276,7 @@ public final class Paragraph extends DefaultRecyclable implements Segment {
 
 	@RestrictTo(LIBRARY)
 	static Paragraph obtain() {
-		Paragraph paragraph = POOL.acquire();
-		if (paragraph == null) {
-			paragraph = new Paragraph(null);
-		}
-		paragraph.reuse();
-		return paragraph;
+		return new Paragraph(null);
 	}
 
 	/**
