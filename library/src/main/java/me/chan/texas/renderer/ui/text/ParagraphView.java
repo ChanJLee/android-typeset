@@ -1050,7 +1050,10 @@ public class ParagraphView extends FrameLayout {
 
 			TexasOption option = mParagraphView.createTexasOption();
 			Paragraph paragraph = onRead(mParagraphView.createTexasOption());
-			paragraph.measure(option.getMeasurer(), option.getTextAttribute());
+			Layout layout = paragraph.getLayout();
+			if (!layout.isLayout() || layout.getAdvise().isModified(mParagraphView.mRenderOption)) {
+				paragraph.measure(option.getMeasurer(), option.getTextAttribute());
+			}
 			return paragraph;
 		}
 

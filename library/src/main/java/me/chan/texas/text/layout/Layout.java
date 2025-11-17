@@ -228,6 +228,7 @@ public class Layout extends DefaultRecyclable {
 		private int mTextGravity;
 		private int mTypesetPolicies = TYPESET_POLICY_CJK_MIX_OPTIMIZATION;
 		private final BitBucket32 mAttributesReference = new BitBucket32();
+		private RenderOption mRenderOption;
 
 		public float getLineSpacingExtra() {
 			return mLineSpacingExtra;
@@ -286,9 +287,15 @@ public class Layout extends DefaultRecyclable {
 			if (!mAttributesReference.get(INDEX_TEXT_GRAVITY)) {
 				mTextGravity = option.getTextGravity();
 			}
+			mRenderOption = option;
+		}
+
+		public boolean isModified(RenderOption option) {
+			return mRenderOption == null || !mRenderOption.equals(option);
 		}
 
 		public void copy(Advise advise) {
+			mRenderOption = advise.mRenderOption;
 			mLineSpacingExtra = advise.mLineSpacingExtra;
 			mTypesetPolicies = advise.mTypesetPolicies;
 			mBreakStrategy = advise.mBreakStrategy;
