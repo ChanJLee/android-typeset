@@ -8,16 +8,12 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.recyclerview.widget.RecyclerView;
 
-import me.chan.texas.Texas;
-import me.chan.texas.misc.DefaultRecyclable;
-import me.chan.texas.misc.ObjectPool;
 import me.chan.texas.renderer.ui.RendererHost;
 
 /**
  * 插图
  */
-public final class Figure extends DefaultRecyclable implements Segment {
-	private static final ObjectPool<Figure> POOL = new ObjectPool<>(Texas.getMemoryOption().getFigureBufferSize());
+public final class Figure implements Segment {
 
 	private String mUrl;
 
@@ -55,7 +51,7 @@ public final class Figure extends DefaultRecyclable implements Segment {
 	}
 
 	@Override
-	protected void onRecycle() {
+	public void recycle() {
 		mId = 0;
 		mWidth = mHeight = 0;
 		mUrl = null;
@@ -63,7 +59,11 @@ public final class Figure extends DefaultRecyclable implements Segment {
 		mRect = null;
 		mHost = null;
 		mHolder = null;
-		POOL.release(this);
+	}
+
+	@Override
+	public boolean isRecycled() {
+		return mId == 0;
 	}
 
 	@Override
@@ -76,22 +76,9 @@ public final class Figure extends DefaultRecyclable implements Segment {
 	}
 
 	public static Figure obtain(String url, float width, float height, Object tag) {
-		Figure figure = POOL.acquire();
-		if (figure == null) {
-			figure = new Figure(url, width, height, tag);
-		}
-
-		figure.mUrl = url;
-		figure.mWidth = width;
-		figure.mHeight = height;
-		figure.mTag = tag;
+		Figure figure = new Figure(url, width, height, tag);
 		figure.mId = Segment.nextId();
-		figure.reuse();
 		return figure;
-	}
-
-	public static void clean() {
-		POOL.clean();
 	}
 
 	@Nullable
