@@ -10,13 +10,12 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.recyclerview.widget.RecyclerView;
 
-import me.chan.texas.misc.DefaultRecyclable;
 import me.chan.texas.renderer.ui.RendererHost;
 
 /**
  * 用户自定义视图片段
  */
-public abstract class ViewSegment extends DefaultRecyclable implements Segment {
+public abstract class ViewSegment implements Segment {
 	private int mLayout;
 	private boolean mDisableReuse;
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -93,7 +92,7 @@ public abstract class ViewSegment extends DefaultRecyclable implements Segment {
 	protected abstract void onRender(View view);
 
 	@Override
-	protected final void onRecycle() {
+	public void recycle() {
 		mTag = null;
 		mRect = null;
 		mDisableReuse = false;
@@ -101,6 +100,11 @@ public abstract class ViewSegment extends DefaultRecyclable implements Segment {
 		mId = 0;
 		mHost = null;
 		mHolder = null;
+	}
+
+	@Override
+	public boolean isRecycled() {
+		return mId == 0;
 	}
 
 	@Nullable
