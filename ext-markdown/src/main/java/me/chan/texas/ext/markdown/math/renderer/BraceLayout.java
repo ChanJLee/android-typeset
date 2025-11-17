@@ -29,7 +29,7 @@ public class BraceLayout extends RendererNode {
 		float width = 0;
 		mContent.measure(paint);
 
-		int exceptHeight = (int) Math.ceil(mContent.getHeight() * (mLevel - DelimitedAtom.LEVEL_L0) * 0.4f);
+		int exceptHeight = (int) Math.ceil(mContent.getHeight() * ((mLevel - DelimitedAtom.LEVEL_L0 ) * 0.4f + 1));
 
 		float left = 0;
 		if (mLeftSymbol != null) {

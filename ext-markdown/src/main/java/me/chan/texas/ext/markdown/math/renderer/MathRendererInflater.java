@@ -212,7 +212,7 @@ public class MathRendererInflater {
 			return null;
 		}
 
-		if ("lfloor".equals(delimiter)) {
+		if ("\\lfloor".equals(delimiter)) {
 			return new StretchyNode(styles,
 					MathFontOptions.symbol("uni23A2"),
 					MathFontOptions.symbol("uni23A2"),
@@ -220,7 +220,7 @@ public class MathRendererInflater {
 					MathFontOptions.symbol("uni23A2")
 			);
 		}
-		if ("rfloor".equals(delimiter)) {
+		if ("\\rfloor".equals(delimiter)) {
 			return new StretchyNode(styles,
 					MathFontOptions.symbol("uni23A5"),
 					MathFontOptions.symbol("uni23A5"),
@@ -229,7 +229,7 @@ public class MathRendererInflater {
 			);
 		}
 
-		if ("lceil".equals(delimiter)) {
+		if ("\\lceil".equals(delimiter)) {
 			return new StretchyNode(styles,
 					MathFontOptions.symbol("uni23A1"),
 					MathFontOptions.symbol("uni23A2"),
@@ -237,7 +237,7 @@ public class MathRendererInflater {
 					MathFontOptions.symbol("uni23A2")
 			);
 		}
-		if ("rceil".equals(delimiter)) {
+		if ("\\rceil".equals(delimiter)) {
 			return new StretchyNode(styles,
 					MathFontOptions.symbol("uni23A4"),
 					MathFontOptions.symbol("uni23A5"),
