@@ -4,14 +4,14 @@ import me.chan.texas.ext.markdown.math.renderer.core.MathCanvas;
 import me.chan.texas.ext.markdown.math.renderer.core.MathPaint;
 import me.chan.texas.ext.markdown.math.renderer.fonts.Symbol;
 
-public class StretchyNode extends RendererNode {
+public class StretchyTripeNode extends RendererNode {
 	private final SymbolNode mTop;
 	private final SymbolNode mMiddle;
 	private final SymbolNode mBottom;
 	private final SymbolNode mExtension;
 	private int mActualWidth;
 
-	public StretchyNode(MathPaint.Styles styles, Symbol top, Symbol middle, Symbol bottom, Symbol extension) {
+	public StretchyTripeNode(MathPaint.Styles styles, Symbol top, Symbol middle, Symbol bottom, Symbol extension) {
 		super(styles);
 		mTop = new SymbolNode(styles, top);
 		mMiddle = new SymbolNode(styles, middle);
@@ -30,7 +30,7 @@ public class StretchyNode extends RendererNode {
 		float width = RendererNode.getSize(widthSpec);
 
 		if (RendererNode.getMode(heightSpec) != RendererNode.EXACTLY) {
-			height = mTop.getHeight() + mMiddle.getHeight() + mBottom.getHeight() + mExtension.getHeight();
+			height = mTop.getHeight() + mMiddle.getHeight() + mBottom.getHeight();
 		}
 
 		float centerY = height / 2.0f;

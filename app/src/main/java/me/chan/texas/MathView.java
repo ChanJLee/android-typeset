@@ -22,7 +22,6 @@ import me.chan.texas.ext.markdown.math.ast.MathParseException;
 import me.chan.texas.ext.markdown.math.ast.MathParser;
 import me.chan.texas.ext.markdown.math.renderer.AccentNode;
 import me.chan.texas.ext.markdown.math.renderer.BraceLayout;
-import me.chan.texas.ext.markdown.math.renderer.DecorGroupNode;
 import me.chan.texas.ext.markdown.math.renderer.FractionNode;
 import me.chan.texas.ext.markdown.math.renderer.GridGroupNode;
 import me.chan.texas.ext.markdown.math.renderer.LinearGroupNode;
@@ -30,7 +29,7 @@ import me.chan.texas.ext.markdown.math.renderer.MathRendererInflater;
 import me.chan.texas.ext.markdown.math.renderer.RendererNode;
 import me.chan.texas.ext.markdown.math.renderer.SpaceNode;
 import me.chan.texas.ext.markdown.math.renderer.SqrtNode;
-import me.chan.texas.ext.markdown.math.renderer.StretchyNode;
+import me.chan.texas.ext.markdown.math.renderer.StretchyTripeNode;
 import me.chan.texas.ext.markdown.math.renderer.SymbolNode;
 import me.chan.texas.ext.markdown.math.renderer.TextNode;
 import me.chan.texas.ext.markdown.math.renderer.core.MathCanvas;
@@ -78,8 +77,8 @@ public class MathView extends View {
 		mCanvas = new MathCanvasImpl(new TexasCanvasImpl());
 
 		{
-			textPaint.setTextSize(128);
-			mRendererNode = mockDecor();
+			textPaint.setTextSize(48);
+			mRendererNode = mockConditionDetail();
 		}
 	}
 
@@ -170,8 +169,8 @@ public class MathView extends View {
 		return new LinearGroupNode(new MathPaint.Styles(mTexasPaint), rendererNodes);
 	}
 
-	public StretchyNode mockStretchyLeft() {
-		return new StretchyNode(new MathPaint.Styles(mTexasPaint), MathFontOptions.symbol("uni23A7"), MathFontOptions.symbol("uni23A8"), MathFontOptions.symbol("uni23A9"), MathFontOptions.symbol("uni23AA"));
+	public StretchyTripeNode mockStretchyLeft() {
+		return new StretchyTripeNode(new MathPaint.Styles(mTexasPaint), MathFontOptions.symbol("uni23A7"), MathFontOptions.symbol("uni23A8"), MathFontOptions.symbol("uni23A9"), MathFontOptions.symbol("uni23AA"));
 	}
 
 	public RendererNode mockStretchyBenchmark() {
@@ -181,8 +180,8 @@ public class MathView extends View {
 		return new LinearGroupNode(new MathPaint.Styles(mTexasPaint), list);
 	}
 
-	public StretchyNode mockStretchyRight() {
-		return new StretchyNode(new MathPaint.Styles(mTexasPaint), MathFontOptions.symbol("uni23AB"), MathFontOptions.symbol("uni23AC"), MathFontOptions.symbol("uni23AD"), MathFontOptions.symbol("uni23AA"));
+	public StretchyTripeNode mockStretchyRight() {
+		return new StretchyTripeNode(new MathPaint.Styles(mTexasPaint), MathFontOptions.symbol("uni23AB"), MathFontOptions.symbol("uni23AC"), MathFontOptions.symbol("uni23AD"), MathFontOptions.symbol("uni23AA"));
 	}
 
 	private RendererNode mockConditionDetail() {
