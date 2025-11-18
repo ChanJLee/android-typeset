@@ -77,8 +77,8 @@ public class MathView extends View {
 		mCanvas = new MathCanvasImpl(new TexasCanvasImpl());
 
 		{
-			textPaint.setTextSize(48);
-			mRendererNode = mockConditionDetail();
+			textPaint.setTextSize(128);
+			mRendererNode = mockDecor();
 		}
 	}
 
@@ -218,7 +218,7 @@ public class MathView extends View {
 	}
 
 	public RendererNode mockDecor() {
-		MathParser parser = new MathParser(new CharStream("\\left \\lceil x + y \\right \\rfloor"));
+		MathParser parser = new MathParser(new CharStream("\\left \\lfloor x + y \\right \\rfloor"));
 		MathRendererInflater inflater = new MathRendererInflater();
 		try {
 			return inflater.inflate(new MathPaint.Styles(mTexasPaint), parser.parse());
