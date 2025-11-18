@@ -22,6 +22,14 @@ public class BraceLayout extends RendererNode {
 		mLeftSymbol = leftSymbol;
 		mRightSymbol = rightSymbol;
 		mContent = content;
+
+		if (leftSymbol != null) {
+			leftSymbol.setClipContent(true);
+		}
+
+		if (rightSymbol != null) {
+			rightSymbol.setClipContent(true);
+		}
 	}
 
 	@Override

@@ -11,7 +11,7 @@ import me.chan.texas.ext.markdown.math.renderer.core.MathCanvas;
 import me.chan.texas.ext.markdown.math.renderer.core.MathPaint;
 
 public abstract class RendererNode {
-	public static final boolean DEBUG = true;
+	public static final boolean DEBUG = false;
 
 	private final MathPaint.Styles mStyles;
 	private int mWidth;
@@ -19,6 +19,7 @@ public abstract class RendererNode {
 	private float mLeft;
 	private float mTop;
 	private Object mTag;
+	private boolean mClipContent = false;
 
 	public RendererNode(MathPaint.Styles styles) {
 		mStyles = styles;
@@ -26,6 +27,10 @@ public abstract class RendererNode {
 
 	public final void measure(MathPaint paint) {
 		measure(paint, View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED), View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED));
+	}
+
+	public void setClipContent(boolean clipContent) {
+		mClipContent = clipContent;
 	}
 
 	public final void measure(MathPaint paint, int widthSpec, int heightSpec) {
@@ -53,7 +58,9 @@ public abstract class RendererNode {
 	public final void draw(MathCanvas canvas, MathPaint paint) {
 		canvas.save();
 		canvas.translate(mLeft, mTop);
-		canvas.clipRect(0, 0, getWidth(), getHeight());
+		if (mClipContent) {
+			canvas.clipRect(0, 0, getWidth(), getHeight());
+		}
 
 		if (mStyles != null) {
 			paint.save(mStyles);
