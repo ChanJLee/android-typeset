@@ -53,6 +53,7 @@ public abstract class RendererNode {
 	public final void draw(MathCanvas canvas, MathPaint paint) {
 		canvas.save();
 		canvas.translate(mLeft, mTop);
+		canvas.clipRect(0, 0, getWidth(), getHeight());
 
 		if (mStyles != null) {
 			paint.save(mStyles);

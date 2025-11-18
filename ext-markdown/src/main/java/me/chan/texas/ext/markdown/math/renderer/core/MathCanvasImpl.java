@@ -62,4 +62,9 @@ public class MathCanvasImpl implements MathCanvas {
 	public void scale(float sx, float sy, float px, float py) {
 		mImpl.scale(sx, sy, px, py);
 	}
+
+	@Override
+	public void clipRect(int left, int top, int right, int bottom) {
+		mImpl.clipRect(left, top, right, bottom);
+	}
 }

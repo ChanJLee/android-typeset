@@ -24,4 +24,6 @@ public interface MathCanvas {
 	void scale(float sx, float sy);
 
 	void scale(float sx, float sy, float px, float py);
+
+	void clipRect(int left, int top, int right, int bottom);
 }

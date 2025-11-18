@@ -1,5 +1,7 @@
 package me.chan.texas.ext.markdown.math.renderer;
 
+import android.graphics.Color;
+
 import me.chan.texas.ext.markdown.math.renderer.core.MathCanvas;
 import me.chan.texas.ext.markdown.math.renderer.core.MathPaint;
 import me.chan.texas.ext.markdown.math.renderer.fonts.Symbol;
@@ -16,7 +18,7 @@ public class StretchyNode extends RendererNode {
 
 	public StretchyNode(MathPaint.Styles styles, int gravity, Symbol symbol, Symbol extension) {
 		super(styles);
-		mSymbol = new SymbolNode(styles, symbol);
+		mSymbol = new SymbolNode(styles.copy().setColor(Color.BLUE), symbol);
 		mExtension = new SymbolNode(styles, extension);
 		mGravity = gravity;
 	}
