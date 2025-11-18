@@ -71,6 +71,10 @@ public interface MathPaint {
 			mIsItalic = other.mIsItalic;
 		}
 
+		public Styles copy() {
+			return new Styles(this);
+		}
+
 		public float getTextSize() {
 			return mTextSize;
 		}
