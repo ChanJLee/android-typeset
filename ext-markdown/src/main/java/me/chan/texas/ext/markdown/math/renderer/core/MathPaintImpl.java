@@ -71,11 +71,16 @@ public class MathPaintImpl implements MathPaint {
 
 	@Override
 	public void save() {
-		save(new Styles(this));
+		save0(new Styles(this));
 	}
 
 	@Override
 	public void save(Styles styles) {
+		styles.apply(this);
+		save0(styles);
+	}
+
+	private void save0(Styles styles) {
 		mStates.push(styles);
 	}
 
@@ -107,5 +112,10 @@ public class MathPaintImpl implements MathPaint {
 	@Override
 	public void setItalicText(boolean isItalic) {
 		mImpl.setTextSkewX(isItalic ? -0.25f : 0);
+	}
+
+	@Override
+	public String toString() {
+		return String.format("#%08x", mImpl.getColor());
 	}
 }

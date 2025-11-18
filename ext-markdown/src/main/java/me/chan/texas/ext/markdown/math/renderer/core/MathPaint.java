@@ -142,5 +142,17 @@ public interface MathPaint {
 			paint.setBoldText(mIsBold);
 			paint.setItalicText(mIsItalic);
 		}
+
+		@Override
+		public String toString() {
+			return "Styles{" +
+					"mTextSize=" + mTextSize +
+					", mStyle=" + mStyle +
+					", mStrokeWidth=" + mStrokeWidth +
+					", mColor=" + String.format("#%08x", mColor) +
+					", mIsBold=" + mIsBold +
+					", mIsItalic=" + mIsItalic +
+					'}';
+		}
 	}
 }
