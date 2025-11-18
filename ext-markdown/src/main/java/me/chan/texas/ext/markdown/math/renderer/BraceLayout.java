@@ -29,11 +29,11 @@ public class BraceLayout extends RendererNode {
 		float width = 0;
 		mContent.measure(paint);
 
-		int exceptHeight = (int) Math.ceil(mContent.getHeight() * ((mLevel - DelimitedAtom.LEVEL_L0 ) * 0.4f + 1));
+		int exceptHeight = (int) Math.ceil(mContent.getHeight() * ((mLevel - DelimitedAtom.LEVEL_L0) * 0.4f + 1));
 
 		float left = 0;
 		if (mLeftSymbol != null) {
-			mLeftSymbol.measure(paint, RendererNode.makeMeasureSpec(0, RendererNode.UNSPECIFIED), RendererNode.makeMeasureSpec(exceptHeight, RendererNode.EXACTLY));
+			mLeftSymbol.measure(paint, RendererNode.makeUnspecifiedMeasureSpec(), RendererNode.makeMeasureSpec(exceptHeight, RendererNode.EXACTLY));
 			mLeftSymbol.layout(left, 0);
 			width += mLeftSymbol.getWidth();
 			left = mLeftSymbol.getRight();
@@ -43,12 +43,13 @@ public class BraceLayout extends RendererNode {
 		left = mContent.getRight();
 
 		if (mRightSymbol != null) {
-			mRightSymbol.measure(paint, RendererNode.makeMeasureSpec(0, RendererNode.UNSPECIFIED), RendererNode.makeMeasureSpec(exceptHeight, RendererNode.EXACTLY));
+			mRightSymbol.measure(paint, RendererNode.makeUnspecifiedMeasureSpec(), RendererNode.makeMeasureSpec(exceptHeight, RendererNode.EXACTLY));
 			mRightSymbol.layout(left, 0);
 			width += mRightSymbol.getWidth();
 		}
 
-		int height = mRightSymbol == null && mLeftSymbol == null ? mContent.getHeight() :
+		int height = mRightSymbol == null && mLeftSymbol == null ?
+				mContent.getHeight() :
 				(int) Math.ceil(Math.max(exceptHeight, mContent.getHeight()));
 
 		mContent.translate(0, (height - mContent.getHeight()) / 2f);

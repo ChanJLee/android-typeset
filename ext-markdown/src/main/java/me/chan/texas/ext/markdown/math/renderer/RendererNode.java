@@ -175,4 +175,8 @@ public abstract class RendererNode {
 									  int mode) {
 		return (size & ~MODE_MASK) | (mode & MODE_MASK);
 	}
+
+	public static int makeUnspecifiedMeasureSpec() {
+		return makeMeasureSpec(0, UNSPECIFIED);
+	}
 }
