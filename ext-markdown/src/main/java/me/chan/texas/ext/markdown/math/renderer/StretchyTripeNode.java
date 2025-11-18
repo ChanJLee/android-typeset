@@ -29,8 +29,10 @@ public class StretchyTripeNode extends RendererNode {
 		float height = RendererNode.getSize(heightSpec);
 		float width = RendererNode.getSize(widthSpec);
 
-		if (RendererNode.getMode(heightSpec) != RendererNode.EXACTLY) {
+		if (RendererNode.getMode(heightSpec) == RendererNode.UNSPECIFIED) {
 			height = mTop.getHeight() + mMiddle.getHeight() + mBottom.getHeight();
+		} else if (RendererNode.getMode(heightSpec) == RendererNode.AT_MOST) {
+			height = Math.min(height, mTop.getHeight() + mMiddle.getHeight() + mBottom.getHeight());
 		}
 
 		float centerY = height / 2.0f;
