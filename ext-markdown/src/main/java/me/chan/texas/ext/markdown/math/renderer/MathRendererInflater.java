@@ -246,6 +246,24 @@ public class MathRendererInflater {
 			);
 		}
 
+		if ("\\lvert".equals(delimiter) || "\\rvert".equals(delimiter)) {
+			return  new StretchyNode(
+					styles,
+					StretchyNode.GRAVITY_TOP,
+					MathFontOptions.symbol("divides"),
+					MathFontOptions.symbol("divides")
+			);
+		}
+
+		if ("\\lVert".equals(delimiter) || "\\rVert".equals(delimiter)) {
+			return  new StretchyNode(
+					styles,
+					StretchyNode.GRAVITY_TOP,
+					MathFontOptions.symbol("parallel"),
+					MathFontOptions.symbol("parallel")
+			);
+		}
+
 		throw new IllegalArgumentException("unknown delimiter: " + delimiter);
 	}
 
