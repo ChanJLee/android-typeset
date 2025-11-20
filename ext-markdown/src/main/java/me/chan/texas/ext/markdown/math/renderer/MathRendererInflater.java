@@ -195,7 +195,24 @@ public class MathRendererInflater {
 	}
 
 	private RendererNode inflateLargeOperatorAtom(MathPaint.Styles styles, LargeOperatorAtom atom) {
-		throw new RuntimeException("Stub!");
+		RendererNode subscript = null;
+		if (atom.subscript != null) {
+			subscript = inflateScriptArg(styles.copy().setTextSizeFactor(0.4f), atom.subscript);
+		}
+
+		RendererNode superscript = null;
+		if (atom.superscript != null) {
+			superscript = inflateScriptArg(styles.copy().setTextSizeFactor(0.4f), atom.superscript);
+		}
+
+		DecorGroupNode.Builder builder = new DecorGroupNode.Builder(styles, inflateSymbol(styles, atom.operatorName));
+		if ("sum".equals(atom.operatorName)) {
+			builder.top(superscript).bottom(subscript);
+		} else {
+			throw new IllegalArgumentException("unknown operator: " + atom.operatorName);
+		}
+
+		return builder.build();
 	}
 
 	private RendererNode inflateDelimitedAtom(MathPaint.Styles styles, DelimitedAtom atom) {
