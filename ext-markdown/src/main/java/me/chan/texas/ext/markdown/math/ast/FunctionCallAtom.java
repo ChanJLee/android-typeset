@@ -18,10 +18,10 @@ public class FunctionCallAtom implements Atom {
 	public String toString() {
 		String result = "\\" + functionName;
 		if (subscript != null) {
-			result += "_" + subscript.toString();
+			result += "_" + subscript;
 		}
 		if (superscript != null) {
-			result += "^" + superscript.toString();
+			result += "^" + superscript;
 		}
 		if (argument != null) {
 			result += argument.toString();

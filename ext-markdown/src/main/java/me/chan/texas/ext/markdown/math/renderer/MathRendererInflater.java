@@ -264,7 +264,29 @@ public class MathRendererInflater {
 	}
 
 	private RendererNode inflateFunctionCallAtom(MathPaint.Styles styles, FunctionCallAtom functionCallAtom) {
-		throw new RuntimeException("Stub!");
+		DecorGroupNode.Builder builder = new DecorGroupNode.Builder(styles, new TextNode(styles, functionCallAtom.functionName));
+
+		if (functionCallAtom.argument != null) {
+			if (functionCallAtom.argument instanceof DelimitedAtom) {
+				builder.right(inflateDelimitedAtom(styles, (DelimitedAtom) functionCallAtom.argument));
+			} else if (functionCallAtom.argument instanceof GroupAtom) {
+				builder.right(inflateGroupAtom(styles, (GroupAtom) functionCallAtom.argument));
+			} else if (functionCallAtom.argument instanceof SingleTokenScriptArg) {
+				builder.right(inflateScriptArg(styles, (SingleTokenScriptArg) functionCallAtom.argument));
+			} else {
+				throw new IllegalArgumentException("unknown argument: " + functionCallAtom.argument);
+			}
+		}
+
+		if (functionCallAtom.subscript != null) {
+			builder.rightBottom(inflateScriptArg(styles.copy().setTextSizeFactor(0.4f), functionCallAtom.subscript));
+		}
+
+		if (functionCallAtom.superscript != null) {
+			builder.rightTop(inflateScriptArg(styles.copy().setTextSizeFactor(0.4f), functionCallAtom.superscript));
+		}
+
+		return builder.build();
 	}
 
 	private RendererNode inflateSqrtAtom(MathPaint.Styles styles, SqrtAtom sqrtAtom) {
