@@ -111,7 +111,7 @@ public class MathPaintImpl implements MathPaint {
 
 	@Override
 	public void setItalicText(boolean isItalic) {
-		mImpl.setTextSkewX(isItalic ? -0.25f : 0);
+		mImpl.setTextSkewX(isItalic ? -0.2f : 0);
 	}
 
 	@Override
