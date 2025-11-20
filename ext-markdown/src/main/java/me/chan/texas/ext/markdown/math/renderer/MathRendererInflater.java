@@ -212,6 +212,69 @@ public class MathRendererInflater {
 			return null;
 		}
 
+		if ("(".equals(delimiter)) {
+			return new StretchyNode(styles, MathFontOptions.symbol("parenleft"));
+		}
+
+		if (")".equals(delimiter)) {
+			return new StretchyNode(styles, MathFontOptions.symbol("parenright"));
+		}
+
+		if ("[".equals(delimiter)) {
+			return new StretchyTripeNode(
+					styles,
+					MathFontOptions.symbol("uni23A1"),
+					MathFontOptions.symbol("uni23A2"),
+					MathFontOptions.symbol("uni23A3"),
+					MathFontOptions.symbol("uni23A2")
+			);
+		}
+
+		if ("]".equals(delimiter)) {
+			return new StretchyTripeNode(
+					styles,
+					MathFontOptions.symbol("uni23A4"),
+					MathFontOptions.symbol("uni23A5"),
+					MathFontOptions.symbol("uni23A6"),
+					MathFontOptions.symbol("uni23A5")
+			);
+		}
+
+		if ("\\{".equals(delimiter)) {
+			return new StretchyTripeNode(
+					styles,
+					MathFontOptions.symbol("uni23A7"),
+					MathFontOptions.symbol("uni23A8"),
+					MathFontOptions.symbol("uni23A9"),
+					MathFontOptions.symbol("uni23AA")
+			);
+		}
+
+		if ("\\}".equals(delimiter)) {
+			return new StretchyTripeNode(
+					styles,
+					MathFontOptions.symbol("uni23AB"),
+					MathFontOptions.symbol("uni23AC"),
+					MathFontOptions.symbol("uni23AD"),
+					MathFontOptions.symbol("uni23AA")
+			);
+		}
+
+		if ("\\|".equals(delimiter) || "|".equals(delimiter)) {
+			return new StretchyNode(
+					styles,
+					MathFontOptions.symbol("parallel")
+			);
+		}
+
+		if ("\\langle".equals(delimiter)) {
+			return new StretchyNode(styles, MathFontOptions.symbol("angleleft"));
+		}
+
+		if ("\\rangle".equals(delimiter)) {
+			return new StretchyNode(styles, MathFontOptions.symbol("angleright"));
+		}
+
 		if ("\\lfloor".equals(delimiter)) {
 			return new StretchyDoubleNode(
 					styles,
@@ -264,7 +327,7 @@ public class MathRendererInflater {
 	}
 
 	private RendererNode inflateFunctionCallAtom(MathPaint.Styles styles, FunctionCallAtom functionCallAtom) {
-		DecorGroupNode.Builder builder = new DecorGroupNode.Builder(styles, new TextNode(styles, functionCallAtom.functionName));
+		DecorGroupNode.Builder builder = new DecorGroupNode.Builder(styles, new TextNode(styles.copy().setItalic(true), functionCallAtom.functionName));
 
 		if (functionCallAtom.argument != null) {
 			if (functionCallAtom.argument instanceof DelimitedAtom) {
