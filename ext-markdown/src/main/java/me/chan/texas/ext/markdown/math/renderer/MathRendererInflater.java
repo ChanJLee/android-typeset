@@ -213,53 +213,49 @@ public class MathRendererInflater {
 		}
 
 		if ("\\lfloor".equals(delimiter)) {
-			return new StretchyNode(
+			return new StretchyDoubleNode(
 					styles,
-					StretchyNode.GRAVITY_BOTTOM,
+					StretchyDoubleNode.GRAVITY_BOTTOM,
 					MathFontOptions.symbol("uni23A3"),
 					MathFontOptions.symbol("uni23A2")
 			);
 		}
 		if ("\\rfloor".equals(delimiter)) {
-			return new StretchyNode(
+			return new StretchyDoubleNode(
 					styles,
-					StretchyNode.GRAVITY_BOTTOM,
+					StretchyDoubleNode.GRAVITY_BOTTOM,
 					MathFontOptions.symbol("uni23A6"),
 					MathFontOptions.symbol("uni23A5")
 			);
 		}
 
 		if ("\\lceil".equals(delimiter)) {
-			return new StretchyNode(
+			return new StretchyDoubleNode(
 					styles,
-					StretchyNode.GRAVITY_TOP,
+					StretchyDoubleNode.GRAVITY_TOP,
 					MathFontOptions.symbol("uni23A1"),
 					MathFontOptions.symbol("uni23A2")
 			);
 		}
 		if ("\\rceil".equals(delimiter)) {
-			return new StretchyNode(
+			return new StretchyDoubleNode(
 					styles,
-					StretchyNode.GRAVITY_TOP,
+					StretchyDoubleNode.GRAVITY_TOP,
 					MathFontOptions.symbol("uni23A4"),
 					MathFontOptions.symbol("uni23A5")
 			);
 		}
 
 		if ("\\lvert".equals(delimiter) || "\\rvert".equals(delimiter)) {
-			return  new StretchyNode(
+			return new StretchyNode(
 					styles,
-					StretchyNode.GRAVITY_TOP,
-					MathFontOptions.symbol("divides"),
 					MathFontOptions.symbol("divides")
 			);
 		}
 
 		if ("\\lVert".equals(delimiter) || "\\rVert".equals(delimiter)) {
-			return  new StretchyNode(
+			return new StretchyNode(
 					styles,
-					StretchyNode.GRAVITY_TOP,
-					MathFontOptions.symbol("parallel"),
 					MathFontOptions.symbol("parallel")
 			);
 		}

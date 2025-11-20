@@ -218,7 +218,7 @@ public class MathView extends View {
 	}
 
 	public RendererNode mockDecor() {
-		MathParser parser = new MathParser(new CharStream("\\left \\lVert x + y \\right \\rvert"));
+		MathParser parser = new MathParser(new CharStream("\\Bigl \\lVert x + y \\Bigr \\rvert"));
 		MathRendererInflater inflater = new MathRendererInflater();
 		try {
 			return inflater.inflate(new MathPaint.Styles(mTexasPaint), parser.parse());
