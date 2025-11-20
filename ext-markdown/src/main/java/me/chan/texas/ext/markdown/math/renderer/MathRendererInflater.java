@@ -206,8 +206,15 @@ public class MathRendererInflater {
 		}
 
 		DecorGroupNode.Builder builder = new DecorGroupNode.Builder(styles, inflateSymbol(styles, atom.operatorName));
-		if ("sum".equals(atom.operatorName)) {
+		if ("sum".equals(atom.operatorName) || "prod".equals(atom.operatorName) || "coprod".equals(atom.operatorName) ||
+				"bigcup".equals(atom.operatorName) || "bigcap".equals(atom.operatorName) || "bigvee".equals(atom.operatorName) || "bigwedge".equals(atom.operatorName) ||
+				"bigoplus".equals(atom.operatorName) || "bigotimes".equals(atom.operatorName) || "bigodot".equals(atom.operatorName) ||
+				"biguplus".equals(atom.operatorName) || "bigsqcup".equals(atom.operatorName) ||
+				"lim".equals(atom.operatorName) || "limsup".equals(atom.operatorName) || "liminf".equals(atom.operatorName)) {
 			builder.top(superscript).bottom(subscript);
+		} else if ("int".equals(atom.operatorName) || "iint".equals(atom.operatorName) || "iiint".equals(atom.operatorName) ||
+				"oint".equals(atom.operatorName) || "oiint".equals(atom.operatorName) || "oiiint".equals(atom.operatorName)) {
+			builder.rightTop(superscript).rightBottom(subscript);
 		} else {
 			throw new IllegalArgumentException("unknown operator: " + atom.operatorName);
 		}
