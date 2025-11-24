@@ -33,6 +33,7 @@ import me.chan.texas.ext.markdown.math.renderer.fonts.MathFontOptions;
 import me.chan.texas.ext.markdown.math.renderer.fonts.Symbol;
 
 public class MathRendererInflater {
+	private static final float SUB_EXP_FACTOR = 0.6f;
 
 	public RendererNode inflate(MathPaint.Styles styles, MathList mathList) {
 		List<RendererNode> list = new ArrayList<>();
@@ -81,12 +82,12 @@ public class MathRendererInflater {
 
 		ScriptArg scriptArg = suffix.superscript;
 		if (scriptArg != null) {
-			builder.rightTop(inflateScriptArg(new MathPaint.Styles(styles).setTextSizeFactor(0.4F), scriptArg));
+			builder.rightTop(inflateScriptArg(new MathPaint.Styles(styles).setTextSizeFactor(SUB_EXP_FACTOR), scriptArg));
 		}
 
 		scriptArg = suffix.subscript;
 		if (scriptArg != null) {
-			builder.rightBottom(inflateScriptArg(new MathPaint.Styles(styles).setTextSizeFactor(0.4F), scriptArg));
+			builder.rightBottom(inflateScriptArg(new MathPaint.Styles(styles).setTextSizeFactor(SUB_EXP_FACTOR), scriptArg));
 		}
 		return builder.build();
 	}
@@ -197,12 +198,12 @@ public class MathRendererInflater {
 	private RendererNode inflateLargeOperatorAtom(MathPaint.Styles styles, LargeOperatorAtom atom) {
 		RendererNode subscript = null;
 		if (atom.subscript != null) {
-			subscript = inflateScriptArg(styles.copy().setTextSizeFactor(0.4f), atom.subscript);
+			subscript = inflateScriptArg(styles.copy().setTextSizeFactor(SUB_EXP_FACTOR), atom.subscript);
 		}
 
 		RendererNode superscript = null;
 		if (atom.superscript != null) {
-			superscript = inflateScriptArg(styles.copy().setTextSizeFactor(0.4f), atom.superscript);
+			superscript = inflateScriptArg(styles.copy().setTextSizeFactor(SUB_EXP_FACTOR), atom.superscript);
 		}
 
 		DecorGroupNode.Builder builder = new DecorGroupNode.Builder(styles, inflateLargeOp(styles, atom));
@@ -366,11 +367,11 @@ public class MathRendererInflater {
 		}
 
 		if (functionCallAtom.subscript != null) {
-			builder.rightBottom(inflateScriptArg(styles.copy().setTextSizeFactor(0.4f), functionCallAtom.subscript));
+			builder.rightBottom(inflateScriptArg(styles.copy().setTextSizeFactor(SUB_EXP_FACTOR), functionCallAtom.subscript));
 		}
 
 		if (functionCallAtom.superscript != null) {
-			builder.rightTop(inflateScriptArg(styles.copy().setTextSizeFactor(0.4f), functionCallAtom.superscript));
+			builder.rightTop(inflateScriptArg(styles.copy().setTextSizeFactor(SUB_EXP_FACTOR), functionCallAtom.superscript));
 		}
 
 		return builder.build();
@@ -379,7 +380,7 @@ public class MathRendererInflater {
 	private RendererNode inflateSqrtAtom(MathPaint.Styles styles, SqrtAtom sqrtAtom) {
 		RendererNode root = null;
 		if (sqrtAtom.root != null) {
-			root = inflate(new MathPaint.Styles(styles).setTextSizeFactor(0.4F), sqrtAtom.root);
+			root = inflate(new MathPaint.Styles(styles).setTextSizeFactor(SUB_EXP_FACTOR), sqrtAtom.root);
 		}
 		return new SqrtNode(styles, root, inflate(styles, sqrtAtom.content));
 	}
