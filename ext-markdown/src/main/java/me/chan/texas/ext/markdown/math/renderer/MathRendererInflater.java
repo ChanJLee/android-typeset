@@ -1,5 +1,7 @@
 package me.chan.texas.ext.markdown.math.renderer;
 
+import android.text.TextUtils;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -188,7 +190,15 @@ public class MathRendererInflater {
 	}
 
 	private RendererNode inflateTextAtom(MathPaint.Styles styles, TextAtom atom) {
-		throw new RuntimeException("Stub!");
+		if (TextUtils.equals("textbf", atom.command)) {
+			styles = styles.copy().setBold(true);
+		}
+
+		if (TextUtils.equals("textit", atom.text)) {
+			styles = styles.copy().setItalic(true);
+		}
+
+		return new TextNode(styles, atom.text);
 	}
 
 	private RendererNode inflateMatrixAtom(MathPaint.Styles styles, MatrixAtom atom) {
