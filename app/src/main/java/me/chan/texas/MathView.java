@@ -218,7 +218,7 @@ public class MathView extends View {
 	}
 
 	public RendererNode mockDecor() {
-		MathParser parser = new MathParser(new CharStream("\\cos \\left ( x + y \\right )"));
+		MathParser parser = new MathParser(new CharStream("\\sum_{\\cos \\left ( x + y \\right )}^x"));
 		MathRendererInflater inflater = new MathRendererInflater();
 		try {
 			return inflater.inflate(new MathPaint.Styles(mTexasPaint), parser.parse());

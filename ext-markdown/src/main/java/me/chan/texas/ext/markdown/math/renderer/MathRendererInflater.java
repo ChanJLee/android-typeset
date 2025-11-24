@@ -205,18 +205,18 @@ public class MathRendererInflater {
 			superscript = inflateScriptArg(styles.copy().setTextSizeFactor(0.4f), atom.superscript);
 		}
 
-		DecorGroupNode.Builder builder = new DecorGroupNode.Builder(styles, inflateSymbol(styles, atom.operatorName));
-		if ("sum".equals(atom.operatorName) || "prod".equals(atom.operatorName) || "coprod".equals(atom.operatorName) ||
-				"bigcup".equals(atom.operatorName) || "bigcap".equals(atom.operatorName) || "bigvee".equals(atom.operatorName) || "bigwedge".equals(atom.operatorName) ||
-				"bigoplus".equals(atom.operatorName) || "bigotimes".equals(atom.operatorName) || "bigodot".equals(atom.operatorName) ||
-				"biguplus".equals(atom.operatorName) || "bigsqcup".equals(atom.operatorName) ||
-				"lim".equals(atom.operatorName) || "limsup".equals(atom.operatorName) || "liminf".equals(atom.operatorName)) {
+		DecorGroupNode.Builder builder = new DecorGroupNode.Builder(styles, inflateLargeOp(styles, atom));
+		if ("sum".equals(atom.op) || "prod".equals(atom.op) || "coprod".equals(atom.op) ||
+				"bigcup".equals(atom.op) || "bigcap".equals(atom.op) || "bigvee".equals(atom.op) || "bigwedge".equals(atom.op) ||
+				"bigoplus".equals(atom.op) || "bigotimes".equals(atom.op) || "bigodot".equals(atom.op) ||
+				"biguplus".equals(atom.op) || "bigsqcup".equals(atom.op) ||
+				"lim".equals(atom.op) || "limsup".equals(atom.op) || "liminf".equals(atom.op)) {
 			builder.top(superscript).bottom(subscript);
-		} else if ("int".equals(atom.operatorName) || "iint".equals(atom.operatorName) || "iiint".equals(atom.operatorName) ||
-				"oint".equals(atom.operatorName) || "oiint".equals(atom.operatorName) || "oiiint".equals(atom.operatorName)) {
+		} else if ("int".equals(atom.op) || "iint".equals(atom.op) || "iiint".equals(atom.op) ||
+				"oint".equals(atom.op) || "oiint".equals(atom.op) || "oiiint".equals(atom.op)) {
 			builder.rightTop(superscript).rightBottom(subscript);
 		} else {
-			throw new IllegalArgumentException("unknown operator: " + atom.operatorName);
+			throw new IllegalArgumentException("unknown operator: " + atom.op);
 		}
 
 		return builder.build();
@@ -398,6 +398,20 @@ public class MathRendererInflater {
 
 	private RendererNode inflateBinOp(MathPaint.Styles styles, BinOpAtom atom) {
 		return inflateSymbol(styles, atom.getOp());
+	}
+
+	private RendererNode inflateLargeOp(MathPaint.Styles styles, LargeOperatorAtom largeOperatorAtom) {
+		Symbol s = MathFontOptions.ast(largeOperatorAtom);
+		if (s != null) {
+			return new SymbolNode(styles, s);
+		}
+
+		String o = MathFontOptions.textOp(largeOperatorAtom.op);
+		if (o != null) {
+			return new TextNode(styles, o);
+		}
+
+		throw new IllegalArgumentException("unknown operator: " + largeOperatorAtom.op);
 	}
 
 	private RendererNode inflateSymbol(MathPaint.Styles styles, String symbol) {

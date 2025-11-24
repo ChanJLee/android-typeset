@@ -469,7 +469,7 @@ public class MathParserAstTest {
 		assertTrue("应该是LargeOperatorAtom", atom instanceof LargeOperatorAtom);
 		LargeOperatorAtom op = (LargeOperatorAtom) atom;
 
-		assertEquals("运算符名应该是sum", "sum", op.operatorName);
+		assertEquals("运算符名应该是sum", "sum", op.op);
 		assertNotNull("应该有下标", op.subscript);
 		assertNotNull("应该有上标", op.superscript);
 
@@ -489,7 +489,7 @@ public class MathParserAstTest {
 		Term term = getFirstTerm(expr);
 		LargeOperatorAtom op = (LargeOperatorAtom) getAtom(term);
 
-		assertEquals("运算符名应该是int", "int", op.operatorName);
+		assertEquals("运算符名应该是int", "int", op.op);
 		assertNotNull("应该有下标", op.subscript);
 		assertNotNull("应该有上标", op.superscript);
 
@@ -757,7 +757,7 @@ public class MathParserAstTest {
 		Term sumTerm = (Term) exprElements.get(0);
 		assertTrue("应该是LargeOperatorAtom", sumTerm.atom instanceof LargeOperatorAtom);
 		LargeOperatorAtom sumOp = (LargeOperatorAtom) sumTerm.atom;
-		assertEquals("运算符应该是sum", "sum", sumOp.operatorName);
+		assertEquals("运算符应该是sum", "sum", sumOp.op);
 		assertNotNull("sum应该有下标", sumOp.subscript);
 		assertNotNull("sum应该有上标", sumOp.superscript);
 

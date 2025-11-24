@@ -217,9 +217,9 @@ public class MathFontOptions {
 	}
 
 	public static Symbol ast(LargeOperatorAtom atom) {
-		String ref = AST.get(atom.operatorName);
+		String ref = AST.get(atom.op);
 		if (ref == null) {
-			throw new IllegalArgumentException("Unknown ast op: " + atom.operatorName);
+			throw new IllegalArgumentException("Unknown ast op: " + atom.op);
 		}
 		return symbol(ref);
 	}
