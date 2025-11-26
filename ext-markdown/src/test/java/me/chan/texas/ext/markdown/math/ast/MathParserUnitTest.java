@@ -708,7 +708,7 @@ public class MathParserUnitTest {
 		System.out.println("\n=== 测试特殊符号和普通符号混合使用 ===");
 		// 混合使用
 		assertParses("1 + 2 + \\cdots + n");
-		assertParses("-x + \\cdots + (-1)^n x^n");
+		assertParses("-x + \\cdots + \\left(-1\\right)^n x^n");  // 合法：使用定界符
 		assertParses("\\angle ABC + \\angle BCD = 180");
 		assertParses("a \\parallel b, c \\perp d");
 		assertParses("\\because x > 0, \\therefore x^2 > 0");
