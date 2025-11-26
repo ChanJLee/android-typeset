@@ -4,13 +4,13 @@ import me.chan.texas.utils.CharStream;
 
 public class MathParseException extends Exception {
 	private final int position;
-	private final String input;
+	private final CharSequence input;
 
 	public MathParseException(String message, CharStream stream) {
 		super(message + " at position " + stream.save());
 		this.position = stream.save();
 		// 从 CharStream 提取原始输入
-		this.input = stream.toString();
+		this.input = stream.getText();
 	}
 
 	public int getPosition() {
@@ -41,13 +41,14 @@ public class MathParseException extends Exception {
 		if (end > input.length()) {
 			end = input.length();
 		}
-		sb.append(input.substring(start, end)).append("\n");
+		sb.append(input, start, end).append("\n");
 
 		// 3. 添加箭头指示错误位置
 		for (int i = 0; i < windowSize; i++) {
 			sb.append(" ");
 		}
-		sb.append("^");
+		sb.append("^\ninput:");
+		sb.append(input).append("\n");
 
 		return sb.toString();
 	}

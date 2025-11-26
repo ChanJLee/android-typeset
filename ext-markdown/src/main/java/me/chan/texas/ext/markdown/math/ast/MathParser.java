@@ -632,11 +632,14 @@ public class MathParser {
 	}
 
 	/**
-	 * <variable> ::= <letter> { <letter> }
+	 * <variable> ::= <letter> { <letter> } [ <prime_suffix> ]
+	 * <prime_suffix> ::= "'" { "'" }
 	 */
 	private VariableAtom parseVariable() {
 		StringBuilder builder = new StringBuilder()
 				.append((char) stream.eat());
+
+		// 解析后续字母
 		while (!stream.eof()) {
 			char c = (char) stream.peek();
 			if (isVariableLetter(c)) {
@@ -645,6 +648,12 @@ public class MathParser {
 				break;
 			}
 		}
+
+		// 解析可选的 prime 后缀
+		while (!stream.eof() && stream.peek() == '\'') {
+			builder.append((char) stream.eat());
+		}
+
 		return new VariableAtom(builder.toString());
 	}
 
