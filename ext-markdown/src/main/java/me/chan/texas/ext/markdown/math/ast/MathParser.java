@@ -19,7 +19,15 @@ public class MathParser {
 			"cup", "cap", "wedge", "vee",
 			"to", "rightarrow", "leftarrow", "leftrightarrow",
 			"Rightarrow", "Leftarrow", "Leftrightarrow",
-			"implies", "iff"
+			"implies", "iff",
+			"perp", "parallel"           // 几何关系符号
+	));
+
+	// 特殊符号集合（不能被一元运算符修饰，但可带上下标）
+	private static final Set<String> SPECIAL_SYMBOLS = new HashSet<>(Arrays.asList(
+			"dots", "ldots", "cdots", "vdots", "ddots",  // 省略号
+			"angle",  // 角度符号
+			"therefore", "because"  // 逻辑标记符号
 	));
 
 	// 函数名集合
@@ -272,10 +280,23 @@ public class MathParser {
 	}
 
 	/**
-	 * <term> ::= [ <unary_op> ] <atom> [ <sup_sub_suffix> ]
+	 * <term> ::= [ <unary_op> ] <operand_atom> [ <sup_sub_suffix> ]
+	 * | <special_symbol> [ <sup_sub_suffix> ]
+	 * <p>
+	 * term 分为两类：
+	 * 1. 可运算的原子（可被一元运算符修饰）
+	 * 2. 特殊符号（不能被一元运算符修饰，如省略号、角度符号等）
 	 */
 	private Term parseTerm() throws MathParseException {
 		skipWhitespace();
+
+		// 先检查是否是特殊符号
+		if (isSpecialSymbol()) {
+			SpecialSymbolAtom specialSymbol = parseSpecialSymbol();
+			skipWhitespace();
+			SupSubSuffix suffix = tryParseSupSubSuffix();
+			return new Term(null, specialSymbol, suffix);
+		}
 
 		// 尝试解析可选的一元运算符
 		String op = parseUnaryOp();
@@ -284,10 +305,39 @@ public class MathParser {
 			unaryOp = new UnaryOp(op);
 		}
 
-		Atom atom = parseAtom();
+		// 解析可运算的原子
+		Atom atom = parseOperandAtom();
 		skipWhitespace();
 		SupSubSuffix suffix = tryParseSupSubSuffix();
 		return new Term(unaryOp, atom, suffix);
+	}
+
+	/**
+	 * 判断当前是否是特殊符号
+	 */
+	private boolean isSpecialSymbol() {
+		if (stream.peek() != '\\') return false;
+
+		int saved = stream.save();
+		stream.eat();
+		String cmd = scanCommandName();
+		stream.restore(saved);
+
+		return SPECIAL_SYMBOLS.contains(cmd);
+	}
+
+	/**
+	 * 解析特殊符号（不能被一元运算符修饰的符号）
+	 */
+	private SpecialSymbolAtom parseSpecialSymbol() throws MathParseException {
+		expect('\\');
+		String cmd = scanCommandName();
+
+		if (!SPECIAL_SYMBOLS.contains(cmd)) {
+			throw new MathParseException("Expected special symbol, got \\" + cmd, stream.save());
+		}
+
+		return new SpecialSymbolAtom(cmd);
 	}
 
 	/**
@@ -303,9 +353,9 @@ public class MathParser {
 				stream.eat();
 				skipWhitespace();
 
-				// 检查后面是否有atom
-				// 关键：一元运算符后必须紧跟atom（可能有空格）
-				if (!stream.eof() && isAtomStart()) {
+				// 检查后面是否有operand_atom（不能是special_symbol）
+				// 关键：一元运算符后必须紧跟operand_atom（可能有空格）
+				if (!stream.eof() && isOperandAtomStart()) {
 					// 这是一元运算符
 					return String.valueOf(c);
 				} else {
@@ -318,7 +368,7 @@ public class MathParser {
 				String cmd = scanCommandName();
 				if ("pm".equals(cmd) || "mp".equals(cmd)) {
 					skipWhitespace();
-					if (!stream.eof() && isAtomStart()) {
+					if (!stream.eof() && isOperandAtomStart()) {
 						return "\\" + cmd;
 					}
 				}
@@ -330,13 +380,14 @@ public class MathParser {
 	}
 
 	/**
-	 * <atom> ::= <number>,<variable>,<greek_letter>,<group>
+	 * <operand_atom> ::= <number>,<variable>,<greek_letter>,<group>
 	 * ,<frac>,<sqrt>,<delimited>,<function_call>,<large_operator>
-	 * ,<matrix>,<text>,<accent>
+	 * ,<matrix>,<text>,<accent>,<font_command>
 	 * <p>
-	 * 注意：不包含 spacing 和 plain_symbol（运算符）
+	 * 可运算的原子表达式：可以被一元运算符修饰
+	 * 注意：不包含 spacing 和 special_symbol
 	 */
-	private Atom parseAtom() throws MathParseException {
+	private Atom parseOperandAtom() throws MathParseException {
 		skipWhitespace();
 
 		if (stream.eof()) {
@@ -362,16 +413,16 @@ public class MathParser {
 
 		// 命令（以\开头）
 		if (c == '\\') {
-			return parseAtom0();
+			return parseOperandAtom0();
 		}
 
-		throw new MathParseException("Expected atom, got '" + c + "'", stream.save());
+		throw new MathParseException("Expected operand atom, got '" + c + "'", stream.save());
 	}
 
 	/**
-	 * 解析命令（\开头的）
+	 * 解析命令形式的可运算原子（\开头的）
 	 */
-	private Atom parseAtom0() throws MathParseException {
+	private Atom parseOperandAtom0() throws MathParseException {
 		int startPos = stream.save();
 		expect('\\');
 
@@ -953,9 +1004,10 @@ public class MathParser {
 	// ========== 辅助方法 ==========
 
 	/**
-	 * 判断当前位置是否是一个有效的 atom 开头
+	 * 判断当前位置是否是一个有效的 operand_atom 开头
+	 * (不包括 special_symbol)
 	 */
-	private boolean isAtomStart() {
+	private boolean isOperandAtomStart() {
 		if (stream.eof()) {
 			return false;
 		}
@@ -977,8 +1029,17 @@ public class MathParser {
 			return true;
 		}
 
-		// 命令（以\开头）
+		// 命令（以\开头），但排除 special_symbol
 		if (c == '\\') {
+			int saved = stream.save();
+			stream.eat();
+			String cmd = scanCommandName();
+			stream.restore(saved);
+
+			// 排除特殊符号
+			if (SPECIAL_SYMBOLS.contains(cmd)) {
+				return false;
+			}
 			return true;
 		}
 
@@ -1009,7 +1070,7 @@ public class MathParser {
 			return true;
 		}
 
-		// 命令形式的运算符（如 \times, \cdot）
+		// 命令形式的运算符（如 \times, \cdot, \perp, \therefore）
 		if (c == '\\') {
 			int saved = stream.save();
 			stream.eat();
