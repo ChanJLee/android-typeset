@@ -11,7 +11,7 @@ public class MathParser {
 
 	// 二元运算符集合
 	private static final Set<String> BINARY_OPERATORS = new HashSet<>(Arrays.asList(
-			"+", "-", "*", "/", "=", "<", ">",
+			"+", "-", "*", "/", "=", "<", ">", ",",  // 添加逗号
 			"times", "cdot", "div", "pm", "mp",
 			"neq", "equiv", "approx", "cong", "sim",
 			"le", "ge", "leq", "geq", "ll", "gg",
@@ -1066,7 +1066,7 @@ public class MathParser {
 		char c = (char) stream.peek();
 
 		// 单字符运算符
-		if ("+-*/=<>".indexOf(c) >= 0) {
+		if ("+-*/=<>,".indexOf(c) >= 0) {
 			return true;
 		}
 
@@ -1086,7 +1086,7 @@ public class MathParser {
 		char c = (char) stream.peek();
 
 		// 单字符运算符
-		if ("+-*/=<>".indexOf(c) >= 0) {
+		if ("+-*/=<>,".indexOf(c) >= 0) {
 			stream.eat();
 			return String.valueOf(c);
 		}

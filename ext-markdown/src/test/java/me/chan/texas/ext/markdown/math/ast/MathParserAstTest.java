@@ -798,4 +798,383 @@ public class MathParserAstTest {
 
 		System.out.println("✅ AST一致性测试通过");
 	}
+
+	// ============ 21. 特殊符号 AST 测试 ============
+
+	@Test
+	public void testSpecialSymbolAtom() throws MathParseException {
+		System.out.println("\n=== 测试SpecialSymbolAtom节点 ===");
+
+		// 测试省略号
+		MathList result = parse("\\dots");
+		Expression expr = getFirstExpression(result);
+		Term term = getFirstTerm(expr);
+		Atom atom = getAtom(term);
+
+		assertTrue("应该是SpecialSymbolAtom", atom instanceof SpecialSymbolAtom);
+		SpecialSymbolAtom symbol = (SpecialSymbolAtom) atom;
+		assertEquals("符号应该是dots", "dots", symbol.symbol);
+
+		// 测试其他省略号
+		result = parse("\\cdots");
+		expr = getFirstExpression(result);
+		term = getFirstTerm(expr);
+		symbol = (SpecialSymbolAtom) getAtom(term);
+		assertEquals("符号应该是cdots", "cdots", symbol.symbol);
+
+		result = parse("\\ldots");
+		expr = getFirstExpression(result);
+		term = getFirstTerm(expr);
+		symbol = (SpecialSymbolAtom) getAtom(term);
+		assertEquals("符号应该是ldots", "ldots", symbol.symbol);
+
+		result = parse("\\vdots");
+		expr = getFirstExpression(result);
+		term = getFirstTerm(expr);
+		symbol = (SpecialSymbolAtom) getAtom(term);
+		assertEquals("符号应该是vdots", "vdots", symbol.symbol);
+
+		result = parse("\\ddots");
+		expr = getFirstExpression(result);
+		term = getFirstTerm(expr);
+		symbol = (SpecialSymbolAtom) getAtom(term);
+		assertEquals("符号应该是ddots", "ddots", symbol.symbol);
+
+		System.out.println("✅ SpecialSymbolAtom测试通过");
+	}
+
+	@Test
+	public void testAngleSymbolAtom() throws MathParseException {
+		System.out.println("\n=== 测试角度符号 ===");
+
+		MathList result = parse("\\angle");
+		Expression expr = getFirstExpression(result);
+		Term term = getFirstTerm(expr);
+		Atom atom = getAtom(term);
+
+		assertTrue("应该是SpecialSymbolAtom", atom instanceof SpecialSymbolAtom);
+		SpecialSymbolAtom symbol = (SpecialSymbolAtom) atom;
+		assertEquals("符号应该是angle", "angle", symbol.symbol);
+
+		System.out.println("✅ 角度符号测试通过");
+	}
+
+	@Test
+	public void testLogicSymbolAtoms() throws MathParseException {
+		System.out.println("\n=== 测试逻辑符号 ===");
+
+		// 测试 \therefore
+		MathList result = parse("\\therefore");
+		Expression expr = getFirstExpression(result);
+		Term term = getFirstTerm(expr);
+		Atom atom = getAtom(term);
+
+		assertTrue("应该是SpecialSymbolAtom", atom instanceof SpecialSymbolAtom);
+		SpecialSymbolAtom symbol = (SpecialSymbolAtom) atom;
+		assertEquals("符号应该是therefore", "therefore", symbol.symbol);
+
+		// 测试 \because
+		result = parse("\\because");
+		expr = getFirstExpression(result);
+		term = getFirstTerm(expr);
+		atom = getAtom(term);
+
+		assertTrue("应该是SpecialSymbolAtom", atom instanceof SpecialSymbolAtom);
+		symbol = (SpecialSymbolAtom) atom;
+		assertEquals("符号应该是because", "because", symbol.symbol);
+
+		System.out.println("✅ 逻辑符号测试通过");
+	}
+
+	@Test
+	public void testSpecialSymbolWithSuperscript() throws MathParseException {
+		System.out.println("\n=== 测试特殊符号带上标 ===");
+
+		MathList result = parse("\\angle_1");
+		Expression expr = getFirstExpression(result);
+		Term term = getFirstTerm(expr);
+
+		// 验证atom是SpecialSymbolAtom
+		assertTrue("应该是SpecialSymbolAtom", term.atom instanceof SpecialSymbolAtom);
+		SpecialSymbolAtom symbol = (SpecialSymbolAtom) term.atom;
+		assertEquals("符号应该是angle", "angle", symbol.symbol);
+
+		// 验证有下标
+		assertNotNull("应该有上下标后缀", term.suffix);
+		SupSubSuffix suffix = term.suffix;
+		assertNotNull("应该有下标", suffix.subscript);
+		assertNull("不应该有上标", suffix.superscript);
+
+		assertTrue("下标应该是SingleTokenScriptArg",
+				suffix.subscript instanceof SingleTokenScriptArg);
+		SingleTokenScriptArg subscript = (SingleTokenScriptArg) suffix.subscript;
+		assertEquals("下标内容应该是1", "1", subscript.token);
+
+		System.out.println("✅ 特殊符号带上标测试通过");
+	}
+
+	@Test
+	public void testSpecialSymbolWithScripts() throws MathParseException {
+		System.out.println("\n=== 测试特殊符号带上下标 ===");
+
+		// 测试 \dots^{n}
+		MathList result = parse("\\dots^{n}");
+		Expression expr = getFirstExpression(result);
+		Term term = getFirstTerm(expr);
+
+		assertTrue("应该是SpecialSymbolAtom", term.atom instanceof SpecialSymbolAtom);
+		SpecialSymbolAtom symbol = (SpecialSymbolAtom) term.atom;
+		assertEquals("符号应该是dots", "dots", symbol.symbol);
+
+		assertNotNull("应该有上下标后缀", term.suffix);
+		SupSubSuffix suffix = term.suffix;
+		assertNotNull("应该有上标", suffix.superscript);
+		assertNull("不应该有下标", suffix.subscript);
+
+		assertTrue("上标应该是GroupScriptArg",
+				suffix.superscript instanceof GroupScriptArg);
+
+		System.out.println("✅ 特殊符号带上下标测试通过");
+	}
+
+	@Test
+	public void testSpecialSymbolNoUnaryOp() throws MathParseException {
+		System.out.println("\n=== 测试特殊符号不能有一元运算符 ===");
+
+		// 验证特殊符号的Term没有一元运算符
+		MathList result = parse("\\dots");
+		Expression expr = getFirstExpression(result);
+		Term term = getFirstTerm(expr);
+
+		assertNull("特殊符号不应该有一元运算符", term.unaryOp);
+		assertTrue("应该是SpecialSymbolAtom", term.atom instanceof SpecialSymbolAtom);
+
+		// 验证 \angle 没有一元运算符
+		result = parse("\\angle");
+		expr = getFirstExpression(result);
+		term = getFirstTerm(expr);
+
+		assertNull("特殊符号不应该有一元运算符", term.unaryOp);
+		assertTrue("应该是SpecialSymbolAtom", term.atom instanceof SpecialSymbolAtom);
+
+		System.out.println("✅ 特殊符号不能有一元运算符测试通过");
+	}
+
+	@Test
+	public void testGeometryRelationBinaryOperators() throws MathParseException {
+		System.out.println("\n=== 测试几何关系作为二元运算符的AST ===");
+
+		// 测试 AB \perp CD
+		MathList result = parse("AB \\perp CD");
+		Expression expr = getFirstExpression(result);
+		List<Ast> elements = expr.elements;
+
+		// 应该有3个元素：Term(AB), BinOpAtom(\perp), Term(CD)
+		assertEquals("应该有3个元素", 3, elements.size());
+
+		assertTrue("第1个应该是Term", elements.get(0) instanceof Term);
+		assertTrue("第2个应该是BinOpAtom", elements.get(1) instanceof BinOpAtom);
+		assertTrue("第3个应该是Term", elements.get(2) instanceof Term);
+
+		BinOpAtom binOp = (BinOpAtom) elements.get(1);
+		assertEquals("运算符应该是\\perp", "\\perp", binOp.op);
+
+		// 测试 \parallel
+		result = parse("l_1 \\parallel l_2");
+		expr = getFirstExpression(result);
+		elements = expr.elements;
+
+		assertEquals("应该有3个元素", 3, elements.size());
+		binOp = (BinOpAtom) elements.get(1);
+		assertEquals("运算符应该是\\parallel", "\\parallel", binOp.op);
+
+		System.out.println("✅ 几何关系二元运算符AST测试通过");
+	}
+
+	@Test
+	public void testSpecialSymbolInExpression() throws MathParseException {
+		System.out.println("\n=== 测试特殊符号在表达式中的AST结构 ===");
+
+		// 测试 1, 2, \dots, n
+		MathList result = parse("1, 2, \\dots, n");
+		List<Ast> topElements = result.elements;
+
+		// 应该包含多个元素（数字和特殊符号交替）
+		assertTrue("应该包含多个元素", topElements.size() > 0);
+
+		// 找到包含 \dots 的表达式
+		boolean foundDots = false;
+		for (Ast element : topElements) {
+			if (element instanceof Expression) {
+				Expression expr = (Expression) element;
+				for (Ast exprElement : expr.elements) {
+					if (exprElement instanceof Term) {
+						Term term = (Term) exprElement;
+						if (term.atom instanceof SpecialSymbolAtom) {
+							SpecialSymbolAtom symbol = (SpecialSymbolAtom) term.atom;
+							if ("dots".equals(symbol.symbol)) {
+								foundDots = true;
+								break;
+							}
+						}
+					}
+				}
+			}
+		}
+
+		assertTrue("应该找到dots符号", foundDots);
+
+		System.out.println("✅ 特殊符号在表达式中的AST结构测试通过");
+	}
+
+	@Test
+	public void testOperandAtomWithUnaryOp() throws MathParseException {
+		System.out.println("\n=== 测试可运算原子可以有一元运算符 ===");
+
+		// 测试 -x
+		MathList result = parse("-x");
+		Expression expr = getFirstExpression(result);
+		Term term = getFirstTerm(expr);
+
+		assertNotNull("应该有一元运算符", term.unaryOp);
+		assertEquals("一元运算符应该是-", "-", term.unaryOp.toString());
+		assertTrue("应该是VariableAtom", term.atom instanceof VariableAtom);
+
+		// 测试 -\alpha
+		result = parse("-\\alpha");
+		expr = getFirstExpression(result);
+		term = getFirstTerm(expr);
+
+		assertNotNull("应该有一元运算符", term.unaryOp);
+		assertTrue("应该是GreekLetterAtom", term.atom instanceof GreekLetterAtom);
+
+		// 测试 -\frac{1}{2}
+		result = parse("-\\frac{1}{2}");
+		expr = getFirstExpression(result);
+		term = getFirstTerm(expr);
+
+		assertNotNull("应该有一元运算符", term.unaryOp);
+		assertTrue("应该是FracAtom", term.atom instanceof FracAtom);
+
+		System.out.println("✅ 可运算原子可以有一元运算符测试通过");
+	}
+
+	@Test
+	public void testComplexExpressionWithSpecialSymbols() throws MathParseException {
+		System.out.println("\n=== 测试包含特殊符号的复杂表达式AST ===");
+
+		// 测试 a_1 + a_2 + \cdots + a_n
+		MathList result = parse("a_1 + a_2 + \\cdots + a_n");
+		Expression expr = getFirstExpression(result);
+		List<Ast> elements = expr.elements;
+
+		// 应该包含多个term和运算符
+		assertTrue("应该包含多个元素", elements.size() >= 7);
+
+		// 找到 \cdots 对应的 term
+		boolean foundCdots = false;
+		for (Ast element : elements) {
+			if (element instanceof Term) {
+				Term term = (Term) element;
+				if (term.atom instanceof SpecialSymbolAtom) {
+					SpecialSymbolAtom symbol = (SpecialSymbolAtom) term.atom;
+					if ("cdots".equals(symbol.symbol)) {
+						foundCdots = true;
+						assertNull("cdots不应该有一元运算符", term.unaryOp);
+						break;
+					}
+				}
+			}
+		}
+
+		assertTrue("应该找到cdots符号", foundCdots);
+
+		System.out.println("✅ 包含特殊符号的复杂表达式AST测试通过");
+	}
+
+	@Test
+	public void testGeometricExpressionWithLogicSymbols() throws MathParseException {
+		System.out.println("\n=== 测试几何表达式与逻辑符号的AST ===");
+
+		// 测试 AB \perp CD \therefore \angle ABC = 90
+		MathList result = parse("AB \\perp CD \\therefore \\angle ABC");
+		List<Ast> topElements = result.elements;
+
+		assertTrue("应该包含多个元素", topElements.size() > 0);
+
+		// 验证包含 \perp 作为二元运算符
+		boolean foundPerp = false;
+		boolean foundTherefore = false;
+		boolean foundAngle = false;
+
+		for (Ast element : topElements) {
+			if (element instanceof Expression) {
+				Expression expr = (Expression) element;
+				for (Ast exprElement : expr.elements) {
+					if (exprElement instanceof BinOpAtom) {
+						BinOpAtom binOp = (BinOpAtom) exprElement;
+						if ("\\perp".equals(binOp.op)) {
+							foundPerp = true;
+						}
+					} else if (exprElement instanceof Term) {
+						Term term = (Term) exprElement;
+						if (term.atom instanceof SpecialSymbolAtom) {
+							SpecialSymbolAtom symbol = (SpecialSymbolAtom) term.atom;
+							if ("therefore".equals(symbol.symbol)) {
+								foundTherefore = true;
+							} else if ("angle".equals(symbol.symbol)) {
+								foundAngle = true;
+							}
+						}
+					}
+				}
+			}
+		}
+
+		assertTrue("应该找到perp运算符", foundPerp);
+		assertTrue("应该找到therefore符号", foundTherefore);
+		assertTrue("应该找到angle符号", foundAngle);
+
+		System.out.println("✅ 几何表达式与逻辑符号的AST测试通过");
+	}
+
+	@Test
+	public void testSpecialSymbolAstConsistency() throws MathParseException {
+		System.out.println("\n=== 测试特殊符号AST一致性 ===");
+
+		String[] specialSymbols = {
+				"\\dots", "\\ldots", "\\cdots", "\\vdots", "\\ddots",
+				"\\angle", "\\therefore", "\\because"
+		};
+
+		String[] expectedSymbols = {
+				"dots", "ldots", "cdots", "vdots", "ddots",
+				"angle", "therefore", "because"
+		};
+
+		for (int i = 0; i < specialSymbols.length; i++) {
+			String input = specialSymbols[i];
+			String expected = expectedSymbols[i];
+
+			MathList result = parse(input);
+			Expression expr = getFirstExpression(result);
+			Term term = getFirstTerm(expr);
+			Atom atom = getAtom(term);
+
+			assertTrue("应该是SpecialSymbolAtom: " + input,
+					atom instanceof SpecialSymbolAtom);
+			SpecialSymbolAtom symbol = (SpecialSymbolAtom) atom;
+			assertEquals("符号应该是" + expected, expected, symbol.symbol);
+
+			// 验证没有一元运算符
+			assertNull("特殊符号不应该有一元运算符: " + input, term.unaryOp);
+
+			String latex = result.toString();
+			assertNotNull("toLatex结果不应为null: " + input, latex);
+
+			System.out.println("  ✓ " + input + " → " + expected + " → " + latex);
+		}
+
+		System.out.println("✅ 特殊符号AST一致性测试通过");
+	}
 }

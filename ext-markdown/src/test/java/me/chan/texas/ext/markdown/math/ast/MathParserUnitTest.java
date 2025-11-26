@@ -575,4 +575,142 @@ public class MathParserUnitTest {
 			assertParseFails(input);
 		}
 	}
+
+	// ============ 18. 特殊符号测试 (BNF 第 223-227 行) ============
+
+	@Test
+	public void testEllipsisSymbols() {
+		System.out.println("\n=== 测试省略号符号 ===");
+		// 各种省略号
+		assertParses("\\dots");
+		assertParses("\\ldots");
+		assertParses("\\cdots");
+		assertParses("\\vdots");
+		assertParses("\\ddots");
+
+		// 省略号在表达式中的使用
+		assertParses("1, 2, \\dots, n");
+		assertParses("a_1 + a_2 + \\cdots + a_n");
+		assertParses("x_1, x_2, \\ldots, x_n");
+	}
+
+	@Test
+	public void testGeometrySymbols() {
+		System.out.println("\n=== 测试几何符号 ===");
+		// 角度符号（特殊符号）
+		assertParses("\\angle");
+		assertParses("\\angle ABC");
+		assertParses("\\angle_1");
+		assertParses("\\angle_2");
+
+		// 垂直和平行符号（二元运算符）
+		assertParses("AB \\perp CD");
+		assertParses("AB \\parallel CD");
+		assertParses("l_1 \\perp l_2");
+		assertParses("a \\parallel b");
+	}
+
+	@Test
+	public void testLogicSymbols() {
+		System.out.println("\n=== 测试逻辑符号 ===");
+		// \therefore 和 \because 作为特殊符号
+		assertParses("\\therefore");
+		assertParses("\\because");
+
+		// 在表达式中的使用
+		assertParses("\\because a = b");
+		assertParses("a = b \\therefore c = d");
+		assertParses("x > 0 \\therefore x^2 > 0");
+	}
+
+	@Test
+	public void testSpecialSymbolsWithScripts() {
+		System.out.println("\n=== 测试特殊符号的上下标 ===");
+		// 特殊符号可以带上下标
+		assertParses("\\angle_1");
+		assertParses("\\angle_2");
+		assertParses("\\angle_{ABC}");
+		assertParses("\\dots^{n}");
+		assertParses("\\cdots^{m}");
+	}
+
+	@Test
+	public void testSpecialSymbolsCannotHaveUnaryOp() {
+		System.out.println("\n=== 测试特殊符号不能被一元运算符修饰 ===");
+		// 这些应该失败：特殊符号不能被一元运算符修饰
+		assertParseFails("-\\dots");
+		assertParseFails("+\\angle");
+		assertParseFails("-\\therefore");
+		assertParseFails("+\\because");
+		assertParseFails("\\pm\\cdots");
+	}
+
+	@Test
+	public void testGeometryRelationOperators() {
+		System.out.println("\n=== 测试几何关系作为二元运算符 ===");
+		// \perp 和 \parallel 作为二元运算符连接两个 term
+		assertParses("AB \\perp CD");
+		assertParses("l \\parallel m");
+		assertParses("\\vec{v} \\perp \\vec{w}");
+		assertParses("x \\parallel y");
+
+		// 在复杂表达式中
+		assertParses("a \\perp b \\perp c");
+		assertParses("l_1 \\parallel l_2 \\parallel l_3");
+	}
+
+	@Test
+	public void testSpecialSymbolsInComplexExpressions() {
+		System.out.println("\n=== 测试特殊符号在复杂表达式中的使用 ===");
+		// 省略号在序列中
+		assertParses("a_1 + a_2 + \\cdots + a_n = S");
+		assertParses("{1, 2, 3, \\ldots, n}");
+
+		// 角度在几何表达式中
+		assertParses("\\angle ABC = 90");
+		assertParses("\\angle_1 + \\angle_2 = 180");
+
+		// 逻辑推理
+		assertParses("x > 0 \\therefore x^2 > 0");
+		assertParses("\\because a = b, c = d");
+
+		// 几何关系
+		assertParses("AB \\perp CD \\therefore \\angle ABC = 90");
+		assertParses("l_1 \\parallel l_2, l_2 \\parallel l_3 \\therefore l_1 \\parallel l_3");
+	}
+
+// ============ 19. 边界情况测试 ============
+
+	@Test
+	public void testUnaryOpWithOperandAtom() {
+		System.out.println("\n=== 测试一元运算符只能修饰可运算原子 ===");
+		// 这些应该成功：一元运算符修饰可运算的原子
+		assertParses("-x");
+		assertParses("+a");
+		assertParses("-123");
+		assertParses("-\\alpha");
+		assertParses("-{x+y}");
+		assertParses("-\\frac{1}{2}");
+		assertParses("-\\sqrt{x}");
+		assertParses("\\pm x");
+		assertParses("\\mp y");
+
+		// 这些应该失败：一元运算符不能修饰特殊符号
+		assertParseFails("-\\dots");
+		assertParseFails("+\\ldots");
+		assertParseFails("-\\angle");
+		assertParseFails("+\\therefore");
+		assertParseFails("-\\because");
+	}
+
+	@Test
+	public void testMixedSpecialAndRegularSymbols() {
+		System.out.println("\n=== 测试特殊符号和普通符号混合使用 ===");
+		// 混合使用
+		assertParses("1 + 2 + \\cdots + n");
+		assertParses("-x + \\cdots + (-1)^n x^n");
+		assertParses("\\angle ABC + \\angle BCD = 180");
+		assertParses("a \\parallel b, c \\perp d");
+		assertParses("\\because x > 0, \\therefore x^2 > 0");
+	}
 }
