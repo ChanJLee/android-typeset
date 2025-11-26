@@ -124,7 +124,7 @@ public class MathParser {
 		skipWhitespace();
 
 		if (!stream.eof()) {
-			throw new MathParseException("Unexpected characters after expression", stream.save());
+			throw new MathParseException("Unexpected characters after expression", stream);
 		}
 
 		return result;
@@ -172,7 +172,7 @@ public class MathParser {
 
 			// 运算符后面必须有term
 			if (stream.eof()) {
-				throw new MathParseException("Binary operator must be followed by a term", stream.save());
+				throw new MathParseException("Binary operator must be followed by a term", stream);
 			}
 
 			// 解析运算符后面的term
@@ -206,7 +206,7 @@ public class MathParser {
 		String cmd = scanCommandName();
 
 		if (!SPACING_COMMANDS.contains(cmd)) {
-			throw new MathParseException("Expected spacing command, got \\" + cmd, stream.save());
+			throw new MathParseException("Expected spacing command, got \\" + cmd, stream);
 		}
 
 		// 对于 hspace 等需要参数的命令
@@ -334,7 +334,7 @@ public class MathParser {
 		String cmd = scanCommandName();
 
 		if (!SPECIAL_SYMBOLS.contains(cmd)) {
-			throw new MathParseException("Expected special symbol, got \\" + cmd, stream.save());
+			throw new MathParseException("Expected special symbol, got \\" + cmd, stream);
 		}
 
 		return new SpecialSymbolAtom(cmd);
@@ -391,7 +391,7 @@ public class MathParser {
 		skipWhitespace();
 
 		if (stream.eof()) {
-			throw new MathParseException("Unexpected end of input", stream.save());
+			throw new MathParseException("Unexpected end of input", stream);
 		}
 
 		char c = (char) stream.peek();
@@ -416,7 +416,7 @@ public class MathParser {
 			return parseOperandAtom0();
 		}
 
-		throw new MathParseException("Expected operand atom, got '" + c + "'", stream.save());
+		throw new MathParseException("Expected operand atom, got '" + c + "'", stream);
 	}
 
 	/**
@@ -429,7 +429,8 @@ public class MathParser {
 		String cmd = scanCommandName();
 
 		if (cmd.isEmpty()) {
-			throw new MathParseException("Empty command", startPos);
+			stream.restore(startPos);
+			throw new MathParseException("Empty command", stream);
 		}
 
 		// 希腊字母
@@ -482,7 +483,8 @@ public class MathParser {
 			return parseFont(cmd);
 		}
 
-		throw new MathParseException("Unknown command: \\" + cmd, startPos);
+		stream.restore(startPos);
+		throw new MathParseException("Unknown command: \\" + cmd, stream);
 	}
 
 	private Atom parseMatrix() throws MathParseException {
@@ -492,7 +494,8 @@ public class MathParser {
 		int position = stream.save();
 		String lhsEnv = parseMatrixEnv();
 		if (!MATRIX_COMMANDS.contains(lhsEnv)) {
-			throw new MathParseException("Unknown matrix environment: \\" + lhsEnv, position);
+			stream.restore(position);
+			throw new MathParseException("Unknown matrix environment: \\" + lhsEnv, stream);
 		}
 
 		skipWhitespace();
@@ -507,7 +510,8 @@ public class MathParser {
 		position = stream.save();
 		String rhsEnv = parseMatrixEnv();
 		if (!lhsEnv.equals(rhsEnv)) {
-			throw new MathParseException("Matrix environment mismatch: [\"" + lhsEnv + "\",\"" + rhsEnv + "\"]", position);
+			stream.restore(position);
+			throw new MathParseException("Matrix environment mismatch: [\"" + lhsEnv + "\",\"" + rhsEnv + "\"]", stream);
 		}
 		skipWhitespace();
 		expect('}');
@@ -531,7 +535,8 @@ public class MathParser {
 			if (cmd.equals("end")) {
 				break;
 			} else {
-				throw new MathParseException("Expected \\end, got \\" + cmd, position);
+				stream.restore(position);
+				throw new MathParseException("Expected \\end, got \\" + cmd, stream);
 			}
 		}
 
@@ -621,7 +626,7 @@ public class MathParser {
 		}
 		String unit = sb.toString();
 		if (!UNITS.contains(unit)) {
-			throw new MathParseException("Expected unit, got \\" + unit, stream.save());
+			throw new MathParseException("Expected unit, got \\" + unit, stream);
 		}
 		return new SizeUnit(unit);
 	}
@@ -760,7 +765,7 @@ public class MathParser {
 		skipWhitespace();
 
 		if (stream.eof()) {
-			throw new MathParseException("Expected delimiter", stream.save());
+			throw new MathParseException("Expected delimiter", stream);
 		}
 
 		char c = (char) stream.peek();
@@ -784,10 +789,10 @@ public class MathParser {
 				return "\\" + cmd;
 			}
 
-			throw new MathParseException("Invalid delimiter: \\" + cmd, stream.save());
+			throw new MathParseException("Invalid delimiter: \\" + cmd, stream);
 		}
 
-		throw new MathParseException("Expected delimiter, got '" + c + "'", stream.save());
+		throw new MathParseException("Expected delimiter, got '" + c + "'", stream);
 	}
 
 	/**
@@ -987,7 +992,7 @@ public class MathParser {
 		skipWhitespace();
 
 		if (stream.eof()) {
-			throw new MathParseException("Expected script argument", stream.save());
+			throw new MathParseException("Expected script argument", stream);
 		}
 
 		if (stream.peek() == '{') {
@@ -997,7 +1002,7 @@ public class MathParser {
 			String token = scanSingleToken();
 			return new SingleTokenScriptArg(token);
 		} else {
-			throw new MathParseException("Expected script argument", stream.save());
+			throw new MathParseException("Expected script argument", stream);
 		}
 	}
 
@@ -1048,7 +1053,7 @@ public class MathParser {
 
 	private void checkRecursionDepth() throws MathParseException {
 		if (recursionDepth > MAX_RECURSION_DEPTH) {
-			throw new MathParseException("Maximum recursion depth exceeded", stream.save());
+			throw new MathParseException("Maximum recursion depth exceeded", stream);
 		}
 	}
 
@@ -1098,10 +1103,10 @@ public class MathParser {
 			if (BINARY_OPERATORS.contains(cmd)) {
 				return "\\" + cmd;
 			}
-			throw new MathParseException("Expected binary operator, got \\" + cmd, stream.save());
+			throw new MathParseException("Expected binary operator, got \\" + cmd, stream);
 		}
 
-		throw new MathParseException("Expected binary operator", stream.save());
+		throw new MathParseException("Expected binary operator", stream);
 	}
 
 	private boolean isSingleTokenStart() {
@@ -1120,7 +1125,7 @@ public class MathParser {
 	 */
 	private String scanSingleToken() throws MathParseException {
 		if (stream.eof()) {
-			throw new MathParseException("Expected single token", stream.save());
+			throw new MathParseException("Expected single token", stream);
 		}
 
 		char c = (char) stream.peek();
@@ -1151,10 +1156,10 @@ public class MathParser {
 			if (BINARY_OPERATORS.contains(cmd)) {
 				return "\\" + cmd;
 			}
-			throw new MathParseException("Expected single token, got \\" + cmd, stream.save());
+			throw new MathParseException("Expected single token, got \\" + cmd, stream);
 		}
 
-		throw new MathParseException("Expected single token", stream.save());
+		throw new MathParseException("Expected single token", stream);
 	}
 
 	/**
@@ -1187,18 +1192,19 @@ public class MathParser {
 		String cmd = scanCommandName();
 
 		if (!cmd.equals(expectedCmd)) {
-			throw new MathParseException("Expected \\" + expectedCmd + ", got \\" + cmd, startPos);
+			stream.restore(startPos);
+			throw new MathParseException("Expected \\" + expectedCmd + ", got \\" + cmd, stream);
 		}
 	}
 
 	private void expect(char expected) throws MathParseException {
 		if (stream.eof()) {
-			throw new MathParseException("Expected '" + expected + "', got end of input", stream.save());
+			throw new MathParseException("Expected '" + expected + "', got end of input", stream);
 		}
 
 		char actual = (char) stream.peek();
 		if (actual != expected) {
-			throw new MathParseException("Expected '" + expected + "', got '" + actual + "'", stream.save());
+			throw new MathParseException("Expected '" + expected + "', got '" + actual + "'", stream);
 		}
 
 		stream.eat();

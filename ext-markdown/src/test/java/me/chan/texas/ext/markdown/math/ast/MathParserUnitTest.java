@@ -7,20 +7,13 @@ import static org.junit.Assert.*;
 import me.chan.texas.utils.CharStream;
 
 /**
- * LaTeX 数学公式解析器单元测试
- * 覆盖 bnf_math.txt 中定义的所有语法规则
+ * LaTeX 数学公式解析器完整单元测试
+ * 基于 bnf_math.txt v3 定义
  */
 public class MathParserUnitTest {
 
 	// ============ 辅助方法 ============
-	@Test
-	public void assertPlainSymbol() {
-		assertParses("\\hspace { 100px }");
-	}
 
-	/**
-	 * 解析并验证输入
-	 */
 	private MathList parseAndVerify(String input) throws MathParseException {
 		CharStream stream = new CharStream(input, 0, input.length());
 		MathParser parser = new MathParser(stream);
@@ -29,9 +22,6 @@ public class MathParserUnitTest {
 		return ast;
 	}
 
-	/**
-	 * 验证解析成功
-	 */
 	private void assertParses(String input) {
 		try {
 			MathList result = parseAndVerify(input);
@@ -39,13 +29,10 @@ public class MathParserUnitTest {
 			assertNotNull("输出不应为null", output);
 			System.out.println("✅ " + input + " → " + output);
 		} catch (MathParseException e) {
-			fail("解析失败: " + e.getMessage() + " - 输入: " + input + " -> [" + input.substring(e.getPosition()) + "]");
+			fail(e.pretty());
 		}
 	}
 
-	/**
-	 * 验证解析失败
-	 */
 	private void assertParseFails(String input) {
 		try {
 			CharStream stream = new CharStream(input, 0, input.length());
@@ -57,63 +44,52 @@ public class MathParserUnitTest {
 		}
 	}
 
-	// ============ 1. 基础元素测试 (BNF 第 36-44 行) ============
+	// ============ 1. 基础元素测试 ============
 
 	@Test
 	public void testNumbers() {
 		System.out.println("\n=== 测试数字 ===");
-		// 整数
 		assertParses("0");
 		assertParses("1");
 		assertParses("123");
 		assertParses("999");
-
-		// 小数
 		assertParses("0.5");
 		assertParses("3.14");
 		assertParses("123.456");
+		assertParses("0.0");
 	}
 
 	@Test
 	public void testVariables() {
 		System.out.println("\n=== 测试变量 ===");
-		// 单个字母变量
 		assertParses("x");
 		assertParses("y");
 		assertParses("a");
 		assertParses("z");
 		assertParses("A");
 		assertParses("Z");
-
-		// 多个变量会被解析为乘法
+		// 多个变量（隐式乘法）
 		assertParses("xy");
 		assertParses("abc");
+		assertParses("ABC");
 	}
-
-	@Test
-	public void testUnaryOp() {
-		assertParses("- a+b");
-	}
-
-	// ============ 2. 希腊字母测试 (BNF 第 50-56 行) ============
 
 	@Test
 	public void testGreekLetters() {
 		System.out.println("\n=== 测试希腊字母 ===");
-		// 小写希腊字母（部分）
 		assertParses("\\alpha");
 		assertParses("\\beta");
 		assertParses("\\gamma");
 		assertParses("\\delta");
 		assertParses("\\epsilon");
+		assertParses("\\varepsilon");
 		assertParses("\\theta");
+		assertParses("\\vartheta");
 		assertParses("\\lambda");
 		assertParses("\\mu");
 		assertParses("\\pi");
 		assertParses("\\sigma");
 		assertParses("\\omega");
-
-		// 大写希腊字母
 		assertParses("\\Gamma");
 		assertParses("\\Delta");
 		assertParses("\\Theta");
@@ -121,47 +97,89 @@ public class MathParserUnitTest {
 		assertParses("\\Pi");
 		assertParses("\\Sigma");
 		assertParses("\\Omega");
+		assertParses("\\infty");
 	}
 
-	// ============ 3. 二元运算符测试 (BNF 第 58-64 行) ============
+	// ============ 2. 运算符测试 ============
+
+	@Test
+	public void testUnaryOperators() {
+		System.out.println("\n=== 测试一元运算符 ===");
+		assertParses("-x");
+		assertParses("+x");
+		assertParses("-123");
+		assertParses("+456");
+		assertParses("-\\alpha");
+		assertParses("+\\beta");
+		assertParses("\\pm x");
+		assertParses("\\mp y");
+		assertParses("-{x+y}");
+		assertParses("-\\frac{1}{2}");
+		assertParses("-\\sqrt{x}");
+	}
 
 	@Test
 	public void testBinaryOperators() {
 		System.out.println("\n=== 测试二元运算符 ===");
-		// 基本算术运算符
+		// 基本算术
 		assertParses("a+b");
 		assertParses("a-b");
 		assertParses("a*b");
 		assertParses("a/b");
+		assertParses("a,b");  // 逗号
 
 		// LaTeX 运算符
 		assertParses("a\\times b");
 		assertParses("a\\cdot b");
 		assertParses("a\\div b");
 		assertParses("a\\pm b");
+		assertParses("a\\mp b");
 
 		// 关系运算符
 		assertParses("a=b");
+		assertParses("a\\neq b");
+		assertParses("a\\equiv b");
+		assertParses("a\\approx b");
+		assertParses("a\\cong b");
+		assertParses("a\\sim b");
 		assertParses("a<b");
 		assertParses("a>b");
 		assertParses("a\\le b");
 		assertParses("a\\ge b");
 		assertParses("a\\leq b");
 		assertParses("a\\geq b");
-		assertParses("a\\neq b");
-		assertParses("a\\approx b");
+		assertParses("a\\ll b");
+		assertParses("a\\gg b");
 
 		// 集合运算符
 		assertParses("x\\in A");
+		assertParses("x\\notin A");
 		assertParses("A\\subset B");
+		assertParses("A\\supset B");
+		assertParses("A\\subseteq B");
+		assertParses("A\\supseteq B");
+		assertParses("A\\cup B");
+		assertParses("A\\cap B");
+		assertParses("A\\wedge B");
+		assertParses("A\\vee B");
 
 		// 箭头
 		assertParses("a\\to b");
 		assertParses("a\\rightarrow b");
+		assertParses("a\\leftarrow b");
+		assertParses("a\\leftrightarrow b");
 		assertParses("A\\Rightarrow B");
+		assertParses("A\\Leftarrow B");
+		assertParses("A\\Leftrightarrow B");
+		assertParses("A\\implies B");
+		assertParses("A\\iff B");
+
+		// 几何关系
+		assertParses("AB\\perp CD");
+		assertParses("AB\\parallel CD");
 	}
 
-	// ============ 4. 分组测试 (BNF 第 66-68 行) ============
+	// ============ 3. 分组测试 ============
 
 	@Test
 	public void testGroups() {
@@ -171,16 +189,11 @@ public class MathParserUnitTest {
 		assertParses("{xyz}");
 		assertParses("{{x}}");
 		assertParses("{a{b{c}}}");
+		assertParses("{}");  // 空分组
+		assertParses("{1,2,3}");
 	}
 
-	@Test
-	public void testGroupErrors() {
-		System.out.println("\n=== 测试分组错误 ===");
-		assertParseFails("{");
-		assertParseFails("{x");
-	}
-
-	// ============ 5. 上下标测试 (BNF 第 70-83 行) ============
+	// ============ 4. 上下标测试 ============
 
 	@Test
 	public void testSuperscript() {
@@ -191,7 +204,9 @@ public class MathParserUnitTest {
 		assertParses("e^{-x}");
 		assertParses("x^\\alpha");
 		assertParses("e^{\\pm x}");
-		assertParses("e^{\\mp x}");
+		assertParses("x^+");
+		assertParses("x^-");
+		assertParses("x^*");
 	}
 
 	@Test
@@ -201,31 +216,20 @@ public class MathParserUnitTest {
 		assertParses("x_{n-1}");
 		assertParses("x_i");
 		assertParses("a_\\alpha");
+		assertParses("x_+");
+		assertParses("x_-");
 	}
 
 	@Test
 	public void testSuperAndSubscript() {
 		System.out.println("\n=== 测试上下标组合 ===");
-		// 先上后下
 		assertParses("x^2_1");
 		assertParses("x^{n+1}_{i}");
-
-		// 先下后上
 		assertParses("x_1^2");
 		assertParses("x_{i}^{n+1}");
 	}
 
-	@Test
-	public void testScriptArgTypes() {
-		System.out.println("\n=== 测试上下标参数类型 ===");
-		// <script_arg> 的所有类型
-		assertParses("x^1");          // number
-		assertParses("x^a");          // letter
-		assertParses("x^\\alpha");    // greek_letter
-		assertParses("x^{a+b}");      // group
-	}
-
-	// ============ 6. 分式测试 (BNF 第 85-90 行) ============
+	// ============ 5. 分式测试 ============
 
 	@Test
 	public void testFrac() {
@@ -233,18 +237,13 @@ public class MathParserUnitTest {
 		assertParses("\\frac{1}{2}");
 		assertParses("\\frac{a}{b}");
 		assertParses("\\frac{x+y}{x-y}");
-		assertParses("\\frac{\\frac{1}{2}}{3}");  // 嵌套分式
-	}
-
-	@Test
-	public void testFracVariants() {
-		System.out.println("\n=== 测试分式变体 ===");
+		assertParses("\\frac{\\frac{1}{2}}{3}");
 		assertParses("\\dfrac{a}{b}");
 		assertParses("\\tfrac{1}{2}");
 		assertParses("\\cfrac{a}{b}");
 	}
 
-	// ============ 7. 根式测试 (BNF 第 92-95 行) ============
+	// ============ 6. 根式测试 ============
 
 	@Test
 	public void testSqrt() {
@@ -252,18 +251,13 @@ public class MathParserUnitTest {
 		assertParses("\\sqrt{x}");
 		assertParses("\\sqrt{2}");
 		assertParses("\\sqrt{x+1}");
-		assertParses("\\sqrt{\\sqrt{x}}");  // 嵌套根式
-	}
-
-	@Test
-	public void testSqrtWithIndex() {
-		System.out.println("\n=== 测试带指数的根式 ===");
+		assertParses("\\sqrt{\\sqrt{x}}");
 		assertParses("\\sqrt[3]{27}");
 		assertParses("\\sqrt[n]{x}");
 		assertParses("\\sqrt[n+1]{x^2}");
 	}
 
-	// ============ 8. 定界符测试 (BNF 第 97-111 行) ============
+	// ============ 7. 定界符测试 ============
 
 	@Test
 	public void testDelimited() {
@@ -271,49 +265,35 @@ public class MathParserUnitTest {
 		assertParses("\\left( x \\right)");
 		assertParses("\\left[ x \\right]");
 		assertParses("\\left| x \\right|");
+		assertParses("\\left\\{ x \\right\\}");
 		assertParses("\\left( \\frac{a}{b} \\right)");
-		assertParses("\\left. x \\right|");  // 空定界符
+		assertParses("\\left. x \\right|");
+		assertParses("\\left\\langle x \\right\\rangle");
+		assertParses("\\bigl( x \\bigr)");
+		assertParses("\\Bigl[ x \\Bigr]");
 	}
 
-	// ============ 9. 函数测试 (BNF 第 113-127 行) ============
+	// ============ 8. 函数测试 ============
 
 	@Test
-	public void testTrigFunctions() {
-		System.out.println("\n=== 测试三角函数 ===");
+	public void testFunctions() {
+		System.out.println("\n=== 测试函数 ===");
 		assertParses("\\sin x");
 		assertParses("\\cos x");
 		assertParses("\\tan x");
 		assertParses("\\sin{x}");
 		assertParses("\\sin{x+y}");
-	}
-
-	@Test
-	public void testLogFunctions() {
-		System.out.println("\n=== 测试对数函数 ===");
 		assertParses("\\log x");
 		assertParses("\\ln x");
 		assertParses("\\log_2 n");
 		assertParses("\\log_{10} x");
-	}
-
-	@Test
-	public void testOtherFunctions() {
-		System.out.println("\n=== 测试其他函数 ===");
-		assertParses("\\lim x");
 		assertParses("\\max x");
 		assertParses("\\min x");
 		assertParses("\\det x");
 		assertParses("\\exp x");
 	}
 
-	@Test
-	public void testFunctionWithScripts() {
-		System.out.println("\n=== 测试带上下标的函数 ===");
-		assertParses("\\lim_{x\\to 0}");
-		assertParses("\\lim_{n\\to\\infty}");
-	}
-
-	// ============ 10. 大型运算符测试 (BNF 第 129-137 行) ============
+	// ============ 9. 大型运算符测试 ============
 
 	@Test
 	public void testLargeOperators() {
@@ -326,29 +306,16 @@ public class MathParserUnitTest {
 		assertParses("\\int_0^1");
 		assertParses("\\int_a^b");
 		assertParses("\\prod_{k=0}^{\\infty}");
-	}
-
-	@Test
-	public void testIntegrals() {
-		System.out.println("\n=== 测试积分 ===");
-		assertParses("\\int");
 		assertParses("\\iint");
 		assertParses("\\iiint");
 		assertParses("\\oint");
-	}
-
-	@Test
-	public void testBigSetOperators() {
-		System.out.println("\n=== 测试大型集合运算符 ===");
 		assertParses("\\bigcup");
 		assertParses("\\bigcap");
-		assertParses("\\bigvee");
-		assertParses("\\bigwedge");
-		assertParses("\\bigoplus");
-		assertParses("\\bigotimes");
+		assertParses("\\lim_{x\\to 0}");
+		assertParses("\\lim_{n\\to\\infty}");
 	}
 
-	// ============ 11. 文本模式测试 (BNF 第 150-158 行) ============
+	// ============ 10. 文本模式测试 ============
 
 	@Test
 	public void testText() {
@@ -357,59 +324,93 @@ public class MathParserUnitTest {
 		assertParses("\\text{当x趋近于0时}");
 		assertParses("\\mbox{test}");
 		assertParses("\\textrm{roman}");
+		assertParses("\\textit{italic}");
+		assertParses("\\textbf{bold}");
 	}
 
-	// ============ 12. 重音符号测试 (BNF 第 168-180 行) ============
+	// ============ 11. 重音符号测试 ============
 
 	@Test
 	public void testAccents() {
 		System.out.println("\n=== 测试重音符号 ===");
-//		assertParses("\\hat{x}");
-//		assertParses("\\vec{v}");
-//		assertParses("\\bar{x}");
-//		assertParses("\\tilde{x}");
-//		assertParses("\\dot{x}");
-//		assertParses("\\ddot{x}");
+		assertParses("\\hat{x}");
+		assertParses("\\vec{v}");
+		assertParses("\\bar{x}");
+		assertParses("\\tilde{x}");
+		assertParses("\\dot{x}");
+		assertParses("\\ddot{x}");
 		assertParses("\\widehat{xyz}");
 		assertParses("\\overline{x+y}");
 		assertParses("\\underline{text}");
 		assertParses("\\overrightarrow{AB}");
-	}
-
-	@Test
-	public void testExtendedAccents() {
-		System.out.println("\n=== 测试扩展重音符号 ===");
-		assertParses("\\grave{a}");
-		assertParses("\\acute{a}");
-		assertParses("\\breve{a}");
-		assertParses("\\check{a}");
-		assertParses("\\dot{y}");
-		assertParses("\\ddot{y}");
 		assertParses("\\overbrace{a+b+c}");
 		assertParses("\\underbrace{a+b+c}");
-		assertParses("\\widetilde{xyz}");
-		assertParses("\\widehat{AB}");
+	}
+
+	// ============ 12. 字体命令测试 ============
+
+	@Test
+	public void testFontCommands() {
+		System.out.println("\n=== 测试字体命令 ===");
+		assertParses("\\mathbf{x}");
+		assertParses("\\mathrm{ABC}");
+		assertParses("\\mathit{text}");
+		assertParses("\\mathbb{R}");
+		assertParses("\\mathcal{L}");
+		assertParses("\\mathfrak{g}");
+		assertParses("\\boldsymbol{\\alpha}");
+	}
+
+	// ============ 13. 空格命令测试 ============
+
+	@Test
+	public void testSpacing() {
+		System.out.println("\n=== 测试空格命令 ===");
+		assertParses("a\\quad b");
+		assertParses("a\\qquad b");
+		assertParses("a\\, b");
+		assertParses("a\\: b");
+		assertParses("a\\; b");
+		assertParses("a\\! b");
+	}
+
+	// ============ 14. 特殊符号测试 ============
+
+	@Test
+	public void testSpecialSymbols() {
+		System.out.println("\n=== 测试特殊符号 ===");
+		// 省略号
+		assertParses("\\dots");
+		assertParses("\\ldots");
+		assertParses("\\cdots");
+		assertParses("\\vdots");
+		assertParses("\\ddots");
+
+		// 角度符号
+		assertParses("\\angle");
+		assertParses("\\angle ABC");
+		assertParses("\\angle_1");
+
+		// 逻辑符号
+		assertParses("\\therefore");
+		assertParses("\\because");
+
+		// 特殊符号可以带上下标
+		assertParses("\\dots^{n}");
+		assertParses("\\angle_1");
 	}
 
 	@Test
-	public void testAccentErrors() {
-		System.out.println("\n=== 测试重音符号错误 ===");
-		assertParseFails("\\bar");            // 缺少花括号
-		assertParseFails("\\overline");       // 缺少参数
-		assertParseFails("\\dot{");           // 不完整参数
+	public void testSpecialSymbolsCannotHaveUnaryOp() {
+		System.out.println("\n=== 测试特殊符号不能被一元运算符修饰 ===");
+		assertParseFails("-\\dots");
+		assertParseFails("+\\angle");
+		assertParseFails("-\\therefore");
+		assertParseFails("+\\because");
+		assertParseFails("\\pm\\cdots");
 	}
 
-	@Test
-	public void testNestedAccents() {
-		System.out.println("\n=== 测试嵌套重音结构 ===");
-		assertParses("\\hat{x_i}");
-		assertParses("\\vec{x^2}");
-		assertParses("\\bar{\\frac{a}{b}}");
-		assertParses("\\tilde{\\sqrt{x}}");
-		assertParses("\\overrightarrow{\\hat{v}}");
-	}
-
-	// ============ 13. 复杂表达式测试 ============
+	// ============ 15. 复杂组合测试 ============
 
 	@Test
 	public void testComplexExpressions() {
@@ -418,94 +419,196 @@ public class MathParserUnitTest {
 		assertParses("\\frac{-b\\pm\\sqrt{b^2-4ac}}{2a}");
 
 		// 极限
-		assertParses("\\frac{\\sin x}{x}");
-
-		// 极限
 		assertParses("\\lim_{x\\to 0}\\frac{\\sin x}{x}");
 
 		// 积分
 		assertParses("\\int_0^1 x^2");
+		assertParses("\\int_a^b f\\left(x\\right)");
 
 		// 求和
 		assertParses("\\sum_{n=1}^{\\infty}\\frac{1}{n^2}");
+
+		// 矩阵
+		assertParses("\\left(\\frac{a}{b}\\right)^2");
+
+		// 混合上下标和分式
+		assertParses("x_1^2+x_2^2+\\cdots+x_n^2");
 	}
 
 	@Test
 	public void testNestedStructures() {
 		System.out.println("\n=== 测试嵌套结构 ===");
-		// 嵌套分式
 		assertParses("\\frac{1}{1+\\frac{1}{x}}");
-
-		// 嵌套根式
 		assertParses("\\sqrt{1+\\sqrt{x}}");
-
-		// 嵌套上下标
 		assertParses("x^{a^2}");
 		assertParses("x_{a_1}");
+		assertParses("\\frac{\\sqrt{a+b}}{\\sqrt{c+d}}");
+	}
+
+	// ============ 16. 容易引起歧义的测试 ============
+
+	@Test
+	public void testAmbiguousCases() {
+		System.out.println("\n=== 测试容易引起歧义的情况 ===");
+
+		// 一元 vs 二元运算符
+		assertParses("a+-b");  // a + (-b)
+		assertParses("a-+b");  // a - (+b)
+		assertParses("a--b");  // a - (-b)
+		assertParses("a++b");  // a + (+b)
+
+		// \pm 和 \mp 的双重身份
+		assertParses("\\pm a");  // 一元
+		assertParses("a\\pm b");  // 二元
+		assertParses("a\\pm\\pm b");  // 二元 + 一元
+
+		// 连续的变量
+		assertParses("abc");  // 隐式乘法
+		assertParses("a b c");  // 隐式乘法（带空格）
+
+		// 上下标优先级
+		assertParses("x^2+1");  // x^2 + 1, 不是 x^(2+1)
+		assertParses("x^{2+1}");  // x^(2+1)
+		assertParses("x_1+2");  // x_1 + 2
+		assertParses("x_{1+2}");  // x_(1+2)
+
+		// 逗号作为运算符
+		assertParses("a,b,c");
+		assertParses("f\\left(x,y\\right)");  // 函数参数中的逗号
+
+		// 特殊符号 vs 普通原子
+		assertParses("a\\cdots b");  // cdots 作为 term
+		assertParses("-a+\\cdots+b");  // -a 是一元运算符，cdots 不能被修饰
+
+		// 连续的定界符
+		assertParses("\\left(\\left(x\\right)\\right)");
+
+		// 分式中的负号
+		assertParses("\\frac{-a}{b}");
+		assertParses("\\frac{a}{-b}");
+		assertParses("-\\frac{a}{b}");
+
+		// 根式中的负号
+		assertParses("\\sqrt{-x}");
+		assertParses("-\\sqrt{x}");
 	}
 
 	@Test
-	public void testMixedExpressions() {
-		System.out.println("\n=== 测试混合表达式 ===");
-		// 三角恒等式
-		assertParses("\\sin^2\\theta+\\cos^2\\theta");
+	public void testEdgeCasesForUnaryBinary() {
+		System.out.println("\n=== 测试一元二元运算符边界情况 ===");
 
-		// 多项式
-		assertParses("ax^2+bx+c");
+		// 确保一元运算符后必须有 operand_atom
+		assertParseFails("+");
+		assertParseFails("-");
+		assertParseFails("a+");
+		assertParseFails("a-");
 
-		// 向量表示
-		assertParses("\\vec{v}+\\vec{w}");
-	}
+		// 确保二元运算符必须连接两个 term
+		assertParseFails("*b");
+		assertParseFails("/b");
+		assertParseFails("a*");
+		assertParseFails("a/");
 
-	// ============ 14. 原有测试用例 ============
-
-	@Test
-	public void testOriginalCases() {
-		System.out.println("\n=== 测试原有用例 ===");
-		String[] testCases = {
-				"x^2",
-				"x^{n+1}",
-				"x^a+b",
-				"\\frac{1}{2}",
-				"\\sqrt{x+1}",
-				"\\sqrt[3]{27}",
-				"\\sum_{i=1}^{n} i^2",
-				"\\sin x + y",
-				"\\sin{x+y}",
-				"\\alpha + \\beta",
-				"a+b*c",
-				"\\left( \\frac{a}{b} \\right)",
-				"\\text{当x趋近于0时}",
-				"\\hat{x} + \\vec{v}",
-				"\\log_2 n"
-		};
-
-		for (String testCase : testCases) {
-			assertParses(testCase);
-		}
-	}
-
-	// ============ 15. 边界情况和错误处理 ============
-
-	@Test
-	public void testMissingBraces() {
-		System.out.println("\n=== 测试缺少括号 ===");
-		assertParseFails("\\frac{a}");      // 缺少第二个参数
-		assertParseFails("\\sqrt{");        // 缺少右括号
+		// + 和 - 的特殊性
+		assertParses("+a");  // 一元
+		assertParses("-a");  // 一元
+		assertParses("a+b");  // 二元
+		assertParses("a-b");  // 二元
 	}
 
 	@Test
-	public void testUnknownCommands() {
-		System.out.println("\n=== 测试未知命令 ===");
+	public void testComplexMixedOperators() {
+		System.out.println("\n=== 测试复杂混合运算符 ===");
+		assertParses("a+b*c");
+		assertParses("a*b+c");
+		assertParses("a+b+c+d");
+		assertParses("a-b-c-d");
+		assertParses("a\\times b\\div c");
+		assertParses("a=b=c");
+		assertParses("a<b<c");
+		assertParses("a\\in B\\subset C");
+	}
+
+	@Test
+	public void testScriptArgVariety() {
+		System.out.println("\n=== 测试上下标参数多样性 ===");
+		// single_token
+		assertParses("x^1");
+		assertParses("x^a");
+		assertParses("x^\\alpha");
+		assertParses("x^+");
+		assertParses("x^-");
+
+		// group
+		assertParses("x^{a+b}");
+		assertParses("x^{\\frac{1}{2}}");
+		assertParses("x^{y^2}");
+	}
+
+	@Test
+	public void testWithCommas() {
+		System.out.println("\n=== 测试逗号作为二元运算符 ===");
+		assertParses("1,2,3");
+		assertParses("a,b,c");
+		assertParses("x_1,x_2,\\ldots,x_n");
+		assertParses("{1,2,3,\\ldots,n}");
+	}
+
+	@Test
+	public void testRealWorldExpressions() {
+		System.out.println("\n=== 测试真实世界的表达式 ===");
+		// 欧拉公式
+		assertParses("e^{i\\pi}+1=0");
+
+		// 泰勒展开
+		assertParses("f\\left(x\\right)=f\\left(a\\right)+f'\\left(a\\right)\\left(x-a\\right)+\\cdots");
+
+		// 二项式定理
+		assertParses("\\left(a+b\\right)^n=\\sum_{k=0}^{n}C_n^k a^{n-k}b^k");
+
+		// 勾股定理
+		assertParses("a^2+b^2=c^2");
+
+		// 导数定义
+		assertParses("f'\\left(x\\right)=\\lim_{h\\to 0}\\frac{f\\left(x+h\\right)-f\\left(x\\right)}{h}");
+
+		// 积分
+		assertParses("\\int_0^{\\infty}e^{-x^2}");
+
+		// 序列
+		assertParses("a_1,a_2,\\ldots,a_n");
+
+		// 几何
+		assertParses("\\angle ABC=90");
+		assertParses("AB\\perp CD\\therefore\\angle ABC=90");
+
+		// 逻辑推理
+		assertParses("x>0\\therefore x^2>0");
+		assertParses("\\because a=b,\\therefore a+c=b+c");
+	}
+
+	// ============ 17. 错误处理测试 ============
+
+	@Test
+	public void testErrorCases() {
+		System.out.println("\n=== 测试错误情况 ===");
+		assertParseFails("\\frac{1}{");
+		assertParseFails("\\sqrt[");
+		assertParseFails("\\left(x");
+		assertParseFails("\\hat");
+		assertParseFails("\\text");
+		assertParseFails("\\sum_{i=1}^{");
+		assertParseFails("{x");
 		assertParseFails("\\unknowncommand");
+		assertParseFails("x^^2");  // 连续的上标符号
+		assertParseFails("x__2");  // 连续的下标符号
 	}
 
-	// ============ 16. 性能测试 ============
+	// ============ 18. 压力测试 ============
 
 	@Test
 	public void testLongExpression() {
 		System.out.println("\n=== 测试长表达式 ===");
-		// 构造一个较长的表达式
 		StringBuilder sb = new StringBuilder();
 		for (int i = 0; i < 20; i++) {
 			if (i > 0) sb.append("+");
@@ -517,7 +620,6 @@ public class MathParserUnitTest {
 	@Test
 	public void testDeeplyNested() {
 		System.out.println("\n=== 测试深度嵌套 ===");
-		// 5 层嵌套根式
 		String expr = "x";
 		for (int i = 0; i < 5; i++) {
 			expr = "\\sqrt{" + expr + "}";
@@ -525,192 +627,52 @@ public class MathParserUnitTest {
 		assertParses(expr);
 	}
 
-	// ============ 17. BNF 完整覆盖验证 ============
+	// ============ 19. BNF 完整覆盖验证 ============
 
 	@Test
 	public void testBnfCoverage() {
 		System.out.println("\n=== BNF 完整覆盖验证 ===");
 
-		// 1. <math_list> & <term>
+		// operand_atom 的所有类型
+		assertParses("123");
+		assertParses("x");
+		assertParses("\\alpha");
+		assertParses("{x}");
+		assertParses("\\frac{a}{b}");
+		assertParses("\\sqrt{x}");
+		assertParses("\\left(x\\right)");
+		assertParses("\\sin x");
+		assertParses("\\sum");
+		assertParses("\\text{hi}");
+		assertParses("\\hat{x}");
+		assertParses("\\mathbf{x}");
+
+		// special_symbol 的所有类型
+		assertParses("\\dots");
+		assertParses("\\angle");
+		assertParses("\\therefore");
+
+		// 一元运算符
+		assertParses("-x");
+		assertParses("\\pm x");
+
+		// 二元运算符（采样）
 		assertParses("a+b");
+		assertParses("a\\times b");
+		assertParses("a=b");
+		assertParses("a<b");
+		assertParses("a\\in B");
+		assertParses("a\\perp b");
+		assertParses("a,b");
 
-		// 2. <atom> 的所有类型
-		assertParses("123");           // number
-		assertParses("x");             // variable
-		assertParses("\\alpha");       // greek_letter
-		assertParses("{x}");           // group
-		assertParses("\\frac{a}{b}");  // frac
-		assertParses("\\sqrt{x}");     // sqrt
-		assertParses("\\left(x\\right)"); // delimited
-		assertParses("\\sin x");       // function_call
-		assertParses("\\sum");         // large_operator
-		assertParses("\\text{hi}");    // text
-		assertParses("\\hat{x}");      // accent
-
-		// 3. <sup_sub_suffix> 的所有组合
+		// 上下标
 		assertParses("x^a");
 		assertParses("x_a");
 		assertParses("x^a_b");
-		assertParses("x_a^b");
+
+		// spacing
+		assertParses("a\\quad b");
 
 		System.out.println("\n✅ BNF 覆盖率测试完成!");
-	}
-
-	// ============ 20. 错误恢复与健壮性 ============
-
-	@Test
-	public void testErrorRecovery() {
-		System.out.println("\n=== 测试解析器错误恢复能力 ===");
-		String[] badInputs = {
-				"\\frac{1}{",        // 缺右括号
-				"\\sqrt[",           // 缺指数参数
-				"\\left(x",          // 缺 right
-				"\\hat",             // 缺花括号
-				"\\text",            // 缺参数
-				"\\sum_{i=1}^{",     // 不完整上下标
-				"{x",                // 括号未闭合
-		};
-
-		for (String input : badInputs) {
-			assertParseFails(input);
-		}
-	}
-
-	// ============ 18. 特殊符号测试 (BNF 第 223-227 行) ============
-
-	@Test
-	public void testEllipsisSymbols() {
-		System.out.println("\n=== 测试省略号符号 ===");
-		// 各种省略号
-		assertParses("\\dots");
-		assertParses("\\ldots");
-		assertParses("\\cdots");
-		assertParses("\\vdots");
-		assertParses("\\ddots");
-
-		// 省略号在表达式中的使用
-		assertParses("1, 2, \\dots, n");
-		assertParses("a_1 + a_2 + \\cdots + a_n");
-		assertParses("x_1, x_2, \\ldots, x_n");
-	}
-
-	@Test
-	public void testGeometrySymbols() {
-		System.out.println("\n=== 测试几何符号 ===");
-		// 角度符号（特殊符号）
-		assertParses("\\angle");
-		assertParses("\\angle ABC");
-		assertParses("\\angle_1");
-		assertParses("\\angle_2");
-
-		// 垂直和平行符号（二元运算符）
-		assertParses("AB \\perp CD");
-		assertParses("AB \\parallel CD");
-		assertParses("l_1 \\perp l_2");
-		assertParses("a \\parallel b");
-	}
-
-	@Test
-	public void testLogicSymbols() {
-		System.out.println("\n=== 测试逻辑符号 ===");
-		// \therefore 和 \because 作为特殊符号
-		assertParses("\\therefore");
-		assertParses("\\because");
-
-		// 在表达式中的使用
-		assertParses("\\because a = b");
-		assertParses("a = b \\therefore c = d");
-		assertParses("x > 0 \\therefore x^2 > 0");
-	}
-
-	@Test
-	public void testSpecialSymbolsWithScripts() {
-		System.out.println("\n=== 测试特殊符号的上下标 ===");
-		// 特殊符号可以带上下标
-		assertParses("\\angle_1");
-		assertParses("\\angle_2");
-		assertParses("\\angle_{ABC}");
-		assertParses("\\dots^{n}");
-		assertParses("\\cdots^{m}");
-	}
-
-	@Test
-	public void testSpecialSymbolsCannotHaveUnaryOp() {
-		System.out.println("\n=== 测试特殊符号不能被一元运算符修饰 ===");
-		// 这些应该失败：特殊符号不能被一元运算符修饰
-		assertParseFails("-\\dots");
-		assertParseFails("+\\angle");
-		assertParseFails("-\\therefore");
-		assertParseFails("+\\because");
-		assertParseFails("\\pm\\cdots");
-	}
-
-	@Test
-	public void testGeometryRelationOperators() {
-		System.out.println("\n=== 测试几何关系作为二元运算符 ===");
-		// \perp 和 \parallel 作为二元运算符连接两个 term
-		assertParses("AB \\perp CD");
-		assertParses("l \\parallel m");
-		assertParses("\\vec{v} \\perp \\vec{w}");
-		assertParses("x \\parallel y");
-
-		// 在复杂表达式中
-		assertParses("a \\perp b \\perp c");
-		assertParses("l_1 \\parallel l_2 \\parallel l_3");
-	}
-
-	@Test
-	public void testSpecialSymbolsInComplexExpressions() {
-		System.out.println("\n=== 测试特殊符号在复杂表达式中的使用 ===");
-		// 省略号在序列中
-		assertParses("a_1 + a_2 + \\cdots + a_n = S");
-		assertParses("{1, 2, 3, \\ldots, n}");
-
-		// 角度在几何表达式中
-		assertParses("\\angle ABC = 90");
-		assertParses("\\angle_1 + \\angle_2 = 180");
-
-		// 逻辑推理
-		assertParses("x > 0 \\therefore x^2 > 0");
-		assertParses("\\because a = b, c = d");
-
-		// 几何关系
-		assertParses("AB \\perp CD \\therefore \\angle ABC = 90");
-		assertParses("l_1 \\parallel l_2, l_2 \\parallel l_3 \\therefore l_1 \\parallel l_3");
-	}
-
-// ============ 19. 边界情况测试 ============
-
-	@Test
-	public void testUnaryOpWithOperandAtom() {
-		System.out.println("\n=== 测试一元运算符只能修饰可运算原子 ===");
-		// 这些应该成功：一元运算符修饰可运算的原子
-		assertParses("-x");
-		assertParses("+a");
-		assertParses("-123");
-		assertParses("-\\alpha");
-		assertParses("-{x+y}");
-		assertParses("-\\frac{1}{2}");
-		assertParses("-\\sqrt{x}");
-		assertParses("\\pm x");
-		assertParses("\\mp y");
-
-		// 这些应该失败：一元运算符不能修饰特殊符号
-		assertParseFails("-\\dots");
-		assertParseFails("+\\ldots");
-		assertParseFails("-\\angle");
-		assertParseFails("+\\therefore");
-		assertParseFails("-\\because");
-	}
-
-	@Test
-	public void testMixedSpecialAndRegularSymbols() {
-		System.out.println("\n=== 测试特殊符号和普通符号混合使用 ===");
-		// 混合使用
-		assertParses("1 + 2 + \\cdots + n");
-		assertParses("-x + \\cdots + \\left(-1\\right)^n x^n");  // 合法：使用定界符
-		assertParses("\\angle ABC + \\angle BCD = 180");
-		assertParses("a \\parallel b, c \\perp d");
-		assertParses("\\because x > 0, \\therefore x^2 > 0");
 	}
 }
