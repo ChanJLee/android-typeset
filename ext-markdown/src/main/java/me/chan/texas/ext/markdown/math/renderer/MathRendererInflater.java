@@ -182,11 +182,19 @@ public class MathRendererInflater {
 	}
 
 	private RendererNode inflateSpecialSymbolAtom(MathPaint.Styles styles, SpecialSymbolAtom atom) {
-		throw new RuntimeException("Stub!");
+		return new SymbolNode(styles, MathFontOptions.ast(atom));
 	}
 
 	private RendererNode inflateFontAtom(MathPaint.Styles styles, FontAtom atom) {
-		throw new RuntimeException("Stub!");
+		if (TextUtils.equals("mathbf", atom.styles)) {
+			styles = styles.copy().setBold(true);
+		}
+
+		if (TextUtils.equals("mathit", atom.styles)) {
+			styles = styles.copy().setItalic(true);
+		}
+
+		return inflate(styles, atom.ast);
 	}
 
 	private RendererNode inflateTextAtom(MathPaint.Styles styles, TextAtom atom) {

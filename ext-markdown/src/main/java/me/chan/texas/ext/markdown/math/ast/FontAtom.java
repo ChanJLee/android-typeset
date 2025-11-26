@@ -2,9 +2,9 @@ package me.chan.texas.ext.markdown.math.ast;
 
 public class FontAtom implements Atom {
 	public final String styles;
-	public final Ast ast;
+	public final MathList ast;
 
-	public FontAtom(String styles, Ast ast) {
+	public FontAtom(String styles, MathList ast) {
 		this.styles = styles;
 		this.ast = ast;
 	}
