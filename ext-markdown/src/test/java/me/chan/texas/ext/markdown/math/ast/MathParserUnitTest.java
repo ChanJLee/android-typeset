@@ -669,6 +669,7 @@ public class MathParserUnitTest {
 		assertParses("x^a");
 		assertParses("x_a");
 		assertParses("x^a_b");
+		assertParses("x_a^b");
 
 		// spacing
 		assertParses("a\\quad b");
