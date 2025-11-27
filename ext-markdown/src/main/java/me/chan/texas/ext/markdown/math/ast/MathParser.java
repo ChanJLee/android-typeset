@@ -573,7 +573,7 @@ public class MathParser {
 	}
 
 	private MatrixRow parseMatrixRow() throws MathParseException {
-		List<Ast> elements = new ArrayList<>();
+		List<MathList> elements = new ArrayList<>();
 		while (!stream.eof()) {
 			elements.add(parseMathList());
 			skipWhitespace();

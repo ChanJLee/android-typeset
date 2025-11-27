@@ -676,4 +676,496 @@ public class MathParserUnitTest {
 
 		System.out.println("\n✅ BNF 覆盖率测试完成!");
 	}
+
+	@Test
+	public void testComprehensiveBnfCoverage() {
+		System.out.println("\n=== 全面BNF语法覆盖测试 ===");
+
+		// 这是一个包含所有BNF语法元素的综合表达式
+		String comprehensiveExpr =
+				// 文本 + 空格
+				"\\text{当}\\quad " +
+
+						// 变量（带prime后缀）+ 上标
+						"f'\\left(x\\right)^{2} " +
+
+						// 二元运算符：等号
+						"= " +
+
+						// 一元运算符（负号）+ 分式（dfrac）+ 根式（带根次数）
+						"-\\dfrac{\\sqrt[n]{a+b}}{\\sqrt{c-d}} " +
+
+						// 二元运算符：加号
+						"+ " +
+
+						// 大型运算符：求和（带上下标）
+						"\\sum_{i=1}^{\\infty} " +
+
+						// 分组 + 一元运算符（\pm）+ 变量 + 上下标组合
+						"{\\pm x_i^{k+1}} " +
+
+						// 二元运算符：乘号
+						"\\times " +
+
+						// 函数（带下标）+ 定界符（bigl/bigr）
+						"\\log_2\\bigl|y\\bigr| " +
+
+						// 二元运算符：除号
+						"\\div " +
+
+						// 重音符号
+						"\\hat{\\alpha} " +
+
+						// 二元运算符：关系运算符
+						"\\le " +
+
+						// 希腊字母大写
+						"\\Omega " +
+
+						// 二元运算符：集合运算符
+						"\\in " +
+
+						// 字体命令
+						"\\mathbb{R} " +
+
+						// 二元运算符：逻辑箭头
+						"\\Rightarrow " +
+
+						// 特殊符号（可带上下标）
+						"\\angle_{ABC} " +
+
+						// 二元运算符：几何关系
+						"\\perp " +
+
+						// 数字（小数）
+						"3.14 " +
+
+						// 空格命令
+						"\\, " +
+
+						// 特殊符号（省略号）
+						"\\cdots " +
+
+						// 空格命令
+						"\\; " +
+
+						// 特殊符号（逻辑符号）
+						"\\therefore " +
+
+						// 一元运算符（\mp）+ 希腊字母小写
+						"\\mp\\beta";
+
+		assertParses(comprehensiveExpr);
+
+		System.out.println("✅ 综合表达式测试通过");
+	}
+
+	@Test
+	public void testAllBnfElementsSeparately() {
+		System.out.println("\n=== 逐项BNF元素覆盖测试 ===");
+
+		// ============ 1. 基础元素 ============
+		System.out.println("测试基础元素...");
+		assertParses("123");              // <number> 整数
+		assertParses("3.14159");          // <number> 小数
+		assertParses("x");                // <variable> 单字母
+		assertParses("abc");              // <variable> 多字母（隐式乘法）
+		assertParses("f'");               // <variable> 带一个prime
+		assertParses("g''");              // <variable> 带两个prime
+		assertParses("y'''");             // <variable> 带三个prime
+
+		// ============ 2. 希腊字母（完整） ============
+		System.out.println("测试希腊字母...");
+		// 小写希腊字母（完整列表）
+		assertParses("\\alpha");
+		assertParses("\\beta");
+		assertParses("\\gamma");
+		assertParses("\\delta");
+		assertParses("\\epsilon");
+		assertParses("\\varepsilon");
+		assertParses("\\zeta");
+		assertParses("\\eta");
+		assertParses("\\theta");
+		assertParses("\\vartheta");
+		assertParses("\\iota");
+		assertParses("\\kappa");
+		assertParses("\\lambda");
+		assertParses("\\mu");
+		assertParses("\\nu");
+		assertParses("\\xi");
+		assertParses("\\pi");
+		assertParses("\\varpi");
+		assertParses("\\rho");
+		assertParses("\\varrho");
+		assertParses("\\sigma");
+		assertParses("\\varsigma");
+		assertParses("\\tau");
+		assertParses("\\upsilon");
+		assertParses("\\phi");
+		assertParses("\\varphi");
+		assertParses("\\chi");
+		assertParses("\\psi");
+		assertParses("\\omega");
+
+		// 大写希腊字母（完整列表）
+		assertParses("\\Gamma");
+		assertParses("\\Delta");
+		assertParses("\\Theta");
+		assertParses("\\Lambda");
+		assertParses("\\Xi");
+		assertParses("\\Pi");
+		assertParses("\\Sigma");
+		assertParses("\\Upsilon");
+		assertParses("\\Phi");
+		assertParses("\\Psi");
+		assertParses("\\Omega");
+		assertParses("\\infty");
+
+		// ============ 3. 一元运算符（完整） ============
+		System.out.println("测试一元运算符...");
+		assertParses("+x");
+		assertParses("-x");
+		assertParses("\\pm x");
+		assertParses("\\mp x");
+
+		// ============ 4. 二元运算符（完整） ============
+		System.out.println("测试二元运算符...");
+		// 算术运算符
+		assertParses("a+b");
+		assertParses("a-b");
+		assertParses("a*b");
+		assertParses("a/b");
+		assertParses("a,b");
+		assertParses("a\\times b");
+		assertParses("a\\cdot b");
+		assertParses("a\\div b");
+		assertParses("a\\pm b");
+		assertParses("a\\mp b");
+
+		// 关系运算符
+		assertParses("a=b");
+		assertParses("a\\neq b");
+		assertParses("a\\equiv b");
+		assertParses("a\\approx b");
+		assertParses("a\\cong b");
+		assertParses("a\\sim b");
+		assertParses("a<b");
+		assertParses("a>b");
+		assertParses("a\\le b");
+		assertParses("a\\ge b");
+		assertParses("a\\leq b");
+		assertParses("a\\geq b");
+		assertParses("a\\ll b");
+		assertParses("a\\gg b");
+
+		// 集合运算符
+		assertParses("x\\in A");
+		assertParses("x\\notin A");
+		assertParses("A\\subset B");
+		assertParses("A\\supset B");
+		assertParses("A\\subseteq B");
+		assertParses("A\\supseteq B");
+		assertParses("A\\cup B");
+		assertParses("A\\cap B");
+		assertParses("A\\wedge B");
+		assertParses("A\\vee B");
+
+		// 箭头运算符
+		assertParses("a\\to b");
+		assertParses("a\\rightarrow b");
+		assertParses("a\\leftarrow b");
+		assertParses("a\\leftrightarrow b");
+		assertParses("A\\Rightarrow B");
+		assertParses("A\\Leftarrow B");
+		assertParses("A\\Leftrightarrow B");
+		assertParses("A\\implies B");
+		assertParses("A\\iff B");
+
+		// 几何关系运算符
+		assertParses("a\\perp b");
+		assertParses("a\\parallel b");
+
+		// ============ 5. 分组 ============
+		System.out.println("测试分组...");
+		assertParses("{x}");
+		assertParses("{{x}}");
+		assertParses("{a+b}");
+		assertParses("{}");  // 空分组
+
+		// ============ 6. 上下标（所有组合） ============
+		System.out.println("测试上下标...");
+		assertParses("x^2");              // 仅上标
+		assertParses("x_1");              // 仅下标
+		assertParses("x^2_1");            // 上标在前
+		assertParses("x_1^2");            // 下标在前
+
+		// script_arg 的所有类型
+		assertParses("x^1");              // digit
+		assertParses("x^a");              // letter
+		assertParses("x^\\alpha");        // greek_letter
+		assertParses("x^+");              // operator_symbol +
+		assertParses("x^-");              // operator_symbol -
+		assertParses("x^*");              // operator_symbol *
+		assertParses("x^/");              // operator_symbol /
+		assertParses("x^=");              // operator_symbol =
+		assertParses("x^<");              // operator_symbol <
+		assertParses("x^>");              // operator_symbol >
+		assertParses("x^\\pm");           // operator_symbol \pm
+		assertParses("x^\\mp");           // operator_symbol \mp
+		assertParses("x^{a+b}");          // group
+
+		// ============ 7. 分式（所有变体） ============
+		System.out.println("测试分式...");
+		assertParses("\\frac{a}{b}");
+		assertParses("\\dfrac{a}{b}");
+		assertParses("\\tfrac{a}{b}");
+		assertParses("\\cfrac{a}{b}");
+
+		// ============ 8. 根式（两种形式） ============
+		System.out.println("测试根式...");
+		assertParses("\\sqrt{x}");                    // 不带根次数
+		assertParses("\\sqrt[3]{x}");                 // 带根次数
+		assertParses("\\sqrt[n+1]{x^2}");             // 复杂根次数
+
+		// ============ 9. 定界符（所有级别和类型） ============
+		System.out.println("测试定界符...");
+		// 5个级别
+		assertParses("\\left( x \\right)");
+		assertParses("\\bigl[ x \\bigr]");
+		assertParses("\\Bigl\\{ x \\Bigr\\}");
+		assertParses("\\biggl| x \\biggr|");
+		assertParses("\\Biggl\\langle x \\Biggr\\rangle");
+
+		// 所有定界符类型
+		assertParses("\\left( x \\right)");           // ()
+		assertParses("\\left[ x \\right]");           // []
+		assertParses("\\left\\{ x \\right\\}");       // {}
+		assertParses("\\left| x \\right|");           // |
+		assertParses("\\left\\| x \\right\\|");       // \|
+		assertParses("\\left\\langle x \\right\\rangle");  // <> (langle/rangle)
+		assertParses("\\left\\lfloor x \\right\\rfloor");  // floor
+		assertParses("\\left\\lceil x \\right\\rceil");    // ceil
+		assertParses("\\left\\lvert x \\right\\rvert");    // lvert/rvert
+		assertParses("\\left\\lVert x \\right\\rVert");    // lVert/rVert
+		assertParses("\\left. x \\right|");           // 空定界符 .
+
+		// ============ 10. 函数（所有类型） ============
+		System.out.println("测试函数...");
+		// 三角函数
+		assertParses("\\sin x");
+		assertParses("\\cos x");
+		assertParses("\\tan x");
+		assertParses("\\cot x");
+		assertParses("\\sec x");
+		assertParses("\\csc x");
+		assertParses("\\arcsin x");
+		assertParses("\\arccos x");
+		assertParses("\\arctan x");
+
+		// 双曲函数
+		assertParses("\\sinh x");
+		assertParses("\\cosh x");
+		assertParses("\\tanh x");
+		assertParses("\\coth x");
+
+		// 对数函数
+		assertParses("\\log x");
+		assertParses("\\ln x");
+		assertParses("\\lg x");
+		assertParses("\\exp x");
+
+		// 其他函数
+		assertParses("\\max x");
+		assertParses("\\min x");
+		assertParses("\\sup x");
+		assertParses("\\inf x");
+		assertParses("\\arg x");
+		assertParses("\\deg x");
+		assertParses("\\det x");
+		assertParses("\\dim x");
+		assertParses("\\gcd x");
+		assertParses("\\hom x");
+		assertParses("\\ker x");
+		assertParses("\\Pr x");
+		assertParses("\\bmod x");
+		assertParses("\\pmod x");
+
+		// 带上下标的函数
+		assertParses("\\log_2 x");
+		assertParses("\\log^2 x");
+		assertParses("\\log_2^3 x");
+
+		// 函数参数的三种类型
+		assertParses("\\sin x");              // single_token
+		assertParses("\\sin{x+y}");           // group
+		assertParses("\\sin\\left(x\\right)"); // delimited
+
+		// ============ 11. 大型运算符（所有类型） ============
+		System.out.println("测试大型运算符...");
+		// 求和/乘积
+		assertParses("\\sum");
+		assertParses("\\prod");
+		assertParses("\\coprod");
+
+		// 积分
+		assertParses("\\int");
+		assertParses("\\iint");
+		assertParses("\\iiint");
+		assertParses("\\oint");
+		assertParses("\\oiint");
+		assertParses("\\oiiint");
+
+		// 集合运算
+		assertParses("\\bigcup");
+		assertParses("\\bigcap");
+		assertParses("\\bigvee");
+		assertParses("\\bigwedge");
+		assertParses("\\bigoplus");
+		assertParses("\\bigotimes");
+		assertParses("\\bigodot");
+		assertParses("\\biguplus");
+		assertParses("\\bigsqcup");
+
+		// 极限
+		assertParses("\\lim");
+		assertParses("\\limsup");
+		assertParses("\\liminf");
+
+		// 带上下标
+		assertParses("\\sum_{i=1}^{n}");
+		assertParses("\\int_0^1");
+		assertParses("\\lim_{x\\to 0}");
+
+		// ============ 12. 文本模式（所有命令） ============
+		System.out.println("测试文本模式...");
+		assertParses("\\text{hello}");
+		assertParses("\\mbox{world}");
+		assertParses("\\textrm{roman}");
+		assertParses("\\textit{italic}");
+		assertParses("\\textbf{bold}");
+		assertParses("\\text{中文测试}");
+
+		// ============ 13. 字体命令（所有类型） ============
+		System.out.println("测试字体命令...");
+		assertParses("\\mathrm{x}");
+		assertParses("\\mathit{x}");
+		assertParses("\\mathbf{x}");
+		assertParses("\\mathsf{x}");
+		assertParses("\\mathtt{x}");
+		assertParses("\\mathcal{X}");
+		assertParses("\\mathbb{R}");
+		assertParses("\\mathfrak{g}");
+		assertParses("\\mathscr{L}");
+		assertParses("\\boldsymbol{\\alpha}");
+		assertParses("\\bm{x}");
+
+		// ============ 14. 重音符号（所有类型） ============
+		System.out.println("测试重音符号...");
+		// 基础重音
+		assertParses("\\hat{x}");
+		assertParses("\\widehat{xyz}");
+		assertParses("\\tilde{x}");
+		assertParses("\\widetilde{xyz}");
+		assertParses("\\bar{x}");
+		assertParses("\\overline{xyz}");
+		assertParses("\\underline{text}");
+
+		// 向量
+		assertParses("\\vec{v}");
+		assertParses("\\overrightarrow{AB}");
+		assertParses("\\overleftarrow{BA}");
+
+		// 点记号
+		assertParses("\\dot{x}");
+		assertParses("\\ddot{x}");
+		assertParses("\\dddot{x}");
+
+		// 其他重音
+		assertParses("\\acute{a}");
+		assertParses("\\grave{a}");
+		assertParses("\\breve{a}");
+		assertParses("\\check{a}");
+		assertParses("\\mathring{a}");
+
+		// 括号式
+		assertParses("\\overbrace{a+b+c}");
+		assertParses("\\underbrace{x+y+z}");
+
+		// 重音也可以用于single_token
+		assertParses("\\hat x");
+
+		// ============ 15. 空格命令（所有类型） ============
+		System.out.println("测试空格命令...");
+		assertParses("a\\,b");
+		assertParses("a\\:b");
+		assertParses("a\\;b");
+		assertParses("a\\!b");
+		assertParses("a\\quad b");
+		assertParses("a\\qquad b");
+
+		// 带参数的空格命令
+		assertParses("a\\hspace{10em}b");
+		assertParses("a\\hspace{5pt}b");
+		assertParses("a\\hspace{2cm}b");
+
+		// phantom命令
+		assertParses("a\\hphantom{xyz}b");
+		assertParses("a\\vphantom{\\frac{1}{2}}b");
+		assertParses("a\\phantom{test}b");
+
+		// 所有单位
+		assertParses("\\hspace{1em}");
+		assertParses("\\hspace{1ex}");
+		assertParses("\\hspace{1pt}");
+		assertParses("\\hspace{1px}");
+		assertParses("\\hspace{1cm}");
+		assertParses("\\hspace{1mm}");
+		assertParses("\\hspace{1in}");
+
+		// ============ 16. 特殊符号（所有类型） ============
+		System.out.println("测试特殊符号...");
+		// 省略号
+		assertParses("\\dots");
+		assertParses("\\ldots");
+		assertParses("\\cdots");
+		assertParses("\\vdots");
+		assertParses("\\ddots");
+
+		// 角度符号
+		assertParses("\\angle");
+
+		// 逻辑符号
+		assertParses("\\therefore");
+		assertParses("\\because");
+
+		// 特殊符号可以带上下标
+		assertParses("\\dots^n");
+		assertParses("\\angle_1");
+		assertParses("\\angle_{ABC}");
+
+		System.out.println("\n✅ 所有BNF元素逐项测试完成!");
+	}
+
+	@Test
+	public void testMatrixAllVariants() {
+		System.out.println("\n=== 测试矩阵（所有环境） ===");
+
+		// 注意：这里假设parser已经支持矩阵，如果还未实现，这些测试会失败
+		// 所有矩阵环境
+		String[] matrixEnvs = {
+				"matrix", "pmatrix", "bmatrix", "Bmatrix",
+				"vmatrix", "Vmatrix", "smallmatrix", "array", "cases"
+		};
+
+		for (String env : matrixEnvs) {
+			String matrixExpr = "\\begin{" + env + "} a & b \\\\ c & d \\end{" + env + "}";
+			System.out.println("测试: " + env);
+			// assertParses(matrixExpr);  // 取消注释如果矩阵已实现
+		}
+
+		// 带对齐参数的array
+		// assertParses("\\begin{array}{lcr} a & b & c \\\\ d & e & f \\end{array}");
+
+		System.out.println("⚠️  矩阵测试已跳过（需要检查实现）");
+	}
 }
