@@ -20,6 +20,7 @@ import me.chan.texas.ext.markdown.math.ast.GroupScriptArg;
 import me.chan.texas.ext.markdown.math.ast.LargeOperatorAtom;
 import me.chan.texas.ext.markdown.math.ast.MathList;
 import me.chan.texas.ext.markdown.math.ast.MatrixAtom;
+import me.chan.texas.ext.markdown.math.ast.MatrixRow;
 import me.chan.texas.ext.markdown.math.ast.NumberAtom;
 import me.chan.texas.ext.markdown.math.ast.ScriptArg;
 import me.chan.texas.ext.markdown.math.ast.SingleTokenScriptArg;
@@ -210,7 +211,39 @@ public class MathRendererInflater {
 	}
 
 	private RendererNode inflateMatrixAtom(MathPaint.Styles styles, MatrixAtom atom) {
-		throw new RuntimeException("Stub!");
+		RendererNode left = null;
+		RendererNode right = null;
+
+		if ("pmatrix".equals(atom.env)) {
+			left = inflateDelimiter(styles, "(");
+			right = inflateDelimiter(styles, ")");
+		} else if ("bmatrix".equals(atom.env)) {
+			left = inflateDelimiter(styles, "[");
+			right = inflateDelimiter(styles, "]");
+		} else if ("Bmatrix".equals(atom.env)) {
+			left = inflateDelimiter(styles, "\\{");
+			right = inflateDelimiter(styles, "\\}");
+		} else if ("vmatrix".equals(atom.env)) {
+			left = inflateDelimiter(styles, "lvert");
+			right = inflateDelimiter(styles, "rvert");
+		} else if ("Vmatrix".equals(atom.env)) {
+			left = inflateDelimiter(styles, "lVert");
+			right = inflateDelimiter(styles, "rVert");
+		} else {
+			if (!"matrix".equals(atom.env)) {
+				throw new IllegalArgumentException("Unknown matrix env: " + atom.env);
+			}
+		}
+
+		List<RendererNode> list = new ArrayList<>();
+		GridGroupNode content = new GridGroupNode(styles, atom.rows.size(), list);
+		for (MatrixRow row : atom.rows) {
+			for (MathList ast : row.elements) {
+				list.add(inflate(styles, ast));
+			}
+		}
+
+		return new BraceLayout(styles, DelimitedAtom.LEVEL_L0, left, content, right);
 	}
 
 	private RendererNode inflateLargeOperatorAtom(MathPaint.Styles styles, LargeOperatorAtom atom) {

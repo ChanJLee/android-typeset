@@ -590,7 +590,7 @@ public class MathParser {
 	private Atom parseFont(String cmd) throws MathParseException {
 		skipWhitespace();
 		expect('{');
-		Ast ast = parseMathList();
+		MathList ast = parseMathList();
 		skipWhitespace();
 		expect('}');
 		return new FontAtom(cmd, ast);

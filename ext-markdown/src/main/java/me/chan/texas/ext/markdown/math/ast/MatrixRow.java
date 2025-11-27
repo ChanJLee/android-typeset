@@ -3,9 +3,9 @@ package me.chan.texas.ext.markdown.math.ast;
 import java.util.List;
 
 public class MatrixRow implements Ast {
-	public final List<Ast> elements;
+	public final List<MathList> elements;
 
-	public MatrixRow(List<Ast> elements) {
+	public MatrixRow(List<MathList> elements) {
 		this.elements = elements;
 	}
 
