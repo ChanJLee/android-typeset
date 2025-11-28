@@ -8,7 +8,10 @@ public class MathParser {
 	private final CharStream stream;
 	private int recursionDepth = 0;
 	private static final int MAX_RECURSION_DEPTH = 100;
-
+	// 在类开头添加 operator_symbol 集合
+	private static final Set<String> OPERATOR_SYMBOLS = new HashSet<>(Arrays.asList(
+			"pm", "mp"  // 只包含 \pm 和 \mp
+	));
 	// 二元运算符集合
 	private static final Set<String> BINARY_OPERATORS = new HashSet<>(Arrays.asList(
 			"+", "-", "*", "/", "=", "<", ">", ",",  // 添加逗号
@@ -664,7 +667,7 @@ public class MathParser {
 	/**
 	 * <group> ::= "{" <math_list> "}"
 	 */
-	private GroupAtom parseGroup() throws MathParseException {
+	private Group parseGroup() throws MathParseException {
 		expect('{');
 
 		recursionDepth++;
@@ -672,7 +675,7 @@ public class MathParser {
 			MathList content = parseMathList();
 			skipWhitespace();
 			expect('}');
-			return new GroupAtom(content);
+			return new Group(content);
 		} finally {
 			recursionDepth--;
 		}
@@ -839,7 +842,7 @@ public class MathParser {
 			} else if (c == '\\' && (level = peekDelimitedLevel()) >= 0) {
 				argument = parseDelimited(level);
 			} else if (isSingleTokenStart()) {
-				argument = new SingleTokenScriptArg(scanSingleToken());
+				argument = scanSingleToken();
 			}
 		}
 
@@ -932,21 +935,35 @@ public class MathParser {
 
 	/**
 	 * <accent> ::= <accent_cmd> "{" <math_list> "}"
+	 * | <accent_cmd> <single_token>
 	 */
 	private AccentAtom parseAccent(String accentCmd) throws MathParseException {
 		skipWhitespace();
-		expect('{');
 
-		recursionDepth++;
-		try {
-			MathList content = parseMathList();
-			skipWhitespace();
-			expect('}');
-			return new AccentAtom(accentCmd, content);
-		} finally {
-			recursionDepth--;
+		// 检查是否是花括号形式
+		if (!stream.eof() && stream.peek() == '{') {
+			expect('{');
+
+			recursionDepth++;
+			try {
+				MathList content = parseMathList();
+				skipWhitespace();
+				expect('}');
+				return new AccentAtom(accentCmd, content);
+			} finally {
+				recursionDepth--;
+			}
 		}
+
+		// 否则尝试解析 single_token 形式
+		if (isSingleTokenStart()) {
+			Atom content = scanSingleToken();
+			return new AccentAtom(accentCmd, content);
+		}
+
+		throw new MathParseException("Expected '{' or single token after \\" + accentCmd, stream);
 	}
+
 
 	/**
 	 * <sup_sub_suffix> ::= "^" <script_arg>,"_" <script_arg>
@@ -1005,11 +1022,9 @@ public class MathParser {
 		}
 
 		if (stream.peek() == '{') {
-			GroupAtom group = parseGroup();
-			return new GroupScriptArg(group);
+			return new ScriptArg(parseGroup());
 		} else if (isSingleTokenStart()) {
-			String token = scanSingleToken();
-			return new SingleTokenScriptArg(token);
+			return new ScriptArg(new SingleToken(scanSingleToken()));
 		} else {
 			throw new MathParseException("Expected script argument", stream);
 		}
@@ -1128,43 +1143,47 @@ public class MathParser {
 	}
 
 	/**
-	 * 扫描单个token（数字、字母、希腊字母命令或运算符符号）
+	 * 扫描单个token（数字、变量、希腊字母命令或运算符符号）
 	 * 用于上下标等场景
-	 * <single_token> ::= <digit>,<letter>,<greek_letter>,<operator_symbol>
+	 * <single_token> ::= <number> | <variable> | <greek_letter> | <operator_symbol>
 	 */
-	private String scanSingleToken() throws MathParseException {
+	private Atom scanSingleToken() throws MathParseException {
 		if (stream.eof()) {
 			throw new MathParseException("Expected single token", stream);
 		}
 
 		char c = (char) stream.peek();
 
-		// 数字
+		// 数字（可以是多位数字或小数）
 		if (Character.isDigit(c)) {
-			return String.valueOf((char) stream.eat());
+			return parseNumber();
 		}
 
-		// 字母
+		// 变量（可以是多字母变量）
 		if (Character.isLetter(c) && c != '\\') {
-			return String.valueOf((char) stream.eat());
+			return parseVariable();
 		}
 
-		// 运算符符号（允许在上下标中使用）
+		// 单字符运算符符号
 		if ("+-*/=<>".indexOf(c) >= 0) {
-			return String.valueOf((char) stream.eat());
+			return new BinOpAtom(String.valueOf((char) stream.eat()));
 		}
 
 		// 命令（如 \alpha, \pm）
 		if (c == '\\') {
 			stream.eat();
 			String cmd = scanCommandName();
+
+			// 希腊字母
 			if (GREEK_LETTERS.contains(cmd)) {
-				return "\\" + cmd;
+				return new GreekLetterAtom(cmd);
 			}
-			// 也可以是命令形式的运算符（如 \pm）
-			if (BINARY_OPERATORS.contains(cmd)) {
-				return "\\" + cmd;
+
+			// 运算符符号（只允许 \pm 和 \mp）
+			if (OPERATOR_SYMBOLS.contains(cmd)) {
+				return new BinOpAtom(cmd);
 			}
+
 			throw new MathParseException("Expected single token, got \\" + cmd, stream);
 		}
 

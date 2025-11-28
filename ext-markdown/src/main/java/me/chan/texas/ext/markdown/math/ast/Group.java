@@ -1,9 +1,9 @@
 package me.chan.texas.ext.markdown.math.ast;
 
-public class GroupAtom implements Atom {
+public class Group implements Atom {
 	public final MathList content;
 
-	public GroupAtom(MathList content) {
+	public Group(MathList content) {
 		this.content = content;
 	}
 

@@ -13,10 +13,10 @@ public class SupSubSuffix implements Ast {
 	public String toString() {
 		String result = "";
 		if (superscript != null) {
-			result += "^" + superscript.toString();
+			result += "^" + superscript;
 		}
 		if (subscript != null) {
-			result += "_" + subscript.toString();
+			result += "_" + subscript;
 		}
 		return result;
 	}
