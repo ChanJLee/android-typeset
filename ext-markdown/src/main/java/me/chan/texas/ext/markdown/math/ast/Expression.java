@@ -15,6 +15,11 @@ public class Expression implements Ast {
 
 	@Override
 	public String toString() {
-		return "Expression(" + elements + ")";
+		StringBuilder stringBuilder = new StringBuilder();
+		for (int i = 0; i < elements.size(); i++) {
+			Ast element = elements.get(i);
+			stringBuilder.append(element.toString());
+		}
+		return stringBuilder.toString();
 	}
 }

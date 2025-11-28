@@ -13,14 +13,17 @@ public class Term implements Ast {
 
 	@Override
 	public String toString() {
-		String result = "";
+		StringBuilder stringBuilder = new StringBuilder();
 		if (unaryOp != null) {
-			result += unaryOp;
+			stringBuilder.append(unaryOp.op);
+			if (unaryOp.op.startsWith("\\")) {
+				stringBuilder.append(" ");
+			}
 		}
-		result += atom.toString();
+		stringBuilder.append(atom);
 		if (suffix != null) {
-			result += suffix.toString();
+			stringBuilder.append(suffix);
 		}
-		return result;
+		return stringBuilder.toString();
 	}
 }
