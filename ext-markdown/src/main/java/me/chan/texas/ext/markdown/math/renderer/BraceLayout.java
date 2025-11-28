@@ -68,7 +68,7 @@ public class BraceLayout extends RendererNode {
 
 	@Override
 	public float getBaseline() {
-		return getCenterY();
+		return getBottom();
 	}
 
 	@Override
