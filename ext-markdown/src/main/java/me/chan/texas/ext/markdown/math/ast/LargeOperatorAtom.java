@@ -1,17 +1,17 @@
 package me.chan.texas.ext.markdown.math.ast;
 
 public class LargeOperatorAtom implements Atom {
-	public final String op;  // "sum", "int", "prod"
+	public final String name;  // "sum", "int", "prod"
 	public final SupSubSuffix supSubSuffix;
 
-	public LargeOperatorAtom(String op, SupSubSuffix supSubSuffix) {
-		this.op = op;
+	public LargeOperatorAtom(String name, SupSubSuffix supSubSuffix) {
+		this.name = name;
 		this.supSubSuffix = supSubSuffix;
 	}
 
 	@Override
 	public String toString() {
-		String result = "\\" + op;
+		String result = "\\" + name;
 		if (supSubSuffix != null) {
 			result += supSubSuffix;
 		}

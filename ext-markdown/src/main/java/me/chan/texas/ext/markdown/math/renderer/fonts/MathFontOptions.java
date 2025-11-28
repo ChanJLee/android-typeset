@@ -218,7 +218,7 @@ public class MathFontOptions {
 	}
 
 	public static Symbol ast(LargeOperatorAtom atom) {
-		String ref = AST.get(atom.op);
+		String ref = AST.get(atom.name);
 		if (ref == null) {
 			return null;
 		}

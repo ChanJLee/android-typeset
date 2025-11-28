@@ -1,16 +1,16 @@
 package me.chan.texas.ext.markdown.math.ast;
 
 public class FontAtom implements Atom {
-	public final String styles;
+	public final String cmd;
 	public final MathList ast;
 
-	public FontAtom(String styles, MathList ast) {
-		this.styles = styles;
+	public FontAtom(String cmd, MathList ast) {
+		this.cmd = cmd;
 		this.ast = ast;
 	}
 
 	@Override
 	public String toString() {
-		return "\\" + styles + " { " + ast.toString() + " }";
+		return "\\" + cmd + " { " + ast.toString() + " }";
 	}
 }

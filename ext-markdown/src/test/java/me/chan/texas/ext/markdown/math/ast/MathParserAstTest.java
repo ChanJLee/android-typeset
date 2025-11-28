@@ -441,7 +441,7 @@ public class MathParserAstTest {
 		assertTrue("应该是FunctionCallAtom", atom instanceof FunctionCallAtom);
 		FunctionCallAtom func = (FunctionCallAtom) atom;
 
-		assertEquals("函数名应该是sin", "sin", func.functionName);
+		assertEquals("函数名应该是sin", "sin", func.name);
 		assertNull("不应该有上下标", func.supSubSuffix);
 		assertNotNull("应该有参数", func.argument);
 
@@ -457,7 +457,7 @@ public class MathParserAstTest {
 		Term funcTerm = (Term) expr.elements.get(0);
 		FunctionCallAtom func = (FunctionCallAtom) funcTerm.atom;
 
-		assertEquals("函数名应该是log", "log", func.functionName);
+		assertEquals("函数名应该是log", "log", func.name);
 		assertNotNull("应该有上下标后缀", func.supSubSuffix);
 		assertNotNull("应该有下标", func.supSubSuffix.subscript);
 
@@ -486,7 +486,7 @@ public class MathParserAstTest {
 		assertTrue("应该是LargeOperatorAtom", atom instanceof LargeOperatorAtom);
 		LargeOperatorAtom op = (LargeOperatorAtom) atom;
 
-		assertEquals("运算符名应该是sum", "sum", op.op);
+		assertEquals("运算符名应该是sum", "sum", op.name);
 		assertNotNull("应该有上下标后缀", op.supSubSuffix);
 		assertNotNull("应该有下标", op.supSubSuffix.subscript);
 		assertNotNull("应该有上标", op.supSubSuffix.superscript);
@@ -513,7 +513,7 @@ public class MathParserAstTest {
 		Term term = getFirstTerm(expr);
 		LargeOperatorAtom op = (LargeOperatorAtom) getAtom(term);
 
-		assertEquals("运算符名应该是int", "int", op.op);
+		assertEquals("运算符名应该是int", "int", op.name);
 		assertNotNull("应该有上下标后缀", op.supSubSuffix);
 		assertNotNull("应该有下标", op.supSubSuffix.subscript);
 		assertNotNull("应该有上标", op.supSubSuffix.superscript);
@@ -579,7 +579,7 @@ public class MathParserAstTest {
 		TextAtom text = (TextAtom) atom;
 
 		assertEquals("命令应该是text", "text", text.command);
-		assertEquals("文本内容应该是hello", "hello", text.text);
+		assertEquals("文本内容应该是hello", "hello", text.content);
 
 		System.out.println("✅ TextAtom测试通过");
 	}
@@ -618,7 +618,7 @@ public class MathParserAstTest {
 		assertTrue("应该是FontAtom", atom instanceof FontAtom);
 		FontAtom font = (FontAtom) atom;
 
-		assertEquals("字体命令应该是mathbf", "mathbf", font.styles);
+		assertEquals("字体命令应该是mathbf", "mathbf", font.cmd);
 		assertNotNull("字体内容不应为null", font.ast);
 
 		System.out.println("✅ FontAtom测试通过");
@@ -782,7 +782,7 @@ public class MathParserAstTest {
 		Term sumTerm = (Term) exprElements.get(0);
 		assertTrue("应该是LargeOperatorAtom", sumTerm.atom instanceof LargeOperatorAtom);
 		LargeOperatorAtom sumOp = (LargeOperatorAtom) sumTerm.atom;
-		assertEquals("运算符应该是sum", "sum", sumOp.op);
+		assertEquals("运算符应该是sum", "sum", sumOp.name);
 		assertNotNull("sum应该有上下标后缀", sumOp.supSubSuffix);
 		assertNotNull("sum应该有下标", sumOp.supSubSuffix.subscript);
 		assertNotNull("sum应该有上标", sumOp.supSubSuffix.superscript);

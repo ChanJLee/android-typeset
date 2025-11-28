@@ -1,16 +1,16 @@
 package me.chan.texas.ext.markdown.math.ast;
 
 public class TextAtom implements Atom {
-	public final String text;
+	public final String content;
 	public final String command;  // "text", "mbox"
 
-	public TextAtom(String command, String text) {
+	public TextAtom(String command, String content) {
 		this.command = command;
-		this.text = text;
+		this.content = content;
 	}
 
 	@Override
 	public String toString() {
-		return "\\" + command + "{" + text + "}";
+		return "\\" + command + "{" + content + "}";
 	}
 }

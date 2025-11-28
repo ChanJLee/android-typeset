@@ -281,11 +281,11 @@ public class MathRendererInflater {
 	}
 
 	private RendererNode inflateFontAtom(MathPaint.Styles styles, FontAtom atom) {
-		if (TextUtils.equals("mathbf", atom.styles)) {
+		if (TextUtils.equals("mathbf", atom.cmd)) {
 			styles = styles.copy().setBold(true);
 		}
 
-		if (TextUtils.equals("mathit", atom.styles)) {
+		if (TextUtils.equals("mathit", atom.cmd)) {
 			styles = styles.copy().setItalic(true);
 		}
 
@@ -297,11 +297,11 @@ public class MathRendererInflater {
 			styles = styles.copy().setBold(true);
 		}
 
-		if (TextUtils.equals("textit", atom.text)) {
+		if (TextUtils.equals("textit", atom.content)) {
 			styles = styles.copy().setItalic(true);
 		}
 
-		return new TextNode(styles, atom.text);
+		return new TextNode(styles, atom.content);
 	}
 
 	private RendererNode inflateMatrixAtom(MathPaint.Styles styles, MatrixAtom atom) {
@@ -352,17 +352,17 @@ public class MathRendererInflater {
 		}
 
 		DecorGroupNode.Builder builder = new DecorGroupNode.Builder(styles, inflateLargeOp(styles, atom));
-		if ("sum".equals(atom.op) || "prod".equals(atom.op) || "coprod".equals(atom.op) ||
-				"bigcup".equals(atom.op) || "bigcap".equals(atom.op) || "bigvee".equals(atom.op) || "bigwedge".equals(atom.op) ||
-				"bigoplus".equals(atom.op) || "bigotimes".equals(atom.op) || "bigodot".equals(atom.op) ||
-				"biguplus".equals(atom.op) || "bigsqcup".equals(atom.op) ||
-				"lim".equals(atom.op) || "limsup".equals(atom.op) || "liminf".equals(atom.op)) {
+		if ("sum".equals(atom.name) || "prod".equals(atom.name) || "coprod".equals(atom.name) ||
+				"bigcup".equals(atom.name) || "bigcap".equals(atom.name) || "bigvee".equals(atom.name) || "bigwedge".equals(atom.name) ||
+				"bigoplus".equals(atom.name) || "bigotimes".equals(atom.name) || "bigodot".equals(atom.name) ||
+				"biguplus".equals(atom.name) || "bigsqcup".equals(atom.name) ||
+				"lim".equals(atom.name) || "limsup".equals(atom.name) || "liminf".equals(atom.name)) {
 			builder.top(superscript).bottom(subscript);
-		} else if ("int".equals(atom.op) || "iint".equals(atom.op) || "iiint".equals(atom.op) ||
-				"oint".equals(atom.op) || "oiint".equals(atom.op) || "oiiint".equals(atom.op)) {
+		} else if ("int".equals(atom.name) || "iint".equals(atom.name) || "iiint".equals(atom.name) ||
+				"oint".equals(atom.name) || "oiint".equals(atom.name) || "oiiint".equals(atom.name)) {
 			builder.rightTop(superscript).rightBottom(subscript);
 		} else {
-			throw new IllegalArgumentException("unknown operator: " + atom.op);
+			throw new IllegalArgumentException("unknown operator: " + atom.name);
 		}
 
 		return builder.build();
@@ -497,7 +497,7 @@ public class MathRendererInflater {
 	}
 
 	private RendererNode inflateFunctionCallAtom(MathPaint.Styles styles, FunctionCallAtom functionCallAtom) {
-		DecorGroupNode.Builder builder = new DecorGroupNode.Builder(styles, new TextNode(styles.copy().setItalic(true), functionCallAtom.functionName));
+		DecorGroupNode.Builder builder = new DecorGroupNode.Builder(styles, new TextNode(styles.copy().setItalic(true), functionCallAtom.name));
 
 		if (functionCallAtom.argument != null) {
 			if (functionCallAtom.argument instanceof DelimitedAtom) {
@@ -558,12 +558,12 @@ public class MathRendererInflater {
 			return new SymbolNode(styles, s);
 		}
 
-		String o = MathFontOptions.textOp(largeOperatorAtom.op);
+		String o = MathFontOptions.textOp(largeOperatorAtom.name);
 		if (o != null) {
 			return new TextNode(styles, o);
 		}
 
-		throw new IllegalArgumentException("unknown operator: " + largeOperatorAtom.op);
+		throw new IllegalArgumentException("unknown operator: " + largeOperatorAtom.name);
 	}
 
 	private RendererNode inflateSymbol(MathPaint.Styles styles, String symbol) {
