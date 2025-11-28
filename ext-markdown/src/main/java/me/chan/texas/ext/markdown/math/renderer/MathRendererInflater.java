@@ -18,6 +18,7 @@ import me.chan.texas.ext.markdown.math.ast.GreekLetterAtom;
 import me.chan.texas.ext.markdown.math.ast.GroupAtom;
 import me.chan.texas.ext.markdown.math.ast.GroupScriptArg;
 import me.chan.texas.ext.markdown.math.ast.LargeOperatorAtom;
+import me.chan.texas.ext.markdown.math.ast.Length;
 import me.chan.texas.ext.markdown.math.ast.MathList;
 import me.chan.texas.ext.markdown.math.ast.MatrixAtom;
 import me.chan.texas.ext.markdown.math.ast.MatrixRow;
@@ -68,7 +69,105 @@ public class MathRendererInflater {
 	}
 
 	private RendererNode inflateSpacing(MathPaint.Styles styles, Spacing spacing) {
-		throw new RuntimeException("Stub!");
+		float textSize = styles.getTextSize();
+		float width;
+		float height = textSize;
+
+		// 简单空格命令
+		switch (spacing.cmd) {
+			case ",":  // \, thin space
+				width = textSize / 6f;  // 3/18 em
+				break;
+			case ":":  // \: medium space
+				width = textSize * 2f / 9f;  // 4/18 em
+				break;
+			case ";":  // \; thick space
+				width = textSize * 5f / 18f;  // 5/18 em
+				break;
+			case "!":  // \! negative thin space
+				width = -textSize / 6f;  // -3/18 em
+				break;
+			case "quad":
+				width = textSize;  // 1 em
+				break;
+			case "qquad":
+				width = 2 * textSize;  // 2 em
+				break;
+			case "hspace":
+				// 处理 \hspace{<length>}
+				if (spacing.content instanceof Length) {
+					Length length = (Length) spacing.content;
+					width = calculateLength(length, textSize);
+				} else {
+					width = 0;
+				}
+				break;
+			case "hphantom":
+				// 水平占位：使用内容的宽度，但高度为0或不显示内容
+				if (spacing.content instanceof MathList) {
+					RendererNode content = inflate(styles, (MathList) spacing.content);
+					// 返回一个只占用宽度的节点
+					return new PhantomNode(styles, content, true, false);
+				}
+				width = 0;
+				break;
+			case "vphantom":
+				// 垂直占位：使用内容的高度，但宽度为0
+				if (spacing.content instanceof MathList) {
+					RendererNode content = inflate(styles, (MathList) spacing.content);
+					// 返回一个只占用高度的节点
+					return new PhantomNode(styles, content, false, true);
+				}
+				width = 0;
+				break;
+			case "phantom":
+				// 完全占位：使用内容的宽度和高度，但不显示内容
+				if (spacing.content instanceof MathList) {
+					RendererNode content = inflate(styles, (MathList) spacing.content);
+					// 返回一个占用宽高但不显示的节点
+					return new PhantomNode(styles, content, true, true);
+				}
+				width = 0;
+				break;
+			default:
+				width = 0;
+				break;
+		}
+
+		return new SpaceNode(styles, (int) Math.ceil(width), (int) Math.ceil(height));
+	}
+
+	/**
+	 * 根据 Length 对象计算实际像素值
+	 */
+	private float calculateLength(Length length, float textSize) {
+		float value = Float.parseFloat(length.size.value);
+		String unit = length.unit.unit;
+
+		switch (unit) {
+			case "em":
+				return value * textSize;
+			case "ex":
+				// ex 通常是 em 的一半（x-height）
+				return value * textSize * 0.5f;
+			case "pt":
+				// 1 pt = 1/72 inch, 需要根据屏幕密度转换
+				// 简化处理：假设 textSize 对应 1em ≈ 16pt
+				return value * textSize / 16f;
+			case "px":
+				return value;
+			case "cm":
+				// 1 cm ≈ 37.8 px (at 96 DPI)
+				return value * 37.8f;
+			case "mm":
+				// 1 mm ≈ 3.78 px (at 96 DPI)
+				return value * 3.78f;
+			case "in":
+				// 1 inch = 96 px (at 96 DPI)
+				return value * 96f;
+			default:
+				return value * textSize;  // 默认按 em 处理
+		}
 	}
 
 	private RendererNode inflateTerm(MathPaint.Styles styles, Term term) {

@@ -2,11 +2,11 @@ package me.chan.texas.ext.markdown.math.ast;
 
 public class Spacing implements Atom {
 	public final String cmd;
-	public final Ast ast;
+	public final Ast content;
 
-	public Spacing(String cmd, Ast ast) {
+	public Spacing(String cmd, Ast content) {
 		this.cmd = cmd;
-		this.ast = ast;
+		this.content = content;
 	}
 
 	@Override
