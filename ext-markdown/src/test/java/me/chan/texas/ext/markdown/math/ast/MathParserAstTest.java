@@ -172,7 +172,7 @@ public class MathParserAstTest {
 		expr = getFirstExpression(result);
 		term = getFirstTerm(expr);
 
-		assertEquals("一元运算符应该是\\pm", "\\mp", term.unaryOp.toString());
+		assertEquals("一元运算符应该是\\mp", "\\mp", term.unaryOp.toString());
 
 		System.out.println("✅ 一元运算符测试通过");
 	}
@@ -223,10 +223,15 @@ public class MathParserAstTest {
 		assertNotNull("应该有上标", suffix.superscript);
 		assertNull("不应该有下标", suffix.subscript);
 
-		assertTrue("上标应该是SingleTokenScriptArg",
-				suffix.superscript instanceof SingleToken);
-		SingleToken superscript = (SingleToken) suffix.superscript;
-		assertEquals("上标内容应该是2", "2", superscript.content);
+		assertTrue("上标应该是ScriptArg",
+				suffix.superscript instanceof ScriptArg);
+		assertTrue("上标内容应该是SingleToken",
+				suffix.superscript.content instanceof SingleToken);
+		SingleToken superscript = (SingleToken) suffix.superscript.content;
+		assertTrue("SingleToken的内容应该是NumberAtom",
+				superscript.content instanceof NumberAtom);
+		NumberAtom numAtom = (NumberAtom) superscript.content;
+		assertEquals("上标内容应该是2", "2", numAtom.value);
 
 		System.out.println("✅ 上标测试通过");
 	}
@@ -244,10 +249,15 @@ public class MathParserAstTest {
 		assertNull("不应该有上标", suffix.superscript);
 		assertNotNull("应该有下标", suffix.subscript);
 
-		assertTrue("下标应该是SingleTokenScriptArg",
-				suffix.subscript instanceof SingleToken);
-		SingleToken subscript = (SingleToken) suffix.subscript;
-		assertEquals("下标内容应该是1", "1", subscript.content);
+		assertTrue("下标应该是ScriptArg",
+				suffix.subscript instanceof ScriptArg);
+		assertTrue("下标内容应该是SingleToken",
+				suffix.subscript.content instanceof SingleToken);
+		SingleToken subscript = (SingleToken) suffix.subscript.content;
+		assertTrue("SingleToken的内容应该是NumberAtom",
+				subscript.content instanceof NumberAtom);
+		NumberAtom numAtom = (NumberAtom) subscript.content;
+		assertEquals("下标内容应该是1", "1", numAtom.value);
 
 		System.out.println("✅ 下标测试通过");
 	}
@@ -265,11 +275,13 @@ public class MathParserAstTest {
 		assertNotNull("应该有上标", suffix.superscript);
 		assertNotNull("应该有下标", suffix.subscript);
 
-		SingleToken superscript = (SingleToken) suffix.superscript;
-		SingleToken subscript = (SingleToken) suffix.subscript;
+		SingleToken superscript = (SingleToken) suffix.superscript.content;
+		SingleToken subscript = (SingleToken) suffix.subscript.content;
 
-		assertEquals("上标内容应该是2", "2", superscript.content);
-		assertEquals("下标内容应该是1", "1", subscript.content);
+		NumberAtom superNum = (NumberAtom) superscript.content;
+		NumberAtom subNum = (NumberAtom) subscript.content;
+		assertEquals("上标内容应该是2", "2", superNum.value);
+		assertEquals("下标内容应该是1", "1", subNum.value);
 
 		System.out.println("✅ 上下标组合测试通过");
 	}
@@ -285,12 +297,14 @@ public class MathParserAstTest {
 		SupSubSuffix suffix = term.suffix;
 		assertNotNull("应该有上下标后缀", suffix);
 
-		assertTrue("上标应该是GroupScriptArg",
-				suffix.superscript instanceof GroupScriptArg);
-		GroupScriptArg groupArg = (GroupScriptArg) suffix.superscript;
+		assertTrue("上标应该是ScriptArg",
+				suffix.superscript instanceof ScriptArg);
+		assertTrue("上标内容应该是Group",
+				suffix.superscript.content instanceof Group);
+		Group groupArg = (Group) suffix.superscript.content;
 
-		MathList content = groupArg.content.content;
-		assertNotNull("GroupScriptArg的内容不应为null", content);
+		MathList content = groupArg.content;
+		assertNotNull("Group的内容不应为null", content);
 
 		System.out.println("✅ GroupScriptArg测试通过");
 	}
@@ -428,8 +442,7 @@ public class MathParserAstTest {
 		FunctionCallAtom func = (FunctionCallAtom) atom;
 
 		assertEquals("函数名应该是sin", "sin", func.functionName);
-		assertNull("不应该有下标", func.subscript);
-		assertNull("不应该有上标", func.superscript);
+		assertNull("不应该有上下标", func.supSubSuffix);
 		assertNotNull("应该有参数", func.argument);
 
 		System.out.println("✅ FunctionCallAtom测试通过");
@@ -445,12 +458,16 @@ public class MathParserAstTest {
 		FunctionCallAtom func = (FunctionCallAtom) funcTerm.atom;
 
 		assertEquals("函数名应该是log", "log", func.functionName);
-		assertNotNull("应该有下标", func.subscript);
+		assertNotNull("应该有上下标后缀", func.supSubSuffix);
+		assertNotNull("应该有下标", func.supSubSuffix.subscript);
 
-		assertTrue("下标应该是SingleTokenScriptArg",
-				func.subscript instanceof SingleToken);
-		SingleToken subscript = (SingleToken) func.subscript;
-		assertEquals("下标内容应该是2", "2", subscript.content);
+		assertTrue("下标应该是ScriptArg",
+				func.supSubSuffix.subscript instanceof ScriptArg);
+		assertTrue("下标内容应该是SingleToken",
+				func.supSubSuffix.subscript.content instanceof SingleToken);
+		SingleToken subscript = (SingleToken) func.supSubSuffix.subscript.content;
+		NumberAtom numAtom = (NumberAtom) subscript.content;
+		assertEquals("下标内容应该是2", "2", numAtom.value);
 
 		System.out.println("✅ 带下标的函数测试通过");
 	}
@@ -470,12 +487,19 @@ public class MathParserAstTest {
 		LargeOperatorAtom op = (LargeOperatorAtom) atom;
 
 		assertEquals("运算符名应该是sum", "sum", op.op);
-		assertNotNull("应该有下标", op.subscript);
-		assertNotNull("应该有上标", op.superscript);
+		assertNotNull("应该有上下标后缀", op.supSubSuffix);
+		assertNotNull("应该有下标", op.supSubSuffix.subscript);
+		assertNotNull("应该有上标", op.supSubSuffix.superscript);
 
-		// 验证下标和上标都是GroupScriptArg
-		assertTrue("下标应该是GroupScriptArg", op.subscript instanceof GroupScriptArg);
-		assertTrue("上标应该是GroupScriptArg", op.superscript instanceof GroupScriptArg);
+		// 验证下标和上标都是ScriptArg
+		assertTrue("下标应该是ScriptArg", 
+				op.supSubSuffix.subscript instanceof ScriptArg);
+		assertTrue("上标应该是ScriptArg", 
+				op.supSubSuffix.superscript instanceof ScriptArg);
+		assertTrue("下标内容应该是Group",
+				op.supSubSuffix.subscript.content instanceof Group);
+		assertTrue("上标内容应该是Group",
+				op.supSubSuffix.superscript.content instanceof Group);
 
 		System.out.println("✅ LargeOperatorAtom测试通过");
 	}
@@ -490,8 +514,9 @@ public class MathParserAstTest {
 		LargeOperatorAtom op = (LargeOperatorAtom) getAtom(term);
 
 		assertEquals("运算符名应该是int", "int", op.op);
-		assertNotNull("应该有下标", op.subscript);
-		assertNotNull("应该有上标", op.superscript);
+		assertNotNull("应该有上下标后缀", op.supSubSuffix);
+		assertNotNull("应该有下标", op.supSubSuffix.subscript);
+		assertNotNull("应该有上标", op.supSubSuffix.superscript);
 
 		System.out.println("✅ 积分运算符测试通过");
 	}
@@ -758,8 +783,9 @@ public class MathParserAstTest {
 		assertTrue("应该是LargeOperatorAtom", sumTerm.atom instanceof LargeOperatorAtom);
 		LargeOperatorAtom sumOp = (LargeOperatorAtom) sumTerm.atom;
 		assertEquals("运算符应该是sum", "sum", sumOp.op);
-		assertNotNull("sum应该有下标", sumOp.subscript);
-		assertNotNull("sum应该有上标", sumOp.superscript);
+		assertNotNull("sum应该有上下标后缀", sumOp.supSubSuffix);
+		assertNotNull("sum应该有下标", sumOp.supSubSuffix.subscript);
+		assertNotNull("sum应该有上标", sumOp.supSubSuffix.superscript);
 
 		// 应该有第二个Term (x_i^2)
 		if (exprElements.size() > 1) {
@@ -905,10 +931,13 @@ public class MathParserAstTest {
 		assertNotNull("应该有下标", suffix.subscript);
 		assertNull("不应该有上标", suffix.superscript);
 
-		assertTrue("下标应该是SingleTokenScriptArg",
-				suffix.subscript instanceof SingleToken);
-		SingleToken subscript = (SingleToken) suffix.subscript;
-		assertEquals("下标内容应该是1", "1", subscript.content);
+		assertTrue("下标应该是ScriptArg",
+				suffix.subscript instanceof ScriptArg);
+		assertTrue("下标内容应该是SingleToken",
+				suffix.subscript.content instanceof SingleToken);
+		SingleToken subscript = (SingleToken) suffix.subscript.content;
+		NumberAtom numAtom = (NumberAtom) subscript.content;
+		assertEquals("下标内容应该是1", "1", numAtom.value);
 
 		System.out.println("✅ 特殊符号带上标测试通过");
 	}
@@ -931,8 +960,10 @@ public class MathParserAstTest {
 		assertNotNull("应该有上标", suffix.superscript);
 		assertNull("不应该有下标", suffix.subscript);
 
-		assertTrue("上标应该是GroupScriptArg",
-				suffix.superscript instanceof GroupScriptArg);
+		assertTrue("上标应该是ScriptArg",
+				suffix.superscript instanceof ScriptArg);
+		assertTrue("上标内容应该是Group",
+				suffix.superscript.content instanceof Group);
 
 		System.out.println("✅ 特殊符号带上下标测试通过");
 	}
@@ -1096,7 +1127,7 @@ public class MathParserAstTest {
 	public void testGeometricExpressionWithLogicSymbols() throws MathParseException {
 		System.out.println("\n=== 测试几何表达式与逻辑符号的AST ===");
 
-		// 测试 AB \perp CD \therefore \angle ABC = 90
+		// 测试 AB \perp CD \therefore \angle ABC
 		MathList result = parse("AB \\perp CD \\therefore \\angle ABC");
 		List<Ast> topElements = result.elements;
 

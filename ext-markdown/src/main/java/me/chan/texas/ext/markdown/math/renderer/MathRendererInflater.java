@@ -342,13 +342,13 @@ public class MathRendererInflater {
 
 	private RendererNode inflateLargeOperatorAtom(MathPaint.Styles styles, LargeOperatorAtom atom) {
 		RendererNode subscript = null;
-		if (atom.subscript != null) {
-			subscript = inflateScriptArg(styles.copy().setTextSizeFactor(SUB_EXP_FACTOR), atom.subscript);
+		if (atom.supSubSuffix != null && atom.supSubSuffix.subscript != null) {
+			subscript = inflateScriptArg(styles.copy().setTextSizeFactor(SUB_EXP_FACTOR), atom.supSubSuffix.subscript);
 		}
 
 		RendererNode superscript = null;
-		if (atom.superscript != null) {
-			superscript = inflateScriptArg(styles.copy().setTextSizeFactor(SUB_EXP_FACTOR), atom.superscript);
+		if (atom.supSubSuffix != null && atom.supSubSuffix.superscript != null) {
+			superscript = inflateScriptArg(styles.copy().setTextSizeFactor(SUB_EXP_FACTOR), atom.supSubSuffix.superscript);
 		}
 
 		DecorGroupNode.Builder builder = new DecorGroupNode.Builder(styles, inflateLargeOp(styles, atom));
@@ -511,14 +511,16 @@ public class MathRendererInflater {
 			}
 		}
 
-		if (functionCallAtom.subscript != null) {
-			builder.rightBottom(inflateScriptArg(styles.copy().setTextSizeFactor(SUB_EXP_FACTOR), functionCallAtom.subscript));
-		}
+		SupSubSuffix supSubSuffix = functionCallAtom.supSubSuffix;
+		if (supSubSuffix != null) {
+			if (supSubSuffix.subscript != null) {
+				builder.rightBottom(inflateScriptArg(styles.copy().setTextSizeFactor(SUB_EXP_FACTOR), supSubSuffix.subscript));
+			}
 
-		if (functionCallAtom.superscript != null) {
-			builder.rightTop(inflateScriptArg(styles.copy().setTextSizeFactor(SUB_EXP_FACTOR), functionCallAtom.superscript));
+			if (supSubSuffix.superscript != null) {
+				builder.rightTop(inflateScriptArg(styles.copy().setTextSizeFactor(SUB_EXP_FACTOR), supSubSuffix.superscript));
+			}
 		}
-
 		return builder.build();
 	}
 

@@ -813,24 +813,7 @@ public class MathParser {
 	private FunctionCallAtom parseFunctionCall(String functionName) throws MathParseException {
 		skipWhitespace();
 
-		ScriptArg subscript = null;
-		ScriptArg superscript = null;
-
-		// 下标（如 \log_2）
-		if (!stream.eof() && stream.peek() == '_') {
-			stream.eat();
-			skipWhitespace();
-			subscript = parseScriptArg();
-			skipWhitespace();
-		}
-
-		// 上标
-		if (!stream.eof() && stream.peek() == '^') {
-			stream.eat();
-			skipWhitespace();
-			superscript = parseScriptArg();
-			skipWhitespace();
-		}
+		SupSubSuffix supSubSuffix = tryParseSupSubSuffix();
 
 		// 函数参数（可选，只吃一个token或group）
 		Ast argument = null;
@@ -846,7 +829,7 @@ public class MathParser {
 			}
 		}
 
-		return new FunctionCallAtom(functionName, subscript, superscript, argument);
+		return new FunctionCallAtom(functionName, supSubSuffix, argument);
 	}
 
 	/**
@@ -883,37 +866,7 @@ public class MathParser {
 	private LargeOperatorAtom parseLargeOperator(String operatorName) throws MathParseException {
 		skipWhitespace();
 
-		ScriptArg subscript = null;
-		ScriptArg superscript = null;
-
-		// 可以是 _{}^{} 或 ^{}_{}
-		if (!stream.eof() && stream.peek() == '_') {
-			stream.eat();
-			skipWhitespace();
-			subscript = parseScriptArg();
-			skipWhitespace();
-
-			if (!stream.eof() && stream.peek() == '^') {
-				stream.eat();
-				skipWhitespace();
-				superscript = parseScriptArg();
-				skipWhitespace();
-			}
-		} else if (!stream.eof() && stream.peek() == '^') {
-			stream.eat();
-			skipWhitespace();
-			superscript = parseScriptArg();
-			skipWhitespace();
-
-			if (!stream.eof() && stream.peek() == '_') {
-				stream.eat();
-				skipWhitespace();
-				subscript = parseScriptArg();
-				skipWhitespace();
-			}
-		}
-
-		return new LargeOperatorAtom(operatorName, subscript, superscript);
+		return new LargeOperatorAtom(operatorName, tryParseSupSubSuffix());
 	}
 
 	/**
