@@ -11,6 +11,12 @@ public class Spacing implements Atom {
 
 	@Override
 	public String toString() {
-		return "";
+		if (content == null) {
+			// 简单的空格命令，如 \quad, \qquad, \,, \:, \;, \!
+			return "\\" + cmd;
+		} else {
+			// 带参数的命令：\hspace{10em}, \phantom{xyz} 等
+			return "\\" + cmd + "{" + content.toString() + "}";
+		}
 	}
 }

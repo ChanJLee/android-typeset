@@ -12,8 +12,16 @@ public class MathList implements Ast {
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
+		Ast last = null;
 		for (int i = 0; i < elements.size(); i++) {
-			sb.append(elements.get(i).toString());
+			Ast ast = elements.get(i);
+			if (last instanceof Spacing) {
+				sb.append(" ");
+			} else if (ast instanceof Expression && last instanceof Expression) {
+				sb.append(" ");
+			}
+			sb.append(ast);
+			last = ast;
 		}
 		return sb.toString();
 	}

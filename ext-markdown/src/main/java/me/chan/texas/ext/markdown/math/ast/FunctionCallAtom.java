@@ -18,6 +18,9 @@ public class FunctionCallAtom implements Atom {
 			result += supSubSuffix;
 		}
 		if (argument != null) {
+			if (!(argument instanceof Group)) {
+				result += " ";
+			}
 			result += argument.toString();
 		}
 		return result;

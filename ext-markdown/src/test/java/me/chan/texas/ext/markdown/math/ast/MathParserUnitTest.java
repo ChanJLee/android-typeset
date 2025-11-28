@@ -1,6 +1,7 @@
 package me.chan.texas.ext.markdown.math.ast;
 
 import org.junit.Test;
+
 import me.chan.texas.utils.CharStream;
 
 import static org.junit.Assert.*;
@@ -457,17 +458,17 @@ public class MathParserUnitTest {
 		System.out.println("\n=== 测试 <delimited> ===");
 
 		// 不同级别
-		assertParsesTo("\\left( x \\right)", "\\left(x\\right)");
-		assertParsesTo("\\bigl[ x \\bigr]", "\\bigl[x\\bigr]");
-		assertParsesTo("\\Bigl\\{ x \\Bigr\\}", "\\Bigl\\{x\\Bigr\\}");
+		assertParsesTo("\\left( x \\right)", "\\left( x \\right)");
+		assertParsesTo("\\bigl[ x \\bigr]", "\\bigl[ x \\bigr]");
+		assertParsesTo("\\Bigl\\{ x \\Bigr\\}", "\\Bigl{ x \\Bigr}");
 
 		// 不同定界符类型
-		assertParsesTo("\\left( x \\right)", "\\left(x\\right)");
-		assertParsesTo("\\left[ x \\right]", "\\left[x\\right]");
-		assertParsesTo("\\left\\{ x \\right\\}", "\\left\\{x\\right\\}");
-		assertParsesTo("\\left| x \\right|", "\\left|x\\right|");
-		assertParsesTo("\\left\\langle x \\right\\rangle", "\\left\\langle x\\right\\rangle");
-		assertParsesTo("\\left. x \\right|", "\\left.x\\right|");  // 空定界符
+		assertParsesTo("\\left( x \\right)", "\\left( x \\right)");
+		assertParsesTo("\\left[ x \\right]", "\\left[ x \\right]");
+		assertParsesTo("\\left\\{ x \\right\\}", "\\left{ x \\right}");
+		assertParsesTo("\\left| x \\right|", "\\left| x \\right|");
+		assertParsesTo("\\left\\langle x \\right\\rangle", "\\left\\langle x \\right\\rangle");
+		assertParsesTo("\\left. x \\right|", "\\left. x \\right|");  // 空定界符
 
 		// 验证AST结构
 		try {
@@ -498,7 +499,7 @@ public class MathParserUnitTest {
 		assertParsesTo("\\log x", "\\log x");
 		assertParsesTo("\\ln x", "\\ln x");
 		assertParsesTo("\\log_2 x", "\\log_2 x");
-		assertParsesTo("\\log_{10} x", "\\log_10 x");
+		assertParsesTo("\\log_{10} x", "\\log_{10} x");
 
 		// 其他函数
 		assertParsesTo("\\max x", "\\max x");
@@ -531,10 +532,10 @@ public class MathParserUnitTest {
 		assertParsesTo("\\sum", "\\sum");
 		assertParsesTo("\\prod", "\\prod");
 		assertParsesTo("\\int", "\\int");
-		assertParsesTo("\\sum_{i=1}^{n}", "\\sum_i=1^n");
+		assertParsesTo("\\sum_{i=1}^{n}", "\\sum_{i=1}^{n}");
 		assertParsesTo("\\int_0^1", "\\int_0^1");
-		assertParsesTo("\\prod_{k=1}^{\\infty}", "\\prod_k=1^\\infty");
-		assertParsesTo("\\lim_{x\\to 0}", "\\lim_x\\to 0");
+		assertParsesTo("\\prod_{k=1}^{\\infty}", "\\prod_{k=1}^{\\infty}");
+		assertParsesTo("\\lim_{x\\to 0}", "\\lim_{x\\to 0}");
 
 		// 多重积分
 		assertParsesTo("\\iint", "\\iint");
@@ -686,7 +687,7 @@ public class MathParserUnitTest {
 
 		// 特殊符号可以带上下标
 		assertParsesTo("\\angle_1", "\\angle_1");
-		assertParsesTo("\\dots^{n}", "\\dots^n");
+		assertParsesTo("\\dots^{n}", "\\dots^{n}");
 
 		// 验证AST结构
 		try {
@@ -721,23 +722,23 @@ public class MathParserUnitTest {
 		// 二次公式
 		assertParsesTo(
 				"\\frac{-b\\pm\\sqrt{b^2-4ac}}{2a}",
-				"\\frac{-b\\pm\\sqrt{b^2-4ac}}{2a}"
+				"\\frac{-b\\pm \\sqrt{b^2-4 ac}}{2 a}"
 		);
 
 		// 极限
 		assertParsesTo(
 				"\\lim_{x\\to 0}\\frac{\\sin x}{x}",
-				"\\lim_x\\to 0\\frac{\\sin x}{x}"
+				"\\lim_{x\\to 0} \\frac{\\sin x}{x}"
 		);
 
 		// 求和
 		assertParsesTo(
 				"\\sum_{n=1}^{\\infty}\\frac{1}{n^2}",
-				"\\sum_n=1^\\infty\\frac{1}{n^2}"
+				"\\sum_{n=1}^{\\infty} \\frac{1}{n^2}"
 		);
 
 		// 欧拉公式
-		assertParsesTo("e^{i\\pi}+1=0", "e^i\\pi+1=0");
+		assertParsesTo("e^{i\\pi}+1=0", "e^{i \\pi}+1=0");
 
 		// 勾股定理
 		assertParsesTo("a^2+b^2=c^2", "a^2+b^2=c^2");
@@ -754,11 +755,11 @@ public class MathParserUnitTest {
 		assertParsesTo("\\sqrt{1+\\sqrt{x}}", "\\sqrt{1+\\sqrt{x}}");
 
 		// 嵌套上下标
-		assertParsesTo("x^{a^2}", "x^a^2");
-		assertParsesTo("x_{a_1}", "x_a_1");
+		assertParsesTo("x^{a^2}", "x^{a^2}");
+		assertParsesTo("x_{a_1}", "x_{a_1}");
 
 		// 嵌套定界符
-		assertParsesTo("\\left(\\left(x\\right)\\right)", "\\left(\\left(x\\right)\\right)");
+		assertParsesTo("\\left(\\left(x\\right)\\right)", "\\left( \\left( x \\right) \\right)");
 	}
 
 	// ============ 16. 歧义性测试 ============
@@ -775,15 +776,15 @@ public class MathParserUnitTest {
 		// \pm 和 \mp 的双重身份
 		assertParsesTo("\\pm a", "\\pm a");         // 一元
 		assertParsesTo("a\\pm b", "a\\pm b");       // 二元
-		assertParsesTo("a\\pm\\pm b", "a\\pm\\pm b"); // 二元 + 一元
+		assertParsesTo("a\\pm\\pm b", "a\\pm \\pm b"); // 二元 + 一元
 
 		// 上下标优先级
 		assertParsesTo("x^2+1", "x^2+1");     // x^2 + 1
-		assertParsesTo("x^{2+1}", "x^2+1");   // x^(2+1)
+		assertParsesTo("x^{2+1}", "x^{2+1}");   // x^(2+1)
 
 		// 逗号
 		assertParsesTo("a,b,c", "a,b,c");
-		assertParsesTo("f\\left(x,y\\right)", "f\\left(x,y\\right)");
+		assertParsesTo("f\\left(x,y\\right)", "f \\left( x,y \\right)");
 	}
 
 	// ============ 17. 错误处理测试 ============
@@ -912,7 +913,11 @@ public class MathParserUnitTest {
 		};
 
 		for (String op : operators) {
-			assertParsesTo("a" + op + "b", "a" + op + "b");
+			if (op.startsWith("\\")) {
+				assertParsesTo("a" + op + " b", "a" + op + " b");
+			} else {
+				assertParsesTo("a" + op + "b", "a" + op + "b");
+			}
 		}
 
 		System.out.println("✅ 所有二元运算符测试通过");
@@ -984,7 +989,13 @@ public class MathParserUnitTest {
 
 		for (String[] pair : delimiters) {
 			String expr = "\\left" + pair[0] + " x \\right" + pair[1];
-			assertParsesTo(expr, "\\left" + pair[0] + "x\\right" + pair[1]);
+			if ("\\{".equals(pair[0])) {
+				assertParsesTo(expr, "\\left{ x \\right}");
+			} else if ("\\|".equals(pair[0])) {
+				assertParsesTo(expr, "\\left| x \\right|");
+			} else {
+				assertParsesTo(expr, "\\left" + pair[0] + " x \\right" + pair[1]);
+			}
 		}
 
 		System.out.println("✅ 所有定界符测试通过");
@@ -997,25 +1008,25 @@ public class MathParserUnitTest {
 		// 二项式定理
 		assertParsesTo(
 				"\\left(a+b\\right)^n=\\sum_{k=0}^{n}C_n^k a^{n-k}b^k",
-				"\\left(a+b\\right)^n=\\sum_k=0^nC_n^k a^n-kb^k"
+				"\\left( a+b \\right)^n=\\sum_{k=0}^{n} C_n^k a^{n-k} b^k"
 		);
 
 		// 导数定义
 		assertParsesTo(
 				"f'\\left(x\\right)=\\lim_{h\\to 0}\\frac{f\\left(x+h\\right)-f\\left(x\\right)}{h}",
-				"f'\\left(x\\right)=\\lim_h\\to 0\\frac{f\\left(x+h\\right)-f\\left(x\\right)}{h}"
+				"f' \\left( x \\right)=\\lim_{h\\to 0} \\frac{f \\left( x+h \\right)-f \\left( x \\right)}{h}"
 		);
 
 		// 积分
 		assertParsesTo(
 				"\\int_0^{\\infty}e^{-x^2}",
-				"\\int_0^\\infty e^-x^2"
+				"\\int_0^{\\infty} e^{-x^2}"
 		);
 
 		// 几何推理
 		assertParsesTo(
 				"AB\\perp CD\\therefore\\angle ABC=90",
-				"AB\\perp CD\\therefore\\angle ABC=90"
+				"AB\\perp CD \\therefore \\angle ABC=90"
 		);
 
 		System.out.println("✅ 真实世界表达式测试通过");

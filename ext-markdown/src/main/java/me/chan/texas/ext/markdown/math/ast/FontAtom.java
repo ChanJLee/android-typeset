@@ -11,6 +11,6 @@ public class FontAtom implements Atom {
 
 	@Override
 	public String toString() {
-		return "\\" + cmd + " { " + ast.toString() + " }";
+		return "\\" + cmd + "{" + ast.toString() + "}";
 	}
 }

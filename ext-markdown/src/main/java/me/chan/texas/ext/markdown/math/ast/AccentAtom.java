@@ -11,6 +11,19 @@ public class AccentAtom implements Atom {
 
 	@Override
 	public String toString() {
-		return "\\" + cmd + "{" + content.toString() + "}";
+		StringBuilder stringBuilder = new StringBuilder();
+		stringBuilder.append("\\");
+		stringBuilder.append(cmd);
+		if (content instanceof MathList) {
+			stringBuilder.append("{");
+		} else {
+			stringBuilder.append(" ");
+		}
+		stringBuilder.append(content.toString());
+		if (content instanceof MathList) {
+			stringBuilder.append("}");
+		}
+
+		return stringBuilder.toString();
 	}
 }
