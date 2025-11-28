@@ -3,6 +3,7 @@ package me.chan.texas.ext.markdown.math.renderer.fonts;
 import java.util.HashMap;
 import java.util.Map;
 
+import me.chan.texas.ext.markdown.math.ast.BinOpAtom;
 import me.chan.texas.ext.markdown.math.ast.SpecialSymbolAtom;
 import me.chan.texas.ext.markdown.math.ast.UnaryOp;
 import me.chan.texas.ext.markdown.math.ast.GreekLetterAtom;
@@ -67,26 +68,37 @@ public class MathFontOptions {
 		AST.put("bigsqcup", "uni2A06");
 
 		// 二元运算符 (Binary Operators)
+		// 基本运算符
 		AST.put("+", "plus");
 		AST.put("-", "minus");
 		AST.put("*", "multiply");
 		AST.put("/", "divide");
+		AST.put(",", "comma");                 // , (逗号) 新增
+
+		// LaTeX 运算符
 		AST.put("times", "multiply");
 		AST.put("cdot", "uni22C5");
 		AST.put("div", "divide");
 		AST.put("pm", "plusminus");
 		AST.put("mp", "minusplus");
+
+		// 关系运算符
+		AST.put("=", "equal");                 // = (等号) 新增
 		AST.put("neq", "notequal");
 		AST.put("equiv", "equivalence");
 		AST.put("approx", "approxequal");
-		AST.put("cong", "uni2245");           // ≅ 新增
+		AST.put("cong", "uni2245");            // ≅
 		AST.put("sim", "similar");
+		AST.put("<", "less");                  // < (小于) 新增
+		AST.put(">", "greater");               // > (大于) 新增
 		AST.put("le", "lessequal");
 		AST.put("ge", "greaterequal");
 		AST.put("leq", "lessequal");
 		AST.put("geq", "greaterequal");
 		AST.put("ll", "lessmuch");
 		AST.put("gg", "greatermuch");
+
+		// 集合运算符
 		AST.put("in", "element");
 		AST.put("notin", "uni2209");
 		AST.put("subset", "propersubset");
@@ -97,6 +109,8 @@ public class MathFontOptions {
 		AST.put("cap", "intersection");
 		AST.put("wedge", "logicaland");
 		AST.put("vee", "logicalor");
+
+		// 箭头运算符
 		AST.put("to", "arrowright");
 		AST.put("rightarrow", "arrowright");
 		AST.put("leftarrow", "arrowleft");
@@ -104,8 +118,12 @@ public class MathFontOptions {
 		AST.put("Rightarrow", "arrowdblright");
 		AST.put("Leftarrow", "arrowdblleft");
 		AST.put("Leftrightarrow", "arrowdblboth");
-		AST.put("implies", "arrowdblright");   // ⇒ 新增（与 Rightarrow 相同）
-		AST.put("iff", "arrowdblboth");        // ⇔ 新增（与 Leftrightarrow 相同）
+		AST.put("implies", "arrowdblright");   // ⇒ (与 Rightarrow 相同)
+		AST.put("iff", "arrowdblboth");        // ⇔ (与 Leftrightarrow 相同)
+
+		// 几何关系运算符
+		AST.put("perp", "uni27C2");            // ⟂ (垂直)
+		AST.put("parallel", "parallel");       // ∥ (平行)
 
 		// 其他常用符号
 		AST.put("infty", "infinity");
@@ -125,7 +143,7 @@ public class MathFontOptions {
 		AST.put("lceil", "uni2308");
 		AST.put("rceil", "uni2309");
 
-		// 特殊符号 (Special Symbols) - 新增
+		// 特殊符号 (Special Symbols)
 		AST.put("dots", "ellipsis");           // … (水平省略号)
 		AST.put("ldots", "ellipsis");          // … (同 dots)
 		AST.put("cdots", "uni22EF");           // ⋯ (居中点)
@@ -134,8 +152,6 @@ public class MathFontOptions {
 		AST.put("therefore", "therefore");     // ∴ (因此)
 		AST.put("because", "because");         // ∵ (因为)
 		AST.put("angle", "uni2220");           // ∠ (角)
-		AST.put("perp", "uni27C2");            // ⟂ (垂直)
-		AST.put("parallel", "parallel");       // ∥ (平行)
 
 		// 希腊字母 - 小写 (Greek Letters - Lowercase)
 		TEXT_OPERATORS.put("alpha", "\u03B1");      // α
@@ -237,6 +253,15 @@ public class MathFontOptions {
 		String ref = AST.get(atom.symbol);
 		if (ref == null) {
 			throw new IllegalArgumentException("Unknown ast op: " + atom.symbol);
+		}
+		return symbol(ref);
+	}
+
+	public static Symbol ast(BinOpAtom atom) {
+		String op = atom.op.substring(1);
+		String ref = AST.get(op);
+		if (ref == null) {
+			throw new IllegalArgumentException("Unknown ast op: " + atom.op);
 		}
 		return symbol(ref);
 	}

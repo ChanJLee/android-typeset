@@ -549,7 +549,10 @@ public class MathRendererInflater {
 	}
 
 	private RendererNode inflateBinOp(MathPaint.Styles styles, BinOpAtom atom) {
-		return inflateSymbol(styles, atom.getOp());
+		if (atom.op.startsWith("\\")) {
+			return new SymbolNode(styles, MathFontOptions.ast(atom));
+		}
+		return new TextNode(styles, atom.op);
 	}
 
 	private RendererNode inflateLargeOp(MathPaint.Styles styles, LargeOperatorAtom largeOperatorAtom) {
