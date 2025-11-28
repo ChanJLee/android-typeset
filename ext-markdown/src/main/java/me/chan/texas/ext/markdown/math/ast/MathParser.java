@@ -933,6 +933,7 @@ public class MathParser {
 		ScriptArg superscript = null;
 		ScriptArg subscript = null;
 
+		boolean reserve = false;
 		if (stream.peek() == '^') {
 			stream.eat();
 			skipWhitespace();
@@ -946,6 +947,7 @@ public class MathParser {
 				skipWhitespace();
 			}
 		} else if (stream.peek() == '_') {
+			reserve = true;
 			stream.eat();
 			skipWhitespace();
 			subscript = parseScriptArg();
@@ -961,7 +963,7 @@ public class MathParser {
 			return null;  // 没有上下标
 		}
 
-		return new SupSubSuffix(superscript, subscript);
+		return new SupSubSuffix(superscript, subscript, reserve);
 	}
 
 	/**

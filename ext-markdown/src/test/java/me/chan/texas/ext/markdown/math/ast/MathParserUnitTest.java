@@ -375,8 +375,8 @@ public class MathParserUnitTest {
 
 		assertParsesTo("x^2_1", "x^2_1");
 		assertParsesTo("x_1^2", "x_1^2");
-		assertParsesTo("x^{n+1}_{i}", "x^{n+1}_i");
-		assertParsesTo("x_{i}^{n+1}", "x_i^{n+1}");
+		assertParsesTo("x^{n+1}_{i}", "x^{n+1}_{i}");
+		assertParsesTo("x_{i}^{n+1}", "x_{i}^{n+1}");
 
 		// 验证AST结构
 		try {

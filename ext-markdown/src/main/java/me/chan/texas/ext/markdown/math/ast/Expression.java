@@ -19,6 +19,12 @@ public class Expression implements Ast {
 		for (int i = 0; i < elements.size(); i++) {
 			Ast element = elements.get(i);
 			stringBuilder.append(element.toString());
+			if (element instanceof BinOpAtom) {
+				BinOpAtom op = (BinOpAtom) element;
+				if (op.op.startsWith("\\")) {
+					stringBuilder.append(" ");
+				}
+			}
 		}
 		return stringBuilder.toString();
 	}

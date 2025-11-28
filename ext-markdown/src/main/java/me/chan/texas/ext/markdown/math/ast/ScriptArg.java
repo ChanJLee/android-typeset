@@ -9,8 +9,6 @@ public class ScriptArg implements Ast {
 
 	@Override
 	public String toString() {
-		return "ScriptArg{" +
-				"content=" + content +
-				'}';
+		return content.toString();
 	}
 }

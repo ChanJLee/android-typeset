@@ -15,8 +15,7 @@ public class  DelimitedAtom implements Atom {
 
 	@Override
 	public String toString() {
-		return "\\" + MathParser.DELIMITER_LEVELS[level][0] + " " +
-				leftDelimiter + " " +
+		return "\\" + MathParser.DELIMITER_LEVELS[level][0] + leftDelimiter + " " +
 				content.toString() +
 				" \\" + MathParser.DELIMITER_LEVELS[level][1] + rightDelimiter;
 	}
