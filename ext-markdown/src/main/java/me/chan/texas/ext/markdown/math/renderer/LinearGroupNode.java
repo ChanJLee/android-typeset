@@ -10,7 +10,6 @@ import me.chan.texas.ext.markdown.math.renderer.core.MathPaint;
 public class LinearGroupNode extends RendererNode {
 	private final List<RendererNode> mNodes;
 	private final Gravity mGravity;
-	private float mBaseline;
 
 	public LinearGroupNode(MathPaint.Styles styles, List<RendererNode> nodes) {
 		this(styles, nodes, Gravity.HORIZONTAL);
@@ -100,7 +99,6 @@ public class LinearGroupNode extends RendererNode {
 		for (RendererNode node : mNodes) {
 			node.translate((right - node.getWidth()) / 2, 0);
 		}
-		mBaseline = getCenterY();
 	}
 
 	@Override
