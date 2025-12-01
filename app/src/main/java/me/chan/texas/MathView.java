@@ -218,7 +218,7 @@ public class MathView extends View {
 	}
 
 	public RendererNode mockDecor() {
-		MathParser parser = new MathParser(new CharStream("f'\\left(x\\right)=\\lim_{h\\to 0}\\frac{f\\left(x+h\\right)-f\\left(x\\right)}{h}"));
+		MathParser parser = new MathParser(new CharStream("\\left(a+b\\right)^n=\\sum_{k=0}^{n}C_n^k a^{n-k}b^k\\left( a+b \\right)^n=\\sum_{k=0}^{n} C_n^k a^{n-k} b^k"));
 		MathRendererInflater inflater = new MathRendererInflater();
 		try {
 			return inflater.inflate(new MathPaint.Styles(mTexasPaint), parser.parse());
