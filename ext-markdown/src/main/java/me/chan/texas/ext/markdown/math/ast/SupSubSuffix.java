@@ -1,9 +1,12 @@
 package me.chan.texas.ext.markdown.math.ast;
 
+import androidx.annotation.VisibleForTesting;
+
 public class SupSubSuffix implements Ast {
 	public final ScriptArg superscript;
 	public final ScriptArg subscript;
-	private final boolean reserve;
+	@VisibleForTesting
+	final boolean reserve;
 
 	public SupSubSuffix(ScriptArg superscript, ScriptArg subscript, boolean reserve) {
 		this.superscript = superscript;

@@ -1070,4 +1070,511 @@ public class MathParserAstTest {
 
 		System.out.println("✅ AST到RenderNode一致性测试通过");
 	}
+
+	// 在现有测试文件的合适位置添加以下测试
+
+// ============ 补充测试：希腊字母变体 ============
+
+	@Test
+	public void testGreekLetterVariants() throws MathParseException {
+		System.out.println("\n=== 测试希腊字母变体 ===");
+
+		String[] variants = {
+				"\\varepsilon", "\\vartheta", "\\varpi", "\\varrho",
+				"\\varsigma", "\\varphi", "\\Xi"
+		};
+
+		for (String latex : variants) {
+			MathList result = parse(latex);
+			Expression expr = getFirstExpression(result);
+			Term term = getFirstTerm(expr);
+			Atom atom = getAtom(term);
+
+			assertTrue("应该是GreekLetterAtom: " + latex, atom instanceof GreekLetterAtom);
+			GreekLetterAtom greek = (GreekLetterAtom) atom;
+			String expected = latex.substring(1);
+			assertEquals("符号应该是" + expected, expected, greek.symbol);
+		}
+
+		System.out.println("✅ 希腊字母变体测试通过");
+	}
+
+// ============ 补充测试：更多二元运算符 ============
+
+	@Test
+	public void testMoreBinaryOperators() throws MathParseException {
+		System.out.println("\n=== 测试更多二元运算符 ===");
+
+		String[][] testCases = {
+				{"a\\equiv b", "\\equiv"},
+				{"a\\approx b", "\\approx"},
+				{"a\\cong b", "\\cong"},
+				{"a\\sim b", "\\sim"},
+				{"a\\leq b", "\\leq"},
+				{"a\\geq b", "\\geq"},
+				{"a\\ll b", "\\ll"},
+				{"a\\gg b", "\\gg"},
+				{"a\\notin b", "\\notin"},
+				{"a\\supset b", "\\supset"},
+				{"a\\subseteq b", "\\subseteq"},
+				{"a\\supseteq b", "\\supseteq"},
+				{"a\\wedge b", "\\wedge"},
+				{"a\\vee b", "\\vee"},
+				{"a\\to b", "\\to"},
+				{"a\\rightarrow b", "\\rightarrow"},
+				{"a\\leftarrow b", "\\leftarrow"},
+				{"a\\leftrightarrow b", "\\leftrightarrow"},
+				{"P\\Rightarrow Q", "\\Rightarrow"},
+				{"P\\Leftarrow Q", "\\Leftarrow"},
+				{"P\\Leftrightarrow Q", "\\Leftrightarrow"},
+				{"P\\implies Q", "\\implies"},
+				{"P\\iff Q", "\\iff"}
+		};
+
+		for (String[] testCase : testCases) {
+			MathList result = parse(testCase[0]);
+			Expression expr = getFirstExpression(result);
+			List<Ast> elements = expr.elements;
+
+			assertEquals("应该有3个元素: " + testCase[0], 3, elements.size());
+			assertTrue("第二个应该是BinOpAtom: " + testCase[0], elements.get(1) instanceof BinOpAtom);
+
+			BinOpAtom binOp = (BinOpAtom) elements.get(1);
+			assertEquals("运算符应该是" + testCase[1], testCase[1], binOp.op);
+		}
+
+		System.out.println("✅ 更多二元运算符测试通过");
+	}
+
+// ============ 补充测试：更多函数 ============
+
+	@Test
+	public void testMoreFunctions() throws MathParseException {
+		System.out.println("\n=== 测试更多函数 ===");
+
+		String[] functions = {
+				"cot", "sec", "csc", "lg",
+				"arg", "deg", "det", "dim", "gcd", "hom", "ker",
+				"Pr", "bmod", "pmod"
+		};
+
+		for (String funcName : functions) {
+			MathList result = parse("\\" + funcName + " x");
+			Expression expr = getFirstExpression(result);
+			Term term = getFirstTerm(expr);
+			Atom atom = getAtom(term);
+
+			assertTrue("应该是FunctionCallAtom: " + funcName, atom instanceof FunctionCallAtom);
+			FunctionCallAtom func = (FunctionCallAtom) atom;
+			assertEquals("函数名应该是" + funcName, funcName, func.name);
+		}
+
+		System.out.println("✅ 更多函数测试通过");
+	}
+
+// ============ 补充测试：更多大型运算符 ============
+
+	@Test
+	public void testMoreLargeOperators() throws MathParseException {
+		System.out.println("\n=== 测试更多大型运算符 ===");
+
+		String[] operators = {
+				"oiint", "oiiint",
+				"bigoplus", "bigotimes", "bigodot",
+				"biguplus", "bigsqcup"
+		};
+
+		for (String opName : operators) {
+			MathList result = parse("\\" + opName);
+			Expression expr = getFirstExpression(result);
+			Term term = getFirstTerm(expr);
+			Atom atom = getAtom(term);
+
+			assertTrue("应该是LargeOperatorAtom: " + opName, atom instanceof LargeOperatorAtom);
+			LargeOperatorAtom op = (LargeOperatorAtom) atom;
+			assertEquals("运算符名应该是" + opName, opName, op.name);
+		}
+
+		System.out.println("✅ 更多大型运算符测试通过");
+	}
+
+// ============ 补充测试：更多重音符号 ============
+
+	@Test
+	public void testMoreAccents() throws MathParseException {
+		System.out.println("\n=== 测试更多重音符号 ===");
+
+		String[] accentCommands = {
+				"acute", "grave", "breve", "check", "mathring",
+				"dddot", "overleftarrow"
+		};
+
+		for (String cmd : accentCommands) {
+			MathList result = parse("\\" + cmd + "{x}");
+			Expression expr = getFirstExpression(result);
+			Term term = getFirstTerm(expr);
+			Atom atom = getAtom(term);
+
+			assertTrue("应该是AccentAtom: " + cmd, atom instanceof AccentAtom);
+			AccentAtom accent = (AccentAtom) atom;
+			assertEquals("重音命令应该是" + cmd, cmd, accent.cmd);
+		}
+
+		System.out.println("✅ 更多重音符号测试通过");
+	}
+
+// ============ 补充测试：单token形式的重音符号 ============
+
+	@Test
+	public void testAccentWithSingleToken() throws MathParseException {
+		System.out.println("\n=== 测试单token形式的重音符号 ===");
+
+		// 测试 \hat x (不用大括号)
+		MathList result = parse("\\hat x");
+		Expression expr = getFirstExpression(result);
+		Term term = getFirstTerm(expr);
+		Atom atom = getAtom(term);
+
+		assertTrue("应该是AccentAtom", atom instanceof AccentAtom);
+		AccentAtom accent = (AccentAtom) atom;
+		assertEquals("重音命令应该是hat", "hat", accent.cmd);
+		assertTrue("内容应该是单个原子", accent.content instanceof Atom);
+
+		System.out.println("✅ 单token形式的重音符号测试通过");
+	}
+
+// ============ 补充测试：更多定界符 ============
+
+	@Test
+	public void testMoreDelimiters() throws MathParseException {
+		System.out.println("\n=== 测试更多定界符 ===");
+
+		String[][] testCases = {
+				{"\\left\\lfloor x \\right\\rfloor", "\\lfloor", "\\rfloor"},
+				{"\\left\\lceil x \\right\\rceil", "\\lceil", "\\rceil"},
+				{"\\left\\lvert x \\right\\rvert", "\\lvert", "\\rvert"},
+				{"\\left\\lVert x \\right\\rVert", "\\lVert", "\\rVert"}
+		};
+
+		for (String[] testCase : testCases) {
+			MathList result = parse(testCase[0]);
+			Expression expr = getFirstExpression(result);
+			Term term = getFirstTerm(expr);
+			Atom atom = getAtom(term);
+
+			assertTrue("应该是DelimitedAtom: " + testCase[0], atom instanceof DelimitedAtom);
+			DelimitedAtom delim = (DelimitedAtom) atom;
+			assertEquals("左定界符应该是" + testCase[1], testCase[1], delim.leftDelimiter);
+			assertEquals("右定界符应该是" + testCase[2], testCase[2], delim.rightDelimiter);
+		}
+
+		System.out.println("✅ 更多定界符测试通过");
+	}
+
+// ============ 补充测试：空定界符 ============
+
+	@Test
+	public void testEmptyDelimiter() throws MathParseException {
+		System.out.println("\n=== 测试空定界符 ===");
+
+		// 测试 \left. ... \right)
+		MathList result = parse("\\left. \\frac{dy}{dx} \\right|_{x=0}");
+		Expression expr = getFirstExpression(result);
+		Term term = getFirstTerm(expr);
+
+		// 第一个应该是定界符
+		assertTrue("应该包含DelimitedAtom", term.atom instanceof DelimitedAtom);
+		DelimitedAtom delim = (DelimitedAtom) term.atom;
+		assertEquals("左定界符应该是.", ".", delim.leftDelimiter);
+
+		System.out.println("✅ 空定界符测试通过");
+	}
+
+// ============ 补充测试：嵌套上下标 ============
+
+	@Test
+	public void testNestedSuperscript() throws MathParseException {
+		System.out.println("\n=== 测试嵌套上下标 ===");
+
+		MathList result = parse("x^{2^3}");
+		Expression expr = getFirstExpression(result);
+		Term term = getFirstTerm(expr);
+
+		SupSubSuffix suffix = term.suffix;
+		assertNotNull("应该有上下标后缀", suffix);
+		assertNotNull("应该有上标", suffix.superscript);
+
+		// 上标内容应该是一个Group
+		assertTrue("上标应该是Group", suffix.superscript.content instanceof Group);
+
+		System.out.println("✅ 嵌套上下标测试通过");
+	}
+
+// ============ 补充测试：多字母变量 ============
+
+	@Test
+	public void testMultiLetterVariable() throws MathParseException {
+		System.out.println("\n=== 测试多字母变量 ===");
+
+		String[] multiLetters = {"abc", "XYZ", "Area", "Volume"};
+
+		for (String varName : multiLetters) {
+			MathList result = parse(varName);
+			Expression expr = getFirstExpression(result);
+			Term term = getFirstTerm(expr);
+			Atom atom = getAtom(term);
+
+			assertTrue("应该是VariableAtom: " + varName, atom instanceof VariableAtom);
+			VariableAtom var = (VariableAtom) atom;
+			assertEquals("变量名应该是" + varName, varName, var.name);
+		}
+
+		System.out.println("✅ 多字母变量测试通过");
+	}
+
+// ============ 补充测试：多导数符号 ============
+
+	@Test
+	public void testMultiplePrimes() throws MathParseException {
+		System.out.println("\n=== 测试多导数符号 ===");
+
+		String[][] testCases = {
+				{"f''", "f''"},
+				{"g'''", "g'''"},
+				{"h''''", "h''''"}
+		};
+
+		for (String[] testCase : testCases) {
+			MathList result = parse(testCase[0]);
+			Expression expr = getFirstExpression(result);
+			Term term = getFirstTerm(expr);
+			Atom atom = getAtom(term);
+
+			assertTrue("应该是VariableAtom", atom instanceof VariableAtom);
+			VariableAtom var = (VariableAtom) atom;
+			assertEquals("变量名应该是" + testCase[1], testCase[1], var.name);
+		}
+
+		System.out.println("✅ 多导数符号测试通过");
+	}
+
+// ============ 补充测试：更多字体命令 ============
+
+	@Test
+	public void testMoreFontCommands() throws MathParseException {
+		System.out.println("\n=== 测试更多字体命令 ===");
+
+		String[] fontCommands = {"mathscr", "boldsymbol", "bm"};
+
+		for (String cmd : fontCommands) {
+			MathList result = parse("\\" + cmd + "{x}");
+			Expression expr = getFirstExpression(result);
+			Term term = getFirstTerm(expr);
+			Atom atom = getAtom(term);
+
+			assertTrue("应该是FontAtom: " + cmd, atom instanceof FontAtom);
+			FontAtom font = (FontAtom) atom;
+			assertEquals("字体命令应该是" + cmd, cmd, font.cmd);
+		}
+
+		System.out.println("✅ 更多字体命令测试通过");
+	}
+
+// ============ 补充测试：更多数值单位 ============
+
+	@Test
+	public void testMoreLengthUnits() throws MathParseException {
+		System.out.println("\n=== 测试更多数值单位 ===");
+
+		String[] units = {"ex", "pt", "px", "cm", "mm", "in"};
+
+		for (String unit : units) {
+			MathList result = parse("a\\hspace{1" + unit + "}b");
+			List<Ast> elements = result.elements;
+			assertTrue("应该包含Spacing", elements.get(1) instanceof Spacing);
+
+			Spacing spacing = (Spacing) elements.get(1);
+			assertEquals("空格命令应该是hspace", "hspace", spacing.cmd);
+			assertTrue("内容应该是Length", spacing.content instanceof Length);
+
+			Length length = (Length) spacing.content;
+			assertEquals("单位应该是" + unit, unit, length.unit.unit);
+		}
+
+		System.out.println("✅ 更多数值单位测试通过");
+	}
+
+// ============ 补充测试：矩阵的array和smallmatrix环境 ============
+
+	@Test
+	public void testArrayAndSmallMatrix() throws MathParseException {
+		System.out.println("\n=== 测试array和smallmatrix环境 ===");
+
+		// 测试array环境
+		String latex = "\\begin{array}{cc} a & b \\\\ c & d \\end{array}";
+		MathList result = parse(latex);
+		Expression expr = getFirstExpression(result);
+		Term term = getFirstTerm(expr);
+		Atom atom = getAtom(term);
+
+		assertTrue("应该是MatrixAtom", atom instanceof MatrixAtom);
+		MatrixAtom matrix = (MatrixAtom) atom;
+		assertEquals("环境应该是array", "array", matrix.env);
+
+		// 测试smallmatrix环境
+		latex = "\\begin{smallmatrix} 1 & 2 \\\\ 3 & 4 \\end{smallmatrix}";
+		result = parse(latex);
+		expr = getFirstExpression(result);
+		term = getFirstTerm(expr);
+		atom = getAtom(term);
+
+		assertTrue("应该是MatrixAtom", atom instanceof MatrixAtom);
+		matrix = (MatrixAtom) atom;
+		assertEquals("环境应该是smallmatrix", "smallmatrix", matrix.env);
+
+		System.out.println("✅ array和smallmatrix环境测试通过");
+	}
+
+// ============ 补充测试：一元运算符和二元运算符的区分 ============
+
+	@Test
+	public void testUnaryVsBinaryMinus() throws MathParseException {
+		System.out.println("\n=== 测试负号和减号的区分 ===");
+
+		// 测试一元负号
+		MathList result = parse("-x");
+		Expression expr = getFirstExpression(result);
+		Term term = getFirstTerm(expr);
+		assertNotNull("应该有一元运算符", term.unaryOp);
+		assertEquals("应该是负号", "-", term.unaryOp.toString());
+
+		// 测试二元减号
+		result = parse("a-b");
+		expr = getFirstExpression(result);
+		List<Ast> elements = expr.elements;
+		assertEquals("应该有3个元素", 3, elements.size());
+		assertTrue("第二个应该是BinOpAtom", elements.get(1) instanceof BinOpAtom);
+		BinOpAtom binOp = (BinOpAtom) elements.get(1);
+		assertEquals("应该是减号", "-", binOp.op);
+
+		// 测试复杂表达式中的负号
+		result = parse("a+-b");
+		expr = getFirstExpression(result);
+		elements = expr.elements;
+		assertEquals("应该有3个元素", 3, elements.size());
+		Term rightTerm = (Term) elements.get(2);
+		assertNotNull("右侧term应该有一元运算符", rightTerm.unaryOp);
+
+		System.out.println("✅ 负号和减号的区分测试通过");
+	}
+
+// ============ 补充测试：复杂嵌套表达式 ============
+
+	@Test
+	public void testComplexNestedExpressions() throws MathParseException {
+		System.out.println("\n=== 测试复杂嵌套表达式 ===");
+
+		String[] complexExpressions = {
+				"\\frac{\\frac{1}{2}}{\\frac{3}{4}}",  // 嵌套分式
+				"\\sqrt{\\sqrt{x}}",  // 嵌套根式
+				"{{{x}}}",  // 多层分组
+				"x^{a^{b^c}}",  // 多层上标
+				"\\sin\\left(\\frac{x}{2}\\right)",  // 函数+定界符+分式
+				"\\sum_{i=1}^{\\infty} \\frac{1}{i^2}",  // 大型运算符+分式
+				"\\begin{pmatrix} \\frac{1}{2} & \\sqrt{x} \\\\ \\alpha & \\beta \\end{pmatrix}"  // 矩阵中的复杂内容
+		};
+
+		for (String input : complexExpressions) {
+			MathList mathList = parse(input);
+			assertNotNull("AST不应为null: " + input, mathList);
+
+			RendererNode node = inflater.inflate(defaultStyles, mathList);
+			assertNotNull("RenderNode不应为null: " + input, node);
+
+			System.out.println("  ✓ " + input);
+		}
+
+		System.out.println("✅ 复杂嵌套表达式测试通过");
+	}
+
+// ============ 补充测试：边界情况 ============
+
+	@Test
+	public void testEdgeCases() throws MathParseException {
+		System.out.println("\n=== 测试边界情况 ===");
+
+		// 测试单个数字
+		MathList result = parse("0");
+		assertNotNull("应该能解析单个数字", result);
+
+		// 测试零
+		result = parse("0.0");
+		assertNotNull("应该能解析零", result);
+
+		// 测试空组
+		result = parse("{}");
+		assertNotNull("应该能解析空组", result);
+
+		// 测试带空格的表达式
+		result = parse("a + b");
+		assertNotNull("应该能解析带空格的表达式", result);
+
+		// 测试连续的二元运算符（通过分组）
+		result = parse("a+{+b}");
+		assertNotNull("应该能解析连续运算符", result);
+
+		System.out.println("✅ 边界情况测试通过");
+	}
+
+// ============ 补充测试：特殊符号的上下标 ============
+
+	@Test
+	public void testSpecialSymbolWithScripts() throws MathParseException {
+		System.out.println("\n=== 测试特殊符号的上下标 ===");
+
+		String[][] testCases = {
+				{"\\angle^{ABC}", "angle"},
+				{"\\dots_n", "dots"},
+				{"\\therefore^*", "therefore"}
+		};
+
+		for (String[] testCase : testCases) {
+			MathList result = parse(testCase[0]);
+			Expression expr = getFirstExpression(result);
+			Term term = getFirstTerm(expr);
+
+			assertTrue("应该是SpecialSymbolAtom", term.atom instanceof SpecialSymbolAtom);
+			assertNotNull("应该有上下标后缀", term.suffix);
+			assertNull("特殊符号不应该有一元运算符", term.unaryOp);
+		}
+
+		System.out.println("✅ 特殊符号的上下标测试通过");
+	}
+
+// ============ 补充测试：上下标顺序 ============
+
+	@Test
+	public void testScriptOrder() throws MathParseException {
+		System.out.println("\n=== 测试上下标顺序 ===");
+
+		// 测试 ^_ 顺序
+		MathList result = parse("x^a_b");
+		Expression expr = getFirstExpression(result);
+		Term term = getFirstTerm(expr);
+		SupSubSuffix suffix = term.suffix;
+		assertNotNull("应该有上标", suffix.superscript);
+		assertNotNull("应该有下标", suffix.subscript);
+		assertFalse("应该不是反序", suffix.reserve);
+
+		// 测试 _^ 顺序
+		result = parse("x_b^a");
+		expr = getFirstExpression(result);
+		term = getFirstTerm(expr);
+		suffix = term.suffix;
+		assertNotNull("应该有上标", suffix.superscript);
+		assertNotNull("应该有下标", suffix.subscript);
+		assertTrue("应该是反序", suffix.reserve);
+
+		System.out.println("✅ 上下标顺序测试通过");
+	}
 }
