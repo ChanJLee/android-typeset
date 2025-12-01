@@ -277,7 +277,7 @@ public class MathParser {
 			// \right、\end、\\ 是明确的结束标志
 			return cmd.equals("right") || cmd.equals("bigr") || cmd.equals("Bigr")
 					|| cmd.equals("biggr") || cmd.equals("Biggr")
-					|| cmd.equals("end") || cmd.isEmpty(); // \\ (换行)
+					|| cmd.equals("end") || cmd.isEmpty() || cmd.equals("\\"); // \\ (换行)
 		}
 		return false;
 	}
@@ -535,6 +535,10 @@ public class MathParser {
 
 			int position = stream.save();
 			String cmd = scanCommandName();
+			if ("\\".equals(cmd)) {
+				continue;
+			}
+
 			if (cmd.equals("end")) {
 				break;
 			} else {
@@ -582,6 +586,7 @@ public class MathParser {
 			skipWhitespace();
 
 			if (!stream.eof() && stream.peek() == '&') {
+				stream.eat();
 				continue;
 			}
 
