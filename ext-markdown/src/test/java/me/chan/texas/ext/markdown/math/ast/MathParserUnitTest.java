@@ -1626,22 +1626,22 @@ public class MathParserUnitTest {
 		System.out.println("\n=== 测试标点符号 - 逗号 ===");
 
 		// 逗号作为独立标点
-		assertParsesTo("x,y", "x , y");  // x 和 y 之间有逗号，但不是二元运算
-		assertParsesTo("a,b,c", "a , b , c");
+		assertParsesTo("x,y", "x,y");  // x 和 y 之间有逗号，但不是二元运算
+		assertParsesTo("a,b,c", "a,b,c");
 
 		// 在 cases 中
 		assertParsesTo(
 				"\\begin{cases}x,&x\\ge 0\\\\-x,&x<0\\end{cases}",
-				"\\begin{cases}\nx , & x\\ge 0\n-x , & x<0\n\\end{cases}\n"
+				"\\begin{cases}\nx, & x\\ge 0\n-x, & x<0\n\\end{cases}\n"
 		);
 
 		// 在定界符中
-		assertParsesTo("f\\left(x,y\\right)", "f \\left( x , y \\right)");
-		assertParsesTo("\\left\\{x,y,z\\right\\}", "\\left{ x , y , z \\right}");
+		assertParsesTo("f\\left(x,y\\right)", "f\\left( x,y \\right)");
+		assertParsesTo("\\left\\{x,y,z\\right\\}", "\\left{ x,y,z \\right}");
 
 		// 验证 AST
 		try {
-			MathList expr = getMathList("a,b");
+			Expression expr = getExpression("a,b");
 			// 应该是 3 个 term：a, 逗号, b（而不是 a + 二元运算符 + b）
 			assertEquals(3, expr.elements.size());
 			assertTrue("第1个是 Term(a)", expr.elements.get(0) instanceof Term);

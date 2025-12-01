@@ -162,33 +162,102 @@ public class MathParser {
 	}
 
 	/**
-	 * <expression> ::= <term> { <binary_op> <term> }
-	 * 确保每个二元运算符后面必须跟一个term
+	 * <expression> ::= <term> { <separator> }
+	 * <separator> ::= <binary_op> <term> | <term>
+	 *
+	 * Expression 是 term 的序列，term 之间可以：
+	 * 1. 通过二元运算符连接（如 a+b）
+	 * 2. 直接相邻（隐式乘法，如 2x，或标点，如 a,b）
 	 */
 	private Expression parseExpression() throws MathParseException {
 		List<Ast> elements = new ArrayList<>();
 
-		// 第一个term
+		// 第一个 term
 		elements.add(parseTerm());
 		skipWhitespace();
 
-		// 后续的 binary_op term 对
-		while (!stream.eof() && isBinaryOperator()) {
-			// 消费二元运算符
-			elements.add(new BinOpAtom(consumeBinaryOperator()));
-			skipWhitespace();
+		// 后续的元素可以是：
+		// 1. binary_op term 对
+		// 2. 直接相邻的 term（标点、隐式乘法等）
+		while (!stream.eof() && !isMathListEnd()) {
+			if (isBinaryOperator()) {
+				// 消费二元运算符
+				elements.add(new BinOpAtom(consumeBinaryOperator()));
+				skipWhitespace();
 
-			// 运算符后面必须有term
-			if (stream.eof()) {
-				throw new MathParseException("Binary operator must be followed by a term", stream);
+				// 运算符后面必须有 term
+				if (stream.eof() || isMathListEnd()) {
+					throw new MathParseException("Binary operator must be followed by a term", stream);
+				}
+
+				// 解析运算符后面的 term
+				elements.add(parseTerm());
+				skipWhitespace();
+			} else if (isTermStart()) {
+				// 直接相邻的 term（标点、隐式乘法）
+				elements.add(parseTerm());
+				skipWhitespace();
+			} else {
+				// 既不是二元运算符，也不是 term 开头，退出循环
+				break;
 			}
-
-			// 解析运算符后面的term
-			elements.add(parseTerm());
-			skipWhitespace();
 		}
 
 		return new Expression(elements);
+	}
+
+	/**
+	 * 判断当前位置是否是一个 term 的开始
+	 */
+	private boolean isTermStart() {
+		if (stream.eof()) {
+			return false;
+		}
+
+		char c = (char) stream.peek();
+
+		// 数字
+		if (Character.isDigit(c)) {
+			return true;
+		}
+
+		// 字母（变量）
+		if (Character.isLetter(c) && c != '\\') {
+			return true;
+		}
+
+		// 分组 {
+		if (c == '{') {
+			return true;
+		}
+
+		// 标点符号
+		if (c == ',') {
+			return true;
+		}
+
+		// 命令（以 \ 开头）
+		if (c == '\\') {
+			int saved = stream.save();
+			stream.eat();
+			String cmd = scanCommandName();
+			stream.restore(saved);
+
+			// 检查是否是有效的 atom 命令或特殊符号
+			return GREEK_LETTERS.contains(cmd)
+					|| FRAC_COMMANDS.contains(cmd)
+					|| cmd.equals("sqrt")
+					|| getDelimitedLevel(cmd) >= 0
+					|| FUNCTION_NAMES.contains(cmd)
+					|| LARGE_OPERATORS.contains(cmd)
+					|| cmd.equals("begin")
+					|| TEXT_COMMANDS.contains(cmd)
+					|| ACCENT_COMMANDS.contains(cmd)
+					|| FONT_COMMANDS.contains(cmd)
+					|| SPECIAL_SYMBOLS.contains(cmd);
+		}
+
+		return false;
 	}
 
 	/**

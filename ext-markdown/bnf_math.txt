@@ -19,8 +19,11 @@
 
 <element> ::= <expression> | <spacing>
 
-(* 表达式由term组成，term之间用二元运算符连接 *)
-<expression> ::= <term> { <binary_op> <term> }
+(* Expression 现在是 term 的序列，term 之间可以有二元运算符连接，也可以直接相邻 *)
+<expression> ::= <term> { <separator> }
+
+<separator> ::= <binary_op> <term>    (* 二元运算符必须有右操作数 *)
+              | <term>                  (* 直接相邻的 term：隐式乘法或标点 *)
 
 (* term 分为两类：
  * 1. 可运算的原子（可被一元运算符修饰，可带上下标）
