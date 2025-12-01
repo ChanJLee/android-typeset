@@ -229,6 +229,10 @@ public class MathFontOptions {
 		TEXT_OPERATORS.put("dim", "dim");
 		TEXT_OPERATORS.put("gcd", "gcd");
 		TEXT_OPERATORS.put("ker", "ker");
+
+		// 在 static 块中添加
+		AST.put("|", "divides");           // | (竖线/条件/整除)
+		AST.put("mid", "divides");         // \mid (与 | 相同)
 	}
 
 	public static Symbol symbol(String ref) {

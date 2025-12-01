@@ -12,7 +12,7 @@ public class MathParser {
 	private static final Set<String> OPERATOR_SYMBOLS = new HashSet<>(Arrays.asList(
 			"pm", "mp"  // 只包含 \pm 和 \mp
 	));
-	// 从二元运算符中移除逗号
+	// 二元运算符集合
 	private static final Set<String> BINARY_OPERATORS = new HashSet<>(Arrays.asList(
 			"+", "-", "*", "/", "=", "<", ">",  // 移除了逗号
 			"times", "cdot", "div", "pm", "mp",
@@ -23,7 +23,8 @@ public class MathParser {
 			"to", "rightarrow", "leftarrow", "leftrightarrow",
 			"Rightarrow", "Leftarrow", "Leftrightarrow",
 			"implies", "iff",
-			"perp", "parallel"
+			"perp", "parallel",
+			"mid"  // 新增：整除符号（可选，与 | 效果相同）
 	));
 
 	// 特殊符号集合（不能被一元运算符修饰，但可带上下标）
@@ -1155,7 +1156,7 @@ public class MathParser {
 		char c = (char) stream.peek();
 
 		// 单字符运算符（移除逗号）
-		if ("+-*/=<>".indexOf(c) >= 0) {
+		if ("+-*/=<>|".indexOf(c) >= 0) {
 			return true;
 		}
 
@@ -1181,7 +1182,7 @@ public class MathParser {
 		char c = (char) stream.peek();
 
 		// 单字符运算符
-		if ("+-*/=<>,".indexOf(c) >= 0) {
+		if ("+-*/=<>|".indexOf(c) >= 0) {
 			stream.eat();
 			return String.valueOf(c);
 		}

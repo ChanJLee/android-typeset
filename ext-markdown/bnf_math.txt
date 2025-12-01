@@ -71,7 +71,7 @@
 <unary_op> ::= "+" | "-" | "\pm" | "\mp"
 
 (* 二元运算符：必须连接两个 term *)
-<binary_op> ::= "+" | "-" | "*" | "/"
+<binary_op> ::= "+" | "-" | "*" | "/" | "|"
               | "\times" | "\cdot" | "\div" | "\pm" | "\mp"
               | "=" | "\neq" | "\equiv" | "\approx" | "\cong" | "\sim"
               | "<" | ">" | "\le" | "\ge" | "\leq" | "\geq" | "\ll" | "\gg"
@@ -81,6 +81,7 @@
               | "\Rightarrow" | "\Leftarrow" | "\Leftrightarrow"
               | "\implies" | "\iff"
               | "\perp" | "\parallel"
+              | "\mid"  (* 整除/分隔符 *)
 
 (* 标点符号：可以独立存在，不参与运算 *)
 <punctuation> ::= ","
