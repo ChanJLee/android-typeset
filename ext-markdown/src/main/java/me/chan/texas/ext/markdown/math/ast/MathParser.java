@@ -484,7 +484,7 @@ public class MathParser {
 	}
 
 	/**
-	 * <operand_atom> ::= <number>,<variable>,<greek_letter>,<group>
+	 * <operand_atom> ::= <number>,<variable>,<greek_letter_variable>,<group>
 	 * ,<frac>,<sqrt>,<delimited>,<function_call>,<large_operator>
 	 * ,<matrix>,<text>,<accent>,<font_command>
 	 * <p>
@@ -539,7 +539,7 @@ public class MathParser {
 
 		// 希腊字母
 		if (GREEK_LETTERS.contains(cmd)) {
-			return new GreekLetterAtom(cmd);
+			return parseGreekLetterAtom(cmd);
 		}
 
 		// 分式
@@ -1212,7 +1212,7 @@ public class MathParser {
 	/**
 	 * 扫描单个token（数字、变量、希腊字母命令或运算符符号）
 	 * 用于上下标等场景
-	 * <single_token> ::= <number> | <variable> | <greek_letter> | <operator_symbol>
+	 * <single_token> ::= <number> | <variable> | <greek_letter_variable> | <operator_symbol>
 	 */
 	private Atom scanSingleToken() throws MathParseException {
 		if (stream.eof()) {
@@ -1243,7 +1243,7 @@ public class MathParser {
 
 			// 希腊字母
 			if (GREEK_LETTERS.contains(cmd)) {
-				return new GreekLetterAtom(cmd);
+				return parseGreekLetterAtom(cmd);
 			}
 
 			// 运算符符号（只允许 \pm 和 \mp）
@@ -1255,6 +1255,16 @@ public class MathParser {
 		}
 
 		throw new MathParseException("Expected single token", stream);
+	}
+
+	private GreekLetterVariableAtom parseGreekLetterAtom(String cmd) {
+		StringBuilder builder = new StringBuilder();
+		// 解析可选的 prime 后缀
+		while (!stream.eof() && stream.peek() == '\'') {
+			builder.append((char) stream.eat());
+		}
+
+		return new GreekLetterVariableAtom(cmd, builder.toString());
 	}
 
 	/**

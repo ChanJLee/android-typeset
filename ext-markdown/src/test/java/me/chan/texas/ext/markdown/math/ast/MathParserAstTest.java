@@ -172,8 +172,8 @@ public class MathParserAstTest {
 			Term term = getFirstTerm(expr);
 			Atom atom = getAtom(term);
 
-			assertTrue("应该是GreekLetterAtom: " + latex, atom instanceof GreekLetterAtom);
-			GreekLetterAtom greek = (GreekLetterAtom) atom;
+			assertTrue("应该是GreekLetterAtom: " + latex, atom instanceof GreekLetterVariableAtom);
+			GreekLetterVariableAtom greek = (GreekLetterVariableAtom) atom;
 			String expected = latex.substring(1); // 去掉反斜杠
 			assertEquals("符号应该是" + expected, expected, greek.name);
 		}
@@ -1129,8 +1129,8 @@ public class MathParserAstTest {
 			Term term = getFirstTerm(expr);
 			Atom atom = getAtom(term);
 
-			assertTrue("应该是GreekLetterAtom: " + latex, atom instanceof GreekLetterAtom);
-			GreekLetterAtom greek = (GreekLetterAtom) atom;
+			assertTrue("应该是GreekLetterAtom: " + latex, atom instanceof GreekLetterVariableAtom);
+			GreekLetterVariableAtom greek = (GreekLetterVariableAtom) atom;
 			String expected = latex.substring(1);
 			assertEquals("符号应该是" + expected, expected, greek.name);
 		}

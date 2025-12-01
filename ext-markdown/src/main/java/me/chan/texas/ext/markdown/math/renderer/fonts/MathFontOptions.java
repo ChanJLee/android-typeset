@@ -6,7 +6,7 @@ import java.util.Map;
 import me.chan.texas.ext.markdown.math.ast.BinOpAtom;
 import me.chan.texas.ext.markdown.math.ast.SpecialSymbolAtom;
 import me.chan.texas.ext.markdown.math.ast.UnaryOp;
-import me.chan.texas.ext.markdown.math.ast.GreekLetterAtom;
+import me.chan.texas.ext.markdown.math.ast.GreekLetterVariableAtom;
 import me.chan.texas.ext.markdown.math.ast.LargeOperatorAtom;
 
 public class MathFontOptions {
@@ -259,7 +259,7 @@ public class MathFontOptions {
 		return TEXT_OPERATORS.get(name);
 	}
 
-	public static String ast(GreekLetterAtom atom) {
+	public static String ast(GreekLetterVariableAtom atom) {
 		return textOp(atom.name);
 	}
 

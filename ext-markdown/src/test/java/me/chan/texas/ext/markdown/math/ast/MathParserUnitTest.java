@@ -216,8 +216,8 @@ public class MathParserUnitTest {
 		}
 
 		TermAsserter atomIsGreekLetter(String expectedName) {
-			assertTrue("atom 应该是 GreekLetterAtom", term.atom instanceof GreekLetterAtom);
-			assertEquals("希腊字母", expectedName, ((GreekLetterAtom) term.atom).name);
+			assertTrue("atom 应该是 GreekLetterAtom", term.atom instanceof GreekLetterVariableAtom);
+			assertEquals("希腊字母", expectedName, ((GreekLetterVariableAtom) term.atom).name);
 			return this;
 		}
 

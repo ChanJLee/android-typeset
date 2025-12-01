@@ -38,7 +38,7 @@
 (* 可运算的原子表达式：可以被一元运算符修饰 *)
 <operand_atom> ::= <number>
                  | <variable>
-                 | <greek_letter>
+                 | <greek_letter_variable>
                  | <group>
                  | <frac>
                  | <sqrt>
@@ -96,6 +96,8 @@
                  | "\Sigma" | "\Upsilon" | "\Phi" | "\Psi" | "\Omega"
                  | "\infty"
 
+<greek_letter_variable> ::= <greek_letter> [ <prime_suffix> ]
+
 (* ============ 分组（递归有界） ============ *)
 
 <group> ::= "{" <math_list> "}"
@@ -113,7 +115,7 @@
 (* 单个 token：数字、字母、希腊字母、或运算符符号 *)
 <single_token> ::= <number>
                  | <variable>
-                 | <greek_letter>
+                 | <greek_letter_variable>
                  | <operator_symbol>
 
 (* 运算符符号：仅在特定上下文（如上下标）中允许作为单独符号 *)

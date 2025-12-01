@@ -14,7 +14,7 @@ import me.chan.texas.ext.markdown.math.ast.Expression;
 import me.chan.texas.ext.markdown.math.ast.FontAtom;
 import me.chan.texas.ext.markdown.math.ast.FracAtom;
 import me.chan.texas.ext.markdown.math.ast.FunctionCallAtom;
-import me.chan.texas.ext.markdown.math.ast.GreekLetterAtom;
+import me.chan.texas.ext.markdown.math.ast.GreekLetterVariableAtom;
 import me.chan.texas.ext.markdown.math.ast.Group;
 import me.chan.texas.ext.markdown.math.ast.LargeOperatorAtom;
 import me.chan.texas.ext.markdown.math.ast.Length;
@@ -221,6 +221,10 @@ public class MathRendererInflater {
 		return inflateAtom(styles, singleToken.content);
 	}
 
+	private RendererNode inflateGreekLetterVariableAtom(MathPaint.Styles styles, GreekLetterVariableAtom atom) {
+		return new TextNode(styles, MathFontOptions.ast(atom) + atom.primeSuffix);
+	}
+
 	private RendererNode inflateAtom(MathPaint.Styles styles, Atom atom) {
 		if (atom instanceof NumberAtom) {
 			return new TextNode(styles, ((NumberAtom) atom).value);
@@ -230,8 +234,8 @@ public class MathRendererInflater {
 			return new TextNode(styles, String.valueOf(((VariableAtom) atom).name));
 		}
 
-		if (atom instanceof GreekLetterAtom) {
-			return new TextNode(styles, MathFontOptions.ast((GreekLetterAtom) atom));
+		if (atom instanceof GreekLetterVariableAtom) {
+			return inflateGreekLetterVariableAtom(styles, (GreekLetterVariableAtom) atom);
 		}
 
 		if (atom instanceof Group) {
