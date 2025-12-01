@@ -78,7 +78,7 @@ public class MathRendererInflater {
 		float height = textSize;
 
 		// 简单空格命令
-		switch (spacing.cmd) {
+		switch (spacing.command) {
 			case ",":  // \, thin space
 				width = textSize / 6f;  // 3/18 em
 				break;
@@ -294,15 +294,15 @@ public class MathRendererInflater {
 	}
 
 	private RendererNode inflateFontAtom(MathPaint.Styles styles, FontAtom atom) {
-		if (TextUtils.equals("mathbf", atom.cmd)) {
+		if (TextUtils.equals("mathbf", atom.command)) {
 			styles = styles.copy().setBold(true);
 		}
 
-		if (TextUtils.equals("mathit", atom.cmd)) {
+		if (TextUtils.equals("mathit", atom.command)) {
 			styles = styles.copy().setItalic(true);
 		}
 
-		return inflate(styles, atom.ast);
+		return inflate(styles, atom.content);
 	}
 
 	private RendererNode inflateTextAtom(MathPaint.Styles styles, TextAtom atom) {
@@ -355,13 +355,13 @@ public class MathRendererInflater {
 
 	private RendererNode inflateLargeOperatorAtom(MathPaint.Styles styles, LargeOperatorAtom atom) {
 		RendererNode subscript = null;
-		if (atom.supSubSuffix != null && atom.supSubSuffix.subscript != null) {
-			subscript = inflateScriptArg(styles.copy().setTextSizeFactor(SUB_EXP_FACTOR), atom.supSubSuffix.subscript);
+		if (atom.suffix != null && atom.suffix.subscript != null) {
+			subscript = inflateScriptArg(styles.copy().setTextSizeFactor(SUB_EXP_FACTOR), atom.suffix.subscript);
 		}
 
 		RendererNode superscript = null;
-		if (atom.supSubSuffix != null && atom.supSubSuffix.superscript != null) {
-			superscript = inflateScriptArg(styles.copy().setTextSizeFactor(SUB_EXP_FACTOR), atom.supSubSuffix.superscript);
+		if (atom.suffix != null && atom.suffix.superscript != null) {
+			superscript = inflateScriptArg(styles.copy().setTextSizeFactor(SUB_EXP_FACTOR), atom.suffix.superscript);
 		}
 
 		DecorGroupNode.Builder builder = new DecorGroupNode.Builder(styles, inflateLargeOp(styles, atom));
@@ -524,7 +524,7 @@ public class MathRendererInflater {
 			}
 		}
 
-		SupSubSuffix supSubSuffix = functionCallAtom.supSubSuffix;
+		SupSubSuffix supSubSuffix = functionCallAtom.suffix;
 		if (supSubSuffix != null) {
 			if (supSubSuffix.subscript != null) {
 				builder.rightBottom(inflateScriptArg(styles.copy().setTextSizeFactor(SUB_EXP_FACTOR), supSubSuffix.subscript));

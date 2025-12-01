@@ -175,7 +175,7 @@ public class MathParserAstTest {
 			assertTrue("应该是GreekLetterAtom: " + latex, atom instanceof GreekLetterAtom);
 			GreekLetterAtom greek = (GreekLetterAtom) atom;
 			String expected = latex.substring(1); // 去掉反斜杠
-			assertEquals("符号应该是" + expected, expected, greek.symbol);
+			assertEquals("符号应该是" + expected, expected, greek.name);
 		}
 
 		System.out.println("✅ GreekLetterAtom测试通过");
@@ -461,8 +461,8 @@ public class MathParserAstTest {
 		FunctionCallAtom func = (FunctionCallAtom) getAtom(term);
 
 		assertEquals("函数名应该是log", "log", func.name);
-		assertNotNull("应该有上下标后缀", func.supSubSuffix);
-		assertNotNull("应该有下标", func.supSubSuffix.subscript);
+		assertNotNull("应该有上下标后缀", func.suffix);
+		assertNotNull("应该有下标", func.suffix.subscript);
 
 		System.out.println("✅ 函数测试通过");
 	}
@@ -498,9 +498,9 @@ public class MathParserAstTest {
 		LargeOperatorAtom op = (LargeOperatorAtom) getAtom(term);
 
 		assertEquals("运算符名应该是sum", "sum", op.name);
-		assertNotNull("应该有上下标后缀", op.supSubSuffix);
-		assertNotNull("应该有下标", op.supSubSuffix.subscript);
-		assertNotNull("应该有上标", op.supSubSuffix.superscript);
+		assertNotNull("应该有上下标后缀", op.suffix);
+		assertNotNull("应该有下标", op.suffix.subscript);
+		assertNotNull("应该有上标", op.suffix.superscript);
 
 		System.out.println("✅ 大型运算符测试通过");
 	}
@@ -580,8 +580,8 @@ public class MathParserAstTest {
 
 			assertTrue("应该是FontAtom: " + cmd, atom instanceof FontAtom);
 			FontAtom font = (FontAtom) atom;
-			assertEquals("字体命令应该是" + cmd, cmd, font.cmd);
-			assertNotNull("字体内容不应为null", font.ast);
+			assertEquals("字体命令应该是" + cmd, cmd, font.command);
+			assertNotNull("字体内容不应为null", font.content);
 		}
 
 		System.out.println("✅ 字体命令测试通过");
@@ -634,7 +634,7 @@ public class MathParserAstTest {
 
 			Spacing spacing = (Spacing) elements.get(1);
 			String expectedCmd = cmd.substring(1); // 去掉反斜杠
-			assertEquals("空格命令应该是" + expectedCmd, expectedCmd, spacing.cmd);
+			assertEquals("空格命令应该是" + expectedCmd, expectedCmd, spacing.command);
 		}
 
 		// 测试hspace
@@ -642,7 +642,7 @@ public class MathParserAstTest {
 		List<Ast> elements = result.elements;
 		assertTrue("应该包含Spacing", elements.get(1) instanceof Spacing);
 		Spacing spacing = (Spacing) elements.get(1);
-		assertEquals("空格命令应该是hspace", "hspace", spacing.cmd);
+		assertEquals("空格命令应该是hspace", "hspace", spacing.command);
 		assertTrue("内容应该是Length", spacing.content instanceof Length);
 
 		// 测试phantom系列
@@ -650,7 +650,7 @@ public class MathParserAstTest {
 		elements = result.elements;
 		assertTrue("应该包含Spacing", elements.get(1) instanceof Spacing);
 		spacing = (Spacing) elements.get(1);
-		assertEquals("空格命令应该是phantom", "phantom", spacing.cmd);
+		assertEquals("空格命令应该是phantom", "phantom", spacing.command);
 		assertTrue("内容应该是MathList", spacing.content instanceof MathList);
 
 		System.out.println("✅ 空格命令测试通过");
@@ -1132,7 +1132,7 @@ public class MathParserAstTest {
 			assertTrue("应该是GreekLetterAtom: " + latex, atom instanceof GreekLetterAtom);
 			GreekLetterAtom greek = (GreekLetterAtom) atom;
 			String expected = latex.substring(1);
-			assertEquals("符号应该是" + expected, expected, greek.symbol);
+			assertEquals("符号应该是" + expected, expected, greek.name);
 		}
 
 		System.out.println("✅ 希腊字母变体测试通过");
@@ -1413,7 +1413,7 @@ public class MathParserAstTest {
 
 			assertTrue("应该是FontAtom: " + cmd, atom instanceof FontAtom);
 			FontAtom font = (FontAtom) atom;
-			assertEquals("字体命令应该是" + cmd, cmd, font.cmd);
+			assertEquals("字体命令应该是" + cmd, cmd, font.command);
 		}
 
 		System.out.println("✅ 更多字体命令测试通过");
@@ -1433,7 +1433,7 @@ public class MathParserAstTest {
 			assertTrue("应该包含Spacing", elements.get(1) instanceof Spacing);
 
 			Spacing spacing = (Spacing) elements.get(1);
-			assertEquals("空格命令应该是hspace", "hspace", spacing.cmd);
+			assertEquals("空格命令应该是hspace", "hspace", spacing.command);
 			assertTrue("内容应该是Length", spacing.content instanceof Length);
 
 			Length length = (Length) spacing.content;

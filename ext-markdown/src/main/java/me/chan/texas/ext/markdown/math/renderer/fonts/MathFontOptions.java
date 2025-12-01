@@ -246,7 +246,7 @@ public class MathFontOptions {
 	}
 
 	public static String ast(GreekLetterAtom atom) {
-		return textOp(atom.symbol);
+		return textOp(atom.name);
 	}
 
 	public static Symbol ast(SpecialSymbolAtom atom) {
