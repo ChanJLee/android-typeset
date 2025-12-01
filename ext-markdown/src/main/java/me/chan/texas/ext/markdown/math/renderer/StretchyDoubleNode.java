@@ -60,11 +60,6 @@ public class StretchyDoubleNode extends RendererNode {
 	}
 
 	@Override
-	public float getBaseline() {
-		return getCenterY();
-	}
-
-	@Override
 	protected void onDraw(MathCanvas canvas, MathPaint paint) {
 		int width = getWidth();
 		if (width != mActualWidth) {

@@ -15,11 +15,6 @@ public class BraceNode extends RendererNode {
 	}
 
 	@Override
-	public float getBaseline() {
-		return 0;
-	}
-
-	@Override
 	protected void onDraw(MathCanvas canvas, MathPaint paint) {
 
 	}

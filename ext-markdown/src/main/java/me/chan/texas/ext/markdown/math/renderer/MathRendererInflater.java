@@ -549,9 +549,11 @@ public class MathRendererInflater {
 	}
 
 	private RendererNode inflateBinOp(MathPaint.Styles styles, BinOpAtom atom) {
-		if (atom.op.startsWith("\\")) {
-			return new SymbolNode(styles, MathFontOptions.ast(atom));
+		Symbol symbol = MathFontOptions.ast(atom);
+		if (symbol != null) {
+			return new SymbolNode(styles, symbol);
 		}
+
 		return new TextNode(styles, atom.op);
 	}
 

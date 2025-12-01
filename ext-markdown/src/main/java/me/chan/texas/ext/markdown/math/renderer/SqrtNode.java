@@ -43,11 +43,6 @@ public class SqrtNode extends RendererNode {
 		setMeasuredSize((int) Math.ceil(right - left), (int) Math.ceil(bottom - top));
 	}
 
-	@Override
-	public float getBaseline() {
-		return mContent.getBaseline();
-	}
-
 	private void preLayout() {
 		float left = 0;
 		float top = 0;

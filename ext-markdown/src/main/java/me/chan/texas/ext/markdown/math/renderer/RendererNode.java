@@ -68,7 +68,7 @@ public abstract class RendererNode {
 
 		onDraw(canvas, paint);
 
-		onDrawDebug(canvas, paint);
+		drawDebug(canvas, paint);
 
 		if (mStyles != null) {
 			paint.restore();
@@ -76,19 +76,20 @@ public abstract class RendererNode {
 		canvas.restore();
 	}
 
-	protected void onDrawDebug(MathCanvas canvas, MathPaint paint) {
+	protected void drawDebug(MathCanvas canvas, MathPaint paint) {
 		if (DEBUG) {
 			paint.save();
-			paint.setColor(Color.BLUE);
-			paint.setStyle(Paint.Style.STROKE);
-			Log.d("MathRenderer", this + "->" + toPretty() + "[" + getWidth() + "," + getHeight() + "]");
-			canvas.drawRect(0, 0, getWidth(), getHeight(), paint);
-
-			canvas.drawLine(0, 0, getWidth(), getHeight(), paint);
-			canvas.drawLine(getWidth(), 0, 0, getHeight(), paint);
-
+			onDrawDebug(canvas, paint);
 			paint.restore();
 		}
+	}
+
+	protected void onDrawDebug(MathCanvas canvas, MathPaint paint) {
+		paint.setStyle(Paint.Style.STROKE);
+		canvas.drawRect(0, 0, getWidth(), getHeight(), paint);
+
+		canvas.drawLine(0, 0, getWidth(), getHeight(), paint);
+		canvas.drawLine(getWidth(), 0, 0, getHeight(), paint);
 	}
 
 	public final void translate(float dx, float dy) {
@@ -105,8 +106,6 @@ public abstract class RendererNode {
 		mLeft = left;
 		mTop = top;
 	}
-
-	public abstract float getBaseline();
 
 	protected abstract void onDraw(MathCanvas canvas, MathPaint paint);
 

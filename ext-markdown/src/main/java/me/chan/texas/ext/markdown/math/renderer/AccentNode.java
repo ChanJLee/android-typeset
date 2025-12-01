@@ -80,11 +80,6 @@ public class AccentNode extends RendererNode {
 		}
 	}
 
-	@Override
-	public float getBaseline() {
-		return mContent.getBaseline();
-	}
-
 	private void layoutGlyph() {
 		if ("widehat".equals(mCmd)) {
 			mCmdNode.layout(0, 0);

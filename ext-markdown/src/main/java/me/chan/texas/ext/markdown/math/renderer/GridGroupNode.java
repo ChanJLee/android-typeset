@@ -94,11 +94,6 @@ public class GridGroupNode extends RendererNode {
 	}
 
 	@Override
-	public float getBaseline() {
-		return getCenterY();
-	}
-
-	@Override
 	protected void onDraw(MathCanvas canvas, MathPaint paint) {
 		for (RendererNode node : mNodes) {
 			node.draw(canvas, paint);

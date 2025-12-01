@@ -1,5 +1,6 @@
 package me.chan.texas.ext.markdown.math.renderer;
 
+import android.graphics.Color;
 import android.graphics.Paint;
 
 import me.chan.texas.ext.markdown.math.renderer.core.MathCanvas;
@@ -30,13 +31,14 @@ public class TextNode extends RendererNode {
 	}
 
 	@Override
-	public float getBaseline() {
-		return getBottom() - mBaselineOffset;
+	protected void onDraw(MathCanvas canvas, MathPaint paint) {
+		canvas.drawText(mContent, 0, getHeight() - mBaselineOffset, paint);
 	}
 
 	@Override
-	protected void onDraw(MathCanvas canvas, MathPaint paint) {
-		canvas.drawText(mContent, 0, getHeight() - mBaselineOffset, paint);
+	protected void onDrawDebug(MathCanvas canvas, MathPaint paint) {
+		paint.setColor(Color.GREEN);
+		super.onDrawDebug(canvas, paint);
 	}
 
 	@Override

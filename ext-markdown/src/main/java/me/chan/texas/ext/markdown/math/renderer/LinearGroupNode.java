@@ -61,14 +61,14 @@ public class LinearGroupNode extends RendererNode {
 		RendererNode anchor = mNodes.get(0);
 		for (int i = 1; i < mNodes.size(); ++i) {
 			RendererNode node = mNodes.get(i);
-			if (node.getBaseline() > anchor.getBaseline()) {
+			if (node.getCenterY() > anchor.getCenterY()) {
 				anchor = node;
 			}
 		}
 
 		float top = 0;
 		for (RendererNode node : mNodes) {
-			node.translate(0, anchor.getBaseline() - node.getBaseline());
+			node.translate(0, anchor.getCenterY() - node.getCenterY());
 			top = Math.min(node.getTop(), top);
 		}
 
@@ -86,11 +86,6 @@ public class LinearGroupNode extends RendererNode {
 		if (mGravity == Gravity.VERTICAL) {
 			layoutVertical();
 		}
-	}
-
-	@Override
-	public float getBaseline() {
-		return mBaseline;
 	}
 
 	private void layoutVertical() {

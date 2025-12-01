@@ -130,11 +130,6 @@ public class DecorGroupNode extends RendererNode {
 		}
 	}
 
-	@Override
-	public float getBaseline() {
-		return mBuilder.center.getBaseline();
-	}
-
 	private void preLayout() {
 		float offsetYPercent = 0.5f;
 		mBuilder.center.layout(0, 0);

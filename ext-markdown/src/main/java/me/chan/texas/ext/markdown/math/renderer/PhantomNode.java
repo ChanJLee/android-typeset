@@ -49,18 +49,6 @@ public class PhantomNode extends RendererNode {
     }
     
     @Override
-    public float getBaseline() {
-        // 基线位置根据是否使用高度来决定
-        if (mUseHeight) {
-            // 如果使用高度，返回内容的基线
-            return mContent.getBaseline();
-        } else {
-            // 如果不使用高度，返回当前位置（通常是 bottom）
-            return getBottom();
-        }
-    }
-    
-    @Override
     protected void onDraw(MathCanvas canvas, MathPaint paint) {
         // Phantom 节点不绘制任何内容
         // 这是 phantom 命令的核心：占用空间但不显示

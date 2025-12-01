@@ -1,5 +1,7 @@
 package me.chan.texas.ext.markdown.math.renderer;
 
+import android.graphics.Color;
+
 import me.chan.texas.ext.markdown.math.renderer.core.MathCanvas;
 import me.chan.texas.ext.markdown.math.renderer.core.MathPaint;
 import me.chan.texas.ext.markdown.math.renderer.fonts.MathFontOptions;
@@ -27,11 +29,6 @@ public class SymbolNode extends RendererNode {
 	}
 
 	@Override
-	public float getBaseline() {
-		return getBottom();
-	}
-
-	@Override
 	protected void onDraw(MathCanvas canvas, MathPaint paint) {
 		float y = getHeight() + mOffsetY;
 		canvas.drawText(mSymbol.unicode, mOffsetX, y, paint);
@@ -40,6 +37,12 @@ public class SymbolNode extends RendererNode {
 	public final void layout(float top) {
 		setLayoutBounds(-mOffsetX, top);
 		onLayoutChildren();
+	}
+
+	@Override
+	protected void onDrawDebug(MathCanvas canvas, MathPaint paint) {
+		paint.setColor(Color.RED);
+		super.onDrawDebug(canvas, paint);
 	}
 
 	@Override

@@ -67,11 +67,6 @@ public class BraceLayout extends RendererNode {
 	}
 
 	@Override
-	public float getBaseline() {
-		return getBottom();
-	}
-
-	@Override
 	protected void onDraw(MathCanvas canvas, MathPaint paint) {
 		mContent.draw(canvas, paint);
 		if (mLeftSymbol != null) {
