@@ -25,9 +25,10 @@
 (* term 分为两类：
  * 1. 可运算的原子（可被一元运算符修饰，可带上下标）
  * 2. 特殊符号（不能被一元运算符修饰，但可带上下标，用于标记）
+ * 3. 标点符号（独立存在，不能被修饰，不能带上下标）
  *)
 <term> ::= [ <unary_op> ] <operand_atom> [ <sup_sub_suffix> ]
-         | <special_symbol> [ <sup_sub_suffix> ]
+         | <special_symbol> [ <sup_sub_suffix> ] | <punctuation>
 
 (* ============ 原子表达式 ============ *)
 
@@ -67,7 +68,7 @@
 <unary_op> ::= "+" | "-" | "\pm" | "\mp"
 
 (* 二元运算符：必须连接两个 term *)
-<binary_op> ::= "+" | "-" | "*" | "/" | ","
+<binary_op> ::= "+" | "-" | "*" | "/"
               | "\times" | "\cdot" | "\div" | "\pm" | "\mp"
               | "=" | "\neq" | "\equiv" | "\approx" | "\cong" | "\sim"
               | "<" | ">" | "\le" | "\ge" | "\leq" | "\geq" | "\ll" | "\gg"
@@ -76,7 +77,10 @@
               | "\to" | "\rightarrow" | "\leftarrow" | "\leftrightarrow"
               | "\Rightarrow" | "\Leftarrow" | "\Leftrightarrow"
               | "\implies" | "\iff"
-              | "\perp" | "\parallel"           (* 几何关系符号 *)
+              | "\perp" | "\parallel"
+
+(* 标点符号：可以独立存在，不参与运算 *)
+<punctuation> ::= ","
 
 (* 希腊字母 *)
 <greek_letter> ::= "\alpha" | "\beta" | "\gamma" | "\delta" | "\epsilon" | "\varepsilon"
@@ -225,6 +229,6 @@
 
 (* ============ 特殊符号（不能被一元运算符修饰，但可带上下标） ============ *)
 
-<special_symbol> ::= "\dots" | "\ldots" | "\cdots" | "\vdots" | "\ddots"  (* 省略号 *)
-                   | "\angle"  (* 角度符号 *)
-                   | "\therefore" | "\because"  (* 逻辑标记符号 *)
+<special_symbol> ::= "\dots" | "\ldots" | "\cdots" | "\vdots" | "\ddots"
+                   | "\angle"
+                   | "\therefore" | "\because"

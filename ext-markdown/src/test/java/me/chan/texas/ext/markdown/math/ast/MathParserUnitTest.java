@@ -1621,6 +1621,42 @@ public class MathParserUnitTest {
 		);
 	}
 
+	@Test
+	public void test_Punctuation_Comma() {
+		System.out.println("\n=== 测试标点符号 - 逗号 ===");
+
+		// 逗号作为独立标点
+		assertParsesTo("x,y", "x , y");  // x 和 y 之间有逗号，但不是二元运算
+		assertParsesTo("a,b,c", "a , b , c");
+
+		// 在 cases 中
+		assertParsesTo(
+				"\\begin{cases}x,&x\\ge 0\\\\-x,&x<0\\end{cases}",
+				"\\begin{cases}\nx , & x\\ge 0\n-x , & x<0\n\\end{cases}\n"
+		);
+
+		// 在定界符中
+		assertParsesTo("f\\left(x,y\\right)", "f \\left( x , y \\right)");
+		assertParsesTo("\\left\\{x,y,z\\right\\}", "\\left{ x , y , z \\right}");
+
+		// 验证 AST
+		try {
+			MathList expr = getMathList("a,b");
+			// 应该是 3 个 term：a, 逗号, b（而不是 a + 二元运算符 + b）
+			assertEquals(3, expr.elements.size());
+			assertTrue("第1个是 Term(a)", expr.elements.get(0) instanceof Term);
+			assertTrue("第2个是 Term(逗号)", expr.elements.get(1) instanceof Term);
+			assertTrue("第3个是 Term(b)", expr.elements.get(2) instanceof Term);
+
+			Term commaTerm = (Term) expr.elements.get(1);
+			assertTrue("逗号应该是 PunctuationAtom", commaTerm.atom instanceof PunctuationAtom);
+
+			System.out.println("✅ 逗号标点验证通过");
+		} catch (MathParseException e) {
+			fail(e.pretty());
+		}
+	}
+
 	// ============================================================
 	// 测试总结
 	// ============================================================

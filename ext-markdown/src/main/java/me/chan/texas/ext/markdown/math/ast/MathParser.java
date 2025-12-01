@@ -12,9 +12,9 @@ public class MathParser {
 	private static final Set<String> OPERATOR_SYMBOLS = new HashSet<>(Arrays.asList(
 			"pm", "mp"  // 只包含 \pm 和 \mp
 	));
-	// 二元运算符集合
+	// 从二元运算符中移除逗号
 	private static final Set<String> BINARY_OPERATORS = new HashSet<>(Arrays.asList(
-			"+", "-", "*", "/", "=", "<", ">", ",",  // 添加逗号
+			"+", "-", "*", "/", "=", "<", ">",  // 移除了逗号
 			"times", "cdot", "div", "pm", "mp",
 			"neq", "equiv", "approx", "cong", "sim",
 			"le", "ge", "leq", "geq", "ll", "gg",
@@ -23,7 +23,12 @@ public class MathParser {
 			"to", "rightarrow", "leftarrow", "leftrightarrow",
 			"Rightarrow", "Leftarrow", "Leftrightarrow",
 			"implies", "iff",
-			"perp", "parallel"           // 几何关系符号
+			"perp", "parallel"
+	));
+
+	// 添加标点符号集合
+	private static final Set<String> PUNCTUATION = new HashSet<>(Arrays.asList(
+			","
 	));
 
 	// 特殊符号集合（不能被一元运算符修饰，但可带上下标）
@@ -284,7 +289,7 @@ public class MathParser {
 
 	/**
 	 * <term> ::= [ <unary_op> ] <operand_atom> [ <sup_sub_suffix> ]
-	 * | <special_symbol> [ <sup_sub_suffix> ]
+	 * | <special_symbol> [ <sup_sub_suffix> ] | <punctuation>
 	 * <p>
 	 * term 分为两类：
 	 * 1. 可运算的原子（可被一元运算符修饰）
@@ -292,6 +297,12 @@ public class MathParser {
 	 */
 	private Term parseTerm() throws MathParseException {
 		skipWhitespace();
+
+		// 检查是否是标点符号
+		if (isPunctuation()) {
+			PunctuationAtom punctuation = parsePunctuation();
+			return new Term(null, punctuation, null);  // 标点不能有一元运算符和上下标
+		}
 
 		// 先检查是否是特殊符号
 		if (isSpecialSymbol()) {
@@ -313,6 +324,21 @@ public class MathParser {
 		skipWhitespace();
 		SupSubSuffix suffix = tryParseSupSubSuffix();
 		return new Term(unaryOp, atom, suffix);
+	}
+
+	// 添加标点符号检查和解析方法
+	private boolean isPunctuation() {
+		if (stream.eof()) return false;
+		char c = (char) stream.peek();
+		return c == ',';
+	}
+
+	private PunctuationAtom parsePunctuation() throws MathParseException {
+		if (stream.peek() == ',') {
+			stream.eat();
+			return new PunctuationAtom(",");
+		}
+		throw new MathParseException("Expected punctuation", stream);
 	}
 
 	/**
@@ -1054,12 +1080,12 @@ public class MathParser {
 
 		char c = (char) stream.peek();
 
-		// 单字符运算符
-		if ("+-*/=<>,".indexOf(c) >= 0) {
+		// 单字符运算符（移除逗号）
+		if ("+-*/=<>".indexOf(c) >= 0) {
 			return true;
 		}
 
-		// 命令形式的运算符（如 \times, \cdot, \perp, \therefore）
+		// 命令形式的运算符（如 \times, \cdot, \perp）
 		if (c == '\\') {
 			int saved = stream.save();
 			stream.eat();

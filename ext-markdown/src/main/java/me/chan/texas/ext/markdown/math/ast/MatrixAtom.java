@@ -19,6 +19,7 @@ public class MatrixAtom implements Atom {
 		stringBuilder.append("\\begin{").append(env).append("}\n");
 		for (MatrixRow row : rows) {
 			stringBuilder.append(row.toString());
+			stringBuilder.append("\n");
 		}
 		stringBuilder.append("\\end{").append(env).append("}\n");
 		return stringBuilder.toString();
