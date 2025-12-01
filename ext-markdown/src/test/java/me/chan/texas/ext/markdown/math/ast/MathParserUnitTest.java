@@ -1425,6 +1425,183 @@ public class MathParserUnitTest {
 		);
 	}
 
+	// 在 Part 9 真实世界公式部分添加以下测试
+
+	@Test
+	public void test_09_11_Real_SchrodingerEquation() {
+		System.out.println("\n=== Part 9.11: 薛定谔方程 ===");
+
+		assertParsesTo(
+				"i\\hbar\\frac{\\partial}{\\partial t}\\Psi\\left(r,t\\right)=\\left[-\\frac{\\hbar^2}{2m}\\nabla^2+V\\left(r,t\\right)\\right]\\Psi\\left(r,t\\right)",
+				"i \\hbar \\frac{\\partial}{\\partial t} \\Psi \\left( r , t \\right) = \\left[ -\\frac{\\hbar^2}{2 m} \\nabla^2 + V \\left( r , t \\right) \\right] \\Psi \\left( r , t \\right)"
+		);
+	}
+
+	@Test
+	public void test_09_12_Real_MaxwellEquations() {
+		System.out.println("\n=== Part 9.12: 麦克斯韦方程组 ===");
+
+		// 高斯定律
+		assertParsesTo(
+				"\\nabla\\cdot\\mathbf{E}=\\frac{\\rho}{\\epsilon_0}",
+				"\\nabla \\cdot \\mathbf{E} = \\frac{\\rho}{\\epsilon_0}"
+		);
+
+		// 高斯磁定律
+		assertParsesTo(
+				"\\nabla\\cdot\\mathbf{B}=0",
+				"\\nabla \\cdot \\mathbf{B} = 0"
+		);
+
+		// 法拉第电磁感应定律
+		assertParsesTo(
+				"\\nabla\\times\\mathbf{E}=-\\frac{\\partial\\mathbf{B}}{\\partial t}",
+				"\\nabla \\times \\mathbf{E} = -\\frac{\\partial \\mathbf{B}}{\\partial t}"
+		);
+
+		// 安培-麦克斯韦定律
+		assertParsesTo(
+				"\\nabla\\times\\mathbf{B}=\\mu_0\\left(\\mathbf{J}+\\epsilon_0\\frac{\\partial\\mathbf{E}}{\\partial t}\\right)",
+				"\\nabla \\times \\mathbf{B} = \\mu_0 \\left( \\mathbf{J} + \\epsilon_0 \\frac{\\partial \\mathbf{E}}{\\partial t} \\right)"
+		);
+	}
+
+	@Test
+	public void test_09_13_Real_EinsteinFieldEquation() {
+		System.out.println("\n=== Part 9.13: 爱因斯坦场方程 ===");
+
+		assertParsesTo(
+				"R_{\\mu\\nu}-\\frac{1}{2}Rg_{\\mu\\nu}+\\Lambda g_{\\mu\\nu}=\\frac{8\\pi G}{c^4}T_{\\mu\\nu}",
+				"R_{\\mu \\nu} - \\frac{1}{2} Rg_{\\mu \\nu} + \\Lambda g_{\\mu \\nu} = \\frac{8 \\pi G}{c^4} T_{\\mu \\nu}"
+		);
+	}
+
+	@Test
+	public void test_09_14_Real_FourierTransform() {
+		System.out.println("\n=== Part 9.14: 傅里叶变换 ===");
+
+		assertParsesTo(
+				"F\\left(\\omega\\right)=\\int_{-\\infty}^{\\infty}f\\left(t\\right)e^{-i\\omega t}dt",
+				"F \\left( \\omega \\right) = \\int_{-\\infty}^{\\infty} f \\left( t \\right) e^{-i \\omega t} dt"
+		);
+
+		// 逆傅里叶变换
+		assertParsesTo(
+				"f\\left(t\\right)=\\frac{1}{2\\pi}\\int_{-\\infty}^{\\infty}F\\left(\\omega\\right)e^{i\\omega t}d\\omega",
+				"f \\left( t \\right) = \\frac{1}{2 \\pi} \\int_{-\\infty}^{\\infty} F \\left( \\omega \\right) e^{i \\omega t} d \\omega"
+		);
+	}
+
+	@Test
+	public void test_09_15_Real_RiemannZetaFunction() {
+		System.out.println("\n=== Part 9.15: 黎曼ζ函数 ===");
+
+		assertParsesTo(
+				"\\zeta\\left(s\\right)=\\sum_{n=1}^{\\infty}\\frac{1}{n^s}=\\prod_{p\\text{ prime}}\\frac{1}{1-p^{-s}}",
+				"\\zeta \\left( s \\right) = \\sum_{n = 1}^{\\infty} \\frac{1}{n^s} = \\prod_{p \\text{ prime}} \\frac{1}{1 - p^{-s}}"
+		);
+	}
+
+	@Test
+	public void test_09_16_Real_BayesTheorem() {
+		System.out.println("\n=== Part 9.16: 贝叶斯定理（连续形式）===");
+
+		assertParsesTo(
+				"P\\left(\\theta|D\\right)=\\frac{P\\left(D|\\theta\\right)P\\left(\\theta\\right)}{\\int P\\left(D|\\theta'\\right)P\\left(\\theta'\\right)d\\theta'}",
+				"P \\left( \\theta | D \\right) = \\frac{P \\left( D | \\theta \\right) P \\left( \\theta \\right)}{\\int P \\left( D | \\theta' \\right) P \\left( \\theta' \\right) d \\theta'}"
+		);
+	}
+
+	@Test
+	public void test_09_17_Real_LagrangeEquation() {
+		System.out.println("\n=== Part 9.17: 拉格朗日方程 ===");
+
+		assertParsesTo(
+				"\\frac{d}{dt}\\left(\\frac{\\partial L}{\\partial\\dot{q}_i}\\right)-\\frac{\\partial L}{\\partial q_i}=0",
+				"\\frac{d}{dt} \\left( \\frac{\\partial L}{\\partial \\dot{q}_i} \\right) - \\frac{\\partial L}{\\partial q_i} = 0"
+		);
+	}
+
+	@Test
+	public void test_09_18_Real_NavierStokesEquation() {
+		System.out.println("\n=== Part 9.18: 纳维-斯托克斯方程 ===");
+
+		assertParsesTo(
+				"\\rho\\left(\\frac{\\partial\\mathbf{v}}{\\partial t}+\\mathbf{v}\\cdot\\nabla\\mathbf{v}\\right)=-\\nabla p+\\mu\\nabla^2\\mathbf{v}+\\mathbf{f}",
+				"\\rho \\left( \\frac{\\partial \\mathbf{v}}{\\partial t} + \\mathbf{v} \\cdot \\nabla \\mathbf{v} \\right) = -\\nabla p + \\mu \\nabla^2 \\mathbf{v} + \\mathbf{f}"
+		);
+	}
+
+	@Test
+	public void test_09_19_Real_BlackScholesEquation() {
+		System.out.println("\n=== Part 9.19: 布莱克-舒尔斯方程 ===");
+
+		assertParsesTo(
+				"\\frac{\\partial V}{\\partial t}+\\frac{1}{2}\\sigma^2S^2\\frac{\\partial^2V}{\\partial S^2}+rS\\frac{\\partial V}{\\partial S}-rV=0",
+				"\\frac{\\partial V}{\\partial t} + \\frac{1}{2} \\sigma^2 S^2 \\frac{\\partial^2 V}{\\partial S^2} + rS \\frac{\\partial V}{\\partial S} - rV = 0"
+		);
+	}
+
+	@Test
+	public void test_09_20_Real_DiracEquation() {
+		System.out.println("\n=== Part 9.20: 狄拉克方程 ===");
+
+		assertParsesTo(
+				"\\left(i\\gamma^\\mu\\partial_\\mu-m\\right)\\psi=0",
+				"\\left( i \\gamma^\\mu \\partial_\\mu - m \\right) \\psi = 0"
+		);
+	}
+
+	@Test
+	public void test_09_21_Real_GreensTheorem() {
+		System.out.println("\n=== Part 9.21: 格林定理 ===");
+
+		assertParsesTo(
+				"\\oint_C\\left(P dx+Q dy\\right)=\\iint_D\\left(\\frac{\\partial Q}{\\partial x}-\\frac{\\partial P}{\\partial y}\\right)dA",
+				"\\oint_C \\left( P dx + Q dy \\right) = \\iint_D \\left( \\frac{\\partial Q}{\\partial x} - \\frac{\\partial P}{\\partial y} \\right) dA"
+		);
+	}
+
+	@Test
+	public void test_09_22_Real_TaylorSeries() {
+		System.out.println("\n=== Part 9.22: 泰勒级数展开 ===");
+
+		assertParsesTo(
+				"f\\left(x\\right)=\\sum_{n=0}^{\\infty}\\frac{f^{\\left(n\\right)}\\left(a\\right)}{n!}\\left(x-a\\right)^n",
+				"f \\left( x \\right) = \\sum_{n = 0}^{\\infty} \\frac{f^{\\left( n \\right)} \\left( a \\right)}{n!} \\left( x - a \\right)^n"
+		);
+	}
+
+	@Test
+	public void test_09_23_Real_StokesTheorem() {
+		System.out.println("\n=== Part 9.23: 斯托克斯定理 ===");
+
+		assertParsesTo(
+				"\\int_S\\left(\\nabla\\times\\mathbf{F}\\right)\\cdot d\\mathbf{S}=\\oint_{\\partial S}\\mathbf{F}\\cdot d\\mathbf{r}",
+				"\\int_S \\left( \\nabla \\times \\mathbf{F} \\right) \\cdot d \\mathbf{S} = \\oint_{\\partial S} \\mathbf{F} \\cdot d \\mathbf{r}"
+		);
+	}
+
+	@Test
+	public void test_09_24_Real_ComplexIntegralWithResidue() {
+		System.out.println("\n=== Part 9.24: 留数定理 ===");
+
+		assertParsesTo(
+				"\\oint_C f\\left(z\\right)dz=2\\pi i\\sum_{k=1}^{n}\\text{Res}\\left(f,z_k\\right)",
+				"\\oint_C f \\left( z \\right) dz = 2 \\pi i \\sum_{k = 1}^{n} \\text{Res} \\left( f , z_k \\right)"
+		);
+	}
+
+	@Test
+	public void test_09_25_Real_WaveEquation() {
+		System.out.println("\n=== Part 9.25: 波动方程 ===");
+
+		assertParsesTo(
+				"\\frac{\\partial^2u}{\\partial t^2}=c^2\\nabla^2u",
+				"\\frac{\\partial^2 u}{\\partial t^2} = c^2 \\nabla^2 u"
+		);
+	}
+
 	@Test
 	public void test_99_Summary() {
 		System.out.println("\n" + "=".repeat(60));
