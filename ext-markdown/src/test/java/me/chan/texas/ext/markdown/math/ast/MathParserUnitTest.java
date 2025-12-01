@@ -1,7 +1,9 @@
 package me.chan.texas.ext.markdown.math.ast;
 
 import org.junit.Test;
+
 import me.chan.texas.utils.CharStream;
+
 import static org.junit.Assert.*;
 
 /**
@@ -14,14 +16,18 @@ public class MathParserUnitTest {
 	// 辅助方法
 	// ============================================================
 
-	/** 解析输入并返回 AST */
+	/**
+	 * 解析输入并返回 AST
+	 */
 	private MathList parse(String input) throws MathParseException {
 		CharStream stream = new CharStream(input, 0, input.length());
 		MathParser parser = new MathParser(stream);
 		return parser.parse();
 	}
 
-	/** 验证解析成功且 toString 值正确 */
+	/**
+	 * 验证解析成功且 toString 值正确
+	 */
 	private void assertParsesTo(String input, String expectedOutput) {
 		try {
 			MathList ast = parse(input);
@@ -33,7 +39,9 @@ public class MathParserUnitTest {
 		}
 	}
 
-	/** 验证解析成功且 toString 值正确，同时返回 AST 供进一步验证 */
+	/**
+	 * 验证解析成功且 toString 值正确，同时返回 AST 供进一步验证
+	 */
 	private MathList assertParsesToWithAst(String input, String expectedOutput) {
 		try {
 			MathList ast = parse(input);
@@ -47,7 +55,9 @@ public class MathParserUnitTest {
 		}
 	}
 
-	/** 验证解析失败 */
+	/**
+	 * 验证解析失败
+	 */
 	private void assertParseFails(String input) {
 		try {
 			parse(input);
@@ -477,12 +487,12 @@ public class MathParserUnitTest {
 		}
 
 		FunctionCallAsserter hasSuffix() {
-			assertNotNull("应该有上下标", function.suffix.superscript);
+			assertNotNull("应该有上下标", function.suffix);
 			return this;
 		}
 
 		FunctionCallAsserter noSuffix() {
-			assertNull("不应该有上下标", function.suffix.subscript);
+			assertNull("不应该有上下标", function.suffix);
 			return this;
 		}
 
@@ -635,17 +645,17 @@ public class MathParserUnitTest {
 		assertParsesTo("0", "0");
 		assertParsesTo("1", "1");
 		assertParsesTo("42", "42");
-		
+
 		// 增强：验证 AST 结构
 		MathList ast = assertParsesToWithAst("123", "123");
 		assertAst(ast)
-			.hasSize(1)
-			.elementIsExpression(0)
+				.hasSize(1)
+				.elementIsExpression(0)
 				.hasSize(1)
 				.elementIsTerm(0)
-					.hasNoUnaryOp()
-					.atomIsNumber("123")
-					.hasNoSuffix();
+				.hasNoUnaryOp()
+				.atomIsNumber("123")
+				.hasNoSuffix();
 	}
 
 	@Test
@@ -654,15 +664,15 @@ public class MathParserUnitTest {
 
 		assertParsesTo("0.5", "0.5");
 		assertParsesTo("3.14", "3.14");
-		
+
 		// 增强：验证 AST 结构
 		MathList ast = assertParsesToWithAst("123.456", "123.456");
 		assertAst(ast)
-			.hasSize(1)
-			.elementIsExpression(0)
+				.hasSize(1)
+				.elementIsExpression(0)
 				.hasSize(1)
 				.elementIsTerm(0)
-					.atomIsNumber("123.456");
+				.atomIsNumber("123.456");
 	}
 
 	@Test
@@ -672,21 +682,21 @@ public class MathParserUnitTest {
 		assertParsesTo("x", "x");
 		assertParsesTo("y", "y");
 		assertParsesTo("abc", "abc");
-		
+
 		// 增强：验证 AST 结构
 		MathList ast = assertParsesToWithAst("f'", "f'");
 		assertAst(ast)
-			.hasSize(1)
-			.elementIsExpression(0)
+				.hasSize(1)
+				.elementIsExpression(0)
 				.hasSize(1)
 				.elementIsTerm(0)
-					.atomIsVariable("f'");
-					
+				.atomIsVariable("f'");
+
 		ast = assertParsesToWithAst("g''", "g''");
 		assertAst(ast)
-			.elementIsExpression(0)
+				.elementIsExpression(0)
 				.elementIsTerm(0)
-					.atomIsVariable("g''");
+				.atomIsVariable("g''");
 	}
 
 	@Test
@@ -695,19 +705,19 @@ public class MathParserUnitTest {
 
 		assertParsesTo("\\alpha", "\\alpha");
 		assertParsesTo("\\beta", "\\beta");
-		
+
 		// 增强：验证 AST 结构
 		MathList ast = assertParsesToWithAst("\\gamma", "\\gamma");
 		assertAst(ast)
-			.elementIsExpression(0)
+				.elementIsExpression(0)
 				.elementIsTerm(0)
-					.atomIsGreekLetter("gamma");
-					
+				.atomIsGreekLetter("gamma");
+
 		ast = assertParsesToWithAst("\\Delta", "\\Delta");
 		assertAst(ast)
-			.elementIsExpression(0)
+				.elementIsExpression(0)
 				.elementIsTerm(0)
-					.atomIsGreekLetter("Delta");
+				.atomIsGreekLetter("Delta");
 	}
 
 	// ============================================================
@@ -720,30 +730,30 @@ public class MathParserUnitTest {
 
 		assertParsesTo("-x", "-x");
 		assertParsesTo("+x", "+x");
-		
+
 		// 增强：验证 AST 结构
 		MathList ast = assertParsesToWithAst("-1", "-1");
 		assertAst(ast)
-			.elementIsExpression(0)
+				.elementIsExpression(0)
 				.hasSize(1)
 				.elementIsTerm(0)
-					.hasUnaryOp("-")
-					.atomIsNumber("1");
-					
+				.hasUnaryOp("-")
+				.atomIsNumber("1");
+
 		ast = assertParsesToWithAst("\\pm x", "\\pm x");
 		assertAst(ast)
-			.elementIsExpression(0)
+				.elementIsExpression(0)
 				.elementIsTerm(0)
-					.hasUnaryOp("\\pm")
-					.atomIsVariable("x");
-					
+				.hasUnaryOp("\\pm")
+				.atomIsVariable("x");
+
 		ast = assertParsesToWithAst("-{x+y}", "-{x + y}");
 		assertAst(ast)
-			.elementIsExpression(0)
+				.elementIsExpression(0)
 				.elementIsTerm(0)
-					.hasUnaryOp("-")
-					.atomIsGroup()
-						.contentToString("x + y");
+				.hasUnaryOp("-")
+				.atomIsGroup()
+				.contentToString("x + y");
 	}
 
 	@Test
@@ -751,27 +761,29 @@ public class MathParserUnitTest {
 		System.out.println("\n=== Part 2.2: 二元运算符 - 算术 ===");
 
 		assertParsesTo("a+b", "a + b");
-		
+
 		// 增强：验证 AST 结构
 		MathList ast = assertParsesToWithAst("a-b", "a - b");
-		assertAst(ast)
-			.elementIsExpression(0)
-				.hasSize(3)
-				.elementIsTerm(0)
-					.atomIsVariable("a")
-				.and()
+		ExpressionAsserter expressionAsserter = assertAst(ast)
+				.elementIsExpression(0)
+				.hasSize(3);
+		expressionAsserter.elementIsTerm(0)
+				.atomIsVariable("a");
+		expressionAsserter.and()
 				.elementIsBinOp(1)
-					.isOperator("-")
-				.and()
+				.isOperator("-");
+		expressionAsserter.and()
 				.elementIsTerm(2)
-					.atomIsVariable("b");
-					
+				.atomIsVariable("b");
+
 		ast = assertParsesToWithAst("a\\times b", "a \\times b");
-		assertAst(ast)
-			.elementIsExpression(0)
-				.hasSize(3)
-				.nextTerm().atomIsVariable("a").and()
-				.nextBinOp().isOperator("\\times").and()
+		expressionAsserter = assertAst(ast)
+				.elementIsExpression(0)
+				.hasSize(3);
+		expressionAsserter.nextTerm().atomIsVariable("a");
+		expressionAsserter.and()
+				.nextBinOp().isOperator("\\times");
+		expressionAsserter.and()
 				.nextTerm().atomIsVariable("b");
 	}
 
@@ -821,17 +833,17 @@ public class MathParserUnitTest {
 
 		// 逗号现在是独立的 term，用空格分隔
 		assertParsesTo("a,b", "a , b");
-		
+
 		// 增强：验证 AST 结构
 		MathList ast = assertParsesToWithAst("a,b,c", "a , b , c");
-		assertAst(ast)
-			.elementIsExpression(0)
-				.hasSize(5)
-				.nextTerm().atomIsVariable("a").and()
-				.nextTerm().atomIsPunctuation(",").and()
-				.nextTerm().atomIsVariable("b").and()
-				.nextTerm().atomIsPunctuation(",").and()
-				.nextTerm().atomIsVariable("c");
+		ExpressionAsserter expressionAsserter = assertAst(ast)
+				.elementIsExpression(0)
+				.hasSize(5);
+		expressionAsserter.nextTerm().atomIsVariable("a").and();
+		expressionAsserter.nextTerm().atomIsPunctuation(",").and();
+		expressionAsserter.nextTerm().atomIsVariable("b").and();
+		expressionAsserter.nextTerm().atomIsPunctuation(",").and();
+		expressionAsserter.nextTerm().atomIsVariable("c");
 
 		// 在定界符中
 		assertParsesTo("f\\left(x,y\\right)", "f \\left( x , y \\right)");
@@ -847,16 +859,16 @@ public class MathParserUnitTest {
 		System.out.println("\n=== Part 4.1: 分组 ===");
 
 		assertParsesTo("{x}", "{x}");
-		
+
 		// 增强：验证 AST 结构
 		MathList ast = assertParsesToWithAst("{a+b}", "{a + b}");
 		assertAst(ast)
-			.elementIsExpression(0)
+				.elementIsExpression(0)
 				.elementIsTerm(0)
-					.atomIsGroup()
-						.content()
-							.elementIsExpression(0)
-								.hasSize(3);
+				.atomIsGroup()
+				.content()
+				.elementIsExpression(0)
+				.hasSize(3);
 	}
 
 	@Test
@@ -864,29 +876,30 @@ public class MathParserUnitTest {
 		System.out.println("\n=== Part 4.2: 分式 ===");
 
 		assertParsesTo("\\frac{1}{2}", "\\frac{1}{2}");
-		
+
 		// 增强：验证 AST 结构
 		MathList ast = assertParsesToWithAst("\\frac{a}{b}", "\\frac{a}{b}");
 		assertAst(ast)
-			.elementIsExpression(0)
+				.elementIsExpression(0)
 				.elementIsTerm(0)
-					.atomIsFrac()
-						.command("frac")
-						.numeratorToString("a")
-						.denominatorToString("b");
-						
+				.atomIsFrac()
+				.command("frac")
+				.numeratorToString("a")
+				.denominatorToString("b");
+
 		ast = assertParsesToWithAst("\\frac{x+y}{x-y}", "\\frac{x + y}{x - y}");
-		assertAst(ast)
-			.elementIsExpression(0)
+		FracAsserter fracAsserter = assertAst(ast)
+				.elementIsExpression(0)
 				.elementIsTerm(0)
-					.atomIsFrac()
-						.numerator()
-							.elementIsExpression(0)
-								.hasSize(3)  // x, +, y
-						.and()
-						.denominator()
-							.elementIsExpression(0)
-								.hasSize(3);  // x, -, y
+				.atomIsFrac();
+
+		fracAsserter.numerator()
+				.elementIsExpression(0)
+				.hasSize(3);  // x, +, y;
+
+		fracAsserter.denominator()
+				.elementIsExpression(0)
+				.hasSize(3);  // x, -, y
 	}
 
 	@Test
@@ -894,25 +907,25 @@ public class MathParserUnitTest {
 		System.out.println("\n=== Part 4.3: 根式 ===");
 
 		assertParsesTo("\\sqrt{x}", "\\sqrt{x}");
-		
+
 		// 增强：验证 AST 结构
 		MathList ast = assertParsesToWithAst("\\sqrt{2}", "\\sqrt{2}");
 		assertAst(ast)
-			.elementIsExpression(0)
+				.elementIsExpression(0)
 				.elementIsTerm(0)
-					.atomIsSqrt()
-						.noRoot();
-						
+				.atomIsSqrt()
+				.noRoot();
+
 		ast = assertParsesToWithAst("\\sqrt[3]{27}", "\\sqrt[3]{27}");
 		assertAst(ast)
-			.elementIsExpression(0)
+				.elementIsExpression(0)
 				.elementIsTerm(0)
-					.atomIsSqrt()
-						.hasRoot()
-						.root()
-							.elementIsExpression(0)
-								.elementIsTerm(0)
-									.atomIsNumber("3");
+				.atomIsSqrt()
+				.hasRoot()
+				.root()
+				.elementIsExpression(0)
+				.elementIsTerm(0)
+				.atomIsNumber("3");
 	}
 
 	@Test
@@ -920,17 +933,17 @@ public class MathParserUnitTest {
 		System.out.println("\n=== Part 4.4: 定界符 ===");
 
 		assertParsesTo("\\left(x\\right)", "\\left( x \\right)");
-		
+
 		// 增强：验证 AST 结构
 		MathList ast = assertParsesToWithAst("\\left[x\\right]", "\\left[ x \\right]");
 		assertAst(ast)
-			.elementIsExpression(0)
+				.elementIsExpression(0)
 				.elementIsTerm(0)
-					.atomIsDelimited()
-						.level(0)
-						.leftDelimiter("[")
-						.rightDelimiter("]");
-						
+				.atomIsDelimited()
+				.level(0)
+				.leftDelimiter("[")
+				.rightDelimiter("]");
+
 		assertParsesTo("\\left\\{x\\right\\}", "\\left{ x \\right}");
 		assertParsesTo("\\left|x\\right|", "\\left| x \\right|");
 	}
@@ -940,27 +953,27 @@ public class MathParserUnitTest {
 		System.out.println("\n=== Part 4.5: 函数 ===");
 
 		assertParsesTo("\\sin x", "\\sin x");
-		
+
 		// 增强：验证 AST 结构
 		MathList ast = assertParsesToWithAst("\\cos x", "\\cos x");
 		assertAst(ast)
-			.elementIsExpression(0)
+				.elementIsExpression(0)
 				.hasSize(1)
 				.elementIsTerm(0)
-					.atomIsFunction()
-						.name("cos")
-						.hasArgument();
-						
+				.atomIsFunction()
+				.name("cos")
+				.hasArgument();
+
 		ast = assertParsesToWithAst("\\log_2 x", "\\log_2 x");
 		assertAst(ast)
-			.elementIsExpression(0)
+				.elementIsExpression(0)
 				.elementIsTerm(0)
-					.atomIsFunction()
-						.name("log")
-						.hasSuffix()
-						.suffix()
-							.hasSubscript()
-							.noSuperscript();
+				.atomIsFunction()
+				.name("log")
+				.hasSuffix()
+				.suffix()
+				.hasSubscript()
+				.noSuperscript();
 	}
 
 	@Test
@@ -968,19 +981,19 @@ public class MathParserUnitTest {
 		System.out.println("\n=== Part 4.6: 大型运算符 ===");
 
 		assertParsesTo("\\sum", "\\sum");
-		
+
 		// 增强：验证 AST 结构
 		MathList ast = assertParsesToWithAst("\\sum_{i=1}^{n}", "\\sum_{i = 1}^{n}");
 		assertAst(ast)
-			.elementIsExpression(0)
+				.elementIsExpression(0)
 				.elementIsTerm(0)
-					.atomIsLargeOperator()
-						.name("sum")
-						.hasSuffix()
-						.suffix()
-							.hasSuperscript()
-							.hasSubscript();
-							
+				.atomIsLargeOperator()
+				.name("sum")
+				.hasSuffix()
+				.suffix()
+				.hasSuperscript()
+				.hasSubscript();
+
 		assertParsesTo("\\int_0^1", "\\int_0^1");
 		assertParsesTo("\\lim_{x\\to 0}", "\\lim_{x \\to 0}");
 	}
@@ -994,11 +1007,11 @@ public class MathParserUnitTest {
 				"\\begin{matrix}\na & b\nc & d\n\\end{matrix}\n"
 		);
 		assertAst(ast)
-			.elementIsExpression(0)
+				.elementIsExpression(0)
 				.elementIsTerm(0)
-					.atomIsMatrix()
-						.environment("matrix")
-						.rowCount(2);
+				.atomIsMatrix()
+				.environment("matrix")
+				.rowCount(2);
 
 		assertParsesTo(
 				"\\begin{pmatrix}1&2\\\\3&4\\end{pmatrix}",
@@ -1017,15 +1030,15 @@ public class MathParserUnitTest {
 		System.out.println("\n=== Part 4.8: 文本 ===");
 
 		assertParsesTo("\\text{hello}", "\\text{hello}");
-		
+
 		// 增强：验证 AST 结构
 		MathList ast = assertParsesToWithAst("\\text{当x趋近于0时}", "\\text{当x趋近于0时}");
 		assertAst(ast)
-			.elementIsExpression(0)
+				.elementIsExpression(0)
 				.elementIsTerm(0)
-					.atomIsText()
-						.command("text")
-						.content("当x趋近于0时");
+				.atomIsText()
+				.command("text")
+				.content("当x趋近于0时");
 	}
 
 	@Test
@@ -1033,15 +1046,15 @@ public class MathParserUnitTest {
 		System.out.println("\n=== Part 4.9: 重音 ===");
 
 		assertParsesTo("\\hat{x}", "\\hat{x}");
-		
+
 		// 增强：验证 AST 结构
 		MathList ast = assertParsesToWithAst("\\vec{v}", "\\vec{v}");
 		assertAst(ast)
-			.elementIsExpression(0)
+				.elementIsExpression(0)
 				.elementIsTerm(0)
-					.atomIsAccent()
-						.command("vec");
-						
+				.atomIsAccent()
+				.command("vec");
+
 		assertParsesTo("\\bar{x}", "\\bar{x}");
 		assertParsesTo("\\hat x", "\\hat x");
 	}
@@ -1051,15 +1064,15 @@ public class MathParserUnitTest {
 		System.out.println("\n=== Part 4.10: 字体 ===");
 
 		assertParsesTo("\\mathbf{x}", "\\mathbf{x}");
-		
+
 		// 增强：验证 AST 结构
 		MathList ast = assertParsesToWithAst("\\mathbb{R}", "\\mathbb{R}");
 		assertAst(ast)
-			.elementIsExpression(0)
+				.elementIsExpression(0)
 				.elementIsTerm(0)
-					.atomIsFont()
-						.command("mathbb");
-						
+				.atomIsFont()
+				.command("mathbb");
+
 		assertParsesTo("\\mathcal{L}", "\\mathcal{L}");
 	}
 
@@ -1068,14 +1081,14 @@ public class MathParserUnitTest {
 		System.out.println("\n=== Part 4.11: 特殊符号 ===");
 
 		assertParsesTo("\\dots", "\\dots");
-		
+
 		// 增强：验证 AST 结构
 		MathList ast = assertParsesToWithAst("\\ldots", "\\ldots");
 		assertAst(ast)
-			.elementIsExpression(0)
+				.elementIsExpression(0)
 				.elementIsTerm(0)
-					.atomIsSpecialSymbol("ldots");
-					
+				.atomIsSpecialSymbol("ldots");
+
 		assertParsesTo("\\cdots", "\\cdots");
 		assertParsesTo("\\angle", "\\angle");
 
@@ -1097,24 +1110,24 @@ public class MathParserUnitTest {
 		System.out.println("\n=== Part 5.1: 上标 ===");
 
 		assertParsesTo("x^2", "x^2");
-		
+
 		// 增强：验证 AST 结构
 		MathList ast = assertParsesToWithAst("x^a", "x^a");
 		assertAst(ast)
-			.elementIsExpression(0)
+				.elementIsExpression(0)
 				.elementIsTerm(0)
-					.hasSuffix()
-					.suffix()
-						.hasSuperscript()
-						.noSubscript()
-						.superscriptContent("a");
-						
+				.hasSuffix()
+				.suffix()
+				.hasSuperscript()
+				.noSubscript()
+				.superscriptContent("a");
+
 		ast = assertParsesToWithAst("x^{n+1}", "x^{n + 1}");
 		assertAst(ast)
-			.elementIsExpression(0)
+				.elementIsExpression(0)
 				.elementIsTerm(0)
-					.suffix()
-						.superscriptContent("{n + 1}");
+				.suffix()
+				.superscriptContent("{n + 1}");
 	}
 
 	@Test
@@ -1122,23 +1135,23 @@ public class MathParserUnitTest {
 		System.out.println("\n=== Part 5.2: 下标 ===");
 
 		assertParsesTo("x_1", "x_1");
-		
+
 		// 增强：验证 AST 结构
 		MathList ast = assertParsesToWithAst("x_i", "x_i");
 		assertAst(ast)
-			.elementIsExpression(0)
+				.elementIsExpression(0)
 				.elementIsTerm(0)
-					.suffix()
-						.hasSubscript()
-						.noSuperscript()
-						.subscriptContent("i");
-						
+				.suffix()
+				.hasSubscript()
+				.noSuperscript()
+				.subscriptContent("i");
+
 		ast = assertParsesToWithAst("a_{i,j}", "a_{i , j}");
 		assertAst(ast)
-			.elementIsExpression(0)
+				.elementIsExpression(0)
 				.elementIsTerm(0)
-					.suffix()
-						.subscriptContent("{i , j}");
+				.suffix()
+				.subscriptContent("{i , j}");
 	}
 
 	@Test
@@ -1148,12 +1161,12 @@ public class MathParserUnitTest {
 		// 增强：验证 AST 结构
 		MathList ast = assertParsesToWithAst("x^2_1", "x^2_1");
 		assertAst(ast)
-			.elementIsExpression(0)
+				.elementIsExpression(0)
 				.elementIsTerm(0)
-					.suffix()
-						.hasSuperscript()
-						.hasSubscript();
-						
+				.suffix()
+				.hasSuperscript()
+				.hasSubscript();
+
 		assertParsesTo("x_1^2", "x_1^2");
 		assertParsesTo("x^{n+1}_{i}", "x^{n + 1}_{i}");
 	}
@@ -1213,15 +1226,14 @@ public class MathParserUnitTest {
 
 		// 增强：验证 AST 结构
 		MathList ast = assertParsesToWithAst("a\\quad b", "a\\quad b");
-		assertAst(ast)
-			.hasSize(3)
-			.nextExpression()
-			.and()
-			.nextSpacing()
-				.command("quad")
-			.and()
-			.nextExpression();
-			
+		MathListAsserter mathListAsserter = assertAst(ast);
+		mathListAsserter.hasSize(3)
+				.nextExpression()
+				.and();
+		mathListAsserter.nextSpacing()
+				.command("quad");
+		mathListAsserter.nextExpression();
+
 		assertParsesTo("a\\, b", "a\\, b");
 		assertParsesTo("a\\qquad b", "a\\qquad b");
 	}
