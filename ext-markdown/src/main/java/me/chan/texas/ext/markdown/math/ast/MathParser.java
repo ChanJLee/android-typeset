@@ -830,7 +830,7 @@ public class MathParser {
 			} else if (c == '\\' && (level = peekDelimitedLevel()) >= 0) {
 				argument = parseDelimited(level);
 			} else if (isSingleTokenStart()) {
-				argument = scanSingleToken();
+				argument = new SingleToken(scanSingleToken());
 			}
 		}
 
