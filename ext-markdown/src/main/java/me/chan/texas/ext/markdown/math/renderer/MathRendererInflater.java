@@ -53,13 +53,17 @@ public class MathRendererInflater {
 		return new LinearGroupNode(styles, list, LinearGroupNode.Gravity.HORIZONTAL);
 	}
 
+	private static final Spacing COMMON_SPACE = new Spacing(",", null);
+
 	private RendererNode inflateExpression(MathPaint.Styles styles, Expression expression) {
 		List<RendererNode> list = new ArrayList<>();
 		for (Ast ast : expression.elements) {
 			if (ast instanceof Term) {
 				list.add(inflateTerm(styles, (Term) ast));
 			} else if (ast instanceof BinOpAtom) {
+				list.add(inflateSpacing(styles, COMMON_SPACE));
 				list.add(inflateBinOp(styles, (BinOpAtom) ast));
+				list.add(inflateSpacing(styles, COMMON_SPACE));
 			} else {
 				throw new IllegalArgumentException("Unknown ast: " + ast);
 			}

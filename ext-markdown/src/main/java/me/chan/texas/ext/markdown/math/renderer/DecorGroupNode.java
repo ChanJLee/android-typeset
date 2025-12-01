@@ -134,7 +134,7 @@ public class DecorGroupNode extends RendererNode {
 		float offsetYPercent = 0.5f;
 		mBuilder.center.layout(0, 0);
 
-		float offsetX = mBuilder.mStyles.getTextSize() * 0.16f;
+		float offsetX = mBuilder.mStyles.getTextSize() * 0.2f;
 
 		if (mBuilder.leftTop != null) {
 			mBuilder.leftTop.layout(-mBuilder.leftTop.getWidth(), -mBuilder.leftTop.getHeight() * offsetYPercent);

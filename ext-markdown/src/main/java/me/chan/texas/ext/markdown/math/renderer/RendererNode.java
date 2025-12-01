@@ -1,8 +1,6 @@
 package me.chan.texas.ext.markdown.math.renderer;
 
-import android.graphics.Color;
 import android.graphics.Paint;
-import android.util.Log;
 import android.view.View;
 
 import androidx.annotation.IntRange;
@@ -11,7 +9,7 @@ import me.chan.texas.ext.markdown.math.renderer.core.MathCanvas;
 import me.chan.texas.ext.markdown.math.renderer.core.MathPaint;
 
 public abstract class RendererNode {
-	public static final boolean DEBUG = true;
+	public static final boolean DEBUG = false;
 
 	private final MathPaint.Styles mStyles;
 	private int mWidth;
