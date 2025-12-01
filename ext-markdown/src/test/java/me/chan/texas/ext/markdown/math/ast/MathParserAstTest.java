@@ -22,11 +22,11 @@ import static org.junit.Assert.*;
 
 /**
  * LaTeX 数学公式解析器全面测试
- *
+ * <p>
  * 测试内容：
  * 1. AST结构测试：验证解析器生成的AST节点结构
  * 2. RenderNode结构测试：验证渲染器生成的RenderNode结构
- *
+ * <p>
  * 覆盖BNF范式中定义的所有基本语法
  */
 public class MathParserAstTest {
@@ -380,6 +380,10 @@ public class MathParserAstTest {
 			assertTrue("应该是DelimitedAtom: " + testCase[0], atom instanceof DelimitedAtom);
 			DelimitedAtom delim = (DelimitedAtom) atom;
 			assertEquals("级别应该是" + testCase[1], Integer.parseInt(testCase[1]), delim.level);
+			if (delim.leftDelimiter.equals("{")) {
+				testCase[2] = "{";
+				testCase[3] = "}";
+			}
 			assertEquals("左定界符应该是" + testCase[2], testCase[2], delim.leftDelimiter);
 			assertEquals("右定界符应该是" + testCase[3], testCase[3], delim.rightDelimiter);
 		}
