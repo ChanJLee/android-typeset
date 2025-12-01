@@ -20,6 +20,7 @@ import java.util.List;
 
 import static org.junit.Assert.*;
 
+
 /**
  * LaTeX 数学公式解析器全面测试
  * <p>
@@ -214,7 +215,6 @@ public class MathParserAstTest {
 				{"a-b", "-"},
 				{"a*b", "*"},
 				{"a/b", "/"},
-				{"a,b", ","},
 				{"a\\times b", "\\times"},
 				{"a\\cdot b", "\\cdot"},
 				{"a\\div b", "\\div"},
@@ -246,6 +246,45 @@ public class MathParserAstTest {
 		}
 
 		System.out.println("✅ 二元运算符测试通过");
+	}
+
+	// ============ 新增：标点符号测试 ============
+
+	@Test
+	public void testPunctuationAtom() throws MathParseException {
+		System.out.println("\n=== 测试标点符号 ===");
+
+		// 逗号现在是标点符号，不是二元运算符
+		MathList result = parse("a,b");
+		Expression expr = getFirstExpression(result);
+		List<Ast> elements = expr.elements;
+
+		// 应该有3个元素：Term(a), Term(逗号), Term(b)
+		assertEquals("应该有3个元素", 3, elements.size());
+		assertTrue("第1个应该是Term", elements.get(0) instanceof Term);
+		assertTrue("第2个应该是Term", elements.get(1) instanceof Term);
+		assertTrue("第3个应该是Term", elements.get(2) instanceof Term);
+
+		// 验证第2个Term是标点符号
+		Term commaTerm = (Term) elements.get(1);
+		assertTrue("应该是PunctuationAtom", commaTerm.atom instanceof PunctuationAtom);
+		PunctuationAtom comma = (PunctuationAtom) commaTerm.atom;
+		assertEquals("标点符号应该是逗号", ",", comma.symbol);
+		assertNull("标点符号不应该有一元运算符", commaTerm.unaryOp);
+		assertNull("标点符号不应该有上下标", commaTerm.suffix);
+
+		// 测试多个逗号
+		result = parse("a,b,c");
+		expr = getFirstExpression(result);
+		elements = expr.elements;
+		assertEquals("应该有5个元素", 5, elements.size());
+
+		// 测试在定界符中的逗号
+		result = parse("f\\left(x,y\\right)");
+		expr = getFirstExpression(result);
+		assertTrue("应该包含定界符", expr.elements.size() > 0);
+
+		System.out.println("✅ 标点符号测试通过");
 	}
 
 	// ============ 3. 上下标测试 ============

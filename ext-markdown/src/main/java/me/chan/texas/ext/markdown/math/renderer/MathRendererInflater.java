@@ -22,6 +22,7 @@ import me.chan.texas.ext.markdown.math.ast.MathList;
 import me.chan.texas.ext.markdown.math.ast.MatrixAtom;
 import me.chan.texas.ext.markdown.math.ast.MatrixRow;
 import me.chan.texas.ext.markdown.math.ast.NumberAtom;
+import me.chan.texas.ext.markdown.math.ast.PunctuationAtom;
 import me.chan.texas.ext.markdown.math.ast.ScriptArg;
 import me.chan.texas.ext.markdown.math.ast.SingleToken;
 import me.chan.texas.ext.markdown.math.ast.Spacing;
@@ -277,7 +278,15 @@ public class MathRendererInflater {
 			return inflateSpecialSymbolAtom(styles, (SpecialSymbolAtom) atom);
 		}
 
+		if (atom instanceof PunctuationAtom) {
+			return inflatePunctuationAtom(styles, (PunctuationAtom) atom);
+		}
+
 		throw new IllegalArgumentException("Unknown atom: " + atom);
+	}
+
+	private RendererNode inflatePunctuationAtom(MathPaint.Styles styles, PunctuationAtom atom) {
+		return new TextNode(styles, atom.symbol);
 	}
 
 	private RendererNode inflateSpecialSymbolAtom(MathPaint.Styles styles, SpecialSymbolAtom atom) {
