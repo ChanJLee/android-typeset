@@ -235,3 +235,12 @@
 <special_symbol> ::= "\dots" | "\ldots" | "\cdots" | "\vdots" | "\ddots"
                    | "\angle"
                    | "\therefore" | "\because"
+                   | "\hbar"           (* ℏ 约化普朗克常数 *)
+                   | "\nabla"          (* ∇ 梯度算子/哈密顿算子 *)
+                   | "\partial"        (* ∂ 偏导数符号 *)
+                   | "\ell"            (* ℓ 脚本小写L *)
+                   | "\wp"             (* ℘ 魏尔斯特拉斯函数 *)
+                   | "\Re" | "\Im"     (* ℜ ℑ 实部虚部 *)
+                   | "\aleph"          (* ℵ 阿列夫数 *)
+                   | "\forall" | "\exists" | "\nexists"  (* ∀ ∃ ∄ 量词 *)
+                   | "\emptyset" | "\varnothing"  (* ∅ 空集 *)

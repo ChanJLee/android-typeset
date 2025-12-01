@@ -30,7 +30,17 @@ public class MathParser {
 	private static final Set<String> SPECIAL_SYMBOLS = new HashSet<>(Arrays.asList(
 			"dots", "ldots", "cdots", "vdots", "ddots",  // 省略号
 			"angle",  // 角度符号
-			"therefore", "because"  // 逻辑标记符号
+			"therefore", "because",  // 逻辑标记符号
+			// 添加物理/数学常用符号
+			"hbar",           // ℏ 约化普朗克常数
+			"nabla",          // ∇ 梯度算子
+			"partial",        // ∂ 偏导数
+			"ell",            // ℓ 脚本小写L
+			"wp",             // ℘ 魏尔斯特拉斯函数
+			"Re", "Im",       // ℜ ℑ 实部虚部
+			"aleph",          // ℵ 阿列夫数
+			"forall", "exists", "nexists",  // ∀ ∃ ∄ 量词
+			"emptyset", "varnothing"  // ∅ 空集
 	));
 
 	// 函数名集合

@@ -127,13 +127,23 @@ public class MathFontOptions {
 
 		// 其他常用符号
 		AST.put("infty", "infinity");
-		AST.put("partial", "partialdiff");
-		AST.put("nabla", "nabla");
-		AST.put("emptyset", "emptyset");
-		AST.put("forall", "universal");
-		AST.put("exists", "existential");
+		AST.put("partial", "partialdiff");     // ∂ (偏导数) - 已存在
+		AST.put("nabla", "nabla");             // ∇ (梯度算子) - 已存在
+		AST.put("emptyset", "emptyset");       // ∅ (空集) - 已存在
+		AST.put("varnothing", "emptyset");     // ∅ (空集变体) - 新增
+		AST.put("forall", "universal");        // ∀ (全称量词) - 已存在
+		AST.put("exists", "existential");      // ∃ (存在量词) - 已存在
+		AST.put("nexists", "uni2204");         // ∄ (不存在) - 新增
 		AST.put("neg", "logicalnot");
 		AST.put("sqrt", "radical");
+		
+		// 物理和数学特殊符号 - 新增
+		AST.put("hbar", "uni210F");            // ℏ (约化普朗克常数)
+		AST.put("ell", "uni2113");             // ℓ (脚本小写L)
+		AST.put("wp", "weierstrass");          // ℘ (魏尔斯特拉斯函数)
+		AST.put("Re", "Rfraktur");             // ℜ (实部)
+		AST.put("Im", "Ifraktur");             // ℑ (虚部)
+		AST.put("aleph", "aleph");             // ℵ (阿列夫数)
 
 		// 定界符 (Delimiters)
 		AST.put("langle", "angleleft");
