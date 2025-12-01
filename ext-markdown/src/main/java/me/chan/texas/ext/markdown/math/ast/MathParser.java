@@ -1065,6 +1065,12 @@ public class MathParser {
 			stream.eat();
 			String cmd = scanCommandName();
 			stream.restore(saved);
+
+			// 排除空格命令（\, \: \; \! 等），它们不是二元运算符
+			if (SPACING_COMMANDS.contains(cmd)) {
+				return false;
+			}
+
 			return BINARY_OPERATORS.contains(cmd);
 		}
 

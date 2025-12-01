@@ -586,7 +586,7 @@ public class MathParserAstTest {
 		};
 
 		for (String cmd : spacingCommands) {
-			MathList result = parse("a" + cmd + "b");
+			MathList result = parse("a" + cmd + " b");
 			List<Ast> elements = result.elements;
 
 			// 应该至少有3个元素：Expression, Spacing, Expression
