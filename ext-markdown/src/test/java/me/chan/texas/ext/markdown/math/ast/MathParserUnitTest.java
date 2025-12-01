@@ -1031,4 +1031,559 @@ public class MathParserUnitTest {
 
 		System.out.println("✅ 真实世界表达式测试通过");
 	}
+
+	// ============ 新增：矩阵测试 ============
+
+	@Test
+	public void test32_Matrix() {
+		System.out.println("\n=== 测试 <matrix> ===");
+
+		// 基本矩阵环境
+		assertParsesTo(
+				"\\begin{matrix}a&b\\\\c&d\\end{matrix}",
+				"\\begin{matrix}\na & b\nc & d\n\\end{matrix}\n"
+		);
+
+		assertParsesTo(
+				"\\begin{pmatrix}1&2\\\\3&4\\end{pmatrix}",
+				"\\begin{pmatrix}\n1 & 2\n3 & 4\n\\end{pmatrix}\n"
+		);
+
+		assertParsesTo(
+				"\\begin{bmatrix}x&y\\\\z&w\\end{bmatrix}",
+				"\\begin{bmatrix}\nx & y\nz & w\n\\end{bmatrix}\n"
+		);
+
+		// 其他矩阵环境
+		assertParsesTo(
+				"\\begin{Bmatrix}a\\\\b\\end{Bmatrix}",
+				"\\begin{Bmatrix}\na\nb\n\\end{Bmatrix}\n"
+		);
+
+		assertParsesTo(
+				"\\begin{vmatrix}1&0\\\\0&1\\end{vmatrix}",
+				"\\begin{vmatrix}\n1 & 0\n0 & 1\n\\end{vmatrix}\n"
+		);
+
+		assertParsesTo(
+				"\\begin{Vmatrix}a&b\\\\c&d\\end{Vmatrix}",
+				"\\begin{Vmatrix}\na & b\nc & d\n\\end{Vmatrix}\n"
+		);
+
+		// cases 环境（分段函数）
+		assertParsesTo(
+				"\\begin{cases}x,&x\\ge 0\\\\-x,&x<0\\end{cases}",
+				"\\begin{cases}\nx, & x\\ge 0\n-x, & x<0\n\\end{cases}\n"
+		);
+
+		// 验证 AST 结构
+		try {
+			Term term = getTerm("\\begin{matrix}a&b\\\\c&d\\end{matrix}");
+			assertTrue("Atom应该是MatrixAtom", term.atom instanceof MatrixAtom);
+			MatrixAtom matrix = (MatrixAtom) term.atom;
+			assertEquals("matrix", matrix.env);
+			assertEquals(2, matrix.rows.size());
+			assertEquals(2, matrix.rows.get(0).elements.size());
+		} catch (MathParseException e) {
+			fail(e.pretty());
+		}
+	}
+
+	@Test
+	public void test33_MatrixWithComplexElements() {
+		System.out.println("\n=== 测试矩阵中的复杂元素 ===");
+
+		// 矩阵元素是分式
+		assertParsesTo(
+				"\\begin{pmatrix}\\frac{1}{2}&\\frac{3}{4}\\\\0&1\\end{pmatrix}",
+				"\\begin{pmatrix}\n\\frac{1}{2} & \\frac{3}{4}\n0 & 1\n\\end{pmatrix}\n"
+		);
+
+		// 矩阵元素带上下标
+		assertParsesTo(
+				"\\begin{matrix}a_{11}&a_{12}\\\\a_{21}&a_{22}\\end{matrix}",
+				"\\begin{matrix}\na_{11} & a_{12}\na_{21} & a_{22}\n\\end{matrix}\n"
+		);
+
+		// 3x3矩阵
+		assertParsesTo(
+				"\\begin{pmatrix}1&2&3\\\\4&5&6\\\\7&8&9\\end{pmatrix}",
+				"\\begin{pmatrix}\n1 & 2 & 3\n4 & 5 & 6\n7 & 8 & 9\n\\end{pmatrix}\n"
+		);
+	}
+
+// ============ 新增：定界符级别完整测试 ============
+
+	@Test
+	public void test34_DelimiterLevels() {
+		System.out.println("\n=== 测试所有定界符级别 ===");
+
+		// level 1: bigl/bigr
+		assertParsesTo("\\bigl(x\\bigr)", "\\bigl( x \\bigr)");
+
+		// level 2: Bigl/Bigr
+		assertParsesTo("\\Bigl[x\\Bigr]", "\\Bigl[ x \\Bigr]");
+
+		// level 3: biggl/biggr
+		assertParsesTo("\\biggl\\{x\\biggr\\}", "\\biggl{ x \\biggr}");
+
+		// level 4: Biggl/Biggr
+		assertParsesTo("\\Biggl|x\\Biggr|", "\\Biggl| x \\Biggr|");
+
+		// 验证 AST 结构中的 level 值
+		try {
+			DelimitedAtom delim;
+
+			delim = (DelimitedAtom) getTerm("\\left(x\\right)").atom;
+			assertEquals(0, delim.level);
+
+			delim = (DelimitedAtom) getTerm("\\bigl(x\\bigr)").atom;
+			assertEquals(1, delim.level);
+
+			delim = (DelimitedAtom) getTerm("\\Bigl(x\\Bigr)").atom;
+			assertEquals(2, delim.level);
+
+			delim = (DelimitedAtom) getTerm("\\biggl(x\\biggr)").atom;
+			assertEquals(3, delim.level);
+
+			delim = (DelimitedAtom) getTerm("\\Biggl(x\\Biggr)").atom;
+			assertEquals(4, delim.level);
+
+			System.out.println("✅ 所有定界符级别验证通过");
+		} catch (MathParseException e) {
+			fail(e.pretty());
+		}
+	}
+
+// ============ 新增：深度 AST 结构测试 ============
+
+	@Test
+	public void test35_DeepAstStructure() {
+		System.out.println("\n=== 测试深度 AST 结构 ===");
+
+		try {
+			// 测试 MathList -> Expression -> Term 层级
+			MathList ast = parse("a+b*c");
+			assertEquals("MathList应该有1个元素（一个Expression）", 1, ast.elements.size());
+			assertTrue("应该是Expression", ast.elements.get(0) instanceof Expression);
+
+			Expression expr = (Expression) ast.elements.get(0);
+			// a + b * c 解析为 a + (b * c)，但由于是左结合，实际是 (a + b) * c
+			// 根据 BNF，这应该是 term binary_op term binary_op term
+			assertEquals("Expression应该有5个元素", 5, expr.elements.size());
+			assertTrue("第1个是Term(a)", expr.elements.get(0) instanceof Term);
+			assertTrue("第2个是BinOp(+)", expr.elements.get(1) instanceof BinOpAtom);
+			assertTrue("第3个是Term(b)", expr.elements.get(2) instanceof Term);
+			assertTrue("第4个是BinOp(*)", expr.elements.get(3) instanceof BinOpAtom);
+			assertTrue("第5个是Term(c)", expr.elements.get(4) instanceof Term);
+
+			// 测试带一元运算符的Term
+			ast = parse("-x+y");
+			expr = (Expression) ast.elements.get(0);
+			Term firstTerm = (Term) expr.elements.get(0);
+			assertNotNull("应该有一元运算符", firstTerm.unaryOp);
+			assertEquals("-", firstTerm.unaryOp.op);
+			assertTrue("Atom应该是VariableAtom", firstTerm.atom instanceof VariableAtom);
+
+			// 测试带上下标的Term
+			ast = parse("x_1^2");
+			expr = (Expression) ast.elements.get(0);
+			Term term = (Term) expr.elements.get(0);
+			assertNotNull("应该有上下标后缀", term.suffix);
+			assertNotNull("应该有下标", term.suffix.subscript);
+			assertNotNull("应该有上标", term.suffix.superscript);
+
+			// 测试 MathList 中的多个 Expression 和 Spacing
+			ast = parse("a\\quad b");
+			assertEquals("应该有3个元素", 3, ast.elements.size());
+			assertTrue("第1个应该是Expression", ast.elements.get(0) instanceof Expression);
+			assertTrue("第2个应该是Spacing", ast.elements.get(1) instanceof Spacing);
+			assertTrue("第3个应该是Expression", ast.elements.get(2) instanceof Expression);
+
+			System.out.println("✅ 深度 AST 结构验证通过");
+		} catch (MathParseException e) {
+			fail(e.pretty());
+		}
+	}
+
+	@Test
+	public void test36_GroupStructure() {
+		System.out.println("\n=== 测试 Group 内部结构 ===");
+
+		try {
+			// 简单 group
+			Term term = getTerm("{x}");
+			Group group = (Group) term.atom;
+			assertEquals(1, group.content.elements.size());
+
+			// 复杂 group
+			term = getTerm("{a+b}");
+			group = (Group) term.atom;
+			assertEquals(1, group.content.elements.size());
+			Expression expr = (Expression) group.content.elements.get(0);
+			assertEquals(3, expr.elements.size()); // a, +, b
+
+			// 嵌套 group
+			term = getTerm("{{x}}");
+			group = (Group) term.atom;
+			assertEquals(1, group.content.elements.size());
+			Expression innerExpr = (Expression) group.content.elements.get(0);
+			Term innerTerm = (Term) innerExpr.elements.get(0);
+			assertTrue("内部应该也是Group", innerTerm.atom instanceof Group);
+
+			System.out.println("✅ Group 结构验证通过");
+		} catch (MathParseException e) {
+			fail(e.pretty());
+		}
+	}
+
+// ============ 新增：更多歧义性测试 ============
+
+	@Test
+	public void test37_ImplicitMultiplication() {
+		System.out.println("\n=== 测试隐式乘法边界 ===");
+
+		// 变量连写
+		assertParsesTo("abc", "abc");
+		assertParsesTo("xy", "xy");
+
+		// 数字后跟变量（应该分开）
+		assertParsesTo("2x", "2 x");
+		assertParsesTo("3.14r", "3.14 r");
+
+		// 变量后跟数字（应该分开）
+		assertParsesTo("x2", "x 2");
+
+		// 变量与希腊字母（应该分开）
+		assertParsesTo("x\\alpha", "x \\alpha");
+
+		// 数字与希腊字母（应该分开）
+		assertParsesTo("2\\pi", "2 \\pi");
+
+		// group 与变量（应该分开）
+		assertParsesTo("{a}b", "{a} b");
+		assertParsesTo("a{b}", "a {b}");
+
+		System.out.println("✅ 隐式乘法边界验证通过");
+	}
+
+	@Test
+	public void test38_FunctionArgumentBoundary() {
+		System.out.println("\n=== 测试函数参数解析边界 ===");
+
+		// 函数后跟单个 token
+		assertParsesTo("\\sin x", "\\sin x");
+		assertParsesTo("\\cos\\theta", "\\cos \\theta");
+
+		// 函数后跟 group
+		assertParsesTo("\\sin{x+y}", "\\sin{x+y}");
+
+		// 函数后跟定界符
+		assertParsesTo("\\sin\\left(x\\right)", "\\sin \\left( x \\right)");
+
+		// 函数后跟运算（函数只吃掉第一个 token）
+		assertParsesTo("\\sin x+\\cos y", "\\sin x+\\cos y");
+
+		// 函数后跟分式（函数只吃掉分式）
+		assertParsesTo("\\sin\\frac{x}{2}", "\\sin \\frac{x}{2}");
+
+		// 连续函数调用
+		assertParsesTo("\\sin\\cos x", "\\sin \\cos x");
+
+		try {
+			MathList ast = parse("\\sin x+y");
+			Expression expr = (Expression) ast.elements.get(0);
+			// 应该是: sin(x) + y，即 3个元素
+			assertEquals(3, expr.elements.size());
+			Term firstTerm = (Term) expr.elements.get(0);
+			assertTrue("第一个应该是FunctionCallAtom", firstTerm.atom instanceof FunctionCallAtom);
+			FunctionCallAtom func = (FunctionCallAtom) firstTerm.atom;
+			assertNotNull("函数应该有参数", func.argument);
+
+			System.out.println("✅ 函数参数边界验证通过");
+		} catch (MathParseException e) {
+			fail(e.pretty());
+		}
+	}
+
+	@Test
+	public void test39_SuperscriptPrecedence() {
+		System.out.println("\n=== 测试上下标优先级和边界 ===");
+
+		// 上标后跟运算符（上标只吃掉紧邻的 token）
+		assertParsesTo("x^2+1", "x^2+1");  // (x^2) + 1
+		assertParsesTo("x^2y", "x^2 y");   // (x^2) * y
+
+		// 上标是 group
+		assertParsesTo("x^{2+1}", "x^{2+1}");
+		assertParsesTo("x^{a+b}y", "x^{a+b} y");
+
+		// 连续上下标（第二个是新 term）
+		assertParsesTo("x^2^3", "x^2^3");  // (x^2)^3 或 x^(2^3)？
+
+		// 函数的上下标
+		assertParsesTo("\\sin^2 x", "\\sin^2 x");
+		assertParsesTo("\\log_2 x", "\\log_2 x");
+
+		// 大型运算符的上下标
+		assertParsesTo("\\sum_{i=1}^{n}a_i", "\\sum_{i=1}^{n} a_i");
+
+		try {
+			// 验证 x^2+1 的结构
+			Expression expr = getExpression("x^2+1");
+			assertEquals(3, expr.elements.size());
+			Term xTerm = (Term) expr.elements.get(0);
+			assertNotNull("x应该有上标", xTerm.suffix);
+			assertNotNull("应该有上标", xTerm.suffix.superscript);
+
+			// +1 应该是后面的 term
+			BinOpAtom plus = (BinOpAtom) expr.elements.get(1);
+			assertEquals("+", plus.op);
+
+			System.out.println("✅ 上下标优先级验证通过");
+		} catch (MathParseException e) {
+			fail(e.pretty());
+		}
+	}
+
+	@Test
+	public void test40_ScriptArgOperatorSymbols() {
+		System.out.println("\n=== 测试上下标中的运算符符号 ===");
+
+		// BNF 中 script_arg 可以是 operator_symbol
+		assertParsesTo("x^+", "x^+");
+		assertParsesTo("x^-", "x^-");
+		assertParsesTo("x_+", "x_+");
+		assertParsesTo("a^{\\pm}", "a^{\\pm}");
+
+		// 在上下标中使用运算符符号
+		assertParsesTo("f^{=}", "f^{=}");
+		assertParsesTo("g_<", "g_<");
+
+		try {
+			Term term = getTerm("x^+");
+			assertNotNull("应该有上标", term.suffix);
+			assertNotNull("上标应该存在", term.suffix.superscript);
+
+			System.out.println("✅ 上下标运算符符号验证通过");
+		} catch (MathParseException e) {
+			fail(e.pretty());
+		}
+	}
+
+	@Test
+	public void test41_EmptyGroupContexts() {
+		System.out.println("\n=== 测试空 group 在各种上下文 ===");
+
+		// 空 group 作为独立 term
+		assertParsesTo("{}", "{}");
+
+		// 空 group 作为上下标
+		assertParsesTo("x^{}", "x^{}");
+		assertParsesTo("x_{}", "x_{}");
+
+		// 空 group 在表达式中
+		assertParsesTo("{}+{}", "{}+{}");
+		assertParsesTo("x+{}", "x+{}");
+
+		// 分式中的空 group
+		assertParsesTo("\\frac{}{x}", "\\frac{}{x}");
+		assertParsesTo("\\frac{x}{}", "\\frac{x}{}");
+
+		// 根式中的空 group
+		assertParsesTo("\\sqrt{}", "\\sqrt{}");
+
+		System.out.println("✅ 空 group 上下文验证通过");
+	}
+
+// ============ 新增：边界情况测试 ============
+
+	@Test
+	public void test42_EdgeCases() {
+		System.out.println("\n=== 测试边界情况 ===");
+
+		// 只有空格（应该解析为空 MathList）
+		try {
+			MathList ast = parse("   ");
+			assertTrue("应该是空 MathList", ast.elements.isEmpty());
+		} catch (MathParseException e) {
+			fail(e.pretty());
+		}
+
+		// 单个字符
+		assertParsesTo("x", "x");
+		assertParsesTo("1", "1");
+		assertParsesTo("+", "+");  // 一元运算符需要操作数，所以这会失败
+
+		// 深度嵌套
+		assertParsesTo("{{{{x}}}}", "{{{{x}}}}");
+		assertParsesTo("\\frac{\\frac{\\frac{1}{2}}{3}}{4}",
+				"\\frac{\\frac{\\frac{1}{2}}{3}}{4}");
+
+		// 长表达式
+		assertParsesTo("a+b+c+d+e+f+g", "a+b+c+d+e+f+g");
+
+		// 混合各种元素
+		assertParsesTo(
+				"\\mathbf{A}=\\begin{pmatrix}a&b\\\\c&d\\end{pmatrix}",
+				"\\mathbf{A}=\\begin{pmatrix}\na & b\nc & d\n\\end{pmatrix}\n"
+		);
+	}
+
+	@Test
+	public void test43_SpecialSymbolsWithScripts() {
+		System.out.println("\n=== 测试特殊符号带上下标的详细结构 ===");
+
+		try {
+			// \dots 带上标
+			Term term = getTerm("\\dots^{n}");
+			assertTrue("应该是SpecialSymbolAtom", term.atom instanceof SpecialSymbolAtom);
+			assertNull("特殊符号不应有一元运算符", term.unaryOp);
+			assertNotNull("应该有上下标", term.suffix);
+
+			// \angle 带下标
+			term = getTerm("\\angle_1");
+			assertTrue("应该是SpecialSymbolAtom", term.atom instanceof SpecialSymbolAtom);
+			assertNull("特殊符号不应有一元运算符", term.unaryOp);
+			assertNotNull("应该有上下标", term.suffix);
+
+			System.out.println("✅ 特殊符号上下标结构验证通过");
+		} catch (MathParseException e) {
+			fail(e.pretty());
+		}
+	}
+
+	@Test
+	public void test44_MultipleSpacingCommands() {
+		System.out.println("\n=== 测试多个连续空格命令 ===");
+
+		assertParsesTo("a\\quad\\quad b", "a\\quad \\quad b");
+		assertParsesTo("x\\,\\,\\,y", "x\\,\\,\\, y");
+		assertParsesTo("a\\quad\\qquad b", "a\\quad \\qquad b");
+
+		try {
+			MathList ast = parse("a\\quad\\quad b");
+			// 应该是: Expression(a), Spacing(quad), Spacing(quad), Expression(b)
+			assertEquals(4, ast.elements.size());
+			assertTrue("第1个是Expression", ast.elements.get(0) instanceof Expression);
+			assertTrue("第2个是Spacing", ast.elements.get(1) instanceof Spacing);
+			assertTrue("第3个是Spacing", ast.elements.get(2) instanceof Spacing);
+			assertTrue("第4个是Expression", ast.elements.get(3) instanceof Expression);
+
+			System.out.println("✅ 多空格命令结构验证通过");
+		} catch (MathParseException e) {
+			fail(e.pretty());
+		}
+	}
+
+	@Test
+	public void test45_ComplexNestedStructure() {
+		System.out.println("\n=== 测试复杂嵌套结构的 AST ===");
+
+		try {
+			// 分式中包含求和，求和中包含分式
+			String input = "\\frac{\\sum_{i=1}^{n}\\frac{1}{i}}{n}";
+			MathList ast = parse(input);
+
+			// 验证顶层是一个 Expression，包含一个 Term
+			assertEquals(1, ast.elements.size());
+			Expression expr = (Expression) ast.elements.get(0);
+			assertEquals(1, expr.elements.size());
+			Term term = (Term) expr.elements.get(0);
+
+			// 验证是 FracAtom
+			assertTrue("应该是FracAtom", term.atom instanceof FracAtom);
+			FracAtom frac = (FracAtom) term.atom;
+
+			// 验证分子包含求和
+			assertFalse("分子不应为空", frac.numerator.elements.isEmpty());
+			Expression numerExpr = (Expression) frac.numerator.elements.get(0);
+			Term sumTerm = (Term) numerExpr.elements.get(0);
+			assertTrue("分子应该包含LargeOperatorAtom", sumTerm.atom instanceof LargeOperatorAtom);
+
+			System.out.println("✅ 复杂嵌套结构验证通过");
+		} catch (MathParseException e) {
+			fail(e.pretty());
+		}
+	}
+
+	@Test
+	public void test46_AllAccentCommands() {
+		System.out.println("\n=== 测试所有重音符号命令 ===");
+
+		String[] accents = {
+				"\\hat", "\\widehat", "\\tilde", "\\widetilde",
+				"\\bar", "\\overline", "\\underline",
+				"\\vec", "\\overrightarrow", "\\overleftarrow",
+				"\\dot", "\\ddot", "\\dddot",
+				"\\acute", "\\grave", "\\breve", "\\check",
+				"\\mathring",
+				"\\overbrace", "\\underbrace"
+		};
+
+		for (String accent : accents) {
+			assertParsesTo(accent + "{x}", accent + "{x}");
+
+			// 某些重音符号也支持 single_token 形式
+			if (accent.equals("\\hat") || accent.equals("\\bar") ||
+					accent.equals("\\vec") || accent.equals("\\dot")) {
+				assertParsesTo(accent + " x", accent + " x");
+			}
+		}
+
+		System.out.println("✅ 所有重音符号测试通过");
+	}
+
+	@Test
+	public void test47_ErrorRecovery() {
+		System.out.println("\n=== 测试更多错误情况 ===");
+
+		// 矩阵环境不匹配
+		assertParseFails("\\begin{matrix}a\\end{pmatrix}");
+
+		// 定界符不匹配大小
+		assertParseFails("\\left(x\\bigr)");
+		assertParseFails("\\bigl(x\\Bigr)");
+
+		// 三重上标
+		assertParseFails("x^2^3^4");
+
+		// 空命令
+		assertParseFails("\\");
+
+		// 不完整的矩阵
+		assertParseFails("\\begin{matrix}a&b");
+
+		// 函数名拼写错误
+		assertParseFails("\\sine x");
+	}
+
+	@Test
+	public void test48_RealWorldComplexExpressions() {
+		System.out.println("\n=== 测试更多真实世界复杂表达式 ===");
+
+		// 泰勒展开
+		assertParsesTo(
+				"e^x=\\sum_{n=0}^{\\infty}\\frac{x^n}{n!}",
+				"e^x=\\sum_{n=0}^{\\infty} \\frac{x^n}{n!}"
+		);
+
+		// 柯西-施瓦茨不等式
+		assertParsesTo(
+				"\\left(\\sum_{i=1}^{n}a_i b_i\\right)^2\\le\\left(\\sum_{i=1}^{n}a_i^2\\right)\\left(\\sum_{i=1}^{n}b_i^2\\right)",
+				"\\left( \\sum_{i=1}^{n} a_i b_i \\right)^2\\le \\left( \\sum_{i=1}^{n} a_i^2 \\right) \\left( \\sum_{i=1}^{n} b_i^2 \\right)"
+		);
+
+		// 矩阵乘法
+		assertParsesTo(
+				"\\begin{pmatrix}a&b\\\\c&d\\end{pmatrix}\\begin{pmatrix}x\\\\y\\end{pmatrix}=\\begin{pmatrix}ax+by\\\\cx+dy\\end{pmatrix}",
+				"\\begin{pmatrix}\na & b\nc & d\n\\end{pmatrix}\n \\begin{pmatrix}\nx\ny\n\\end{pmatrix}\n=\\begin{pmatrix}\nax+by\ncx+dy\n\\end{pmatrix}\n"
+		);
+
+		// 行列式展开
+		assertParsesTo(
+				"\\det A=\\sum_{\\sigma\\in S_n}\\text{sgn}\\left(\\sigma\\right)\\prod_{i=1}^{n}a_{i,\\sigma_i}",
+				"\\det A=\\sum_{\\sigma\\in S_n} \\text{sgn} \\left( \\sigma \\right) \\prod_{i=1}^{n} a_{i,\\sigma_i}"
+		);
+	}
 }
