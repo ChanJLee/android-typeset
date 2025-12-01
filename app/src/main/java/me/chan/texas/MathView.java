@@ -77,7 +77,7 @@ public class MathView extends View {
 		mCanvas = new MathCanvasImpl(new TexasCanvasImpl());
 
 		{
-			textPaint.setTextSize(128);
+			textPaint.setTextSize(64);
 			mRendererNode = mockDecor();
 		}
 	}
@@ -218,7 +218,7 @@ public class MathView extends View {
 	}
 
 	public RendererNode mockDecor() {
-		MathParser parser = new MathParser(new CharStream("\\left(a+b\\right)^n=\\sum_{k=0}^{n}C_n^k a^{n-k}b^k\\left( a+b \\right)^n=\\sum_{k=0}^{n} C_n^k a^{n-k} b^k"));
+		MathParser parser = new MathParser(new CharStream("\\left(\\sum_{i=1}^{n}a_i b_i\\right)^2\\le\\left(\\sum_{i=1}^{n}a_i^2\\right)\\left(\\sum_{i=1}^{n}b_i^2\\right)"));
 		MathRendererInflater inflater = new MathRendererInflater();
 		try {
 			return inflater.inflate(new MathPaint.Styles(mTexasPaint), parser.parse());

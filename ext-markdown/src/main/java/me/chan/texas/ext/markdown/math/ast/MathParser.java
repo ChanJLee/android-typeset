@@ -26,11 +26,6 @@ public class MathParser {
 			"perp", "parallel"
 	));
 
-	// 添加标点符号集合
-	private static final Set<String> PUNCTUATION = new HashSet<>(Arrays.asList(
-			","
-	));
-
 	// 特殊符号集合（不能被一元运算符修饰，但可带上下标）
 	private static final Set<String> SPECIAL_SYMBOLS = new HashSet<>(Arrays.asList(
 			"dots", "ldots", "cdots", "vdots", "ddots",  // 省略号
