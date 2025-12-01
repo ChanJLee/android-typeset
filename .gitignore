@@ -41,3 +41,5 @@ ant.properties
 build
 /library/build
 library/build
+# Heap dump files
+*.hprof
