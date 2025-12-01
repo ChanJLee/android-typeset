@@ -8,6 +8,8 @@ import me.chan.texas.ext.markdown.math.renderer.RendererNode;
 import me.chan.texas.ext.markdown.math.renderer.SpaceNode;
 import me.chan.texas.ext.markdown.math.renderer.core.MathPaint;
 import me.chan.texas.ext.markdown.math.renderer.core.MathPaintImpl;
+import me.chan.texas.misc.PaintSet;
+import me.chan.texas.renderer.core.graphics.TexasPaint;
 import me.chan.texas.renderer.core.graphics.TexasPaintImpl;
 import me.chan.texas.utils.CharStream;
 
@@ -35,7 +37,9 @@ public class MathParserAstTest {
 	@Before
 	public void setUp() {
 		inflater = new MathRendererInflater();
-		defaultStyles = new MathPaint.Styles(new MathPaintImpl(new TexasPaintImpl()));
+		TexasPaint texasPaint = new TexasPaintImpl();
+		texasPaint.reset(new PaintSet(new MockTextPaint(1)));
+		defaultStyles = new MathPaint.Styles(new MathPaintImpl(texasPaint));
 	}
 
 	// ============ 辅助方法 ============

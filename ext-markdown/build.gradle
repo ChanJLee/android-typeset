@@ -23,6 +23,17 @@ android {
         sourceCompatibility JavaVersion.VERSION_11
         targetCompatibility JavaVersion.VERSION_11
     }
+
+    testOptions {
+        unitTests.returnDefaultValues = true
+        unitTests {
+            includeAndroidResources = true
+        }
+
+        unitTests.all {
+            jvmArgs '-noverify', '-XX:+HeapDumpOnOutOfMemoryError', '-XX:HeapDumpPath=tmp.hprof', '-XX:+UnlockDiagnosticVMOptions', '-XX:+WhiteBoxAPI'
+        }
+    }
 }
 
 dependencies {
