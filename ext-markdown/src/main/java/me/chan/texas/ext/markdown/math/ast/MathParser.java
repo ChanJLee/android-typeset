@@ -367,12 +367,8 @@ public class MathParser {
 	}
 
 	/**
-	 * <term> ::= [ <unary_op> ] <operand_atom> [ <sup_sub_suffix> ]
-	 * | <special_symbol> [ <sup_sub_suffix> ] | <punctuation>
-	 * <p>
-	 * term 分为两类：
-	 * 1. 可运算的原子（可被一元运算符修饰）
-	 * 2. 特殊符号（不能被一元运算符修饰，如省略号、角度符号等）
+	 * <term> ::= [ <unary_op> ] <operand_atom> [ <sup_sub_suffix> ] [ <postfix_op> ]
+	 *          | <special_symbol> [ <sup_sub_suffix> ] | <punctuation>
 	 */
 	private Term parseTerm() throws MathParseException {
 		skipWhitespace();
@@ -402,7 +398,24 @@ public class MathParser {
 		Atom atom = parseOperandAtom();
 		skipWhitespace();
 		SupSubSuffix suffix = tryParseSupSubSuffix();
-		return new Term(unaryOp, atom, suffix);
+
+		// 新增：尝试解析后缀运算符
+		skipWhitespace();
+		PostfixOp postfixOp = tryParsePostfixOp();
+
+		return new Term(unaryOp, atom, suffix, postfixOp);
+	}
+
+	/**
+	 * 尝试解析后缀运算符
+	 * <postfix_op> ::= "!"
+	 */
+	private PostfixOp tryParsePostfixOp() {
+		if (!stream.eof() && stream.peek() == '!') {
+			stream.eat();
+			return new PostfixOp("!");
+		}
+		return null;
 	}
 
 	// 添加标点符号检查和解析方法

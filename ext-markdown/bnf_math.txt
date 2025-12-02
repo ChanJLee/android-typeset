@@ -1,5 +1,5 @@
 (* 
- * LaTeX数学公式BNF范式 - 修正版v4
+ * LaTeX数学公式BNF范式 - 修正版v5
  * 修正内容：
  * 1. 移除了 <plain_symbol> 中的运算符，避免与二元/一元运算符冲突
  * 2. 运算符只能作为 <unary_op> 或 <binary_op> 出现，不能作为独立 atom
@@ -10,6 +10,7 @@
  * 7. (v3) 分离 <operand_atom> 和 <special_symbol>，避免一元运算符修饰特殊符号（如 "-\dots"）
  * 8. (v4) 重新分类符号：将类变量符号（如 \nabla, \partial, \hbar）从 special_symbol 移到
  *    special_letter_variable，使其可以被一元运算符修饰（如 "-\nabla"）
+ * 9. (v5) 添加后缀运算符支持：支持阶乘符号 ! (如 "n!", "5!", "(n-1)!")
  *)
 
 (* ============ 顶层结构 ============ *)
@@ -28,12 +29,13 @@
               | <term>                  (* 直接相邻的 term：隐式乘法或标点 *)
 
 (* term 分为两类：
- * 1. 可运算的原子（可被一元运算符修饰，可带上下标）
- * 2. 特殊符号（不能被一元运算符修饰，但可带上下标，用于标记）
+ * 1. 可运算的原子（可被一元运算符修饰，可带上下标，可带后缀运算符）
+ * 2. 特殊符号（不能被一元运算符修饰，但可带上下标）
  * 3. 标点符号（独立存在，不能被修饰，不能带上下标）
  *)
-<term> ::= [ <unary_op> ] <operand_atom> [ <sup_sub_suffix> ]
-         | <special_symbol> [ <sup_sub_suffix> ] | <punctuation>
+<term> ::= [ <unary_op> ] <operand_atom> [ <sup_sub_suffix> ] [ <postfix_op> ]
+         | <special_symbol> [ <sup_sub_suffix> ]
+         | <punctuation>
 
 (* ============ 原子表达式 ============ *)
 
@@ -72,6 +74,9 @@
 
 (* 一元运算符：只能出现在 term 开头，修饰可运算的原子 *)
 <unary_op> ::= "+" | "-" | "\pm" | "\mp"
+
+(* 后缀运算符：只能出现在 term 末尾（在上下标之后） *)
+<postfix_op> ::= "!"    (* 阶乘 *)
 
 (* 二元运算符：必须连接两个 term *)
 <binary_op> ::= "+" | "-" | "*" | "/" | "|"
