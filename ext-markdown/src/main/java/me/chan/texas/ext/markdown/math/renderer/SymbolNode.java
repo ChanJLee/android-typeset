@@ -2,13 +2,16 @@ package me.chan.texas.ext.markdown.math.renderer;
 
 import android.graphics.Color;
 
+import androidx.annotation.VisibleForTesting;
+
 import me.chan.texas.ext.markdown.math.renderer.core.MathCanvas;
 import me.chan.texas.ext.markdown.math.renderer.core.MathPaint;
 import me.chan.texas.ext.markdown.math.renderer.fonts.MathFontOptions;
 import me.chan.texas.ext.markdown.math.renderer.fonts.Symbol;
 
 public class SymbolNode extends RendererNode {
-	private final Symbol mSymbol;
+	@VisibleForTesting
+	final Symbol mSymbol;
 	private float mOffsetY;
 	private float mOffsetX;
 

@@ -1,4 +1,4 @@
-package me.chan.texas.ext.markdown.math.ast;
+package me.chan.texas.ext.markdown.math.renderer;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -6,7 +6,10 @@ import org.junit.Test;
 import java.lang.reflect.Field;
 import java.util.List;
 
-import me.chan.texas.ext.markdown.math.renderer.*;
+import me.chan.texas.ext.markdown.math.ast.MathList;
+import me.chan.texas.ext.markdown.math.ast.MathParseException;
+import me.chan.texas.ext.markdown.math.ast.MathParser;
+import me.chan.texas.ext.markdown.math.ast.MockTextPaint;
 import me.chan.texas.ext.markdown.math.renderer.core.MathPaint;
 import me.chan.texas.ext.markdown.math.renderer.core.MathPaintImpl;
 import me.chan.texas.misc.PaintSet;
@@ -487,6 +490,12 @@ public class MathParserAstTest {
 		SymbolNodeAsserter and() {
 			return this;
 		}
+
+		public SymbolNodeAsserter hasContent(String expectedContent) {
+			SymbolNode symbolNode = (SymbolNode) node;
+			assertEquals("文本内容", expectedContent, symbolNode.mSymbol.unicode);
+			return this;
+		}
 	}
 
 	/**
@@ -612,7 +621,7 @@ public class MathParserAstTest {
 		exprGroup.childAt(1).asSpaceNode();
 
 		// 第3个：BinOp(+)
-		exprGroup.childAt(2).asDecorGroup().center().asTextNode().hasContent("+");
+		exprGroup.childAt(2).asSymbolNode().hasContent("+");
 
 		// 第4个：Space
 		exprGroup.childAt(3).asSpaceNode();
