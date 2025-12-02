@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import me.chan.texas.ext.markdown.math.ast.BinOpAtom;
+import me.chan.texas.ext.markdown.math.ast.ExtensibleArrowAtom;
 import me.chan.texas.ext.markdown.math.ast.SpecialLetterVariableAtom;
 import me.chan.texas.ext.markdown.math.ast.SpecialSymbolAtom;
 import me.chan.texas.ext.markdown.math.ast.UnaryOp;
@@ -137,7 +138,7 @@ public class MathFontOptions {
 		AST.put("nexists", "uni2204");         // ∄ (不存在) - 新增
 		AST.put("neg", "logicalnot");
 		AST.put("sqrt", "radical");
-		
+
 		// 物理和数学特殊符号 - 新增
 		AST.put("hbar", "uni210F");            // ℏ (约化普朗克常数)
 		AST.put("ell", "uni2113");             // ℓ (脚本小写L)
@@ -291,5 +292,31 @@ public class MathFontOptions {
 		}
 
 		return symbol(ref);
+	}
+
+	public static Symbol ast(ExtensibleArrowAtom atom) {
+		String command = atom.command;
+		switch (command) {
+			case "xrightarrow":
+				return MathFontOptions.symbol("arrowright");
+			case "xleftarrow":
+				return MathFontOptions.symbol("arrowleft");
+			case "xleftrightarrow":
+				return MathFontOptions.symbol("arrowboth");
+			case "xRightarrow":
+				return MathFontOptions.symbol("arrowdblright");
+			case "xLeftarrow":
+				return MathFontOptions.symbol("arrowdblleft");
+			case "xLeftrightarrow":
+				return MathFontOptions.symbol("arrowdblboth");
+			default:
+				// 如果没有找到对应的符号，使用 rightarrow 作为默认
+				Symbol symbol = MathFontOptions.symbol("arrowright");
+				if (symbol == null) {
+					// 如果连默认箭头都找不到，抛出异常
+					throw new IllegalArgumentException("Unknown extensible arrow command: " + command);
+				}
+				return symbol;
+		}
 	}
 }

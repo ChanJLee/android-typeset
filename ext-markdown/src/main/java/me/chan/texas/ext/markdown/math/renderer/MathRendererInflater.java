@@ -11,6 +11,7 @@ import me.chan.texas.ext.markdown.math.ast.Atom;
 import me.chan.texas.ext.markdown.math.ast.BinOpAtom;
 import me.chan.texas.ext.markdown.math.ast.DelimitedAtom;
 import me.chan.texas.ext.markdown.math.ast.Expression;
+import me.chan.texas.ext.markdown.math.ast.ExtensibleArrowAtom;
 import me.chan.texas.ext.markdown.math.ast.FontAtom;
 import me.chan.texas.ext.markdown.math.ast.FracAtom;
 import me.chan.texas.ext.markdown.math.ast.FunctionCallAtom;
@@ -213,6 +214,35 @@ public class MathRendererInflater {
 		return builder.build();
 	}
 
+	private RendererNode inflateExtensibleArrowAtom(MathPaint.Styles styles, ExtensibleArrowAtom atom) {
+		// 获取箭头符号
+		Symbol arrowSymbol = MathFontOptions.ast(atom);
+		RendererNode arrowNode = new SymbolNode(styles, arrowSymbol);
+
+		// 使用 DecorGroupNode 来布局箭头和上下文本
+		DecorGroupNode.Builder builder = new DecorGroupNode.Builder(styles, arrowNode);
+
+		// 上方内容（必需）
+		if (atom.above != null) {
+			RendererNode above = inflate(
+					styles.copy().setTextSizeFactor(SUB_EXP_FACTOR),
+					atom.above
+			);
+			builder.top(above);
+		}
+
+		// 下方内容（可选）
+		if (atom.below != null) {
+			RendererNode below = inflate(
+					styles.copy().setTextSizeFactor(SUB_EXP_FACTOR),
+					atom.below
+			);
+			builder.bottom(below);
+		}
+
+		return builder.build();
+	}
+
 	private RendererNode inflatePostfixOp(MathPaint.Styles styles, PostfixOp op) {
 		return new TextNode(styles, op.op);
 	}
@@ -267,6 +297,10 @@ public class MathRendererInflater {
 
 		if (atom instanceof SqrtAtom) {
 			return inflateSqrtAtom(styles, (SqrtAtom) atom);
+		}
+
+		if (atom instanceof ExtensibleArrowAtom) {  // 新增这个判断
+			return inflateExtensibleArrowAtom(styles, (ExtensibleArrowAtom) atom);
 		}
 
 		if (atom instanceof DelimitedAtom) {
