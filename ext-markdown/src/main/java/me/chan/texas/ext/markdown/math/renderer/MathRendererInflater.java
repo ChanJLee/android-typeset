@@ -419,8 +419,8 @@ public class MathRendererInflater {
 			left = inflateDelimiter(styles, "[");
 			right = inflateDelimiter(styles, "]");
 		} else if ("Bmatrix".equals(atom.env)) {
-			left = inflateDelimiter(styles, "\\{");
-			right = inflateDelimiter(styles, "\\}");
+			left = inflateDelimiter(styles, "{");
+			right = inflateDelimiter(styles, "}");
 		} else if ("vmatrix".equals(atom.env)) {
 			left = inflateDelimiter(styles, "lvert");
 			right = inflateDelimiter(styles, "rvert");
@@ -633,7 +633,7 @@ public class MathRendererInflater {
 		if (sqrtAtom.root != null) {
 			root = inflate(new MathPaint.Styles(styles).setTextSizeFactor(SUB_EXP_FACTOR), sqrtAtom.root);
 		}
-		return new SqrtNode(styles, root, inflate(styles, sqrtAtom.content));
+		return new SqrtNode(styles, inflate(styles, sqrtAtom.content), root);
 	}
 
 	private RendererNode inflateFracAtom(MathPaint.Styles styles, FracAtom atom) {
