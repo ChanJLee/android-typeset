@@ -1,5 +1,5 @@
 (* 
- * LaTeX数学公式BNF范式 - 修正版v3
+ * LaTeX数学公式BNF范式 - 修正版v4
  * 修正内容：
  * 1. 移除了 <plain_symbol> 中的运算符，避免与二元/一元运算符冲突
  * 2. 运算符只能作为 <unary_op> 或 <binary_op> 出现，不能作为独立 atom
@@ -8,6 +8,8 @@
  * 5. 修正二元运算符定义，确保必须有右操作数（修复 "x +" 被判定为合法的问题）
  * 6. 补充了 <font_command> 和 <special_symbol> 到原子表达式中
  * 7. (v3) 分离 <operand_atom> 和 <special_symbol>，避免一元运算符修饰特殊符号（如 "-\dots"）
+ * 8. (v4) 重新分类符号：将类变量符号（如 \nabla, \partial, \hbar）从 special_symbol 移到
+ *    special_letter_variable，使其可以被一元运算符修饰（如 "-\nabla"）
  *)
 
 (* ============ 顶层结构 ============ *)
@@ -39,6 +41,7 @@
 <operand_atom> ::= <number>
                  | <variable>
                  | <greek_letter_variable>
+                 | <special_letter_variable>
                  | <group>
                  | <frac>
                  | <sqrt>
@@ -97,6 +100,15 @@
                  | "\infty"
 
 <greek_letter_variable> ::= <greek_letter> [ <prime_suffix> ]
+
+(* 类字母的特殊符号：可以被一元运算符修饰（如 -\nabla），可带上下标，行为类似变量 *)
+<special_letter_variable> ::= "\hbar"           (* ℏ 约化普朗克常数 *)
+                             | "\nabla"          (* ∇ 梯度算子/哈密顿算子 *)
+                             | "\partial"        (* ∂ 偏导数符号 *)
+                             | "\ell"            (* ℓ 脚本小写L *)
+                             | "\wp"             (* ℘ 魏尔斯特拉斯函数 *)
+                             | "\Re" | "\Im"     (* ℜ ℑ 实部虚部 *)
+                             | "\aleph"          (* ℵ 阿列夫数 *)
 
 (* ============ 分组（递归有界） ============ *)
 
@@ -235,15 +247,8 @@
 
 (* ============ 特殊符号（不能被一元运算符修饰，但可带上下标） ============ *)
 
-<special_symbol> ::= "\dots" | "\ldots" | "\cdots" | "\vdots" | "\ddots"
-                   | "\angle"
-                   | "\therefore" | "\because"
-                   | "\hbar"           (* ℏ 约化普朗克常数 *)
-                   | "\nabla"          (* ∇ 梯度算子/哈密顿算子 *)
-                   | "\partial"        (* ∂ 偏导数符号 *)
-                   | "\ell"            (* ℓ 脚本小写L *)
-                   | "\wp"             (* ℘ 魏尔斯特拉斯函数 *)
-                   | "\Re" | "\Im"     (* ℜ ℑ 实部虚部 *)
-                   | "\aleph"          (* ℵ 阿列夫数 *)
+<special_symbol> ::= "\dots" | "\ldots" | "\cdots" | "\vdots" | "\ddots"  (* 省略号 *)
+                   | "\angle"                    (* 角度符号 *)
+                   | "\therefore" | "\because"   (* 逻辑标记符号 *)
                    | "\forall" | "\exists" | "\nexists"  (* ∀ ∃ ∄ 量词 *)
                    | "\emptyset" | "\varnothing"  (* ∅ 空集 *)

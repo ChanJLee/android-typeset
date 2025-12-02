@@ -218,7 +218,8 @@ public class MathView extends View {
 	}
 
 	public RendererNode mockDecor() {
-		MathParser parser = new MathParser(new CharStream("\\left(\\sum_{i=1}^{n}a_i b_i\\right)^2\\le\\left(\\sum_{i=1}^{n}a_i^2\\right)\\left(\\sum_{i=1}^{n}b_i^2\\right)"));
+		String text = "i\\hbar\\frac{\\partial}{\\partial t}\\Psi\\left(r,t\\right)=\\left[-\\frac{\\hbar^2}{2m}\\nabla^2+V\\left(r,t\\right)\\right]\\Psi\\left(r,t\\right)";
+		MathParser parser = new MathParser(new CharStream(text));
 		MathRendererInflater inflater = new MathRendererInflater();
 		try {
 			return inflater.inflate(new MathPaint.Styles(mTexasPaint), parser.parse());

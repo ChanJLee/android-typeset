@@ -27,21 +27,24 @@ public class MathParser {
 			"mid"  // 新增：整除符号（可选，与 | 效果相同）
 	));
 
-	// 特殊符号集合（不能被一元运算符修饰，但可带上下标）
+	// 真正的特殊符号（不能被一元运算符修饰）
 	private static final Set<String> SPECIAL_SYMBOLS = new HashSet<>(Arrays.asList(
 			"dots", "ldots", "cdots", "vdots", "ddots",  // 省略号
 			"angle",  // 角度符号
 			"therefore", "because",  // 逻辑标记符号
-			// 添加物理/数学常用符号
+			"forall", "exists", "nexists",  // ∀ ∃ ∄ 量词
+			"emptyset", "varnothing"  // ∅ 空集
+	));
+
+	// 类希腊字母的符号（可以被一元运算符修饰，视为变量）
+	private static final Set<String> SPECIAL_VARIABLE_SYMBOLS = new HashSet<>(Arrays.asList(
 			"hbar",           // ℏ 约化普朗克常数
 			"nabla",          // ∇ 梯度算子
 			"partial",        // ∂ 偏导数
 			"ell",            // ℓ 脚本小写L
 			"wp",             // ℘ 魏尔斯特拉斯函数
 			"Re", "Im",       // ℜ ℑ 实部虚部
-			"aleph",          // ℵ 阿列夫数
-			"forall", "exists", "nexists",  // ∀ ∃ ∄ 量词
-			"emptyset", "varnothing"  // ∅ 空集
+			"aleph"           // ℵ 阿列夫数
 	));
 
 	// 函数名集合
@@ -66,6 +69,7 @@ public class MathParser {
 	));
 
 	// 希腊字母集合
+// 希腊字母集合
 	private static final Set<String> GREEK_LETTERS = new HashSet<>(Arrays.asList(
 			"alpha", "beta", "gamma", "delta", "epsilon", "varepsilon",
 			"zeta", "eta", "theta", "vartheta", "iota", "kappa",
@@ -537,9 +541,14 @@ public class MathParser {
 			throw new MathParseException("Empty command", stream);
 		}
 
-		// 希腊字母
+		// 在希腊字母处理之后添加：
 		if (GREEK_LETTERS.contains(cmd)) {
 			return parseGreekLetterAtom(cmd);
+		}
+
+		// 新增：特殊变量符号（类似希腊字母的处理）
+		if (SPECIAL_VARIABLE_SYMBOLS.contains(cmd)) {
+			return parseSpecialVariableAtom(cmd);
 		}
 
 		// 分式
@@ -589,6 +598,15 @@ public class MathParser {
 
 		stream.restore(startPos);
 		throw new MathParseException("Unknown command: \\" + cmd, stream);
+	}
+
+	private SpecialLetterVariableAtom parseSpecialVariableAtom(String cmd) {
+		StringBuilder builder = new StringBuilder();
+		// 解析可选的 prime 后缀
+		while (!stream.eof() && stream.peek() == '\'') {
+			builder.append((char) stream.eat());
+		}
+		return new SpecialLetterVariableAtom(cmd, builder.toString());
 	}
 
 	private Atom parseMatrix() throws MathParseException {
