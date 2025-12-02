@@ -1957,6 +1957,39 @@ public class MathParserUnitTest {
 		);
 	}
 
+	/**
+	 * BinomAtom 验证器
+	 */
+	static class BinomAsserter {
+		private final BinomAtom binom;
+
+		BinomAsserter(BinomAtom binom) {
+			this.binom = binom;
+		}
+
+		BinomAsserter command(String expectedCommand) {
+			assertEquals("二项式系数命令", expectedCommand, binom.command);
+			return this;
+		}
+
+		MathListAsserter upper() {
+			return new MathListAsserter(binom.upper);
+		}
+
+		MathListAsserter lower() {
+			return new MathListAsserter(binom.lower);
+		}
+
+		BinomAsserter upperToString(String expected) {
+			assertEquals("上部分", expected, binom.upper.toString());
+			return this;
+		}
+
+		BinomAsserter lowerToString(String expected) {
+			assertEquals("下部分", expected, binom.lower.toString());
+			return this;
+		}
+	}
 	@Test
 	public void test_99_Summary() {
 		System.out.println("\n" + "=".repeat(60));

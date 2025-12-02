@@ -47,6 +47,7 @@
                  | <special_letter_variable>
                  | <group>
                  | <frac>
+                 | <binom>
                  | <sqrt>
                  | <delimited>
                  | <function_call>
@@ -147,6 +148,20 @@
          | "\dfrac" "{" <math_list> "}" "{" <math_list> "}"
          | "\tfrac" "{" <math_list> "}" "{" <math_list> "}"
          | "\cfrac" "{" <math_list> "}" "{" <math_list> "}"
+
+(* ============ 二项式系数 ============ *)
+
+<binom> ::= "\binom" "{" <math_list> "}" "{" <math_list> "}"
+          | "\dbinom" "{" <math_list> "}" "{" <math_list> "}"
+          | "\tbinom" "{" <math_list> "}" "{" <math_list> "}"
+
+(* 注意：
+ * - \binom 产生普通大小的二项式系数
+ * - \dbinom 产生 display style 的二项式系数（较大）
+ * - \tbinom 产生 text style 的二项式系数（较小）
+ * 例如：\binom{n}{k} 渲染为 (n)
+ *                              (k)
+ *)
 
 (* ============ 根式 ============ *)
 

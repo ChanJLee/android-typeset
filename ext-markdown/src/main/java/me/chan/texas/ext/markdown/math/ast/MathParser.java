@@ -127,6 +127,12 @@ public class MathParser {
 					"frac", "dfrac", "tfrac", "cfrac"
 			)
 	);
+	// 新增二项式系数命令集合
+	private static final Set<String> BINOM_COMMANDS = new HashSet<>(
+			Arrays.asList(
+					"binom", "dbinom", "tbinom"
+			)
+	);
 	private static final Set<String> MATRIX_COMMANDS = new HashSet<>(
 			Arrays.asList("matrix", "pmatrix", "bmatrix", "Bmatrix", "vmatrix", "Vmatrix",
 					"smallmatrix", "array", "cases")
@@ -258,11 +264,12 @@ public class MathParser {
 			String cmd = scanCommandName();
 			stream.restore(saved);
 
-			// 检查是否是有效的 atom 命令或特殊符号
+// 检查是否是有效的 atom 命令或特殊符号
 			return GREEK_LETTERS.contains(cmd)
 					|| FRAC_COMMANDS.contains(cmd)
+					|| BINOM_COMMANDS.contains(cmd)  // 新增这行
 					|| cmd.equals("sqrt")
-					|| EXTENSIBLE_ARROW_COMMANDS.contains(cmd)  // 新增这一行
+					|| EXTENSIBLE_ARROW_COMMANDS.contains(cmd)
 					|| getDelimitedLevel(cmd) >= 0
 					|| FUNCTION_NAMES.contains(cmd)
 					|| LARGE_OPERATORS.contains(cmd)
@@ -271,7 +278,7 @@ public class MathParser {
 					|| ACCENT_COMMANDS.contains(cmd)
 					|| FONT_COMMANDS.contains(cmd)
 					|| SPECIAL_SYMBOLS.contains(cmd)
-					|| SPECIAL_VARIABLE_SYMBOLS.contains(cmd);  // 这个也可能需要加上
+					|| SPECIAL_VARIABLE_SYMBOLS.contains(cmd);
 		}
 
 		return false;
@@ -609,6 +616,11 @@ public class MathParser {
 			return parseFrac(cmd);
 		}
 
+		// 二项式系数 - 新增
+		if (BINOM_COMMANDS.contains(cmd)) {
+			return parseBinom(cmd);
+		}
+
 		// 根式
 		if (cmd.equals("sqrt")) {
 			return parseSqrt();
@@ -656,6 +668,31 @@ public class MathParser {
 
 		stream.restore(startPos);
 		throw new MathParseException("Unknown command: \\" + cmd, stream);
+	}
+
+	/**
+	 * <binom> ::= "\binom" "{" <math_list> "}" "{" <math_list> "}"
+	 */
+	private BinomAtom parseBinom(String cmd) throws MathParseException {
+		skipWhitespace();
+		expect('{');
+
+		recursionDepth++;
+		try {
+			MathList upper = parseMathList();
+			skipWhitespace();
+			expect('}');
+
+			skipWhitespace();
+			expect('{');
+			MathList lower = parseMathList();
+			skipWhitespace();
+			expect('}');
+
+			return new BinomAtom(cmd, upper, lower);
+		} finally {
+			recursionDepth--;
+		}
 	}
 
 	private SpecialLetterVariableAtom parseSpecialVariableAtom(String cmd) {

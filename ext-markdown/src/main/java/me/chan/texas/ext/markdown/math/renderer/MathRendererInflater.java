@@ -9,6 +9,7 @@ import me.chan.texas.ext.markdown.math.ast.AccentAtom;
 import me.chan.texas.ext.markdown.math.ast.Ast;
 import me.chan.texas.ext.markdown.math.ast.Atom;
 import me.chan.texas.ext.markdown.math.ast.BinOpAtom;
+import me.chan.texas.ext.markdown.math.ast.BinomAtom;
 import me.chan.texas.ext.markdown.math.ast.DelimitedAtom;
 import me.chan.texas.ext.markdown.math.ast.Expression;
 import me.chan.texas.ext.markdown.math.ast.ExtensibleArrowAtom;
@@ -214,6 +215,21 @@ public class MathRendererInflater {
 		return builder.build();
 	}
 
+	private RendererNode inflateBinomAtom(MathPaint.Styles styles, BinomAtom atom) {
+		RendererNode upper = inflate(styles.copy().setTextSizeFactor(0.8f), atom.upper);
+		RendererNode lower = inflate(styles.copy().setTextSizeFactor(0.8f), atom.lower);
+		List<RendererNode> list = new ArrayList<>();
+		list.add(upper);
+		list.add(lower);
+
+		return new BraceLayout(
+				styles, DelimitedAtom.LEVEL_L0,
+				inflateDelimiter(styles, "("),
+				new LinearGroupNode(styles, list, LinearGroupNode.Gravity.VERTICAL),
+				inflateDelimiter(styles, ")")
+		);
+	}
+
 	private RendererNode inflateExtensibleArrowAtom(MathPaint.Styles styles, ExtensibleArrowAtom atom) {
 		// 获取箭头符号
 		Symbol arrowSymbol = MathFontOptions.ast(atom);
@@ -299,7 +315,12 @@ public class MathRendererInflater {
 			return inflateSqrtAtom(styles, (SqrtAtom) atom);
 		}
 
-		if (atom instanceof ExtensibleArrowAtom) {  // 新增这个判断
+		if (atom instanceof BinomAtom) {
+			return inflateBinomAtom(styles, (BinomAtom) atom);
+		}
+
+
+		if (atom instanceof ExtensibleArrowAtom) {
 			return inflateExtensibleArrowAtom(styles, (ExtensibleArrowAtom) atom);
 		}
 
