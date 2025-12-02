@@ -242,7 +242,11 @@ public class MathFontOptions {
 	}
 
 	public static Symbol ast(UnaryOp atom) {
-		String ref = AST.get(atom.op);
+		String op = atom.op;
+		if (op.startsWith("\\")) {
+			op = atom.op.substring(1);
+		}
+		String ref = AST.get(op);
 		if (ref == null) {
 			throw new IllegalArgumentException("Unknown ast op: " + atom.op);
 		}

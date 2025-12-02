@@ -777,7 +777,7 @@ public class MathParserAstTest {
 		exprGroup.hasChildCount(1);
 		DecorGroupNodeAsserter termDecor = exprGroup.childAt(0).asDecorGroup();
 		termDecor.hasLeft();
-		termDecor.left().asTextNode().hasContent("-");
+		termDecor.left().asSymbolNode().hasContent("−");
 		termDecor.center().asTextNode().hasContent("x");
 
 		// 测试其他一元运算符

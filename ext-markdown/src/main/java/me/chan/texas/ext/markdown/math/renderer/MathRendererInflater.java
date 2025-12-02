@@ -195,7 +195,7 @@ public class MathRendererInflater {
 		DecorGroupNode.Builder builder = new DecorGroupNode.Builder(styles, content);
 
 		if (term.unaryOp != null) {
-			builder.left(inflateSymbol(styles, term.unaryOp.op));
+			builder.left(new SymbolNode(styles, MathFontOptions.ast(term.unaryOp)));
 		}
 
 		SupSubSuffix suffix = term.suffix;
@@ -673,24 +673,5 @@ public class MathRendererInflater {
 		}
 
 		throw new IllegalArgumentException("unknown operator: " + largeOperatorAtom.name);
-	}
-
-	private RendererNode inflateSymbol(MathPaint.Styles styles, String symbol) {
-		if (symbol.startsWith("\\")) {
-			symbol = symbol.substring(1);
-			Symbol s = MathFontOptions.symbol(symbol);
-			if (s != null) {
-				return new SymbolNode(styles, s);
-			}
-
-			String o = MathFontOptions.textOp(symbol);
-			if (o != null) {
-				return new TextNode(styles, o);
-			}
-
-			throw new IllegalArgumentException("unknown symbol");
-		}
-
-		return new TextNode(styles, symbol);
 	}
 }
