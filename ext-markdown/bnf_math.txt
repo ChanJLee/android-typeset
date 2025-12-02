@@ -1,5 +1,5 @@
 (* 
- * LaTeX数学公式BNF范式 - 修正版v5
+ * LaTeX数学公式BNF范式 - 修正版v6
  * 修正内容：
  * 1. 移除了 <plain_symbol> 中的运算符，避免与二元/一元运算符冲突
  * 2. 运算符只能作为 <unary_op> 或 <binary_op> 出现，不能作为独立 atom
@@ -11,6 +11,7 @@
  * 8. (v4) 重新分类符号：将类变量符号（如 \nabla, \partial, \hbar）从 special_symbol 移到
  *    special_letter_variable，使其可以被一元运算符修饰（如 "-\nabla"）
  * 9. (v5) 添加后缀运算符支持：支持阶乘符号 ! (如 "n!", "5!", "(n-1)!")
+ * 10. (v6) 添加可扩展箭头支持：\xrightarrow, \xleftarrow 等命令，支持上下标注
  *)
 
 (* ============ 顶层结构 ============ *)
@@ -54,6 +55,7 @@
                  | <text>
                  | <accent>
                  | <font_command>
+                 | <extensible_arrow>
 
 (* 注意：<special_symbol> 不能被一元运算符修饰，在 <term> 级别单独处理 *)
 
@@ -150,6 +152,22 @@
 
 <sqrt> ::= "\sqrt" "{" <math_list> "}"
          | "\sqrt" "[" <math_list> "]" "{" <math_list> "}"
+
+(* ============ 可扩展箭头 ============ *)
+
+<extensible_arrow> ::= <extensible_arrow_cmd> [ "[" <math_list> "]" ] "{" <math_list> "}"
+
+<extensible_arrow_cmd> ::= "\xrightarrow" | "\xleftarrow" | "\xleftrightarrow"
+                          | "\xRightarrow" | "\xLeftarrow" | "\xLeftrightarrow"
+                          | "\xhookrightarrow" | "\xhookleftarrow"
+                          | "\xtwoheadrightarrow" | "\xtwoheadleftarrow"
+                          | "\xmapsto" | "\xtofrom"
+
+(* 注意：
+ * - 方括号 [...] 内的内容（可选）会显示在箭头下方
+ * - 花括号 {...} 内的内容（必需）会显示在箭头上方
+ * 例如：\xrightarrow{上方} 或 \xrightarrow[下方]{上方}
+ *)
 
 (* ============ 定界符 ============ *)
 

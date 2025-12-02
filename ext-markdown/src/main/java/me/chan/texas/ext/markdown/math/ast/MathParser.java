@@ -131,6 +131,11 @@ public class MathParser {
 			Arrays.asList("matrix", "pmatrix", "bmatrix", "Bmatrix", "vmatrix", "Vmatrix",
 					"smallmatrix", "array", "cases")
 	);
+	private static final Set<String> EXTENSIBLE_ARROW_COMMANDS = new HashSet<>(Arrays.asList(
+			"xrightarrow", "xleftarrow",
+			"xRightarrow", "xLeftarrow",
+			"xleftrightarrow", "xLeftrightarrow"
+	));
 
 	public MathParser(CharStream stream) {
 		this.stream = stream;
@@ -246,7 +251,7 @@ public class MathParser {
 			return true;
 		}
 
-		// 命令（以 \ 开头）
+// 命令（以 \ 开头）
 		if (c == '\\') {
 			int saved = stream.save();
 			stream.eat();
@@ -257,6 +262,7 @@ public class MathParser {
 			return GREEK_LETTERS.contains(cmd)
 					|| FRAC_COMMANDS.contains(cmd)
 					|| cmd.equals("sqrt")
+					|| EXTENSIBLE_ARROW_COMMANDS.contains(cmd)  // 新增这一行
 					|| getDelimitedLevel(cmd) >= 0
 					|| FUNCTION_NAMES.contains(cmd)
 					|| LARGE_OPERATORS.contains(cmd)
@@ -264,10 +270,47 @@ public class MathParser {
 					|| TEXT_COMMANDS.contains(cmd)
 					|| ACCENT_COMMANDS.contains(cmd)
 					|| FONT_COMMANDS.contains(cmd)
-					|| SPECIAL_SYMBOLS.contains(cmd);
+					|| SPECIAL_SYMBOLS.contains(cmd)
+					|| SPECIAL_VARIABLE_SYMBOLS.contains(cmd);  // 这个也可能需要加上
 		}
 
 		return false;
+	}
+
+	/**
+	 * <extensible_arrow> ::= <extensible_arrow_cmd> [ "[" <math_list> "]" ] "{" <math_list> "}"
+	 * 例如：\xrightarrow{上方} 或 \xrightarrow[下方]{上方}
+	 */
+	private ExtensibleArrowAtom parseExtensibleArrow(String cmd) throws MathParseException {
+		skipWhitespace();
+
+		MathList below = null;
+
+		// 可选的下方内容 [below]
+		if (!stream.eof() && stream.peek() == '[') {
+			stream.eat();
+			recursionDepth++;
+			try {
+				below = parseMathList();
+				skipWhitespace();
+				expect(']');
+			} finally {
+				recursionDepth--;
+			}
+			skipWhitespace();
+		}
+
+		// 必需的上方内容 {above}
+		expect('{');
+		recursionDepth++;
+		try {
+			MathList above = parseMathList();
+			skipWhitespace();
+			expect('}');
+			return new ExtensibleArrowAtom(cmd, above, below);
+		} finally {
+			recursionDepth--;
+		}
 	}
 
 	/**
@@ -569,6 +612,11 @@ public class MathParser {
 		// 根式
 		if (cmd.equals("sqrt")) {
 			return parseSqrt();
+		}
+
+		// 可扩展箭头 - 新增
+		if (EXTENSIBLE_ARROW_COMMANDS.contains(cmd)) {
+			return parseExtensibleArrow(cmd);
 		}
 
 		// 定界符

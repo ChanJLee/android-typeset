@@ -1703,7 +1703,7 @@ public class MathParserUnitTest {
 		// 正则方程组
 		assertParsesTo(
 				"\\dot{q}_i=\\frac{\\partial H}{\\partial p_i},\\quad\\dot{p}_i=-\\frac{\\partial H}{\\partial q_i}",
-				"\\dot{q}_i = \\frac{\\partial H}{\\partial p_i} , \\quad \\dot{p}_i = -\\frac{\\partial H}{\\partial q_i}"
+				"\\dot{q}_i = \\frac{\\partial H}{\\partial p_i} ,\\quad \\dot{p}_i = -\\frac{\\partial H}{\\partial q_i}"
 		);
 	}
 
@@ -1743,7 +1743,7 @@ public class MathParserUnitTest {
 
 		assertParsesTo(
 				"B_\\nu\\left(T\\right)=\\frac{2h\\nu^3}{c^2}\\frac{1}{e^{\\frac{h\\nu}{k_BT}}-1}",
-				"B_\\nu \\left( T \\right) = \\frac{2 h \\nu^3}{c^2} \\frac{1}{e^{\\frac{h \\nu}{k_B T}} - 1}"
+				"B_\\nu \\left( T \\right) = \\frac{2 h \\nu^3}{c^2} \\frac{1}{e^{\\frac{h \\nu}{k_BT}} - 1}"
 		);
 	}
 
@@ -1753,7 +1753,7 @@ public class MathParserUnitTest {
 
 		assertParsesTo(
 				"F\\left(s\\right)=\\mathcal{L}\\left\\{f\\left(t\\right)\\right\\}=\\int_0^{\\infty}f\\left(t\\right)e^{-st}dt",
-				"F \\left( s \\right) = \\mathcal{L} \\left\\{ f \\left( t \\right) \\right\\} = \\int_0^{\\infty} f \\left( t \\right) e^{-st} dt"
+				"F \\left( s \\right) = \\mathcal{L} \\left{ f \\left( t \\right) \\right} = \\int_0^{\\infty} f \\left( t \\right) e^{-st} dt"
 		);
 	}
 
@@ -1813,7 +1813,7 @@ public class MathParserUnitTest {
 
 		assertParsesTo(
 				"\\frac{\\partial u}{\\partial x}=\\frac{\\partial v}{\\partial y},\\quad\\frac{\\partial u}{\\partial y}=-\\frac{\\partial v}{\\partial x}",
-				"\\frac{\\partial u}{\\partial x} = \\frac{\\partial v}{\\partial y} , \\quad \\frac{\\partial u}{\\partial y} = -\\frac{\\partial v}{\\partial x}"
+				"\\frac{\\partial u}{\\partial x} = \\frac{\\partial v}{\\partial y} ,\\quad \\frac{\\partial u}{\\partial y} = -\\frac{\\partial v}{\\partial x}"
 		);
 	}
 
@@ -1873,7 +1873,7 @@ public class MathParserUnitTest {
 
 		assertParsesTo(
 				"x'=\\gamma\\left(x-vt\\right),\\quad t'=\\gamma\\left(t-\\frac{vx}{c^2}\\right),\\quad\\gamma=\\frac{1}{\\sqrt{1-\\frac{v^2}{c^2}}}",
-				"x' = \\gamma \\left( x - vt \\right) , \\quad t' = \\gamma \\left( t - \\frac{vx}{c^2} \\right) , \\quad \\gamma = \\frac{1}{\\sqrt{1 - \\frac{v^2}{c^2}}}"
+				"x' = \\gamma \\left( x - vt \\right) ,\\quad t' = \\gamma \\left( t - \\frac{vx}{c^2} \\right) ,\\quad \\gamma = \\frac{1}{\\sqrt{1 - \\frac{v^2}{c^2}}}"
 		);
 	}
 
