@@ -514,7 +514,7 @@ public class MathRendererInflater {
 			);
 		}
 
-		if ("\\{".equals(delimiter)) {
+		if ("{".equals(delimiter)) {
 			return new StretchyTripeNode(
 					styles,
 					MathFontOptions.symbol("uni23A7"),
@@ -524,7 +524,7 @@ public class MathRendererInflater {
 			);
 		}
 
-		if ("\\}".equals(delimiter)) {
+		if ("}".equals(delimiter)) {
 			return new StretchyTripeNode(
 					styles,
 					MathFontOptions.symbol("uni23AB"),

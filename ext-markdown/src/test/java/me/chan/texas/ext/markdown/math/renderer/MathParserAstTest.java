@@ -1306,10 +1306,7 @@ public class MathParserAstTest {
 		DecorGroupNodeAsserter termDecor = exprGroup.childAt(0).asDecorGroup();
 		termDecor.center().asTextNode().hasContent("x");
 		termDecor.hasRightTop();
-		termDecor.rightTop().asLinearGroup()
-				.childAt(0).asLinearGroup()
-				.childAt(0).asDecorGroup()
-				.center().asTextNode().hasContent("2");
+		termDecor.rightTop().asTextNode().hasContent("2");
 
 		// 测试其他上标
 		assertRenderSuccess("x^a");
@@ -1330,10 +1327,7 @@ public class MathParserAstTest {
 		DecorGroupNodeAsserter termDecor = exprGroup.childAt(0).asDecorGroup();
 		termDecor.center().asTextNode().hasContent("x");
 		termDecor.hasRightBottom();
-		termDecor.rightBottom().asLinearGroup()
-				.childAt(0).asLinearGroup()
-				.childAt(0).asDecorGroup()
-				.center().asTextNode().hasContent("1");
+		termDecor.rightBottom().asTextNode().hasContent("1");
 
 		// 测试其他下标
 		assertRenderSuccess("x_i");
@@ -1354,14 +1348,8 @@ public class MathParserAstTest {
 		termDecor.center().asTextNode().hasContent("x");
 		termDecor.hasRightTop();
 		termDecor.hasRightBottom();
-		termDecor.rightTop().asLinearGroup()
-				.childAt(0).asLinearGroup()
-				.childAt(0).asDecorGroup()
-				.center().asTextNode().hasContent("2");
-		termDecor.rightBottom().asLinearGroup()
-				.childAt(0).asLinearGroup()
-				.childAt(0).asDecorGroup()
-				.center().asTextNode().hasContent("1");
+		termDecor.rightTop().asTextNode().hasContent("2");
+		termDecor.rightBottom().asTextNode().hasContent("1");
 
 		// 测试其他组合
 		assertRenderSuccess("x_1^2");
