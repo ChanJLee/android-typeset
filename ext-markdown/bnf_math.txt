@@ -92,7 +92,7 @@
               | "\mid"  (* 整除/分隔符 *)
 
 (* 标点符号：可以独立存在，不参与运算 *)
-<punctuation> ::= ","
+<punctuation> ::= "," | ";"
 
 (* 希腊字母 *)
 <greek_letter> ::= "\alpha" | "\beta" | "\gamma" | "\delta" | "\epsilon" | "\varepsilon"

@@ -174,7 +174,7 @@ public class MathParser {
 	/**
 	 * <expression> ::= <term> { <separator> }
 	 * <separator> ::= <binary_op> <term> | <term>
-	 *
+	 * <p>
 	 * Expression 是 term 的序列，term 之间可以：
 	 * 1. 通过二元运算符连接（如 a+b）
 	 * 2. 直接相邻（隐式乘法，如 2x，或标点，如 a,b）
@@ -368,7 +368,7 @@ public class MathParser {
 
 	/**
 	 * <term> ::= [ <unary_op> ] <operand_atom> [ <sup_sub_suffix> ] [ <postfix_op> ]
-	 *          | <special_symbol> [ <sup_sub_suffix> ] | <punctuation>
+	 * | <special_symbol> [ <sup_sub_suffix> ] | <punctuation>
 	 */
 	private Term parseTerm() throws MathParseException {
 		skipWhitespace();
@@ -422,15 +422,12 @@ public class MathParser {
 	private boolean isPunctuation() {
 		if (stream.eof()) return false;
 		char c = (char) stream.peek();
-		return c == ',';
+		return c == ',' || c == ';';
 	}
 
-	private PunctuationAtom parsePunctuation() throws MathParseException {
-		if (stream.peek() == ',') {
-			stream.eat();
-			return new PunctuationAtom(",");
-		}
-		throw new MathParseException("Expected punctuation", stream);
+	private PunctuationAtom parsePunctuation() {
+		char c = (char) stream.eat();
+		return new PunctuationAtom(String.valueOf(c));
 	}
 
 	/**
