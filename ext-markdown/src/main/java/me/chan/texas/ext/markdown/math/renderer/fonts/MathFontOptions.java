@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import me.chan.texas.ext.markdown.math.ast.BinOpAtom;
+import me.chan.texas.ext.markdown.math.ast.SpecialLetterVariableAtom;
 import me.chan.texas.ext.markdown.math.ast.SpecialSymbolAtom;
 import me.chan.texas.ext.markdown.math.ast.UnaryOp;
 import me.chan.texas.ext.markdown.math.ast.GreekLetterVariableAtom;
@@ -243,6 +244,14 @@ public class MathFontOptions {
 		String ref = AST.get(atom.op);
 		if (ref == null) {
 			throw new IllegalArgumentException("Unknown ast op: " + atom.op);
+		}
+		return symbol(ref);
+	}
+
+	public static Symbol ast(SpecialLetterVariableAtom atom) {
+		String ref = AST.get(atom.name);
+		if (ref == null) {
+			return null;
 		}
 		return symbol(ref);
 	}

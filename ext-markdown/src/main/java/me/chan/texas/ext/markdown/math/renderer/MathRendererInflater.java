@@ -22,10 +22,12 @@ import me.chan.texas.ext.markdown.math.ast.MathList;
 import me.chan.texas.ext.markdown.math.ast.MatrixAtom;
 import me.chan.texas.ext.markdown.math.ast.MatrixRow;
 import me.chan.texas.ext.markdown.math.ast.NumberAtom;
+import me.chan.texas.ext.markdown.math.ast.PostfixOp;
 import me.chan.texas.ext.markdown.math.ast.PunctuationAtom;
 import me.chan.texas.ext.markdown.math.ast.ScriptArg;
 import me.chan.texas.ext.markdown.math.ast.SingleToken;
 import me.chan.texas.ext.markdown.math.ast.Spacing;
+import me.chan.texas.ext.markdown.math.ast.SpecialLetterVariableAtom;
 import me.chan.texas.ext.markdown.math.ast.SpecialSymbolAtom;
 import me.chan.texas.ext.markdown.math.ast.SqrtAtom;
 import me.chan.texas.ext.markdown.math.ast.SupSubSuffix;
@@ -175,7 +177,20 @@ public class MathRendererInflater {
 	}
 
 	private RendererNode inflateTerm(MathPaint.Styles styles, Term term) {
-		DecorGroupNode.Builder builder = new DecorGroupNode.Builder(styles, inflateAtom(styles, term.atom));
+		RendererNode postfixOp = null;
+		if (term.postfixOp != null) {
+			postfixOp = inflatePostfixOp(styles, term.postfixOp);
+		}
+
+		RendererNode content = inflateAtom(styles, term.atom);
+		if (postfixOp != null) {
+			List<RendererNode> list = new ArrayList<>();
+			list.add(content);
+			list.add(postfixOp);
+			content = new LinearGroupNode(styles, list, LinearGroupNode.Gravity.HORIZONTAL);
+		}
+
+		DecorGroupNode.Builder builder = new DecorGroupNode.Builder(styles, content);
 
 		if (term.unaryOp != null) {
 			builder.left(inflateSymbol(styles, term.unaryOp.op));
@@ -196,6 +211,10 @@ public class MathRendererInflater {
 			builder.rightBottom(inflateScriptArg(new MathPaint.Styles(styles).setTextSizeFactor(SUB_EXP_FACTOR), scriptArg));
 		}
 		return builder.build();
+	}
+
+	private RendererNode inflatePostfixOp(MathPaint.Styles styles, PostfixOp op) {
+		return new TextNode(styles, op.op);
 	}
 
 	private RendererNode inflateScriptArg(MathPaint.Styles styles, ScriptArg scriptArg) {
@@ -286,7 +305,20 @@ public class MathRendererInflater {
 			return inflatePunctuationAtom(styles, (PunctuationAtom) atom);
 		}
 
+		if (atom instanceof SpecialLetterVariableAtom) {
+			return inflateSpecialLetterVariableAtom(styles, (SpecialLetterVariableAtom) atom);
+		}
+
 		throw new IllegalArgumentException("Unknown atom: " + atom);
+	}
+
+	private RendererNode inflateSpecialLetterVariableAtom(MathPaint.Styles styles, SpecialLetterVariableAtom atom) {
+		Symbol symbol = MathFontOptions.ast(atom);
+		if (symbol != null) {
+			return new SymbolNode(styles, symbol);
+		}
+		// 如果没有对应的符号，回退到文本渲染
+		return new TextNode(styles, "\\" + atom.name + atom.primeSuffix);
 	}
 
 	private RendererNode inflatePunctuationAtom(MathPaint.Styles styles, PunctuationAtom atom) {
