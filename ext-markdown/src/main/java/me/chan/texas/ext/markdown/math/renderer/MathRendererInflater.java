@@ -427,6 +427,11 @@ public class MathRendererInflater {
 		} else if ("Vmatrix".equals(atom.env)) {
 			left = inflateDelimiter(styles, "lVert");
 			right = inflateDelimiter(styles, "rVert");
+		} else if ("cases".equals(atom.env)) {
+			left = inflateDelimiter(styles, "{");
+			right = null;
+		} else if ("array".equals(atom.env) || "smallmatrix".equals(atom.env)) {
+			// array 和 smallmatrix 没有分隔符
 		} else {
 			if (!"matrix".equals(atom.env)) {
 				throw new IllegalArgumentException("Unknown matrix env: " + atom.env);
