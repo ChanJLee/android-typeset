@@ -218,7 +218,8 @@ public class MathView extends View {
 	}
 
 	public RendererNode mockDecor() {
-		String text = "i\\hbar\\frac{\\partial}{\\partial t}\\Psi\\left(r,t\\right)=\\left[-\\frac{\\hbar^2}{2m}\\nabla^2+V\\left(r,t\\right)\\right]\\Psi\\left(r,t\\right)";
+//		String text = "i\\hbar\\frac{\\partial}{\\partial t}\\Psi\\left(r,t\\right)=\\left[-\\frac{\\hbar^2}{2m}\\nabla^2+V\\left(r,t\\right)\\right]\\Psi\\left(r,t\\right)";
+		String text = "\\sqrt [root]{x}";
 		MathParser parser = new MathParser(new CharStream(text));
 		MathRendererInflater inflater = new MathRendererInflater();
 		try {
