@@ -6,7 +6,6 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 
 import me.chan.texas.misc.RectF;
-import me.chan.texas.renderer.ui.decor.ParagraphDecor;
 import me.chan.texas.text.BreakStrategy;
 import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.TextGravity;
