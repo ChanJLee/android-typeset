@@ -31,7 +31,7 @@ import static org.junit.Assert.*;
  * <p>
  * 参考 MathParserUnitTest 的测试风格和覆盖范围
  */
-public class MathParserAstTest {
+public class MathInflaterUnitTest {
 
 	private MathRendererInflater inflater;
 	private MathPaint.Styles defaultStyles;
