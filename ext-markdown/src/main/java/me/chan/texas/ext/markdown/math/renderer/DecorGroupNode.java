@@ -5,7 +5,7 @@ import androidx.annotation.Nullable;
 import me.chan.texas.ext.markdown.math.renderer.core.MathCanvas;
 import me.chan.texas.ext.markdown.math.renderer.core.MathPaint;
 
-public class DecorGroupNode extends GroupRendererNode {
+public class DecorGroupNode extends RendererNode implements OptimizableRendererNode {
 	private final Builder mBuilder;
 
 	private DecorGroupNode(MathPaint.Styles styles, Builder builder) {

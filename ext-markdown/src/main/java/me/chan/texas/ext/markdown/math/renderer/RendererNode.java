@@ -149,6 +149,10 @@ public abstract class RendererNode {
 
 	protected abstract String toPretty();
 
+	public MathPaint.Styles getStyles() {
+		return mStyles;
+	}
+
 	@Override
 	public String toString() {
 		return "(w=" + mWidth +

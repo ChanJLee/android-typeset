@@ -1,5 +1,7 @@
 package me.chan.texas.ext.markdown.math.renderer;
 
+import androidx.annotation.Nullable;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -103,5 +105,19 @@ public class GridGroupNode extends GroupRendererNode {
 	@Override
 	protected String toPretty() {
 		return "Grid[]";
+	}
+
+	@Nullable
+	@Override
+	public RendererNode optimize() {
+		for (int i = 0; i < mNodes.size(); ++i) {
+			LinearGroupNode group = mNodes.get(i);
+			RendererNode node = group.optimize();
+			if (node != null) {
+				mNodes.set(i, node);
+			}
+		}
+
+		return this;
 	}
 }
