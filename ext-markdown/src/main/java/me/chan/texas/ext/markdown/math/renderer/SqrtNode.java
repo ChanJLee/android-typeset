@@ -2,18 +2,19 @@ package me.chan.texas.ext.markdown.math.renderer;
 
 import android.graphics.Color;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import me.chan.texas.ext.markdown.math.renderer.core.MathCanvas;
 import me.chan.texas.ext.markdown.math.renderer.core.MathPaint;
 
 
-public class SqrtNode extends RendererNode {
-	private final RendererNode mContent;
+public class SqrtNode extends RendererNode implements OptimizableRendererNode {
+	private RendererNode mContent;
 
 	@Nullable
-	private final RendererNode mRoot;
-	private final SqrtSymbolNode mSymbol;
+	private RendererNode mRoot;
+	private SqrtSymbolNode mSymbol;
 
 	public SqrtNode(MathPaint.Styles styles, RendererNode content, @Nullable RendererNode root) {
 		super(styles);
@@ -96,5 +97,18 @@ public class SqrtNode extends RendererNode {
 	@Override
 	protected String toPretty() {
 		return "sqrt {}";
+	}
+
+	@NonNull
+	@Override
+	public RendererNode optimize() {
+		if (mContent instanceof OptimizableRendererNode) {
+			mContent = ((OptimizableRendererNode) mContent).optimize();
+		}
+		if (mRoot instanceof OptimizableRendererNode) {
+			mRoot = ((OptimizableRendererNode) mRoot).optimize();
+		}
+
+		return this;
 	}
 }

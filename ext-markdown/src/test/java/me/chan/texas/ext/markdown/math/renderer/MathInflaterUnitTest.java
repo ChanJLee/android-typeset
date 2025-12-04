@@ -1372,7 +1372,7 @@ public class MathInflaterUnitTest {
 		LinearGroupNodeAsserter exprGroup = assertRenderNode(root).asLinearGroup();
 		exprGroup.hasChildCount(2); // sum, frac
 		// sum有上下标，应该是DecorGroupNode
-		DecorGroupNodeAsserter sumDecor = exprGroup.childAt(0).asDecorGroup().center().asDecorGroup();
+		DecorGroupNodeAsserter sumDecor = exprGroup.childAt(0).asDecorGroup();
 		sumDecor.hasTop();
 		sumDecor.hasBottom();
 		// frac应该直接是FractionNode

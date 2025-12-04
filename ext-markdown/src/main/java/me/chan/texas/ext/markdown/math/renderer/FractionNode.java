@@ -1,13 +1,15 @@
 package me.chan.texas.ext.markdown.math.renderer;
 
 
+import androidx.annotation.NonNull;
+
 import me.chan.texas.ext.markdown.math.renderer.core.MathCanvas;
 import me.chan.texas.ext.markdown.math.renderer.core.MathPaint;
 import me.chan.texas.ext.markdown.math.renderer.fonts.MathFontOptions;
 
-public class FractionNode extends RendererNode {
-	private final RendererNode mNumerator;
-	private final RendererNode mDenominator;
+public class FractionNode extends RendererNode implements OptimizableRendererNode {
+	private RendererNode mNumerator;
+	private RendererNode mDenominator;
 
 	public FractionNode(MathPaint.Styles styles, RendererNode numerator, RendererNode denominator) {
 		super(styles);
@@ -62,5 +64,18 @@ public class FractionNode extends RendererNode {
 	@Override
 	protected String toPretty() {
 		return "1/2";
+	}
+
+	@NonNull
+	@Override
+	public RendererNode optimize() {
+		if (mDenominator instanceof OptimizableRendererNode) {
+			mDenominator = ((OptimizableRendererNode) mDenominator).optimize();
+		}
+		if (mNumerator instanceof OptimizableRendererNode) {
+			mNumerator = ((OptimizableRendererNode) mNumerator).optimize();
+		}
+
+		return this;
 	}
 }
