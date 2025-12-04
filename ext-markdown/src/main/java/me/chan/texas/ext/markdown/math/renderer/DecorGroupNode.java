@@ -200,44 +200,36 @@ public class DecorGroupNode extends RendererNode implements OptimizableRendererN
 	@NonNull
 	@Override
 	public RendererNode optimize() {
-		boolean hasDecor = false;
 		if (mBuilder.top instanceof OptimizableRendererNode) {
-			hasDecor = true;
 			mBuilder.top = optimize((OptimizableRendererNode) mBuilder.top);
 		}
 		if (mBuilder.bottom instanceof OptimizableRendererNode) {
-			hasDecor = true;
 			mBuilder.bottom = optimize((OptimizableRendererNode) mBuilder.bottom);
 		}
 		if (mBuilder.left instanceof OptimizableRendererNode) {
-			hasDecor = true;
 			mBuilder.left = optimize((OptimizableRendererNode) mBuilder.left);
 		}
 		if (mBuilder.right instanceof OptimizableRendererNode) {
-			hasDecor = true;
 			mBuilder.right = optimize((OptimizableRendererNode) mBuilder.right);
 		}
 		if (mBuilder.leftTop instanceof OptimizableRendererNode) {
-			hasDecor = true;
 			mBuilder.leftTop = optimize((OptimizableRendererNode) mBuilder.leftTop);
 		}
 		if (mBuilder.leftBottom instanceof OptimizableRendererNode) {
-			hasDecor = true;
 			mBuilder.leftBottom = optimize((OptimizableRendererNode) mBuilder.leftBottom);
 		}
 		if (mBuilder.rightTop instanceof OptimizableRendererNode) {
-			hasDecor = true;
 			mBuilder.rightTop = optimize((OptimizableRendererNode) mBuilder.rightTop);
 		}
 		if (mBuilder.rightBottom instanceof OptimizableRendererNode) {
-			hasDecor = true;
 			mBuilder.rightBottom = optimize((OptimizableRendererNode) mBuilder.rightBottom);
 		}
 		if (mBuilder.center instanceof OptimizableRendererNode) {
 			mBuilder.center = optimize((OptimizableRendererNode) mBuilder.center);
 		}
 
-		if (hasDecor) {
+		if (mBuilder.top != null || mBuilder.bottom != null || mBuilder.left != null || mBuilder.right != null ||
+				mBuilder.leftTop != null || mBuilder.leftBottom != null || mBuilder.rightTop != null || mBuilder.rightBottom != null) {
 			return this;
 		}
 
