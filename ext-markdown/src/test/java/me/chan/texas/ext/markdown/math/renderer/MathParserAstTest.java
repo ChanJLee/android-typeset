@@ -1444,7 +1444,7 @@ public class MathParserAstTest {
 		LinearGroupNodeAsserter rootGroup = assertRenderNode(root).asLinearGroup();
 		LinearGroupNodeAsserter exprGroup = rootGroup.childAt(0).asLinearGroup();
 		exprGroup.hasChildCount(2); // sum, frac
-		DecorGroupNodeAsserter sumDecor = exprGroup.childAt(0).asDecorGroup();
+		DecorGroupNodeAsserter sumDecor = exprGroup.childAt(0).asDecorGroup().center().asDecorGroup();
 		sumDecor.hasTop();
 		sumDecor.hasBottom();
 		DecorGroupNodeAsserter fracTerm = exprGroup.childAt(1).asDecorGroup();
@@ -1454,7 +1454,7 @@ public class MathParserAstTest {
 	}
 
 	@Test
-	public void test_08_01_RealWorld_EulerFormula() throws MathParseException {
+	public void test_08_01_RealWorld_EulerFormula() {
 		System.out.println("\n=== Part 8.1: 真实公式 - 欧拉公式 ===");
 
 		assertRenderSuccess("e^{i\\pi}+1=0");
@@ -1463,7 +1463,7 @@ public class MathParserAstTest {
 	}
 
 	@Test
-	public void test_08_02_RealWorld_PythagoreanTheorem() throws MathParseException {
+	public void test_08_02_RealWorld_PythagoreanTheorem() {
 		System.out.println("\n=== Part 8.2: 真实公式 - 勾股定理 ===");
 
 		assertRenderSuccess("a^2+b^2=c^2");
@@ -1472,7 +1472,7 @@ public class MathParserAstTest {
 	}
 
 	@Test
-	public void test_08_03_RealWorld_Limit() throws MathParseException {
+	public void test_08_03_RealWorld_Limit() {
 		System.out.println("\n=== Part 8.3: 真实公式 - 极限 ===");
 
 		assertRenderSuccess("\\lim_{x\\to 0}\\frac{\\sin x}{x}=1");
