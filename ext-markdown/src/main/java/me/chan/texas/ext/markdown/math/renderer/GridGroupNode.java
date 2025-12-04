@@ -6,7 +6,6 @@ import java.util.List;
 import me.chan.texas.ext.markdown.math.renderer.core.MathCanvas;
 import me.chan.texas.ext.markdown.math.renderer.core.MathPaint;
 
-// TODO support optimized layout
 public class GridGroupNode extends RendererNode {
 
 	private final List<LinearGroupNode> mNodes = new ArrayList<>();
