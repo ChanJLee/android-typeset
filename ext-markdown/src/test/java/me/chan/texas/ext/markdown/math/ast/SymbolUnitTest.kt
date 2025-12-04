@@ -792,10 +792,56 @@ class SymbolUnitTest {
         assertEquals("Γ", MathFontOptions.textOp("Gamma"))
         assertEquals("Δ", MathFontOptions.textOp("Delta"))
 
+        // 测试特殊符号（在 GREEK_LETTERS 中但不是真正的希腊字母）
+        assertEquals("∞", MathFontOptions.textOp("infty"))
+
         // 测试函数名
         assertEquals("sin", MathFontOptions.textOp("sin"))
         assertEquals("cos", MathFontOptions.textOp("cos"))
         assertEquals("lim", MathFontOptions.textOp("lim"))
+    }
+
+    @Test
+    fun test_MathFontOptions_ast_GreekLetterVariableAtom() {
+        // 测试所有希腊字母（包括 infty）通过 GreekLetterVariableAtom 能正确获取文本
+        val greekLetters = listOf(
+            "alpha", "beta", "gamma", "delta", "epsilon", "varepsilon",
+            "zeta", "eta", "theta", "vartheta", "iota", "kappa",
+            "lambda", "mu", "nu", "xi", "pi", "varpi", "rho", "varrho",
+            "sigma", "varsigma", "tau", "upsilon", "phi", "varphi",
+            "chi", "psi", "omega",
+            "Gamma", "Delta", "Theta", "Lambda", "Xi", "Pi",
+            "Sigma", "Upsilon", "Phi", "Psi", "Omega",
+            "infty"  // 特殊情况：定义在 GREEK_LETTERS 中
+        )
+
+        var passCount = 0
+        var failCount = 0
+        val failures = mutableListOf<String>()
+
+        for (name in greekLetters) {
+            val atom = GreekLetterVariableAtom(name, "")
+            val text = MathFontOptions.ast(atom)
+            if (text != null && text.isNotEmpty()) {
+                passCount++
+                println("✅ \\$name -> $text")
+            } else {
+                failCount++
+                failures.add(name)
+                println("❌ \\$name -> null 或空字符串")
+            }
+        }
+
+        println("\n=== GreekLetterVariableAtom 测试结果 ===")
+        println("通过: $passCount")
+        println("失败: $failCount")
+
+        if (failures.isNotEmpty()) {
+            println("\n失败列表:")
+            failures.forEach { println("  - \\$it") }
+        }
+
+        assertEquals("所有希腊字母和 infty 都应该能获取到渲染文本", 0, failCount)
     }
 
     @Test

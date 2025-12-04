@@ -209,6 +209,9 @@ public class MathFontOptions {
 		TEXT_OPERATORS.put("Psi", "\u03A8");        // Ψ
 		TEXT_OPERATORS.put("Omega", "\u03A9");      // Ω
 
+		// 特殊符号（定义在 GREEK_LETTERS 中但不是真正的希腊字母）
+		TEXT_OPERATORS.put("infty", "\u221E");      // ∞ (无穷大)
+
 		// 文本运算符（以罗马字体渲染）
 		TEXT_OPERATORS.put("lim", "lim");
 		TEXT_OPERATORS.put("limsup", "lim sup");
