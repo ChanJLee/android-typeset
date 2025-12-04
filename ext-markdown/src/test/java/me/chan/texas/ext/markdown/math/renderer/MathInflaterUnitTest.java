@@ -9,7 +9,6 @@ import java.util.List;
 import me.chan.texas.ext.markdown.math.ast.MathList;
 import me.chan.texas.ext.markdown.math.ast.MathParseException;
 import me.chan.texas.ext.markdown.math.ast.MathParser;
-import me.chan.texas.ext.markdown.math.ast.MockTextPaint;
 import me.chan.texas.ext.markdown.math.renderer.core.MathPaint;
 import me.chan.texas.ext.markdown.math.renderer.core.MathPaintImpl;
 import me.chan.texas.misc.PaintSet;

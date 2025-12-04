@@ -1,4 +1,4 @@
-package me.chan.texas.ext.markdown.math.ast;
+package me.chan.texas.ext.markdown.math.renderer;
 
 import android.text.TextPaint;
 
