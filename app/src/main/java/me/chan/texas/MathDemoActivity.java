@@ -32,7 +32,7 @@ public class MathDemoActivity extends AppCompatActivity {
 	}
 
 	private void render(String math) {
-		mMathView.render(math);
+		mMathView.render("afg \\, " + math + " \\, afg");
 	}
 
 	private List<MathFormula> getMathFormulas() {
