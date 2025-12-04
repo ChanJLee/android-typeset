@@ -898,6 +898,16 @@ public class SymbolOptions {
 		Sm.put("u1D7A9", new Symbol("\u1D7A9", 131, -12, 928, 682));
 		// u1D7C3 𝟃
 		Sm.put("u1D7C3", new Symbol("\u1D7C3", 94, -22, 590, 716));
+		// uni210F ℏ (hbar - 约化普朗克常数)
+		Sm.put("uni210F", new Symbol("\u210F", 56, -22, 556, 694));
+		// uni2113 ℓ (ell - 脚本小写L)
+		Sm.put("uni2113", new Symbol("\u2113", 56, -22, 444, 716));
+		// Rfraktur ℜ (Re - 实部)
+		Sm.put("Rfraktur", new Symbol("\u211C", 56, -22, 722, 716));
+		// Ifraktur ℑ (Im - 虚部)
+		Sm.put("Ifraktur", new Symbol("\u2111", 56, -22, 667, 716));
+		// aleph ℵ (阿列夫数)
+		Sm.put("aleph", new Symbol("\u2135", 56, -22, 611, 694));
 
 		all.putAll(Sm);
 
