@@ -44,6 +44,14 @@ public class MathRendererInflater {
 	private static final float SUB_EXP_FACTOR = 0.6f;
 
 	public RendererNode inflate(MathPaint.Styles styles, MathList mathList) {
+		return optimizeNode(inflate0(styles, mathList));
+	}
+
+	private RendererNode optimizeNode(RendererNode node) {
+		return node;
+	}
+
+	private RendererNode inflate0(MathPaint.Styles styles, MathList mathList) {
 		List<RendererNode> list = new ArrayList<>();
 		for (Ast ast : mathList.elements) {
 			if (ast instanceof Expression) {
@@ -113,7 +121,7 @@ public class MathRendererInflater {
 			case "hphantom":
 				// 水平占位：使用内容的宽度，但高度为0或不显示内容
 				if (spacing.content instanceof MathList) {
-					RendererNode content = inflate(styles, (MathList) spacing.content);
+					RendererNode content = inflate0(styles, (MathList) spacing.content);
 					// 返回一个只占用宽度的节点
 					return new PhantomNode(styles, content, true, false);
 				}
@@ -122,7 +130,7 @@ public class MathRendererInflater {
 			case "vphantom":
 				// 垂直占位：使用内容的高度，但宽度为0
 				if (spacing.content instanceof MathList) {
-					RendererNode content = inflate(styles, (MathList) spacing.content);
+					RendererNode content = inflate0(styles, (MathList) spacing.content);
 					// 返回一个只占用高度的节点
 					return new PhantomNode(styles, content, false, true);
 				}
@@ -131,7 +139,7 @@ public class MathRendererInflater {
 			case "phantom":
 				// 完全占位：使用内容的宽度和高度，但不显示内容
 				if (spacing.content instanceof MathList) {
-					RendererNode content = inflate(styles, (MathList) spacing.content);
+					RendererNode content = inflate0(styles, (MathList) spacing.content);
 					// 返回一个占用宽高但不显示的节点
 					return new PhantomNode(styles, content, true, true);
 				}
@@ -216,8 +224,8 @@ public class MathRendererInflater {
 	}
 
 	private RendererNode inflateBinomAtom(MathPaint.Styles styles, BinomAtom atom) {
-		RendererNode upper = inflate(styles.copy().setTextSizeFactor(0.8f), atom.upper);
-		RendererNode lower = inflate(styles.copy().setTextSizeFactor(0.8f), atom.lower);
+		RendererNode upper = inflate0(styles.copy().setTextSizeFactor(0.8f), atom.upper);
+		RendererNode lower = inflate0(styles.copy().setTextSizeFactor(0.8f), atom.lower);
 		List<RendererNode> list = new ArrayList<>();
 		list.add(upper);
 		list.add(lower);
@@ -240,7 +248,7 @@ public class MathRendererInflater {
 
 		// 上方内容（必需）
 		if (atom.above != null) {
-			RendererNode above = inflate(
+			RendererNode above = inflate0(
 					styles.copy().setTextSizeFactor(SUB_EXP_FACTOR),
 					atom.above
 			);
@@ -249,7 +257,7 @@ public class MathRendererInflater {
 
 		// 下方内容（可选）
 		if (atom.below != null) {
-			RendererNode below = inflate(
+			RendererNode below = inflate0(
 					styles.copy().setTextSizeFactor(SUB_EXP_FACTOR),
 					atom.below
 			);
@@ -279,7 +287,7 @@ public class MathRendererInflater {
 	}
 
 	private RendererNode inflateScriptArg(MathPaint.Styles styles, Group group) {
-		return inflate(styles, group.content);
+		return inflate0(styles, group.content);
 	}
 
 	private RendererNode inflateScriptArg(MathPaint.Styles styles, SingleToken singleToken) {
@@ -393,7 +401,7 @@ public class MathRendererInflater {
 			styles = styles.copy().setItalic(true);
 		}
 
-		return inflate(styles, atom.content);
+		return inflate0(styles, atom.content);
 	}
 
 	private RendererNode inflateTextAtom(MathPaint.Styles styles, TextAtom atom) {
@@ -442,7 +450,7 @@ public class MathRendererInflater {
 		GridGroupNode content = new GridGroupNode(styles, atom.rows.size(), list);
 		for (MatrixRow row : atom.rows) {
 			for (MathList ast : row.elements) {
-				list.add(inflate(styles, ast));
+				list.add(inflate0(styles, ast));
 			}
 		}
 
@@ -481,7 +489,7 @@ public class MathRendererInflater {
 		return new BraceLayout(
 				styles, atom.level,
 				inflateDelimiter(styles, atom.leftDelimiter),
-				inflate(styles, atom.content),
+				inflate0(styles, atom.content),
 				inflateDelimiter(styles, atom.rightDelimiter)
 		);
 	}
@@ -636,22 +644,22 @@ public class MathRendererInflater {
 	private RendererNode inflateSqrtAtom(MathPaint.Styles styles, SqrtAtom sqrtAtom) {
 		RendererNode root = null;
 		if (sqrtAtom.root != null) {
-			root = inflate(new MathPaint.Styles(styles).setTextSizeFactor(SUB_EXP_FACTOR), sqrtAtom.root);
+			root = inflate0(new MathPaint.Styles(styles).setTextSizeFactor(SUB_EXP_FACTOR), sqrtAtom.root);
 		}
-		return new SqrtNode(styles, inflate(styles, sqrtAtom.content), root);
+		return new SqrtNode(styles, inflate0(styles, sqrtAtom.content), root);
 	}
 
 	private RendererNode inflateFracAtom(MathPaint.Styles styles, FracAtom atom) {
-		return new FractionNode(styles, inflate(styles, atom.numerator), inflate(styles, atom.denominator));
+		return new FractionNode(styles, inflate0(styles, atom.numerator), inflate0(styles, atom.denominator));
 	}
 
 	private RendererNode inflateGroupAtom(MathPaint.Styles styles, Group groupAtom) {
-		return inflate(styles, groupAtom.content);
+		return inflate0(styles, groupAtom.content);
 	}
 
 	private RendererNode inflateAccentAtom(MathPaint.Styles styles, AccentAtom accentAtom) {
 		if (accentAtom.content instanceof MathList) {
-			return new AccentNode(styles, accentAtom.cmd, inflate(styles, (MathList) accentAtom.content));
+			return new AccentNode(styles, accentAtom.cmd, inflate0(styles, (MathList) accentAtom.content));
 		}
 
 		return new AccentNode(styles, accentAtom.cmd, inflateAtom(styles, (Atom) accentAtom.content));
