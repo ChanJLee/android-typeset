@@ -1,5 +1,6 @@
 package me.chan.texas.ext.markdown.math.renderer;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import me.chan.texas.ext.markdown.math.ast.DelimitedAtom;
@@ -10,7 +11,7 @@ public class BraceLayout extends RendererNode implements OptimizableRendererNode
 
 	private final RendererNode mLeftSymbol;
 	private final RendererNode mRightSymbol;
-	private final RendererNode mContent;
+	private RendererNode mContent;
 	private final int mLevel;
 
 	public BraceLayout(MathPaint.Styles styles,
@@ -33,6 +34,7 @@ public class BraceLayout extends RendererNode implements OptimizableRendererNode
 	}
 
 	private static final float SYMBOL_PADDING = 0.4f;
+
 	@Override
 	protected void onMeasure(MathPaint paint, int widthSpec, int heightSpec) {
 		mContent.measure(paint);
@@ -79,5 +81,26 @@ public class BraceLayout extends RendererNode implements OptimizableRendererNode
 	@Override
 	protected String toPretty() {
 		return "[]";
+	}
+
+	@NonNull
+	@Override
+	public RendererNode optimize() {
+		if (mRightSymbol != null || mLeftSymbol != null) {
+			return this;
+		}
+
+		RendererNode child = mContent;
+		if (child instanceof OptimizableRendererNode) {
+			OptimizableRendererNode node = (OptimizableRendererNode) child;
+			child = node.optimize();
+			mContent = child;
+		}
+
+		if (child.getStyles() != getStyles()) {
+			return this;
+		}
+
+		return child;
 	}
 }
