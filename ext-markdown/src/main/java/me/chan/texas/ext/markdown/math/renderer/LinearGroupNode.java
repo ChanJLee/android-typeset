@@ -7,7 +7,7 @@ import java.util.List;
 import me.chan.texas.ext.markdown.math.renderer.core.MathCanvas;
 import me.chan.texas.ext.markdown.math.renderer.core.MathPaint;
 
-public class LinearGroupNode extends RendererNode {
+public class LinearGroupNode extends GroupRendererNode {
 	private final List<RendererNode> mNodes;
 	private final Gravity mGravity;
 

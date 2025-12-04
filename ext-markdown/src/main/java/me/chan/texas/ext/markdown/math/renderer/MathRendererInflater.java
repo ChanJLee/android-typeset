@@ -44,11 +44,15 @@ public class MathRendererInflater {
 	private static final float SUB_EXP_FACTOR = 0.6f;
 
 	public RendererNode inflate(MathPaint.Styles styles, MathList mathList) {
-		return optimizeNode(inflate0(styles, mathList));
+		return optimize(inflate0(styles, mathList));
 	}
 
-	private RendererNode optimizeNode(RendererNode node) {
-		return node;
+	private RendererNode optimize(RendererNode node) {
+		if (!(node instanceof GroupRendererNode)) {
+			return node;
+		}
+
+		return ((GroupRendererNode) node).optimize();
 	}
 
 	private RendererNode inflate0(MathPaint.Styles styles, MathList mathList) {
@@ -426,16 +430,16 @@ public class MathRendererInflater {
 		} else if ("bmatrix".equals(atom.env)) {
 			left = inflateDelimiter(styles, "[");
 			right = inflateDelimiter(styles, "]");
-	} else if ("Bmatrix".equals(atom.env)) {
-		left = inflateDelimiter(styles, "{");
-		right = inflateDelimiter(styles, "}");
-	} else if ("vmatrix".equals(atom.env)) {
-		left = inflateDelimiter(styles, "\\lvert");
-		right = inflateDelimiter(styles, "\\rvert");
-	} else if ("Vmatrix".equals(atom.env)) {
-		left = inflateDelimiter(styles, "\\lVert");
-		right = inflateDelimiter(styles, "\\rVert");
-	} else if ("cases".equals(atom.env)) {
+		} else if ("Bmatrix".equals(atom.env)) {
+			left = inflateDelimiter(styles, "{");
+			right = inflateDelimiter(styles, "}");
+		} else if ("vmatrix".equals(atom.env)) {
+			left = inflateDelimiter(styles, "\\lvert");
+			right = inflateDelimiter(styles, "\\rvert");
+		} else if ("Vmatrix".equals(atom.env)) {
+			left = inflateDelimiter(styles, "\\lVert");
+			right = inflateDelimiter(styles, "\\rVert");
+		} else if ("cases".equals(atom.env)) {
 			left = inflateDelimiter(styles, "{");
 			right = null;
 		} else if ("array".equals(atom.env) || "smallmatrix".equals(atom.env)) {

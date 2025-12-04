@@ -6,7 +6,7 @@ import java.util.List;
 import me.chan.texas.ext.markdown.math.renderer.core.MathCanvas;
 import me.chan.texas.ext.markdown.math.renderer.core.MathPaint;
 
-public class GridGroupNode extends RendererNode {
+public class GridGroupNode extends GroupRendererNode {
 
 	private final List<LinearGroupNode> mNodes = new ArrayList<>();
 	private final int mColumnCount;

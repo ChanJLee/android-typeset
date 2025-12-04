@@ -6,7 +6,7 @@ import me.chan.texas.ext.markdown.math.ast.DelimitedAtom;
 import me.chan.texas.ext.markdown.math.renderer.core.MathCanvas;
 import me.chan.texas.ext.markdown.math.renderer.core.MathPaint;
 
-public class BraceLayout extends RendererNode {
+public class BraceLayout extends GroupRendererNode {
 
 	private final RendererNode mLeftSymbol;
 	private final RendererNode mRightSymbol;
