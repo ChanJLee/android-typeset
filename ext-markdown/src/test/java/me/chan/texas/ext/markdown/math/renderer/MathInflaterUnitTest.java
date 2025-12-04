@@ -1197,6 +1197,32 @@ public class MathInflaterUnitTest {
 		assertRenderSuccess("\\overbrace{x+y}");
 		assertRenderSuccess("\\underbrace{x+y}");
 
+		// === 新增：更全面的 mathring 测试 ===
+		// 测试 mathring 带分组参数
+		assertRenderSuccess("\\mathring{a}");
+		assertRenderSuccess("\\mathring{A}");
+		
+		// 测试 mathring 带单字符参数（无花括号）
+		assertRenderSuccess("\\mathring x");
+		assertRenderSuccess("\\mathring a");
+		
+		// 测试 mathring 在复杂表达式中
+		assertRenderSuccess("\\mathring{x}+\\mathring{y}");
+		assertRenderSuccess("\\mathring{x}^2");
+		assertRenderSuccess("\\mathring{x}_1");
+		assertRenderSuccess("\\mathring{x}^2_1");
+		
+		// 测试 mathring 与其他重音的组合
+		assertRenderSuccess("\\mathring{\\hat{x}}");
+		assertRenderSuccess("\\hat{\\mathring{x}}");
+		
+		// 测试 mathring 在分式中
+		assertRenderSuccess("\\frac{\\mathring{x}}{y}");
+		assertRenderSuccess("\\frac{x}{\\mathring{y}}");
+		
+		// 测试 mathring 在根式中
+		assertRenderSuccess("\\sqrt{\\mathring{x}}");
+
 		System.out.println("✅ 重音 RenderNode结构验证通过");
 	}
 

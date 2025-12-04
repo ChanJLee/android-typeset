@@ -95,7 +95,8 @@ public class AccentNode extends RendererNode {
 
 		if ("hat".equals(mCmd) ||
 				"dot".equals(mCmd) || "ddot".equals(mCmd) || "dddot".equals(mCmd) ||
-				"acute".equals(mCmd) || "grave".equals(mCmd) || "breve".equals(mCmd)) {
+				"acute".equals(mCmd) || "grave".equals(mCmd) || "breve".equals(mCmd)
+				|| "mathring".equals(mCmd)) {  // 添加 mathring
 			mCmdNode.layout((mContent.getWidth() - mCmdNode.getWidth()) / 2.0f, 0);
 			mContent.layout(0, mCmdNode.getHeight());
 			return;
@@ -132,7 +133,8 @@ public class AccentNode extends RendererNode {
 		return "hat".equals(mCmd) || "widehat".equals(mCmd) ||
 				"tilde".equals(mCmd) || "widetilde".equals(mCmd) ||
 				"dot".equals(mCmd) || "ddot".equals(mCmd) || "dddot".equals(mCmd)
-				|| "acute".equals(mCmd) || "grave".equals(mCmd) || "breve".equals(mCmd) || "check".equals(mCmd);
+				|| "acute".equals(mCmd) || "grave".equals(mCmd) || "breve".equals(mCmd) || "check".equals(mCmd)
+				|| "mathring".equals(mCmd);  // 添加 mathring
 	}
 
 	private Symbol cmdToSymbol() {
@@ -170,6 +172,10 @@ public class AccentNode extends RendererNode {
 
 		if ("check".equals(mCmd)) {
 			return MathFontOptions.symbol("checkmark");
+		}
+
+		if ("mathring".equals(mCmd)) {
+			return MathFontOptions.symbol("ring");
 		}
 
 		throw new RuntimeException("unknown cmd: " + mCmd);
