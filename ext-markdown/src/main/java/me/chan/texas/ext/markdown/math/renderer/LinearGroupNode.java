@@ -142,17 +142,19 @@ public class LinearGroupNode extends RendererNode implements OptimizableRenderer
 	@NonNull
 	@Override
 	public RendererNode optimize() {
+		for (int i = 0; i < mNodes.size(); ++i) {
+			RendererNode node = mNodes.get(i);
+			if (node instanceof OptimizableRendererNode) {
+				OptimizableRendererNode optimizableRendererNode = (OptimizableRendererNode) node;
+				mNodes.set(i, optimizableRendererNode.optimize());
+			}
+		}
+
 		if (mNodes.size() != 1) {
 			return this;
 		}
 
 		RendererNode child = mNodes.get(0);
-		if (child instanceof OptimizableRendererNode) {
-			OptimizableRendererNode node = (OptimizableRendererNode) child;
-			child = node.optimize();
-			mNodes.set(0, child);
-		}
-
 		if (child.getStyles() != getStyles()) {
 			return this;
 		}

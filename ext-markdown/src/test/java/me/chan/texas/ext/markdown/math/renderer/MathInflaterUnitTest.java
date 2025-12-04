@@ -19,16 +19,16 @@ import me.chan.texas.utils.CharStream;
 import static org.junit.Assert.*;
 
 /**
- * LaTeX 数学公式解析器全面测试 - 完整版
+ * LaTeX 数学公式解析器全面测试 - 完整版（适配节点优化）
  * <p>
  * 测试目标：
  * 1. 覆盖 bnf_math.txt 中所有基础语法元素
  * 2. 验证 AST 结构的正确性
- * 3. 验证 AST 转换为 RenderNode 后的结构
+ * 3. 验证 AST 转换为 RenderNode 后的结构（优化后）
  * 4. 测试 MathFontOptions 中的符号查找（防止crash）
  * 5. 验证嵌套和复杂表达式
  * <p>
- * 参考 MathParserUnitTest 的测试风格和覆盖范围
+ * 注意：由于引入了节点优化，单个子节点的容器节点会被优化掉
  */
 public class MathInflaterUnitTest {
 
@@ -578,17 +578,11 @@ public class MathInflaterUnitTest {
 
 	@Test
 	public void test_01_01_Number_RenderStructure() throws MathParseException {
-		System.out.println("\n=== Part 1.1: 数字 - RenderNode结构 ===");
+		System.out.println("\n=== Part 1.1: 数字 - RenderNode结构（优化后）===");
 
-		// 测试整数
+		// 测试整数 - 优化后应该直接是 TextNode
 		RendererNode root = parseAndRender("123");
-		LinearGroupNodeAsserter rootGroup = assertRenderNode(root).asLinearGroup();
-		rootGroup.hasChildCount(1);
-		LinearGroupNodeAsserter exprGroup = rootGroup.childAt(0).asLinearGroup();
-		exprGroup.hasChildCount(1);
-		DecorGroupNodeAsserter termDecor = exprGroup.childAt(0).asDecorGroup();
-		termDecor.center().asTextNode().hasContent("123");
-		termDecor.noRightTop().noRightBottom();
+		assertRenderNode(root).asTextNode().hasContent("123");
 
 		// 测试小数
 		assertRenderSuccess("3.14");
@@ -599,16 +593,11 @@ public class MathInflaterUnitTest {
 
 	@Test
 	public void test_01_02_Variable_RenderStructure() throws MathParseException {
-		System.out.println("\n=== Part 1.2: 变量 - RenderNode结构 ===");
+		System.out.println("\n=== Part 1.2: 变量 - RenderNode结构（优化后）===");
 
-		// 测试基本变量
+		// 测试基本变量 - 优化后应该直接是 TextNode
 		RendererNode root = parseAndRender("x");
-		LinearGroupNodeAsserter rootGroup = assertRenderNode(root).asLinearGroup();
-		rootGroup.hasChildCount(1);
-		LinearGroupNodeAsserter exprGroup = rootGroup.childAt(0).asLinearGroup();
-		exprGroup.hasChildCount(1);
-		DecorGroupNodeAsserter termDecor = exprGroup.childAt(0).asDecorGroup();
-		termDecor.center().asTextNode().hasContent("x");
+		assertRenderNode(root).asTextNode().hasContent("x");
 
 		// 测试多字母变量
 		assertRenderSuccess("abc");
@@ -749,14 +738,11 @@ public class MathInflaterUnitTest {
 
 	@Test
 	public void test_02_01_UnaryOperators_RenderStructure() throws MathParseException {
-		System.out.println("\n=== Part 2.1: 一元运算符 - RenderNode结构 ===");
+		System.out.println("\n=== Part 2.1: 一元运算符 - RenderNode结构（优化后）===");
 
-		// 测试 "-x"
+		// 测试 "-x" - 优化后外层 LinearGroupNode 被优化掉，直接是 DecorGroupNode
 		RendererNode root = parseAndRender("-x");
-		LinearGroupNodeAsserter rootGroup = assertRenderNode(root).asLinearGroup();
-		LinearGroupNodeAsserter exprGroup = rootGroup.childAt(0).asLinearGroup();
-		exprGroup.hasChildCount(1);
-		DecorGroupNodeAsserter termDecor = exprGroup.childAt(0).asDecorGroup();
+		DecorGroupNodeAsserter termDecor = assertRenderNode(root).asDecorGroup();
 		termDecor.hasLeft();
 		termDecor.left().asSymbolNode().hasContent("−");
 		termDecor.center().asTextNode().hasContent("x");
@@ -773,19 +759,17 @@ public class MathInflaterUnitTest {
 
 	@Test
 	public void test_02_02_BinaryOperators_Arithmetic_RenderStructure() throws MathParseException {
-		System.out.println("\n=== Part 2.2: 二元运算符 - 算术 - RenderNode结构 ===");
+		System.out.println("\n=== Part 2.2: 二元运算符 - 算术 - RenderNode结构（优化后）===");
 
-		// 测试 "a+b"
+		// 测试 "a+b" - 优化后外层单个expression的LinearGroupNode被优化掉
 		RendererNode root = parseAndRender("a+b");
-		LinearGroupNodeAsserter rootGroup = assertRenderNode(root).asLinearGroup();
-		rootGroup.hasChildCount(1);
-		LinearGroupNodeAsserter exprGroup = rootGroup.childAt(0).asLinearGroup();
+		LinearGroupNodeAsserter exprGroup = assertRenderNode(root).asLinearGroup();
 		exprGroup.hasChildCount(5); // Term(a), Space, BinOp(+), Space, Term(b)
-		exprGroup.childAt(0).asDecorGroup().center().asTextNode().hasContent("a");
+		exprGroup.childAt(0).asTextNode().hasContent("a");  // 优化后直接是TextNode
 		exprGroup.childAt(1).asSpaceNode();
 		exprGroup.childAt(2).asSymbolNode().hasContent("+");
 		exprGroup.childAt(3).asSpaceNode();
-		exprGroup.childAt(4).asDecorGroup().center().asTextNode().hasContent("b");
+		exprGroup.childAt(4).asTextNode().hasContent("b");  // 优化后直接是TextNode
 
 		// 测试其他算术运算符
 		assertRenderSuccess("a-b");
@@ -907,16 +891,15 @@ public class MathInflaterUnitTest {
 
 	@Test
 	public void test_03_01_Punctuation_RenderStructure() throws MathParseException {
-		System.out.println("\n=== Part 3.1: 标点符号 - RenderNode结构 ===");
+		System.out.println("\n=== Part 3.1: 标点符号 - RenderNode结构（优化后）===");
 
 		// 测试 "a,b"
 		RendererNode root = parseAndRender("a,b");
-		LinearGroupNodeAsserter rootGroup = assertRenderNode(root).asLinearGroup();
-		LinearGroupNodeAsserter exprGroup = rootGroup.childAt(0).asLinearGroup();
+		LinearGroupNodeAsserter exprGroup = assertRenderNode(root).asLinearGroup();
 		exprGroup.hasChildCount(3); // Term(a), Term(,), Term(b)
-		exprGroup.childAt(0).asDecorGroup().center().asTextNode().hasContent("a");
-		exprGroup.childAt(1).asDecorGroup().center().asTextNode().hasContent(",");
-		exprGroup.childAt(2).asDecorGroup().center().asTextNode().hasContent("b");
+		exprGroup.childAt(0).asTextNode().hasContent("a");  // 优化后直接是TextNode
+		exprGroup.childAt(1).asTextNode().hasContent(",");  // 优化后直接是TextNode
+		exprGroup.childAt(2).asTextNode().hasContent("b");  // 优化后直接是TextNode
 
 		// 测试多个逗号
 		assertRenderSuccess("a,b,c");
@@ -948,22 +931,14 @@ public class MathInflaterUnitTest {
 
 	@Test
 	public void test_04_02_Frac_RenderStructure() throws MathParseException {
-		System.out.println("\n=== Part 4.2: 分式 - RenderNode结构 ===");
+		System.out.println("\n=== Part 4.2: 分式 - RenderNode结构（优化后）===");
 
-		// 测试 "\frac{1}{2}"
+		// 测试 "\frac{1}{2}" - 优化后外层容器被优化，直接是FractionNode
 		RendererNode root = parseAndRender("\\frac{1}{2}");
-		LinearGroupNodeAsserter rootGroup = assertRenderNode(root).asLinearGroup();
-		LinearGroupNodeAsserter exprGroup = rootGroup.childAt(0).asLinearGroup();
-		DecorGroupNodeAsserter termDecor = exprGroup.childAt(0).asDecorGroup();
-		FractionNodeAsserter frac = termDecor.center().asFractionNode();
-		frac.numerator().asLinearGroup()
-				.childAt(0).asLinearGroup()
-				.childAt(0).asDecorGroup()
-				.center().asTextNode().hasContent("1");
-		frac.denominator().asLinearGroup()
-				.childAt(0).asLinearGroup()
-				.childAt(0).asDecorGroup()
-				.center().asTextNode().hasContent("2");
+		FractionNodeAsserter frac = assertRenderNode(root).asFractionNode();
+		// 分子分母内部也被优化了
+		frac.numerator().asTextNode().hasContent("1");
+		frac.denominator().asTextNode().hasContent("2");
 
 		// 测试其他分式变体
 		assertRenderSuccess("\\frac{a}{b}");
@@ -1005,18 +980,13 @@ public class MathInflaterUnitTest {
 
 	@Test
 	public void test_04_04_Sqrt_RenderStructure() throws MathParseException {
-		System.out.println("\n=== Part 4.4: 根式 - RenderNode结构 ===");
+		System.out.println("\n=== Part 4.4: 根式 - RenderNode结构（优化后）===");
 
-		// 测试 "\sqrt{x}"
+		// 测试 "\sqrt{x}" - 优化后直接是SqrtNode
 		RendererNode root = parseAndRender("\\sqrt{x}");
-		LinearGroupNodeAsserter rootGroup = assertRenderNode(root).asLinearGroup();
-		LinearGroupNodeAsserter exprGroup = rootGroup.childAt(0).asLinearGroup();
-		DecorGroupNodeAsserter termDecor = exprGroup.childAt(0).asDecorGroup();
-		SqrtNodeAsserter sqrt = termDecor.center().asSqrtNode();
-		sqrt.content().asLinearGroup()
-				.childAt(0).asLinearGroup()
-				.childAt(0).asDecorGroup()
-				.center().asTextNode().hasContent("x");
+		SqrtNodeAsserter sqrt = assertRenderNode(root).asSqrtNode();
+		// content内部也被优化
+		sqrt.content().asTextNode().hasContent("x");
 
 		// 测试带根指数
 		assertRenderSuccess("\\sqrt[3]{27}");
@@ -1278,13 +1248,11 @@ public class MathInflaterUnitTest {
 
 	@Test
 	public void test_05_01_Superscript_RenderStructure() throws MathParseException {
-		System.out.println("\n=== Part 5.1: 上标 - RenderNode结构 ===");
+		System.out.println("\n=== Part 5.1: 上标 - RenderNode结构（优化后）===");
 
-		// 测试 "x^2"
+		// 测试 "x^2" - 优化后直接是DecorGroupNode
 		RendererNode root = parseAndRender("x^2");
-		LinearGroupNodeAsserter rootGroup = assertRenderNode(root).asLinearGroup();
-		LinearGroupNodeAsserter exprGroup = rootGroup.childAt(0).asLinearGroup();
-		DecorGroupNodeAsserter termDecor = exprGroup.childAt(0).asDecorGroup();
+		DecorGroupNodeAsserter termDecor = assertRenderNode(root).asDecorGroup();
 		termDecor.center().asTextNode().hasContent("x");
 		termDecor.hasRightTop();
 		termDecor.rightTop().asTextNode().hasContent("2");
@@ -1299,13 +1267,11 @@ public class MathInflaterUnitTest {
 
 	@Test
 	public void test_05_02_Subscript_RenderStructure() throws MathParseException {
-		System.out.println("\n=== Part 5.2: 下标 - RenderNode结构 ===");
+		System.out.println("\n=== Part 5.2: 下标 - RenderNode结构（优化后）===");
 
-		// 测试 "x_1"
+		// 测试 "x_1" - 优化后直接是DecorGroupNode
 		RendererNode root = parseAndRender("x_1");
-		LinearGroupNodeAsserter rootGroup = assertRenderNode(root).asLinearGroup();
-		LinearGroupNodeAsserter exprGroup = rootGroup.childAt(0).asLinearGroup();
-		DecorGroupNodeAsserter termDecor = exprGroup.childAt(0).asDecorGroup();
+		DecorGroupNodeAsserter termDecor = assertRenderNode(root).asDecorGroup();
 		termDecor.center().asTextNode().hasContent("x");
 		termDecor.hasRightBottom();
 		termDecor.rightBottom().asTextNode().hasContent("1");
@@ -1319,13 +1285,11 @@ public class MathInflaterUnitTest {
 
 	@Test
 	public void test_05_03_BothScripts_RenderStructure() throws MathParseException {
-		System.out.println("\n=== Part 5.3: 上下标组合 - RenderNode结构 ===");
+		System.out.println("\n=== Part 5.3: 上下标组合 - RenderNode结构（优化后）===");
 
-		// 测试 "x^2_1"
+		// 测试 "x^2_1" - 优化后直接是DecorGroupNode
 		RendererNode root = parseAndRender("x^2_1");
-		LinearGroupNodeAsserter rootGroup = assertRenderNode(root).asLinearGroup();
-		LinearGroupNodeAsserter exprGroup = rootGroup.childAt(0).asLinearGroup();
-		DecorGroupNodeAsserter termDecor = exprGroup.childAt(0).asDecorGroup();
+		DecorGroupNodeAsserter termDecor = assertRenderNode(root).asDecorGroup();
 		termDecor.center().asTextNode().hasContent("x");
 		termDecor.hasRightTop();
 		termDecor.hasRightBottom();
@@ -1347,13 +1311,14 @@ public class MathInflaterUnitTest {
 	public void test_06_01_Spacing_RenderStructure() throws MathParseException {
 		System.out.println("\n=== Part 6.1: 空格命令 - RenderNode结构 ===");
 
-		// 测试 "a\quad b"
+		// 测试 "a\quad b" - 空格作为顶层元素，不会被优化
 		RendererNode root = parseAndRender("a\\quad b");
 		LinearGroupNodeAsserter rootGroup = assertRenderNode(root).asLinearGroup();
 		rootGroup.hasChildCount(3); // Expression(a), SpaceNode, Expression(b)
-		rootGroup.childAt(0).asLinearGroup();
+		// 每个expression内部被优化为TextNode
+		rootGroup.childAt(0).asTextNode();
 		rootGroup.childAt(1).asSpaceNode();
-		rootGroup.childAt(2).asLinearGroup();
+		rootGroup.childAt(2).asTextNode();
 
 		// 测试其他空格命令
 		assertRenderSuccess("a\\, b");
@@ -1371,48 +1336,29 @@ public class MathInflaterUnitTest {
 
 	@Test
 	public void test_07_01_ComplexExpression_QuadraticFormula() throws MathParseException {
-		System.out.println("\n=== Part 7.1: 复杂表达式 - 二次公式 ===");
+		System.out.println("\n=== Part 7.1: 复杂表达式 - 二次公式（优化后）===");
 
 		RendererNode root = parseAndRender("\\frac{-b\\pm\\sqrt{b^2-4ac}}{2a}");
-		LinearGroupNodeAsserter rootGroup = assertRenderNode(root).asLinearGroup();
-		rootGroup.hasChildCount(1);
-		LinearGroupNodeAsserter exprGroup = rootGroup.childAt(0).asLinearGroup();
-		exprGroup.hasChildCount(1);
-		DecorGroupNodeAsserter termDecor = exprGroup.childAt(0).asDecorGroup();
-		FractionNodeAsserter frac = termDecor.center().asFractionNode();
-		LinearGroupNodeAsserter numerator = frac.numerator().asLinearGroup();
-		assertTrue("分子应该有子节点", numerator.linearGroup.getChildCount() > 0);
-		LinearGroupNodeAsserter denominator = frac.denominator().asLinearGroup();
-		assertTrue("分母应该有子节点", denominator.linearGroup.getChildCount() > 0);
+		// 优化后应该直接是FractionNode
+		FractionNodeAsserter frac = assertRenderNode(root).asFractionNode();
+		assertNotNull("分子不应为null", frac.fractionNode);
+		assertNotNull("分母不应为null", frac.fractionNode);
 
 		System.out.println("✅ 二次公式 RenderNode结构验证通过");
 	}
 
 	@Test
 	public void test_07_02_ComplexExpression_NestedFractions() throws MathParseException {
-		System.out.println("\n=== Part 7.2: 复杂表达式 - 嵌套分式 ===");
+		System.out.println("\n=== Part 7.2: 复杂表达式 - 嵌套分式（优化后）===");
 
 		RendererNode root = parseAndRender("\\frac{\\frac{1}{2}}{\\frac{3}{4}}");
-		LinearGroupNodeAsserter rootGroup = assertRenderNode(root).asLinearGroup();
-		DecorGroupNodeAsserter termDecor = rootGroup.childAt(0).asLinearGroup()
-				.childAt(0).asDecorGroup();
-		FractionNodeAsserter outerFrac = termDecor.center().asFractionNode();
-		FractionNodeAsserter innerFrac1 = outerFrac.numerator().asLinearGroup()
-				.childAt(0).asLinearGroup()
-				.childAt(0).asDecorGroup()
-				.center().asFractionNode();
-		FractionNodeAsserter innerFrac2 = outerFrac.denominator().asLinearGroup()
-				.childAt(0).asLinearGroup()
-				.childAt(0).asDecorGroup()
-				.center().asFractionNode();
-		innerFrac1.numerator().asLinearGroup()
-				.childAt(0).asLinearGroup()
-				.childAt(0).asDecorGroup()
-				.center().asTextNode().hasContent("1");
-		innerFrac2.denominator().asLinearGroup()
-				.childAt(0).asLinearGroup()
-				.childAt(0).asDecorGroup()
-				.center().asTextNode().hasContent("4");
+		// 优化后外层直接是FractionNode
+		FractionNodeAsserter outerFrac = assertRenderNode(root).asFractionNode();
+		// 分子分母应该也是FractionNode
+		FractionNodeAsserter innerFrac1 = outerFrac.numerator().asFractionNode();
+		FractionNodeAsserter innerFrac2 = outerFrac.denominator().asFractionNode();
+		innerFrac1.numerator().asTextNode().hasContent("1");
+		innerFrac2.denominator().asTextNode().hasContent("4");
 
 		System.out.println("✅ 嵌套分式 RenderNode结构验证通过");
 	}
@@ -1422,14 +1368,15 @@ public class MathInflaterUnitTest {
 		System.out.println("\n=== Part 7.3: 复杂表达式 - 求和与分式 ===");
 
 		RendererNode root = parseAndRender("\\sum_{i=1}^{n}\\frac{1}{i^2}");
-		LinearGroupNodeAsserter rootGroup = assertRenderNode(root).asLinearGroup();
-		LinearGroupNodeAsserter exprGroup = rootGroup.childAt(0).asLinearGroup();
+		// 优化后最外层仍然是LinearGroupNode（因为有2个子节点）
+		LinearGroupNodeAsserter exprGroup = assertRenderNode(root).asLinearGroup();
 		exprGroup.hasChildCount(2); // sum, frac
+		// sum有上下标，应该是DecorGroupNode
 		DecorGroupNodeAsserter sumDecor = exprGroup.childAt(0).asDecorGroup().center().asDecorGroup();
 		sumDecor.hasTop();
 		sumDecor.hasBottom();
-		DecorGroupNodeAsserter fracTerm = exprGroup.childAt(1).asDecorGroup();
-		fracTerm.center().asFractionNode();
+		// frac应该直接是FractionNode
+		exprGroup.childAt(1).asFractionNode();
 
 		System.out.println("✅ 求和与分式 RenderNode结构验证通过");
 	}
@@ -1621,7 +1568,7 @@ public class MathInflaterUnitTest {
 	@Test
 	public void test_09_Summary() {
 		System.out.println("\n" + "=".repeat(60));
-		System.out.println("测试总结：");
+		System.out.println("测试总结（适配节点优化）：");
 		System.out.println("✅ 覆盖 bnf_math.txt 中所有基础语法元素");
 		System.out.println("✅ 数字、变量、希腊字母、特殊符号");
 		System.out.println("✅ 一元、二元、后缀运算符");
@@ -1631,8 +1578,9 @@ public class MathInflaterUnitTest {
 		System.out.println("✅ 上下标、空格命令");
 		System.out.println("✅ 复杂嵌套表达式");
 		System.out.println("✅ 20+ 真实世界公式");
-		System.out.println("✅ AST 转 RenderNode 结构验证");
+		System.out.println("✅ AST 转 RenderNode 结构验证（优化后）");
 		System.out.println("✅ MathFontOptions 符号查找测试（防crash）");
+		System.out.println("✅ 节点优化策略验证");
 		System.out.println("=".repeat(60));
 	}
 }

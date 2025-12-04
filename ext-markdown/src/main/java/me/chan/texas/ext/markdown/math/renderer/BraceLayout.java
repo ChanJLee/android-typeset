@@ -9,8 +9,8 @@ import me.chan.texas.ext.markdown.math.renderer.core.MathPaint;
 
 public class BraceLayout extends RendererNode implements OptimizableRendererNode {
 
-	private final RendererNode mLeftSymbol;
-	private final RendererNode mRightSymbol;
+	private RendererNode mLeftSymbol;
+	private RendererNode mRightSymbol;
 	private RendererNode mContent;
 	private final int mLevel;
 
@@ -86,17 +86,21 @@ public class BraceLayout extends RendererNode implements OptimizableRendererNode
 	@NonNull
 	@Override
 	public RendererNode optimize() {
+		if (mRightSymbol instanceof OptimizableRendererNode) {
+			mRightSymbol = ((OptimizableRendererNode) mRightSymbol).optimize();
+		}
+		if (mLeftSymbol instanceof OptimizableRendererNode) {
+			mLeftSymbol = ((OptimizableRendererNode) mLeftSymbol).optimize();
+		}
+		if (mContent instanceof OptimizableRendererNode) {
+			mContent = ((OptimizableRendererNode) mContent).optimize();
+		}
+
 		if (mRightSymbol != null || mLeftSymbol != null) {
 			return this;
 		}
 
 		RendererNode child = mContent;
-		if (child instanceof OptimizableRendererNode) {
-			OptimizableRendererNode node = (OptimizableRendererNode) child;
-			child = node.optimize();
-			mContent = child;
-		}
-
 		if (child.getStyles() != getStyles()) {
 			return this;
 		}
