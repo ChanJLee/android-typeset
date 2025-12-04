@@ -330,4 +330,6 @@ public interface TexasCanvas {
 
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
 	Canvas getCanvas();
+
+	void reset(Canvas canvas);
 }

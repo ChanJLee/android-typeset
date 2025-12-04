@@ -27,6 +27,7 @@ public class RenderOption {
 	 * 1. copy ctor
 	 * 2. equals
 	 * 3. hashCode
+	 * 4. toString
 	 */
 	private int mTextColor;
 	private Typeface mTypeface;
@@ -43,6 +44,16 @@ public class RenderOption {
 	private boolean mDragToSelectEnable = true;
 	private int mTextGravity = TextGravity.START | TextGravity.TOP;
 	private boolean mBidiEnable = false;
+	private int mSelectedByLongClickBackgroundColor;
+	private int mSelectedByLongClickTextColor;
+	private HyphenStrategy mHyphenStrategy;
+	private boolean mEnableLazyRender;
+	private int mSpanHighlightTextColor;
+	private int mLoadingBackgroundColor;
+	private boolean mDrawEmoticonSelection = false;
+	private int mDragViewColor;
+	private boolean mCompatMode = false;
+	private float mSelectedBackgroundRoundRadius;
 
 	@Override
 	public boolean equals(Object o) {
@@ -60,6 +71,8 @@ public class RenderOption {
 		if (mDebugEnable != that.mDebugEnable) return false;
 		if (mOnDrawTsDebugEnable != that.mOnDrawTsDebugEnable) return false;
 		if (mAsyncDrawTsDebugEnable != that.mAsyncDrawTsDebugEnable) return false;
+		if (mFullWithSymbolOptimizationEnable != that.mFullWithSymbolOptimizationEnable)
+			return false;
 		if (mSelectedByLongClickBackgroundColor != that.mSelectedByLongClickBackgroundColor)
 			return false;
 		if (mSelectedByLongClickTextColor != that.mSelectedByLongClickTextColor) return false;
@@ -71,14 +84,12 @@ public class RenderOption {
 		if (mCompatMode != that.mCompatMode) return false;
 		if (Float.compare(that.mSelectedBackgroundRoundRadius, mSelectedBackgroundRoundRadius) != 0)
 			return false;
-		if (!TexasUtils.equals(mTypeface, that.mTypeface))
-			return false;
+		if (!TexasUtils.equals(mTypeface, that.mTypeface)) return false;
 		if (mBreakStrategy != that.mBreakStrategy) return false;
 		if (mHyphenStrategy != that.mHyphenStrategy) return false;
 		if (mDragToSelectEnable != that.mDragToSelectEnable) return false;
 		if (mTextGravity != that.mTextGravity) return false;
-		if (mBidiEnable != that.mBidiEnable) return false;
-		return mHyphenStrategy == that.mHyphenStrategy;
+		return mBidiEnable == that.mBidiEnable;
 	}
 
 	@Override
@@ -111,17 +122,6 @@ public class RenderOption {
 		return result;
 	}
 
-	private int mSelectedByLongClickBackgroundColor;
-	private int mSelectedByLongClickTextColor;
-	private HyphenStrategy mHyphenStrategy;
-	private boolean mEnableLazyRender;
-	private int mSpanHighlightTextColor;
-	private int mLoadingBackgroundColor;
-	private boolean mDrawEmoticonSelection = false;
-	private int mDragViewColor;
-	private boolean mCompatMode = false;
-	private float mSelectedBackgroundRoundRadius;
-
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
 	public RenderOption() {
 		mHyphenStrategy = HyphenStrategy.US;
@@ -149,7 +149,7 @@ public class RenderOption {
 		this.mCompatMode = other.mCompatMode;
 		this.mSelectedBackgroundRoundRadius = other.mSelectedBackgroundRoundRadius;
 		this.mAsyncDrawTsDebugEnable = other.mAsyncDrawTsDebugEnable;
-		this.mOnDrawTsDebugEnable = other.mAsyncDrawTsDebugEnable;
+		this.mOnDrawTsDebugEnable = other.mOnDrawTsDebugEnable;
 		this.mFullWithSymbolOptimizationEnable = other.mFullWithSymbolOptimizationEnable;
 		this.mDragToSelectEnable = other.mDragToSelectEnable;
 		this.mTextGravity = other.mTextGravity;
@@ -368,7 +368,7 @@ public class RenderOption {
 	}
 
 	/**
-	 * 设置点击后的背景色
+	 * 设置长按选中后的背景色
 	 *
 	 * @return 当前对象
 	 */
@@ -514,9 +514,11 @@ public class RenderOption {
 
 	/**
 	 * @param enable 开启onDraw时间戳debug
+	 * @return 当前对象
 	 */
-	public void setOnDrawTsDebugEnable(boolean enable) {
+	public RenderOption setOnDrawTsDebugEnable(boolean enable) {
 		mOnDrawTsDebugEnable = enable;
+		return this;
 	}
 
 	/**
@@ -528,9 +530,11 @@ public class RenderOption {
 
 	/**
 	 * @param enable 开启异步渲染时间戳debug
+	 * @return 当前对象
 	 */
-	public void setAsyncDrawTsDebugEnable(boolean enable) {
+	public RenderOption setAsyncDrawTsDebugEnable(boolean enable) {
 		mAsyncDrawTsDebugEnable = enable;
+		return this;
 	}
 
 	/**
@@ -544,9 +548,11 @@ public class RenderOption {
 	 * 针对于‘》《’等全角符号同时出现的case，该优化会压缩符号的宽度，使得符号中间不会占用过多的宽度
 	 *
 	 * @param enable 是否开启全角符号优化
+	 * @return 当前对象
 	 */
-	public void setFullWithSymbolOptimizationEnable(boolean enable) {
+	public RenderOption setFullWithSymbolOptimizationEnable(boolean enable) {
 		mFullWithSymbolOptimizationEnable = enable;
+		return this;
 	}
 
 	/**
@@ -558,9 +564,11 @@ public class RenderOption {
 
 	/**
 	 * @param enable 是否开启拖拽选择
+	 * @return 当前对象
 	 */
-	public void setDragToSelectEnable(boolean enable) {
+	public RenderOption setDragToSelectEnable(boolean enable) {
 		mDragToSelectEnable = enable;
+		return this;
 	}
 
 	/**
@@ -572,9 +580,11 @@ public class RenderOption {
 
 	/**
 	 * @param gravity 文字对齐方式
+	 * @return 当前对象
 	 */
-	public void setTextGravity(int gravity) {
+	public RenderOption setTextGravity(@TextGravity.GravityMask int gravity) {
 		mTextGravity = adviceTextGravityMask(gravity);
+		return this;
 	}
 
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -591,14 +601,14 @@ public class RenderOption {
 	}
 
 	/**
-	 * @return 是否开启双文本
+	 * @return 是否开启Bidi（双向文本）支持
 	 */
 	public boolean isBidiEnable() {
 		return mBidiEnable;
 	}
 
 	/**
-	 * @param enable 设置是否开启双向文本
+	 * @param enable 设置是否开启双向文本支持
 	 * @return 当前对象
 	 */
 	public RenderOption setBidiEnable(boolean enable) {
@@ -612,14 +622,16 @@ public class RenderOption {
 				"mTextColor=" + mTextColor +
 				", mTypeface=" + mTypeface +
 				", mTextSize=" + mTextSize +
-				", mLineSpace=" + mLineSpacingExtra +
+				", mLineSpacingExtra=" + mLineSpacingExtra +
 				", mSelectedBackgroundColor=" + mSelectedBackgroundColor +
 				", mSelectedTextColor=" + mSelectedTextColor +
 				", mBreakStrategy=" + mBreakStrategy +
 				", mWordSelectable=" + mWordSelectable +
-				", mEnableDebug=" + mDebugEnable +
-				", mEnableOnDrawTsDebug=" + mOnDrawTsDebugEnable +
-				", mEnableAsyncDrawTsDebug=" + mAsyncDrawTsDebugEnable +
+				", mDebugEnable=" + mDebugEnable +
+				", mOnDrawTsDebugEnable=" + mOnDrawTsDebugEnable +
+				", mAsyncDrawTsDebugEnable=" + mAsyncDrawTsDebugEnable +
+				", mFullWithSymbolOptimizationEnable=" + mFullWithSymbolOptimizationEnable +
+				", mDragToSelectEnable=" + mDragToSelectEnable +
 				", mSelectedByLongClickBackgroundColor=" + mSelectedByLongClickBackgroundColor +
 				", mSelectedByLongClickTextColor=" + mSelectedByLongClickTextColor +
 				", mHyphenStrategy=" + mHyphenStrategy +
@@ -630,9 +642,8 @@ public class RenderOption {
 				", mDragViewColor=" + mDragViewColor +
 				", mCompatMode=" + mCompatMode +
 				", mSelectedBackgroundRoundRadius=" + mSelectedBackgroundRoundRadius +
-				", mEnableFullWithSymbolOptimization=" + mFullWithSymbolOptimizationEnable +
-				", mEnableDragToSelect=" + mDragToSelectEnable +
-				", mGravity=" + mTextGravity +
+				// [FIX] Add missing fields
+				", mTextGravity=" + mTextGravity +
 				", mBidiEnable=" + mBidiEnable +
 				'}';
 	}

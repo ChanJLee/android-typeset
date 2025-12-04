@@ -23,6 +23,8 @@ import java.util.Locale;
 import me.chan.texas.misc.PaintSet;
 import me.chan.texas.misc.RectF;
 import me.chan.texas.misc.Rect;
+import me.chan.texas.utils.CharArrayPool;
+import me.chan.texas.utils.TexasUtils;
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class TexasPaintImpl implements TexasPaint {
@@ -705,9 +707,18 @@ public class TexasPaintImpl implements TexasPaint {
 		return getPaint(true).getRunAdvance(text, start, end, contextStart, contextEnd, isRtl, offset);
 	}
 
+	private static final CharArrayPool POOL = new CharArrayPool();
+
 	@Override
 	public float getRunAdvance(CharSequence text, int start, int end, int contextStart, int contextEnd, boolean isRtl, int offset) {
-		return getPaint(true).getRunAdvance(text, start, end, contextStart, contextEnd, isRtl, offset);
+		int size = end - start;
+		char[] buf = POOL.obtain(size);
+		TexasUtils.getChars(text, start, end, buf, 0);
+		try {
+			return getPaint(true).getRunAdvance(buf, start, end, contextStart, contextEnd, isRtl, offset);
+		} finally {
+			POOL.release(buf);
+		}
 	}
 
 	@RequiresApi(api = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)

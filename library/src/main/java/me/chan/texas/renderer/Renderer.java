@@ -2,6 +2,8 @@ package me.chan.texas.renderer;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
+import static me.chan.texas.utils.TexasUtils.CmpType.CMP_IGNORE;
+
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
@@ -216,6 +218,9 @@ public class Renderer implements SelectionManager.Listener {
 
 		int cmpType = TexasUtils.cmp(mRenderOption, renderOption);
 		d("refresh, cmp type: " + TexasUtils.cmpType2String(cmpType));
+		if (cmpType == CMP_IGNORE) {
+			return;
+		}
 
 		RenderOption prev = mRenderOption;
 		mRenderOption = renderOption;

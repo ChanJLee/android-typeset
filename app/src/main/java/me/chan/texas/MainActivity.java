@@ -118,6 +118,24 @@ public class MainActivity extends AppCompatActivity {
 				startActivity(intent);
 			}
 		});
+
+		findViewById(me.chan.texas.debug.R.id.math).setOnClickListener(new View.OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				Intent intent = new Intent(v.getContext(), MathDemoActivity.class);
+				startActivity(intent);
+			}
+		});
+
+		findViewById(me.chan.texas.debug.R.id.math_symbol_benchmark).setOnClickListener(new View.OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				Intent intent = new Intent(v.getContext(), MathSymbolBenchmarkActivity.class);
+				startActivity(intent);
+			}
+		});
 	}
 
 	@Override

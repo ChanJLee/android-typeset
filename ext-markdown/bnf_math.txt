@@ -1,0 +1,292 @@
+(* 
+ * LaTeX数学公式BNF范式 - 修正版v6
+ * 修正内容：
+ * 1. 移除了 <plain_symbol> 中的运算符，避免与二元/一元运算符冲突
+ * 2. 运算符只能作为 <unary_op> 或 <binary_op> 出现，不能作为独立 atom
+ * 3. <spacing> 从 <atom> 中移除，作为 <math_list> 级别的独立元素
+ * 4. 明确了各类符号的使用场景，避免语法歧义
+ * 5. 修正二元运算符定义，确保必须有右操作数（修复 "x +" 被判定为合法的问题）
+ * 6. 补充了 <font_command> 和 <special_symbol> 到原子表达式中
+ * 7. (v3) 分离 <operand_atom> 和 <special_symbol>，避免一元运算符修饰特殊符号（如 "-\dots"）
+ * 8. (v4) 重新分类符号：将类变量符号（如 \nabla, \partial, \hbar）从 special_symbol 移到
+ *    special_letter_variable，使其可以被一元运算符修饰（如 "-\nabla"）
+ * 9. (v5) 添加后缀运算符支持：支持阶乘符号 ! (如 "n!", "5!", "(n-1)!")
+ * 10. (v6) 添加可扩展箭头支持：\xrightarrow, \xleftarrow 等命令，支持上下标注
+ *)
+
+(* ============ 顶层结构 ============ *)
+
+<math> ::= <math_list>
+
+(* math_list 包含表达式和空格 *)
+<math_list> ::= <element> { <element> }
+
+<element> ::= <expression> | <spacing>
+
+(* Expression 现在是 term 的序列，term 之间可以有二元运算符连接，也可以直接相邻 *)
+<expression> ::= <term> { <separator> }
+
+<separator> ::= <binary_op> <term>    (* 二元运算符必须有右操作数 *)
+              | <term>                  (* 直接相邻的 term：隐式乘法或标点 *)
+
+(* term 分为两类：
+ * 1. 可运算的原子（可被一元运算符修饰，可带上下标，可带后缀运算符）
+ * 2. 特殊符号（不能被一元运算符修饰，但可带上下标）
+ * 3. 标点符号（独立存在，不能被修饰，不能带上下标）
+ *)
+<term> ::= [ <unary_op> ] <operand_atom> [ <sup_sub_suffix> ] [ <postfix_op> ]
+         | <special_symbol> [ <sup_sub_suffix> ]
+         | <punctuation>
+
+(* ============ 原子表达式 ============ *)
+
+(* 可运算的原子表达式：可以被一元运算符修饰 *)
+<operand_atom> ::= <number>
+                 | <variable>
+                 | <greek_letter_variable>
+                 | <special_letter_variable>
+                 | <group>
+                 | <frac>
+                 | <binom>
+                 | <sqrt>
+                 | <delimited>
+                 | <function_call>
+                 | <large_operator>
+                 | <matrix>
+                 | <text>
+                 | <accent>
+                 | <font_command>
+                 | <extensible_arrow>
+
+(* 注意：<special_symbol> 不能被一元运算符修饰，在 <term> 级别单独处理 *)
+
+(* ============ 基础元素 ============ *)
+
+<number> ::= <digit> { <digit> } [ "." <digit> { <digit> } ]
+
+<digit> ::= "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9"
+
+<variable> ::= <letter> { <letter> } [ <prime_suffix> ]
+
+<letter> ::= "a" | "b" | "c" | ... | "z" | "A" | "B" | ... | "Z"
+
+(* 导数符号后缀：一个或多个单引号，表示导数的阶数 *)
+<prime_suffix> ::= "'" { "'" }
+
+(* ============ 符号 ============ *)
+
+(* 一元运算符：只能出现在 term 开头，修饰可运算的原子 *)
+<unary_op> ::= "+" | "-" | "\pm" | "\mp"
+
+(* 后缀运算符：只能出现在 term 末尾（在上下标之后） *)
+<postfix_op> ::= "!"    (* 阶乘 *)
+
+(* 二元运算符：必须连接两个 term *)
+<binary_op> ::= "+" | "-" | "*" | "/" | "|"
+              | "\times" | "\cdot" | "\div" | "\pm" | "\mp"
+              | "=" | "\neq" | "\equiv" | "\approx" | "\cong" | "\sim"
+              | "<" | ">" | "\le" | "\ge" | "\leq" | "\geq" | "\ll" | "\gg"
+              | "\in" | "\notin" | "\subset" | "\supset" | "\subseteq" | "\supseteq"
+              | "\cup" | "\cap" | "\wedge" | "\vee"
+              | "\to" | "\rightarrow" | "\leftarrow" | "\leftrightarrow"
+              | "\Rightarrow" | "\Leftarrow" | "\Leftrightarrow"
+              | "\implies" | "\iff"
+              | "\perp" | "\parallel"
+              | "\mid"  (* 整除/分隔符 *)
+
+(* 标点符号：可以独立存在，不参与运算 *)
+<punctuation> ::= "," | ";"
+
+(* 希腊字母 *)
+<greek_letter> ::= "\alpha" | "\beta" | "\gamma" | "\delta" | "\epsilon" | "\varepsilon"
+                 | "\zeta" | "\eta" | "\theta" | "\vartheta" | "\iota" | "\kappa"
+                 | "\lambda" | "\mu" | "\nu" | "\xi" | "\pi" | "\varpi" | "\rho" | "\varrho"
+                 | "\sigma" | "\varsigma" | "\tau" | "\upsilon" | "\phi" | "\varphi"
+                 | "\chi" | "\psi" | "\omega"
+                 | "\Gamma" | "\Delta" | "\Theta" | "\Lambda" | "\Xi" | "\Pi"
+                 | "\Sigma" | "\Upsilon" | "\Phi" | "\Psi" | "\Omega"
+                 | "\infty"
+
+<greek_letter_variable> ::= <greek_letter> [ <prime_suffix> ]
+
+(* 类字母的特殊符号：可以被一元运算符修饰（如 -\nabla），可带上下标，行为类似变量 *)
+<special_letter_variable> ::= "\hbar"           (* ℏ 约化普朗克常数 *)
+                             | "\nabla"          (* ∇ 梯度算子/哈密顿算子 *)
+                             | "\partial"        (* ∂ 偏导数符号 *)
+                             | "\ell"            (* ℓ 脚本小写L *)
+                             | "\wp"             (* ℘ 魏尔斯特拉斯函数 *)
+                             | "\Re" | "\Im"     (* ℜ ℑ 实部虚部 *)
+                             | "\aleph"          (* ℵ 阿列夫数 *)
+
+(* ============ 分组（递归有界） ============ *)
+
+<group> ::= "{" <math_list> "}"
+
+(* ============ 上下标（明确的递归终止） ============ *)
+
+<sup_sub_suffix> ::= "^" <script_arg>
+                   | "_" <script_arg>
+                   | "^" <script_arg> "_" <script_arg>
+                   | "_" <script_arg> "^" <script_arg>
+
+(* script_arg 只能是单个token或group，避免无限递归 *)
+<script_arg> ::= <single_token> | <group>
+
+(* 单个 token：数字、字母、希腊字母、或运算符符号 *)
+<single_token> ::= <number>
+                 | <variable>
+                 | <greek_letter_variable>
+                 | <operator_symbol>
+
+(* 运算符符号：仅在特定上下文（如上下标）中允许作为单独符号 *)
+<operator_symbol> ::= "+" | "-" | "*" | "/" | "=" | "<" | ">"
+                    | "\pm" | "\mp"
+
+(* ============ 分式 ============ *)
+
+<frac> ::= "\frac" "{" <math_list> "}" "{" <math_list> "}"
+         | "\dfrac" "{" <math_list> "}" "{" <math_list> "}"
+         | "\tfrac" "{" <math_list> "}" "{" <math_list> "}"
+         | "\cfrac" "{" <math_list> "}" "{" <math_list> "}"
+
+(* ============ 二项式系数 ============ *)
+
+<binom> ::= "\binom" "{" <math_list> "}" "{" <math_list> "}"
+          | "\dbinom" "{" <math_list> "}" "{" <math_list> "}"
+          | "\tbinom" "{" <math_list> "}" "{" <math_list> "}"
+
+(* 注意：
+ * - \binom 产生普通大小的二项式系数
+ * - \dbinom 产生 display style 的二项式系数（较大）
+ * - \tbinom 产生 text style 的二项式系数（较小）
+ * 例如：\binom{n}{k} 渲染为 (n)
+ *                              (k)
+ *)
+
+(* ============ 根式 ============ *)
+
+<sqrt> ::= "\sqrt" "{" <math_list> "}"
+         | "\sqrt" "[" <math_list> "]" "{" <math_list> "}"
+
+(* ============ 可扩展箭头 ============ *)
+
+<extensible_arrow> ::= <extensible_arrow_cmd> [ "[" <math_list> "]" ] "{" <math_list> "}"
+
+<extensible_arrow_cmd> ::= "\xrightarrow" | "\xleftarrow" | "\xleftrightarrow"
+                          | "\xRightarrow" | "\xLeftarrow" | "\xLeftrightarrow"
+                          | "\xhookrightarrow" | "\xhookleftarrow"
+                          | "\xtwoheadrightarrow" | "\xtwoheadleftarrow"
+                          | "\xmapsto" | "\xtofrom"
+
+(* 注意：
+ * - 方括号 [...] 内的内容（可选）会显示在箭头下方
+ * - 花括号 {...} 内的内容（必需）会显示在箭头上方
+ * 例如：\xrightarrow{上方} 或 \xrightarrow[下方]{上方}
+ *)
+
+(* ============ 定界符 ============ *)
+
+<delimited> ::= "\left" <delimiter> <math_list> "\right" <delimiter>
+              | "\bigl" <delimiter> <math_list> "\bigr" <delimiter>
+              | "\Bigl" <delimiter> <math_list> "\Bigr" <delimiter>
+              | "\biggl" <delimiter> <math_list> "\biggr" <delimiter>
+              | "\Biggl" <delimiter> <math_list> "\Biggr" <delimiter>
+
+<delimiter> ::= "(" | ")" | "[" | "]" | "\{" | "\}" | "|" | "\|"
+              | "\langle" | "\rangle"
+              | "\lfloor" | "\rfloor"
+              | "\lceil" | "\rceil"
+              | "\lvert" | "\rvert"
+              | "\lVert" | "\rVert"
+              | "." (* 表示空定界符 *)
+
+(* ============ 函数 ============ *)
+
+<function_call> ::= "\" <function_name> [ "_" <script_arg> ] [ "^" <script_arg> ] [ <function_arg> ]
+
+<function_name> ::= "sin" | "cos" | "tan" | "cot" | "sec" | "csc"
+                  | "arcsin" | "arccos" | "arctan"
+                  | "sinh" | "cosh" | "tanh" | "coth"
+                  | "log" | "ln" | "lg" | "exp"
+                  | "max" | "min" | "sup" | "inf"
+                  | "arg" | "deg" | "det" | "dim" | "gcd" | "hom" | "ker"
+                  | "Pr" | "bmod" | "pmod"
+
+(* 函数参数只能是单个token或group，避免吃掉后续内容 *)
+<function_arg> ::= <single_token> | <group> | <delimited>
+
+(* ============ 大型运算符 ============ *)
+
+<large_operator> ::= "\" <large_op_name> [ "_" <script_arg> ] [ "^" <script_arg> ]
+
+<large_op_name> ::= "sum" | "prod" | "coprod"
+                  | "int" | "iint" | "iiint" | "oint" | "oiint" | "oiiint"
+                  | "bigcup" | "bigcap" | "bigvee" | "bigwedge"
+                  | "bigoplus" | "bigotimes" | "bigodot"
+                  | "biguplus" | "bigsqcup"
+                  | "lim" | "limsup" | "liminf"
+
+(* ============ 矩阵 ============ *)
+
+<matrix> ::= "\begin{" <matrix_env> "}" {  "{" <matrix_gravity> "}"  } <matrix_rows> "\end{" <matrix_env> "}"
+
+<matrix_gravity> ::= "l" | "c" | "r"
+
+<matrix_env> ::= "matrix" | "pmatrix" | "bmatrix" | "Bmatrix" | "vmatrix" | "Vmatrix"
+               | "smallmatrix" | "array" | "cases"
+
+<matrix_rows> ::= <matrix_row> { "\\" <matrix_row> }
+
+<matrix_row> ::= <math_list> { "&" <math_list> }
+
+(* ============ 文本模式 ============ *)
+
+<text> ::= "\text" "{" <text_content> "}"
+         | "\mbox" "{" <text_content> "}"
+         | "\textrm" "{" <text_content> "}"
+         | "\textit" "{" <text_content> "}"
+         | "\textbf" "{" <text_content> "}"
+
+<text_content> ::= <any_unicode_char> { <any_unicode_char> }
+
+(* ============ 字体命令 ============ *)
+
+<font_command> ::= <font_cmd_name> "{" <math_list> "}"
+
+<font_cmd_name> ::= "\mathrm" | "\mathit" | "\mathbf" | "\mathsf" | "\mathtt"
+                  | "\mathcal" | "\mathbb" | "\mathfrak" | "\mathscr"
+                  | "\boldsymbol" | "\bm"
+
+(* ============ 重音符号 ============ *)
+
+<accent> ::= <accent_cmd> "{" <math_list> "}"
+           | <accent_cmd> <single_token>
+
+<accent_cmd> ::= "\hat" | "\widehat" | "\tilde" | "\widetilde"
+               | "\bar" | "\overline" | "\underline"
+               | "\vec" | "\overrightarrow" | "\overleftarrow"
+               | "\dot" | "\ddot" | "\dddot"
+               | "\acute" | "\grave" | "\breve" | "\check"
+               | "\mathring"
+               | "\overbrace" | "\underbrace"
+
+(* ============ 空格命令（独立元素，不是 atom） ============ *)
+
+<spacing> ::= "\," | "\:" | "\;" | "\!"
+            | "\quad" | "\qquad"
+            | "\hspace" "{" <length> "}"
+            | "\hphantom" "{" <math_list> "}"
+            | "\vphantom" "{" <math_list> "}"
+            | "\phantom" "{" <math_list> "}"
+
+<length> ::= <number> <unit>
+
+<unit> ::= "em" | "ex" | "pt" | "px" | "cm" | "mm" | "in"
+
+(* ============ 特殊符号（不能被一元运算符修饰，但可带上下标） ============ *)
+
+<special_symbol> ::= "\dots" | "\ldots" | "\cdots" | "\vdots" | "\ddots"  (* 省略号 *)
+                   | "\angle"                    (* 角度符号 *)
+                   | "\therefore" | "\because"   (* 逻辑标记符号 *)
+                   | "\forall" | "\exists" | "\nexists"  (* ∀ ∃ ∄ 量词 *)
+                   | "\emptyset" | "\varnothing"  (* ∅ 空集 *)
