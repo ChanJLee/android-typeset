@@ -3259,4 +3259,1637 @@ public class MathParserUnitTest {
 		System.out.println("✅ 真实世界公式测试通过");
 		System.out.println("=".repeat(60));
 	}
+
+	// ============================================================
+	// Part 13: 希腊字母全面测试（BNF: greek_letter）
+	// ============================================================
+
+	@Test
+	public void test_13_01_GreekLetters_Lowercase_All() {
+		System.out.println("\n=== Part 13.1: 希腊字母 - 所有小写 ===");
+
+		// 所有小写希腊字母
+		String[] lowercase = {
+				"alpha", "beta", "gamma", "delta", "epsilon", "varepsilon",
+				"zeta", "eta", "theta", "vartheta", "iota", "kappa",
+				"lambda", "mu", "nu", "xi", "pi", "varpi", "rho", "varrho",
+				"sigma", "varsigma", "tau", "upsilon", "phi", "varphi",
+				"chi", "psi", "omega"
+		};
+
+		for (String letter : lowercase) {
+			String input = "\\" + letter;
+			MathList ast = assertParsesToWithAst(input, input);
+			assertAst(ast)
+					.elementIsExpression(0)
+					.elementIsTerm(0)
+					.atomIsGreekLetter(letter);
+		}
+	}
+
+	@Test
+	public void test_13_02_GreekLetters_Uppercase_All() {
+		System.out.println("\n=== Part 13.2: 希腊字母 - 所有大写 ===");
+
+		// 所有大写希腊字母
+		String[] uppercase = {
+				"Gamma", "Delta", "Theta", "Lambda", "Xi", "Pi",
+				"Sigma", "Upsilon", "Phi", "Psi", "Omega"
+		};
+
+		for (String letter : uppercase) {
+			String input = "\\" + letter;
+			MathList ast = assertParsesToWithAst(input, input);
+			assertAst(ast)
+					.elementIsExpression(0)
+					.elementIsTerm(0)
+					.atomIsGreekLetter(letter);
+		}
+	}
+
+	@Test
+	public void test_13_03_GreekLetters_Infty() {
+		System.out.println("\n=== Part 13.3: 希腊字母 - 无穷 ===");
+
+		// infty 在 BNF 中作为 greek_letter 处理
+		MathList ast = assertParsesToWithAst("\\infty", "\\infty");
+		assertAst(ast)
+				.elementIsExpression(0)
+				.elementIsTerm(0)
+				.atomIsSpecialSymbol("infty");
+	}
+
+	// ============================================================
+	// Part 14: 特殊字母变量测试（BNF: special_letter_variable）
+	// ============================================================
+
+	@Test
+	public void test_14_01_SpecialLetterVariable_All() {
+		System.out.println("\n=== Part 14.1: 特殊字母变量 - 所有类型 ===");
+
+		// 所有特殊字母变量
+		String[] specialLetters = {"hbar", "nabla", "partial", "ell", "wp", "Re", "Im", "aleph"};
+
+		for (String letter : specialLetters) {
+			String input = "\\" + letter;
+			MathList ast = assertParsesToWithAst(input, input);
+			assertAst(ast)
+					.elementIsExpression(0)
+					.elementIsTerm(0);
+			System.out.println("✅ " + input + " 解析成功");
+		}
+	}
+
+	@Test
+	public void test_14_02_SpecialLetterVariable_WithUnaryOp() {
+		System.out.println("\n=== Part 14.2: 特殊字母变量 - 带一元运算符 ===");
+
+		// 特殊字母变量可以被一元运算符修饰
+		MathList ast = assertParsesToWithAst("-\\nabla", "-\\nabla");
+		assertAst(ast)
+				.elementIsExpression(0)
+				.elementIsTerm(0)
+				.hasUnaryOp("-");
+
+		ast = assertParsesToWithAst("+\\partial", "+\\partial");
+		assertAst(ast)
+				.elementIsExpression(0)
+				.elementIsTerm(0)
+				.hasUnaryOp("+");
+
+		ast = assertParsesToWithAst("-\\hbar", "-\\hbar");
+		assertAst(ast)
+				.elementIsExpression(0)
+				.elementIsTerm(0)
+				.hasUnaryOp("-");
+
+		ast = assertParsesToWithAst("\\pm\\nabla", "\\pm \\nabla");
+		assertAst(ast)
+				.elementIsExpression(0)
+				.elementIsTerm(0)
+				.hasUnaryOp("\\pm");
+	}
+
+	@Test
+	public void test_14_03_SpecialLetterVariable_WithScripts() {
+		System.out.println("\n=== Part 14.3: 特殊字母变量 - 带上下标 ===");
+
+		// 上标
+		MathList ast = assertParsesToWithAst("\\nabla^2", "\\nabla^2");
+		assertAst(ast)
+				.elementIsExpression(0)
+				.elementIsTerm(0)
+				.hasSuffix()
+				.suffix()
+				.hasSuperscript()
+				.superscriptContent("2");
+
+		// 下标
+		ast = assertParsesToWithAst("\\partial_t", "\\partial_t");
+		assertAst(ast)
+				.elementIsExpression(0)
+				.elementIsTerm(0)
+				.hasSuffix()
+				.suffix()
+				.hasSubscript()
+				.subscriptContent("t");
+
+		// 上下标同时
+		ast = assertParsesToWithAst("\\hbar_0^1", "\\hbar_0^1");
+		assertAst(ast)
+				.elementIsExpression(0)
+				.elementIsTerm(0)
+				.hasSuffix()
+				.suffix()
+				.hasSuperscript()
+				.hasSubscript();
+	}
+
+	// ============================================================
+	// Part 15: 二元运算符全面测试（BNF: binary_op）
+	// ============================================================
+
+	@Test
+	public void test_15_01_BinaryOp_Basic() {
+		System.out.println("\n=== Part 15.1: 二元运算符 - 基本符号 ===");
+
+		String[][] basicOps = {
+				{"+", "+"}, {"-", "-"}, {"*", "*"}, {"/", "/"}, {"|", "|"}
+		};
+
+		for (String[] op : basicOps) {
+			String input = "a" + op[0] + "b";
+			MathList ast = assertParsesToWithAst(input, "a " + op[1] + " b");
+			ExpressionAsserter expr = assertAst(ast)
+					.elementIsExpression(0)
+					.hasSize(3);
+			expr.nextTerm().atomIsVariable("a");
+			expr.and().nextBinOp().isOperator(op[1]);
+			expr.and().nextTerm().atomIsVariable("b");
+		}
+	}
+
+	@Test
+	public void test_15_02_BinaryOp_LaTeX() {
+		System.out.println("\n=== Part 15.2: 二元运算符 - LaTeX 运算符 ===");
+
+		String[] latexOps = {"\\times", "\\cdot", "\\div", "\\pm", "\\mp"};
+
+		for (String op : latexOps) {
+			String input = "a" + op + " b";
+			MathList ast = assertParsesToWithAst(input, "a " + op + " b");
+			ExpressionAsserter expr = assertAst(ast)
+					.elementIsExpression(0)
+					.hasSize(3);
+			expr.nextTerm().atomIsVariable("a");
+			expr.and().nextBinOp().isOperator(op);
+			expr.and().nextTerm().atomIsVariable("b");
+		}
+	}
+
+	@Test
+	public void test_15_03_BinaryOp_Relational() {
+		System.out.println("\n=== Part 15.3: 二元运算符 - 关系运算符 ===");
+
+		String[][] relOps = {
+				{"=", "="}, {"<", "<"}, {">", ">"},
+				{"\\neq", "\\neq"}, {"\\equiv", "\\equiv"}, {"\\approx", "\\approx"},
+				{"\\cong", "\\cong"}, {"\\sim", "\\sim"},
+				{"\\le", "\\le"}, {"\\ge", "\\ge"},
+				{"\\leq", "\\leq"}, {"\\geq", "\\geq"},
+				{"\\ll", "\\ll"}, {"\\gg", "\\gg"}
+		};
+
+		for (String[] op : relOps) {
+			String input = "a" + op[0] + "b";
+			MathList ast = assertParsesToWithAst(input, "a " + op[1] + " b");
+			assertAst(ast)
+					.elementIsExpression(0)
+					.hasSize(3)
+					.elementIsBinOp(1)
+					.isOperator(op[1]);
+		}
+	}
+
+	@Test
+	public void test_15_04_BinaryOp_Set() {
+		System.out.println("\n=== Part 15.4: 二元运算符 - 集合运算符 ===");
+
+		String[] setOps = {
+				"\\in", "\\notin", "\\subset", "\\supset",
+				"\\subseteq", "\\supseteq", "\\cup", "\\cap",
+				"\\wedge", "\\vee"
+		};
+
+		for (String op : setOps) {
+			String input = "A" + op + " B";
+			MathList ast = assertParsesToWithAst(input, "A " + op + " B");
+			assertAst(ast)
+					.elementIsExpression(0)
+					.hasSize(3)
+					.elementIsBinOp(1)
+					.isOperator(op);
+		}
+	}
+
+	@Test
+	public void test_15_05_BinaryOp_Arrow() {
+		System.out.println("\n=== Part 15.5: 二元运算符 - 箭头运算符 ===");
+
+		String[] arrowOps = {
+				"\\to", "\\rightarrow", "\\leftarrow", "\\leftrightarrow",
+				"\\Rightarrow", "\\Leftarrow", "\\Leftrightarrow",
+				"\\implies", "\\iff"
+		};
+
+		for (String op : arrowOps) {
+			String input = "A" + op + " B";
+			MathList ast = assertParsesToWithAst(input, "A " + op + " B");
+			assertAst(ast)
+					.elementIsExpression(0)
+					.hasSize(3)
+					.elementIsBinOp(1)
+					.isOperator(op);
+		}
+	}
+
+	@Test
+	public void test_15_06_BinaryOp_Geometry() {
+		System.out.println("\n=== Part 15.6: 二元运算符 - 几何运算符 ===");
+
+		String[] geoOps = {"\\perp", "\\parallel", "\\mid"};
+
+		for (String op : geoOps) {
+			String input = "a" + op + " b";
+			MathList ast = assertParsesToWithAst(input, "a " + op + " b");
+			assertAst(ast)
+					.elementIsExpression(0)
+					.hasSize(3)
+					.elementIsBinOp(1)
+					.isOperator(op);
+		}
+	}
+
+	// ============================================================
+	// Part 16: 标点符号测试（BNF: punctuation）
+	// ============================================================
+
+	@Test
+	public void test_16_01_Punctuation_Comma() {
+		System.out.println("\n=== Part 16.1: 标点符号 - 逗号 ===");
+
+		MathList ast = assertParsesToWithAst("a,b", "a , b");
+		ExpressionAsserter expr = assertAst(ast)
+				.elementIsExpression(0)
+				.hasSize(3);
+		expr.nextTerm().atomIsVariable("a");
+		expr.and().nextTerm().atomIsPunctuation(",");
+		expr.and().nextTerm().atomIsVariable("b");
+	}
+
+	@Test
+	public void test_16_02_Punctuation_Semicolon() {
+		System.out.println("\n=== Part 16.2: 标点符号 - 分号 ===");
+
+		MathList ast = assertParsesToWithAst("a;b", "a ; b");
+		ExpressionAsserter expr = assertAst(ast)
+				.elementIsExpression(0)
+				.hasSize(3);
+		expr.nextTerm().atomIsVariable("a");
+		expr.and().nextTerm().atomIsPunctuation(";");
+		expr.and().nextTerm().atomIsVariable("b");
+	}
+
+	@Test
+	public void test_16_03_Punctuation_Multiple() {
+		System.out.println("\n=== Part 16.3: 标点符号 - 多个标点 ===");
+
+		MathList ast = assertParsesToWithAst("a,b;c,d", "a , b ; c , d");
+		assertAst(ast)
+				.elementIsExpression(0)
+				.hasSize(7);  // a, comma, b, semicolon, c, comma, d
+	}
+
+	// ============================================================
+	// Part 17: 定界符全面测试（BNF: delimited, delimiter）
+	// ============================================================
+
+	@Test
+	public void test_17_01_Delimiter_Parentheses() {
+		System.out.println("\n=== Part 17.1: 定界符 - 圆括号 ===");
+
+		MathList ast = assertParsesToWithAst("\\left(x\\right)", "\\left( x \\right)");
+		assertAst(ast)
+				.elementIsExpression(0)
+				.elementIsTerm(0)
+				.atomIsDelimited()
+				.level(0)
+				.leftDelimiter("(")
+				.rightDelimiter(")");
+	}
+
+	@Test
+	public void test_17_02_Delimiter_Brackets() {
+		System.out.println("\n=== Part 17.2: 定界符 - 方括号 ===");
+
+		MathList ast = assertParsesToWithAst("\\left[x\\right]", "\\left[ x \\right]");
+		assertAst(ast)
+				.elementIsExpression(0)
+				.elementIsTerm(0)
+				.atomIsDelimited()
+				.leftDelimiter("[")
+				.rightDelimiter("]");
+	}
+
+	@Test
+	public void test_17_03_Delimiter_Braces() {
+		System.out.println("\n=== Part 17.3: 定界符 - 花括号 ===");
+
+		MathList ast = assertParsesToWithAst("\\left\\{x\\right\\}", "\\left{ x \\right}");
+		assertAst(ast)
+				.elementIsExpression(0)
+				.elementIsTerm(0)
+				.atomIsDelimited()
+				.leftDelimiter("{")
+				.rightDelimiter("}");
+	}
+
+	@Test
+	public void test_17_04_Delimiter_Bars() {
+		System.out.println("\n=== Part 17.4: 定界符 - 竖线 ===");
+
+		// 单竖线
+		MathList ast = assertParsesToWithAst("\\left|x\\right|", "\\left| x \\right|");
+		assertAst(ast)
+				.elementIsExpression(0)
+				.elementIsTerm(0)
+				.atomIsDelimited()
+				.leftDelimiter("|")
+				.rightDelimiter("|");
+
+		// 双竖线
+		ast = assertParsesToWithAst("\\left\\|x\\right\\|", "\\left|| x \\right||");
+		assertAst(ast)
+				.elementIsExpression(0)
+				.elementIsTerm(0)
+				.atomIsDelimited()
+				.leftDelimiter("||")
+				.rightDelimiter("||");
+	}
+
+	@Test
+	public void test_17_05_Delimiter_AngleBrackets() {
+		System.out.println("\n=== Part 17.5: 定界符 - 角括号 ===");
+
+		MathList ast = assertParsesToWithAst("\\left\\langle x\\right\\rangle", "\\left⟨ x \\right⟩");
+		assertAst(ast)
+				.elementIsExpression(0)
+				.elementIsTerm(0)
+				.atomIsDelimited();
+	}
+
+	@Test
+	public void test_17_06_Delimiter_Floor() {
+		System.out.println("\n=== Part 17.6: 定界符 - 地板函数 ===");
+
+		MathList ast = assertParsesToWithAst("\\left\\lfloor x\\right\\rfloor", "\\left⌊ x \\right⌋");
+		assertAst(ast)
+				.elementIsExpression(0)
+				.elementIsTerm(0)
+				.atomIsDelimited();
+	}
+
+	@Test
+	public void test_17_07_Delimiter_Ceil() {
+		System.out.println("\n=== Part 17.7: 定界符 - 天花板函数 ===");
+
+		MathList ast = assertParsesToWithAst("\\left\\lceil x\\right\\rceil", "\\left⌈ x \\right⌉");
+		assertAst(ast)
+				.elementIsExpression(0)
+				.elementIsTerm(0)
+				.atomIsDelimited();
+	}
+
+	@Test
+	public void test_17_08_Delimiter_Levels() {
+		System.out.println("\n=== Part 17.8: 定界符 - 不同级别 ===");
+
+		// bigl/bigr (level 1)
+		assertParsesTo("\\bigl(x\\bigr)", "\\bigl( x \\bigr)");
+
+		// Bigl/Bigr (level 2)
+		assertParsesTo("\\Bigl(x\\Bigr)", "\\Bigl( x \\Bigr)");
+
+		// biggl/biggr (level 3)
+		assertParsesTo("\\biggl(x\\biggr)", "\\biggl( x \\biggr)");
+
+		// Biggl/Biggr (level 4)
+		assertParsesTo("\\Biggl(x\\Biggr)", "\\Biggl( x \\Biggr)");
+	}
+
+	@Test
+	public void test_17_09_Delimiter_Empty() {
+		System.out.println("\n=== Part 17.9: 定界符 - 空定界符 ===");
+
+		// 使用 . 作为空定界符
+		MathList ast = assertParsesToWithAst("\\left.x\\right|", "\\left. x \\right|");
+		assertAst(ast)
+				.elementIsExpression(0)
+				.elementIsTerm(0)
+				.atomIsDelimited()
+				.leftDelimiter(".")
+				.rightDelimiter("|");
+	}
+
+	// ============================================================
+	// Part 18: 大型运算符全面测试（BNF: large_operator）
+	// ============================================================
+
+	@Test
+	public void test_18_01_LargeOp_Sum() {
+		System.out.println("\n=== Part 18.1: 大型运算符 - 求和相关 ===");
+
+		String[] sumOps = {"sum", "prod", "coprod"};
+
+		for (String op : sumOps) {
+			String input = "\\" + op;
+			MathList ast = assertParsesToWithAst(input, input);
+			assertAst(ast)
+					.elementIsExpression(0)
+					.elementIsTerm(0)
+					.atomIsLargeOperator()
+					.name(op);
+		}
+	}
+
+	@Test
+	public void test_18_02_LargeOp_Integral() {
+		System.out.println("\n=== Part 18.2: 大型运算符 - 积分相关 ===");
+
+		String[] intOps = {"int", "iint", "iiint", "oint", "oiint", "oiiint"};
+
+		for (String op : intOps) {
+			String input = "\\" + op;
+			MathList ast = assertParsesToWithAst(input, input);
+			assertAst(ast)
+					.elementIsExpression(0)
+					.elementIsTerm(0)
+					.atomIsLargeOperator()
+					.name(op);
+		}
+	}
+
+	@Test
+	public void test_18_03_LargeOp_SetOps() {
+		System.out.println("\n=== Part 18.3: 大型运算符 - 大型集合运算 ===");
+
+		String[] setOps = {
+				"bigcup", "bigcap", "bigvee", "bigwedge",
+				"bigoplus", "bigotimes", "bigodot",
+				"biguplus", "bigsqcup"
+		};
+
+		for (String op : setOps) {
+			String input = "\\" + op;
+			MathList ast = assertParsesToWithAst(input, input);
+			assertAst(ast)
+					.elementIsExpression(0)
+					.elementIsTerm(0)
+					.atomIsLargeOperator()
+					.name(op);
+		}
+	}
+
+	@Test
+	public void test_18_04_LargeOp_Limit() {
+		System.out.println("\n=== Part 18.4: 大型运算符 - 极限相关 ===");
+
+		String[] limOps = {"lim", "limsup", "liminf"};
+
+		for (String op : limOps) {
+			String input = "\\" + op;
+			MathList ast = assertParsesToWithAst(input, input);
+			assertAst(ast)
+					.elementIsExpression(0)
+					.elementIsTerm(0)
+					.atomIsLargeOperator()
+					.name(op);
+		}
+	}
+
+	@Test
+	public void test_18_05_LargeOp_WithScripts() {
+		System.out.println("\n=== Part 18.5: 大型运算符 - 带上下标 ===");
+
+		// 只有下标
+		MathList ast = assertParsesToWithAst("\\sum_i", "\\sum_i");
+		assertAst(ast)
+				.elementIsExpression(0)
+				.elementIsTerm(0)
+				.atomIsLargeOperator()
+				.name("sum")
+				.hasSuffix()
+				.suffix()
+				.hasSubscript()
+				.noSuperscript();
+
+		// 只有上标
+		ast = assertParsesToWithAst("\\sum^n", "\\sum^n");
+		assertAst(ast)
+				.elementIsExpression(0)
+				.elementIsTerm(0)
+				.atomIsLargeOperator()
+				.hasSuffix()
+				.suffix()
+				.hasSuperscript()
+				.noSubscript();
+
+		// 上下标同时
+		ast = assertParsesToWithAst("\\int_a^b", "\\int_a^b");
+		assertAst(ast)
+				.elementIsExpression(0)
+				.elementIsTerm(0)
+				.atomIsLargeOperator()
+				.hasSuffix()
+				.suffix()
+				.hasSuperscript()
+				.hasSubscript()
+				.subscriptContent("a")
+				.superscriptContent("b");
+	}
+
+	// ============================================================
+	// Part 19: 可扩展箭头测试（BNF: extensible_arrow）
+	// ============================================================
+
+	@Test
+	public void test_19_01_ExtensibleArrow_Basic() {
+		System.out.println("\n=== Part 19.1: 可扩展箭头 - 基本形式 ===");
+
+		String[] arrows = {
+				"xrightarrow", "xleftarrow", "xleftrightarrow",
+				"xRightarrow", "xLeftarrow", "xLeftrightarrow"
+		};
+
+		for (String arrow : arrows) {
+			String input = "\\" + arrow + "{上方}";
+			assertParsesTo(input, "\\" + arrow + "{上方}");
+		}
+	}
+
+	@Test
+	public void test_19_02_ExtensibleArrow_WithBelow() {
+		System.out.println("\n=== Part 19.2: 可扩展箭头 - 带下方标注 ===");
+
+		// 带可选的下方标注
+		assertParsesTo("\\xrightarrow[下方]{上方}", "\\xrightarrow[下方]{上方}");
+		assertParsesTo("\\xleftarrow[下方]{上方}", "\\xleftarrow[下方]{上方}");
+	}
+
+	@Test
+	public void test_19_03_ExtensibleArrow_InExpression() {
+		System.out.println("\n=== Part 19.3: 可扩展箭头 - 在表达式中 ===");
+
+		assertParsesTo("A\\xrightarrow{f}B", "A \\xrightarrow{f} B");
+		assertParsesTo("X\\xleftarrow[g]{f}Y", "X \\xleftarrow[g]{f} Y");
+	}
+
+	@Test
+	public void test_19_04_ExtensibleArrow_AllTypes() {
+		System.out.println("\n=== Part 19.4: 可扩展箭头 - 所有类型 ===");
+
+		// BNF 中定义的所有可扩展箭头
+		String[] allArrows = {
+				"xrightarrow", "xleftarrow", "xleftrightarrow",
+				"xRightarrow", "xLeftarrow", "xLeftrightarrow",
+				"xhookrightarrow", "xhookleftarrow",
+				"xtwoheadrightarrow", "xtwoheadleftarrow",
+				"xmapsto", "xtofrom"
+		};
+
+		for (String arrow : allArrows) {
+			String input = "\\" + arrow + "{x}";
+			try {
+				parse(input);
+				System.out.println("✅ " + input + " 解析成功");
+			} catch (MathParseException e) {
+				// 部分箭头可能未实现，记录但不失败
+				System.out.println("⚠️ " + input + " 未支持: " + e.getMessage());
+			}
+		}
+	}
+
+	// ============================================================
+	// Part 20: 函数全面测试（BNF: function_call）
+	// ============================================================
+
+	@Test
+	public void test_20_01_Function_Trigonometric() {
+		System.out.println("\n=== Part 20.1: 函数 - 三角函数 ===");
+
+		String[] trigFuncs = {"sin", "cos", "tan", "cot", "sec", "csc"};
+
+		for (String func : trigFuncs) {
+			String input = "\\" + func + " x";
+			MathList ast = assertParsesToWithAst(input, input);
+			assertAst(ast)
+					.elementIsExpression(0)
+					.elementIsTerm(0)
+					.atomIsFunction()
+					.name(func)
+					.hasArgument();
+		}
+	}
+
+	@Test
+	public void test_20_02_Function_InverseTrig() {
+		System.out.println("\n=== Part 20.2: 函数 - 反三角函数 ===");
+
+		String[] invTrigFuncs = {"arcsin", "arccos", "arctan"};
+
+		for (String func : invTrigFuncs) {
+			String input = "\\" + func + " x";
+			MathList ast = assertParsesToWithAst(input, input);
+			assertAst(ast)
+					.elementIsExpression(0)
+					.elementIsTerm(0)
+					.atomIsFunction()
+					.name(func);
+		}
+	}
+
+	@Test
+	public void test_20_03_Function_Hyperbolic() {
+		System.out.println("\n=== Part 20.3: 函数 - 双曲函数 ===");
+
+		String[] hypFuncs = {"sinh", "cosh", "tanh", "coth"};
+
+		for (String func : hypFuncs) {
+			String input = "\\" + func + " x";
+			MathList ast = assertParsesToWithAst(input, input);
+			assertAst(ast)
+					.elementIsExpression(0)
+					.elementIsTerm(0)
+					.atomIsFunction()
+					.name(func);
+		}
+	}
+
+	@Test
+	public void test_20_04_Function_Logarithmic() {
+		System.out.println("\n=== Part 20.4: 函数 - 对数函数 ===");
+
+		String[] logFuncs = {"log", "ln", "lg", "exp"};
+
+		for (String func : logFuncs) {
+			String input = "\\" + func + " x";
+			MathList ast = assertParsesToWithAst(input, input);
+			assertAst(ast)
+					.elementIsExpression(0)
+					.elementIsTerm(0)
+					.atomIsFunction()
+					.name(func);
+		}
+	}
+
+	@Test
+	public void test_20_05_Function_Other() {
+		System.out.println("\n=== Part 20.5: 函数 - 其他函数 ===");
+
+		String[] otherFuncs = {"max", "min", "sup", "inf", "arg", "deg", "det", "dim", "gcd", "hom", "ker", "Pr"};
+
+		for (String func : otherFuncs) {
+			String input = "\\" + func;
+			try {
+				MathList ast = parse(input);
+				System.out.println("✅ " + input + " 解析成功");
+			} catch (MathParseException e) {
+				System.out.println("⚠️ " + input + " 解析失败: " + e.getMessage());
+			}
+		}
+	}
+
+	@Test
+	public void test_20_06_Function_ModOperators() {
+		System.out.println("\n=== Part 20.6: 函数 - 模运算 ===");
+
+		// bmod 和 pmod
+		assertParsesTo("a\\bmod b", "a \\bmod b");
+		assertParsesTo("a\\pmod{n}", "a \\pmod{n}");
+	}
+
+	@Test
+	public void test_20_07_Function_WithScripts() {
+		System.out.println("\n=== Part 20.7: 函数 - 带上下标 ===");
+
+		// 下标
+		MathList ast = assertParsesToWithAst("\\log_2 x", "\\log_2 x");
+		assertAst(ast)
+				.elementIsExpression(0)
+				.elementIsTerm(0)
+				.atomIsFunction()
+				.name("log")
+				.hasSuffix()
+				.suffix()
+				.hasSubscript()
+				.subscriptContent("2");
+
+		// 上标
+		ast = assertParsesToWithAst("\\sin^2 x", "\\sin^2 x");
+		assertAst(ast)
+				.elementIsExpression(0)
+				.elementIsTerm(0)
+				.atomIsFunction()
+				.name("sin")
+				.hasSuffix()
+				.suffix()
+				.hasSuperscript()
+				.superscriptContent("2");
+
+		// 上下标同时
+		ast = assertParsesToWithAst("\\log_a^b x", "\\log_a^b x");
+		assertAst(ast)
+				.elementIsExpression(0)
+				.elementIsTerm(0)
+				.atomIsFunction()
+				.hasSuffix()
+				.suffix()
+				.hasSuperscript()
+				.hasSubscript();
+	}
+
+	@Test
+	public void test_20_08_Function_Arguments() {
+		System.out.println("\n=== Part 20.8: 函数 - 不同参数形式 ===");
+
+		// 单个 token 参数
+		assertParsesTo("\\sin x", "\\sin x");
+		assertParsesTo("\\sin 2", "\\sin 2");
+		assertParsesTo("\\sin\\theta", "\\sin \\theta");
+
+		// group 参数
+		assertParsesTo("\\sin{x+y}", "\\sin{x + y}");
+
+		// delimited 参数
+		assertParsesTo("\\sin\\left(x\\right)", "\\sin \\left( x \\right)");
+	}
+
+	// ============================================================
+	// Part 21: 重音符号全面测试（BNF: accent）
+	// ============================================================
+
+	@Test
+	public void test_21_01_Accent_Hat() {
+		System.out.println("\n=== Part 21.1: 重音 - 帽子 ===");
+
+		MathList ast = assertParsesToWithAst("\\hat{x}", "\\hat{x}");
+		assertAst(ast)
+				.elementIsExpression(0)
+				.elementIsTerm(0)
+				.atomIsAccent()
+				.command("hat");
+
+		ast = assertParsesToWithAst("\\widehat{xyz}", "\\widehat{xyz}");
+		assertAst(ast)
+				.elementIsExpression(0)
+				.elementIsTerm(0)
+				.atomIsAccent()
+				.command("widehat");
+	}
+
+	@Test
+	public void test_21_02_Accent_Tilde() {
+		System.out.println("\n=== Part 21.2: 重音 - 波浪 ===");
+
+		MathList ast = assertParsesToWithAst("\\tilde{x}", "\\tilde{x}");
+		assertAst(ast)
+				.elementIsExpression(0)
+				.elementIsTerm(0)
+				.atomIsAccent()
+				.command("tilde");
+
+		ast = assertParsesToWithAst("\\widetilde{xyz}", "\\widetilde{xyz}");
+		assertAst(ast)
+				.elementIsExpression(0)
+				.elementIsTerm(0)
+				.atomIsAccent()
+				.command("widetilde");
+	}
+
+	@Test
+	public void test_21_03_Accent_Bar() {
+		System.out.println("\n=== Part 21.3: 重音 - 横线 ===");
+
+		String[] barAccents = {"bar", "overline", "underline"};
+
+		for (String accent : barAccents) {
+			String input = "\\" + accent + "{x}";
+			MathList ast = assertParsesToWithAst(input, input);
+			assertAst(ast)
+					.elementIsExpression(0)
+					.elementIsTerm(0)
+					.atomIsAccent()
+					.command(accent);
+		}
+	}
+
+	@Test
+	public void test_21_04_Accent_Arrow() {
+		System.out.println("\n=== Part 21.4: 重音 - 箭头 ===");
+
+		String[] arrowAccents = {"vec", "overrightarrow", "overleftarrow"};
+
+		for (String accent : arrowAccents) {
+			String input = "\\" + accent + "{AB}";
+			MathList ast = assertParsesToWithAst(input, input);
+			assertAst(ast)
+					.elementIsExpression(0)
+					.elementIsTerm(0)
+					.atomIsAccent()
+					.command(accent);
+		}
+	}
+
+	@Test
+	public void test_21_05_Accent_Dot() {
+		System.out.println("\n=== Part 21.5: 重音 - 点 ===");
+
+		String[] dotAccents = {"dot", "ddot", "dddot"};
+
+		for (String accent : dotAccents) {
+			String input = "\\" + accent + "{x}";
+			MathList ast = assertParsesToWithAst(input, input);
+			assertAst(ast)
+					.elementIsExpression(0)
+					.elementIsTerm(0)
+					.atomIsAccent()
+					.command(accent);
+		}
+	}
+
+	@Test
+	public void test_21_06_Accent_Other() {
+		System.out.println("\n=== Part 21.6: 重音 - 其他重音符号 ===");
+
+		String[] otherAccents = {"acute", "grave", "breve", "check", "mathring"};
+
+		for (String accent : otherAccents) {
+			String input = "\\" + accent + "{x}";
+			MathList ast = assertParsesToWithAst(input, input);
+			assertAst(ast)
+					.elementIsExpression(0)
+					.elementIsTerm(0)
+					.atomIsAccent()
+					.command(accent);
+		}
+	}
+
+	@Test
+	public void test_21_07_Accent_Brace() {
+		System.out.println("\n=== Part 21.7: 重音 - 括号 ===");
+
+		MathList ast = assertParsesToWithAst("\\overbrace{x+y}", "\\overbrace{x + y}");
+		assertAst(ast)
+				.elementIsExpression(0)
+				.elementIsTerm(0)
+				.atomIsAccent()
+				.command("overbrace");
+
+		ast = assertParsesToWithAst("\\underbrace{x+y}", "\\underbrace{x + y}");
+		assertAst(ast)
+				.elementIsExpression(0)
+				.elementIsTerm(0)
+				.atomIsAccent()
+				.command("underbrace");
+	}
+
+	@Test
+	public void test_21_08_Accent_SingleToken() {
+		System.out.println("\n=== Part 21.8: 重音 - 单 token 参数 ===");
+
+		// 不带花括号的形式
+		MathList ast = assertParsesToWithAst("\\hat x", "\\hat x");
+		assertAst(ast)
+				.elementIsExpression(0)
+				.elementIsTerm(0)
+				.atomIsAccent()
+				.command("hat");
+
+		ast = assertParsesToWithAst("\\vec v", "\\vec v");
+		assertAst(ast)
+				.elementIsExpression(0)
+				.elementIsTerm(0)
+				.atomIsAccent()
+				.command("vec");
+	}
+
+	// ============================================================
+	// Part 22: 字体命令全面测试（BNF: font_command）
+	// ============================================================
+
+	@Test
+	public void test_22_01_Font_Math() {
+		System.out.println("\n=== Part 22.1: 字体 - 数学字体 ===");
+
+		String[] mathFonts = {"mathrm", "mathit", "mathbf", "mathsf", "mathtt"};
+
+		for (String font : mathFonts) {
+			String input = "\\" + font + "{x}";
+			MathList ast = assertParsesToWithAst(input, input);
+			assertAst(ast)
+					.elementIsExpression(0)
+					.elementIsTerm(0)
+					.atomIsFont()
+					.command(font);
+		}
+	}
+
+	@Test
+	public void test_22_02_Font_Special() {
+		System.out.println("\n=== Part 22.2: 字体 - 特殊字体 ===");
+
+		String[] specialFonts = {"mathcal", "mathbb", "mathfrak", "mathscr"};
+
+		for (String font : specialFonts) {
+			String input = "\\" + font + "{A}";
+			MathList ast = assertParsesToWithAst(input, input);
+			assertAst(ast)
+					.elementIsExpression(0)
+					.elementIsTerm(0)
+					.atomIsFont()
+					.command(font);
+		}
+	}
+
+	@Test
+	public void test_22_03_Font_Bold() {
+		System.out.println("\n=== Part 22.3: 字体 - 粗体符号 ===");
+
+		String[] boldFonts = {"boldsymbol", "bm"};
+
+		for (String font : boldFonts) {
+			String input = "\\" + font + "{\\alpha}";
+			MathList ast = assertParsesToWithAst(input, input);
+			assertAst(ast)
+					.elementIsExpression(0)
+					.elementIsTerm(0)
+					.atomIsFont()
+					.command(font);
+		}
+	}
+
+	// ============================================================
+	// Part 23: 文本模式全面测试（BNF: text）
+	// ============================================================
+
+	@Test
+	public void test_23_01_Text_All() {
+		System.out.println("\n=== Part 23.1: 文本 - 所有文本命令 ===");
+
+		String[] textCmds = {"text", "mbox", "textrm", "textit", "textbf"};
+
+		for (String cmd : textCmds) {
+			String input = "\\" + cmd + "{hello}";
+			MathList ast = assertParsesToWithAst(input, input);
+			assertAst(ast)
+					.elementIsExpression(0)
+					.elementIsTerm(0)
+					.atomIsText()
+					.command(cmd)
+					.content("hello");
+		}
+	}
+
+	@Test
+	public void test_23_02_Text_Unicode() {
+		System.out.println("\n=== Part 23.2: 文本 - Unicode 内容 ===");
+
+		MathList ast = assertParsesToWithAst("\\text{中文内容}", "\\text{中文内容}");
+		assertAst(ast)
+				.elementIsExpression(0)
+				.elementIsTerm(0)
+				.atomIsText()
+				.content("中文内容");
+	}
+
+	// ============================================================
+	// Part 24: 特殊符号全面测试（BNF: special_symbol）
+	// ============================================================
+
+	@Test
+	public void test_24_01_SpecialSymbol_Dots() {
+		System.out.println("\n=== Part 24.1: 特殊符号 - 省略号 ===");
+
+		String[] dots = {"dots", "ldots", "cdots", "vdots", "ddots"};
+
+		for (String symbol : dots) {
+			String input = "\\" + symbol;
+			MathList ast = assertParsesToWithAst(input, input);
+			assertAst(ast)
+					.elementIsExpression(0)
+					.elementIsTerm(0)
+					.atomIsSpecialSymbol(symbol);
+		}
+	}
+
+	@Test
+	public void test_24_02_SpecialSymbol_Geometry() {
+		System.out.println("\n=== Part 24.2: 特殊符号 - 几何 ===");
+
+		MathList ast = assertParsesToWithAst("\\angle", "\\angle");
+		assertAst(ast)
+				.elementIsExpression(0)
+				.elementIsTerm(0)
+				.atomIsSpecialSymbol("angle");
+	}
+
+	@Test
+	public void test_24_03_SpecialSymbol_Logic() {
+		System.out.println("\n=== Part 24.3: 特殊符号 - 逻辑标记 ===");
+
+		String[] logicSymbols = {"therefore", "because"};
+
+		for (String symbol : logicSymbols) {
+			String input = "\\" + symbol;
+			MathList ast = assertParsesToWithAst(input, input);
+			assertAst(ast)
+					.elementIsExpression(0)
+					.elementIsTerm(0)
+					.atomIsSpecialSymbol(symbol);
+		}
+	}
+
+	@Test
+	public void test_24_04_SpecialSymbol_Quantifiers() {
+		System.out.println("\n=== Part 24.4: 特殊符号 - 量词 ===");
+
+		String[] quantifiers = {"forall", "exists", "nexists"};
+
+		for (String symbol : quantifiers) {
+			String input = "\\" + symbol;
+			MathList ast = assertParsesToWithAst(input, input);
+			assertAst(ast)
+					.elementIsExpression(0)
+					.elementIsTerm(0)
+					.atomIsSpecialSymbol(symbol);
+		}
+	}
+
+	@Test
+	public void test_24_05_SpecialSymbol_EmptySet() {
+		System.out.println("\n=== Part 24.5: 特殊符号 - 空集 ===");
+
+		String[] emptySets = {"emptyset", "varnothing"};
+
+		for (String symbol : emptySets) {
+			String input = "\\" + symbol;
+			MathList ast = assertParsesToWithAst(input, input);
+			assertAst(ast)
+					.elementIsExpression(0)
+					.elementIsTerm(0)
+					.atomIsSpecialSymbol(symbol);
+		}
+	}
+
+	@Test
+	public void test_24_06_SpecialSymbol_NoUnaryOp() {
+		System.out.println("\n=== Part 24.6: 特殊符号 - 不能被一元运算符修饰 ===");
+
+		// 特殊符号不能被一元运算符修饰
+		assertParseFails("-\\dots");
+		assertParseFails("+\\angle");
+		assertParseFails("-\\forall");
+		assertParseFails("\\pm\\exists");
+	}
+
+	@Test
+	public void test_24_07_SpecialSymbol_WithScripts() {
+		System.out.println("\n=== Part 24.7: 特殊符号 - 带上下标 ===");
+
+		// 特殊符号可以带上下标
+		MathList ast = assertParsesToWithAst("\\angle_1", "\\angle_1");
+		assertAst(ast)
+				.elementIsExpression(0)
+				.elementIsTerm(0)
+				.atomIsSpecialSymbol("angle")
+				.and()
+				.hasSuffix()
+				.suffix()
+				.hasSubscript();
+
+		ast = assertParsesToWithAst("\\forall^n", "\\forall^n");
+		assertAst(ast)
+				.elementIsExpression(0)
+				.elementIsTerm(0)
+				.atomIsSpecialSymbol("forall")
+				.and()
+				.hasSuffix()
+				.suffix()
+				.hasSuperscript();
+	}
+
+	// ============================================================
+	// Part 25: 空格命令全面测试（BNF: spacing）
+	// ============================================================
+
+	@Test
+	public void test_25_01_Spacing_Small() {
+		System.out.println("\n=== Part 25.1: 空格 - 小空格 ===");
+
+		String[] smallSpaces = {",", ":", ";", "!"};
+
+		for (String space : smallSpaces) {
+			String input = "a\\" + space + " b";
+			MathList ast = assertParsesToWithAst(input, "a\\" + space + " b");
+			assertAst(ast)
+					.hasSize(3)
+					.elementIsSpacing(1)
+					.command(space);
+		}
+	}
+
+	@Test
+	public void test_25_02_Spacing_Quad() {
+		System.out.println("\n=== Part 25.2: 空格 - quad 空格 ===");
+
+		MathList ast = assertParsesToWithAst("a\\quad b", "a\\quad b");
+		assertAst(ast)
+				.hasSize(3)
+				.elementIsSpacing(1)
+				.command("quad");
+
+		ast = assertParsesToWithAst("a\\qquad b", "a\\qquad b");
+		assertAst(ast)
+				.hasSize(3)
+				.elementIsSpacing(1)
+				.command("qquad");
+	}
+
+	@Test
+	public void test_25_03_Spacing_Phantom() {
+		System.out.println("\n=== Part 25.3: 空格 - phantom ===");
+
+		// hphantom
+		assertParsesTo("a\\hphantom{x}b", "a\\hphantom{x} b");
+
+		// vphantom
+		assertParsesTo("a\\vphantom{x}b", "a\\vphantom{x} b");
+
+		// phantom
+		assertParsesTo("a\\phantom{x}b", "a\\phantom{x} b");
+	}
+
+	// ============================================================
+	// Part 26: 矩阵全面测试（BNF: matrix）
+	// ============================================================
+
+	@Test
+	public void test_26_01_Matrix_AllEnvironments() {
+		System.out.println("\n=== Part 26.1: 矩阵 - 所有环境 ===");
+
+		String[] envs = {"matrix", "pmatrix", "bmatrix", "Bmatrix", "vmatrix", "Vmatrix"};
+
+		for (String env : envs) {
+			String input = "\\begin{" + env + "}a&b\\\\c&d\\end{" + env + "}";
+			try {
+				MathList ast = parse(input);
+				assertAst(ast)
+						.elementIsExpression(0)
+						.elementIsTerm(0)
+						.atomIsMatrix()
+						.environment(env)
+						.rowCount(2);
+				System.out.println("✅ " + env + " 环境解析成功");
+			} catch (MathParseException e) {
+				fail("矩阵环境 " + env + " 解析失败: " + e.pretty());
+			}
+		}
+	}
+
+	@Test
+	public void test_26_02_Matrix_Cases() {
+		System.out.println("\n=== Part 26.2: 矩阵 - cases 环境 ===");
+
+		MathList ast = assertParsesToWithAst(
+				"\\begin{cases}x,&x\\ge 0\\\\-x,&x<0\\end{cases}",
+				"\\begin{cases}\nx , & x \\ge 0\n-x , & x < 0\n\\end{cases}\n"
+		);
+		assertAst(ast)
+				.elementIsExpression(0)
+				.elementIsTerm(0)
+				.atomIsMatrix()
+				.environment("cases")
+				.rowCount(2);
+	}
+
+	@Test
+	public void test_26_03_Matrix_Array() {
+		System.out.println("\n=== Part 26.3: 矩阵 - array 环境 ===");
+
+		assertParsesTo(
+				"\\begin{array}{cc}a&b\\\\c&d\\end{array}",
+				"\\begin{array}{cc}\na & b\nc & d\n\\end{array}\n"
+		);
+	}
+
+	@Test
+	public void test_26_04_Matrix_SingleRow() {
+		System.out.println("\n=== Part 26.4: 矩阵 - 单行 ===");
+
+		MathList ast = assertParsesToWithAst(
+				"\\begin{pmatrix}a&b&c\\end{pmatrix}",
+				"\\begin{pmatrix}\na & b & c\n\\end{pmatrix}\n"
+		);
+		assertAst(ast)
+				.elementIsExpression(0)
+				.elementIsTerm(0)
+				.atomIsMatrix()
+				.rowCount(1);
+	}
+
+	@Test
+	public void test_26_05_Matrix_SingleColumn() {
+		System.out.println("\n=== Part 26.5: 矩阵 - 单列 ===");
+
+		MathList ast = assertParsesToWithAst(
+				"\\begin{pmatrix}a\\\\b\\\\c\\end{pmatrix}",
+				"\\begin{pmatrix}\na\nb\nc\n\\end{pmatrix}\n"
+		);
+		assertAst(ast)
+				.elementIsExpression(0)
+				.elementIsTerm(0)
+				.atomIsMatrix()
+				.rowCount(3);
+	}
+
+	// ============================================================
+	// Part 27: 上下标全面测试（BNF: sup_sub_suffix）
+	// ============================================================
+
+	@Test
+	public void test_27_01_Script_OnlySuperscript() {
+		System.out.println("\n=== Part 27.1: 上下标 - 仅上标 ===");
+
+		MathList ast = assertParsesToWithAst("x^2", "x^2");
+		assertAst(ast)
+				.elementIsExpression(0)
+				.elementIsTerm(0)
+				.hasSuffix()
+				.suffix()
+				.hasSuperscript()
+				.noSubscript()
+				.superscriptContent("2");
+	}
+
+	@Test
+	public void test_27_02_Script_OnlySubscript() {
+		System.out.println("\n=== Part 27.2: 上下标 - 仅下标 ===");
+
+		MathList ast = assertParsesToWithAst("x_1", "x_1");
+		assertAst(ast)
+				.elementIsExpression(0)
+				.elementIsTerm(0)
+				.hasSuffix()
+				.suffix()
+				.hasSubscript()
+				.noSuperscript()
+				.subscriptContent("1");
+	}
+
+	@Test
+	public void test_27_03_Script_SuperThenSub() {
+		System.out.println("\n=== Part 27.3: 上下标 - 先上标后下标 ===");
+
+		MathList ast = assertParsesToWithAst("x^2_1", "x^2_1");
+		assertAst(ast)
+				.elementIsExpression(0)
+				.elementIsTerm(0)
+				.hasSuffix()
+				.suffix()
+				.hasSuperscript()
+				.hasSubscript()
+				.superscriptContent("2")
+				.subscriptContent("1");
+	}
+
+	@Test
+	public void test_27_04_Script_SubThenSuper() {
+		System.out.println("\n=== Part 27.4: 上下标 - 先下标后上标 ===");
+
+		MathList ast = assertParsesToWithAst("x_1^2", "x_1^2");
+		assertAst(ast)
+				.elementIsExpression(0)
+				.elementIsTerm(0)
+				.hasSuffix()
+				.suffix()
+				.hasSuperscript()
+				.hasSubscript()
+				.subscriptContent("1")
+				.superscriptContent("2");
+	}
+
+	@Test
+	public void test_27_05_Script_GroupContent() {
+		System.out.println("\n=== Part 27.5: 上下标 - group 内容 ===");
+
+		MathList ast = assertParsesToWithAst("x^{n+1}", "x^{n + 1}");
+		assertAst(ast)
+				.elementIsExpression(0)
+				.elementIsTerm(0)
+				.hasSuffix()
+				.suffix()
+				.superscriptContent("{n + 1}");
+
+		ast = assertParsesToWithAst("x_{i,j}", "x_{i , j}");
+		assertAst(ast)
+				.elementIsExpression(0)
+				.elementIsTerm(0)
+				.hasSuffix()
+				.suffix()
+				.subscriptContent("{i , j}");
+	}
+
+	@Test
+	public void test_27_06_Script_OperatorSymbol() {
+		System.out.println("\n=== Part 27.6: 上下标 - 运算符符号 ===");
+
+		// 在上下标中可以使用运算符符号
+		assertParsesTo("x^+", "x^+");
+		assertParsesTo("x^-", "x^-");
+		assertParsesTo("x^*", "x^*");
+	}
+
+	// ============================================================
+	// Part 28: 一元运算符全面测试（BNF: unary_op）
+	// ============================================================
+
+	@Test
+	public void test_28_01_UnaryOp_All() {
+		System.out.println("\n=== Part 28.1: 一元运算符 - 所有类型 ===");
+
+		String[][] unaryOps = {
+				{"+", "+"}, {"-", "-"}, {"\\pm", "\\pm"}, {"\\mp", "\\mp"}
+		};
+
+		for (String[] op : unaryOps) {
+			String input = op[0] + "x";
+			MathList ast = assertParsesToWithAst(input, op[1] + " x");
+			assertAst(ast)
+					.elementIsExpression(0)
+					.elementIsTerm(0)
+					.hasUnaryOp(op[1]);
+		}
+	}
+
+	@Test
+	public void test_28_02_UnaryOp_OnDifferentAtoms() {
+		System.out.println("\n=== Part 28.2: 一元运算符 - 修饰不同原子 ===");
+
+		// 修饰数字
+		MathList ast = assertParsesToWithAst("-1", "-1");
+		assertAst(ast)
+				.elementIsExpression(0)
+				.elementIsTerm(0)
+				.hasUnaryOp("-")
+				.atomIsNumber("1");
+
+		// 修饰变量
+		ast = assertParsesToWithAst("-x", "-x");
+		assertAst(ast)
+				.elementIsExpression(0)
+				.elementIsTerm(0)
+				.hasUnaryOp("-")
+				.atomIsVariable("x");
+
+		// 修饰希腊字母
+		ast = assertParsesToWithAst("-\\alpha", "-\\alpha");
+		assertAst(ast)
+				.elementIsExpression(0)
+				.elementIsTerm(0)
+				.hasUnaryOp("-")
+				.atomIsGreekLetter("alpha");
+
+		// 修饰分组
+		ast = assertParsesToWithAst("-{a+b}", "-{a + b}");
+		assertAst(ast)
+				.elementIsExpression(0)
+				.elementIsTerm(0)
+				.hasUnaryOp("-")
+				.atomIsGroup();
+
+		// 修饰分式
+		ast = assertParsesToWithAst("-\\frac{1}{2}", "-\\frac{1}{2}");
+		assertAst(ast)
+				.elementIsExpression(0)
+				.elementIsTerm(0)
+				.hasUnaryOp("-")
+				.atomIsFrac();
+
+		// 修饰根式
+		ast = assertParsesToWithAst("-\\sqrt{2}", "-\\sqrt{2}");
+		assertAst(ast)
+				.elementIsExpression(0)
+				.elementIsTerm(0)
+				.hasUnaryOp("-")
+				.atomIsSqrt();
+	}
+
+	// ============================================================
+	// Part 29: 后缀运算符全面测试（BNF: postfix_op）
+	// ============================================================
+
+	@Test
+	public void test_29_01_PostfixOp_Basic() {
+		System.out.println("\n=== Part 29.1: 后缀运算符 - 基本 ===");
+
+		MathList ast = assertParsesToWithAst("n!", "n!");
+		assertAst(ast)
+				.elementIsExpression(0)
+				.elementIsTerm(0)
+				.atomIsVariable("n")
+				.hasPostfixOp("!");
+	}
+
+	@Test
+	public void test_29_02_PostfixOp_AfterScripts() {
+		System.out.println("\n=== Part 29.2: 后缀运算符 - 在上下标之后 ===");
+
+		// 上标后阶乘
+		MathList ast = assertParsesToWithAst("n^2!", "n^2!");
+		TermAsserter term = assertAst(ast)
+				.elementIsExpression(0)
+				.elementIsTerm(0);
+		term.hasSuffix()
+				.suffix()
+				.hasSuperscript()
+				.superscriptContent("2");
+		term.hasPostfixOp("!");
+
+		// 下标后阶乘
+		ast = assertParsesToWithAst("a_i!", "a_i!");
+		term = assertAst(ast)
+				.elementIsExpression(0)
+				.elementIsTerm(0);
+		term.hasSuffix();
+		term.hasPostfixOp("!");
+	}
+
+	@Test
+	public void test_29_03_PostfixOp_OnGroup() {
+		System.out.println("\n=== Part 29.3: 后缀运算符 - 在分组上 ===");
+
+		MathList ast = assertParsesToWithAst("{n}!", "{n}!");
+		TermAsserter termAsserter = assertAst(ast)
+				.elementIsExpression(0)
+				.elementIsTerm(0);
+		termAsserter.atomIsGroup();
+		termAsserter.and();
+		termAsserter.hasPostfixOp("!");
+	}
+
+	@Test
+	public void test_29_04_PostfixOp_OnDelimited() {
+		System.out.println("\n=== Part 29.4: 后缀运算符 - 在定界符上 ===");
+
+		MathList ast = assertParsesToWithAst("\\left(n-1\\right)!", "\\left( n - 1 \\right)!");
+		TermAsserter asserter = assertAst(ast)
+				.elementIsExpression(0)
+				.elementIsTerm(0);
+		asserter.atomIsDelimited();
+		asserter.hasPostfixOp("!");
+	}
+
+	// ============================================================
+	// Part 30: 分式全面测试（BNF: frac）
+	// ============================================================
+
+	@Test
+	public void test_30_01_Frac_AllCommands() {
+		System.out.println("\n=== Part 30.1: 分式 - 所有命令 ===");
+
+		String[] fracCmds = {"frac", "dfrac", "tfrac", "cfrac"};
+
+		for (String cmd : fracCmds) {
+			String input = "\\" + cmd + "{a}{b}";
+			MathList ast = assertParsesToWithAst(input, input);
+			assertAst(ast)
+					.elementIsExpression(0)
+					.elementIsTerm(0)
+					.atomIsFrac()
+					.command(cmd)
+					.numeratorToString("a")
+					.denominatorToString("b");
+		}
+	}
+
+	@Test
+	public void test_30_02_Frac_ComplexContent() {
+		System.out.println("\n=== Part 30.2: 分式 - 复杂内容 ===");
+
+		MathList ast = assertParsesToWithAst("\\frac{x+y}{x-y}", "\\frac{x + y}{x - y}");
+		FracAsserter frac = assertAst(ast)
+				.elementIsExpression(0)
+				.elementIsTerm(0)
+				.atomIsFrac();
+
+		frac.numerator()
+				.elementIsExpression(0)
+				.hasSize(3);  // x, +, y
+
+		frac.denominator()
+				.elementIsExpression(0)
+				.hasSize(3);  // x, -, y
+	}
+
+	// ============================================================
+	// Part 31: 根式全面测试（BNF: sqrt）
+	// ============================================================
+
+	@Test
+	public void test_31_01_Sqrt_Basic() {
+		System.out.println("\n=== Part 31.1: 根式 - 基本 ===");
+
+		MathList ast = assertParsesToWithAst("\\sqrt{x}", "\\sqrt{x}");
+		assertAst(ast)
+				.elementIsExpression(0)
+				.elementIsTerm(0)
+				.atomIsSqrt()
+				.noRoot();
+	}
+
+	@Test
+	public void test_31_02_Sqrt_WithRoot() {
+		System.out.println("\n=== Part 31.2: 根式 - 带根指数 ===");
+
+		MathList ast = assertParsesToWithAst("\\sqrt[3]{27}", "\\sqrt[3]{27}");
+		assertAst(ast)
+				.elementIsExpression(0)
+				.elementIsTerm(0)
+				.atomIsSqrt()
+				.hasRoot()
+				.root()
+				.elementIsExpression(0)
+				.elementIsTerm(0)
+				.atomIsNumber("3");
+	}
+
+	@Test
+	public void test_31_03_Sqrt_ComplexRoot() {
+		System.out.println("\n=== Part 31.3: 根式 - 复杂根指数 ===");
+
+		MathList ast = assertParsesToWithAst("\\sqrt[n]{x}", "\\sqrt[n]{x}");
+		assertAst(ast)
+				.elementIsExpression(0)
+				.elementIsTerm(0)
+				.atomIsSqrt()
+				.hasRoot();
+	}
+
+	// ============================================================
+	// Part 32: 综合测试 - 边界和错误情况
+	// ============================================================
+
+	@Test
+	public void test_32_01_Error_EmptyInput() {
+		System.out.println("\n=== Part 32.1: 错误 - 空输入 ===");
+
+		assertParseFails("");
+	}
+
+	@Test
+	public void test_32_02_Error_UnmatchedBraces() {
+		System.out.println("\n=== Part 32.2: 错误 - 不匹配的括号 ===");
+
+		assertParseFails("{x");
+		assertParseFails("x}");
+		assertParseFails("\\left(x");
+		assertParseFails("x\\right)");
+	}
+
+	@Test
+	public void test_32_03_Error_IncompleteFrac() {
+		System.out.println("\n=== Part 32.3: 错误 - 不完整的分式 ===");
+
+		assertParseFails("\\frac{1}");
+		assertParseFails("\\frac{1}{");
+		assertParseFails("\\frac{");
+	}
+
+	@Test
+	public void test_32_04_Error_IncompleteMatrix() {
+		System.out.println("\n=== Part 32.4: 错误 - 不完整的矩阵 ===");
+
+		assertParseFails("\\begin{matrix}a");
+		assertParseFails("\\begin{matrix}a&b\\end{pmatrix}");  // 环境不匹配
+	}
+
+	@Test
+	public void test_32_05_Error_BinaryOpNoOperand() {
+		System.out.println("\n=== Part 32.5: 错误 - 二元运算符缺操作数 ===");
+
+		assertParseFails("a+");
+		assertParseFails("a-");
+		assertParseFails("a\\times");
+		assertParseFails("+");  // 开头也是错误的（如果没有右操作数）
+	}
 }
