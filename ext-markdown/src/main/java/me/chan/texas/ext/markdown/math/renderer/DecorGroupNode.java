@@ -1,5 +1,6 @@
 package me.chan.texas.ext.markdown.math.renderer;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import me.chan.texas.ext.markdown.math.renderer.core.MathCanvas;
@@ -196,8 +197,63 @@ public class DecorGroupNode extends RendererNode implements OptimizableRendererN
 		return "Decor{}";
 	}
 
+	@NonNull
+	@Override
+	public RendererNode optimize() {
+		boolean hasDecor = false;
+		if (mBuilder.top instanceof OptimizableRendererNode) {
+			hasDecor = true;
+			mBuilder.top = optimize((OptimizableRendererNode) mBuilder.top);
+		}
+		if (mBuilder.bottom instanceof OptimizableRendererNode) {
+			hasDecor = true;
+			mBuilder.bottom = optimize((OptimizableRendererNode) mBuilder.bottom);
+		}
+		if (mBuilder.left instanceof OptimizableRendererNode) {
+			hasDecor = true;
+			mBuilder.left = optimize((OptimizableRendererNode) mBuilder.left);
+		}
+		if (mBuilder.right instanceof OptimizableRendererNode) {
+			hasDecor = true;
+			mBuilder.right = optimize((OptimizableRendererNode) mBuilder.right);
+		}
+		if (mBuilder.leftTop instanceof OptimizableRendererNode) {
+			hasDecor = true;
+			mBuilder.leftTop = optimize((OptimizableRendererNode) mBuilder.leftTop);
+		}
+		if (mBuilder.leftBottom instanceof OptimizableRendererNode) {
+			hasDecor = true;
+			mBuilder.leftBottom = optimize((OptimizableRendererNode) mBuilder.leftBottom);
+		}
+		if (mBuilder.rightTop instanceof OptimizableRendererNode) {
+			hasDecor = true;
+			mBuilder.rightTop = optimize((OptimizableRendererNode) mBuilder.rightTop);
+		}
+		if (mBuilder.rightBottom instanceof OptimizableRendererNode) {
+			hasDecor = true;
+			mBuilder.rightBottom = optimize((OptimizableRendererNode) mBuilder.rightBottom);
+		}
+		if (mBuilder.center instanceof OptimizableRendererNode) {
+			mBuilder.center = optimize((OptimizableRendererNode) mBuilder.center);
+		}
+
+		if (hasDecor) {
+			return this;
+		}
+
+		if (getStyles() != mBuilder.center.getStyles()) {
+			return this;
+		}
+
+		return mBuilder.center;
+	}
+
+	private RendererNode optimize(OptimizableRendererNode node) {
+		return node.optimize();
+	}
+
 	public static class Builder {
-		private final RendererNode center;
+		private RendererNode center;
 		private final MathPaint.Styles mStyles;
 		@Nullable
 		private RendererNode leftTop;

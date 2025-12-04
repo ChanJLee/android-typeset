@@ -175,11 +175,6 @@ public class MathInflaterUnitTest {
 			return new PhantomNodeAsserter((PhantomNode) node);
 		}
 
-		BraceNodeAsserter asBraceNode() {
-			isType(BraceNode.class);
-			return new BraceNodeAsserter((BraceNode) node);
-		}
-
 		RendererNodeAsserter and() {
 			return this;
 		}
@@ -566,19 +561,6 @@ public class MathInflaterUnitTest {
 		}
 
 		PhantomNodeAsserter and() {
-			return this;
-		}
-	}
-
-	/**
-	 * BraceNode 验证器
-	 */
-	static class BraceNodeAsserter extends RendererNodeAsserter {
-		BraceNodeAsserter(BraceNode node) {
-			super(node);
-		}
-
-		BraceNodeAsserter and() {
 			return this;
 		}
 	}

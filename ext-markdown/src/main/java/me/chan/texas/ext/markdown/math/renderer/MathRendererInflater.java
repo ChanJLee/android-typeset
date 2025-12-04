@@ -48,11 +48,11 @@ public class MathRendererInflater {
 	}
 
 	private RendererNode optimize(RendererNode node) {
-		if (!(node instanceof GroupRendererNode)) {
+		if (!(node instanceof OptimizableRendererNode)) {
 			return node;
 		}
 
-		return ((GroupRendererNode) node).optimize();
+		return ((OptimizableRendererNode) node).optimize();
 	}
 
 	private RendererNode inflate0(MathPaint.Styles styles, MathList mathList) {

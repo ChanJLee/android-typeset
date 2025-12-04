@@ -1,14 +1,13 @@
 package me.chan.texas.ext.markdown.math.renderer;
 
-import androidx.annotation.Nullable;
-
 import java.util.ArrayList;
 import java.util.List;
 
 import me.chan.texas.ext.markdown.math.renderer.core.MathCanvas;
 import me.chan.texas.ext.markdown.math.renderer.core.MathPaint;
 
-public class GridGroupNode extends GroupRendererNode {
+// TODO support optimized layout
+public class GridGroupNode extends RendererNode {
 
 	private final List<LinearGroupNode> mNodes = new ArrayList<>();
 	private final int mColumnCount;
@@ -105,19 +104,5 @@ public class GridGroupNode extends GroupRendererNode {
 	@Override
 	protected String toPretty() {
 		return "Grid[]";
-	}
-
-	@Nullable
-	@Override
-	public RendererNode optimize() {
-		for (int i = 0; i < mNodes.size(); ++i) {
-			LinearGroupNode group = mNodes.get(i);
-			RendererNode node = group.optimize();
-			if (node != null) {
-				mNodes.set(i, node);
-			}
-		}
-
-		return this;
 	}
 }
