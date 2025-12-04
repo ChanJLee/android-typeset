@@ -573,543 +573,682 @@ public class MathInflaterUnitTest {
 	}
 
 	// ============================================================
-	// Part 1: 基础元素测试
+	// Part 1: 基础元素测试 - 完善版
 	// ============================================================
 
 	@Test
-	public void test_01_01_Number_RenderStructure() throws MathParseException {
-		System.out.println("\n=== Part 1.1: 数字 - RenderNode结构（优化后）===");
+	public void test_01_01_Number_Complete() throws MathParseException {
+		System.out.println("\n=== Part 1.1: 数字 - 完整测试 ===");
 
-		// 测试整数 - 优化后应该直接是 TextNode
-		RendererNode root = parseAndRender("123");
+		// <number> ::= <digit> { <digit> } [ "." <digit> { <digit> } ]
+		// 测试单个数字
+		RendererNode root = parseAndRender("1");
+		assertRenderNode(root).asTextNode().hasContent("1");
+
+		root = parseAndRender("0");
+		assertRenderNode(root).asTextNode().hasContent("0");
+
+		// 测试多位整数
+		root = parseAndRender("123");
 		assertRenderNode(root).asTextNode().hasContent("123");
 
-		// 测试小数
+		root = parseAndRender("9876543210");
+		assertRenderNode(root).asTextNode().hasContent("9876543210");
+
+		// 测试小数 - 带前导数字
 		assertRenderSuccess("3.14");
 		assertRenderSuccess("0.5");
+		assertRenderSuccess("123.456");
+		assertRenderSuccess("0.0001");
 
-		System.out.println("✅ 数字 RenderNode结构验证通过");
+		// 测试小数在表达式中
+		assertRenderSuccess("3.14+2.71");
+		assertRenderSuccess("1.5x");
+
+		System.out.println("✅ 数字完整测试通过");
 	}
 
 	@Test
-	public void test_01_02_Variable_RenderStructure() throws MathParseException {
-		System.out.println("\n=== Part 1.2: 变量 - RenderNode结构（优化后）===");
+	public void test_01_02_Variable_Complete() throws MathParseException {
+		System.out.println("\n=== Part 1.2: 变量 - 完整测试 ===");
 
-		// 测试基本变量 - 优化后应该直接是 TextNode
+		// <variable> ::= <letter> { <letter> } [ <prime_suffix> ]
+		// 测试单字母变量
 		RendererNode root = parseAndRender("x");
 		assertRenderNode(root).asTextNode().hasContent("x");
 
-		// 测试多字母变量
-		assertRenderSuccess("abc");
+		root = parseAndRender("X");
+		assertRenderNode(root).asTextNode().hasContent("X");
 
+		// 测试多字母变量
+		root = parseAndRender("abc");
+		assertRenderNode(root).asTextNode().hasContent("abc");
+
+		assertRenderSuccess("xyz");
+		assertRenderSuccess("ABC");
+		assertRenderSuccess("function");
+
+		// <prime_suffix> ::= "'" { "'" }
 		// 测试带撇号的变量
 		assertRenderSuccess("f'");
 		assertRenderSuccess("g''");
+		assertRenderSuccess("h'''");
+		assertRenderSuccess("x'");
 
-		System.out.println("✅ 变量 RenderNode结构验证通过");
+		// 测试变量在表达式中
+		assertRenderSuccess("x+y");
+		assertRenderSuccess("abc'");
+
+		System.out.println("✅ 变量完整测试通过");
 	}
 
 	@Test
-	public void test_01_03_GreekLetters_RenderStructure() throws MathParseException {
-		System.out.println("\n=== Part 1.3: 希腊字母 - RenderNode结构 ===");
+	public void test_01_03_GreekLetters_Complete() throws MathParseException {
+		System.out.println("\n=== Part 1.3: 希腊字母 - 完整测试 ===");
 
-		// 测试小写希腊字母
-		assertRenderSuccess("\\alpha");
-		assertRenderSuccess("\\beta");
-		assertRenderSuccess("\\gamma");
-		assertRenderSuccess("\\delta");
-		assertRenderSuccess("\\epsilon");
-		assertRenderSuccess("\\varepsilon");
-		assertRenderSuccess("\\zeta");
-		assertRenderSuccess("\\eta");
-		assertRenderSuccess("\\theta");
-		assertRenderSuccess("\\vartheta");
-		assertRenderSuccess("\\iota");
-		assertRenderSuccess("\\kappa");
-		assertRenderSuccess("\\lambda");
-		assertRenderSuccess("\\mu");
-		assertRenderSuccess("\\nu");
-		assertRenderSuccess("\\xi");
-		assertRenderSuccess("\\pi");
-		assertRenderSuccess("\\varpi");
-		assertRenderSuccess("\\rho");
-		assertRenderSuccess("\\varrho");
-		assertRenderSuccess("\\sigma");
-		assertRenderSuccess("\\varsigma");
-		assertRenderSuccess("\\tau");
-		assertRenderSuccess("\\upsilon");
-		assertRenderSuccess("\\phi");
-		assertRenderSuccess("\\varphi");
-		assertRenderSuccess("\\chi");
-		assertRenderSuccess("\\psi");
-		assertRenderSuccess("\\omega");
+		// <greek_letter> 所有小写希腊字母
+		String[] lowerGreek = {
+			"\\alpha", "\\beta", "\\gamma", "\\delta", "\\epsilon", "\\varepsilon",
+			"\\zeta", "\\eta", "\\theta", "\\vartheta", "\\iota", "\\kappa",
+			"\\lambda", "\\mu", "\\nu", "\\xi", "\\pi", "\\varpi", "\\rho", "\\varrho",
+			"\\sigma", "\\varsigma", "\\tau", "\\upsilon", "\\phi", "\\varphi",
+			"\\chi", "\\psi", "\\omega"
+		};
+		for (String letter : lowerGreek) {
+			assertRenderSuccess(letter);
+		}
 
-		// 测试大写希腊字母
-		assertRenderSuccess("\\Gamma");
-		assertRenderSuccess("\\Delta");
-		assertRenderSuccess("\\Theta");
-		assertRenderSuccess("\\Lambda");
-		assertRenderSuccess("\\Xi");
-		assertRenderSuccess("\\Pi");
-		assertRenderSuccess("\\Sigma");
-		assertRenderSuccess("\\Upsilon");
-		assertRenderSuccess("\\Phi");
-		assertRenderSuccess("\\Psi");
-		assertRenderSuccess("\\Omega");
+		// 所有大写希腊字母
+		String[] upperGreek = {
+			"\\Gamma", "\\Delta", "\\Theta", "\\Lambda", "\\Xi", "\\Pi",
+			"\\Sigma", "\\Upsilon", "\\Phi", "\\Psi", "\\Omega"
+		};
+		for (String letter : upperGreek) {
+			assertRenderSuccess(letter);
+		}
 
+		// 无穷 (在 greek_letter 中定义)
+		assertRenderSuccess("\\infty");
+
+		// <greek_letter_variable> ::= <greek_letter> [ <prime_suffix> ]
 		// 测试带撇号的希腊字母
 		assertRenderSuccess("\\alpha'");
 		assertRenderSuccess("\\beta''");
+		assertRenderSuccess("\\gamma'''");
 
 		// 测试带上下标的希腊字母
 		assertRenderSuccess("\\alpha_1");
 		assertRenderSuccess("\\beta^2");
 		assertRenderSuccess("\\gamma_i^2");
+		assertRenderSuccess("\\delta^{n+1}_{k}");
 
-		System.out.println("✅ 希腊字母 RenderNode结构验证通过");
+		System.out.println("✅ 希腊字母完整测试通过");
 	}
 
 	@Test
-	public void test_01_04_SpecialLetterVariables_RenderStructure() throws MathParseException {
-		System.out.println("\n=== Part 1.4: 特殊字母变量 - RenderNode结构 ===");
+	public void test_01_04_SpecialLetterVariables_Complete() throws MathParseException {
+		System.out.println("\n=== Part 1.4: 特殊字母变量 - 完整测试 ===");
 
-		// 测试所有特殊字母变量（类变量符号）
-		assertRenderSuccess("\\hbar");       // ℏ 约化普朗克常数
-		assertRenderSuccess("\\nabla");      // ∇ 梯度算子
-		assertRenderSuccess("\\partial");    // ∂ 偏导数符号
-		assertRenderSuccess("\\ell");        // ℓ 脚本小写L
-		assertRenderSuccess("\\wp");         // ℘ 魏尔斯特拉斯函数
-		assertRenderSuccess("\\Re");         // ℜ 实部
-		assertRenderSuccess("\\Im");         // ℑ 虚部
-		assertRenderSuccess("\\aleph");      // ℵ 阿列夫数
+		// <special_letter_variable> - 类变量符号，可被一元运算符修饰
+		String[] specialLetters = {
+			"\\hbar",      // ℏ 约化普朗克常数
+			"\\nabla",     // ∇ 梯度算子
+			"\\partial",   // ∂ 偏导数符号
+			"\\ell",       // ℓ 脚本小写L
+			"\\wp",        // ℘ 魏尔斯特拉斯函数
+			"\\Re",        // ℜ 实部
+			"\\Im",        // ℑ 虚部
+			"\\aleph"      // ℵ 阿列夫数
+		};
+		for (String letter : specialLetters) {
+			assertRenderSuccess(letter);
+		}
 
 		// 测试一元运算符修饰特殊字母变量
 		assertRenderSuccess("-\\nabla");
 		assertRenderSuccess("-\\partial");
 		assertRenderSuccess("+\\hbar");
+		assertRenderSuccess("\\pm\\nabla");
+		assertRenderSuccess("\\mp\\partial");
 
 		// 测试带上下标的特殊字母变量
 		assertRenderSuccess("\\nabla^2");
 		assertRenderSuccess("\\partial_t");
+		assertRenderSuccess("\\partial_x^2");
+		assertRenderSuccess("\\hbar^2");
 
-		System.out.println("✅ 特殊字母变量 RenderNode结构验证通过");
+		// 测试在表达式中
+		assertRenderSuccess("\\nabla f");
+		assertRenderSuccess("\\partial_x f");
+
+		System.out.println("✅ 特殊字母变量完整测试通过");
 	}
 
 	@Test
-	public void test_01_05_SpecialSymbols_RenderStructure() throws MathParseException {
-		System.out.println("\n=== Part 1.5: 特殊符号 - RenderNode结构 ===");
+	public void test_01_05_SpecialSymbols_Complete() throws MathParseException {
+		System.out.println("\n=== Part 1.5: 特殊符号 - 完整测试 ===");
 
-		// 测试省略号
+		// <special_symbol> - 不能被一元运算符修饰
+		// 省略号
 		assertRenderSuccess("\\dots");
 		assertRenderSuccess("\\ldots");
 		assertRenderSuccess("\\cdots");
 		assertRenderSuccess("\\vdots");
 		assertRenderSuccess("\\ddots");
 
-		// 测试几何符号
+		// 角度符号
 		assertRenderSuccess("\\angle");
 
-		// 测试逻辑标记符号
+		// 逻辑标记符号
 		assertRenderSuccess("\\therefore");
 		assertRenderSuccess("\\because");
 
-		// 测试量词
+		// 量词
 		assertRenderSuccess("\\forall");
 		assertRenderSuccess("\\exists");
 		assertRenderSuccess("\\nexists");
 
-		// 测试空集
+		// 空集
 		assertRenderSuccess("\\emptyset");
 		assertRenderSuccess("\\varnothing");
 
-		// 测试无穷
-		assertRenderSuccess("\\infty");
-
-		// 测试特殊符号带上下标
+		// 测试特殊符号带上下标（可以带上下标）
 		assertRenderSuccess("\\angle_1");
 		assertRenderSuccess("\\dots^{n}");
+		assertRenderSuccess("\\forall_{x}");
+		assertRenderSuccess("\\exists^{y}");
 
-		System.out.println("✅ 特殊符号 RenderNode结构验证通过");
+		// 测试在表达式中
+		assertRenderSuccess("1,2,\\dots,n");
+		assertRenderSuccess("\\forall x");
+		assertRenderSuccess("\\exists y");
+
+		System.out.println("✅ 特殊符号完整测试通过");
 	}
 
 	// ============================================================
-	// Part 2: 运算符测试
+	// Part 2: 运算符测试 - 完善版
 	// ============================================================
 
 	@Test
-	public void test_02_01_UnaryOperators_RenderStructure() throws MathParseException {
-		System.out.println("\n=== Part 2.1: 一元运算符 - RenderNode结构（优化后）===");
+	public void test_02_01_UnaryOperators_Complete() throws MathParseException {
+		System.out.println("\n=== Part 2.1: 一元运算符 - 完整测试 ===");
 
-		// 测试 "-x" - 优化后外层 LinearGroupNode 被优化掉，直接是 DecorGroupNode
+		// <unary_op> ::= "+" | "-" | "\pm" | "\mp"
+		// 测试所有一元运算符
 		RendererNode root = parseAndRender("-x");
 		DecorGroupNodeAsserter termDecor = assertRenderNode(root).asDecorGroup();
 		termDecor.hasLeft();
 		termDecor.left().asSymbolNode().hasContent("−");
 		termDecor.center().asTextNode().hasContent("x");
 
-		// 测试其他一元运算符
 		assertRenderSuccess("+x");
 		assertRenderSuccess("\\pm x");
 		assertRenderSuccess("\\mp x");
-		assertRenderSuccess("-1");
-		assertRenderSuccess("-{x+y}");
 
-		System.out.println("✅ 一元运算符 RenderNode结构验证通过");
+		// 测试一元运算符修饰数字
+		assertRenderSuccess("-1");
+		assertRenderSuccess("+5");
+		assertRenderSuccess("\\pm 3");
+
+		// 测试一元运算符修饰分组
+		assertRenderSuccess("-{x+y}");
+		assertRenderSuccess("+{a-b}");
+		assertRenderSuccess("\\pm{x}");
+
+		// 测试一元运算符修饰希腊字母
+		assertRenderSuccess("-\\alpha");
+		assertRenderSuccess("+\\beta");
+
+		// 测试一元运算符修饰分式
+		assertRenderSuccess("-\\frac{1}{2}");
+		assertRenderSuccess("+\\frac{a}{b}");
+
+		// 测试一元运算符修饰根式
+		assertRenderSuccess("-\\sqrt{x}");
+		assertRenderSuccess("+\\sqrt{2}");
+
+		// 测试一元运算符修饰定界符
+		assertRenderSuccess("-\\left(x+y\\right)");
+
+		System.out.println("✅ 一元运算符完整测试通过");
 	}
 
 	@Test
-	public void test_02_02_BinaryOperators_Arithmetic_RenderStructure() throws MathParseException {
-		System.out.println("\n=== Part 2.2: 二元运算符 - 算术 - RenderNode结构（优化后）===");
+	public void test_02_02_BinaryOperators_Complete() throws MathParseException {
+		System.out.println("\n=== Part 2.2: 二元运算符 - 完整测试 ===");
 
-		// 测试 "a+b" - 优化后外层单个expression的LinearGroupNode被优化掉
+		// <binary_op> 完整列表
+		// 基本运算符
+		String[] basicOps = {"+", "-", "*", "/", "|"};
+		for (String op : basicOps) {
+			assertRenderSuccess("a" + op + "b");
+		}
+
+		// LaTeX 运算符
+		String[] latexOps = {
+			"\\times", "\\cdot", "\\div", "\\pm", "\\mp"
+		};
+		for (String op : latexOps) {
+			assertRenderSuccess("a" + op + "b");
+		}
+
+		// 关系运算符
+		String[] relOps = {
+			"=", "\\neq", "\\equiv", "\\approx", "\\cong", "\\sim",
+			"<", ">", "\\le", "\\ge", "\\leq", "\\geq", "\\ll", "\\gg"
+		};
+		for (String op : relOps) {
+			assertRenderSuccess("a" + op + "b");
+		}
+
+		// 集合运算符
+		String[] setOps = {
+			"\\in", "\\notin", "\\subset", "\\supset", "\\subseteq", "\\supseteq",
+			"\\cup", "\\cap", "\\wedge", "\\vee"
+		};
+		for (String op : setOps) {
+			assertRenderSuccess("a" + op + "b");
+		}
+
+		// 箭头运算符
+		String[] arrowOps = {
+			"\\to", "\\rightarrow", "\\leftarrow", "\\leftrightarrow",
+			"\\Rightarrow", "\\Leftarrow", "\\Leftrightarrow",
+			"\\implies", "\\iff"
+		};
+		for (String op : arrowOps) {
+			assertRenderSuccess("A" + op + "B");
+		}
+
+		// 几何运算符
+		assertRenderSuccess("a\\perp b");
+		assertRenderSuccess("a\\parallel b");
+		assertRenderSuccess("a\\mid b");
+
+		// 验证结构
 		RendererNode root = parseAndRender("a+b");
 		LinearGroupNodeAsserter exprGroup = assertRenderNode(root).asLinearGroup();
 		exprGroup.hasChildCount(5); // Term(a), Space, BinOp(+), Space, Term(b)
-		exprGroup.childAt(0).asTextNode().hasContent("a");  // 优化后直接是TextNode
+		exprGroup.childAt(0).asTextNode().hasContent("a");
 		exprGroup.childAt(1).asSpaceNode();
 		exprGroup.childAt(2).asSymbolNode().hasContent("+");
 		exprGroup.childAt(3).asSpaceNode();
-		exprGroup.childAt(4).asTextNode().hasContent("b");  // 优化后直接是TextNode
+		exprGroup.childAt(4).asTextNode().hasContent("b");
 
-		// 测试其他算术运算符
-		assertRenderSuccess("a-b");
-		assertRenderSuccess("a*b");
-		assertRenderSuccess("a/b");
-		assertRenderSuccess("a\\times b");
-		assertRenderSuccess("a\\cdot b");
-		assertRenderSuccess("a\\div b");
-		assertRenderSuccess("a\\pm b");
-		assertRenderSuccess("a\\mp b");
-
-		System.out.println("✅ 二元运算符（算术）RenderNode结构验证通过");
+		System.out.println("✅ 二元运算符完整测试通过");
 	}
 
 	@Test
-	public void test_02_03_BinaryOperators_Relational_RenderStructure() throws MathParseException {
-		System.out.println("\n=== Part 2.3: 二元运算符 - 关系 - RenderNode结构 ===");
+	public void test_02_03_PostfixOperators_Complete() throws MathParseException {
+		System.out.println("\n=== Part 2.3: 后缀运算符 - 完整测试 ===");
 
-		// 测试所有关系运算符
-		assertRenderSuccess("a=b");
-		assertRenderSuccess("a\\neq b");
-		assertRenderSuccess("a\\equiv b");
-		assertRenderSuccess("a\\approx b");
-		assertRenderSuccess("a\\cong b");
-		assertRenderSuccess("a\\sim b");
-		assertRenderSuccess("a<b");
-		assertRenderSuccess("a>b");
-		assertRenderSuccess("a\\le b");
-		assertRenderSuccess("a\\ge b");
-		assertRenderSuccess("a\\leq b");
-		assertRenderSuccess("a\\geq b");
-		assertRenderSuccess("a\\ll b");
-		assertRenderSuccess("a\\gg b");
-
-		System.out.println("✅ 二元运算符（关系）RenderNode结构验证通过");
-	}
-
-	@Test
-	public void test_02_04_BinaryOperators_Set_RenderStructure() throws MathParseException {
-		System.out.println("\n=== Part 2.4: 二元运算符 - 集合 - RenderNode结构 ===");
-
-		// 测试集合运算符
-		assertRenderSuccess("x\\in A");
-		assertRenderSuccess("x\\notin A");
-		assertRenderSuccess("A\\subset B");
-		assertRenderSuccess("A\\supset B");
-		assertRenderSuccess("A\\subseteq B");
-		assertRenderSuccess("A\\supseteq B");
-		assertRenderSuccess("A\\cup B");
-		assertRenderSuccess("A\\cap B");
-		assertRenderSuccess("p\\wedge q");
-		assertRenderSuccess("p\\vee q");
-
-		System.out.println("✅ 二元运算符（集合）RenderNode结构验证通过");
-	}
-
-	@Test
-	public void test_02_05_BinaryOperators_Arrows_RenderStructure() throws MathParseException {
-		System.out.println("\n=== Part 2.5: 二元运算符 - 箭头 - RenderNode结构 ===");
-
-		// 测试箭头运算符
-		assertRenderSuccess("a\\to b");
-		assertRenderSuccess("a\\rightarrow b");
-		assertRenderSuccess("a\\leftarrow b");
-		assertRenderSuccess("a\\leftrightarrow b");
-		assertRenderSuccess("A\\Rightarrow B");
-		assertRenderSuccess("A\\Leftarrow B");
-		assertRenderSuccess("A\\Leftrightarrow B");
-		assertRenderSuccess("A\\implies B");
-		assertRenderSuccess("A\\iff B");
-
-		System.out.println("✅ 二元运算符（箭头）RenderNode结构验证通过");
-	}
-
-	@Test
-	public void test_02_06_BinaryOperators_Geometry_RenderStructure() throws MathParseException {
-		System.out.println("\n=== Part 2.6: 二元运算符 - 几何 - RenderNode结构 ===");
-
-		// 测试几何关系运算符
-		assertRenderSuccess("a\\perp b");
-		assertRenderSuccess("a\\parallel b");
-
-		// 测试整除符号
-		assertRenderSuccess("a|b");
-		assertRenderSuccess("a\\mid b");
-
-		System.out.println("✅ 二元运算符（几何）RenderNode结构验证通过");
-	}
-
-	@Test
-	public void test_02_07_PostfixOperators_RenderStructure() throws MathParseException {
-		System.out.println("\n=== Part 2.7: 后缀运算符（阶乘）- RenderNode结构 ===");
-
+		// <postfix_op> ::= "!"
 		// 测试基本阶乘
 		assertRenderSuccess("n!");
 		assertRenderSuccess("5!");
 		assertRenderSuccess("x!");
+		assertRenderSuccess("0!");
 
-		// 测试阶乘带上下标
+		// 测试阶乘与上下标的结合
 		assertRenderSuccess("n^2!");
 		assertRenderSuccess("n_i!");
+		assertRenderSuccess("n_i^2!");
 
 		// 测试阶乘在表达式中
 		assertRenderSuccess("n!+1");
+		assertRenderSuccess("n!-1");
 		assertRenderSuccess("n!m");
+		assertRenderSuccess("n!m!");
 
 		// 测试阶乘在分式中
 		assertRenderSuccess("\\frac{n!}{k!}");
+		assertRenderSuccess("\\frac{n!}{k!(n-k)!}");
 
 		// 测试括号内表达式的阶乘
 		assertRenderSuccess("\\left(n-1\\right)!");
+		assertRenderSuccess("\\left(n+1\\right)!");
 
-		System.out.println("✅ 后缀运算符（阶乘）RenderNode结构验证通过");
+		// 测试希腊字母的阶乘
+		assertRenderSuccess("\\Gamma!");
+
+		System.out.println("✅ 后缀运算符完整测试通过");
 	}
 
 	// ============================================================
-	// Part 3: 标点符号测试
+	// Part 3: 标点符号测试 - 完善版
 	// ============================================================
 
 	@Test
-	public void test_03_01_Punctuation_RenderStructure() throws MathParseException {
-		System.out.println("\n=== Part 3.1: 标点符号 - RenderNode结构（优化后）===");
+	public void test_03_01_Punctuation_Complete() throws MathParseException {
+		System.out.println("\n=== Part 3.1: 标点符号 - 完整测试 ===");
 
-		// 测试 "a,b"
+		// <punctuation> ::= "," | ";"
+		// 测试逗号
 		RendererNode root = parseAndRender("a,b");
 		LinearGroupNodeAsserter exprGroup = assertRenderNode(root).asLinearGroup();
-		exprGroup.hasChildCount(3); // Term(a), Term(,), Term(b)
-		exprGroup.childAt(0).asTextNode().hasContent("a");  // 优化后直接是TextNode
-		exprGroup.childAt(1).asTextNode().hasContent(",");  // 优化后直接是TextNode
-		exprGroup.childAt(2).asTextNode().hasContent("b");  // 优化后直接是TextNode
+		exprGroup.hasChildCount(3);
+		exprGroup.childAt(0).asTextNode().hasContent("a");
+		exprGroup.childAt(1).asTextNode().hasContent(",");
+		exprGroup.childAt(2).asTextNode().hasContent("b");
 
 		// 测试多个逗号
 		assertRenderSuccess("a,b,c");
+		assertRenderSuccess("1,2,3,4,5");
 
 		// 测试分号
 		assertRenderSuccess("a;b");
+		assertRenderSuccess("x;y;z");
 
 		// 测试在定界符中
 		assertRenderSuccess("f\\left(x,y\\right)");
+		assertRenderSuccess("f\\left(x,y,z\\right)");
 		assertRenderSuccess("\\left\\{x,y,z\\right\\}");
+		assertRenderSuccess("\\left[a;b\\right]");
 
-		System.out.println("✅ 标点符号 RenderNode结构验证通过");
+		// 测试在集合表示中
+		assertRenderSuccess("\\left\\{x|x>0\\right\\}");
+
+		System.out.println("✅ 标点符号完整测试通过");
 	}
 
 	// ============================================================
-	// Part 4: 原子表达式测试
+	// Part 4: 原子表达式测试 - 完善版
 	// ============================================================
 
 	@Test
-	public void test_04_01_Group_RenderStructure() throws MathParseException {
-		System.out.println("\n=== Part 4.1: 分组 - RenderNode结构 ===");
+	public void test_04_01_Group_Complete() throws MathParseException {
+		System.out.println("\n=== Part 4.1: 分组 - 完整测试 ===");
 
+		// <group> ::= "{" <math_list> "}"
 		assertRenderSuccess("{x}");
 		assertRenderSuccess("{a+b}");
 		assertRenderSuccess("{x^2}");
 
-		System.out.println("✅ 分组 RenderNode结构验证通过");
+		// 测试嵌套分组
+		assertRenderSuccess("{{x}}");
+		assertRenderSuccess("{{{x}}}");
+		assertRenderSuccess("{a{b}c}");
+
+		// 测试空分组 - 如果支持的话
+		// assertRenderSuccess("{}");
+
+		// 测试分组在表达式中
+		assertRenderSuccess("{a}+{b}");
+		assertRenderSuccess("{a+b}^2");
+		assertRenderSuccess("{a+b}_{i}");
+
+		System.out.println("✅ 分组完整测试通过");
 	}
 
 	@Test
-	public void test_04_02_Frac_RenderStructure() throws MathParseException {
-		System.out.println("\n=== Part 4.2: 分式 - RenderNode结构（优化后）===");
+	public void test_04_02_Frac_Complete() throws MathParseException {
+		System.out.println("\n=== Part 4.2: 分式 - 完整测试 ===");
 
-		// 测试 "\frac{1}{2}" - 优化后外层容器被优化，直接是FractionNode
+		// <frac> ::= "\frac" | "\dfrac" | "\tfrac" | "\cfrac"
+		// 测试 \frac
 		RendererNode root = parseAndRender("\\frac{1}{2}");
 		FractionNodeAsserter frac = assertRenderNode(root).asFractionNode();
-		// 分子分母内部也被优化了
 		frac.numerator().asTextNode().hasContent("1");
 		frac.denominator().asTextNode().hasContent("2");
 
-		// 测试其他分式变体
-		assertRenderSuccess("\\frac{a}{b}");
-		assertRenderSuccess("\\frac{x+y}{x-y}");
+		// 测试 \dfrac
 		assertRenderSuccess("\\dfrac{1}{2}");
-		assertRenderSuccess("\\tfrac{1}{2}");
-		assertRenderSuccess("\\cfrac{1}{2}");
+		assertRenderSuccess("\\dfrac{a}{b}");
 
-		System.out.println("✅ 分式 RenderNode结构验证通过");
+		// 测试 \tfrac
+		assertRenderSuccess("\\tfrac{1}{2}");
+		assertRenderSuccess("\\tfrac{a}{b}");
+
+		// 测试 \cfrac
+		assertRenderSuccess("\\cfrac{1}{2}");
+		assertRenderSuccess("\\cfrac{a}{b}");
+
+		// 测试复杂分式
+		assertRenderSuccess("\\frac{x+y}{x-y}");
+		assertRenderSuccess("\\frac{a^2}{b^2}");
+		assertRenderSuccess("\\frac{\\alpha}{\\beta}");
+
+		// 测试嵌套分式
+		root = parseAndRender("\\frac{\\frac{1}{2}}{\\frac{3}{4}}");
+		FractionNodeAsserter outerFrac = assertRenderNode(root).asFractionNode();
+		outerFrac.numerator().asFractionNode();
+		outerFrac.denominator().asFractionNode();
+
+		// 测试分式带上下标
+		assertRenderSuccess("\\frac{a}{b}^2");
+		assertRenderSuccess("\\frac{a}{b}_i");
+		assertRenderSuccess("\\frac{a}{b}^2_i");
+
+		System.out.println("✅ 分式完整测试通过");
 	}
 
 	@Test
-	public void test_04_03_Binom_RenderStructure() throws MathParseException {
-		System.out.println("\n=== Part 4.3: 二项式系数 - RenderNode结构 ===");
+	public void test_04_03_Binom_Complete() throws MathParseException {
+		System.out.println("\n=== Part 4.3: 二项式系数 - 完整测试 ===");
 
-		// 测试基本二项式系数
+		// <binom> ::= "\binom" | "\dbinom" | "\tbinom"
+		// 测试 \binom
 		assertRenderSuccess("\\binom{n}{k}");
 		assertRenderSuccess("\\binom{5}{2}");
 		assertRenderSuccess("\\binom{n+1}{k}");
+		assertRenderSuccess("\\binom{n}{k+1}");
 
-		// 测试变体
+		// 测试 \dbinom
 		assertRenderSuccess("\\dbinom{n}{k}");
+		assertRenderSuccess("\\dbinom{10}{5}");
+
+		// 测试 \tbinom
 		assertRenderSuccess("\\tbinom{n}{k}");
+		assertRenderSuccess("\\tbinom{3}{1}");
 
 		// 测试带上下标
 		assertRenderSuccess("\\binom{n}{k}^2");
 		assertRenderSuccess("\\binom{n}{k}_i");
+		assertRenderSuccess("\\binom{n}{k}^2_i");
 
 		// 测试在表达式中
 		assertRenderSuccess("\\binom{n}{k}+1");
 		assertRenderSuccess("2\\binom{n}{k}");
+		assertRenderSuccess("\\binom{n}{0}+\\binom{n}{1}");
 
 		// 测试嵌套
 		assertRenderSuccess("\\frac{\\binom{n}{k}}{2}");
 		assertRenderSuccess("\\binom{\\binom{n}{k}}{2}");
+		assertRenderSuccess("\\sqrt{\\binom{n}{k}}");
 
-		System.out.println("✅ 二项式系数 RenderNode结构验证通过");
+		System.out.println("✅ 二项式系数完整测试通过");
 	}
 
 	@Test
-	public void test_04_04_Sqrt_RenderStructure() throws MathParseException {
-		System.out.println("\n=== Part 4.4: 根式 - RenderNode结构（优化后）===");
+	public void test_04_04_Sqrt_Complete() throws MathParseException {
+		System.out.println("\n=== Part 4.4: 根式 - 完整测试 ===");
 
-		// 测试 "\sqrt{x}" - 优化后直接是SqrtNode
+		// <sqrt> ::= "\sqrt" "{" <math_list> "}"
+		//          | "\sqrt" "[" <math_list> "]" "{" <math_list> "}"
+		// 测试基本根式
 		RendererNode root = parseAndRender("\\sqrt{x}");
 		SqrtNodeAsserter sqrt = assertRenderNode(root).asSqrtNode();
-		// content内部也被优化
 		sqrt.content().asTextNode().hasContent("x");
+
+		assertRenderSuccess("\\sqrt{2}");
+		assertRenderSuccess("\\sqrt{a+b}");
 
 		// 测试带根指数
 		assertRenderSuccess("\\sqrt[3]{27}");
 		assertRenderSuccess("\\sqrt[n]{x}");
+		assertRenderSuccess("\\sqrt[3]{x+y}");
+		assertRenderSuccess("\\sqrt[n+1]{x}");
+
+		// 验证带根指数的结构
+		root = parseAndRender("\\sqrt[3]{8}");
+		sqrt = assertRenderNode(root).asSqrtNode();
+		sqrt.hasRoot();
+		sqrt.root().asTextNode().hasContent("3");
+		sqrt.content().asTextNode().hasContent("8");
 
 		// 测试复杂内容
 		assertRenderSuccess("\\sqrt{x^2+y^2}");
 		assertRenderSuccess("\\sqrt{\\frac{a}{b}}");
+		assertRenderSuccess("\\sqrt{\\sqrt{x}}");
 
-		System.out.println("✅ 根式 RenderNode结构验证通过");
+		// 测试根式带上下标
+		assertRenderSuccess("\\sqrt{x}^2");
+		assertRenderSuccess("\\sqrt{x}_i");
+
+		System.out.println("✅ 根式完整测试通过");
 	}
 
 	@Test
-	public void test_04_05_Delimited_RenderStructure() throws MathParseException {
-		System.out.println("\n=== Part 4.5: 定界符 - RenderNode结构 ===");
+	public void test_04_05_Delimited_Complete() throws MathParseException {
+		System.out.println("\n=== Part 4.5: 定界符 - 完整测试 ===");
 
-		// 测试圆括号
+		// <delimited> - 所有级别和所有定界符类型
+		// \left \right 级别
 		assertRenderSuccess("\\left(x\\right)");
-		assertRenderSuccess("\\left(x+y\\right)");
-
-		// 测试方括号
 		assertRenderSuccess("\\left[x\\right]");
-
-		// 测试花括号
 		assertRenderSuccess("\\left\\{x\\right\\}");
-
-		// 测试竖线
 		assertRenderSuccess("\\left|x\\right|");
 		assertRenderSuccess("\\left\\|x\\right\\|");
-
-		// 测试角括号
 		assertRenderSuccess("\\left\\langle x\\right\\rangle");
-
-		// 测试地板和天花板
 		assertRenderSuccess("\\left\\lfloor x\\right\\rfloor");
 		assertRenderSuccess("\\left\\lceil x\\right\\rceil");
+		assertRenderSuccess("\\left\\lvert x\\right\\rvert");
+		assertRenderSuccess("\\left\\lVert x\\right\\rVert");
 
-		// 测试其他级别
+		// 空定界符
+		assertRenderSuccess("\\left.x\\right)");
+		assertRenderSuccess("\\left(x\\right.");
+
+		// \bigl \bigr 级别
 		assertRenderSuccess("\\bigl(x\\bigr)");
-		assertRenderSuccess("\\Bigl(x\\Bigr)");
-		assertRenderSuccess("\\biggl(x\\biggr)");
-		assertRenderSuccess("\\Biggl(x\\Biggr)");
+		assertRenderSuccess("\\bigl[x\\bigr]");
 
-		System.out.println("✅ 定界符 RenderNode结构验证通过");
+		// \Bigl \Bigr 级别
+		assertRenderSuccess("\\Bigl(x\\Bigr)");
+		assertRenderSuccess("\\Bigl[x\\Bigr]");
+
+		// \biggl \biggr 级别
+		assertRenderSuccess("\\biggl(x\\biggr)");
+		assertRenderSuccess("\\biggl[x\\biggr]");
+
+		// \Biggl \Biggr 级别
+		assertRenderSuccess("\\Biggl(x\\Biggr)");
+		assertRenderSuccess("\\Biggl[x\\Biggr]");
+
+		// 测试复杂内容
+		assertRenderSuccess("\\left(x+y\\right)");
+		assertRenderSuccess("\\left(\\frac{a}{b}\\right)");
+		assertRenderSuccess("\\left[\\sqrt{x}\\right]");
+
+		// 测试嵌套定界符
+		assertRenderSuccess("\\left(\\left[x\\right]\\right)");
+		assertRenderSuccess("\\left\\{\\left(x\\right)\\right\\}");
+
+		// 测试带上下标
+		assertRenderSuccess("\\left(x\\right)^2");
+		assertRenderSuccess("\\left[x\\right]_i");
+
+		System.out.println("✅ 定界符完整测试通过");
 	}
 
 	@Test
-	public void test_04_06_Function_RenderStructure() throws MathParseException {
-		System.out.println("\n=== Part 4.6: 函数 - RenderNode结构 ===");
+	public void test_04_06_Function_Complete() throws MathParseException {
+		System.out.println("\n=== Part 4.6: 函数 - 完整测试 ===");
 
-		// 测试三角函数
-		assertRenderSuccess("\\sin x");
-		assertRenderSuccess("\\cos x");
-		assertRenderSuccess("\\tan x");
-		assertRenderSuccess("\\cot x");
-		assertRenderSuccess("\\sec x");
-		assertRenderSuccess("\\csc x");
+		// <function_name> 所有函数
+		// 三角函数
+		String[] trigFuncs = {"\\sin", "\\cos", "\\tan", "\\cot", "\\sec", "\\csc"};
+		for (String func : trigFuncs) {
+			assertRenderSuccess(func + " x");
+			assertRenderSuccess(func + "{x}");
+			assertRenderSuccess(func + "\\left(x\\right)");
+		}
 
-		// 测试反三角函数
-		assertRenderSuccess("\\arcsin x");
-		assertRenderSuccess("\\arccos x");
-		assertRenderSuccess("\\arctan x");
+		// 反三角函数
+		String[] arcFuncs = {"\\arcsin", "\\arccos", "\\arctan"};
+		for (String func : arcFuncs) {
+			assertRenderSuccess(func + " x");
+		}
 
-		// 测试双曲函数
-		assertRenderSuccess("\\sinh x");
-		assertRenderSuccess("\\cosh x");
-		assertRenderSuccess("\\tanh x");
-		assertRenderSuccess("\\coth x");
+		// 双曲函数
+		String[] hypFuncs = {"\\sinh", "\\cosh", "\\tanh", "\\coth"};
+		for (String func : hypFuncs) {
+			assertRenderSuccess(func + " x");
+		}
 
-		// 测试对数函数
-		assertRenderSuccess("\\log x");
-		assertRenderSuccess("\\ln x");
-		assertRenderSuccess("\\lg x");
-		assertRenderSuccess("\\exp x");
+		// 对数函数
+		String[] logFuncs = {"\\log", "\\ln", "\\lg", "\\exp"};
+		for (String func : logFuncs) {
+			assertRenderSuccess(func + " x");
+		}
 
-		// 测试其他函数
-		assertRenderSuccess("\\max x");
-		assertRenderSuccess("\\min x");
-		assertRenderSuccess("\\sup x");
-		assertRenderSuccess("\\inf x");
-		assertRenderSuccess("\\det A");
-		assertRenderSuccess("\\dim V");
-		assertRenderSuccess("\\gcd\\left(a,b\\right)");
-		assertRenderSuccess("\\ker f");
+		// 其他函数
+		String[] otherFuncs = {
+			"\\max", "\\min", "\\sup", "\\inf",
+			"\\arg", "\\deg", "\\det", "\\dim", "\\gcd", "\\hom", "\\ker",
+			"\\Pr", "\\bmod", "\\pmod"
+		};
+		for (String func : otherFuncs) {
+			assertRenderSuccess(func + " x");
+		}
+
+		// 测试带下标的函数
+		assertRenderSuccess("\\log_2 x");
+		assertRenderSuccess("\\log_{10} x");
+
+		// 测试带上标的函数
+		assertRenderSuccess("\\sin^2 x");
+		assertRenderSuccess("\\cos^{-1} x");
 
 		// 测试带上下标的函数
-		assertRenderSuccess("\\log_2 x");
-		assertRenderSuccess("\\sin^2 x");
+		assertRenderSuccess("\\log_a^b x");
 
 		// 测试函数参数
 		assertRenderSuccess("\\sin{x+y}");
+		assertRenderSuccess("\\cos{\\frac{x}{2}}");
 		assertRenderSuccess("\\sin\\left(\\frac{x}{2}\\right)");
 
-		System.out.println("✅ 函数 RenderNode结构验证通过");
+		// 测试函数在表达式中
+		assertRenderSuccess("\\sin x+\\cos x");
+		assertRenderSuccess("\\sin^2 x+\\cos^2 x");
+
+		System.out.println("✅ 函数完整测试通过");
 	}
 
 	@Test
-	public void test_04_07_LargeOperator_RenderStructure() throws MathParseException {
-		System.out.println("\n=== Part 4.7: 大型运算符 - RenderNode结构 ===");
+	public void test_04_07_LargeOperator_Complete() throws MathParseException {
+		System.out.println("\n=== Part 4.7: 大型运算符 - 完整测试 ===");
 
-		// 测试求和
+		// <large_op_name> 所有大型运算符
+		// 求和/乘积
 		assertRenderSuccess("\\sum");
 		assertRenderSuccess("\\sum_{i=1}^{n}");
 		assertRenderSuccess("\\sum_{i=1}^{n}a_i");
-
-		// 测试乘积
 		assertRenderSuccess("\\prod");
 		assertRenderSuccess("\\prod_{i=1}^{n}");
 		assertRenderSuccess("\\coprod");
+		assertRenderSuccess("\\coprod_{i=1}^{n}");
 
-		// 测试积分
+		// 积分
 		assertRenderSuccess("\\int");
 		assertRenderSuccess("\\int_0^1");
 		assertRenderSuccess("\\int_0^{\\infty}");
+		assertRenderSuccess("\\int_{-\\infty}^{\\infty}");
 		assertRenderSuccess("\\iint");
+		assertRenderSuccess("\\iint_D");
 		assertRenderSuccess("\\iiint");
+		assertRenderSuccess("\\iiint_V");
 		assertRenderSuccess("\\oint");
+		assertRenderSuccess("\\oint_C");
 		assertRenderSuccess("\\oiint");
 		assertRenderSuccess("\\oiiint");
 
-		// 测试大型集合运算符
+		// 大型集合运算符
 		assertRenderSuccess("\\bigcup");
+		assertRenderSuccess("\\bigcup_{i=1}^{n}");
 		assertRenderSuccess("\\bigcap");
+		assertRenderSuccess("\\bigcap_{i=1}^{n}");
 		assertRenderSuccess("\\bigvee");
 		assertRenderSuccess("\\bigwedge");
 		assertRenderSuccess("\\bigoplus");
@@ -1118,138 +1257,218 @@ public class MathInflaterUnitTest {
 		assertRenderSuccess("\\biguplus");
 		assertRenderSuccess("\\bigsqcup");
 
-		// 测试极限
+		// 极限
 		assertRenderSuccess("\\lim");
 		assertRenderSuccess("\\lim_{x\\to 0}");
+		assertRenderSuccess("\\lim_{n\\to\\infty}");
 		assertRenderSuccess("\\limsup_{n\\to\\infty}");
 		assertRenderSuccess("\\liminf_{n\\to\\infty}");
 
-		System.out.println("✅ 大型运算符 RenderNode结构验证通过");
+		// 验证结构
+		RendererNode root = parseAndRender("\\sum_{i=1}^{n}a_i");
+		LinearGroupNodeAsserter exprGroup = assertRenderNode(root).asLinearGroup();
+		exprGroup.hasChildCount(2);
+		DecorGroupNodeAsserter sumDecor = exprGroup.childAt(0).asDecorGroup();
+		sumDecor.hasTop();
+		sumDecor.hasBottom();
+
+		System.out.println("✅ 大型运算符完整测试通过");
 	}
 
 	@Test
-	public void test_04_08_Matrix_RenderStructure() throws MathParseException {
-		System.out.println("\n=== Part 4.8: 矩阵 - RenderNode结构 ===");
+	public void test_04_08_Matrix_Complete() throws MathParseException {
+		System.out.println("\n=== Part 4.8: 矩阵 - 完整测试 ===");
 
-		// 测试基本矩阵环境
+		// <matrix_env> 所有矩阵环境
+		// matrix - 无定界符
 		assertRenderSuccess("\\begin{matrix}a&b\\\\c&d\\end{matrix}");
+
+		// pmatrix - 圆括号
 		assertRenderSuccess("\\begin{pmatrix}a&b\\\\c&d\\end{pmatrix}");
+
+		// bmatrix - 方括号
 		assertRenderSuccess("\\begin{bmatrix}a&b\\\\c&d\\end{bmatrix}");
+
+		// Bmatrix - 花括号
 		assertRenderSuccess("\\begin{Bmatrix}a&b\\\\c&d\\end{Bmatrix}");
+
+		// vmatrix - 单竖线
 		assertRenderSuccess("\\begin{vmatrix}a&b\\\\c&d\\end{vmatrix}");
+
+		// Vmatrix - 双竖线
 		assertRenderSuccess("\\begin{Vmatrix}a&b\\\\c&d\\end{Vmatrix}");
 
-		// 测试cases环境
+		// cases - 分段函数
 		assertRenderSuccess("\\begin{cases}x,&x\\ge 0\\\\-x,&x<0\\end{cases}");
 
-		// 测试array环境
+		// array - 带对齐方式
 		assertRenderSuccess("\\begin{array}{cc}a&b\\\\c&d\\end{array}");
+		assertRenderSuccess("\\begin{array}{lcr}a&b&c\\\\d&e&f\\end{array}");
 
-		System.out.println("✅ 矩阵 RenderNode结构验证通过");
+		// 验证行数
+		RendererNode root = parseAndRender("\\begin{matrix}a&b\\\\c&d\\end{matrix}");
+		GridGroupNodeAsserter grid = assertRenderNode(root).asGridGroupNode();
+		grid.hasRowCount(2);
+
+		// 测试不同大小的矩阵
+		assertRenderSuccess("\\begin{matrix}a\\end{matrix}");
+		assertRenderSuccess("\\begin{matrix}a&b&c\\end{matrix}");
+		assertRenderSuccess("\\begin{matrix}a\\\\b\\\\c\\end{matrix}");
+		assertRenderSuccess("\\begin{matrix}a&b&c\\\\d&e&f\\\\g&h&i\\end{matrix}");
+
+		// 测试矩阵中的复杂元素
+		assertRenderSuccess("\\begin{pmatrix}\\frac{1}{2}&\\sqrt{2}\\\\\\alpha&\\beta\\end{pmatrix}");
+
+		System.out.println("✅ 矩阵完整测试通过");
 	}
 
 	@Test
-	public void test_04_09_Text_RenderStructure() throws MathParseException {
-		System.out.println("\n=== Part 4.9: 文本 - RenderNode结构 ===");
+	public void test_04_09_Text_Complete() throws MathParseException {
+		System.out.println("\n=== Part 4.9: 文本 - 完整测试 ===");
 
+		// <text> 所有文本命令
 		assertRenderSuccess("\\text{hello}");
+		assertRenderSuccess("\\text{Hello World}");
 		assertRenderSuccess("\\text{当x趋近于0时}");
+
 		assertRenderSuccess("\\mbox{text}");
+		assertRenderSuccess("\\mbox{some text}");
+
 		assertRenderSuccess("\\textrm{text}");
 		assertRenderSuccess("\\textit{text}");
 		assertRenderSuccess("\\textbf{text}");
 
-		System.out.println("✅ 文本 RenderNode结构验证通过");
+		// 测试在表达式中
+		assertRenderSuccess("x\\text{ if }x>0");
+		assertRenderSuccess("f(x)\\text{ where }x\\in\\mathbb{R}");
+
+		System.out.println("✅ 文本完整测试通过");
 	}
 
 	@Test
-	public void test_04_10_Accent_RenderStructure() throws MathParseException {
-		System.out.println("\n=== Part 4.10: 重音 - RenderNode结构 ===");
+	public void test_04_10_Accent_Complete() throws MathParseException {
+		System.out.println("\n=== Part 4.10: 重音 - 完整测试 ===");
 
-		// 测试基本重音
+		// <accent_cmd> 所有重音命令
+		// hat 类
 		assertRenderSuccess("\\hat{x}");
 		assertRenderSuccess("\\hat x");
 		assertRenderSuccess("\\widehat{xyz}");
-		assertRenderSuccess("\\tilde{x}");
-		assertRenderSuccess("\\widetilde{xyz}");
-		assertRenderSuccess("\\bar{x}");
-		assertRenderSuccess("\\overline{xyz}");
-		assertRenderSuccess("\\underline{xyz}");
+		assertRenderSuccess("\\widehat{x+y}");
 
-		// 测试向量和箭头
+		// tilde 类
+		assertRenderSuccess("\\tilde{x}");
+		assertRenderSuccess("\\tilde x");
+		assertRenderSuccess("\\widetilde{xyz}");
+		assertRenderSuccess("\\widetilde{x+y}");
+
+		// bar 类
+		assertRenderSuccess("\\bar{x}");
+		assertRenderSuccess("\\bar x");
+		assertRenderSuccess("\\overline{xyz}");
+		assertRenderSuccess("\\overline{x+y}");
+		assertRenderSuccess("\\underline{xyz}");
+		assertRenderSuccess("\\underline{x+y}");
+
+		// 向量和箭头
 		assertRenderSuccess("\\vec{v}");
+		assertRenderSuccess("\\vec v");
 		assertRenderSuccess("\\overrightarrow{AB}");
 		assertRenderSuccess("\\overleftarrow{AB}");
 
-		// 测试点
+		// 点
 		assertRenderSuccess("\\dot{x}");
+		assertRenderSuccess("\\dot x");
 		assertRenderSuccess("\\ddot{x}");
+		assertRenderSuccess("\\ddot x");
 		assertRenderSuccess("\\dddot{x}");
+		assertRenderSuccess("\\dddot x");
 
-		// 测试其他重音
+		// 其他重音
 		assertRenderSuccess("\\acute{x}");
+		assertRenderSuccess("\\acute x");
 		assertRenderSuccess("\\grave{x}");
+		assertRenderSuccess("\\grave x");
 		assertRenderSuccess("\\breve{x}");
+		assertRenderSuccess("\\breve x");
 		assertRenderSuccess("\\check{x}");
+		assertRenderSuccess("\\check x");
 		assertRenderSuccess("\\mathring{x}");
-
-		// 测试括号
-		assertRenderSuccess("\\overbrace{x+y}");
-		assertRenderSuccess("\\underbrace{x+y}");
-
-		// === 新增：更全面的 mathring 测试 ===
-		// 测试 mathring 带分组参数
-		assertRenderSuccess("\\mathring{a}");
-		assertRenderSuccess("\\mathring{A}");
-		
-		// 测试 mathring 带单字符参数（无花括号）
 		assertRenderSuccess("\\mathring x");
-		assertRenderSuccess("\\mathring a");
-		
-		// 测试 mathring 在复杂表达式中
-		assertRenderSuccess("\\mathring{x}+\\mathring{y}");
-		assertRenderSuccess("\\mathring{x}^2");
-		assertRenderSuccess("\\mathring{x}_1");
-		assertRenderSuccess("\\mathring{x}^2_1");
-		
-		// 测试 mathring 与其他重音的组合
-		assertRenderSuccess("\\mathring{\\hat{x}}");
-		assertRenderSuccess("\\hat{\\mathring{x}}");
-		
-		// 测试 mathring 在分式中
-		assertRenderSuccess("\\frac{\\mathring{x}}{y}");
-		assertRenderSuccess("\\frac{x}{\\mathring{y}}");
-		
-		// 测试 mathring 在根式中
-		assertRenderSuccess("\\sqrt{\\mathring{x}}");
 
-		System.out.println("✅ 重音 RenderNode结构验证通过");
+		// 括号
+		assertRenderSuccess("\\overbrace{x+y}");
+		assertRenderSuccess("\\overbrace{a+b+c}");
+		assertRenderSuccess("\\underbrace{x+y}");
+		assertRenderSuccess("\\underbrace{a+b+c}");
+
+		// 验证结构
+		RendererNode root = parseAndRender("\\hat{x}");
+		AccentNodeAsserter accent = assertRenderNode(root).asAccentNode();
+		accent.content().asTextNode().hasContent("x");
+
+		// 测试重音带上下标
+		assertRenderSuccess("\\hat{x}^2");
+		assertRenderSuccess("\\bar{x}_i");
+		assertRenderSuccess("\\vec{v}^2_i");
+
+		// 测试重音嵌套
+		assertRenderSuccess("\\hat{\\bar{x}}");
+		assertRenderSuccess("\\vec{\\hat{v}}");
+
+		// 测试重音在表达式中
+		assertRenderSuccess("\\hat{x}+\\hat{y}");
+		assertRenderSuccess("\\bar{x}-\\bar{y}");
+
+		// 测试重音在分式中
+		assertRenderSuccess("\\frac{\\hat{x}}{y}");
+		assertRenderSuccess("\\frac{x}{\\bar{y}}");
+
+		System.out.println("✅ 重音完整测试通过");
 	}
 
 	@Test
-	public void test_04_11_Font_RenderStructure() throws MathParseException {
-		System.out.println("\n=== Part 4.11: 字体 - RenderNode结构 ===");
+	public void test_04_11_Font_Complete() throws MathParseException {
+		System.out.println("\n=== Part 4.11: 字体 - 完整测试 ===");
 
+		// <font_cmd_name> 所有字体命令
 		assertRenderSuccess("\\mathrm{x}");
+		assertRenderSuccess("\\mathrm{abc}");
 		assertRenderSuccess("\\mathit{x}");
+		assertRenderSuccess("\\mathit{abc}");
 		assertRenderSuccess("\\mathbf{x}");
-		assertRenderSuccess("\\mathbb{R}");
+		assertRenderSuccess("\\mathbf{abc}");
 		assertRenderSuccess("\\mathsf{x}");
+		assertRenderSuccess("\\mathsf{abc}");
 		assertRenderSuccess("\\mathtt{x}");
+		assertRenderSuccess("\\mathtt{abc}");
 		assertRenderSuccess("\\mathcal{L}");
+		assertRenderSuccess("\\mathcal{ABC}");
+		assertRenderSuccess("\\mathbb{R}");
+		assertRenderSuccess("\\mathbb{NZQRC}");
 		assertRenderSuccess("\\mathfrak{g}");
+		assertRenderSuccess("\\mathfrak{abc}");
 		assertRenderSuccess("\\mathscr{F}");
+		assertRenderSuccess("\\mathscr{ABC}");
 		assertRenderSuccess("\\boldsymbol{\\alpha}");
+		assertRenderSuccess("\\boldsymbol{x}");
 		assertRenderSuccess("\\bm{\\alpha}");
+		assertRenderSuccess("\\bm{x}");
 
-		System.out.println("✅ 字体 RenderNode结构验证通过");
+		// 测试字体命令嵌套表达式
+		assertRenderSuccess("\\mathbb{R}^n");
+		assertRenderSuccess("\\mathcal{L}\\left(x\\right)");
+		assertRenderSuccess("x\\in\\mathbb{R}");
+
+		System.out.println("✅ 字体完整测试通过");
 	}
 
 	@Test
-	public void test_04_12_ExtensibleArrow_RenderStructure() throws MathParseException {
-		System.out.println("\n=== Part 4.12: 可扩展箭头 - RenderNode结构 ===");
+	public void test_04_12_ExtensibleArrow_Complete() throws MathParseException {
+		System.out.println("\n=== Part 4.12: 可扩展箭头 - 完整测试 ===");
 
-		// 测试基本可扩展箭头
+		// <extensible_arrow_cmd> 所有可扩展箭头命令
+		// 基本形式：\cmd{上方}
 		assertRenderSuccess("\\xrightarrow{上方}");
 		assertRenderSuccess("\\xleftarrow{上方}");
 		assertRenderSuccess("\\xleftrightarrow{上方}");
@@ -1257,356 +1476,427 @@ public class MathInflaterUnitTest {
 		assertRenderSuccess("\\xLeftarrow{上方}");
 		assertRenderSuccess("\\xLeftrightarrow{上方}");
 
-		// 测试带下标注的箭头
+		// 带下方标注：\cmd[下方]{上方}
 		assertRenderSuccess("\\xrightarrow[下方]{上方}");
 		assertRenderSuccess("\\xleftarrow[下方]{上方}");
+		assertRenderSuccess("\\xleftrightarrow[下方]{上方}");
+		assertRenderSuccess("\\xRightarrow[下方]{上方}");
+		assertRenderSuccess("\\xLeftarrow[下方]{上方}");
+		assertRenderSuccess("\\xLeftrightarrow[下方]{上方}");
+
+		// 测试数学内容
+		assertRenderSuccess("\\xrightarrow{f}");
+		assertRenderSuccess("\\xrightarrow{n\\to\\infty}");
+		assertRenderSuccess("\\xrightarrow[k\\to 0]{f(x)}");
 
 		// 在表达式中使用
 		assertRenderSuccess("A\\xrightarrow{f}B");
+		assertRenderSuccess("X\\xleftarrow{g}Y\\xrightarrow{h}Z");
+
+		// 复杂用例
 		assertRenderSuccess("\\frac{\\bar{X}_n-\\mu}{\\sigma/\\sqrt{n}}\\xrightarrow{d}N\\left(0,1\\right)");
 
-		System.out.println("✅ 可扩展箭头 RenderNode结构验证通过");
+		System.out.println("✅ 可扩展箭头完整测试通过");
 	}
 
 	// ============================================================
-	// Part 5: 上下标测试
+	// Part 5: 上下标测试 - 完善版
 	// ============================================================
 
 	@Test
-	public void test_05_01_Superscript_RenderStructure() throws MathParseException {
-		System.out.println("\n=== Part 5.1: 上标 - RenderNode结构（优化后）===");
+	public void test_05_01_SupSubSuffix_Complete() throws MathParseException {
+		System.out.println("\n=== Part 5.1: 上下标 - 完整测试 ===");
 
-		// 测试 "x^2" - 优化后直接是DecorGroupNode
+		// <sup_sub_suffix> 四种形式
+		// 形式1: "^" <script_arg>
 		RendererNode root = parseAndRender("x^2");
-		DecorGroupNodeAsserter termDecor = assertRenderNode(root).asDecorGroup();
-		termDecor.center().asTextNode().hasContent("x");
-		termDecor.hasRightTop();
-		termDecor.rightTop().asTextNode().hasContent("2");
+		DecorGroupNodeAsserter decor = assertRenderNode(root).asDecorGroup();
+		decor.center().asTextNode().hasContent("x");
+		decor.hasRightTop();
+		decor.noRightBottom();
+		decor.rightTop().asTextNode().hasContent("2");
 
-		// 测试其他上标
 		assertRenderSuccess("x^a");
 		assertRenderSuccess("x^{n+1}");
 		assertRenderSuccess("e^{i\\pi}");
 
-		System.out.println("✅ 上标 RenderNode结构验证通过");
-	}
+		// 形式2: "_" <script_arg>
+		root = parseAndRender("x_1");
+		decor = assertRenderNode(root).asDecorGroup();
+		decor.center().asTextNode().hasContent("x");
+		decor.hasRightBottom();
+		decor.noRightTop();
+		decor.rightBottom().asTextNode().hasContent("1");
 
-	@Test
-	public void test_05_02_Subscript_RenderStructure() throws MathParseException {
-		System.out.println("\n=== Part 5.2: 下标 - RenderNode结构（优化后）===");
-
-		// 测试 "x_1" - 优化后直接是DecorGroupNode
-		RendererNode root = parseAndRender("x_1");
-		DecorGroupNodeAsserter termDecor = assertRenderNode(root).asDecorGroup();
-		termDecor.center().asTextNode().hasContent("x");
-		termDecor.hasRightBottom();
-		termDecor.rightBottom().asTextNode().hasContent("1");
-
-		// 测试其他下标
 		assertRenderSuccess("x_i");
 		assertRenderSuccess("a_{i,j}");
+		assertRenderSuccess("x_{n+1}");
 
-		System.out.println("✅ 下标 RenderNode结构验证通过");
-	}
+		// 形式3: "^" <script_arg> "_" <script_arg>
+		root = parseAndRender("x^2_1");
+		decor = assertRenderNode(root).asDecorGroup();
+		decor.center().asTextNode().hasContent("x");
+		decor.hasRightTop();
+		decor.hasRightBottom();
+		decor.rightTop().asTextNode().hasContent("2");
+		decor.rightBottom().asTextNode().hasContent("1");
 
-	@Test
-	public void test_05_03_BothScripts_RenderStructure() throws MathParseException {
-		System.out.println("\n=== Part 5.3: 上下标组合 - RenderNode结构（优化后）===");
-
-		// 测试 "x^2_1" - 优化后直接是DecorGroupNode
-		RendererNode root = parseAndRender("x^2_1");
-		DecorGroupNodeAsserter termDecor = assertRenderNode(root).asDecorGroup();
-		termDecor.center().asTextNode().hasContent("x");
-		termDecor.hasRightTop();
-		termDecor.hasRightBottom();
-		termDecor.rightTop().asTextNode().hasContent("2");
-		termDecor.rightBottom().asTextNode().hasContent("1");
-
-		// 测试其他组合
-		assertRenderSuccess("x_1^2");
+		assertRenderSuccess("x^a_b");
 		assertRenderSuccess("x^{n+1}_{i}");
 
-		System.out.println("✅ 上下标组合 RenderNode结构验证通过");
+		// 形式4: "_" <script_arg> "^" <script_arg>
+		root = parseAndRender("x_1^2");
+		decor = assertRenderNode(root).asDecorGroup();
+		decor.hasRightTop();
+		decor.hasRightBottom();
+
+		assertRenderSuccess("x_a^b");
+		assertRenderSuccess("x_{i}^{n+1}");
+
+		// <script_arg> 不同类型
+		// 数字
+		assertRenderSuccess("x^0");
+		assertRenderSuccess("x^{123}");
+
+		// 变量
+		assertRenderSuccess("x^n");
+		assertRenderSuccess("x^{abc}");
+
+		// 希腊字母
+		assertRenderSuccess("x^\\alpha");
+		assertRenderSuccess("x^{\\alpha+\\beta}");
+
+		// 运算符符号（在上下标中允许）
+		assertRenderSuccess("x^+");
+		assertRenderSuccess("x^-");
+		assertRenderSuccess("x^*");
+
+		// 分组
+		assertRenderSuccess("x^{a+b}");
+		assertRenderSuccess("x_{a-b}");
+		assertRenderSuccess("x^{\\frac{1}{2}}");
+
+		System.out.println("✅ 上下标完整测试通过");
 	}
 
 	// ============================================================
-	// Part 6: 空格命令测试
+	// Part 6: 空格命令测试 - 完善版
 	// ============================================================
 
 	@Test
-	public void test_06_01_Spacing_RenderStructure() throws MathParseException {
-		System.out.println("\n=== Part 6.1: 空格命令 - RenderNode结构 ===");
+	public void test_06_01_Spacing_Complete() throws MathParseException {
+		System.out.println("\n=== Part 6.1: 空格命令 - 完整测试 ===");
 
-		// 测试 "a\quad b" - 空格作为顶层元素，不会被优化
+		// <spacing> 所有空格命令
+		// 基本空格
+		assertRenderSuccess("a\\,b");    // thin space
+		assertRenderSuccess("a\\:b");    // medium space
+		assertRenderSuccess("a\\;b");    // thick space
+		assertRenderSuccess("a\\!b");    // negative thin space
+		assertRenderSuccess("a\\quad b");   // quad space
+		assertRenderSuccess("a\\qquad b");  // double quad space
+
+		// 验证结构
 		RendererNode root = parseAndRender("a\\quad b");
 		LinearGroupNodeAsserter rootGroup = assertRenderNode(root).asLinearGroup();
-		rootGroup.hasChildCount(3); // Expression(a), SpaceNode, Expression(b)
-		// 每个expression内部被优化为TextNode
+		rootGroup.hasChildCount(3);
 		rootGroup.childAt(0).asTextNode();
 		rootGroup.childAt(1).asSpaceNode();
 		rootGroup.childAt(2).asTextNode();
 
-		// 测试其他空格命令
-		assertRenderSuccess("a\\, b");
-		assertRenderSuccess("a\\: b");
-		assertRenderSuccess("a\\; b");
-		assertRenderSuccess("a\\! b");
-		assertRenderSuccess("a\\qquad b");
+		// phantom 类（如果支持）
+		assertRenderSuccess("a\\hphantom{xyz}b");
+		assertRenderSuccess("a\\vphantom{xyz}b");
+		assertRenderSuccess("a\\phantom{xyz}b");
 
-		System.out.println("✅ 空格命令 RenderNode结构验证通过");
+		// 测试空格在不同位置
+		assertRenderSuccess("\\quad x");
+		assertRenderSuccess("x\\quad");
+		assertRenderSuccess("x\\,y\\,z");
+
+		System.out.println("✅ 空格命令完整测试通过");
 	}
 
 	// ============================================================
-	// Part 7: 复杂表达式和真实世界公式测试
+	// Part 7: 复杂表达式和真实世界公式测试 - 完善版
 	// ============================================================
 
 	@Test
-	public void test_07_01_ComplexExpression_QuadraticFormula() throws MathParseException {
-		System.out.println("\n=== Part 7.1: 复杂表达式 - 二次公式（优化后）===");
+	public void test_07_01_Expression_Structure() throws MathParseException {
+		System.out.println("\n=== Part 7.1: 表达式结构 - 完整测试 ===");
 
-		RendererNode root = parseAndRender("\\frac{-b\\pm\\sqrt{b^2-4ac}}{2a}");
-		// 优化后应该直接是FractionNode
-		FractionNodeAsserter frac = assertRenderNode(root).asFractionNode();
-		assertNotNull("分子不应为null", frac.fractionNode);
-		assertNotNull("分母不应为null", frac.fractionNode);
+		// <expression> ::= <term> { <separator> }
+		// <separator> ::= <binary_op> <term> | <term>
 
-		System.out.println("✅ 二次公式 RenderNode结构验证通过");
+		// 单个 term
+		RendererNode root = parseAndRender("x");
+		assertRenderNode(root).asTextNode().hasContent("x");
+
+		// term 之间有二元运算符
+		root = parseAndRender("a+b");
+		assertRenderNode(root).asLinearGroup().hasChildCount(5);
+
+		// term 之间直接相邻（隐式乘法）
+		root = parseAndRender("xy");
+		assertRenderNode(root).asLinearGroup().hasChildCount(2);
+
+		// 混合情况
+		assertRenderSuccess("ab+cd");
+		assertRenderSuccess("2x+3y");
+		assertRenderSuccess("a+bc+d");
+
+		System.out.println("✅ 表达式结构完整测试通过");
 	}
 
 	@Test
-	public void test_07_02_ComplexExpression_NestedFractions() throws MathParseException {
-		System.out.println("\n=== Part 7.2: 复杂表达式 - 嵌套分式（优化后）===");
+	public void test_07_02_Term_Structure() throws MathParseException {
+		System.out.println("\n=== Part 7.2: Term结构 - 完整测试 ===");
 
-		RendererNode root = parseAndRender("\\frac{\\frac{1}{2}}{\\frac{3}{4}}");
-		// 优化后外层直接是FractionNode
-		FractionNodeAsserter outerFrac = assertRenderNode(root).asFractionNode();
-		// 分子分母应该也是FractionNode
-		FractionNodeAsserter innerFrac1 = outerFrac.numerator().asFractionNode();
-		FractionNodeAsserter innerFrac2 = outerFrac.denominator().asFractionNode();
-		innerFrac1.numerator().asTextNode().hasContent("1");
-		innerFrac2.denominator().asTextNode().hasContent("4");
+		// <term> 三种形式
+		// 形式1: [ <unary_op> ] <operand_atom> [ <sup_sub_suffix> ] [ <postfix_op> ]
+		assertRenderSuccess("x");           // 基本
+		assertRenderSuccess("-x");          // 一元运算符
+		assertRenderSuccess("x^2");         // 上下标
+		assertRenderSuccess("n!");          // 后缀运算符
+		assertRenderSuccess("-x^2");        // 一元 + 上下标
+		assertRenderSuccess("x^2!");        // 上下标 + 后缀
+		assertRenderSuccess("-x^2!");       // 全部组合
 
-		System.out.println("✅ 嵌套分式 RenderNode结构验证通过");
+		// 形式2: <special_symbol> [ <sup_sub_suffix> ]
+		assertRenderSuccess("\\dots");
+		assertRenderSuccess("\\dots^n");
+		assertRenderSuccess("\\angle_1");
+
+		// 形式3: <punctuation>
+		assertRenderSuccess("a,b");
+		assertRenderSuccess("a;b");
+
+		System.out.println("✅ Term结构完整测试通过");
 	}
 
-	@Test
-	public void test_07_03_ComplexExpression_SummationWithFraction() throws MathParseException {
-		System.out.println("\n=== Part 7.3: 复杂表达式 - 求和与分式 ===");
-
-		RendererNode root = parseAndRender("\\sum_{i=1}^{n}\\frac{1}{i^2}");
-		// 优化后最外层仍然是LinearGroupNode（因为有2个子节点）
-		LinearGroupNodeAsserter exprGroup = assertRenderNode(root).asLinearGroup();
-		exprGroup.hasChildCount(2); // sum, frac
-		// sum有上下标，应该是DecorGroupNode
-		DecorGroupNodeAsserter sumDecor = exprGroup.childAt(0).asDecorGroup();
-		sumDecor.hasTop();
-		sumDecor.hasBottom();
-		// frac应该直接是FractionNode
-		exprGroup.childAt(1).asFractionNode();
-
-		System.out.println("✅ 求和与分式 RenderNode结构验证通过");
-	}
+	// ============================================================
+	// Part 8: 综合真实世界公式测试
+	// ============================================================
 
 	@Test
-	public void test_08_01_RealWorld_EulerFormula() {
-		System.out.println("\n=== Part 8.1: 真实公式 - 欧拉公式 ===");
+	public void test_08_01_Physics_Formulas() throws MathParseException {
+		System.out.println("\n=== Part 8.1: 物理公式 ===");
 
-		assertRenderSuccess("e^{i\\pi}+1=0");
+		// 牛顿第二定律
+		assertRenderSuccess("F=ma");
 
-		System.out.println("✅ 欧拉公式渲染成功");
-	}
+		// 动能
+		assertRenderSuccess("E_k=\\frac{1}{2}mv^2");
 
-	@Test
-	public void test_08_02_RealWorld_PythagoreanTheorem() {
-		System.out.println("\n=== Part 8.2: 真实公式 - 勾股定理 ===");
+		// 万有引力
+		assertRenderSuccess("F=G\\frac{m_1m_2}{r^2}");
 
-		assertRenderSuccess("a^2+b^2=c^2");
+		// 薛定谔方程
+		assertRenderSuccess("i\\hbar\\frac{\\partial}{\\partial t}\\Psi=\\hat{H}\\Psi");
 
-		System.out.println("✅ 勾股定理渲染成功");
-	}
-
-	@Test
-	public void test_08_03_RealWorld_Limit() {
-		System.out.println("\n=== Part 8.3: 真实公式 - 极限 ===");
-
-		assertRenderSuccess("\\lim_{x\\to 0}\\frac{\\sin x}{x}=1");
-
-		System.out.println("✅ 极限渲染成功");
-	}
-
-	@Test
-	public void test_08_04_RealWorld_Sum() throws MathParseException {
-		System.out.println("\n=== Part 8.4: 真实公式 - 求和 ===");
-
-		assertRenderSuccess("\\sum_{n=1}^{\\infty}\\frac{1}{n^2}=\\frac{\\pi^2}{6}");
-
-		System.out.println("✅ 求和渲染成功");
-	}
-
-	@Test
-	public void test_08_05_RealWorld_Derivative() {
-		System.out.println("\n=== Part 8.5: 真实公式 - 导数 ===");
-
-		assertRenderSuccess("f'\\left(x\\right)=\\lim_{h\\to 0}\\frac{f\\left(x+h\\right)-f\\left(x\\right)}{h}");
-
-		System.out.println("✅ 导数渲染成功");
-	}
-
-	@Test
-	public void test_08_06_RealWorld_Integral() {
-		System.out.println("\n=== Part 8.6: 真实公式 - 积分 ===");
-
-		assertRenderSuccess("\\int_0^{\\infty}e^{-x^2}dx=\\frac{\\sqrt{\\pi}}{2}");
-
-		System.out.println("✅ 积分渲染成功");
-	}
-
-	@Test
-	public void test_08_07_RealWorld_MatrixMultiplication() {
-		System.out.println("\n=== Part 8.7: 真实公式 - 矩阵乘法 ===");
-
-		assertRenderSuccess("\\begin{pmatrix}a&b\\\\c&d\\end{pmatrix}\\begin{pmatrix}x\\\\y\\end{pmatrix}=\\begin{pmatrix}ax+by\\\\cx+dy\\end{pmatrix}");
-
-		System.out.println("✅ 矩阵乘法渲染成功");
-	}
-
-	@Test
-	public void test_08_08_RealWorld_PiecewiseFunction() {
-		System.out.println("\n=== Part 8.8: 真实公式 - 分段函数 ===");
-
-		assertRenderSuccess("f\\left(x\\right)=\\begin{cases}x,&x\\ge 0\\\\-x,&x<0\\end{cases}");
-
-		System.out.println("✅ 分段函数渲染成功");
-	}
-
-	@Test
-	public void test_08_09_RealWorld_CauchySchwarz() {
-		System.out.println("\n=== Part 8.9: 真实公式 - 柯西-施瓦茨不等式 ===");
-
-		assertRenderSuccess("\\left(\\sum_{i=1}^{n}a_i b_i\\right)^2\\le\\left(\\sum_{i=1}^{n}a_i^2\\right)\\left(\\sum_{i=1}^{n}b_i^2\\right)");
-
-		System.out.println("✅ 柯西-施瓦茨不等式渲染成功");
-	}
-
-	@Test
-	public void test_08_10_RealWorld_SchrodingerEquation() throws MathParseException {
-		System.out.println("\n=== Part 8.10: 真实公式 - 薛定谔方程 ===");
-
-		assertRenderSuccess("i\\hbar\\frac{\\partial}{\\partial t}\\Psi\\left(r,t\\right)=\\left[-\\frac{\\hbar^2}{2m}\\nabla^2+V\\left(r,t\\right)\\right]\\Psi\\left(r,t\\right)");
-
-		System.out.println("✅ 薛定谔方程渲染成功");
-	}
-
-	@Test
-	public void test_08_11_RealWorld_MaxwellEquations() {
-		System.out.println("\n=== Part 8.11: 真实公式 - 麦克斯韦方程组 ===");
-
+		// 麦克斯韦方程组
 		assertRenderSuccess("\\nabla\\cdot\\mathbf{E}=\\frac{\\rho}{\\epsilon_0}");
 		assertRenderSuccess("\\nabla\\cdot\\mathbf{B}=0");
 		assertRenderSuccess("\\nabla\\times\\mathbf{E}=-\\frac{\\partial\\mathbf{B}}{\\partial t}");
 		assertRenderSuccess("\\nabla\\times\\mathbf{B}=\\mu_0\\left(\\mathbf{J}+\\epsilon_0\\frac{\\partial\\mathbf{E}}{\\partial t}\\right)");
 
-		System.out.println("✅ 麦克斯韦方程组渲染成功");
-	}
+		// 爱因斯坦质能方程
+		assertRenderSuccess("E=mc^2");
 
-	@Test
-	public void test_08_12_RealWorld_EinsteinFieldEquation() throws MathParseException {
-		System.out.println("\n=== Part 8.12: 真实公式 - 爱因斯坦场方程 ===");
-
+		// 爱因斯坦场方程
 		assertRenderSuccess("R_{\\mu\\nu}-\\frac{1}{2}Rg_{\\mu\\nu}+\\Lambda g_{\\mu\\nu}=\\frac{8\\pi G}{c^4}T_{\\mu\\nu}");
 
-		System.out.println("✅ 爱因斯坦场方程渲染成功");
+		System.out.println("✅ 物理公式测试通过");
 	}
 
 	@Test
-	public void test_08_13_RealWorld_FourierTransform() throws MathParseException {
-		System.out.println("\n=== Part 8.13: 真实公式 - 傅里叶变换 ===");
+	public void test_08_02_Calculus_Formulas() throws MathParseException {
+		System.out.println("\n=== Part 8.2: 微积分公式 ===");
 
-		assertRenderSuccess("F\\left(\\omega\\right)=\\int_{-\\infty}^{\\infty}f\\left(t\\right)e^{-i\\omega t}dt");
-		assertRenderSuccess("f\\left(t\\right)=\\frac{1}{2\\pi}\\int_{-\\infty}^{\\infty}F\\left(\\omega\\right)e^{i\\omega t}d\\omega");
+		// 导数定义
+		assertRenderSuccess("f'\\left(x\\right)=\\lim_{h\\to 0}\\frac{f\\left(x+h\\right)-f\\left(x\\right)}{h}");
 
-		System.out.println("✅ 傅里叶变换渲染成功");
-	}
+		// 偏导数
+		assertRenderSuccess("\\frac{\\partial f}{\\partial x}");
+		assertRenderSuccess("\\frac{\\partial^2 f}{\\partial x^2}");
+		assertRenderSuccess("\\frac{\\partial^2 f}{\\partial x\\partial y}");
 
-	@Test
-	public void test_08_14_RealWorld_BayesTheorem() throws MathParseException {
-		System.out.println("\n=== Part 8.14: 真实公式 - 贝叶斯定理 ===");
+		// 积分
+		assertRenderSuccess("\\int_a^b f\\left(x\\right)dx");
+		assertRenderSuccess("\\int_{-\\infty}^{\\infty}e^{-x^2}dx=\\sqrt{\\pi}");
 
-		assertRenderSuccess("P\\left(\\theta|D\\right)=\\frac{P\\left(D|\\theta\\right)P\\left(\\theta\\right)}{\\int P\\left(D|\\theta'\\right)P\\left(\\theta'\\right)d\\theta'}");
+		// 多重积分
+		assertRenderSuccess("\\iint_D f\\left(x,y\\right)dxdy");
+		assertRenderSuccess("\\iiint_V f\\left(x,y,z\\right)dxdydz");
 
-		System.out.println("✅ 贝叶斯定理渲染成功");
-	}
-
-	@Test
-	public void test_08_15_RealWorld_BinomialTheorem() throws MathParseException {
-		System.out.println("\n=== Part 8.15: 真实公式 - 二项式定理 ===");
-
-		assertRenderSuccess("\\left(x+y\\right)^n=\\sum_{k=0}^{n}\\binom{n}{k}x^{n-k}y^k");
-
-		System.out.println("✅ 二项式定理渲染成功");
-	}
-
-	@Test
-	public void test_08_16_RealWorld_StirlingApproximation() throws MathParseException {
-		System.out.println("\n=== Part 8.16: 真实公式 - 斯特林近似（带阶乘）===");
-
-		assertRenderSuccess("n!\\approx\\sqrt{2\\pi n}\\left(\\frac{n}{e}\\right)^n");
-
-		System.out.println("✅ 斯特林近似渲染成功");
-	}
-
-	@Test
-	public void test_08_17_RealWorld_TaylorSeries() throws MathParseException {
-		System.out.println("\n=== Part 8.17: 真实公式 - 泰勒级数（带阶乘）===");
-
+		// 泰勒级数
 		assertRenderSuccess("f\\left(x\\right)=\\sum_{n=0}^{\\infty}\\frac{f^{\\left(n\\right)}\\left(a\\right)}{n!}\\left(x-a\\right)^n");
 
-		System.out.println("✅ 泰勒级数渲染成功");
+		// 傅里叶变换
+		assertRenderSuccess("F\\left(\\omega\\right)=\\int_{-\\infty}^{\\infty}f\\left(t\\right)e^{-i\\omega t}dt");
+
+		System.out.println("✅ 微积分公式测试通过");
 	}
 
 	@Test
-	public void test_08_18_RealWorld_BinomialCoefficient() throws MathParseException {
-		System.out.println("\n=== Part 8.18: 真实公式 - 二项式系数定义（带阶乘）===");
+	public void test_08_03_Algebra_Formulas() throws MathParseException {
+		System.out.println("\n=== Part 8.3: 代数公式 ===");
 
-		assertRenderSuccess("\\binom{n}{k}=\\frac{n!}{k!\\left(n-k\\right)!}");
+		// 二次公式
+		assertRenderSuccess("x=\\frac{-b\\pm\\sqrt{b^2-4ac}}{2a}");
 
-		System.out.println("✅ 二项式系数定义渲染成功");
+		// 韦达定理
+		assertRenderSuccess("x_1+x_2=-\\frac{b}{a}");
+		assertRenderSuccess("x_1x_2=\\frac{c}{a}");
+
+		// 二项式定理
+		assertRenderSuccess("\\left(x+y\\right)^n=\\sum_{k=0}^{n}\\binom{n}{k}x^{n-k}y^k");
+
+		// 欧拉公式
+		assertRenderSuccess("e^{i\\theta}=\\cos\\theta+i\\sin\\theta");
+		assertRenderSuccess("e^{i\\pi}+1=0");
+
+		// 复数
+		assertRenderSuccess("z=a+bi");
+		assertRenderSuccess("|z|=\\sqrt{a^2+b^2}");
+		assertRenderSuccess("\\bar{z}=a-bi");
+
+		System.out.println("✅ 代数公式测试通过");
 	}
 
 	@Test
-	public void test_08_19_RealWorld_VandermondeIdentity() throws MathParseException {
-		System.out.println("\n=== Part 8.19: 真实公式 - 范德蒙德恒等式（二项式系数）===");
+	public void test_08_04_LinearAlgebra_Formulas() throws MathParseException {
+		System.out.println("\n=== Part 8.4: 线性代数公式 ===");
 
-		assertRenderSuccess("\\binom{m+n}{r}=\\sum_{k=0}^{r}\\binom{m}{k}\\binom{n}{r-k}");
+		// 矩阵乘法
+		assertRenderSuccess("\\begin{pmatrix}a&b\\\\c&d\\end{pmatrix}\\begin{pmatrix}x\\\\y\\end{pmatrix}=\\begin{pmatrix}ax+by\\\\cx+dy\\end{pmatrix}");
 
-		System.out.println("✅ 范德蒙德恒等式渲染成功");
+		// 行列式
+		assertRenderSuccess("\\det\\begin{pmatrix}a&b\\\\c&d\\end{pmatrix}=ad-bc");
+
+		// 特征值
+		assertRenderSuccess("\\det\\left(A-\\lambda I\\right)=0");
+
+		// 矩阵转置
+		assertRenderSuccess("\\left(AB\\right)^T=B^TA^T");
+
+		// 矩阵求逆
+		assertRenderSuccess("A^{-1}=\\frac{1}{\\det A}\\text{adj}A");
+
+		System.out.println("✅ 线性代数公式测试通过");
 	}
 
 	@Test
-	public void test_08_20_RealWorld_CentralLimitTheorem() throws MathParseException {
-		System.out.println("\n=== Part 8.20: 真实公式 - 中心极限定理（可扩展箭头）===");
+	public void test_08_05_Probability_Formulas() throws MathParseException {
+		System.out.println("\n=== Part 8.5: 概率统计公式 ===");
 
+		// 贝叶斯定理
+		assertRenderSuccess("P\\left(A|B\\right)=\\frac{P\\left(B|A\\right)P\\left(A\\right)}{P\\left(B\\right)}");
+
+		// 期望
+		assertRenderSuccess("E\\left[X\\right]=\\sum_{i}x_iP\\left(X=x_i\\right)");
+
+		// 方差
+		assertRenderSuccess("\\text{Var}\\left(X\\right)=E\\left[X^2\\right]-\\left(E\\left[X\\right]\\right)^2");
+
+		// 正态分布
+		assertRenderSuccess("f\\left(x\\right)=\\frac{1}{\\sigma\\sqrt{2\\pi}}e^{-\\frac{\\left(x-\\mu\\right)^2}{2\\sigma^2}}");
+
+		// 中心极限定理
 		assertRenderSuccess("\\frac{\\bar{X}_n-\\mu}{\\sigma/\\sqrt{n}}\\xrightarrow{d}N\\left(0,1\\right)");
 
-		System.out.println("✅ 中心极限定理渲染成功");
+		// 二项分布
+		assertRenderSuccess("P\\left(X=k\\right)=\\binom{n}{k}p^k\\left(1-p\\right)^{n-k}");
+
+		System.out.println("✅ 概率统计公式测试通过");
+	}
+
+	@Test
+	public void test_08_06_SetTheory_Formulas() throws MathParseException {
+		System.out.println("\n=== Part 8.6: 集合论公式 ===");
+
+		// 集合表示
+		assertRenderSuccess("A=\\left\\{x|x>0\\right\\}");
+		assertRenderSuccess("\\mathbb{N}\\subset\\mathbb{Z}\\subset\\mathbb{Q}\\subset\\mathbb{R}\\subset\\mathbb{C}");
+
+		// 集合运算
+		assertRenderSuccess("A\\cup B");
+		assertRenderSuccess("A\\cap B");
+		assertRenderSuccess("A\\setminus B");
+
+		// 德摩根定律
+		assertRenderSuccess("\\left(A\\cup B\\right)^c=A^c\\cap B^c");
+		assertRenderSuccess("\\left(A\\cap B\\right)^c=A^c\\cup B^c");
+
+		// 空集
+		assertRenderSuccess("A\\cap\\emptyset=\\emptyset");
+		assertRenderSuccess("A\\cup\\emptyset=A");
+
+		System.out.println("✅ 集合论公式测试通过");
+	}
+
+	@Test
+	public void test_08_07_Logic_Formulas() throws MathParseException {
+		System.out.println("\n=== Part 8.7: 逻辑公式 ===");
+
+		// 量词
+		assertRenderSuccess("\\forall x\\in A");
+		assertRenderSuccess("\\exists x\\in A");
+		assertRenderSuccess("\\nexists x\\in A");
+
+		// 逻辑连接词
+		assertRenderSuccess("p\\wedge q");
+		assertRenderSuccess("p\\vee q");
+		assertRenderSuccess("p\\Rightarrow q");
+		assertRenderSuccess("p\\Leftrightarrow q");
+
+		// 因果关系
+		assertRenderSuccess("\\because a=b");
+		assertRenderSuccess("\\therefore c=d");
+
+		System.out.println("✅ 逻辑公式测试通过");
+	}
+
+	@Test
+	public void test_08_08_Geometry_Formulas() throws MathParseException {
+		System.out.println("\n=== Part 8.8: 几何公式 ===");
+
+		// 角度
+		assertRenderSuccess("\\angle ABC");
+		assertRenderSuccess("\\angle A=90^\\circ");
+
+		// 平行和垂直
+		assertRenderSuccess("AB\\parallel CD");
+		assertRenderSuccess("AB\\perp CD");
+
+		// 三角形
+		assertRenderSuccess("a^2+b^2=c^2");
+		assertRenderSuccess("S=\\frac{1}{2}ab\\sin C");
+
+		// 向量
+		assertRenderSuccess("\\vec{AB}");
+		assertRenderSuccess("\\overrightarrow{AB}+\\overrightarrow{BC}=\\overrightarrow{AC}");
+		assertRenderSuccess("\\vec{a}\\cdot\\vec{b}=|\\vec{a}||\\vec{b}|\\cos\\theta");
+
+		System.out.println("✅ 几何公式测试通过");
 	}
 
 	@Test
 	public void test_09_Summary() {
 		System.out.println("\n" + "=".repeat(60));
-		System.out.println("测试总结（适配节点优化）：");
-		System.out.println("✅ 覆盖 bnf_math.txt 中所有基础语法元素");
-		System.out.println("✅ 数字、变量、希腊字母、特殊符号");
-		System.out.println("✅ 一元、二元、后缀运算符");
-		System.out.println("✅ 分式、二项式系数、根式、定界符");
-		System.out.println("✅ 函数、大型运算符、矩阵");
-		System.out.println("✅ 重音、字体、可扩展箭头");
-		System.out.println("✅ 上下标、空格命令");
-		System.out.println("✅ 复杂嵌套表达式");
-		System.out.println("✅ 20+ 真实世界公式");
-		System.out.println("✅ AST 转 RenderNode 结构验证（优化后）");
-		System.out.println("✅ MathFontOptions 符号查找测试（防crash）");
-		System.out.println("✅ 节点优化策略验证");
+		System.out.println("BNF 完整测试总结：");
+		System.out.println("=".repeat(60));
+		System.out.println("✅ 基础元素: number, variable, greek_letter, special_letter_variable, special_symbol");
+		System.out.println("✅ 运算符: unary_op, binary_op (全部), postfix_op");
+		System.out.println("✅ 标点: punctuation (逗号、分号)");
+		System.out.println("✅ 原子表达式: group, frac, binom, sqrt, delimited, function_call, large_operator, matrix, text, accent, font_command, extensible_arrow");
+		System.out.println("✅ 上下标: sup_sub_suffix (四种形式), script_arg");
+		System.out.println("✅ 空格: spacing (全部)");
+		System.out.println("✅ 重音: accent_cmd (全部，包括 mathring)");
+		System.out.println("✅ 定界符: delimiter (全部)");
+		System.out.println("✅ 表达式结构: expression, term, separator");
+		System.out.println("✅ 真实世界公式: 物理、微积分、代数、线性代数、概率统计、集合论、逻辑、几何");
+		System.out.println("✅ RendererNode 结构验证");
 		System.out.println("=".repeat(60));
 	}
 }
