@@ -17,11 +17,15 @@ import me.chan.texas.ext.markdown.math.renderer.core.MathCanvasImpl;
 import me.chan.texas.ext.markdown.math.renderer.core.MathPaint;
 import me.chan.texas.ext.markdown.math.renderer.core.MathPaintImpl;
 import me.chan.texas.misc.PaintSet;
+import me.chan.texas.renderer.core.graphics.GraphicsBuffer;
 import me.chan.texas.renderer.core.graphics.TexasCanvasImpl;
 import me.chan.texas.renderer.core.graphics.TexasPaintImpl;
 
 public class MathView extends View {
 
+	private final GraphicsBuffer mGraphicsBuffer;
+
+	@Nullable
 	private RendererNode mRendererNode;
 
 	private final MathPaint mTexasPaint;
@@ -39,6 +43,8 @@ public class MathView extends View {
 		paint.reset(new PaintSet(textPaint));
 		mTexasPaint = new MathPaintImpl(paint);
 		mCanvas = new MathCanvasImpl(new TexasCanvasImpl());
+
+		mGraphicsBuffer = new GraphicsBuffer();
 	}
 
 	@Override

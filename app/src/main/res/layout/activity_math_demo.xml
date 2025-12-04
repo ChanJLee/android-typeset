@@ -1,15 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
-<HorizontalScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="10dp"
-    tools:context="me.chan.texas.MathDemoActivity">
+    android:orientation="vertical">
 
-    <me.chan.texas.MathView
+    <HorizontalScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="#3361AF4C" />
-</HorizontalScrollView>
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:padding="10dp"
+        tools:context="me.chan.texas.MathDemoActivity">
+
+        <me.chan.texas.MathView
+            android:id="@+id/math"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="#3361AF4C" />
+    </HorizontalScrollView>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+</LinearLayout>

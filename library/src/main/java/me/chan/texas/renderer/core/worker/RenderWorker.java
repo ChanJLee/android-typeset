@@ -70,7 +70,7 @@ public class RenderWorker {
 		}
 
 		@Override
-		protected Void onExec(Worker.Token token, Args args) throws Throwable {
+		protected Void onExec(Worker.Token token, Args args) {
 			if (mStats != null) {
 				++mStats.handleCount;
 			}

@@ -228,4 +228,15 @@ public class MathView extends View {
 			throw new RuntimeException(e);
 		}
 	}
+
+	public void render(String math) {
+		MathParser parser = new MathParser(new CharStream(math));
+		MathRendererInflater inflater = new MathRendererInflater();
+		try {
+			mRendererNode = inflater.inflate(new MathPaint.Styles(mTexasPaint), parser.parse());
+			requestLayout();
+		} catch (MathParseException e) {
+			throw new RuntimeException(e);
+		}
+	}
 }
