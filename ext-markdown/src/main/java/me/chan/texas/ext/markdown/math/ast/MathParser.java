@@ -149,7 +149,11 @@ public class MathParser {
 	private static final Set<String> EXTENSIBLE_ARROW_COMMANDS = new HashSet<>(Arrays.asList(
 			"xrightarrow", "xleftarrow",
 			"xRightarrow", "xLeftarrow",
-			"xleftrightarrow", "xLeftrightarrow"
+			"xleftrightarrow", "xLeftrightarrow",
+			// 添加 BNF 中定义的其他命令
+			"xhookrightarrow", "xhookleftarrow",
+			"xtwoheadrightarrow", "xtwoheadleftarrow",
+			"xmapsto", "xtofrom"
 	));
 
 	public MathParser(CharStream stream) {
