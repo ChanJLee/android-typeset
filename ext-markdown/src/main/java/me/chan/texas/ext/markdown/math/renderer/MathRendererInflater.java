@@ -24,6 +24,7 @@ import me.chan.texas.ext.markdown.math.ast.MathList;
 import me.chan.texas.ext.markdown.math.ast.MatrixAtom;
 import me.chan.texas.ext.markdown.math.ast.MatrixRow;
 import me.chan.texas.ext.markdown.math.ast.NumberAtom;
+import me.chan.texas.ext.markdown.math.ast.OperatorSymbolAtom;
 import me.chan.texas.ext.markdown.math.ast.PostfixOp;
 import me.chan.texas.ext.markdown.math.ast.PunctuationAtom;
 import me.chan.texas.ext.markdown.math.ast.ScriptArg;
@@ -335,6 +336,10 @@ public class MathRendererInflater {
 			return inflateBinOp(styles, (BinOpAtom) atom);
 		}
 
+		if (atom instanceof OperatorSymbolAtom) {
+			return inflateOperatorSymbolAtom(styles, (OperatorSymbolAtom) atom);
+		}
+
 		if (atom instanceof ExtensibleArrowAtom) {
 			return inflateExtensibleArrowAtom(styles, (ExtensibleArrowAtom) atom);
 		}
@@ -380,6 +385,15 @@ public class MathRendererInflater {
 		}
 
 		throw new IllegalArgumentException("Unknown atom: " + atom);
+	}
+
+	private RendererNode inflateOperatorSymbolAtom(MathPaint.Styles styles, OperatorSymbolAtom atom) {
+		Symbol symbol = MathFontOptions.ast(atom);
+		if (symbol != null) {
+			return new SymbolNode(styles, symbol);
+		}
+
+		return new TextNode(styles, atom.op);
 	}
 
 	private RendererNode inflateSpecialLetterVariableAtom(MathPaint.Styles styles, SpecialLetterVariableAtom atom) {

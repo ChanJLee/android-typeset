@@ -1372,7 +1372,7 @@ public class MathParser {
 
 		// 单字符运算符符号
 		if ("+-*/=<>".indexOf(c) >= 0) {
-			return new BinOpAtom(String.valueOf((char) stream.eat()));
+			return new OperatorSymbolAtom(String.valueOf((char) stream.eat()));
 		}
 
 		// 命令（如 \alpha, \pm）
@@ -1385,9 +1385,9 @@ public class MathParser {
 				return parseGreekLetterAtom(cmd);
 			}
 
-			// 运算符符号（只允许 \pm 和 \mp）
+			// 运算符符号
 			if (OPERATOR_SYMBOLS.contains(cmd)) {
-				return new BinOpAtom(cmd);
+				return new OperatorSymbolAtom(cmd);
 			}
 
 			throw new MathParseException("Expected single token, got \\" + cmd, stream);

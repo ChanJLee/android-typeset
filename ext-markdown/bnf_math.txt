@@ -143,11 +143,11 @@
 <single_token> ::= <number>
                  | <variable>
                  | <greek_letter_variable>
-                 | <operator_symbol>
+                 | <operator_symbol_atom>
 
 (* 运算符符号：仅在特定上下文（如上下标）中允许作为单独符号 *)
 (* 注意：\circ 既可作为二元运算符(f \circ g)，也可在上标中表示度数(90^\circ) *)
-<operator_symbol> ::= "+" | "-" | "*" | "/" | "=" | "<" | ">"
+<operator_symbol_atom> ::= "+" | "-" | "*" | "/" | "=" | "<" | ">"
                     | "\pm" | "\mp" | "\circ"
 
 (* ============ 分式 ============ *)
