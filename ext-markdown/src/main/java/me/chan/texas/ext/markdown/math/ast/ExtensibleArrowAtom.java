@@ -18,14 +18,16 @@ public class ExtensibleArrowAtom implements Atom {
 	public String toString() {
 		StringBuilder stringBuilder = new StringBuilder();
 		stringBuilder.append("\\").append(command);
+		// 可选的下方内容用方括号 [below]
+		if (below != null) {
+			stringBuilder.append("[");
+			stringBuilder.append(below);
+			stringBuilder.append("]");
+		}
+		// 必需的上方内容用花括号 {above}
 		if (above != null) {
 			stringBuilder.append("{");
 			stringBuilder.append(above);
-			stringBuilder.append("}");
-		}
-		if (below != null) {
-			stringBuilder.append("{");
-			stringBuilder.append(below);
 			stringBuilder.append("}");
 		}
 		return stringBuilder.toString();

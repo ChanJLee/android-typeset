@@ -825,40 +825,41 @@ public class MathInflaterUnitTest {
 			assertRenderSuccess("a" + op + "b");
 		}
 
-		// LaTeX 运算符
+		// LaTeX 运算符（需要空格分隔）
 		String[] latexOps = {
 			"\\times", "\\cdot", "\\div", "\\pm", "\\mp"
 		};
 		for (String op : latexOps) {
-			assertRenderSuccess("a" + op + "b");
+			assertRenderSuccess("a" + op + " b");
 		}
 
-		// 关系运算符
+		// 关系运算符（LaTeX 命令需要空格分隔）
 		String[] relOps = {
 			"=", "\\neq", "\\equiv", "\\approx", "\\cong", "\\sim",
 			"<", ">", "\\le", "\\ge", "\\leq", "\\geq", "\\ll", "\\gg"
 		};
 		for (String op : relOps) {
-			assertRenderSuccess("a" + op + "b");
+			String input = op.startsWith("\\") ? "a" + op + " b" : "a" + op + "b";
+			assertRenderSuccess(input);
 		}
 
-		// 集合运算符
+		// 集合运算符（LaTeX 命令需要空格分隔）
 		String[] setOps = {
 			"\\in", "\\notin", "\\subset", "\\supset", "\\subseteq", "\\supseteq",
 			"\\cup", "\\cap", "\\wedge", "\\vee"
 		};
 		for (String op : setOps) {
-			assertRenderSuccess("a" + op + "b");
+			assertRenderSuccess("a" + op + " b");
 		}
 
-		// 箭头运算符
+		// 箭头运算符（LaTeX 命令需要空格分隔）
 		String[] arrowOps = {
 			"\\to", "\\rightarrow", "\\leftarrow", "\\leftrightarrow",
 			"\\Rightarrow", "\\Leftarrow", "\\Leftrightarrow",
 			"\\implies", "\\iff"
 		};
 		for (String op : arrowOps) {
-			assertRenderSuccess("A" + op + "B");
+			assertRenderSuccess("A" + op + " B");
 		}
 
 		// 几何运算符

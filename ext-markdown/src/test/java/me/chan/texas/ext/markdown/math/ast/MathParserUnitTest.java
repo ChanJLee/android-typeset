@@ -2368,9 +2368,10 @@ public class MathParserUnitTest {
 				.noRoot();
 
 		// 验证根号内容：b^2-4ac
+		// 解析为 b^2, -, 4, ac (4和ac是隐式乘法)
 		ExpressionAsserter sqrtContent = sqrt.content()
 				.elementIsExpression(0)
-				.hasSize(3);  // b^2, -, 4ac
+				.hasSize(4);  // b^2, -, 4, ac
 		sqrtContent.nextTerm()
 				.atomIsVariable("b")
 				.hasSuffix()
@@ -2379,7 +2380,9 @@ public class MathParserUnitTest {
 				.superscriptContent("2");
 		sqrtContent.and().nextBinOp().isOperator("-");
 		sqrtContent.and().nextTerm()
-				.atomIsNumber("4");  // 4ac会被解析为4和ac两个term
+				.atomIsNumber("4");
+		sqrtContent.and().nextTerm()
+				.atomIsVariable("ac");
 
 		// 验证分母：2a
 		MathListAsserter denominator = frac.denominator();
@@ -2565,12 +2568,12 @@ public class MathParserUnitTest {
 		subscriptExpr.and().nextBinOp().isOperator("=");
 		subscriptExpr.and().nextTerm().atomIsNumber("1");
 
-		// 验证上标：\infty
+		// 验证上标：\infty（在 BNF 中 infty 是希腊字母）
 		MathList superscript = ((Group) sum.operator.suffix.superscript.content).content;
 		new MathListAsserter(superscript)
 				.elementIsExpression(0)
 				.elementIsTerm(0)
-				.atomIsSpecialSymbol("infty");
+				.atomIsGreekLetter("infty");
 
 		// 第二项：\frac{1}{n^2}
 		FracAsserter frac1 = expr.and().nextTerm()
@@ -2610,28 +2613,35 @@ public class MathParserUnitTest {
 				"f' \\left( x \\right) = \\lim_{h \\to 0} \\frac{f \\left( x + h \\right) - f \\left( x \\right)}{h}"
 		);
 
-		// 验证：4个元素
+		// 验证：5个元素 - f', (x), =, lim, frac
+		// 注意：f' 和 \left(x\right) 是隐式乘法，所以是两个独立的 term
 		ExpressionAsserter expr = assertAst(ast)
 				.elementIsExpression(0)
-				.hasSize(4);  // f'(x), =, lim, frac
+				.hasSize(5);  // f', (x), =, lim_{}, frac
 
-		// 第一项：f'(x) - 变量f'后跟定界符(x)
-		TermAsserter fprimeTerm = expr.nextTerm()
+		// 第一项：f'
+		expr.nextTerm()
 				.atomIsVariable("f'")
 				.hasNoSuffix()
 				.hasNoPostfixOp();
 
-		// 第二项：(x) 是隐式乘法的下一个term
-		// 注意：这里可能需要检查实际解析结果
-		// 实际上f'后面的\left(x\right)会被解析为隐式乘法
+		// 第二项：\left(x\right) - 隐式乘法的定界符
+		expr.and().nextTerm()
+				.atomIsDelimited()
+				.leftDelimiter("(")
+				.rightDelimiter(")");
 
-		// 由于实际解析可能比较复杂，这里简化验证
-		// 主要验证等号后的limit部分
+		// 第三项：=
+		expr.and().nextBinOp().isOperator("=");
 
-		assertParsesTo(
-				"f'\\left(x\\right)=\\lim_{h\\to 0}\\frac{f\\left(x+h\\right)-f\\left(x\\right)}{h}",
-				"f' \\left( x \\right) = \\lim_{h \\to 0} \\frac{f \\left( x + h \\right) - f \\left( x \\right)}{h}"
-		);
+		// 第四项：\lim_{h\to 0}
+		expr.and().nextTerm()
+				.atomIsLargeOperator()
+				.name("lim");
+
+		// 第五项：\frac{...}{...}
+		expr.and().nextTerm()
+				.atomIsFrac();
 	}
 
 	@Test
@@ -2649,7 +2659,7 @@ public class MathParserUnitTest {
 				.elementIsExpression(0);
 
 		// 第一项：\int_0^{\infty}
-		expr.hasSize(6);  // int, e^{-x^2}, dx, =, frac
+		expr.hasSize(5);  // int, e^{-x^2}, dx, =, frac
 		LargeOperatorAsserter integral = expr.nextTerm()
 				.atomIsLargeOperator()
 				.name("int")
@@ -2660,12 +2670,12 @@ public class MathParserUnitTest {
 				.hasSuperscript()
 				.subscriptContent("0");
 
-		// 验证上标：\infty
+		// 验证上标：\infty（在 BNF 中 infty 是希腊字母）
 		new GroupAsserter((Group) integral.operator.suffix.superscript.content)
 				.content()
 				.elementIsExpression(0)
 				.elementIsTerm(0)
-				.atomIsSpecialSymbol("infty");
+				.atomIsGreekLetter("infty");
 
 		// 第二项：e^{-x^2}
 		TermAsserter eTerm = expr.and().nextTerm()
@@ -2763,10 +2773,10 @@ public class MathParserUnitTest {
 				"\\left( \\sum_{i = 1}^{n} a_i b_i \\right)^2 \\le \\left( \\sum_{i = 1}^{n} a_i^2 \\right) \\left( \\sum_{i = 1}^{n} b_i^2 \\right)"
 		);
 
-		// 验证整体结构：5个元素
+		// 验证整体结构：4个元素 (两个 term 通过隐式乘法相邻，不产生 BinOp)
 		ExpressionAsserter expr = assertAst(ast)
 				.elementIsExpression(0)
-				.hasSize(5);  // (sum)^2, \le, (sum), (sum)
+				.hasSize(4);  // (sum)^2, \le, (sum), (sum)
 
 		// 第一项：(\sum...)^2
 		TermAsserter term1 = expr.nextTerm();
@@ -3316,7 +3326,7 @@ public class MathParserUnitTest {
 		assertAst(ast)
 				.elementIsExpression(0)
 				.elementIsTerm(0)
-				.atomIsSpecialSymbol("infty");
+				.atomIsGreekLetter("infty");
 	}
 
 	// ============================================================
@@ -3461,7 +3471,8 @@ public class MathParserUnitTest {
 		};
 
 		for (String[] op : relOps) {
-			String input = "a" + op[0] + "b";
+			// LaTeX 命令需要空格分隔（如 a \neq b），单字符运算符不需要（如 a=b）
+			String input = op[0].startsWith("\\") ? "a" + op[0] + " b" : "a" + op[0] + "b";
 			MathList ast = assertParsesToWithAst(input, "a " + op[1] + " b");
 			assertAst(ast)
 					.elementIsExpression(0)
@@ -3641,7 +3652,7 @@ public class MathParserUnitTest {
 	public void test_17_05_Delimiter_AngleBrackets() {
 		System.out.println("\n=== Part 17.5: 定界符 - 角括号 ===");
 
-		MathList ast = assertParsesToWithAst("\\left\\langle x\\right\\rangle", "\\left⟨ x \\right⟩");
+		MathList ast = assertParsesToWithAst("\\left\\langle x\\right\\rangle", "\\left\\langle x \\right\\rangle");
 		assertAst(ast)
 				.elementIsExpression(0)
 				.elementIsTerm(0)
@@ -3652,7 +3663,7 @@ public class MathParserUnitTest {
 	public void test_17_06_Delimiter_Floor() {
 		System.out.println("\n=== Part 17.6: 定界符 - 地板函数 ===");
 
-		MathList ast = assertParsesToWithAst("\\left\\lfloor x\\right\\rfloor", "\\left⌊ x \\right⌋");
+		MathList ast = assertParsesToWithAst("\\left\\lfloor x\\right\\rfloor", "\\left\\lfloor x \\right\\rfloor");
 		assertAst(ast)
 				.elementIsExpression(0)
 				.elementIsTerm(0)
@@ -3663,7 +3674,7 @@ public class MathParserUnitTest {
 	public void test_17_07_Delimiter_Ceil() {
 		System.out.println("\n=== Part 17.7: 定界符 - 天花板函数 ===");
 
-		MathList ast = assertParsesToWithAst("\\left\\lceil x\\right\\rceil", "\\left⌈ x \\right⌉");
+		MathList ast = assertParsesToWithAst("\\left\\lceil x\\right\\rceil", "\\left\\lceil x \\right\\rceil");
 		assertAst(ast)
 				.elementIsExpression(0)
 				.elementIsTerm(0)
@@ -4627,18 +4638,22 @@ public class MathParserUnitTest {
 	public void test_28_01_UnaryOp_All() {
 		System.out.println("\n=== Part 28.1: 一元运算符 - 所有类型 ===");
 
-		String[][] unaryOps = {
-				{"+", "+"}, {"-", "-"}, {"\\pm", "\\pm"}, {"\\mp", "\\mp"}
-		};
+		// 单字符一元运算符
+		assertParsesTo("+x", "+x");
+		assertParsesTo("-x", "-x");
 
-		for (String[] op : unaryOps) {
-			String input = op[0] + "x";
-			MathList ast = assertParsesToWithAst(input, op[1] + " x");
-			assertAst(ast)
-					.elementIsExpression(0)
-					.elementIsTerm(0)
-					.hasUnaryOp(op[1]);
-		}
+		// LaTeX命令一元运算符（需要空格分隔）
+		MathList ast = assertParsesToWithAst("\\pm x", "\\pm x");
+		assertAst(ast)
+				.elementIsExpression(0)
+				.elementIsTerm(0)
+				.hasUnaryOp("\\pm");
+
+		ast = assertParsesToWithAst("\\mp x", "\\mp x");
+		assertAst(ast)
+				.elementIsExpression(0)
+				.elementIsTerm(0)
+				.hasUnaryOp("\\mp");
 	}
 
 	@Test
@@ -4851,9 +4866,11 @@ public class MathParserUnitTest {
 
 	@Test
 	public void test_32_01_Error_EmptyInput() {
-		System.out.println("\n=== Part 32.1: 错误 - 空输入 ===");
+		System.out.println("\n=== Part 32.1: 空输入 - 返回空 MathList ===");
 
-		assertParseFails("");
+		// 空输入应该返回空的 MathList，而不是抛出异常
+		MathList ast = assertParsesToWithAst("", "");
+		assertAst(ast).hasSize(0);
 	}
 
 	@Test

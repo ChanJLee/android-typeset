@@ -252,8 +252,8 @@ public class MathParser {
 			return true;
 		}
 
-		// 标点符号
-		if (c == ',') {
+		// 标点符号 (逗号和分号)
+		if (c == ',' || c == ';') {
 			return true;
 		}
 
@@ -771,18 +771,30 @@ public class MathParser {
 	private String parseMatrixGravity() throws MathParseException {
 		int save = stream.save();
 		skipWhitespace();
-		if (stream.peek() != '{') {
+		if (stream.eof() || stream.peek() != '{') {
 			stream.restore(save);
 			return null;
 		}
 
+		stream.eat(); // 消费 '{'
 		skipWhitespace();
 		if (stream.eof()) {
+			stream.restore(save);
 			return null;
 		}
 
-		char gravity = (char) stream.eat();
-		if ("clr".indexOf(gravity) == -1) {
+		// 读取所有的对齐字符 (c, l, r)
+		StringBuilder gravity = new StringBuilder();
+		while (!stream.eof()) {
+			char c = (char) stream.peek();
+			if ("clr".indexOf(c) >= 0) {
+				gravity.append((char) stream.eat());
+			} else {
+				break;
+			}
+		}
+
+		if (gravity.length() == 0) {
 			stream.restore(save);
 			return null;
 		}
@@ -790,7 +802,7 @@ public class MathParser {
 		skipWhitespace();
 		expect('}');
 		skipWhitespace();
-		return String.valueOf(gravity);
+		return gravity.toString();
 	}
 
 	private MatrixRow parseMatrixRow() throws MathParseException {
@@ -1012,8 +1024,13 @@ public class MathParser {
 			stream.eat();
 			String cmd = scanCommandName();
 
-			if (cmd.equals("{") || cmd.equals("}") || cmd.equals("|")) {
+			if (cmd.equals("{") || cmd.equals("}")) {
 				return cmd;
+			}
+
+			// \| 表示双竖线 ||
+			if (cmd.equals("|")) {
+				return "||";
 			}
 
 			if (DELIMITERS.contains(cmd)) {
