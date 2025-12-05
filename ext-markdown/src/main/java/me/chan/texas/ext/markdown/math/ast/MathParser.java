@@ -9,22 +9,31 @@ public class MathParser {
 	private int recursionDepth = 0;
 	private static final int MAX_RECURSION_DEPTH = 100;
 	// 在类开头添加 operator_symbol 集合
+	// 这些符号既可以作为二元运算符，也可以在上标中单独使用（如 90^\circ 表示度数）
 	private static final Set<String> OPERATOR_SYMBOLS = new HashSet<>(Arrays.asList(
-			"pm", "mp"  // 只包含 \pm 和 \mp
+			"pm", "mp",  // \pm 和 \mp
+			"circ"       // \circ 可用于度数符号 (90^\circ) 或函数复合 (f \circ g)
 	));
 	// 二元运算符集合
 	private static final Set<String> BINARY_OPERATORS = new HashSet<>(Arrays.asList(
 			"+", "-", "*", "/", "=", "<", ">",  // 移除了逗号
 			"times", "cdot", "div", "pm", "mp",
+			"setminus", "circ",  // 集合差、函数复合
+			"oplus", "ominus", "otimes", "oslash", "odot",  // 圈运算符
+			"bullet", "star", "dagger", "ddagger",  // 其他二元运算
 			"neq", "equiv", "approx", "cong", "sim",
+			"simeq", "asymp", "propto",  // 更多关系运算符
 			"le", "ge", "leq", "geq", "ll", "gg",
+			"prec", "succ", "preceq", "succeq",  // 序关系
 			"in", "notin", "subset", "supset", "subseteq", "supseteq",
 			"cup", "cap", "wedge", "vee",
 			"to", "rightarrow", "leftarrow", "leftrightarrow",
 			"Rightarrow", "Leftarrow", "Leftrightarrow",
 			"implies", "iff",
 			"perp", "parallel",
-			"mid"  // 新增：整除符号（可选，与 | 效果相同）
+			"mid", "nmid",  // 整除/不整除
+			"triangleleft", "triangleright",  // 三角运算符
+			"bowtie", "models"  // 关系运算符
 	));
 
 	// 真正的特殊符号（不能被一元运算符修饰）

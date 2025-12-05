@@ -1861,7 +1861,7 @@ public class MathInflaterUnitTest {
 	}
 
 	@Test
-	public void test_08_08_Geometry_Formulas() throws MathParseException {
+	public void test_08_08_Geometry_Formulas() {
 		System.out.println("\n=== Part 8.8: 几何公式 ===");
 
 		// 角度

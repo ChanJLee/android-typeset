@@ -127,6 +127,45 @@ public class MathFontOptions {
 		AST.put("perp", "uni27C2");            // ⟂ (垂直)
 		AST.put("parallel", "parallel");       // ∥ (平行)
 
+		// 集合差、函数复合
+		AST.put("setminus", "uni2216");        // ∖ (集合差)
+		AST.put("circ", "uni2218");            // ∘ (函数复合)
+
+		// 圈运算符
+		AST.put("oplus", "circleplus");        // ⊕ (直和)
+		AST.put("ominus", "uni2296");          // ⊖ (减号圈)
+		AST.put("otimes", "circlemultiply");   // ⊗ (张量积)
+		AST.put("oslash", "circledivide");     // ⊘ (斜线圈)
+		AST.put("odot", "circledot");          // ⊙ (点积)
+
+		// 其他二元运算符
+		AST.put("bullet", "bullet");           // • (实心圆点)
+		AST.put("star", "uni22C6");            // ⋆ (星号)
+		AST.put("dagger", "dagger");           // † (剑号)
+		AST.put("ddagger", "daggerdbl");       // ‡ (双剑号)
+
+		// 更多关系运算符
+		AST.put("simeq", "similar_equal");     // ≃ (相似等于)
+		AST.put("asymp", "uni224D");           // ≍ (渐近相等)
+		AST.put("propto", "proportional");     // ∝ (正比于)
+
+		// 序关系
+		AST.put("prec", "uni227A");            // ≺ (前驱)
+		AST.put("succ", "uni227B");            // ≻ (后继)
+		AST.put("preceq", "uni227C");          // ≼ (前驱等于)
+		AST.put("succeq", "uni227D");          // ≽ (后继等于)
+
+		// 整除/不整除
+		AST.put("nmid", "uni2224");            // ∤ (不整除)
+
+		// 三角运算符
+		AST.put("triangleleft", "uni25C1");    // ◁ (左三角)
+		AST.put("triangleright", "uni25B7");   // ▷ (右三角)
+
+		// 其他关系运算符
+		AST.put("bowtie", "uni22C8");          // ⋈ (自然连接)
+		AST.put("models", "uni22A8");          // ⊨ (满足)
+
 		// 其他常用符号
 		AST.put("infty", "infinity");
 		AST.put("partial", "partialdiff");     // ∂ (偏导数) - 已存在

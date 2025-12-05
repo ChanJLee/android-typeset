@@ -84,15 +84,22 @@
 (* 二元运算符：必须连接两个 term *)
 <binary_op> ::= "+" | "-" | "*" | "/" | "|"
               | "\times" | "\cdot" | "\div" | "\pm" | "\mp"
+              | "\setminus" | "\circ"  (* 集合差、函数复合 *)
+              | "\oplus" | "\ominus" | "\otimes" | "\oslash" | "\odot"  (* 圈运算符 *)
+              | "\bullet" | "\star" | "\dagger" | "\ddagger"  (* 其他二元运算 *)
               | "=" | "\neq" | "\equiv" | "\approx" | "\cong" | "\sim"
+              | "\simeq" | "\asymp" | "\propto"  (* 更多关系运算符 *)
               | "<" | ">" | "\le" | "\ge" | "\leq" | "\geq" | "\ll" | "\gg"
+              | "\prec" | "\succ" | "\preceq" | "\succeq"  (* 序关系 *)
               | "\in" | "\notin" | "\subset" | "\supset" | "\subseteq" | "\supseteq"
               | "\cup" | "\cap" | "\wedge" | "\vee"
               | "\to" | "\rightarrow" | "\leftarrow" | "\leftrightarrow"
               | "\Rightarrow" | "\Leftarrow" | "\Leftrightarrow"
               | "\implies" | "\iff"
               | "\perp" | "\parallel"
-              | "\mid"  (* 整除/分隔符 *)
+              | "\mid" | "\nmid"  (* 整除/不整除 *)
+              | "\triangleleft" | "\triangleright"  (* 三角运算符 *)
+              | "\bowtie" | "\models"  (* 关系运算符 *)
 
 (* 标点符号：可以独立存在，不参与运算 *)
 <punctuation> ::= "," | ";"
@@ -139,8 +146,9 @@
                  | <operator_symbol>
 
 (* 运算符符号：仅在特定上下文（如上下标）中允许作为单独符号 *)
+(* 注意：\circ 既可作为二元运算符(f \circ g)，也可在上标中表示度数(90^\circ) *)
 <operator_symbol> ::= "+" | "-" | "*" | "/" | "=" | "<" | ">"
-                    | "\pm" | "\mp"
+                    | "\pm" | "\mp" | "\circ"
 
 (* ============ 分式 ============ *)
 
