@@ -1839,6 +1839,86 @@ public class MathInflaterUnitTest {
 	}
 
 	@Test
+	public void test_08_06a_NewBinaryOperators() throws MathParseException {
+		System.out.println("\n=== Part 8.6a: 新增二元运算符 ===");
+
+		// 集合差、函数复合
+		assertRenderSuccess("A\\setminus B");
+		assertRenderSuccess("f\\circ g");
+
+		// \circ 也可以在上标中使用 (度数符号)
+		assertRenderSuccess("90^\\circ");
+		assertRenderSuccess("\\angle ABC=60^\\circ");
+
+		// 圈运算符
+		assertRenderSuccess("A\\oplus B");
+		assertRenderSuccess("A\\ominus B");
+		assertRenderSuccess("A\\otimes B");
+		assertRenderSuccess("A\\oslash B");
+		assertRenderSuccess("A\\odot B");
+
+		// 其他二元运算
+		assertRenderSuccess("a\\bullet b");
+		assertRenderSuccess("a\\star b");
+		assertRenderSuccess("a\\dagger b");
+		assertRenderSuccess("a\\ddagger b");
+
+		// 更多关系运算符
+		assertRenderSuccess("a\\simeq b");
+		assertRenderSuccess("a\\asymp b");
+		assertRenderSuccess("a\\propto b");
+
+		// 序关系
+		assertRenderSuccess("a\\prec b");
+		assertRenderSuccess("a\\succ b");
+		assertRenderSuccess("a\\preceq b");
+		assertRenderSuccess("a\\succeq b");
+
+		// 整除/不整除
+		assertRenderSuccess("a\\mid b");
+		assertRenderSuccess("a\\nmid b");
+
+		// 三角运算符
+		assertRenderSuccess("a\\triangleleft b");
+		assertRenderSuccess("a\\triangleright b");
+
+		// 其他关系运算符
+		assertRenderSuccess("a\\bowtie b");
+		assertRenderSuccess("a\\models b");
+
+		System.out.println("✅ 新增二元运算符测试通过");
+	}
+
+	@Test
+	public void test_08_06b_OperatorSymbolInScript() throws MathParseException {
+		System.out.println("\n=== Part 8.6b: 上下标中的运算符符号 ===");
+
+		// <operator_symbol_atom> 在上下标中作为 single_token
+		assertRenderSuccess("x^+");
+		assertRenderSuccess("x^-");
+		assertRenderSuccess("x^*");
+		assertRenderSuccess("x^/");
+		assertRenderSuccess("x^=");
+		assertRenderSuccess("x^<");
+		assertRenderSuccess("x^>");
+		assertRenderSuccess("x^\\pm");
+		assertRenderSuccess("x^\\mp");
+		assertRenderSuccess("x^\\circ");  // 度数符号
+
+		// 经典用例：角度
+		assertRenderSuccess("\\angle A=90^\\circ");
+		assertRenderSuccess("\\theta=45^\\circ");
+
+		// 正负上标
+		assertRenderSuccess("a^+");
+		assertRenderSuccess("a^-");
+		assertRenderSuccess("\\sigma^+");
+		assertRenderSuccess("\\sigma^-");
+
+		System.out.println("✅ 上下标中的运算符符号测试通过");
+	}
+
+	@Test
 	public void test_08_07_Logic_Formulas() throws MathParseException {
 		System.out.println("\n=== Part 8.7: 逻辑公式 ===");
 
@@ -1891,6 +1971,11 @@ public class MathInflaterUnitTest {
 		System.out.println("=".repeat(60));
 		System.out.println("✅ 基础元素: number, variable, greek_letter, special_letter_variable, special_symbol");
 		System.out.println("✅ 运算符: unary_op, binary_op (全部), postfix_op");
+		System.out.println("✅ 新增二元运算符: setminus, circ, oplus, ominus, otimes, oslash, odot");
+		System.out.println("✅ 新增二元运算符: bullet, star, dagger, ddagger");
+		System.out.println("✅ 新增关系运算符: simeq, asymp, propto, prec, succ, preceq, succeq");
+		System.out.println("✅ 新增运算符: nmid, triangleleft, triangleright, bowtie, models");
+		System.out.println("✅ 运算符符号: operator_symbol_atom (可在上下标中使用，如 90^\\circ)");
 		System.out.println("✅ 标点: punctuation (逗号、分号)");
 		System.out.println("✅ 原子表达式: group, frac, binom, sqrt, delimited, function_call, large_operator, matrix, text, accent, font_command, extensible_arrow");
 		System.out.println("✅ 上下标: sup_sub_suffix (四种形式), script_arg");
