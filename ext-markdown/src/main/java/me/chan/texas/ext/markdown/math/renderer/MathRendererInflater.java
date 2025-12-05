@@ -331,6 +331,9 @@ public class MathRendererInflater {
 			return inflateBinomAtom(styles, (BinomAtom) atom);
 		}
 
+		if (atom instanceof BinOpAtom) {
+			return inflateBinOp(styles, (BinOpAtom) atom);
+		}
 
 		if (atom instanceof ExtensibleArrowAtom) {
 			return inflateExtensibleArrowAtom(styles, (ExtensibleArrowAtom) atom);
