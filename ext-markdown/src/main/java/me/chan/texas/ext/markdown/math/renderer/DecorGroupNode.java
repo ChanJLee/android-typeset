@@ -1,5 +1,7 @@
 package me.chan.texas.ext.markdown.math.renderer;
 
+import android.graphics.Color;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
@@ -252,6 +254,12 @@ public class DecorGroupNode extends RendererNode implements OptimizableRendererN
 		}
 
 		return getCenterY();
+	}
+
+	@Override
+	protected void onDrawDebug(MathCanvas canvas, MathPaint paint) {
+		paint.setColor(Color.YELLOW);
+		super.onDrawDebug(canvas, paint);
 	}
 
 	public static class Builder {
