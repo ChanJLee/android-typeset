@@ -6,7 +6,7 @@ import androidx.annotation.Nullable;
 import me.chan.texas.ext.markdown.math.renderer.core.MathCanvas;
 import me.chan.texas.ext.markdown.math.renderer.core.MathPaint;
 
-public class DecorGroupNode extends RendererNode implements OptimizableRendererNode {
+public class DecorGroupNode extends RendererNode implements OptimizableRendererNode, HorizontalCalibratedNode {
 	private final Builder mBuilder;
 
 	private DecorGroupNode(MathPaint.Styles styles, Builder builder) {
@@ -242,6 +242,16 @@ public class DecorGroupNode extends RendererNode implements OptimizableRendererN
 
 	private RendererNode optimize(OptimizableRendererNode node) {
 		return node.optimize();
+	}
+
+	@Override
+	public float getBaseline() {
+		if (mBuilder.center instanceof HorizontalCalibratedNode) {
+			HorizontalCalibratedNode node = (HorizontalCalibratedNode) mBuilder.center;
+			return node.getBaseline();
+		}
+
+		return getCenterY();
 	}
 
 	public static class Builder {
