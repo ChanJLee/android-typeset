@@ -783,7 +783,7 @@ public class MathParserAstTest {
 				{"\\lVert", "\\rVert"}
 		};
 		for (String[] delim : delims) {
-			assertParseSuccess("\\left" + delim[0] + "x\\right" + delim[1]);
+			assertParseSuccess("\\left" + delim[0] + " x \\right" + delim[1]);
 		}
 	}
 
