@@ -46,6 +46,7 @@ public class SymbolNode extends RendererNode {
 	protected void onDrawDebug(MathCanvas canvas, MathPaint paint) {
 		paint.setColor(Color.RED);
 		super.onDrawDebug(canvas, paint);
+		drawDebugBounds(canvas, paint);
 	}
 
 	@Override

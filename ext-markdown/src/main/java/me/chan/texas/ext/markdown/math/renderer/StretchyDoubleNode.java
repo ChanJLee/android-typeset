@@ -105,6 +105,11 @@ public class StretchyDoubleNode extends RendererNode {
 		canvas.restore();
 	}
 
+	@Override
+	protected void onDrawDebug(MathCanvas canvas, MathPaint paint) {
+		super.onDrawDebug(canvas, paint);
+		drawDebugBounds(canvas, paint);
+	}
 
 	@Override
 	protected String toPretty() {
