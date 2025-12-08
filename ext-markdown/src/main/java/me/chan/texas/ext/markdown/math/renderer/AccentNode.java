@@ -5,7 +5,7 @@ import me.chan.texas.ext.markdown.math.renderer.core.MathPaint;
 import me.chan.texas.ext.markdown.math.renderer.fonts.MathFontOptions;
 import me.chan.texas.ext.markdown.math.renderer.fonts.Symbol;
 
-public class AccentNode extends RendererNode {
+public class AccentNode extends RendererNode implements HorizontalCalibratedNode {
 	private final String mCmd;
 	private final RendererNode mContent;
 	private final RendererNode mCmdNode;
@@ -234,5 +234,15 @@ public class AccentNode extends RendererNode {
 		}
 
 		drawUnderBrace(canvas, paint);
+	}
+
+	@Override
+	public float getBaseline() {
+		if (mContent instanceof HorizontalCalibratedNode) {
+			HorizontalCalibratedNode node = (HorizontalCalibratedNode) mContent;
+			return node.getBaseline();
+		}
+
+		return mContent.getBottom();
 	}
 }

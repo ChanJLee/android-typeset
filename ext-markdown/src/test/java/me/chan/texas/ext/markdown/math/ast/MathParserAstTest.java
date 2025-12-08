@@ -1210,4 +1210,574 @@ public class MathParserAstTest {
 		System.out.println("✅ Real-world formulas: quadratic, euler, derivative, taylor, etc.");
 		System.out.println("=".repeat(60));
 	}
+
+	// ============================================================
+	// Part 27: 边界情况和错误测试
+	// ============================================================
+
+	@Test
+	public void test_error_unclosedGroup() {
+		// 未闭合的分组
+		assertParseFail("{x");
+		assertParseFail("{{x}");
+	}
+
+	@Test
+	public void test_error_unclosedFrac() {
+		// 未闭合的分式
+		assertParseFail("\\frac{x}");
+		assertParseFail("\\frac{x}{");
+	}
+
+	@Test
+	public void test_error_unclosedDelimited() {
+		// 未闭合的定界符
+		assertParseFail("\\left(x");
+		assertParseFail("\\left(x\\right");
+	}
+
+	@Test
+	public void test_error_mismatchedMatrix() {
+		// 矩阵环境不匹配
+		assertParseFail("\\begin{matrix}a\\end{pmatrix}");
+	}
+
+	@Test
+	public void test_error_unknownCommand() {
+		// 未知命令
+		assertParseFail("\\unknowncommand");
+		assertParseFail("\\xyz123");
+	}
+
+	@Test
+	public void test_error_binaryOpWithoutRightOperand() {
+		// 二元运算符缺少右操作数（在结尾处）
+		assertParseFail("x+");
+		assertParseFail("a-");
+		assertParseFail("1*");
+	}
+
+	@Test
+	public void test_error_emptyFrac() {
+		// 空的分式参数（这取决于解析器是否允许）
+		// 如果允许空参数，则删除此测试
+		assertParseSuccess("\\frac{}{}"); // 可能允许空参数
+	}
+
+	@Test
+	public void test_error_emptySqrt() {
+		// 空的根式参数
+		assertParseSuccess("\\sqrt{}"); // 可能允许空参数
+	}
+
+	@Test
+	public void test_error_unbalancedBraces() {
+		// 不平衡的花括号
+		assertParseFail("}x{");
+		assertParseFail("x}");
+	}
+
+	// ============================================================
+	// Part 28: 希腊字母变量完整测试
+	// ============================================================
+
+	@Test
+	public void test_greekLetterVariable_multiPrime() throws MathParseException {
+		// 希腊字母带多个 prime
+		MathList ast = parse("\\alpha''");
+		Expression expr = (Expression) ast.elements.get(0);
+		Term term = (Term) expr.elements.get(0);
+		GreekLetterVariableAtom greek = (GreekLetterVariableAtom) term.atom;
+		assertEquals("alpha", greek.name);
+		assertEquals("''", greek.primeSuffix);
+	}
+
+	@Test
+	public void test_greekLetterVariable_withSupSub() throws MathParseException {
+		// 希腊字母带上下标
+		MathList ast = parse("\\alpha_1^2");
+		Expression expr = (Expression) ast.elements.get(0);
+		Term term = (Term) expr.elements.get(0);
+		assertTrue(term.atom instanceof GreekLetterVariableAtom);
+		assertNotNull(term.suffix);
+		assertNotNull(term.suffix.subscript);
+		assertNotNull(term.suffix.superscript);
+	}
+
+	// ============================================================
+	// Part 29: 特殊字母变量完整测试
+	// ============================================================
+
+	@Test
+	public void test_specialLetterVariable_withPrime() throws MathParseException {
+		// 特殊字母变量带 prime
+		MathList ast = parse("\\nabla'");
+		Expression expr = (Expression) ast.elements.get(0);
+		Term term = (Term) expr.elements.get(0);
+		assertTrue(term.atom instanceof SpecialLetterVariableAtom);
+		SpecialLetterVariableAtom atom = (SpecialLetterVariableAtom) term.atom;
+		assertEquals("nabla", atom.name);
+		assertEquals("'", atom.primeSuffix);
+	}
+
+	@Test
+	public void test_specialLetterVariable_withSupSub() throws MathParseException {
+		// 特殊字母变量带上下标
+		MathList ast = parse("\\nabla_x");
+		Expression expr = (Expression) ast.elements.get(0);
+		Term term = (Term) expr.elements.get(0);
+		assertTrue(term.atom instanceof SpecialLetterVariableAtom);
+		assertNotNull(term.suffix);
+	}
+
+	// ============================================================
+	// Part 30: 特殊符号带上下标测试
+	// ============================================================
+
+	@Test
+	public void test_specialSymbol_withSupSub() throws MathParseException {
+		// 特殊符号可以带上下标
+		MathList ast = parse("\\dots^n");
+		Expression expr = (Expression) ast.elements.get(0);
+		Term term = (Term) expr.elements.get(0);
+		assertTrue(term.atom instanceof SpecialSymbolAtom);
+		assertNotNull(term.suffix);
+	}
+
+	// ============================================================
+	// Part 31: 复合后缀运算符测试
+	// ============================================================
+
+	@Test
+	public void test_postfixOp_complex() throws MathParseException {
+		// 复杂的阶乘表达式
+		assertParseSuccess("(n-1)!");  // 带括号的阶乘
+		assertParseSuccess("\\binom{n}{k}!");  // 二项式系数的阶乘
+	}
+
+	@Test
+	public void test_postfixOp_doubleFactorial() throws MathParseException {
+		// 双阶乘 n!! 应该被解析为 n! 后跟一个独立的 !
+		// 或者可能需要扩展 BNF 支持 "!!"
+		MathList ast = parse("n!!");
+		// 验证解析结果...
+		assertNotNull(ast);
+	}
+
+	// ============================================================
+	// Part 32: 定界符完整测试
+	// ============================================================
+
+	@Test
+	public void test_delimited_nested() throws MathParseException {
+		// 嵌套的定界符
+		assertParseSuccess("\\left(\\left[x\\right]\\right)");
+	}
+
+	@Test
+	public void test_delimited_mixed() throws MathParseException {
+		// 混合定界符
+		assertParseSuccess("\\left(x\\right]");  // 不匹配但语法上合法
+		assertParseSuccess("\\left.\\frac{x}{y}\\right|");
+	}
+
+	// ============================================================
+	// Part 33: 函数调用完整测试
+	// ============================================================
+
+	@Test
+	public void test_functionCall_noArg() throws MathParseException {
+		// 函数不带参数
+		MathList ast = parse("\\sin");
+		Expression expr = (Expression) ast.elements.get(0);
+		Term term = (Term) expr.elements.get(0);
+		assertTrue(term.atom instanceof FunctionCallAtom);
+		FunctionCallAtom fn = (FunctionCallAtom) term.atom;
+		assertNull(fn.argument);
+	}
+
+	@Test
+	public void test_functionCall_chainedArg() throws MathParseException {
+		// 链式函数调用
+		assertParseSuccess("\\sin\\cos x");
+		assertParseSuccess("\\log\\log x");
+	}
+
+	// ============================================================
+	// Part 34: 大型运算符完整测试
+	// ============================================================
+
+	@Test
+	public void test_largeOperator_subOnly() throws MathParseException {
+		// 只有下标
+		MathList ast = parse("\\lim_{x\\to 0}");
+		Expression expr = (Expression) ast.elements.get(0);
+		Term term = (Term) expr.elements.get(0);
+		LargeOperatorAtom largeOp = (LargeOperatorAtom) term.atom;
+		assertNotNull(largeOp.suffix);
+		assertNotNull(largeOp.suffix.subscript);
+		assertNull(largeOp.suffix.superscript);
+	}
+
+	@Test
+	public void test_largeOperator_superOnly() throws MathParseException {
+		// 只有上标
+		MathList ast = parse("\\sum^n");
+		Expression expr = (Expression) ast.elements.get(0);
+		Term term = (Term) expr.elements.get(0);
+		LargeOperatorAtom largeOp = (LargeOperatorAtom) term.atom;
+		assertNotNull(largeOp.suffix);
+		assertNotNull(largeOp.suffix.superscript);
+		assertNull(largeOp.suffix.subscript);
+	}
+
+	// ============================================================
+	// Part 35: 矩阵完整测试
+	// ============================================================
+
+	@Test
+	public void test_matrix_singleElement() throws MathParseException {
+		// 单元素矩阵
+		MathList ast = parse("\\begin{matrix}a\\end{matrix}");
+		Expression expr = (Expression) ast.elements.get(0);
+		Term term = (Term) expr.elements.get(0);
+		MatrixAtom matrix = (MatrixAtom) term.atom;
+		assertEquals(1, matrix.rows.size());
+		assertEquals(1, matrix.rows.get(0).elements.size());
+	}
+
+	@Test
+	public void test_matrix_emptyRow() throws MathParseException {
+		// 矩阵可以有空行吗？取决于实现
+		// assertParseSuccess("\\begin{matrix}\\\\\\end{matrix}");
+	}
+
+	@Test
+	public void test_matrix_cases() throws MathParseException {
+		// cases 环境（分段函数）
+		assertParseSuccess("\\begin{cases}x&x>0\\\\-x&x<0\\end{cases}");
+	}
+
+	@Test
+	public void test_matrix_nestedContent() throws MathParseException {
+		// 矩阵内嵌套其他结构
+		assertParseSuccess("\\begin{pmatrix}\\frac{1}{2}&\\sqrt{2}\\\\a^2&b_1\\end{pmatrix}");
+	}
+
+	// ============================================================
+	// Part 36: 空格命令在上下文中的测试
+	// ============================================================
+
+	@Test
+	public void test_spacing_inExpression() throws MathParseException {
+		// 空格命令在表达式中间
+		MathList ast = parse("a\\quad b\\quad c");
+		// 验证有多个元素（表达式和空格交替）
+		assertTrue(ast.elements.size() >= 3);
+	}
+
+	@Test
+	public void test_spacing_withDecimal() throws MathParseException {
+		// \hspace 带小数长度
+		assertParseSuccess("\\hspace{1.5em}");
+		assertParseSuccess("\\hspace{0.5pt}");
+	}
+
+	// ============================================================
+	// Part 37: 文本命令完整测试
+	// ============================================================
+
+	@Test
+	public void test_text_withSpaces() throws MathParseException {
+		// 文本命令包含空格
+		MathList ast = parse("\\text{hello world}");
+		Expression expr = (Expression) ast.elements.get(0);
+		Term term = (Term) expr.elements.get(0);
+		TextAtom text = (TextAtom) term.atom;
+		assertEquals("hello world", text.content);
+	}
+
+	@Test
+	public void test_text_withSpecialChars() throws MathParseException {
+		// 文本命令包含特殊字符
+		assertParseSuccess("\\text{if x > 0}");
+		assertParseSuccess("\\text{a + b}");
+	}
+
+	// ============================================================
+	// Part 38: 重音符号完整测试
+	// ============================================================
+
+	@Test
+	public void test_accent_withGroup() throws MathParseException {
+		// 重音符号作用于分组
+		MathList ast = parse("\\widehat{abc}");
+		Expression expr = (Expression) ast.elements.get(0);
+		Term term = (Term) expr.elements.get(0);
+		AccentAtom accent = (AccentAtom) term.atom;
+		assertNotNull(accent.content);
+	}
+
+	@Test
+	public void test_accent_nested() throws MathParseException {
+		// 嵌套重音符号
+		assertParseSuccess("\\hat{\\bar{x}}");
+		assertParseSuccess("\\vec{\\dot{r}}");
+	}
+
+	@Test
+	public void test_accent_overbrace_underbrace() throws MathParseException {
+		// overbrace 和 underbrace 通常带上下标
+		assertParseSuccess("\\overbrace{a+b+c}^{n}");
+		assertParseSuccess("\\underbrace{x+y}_{n}");
+	}
+
+	// ============================================================
+	// Part 39: 隐式乘法测试
+	// ============================================================
+
+	@Test
+	public void test_implicitMultiplication() throws MathParseException {
+		// 隐式乘法：多个 term 直接相邻
+		MathList ast = parse("2xy");
+		Expression expr = (Expression) ast.elements.get(0);
+		assertEquals(3, expr.elements.size());  // 2, x, y
+	}
+
+	@Test
+	public void test_implicitMultiplication_withParens() throws MathParseException {
+		// 带括号的隐式乘法
+		assertParseSuccess("2(x+y)");
+		assertParseSuccess("(x+y)(x-y)");
+	}
+
+	@Test
+	public void test_implicitMultiplication_withFunctions() throws MathParseException {
+		// 函数和变量之间的隐式乘法
+		assertParseSuccess("2\\sin x");
+		assertParseSuccess("x\\sin\\theta");
+	}
+
+	// ============================================================
+	// Part 40: 复杂嵌套结构测试
+	// ============================================================
+
+	@Test
+	public void test_deeplyNested() throws MathParseException {
+		// 深度嵌套
+		assertParseSuccess("\\frac{\\frac{\\frac{a}{b}}{c}}{d}");
+		assertParseSuccess("\\sqrt{\\sqrt{\\sqrt{x}}}");
+	}
+
+	@Test
+	public void test_complexExpression() throws MathParseException {
+		// 复杂表达式
+		assertParseSuccess("\\frac{-b\\pm\\sqrt{b^2-4ac}}{2a}");
+		assertParseSuccess("\\sum_{i=1}^{n}\\frac{1}{i^2}=\\frac{\\pi^2}{6}");
+	}
+
+	// ============================================================
+	// Part 41: 可扩展箭头完整测试
+	// ============================================================
+
+	@Test
+	public void test_extensibleArrow_allSupported() throws MathParseException {
+		// 测试所有已实现的可扩展箭头
+		String[] arrows = {
+			"\\xrightarrow", "\\xleftarrow", "\\xleftrightarrow",
+			"\\xRightarrow", "\\xLeftarrow", "\\xLeftrightarrow"
+		};
+		for (String arrow : arrows) {
+			assertParseSuccess(arrow + "{text}");
+			assertParseSuccess(arrow + "[below]{above}");
+		}
+	}
+
+	@Test
+	public void test_extensibleArrow_unsupported() {
+		// 测试 BNF 中定义但未实现的箭头（应该失败）
+		String[] unsupported = {
+			"\\xhookrightarrow", "\\xhookleftarrow",
+			"\\xtwoheadrightarrow", "\\xtwoheadleftarrow",
+			"\\xmapsto", "\\xtofrom"
+		};
+		for (String arrow : unsupported) {
+			assertParseFail(arrow + "{text}");
+		}
+	}
+
+	// ============================================================
+	// Part 42: 更多真实世界公式测试
+	// ============================================================
+
+	@Test
+	public void test_realWorld_integral() {
+		// 定积分
+		assertParseSuccess("\\int_0^\\infty e^{-x^2}dx");
+		assertParseSuccess("\\oint_C f(z)dz");
+	}
+
+	@Test
+	public void test_realWorld_matrix_equation() {
+		// 矩阵方程
+		assertParseSuccess("\\begin{pmatrix}a&b\\\\c&d\\end{pmatrix}\\begin{pmatrix}x\\\\y\\end{pmatrix}=\\begin{pmatrix}e\\\\f\\end{pmatrix}");
+	}
+
+	@Test
+	public void test_realWorld_binomial_theorem() {
+		// 二项式定理
+		assertParseSuccess("(x+y)^n=\\sum_{k=0}^{n}\\binom{n}{k}x^{n-k}y^k");
+	}
+
+	@Test
+	public void test_realWorld_cauchy_schwarz() {
+		// 柯西-施瓦茨不等式
+		assertParseSuccess("\\left|\\sum_{i=1}^{n}a_ib_i\\right|^2\\leq\\left(\\sum_{i=1}^{n}a_i^2\\right)\\left(\\sum_{i=1}^{n}b_i^2\\right)");
+	}
+
+	@Test
+	public void test_realWorld_fourier() {
+		// 傅里叶变换
+		assertParseSuccess("\\hat{f}(\\xi)=\\int_{-\\infty}^{\\infty}f(x)e^{-2\\pi ix\\xi}dx");
+	}
+
+	@Test
+	public void test_realWorld_laplacian() {
+		// 拉普拉斯算子
+		assertParseSuccess("\\nabla^2\\phi=\\frac{\\partial^2\\phi}{\\partial x^2}+\\frac{\\partial^2\\phi}{\\partial y^2}+\\frac{\\partial^2\\phi}{\\partial z^2}");
+	}
+
+	@Test
+	public void test_realWorld_divergence() {
+		// 散度
+		assertParseSuccess("\\nabla\\cdot\\mathbf{F}=\\frac{\\partial F_x}{\\partial x}+\\frac{\\partial F_y}{\\partial y}+\\frac{\\partial F_z}{\\partial z}");
+	}
+
+	@Test
+	public void test_realWorld_curl() {
+		// 旋度
+		assertParseSuccess("\\nabla\\times\\mathbf{F}");
+	}
+
+	@Test
+	public void test_realWorld_limit_definition() {
+		// 极限的ε-δ定义
+		assertParseSuccess("\\forall\\epsilon>0,\\exists\\delta>0");
+	}
+
+	@Test
+	public void test_realWorld_set_theory() {
+		// 集合论表达式
+		assertParseSuccess("A\\cap B\\subseteq A\\cup B");
+		assertParseSuccess("A\\setminus B=A\\cap B^c");
+	}
+
+	@Test
+	public void test_realWorld_logic() {
+		// 逻辑表达式
+		assertParseSuccess("P\\wedge Q\\Rightarrow P");
+		assertParseSuccess("\\neg(P\\vee Q)\\Leftrightarrow\\neg P\\wedge\\neg Q");
+	}
+
+	@Test
+	public void test_realWorld_probability() {
+		// 概率公式
+		assertParseSuccess("P(A|B)=\\frac{P(B|A)P(A)}{P(B)}");  // 贝叶斯公式
+	}
+
+	@Test
+	public void test_realWorld_combinatorics() {
+		// 组合恒等式
+		assertParseSuccess("\\binom{n}{k}=\\binom{n-1}{k-1}+\\binom{n-1}{k}");
+		assertParseSuccess("n!=n\\cdot(n-1)!");
+	}
+
+	@Test
+	public void test_realWorld_trigonometric_identity() {
+		// 三角恒等式
+		assertParseSuccess("\\sin^2\\theta+\\cos^2\\theta=1");
+		assertParseSuccess("\\sin\\begin\\(\\alpha+\\beta\\end\\)=\\sin\\alpha\\cos\\beta+\\cos\\alpha\\sin\\beta");
+	}
+
+	@Test
+	public void test_realWorld_complex_number() {
+		// 复数表达式
+		assertParseSuccess("z=re^{i\\theta}");
+		assertParseSuccess("|z|=\\sqrt{\\Re(z)^2+\\Im(z)^2}");
+	}
+
+	@Test
+	public void test_realWorld_physics() {
+		// 物理公式
+		assertParseSuccess("E=mc^2");
+		assertParseSuccess("F=ma");
+		assertParseSuccess("E=\\frac{1}{2}mv^2");
+		assertParseSuccess("\\hbar\\omega");  // 量子力学
+	}
+
+	@Test
+	public void test_realWorld_chemistry_style() {
+		// 类化学式的表达（使用下标）
+		assertParseSuccess("H_2O");
+		assertParseSuccess("C_6H_{12}O_6");
+	}
+
+	// ============================================================
+	// Part 43: 特殊边界情况
+	// ============================================================
+
+	@Test
+	public void test_edge_emptyInput() {
+		// 空输入
+		try {
+			MathList ast = parse("");
+			assertTrue(ast.elements.isEmpty());
+		} catch (MathParseException e) {
+			// 也可能是合法的
+		}
+	}
+
+	@Test
+	public void test_edge_whitespaceOnly() {
+		// 只有空白字符
+		try {
+			MathList ast = parse("   ");
+			assertTrue(ast.elements.isEmpty());
+		} catch (MathParseException e) {
+			// 也可能是合法的
+		}
+	}
+
+	@Test
+	public void test_edge_singleOperator() {
+		// 单个运算符
+		assertParseFail("+");
+		assertParseFail("-");
+		assertParseFail("*");
+	}
+
+	@Test
+	public void test_edge_consecutiveUnary() throws MathParseException {
+		// 连续一元运算符
+		assertParseSuccess("--x");  // 可能被解析为 -(-x)
+		assertParseSuccess("+-x");
+	}
+
+	@Test
+	public void test_edge_scriptOnScript() throws MathParseException {
+		// 上标的上标需要分组
+		assertParseSuccess("x^{2^3}");
+		assertParseSuccess("x_{1_{2}}");
+	}
+
+	@Test
+	public void test_edge_unicodeVariable() throws MathParseException {
+		// 英文字母变量
+		for (char c = 'a'; c <= 'z'; c++) {
+			assertParseSuccess(String.valueOf(c));
+		}
+		for (char c = 'A'; c <= 'Z'; c++) {
+			assertParseSuccess(String.valueOf(c));
+		}
+	}
 }

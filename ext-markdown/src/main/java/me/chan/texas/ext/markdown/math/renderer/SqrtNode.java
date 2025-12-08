@@ -9,7 +9,7 @@ import me.chan.texas.ext.markdown.math.renderer.core.MathCanvas;
 import me.chan.texas.ext.markdown.math.renderer.core.MathPaint;
 
 
-public class SqrtNode extends RendererNode implements OptimizableRendererNode {
+public class SqrtNode extends RendererNode implements OptimizableRendererNode, HorizontalCalibratedNode {
 	private RendererNode mContent;
 
 	@Nullable
@@ -110,5 +110,13 @@ public class SqrtNode extends RendererNode implements OptimizableRendererNode {
 		}
 
 		return this;
+	}
+
+	@Override
+	public float getBaseline() {
+		if (mContent instanceof HorizontalCalibratedNode) {
+			return ((HorizontalCalibratedNode) mContent).getBaseline();
+		}
+		return getCenterY();
 	}
 }

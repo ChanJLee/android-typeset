@@ -7,7 +7,7 @@ import me.chan.texas.ext.markdown.math.ast.DelimitedAtom;
 import me.chan.texas.ext.markdown.math.renderer.core.MathCanvas;
 import me.chan.texas.ext.markdown.math.renderer.core.MathPaint;
 
-public class BraceLayout extends RendererNode implements OptimizableRendererNode {
+public class BraceLayout extends RendererNode implements OptimizableRendererNode, HorizontalCalibratedNode {
 
 	private RendererNode mLeftSymbol;
 	private RendererNode mRightSymbol;
@@ -106,5 +106,15 @@ public class BraceLayout extends RendererNode implements OptimizableRendererNode
 		}
 
 		return child;
+	}
+
+	@Override
+	public float getBaseline() {
+		if (mContent instanceof HorizontalCalibratedNode) {
+			HorizontalCalibratedNode node = (HorizontalCalibratedNode) mContent;
+			return node.getBaseline();
+		}
+
+		return getCenterY();
 	}
 }

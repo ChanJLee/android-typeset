@@ -48,10 +48,16 @@ public class LinearGroupNode extends RendererNode implements OptimizableRenderer
 	}
 
 	private void preLayout() {
-		if (mGravity != Gravity.HORIZONTAL) {
+		if (mGravity != Gravity.HORIZONTAL || mNodes.isEmpty()) {
 			return;
 		}
 
+		preLayoutAlignCenter();
+		preLayoutHorizontalCalibrate();
+		setMeasuredSize();
+	}
+
+	private void preLayoutAlignCenter() {
 		float left = 0;
 		for (RendererNode node : mNodes) {
 			node.layout(left, 0);
@@ -71,13 +77,44 @@ public class LinearGroupNode extends RendererNode implements OptimizableRenderer
 			node.translate(0, anchor.getCenterY() - node.getCenterY());
 			top = Math.min(node.getTop(), top);
 		}
-
-		float bottom = 0;
 		for (RendererNode node : mNodes) {
 			node.translate(0, -top);
-			bottom = Math.max(node.getBottom(), bottom);
+		}
+	}
+
+	private void preLayoutHorizontalCalibrate() {
+		int anchorIndex = -1;
+		for (int i = 0; i < mNodes.size(); ++i) {
+			if (mNodes.get(i) instanceof HorizontalCalibratedNode) {
+				anchorIndex = i;
+				break;
+			}
+		}
+		if (anchorIndex < 0) {
+			return;
 		}
 
+		HorizontalCalibratedNode anchor = (HorizontalCalibratedNode) mNodes.get(anchorIndex);
+		for (int i = anchorIndex + 1; i < mNodes.size(); ++i) {
+			RendererNode node = mNodes.get(i);
+			if (!(node instanceof HorizontalCalibratedNode)) {
+				continue;
+			}
+
+			HorizontalCalibratedNode horizontalCalibratedNode = (HorizontalCalibratedNode) node;
+			node.translate(0, anchor.getBaseline() - horizontalCalibratedNode.getBaseline());
+		}
+	}
+
+	private void setMeasuredSize() {
+		float top = 0;
+		float bottom = 0;
+		float left = 0;
+		for (RendererNode node : mNodes) {
+			top = Math.min(node.getTop(), top);
+			bottom = Math.max(node.getBottom(), bottom);
+			left = node.getLeft();
+		}
 		setMeasuredSize((int) Math.ceil(left), (int) Math.ceil(bottom));
 	}
 
