@@ -240,9 +240,9 @@ public class AccentNode extends RendererNode implements HorizontalCalibratedNode
 	public float getBaseline() {
 		if (mContent instanceof HorizontalCalibratedNode) {
 			HorizontalCalibratedNode node = (HorizontalCalibratedNode) mContent;
-			return node.getBaseline();
+			return node.getBaseline() + getTop();
 		}
 
-		return mContent.getBottom();
+		return mContent.getCenterY() + getTop();
 	}
 }

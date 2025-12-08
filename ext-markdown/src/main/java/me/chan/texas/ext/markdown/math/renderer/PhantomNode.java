@@ -83,8 +83,8 @@ public class PhantomNode extends RendererNode implements HorizontalCalibratedNod
 	public float getBaseline() {
 		if (mContent instanceof HorizontalCalibratedNode) {
 			HorizontalCalibratedNode horizontalCalibratedNode = (HorizontalCalibratedNode) mContent;
-			return horizontalCalibratedNode.getBaseline();
+			return horizontalCalibratedNode.getBaseline() + getTop();
 		}
-		return getCenterY();
+		return mContent.getCenterY() + getTop();
 	}
 }

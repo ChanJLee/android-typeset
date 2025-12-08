@@ -147,25 +147,25 @@ public class DecorGroupNode extends RendererNode implements OptimizableRendererN
 
 		if (mBuilder.leftTop != null) {
 			mBuilder.leftTop.layout(
-					-mBuilder.leftTop.getWidth() + offsetX,
+					-mBuilder.leftTop.getWidth(),
 					mBuilder.center.getTop() - mBuilder.leftTop.getHeight() * offsetYPercent
 			);
 		}
 		if (mBuilder.leftBottom != null) {
 			mBuilder.leftBottom.layout(
-					-mBuilder.leftBottom.getWidth() + offsetX,
+					-mBuilder.leftBottom.getWidth(),
 					mBuilder.center.getBottom() - mBuilder.leftBottom.getHeight() * (1 - offsetYPercent)
 			);
 		}
 		if (mBuilder.rightTop != null) {
 			mBuilder.rightTop.layout(
-					mBuilder.center.getRight() - offsetX,
+					mBuilder.center.getRight(),
 					mBuilder.center.getTop() - mBuilder.rightTop.getHeight() * offsetYPercent
 			);
 		}
 		if (mBuilder.rightBottom != null) {
 			mBuilder.rightBottom.layout(
-					mBuilder.center.getRight() - offsetX,
+					mBuilder.center.getRight(),
 					mBuilder.center.getBottom() - mBuilder.rightBottom.getHeight() * (1 - offsetYPercent)
 			);
 		}

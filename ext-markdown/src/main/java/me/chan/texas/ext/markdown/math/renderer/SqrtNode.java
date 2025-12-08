@@ -115,8 +115,8 @@ public class SqrtNode extends RendererNode implements OptimizableRendererNode, H
 	@Override
 	public float getBaseline() {
 		if (mContent instanceof HorizontalCalibratedNode) {
-			return ((HorizontalCalibratedNode) mContent).getBaseline();
+			return ((HorizontalCalibratedNode) mContent).getBaseline() + getTop();
 		}
-		return getCenterY();
+		return mContent.getCenterY() + getTop();
 	}
 }

@@ -1,6 +1,7 @@
 package me.chan.texas.ext.markdown.math.renderer;
 
 import android.graphics.Color;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -55,7 +56,7 @@ public class LinearGroupNode extends RendererNode implements OptimizableRenderer
 		}
 
 		preLayoutAlignCenter();
-//		adjustHorizontalBaseline();
+		adjustHorizontalBaseline();
 	}
 
 	private void preLayoutAlignCenter() {
@@ -91,6 +92,7 @@ public class LinearGroupNode extends RendererNode implements OptimizableRenderer
 
 			HorizontalCalibratedNode horizontalCalibratedNode = (HorizontalCalibratedNode) node;
 			float dy = anchor.getBaseline() - horizontalCalibratedNode.getBaseline();
+			Log.d("chan_debug", anchor.getBaseline() + " " + horizontalCalibratedNode.getBaseline() + " " + dy);
 			node.translate(0, dy);
 		}
 		adjustBounds();
