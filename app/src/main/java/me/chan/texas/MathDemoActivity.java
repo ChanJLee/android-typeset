@@ -40,7 +40,7 @@ public class MathDemoActivity extends AppCompatActivity {
 	private List<FormulaCategory> getFormulaCategories() {
 		List<FormulaCategory> categories = new ArrayList<>();
 		categories.add(new FormulaCategory("自定义简单demo", Arrays.asList(
-				new MathFormula("linear + decor", "x \\lim")
+				new MathFormula("linear + decor", "x \\lim_{x}")
 		)));
 
 		// <number>

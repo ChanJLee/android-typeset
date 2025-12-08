@@ -287,10 +287,10 @@ public class DecorGroupNode extends RendererNode implements OptimizableRendererN
 	public float getBaseline() {
 		if (mBuilder.center instanceof HorizontalCalibratedNode) {
 			HorizontalCalibratedNode node = (HorizontalCalibratedNode) mBuilder.center;
-			return node.getBaseline();
+			return node.getBaseline() + getTop();
 		}
 
-		return mBuilder.center.getCenterY();
+		return mBuilder.center.getCenterY() + getTop();
 	}
 
 	@Override

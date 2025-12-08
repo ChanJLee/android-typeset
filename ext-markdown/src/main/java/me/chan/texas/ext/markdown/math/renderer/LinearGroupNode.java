@@ -55,8 +55,7 @@ public class LinearGroupNode extends RendererNode implements OptimizableRenderer
 		}
 
 		preLayoutAlignCenter();
-		adjustHorizontalBaseline();
-		setMeasuredSize();
+//		adjustHorizontalBaseline();
 	}
 
 	private void preLayoutAlignCenter() {
@@ -68,6 +67,7 @@ public class LinearGroupNode extends RendererNode implements OptimizableRenderer
 			node.layout(left, anchor.getCenterY() - node.getCenterY());
 			left = node.getRight();
 		}
+		adjustBounds();
 	}
 
 	private void adjustHorizontalBaseline() {
@@ -93,9 +93,10 @@ public class LinearGroupNode extends RendererNode implements OptimizableRenderer
 			float dy = anchor.getBaseline() - horizontalCalibratedNode.getBaseline();
 			node.translate(0, dy);
 		}
+		adjustBounds();
 	}
 
-	private void setMeasuredSize() {
+	private void adjustBounds() {
 		float top = 0;
 		float bottom = 0;
 		float right = 0;
