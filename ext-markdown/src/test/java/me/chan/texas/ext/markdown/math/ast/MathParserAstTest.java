@@ -1029,7 +1029,7 @@ public class MathParserAstTest {
 		// 简单空格命令
 		String[] spacings = {"\\,", "\\:", "\\;", "\\!", "\\quad", "\\qquad"};
 		for (String sp : spacings) {
-			MathList ast = parse("a" + sp + "b");
+			MathList ast = parse("a" + sp + " b");
 			boolean hasSpacing = false;
 			for (Ast elem : ast.elements) {
 				if (elem instanceof Spacing) {

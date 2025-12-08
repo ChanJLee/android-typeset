@@ -9,6 +9,9 @@ public class OperatorSymbolAtom implements Atom {
 
 	@Override
 	public String toString() {
-		return op;
+		if (op.length() == 1) {
+			return op;
+		}
+		return "\\" + op;
 	}
 }
