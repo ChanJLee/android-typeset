@@ -62,7 +62,13 @@ public class BraceLayout extends RendererNode implements OptimizableRendererNode
 				mContent.getHeight() :
 				(int) Math.ceil(Math.max(exceptHeight, mContent.getHeight()));
 
+		if (mLeftSymbol != null) {
+			mLeftSymbol.translate(0, (height - mLeftSymbol.getHeight()) / 2f);
+		}
 		mContent.translate(0, (height - mContent.getHeight()) / 2f);
+		if (mRightSymbol != null) {
+			mRightSymbol.translate(0, (height - mRightSymbol.getHeight()) / 2f);
+		}
 
 		setMeasuredSize((int) Math.ceil(left), height);
 	}

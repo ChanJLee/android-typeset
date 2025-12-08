@@ -85,7 +85,13 @@ public abstract class RendererNode {
 	protected void onDrawDebug(MathCanvas canvas, MathPaint paint) {
 		paint.setStyle(Paint.Style.STROKE);
 		canvas.drawRect(0, 0, getWidth(), getHeight(), paint);
+		if (this instanceof HorizontalCalibratedNode) {
+			HorizontalCalibratedNode node = (HorizontalCalibratedNode) this;
+			canvas.drawLine(0, node.getBaseline(), getWidth(), node.getBaseline(), paint);
+		}
+	}
 
+	protected void drawDebugBounds(MathCanvas canvas, MathPaint paint) {
 		canvas.drawLine(0, 0, getWidth(), getHeight(), paint);
 		canvas.drawLine(getWidth(), 0, 0, getHeight(), paint);
 	}
