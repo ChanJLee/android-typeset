@@ -1,5 +1,7 @@
 package me.chan.texas.ext.markdown.math.renderer;
 
+import android.graphics.Color;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
@@ -196,6 +198,15 @@ public class LinearGroupNode extends RendererNode implements OptimizableRenderer
 			}
 		}
 		return getCenterY();
+	}
+
+	@Override
+	protected void onDrawDebug(MathCanvas canvas, MathPaint paint) {
+		super.onDrawDebug(canvas, paint);
+		float y = getBaseline();
+		paint.setColor(Color.BLUE);
+		paint.setStrokeWidth(paint.getStrokeWidth() * 3);
+		canvas.drawLine(0, y, getWidth(), y, paint);
 	}
 
 	public enum Gravity {

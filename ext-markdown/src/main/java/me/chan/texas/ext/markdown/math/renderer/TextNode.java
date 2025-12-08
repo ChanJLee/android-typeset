@@ -37,9 +37,11 @@ public class TextNode extends RendererNode implements HorizontalCalibratedNode {
 
 	@Override
 	protected void onDrawDebug(MathCanvas canvas, MathPaint paint) {
-		paint.setColor(Color.GREEN);
+		paint.setColor(Color.RED);
 		super.onDrawDebug(canvas, paint);
 		drawDebugBounds(canvas, paint);
+		paint.setColor(Color.BLUE);
+		paint.setStyle(Paint.Style.FILL);
 		float y = getHeight() - mBaselineOffset;
 		canvas.drawLine(0, y, getWidth(), y, paint);
 	}

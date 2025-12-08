@@ -136,65 +136,60 @@ public class DecorGroupNode extends RendererNode implements OptimizableRendererN
 	private void preLayout() {
 		float offsetYPercent = 0.5f;
 		mBuilder.center.layout(0, 0);
-
-		if (mBuilder.leftTop != null) {
-			mBuilder.leftTop.layout(-mBuilder.leftTop.getWidth(), -mBuilder.leftTop.getHeight() * offsetYPercent);
-		}
-		if (mBuilder.leftBottom != null) {
-			mBuilder.leftBottom.layout(-mBuilder.leftBottom.getWidth(), mBuilder.center.getBottom() - mBuilder.leftBottom.getHeight() * (1 - offsetYPercent));
-		}
-		if (mBuilder.rightTop != null) {
-			mBuilder.rightTop.layout(mBuilder.center.getRight(), -mBuilder.rightTop.getHeight() * offsetYPercent);
-		}
-		if (mBuilder.rightBottom != null) {
-			mBuilder.rightBottom.layout(mBuilder.center.getRight(), mBuilder.center.getBottom() - mBuilder.rightBottom.getHeight() * (1 - offsetYPercent));
-		}
-		if (mBuilder.top != null) {
-			mBuilder.top.layout(mBuilder.center.getCenterX() - mBuilder.top.getWidth() / 2.0f, -mBuilder.top.getHeight());
-		}
-		if (mBuilder.bottom != null) {
-			mBuilder.bottom.layout(mBuilder.center.getCenterX() - mBuilder.bottom.getWidth() / 2.0f, mBuilder.center.getBottom());
-		}
-		preLayoutHorizontal();
-	}
-
-	protected void preLayoutHorizontal() {
 		float offsetX = mBuilder.mStyles.getTextSize() * 0.2f;
-
 		if (mBuilder.left != null) {
 			mBuilder.left.layout(-mBuilder.left.getWidth() - offsetX, mBuilder.center.getCenterY() - mBuilder.left.getCenterY());
 		}
 		if (mBuilder.right != null) {
 			mBuilder.right.layout(mBuilder.center.getRight() + offsetX, mBuilder.center.getCenterY() - mBuilder.right.getCenterY());
 		}
-
 		adjustHorizontalBaseline();
-	}
 
-	private HorizontalCalibratedNode getHorizontalCalibratedNode() {
-		if (mBuilder.left instanceof HorizontalCalibratedNode) {
-			return (HorizontalCalibratedNode) mBuilder.left;
+		if (mBuilder.leftTop != null) {
+			mBuilder.leftTop.layout(
+					-mBuilder.leftTop.getWidth() + offsetX,
+					mBuilder.center.getTop() - mBuilder.leftTop.getHeight() * offsetYPercent
+			);
 		}
-
-		if (mBuilder.center instanceof HorizontalCalibratedNode) {
-			return (HorizontalCalibratedNode) mBuilder.center;
+		if (mBuilder.leftBottom != null) {
+			mBuilder.leftBottom.layout(
+					-mBuilder.leftBottom.getWidth() + offsetX,
+					mBuilder.center.getBottom() - mBuilder.leftBottom.getHeight() * (1 - offsetYPercent)
+			);
 		}
-
-		if (mBuilder.right instanceof HorizontalCalibratedNode) {
-			return (HorizontalCalibratedNode) mBuilder.right;
+		if (mBuilder.rightTop != null) {
+			mBuilder.rightTop.layout(
+					mBuilder.center.getRight() - offsetX,
+					mBuilder.center.getTop() - mBuilder.rightTop.getHeight() * offsetYPercent
+			);
 		}
-
-		return null;
+		if (mBuilder.rightBottom != null) {
+			mBuilder.rightBottom.layout(
+					mBuilder.center.getRight() - offsetX,
+					mBuilder.center.getBottom() - mBuilder.rightBottom.getHeight() * (1 - offsetYPercent)
+			);
+		}
+		if (mBuilder.top != null) {
+			mBuilder.top.layout(
+					mBuilder.center.getCenterX() - mBuilder.top.getWidth() / 2.0f,
+					mBuilder.center.getTop() - mBuilder.top.getHeight()
+			);
+		}
+		if (mBuilder.bottom != null) {
+			mBuilder.bottom.layout(
+					mBuilder.center.getCenterX() - mBuilder.bottom.getWidth() / 2.0f,
+					mBuilder.center.getBottom()
+			);
+		}
 	}
 
 	private void adjustHorizontalBaseline() {
-		HorizontalCalibratedNode anchor = getHorizontalCalibratedNode();
-		if (anchor == null) {
+		if (!(mBuilder.center instanceof HorizontalCalibratedNode)) {
 			return;
 		}
 
+		HorizontalCalibratedNode anchor = (HorizontalCalibratedNode) mBuilder.center;
 		adjustHorizontalBaseline(anchor, mBuilder.left);
-		adjustHorizontalBaseline(anchor, mBuilder.center);
 		adjustHorizontalBaseline(anchor, mBuilder.right);
 	}
 
@@ -290,18 +285,21 @@ public class DecorGroupNode extends RendererNode implements OptimizableRendererN
 
 	@Override
 	public float getBaseline() {
-		HorizontalCalibratedNode node = getHorizontalCalibratedNode();
-		if (node != null) {
+		if (mBuilder.center instanceof HorizontalCalibratedNode) {
+			HorizontalCalibratedNode node = (HorizontalCalibratedNode) mBuilder.center;
 			return node.getBaseline();
 		}
 
-		return getCenterY();
+		return mBuilder.center.getCenterY();
 	}
 
 	@Override
 	protected void onDrawDebug(MathCanvas canvas, MathPaint paint) {
 		paint.setColor(Color.YELLOW);
 		super.onDrawDebug(canvas, paint);
+		paint.setColor(Color.BLUE);
+		float y = getBaseline();
+		canvas.drawLine(0, y, getWidth(), y, paint);
 	}
 
 	public static class Builder {
