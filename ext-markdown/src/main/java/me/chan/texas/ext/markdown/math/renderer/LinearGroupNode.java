@@ -92,7 +92,6 @@ public class LinearGroupNode extends RendererNode implements OptimizableRenderer
 
 			HorizontalCalibratedNode horizontalCalibratedNode = (HorizontalCalibratedNode) node;
 			float dy = anchor.getBaseline() - horizontalCalibratedNode.getBaseline();
-			Log.d("chan_debug", anchor.getBaseline() + " " + horizontalCalibratedNode.getBaseline() + " " + dy);
 			node.translate(0, dy);
 		}
 		adjustBounds();
