@@ -137,8 +137,6 @@ public class DecorGroupNode extends RendererNode implements OptimizableRendererN
 		float offsetYPercent = 0.5f;
 		mBuilder.center.layout(0, 0);
 
-		float offsetX = mBuilder.mStyles.getTextSize() * 0.2f;
-
 		if (mBuilder.leftTop != null) {
 			mBuilder.leftTop.layout(-mBuilder.leftTop.getWidth(), -mBuilder.leftTop.getHeight() * offsetYPercent);
 		}
@@ -157,12 +155,56 @@ public class DecorGroupNode extends RendererNode implements OptimizableRendererN
 		if (mBuilder.bottom != null) {
 			mBuilder.bottom.layout(mBuilder.center.getCenterX() - mBuilder.bottom.getWidth() / 2.0f, mBuilder.center.getBottom());
 		}
+		preLayoutHorizontal();
+	}
+
+	protected void preLayoutHorizontal() {
+		float offsetX = mBuilder.mStyles.getTextSize() * 0.2f;
+
 		if (mBuilder.left != null) {
-			mBuilder.left.layout(-mBuilder.left.getWidth(), mBuilder.center.getBottom() - mBuilder.left.getHeight() - offsetX);
+			mBuilder.left.layout(-mBuilder.left.getWidth() - offsetX, mBuilder.center.getCenterY() - mBuilder.left.getCenterY());
 		}
 		if (mBuilder.right != null) {
-			mBuilder.right.layout(mBuilder.center.getRight() + offsetX, mBuilder.center.getBottom() - mBuilder.right.getHeight());
+			mBuilder.right.layout(mBuilder.center.getRight() + offsetX, mBuilder.center.getCenterY() - mBuilder.right.getCenterY());
 		}
+
+		adjustHorizontalBaseline();
+	}
+
+	private HorizontalCalibratedNode getHorizontalCalibratedNode() {
+		if (mBuilder.left instanceof HorizontalCalibratedNode) {
+			return (HorizontalCalibratedNode) mBuilder.left;
+		}
+
+		if (mBuilder.center instanceof HorizontalCalibratedNode) {
+			return (HorizontalCalibratedNode) mBuilder.center;
+		}
+
+		if (mBuilder.right instanceof HorizontalCalibratedNode) {
+			return (HorizontalCalibratedNode) mBuilder.right;
+		}
+
+		return null;
+	}
+
+	private void adjustHorizontalBaseline() {
+		HorizontalCalibratedNode anchor = getHorizontalCalibratedNode();
+		if (anchor == null) {
+			return;
+		}
+
+		adjustHorizontalBaseline(anchor, mBuilder.left);
+		adjustHorizontalBaseline(anchor, mBuilder.center);
+		adjustHorizontalBaseline(anchor, mBuilder.right);
+	}
+
+	private void adjustHorizontalBaseline(HorizontalCalibratedNode anchor, RendererNode node) {
+		if (!(node instanceof HorizontalCalibratedNode)) {
+			return;
+		}
+
+		HorizontalCalibratedNode horizontalCalibratedNode = (HorizontalCalibratedNode) node;
+		node.translate(0, anchor.getBaseline() - horizontalCalibratedNode.getBaseline());
 	}
 
 	@Override
@@ -248,8 +290,8 @@ public class DecorGroupNode extends RendererNode implements OptimizableRendererN
 
 	@Override
 	public float getBaseline() {
-		if (mBuilder.center instanceof HorizontalCalibratedNode) {
-			HorizontalCalibratedNode node = (HorizontalCalibratedNode) mBuilder.center;
+		HorizontalCalibratedNode node = getHorizontalCalibratedNode();
+		if (node != null) {
 			return node.getBaseline();
 		}
 

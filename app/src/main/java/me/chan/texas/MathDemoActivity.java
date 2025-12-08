@@ -33,7 +33,8 @@ public class MathDemoActivity extends AppCompatActivity {
 	}
 
 	private void render(String math) {
-		mMathView.render("afg \\, " + math + " \\, afg");
+//		mMathView.render("afg \\, " + math + " \\, afg");
+		mMathView.render(math);
 	}
 
 	private List<FormulaCategory> getFormulaCategories() {

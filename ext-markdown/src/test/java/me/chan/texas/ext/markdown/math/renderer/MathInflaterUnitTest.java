@@ -1965,6 +1965,11 @@ public class MathInflaterUnitTest {
 	}
 
 	@Test
+	public void test() {
+		assertRenderSuccess("f'\\left(x\\right)=\\lim_{h\\to 0}\\frac{f\\left(x+h\\right)-f\\left(x\\right)}{h}");
+	}
+
+	@Test
 	public void test_09_Summary() {
 		System.out.println("\n" + "=".repeat(60));
 		System.out.println("BNF 完整测试总结：");

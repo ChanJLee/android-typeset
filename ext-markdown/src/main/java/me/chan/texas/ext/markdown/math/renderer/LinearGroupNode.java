@@ -8,7 +8,7 @@ import java.util.List;
 import me.chan.texas.ext.markdown.math.renderer.core.MathCanvas;
 import me.chan.texas.ext.markdown.math.renderer.core.MathPaint;
 
-public class LinearGroupNode extends RendererNode implements OptimizableRendererNode {
+public class LinearGroupNode extends RendererNode implements OptimizableRendererNode, HorizontalCalibratedNode {
 	private final List<RendererNode> mNodes;
 	private final Gravity mGravity;
 
@@ -53,36 +53,22 @@ public class LinearGroupNode extends RendererNode implements OptimizableRenderer
 		}
 
 		preLayoutAlignCenter();
-		preLayoutHorizontalCalibrate();
+		adjustHorizontalBaseline();
 		setMeasuredSize();
 	}
 
 	private void preLayoutAlignCenter() {
-		float left = 0;
-		for (RendererNode node : mNodes) {
-			node.layout(left, 0);
-			left = node.getRight();
-		}
-
 		RendererNode anchor = mNodes.get(0);
+		anchor.layout(0, 0);
+		float left = anchor.getRight();
 		for (int i = 1; i < mNodes.size(); ++i) {
 			RendererNode node = mNodes.get(i);
-			if (node.getCenterY() > anchor.getCenterY()) {
-				anchor = node;
-			}
-		}
-
-		float top = 0;
-		for (RendererNode node : mNodes) {
-			node.translate(0, anchor.getCenterY() - node.getCenterY());
-			top = Math.min(node.getTop(), top);
-		}
-		for (RendererNode node : mNodes) {
-			node.translate(0, -top);
+			node.layout(left, anchor.getCenterY() - node.getCenterY());
+			left = node.getRight();
 		}
 	}
 
-	private void preLayoutHorizontalCalibrate() {
+	private void adjustHorizontalBaseline() {
 		int anchorIndex = -1;
 		for (int i = 0; i < mNodes.size(); ++i) {
 			if (mNodes.get(i) instanceof HorizontalCalibratedNode) {
@@ -109,13 +95,16 @@ public class LinearGroupNode extends RendererNode implements OptimizableRenderer
 	private void setMeasuredSize() {
 		float top = 0;
 		float bottom = 0;
-		float left = 0;
+		float right = 0;
 		for (RendererNode node : mNodes) {
 			top = Math.min(node.getTop(), top);
 			bottom = Math.max(node.getBottom(), bottom);
-			left = node.getLeft();
+			right = node.getRight();
 		}
-		setMeasuredSize((int) Math.ceil(left), (int) Math.ceil(bottom));
+		for (RendererNode node : mNodes) {
+			node.translate(0, -top);
+		}
+		setMeasuredSize((int) Math.ceil(right), (int) Math.ceil(bottom - top));
 	}
 
 	@Override
@@ -197,6 +186,16 @@ public class LinearGroupNode extends RendererNode implements OptimizableRenderer
 		}
 
 		return child;
+	}
+
+	@Override
+	public float getBaseline() {
+		for (RendererNode rendererNode : mNodes) {
+			if (rendererNode instanceof HorizontalCalibratedNode) {
+				return ((HorizontalCalibratedNode) rendererNode).getBaseline();
+			}
+		}
+		return getCenterY();
 	}
 
 	public enum Gravity {
