@@ -1,0 +1,294 @@
+<math> ::= <math_list>
+
+(* math_list 是由 element 构成的序列，element 可以是 expression 或 spacing *)
+<math_list> ::= <element> { <element> }
+
+<element> ::= <expression> | <spacing>
+
+(* ---------- 表达式优先级（无歧义） ---------- *)
+
+(* 顶层表达式：关系层 *)
+<expression> ::= <relation>
+
+<relation> ::= <sum> { <relation_op> <sum> }
+
+<relation_op> ::= "=" | "\neq" | "\ne" | "\equiv" | "\approx" | "\cong"
+                | "\sim" | "\simeq" | "\asymp" | "\propto"
+                | "<" | ">" | "\le" | "\ge" | "\leq" | "\geq"
+                | "\prec" | "\succ" | "\preceq" | "\succeq"
+                | "\in" | "\notin" | "\subset" | "\supset" | "\subseteq" | "\supseteq"
+                | "\mid" | "\nmid" | "\models" | "\bowtie"
+                | "\implies" | "\iff" | "\to" | "\rightarrow" | "\leftarrow"
+                | "\leftrightarrow" | "\Rightarrow" | "\Leftarrow" | "\Leftrightarrow"
+
+(* 加减层 *)
+<sum> ::= <product> { <add_op> <product> }
+
+<add_op> ::= "+" | "-" | "\pm" | "\mp"
+
+(* 乘法层：显式与隐式乘法都在这里 *)
+<product> ::= <unary> { ( <mul_op> <unary> ) | <unary> }
+             (* 注意：第二个 <unary> 项表示隐式乘法 (adjacent unary) *)
+
+<mul_op> ::= "*" | "/" | "\times" | "\cdot" | "\div" | "\circ" | "\otimes" | "\oplus"
+           | "\setminus" | "\cap" | "\cup" | "\wedge" | "\vee" | "\bullet"
+
+(* 一元运算层 *)
+<unary> ::= [ <unary_op> ] <postfix>
+
+<unary_op> ::= "+" | "-" | "\neg"  (* \pm/\mp 通常不做一元，仅作二元或符号时用 *)
+
+(* 后缀层：基底 + 上下标 + 后缀运算符 *)
+<postfix> ::= <base> [ <sup_sub> ] [ <postfix_op_seq> ]
+
+<postfix_op_seq> ::= <postfix_op> { <postfix_op> }   (* 支持 !! 等连续后缀 *)
+
+<postfix_op> ::= "!" | "!!"   (* 阶乘与双阶乘；可扩展 *)
+
+(* base 是基本原子或复合结构 *)
+<base> ::= <operand_atom>
+         | <special_symbol>
+         | <punctuation>
+
+(* ---------- atom 类别 ---------- *)
+
+(* 可被一元运算符修饰的原子 *)
+<operand_atom> ::= <number>
+                 | <variable>
+                 | <greek_letter_variable>
+                 | <special_letter_variable>
+                 | <group>
+                 | <frac>
+                 | <binom>
+                 | <sqrt>
+                 | <delimited>           (* \left...\right 或 \bigl...\bigr 系列 *)
+                 | <function_call>
+                 | <large_operator>
+                 | <matrix>
+                 | <text>
+                 | <accent>
+                 | <font_command>
+                 | <extensible_arrow>
+
+(* 不能被一元运算符修饰但可带上下标的特殊符号 *)
+<special_symbol> ::= "\dots" | "\ldots" | "\cdots" | "\vdots" | "\ddots"
+                   | "\angle" | "\therefore" | "\because"
+                   | "\forall" | "\exists" | "\nexists"
+                   | "\emptyset" | "\varnothing"
+                   | "\prime"        (* 单独 prime 符号等 *)
+                   | "\ldots"        (* 冗余但常见 *)
+
+(* 标点 *)
+<punctuation> ::= "," | ";"
+
+(* ---------- 基础 token ---------- *)
+
+<number> ::= <digit> { <digit> } [ "." <digit> { <digit> } ]
+
+<digit> ::= "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9"
+
+<variable> ::= <letter> { <letter> } [ <prime_suffix> ]
+
+<letter> ::= "a" | "b" | "c" | ... | "z" | "A" | "B" | ... | "Z"
+
+<prime_suffix> ::= "'" { "'" }  (* 一个或多个单引号 *)
+
+(* 希腊字母变量 *)
+<greek_letter> ::= "\alpha" | "\beta" | "\gamma" | "\delta" | "\epsilon" | "\varepsilon"
+                 | "\zeta" | "\eta" | "\theta" | "\vartheta" | "\iota" | "\kappa"
+                 | "\lambda" | "\mu" | "\nu" | "\xi" | "\pi" | "\varpi" | "\rho" | "\varrho"
+                 | "\sigma" | "\varsigma" | "\tau" | "\upsilon" | "\phi" | "\varphi"
+                 | "\chi" | "\psi" | "\omega"
+                 | "\Gamma" | "\Delta" | "\Theta" | "\Lambda" | "\Xi" | "\Pi"
+                 | "\Sigma" | "\Upsilon" | "\Phi" | "\Psi" | "\Omega" | "\infty"
+
+<greek_letter_variable> ::= <greek_letter> [ <prime_suffix> ]
+
+(* 类字母特殊变量，可被一元运算符修饰 *)
+<special_letter_variable> ::= "\hbar" | "\nabla" | "\partial" | "\ell"
+                             | "\wp" | "\Re" | "\Im" | "\aleph"
+
+(* ---------- 分组与定界 ---------- *)
+
+(* group：三种常用括号都视为语法分组 *)
+<group> ::= "{" <math_list> "}"
+          | "(" <math_list> ")"
+          | "[" <math_list> "]"
+
+(* 可伸缩定界符：左右必须匹配 *)
+<delimited> ::= <left_paren_delim>
+              | <left_bracket_delim>
+              | <left_brace_delim>
+              | <left_angle_delim>
+              | <left_floor_delim>
+              | <left_ceil_delim>
+              | <left_vert_delim>
+
+<left_paren_delim>   ::= "\left("  <math_list> "\right)"
+<left_bracket_delim> ::= "\left["  <math_list> "\right]"
+<left_brace_delim>   ::= "\left\{" <math_list> "\right\}"
+<left_angle_delim>   ::= "\left\langle" <math_list> "\right\rangle"
+<left_floor_delim>   ::= "\left\lfloor" <math_list> "\right\rfloor"
+<left_ceil_delim>    ::= "\left\lceil"  <math_list> "\right\rceil"
+<left_vert_delim>    ::= "\left\lvert" <math_list> "\right\rvert"
+                     | "\left\lVert" <math_list> "\right\rVert"
+                     | "\left|"      <math_list> "\right|"
+                     | "\left."      <math_list> "\right."   (* 空定界符 *)
+
+(* big/small explicit sizing variants *)
+<delimited> ::= <bigl_paren> | <Bigl_paren> | <biggl_paren> | <Biggl_paren>
+               | <... same for bracket/brace etc ...>
+
+<bigl_paren>   ::= "\bigl("  <math_list> "\bigr)"
+<Bigl_paren>   ::= "\Bigl("  <math_list> "\Bigr)"
+<biggl_paren>  ::= "\biggl(" <math_list> "\biggr)"
+<Biggl_paren>  ::= "\Biggl(" <math_list> "\Biggr)"
+(* 同理可为 [ ] \{ \} 等定义 *)
+
+(* ---------- 上下标规则（更灵活） ---------- *)
+
+<sup_sub> ::= "^" <script_arg> [ "_" <script_arg> ]
+            | "_" <script_arg> [ "^" <script_arg> ]
+
+(* script_arg 可以是 group（花括号）或较小的 math_list，允许复合内容 *)
+<script_arg> ::= <group> | <math_list_restricted>
+
+(* math_list_restricted：用于上/下标内，避免吃掉过多内容 *)
+<math_list_restricted> ::= <restricted_element> { <restricted_element> }
+
+<restricted_element> ::= <restricted_term> | <spacing>
+
+<restricted_term> ::= <operand_atom>
+                    | <special_symbol>
+                    | <single_token>
+
+(* single_token 用于上标内的原子（保持简单） *)
+<single_token> ::= <number> | <variable> | <greek_letter_variable> | <operator_symbol_atom>
+
+<operator_symbol_atom> ::= "+" | "-" | "\circ" | "\degree"  (* 仅保留常见能作为符号的项 *)
+
+(* ---------- 分式/二项式/根式 ---------- *)
+
+<frac> ::= "\frac" "{" <math_list> "}" "{" <math_list> "}"
+         | "\dfrac" "{" <math_list> "}" "{" <math_list> "}"
+         | "\tfrac" "{" <math_list> "}" "{" <math_list> "}"
+         | "\cfrac" "{" <math_list> "}" "{" <math_list> "}"
+
+<binom> ::= "\binom" "{" <math_list> "}" "{" <math_list> "}"
+          | "\dbinom" "{" <math_list> "}" "{" <math_list> "}"
+          | "\tbinom" "{" <math_list> "}" "{" <math_list> "}"
+
+<sqrt> ::= "\sqrt" "{" <math_list> "}"
+         | "\sqrt" "[" <math_list> "]" "{" <math_list> "}"  (* 可选次根指数 *)
+
+(* ---------- 可扩展箭头 ---------- *)
+
+<extensible_arrow> ::= <extensible_arrow_cmd> [ "[" <math_list> "]" ] "{" <math_list> "}"
+
+<extensible_arrow_cmd> ::= "\xrightarrow" | "\xleftarrow" | "\xleftrightarrow"
+                         | "\xRightarrow" | "\xLeftarrow" | "\xLeftrightarrow"
+                         | "\xhookrightarrow" | "\xhookleftarrow"
+                         | "\xtwoheadrightarrow" | "\xtwoheadleftarrow"
+                         | "\xmapsto" | "\xtofrom" | "\xrightarrowtail"  (* 可扩展 *)
+
+(* ---------- 函数、运算符、极限 ---------- *)
+
+<function_call> ::= <function_cmd> [ "_" <script_arg> ] [ "^" <script_arg> ] <function_arg_opt>
+
+<function_cmd> ::= "\sin" | "\cos" | "\tan" | "\cot" | "\sec" | "\csc"
+                 | "\arcsin" | "\arccos" | "\arctan"
+                 | "\sinh" | "\cosh" | "\tanh" | "\coth"
+                 | "\log" | "\ln" | "\lg" | "\exp"
+                 | "\max" | "\min" | "\sup" | "\inf" | "\arg"
+                 | "\deg" | "\det" | "\dim" | "\gcd" | "\ker"
+                 | "\Pr" | "\bmod" | "\pmod" | "\operatorname"  (* operatorname 可拓展 *)
+
+(* function_arg 可选（一些函数直接后接 group/单 token） *)
+<function_arg_opt> ::= ε
+                     | <single_token>
+                     | <group>
+                     | <delimited>
+
+(* 大型运算符（sum/prod/lim 等） *)
+<large_operator> ::= <large_op_cmd> [ "_" <script_arg> ] [ "^" <script_arg> ]
+
+<large_op_cmd> ::= "\sum" | "\prod" | "\coprod"
+                 | "\int" | "\iint" | "\iiint" | "\oint"
+                 | "\bigcup" | "\bigcap" | "\bigvee" | "\bigwedge"
+                 | "\bigoplus" | "\bigotimes" | "\bigodot"
+                 | "\biguplus" | "\bigsqcup"
+                 | "\lim" | "\limsup" | "\liminf"
+
+(* limits 修饰符（可选）影响渲染位置，但作为语法后缀处理） *)
+<limits_mod> ::= "\limits" | "\nolimits" | ε
+
+(* ---------- 矩阵/array/cases ---------- *)
+
+<matrix> ::= <pmatrix> | <bmatrix> | <Bmatrix> | <vmatrix> | <Vmatrix> | <smallmatrix>
+           | <array> | <cases>
+
+<pmatrix> ::= "\begin{pmatrix}" <matrix_rows> "\end{pmatrix}"
+<bmatrix> ::= "\begin{bmatrix}" <matrix_rows> "\end{bmatrix}"
+<Bmatrix> ::= "\begin{Bmatrix}" <matrix_rows> "\end{Bmatrix>"
+<vmatrix> ::= "\begin{vmatrix}" <matrix_rows> "\end{vmatrix}"
+<Vmatrix> ::= "\begin{Vmatrix}" <matrix_rows> "\end{Vmatrix}"
+<smallmatrix> ::= "\begin{smallmatrix}" <matrix_rows> "\end{smallmatrix>"
+
+<array> ::= "\begin{array}" "{" <matrix_gravity_list> "}" <matrix_rows> "\end{array}"
+<cases> ::= "\begin{cases}" <matrix_rows> "\end{cases>"
+
+<matrix_gravity_list> ::= <matrix_gravity> { <matrix_gravity> }
+<matrix_gravity> ::= "l" | "c" | "r"
+
+<matrix_rows> ::= <matrix_row> { "\\" <matrix_row> }
+<matrix_row> ::= <math_list> { "&" <math_list> }
+
+(* ---------- 文本、字体、重音 ---------- *)
+
+<text> ::= "\text" "{" <text_content> "}"
+         | "\mbox" "{" <text_content> "}"
+         | "\textrm" "{" <text_content> "}"
+         | "\textit" "{" <text_content> "}"
+         | "\textbf" "{" <text_content> "}"
+
+<text_content> ::= <any_unicode_char> { <any_unicode_char> }
+
+<font_command> ::= <font_cmd_name> "{" <math_list> "}"
+<font_cmd_name> ::= "\mathrm" | "\mathit" | "\mathbf" | "\mathsf" | "\mathtt"
+                  | "\mathcal" | "\mathbb" | "\mathfrak" | "\mathscr"
+                  | "\boldsymbol" | "\bm"
+
+<accent> ::= <accent_cmd> "{" <math_list> "}" | <accent_cmd> <single_token>
+<accent_cmd> ::= "\hat" | "\widehat" | "\tilde" | "\widetilde" | "\bar" | "\overline"
+               | "\underline" | "\vec" | "\overrightarrow" | "\overleftarrow"
+               | "\dot" | "\ddot" | "\dddot" | "\acute" | "\grave" | "\breve"
+               | "\check" | "\mathring" | "\overbrace" | "\underbrace"
+
+(* ---------- 空格命令（作为独立元素） ---------- *)
+
+<spacing> ::= "\," | "\:" | "\;" | "\!"
+            | "\quad" | "\qquad"
+            | "\hspace" "{" <length> "}"
+            | "\hphantom" "{" <math_list> "}"
+            | "\vphantom" "{" <math_list> "}"
+            | "\phantom" "{" <math_list> "}"
+
+<length> ::= <number> <unit>
+<unit> ::= "em" | "ex" | "pt" | "px" | "cm" | "mm" | "in"
+
+(* ---------- 运算符分类（词法层） ---------- *)
+
+<postfix_op> ::= "!" | "!!"
+<binary_op> ::= "+" | "-" | "*" | "/" | "\times" | "\cdot" | "\div" | "\setminus"
+              | "\oplus" | "\ominus" | "\otimes" | "\oslash" | "\odot" | "\bullet"
+              | "|" | "\wedge" | "\vee" | "\cup" | "\cap"
+              (* 关系符在 relation_op 中定义 *)
+              (* 箭头单独在 relation_op 中或作为二元表达式的一部分 *)
+
+(* operator_symbol_atom 仅在上标/下标等场景作单项符号 *)
+<operator_symbol_atom> ::= "+" | "-" | "\circ" | "\degree"
+
+(* ---------- 额外建议/扩展命令（保留位） ---------- *)
+(* 以下命令在实现时应作为独立语法单元添加： \not, \stackrel, \overset, \underset, \substack, \boxed, \cancel, \color, \textcolor, \limits, \nolimits 等 *)
+
+(* End of BNF v7 *)
