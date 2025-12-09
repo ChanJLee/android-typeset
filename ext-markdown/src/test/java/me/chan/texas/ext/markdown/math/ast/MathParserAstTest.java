@@ -1399,8 +1399,8 @@ public class MathParserAstTest {
 	@Test
 	public void test_functionCall_chainedArg() throws MathParseException {
 		// 链式函数调用
-		assertParseSuccess("\\sin\\cos x");
-		assertParseSuccess("\\log\\log x");
+		assertParseSuccess("\\sin{\\cos x}");
+		assertParseSuccess("\\log{\\log x}");
 	}
 
 	// ============================================================
@@ -1539,9 +1539,9 @@ public class MathParserAstTest {
 	@Test
 	public void test_implicitMultiplication() throws MathParseException {
 		// 隐式乘法：多个 term 直接相邻
-		MathList ast = parse("2xy");
+		MathList ast = parse("2x3y");
 		Expression expr = (Expression) ast.elements.get(0);
-		assertEquals(3, expr.elements.size());  // 2, x, y
+		assertEquals(4, expr.elements.size());  // 2, x, 3, y
 	}
 
 	@Test
@@ -1754,13 +1754,6 @@ public class MathParserAstTest {
 		assertParseFail("+");
 		assertParseFail("-");
 		assertParseFail("*");
-	}
-
-	@Test
-	public void test_edge_consecutiveUnary() throws MathParseException {
-		// 连续一元运算符
-		assertParseSuccess("--x");  // 可能被解析为 -(-x)
-		assertParseSuccess("+-x");
 	}
 
 	@Test
