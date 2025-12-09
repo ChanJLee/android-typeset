@@ -43,10 +43,10 @@ public class LinearGroupNode extends RendererNode implements OptimizableRenderer
 		float height = 0;
 		float width = 0;
 		for (RendererNode node : mNodes) {
-			height += node.getWidth();
-			width = Math.max(width, node.getHeight());
+			height += node.getHeight();
+			width = Math.max(width, node.getWidth());
 		}
-		setMeasuredSize((int) Math.ceil(height), (int) Math.ceil(width));
+		setMeasuredSize((int) Math.ceil(width), (int) Math.ceil(height));
 	}
 
 	private void preLayout() {
@@ -203,6 +203,10 @@ public class LinearGroupNode extends RendererNode implements OptimizableRenderer
 
 	@Override
 	public boolean supportAlignBaseline() {
+		if (mGravity != Gravity.HORIZONTAL) {
+			return false;
+		}
+
 		for (RendererNode rendererNode : mNodes) {
 			if (rendererNode instanceof HorizontalCalibratedNode && ((HorizontalCalibratedNode) rendererNode).supportAlignBaseline()) {
 				return true;
