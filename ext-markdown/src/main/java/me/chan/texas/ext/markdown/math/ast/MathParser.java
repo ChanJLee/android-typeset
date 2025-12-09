@@ -406,10 +406,7 @@ public class MathParser {
 		}
 
 		char c = (char) stream.peek();
-		if (c == '}') { // 组结束
-			return true;
-		}
-		if (c == ']') { // 根式可选参数结束
+		if (c == '}' || c == ')' || c == ']') { // 组结束, ] 根式可选参数结束
 			return true;
 		}
 		if (c == '&') { // 矩阵列分隔符
@@ -588,8 +585,8 @@ public class MathParser {
 		}
 
 		// 分组
-		if (c == '{') {
-			return parseGroup();
+		if (isGroupStart(c)) {
+			return parseGroup(c);
 		}
 
 		// 命令（以\开头）
@@ -909,17 +906,28 @@ public class MathParser {
 	}
 
 	/**
-	 * <group> ::= "{" <math_list> "}"
+	 * <group> ::= "{" <math_list> "}" | "(" <math_list> ")" | "[" <math_list> "]"
+	 *
 	 */
-	private Group parseGroup() throws MathParseException {
-		expect('{');
+	private Group parseGroup(char s) throws MathParseException {
+		expect(s);
+		char e;
+		if (s == '{') {
+			e = '}';
+		} else if (s == '(') {
+			e = ')';
+		} else if (s == '[') {
+			e = ']';
+		} else {
+			throw new IllegalStateException("Unexpected group start: " + s);
+		}
 
 		recursionDepth++;
 		try {
 			MathList content = parseMathList();
 			skipWhitespace();
-			expect('}');
-			return new Group(content);
+			expect(e);
+			return new Group(s, e, content);
 		} finally {
 			recursionDepth--;
 		}
@@ -1069,8 +1077,8 @@ public class MathParser {
 		if (!stream.eof()) {
 			char c = (char) stream.peek();
 			int level = -1;
-			if (c == '{') {
-				argument = parseGroup();
+			if (isGroupStart(c)) {
+				argument = parseGroup(c);
 			} else if (c == '\\' && (level = peekDelimitedLevel()) >= 0) {
 				argument = parseDelimited(level);
 			} else if (isSingleTokenStart()) {
@@ -1079,6 +1087,10 @@ public class MathParser {
 		}
 
 		return new FunctionCallAtom(functionName, supSubSuffix, argument);
+	}
+
+	private boolean isGroupStart(char c) {
+		return c == '{' || c == '(' || c == '[';
 	}
 
 	/**
@@ -1225,8 +1237,9 @@ public class MathParser {
 			throw new MathParseException("Expected script argument", stream);
 		}
 
-		if (stream.peek() == '{') {
-			return new ScriptArg(parseGroup());
+		char c = (char) stream.peek();
+		if (isGroupStart(c)) {
+			return new ScriptArg(parseGroup(c));
 		} else if (isSingleTokenStart()) {
 			return new ScriptArg(new SingleToken(scanSingleToken()));
 		} else {

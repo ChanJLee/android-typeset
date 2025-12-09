@@ -675,7 +675,28 @@ public class MathRendererInflater {
 	}
 
 	private RendererNode inflateGroupAtom(MathPaint.Styles styles, Group groupAtom) {
-		return inflate0(styles, groupAtom.content);
+		if (groupAtom.s == '{') {
+			return inflate0(styles, groupAtom.content);
+		}
+
+		List<RendererNode> nodes = new ArrayList<>();
+		if (groupAtom.s == '(') {
+			nodes.add(new SymbolNode(styles, MathFontOptions.symbol("parenleft")));
+		} else if (groupAtom.s == '[') {
+			nodes.add(new SymbolNode(styles, MathFontOptions.symbol("bracketleft")));
+		} else {
+			throw new IllegalArgumentException("unknown group delimiter: " + groupAtom.s);
+		}
+
+		nodes.add(inflate0(styles, groupAtom.content));
+
+		if (groupAtom.s == '(') {
+			nodes.add(new SymbolNode(styles, MathFontOptions.symbol("parenright")));
+		} else {
+			nodes.add(new SymbolNode(styles, MathFontOptions.symbol("bracketright")));
+		}
+
+		return new LinearGroupNode(styles, nodes, LinearGroupNode.Gravity.HORIZONTAL);
 	}
 
 	private RendererNode inflateAccentAtom(MathPaint.Styles styles, AccentAtom accentAtom) {
