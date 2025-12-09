@@ -124,4 +124,9 @@ public class BraceLayout extends RendererNode implements OptimizableRendererNode
 		HorizontalCalibratedNode node = (HorizontalCalibratedNode) mContent;
 		return node.getBaseline() + getTop();
 	}
+
+	@Override
+	public float getContentCenterY() {
+		return mContent.getContentCenterY() + mContent.getTop();
+	}
 }

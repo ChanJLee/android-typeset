@@ -309,6 +309,11 @@ public class DecorGroupNode extends RendererNode implements OptimizableRendererN
 		canvas.drawLine(0, y, getWidth(), y, paint);
 	}
 
+	@Override
+	public float getContentCenterY() {
+		return mBuilder.center.getContentCenterY() + mBuilder.center.getTop();
+	}
+
 	public static class Builder {
 		private RendererNode center;
 		private final MathPaint.Styles mStyles;

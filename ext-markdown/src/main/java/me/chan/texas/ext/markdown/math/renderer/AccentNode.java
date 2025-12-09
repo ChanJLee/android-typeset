@@ -246,4 +246,9 @@ public class AccentNode extends RendererNode implements HorizontalCalibratedNode
 		HorizontalCalibratedNode node = (HorizontalCalibratedNode) mContent;
 		return node.getBaseline() + getTop();
 	}
+
+	@Override
+	public float getContentCenterY() {
+		return mContent.getContentCenterY() + mContent.getTop();
+	}
 }

@@ -1,8 +1,6 @@
 package me.chan.texas.ext.markdown.math.renderer;
 
 
-import android.util.Log;
-
 import androidx.annotation.NonNull;
 
 import me.chan.texas.ext.markdown.math.renderer.core.MathCanvas;
@@ -84,6 +82,6 @@ public class FractionNode extends RendererNode implements OptimizableRendererNod
 
 	@Override
 	public float getContentCenterY() {
-		return mNumerator.getHeight() + mSpaceHeight / 2.0f;
+		return mNumerator.getHeight() + mNumerator.getTop() + mSpaceHeight / 2.0f;
 	}
 }
