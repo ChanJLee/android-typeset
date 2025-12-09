@@ -73,11 +73,18 @@ public class LinearGroupNode extends RendererNode implements OptimizableRenderer
 	private void adjustHorizontalBaseline() {
 		int anchorIndex = -1;
 		for (int i = 0; i < mNodes.size(); ++i) {
-			if (mNodes.get(i) instanceof HorizontalCalibratedNode) {
+			RendererNode rendererNode = mNodes.get(i);
+			if (!(rendererNode instanceof HorizontalCalibratedNode)) {
+				continue;
+			}
+
+			HorizontalCalibratedNode node = (HorizontalCalibratedNode) rendererNode;
+			if (node.supportAlignBaseline()) {
 				anchorIndex = i;
 				break;
 			}
 		}
+
 		if (anchorIndex < 0) {
 			return;
 		}
@@ -197,7 +204,7 @@ public class LinearGroupNode extends RendererNode implements OptimizableRenderer
 	@Override
 	public boolean supportAlignBaseline() {
 		for (RendererNode rendererNode : mNodes) {
-			if (rendererNode instanceof HorizontalCalibratedNode) {
+			if (rendererNode instanceof HorizontalCalibratedNode && ((HorizontalCalibratedNode) rendererNode).supportAlignBaseline()) {
 				return true;
 			}
 		}
@@ -207,7 +214,7 @@ public class LinearGroupNode extends RendererNode implements OptimizableRenderer
 	@Override
 	public float getBaseline() {
 		for (RendererNode rendererNode : mNodes) {
-			if (rendererNode instanceof HorizontalCalibratedNode) {
+			if (rendererNode instanceof HorizontalCalibratedNode && ((HorizontalCalibratedNode) rendererNode).supportAlignBaseline()) {
 				return ((HorizontalCalibratedNode) rendererNode).getBaseline() + getTop();
 			}
 		}

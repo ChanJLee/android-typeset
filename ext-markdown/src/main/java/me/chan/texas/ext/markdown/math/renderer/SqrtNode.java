@@ -114,7 +114,12 @@ public class SqrtNode extends RendererNode implements OptimizableRendererNode, H
 
 	@Override
 	public boolean supportAlignBaseline() {
-		return mContent instanceof HorizontalCalibratedNode;
+		if (mContent instanceof HorizontalCalibratedNode) {
+			HorizontalCalibratedNode node = (HorizontalCalibratedNode) mContent;
+			return node.supportAlignBaseline();
+		}
+
+		return false;
 	}
 
 	@Override
