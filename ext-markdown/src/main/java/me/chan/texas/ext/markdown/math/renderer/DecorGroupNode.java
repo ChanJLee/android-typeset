@@ -138,10 +138,10 @@ public class DecorGroupNode extends RendererNode implements OptimizableRendererN
 		mBuilder.center.layout(0, 0);
 		float offsetX = mBuilder.mStyles.getTextSize() * 0.2f;
 		if (mBuilder.left != null) {
-			mBuilder.left.layout(-mBuilder.left.getWidth() - offsetX, mBuilder.center.getCenterY() - mBuilder.left.getCenterY());
+			mBuilder.left.layout(-mBuilder.left.getWidth() - offsetX, mBuilder.center.getContentCenterY() - mBuilder.left.getContentCenterY());
 		}
 		if (mBuilder.right != null) {
-			mBuilder.right.layout(mBuilder.center.getRight() + offsetX, mBuilder.center.getCenterY() - mBuilder.right.getCenterY());
+			mBuilder.right.layout(mBuilder.center.getRight() + offsetX, mBuilder.center.getContentCenterY() - mBuilder.right.getContentCenterY());
 		}
 		adjustHorizontalBaseline();
 

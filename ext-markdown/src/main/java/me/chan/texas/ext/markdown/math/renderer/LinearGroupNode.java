@@ -1,7 +1,6 @@
 package me.chan.texas.ext.markdown.math.renderer;
 
 import android.graphics.Color;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -65,7 +64,7 @@ public class LinearGroupNode extends RendererNode implements OptimizableRenderer
 		float left = anchor.getRight();
 		for (int i = 1; i < mNodes.size(); ++i) {
 			RendererNode node = mNodes.get(i);
-			node.layout(left, anchor.getCenterY() - node.getCenterY());
+			node.layout(left, anchor.getContentCenterY() - node.getContentCenterY());
 			left = node.getRight();
 		}
 		adjustBounds();
@@ -212,7 +211,7 @@ public class LinearGroupNode extends RendererNode implements OptimizableRenderer
 				return ((HorizontalCalibratedNode) rendererNode).getBaseline() + getTop();
 			}
 		}
-		return getCenterY() + getTop();
+		return getContentCenterY() + getTop();
 	}
 
 	@Override
