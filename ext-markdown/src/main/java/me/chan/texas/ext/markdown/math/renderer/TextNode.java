@@ -51,6 +51,11 @@ public class TextNode extends RendererNode implements HorizontalCalibratedNode {
 	}
 
 	@Override
+	public boolean supportAlignBaseline() {
+		return true;
+	}
+
+	@Override
 	public float getBaseline() {
 		return getBottom() - mBaselineOffset;
 	}

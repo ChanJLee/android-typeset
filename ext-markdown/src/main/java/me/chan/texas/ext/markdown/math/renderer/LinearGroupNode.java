@@ -194,13 +194,23 @@ public class LinearGroupNode extends RendererNode implements OptimizableRenderer
 	}
 
 	@Override
+	public boolean supportAlignBaseline() {
+		for (RendererNode rendererNode : mNodes) {
+			if (rendererNode instanceof HorizontalCalibratedNode) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	@Override
 	public float getBaseline() {
 		for (RendererNode rendererNode : mNodes) {
 			if (rendererNode instanceof HorizontalCalibratedNode) {
-				return ((HorizontalCalibratedNode) rendererNode).getBaseline();
+				return ((HorizontalCalibratedNode) rendererNode).getBaseline() + getTop();
 			}
 		}
-		return getCenterY();
+		return getCenterY() + getTop();
 	}
 
 	@Override
