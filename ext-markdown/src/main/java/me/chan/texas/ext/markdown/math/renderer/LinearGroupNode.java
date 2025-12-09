@@ -91,8 +91,10 @@ public class LinearGroupNode extends RendererNode implements OptimizableRenderer
 			}
 
 			HorizontalCalibratedNode horizontalCalibratedNode = (HorizontalCalibratedNode) node;
-			float dy = anchor.getBaseline() - horizontalCalibratedNode.getBaseline();
-			node.translate(0, dy);
+			if (horizontalCalibratedNode.supportAlignBaseline()) {
+				float dy = anchor.getBaseline() - horizontalCalibratedNode.getBaseline();
+				node.translate(0, dy);
+			}
 		}
 		adjustBounds();
 	}
@@ -216,10 +218,12 @@ public class LinearGroupNode extends RendererNode implements OptimizableRenderer
 	@Override
 	protected void onDrawDebug(MathCanvas canvas, MathPaint paint) {
 		super.onDrawDebug(canvas, paint);
-		float y = getBaseline();
-		paint.setColor(Color.BLUE);
-		paint.setStrokeWidth(paint.getStrokeWidth() * 3);
-		canvas.drawLine(0, y, getWidth(), y, paint);
+		if (supportAlignBaseline()) {
+			float y = getBaseline();
+			paint.setColor(Color.BLUE);
+			paint.setStrokeWidth(paint.getStrokeWidth() * 3);
+			canvas.drawLine(0, y, getWidth(), y, paint);
+		}
 	}
 
 	public enum Gravity {

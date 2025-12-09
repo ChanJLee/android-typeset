@@ -189,6 +189,10 @@ public class DecorGroupNode extends RendererNode implements OptimizableRendererN
 		}
 
 		HorizontalCalibratedNode anchor = (HorizontalCalibratedNode) mBuilder.center;
+		if (!anchor.supportAlignBaseline()) {
+			return;
+		}
+
 		adjustHorizontalBaseline(anchor, mBuilder.left);
 		adjustHorizontalBaseline(anchor, mBuilder.right);
 	}
@@ -199,7 +203,9 @@ public class DecorGroupNode extends RendererNode implements OptimizableRendererN
 		}
 
 		HorizontalCalibratedNode horizontalCalibratedNode = (HorizontalCalibratedNode) node;
-		node.translate(0, anchor.getBaseline() - horizontalCalibratedNode.getBaseline());
+		if (horizontalCalibratedNode.supportAlignBaseline()) {
+			node.translate(0, anchor.getBaseline() - horizontalCalibratedNode.getBaseline());
+		}
 	}
 
 	@Override
