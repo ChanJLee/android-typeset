@@ -20,7 +20,8 @@
                 android:id="@+id/math"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:background="#3361AF4C" />
+                android:background="#3361AF4C"
+                tools:formula="a+b" />
         </HorizontalScrollView>
 
         <TextView

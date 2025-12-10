@@ -2,15 +2,19 @@ package me.chan.texas.ext.markdown.math.view;
 
 
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Typeface;
 import android.text.TextPaint;
 import android.util.AttributeSet;
 import android.view.View;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import me.chan.texas.ext.markdown.R;
 import me.chan.texas.ext.markdown.math.renderer.RendererNode;
 import me.chan.texas.ext.markdown.math.renderer.core.MathCanvas;
 import me.chan.texas.ext.markdown.math.renderer.core.MathCanvasImpl;
@@ -22,9 +26,11 @@ import me.chan.texas.renderer.core.graphics.GraphicsBuffer;
 import me.chan.texas.renderer.core.graphics.TexasCanvasImpl;
 import me.chan.texas.renderer.core.graphics.TexasPaintImpl;
 import me.chan.texas.renderer.core.sync.MsgHandler;
+import me.chan.texas.utils.TexasUtils;
 import me.chan.texas.utils.concurrency.Worker;
 
 public class MathView extends View {
+	private static final boolean DEBUG = true;
 
 	private final GraphicsBuffer mGraphicsBuffer;
 
@@ -41,11 +47,12 @@ public class MathView extends View {
 
 	public MathView(Context context, @Nullable AttributeSet attrs) {
 		super(context, attrs);
-		TextPaint textPaint = new TextPaint();
 
+		TextPaint textPaint = new TextPaint();
 		textPaint.setTypeface(Typeface.createFromAsset(context.getAssets(), "texas_markdown_ext/latinmodern-math.otf"));
-		textPaint.setTextSize(64);
 		textPaint.setStyle(Paint.Style.FILL);
+		textPaint.setColor(Color.BLACK);
+		textPaint.setTextSize(64);
 
 		TexasPaintImpl paint = new TexasPaintImpl();
 		paint.reset(new PaintSet(textPaint));
@@ -67,6 +74,22 @@ public class MathView extends View {
 		};
 		// TODO mem leak
 		mMsgHandler.addListener(listener);
+
+		TypedArray array = context.obtainStyledAttributes(attrs, R.styleable.MathView);
+		if (array.hasValue(R.styleable.MathView_textColor)) {
+			textPaint.setColor(array.getColor(R.styleable.MathView_textColor, Color.BLACK));
+		}
+		if (array.hasValue(R.styleable.MathView_textSize)) {
+			textPaint.setTextSize(array.getDimensionPixelSize(R.styleable.MathView_textSize, 64));
+		}
+
+		if (array.hasValue(R.styleable.MathView_formula)) {
+			String formula = array.getString(R.styleable.MathView_formula);
+			if (formula != null) {
+				render(formula);
+			}
+		}
+		array.recycle();
 	}
 
 	@Override
@@ -82,7 +105,7 @@ public class MathView extends View {
 
 
 	@Override
-	protected void onDraw(Canvas canvas) {
+	protected void onDraw(@NonNull Canvas canvas) {
 		super.onDraw(canvas);
 		if (mRendererNode == null) {
 			return;
@@ -96,8 +119,22 @@ public class MathView extends View {
 	private final FormulaParseTask mFormulaParseTask = new FormulaParseTask(mMsgHandler);
 
 	public void render(String formula) {
+		if (TexasUtils.equals(formula, mPendingFormula)) {
+			return;
+		}
+
 		mPendingFormula = formula;
-		mBackgroundWorker.async(mToken, new ParseArgs(formula, mTexasPaint), mFormulaParseTask);
+		if (!isInEditMode()) {
+			mBackgroundWorker.async(mToken, new ParseArgs(formula, mTexasPaint), mFormulaParseTask);
+			return;
+		}
+
+		try {
+			RendererNode rendererNode = mBackgroundWorker.sync(mToken, new ParseArgs(formula, mTexasPaint), mFormulaParseTask);
+			render(rendererNode);
+		} catch (Throwable e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	private void handleParse(MsgHandler.Msg msg) {
@@ -116,5 +153,4 @@ public class MathView extends View {
 		mBackgroundWorker.cancel(mToken);
 		mRendererWorker.cancel(mToken);
 	}
-
 }
