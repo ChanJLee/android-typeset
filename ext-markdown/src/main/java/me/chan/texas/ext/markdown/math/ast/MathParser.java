@@ -524,12 +524,12 @@ public class MathParser {
 
 	/**
 	 * 解析一元运算符
-	 * <unary_op> ::= "+","-","\pm","\mp"
+	 * <unary_op> ::= "+","-","\pm","\mp", "!", "\neg"
 	 */
 	private String parseUnaryOp() throws MathParseException {
 		if (!stream.eof()) {
 			char c = (char) stream.peek();
-			if (c == '+' || c == '-') {
+			if (c == '+' || c == '-' || c == '!') {
 				// 保存当前位置
 				int saved = stream.save();
 				stream.eat();
@@ -548,7 +548,7 @@ public class MathParser {
 				int saved = stream.save();
 				stream.eat();
 				String cmd = scanCommandName();
-				if ("pm".equals(cmd) || "mp".equals(cmd)) {
+				if ("pm".equals(cmd) || "mp".equals(cmd) || "neg".equals(cmd)) {
 					skipWhitespace();
 					if (!stream.eof() && isOperandAtomStart()) {
 						return "\\" + cmd;
@@ -1287,7 +1287,7 @@ public class MathParser {
 		}
 
 		// 分组 {
-		if (c == '{') {
+		if (isGroupStart(c)) {
 			return true;
 		}
 
