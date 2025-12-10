@@ -35,7 +35,7 @@ public class MathView extends View {
 	private final GraphicsBuffer mGraphicsBuffer;
 
 	@Nullable
-	private RendererNode mRendererNode;
+	private FormulaBackgroundTask.Result mResult;
 
 	private final MathPaint mTexasPaint;
 	private final MathCanvas mCanvas;
@@ -66,8 +66,8 @@ public class MathView extends View {
 			}
 
 			Object arg = value.arg();
-			if (arg instanceof ParseArgs) {
-				handleParse(value);
+			if (arg instanceof FormulaBackgroundTask.BackgroundArgs) {
+				handleBackgroundTaskResult(value);
 			}
 
 			return true;
@@ -94,58 +94,56 @@ public class MathView extends View {
 
 	@Override
 	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-		if (mRendererNode == null) {
+		if (mResult == null) {
 			super.onMeasure(widthMeasureSpec, heightMeasureSpec);
 			return;
 		}
 
-		super.onMeasure(MeasureSpec.makeMeasureSpec(Math.max(MeasureSpec.getSize(widthMeasureSpec), mRendererNode.getWidth()), MeasureSpec.EXACTLY),
-				heightMeasureSpec);
+		super.onMeasure(MeasureSpec.makeMeasureSpec(Math.max(MeasureSpec.getSize(widthMeasureSpec), mResult.rendererNode.getWidth()), MeasureSpec.EXACTLY),
+				MeasureSpec.makeMeasureSpec(Math.max(MeasureSpec.getSize(heightMeasureSpec), mResult.rendererNode.getHeight()), MeasureSpec.EXACTLY));
 	}
 
 
 	@Override
 	protected void onDraw(@NonNull Canvas canvas) {
 		super.onDraw(canvas);
-		if (mRendererNode == null) {
+		if (mResult == null) {
 			return;
 		}
 
 		mCanvas.reset(canvas);
-		mRendererNode.draw(mCanvas, mTexasPaint);
+		mResult.rendererNode.draw(mCanvas, mTexasPaint);
 	}
 
-	private String mPendingFormula;
-	private final FormulaParseTask mFormulaParseTask = new FormulaParseTask(mMsgHandler);
+	private final FormulaBackgroundTask mFormulaParseTask = new FormulaBackgroundTask(mMsgHandler);
 
 	public void render(String formula) {
-		if (TexasUtils.equals(formula, mPendingFormula)) {
+		if (mResult != null && TexasUtils.equals(formula, mResult.args.formula)) {
 			return;
 		}
 
-		mPendingFormula = formula;
 		if (!isInEditMode()) {
-			mBackgroundWorker.async(mToken, new ParseArgs(formula, mTexasPaint), mFormulaParseTask);
+			mBackgroundWorker.async(mToken, new FormulaBackgroundTask.BackgroundArgs(formula, mTexasPaint), mFormulaParseTask);
 			return;
 		}
 
 		try {
-			RendererNode rendererNode = mBackgroundWorker.sync(mToken, new ParseArgs(formula, mTexasPaint), mFormulaParseTask);
-			render(rendererNode);
+			FormulaBackgroundTask.Result result = mBackgroundWorker.sync(mToken, new FormulaBackgroundTask.BackgroundArgs(formula, mTexasPaint), mFormulaParseTask);
+			render(result);
 		} catch (Throwable e) {
 			throw new RuntimeException(e);
 		}
 	}
 
-	private void handleParse(MsgHandler.Msg msg) {
+	private void handleBackgroundTaskResult(MsgHandler.Msg msg) {
 		int type = msg.type();
-		if (type == FormulaParseTask.TYPE_SUCCESS) {
-			render((RendererNode) msg.value());
+		if (type == FormulaBackgroundTask.TYPE_SUCCESS) {
+			render((FormulaBackgroundTask.Result) msg.value());
 		}
 	}
 
-	private void render(RendererNode rendererNode) {
-		mRendererNode = rendererNode;
+	private void render(FormulaBackgroundTask.Result result) {
+		mResult = result;
 		requestLayout();
 	}
 
