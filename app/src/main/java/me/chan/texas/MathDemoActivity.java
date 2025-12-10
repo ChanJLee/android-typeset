@@ -16,6 +16,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import me.chan.texas.debug.R;
+import me.chan.texas.ext.markdown.math.view.MathView;
 
 public class MathDemoActivity extends AppCompatActivity {
 	private MathView mMathView;

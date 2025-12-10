@@ -16,7 +16,7 @@
             android:layout_height="match_parent"
             tools:context="me.chan.texas.MathDemoActivity">
 
-            <me.chan.texas.MathView
+            <me.chan.texas.ext.markdown.math.view.MathView
                 android:id="@+id/math"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"

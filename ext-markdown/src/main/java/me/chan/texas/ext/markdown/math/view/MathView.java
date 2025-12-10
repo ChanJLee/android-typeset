@@ -1,4 +1,4 @@
-package me.chan.texas.ext.markdown.math;
+package me.chan.texas.ext.markdown.math.view;
 
 
 import android.content.Context;
@@ -44,7 +44,7 @@ public class MathView extends View {
 		TextPaint textPaint = new TextPaint();
 
 		textPaint.setTypeface(Typeface.createFromAsset(context.getAssets(), "texas_markdown_ext/latinmodern-math.otf"));
-		textPaint.setTextSize(16);
+		textPaint.setTextSize(64);
 		textPaint.setStyle(Paint.Style.FILL);
 
 		TexasPaintImpl paint = new TexasPaintImpl();
@@ -53,6 +53,20 @@ public class MathView extends View {
 		mCanvas = new MathCanvasImpl(new TexasCanvasImpl());
 
 		mGraphicsBuffer = new GraphicsBuffer();
+		MsgHandler.Listener listener = (id, value) -> {
+			if (id != mToken) {
+				return false;
+			}
+
+			Object arg = value.arg();
+			if (arg instanceof ParseArgs) {
+				handleParse(value);
+			}
+
+			return true;
+		};
+		// TODO mem leak
+		mMsgHandler.addListener(listener);
 	}
 
 	@Override
@@ -62,18 +76,10 @@ public class MathView extends View {
 			return;
 		}
 
-		mRendererNode.measure(mTexasPaint);
 		super.onMeasure(MeasureSpec.makeMeasureSpec(Math.max(MeasureSpec.getSize(widthMeasureSpec), mRendererNode.getWidth()), MeasureSpec.EXACTLY),
 				heightMeasureSpec);
 	}
 
-	@Override
-	protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
-		super.onLayout(changed, left, top, right, bottom);
-		if (mRendererNode != null) {
-			mRendererNode.layout(0, 0);
-		}
-	}
 
 	@Override
 	protected void onDraw(Canvas canvas) {
@@ -86,7 +92,29 @@ public class MathView extends View {
 		mRendererNode.draw(mCanvas, mTexasPaint);
 	}
 
-	public void render(String formula) {
+	private String mPendingFormula;
+	private final FormulaParseTask mFormulaParseTask = new FormulaParseTask(mMsgHandler);
 
+	public void render(String formula) {
+		mPendingFormula = formula;
+		mBackgroundWorker.async(mToken, new ParseArgs(formula, mTexasPaint), mFormulaParseTask);
 	}
+
+	private void handleParse(MsgHandler.Msg msg) {
+		int type = msg.type();
+		if (type == FormulaParseTask.TYPE_SUCCESS) {
+			render((RendererNode) msg.value());
+		}
+	}
+
+	private void render(RendererNode rendererNode) {
+		mRendererNode = rendererNode;
+		requestLayout();
+	}
+
+	public void cancel() {
+		mBackgroundWorker.cancel(mToken);
+		mRendererWorker.cancel(mToken);
+	}
+
 }

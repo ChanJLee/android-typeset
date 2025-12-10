@@ -69,6 +69,10 @@ public abstract class MsgHandler {
 			return null;
 		}
 
+		public Object arg() {
+			return mArg;
+		}
+
 		@SuppressWarnings("unchecked")
 		public <V> V value() {
 			if (hasError()) {
