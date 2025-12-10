@@ -5,9 +5,14 @@ import android.graphics.Canvas;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import java.util.Collections;
+
+import me.chan.texas.ext.markdown.math.ast.Expression;
 import me.chan.texas.ext.markdown.math.ast.MathList;
 import me.chan.texas.ext.markdown.math.ast.MathParseException;
 import me.chan.texas.ext.markdown.math.ast.MathParser;
+import me.chan.texas.ext.markdown.math.ast.Term;
+import me.chan.texas.ext.markdown.math.ast.TextAtom;
 import me.chan.texas.ext.markdown.math.renderer.MathRendererInflater;
 import me.chan.texas.ext.markdown.math.renderer.RendererNode;
 import me.chan.texas.ext.markdown.math.renderer.core.MathCanvas;
@@ -59,10 +64,8 @@ public class FormulaBackgroundTask extends Worker.Task<FormulaBackgroundTask.Bac
 		return new Result(args, node);
 	}
 
-	private RendererNode prepare(String formula, MathPaint paint) throws MathParseException {
-		CharStream stream = new CharStream(formula);
-		MathParser mathParser = new MathParser(stream);
-		MathList mathList = mathParser.parse();
+	private RendererNode prepare(String formula, MathPaint paint) {
+		MathList mathList = parse(formula);
 
 		MathRendererInflater inflater = new MathRendererInflater();
 		MathPaint.Styles styles = new MathPaint.Styles(paint);
@@ -71,6 +74,31 @@ public class FormulaBackgroundTask extends Worker.Task<FormulaBackgroundTask.Bac
 		rendererNode.layout(0, 0);
 
 		return rendererNode;
+	}
+
+	private MathList parse(String formula) {
+		try {
+			CharStream stream = new CharStream(formula);
+			MathParser mathParser = new MathParser(stream);
+			return mathParser.parse();
+		} catch (MathParseException e) {
+			return error(e.pretty());
+		} catch (Throwable throwable) {
+			return error(throwable.getMessage());
+		}
+	}
+
+	// TODO support multi text
+	private MathList error(String msg) {
+		return new MathList(Collections.singletonList(
+				new Expression(Collections.singletonList(
+						new Term(
+								null,
+								new TextAtom("text", msg),
+								null
+						)
+				))
+		));
 	}
 
 	private void draw(MathPaint paint, MathCanvas mathCanvas, AsyncMathViewRenderer renderer, RendererNode node) {
