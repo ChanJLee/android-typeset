@@ -50,6 +50,8 @@
 
 <variable> ::= <letter> { <letter> } [ <prime_suffix> ]
 
+<single_variable> ::= <letter> [ <prime_suffix> ]
+
 <letter> ::= "a" | "b" | "c" | ... | "z" | "A" | "B" | ... | "Z"
 
 (* 导数符号后缀：一个或多个单引号，表示导数的阶数 *)
@@ -123,7 +125,7 @@
 
 (* 单个 token：数字、字母、希腊字母、或运算符符号 *)
 <single_token> ::= <number>
-                 | <variable>
+                 | <single_variable>
                  | <greek_letter_variable>
                  | <operator_symbol_atom>
 

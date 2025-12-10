@@ -1696,14 +1696,14 @@ public class MathParserAstTest {
 	public void test_realWorld_trigonometric_identity() {
 		// 三角恒等式
 		assertParseSuccess("\\sin^2\\theta+\\cos^2\\theta=1");
-		assertParseSuccess("\\sin\\begin\\(\\alpha+\\beta\\end\\)=\\sin\\alpha\\cos\\beta+\\cos\\alpha\\sin\\beta");
+		assertParseSuccess("\\sin(\\alpha+\\beta)=\\sin\\alpha\\cos\\beta+\\cos\\alpha\\sin\\beta");
 	}
 
 	@Test
 	public void test_realWorld_complex_number() {
 		// 复数表达式
 		assertParseSuccess("z=re^{i\\theta}");
-		assertParseSuccess("|z|=\\sqrt{\\Re(z)^2+\\Im(z)^2}");
+		assertParseSuccess("\\left|z\\right|=\\sqrt{\\Re(z)^2+\\Im(z)^2}");
 	}
 
 	@Test

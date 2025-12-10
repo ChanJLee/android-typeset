@@ -879,6 +879,18 @@ public class MathParser {
 		return new SizeUnit(unit);
 	}
 
+	private VariableAtom parseSingleVariable() {
+		StringBuilder builder = new StringBuilder()
+				.append((char) stream.eat());
+
+		// 解析可选的 prime 后缀
+		while (!stream.eof() && stream.peek() == '\'') {
+			builder.append((char) stream.eat());
+		}
+
+		return new VariableAtom(builder.toString());
+	}
+
 	/**
 	 * <variable> ::= <letter> { <letter> } [ <prime_suffix> ]
 	 * <prime_suffix> ::= "'" { "'" }
@@ -1388,7 +1400,7 @@ public class MathParser {
 
 		// 变量（可以是多字母变量）
 		if (Character.isLetter(c) && c != '\\') {
-			return parseVariable();
+			return parseSingleVariable();
 		}
 
 		// 单字符运算符符号

@@ -162,8 +162,10 @@
                     | <special_symbol>
                     | <single_token>
 
+<single_variable> ::= <letter> [ <prime_suffix> ]
+
 (* single_token 用于上标内的原子（保持简单） *)
-<single_token> ::= <number> | <variable> | <greek_letter_variable> | <operator_symbol_atom>
+<single_token> ::= <number> | <single_variable> | <greek_letter_variable> | <operator_symbol_atom>
 
 <operator_symbol_atom> ::= "+" | "-" | "\circ" | "\degree"  (* 仅保留常见能作为符号的项 *)
 

@@ -148,7 +148,7 @@ public class RealWordFormulaUnitTest {
 
 		assertParsesTo(
 				"B_\\nu\\left(T\\right)=\\frac{2h\\nu^3}{c^2}\\frac{1}{e^{\\frac{h\\nu}{k_BT}}-1}",
-				"B_\\nu \\left( T \\right) = \\frac{2 h \\nu^3}{c^2} \\frac{1}{e^{\\frac{h \\nu}{k_BT}} - 1}"
+				"B_\\nu \\left( T \\right) = \\frac{2 h \\nu^3}{c^2} \\frac{1}{e^{\\frac{h \\nu}{k_B T}} - 1}"
 		);
 	}
 
