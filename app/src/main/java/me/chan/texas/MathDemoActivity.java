@@ -19,6 +19,7 @@ import me.chan.texas.debug.R;
 
 public class MathDemoActivity extends AppCompatActivity {
 	private MathView mMathView;
+	private TextView mTextView;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -30,11 +31,12 @@ public class MathDemoActivity extends AppCompatActivity {
 		recyclerView.setAdapter(new MathAdapter(getFormulaCategories(), this::render));
 
 		mMathView = findViewById(R.id.math);
+		mTextView = findViewById(R.id.console);
 	}
 
-	private void render(String math) {
-//		mMathView.render("afg \\, " + math + " \\, afg");
-		mMathView.render(math);
+	private void render(String formula) {
+		mMathView.render("afg \\, " + formula + " \\, afg");
+		mTextView.setText(formula);
 	}
 
 	private List<FormulaCategory> getFormulaCategories() {
@@ -673,6 +675,7 @@ public class MathDemoActivity extends AppCompatActivity {
 
 		return categories;
 	}
+
 	// 公式分类（一级）
 	private static class FormulaCategory {
 		final String name;
