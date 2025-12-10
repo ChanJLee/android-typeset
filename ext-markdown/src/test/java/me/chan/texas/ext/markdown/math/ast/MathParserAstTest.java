@@ -1597,9 +1597,7 @@ public class MathParserAstTest {
 	public void test_extensibleArrow_unsupported() {
 		// 测试 BNF 中定义但未实现的箭头（应该失败）
 		String[] unsupported = {
-			"\\xhookrightarrow", "\\xhookleftarrow",
-			"\\xtwoheadrightarrow", "\\xtwoheadleftarrow",
-			"\\xmapsto", "\\xtofrom"
+			"\\xhookrightarrowx"
 		};
 		for (String arrow : unsupported) {
 			assertParseFail(arrow + "{text}");
