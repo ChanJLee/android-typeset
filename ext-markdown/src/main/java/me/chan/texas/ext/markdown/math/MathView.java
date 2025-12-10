@@ -17,9 +17,12 @@ import me.chan.texas.ext.markdown.math.renderer.core.MathCanvasImpl;
 import me.chan.texas.ext.markdown.math.renderer.core.MathPaint;
 import me.chan.texas.ext.markdown.math.renderer.core.MathPaintImpl;
 import me.chan.texas.misc.PaintSet;
+import me.chan.texas.renderer.core.WorkerScheduler;
 import me.chan.texas.renderer.core.graphics.GraphicsBuffer;
 import me.chan.texas.renderer.core.graphics.TexasCanvasImpl;
 import me.chan.texas.renderer.core.graphics.TexasPaintImpl;
+import me.chan.texas.renderer.core.sync.MsgHandler;
+import me.chan.texas.utils.concurrency.Worker;
 
 public class MathView extends View {
 
@@ -30,6 +33,11 @@ public class MathView extends View {
 
 	private final MathPaint mTexasPaint;
 	private final MathCanvas mCanvas;
+
+	private final Worker.Token mToken = Worker.Token.newInstance();
+	private final Worker mBackgroundWorker = WorkerScheduler.getBackgroundWorker();
+	private final Worker mRendererWorker = WorkerScheduler.getRendererWorker();
+	private final MsgHandler mMsgHandler = WorkerScheduler.getMsgHandler();
 
 	public MathView(Context context, @Nullable AttributeSet attrs) {
 		super(context, attrs);
@@ -76,5 +84,9 @@ public class MathView extends View {
 
 		mCanvas.reset(canvas);
 		mRendererNode.draw(mCanvas, mTexasPaint);
+	}
+
+	public void render(String formula) {
+
 	}
 }

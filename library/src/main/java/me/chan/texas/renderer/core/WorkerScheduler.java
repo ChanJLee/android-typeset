@@ -93,6 +93,18 @@ public class WorkerScheduler {
 		return getInstance().mLoadingWorker;
 	}
 
+	public static Worker getBackgroundWorker() {
+		return getInstance().mBackgroundWorker;
+	}
+
+	public static Worker getRendererWorker() {
+		return getInstance().mRendererWorker;
+	}
+
+	public static MsgHandler getMsgHandler() {
+		return getInstance().mMsgHandler;
+	}
+
 	public static final int TASK_QUEUE_RENDER = 1;
 	public static final int TASK_QUEUE_TYPESET = 2;
 	public static final int TASK_QUEUE_PARSE = 3;
