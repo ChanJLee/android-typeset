@@ -18,6 +18,10 @@ public abstract class MsgHandler {
 	protected List<Listener> mListeners = new ArrayList<>();
 
 	public void addListener(Listener listener) {
+		if (mListeners.contains(listener)) {
+			return;
+		}
+
 		mListeners.add(listener);
 	}
 

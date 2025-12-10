@@ -178,7 +178,6 @@ public class MathView extends View implements AsyncMathViewRenderer {
 	@Override
 	protected void onAttachedToWindow() {
 		super.onAttachedToWindow();
-		mMsgHandler.removeListener(mListener);
 		mMsgHandler.addListener(mListener);
 		if (!mGraphicsBuffer.isAttached()) {
 			mGraphicsBuffer.attach(mToken);
