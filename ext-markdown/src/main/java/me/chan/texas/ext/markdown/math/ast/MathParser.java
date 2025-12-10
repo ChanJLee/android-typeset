@@ -468,12 +468,16 @@ public class MathParser {
 
 	/**
 	 * 尝试解析后缀运算符
-	 * <postfix_op> ::= "!"
+	 * <postfix_op> ::= "!" | "!!"
 	 */
 	private PostfixOp tryParsePostfixOp() {
 		if (!stream.eof() && stream.peek() == '!') {
-			stream.eat();
-			return new PostfixOp("!");
+			StringBuilder stringBuilder = new StringBuilder();
+			while (!stream.eof() && stream.peek() == '!') {
+				stringBuilder.append('!');
+				stream.eat();
+			}
+			return new PostfixOp(stringBuilder.toString());
 		}
 		return null;
 	}
