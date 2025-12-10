@@ -21,6 +21,10 @@ public abstract class MsgHandler {
 		mListeners.add(listener);
 	}
 
+	public void removeListener(Listener listener) {
+		mListeners.remove(listener);
+	}
+
 	/**
 	 * 发送消息
 	 *

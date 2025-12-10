@@ -41,6 +41,18 @@ public class MathView extends View implements AsyncMathViewRenderer {
 	private final Worker.Token mToken = Worker.Token.newInstance();
 	private final Worker mBackgroundWorker = WorkerScheduler.getBackgroundWorker();
 	private final MsgHandler mMsgHandler = WorkerScheduler.getMsgHandler();
+	private final MsgHandler.Listener mListener = (id, value) -> {
+		if (id != mToken) {
+			return false;
+		}
+
+		Object arg = value.arg();
+		if (arg instanceof FormulaBackgroundTask.BackgroundArgs) {
+			handleBackgroundTaskResult(value);
+		}
+
+		return true;
+	};
 
 	public MathView(Context context, @Nullable AttributeSet attrs) {
 		super(context, attrs);
@@ -57,20 +69,7 @@ public class MathView extends View implements AsyncMathViewRenderer {
 		mCanvas = new MathCanvasImpl(new TexasCanvasImpl());
 
 		mGraphicsBuffer = new GraphicsBuffer();
-		MsgHandler.Listener listener = (id, value) -> {
-			if (id != mToken) {
-				return false;
-			}
-
-			Object arg = value.arg();
-			if (arg instanceof FormulaBackgroundTask.BackgroundArgs) {
-				handleBackgroundTaskResult(value);
-			}
-
-			return true;
-		};
-		// TODO mem leak
-		mMsgHandler.addListener(listener);
+		mMsgHandler.addListener(mListener);
 
 		TypedArray array = context.obtainStyledAttributes(attrs, R.styleable.MathView);
 		if (array.hasValue(R.styleable.MathView_textColor)) {
@@ -179,6 +178,8 @@ public class MathView extends View implements AsyncMathViewRenderer {
 	@Override
 	protected void onAttachedToWindow() {
 		super.onAttachedToWindow();
+		mMsgHandler.removeListener(mListener);
+		mMsgHandler.addListener(mListener);
 		if (!mGraphicsBuffer.isAttached()) {
 			mGraphicsBuffer.attach(mToken);
 			if (mResult != null) {
@@ -189,6 +190,7 @@ public class MathView extends View implements AsyncMathViewRenderer {
 
 	@Override
 	protected final void onDetachedFromWindow() {
+		mMsgHandler.removeListener(mListener);
 		mGraphicsBuffer.detach();
 		super.onDetachedFromWindow();
 	}
