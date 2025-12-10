@@ -117,6 +117,10 @@ public class MathView extends View implements AsyncMathViewRenderer {
 			return;
 		}
 
+		if (!mGraphicsBuffer.isAttached()) {
+			mGraphicsBuffer.attach(mToken);
+		}
+
 		if (!isInEditMode()) {
 			mBackgroundWorker.async(mToken, new FormulaBackgroundTask.BackgroundArgs(formula, mTexasPaint, mCanvas, this), mFormulaParseTask);
 			return;
@@ -170,5 +174,22 @@ public class MathView extends View implements AsyncMathViewRenderer {
 		}
 
 		mGraphicsBuffer.unlockCanvas();
+	}
+
+	@Override
+	protected void onAttachedToWindow() {
+		super.onAttachedToWindow();
+		if (!mGraphicsBuffer.isAttached()) {
+			mGraphicsBuffer.attach(mToken);
+			if (mResult != null) {
+				mBackgroundWorker.async(mToken, new FormulaBackgroundTask.BackgroundArgs(mResult.args.formula, mTexasPaint, mCanvas, this, mResult.rendererNode), mFormulaParseTask);
+			}
+		}
+	}
+
+	@Override
+	protected final void onDetachedFromWindow() {
+		mGraphicsBuffer.detach();
+		super.onDetachedFromWindow();
 	}
 }
