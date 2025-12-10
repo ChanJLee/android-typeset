@@ -9,13 +9,13 @@ import android.graphics.Paint;
 import android.graphics.Typeface;
 import android.text.TextPaint;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import me.chan.texas.ext.markdown.R;
-import me.chan.texas.ext.markdown.math.renderer.RendererNode;
 import me.chan.texas.ext.markdown.math.renderer.core.MathCanvas;
 import me.chan.texas.ext.markdown.math.renderer.core.MathCanvasImpl;
 import me.chan.texas.ext.markdown.math.renderer.core.MathPaint;
@@ -29,9 +29,7 @@ import me.chan.texas.renderer.core.sync.MsgHandler;
 import me.chan.texas.utils.TexasUtils;
 import me.chan.texas.utils.concurrency.Worker;
 
-public class MathView extends View {
-	private static final boolean DEBUG = true;
-
+public class MathView extends View implements AsyncMathViewRenderer {
 	private final GraphicsBuffer mGraphicsBuffer;
 
 	@Nullable
@@ -42,7 +40,6 @@ public class MathView extends View {
 
 	private final Worker.Token mToken = Worker.Token.newInstance();
 	private final Worker mBackgroundWorker = WorkerScheduler.getBackgroundWorker();
-	private final Worker mRendererWorker = WorkerScheduler.getRendererWorker();
 	private final MsgHandler mMsgHandler = WorkerScheduler.getMsgHandler();
 
 	public MathView(Context context, @Nullable AttributeSet attrs) {
@@ -106,14 +103,12 @@ public class MathView extends View {
 
 	@Override
 	protected void onDraw(@NonNull Canvas canvas) {
-		super.onDraw(canvas);
-		if (mResult == null) {
-			return;
+		boolean ret = mGraphicsBuffer.draw(canvas);
+		if (GraphicsBuffer.DEBUG && !ret) {
+			Log.d("MathView", "draw failed: " + mResult);
 		}
-
-		mCanvas.reset(canvas);
-		mResult.rendererNode.draw(mCanvas, mTexasPaint);
 	}
+
 
 	private final FormulaBackgroundTask mFormulaParseTask = new FormulaBackgroundTask(mMsgHandler);
 
@@ -123,12 +118,12 @@ public class MathView extends View {
 		}
 
 		if (!isInEditMode()) {
-			mBackgroundWorker.async(mToken, new FormulaBackgroundTask.BackgroundArgs(formula, mTexasPaint), mFormulaParseTask);
+			mBackgroundWorker.async(mToken, new FormulaBackgroundTask.BackgroundArgs(formula, mTexasPaint, mCanvas, this), mFormulaParseTask);
 			return;
 		}
 
 		try {
-			FormulaBackgroundTask.Result result = mBackgroundWorker.sync(mToken, new FormulaBackgroundTask.BackgroundArgs(formula, mTexasPaint), mFormulaParseTask);
+			FormulaBackgroundTask.Result result = mBackgroundWorker.sync(mToken, new FormulaBackgroundTask.BackgroundArgs(formula, mTexasPaint, mCanvas, this), mFormulaParseTask);
 			render(result);
 		} catch (Throwable e) {
 			throw new RuntimeException(e);
@@ -143,12 +138,37 @@ public class MathView extends View {
 	}
 
 	private void render(FormulaBackgroundTask.Result result) {
+		boolean relayout = mResult == null || mResult.rendererNode != result.rendererNode;
 		mResult = result;
-		requestLayout();
+
+		if (relayout) {
+			requestLayout();
+			return;
+		}
+
+		invalidate();
 	}
 
 	public void cancel() {
 		mBackgroundWorker.cancel(mToken);
-		mRendererWorker.cancel(mToken);
+	}
+
+	@Nullable
+	@Override
+	public Canvas lockCanvas(int width, int height) {
+		if (width <= 0 || height <= 0) {
+			return null;
+		}
+
+		return mGraphicsBuffer.lockCanvas(width, height);
+	}
+
+	@Override
+	public void unlockCanvasAndPost(Canvas canvas) {
+		if (canvas == null) {
+			return;
+		}
+
+		mGraphicsBuffer.unlockCanvas();
 	}
 }

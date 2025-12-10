@@ -1,10 +1,16 @@
 package me.chan.texas.ext.markdown.math.view;
 
+import android.graphics.Canvas;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import me.chan.texas.ext.markdown.math.ast.MathList;
 import me.chan.texas.ext.markdown.math.ast.MathParseException;
 import me.chan.texas.ext.markdown.math.ast.MathParser;
 import me.chan.texas.ext.markdown.math.renderer.MathRendererInflater;
 import me.chan.texas.ext.markdown.math.renderer.RendererNode;
+import me.chan.texas.ext.markdown.math.renderer.core.MathCanvas;
 import me.chan.texas.ext.markdown.math.renderer.core.MathPaint;
 import me.chan.texas.renderer.core.sync.MsgHandler;
 import me.chan.texas.utils.CharStream;
@@ -43,37 +49,79 @@ public class FormulaBackgroundTask extends Worker.Task<FormulaBackgroundTask.Bac
 
 	@Override
 	protected Result onExec(Worker.Token token, BackgroundArgs args) throws MathParseException {
-		CharStream stream = new CharStream(args.formula);
+		RendererNode node = args.node;
+		if (node == null) {
+			node = prepare(args.formula, args.paint);
+		}
+
+		draw(args.paint, args.canvas, args.renderer, node);
+
+		return new Result(args, node);
+	}
+
+	private RendererNode prepare(String formula, MathPaint paint) throws MathParseException {
+		CharStream stream = new CharStream(formula);
 		MathParser mathParser = new MathParser(stream);
 		MathList mathList = mathParser.parse();
 
 		MathRendererInflater inflater = new MathRendererInflater();
-		MathPaint.Styles styles = new MathPaint.Styles(args.paint);
+		MathPaint.Styles styles = new MathPaint.Styles(paint);
 		RendererNode rendererNode = inflater.inflate(styles, mathList);
-		rendererNode.measure(args.paint);
+		rendererNode.measure(paint);
 		rendererNode.layout(0, 0);
-		return new Result(args, mathList, rendererNode);
+
+		return rendererNode;
+	}
+
+	private void draw(MathPaint paint, MathCanvas mathCanvas, AsyncMathViewRenderer renderer, RendererNode node) {
+		Canvas canvas = renderer.lockCanvas(node.getWidth(), node.getHeight());
+		if (canvas == null) {
+			return;
+		}
+
+		mathCanvas.reset(canvas);
+		node.draw(mathCanvas, paint);
+		renderer.unlockCanvasAndPost(canvas);
 	}
 
 	public static class BackgroundArgs {
 		public final String formula;
 		public final MathPaint paint;
+		public final MathCanvas canvas;
+		public final AsyncMathViewRenderer renderer;
+		@Nullable
+		public final RendererNode node;
 
-		public BackgroundArgs(String formula, MathPaint paint) {
+		public BackgroundArgs(String formula, MathPaint paint, MathCanvas canvas, AsyncMathViewRenderer renderer) {
+			this(formula, paint, canvas, renderer, null);
+		}
+
+		public BackgroundArgs(String formula, MathPaint paint, MathCanvas canvas,
+							  AsyncMathViewRenderer renderer,
+							  @Nullable RendererNode node) {
 			this.formula = formula;
 			this.paint = paint;
+			this.canvas = canvas;
+			this.renderer = renderer;
+			this.node = node;
 		}
 	}
 
 	public static class Result {
 		public final BackgroundArgs args;
-		public final MathList mathList;
 		public final RendererNode rendererNode;
 
-		public Result(BackgroundArgs args, MathList mathList, RendererNode rendererNode) {
+		public Result(BackgroundArgs args, RendererNode rendererNode) {
 			this.args = args;
-			this.mathList = mathList;
 			this.rendererNode = rendererNode;
+		}
+
+		@NonNull
+		@Override
+		public String toString() {
+			return "Result{" +
+					"args=" + args.formula +
+					'}';
 		}
 	}
 }
