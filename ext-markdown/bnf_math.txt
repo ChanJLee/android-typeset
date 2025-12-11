@@ -238,6 +238,7 @@
          | "\textrm" "{" <text_content> "}"
          | "\textit" "{" <text_content> "}"
          | "\textbf" "{" <text_content> "}"
+         | "\textfield" "{" <text_content> "}" (* 我的自定义 *)
 
 <text_content> ::= <any_unicode_char> { <any_unicode_char> }
 

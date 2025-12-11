@@ -1,7 +1,5 @@
 package me.chan.texas.ext.markdown.math.renderer;
 
-import android.text.TextUtils;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,6 +38,7 @@ import me.chan.texas.ext.markdown.math.ast.VariableAtom;
 import me.chan.texas.ext.markdown.math.renderer.core.MathPaint;
 import me.chan.texas.ext.markdown.math.renderer.fonts.MathFontOptions;
 import me.chan.texas.ext.markdown.math.renderer.fonts.Symbol;
+import me.chan.texas.utils.TexasUtils;
 
 public class MathRendererInflater {
 	private static final float SUB_EXP_FACTOR = 0.6f;
@@ -414,11 +413,11 @@ public class MathRendererInflater {
 	}
 
 	private RendererNode inflateFontAtom(MathPaint.Styles styles, FontAtom atom) {
-		if (TextUtils.equals("mathbf", atom.command)) {
+		if (TexasUtils.equals("mathbf", atom.command)) {
 			styles = styles.copy().setBold(true);
 		}
 
-		if (TextUtils.equals("mathit", atom.command)) {
+		if (TexasUtils.equals("mathit", atom.command)) {
 			styles = styles.copy().setItalic(true);
 		}
 
@@ -426,11 +425,15 @@ public class MathRendererInflater {
 	}
 
 	private RendererNode inflateTextAtom(MathPaint.Styles styles, TextAtom atom) {
-		if (TextUtils.equals("textbf", atom.command)) {
+		if (TexasUtils.equals("textfield", atom.command)) {
+			return new TextFieldNode(styles, atom.command);
+		}
+
+		if (TexasUtils.equals("textbf", atom.command)) {
 			styles = styles.copy().setBold(true);
 		}
 
-		if (TextUtils.equals("textit", atom.content)) {
+		if (TexasUtils.equals("textit", atom.content)) {
 			styles = styles.copy().setItalic(true);
 		}
 

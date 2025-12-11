@@ -182,7 +182,16 @@ public class MathView extends View implements AsyncMathViewRenderer {
 		if (!mGraphicsBuffer.isAttached()) {
 			mGraphicsBuffer.attach(mToken);
 			if (mResult != null) {
-				mBackgroundWorker.async(mToken, new FormulaBackgroundTask.BackgroundArgs(mResult.args.formula, mTexasPaint, mCanvas, this, mResult.rendererNode), mFormulaParseTask);
+				mBackgroundWorker.async(
+						mToken,
+						new FormulaBackgroundTask.BackgroundArgs(
+								mResult.args.formula,
+								mTexasPaint, mCanvas,
+								this,
+								mResult.rendererNode
+						),
+						mFormulaParseTask
+				);
 			}
 		}
 	}

@@ -47,7 +47,7 @@ public class TextNode extends RendererNode implements HorizontalCalibratedNode {
 
 	@Override
 	protected String toPretty() {
-		return "text: " + mContent;
+		return mContent;
 	}
 
 	@Override

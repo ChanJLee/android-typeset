@@ -88,13 +88,12 @@ public class FormulaBackgroundTask extends Worker.Task<FormulaBackgroundTask.Bac
 		}
 	}
 
-	// TODO support multi text
 	private MathList error(String msg) {
 		return new MathList(Collections.singletonList(
 				new Expression(Collections.singletonList(
 						new Term(
 								null,
-								new TextAtom("text", msg),
+								new TextAtom("textfield", msg),
 								null
 						)
 				))
