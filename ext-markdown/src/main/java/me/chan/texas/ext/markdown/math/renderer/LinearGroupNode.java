@@ -229,7 +229,7 @@ public class LinearGroupNode extends RendererNode implements OptimizableRenderer
 	protected void onDrawDebug(MathCanvas canvas, MathPaint paint) {
 		super.onDrawDebug(canvas, paint);
 		if (supportAlignBaseline()) {
-			float y = getBaseline();
+			float y = getBaseline() - getTop();
 			paint.setColor(Color.BLUE);
 			paint.setStrokeWidth(paint.getStrokeWidth() * 3);
 			canvas.drawLine(0, y, getWidth(), y, paint);

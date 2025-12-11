@@ -715,7 +715,7 @@ public class TexasPaintImpl implements TexasPaint {
 		char[] buf = POOL.obtain(size);
 		TexasUtils.getChars(text, start, end, buf, 0);
 		try {
-			return getPaint(true).getRunAdvance(buf, start, end, contextStart, contextEnd, isRtl, offset);
+			return getPaint(true).getRunAdvance(buf, 0, size, 0, size, isRtl, offset);
 		} finally {
 			POOL.release(buf);
 		}
