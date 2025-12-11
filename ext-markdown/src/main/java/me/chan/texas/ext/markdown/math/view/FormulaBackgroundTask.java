@@ -5,6 +5,11 @@ import android.graphics.Canvas;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import java.io.BufferedOutputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
+import java.io.PrintStream;
+import java.io.StringWriter;
 import java.util.Collections;
 
 import me.chan.texas.ext.markdown.math.ast.Expression;
@@ -53,7 +58,7 @@ public class FormulaBackgroundTask extends Worker.Task<FormulaBackgroundTask.Bac
 	}
 
 	@Override
-	protected Result onExec(Worker.Token token, BackgroundArgs args) throws MathParseException {
+	protected Result onExec(Worker.Token token, BackgroundArgs args) {
 		RendererNode node = args.node;
 		if (node == null) {
 			node = prepare(args.formula, args.paint);
@@ -66,7 +71,10 @@ public class FormulaBackgroundTask extends Worker.Task<FormulaBackgroundTask.Bac
 
 	private RendererNode prepare(String formula, MathPaint paint) {
 		MathList mathList = parse(formula);
+		return prepare(paint, mathList);
+	}
 
+	private RendererNode prepare(MathPaint paint, MathList mathList) {
 		MathRendererInflater inflater = new MathRendererInflater();
 		MathPaint.Styles styles = new MathPaint.Styles(paint);
 		RendererNode rendererNode = inflater.inflate(styles, mathList);
@@ -101,14 +109,45 @@ public class FormulaBackgroundTask extends Worker.Task<FormulaBackgroundTask.Bac
 	}
 
 	private void draw(MathPaint paint, MathCanvas mathCanvas, AsyncMathViewRenderer renderer, RendererNode node) {
+		try {
+			draw0(paint, mathCanvas, renderer, node);
+		} catch (Throwable e) {
+			error(paint, mathCanvas, renderer, e);
+		}
+	}
+
+	private void error(MathPaint paint, MathCanvas mathCanvas, AsyncMathViewRenderer renderer, Throwable e) {
+		PrintStream stream = null;
+		try {
+			// throw -> string
+			ByteArrayOutputStream os = new ByteArrayOutputStream();
+			stream = new PrintStream(os);
+			e.printStackTrace(stream);
+
+			MathList mathList = error(os.toString());
+			RendererNode node = prepare(paint, mathList);
+			draw0(paint, mathCanvas, renderer, node);
+		} catch (Throwable ignore) {
+			/* NOOP */
+		} finally {
+			if (stream != null) {
+				stream.close();
+			}
+		}
+	}
+
+	private void draw0(MathPaint paint, MathCanvas mathCanvas, AsyncMathViewRenderer renderer, RendererNode node) {
 		Canvas canvas = renderer.lockCanvas(node.getWidth(), node.getHeight());
 		if (canvas == null) {
 			return;
 		}
 
-		mathCanvas.reset(canvas);
-		node.draw(mathCanvas, paint);
-		renderer.unlockCanvasAndPost(canvas);
+		try {
+			mathCanvas.reset(canvas);
+			node.draw(mathCanvas, paint);
+		} finally {
+			renderer.unlockCanvasAndPost(canvas);
+		}
 	}
 
 	public static class BackgroundArgs {
