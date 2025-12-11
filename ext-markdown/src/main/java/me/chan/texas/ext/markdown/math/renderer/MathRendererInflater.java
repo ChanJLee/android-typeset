@@ -426,7 +426,7 @@ public class MathRendererInflater {
 
 	private RendererNode inflateTextAtom(MathPaint.Styles styles, TextAtom atom) {
 		if (TexasUtils.equals("textfield", atom.command)) {
-			return new TextFieldNode(styles, atom.command);
+			return new TextFieldNode(styles, atom.content);
 		}
 
 		if (TexasUtils.equals("textbf", atom.command)) {
