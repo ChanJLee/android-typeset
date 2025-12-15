@@ -24,7 +24,7 @@ public class AccentNode extends RendererNode implements HorizontalCalibratedNode
 				mCmdNode = new SymbolNode(styles, cmdToSymbol());
 			}
 		} else {
-			mCmdNode = null;
+			throw new RuntimeException("unknown cmd: " + mCmd);
 		}
 	}
 
@@ -43,7 +43,7 @@ public class AccentNode extends RendererNode implements HorizontalCalibratedNode
 
 	private void measureGlyph(MathPaint paint) {
 		mCmdNode.measure(paint);
-		if ("check".equals(mCmd)) {
+		if ("check".equals(mCmd) || "widetilde".equals(mCmd) || "underline".equals(mCmd)) {
 			setMeasuredSize(
 					(int) Math.ceil(Math.max(mCmdNode.getWidth(), mContent.getWidth())),
 					(int) Math.ceil(mCmdNode.getHeight() + mContent.getHeight())
@@ -93,6 +93,18 @@ public class AccentNode extends RendererNode implements HorizontalCalibratedNode
 			return;
 		}
 
+		if ("underline".equals(mCmd)) {
+			mContent.layout(0, 0);
+			mCmdNode.layout(0, mContent.getBottom());
+			return;
+		}
+
+		if ("overline".equals(mCmd)) {
+			mCmdNode.layout(0, 0);
+			mContent.layout(0, mCmdNode.getBottom());
+			return;
+		}
+
 		if ("hat".equals(mCmd) ||
 				"dot".equals(mCmd) || "ddot".equals(mCmd) || "dddot".equals(mCmd) ||
 				"acute".equals(mCmd) || "grave".equals(mCmd) || "breve".equals(mCmd)
@@ -134,7 +146,8 @@ public class AccentNode extends RendererNode implements HorizontalCalibratedNode
 				"tilde".equals(mCmd) || "widetilde".equals(mCmd) ||
 				"dot".equals(mCmd) || "ddot".equals(mCmd) || "dddot".equals(mCmd)
 				|| "acute".equals(mCmd) || "grave".equals(mCmd) || "breve".equals(mCmd) || "check".equals(mCmd)
-				|| "mathring".equals(mCmd);  // 添加 mathring
+				|| "mathring".equals(mCmd)
+				|| "underline".equals(mCmd) || "overline".equals(mCmd);  // 添加 mathring
 	}
 
 	private Symbol cmdToSymbol() {
@@ -178,6 +191,10 @@ public class AccentNode extends RendererNode implements HorizontalCalibratedNode
 			return MathFontOptions.symbol("ring");
 		}
 
+		if ("underline".equals(mCmd) || "overline".equals(mCmd)) {
+			return MathFontOptions.symbol("uni2015");
+		}
+
 		throw new RuntimeException("unknown cmd: " + mCmd);
 	}
 
@@ -189,7 +206,8 @@ public class AccentNode extends RendererNode implements HorizontalCalibratedNode
 			return;
 		}
 
-		boolean scaleX = "widehat".equals(mCmd) || "widetilde".equals(mCmd);
+		boolean scaleX = "widehat".equals(mCmd) || "widetilde".equals(mCmd) ||
+				"underline".equals(mCmd) || "overline".equals(mCmd);
 		if (scaleX) {
 			canvas.save();
 			canvas.scale(mContent.getWidth() * 1.0f / mCmdNode.getWidth(), 1);
