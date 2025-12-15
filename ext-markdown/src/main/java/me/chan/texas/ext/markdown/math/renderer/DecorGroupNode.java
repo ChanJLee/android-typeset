@@ -310,8 +310,10 @@ public class DecorGroupNode extends RendererNode implements OptimizableRendererN
 		paint.setColor(Color.YELLOW);
 		super.onDrawDebug(canvas, paint);
 		paint.setColor(Color.BLUE);
-		float y = getBaseline();
-		canvas.drawLine(0, y, getWidth(), y, paint);
+		if (supportAlignBaseline()) {
+			float y = getBaseline();
+			canvas.drawLine(0, y, getWidth(), y, paint);
+		}
 	}
 
 	@Override
