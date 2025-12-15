@@ -687,6 +687,8 @@ public class MathRendererInflater {
 			nodes.add(new SymbolNode(styles, MathFontOptions.symbol("parenleft")));
 		} else if (groupAtom.s == '[') {
 			nodes.add(new SymbolNode(styles, MathFontOptions.symbol("bracketleft")));
+		} else if (groupAtom.s == '\\') {
+			nodes.add(new SymbolNode(styles, MathFontOptions.symbol("braceleft")));
 		} else {
 			throw new IllegalArgumentException("unknown group delimiter: " + groupAtom.s);
 		}
@@ -695,8 +697,10 @@ public class MathRendererInflater {
 
 		if (groupAtom.s == '(') {
 			nodes.add(new SymbolNode(styles, MathFontOptions.symbol("parenright")));
-		} else {
+		} else if (groupAtom.s == '[') {
 			nodes.add(new SymbolNode(styles, MathFontOptions.symbol("bracketright")));
+		} else {
+			nodes.add(new SymbolNode(styles, MathFontOptions.symbol("braceright")));
 		}
 
 		return new LinearGroupNode(styles, nodes, LinearGroupNode.Gravity.HORIZONTAL);

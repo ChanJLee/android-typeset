@@ -406,7 +406,7 @@ public class MathParser {
 		}
 
 		char c = (char) stream.peek();
-		if (c == '}' || c == ')' || c == ']') { // 组结束, ] 根式可选参数结束
+		if (isGroupEnd(c)) { // 组结束, ] 根式可选参数结束
 			return true;
 		}
 		if (c == '&') { // 矩阵列分隔符
@@ -922,7 +922,7 @@ public class MathParser {
 	}
 
 	/**
-	 * <group> ::= "{" <math_list> "}" | "(" <math_list> ")" | "[" <math_list> "]"
+	 * <group> ::= "{" <math_list> "}" | "(" <math_list> ")" | "[" <math_list> "]" | | "\{" <math_list> "\}"
 	 *
 	 */
 	private Group parseGroup(char s) throws MathParseException {
@@ -934,6 +934,9 @@ public class MathParser {
 			e = ')';
 		} else if (s == '[') {
 			e = ']';
+		} else if (s == '\\') {
+			expect('{');
+			e = '\\';
 		} else {
 			throw new IllegalStateException("Unexpected group start: " + s);
 		}
@@ -943,6 +946,9 @@ public class MathParser {
 			MathList content = parseMathList();
 			skipWhitespace();
 			expect(e);
+			if (s == '\\') {
+				expect('}');
+			}
 			return new Group(s, e, content);
 		} finally {
 			recursionDepth--;
@@ -1106,7 +1112,33 @@ public class MathParser {
 	}
 
 	private boolean isGroupStart(char c) {
-		return c == '{' || c == '(' || c == '[';
+		if (c == '{' || c == '(' || c == '[') {
+			return true;
+		}
+
+		if (c == '\\') {
+			int save = stream.save();
+			stream.eat();
+			boolean ret = stream.peek() == '{';
+			stream.restore(save);
+			return ret;
+		}
+		return false;
+	}
+
+	private boolean isGroupEnd(char c) {
+		if (c == '}' || c == ')' || c == ']') {
+			return true;
+		}
+
+		if (c == '\\') {
+			int save = stream.save();
+			stream.eat();
+			boolean ret = stream.peek() == '}';
+			stream.restore(save);
+			return ret;
+		}
+		return false;
 	}
 
 	/**
