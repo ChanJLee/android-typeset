@@ -143,9 +143,9 @@ public class SymbolOptions {
 		// dotaccent ˙
 		Sk.put("dotaccent", new Symbol("\u02D9", 85, 551, 192, 657));
 		// ddotaccent ˙
-		Sk.put("ddotaccent", new Symbol("\u02D9\u02D9", 85, 551, 299, 657));
+		Sk.put("ddotaccent", new Symbol("\u02D9\u02D9", 85, 551, 468, 657));
 		// dddotaccent ˙
-		Sk.put("dddotaccent", new Symbol("\u02D9\u02D9\u02D9", 85, 551, 406, 657));
+		Sk.put("dddotaccent", new Symbol("\u02D9\u02D9\u02D9", 85, 551, 758, 657));
 		// ring ˚
 		Sk.put("ring", new Symbol("\u02DA", 279, 529, 471, 705));
 		// ogonek ˛
