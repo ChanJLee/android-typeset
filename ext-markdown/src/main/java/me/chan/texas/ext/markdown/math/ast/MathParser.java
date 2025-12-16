@@ -519,8 +519,8 @@ public class MathParser {
 	 * 注意：不包含 spacing 和 special_symbol
 	 */
 	private Atom parseOperandAtom(boolean silence) throws MathParseException {
+		int save = stream.save();
 		skipWhitespace();
-
 		if (stream.eof()) {
 			throw new MathParseException("Unexpected end of input", stream);
 		}
@@ -547,6 +547,7 @@ public class MathParser {
 			return parseOperandAtom0(silence);
 		}
 
+		stream.restore(save);
 		if (silence) {
 			return null;
 		}
