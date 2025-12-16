@@ -71,6 +71,7 @@ public class MathRendererInflater {
 	}
 
 	private static final Spacing COMMON_SPACE = new Spacing(",", null);
+	private static final Spacing THICK_SPACE = new Spacing(";", null);
 
 	private RendererNode inflateExpression(MathPaint.Styles styles, Expression expression) {
 		List<RendererNode> list = new ArrayList<>();
@@ -471,13 +472,18 @@ public class MathRendererInflater {
 		}
 
 		List<RendererNode> list = new ArrayList<>();
-		for (MatrixRow row : atom.rows) {
-			for (MathList ast : row.elements) {
+		for (int r = 0; r < atom.rows.size(); ++r) {
+			MatrixRow row = atom.rows.get(r);
+			for (int c = 0; c < row.elements.size(); ++c) {
+				MathList ast = row.elements.get(c);
 				list.add(inflate0(styles, ast));
+				if (c != row.elements.size() - 1) {
+					list.add(inflateSpacing(styles, THICK_SPACE));
+				}
 			}
 		}
 
-		GridGroupNode content = new GridGroupNode(styles, atom.rows.size(), list);
+		GridGroupNode content = new GridGroupNode(styles, atom.rows.size() * 2 - 1, list);
 		return new BraceLayout(styles, DelimitedAtom.LEVEL_L0, left, content, right);
 	}
 
