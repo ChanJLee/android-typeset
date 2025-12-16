@@ -10,6 +10,7 @@ public class StretchyTripeNode extends RendererNode {
 	private final SymbolNode mBottom;
 	private final SymbolNode mExtension;
 	private int mActualWidth;
+	private int mActualHeight;
 
 	public StretchyTripeNode(MathPaint.Styles styles, Symbol top, Symbol middle, Symbol bottom, Symbol extension) {
 		super(styles);
@@ -26,22 +27,17 @@ public class StretchyTripeNode extends RendererNode {
 		mBottom.measure(paint);
 		mExtension.measure(paint);
 
-		float height = RendererNode.getSize(heightSpec);
-		float width = RendererNode.getSize(widthSpec);
+		int height = RendererNode.getSize(heightSpec);
+		int width = RendererNode.getSize(widthSpec);
 
 		if (RendererNode.getMode(heightSpec) == RendererNode.UNSPECIFIED) {
 			height = mTop.getHeight() + mMiddle.getHeight() + mBottom.getHeight();
 		} else if (RendererNode.getMode(heightSpec) == RendererNode.AT_MOST) {
 			height = Math.min(height, mTop.getHeight() + mMiddle.getHeight() + mBottom.getHeight());
 		}
+		mActualHeight = mTop.getHeight() + mMiddle.getHeight() + mBottom.getHeight() + mExtension.getHeight() * 2;
 
-		float centerY = height / 2.0f;
-		mTop.layout(0);
-		mMiddle.layout(centerY - mMiddle.getHeight() / 2.0f);
-		mBottom.layout(height - mBottom.getHeight());
-
-		// extension
-		mExtension.layout(0);
+		layout(Math.max(mActualHeight, height));
 
 		float left = Math.min(
 				mTop.getLeft(),
@@ -65,15 +61,25 @@ public class StretchyTripeNode extends RendererNode {
 		mBottom.translate(dx, 0);
 		mMiddle.translate(dx, 0);
 		mExtension.translate(dx, 0);
-		setMeasuredSize((int) Math.ceil(width), (int) Math.ceil(height));
+		setMeasuredSize(width, height);
+	}
+
+	private void layout(int height) {
+		float centerY = height / 2.0f;
+		mTop.layout(0);
+		mMiddle.layout(centerY - mMiddle.getHeight() / 2.0f);
+		mBottom.layout(height - mBottom.getHeight());
+		mExtension.layout(0);
 	}
 
 	@Override
 	protected void onDraw(MathCanvas canvas, MathPaint paint) {
 		int width = getWidth();
-		if (width != mActualWidth) {
+		int height = getHeight();
+
+		if (width != mActualWidth || height != mActualHeight) {
 			canvas.save();
-			canvas.scale(width * 1.0f / mActualWidth, 1f);
+			canvas.scale(width * 1.0f / mActualWidth, height >= mActualHeight ? 1f : height * 1.0f / mActualHeight);
 		}
 
 		mTop.draw(canvas, paint);
@@ -101,7 +107,7 @@ public class StretchyTripeNode extends RendererNode {
 
 		mBottom.draw(canvas, paint);
 
-		if (width != mActualWidth) {
+		if (width != mActualWidth || height != mActualHeight) {
 			canvas.restore();
 		}
 	}
