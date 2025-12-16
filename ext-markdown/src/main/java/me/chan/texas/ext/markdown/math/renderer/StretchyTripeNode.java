@@ -84,9 +84,9 @@ public class StretchyTripeNode extends RendererNode {
 
 		mTop.draw(canvas, paint);
 
-		float top = mTop.getBottom();
+		float top = mTop.getBottom() - 1;
 		float bottom = mMiddle.getTop();
-		float scaleY = (bottom - top) / mExtension.getHeight();
+		float scaleY = (bottom - top) / (mExtension.getHeight() - 1);
 		if (scaleY > 0) {
 			canvas.save();
 			canvas.translate(0, top);
@@ -99,7 +99,7 @@ public class StretchyTripeNode extends RendererNode {
 
 		if (scaleY > 0) {
 			canvas.save();
-			canvas.translate(0, mMiddle.getBottom());
+			canvas.translate(0, mMiddle.getBottom() - 1);
 			canvas.scale(1, scaleY);
 			mExtension.draw(canvas, paint);
 			canvas.restore();
