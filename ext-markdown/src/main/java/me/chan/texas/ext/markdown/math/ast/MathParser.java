@@ -207,13 +207,14 @@ public class MathParser {
 		List<Ast> elements = new ArrayList<>();
 
 		// 第一个 term
-		elements.add(parseTerm());
+		elements.add(parseTerm(false));
 		skipWhitespace();
 
 		// 后续的元素可以是：
 		// 1. binary_op term 对
 		// 2. 直接相邻的 term（标点、隐式乘法等）
 		while (!stream.eof() && !isMathListEnd()) {
+			boolean silence = true;
 			if (isBinaryOperator()) {
 				// 消费二元运算符
 				elements.add(new BinOpAtom(consumeBinaryOperator()));
@@ -224,77 +225,19 @@ public class MathParser {
 					throw new MathParseException("Binary operator must be followed by a term", stream);
 				}
 
-				// 解析运算符后面的 term
-				elements.add(parseTerm());
-				skipWhitespace();
-			} else if (isTermStart()) {
-				// 直接相邻的 term（标点、隐式乘法）
-				elements.add(parseTerm());
-				skipWhitespace();
-			} else {
-				// 既不是二元运算符，也不是 term 开头，退出循环
+				silence = false;
+			}
+
+			Term term = parseTerm(silence);
+			if (term == null) {
 				break;
 			}
+
+			elements.add(term);
+			skipWhitespace();
 		}
 
 		return new Expression(elements);
-	}
-
-	/**
-	 * 判断当前位置是否是一个 term 的开始
-	 */
-	private boolean isTermStart() {
-		if (stream.eof()) {
-			return false;
-		}
-
-		char c = (char) stream.peek();
-
-		// 数字
-		if (Character.isDigit(c)) {
-			return true;
-		}
-
-		// 字母（变量）
-		if (Character.isLetter(c) && c != '\\') {
-			return true;
-		}
-
-		// 分组 {
-		if (c == '{') {
-			return true;
-		}
-
-		// 标点符号 (逗号和分号)
-		if (c == ',' || c == ';') {
-			return true;
-		}
-
-// 命令（以 \ 开头）
-		if (c == '\\') {
-			int saved = stream.save();
-			stream.eat();
-			String cmd = scanCommandName();
-			stream.restore(saved);
-
-// 检查是否是有效的 atom 命令或特殊符号
-			return GREEK_LETTERS.contains(cmd)
-					|| FRAC_COMMANDS.contains(cmd)
-					|| BINOM_COMMANDS.contains(cmd)  // 新增这行
-					|| cmd.equals("sqrt")
-					|| EXTENSIBLE_ARROW_COMMANDS.contains(cmd)
-					|| getDelimitedLevel(cmd) >= 0
-					|| FUNCTION_NAMES.contains(cmd)
-					|| LARGE_OPERATORS.contains(cmd)
-					|| cmd.equals("begin")
-					|| TEXT_COMMANDS.contains(cmd)
-					|| ACCENT_COMMANDS.contains(cmd)
-					|| FONT_COMMANDS.contains(cmd)
-					|| SPECIAL_SYMBOLS.contains(cmd)
-					|| SPECIAL_VARIABLE_SYMBOLS.contains(cmd);
-		}
-
-		return false;
 	}
 
 	/**
@@ -430,7 +373,7 @@ public class MathParser {
 	 * <term> ::= [ <unary_op> ] <operand_atom> [ <sup_sub_suffix> ] [ <postfix_op> ]
 	 * | <special_symbol> [ <sup_sub_suffix> ] | <punctuation>
 	 */
-	private Term parseTerm() throws MathParseException {
+	private Term parseTerm(boolean silence) throws MathParseException {
 		skipWhitespace();
 
 		// 检查是否是标点符号
@@ -447,6 +390,7 @@ public class MathParser {
 			return new Term(null, specialSymbol, suffix);
 		}
 
+		int save = stream.save();
 		// 尝试解析可选的一元运算符
 		String op = parseUnaryOp();
 		UnaryOp unaryOp = null;
@@ -455,7 +399,12 @@ public class MathParser {
 		}
 
 		// 解析可运算的原子
-		Atom atom = parseOperandAtom();
+		Atom atom = parseOperandAtom(silence);
+		if (atom == null && silence) {
+			stream.restore(save);
+			return null;
+		}
+
 		skipWhitespace();
 		SupSubSuffix suffix = tryParseSupSubSuffix();
 
@@ -569,7 +518,7 @@ public class MathParser {
 	 * 可运算的原子表达式：可以被一元运算符修饰
 	 * 注意：不包含 spacing 和 special_symbol
 	 */
-	private Atom parseOperandAtom() throws MathParseException {
+	private Atom parseOperandAtom(boolean silence) throws MathParseException {
 		skipWhitespace();
 
 		if (stream.eof()) {
@@ -595,16 +544,19 @@ public class MathParser {
 
 		// 命令（以\开头）
 		if (c == '\\') {
-			return parseOperandAtom0();
+			return parseOperandAtom0(silence);
 		}
 
+		if (silence) {
+			return null;
+		}
 		throw new MathParseException("Expected operand atom, got '" + c + "'", stream);
 	}
 
 	/**
 	 * 解析命令形式的可运算原子（\开头的）
 	 */
-	private Atom parseOperandAtom0() throws MathParseException {
+	private Atom parseOperandAtom0(boolean silence) throws MathParseException {
 		int startPos = stream.save();
 		expect('\\');
 
@@ -681,6 +633,10 @@ public class MathParser {
 		}
 
 		stream.restore(startPos);
+		if (silence) {
+			return null;
+		}
+
 		throw new MathParseException("Unknown command: \\" + cmd, stream);
 	}
 
