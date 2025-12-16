@@ -471,13 +471,13 @@ public class MathRendererInflater {
 		}
 
 		List<RendererNode> list = new ArrayList<>();
-		GridGroupNode content = new GridGroupNode(styles, atom.rows.size(), list);
 		for (MatrixRow row : atom.rows) {
 			for (MathList ast : row.elements) {
 				list.add(inflate0(styles, ast));
 			}
 		}
 
+		GridGroupNode content = new GridGroupNode(styles, atom.rows.size(), list);
 		return new BraceLayout(styles, DelimitedAtom.LEVEL_L0, left, content, right);
 	}
 
