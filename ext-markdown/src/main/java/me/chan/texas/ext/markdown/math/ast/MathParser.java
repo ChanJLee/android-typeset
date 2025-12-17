@@ -157,14 +157,9 @@ public class MathParser {
 	}
 
 	/*
-	 * <element> ::= <symbol> | <spacing> | <term>
+	 * <element> ::= <spacing> | <term>
 	 */
 	private Ast parseElement() throws MathParseException {
-		SymbolAtom symbol = parseSymbol();
-		if (symbol != null) {
-			return symbol;
-		}
-
 		Spacing spacing = parseSpacing();
 		if (spacing != null) {
 			return spacing;
@@ -341,7 +336,8 @@ public class MathParser {
 	 * <text> |
 	 * <accent> |
 	 * <font_command> |
-	 * <extensible_arrow>
+	 * <extensible_arrow> |
+	 * symbol
 	 * <p>
 	 * 可运算的原子表达式：可以被一元运算符修饰
 	 * 注意：不包含 spacing 和 special_symbol
@@ -363,6 +359,12 @@ public class MathParser {
 		// 分组
 		if (isGroupStart(c)) {
 			return parseGroup(c);
+		}
+
+		// 符号
+		SymbolAtom symbol = parseSymbol();
+		if (symbol != null) {
+			return symbol;
 		}
 
 		// 命令（以\开头）
