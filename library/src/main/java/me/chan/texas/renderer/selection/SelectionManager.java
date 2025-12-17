@@ -129,7 +129,7 @@ public class SelectionManager implements OnSelectedChangedListener {
 
 	@Override
 	public boolean onSegmentClicked(TouchEvent e, Paragraph paragraph, int eventType) {
-		if (mListener == null) {
+		if (mListener == null || paragraph == null) {
 			return false;
 		}
 
@@ -156,6 +156,10 @@ public class SelectionManager implements OnSelectedChangedListener {
 	 */
 	@Override
 	public boolean onBoxSelected(TouchEvent e, Paragraph paragraph, @EventType int eventType, Box box) {
+		if (paragraph == null) {
+			return false;
+		}
+
 		if (eventType == OnSelectedChangedListener.EVENT_CLICKED ||
 				eventType == OnSelectedChangedListener.EVENT_LONG_CLICKED) {
 			boolean handled = onBoxSelected(e, paragraph, eventType == OnSelectedChangedListener.EVENT_LONG_CLICKED, box);
