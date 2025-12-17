@@ -658,12 +658,6 @@ public class MathParser {
 				break;
 			}
 		}
-
-		// 解析可选的 prime 后缀
-		while (!stream.eof() && stream.peek() == '\'') {
-			builder.append((char) stream.eat());
-		}
-
 		return new VariableAtom(builder.toString());
 	}
 

@@ -17,6 +17,16 @@ internal class MathListAsserter(private val mathList: MathList) {
         return this
     }
 
+    fun term(block: TermAsserter.() -> Unit): MathListAsserter {
+        nextTerm().block()
+        return this
+    }
+
+    fun space(block: SpacingAsserter.() -> Unit): MathListAsserter {
+        nextSpacing().block()
+        return this
+    }
+
     // --- 核心断言方法 ---
     fun elementIsTerm(index: Int): TermAsserter {
         Assert.assertTrue(
@@ -48,5 +58,11 @@ internal class MathListAsserter(private val mathList: MathList) {
 
     fun elementIsBinOp(i: Int): SymbolAsserter {
         TODO("Not yet implemented")
+    }
+
+    fun eof() {
+        if (currentIndex != mathList.elements.size) {
+            Assert.fail("没有找到 EOF")
+        }
     }
 }
