@@ -43,7 +43,8 @@ public class AccentNode extends RendererNode implements HorizontalCalibratedNode
 
 	private void measureGlyph(MathPaint paint) {
 		mCmdNode.measure(paint);
-		if ("check".equals(mCmd) || "widetilde".equals(mCmd) || "underline".equals(mCmd)) {
+		if ("check".equals(mCmd) || "widetilde".equals(mCmd) || "underline".equals(mCmd) || "overline".equals(mCmd) ||
+				"vec".equals(mCmd) || "bar".equals(mCmd)) {
 			setMeasuredSize(
 					(int) Math.ceil(Math.max(mCmdNode.getWidth(), mContent.getWidth())),
 					(int) Math.ceil(mCmdNode.getHeight() + mContent.getHeight())
@@ -99,7 +100,7 @@ public class AccentNode extends RendererNode implements HorizontalCalibratedNode
 			return;
 		}
 
-		if ("overline".equals(mCmd)) {
+		if ("overline".equals(mCmd) || "bar".equals(mCmd) || "vec".equals(mCmd)) {
 			mCmdNode.layout(0, 0);
 			mContent.layout(0, mCmdNode.getBottom());
 			return;
@@ -147,7 +148,7 @@ public class AccentNode extends RendererNode implements HorizontalCalibratedNode
 				"dot".equals(mCmd) || "ddot".equals(mCmd) || "dddot".equals(mCmd)
 				|| "acute".equals(mCmd) || "grave".equals(mCmd) || "breve".equals(mCmd) || "check".equals(mCmd)
 				|| "mathring".equals(mCmd)
-				|| "underline".equals(mCmd) || "overline".equals(mCmd);  // 添加 mathring
+				|| "underline".equals(mCmd) || "overline".equals(mCmd) || "bar".equals(mCmd) || "vec".equals(mCmd);
 	}
 
 	private Symbol cmdToSymbol() {
@@ -191,8 +192,12 @@ public class AccentNode extends RendererNode implements HorizontalCalibratedNode
 			return MathFontOptions.symbol("ring");
 		}
 
-		if ("underline".equals(mCmd) || "overline".equals(mCmd)) {
+		if ("underline".equals(mCmd) || "overline".equals(mCmd) || "bar".equals(mCmd)) {
 			return MathFontOptions.symbol("uni2015");
+		}
+
+		if ("vec".equals(mCmd)) {
+			return MathFontOptions.symbol("uni22B8");
 		}
 
 		throw new RuntimeException("unknown cmd: " + mCmd);
