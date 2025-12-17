@@ -16,12 +16,12 @@ internal class SupSubSuffixAsserter(val s: SupSubSuffix) {
         return this
     }
 
-    fun superscriptContent(block: ScriptArgAsserter.() -> Unit): SupSubSuffixAsserter {
+    fun superscript(block: ScriptArgAsserter.() -> Unit): SupSubSuffixAsserter {
         ScriptArgAsserter(s.superscript).block()
         return this
     }
 
-    fun subscriptContent(block: ScriptArgAsserter.() -> Unit): SupSubSuffixAsserter {
+    fun subscript(block: ScriptArgAsserter.() -> Unit): SupSubSuffixAsserter {
         ScriptArgAsserter(s.subscript).block()
         return this
     }

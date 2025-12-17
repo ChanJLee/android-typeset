@@ -8,17 +8,18 @@ internal class DelimitedAsserter(private val delimited: DelimitedAtom) {
         return this
     }
 
-    fun leftDelimiter(s: String?): DelimitedAsserter {
+    fun left(s: String?): DelimitedAsserter {
         Assert.assertEquals(s, delimited.leftDelimiter)
         return this
     }
 
-    fun rightDelimiter(s: String?): DelimitedAsserter {
+    fun right(s: String?): DelimitedAsserter {
         Assert.assertEquals(s, delimited.rightDelimiter)
         return this
     }
 
-    fun content(): MathListAsserter {
-        return MathListAsserter(delimited.content)
+    fun content(block: MathListAsserter.() -> Unit): DelimitedAsserter {
+        MathListAsserter(delimited.content).block()
+        return this
     }
 }

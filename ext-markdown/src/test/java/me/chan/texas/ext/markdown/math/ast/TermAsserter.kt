@@ -46,7 +46,7 @@ internal class TermAsserter(private val term: Term) {
         return this
     }
 
-    fun frac(block: FracAsserter.() -> Unit): TermAsserter {
+    fun fraction(block: FracAsserter.() -> Unit): TermAsserter {
         Assert.assertTrue("atom 应该是 FracAtom", term.atom is FracAtom)
         FracAsserter(term.atom as FracAtom).block()
         return this

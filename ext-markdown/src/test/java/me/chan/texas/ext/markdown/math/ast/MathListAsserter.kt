@@ -22,7 +22,7 @@ internal class MathListAsserter(private val mathList: MathList) {
         return this
     }
 
-    fun space(block: SpacingAsserter.() -> Unit): MathListAsserter {
+    fun spacing(block: SpacingAsserter.() -> Unit): MathListAsserter {
         nextSpacing().block()
         return this
     }
