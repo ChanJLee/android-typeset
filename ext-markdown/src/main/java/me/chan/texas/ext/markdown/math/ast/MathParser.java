@@ -1032,7 +1032,6 @@ public class MathParser {
 
 		// 数字（可以是多位数字或小数）
 		if (Character.isDigit(c)) {
-			stream.eat();
 			return new SingleToken(parseNumber());
 		}
 

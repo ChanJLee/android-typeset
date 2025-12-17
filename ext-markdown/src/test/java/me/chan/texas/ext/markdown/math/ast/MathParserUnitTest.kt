@@ -32,7 +32,7 @@ class MathParserUnitTest {
         }
 
         "\\alpha".assert {
-            term { variable("\\alpha") }
+            term { greekLetter("alpha") }
         }
     }
 
@@ -171,7 +171,7 @@ class MathParserUnitTest {
             term {
                 fraction {
                     // 假设你的 Asserter 有检查 command 的方法
-                    command("\\dfrac")
+                    command("dfrac")
                     numerator { term { variable("a") } }
                     denominator { term { variable("b") } }
                 }
@@ -332,8 +332,7 @@ class MathParserUnitTest {
                             symbol("-")
                         }
                         term { number("4") }
-                        term { variable("a") }
-                        term { variable("c") }
+                        term { variable("ac") }
                     }
                 }
             }
