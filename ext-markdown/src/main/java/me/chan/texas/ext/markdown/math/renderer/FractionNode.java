@@ -11,6 +11,7 @@ public class FractionNode extends RendererNode implements OptimizableRendererNod
 	private RendererNode mNumerator;
 	private RendererNode mDenominator;
 	private float mSpaceHeight;
+	private float mPaddingX;
 
 	public FractionNode(MathPaint.Styles styles, RendererNode numerator, RendererNode denominator) {
 		super(styles);
@@ -24,7 +25,10 @@ public class FractionNode extends RendererNode implements OptimizableRendererNod
 		mDenominator.measure(paint);
 		mSpaceHeight = getThickness(paint) + getDenominatorVerticalGap(paint) + getNumeratorVerticalGap(paint);
 
-		int width = (int) Math.ceil(Math.max(mDenominator.getWidth(), mNumerator.getWidth()) * 1.04f);
+		float contentWith = Math.max(mDenominator.getWidth(), mNumerator.getWidth());
+		mPaddingX = contentWith * 0.04f;
+
+		int width = (int) Math.ceil(contentWith + mPaddingX * 2);
 		int height = (int) Math.ceil(mDenominator.getHeight() + mNumerator.getHeight() + mSpaceHeight);
 		setMeasuredSize(width, height);
 	}
@@ -57,7 +61,8 @@ public class FractionNode extends RendererNode implements OptimizableRendererNod
 		paint.setStrokeWidth(thickness);
 
 		float y = (mNumerator.getBottom() + mDenominator.getTop()) / 2.0f;
-		canvas.drawLine(0, y, getWidth(), y, paint);
+		float contentWidth = getWidth() - mPaddingX * 2;
+		canvas.drawLine(mPaddingX, y, contentWidth, y, paint);
 
 		paint.setStrokeWidth(strokeWidth);
 	}
