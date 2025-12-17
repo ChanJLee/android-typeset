@@ -3,47 +3,24 @@ package me.chan.texas.ext.markdown.math.renderer.fonts;
 import java.util.HashMap;
 import java.util.Map;
 
-import me.chan.texas.ext.markdown.math.ast.BinOpAtom;
 import me.chan.texas.ext.markdown.math.ast.ExtensibleArrowAtom;
 import me.chan.texas.ext.markdown.math.ast.OperatorSymbolAtom;
 import me.chan.texas.ext.markdown.math.ast.SpecialLetterVariableAtom;
 import me.chan.texas.ext.markdown.math.ast.SpecialSymbolAtom;
-import me.chan.texas.ext.markdown.math.ast.UnaryOp;
+import me.chan.texas.ext.markdown.math.ast.SymbolAtom;
 import me.chan.texas.ext.markdown.math.ast.GreekLetterVariableAtom;
 import me.chan.texas.ext.markdown.math.ast.LargeOperatorAtom;
 
 public class MathFontOptions {
 	public static final float UNITS_PER_EM = 1000F;
 	public static final float RADICAL_VERTICAL_GAP = 50;
-	public static final float RADICAL_DISPLAY_STYLE_VERTICAL_GAP = 148;
 	public static final float RADICAL_RULE_THICKNESS = 40;
 	public static final float RADICAL_EXTRA_ASCENDER = 40;
 	public static final float RADICAL_KERN_BEFORE_DEGREE = 278;
-	public static final float RADICAL_KERN_AFTER_DEGREE = -556;
 	public static final float RADICAL_DEGREE_BOTTOM_RAISE_PERCENT = 60;
-	public static final float FRACTION_NUMERATOR_SHIFT_UP = 394;
-	public static final float FRACTION_NUMERATOR_DISPLAY_STYLE_SHIFT_UP = 677;
-	public static final float FRACTION_DENOMINATOR_SHIFT_DOWN = 345;
-	public static final float FRACTION_DENOMINATOR_DISPLAY_STYLE_SHIFT_DOWN = 686;
 	public static final float FRACTION_NUMERATOR_GAP_MIN = 40;
-	public static final float FRACTION_NUM_DISPLAY_STYLE_GAP_MIN = 120;
 	public static final float FRACTION_RULE_THICKNESS = 40;
 	public static final float FRACTION_DENOMINATOR_GAP_MIN = 40;
-	public static final float FRACTION_DENOM_DISPLAY_STYLE_GAP_MIN = 120;
-	public static final float SUPERSCRIPT_SHIFT_UP = 363;
-	public static final float SUPERSCRIPT_SHIFT_UP_CRAMPED = 289;
-	public static final float SUBSCRIPT_SHIFT_DOWN = 247;
-	public static final float SUPERSCRIPT_BASELINE_DROP_MAX = 250;
-	public static final float SUBSCRIPT_BASELINE_DROP_MIN = 200;
-	public static final float SUPERSCRIPT_BOTTOM_MIN = 108;
-	public static final float SUBSCRIPT_TOP_MAX = 344;
-	public static final float SUB_SUPERSCRIPT_GAP_MIN = 160;
-	public static final float AXIS_HEIGHT = 250;
-	public static final float ACCENT_BASE_HEIGHT = 450;
-	public static final float SCRIPT_PERCENT_SCALE_DOWN = 70;
-	public static final float SCRIPT_SCRIPT_PERCENT_SCALE_DOWN = 50;
-
-	public static final float BRACT_BASELINE_OFFSET_FACTOR = 1.235f;
 
 	private static final SymbolOptions SYMBOL = new SymbolOptions();
 	private static final Map<String, String> AST = new HashMap<>();
@@ -284,18 +261,6 @@ public class MathFontOptions {
 		return SYMBOL.all.get(ref);
 	}
 
-	public static Symbol ast(UnaryOp atom) {
-		String op = atom.op;
-		if (op.startsWith("\\")) {
-			op = atom.op.substring(1);
-		}
-		String ref = AST.get(op);
-		if (ref == null) {
-			throw new IllegalArgumentException("Unknown ast op: " + atom.op);
-		}
-		return symbol(ref);
-	}
-
 	public static Symbol ast(SpecialLetterVariableAtom atom) {
 		String ref = AST.get(atom.name);
 		if (ref == null) {
@@ -328,10 +293,10 @@ public class MathFontOptions {
 		return symbol(ref);
 	}
 
-	public static Symbol ast(BinOpAtom atom) {
-		String op = atom.op;
+	public static Symbol ast(SymbolAtom atom) {
+		String op = atom.symbol;
 		if (op.startsWith("\\")) {
-			op = atom.op.substring(1);
+			op = atom.symbol.substring(1);
 		}
 		String ref = AST.get(op);
 		if (ref == null) {

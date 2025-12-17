@@ -757,28 +757,28 @@ class SymbolUnitTest {
     }
 
     @Test
-    fun test_MathFontOptions_ast_BinOpAtom() {
-        // 测试 BinOpAtom 的符号查找
-        val plusAtom = BinOpAtom("+")
+    fun test_MathFontOptions_ast_SymbolAtom() {
+        // 测试 SymbolAtom 的符号查找
+        val plusAtom = SymbolAtom("+")
         assertNotNull("+ 应该能找到符号", MathFontOptions.ast(plusAtom))
 
-        val timesAtom = BinOpAtom("\\times")
+        val timesAtom = SymbolAtom("\\times")
         assertNotNull("\\times 应该能找到符号", MathFontOptions.ast(timesAtom))
 
-        val toAtom = BinOpAtom("\\to")
+        val toAtom = SymbolAtom("\\to")
         assertNotNull("\\to 应该能找到符号", MathFontOptions.ast(toAtom))
     }
 
     @Test
     fun test_MathFontOptions_ast_LargeOperatorAtom() {
         // 测试 LargeOperatorAtom 的符号查找
-        val sumAtom = LargeOperatorAtom("sum", null)
+        val sumAtom = LargeOperatorAtom("sum")
         assertNotNull("sum 应该能找到符号", MathFontOptions.ast(sumAtom))
 
-        val intAtom = LargeOperatorAtom("int", null)
+        val intAtom = LargeOperatorAtom("int")
         assertNotNull("int 应该能找到符号", MathFontOptions.ast(intAtom))
 
-        val limAtom = LargeOperatorAtom("lim", null)
+        val limAtom = LargeOperatorAtom("lim")
         // lim 用文本渲染，不是符号
         assertNull("lim 应该返回 null (使用文本渲染)", MathFontOptions.ast(limAtom))
     }

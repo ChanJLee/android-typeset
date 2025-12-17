@@ -8,52 +8,21 @@ public class MathParser {
 	private final CharStream stream;
 	private int recursionDepth = 0;
 	private static final int MAX_RECURSION_DEPTH = 100;
-	// 在类开头添加 operator_symbol 集合
-	// 这些符号既可以作为二元运算符，也可以在上标中单独使用（如 90^\circ 表示度数）
-	private static final Set<String> OPERATOR_SYMBOLS = new HashSet<>(Arrays.asList(
-			"pm", "mp",  // \pm 和 \mp
-			"circ"       // \circ 可用于度数符号 (90^\circ) 或函数复合 (f \circ g)
-	));
-	// 二元运算符集合
-	private static final Set<String> BINARY_OPERATORS = new HashSet<>(Arrays.asList(
-			"+", "-", "*", "/", "=", "<", ">",  // 移除了逗号
-			"times", "cdot", "div", "pm", "mp",
-			"setminus", "circ",  // 集合差、函数复合
-			"oplus", "ominus", "otimes", "oslash", "odot",  // 圈运算符
-			"bullet", "star", "dagger", "ddagger",  // 其他二元运算
-			"neq", "equiv", "approx", "cong", "sim",
-			"simeq", "asymp", "propto",  // 更多关系运算符
-			"le", "ge", "leq", "geq", "ll", "gg",
-			"prec", "succ", "preceq", "succeq",  // 序关系
-			"in", "notin", "subset", "supset", "subseteq", "supseteq",
-			"cup", "cap", "wedge", "vee",
-			"to", "rightarrow", "leftarrow", "leftrightarrow",
-			"Rightarrow", "Leftarrow", "Leftrightarrow",
-			"implies", "iff",
-			"perp", "parallel",
-			"mid", "nmid",  // 整除/不整除
-			"triangleleft", "triangleright",  // 三角运算符
-			"bowtie", "models"  // 关系运算符
-	));
 
-	// 真正的特殊符号（不能被一元运算符修饰）
-	private static final Set<String> SPECIAL_SYMBOLS = new HashSet<>(Arrays.asList(
-			"dots", "ldots", "cdots", "vdots", "ddots",  // 省略号
-			"angle",  // 角度符号
-			"therefore", "because",  // 逻辑标记符号
-			"forall", "exists", "nexists",  // ∀ ∃ ∄ 量词
-			"emptyset", "varnothing"  // ∅ 空集
-	));
+	private static final Set<String> SYMBOL = new HashSet<>(Arrays.asList(
+			"+", "-", "*", "/", "|", "!", "'", ",", ";", "<", ">", "="
+			, "times", "cdot", "div", "pm", "mp"
+			, "setminus", "circ", "oplus", "ominus", "otimes", "oslash", "odot"
+			, "bullet", "star", "dagger", "ddagger", "neq", "equiv", "approx", "cong", "sim"
+			, "simeq", "asymp", "propto", "le", "ge", "leq", "geq", "ll", "gg"
+			, "prec", "succ", "preceq", "succeq", "in", "notin", "subset", "supset", "subseteq", "supseteq"
+			, "cup", "cap", "wedge", "vee", "to", "rightarrow", "leftarrow", "leftrightarrow"
+			, "Rightarrow", "Leftarrow", "Leftrightarrow"
+			, "implies", "iff", "perp", "parallel", "mid", "nmid", "triangleleft", "triangleright"
+			, "bowtie", "models", "neg", "dots", "ldots", "cdots", "vdots", "ddots"
+			, "angle", "therefore", "because", "forall", "exists", "nexists", "emptyset", "varnothing"
+			, "hbar", "nabla", "partial", "ell", "wp", "Re", "Im", "aleph"
 
-	// 类希腊字母的符号（可以被一元运算符修饰，视为变量）
-	private static final Set<String> SPECIAL_VARIABLE_SYMBOLS = new HashSet<>(Arrays.asList(
-			"hbar",           // ℏ 约化普朗克常数
-			"nabla",          // ∇ 梯度算子
-			"partial",        // ∂ 偏导数
-			"ell",            // ℓ 脚本小写L
-			"wp",             // ℘ 魏尔斯特拉斯函数
-			"Re", "Im",       // ℜ ℑ 实部虚部
-			"aleph"           // ℵ 阿列夫数
 	));
 
 	// 函数名集合
@@ -78,7 +47,6 @@ public class MathParser {
 	));
 
 	// 希腊字母集合
-// 希腊字母集合
 	private static final Set<String> GREEK_LETTERS = new HashSet<>(Arrays.asList(
 			"alpha", "beta", "gamma", "delta", "epsilon", "varepsilon",
 			"zeta", "eta", "theta", "vartheta", "iota", "kappa",
@@ -174,7 +142,6 @@ public class MathParser {
 
 	/**
 	 * <math_list> ::= <element> { <element> }
-	 * <element> ::= <expression>,<spacing>
 	 */
 	private MathList parseMathList() throws MathParseException {
 		checkRecursionDepth();
@@ -182,62 +149,49 @@ public class MathParser {
 		skipWhitespace();
 
 		while (!isMathListEnd()) {
-			// 检查是否是 spacing 命令
-			if (isSpacingCommand()) {
-				ast.add(parseSpacing());
-			} else {
-				// 解析表达式（term序列，term之间用二元运算符连接）
-				ast.add(parseExpression());
-			}
+			ast.add(parseElement());
 			skipWhitespace();
 		}
 
 		return new MathList(ast);
 	}
 
-	/**
-	 * <expression> ::= <term> { <separator> }
-	 * <separator> ::= <binary_op> <term> | <term>
-	 * <p>
-	 * Expression 是 term 的序列，term 之间可以：
-	 * 1. 通过二元运算符连接（如 a+b）
-	 * 2. 直接相邻（隐式乘法，如 2x，或标点，如 a,b）
+	/*
+	 * <element> ::= <symbol> | <spacing> | <term>
 	 */
-	private Expression parseExpression() throws MathParseException {
-		List<Ast> elements = new ArrayList<>();
-
-		// 第一个 term
-		elements.add(parseTerm(false));
-		skipWhitespace();
-
-		// 后续的元素可以是：
-		// 1. binary_op term 对
-		// 2. 直接相邻的 term（标点、隐式乘法等）
-		while (!stream.eof() && !isMathListEnd()) {
-			boolean silence = true;
-			if (isBinaryOperator()) {
-				// 消费二元运算符
-				elements.add(new BinOpAtom(consumeBinaryOperator()));
-				skipWhitespace();
-
-				// 运算符后面必须有 term
-				if (stream.eof() || isMathListEnd()) {
-					throw new MathParseException("Binary operator must be followed by a term", stream);
-				}
-
-				silence = false;
-			}
-
-			Term term = parseTerm(silence);
-			if (term == null) {
-				break;
-			}
-
-			elements.add(term);
-			skipWhitespace();
+	private Ast parseElement() throws MathParseException {
+		SymbolAtom symbol = parseSymbol();
+		if (symbol != null) {
+			return symbol;
 		}
 
-		return new Expression(elements);
+		Spacing spacing = parseSpacing();
+		if (spacing != null) {
+			return spacing;
+		}
+
+		return parseTerm();
+	}
+
+	private SymbolAtom parseSymbol() {
+		int save = stream.save();
+		char c = (char) stream.peek();
+
+		if ("+-*/|!',;<>=".indexOf(c) >= 0) {
+			stream.eat();
+			return new SymbolAtom(String.valueOf(c));
+		}
+
+		if (c == '\\') {
+			stream.eat();
+			String cmd = scanCommandName();
+			if (SYMBOL.contains(cmd)) {
+				return new SymbolAtom("\\" + cmd);
+			}
+		}
+
+		stream.restore(save);
+		return null;
 	}
 
 	/**
@@ -277,29 +231,21 @@ public class MathParser {
 	}
 
 	/**
-	 * 判断当前是否是空格命令
-	 */
-	private boolean isSpacingCommand() {
-		if (stream.peek() != '\\') return false;
-
-		int saved = stream.save();
-		stream.eat();
-		String cmd = scanCommandName();
-		stream.restore(saved);
-
-		return SPACING_COMMANDS.contains(cmd);
-	}
-
-	/**
 	 * 解析空格命令
 	 * <spacing> ::= "\,","\:","\;","\!","\quad","\qquad","\hspace" "{" <length> "}",...
 	 */
 	private Spacing parseSpacing() throws MathParseException {
-		expect('\\');
+		int save = stream.save();
+		if (stream.peek() != '\\') {
+			return null;
+		}
+
+		stream.eat();
 		String cmd = scanCommandName();
 
 		if (!SPACING_COMMANDS.contains(cmd)) {
-			throw new MathParseException("Expected spacing command, got \\" + cmd, stream);
+			stream.restore(save);
+			return null;
 		}
 
 		// 对于 hspace 等需要参数的命令
@@ -370,161 +316,38 @@ public class MathParser {
 	}
 
 	/**
-	 * <term> ::= [ <unary_op> ] <operand_atom> [ <sup_sub_suffix> ] [ <postfix_op> ]
-	 * | <special_symbol> [ <sup_sub_suffix> ] | <punctuation>
+	 * <term> ::= <atom> [ <sup_sub_suffix> ]
 	 */
-	private Term parseTerm(boolean silence) throws MathParseException {
+	private Term parseTerm() throws MathParseException {
+		Atom atom = parseAtom();
 		skipWhitespace();
-
-		// 检查是否是标点符号
-		if (isPunctuation()) {
-			PunctuationAtom punctuation = parsePunctuation();
-			return new Term(null, punctuation, null);  // 标点不能有一元运算符和上下标
-		}
-
-		// 先检查是否是特殊符号
-		if (isSpecialSymbol()) {
-			SpecialSymbolAtom specialSymbol = parseSpecialSymbol();
-			skipWhitespace();
-			SupSubSuffix suffix = tryParseSupSubSuffix();
-			return new Term(null, specialSymbol, suffix);
-		}
-
-		int save = stream.save();
-		// 尝试解析可选的一元运算符
-		String op = parseUnaryOp();
-		UnaryOp unaryOp = null;
-		if (op != null) {
-			unaryOp = new UnaryOp(op);
-		}
-
-		// 解析可运算的原子
-		Atom atom = parseOperandAtom(silence);
-		if (atom == null && silence) {
-			stream.restore(save);
-			return null;
-		}
-
-		skipWhitespace();
-		SupSubSuffix suffix = tryParseSupSubSuffix();
-
-		// 新增：尝试解析后缀运算符
-		skipWhitespace();
-		PostfixOp postfixOp = tryParsePostfixOp();
-
-		return new Term(unaryOp, atom, suffix, postfixOp);
+		SupSubSuffix suffix = parseSupSubSuffix();
+		return new Term(atom, suffix);
 	}
 
 	/**
-	 * 尝试解析后缀运算符
-	 * <postfix_op> ::= "!" | "!!"
-	 */
-	private PostfixOp tryParsePostfixOp() {
-		if (!stream.eof() && stream.peek() == '!') {
-			StringBuilder stringBuilder = new StringBuilder();
-			while (!stream.eof() && stream.peek() == '!') {
-				stringBuilder.append('!');
-				stream.eat();
-			}
-			return new PostfixOp(stringBuilder.toString());
-		}
-		return null;
-	}
-
-	// 添加标点符号检查和解析方法
-	private boolean isPunctuation() {
-		if (stream.eof()) return false;
-		char c = (char) stream.peek();
-		return c == ',' || c == ';';
-	}
-
-	private PunctuationAtom parsePunctuation() {
-		char c = (char) stream.eat();
-		return new PunctuationAtom(String.valueOf(c));
-	}
-
-	/**
-	 * 判断当前是否是特殊符号
-	 */
-	private boolean isSpecialSymbol() {
-		if (stream.peek() != '\\') return false;
-
-		int saved = stream.save();
-		stream.eat();
-		String cmd = scanCommandName();
-		stream.restore(saved);
-
-		return SPECIAL_SYMBOLS.contains(cmd);
-	}
-
-	/**
-	 * 解析特殊符号（不能被一元运算符修饰的符号）
-	 */
-	private SpecialSymbolAtom parseSpecialSymbol() throws MathParseException {
-		expect('\\');
-		String cmd = scanCommandName();
-
-		if (!SPECIAL_SYMBOLS.contains(cmd)) {
-			throw new MathParseException("Expected special symbol, got \\" + cmd, stream);
-		}
-
-		return new SpecialSymbolAtom(cmd);
-	}
-
-	/**
-	 * 解析一元运算符
-	 * <unary_op> ::= "+","-","\pm","\mp", "!", "\neg"
-	 */
-	private String parseUnaryOp() throws MathParseException {
-		if (!stream.eof()) {
-			char c = (char) stream.peek();
-			if (c == '+' || c == '-' || c == '!') {
-				// 保存当前位置
-				int saved = stream.save();
-				stream.eat();
-				skipWhitespace();
-
-				// 检查后面是否有operand_atom（不能是special_symbol）
-				// 关键：一元运算符后必须紧跟operand_atom（可能有空格）
-				if (!stream.eof() && isOperandAtomStart()) {
-					// 这是一元运算符
-					return String.valueOf(c);
-				} else {
-					// 不是一元运算符，恢复stream
-					stream.restore(saved);
-				}
-			} else if (c == '\\') {
-				int saved = stream.save();
-				stream.eat();
-				String cmd = scanCommandName();
-				if ("pm".equals(cmd) || "mp".equals(cmd) || "neg".equals(cmd)) {
-					skipWhitespace();
-					if (!stream.eof() && isOperandAtomStart()) {
-						return "\\" + cmd;
-					}
-				}
-				stream.restore(saved);
-			}
-		}
-
-		return null;
-	}
-
-	/**
-	 * <operand_atom> ::= <number>,<variable>,<greek_letter_variable>,<group>
-	 * ,<frac>,<sqrt>,<delimited>,<function_call>,<large_operator>
-	 * ,<matrix>,<text>,<accent>,<font_command>
+	 * <operand_atom> ::=<number> |
+	 * <variable> |
+	 * <greek_letter_variable> |
+	 * <special_letter_variable> |
+	 * <group> |
+	 * <frac> |
+	 * <binom> |
+	 * <sqrt> |
+	 * <delimited> |
+	 * <function_call> |
+	 * <large_operator> |
+	 * <matrix> |
+	 * <text> |
+	 * <accent> |
+	 * <font_command> |
+	 * <extensible_arrow>
 	 * <p>
 	 * 可运算的原子表达式：可以被一元运算符修饰
 	 * 注意：不包含 spacing 和 special_symbol
 	 */
-	private Atom parseOperandAtom(boolean silence) throws MathParseException {
+	private Atom parseAtom() throws MathParseException {
 		int save = stream.save();
-		skipWhitespace();
-		if (stream.eof()) {
-			throw new MathParseException("Unexpected end of input", stream);
-		}
-
 		char c = (char) stream.peek();
 
 		// 数字
@@ -544,38 +367,30 @@ public class MathParser {
 
 		// 命令（以\开头）
 		if (c == '\\') {
-			return parseOperandAtom0(silence);
+			return parseAtomStartWithCmd();
 		}
 
 		stream.restore(save);
-		if (silence) {
-			return null;
-		}
 		throw new MathParseException("Expected operand atom, got '" + c + "'", stream);
 	}
 
 	/**
 	 * 解析命令形式的可运算原子（\开头的）
 	 */
-	private Atom parseOperandAtom0(boolean silence) throws MathParseException {
-		int startPos = stream.save();
+	private Atom parseAtomStartWithCmd() throws MathParseException {
+		int save = stream.save();
 		expect('\\');
 
 		String cmd = scanCommandName();
 
 		if (cmd.isEmpty()) {
-			stream.restore(startPos);
+			stream.restore(save);
 			throw new MathParseException("Empty command", stream);
 		}
 
 		// 在希腊字母处理之后添加：
 		if (GREEK_LETTERS.contains(cmd)) {
 			return parseGreekLetterAtom(cmd);
-		}
-
-		// 新增：特殊变量符号（类似希腊字母的处理）
-		if (SPECIAL_VARIABLE_SYMBOLS.contains(cmd)) {
-			return parseSpecialVariableAtom(cmd);
 		}
 
 		// 分式
@@ -593,15 +408,10 @@ public class MathParser {
 			return parseSqrt();
 		}
 
-		// 可扩展箭头 - 新增
-		if (EXTENSIBLE_ARROW_COMMANDS.contains(cmd)) {
-			return parseExtensibleArrow(cmd);
-		}
-
 		// 定界符
 		int level = getDelimitedLevel(cmd);
 		if (level >= 0) {
-			stream.restore(startPos);
+			stream.restore(save);
 			return parseDelimited(level);
 		}
 
@@ -615,6 +425,7 @@ public class MathParser {
 			return parseLargeOperator(cmd);
 		}
 
+		// matrix
 		if ("begin".equals(cmd)) {
 			return parseMatrix();
 		}
@@ -633,11 +444,12 @@ public class MathParser {
 			return parseFont(cmd);
 		}
 
-		stream.restore(startPos);
-		if (silence) {
-			return null;
+		// 可扩展箭头 - 新增
+		if (EXTENSIBLE_ARROW_COMMANDS.contains(cmd)) {
+			return parseExtensibleArrow(cmd);
 		}
 
+		stream.restore(save);
 		throw new MathParseException("Unknown command: \\" + cmd, stream);
 	}
 
@@ -664,15 +476,6 @@ public class MathParser {
 		} finally {
 			recursionDepth--;
 		}
-	}
-
-	private SpecialLetterVariableAtom parseSpecialVariableAtom(String cmd) {
-		StringBuilder builder = new StringBuilder();
-		// 解析可选的 prime 后缀
-		while (!stream.eof() && stream.peek() == '\'') {
-			builder.append((char) stream.eat());
-		}
-		return new SpecialLetterVariableAtom(cmd, builder.toString());
 	}
 
 	private Atom parseMatrix() throws MathParseException {
@@ -1044,28 +847,10 @@ public class MathParser {
 	}
 
 	/**
-	 * <function_call> ::= "\" <function_name> [ "_" <script_arg> ] [ "^" <script_arg> ] [ <function_arg> ]
+	 * <function_call> ::= "\" <function_name>
 	 */
 	private FunctionCallAtom parseFunctionCall(String functionName) throws MathParseException {
-		skipWhitespace();
-
-		SupSubSuffix supSubSuffix = tryParseSupSubSuffix();
-
-		// 函数参数（可选，只吃一个token或group）
-		Ast argument = null;
-		if (!stream.eof()) {
-			char c = (char) stream.peek();
-			int level = -1;
-			if (isGroupStart(c)) {
-				argument = parseGroup(c);
-			} else if (c == '\\' && (level = peekDelimitedLevel()) >= 0) {
-				argument = parseDelimited(level);
-			} else if (isSingleTokenStart()) {
-				argument = new SingleToken(scanSingleToken());
-			}
-		}
-
-		return new FunctionCallAtom(functionName, supSubSuffix, argument);
+		return new FunctionCallAtom(functionName);
 	}
 
 	private boolean isGroupStart(char c) {
@@ -1127,12 +912,10 @@ public class MathParser {
 	}
 
 	/**
-	 * <large_operator> ::= "\" <large_op_name> [ "_" <script_arg> ] [ "^" <script_arg> ]
+	 * <large_operator> ::= "\" <large_op_name>
 	 */
-	private LargeOperatorAtom parseLargeOperator(String operatorName) throws MathParseException {
-		skipWhitespace();
-
-		return new LargeOperatorAtom(operatorName, tryParseSupSubSuffix());
+	private LargeOperatorAtom parseLargeOperator(String operatorName) {
+		return new LargeOperatorAtom(operatorName);
 	}
 
 	/**
@@ -1174,13 +957,8 @@ public class MathParser {
 			}
 		}
 
-		// 否则尝试解析 single_token 形式
-		if (isSingleTokenStart()) {
-			Atom content = scanSingleToken();
-			return new AccentAtom(accentCmd, content);
-		}
-
-		throw new MathParseException("Expected '{' or single token after \\" + accentCmd, stream);
+		SingleToken content = parseSingleToken();
+		return new AccentAtom(accentCmd, content);
 	}
 
 
@@ -1189,9 +967,7 @@ public class MathParser {
 	 * ,"^" <script_arg> "_" <script_arg>
 	 * ,"_" <script_arg> "^" <script_arg>
 	 */
-	private SupSubSuffix tryParseSupSubSuffix() throws MathParseException {
-		skipWhitespace();
-
+	private SupSubSuffix parseSupSubSuffix() throws MathParseException {
 		if (stream.eof()) {
 			return null;
 		}
@@ -1233,11 +1009,9 @@ public class MathParser {
 	}
 
 	/**
-	 * <script_arg> ::= <single_token>,<group>
+	 * <script_arg> ::= <single_token>, <group>
 	 */
 	private ScriptArg parseScriptArg() throws MathParseException {
-		skipWhitespace();
-
 		if (stream.eof()) {
 			throw new MathParseException("Expected script argument", stream);
 		}
@@ -1245,56 +1019,8 @@ public class MathParser {
 		char c = (char) stream.peek();
 		if (isGroupStart(c)) {
 			return new ScriptArg(parseGroup(c));
-		} else if (isSingleTokenStart()) {
-			return new ScriptArg(new SingleToken(scanSingleToken()));
-		} else {
-			throw new MathParseException("Expected script argument", stream);
 		}
-	}
-
-	// ========== 辅助方法 ==========
-
-	/**
-	 * 判断当前位置是否是一个有效的 operand_atom 开头
-	 * (不包括 special_symbol)
-	 */
-	private boolean isOperandAtomStart() {
-		if (stream.eof()) {
-			return false;
-		}
-
-		char c = (char) stream.peek();
-
-		// 数字
-		if (Character.isDigit(c)) {
-			return true;
-		}
-
-		// 字母（变量）
-		if (Character.isLetter(c) && c != '\\') {
-			return true;
-		}
-
-		// 分组 {
-		if (isGroupStart(c)) {
-			return true;
-		}
-
-		// 命令（以\开头），但排除 special_symbol
-		if (c == '\\') {
-			int saved = stream.save();
-			stream.eat();
-			String cmd = scanCommandName();
-			stream.restore(saved);
-
-			// 排除特殊符号
-			if (SPECIAL_SYMBOLS.contains(cmd)) {
-				return false;
-			}
-			return true;
-		}
-
-		return false;
+		return new ScriptArg(parseSingleToken());
 	}
 
 	private void checkRecursionDepth() throws MathParseException {
@@ -1309,113 +1035,45 @@ public class MathParser {
 		}
 	}
 
-	private boolean isBinaryOperator() {
-		if (stream.eof()) {
-			return false;
-		}
-
-		char c = (char) stream.peek();
-
-		// 单字符运算符（移除逗号）
-		if ("+-*/=<>|".indexOf(c) >= 0) {
-			return true;
-		}
-
-		// 命令形式的运算符（如 \times, \cdot, \perp）
-		if (c == '\\') {
-			int saved = stream.save();
-			stream.eat();
-			String cmd = scanCommandName();
-			stream.restore(saved);
-
-			// 排除空格命令（\, \: \; \! 等），它们不是二元运算符
-			if (SPACING_COMMANDS.contains(cmd)) {
-				return false;
-			}
-
-			return BINARY_OPERATORS.contains(cmd);
-		}
-
-		return false;
-	}
-
-	private String consumeBinaryOperator() throws MathParseException {
-		char c = (char) stream.peek();
-
-		// 单字符运算符
-		if ("+-*/=<>|".indexOf(c) >= 0) {
-			stream.eat();
-			return String.valueOf(c);
-		}
-
-		// 命令形式的运算符
-		if (c == '\\') {
-			stream.eat();
-			String cmd = scanCommandName();
-			if (BINARY_OPERATORS.contains(cmd)) {
-				return "\\" + cmd;
-			}
-			throw new MathParseException("Expected binary operator, got \\" + cmd, stream);
-		}
-
-		throw new MathParseException("Expected binary operator", stream);
-	}
-
-	private boolean isSingleTokenStart() {
-		if (stream.eof()) {
-			return false;
-		}
-
-		char c = (char) stream.peek();
-		return Character.isDigit(c) || Character.isLetter(c) || c == '\\' || "+-*/=<>".indexOf(c) >= 0;
-	}
-
 	/**
-	 * 扫描单个token（数字、变量、希腊字母命令或运算符符号）
-	 * 用于上下标等场景
-	 * <single_token> ::= <number> | <variable> | <greek_letter_variable> | <operator_symbol>
+	 * <single_token> ::= <number> | <letter> | <greek_letter> | <symbol>
 	 */
-	private Atom scanSingleToken() throws MathParseException {
+	private SingleToken parseSingleToken() throws MathParseException {
 		if (stream.eof()) {
 			throw new MathParseException("Expected single token", stream);
 		}
 
+		int save = stream.save();
 		char c = (char) stream.peek();
 
 		// 数字（可以是多位数字或小数）
 		if (Character.isDigit(c)) {
-			return parseNumber();
+			stream.eat();
+			return new SingleToken(parseNumber());
 		}
 
 		// 变量（可以是多字母变量）
 		if (Character.isLetter(c) && c != '\\') {
-			return parseSingleVariable();
-		}
-
-		// 单字符运算符符号
-		if ("+-*/=<>".indexOf(c) >= 0) {
-			return new OperatorSymbolAtom(String.valueOf((char) stream.eat()));
+			stream.eat();
+			return new SingleToken(new VariableAtom(String.valueOf(c)));
 		}
 
 		// 命令（如 \alpha, \pm）
 		if (c == '\\') {
 			stream.eat();
 			String cmd = scanCommandName();
-
-			// 希腊字母
 			if (GREEK_LETTERS.contains(cmd)) {
-				return parseGreekLetterAtom(cmd);
+				return new SingleToken(parseGreekLetterAtom(cmd));
 			}
-
-			// 运算符符号
-			if (OPERATOR_SYMBOLS.contains(cmd)) {
-				return new OperatorSymbolAtom(cmd);
-			}
-
-			throw new MathParseException("Expected single token, got \\" + cmd, stream);
+			stream.restore(save);
 		}
 
-		throw new MathParseException("Expected single token", stream);
+		SymbolAtom symbol = parseSymbol();
+		if (symbol != null) {
+			return new SingleToken(symbol);
+		}
+
+		throw new MathParseException("Expected single token at: " + save, stream);
 	}
 
 	private GreekLetterVariableAtom parseGreekLetterAtom(String cmd) {
