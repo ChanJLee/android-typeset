@@ -2,6 +2,7 @@ package me.chan.texas.ext.markdown.math.ast
 
 import org.junit.Assert
 
+@UnitTestDslMarker
 internal class BinomAsserter(private val binom: BinomAtom) {
     fun command(c: String): BinomAsserter {
         Assert.assertEquals(c, binom.command)

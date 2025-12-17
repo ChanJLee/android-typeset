@@ -2,6 +2,7 @@ package me.chan.texas.ext.markdown.math.ast
 
 import org.junit.Assert
 
+@UnitTestDslMarker
 internal class SqrtAsserter(private val sqrt: SqrtAtom) {
     fun noRoot(): SqrtAsserter {
         Assert.assertNull(sqrt.root)

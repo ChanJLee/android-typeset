@@ -2,6 +2,7 @@ package me.chan.texas.ext.markdown.math.ast
 
 import org.junit.Assert
 
+@UnitTestDslMarker
 internal class SpacingAsserter(val s: Spacing) {
     fun command(c: String?): SpacingAsserter {
         Assert.assertEquals(c, s.command)

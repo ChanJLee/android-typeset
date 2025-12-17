@@ -2,6 +2,7 @@ package me.chan.texas.ext.markdown.math.ast
 
 import org.junit.Assert
 
+@UnitTestDslMarker
 internal class DelimitedAsserter(private val delimited: DelimitedAtom) {
     fun level(l: Int): DelimitedAsserter {
         Assert.assertEquals(l.toLong(), delimited.level.toLong())

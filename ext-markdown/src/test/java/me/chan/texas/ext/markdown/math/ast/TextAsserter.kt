@@ -2,6 +2,7 @@ package me.chan.texas.ext.markdown.math.ast
 
 import org.junit.Assert
 
+@UnitTestDslMarker
 internal class TextAsserter(val t: TextAtom) {
     fun command(c: String?): TextAsserter {
         Assert.assertEquals(c, t.command)

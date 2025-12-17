@@ -91,7 +91,7 @@ class MathParserUnitTest {
                 variable("x")
                 suffix {
                     superscript {
-                        term { number("2") }
+                        singleToken { number("2") }
                     }
                 }
             }
@@ -105,7 +105,7 @@ class MathParserUnitTest {
                 variable("x")
                 suffix {
                     subscript {
-                        term { variable("i") }
+                        singleToken { letter("i") }
                     }
                 }
             }
@@ -119,8 +119,8 @@ class MathParserUnitTest {
             term {
                 variable("x")
                 suffix {
-                    subscript { term { variable("i") } }
-                    superscript { term { number("2") } }
+                    subscript { singleToken { letter("i") } }
+                    superscript { singleToken { number("2") } }
                 }
             }
         }
@@ -131,10 +131,17 @@ class MathParserUnitTest {
                 number("2")
                 suffix {
                     superscript {
-                        term {
-                            number("2")
-                            superscript { term { variable("n") } }
-                            noSubscript()
+                        group {
+                            content {
+                                term {
+                                    number("2")
+                                    suffix {
+                                        superscript { singleToken { letter("n") } }
+                                        noSubscript()
+                                    }
+                                }
+                                eof()
+                            }
                         }
                     }
                 }
@@ -211,7 +218,9 @@ class MathParserUnitTest {
                 group {
                     content {
                         term { variable("a") }
-                        symbol("+")
+                        term {
+                            symbol("+")
+                        }
                         term { variable("b") }
                     }
                 }
@@ -285,7 +294,10 @@ class MathParserUnitTest {
             term {
                 accent {
                     command("hat")
-                    group { term { variable("a") } }
+                    mathList {
+                        term { variable("a") }
+                        eof()
+                    }
                 }
             }
         }
@@ -313,10 +325,12 @@ class MathParserUnitTest {
                         term {
                             variable("b")
                             suffix {
-                                superscript { term { number("2") } }
+                                superscript { singleToken { number("2") } }
                             }
                         }
-                        symbol("-")
+                        term {
+                            symbol("-")
+                        }
                         term { number("4") }
                         term { variable("a") }
                         term { variable("c") }

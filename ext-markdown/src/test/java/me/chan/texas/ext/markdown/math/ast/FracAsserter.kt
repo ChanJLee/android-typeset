@@ -2,7 +2,7 @@ package me.chan.texas.ext.markdown.math.ast
 
 import org.junit.Assert
 
-// ... 其他 Asserter 同样只需要把涉及 Expression 的地方改为 MathListAsserter ...
+@UnitTestDslMarker
 internal class FracAsserter(private val frac: FracAtom) {
     fun command(c: String?): FracAsserter {
         Assert.assertEquals(c, frac.command)

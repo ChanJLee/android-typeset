@@ -2,6 +2,7 @@ package me.chan.texas.ext.markdown.math.ast
 
 import org.junit.Assert
 
+@UnitTestDslMarker
 class SingleTokenAsserter(private val t: SingleToken) {
 
     fun number(n: String?): SingleTokenAsserter {

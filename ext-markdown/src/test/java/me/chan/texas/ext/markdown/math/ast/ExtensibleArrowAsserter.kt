@@ -2,6 +2,7 @@ package me.chan.texas.ext.markdown.math.ast
 
 import org.junit.Assert
 
+@UnitTestDslMarker
 internal class ExtensibleArrowAsserter {
     private val atom: ExtensibleArrowAtom
 

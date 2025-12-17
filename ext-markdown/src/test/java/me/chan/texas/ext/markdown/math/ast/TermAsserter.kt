@@ -2,10 +2,7 @@ package me.chan.texas.ext.markdown.math.ast
 
 import org.junit.Assert
 
-// ExpressionAsserter 已移除，因为 Expression 被移除了
-/**
- * Term 验证器
- */
+@UnitTestDslMarker
 internal class TermAsserter(private val term: Term) {
     fun noSuffix(): TermAsserter {
         Assert.assertNull("应该没有上下标", term.suffix)

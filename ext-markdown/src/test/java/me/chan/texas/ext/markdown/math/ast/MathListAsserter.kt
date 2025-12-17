@@ -2,9 +2,7 @@ package me.chan.texas.ext.markdown.math.ast
 
 import org.junit.Assert
 
-/**
- * MathList 验证器 (现在直接充当以前的 ExpressionAsserter 角色)
- */
+@UnitTestDslMarker
 internal class MathListAsserter(private val mathList: MathList) {
     private var currentIndex = 0
 
