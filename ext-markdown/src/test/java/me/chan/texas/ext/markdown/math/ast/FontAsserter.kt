@@ -7,4 +7,9 @@ internal class FontAsserter(val f: FontAtom) {
         Assert.assertEquals(c, f.command)
         return this
     }
+
+    fun content(block: MathListAsserter.() -> Unit): FontAsserter {
+        MathListAsserter(f.content).block()
+        return this
+    }
 }

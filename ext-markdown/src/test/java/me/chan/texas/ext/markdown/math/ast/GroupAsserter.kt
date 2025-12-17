@@ -6,12 +6,9 @@ import org.junit.Assert
 // 省略了未变动的 SupSubSuffixAsserter, GroupAsserter 等内部细节方法的重复代码
 // 只要确保 GroupAsserter.content() 返回 new MathListAsserter(...) 即可。
 internal class GroupAsserter(private val group: Group) {
-    fun content(): MathListAsserter {
-        return MathListAsserter(group.content)
-    }
 
-    fun contentToString(expected: String?): GroupAsserter {
-        Assert.assertEquals("Group 内容", expected, group.content.toString())
+    fun content(block: MathListAsserter.() -> Unit): GroupAsserter {
+        MathListAsserter(group.content).block()
         return this
     }
 }

@@ -9,21 +9,13 @@ internal class FracAsserter(private val frac: FracAtom) {
         return this
     }
 
-    fun numerator(): MathListAsserter {
-        return MathListAsserter(frac.numerator)
-    }
-
-    fun denominator(): MathListAsserter {
-        return MathListAsserter(frac.denominator)
-    }
-
-    fun numeratorToString(s: String?): FracAsserter {
-        Assert.assertEquals(s, frac.numerator.toString())
+    fun numerator(block: MathListAsserter.() -> Unit): FracAsserter {
+        MathListAsserter(frac.numerator).block()
         return this
     }
 
-    fun denominatorToString(s: String?): FracAsserter {
-        Assert.assertEquals(s, frac.denominator.toString())
+    fun denominator(block: MathListAsserter.() -> Unit): FracAsserter {
+        MathListAsserter(frac.denominator).block()
         return this
     }
 }

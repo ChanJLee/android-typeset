@@ -8,13 +8,13 @@ import org.junit.Test
  * LaTeX 数学公式解析器完整单元测试
  */
 class MathParserUnitTest {
-    private fun assertParsesToWithAst(input: String, expectedOutput: String): MathList {
+    private fun assert(input: String, expectedOutput: String): MathListAsserter {
         try {
             val ast: MathList = parse(input)
             val actual = ast.toString()
             Assert.assertEquals("输入: " + input, expectedOutput, actual)
             println("✅ " + input + " → " + actual)
-            return ast
+            return MathListAsserter(ast)
         } catch (e: MathParseException) {
             Assert.fail("解析失败: " + input + " - " + e.pretty())
         }
@@ -31,31 +31,25 @@ class MathParserUnitTest {
         }
     }
 
-    private fun assertAst(mathList: MathList): MathListAsserter {
-        return MathListAsserter(mathList)
-    }
-
     @Test
     fun test_01_01_Number_Integer() {
         assertParsesTo("0", "0")
         assertParsesTo("42", "42")
 
-        val ast = assertParsesToWithAst("123", "123")
-        assertAst(ast)
+        assert("123", "123")
             .term {
-                atomIsNumber("123")
-                hasNoSuffix()
+                number("123")
+                noSuffix()
             }
             .eof()
     }
 
     @Test
     fun test_01_01_Number_Float() {
-        val ast = assertParsesToWithAst("123.1", "123.1")
-        assertAst(ast)
+        assert("123.1", "123.1")
             .term {
-                atomIsNumber("123.1")
-                hasNoSuffix()
+                number("123.1")
+                noSuffix()
             }
             .eof()
     }

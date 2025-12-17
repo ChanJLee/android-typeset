@@ -52,14 +52,6 @@ internal class MathListAsserter(private val mathList: MathList) {
         return elementIsSpacing(currentIndex++)
     }
 
-    fun nextBinOp(): SymbolAsserter {
-        return nextTerm().atomIsSymbol();
-    }
-
-    fun elementIsBinOp(i: Int): SymbolAsserter {
-        TODO("Not yet implemented")
-    }
-
     fun eof() {
         if (currentIndex != mathList.elements.size) {
             Assert.fail("没有找到 EOF")

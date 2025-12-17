@@ -8,7 +8,7 @@
 
 <atom> ::=  <number> |
             <variable> |
-            <greek_letter_variable> |
+            <greek_letter> |
             <group> |
             <frac> |
             <binom> |
