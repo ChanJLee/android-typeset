@@ -11,13 +11,21 @@ internal class MatrixAsserter(val m: MatrixAtom) {
         return this
     }
 
-    fun rowCount(c: Int): MatrixAsserter {
-        Assert.assertEquals(c.toLong(), m.rows.size.toLong())
+    fun noGravity(): MatrixAsserter {
+        Assert.assertNull(m.gravity)
+        return this
+    }
+
+    fun gravity(gravity: String): MatrixAsserter {
+        Assert.assertEquals(gravity, m.gravity)
         return this
     }
 
     fun row(block: RowAsserter.() -> Unit): MatrixAsserter {
-        RowAsserter(m.rows[_index++]).block()
+        RowAsserter(m.rows[_index++]).apply {
+            block()
+            eof()
+        }
         return this
     }
 

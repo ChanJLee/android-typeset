@@ -4,7 +4,10 @@ package me.chan.texas.ext.markdown.math.ast
 internal class GroupAsserter(private val group: Group) {
 
     fun content(block: MathListAsserter.() -> Unit): GroupAsserter {
-        MathListAsserter(group.content).block()
+        MathListAsserter(group.content).apply {
+            block()
+            eof()
+        }
         return this
     }
 }

@@ -10,12 +10,18 @@ internal class FracAsserter(private val frac: FracAtom) {
     }
 
     fun numerator(block: MathListAsserter.() -> Unit): FracAsserter {
-        MathListAsserter(frac.numerator).block()
+        MathListAsserter(frac.numerator).apply {
+            block()
+            eof()
+        }
         return this
     }
 
     fun denominator(block: MathListAsserter.() -> Unit): FracAsserter {
-        MathListAsserter(frac.denominator).block()
+        MathListAsserter(frac.denominator).apply {
+            block()
+            eof()
+        }
         return this
     }
 }

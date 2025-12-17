@@ -10,7 +10,10 @@ internal class FontAsserter(val f: FontAtom) {
     }
 
     fun content(block: MathListAsserter.() -> Unit): FontAsserter {
-        MathListAsserter(f.content).block()
+        MathListAsserter(f.content).apply {
+            block()
+            eof()
+        }
         return this
     }
 }

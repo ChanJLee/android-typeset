@@ -7,6 +7,7 @@ import me.chan.texas.ext.markdown.math.ast.MathParser
 import org.junit.Test
 import me.chan.texas.utils.CharStream
 import org.junit.Assert
+import org.junit.Assert.fail
 
 /**
  * MathParser 完整覆盖测试
@@ -1155,7 +1156,6 @@ class MathParserUnitTest {
             term {
                 matrix {
                     environment("matrix")
-                    rowCount(2)
                     row {
                         cell { term { variable("a") } }
                         cell { term { variable("b") } }
@@ -1177,7 +1177,32 @@ class MathParserUnitTest {
             term {
                 matrix {
                     environment("pmatrix")
-                    rowCount(2)
+                    noGravity()
+                    row {
+                        cell {
+                            term {
+                                number("1")
+                            }
+                        }
+                        cell {
+                            term {
+                                number("2")
+                            }
+                        }
+                    }
+
+                    row {
+                        cell {
+                            term {
+                                number("3")
+                            }
+                        }
+                        cell {
+                            term {
+                                number("4")
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -1189,7 +1214,32 @@ class MathParserUnitTest {
             term {
                 matrix {
                     environment("bmatrix")
-                    rowCount(2)
+                    noGravity()
+                    row {
+                        cell {
+                            term {
+                                number("1")
+                            }
+                        }
+                        cell {
+                            term {
+                                number("2")
+                            }
+                        }
+                    }
+
+                    row {
+                        cell {
+                            term {
+                                number("3")
+                            }
+                        }
+                        cell {
+                            term {
+                                number("4")
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -1201,7 +1251,32 @@ class MathParserUnitTest {
             term {
                 matrix {
                     environment("Bmatrix")
-                    rowCount(2)
+                    noGravity()
+                    row {
+                        cell {
+                            term {
+                                number("1")
+                            }
+                        }
+                        cell {
+                            term {
+                                number("2")
+                            }
+                        }
+                    }
+
+                    row {
+                        cell {
+                            term {
+                                number("3")
+                            }
+                        }
+                        cell {
+                            term {
+                                number("4")
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -1213,7 +1288,32 @@ class MathParserUnitTest {
             term {
                 matrix {
                     environment("vmatrix")
-                    rowCount(2)
+                    noGravity()
+                    row {
+                        cell {
+                            term {
+                                number("1")
+                            }
+                        }
+                        cell {
+                            term {
+                                number("2")
+                            }
+                        }
+                    }
+
+                    row {
+                        cell {
+                            term {
+                                number("3")
+                            }
+                        }
+                        cell {
+                            term {
+                                number("4")
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -1225,7 +1325,32 @@ class MathParserUnitTest {
             term {
                 matrix {
                     environment("Vmatrix")
-                    rowCount(2)
+                    noGravity()
+                    row {
+                        cell {
+                            term {
+                                number("1")
+                            }
+                        }
+                        cell {
+                            term {
+                                number("2")
+                            }
+                        }
+                    }
+
+                    row {
+                        cell {
+                            term {
+                                number("3")
+                            }
+                        }
+                        cell {
+                            term {
+                                number("4")
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -1237,7 +1362,32 @@ class MathParserUnitTest {
             term {
                 matrix {
                     environment("smallmatrix")
-                    rowCount(2)
+                    noGravity()
+                    row {
+                        cell {
+                            term {
+                                variable("a")
+                            }
+                        }
+                        cell {
+                            term {
+                                variable("b")
+                            }
+                        }
+                    }
+
+                    row {
+                        cell {
+                            term {
+                                variable("c")
+                            }
+                        }
+                        cell {
+                            term {
+                                variable("d")
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -1249,7 +1399,32 @@ class MathParserUnitTest {
             term {
                 matrix {
                     environment("array")
-                    rowCount(2)
+                    gravity("cc")
+                    row {
+                        cell {
+                            term {
+                                variable("a")
+                            }
+                        }
+                        cell {
+                            term {
+                                variable("b")
+                            }
+                        }
+                    }
+
+                    row {
+                        cell {
+                            term {
+                                variable("c")
+                            }
+                        }
+                        cell {
+                            term {
+                                variable("d")
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -1261,7 +1436,12 @@ class MathParserUnitTest {
             term {
                 matrix {
                     environment("array")
-                    rowCount(1)
+                    gravity("lcr")
+                    row {
+                        cell { term { variable("left") } }
+                        cell { term { variable("center") } }
+                        cell { term { variable("right") } }
+                    }
                 }
             }
         }
@@ -1273,7 +1453,32 @@ class MathParserUnitTest {
             term {
                 matrix {
                     environment("cases")
-                    rowCount(2)
+                    noGravity()
+                    row {
+                        cell {
+                            term {
+                                variable("x")
+                            }
+                        }
+                        cell {
+                            term {
+                                variable("y")
+                            }
+                        }
+                    }
+
+                    row {
+                        cell {
+                            term {
+                                variable("a")
+                            }
+                        }
+                        cell {
+                            term {
+                                variable("b")
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -1285,7 +1490,72 @@ class MathParserUnitTest {
             term {
                 matrix {
                     environment("matrix")
-                    rowCount(2)
+                    row {
+                        cell {
+                            term {
+                                variable("x")
+                                suffix {
+                                    noSubscript()
+                                    superscript {
+                                        singleToken {
+                                            number("2")
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        cell {
+                            term {
+                                fraction {
+                                    numerator {
+                                        term {
+                                            number("1")
+                                            noSuffix()
+                                        }
+                                    }
+                                    denominator {
+                                        term {
+                                            number("2")
+                                            noSuffix()
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    row {
+                        cell {
+                            term {
+                                sqrt {
+                                    noRoot()
+                                    content {
+                                        term {
+                                            number("3")
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        cell {
+                            term {
+                                variable("e")
+                                suffix {
+                                    superscript {
+                                        group {
+                                            content {
+                                                term {
+                                                    variable("i")
+                                                }
+                                                term { greekLetter("pi") }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -2011,13 +2281,41 @@ class MathParserUnitTest {
             term {
                 matrix {
                     environment("pmatrix")
-                    rowCount(2)
+                    noGravity()
+                    row {
+                        cell {
+                            term { variable("a") }
+                        }
+                        cell {
+                            term { variable("b") }
+                        }
+                    }
+
+                    row {
+                        cell {
+                            term { variable("c") }
+                        }
+                        cell {
+                            term { variable("d") }
+                        }
+                    }
                 }
             }
             term {
                 matrix {
                     environment("pmatrix")
-                    rowCount(2)
+                    noGravity()
+                    row {
+                        cell {
+                            term { variable("x") }
+                        }
+                    }
+
+                    row {
+                        cell {
+                            term { variable("y") }
+                        }
+                    }
                 }
             }
         }
@@ -2179,7 +2477,59 @@ class MathParserUnitTest {
             term {
                 matrix {
                     environment("cases")
-                    rowCount(2)
+                    row {
+                        cell {
+                            term {
+                                variable("x")
+                                suffix {
+                                    noSubscript()
+                                    superscript {
+                                        singleToken {
+                                            number("2")
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        cell {
+                            term {
+                                text { content("if ") }
+                            }
+                            term {
+                                variable("x")
+                            }
+                            term {
+                                symbol("\\ge")
+                            }
+                            term {
+                                number("0")
+                            }
+                        }
+                    }
+
+                    row {
+                        cell {
+                            term {
+                                symbol("-")
+                            }
+                            term {
+                                variable("x")
+                                suffix {
+                                    noSubscript()
+                                    superscript {
+                                        singleToken {
+                                            number("2")
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        cell {
+                            term {
+                                text { content("otherwise") }
+                            }
+                        }
+                    }
                 }
             }
         }

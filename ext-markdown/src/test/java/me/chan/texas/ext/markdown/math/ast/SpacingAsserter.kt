@@ -15,7 +15,10 @@ internal class SpacingAsserter(val s: Spacing) {
     }
 
     fun content(block: MathListAsserter.() -> Unit): SpacingAsserter {
-        MathListAsserter(s.content as MathList).block()
+        MathListAsserter(s.content as MathList).apply {
+            block()
+            eof()
+        }
         return this
     }
 }

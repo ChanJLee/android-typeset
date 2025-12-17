@@ -15,7 +15,10 @@ internal class AccentAsserter(val a: AccentAtom) {
     }
 
     fun mathList(block: MathListAsserter.() -> Unit): AccentAsserter {
-        MathListAsserter(a.content as MathList).block()
+        MathListAsserter(a.content as MathList).apply {
+            block()
+            eof()
+        }
         return this
     }
 }

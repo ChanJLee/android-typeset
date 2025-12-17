@@ -20,7 +20,10 @@ internal class DelimitedAsserter(private val delimited: DelimitedAtom) {
     }
 
     fun content(block: MathListAsserter.() -> Unit): DelimitedAsserter {
-        MathListAsserter(delimited.content).block()
+        MathListAsserter(delimited.content).apply {
+            block()
+            eof()
+        }
         return this
     }
 }

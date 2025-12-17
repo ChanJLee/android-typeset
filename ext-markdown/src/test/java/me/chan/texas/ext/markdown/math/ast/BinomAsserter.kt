@@ -10,12 +10,18 @@ internal class BinomAsserter(private val binom: BinomAtom) {
     }
 
     fun upper(block: MathListAsserter.() -> Unit): BinomAsserter {
-        MathListAsserter(binom.upper).block()
+        MathListAsserter(binom.upper).apply {
+            block()
+            eof()
+        }
         return this
     }
 
     fun lower(block: MathListAsserter.() -> Unit): BinomAsserter {
-        MathListAsserter(binom.lower).block()
+        MathListAsserter(binom.lower).apply {
+            block()
+            eof()
+        }
         return this
     }
 }

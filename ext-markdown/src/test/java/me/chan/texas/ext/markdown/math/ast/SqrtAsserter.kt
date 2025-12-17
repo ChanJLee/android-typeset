@@ -10,12 +10,18 @@ internal class SqrtAsserter(private val sqrt: SqrtAtom) {
     }
 
     fun content(block: MathListAsserter.() -> Unit): SqrtAsserter {
-        MathListAsserter(sqrt.content).block()
+        MathListAsserter(sqrt.content).apply {
+            block()
+            eof()
+        }
         return this
     }
 
     fun root(block: MathListAsserter.() -> Unit): SqrtAsserter {
-        MathListAsserter(sqrt.root).block()
+        MathListAsserter(sqrt.root).apply {
+            block()
+            eof()
+        }
         return this
     }
 }

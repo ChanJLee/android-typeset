@@ -16,7 +16,10 @@ internal class ExtensibleArrowAsserter {
     }
 
     fun below(block: MathListAsserter.() -> Unit): ExtensibleArrowAsserter {
-        MathListAsserter(atom.below!!).block()
+        MathListAsserter(atom.below!!).apply {
+            block()
+            eof()
+        }
         return this
     }
 
@@ -26,7 +29,10 @@ internal class ExtensibleArrowAsserter {
     }
 
     fun above(block: MathListAsserter.() -> Unit): ExtensibleArrowAsserter {
-        MathListAsserter(atom.above).block()
+        MathListAsserter(atom.above).apply {
+            block()
+            eof()
+        }
         return this
     }
 }

@@ -81,7 +81,10 @@ internal class TermAsserter(private val term: Term) {
 
     fun matrix(block: MatrixAsserter.() -> Unit): TermAsserter {
         Assert.assertTrue("atom 应该是 MatrixAtom", term.atom is MatrixAtom)
-        MatrixAsserter(term.atom as MatrixAtom).block()
+        MatrixAsserter(term.atom as MatrixAtom).apply {
+            block()
+            eof()
+        }
         return this
     }
 

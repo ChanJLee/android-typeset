@@ -7,7 +7,10 @@ internal class RowAsserter(private val row: MatrixRow) {
     private var _index = 0
 
     fun cell(block: MathListAsserter.() -> Unit): RowAsserter {
-        MathListAsserter(row.elements[_index++]).block()
+        MathListAsserter(row.elements[_index++]).apply {
+            block()
+            eof()
+        }
         return this
     }
 
