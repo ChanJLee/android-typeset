@@ -6,7 +6,7 @@ import org.junit.Assert
 internal class RowAsserter(private val row: MatrixRow) {
     private var _index = 0
 
-    fun next(block: MathListAsserter.() -> Unit): RowAsserter {
+    fun cell(block: MathListAsserter.() -> Unit): RowAsserter {
         MathListAsserter(row.elements[_index++]).block()
         return this
     }
