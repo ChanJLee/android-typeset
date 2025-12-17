@@ -16,7 +16,6 @@ public abstract class RendererNode {
 	private int mHeight;
 	private float mLeft;
 	private float mTop;
-	private Object mTag;
 	private boolean mClipContent = false;
 
 	public RendererNode(MathPaint.Styles styles) {
@@ -144,14 +143,6 @@ public abstract class RendererNode {
 
 	public float getContentCenterY() {
 		return getHeight() / 2.0f;
-	}
-
-	public Object getTag() {
-		return mTag;
-	}
-
-	public void setTag(Object tag) {
-		mTag = tag;
 	}
 
 	protected abstract String toPretty();
