@@ -5,7 +5,7 @@ import me.chan.texas.ext.markdown.math.ast.MathParseException
 import me.chan.texas.ext.markdown.math.ast.MathParser
 import me.chan.texas.ext.markdown.math.renderer.core.MathPaint
 import me.chan.texas.ext.markdown.math.renderer.core.MathPaintImpl
-import me.chan.texas.ext.markdown.math.renderer.fonts.SymbolOptions
+import me.chan.texas.ext.markdown.math.renderer.fonts.MathFontOptions
 import me.chan.texas.misc.PaintSet
 import me.chan.texas.renderer.core.graphics.TexasPaint
 import me.chan.texas.renderer.core.graphics.TexasPaintImpl
@@ -17,7 +17,6 @@ class MathInflaterUnitTest {
     private var inflater: MathRendererInflater? = null
     private var defaultStyles: MathPaint.Styles? = null
     private var defaultPaint: MathPaint? = null
-    private val _symbol: SymbolOptions = SymbolOptions()
 
     @Before
     fun setUp() {
@@ -59,7 +58,9 @@ class MathInflaterUnitTest {
         inflate("\\hat x") {
             accent {
                 cmd {
-
+                    symbol {
+                        content(MathFontOptions.symbol("asciicircum"))
+                    }
                 }
 
                 content {
@@ -76,6 +77,9 @@ class MathInflaterUnitTest {
         inflate("\\hat {x+y}") {
             accent {
                 cmd {
+                    symbol {
+                        content(MathFontOptions.symbol("asciicircum"))
+                    }
                 }
 
                 content {
@@ -87,7 +91,7 @@ class MathInflaterUnitTest {
                         }
                         child {
                             symbol {
-                                content(_symbol.all["plus"])
+                                content(MathFontOptions.symbol("plus"))
                             }
                         }
                         child {
