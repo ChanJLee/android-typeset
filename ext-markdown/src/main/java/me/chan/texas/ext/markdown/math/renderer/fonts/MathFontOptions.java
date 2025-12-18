@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import me.chan.texas.ext.markdown.math.ast.ExtensibleArrowAtom;
-import me.chan.texas.ext.markdown.math.ast.OperatorSymbolAtom;
 import me.chan.texas.ext.markdown.math.ast.SpecialLetterVariableAtom;
 import me.chan.texas.ext.markdown.math.ast.SpecialSymbolAtom;
 import me.chan.texas.ext.markdown.math.ast.SymbolAtom;
@@ -330,18 +329,5 @@ public class MathFontOptions {
 				}
 				return symbol;
 		}
-	}
-
-	public static Symbol ast(OperatorSymbolAtom atom) {
-		String op = atom.op;
-		if (op.startsWith("\\")) {
-			op = atom.op.substring(1);
-		}
-		String ref = AST.get(op);
-		if (ref == null) {
-			return null;
-		}
-
-		return symbol(ref);
 	}
 }

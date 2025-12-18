@@ -20,7 +20,6 @@ import me.chan.texas.ext.markdown.math.ast.MathList;
 import me.chan.texas.ext.markdown.math.ast.MatrixAtom;
 import me.chan.texas.ext.markdown.math.ast.MatrixRow;
 import me.chan.texas.ext.markdown.math.ast.NumberAtom;
-import me.chan.texas.ext.markdown.math.ast.OperatorSymbolAtom;
 import me.chan.texas.ext.markdown.math.ast.PunctuationAtom;
 import me.chan.texas.ext.markdown.math.ast.ScriptArg;
 import me.chan.texas.ext.markdown.math.ast.SingleToken;
@@ -228,7 +227,7 @@ public class MathRendererInflater {
 		list.add(upper);
 		list.add(lower);
 
-		return new BraceLayout(
+		return new BraceGroupNode(
 				styles, DelimitedAtom.LEVEL_L0,
 				inflateDelimiter(styles, "("),
 				new LinearGroupNode(styles, list, LinearGroupNode.Gravity.VERTICAL),
@@ -269,22 +268,22 @@ public class MathRendererInflater {
 		Ast content = scriptArg.content;
 		if (content instanceof Group) {
 			Group group = (Group) content;
-			return inflateScriptArg(styles, group);
+			return inflateGroup(styles, group);
 		}
 
 		if (content instanceof SingleToken) {
 			SingleToken token = (SingleToken) content;
-			return inflateScriptArg(styles, token);
+			return inflateSingleToken(styles, token);
 		}
 
 		throw new IllegalArgumentException("Unknown script arg: " + scriptArg);
 	}
 
-	private RendererNode inflateScriptArg(MathPaint.Styles styles, Group group) {
+	private RendererNode inflateGroup(MathPaint.Styles styles, Group group) {
 		return inflate0(styles, group.content);
 	}
 
-	private RendererNode inflateScriptArg(MathPaint.Styles styles, SingleToken singleToken) {
+	private RendererNode inflateSingleToken(MathPaint.Styles styles, SingleToken singleToken) {
 		return inflateAtom(styles, singleToken.content);
 	}
 
@@ -323,10 +322,6 @@ public class MathRendererInflater {
 
 		if (atom instanceof BinomAtom) {
 			return inflateBinomAtom(styles, (BinomAtom) atom);
-		}
-
-		if (atom instanceof OperatorSymbolAtom) {
-			return inflateOperatorSymbolAtom(styles, (OperatorSymbolAtom) atom);
 		}
 
 		if (atom instanceof ExtensibleArrowAtom) {
@@ -374,15 +369,6 @@ public class MathRendererInflater {
 		}
 
 		throw new IllegalArgumentException("Unknown atom: " + atom);
-	}
-
-	private RendererNode inflateOperatorSymbolAtom(MathPaint.Styles styles, OperatorSymbolAtom atom) {
-		Symbol symbol = MathFontOptions.ast(atom);
-		if (symbol != null) {
-			return new SymbolNode(styles, symbol);
-		}
-
-		return new TextNode(styles, atom.op);
 	}
 
 	private RendererNode inflateSpecialLetterVariableAtom(MathPaint.Styles styles, SpecialLetterVariableAtom atom) {
@@ -473,11 +459,11 @@ public class MathRendererInflater {
 		}
 
 		GridGroupNode content = new GridGroupNode(styles, atom.rows.size() * 2 - 1, list);
-		return new BraceLayout(styles, DelimitedAtom.LEVEL_L0, left, content, right);
+		return new BraceGroupNode(styles, DelimitedAtom.LEVEL_L0, left, content, right);
 	}
 
 	private RendererNode inflateDelimitedAtom(MathPaint.Styles styles, DelimitedAtom atom) {
-		return new BraceLayout(
+		return new BraceGroupNode(
 				styles, atom.level,
 				inflateDelimiter(styles, atom.leftDelimiter),
 				inflate0(styles, atom.content),
@@ -652,6 +638,10 @@ public class MathRendererInflater {
 	private RendererNode inflateAccentAtom(MathPaint.Styles styles, AccentAtom accentAtom) {
 		if (accentAtom.content instanceof MathList) {
 			return new AccentNode(styles, accentAtom.cmd, inflate0(styles, (MathList) accentAtom.content));
+		}
+
+		if (accentAtom.content instanceof SingleToken) {
+			return new AccentNode(styles, accentAtom.cmd, inflateSingleToken(styles, (SingleToken) accentAtom.content));
 		}
 
 		return new AccentNode(styles, accentAtom.cmd, inflateAtom(styles, (Atom) accentAtom.content));

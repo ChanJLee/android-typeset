@@ -17,6 +17,10 @@ public class TextNode extends RendererNode implements HorizontalCalibratedNode {
 		mContent = content;
 	}
 
+	public String getContent() {
+		return mContent;
+	}
+
 	@Override
 	protected void onMeasure(MathPaint paint, int widthSpec, int heightSpec) {
 		paint.getFontMetrics(mFontMetrics);

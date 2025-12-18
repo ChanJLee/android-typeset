@@ -28,6 +28,14 @@ public class AccentNode extends RendererNode implements HorizontalCalibratedNode
 		}
 	}
 
+	public RendererNode getContent() {
+		return mContent;
+	}
+
+	public RendererNode getCmdNode() {
+		return mCmdNode;
+	}
+
 	@Override
 	protected void onMeasure(MathPaint paint, int widthSpec, int heightSpec) {
 		mContent.measure(paint);

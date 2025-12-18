@@ -7,16 +7,16 @@ import me.chan.texas.ext.markdown.math.ast.DelimitedAtom;
 import me.chan.texas.ext.markdown.math.renderer.core.MathCanvas;
 import me.chan.texas.ext.markdown.math.renderer.core.MathPaint;
 
-public class BraceLayout extends RendererNode implements OptimizableRendererNode, HorizontalCalibratedNode {
+public class BraceGroupNode extends RendererNode implements OptimizableRendererNode, HorizontalCalibratedNode {
 
 	private RendererNode mLeftSymbol;
 	private RendererNode mRightSymbol;
 	private RendererNode mContent;
 	private final int mLevel;
 
-	public BraceLayout(MathPaint.Styles styles,
-					   int level,
-					   @Nullable RendererNode leftSymbol, RendererNode content, @Nullable RendererNode rightSymbol) {
+	public BraceGroupNode(MathPaint.Styles styles,
+						  int level,
+						  @Nullable RendererNode leftSymbol, RendererNode content, @Nullable RendererNode rightSymbol) {
 		super(styles);
 
 		mLevel = level;

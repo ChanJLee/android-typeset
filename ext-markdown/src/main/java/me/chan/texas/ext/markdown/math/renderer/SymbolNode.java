@@ -20,6 +20,10 @@ public class SymbolNode extends RendererNode {
 		mSymbol = symbol;
 	}
 
+	public Symbol getSymbol() {
+		return mSymbol;
+	}
+
 	@Override
 	protected void onMeasure(MathPaint paint, int widthSpec, int heightSpec) {
 		float textSize = paint.getTextSize();
