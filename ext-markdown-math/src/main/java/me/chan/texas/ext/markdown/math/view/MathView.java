@@ -18,7 +18,7 @@ import android.widget.OverScroller;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import me.chan.texas.ext.markdown.R;
+import me.chan.texas.ext.markdown.math.R;
 import me.chan.texas.ext.markdown.math.renderer.core.MathCanvas;
 import me.chan.texas.ext.markdown.math.renderer.core.MathCanvasImpl;
 import me.chan.texas.ext.markdown.math.renderer.core.MathPaint;
