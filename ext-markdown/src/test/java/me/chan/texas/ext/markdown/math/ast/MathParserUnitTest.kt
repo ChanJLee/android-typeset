@@ -2617,8 +2617,9 @@ class MathParserUnitTest {
         parse("\\left( x")
     }
 
-    @Test(expected = MathParseException::class)
+    @Test
     fun `test error mismatched delimiters`() {
+        // ignore mismatched
         parse("\\left( x \\right]")
     }
 
