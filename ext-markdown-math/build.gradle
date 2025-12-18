@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    namespace 'me.chan.texas.ext.markdown'
+    namespace 'me.chan.texas.ext.markdown.math'
     compileSdk 35
 
     defaultConfig {
@@ -61,7 +61,7 @@ tasks.register('cleanComments', Delete) {
                 .removeMultiLines(true) // Remove multiple type comments
                 .preserveJavaClassHeaders(true) // Preserves class header comment
                 .preserveCopyRightHeaders(true) // Preserves copyright comment
-                .startInternalPath("ext-markdown.src.main.java") // Starts from {rootDir}/src/main/app , leave it empty string when you want to start from root dir
+                .startInternalPath("ext-markdown-math.src.main.java") // Starts from {rootDir}/src/main/app , leave it empty string when you want to start from root dir
                 .build();
 
         def commentProcessor = new com.commentremover.app.CommentProcessor(commentRemover);
