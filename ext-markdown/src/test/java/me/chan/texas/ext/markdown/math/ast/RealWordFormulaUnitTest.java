@@ -1,6 +1,6 @@
 package me.chan.texas.ext.markdown.math.ast;
 
-import static me.chan.texas.ext.markdown.math.ast.MathParserUnitTest.assertParsesTo;
+import static me.chan.texas.ext.markdown.unitTest.MathParserUnitTest.assertParsesTo;
 
 import org.junit.Test;
 

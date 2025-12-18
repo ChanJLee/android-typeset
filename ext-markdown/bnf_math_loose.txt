@@ -1,0 +1,192 @@
+<math> ::= <math_list>
+
+<math_list> ::= <element> { <element> }
+
+<element> ::= <spacing> | <term>
+
+<term> ::= <atom> [ <sup_sub_suffix> ]
+
+<atom> ::=  <number> |
+            <variable> |
+            <greek_letter> |
+            <group> |
+            <frac> |
+            <binom> |
+            <sqrt> |
+            <delimited> |
+            <function_call> |
+            <large_operator> |
+            <matrix> |
+            <text> |
+            <accent> |
+            <font_command> |
+            <extensible_arrow> |
+            <symbol> 
+
+<number> ::= <digit> { <digit> } [ "." <digit> { <digit> } ]
+
+<digit> ::= "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9"
+
+<variable> ::= <letter> [ <letter> ]
+
+<letter> ::= "a" | "b" | "c" | ... | "z" | "A" | "B" | ... | "Z"
+
+<symbol> ::= "+" | "-" | "*" | "/" | "|"
+              | "\times" | "\cdot" | "\div" | "\pm" | "\mp"
+              | "\setminus" | "\circ"
+              | "\oplus" | "\ominus" | "\otimes" | "\oslash" | "\odot"
+              | "\bullet" | "\star" | "\dagger" | "\ddagger"
+              | "=" | "\neq" | "\equiv" | "\approx" | "\cong" | "\sim"
+              | "\simeq" | "\asymp" | "\propto" 
+              | "<" | ">" | "\le" | "\ge" | "\leq" | "\geq" | "\ll" | "\gg"
+              | "\prec" | "\succ" | "\preceq" | "\succeq"
+              | "\in" | "\notin" | "\subset" | "\supset" | "\subseteq" | "\supseteq"
+              | "\cup" | "\cap" | "\wedge" | "\vee"
+              | "\to" | "\rightarrow" | "\leftarrow" | "\leftrightarrow"
+              | "\Rightarrow" | "\Leftarrow" | "\Leftrightarrow"
+              | "\implies" | "\iff"
+              | "\perp" | "\parallel"
+              | "\mid" | "\nmid"
+              | "\triangleleft" | "\triangleright"
+              | "\bowtie" | "\models" | "\neg" | "!" | "'" | "," | ";"
+              | "\dots" | "\ldots" | "\cdots" | "\vdots" | "\ddots"
+              | "\angle"                 
+              | "\therefore" | "\because"   
+              | "\forall" | "\exists" | "\nexists"  
+              | "\emptyset" | "\varnothing"  
+              | "\hbar"          
+              | "\nabla"        
+              | "\partial"      
+              | "\ell"          
+              | "\wp"          
+              | "\Re" | "\Im"   
+              | "\aleph"     
+
+<greek_letter> ::= "\alpha" | "\beta" | "\gamma" | "\delta" | "\epsilon" | "\varepsilon"
+                 | "\zeta" | "\eta" | "\theta" | "\vartheta" | "\iota" | "\kappa"
+                 | "\lambda" | "\mu" | "\nu" | "\xi" | "\pi" | "\varpi" | "\rho" | "\varrho"
+                 | "\sigma" | "\varsigma" | "\tau" | "\upsilon" | "\phi" | "\varphi"
+                 | "\chi" | "\psi" | "\omega"
+                 | "\Gamma" | "\Delta" | "\Theta" | "\Lambda" | "\Xi" | "\Pi"
+                 | "\Sigma" | "\Upsilon" | "\Phi" | "\Psi" | "\Omega"
+                 | "\infty"
+
+<group> ::= "{" <math_list> "}" | "(" <math_list> ")" | "[" <math_list> "]" | "\{" <math_list> "\}"
+
+<sup_sub_suffix> ::= "^" <script_arg>
+                   | "_" <script_arg>
+                   | "^" <script_arg> "_" <script_arg>
+                   | "_" <script_arg> "^" <script_arg>
+
+<script_arg> ::= <single_token> | <group>
+
+<single_token> ::= <number>
+                 | <letter>
+                 | <greek_letter>
+                 | <symbol>
+
+<frac> ::= "\frac" "{" <math_list> "}" "{" <math_list> "}"
+         | "\dfrac" "{" <math_list> "}" "{" <math_list> "}"
+         | "\tfrac" "{" <math_list> "}" "{" <math_list> "}"
+         | "\cfrac" "{" <math_list> "}" "{" <math_list> "}"
+
+<binom> ::= "\binom" "{" <math_list> "}" "{" <math_list> "}"
+          | "\dbinom" "{" <math_list> "}" "{" <math_list> "}"
+          | "\tbinom" "{" <math_list> "}" "{" <math_list> "}"
+
+<sqrt> ::= "\sqrt" "{" <math_list> "}"
+         | "\sqrt" "[" <math_list> "]" "{" <math_list> "}"
+
+(* 注意：
+ * - 方括号 [...] 内的内容（可选）会显示在箭头下方
+ * - 花括号 {...} 内的内容（必需）会显示在箭头上方
+ * 例如：\xrightarrow{上方} 或 \xrightarrow[下方]{上方}
+ *)
+<extensible_arrow> ::= <extensible_arrow_cmd> [ "[" <math_list> "]" ] "{" <math_list> "}"
+
+<extensible_arrow_cmd> ::= "\xrightarrow" | "\xleftarrow" | "\xleftrightarrow"
+                          | "\xRightarrow" | "\xLeftarrow" | "\xLeftrightarrow"
+                          | "\xhookrightarrow" | "\xhookleftarrow"
+                          | "\xtwoheadrightarrow" | "\xtwoheadleftarrow"
+                          | "\xmapsto" | "\xtofrom"
+
+<delimited> ::= "\left" <delimiter> <math_list> "\right" <delimiter>
+              | "\bigl" <delimiter> <math_list> "\bigr" <delimiter>
+              | "\Bigl" <delimiter> <math_list> "\Bigr" <delimiter>
+              | "\biggl" <delimiter> <math_list> "\biggr" <delimiter>
+              | "\Biggl" <delimiter> <math_list> "\Biggr" <delimiter>
+
+<delimiter> ::= "(" | ")" | "[" | "]" | "\{" | "\}" | "|" | "\|"
+              | "\langle" | "\rangle"
+              | "\lfloor" | "\rfloor"
+              | "\lceil" | "\rceil"
+              | "\lvert" | "\rvert"
+              | "\lVert" | "\rVert"
+              | "." (* 表示空定界符 *)
+
+<function_call> ::= "\" <function_name>
+
+<function_name> ::= "sin" | "cos" | "tan" | "cot" | "sec" | "csc"
+                  | "arcsin" | "arccos" | "arctan"
+                  | "sinh" | "cosh" | "tanh" | "coth"
+                  | "log" | "ln" | "lg" | "exp"
+                  | "max" | "min" | "sup" | "inf"
+                  | "arg" | "deg" | "det" | "dim" | "gcd" | "hom" | "ker"
+                  | "Pr" | "bmod" | "pmod"
+
+<large_operator> ::= "\" <large_op_name>
+
+<large_op_name> ::= "sum" | "prod" | "coprod"
+                  | "int" | "iint" | "iiint" | "oint" | "oiint" | "oiiint"
+                  | "bigcup" | "bigcap" | "bigvee" | "bigwedge"
+                  | "bigoplus" | "bigotimes" | "bigodot"
+                  | "biguplus" | "bigsqcup"
+                  | "lim" | "limsup" | "liminf"
+
+<matrix> ::= "\begin{" <matrix_env> "}" {  "{" <matrix_gravity> "}"  } <matrix_rows> "\end{" <matrix_env> "}"
+
+<matrix_gravity> ::= "l" | "c" | "r"
+
+<matrix_env> ::= "matrix" | "pmatrix" | "bmatrix" | "Bmatrix" | "vmatrix" | "Vmatrix"
+               | "smallmatrix" | "array" | "cases"
+
+<matrix_rows> ::= <matrix_row> { "\\" <matrix_row> }
+
+<matrix_row> ::= <math_list> { "&" <math_list> }
+
+<text> ::= "\text" "{" <text_content> "}"
+         | "\mbox" "{" <text_content> "}"
+         | "\textrm" "{" <text_content> "}"
+         | "\textit" "{" <text_content> "}"
+         | "\textbf" "{" <text_content> "}"
+         | "\textfield" "{" <text_content> "}" (* 我的自定义 *)
+
+<text_content> ::= <any_unicode_char> { <any_unicode_char> }
+
+<font_command> ::= <font_cmd_name> "{" <math_list> "}"
+
+<font_cmd_name> ::= "\mathrm" | "\mathit" | "\mathbf" | "\mathsf" | "\mathtt"
+                  | "\mathcal" | "\mathbb" | "\mathfrak" | "\mathscr"
+                  | "\boldsymbol" | "\bm"
+
+<accent> ::= <accent_cmd> "{" <math_list> "}"
+           | <accent_cmd> <single_token>
+
+<accent_cmd> ::= "\hat" | "\widehat" | "\tilde" | "\widetilde"
+               | "\bar" | "\overline" | "\underline"
+               | "\vec" | "\overrightarrow" | "\overleftarrow"
+               | "\dot" | "\ddot" | "\dddot"
+               | "\acute" | "\grave" | "\breve" | "\check"
+               | "\mathring"
+               | "\overbrace" | "\underbrace"
+
+<spacing> ::= "\," | "\:" | "\;" | "\!"
+            | "\quad" | "\qquad"
+            | "\hspace" "{" <length> "}"
+            | "\hphantom" "{" <math_list> "}"
+            | "\vphantom" "{" <math_list> "}"
+            | "\phantom" "{" <math_list> "}"
+
+<length> ::= <number> <unit>
+
+<unit> ::= "em" | "ex" | "pt" | "px" | "cm" | "mm" | "in"

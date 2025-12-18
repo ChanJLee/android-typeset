@@ -26,7 +26,7 @@ public class PredicatesDriveSelectedVisitor extends SelectedVisitor {
 
 	@Override
 	protected void onVisitParagraphStart(Paragraph paragraph) {
-		if (!mPredicates.acceptParagraph(paragraph.getTag())) {
+		if (paragraph != null && !mPredicates.acceptParagraph(paragraph.getTag())) {
 			ParagraphSelection prev = paragraph.getSelection(mType);
 			if (prev != null) {
 				prev.recycle();

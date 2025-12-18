@@ -424,6 +424,10 @@ public class RendererAdapterImpl extends RecyclerView.Adapter<RendererAdapterImp
 						}
 
 						Segment segment = getItem(position);
+						if (segment == null) {
+							return;
+						}
+
 						mListener.onSegmentClicked(event, segment.getTag());
 					}
 
@@ -439,6 +443,10 @@ public class RendererAdapterImpl extends RecyclerView.Adapter<RendererAdapterImp
 						}
 
 						Segment segment = getItem(position);
+						if (segment == null) {
+							return;
+						}
+
 						mListener.onSegmentDoubleClicked(event, segment.getTag());
 					}
 				});

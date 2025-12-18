@@ -5,14 +5,10 @@ import android.graphics.Canvas;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
 import java.io.PrintStream;
-import java.io.StringWriter;
 import java.util.Collections;
 
-import me.chan.texas.ext.markdown.math.ast.Expression;
 import me.chan.texas.ext.markdown.math.ast.MathList;
 import me.chan.texas.ext.markdown.math.ast.MathParseException;
 import me.chan.texas.ext.markdown.math.ast.MathParser;
@@ -98,13 +94,10 @@ public class FormulaBackgroundTask extends Worker.Task<FormulaBackgroundTask.Bac
 
 	private MathList error(String msg) {
 		return new MathList(Collections.singletonList(
-				new Expression(Collections.singletonList(
-						new Term(
-								null,
-								new TextAtom("textfield", msg),
-								null
-						)
-				))
+				new Term(
+						new TextAtom("textfield", msg),
+						null
+				)
 		));
 	}
 

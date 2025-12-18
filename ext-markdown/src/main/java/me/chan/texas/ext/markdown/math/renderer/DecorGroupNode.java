@@ -307,7 +307,6 @@ public class DecorGroupNode extends RendererNode implements OptimizableRendererN
 
 	@Override
 	protected void onDrawDebug(MathCanvas canvas, MathPaint paint) {
-		paint.setColor(Color.YELLOW);
 		super.onDrawDebug(canvas, paint);
 		paint.setColor(Color.BLUE);
 		if (supportAlignBaseline()) {

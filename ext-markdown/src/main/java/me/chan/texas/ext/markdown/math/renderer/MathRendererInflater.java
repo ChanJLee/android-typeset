@@ -6,10 +6,8 @@ import java.util.List;
 import me.chan.texas.ext.markdown.math.ast.AccentAtom;
 import me.chan.texas.ext.markdown.math.ast.Ast;
 import me.chan.texas.ext.markdown.math.ast.Atom;
-import me.chan.texas.ext.markdown.math.ast.BinOpAtom;
 import me.chan.texas.ext.markdown.math.ast.BinomAtom;
 import me.chan.texas.ext.markdown.math.ast.DelimitedAtom;
-import me.chan.texas.ext.markdown.math.ast.Expression;
 import me.chan.texas.ext.markdown.math.ast.ExtensibleArrowAtom;
 import me.chan.texas.ext.markdown.math.ast.FontAtom;
 import me.chan.texas.ext.markdown.math.ast.FracAtom;
@@ -23,7 +21,6 @@ import me.chan.texas.ext.markdown.math.ast.MatrixAtom;
 import me.chan.texas.ext.markdown.math.ast.MatrixRow;
 import me.chan.texas.ext.markdown.math.ast.NumberAtom;
 import me.chan.texas.ext.markdown.math.ast.OperatorSymbolAtom;
-import me.chan.texas.ext.markdown.math.ast.PostfixOp;
 import me.chan.texas.ext.markdown.math.ast.PunctuationAtom;
 import me.chan.texas.ext.markdown.math.ast.ScriptArg;
 import me.chan.texas.ext.markdown.math.ast.SingleToken;
@@ -32,6 +29,7 @@ import me.chan.texas.ext.markdown.math.ast.SpecialLetterVariableAtom;
 import me.chan.texas.ext.markdown.math.ast.SpecialSymbolAtom;
 import me.chan.texas.ext.markdown.math.ast.SqrtAtom;
 import me.chan.texas.ext.markdown.math.ast.SupSubSuffix;
+import me.chan.texas.ext.markdown.math.ast.SymbolAtom;
 import me.chan.texas.ext.markdown.math.ast.Term;
 import me.chan.texas.ext.markdown.math.ast.TextAtom;
 import me.chan.texas.ext.markdown.math.ast.VariableAtom;
@@ -58,36 +56,24 @@ public class MathRendererInflater {
 	private RendererNode inflate0(MathPaint.Styles styles, MathList mathList) {
 		List<RendererNode> list = new ArrayList<>();
 		for (Ast ast : mathList.elements) {
-			if (ast instanceof Expression) {
-				list.add(inflateExpression(styles, (Expression) ast));
-			} else if (ast instanceof Spacing) {
-				list.add(inflateSpacing(styles, (Spacing) ast));
-			} else {
-				throw new IllegalArgumentException("Unknown ast: " + ast);
-			}
+			list.add(inflateElement(styles, ast));
 		}
-
 		return new LinearGroupNode(styles, list, LinearGroupNode.Gravity.HORIZONTAL);
 	}
 
-	private static final Spacing COMMON_SPACE = new Spacing(",", null);
+	private RendererNode inflateElement(MathPaint.Styles styles, Ast ast) {
+		if (ast instanceof Term) {
+			return inflateTerm(styles, (Term) ast);
+		}
+
+		if (ast instanceof Spacing) {
+			return inflateSpacing(styles, (Spacing) ast);
+		}
+
+		throw new IllegalArgumentException("Unknown ast: " + ast);
+	}
+
 	private static final Spacing THICK_SPACE = new Spacing(";", null);
-
-	private RendererNode inflateExpression(MathPaint.Styles styles, Expression expression) {
-		List<RendererNode> list = new ArrayList<>();
-		for (Ast ast : expression.elements) {
-			if (ast instanceof Term) {
-				list.add(inflateTerm(styles, (Term) ast));
-			} else if (ast instanceof BinOpAtom) {
-				list.add(inflateSpacing(styles, COMMON_SPACE));
-				list.add(inflateBinOp(styles, (BinOpAtom) ast));
-				list.add(inflateSpacing(styles, COMMON_SPACE));
-			} else {
-				throw new IllegalArgumentException("Unknown ast: " + ast);
-			}
-		}
-		return new LinearGroupNode(styles, list, LinearGroupNode.Gravity.HORIZONTAL);
-	}
 
 	private RendererNode inflateSpacing(MathPaint.Styles styles, Spacing spacing) {
 		float textSize = styles.getTextSize();
@@ -192,40 +178,47 @@ public class MathRendererInflater {
 	}
 
 	private RendererNode inflateTerm(MathPaint.Styles styles, Term term) {
-		RendererNode postfixOp = null;
-		if (term.postfixOp != null) {
-			postfixOp = inflatePostfixOp(styles, term.postfixOp);
-		}
-
 		RendererNode content = inflateAtom(styles, term.atom);
-		if (postfixOp != null) {
-			List<RendererNode> list = new ArrayList<>();
-			list.add(content);
-			list.add(postfixOp);
-			content = new LinearGroupNode(styles, list, LinearGroupNode.Gravity.HORIZONTAL);
-		}
-
-		DecorGroupNode.Builder builder = new DecorGroupNode.Builder(styles, content);
-
-		if (term.unaryOp != null) {
-			builder.left(new SymbolNode(styles, MathFontOptions.ast(term.unaryOp)));
-		}
 
 		SupSubSuffix suffix = term.suffix;
 		if (suffix == null) {
-			return builder.build();
+			return content;
 		}
+
+		DecorGroupNode.Builder builder = new DecorGroupNode.Builder(styles, content);
+		RendererNode superscript = null;
+		RendererNode subscript = null;
 
 		ScriptArg scriptArg = suffix.superscript;
 		if (scriptArg != null) {
-			builder.rightTop(inflateScriptArg(new MathPaint.Styles(styles).setTextSizeFactor(SUB_EXP_FACTOR), scriptArg));
+			superscript = inflateScriptArg(new MathPaint.Styles(styles).setTextSizeFactor(SUB_EXP_FACTOR), scriptArg);
 		}
 
 		scriptArg = suffix.subscript;
 		if (scriptArg != null) {
-			builder.rightBottom(inflateScriptArg(new MathPaint.Styles(styles).setTextSizeFactor(SUB_EXP_FACTOR), scriptArg));
+			subscript = inflateScriptArg(new MathPaint.Styles(styles).setTextSizeFactor(SUB_EXP_FACTOR), scriptArg);
 		}
+
+		setupDecor(builder, term.atom, superscript, subscript);
+
 		return builder.build();
+	}
+
+	private void setupDecor(DecorGroupNode.Builder builder, Atom content, RendererNode superscript, RendererNode subscript) {
+		if (content instanceof LargeOperatorAtom) {
+			LargeOperatorAtom atom = (LargeOperatorAtom) content;
+			if ("sum".equals(atom.name) || "prod".equals(atom.name) || "coprod".equals(atom.name) ||
+					"bigcup".equals(atom.name) || "bigcap".equals(atom.name) || "bigvee".equals(atom.name) || "bigwedge".equals(atom.name) ||
+					"bigoplus".equals(atom.name) || "bigotimes".equals(atom.name) || "bigodot".equals(atom.name) ||
+					"biguplus".equals(atom.name) || "bigsqcup".equals(atom.name) ||
+					"lim".equals(atom.name) || "limsup".equals(atom.name) || "liminf".equals(atom.name)) {
+				builder.top(superscript).bottom(subscript);
+				return;
+			}
+		}
+
+		builder.rightTop(superscript);
+		builder.rightBottom(subscript);
 	}
 
 	private RendererNode inflateBinomAtom(MathPaint.Styles styles, BinomAtom atom) {
@@ -272,10 +265,6 @@ public class MathRendererInflater {
 		return builder.build();
 	}
 
-	private RendererNode inflatePostfixOp(MathPaint.Styles styles, PostfixOp op) {
-		return new TextNode(styles, op.op);
-	}
-
 	private RendererNode inflateScriptArg(MathPaint.Styles styles, ScriptArg scriptArg) {
 		Ast content = scriptArg.content;
 		if (content instanceof Group) {
@@ -316,6 +305,10 @@ public class MathRendererInflater {
 			return inflateGreekLetterVariableAtom(styles, (GreekLetterVariableAtom) atom);
 		}
 
+		if (atom instanceof SymbolAtom) {
+			return inflateSymbol(styles, (SymbolAtom) atom);
+		}
+
 		if (atom instanceof Group) {
 			return inflateGroupAtom(styles, (Group) atom);
 		}
@@ -330,10 +323,6 @@ public class MathRendererInflater {
 
 		if (atom instanceof BinomAtom) {
 			return inflateBinomAtom(styles, (BinomAtom) atom);
-		}
-
-		if (atom instanceof BinOpAtom) {
-			return inflateBinOp(styles, (BinOpAtom) atom);
 		}
 
 		if (atom instanceof OperatorSymbolAtom) {
@@ -353,7 +342,7 @@ public class MathRendererInflater {
 		}
 
 		if (atom instanceof LargeOperatorAtom) {
-			return inflateLargeOperatorAtom(styles, (LargeOperatorAtom) atom);
+			return inflateLargeOp(styles, (LargeOperatorAtom) atom);
 		}
 
 		if (atom instanceof MatrixAtom) {
@@ -487,34 +476,6 @@ public class MathRendererInflater {
 		return new BraceLayout(styles, DelimitedAtom.LEVEL_L0, left, content, right);
 	}
 
-	private RendererNode inflateLargeOperatorAtom(MathPaint.Styles styles, LargeOperatorAtom atom) {
-		RendererNode subscript = null;
-		if (atom.suffix != null && atom.suffix.subscript != null) {
-			subscript = inflateScriptArg(styles.copy().setTextSizeFactor(SUB_EXP_FACTOR), atom.suffix.subscript);
-		}
-
-		RendererNode superscript = null;
-		if (atom.suffix != null && atom.suffix.superscript != null) {
-			superscript = inflateScriptArg(styles.copy().setTextSizeFactor(SUB_EXP_FACTOR), atom.suffix.superscript);
-		}
-
-		DecorGroupNode.Builder builder = new DecorGroupNode.Builder(styles, inflateLargeOp(styles, atom));
-		if ("sum".equals(atom.name) || "prod".equals(atom.name) || "coprod".equals(atom.name) ||
-				"bigcup".equals(atom.name) || "bigcap".equals(atom.name) || "bigvee".equals(atom.name) || "bigwedge".equals(atom.name) ||
-				"bigoplus".equals(atom.name) || "bigotimes".equals(atom.name) || "bigodot".equals(atom.name) ||
-				"biguplus".equals(atom.name) || "bigsqcup".equals(atom.name) ||
-				"lim".equals(atom.name) || "limsup".equals(atom.name) || "liminf".equals(atom.name)) {
-			builder.top(superscript).bottom(subscript);
-		} else if ("int".equals(atom.name) || "iint".equals(atom.name) || "iiint".equals(atom.name) ||
-				"oint".equals(atom.name) || "oiint".equals(atom.name) || "oiiint".equals(atom.name)) {
-			builder.rightTop(superscript).rightBottom(subscript);
-		} else {
-			throw new IllegalArgumentException("unknown operator: " + atom.name);
-		}
-
-		return builder.build();
-	}
-
 	private RendererNode inflateDelimitedAtom(MathPaint.Styles styles, DelimitedAtom atom) {
 		return new BraceLayout(
 				styles, atom.level,
@@ -644,31 +605,7 @@ public class MathRendererInflater {
 	}
 
 	private RendererNode inflateFunctionCallAtom(MathPaint.Styles styles, FunctionCallAtom functionCallAtom) {
-		DecorGroupNode.Builder builder = new DecorGroupNode.Builder(styles, new TextNode(styles.copy().setItalic(true), functionCallAtom.name));
-
-		if (functionCallAtom.argument != null) {
-			if (functionCallAtom.argument instanceof DelimitedAtom) {
-				builder.right(inflateDelimitedAtom(styles, (DelimitedAtom) functionCallAtom.argument));
-			} else if (functionCallAtom.argument instanceof Group) {
-				builder.right(inflateGroupAtom(styles, (Group) functionCallAtom.argument));
-			} else if (functionCallAtom.argument instanceof SingleToken) {
-				builder.right(inflateScriptArg(styles, (SingleToken) functionCallAtom.argument));
-			} else {
-				throw new IllegalArgumentException("unknown argument: " + functionCallAtom.argument);
-			}
-		}
-
-		SupSubSuffix supSubSuffix = functionCallAtom.suffix;
-		if (supSubSuffix != null) {
-			if (supSubSuffix.subscript != null) {
-				builder.rightBottom(inflateScriptArg(styles.copy().setTextSizeFactor(SUB_EXP_FACTOR), supSubSuffix.subscript));
-			}
-
-			if (supSubSuffix.superscript != null) {
-				builder.rightTop(inflateScriptArg(styles.copy().setTextSizeFactor(SUB_EXP_FACTOR), supSubSuffix.superscript));
-			}
-		}
-		return builder.build();
+		return new TextNode(styles.copy().setItalic(true), functionCallAtom.name);
 	}
 
 	private RendererNode inflateSqrtAtom(MathPaint.Styles styles, SqrtAtom sqrtAtom) {
@@ -720,13 +657,13 @@ public class MathRendererInflater {
 		return new AccentNode(styles, accentAtom.cmd, inflateAtom(styles, (Atom) accentAtom.content));
 	}
 
-	private RendererNode inflateBinOp(MathPaint.Styles styles, BinOpAtom atom) {
+	private RendererNode inflateSymbol(MathPaint.Styles styles, SymbolAtom atom) {
 		Symbol symbol = MathFontOptions.ast(atom);
 		if (symbol != null) {
 			return new SymbolNode(styles, symbol);
 		}
 
-		return new TextNode(styles, atom.op);
+		return new TextNode(styles, atom.symbol);
 	}
 
 	private RendererNode inflateLargeOp(MathPaint.Styles styles, LargeOperatorAtom largeOperatorAtom) {
