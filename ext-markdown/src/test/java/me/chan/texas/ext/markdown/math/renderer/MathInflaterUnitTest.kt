@@ -27,9 +27,6 @@ class MathInflaterUnitTest {
         defaultStyles = MathPaint.Styles(defaultPaint)
     }
 
-    // ============================================================
-    // 辅助方法
-    // ============================================================
     /**
      * 解析输入并返回 AST
      */
@@ -99,6 +96,30 @@ class MathInflaterUnitTest {
                                 content("y")
                             }
                         }
+                    }
+                }
+            }
+        }
+    }
+
+    @Test
+    fun `test brace`() {
+        inflate("\\left(x\\right)") {
+            brace {
+                left {
+                    stretchy {
+                        symbol(MathFontOptions.symbol("parenleft"))
+                    }
+                }
+                content {
+                    text {
+                        content("x")
+                    }
+                }
+
+                right {
+                    stretchy {
+                        symbol(MathFontOptions.symbol("parenright"))
                     }
                 }
             }

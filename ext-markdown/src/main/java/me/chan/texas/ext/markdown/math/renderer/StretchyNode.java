@@ -13,6 +13,10 @@ public class StretchyNode extends RendererNode {
 		mSymbol = new SymbolNode(styles, symbol);
 	}
 
+	public SymbolNode getSymbol() {
+		return mSymbol;
+	}
+
 	@Override
 	protected void onMeasure(MathPaint paint, int widthSpec, int heightSpec) {
 		mSymbol.measure(paint);

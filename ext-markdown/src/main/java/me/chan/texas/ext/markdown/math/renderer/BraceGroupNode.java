@@ -35,6 +35,18 @@ public class BraceGroupNode extends RendererNode implements OptimizableRendererN
 
 	private static final float SYMBOL_PADDING = 0.4f;
 
+	public RendererNode getLeftSymbol() {
+		return mLeftSymbol;
+	}
+
+	public RendererNode getRightSymbol() {
+		return mRightSymbol;
+	}
+
+	public RendererNode getContent() {
+		return mContent;
+	}
+
 	@Override
 	protected void onMeasure(MathPaint paint, int widthSpec, int heightSpec) {
 		mContent.measure(paint);
