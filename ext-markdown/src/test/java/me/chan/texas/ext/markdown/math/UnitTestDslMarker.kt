@@ -1,5 +1,4 @@
-package me.chan.texas.ext.markdown.math.ast
-
+package me.chan.texas.ext.markdown.math
 
 @DslMarker
 annotation class UnitTestDslMarker

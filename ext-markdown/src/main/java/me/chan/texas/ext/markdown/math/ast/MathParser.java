@@ -75,12 +75,23 @@ public class MathParser {
 	));
 
 	// 定界符级别（大小）
-	public static final String[][] DELIMITER_LEVELS = {
+	static final String[][] DELIMITER_LEVELS = {
 			{"left", "right"},
 			{"bigl", "bigr"},
 			{"Bigl", "Bigr"},
 			{"biggl", "biggr"},
 			{"Biggl", "Biggr"}
+	};
+	private static final String[][] DELIMITER_PAIRS = {
+			{"(", ")"},
+			{"[", "]"},
+			{"{", "}"},
+			{"langle", "rangle"},
+			{"lfloor", "rfloor"},
+			{"lceil", "rceil"},
+			{"lvert", "rvert"},
+			{"lVert", "rVert"},
+			{"\\{", "\\}"}
 	};
 
 	// 空格命令集合
@@ -769,7 +780,7 @@ public class MathParser {
 		skipWhitespace();
 
 		// 解析左定界符
-		String leftDelim = parseDelimiter();
+		String leftDelimiter = parseDelimiter();
 
 		recursionDepth++;
 		try {
@@ -779,12 +790,22 @@ public class MathParser {
 			expectCommand(DELIMITER_LEVELS[level][1]);
 			skipWhitespace();
 
-			String rightDelim = parseDelimiter();
+			String rightDelimiter = parseDelimiter();
+			checkDelimiterPairs(leftDelimiter, rightDelimiter);
 
-			return new DelimitedAtom(level, leftDelim, content, rightDelim);
+			return new DelimitedAtom(level, leftDelimiter, content, rightDelimiter);
 		} finally {
 			recursionDepth--;
 		}
+	}
+
+	private void checkDelimiterPairs(String left, String right) throws MathParseException {
+		for (String[] pair : DELIMITER_PAIRS) {
+			if (pair[0].equals(left) && pair[1].equals(right)) {
+				return;
+			}
+		}
+		throw new MathParseException("Invalid delimiter pair: [" + left + ", " + right + "]", stream);
 	}
 
 	/**

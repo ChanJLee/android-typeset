@@ -1,5 +1,6 @@
 package me.chan.texas.ext.markdown.unitTest
 
+import me.chan.texas.ext.markdown.math.ast.DelimitedAtom
 import me.chan.texas.ext.markdown.math.ast.MathList
 import me.chan.texas.ext.markdown.math.ast.MathListAsserter
 import me.chan.texas.ext.markdown.math.ast.MathParseException
@@ -2617,10 +2618,30 @@ class MathParserUnitTest {
         parse("\\left( x")
     }
 
-    @Test
+    @Test(expected = MathParseException::class)
     fun `test error mismatched delimiters`() {
         // ignore mismatched
         parse("\\left( x \\right]")
+    }
+
+    @Test(expected = MathParseException::class)
+    fun `test error mismatched delimiters with {`() {
+        // ignore mismatched
+        parse("\\left\\{ x \\right]")
+    }
+
+    @Test
+    fun `test { delimiters`() {
+        "\\left\\{x\\right\\}".assert {
+            term {
+                delimited {
+                    level(DelimitedAtom.LEVEL_L0)
+                    left("{")
+                    content { term { variable("x") } }
+                    right("}")
+                }
+            }
+        }
     }
 
     @Test(expected = MathParseException::class)

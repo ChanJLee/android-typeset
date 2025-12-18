@@ -1,5 +1,7 @@
 package me.chan.texas.ext.markdown.math.ast
 
+import me.chan.texas.ext.markdown.math.UnitTestDslMarker
+
 @UnitTestDslMarker
 internal class ScriptArgAsserter(private val scriptArg: ScriptArg) {
     fun singleToken(block: SingleTokenAsserter.() -> Unit): ScriptArgAsserter {

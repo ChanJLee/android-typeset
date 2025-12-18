@@ -1,5 +1,6 @@
 package me.chan.texas.ext.markdown.math.ast
 
+import me.chan.texas.ext.markdown.math.UnitTestDslMarker
 import org.junit.Assert
 
 @UnitTestDslMarker
