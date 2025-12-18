@@ -5,7 +5,7 @@ import me.chan.texas.ext.markdown.math.renderer.core.MathPaint;
 import me.chan.texas.ext.markdown.math.renderer.fonts.MathFontOptions;
 import me.chan.texas.ext.markdown.math.renderer.fonts.Symbol;
 
-public class AccentNode extends RendererNode {
+public class AccentNode extends RendererNode implements HorizontalCalibratedNode {
 	private final String mCmd;
 	private final RendererNode mContent;
 	private final RendererNode mCmdNode;
@@ -24,8 +24,16 @@ public class AccentNode extends RendererNode {
 				mCmdNode = new SymbolNode(styles, cmdToSymbol());
 			}
 		} else {
-			mCmdNode = null;
+			throw new RuntimeException("unknown cmd: " + mCmd);
 		}
+	}
+
+	public RendererNode getContent() {
+		return mContent;
+	}
+
+	public RendererNode getCmdNode() {
+		return mCmdNode;
 	}
 
 	@Override
@@ -43,7 +51,8 @@ public class AccentNode extends RendererNode {
 
 	private void measureGlyph(MathPaint paint) {
 		mCmdNode.measure(paint);
-		if ("check".equals(mCmd)) {
+		if ("check".equals(mCmd) || "widetilde".equals(mCmd) || "underline".equals(mCmd) || "overline".equals(mCmd) ||
+				"vec".equals(mCmd) || "bar".equals(mCmd)) {
 			setMeasuredSize(
 					(int) Math.ceil(Math.max(mCmdNode.getWidth(), mContent.getWidth())),
 					(int) Math.ceil(mCmdNode.getHeight() + mContent.getHeight())
@@ -93,9 +102,22 @@ public class AccentNode extends RendererNode {
 			return;
 		}
 
+		if ("underline".equals(mCmd)) {
+			mContent.layout(0, 0);
+			mCmdNode.layout(0, mContent.getBottom());
+			return;
+		}
+
+		if ("overline".equals(mCmd) || "bar".equals(mCmd) || "vec".equals(mCmd)) {
+			mCmdNode.layout(0, 0);
+			mContent.layout(0, mCmdNode.getBottom());
+			return;
+		}
+
 		if ("hat".equals(mCmd) ||
 				"dot".equals(mCmd) || "ddot".equals(mCmd) || "dddot".equals(mCmd) ||
-				"acute".equals(mCmd) || "grave".equals(mCmd) || "breve".equals(mCmd)) {
+				"acute".equals(mCmd) || "grave".equals(mCmd) || "breve".equals(mCmd)
+				|| "mathring".equals(mCmd)) {  // 添加 mathring
 			mCmdNode.layout((mContent.getWidth() - mCmdNode.getWidth()) / 2.0f, 0);
 			mContent.layout(0, mCmdNode.getHeight());
 			return;
@@ -132,7 +154,9 @@ public class AccentNode extends RendererNode {
 		return "hat".equals(mCmd) || "widehat".equals(mCmd) ||
 				"tilde".equals(mCmd) || "widetilde".equals(mCmd) ||
 				"dot".equals(mCmd) || "ddot".equals(mCmd) || "dddot".equals(mCmd)
-				|| "acute".equals(mCmd) || "grave".equals(mCmd) || "breve".equals(mCmd) || "check".equals(mCmd);
+				|| "acute".equals(mCmd) || "grave".equals(mCmd) || "breve".equals(mCmd) || "check".equals(mCmd)
+				|| "mathring".equals(mCmd)
+				|| "underline".equals(mCmd) || "overline".equals(mCmd) || "bar".equals(mCmd) || "vec".equals(mCmd);
 	}
 
 	private Symbol cmdToSymbol() {
@@ -172,6 +196,18 @@ public class AccentNode extends RendererNode {
 			return MathFontOptions.symbol("checkmark");
 		}
 
+		if ("mathring".equals(mCmd)) {
+			return MathFontOptions.symbol("ring");
+		}
+
+		if ("underline".equals(mCmd) || "overline".equals(mCmd) || "bar".equals(mCmd)) {
+			return MathFontOptions.symbol("uni2015");
+		}
+
+		if ("vec".equals(mCmd)) {
+			return MathFontOptions.symbol("uni22B8");
+		}
+
 		throw new RuntimeException("unknown cmd: " + mCmd);
 	}
 
@@ -183,7 +219,8 @@ public class AccentNode extends RendererNode {
 			return;
 		}
 
-		boolean scaleX = "widehat".equals(mCmd) || "widetilde".equals(mCmd);
+		boolean scaleX = "widehat".equals(mCmd) || "widetilde".equals(mCmd) ||
+				"underline".equals(mCmd) || "overline".equals(mCmd);
 		if (scaleX) {
 			canvas.save();
 			canvas.scale(mContent.getWidth() * 1.0f / mCmdNode.getWidth(), 1);
@@ -228,5 +265,26 @@ public class AccentNode extends RendererNode {
 		}
 
 		drawUnderBrace(canvas, paint);
+	}
+
+	@Override
+	public boolean supportAlignBaseline() {
+		if (mContent instanceof HorizontalCalibratedNode) {
+			HorizontalCalibratedNode node = (HorizontalCalibratedNode) mContent;
+			return node.supportAlignBaseline();
+		}
+
+		return false;
+	}
+
+	@Override
+	public float getBaseline() {
+		HorizontalCalibratedNode node = (HorizontalCalibratedNode) mContent;
+		return node.getBaseline() + getTop();
+	}
+
+	@Override
+	public float getContentCenterY() {
+		return mContent.getContentCenterY() + mContent.getTop();
 	}
 }

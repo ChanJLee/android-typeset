@@ -44,6 +44,11 @@ public class MathCanvasImpl implements MathCanvas {
 	}
 
 	@Override
+	public void drawText(@NonNull String text, int start, int end, float x, float y, MathPaint paint) {
+		mImpl.drawText(text, start, end, x, y, paint.getCore());
+	}
+
+	@Override
 	public void reset(Canvas canvas) {
 		mImpl.reset(canvas);
 	}

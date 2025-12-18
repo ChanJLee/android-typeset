@@ -18,7 +18,15 @@ public abstract class MsgHandler {
 	protected List<Listener> mListeners = new ArrayList<>();
 
 	public void addListener(Listener listener) {
+		if (mListeners.contains(listener)) {
+			return;
+		}
+
 		mListeners.add(listener);
+	}
+
+	public void removeListener(Listener listener) {
+		mListeners.remove(listener);
 	}
 
 	/**
@@ -67,6 +75,10 @@ public abstract class MsgHandler {
 				return (A) mArg;
 			}
 			return null;
+		}
+
+		public Object arg() {
+			return mArg;
 		}
 
 		@SuppressWarnings("unchecked")

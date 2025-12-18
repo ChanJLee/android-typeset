@@ -1,12 +1,14 @@
 package me.chan.texas.ext.markdown.math.renderer;
 
+import android.graphics.Color;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import me.chan.texas.ext.markdown.math.renderer.core.MathCanvas;
 import me.chan.texas.ext.markdown.math.renderer.core.MathPaint;
 
-public class DecorGroupNode extends RendererNode implements OptimizableRendererNode {
+public class DecorGroupNode extends RendererNode implements OptimizableRendererNode, HorizontalCalibratedNode {
 	private final Builder mBuilder;
 
 	private DecorGroupNode(MathPaint.Styles styles, Builder builder) {
@@ -134,32 +136,75 @@ public class DecorGroupNode extends RendererNode implements OptimizableRendererN
 	private void preLayout() {
 		float offsetYPercent = 0.5f;
 		mBuilder.center.layout(0, 0);
-
 		float offsetX = mBuilder.mStyles.getTextSize() * 0.2f;
-
-		if (mBuilder.leftTop != null) {
-			mBuilder.leftTop.layout(-mBuilder.leftTop.getWidth(), -mBuilder.leftTop.getHeight() * offsetYPercent);
-		}
-		if (mBuilder.leftBottom != null) {
-			mBuilder.leftBottom.layout(-mBuilder.leftBottom.getWidth(), mBuilder.center.getBottom() - mBuilder.leftBottom.getHeight() * (1 - offsetYPercent));
-		}
-		if (mBuilder.rightTop != null) {
-			mBuilder.rightTop.layout(mBuilder.center.getRight(), -mBuilder.rightTop.getHeight() * offsetYPercent);
-		}
-		if (mBuilder.rightBottom != null) {
-			mBuilder.rightBottom.layout(mBuilder.center.getRight(), mBuilder.center.getBottom() - mBuilder.rightBottom.getHeight() * (1 - offsetYPercent));
-		}
-		if (mBuilder.top != null) {
-			mBuilder.top.layout(mBuilder.center.getCenterX() - mBuilder.top.getWidth() / 2.0f, -mBuilder.top.getHeight());
-		}
-		if (mBuilder.bottom != null) {
-			mBuilder.bottom.layout(mBuilder.center.getCenterX() - mBuilder.bottom.getWidth() / 2.0f, mBuilder.center.getBottom());
-		}
 		if (mBuilder.left != null) {
-			mBuilder.left.layout(-mBuilder.left.getWidth(), mBuilder.center.getBottom() - mBuilder.left.getHeight() - offsetX);
+			mBuilder.left.layout(-mBuilder.left.getWidth() - offsetX, mBuilder.center.getContentCenterY() - mBuilder.left.getContentCenterY());
 		}
 		if (mBuilder.right != null) {
-			mBuilder.right.layout(mBuilder.center.getRight() + offsetX, mBuilder.center.getBottom() - mBuilder.right.getHeight());
+			mBuilder.right.layout(mBuilder.center.getRight() + offsetX, mBuilder.center.getContentCenterY() - mBuilder.right.getContentCenterY());
+		}
+		adjustHorizontalBaseline();
+
+		if (mBuilder.leftTop != null) {
+			mBuilder.leftTop.layout(
+					-mBuilder.leftTop.getWidth(),
+					mBuilder.center.getTop() - mBuilder.leftTop.getHeight() * offsetYPercent
+			);
+		}
+		if (mBuilder.leftBottom != null) {
+			mBuilder.leftBottom.layout(
+					-mBuilder.leftBottom.getWidth(),
+					mBuilder.center.getBottom() - mBuilder.leftBottom.getHeight() * (1 - offsetYPercent)
+			);
+		}
+		if (mBuilder.rightTop != null) {
+			mBuilder.rightTop.layout(
+					mBuilder.center.getRight(),
+					mBuilder.center.getTop() - mBuilder.rightTop.getHeight() * offsetYPercent
+			);
+		}
+		if (mBuilder.rightBottom != null) {
+			mBuilder.rightBottom.layout(
+					mBuilder.center.getRight(),
+					mBuilder.center.getBottom() - mBuilder.rightBottom.getHeight() * (1 - offsetYPercent)
+			);
+		}
+		if (mBuilder.top != null) {
+			mBuilder.top.layout(
+					mBuilder.center.getCenterX() - mBuilder.top.getWidth() / 2.0f,
+					mBuilder.center.getTop() - mBuilder.top.getHeight()
+			);
+		}
+		if (mBuilder.bottom != null) {
+			mBuilder.bottom.layout(
+					mBuilder.center.getCenterX() - mBuilder.bottom.getWidth() / 2.0f,
+					mBuilder.center.getBottom()
+			);
+		}
+	}
+
+	private void adjustHorizontalBaseline() {
+		if (!(mBuilder.center instanceof HorizontalCalibratedNode)) {
+			return;
+		}
+
+		HorizontalCalibratedNode anchor = (HorizontalCalibratedNode) mBuilder.center;
+		if (!anchor.supportAlignBaseline()) {
+			return;
+		}
+
+		adjustHorizontalBaseline(anchor, mBuilder.left);
+		adjustHorizontalBaseline(anchor, mBuilder.right);
+	}
+
+	private void adjustHorizontalBaseline(HorizontalCalibratedNode anchor, RendererNode node) {
+		if (!(node instanceof HorizontalCalibratedNode)) {
+			return;
+		}
+
+		HorizontalCalibratedNode horizontalCalibratedNode = (HorizontalCalibratedNode) node;
+		if (horizontalCalibratedNode.supportAlignBaseline()) {
+			node.translate(0, anchor.getBaseline() - horizontalCalibratedNode.getBaseline());
 		}
 	}
 
@@ -242,6 +287,37 @@ public class DecorGroupNode extends RendererNode implements OptimizableRendererN
 
 	private RendererNode optimize(OptimizableRendererNode node) {
 		return node.optimize();
+	}
+
+	@Override
+	public boolean supportAlignBaseline() {
+		if (mBuilder.center instanceof HorizontalCalibratedNode) {
+			HorizontalCalibratedNode node = (HorizontalCalibratedNode) mBuilder.center;
+			return node.supportAlignBaseline();
+		}
+
+		return false;
+	}
+
+	@Override
+	public float getBaseline() {
+		HorizontalCalibratedNode node = (HorizontalCalibratedNode) mBuilder.center;
+		return node.getBaseline() + getTop();
+	}
+
+	@Override
+	protected void onDrawDebug(MathCanvas canvas, MathPaint paint) {
+		super.onDrawDebug(canvas, paint);
+		paint.setColor(Color.BLUE);
+		if (supportAlignBaseline()) {
+			float y = getBaseline();
+			canvas.drawLine(0, y, getWidth(), y, paint);
+		}
+	}
+
+	@Override
+	public float getContentCenterY() {
+		return mBuilder.center.getContentCenterY() + mBuilder.center.getTop();
 	}
 
 	public static class Builder {

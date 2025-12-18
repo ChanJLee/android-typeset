@@ -6,7 +6,6 @@ import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 import me.chan.texas.ext.markdown.math.renderer.core.MathPaint;
@@ -427,7 +426,7 @@ public class RendererNodeUnitTest {
 		MathPaint.Styles styles = new MathPaint.Styles(defaultPaint);
 		TextNode content = new TextNode(styles, "x");
 
-		BraceLayout braceLayout = new BraceLayout(styles, 0, null, content, null);
+		BraceGroupNode braceLayout = new BraceGroupNode(styles, 0, null, content, null);
 		RendererNode optimized = braceLayout.optimize();
 
 		Assert.assertSame("没有括号且 styles 相同，应该返回 content", content, optimized);
@@ -442,7 +441,7 @@ public class RendererNodeUnitTest {
 
 		TextNode content = new TextNode(childStyles, "x");
 
-		BraceLayout braceLayout = new BraceLayout(parentStyles, 0, null, content, null);
+		BraceGroupNode braceLayout = new BraceGroupNode(parentStyles, 0, null, content, null);
 		RendererNode optimized = braceLayout.optimize();
 
 		Assert.assertSame("styles 不同，应该返回自身", braceLayout, optimized);
@@ -456,7 +455,7 @@ public class RendererNodeUnitTest {
 
 		TextNode content = new TextNode(childStyles, "x");
 
-		BraceLayout braceLayout = new BraceLayout(parentStyles, 0, null, content, null);
+		BraceGroupNode braceLayout = new BraceGroupNode(parentStyles, 0, null, content, null);
 		RendererNode optimized = braceLayout.optimize();
 
 		Assert.assertSame("styles 引用不同，应该返回自身", braceLayout, optimized);
@@ -469,7 +468,7 @@ public class RendererNodeUnitTest {
 		TextNode content = new TextNode(styles, "x");
 		SpaceNode leftBrace = new SpaceNode(styles, 10, 20);
 
-		BraceLayout braceLayout = new BraceLayout(styles, 0, leftBrace, content, null);
+		BraceGroupNode braceLayout = new BraceGroupNode(styles, 0, leftBrace, content, null);
 		RendererNode optimized = braceLayout.optimize();
 
 		Assert.assertSame("有左括号，应该返回自身", braceLayout, optimized);
@@ -482,7 +481,7 @@ public class RendererNodeUnitTest {
 		TextNode content = new TextNode(styles, "x");
 		SpaceNode rightBrace = new SpaceNode(styles, 10, 20);
 
-		BraceLayout braceLayout = new BraceLayout(styles, 0, null, content, rightBrace);
+		BraceGroupNode braceLayout = new BraceGroupNode(styles, 0, null, content, rightBrace);
 		RendererNode optimized = braceLayout.optimize();
 
 		Assert.assertSame("有右括号，应该返回自身", braceLayout, optimized);
@@ -496,7 +495,7 @@ public class RendererNodeUnitTest {
 		SpaceNode leftBrace = new SpaceNode(styles, 10, 20);
 		SpaceNode rightBrace = new SpaceNode(styles, 10, 20);
 
-		BraceLayout braceLayout = new BraceLayout(styles, 0, leftBrace, content, rightBrace);
+		BraceGroupNode braceLayout = new BraceGroupNode(styles, 0, leftBrace, content, rightBrace);
 		RendererNode optimized = braceLayout.optimize();
 
 		Assert.assertSame("有左右括号，应该返回自身", braceLayout, optimized);
@@ -510,7 +509,7 @@ public class RendererNodeUnitTest {
 		List<RendererNode> innerNodes = asList(innerChild);
 		LinearGroupNode innerGroup = new LinearGroupNode(styles, innerNodes);
 
-		BraceLayout braceLayout = new BraceLayout(styles, 0, null, innerGroup, null);
+		BraceGroupNode braceLayout = new BraceGroupNode(styles, 0, null, innerGroup, null);
 		RendererNode optimized = braceLayout.optimize();
 
 		Assert.assertSame("应该递归优化到最内层的 TextNode", innerChild, optimized);
@@ -522,7 +521,7 @@ public class RendererNodeUnitTest {
 		MathPaint.Styles styles = new MathPaint.Styles(defaultPaint);
 		SpaceNode content = new SpaceNode(styles, 10, 10);
 
-		BraceLayout braceLayout = new BraceLayout(styles, 0, null, content, null);
+		BraceGroupNode braceLayout = new BraceGroupNode(styles, 0, null, content, null);
 		RendererNode optimized = braceLayout.optimize();
 
 		Assert.assertSame("styles 相同但 content 不可优化，应该返回 content", content, optimized);
@@ -555,7 +554,7 @@ public class RendererNodeUnitTest {
 		MathPaint.Styles styles = new MathPaint.Styles(defaultPaint);
 
 		TextNode innerText = new TextNode(styles, "x");
-		BraceLayout brace = new BraceLayout(styles, 0, null, innerText, null);
+		BraceGroupNode brace = new BraceGroupNode(styles, 0, null, innerText, null);
 
 		List<RendererNode> linearNodes = asList(brace);
 		LinearGroupNode linear = new LinearGroupNode(styles, linearNodes);
@@ -583,7 +582,7 @@ public class RendererNodeUnitTest {
 		List<RendererNode> linear1Nodes = asList(text);
 		LinearGroupNode linear1 = new LinearGroupNode(styles, linear1Nodes);
 
-		BraceLayout brace = new BraceLayout(styles, 0, null, linear1, null);
+		BraceGroupNode brace = new BraceGroupNode(styles, 0, null, linear1, null);
 
 		List<RendererNode> linear2Nodes = asList(brace);
 		LinearGroupNode linear2 = new LinearGroupNode(styles, linear2Nodes);
@@ -667,7 +666,7 @@ public class RendererNodeUnitTest {
 		LinearGroupNode linear2 = new LinearGroupNode(styles2, layer2);
 
 		// 外层：styles3（又不同）
-		BraceLayout brace = new BraceLayout(styles3, 0, null, linear2, null);
+		BraceGroupNode brace = new BraceGroupNode(styles3, 0, null, linear2, null);
 		List<RendererNode> layer3 = asList(brace);
 		LinearGroupNode linear3 = new LinearGroupNode(styles3, layer3);
 
@@ -743,9 +742,9 @@ public class RendererNodeUnitTest {
 		MathPaint.Styles styles = new MathPaint.Styles(defaultPaint);
 		TextNode content = new TextNode(styles, "x");
 
-		BraceLayout level0 = new BraceLayout(styles, 0, null, content, null);
-		BraceLayout level1 = new BraceLayout(styles, 1, null, content, null);
-		BraceLayout level2 = new BraceLayout(styles, 2, null, content, null);
+		BraceGroupNode level0 = new BraceGroupNode(styles, 0, null, content, null);
+		BraceGroupNode level1 = new BraceGroupNode(styles, 1, null, content, null);
+		BraceGroupNode level2 = new BraceGroupNode(styles, 2, null, content, null);
 
 		Assert.assertSame(content, level0.optimize());
 		Assert.assertSame(content, level1.optimize());
@@ -795,7 +794,7 @@ public class RendererNodeUnitTest {
 		List<RendererNode> innerNodes = asList(innerChild);
 		LinearGroupNode innerGroup = new LinearGroupNode(styles, innerNodes);
 
-		BraceLayout braceLayout = new BraceLayout(styles, 0, null, innerGroup, null);
+		BraceGroupNode braceLayout = new BraceGroupNode(styles, 0, null, innerGroup, null);
 		RendererNode optimized = braceLayout.optimize();
 
 		Assert.assertSame("应该递归优化到 TextNode", innerChild, optimized);

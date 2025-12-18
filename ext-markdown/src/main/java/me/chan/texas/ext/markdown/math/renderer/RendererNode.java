@@ -11,15 +11,18 @@ import me.chan.texas.ext.markdown.math.renderer.core.MathPaint;
 public abstract class RendererNode {
 	public static final boolean DEBUG = false;
 
-	private final MathPaint.Styles mStyles;
+	protected MathPaint.Styles mStyles;
 	private int mWidth;
 	private int mHeight;
 	private float mLeft;
 	private float mTop;
-	private Object mTag;
 	private boolean mClipContent = false;
 
 	public RendererNode(MathPaint.Styles styles) {
+		mStyles = styles;
+	}
+
+	public void setStyles(MathPaint.Styles styles) {
 		mStyles = styles;
 	}
 
@@ -85,7 +88,10 @@ public abstract class RendererNode {
 	protected void onDrawDebug(MathCanvas canvas, MathPaint paint) {
 		paint.setStyle(Paint.Style.STROKE);
 		canvas.drawRect(0, 0, getWidth(), getHeight(), paint);
+		drawDebugBounds(canvas, paint);
+	}
 
+	private void drawDebugBounds(MathCanvas canvas, MathPaint paint) {
 		canvas.drawLine(0, 0, getWidth(), getHeight(), paint);
 		canvas.drawLine(getWidth(), 0, 0, getHeight(), paint);
 	}
@@ -135,16 +141,8 @@ public abstract class RendererNode {
 		return (getLeft() + getRight()) / 2;
 	}
 
-	public final float getCenterY() {
-		return (getTop() + getBottom()) / 2;
-	}
-
-	public Object getTag() {
-		return mTag;
-	}
-
-	public void setTag(Object tag) {
-		mTag = tag;
+	public float getContentCenterY() {
+		return getHeight() / 2.0f;
 	}
 
 	protected abstract String toPretty();

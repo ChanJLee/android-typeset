@@ -20,6 +20,10 @@ public class SymbolNode extends RendererNode {
 		mSymbol = symbol;
 	}
 
+	public Symbol getSymbol() {
+		return mSymbol;
+	}
+
 	@Override
 	protected void onMeasure(MathPaint paint, int widthSpec, int heightSpec) {
 		float textSize = paint.getTextSize();
@@ -44,7 +48,7 @@ public class SymbolNode extends RendererNode {
 
 	@Override
 	protected void onDrawDebug(MathCanvas canvas, MathPaint paint) {
-		paint.setColor(Color.RED);
+		paint.setColor(Color.GREEN);
 		super.onDrawDebug(canvas, paint);
 	}
 

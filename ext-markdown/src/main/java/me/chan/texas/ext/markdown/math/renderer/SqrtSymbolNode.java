@@ -16,6 +16,10 @@ public class SqrtSymbolNode extends RendererNode {
 		super(styles);
 	}
 
+	public void resize(float size) {
+		mStyles = mStyles.copy().setTextSize(size);
+	}
+
 	@Override
 	protected void onMeasure(MathPaint paint, int widthSpec, int heightSpec) {
 		paint.getFontMetrics(mFontMetrics);

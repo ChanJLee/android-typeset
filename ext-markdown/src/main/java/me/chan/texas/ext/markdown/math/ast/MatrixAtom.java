@@ -16,7 +16,12 @@ public class MatrixAtom implements Atom {
 	@Override
 	public String toString() {
 		StringBuilder stringBuilder = new StringBuilder();
-		stringBuilder.append("\\begin{").append(env).append("}\n");
+		stringBuilder.append("\\begin{").append(env).append("}");
+		// 输出可选的 gravity（对齐方式）
+		if (gravity != null && !gravity.isEmpty()) {
+			stringBuilder.append("{").append(gravity).append("}");
+		}
+		stringBuilder.append("\n");
 		for (MatrixRow row : rows) {
 			stringBuilder.append(row.toString());
 			stringBuilder.append("\n");

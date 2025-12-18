@@ -1,0 +1,201 @@
+(* ========================= *)
+(*       Document Level      *)
+(* ========================= *)
+
+<document> ::= <block_list>
+
+<block_list> ::= <block> <block_list>
+               | ε
+
+
+(* ========================= *)
+(*        Block Level        *)
+(* ========================= *)
+
+<block> ::= <heading>
+          | <thematic_break>
+          | <list_block>
+          | <block_quote>
+          | <code_block>
+          | <table>
+          | <paragraph>
+          | <blank_line>
+
+
+<blank_line> ::= <newline>
+
+
+(* ---------- Heading ---------- *)
+
+<heading> ::= <atx_heading>
+            | <setext_heading>
+
+<atx_heading> ::= <atx_markers> <space> <inline_list> <newline>
+
+<atx_markers> ::= "#"
+                | "##"
+                | "###"
+                | "####"
+                | "#####"
+                | "######"
+
+<setext_heading> ::= <paragraph_line> <newline>
+                     <setext_underline> <newline>
+
+<setext_underline> ::= "===" | "---"
+
+
+(* ---------- Paragraph ---------- *)
+
+<paragraph> ::= <paragraph_line> <paragraph_tail>
+
+<paragraph_tail> ::= <newline> <paragraph_line> <paragraph_tail>
+                   | <newline>
+
+<paragraph_line> ::= <inline_list>
+
+
+(* ---------- Block Quote ---------- *)
+
+<block_quote> ::= <block_quote_line> <block_quote_tail>
+
+<block_quote_line> ::= ">" <optional_space> <block>
+
+<block_quote_tail> ::= <block_quote_line> <block_quote_tail>
+                     | ε
+
+
+(* ---------- Lists ---------- *)
+
+<list_block> ::= <unordered_list>
+               | <ordered_list>
+
+<unordered_list> ::= <unordered_item> <unordered_tail>
+
+<unordered_item> ::= <unordered_marker> <space> <block>
+
+<unordered_marker> ::= "-" | "*" | "+"
+
+<unordered_tail> ::= <unordered_item> <unordered_tail>
+                   | ε
+
+
+<ordered_list> ::= <ordered_item> <ordered_tail>
+
+<ordered_item> ::= <digits> "." <space> <block>
+
+<ordered_tail> ::= <ordered_item> <ordered_tail>
+                 | ε
+
+
+(* ---------- Code Block ---------- *)
+
+<code_block> ::= <fenced_code_block>
+               | <indented_code_block>
+
+<fenced_code_block> ::= <fence> <info_string> <newline>
+                        <code_lines>
+                        <fence> <newline>
+
+<fence> ::= "```" | "~~~"
+
+<info_string> ::= <text> | ε
+
+<code_lines> ::= <code_line> <code_lines>
+               | ε
+
+<indented_code_block> ::= <indented_line> <indented_tail>
+
+<indented_tail> ::= <indented_line> <indented_tail>
+                  | ε
+
+
+(* ---------- Thematic Break ---------- *)
+
+<thematic_break> ::= "---" | "***" | "___"
+
+
+(* ---------- Table (GFM) ---------- *)
+
+<table> ::= <table_header> <table_align> <table_body>
+
+<table_header> ::= "|" <table_cells> "|" <newline>
+
+<table_align> ::= "|" <table_align_cells> "|" <newline>
+
+<table_body> ::= <table_row> <table_body>
+               | ε
+
+
+(* ========================= *)
+(*        Inline Level       *)
+(* ========================= *)
+
+<inline_list> ::= <inline> <inline_list>
+                | ε
+
+<inline> ::= <strong>
+           | <emphasis>
+           | <inline_code>
+           | <link>
+           | <image>
+           | <autolink>
+           | <text>
+
+
+(* ---------- Emphasis ---------- *)
+
+<strong> ::= "**" <inline_list> "**"
+           | "__" <inline_list> "__"
+
+<emphasis> ::= "*" <inline_list> "*"
+             | "_" <inline_list> "_"
+
+
+(* ---------- Inline Code ---------- *)
+
+<inline_code> ::= "`" <code_text> "`"
+
+
+(* ---------- Links & Images ---------- *)
+
+<link> ::= "[" <inline_list> "]"
+           "(" <url> <optional_title> ")"
+
+<image> ::= "!" "[" <inline_list> "]"
+            "(" <url> <optional_title> ")"
+
+
+(* ---------- Autolink ---------- *)
+
+<autolink> ::= "<" <url> ">"
+
+
+(* ---------- Text ---------- *)
+
+<text> ::= <character> <text>
+         | <character>
+
+<character> ::= any character except markdown control symbols
+
+
+(* ========================= *)
+(*        Lexical Units      *)
+(* ========================= *)
+
+<digits> ::= <digit> <digits>
+           | <digit>
+
+<digit> ::= "0" | "1" | "2" | "3" | "4"
+          | "5" | "6" | "7" | "8" | "9"
+
+<space> ::= " "
+
+<optional_space> ::= <space> | ε
+
+<newline> ::= "\n"
+
+<url> ::= <text>
+
+<optional_title> ::= <space> <text>
+                   | ε

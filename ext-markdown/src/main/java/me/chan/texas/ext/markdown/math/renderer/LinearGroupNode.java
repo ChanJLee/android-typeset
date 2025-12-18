@@ -1,5 +1,7 @@
 package me.chan.texas.ext.markdown.math.renderer;
 
+import android.graphics.Color;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
@@ -8,7 +10,7 @@ import java.util.List;
 import me.chan.texas.ext.markdown.math.renderer.core.MathCanvas;
 import me.chan.texas.ext.markdown.math.renderer.core.MathPaint;
 
-public class LinearGroupNode extends RendererNode implements OptimizableRendererNode {
+public class LinearGroupNode extends RendererNode implements OptimizableRendererNode, HorizontalCalibratedNode {
 	private final List<RendererNode> mNodes;
 	private final Gravity mGravity;
 
@@ -41,44 +43,81 @@ public class LinearGroupNode extends RendererNode implements OptimizableRenderer
 		float height = 0;
 		float width = 0;
 		for (RendererNode node : mNodes) {
-			height += node.getWidth();
-			width = Math.max(width, node.getHeight());
+			height += node.getHeight();
+			width = Math.max(width, node.getWidth());
 		}
-		setMeasuredSize((int) Math.ceil(height), (int) Math.ceil(width));
+		setMeasuredSize((int) Math.ceil(width), (int) Math.ceil(height));
 	}
 
 	private void preLayout() {
-		if (mGravity != Gravity.HORIZONTAL) {
+		if (mGravity != Gravity.HORIZONTAL || mNodes.isEmpty()) {
 			return;
 		}
 
-		float left = 0;
-		for (RendererNode node : mNodes) {
-			node.layout(left, 0);
-			left = node.getRight();
-		}
+		preLayoutAlignCenter();
+		adjustHorizontalBaseline();
+	}
 
+	private void preLayoutAlignCenter() {
 		RendererNode anchor = mNodes.get(0);
+		anchor.layout(0, 0);
+		float left = anchor.getRight();
 		for (int i = 1; i < mNodes.size(); ++i) {
 			RendererNode node = mNodes.get(i);
-			if (node.getCenterY() > anchor.getCenterY()) {
-				anchor = node;
+			node.layout(left, anchor.getContentCenterY() - node.getContentCenterY());
+			left = node.getRight();
+		}
+		adjustBounds();
+	}
+
+	private void adjustHorizontalBaseline() {
+		int anchorIndex = -1;
+		for (int i = 0; i < mNodes.size(); ++i) {
+			RendererNode rendererNode = mNodes.get(i);
+			if (!(rendererNode instanceof HorizontalCalibratedNode)) {
+				continue;
+			}
+
+			HorizontalCalibratedNode node = (HorizontalCalibratedNode) rendererNode;
+			if (node.supportAlignBaseline()) {
+				anchorIndex = i;
+				break;
 			}
 		}
 
-		float top = 0;
-		for (RendererNode node : mNodes) {
-			node.translate(0, anchor.getCenterY() - node.getCenterY());
-			top = Math.min(node.getTop(), top);
+		if (anchorIndex < 0) {
+			return;
 		}
 
+		HorizontalCalibratedNode anchor = (HorizontalCalibratedNode) mNodes.get(anchorIndex);
+		for (int i = anchorIndex + 1; i < mNodes.size(); ++i) {
+			RendererNode node = mNodes.get(i);
+			if (!(node instanceof HorizontalCalibratedNode)) {
+				continue;
+			}
+
+			HorizontalCalibratedNode horizontalCalibratedNode = (HorizontalCalibratedNode) node;
+			if (horizontalCalibratedNode.supportAlignBaseline()) {
+				float dy = anchor.getBaseline() - horizontalCalibratedNode.getBaseline();
+				node.translate(0, dy);
+			}
+		}
+		adjustBounds();
+	}
+
+	private void adjustBounds() {
+		float top = 0;
 		float bottom = 0;
+		float right = 0;
+		for (RendererNode node : mNodes) {
+			top = Math.min(node.getTop(), top);
+			bottom = Math.max(node.getBottom(), bottom);
+			right = node.getRight();
+		}
 		for (RendererNode node : mNodes) {
 			node.translate(0, -top);
-			bottom = Math.max(node.getBottom(), bottom);
 		}
-
-		setMeasuredSize((int) Math.ceil(left), (int) Math.ceil(bottom));
+		setMeasuredSize((int) Math.ceil(right), (int) Math.ceil(bottom - top));
 	}
 
 	@Override
@@ -160,6 +199,41 @@ public class LinearGroupNode extends RendererNode implements OptimizableRenderer
 		}
 
 		return child;
+	}
+
+	@Override
+	public boolean supportAlignBaseline() {
+		if (mGravity != Gravity.HORIZONTAL) {
+			return false;
+		}
+
+		for (RendererNode rendererNode : mNodes) {
+			if (rendererNode instanceof HorizontalCalibratedNode && ((HorizontalCalibratedNode) rendererNode).supportAlignBaseline()) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	@Override
+	public float getBaseline() {
+		for (RendererNode rendererNode : mNodes) {
+			if (rendererNode instanceof HorizontalCalibratedNode && ((HorizontalCalibratedNode) rendererNode).supportAlignBaseline()) {
+				return ((HorizontalCalibratedNode) rendererNode).getBaseline() + getTop();
+			}
+		}
+		return getContentCenterY() + getTop();
+	}
+
+	@Override
+	protected void onDrawDebug(MathCanvas canvas, MathPaint paint) {
+		super.onDrawDebug(canvas, paint);
+		if (supportAlignBaseline()) {
+			float y = getBaseline() - getTop();
+			paint.setColor(Color.BLUE);
+			paint.setStrokeWidth(paint.getStrokeWidth() * 3);
+			canvas.drawLine(0, y, getWidth(), y, paint);
+		}
 	}
 
 	public enum Gravity {

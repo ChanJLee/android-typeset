@@ -3,46 +3,23 @@ package me.chan.texas.ext.markdown.math.renderer.fonts;
 import java.util.HashMap;
 import java.util.Map;
 
-import me.chan.texas.ext.markdown.math.ast.BinOpAtom;
 import me.chan.texas.ext.markdown.math.ast.ExtensibleArrowAtom;
 import me.chan.texas.ext.markdown.math.ast.SpecialLetterVariableAtom;
 import me.chan.texas.ext.markdown.math.ast.SpecialSymbolAtom;
-import me.chan.texas.ext.markdown.math.ast.UnaryOp;
+import me.chan.texas.ext.markdown.math.ast.SymbolAtom;
 import me.chan.texas.ext.markdown.math.ast.GreekLetterVariableAtom;
 import me.chan.texas.ext.markdown.math.ast.LargeOperatorAtom;
 
 public class MathFontOptions {
 	public static final float UNITS_PER_EM = 1000F;
 	public static final float RADICAL_VERTICAL_GAP = 50;
-	public static final float RADICAL_DISPLAY_STYLE_VERTICAL_GAP = 148;
 	public static final float RADICAL_RULE_THICKNESS = 40;
 	public static final float RADICAL_EXTRA_ASCENDER = 40;
 	public static final float RADICAL_KERN_BEFORE_DEGREE = 278;
-	public static final float RADICAL_KERN_AFTER_DEGREE = -556;
 	public static final float RADICAL_DEGREE_BOTTOM_RAISE_PERCENT = 60;
-	public static final float FRACTION_NUMERATOR_SHIFT_UP = 394;
-	public static final float FRACTION_NUMERATOR_DISPLAY_STYLE_SHIFT_UP = 677;
-	public static final float FRACTION_DENOMINATOR_SHIFT_DOWN = 345;
-	public static final float FRACTION_DENOMINATOR_DISPLAY_STYLE_SHIFT_DOWN = 686;
 	public static final float FRACTION_NUMERATOR_GAP_MIN = 40;
-	public static final float FRACTION_NUM_DISPLAY_STYLE_GAP_MIN = 120;
 	public static final float FRACTION_RULE_THICKNESS = 40;
 	public static final float FRACTION_DENOMINATOR_GAP_MIN = 40;
-	public static final float FRACTION_DENOM_DISPLAY_STYLE_GAP_MIN = 120;
-	public static final float SUPERSCRIPT_SHIFT_UP = 363;
-	public static final float SUPERSCRIPT_SHIFT_UP_CRAMPED = 289;
-	public static final float SUBSCRIPT_SHIFT_DOWN = 247;
-	public static final float SUPERSCRIPT_BASELINE_DROP_MAX = 250;
-	public static final float SUBSCRIPT_BASELINE_DROP_MIN = 200;
-	public static final float SUPERSCRIPT_BOTTOM_MIN = 108;
-	public static final float SUBSCRIPT_TOP_MAX = 344;
-	public static final float SUB_SUPERSCRIPT_GAP_MIN = 160;
-	public static final float AXIS_HEIGHT = 250;
-	public static final float ACCENT_BASE_HEIGHT = 450;
-	public static final float SCRIPT_PERCENT_SCALE_DOWN = 70;
-	public static final float SCRIPT_SCRIPT_PERCENT_SCALE_DOWN = 50;
-
-	public static final float BRACT_BASELINE_OFFSET_FACTOR = 1.235f;
 
 	private static final SymbolOptions SYMBOL = new SymbolOptions();
 	private static final Map<String, String> AST = new HashMap<>();
@@ -127,6 +104,45 @@ public class MathFontOptions {
 		AST.put("perp", "uni27C2");            // ⟂ (垂直)
 		AST.put("parallel", "parallel");       // ∥ (平行)
 
+		// 集合差、函数复合
+		AST.put("setminus", "uni2216");        // ∖ (集合差)
+		AST.put("circ", "uni2218");            // ∘ (函数复合)
+
+		// 圈运算符
+		AST.put("oplus", "circleplus");        // ⊕ (直和)
+		AST.put("ominus", "uni2296");          // ⊖ (减号圈)
+		AST.put("otimes", "circlemultiply");   // ⊗ (张量积)
+		AST.put("oslash", "circledivide");     // ⊘ (斜线圈)
+		AST.put("odot", "circledot");          // ⊙ (点积)
+
+		// 其他二元运算符
+		AST.put("bullet", "bullet");           // • (实心圆点)
+		AST.put("star", "uni22C6");            // ⋆ (星号)
+		AST.put("dagger", "dagger");           // † (剑号)
+		AST.put("ddagger", "daggerdbl");       // ‡ (双剑号)
+
+		// 更多关系运算符
+		AST.put("simeq", "similar_equal");     // ≃ (相似等于)
+		AST.put("asymp", "uni224D");           // ≍ (渐近相等)
+		AST.put("propto", "proportional");     // ∝ (正比于)
+
+		// 序关系
+		AST.put("prec", "uni227A");            // ≺ (前驱)
+		AST.put("succ", "uni227B");            // ≻ (后继)
+		AST.put("preceq", "uni227C");          // ≼ (前驱等于)
+		AST.put("succeq", "uni227D");          // ≽ (后继等于)
+
+		// 整除/不整除
+		AST.put("nmid", "uni2224");            // ∤ (不整除)
+
+		// 三角运算符
+		AST.put("triangleleft", "uni25C1");    // ◁ (左三角)
+		AST.put("triangleright", "uni25B7");   // ▷ (右三角)
+
+		// 其他关系运算符
+		AST.put("bowtie", "uni22C8");          // ⋈ (自然连接)
+		AST.put("models", "uni22A8");          // ⊨ (满足)
+
 		// 其他常用符号
 		AST.put("infty", "infinity");
 		AST.put("partial", "partialdiff");     // ∂ (偏导数) - 已存在
@@ -209,6 +225,9 @@ public class MathFontOptions {
 		TEXT_OPERATORS.put("Psi", "\u03A8");        // Ψ
 		TEXT_OPERATORS.put("Omega", "\u03A9");      // Ω
 
+		// 特殊符号（定义在 GREEK_LETTERS 中但不是真正的希腊字母）
+		TEXT_OPERATORS.put("infty", "\u221E");      // ∞ (无穷大)
+
 		// 文本运算符（以罗马字体渲染）
 		TEXT_OPERATORS.put("lim", "lim");
 		TEXT_OPERATORS.put("limsup", "lim sup");
@@ -239,18 +258,6 @@ public class MathFontOptions {
 
 	public static Symbol symbol(String ref) {
 		return SYMBOL.all.get(ref);
-	}
-
-	public static Symbol ast(UnaryOp atom) {
-		String op = atom.op;
-		if (op.startsWith("\\")) {
-			op = atom.op.substring(1);
-		}
-		String ref = AST.get(op);
-		if (ref == null) {
-			throw new IllegalArgumentException("Unknown ast op: " + atom.op);
-		}
-		return symbol(ref);
 	}
 
 	public static Symbol ast(SpecialLetterVariableAtom atom) {
@@ -285,10 +292,10 @@ public class MathFontOptions {
 		return symbol(ref);
 	}
 
-	public static Symbol ast(BinOpAtom atom) {
-		String op = atom.op;
+	public static Symbol ast(SymbolAtom atom) {
+		String op = atom.symbol;
 		if (op.startsWith("\\")) {
-			op = atom.op.substring(1);
+			op = atom.symbol.substring(1);
 		}
 		String ref = AST.get(op);
 		if (ref == null) {

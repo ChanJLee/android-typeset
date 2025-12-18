@@ -7,16 +7,16 @@ import me.chan.texas.ext.markdown.math.ast.DelimitedAtom;
 import me.chan.texas.ext.markdown.math.renderer.core.MathCanvas;
 import me.chan.texas.ext.markdown.math.renderer.core.MathPaint;
 
-public class BraceLayout extends RendererNode implements OptimizableRendererNode {
+public class BraceGroupNode extends RendererNode implements OptimizableRendererNode, HorizontalCalibratedNode {
 
 	private RendererNode mLeftSymbol;
 	private RendererNode mRightSymbol;
 	private RendererNode mContent;
 	private final int mLevel;
 
-	public BraceLayout(MathPaint.Styles styles,
-					   int level,
-					   @Nullable RendererNode leftSymbol, RendererNode content, @Nullable RendererNode rightSymbol) {
+	public BraceGroupNode(MathPaint.Styles styles,
+						  int level,
+						  @Nullable RendererNode leftSymbol, RendererNode content, @Nullable RendererNode rightSymbol) {
 		super(styles);
 
 		mLevel = level;
@@ -34,6 +34,18 @@ public class BraceLayout extends RendererNode implements OptimizableRendererNode
 	}
 
 	private static final float SYMBOL_PADDING = 0.4f;
+
+	public RendererNode getLeftSymbol() {
+		return mLeftSymbol;
+	}
+
+	public RendererNode getRightSymbol() {
+		return mRightSymbol;
+	}
+
+	public RendererNode getContent() {
+		return mContent;
+	}
 
 	@Override
 	protected void onMeasure(MathPaint paint, int widthSpec, int heightSpec) {
@@ -62,7 +74,13 @@ public class BraceLayout extends RendererNode implements OptimizableRendererNode
 				mContent.getHeight() :
 				(int) Math.ceil(Math.max(exceptHeight, mContent.getHeight()));
 
+		if (mLeftSymbol != null) {
+			mLeftSymbol.translate(0, (height - mLeftSymbol.getHeight()) / 2f);
+		}
 		mContent.translate(0, (height - mContent.getHeight()) / 2f);
+		if (mRightSymbol != null) {
+			mRightSymbol.translate(0, (height - mRightSymbol.getHeight()) / 2f);
+		}
 
 		setMeasuredSize((int) Math.ceil(left), height);
 	}
@@ -106,5 +124,26 @@ public class BraceLayout extends RendererNode implements OptimizableRendererNode
 		}
 
 		return child;
+	}
+
+	@Override
+	public boolean supportAlignBaseline() {
+		if (mContent instanceof HorizontalCalibratedNode) {
+			HorizontalCalibratedNode node = (HorizontalCalibratedNode) mContent;
+			return node.supportAlignBaseline();
+		}
+
+		return false;
+	}
+
+	@Override
+	public float getBaseline() {
+		HorizontalCalibratedNode node = (HorizontalCalibratedNode) mContent;
+		return node.getBaseline() + getTop();
+	}
+
+	@Override
+	public float getContentCenterY() {
+		return mContent.getContentCenterY() + mContent.getTop();
 	}
 }

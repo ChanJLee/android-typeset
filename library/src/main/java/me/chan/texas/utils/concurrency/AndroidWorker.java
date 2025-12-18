@@ -4,6 +4,7 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Message;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
@@ -50,6 +51,7 @@ public class AndroidWorker implements Worker {
 			task.onSuccess(token, args, ret);
 			return ret;
 		} catch (Throwable error) {
+			Log.w("AndroidWorker", "sync error: ", error);
 			task.onError(token, args, error);
 			throw error;
 		}

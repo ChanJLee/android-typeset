@@ -6,7 +6,7 @@ import android.graphics.Paint;
 import me.chan.texas.ext.markdown.math.renderer.core.MathCanvas;
 import me.chan.texas.ext.markdown.math.renderer.core.MathPaint;
 
-public class TextNode extends RendererNode {
+public class TextNode extends RendererNode implements HorizontalCalibratedNode {
 
 	private final String mContent;
 	private final Paint.FontMetrics mFontMetrics = new Paint.FontMetrics();
@@ -15,6 +15,10 @@ public class TextNode extends RendererNode {
 	public TextNode(MathPaint.Styles styles, String content) {
 		super(styles);
 		mContent = content;
+	}
+
+	public String getContent() {
+		return mContent;
 	}
 
 	@Override
@@ -37,12 +41,25 @@ public class TextNode extends RendererNode {
 
 	@Override
 	protected void onDrawDebug(MathCanvas canvas, MathPaint paint) {
-		paint.setColor(Color.GREEN);
 		super.onDrawDebug(canvas, paint);
+		paint.setColor(Color.BLUE);
+		paint.setStyle(Paint.Style.FILL);
+		float y = getHeight() - mBaselineOffset;
+		canvas.drawLine(0, y, getWidth(), y, paint);
 	}
 
 	@Override
 	protected String toPretty() {
-		return "text: " + mContent;
+		return mContent;
+	}
+
+	@Override
+	public boolean supportAlignBaseline() {
+		return true;
+	}
+
+	@Override
+	public float getBaseline() {
+		return getBottom() - mBaselineOffset;
 	}
 }

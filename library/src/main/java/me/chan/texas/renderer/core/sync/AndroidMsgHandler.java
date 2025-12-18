@@ -11,7 +11,7 @@ public class AndroidMsgHandler extends MsgHandler {
 	public AndroidMsgHandler() {
 		mHandler = new Handler(Looper.getMainLooper(), msg -> {
 			int count = mListeners.size();
-			for (int i = 0; i < count; ++i) {
+			for (int i = count - 1; i >= 0; --i) {
 				Listener listener = mListeners.get(i);
 				Msg message = (Msg) msg.obj;
 				if (listener.handle(message.getToken(), message)) {

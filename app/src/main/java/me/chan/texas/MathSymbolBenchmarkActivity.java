@@ -6,16 +6,10 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import java.lang.reflect.Field;
-import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 
 import me.chan.texas.debug.databinding.ActivityMathSymbolBenchmarkBinding;
-import me.chan.texas.ext.markdown.math.renderer.LinearGroupNode;
-import me.chan.texas.ext.markdown.math.renderer.RendererNode;
-import me.chan.texas.ext.markdown.math.renderer.SymbolNode;
-import me.chan.texas.ext.markdown.math.renderer.TextNode;
 import me.chan.texas.ext.markdown.math.renderer.fonts.Symbol;
 import me.chan.texas.ext.markdown.math.renderer.fonts.SymbolOptions;
 

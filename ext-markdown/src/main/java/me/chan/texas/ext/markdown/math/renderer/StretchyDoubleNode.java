@@ -105,7 +105,6 @@ public class StretchyDoubleNode extends RendererNode {
 		canvas.restore();
 	}
 
-
 	@Override
 	protected String toPretty() {
 		return "stretchy";

@@ -6,18 +6,18 @@ public class SupSubSuffix implements Ast {
 	public final ScriptArg superscript;
 	public final ScriptArg subscript;
 	@VisibleForTesting
-	final boolean reserve;
+	final boolean reverse;
 
-	public SupSubSuffix(ScriptArg superscript, ScriptArg subscript, boolean reserve) {
+	public SupSubSuffix(ScriptArg superscript, ScriptArg subscript, boolean reverse) {
 		this.superscript = superscript;
 		this.subscript = subscript;
-		this.reserve = reserve;
+		this.reverse = reverse;
 	}
 
 	@Override
 	public String toString() {
 		String result = "";
-		if (reserve) {
+		if (reverse) {
 			if (subscript != null) {
 				result += "_" + subscript;
 			}

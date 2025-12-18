@@ -10,6 +10,8 @@ import me.chan.texas.ext.markdown.math.renderer.fonts.MathFontOptions;
 public class FractionNode extends RendererNode implements OptimizableRendererNode {
 	private RendererNode mNumerator;
 	private RendererNode mDenominator;
+	private float mSpaceHeight;
+	private float mPaddingX;
 
 	public FractionNode(MathPaint.Styles styles, RendererNode numerator, RendererNode denominator) {
 		super(styles);
@@ -21,10 +23,13 @@ public class FractionNode extends RendererNode implements OptimizableRendererNod
 	protected void onMeasure(MathPaint paint, int widthSpec, int heightSpec) {
 		mNumerator.measure(paint);
 		mDenominator.measure(paint);
+		mSpaceHeight = getThickness(paint) + getDenominatorVerticalGap(paint) + getNumeratorVerticalGap(paint);
 
-		int width = (int) Math.ceil(Math.max(mDenominator.getWidth(), mNumerator.getWidth()) * 1.04f);
-		int height = (int) Math.ceil(mDenominator.getHeight() + mNumerator.getHeight() +
-				getThickness(paint) + getDenominatorVerticalGap(paint) + getNumeratorVerticalGap(paint));
+		float contentWith = Math.max(mDenominator.getWidth(), mNumerator.getWidth());
+		mPaddingX = contentWith * 0.04f;
+
+		int width = (int) Math.ceil(contentWith + mPaddingX * 2);
+		int height = (int) Math.ceil(mDenominator.getHeight() + mNumerator.getHeight() + mSpaceHeight);
 		setMeasuredSize(width, height);
 	}
 
@@ -43,7 +48,7 @@ public class FractionNode extends RendererNode implements OptimizableRendererNod
 	@Override
 	protected void onLayoutChildren() {
 		mNumerator.layout((getWidth() - mNumerator.getWidth()) / 2.0f, 0);
-		mDenominator.layout((getWidth() - mDenominator.getWidth()) / 2.0f, getHeight() - mDenominator.getHeight());
+		mDenominator.layout((getWidth() - mDenominator.getWidth()) / 2.0f, mSpaceHeight + mNumerator.getHeight());
 	}
 
 	@Override
@@ -56,7 +61,8 @@ public class FractionNode extends RendererNode implements OptimizableRendererNod
 		paint.setStrokeWidth(thickness);
 
 		float y = (mNumerator.getBottom() + mDenominator.getTop()) / 2.0f;
-		canvas.drawLine(0, y, getWidth(), y, paint);
+		float contentWidth = getWidth() - mPaddingX * 2;
+		canvas.drawLine(mPaddingX, y, contentWidth, y, paint);
 
 		paint.setStrokeWidth(strokeWidth);
 	}
@@ -77,5 +83,10 @@ public class FractionNode extends RendererNode implements OptimizableRendererNod
 		}
 
 		return this;
+	}
+
+	@Override
+	public float getContentCenterY() {
+		return mNumerator.getHeight() + mNumerator.getTop() + mSpaceHeight / 2.0f;
 	}
 }
