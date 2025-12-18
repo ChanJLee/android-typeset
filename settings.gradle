@@ -1,2 +1,2 @@
 include ':app', ':library'
-include ':ext-markdown'
+include ':ext-markdown-math'
