@@ -7,7 +7,6 @@ import me.chan.texas.ext.markdown.math.renderer.core.MathPaint;
 import me.chan.texas.ext.markdown.math.renderer.core.MathPaintImpl;
 import me.chan.texas.misc.RectF;
 import me.chan.texas.renderer.core.graphics.TexasCanvas;
-import me.chan.texas.renderer.core.graphics.TexasCanvasImpl;
 import me.chan.texas.renderer.core.graphics.TexasPaint;
 import me.chan.texas.text.HyperSpan;
 import me.chan.texas.text.layout.StateList;
