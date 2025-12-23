@@ -106,6 +106,8 @@ public class MathView extends View implements AsyncMathViewRenderer {
 			public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
 				// 跟随手指滑动
 				scrollBy((int) distanceX, (int) distanceY);
+				// 显示滚动条
+				awakenScrollBars();
 				return true;
 			}
 
@@ -126,6 +128,12 @@ public class MathView extends View implements AsyncMathViewRenderer {
 				return true;
 			}
 		});
+
+		// 启用水平和垂直滚动条
+		setHorizontalScrollBarEnabled(true);
+		setVerticalScrollBarEnabled(true);
+		// 设置滚动条样式为内部显示
+		setScrollBarStyle(SCROLLBARS_INSIDE_OVERLAY);
 	}
 
 	@Override
@@ -175,6 +183,8 @@ public class MathView extends View implements AsyncMathViewRenderer {
 		// 如果 Scroller 正在计算偏移（惯性滑动中）
 		if (mScroller.computeScrollOffset()) {
 			scrollTo(mScroller.getCurrX(), mScroller.getCurrY());
+			// 显示滚动条
+			awakenScrollBars();
 			postInvalidate(); // 触发重绘以更新位置
 		}
 	}
@@ -224,7 +234,7 @@ public class MathView extends View implements AsyncMathViewRenderer {
 		return Math.max(min, Math.min(n, max));
 	}
 
-	// 允许父容器拦截事件（解决嵌套滑动冲突，如果需要的话可以重写 canScrollHorizontally）
+	// 允许父容器拦截事件（解决嵌套滑动冲突）
 	@Override
 	public boolean canScrollHorizontally(int direction) {
 		int offset = computeHorizontalScrollOffset();
@@ -241,6 +251,42 @@ public class MathView extends View implements AsyncMathViewRenderer {
 		if (range == 0) return false;
 		if (direction < 0) return offset > 0;
 		else return offset < range;
+	}
+
+	@Override
+	protected int computeHorizontalScrollRange() {
+		// 返回内容的总宽度
+		return getContentWidth();
+	}
+
+	@Override
+	protected int computeHorizontalScrollExtent() {
+		// 返回可见区域的宽度（View的宽度减去padding）
+		return getWidth() - getPaddingLeft() - getPaddingRight();
+	}
+
+	@Override
+	protected int computeHorizontalScrollOffset() {
+		// 返回当前的水平滚动偏移量
+		return getScrollX();
+	}
+
+	@Override
+	protected int computeVerticalScrollRange() {
+		// 返回内容的总高度
+		return getContentHeight();
+	}
+
+	@Override
+	protected int computeVerticalScrollExtent() {
+		// 返回可见区域的高度（View的高度减去padding）
+		return getHeight() - getPaddingTop() - getPaddingBottom();
+	}
+
+	@Override
+	protected int computeVerticalScrollOffset() {
+		// 返回当前的垂直滚动偏移量
+		return getScrollY();
 	}
 
 	private final FormulaBackgroundTask mFormulaParseTask = new FormulaBackgroundTask(mMsgHandler);
