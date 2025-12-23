@@ -59,10 +59,10 @@
             android:background="#4CAF50"
             android:maxWidth="100dp"
             android:padding="10dp"
-            app:me_chan_texas_ParagraphView_breakStrategy="simple"
-            app:me_chan_texas_ParagraphView_minLines="4"
-            app:me_chan_texas_ParagraphView_text="width: wrap_content, height: wrap_contentdsadasdasdasdasd"
-            app:me_chan_texas_ParagraphView_textGravity="end|bottom"
-            app:me_chan_texas_ParagraphView_textSize="20dp" />
+            android:gravity="end|bottom"
+            android:minLines="4"
+            android:text="width: wrap_content, height: wrap_contentdsadasdasdasdasd"
+            android:textSize="20dp"
+            app:breakStrategy="simple" />
     </LinearLayout>
 </ScrollView>

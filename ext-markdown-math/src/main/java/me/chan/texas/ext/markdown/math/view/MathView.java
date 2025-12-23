@@ -89,14 +89,14 @@ public class MathView extends View implements AsyncMathViewRenderer {
 		mMsgHandler.addListener(mListener);
 
 		TypedArray array = context.obtainStyledAttributes(attrs, R.styleable.MathView);
-		if (array.hasValue(R.styleable.MathView_android_textColor)) {
-			textPaint.setColor(array.getColor(R.styleable.MathView_android_textColor, defaultTextColor));
+		if (array.hasValue(R.styleable.MathView_textColor)) {
+			textPaint.setColor(array.getColor(R.styleable.MathView_textColor, defaultTextColor));
 		}
-		if (array.hasValue(R.styleable.MathView_android_textSize)) {
-			textPaint.setTextSize(array.getDimensionPixelSize(R.styleable.MathView_android_textSize, defaultTextSize));
+		if (array.hasValue(R.styleable.MathView_textSize)) {
+			textPaint.setTextSize(array.getDimensionPixelSize(R.styleable.MathView_textSize, defaultTextSize));
 		}
-		if (array.hasValue(R.styleable.MathView_android_gravity)) {
-			mGravity = array.getInt(R.styleable.MathView_android_gravity, Gravity.START | Gravity.TOP);
+		if (array.hasValue(R.styleable.MathView_gravity)) {
+			mGravity = array.getInt(R.styleable.MathView_gravity, Gravity.START | Gravity.TOP);
 		}
 
 		if (array.hasValue(R.styleable.MathView_formula)) {

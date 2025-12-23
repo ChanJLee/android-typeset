@@ -17,23 +17,22 @@
         android:text="AVAVWAWA asdasdasd (תפוח) 123"
         android:textSize="70sp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:me_chan_texas_ParagraphView_textColor="#FF5722" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <me.chan.texas.renderer.ui.text.ParagraphView
         android:id="@+id/paragraph"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="#112196F3"
+        android:text="AVAVWAWA asdasdasd (תפוח) 123"
+        android:textColor="#FF5722"
+        android:textSize="70sp"
+        app:bidiEnable="true"
+        app:breakStrategy="simple"
+        app:debugEnable="true"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:me_chan_texas_ParagraphView_bidiEnable="true"
-        app:me_chan_texas_ParagraphView_breakStrategy="simple"
-        app:me_chan_texas_ParagraphView_debugEnable="true"
-        app:me_chan_texas_ParagraphView_text="AVAVWAWA asdasdasd (תפוח) 123"
-        app:me_chan_texas_ParagraphView_textColor="#FF5722"
-        app:me_chan_texas_ParagraphView_textSize="70sp"
-        app:me_chan_texas_ParagraphView_typefaceAssets="opposans_r.ttf" />
+        app:typefaceAssets="opposans_r.ttf" />
 
     <me.chan.texas.BenchmarkView
         android:layout_width="match_parent"
