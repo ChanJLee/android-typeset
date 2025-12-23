@@ -236,6 +236,10 @@ public class LinearGroupNode extends RendererNode implements OptimizableRenderer
 		}
 	}
 
+	public Gravity getGravity() {
+		return mGravity;
+	}
+
 	public enum Gravity {
 		HORIZONTAL,
 		VERTICAL,

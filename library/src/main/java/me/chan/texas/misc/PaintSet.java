@@ -35,6 +35,10 @@ public class PaintSet {
 		mPaint = paint;
 	}
 
+	public PaintSet(PaintSet other) {
+		mPaint = new TextPaint(other.mPaint);
+	}
+
 	public void refresh(RenderOption renderOption) {
 		mPaint.setColor(renderOption.getTextColor());
 		Typeface typeface = renderOption.getTypeface();

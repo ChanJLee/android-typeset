@@ -21,7 +21,11 @@
             <![CDATA[In the book it said: "Boa constrictors swallow their prey whole, without chewing it.]]></sent>
         <sent id="A9127P126984S4127748">
             <![CDATA[After that they are not able to move, and they sleep through the six months that they need for digestion."]]></sent>
+        <math-inline>\sum_0^10f(x) + y</math-inline>
     </para>
+
+    <math-block>F\left(\omega\right)=\int_{-\infty}^{\infty}f\left(t\right)e^{-i\omega t}dt</math-block>
+
     <para id="A9127P126990">
         <sent id="A9127P126990S210411">
             <![CDATA[I pondered deeply, then, over the adventures of the jungle.]]></sent>

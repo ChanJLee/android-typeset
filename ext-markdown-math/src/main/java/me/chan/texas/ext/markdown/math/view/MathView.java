@@ -6,11 +6,11 @@ import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.Typeface;
 import android.text.TextPaint;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.GestureDetector;
+import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.OverScroller;
@@ -18,7 +18,8 @@ import android.widget.OverScroller;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import me.chan.texas.ext.markdown.R;
+import me.chan.texas.ext.markdown.math.R;
+import me.chan.texas.ext.markdown.math.TexMathParser;
 import me.chan.texas.ext.markdown.math.renderer.core.MathCanvas;
 import me.chan.texas.ext.markdown.math.renderer.core.MathCanvasImpl;
 import me.chan.texas.ext.markdown.math.renderer.core.MathPaint;
@@ -58,16 +59,26 @@ public class MathView extends View implements AsyncMathViewRenderer {
 	};
 	private final OverScroller mScroller;
 	private final GestureDetector mGestureDetector;
+	private int mGravity = Gravity.START | Gravity.TOP;
 
 
 	public MathView(Context context, @Nullable AttributeSet attrs) {
 		super(context, attrs);
 
+		// 从主题中获取默认的文本颜色和大小
+		TypedArray themeArray = context.obtainStyledAttributes(new int[] {
+				android.R.attr.textColorPrimary,
+				android.R.attr.textSize
+		});
+		int defaultTextColor = themeArray.getColor(0, Color.BLACK);
+		int defaultTextSize = themeArray.getDimensionPixelSize(1, 48);
+		themeArray.recycle();
+
 		TextPaint textPaint = new TextPaint();
-		textPaint.setTypeface(Typeface.createFromAsset(context.getAssets(), "texas_markdown_ext/latinmodern-math.otf"));
+		textPaint.setTypeface(TexMathParser.getTypeface());
 		textPaint.setStyle(Paint.Style.FILL);
-		textPaint.setColor(Color.BLACK);
-		textPaint.setTextSize(64);
+		textPaint.setColor(defaultTextColor);
+		textPaint.setTextSize(defaultTextSize);
 
 		TexasPaintImpl paint = new TexasPaintImpl();
 		paint.reset(new PaintSet(textPaint));
@@ -78,11 +89,14 @@ public class MathView extends View implements AsyncMathViewRenderer {
 		mMsgHandler.addListener(mListener);
 
 		TypedArray array = context.obtainStyledAttributes(attrs, R.styleable.MathView);
-		if (array.hasValue(R.styleable.MathView_textColor)) {
-			textPaint.setColor(array.getColor(R.styleable.MathView_textColor, Color.BLACK));
+		if (array.hasValue(R.styleable.MathView_android_textColor)) {
+			textPaint.setColor(array.getColor(R.styleable.MathView_android_textColor, defaultTextColor));
 		}
-		if (array.hasValue(R.styleable.MathView_textSize)) {
-			textPaint.setTextSize(array.getDimensionPixelSize(R.styleable.MathView_textSize, 64));
+		if (array.hasValue(R.styleable.MathView_android_textSize)) {
+			textPaint.setTextSize(array.getDimensionPixelSize(R.styleable.MathView_android_textSize, defaultTextSize));
+		}
+		if (array.hasValue(R.styleable.MathView_android_gravity)) {
+			mGravity = array.getInt(R.styleable.MathView_android_gravity, Gravity.START | Gravity.TOP);
 		}
 
 		if (array.hasValue(R.styleable.MathView_formula)) {
@@ -106,6 +120,8 @@ public class MathView extends View implements AsyncMathViewRenderer {
 			public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
 				// 跟随手指滑动
 				scrollBy((int) distanceX, (int) distanceY);
+				// 显示滚动条
+				awakenScrollBars();
 				return true;
 			}
 
@@ -126,6 +142,12 @@ public class MathView extends View implements AsyncMathViewRenderer {
 				return true;
 			}
 		});
+
+		// 启用水平和垂直滚动条
+		setHorizontalScrollBarEnabled(true);
+		setVerticalScrollBarEnabled(true);
+		// 设置滚动条样式为内部显示
+		setScrollBarStyle(SCROLLBARS_INSIDE_OVERLAY);
 	}
 
 	@Override
@@ -158,8 +180,55 @@ public class MathView extends View implements AsyncMathViewRenderer {
 		// 保存画布状态
 		int saveCount = canvas.save();
 
-		// 根据当前的滚动值平移画布，实现内容移动效果
-		canvas.translate(-getScrollX(), -getScrollY());
+		// 计算 gravity 偏移
+		int gravityOffsetX = 0;
+		int gravityOffsetY = 0;
+
+		int contentWidth = getContentWidth();
+		int contentHeight = getContentHeight();
+		int viewWidth = getWidth() - getPaddingLeft() - getPaddingRight();
+		int viewHeight = getHeight() - getPaddingTop() - getPaddingBottom();
+
+		// 只有当内容小于视图时才应用 gravity
+		if (contentWidth < viewWidth) {
+			int horizontalGravity = mGravity & Gravity.HORIZONTAL_GRAVITY_MASK;
+			switch (horizontalGravity) {
+				case Gravity.CENTER_HORIZONTAL:
+					gravityOffsetX = (viewWidth - contentWidth) / 2;
+					break;
+				case Gravity.RIGHT:
+				case Gravity.END:
+					gravityOffsetX = viewWidth - contentWidth;
+					break;
+				case Gravity.LEFT:
+				case Gravity.START:
+				default:
+					gravityOffsetX = 0;
+					break;
+			}
+		}
+
+		if (contentHeight < viewHeight) {
+			int verticalGravity = mGravity & Gravity.VERTICAL_GRAVITY_MASK;
+			switch (verticalGravity) {
+				case Gravity.CENTER_VERTICAL:
+					gravityOffsetY = (viewHeight - contentHeight) / 2;
+					break;
+				case Gravity.BOTTOM:
+					gravityOffsetY = viewHeight - contentHeight;
+					break;
+				case Gravity.TOP:
+				default:
+					gravityOffsetY = 0;
+					break;
+			}
+		}
+
+		// 应用 padding、gravity 和滚动偏移
+		canvas.translate(
+				getPaddingLeft() + gravityOffsetX - getScrollX(),
+				getPaddingTop() + gravityOffsetY - getScrollY()
+		);
 
 		boolean ret = mGraphicsBuffer.draw(canvas);
 		if (GraphicsBuffer.DEBUG && !ret) {
@@ -175,6 +244,8 @@ public class MathView extends View implements AsyncMathViewRenderer {
 		// 如果 Scroller 正在计算偏移（惯性滑动中）
 		if (mScroller.computeScrollOffset()) {
 			scrollTo(mScroller.getCurrX(), mScroller.getCurrY());
+			// 显示滚动条
+			awakenScrollBars();
 			postInvalidate(); // 触发重绘以更新位置
 		}
 	}
@@ -224,7 +295,7 @@ public class MathView extends View implements AsyncMathViewRenderer {
 		return Math.max(min, Math.min(n, max));
 	}
 
-	// 允许父容器拦截事件（解决嵌套滑动冲突，如果需要的话可以重写 canScrollHorizontally）
+	// 允许父容器拦截事件（解决嵌套滑动冲突）
 	@Override
 	public boolean canScrollHorizontally(int direction) {
 		int offset = computeHorizontalScrollOffset();
@@ -241,6 +312,42 @@ public class MathView extends View implements AsyncMathViewRenderer {
 		if (range == 0) return false;
 		if (direction < 0) return offset > 0;
 		else return offset < range;
+	}
+
+	@Override
+	protected int computeHorizontalScrollRange() {
+		// 返回内容的总宽度
+		return getContentWidth();
+	}
+
+	@Override
+	protected int computeHorizontalScrollExtent() {
+		// 返回可见区域的宽度（View的宽度减去padding）
+		return getWidth() - getPaddingLeft() - getPaddingRight();
+	}
+
+	@Override
+	protected int computeHorizontalScrollOffset() {
+		// 返回当前的水平滚动偏移量
+		return getScrollX();
+	}
+
+	@Override
+	protected int computeVerticalScrollRange() {
+		// 返回内容的总高度
+		return getContentHeight();
+	}
+
+	@Override
+	protected int computeVerticalScrollExtent() {
+		// 返回可见区域的高度（View的高度减去padding）
+		return getHeight() - getPaddingTop() - getPaddingBottom();
+	}
+
+	@Override
+	protected int computeVerticalScrollOffset() {
+		// 返回当前的垂直滚动偏移量
+		return getScrollY();
 	}
 
 	private final FormulaBackgroundTask mFormulaParseTask = new FormulaBackgroundTask(mMsgHandler);
@@ -288,6 +395,25 @@ public class MathView extends View implements AsyncMathViewRenderer {
 
 	public void cancel() {
 		mBackgroundWorker.cancel(mToken);
+	}
+
+	/**
+	 * 设置内容的对齐方式
+	 * @param gravity 对齐方式，使用 Gravity 常量，如 Gravity.CENTER、Gravity.START | Gravity.TOP 等
+	 */
+	public void setGravity(int gravity) {
+		if (mGravity != gravity) {
+			mGravity = gravity;
+			invalidate();
+		}
+	}
+
+	/**
+	 * 获取当前的对齐方式
+	 * @return 对齐方式
+	 */
+	public int getGravity() {
+		return mGravity;
 	}
 
 	@Nullable
