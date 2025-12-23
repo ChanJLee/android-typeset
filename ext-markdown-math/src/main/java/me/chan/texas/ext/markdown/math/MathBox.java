@@ -1,6 +1,5 @@
 package me.chan.texas.ext.markdown.math;
 
-import me.chan.texas.ext.markdown.math.renderer.HorizontalCalibratedNode;
 import me.chan.texas.ext.markdown.math.renderer.RendererNode;
 import me.chan.texas.ext.markdown.math.renderer.core.MathCanvas;
 import me.chan.texas.ext.markdown.math.renderer.core.MathCanvasImpl;
@@ -37,13 +36,6 @@ public class MathBox extends HyperSpan {
 	protected void onMeasure(float lineHeight, float baselineOffset) {
 		mRendererNode.measure(mPaint);
 		mRendererNode.layout(0, 0);
-		if (mRendererNode instanceof HorizontalCalibratedNode) {
-			HorizontalCalibratedNode node = (HorizontalCalibratedNode) mRendererNode;
-			if (node.supportAlignBaseline()) {
-				float baseline = node.getBaseline();
-				mRendererNode.translate(0, mRendererNode.getHeight() - baselineOffset - baseline);
-			}
-		}
-		setMeasuredSize(mRendererNode.getWidth(), mRendererNode.getHeight() + mRendererNode.getTop());
+		setMeasuredSize(mRendererNode.getWidth(), mRendererNode.getHeight());
 	}
 }

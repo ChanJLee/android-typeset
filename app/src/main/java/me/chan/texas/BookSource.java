@@ -4,6 +4,8 @@ import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.Path;
 
+import me.chan.texas.debug.R;
+import me.chan.texas.ext.markdown.math.view.MathView;
 import me.chan.texas.misc.Rect;
 import me.chan.texas.misc.RectF;
 
@@ -202,6 +204,8 @@ public class BookSource extends TexasView.DocumentSource {
 			String name = parser.getName();
 			if (name.equals("para")) {
 				parsePara(parser, builder, texasOption);
+			} else if (name.equals("math-block")) {
+				parseMathBlock(parser, builder, texasOption);
 			} else {
 				skip(parser);
 			}
@@ -222,6 +226,28 @@ public class BookSource extends TexasView.DocumentSource {
 		});
 
 		return builder.build();
+	}
+
+	private void parseMathBlock(XmlPullParser parser, Document.Builder builder, TexasOption texasOption) throws XmlPullParserException, IOException {
+		parser.require(XmlPullParser.START_TAG, null, "math-block");
+		String math = safeNextText(parser);
+		builder.addSegment(new MathViewSegment(math));
+		parser.require(XmlPullParser.END_TAG, null, "math-block");
+	}
+
+	private static class MathViewSegment extends ViewSegment {
+		private final String mFormula;
+
+		public MathViewSegment(String math) {
+			super(me.chan.texas.debug.R.layout.item_math);
+			mFormula = math;
+		}
+
+		@Override
+		protected void onRender(View view) {
+			MathView mathView = view.findViewById(R.id.math);
+			mathView.render(mFormula);
+		}
 	}
 
 	private static final int STATE_NONE = 0;

@@ -6,7 +6,6 @@ import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.Typeface;
 import android.text.TextPaint;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -19,6 +18,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import me.chan.texas.ext.markdown.math.R;
+import me.chan.texas.ext.markdown.math.TexMathParser;
 import me.chan.texas.ext.markdown.math.renderer.core.MathCanvas;
 import me.chan.texas.ext.markdown.math.renderer.core.MathCanvasImpl;
 import me.chan.texas.ext.markdown.math.renderer.core.MathPaint;
@@ -64,7 +64,7 @@ public class MathView extends View implements AsyncMathViewRenderer {
 		super(context, attrs);
 
 		TextPaint textPaint = new TextPaint();
-		textPaint.setTypeface(Typeface.createFromAsset(context.getAssets(), "texas_markdown_ext/latinmodern-math.otf"));
+		textPaint.setTypeface(TexMathParser.getTypeface());
 		textPaint.setStyle(Paint.Style.FILL);
 		textPaint.setColor(Color.BLACK);
 		textPaint.setTextSize(64);
