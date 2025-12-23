@@ -149,14 +149,14 @@ public class ParagraphView extends FrameLayout {
 
 	public ParagraphView(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
 		super(context, attrs, defStyleAttr);
-		TypedArray typedArray = context.obtainStyledAttributes(attrs, R.styleable.ParagraphView, defStyleAttr, 0);
+		TypedArray typedArray = context.obtainStyledAttributes(attrs, R.styleable.me_chan_texas_ParagraphView, defStyleAttr, 0);
 		try {
 			mRenderOption = createRenderOption(context, typedArray);
 			mUiThreadPaintSet = new PaintSet(mRenderOption);
-			setMaxLines0(typedArray.getInt(R.styleable.ParagraphView_maxLines, Integer.MAX_VALUE));
-			setMinLines0(typedArray.getInt(R.styleable.ParagraphView_minLines, 0));
-			if (typedArray.hasValue(R.styleable.ParagraphView_lines)) {
-				setLines0(typedArray.getInt(R.styleable.ParagraphView_lines, 0));
+			setMaxLines0(typedArray.getInt(R.styleable.me_chan_texas_ParagraphView_me_chan_texas_ParagraphView_maxLines, Integer.MAX_VALUE));
+			setMinLines0(typedArray.getInt(R.styleable.me_chan_texas_ParagraphView_me_chan_texas_ParagraphView_minLines, 0));
+			if (typedArray.hasValue(R.styleable.me_chan_texas_ParagraphView_me_chan_texas_ParagraphView_lines)) {
+				setLines0(typedArray.getInt(R.styleable.me_chan_texas_ParagraphView_me_chan_texas_ParagraphView_lines, 0));
 			}
 			AbsTextureParagraphView.LayoutPredicate relayoutPredicate = (view, paragraph) -> {
 				ViewGroup.LayoutParams layoutParams = getLayoutParams();
@@ -193,7 +193,7 @@ public class ParagraphView extends FrameLayout {
 			TextEngineCoreComponent textEngineCoreComponent = texasComponent.coreComponent().create();
 			textEngineCoreComponent.inject(this);
 
-			String text = typedArray.getString(R.styleable.ParagraphView_text);
+			String text = typedArray.getString(R.styleable.me_chan_texas_ParagraphView_me_chan_texas_ParagraphView_text);
 			if (!TextUtils.isEmpty(text)) {
 				setText(text);
 			}
@@ -890,27 +890,16 @@ public class ParagraphView extends FrameLayout {
 		Resources resources = getResources();
 		RenderOption renderOption = new RenderOption();
 
-		// 从主题获取默认文本颜色和大小
-		TypedArray themeArray = context.obtainStyledAttributes(new int[] {
-				android.R.attr.textColorPrimary,
-				android.R.attr.textSize
-		});
-		int defaultTextColor = themeArray.getColor(0, ContextCompat.getColor(context, R.color.me_chan_texas_text_color));
-		int defaultTextSize = themeArray.getDimensionPixelSize(1, (int) TypedValue.applyDimension(
-				TypedValue.COMPLEX_UNIT_SP,
-				TexasView.DEFAULT_TEXT_SIZE,
-				resources.getDisplayMetrics()
-		));
-		themeArray.recycle();
-
 		// 设置字体颜色
 		renderOption.setTextColor(
-				typedArray.getColor(R.styleable.ParagraphView_textColor, defaultTextColor)
+				typedArray.getColor(R.styleable.me_chan_texas_ParagraphView_me_chan_texas_ParagraphView_textColor,
+						ContextCompat.getColor(context, R.color.me_chan_texas_text_color)
+				)
 		);
 
 		// 设置字体
 		renderOption.setTypeface(Texas.getDefaultTypeface());
-		String typefacePath = typedArray.getString(R.styleable.ParagraphView_typefaceAssets);
+		String typefacePath = typedArray.getString(R.styleable.me_chan_texas_ParagraphView_me_chan_texas_ParagraphView_typefaceAssets);
 		if (!TextUtils.isEmpty(typefacePath)) {
 			WeakReference<Typeface> typefaceWeakReference = TexasView.TYPEFACE_CACHE.get(typefacePath);
 			Typeface typeface;
@@ -926,41 +915,47 @@ public class ParagraphView extends FrameLayout {
 
 		// 设置字体大小
 		renderOption.setTextSize(
-				typedArray.getDimensionPixelSize(R.styleable.ParagraphView_textSize, defaultTextSize)
+				typedArray.getDimensionPixelSize(R.styleable.me_chan_texas_ParagraphView_me_chan_texas_ParagraphView_textSize,
+						(int) TypedValue.applyDimension(
+								TypedValue.COMPLEX_UNIT_SP,
+								TexasView.DEFAULT_TEXT_SIZE,
+								resources.getDisplayMetrics()
+						)
+				)
 		);
 
 		// 行间距
 		renderOption.setLineSpacingExtra(
-				typedArray.getDimensionPixelSize(R.styleable.ParagraphView_lineSpacingExtra, 0)
+				typedArray.getDimensionPixelSize(R.styleable.me_chan_texas_ParagraphView_me_chan_texas_ParagraphView_lineSpacingExtra, 0)
 		);
 
 		// 选中字体的背景色
 		renderOption.setSelectedBackgroundColor(
-				typedArray.getColor(R.styleable.ParagraphView_selectedBackgroundColor,
+				typedArray.getColor(R.styleable.me_chan_texas_ParagraphView_me_chan_texas_ParagraphView_selectedBackgroundColor,
 						ContextCompat.getColor(context, R.color.me_chan_texas_theme_color)
 				)
 		);
 
 		// 选中字体的颜色
 		renderOption.setSelectedTextColor(
-				typedArray.getColor(R.styleable.ParagraphView_selectedTextColor, Color.WHITE)
+				typedArray.getColor(R.styleable.me_chan_texas_ParagraphView_me_chan_texas_ParagraphView_selectedTextColor, Color.WHITE)
 		);
 
 		// 选中span的背景色
 		renderOption.setSelectedByLongClickBackgroundColor(
-				typedArray.getColor(R.styleable.ParagraphView_spanSelectedBackgroundColor,
+				typedArray.getColor(R.styleable.me_chan_texas_ParagraphView_me_chan_texas_ParagraphView_spanSelectedBackgroundColor,
 						ContextCompat.getColor(context, R.color.me_chan_texas_span_bg_color)
 				)
 		);
 
 		// 选中span的字体颜色
 		renderOption.setSelectedByLongClickTextColor(
-				typedArray.getColor(R.styleable.ParagraphView_spanSelectedTextColor,
+				typedArray.getColor(R.styleable.me_chan_texas_ParagraphView_me_chan_texas_ParagraphView_spanSelectedTextColor,
 						ContextCompat.getColor(context, R.color.me_chan_texas_text_color))
 		);
 
 		// 断字策略
-		int breakStrategy = typedArray.getInt(R.styleable.ParagraphView_breakStrategy, TexasView.BREAK_STRATEGY_BALANCE);
+		int breakStrategy = typedArray.getInt(R.styleable.me_chan_texas_ParagraphView_me_chan_texas_ParagraphView_breakStrategy, TexasView.BREAK_STRATEGY_BALANCE);
 		renderOption.setBreakStrategy(
 				breakStrategy == TexasView.BREAK_STRATEGY_SIMPLE ?
 						BreakStrategy.SIMPLE : BreakStrategy.BALANCED
@@ -968,11 +963,11 @@ public class ParagraphView extends FrameLayout {
 
 		// 是否可选单词
 		renderOption.setWordSelectable(
-				typedArray.getBoolean(R.styleable.ParagraphView_wordSelectable, true)
+				typedArray.getBoolean(R.styleable.me_chan_texas_ParagraphView_me_chan_texas_ParagraphView_wordSelectable, true)
 		);
 
 		// 断字策略
-		int hyphenStrategy = typedArray.getInt(R.styleable.ParagraphView_hyphenStrategy, TexasView.HYPHEN_STRATEGY_US);
+		int hyphenStrategy = typedArray.getInt(R.styleable.me_chan_texas_ParagraphView_me_chan_texas_ParagraphView_hyphenStrategy, TexasView.HYPHEN_STRATEGY_US);
 		renderOption.setHyphenStrategy(
 				hyphenStrategy == TexasView.HYPHEN_STRATEGY_UK ?
 						HyphenStrategy.UK : HyphenStrategy.US
@@ -1001,7 +996,7 @@ public class ParagraphView extends FrameLayout {
 		// 设置选中圆角半径
 		renderOption.setSelectedBackgroundRoundRadius(
 				typedArray.getDimension(
-						R.styleable.ParagraphView_selectedBackgroundRoundRadius,
+						R.styleable.me_chan_texas_ParagraphView_me_chan_texas_ParagraphView_selectedBackgroundRoundRadius,
 						TypedValue.applyDimension(
 								TypedValue.COMPLEX_UNIT_DIP,
 								3,
@@ -1012,21 +1007,21 @@ public class ParagraphView extends FrameLayout {
 
 		// 是否开启兼容模式
 		renderOption.setCompatMode(
-				typedArray.getBoolean(R.styleable.ParagraphView_compatMode, false)
+				typedArray.getBoolean(R.styleable.me_chan_texas_ParagraphView_me_chan_texas_ParagraphView_compatMode, false)
 		);
 
 		// 文字居中形式
-		int textGravity = typedArray.getInt(R.styleable.ParagraphView_gravity, TextGravity.TOP | TextGravity.START);
+		int textGravity = typedArray.getInt(R.styleable.me_chan_texas_ParagraphView_me_chan_texas_ParagraphView_textGravity, TextGravity.TOP | TextGravity.START);
 		renderOption.setTextGravity(textGravity);
 
 		// 开启debug
 		renderOption.setDebugEnable(
-				typedArray.getBoolean(R.styleable.ParagraphView_debugEnable, false)
+				typedArray.getBoolean(R.styleable.me_chan_texas_ParagraphView_me_chan_texas_ParagraphView_debugEnable, false)
 		);
 
 		// 开启双向文本
 		renderOption.setBidiEnable(
-				typedArray.getBoolean(R.styleable.ParagraphView_bidiEnable, false)
+				typedArray.getBoolean(R.styleable.me_chan_texas_ParagraphView_me_chan_texas_ParagraphView_bidiEnable, false)
 		);
 
 		return renderOption;

@@ -1,40 +1,44 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <declare-styleable name="TexasView">
-        <attr name="android:padding" />
-        <attr name="android:paddingLeft" />
-        <attr name="android:paddingRight" />
-        <attr name="android:paddingTop" />
-        <attr name="android:paddingBottom" />
-        <attr name="textColor" />
-        <attr name="textSize" />
-        <attr name="lineSpacingExtra" />
-        <attr name="gravity" />
-        <attr name="typefaceAssets" format="string" />
-        <attr name="selectedBackgroundColor" format="color" />
-        <attr name="selectedTextColor" format="color" />
-        <attr name="spanSelectedBackgroundColor" format="color" />
-        <attr name="spanSelectedTextColor" format="color" />
-        <attr name="breakStrategy" format="enum">
+    <declare-styleable name="me_chan_texas_TexasView">
+        <attr name="android:padding" format="dimension" />
+        <attr name="android:paddingLeft" format="dimension" />
+        <attr name="android:paddingRight" format="dimension" />
+        <attr name="android:paddingTop" format="dimension" />
+        <attr name="android:paddingBottom" format="dimension" />
+        <attr name="me_chan_texas_TexasView_textColor" format="color" />
+        <attr name="me_chan_texas_TexasView_typefaceAssets" format="string" />
+        <attr name="me_chan_texas_TexasView_textSize" format="dimension" />
+        <attr name="me_chan_texas_TexasView_lineSpacingExtra" format="dimension" />
+        <attr name="me_chan_texas_TexasView_selectedBackgroundColor" format="color" />
+        <attr name="me_chan_texas_TexasView_selectedTextColor" format="color" />
+        <attr name="me_chan_texas_TexasView_spanSelectedBackgroundColor" format="color" />
+        <attr name="me_chan_texas_TexasView_spanSelectedTextColor" format="color" />
+        <attr name="me_chan_texas_TexasView_breakStrategy" format="enum">
             <enum name="simple" value="1" />
             <enum name="balance" value="2" />
         </attr>
-        <attr name="wordSelectable" format="boolean" />
-        <attr name="hyphenStrategy" format="enum">
+        <attr name="me_chan_texas_TexasView_wordSelectable" format="boolean" />
+        <attr name="me_chan_texas_TexasView_hyphenStrategy" format="enum">
             <enum name="us" value="1" />
             <enum name="uk" value="2" />
         </attr>
-        <attr name="lazyRender" format="boolean" />
-        <attr name="spanHighlightTextColor" format="color" />
-        <attr name="loadingBackgroundColor" format="color" />
-        <attr name="dragViewColor" format="color" />
-        <attr name="selectedBackgroundRoundRadius" format="dimension" />
-        <attr name="compatMode" format="boolean" />
-        <attr name="dragToSelectionEnable" format="boolean" />
-        <attr name="bidiEnable" format="boolean" />
+        <attr name="me_chan_texas_TexasView_lazyRender" format="boolean" />
+        <attr name="me_chan_texas_TexasView_spanHighlightTextColor" format="color" />
+        <attr name="me_chan_texas_TexasView_loadingBackgroundColor" format="color" />
+        <attr name="me_chan_texas_TexasView_dragViewColor" format="color" />
+        <attr name="me_chan_texas_TexasView_selectedBackgroundRoundRadius" format="dimension" />
+        <attr name="me_chan_texas_TexasView_compatMode" format="boolean" />
+        <attr name="me_chan_texas_TexasView_dragToSelectionEnable" format="boolean" />
+        <attr name="me_chan_texas_TexasView_textGravity">
+            <flag name="start" value="1" />
+            <flag name="end" value="2" />
+            <flag name="center_horizontal" value="3" />
+        </attr>
+        <attr name="me_chan_texas_TexasView_bidiEnable" format="boolean" />
     </declare-styleable>
 
-    <style name="TexasRecyclerView" parent="android:Widget">
+    <style name="me_chan_texas_TexasRecyclerView" parent="android:Widget">
         <item name="android:scrollbars">vertical</item>
         <item name="android:scrollbarStyle">outsideOverlay</item>
         <item name="android:scrollbarThumbVertical">
@@ -43,27 +47,41 @@
         <item name="android:scrollbarTrackVertical">@null</item>
     </style>
 
-    <declare-styleable name="ParagraphView">
-        <attr name="textColor" />
-        <attr name="textSize" />
-        <attr name="lineSpacingExtra" />
-        <attr name="text" />
-        <attr name="minLines" />
-        <attr name="maxLines" />
-        <attr name="gravity" />
-        <attr name="typefaceAssets" />
-        <attr name="debugEnable" format="boolean" />
-        <attr name="selectedBackgroundColor" />
-        <attr name="selectedTextColor" />
-        <attr name="spanSelectedBackgroundColor" />
-        <attr name="spanSelectedTextColor" />
-        <attr name="breakStrategy" />
-        <attr name="wordSelectable" />
-        <attr name="hyphenStrategy" />
-        <attr name="selectedBackgroundRoundRadius" />
-        <attr name="compatMode" />
-        <attr name="dragToSelectionEnable" />
-        <attr name="bidiEnable" />
-        <attr name="lines" format="integer" />
+    <declare-styleable name="me_chan_texas_ParagraphView">
+        <attr name="me_chan_texas_ParagraphView_textColor" format="color" />
+        <attr name="me_chan_texas_ParagraphView_debugEnable" format="boolean" />
+        <attr name="me_chan_texas_ParagraphView_typefaceAssets" format="string" />
+        <attr name="me_chan_texas_ParagraphView_textSize" format="dimension" />
+        <attr name="me_chan_texas_ParagraphView_lineSpacingExtra" format="dimension" />
+        <attr name="me_chan_texas_ParagraphView_selectedBackgroundColor" format="color" />
+        <attr name="me_chan_texas_ParagraphView_selectedTextColor" format="color" />
+        <attr name="me_chan_texas_ParagraphView_spanSelectedBackgroundColor" format="color" />
+        <attr name="me_chan_texas_ParagraphView_spanSelectedTextColor" format="color" />
+        <attr name="me_chan_texas_ParagraphView_breakStrategy" format="enum">
+            <enum name="simple" value="1" />
+            <enum name="balance" value="2" />
+        </attr>
+        <attr name="me_chan_texas_ParagraphView_wordSelectable" format="boolean" />
+        <attr name="me_chan_texas_ParagraphView_hyphenStrategy" format="enum">
+            <enum name="us" value="1" />
+            <enum name="uk" value="2" />
+        </attr>
+        <attr name="me_chan_texas_ParagraphView_selectedBackgroundRoundRadius" format="dimension" />
+        <attr name="me_chan_texas_ParagraphView_compatMode" format="boolean" />
+        <attr name="me_chan_texas_ParagraphView_text" format="string" />
+        <attr name="me_chan_texas_ParagraphView_dragToSelectionEnable" format="boolean" />
+        <attr name="me_chan_texas_ParagraphView_textGravity">
+            <flag name="start" value="1" />
+            <flag name="end" value="2" />
+            <flag name="center_horizontal" value="3" />
+            <flag name="top" value="4" />
+            <flag name="bottom" value="8" />
+            <flag name="center_vertical" value="12" />
+            <flag name="center" value="15" />
+        </attr>
+        <attr name="me_chan_texas_ParagraphView_bidiEnable" format="boolean" />
+        <attr name="me_chan_texas_ParagraphView_minLines" format="integer" />
+        <attr name="me_chan_texas_ParagraphView_maxLines" format="integer" />
+        <attr name="me_chan_texas_ParagraphView_lines" format="integer" />
     </declare-styleable>
 </resources>

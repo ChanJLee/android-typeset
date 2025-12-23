@@ -141,7 +141,7 @@ public final class TexasView extends FrameLayout {
 
 	private void init(Context context, AttributeSet attributeSet, int defStyleAttr) {
 		@SuppressLint("CustomViewStyleable")
-		TypedArray typedArray = context.obtainStyledAttributes(attributeSet, R.styleable.TexasView, defStyleAttr, 0);
+		TypedArray typedArray = context.obtainStyledAttributes(attributeSet, R.styleable.me_chan_texas_TexasView, defStyleAttr, 0);
 		try {
 			init(context, typedArray);
 		} finally {
@@ -153,27 +153,16 @@ public final class TexasView extends FrameLayout {
 		Resources resources = getResources();
 		RenderOption renderOption = new RenderOption();
 
-		// 从主题获取默认文本颜色和大小
-		TypedArray themeArray = context.obtainStyledAttributes(new int[]{
-				android.R.attr.textColorPrimary,
-				android.R.attr.textSize
-		});
-		int defaultTextColor = themeArray.getColor(0, ContextCompat.getColor(context, R.color.me_chan_texas_text_color));
-		int defaultTextSize = themeArray.getDimensionPixelSize(1, (int) TypedValue.applyDimension(
-				TypedValue.COMPLEX_UNIT_SP,
-				DEFAULT_TEXT_SIZE,
-				resources.getDisplayMetrics()
-		));
-		themeArray.recycle();
-
 		// Set text color
 		renderOption.setTextColor(
-				typedArray.getColor(R.styleable.TexasView_textColor, defaultTextColor)
+				typedArray.getColor(R.styleable.me_chan_texas_TexasView_me_chan_texas_TexasView_textColor,
+						ContextCompat.getColor(context, R.color.me_chan_texas_text_color)
+				)
 		);
 
 		// Set typeface
 		renderOption.setTypeface(Texas.getDefaultTypeface());
-		String typefacePath = typedArray.getString(R.styleable.TexasView_typefaceAssets);
+		String typefacePath = typedArray.getString(R.styleable.me_chan_texas_TexasView_me_chan_texas_TexasView_typefaceAssets);
 		if (!TextUtils.isEmpty(typefacePath)) {
 			WeakReference<Typeface> typefaceWeakReference = TYPEFACE_CACHE.get(typefacePath);
 			Typeface typeface;
@@ -189,41 +178,49 @@ public final class TexasView extends FrameLayout {
 
 		// Set text size
 		renderOption.setTextSize(
-				typedArray.getDimension(R.styleable.TexasView_textSize, defaultTextSize)
+				typedArray.getDimension(R.styleable.me_chan_texas_TexasView_me_chan_texas_TexasView_textSize,
+						TypedValue.applyDimension(
+								TypedValue.COMPLEX_UNIT_SP,
+								DEFAULT_TEXT_SIZE,
+								resources.getDisplayMetrics()
+						)
+				)
 		);
 
 		// Line spacing
 		renderOption.setLineSpacingExtra(
-				typedArray.getDimension(R.styleable.TexasView_lineSpacingExtra, 0)
+				typedArray.getDimension(R.styleable.me_chan_texas_TexasView_me_chan_texas_TexasView_lineSpacingExtra,
+						0
+				)
 		);
 
 		// Selected text background color
 		renderOption.setSelectedBackgroundColor(
-				typedArray.getColor(R.styleable.TexasView_selectedBackgroundColor,
+				typedArray.getColor(R.styleable.me_chan_texas_TexasView_me_chan_texas_TexasView_selectedBackgroundColor,
 						ContextCompat.getColor(context, R.color.me_chan_texas_theme_color)
 				)
 		);
 
 		// Selected text color
 		renderOption.setSelectedTextColor(
-				typedArray.getColor(R.styleable.TexasView_selectedTextColor, Color.WHITE)
+				typedArray.getColor(R.styleable.me_chan_texas_TexasView_me_chan_texas_TexasView_selectedTextColor, Color.WHITE)
 		);
 
 		// Selected span background color
 		renderOption.setSelectedByLongClickBackgroundColor(
-				typedArray.getColor(R.styleable.TexasView_spanSelectedBackgroundColor,
+				typedArray.getColor(R.styleable.me_chan_texas_TexasView_me_chan_texas_TexasView_spanSelectedBackgroundColor,
 						ContextCompat.getColor(context, R.color.me_chan_texas_span_bg_color)
 				)
 		);
 
 		// Selected span text color
 		renderOption.setSelectedByLongClickTextColor(
-				typedArray.getColor(R.styleable.TexasView_spanSelectedTextColor,
+				typedArray.getColor(R.styleable.me_chan_texas_TexasView_me_chan_texas_TexasView_spanSelectedTextColor,
 						ContextCompat.getColor(context, R.color.me_chan_texas_text_color))
 		);
 
 		// Line break strategy
-		int breakStrategy = typedArray.getInt(R.styleable.TexasView_breakStrategy, BREAK_STRATEGY_BALANCE);
+		int breakStrategy = typedArray.getInt(R.styleable.me_chan_texas_TexasView_me_chan_texas_TexasView_breakStrategy, BREAK_STRATEGY_BALANCE);
 		renderOption.setBreakStrategy(
 				breakStrategy == BREAK_STRATEGY_SIMPLE ?
 						BreakStrategy.SIMPLE : BreakStrategy.BALANCED
@@ -231,11 +228,11 @@ public final class TexasView extends FrameLayout {
 
 		// Whether words are selectable
 		renderOption.setWordSelectable(
-				typedArray.getBoolean(R.styleable.TexasView_wordSelectable, true)
+				typedArray.getBoolean(R.styleable.me_chan_texas_TexasView_me_chan_texas_TexasView_wordSelectable, true)
 		);
 
 		// Hyphenation strategy
-		int hyphenStrategy = typedArray.getInt(R.styleable.TexasView_hyphenStrategy, HYPHEN_STRATEGY_US);
+		int hyphenStrategy = typedArray.getInt(R.styleable.me_chan_texas_TexasView_me_chan_texas_TexasView_hyphenStrategy, HYPHEN_STRATEGY_US);
 		renderOption.setHyphenStrategy(
 				hyphenStrategy == HYPHEN_STRATEGY_UK ?
 						HyphenStrategy.UK : HyphenStrategy.US
@@ -243,33 +240,33 @@ public final class TexasView extends FrameLayout {
 
 		// Lazy rendering mode optimization
 		renderOption.setEnableLazyRender(
-				typedArray.getBoolean(R.styleable.TexasView_lazyRender, true)
+				typedArray.getBoolean(R.styleable.me_chan_texas_TexasView_me_chan_texas_TexasView_lazyRender, true)
 		);
 
 		// Highlighted span text color
 		renderOption.setSpanHighlightTextColor(
-				typedArray.getColor(R.styleable.TexasView_spanHighlightTextColor,
+				typedArray.getColor(R.styleable.me_chan_texas_TexasView_me_chan_texas_TexasView_spanHighlightTextColor,
 						ContextCompat.getColor(context, R.color.me_chan_texas_theme_color)
 				)
 		);
 
 		// Loading background color
 		renderOption.setLoadingBackgroundColor(
-				typedArray.getColor(R.styleable.TexasView_loadingBackgroundColor,
+				typedArray.getColor(R.styleable.me_chan_texas_TexasView_me_chan_texas_TexasView_loadingBackgroundColor,
 						ContextCompat.getColor(context, R.color.me_chan_texas_loading_bg)
 				)
 		);
 
 		// Drag handle color
 		renderOption.setDragViewColor(
-				typedArray.getColor(R.styleable.TexasView_dragViewColor,
+				typedArray.getColor(R.styleable.me_chan_texas_TexasView_me_chan_texas_TexasView_dragViewColor,
 						ContextCompat.getColor(context, R.color.me_chan_texas_drag_view_color))
 		);
 
 		// Set selected background round radius
 		renderOption.setSelectedBackgroundRoundRadius(
 				typedArray.getDimension(
-						R.styleable.TexasView_selectedBackgroundRoundRadius,
+						R.styleable.me_chan_texas_TexasView_me_chan_texas_TexasView_selectedBackgroundRoundRadius,
 						TypedValue.applyDimension(
 								TypedValue.COMPLEX_UNIT_DIP,
 								3,
@@ -280,7 +277,7 @@ public final class TexasView extends FrameLayout {
 
 		// Whether to enable compatibility mode
 		renderOption.setCompatMode(
-				typedArray.getBoolean(R.styleable.TexasView_compatMode, false)
+				typedArray.getBoolean(R.styleable.me_chan_texas_TexasView_me_chan_texas_TexasView_compatMode, false)
 		);
 
 		// If non-compatibility mode is enabled and system version is less than 6.0, disable hardware acceleration
@@ -291,16 +288,16 @@ public final class TexasView extends FrameLayout {
 
 		// Whether to enable drag to select
 		renderOption.setDragToSelectEnable(
-				typedArray.getBoolean(R.styleable.TexasView_dragToSelectionEnable, true)
+				typedArray.getBoolean(R.styleable.me_chan_texas_TexasView_me_chan_texas_TexasView_dragToSelectionEnable, true)
 		);
 
 		// Text gravity
-		int textGravity = typedArray.getInt(R.styleable.TexasView_gravity, TextGravity.TOP | TextGravity.START);
+		int textGravity = typedArray.getInt(R.styleable.me_chan_texas_TexasView_me_chan_texas_TexasView_textGravity, TextGravity.TOP | TextGravity.START);
 		renderOption.setTextGravity(textGravity);
 
 		// Enable bidirectional text
 		renderOption.setBidiEnable(
-				typedArray.getBoolean(R.styleable.TexasView_bidiEnable, false)
+				typedArray.getBoolean(R.styleable.me_chan_texas_TexasView_me_chan_texas_TexasView_bidiEnable, false)
 		);
 
 		mRenderer = new Renderer(this, renderOption, mToken);

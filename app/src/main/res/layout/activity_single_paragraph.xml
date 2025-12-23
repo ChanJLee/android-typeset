@@ -41,15 +41,15 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="#4CAF50"
-                android:textSize="20dp" />
+                app:me_chan_texas_ParagraphView_textSize="20dp" />
 
             <me.chan.texas.renderer.ui.text.ParagraphView
                 android:id="@+id/paragraph2"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="#4CAF50"
-                android:textSize="20dp"
-                tools:text="hello" />
+                app:me_chan_texas_ParagraphView_textSize="20dp"
+                tools:me_chan_texas_ParagraphView_text="hello" />
 
             <TextView
                 android:layout_width="match_parent"
