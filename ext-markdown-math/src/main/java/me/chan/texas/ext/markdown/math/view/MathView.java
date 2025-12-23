@@ -65,11 +65,20 @@ public class MathView extends View implements AsyncMathViewRenderer {
 	public MathView(Context context, @Nullable AttributeSet attrs) {
 		super(context, attrs);
 
+		// 从主题中获取默认的文本颜色和大小
+		TypedArray themeArray = context.obtainStyledAttributes(new int[] {
+				android.R.attr.textColorPrimary,
+				android.R.attr.textSize
+		});
+		int defaultTextColor = themeArray.getColor(0, Color.BLACK);
+		int defaultTextSize = themeArray.getDimensionPixelSize(1, 48);
+		themeArray.recycle();
+
 		TextPaint textPaint = new TextPaint();
 		textPaint.setTypeface(TexMathParser.getTypeface());
 		textPaint.setStyle(Paint.Style.FILL);
-		textPaint.setColor(Color.BLACK);
-		textPaint.setTextSize(64);
+		textPaint.setColor(defaultTextColor);
+		textPaint.setTextSize(defaultTextSize);
 
 		TexasPaintImpl paint = new TexasPaintImpl();
 		paint.reset(new PaintSet(textPaint));
@@ -80,11 +89,11 @@ public class MathView extends View implements AsyncMathViewRenderer {
 		mMsgHandler.addListener(mListener);
 
 		TypedArray array = context.obtainStyledAttributes(attrs, R.styleable.MathView);
-		if (array.hasValue(R.styleable.MathView_textColor)) {
-			textPaint.setColor(array.getColor(R.styleable.MathView_textColor, Color.BLACK));
+		if (array.hasValue(R.styleable.MathView_android_textColor)) {
+			textPaint.setColor(array.getColor(R.styleable.MathView_android_textColor, defaultTextColor));
 		}
-		if (array.hasValue(R.styleable.MathView_textSize)) {
-			textPaint.setTextSize(array.getDimensionPixelSize(R.styleable.MathView_textSize, 64));
+		if (array.hasValue(R.styleable.MathView_android_textSize)) {
+			textPaint.setTextSize(array.getDimensionPixelSize(R.styleable.MathView_android_textSize, defaultTextSize));
 		}
 		if (array.hasValue(R.styleable.MathView_android_gravity)) {
 			mGravity = array.getInt(R.styleable.MathView_android_gravity, Gravity.START | Gravity.TOP);
