@@ -10,6 +10,7 @@ import android.text.TextPaint;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.GestureDetector;
+import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.OverScroller;
@@ -58,6 +59,7 @@ public class MathView extends View implements AsyncMathViewRenderer {
 	};
 	private final OverScroller mScroller;
 	private final GestureDetector mGestureDetector;
+	private int mGravity = Gravity.START | Gravity.TOP;
 
 
 	public MathView(Context context, @Nullable AttributeSet attrs) {
@@ -83,6 +85,9 @@ public class MathView extends View implements AsyncMathViewRenderer {
 		}
 		if (array.hasValue(R.styleable.MathView_textSize)) {
 			textPaint.setTextSize(array.getDimensionPixelSize(R.styleable.MathView_textSize, 64));
+		}
+		if (array.hasValue(R.styleable.MathView_android_gravity)) {
+			mGravity = array.getInt(R.styleable.MathView_android_gravity, Gravity.START | Gravity.TOP);
 		}
 
 		if (array.hasValue(R.styleable.MathView_formula)) {
@@ -166,8 +171,55 @@ public class MathView extends View implements AsyncMathViewRenderer {
 		// 保存画布状态
 		int saveCount = canvas.save();
 
-		// 根据当前的滚动值平移画布，实现内容移动效果
-		canvas.translate(-getScrollX(), -getScrollY());
+		// 计算 gravity 偏移
+		int gravityOffsetX = 0;
+		int gravityOffsetY = 0;
+
+		int contentWidth = getContentWidth();
+		int contentHeight = getContentHeight();
+		int viewWidth = getWidth() - getPaddingLeft() - getPaddingRight();
+		int viewHeight = getHeight() - getPaddingTop() - getPaddingBottom();
+
+		// 只有当内容小于视图时才应用 gravity
+		if (contentWidth < viewWidth) {
+			int horizontalGravity = mGravity & Gravity.HORIZONTAL_GRAVITY_MASK;
+			switch (horizontalGravity) {
+				case Gravity.CENTER_HORIZONTAL:
+					gravityOffsetX = (viewWidth - contentWidth) / 2;
+					break;
+				case Gravity.RIGHT:
+				case Gravity.END:
+					gravityOffsetX = viewWidth - contentWidth;
+					break;
+				case Gravity.LEFT:
+				case Gravity.START:
+				default:
+					gravityOffsetX = 0;
+					break;
+			}
+		}
+
+		if (contentHeight < viewHeight) {
+			int verticalGravity = mGravity & Gravity.VERTICAL_GRAVITY_MASK;
+			switch (verticalGravity) {
+				case Gravity.CENTER_VERTICAL:
+					gravityOffsetY = (viewHeight - contentHeight) / 2;
+					break;
+				case Gravity.BOTTOM:
+					gravityOffsetY = viewHeight - contentHeight;
+					break;
+				case Gravity.TOP:
+				default:
+					gravityOffsetY = 0;
+					break;
+			}
+		}
+
+		// 应用 padding、gravity 和滚动偏移
+		canvas.translate(
+				getPaddingLeft() + gravityOffsetX - getScrollX(),
+				getPaddingTop() + gravityOffsetY - getScrollY()
+		);
 
 		boolean ret = mGraphicsBuffer.draw(canvas);
 		if (GraphicsBuffer.DEBUG && !ret) {
@@ -334,6 +386,25 @@ public class MathView extends View implements AsyncMathViewRenderer {
 
 	public void cancel() {
 		mBackgroundWorker.cancel(mToken);
+	}
+
+	/**
+	 * 设置内容的对齐方式
+	 * @param gravity 对齐方式，使用 Gravity 常量，如 Gravity.CENTER、Gravity.START | Gravity.TOP 等
+	 */
+	public void setGravity(int gravity) {
+		if (mGravity != gravity) {
+			mGravity = gravity;
+			invalidate();
+		}
+	}
+
+	/**
+	 * 获取当前的对齐方式
+	 * @return 对齐方式
+	 */
+	public int getGravity() {
+		return mGravity;
 	}
 
 	@Nullable

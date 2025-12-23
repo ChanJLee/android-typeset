@@ -1,14 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<me.chan.texas.ext.markdown.math.view.MathView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/math"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
-
-    <me.chan.texas.ext.markdown.math.view.MathView xmlns:android="http://schemas.android.com/apk/res/android"
-        android:id="@+id/math"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:background="#3361AF4C"
-        tools:formula="a+b" />
-</FrameLayout>
+    android:layout_height="wrap_content"
+    android:layout_gravity="center_horizontal"
+    android:background="#3361AF4C"
+    android:gravity="center"
+    tools:formula="a+b" />

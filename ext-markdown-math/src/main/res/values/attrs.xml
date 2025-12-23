@@ -4,5 +4,6 @@
         <attr name="formula" format="string" />
         <attr name="textColor" format="color" />
         <attr name="textSize" format="dimension" />
+        <attr name="android:gravity" />
     </declare-styleable>
 </resources>
