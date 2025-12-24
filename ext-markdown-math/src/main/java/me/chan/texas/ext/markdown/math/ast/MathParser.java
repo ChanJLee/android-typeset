@@ -86,11 +86,13 @@ public class MathParser {
 			{"(", ")"},
 			{"[", "]"},
 			{"{", "}"},
-			{"langle", "rangle"},
-			{"lfloor", "rfloor"},
-			{"lceil", "rceil"},
-			{"lvert", "rvert"},
-			{"lVert", "rVert"},
+			{"|", "|"},
+			{"\\|", "\\|"},
+			{"\\langle", "\\rangle"},
+			{"\\lfloor", "\\rfloor"},
+			{"\\lceil", "\\rceil"},
+			{"\\lvert", "\\rvert"},
+			{"\\lVert", "\\rVert"},
 			{"\\{", "\\}"}
 	};
 
@@ -800,6 +802,10 @@ public class MathParser {
 	}
 
 	private void checkDelimiterPairs(String left, String right) throws MathParseException {
+		if (".".equals(left) || ".".equals(right)) {
+			return;
+		}
+
 		for (String[] pair : DELIMITER_PAIRS) {
 			if (pair[0].equals(left) && pair[1].equals(right)) {
 				return;

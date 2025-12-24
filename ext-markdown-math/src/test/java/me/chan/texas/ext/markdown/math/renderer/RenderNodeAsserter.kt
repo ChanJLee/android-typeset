@@ -153,7 +153,10 @@ class LinearGroupAsserter(private val node: LinearGroupNode) : RenderNodeAsserte
 
 @UnitTestDslMarker
 class PhantomAsserter(private val node: PhantomNode) : RenderNodeAsserter(node) {
-
+    fun content(block: DispatchAsserter.() -> Unit) {
+        val asserter = DispatchAsserter(node.content)
+        block(asserter)
+    }
 }
 
 @UnitTestDslMarker
@@ -171,6 +174,10 @@ class SymbolAsserter(private val node: SymbolNode) : RenderNodeAsserter(node) {
     fun content(s: Symbol?) {
         Assert.assertNotNull(s)
         Assert.assertEquals(s, node.symbol)
+    }
+
+    fun content(s: String) {
+        Assert.assertEquals(s, node.symbol.unicode)
     }
 }
 

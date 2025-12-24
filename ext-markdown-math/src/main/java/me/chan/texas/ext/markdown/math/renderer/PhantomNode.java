@@ -30,6 +30,10 @@ public class PhantomNode extends RendererNode implements HorizontalCalibratedNod
 		mUseHeight = useHeight;
 	}
 
+	public RendererNode getContent() {
+		return mContent;
+	}
+
 	@Override
 	protected void onMeasure(MathPaint paint, int widthSpec, int heightSpec) {
 		// 测量内容节点以获取其尺寸

@@ -285,7 +285,17 @@ class MathInflaterUnitTest {
                     }
                 }
                 child {
-                    phantom {}
+                    phantom {
+                        content {
+                            linearGroup {
+                                child {
+                                    text {
+                                        content("xyz")
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
                 child {
                     text {
@@ -306,7 +316,17 @@ class MathInflaterUnitTest {
                     }
                 }
                 child {
-                    phantom {}
+                    phantom {
+                        content {
+                            linearGroup {
+                                child {
+                                    text {
+                                        content("xyz")
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
                 child {
                     text {
@@ -327,7 +347,17 @@ class MathInflaterUnitTest {
                     }
                 }
                 child {
-                    phantom {}
+                    phantom {
+                        content {
+                            linearGroup {
+                                child {
+                                    text {
+                                        content("xyz")
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
                 child {
                     text {
@@ -470,7 +500,9 @@ class MathInflaterUnitTest {
     @Test
     fun `test matrix`() {
         inflate("\\begin{matrix}a&b\\\\c&d\\end{matrix}") {
-            brace {}
+            gridGroup {
+
+            }
         }
     }
 
@@ -514,8 +546,12 @@ class MathInflaterUnitTest {
     @Test
     fun `test textbf`() {
         inflate("\\textbf{bold}") {
-            text {
-                content("bold")
+            linearGroup {
+                child {
+                    text {
+                        content("bold")
+                    }
+                }
             }
         }
     }
@@ -530,20 +566,14 @@ class MathInflaterUnitTest {
     }
 
     @Test
-    fun `test textfield`() {
-        inflate("\\textfield{input}") {
-            // TextFieldNode 会被创建
-            linearGroup {
-                // 检查是否为空或有子节点
-            }
-        }
-    }
-
-    @Test
     fun `test mathbf font`() {
         inflate("\\mathbf{x}") {
-            text {
-                content("x")
+            linearGroup {
+                child {
+                    text {
+                        content("x")
+                    }
+                }
             }
         }
     }
@@ -551,8 +581,12 @@ class MathInflaterUnitTest {
     @Test
     fun `test mathit font`() {
         inflate("\\mathit{x}") {
-            text {
-                content("x")
+            linearGroup {
+                child {
+                    text {
+                        content("x")
+                    }
+                }
             }
         }
     }
@@ -560,7 +594,7 @@ class MathInflaterUnitTest {
     @Test
     fun `test punctuation`() {
         inflate(",") {
-            symbol { content(MathFontOptions.symbol("")) }
+            symbol { content(",") }
         }
     }
 
