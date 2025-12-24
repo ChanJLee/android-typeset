@@ -140,9 +140,25 @@ class FractionAsserter(private val node: FractionNode) : RenderNodeAsserter(node
 }
 
 @UnitTestDslMarker
-class GridGroupAsserter(node: GridGroupNode) : RenderNodeAsserter(node) {
+class RowAsserter(private val node: LinearGroupNode) : RenderNodeAsserter(node) {
+    fun content(block: LinearGroupAsserter.() -> Unit) {
+        val asserter = LinearGroupAsserter(node)
+        block(asserter)
+        asserter.eof()
+    }
+}
+
+@UnitTestDslMarker
+class GridGroupAsserter(private val node: GridGroupNode) : RenderNodeAsserter(node) {
+    private var _index = 0
+
+    fun row(block: RowAsserter.() -> Unit) {
+        val asserter = RowAsserter(node.getRow(_index++))
+        block(asserter)
+    }
+
     fun eof() {
-        TODO("Not yet implemented")
+        Assert.assertEquals(node.rowCount, _index)
     }
 }
 

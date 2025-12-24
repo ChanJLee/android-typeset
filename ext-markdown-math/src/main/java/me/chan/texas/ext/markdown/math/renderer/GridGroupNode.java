@@ -25,6 +25,10 @@ public class GridGroupNode extends RendererNode {
 		}
 	}
 
+	public int getRowCount() {
+		return mNodes.size();
+	}
+
 	@Override
 	protected void onMeasure(MathPaint paint, int widthSpec, int heightSpec) {
 		float height = 0;
@@ -103,5 +107,9 @@ public class GridGroupNode extends RendererNode {
 	@Override
 	protected String toPretty() {
 		return "Grid[]";
+	}
+
+	public LinearGroupNode getRow(int index) {
+		return mNodes.get(index);
 	}
 }
