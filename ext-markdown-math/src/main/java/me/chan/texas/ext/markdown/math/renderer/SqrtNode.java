@@ -23,6 +23,15 @@ public class SqrtNode extends RendererNode implements OptimizableRendererNode, H
 		mSymbol = new SqrtSymbolNode(styles);
 	}
 
+	public RendererNode getContent() {
+		return mContent;
+	}
+
+	@Nullable
+	public RendererNode getRoot() {
+		return mRoot;
+	}
+
 	@Override
 	protected void onMeasure(MathPaint paint, int widthSpec, int heightSpec) {
 		mContent.measure(paint);

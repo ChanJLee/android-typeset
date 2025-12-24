@@ -409,28 +409,53 @@ class MathInflaterUnitTest {
     @Test
     fun `test fraction`() {
         inflate("\\frac{a}{b}") {
-            fraction {}
+            fraction {
+                numerator { text { content("a") } }
+                denominator { text { content("b") } }
+            }
         }
     }
 
     @Test
     fun `test sqrt without root`() {
         inflate("\\sqrt{x}") {
-            sqrt {}
+            sqrt {
+                noRoot()
+                content {
+                    text {
+                        content("x")
+                    }
+                }
+            }
         }
     }
 
     @Test
     fun `test sqrt with root`() {
         inflate("\\sqrt[3]{x}") {
-            sqrt {}
+            sqrt {
+                root {
+                    text {
+                        content("3")
+                    }
+                }
+                content {
+                    text {
+                        content("x")
+                    }
+                }
+            }
         }
     }
 
     @Test
     fun `test binom`() {
         inflate("\\binom{n}{k}") {
-            brace {}
+            brace {
+                left { symbol { content("(") } }
+                content { gridGroup {  } }
+                right { symbol { content(")") } }
+            }
         }
     }
 

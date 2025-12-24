@@ -51,8 +51,14 @@ class DecorGroupAsserter(node: DecorGroupNode) : RenderNodeAsserter(node) {
 }
 
 @UnitTestDslMarker
-class FractionAsserter(node: FractionNode) : RenderNodeAsserter(node) {
+class FractionAsserter(private val node: FractionNode) : RenderNodeAsserter(node) {
+    fun numerator(block: DispatchAsserter.() -> Unit) {
+        DispatchAsserter(node.numerator).block()
+    }
 
+    fun denominator(block: DispatchAsserter.() -> Unit) {
+        DispatchAsserter(node.denominator).block()
+    }
 }
 
 @UnitTestDslMarker
@@ -166,7 +172,17 @@ class SpaceAsserter(private val node: SpaceNode) : RenderNodeAsserter(node) {
 
 @UnitTestDslMarker
 class SqrtAsserter(private val node: SqrtNode) : RenderNodeAsserter(node) {
+    fun noRoot() {
+        Assert.assertNull(node.root)
+    }
 
+    fun root(block: DispatchAsserter.() -> Unit) {
+        DispatchAsserter(node.root!!).block()
+    }
+
+    fun content(block: DispatchAsserter.() -> Unit) {
+        DispatchAsserter(node.content).block()
+    }
 }
 
 @UnitTestDslMarker
