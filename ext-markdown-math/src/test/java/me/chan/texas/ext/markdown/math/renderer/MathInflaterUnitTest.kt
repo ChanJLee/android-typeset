@@ -560,9 +560,7 @@ class MathInflaterUnitTest {
     @Test
     fun `test punctuation`() {
         inflate(",") {
-            text {
-                content(",")
-            }
+            symbol { content(MathFontOptions.symbol("")) }
         }
     }
 
@@ -631,18 +629,22 @@ class MathInflaterUnitTest {
                     }
                 }
                 child {
-                    text {
-                        content("x")
-                    }
-                }
-                child {
-                    symbol {
-                        content(MathFontOptions.symbol("plus"))
-                    }
-                }
-                child {
-                    text {
-                        content("y")
+                    linearGroup {
+                        child {
+                            text {
+                                content("x")
+                            }
+                        }
+                        child {
+                            symbol {
+                                content(MathFontOptions.symbol("plus"))
+                            }
+                        }
+                        child {
+                            text {
+                                content("y")
+                            }
+                        }
                     }
                 }
                 child {
@@ -664,18 +666,22 @@ class MathInflaterUnitTest {
                     }
                 }
                 child {
-                    text {
-                        content("x")
-                    }
-                }
-                child {
-                    symbol {
-                        content(MathFontOptions.symbol("plus"))
-                    }
-                }
-                child {
-                    text {
-                        content("y")
+                    linearGroup {
+                        child {
+                            text {
+                                content("x")
+                            }
+                        }
+                        child {
+                            symbol {
+                                content(MathFontOptions.symbol("plus"))
+                            }
+                        }
+                        child {
+                            text {
+                                content("y")
+                            }
+                        }
                     }
                 }
                 child {
