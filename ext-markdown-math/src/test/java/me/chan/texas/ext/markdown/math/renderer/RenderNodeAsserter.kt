@@ -141,6 +141,10 @@ class StretchyAsserter(private val node: StretchyNode) : RenderNodeAsserter(node
         Assert.assertNotNull(s)
         Assert.assertEquals(s, node.symbol.symbol)
     }
+
+    fun symbol(s: String) {
+        Assert.assertEquals(s, node.symbol.symbol.unicode)
+    }
 }
 
 @UnitTestDslMarker

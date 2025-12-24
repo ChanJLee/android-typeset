@@ -452,9 +452,12 @@ class MathInflaterUnitTest {
     fun `test binom`() {
         inflate("\\binom{n}{k}") {
             brace {
-                left { symbol { content("(") } }
-                content { gridGroup {  } }
-                right { symbol { content(")") } }
+                left { stretchy { symbol("(") } }
+                content { linearGroup {
+                    child { text { content("n") } }
+                    child { text { content("k") } }
+                } }
+                right { stretchy { symbol(")") } }
             }
         }
     }
