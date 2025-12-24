@@ -453,10 +453,12 @@ class MathInflaterUnitTest {
         inflate("\\binom{n}{k}") {
             brace {
                 left { stretchy { symbol("(") } }
-                content { linearGroup {
-                    child { text { content("n") } }
-                    child { text { content("k") } }
-                } }
+                content {
+                    linearGroup {
+                        child { text { content("n") } }
+                        child { text { content("k") } }
+                    }
+                }
                 right { stretchy { symbol(")") } }
             }
         }
@@ -465,14 +467,29 @@ class MathInflaterUnitTest {
     @Test
     fun `test extensible arrow`() {
         inflate("\\xrightarrow{above}") {
-            decorGroup {}
+            decorGroup {
+                center {
+                    symbol {
+                        content("→")
+                    }
+                }
+                top { text { content("above") } }
+            }
         }
     }
 
     @Test
     fun `test extensible arrow with below`() {
         inflate("\\xrightarrow[below]{above}") {
-            decorGroup {}
+            decorGroup {
+                center {
+                    symbol {
+                        content("→")
+                    }
+                }
+                top { text { content("above") } }
+                bottom { text { content("below") } }
+            }
         }
     }
 

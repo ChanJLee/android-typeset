@@ -2,6 +2,7 @@ package me.chan.texas.ext.markdown.math.renderer
 
 import me.chan.texas.ext.markdown.math.UnitTestDslMarker
 import me.chan.texas.ext.markdown.math.renderer.fonts.Symbol
+import me.chan.texas.misc.BitBucket32
 import org.junit.Assert
 
 open class RenderNodeAsserter(private val node: RendererNode) {
@@ -46,8 +47,85 @@ class BraceAsserter(private val node: BraceGroupNode) : RenderNodeAsserter(node)
 }
 
 @UnitTestDslMarker
-class DecorGroupAsserter(node: DecorGroupNode) : RenderNodeAsserter(node) {
+class DecorGroupAsserter(private val node: DecorGroupNode) : RenderNodeAsserter(node) {
+    private var _bit = BitBucket32()
 
+    fun center(block: DispatchAsserter.() -> Unit) {
+        DispatchAsserter(node.center).block()
+        _bit[0] = true
+    }
+
+    fun left(block: DispatchAsserter.() -> Unit) {
+        DispatchAsserter(node.leftNode).block()
+        _bit[1] = true
+    }
+
+    fun leftTop(block: DispatchAsserter.() -> Unit) {
+        DispatchAsserter(node.leftTop).block()
+        _bit[2] = true
+    }
+
+    fun leftBottom(block: DispatchAsserter.() -> Unit) {
+        DispatchAsserter(node.leftBottom).block()
+        _bit[3] = true
+    }
+
+    fun right(block: DispatchAsserter.() -> Unit) {
+        DispatchAsserter(node.rightNode).block()
+        _bit[4] = true
+    }
+
+    fun rightTop(block: DispatchAsserter.() -> Unit) {
+        DispatchAsserter(node.rightTop).block()
+        _bit[5] = true
+    }
+
+    fun rightBottom(block: DispatchAsserter.() -> Unit) {
+        DispatchAsserter(node.rightBottom).block()
+        _bit[6] = true
+    }
+
+    fun top(block: DispatchAsserter.() -> Unit) {
+        DispatchAsserter(node.getTopNode()).block()
+        _bit[7] = true
+    }
+
+    fun bottom(block: DispatchAsserter.() -> Unit) {
+        DispatchAsserter(node.getBottomNode()).block()
+        _bit[8] = true
+    }
+
+    fun eof() {
+        val cmp = BitBucket32()
+        if (node.center != null) {
+            cmp[0] = true
+        }
+        if (node.leftNode != null) {
+            cmp[1] = true
+        }
+        if (node.leftTop != null) {
+            cmp[2] = true
+        }
+        if (node.leftBottom != null) {
+            cmp[3] = true
+        }
+        if (node.rightNode != null) {
+            cmp[4] = true
+        }
+        if (node.rightTop != null) {
+            cmp[5] = true
+        }
+        if (node.rightBottom != null) {
+            cmp[6] = true
+        }
+        if (node.getTopNode() != null) {
+            cmp[7] = true
+        }
+        if (node.bottomNode != null) {
+            cmp[8] = true
+        }
+        Assert.assertEquals(cmp, _bit)
+    }
 }
 
 @UnitTestDslMarker
@@ -95,6 +173,7 @@ class DispatchAsserter(private val node: RendererNode) {
     fun decorGroup(block: DecorGroupAsserter.() -> Unit) {
         val asserter = DecorGroupAsserter(node as DecorGroupNode)
         block(asserter)
+        asserter.eof()
     }
 
     fun fraction(block: FractionAsserter.() -> Unit) {
