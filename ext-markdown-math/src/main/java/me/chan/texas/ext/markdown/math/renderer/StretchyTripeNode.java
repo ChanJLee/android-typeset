@@ -20,6 +20,22 @@ public class StretchyTripeNode extends RendererNode {
 		mExtension = new SymbolNode(styles, extension);
 	}
 
+	public SymbolNode getTopNode() {
+		return mTop;
+	}
+
+	public SymbolNode getMiddleNode() {
+		return mMiddle;
+	}
+
+	public SymbolNode getBottomNode() {
+		return mBottom;
+	}
+
+	public SymbolNode getExtensionNode() {
+		return mExtension;
+	}
+
 	@Override
 	protected void onMeasure(MathPaint paint, int widthSpec, int heightSpec) {
 		mTop.measure(paint);

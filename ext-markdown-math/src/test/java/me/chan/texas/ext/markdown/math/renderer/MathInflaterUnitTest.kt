@@ -546,7 +546,24 @@ class MathInflaterUnitTest {
     fun `test matrix`() {
         inflate("\\begin{matrix}a&b\\\\c&d\\end{matrix}") {
             gridGroup {
-
+                row {
+                    content {
+                        child {
+                            text { content("a") }
+                        }
+                        child { space { } }
+                        child { text { content("b") } }
+                    }
+                }
+                row {
+                    content {
+                        child {
+                            text { content("c") }
+                        }
+                        child { space { } }
+                        child { text { content("d") } }
+                    }
+                }
             }
         }
     }
@@ -554,21 +571,92 @@ class MathInflaterUnitTest {
     @Test
     fun `test pmatrix`() {
         inflate("\\begin{pmatrix}a&b\\\\c&d\\end{pmatrix}") {
-            brace {}
+            brace {
+                left { stretchy { symbol("(") } }
+                content {
+                    gridGroup {
+                        row {
+                            content {
+                                child {
+                                    text { content("a") }
+                                }
+                                child { space { } }
+                                child { text { content("b") } }
+                            }
+                        }
+                        row {
+                            content {
+                                child {
+                                    text { content("c") }
+                                }
+                                child { space { } }
+                                child { text { content("d") } }
+                            }
+                        }
+                    }
+                }
+                right { stretchy { symbol(")") } }
+            }
         }
     }
 
     @Test
     fun `test bmatrix`() {
         inflate("\\begin{bmatrix}a&b\\\\c&d\\end{bmatrix}") {
-            brace {}
+            brace {
+                left { stretchy3 { symbol("⎡", "⎢", "⎣", "⎢") } }
+                content {
+                    gridGroup {
+                        row {
+                            content {
+                                child {
+                                    text { content("a") }
+                                }
+                                child { space { } }
+                                child { text { content("b") } }
+                            }
+                        }
+                        row {
+                            content {
+                                child {
+                                    text { content("c") }
+                                }
+                                child { space { } }
+                                child { text { content("d") } }
+                            }
+                        }
+                    }
+                }
+                right { stretchy3 { symbol("⎤", "⎥", "⎦", "⎥") } }
+            }
         }
     }
 
     @Test
     fun `test vmatrix`() {
         inflate("\\begin{vmatrix}a&b\\\\c&d\\end{vmatrix}") {
-            brace {}
+            brace {
+                left { stretchy3 { symbol("⎡", "⎢", "⎣", "⎢") } }
+                content {
+                    gridGroup {
+                        row {
+                            content {
+                                child { text { content("a") } }
+                                child { space { } }
+                                child { text { content("b") } }
+                            }
+                        }
+                        row {
+                            content {
+                                child { text { content("c") } }
+                                child { space { } }
+                                child { text { content("d") } }
+                            }
+                        }
+                    }
+                }
+                right { stretchy3 { symbol("⎤", "⎥", "⎦", "⎥") } }
+            }
         }
     }
 
