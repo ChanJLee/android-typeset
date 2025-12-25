@@ -44,6 +44,14 @@ class BraceAsserter(private val node: BraceGroupNode) : RenderNodeAsserter(node)
     fun right(block: DispatchAsserter.() -> Unit) {
         DispatchAsserter(node.rightSymbol).block()
     }
+
+    fun noRight() {
+        Assert.assertNull(node.rightSymbol)
+    }
+
+    fun noLeft() {
+        Assert.assertNull(node.leftSymbol)
+    }
 }
 
 @UnitTestDslMarker

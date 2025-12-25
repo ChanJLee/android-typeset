@@ -636,7 +636,7 @@ class MathInflaterUnitTest {
     fun `test vmatrix`() {
         inflate("\\begin{vmatrix}a&b\\\\c&d\\end{vmatrix}") {
             brace {
-                left { stretchy3 { symbol("⎡", "⎢", "⎣", "⎢") } }
+                left { stretchy { symbol("∣") } }
                 content {
                     gridGroup {
                         row {
@@ -655,7 +655,7 @@ class MathInflaterUnitTest {
                         }
                     }
                 }
-                right { stretchy3 { symbol("⎤", "⎥", "⎦", "⎥") } }
+                right { stretchy { symbol("∣") } }
             }
         }
     }
@@ -663,7 +663,45 @@ class MathInflaterUnitTest {
     @Test
     fun `test cases`() {
         inflate("\\begin{cases}x&x>0\\\\-x&x<0\\end{cases}") {
-            brace {}
+            brace {
+                left { stretchy3 { symbol("⎧", "⎨", "⎩", "⎪") } }
+                content {
+                    gridGroup {
+                        row {
+                            content {
+                                child { text { content("x") } }
+                                child { space { } }
+                                child {
+                                    linearGroup {
+                                        child { text { content("x") } }
+                                        child { symbol { content(">") } }
+                                        child { text { content("0") } }
+                                    }
+                                }
+                            }
+                        }
+                        row {
+                            content {
+                                child {
+                                    linearGroup {
+                                        child { symbol { content("−") } }
+                                        child { text { content("x") } }
+                                    }
+                                }
+                                child { space { } }
+                                child {
+                                    linearGroup {
+                                        child { text { content("x") } }
+                                        child { symbol { content("<") } }
+                                        child { text { content("0") } }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                noRight()
+            }
         }
     }
 
@@ -736,28 +774,66 @@ class MathInflaterUnitTest {
     @Test
     fun `test superscript`() {
         inflate("x^2") {
-            decorGroup {}
+            decorGroup {
+                center { text { content("x") } }
+                rightTop { text { content("2") } }
+            }
         }
     }
 
     @Test
     fun `test subscript`() {
         inflate("x_1") {
-            decorGroup {}
+            decorGroup {
+                center { text { content("x") } }
+                rightBottom { text { content("1") } }
+            }
         }
     }
 
     @Test
     fun `test superscript and subscript`() {
         inflate("x^2_1") {
-            decorGroup {}
+            decorGroup {
+                center { text { content("x") } }
+                rightTop { text { content("2") } }
+                rightBottom { text { content("1") } }
+            }
         }
     }
 
     @Test
     fun `test large operator with limits`() {
         inflate("\\sum_{i=1}^{n}") {
-            decorGroup {}
+            decorGroup {
+                bottom {
+                    linearGroup {
+                        child {
+                            text {
+                                content("i")
+                            }
+                        }
+                        child {
+                            symbol {
+                                content("=")
+                            }
+                        }
+                        child {
+                            text {
+                                content("1")
+                            }
+                        }
+                    }
+                }
+                top {
+                    text {
+                        content("n")
+                    }
+                }
+                center {
+                    symbol { content("∑") }
+                }
+            }
         }
     }
 
@@ -865,7 +941,11 @@ class MathInflaterUnitTest {
     @Test
     fun `test left right with square brackets`() {
         inflate("\\left[x\\right]") {
-            brace {}
+            brace {
+                left { stretchy3 { symbol("⎡", "⎢", "⎣", "⎢") } }
+                content { text { content("x") } }
+                right { stretchy3 { symbol("⎤", "⎥", "⎦", "⎥") } }
+            }
         }
     }
 
@@ -921,7 +1001,13 @@ class MathInflaterUnitTest {
     @Test
     fun `test left right with dot`() {
         inflate("\\left.x\\right)") {
-            brace {}
+            brace {
+                noLeft()
+                content {
+                    text { content("x") }
+                }
+                right { stretchy { symbol(")") } }
+            }
         }
     }
 
