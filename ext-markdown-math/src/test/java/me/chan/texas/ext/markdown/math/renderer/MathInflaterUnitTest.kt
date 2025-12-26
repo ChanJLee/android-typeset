@@ -952,7 +952,11 @@ class MathInflaterUnitTest {
     @Test
     fun `test left right with curly braces`() {
         inflate("\\left\\{x\\right\\}") {
-            brace {}
+            brace {
+                left { stretchy3 { symbol("⎧", "⎨", "⎩", "⎪") } }
+                content { text { content("x") } }
+                right { stretchy3 { symbol("⎫", "⎬", "⎭", "⎪") } }
+            }
         }
     }
 
