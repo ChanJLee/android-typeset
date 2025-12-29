@@ -524,7 +524,14 @@ public class MathRendererInflater {
 			);
 		}
 
-		if ("\\|".equals(delimiter) || "|".equals(delimiter) || "||".equals(delimiter)) {
+		if ("|".equals(delimiter)) {
+			return new StretchyNode(
+					styles,
+					MathFontOptions.symbol("divides")
+			);
+		}
+
+		if ("\\|".equals(delimiter) || "||".equals(delimiter)) {
 			return new StretchyNode(
 					styles,
 					MathFontOptions.symbol("parallel")

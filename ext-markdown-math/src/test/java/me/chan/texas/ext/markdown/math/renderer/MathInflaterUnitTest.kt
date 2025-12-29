@@ -961,9 +961,35 @@ class MathInflaterUnitTest {
     }
 
     @Test
-    fun `test left right with pipes`() {
+    fun `test left right with single pipes`() {
         inflate("\\left|x\\right|") {
-            brace {}
+            brace {
+                left { stretchy { symbol("∣") } }
+                content { text { content("x") } }
+                right { stretchy { symbol("∣") } }
+            }
+        }
+    }
+
+    @Test
+    fun `test left right with pipes 1`() {
+        inflate("\\left\\|x\\right\\|") {
+            brace {
+                left { stretchy { symbol("∥") } }
+                content { text { content("x") } }
+                right { stretchy { symbol("∥") } }
+            }
+        }
+    }
+
+    @Test
+    fun `test left right with pipes 2`() {
+        inflate("\\left||x\\right||") {
+            brace {
+                left { stretchy { symbol("∥") } }
+                content { text { content("x") } }
+                right { stretchy { symbol("∥") } }
+            }
         }
     }
 
