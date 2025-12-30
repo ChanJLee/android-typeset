@@ -87,6 +87,7 @@ public class MathParser {
 			{"[", "]"},
 			{"{", "}"},
 			{"|", "|"},
+			{"||", "||"},
 			{"\\|", "\\|"},
 			{"\\langle", "\\rangle"},
 			{"\\lfloor", "\\rfloor"},
