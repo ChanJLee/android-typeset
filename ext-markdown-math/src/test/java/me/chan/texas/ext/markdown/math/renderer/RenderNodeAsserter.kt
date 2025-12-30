@@ -236,6 +236,11 @@ class DispatchAsserter(private val node: RendererNode) {
         block(asserter)
     }
 
+    fun stretchy2(block: StretchyAsserter2.() -> Unit) {
+        val asserter = StretchyAsserter2(node as StretchyDoubleNode)
+        block(asserter)
+    }
+
     fun stretchy3(block: StretchyAsserter3.() -> Unit) {
         val asserter = StretchyAsserter3(node as StretchyTripeNode)
         block(asserter)
@@ -252,6 +257,13 @@ class StretchyAsserter(private val node: StretchyNode) : RenderNodeAsserter(node
 
     fun symbol(s: String) {
         Assert.assertEquals(s, node.symbol.symbol.unicode)
+    }
+}
+
+class StretchyAsserter2(private val node: StretchyDoubleNode) : RenderNodeAsserter(node) {
+    fun symbol(s: String, e: String) {
+        Assert.assertEquals(s, node.symbol.symbol.unicode)
+        Assert.assertEquals(e, node.extension.symbol.unicode);
     }
 }
 

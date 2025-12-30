@@ -985,35 +985,55 @@ class MathInflaterUnitTest {
     @Test
     fun `test left right with angle brackets`() {
         inflate("\\left\\langle x\\right\\rangle") {
-            brace {}
+            brace {
+                left { stretchy { symbol("〈") } }
+                content { text { content("x") } }
+                right { stretchy { symbol("〉") } }
+            }
         }
     }
 
     @Test
     fun `test left right with floor`() {
         inflate("\\left\\lfloor x\\right\\rfloor") {
-            brace {}
+            brace {
+                left { stretchy2 { symbol("⎣", "⎢") } }
+                content { text { content("x") } }
+                right { stretchy2 { symbol("⎦", "⎥") } }
+            }
         }
     }
 
     @Test
     fun `test left right with ceil`() {
         inflate("\\left\\lceil x\\right\\rceil") {
-            brace {}
+            brace {
+                left { stretchy2 { symbol("⎡", "⎢") } }
+                content { text { content("x") } }
+                right { stretchy2 { symbol("⎤", "⎥") } }
+            }
         }
     }
 
     @Test
     fun `test left right with vert`() {
         inflate("\\left\\lvert x\\right\\rvert") {
-            brace {}
+            brace {
+                left { stretchy { symbol("∣") } }
+                content { text { content("x") } }
+                right { stretchy { symbol("∣") } }
+            }
         }
     }
 
     @Test
     fun `test left right with Vert`() {
         inflate("\\left\\lVert x\\right\\rVert") {
-            brace {}
+            brace {
+                left { stretchy { symbol("∥") } }
+                content { text { content("x") } }
+                right { stretchy { symbol("∥") } }
+            }
         }
     }
 
