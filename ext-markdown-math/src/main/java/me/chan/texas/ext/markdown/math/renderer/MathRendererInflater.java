@@ -409,7 +409,7 @@ public class MathRendererInflater {
 			styles = styles.copy().setBold(true);
 		}
 
-		if (TexasUtils.equals("textit", atom.content)) {
+		if (TexasUtils.equals("textit", atom.command)) {
 			styles = styles.copy().setItalic(true);
 		}
 

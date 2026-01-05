@@ -2,6 +2,8 @@ package me.chan.texas.ext.markdown.math.renderer.core;
 
 import android.graphics.Paint;
 
+import java.util.Objects;
+
 import me.chan.texas.renderer.core.graphics.TexasPaint;
 
 public interface MathPaint {
@@ -132,6 +134,30 @@ public interface MathPaint {
 		public Styles setItalic(boolean italic) {
 			mIsItalic = italic;
 			return this;
+		}
+
+		@Override
+		public boolean equals(Object o) {
+			if (o == null || getClass() != o.getClass()) return false;
+
+			Styles styles = (Styles) o;
+			return Float.compare(mTextSize, styles.mTextSize) == 0 &&
+					Float.compare(mStrokeWidth, styles.mStrokeWidth) == 0 &&
+					mColor == styles.mColor &&
+					mIsBold == styles.mIsBold &&
+					mIsItalic == styles.mIsItalic &&
+					mStyle == styles.mStyle;
+		}
+
+		@Override
+		public int hashCode() {
+			int result = Float.hashCode(mTextSize);
+			result = 31 * result + Objects.hashCode(mStyle);
+			result = 31 * result + Float.hashCode(mStrokeWidth);
+			result = 31 * result + mColor;
+			result = 31 * result + Boolean.hashCode(mIsBold);
+			result = 31 * result + Boolean.hashCode(mIsItalic);
+			return result;
 		}
 
 		public void apply(MathPaint paint) {
