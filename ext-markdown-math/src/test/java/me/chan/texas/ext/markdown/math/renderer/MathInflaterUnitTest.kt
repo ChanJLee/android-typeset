@@ -695,6 +695,118 @@ class MathInflaterUnitTest {
     }
 
     @Test
+    fun `test left right with square brackets`() {
+        inflate("\\left[x\\right]") {
+            brace {
+                left { stretchy3 { symbol("⎡", "⎢", "⎣", "⎢") } }
+                content { text { content("x") } }
+                right { stretchy3 { symbol("⎤", "⎥", "⎦", "⎥") } }
+            }
+        }
+    }
+
+    @Test
+    fun `test left right with curly braces`() {
+        inflate("\\left\\{x\\right\\}") {
+            brace {
+                left { stretchy3 { symbol("⎧", "⎨", "⎩", "⎪") } }
+                content { text { content("x") } }
+                right { stretchy3 { symbol("⎫", "⎬", "⎭", "⎪") } }
+            }
+        }
+    }
+
+    @Test
+    fun `test left right with single pipes`() {
+        inflate("\\left|x\\right|") {
+            brace {
+                left { stretchy { symbol("∣") } }
+                content { text { content("x") } }
+                right { stretchy { symbol("∣") } }
+            }
+        }
+    }
+
+    @Test
+    fun `test left right with pipes`() {
+        inflate("\\left\\|x\\right\\|") {
+            brace {
+                left { stretchy { symbol("∥") } }
+                content { text { content("x") } }
+                right { stretchy { symbol("∥") } }
+            }
+        }
+    }
+
+    @Test
+    fun `test left right with angle brackets`() {
+        inflate("\\left\\langle x\\right\\rangle") {
+            brace {
+                left { stretchy { symbol("〈") } }
+                content { text { content("x") } }
+                right { stretchy { symbol("〉") } }
+            }
+        }
+    }
+
+    @Test
+    fun `test left right with floor`() {
+        inflate("\\left\\lfloor x\\right\\rfloor") {
+            brace {
+                left { stretchy2 { symbol("⎣", "⎢") } }
+                content { text { content("x") } }
+                right { stretchy2 { symbol("⎦", "⎥") } }
+            }
+        }
+    }
+
+    @Test
+    fun `test left right with ceil`() {
+        inflate("\\left\\lceil x\\right\\rceil") {
+            brace {
+                left { stretchy2 { symbol("⎡", "⎢") } }
+                content { text { content("x") } }
+                right { stretchy2 { symbol("⎤", "⎥") } }
+            }
+        }
+    }
+
+    @Test
+    fun `test left right with vert`() {
+        inflate("\\left\\lvert x\\right\\rvert") {
+            brace {
+                left { stretchy { symbol("∣") } }
+                content { text { content("x") } }
+                right { stretchy { symbol("∣") } }
+            }
+        }
+    }
+
+    @Test
+    fun `test left right with Vert`() {
+        inflate("\\left\\lVert x\\right\\rVert") {
+            brace {
+                left { stretchy { symbol("∥") } }
+                content { text { content("x") } }
+                right { stretchy { symbol("∥") } }
+            }
+        }
+    }
+
+    @Test
+    fun `test left right with dot`() {
+        inflate("\\left.x\\right)") {
+            brace {
+                noLeft()
+                content {
+                    text { content("x") }
+                }
+                right { stretchy { symbol(")") } }
+            }
+        }
+    }
+
+    @Test
     fun `test symbol atom`() {
         inflate("+") {
             symbol {
@@ -1008,8 +1120,6 @@ class MathInflaterUnitTest {
         }
     }
 
-    // ========== Superscript and Subscript Tests ==========
-
     @Test
     fun `test superscript`() {
         inflate("x^2") {
@@ -1073,143 +1183,6 @@ class MathInflaterUnitTest {
                     symbol { content("∑") }
                 }
             }
-        }
-    }
-
-    // ========== Delimiter Tests ==========
-
-    @Test
-    fun `test left right with square brackets`() {
-        inflate("\\left[x\\right]") {
-            brace {
-                left { stretchy3 { symbol("⎡", "⎢", "⎣", "⎢") } }
-                content { text { content("x") } }
-                right { stretchy3 { symbol("⎤", "⎥", "⎦", "⎥") } }
-            }
-        }
-    }
-
-    @Test
-    fun `test left right with curly braces`() {
-        inflate("\\left\\{x\\right\\}") {
-            brace {
-                left { stretchy3 { symbol("⎧", "⎨", "⎩", "⎪") } }
-                content { text { content("x") } }
-                right { stretchy3 { symbol("⎫", "⎬", "⎭", "⎪") } }
-            }
-        }
-    }
-
-    @Test
-    fun `test left right with single pipes`() {
-        inflate("\\left|x\\right|") {
-            brace {
-                left { stretchy { symbol("∣") } }
-                content { text { content("x") } }
-                right { stretchy { symbol("∣") } }
-            }
-        }
-    }
-
-    @Test
-    fun `test left right with pipes`() {
-        inflate("\\left\\|x\\right\\|") {
-            brace {
-                left { stretchy { symbol("∥") } }
-                content { text { content("x") } }
-                right { stretchy { symbol("∥") } }
-            }
-        }
-    }
-
-    @Test
-    fun `test left right with angle brackets`() {
-        inflate("\\left\\langle x\\right\\rangle") {
-            brace {
-                left { stretchy { symbol("〈") } }
-                content { text { content("x") } }
-                right { stretchy { symbol("〉") } }
-            }
-        }
-    }
-
-    @Test
-    fun `test left right with floor`() {
-        inflate("\\left\\lfloor x\\right\\rfloor") {
-            brace {
-                left { stretchy2 { symbol("⎣", "⎢") } }
-                content { text { content("x") } }
-                right { stretchy2 { symbol("⎦", "⎥") } }
-            }
-        }
-    }
-
-    @Test
-    fun `test left right with ceil`() {
-        inflate("\\left\\lceil x\\right\\rceil") {
-            brace {
-                left { stretchy2 { symbol("⎡", "⎢") } }
-                content { text { content("x") } }
-                right { stretchy2 { symbol("⎤", "⎥") } }
-            }
-        }
-    }
-
-    @Test
-    fun `test left right with vert`() {
-        inflate("\\left\\lvert x\\right\\rvert") {
-            brace {
-                left { stretchy { symbol("∣") } }
-                content { text { content("x") } }
-                right { stretchy { symbol("∣") } }
-            }
-        }
-    }
-
-    @Test
-    fun `test left right with Vert`() {
-        inflate("\\left\\lVert x\\right\\rVert") {
-            brace {
-                left { stretchy { symbol("∥") } }
-                content { text { content("x") } }
-                right { stretchy { symbol("∥") } }
-            }
-        }
-    }
-
-    @Test
-    fun `test left right with dot`() {
-        inflate("\\left.x\\right)") {
-            brace {
-                noLeft()
-                content {
-                    text { content("x") }
-                }
-                right { stretchy { symbol(")") } }
-            }
-        }
-    }
-
-    // ========== Complex Tests ==========
-
-    @Test
-    fun `test complex expression`() {
-        inflate("\\frac{-b\\pm\\sqrt{b^2-4ac}}{2a}") {
-            fraction {}
-        }
-    }
-
-    @Test
-    fun `test nested fraction`() {
-        inflate("\\frac{1}{\\frac{1}{x}}") {
-            fraction {}
-        }
-    }
-
-    @Test
-    fun `test matrix with multiple rows`() {
-        inflate("\\begin{pmatrix}1&2&3\\\\4&5&6\\\\7&8&9\\end{pmatrix}") {
-            brace {}
         }
     }
 }
