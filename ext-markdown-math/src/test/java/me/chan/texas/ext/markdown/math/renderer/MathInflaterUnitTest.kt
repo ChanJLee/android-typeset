@@ -1021,6 +1021,38 @@ class MathInflaterUnitTest {
     }
 
     @Test
+    fun `test Bmatrix`() {
+        inflate("\\begin{Bmatrix}a&b\\\\c&d\\end{Bmatrix}") {
+            brace {
+                left { stretchy3 { symbol("⎧", "⎨", "⎩", "⎪") } }
+                right { stretchy3 { symbol("⎫", "⎬", "⎭", "⎪") } }
+                content {
+                    gridGroup {
+                        row {
+                            content {
+                                child {
+                                    text { content("a") }
+                                }
+                                child { space { } }
+                                child { text { content("b") } }
+                            }
+                        }
+                        row {
+                            content {
+                                child {
+                                    text { content("c") }
+                                }
+                                child { space { } }
+                                child { text { content("d") } }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    @Test
     fun `test vmatrix`() {
         inflate("\\begin{vmatrix}a&b\\\\c&d\\end{vmatrix}") {
             brace {
@@ -1044,6 +1076,78 @@ class MathInflaterUnitTest {
                     }
                 }
                 right { stretchy { symbol("∣") } }
+            }
+        }
+    }
+
+    @Test
+    fun `test Vmatrix`() {
+        inflate("\\begin{Vmatrix}a&b\\\\c&d\\end{Vmatrix}") {
+            brace {
+                left { stretchy { symbol("∥") } }
+                right { stretchy { symbol("∥") } }
+                content {
+                    gridGroup {
+                        row {
+                            content {
+                                child { text { content("a") } }
+                                child { space { } }
+                                child { text { content("b") } }
+                            }
+                        }
+                        row {
+                            content {
+                                child { text { content("c") } }
+                                child { space { } }
+                                child { text { content("d") } }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    @Test
+    fun `test smallmatrix`() {
+        inflate("\\begin{smallmatrix}a&b\\\\c&d\\end{smallmatrix}") {
+            gridGroup {
+                row {
+                    content {
+                        child { text { content("a") } }
+                        child { space { } }
+                        child { text { content("b") } }
+                    }
+                }
+                row {
+                    content {
+                        child { text { content("c") } }
+                        child { space { } }
+                        child { text { content("d") } }
+                    }
+                }
+            }
+        }
+    }
+
+    @Test
+    fun `test array`() {
+        inflate("\\begin{array}{cc}a&b\\\\c&d\\end{array}") {
+            gridGroup {
+                row {
+                    content {
+                        child { text { content("a") } }
+                        child { space { } }
+                        child { text { content("b") } }
+                    }
+                }
+                row {
+                    content {
+                        child { text { content("c") } }
+                        child { space { } }
+                        child { text { content("d") } }
+                    }
+                }
             }
         }
     }
