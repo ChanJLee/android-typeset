@@ -540,11 +540,62 @@ class MathInflaterUnitTest {
     }
 
     @Test
+    fun `test group with explicit curly braces`() {
+        inflate("\\{x+y\\}") {
+            linearGroup {
+                child {
+                    symbol { content("{") }
+                }
+
+                child {
+                    linearGroup {
+                        child {
+                            text {
+                                content("x")
+                            }
+                        }
+                        child {
+                            symbol {
+                                content(MathFontOptions.symbol("plus"))
+                            }
+                        }
+                        child {
+                            text {
+                                content("y")
+                            }
+                        }
+                    }
+                }
+
+                child {
+                    symbol { content("}") }
+                }
+            }
+        }
+    }
+
+    @Test
     fun `test fraction`() {
         inflate("\\frac{a}{b}") {
             fraction {
                 numerator { text { content("a") } }
                 denominator { text { content("b") } }
+            }
+        }
+    }
+
+    @Test
+    fun `test binom`() {
+        inflate("\\binom{n}{k}") {
+            brace {
+                left { stretchy { symbol("(") } }
+                content {
+                    linearGroup {
+                        child { text { content("n") } }
+                        child { text { content("k") } }
+                    }
+                }
+                right { stretchy { symbol(")") } }
             }
         }
     }
@@ -586,22 +637,6 @@ class MathInflaterUnitTest {
                         content("x")
                     }
                 }
-            }
-        }
-    }
-
-    @Test
-    fun `test binom`() {
-        inflate("\\binom{n}{k}") {
-            brace {
-                left { stretchy { symbol("(") } }
-                content {
-                    linearGroup {
-                        child { text { content("n") } }
-                        child { text { content("k") } }
-                    }
-                }
-                right { stretchy { symbol(")") } }
             }
         }
     }
