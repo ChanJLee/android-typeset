@@ -818,12 +818,91 @@ class MathInflaterUnitTest {
     }
 
     @Test
+    fun `test bigl`() {
+        inflate("\\bigl(x\\bigr)") {
+            brace {
+                left { stretchy { symbol("(") } }
+                content { text { content("x") } }
+                right { stretchy { symbol(")") } }
+            }
+        }
+    }
+
+    @Test
+    fun `test Bigl`() {
+        inflate("\\Bigl[x\\Bigr]") {
+            brace {
+                left { stretchy3 { symbol("⎡", "⎢", "⎣", "⎢") } }
+                content { text { content("x") } }
+                right { stretchy3 { symbol("⎤", "⎥", "⎦", "⎥") } }
+            }
+        }
+    }
+
+    @Test
+    fun `test biggl`() {
+        inflate("\\biggl\\{x\\biggr\\}") {
+            brace {
+                left { stretchy3 { symbol("⎧", "⎨", "⎩", "⎪") } }
+                content { text { content("x") } }
+                right { stretchy3 { symbol("⎫", "⎬", "⎭", "⎪") } }
+            }
+        }
+    }
+
+    @Test
+    fun `test Biggl`() {
+        inflate("\\Biggl|x\\Biggr|") {
+            brace {
+                left { stretchy { symbol("∣") } }
+                content { text { content("x") } }
+                right { stretchy { symbol("∣") } }
+            }
+        }
+    }
+
+    @Test
     fun `test function call`() {
-        inflate("\\sin") {
-            linearGroup {
-                child {
-                    text {
-                        content("sin")
+        val name = arrayOf(
+            "sin",
+            "cos",
+            "tan",
+            "cot",
+            "sec",
+            "csc",
+            "arcsin",
+            "arccos",
+            "arctan",
+            "sinh",
+            "cosh",
+            "tanh",
+            "coth",
+            "log",
+            "ln",
+            "lg",
+            "exp",
+            "max",
+            "min",
+            "sup",
+            "inf",
+            "arg",
+            "deg",
+            "det",
+            "dim",
+            "gcd",
+            "hom",
+            "ker",
+            "Pr",
+            "bmod",
+            "pmod"
+        )
+        for (key in name) {
+            inflate("\\$key") {
+                linearGroup {
+                    child {
+                        text {
+                            content(key)
+                        }
                     }
                 }
             }
@@ -898,15 +977,6 @@ class MathInflaterUnitTest {
                     bottom { text { content("1") } }
                     top { text { content("2") } }
                 }
-            }
-        }
-    }
-
-    @Test
-    fun `test symbol atom`() {
-        inflate("+") {
-            symbol {
-                content(MathFontOptions.symbol("plus"))
             }
         }
     }
@@ -1244,45 +1314,152 @@ class MathInflaterUnitTest {
     }
 
     @Test
-    fun `test bigl`() {
-        inflate("\\bigl(x\\bigr)") {
-            brace {
-                left { stretchy { symbol("(") } }
-                content { text { content("x") } }
-                right { stretchy { symbol(")") } }
+    fun `test symbol atom`() {
+        // Binary Operators
+        var symbols = mapOf(
+            "+" to "plus",
+            "-" to "minus",
+            "*" to "multiply",
+            "/" to "divide",
+            "," to "comma",
+            "\\times" to "multiply",
+            "\\cdot" to "uni22C5",
+            "\\div" to "divide",
+            "\\pm" to "plusminus",
+            "\\mp" to "minusplus",
+            "\\setminus" to "uni2216",
+            "\\circ" to "uni2218",
+            "\\oplus" to "circleplus",
+            "\\ominus" to "uni2296",
+            "\\otimes" to "circlemultiply",
+            "\\oslash" to "circledivide",
+            "\\odot" to "circledot",
+            "\\bullet" to "bullet",
+            "\\star" to "uni22C6",
+            "\\dagger" to "dagger",
+            "\\ddagger" to "daggerdbl"
+        )
+
+        for ((key, value) in symbols) {
+            inflate(key) {
+                symbol {
+                    content(MathFontOptions.symbol(value))
+                }
             }
         }
-    }
 
-    @Test
-    fun `test Bigl`() {
-        inflate("\\Bigl[x\\Bigr]") {
-            brace {
-                left { stretchy3 { symbol("⎡", "⎢", "⎣", "⎢") } }
-                content { text { content("x") } }
-                right { stretchy3 { symbol("⎤", "⎥", "⎦", "⎥") } }
+        // Relations
+        symbols = mapOf(
+            "=" to "equal",
+            "\\neq" to "notequal",
+            "\\equiv" to "equivalence",
+            "\\approx" to "approxequal",
+            "\\cong" to "uni2245",
+            "\\sim" to "similar",
+            "\\simeq" to "similar_equal",
+            "\\asymp" to "uni224D",
+            "\\propto" to "proportional",
+            "<" to "less",
+            ">" to "greater",
+            "\\le" to "lessequal",
+            "\\ge" to "greaterequal",
+            "\\leq" to "lessequal",
+            "\\geq" to "greaterequal",
+            "\\ll" to "lessmuch",
+            "\\gg" to "greatermuch",
+            "\\prec" to "uni227A",
+            "\\succ" to "uni227B",
+            "\\preceq" to "uni227C",
+            "\\succeq" to "uni227D",
+            "\\perp" to "uni27C2",
+            "\\parallel" to "parallel",
+            "\\mid" to "divides",
+            "|" to "divides",
+            "\\nmid" to "uni2224",
+            "\\bowtie" to "uni22C8",
+            "\\models" to "uni22A8"
+        )
+        for ((key, value) in symbols) {
+            inflate(key) {
+                symbol {
+                    content(MathFontOptions.symbol(value))
+                }
             }
         }
-    }
 
-    @Test
-    fun `test biggl`() {
-        inflate("\\biggl\\{x\\biggr\\}") {
-            brace {
-                left { stretchy3 { symbol("⎧", "⎨", "⎩", "⎪") } }
-                content { text { content("x") } }
-                right { stretchy3 { symbol("⎫", "⎬", "⎭", "⎪") } }
+        // Sets and Logic
+        symbols = mapOf(
+            "\\in" to "element",
+            "\\notin" to "uni2209",
+            "\\subset" to "propersubset",
+            "\\supset" to "propersuperset",
+            "\\subseteq" to "reflexsubset",
+            "\\supseteq" to "reflexsuperset",
+            "\\cup" to "union",
+            "\\cap" to "intersection",
+            "\\wedge" to "logicaland",
+            "\\vee" to "logicalor",
+            "\\neg" to "logicalnot",
+            "\\forall" to "universal",
+            "\\exists" to "existential",
+            "\\nexists" to "uni2204",
+            "\\emptyset" to "emptyset",
+            "\\varnothing" to "emptyset"
+        )
+        for ((key, value) in symbols) {
+            inflate(key) {
+                symbol {
+                    content(MathFontOptions.symbol(value))
+                }
             }
         }
-    }
 
-    @Test
-    fun `test Biggl`() {
-        inflate("\\Biggl|x\\Biggr|") {
-            brace {
-                left { stretchy { symbol("∣") } }
-                content { text { content("x") } }
-                right { stretchy { symbol("∣") } }
+        // Arrows
+        symbols = mapOf(
+            "\\to" to "arrowright",
+            "\\rightarrow" to "arrowright",
+            "\\leftarrow" to "arrowleft",
+            "\\leftrightarrow" to "arrowboth",
+            "\\Rightarrow" to "arrowdblright",
+            "\\Leftarrow" to "arrowdblleft",
+            "\\Leftrightarrow" to "arrowdblboth",
+            "\\implies" to "arrowdblright",
+            "\\iff" to "arrowdblboth"
+        )
+        for ((key, value) in symbols) {
+            inflate(key) {
+                symbol {
+                    content(MathFontOptions.symbol(value))
+                }
+            }
+        }
+
+        // Geometry & Others
+        symbols = mapOf(
+            "\\triangleleft" to "uni25C1",
+            "\\triangleright" to "uni25B7",
+            "\\angle" to "uni2220",
+            "\\hbar" to "uni210F",
+            "\\nabla" to "nabla",
+            "\\partial" to "partialdiff",
+            "\\ell" to "uni2113",
+            "\\wp" to "weierstrass",
+            "\\Re" to "Rfraktur",
+            "\\Im" to "Ifraktur",
+            "\\aleph" to "aleph",
+            "\\dots" to "ellipsis",
+            "\\ldots" to "ellipsis",
+            "\\cdots" to "uni22EF",
+            "\\vdots" to "uni22EE",
+            "\\ddots" to "uni22F1",
+            "\\therefore" to "therefore",
+            "\\because" to "because"
+        )
+        for ((key, value) in symbols) {
+            inflate(key) {
+                symbol {
+                    content(MathFontOptions.symbol(value))
+                }
             }
         }
     }
