@@ -324,7 +324,7 @@ class SqrtAsserter(private val node: SqrtNode) : RenderNodeAsserter(node) {
 class SymbolAsserter(private val node: SymbolNode) : RenderNodeAsserter(node) {
     fun content(s: Symbol?) {
         Assert.assertNotNull(s)
-        Assert.assertEquals(s, node.symbol)
+        Assert.assertEquals(s!!.unicode, node.symbol.unicode)
     }
 
     fun content(s: String) {

@@ -46,14 +46,6 @@ public class MathFontOptions {
 		AST.put("biguplus", "uni2A04");
 		AST.put("bigsqcup", "uni2A06");
 
-		// 二元运算符 (Binary Operators)
-		// 基本运算符
-		AST.put("+", "plus");
-		AST.put("-", "minus");
-		AST.put("*", "multiply");
-		AST.put("/", "divide");
-		AST.put(",", "comma");                 // , (逗号) 新增
-
 		// LaTeX 运算符
 		AST.put("times", "multiply");
 		AST.put("cdot", "uni22C5");
@@ -62,14 +54,11 @@ public class MathFontOptions {
 		AST.put("mp", "minusplus");
 
 		// 关系运算符
-		AST.put("=", "equal");                 // = (等号) 新增
 		AST.put("neq", "notequal");
 		AST.put("equiv", "equivalence");
 		AST.put("approx", "approxequal");
 		AST.put("cong", "uni2245");            // ≅
 		AST.put("sim", "similar");
-		AST.put("<", "less");                  // < (小于) 新增
-		AST.put(">", "greater");               // > (大于) 新增
 		AST.put("le", "lessequal");
 		AST.put("ge", "greaterequal");
 		AST.put("leq", "lessequal");
@@ -252,8 +241,13 @@ public class MathFontOptions {
 		TEXT_OPERATORS.put("ker", "ker");
 
 		// 在 static 块中添加
-		AST.put("|", "divides");           // | (竖线/条件/整除)
 		AST.put("mid", "divides");         // \mid (与 | 相同)
+
+		for (Map.Entry<String, Symbol> entry : SYMBOL.all.entrySet()) {
+			String key = entry.getKey();
+			Symbol value = entry.getValue();
+			AST.put(value.unicode, key);
+		}
 	}
 
 	public static Symbol symbol(String ref) {

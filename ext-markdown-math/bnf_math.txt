@@ -31,7 +31,7 @@
 
 <letter> ::= "a" | "b" | "c" | ... | "z" | "A" | "B" | ... | "Z"
 
-<symbol> ::= "+" | "-" | "*" | "/" | "|"
+<symbol> ::=  <common_symbol>
               | "\times" | "\cdot" | "\div" | "\pm" | "\mp"
               | "\setminus" | "\circ"
               | "\oplus" | "\ominus" | "\otimes" | "\oslash" | "\odot"
@@ -48,7 +48,7 @@
               | "\perp" | "\parallel"
               | "\mid" | "\nmid"
               | "\triangleleft" | "\triangleright"
-              | "\bowtie" | "\models" | "\neg" | "!" | "'" | "," | ";"
+              | "\bowtie" | "\models" | "\neg"
               | "\dots" | "\ldots" | "\cdots" | "\vdots" | "\ddots"
               | "\angle"
               | "\therefore" | "\because"
@@ -61,6 +61,8 @@
               | "\wp"
               | "\Re" | "\Im"
               | "\aleph"
+
+common_symbol ::= "+" | "-" | ...
 
 <greek_letter> ::= "\alpha" | "\beta" | "\gamma" | "\delta" | "\epsilon" | "\varepsilon"
                  | "\zeta" | "\eta" | "\theta" | "\vartheta" | "\iota" | "\kappa"

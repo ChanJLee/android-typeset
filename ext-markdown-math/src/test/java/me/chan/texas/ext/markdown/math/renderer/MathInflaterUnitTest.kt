@@ -1318,9 +1318,9 @@ class MathInflaterUnitTest {
         // Binary Operators
         var symbols = mapOf(
             "+" to "plus",
-            "-" to "minus",
-            "*" to "multiply",
-            "/" to "divide",
+            "-" to "hyphen",
+            "*" to "asterisk",
+            "/" to "slash",
             "," to "comma",
             "\\times" to "multiply",
             "\\cdot" to "uni22C5",
@@ -1374,7 +1374,7 @@ class MathInflaterUnitTest {
             "\\perp" to "uni27C2",
             "\\parallel" to "parallel",
             "\\mid" to "divides",
-            "|" to "divides",
+            "|" to "bar",
             "\\nmid" to "uni2224",
             "\\bowtie" to "uni22C8",
             "\\models" to "uni22A8"
@@ -1454,6 +1454,22 @@ class MathInflaterUnitTest {
             "\\ddots" to "uni22F1",
             "\\therefore" to "therefore",
             "\\because" to "because"
+        )
+        for ((key, value) in symbols) {
+            inflate(key) {
+                symbol {
+                    content(MathFontOptions.symbol(value))
+                }
+            }
+        }
+
+        // Other
+        //  "!" | "'" | "," | ";"
+        symbols = mapOf(
+            "!" to "exclam",
+            "'" to "quotesingle",
+            "," to "comma",
+            ";" to "semicolon"
         )
         for ((key, value) in symbols) {
             inflate(key) {
