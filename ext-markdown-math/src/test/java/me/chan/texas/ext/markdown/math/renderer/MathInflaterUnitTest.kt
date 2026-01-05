@@ -1288,6 +1288,68 @@ class MathInflaterUnitTest {
     }
 
     @Test
+    fun `test accent`() {
+        val cmd = mapOf(
+            "hat" to "asciicircum",
+            "widehat" to "asciicircum",
+            "tilde" to "asciitilde",
+            "widetilde" to "asciitilde",
+            "dot" to "dotaccent",
+            "ddot" to "ddotaccent",
+            "dddot" to "dddotaccent",
+            "acute" to "acute",
+            "grave" to "grave",
+            "breve" to "breve",
+            "check" to "checkmark",
+            "mathring" to "ring",
+            "bar" to "uni2015",
+            "overline" to "uni2015",
+            "underline" to "uni2015",
+            "vec" to "uni22B8",
+        )
+        for ((key, value) in cmd) {
+            inflate("\\${key} x") {
+                accent {
+                    cmd {
+                        symbol {
+                            content(MathFontOptions.symbol(value))
+                        }
+                    }
+                    content {
+                        text {
+                            content("x")
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    @Test
+    fun `test overbrace`() {
+        inflate("\\overbrace{x}") {
+            accent {
+                cmd {
+                    stretchy3 { symbol("⎧", "⎨", "⎩", "⎪") }
+                }
+                content { text { content("x") } }
+            }
+        }
+    }
+
+    @Test
+    fun `test underbrace`() {
+        inflate("\\underbrace{x}") {
+            accent {
+                cmd {
+                    stretchy3 { symbol("⎧", "⎨", "⎩", "⎪") }
+                }
+                content { text { content("x") } }
+            }
+        }
+    }
+
+    @Test
     fun `test mathbf font`() {
         inflate("\\mathbf{x}") {
             linearGroup {
