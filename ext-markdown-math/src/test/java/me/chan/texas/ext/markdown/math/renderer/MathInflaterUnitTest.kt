@@ -390,9 +390,54 @@ class MathInflaterUnitTest {
 
     @Test
     fun `test greek letter variable`() {
-        inflate("\\alpha") {
-            text {
-                content("α")
+        val list = mapOf<String, String>(
+            "alpha" to "α",
+            "beta" to "β",
+            "gamma" to "γ",
+            "delta" to "δ",
+            "epsilon" to "ε",
+            "varepsilon" to "ϵ",
+            "zeta" to "ζ",
+            "eta" to "η",
+            "theta" to "θ",
+            "vartheta" to "ϑ",
+            "iota" to "ι",
+            "kappa" to "κ",
+            "lambda" to "λ",
+            "mu" to "μ",
+            "nu" to "ν",
+            "xi" to "ξ",
+            "pi" to "π",
+            "varpi" to "ϖ",
+            "rho" to "ρ",
+            "varrho" to "ϱ",
+            "sigma" to "σ",
+            "varsigma" to "ς",
+            "tau" to "τ",
+            "upsilon" to "υ",
+            "phi" to "φ",
+            "varphi" to "ϕ",
+            "chi" to "χ",
+            "psi" to "ψ",
+            "omega" to "ω",
+            "Gamma" to "Γ",
+            "Delta" to "Δ",
+            "Theta" to "Θ",
+            "Lambda" to "Λ",
+            "Xi" to "Ξ",
+            "Pi" to "Π",
+            "Sigma" to "Σ",
+            "Upsilon" to "Υ",
+            "Phi" to "Φ",
+            "Psi" to "Ψ",
+            "Omega" to "Ω",
+            "infty" to "∞"
+        )
+        for ((key, value) in list) {
+            inflate("\\$key") {
+                text {
+                    content(value)
+                }
             }
         }
     }
