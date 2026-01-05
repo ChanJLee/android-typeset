@@ -831,37 +831,58 @@ class MathInflaterUnitTest {
     }
 
     @Test
-    fun `test large operator sum`() {
-        inflate("\\sum") {
-            symbol {
-                content(MathFontOptions.symbol("summation"))
+    fun `test large operator`() {
+        var symbols = mapOf<String, String>(
+            "sum" to "∑",
+            "prod" to "∏",
+        )
+        for ((key, value) in symbols) {
+            inflate("\\${key}_1^2") {
+                decorGroup {
+                    center {
+                        symbol {
+                            content(value)
+                        }
+                    }
+                    bottom { text { content("1") } }
+                    top { text { content("2") } }
+                }
             }
         }
-    }
 
-    @Test
-    fun `test large operator prod`() {
-        inflate("\\prod") {
-            symbol {
-                content(MathFontOptions.symbol("product"))
+        symbols = mapOf(
+            "int" to "∫",
+        )
+        for ((key, value) in symbols) {
+            inflate("\\${key}_1^2") {
+                decorGroup {
+                    center {
+                        symbol {
+                            content(value)
+                        }
+                    }
+                    rightBottom { text { content("1") } }
+                    rightTop { text { content("2") } }
+                }
             }
         }
-    }
 
-    @Test
-    fun `test large operator int`() {
-        inflate("\\int") {
-            symbol {
-                content(MathFontOptions.symbol("integral"))
-            }
-        }
-    }
-
-    @Test
-    fun `test large operator lim`() {
-        inflate("\\lim") {
-            text {
-                content("lim")
+        symbols = mapOf(
+            "lim" to "lim",
+            "limsup" to "lim sup",
+            "liminf" to "lim inf",
+        )
+        for ((key, value) in symbols) {
+            inflate("\\${key}_1^2") {
+                decorGroup {
+                    center {
+                        text {
+                            content(value)
+                        }
+                    }
+                    bottom { text { content("1") } }
+                    top { text { content("2") } }
+                }
             }
         }
     }
