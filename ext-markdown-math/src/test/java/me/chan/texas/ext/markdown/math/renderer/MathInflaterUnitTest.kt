@@ -1199,31 +1199,24 @@ class MathInflaterUnitTest {
 
     @Test
     fun `test text atom`() {
-        inflate("\\text{hello}") {
-            text {
-                content("hello")
-            }
-        }
-    }
-
-    @Test
-    fun `test textbf`() {
-        inflate("\\textbf{bold}") {
-            linearGroup {
-                child {
-                    text {
-                        content("bold")
-                    }
+        val array = arrayOf(
+            "text",
+            "mbox",
+            "textrm",
+            "textit",
+            "textbf",
+        )
+        for (key in array) {
+            inflate("\\${key}{hello}") {
+                text {
+                    content("hello")
                 }
             }
         }
-    }
 
-    @Test
-    fun `test textit`() {
-        inflate("\\textit{italic}") {
-            text {
-                content("italic")
+        inflate("\\textfield{hello}") {
+            textField {
+                content("hello")
             }
         }
     }

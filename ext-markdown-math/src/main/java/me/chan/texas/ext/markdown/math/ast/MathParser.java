@@ -111,7 +111,7 @@ public class MathParser {
 			, "boldsymbol", "bm"
 	));
 	private static final Set<String> TEXT_COMMANDS = new HashSet<>(Arrays.asList(
-			"text", "mbox", "textrm", "textit", "textbf")
+			"text", "mbox", "textrm", "textit", "textbf", "textfield")
 	);
 	private static final Set<String> FRAC_COMMANDS = new HashSet<>(
 			Arrays.asList(

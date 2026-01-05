@@ -178,6 +178,11 @@ class DispatchAsserter(private val node: RendererNode) {
         block(asserter)
     }
 
+    fun textField(block: TextFieldAsserter.() -> Unit) {
+        val asserter = TextFieldAsserter(node as TextFieldNode)
+        block(asserter)
+    }
+
     fun linearGroup(block: LinearGroupAsserter.() -> Unit) {
         val asserter = LinearGroupAsserter(node as LinearGroupNode)
         block(asserter)
@@ -336,5 +341,12 @@ class SymbolAsserter(private val node: SymbolNode) : RenderNodeAsserter(node) {
 class TextAsserter(private val node: TextNode) : RenderNodeAsserter(node) {
     fun content(s: String) {
         Assert.assertEquals(s, node.content)
+    }
+}
+
+@UnitTestDslMarker
+class TextFieldAsserter(private val node: TextFieldNode) : RenderNodeAsserter(node) {
+    fun content(s: String) {
+        Assert.assertEquals(s, node.text)
     }
 }
