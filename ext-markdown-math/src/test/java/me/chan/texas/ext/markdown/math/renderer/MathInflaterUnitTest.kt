@@ -695,6 +695,17 @@ class MathInflaterUnitTest {
     }
 
     @Test
+    fun `test left right with brackets`() {
+        inflate("\\left(x\\right)") {
+            brace {
+                left { stretchy { symbol("(") } }
+                content { text { content("x") } }
+                right { stretchy { symbol(")") } }
+            }
+        }
+    }
+
+    @Test
     fun `test left right with square brackets`() {
         inflate("\\left[x\\right]") {
             brace {
@@ -807,44 +818,6 @@ class MathInflaterUnitTest {
     }
 
     @Test
-    fun `test symbol atom`() {
-        inflate("+") {
-            symbol {
-                content(MathFontOptions.symbol("plus"))
-            }
-        }
-    }
-
-    @Test
-    fun `test extensible arrow`() {
-        inflate("\\xrightarrow{above}") {
-            decorGroup {
-                center {
-                    symbol {
-                        content("→")
-                    }
-                }
-                top { text { content("above") } }
-            }
-        }
-    }
-
-    @Test
-    fun `test extensible arrow with below`() {
-        inflate("\\xrightarrow[below]{above}") {
-            decorGroup {
-                center {
-                    symbol {
-                        content("→")
-                    }
-                }
-                top { text { content("above") } }
-                bottom { text { content("below") } }
-            }
-        }
-    }
-
-    @Test
     fun `test function call`() {
         inflate("\\sin") {
             linearGroup {
@@ -889,6 +862,44 @@ class MathInflaterUnitTest {
         inflate("\\lim") {
             text {
                 content("lim")
+            }
+        }
+    }
+
+    @Test
+    fun `test symbol atom`() {
+        inflate("+") {
+            symbol {
+                content(MathFontOptions.symbol("plus"))
+            }
+        }
+    }
+
+    @Test
+    fun `test extensible arrow`() {
+        inflate("\\xrightarrow{above}") {
+            decorGroup {
+                center {
+                    symbol {
+                        content("→")
+                    }
+                }
+                top { text { content("above") } }
+            }
+        }
+    }
+
+    @Test
+    fun `test extensible arrow with below`() {
+        inflate("\\xrightarrow[below]{above}") {
+            decorGroup {
+                center {
+                    symbol {
+                        content("→")
+                    }
+                }
+                top { text { content("above") } }
+                bottom { text { content("below") } }
             }
         }
     }
@@ -1182,6 +1193,60 @@ class MathInflaterUnitTest {
                 center {
                     symbol { content("∑") }
                 }
+            }
+        }
+    }
+
+    @Test
+    fun `test matrix with multiple rows`() {
+        inflate("\\begin{pmatrix}1&2&3\\\\4&5&6\\\\7&8&9\\end{pmatrix}") {
+            brace {
+                left { stretchy { symbol("(") } }
+                right { stretchy { symbol(")") } }
+            }
+        }
+    }
+
+    @Test
+    fun `test bigl`() {
+        inflate("\\bigl(x\\bigr)") {
+            brace {
+                left { stretchy { symbol("(") } }
+                content { text { content("x") } }
+                right { stretchy { symbol(")") } }
+            }
+        }
+    }
+
+    @Test
+    fun `test Bigl`() {
+        inflate("\\Bigl[x\\Bigr]") {
+            brace {
+                left { stretchy3 { symbol("⎡", "⎢", "⎣", "⎢") } }
+                content { text { content("x") } }
+                right { stretchy3 { symbol("⎤", "⎥", "⎦", "⎥") } }
+            }
+        }
+    }
+
+    @Test
+    fun `test biggl`() {
+        inflate("\\biggl\\{x\\biggr\\}") {
+            brace {
+                left { stretchy3 { symbol("⎧", "⎨", "⎩", "⎪") } }
+                content { text { content("x") } }
+                right { stretchy3 { symbol("⎫", "⎬", "⎭", "⎪") } }
+            }
+        }
+    }
+
+    @Test
+    fun `test Biggl`() {
+        inflate("\\Biggl|x\\Biggr|") {
+            brace {
+                left { stretchy { symbol("∣") } }
+                content { text { content("x") } }
+                right { stretchy { symbol("∣") } }
             }
         }
     }
