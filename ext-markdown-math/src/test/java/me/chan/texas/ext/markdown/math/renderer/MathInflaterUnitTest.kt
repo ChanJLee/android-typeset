@@ -833,15 +833,25 @@ class MathInflaterUnitTest {
     @Test
     fun `test large operator`() {
         var symbols = mapOf<String, String>(
-            "sum" to "∑",
-            "prod" to "∏",
+            "sum" to "summation",
+            "prod" to "product",
+            "coprod" to "uni2210",
+            "bigcup" to "uni22C3",
+            "bigcap" to "uni22C2",
+            "bigvee" to "uni22C1",
+            "bigwedge" to "uni22C0",
+            "bigoplus" to "uni2A01",
+            "bigotimes" to "uni2A02",
+            "bigodot" to "uni2A00",
+            "biguplus" to "uni2A04",
+            "bigsqcup" to "uni2A06"
         )
         for ((key, value) in symbols) {
             inflate("\\${key}_1^2") {
                 decorGroup {
                     center {
                         symbol {
-                            content(value)
+                            content(MathFontOptions.symbol(value))
                         }
                     }
                     bottom { text { content("1") } }
@@ -851,14 +861,19 @@ class MathInflaterUnitTest {
         }
 
         symbols = mapOf(
-            "int" to "∫",
+            "int" to "integral",
+            "iint" to "uni222C",
+            "iiint" to "uni222D",
+            "oint" to "contourintegral",
+            "oiint" to "uni222F",
+            "oiiint" to "uni2230",
         )
         for ((key, value) in symbols) {
             inflate("\\${key}_1^2") {
                 decorGroup {
                     center {
                         symbol {
-                            content(value)
+                            content(MathFontOptions.symbol(value))
                         }
                     }
                     rightBottom { text { content("1") } }
