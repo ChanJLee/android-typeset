@@ -443,10 +443,98 @@ class MathInflaterUnitTest {
     }
 
     @Test
-    fun `test symbol atom`() {
-        inflate("+") {
-            symbol {
-                content(MathFontOptions.symbol("plus"))
+    fun `test group with curly braces`() {
+        inflate("{x+y}") {
+            linearGroup {
+                child {
+                    text {
+                        content("x")
+                    }
+                }
+                child {
+                    symbol {
+                        content(MathFontOptions.symbol("plus"))
+                    }
+                }
+                child {
+                    text {
+                        content("y")
+                    }
+                }
+            }
+        }
+    }
+
+    @Test
+    fun `test group with parentheses`() {
+        inflate("(x+y)") {
+            linearGroup {
+                child {
+                    symbol {
+                        content(MathFontOptions.symbol("parenleft"))
+                    }
+                }
+                child {
+                    linearGroup {
+                        child {
+                            text {
+                                content("x")
+                            }
+                        }
+                        child {
+                            symbol {
+                                content(MathFontOptions.symbol("plus"))
+                            }
+                        }
+                        child {
+                            text {
+                                content("y")
+                            }
+                        }
+                    }
+                }
+                child {
+                    symbol {
+                        content(MathFontOptions.symbol("parenright"))
+                    }
+                }
+            }
+        }
+    }
+
+    @Test
+    fun `test group with square brackets`() {
+        inflate("[x+y]") {
+            linearGroup {
+                child {
+                    symbol {
+                        content(MathFontOptions.symbol("bracketleft"))
+                    }
+                }
+                child {
+                    linearGroup {
+                        child {
+                            text {
+                                content("x")
+                            }
+                        }
+                        child {
+                            symbol {
+                                content(MathFontOptions.symbol("plus"))
+                            }
+                        }
+                        child {
+                            text {
+                                content("y")
+                            }
+                        }
+                    }
+                }
+                child {
+                    symbol {
+                        content(MathFontOptions.symbol("bracketright"))
+                    }
+                }
             }
         }
     }
@@ -457,6 +545,15 @@ class MathInflaterUnitTest {
             fraction {
                 numerator { text { content("a") } }
                 denominator { text { content("b") } }
+            }
+        }
+    }
+
+    @Test
+    fun `test symbol atom`() {
+        inflate("+") {
+            symbol {
+                content(MathFontOptions.symbol("plus"))
             }
         }
     }
@@ -877,105 +974,6 @@ class MathInflaterUnitTest {
                 }
                 center {
                     symbol { content("∑") }
-                }
-            }
-        }
-    }
-
-    // ========== Group Tests ==========
-
-    @Test
-    fun `test group with curly braces`() {
-        inflate("{x+y}") {
-            linearGroup {
-                child {
-                    text {
-                        content("x")
-                    }
-                }
-                child {
-                    symbol {
-                        content(MathFontOptions.symbol("plus"))
-                    }
-                }
-                child {
-                    text {
-                        content("y")
-                    }
-                }
-            }
-        }
-    }
-
-    @Test
-    fun `test group with parentheses`() {
-        inflate("(x+y)") {
-            linearGroup {
-                child {
-                    symbol {
-                        content(MathFontOptions.symbol("parenleft"))
-                    }
-                }
-                child {
-                    linearGroup {
-                        child {
-                            text {
-                                content("x")
-                            }
-                        }
-                        child {
-                            symbol {
-                                content(MathFontOptions.symbol("plus"))
-                            }
-                        }
-                        child {
-                            text {
-                                content("y")
-                            }
-                        }
-                    }
-                }
-                child {
-                    symbol {
-                        content(MathFontOptions.symbol("parenright"))
-                    }
-                }
-            }
-        }
-    }
-
-    @Test
-    fun `test group with square brackets`() {
-        inflate("[x+y]") {
-            linearGroup {
-                child {
-                    symbol {
-                        content(MathFontOptions.symbol("bracketleft"))
-                    }
-                }
-                child {
-                    linearGroup {
-                        child {
-                            text {
-                                content("x")
-                            }
-                        }
-                        child {
-                            symbol {
-                                content(MathFontOptions.symbol("plus"))
-                            }
-                        }
-                        child {
-                            text {
-                                content("y")
-                            }
-                        }
-                    }
-                }
-                child {
-                    symbol {
-                        content(MathFontOptions.symbol("bracketright"))
-                    }
                 }
             }
         }
