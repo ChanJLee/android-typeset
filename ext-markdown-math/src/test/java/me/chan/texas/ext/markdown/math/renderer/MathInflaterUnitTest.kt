@@ -631,6 +631,38 @@ class MathInflaterUnitTest {
     }
 
     @Test
+    fun `test dbinom`() {
+        inflate("\\dbinom{n}{k}") {
+            brace {
+                left { stretchy { symbol("(") } }
+                content {
+                    linearGroup {
+                        child { text { content("n") } }
+                        child { text { content("k") } }
+                    }
+                }
+                right { stretchy { symbol(")") } }
+            }
+        }
+    }
+
+    @Test
+    fun `test tbinom`() {
+        inflate("\\tbinom{n}{k}") {
+            brace {
+                left { stretchy { symbol("(") } }
+                content {
+                    linearGroup {
+                        child { text { content("n") } }
+                        child { text { content("k") } }
+                    }
+                }
+                right { stretchy { symbol(")") } }
+            }
+        }
+    }
+
+    @Test
     fun `test symbol atom`() {
         inflate("+") {
             symbol {
