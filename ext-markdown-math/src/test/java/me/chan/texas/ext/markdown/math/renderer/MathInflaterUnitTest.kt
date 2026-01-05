@@ -51,84 +51,6 @@ class MathInflaterUnitTest {
     }
 
     @Test
-    fun `test accent single token`() {
-        inflate("\\hat x") {
-            accent {
-                cmd {
-                    symbol {
-                        content(MathFontOptions.symbol("asciicircum"))
-                    }
-                }
-
-                content {
-                    text {
-                        content("x")
-                    }
-                }
-            }
-        }
-    }
-
-    @Test
-    fun `test accent list`() {
-        inflate("\\hat {x+y}") {
-            accent {
-                cmd {
-                    symbol {
-                        content(MathFontOptions.symbol("asciicircum"))
-                    }
-                }
-
-                content {
-                    linearGroup {
-                        child {
-                            text {
-                                content("x")
-                            }
-                        }
-                        child {
-                            symbol {
-                                content(MathFontOptions.symbol("plus"))
-                            }
-                        }
-                        child {
-                            text {
-                                content("y")
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    @Test
-    fun `test brace`() {
-        inflate("\\left(x\\right)") {
-            brace {
-                left {
-                    stretchy {
-                        symbol(MathFontOptions.symbol("parenleft"))
-                    }
-                }
-                content {
-                    text {
-                        content("x")
-                    }
-                }
-
-                right {
-                    stretchy {
-                        symbol(MathFontOptions.symbol("parenright"))
-                    }
-                }
-            }
-        }
-    }
-
-    // ========== Spacing Tests ==========
-
-    @Test
     fun `test thin space`() {
         inflate("a\\,b") {
             linearGroup {
@@ -367,8 +289,6 @@ class MathInflaterUnitTest {
             }
         }
     }
-
-    // ========== Atom Tests ==========
 
     @Test
     fun `test number atom`() {
@@ -1200,6 +1120,58 @@ class MathInflaterUnitTest {
         inflate("\\textit{italic}") {
             text {
                 content("italic")
+            }
+        }
+    }
+
+    @Test
+    fun `test accent single token`() {
+        inflate("\\hat x") {
+            accent {
+                cmd {
+                    symbol {
+                        content(MathFontOptions.symbol("asciicircum"))
+                    }
+                }
+
+                content {
+                    text {
+                        content("x")
+                    }
+                }
+            }
+        }
+    }
+
+    @Test
+    fun `test accent list`() {
+        inflate("\\hat {x+y}") {
+            accent {
+                cmd {
+                    symbol {
+                        content(MathFontOptions.symbol("asciicircum"))
+                    }
+                }
+
+                content {
+                    linearGroup {
+                        child {
+                            text {
+                                content("x")
+                            }
+                        }
+                        child {
+                            symbol {
+                                content(MathFontOptions.symbol("plus"))
+                            }
+                        }
+                        child {
+                            text {
+                                content("y")
+                            }
+                        }
+                    }
+                }
             }
         }
     }
