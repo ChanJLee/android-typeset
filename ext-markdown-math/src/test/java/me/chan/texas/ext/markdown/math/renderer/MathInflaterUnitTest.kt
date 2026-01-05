@@ -663,15 +663,6 @@ class MathInflaterUnitTest {
     }
 
     @Test
-    fun `test symbol atom`() {
-        inflate("+") {
-            symbol {
-                content(MathFontOptions.symbol("plus"))
-            }
-        }
-    }
-
-    @Test
     fun `test sqrt without root`() {
         inflate("\\sqrt{x}") {
             sqrt {
@@ -699,6 +690,15 @@ class MathInflaterUnitTest {
                         content("x")
                     }
                 }
+            }
+        }
+    }
+
+    @Test
+    fun `test symbol atom`() {
+        inflate("+") {
+            symbol {
+                content(MathFontOptions.symbol("plus"))
             }
         }
     }
