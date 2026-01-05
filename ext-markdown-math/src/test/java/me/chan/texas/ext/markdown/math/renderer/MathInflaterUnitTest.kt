@@ -585,6 +585,36 @@ class MathInflaterUnitTest {
     }
 
     @Test
+    fun `test dfraction`() {
+        inflate("\\dfrac{a}{b}") {
+            fraction {
+                numerator { text { content("a") } }
+                denominator { text { content("b") } }
+            }
+        }
+    }
+
+    @Test
+    fun `test tfraction`() {
+        inflate("\\tfrac{a}{b}") {
+            fraction {
+                numerator { text { content("a") } }
+                denominator { text { content("b") } }
+            }
+        }
+    }
+
+    @Test
+    fun `test cfraction`() {
+        inflate("\\cfrac{a}{b}") {
+            fraction {
+                numerator { text { content("a") } }
+                denominator { text { content("b") } }
+            }
+        }
+    }
+
+    @Test
     fun `test binom`() {
         inflate("\\binom{n}{k}") {
             brace {
