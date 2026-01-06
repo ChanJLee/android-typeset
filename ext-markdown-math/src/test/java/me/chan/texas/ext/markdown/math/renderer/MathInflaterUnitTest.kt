@@ -1384,7 +1384,13 @@ class MathInflaterUnitTest {
             "xleftrightarrow" to "arrowboth",
             "xRightarrow" to "arrowdblright",
             "xLeftarrow" to "arrowdblleft",
-            "xLeftrightarrow" to "arrowdblboth"
+            "xLeftrightarrow" to "arrowdblboth",
+            "xhookrightarrow" to "uni21AA",
+            "xhookleftarrow" to "uni21A9",
+            "xtwoheadrightarrow" to "uni21A0",
+            "xtwoheadleftarrow" to "uni219E",
+            "xmapsto" to "uni21A6",
+            "xtofrom" to "uni21C4"
         )
         for ((key, value) in symbols) {
             inflate("\\${key}{above}") {

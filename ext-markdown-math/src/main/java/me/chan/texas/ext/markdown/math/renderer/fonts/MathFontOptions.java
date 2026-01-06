@@ -314,6 +314,18 @@ public class MathFontOptions {
 				return MathFontOptions.symbol("arrowdblleft");
 			case "xLeftrightarrow":
 				return MathFontOptions.symbol("arrowdblboth");
+			case "xhookrightarrow":
+				return MathFontOptions.symbol("uni21AA");
+			case "xhookleftarrow":
+				return MathFontOptions.symbol("uni21A9");
+			case "xtwoheadrightarrow":
+				return MathFontOptions.symbol("uni21A0");
+			case "xtwoheadleftarrow":
+				return MathFontOptions.symbol("uni219E");
+			case "xmapsto":
+				return MathFontOptions.symbol("uni21A6");
+			case "xtofrom":
+				return MathFontOptions.symbol("uni21C4");
 			default:
 				// 如果没有找到对应的符号，使用 rightarrow 作为默认
 				Symbol symbol = MathFontOptions.symbol("arrowright");
@@ -322,6 +334,6 @@ public class MathFontOptions {
 					throw new IllegalArgumentException("Unknown extensible arrow command: " + command);
 				}
 				return symbol;
-		}
+			}
 	}
 }
