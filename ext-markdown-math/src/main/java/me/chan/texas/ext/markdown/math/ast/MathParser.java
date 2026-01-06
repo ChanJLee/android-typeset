@@ -194,9 +194,7 @@ public class MathParser {
 			if (SYMBOL.contains(cmd)) {
 				return new SymbolAtom("\\" + cmd);
 			}
-		}
-
-		if (UnicodeUtils.isSymbolsAndPunctuation(c)) {
+		} else if (UnicodeUtils.isSymbolsAndPunctuation(c)) {
 			stream.eat();
 			return new SymbolAtom(String.valueOf(c));
 		}
