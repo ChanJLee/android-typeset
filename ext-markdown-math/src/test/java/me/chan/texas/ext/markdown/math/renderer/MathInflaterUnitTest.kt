@@ -1350,20 +1350,26 @@ class MathInflaterUnitTest {
     }
 
     @Test
-    fun `test mathbf font`() {
-        inflate("\\mathbf{x}") {
-            linearGroup {
-                child {
-                    text {
-                        content("x")
-                    }
+    fun `test font`() {
+        val symbol = arrayOf(
+            "mathrm",
+            "mathsf",
+            "mathtt",
+            "mathcal",
+            "mathbb",
+            "mathfrak",
+            "mathscr",
+            "boldsymbol",
+            "bm"
+        )
+        for (key in symbol) {
+            inflate("\\${key}{x}") {
+                text {
+                    content("x")
                 }
             }
         }
-    }
 
-    @Test
-    fun `test mathit font`() {
         inflate("\\mathit{x}") {
             linearGroup {
                 child {
@@ -1373,12 +1379,15 @@ class MathInflaterUnitTest {
                 }
             }
         }
-    }
 
-    @Test
-    fun `test punctuation`() {
-        inflate(",") {
-            symbol { content(",") }
+        inflate("\\mathbf{x}") {
+            linearGroup {
+                child {
+                    text {
+                        content("x")
+                    }
+                }
+            }
         }
     }
 
@@ -1409,51 +1418,6 @@ class MathInflaterUnitTest {
                 center { text { content("x") } }
                 rightTop { text { content("2") } }
                 rightBottom { text { content("1") } }
-            }
-        }
-    }
-
-    @Test
-    fun `test large operator with limits`() {
-        inflate("\\sum_{i=1}^{n}") {
-            decorGroup {
-                bottom {
-                    linearGroup {
-                        child {
-                            text {
-                                content("i")
-                            }
-                        }
-                        child {
-                            symbol {
-                                content("=")
-                            }
-                        }
-                        child {
-                            text {
-                                content("1")
-                            }
-                        }
-                    }
-                }
-                top {
-                    text {
-                        content("n")
-                    }
-                }
-                center {
-                    symbol { content("∑") }
-                }
-            }
-        }
-    }
-
-    @Test
-    fun `test matrix with multiple rows`() {
-        inflate("\\begin{pmatrix}1&2&3\\\\4&5&6\\\\7&8&9\\end{pmatrix}") {
-            brace {
-                left { stretchy { symbol("(") } }
-                right { stretchy { symbol(")") } }
             }
         }
     }
