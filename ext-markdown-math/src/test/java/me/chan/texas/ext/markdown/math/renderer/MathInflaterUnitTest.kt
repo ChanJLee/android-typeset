@@ -902,35 +902,6 @@ class MathInflaterUnitTest {
     }
 
     @Test
-    fun `test extensible arrow`() {
-        inflate("\\xrightarrow{above}") {
-            decorGroup {
-                center {
-                    symbol {
-                        content("→")
-                    }
-                }
-                top { text { content("above") } }
-            }
-        }
-    }
-
-    @Test
-    fun `test extensible arrow with below`() {
-        inflate("\\xrightarrow[below]{above}") {
-            decorGroup {
-                center {
-                    symbol {
-                        content("→")
-                    }
-                }
-                top { text { content("above") } }
-                bottom { text { content("below") } }
-            }
-        }
-    }
-
-    @Test
     fun `test matrix`() {
         inflate("\\begin{matrix}a&b\\\\c&d\\end{matrix}") {
             gridGroup {
@@ -1392,32 +1363,36 @@ class MathInflaterUnitTest {
     }
 
     @Test
-    fun `test superscript`() {
-        inflate("x^2") {
-            decorGroup {
-                center { text { content("x") } }
-                rightTop { text { content("2") } }
+    fun `test extensible arrow`() {
+        //"\xrightarrow" | "\xleftarrow" | "\xleftrightarrow"
+        //                          | "\xRightarrow" | "\xLeftarrow" | "\xLeftrightarrow"
+        //                          | "\xhookrightarrow" | "\xhookleftarrow"
+        //                          | "\xtwoheadrightarrow" | "\xtwoheadleftarrow"
+        //                          | "\xmapsto" | "\xtofrom"
+        val symbols = mapOf(
+            "xrightarrow" to "→"
+        )
+        for ((key, value) in symbols) {
+            inflate("\\${key}{above}") {
+                decorGroup {
+                    center {
+                        symbol {
+                            content(value)
+                        }
+                    }
+                    top { text { content("above") } }
+                }
             }
-        }
-    }
-
-    @Test
-    fun `test subscript`() {
-        inflate("x_1") {
-            decorGroup {
-                center { text { content("x") } }
-                rightBottom { text { content("1") } }
-            }
-        }
-    }
-
-    @Test
-    fun `test superscript and subscript`() {
-        inflate("x^2_1") {
-            decorGroup {
-                center { text { content("x") } }
-                rightTop { text { content("2") } }
-                rightBottom { text { content("1") } }
+            inflate("\\${key}[below]{above}") {
+                decorGroup {
+                    center {
+                        symbol {
+                            content(value)
+                        }
+                    }
+                    top { text { content("above") } }
+                    bottom { text { content("below") } }
+                }
             }
         }
     }
@@ -1585,6 +1560,37 @@ class MathInflaterUnitTest {
                 symbol {
                     content(MathFontOptions.symbol(value))
                 }
+            }
+        }
+    }
+
+    @Test
+    fun `test superscript`() {
+        inflate("x^2") {
+            decorGroup {
+                center { text { content("x") } }
+                rightTop { text { content("2") } }
+            }
+        }
+    }
+
+    @Test
+    fun `test subscript`() {
+        inflate("x_1") {
+            decorGroup {
+                center { text { content("x") } }
+                rightBottom { text { content("1") } }
+            }
+        }
+    }
+
+    @Test
+    fun `test superscript and subscript`() {
+        inflate("x^2_1") {
+            decorGroup {
+                center { text { content("x") } }
+                rightTop { text { content("2") } }
+                rightBottom { text { content("1") } }
             }
         }
     }
