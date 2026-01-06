@@ -1414,6 +1414,7 @@ class MathInflaterUnitTest {
                     bottom { text { content("below") } }
                 }
             }
+            println("\\${key}{${key}} = ${MathFontOptions.symbol(value).unicode}")
         }
     }
 
