@@ -4,6 +4,10 @@ public class Spacing implements Atom {
 	public final String command;
 	public final Ast content;
 
+	public Spacing(String command) {
+		this(command, null);
+	}
+
 	public Spacing(String command, Ast content) {
 		this.command = command;
 		this.content = content;

@@ -914,7 +914,7 @@ public class MathParser {
 	/**
 	 * 获取定界符命令的级别
 	 */
-	private int getDelimitedLevel(String cmd) {
+	public static int getDelimitedLevel(String cmd) {
 		for (int i = 0; i < DELIMITER_LEVELS.length; ++i) {
 			if (cmd.equals(DELIMITER_LEVELS[i][0])) {
 				return i;
