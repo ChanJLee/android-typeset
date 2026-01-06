@@ -324,16 +324,10 @@ public class MathFontOptions {
 				return MathFontOptions.symbol("uni219E");
 			case "xmapsto":
 				return MathFontOptions.symbol("uni21A6");
-			case "xtofrom":
+			case "":
 				return MathFontOptions.symbol("uni21C4");
 			default:
-				// 如果没有找到对应的符号，使用 rightarrow 作为默认
-				Symbol symbol = MathFontOptions.symbol("arrowright");
-				if (symbol == null) {
-					// 如果连默认箭头都找不到，抛出异常
-					throw new IllegalArgumentException("Unknown extensible arrow command: " + command);
-				}
-				return symbol;
-			}
+				throw new IllegalArgumentException("Unknown extensible arrow command: " + command);
+		}
 	}
 }

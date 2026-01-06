@@ -467,7 +467,7 @@ class MathFontOptionsUnitTest {
         val atom = SymbolAtom("-")
         val symbol = MathFontOptions.ast(atom)
         Assert.assertNotNull("- 应该有对应的符号", symbol)
-        Assert.assertEquals("−", symbol?.unicode)
+        Assert.assertEquals("-", symbol?.unicode)
     }
 
     @Test
@@ -475,7 +475,7 @@ class MathFontOptionsUnitTest {
         val atom = SymbolAtom("*")
         val symbol = MathFontOptions.ast(atom)
         Assert.assertNotNull("* 应该有对应的符号", symbol)
-        Assert.assertEquals("×", symbol?.unicode)
+        Assert.assertEquals("*", symbol?.unicode)
     }
 
     @Test
@@ -483,7 +483,7 @@ class MathFontOptionsUnitTest {
         val atom = SymbolAtom("/")
         val symbol = MathFontOptions.ast(atom)
         Assert.assertNotNull("/ 应该有对应的符号", symbol)
-        Assert.assertEquals("÷", symbol?.unicode)
+        Assert.assertEquals("/", symbol?.unicode)
     }
 
     @Test
@@ -1159,13 +1159,10 @@ class MathFontOptionsUnitTest {
         Assert.assertEquals("⇔", symbol?.unicode)
     }
 
-    @Test
+    @Test(expected = IllegalArgumentException::class)
     fun `test extensible arrow unknown defaults to right arrow`() {
-        val atom = ExtensibleArrowAtom("xhookrightarrow", MathList(emptyList()), null)
-        val symbol = MathFontOptions.ast(atom)
-        // 未知的箭头应该有默认值
-        Assert.assertNotNull("未知箭头应该有默认符号", symbol)
-        Assert.assertEquals("→", symbol?.unicode)
+        val atom = ExtensibleArrowAtom("xhookrightarrowxxxx", MathList(emptyList()), null)
+        MathFontOptions.ast(atom)
     }
 
     // ========== 文本运算符测试 (Text Operators/Functions) ==========

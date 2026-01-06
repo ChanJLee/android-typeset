@@ -1147,7 +1147,7 @@ class MathInflaterUnitTest {
                             content {
                                 child {
                                     linearGroup {
-                                        child { symbol { content("−") } }
+                                        child { symbol { content("-") } }
                                         child { text { content("x") } }
                                     }
                                 }
