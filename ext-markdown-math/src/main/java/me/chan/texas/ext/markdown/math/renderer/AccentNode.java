@@ -1,13 +1,15 @@
 package me.chan.texas.ext.markdown.math.renderer;
 
+import androidx.annotation.NonNull;
+
 import me.chan.texas.ext.markdown.math.renderer.core.MathCanvas;
 import me.chan.texas.ext.markdown.math.renderer.core.MathPaint;
 import me.chan.texas.ext.markdown.math.renderer.fonts.MathFontOptions;
 import me.chan.texas.ext.markdown.math.renderer.fonts.Symbol;
 
-public class AccentNode extends RendererNode implements HorizontalCalibratedNode {
+public class AccentNode extends RendererNode implements HorizontalCalibratedNode, OptimizableRendererNode {
 	private final String mCmd;
-	private final RendererNode mContent;
+	private RendererNode mContent;
 	private final RendererNode mCmdNode;
 
 	public AccentNode(MathPaint.Styles styles, String cmd, RendererNode content) {
@@ -286,5 +288,15 @@ public class AccentNode extends RendererNode implements HorizontalCalibratedNode
 	@Override
 	public float getContentCenterY() {
 		return mContent.getContentCenterY() + mContent.getTop();
+	}
+
+	@NonNull
+	@Override
+	public RendererNode optimize() {
+		if (mContent instanceof OptimizableRendererNode) {
+			mContent = ((OptimizableRendererNode) mContent).optimize();
+		}
+
+		return this;
 	}
 }
