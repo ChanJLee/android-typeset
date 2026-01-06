@@ -1414,7 +1414,7 @@ class MathInflaterUnitTest {
                     bottom { text { content("below") } }
                 }
             }
-            println("\\${key}{${key}} = ${MathFontOptions.symbol(value).unicode}")
+            println("\\${key}{${key}} = ${MathFontOptions.symbol(value).unicode} \\\\")
         }
     }
 
@@ -1422,11 +1422,6 @@ class MathInflaterUnitTest {
     fun `test symbol atom`() {
         // Binary Operators
         var symbols = mapOf(
-            "+" to "plus",
-            "-" to "hyphen",
-            "*" to "asterisk",
-            "/" to "slash",
-            "," to "comma",
             "\\times" to "multiply",
             "\\cdot" to "uni22C5",
             "\\div" to "divide",
@@ -1451,11 +1446,11 @@ class MathInflaterUnitTest {
                     content(MathFontOptions.symbol(value))
                 }
             }
+            println("${key.substring(1)}  ${key} = ${MathFontOptions.symbol(value).unicode} \\\\")
         }
 
         // Relations
         symbols = mapOf(
-            "=" to "equal",
             "\\neq" to "notequal",
             "\\equiv" to "equivalence",
             "\\approx" to "approxequal",
@@ -1464,8 +1459,6 @@ class MathInflaterUnitTest {
             "\\simeq" to "similar_equal",
             "\\asymp" to "uni224D",
             "\\propto" to "proportional",
-            "<" to "less",
-            ">" to "greater",
             "\\le" to "lessequal",
             "\\ge" to "greaterequal",
             "\\leq" to "lessequal",
@@ -1479,7 +1472,6 @@ class MathInflaterUnitTest {
             "\\perp" to "uni27C2",
             "\\parallel" to "parallel",
             "\\mid" to "divides",
-            "|" to "bar",
             "\\nmid" to "uni2224",
             "\\bowtie" to "uni22C8",
             "\\models" to "uni22A8"
@@ -1490,6 +1482,7 @@ class MathInflaterUnitTest {
                     content(MathFontOptions.symbol(value))
                 }
             }
+            println("${key.substring(1)}  ${key} = ${MathFontOptions.symbol(value).unicode} \\\\")
         }
 
         // Sets and Logic
@@ -1517,6 +1510,7 @@ class MathInflaterUnitTest {
                     content(MathFontOptions.symbol(value))
                 }
             }
+            println("${key.substring(1)}  ${key} = ${MathFontOptions.symbol(value).unicode} \\\\")
         }
 
         // Arrows
@@ -1537,6 +1531,7 @@ class MathInflaterUnitTest {
                     content(MathFontOptions.symbol(value))
                 }
             }
+            println("${key.substring(1)}  ${key} = ${MathFontOptions.symbol(value).unicode} \\\\")
         }
 
         // Geometry & Others
@@ -1566,6 +1561,7 @@ class MathInflaterUnitTest {
                     content(MathFontOptions.symbol(value))
                 }
             }
+            println("${key.substring(1)}  ${key} = ${MathFontOptions.symbol(value).unicode} \\\\")
         }
 
         // Other
@@ -1574,7 +1570,16 @@ class MathInflaterUnitTest {
             "!" to "exclam",
             "'" to "quotesingle",
             "," to "comma",
-            ";" to "semicolon"
+            ";" to "semicolon",
+            "+" to "plus",
+            "-" to "hyphen",
+            "*" to "asterisk",
+            "/" to "slash",
+            "," to "comma",
+            "<" to "less",
+            ">" to "greater",
+            "|" to "bar",
+            "=" to "equal",
         )
         for ((key, value) in symbols) {
             inflate(key) {
@@ -1582,6 +1587,7 @@ class MathInflaterUnitTest {
                     content(MathFontOptions.symbol(value))
                 }
             }
+            println("${key} = ${MathFontOptions.symbol(value).unicode} \\\\")
         }
     }
 
