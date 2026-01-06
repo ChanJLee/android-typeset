@@ -1,6 +1,8 @@
 package me.chan.texas.ext.markdown.math.ast;
 
+import me.chan.texas.text.icu.UnicodeUtils;
 import me.chan.texas.utils.CharStream;
+import me.chan.texas.utils.TexasUtils;
 
 import java.util.*;
 
@@ -186,17 +188,17 @@ public class MathParser {
 		int save = stream.save();
 		char c = (char) stream.peek();
 
-		if ("+-*/|!',;<>=".indexOf(c) >= 0) {
-			stream.eat();
-			return new SymbolAtom(String.valueOf(c));
-		}
-
 		if (c == '\\') {
 			stream.eat();
 			String cmd = scanCommandName();
 			if (SYMBOL.contains(cmd)) {
 				return new SymbolAtom("\\" + cmd);
 			}
+		}
+
+		if (UnicodeUtils.isSymbolsAndPunctuation(c)) {
+			stream.eat();
+			return new SymbolAtom(String.valueOf(c));
 		}
 
 		stream.restore(save);

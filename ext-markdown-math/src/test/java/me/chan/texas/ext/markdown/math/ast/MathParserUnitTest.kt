@@ -2659,6 +2659,11 @@ class MathParserUnitTest {
         parse("\\begin{matrix}a\\end{pmatrix}")
     }
 
+    @Test
+    fun `test parse common symbol`() {
+        parse("div  \\div = ÷ ")
+    }
+
     // ================================================================
     // 工具方法 (Test Infrastructure)
     // ================================================================

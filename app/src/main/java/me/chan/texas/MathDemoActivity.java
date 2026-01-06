@@ -44,7 +44,8 @@ public class MathDemoActivity extends AppCompatActivity {
 	private List<FormulaCategory> getFormulaCategories() {
 		List<FormulaCategory> categories = new ArrayList<>();
 		categories.add(new FormulaCategory("自定义", Arrays.asList(
-				new MathFormula("混合", "--a\\alpha!++babcdfg\\iota")
+				new MathFormula("混合", "--a\\alpha!++babcdfg\\iota"),
+				new MathFormula("div", "div  \\div = ÷ ")
 		)));
 
 		// ============================================================
