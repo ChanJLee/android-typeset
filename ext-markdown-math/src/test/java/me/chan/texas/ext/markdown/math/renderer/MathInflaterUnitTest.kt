@@ -1301,7 +1301,14 @@ class MathInflaterUnitTest {
         inflate("\\overbrace{x}") {
             accent {
                 cmd {
-                    stretchy3 { symbol("⎧", "⎨", "⎩", "⎪") }
+                    stretchy3 {
+                        symbol(
+                            MathFontOptions.symbol("uni23A7").unicode,
+                            MathFontOptions.symbol("uni23A8").unicode,
+                            MathFontOptions.symbol("uni23A9").unicode,
+                            MathFontOptions.symbol("uni23AA").unicode
+                        )
+                    }
                 }
                 content { text { content("x") } }
             }
@@ -1313,7 +1320,14 @@ class MathInflaterUnitTest {
         inflate("\\underbrace{x}") {
             accent {
                 cmd {
-                    stretchy3 { symbol("⎧", "⎨", "⎩", "⎪") }
+                    stretchy3 {
+                        symbol(
+                            MathFontOptions.symbol("uni23A7").unicode,
+                            MathFontOptions.symbol("uni23A8").unicode,
+                            MathFontOptions.symbol("uni23A9").unicode,
+                            MathFontOptions.symbol("uni23AA").unicode
+                        )
+                    }
                 }
                 content { text { content("x") } }
             }
@@ -1364,20 +1378,20 @@ class MathInflaterUnitTest {
 
     @Test
     fun `test extensible arrow`() {
-        //"\xrightarrow" | "\xleftarrow" | "\xleftrightarrow"
-        //                          | "\xRightarrow" | "\xLeftarrow" | "\xLeftrightarrow"
-        //                          | "\xhookrightarrow" | "\xhookleftarrow"
-        //                          | "\xtwoheadrightarrow" | "\xtwoheadleftarrow"
-        //                          | "\xmapsto" | "\xtofrom"
         val symbols = mapOf(
-            "xrightarrow" to "→"
+            "xrightarrow" to "arrowright",
+            "xleftarrow" to "arrowleft",
+            "xleftrightarrow" to "arrowboth",
+            "xRightarrow" to "arrowdblright",
+            "xLeftarrow" to "arrowdblleft",
+            "xLeftrightarrow" to "arrowdblboth"
         )
         for ((key, value) in symbols) {
             inflate("\\${key}{above}") {
                 decorGroup {
                     center {
                         symbol {
-                            content(value)
+                            content(MathFontOptions.symbol(value))
                         }
                     }
                     top { text { content("above") } }
@@ -1387,7 +1401,7 @@ class MathInflaterUnitTest {
                 decorGroup {
                     center {
                         symbol {
-                            content(value)
+                            content(MathFontOptions.symbol(value))
                         }
                     }
                     top { text { content("above") } }
