@@ -324,7 +324,7 @@ public class MathFontOptions {
 				return MathFontOptions.symbol("uni219E");
 			case "xmapsto":
 				return MathFontOptions.symbol("uni21A6");
-			case "":
+			case "xtofrom":
 				return MathFontOptions.symbol("uni21C4");
 			default:
 				throw new IllegalArgumentException("Unknown extensible arrow command: " + command);
