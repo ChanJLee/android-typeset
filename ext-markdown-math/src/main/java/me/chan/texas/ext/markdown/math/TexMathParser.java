@@ -18,7 +18,7 @@ import me.chan.texas.text.Paragraph;
 import me.chan.texas.utils.CharStream;
 
 public class TexMathParser {
-	private MathPaint mPaint;
+	private final MathPaint mPaint;
 
 	public TexMathParser(TexasOption option) {
 		TexasPaintImpl paint = new TexasPaintImpl();
