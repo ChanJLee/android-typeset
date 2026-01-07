@@ -101,6 +101,11 @@ public abstract class RendererNode {
 		mTop += dy;
 	}
 
+	public final void translateTo(float x, float y) {
+		mLeft = x;
+		mTop = y;
+	}
+
 	protected abstract void onMeasure(MathPaint paint, int widthSpec, int heightSpec);
 
 	protected void onLayoutChildren() {

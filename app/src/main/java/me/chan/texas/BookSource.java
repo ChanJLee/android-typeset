@@ -9,11 +9,9 @@ import me.chan.texas.ext.markdown.math.MathBox;
 import me.chan.texas.ext.markdown.math.ast.MathList;
 import me.chan.texas.ext.markdown.math.ast.MathParseException;
 import me.chan.texas.ext.markdown.math.ast.MathParser;
-import me.chan.texas.ext.markdown.math.renderer.LinearGroupNode;
 import me.chan.texas.ext.markdown.math.renderer.MathRendererInflater;
 import me.chan.texas.ext.markdown.math.renderer.RendererNode;
 import me.chan.texas.ext.markdown.math.renderer.core.MathPaint;
-import me.chan.texas.ext.markdown.math.renderer.core.MathPaintImpl;
 import me.chan.texas.ext.markdown.math.view.MathView;
 import me.chan.texas.misc.Rect;
 import me.chan.texas.misc.RectF;
@@ -417,21 +415,7 @@ public class BookSource extends TexasView.DocumentSource {
 		MathPaint paint = MathView.create(Texas.getAppContext());
 		MathRendererInflater inflater = new MathRendererInflater();
 		RendererNode rendererNode = inflater.inflate(new MathPaint.Styles(paint), list);
-		if (!(rendererNode instanceof LinearGroupNode)) {
-			builder.hyperSpan(new MathBox(rendererNode, paint));
-			return;
-		}
-
-		LinearGroupNode linearGroupNode = (LinearGroupNode) rendererNode;
-		if (linearGroupNode.getGravity() != LinearGroupNode.Gravity.HORIZONTAL) {
-			builder.hyperSpan(new MathBox(rendererNode, paint));
-			return;
-		}
-
-		for (int i = 0; i < linearGroupNode.getChildCount(); i++) {
-			RendererNode child = linearGroupNode.getChildAt(i);
-			builder.hyperSpan(new MathBox(child, paint));
-		}
+		builder.hyperSpan(new MathBox(rendererNode, paint));
 	}
 
 	private String parseSent(XmlPullParser parser, Paragraph.Builder builder) throws IOException, XmlPullParserException {

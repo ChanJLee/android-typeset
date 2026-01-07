@@ -29,6 +29,7 @@ public class MathBox extends HyperSpan {
 			mCanvas.reset(canvas.getCanvas());
 		}
 
+		mRendererNode.translateTo(inner.left, inner.top);
 		mRendererNode.draw(mCanvas, mPaint);
 	}
 
