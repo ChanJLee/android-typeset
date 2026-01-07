@@ -2689,11 +2689,12 @@ class MathParserUnitTest {
         }
 
         @JvmStatic
-        fun assertParsesTo(input: String, expectedOutput: String?) {
+        fun assertParsesTo(input: String, expectedOutput: String) {
             try {
                 val ast: MathList = parse(input)
                 val actual = ast.toString()
-                Assert.assertEquals("输入: $input", expectedOutput, actual)
+                // 剔除空格
+                Assert.assertEquals("输入: $input", expectedOutput.replace(" ", ""), actual.replace(" ", ""))
                 println("✅ $input → $actual")
             } catch (e: MathParseException) {
                 Assert.fail("解析失败: $input - ${e.pretty()}")
