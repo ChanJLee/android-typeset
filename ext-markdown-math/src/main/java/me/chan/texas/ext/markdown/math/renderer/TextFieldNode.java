@@ -31,6 +31,10 @@ public class TextFieldNode extends RendererNode {
 		mBreakPoints.add(text.length());
 	}
 
+	public String getText() {
+		return mText;
+	}
+
 	@Override
 	protected void onMeasure(MathPaint paint, int widthSpec, int heightSpec) {
 		paint.getFontMetrics(mFontMetrics);

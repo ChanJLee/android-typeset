@@ -1,6 +1,8 @@
 package me.chan.texas.ext.markdown.math.ast;
 
+import me.chan.texas.text.icu.UnicodeUtils;
 import me.chan.texas.utils.CharStream;
+import me.chan.texas.utils.TexasUtils;
 
 import java.util.*;
 
@@ -86,11 +88,14 @@ public class MathParser {
 			{"(", ")"},
 			{"[", "]"},
 			{"{", "}"},
-			{"langle", "rangle"},
-			{"lfloor", "rfloor"},
-			{"lceil", "rceil"},
-			{"lvert", "rvert"},
-			{"lVert", "rVert"},
+			{"|", "|"},
+			{"||", "||"},
+			{"\\|", "\\|"},
+			{"\\langle", "\\rangle"},
+			{"\\lfloor", "\\rfloor"},
+			{"\\lceil", "\\rceil"},
+			{"\\lvert", "\\rvert"},
+			{"\\lVert", "\\rVert"},
 			{"\\{", "\\}"}
 	};
 
@@ -108,7 +113,7 @@ public class MathParser {
 			, "boldsymbol", "bm"
 	));
 	private static final Set<String> TEXT_COMMANDS = new HashSet<>(Arrays.asList(
-			"text", "mbox", "textrm", "textit", "textbf")
+			"text", "mbox", "textrm", "textit", "textbf", "textfield")
 	);
 	private static final Set<String> FRAC_COMMANDS = new HashSet<>(
 			Arrays.asList(
@@ -183,17 +188,15 @@ public class MathParser {
 		int save = stream.save();
 		char c = (char) stream.peek();
 
-		if ("+-*/|!',;<>=".indexOf(c) >= 0) {
-			stream.eat();
-			return new SymbolAtom(String.valueOf(c));
-		}
-
 		if (c == '\\') {
 			stream.eat();
 			String cmd = scanCommandName();
 			if (SYMBOL.contains(cmd)) {
 				return new SymbolAtom("\\" + cmd);
 			}
+		} else if (UnicodeUtils.isSymbolsAndPunctuation(c)) {
+			stream.eat();
+			return new SymbolAtom(String.valueOf(c));
 		}
 
 		stream.restore(save);
@@ -800,6 +803,10 @@ public class MathParser {
 	}
 
 	private void checkDelimiterPairs(String left, String right) throws MathParseException {
+		if (".".equals(left) || ".".equals(right)) {
+			return;
+		}
+
 		for (String[] pair : DELIMITER_PAIRS) {
 			if (pair[0].equals(left) && pair[1].equals(right)) {
 				return;
@@ -907,7 +914,7 @@ public class MathParser {
 	/**
 	 * 获取定界符命令的级别
 	 */
-	private int getDelimitedLevel(String cmd) {
+	public static int getDelimitedLevel(String cmd) {
 		for (int i = 0; i < DELIMITER_LEVELS.length; ++i) {
 			if (cmd.equals(DELIMITER_LEVELS[i][0])) {
 				return i;

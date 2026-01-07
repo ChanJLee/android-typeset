@@ -14,4 +14,9 @@ public class Symbol {
 		this.xMax = xMax;
 		this.descent = descent;
 	}
+
+	@Override
+	public String toString() {
+		return unicode;
+	}
 }

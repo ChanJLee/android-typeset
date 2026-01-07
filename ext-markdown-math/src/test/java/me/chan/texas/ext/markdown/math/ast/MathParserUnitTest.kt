@@ -1,14 +1,11 @@
 package me.chan.texas.ext.markdown.unitTest
 
 import me.chan.texas.ext.markdown.math.ast.DelimitedAtom
-import me.chan.texas.ext.markdown.math.ast.MathList
 import me.chan.texas.ext.markdown.math.ast.MathListAsserter
 import me.chan.texas.ext.markdown.math.ast.MathParseException
 import me.chan.texas.ext.markdown.math.ast.MathParser
-import org.junit.Test
 import me.chan.texas.utils.CharStream
-import org.junit.Assert
-import org.junit.Assert.fail
+import org.junit.Test
 
 /**
  * MathParser 完整覆盖测试
@@ -2659,6 +2656,11 @@ class MathParserUnitTest {
         parse("\\begin{matrix}a\\end{pmatrix}")
     }
 
+    @Test
+    fun `test parse common symbol`() {
+        parse("div  \\div = ÷ ")
+    }
+
     // ================================================================
     // 工具方法 (Test Infrastructure)
     // ================================================================
@@ -2673,26 +2675,5 @@ class MathParserUnitTest {
         val asserter = MathListAsserter(ast)
         asserter.apply(block)
         asserter.eof()
-    }
-
-    companion object {
-        @Throws(MathParseException::class)
-        fun parse(input: String): MathList {
-            val stream = CharStream(input, 0, input.length)
-            val parser = MathParser(stream)
-            return parser.parse()
-        }
-
-        @JvmStatic
-        fun assertParsesTo(input: String, expectedOutput: String?) {
-            try {
-                val ast: MathList = parse(input)
-                val actual = ast.toString()
-                Assert.assertEquals("输入: $input", expectedOutput, actual)
-                println("✅ $input → $actual")
-            } catch (e: MathParseException) {
-                Assert.fail("解析失败: $input - ${e.pretty()}")
-            }
-        }
     }
 }

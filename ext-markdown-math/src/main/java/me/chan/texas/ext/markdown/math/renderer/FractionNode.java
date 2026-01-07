@@ -33,6 +33,14 @@ public class FractionNode extends RendererNode implements OptimizableRendererNod
 		setMeasuredSize(width, height);
 	}
 
+	public RendererNode getNumerator() {
+		return mNumerator;
+	}
+
+	public RendererNode getDenominator() {
+		return mDenominator;
+	}
+
 	private float getDenominatorVerticalGap(MathPaint paint) {
 		return MathFontOptions.FRACTION_DENOMINATOR_GAP_MIN / MathFontOptions.UNITS_PER_EM * paint.getTextSize();
 	}

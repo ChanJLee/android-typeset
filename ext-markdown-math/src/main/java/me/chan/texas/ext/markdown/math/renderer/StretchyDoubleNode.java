@@ -21,6 +21,14 @@ public class StretchyDoubleNode extends RendererNode {
 		mGravity = gravity;
 	}
 
+	public SymbolNode getSymbol() {
+		return mSymbol;
+	}
+
+	public SymbolNode getExtension() {
+		return mExtension;
+	}
+
 	@Override
 	protected void onMeasure(MathPaint paint, int widthSpec, int heightSpec) {
 		mSymbol.measure(paint);

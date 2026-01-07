@@ -405,10 +405,7 @@ public class Line extends DefaultRecyclable {
 						lineHeight = box.getHeight();
 					}
 
-					if (box instanceof TextBox) {
-						TextBox textBox = (TextBox) box;
-						line.mBaselineOffset = Math.max(textBox.getBaselineOffset(), line.mBaselineOffset);
-					}
+					line.mBaselineOffset = Math.max(box.getBaselineOffset(), line.mBaselineOffset);
 				} else if (element instanceof Glue) {
 					Glue glue = (Glue) element;
 					glueWidth += glue.getWidth();

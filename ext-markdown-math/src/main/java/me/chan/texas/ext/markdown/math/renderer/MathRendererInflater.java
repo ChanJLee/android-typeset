@@ -409,7 +409,7 @@ public class MathRendererInflater {
 			styles = styles.copy().setBold(true);
 		}
 
-		if (TexasUtils.equals("textit", atom.content)) {
+		if (TexasUtils.equals("textit", atom.command)) {
 			styles = styles.copy().setItalic(true);
 		}
 
@@ -524,7 +524,14 @@ public class MathRendererInflater {
 			);
 		}
 
-		if ("\\|".equals(delimiter) || "|".equals(delimiter) || "||".equals(delimiter)) {
+		if ("|".equals(delimiter)) {
+			return new StretchyNode(
+					styles,
+					MathFontOptions.symbol("divides")
+			);
+		}
+
+		if ("\\|".equals(delimiter) || "||".equals(delimiter)) {
 			return new StretchyNode(
 					styles,
 					MathFontOptions.symbol("parallel")

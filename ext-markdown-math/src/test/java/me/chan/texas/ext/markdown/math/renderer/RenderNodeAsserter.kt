@@ -2,6 +2,7 @@ package me.chan.texas.ext.markdown.math.renderer
 
 import me.chan.texas.ext.markdown.math.UnitTestDslMarker
 import me.chan.texas.ext.markdown.math.renderer.fonts.Symbol
+import me.chan.texas.misc.BitBucket32
 import org.junit.Assert
 
 open class RenderNodeAsserter(private val node: RendererNode) {
@@ -43,22 +44,129 @@ class BraceAsserter(private val node: BraceGroupNode) : RenderNodeAsserter(node)
     fun right(block: DispatchAsserter.() -> Unit) {
         DispatchAsserter(node.rightSymbol).block()
     }
+
+    fun noRight() {
+        Assert.assertNull(node.rightSymbol)
+    }
+
+    fun noLeft() {
+        Assert.assertNull(node.leftSymbol)
+    }
 }
 
 @UnitTestDslMarker
-class DecorGroupAsserter(node: DecorGroupNode) : RenderNodeAsserter(node) {
+class DecorGroupAsserter(private val node: DecorGroupNode) : RenderNodeAsserter(node) {
+    private var _bit = BitBucket32()
 
-}
+    fun center(block: DispatchAsserter.() -> Unit) {
+        DispatchAsserter(node.center).block()
+        _bit[0] = true
+    }
 
-@UnitTestDslMarker
-class FractionAsserter(node: FractionNode) : RenderNodeAsserter(node) {
+    fun left(block: DispatchAsserter.() -> Unit) {
+        DispatchAsserter(node.leftNode).block()
+        _bit[1] = true
+    }
 
-}
+    fun leftTop(block: DispatchAsserter.() -> Unit) {
+        DispatchAsserter(node.leftTop).block()
+        _bit[2] = true
+    }
 
-@UnitTestDslMarker
-class GridGroupAsserter(node: GridGroupNode) : RenderNodeAsserter(node) {
+    fun leftBottom(block: DispatchAsserter.() -> Unit) {
+        DispatchAsserter(node.leftBottom).block()
+        _bit[3] = true
+    }
+
+    fun right(block: DispatchAsserter.() -> Unit) {
+        DispatchAsserter(node.rightNode).block()
+        _bit[4] = true
+    }
+
+    fun rightTop(block: DispatchAsserter.() -> Unit) {
+        DispatchAsserter(node.rightTop).block()
+        _bit[5] = true
+    }
+
+    fun rightBottom(block: DispatchAsserter.() -> Unit) {
+        DispatchAsserter(node.rightBottom).block()
+        _bit[6] = true
+    }
+
+    fun top(block: DispatchAsserter.() -> Unit) {
+        DispatchAsserter(node.getTopNode()).block()
+        _bit[7] = true
+    }
+
+    fun bottom(block: DispatchAsserter.() -> Unit) {
+        DispatchAsserter(node.getBottomNode()).block()
+        _bit[8] = true
+    }
+
     fun eof() {
-        TODO("Not yet implemented")
+        val cmp = BitBucket32()
+        if (node.center != null) {
+            cmp[0] = true
+        }
+        if (node.leftNode != null) {
+            cmp[1] = true
+        }
+        if (node.leftTop != null) {
+            cmp[2] = true
+        }
+        if (node.leftBottom != null) {
+            cmp[3] = true
+        }
+        if (node.rightNode != null) {
+            cmp[4] = true
+        }
+        if (node.rightTop != null) {
+            cmp[5] = true
+        }
+        if (node.rightBottom != null) {
+            cmp[6] = true
+        }
+        if (node.getTopNode() != null) {
+            cmp[7] = true
+        }
+        if (node.bottomNode != null) {
+            cmp[8] = true
+        }
+        Assert.assertEquals(cmp, _bit)
+    }
+}
+
+@UnitTestDslMarker
+class FractionAsserter(private val node: FractionNode) : RenderNodeAsserter(node) {
+    fun numerator(block: DispatchAsserter.() -> Unit) {
+        DispatchAsserter(node.numerator).block()
+    }
+
+    fun denominator(block: DispatchAsserter.() -> Unit) {
+        DispatchAsserter(node.denominator).block()
+    }
+}
+
+@UnitTestDslMarker
+class RowAsserter(private val node: LinearGroupNode) : RenderNodeAsserter(node) {
+    fun content(block: LinearGroupAsserter.() -> Unit) {
+        val asserter = LinearGroupAsserter(node)
+        block(asserter)
+        asserter.eof()
+    }
+}
+
+@UnitTestDslMarker
+class GridGroupAsserter(private val node: GridGroupNode) : RenderNodeAsserter(node) {
+    private var _index = 0
+
+    fun row(block: RowAsserter.() -> Unit) {
+        val asserter = RowAsserter(node.getRow(_index++))
+        block(asserter)
+    }
+
+    fun eof() {
+        Assert.assertEquals(node.rowCount, _index)
     }
 }
 
@@ -67,6 +175,11 @@ class DispatchAsserter(private val node: RendererNode) {
 
     fun text(block: TextAsserter.() -> Unit) {
         val asserter = TextAsserter(node as TextNode)
+        block(asserter)
+    }
+
+    fun textField(block: TextFieldAsserter.() -> Unit) {
+        val asserter = TextFieldAsserter(node as TextFieldNode)
         block(asserter)
     }
 
@@ -89,6 +202,7 @@ class DispatchAsserter(private val node: RendererNode) {
     fun decorGroup(block: DecorGroupAsserter.() -> Unit) {
         val asserter = DecorGroupAsserter(node as DecorGroupNode)
         block(asserter)
+        asserter.eof()
     }
 
     fun fraction(block: FractionAsserter.() -> Unit) {
@@ -126,6 +240,16 @@ class DispatchAsserter(private val node: RendererNode) {
         val asserter = StretchyAsserter(node as StretchyNode)
         block(asserter)
     }
+
+    fun stretchy2(block: StretchyAsserter2.() -> Unit) {
+        val asserter = StretchyAsserter2(node as StretchyDoubleNode)
+        block(asserter)
+    }
+
+    fun stretchy3(block: StretchyAsserter3.() -> Unit) {
+        val asserter = StretchyAsserter3(node as StretchyTripeNode)
+        block(asserter)
+    }
 }
 
 @UnitTestDslMarker
@@ -134,6 +258,28 @@ class StretchyAsserter(private val node: StretchyNode) : RenderNodeAsserter(node
     fun symbol(s: Symbol?) {
         Assert.assertNotNull(s)
         Assert.assertEquals(s, node.symbol.symbol)
+    }
+
+    fun symbol(s: String) {
+        Assert.assertEquals(s, node.symbol.symbol.unicode)
+    }
+}
+
+class StretchyAsserter2(private val node: StretchyDoubleNode) : RenderNodeAsserter(node) {
+    fun symbol(s: String, e: String) {
+        Assert.assertEquals(s, node.symbol.symbol.unicode)
+        Assert.assertEquals(e, node.extension.symbol.unicode);
+    }
+}
+
+@UnitTestDslMarker
+class StretchyAsserter3(private val node: StretchyTripeNode) : RenderNodeAsserter(node) {
+
+    fun symbol(top: String, middle: String, bottom: String, extension: String) {
+        Assert.assertEquals(top, node.topNode.symbol.unicode)
+        Assert.assertEquals(middle, node.middleNode.symbol.unicode)
+        Assert.assertEquals(bottom, node.bottomNode.symbol.unicode)
+        Assert.assertEquals(extension, node.extensionNode.symbol.unicode)
     }
 }
 
@@ -153,7 +299,10 @@ class LinearGroupAsserter(private val node: LinearGroupNode) : RenderNodeAsserte
 
 @UnitTestDslMarker
 class PhantomAsserter(private val node: PhantomNode) : RenderNodeAsserter(node) {
-
+    fun content(block: DispatchAsserter.() -> Unit) {
+        val asserter = DispatchAsserter(node.content)
+        block(asserter)
+    }
 }
 
 @UnitTestDslMarker
@@ -163,14 +312,28 @@ class SpaceAsserter(private val node: SpaceNode) : RenderNodeAsserter(node) {
 
 @UnitTestDslMarker
 class SqrtAsserter(private val node: SqrtNode) : RenderNodeAsserter(node) {
+    fun noRoot() {
+        Assert.assertNull(node.root)
+    }
 
+    fun root(block: DispatchAsserter.() -> Unit) {
+        DispatchAsserter(node.root!!).block()
+    }
+
+    fun content(block: DispatchAsserter.() -> Unit) {
+        DispatchAsserter(node.content).block()
+    }
 }
 
 @UnitTestDslMarker
 class SymbolAsserter(private val node: SymbolNode) : RenderNodeAsserter(node) {
     fun content(s: Symbol?) {
         Assert.assertNotNull(s)
-        Assert.assertEquals(s, node.symbol)
+        Assert.assertEquals(s!!.unicode, node.symbol.unicode)
+    }
+
+    fun content(s: String) {
+        Assert.assertEquals(s, node.symbol.unicode)
     }
 }
 
@@ -178,5 +341,12 @@ class SymbolAsserter(private val node: SymbolNode) : RenderNodeAsserter(node) {
 class TextAsserter(private val node: TextNode) : RenderNodeAsserter(node) {
     fun content(s: String) {
         Assert.assertEquals(s, node.content)
+    }
+}
+
+@UnitTestDslMarker
+class TextFieldAsserter(private val node: TextFieldNode) : RenderNodeAsserter(node) {
+    fun content(s: String) {
+        Assert.assertEquals(s, node.text)
     }
 }

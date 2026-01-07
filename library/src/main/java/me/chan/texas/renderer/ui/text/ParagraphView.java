@@ -890,6 +890,16 @@ public class ParagraphView extends FrameLayout {
 		Resources resources = getResources();
 		RenderOption renderOption = new RenderOption();
 
+		TypedArray themeArray = context.obtainStyledAttributes(new int[] {
+				android.R.attr.textColorPrimary,
+				android.R.attr.textSize
+		});
+		int defaultTextColor = themeArray.getColor(0, Color.BLACK);
+		int defaultTextSize = themeArray.getDimensionPixelSize(1, 48);
+		renderOption.setTextColor(defaultTextColor);
+		renderOption.setTextSize(defaultTextSize);
+		themeArray.recycle();
+
 		// 设置字体颜色
 		renderOption.setTextColor(
 				typedArray.getColor(R.styleable.me_chan_texas_ParagraphView_me_chan_texas_ParagraphView_textColor,

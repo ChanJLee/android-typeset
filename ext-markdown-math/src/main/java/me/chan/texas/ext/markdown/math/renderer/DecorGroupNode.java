@@ -16,6 +16,42 @@ public class DecorGroupNode extends RendererNode implements OptimizableRendererN
 		mBuilder = builder;
 	}
 
+	public RendererNode getCenter() {
+		return mBuilder.center;
+	}
+
+	public RendererNode getLeftTop() {
+		return mBuilder.leftTop;
+	}
+
+	public RendererNode getLeftBottom() {
+		return mBuilder.leftBottom;
+	}
+
+	public RendererNode getRightTop() {
+		return mBuilder.rightTop;
+	}
+
+	public RendererNode getRightBottom() {
+		return mBuilder.rightBottom;
+	}
+
+	public RendererNode getTopNode() {
+		return mBuilder.top;
+	}
+
+	public RendererNode getBottomNode() {
+		return mBuilder.bottom;
+	}
+
+	public RendererNode getLeftNode() {
+		return mBuilder.left;
+	}
+
+	public RendererNode getRightNode() {
+		return mBuilder.right;
+	}
+
 	@Override
 	protected void onMeasure(MathPaint paint, int widthSpec, int heightSpec) {
 		mBuilder.center.measure(paint);

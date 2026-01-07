@@ -419,6 +419,7 @@ public final class TextBox extends Box {
 		return height;
 	}
 
+	@Override
 	public float getBaselineOffset() {
 		return mBaselineOffset;
 	}

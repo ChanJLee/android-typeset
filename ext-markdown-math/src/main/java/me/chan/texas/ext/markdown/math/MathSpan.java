@@ -1,5 +1,6 @@
 package me.chan.texas.ext.markdown.math;
 
+import me.chan.texas.ext.markdown.math.renderer.HorizontalCalibratedNode;
 import me.chan.texas.ext.markdown.math.renderer.RendererNode;
 import me.chan.texas.ext.markdown.math.renderer.core.MathCanvas;
 import me.chan.texas.ext.markdown.math.renderer.core.MathCanvasImpl;
@@ -10,13 +11,13 @@ import me.chan.texas.renderer.core.graphics.TexasPaint;
 import me.chan.texas.text.HyperSpan;
 import me.chan.texas.text.layout.StateList;
 
-public class MathBox extends HyperSpan {
+public class MathSpan extends HyperSpan {
 	private MathCanvas mCanvas;
 	private final MathPaint mPaint;
 
 	private final RendererNode mRendererNode;
 
-	public MathBox(RendererNode rendererNode, MathPaint paint) {
+	public MathSpan(RendererNode rendererNode, MathPaint paint) {
 		mRendererNode = rendererNode;
 		mPaint = paint;
 	}
@@ -29,6 +30,7 @@ public class MathBox extends HyperSpan {
 			mCanvas.reset(canvas.getCanvas());
 		}
 
+		mRendererNode.translateTo(inner.left, inner.top);
 		mRendererNode.draw(mCanvas, mPaint);
 	}
 
@@ -37,5 +39,16 @@ public class MathBox extends HyperSpan {
 		mRendererNode.measure(mPaint);
 		mRendererNode.layout(0, 0);
 		setMeasuredSize(mRendererNode.getWidth(), mRendererNode.getHeight());
+	}
+
+	@Override
+	public float getBaselineOffset() {
+		if (mRendererNode instanceof HorizontalCalibratedNode) {
+			HorizontalCalibratedNode node = (HorizontalCalibratedNode) mRendererNode;
+			if (node.supportAlignBaseline()) {
+				return mRendererNode.getHeight() - node.getBaseline();
+			}
+		}
+		return 0;
 	}
 }

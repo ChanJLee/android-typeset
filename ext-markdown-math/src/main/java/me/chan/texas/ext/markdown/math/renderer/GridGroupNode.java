@@ -1,12 +1,14 @@
 package me.chan.texas.ext.markdown.math.renderer;
 
+import androidx.annotation.NonNull;
+
 import java.util.ArrayList;
 import java.util.List;
 
 import me.chan.texas.ext.markdown.math.renderer.core.MathCanvas;
 import me.chan.texas.ext.markdown.math.renderer.core.MathPaint;
 
-public class GridGroupNode extends RendererNode {
+public class GridGroupNode extends RendererNode implements OptimizableRendererNode {
 
 	private final List<LinearGroupNode> mNodes = new ArrayList<>();
 	private final int mColumnCount;
@@ -23,6 +25,10 @@ public class GridGroupNode extends RendererNode {
 		if (nodes.size() % columnCount != 0) {
 			mNodes.add(new LinearGroupNode(styles, nodes.subList(size * columnCount, nodes.size()), LinearGroupNode.Gravity.HORIZONTAL));
 		}
+	}
+
+	public int getRowCount() {
+		return mNodes.size();
 	}
 
 	@Override
@@ -103,5 +109,20 @@ public class GridGroupNode extends RendererNode {
 	@Override
 	protected String toPretty() {
 		return "Grid[]";
+	}
+
+	public LinearGroupNode getRow(int index) {
+		return mNodes.get(index);
+	}
+
+	@NonNull
+	@Override
+	public RendererNode optimize() {
+		for (int i = 0; i < mNodes.size(); ++i) {
+			LinearGroupNode node = mNodes.get(i);
+			node.optimize();
+		}
+
+		return this;
 	}
 }

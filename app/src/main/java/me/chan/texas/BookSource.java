@@ -5,6 +5,13 @@ import android.graphics.Color;
 import android.graphics.Path;
 
 import me.chan.texas.debug.R;
+import me.chan.texas.ext.markdown.math.MathSpan;
+import me.chan.texas.ext.markdown.math.ast.MathList;
+import me.chan.texas.ext.markdown.math.ast.MathParseException;
+import me.chan.texas.ext.markdown.math.ast.MathParser;
+import me.chan.texas.ext.markdown.math.renderer.MathRendererInflater;
+import me.chan.texas.ext.markdown.math.renderer.RendererNode;
+import me.chan.texas.ext.markdown.math.renderer.core.MathPaint;
 import me.chan.texas.ext.markdown.math.view.MathView;
 import me.chan.texas.misc.Rect;
 import me.chan.texas.misc.RectF;
@@ -38,6 +45,8 @@ import me.chan.texas.text.layout.Box;
 import me.chan.texas.text.layout.Layout;
 import me.chan.texas.text.layout.Line;
 import me.chan.texas.text.tokenizer.Token;
+import me.chan.texas.utils.CharStream;
+import me.chan.texas.utils.TexasUtils;
 
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -101,7 +110,7 @@ public class BookSource extends TexasView.DocumentSource {
 	}
 
 	private Document parse(XmlPullParser parser, TexasOption texasOption)
-			throws IOException, XmlPullParserException {
+			throws IOException, XmlPullParserException, MathParseException {
 		while (parser.next() != XmlPullParser.END_TAG) {
 			int eventType = parser.getEventType();
 			if (eventType == XmlPullParser.END_DOCUMENT) {
@@ -185,7 +194,7 @@ public class BookSource extends TexasView.DocumentSource {
 		});
 	}
 
-	private Document parseArticleContent(XmlPullParser parser, TexasOption texasOption) throws IOException, XmlPullParserException {
+	private Document parseArticleContent(XmlPullParser parser, TexasOption texasOption) throws IOException, XmlPullParserException, MathParseException {
 		parser.require(XmlPullParser.START_TAG, null, "article_content");
 		final String id = parser.getAttributeValue(null, "id");
 
@@ -254,11 +263,12 @@ public class BookSource extends TexasView.DocumentSource {
 	private static final int STATE_SENT = 1;
 	private static final int STATE_IMG = 2;
 	private static final int STATE_SUBTITLE = 3;
+	private static final int STATE_MATH = 4;
 
 	// FOR TEST
 	private int mSeq = 0;
 
-	private void parsePara(XmlPullParser parser, Document.Builder documentBuilder, TexasOption texasOption) throws IOException, XmlPullParserException {
+	private void parsePara(XmlPullParser parser, Document.Builder documentBuilder, TexasOption texasOption) throws IOException, XmlPullParserException, MathParseException {
 		parser.require(XmlPullParser.START_TAG, null, "para");
 		String id = parser.getAttributeValue(null, "id");
 
@@ -302,6 +312,9 @@ public class BookSource extends TexasView.DocumentSource {
 			} else if (TextUtils.equals("subtitle", name)) {
 				parseSubtitle(parser, builder);
 				lastState = STATE_SUBTITLE;
+			} else if (TexasUtils.equals("math-inline", name)) {
+				parseMathInline(parser, builder, texasOption);
+				lastState = STATE_MATH;
 			} else {
 				skip(parser);
 			}
@@ -384,6 +397,25 @@ public class BookSource extends TexasView.DocumentSource {
 			String title = safeNextText(parser);
 		}
 		parser.require(XmlPullParser.END_TAG, null, "subtitle");
+	}
+
+	private void parseMathInline(XmlPullParser parser, Paragraph.Builder builder, TexasOption texasOption) throws XmlPullParserException, IOException, MathParseException {
+		parser.require(XmlPullParser.START_TAG, null, "math-inline");
+		String formula = safeNextText(parser);
+		if (!TextUtils.isEmpty(formula)) {
+			parseMathInline(formula, builder, texasOption);
+		}
+		parser.require(XmlPullParser.END_TAG, null, "math-inline");
+	}
+
+	private void parseMathInline(String formula, Paragraph.Builder builder, TexasOption texasOption) throws MathParseException {
+		MathParser mathParser = new MathParser(new CharStream(formula));
+		MathList list = mathParser.parse();
+
+		MathPaint paint = MathView.create(Texas.getAppContext());
+		MathRendererInflater inflater = new MathRendererInflater();
+		RendererNode rendererNode = inflater.inflate(new MathPaint.Styles(paint), list);
+		builder.hyperSpan(new MathSpan(rendererNode, paint));
 	}
 
 	private String parseSent(XmlPullParser parser, Paragraph.Builder builder) throws IOException, XmlPullParserException {

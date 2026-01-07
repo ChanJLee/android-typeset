@@ -89,6 +89,10 @@ public abstract class HyperSpan implements Measurable {
 		mDrawableBox.resize(width, height);
 	}
 
+	public float getBaselineOffset() {
+		return 0f;
+	}
+
 	/**
 	 * 设置唯一标识
 	 *

@@ -56,4 +56,9 @@ public class SymbolNode extends RendererNode {
 	protected String toPretty() {
 		return "symbol: " + mSymbol.unicode;
 	}
+
+	@Override
+	public String toString() {
+		return mSymbol.toString();
+	}
 }

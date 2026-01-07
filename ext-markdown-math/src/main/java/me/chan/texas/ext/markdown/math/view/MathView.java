@@ -61,12 +61,9 @@ public class MathView extends View implements AsyncMathViewRenderer {
 	private final GestureDetector mGestureDetector;
 	private int mGravity = Gravity.START | Gravity.TOP;
 
-
-	public MathView(Context context, @Nullable AttributeSet attrs) {
-		super(context, attrs);
-
+	public static MathPaint create(Context context) {
 		// 从主题中获取默认的文本颜色和大小
-		TypedArray themeArray = context.obtainStyledAttributes(new int[] {
+		TypedArray themeArray = context.obtainStyledAttributes(new int[]{
 				android.R.attr.textColorPrimary,
 				android.R.attr.textSize
 		});
@@ -82,7 +79,13 @@ public class MathView extends View implements AsyncMathViewRenderer {
 
 		TexasPaintImpl paint = new TexasPaintImpl();
 		paint.reset(new PaintSet(textPaint));
-		mTexasPaint = new MathPaintImpl(paint);
+		return new MathPaintImpl(paint);
+	}
+
+	public MathView(Context context, @Nullable AttributeSet attrs) {
+		super(context, attrs);
+
+		mTexasPaint = create(context);
 		mCanvas = new MathCanvasImpl(new TexasCanvasImpl());
 
 		mGraphicsBuffer = new GraphicsBuffer();
@@ -90,10 +93,10 @@ public class MathView extends View implements AsyncMathViewRenderer {
 
 		TypedArray array = context.obtainStyledAttributes(attrs, R.styleable.MathView);
 		if (array.hasValue(R.styleable.MathView_android_textColor)) {
-			textPaint.setColor(array.getColor(R.styleable.MathView_android_textColor, defaultTextColor));
+			mTexasPaint.setColor(array.getColor(R.styleable.MathView_android_textColor, 0));
 		}
 		if (array.hasValue(R.styleable.MathView_android_textSize)) {
-			textPaint.setTextSize(array.getDimensionPixelSize(R.styleable.MathView_android_textSize, defaultTextSize));
+			mTexasPaint.setTextSize(array.getDimensionPixelSize(R.styleable.MathView_android_textSize, 0));
 		}
 		if (array.hasValue(R.styleable.MathView_android_gravity)) {
 			mGravity = array.getInt(R.styleable.MathView_android_gravity, Gravity.START | Gravity.TOP);
@@ -399,6 +402,7 @@ public class MathView extends View implements AsyncMathViewRenderer {
 
 	/**
 	 * 设置内容的对齐方式
+	 *
 	 * @param gravity 对齐方式，使用 Gravity 常量，如 Gravity.CENTER、Gravity.START | Gravity.TOP 等
 	 */
 	public void setGravity(int gravity) {
@@ -410,6 +414,7 @@ public class MathView extends View implements AsyncMathViewRenderer {
 
 	/**
 	 * 获取当前的对齐方式
+	 *
 	 * @return 对齐方式
 	 */
 	public int getGravity() {

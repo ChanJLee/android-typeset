@@ -15,7 +15,7 @@ public class MathList implements Ast {
 		Ast last = null;
 		for (int i = 0; i < elements.size(); i++) {
 			Ast ast = elements.get(i);
-			if (last instanceof Spacing) {
+			if (!(last instanceof Spacing) && last != null) {
 				sb.append(" ");
 			}
 			sb.append(ast);

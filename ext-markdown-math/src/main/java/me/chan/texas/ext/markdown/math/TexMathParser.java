@@ -18,7 +18,7 @@ import me.chan.texas.text.Paragraph;
 import me.chan.texas.utils.CharStream;
 
 public class TexMathParser {
-	private MathPaint mPaint;
+	private final MathPaint mPaint;
 
 	public TexMathParser(TexasOption option) {
 		TexasPaintImpl paint = new TexasPaintImpl();
@@ -52,7 +52,7 @@ public class TexMathParser {
 	}
 
 	private void append(Paragraph.Builder builder, RendererNode node) {
-		builder.hyperSpan(new MathBox(node, mPaint));
+		builder.hyperSpan(new MathSpan(node, mPaint));
 	}
 
 	private volatile static Typeface sTypeface;
