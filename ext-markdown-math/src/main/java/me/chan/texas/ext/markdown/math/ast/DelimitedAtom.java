@@ -1,6 +1,6 @@
 package me.chan.texas.ext.markdown.math.ast;
 
-public class  DelimitedAtom implements Atom {
+public class DelimitedAtom implements Atom {
 	public final int level;
 	public final String leftDelimiter;
 	public final MathList content;
@@ -15,9 +15,18 @@ public class  DelimitedAtom implements Atom {
 
 	@Override
 	public String toString() {
-		return "\\" + MathParser.DELIMITER_LEVELS[level][0] + leftDelimiter + " " +
-				content.toString() +
-				" \\" + MathParser.DELIMITER_LEVELS[level][1] + rightDelimiter;
+		StringBuilder builder = new StringBuilder().append("\\")
+				.append(MathParser.DELIMITER_LEVELS[level][0])
+				.append(leftDelimiter);
+		if (leftDelimiter.startsWith("\\")) {
+			builder.append(" ");
+		}
+		builder.append(content.toString())
+				.append(" \\")
+				.append(MathParser.DELIMITER_LEVELS[level][1])
+				.append(rightDelimiter);
+
+		return builder.toString();
 	}
 
 	public static final int LEVEL_L0 = 0;
