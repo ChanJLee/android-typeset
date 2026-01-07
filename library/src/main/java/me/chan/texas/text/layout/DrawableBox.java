@@ -46,6 +46,11 @@ public class DrawableBox extends Box {
 	}
 
 	@Override
+	public float getBaselineOffset() {
+		return mSpan.getBaselineOffset();
+	}
+
+	@Override
 	public final boolean isIsolate(boolean backward) {
 		return true;
 	}

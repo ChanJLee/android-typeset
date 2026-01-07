@@ -88,6 +88,8 @@ public abstract class Box extends DefaultRecyclable implements Element {
 		mForeground = null;
 	}
 
+	public abstract float getBaselineOffset();
+
 	/**
 	 * @param backward 向后遍历
 	 * @return 是否是孤立的，孤立的意思是旁边是空格
