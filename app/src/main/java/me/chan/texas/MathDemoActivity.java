@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -33,6 +34,10 @@ public class MathDemoActivity extends AppCompatActivity {
 
 		mMathView = findViewById(R.id.math);
 		mTextView = findViewById(R.id.console);
+
+		EditText editText = findViewById(R.id.input);
+		findViewById(R.id.clear).setOnClickListener(v -> editText.setText(""));
+		findViewById(R.id.send).setOnClickListener(v -> render(editText.getText().toString()));
 	}
 
 	private void render(String formula) {
