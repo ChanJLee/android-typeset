@@ -52,7 +52,7 @@ public class TexMathParser {
 	}
 
 	private void append(Paragraph.Builder builder, RendererNode node) {
-		builder.hyperSpan(new MathBox(node, mPaint));
+		builder.hyperSpan(new MathSpan(node, mPaint));
 	}
 
 	private volatile static Typeface sTypeface;

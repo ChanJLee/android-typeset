@@ -5,7 +5,7 @@ import android.graphics.Color;
 import android.graphics.Path;
 
 import me.chan.texas.debug.R;
-import me.chan.texas.ext.markdown.math.MathBox;
+import me.chan.texas.ext.markdown.math.MathSpan;
 import me.chan.texas.ext.markdown.math.ast.MathList;
 import me.chan.texas.ext.markdown.math.ast.MathParseException;
 import me.chan.texas.ext.markdown.math.ast.MathParser;
@@ -415,7 +415,7 @@ public class BookSource extends TexasView.DocumentSource {
 		MathPaint paint = MathView.create(Texas.getAppContext());
 		MathRendererInflater inflater = new MathRendererInflater();
 		RendererNode rendererNode = inflater.inflate(new MathPaint.Styles(paint), list);
-		builder.hyperSpan(new MathBox(rendererNode, paint));
+		builder.hyperSpan(new MathSpan(rendererNode, paint));
 	}
 
 	private String parseSent(XmlPullParser parser, Paragraph.Builder builder) throws IOException, XmlPullParserException {
