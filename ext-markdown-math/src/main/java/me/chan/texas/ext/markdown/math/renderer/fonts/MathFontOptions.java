@@ -118,8 +118,8 @@ public class MathFontOptions {
 		// 序关系
 		AST.put("prec", "uni227A");            // ≺ (前驱)
 		AST.put("succ", "uni227B");            // ≻ (后继)
-		AST.put("preceq", "uni227C");          // ≼ (前驱等于)
-		AST.put("succeq", "uni227D");          // ≽ (后继等于)
+		AST.put("preceq", "uni2AAF");          // ≼ (前驱等于)
+		AST.put("succeq", "uni2AB0");          // ≽ (后继等于)
 
 		// 整除/不整除
 		AST.put("nmid", "uni2224");            // ∤ (不整除)

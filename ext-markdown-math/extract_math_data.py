@@ -36,14 +36,16 @@ def parse_font_to_json(font_path, output_path="font_info.json"):
         width, lsb = hmtx[glyph_name]
         bbox = get_glyph_bbox(font, glyph_name)
 
-        result.append({
-            "name": glyph_name,
+        e = {"name": glyph_name,
             "unicode": f"U+{code:04X}",
-            "char": char,
-            "category": category_name,
-            "width": width,
-            "bbox": bbox
-        })
+                        "char": char,
+                        "category": category_name,
+                        "width": width,
+                        "bbox": bbox
+        }
+        print(e)
+
+        result.append(e)
 
     # 提取 MATH 表的附加信息
     if "MATH" in font:
