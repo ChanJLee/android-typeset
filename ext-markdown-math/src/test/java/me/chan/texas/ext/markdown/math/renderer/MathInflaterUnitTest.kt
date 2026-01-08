@@ -310,13 +310,13 @@ class MathInflaterUnitTest {
 
     @Test
     fun `test greek letter variable`() {
-        val list = mapOf<String, String>(
+        val list = mapOf(
             "alpha" to "α",
             "beta" to "β",
             "gamma" to "γ",
             "delta" to "δ",
-            "epsilon" to "ε",
-            "varepsilon" to "ϵ",
+            "epsilon" to "ϵ",
+            "varepsilon" to "ε",
             "zeta" to "ζ",
             "eta" to "η",
             "theta" to "θ",
@@ -335,8 +335,8 @@ class MathInflaterUnitTest {
             "varsigma" to "ς",
             "tau" to "τ",
             "upsilon" to "υ",
-            "phi" to "φ",
-            "varphi" to "ϕ",
+            "varphi" to "φ",
+            "phi" to "ϕ",
             "chi" to "χ",
             "psi" to "ψ",
             "omega" to "ω",
@@ -358,6 +358,7 @@ class MathInflaterUnitTest {
                 text {
                     content(value)
                 }
+                println("\\${key} = ${value} \\\\")
             }
         }
     }

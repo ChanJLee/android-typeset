@@ -175,8 +175,8 @@ public class MathFontOptions {
 		TEXT_OPERATORS.put("beta", "\u03B2");       // β
 		TEXT_OPERATORS.put("gamma", "\u03B3");      // γ
 		TEXT_OPERATORS.put("delta", "\u03B4");      // δ
-		TEXT_OPERATORS.put("epsilon", "\u03B5");    // ε
-		TEXT_OPERATORS.put("varepsilon", "\u03F5"); // ϵ
+		TEXT_OPERATORS.put("varepsilon", "\u03B5");    // εϵ
+		TEXT_OPERATORS.put("epsilon", "\u03F5"); // ε
 		TEXT_OPERATORS.put("zeta", "\u03B6");       // ζ
 		TEXT_OPERATORS.put("eta", "\u03B7");        // η
 		TEXT_OPERATORS.put("theta", "\u03B8");      // θ
@@ -195,8 +195,8 @@ public class MathFontOptions {
 		TEXT_OPERATORS.put("varsigma", "\u03C2");   // ς
 		TEXT_OPERATORS.put("tau", "\u03C4");        // τ
 		TEXT_OPERATORS.put("upsilon", "\u03C5");    // υ
-		TEXT_OPERATORS.put("phi", "\u03C6");        // φ
-		TEXT_OPERATORS.put("varphi", "\u03D5");     // ϕ
+		TEXT_OPERATORS.put("varphi", "\u03C6");        // ϕ
+		TEXT_OPERATORS.put("phi", "\u03D5");     // φ
 		TEXT_OPERATORS.put("chi", "\u03C7");        // χ
 		TEXT_OPERATORS.put("psi", "\u03C8");        // ψ
 		TEXT_OPERATORS.put("omega", "\u03C9");      // ω

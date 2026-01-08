@@ -50,7 +50,12 @@
             android:id="@+id/input"
             android:layout_width="0dp"
             android:layout_height="150dp"
-            android:background="#1cff0000"
+            android:background="#000000"
+            android:gravity="top"
+            android:hint="> input formula"
+            android:padding="8dp"
+            android:textColor="#ffffff"
+            android:textColorHint="#ffffff"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/clear"
             app:layout_constraintStart_toStartOf="parent" />

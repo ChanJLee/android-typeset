@@ -458,7 +458,7 @@ public class MathRendererInflater {
 			}
 		}
 
-		GridGroupNode content = new GridGroupNode(styles, atom.rows.size() * 2 - 1, list);
+		GridGroupNode content = new GridGroupNode(styles, atom.rows.get(0).elements.size() * 2 - 1, list);
 		return new BraceGroupNode(styles, DelimitedAtom.LEVEL_L0, left, content, right);
 	}
 
