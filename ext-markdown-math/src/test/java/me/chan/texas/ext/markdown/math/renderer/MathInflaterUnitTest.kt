@@ -1277,7 +1277,7 @@ class MathInflaterUnitTest {
             "bar" to "uni2015",
             "overline" to "uni2015",
             "underline" to "uni2015",
-            "vec" to "uni22B8",
+            "vec" to "arrowright",
         )
         for ((key, value) in cmd) {
             inflate("\\${key} x") {
@@ -1294,6 +1294,7 @@ class MathInflaterUnitTest {
                     }
                 }
             }
+            println("\\${key}{x} = ${MathFontOptions.symbol(value).unicode} \\\\")
         }
     }
 
