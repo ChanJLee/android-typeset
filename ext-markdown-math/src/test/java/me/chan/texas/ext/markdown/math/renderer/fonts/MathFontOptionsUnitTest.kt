@@ -197,14 +197,14 @@ class MathFontOptionsUnitTest {
     fun `test greek letter epsilon`() {
         val atom = GreekLetterVariableAtom("epsilon")
         val text = MathFontOptions.ast(atom)
-        Assert.assertEquals("\u03B5", text)
+        Assert.assertEquals("ϵ", text)
     }
 
     @Test
     fun `test greek letter varepsilon`() {
         val atom = GreekLetterVariableAtom("varepsilon")
         val text = MathFontOptions.ast(atom)
-        Assert.assertEquals("\u03F5", text)
+        Assert.assertEquals("ε", text)
     }
 
     @Test
@@ -337,14 +337,14 @@ class MathFontOptionsUnitTest {
     fun `test greek letter phi`() {
         val atom = GreekLetterVariableAtom("phi")
         val text = MathFontOptions.ast(atom)
-        Assert.assertEquals("\u03C6", text)
+        Assert.assertEquals("ϕ", text)
     }
 
     @Test
     fun `test greek letter varphi`() {
         val atom = GreekLetterVariableAtom("varphi")
         val text = MathFontOptions.ast(atom)
-        Assert.assertEquals("\u03D5", text)
+        Assert.assertEquals("φ", text)
     }
 
     @Test
