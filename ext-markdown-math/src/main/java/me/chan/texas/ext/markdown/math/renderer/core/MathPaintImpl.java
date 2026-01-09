@@ -115,6 +115,16 @@ public class MathPaintImpl implements MathPaint {
 	}
 
 	@Override
+	public void setStrokeCap(Paint.Cap cap) {
+		mImpl.setStrokeCap(cap);
+	}
+
+	@Override
+	public void setStrokeJoin(Paint.Join join) {
+		mImpl.setStrokeJoin(join);
+	}
+
+	@Override
 	public String toString() {
 		return String.format("#%08x", mImpl.getColor());
 	}

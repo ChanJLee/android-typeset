@@ -1,6 +1,7 @@
 package me.chan.texas.ext.markdown.math.renderer.core;
 
 import android.graphics.Canvas;
+import android.graphics.Path;
 
 import androidx.annotation.NonNull;
 
@@ -46,6 +47,11 @@ public class MathCanvasImpl implements MathCanvas {
 	@Override
 	public void drawText(@NonNull String text, int start, int end, float x, float y, MathPaint paint) {
 		mImpl.drawText(text, start, end, x, y, paint.getCore());
+	}
+
+	@Override
+	public void drawPath(@NonNull Path path, @NonNull MathPaint paint) {
+		mImpl.drawPath(path, paint.getCore());
 	}
 
 	@Override

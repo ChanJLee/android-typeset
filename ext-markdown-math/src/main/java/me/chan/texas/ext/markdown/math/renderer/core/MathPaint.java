@@ -47,6 +47,8 @@ public interface MathPaint {
 
 	void setItalicText(boolean isItalic);
 
+	void setStrokeJoin(Paint.Join join);
+
 	class Styles {
 		private float mTextSize;
 		private Paint.Style mStyle;
@@ -54,6 +56,8 @@ public interface MathPaint {
 		private int mColor;
 		private boolean mIsBold;
 		private boolean mIsItalic;
+		private Paint.Cap mCap;
+		private Paint.Join mJoin;
 
 		public Styles(MathPaint paint) {
 			mTextSize = paint.getTextSize();
@@ -62,6 +66,8 @@ public interface MathPaint {
 			mColor = paint.getColor();
 			mIsBold = paint.isBoldText();
 			mIsItalic = paint.isItalicText();
+			mCap = Paint.Cap.ROUND;
+			mJoin = Paint.Join.ROUND;
 		}
 
 		public Styles(Styles other) {
@@ -71,10 +77,28 @@ public interface MathPaint {
 			mColor = other.mColor;
 			mIsBold = other.mIsBold;
 			mIsItalic = other.mIsItalic;
+			mCap = other.mCap;
+			mJoin = other.mJoin;
 		}
 
 		public Styles copy() {
 			return new Styles(this);
+		}
+
+		public Paint.Cap getCap() {
+			return mCap;
+		}
+
+		public void setCap(Paint.Cap cap) {
+			mCap = cap;
+		}
+
+		public Paint.Join getJoin() {
+			return mJoin;
+		}
+
+		public void setJoin(Paint.Join join) {
+			mJoin = join;
 		}
 
 		public float getTextSize() {
@@ -167,6 +191,8 @@ public interface MathPaint {
 			paint.setColor(mColor);
 			paint.setBoldText(mIsBold);
 			paint.setItalicText(mIsItalic);
+			paint.setStrokeCap(mCap);
+			paint.setStrokeJoin(mJoin);
 		}
 
 		@Override
@@ -181,4 +207,6 @@ public interface MathPaint {
 					'}';
 		}
 	}
+
+	void setStrokeCap(Paint.Cap cap);
 }

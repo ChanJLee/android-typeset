@@ -1,6 +1,7 @@
 package me.chan.texas.ext.markdown.math.renderer.core;
 
 import android.graphics.Canvas;
+import android.graphics.Path;
 
 import androidx.annotation.NonNull;
 
@@ -18,6 +19,8 @@ public interface MathCanvas {
 	void drawText(@NonNull String text, float x, float y, MathPaint paint);
 
 	void drawText(@NonNull String text, int start, int end, float x, float y, MathPaint paint);
+
+	void drawPath(@NonNull Path path, @NonNull MathPaint paint);
 
 	void reset(Canvas canvas);
 
