@@ -2,18 +2,29 @@ package me.chan.texas.ext.markdown.math.renderer.fonts;
 
 public class Symbol {
 	public final String unicode;
-	public final float xMin;
-	public final float ascent;
-	public final float xMax;
-	public final float descent;
+	public final float[] bbox;
 
-	public Symbol(String unicode, float xMin, float ascent, float xMax, float descent) {
+	public Symbol(String unicode, float[] bbox) {
 		this.unicode = unicode;
-		this.xMin = xMin;
-		this.ascent = ascent;
-		this.xMax = xMax;
-		this.descent = descent;
+		this.bbox = bbox;
 	}
+
+	public float xMin() {
+		return bbox[0];
+	}
+
+	public float ascent() {
+		return bbox[1];
+	}
+
+	public float xMax() {
+		return bbox[2];
+	}
+
+	public float descent() {
+		return bbox[3];
+	}
+
 
 	@Override
 	public String toString() {

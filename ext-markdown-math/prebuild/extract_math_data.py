@@ -36,7 +36,7 @@ def parse_font_to_json(font_path, output_path="font_info.json"):
         width, lsb = hmtx[glyph_name]
         bbox = get_glyph_bbox(font, glyph_name)
 
-        e = {"char": char, "bbox": bbox}
+        e = {"c": char, "bbox": bbox}
 
         if (category_name.startswith("P") or category_name.startswith("S")):
             if bbox:
@@ -47,35 +47,6 @@ def parse_font_to_json(font_path, output_path="font_info.json"):
                 result[glyph_name] = e
             else:
                 print("\t\t// missing bbox: %s %s\n" % (glyph_name, char))
-
-    # 提取 MATH 表的附加信息
-    if "MATH" in font:
-        math_table = font["MATH"].table
-        for record in result:
-            glyph_name = record["name"]
-            variants, topAccent = [], None
-
-            # 垂直变体
-            try:
-                vertCov = getattr(math_table, "VertGlyphCoverage", None)
-                vertConstr = getattr(math_table, "VertGlyphConstruction", None)
-                if vertCov and vertConstr and glyph_name in vertCov.glyphs:
-                    i = vertCov.glyphs.index(glyph_name)
-                    variants = [v.VariantGlyph for v in vertConstr[i].Variants]
-            except Exception:
-                pass
-
-            # Top accent
-            try:
-                topAcc = getattr(math_table, "TopAccentAttachment", None)
-                if topAcc and topAcc.Coverage and glyph_name in topAcc.Coverage.glyphs:
-                    i = topAcc.Coverage.glyphs.index(glyph_name)
-                    topAccent = topAcc.TopAccentAttachment[i].Value
-            except Exception:
-                pass
-
-            record["VertVariant"] = variants
-            record["TopAccentAttachment"] = topAccent
 
     # 输出 JSON
     with open(output_path, "w", encoding="utf-8") as f:

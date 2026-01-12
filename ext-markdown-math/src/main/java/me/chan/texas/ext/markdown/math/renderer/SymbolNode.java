@@ -27,10 +27,10 @@ public class SymbolNode extends RendererNode {
 	@Override
 	protected void onMeasure(MathPaint paint, int widthSpec, int heightSpec) {
 		float textSize = paint.getTextSize();
-		mOffsetX = -mSymbol.xMin / MathFontOptions.UNITS_PER_EM * textSize;
-		mOffsetY = mSymbol.ascent / MathFontOptions.UNITS_PER_EM * textSize;
-		int width = (int) Math.ceil((mSymbol.xMax - mSymbol.xMin) / MathFontOptions.UNITS_PER_EM * textSize);
-		int height = (int) Math.ceil((mSymbol.descent - mSymbol.ascent) / MathFontOptions.UNITS_PER_EM * textSize);
+		mOffsetX = -mSymbol.xMin() / MathFontOptions.UNITS_PER_EM * textSize;
+		mOffsetY = mSymbol.ascent() / MathFontOptions.UNITS_PER_EM * textSize;
+		int width = (int) Math.ceil((mSymbol.xMax() - mSymbol.xMin()) / MathFontOptions.UNITS_PER_EM * textSize);
+		int height = (int) Math.ceil((mSymbol.descent() - mSymbol.ascent()) / MathFontOptions.UNITS_PER_EM * textSize);
 
 		setMeasuredSize(width, height);
 	}

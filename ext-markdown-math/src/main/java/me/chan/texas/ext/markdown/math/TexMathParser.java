@@ -59,7 +59,7 @@ public class TexMathParser {
 
 	public synchronized static Typeface getTypeface() {
 		if (sTypeface == null) {
-			sTypeface = Typeface.createFromAsset(Texas.getAppContext().getAssets(), "texas_markdown_ext/latinmodern-math.otf");
+			sTypeface = Typeface.createFromAsset(Texas.getAppContext().getAssets(), "texas_markdown_ext/STIXTwoMathRegular.ttf");
 		}
 		return sTypeface;
 	}
