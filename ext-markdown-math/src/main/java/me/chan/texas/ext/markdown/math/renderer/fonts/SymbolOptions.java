@@ -9,6 +9,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.Type;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class SymbolOptions {
@@ -58,8 +60,13 @@ public class SymbolOptions {
 	 */
 	private Map<String, Symbol> parseJson(InputStreamReader is) {
 		Gson gson = new Gson();
-		Type type = new TypeToken<Map<String, Symbol>>() {
+		Type type = new TypeToken<List<Symbol>>() {
 		}.getType();
-		return gson.fromJson(is, type);
+		List<Symbol> list = gson.fromJson(is, type);
+		Map<String, Symbol> map = new HashMap<>();
+		for (Symbol symbol : list) {
+			map.put(symbol.c, symbol);
+		}
+		return map;
 	}
 }

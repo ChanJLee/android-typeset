@@ -23,7 +23,7 @@ def parse_font_to_json(font_path, output_path="font_info.json"):
     hmtx = font["hmtx"]
     glyph_set = font.getGlyphSet()
 
-    result = {}
+    result = []
 
     for code, glyph_name in cmap.items():
         char = chr(code)
@@ -44,7 +44,7 @@ def parse_font_to_json(font_path, output_path="font_info.json"):
                     print("\t\tall.put(\"%s\", new Symbol(\"\\%s\", %sf, %sf, %sf, %sf));\n" % (glyph_name, char, bbox[0], bbox[1], bbox[2], bbox[3]))
                 else:
                     print("\t\tall.put(\"%s\", new Symbol(\"%s\", %sf, %sf, %sf, %sf));\n" % (glyph_name, char, bbox[0], bbox[1], bbox[2], bbox[3]))
-                result[glyph_name] = e
+                result.append(e)
             else:
                 print("\t\t// missing bbox: %s %s\n" % (glyph_name, char))
 
