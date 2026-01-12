@@ -136,6 +136,62 @@ public class MathFontOptions {
 		AST.put("approx", "≈");
 		AST.put("nabla", "∇");
 
+		AST.put("xrightarrow", "→");
+		AST.put("xleftarrow", "←");
+		AST.put("xleftrightarrow", "↔");
+		AST.put("xRightarrow", "⇒");
+		AST.put("xLeftarrow", "⇐");
+		AST.put("xLeftrightarrow", "⇔");
+		AST.put("xhookrightarrow", "↪");
+		AST.put("xhookleftarrow", "↩");
+		AST.put("xtwoheadrightarrow", "↠");
+		AST.put("xtwoheadleftarrow", "↞");
+		AST.put("xmapsto", "↦");
+		AST.put("xtofrom", "⇄");
+
+		AST.put("alpha", "α");
+		AST.put("beta", "β");
+		AST.put("gamma", "γ");
+		AST.put("delta", "δ");
+		AST.put("epsilon", "ε");
+		AST.put("varepsilon", "ϵ");
+		AST.put("zeta", "ζ");
+		AST.put("eta", "η");
+		AST.put("theta", "θ");
+		AST.put("vartheta", "ϑ");
+		AST.put("iota", "ι");
+		AST.put("kappa", "κ");
+		AST.put("lambda", "λ");
+		AST.put("mu", "μ");
+		AST.put("nu", "ν");
+		AST.put("xi", "ξ");
+		AST.put("pi", "π");
+		AST.put("varpi", "ϖ");
+		AST.put("rho", "ρ");
+		AST.put("varrho", "ϱ");
+		AST.put("sigma", "σ");
+		AST.put("varsigma", "ς");
+		AST.put("tau", "τ");
+		AST.put("upsilon", "υ");
+		AST.put("phi", "φ");
+		AST.put("varphi", "ϕ");
+		AST.put("chi", "χ");
+		AST.put("psi", "ψ");
+		AST.put("omega", "ω");
+
+		// 希腊字母 - 大写
+		AST.put("Gamma", "Γ");
+		AST.put("Delta", "Δ");
+		AST.put("Theta", "Θ");
+		AST.put("Lambda", "Λ");
+		AST.put("Xi", "Ξ");
+		AST.put("Pi", "Π");
+		AST.put("Sigma", "Σ");
+		AST.put("Upsilon", "Υ");
+		AST.put("Phi", "Φ");
+		AST.put("Psi", "Ψ");
+		AST.put("Omega", "Ω");
+
 		TEXT_OPERATORS.put("lim", "lim");
 		TEXT_OPERATORS.put("limsup", "lim sup");
 		TEXT_OPERATORS.put("liminf", "lim inf");
@@ -182,7 +238,7 @@ public class MathFontOptions {
 	public static Symbol ast(SymbolAtom atom) {
 		String symbol = atom.symbol;
 		if (symbol.startsWith("\\")) {
-			return ref(atom.symbol);
+			return ref(atom.symbol.substring(1));
 		}
 
 		return symbol(symbol);
@@ -197,35 +253,7 @@ public class MathFontOptions {
 	}
 
 	public static Symbol ast(ExtensibleArrowAtom atom) {
-		String command = atom.command;
-		switch (command) {
-			case "xrightarrow":
-				return MathFontOptions.symbol("arrowright");
-			case "xleftarrow":
-				return MathFontOptions.symbol("arrowleft");
-			case "xleftrightarrow":
-				return MathFontOptions.symbol("arrowboth");
-			case "xRightarrow":
-				return MathFontOptions.symbol("arrowdblright");
-			case "xLeftarrow":
-				return MathFontOptions.symbol("arrowdblleft");
-			case "xLeftrightarrow":
-				return MathFontOptions.symbol("arrowdblboth");
-			case "xhookrightarrow":
-				return MathFontOptions.symbol("uni21AA");
-			case "xhookleftarrow":
-				return MathFontOptions.symbol("uni21A9");
-			case "xtwoheadrightarrow":
-				return MathFontOptions.symbol("uni21A0");
-			case "xtwoheadleftarrow":
-				return MathFontOptions.symbol("uni219E");
-			case "xmapsto":
-				return MathFontOptions.symbol("uni21A6");
-			case "xtofrom":
-				return MathFontOptions.symbol("uni21C4");
-			default:
-				throw new IllegalArgumentException("Unknown extensible arrow command: " + command);
-		}
+		return ref(atom.command);
 	}
 
 	public static String textOp(String name) {
