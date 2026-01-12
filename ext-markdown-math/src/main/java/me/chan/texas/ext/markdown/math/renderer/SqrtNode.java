@@ -35,9 +35,8 @@ public class SqrtNode extends RendererNode implements OptimizableRendererNode, H
 	@Override
 	protected void onMeasure(MathPaint paint, int widthSpec, int heightSpec) {
 		mContent.measure(paint);
-		mSymbol.resize(mContent.getHeight());
+		mSymbol.setContentSize(mContent.getWidth() + mSymbol.getKernAfterDegree(), mContent.getHeight());
 		mSymbol.measure(paint);
-		mSymbol.setContentWidth(mContent.getWidth() + mSymbol.getKernAfterDegree());
 		if (mRoot != null) {
 			mRoot.measure(paint);
 		}

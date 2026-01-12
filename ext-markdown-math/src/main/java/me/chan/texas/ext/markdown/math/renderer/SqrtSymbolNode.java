@@ -1,51 +1,47 @@
 package me.chan.texas.ext.markdown.math.renderer;
 
-import android.graphics.Paint;
-
 import me.chan.texas.ext.markdown.math.renderer.core.MathCanvas;
 import me.chan.texas.ext.markdown.math.renderer.core.MathPaint;
 import me.chan.texas.ext.markdown.math.renderer.fonts.MathFontOptions;
 
 public class SqrtSymbolNode extends RendererNode {
 
-	private final Paint.FontMetrics mFontMetrics = new Paint.FontMetrics();
-	private float mTextSize;
+
+	private static final float MAGIC_RADIO = 150 / 310f;
+
+	private float mTextHeight;
+	private float mTextWidth;
 	private float mContentWidth = 0;
+	private float mContentHeight = 0;
 
 	public SqrtSymbolNode(MathPaint.Styles styles) {
 		super(styles);
 	}
 
-	public void resize(float size) {
-		mStyles = mStyles.copy().setTextSize(size);
-	}
-
 	@Override
 	protected void onMeasure(MathPaint paint, int widthSpec, int heightSpec) {
-		paint.getFontMetrics(mFontMetrics);
-		Paint.FontMetrics fontMetrics = mFontMetrics;
-		mTextSize = paint.getTextSize();
+		mTextHeight = paint.getTextSize();
+		mTextWidth = paint.getRunAdvance("√", 0, 1, 0, 1, false, 1);
 
-		int height = (int) Math.ceil(fontMetrics.descent - fontMetrics.ascent + getTopPadding());
-		int width = (int) Math.ceil(paint.getRunAdvance("√", 0, 1, 0, 1, false, 1));
+		float width = mTextWidth + mContentHeight * MAGIC_RADIO - mTextHeight * MAGIC_RADIO;
 
-		setMeasuredSize(width, height);
+		setMeasuredSize((int) Math.ceil(width), (int) Math.ceil(mContentHeight + getTopPadding()));
 	}
 
 	public float getVerticalGap() {
-		return MathFontOptions.RADICAL_VERTICAL_GAP / MathFontOptions.UNITS_PER_EM * mTextSize;
+		return MathFontOptions.RADICAL_VERTICAL_GAP / MathFontOptions.UNITS_PER_EM * mTextHeight;
 	}
 
 	public float getRuleThickness() {
-		return MathFontOptions.RADICAL_RULE_THICKNESS / MathFontOptions.UNITS_PER_EM * mTextSize;
+		return MathFontOptions.RADICAL_RULE_THICKNESS / MathFontOptions.UNITS_PER_EM * mTextHeight;
 	}
 
 	public float getExtraAscender() {
-		return MathFontOptions.RADICAL_EXTRA_ASCENDER / MathFontOptions.UNITS_PER_EM * mTextSize;
+		return MathFontOptions.RADICAL_EXTRA_ASCENDER / MathFontOptions.UNITS_PER_EM * mTextHeight;
 	}
 
 	public float getKernBeforeDegree() {
-		return MathFontOptions.RADICAL_KERN_BEFORE_DEGREE / MathFontOptions.UNITS_PER_EM * mTextSize;
+		return MathFontOptions.RADICAL_KERN_BEFORE_DEGREE / MathFontOptions.UNITS_PER_EM * mTextHeight;
 	}
 
 	public float getKernAfterDegree() {
@@ -57,8 +53,9 @@ public class SqrtSymbolNode extends RendererNode {
 		return MathFontOptions.RADICAL_DEGREE_BOTTOM_RAISE_PERCENT / 100;
 	}
 
-	public void setContentWidth(float contentWidth) {
+	public void setContentSize(float contentWidth, float contentHeight) {
 		mContentWidth = contentWidth;
+		mContentHeight = contentHeight;
 	}
 
 	public float getTopPadding() {
@@ -68,15 +65,15 @@ public class SqrtSymbolNode extends RendererNode {
 	@Override
 	protected void onDraw(MathCanvas canvas, MathPaint paint) {
 		float thickness = getRuleThickness();
-		float y = getTopPadding() + thickness / 2;
-		canvas.drawText("√", 0, y, paint);
+		canvas.drawText("√", 0, getHeight() - mTextHeight, paint);
 
-		float strokeWidth = paint.getStrokeWidth();
+
 		paint.setStrokeWidth(thickness);
 		float startX = getWidth();
-		y = getTopPadding();
+		float y = getTopPadding();
 		canvas.drawLine(startX, y, startX + mContentWidth, y, paint);
-		paint.setStrokeWidth(strokeWidth);
+
+		canvas.drawLine(mTextWidth, getHeight() - mTextHeight - thickness / 2, startX, y, paint);
 	}
 
 	@Override
