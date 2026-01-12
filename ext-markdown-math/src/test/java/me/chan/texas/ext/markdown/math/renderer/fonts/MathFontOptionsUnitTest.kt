@@ -17,7 +17,7 @@ class MathFontOptionsUnitTest {
         val atom = LargeOperatorAtom("sum")
         val symbol = MathFontOptions.ast(atom)
         Assert.assertNotNull("sum 应该有对应的符号", symbol)
-        Assert.assertEquals("∑", symbol?.unicode)
+        Assert.assertEquals("∑", symbol?.c)
     }
 
     @Test
@@ -25,7 +25,7 @@ class MathFontOptionsUnitTest {
         val atom = LargeOperatorAtom("prod")
         val symbol = MathFontOptions.ast(atom)
         Assert.assertNotNull("prod 应该有对应的符号", symbol)
-        Assert.assertEquals("∏", symbol?.unicode)
+        Assert.assertEquals("∏", symbol?.c)
     }
 
     @Test
@@ -40,7 +40,7 @@ class MathFontOptionsUnitTest {
         val atom = LargeOperatorAtom("int")
         val symbol = MathFontOptions.ast(atom)
         Assert.assertNotNull("int 应该有对应的符号", symbol)
-        Assert.assertEquals("∫", symbol?.unicode)
+        Assert.assertEquals("∫", symbol?.c)
     }
 
     @Test
@@ -459,7 +459,7 @@ class MathFontOptionsUnitTest {
         val atom = SymbolAtom("+")
         val symbol = MathFontOptions.ast(atom)
         Assert.assertNotNull("+ 应该有对应的符号", symbol)
-        Assert.assertEquals("+", symbol?.unicode)
+        Assert.assertEquals("+", symbol?.c)
     }
 
     @Test
@@ -467,7 +467,7 @@ class MathFontOptionsUnitTest {
         val atom = SymbolAtom("-")
         val symbol = MathFontOptions.ast(atom)
         Assert.assertNotNull("- 应该有对应的符号", symbol)
-        Assert.assertEquals("-", symbol?.unicode)
+        Assert.assertEquals("-", symbol?.c)
     }
 
     @Test
@@ -475,7 +475,7 @@ class MathFontOptionsUnitTest {
         val atom = SymbolAtom("*")
         val symbol = MathFontOptions.ast(atom)
         Assert.assertNotNull("* 应该有对应的符号", symbol)
-        Assert.assertEquals("*", symbol?.unicode)
+        Assert.assertEquals("*", symbol?.c)
     }
 
     @Test
@@ -483,7 +483,7 @@ class MathFontOptionsUnitTest {
         val atom = SymbolAtom("/")
         val symbol = MathFontOptions.ast(atom)
         Assert.assertNotNull("/ 应该有对应的符号", symbol)
-        Assert.assertEquals("/", symbol?.unicode)
+        Assert.assertEquals("/", symbol?.c)
     }
 
     @Test
@@ -491,7 +491,7 @@ class MathFontOptionsUnitTest {
         val atom = SymbolAtom("\\times")
         val symbol = MathFontOptions.ast(atom)
         Assert.assertNotNull("\\times 应该有对应的符号", symbol)
-        Assert.assertEquals("×", symbol?.unicode)
+        Assert.assertEquals("×", symbol?.c)
     }
 
     @Test
@@ -529,7 +529,7 @@ class MathFontOptionsUnitTest {
         val atom = SymbolAtom("=")
         val symbol = MathFontOptions.ast(atom)
         Assert.assertNotNull("= 应该有对应的符号", symbol)
-        Assert.assertEquals("=", symbol?.unicode)
+        Assert.assertEquals("=", symbol?.c)
     }
 
     @Test
@@ -572,7 +572,7 @@ class MathFontOptionsUnitTest {
         val atom = SymbolAtom("<")
         val symbol = MathFontOptions.ast(atom)
         Assert.assertNotNull("< 应该有对应的符号", symbol)
-        Assert.assertEquals("<", symbol?.unicode)
+        Assert.assertEquals("<", symbol?.c)
     }
 
     @Test
@@ -580,7 +580,7 @@ class MathFontOptionsUnitTest {
         val atom = SymbolAtom(">")
         val symbol = MathFontOptions.ast(atom)
         Assert.assertNotNull("> 应该有对应的符号", symbol)
-        Assert.assertEquals(">", symbol?.unicode)
+        Assert.assertEquals(">", symbol?.c)
     }
 
     @Test
@@ -1116,7 +1116,7 @@ class MathFontOptionsUnitTest {
         val atom = ExtensibleArrowAtom("xrightarrow", MathList(emptyList()), null)
         val symbol = MathFontOptions.ast(atom)
         Assert.assertNotNull("xrightarrow 应该有对应的符号", symbol)
-        Assert.assertEquals("→", symbol?.unicode)
+        Assert.assertEquals("→", symbol?.c)
     }
 
     @Test
@@ -1124,7 +1124,7 @@ class MathFontOptionsUnitTest {
         val atom = ExtensibleArrowAtom("xleftarrow", MathList(emptyList()), null)
         val symbol = MathFontOptions.ast(atom)
         Assert.assertNotNull("xleftarrow 应该有对应的符号", symbol)
-        Assert.assertEquals("←", symbol?.unicode)
+        Assert.assertEquals("←", symbol?.c)
     }
 
     @Test
@@ -1132,7 +1132,7 @@ class MathFontOptionsUnitTest {
         val atom = ExtensibleArrowAtom("xleftrightarrow", MathList(emptyList()), null)
         val symbol = MathFontOptions.ast(atom)
         Assert.assertNotNull("xleftrightarrow 应该有对应的符号", symbol)
-        Assert.assertEquals("↔", symbol?.unicode)
+        Assert.assertEquals("↔", symbol?.c)
     }
 
     @Test
@@ -1140,7 +1140,7 @@ class MathFontOptionsUnitTest {
         val atom = ExtensibleArrowAtom("xRightarrow", MathList(emptyList()), null)
         val symbol = MathFontOptions.ast(atom)
         Assert.assertNotNull("xRightarrow 应该有对应的符号", symbol)
-        Assert.assertEquals("⇒", symbol?.unicode)
+        Assert.assertEquals("⇒", symbol?.c)
     }
 
     @Test
@@ -1148,7 +1148,7 @@ class MathFontOptionsUnitTest {
         val atom = ExtensibleArrowAtom("xLeftarrow", MathList(emptyList()), null)
         val symbol = MathFontOptions.ast(atom)
         Assert.assertNotNull("xLeftarrow 应该有对应的符号", symbol)
-        Assert.assertEquals("⇐", symbol?.unicode)
+        Assert.assertEquals("⇐", symbol?.c)
     }
 
     @Test
@@ -1156,7 +1156,7 @@ class MathFontOptionsUnitTest {
         val atom = ExtensibleArrowAtom("xLeftrightarrow", MathList(emptyList()), null)
         val symbol = MathFontOptions.ast(atom)
         Assert.assertNotNull("xLeftrightarrow 应该有对应的符号", symbol)
-        Assert.assertEquals("⇔", symbol?.unicode)
+        Assert.assertEquals("⇔", symbol?.c)
     }
 
     @Test(expected = IllegalArgumentException::class)

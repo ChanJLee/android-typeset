@@ -261,14 +261,14 @@ class StretchyAsserter(private val node: StretchyNode) : RenderNodeAsserter(node
     }
 
     fun symbol(s: String) {
-        Assert.assertEquals(s, node.symbol.symbol.unicode)
+        Assert.assertEquals(s, node.symbol.symbol.c)
     }
 }
 
 class StretchyAsserter2(private val node: StretchyDoubleNode) : RenderNodeAsserter(node) {
     fun symbol(s: String, e: String) {
-        Assert.assertEquals(s, node.symbol.symbol.unicode)
-        Assert.assertEquals(e, node.extension.symbol.unicode);
+        Assert.assertEquals(s, node.symbol.symbol.c)
+        Assert.assertEquals(e, node.extension.symbol.c);
     }
 }
 
@@ -276,10 +276,10 @@ class StretchyAsserter2(private val node: StretchyDoubleNode) : RenderNodeAssert
 class StretchyAsserter3(private val node: StretchyTripeNode) : RenderNodeAsserter(node) {
 
     fun symbol(top: String, middle: String, bottom: String, extension: String) {
-        Assert.assertEquals(top, node.topNode.symbol.unicode)
-        Assert.assertEquals(middle, node.middleNode.symbol.unicode)
-        Assert.assertEquals(bottom, node.bottomNode.symbol.unicode)
-        Assert.assertEquals(extension, node.extensionNode.symbol.unicode)
+        Assert.assertEquals(top, node.topNode.symbol.c)
+        Assert.assertEquals(middle, node.middleNode.symbol.c)
+        Assert.assertEquals(bottom, node.bottomNode.symbol.c)
+        Assert.assertEquals(extension, node.extensionNode.symbol.c)
     }
 }
 
@@ -329,11 +329,11 @@ class SqrtAsserter(private val node: SqrtNode) : RenderNodeAsserter(node) {
 class SymbolAsserter(private val node: SymbolNode) : RenderNodeAsserter(node) {
     fun content(s: Symbol?) {
         Assert.assertNotNull(s)
-        Assert.assertEquals(s!!.unicode, node.symbol.unicode)
+        Assert.assertEquals(s!!.c, node.symbol.c)
     }
 
     fun content(s: String) {
-        Assert.assertEquals(s, node.symbol.unicode)
+        Assert.assertEquals(s, node.symbol.c)
     }
 }
 

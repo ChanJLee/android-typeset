@@ -25,7 +25,7 @@ class SymbolUnitTest {
     private fun assertSymbolExists(symbolName: String, description: String = "") {
         val symbol = symbolOptions.all[symbolName]
         assertNotNull("符号 '$symbolName' 应该存在 ($description)", symbol)
-        println("✅ $symbolName -> ${symbol?.unicode} ($description)")
+        println("✅ $symbolName -> ${symbol?.c} ($description)")
     }
 
     /**
@@ -34,7 +34,7 @@ class SymbolUnitTest {
     private fun assertAstMappingExists(astKey: String, expectedSymbolName: String, description: String = "") {
         val symbol = MathFontOptions.symbol(expectedSymbolName)
         assertNotNull("AST '$astKey' 映射到 '$expectedSymbolName' 应该存在 ($description)", symbol)
-        println("✅ \\$astKey -> $expectedSymbolName -> ${symbol?.unicode} ($description)")
+        println("✅ \\$astKey -> $expectedSymbolName -> ${symbol?.c} ($description)")
     }
 
     // ============================================================
@@ -723,7 +723,7 @@ class SymbolUnitTest {
             val symbol = symbolOptions.all[symbolName]
             if (symbol != null) {
                 passCount++
-                println("✅ $key -> $symbolName -> ${symbol.unicode}")
+                println("✅ $key -> $symbolName -> ${symbol.c}")
             } else {
                 failCount++
                 failures.add("$key -> $symbolName")
@@ -878,7 +878,7 @@ class SymbolUnitTest {
         if (symbol == null) {
             println("⚠️ Rfraktur 符号不存在，\\Re 可能无法正确渲染")
         } else {
-            println("✅ Rfraktur -> ${symbol.unicode}")
+            println("✅ Rfraktur -> ${symbol.c}")
         }
     }
 
@@ -888,7 +888,7 @@ class SymbolUnitTest {
         if (symbol == null) {
             println("⚠️ Ifraktur 符号不存在，\\Im 可能无法正确渲染")
         } else {
-            println("✅ Ifraktur -> ${symbol.unicode}")
+            println("✅ Ifraktur -> ${symbol.c}")
         }
     }
 
@@ -898,7 +898,7 @@ class SymbolUnitTest {
         if (symbol == null) {
             println("⚠️ aleph 符号不存在，\\aleph 可能无法正确渲染")
         } else {
-            println("✅ aleph -> ${symbol.unicode}")
+            println("✅ aleph -> ${symbol.c}")
         }
     }
 }

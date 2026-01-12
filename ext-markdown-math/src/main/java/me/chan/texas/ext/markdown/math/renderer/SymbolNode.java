@@ -38,7 +38,7 @@ public class SymbolNode extends RendererNode {
 	@Override
 	protected void onDraw(MathCanvas canvas, MathPaint paint) {
 		float y = getHeight() + mOffsetY;
-		canvas.drawText(mSymbol.unicode, mOffsetX, y, paint);
+		canvas.drawText(mSymbol.c, mOffsetX, y, paint);
 	}
 
 	public final void layout(float top) {
@@ -54,7 +54,7 @@ public class SymbolNode extends RendererNode {
 
 	@Override
 	protected String toPretty() {
-		return "symbol: " + mSymbol.unicode;
+		return "symbol: " + mSymbol.c;
 	}
 
 	@Override

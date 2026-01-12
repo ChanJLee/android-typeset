@@ -1294,7 +1294,7 @@ class MathInflaterUnitTest {
                     }
                 }
             }
-            println("\\${key}{x} = ${MathFontOptions.symbol(value).unicode} \\\\")
+            println("\\${key}{x} = ${MathFontOptions.symbol(value).c} \\\\")
         }
     }
 
@@ -1305,10 +1305,10 @@ class MathInflaterUnitTest {
                 cmd {
                     stretchy3 {
                         symbol(
-                            MathFontOptions.symbol("uni23A7").unicode,
-                            MathFontOptions.symbol("uni23A8").unicode,
-                            MathFontOptions.symbol("uni23A9").unicode,
-                            MathFontOptions.symbol("uni23AA").unicode
+                            MathFontOptions.symbol("uni23A7").c,
+                            MathFontOptions.symbol("uni23A8").c,
+                            MathFontOptions.symbol("uni23A9").c,
+                            MathFontOptions.symbol("uni23AA").c
                         )
                     }
                 }
@@ -1324,10 +1324,10 @@ class MathInflaterUnitTest {
                 cmd {
                     stretchy3 {
                         symbol(
-                            MathFontOptions.symbol("uni23A7").unicode,
-                            MathFontOptions.symbol("uni23A8").unicode,
-                            MathFontOptions.symbol("uni23A9").unicode,
-                            MathFontOptions.symbol("uni23AA").unicode
+                            MathFontOptions.symbol("uni23A7").c,
+                            MathFontOptions.symbol("uni23A8").c,
+                            MathFontOptions.symbol("uni23A9").c,
+                            MathFontOptions.symbol("uni23AA").c
                         )
                     }
                 }
@@ -1416,7 +1416,7 @@ class MathInflaterUnitTest {
                     bottom { text { content("below") } }
                 }
             }
-            println("\\${key}{${key}} = ${MathFontOptions.symbol(value).unicode} \\\\")
+            println("\\${key}{${key}} = ${MathFontOptions.symbol(value).c} \\\\")
         }
     }
 
@@ -1448,7 +1448,7 @@ class MathInflaterUnitTest {
                     content(MathFontOptions.symbol(value))
                 }
             }
-            println("${key.substring(1)}  ${key} = ${MathFontOptions.symbol(value).unicode} \\\\")
+            println("${key.substring(1)}  ${key} = ${MathFontOptions.symbol(value).c} \\\\")
         }
 
         // Relations
@@ -1484,7 +1484,7 @@ class MathInflaterUnitTest {
                     content(MathFontOptions.symbol(value))
                 }
             }
-            println("${key.substring(1)}  ${key} = ${MathFontOptions.symbol(value).unicode} \\\\")
+            println("${key.substring(1)}  ${key} = ${MathFontOptions.symbol(value).c} \\\\")
         }
 
         // Sets and Logic
@@ -1512,7 +1512,7 @@ class MathInflaterUnitTest {
                     content(MathFontOptions.symbol(value))
                 }
             }
-            println("${key.substring(1)}  ${key} = ${MathFontOptions.symbol(value).unicode} \\\\")
+            println("${key.substring(1)}  ${key} = ${MathFontOptions.symbol(value).c} \\\\")
         }
 
         // Arrows
@@ -1533,7 +1533,7 @@ class MathInflaterUnitTest {
                     content(MathFontOptions.symbol(value))
                 }
             }
-            println("${key.substring(1)}  ${key} = ${MathFontOptions.symbol(value).unicode} \\\\")
+            println("${key.substring(1)}  ${key} = ${MathFontOptions.symbol(value).c} \\\\")
         }
 
         // Geometry & Others
@@ -1563,7 +1563,7 @@ class MathInflaterUnitTest {
                     content(MathFontOptions.symbol(value))
                 }
             }
-            println("${key.substring(1)}  ${key} = ${MathFontOptions.symbol(value).unicode} \\\\")
+            println("${key.substring(1)}  ${key} = ${MathFontOptions.symbol(value).c} \\\\")
         }
 
         // Other
@@ -1589,7 +1589,7 @@ class MathInflaterUnitTest {
                     content(MathFontOptions.symbol(value))
                 }
             }
-            println("${key} = ${MathFontOptions.symbol(value).unicode} \\\\")
+            println("${key} = ${MathFontOptions.symbol(value).c} \\\\")
         }
     }
 

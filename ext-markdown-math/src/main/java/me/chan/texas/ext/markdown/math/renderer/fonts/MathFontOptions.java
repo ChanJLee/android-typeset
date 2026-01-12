@@ -1,11 +1,8 @@
 package me.chan.texas.ext.markdown.math.renderer.fonts;
 
-import android.content.Context;
-
 import java.util.HashMap;
 import java.util.Map;
 
-import me.chan.texas.Texas;
 import me.chan.texas.ext.markdown.math.ast.ExtensibleArrowAtom;
 import me.chan.texas.ext.markdown.math.ast.SpecialLetterVariableAtom;
 import me.chan.texas.ext.markdown.math.ast.SpecialSymbolAtom;
@@ -249,12 +246,7 @@ public class MathFontOptions {
 		for (Map.Entry<String, Symbol> entry : SYMBOL.all.entrySet()) {
 			String key = entry.getKey();
 			Symbol value = entry.getValue();
-			AST.put(value.unicode, key);
-		}
-
-		Context context = Texas.getAppContext();
-		if (context != null) {
-			SYMBOL.load(context, "STIXTwoMath.json");
+			AST.put(value.c, key);
 		}
 	}
 
