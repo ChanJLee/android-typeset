@@ -9,12 +9,12 @@ public class SpecialLetterVariableAtom implements Atom {
 	}
 
 	public SpecialLetterVariableAtom(String name, String primeSuffix) {
-		this.name = name;
+		this.name = "\\" + name;
 		this.primeSuffix = primeSuffix;
 	}
 
 	@Override
 	public String toString() {
-		return "\\" + name + primeSuffix;
+		return name + primeSuffix;
 	}
 }

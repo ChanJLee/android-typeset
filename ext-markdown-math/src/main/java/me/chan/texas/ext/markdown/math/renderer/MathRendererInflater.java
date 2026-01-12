@@ -663,6 +663,7 @@ public class MathRendererInflater {
 		return new TextNode(styles, atom.symbol);
 	}
 
+
 	private RendererNode inflateLargeOp(MathPaint.Styles styles, LargeOperatorAtom largeOperatorAtom) {
 		Symbol s = MathFontOptions.ast(largeOperatorAtom);
 		if (s != null) {
