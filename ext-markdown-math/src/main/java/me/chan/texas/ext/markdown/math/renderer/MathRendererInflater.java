@@ -24,8 +24,6 @@ import me.chan.texas.ext.markdown.math.ast.PunctuationAtom;
 import me.chan.texas.ext.markdown.math.ast.ScriptArg;
 import me.chan.texas.ext.markdown.math.ast.SingleToken;
 import me.chan.texas.ext.markdown.math.ast.Spacing;
-import me.chan.texas.ext.markdown.math.ast.SpecialLetterVariableAtom;
-import me.chan.texas.ext.markdown.math.ast.SpecialSymbolAtom;
 import me.chan.texas.ext.markdown.math.ast.SqrtAtom;
 import me.chan.texas.ext.markdown.math.ast.SupSubSuffix;
 import me.chan.texas.ext.markdown.math.ast.SymbolAtom;
@@ -356,36 +354,15 @@ public class MathRendererInflater {
 			return inflateFontAtom(styles, (FontAtom) atom);
 		}
 
-		if (atom instanceof SpecialSymbolAtom) {
-			return inflateSpecialSymbolAtom(styles, (SpecialSymbolAtom) atom);
-		}
-
 		if (atom instanceof PunctuationAtom) {
 			return inflatePunctuationAtom(styles, (PunctuationAtom) atom);
-		}
-
-		if (atom instanceof SpecialLetterVariableAtom) {
-			return inflateSpecialLetterVariableAtom(styles, (SpecialLetterVariableAtom) atom);
 		}
 
 		throw new IllegalArgumentException("Unknown atom: " + atom);
 	}
 
-	private RendererNode inflateSpecialLetterVariableAtom(MathPaint.Styles styles, SpecialLetterVariableAtom atom) {
-		Symbol symbol = MathFontOptions.ast(atom);
-		if (symbol != null) {
-			return new SymbolNode(styles, symbol);
-		}
-		// 如果没有对应的符号，回退到文本渲染
-		return new TextNode(styles, "\\" + atom.name + atom.primeSuffix);
-	}
-
 	private RendererNode inflatePunctuationAtom(MathPaint.Styles styles, PunctuationAtom atom) {
 		return new TextNode(styles, atom.symbol);
-	}
-
-	private RendererNode inflateSpecialSymbolAtom(MathPaint.Styles styles, SpecialSymbolAtom atom) {
-		return new SymbolNode(styles, MathFontOptions.ast(atom));
 	}
 
 	private RendererNode inflateFontAtom(MathPaint.Styles styles, FontAtom atom) {

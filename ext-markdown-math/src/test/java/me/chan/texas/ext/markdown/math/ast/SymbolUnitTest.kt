@@ -847,13 +847,13 @@ class SymbolUnitTest {
     @Test
     fun test_MathFontOptions_ast_SpecialSymbolAtom() {
         // 测试特殊符号
-        val dotsAtom = SpecialSymbolAtom("dots")
+        val dotsAtom = SymbolAtom("\\dots")
         assertNotNull("dots 应该能找到符号", MathFontOptions.ast(dotsAtom))
 
-        val angleAtom = SpecialSymbolAtom("angle")
+        val angleAtom = SymbolAtom("\\angle")
         assertNotNull("angle 应该能找到符号", MathFontOptions.ast(angleAtom))
 
-        val forallAtom = SpecialSymbolAtom("forall")
+        val forallAtom = SymbolAtom("\\forall")
         assertNotNull("forall 应该能找到符号", MathFontOptions.ast(forallAtom))
     }
 

@@ -815,217 +815,217 @@ class MathFontOptionsUnitTest {
 
     @Test
     fun `test special symbol perp`() {
-        val atom = SpecialSymbolAtom("perp")
+        val atom = SymbolAtom("\\perp")
         val symbol = MathFontOptions.ast(atom)
         Assert.assertNotNull("perp 应该有对应的符号", symbol)
     }
 
     @Test
     fun `test special symbol parallel`() {
-        val atom = SpecialSymbolAtom("parallel")
+        val atom = SymbolAtom("\\parallel")
         val symbol = MathFontOptions.ast(atom)
         Assert.assertNotNull("parallel 应该有对应的符号", symbol)
     }
 
     @Test
     fun `test special symbol mid`() {
-        val atom = SpecialSymbolAtom("mid")
+        val atom = SymbolAtom("\\mid")
         val symbol = MathFontOptions.ast(atom)
         Assert.assertNotNull("mid 应该有对应的符号", symbol)
     }
 
     @Test
     fun `test special symbol nmid`() {
-        val atom = SpecialSymbolAtom("nmid")
+        val atom = SymbolAtom("\\nmid")
         val symbol = MathFontOptions.ast(atom)
         Assert.assertNotNull("nmid 应该有对应的符号", symbol)
     }
 
     @Test
     fun `test special symbol triangleleft`() {
-        val atom = SpecialSymbolAtom("triangleleft")
+        val atom = SymbolAtom("\\triangleleft")
         val symbol = MathFontOptions.ast(atom)
         Assert.assertNotNull("triangleleft 应该有对应的符号", symbol)
     }
 
     @Test
     fun `test special symbol triangleright`() {
-        val atom = SpecialSymbolAtom("triangleright")
+        val atom = SymbolAtom("\\triangleright")
         val symbol = MathFontOptions.ast(atom)
         Assert.assertNotNull("triangleright 应该有对应的符号", symbol)
     }
 
     @Test
     fun `test special symbol bowtie`() {
-        val atom = SpecialSymbolAtom("bowtie")
+        val atom = SymbolAtom("\\bowtie")
         val symbol = MathFontOptions.ast(atom)
         Assert.assertNotNull("bowtie 应该有对应的符号", symbol)
     }
 
     @Test
     fun `test special symbol models`() {
-        val atom = SpecialSymbolAtom("models")
+        val atom = SymbolAtom("\\models")
         val symbol = MathFontOptions.ast(atom)
         Assert.assertNotNull("models 应该有对应的符号", symbol)
     }
 
     @Test
     fun `test special symbol neg`() {
-        val atom = SpecialSymbolAtom("neg")
+        val atom = SymbolAtom("\\neg")
         val symbol = MathFontOptions.ast(atom)
         Assert.assertNotNull("neg 应该有对应的符号", symbol)
     }
 
     @Test
     fun `test special symbol dots`() {
-        val atom = SpecialSymbolAtom("dots")
+        val atom = SymbolAtom("\\dots")
         val symbol = MathFontOptions.ast(atom)
         Assert.assertNotNull("dots 应该有对应的符号", symbol)
     }
 
     @Test
     fun `test special symbol ldots`() {
-        val atom = SpecialSymbolAtom("ldots")
+        val atom = SymbolAtom("\\ldots")
         val symbol = MathFontOptions.ast(atom)
         Assert.assertNotNull("ldots 应该有对应的符号", symbol)
     }
 
     @Test
     fun `test special symbol cdots`() {
-        val atom = SpecialSymbolAtom("cdots")
+        val atom = SymbolAtom("\\cdots")
         val symbol = MathFontOptions.ast(atom)
         Assert.assertNotNull("cdots 应该有对应的符号", symbol)
     }
 
     @Test
     fun `test special symbol vdots`() {
-        val atom = SpecialSymbolAtom("vdots")
+        val atom = SymbolAtom("\\vdots")
         val symbol = MathFontOptions.ast(atom)
         Assert.assertNotNull("vdots 应该有对应的符号", symbol)
     }
 
     @Test
     fun `test special symbol ddots`() {
-        val atom = SpecialSymbolAtom("ddots")
+        val atom = SymbolAtom("\\ddots")
         val symbol = MathFontOptions.ast(atom)
         Assert.assertNotNull("ddots 应该有对应的符号", symbol)
     }
 
     @Test
     fun `test special symbol angle`() {
-        val atom = SpecialSymbolAtom("angle")
+        val atom = SymbolAtom("\\angle")
         val symbol = MathFontOptions.ast(atom)
         Assert.assertNotNull("angle 应该有对应的符号", symbol)
     }
 
     @Test
     fun `test special symbol therefore`() {
-        val atom = SpecialSymbolAtom("therefore")
+        val atom = SymbolAtom("\\therefore")
         val symbol = MathFontOptions.ast(atom)
         Assert.assertNotNull("therefore 应该有对应的符号", symbol)
     }
 
     @Test
     fun `test special symbol because`() {
-        val atom = SpecialSymbolAtom("because")
+        val atom = SymbolAtom("\\because")
         val symbol = MathFontOptions.ast(atom)
         Assert.assertNotNull("because 应该有对应的符号", symbol)
     }
 
     @Test
     fun `test special symbol forall`() {
-        val atom = SpecialSymbolAtom("forall")
+        val atom = SymbolAtom("\\forall")
         val symbol = MathFontOptions.ast(atom)
         Assert.assertNotNull("forall 应该有对应的符号", symbol)
     }
 
     @Test
     fun `test special symbol exists`() {
-        val atom = SpecialSymbolAtom("exists")
+        val atom = SymbolAtom("\\exists")
         val symbol = MathFontOptions.ast(atom)
         Assert.assertNotNull("exists 应该有对应的符号", symbol)
     }
 
     @Test
     fun `test special symbol nexists`() {
-        val atom = SpecialSymbolAtom("nexists")
+        val atom = SymbolAtom("\\nexists")
         val symbol = MathFontOptions.ast(atom)
         Assert.assertNotNull("nexists 应该有对应的符号", symbol)
     }
 
     @Test
     fun `test special symbol emptyset`() {
-        val atom = SpecialSymbolAtom("emptyset")
+        val atom = SymbolAtom("\\emptyset")
         val symbol = MathFontOptions.ast(atom)
         Assert.assertNotNull("emptyset 应该有对应的符号", symbol)
     }
 
     @Test
     fun `test special symbol varnothing`() {
-        val atom = SpecialSymbolAtom("varnothing")
+        val atom = SymbolAtom("\\varnothing")
         val symbol = MathFontOptions.ast(atom)
         Assert.assertNotNull("varnothing 应该有对应的符号", symbol)
     }
 
     @Test
     fun `test special symbol hbar`() {
-        val atom = SpecialSymbolAtom("hbar")
+        val atom = SymbolAtom("\\hbar")
         val symbol = MathFontOptions.ast(atom)
         Assert.assertNotNull("hbar 应该有对应的符号", symbol)
     }
 
     @Test
     fun `test special symbol nabla`() {
-        val atom = SpecialSymbolAtom("nabla")
+        val atom = SymbolAtom("\\nabla")
         val symbol = MathFontOptions.ast(atom)
         Assert.assertNotNull("nabla 应该有对应的符号", symbol)
     }
 
     @Test
     fun `test special symbol partial`() {
-        val atom = SpecialSymbolAtom("partial")
+        val atom = SymbolAtom("\\partial")
         val symbol = MathFontOptions.ast(atom)
         Assert.assertNotNull("partial 应该有对应的符号", symbol)
     }
 
     @Test
     fun `test special symbol ell`() {
-        val atom = SpecialSymbolAtom("ell")
+        val atom = SymbolAtom("\\ell")
         val symbol = MathFontOptions.ast(atom)
         Assert.assertNotNull("ell 应该有对应的符号", symbol)
     }
 
     @Test
     fun `test special symbol wp`() {
-        val atom = SpecialSymbolAtom("wp")
+        val atom = SymbolAtom("\\wp")
         val symbol = MathFontOptions.ast(atom)
         Assert.assertNotNull("wp 应该有对应的符号", symbol)
     }
 
     @Test
     fun `test special symbol Re`() {
-        val atom = SpecialSymbolAtom("Re")
+        val atom = SymbolAtom("\\Re")
         val symbol = MathFontOptions.ast(atom)
         Assert.assertNotNull("Re 应该有对应的符号", symbol)
     }
 
     @Test
     fun `test special symbol Im`() {
-        val atom = SpecialSymbolAtom("Im")
+        val atom = SymbolAtom("\\Im")
         val symbol = MathFontOptions.ast(atom)
         Assert.assertNotNull("Im 应该有对应的符号", symbol)
     }
 
     @Test
     fun `test special symbol aleph`() {
-        val atom = SpecialSymbolAtom("aleph")
+        val atom = SymbolAtom("\\aleph")
         val symbol = MathFontOptions.ast(atom)
         Assert.assertNotNull("aleph 应该有对应的符号", symbol)
     }
 
     @Test
     fun `test special symbol infty`() {
-        val atom = SpecialSymbolAtom("infty")
+        val atom = SymbolAtom("\\infty")
         val symbol = MathFontOptions.ast(atom)
         Assert.assertNotNull("infty 应该有对应的符号", symbol)
     }
@@ -1034,77 +1034,77 @@ class MathFontOptionsUnitTest {
 
     @Test
     fun `test special symbol setminus`() {
-        val atom = SpecialSymbolAtom("setminus")
+        val atom = SymbolAtom("\\setminus")
         val symbol = MathFontOptions.ast(atom)
         Assert.assertNotNull("setminus 应该有对应的符号", symbol)
     }
 
     @Test
     fun `test special symbol circ`() {
-        val atom = SpecialSymbolAtom("circ")
+        val atom = SymbolAtom("\\circ")
         val symbol = MathFontOptions.ast(atom)
         Assert.assertNotNull("circ 应该有对应的符号", symbol)
     }
 
     @Test
     fun `test special symbol oplus`() {
-        val atom = SpecialSymbolAtom("oplus")
+        val atom = SymbolAtom("\\oplus")
         val symbol = MathFontOptions.ast(atom)
         Assert.assertNotNull("oplus 应该有对应的符号", symbol)
     }
 
     @Test
     fun `test special symbol ominus`() {
-        val atom = SpecialSymbolAtom("ominus")
+        val atom = SymbolAtom("\\ominus")
         val symbol = MathFontOptions.ast(atom)
         Assert.assertNotNull("ominus 应该有对应的符号", symbol)
     }
 
     @Test
     fun `test special symbol otimes`() {
-        val atom = SpecialSymbolAtom("otimes")
+        val atom = SymbolAtom("\\otimes")
         val symbol = MathFontOptions.ast(atom)
         Assert.assertNotNull("otimes 应该有对应的符号", symbol)
     }
 
     @Test
     fun `test special symbol oslash`() {
-        val atom = SpecialSymbolAtom("oslash")
+        val atom = SymbolAtom("\\oslash")
         val symbol = MathFontOptions.ast(atom)
         Assert.assertNotNull("oslash 应该有对应的符号", symbol)
     }
 
     @Test
     fun `test special symbol odot`() {
-        val atom = SpecialSymbolAtom("odot")
+        val atom = SymbolAtom("\\odot")
         val symbol = MathFontOptions.ast(atom)
         Assert.assertNotNull("odot 应该有对应的符号", symbol)
     }
 
     @Test
     fun `test special symbol bullet`() {
-        val atom = SpecialSymbolAtom("bullet")
+        val atom = SymbolAtom("\\bullet")
         val symbol = MathFontOptions.ast(atom)
         Assert.assertNotNull("bullet 应该有对应的符号", symbol)
     }
 
     @Test
     fun `test special symbol star`() {
-        val atom = SpecialSymbolAtom("star")
+        val atom = SymbolAtom("\\star")
         val symbol = MathFontOptions.ast(atom)
         Assert.assertNotNull("star 应该有对应的符号", symbol)
     }
 
     @Test
     fun `test special symbol dagger`() {
-        val atom = SpecialSymbolAtom("dagger")
+        val atom = SymbolAtom("\\dagger")
         val symbol = MathFontOptions.ast(atom)
         Assert.assertNotNull("dagger 应该有对应的符号", symbol)
     }
 
     @Test
     fun `test special symbol ddagger`() {
-        val atom = SpecialSymbolAtom("ddagger")
+        val atom = SymbolAtom("\\ddagger")
         val symbol = MathFontOptions.ast(atom)
         Assert.assertNotNull("ddagger 应该有对应的符号", symbol)
     }
@@ -1305,42 +1305,42 @@ class MathFontOptionsUnitTest {
 
     @Test
     fun `test special letter variable hbar`() {
-        val atom = SpecialLetterVariableAtom("hbar")
+        val atom = SymbolAtom("\\hbar")
         val symbol = MathFontOptions.ast(atom)
         Assert.assertNotNull("hbar 应该有对应的符号", symbol)
     }
 
     @Test
     fun `test special letter variable ell`() {
-        val atom = SpecialLetterVariableAtom("ell")
+        val atom = SymbolAtom("\\ell")
         val symbol = MathFontOptions.ast(atom)
         Assert.assertNotNull("ell 应该有对应的符号", symbol)
     }
 
     @Test
     fun `test special letter variable wp`() {
-        val atom = SpecialLetterVariableAtom("wp")
+        val atom = SymbolAtom("\\wp")
         val symbol = MathFontOptions.ast(atom)
         Assert.assertNotNull("wp 应该有对应的符号", symbol)
     }
 
     @Test
     fun `test special letter variable Re`() {
-        val atom = SpecialLetterVariableAtom("Re")
+        val atom = SymbolAtom("\\Re")
         val symbol = MathFontOptions.ast(atom)
         Assert.assertNotNull("Re 应该有对应的符号", symbol)
     }
 
     @Test
     fun `test special letter variable Im`() {
-        val atom = SpecialLetterVariableAtom("Im")
+        val atom = SymbolAtom("\\Im")
         val symbol = MathFontOptions.ast(atom)
         Assert.assertNotNull("Im 应该有对应的符号", symbol)
     }
 
     @Test
     fun `test special letter variable aleph`() {
-        val atom = SpecialLetterVariableAtom("aleph")
+        val atom = SymbolAtom("\\aleph")
         val symbol = MathFontOptions.ast(atom)
         Assert.assertNotNull("aleph 应该有对应的符号", symbol)
     }

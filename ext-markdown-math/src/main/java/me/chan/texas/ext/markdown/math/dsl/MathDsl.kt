@@ -51,13 +51,6 @@ class MathListBuilder {
         elements.add(Term(SymbolAtom(name), null))
     }
 
-    /**
-     * 添加特殊字母（如 \ell, \hbar 等）
-     */
-    fun specialLetter(name: String, primeSuffix: String = "") {
-        elements.add(Term(SpecialLetterVariableAtom(name, primeSuffix), null))
-    }
-
     fun term(block: TermBuilder.() -> Unit) {
         elements.add(TermBuilder().apply(block).build())
     }
