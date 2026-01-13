@@ -15,7 +15,7 @@ class MathFontOptionsUnitTest {
     @Test
     fun `test large operator sum`() {
         val atom = LargeOperatorAtom("sum")
-        val symbol = MathFontOptions.ast(atom)
+        val symbol = MathFontOptions.symbol(atom)
         Assert.assertNotNull("sum 应该有对应的符号", symbol)
         Assert.assertEquals("∑", symbol?.c)
     }
@@ -23,7 +23,7 @@ class MathFontOptionsUnitTest {
     @Test
     fun `test large operator prod`() {
         val atom = LargeOperatorAtom("prod")
-        val symbol = MathFontOptions.ast(atom)
+        val symbol = MathFontOptions.symbol(atom)
         Assert.assertNotNull("prod 应该有对应的符号", symbol)
         Assert.assertEquals("∏", symbol?.c)
     }
@@ -31,14 +31,14 @@ class MathFontOptionsUnitTest {
     @Test
     fun `test large operator coprod`() {
         val atom = LargeOperatorAtom("coprod")
-        val symbol = MathFontOptions.ast(atom)
+        val symbol = MathFontOptions.symbol(atom)
         Assert.assertNotNull("coprod 应该有对应的符号", symbol)
     }
 
     @Test
     fun `test large operator int`() {
         val atom = LargeOperatorAtom("int")
-        val symbol = MathFontOptions.ast(atom)
+        val symbol = MathFontOptions.symbol(atom)
         Assert.assertNotNull("int 应该有对应的符号", symbol)
         Assert.assertEquals("∫", symbol?.c)
     }
@@ -46,98 +46,98 @@ class MathFontOptionsUnitTest {
     @Test
     fun `test large operator iint`() {
         val atom = LargeOperatorAtom("iint")
-        val symbol = MathFontOptions.ast(atom)
+        val symbol = MathFontOptions.symbol(atom)
         Assert.assertNotNull("iint 应该有对应的符号", symbol)
     }
 
     @Test
     fun `test large operator iiint`() {
         val atom = LargeOperatorAtom("iiint")
-        val symbol = MathFontOptions.ast(atom)
+        val symbol = MathFontOptions.symbol(atom)
         Assert.assertNotNull("iiint 应该有对应的符号", symbol)
     }
 
     @Test
     fun `test large operator oint`() {
         val atom = LargeOperatorAtom("oint")
-        val symbol = MathFontOptions.ast(atom)
+        val symbol = MathFontOptions.symbol(atom)
         Assert.assertNotNull("oint 应该有对应的符号", symbol)
     }
 
     @Test
     fun `test large operator oiint`() {
         val atom = LargeOperatorAtom("oiint")
-        val symbol = MathFontOptions.ast(atom)
+        val symbol = MathFontOptions.symbol(atom)
         Assert.assertNotNull("oiint 应该有对应的符号", symbol)
     }
 
     @Test
     fun `test large operator oiiint`() {
         val atom = LargeOperatorAtom("oiiint")
-        val symbol = MathFontOptions.ast(atom)
+        val symbol = MathFontOptions.symbol(atom)
         Assert.assertNotNull("oiiint 应该有对应的符号", symbol)
     }
 
     @Test
     fun `test large operator bigcup`() {
         val atom = LargeOperatorAtom("bigcup")
-        val symbol = MathFontOptions.ast(atom)
+        val symbol = MathFontOptions.symbol(atom)
         Assert.assertNotNull("bigcup 应该有对应的符号", symbol)
     }
 
     @Test
     fun `test large operator bigcap`() {
         val atom = LargeOperatorAtom("bigcap")
-        val symbol = MathFontOptions.ast(atom)
+        val symbol = MathFontOptions.symbol(atom)
         Assert.assertNotNull("bigcap 应该有对应的符号", symbol)
     }
 
     @Test
     fun `test large operator bigvee`() {
         val atom = LargeOperatorAtom("bigvee")
-        val symbol = MathFontOptions.ast(atom)
+        val symbol = MathFontOptions.symbol(atom)
         Assert.assertNotNull("bigvee 应该有对应的符号", symbol)
     }
 
     @Test
     fun `test large operator bigwedge`() {
         val atom = LargeOperatorAtom("bigwedge")
-        val symbol = MathFontOptions.ast(atom)
+        val symbol = MathFontOptions.symbol(atom)
         Assert.assertNotNull("bigwedge 应该有对应的符号", symbol)
     }
 
     @Test
     fun `test large operator bigoplus`() {
         val atom = LargeOperatorAtom("bigoplus")
-        val symbol = MathFontOptions.ast(atom)
+        val symbol = MathFontOptions.symbol(atom)
         Assert.assertNotNull("bigoplus 应该有对应的符号", symbol)
     }
 
     @Test
     fun `test large operator bigotimes`() {
         val atom = LargeOperatorAtom("bigotimes")
-        val symbol = MathFontOptions.ast(atom)
+        val symbol = MathFontOptions.symbol(atom)
         Assert.assertNotNull("bigotimes 应该有对应的符号", symbol)
     }
 
     @Test
     fun `test large operator bigodot`() {
         val atom = LargeOperatorAtom("bigodot")
-        val symbol = MathFontOptions.ast(atom)
+        val symbol = MathFontOptions.symbol(atom)
         Assert.assertNotNull("bigodot 应该有对应的符号", symbol)
     }
 
     @Test
     fun `test large operator biguplus`() {
         val atom = LargeOperatorAtom("biguplus")
-        val symbol = MathFontOptions.ast(atom)
+        val symbol = MathFontOptions.symbol(atom)
         Assert.assertNotNull("biguplus 应该有对应的符号", symbol)
     }
 
     @Test
     fun `test large operator bigsqcup`() {
         val atom = LargeOperatorAtom("bigsqcup")
-        val symbol = MathFontOptions.ast(atom)
+        val symbol = MathFontOptions.symbol(atom)
         Assert.assertNotNull("bigsqcup 应该有对应的符号", symbol)
     }
 

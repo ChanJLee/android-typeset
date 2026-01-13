@@ -4,6 +4,7 @@ import me.chan.texas.ext.markdown.math.ast.DelimitedAtom
 import me.chan.texas.ext.markdown.math.ast.MathListAsserter
 import me.chan.texas.ext.markdown.math.ast.MathParseException
 import me.chan.texas.ext.markdown.math.ast.MathParser
+import me.chan.texas.ext.markdown.math.renderer.fonts.MathFontOptions
 import me.chan.texas.utils.CharStream
 import org.junit.Test
 
