@@ -17,7 +17,7 @@ public class SymbolOptions {
 	public final Map<String, Symbol> all;
 
 	public SymbolOptions() {
-		InputStream is = SymbolOptions.class.getResourceAsStream("STIXTwoMath.json");
+		InputStream is = SymbolOptions.class.getResourceAsStream("me/chan/texas/ext/markdown/math/renderer/fonts/STIXTwoMath.json");
 		if (is == null) {
 			throw new RuntimeException("无法找到 STIXTwoMath.json 资源文件");
 		}
