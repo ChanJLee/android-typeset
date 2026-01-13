@@ -89,8 +89,8 @@ public class SqrtSymbolNode extends RendererNode {
 		float endY = startY;
 		canvas.drawLine(startX, startY, endX, endY, paint);
 
-		endX = startX;
-		endY = startY;
+		endX = getWidth();
+		endY = getHeight() - (getWidth() - (1 - R) * mSymbolNode.getWidth()) / K;
 
 		startX = mSymbolNode.getRight();
 		startY = mSymbolNode.getTop();
