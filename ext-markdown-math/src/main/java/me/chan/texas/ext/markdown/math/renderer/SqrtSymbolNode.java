@@ -7,7 +7,7 @@ import me.chan.texas.ext.markdown.math.renderer.fonts.MathFontOptions;
 public class SqrtSymbolNode extends RendererNode {
 
 
-	private static final float MAGIC_RADIO = 150 / 310f;
+	private static final float MAGIC_RADIO = 145 / 313f;
 
 	private float mTextHeight;
 	private float mTextWidth;
@@ -72,7 +72,7 @@ public class SqrtSymbolNode extends RendererNode {
 		float y = getTopPadding() - thickness / 2;
 		canvas.drawLine(startX, y, startX + mContentWidth, y, paint);
 
-		canvas.drawLine(mTextWidth, getHeight() - mTextHeight - thickness / 2, startX, y, paint);
+		canvas.drawLine(mTextWidth, getHeight() - mTextHeight - thickness, startX, y - thickness / 2, paint);
 	}
 
 	@Override
