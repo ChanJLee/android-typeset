@@ -38,15 +38,14 @@ def parse_font_to_json(font_path, output_path="font_info.json"):
 
         e = {"c": char, "bbox": bbox}
 
-        if (category_name.startswith("P") or category_name.startswith("S") or category_name == "Lo"):
-            if bbox:
-                if char == "\\" or char == "\"":
-                    print("\t\tall.put(\"%s\", new Symbol(\"\\%s\", %sf, %sf, %sf, %sf));\n" % (glyph_name, char, bbox[0], bbox[1], bbox[2], bbox[3]))
-                else:
-                    print("\t\tall.put(\"%s\", new Symbol(\"%s\", %sf, %sf, %sf, %sf));\n" % (glyph_name, char, bbox[0], bbox[1], bbox[2], bbox[3]))
-                result.append(e)
+        if bbox:
+            if char == "\\" or char == "\"":
+                print("\t\tall.put(\"%s\", new Symbol(\"\\%s\", %sf, %sf, %sf, %sf));\n" % (glyph_name, char, bbox[0], bbox[1], bbox[2], bbox[3]))
             else:
-                print("\t\t// missing bbox: %s %s\n" % (glyph_name, char))
+                print("\t\tall.put(\"%s\", new Symbol(\"%s\", %sf, %sf, %sf, %sf));\n" % (glyph_name, char, bbox[0], bbox[1], bbox[2], bbox[3]))
+            result.append(e)
+        else:
+            print("\t\t// missing bbox: %s %s\n" % (glyph_name, char))
 
     # 输出 JSON
     with open(output_path, "w", encoding="utf-8") as f:

@@ -609,7 +609,7 @@ public class MathFontOptions {
 	}
 
 	public static Symbol symbol(String c) {
-		return SYMBOL.all.get(c);
+		return ref(c);
 	}
 
 	public static Symbol ast(LargeOperatorAtom atom) {
@@ -626,7 +626,7 @@ public class MathFontOptions {
 			return ref(atom.symbol.substring(1));
 		}
 
-		return symbol(symbol);
+		return SYMBOL.all.get(symbol);
 	}
 
 	private static Symbol ref(String symbol) {
@@ -634,7 +634,7 @@ public class MathFontOptions {
 		if (ref == null) {
 			throw new RuntimeException("Unknown symbol: " + symbol);
 		}
-		return symbol(ref);
+		return SYMBOL.all.get(ref);
 	}
 
 	public static Symbol ast(ExtensibleArrowAtom atom) {
