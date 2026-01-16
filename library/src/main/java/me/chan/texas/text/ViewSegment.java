@@ -12,6 +12,7 @@ import androidx.annotation.RestrictTo;
 import androidx.recyclerview.widget.RecyclerView;
 
 import me.chan.texas.renderer.ui.RendererHost;
+import me.chan.texas.renderer.ui.text.ParagraphView;
 import me.chan.texas.renderer.ui.text.TextureParagraph;
 
 /**
@@ -167,6 +168,11 @@ public abstract class ViewSegment implements Segment {
 		return mHost == null ? -1 : mHost.indexOf(this);
 	}
 
+	/**
+	 * 用于选择文本
+	 *
+	 * @return {@link ParagraphView#getTextureParagraph()}
+	 */
 	@Nullable
 	public TextureParagraph getTextureParagraph() {
 		return null;

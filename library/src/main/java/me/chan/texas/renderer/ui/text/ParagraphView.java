@@ -50,6 +50,7 @@ import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.Segment;
 import me.chan.texas.text.TextAttribute;
 import me.chan.texas.text.TextGravity;
+import me.chan.texas.text.ViewSegment;
 import me.chan.texas.text.layout.Box;
 import me.chan.texas.text.layout.Layout;
 import me.chan.texas.text.layout.Line;
@@ -1114,6 +1115,11 @@ public class ParagraphView extends FrameLayout {
 		}
 	}
 
+	/**
+	 * 获得TextureParagraph，一般用于内部选中文本
+	 *
+	 * @return {@link ViewSegment#getTextureParagraph()}
+	 */
 	public TextureParagraph getTextureParagraph() {
 		return mRender;
 	}
