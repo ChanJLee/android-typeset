@@ -168,13 +168,8 @@ public abstract class ViewSegment implements Segment {
 		return mHost == null ? -1 : mHost.indexOf(this);
 	}
 
-	/**
-	 * 用于选择文本
-	 *
-	 * @return {@link ParagraphView#getTextureParagraph()}
-	 */
 	@Nullable
-	public TextureParagraph getTextureParagraph() {
+	public final ParagraphView getParagraphView() {
 		return null;
 	}
 }
