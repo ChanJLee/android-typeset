@@ -17,7 +17,6 @@ import me.chan.texas.utils.concurrency.Worker;
 /**
  * 段落渲染器
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 public interface TextureParagraph {
 	/**
 	 * @param width  宽度
@@ -79,6 +78,8 @@ public interface TextureParagraph {
 	void setOnMeasureInterceptor(OnMeasureInterceptor interceptor);
 
 	void setRendererListener(RendererListener rendererListener);
+
+	boolean isAttachedToWindow();
 
 	interface RendererListener {
 		void onSyncUI(TextureParagraph view);

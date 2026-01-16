@@ -3,6 +3,7 @@ package me.chan.texas.text;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
 import me.chan.texas.misc.Rect;
+
 import android.view.View;
 
 import androidx.annotation.LayoutRes;
@@ -11,6 +12,7 @@ import androidx.annotation.RestrictTo;
 import androidx.recyclerview.widget.RecyclerView;
 
 import me.chan.texas.renderer.ui.RendererHost;
+import me.chan.texas.renderer.ui.text.TextureParagraph;
 
 /**
  * 用户自定义视图片段
@@ -163,5 +165,10 @@ public abstract class ViewSegment implements Segment {
 	@Override
 	public final int getIndex() {
 		return mHost == null ? -1 : mHost.indexOf(this);
+	}
+
+	@Nullable
+	public TextureParagraph getTextureParagraph() {
+		return null;
 	}
 }

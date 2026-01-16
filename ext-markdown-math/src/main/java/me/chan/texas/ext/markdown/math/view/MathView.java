@@ -75,7 +75,7 @@ public class MathView extends View implements AsyncMathViewRenderer {
 		textPaint.setTypeface(TexMathParser.getTypeface());
 		textPaint.setStyle(Paint.Style.FILL);
 		textPaint.setColor(defaultTextColor);
-		textPaint.setTextSize(300);
+		textPaint.setTextSize(defaultTextSize);
 
 		TexasPaintImpl paint = new TexasPaintImpl();
 		paint.reset(new PaintSet(textPaint));

@@ -147,6 +147,8 @@ public class Renderer implements SelectionManager.Listener {
 		});
 		mRecyclerView.addItemDecoration(new SegmentItemDecoration(mAdapter));
 
+		mLinearLayoutManager.setAdapter(mAdapter);
+
 		// selection
 		DragSelectViewImpl selectionDragView = new DragSelectViewImpl(texasView.getContext(), texasView);
 		selectionDragView.setEnable(renderOption.isDragToSelectEnable());

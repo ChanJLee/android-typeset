@@ -1094,6 +1094,10 @@ public class ParagraphView extends FrameLayout {
 		}
 	}
 
+	public TextureParagraph getTextureParagraph() {
+		return mRender;
+	}
+
 	/**
 	 * Render listener
 	 */

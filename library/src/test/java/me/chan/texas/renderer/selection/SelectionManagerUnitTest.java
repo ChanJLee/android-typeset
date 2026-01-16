@@ -763,6 +763,11 @@ public class SelectionManagerUnitTest {
 		public int findLastCompletelyVisibleItemPosition() {
 			return mLastCompletelyVisibleItemPosition;
 		}
+
+		@Override
+		public void setAdapter(TexasRendererAdapter adapter) {
+
+		}
 	}
 
 	private class MyAdapter implements TexasRendererAdapter {

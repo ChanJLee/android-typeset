@@ -11,12 +11,16 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.LinearSmoothScroller;
 import androidx.recyclerview.widget.RecyclerView;
 
+import me.chan.texas.renderer.ui.TexasRendererAdapter;
 import me.chan.texas.renderer.ui.text.TextureParagraph;
+import me.chan.texas.text.Segment;
+import me.chan.texas.text.ViewSegment;
 
 @RestrictTo(LIBRARY)
 public class TexasLinearLayoutManagerImpl extends LinearLayoutManager implements TexasLayoutManager {
 
 	private int mOffset;
+	private TexasRendererAdapter mAdapter;
 
 	public TexasLinearLayoutManagerImpl(Context context) {
 		super(context, RecyclerView.VERTICAL, false);
@@ -51,7 +55,26 @@ public class TexasLinearLayoutManagerImpl extends LinearLayoutManager implements
 	@Override
 	public TextureParagraph findTextureParagraphByPosition(int index) {
 		View child = findViewByPosition(index);
-		return child instanceof TextureParagraph ? (TextureParagraph) child : null;
+		if (child instanceof TextureParagraph) {
+			return (TextureParagraph) child;
+		}
+
+		if (mAdapter == null) {
+			return null;
+		}
+
+		Segment segment = mAdapter.getItem(index);
+		if (segment instanceof ViewSegment) {
+			ViewSegment viewSegment = (ViewSegment) segment;
+			return viewSegment.getTextureParagraph();
+		}
+
+		return null;
+	}
+
+	@Override
+	public void setAdapter(TexasRendererAdapter adapter) {
+		mAdapter = adapter;
 	}
 
 	private static class SmoothScrollerImpl extends LinearSmoothScroller {
