@@ -89,16 +89,16 @@ public class SqrtSymbolNode extends RendererNode {
 		float endY = startY;
 		canvas.drawLine(startX, startY, endX, endY, paint);
 
-		endX = getWidth();
-		endY = getHeight() - (getWidth() - (1 - R) * mSymbolNode.getWidth()) / K;
+		endX = startX;
+		endY = mSymbolNode.getBottom() - (endX - (1 - R) * mSymbolNode.getWidth()) / K - thickness / 2;
 
-		startX = mSymbolNode.getRight();
-		startY = mSymbolNode.getTop();
+		startX = mSymbolNode.getRight() * 0.95f;
+		startY = mSymbolNode.getBottom() - (startX - (1 - R) * mSymbolNode.getWidth()) / K - thickness / 2;
 		canvas.drawLine(startX, startY, endX, endY, paint);
 	}
 
-	private static final float K = 142f / 292f;
-	private static final float R = 142F / 235;
+	private static final float K = 147f / 301f;
+	private static final float R = 147F / 235;
 
 	@Override
 	protected String toPretty() {

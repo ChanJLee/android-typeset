@@ -49,7 +49,7 @@ public class MathDemoActivity extends AppCompatActivity {
 	private List<FormulaCategory> getFormulaCategories() {
 		List<FormulaCategory> categories = new ArrayList<>();
 		categories.add(new FormulaCategory("自定义", Arrays.asList(
-				new MathFormula("sqrt", "\\left\\{ \\sqrt{\\frac{x}{y}} \\right\\}"),
+				new MathFormula("sqrt", "\\left\\{ \\frac{x}{\\sqrt{\\frac{x}{y}}} \\right\\}"),
 				new MathFormula("混合", "--a\\alpha!++babcdfg\\iota"),
 				new MathFormula("symbol benchmark", "\\begin{array}{cc}\n" +
 						"times  \\times = × \\\\\n" +
