@@ -215,6 +215,10 @@ public class BookSource extends TexasView.DocumentSource {
 				parsePara(parser, builder, texasOption);
 			} else if (name.equals("math-block")) {
 				parseMathBlock(parser, builder, texasOption);
+				Paragraph.Builder b = Paragraph.Builder.newBuilder(texasOption);
+				parseParagraph(b, "But since the grown-ups were not able to understand it, I made another drawing: I drew the inside of a boa constrictor, so that the grown-ups could see it clearly.", "xxxxxx");
+
+				builder.addSegment(new ParallelViewSegment(b.build(), "简单的标注"));
 			} else {
 				skip(parser);
 			}
