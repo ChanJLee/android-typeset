@@ -4,7 +4,9 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+
 import me.chan.texas.misc.Rect;
+
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -547,6 +549,11 @@ public class RendererAdapterImpl extends RecyclerView.Adapter<RendererAdapterImp
 				Rect rect = data.getRect();
 				assert rect != null;
 				layout.setPadding(rect.left, rect.top, rect.right, rect.bottom);
+			}
+
+			TextureParagraph textureParagraph = data.getTextureParagraph();
+			if (textureParagraph != null) {
+				textureParagraph.setOnTextSelectedListener(mSelectionManager.getOnTextSelectedListener());
 			}
 		}
 	}
