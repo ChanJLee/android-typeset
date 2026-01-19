@@ -206,20 +206,14 @@ public class SelectionManager implements OnSelectedChangedListener {
 		}
 
 		RenderOption renderOption = mAdapter.getRenderOption();
-		int index = document.indexOfSegment(paragraph);
-		if (index < 0) {
-			return false;
-		}
-
-		return handleParagraphClicked0(paragraph, renderOption, isLongClicked, predicate, box.getTag(), index);
+		return handleParagraphClicked0(paragraph, renderOption, isLongClicked, predicate, box.getTag());
 	}
 
 	private boolean handleParagraphClicked0(Paragraph paragraph,
 											RenderOption renderOption,
 											boolean isLongClicked,
 											SpanPredicate predicate,
-											Object boxTag,
-											int index) throws ParagraphVisitor.VisitException {
+											Object boxTag) throws ParagraphVisitor.VisitException {
 		try {
 			Selection.Styles styles = Selection.Styles.createFromTouch(mAdapter.getRenderOption(), isLongClicked);
 			mSelectedTextByClickedVisitor.reset(
@@ -499,7 +493,7 @@ public class SelectionManager implements OnSelectedChangedListener {
 		Log.w("SelectionManager", throwable);
 	}
 
-	public OnSelectedChangedListener getOnTextSelectedListener() {
+	public OnSelectedChangedListener getOnSelectedChangedListener() {
 		return this;
 	}
 

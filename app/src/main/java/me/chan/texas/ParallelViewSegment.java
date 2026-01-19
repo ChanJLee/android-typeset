@@ -29,5 +29,6 @@ public class ParallelViewSegment extends ViewSegment {
 
 		RendererHost rendererHost = getRendererHost();
 		mParagraphView.setSpanTouchEventHandler(rendererHost.getSpanTouchEventHandler());
+		mParagraphView.getTextureParagraph().setOnTextSelectedListener(rendererHost.getOnSelectedChangedListener());
 	}
 }

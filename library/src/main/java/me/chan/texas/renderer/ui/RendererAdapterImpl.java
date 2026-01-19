@@ -37,7 +37,7 @@ import me.chan.texas.renderer.selection.SelectionManager;
 import me.chan.texas.renderer.ui.figure.FigureView;
 import me.chan.texas.renderer.ui.rv.SegmentItemFragmentLayout;
 import me.chan.texas.renderer.ui.rv.TexasRecyclerViewImpl;
-import me.chan.texas.renderer.ui.text.ParagraphView;
+import me.chan.texas.renderer.ui.text.OnSelectedChangedListener;
 import me.chan.texas.renderer.ui.text.TextureParagraph;
 import me.chan.texas.renderer.ui.text.TextureParagraphView0;
 import me.chan.texas.renderer.ui.text.TextureParagraphView0Compat;
@@ -401,6 +401,11 @@ public class RendererAdapterImpl extends RecyclerView.Adapter<RendererAdapterImp
 		return mSelectionManager.getSpanTouchEventHandler();
 	}
 
+	@Override
+	public OnSelectedChangedListener getOnSelectedChangedListener() {
+		return mSelectionManager.getOnSelectedChangedListener();
+	}
+
 	public void redraw(int start, int end) {
 		while (start < end) {
 			Segment segment = getItem(start);
@@ -493,7 +498,7 @@ public class RendererAdapterImpl extends RecyclerView.Adapter<RendererAdapterImp
 		protected void onCreate(View view) {
 			mRender = (TextureParagraph) view;
 			if (mRender != null) {
-				mRender.setOnTextSelectedListener(mSelectionManager.getOnTextSelectedListener());
+				mRender.setOnTextSelectedListener(mSelectionManager.getOnSelectedChangedListener());
 			}
 		}
 

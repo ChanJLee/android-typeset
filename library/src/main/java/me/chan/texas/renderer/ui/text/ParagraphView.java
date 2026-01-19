@@ -108,6 +108,18 @@ public class ParagraphView extends FrameLayout {
 		}
 	};
 
+	private OnSelectedChangedListener mOnSelectedChangedListener = new OnSelectedChangedListener() {
+		@Override
+		public boolean onSegmentClicked(TouchEvent e, Paragraph paragraph, int eventType) {
+			return handleParagraphClicked(e, eventType);
+		}
+
+		@Override
+		public boolean onBoxSelected(TouchEvent e, Paragraph paragraph, @OnSelectedChangedListener.EventType int eventType, Box box) {
+			return handleParagraphSelected(e, paragraph, eventType, box);
+		}
+	};
+
 	private final ParseWorker.Listener mParseListener = new ParseWorker.Listener() {
 		@Override
 		public void onParseSuccess(Paragraph paragraph) {
@@ -140,6 +152,11 @@ public class ParagraphView extends FrameLayout {
 		@Override
 		public SpanTouchEventHandler getSpanTouchEventHandler() {
 			return mSpanTouchEventHandler;
+		}
+
+		@Override
+		public OnSelectedChangedListener getOnSelectedChangedListener() {
+			return mOnSelectedChangedListener;
 		}
 	};
 	private RenderListener mRenderListener;
@@ -179,18 +196,7 @@ public class ParagraphView extends FrameLayout {
 			};
 			mRender = mRenderOption.isCompatMode() ? new TextureParagraphView0Compat(context, relayoutPredicate) : new TextureParagraphView0(context, relayoutPredicate);
 			addView((View) mRender, new FrameLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
-			OnSelectedChangedListener onSelectedChangedListener = new OnSelectedChangedListener() {
-				@Override
-				public boolean onSegmentClicked(TouchEvent e, Paragraph paragraph, int eventType) {
-					return handleParagraphClicked(e, eventType);
-				}
-
-				@Override
-				public boolean onBoxSelected(TouchEvent e, Paragraph paragraph, @EventType int eventType, Box box) {
-					return handleParagraphSelected(e, paragraph, eventType, box);
-				}
-			};
-			mRender.setOnTextSelectedListener(onSelectedChangedListener);
+			mRender.setOnTextSelectedListener(mOnSelectedChangedListener);
 			mRender.setOnMeasureInterceptor(this::handleMeasureRenderer);
 			mRender.setRendererListener(this::handleRendererSuccess);
 			setVerticalAlignment(mRenderOption);
