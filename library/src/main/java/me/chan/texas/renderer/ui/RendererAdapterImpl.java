@@ -29,6 +29,7 @@ import me.chan.texas.di.core.TextEngineCoreComponent;
 import me.chan.texas.image.ImageLoader;
 import me.chan.texas.misc.PaintSet;
 import me.chan.texas.renderer.RenderOption;
+import me.chan.texas.renderer.SpanTouchEventHandler;
 import me.chan.texas.renderer.TouchEvent;
 import me.chan.texas.renderer.core.WorkerScheduler;
 import me.chan.texas.renderer.core.worker.MixWorker;
@@ -36,6 +37,7 @@ import me.chan.texas.renderer.selection.SelectionManager;
 import me.chan.texas.renderer.ui.figure.FigureView;
 import me.chan.texas.renderer.ui.rv.SegmentItemFragmentLayout;
 import me.chan.texas.renderer.ui.rv.TexasRecyclerViewImpl;
+import me.chan.texas.renderer.ui.text.ParagraphView;
 import me.chan.texas.renderer.ui.text.TextureParagraph;
 import me.chan.texas.renderer.ui.text.TextureParagraphView0;
 import me.chan.texas.renderer.ui.text.TextureParagraphView0Compat;
@@ -394,6 +396,11 @@ public class RendererAdapterImpl extends RecyclerView.Adapter<RendererAdapterImp
 		return mDocument.indexOfSegment(segment);
 	}
 
+	@Override
+	public SpanTouchEventHandler getSpanTouchEventHandler() {
+		return mSelectionManager.getSpanTouchEventHandler();
+	}
+
 	public void redraw(int start, int end) {
 		while (start < end) {
 			Segment segment = getItem(start);
@@ -549,11 +556,6 @@ public class RendererAdapterImpl extends RecyclerView.Adapter<RendererAdapterImp
 				assert rect != null;
 				layout.setPadding(rect.left, rect.top, rect.right, rect.bottom);
 			}
-
-//			TextureParagraph textureParagraph = data.getTextureParagraph();
-//			if (textureParagraph != null) {
-//				textureParagraph.setOnTextSelectedListener(mSelectionManager.getOnTextSelectedListener());
-//			}
 		}
 	}
 

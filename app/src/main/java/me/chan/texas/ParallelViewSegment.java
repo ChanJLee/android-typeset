@@ -4,8 +4,9 @@ import android.view.View;
 import android.widget.TextView;
 
 import me.chan.texas.debug.R;
+import me.chan.texas.renderer.ui.RendererHost;
 import me.chan.texas.renderer.ui.text.ParagraphView;
- import me.chan.texas.text.Paragraph;
+import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.ViewSegment;
 
 public class ParallelViewSegment extends ViewSegment {
@@ -25,5 +26,8 @@ public class ParallelViewSegment extends ViewSegment {
 		TextView textView = view.findViewById(R.id.cn);
 		paragraphView.setParagraph(mParagraph);
 		textView.setText(mText);
+
+		RendererHost rendererHost = getRendererHost();
+		mParagraphView.setSpanTouchEventHandler(rendererHost.getSpanTouchEventHandler());
 	}
 }

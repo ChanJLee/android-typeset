@@ -136,6 +136,11 @@ public class ParagraphView extends FrameLayout {
 				redraw();
 			}
 		}
+
+		@Override
+		public SpanTouchEventHandler getSpanTouchEventHandler() {
+			return mSpanTouchEventHandler;
+		}
 	};
 	private RenderListener mRenderListener;
 

@@ -12,8 +12,6 @@ import androidx.annotation.RestrictTo;
 import androidx.recyclerview.widget.RecyclerView;
 
 import me.chan.texas.renderer.ui.RendererHost;
-import me.chan.texas.renderer.ui.text.ParagraphView;
-import me.chan.texas.renderer.ui.text.TextureParagraph;
 
 /**
  * 用户自定义视图片段
@@ -160,16 +158,15 @@ public abstract class ViewSegment implements Segment {
 		mHost = host;
 	}
 
+	public RendererHost getRendererHost() {
+		return mHost;
+	}
+
 	protected void onDetachedFromWindow() {
 	}
 
 	@Override
 	public final int getIndex() {
 		return mHost == null ? -1 : mHost.indexOf(this);
-	}
-
-	@Nullable
-	public final ParagraphView getParagraphView() {
-		return null;
 	}
 }
