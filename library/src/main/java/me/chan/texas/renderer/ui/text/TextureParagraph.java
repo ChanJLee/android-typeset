@@ -89,8 +89,6 @@ public interface TextureParagraph {
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
 	void setRendererListener(RendererListener rendererListener);
 
-	boolean isAttachedToWindow();
-
 	interface RendererListener {
 		void onSyncUI(TextureParagraph view);
 	}
