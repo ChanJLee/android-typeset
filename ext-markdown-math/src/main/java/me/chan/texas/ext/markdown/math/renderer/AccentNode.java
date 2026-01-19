@@ -207,7 +207,7 @@ public class AccentNode extends RendererNode implements HorizontalCalibratedNode
 		}
 
 		if ("vec".equals(mCmd)) {
-			return MathFontOptions.symbol("uni22B8");
+			return MathFontOptions.symbol("arrowright");
 		}
 
 		throw new RuntimeException("unknown cmd: " + mCmd);

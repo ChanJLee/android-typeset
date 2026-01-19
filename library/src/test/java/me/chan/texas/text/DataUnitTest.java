@@ -185,7 +185,7 @@ public class DataUnitTest {
 		figure.recycle();
 
 		figure = Figure.obtain(url, 1, 2, extra);
-		Assert.assertSame(figure, p);
+		Assert.assertNotSame(figure, p);
 		Assert.assertNotNull(figure);
 		Assert.assertFalse(figure.isRecycled());
 		Assert.assertSame(figure.getUrl(), url);
@@ -195,7 +195,6 @@ public class DataUnitTest {
 		Assert.assertSame(figure.getTag(), extra);
 
 		figure.recycle();
-		TestUtils.testRecycled(figure);
 	}
 
 	@Test

@@ -1,14 +1,14 @@
 === Part 9.52: 洛伦兹变换 ===
 x'=\gamma\left(x-vt\right),\quad t'=\gamma\left(t-\frac{vx}{c^2}\right),\quad\gamma=\frac{1}{\sqrt{1-\frac{v^2}{c^2}}}
-x ' = \gamma \left( x - vt \right) , \quadt ' = \gamma \left( t - \frac{vx}{c^2} \right) , \quad\gamma = \frac{1}{\sqrt{1 - \frac{v^2}{c^2}}}
+x ' = \gamma \left(x - vt \right) , \quadt ' = \gamma \left(t - \frac{vx}{c^2} \right) , \quad\gamma = \frac{1}{\sqrt{1 - \frac{v^2}{c^2}}}
 
 === Part 9.54: 克莱因-戈登方程 ===
 \left(\frac{1}{c^2}\frac{\partial^2}{\partial t^2}-\nabla^2+\frac{m^2c^2}{\hbar^2}\right)\psi=0
-\left( \frac{1}{c^2} \frac{\partial^2}{\partial t^2} - \nabla^2 + \frac{m^2 c^2}{\hbar^2} \right) \psi = 0
+\left(\frac{1}{c^2} \frac{\partial^2}{\partial t^2} - \nabla^2 + \frac{m^2 c^2}{\hbar^2} \right) \psi = 0
 
 === Part 9.18: 纳维-斯托克斯方程 ===
 \rho\left(\frac{\partial\mathbf{v}}{\partial t}+\mathbf{v}\cdot\nabla\mathbf{v}\right)=-\nabla p+\mu\nabla^2\mathbf{v}+\mathbf{f}
-\rho \left( \frac{\partial \mathbf{v}}{\partial t} + \mathbf{v} \cdot \nabla \mathbf{v} \right) = - \nabla p + \mu \nabla^2 \mathbf{v} + \mathbf{f}
+\rho \left(\frac{\partial \mathbf{v}}{\partial t} + \mathbf{v} \cdot \nabla \mathbf{v} \right) = - \nabla p + \mu \nabla^2 \mathbf{v} + \mathbf{f}
 
 === Part 9.37: 海森堡不确定性原理 ===
 \Delta x\cdot\Delta p\ge\frac{\hbar}{2}
@@ -16,17 +16,17 @@ x ' = \gamma \left( x - vt \right) , \quadt ' = \gamma \left( t - \frac{vx}{c^2}
 
 === Part 9.26: 柯西积分公式 ===
 f\left(z_0\right)=\frac{1}{2\pi i}\oint_C\frac{f\left(z\right)}{z-z_0}dz
-f \left( z_0 \right) = \frac{1}{2 \pi i} \oint_C \frac{f \left( z \right)}{z - z_0} dz
+f \left(z_0 \right) = \frac{1}{2 \pi i} \oint_C \frac{f \left(z \right)}{z - z_0} dz
 
 === Part 9.47: 罗德里格斯公式（勒让德多项式）===
 P_n\left(x\right)=\frac{1}{2^n n!}\frac{d^n}{dx^n}\left(x^2-1\right)^n
-P_n \left( x \right) = \frac{1}{2^n n !} \frac{d^n}{dx^n} \left( x^2 - 1 \right)^n
+P_n \left(x \right) = \frac{1}{2^n n !} \frac{d^n}{dx^n} \left(x^2 - 1 \right)^n
 
 === Part 11.5: 后缀运算符-真实用例 ===
 \binom{n}{k}=\frac{n!}{k!\left(n-k\right)!}
-\binom{n}{k} = \frac{n !}{k ! \left( n - k \right) !}
+\binom{n}{k} = \frac{n !}{k ! \left(n - k \right) !}
 n!\approx\sqrt{2\pi n}\left(\frac{n}{e}\right)^n
-n ! \approx \sqrt{2 \pi n} \left( \frac{n}{e} \right)^n
+n ! \approx \sqrt{2 \pi n} \left(\frac{n}{e} \right)^n
 e^x=\sum_{n=0}^{\infty}\frac{x^n}{n!}
 e^x = \sum_{n = 0}^{\infty} \frac{x^n}{n !}
 
@@ -40,7 +40,7 @@ Q = \sum_i \frac{\partial L}{\partial \dot{q}_i} \frac{\partial q_i}{\partial s}
 
 === Part 9.39: 普朗克辐射定律 ===
 B_\nu\left(T\right)=\frac{2h\nu^3}{c^2}\frac{1}{e^{\frac{h\nu}{k_BT}}-1}
-B_\nu \left( T \right) = \frac{2 h \nu^3}{c^2} \frac{1}{e^{\frac{h \nu}{k_B T}} - 1}
+B_\nu \left(T \right) = \frac{2 h \nu^3}{c^2} \frac{1}{e^{\frac{h \nu}{k_B T}} - 1}
 
 === Part 9.19: 布莱克-舒尔斯方程 ===
 \frac{\partial V}{\partial t}+\frac{1}{2}\sigma^2S^2\frac{\partial^2V}{\partial S^2}+rS\frac{\partial V}{\partial S}-rV=0
@@ -54,7 +54,7 @@ B_\nu \left( T \right) = \frac{2 h \nu^3}{c^2} \frac{1}{e^{\frac{h \nu}{k_B T}} 
 \nabla\times\mathbf{E}=-\frac{\partial\mathbf{B}}{\partial t}
 \nabla \times \mathbf{E} = - \frac{\partial \mathbf{B}}{\partial t}
 \nabla\times\mathbf{B}=\mu_0\left(\mathbf{J}+\epsilon_0\frac{\partial\mathbf{E}}{\partial t}\right)
-\nabla \times \mathbf{B} = \mu_0 \left( \mathbf{J} + \epsilon_0 \frac{\partial \mathbf{E}}{\partial t} \right)
+\nabla \times \mathbf{B} = \mu_0 \left(\mathbf{J} + \epsilon_0 \frac{\partial \mathbf{E}}{\partial t} \right)
 
 === Part 9.30: 热传导方程 ===
 \frac{\partial u}{\partial t}=\alpha\nabla^2u
@@ -62,31 +62,31 @@ B_\nu \left( T \right) = \frac{2 h \nu^3}{c^2} \frac{1}{e^{\frac{h \nu}{k_B T}} 
 
 === Part 9.15: 黎曼ζ函数 ===
 \zeta\left(s\right)=\sum_{n=1}^{\infty}\frac{1}{n^s}=\prod_{p\text{ prime}}\frac{1}{1-p^{-s}}
-\zeta \left( s \right) = \sum_{n = 1}^{\infty} \frac{1}{n^s} = \prod_{p \text{ prime}} \frac{1}{1 - p^{- s}}
+\zeta \left(s \right) = \sum_{n = 1}^{\infty} \frac{1}{n^s} = \prod_{p \text{ prime}} \frac{1}{1 - p^{- s}}
 
 === Part 9.48: 勒让德多项式正交性 ===
 \int_{-1}^{1}P_m\left(x\right)P_n\left(x\right)dx=\frac{2}{2n+1}\delta_{mn}
-\int_{- 1}^{1} P_m \left( x \right) P_n \left( x \right) dx = \frac{2}{2 n + 1} \delta_{mn}
+\int_{- 1}^{1} P_m \left(x \right) P_n \left(x \right) dx = \frac{2}{2 n + 1} \delta_{mn}
 
 === Part 9.23: 斯托克斯定理 ===
 \int_S\left(\nabla\times\mathbf{F}\right)\cdot d\mathbf{S}=\oint_{\partial S}\mathbf{F}\cdot d\mathbf{r}
-\int_S \left( \nabla \times \mathbf{F} \right) \cdot d \mathbf{S} = \oint_{\partial S} \mathbf{F} \cdot d \mathbf{r}
+\int_S \left(\nabla \times \mathbf{F} \right) \cdot d \mathbf{S} = \oint_{\partial S} \mathbf{F} \cdot d \mathbf{r}
 
 === Part 9.11: 薛定谔方程 ===
 i\hbar\frac{\partial}{\partial t}\Psi\left(r,t\right)=\left[-\frac{\hbar^2}{2m}\nabla^2+V\left(r,t\right)\right]\Psi\left(r,t\right)
-i \hbar \frac{\partial}{\partial t} \Psi \left( r , t \right) = \left[ - \frac{\hbar^2}{2 m} \nabla^2 + V \left( r , t \right) \right] \Psi \left( r , t \right)
+i \hbar \frac{\partial}{\partial t} \Psi \left(r , t \right) = \left[- \frac{\hbar^2}{2 m} \nabla^2 + V \left(r , t \right) \right] \Psi \left(r , t \right)
 
 === Part 9.17: 拉格朗日方程 ===
 \frac{d}{dt}\left(\frac{\partial L}{\partial\dot{q}_i}\right)-\frac{\partial L}{\partial q_i}=0
-\frac{d}{dt} \left( \frac{\partial L}{\partial \dot{q}_i} \right) - \frac{\partial L}{\partial q_i} = 0
+\frac{d}{dt} \left(\frac{\partial L}{\partial \dot{q}_i} \right) - \frac{\partial L}{\partial q_i} = 0
 
 === Part 9.40: 拉普拉斯变换 ===
 F\left(s\right)=\mathcal{L}\left\{f\left(t\right)\right\}=\int_0^{\infty}f\left(t\right)e^{-st}dt
-F \left( s \right) = \mathcal{L} \left{ f \left( t \right) \right} = \int_0^{\infty} f \left( t \right) e^{- st} dt
+F \left(s \right) = \mathcal{L} \left{f \left(t \right) \right} = \int_0^{\infty} f \left(t \right) e^{- st} dt
 
 === Part 9.33: 莱布尼茨积分法则 ===
 \frac{d}{dx}\int_{a\left(x\right)}^{b\left(x\right)}f\left(x,t\right)dt=\int_{a\left(x\right)}^{b\left(x\right)}\frac{\partial f}{\partial x}dt+f\left(x,b\left(x\right)\right)\frac{db}{dx}-f\left(x,a\left(x\right)\right)\frac{da}{dx}
-\frac{d}{dx} \int_{a \left( x \right)}^{b \left( x \right)} f \left( x , t \right) dt = \int_{a \left( x \right)}^{b \left( x \right)} \frac{\partial f}{\partial x} dt + f \left( x , b \left( x \right) \right) \frac{db}{dx} - f \left( x , a \left( x \right) \right) \frac{da}{dx}
+\frac{d}{dx} \int_{a \left(x \right)}^{b \left(x \right)} f \left(x , t \right) dt = \int_{a \left(x \right)}^{b \left(x \right)} \frac{\partial f}{\partial x} dt + f \left(x , b \left(x \right) \right) \frac{db}{dx} - f \left(x , a \left(x \right) \right) \frac{da}{dx}
 
 === Part 9.45: 范德蒙德恒等式 ===
 \binom{m+n}{r}=\sum_{k=0}^{r}\binom{m}{k}\binom{n}{r-k}
@@ -94,11 +94,11 @@ F \left( s \right) = \mathcal{L} \left{ f \left( t \right) \right} = \int_0^{\in
 
 === Part 9.50: 格拉姆-施密特正交化 ===
 \mathbf{u}_k=\mathbf{v}_k-\sum_{j=1}^{k-1}\text{proj}_{\mathbf{u}_j}\left(\mathbf{v}_k\right)
-\mathbf{u}_k = \mathbf{v}_k - \sum_{j = 1}^{k - 1} \text{proj}_{\mathbf{u}_j} \left( \mathbf{v}_k \right)
+\mathbf{u}_k = \mathbf{v}_k - \sum_{j = 1}^{k - 1} \text{proj}_{\mathbf{u}_j} \left(\mathbf{v}_k \right)
 
 === Part 9.27: 二项式定理 ===
 \left(x+y\right)^n=\sum_{k=0}^{n}\binom{n}{k}x^{n-k}y^k
-\left( x + y \right)^n = \sum_{k = 0}^{n} \binom{n}{k} x^{n - k} y^k
+\left(x + y \right)^n = \sum_{k = 0}^{n} \binom{n}{k} x^{n - k} y^k
 
 === Part 9.46: 柯西-黎曼方程 ===
 \frac{\partial u}{\partial x}=\frac{\partial v}{\partial y},\quad\frac{\partial u}{\partial y}=-\frac{\partial v}{\partial x}
@@ -106,23 +106,23 @@ F \left( s \right) = \mathcal{L} \left{ f \left( t \right) \right} = \int_0^{\in
 
 === Part 9.51: 散度定理（高斯定理）===
 \iiint_V\left(\nabla\cdot\mathbf{F}\right)dV=\iint_{\partial V}\mathbf{F}\cdot d\mathbf{S}
-\iiint_V \left( \nabla \cdot \mathbf{F} \right) dV = \iint_{\partial V} \mathbf{F} \cdot d \mathbf{S}
+\iiint_V \left(\nabla \cdot \mathbf{F} \right) dV = \iint_{\partial V} \mathbf{F} \cdot d \mathbf{S}
 
 === Part 9.16: 贝叶斯定理（连续形式）===
 P\left(\theta|D\right)=\frac{P\left(D|\theta\right)P\left(\theta\right)}{\int P\left(D|\theta'\right)P\left(\theta'\right)d\theta'}
-P \left( \theta | D \right) = \frac{P \left( D | \theta \right) P \left( \theta \right)}{\int P \left( D | \theta' \right) P \left( \theta' \right) d \theta'}
+P \left(\theta | D \right) = \frac{P \left(D | \theta \right) P \left(\theta \right)}{\int P \left(D | \theta' \right) P \left(\theta' \right) d \theta'}
 
 === Part 9.56: 陈-西蒙斯作用量 ===
 S_{CS}=\frac{k}{4\pi}\int\text{Tr}\left(A\wedge dA+\frac{2}{3}A\wedge A\wedge A\right)
-S_{CS} = \frac{k}{4 \pi} \int \text{Tr} \left( A \wedge dA + \frac{2}{3} A \wedge A \wedge A \right)
+S_{CS} = \frac{k}{4 \pi} \int \text{Tr} \left(A \wedge dA + \frac{2}{3} A \wedge A \wedge A \right)
 
 === Part 9.60: 配分函数（统计力学）===
 Z=\sum_i e^{-\beta E_i}=\text{Tr}\left(e^{-\beta H}\right)
-Z = \sum_i e^{- \beta E_i} = \text{Tr} \left( e^{- \beta H} \right)
+Z = \sum_i e^{- \beta E_i} = \text{Tr} \left(e^{- \beta H} \right)
 
 === Part 9.55: 费曼路径积分 ===
 K\left(x_b,t_b;x_a,t_a\right)=\int\mathcal{D}\left[x\left(t\right)\right]e^{\frac{i}{\hbar}S\left[x\left(t\right)\right]}
-K \left( x_b , t_b ; x_a , t_a \right) = \int \mathcal{D} \left[ x \left( t \right) \right] e^{\frac{i}{\hbar} S \left[ x \left( t \right) \right]}
+K \left(x_b , t_b ; x_a , t_a \right) = \int \mathcal{D} \left[x \left(t \right) \right] e^{\frac{i}{\hbar} S \left[x \left(t \right) \right]}
 
 === Part 9.57: 杨-米尔斯方程 ===
 D_\mu F^{\mu\nu}=j^\nu
@@ -130,11 +130,11 @@ D_\mu F^{\mu \nu} = j^\nu
 
 === Part 9.28: 中心极限定理 ===
 \frac{\bar{X}_n-\mu}{\sigma/\sqrt{n}}\xrightarrow{d}N\left(0,1\right)
-\frac{\bar{X}_n - \mu}{\sigma / \sqrt{n}} \xrightarrow{d} N \left( 0 , 1 \right)
+\frac{\bar{X}_n - \mu}{\sigma / \sqrt{n}} \xrightarrow{d} N \left(0 , 1 \right)
 
 === Part 9.44: 黎曼猜想（非平凡零点）===
 \zeta\left(s\right)=0\implies\Re\left(s\right)=\frac{1}{2}
-\zeta \left( s \right) = 0 \implies \Re \left( s \right) = \frac{1}{2}
+\zeta \left(s \right) = 0 \implies \Re \left(s \right) = \frac{1}{2}
 
 === Part 9.34: 欧拉-拉格朗日方程（泛函形式）===
 \frac{\partial L}{\partial y}-\frac{d}{dx}\frac{\partial L}{\partial y'}=0
@@ -142,7 +142,7 @@ D_\mu F^{\mu \nu} = j^\nu
 
 === Part 9.24: 留数定理 ===
 \oint_C f\left(z\right)dz=2\pi i\sum_{k=1}^{n}\text{Res}\left(f,z_k\right)
-\oint_C f \left( z \right) dz = 2 \pi i \sum_{k = 1}^{n} \text{Res} \left( f , z_k \right)
+\oint_C f \left(z \right) dz = 2 \pi i \sum_{k = 1}^{n} \text{Res} \left(f , z_k \right)
 
 === Part 9.53: 闵可夫斯基度规 ===
 ds^2=-c^2dt^2+dx^2+dy^2+dz^2
@@ -150,7 +150,7 @@ ds^2 = - c^2 dt^2 + dx^2 + dy^2 + dz^2
 
 === Part 9.20: 狄拉克方程 ===
 \left(i\gamma^\mu\partial_\mu-m\right)\psi=0
-\left( i \gamma^\mu \partial_\mu - m \right) \psi = 0
+\left(i \gamma^\mu \partial_\mu - m \right) \psi = 0
 
 === Part 9.31: 拉普拉斯方程 ===
 \nabla^2\phi=\frac{\partial^2\phi}{\partial x^2}+\frac{\partial^2\phi}{\partial y^2}+\frac{\partial^2\phi}{\partial z^2}=0
@@ -166,15 +166,15 @@ R_{\mu \nu} - \frac{1}{2} Rg_{\mu \nu} + \Lambda g_{\mu \nu} = \frac{8 \pi G}{c^
 
 === Part 9.42: 斯特林近似 ===
 n!\approx\sqrt{2\pi n}\left(\frac{n}{e}\right)^n
-n ! \approx \sqrt{2 \pi n} \left( \frac{n}{e} \right)^n
+n ! \approx \sqrt{2 \pi n} \left(\frac{n}{e} \right)^n
 
 === Part 9.49: 贝塞尔方程 ===
 x^2\frac{d^2y}{dx^2}+x\frac{dy}{dx}+\left(x^2-\nu^2\right)y=0
-x^2 \frac{d^2 y}{dx^2} + x \frac{dy}{dx} + \left( x^2 - \nu^2 \right) y = 0
+x^2 \frac{d^2 y}{dx^2} + x \frac{dy}{dx} + \left(x^2 - \nu^2 \right) y = 0
 
 === Part 12.6: 二项式系数-真实用例 ===
 \left(x+y\right)^n=\sum_{k=0}^{n}\binom{n}{k}x^{n-k}y^k
-\left( x + y \right)^n = \sum_{k = 0}^{n} \binom{n}{k} x^{n - k} y^k
+\left(x + y \right)^n = \sum_{k = 0}^{n} \binom{n}{k} x^{n - k} y^k
 \binom{m+n}{r}=\sum_{k=0}^{r}\binom{m}{k}\binom{n}{r-k}
 \binom{m + n}{r} = \sum_{k = 0}^{r} \binom{m}{k} \binom{n}{r - k}
 \binom{n}{k}=\binom{n-1}{k-1}+\binom{n-1}{k}
@@ -186,7 +186,7 @@ x^2 \frac{d^2 y}{dx^2} + x \frac{dy}{dx} + \left( x^2 - \nu^2 \right) y = 0
 
 === Part 9.41: 卷积定理 ===
 \left(f*g\right)\left(t\right)=\int_{-\infty}^{\infty}f\left(\tau\right)g\left(t-\tau\right)d\tau
-\left( f * g \right) \left( t \right) = \int_{- \infty}^{\infty} f \left( \tau \right) g \left( t - \tau \right) d \tau
+\left(f * g \right) \left(t \right) = \int_{- \infty}^{\infty} f \left(\tau \right) g \left(t - \tau \right) d \tau
 
 === Part 9.32: 泊松方程 ===
 \nabla^2\phi=-\frac{\rho}{\epsilon_0}
@@ -198,11 +198,11 @@ x^2 \frac{d^2 y}{dx^2} + x \frac{dy}{dx} + \left( x^2 - \nu^2 \right) y = 0
 
 === Part 9.29: 正态分布 ===
 f\left(x\right)=\frac{1}{\sigma\sqrt{2\pi}}e^{-\frac{\left(x-\mu\right)^2}{2\sigma^2}}
-f \left( x \right) = \frac{1}{\sigma \sqrt{2 \pi}} e^{- \frac{\left( x - \mu \right)^2}{2 \sigma^2}}
+f \left(x \right) = \frac{1}{\sigma \sqrt{2 \pi}} e^{- \frac{\left(x - \mu \right)^2}{2 \sigma^2}}
 
 === Part 9.21: 格林定理 ===
 \oint_C\left(P dx+Q dy\right)=\iint_D\left(\frac{\partial Q}{\partial x}-\frac{\partial P}{\partial y}\right)dA
-\oint_C \left( P dx + Q dy \right) = \iint_D \left( \frac{\partial Q}{\partial x} - \frac{\partial P}{\partial y} \right) dA
+\oint_C \left(P dx + Q dy \right) = \iint_D \left(\frac{\partial Q}{\partial x} - \frac{\partial P}{\partial y} \right) dA
 
 === Part 9.35: 哈密顿正则方程 ===
 \dot{q}_i=\frac{\partial H}{\partial p_i},\quad\dot{p}_i=-\frac{\partial H}{\partial q_i}
@@ -210,14 +210,14 @@ f \left( x \right) = \frac{1}{\sigma \sqrt{2 \pi}} e^{- \frac{\left( x - \mu \ri
 
 === Part 9.59: 阿蒂亚-辛格指标定理 ===
 \text{ind}\left(D\right)=\int_M\hat{A}\left(M\right)\text{ch}\left(E\right)
-\text{ind} \left( D \right) = \int_M \hat{A} \left( M \right) \text{ch} \left( E \right)
+\text{ind} \left(D \right) = \int_M \hat{A} \left(M \right) \text{ch} \left(E \right)
 
 === Part 9.43: 欧拉乘积公式 ===
 \zeta\left(s\right)=\prod_{p\text{ prime}}\left(1-p^{-s}\right)^{-1}
-\zeta \left( s \right) = \prod_{p \text{ prime}} \left( 1 - p^{- s} \right)^{- 1}
+\zeta \left(s \right) = \prod_{p \text{ prime}} \left(1 - p^{- s} \right)^{- 1}
 
 === Part 9.14: 傅里叶变换 ===
 F\left(\omega\right)=\int_{-\infty}^{\infty}f\left(t\right)e^{-i\omega t}dt
-F \left( \omega \right) = \int_{- \infty}^{\infty} f \left( t \right) e^{- i \omega t} dt
+F \left(\omega \right) = \int_{- \infty}^{\infty} f \left(t \right) e^{- i \omega t} dt
 f\left(t\right)=\frac{1}{2\pi}\int_{-\infty}^{\infty}F\left(\omega\right)e^{i\omega t}d\omega
-f \left( t \right) = \frac{1}{2 \pi} \int_{- \infty}^{\infty} F \left( \omega \right) e^{i \omega t} d \omega
+f \left(t \right) = \frac{1}{2 \pi} \int_{- \infty}^{\infty} F \left(\omega \right) e^{i \omega t} d \omega

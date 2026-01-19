@@ -78,6 +78,11 @@ public class BoxUnitTest {
 		}
 
 		@Override
+		public float getBaselineOffset() {
+			return 0;
+		}
+
+		@Override
 		public boolean isIsolate(boolean backward) {
 			return false;
 		}

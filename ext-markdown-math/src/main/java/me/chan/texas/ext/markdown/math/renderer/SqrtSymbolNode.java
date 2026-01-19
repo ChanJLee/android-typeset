@@ -1,35 +1,40 @@
 package me.chan.texas.ext.markdown.math.renderer;
 
-import android.graphics.Paint;
+import android.graphics.Color;
 
 import me.chan.texas.ext.markdown.math.renderer.core.MathCanvas;
 import me.chan.texas.ext.markdown.math.renderer.core.MathPaint;
 import me.chan.texas.ext.markdown.math.renderer.fonts.MathFontOptions;
+import me.chan.texas.ext.markdown.math.renderer.fonts.Symbol;
 
 public class SqrtSymbolNode extends RendererNode {
 
-	private final Paint.FontMetrics mFontMetrics = new Paint.FontMetrics();
 	private float mTextSize;
 	private float mContentWidth = 0;
+	private float mContentHeight = 0;
+
+	private final SymbolNode mSymbolNode;
 
 	public SqrtSymbolNode(MathPaint.Styles styles) {
 		super(styles);
-	}
-
-	public void resize(float size) {
-		mStyles = mStyles.copy().setTextSize(size);
+		mSymbolNode = new SymbolNode(styles, MathFontOptions.symbol("radical"));
 	}
 
 	@Override
 	protected void onMeasure(MathPaint paint, int widthSpec, int heightSpec) {
-		paint.getFontMetrics(mFontMetrics);
-		Paint.FontMetrics fontMetrics = mFontMetrics;
 		mTextSize = paint.getTextSize();
 
-		int height = (int) Math.ceil(fontMetrics.descent - fontMetrics.ascent + getTopPadding());
-		int width = (int) Math.ceil(paint.getRunAdvance("√", 0, 1, 0, 1, false, 1));
+		mSymbolNode.measure(paint);
 
-		setMeasuredSize(width, height);
+		int height = (int) Math.ceil(mContentHeight + getTopPadding());
+		float width = (mContentHeight + getRuleThickness() / 2) * K + (1 - R) * mSymbolNode.getWidth();
+
+		setMeasuredSize((int) Math.ceil(width), height);
+	}
+
+	@Override
+	protected void onLayoutChildren() {
+		mSymbolNode.layout(0, getHeight() - mSymbolNode.getHeight());
 	}
 
 	public float getVerticalGap() {
@@ -57,8 +62,9 @@ public class SqrtSymbolNode extends RendererNode {
 		return MathFontOptions.RADICAL_DEGREE_BOTTOM_RAISE_PERCENT / 100;
 	}
 
-	public void setContentWidth(float contentWidth) {
+	public void setContentSize(float contentWidth, float contentHeight) {
 		mContentWidth = contentWidth;
+		mContentHeight = contentHeight;
 	}
 
 	public float getTopPadding() {
@@ -66,18 +72,33 @@ public class SqrtSymbolNode extends RendererNode {
 	}
 
 	@Override
+	protected void onDrawDebug(MathCanvas canvas, MathPaint paint) {
+		paint.setColor(Color.YELLOW);
+		super.onDrawDebug(canvas, paint);
+	}
+
+	@Override
 	protected void onDraw(MathCanvas canvas, MathPaint paint) {
 		float thickness = getRuleThickness();
-		float y = getTopPadding() + thickness / 2;
-		canvas.drawText("√", 0, y, paint);
+		mSymbolNode.draw(canvas, paint);
 
-		float strokeWidth = paint.getStrokeWidth();
 		paint.setStrokeWidth(thickness);
-		float startX = getWidth();
-		y = getTopPadding();
-		canvas.drawLine(startX, y, startX + mContentWidth, y, paint);
-		paint.setStrokeWidth(strokeWidth);
+		float startX = getWidth() + thickness;
+		float startY = getTopPadding() - thickness / 2;
+		float endX = startX + mContentWidth;
+		float endY = startY;
+		canvas.drawLine(startX, startY, endX, endY, paint);
+
+		endX = startX;
+		endY = mSymbolNode.getBottom() - (endX - (1 - R) * mSymbolNode.getWidth()) / K - thickness / 2;
+
+		startX = mSymbolNode.getRight() * 0.95f;
+		startY = mSymbolNode.getBottom() - (startX - (1 - R) * mSymbolNode.getWidth()) / K - thickness / 2;
+		canvas.drawLine(startX, startY, endX, endY, paint);
 	}
+
+	private static final float K = 147f / 301f;
+	private static final float R = 147F / 235;
 
 	@Override
 	protected String toPretty() {

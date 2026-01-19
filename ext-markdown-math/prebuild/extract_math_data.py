@@ -23,7 +23,7 @@ def parse_font_to_json(font_path, output_path="font_info.json"):
     hmtx = font["hmtx"]
     glyph_set = font.getGlyphSet()
 
-    result = []
+    result = {}
 
     for code, glyph_name in cmap.items():
         char = chr(code)
@@ -36,14 +36,17 @@ def parse_font_to_json(font_path, output_path="font_info.json"):
         width, lsb = hmtx[glyph_name]
         bbox = get_glyph_bbox(font, glyph_name)
 
-        result.append({
-            "name": glyph_name,
-            "unicode": f"U+{code:04X}",
-            "char": char,
-            "category": category_name,
-            "width": width,
-            "bbox": bbox
-        })
+        e = {"char": char, "bbox": bbox}
+
+        if (category_name.startswith("P") or category_name.startswith("S")):
+            if bbox:
+                if char == "\\" or char == "\"":
+                    print("\t\tall.put(\"%s\", new Symbol(\"\\%s\", %sf, %sf, %sf, %sf));\n" % (glyph_name, char, bbox[0], bbox[1], bbox[2], bbox[3]))
+                else:
+                    print("\t\tall.put(\"%s\", new Symbol(\"%s\", %sf, %sf, %sf, %sf));\n" % (glyph_name, char, bbox[0], bbox[1], bbox[2], bbox[3]))
+                result[glyph_name] = e
+            else:
+                print("\t\t// missing bbox: %s %s\n" % (glyph_name, char))
 
     # 提取 MATH 表的附加信息
     if "MATH" in font:
@@ -83,7 +86,14 @@ def parse_font_to_json(font_path, output_path="font_info.json"):
 
 # 命令行执行
 if __name__ == "__main__":
-    if len(sys.argv) < 2:
-        print("用法: python parse_font.py your_font.otf")
-    else:
-        parse_font_to_json(sys.argv[1])
+    print("""package me.chan.texas.ext.markdown.math.renderer.fonts;
+
+             import java.util.HashMap;
+             import java.util.Map;
+
+             public class %s {\n
+           	    public final Map<String, Symbol> all = new HashMap<>();
+           	    public %s() {""" % (sys.argv[2], sys.argv[2]))
+    parse_font_to_json(sys.argv[1], "%s.json" % sys.argv[2])
+    print("""}
+    }""")

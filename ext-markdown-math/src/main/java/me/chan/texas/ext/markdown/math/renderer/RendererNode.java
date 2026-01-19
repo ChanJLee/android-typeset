@@ -67,9 +67,10 @@ public abstract class RendererNode {
 			paint.save(mStyles);
 		}
 
+		drawDebug(canvas, paint);
+
 		onDraw(canvas, paint);
 
-		drawDebug(canvas, paint);
 
 		if (mStyles != null) {
 			paint.restore();

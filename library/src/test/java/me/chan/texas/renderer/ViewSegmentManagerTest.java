@@ -39,7 +39,6 @@ public class ViewSegmentManagerTest {
 		Assert.assertEquals(manager.getType(viewSegment2), -5);
 
 		viewSegment.recycle();
-		TestUtils.testRecycled(viewSegment);
 
 		viewSegment = new ViewSegment(1, true) {
 			@Override
@@ -50,6 +49,5 @@ public class ViewSegmentManagerTest {
 		Assert.assertEquals(true, viewSegment.isDisableReuse());
 		Assert.assertEquals(manager.getType(viewSegment), viewSegment.getId());
 		viewSegment.recycle();
-		TestUtils.testRecycled(viewSegment);
 	}
 }

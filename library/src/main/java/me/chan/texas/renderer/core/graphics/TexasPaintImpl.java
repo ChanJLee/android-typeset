@@ -712,6 +712,10 @@ public class TexasPaintImpl implements TexasPaint {
 	@Override
 	public float getRunAdvance(CharSequence text, int start, int end, int contextStart, int contextEnd, boolean isRtl, int offset) {
 		int size = end - start;
+		if (size <= 0) {
+			return 0;
+		}
+
 		char[] buf = POOL.obtain(size);
 		TexasUtils.getChars(text, start, end, buf, 0);
 		try {

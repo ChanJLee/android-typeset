@@ -71,7 +71,7 @@ public class MathView extends View implements AsyncMathViewRenderer {
 		int defaultTextSize = themeArray.getDimensionPixelSize(1, 48);
 		themeArray.recycle();
 
-		TextPaint textPaint = new TextPaint();
+		TextPaint textPaint = new TextPaint(Paint.ANTI_ALIAS_FLAG);
 		textPaint.setTypeface(TexMathParser.getTypeface());
 		textPaint.setStyle(Paint.Style.FILL);
 		textPaint.setColor(defaultTextColor);

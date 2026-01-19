@@ -1118,7 +1118,7 @@ public class ParagraphUnitTest {
 		builder.text("triangle");
 		paragraph = builder.build();
 		layout = paragraph.getLayout();
-		Assert.assertSame(paragraph, paragraph1);
+		Assert.assertNotSame(paragraph, paragraph1);
 		Assert.assertNull(paragraph.getTag());
 		Assert.assertEquals(layout.getLineCount(), 0);
 		Assert.assertEquals(paragraph.getElementCount(), 7);

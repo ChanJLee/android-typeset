@@ -310,13 +310,13 @@ class MathInflaterUnitTest {
 
     @Test
     fun `test greek letter variable`() {
-        val list = mapOf<String, String>(
+        val list = mapOf(
             "alpha" to "α",
             "beta" to "β",
             "gamma" to "γ",
             "delta" to "δ",
-            "epsilon" to "ε",
-            "varepsilon" to "ϵ",
+            "epsilon" to "ϵ",
+            "varepsilon" to "ε",
             "zeta" to "ζ",
             "eta" to "η",
             "theta" to "θ",
@@ -335,8 +335,8 @@ class MathInflaterUnitTest {
             "varsigma" to "ς",
             "tau" to "τ",
             "upsilon" to "υ",
-            "phi" to "φ",
-            "varphi" to "ϕ",
+            "varphi" to "φ",
+            "phi" to "ϕ",
             "chi" to "χ",
             "psi" to "ψ",
             "omega" to "ω",
@@ -358,6 +358,7 @@ class MathInflaterUnitTest {
                 text {
                     content(value)
                 }
+                println("\\${key} = ${value} \\\\")
             }
         }
     }
@@ -1276,7 +1277,7 @@ class MathInflaterUnitTest {
             "bar" to "uni2015",
             "overline" to "uni2015",
             "underline" to "uni2015",
-            "vec" to "uni22B8",
+            "vec" to "arrowright",
         )
         for ((key, value) in cmd) {
             inflate("\\${key} x") {
@@ -1293,6 +1294,7 @@ class MathInflaterUnitTest {
                     }
                 }
             }
+            println("\\${key}{x} = ${MathFontOptions.symbol(value).unicode} \\\\")
         }
     }
 
@@ -1467,8 +1469,8 @@ class MathInflaterUnitTest {
             "\\gg" to "greatermuch",
             "\\prec" to "uni227A",
             "\\succ" to "uni227B",
-            "\\preceq" to "uni227C",
-            "\\succeq" to "uni227D",
+            "\\preceq" to "uni2AAF",
+            "\\succeq" to "uni2AB0",
             "\\perp" to "uni27C2",
             "\\parallel" to "parallel",
             "\\mid" to "divides",

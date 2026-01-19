@@ -11,7 +11,10 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.LinearSmoothScroller;
 import androidx.recyclerview.widget.RecyclerView;
 
+import me.chan.texas.renderer.ui.TexasRendererAdapter;
 import me.chan.texas.renderer.ui.text.TextureParagraph;
+import me.chan.texas.text.Segment;
+import me.chan.texas.text.ViewSegment;
 
 @RestrictTo(LIBRARY)
 public class TexasLinearLayoutManagerImpl extends LinearLayoutManager implements TexasLayoutManager {
@@ -51,7 +54,11 @@ public class TexasLinearLayoutManagerImpl extends LinearLayoutManager implements
 	@Override
 	public TextureParagraph findTextureParagraphByPosition(int index) {
 		View child = findViewByPosition(index);
-		return child instanceof TextureParagraph ? (TextureParagraph) child : null;
+		if (child instanceof TextureParagraph) {
+			return (TextureParagraph) child;
+		}
+
+		return null;
 	}
 
 	private static class SmoothScrollerImpl extends LinearSmoothScroller {

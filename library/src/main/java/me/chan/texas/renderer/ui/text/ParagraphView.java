@@ -50,6 +50,7 @@ import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.Segment;
 import me.chan.texas.text.TextAttribute;
 import me.chan.texas.text.TextGravity;
+import me.chan.texas.text.ViewSegment;
 import me.chan.texas.text.layout.Box;
 import me.chan.texas.text.layout.Layout;
 import me.chan.texas.text.layout.Line;
@@ -597,6 +598,13 @@ public class ParagraphView extends FrameLayout {
 	}
 
 	/**
+	 * @param paragraph 直接设置paragraph
+	 */
+	public void setParagraph(Paragraph paragraph) {
+		setSource(new DirectParagraphSource(paragraph));
+	}
+
+	/**
 	 * @param source 段落源
 	 */
 	public void setSource(@NonNull ParagraphSource source) {
@@ -890,7 +898,7 @@ public class ParagraphView extends FrameLayout {
 		Resources resources = getResources();
 		RenderOption renderOption = new RenderOption();
 
-		TypedArray themeArray = context.obtainStyledAttributes(new int[] {
+		TypedArray themeArray = context.obtainStyledAttributes(new int[]{
 				android.R.attr.textColorPrimary,
 				android.R.attr.textSize
 		});
@@ -1070,6 +1078,19 @@ public class ParagraphView extends FrameLayout {
 		protected abstract Paragraph onRead(TexasOption option);
 	}
 
+	private static class DirectParagraphSource extends ParagraphSource {
+		private final Paragraph mParagraph;
+
+		public DirectParagraphSource(Paragraph paragraph) {
+			mParagraph = paragraph;
+		}
+
+		@Override
+		protected Paragraph onRead(TexasOption option) {
+			return mParagraph;
+		}
+	}
+
 	private static class TextParagraphSource extends ParagraphSource {
 		private final CharSequence mText;
 		private final int mStart;
@@ -1092,6 +1113,15 @@ public class ParagraphView extends FrameLayout {
 					.text(mText, mStart, mEnd)
 					.build();
 		}
+	}
+
+	/**
+	 * 获得TextureParagraph，一般用于内部选中文本
+	 *
+	 * @return {@link ViewSegment#getTextureParagraph()}
+	 */
+	public TextureParagraph getTextureParagraph() {
+		return mRender;
 	}
 
 	/**

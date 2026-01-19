@@ -36,7 +36,8 @@ class ComplexFormulaUnitTest {
         val ast: MathList = parse(input)
         val actual = ast.toString()
         println(">>> ${input}")
-        println("<<< ${expectedOutput}")
+        println("=== ${expectedOutput}")
+        println("<<< ${actual}")
         Assert.assertEquals(
             "输入: $input",
             expectedOutput,

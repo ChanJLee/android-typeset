@@ -31,7 +31,8 @@ public final class Document {
 			return -1;
 		}
 
-		return mSegments.get().indexOf(segment);
+		List<Segment> segments = mSegments.get();
+		return segments.indexOf(segment);
 	}
 
 	/**
