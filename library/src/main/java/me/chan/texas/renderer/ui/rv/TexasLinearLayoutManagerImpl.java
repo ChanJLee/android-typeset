@@ -20,7 +20,6 @@ import me.chan.texas.text.ViewSegment;
 public class TexasLinearLayoutManagerImpl extends LinearLayoutManager implements TexasLayoutManager {
 
 	private int mOffset;
-	private TexasRendererAdapter mAdapter;
 
 	public TexasLinearLayoutManagerImpl(Context context) {
 		super(context, RecyclerView.VERTICAL, false);
@@ -59,22 +58,7 @@ public class TexasLinearLayoutManagerImpl extends LinearLayoutManager implements
 			return (TextureParagraph) child;
 		}
 
-		if (mAdapter == null) {
-			return null;
-		}
-
-//		Segment segment = mAdapter.getItem(index);
-//		if (segment instanceof ViewSegment) {
-//			ViewSegment viewSegment = (ViewSegment) segment;
-//			return viewSegment.getTextureParagraph();
-//		}
-
 		return null;
-	}
-
-	@Override
-	public void setAdapter(TexasRendererAdapter adapter) {
-		mAdapter = adapter;
 	}
 
 	private static class SmoothScrollerImpl extends LinearSmoothScroller {

@@ -20,6 +20,4 @@ public interface TexasLayoutManager {
 	int findFirstCompletelyVisibleItemPosition();
 
 	int findLastCompletelyVisibleItemPosition();
-
-	void setAdapter(TexasRendererAdapter adapter);
 }

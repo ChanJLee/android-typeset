@@ -34,7 +34,6 @@ import me.chan.texas.renderer.selection.Selection;
 import me.chan.texas.renderer.selection.SelectionManager;
 import me.chan.texas.renderer.selection.overlay.DragSelectViewImpl;
 import me.chan.texas.renderer.ui.RendererAdapterImpl;
-import me.chan.texas.renderer.ui.decor.ParagraphDecor;
 import me.chan.texas.renderer.ui.rv.SegmentItemDecoration;
 import me.chan.texas.renderer.ui.rv.TexasLinearLayoutManagerImpl;
 import me.chan.texas.renderer.ui.rv.TexasRecyclerViewImpl;
@@ -146,8 +145,6 @@ public class Renderer implements SelectionManager.Listener {
 			}
 		});
 		mRecyclerView.addItemDecoration(new SegmentItemDecoration(mAdapter));
-
-		mLinearLayoutManager.setAdapter(mAdapter);
 
 		// selection
 		DragSelectViewImpl selectionDragView = new DragSelectViewImpl(texasView.getContext(), texasView);
