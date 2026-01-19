@@ -33,7 +33,6 @@ import me.chan.texas.renderer.TouchEvent;
 import me.chan.texas.renderer.core.WorkerScheduler;
 import me.chan.texas.renderer.core.worker.MixWorker;
 import me.chan.texas.renderer.selection.SelectionManager;
-import me.chan.texas.renderer.ui.decor.ParagraphDecor;
 import me.chan.texas.renderer.ui.figure.FigureView;
 import me.chan.texas.renderer.ui.rv.SegmentItemFragmentLayout;
 import me.chan.texas.renderer.ui.rv.TexasRecyclerViewImpl;
@@ -551,10 +550,10 @@ public class RendererAdapterImpl extends RecyclerView.Adapter<RendererAdapterImp
 				layout.setPadding(rect.left, rect.top, rect.right, rect.bottom);
 			}
 
-			TextureParagraph textureParagraph = data.getTextureParagraph();
-			if (textureParagraph != null) {
-				textureParagraph.setOnTextSelectedListener(mSelectionManager.getOnTextSelectedListener());
-			}
+//			TextureParagraph textureParagraph = data.getTextureParagraph();
+//			if (textureParagraph != null) {
+//				textureParagraph.setOnTextSelectedListener(mSelectionManager.getOnTextSelectedListener());
+//			}
 		}
 	}
 

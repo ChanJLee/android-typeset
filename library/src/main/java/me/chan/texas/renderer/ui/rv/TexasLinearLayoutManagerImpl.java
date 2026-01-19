@@ -63,11 +63,11 @@ public class TexasLinearLayoutManagerImpl extends LinearLayoutManager implements
 			return null;
 		}
 
-		Segment segment = mAdapter.getItem(index);
-		if (segment instanceof ViewSegment) {
-			ViewSegment viewSegment = (ViewSegment) segment;
-			return viewSegment.getTextureParagraph();
-		}
+//		Segment segment = mAdapter.getItem(index);
+//		if (segment instanceof ViewSegment) {
+//			ViewSegment viewSegment = (ViewSegment) segment;
+//			return viewSegment.getTextureParagraph();
+//		}
 
 		return null;
 	}

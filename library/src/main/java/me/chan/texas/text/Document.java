@@ -1,7 +1,6 @@
 package me.chan.texas.text;
 
 import me.chan.texas.Texas;
-import me.chan.texas.renderer.ui.text.TextureParagraph;
 import me.chan.texas.text.util.TexasIterator;
 import me.chan.texas.utils.ReferenceCountingPointer;
 
@@ -33,24 +32,7 @@ public final class Document {
 		}
 
 		List<Segment> segments = mSegments.get();
-		for (int i = 0; i < segments.size(); ++i) {
-			Segment current = segments.get(i);
-			if (current == segment) {
-				return i;
-			}
-
-			// todo 为了兼容嵌套的ViewSegment选中，似乎不是一个好的写法。
-			// 后续给paragraph 支持多个 setTag 的后缀，使得元数据
-			if (segment instanceof Paragraph && current instanceof ViewSegment) {
-				ViewSegment viewSegment = (ViewSegment) current;
-				TextureParagraph textureParagraph = viewSegment.getTextureParagraph();
-				if (textureParagraph != null && textureParagraph.getParagraph() == segment) {
-					return i;
-				}
-			}
-		}
-
-		return -1;
+		return segments.indexOf(segment);
 	}
 
 	/**
