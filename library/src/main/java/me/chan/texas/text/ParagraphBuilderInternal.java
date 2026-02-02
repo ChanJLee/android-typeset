@@ -115,7 +115,7 @@ class ParagraphBuilderInternal {
 			brk();
 		}
 
-		mParagraph.mTag = mTag;
+		mParagraph.setTag(mTag);
 		mParagraph.mId = Segment.nextId();
 		return mParagraph;
 	}

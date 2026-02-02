@@ -2,15 +2,18 @@ package me.chan.texas.text;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
+import me.chan.texas.R;
 import me.chan.texas.measurer.Measurer;
 import me.chan.texas.misc.Rect;
 
+import androidx.annotation.IdRes;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.annotation.WorkerThread;
+import androidx.collection.SparseArrayCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import me.chan.texas.Texas;
@@ -47,7 +50,7 @@ public final class Paragraph implements Segment {
 	final List<Element> mElements;
 
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
-	Object mTag;
+	SparseArrayCompat<Object> mTagsKv;
 
 	ParagraphDecor mDecor;
 
@@ -85,7 +88,10 @@ public final class Paragraph implements Segment {
 	@Nullable
 	@Override
 	public Object getTag() {
-		return mTag;
+		if (mTagsKv == null) {
+			return null;
+		}
+		return mTagsKv.get(R.id.me_chan_texas_paragraph_tag);
 	}
 
 	@Override
@@ -133,7 +139,10 @@ public final class Paragraph implements Segment {
 	}
 
 	private Paragraph(Object tag) {
-		mTag = tag;
+		if (tag != null) {
+			mTagsKv = new SparseArrayCompat<>();
+			mTagsKv.put(R.id.me_chan_texas_paragraph_tag, tag);
+		}
 		Texas.MemoryOption memoryOption = Texas.getMemoryOption();
 		mElements = new ArrayList<>(memoryOption.getParagraphElementInitialCapacity());
 	}
@@ -154,7 +163,7 @@ public final class Paragraph implements Segment {
 			mElements.get(i).recycle();
 		}
 		mElements.clear();
-		mTag = null;
+		mTagsKv = null;
 		mDecor = null;
 		if (mSelection != null) {
 			mSelection.recycle();
@@ -816,11 +825,23 @@ public final class Paragraph implements Segment {
 		}
 	}
 
+	public void setTag(@Nullable Object tag) {
+		setTag(R.id.me_chan_texas_paragraph_tag, tag);
+	}
+
+	public void setTag(@IdRes int id, @Nullable Object tag) {
+		if (mTagsKv == null) {
+			mTagsKv = new SparseArrayCompat<>();
+		}
+		mTagsKv.put(id, tag);
+	}
+
 	@NonNull
 	@Override
 	public String toString() {
 		if (mLayout.getLineCount() == 0) {
-			return mTag == null ? super.toString() : mTag.toString();
+			Object tag = getTag();
+			return tag == null ? super.toString() : tag.toString();
 		}
 
 		String digest = mLayout.toString();

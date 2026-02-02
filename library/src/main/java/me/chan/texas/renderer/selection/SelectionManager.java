@@ -332,7 +332,7 @@ public class SelectionManager implements OnSelectedChangedListener {
 				continue;
 			}
 
-			mContentView.getChildLocations(textureParagraph, mLocations);
+			mContentView.getSegmentLocations(textureParagraph, mLocations);
 			if (mLocations[1] + textureParagraph.getHeight() < y1) {
 				continue;
 			}

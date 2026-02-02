@@ -187,7 +187,7 @@ public class Selection extends DefaultRecyclable {
 			return false;
 		}
 
-		container.getChildLocations(child, locations);
+		container.getSegmentLocations(child, locations);
 		return true;
 	}
 
