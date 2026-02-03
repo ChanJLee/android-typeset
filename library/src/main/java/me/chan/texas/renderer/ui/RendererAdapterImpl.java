@@ -393,6 +393,14 @@ public class RendererAdapterImpl extends RecyclerView.Adapter<RendererAdapterImp
 			return -1;
 		}
 
+		if (segment instanceof Paragraph) {
+			Paragraph paragraph = (Paragraph) segment;
+			SelectableSegment outer = (SelectableSegment) paragraph.getTag(R.id.me_chan_texas_paragraph_selection_tag);
+			if (outer != null) {
+				segment = (Segment) outer;
+			}
+		}
+
 		return mDocument.indexOfSegment(segment);
 	}
 
