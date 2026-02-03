@@ -88,10 +88,15 @@ public final class Paragraph implements Segment {
 	@Nullable
 	@Override
 	public Object getTag() {
+		return getTag(R.id.me_chan_texas_paragraph_tag);
+	}
+
+	@Nullable
+	public Object getTag(@IdRes int key) {
 		if (mTagsKv == null) {
 			return null;
 		}
-		return mTagsKv.get(R.id.me_chan_texas_paragraph_tag);
+		return mTagsKv.get(key);
 	}
 
 	@Override

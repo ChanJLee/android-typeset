@@ -4,6 +4,7 @@ import static org.junit.Assert.assertNotNull;
 
 import android.graphics.Canvas;
 
+import me.chan.texas.misc.Rect;
 import me.chan.texas.misc.RectF;
 
 import android.view.View;
@@ -526,9 +527,17 @@ public class SelectionManagerUnitTest {
 		}
 
 		@Override
-		public void getChildLocations(TextureParagraph child, int[] locations) {
-			MyTextureParagraph paragraph = (MyTextureParagraph) child;
-			paragraph.getLocationOnScreen(locations);
+		public boolean getSegmentLocations(Segment segment, Rect locations) {
+			Paragraph p = (Paragraph) segment;
+			MyTextureParagraph paragraph = (MyTextureParagraph) p.getTag(1024);
+			int[] location = new int[2];
+			paragraph.getLocationOnScreen(location);
+			locations.left = location[0];
+			locations.top = location[1];
+			Layout layout = p.getLayout();
+			locations.right = locations.left + layout.getWidth();
+			locations.bottom = locations.top + layout.getHeight();
+			return true;
 		}
 
 		@Override
@@ -565,6 +574,7 @@ public class SelectionManagerUnitTest {
 
 		private MyTextureParagraph(Paragraph paragraph, int offset) {
 			mParagraph = paragraph;
+			paragraph.setTag(1024, this);
 			mOffset = offset;
 		}
 
@@ -747,11 +757,6 @@ public class SelectionManagerUnitTest {
 		@Override
 		public int findLastVisibleItemPosition() {
 			return mLastVisibleItemPosition;
-		}
-
-		@Override
-		public TextureParagraph findTextureParagraphByPosition(int index) {
-			return mTextureParagraphs.get(index);
 		}
 
 		@Override
