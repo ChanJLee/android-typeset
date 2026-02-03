@@ -5,10 +5,12 @@ import android.animation.AnimatorListenerAdapter;
 import android.animation.ValueAnimator;
 import android.graphics.Color;
 
+import me.chan.texas.R;
 import me.chan.texas.misc.Rect;
 import me.chan.texas.misc.RectF;
 
 import android.util.Log;
+import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -24,6 +26,8 @@ import me.chan.texas.renderer.ui.rv.TexasRecyclerView;
 import me.chan.texas.renderer.ui.text.TextureParagraph;
 import me.chan.texas.text.Document;
 import me.chan.texas.text.Paragraph;
+import me.chan.texas.text.SelectableSegment;
+import me.chan.texas.text.layout.Layout;
 import me.chan.texas.utils.IntSet;
 
 import java.util.ArrayList;
@@ -183,7 +187,25 @@ public class Selection extends DefaultRecyclable {
 			return false;
 		}
 
-		return container.getSegmentLocations(paragraph, locations);
+		SelectableSegment selectableSegment = (SelectableSegment) paragraph.getTag(R.id.me_chan_texas_paragraph_selection_tag);
+		if (selectableSegment == null) {
+			return container.getSegmentLocations(paragraph, locations);
+		}
+
+		if (!container.getSegmentLocations(paragraph, locations)) {
+			return false;
+		}
+
+		View root = layoutManager.findViewByPosition(index);
+		if (root == null) {
+			return false;
+		}
+
+		SelectionManager.adjustLocations(locations, root, (View) selectableSegment);
+		Layout layout = paragraph.getLayout();
+		locations.bottom = locations.top + layout.getHeight();
+		locations.right = locations.left + layout.getWidth();
+		return true;
 	}
 
 	public int size() {

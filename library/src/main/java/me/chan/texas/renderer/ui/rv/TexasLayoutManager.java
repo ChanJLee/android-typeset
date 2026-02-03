@@ -1,6 +1,8 @@
 package me.chan.texas.renderer.ui.rv;
 
 
+import android.view.View;
+
 import androidx.annotation.RestrictTo;
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -13,4 +15,6 @@ public interface TexasLayoutManager {
 	int findFirstCompletelyVisibleItemPosition();
 
 	int findLastCompletelyVisibleItemPosition();
+
+	View findViewByPosition(int index);
 }
