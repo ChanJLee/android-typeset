@@ -6,9 +6,10 @@ import android.widget.TextView;
 import me.chan.texas.debug.R;
 import me.chan.texas.renderer.ui.text.ParagraphView;
 import me.chan.texas.text.Paragraph;
+import me.chan.texas.text.SelectableSegment;
 import me.chan.texas.text.ViewSegment;
 
-public class ParallelViewSegment extends ViewSegment {
+public class ParallelViewSegment extends ViewSegment implements SelectableSegment {
 	private final Paragraph mParagraph;
 	private final String mText;
 	private ParagraphView mParagraphView;
@@ -34,5 +35,20 @@ public class ParallelViewSegment extends ViewSegment {
 		TextView textView = view.findViewById(R.id.cn);
 		paragraphView.setParagraph(mParagraph);
 		textView.setText(mText);
+	}
+
+	@Override
+	public int getParagraphCount() {
+		return 1;
+	}
+
+	@Override
+	public ParagraphView getParagraphView(int index) {
+		return mParagraphView;
+	}
+
+	@Override
+	public Paragraph getParagraph(int index) {
+		return mParagraph;
 	}
 }

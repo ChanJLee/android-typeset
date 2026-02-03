@@ -868,6 +868,11 @@ public class ParagraphView extends FrameLayout {
 		return mMinLines;
 	}
 
+	@RestrictTo(RestrictTo.Scope.LIBRARY)
+	public void setOnSelectedChangedListener(OnSelectedChangedListener onSelectedChangedListener) {
+		mRender.setOnTextSelectedListener(onSelectedChangedListener);
+	}
+
 	/**
 	 * 点击事件
 	 */

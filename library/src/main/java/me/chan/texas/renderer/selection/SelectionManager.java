@@ -562,7 +562,7 @@ public class SelectionManager implements OnSelectedChangedListener {
 		Log.w("SelectionManager", throwable);
 	}
 
-	public OnSelectedChangedListener getOnTextSelectedListener() {
+	public OnSelectedChangedListener getOnSelectedChangedListener() {
 		return this;
 	}
 
