@@ -12,9 +12,9 @@ import androidx.recyclerview.widget.SimpleItemAnimator;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
+import me.chan.texas.misc.Rect;
 import me.chan.texas.renderer.TouchEvent;
 import me.chan.texas.renderer.ui.TexasRendererAdapter;
-import me.chan.texas.renderer.ui.text.TextureParagraph;
 import me.chan.texas.text.Document;
 import me.chan.texas.text.Segment;
 
@@ -73,9 +73,11 @@ public class TexasRecyclerViewImpl extends RecyclerView implements TexasRecycler
 		post(mScrollAction);
 	}
 
-	public void getChildLocations(View child, int[] locations) {
-		locations[0] = child.getLeft();
-		locations[1] = child.getTop();
+	public void getChildLocations(View child, Rect locations) {
+		locations.left = child.getLeft();
+		locations.top = child.getTop();
+		locations.right = child.getRight();
+		locations.bottom = child.getBottom();
 	}
 
 	private class ScrollAction implements Runnable {
@@ -111,9 +113,20 @@ public class TexasRecyclerViewImpl extends RecyclerView implements TexasRecycler
 	}
 
 	@Override
-	public void getChildLocations(TextureParagraph textureParagraph, int[] locations) {
-		View child = (View) textureParagraph;
+	public boolean getSegmentLocations(Segment segment, Rect locations) {
+		locations.top = locations.left = locations.right = locations.bottom = 0;
+		int index = segment.getIndex();
+		if (index < 0) {
+			return false;
+		}
+
+		View child = mTexasLinearLayoutManager.findViewByPosition(index);
+		if (child == null) {
+			return false;
+		}
+
 		getChildLocations(child, locations);
+		return true;
 	}
 
 	@Override

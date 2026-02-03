@@ -5,6 +5,7 @@ import android.animation.AnimatorListenerAdapter;
 import android.animation.ValueAnimator;
 import android.graphics.Color;
 
+import me.chan.texas.misc.Rect;
 import me.chan.texas.misc.RectF;
 
 import android.util.Log;
@@ -80,7 +81,7 @@ public class Selection extends DefaultRecyclable {
 	/**
 	 * @return 选中区域边界
 	 */
-	private final int[] mLocations = new int[2];
+	private final Rect mLocations = new Rect();
 
 	private RectEdge getSelectedRectEdgeSingle() {
 		if (mParagraphSelections.isEmpty()) {
@@ -133,8 +134,8 @@ public class Selection extends DefaultRecyclable {
 			RectF firstRegion = paragraphSelection.getFirstRegion();
 			assert firstRegion != null;
 
-			mRectEdge.topY = firstRegion.top + mLocations[1];
-			mRectEdge.topX = firstRegion.left + mLocations[0];
+			mRectEdge.topY = firstRegion.top + mLocations.top;
+			mRectEdge.topX = firstRegion.left + mLocations.left;
 			mRectEdge.lineHeight = firstRegion.bottom - firstRegion.top;
 			break;
 		}
@@ -158,15 +159,15 @@ public class Selection extends DefaultRecyclable {
 			RectF lastRegion = paragraphSelection.getLastRegion();
 			assert lastRegion != null;
 
-			mRectEdge.bottomY = lastRegion.bottom + mLocations[1];
-			mRectEdge.bottomX = lastRegion.right + mLocations[0];
+			mRectEdge.bottomY = lastRegion.bottom + mLocations.top;
+			mRectEdge.bottomX = lastRegion.right + mLocations.left;
 			break;
 		}
 
 		return hasModified ? mRectEdge : null;
 	}
 
-	boolean getParagraphLocation(TexasRecyclerView container, Paragraph paragraph, int[] locations) {
+	boolean getParagraphLocation(TexasRecyclerView container, Paragraph paragraph, Rect locations) {
 		Document document = container.getDocument();
 		if (document == null) {
 			return false;
@@ -182,13 +183,7 @@ public class Selection extends DefaultRecyclable {
 			return false;
 		}
 
-		TextureParagraph child = layoutManager.findTextureParagraphByPosition(index);
-		if (child == null) {
-			return false;
-		}
-
-		container.getSegmentLocations(child, locations);
-		return true;
+		return container.getSegmentLocations(paragraph, locations);
 	}
 
 	public int size() {

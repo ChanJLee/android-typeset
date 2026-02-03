@@ -4,8 +4,8 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.recyclerview.widget.RecyclerView;
 
+import me.chan.texas.misc.Rect;
 import me.chan.texas.text.Document;
-import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.Segment;
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -18,7 +18,7 @@ public interface TexasRecyclerView {
 
 	TexasLayoutManager getTexasLayoutManager();
 
-	void getSegmentLocations(Segment segment, Paragraph paragraph, int[] locations);
+	boolean getSegmentLocations(Segment segment, Rect locations);
 
 	void scrollBy(int x, int y);
 

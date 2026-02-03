@@ -10,6 +10,7 @@ import androidx.annotation.RestrictTo;
 import androidx.recyclerview.widget.RecyclerView;
 
 import me.chan.texas.misc.BitBucket;
+import me.chan.texas.misc.Rect;
 import me.chan.texas.renderer.ParagraphPredicates;
 import me.chan.texas.renderer.ParagraphVisitor;
 import me.chan.texas.renderer.RenderOption;
@@ -69,7 +70,7 @@ public class SelectionManager implements OnSelectedChangedListener {
 	/**
 	 * 拖拽时定位用
 	 */
-	private final int[] mLocations = new int[2];
+	private final Rect mLocations = new Rect();
 	private SpanTouchEventHandler mSpanTouchEventHandler;
 	private final SpanPredicate mOnSpanClickedPredicate = new SpanPredicate() {
 		@Override
@@ -327,27 +328,26 @@ public class SelectionManager implements OnSelectedChangedListener {
 
 		Selection currentSelection = Selection.obtain(mCurrentSelection.getType(), mContentView, prevSelection.getStyles());
 		for (int i = firstVisibleItemPosition; i <= lastVisibleItemPosition; ++i) {
-			TextureParagraph textureParagraph = mLayoutManager.findTextureParagraphByPosition(i);
-			if (textureParagraph == null) {
+			Segment segment = mAdapter.getItem(i);
+			if (!(segment instanceof Paragraph)) {
 				continue;
 			}
 
-			mContentView.getSegmentLocations(textureParagraph, mLocations);
-			if (mLocations[1] + textureParagraph.getHeight() < y1) {
+			Paragraph paragraph = (Paragraph) segment;
+			if (!mContentView.getSegmentLocations(paragraph, mLocations)) {
 				continue;
 			}
 
-			if (mLocations[1] > y2) {
+			if (mLocations.bottom < y1 || mLocations.top > y2) {
 				continue;
 			}
 
 			try {
-				Paragraph paragraph = textureParagraph.getParagraph();
 				mSelectedTextByDragVisitor.reset(mCurrentSelection.getType(), mCurrentSelection.getStyles(), paragraph, renderOption);
-				float tempX1 = x1 - mLocations[0];
-				float tempY1 = y1 - mLocations[1];
-				float tempX2 = x2 - mLocations[0];
-				float tempY2 = y2 - mLocations[1];
+				float tempX1 = x1 - mLocations.left;
+				float tempY1 = y1 - mLocations.top;
+				float tempX2 = x2 - mLocations.left;
+				float tempY2 = y2 - mLocations.top;
 				mSelectedTextByDragVisitor.setRegion(tempX1, tempY1, tempX2, tempY2);
 				mSelectedTextByDragVisitor.startVisit(paragraph);
 				addParagraphSelection(currentSelection, paragraph);
