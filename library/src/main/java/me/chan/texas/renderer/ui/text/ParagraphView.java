@@ -626,7 +626,7 @@ public class ParagraphView extends FrameLayout {
 		}
 		ParseWorker.Args args = ParseWorker.Args.obtain(source, mParseListener);
 		ParseWorker worker = WorkerScheduler.parse();
-		if (!isInEditMode()) {
+		if (!isInEditMode() || !(source instanceof DirectParagraphSource)) {
 			worker.submit(mRender.getToken(), args);
 			return;
 		}
