@@ -365,12 +365,13 @@ public class SelectionManager implements OnSelectedChangedListener {
 		for (int i = 0; i < selectableSegment.getParagraphCount(); ++i) {
 			ParagraphView paragraphView = selectableSegment.getParagraphView(i);
 			View anchor = (View) paragraphView.getRender();
-			adjustLocationsOffset(mLocations, view, anchor);
 
 			Paragraph paragraph = selectableSegment.getParagraph(i);
 			Layout layout = paragraph.getLayout();
 			mLocations.bottom = mLocations.top + layout.getHeight();
 			mLocations.right = mLocations.left + layout.getWidth();
+
+			adjustLocationsOffset(mLocations, view, anchor);
 
 			updateParagraphSelection0(currentSelection, renderOption, paragraph, x1, y1, x2, y2, mLocations);
 
@@ -384,8 +385,7 @@ public class SelectionManager implements OnSelectedChangedListener {
 	public static void adjustLocationsOffset(Rect locations, View root, View anchor) {
 		View parent = (View) anchor.getParent();
 		while (parent != null && parent != root) {
-			locations.top += anchor.getTop();
-			locations.bottom += anchor.getTop();
+			locations.offset(0, anchor.getTop());
 			anchor = parent;
 			parent = (View) anchor.getParent();
 		}
