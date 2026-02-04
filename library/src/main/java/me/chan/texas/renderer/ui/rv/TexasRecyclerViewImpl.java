@@ -115,7 +115,12 @@ public class TexasRecyclerViewImpl extends RecyclerView implements TexasRecycler
 	@Override
 	public boolean getSegmentLocations(Segment segment, Rect locations) {
 		locations.top = locations.left = locations.right = locations.bottom = 0;
-		int index = segment.getIndex();
+		TexasRendererAdapter adapter = (TexasRendererAdapter) getAdapter();
+		if (adapter == null) {
+			return false;
+		}
+
+		int index = adapter.indexOf(segment);
 		if (index < 0) {
 			return false;
 		}
