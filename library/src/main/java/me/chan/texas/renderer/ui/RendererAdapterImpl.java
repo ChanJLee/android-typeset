@@ -563,7 +563,7 @@ public class RendererAdapterImpl extends RecyclerView.Adapter<RendererAdapterImp
 
 					Paragraph paragraph = selectableSegment.getParagraph(i);
 					if (paragraph != null) {
-						paragraph.setTag(R.id.me_chan_texas_paragraph_selection_tag, selectableSegment);
+						paragraph.setTag(R.id.me_chan_texas_paragraph_outer_tag, selectableSegment);
 					}
 				}
 			}

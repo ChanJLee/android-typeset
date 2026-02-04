@@ -34,7 +34,7 @@ public final class Document {
 
 		if (segment instanceof Paragraph) {
 			Paragraph paragraph = (Paragraph) segment;
-			SelectableSegment outer = (SelectableSegment) paragraph.getTag(R.id.me_chan_texas_paragraph_selection_tag);
+			SelectableSegment outer = (SelectableSegment) paragraph.getTag(R.id.me_chan_texas_paragraph_outer_tag);
 			if (outer != null) {
 				segment = (Segment) outer;
 			}

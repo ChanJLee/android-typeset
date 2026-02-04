@@ -23,7 +23,6 @@ import me.chan.texas.renderer.ParagraphPredicates;
 import me.chan.texas.renderer.RenderOption;
 import me.chan.texas.renderer.ui.rv.TexasLayoutManager;
 import me.chan.texas.renderer.ui.rv.TexasRecyclerView;
-import me.chan.texas.renderer.ui.text.TextureParagraph;
 import me.chan.texas.text.Document;
 import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.SelectableSegment;
@@ -187,7 +186,7 @@ public class Selection extends DefaultRecyclable {
 			return false;
 		}
 
-		SelectableSegment selectableSegment = (SelectableSegment) paragraph.getTag(R.id.me_chan_texas_paragraph_selection_tag);
+		SelectableSegment selectableSegment = (SelectableSegment) paragraph.getTag(R.id.me_chan_texas_paragraph_outer_tag);
 		if (selectableSegment == null) {
 			return container.getSegmentLocations(paragraph, locations);
 		}

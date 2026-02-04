@@ -2,5 +2,5 @@
 <resources>
     <item name="me_chan_texas_item_tag" type="id" />
     <item name="me_chan_texas_paragraph_tag" type="id" />
-    <item name="me_chan_texas_paragraph_selection_tag" type="id" />
+    <item name="me_chan_texas_paragraph_outer_tag" type="id" />
 </resources>
