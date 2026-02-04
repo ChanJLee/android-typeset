@@ -374,7 +374,6 @@ public class SelectionManager implements OnSelectedChangedListener {
 			mLocations.right = mLocations.left + layout.getWidth();
 
 			updateParagraphSelection0(currentSelection, renderOption, paragraph, x1, y1, x2, y2, mLocations);
-			paragraph.setTag(R.id.me_chan_texas_paragraph_selection_tag, selectableSegment);
 
 			mLocations.top = top;
 			mLocations.bottom = bottom;

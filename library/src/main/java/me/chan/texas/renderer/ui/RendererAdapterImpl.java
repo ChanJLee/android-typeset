@@ -560,6 +560,11 @@ public class RendererAdapterImpl extends RecyclerView.Adapter<RendererAdapterImp
 						paragraphView.setSpanTouchEventHandler(mSelectionManager.getSpanTouchEventHandler());
 						paragraphView.setOnSelectedChangedListener(mSelectionManager.getOnSelectedChangedListener());
 					}
+
+					Paragraph paragraph = selectableSegment.getParagraph(i);
+					if (paragraph != null) {
+						paragraph.setTag(R.id.me_chan_texas_paragraph_selection_tag, selectableSegment);
+					}
 				}
 			}
 		}
