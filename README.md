@@ -474,22 +474,6 @@ new ViewSegment(R.layout.test_header) {
 }
 ```
 
-## 常见问题
-
-### 息屏后渲染空白
-
-部分机型在息屏后可能出现渲染空白的问题，需要在 `onStart()` 中调用 `resume()`：
-
-```java
-@Override
-protected void onStart() {
-    super.onStart();
-    if (texasView != null) {
-        texasView.resume();
-    }
-}
-```
-
 ## 资源引用
 
 - [english-words](https://github.com/dwyl/english-words.git)
