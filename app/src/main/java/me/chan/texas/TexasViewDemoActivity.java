@@ -422,23 +422,6 @@ public class TexasViewDemoActivity extends AppCompatActivity {
 		});
 	}
 
-	// 有些机型有问题，息屏后渲染会空白
-	@Override
-	protected void onStart() {
-		super.onStart();
-		if (mTexasView != null) {
-			mTexasView.resume();
-		}
-	}
-
-	@Override
-	protected void onStop() {
-		if (mTexasView != null) {
-			mTexasView.pause();
-		}
-		super.onStop();
-	}
-
 	/**
 	 * 释放资源
 	 */

@@ -1,5 +1,6 @@
 package me.chan.texas.text;
 
+import me.chan.texas.R;
 import me.chan.texas.Texas;
 import me.chan.texas.text.util.TexasIterator;
 import me.chan.texas.utils.ReferenceCountingPointer;
@@ -29,6 +30,14 @@ public final class Document {
 	public int indexOfSegment(Segment segment) {
 		if (segment == null || mSegments == null) {
 			return -1;
+		}
+
+		if (segment instanceof Paragraph) {
+			Paragraph paragraph = (Paragraph) segment;
+			SelectableSegment outer = (SelectableSegment) paragraph.getTag(R.id.me_chan_texas_paragraph_outer_tag);
+			if (outer != null) {
+				segment = (Segment) outer;
+			}
 		}
 
 		List<Segment> segments = mSegments.get();

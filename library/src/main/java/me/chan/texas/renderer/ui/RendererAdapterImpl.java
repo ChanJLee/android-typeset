@@ -36,6 +36,7 @@ import me.chan.texas.renderer.selection.SelectionManager;
 import me.chan.texas.renderer.ui.figure.FigureView;
 import me.chan.texas.renderer.ui.rv.SegmentItemFragmentLayout;
 import me.chan.texas.renderer.ui.rv.TexasRecyclerViewImpl;
+import me.chan.texas.renderer.ui.text.ParagraphView;
 import me.chan.texas.renderer.ui.text.TextureParagraph;
 import me.chan.texas.renderer.ui.text.TextureParagraphView0;
 import me.chan.texas.renderer.ui.text.TextureParagraphView0Compat;
@@ -43,6 +44,7 @@ import me.chan.texas.text.Document;
 import me.chan.texas.text.Figure;
 import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.Segment;
+import me.chan.texas.text.SelectableSegment;
 import me.chan.texas.text.ViewSegment;
 import me.chan.texas.text.layout.Layout;
 import me.chan.texas.utils.concurrency.Worker;
@@ -486,7 +488,7 @@ public class RendererAdapterImpl extends RecyclerView.Adapter<RendererAdapterImp
 		protected void onCreate(View view) {
 			mRender = (TextureParagraph) view;
 			if (mRender != null) {
-				mRender.setOnTextSelectedListener(mSelectionManager.getOnTextSelectedListener());
+				mRender.setOnTextSelectedListener(mSelectionManager.getOnSelectedChangedListener());
 			}
 		}
 
@@ -550,10 +552,21 @@ public class RendererAdapterImpl extends RecyclerView.Adapter<RendererAdapterImp
 				layout.setPadding(rect.left, rect.top, rect.right, rect.bottom);
 			}
 
-//			TextureParagraph textureParagraph = data.getTextureParagraph();
-//			if (textureParagraph != null) {
-//				textureParagraph.setOnTextSelectedListener(mSelectionManager.getOnTextSelectedListener());
-//			}
+			if (data instanceof SelectableSegment) {
+				SelectableSegment selectableSegment = (SelectableSegment) data;
+				for (int i = 0; i < selectableSegment.getParagraphCount(); i++) {
+					ParagraphView paragraphView = selectableSegment.getParagraphView(i);
+					if (paragraphView != null) {
+						paragraphView.setSpanTouchEventHandler(mSelectionManager.getSpanTouchEventHandler());
+						paragraphView.setOnSelectedChangedListener(mSelectionManager.getOnSelectedChangedListener());
+					}
+
+					Paragraph paragraph = selectableSegment.getParagraph(i);
+					if (paragraph != null) {
+						paragraph.setTag(R.id.me_chan_texas_paragraph_outer_tag, selectableSegment);
+					}
+				}
+			}
 		}
 	}
 

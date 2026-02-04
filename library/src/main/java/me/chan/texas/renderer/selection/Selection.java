@@ -5,9 +5,12 @@ import android.animation.AnimatorListenerAdapter;
 import android.animation.ValueAnimator;
 import android.graphics.Color;
 
+import me.chan.texas.R;
+import me.chan.texas.misc.Rect;
 import me.chan.texas.misc.RectF;
 
 import android.util.Log;
+import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -20,9 +23,10 @@ import me.chan.texas.renderer.ParagraphPredicates;
 import me.chan.texas.renderer.RenderOption;
 import me.chan.texas.renderer.ui.rv.TexasLayoutManager;
 import me.chan.texas.renderer.ui.rv.TexasRecyclerView;
-import me.chan.texas.renderer.ui.text.TextureParagraph;
 import me.chan.texas.text.Document;
 import me.chan.texas.text.Paragraph;
+import me.chan.texas.text.SelectableSegment;
+import me.chan.texas.text.layout.Layout;
 import me.chan.texas.utils.IntSet;
 
 import java.util.ArrayList;
@@ -80,7 +84,7 @@ public class Selection extends DefaultRecyclable {
 	/**
 	 * @return 选中区域边界
 	 */
-	private final int[] mLocations = new int[2];
+	private final Rect mLocations = new Rect();
 
 	private RectEdge getSelectedRectEdgeSingle() {
 		if (mParagraphSelections.isEmpty()) {
@@ -133,8 +137,8 @@ public class Selection extends DefaultRecyclable {
 			RectF firstRegion = paragraphSelection.getFirstRegion();
 			assert firstRegion != null;
 
-			mRectEdge.topY = firstRegion.top + mLocations[1];
-			mRectEdge.topX = firstRegion.left + mLocations[0];
+			mRectEdge.topY = firstRegion.top + mLocations.top;
+			mRectEdge.topX = firstRegion.left + mLocations.left;
 			mRectEdge.lineHeight = firstRegion.bottom - firstRegion.top;
 			break;
 		}
@@ -158,15 +162,15 @@ public class Selection extends DefaultRecyclable {
 			RectF lastRegion = paragraphSelection.getLastRegion();
 			assert lastRegion != null;
 
-			mRectEdge.bottomY = lastRegion.bottom + mLocations[1];
-			mRectEdge.bottomX = lastRegion.right + mLocations[0];
+			mRectEdge.bottomY = lastRegion.bottom + mLocations.top;
+			mRectEdge.bottomX = lastRegion.right + mLocations.left;
 			break;
 		}
 
 		return hasModified ? mRectEdge : null;
 	}
 
-	boolean getParagraphLocation(TexasRecyclerView container, Paragraph paragraph, int[] locations) {
+	boolean getParagraphLocation(TexasRecyclerView container, Paragraph paragraph, Rect locations) {
 		Document document = container.getDocument();
 		if (document == null) {
 			return false;
@@ -182,13 +186,30 @@ public class Selection extends DefaultRecyclable {
 			return false;
 		}
 
-		TextureParagraph child = layoutManager.findTextureParagraphByPosition(index);
-		if (child == null) {
+		SelectableSegment selectableSegment = (SelectableSegment) paragraph.getTag(R.id.me_chan_texas_paragraph_outer_tag);
+		if (selectableSegment == null) {
+			return container.getSegmentLocations(paragraph, locations);
+		}
+
+		if (!container.getSegmentLocations(paragraph, locations)) {
 			return false;
 		}
 
-		container.getChildLocations(child, locations);
-		return true;
+		View root = layoutManager.findViewByPosition(index);
+		if (root == null) {
+			return false;
+		}
+
+		for (int i = 0; i < selectableSegment.getParagraphCount(); ++i) {
+			if (selectableSegment.getParagraph(i) == paragraph) {
+				Layout layout = paragraph.getLayout();
+				locations.bottom = locations.top + layout.getHeight();
+				locations.right = locations.left + layout.getWidth();
+				SelectionManager.adjustLocationsOffset(locations, root, selectableSegment.getParagraphView(i));
+				return true;
+			}
+		}
+		return false;
 	}
 
 	public int size() {

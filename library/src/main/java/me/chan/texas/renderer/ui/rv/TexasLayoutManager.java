@@ -1,11 +1,9 @@
 package me.chan.texas.renderer.ui.rv;
 
 
-import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
+import android.view.View;
 
-import me.chan.texas.renderer.ui.TexasRendererAdapter;
-import me.chan.texas.renderer.ui.text.TextureParagraph;
+import androidx.annotation.RestrictTo;
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public interface TexasLayoutManager {
@@ -14,10 +12,9 @@ public interface TexasLayoutManager {
 
 	int findLastVisibleItemPosition();
 
-	@Nullable
-	TextureParagraph findTextureParagraphByPosition(int index);
-
 	int findFirstCompletelyVisibleItemPosition();
 
 	int findLastCompletelyVisibleItemPosition();
+
+	View findViewByPosition(int index);
 }

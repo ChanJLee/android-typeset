@@ -17,6 +17,7 @@ import android.widget.FrameLayout;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
 import androidx.core.content.ContextCompat;
 
 import me.chan.texas.R;
@@ -625,7 +626,7 @@ public class ParagraphView extends FrameLayout {
 		}
 		ParseWorker.Args args = ParseWorker.Args.obtain(source, mParseListener);
 		ParseWorker worker = WorkerScheduler.parse();
-		if (!isInEditMode()) {
+		if (!isInEditMode() || !(source instanceof DirectParagraphSource)) {
 			worker.submit(mRender.getToken(), args);
 			return;
 		}
@@ -867,6 +868,11 @@ public class ParagraphView extends FrameLayout {
 		return mMinLines;
 	}
 
+	@RestrictTo(RestrictTo.Scope.LIBRARY)
+	public void setOnSelectedChangedListener(OnSelectedChangedListener onSelectedChangedListener) {
+		mRender.setOnTextSelectedListener(onSelectedChangedListener);
+	}
+
 	/**
 	 * 点击事件
 	 */
@@ -1047,6 +1053,12 @@ public class ParagraphView extends FrameLayout {
 
 	public void setRenderListener(RenderListener renderListener) {
 		mRenderListener = renderListener;
+	}
+
+	@NonNull
+	@RestrictTo(RestrictTo.Scope.LIBRARY)
+	public TextureParagraph getRender() {
+		return mRender;
 	}
 
 	/**

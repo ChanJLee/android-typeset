@@ -781,10 +781,22 @@ public final class TexasView extends FrameLayout {
 		}
 	}
 
+	@Override
+	protected void onAttachedToWindow() {
+		super.onAttachedToWindow();
+		resume();
+	}
+
+	@Override
+	protected void onDetachedFromWindow() {
+		pause();
+		super.onDetachedFromWindow();
+	}
+
 	/**
 	 * Notify engine to start responding
 	 */
-	public void resume() {
+	private void resume() {
 		if (mRenderer != null) {
 			mRenderer.resume();
 		}
@@ -793,7 +805,7 @@ public final class TexasView extends FrameLayout {
 	/**
 	 * Notify engine to stop responding
 	 */
-	public void pause() {
+	private void pause() {
 		if (mRenderer != null) {
 			mRenderer.pause();
 		}

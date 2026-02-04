@@ -10,6 +10,7 @@ import androidx.annotation.RestrictTo;
 import androidx.recyclerview.widget.RecyclerView;
 
 import me.chan.texas.misc.BitBucket;
+import me.chan.texas.misc.Rect;
 import me.chan.texas.renderer.ParagraphPredicates;
 import me.chan.texas.renderer.ParagraphVisitor;
 import me.chan.texas.renderer.RenderOption;
@@ -25,11 +26,13 @@ import me.chan.texas.renderer.ui.TexasRendererAdapter;
 import me.chan.texas.renderer.ui.rv.TexasLayoutManager;
 import me.chan.texas.renderer.ui.rv.TexasRecyclerView;
 import me.chan.texas.renderer.ui.text.OnSelectedChangedListener;
-import me.chan.texas.renderer.ui.text.TextureParagraph;
+import me.chan.texas.renderer.ui.text.ParagraphView;
 import me.chan.texas.text.Document;
 import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.Segment;
+import me.chan.texas.text.SelectableSegment;
 import me.chan.texas.text.layout.Box;
+import me.chan.texas.text.layout.Layout;
 
 /**
  * 负责处理select paragraph
@@ -69,7 +72,7 @@ public class SelectionManager implements OnSelectedChangedListener {
 	/**
 	 * 拖拽时定位用
 	 */
-	private final int[] mLocations = new int[2];
+	private final Rect mLocations = new Rect();
 	private SpanTouchEventHandler mSpanTouchEventHandler;
 	private final SpanPredicate mOnSpanClickedPredicate = new SpanPredicate() {
 		@Override
@@ -327,38 +330,96 @@ public class SelectionManager implements OnSelectedChangedListener {
 
 		Selection currentSelection = Selection.obtain(mCurrentSelection.getType(), mContentView, prevSelection.getStyles());
 		for (int i = firstVisibleItemPosition; i <= lastVisibleItemPosition; ++i) {
-			TextureParagraph textureParagraph = mLayoutManager.findTextureParagraphByPosition(i);
-			if (textureParagraph == null) {
-				continue;
-			}
-
-			mContentView.getChildLocations(textureParagraph, mLocations);
-			if (mLocations[1] + textureParagraph.getHeight() < y1) {
-				continue;
-			}
-
-			if (mLocations[1] > y2) {
-				continue;
-			}
-
-			try {
-				Paragraph paragraph = textureParagraph.getParagraph();
-				mSelectedTextByDragVisitor.reset(mCurrentSelection.getType(), mCurrentSelection.getStyles(), paragraph, renderOption);
-				float tempX1 = x1 - mLocations[0];
-				float tempY1 = y1 - mLocations[1];
-				float tempX2 = x2 - mLocations[0];
-				float tempY2 = y2 - mLocations[1];
-				mSelectedTextByDragVisitor.setRegion(tempX1, tempY1, tempX2, tempY2);
-				mSelectedTextByDragVisitor.startVisit(paragraph);
-				addParagraphSelection(currentSelection, paragraph);
-			} catch (ParagraphVisitor.VisitException ex) {
-				w(ex);
-			} finally {
-				mSelectedTextByDragVisitor.clear();
+			Segment segment = mAdapter.getItem(i);
+			if (segment instanceof Paragraph) {
+				updateParagraphSelection(currentSelection, renderOption, (Paragraph) segment, x1, y1, x2, y2);
+			} else if (segment instanceof SelectableSegment) {
+				updateSelectableParagraphSelection(currentSelection, renderOption, i, (SelectableSegment) segment, x1, y1, x2, y2);
 			}
 		}
 
 		updateMotionSelection(prevSelection, currentSelection);
+	}
+
+	private void updateSelectableParagraphSelection(Selection currentSelection,
+													RenderOption renderOption,
+													int index,
+													SelectableSegment selectableSegment, float x1, float y1, float x2, float y2) {
+		View view = mLayoutManager.findViewByPosition(index);
+		if (view == null) {
+			return;
+		}
+
+		if (!mContentView.getSegmentLocations((Segment) selectableSegment, mLocations)) {
+			return;
+		}
+
+		if (mLocations.bottom < y1 || mLocations.top > y2) {
+			return;
+		}
+
+		int top = mLocations.top;
+		int bottom = mLocations.bottom;
+		int left = mLocations.left;
+		int right = mLocations.right;
+		for (int i = 0; i < selectableSegment.getParagraphCount(); ++i) {
+			ParagraphView paragraphView = selectableSegment.getParagraphView(i);
+			View anchor = (View) paragraphView.getRender();
+
+			Paragraph paragraph = selectableSegment.getParagraph(i);
+			Layout layout = paragraph.getLayout();
+			mLocations.bottom = mLocations.top + layout.getHeight();
+			mLocations.right = mLocations.left + layout.getWidth();
+
+			adjustLocationsOffset(mLocations, view, anchor);
+
+			updateParagraphSelection0(currentSelection, renderOption, paragraph, x1, y1, x2, y2, mLocations);
+
+			mLocations.top = top;
+			mLocations.bottom = bottom;
+			mLocations.left = left;
+			mLocations.right = right;
+		}
+	}
+
+	public static void adjustLocationsOffset(Rect locations, View root, View anchor) {
+		View parent = (View) anchor.getParent();
+		while (parent != null && parent != root) {
+			locations.offset(0, anchor.getTop());
+			anchor = parent;
+			parent = (View) anchor.getParent();
+		}
+	}
+
+	private void updateParagraphSelection(Selection currentSelection, RenderOption renderOption, Paragraph paragraph, float x1, float y1, float x2, float y2) {
+		if (!mContentView.getSegmentLocations(paragraph, mLocations)) {
+			return;
+		}
+
+		if (mLocations.bottom < y1 || mLocations.top > y2) {
+			return;
+		}
+
+		updateParagraphSelection0(currentSelection, renderOption, paragraph, x1, y1, x2, y2, mLocations);
+	}
+
+	private void updateParagraphSelection0(Selection currentSelection,
+										   RenderOption renderOption,
+										   Paragraph paragraph, float x1, float y1, float x2, float y2, Rect locations) {
+		try {
+			mSelectedTextByDragVisitor.reset(currentSelection.getType(), currentSelection.getStyles(), paragraph, renderOption);
+			float tempX1 = x1 - locations.left;
+			float tempY1 = y1 - locations.top;
+			float tempX2 = x2 - locations.left;
+			float tempY2 = y2 - locations.top;
+			mSelectedTextByDragVisitor.setRegion(tempX1, tempY1, tempX2, tempY2);
+			mSelectedTextByDragVisitor.startVisit(paragraph);
+			addParagraphSelection(currentSelection, paragraph);
+		} catch (ParagraphVisitor.VisitException ex) {
+			w(ex);
+		} finally {
+			mSelectedTextByDragVisitor.clear();
+		}
 	}
 
 	private BitBucket mSelectionDiffBucket;
@@ -499,7 +560,7 @@ public class SelectionManager implements OnSelectedChangedListener {
 		Log.w("SelectionManager", throwable);
 	}
 
-	public OnSelectedChangedListener getOnTextSelectedListener() {
+	public OnSelectedChangedListener getOnSelectedChangedListener() {
 		return this;
 	}
 
