@@ -9,7 +9,6 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.recyclerview.widget.RecyclerView;
 
-import me.chan.texas.R;
 import me.chan.texas.misc.BitBucket;
 import me.chan.texas.misc.Rect;
 import me.chan.texas.renderer.ParagraphPredicates;
@@ -366,7 +365,7 @@ public class SelectionManager implements OnSelectedChangedListener {
 		for (int i = 0; i < selectableSegment.getParagraphCount(); ++i) {
 			ParagraphView paragraphView = selectableSegment.getParagraphView(i);
 			View anchor = (View) paragraphView.getRender();
-			adjustLocations(mLocations, view, anchor);
+			adjustLocationsOffset(mLocations, view, anchor);
 
 			Paragraph paragraph = selectableSegment.getParagraph(i);
 			Layout layout = paragraph.getLayout();
@@ -382,7 +381,7 @@ public class SelectionManager implements OnSelectedChangedListener {
 		}
 	}
 
-	public static void adjustLocations(Rect locations, View root, View anchor) {
+	public static void adjustLocationsOffset(Rect locations, View root, View anchor) {
 		View parent = (View) anchor.getParent();
 		while (parent != null && parent != root) {
 			locations.top += anchor.getTop();

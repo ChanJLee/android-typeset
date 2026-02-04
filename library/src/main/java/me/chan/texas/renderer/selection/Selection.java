@@ -202,7 +202,7 @@ public class Selection extends DefaultRecyclable {
 
 		for (int i = 0; i < selectableSegment.getParagraphCount(); ++i) {
 			if (selectableSegment.getParagraph(i) == paragraph) {
-				SelectionManager.adjustLocations(locations, root, selectableSegment.getParagraphView(i));
+				SelectionManager.adjustLocationsOffset(locations, root, selectableSegment.getParagraphView(i));
 				Layout layout = paragraph.getLayout();
 				locations.bottom = locations.top + layout.getHeight();
 				locations.right = locations.left + layout.getWidth();
