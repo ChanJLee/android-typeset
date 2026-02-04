@@ -346,22 +346,6 @@ Texas.clean();
 
 ```java
 @Override
-protected void onStart() {
-    super.onStart();
-    if (texasView != null) {
-        texasView.resume();
-    }
-}
-
-@Override
-protected void onStop() {
-    if (texasView != null) {
-        texasView.pause();
-    }
-    super.onStop();
-}
-
-@Override
 protected void onDestroy() {
     if (texasView != null) {
         texasView.release();
