@@ -3,13 +3,16 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="#ffffff">
+    android:background="#1000ffff"
+    android:orientation="horizontal">
 
     <me.chan.texas.renderer.ui.text.ParagraphView
         android:id="@+id/en"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
+        android:background="#20ff0000"
+        android:padding="20dp"
         tools:me_chan_texas_ParagraphView_text="hello" />
 
     <TextView

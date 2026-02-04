@@ -23,6 +23,7 @@ import me.chan.texas.renderer.ParagraphPredicates;
 import me.chan.texas.renderer.RenderOption;
 import me.chan.texas.renderer.ui.rv.TexasLayoutManager;
 import me.chan.texas.renderer.ui.rv.TexasRecyclerView;
+import me.chan.texas.renderer.ui.text.ParagraphView;
 import me.chan.texas.text.Document;
 import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.SelectableSegment;
@@ -205,7 +206,8 @@ public class Selection extends DefaultRecyclable {
 				Layout layout = paragraph.getLayout();
 				locations.bottom = locations.top + layout.getHeight();
 				locations.right = locations.left + layout.getWidth();
-				SelectionManager.adjustLocationsOffset(locations, root, selectableSegment.getParagraphView(i));
+				ParagraphView paragraphView = selectableSegment.getParagraphView(i);
+				SelectionManager.adjustLocationsOffset(locations, root, (View) paragraphView.getRender());
 				return true;
 			}
 		}

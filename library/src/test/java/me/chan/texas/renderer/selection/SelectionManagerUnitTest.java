@@ -1,7 +1,13 @@
 package me.chan.texas.renderer.selection;
 
 import static org.junit.Assert.assertNotNull;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
+import android.content.Context;
+import android.content.res.TypedArray;
 import android.graphics.Canvas;
 
 import me.chan.texas.misc.Rect;
@@ -283,6 +289,84 @@ public class SelectionManagerUnitTest {
 
 		mSelectionManager.clearHighlight();
 		Assert.assertTrue(selection.isEmpty());
+	}
+
+	@Test
+	public void testSelectableSegment() {
+		// 创建一个包含3个段落的SelectableSegment
+		Paragraph p1 = (Paragraph) mDocument.getSegment(0);
+		Paragraph p2 = (Paragraph) mDocument.getSegment(1);
+		Paragraph p3 = (Paragraph) mDocument.getSegment(2);
+
+		MySelectableSegment selectableSegment = new MySelectableSegment(p1, p2, p3);
+		mDocument = new Document.Builder().addSegment(0, selectableSegment).build();
+
+		// 更新 layoutManager
+		mLayoutManager = new MyLayoutManager(mDocument);
+		// 注册 SelectableSegment 的容器视图（模拟一个父容器）
+		View mockContainerView = new View(null) {
+		};
+		mLayoutManager.registerView(0, mockContainerView);
+
+		// 重新创建 adapter 和 container 以使用新的 document
+		MyAdapter myAdapter = new MyAdapter();
+		MyRecyclerView myRecyclerView = new MyRecyclerView();
+
+		mSelectionManager = new SelectionManager(myAdapter,
+				mLayoutManager,
+				mSelectionListener,
+				mDragSelectView,
+				myRecyclerView
+		);
+		mSelectionManager.setSpanTouchEventHandler(new SpanTouchEventHandler() {
+
+			@Override
+			public boolean isSpanClickable(@Nullable Object tag) {
+				return true;
+			}
+
+			@Override
+			public boolean applySpanClicked(@Nullable Object clickedTag, @Nullable Object otherTag) {
+				return clickedTag == otherTag;
+			}
+
+			@Override
+			public boolean applySpanLongClicked(@Nullable Object clickedTag, @Nullable Object otherTag) {
+				return clickedTag == otherTag;
+			}
+		});
+
+		// 测试选中SelectableSegment中的段落
+		Selection selection = mSelectionManager.selectParagraphs(new ParagraphPredicates() {
+			@Override
+			public boolean acceptSpan(@Nullable Object spanTag) {
+				return "1".equals(spanTag) || "a".equals(spanTag);
+			}
+
+			@Override
+			public boolean acceptParagraph(@Nullable Object paragraphTag) {
+				return "p1".equals(paragraphTag) || "p2".equals(paragraphTag);
+			}
+		}, Selection.Styles.create(1, 2).setEnableDrag(false));
+
+		Assert.assertNotNull(selection);
+		Assert.assertEquals(2, selection.size());
+
+		// 验证第一个段落选中
+		ParagraphSelection paragraphSelection = selection.get(0);
+		List<Object> selectedTags = paragraphSelection.getSelectedTags();
+		Assert.assertEquals(1, selectedTags.size());
+		Assert.assertEquals("1", selectedTags.get(0));
+
+		// 验证第二个段落选中
+		paragraphSelection = selection.get(1);
+		selectedTags = paragraphSelection.getSelectedTags();
+		Assert.assertEquals(1, selectedTags.size());
+		Assert.assertEquals("a", selectedTags.get(0));
+
+		// 测试清除选中
+		mSelectionManager.clearSelection();
+		Assert.assertNull(mSelectionManager.getCurrentSelection());
 	}
 
 	@Test
@@ -741,12 +825,17 @@ public class SelectionManagerUnitTest {
 		private int mLastVisibleItemPosition;
 		private int mFirstCompletelyVisibleItemPosition;
 		private int mLastCompletelyVisibleItemPosition;
+		private final java.util.Map<Integer, View> mViewMap = new java.util.HashMap<>();
 
 		public MyLayoutManager(Document document) {
 			mFirstVisibleItemPosition = 0;
 			mLastVisibleItemPosition = document.getSegmentCount() - 1;
 			mFirstCompletelyVisibleItemPosition = 0;
 			mLastCompletelyVisibleItemPosition = document.getSegmentCount() - 1;
+		}
+
+		public void registerView(int position, View view) {
+			mViewMap.put(position, view);
 		}
 
 		@Override
@@ -771,7 +860,7 @@ public class SelectionManagerUnitTest {
 
 		@Override
 		public View findViewByPosition(int index) {
-			return null;
+			return mViewMap.get(index);
 		}
 	}
 
@@ -822,5 +911,73 @@ public class SelectionManagerUnitTest {
 
 		TexasUtils.setRect(lhs, 1, 1, 3, 3);
 		Assert.assertTrue(TexasUtils.intersects(lhs, rhs));
+	}
+
+	private class MySelectableSegment extends me.chan.texas.text.ViewSegment implements me.chan.texas.text.SelectableSegment {
+		private final Paragraph[] mParagraphs;
+		private final MockParagraphView[] mViews;
+		private int mOffset;
+
+		public MySelectableSegment(Paragraph... paragraphs) {
+			super(0);
+			mParagraphs = paragraphs;
+			mViews = new MockParagraphView[paragraphs.length];
+			mOffset = 0;
+			for (int i = 0; i < paragraphs.length; i++) {
+				mViews[i] = new MockParagraphView(paragraphs[i], mOffset);
+				mOffset += (paragraphs[i].getLayout().getHeight() + 1);
+			}
+		}
+
+		@Override
+		public int getParagraphCount() {
+			return mParagraphs.length;
+		}
+
+		@Override
+		public me.chan.texas.renderer.ui.text.ParagraphView getParagraphView(int index) {
+			return mViews[index];
+		}
+
+		@Override
+		public Paragraph getParagraph(int index) {
+			return mParagraphs[index];
+		}
+
+		@Override
+		protected void onRender(View view) {
+			// Mock implementation - no actual rendering needed for tests
+		}
+	}
+
+	private Context createMockContext() {
+		Context mockContext = mock(Context.class);
+		TypedArray mockTypedArray = mock(TypedArray.class);
+		when(mockContext.obtainStyledAttributes(any(), any(int[].class), anyInt(), anyInt()))
+				.thenReturn(mockTypedArray);
+		when(mockTypedArray.getInt(anyInt(), anyInt())).thenReturn(Integer.MAX_VALUE);
+		when(mockTypedArray.hasValue(anyInt())).thenReturn(false);
+		return mockContext;
+	}
+
+	private class MockParagraphView extends me.chan.texas.renderer.ui.text.ParagraphView {
+		private final Paragraph mParagraph;
+		private final MyTextureParagraph mRender;
+
+		public MockParagraphView(Paragraph paragraph, int offset) {
+			super(createMockContext(), null, 0);
+			mParagraph = paragraph;
+			mRender = new MyTextureParagraph(paragraph, offset);
+		}
+
+		@NonNull
+		@Override
+		public TextureParagraph getRender() {
+			return mRender;
+		}
+
+		public Paragraph getParagraph() {
+			return mParagraph;
+		}
 	}
 }
