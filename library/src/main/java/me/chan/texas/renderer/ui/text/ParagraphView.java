@@ -78,6 +78,8 @@ public class ParagraphView extends FrameLayout {
 	private int mMaxLines = Integer.MAX_VALUE;
 	private int mMinLines = 0;
 
+	private boolean mOverrideStyles = false;
+
 	/*
 	 * 只会在parse后被赋值
 	 * */
@@ -199,6 +201,8 @@ public class ParagraphView extends FrameLayout {
 			if (!TextUtils.isEmpty(text)) {
 				setText(text);
 			}
+
+			mOverrideStyles = typedArray.getBoolean(R.styleable.me_chan_texas_ParagraphView_me_chan_texas_ParagraphView_overrideStyles, mOverrideStyles);
 		} finally {
 			typedArray.recycle();
 		}
@@ -871,6 +875,13 @@ public class ParagraphView extends FrameLayout {
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
 	public void setOnSelectedChangedListener(OnSelectedChangedListener onSelectedChangedListener) {
 		mRender.setOnTextSelectedListener(onSelectedChangedListener);
+	}
+
+	/**
+	 * @return 是否允许在嵌入到 {@link TexasView} 中显示的时候，使用 {@link TexasView} 的样式，默认 false
+	 */
+	public boolean isOverrideStyles() {
+		return mOverrideStyles;
 	}
 
 	/**
