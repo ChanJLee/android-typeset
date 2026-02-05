@@ -339,7 +339,7 @@ public class SelectionManagerUnitTest {
 		Assert.assertNotNull(paragraph.getSelection(Selection.Type.SELECTION));
 
 		selection = mSelectionManager.getCurrentSelection();
-		Selection.RectEdge edge = selection.getSelectedRectEdge();
+		Selection.RectEdge edge = selection.getSelectedRectEdge(true);
 		Assert.assertEquals(edge.topX, 0, 0.1);
 		Assert.assertEquals(edge.topY, 18, 0.1);
 		Assert.assertEquals(edge.bottomX, 1.5, 0.1);

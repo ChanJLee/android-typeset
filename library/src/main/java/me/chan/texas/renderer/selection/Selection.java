@@ -111,6 +111,14 @@ public class Selection extends DefaultRecyclable {
 	}
 
 	public RectEdge getSelectedRectEdge() {
+		return getSelectedRectEdge(false);
+	}
+
+	/**
+	 * @param strict 是否是严格模式
+	 * @return 选中区域边界
+	 */
+	RectEdge getSelectedRectEdge(boolean strict) {
 		int size = mParagraphSelections.size();
 		if (size == 0) {
 			return null;
@@ -133,8 +141,8 @@ public class Selection extends DefaultRecyclable {
 
 			hasModified = true;
 			boolean result = getParagraphLocation(mContainer, paragraph, mLocations);
-			if (!result) {
-				w("get first region location failed");
+			if (!result && strict) {
+				throw new RuntimeException("get paragraph location failed");
 			}
 
 			RectF firstRegion = paragraphSelection.getFirstRegion();
