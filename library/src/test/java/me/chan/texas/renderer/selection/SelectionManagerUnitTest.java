@@ -347,13 +347,27 @@ public class SelectionManagerUnitTest {
 		Assert.assertEquals(edge.bottomX, 1.5 + PADDING_H, 0.1);
 		Assert.assertEquals(edge.bottomY, 19 + PADDING_V, 0.1);
 
+		{
+			// 正常的
+			mSelectionManager.handleMoveToSelection(1f + PADDING_H, 0 + PADDING_V + segment.mOffset, 3 + PADDING_H, 3 + PADDING_V + segment.mOffset);
+			selection = mSelectionManager.getCurrentSelection();
+			edge = selection.getSelectedRectEdge(true);
+			Assert.assertEquals(edge.topX, 0 + PADDING_H, 0.1);
+			Assert.assertEquals(edge.topY, 0 + PADDING_V + segment.mOffset, 0.1);
+			Assert.assertEquals(edge.bottomX, 3.5 + PADDING_H, 0.1);
+			Assert.assertEquals(edge.bottomY, 3 + PADDING_V + segment.mOffset, 0.1);
+			Assert.assertEquals(1, selection.size());
+			ParagraphSelection paragraphSelection = selection.get(0);
+			checkSelectedTag(paragraphSelection.getSelectedTags(), "1", "2", "3", "4", "5");
+		}
+
 		Assert.assertTrue(mSelectionManager.onBoxSelected(touchEvent, paragraph, OnSelectedChangedListener.EVENT_CLICKED, box));
 		Assert.assertEquals(SelectionEvent.SPAN_CLICKED, mSelectionListener.mEvent);
 		mSelectionManager.handleClickNothing();
 	}
 
-	private static final int PADDING_V = 10;
-	private static final int PADDING_H = 5;
+	private static final int PADDING_V = 1;
+	private static final int PADDING_H = 2;
 
 	@Test
 	public void testMotion() {
