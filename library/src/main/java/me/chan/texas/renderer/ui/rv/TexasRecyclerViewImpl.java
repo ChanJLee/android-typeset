@@ -14,9 +14,14 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
 import me.chan.texas.misc.Rect;
 import me.chan.texas.renderer.TouchEvent;
+import me.chan.texas.renderer.selection.SelectionManager;
 import me.chan.texas.renderer.ui.TexasRendererAdapter;
+import me.chan.texas.renderer.ui.text.ParagraphView;
 import me.chan.texas.text.Document;
+import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.Segment;
+import me.chan.texas.text.SelectableSegment;
+import me.chan.texas.text.layout.Layout;
 
 @RestrictTo(LIBRARY)
 @SuppressLint("ViewConstructor")
@@ -108,11 +113,6 @@ public class TexasRecyclerViewImpl extends RecyclerView implements TexasRecycler
 	}
 
 	@Override
-	public TexasLayoutManager getTexasLayoutManager() {
-		return mTexasLinearLayoutManager;
-	}
-
-	@Override
 	public boolean getSegmentLocations(Segment segment, Rect locations) {
 		locations.top = locations.left = locations.right = locations.bottom = 0;
 		TexasRendererAdapter adapter = (TexasRendererAdapter) getAdapter();
@@ -132,6 +132,44 @@ public class TexasRecyclerViewImpl extends RecyclerView implements TexasRecycler
 
 		getChildLocations(child, locations);
 		return true;
+	}
+
+	@Override
+	public boolean getSelectableSegmentLocations(SelectableSegment selectableSegment, int indexOfSelectableSegment, Rect locations) {
+		locations.top = locations.left = locations.right = locations.bottom = 0;
+		TexasRendererAdapter adapter = (TexasRendererAdapter) getAdapter();
+		if (adapter == null) {
+			return false;
+		}
+
+		int index = adapter.indexOf((Segment) selectableSegment);
+		if (index < 0) {
+			return false;
+		}
+
+		View child = mTexasLinearLayoutManager.findViewByPosition(index);
+		if (child == null) {
+			return false;
+		}
+
+		Paragraph paragraph = selectableSegment.getParagraph(index);
+		Layout layout = paragraph.getLayout();
+		locations.bottom = layout.getHeight();
+		locations.right = layout.getWidth();
+		ParagraphView paragraphView = selectableSegment.getParagraphView(indexOfSelectableSegment);
+		adjustLocationsOffset(locations, this, (View) paragraphView.getRender());
+		return true;
+	}
+
+	private static void adjustLocationsOffset(Rect locations, View root, View anchor) {
+		View parent = (View) anchor.getParent();
+		while (parent != null && anchor != root) {
+			int dx = anchor.getLeft();
+			int dy = anchor.getTop();
+			locations.offset(dx, dy);
+			anchor = parent;
+			parent = (View) anchor.getParent();
+		}
 	}
 
 	@Override

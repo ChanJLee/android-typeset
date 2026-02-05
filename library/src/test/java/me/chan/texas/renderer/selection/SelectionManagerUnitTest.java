@@ -45,12 +45,14 @@ import me.chan.texas.renderer.ui.rv.TexasLayoutManager;
 import me.chan.texas.renderer.ui.rv.TexasRecyclerView;
 import me.chan.texas.renderer.ui.text.OnMeasureInterceptor;
 import me.chan.texas.renderer.ui.text.OnSelectedChangedListener;
+import me.chan.texas.renderer.ui.text.ParagraphView;
 import me.chan.texas.renderer.ui.text.TextureParagraph;
 import me.chan.texas.test.mock.MockTextPaint;
 import me.chan.texas.text.BreakStrategy;
 import me.chan.texas.text.Document;
 import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.Segment;
+import me.chan.texas.text.SelectableSegment;
 import me.chan.texas.text.TextAttribute;
 import me.chan.texas.text.layout.Box;
 import me.chan.texas.text.layout.Layout;
@@ -340,15 +342,18 @@ public class SelectionManagerUnitTest {
 
 		selection = mSelectionManager.getCurrentSelection();
 		Selection.RectEdge edge = selection.getSelectedRectEdge(true);
-		Assert.assertEquals(edge.topX, 0, 0.1);
-		Assert.assertEquals(edge.topY, 18, 0.1);
-		Assert.assertEquals(edge.bottomX, 1.5, 0.1);
-		Assert.assertEquals(edge.bottomY, 19, 0.1);
+		Assert.assertEquals(edge.topX, 0 + PADDING_H, 0.1);
+		Assert.assertEquals(edge.topY, 18 + PADDING_V, 0.1);
+		Assert.assertEquals(edge.bottomX, 1.5 + PADDING_H, 0.1);
+		Assert.assertEquals(edge.bottomY, 19 + PADDING_V, 0.1);
 
 		Assert.assertTrue(mSelectionManager.onBoxSelected(touchEvent, paragraph, OnSelectedChangedListener.EVENT_CLICKED, box));
 		Assert.assertEquals(SelectionEvent.SPAN_CLICKED, mSelectionListener.mEvent);
 		mSelectionManager.handleClickNothing();
 	}
+
+	private static final int PADDING_V = 10;
+	private static final int PADDING_H = 5;
 
 	@Test
 	public void testMotion() {
@@ -391,7 +396,7 @@ public class SelectionManagerUnitTest {
 		Assert.assertNotNull(selection);
 		Assert.assertEquals(View.VISIBLE, mDragSelectView.mVisibility);
 
-		Selection.RectEdge edge = selection.getSelectedRectEdge();
+		Selection.RectEdge edge = selection.getSelectedRectEdge(true);
 		Assert.assertEquals(edge.topX, 0, 0.1);
 		Assert.assertEquals(edge.topY, 0, 0.1);
 		Assert.assertEquals(edge.bottomX, 1.5, 0.1);
@@ -401,7 +406,7 @@ public class SelectionManagerUnitTest {
 		{
 			mSelectionManager.handleMoveToSelection(-1, -1, 1.5f, 1);
 			selection = mSelectionManager.getCurrentSelection();
-			edge = selection.getSelectedRectEdge();
+			edge = selection.getSelectedRectEdge(true);
 			Assert.assertEquals(edge.topX, 0, 0.1);
 			Assert.assertEquals(edge.topY, 0, 0.1);
 			Assert.assertEquals(edge.bottomX, 1.5, 0.1);
@@ -412,7 +417,7 @@ public class SelectionManagerUnitTest {
 
 			mSelectionManager.handleMoveToSelection(-1, -1, 2f, 1f);
 			selection = mSelectionManager.getCurrentSelection();
-			edge = selection.getSelectedRectEdge();
+			edge = selection.getSelectedRectEdge(true);
 			Assert.assertEquals(edge.topX, 0, 0.1);
 			Assert.assertEquals(edge.topY, 0, 0.1);
 			Assert.assertEquals(edge.bottomX, 3.5, 0.1);
@@ -423,7 +428,7 @@ public class SelectionManagerUnitTest {
 
 			mSelectionManager.handleMoveToSelection(-1, -1, 3f, 1f);
 			selection = mSelectionManager.getCurrentSelection();
-			edge = selection.getSelectedRectEdge();
+			edge = selection.getSelectedRectEdge(true);
 			Assert.assertEquals(edge.topX, 0, 0.1);
 			Assert.assertEquals(edge.topY, 0, 0.1);
 			Assert.assertEquals(edge.bottomX, 3.5, 0.1);
@@ -434,7 +439,7 @@ public class SelectionManagerUnitTest {
 
 			mSelectionManager.handleMoveToSelection(-1, -1, 1.5f, 3);
 			selection = mSelectionManager.getCurrentSelection();
-			edge = selection.getSelectedRectEdge();
+			edge = selection.getSelectedRectEdge(true);
 			Assert.assertEquals(edge.topX, 0, 0.1);
 			Assert.assertEquals(edge.topY, 0, 0.1);
 			Assert.assertEquals(edge.bottomX, 1.5, 0.1);
@@ -445,7 +450,7 @@ public class SelectionManagerUnitTest {
 
 			mSelectionManager.handleMoveToSelection(-1, -1, 1.5f, 2);
 			selection = mSelectionManager.getCurrentSelection();
-			edge = selection.getSelectedRectEdge();
+			edge = selection.getSelectedRectEdge(true);
 			Assert.assertEquals(edge.topX, 0, 0.1);
 			Assert.assertEquals(edge.topY, 0, 0.1);
 			Assert.assertEquals(edge.bottomX, 5, 0.1);
@@ -456,7 +461,7 @@ public class SelectionManagerUnitTest {
 
 			mSelectionManager.handleMoveToSelection(-1, -1, 3, 3);
 			selection = mSelectionManager.getCurrentSelection();
-			edge = selection.getSelectedRectEdge();
+			edge = selection.getSelectedRectEdge(true);
 			Assert.assertEquals(edge.topX, 0, 0.1);
 			Assert.assertEquals(edge.topY, 0, 0.1);
 			Assert.assertEquals(edge.bottomX, 3.5, 0.1);
@@ -470,7 +475,7 @@ public class SelectionManagerUnitTest {
 		{
 			mSelectionManager.handleMoveToSelection(1f, 0, 3, 3);
 			selection = mSelectionManager.getCurrentSelection();
-			edge = selection.getSelectedRectEdge();
+			edge = selection.getSelectedRectEdge(true);
 			Assert.assertEquals(edge.topX, 0, 0.1);
 			Assert.assertEquals(edge.topY, 0, 0.1);
 			Assert.assertEquals(edge.bottomX, 3.5, 0.1);
@@ -481,7 +486,7 @@ public class SelectionManagerUnitTest {
 
 			mSelectionManager.handleMoveToSelection(1.5f, 0, 3, 3);
 			selection = mSelectionManager.getCurrentSelection();
-			edge = selection.getSelectedRectEdge();
+			edge = selection.getSelectedRectEdge(true);
 			Assert.assertEquals(edge.topX, 1.5, 0.1);
 			Assert.assertEquals(edge.topY, 0, 0.1);
 			Assert.assertEquals(edge.bottomX, 3.5, 0.1);
@@ -492,7 +497,7 @@ public class SelectionManagerUnitTest {
 
 			mSelectionManager.handleMoveToSelection(1.5f, 1, 3, 3);
 			selection = mSelectionManager.getCurrentSelection();
-			edge = selection.getSelectedRectEdge();
+			edge = selection.getSelectedRectEdge(true);
 			Assert.assertEquals(edge.topX, 1.5, 0.1);
 			Assert.assertEquals(edge.topY, 0, 0.1);
 			Assert.assertEquals(edge.bottomX, 3.5, 0.1);
@@ -509,7 +514,7 @@ public class SelectionManagerUnitTest {
 		{
 			mSelectionManager.handleMoveToSelection(1, 2, 3, 3);
 			selection = mSelectionManager.getCurrentSelection();
-			edge = selection.getSelectedRectEdge();
+			edge = selection.getSelectedRectEdge(true);
 			Assert.assertEquals(edge.topX, 0, 0.1);
 			Assert.assertEquals(edge.topY, 2, 0.1);
 			Assert.assertEquals(edge.bottomX, 3.5, 0.1);
@@ -523,7 +528,7 @@ public class SelectionManagerUnitTest {
 		{
 			mSelectionManager.handleMoveToSelection(4, 4, 6f, 6f);
 			selection = mSelectionManager.getCurrentSelection();
-			edge = selection.getSelectedRectEdge();
+			edge = selection.getSelectedRectEdge(true);
 			Assert.assertEquals(edge.topX, 3.5, 0.1);
 			Assert.assertEquals(edge.topY, 4, 0.1);
 			Assert.assertEquals(edge.bottomX, 5, 0.1);
@@ -534,7 +539,7 @@ public class SelectionManagerUnitTest {
 
 			mSelectionManager.handleMoveToSelection(2, 2, 6, 6f);
 			selection = mSelectionManager.getCurrentSelection();
-			edge = selection.getSelectedRectEdge();
+			edge = selection.getSelectedRectEdge(true);
 			Assert.assertEquals(edge.topX, 1.5, 0.1);
 			Assert.assertEquals(edge.topY, 2, 0.1);
 			Assert.assertEquals(edge.bottomX, 5, 0.1);
@@ -548,7 +553,7 @@ public class SelectionManagerUnitTest {
 		{
 			mSelectionManager.handleMoveToSelection(4, 4, 7, 7f);
 			selection = mSelectionManager.getCurrentSelection();
-			edge = selection.getSelectedRectEdge();
+			edge = selection.getSelectedRectEdge(true);
 			Assert.assertEquals(edge.topX, 3.5, 0.1);
 			Assert.assertEquals(edge.topY, 4, 0.1);
 			Assert.assertEquals(edge.bottomX, 5, 0.1);
@@ -584,11 +589,6 @@ public class SelectionManagerUnitTest {
 		@Override
 		public void disallowHandleTouchEvent() {
 
-		}
-
-		@Override
-		public TexasLayoutManager getTexasLayoutManager() {
-			return mLayoutManager;
 		}
 
 		@Override
@@ -629,6 +629,14 @@ public class SelectionManagerUnitTest {
 		@Override
 		public Document getDocument() {
 			return mDocument;
+		}
+
+		@Override
+		public boolean getSelectableSegmentLocations(SelectableSegment selectableSegment, int index, Rect locations) {
+			getSegmentLocations((Segment) selectableSegment, locations);
+			// mock padding
+			locations.offset(PADDING_H, PADDING_V);
+			return true;
 		}
 	}
 
@@ -847,11 +855,6 @@ public class SelectionManagerUnitTest {
 		@Override
 		public int findLastCompletelyVisibleItemPosition() {
 			return mLastCompletelyVisibleItemPosition;
-		}
-
-		@Override
-		public View findViewByPosition(int index) {
-			return mViewMap.get(index);
 		}
 	}
 

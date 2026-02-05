@@ -26,13 +26,11 @@ import me.chan.texas.renderer.ui.TexasRendererAdapter;
 import me.chan.texas.renderer.ui.rv.TexasLayoutManager;
 import me.chan.texas.renderer.ui.rv.TexasRecyclerView;
 import me.chan.texas.renderer.ui.text.OnSelectedChangedListener;
-import me.chan.texas.renderer.ui.text.ParagraphView;
 import me.chan.texas.text.Document;
 import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.Segment;
 import me.chan.texas.text.SelectableSegment;
 import me.chan.texas.text.layout.Box;
-import me.chan.texas.text.layout.Layout;
 
 /**
  * 负责处理select paragraph
@@ -334,7 +332,7 @@ public class SelectionManager implements OnSelectedChangedListener {
 			if (segment instanceof Paragraph) {
 				updateParagraphSelection(currentSelection, renderOption, (Paragraph) segment, x1, y1, x2, y2);
 			} else if (segment instanceof SelectableSegment) {
-				updateSelectableParagraphSelection(currentSelection, renderOption, i, (SelectableSegment) segment, x1, y1, x2, y2);
+				updateSelectableParagraphSelection(currentSelection, renderOption, (SelectableSegment) segment, x1, y1, x2, y2);
 			}
 		}
 
@@ -343,13 +341,7 @@ public class SelectionManager implements OnSelectedChangedListener {
 
 	private void updateSelectableParagraphSelection(Selection currentSelection,
 													RenderOption renderOption,
-													int index,
 													SelectableSegment selectableSegment, float x1, float y1, float x2, float y2) {
-		View view = mLayoutManager.findViewByPosition(index);
-		if (view == null) {
-			return;
-		}
-
 		if (!mContentView.getSegmentLocations((Segment) selectableSegment, mLocations)) {
 			return;
 		}
@@ -358,38 +350,11 @@ public class SelectionManager implements OnSelectedChangedListener {
 			return;
 		}
 
-		int top = mLocations.top;
-		int bottom = mLocations.bottom;
-		int left = mLocations.left;
-		int right = mLocations.right;
 		for (int i = 0; i < selectableSegment.getParagraphCount(); ++i) {
-			ParagraphView paragraphView = selectableSegment.getParagraphView(i);
-			View anchor = (View) paragraphView.getRender();
-
 			Paragraph paragraph = selectableSegment.getParagraph(i);
-			Layout layout = paragraph.getLayout();
-			mLocations.bottom = mLocations.top + layout.getHeight();
-			mLocations.right = mLocations.left + layout.getWidth();
-
-			adjustLocationsOffset(mLocations, view, anchor);
-
-			updateParagraphSelection0(currentSelection, renderOption, paragraph, x1, y1, x2, y2, mLocations);
-
-			mLocations.top = top;
-			mLocations.bottom = bottom;
-			mLocations.left = left;
-			mLocations.right = right;
-		}
-	}
-
-	public static void adjustLocationsOffset(Rect locations, View root, View anchor) {
-		View parent = (View) anchor.getParent();
-		while (parent != null && anchor != root) {
-			int dx = anchor.getLeft();
-			int dy = anchor.getTop();
-			locations.offset(dx, dy);
-			anchor = parent;
-			parent = (View) anchor.getParent();
+			if (mContentView.getSelectableSegmentLocations(selectableSegment, i, mLocations)) {
+				updateParagraphSelection0(currentSelection, renderOption, paragraph, x1, y1, x2, y2, mLocations);
+			}
 		}
 	}
 

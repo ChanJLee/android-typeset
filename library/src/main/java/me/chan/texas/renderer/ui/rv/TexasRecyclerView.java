@@ -7,6 +7,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import me.chan.texas.misc.Rect;
 import me.chan.texas.text.Document;
 import me.chan.texas.text.Segment;
+import me.chan.texas.text.SelectableSegment;
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public interface TexasRecyclerView {
@@ -16,8 +17,6 @@ public interface TexasRecyclerView {
 
 	void disallowHandleTouchEvent();
 
-	TexasLayoutManager getTexasLayoutManager();
-
 	boolean getSegmentLocations(Segment segment, Rect locations);
 
 	void scrollBy(int x, int y);
@@ -26,4 +25,6 @@ public interface TexasRecyclerView {
 
 	@Nullable
 	Document getDocument();
+
+	boolean getSelectableSegmentLocations(SelectableSegment selectableSegment, int index, Rect locations);
 }

@@ -110,6 +110,7 @@ public class Selection extends DefaultRecyclable {
 		return mRectEdge;
 	}
 
+	@Nullable
 	public RectEdge getSelectedRectEdge() {
 		return getSelectedRectEdge(false);
 	}
@@ -118,6 +119,8 @@ public class Selection extends DefaultRecyclable {
 	 * @param strict 是否是严格模式
 	 * @return 选中区域边界
 	 */
+	@VisibleForTesting
+	@Nullable
 	RectEdge getSelectedRectEdge(boolean strict) {
 		int size = mParagraphSelections.size();
 		if (size == 0) {
@@ -166,8 +169,8 @@ public class Selection extends DefaultRecyclable {
 
 			hasModified = true;
 			boolean result = getParagraphLocation(mContainer, paragraph, mLocations);
-			if (!result) {
-				w("get last region location failed");
+			if (!result && strict) {
+				throw new RuntimeException("get paragraph location failed");
 			}
 
 			RectF lastRegion = paragraphSelection.getLastRegion();
@@ -197,24 +200,9 @@ public class Selection extends DefaultRecyclable {
 			return container.getSegmentLocations(paragraph, locations);
 		}
 
-		if (!container.getSegmentLocations((Segment) selectableSegment, locations)) {
-			return false;
-		}
-
-		TexasLayoutManager linearLayoutManager = container.getTexasLayoutManager();
-		View root = linearLayoutManager.findViewByPosition(index);
-		if (root == null) {
-			return false;
-		}
-
 		for (int i = 0; i < selectableSegment.getParagraphCount(); ++i) {
 			if (selectableSegment.getParagraph(i) == paragraph) {
-				Layout layout = paragraph.getLayout();
-				locations.bottom = locations.top + layout.getHeight();
-				locations.right = locations.left + layout.getWidth();
-				ParagraphView paragraphView = selectableSegment.getParagraphView(i);
-				SelectionManager.adjustLocationsOffset(locations, root, (View) paragraphView.getRender());
-				return true;
+				return container.getSelectableSegmentLocations(selectableSegment, i, locations);
 			}
 		}
 		return false;
