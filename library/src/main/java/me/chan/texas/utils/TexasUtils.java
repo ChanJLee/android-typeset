@@ -313,6 +313,10 @@ public class TexasUtils {
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
 	@CmpType
 	public static int cmp(RenderOption prev, RenderOption current) {
+		if (prev == current) {
+			return CmpType.CMP_IGNORE;
+		}
+
 		if (prev.isCompatMode() != current.isCompatMode()) {
 			throw new RuntimeException("compat mode can not be changed at runtime");
 		}
