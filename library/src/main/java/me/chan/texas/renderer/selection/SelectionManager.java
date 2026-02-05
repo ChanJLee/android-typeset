@@ -384,7 +384,7 @@ public class SelectionManager implements OnSelectedChangedListener {
 
 	public static void adjustLocationsOffset(Rect locations, View root, View anchor) {
 		View parent = (View) anchor.getParent();
-		while (parent != null && parent != root) {
+		while (parent != null && anchor != root) {
 			int dx = anchor.getLeft();
 			int dy = anchor.getTop();
 			locations.offset(dx, dy);

@@ -12,7 +12,6 @@
         android:layout_height="wrap_content"
         android:layout_weight="1"
         android:background="#20ff0000"
-        android:padding="20dp"
         tools:me_chan_texas_ParagraphView_text="hello" />
 
     <TextView

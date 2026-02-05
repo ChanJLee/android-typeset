@@ -10,6 +10,7 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
 
+import me.chan.texas.R;
 import me.chan.texas.misc.Rect;
 import me.chan.texas.misc.RectF;
 
@@ -85,6 +86,10 @@ public class SelectionManagerUnitTest {
 				Paragraph.Span.obtain(token).tag(token.getCharSequence().subSequence(token.getStart(), token.getEnd()).toString())).build());
 		list.add(Paragraph.Builder.newBuilder(texasOption).setTypesetPolicy(Paragraph.TYPESET_POLICY_DEFAULT).tag("p3").stream("一 二 三 四 五 六 七 八 九", token -> Paragraph.Span.obtain(token)
 				.tag(token.getCharSequence().subSequence(token.getStart(), token.getEnd()).toString())).build());
+		MySelectableSegment mySelectableSegment = new MySelectableSegment(Paragraph.Builder.newBuilder(texasOption).tag("ss")
+				.stream("1 2 3 4 5 6 7 8 9", token -> Paragraph.Span.obtain(token)
+						.tag(token.getCharSequence().subSequence(token.getStart(), token.getEnd()).toString())).build());
+		list.add(mySelectableSegment);
 		builder.addSegments(0, list);
 		mDocument = builder.build();
 
@@ -102,6 +107,23 @@ public class SelectionManagerUnitTest {
 			assertNotNull(paragraph);
 			Layout layout = paragraph.getLayout();
 			Assert.assertEquals(layout.getLineCount(), 3);
+		}
+
+		for (int i = 0; i < mDocument.getSegmentCount(); ++i) {
+			Segment segment = mDocument.getSegment(i);
+			if (!(segment instanceof MySelectableSegment)) {
+				continue;
+			}
+
+			MySelectableSegment s = (MySelectableSegment) segment;
+			for (int j = 0; j < s.getParagraphCount(); ++j) {
+				Paragraph paragraph = s.getParagraph(j);
+				paragraph.measure(measurer, textAttribute);
+				texTypesetter.typeset(paragraph, BreakStrategy.SIMPLE, 5);
+				assertNotNull(paragraph);
+				Layout layout = paragraph.getLayout();
+				Assert.assertEquals(layout.getLineCount(), 3);
+			}
 		}
 
 		mSelectionManager = new SelectionManager(new MyAdapter(),
@@ -138,6 +160,8 @@ public class SelectionManagerUnitTest {
 		mTextureParagraphs.add(new MyTextureParagraph(paragraph = (Paragraph) mDocument.getSegment(1), offset));
 		offset += (paragraph.getLayout().getHeight() + 1);
 		mTextureParagraphs.add(new MyTextureParagraph(paragraph = (Paragraph) mDocument.getSegment(2), offset));
+		offset += (paragraph.getLayout().getHeight() + 1);
+		mySelectableSegment.mOffset = offset;
 	}
 
 	@Test
@@ -293,80 +317,37 @@ public class SelectionManagerUnitTest {
 
 	@Test
 	public void testSelectableSegment() {
-		// 创建一个包含3个段落的SelectableSegment
-		Paragraph p1 = (Paragraph) mDocument.getSegment(0);
-		Paragraph p2 = (Paragraph) mDocument.getSegment(1);
-		Paragraph p3 = (Paragraph) mDocument.getSegment(2);
+		Selection selection = mSelectionManager.getCurrentSelection();
+		Assert.assertNull(selection);
 
-		MySelectableSegment selectableSegment = new MySelectableSegment(p1, p2, p3);
-		mDocument = new Document.Builder().addSegment(0, selectableSegment).build();
+		MySelectableSegment segment = (MySelectableSegment) mDocument.getSegment(3);
+		Paragraph paragraph = segment.getParagraph(0);
 
-		// 更新 layoutManager
-		mLayoutManager = new MyLayoutManager(mDocument);
-		// 注册 SelectableSegment 的容器视图（模拟一个父容器）
-		View mockContainerView = new View(null) {
-		};
-		mLayoutManager.registerView(0, mockContainerView);
+		TouchEvent touchEvent = TouchEvent.obtain(null, 0, 0, 0, 0);
+		Assert.assertTrue(mSelectionManager.onSegmentClicked(touchEvent, paragraph, OnSelectedChangedListener.EVENT_CLICKED));
+		Assert.assertEquals(mSelectionListener.mEvent, SelectionEvent.SEGMENT_CLICKED);
 
-		// 重新创建 adapter 和 container 以使用新的 document
-		MyAdapter myAdapter = new MyAdapter();
-		MyRecyclerView myRecyclerView = new MyRecyclerView();
+		Assert.assertTrue(mSelectionManager.onSegmentClicked(touchEvent, paragraph, OnSelectedChangedListener.EVENT_DOUBLE_CLICKED));
+		Assert.assertEquals(mSelectionListener.mEvent, SelectionEvent.SEGMENT_DOUBLE_CLICKED);
 
-		mSelectionManager = new SelectionManager(myAdapter,
-				mLayoutManager,
-				mSelectionListener,
-				mDragSelectView,
-				myRecyclerView
-		);
-		mSelectionManager.setSpanTouchEventHandler(new SpanTouchEventHandler() {
+		Assert.assertFalse(mSelectionManager.onSegmentClicked(touchEvent, paragraph, OnSelectedChangedListener.EVENT_LONG_CLICKED));
+		Assert.assertEquals(mSelectionListener.mEvent, SelectionEvent.SEGMENT_DOUBLE_CLICKED);
 
-			@Override
-			public boolean isSpanClickable(@Nullable Object tag) {
-				return true;
-			}
+		Box box = (Box) paragraph.getElement(0);
+		Assert.assertTrue(mSelectionManager.onBoxSelected(touchEvent, paragraph, OnSelectedChangedListener.EVENT_LONG_CLICKED, box));
+		Assert.assertEquals(SelectionEvent.SPAN_LONG_CLICKED, mSelectionListener.mEvent);
+		Assert.assertNotNull(paragraph.getSelection(Selection.Type.SELECTION));
 
-			@Override
-			public boolean applySpanClicked(@Nullable Object clickedTag, @Nullable Object otherTag) {
-				return clickedTag == otherTag;
-			}
+		selection = mSelectionManager.getCurrentSelection();
+		Selection.RectEdge edge = selection.getSelectedRectEdge();
+		Assert.assertEquals(edge.topX, 0, 0.1);
+		Assert.assertEquals(edge.topY, 18, 0.1);
+		Assert.assertEquals(edge.bottomX, 1.5, 0.1);
+		Assert.assertEquals(edge.bottomY, 19, 0.1);
 
-			@Override
-			public boolean applySpanLongClicked(@Nullable Object clickedTag, @Nullable Object otherTag) {
-				return clickedTag == otherTag;
-			}
-		});
-
-		// 测试选中SelectableSegment中的段落
-		Selection selection = mSelectionManager.selectParagraphs(new ParagraphPredicates() {
-			@Override
-			public boolean acceptSpan(@Nullable Object spanTag) {
-				return "1".equals(spanTag) || "a".equals(spanTag);
-			}
-
-			@Override
-			public boolean acceptParagraph(@Nullable Object paragraphTag) {
-				return "p1".equals(paragraphTag) || "p2".equals(paragraphTag);
-			}
-		}, Selection.Styles.create(1, 2).setEnableDrag(false));
-
-		Assert.assertNotNull(selection);
-		Assert.assertEquals(2, selection.size());
-
-		// 验证第一个段落选中
-		ParagraphSelection paragraphSelection = selection.get(0);
-		List<Object> selectedTags = paragraphSelection.getSelectedTags();
-		Assert.assertEquals(1, selectedTags.size());
-		Assert.assertEquals("1", selectedTags.get(0));
-
-		// 验证第二个段落选中
-		paragraphSelection = selection.get(1);
-		selectedTags = paragraphSelection.getSelectedTags();
-		Assert.assertEquals(1, selectedTags.size());
-		Assert.assertEquals("a", selectedTags.get(0));
-
-		// 测试清除选中
-		mSelectionManager.clearSelection();
-		Assert.assertNull(mSelectionManager.getCurrentSelection());
+		Assert.assertTrue(mSelectionManager.onBoxSelected(touchEvent, paragraph, OnSelectedChangedListener.EVENT_CLICKED, box));
+		Assert.assertEquals(SelectionEvent.SPAN_CLICKED, mSelectionListener.mEvent);
+		mSelectionManager.handleClickNothing();
 	}
 
 	@Test
@@ -612,15 +593,25 @@ public class SelectionManagerUnitTest {
 
 		@Override
 		public boolean getSegmentLocations(Segment segment, Rect locations) {
-			Paragraph p = (Paragraph) segment;
-			MyTextureParagraph paragraph = (MyTextureParagraph) p.getTag(1024);
-			int[] location = new int[2];
-			paragraph.getLocationOnScreen(location);
-			locations.left = location[0];
-			locations.top = location[1];
-			Layout layout = p.getLayout();
-			locations.right = locations.left + layout.getWidth();
-			locations.bottom = locations.top + layout.getHeight();
+			if (segment instanceof Paragraph) {
+				Paragraph p = (Paragraph) segment;
+				MyTextureParagraph paragraph = (MyTextureParagraph) p.getTag(1024);
+				int[] location = new int[2];
+				paragraph.getLocationOnScreen(location);
+				locations.left = location[0];
+				locations.top = location[1];
+				Layout layout = p.getLayout();
+				locations.right = locations.left + layout.getWidth();
+				locations.bottom = locations.top + layout.getHeight();
+			} else {
+				MySelectableSegment p = (MySelectableSegment) segment;
+				locations.left = 0;
+				locations.top = p.mOffset;
+				Paragraph paragraph = p.getParagraph(0);
+				Layout layout = paragraph.getLayout();
+				locations.right = locations.left + layout.getWidth();
+				locations.bottom = locations.top + layout.getHeight();
+			}
 			return true;
 		}
 
@@ -913,19 +904,15 @@ public class SelectionManagerUnitTest {
 		Assert.assertTrue(TexasUtils.intersects(lhs, rhs));
 	}
 
-	private class MySelectableSegment extends me.chan.texas.text.ViewSegment implements me.chan.texas.text.SelectableSegment {
+	private static class MySelectableSegment extends me.chan.texas.text.ViewSegment implements me.chan.texas.text.SelectableSegment {
 		private final Paragraph[] mParagraphs;
-		private final MockParagraphView[] mViews;
 		private int mOffset;
 
 		public MySelectableSegment(Paragraph... paragraphs) {
 			super(0);
 			mParagraphs = paragraphs;
-			mViews = new MockParagraphView[paragraphs.length];
-			mOffset = 0;
 			for (int i = 0; i < paragraphs.length; i++) {
-				mViews[i] = new MockParagraphView(paragraphs[i], mOffset);
-				mOffset += (paragraphs[i].getLayout().getHeight() + 1);
+				paragraphs[i].setTag(R.id.me_chan_texas_paragraph_outer_tag, this);
 			}
 		}
 
@@ -936,7 +923,7 @@ public class SelectionManagerUnitTest {
 
 		@Override
 		public me.chan.texas.renderer.ui.text.ParagraphView getParagraphView(int index) {
-			return mViews[index];
+			throw new RuntimeException("Stub!");
 		}
 
 		@Override
@@ -947,37 +934,6 @@ public class SelectionManagerUnitTest {
 		@Override
 		protected void onRender(View view) {
 			// Mock implementation - no actual rendering needed for tests
-		}
-	}
-
-	private Context createMockContext() {
-		Context mockContext = mock(Context.class);
-		TypedArray mockTypedArray = mock(TypedArray.class);
-		when(mockContext.obtainStyledAttributes(any(), any(int[].class), anyInt(), anyInt()))
-				.thenReturn(mockTypedArray);
-		when(mockTypedArray.getInt(anyInt(), anyInt())).thenReturn(Integer.MAX_VALUE);
-		when(mockTypedArray.hasValue(anyInt())).thenReturn(false);
-		return mockContext;
-	}
-
-	private class MockParagraphView extends me.chan.texas.renderer.ui.text.ParagraphView {
-		private final Paragraph mParagraph;
-		private final MyTextureParagraph mRender;
-
-		public MockParagraphView(Paragraph paragraph, int offset) {
-			super(createMockContext(), null, 0);
-			mParagraph = paragraph;
-			mRender = new MyTextureParagraph(paragraph, offset);
-		}
-
-		@NonNull
-		@Override
-		public TextureParagraph getRender() {
-			return mRender;
-		}
-
-		public Paragraph getParagraph() {
-			return mParagraph;
 		}
 	}
 }

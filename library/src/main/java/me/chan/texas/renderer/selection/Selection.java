@@ -27,6 +27,7 @@ import me.chan.texas.renderer.ui.rv.TexasRecyclerView;
 import me.chan.texas.renderer.ui.text.ParagraphView;
 import me.chan.texas.text.Document;
 import me.chan.texas.text.Paragraph;
+import me.chan.texas.text.Segment;
 import me.chan.texas.text.SelectableSegment;
 import me.chan.texas.text.layout.Layout;
 import me.chan.texas.utils.IntSet;
@@ -188,7 +189,7 @@ public class Selection extends DefaultRecyclable {
 			return container.getSegmentLocations(paragraph, locations);
 		}
 
-		if (!container.getSegmentLocations(paragraph, locations)) {
+		if (!container.getSegmentLocations((Segment) selectableSegment, locations)) {
 			return false;
 		}
 
