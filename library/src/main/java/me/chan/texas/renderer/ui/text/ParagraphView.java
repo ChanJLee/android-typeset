@@ -879,6 +879,7 @@ public class ParagraphView extends FrameLayout {
 
 	/**
 	 * @return 是否允许在嵌入到 {@link TexasView} 中显示的时候，使用 {@link TexasView} 的样式，默认 false
+	 * {@link me.chan.texas.text.SelectableSegment}
 	 */
 	public boolean isOverrideStyles() {
 		return mOverrideStyles;
@@ -1136,15 +1137,6 @@ public class ParagraphView extends FrameLayout {
 					.text(mText, mStart, mEnd)
 					.build();
 		}
-	}
-
-	/**
-	 * 获得TextureParagraph，一般用于内部选中文本
-	 *
-	 * @return {@link ViewSegment#getTextureParagraph()}
-	 */
-	public TextureParagraph getTextureParagraph() {
-		return mRender;
 	}
 
 	/**
