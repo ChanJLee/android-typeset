@@ -16,6 +16,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
+import androidx.recyclerview.widget.LinearLayoutManager;
 
 import me.chan.texas.misc.DefaultRecyclable;
 import me.chan.texas.misc.ObjectPool;
@@ -191,13 +192,19 @@ public class Selection extends DefaultRecyclable {
 			return false;
 		}
 
+		TexasLayoutManager linearLayoutManager = container.getTexasLayoutManager();
+		View root = linearLayoutManager.findViewByPosition(index);
+		if (root == null) {
+			return false;
+		}
+
 		for (int i = 0; i < selectableSegment.getParagraphCount(); ++i) {
 			if (selectableSegment.getParagraph(i) == paragraph) {
 				Layout layout = paragraph.getLayout();
 				locations.bottom = locations.top + layout.getHeight();
 				locations.right = locations.left + layout.getWidth();
 				ParagraphView paragraphView = selectableSegment.getParagraphView(i);
-				SelectionManager.adjustLocationsOffset(locations, (View) container, (View) paragraphView.getRender());
+				SelectionManager.adjustLocationsOffset(locations, root, (View) paragraphView.getRender());
 				return true;
 			}
 		}
