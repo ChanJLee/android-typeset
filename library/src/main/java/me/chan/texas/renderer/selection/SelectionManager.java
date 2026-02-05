@@ -334,7 +334,7 @@ public class SelectionManager implements OnSelectedChangedListener {
 			if (segment instanceof Paragraph) {
 				updateParagraphSelection(currentSelection, renderOption, (Paragraph) segment, x1, y1, x2, y2);
 			} else if (segment instanceof SelectableSegment) {
-				updateSelectableParagraphSelection(currentSelection, renderOption, i, (SelectableSegment) segment, x1, y1, x2, y2);
+				updateSelectableParagraphSelection(currentSelection, renderOption, (SelectableSegment) segment, x1, y1, x2, y2);
 			}
 		}
 
@@ -343,13 +343,7 @@ public class SelectionManager implements OnSelectedChangedListener {
 
 	private void updateSelectableParagraphSelection(Selection currentSelection,
 													RenderOption renderOption,
-													int index,
 													SelectableSegment selectableSegment, float x1, float y1, float x2, float y2) {
-		View view = mLayoutManager.findViewByPosition(index);
-		if (view == null) {
-			return;
-		}
-
 		if (!mContentView.getSegmentLocations((Segment) selectableSegment, mLocations)) {
 			return;
 		}
@@ -371,7 +365,7 @@ public class SelectionManager implements OnSelectedChangedListener {
 			mLocations.bottom = mLocations.top + layout.getHeight();
 			mLocations.right = mLocations.left + layout.getWidth();
 
-			adjustLocationsOffset(mLocations, view, anchor);
+			adjustLocationsOffset(mLocations, (View) mContentView, anchor);
 
 			updateParagraphSelection0(currentSelection, renderOption, paragraph, x1, y1, x2, y2, mLocations);
 

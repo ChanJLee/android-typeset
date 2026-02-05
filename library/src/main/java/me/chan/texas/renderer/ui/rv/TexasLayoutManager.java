@@ -15,6 +15,4 @@ public interface TexasLayoutManager {
 	int findFirstCompletelyVisibleItemPosition();
 
 	int findLastCompletelyVisibleItemPosition();
-
-	View findViewByPosition(int index);
 }
