@@ -16,6 +16,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
+import androidx.recyclerview.widget.LinearLayoutManager;
 
 import me.chan.texas.misc.DefaultRecyclable;
 import me.chan.texas.misc.ObjectPool;
@@ -23,8 +24,10 @@ import me.chan.texas.renderer.ParagraphPredicates;
 import me.chan.texas.renderer.RenderOption;
 import me.chan.texas.renderer.ui.rv.TexasLayoutManager;
 import me.chan.texas.renderer.ui.rv.TexasRecyclerView;
+import me.chan.texas.renderer.ui.text.ParagraphView;
 import me.chan.texas.text.Document;
 import me.chan.texas.text.Paragraph;
+import me.chan.texas.text.Segment;
 import me.chan.texas.text.SelectableSegment;
 import me.chan.texas.text.layout.Layout;
 import me.chan.texas.utils.IntSet;
@@ -107,7 +110,18 @@ public class Selection extends DefaultRecyclable {
 		return mRectEdge;
 	}
 
+	@Nullable
 	public RectEdge getSelectedRectEdge() {
+		return getSelectedRectEdge(false);
+	}
+
+	/**
+	 * @param strict 是否是严格模式
+	 * @return 选中区域边界
+	 */
+	@VisibleForTesting
+	@Nullable
+	RectEdge getSelectedRectEdge(boolean strict) {
 		int size = mParagraphSelections.size();
 		if (size == 0) {
 			return null;
@@ -130,8 +144,8 @@ public class Selection extends DefaultRecyclable {
 
 			hasModified = true;
 			boolean result = getParagraphLocation(mContainer, paragraph, mLocations);
-			if (!result) {
-				w("get first region location failed");
+			if (!result && strict) {
+				throw new RuntimeException("get paragraph location failed");
 			}
 
 			RectF firstRegion = paragraphSelection.getFirstRegion();
@@ -155,8 +169,8 @@ public class Selection extends DefaultRecyclable {
 
 			hasModified = true;
 			boolean result = getParagraphLocation(mContainer, paragraph, mLocations);
-			if (!result) {
-				w("get last region location failed");
+			if (!result && strict) {
+				throw new RuntimeException("get paragraph location failed");
 			}
 
 			RectF lastRegion = paragraphSelection.getLastRegion();
@@ -181,32 +195,14 @@ public class Selection extends DefaultRecyclable {
 			return false;
 		}
 
-		TexasLayoutManager layoutManager = container.getTexasLayoutManager();
-		if (layoutManager == null) {
-			return false;
-		}
-
 		SelectableSegment selectableSegment = (SelectableSegment) paragraph.getTag(R.id.me_chan_texas_paragraph_outer_tag);
 		if (selectableSegment == null) {
 			return container.getSegmentLocations(paragraph, locations);
 		}
 
-		if (!container.getSegmentLocations(paragraph, locations)) {
-			return false;
-		}
-
-		View root = layoutManager.findViewByPosition(index);
-		if (root == null) {
-			return false;
-		}
-
 		for (int i = 0; i < selectableSegment.getParagraphCount(); ++i) {
 			if (selectableSegment.getParagraph(i) == paragraph) {
-				Layout layout = paragraph.getLayout();
-				locations.bottom = locations.top + layout.getHeight();
-				locations.right = locations.left + layout.getWidth();
-				SelectionManager.adjustLocationsOffset(locations, root, selectableSegment.getParagraphView(i));
-				return true;
+				return container.getSelectableSegmentLocations(selectableSegment, i, locations);
 			}
 		}
 		return false;

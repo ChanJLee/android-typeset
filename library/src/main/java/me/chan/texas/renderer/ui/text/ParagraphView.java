@@ -78,6 +78,8 @@ public class ParagraphView extends FrameLayout {
 	private int mMaxLines = Integer.MAX_VALUE;
 	private int mMinLines = 0;
 
+	private boolean mOverrideStyles = false;
+
 	/*
 	 * 只会在parse后被赋值
 	 * */
@@ -199,6 +201,8 @@ public class ParagraphView extends FrameLayout {
 			if (!TextUtils.isEmpty(text)) {
 				setText(text);
 			}
+
+			mOverrideStyles = typedArray.getBoolean(R.styleable.me_chan_texas_ParagraphView_me_chan_texas_ParagraphView_overrideStyles, mOverrideStyles);
 		} finally {
 			typedArray.recycle();
 		}
@@ -874,6 +878,14 @@ public class ParagraphView extends FrameLayout {
 	}
 
 	/**
+	 * @return 是否允许在嵌入到 {@link TexasView} 中显示的时候，使用 {@link TexasView} 的样式，默认 false
+	 * {@link me.chan.texas.text.SelectableSegment}
+	 */
+	public boolean isOverrideStyles() {
+		return mOverrideStyles;
+	}
+
+	/**
 	 * 点击事件
 	 */
 	public interface OnClickedListener {
@@ -1125,15 +1137,6 @@ public class ParagraphView extends FrameLayout {
 					.text(mText, mStart, mEnd)
 					.build();
 		}
-	}
-
-	/**
-	 * 获得TextureParagraph，一般用于内部选中文本
-	 *
-	 * @return {@link ViewSegment#getTextureParagraph()}
-	 */
-	public TextureParagraph getTextureParagraph() {
-		return mRender;
 	}
 
 	/**

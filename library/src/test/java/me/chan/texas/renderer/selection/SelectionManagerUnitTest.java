@@ -1,9 +1,16 @@
 package me.chan.texas.renderer.selection;
 
 import static org.junit.Assert.assertNotNull;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
+import android.content.Context;
+import android.content.res.TypedArray;
 import android.graphics.Canvas;
 
+import me.chan.texas.R;
 import me.chan.texas.misc.Rect;
 import me.chan.texas.misc.RectF;
 
@@ -38,12 +45,14 @@ import me.chan.texas.renderer.ui.rv.TexasLayoutManager;
 import me.chan.texas.renderer.ui.rv.TexasRecyclerView;
 import me.chan.texas.renderer.ui.text.OnMeasureInterceptor;
 import me.chan.texas.renderer.ui.text.OnSelectedChangedListener;
+import me.chan.texas.renderer.ui.text.ParagraphView;
 import me.chan.texas.renderer.ui.text.TextureParagraph;
 import me.chan.texas.test.mock.MockTextPaint;
 import me.chan.texas.text.BreakStrategy;
 import me.chan.texas.text.Document;
 import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.Segment;
+import me.chan.texas.text.SelectableSegment;
 import me.chan.texas.text.TextAttribute;
 import me.chan.texas.text.layout.Box;
 import me.chan.texas.text.layout.Layout;
@@ -79,6 +88,10 @@ public class SelectionManagerUnitTest {
 				Paragraph.Span.obtain(token).tag(token.getCharSequence().subSequence(token.getStart(), token.getEnd()).toString())).build());
 		list.add(Paragraph.Builder.newBuilder(texasOption).setTypesetPolicy(Paragraph.TYPESET_POLICY_DEFAULT).tag("p3").stream("一 二 三 四 五 六 七 八 九", token -> Paragraph.Span.obtain(token)
 				.tag(token.getCharSequence().subSequence(token.getStart(), token.getEnd()).toString())).build());
+		MySelectableSegment mySelectableSegment = new MySelectableSegment(Paragraph.Builder.newBuilder(texasOption).tag("ss")
+				.stream("1 2 3 4 5 6 7 8 9", token -> Paragraph.Span.obtain(token)
+						.tag(token.getCharSequence().subSequence(token.getStart(), token.getEnd()).toString())).build());
+		list.add(mySelectableSegment);
 		builder.addSegments(0, list);
 		mDocument = builder.build();
 
@@ -96,6 +109,23 @@ public class SelectionManagerUnitTest {
 			assertNotNull(paragraph);
 			Layout layout = paragraph.getLayout();
 			Assert.assertEquals(layout.getLineCount(), 3);
+		}
+
+		for (int i = 0; i < mDocument.getSegmentCount(); ++i) {
+			Segment segment = mDocument.getSegment(i);
+			if (!(segment instanceof MySelectableSegment)) {
+				continue;
+			}
+
+			MySelectableSegment s = (MySelectableSegment) segment;
+			for (int j = 0; j < s.getParagraphCount(); ++j) {
+				Paragraph paragraph = s.getParagraph(j);
+				paragraph.measure(measurer, textAttribute);
+				texTypesetter.typeset(paragraph, BreakStrategy.SIMPLE, 5);
+				assertNotNull(paragraph);
+				Layout layout = paragraph.getLayout();
+				Assert.assertEquals(layout.getLineCount(), 3);
+			}
 		}
 
 		mSelectionManager = new SelectionManager(new MyAdapter(),
@@ -132,6 +162,8 @@ public class SelectionManagerUnitTest {
 		mTextureParagraphs.add(new MyTextureParagraph(paragraph = (Paragraph) mDocument.getSegment(1), offset));
 		offset += (paragraph.getLayout().getHeight() + 1);
 		mTextureParagraphs.add(new MyTextureParagraph(paragraph = (Paragraph) mDocument.getSegment(2), offset));
+		offset += (paragraph.getLayout().getHeight() + 1);
+		mySelectableSegment.mOffset = offset;
 	}
 
 	@Test
@@ -286,6 +318,58 @@ public class SelectionManagerUnitTest {
 	}
 
 	@Test
+	public void testSelectableSegment() {
+		Selection selection = mSelectionManager.getCurrentSelection();
+		Assert.assertNull(selection);
+
+		MySelectableSegment segment = (MySelectableSegment) mDocument.getSegment(3);
+		Paragraph paragraph = segment.getParagraph(0);
+
+		TouchEvent touchEvent = TouchEvent.obtain(null, 0, 0, 0, 0);
+		Assert.assertTrue(mSelectionManager.onSegmentClicked(touchEvent, paragraph, OnSelectedChangedListener.EVENT_CLICKED));
+		Assert.assertEquals(mSelectionListener.mEvent, SelectionEvent.SEGMENT_CLICKED);
+
+		Assert.assertTrue(mSelectionManager.onSegmentClicked(touchEvent, paragraph, OnSelectedChangedListener.EVENT_DOUBLE_CLICKED));
+		Assert.assertEquals(mSelectionListener.mEvent, SelectionEvent.SEGMENT_DOUBLE_CLICKED);
+
+		Assert.assertFalse(mSelectionManager.onSegmentClicked(touchEvent, paragraph, OnSelectedChangedListener.EVENT_LONG_CLICKED));
+		Assert.assertEquals(mSelectionListener.mEvent, SelectionEvent.SEGMENT_DOUBLE_CLICKED);
+
+		Box box = (Box) paragraph.getElement(0);
+		Assert.assertTrue(mSelectionManager.onBoxSelected(touchEvent, paragraph, OnSelectedChangedListener.EVENT_LONG_CLICKED, box));
+		Assert.assertEquals(SelectionEvent.SPAN_LONG_CLICKED, mSelectionListener.mEvent);
+		Assert.assertNotNull(paragraph.getSelection(Selection.Type.SELECTION));
+
+		selection = mSelectionManager.getCurrentSelection();
+		Selection.RectEdge edge = selection.getSelectedRectEdge(true);
+		Assert.assertEquals(edge.topX, 0 + PADDING_H, 0.1);
+		Assert.assertEquals(edge.topY, 18 + PADDING_V, 0.1);
+		Assert.assertEquals(edge.bottomX, 1.5 + PADDING_H, 0.1);
+		Assert.assertEquals(edge.bottomY, 19 + PADDING_V, 0.1);
+
+		{
+			// 正常的
+			mSelectionManager.handleMoveToSelection(1f + PADDING_H, 0 + PADDING_V + segment.mOffset, 3 + PADDING_H, 3 + PADDING_V + segment.mOffset);
+			selection = mSelectionManager.getCurrentSelection();
+			edge = selection.getSelectedRectEdge(true);
+			Assert.assertEquals(edge.topX, 0 + PADDING_H, 0.1);
+			Assert.assertEquals(edge.topY, 0 + PADDING_V + segment.mOffset, 0.1);
+			Assert.assertEquals(edge.bottomX, 3.5 + PADDING_H, 0.1);
+			Assert.assertEquals(edge.bottomY, 3 + PADDING_V + segment.mOffset, 0.1);
+			Assert.assertEquals(1, selection.size());
+			ParagraphSelection paragraphSelection = selection.get(0);
+			checkSelectedTag(paragraphSelection.getSelectedTags(), "1", "2", "3", "4", "5");
+		}
+
+		Assert.assertTrue(mSelectionManager.onBoxSelected(touchEvent, paragraph, OnSelectedChangedListener.EVENT_CLICKED, box));
+		Assert.assertEquals(SelectionEvent.SPAN_CLICKED, mSelectionListener.mEvent);
+		mSelectionManager.handleClickNothing();
+	}
+
+	private static final int PADDING_V = 1;
+	private static final int PADDING_H = 2;
+
+	@Test
 	public void testMotion() {
 		// 0-----1-----2-----3-----4-----5
 		// |--1--|-----|--2--|-----|--3--|
@@ -326,7 +410,7 @@ public class SelectionManagerUnitTest {
 		Assert.assertNotNull(selection);
 		Assert.assertEquals(View.VISIBLE, mDragSelectView.mVisibility);
 
-		Selection.RectEdge edge = selection.getSelectedRectEdge();
+		Selection.RectEdge edge = selection.getSelectedRectEdge(true);
 		Assert.assertEquals(edge.topX, 0, 0.1);
 		Assert.assertEquals(edge.topY, 0, 0.1);
 		Assert.assertEquals(edge.bottomX, 1.5, 0.1);
@@ -336,7 +420,7 @@ public class SelectionManagerUnitTest {
 		{
 			mSelectionManager.handleMoveToSelection(-1, -1, 1.5f, 1);
 			selection = mSelectionManager.getCurrentSelection();
-			edge = selection.getSelectedRectEdge();
+			edge = selection.getSelectedRectEdge(true);
 			Assert.assertEquals(edge.topX, 0, 0.1);
 			Assert.assertEquals(edge.topY, 0, 0.1);
 			Assert.assertEquals(edge.bottomX, 1.5, 0.1);
@@ -347,7 +431,7 @@ public class SelectionManagerUnitTest {
 
 			mSelectionManager.handleMoveToSelection(-1, -1, 2f, 1f);
 			selection = mSelectionManager.getCurrentSelection();
-			edge = selection.getSelectedRectEdge();
+			edge = selection.getSelectedRectEdge(true);
 			Assert.assertEquals(edge.topX, 0, 0.1);
 			Assert.assertEquals(edge.topY, 0, 0.1);
 			Assert.assertEquals(edge.bottomX, 3.5, 0.1);
@@ -358,7 +442,7 @@ public class SelectionManagerUnitTest {
 
 			mSelectionManager.handleMoveToSelection(-1, -1, 3f, 1f);
 			selection = mSelectionManager.getCurrentSelection();
-			edge = selection.getSelectedRectEdge();
+			edge = selection.getSelectedRectEdge(true);
 			Assert.assertEquals(edge.topX, 0, 0.1);
 			Assert.assertEquals(edge.topY, 0, 0.1);
 			Assert.assertEquals(edge.bottomX, 3.5, 0.1);
@@ -369,7 +453,7 @@ public class SelectionManagerUnitTest {
 
 			mSelectionManager.handleMoveToSelection(-1, -1, 1.5f, 3);
 			selection = mSelectionManager.getCurrentSelection();
-			edge = selection.getSelectedRectEdge();
+			edge = selection.getSelectedRectEdge(true);
 			Assert.assertEquals(edge.topX, 0, 0.1);
 			Assert.assertEquals(edge.topY, 0, 0.1);
 			Assert.assertEquals(edge.bottomX, 1.5, 0.1);
@@ -380,7 +464,7 @@ public class SelectionManagerUnitTest {
 
 			mSelectionManager.handleMoveToSelection(-1, -1, 1.5f, 2);
 			selection = mSelectionManager.getCurrentSelection();
-			edge = selection.getSelectedRectEdge();
+			edge = selection.getSelectedRectEdge(true);
 			Assert.assertEquals(edge.topX, 0, 0.1);
 			Assert.assertEquals(edge.topY, 0, 0.1);
 			Assert.assertEquals(edge.bottomX, 5, 0.1);
@@ -391,7 +475,7 @@ public class SelectionManagerUnitTest {
 
 			mSelectionManager.handleMoveToSelection(-1, -1, 3, 3);
 			selection = mSelectionManager.getCurrentSelection();
-			edge = selection.getSelectedRectEdge();
+			edge = selection.getSelectedRectEdge(true);
 			Assert.assertEquals(edge.topX, 0, 0.1);
 			Assert.assertEquals(edge.topY, 0, 0.1);
 			Assert.assertEquals(edge.bottomX, 3.5, 0.1);
@@ -405,7 +489,7 @@ public class SelectionManagerUnitTest {
 		{
 			mSelectionManager.handleMoveToSelection(1f, 0, 3, 3);
 			selection = mSelectionManager.getCurrentSelection();
-			edge = selection.getSelectedRectEdge();
+			edge = selection.getSelectedRectEdge(true);
 			Assert.assertEquals(edge.topX, 0, 0.1);
 			Assert.assertEquals(edge.topY, 0, 0.1);
 			Assert.assertEquals(edge.bottomX, 3.5, 0.1);
@@ -416,7 +500,7 @@ public class SelectionManagerUnitTest {
 
 			mSelectionManager.handleMoveToSelection(1.5f, 0, 3, 3);
 			selection = mSelectionManager.getCurrentSelection();
-			edge = selection.getSelectedRectEdge();
+			edge = selection.getSelectedRectEdge(true);
 			Assert.assertEquals(edge.topX, 1.5, 0.1);
 			Assert.assertEquals(edge.topY, 0, 0.1);
 			Assert.assertEquals(edge.bottomX, 3.5, 0.1);
@@ -427,7 +511,7 @@ public class SelectionManagerUnitTest {
 
 			mSelectionManager.handleMoveToSelection(1.5f, 1, 3, 3);
 			selection = mSelectionManager.getCurrentSelection();
-			edge = selection.getSelectedRectEdge();
+			edge = selection.getSelectedRectEdge(true);
 			Assert.assertEquals(edge.topX, 1.5, 0.1);
 			Assert.assertEquals(edge.topY, 0, 0.1);
 			Assert.assertEquals(edge.bottomX, 3.5, 0.1);
@@ -444,7 +528,7 @@ public class SelectionManagerUnitTest {
 		{
 			mSelectionManager.handleMoveToSelection(1, 2, 3, 3);
 			selection = mSelectionManager.getCurrentSelection();
-			edge = selection.getSelectedRectEdge();
+			edge = selection.getSelectedRectEdge(true);
 			Assert.assertEquals(edge.topX, 0, 0.1);
 			Assert.assertEquals(edge.topY, 2, 0.1);
 			Assert.assertEquals(edge.bottomX, 3.5, 0.1);
@@ -458,7 +542,7 @@ public class SelectionManagerUnitTest {
 		{
 			mSelectionManager.handleMoveToSelection(4, 4, 6f, 6f);
 			selection = mSelectionManager.getCurrentSelection();
-			edge = selection.getSelectedRectEdge();
+			edge = selection.getSelectedRectEdge(true);
 			Assert.assertEquals(edge.topX, 3.5, 0.1);
 			Assert.assertEquals(edge.topY, 4, 0.1);
 			Assert.assertEquals(edge.bottomX, 5, 0.1);
@@ -469,7 +553,7 @@ public class SelectionManagerUnitTest {
 
 			mSelectionManager.handleMoveToSelection(2, 2, 6, 6f);
 			selection = mSelectionManager.getCurrentSelection();
-			edge = selection.getSelectedRectEdge();
+			edge = selection.getSelectedRectEdge(true);
 			Assert.assertEquals(edge.topX, 1.5, 0.1);
 			Assert.assertEquals(edge.topY, 2, 0.1);
 			Assert.assertEquals(edge.bottomX, 5, 0.1);
@@ -483,7 +567,7 @@ public class SelectionManagerUnitTest {
 		{
 			mSelectionManager.handleMoveToSelection(4, 4, 7, 7f);
 			selection = mSelectionManager.getCurrentSelection();
-			edge = selection.getSelectedRectEdge();
+			edge = selection.getSelectedRectEdge(true);
 			Assert.assertEquals(edge.topX, 3.5, 0.1);
 			Assert.assertEquals(edge.topY, 4, 0.1);
 			Assert.assertEquals(edge.bottomX, 5, 0.1);
@@ -522,21 +606,26 @@ public class SelectionManagerUnitTest {
 		}
 
 		@Override
-		public TexasLayoutManager getTexasLayoutManager() {
-			return mLayoutManager;
-		}
-
-		@Override
 		public boolean getSegmentLocations(Segment segment, Rect locations) {
-			Paragraph p = (Paragraph) segment;
-			MyTextureParagraph paragraph = (MyTextureParagraph) p.getTag(1024);
-			int[] location = new int[2];
-			paragraph.getLocationOnScreen(location);
-			locations.left = location[0];
-			locations.top = location[1];
-			Layout layout = p.getLayout();
-			locations.right = locations.left + layout.getWidth();
-			locations.bottom = locations.top + layout.getHeight();
+			if (segment instanceof Paragraph) {
+				Paragraph p = (Paragraph) segment;
+				MyTextureParagraph paragraph = (MyTextureParagraph) p.getTag(1024);
+				int[] location = new int[2];
+				paragraph.getLocationOnScreen(location);
+				locations.left = location[0];
+				locations.top = location[1];
+				Layout layout = p.getLayout();
+				locations.right = locations.left + layout.getWidth();
+				locations.bottom = locations.top + layout.getHeight();
+			} else {
+				MySelectableSegment p = (MySelectableSegment) segment;
+				locations.left = 0;
+				locations.top = p.mOffset;
+				Paragraph paragraph = p.getParagraph(0);
+				Layout layout = paragraph.getLayout();
+				locations.right = locations.left + layout.getWidth();
+				locations.bottom = locations.top + layout.getHeight();
+			}
 			return true;
 		}
 
@@ -554,6 +643,14 @@ public class SelectionManagerUnitTest {
 		@Override
 		public Document getDocument() {
 			return mDocument;
+		}
+
+		@Override
+		public boolean getSelectableSegmentLocations(SelectableSegment selectableSegment, int index, Rect locations) {
+			getSegmentLocations((Segment) selectableSegment, locations);
+			// mock padding
+			locations.offset(PADDING_H, PADDING_V);
+			return true;
 		}
 	}
 
@@ -741,12 +838,17 @@ public class SelectionManagerUnitTest {
 		private int mLastVisibleItemPosition;
 		private int mFirstCompletelyVisibleItemPosition;
 		private int mLastCompletelyVisibleItemPosition;
+		private final java.util.Map<Integer, View> mViewMap = new java.util.HashMap<>();
 
 		public MyLayoutManager(Document document) {
 			mFirstVisibleItemPosition = 0;
 			mLastVisibleItemPosition = document.getSegmentCount() - 1;
 			mFirstCompletelyVisibleItemPosition = 0;
 			mLastCompletelyVisibleItemPosition = document.getSegmentCount() - 1;
+		}
+
+		public void registerView(int position, View view) {
+			mViewMap.put(position, view);
 		}
 
 		@Override
@@ -767,11 +869,6 @@ public class SelectionManagerUnitTest {
 		@Override
 		public int findLastCompletelyVisibleItemPosition() {
 			return mLastCompletelyVisibleItemPosition;
-		}
-
-		@Override
-		public View findViewByPosition(int index) {
-			return null;
 		}
 	}
 
@@ -822,5 +919,38 @@ public class SelectionManagerUnitTest {
 
 		TexasUtils.setRect(lhs, 1, 1, 3, 3);
 		Assert.assertTrue(TexasUtils.intersects(lhs, rhs));
+	}
+
+	private static class MySelectableSegment extends me.chan.texas.text.ViewSegment implements me.chan.texas.text.SelectableSegment {
+		private final Paragraph[] mParagraphs;
+		private int mOffset;
+
+		public MySelectableSegment(Paragraph... paragraphs) {
+			super(0);
+			mParagraphs = paragraphs;
+			for (int i = 0; i < paragraphs.length; i++) {
+				paragraphs[i].setTag(R.id.me_chan_texas_paragraph_outer_tag, this);
+			}
+		}
+
+		@Override
+		public int getParagraphCount() {
+			return mParagraphs.length;
+		}
+
+		@Override
+		public me.chan.texas.renderer.ui.text.ParagraphView getParagraphView(int index) {
+			throw new RuntimeException("Stub!");
+		}
+
+		@Override
+		public Paragraph getParagraph(int index) {
+			return mParagraphs[index];
+		}
+
+		@Override
+		protected void onRender(View view) {
+			// Mock implementation - no actual rendering needed for tests
+		}
 	}
 }

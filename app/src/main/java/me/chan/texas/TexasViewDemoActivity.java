@@ -45,7 +45,7 @@ public class TexasViewDemoActivity extends AppCompatActivity {
 
 		// 设置整个渲染窗口的padding
 		mTexasView = findViewById(me.chan.texas.debug.R.id.text);
-		mTexasView.setRendererPadding(30, 10, 30, 10);
+		mTexasView.setRendererPadding(100, 100, 30, 10);
 
 		// 设置 decor
 		// decor 就是渲染文本时，起装饰作用

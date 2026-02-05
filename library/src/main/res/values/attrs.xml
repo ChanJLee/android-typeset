@@ -83,5 +83,6 @@
         <attr name="me_chan_texas_ParagraphView_minLines" format="integer" />
         <attr name="me_chan_texas_ParagraphView_maxLines" format="integer" />
         <attr name="me_chan_texas_ParagraphView_lines" format="integer" />
+        <attr name="me_chan_texas_ParagraphView_overrideStyles" format="boolean" />
     </declare-styleable>
 </resources>

@@ -559,6 +559,9 @@ public class RendererAdapterImpl extends RecyclerView.Adapter<RendererAdapterImp
 					if (paragraphView != null) {
 						paragraphView.setSpanTouchEventHandler(mSelectionManager.getSpanTouchEventHandler());
 						paragraphView.setOnSelectedChangedListener(mSelectionManager.getOnSelectedChangedListener());
+						if (paragraphView.isOverrideStyles()) {
+							paragraphView.refresh(mRenderOption);
+						}
 					}
 
 					Paragraph paragraph = selectableSegment.getParagraph(i);
