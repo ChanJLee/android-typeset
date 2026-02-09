@@ -534,19 +534,19 @@ public class RendererAdapterImpl extends RecyclerView.Adapter<RendererAdapterImp
 
 		@Override
 		protected void onRender(final ViewSegment data) {
-			SegmentItemFragmentLayout layout = (SegmentItemFragmentLayout) itemView;
+			SegmentItemFragmentLayout rootView = getRootView();
 
-			View content = layout.getContent();
+			View content = getContentView();
 			data.render(content);
 
 			// 当内容被设置为GONE后，当前的item还是会在rv里占用一个格子，这会导致界面上出现大片空白
 			// 因此当发现内容为gone要把当前item高度设置为0
 			if (content.getVisibility() == View.GONE) {
-				layout.setPadding(0, 0, 0, 0);
+				rootView.setPadding(0, 0, 0, 0);
 			} else {
 				Rect rect = data.getRect();
 				assert rect != null;
-				layout.setPadding(rect.left, rect.top, rect.right, rect.bottom);
+				rootView.setPadding(rect.left, rect.top, rect.right, rect.bottom);
 			}
 
 			if (data instanceof SelectableSegment) {
@@ -554,13 +554,22 @@ public class RendererAdapterImpl extends RecyclerView.Adapter<RendererAdapterImp
 				for (int i = 0; i < selectableSegment.getParagraphCount(); i++) {
 					ParagraphView paragraphView = selectableSegment.getParagraphView(i);
 					if (paragraphView != null) {
-						paragraphView.setSelectionProvider(mSelectionManager);
+						paragraphView.setSelectionMethod(mSelectionManager);
 						if (paragraphView.isOverrideStyles()) {
 							paragraphView.refresh(mRenderOption);
 						}
 					}
 				}
 			}
+		}
+
+		private View getContentView() {
+			SegmentItemFragmentLayout layout = getRootView();
+			return layout.getContent();
+		}
+
+		private SegmentItemFragmentLayout getRootView() {
+			return (SegmentItemFragmentLayout) itemView;
 		}
 	}
 

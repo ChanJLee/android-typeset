@@ -30,7 +30,6 @@ import me.chan.texas.text.Document;
 import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.Segment;
 import me.chan.texas.text.SelectableSegment;
-import me.chan.texas.text.SelectionProvider;
 import me.chan.texas.text.layout.Box;
 
 /**
@@ -43,7 +42,7 @@ import me.chan.texas.text.layout.Box;
  * Created by Otway on 2021/11/12.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-public class SelectionManager implements OnSelectedChangedListener, SelectionProvider {
+public class SelectionManager implements OnSelectedChangedListener, SelectionMethod {
 	private Selection mCurrentSelection;
 	private Selection mCurrentHighlightSelection;
 

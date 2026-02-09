@@ -17,7 +17,7 @@ import me.chan.texas.renderer.TouchEvent;
 import me.chan.texas.renderer.ui.decor.ParagraphDecor;
 import me.chan.texas.text.Paragraph;
 import me.chan.texas.renderer.RendererContext;
-import me.chan.texas.text.SelectionProvider;
+import me.chan.texas.renderer.selection.SelectionMethod;
 import me.chan.texas.text.layout.Box;
 import me.chan.texas.text.layout.Layout;
 import me.chan.texas.text.layout.Line;
@@ -37,7 +37,7 @@ public class ParagraphViewMotion {
 	private final View mView;
 
 	private EventListener mEventListener;
-	private SelectionProvider mSelectionProvider;
+	private SelectionMethod mSelectionMethod;
 
 	public ParagraphViewMotion(Context context, View view) {
 		mContext = context;
@@ -46,10 +46,10 @@ public class ParagraphViewMotion {
 
 	public void setup(@NonNull Paragraph paragraph,
 					  @NonNull RenderOption renderOption,
-					  @Nullable SelectionProvider selectionProvider) {
+					  @Nullable SelectionMethod selectionMethod) {
 		mParagraph = paragraph;
 		mRenderOption = renderOption;
-		mSelectionProvider = selectionProvider;
+		mSelectionMethod = selectionMethod;
 	}
 
 	public void clear() {
@@ -84,11 +84,11 @@ public class ParagraphViewMotion {
 	}
 
 	private boolean handleEmptyModeMotion(MotionEvent e, int eventType) {
-		if (mSelectionProvider == null) {
+		if (mSelectionMethod == null) {
 			return false;
 		}
 
-		OnSelectedChangedListener listener = mSelectionProvider.getOnSelectedChangedListener();
+		OnSelectedChangedListener listener = mSelectionMethod.getOnSelectedChangedListener();
 		if (listener == null) {
 			return false;
 		}
@@ -111,7 +111,7 @@ public class ParagraphViewMotion {
 	}
 
 	private boolean handleBoxModeMotion(MotionEvent e, @OnSelectedChangedListener.EventType int eventType) {
-		if (mLastTouchBox == null || mSelectionProvider == null || mParagraph == null) {
+		if (mLastTouchBox == null || mSelectionMethod == null || mParagraph == null) {
 			return false;
 		}
 
@@ -119,7 +119,7 @@ public class ParagraphViewMotion {
 			return false;
 		}
 
-		SpanTouchEventHandler handler = mSelectionProvider.getSpanTouchEventHandler();
+		SpanTouchEventHandler handler = mSelectionMethod.getSpanTouchEventHandler();
 		if (handler == null) {
 			return false;
 		}
@@ -130,7 +130,7 @@ public class ParagraphViewMotion {
 			return false;
 		}
 
-		OnSelectedChangedListener listener = mSelectionProvider.getOnSelectedChangedListener();
+		OnSelectedChangedListener listener = mSelectionMethod.getOnSelectedChangedListener();
 		if (listener == null) {
 			return false;
 		}
@@ -250,11 +250,11 @@ public class ParagraphViewMotion {
 			mLastTouchBox = null;
 			mMode = 0;
 
-			if (mParagraph == null || mSelectionProvider == null) {
+			if (mParagraph == null || mSelectionMethod == null) {
 				return false;
 			}
 
-			SpanTouchEventHandler handler = mSelectionProvider.getSpanTouchEventHandler();
+			SpanTouchEventHandler handler = mSelectionMethod.getSpanTouchEventHandler();
 			if (handler == null) {
 				return false;
 			}

@@ -1,4 +1,4 @@
-package me.chan.texas.text;
+package me.chan.texas.renderer.selection;
 
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
@@ -11,7 +11,7 @@ import me.chan.texas.renderer.ui.text.OnSelectedChangedListener;
  * 选中协议
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-public interface SelectionProvider {
+public interface SelectionMethod {
 
 	@Nullable
 	@Idempotent

@@ -14,7 +14,7 @@ import androidx.annotation.RestrictTo;
 import me.chan.texas.misc.PaintSet;
 import me.chan.texas.renderer.RenderOption;
 import me.chan.texas.text.Paragraph;
-import me.chan.texas.text.SelectionProvider;
+import me.chan.texas.renderer.selection.SelectionMethod;
 import me.chan.texas.text.layout.Layout;
 import me.chan.texas.utils.concurrency.Worker;
 
@@ -114,11 +114,11 @@ public abstract class AbsTextureParagraphView extends View implements TexturePar
 	public void render(@NonNull Paragraph paragraph,
 					   @NonNull PaintSet paintSet,
 					   @NonNull RenderOption renderOption,
-					   @Nullable SelectionProvider selectionProvider) {
+					   @Nullable SelectionMethod selectionMethod) {
 		mParagraph = paragraph;
 		mPaintSet = paintSet;
 		mRenderOption = renderOption;
-		mParagraphViewMotion.setup(paragraph, renderOption, selectionProvider);
+		mParagraphViewMotion.setup(paragraph, renderOption, selectionMethod);
 
 		scheduleRender();
 	}

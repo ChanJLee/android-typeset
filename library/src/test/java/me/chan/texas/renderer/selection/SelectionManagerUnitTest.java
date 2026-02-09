@@ -47,7 +47,6 @@ import me.chan.texas.text.Document;
 import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.Segment;
 import me.chan.texas.text.SelectableSegment;
-import me.chan.texas.text.SelectionProvider;
 import me.chan.texas.text.TextAttribute;
 import me.chan.texas.text.layout.Box;
 import me.chan.texas.text.layout.Layout;
@@ -688,7 +687,7 @@ public class SelectionManagerUnitTest {
 		}
 
 		@Override
-		public void render(@NonNull Paragraph paragraph, @NonNull PaintSet paintSet, @NonNull RenderOption renderOption, @NonNull SelectionProvider selectionProvider) {
+		public void render(@NonNull Paragraph paragraph, @NonNull PaintSet paintSet, @NonNull RenderOption renderOption, @NonNull SelectionMethod selectionMethod) {
 
 		}
 

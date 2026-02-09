@@ -10,7 +10,7 @@ import androidx.annotation.RestrictTo;
 import me.chan.texas.misc.PaintSet;
 import me.chan.texas.renderer.RenderOption;
 import me.chan.texas.text.Paragraph;
-import me.chan.texas.text.SelectionProvider;
+import me.chan.texas.renderer.selection.SelectionMethod;
 import me.chan.texas.utils.concurrency.Worker;
 
 /**
@@ -38,16 +38,16 @@ public interface TextureParagraph {
 	void getLocationOnScreen(int[] location);
 
 	/**
-	 * @param paragraph         绘制的段落
-	 * @param paintSet          画笔集合
-	 * @param renderOption      绘制选项
-	 * @param selectionProvider selection provider
+	 * @param paragraph       绘制的段落
+	 * @param paintSet        画笔集合
+	 * @param renderOption    绘制选项
+	 * @param selectionMethod selection method
 	 */
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
 	void render(@NonNull Paragraph paragraph,
 				@NonNull PaintSet paintSet,
 				@NonNull RenderOption renderOption,
-				@NonNull SelectionProvider selectionProvider);
+				@NonNull SelectionMethod selectionMethod);
 
 	/**
 	 * @return 用于标识一个渲染对象
