@@ -487,9 +487,6 @@ public class RendererAdapterImpl extends RecyclerView.Adapter<RendererAdapterImp
 		@Override
 		protected void onCreate(View view) {
 			mRender = (TextureParagraph) view;
-			if (mRender != null) {
-				mRender.setOnTextSelectedListener(mSelectionManager.getOnSelectedChangedListener());
-			}
 		}
 
 		@Override
@@ -498,7 +495,7 @@ public class RendererAdapterImpl extends RecyclerView.Adapter<RendererAdapterImp
 					data,
 					mPaintSet,
 					mRenderOption,
-					mSelectionManager.getSpanTouchEventHandler());
+					mSelectionManager);
 			if (DEBUG) {
 				d("onCreateViewHolder: " + mRender.getToken());
 			}

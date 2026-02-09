@@ -51,6 +51,7 @@ import me.chan.texas.text.BreakStrategy;
 import me.chan.texas.text.Document;
 import me.chan.texas.text.HyphenStrategy;
 import me.chan.texas.text.Segment;
+import me.chan.texas.text.SelectionProvider;
 import me.chan.texas.text.TextAttribute;
 import me.chan.texas.text.TextGravity;
 import me.chan.texas.utils.TexasUtils;
@@ -153,7 +154,7 @@ public final class TexasView extends FrameLayout {
 		Resources resources = getResources();
 		RenderOption renderOption = new RenderOption();
 
-		TypedArray themeArray = context.obtainStyledAttributes(new int[] {
+		TypedArray themeArray = context.obtainStyledAttributes(new int[]{
 				android.R.attr.textColorPrimary,
 				android.R.attr.textSize
 		});
@@ -850,6 +851,14 @@ public final class TexasView extends FrameLayout {
 		Measurer measurer = mMeasureFactory.create(paintSet);
 		TextAttribute textAttribute = new TextAttribute(measurer);
 		return LoadingWorker.createTexasOption(paintSet, textAttribute, measurer, option);
+	}
+
+	/**
+	 * @return 获得选中的逻辑
+	 */
+	@Nullable
+	public SelectionProvider getSelectionProvider() {
+		return mRenderer == null ? null : mRenderer.getSelectionProvider();
 	}
 
 	/**

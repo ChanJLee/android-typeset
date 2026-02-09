@@ -13,8 +13,8 @@ import androidx.annotation.RestrictTo;
 
 import me.chan.texas.misc.PaintSet;
 import me.chan.texas.renderer.RenderOption;
-import me.chan.texas.renderer.SpanTouchEventHandler;
 import me.chan.texas.text.Paragraph;
+import me.chan.texas.text.SelectionProvider;
 import me.chan.texas.text.layout.Layout;
 import me.chan.texas.utils.concurrency.Worker;
 
@@ -40,11 +40,6 @@ public abstract class AbsTextureParagraphView extends View implements TexturePar
 		super(context);
 		mParagraphViewMotion = new ParagraphViewMotion(context, this);
 		mLayoutPredicate = layoutPredicate;
-	}
-
-	@Override
-	public final void setOnTextSelectedListener(OnSelectedChangedListener onTextSelectedListener) {
-		mParagraphViewMotion.setOnTextSelectedListener(onTextSelectedListener);
 	}
 
 	@SuppressLint("ClickableViewAccessibility")
@@ -119,11 +114,11 @@ public abstract class AbsTextureParagraphView extends View implements TexturePar
 	public void render(@NonNull Paragraph paragraph,
 					   @NonNull PaintSet paintSet,
 					   @NonNull RenderOption renderOption,
-					   @Nullable SpanTouchEventHandler spanClickedEventHandler) {
+					   @Nullable SelectionProvider selectionProvider) {
 		mParagraph = paragraph;
 		mPaintSet = paintSet;
 		mRenderOption = renderOption;
-		mParagraphViewMotion.setup(paragraph, renderOption, spanClickedEventHandler);
+		mParagraphViewMotion.setup(paragraph, renderOption, selectionProvider);
 
 		scheduleRender();
 	}
