@@ -9,8 +9,8 @@ import androidx.annotation.RestrictTo;
 
 import me.chan.texas.misc.PaintSet;
 import me.chan.texas.renderer.RenderOption;
-import me.chan.texas.renderer.SpanTouchEventHandler;
 import me.chan.texas.text.Paragraph;
+import me.chan.texas.text.SelectionProvider;
 import me.chan.texas.utils.concurrency.Worker;
 
 /**
@@ -38,22 +38,16 @@ public interface TextureParagraph {
 	void getLocationOnScreen(int[] location);
 
 	/**
-	 * @param paragraph               绘制的段落
-	 * @param paintSet                画笔集合
-	 * @param renderOption            绘制选项
-	 * @param spanClickedEventHandler 点击事件处理器
+	 * @param paragraph         绘制的段落
+	 * @param paintSet          画笔集合
+	 * @param renderOption      绘制选项
+	 * @param selectionProvider selection provider
 	 */
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
 	void render(@NonNull Paragraph paragraph,
 				@NonNull PaintSet paintSet,
 				@NonNull RenderOption renderOption,
-				@Nullable SpanTouchEventHandler spanClickedEventHandler);
-
-	/**
-	 * @param onTextSelectedListener 选中的回调
-	 */
-	@RestrictTo(RestrictTo.Scope.LIBRARY)
-	void setOnTextSelectedListener(OnSelectedChangedListener onTextSelectedListener);
+				@NonNull SelectionProvider selectionProvider);
 
 	/**
 	 * @return 用于标识一个渲染对象

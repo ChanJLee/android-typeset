@@ -98,6 +98,31 @@ public class ParagraphView extends FrameLayout {
 
 	private SpanTouchEventHandler mSpanTouchEventHandler;
 
+	private final OnSelectedChangedListener onSelectedChangedListener = new OnSelectedChangedListener() {
+		@Override
+		public boolean onParagraphSelected(TouchEvent e, Paragraph paragraph, int eventType) {
+			return handleParagraphClicked(e, eventType);
+		}
+
+		@Override
+		public boolean onBoxSelected(TouchEvent e, Paragraph paragraph, @EventType int eventType, Box box) {
+			return handleParagraphSelected(e, paragraph, eventType, box);
+		}
+	};
+	private SelectionProvider mSelectionProvider = new SelectionProvider() {
+		@NonNull
+		@Override
+		public SpanTouchEventHandler getSpanTouchEventHandler() {
+			return mSpanTouchEventHandler;
+		}
+
+		@NonNull
+		@Override
+		public OnSelectedChangedListener getOnSelectedChangedListener() {
+			return onSelectedChangedListener;
+		}
+	};
+
 	private final SpanPredicate mOnSpanClickedPredicate = new SpanPredicate() {
 		@Override
 		public boolean accept(@Nullable Object clickedTag, @Nullable Object tag) {
@@ -177,18 +202,6 @@ public class ParagraphView extends FrameLayout {
 			};
 			mRender = mRenderOption.isCompatMode() ? new TextureParagraphView0Compat(context, relayoutPredicate) : new TextureParagraphView0(context, relayoutPredicate);
 			addView((View) mRender, new FrameLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
-			OnSelectedChangedListener onSelectedChangedListener = new OnSelectedChangedListener() {
-				@Override
-				public boolean onParagraphSelected(TouchEvent e, Paragraph paragraph, int eventType) {
-					return handleParagraphClicked(e, eventType);
-				}
-
-				@Override
-				public boolean onBoxSelected(TouchEvent e, Paragraph paragraph, @EventType int eventType, Box box) {
-					return handleParagraphSelected(e, paragraph, eventType, box);
-				}
-			};
-			mRender.setOnTextSelectedListener(onSelectedChangedListener);
 			mRender.setOnMeasureInterceptor(this::handleMeasureRenderer);
 			mRender.setRendererListener(this::handleRendererSuccess);
 			setVerticalAlignment(mRenderOption);
@@ -543,7 +556,7 @@ public class ParagraphView extends FrameLayout {
 			Log.d(TAG, "render0: paragraph = " + paragraph);
 		}
 
-		mRender.render(paragraph, mUiThreadPaintSet, mRenderOption, mSpanTouchEventHandler);
+		mRender.render(paragraph, mUiThreadPaintSet, mRenderOption, mSelectionProvider);
 	}
 
 	/**
@@ -873,9 +886,8 @@ public class ParagraphView extends FrameLayout {
 	}
 
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
-	public void setSelectionProvider(@NonNull SelectionProvider provider) {
-		mRender.setOnTextSelectedListener(provider.getOnSelectedChangedListener());
-		setSpanTouchEventHandler(provider.getSpanTouchEventHandler());
+	public void setSelectionProvider(@NonNull SelectionProvider selectionProvider) {
+		mSelectionProvider = selectionProvider;
 	}
 
 	/**

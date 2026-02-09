@@ -17,6 +17,7 @@ import me.chan.texas.renderer.TouchEvent;
 import me.chan.texas.renderer.ui.decor.ParagraphDecor;
 import me.chan.texas.text.Paragraph;
 import me.chan.texas.renderer.RendererContext;
+import me.chan.texas.text.SelectionProvider;
 import me.chan.texas.text.layout.Box;
 import me.chan.texas.text.layout.Layout;
 import me.chan.texas.text.layout.Line;
@@ -31,13 +32,12 @@ public class ParagraphViewMotion {
 	private GestureDetector mGestureDetector = null;
 
 	private RenderOption mRenderOption;
-	private OnSelectedChangedListener mOnTextSelectedListener;
 	private Box mLastTouchBox = null;
 	private final Context mContext;
 	private final View mView;
 
 	private EventListener mEventListener;
-	private SpanTouchEventHandler mSpanClickedEventHandler;
+	private SelectionProvider mSelectionProvider;
 
 	public ParagraphViewMotion(Context context, View view) {
 		mContext = context;
@@ -46,19 +46,15 @@ public class ParagraphViewMotion {
 
 	public void setup(@NonNull Paragraph paragraph,
 					  @NonNull RenderOption renderOption,
-					  @Nullable SpanTouchEventHandler spanClickedEventHandler) {
+					  @Nullable SelectionProvider selectionProvider) {
 		mParagraph = paragraph;
 		mRenderOption = renderOption;
-		mSpanClickedEventHandler = spanClickedEventHandler;
+		mSelectionProvider = selectionProvider;
 	}
 
 	public void clear() {
 		mParagraph = null;
 		mRenderOption = null;
-	}
-
-	public void setOnTextSelectedListener(OnSelectedChangedListener onTextSelectedListener) {
-		mOnTextSelectedListener = onTextSelectedListener;
 	}
 
 	@SuppressLint("ClickableViewAccessibility")
@@ -88,12 +84,17 @@ public class ParagraphViewMotion {
 	}
 
 	private boolean handleEmptyModeMotion(MotionEvent e, int eventType) {
-		if (mOnTextSelectedListener == null) {
+		if (mSelectionProvider == null) {
+			return false;
+		}
+
+		OnSelectedChangedListener listener = mSelectionProvider.getOnSelectedChangedListener();
+		if (listener == null) {
 			return false;
 		}
 
 		// 通知上层有元素被选中
-		return mOnTextSelectedListener.onParagraphSelected(TouchEvent.obtain(mView, e), mParagraph, eventType);
+		return listener.onParagraphSelected(TouchEvent.obtain(mView, e), mParagraph, eventType);
 	}
 
 	private boolean handleDecorModeMotion(MotionEvent e, @OnSelectedChangedListener.EventType int eventType) {
@@ -110,7 +111,7 @@ public class ParagraphViewMotion {
 	}
 
 	private boolean handleBoxModeMotion(MotionEvent e, @OnSelectedChangedListener.EventType int eventType) {
-		if (mLastTouchBox == null || mOnTextSelectedListener == null || mParagraph == null) {
+		if (mLastTouchBox == null || mSelectionProvider == null || mParagraph == null) {
 			return false;
 		}
 
@@ -118,14 +119,24 @@ public class ParagraphViewMotion {
 			return false;
 		}
 
-		if (!mSpanClickedEventHandler.acceptSpan(
+		SpanTouchEventHandler handler = mSelectionProvider.getSpanTouchEventHandler();
+		if (handler == null) {
+			return false;
+		}
+
+		if (!handler.acceptSpan(
 				eventType == OnSelectedChangedListener.EVENT_CLICKED ?
 						SpanTouchEventHandler.EventType.CLICK : SpanTouchEventHandler.EventType.LONG_CLICK, mLastTouchBox.getTag())) {
 			return false;
 		}
 
+		OnSelectedChangedListener listener = mSelectionProvider.getOnSelectedChangedListener();
+		if (listener == null) {
+			return false;
+		}
+
 		// 通知上层有元素被选中
-		return mOnTextSelectedListener.onBoxSelected(TouchEvent.obtain(mView, e), mParagraph, eventType, mLastTouchBox);
+		return listener.onBoxSelected(TouchEvent.obtain(mView, e), mParagraph, eventType, mLastTouchBox);
 	}
 
 	private int mMode = 0;
@@ -239,7 +250,12 @@ public class ParagraphViewMotion {
 			mLastTouchBox = null;
 			mMode = 0;
 
-			if (mParagraph == null || mSpanClickedEventHandler == null) {
+			if (mParagraph == null || mSelectionProvider == null) {
+				return false;
+			}
+
+			SpanTouchEventHandler handler = mSelectionProvider.getSpanTouchEventHandler();
+			if (handler == null) {
 				return false;
 			}
 
@@ -252,7 +268,7 @@ public class ParagraphViewMotion {
 			float y = e.getY();
 			Box box = checkIfClicked(x, y);
 			if (box != null) {
-				if (mSpanClickedEventHandler.isSpanClickable(box.getTag())) {
+				if (handler.isSpanClickable(box.getTag())) {
 					mLastTouchBox = box;
 					mMode = MODE_BOX;
 					return true;
