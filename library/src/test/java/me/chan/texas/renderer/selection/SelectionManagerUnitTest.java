@@ -2,12 +2,8 @@ package me.chan.texas.renderer.selection;
 
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
-import android.content.Context;
-import android.content.res.TypedArray;
 import android.graphics.Canvas;
 
 import me.chan.texas.R;
@@ -40,12 +36,10 @@ import me.chan.texas.renderer.SpanTouchEventHandler;
 import me.chan.texas.renderer.TouchEvent;
 import me.chan.texas.renderer.selection.overlay.DragSelectView;
 import me.chan.texas.renderer.ui.TexasRendererAdapter;
-import me.chan.texas.renderer.ui.decor.ParagraphDecor;
 import me.chan.texas.renderer.ui.rv.TexasLayoutManager;
 import me.chan.texas.renderer.ui.rv.TexasRecyclerView;
 import me.chan.texas.renderer.ui.text.OnMeasureInterceptor;
 import me.chan.texas.renderer.ui.text.OnSelectedChangedListener;
-import me.chan.texas.renderer.ui.text.ParagraphView;
 import me.chan.texas.renderer.ui.text.TextureParagraph;
 import me.chan.texas.test.mock.MockTextPaint;
 import me.chan.texas.text.BreakStrategy;
@@ -326,13 +320,13 @@ public class SelectionManagerUnitTest {
 		Paragraph paragraph = segment.getParagraph(0);
 
 		TouchEvent touchEvent = TouchEvent.obtain(null, 0, 0, 0, 0);
-		Assert.assertTrue(mSelectionManager.onSegmentClicked(touchEvent, paragraph, OnSelectedChangedListener.EVENT_CLICKED));
+		Assert.assertTrue(mSelectionManager.onParagraphSelected(touchEvent, paragraph, OnSelectedChangedListener.EVENT_CLICKED));
 		Assert.assertEquals(mSelectionListener.mEvent, SelectionEvent.SEGMENT_CLICKED);
 
-		Assert.assertTrue(mSelectionManager.onSegmentClicked(touchEvent, paragraph, OnSelectedChangedListener.EVENT_DOUBLE_CLICKED));
+		Assert.assertTrue(mSelectionManager.onParagraphSelected(touchEvent, paragraph, OnSelectedChangedListener.EVENT_DOUBLE_CLICKED));
 		Assert.assertEquals(mSelectionListener.mEvent, SelectionEvent.SEGMENT_DOUBLE_CLICKED);
 
-		Assert.assertFalse(mSelectionManager.onSegmentClicked(touchEvent, paragraph, OnSelectedChangedListener.EVENT_LONG_CLICKED));
+		Assert.assertFalse(mSelectionManager.onParagraphSelected(touchEvent, paragraph, OnSelectedChangedListener.EVENT_LONG_CLICKED));
 		Assert.assertEquals(mSelectionListener.mEvent, SelectionEvent.SEGMENT_DOUBLE_CLICKED);
 
 		Box box = (Box) paragraph.getElement(0);
@@ -382,13 +376,13 @@ public class SelectionManagerUnitTest {
 
 		Paragraph paragraph = (Paragraph) mDocument.getSegment(0);
 		TouchEvent touchEvent = TouchEvent.obtain(null, 0, 0, 0, 0);
-		Assert.assertTrue(mSelectionManager.onSegmentClicked(touchEvent, paragraph, OnSelectedChangedListener.EVENT_CLICKED));
+		Assert.assertTrue(mSelectionManager.onParagraphSelected(touchEvent, paragraph, OnSelectedChangedListener.EVENT_CLICKED));
 		Assert.assertEquals(mSelectionListener.mEvent, SelectionEvent.SEGMENT_CLICKED);
 
-		Assert.assertTrue(mSelectionManager.onSegmentClicked(touchEvent, paragraph, OnSelectedChangedListener.EVENT_DOUBLE_CLICKED));
+		Assert.assertTrue(mSelectionManager.onParagraphSelected(touchEvent, paragraph, OnSelectedChangedListener.EVENT_DOUBLE_CLICKED));
 		Assert.assertEquals(mSelectionListener.mEvent, SelectionEvent.SEGMENT_DOUBLE_CLICKED);
 
-		Assert.assertFalse(mSelectionManager.onSegmentClicked(touchEvent, paragraph, OnSelectedChangedListener.EVENT_LONG_CLICKED));
+		Assert.assertFalse(mSelectionManager.onParagraphSelected(touchEvent, paragraph, OnSelectedChangedListener.EVENT_LONG_CLICKED));
 		Assert.assertEquals(mSelectionListener.mEvent, SelectionEvent.SEGMENT_DOUBLE_CLICKED);
 
 		Box box = (Box) paragraph.getElement(0);

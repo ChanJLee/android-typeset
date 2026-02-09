@@ -30,6 +30,7 @@ import me.chan.texas.text.Document;
 import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.Segment;
 import me.chan.texas.text.SelectableSegment;
+import me.chan.texas.text.SelectionProvider;
 import me.chan.texas.text.layout.Box;
 
 /**
@@ -42,7 +43,7 @@ import me.chan.texas.text.layout.Box;
  * Created by Otway on 2021/11/12.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-public class SelectionManager implements OnSelectedChangedListener {
+public class SelectionManager implements OnSelectedChangedListener, SelectionProvider {
 	private Selection mCurrentSelection;
 	private Selection mCurrentHighlightSelection;
 
@@ -129,7 +130,7 @@ public class SelectionManager implements OnSelectedChangedListener {
 	}
 
 	@Override
-	public boolean onSegmentClicked(TouchEvent e, Paragraph paragraph, int eventType) {
+	public boolean onParagraphSelected(TouchEvent e, Paragraph paragraph, int eventType) {
 		if (mListener == null || paragraph == null) {
 			return false;
 		}

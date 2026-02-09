@@ -49,9 +49,9 @@ import me.chan.texas.text.BreakStrategy;
 import me.chan.texas.text.HyphenStrategy;
 import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.Segment;
+import me.chan.texas.text.SelectionProvider;
 import me.chan.texas.text.TextAttribute;
 import me.chan.texas.text.TextGravity;
-import me.chan.texas.text.ViewSegment;
 import me.chan.texas.text.layout.Box;
 import me.chan.texas.text.layout.Layout;
 import me.chan.texas.text.layout.Line;
@@ -179,7 +179,7 @@ public class ParagraphView extends FrameLayout {
 			addView((View) mRender, new FrameLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
 			OnSelectedChangedListener onSelectedChangedListener = new OnSelectedChangedListener() {
 				@Override
-				public boolean onSegmentClicked(TouchEvent e, Paragraph paragraph, int eventType) {
+				public boolean onParagraphSelected(TouchEvent e, Paragraph paragraph, int eventType) {
 					return handleParagraphClicked(e, eventType);
 				}
 
@@ -872,9 +872,9 @@ public class ParagraphView extends FrameLayout {
 		return mMinLines;
 	}
 
-	@RestrictTo(RestrictTo.Scope.LIBRARY)
-	public void setOnSelectedChangedListener(OnSelectedChangedListener onSelectedChangedListener) {
-		mRender.setOnTextSelectedListener(onSelectedChangedListener);
+	public void setSelectionProvider(@NonNull SelectionProvider provider) {
+		mRender.setOnTextSelectedListener(provider.getOnSelectedChangedListener());
+		setSpanTouchEventHandler(provider.getSpanTouchEventHandler());
 	}
 
 	/**

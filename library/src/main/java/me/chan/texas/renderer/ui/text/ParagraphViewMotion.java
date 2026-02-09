@@ -93,7 +93,7 @@ public class ParagraphViewMotion {
 		}
 
 		// 通知上层有元素被选中
-		return mOnTextSelectedListener.onSegmentClicked(TouchEvent.obtain(mView, e), mParagraph, eventType);
+		return mOnTextSelectedListener.onParagraphSelected(TouchEvent.obtain(mView, e), mParagraph, eventType);
 	}
 
 	private boolean handleDecorModeMotion(MotionEvent e, @OnSelectedChangedListener.EventType int eventType) {
