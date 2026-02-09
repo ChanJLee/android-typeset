@@ -336,16 +336,6 @@ public class RendererAdapterImpl extends RecyclerView.Adapter<RendererAdapterImp
 		for (int i = 0; i < document.getSegmentCount(); i++) {
 			Segment segment = document.getSegment(i);
 			segment.bind(this);
-
-			if (segment instanceof SelectableSegment) {
-				SelectableSegment selectableSegment = (SelectableSegment) segment;
-				for (int j = 0; j < selectableSegment.getParagraphCount(); j++) {
-					Paragraph paragraph = selectableSegment.getParagraph(j);
-					if (paragraph != null) {
-						paragraph.setTag(R.id.me_chan_texas_paragraph_outer_tag, selectableSegment);
-					}
-				}
-			}
 		}
 
 		if (prev == result.base && result.diff != null) {

@@ -21,6 +21,19 @@ public final class Document {
 
 	private Document(Builder builder) {
 		mSegments = builder.mSegments;
+		List<Segment> segments = builder.mSegments.get();
+		for (int i = 0; i < segments.size(); i++) {
+			Segment segment = segments.get(i);
+			if (segment instanceof SelectableSegment) {
+				SelectableSegment selectableSegment = (SelectableSegment) segment;
+				for (int j = 0; j < selectableSegment.getParagraphCount(); j++) {
+					Paragraph paragraph = selectableSegment.getParagraph(j);
+					if (paragraph != null) {
+						paragraph.setTag(R.id.me_chan_texas_paragraph_outer_tag, selectableSegment);
+					}
+				}
+			}
+		}
 	}
 
 	/**
