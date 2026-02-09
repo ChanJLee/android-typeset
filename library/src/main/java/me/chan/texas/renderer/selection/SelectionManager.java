@@ -50,7 +50,7 @@ public class SelectionManager implements OnSelectedChangedListener, SelectionPro
 	private final TexasRendererAdapter mAdapter;
 	private final TexasLayoutManager mLayoutManager;
 	private final Listener mListener;
-	private DragSelectView mDropView;
+	private final DragSelectView mDropView;
 	private final TexasRecyclerView mContentView;
 
 	/**
@@ -130,7 +130,7 @@ public class SelectionManager implements OnSelectedChangedListener, SelectionPro
 	}
 
 	@Override
-	public boolean onParagraphSelected(TouchEvent e, Paragraph paragraph, int eventType) {
+	public boolean onParagraphSelected(@NonNull TouchEvent e, @NonNull Paragraph paragraph, @EventType int eventType) {
 		if (mListener == null || paragraph == null) {
 			return false;
 		}
@@ -157,7 +157,7 @@ public class SelectionManager implements OnSelectedChangedListener, SelectionPro
 	 * @return 是否有box被选中
 	 */
 	@Override
-	public boolean onBoxSelected(TouchEvent e, Paragraph paragraph, @EventType int eventType, Box box) {
+	public boolean onBoxSelected(@NonNull TouchEvent e, @NonNull Paragraph paragraph, @EventType int eventType, @NonNull Box box) {
 		if (paragraph == null) {
 			return false;
 		}
