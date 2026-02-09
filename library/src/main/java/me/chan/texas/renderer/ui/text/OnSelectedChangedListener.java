@@ -2,11 +2,13 @@ package me.chan.texas.renderer.ui.text;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
 
 import me.chan.texas.renderer.TouchEvent;
 import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.layout.Box;
 
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 public interface OnSelectedChangedListener {
 	int EVENT_CLICKED = 1;
 	int EVENT_LONG_CLICKED = 2;

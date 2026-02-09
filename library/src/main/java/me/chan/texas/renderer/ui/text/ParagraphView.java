@@ -872,6 +872,7 @@ public class ParagraphView extends FrameLayout {
 		return mMinLines;
 	}
 
+	@RestrictTo(RestrictTo.Scope.LIBRARY)
 	public void setSelectionProvider(@NonNull SelectionProvider provider) {
 		mRender.setOnTextSelectedListener(provider.getOnSelectedChangedListener());
 		setSpanTouchEventHandler(provider.getSpanTouchEventHandler());
