@@ -8,6 +8,7 @@ import me.chan.texas.utils.ReferenceCountingPointer;
 import java.util.ArrayList;
 import java.util.List;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 
@@ -138,7 +139,7 @@ public final class Document {
 		 *
 		 * @param document document
 		 */
-		public Builder(@Nullable Document document) {
+		public Builder(@NonNull Document document) {
 			mSegments = new ReferenceCountingPointer<List<Segment>>(document.mSegments) {
 				@Override
 				protected List<Segment> onAcquire(List<Segment> value) {
