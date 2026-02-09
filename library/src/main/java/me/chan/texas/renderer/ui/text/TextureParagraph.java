@@ -82,6 +82,9 @@ public interface TextureParagraph {
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
 	void setRendererListener(RendererListener rendererListener);
 
+	@RestrictTo(RestrictTo.Scope.LIBRARY)
+	void setSelectionMethod(SelectionMethod selectionMethod);
+
 	interface RendererListener {
 		void onSyncUI(TextureParagraph view);
 	}

@@ -10,26 +10,20 @@ import me.chan.texas.misc.Rect;
 import me.chan.texas.misc.RectF;
 
 import android.util.Log;
-import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
-import androidx.recyclerview.widget.LinearLayoutManager;
 
 import me.chan.texas.misc.DefaultRecyclable;
 import me.chan.texas.misc.ObjectPool;
 import me.chan.texas.renderer.ParagraphPredicates;
 import me.chan.texas.renderer.RenderOption;
-import me.chan.texas.renderer.ui.rv.TexasLayoutManager;
 import me.chan.texas.renderer.ui.rv.TexasRecyclerView;
-import me.chan.texas.renderer.ui.text.ParagraphView;
 import me.chan.texas.text.Document;
 import me.chan.texas.text.Paragraph;
-import me.chan.texas.text.Segment;
-import me.chan.texas.text.SelectableSegment;
-import me.chan.texas.text.layout.Layout;
+import me.chan.texas.text.ViewSegment;
 import me.chan.texas.utils.IntSet;
 
 import java.util.ArrayList;
@@ -195,14 +189,19 @@ public class Selection extends DefaultRecyclable {
 			return false;
 		}
 
-		SelectableSegment selectableSegment = (SelectableSegment) paragraph.getTag(R.id.me_chan_texas_paragraph_outer_tag);
-		if (selectableSegment == null) {
+		ViewSegment viewSegment = paragraph.getTag(R.id.me_chan_texas_paragraph_outer_segment);
+		if (viewSegment == null) {
 			return container.getSegmentLocations(paragraph, locations);
 		}
 
-		for (int i = 0; i < selectableSegment.getParagraphCount(); ++i) {
-			if (selectableSegment.getParagraph(i) == paragraph) {
-				return container.getSelectableSegmentLocations(selectableSegment, i, locations);
+		SelectionProvider provider = viewSegment.getSelectionProvider();
+		if (provider == null) {
+			return container.getSegmentLocations(paragraph, locations);
+		}
+
+		for (int i = 0; i < provider.getParagraphCount(); ++i) {
+			if (provider.getParagraph(i) == paragraph) {
+				return container.getViewSegmentParagraphLocations(viewSegment, paragraph, locations);
 			}
 		}
 		return false;

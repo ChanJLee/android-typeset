@@ -191,6 +191,11 @@ public abstract class AbsTextureParagraphView extends View implements TexturePar
 		mRendererListener = rendererListener;
 	}
 
+	@Override
+	public void setSelectionMethod(SelectionMethod selectionMethod) {
+		mParagraphViewMotion.setSelectionMethod(selectionMethod);
+	}
+
 	public interface LayoutPredicate {
 
 		/**

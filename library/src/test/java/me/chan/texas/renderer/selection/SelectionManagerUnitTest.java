@@ -46,7 +46,6 @@ import me.chan.texas.text.BreakStrategy;
 import me.chan.texas.text.Document;
 import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.Segment;
-import me.chan.texas.text.SelectableSegment;
 import me.chan.texas.text.TextAttribute;
 import me.chan.texas.text.layout.Box;
 import me.chan.texas.text.layout.Layout;
@@ -640,7 +639,7 @@ public class SelectionManagerUnitTest {
 		}
 
 		@Override
-		public boolean getSelectableSegmentLocations(SelectableSegment selectableSegment, int index, Rect locations) {
+		public boolean getSelectableSegmentLocations(SelectionProvider selectableSegment, int index, Rect locations) {
 			getSegmentLocations((Segment) selectableSegment, locations);
 			// mock padding
 			locations.offset(PADDING_H, PADDING_V);
@@ -910,7 +909,7 @@ public class SelectionManagerUnitTest {
 		Assert.assertTrue(TexasUtils.intersects(lhs, rhs));
 	}
 
-	private static class MySelectableSegment extends me.chan.texas.text.ViewSegment implements me.chan.texas.text.SelectableSegment {
+	private static class MySelectableSegment extends me.chan.texas.text.ViewSegment implements SelectionProvider {
 		private final Paragraph[] mParagraphs;
 		private int mOffset;
 
@@ -918,7 +917,7 @@ public class SelectionManagerUnitTest {
 			super(0);
 			mParagraphs = paragraphs;
 			for (int i = 0; i < paragraphs.length; i++) {
-				paragraphs[i].setTag(R.id.me_chan_texas_paragraph_outer_tag, this);
+				paragraphs[i].setTag(R.id.me_chan_texas_paragraph_outer_segment, this);
 			}
 		}
 

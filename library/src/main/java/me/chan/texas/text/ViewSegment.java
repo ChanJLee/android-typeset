@@ -7,23 +7,22 @@ import me.chan.texas.misc.Rect;
 import android.view.View;
 
 import androidx.annotation.LayoutRes;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.recyclerview.widget.RecyclerView;
 
+import me.chan.texas.renderer.selection.SelectionProvider;
 import me.chan.texas.renderer.ui.RendererHost;
 
 /**
  * 用户自定义视图片段
  */
 public abstract class ViewSegment implements Segment {
-	private int mLayout;
-	private boolean mDisableReuse;
-	@RestrictTo(RestrictTo.Scope.LIBRARY)
-	private Object mTag;
 	private Rect mRect;
 
 	private int mId;
+	private final Args mArgs;
 
 	/*
 	 * 这个地方只能用layout id来做，不能用view，用id的话，实例是引擎内部创建，
@@ -44,7 +43,9 @@ public abstract class ViewSegment implements Segment {
 	 *
 	 * @param layout       layout id
 	 * @param disableReuse 是否需要复用
+	 *                     use {@link ViewSegment(Args)} instead
 	 */
+	@Deprecated
 	public ViewSegment(@LayoutRes int layout, boolean disableReuse) {
 		this(layout, disableReuse, null);
 	}
@@ -55,21 +56,25 @@ public abstract class ViewSegment implements Segment {
 	 * @param layout       layout id
 	 * @param disableReuse 是否需要复用
 	 * @param tag          唯一标识
+	 *                     use {@link ViewSegment(Args)} instead
 	 */
+	@Deprecated
 	public ViewSegment(@LayoutRes int layout, boolean disableReuse, Object tag) {
-		mTag = tag;
-		mLayout = layout;
-		mDisableReuse = disableReuse;
+		this(new Args(layout).disableReuse(disableReuse).tag(tag));
+	}
+
+	public ViewSegment(@NonNull Args args) {
+		mArgs = args;
 		mId = Segment.nextId();
 	}
 
 	@RestrictTo(LIBRARY)
-	public int getLayout() {
-		return mLayout;
+	public final int getLayout() {
+		return mArgs.mLayout;
 	}
 
-	public boolean isDisableReuse() {
-		return mDisableReuse;
+	public final boolean isDisableReuse() {
+		return mArgs.mDisableReuse;
 	}
 
 	private RendererHost mHost;
@@ -93,41 +98,38 @@ public abstract class ViewSegment implements Segment {
 	protected abstract void onRender(View view);
 
 	@Override
-	public void recycle() {
-		mTag = null;
+	public final void recycle() {
 		mRect = null;
-		mDisableReuse = false;
-		mLayout = 0;
 		mId = 0;
 		mHost = null;
 		mHolder = null;
 	}
 
 	@Override
-	public boolean isRecycled() {
+	public final boolean isRecycled() {
 		return mId == 0;
 	}
 
 	@Nullable
 	@Override
-	public Object getTag() {
-		return mTag;
+	public final Object getTag() {
+		return mArgs.mTag;
 	}
 
 	@Nullable
 	@Override
-	public void getRect(Rect rect) {
+	public final void getRect(Rect rect) {
 		rect.set(mRect);
 	}
 
 	@Override
-	public void setPadding(Rect rect) {
+	public final void setPadding(Rect rect) {
 		mRect = rect;
 	}
 
 	@Nullable
 	@Override
-	public Rect getRect() {
+	public final Rect getRect() {
 		return mRect;
 	}
 
@@ -161,8 +163,40 @@ public abstract class ViewSegment implements Segment {
 	protected void onDetachedFromWindow() {
 	}
 
+	@Nullable
+	public final SelectionProvider getSelectionProvider() {
+		return mArgs.mSelectionProvider;
+	}
+
 	@Override
 	public final int getIndex() {
 		return mHost == null ? -1 : mHost.indexOf(this);
+	}
+
+	public static class Args {
+		private final int mLayout;
+		private boolean mDisableReuse;
+		@RestrictTo(RestrictTo.Scope.LIBRARY)
+		private Object mTag;
+		private SelectionProvider mSelectionProvider;
+
+		public Args(int layout) {
+			mLayout = layout;
+		}
+
+		public Args disableReuse(boolean disableReuse) {
+			mDisableReuse = disableReuse;
+			return this;
+		}
+
+		public Args tag(Object tag) {
+			mTag = tag;
+			return this;
+		}
+
+		public Args selectionProvider(SelectionProvider selectionProvider) {
+			mSelectionProvider = selectionProvider;
+			return this;
+		}
 	}
 }

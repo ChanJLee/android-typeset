@@ -50,6 +50,7 @@ import me.chan.texas.text.HyphenStrategy;
 import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.Segment;
 import me.chan.texas.renderer.selection.SelectionMethod;
+import me.chan.texas.renderer.selection.SelectionProvider;
 import me.chan.texas.text.TextAttribute;
 import me.chan.texas.text.TextGravity;
 import me.chan.texas.text.layout.Box;
@@ -145,6 +146,7 @@ public class ParagraphView extends FrameLayout {
 
 			mParagraph = paragraph;
 			paragraph.bind(mHost);
+			paragraph.setTag(R.id.me_chan_texas_paragraph_outer_view, ParagraphView.this);
 			requestLayout();
 		}
 
@@ -888,11 +890,12 @@ public class ParagraphView extends FrameLayout {
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
 	public void setSelectionMethod(@NonNull SelectionMethod selectionMethod) {
 		mSelectionMethod = selectionMethod;
+		mRender.setSelectionMethod(selectionMethod);
 	}
 
 	/**
 	 * @return 是否允许在嵌入到 {@link TexasView} 中显示的时候，使用 {@link TexasView} 的样式，默认 false
-	 * {@link me.chan.texas.text.SelectableSegment}
+	 * {@link SelectionProvider}
 	 */
 	public boolean isOverrideStyles() {
 		return mOverrideStyles;

@@ -165,6 +165,10 @@ public class ParagraphViewMotion {
 
 	private final MotionEventVisitor mMotionEventVisitor = new MotionEventVisitor();
 
+	public void setSelectionMethod(SelectionMethod selectionMethod) {
+		mSelectionMethod = selectionMethod;
+	}
+
 	private static class MotionEventVisitor extends ParagraphVisitor {
 
 		private Box mBox;

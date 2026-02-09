@@ -92,11 +92,11 @@ public final class Paragraph implements Segment {
 	}
 
 	@Nullable
-	public Object getTag(@IdRes int key) {
+	public <T> T getTag(@IdRes int key) {
 		if (mTagsKv == null) {
 			return null;
 		}
-		return mTagsKv.get(key);
+		return (T) mTagsKv.get(key);
 	}
 
 	@Override

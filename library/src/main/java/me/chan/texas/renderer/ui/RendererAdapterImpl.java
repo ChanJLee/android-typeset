@@ -44,7 +44,7 @@ import me.chan.texas.text.Document;
 import me.chan.texas.text.Figure;
 import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.Segment;
-import me.chan.texas.text.SelectableSegment;
+import me.chan.texas.renderer.selection.SelectionProvider;
 import me.chan.texas.text.ViewSegment;
 import me.chan.texas.text.layout.Layout;
 import me.chan.texas.utils.concurrency.Worker;
@@ -521,6 +521,7 @@ public class RendererAdapterImpl extends RecyclerView.Adapter<RendererAdapterImp
 	}
 
 	class ViewSegmentRenderer extends Renderer<ViewSegment> {
+		private List<ParagraphView> mParagraphViews;
 
 		ViewSegmentRenderer(@NonNull SegmentItemFragmentLayout root) {
 			super(root);
@@ -549,16 +550,23 @@ public class RendererAdapterImpl extends RecyclerView.Adapter<RendererAdapterImp
 				rootView.setPadding(rect.left, rect.top, rect.right, rect.bottom);
 			}
 
-			if (data instanceof SelectableSegment) {
-				SelectableSegment selectableSegment = (SelectableSegment) data;
-				for (int i = 0; i < selectableSegment.getParagraphCount(); i++) {
-					ParagraphView paragraphView = selectableSegment.getParagraphView(i);
-					if (paragraphView != null) {
-						paragraphView.setSelectionMethod(mSelectionManager);
-						if (paragraphView.isOverrideStyles()) {
-							paragraphView.refresh(mRenderOption);
-						}
-					}
+			for (int i = 0; mParagraphViews != null && i < mParagraphViews.size(); i++) {
+				ParagraphView paragraphView = mParagraphViews.get(i);
+				if (paragraphView != null && paragraphView.isOverrideStyles()) {
+					paragraphView.refresh(mRenderOption);
+				}
+			}
+
+			SelectionProvider provider = data.getSelectionProvider();
+			if (provider == null) {
+				return;
+			}
+
+			for (int i = 0; i < provider.getParagraphCount(); ++i) {
+				Paragraph paragraph = provider.getParagraph(i);
+				ParagraphView paragraphView = paragraph.getTag(R.id.me_chan_texas_paragraph_outer_view);
+				if (paragraphView != null) {
+					paragraphView.setSelectionMethod(mSelectionManager);
 				}
 			}
 		}
