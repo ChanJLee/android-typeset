@@ -44,7 +44,7 @@ import me.chan.texas.text.Document;
 import me.chan.texas.text.Figure;
 import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.Segment;
-import me.chan.texas.text.SelectableSegment;
+import me.chan.texas.renderer.selection.SelectionProvider;
 import me.chan.texas.text.ViewSegment;
 import me.chan.texas.text.layout.Layout;
 import me.chan.texas.utils.concurrency.Worker;
@@ -521,6 +521,7 @@ public class RendererAdapterImpl extends RecyclerView.Adapter<RendererAdapterImp
 	}
 
 	class ViewSegmentRenderer extends Renderer<ViewSegment> {
+		private List<ParagraphView> mParagraphViews;
 
 		ViewSegmentRenderer(@NonNull SegmentItemFragmentLayout root) {
 			super(root);
@@ -534,38 +535,36 @@ public class RendererAdapterImpl extends RecyclerView.Adapter<RendererAdapterImp
 
 		@Override
 		protected void onRender(final ViewSegment data) {
-			SegmentItemFragmentLayout layout = (SegmentItemFragmentLayout) itemView;
+			SegmentItemFragmentLayout rootView = getRootView();
 
-			View content = layout.getContent();
-			data.render(content);
+			View content = getContentView();
+			data.render(content, mSelectionManager);
 
 			// 当内容被设置为GONE后，当前的item还是会在rv里占用一个格子，这会导致界面上出现大片空白
 			// 因此当发现内容为gone要把当前item高度设置为0
 			if (content.getVisibility() == View.GONE) {
-				layout.setPadding(0, 0, 0, 0);
+				rootView.setPadding(0, 0, 0, 0);
 			} else {
 				Rect rect = data.getRect();
 				assert rect != null;
-				layout.setPadding(rect.left, rect.top, rect.right, rect.bottom);
+				rootView.setPadding(rect.left, rect.top, rect.right, rect.bottom);
 			}
 
-			if (data instanceof SelectableSegment) {
-				SelectableSegment selectableSegment = (SelectableSegment) data;
-				for (int i = 0; i < selectableSegment.getParagraphCount(); i++) {
-					ParagraphView paragraphView = selectableSegment.getParagraphView(i);
-					if (paragraphView != null) {
-						paragraphView.setSelectionProvider(mSelectionManager);
-						if (paragraphView.isOverrideStyles()) {
-							paragraphView.refresh(mRenderOption);
-						}
-					}
-
-					Paragraph paragraph = selectableSegment.getParagraph(i);
-					if (paragraph != null) {
-						paragraph.setTag(R.id.me_chan_texas_paragraph_outer_tag, selectableSegment);
-					}
+			for (int i = 0; mParagraphViews != null && i < mParagraphViews.size(); i++) {
+				ParagraphView paragraphView = mParagraphViews.get(i);
+				if (paragraphView != null && paragraphView.isOverrideStyles()) {
+					paragraphView.refresh(mRenderOption);
 				}
 			}
+		}
+
+		private View getContentView() {
+			SegmentItemFragmentLayout layout = getRootView();
+			return layout.getContent();
+		}
+
+		private SegmentItemFragmentLayout getRootView() {
+			return (SegmentItemFragmentLayout) itemView;
 		}
 	}
 

@@ -49,7 +49,8 @@ import me.chan.texas.text.BreakStrategy;
 import me.chan.texas.text.HyphenStrategy;
 import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.Segment;
-import me.chan.texas.text.SelectionProvider;
+import me.chan.texas.renderer.selection.SelectionMethod;
+import me.chan.texas.renderer.selection.SelectionProvider;
 import me.chan.texas.text.TextAttribute;
 import me.chan.texas.text.TextGravity;
 import me.chan.texas.text.layout.Box;
@@ -109,7 +110,7 @@ public class ParagraphView extends FrameLayout {
 			return handleParagraphSelected(e, paragraph, eventType, box);
 		}
 	};
-	private SelectionProvider mSelectionProvider = new SelectionProvider() {
+	private SelectionMethod mSelectionMethod = new SelectionMethod() {
 		@NonNull
 		@Override
 		public SpanTouchEventHandler getSpanTouchEventHandler() {
@@ -556,7 +557,7 @@ public class ParagraphView extends FrameLayout {
 			Log.d(TAG, "render0: paragraph = " + paragraph);
 		}
 
-		mRender.render(paragraph, mUiThreadPaintSet, mRenderOption, mSelectionProvider);
+		mRender.render(paragraph, mUiThreadPaintSet, mRenderOption, mSelectionMethod);
 	}
 
 	/**
@@ -886,13 +887,14 @@ public class ParagraphView extends FrameLayout {
 	}
 
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
-	public void setSelectionProvider(@NonNull SelectionProvider selectionProvider) {
-		mSelectionProvider = selectionProvider;
+	public void setSelectionMethod(@NonNull SelectionMethod selectionMethod) {
+		mSelectionMethod = selectionMethod;
+		mRender.setSelectionMethod(selectionMethod);
 	}
 
 	/**
 	 * @return 是否允许在嵌入到 {@link TexasView} 中显示的时候，使用 {@link TexasView} 的样式，默认 false
-	 * {@link me.chan.texas.text.SelectableSegment}
+	 * {@link SelectionProvider}
 	 */
 	public boolean isOverrideStyles() {
 		return mOverrideStyles;

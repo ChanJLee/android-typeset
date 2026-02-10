@@ -12,15 +12,16 @@ import androidx.recyclerview.widget.SimpleItemAnimator;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
+import me.chan.texas.R;
 import me.chan.texas.misc.Rect;
 import me.chan.texas.renderer.TouchEvent;
-import me.chan.texas.renderer.selection.SelectionManager;
 import me.chan.texas.renderer.ui.TexasRendererAdapter;
 import me.chan.texas.renderer.ui.text.ParagraphView;
 import me.chan.texas.text.Document;
 import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.Segment;
-import me.chan.texas.text.SelectableSegment;
+import me.chan.texas.renderer.selection.SelectionProvider;
+import me.chan.texas.text.ViewSegment;
 import me.chan.texas.text.layout.Layout;
 
 @RestrictTo(LIBRARY)
@@ -135,28 +136,26 @@ public class TexasRecyclerViewImpl extends RecyclerView implements TexasRecycler
 	}
 
 	@Override
-	public boolean getSelectableSegmentLocations(SelectableSegment selectableSegment, int indexOfSelectableSegment, Rect locations) {
+	public boolean getViewSegmentParagraphLocations(ViewSegment viewSegment, ParagraphView paragraphView, Paragraph paragraph, Rect locations) {
 		locations.top = locations.left = locations.right = locations.bottom = 0;
+
+		if (paragraphView == null) {
+			return false;
+		}
+
 		TexasRendererAdapter adapter = (TexasRendererAdapter) getAdapter();
 		if (adapter == null) {
 			return false;
 		}
 
-		int index = adapter.indexOf((Segment) selectableSegment);
+		int index = adapter.indexOf(viewSegment);
 		if (index < 0) {
 			return false;
 		}
 
-		View child = mTexasLinearLayoutManager.findViewByPosition(index);
-		if (child == null) {
-			return false;
-		}
-
-		Paragraph paragraph = selectableSegment.getParagraph(index);
 		Layout layout = paragraph.getLayout();
 		locations.bottom = layout.getHeight();
 		locations.right = layout.getWidth();
-		ParagraphView paragraphView = selectableSegment.getParagraphView(indexOfSelectableSegment);
 		adjustLocationsOffset(locations, this, (View) paragraphView.getRender());
 		return true;
 	}

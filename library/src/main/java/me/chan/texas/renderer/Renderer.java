@@ -38,7 +38,7 @@ import me.chan.texas.renderer.ui.rv.SegmentItemDecoration;
 import me.chan.texas.renderer.ui.rv.TexasLinearLayoutManagerImpl;
 import me.chan.texas.renderer.ui.rv.TexasRecyclerViewImpl;
 import me.chan.texas.text.Document;
-import me.chan.texas.text.SelectionProvider;
+import me.chan.texas.renderer.selection.SelectionMethod;
 import me.chan.texas.utils.TexasUtils;
 import me.chan.texas.utils.concurrency.Worker;
 
@@ -547,7 +547,7 @@ public class Renderer implements SelectionManager.Listener {
 		mRecyclerView.smoothScrollBy(dx, dy);
 	}
 
-	public SelectionProvider getSelectionProvider() {
+	public SelectionMethod getSelectionMethod() {
 		return mSelectionManager;
 	}
 }

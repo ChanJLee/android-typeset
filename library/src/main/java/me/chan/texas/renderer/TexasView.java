@@ -45,13 +45,12 @@ import me.chan.texas.measurer.Measurer;
 import me.chan.texas.misc.PaintSet;
 import me.chan.texas.renderer.core.worker.LoadingWorker;
 import me.chan.texas.renderer.selection.Selection;
-import me.chan.texas.renderer.ui.decor.ParagraphDecor;
 import me.chan.texas.source.Source;
 import me.chan.texas.text.BreakStrategy;
 import me.chan.texas.text.Document;
 import me.chan.texas.text.HyphenStrategy;
 import me.chan.texas.text.Segment;
-import me.chan.texas.text.SelectionProvider;
+import me.chan.texas.renderer.selection.SelectionMethod;
 import me.chan.texas.text.TextAttribute;
 import me.chan.texas.text.TextGravity;
 import me.chan.texas.utils.TexasUtils;
@@ -857,8 +856,8 @@ public final class TexasView extends FrameLayout {
 	 * @return 获得选中的逻辑
 	 */
 	@Nullable
-	public SelectionProvider getSelectionProvider() {
-		return mRenderer == null ? null : mRenderer.getSelectionProvider();
+	public SelectionMethod getSelectionMethod() {
+		return mRenderer == null ? null : mRenderer.getSelectionMethod();
 	}
 
 	/**

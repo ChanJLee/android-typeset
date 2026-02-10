@@ -5,9 +5,11 @@ import androidx.annotation.RestrictTo;
 import androidx.recyclerview.widget.RecyclerView;
 
 import me.chan.texas.misc.Rect;
+import me.chan.texas.renderer.ui.text.ParagraphView;
 import me.chan.texas.text.Document;
+import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.Segment;
-import me.chan.texas.text.SelectableSegment;
+import me.chan.texas.text.ViewSegment;
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public interface TexasRecyclerView {
@@ -26,5 +28,5 @@ public interface TexasRecyclerView {
 	@Nullable
 	Document getDocument();
 
-	boolean getSelectableSegmentLocations(SelectableSegment selectableSegment, int index, Rect locations);
+	boolean getViewSegmentParagraphLocations(ViewSegment viewSegment, ParagraphView paragraphView, Paragraph paragraph, Rect locations);
 }

@@ -1364,6 +1364,8 @@ public class Segment extends DefaultRecyclable {
 
 ### 自定义 ViewSegment
 
+#### 基本用法
+
 ```java
 new ViewSegment(R.layout.test_header) {
 
@@ -1383,6 +1385,139 @@ new ViewSegment(R.layout.test_header) {
     }
 }
 ```
+
+#### ViewSegment 支持自由选中
+
+从新版本开始，ViewSegment 支持将其内部的 ParagraphView 参与到 TexasView 的自由选中功能中。这意味着：
+
+- ✅ 自定义布局中的 ParagraphView 可以与其他文本段落一起被选中
+- ✅ 无需手动设置 ParagraphView 的数据源
+- ✅ 无需手动处理 ParagraphView 的点击事件
+- ✅ ParagraphView 的渲染样式可以自动跟随 TexasView
+
+**使用方式：**
+
+```java
+public class ParallelViewSegment extends ViewSegment {
+    private final String mText;
+    
+    public ParallelViewSegment(Paragraph paragraph, String text) {
+        super(new Args(R.layout.item_parallel)
+                .disableReuse(true)
+                // 将布局中的 ParagraphView 添加到自由选中系统
+                // 参数1：ParagraphView 的 id
+                // 参数2：要渲染的 Paragraph 数据
+                .addSelectionProvider(R.id.paragraph_view, paragraph));
+        mText = text;
+    }
+    
+    @Override
+    protected void onRender(View view) {
+        // 只需要处理其他视图，ParagraphView 会自动渲染
+        TextView textView = view.findViewById(R.id.text_view);
+        textView.setText(mText);
+    }
+}
+```
+
+**布局文件示例（item_parallel.xml）：**
+
+```xml
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal">
+    
+    <!-- 左侧：自定义文本 -->
+    <TextView
+        android:id="@+id/text_view"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1" />
+    
+    <!-- 右侧：可参与自由选中的 ParagraphView -->
+    <me.chan.texas.renderer.ui.text.ParagraphView
+        android:id="@+id/paragraph_view"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        app:me_chan_texas_ParagraphView_overrideStyles="true" />
+    
+</LinearLayout>
+```
+
+**高级用法 - 多个 ParagraphView：**
+
+```java
+public ParallelViewSegment(Paragraph paragraph1, Paragraph paragraph2, String text) {
+    super(new Args(R.layout.item_multi_parallel)
+            .disableReuse(true)
+            // 可以添加多个 ParagraphView
+            .addSelectionProvider(R.id.paragraph_left, paragraph1)
+            .addSelectionProvider(R.id.paragraph_right, paragraph2));
+    mText = text;
+}
+```
+
+**注意事项：**
+
+1. **样式同步**：在 ParagraphView 的 XML 属性中设置 `me_chan_texas_ParagraphView_overrideStyles="true"`，可以让 ParagraphView 的渲染样式跟随 TexasView 的全局配置
+
+2. **数据源管理**：使用 `addSelectionProvider` 后，不要再手动调用 ParagraphView 的 `setParagraph()` 方法，否则会导致数据不一致
+
+3. **选中效果**：添加到 SelectionProvider 的 ParagraphView 会自动参与以下功能：
+   - 文本选中和拖拽选择
+   - 高亮显示
+   - 单词点击识别
+   - 长按选择
+
+**实际应用场景：**
+
+- 📖 **双语对照阅读器**：左侧显示中文，右侧显示英文，两边都可以自由选中
+- 📝 **注释文本**：原文和注释并排显示，可以分别选择
+- 🎓 **教学材料**：题目和答案对照显示，支持独立选择
+- 📚 **诗歌排版**：左右对齐的对偶句，可以分别交互
+
+**完整示例 - 双语对照阅读：**
+
+```java
+texasView.setSource(new TexasView.DocumentSource() {
+    @Override
+    protected Document onRead(TexasOption option, @Nullable Document previousDocument) {
+        Document.Builder builder = new Document.Builder(null);
+        
+        for (int i = 0; i < bilingualTexts.size(); i++) {
+            BilingualText text = bilingualTexts.get(i);
+            
+            // 创建中文段落
+            Paragraph chineseParagraph = Paragraph.Builder.newBuilder(option)
+                .tag("cn_" + i)
+                .stream(text.chinese, 0, text.chinese.length(), 
+                    token -> Paragraph.Span.obtain(token).tag(new WordTag(token.toString())))
+                .build();
+            
+            // 创建英文段落
+            Paragraph englishParagraph = Paragraph.Builder.newBuilder(option)
+                .tag("en_" + i)
+                .stream(text.english, 0, text.english.length(),
+                    token -> Paragraph.Span.obtain(token).tag(new WordTag(token.toString())))
+                .build();
+            
+            // 创建双语对照的 ViewSegment
+            builder.addSegment(new ParallelViewSegment(
+                chineseParagraph,  // 中文段落
+                englishParagraph,  // 英文段落
+                "第 " + (i + 1) + " 段"  // 段落标题
+            ));
+        }
+        
+        return builder.build();
+    }
+});
+```
+
+通过 SelectionProvider 机制，你可以轻松实现复杂的自定义布局，同时保留 Texas 强大的文本交互能力。
 
 ## 最佳实践
 

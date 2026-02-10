@@ -6,24 +6,29 @@ import me.chan.texas.misc.Rect;
 
 import android.view.View;
 
+import androidx.annotation.IdRes;
 import androidx.annotation.LayoutRes;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.recyclerview.widget.RecyclerView;
 
+import me.chan.texas.renderer.ParagraphPredicates;
+import me.chan.texas.renderer.RenderOption;
+import me.chan.texas.renderer.SpanTouchEventHandler;
+import me.chan.texas.renderer.selection.SelectionMethod;
+import me.chan.texas.renderer.selection.SelectionProvider;
 import me.chan.texas.renderer.ui.RendererHost;
+import me.chan.texas.renderer.ui.text.ParagraphView;
 
 /**
  * 用户自定义视图片段
  */
 public abstract class ViewSegment implements Segment {
-	private int mLayout;
-	private boolean mDisableReuse;
-	@RestrictTo(RestrictTo.Scope.LIBRARY)
-	private Object mTag;
 	private Rect mRect;
 
 	private int mId;
+	private Args mArgs;
 
 	/*
 	 * 这个地方只能用layout id来做，不能用view，用id的话，实例是引擎内部创建，
@@ -44,7 +49,9 @@ public abstract class ViewSegment implements Segment {
 	 *
 	 * @param layout       layout id
 	 * @param disableReuse 是否需要复用
+	 *                     use {@link ViewSegment(Args)} instead
 	 */
+	@Deprecated
 	public ViewSegment(@LayoutRes int layout, boolean disableReuse) {
 		this(layout, disableReuse, null);
 	}
@@ -55,27 +62,41 @@ public abstract class ViewSegment implements Segment {
 	 * @param layout       layout id
 	 * @param disableReuse 是否需要复用
 	 * @param tag          唯一标识
+	 *                     use {@link ViewSegment(Args)} instead
 	 */
+	@Deprecated
 	public ViewSegment(@LayoutRes int layout, boolean disableReuse, Object tag) {
-		mTag = tag;
-		mLayout = layout;
-		mDisableReuse = disableReuse;
+		this(new Args(layout).disableReuse(disableReuse).tag(tag));
+	}
+
+	public ViewSegment(@NonNull Args args) {
+		mArgs = args;
 		mId = Segment.nextId();
 	}
 
 	@RestrictTo(LIBRARY)
-	public int getLayout() {
-		return mLayout;
+	public final int getLayout() {
+		return mArgs == null ? 0 : mArgs.mLayout;
 	}
 
-	public boolean isDisableReuse() {
-		return mDisableReuse;
+	public final boolean isDisableReuse() {
+		return mArgs != null && mArgs.mDisableReuse;
 	}
 
 	private RendererHost mHost;
 	private RecyclerView.ViewHolder mHolder;
 
-	public final void render(View view) {
+	public final void render(View view, SelectionMethod method) {
+		SelectionProvider provider = getSelectionProvider();
+		if (provider != null) {
+			for (int i = 0; i < provider.size(); ++i) {
+				SelectionProvider.ParagraphBinding bind = provider.get(i);
+				ParagraphView paragraphView = view.findViewById(bind.getId());
+				bind.setView(paragraphView);
+				paragraphView.setSelectionMethod(method);
+				paragraphView.setParagraph(bind.getParagraph());
+			}
+		}
 		onRender(view);
 	}
 
@@ -93,41 +114,39 @@ public abstract class ViewSegment implements Segment {
 	protected abstract void onRender(View view);
 
 	@Override
-	public void recycle() {
-		mTag = null;
+	public final void recycle() {
 		mRect = null;
-		mDisableReuse = false;
-		mLayout = 0;
 		mId = 0;
 		mHost = null;
 		mHolder = null;
+		mArgs = null;
 	}
 
 	@Override
-	public boolean isRecycled() {
+	public final boolean isRecycled() {
 		return mId == 0;
 	}
 
 	@Nullable
 	@Override
-	public Object getTag() {
-		return mTag;
+	public final Object getTag() {
+		return mArgs == null ? null : mArgs.mTag;
 	}
 
 	@Nullable
 	@Override
-	public void getRect(Rect rect) {
+	public final void getRect(Rect rect) {
 		rect.set(mRect);
 	}
 
 	@Override
-	public void setPadding(Rect rect) {
+	public final void setPadding(Rect rect) {
 		mRect = rect;
 	}
 
 	@Nullable
 	@Override
-	public Rect getRect() {
+	public final Rect getRect() {
 		return mRect;
 	}
 
@@ -161,8 +180,60 @@ public abstract class ViewSegment implements Segment {
 	protected void onDetachedFromWindow() {
 	}
 
+	@Nullable
+	public final SelectionProvider getSelectionProvider() {
+		return mArgs == null ? null : mArgs.mSelectionProvider;
+	}
+
 	@Override
 	public final int getIndex() {
 		return mHost == null ? -1 : mHost.indexOf(this);
+	}
+
+	public static class Args {
+		private final int mLayout;
+		private boolean mDisableReuse;
+		@RestrictTo(RestrictTo.Scope.LIBRARY)
+		private Object mTag;
+		private SelectionProvider mSelectionProvider;
+
+		public Args(int layout) {
+			mLayout = layout;
+		}
+
+		/**
+		 * @param disableReuse 布局是否禁止复用
+		 * @return 当前对象
+		 */
+		public Args disableReuse(boolean disableReuse) {
+			mDisableReuse = disableReuse;
+			return this;
+		}
+
+		/**
+		 * @param tag 设置当前ViewSegment的tag
+		 * @return 当前对象
+		 */
+		public Args tag(Object tag) {
+			mTag = tag;
+			return this;
+		}
+
+		/**
+		 * 将当前layout中的ParagraphView 参与到TexasView的自由选中效果 {@link me.chan.texas.renderer.TexasView#selectParagraphs(ParagraphPredicates)}
+		 * 上层无需再手动设置ParagraphView的数据源 {@link ParagraphView#setParagraph(Paragraph)} 以及点击事件响应 {@link ParagraphView#setSpanTouchEventHandler(SpanTouchEventHandler)}
+		 * 通过设置ParagraphView的me_chan_texas_ParagraphView_overrideStyles你也可以使得当前ParagraphView渲染样式也跟随TexasView {@link ParagraphView#refresh(RenderOption)}
+		 *
+		 * @param paragraphViewId ID
+		 * @param paragraph       paragraph
+		 * @return 当前对象
+		 */
+		public Args addSelectionProvider(@IdRes int paragraphViewId, Paragraph paragraph) {
+			if (mSelectionProvider == null) {
+				mSelectionProvider = new SelectionProvider();
+			}
+			mSelectionProvider.add(new SelectionProvider.ParagraphBinding(paragraphViewId, paragraph));
+			return this;
+		}
 	}
 }

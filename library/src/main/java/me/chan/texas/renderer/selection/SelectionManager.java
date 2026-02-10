@@ -26,11 +26,11 @@ import me.chan.texas.renderer.ui.TexasRendererAdapter;
 import me.chan.texas.renderer.ui.rv.TexasLayoutManager;
 import me.chan.texas.renderer.ui.rv.TexasRecyclerView;
 import me.chan.texas.renderer.ui.text.OnSelectedChangedListener;
+import me.chan.texas.renderer.ui.text.ParagraphView;
 import me.chan.texas.text.Document;
 import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.Segment;
-import me.chan.texas.text.SelectableSegment;
-import me.chan.texas.text.SelectionProvider;
+import me.chan.texas.text.ViewSegment;
 import me.chan.texas.text.layout.Box;
 
 /**
@@ -43,7 +43,7 @@ import me.chan.texas.text.layout.Box;
  * Created by Otway on 2021/11/12.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-public class SelectionManager implements OnSelectedChangedListener, SelectionProvider {
+public class SelectionManager implements OnSelectedChangedListener, SelectionMethod {
 	private Selection mCurrentSelection;
 	private Selection mCurrentHighlightSelection;
 
@@ -332,8 +332,8 @@ public class SelectionManager implements OnSelectedChangedListener, SelectionPro
 			Segment segment = mAdapter.getItem(i);
 			if (segment instanceof Paragraph) {
 				updateParagraphSelection(currentSelection, renderOption, (Paragraph) segment, x1, y1, x2, y2);
-			} else if (segment instanceof SelectableSegment) {
-				updateSelectableParagraphSelection(currentSelection, renderOption, (SelectableSegment) segment, x1, y1, x2, y2);
+			} else if (segment instanceof ViewSegment) {
+				updateSelectableParagraphSelection(currentSelection, renderOption, (ViewSegment) segment, x1, y1, x2, y2);
 			}
 		}
 
@@ -342,8 +342,13 @@ public class SelectionManager implements OnSelectedChangedListener, SelectionPro
 
 	private void updateSelectableParagraphSelection(Selection currentSelection,
 													RenderOption renderOption,
-													SelectableSegment selectableSegment, float x1, float y1, float x2, float y2) {
-		if (!mContentView.getSegmentLocations((Segment) selectableSegment, mLocations)) {
+													ViewSegment viewSegment, float x1, float y1, float x2, float y2) {
+		SelectionProvider provider = viewSegment.getSelectionProvider();
+		if (provider == null || provider.size() <= 0) {
+			return;
+		}
+
+		if (!mContentView.getSegmentLocations(viewSegment, mLocations)) {
 			return;
 		}
 
@@ -351,9 +356,10 @@ public class SelectionManager implements OnSelectedChangedListener, SelectionPro
 			return;
 		}
 
-		for (int i = 0; i < selectableSegment.getParagraphCount(); ++i) {
-			Paragraph paragraph = selectableSegment.getParagraph(i);
-			if (mContentView.getSelectableSegmentLocations(selectableSegment, i, mLocations)) {
+		for (int i = 0; i < provider.size(); ++i) {
+			SelectionProvider.ParagraphBinding binding = provider.get(i);
+			Paragraph paragraph = binding.getParagraph();
+			if (mContentView.getViewSegmentParagraphLocations(viewSegment, binding.getView(), paragraph, mLocations)) {
 				updateParagraphSelection0(currentSelection, renderOption, paragraph, x1, y1, x2, y2, mLocations);
 			}
 		}

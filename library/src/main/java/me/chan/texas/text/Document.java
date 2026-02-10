@@ -2,6 +2,7 @@ package me.chan.texas.text;
 
 import me.chan.texas.R;
 import me.chan.texas.Texas;
+import me.chan.texas.renderer.selection.SelectionProvider;
 import me.chan.texas.text.util.TexasIterator;
 import me.chan.texas.utils.ReferenceCountingPointer;
 
@@ -21,6 +22,21 @@ public final class Document {
 
 	private Document(Builder builder) {
 		mSegments = builder.mSegments;
+		List<Segment> segments = builder.mSegments.get();
+		for (int i = 0; i < segments.size(); i++) {
+			Segment segment = segments.get(i);
+			if (segment instanceof ViewSegment) {
+				ViewSegment viewSegment = (ViewSegment) segment;
+				SelectionProvider provider = viewSegment.getSelectionProvider();
+				if (provider != null) {
+					for (int j = 0; j < provider.size(); j++) {
+						SelectionProvider.ParagraphBinding binding = provider.get(j);
+						Paragraph paragraph = binding.getParagraph();
+						paragraph.setTag(R.id.me_chan_texas_paragraph_outer_segment, segment);
+					}
+				}
+			}
+		}
 	}
 
 	/**
@@ -34,9 +50,9 @@ public final class Document {
 
 		if (segment instanceof Paragraph) {
 			Paragraph paragraph = (Paragraph) segment;
-			SelectableSegment outer = (SelectableSegment) paragraph.getTag(R.id.me_chan_texas_paragraph_outer_tag);
+			Segment outer = paragraph.getTag(R.id.me_chan_texas_paragraph_outer_segment);
 			if (outer != null) {
-				segment = (Segment) outer;
+				segment = outer;
 			}
 		}
 
@@ -120,29 +136,33 @@ public final class Document {
 	public static class Builder {
 		private final ReferenceCountingPointer<List<Segment>> mSegments;
 
+		public Builder() {
+			this(null);
+		}
+
 		/**
 		 * 拷贝这个document的内容，并且可以编辑
 		 *
 		 * @param document document
 		 */
 		public Builder(@Nullable Document document) {
-			mSegments = new ReferenceCountingPointer<List<Segment>>(document.mSegments) {
-				@Override
-				protected List<Segment> onAcquire(List<Segment> value) {
-					return new ArrayList<>(value);
-				}
-			};
-		}
-
-		public Builder() {
-			Texas.MemoryOption memoryOption = Texas.getMemoryOption();
-			mSegments = new ReferenceCountingPointer<>(new ArrayList<>(memoryOption.getDocumentSegmentInitialCapacity()), segments -> {
-				final int count = segments.size();
-				for (int i = 0; i < count; ++i) {
-					Segment segment = segments.get(i);
-					segment.recycle();
-				}
-			});
+			if (document == null) {
+				Texas.MemoryOption memoryOption = Texas.getMemoryOption();
+				mSegments = new ReferenceCountingPointer<>(new ArrayList<>(memoryOption.getDocumentSegmentInitialCapacity()), segments -> {
+					final int count = segments.size();
+					for (int i = 0; i < count; ++i) {
+						Segment segment = segments.get(i);
+						segment.recycle();
+					}
+				});
+			} else {
+				mSegments = new ReferenceCountingPointer<List<Segment>>(document.mSegments) {
+					@Override
+					protected List<Segment> onAcquire(List<Segment> value) {
+						return new ArrayList<>(value);
+					}
+				};
+			}
 		}
 
 		public Builder addSegment(Segment segment) {
