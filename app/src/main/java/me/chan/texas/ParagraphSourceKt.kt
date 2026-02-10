@@ -22,9 +22,9 @@ class ParagraphSourceKt(private val _index: Int, context: Context) :
         mFlag = ContextCompat.getDrawable(context, me.chan.texas.debug.R.drawable.me_chan_te_flag)!!
         val resources = context.resources;
         mFlagWidth =
-            resources.getDimension(me.chan.texas.debug.R.dimen.com_shanbay_lib_texas_flag_width);
+            resources.getDimension(me.chan.texas.debug.R.dimen.texas_flag_width);
         mFlagHeight =
-            resources.getDimension(me.chan.texas.debug.R.dimen.com_shanbay_lib_texas_flag_height);
+            resources.getDimension(me.chan.texas.debug.R.dimen.texas_flag_height);
     }
 
     override fun onRead(option: TexasOption): Paragraph {

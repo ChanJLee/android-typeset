@@ -90,8 +90,8 @@ public class BookSource extends TexasView.DocumentSource {
 		mContext = context;
 		mPolicy = policy;
 		Resources resources = context.getResources();
-		mFlagWidth = resources.getDimension(me.chan.texas.debug.R.dimen.com_shanbay_lib_texas_flag_width);
-		mFlagHeight = resources.getDimension(me.chan.texas.debug.R.dimen.com_shanbay_lib_texas_flag_height);
+		mFlagWidth = resources.getDimension(me.chan.texas.debug.R.dimen.texas_flag_width);
+		mFlagHeight = resources.getDimension(me.chan.texas.debug.R.dimen.texas_flag_height);
 		// for test
 		mTexasView = texasView;
 		mBook = book;
