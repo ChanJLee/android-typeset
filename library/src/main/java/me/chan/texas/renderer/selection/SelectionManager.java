@@ -26,6 +26,7 @@ import me.chan.texas.renderer.ui.TexasRendererAdapter;
 import me.chan.texas.renderer.ui.rv.TexasLayoutManager;
 import me.chan.texas.renderer.ui.rv.TexasRecyclerView;
 import me.chan.texas.renderer.ui.text.OnSelectedChangedListener;
+import me.chan.texas.renderer.ui.text.ParagraphView;
 import me.chan.texas.text.Document;
 import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.Segment;
@@ -343,7 +344,7 @@ public class SelectionManager implements OnSelectedChangedListener, SelectionMet
 													RenderOption renderOption,
 													ViewSegment viewSegment, float x1, float y1, float x2, float y2) {
 		SelectionProvider provider = viewSegment.getSelectionProvider();
-		if (provider == null || provider.getParagraphCount() <= 0) {
+		if (provider == null || provider.size() <= 0) {
 			return;
 		}
 
@@ -355,9 +356,10 @@ public class SelectionManager implements OnSelectedChangedListener, SelectionMet
 			return;
 		}
 
-		for (int i = 0; i < provider.getParagraphCount(); ++i) {
-			Paragraph paragraph = provider.getParagraph(i);
-			if (mContentView.getViewSegmentParagraphLocations(viewSegment, paragraph, mLocations)) {
+		for (int i = 0; i < provider.size(); ++i) {
+			SelectionProvider.ParagraphBinding binding = provider.get(i);
+			Paragraph paragraph = binding.getParagraph();
+			if (mContentView.getViewSegmentParagraphLocations(viewSegment, binding.getView(), paragraph, mLocations)) {
 				updateParagraphSelection0(currentSelection, renderOption, paragraph, x1, y1, x2, y2, mLocations);
 			}
 		}

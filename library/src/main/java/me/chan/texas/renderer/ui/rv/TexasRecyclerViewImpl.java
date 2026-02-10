@@ -136,8 +136,13 @@ public class TexasRecyclerViewImpl extends RecyclerView implements TexasRecycler
 	}
 
 	@Override
-	public boolean getViewSegmentParagraphLocations(ViewSegment viewSegment, Paragraph paragraph, Rect locations) {
+	public boolean getViewSegmentParagraphLocations(ViewSegment viewSegment, ParagraphView paragraphView, Paragraph paragraph, Rect locations) {
 		locations.top = locations.left = locations.right = locations.bottom = 0;
+
+		if (paragraphView == null) {
+			return false;
+		}
+
 		TexasRendererAdapter adapter = (TexasRendererAdapter) getAdapter();
 		if (adapter == null) {
 			return false;
@@ -145,11 +150,6 @@ public class TexasRecyclerViewImpl extends RecyclerView implements TexasRecycler
 
 		int index = adapter.indexOf(viewSegment);
 		if (index < 0) {
-			return false;
-		}
-
-		ParagraphView paragraphView = paragraph.getTag(R.id.me_chan_texas_paragraph_outer_view);
-		if (paragraphView == null) {
 			return false;
 		}
 

@@ -29,11 +29,10 @@ public final class Document {
 				ViewSegment viewSegment = (ViewSegment) segment;
 				SelectionProvider provider = viewSegment.getSelectionProvider();
 				if (provider != null) {
-					for (int j = 0; j < provider.getParagraphCount(); j++) {
-						Paragraph paragraph = provider.getParagraph(j);
-						if (paragraph != null) {
-							paragraph.setTag(R.id.me_chan_texas_paragraph_outer_segment, segment);
-						}
+					for (int j = 0; j < provider.size(); j++) {
+						SelectionProvider.ParagraphBinding binding = provider.get(j);
+						Paragraph paragraph = binding.getParagraph();
+						paragraph.setTag(R.id.me_chan_texas_paragraph_outer_segment, segment);
 					}
 				}
 			}

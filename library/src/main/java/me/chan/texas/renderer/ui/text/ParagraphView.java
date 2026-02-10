@@ -146,7 +146,6 @@ public class ParagraphView extends FrameLayout {
 
 			mParagraph = paragraph;
 			paragraph.bind(mHost);
-			paragraph.setTag(R.id.me_chan_texas_paragraph_outer_view, ParagraphView.this);
 			requestLayout();
 		}
 

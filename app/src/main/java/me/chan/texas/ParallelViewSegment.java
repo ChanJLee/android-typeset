@@ -4,23 +4,17 @@ import android.view.View;
 import android.widget.TextView;
 
 import me.chan.texas.debug.R;
-import me.chan.texas.renderer.selection.SelectionProvider;
-import me.chan.texas.renderer.ui.text.ParagraphView;
 import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.ViewSegment;
 
 public class ParallelViewSegment extends ViewSegment {
-	private final Paragraph mParagraph;
 	private final String mText;
 	private View mView;
 
 	public ParallelViewSegment(Paragraph paragraph, String text) {
-		super(
-				new Args(me.chan.texas.debug.R.layout.item_parallel)
-						.disableReuse(true)
-						.selectionProvider(new SelectionProvider(paragraph))
-		);
-		mParagraph = paragraph;
+		super(new Args(me.chan.texas.debug.R.layout.item_parallel)
+				.disableReuse(true)
+				.addSelectionProvider(R.id.en, paragraph));
 		mText = text;
 	}
 
@@ -34,9 +28,7 @@ public class ParallelViewSegment extends ViewSegment {
 			}
 		}
 
-		ParagraphView paragraphView = view.findViewById(R.id.en);
 		TextView textView = view.findViewById(R.id.cn);
-		paragraphView.setParagraph(mParagraph);
 		textView.setText(mText);
 	}
 }

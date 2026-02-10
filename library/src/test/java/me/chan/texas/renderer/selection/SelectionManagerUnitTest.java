@@ -111,7 +111,7 @@ public class SelectionManagerUnitTest {
 			}
 
 			MySelectableSegment s = (MySelectableSegment) segment;
-			for (int j = 0; j < s.getParagraphCount(); ++j) {
+			for (int j = 0; j < s.size(); ++j) {
 				Paragraph paragraph = s.getParagraph(j);
 				paragraph.measure(measurer, textAttribute);
 				texTypesetter.typeset(paragraph, BreakStrategy.SIMPLE, 5);
@@ -922,7 +922,7 @@ public class SelectionManagerUnitTest {
 		}
 
 		@Override
-		public int getParagraphCount() {
+		public int size() {
 			return mParagraphs.length;
 		}
 

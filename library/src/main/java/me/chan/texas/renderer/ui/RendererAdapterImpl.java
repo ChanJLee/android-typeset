@@ -538,7 +538,7 @@ public class RendererAdapterImpl extends RecyclerView.Adapter<RendererAdapterImp
 			SegmentItemFragmentLayout rootView = getRootView();
 
 			View content = getContentView();
-			data.render(content);
+			data.render(content, mSelectionManager);
 
 			// 当内容被设置为GONE后，当前的item还是会在rv里占用一个格子，这会导致界面上出现大片空白
 			// 因此当发现内容为gone要把当前item高度设置为0
@@ -554,19 +554,6 @@ public class RendererAdapterImpl extends RecyclerView.Adapter<RendererAdapterImp
 				ParagraphView paragraphView = mParagraphViews.get(i);
 				if (paragraphView != null && paragraphView.isOverrideStyles()) {
 					paragraphView.refresh(mRenderOption);
-				}
-			}
-
-			SelectionProvider provider = data.getSelectionProvider();
-			if (provider == null) {
-				return;
-			}
-
-			for (int i = 0; i < provider.getParagraphCount(); ++i) {
-				Paragraph paragraph = provider.getParagraph(i);
-				ParagraphView paragraphView = paragraph.getTag(R.id.me_chan_texas_paragraph_outer_view);
-				if (paragraphView != null) {
-					paragraphView.setSelectionMethod(mSelectionManager);
 				}
 			}
 		}

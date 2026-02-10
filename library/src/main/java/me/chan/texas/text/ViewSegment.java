@@ -6,14 +6,17 @@ import me.chan.texas.misc.Rect;
 
 import android.view.View;
 
+import androidx.annotation.IdRes;
 import androidx.annotation.LayoutRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.recyclerview.widget.RecyclerView;
 
+import me.chan.texas.renderer.selection.SelectionMethod;
 import me.chan.texas.renderer.selection.SelectionProvider;
 import me.chan.texas.renderer.ui.RendererHost;
+import me.chan.texas.renderer.ui.text.ParagraphView;
 
 /**
  * 用户自定义视图片段
@@ -80,7 +83,17 @@ public abstract class ViewSegment implements Segment {
 	private RendererHost mHost;
 	private RecyclerView.ViewHolder mHolder;
 
-	public final void render(View view) {
+	public final void render(View view, SelectionMethod method) {
+		SelectionProvider provider = getSelectionProvider();
+		if (provider != null) {
+			for (int i = 0; i < provider.size(); ++i) {
+				SelectionProvider.ParagraphBinding bind = provider.get(i);
+				ParagraphView paragraphView = view.findViewById(bind.getId());
+				bind.setView(paragraphView);
+				paragraphView.setSelectionMethod(method);
+				paragraphView.setParagraph(bind.getParagraph());
+			}
+		}
 		onRender(view);
 	}
 
@@ -194,8 +207,11 @@ public abstract class ViewSegment implements Segment {
 			return this;
 		}
 
-		public Args selectionProvider(SelectionProvider selectionProvider) {
-			mSelectionProvider = selectionProvider;
+		public Args addSelectionProvider(@IdRes int paragraphViewId, Paragraph paragraph) {
+			if (mSelectionProvider == null) {
+				mSelectionProvider = new SelectionProvider();
+			}
+			mSelectionProvider.add(new SelectionProvider.ParagraphBinding(paragraphViewId, paragraph));
 			return this;
 		}
 	}

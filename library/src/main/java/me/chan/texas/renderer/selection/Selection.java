@@ -199,9 +199,10 @@ public class Selection extends DefaultRecyclable {
 			return container.getSegmentLocations(paragraph, locations);
 		}
 
-		for (int i = 0; i < provider.getParagraphCount(); ++i) {
-			if (provider.getParagraph(i) == paragraph) {
-				return container.getViewSegmentParagraphLocations(viewSegment, paragraph, locations);
+		for (int i = 0; i < provider.size(); ++i) {
+			SelectionProvider.ParagraphBinding binding = provider.get(i);
+			if (binding.getParagraph() == paragraph) {
+				return container.getViewSegmentParagraphLocations(viewSegment, binding.getView(), paragraph, locations);
 			}
 		}
 		return false;
