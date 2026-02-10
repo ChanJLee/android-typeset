@@ -13,6 +13,9 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.recyclerview.widget.RecyclerView;
 
+import me.chan.texas.renderer.ParagraphPredicates;
+import me.chan.texas.renderer.RenderOption;
+import me.chan.texas.renderer.SpanTouchEventHandler;
 import me.chan.texas.renderer.selection.SelectionMethod;
 import me.chan.texas.renderer.selection.SelectionProvider;
 import me.chan.texas.renderer.ui.RendererHost;
@@ -198,16 +201,33 @@ public abstract class ViewSegment implements Segment {
 			mLayout = layout;
 		}
 
+		/**
+		 * @param disableReuse 布局是否禁止复用
+		 * @return 当前对象
+		 */
 		public Args disableReuse(boolean disableReuse) {
 			mDisableReuse = disableReuse;
 			return this;
 		}
 
+		/**
+		 * @param tag 设置当前ViewSegment的tag
+		 * @return 当前对象
+		 */
 		public Args tag(Object tag) {
 			mTag = tag;
 			return this;
 		}
 
+		/**
+		 * 将当前layout中的ParagraphView 参与到TexasView的自由选中效果 {@link me.chan.texas.renderer.TexasView#selectParagraphs(ParagraphPredicates)}
+		 * 上层无需再手动设置ParagraphView的数据源 {@link ParagraphView#setParagraph(Paragraph)} 以及点击事件响应 {@link ParagraphView#setSpanTouchEventHandler(SpanTouchEventHandler)}
+		 * 通过设置ParagraphView的me_chan_texas_ParagraphView_overrideStyles你也可以使得当前ParagraphView渲染样式也跟随TexasView {@link ParagraphView#refresh(RenderOption)}
+		 *
+		 * @param paragraphViewId ID
+		 * @param paragraph       paragraph
+		 * @return 当前对象
+		 */
 		public Args addSelectionProvider(@IdRes int paragraphViewId, Paragraph paragraph) {
 			if (mSelectionProvider == null) {
 				mSelectionProvider = new SelectionProvider();

@@ -14,6 +14,9 @@ public class ParallelViewSegment extends ViewSegment {
 	public ParallelViewSegment(Paragraph paragraph, String text) {
 		super(new Args(me.chan.texas.debug.R.layout.item_parallel)
 				.disableReuse(true)
+				// 将当前layout中的ParagraphView参与到TexasView的自由选中效果
+				// 上层无需再手动设置ParagraphView的数据源以及点击事件响应
+				// 通过设置ParagraphView的me_chan_texas_ParagraphView_overrideStyles你也可以使得当前ParagraphView渲染样式也跟随TexasView
 				.addSelectionProvider(R.id.en, paragraph));
 		mText = text;
 	}
