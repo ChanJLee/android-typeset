@@ -25,7 +25,7 @@ public abstract class ViewSegment implements Segment {
 	private Rect mRect;
 
 	private int mId;
-	private final Args mArgs;
+	private Args mArgs;
 
 	/*
 	 * 这个地方只能用layout id来做，不能用view，用id的话，实例是引擎内部创建，
@@ -73,11 +73,11 @@ public abstract class ViewSegment implements Segment {
 
 	@RestrictTo(LIBRARY)
 	public final int getLayout() {
-		return mArgs.mLayout;
+		return mArgs == null ? 0 : mArgs.mLayout;
 	}
 
 	public final boolean isDisableReuse() {
-		return mArgs.mDisableReuse;
+		return mArgs != null && mArgs.mDisableReuse;
 	}
 
 	private RendererHost mHost;
@@ -116,6 +116,7 @@ public abstract class ViewSegment implements Segment {
 		mId = 0;
 		mHost = null;
 		mHolder = null;
+		mArgs = null;
 	}
 
 	@Override
@@ -126,7 +127,7 @@ public abstract class ViewSegment implements Segment {
 	@Nullable
 	@Override
 	public final Object getTag() {
-		return mArgs.mTag;
+		return mArgs == null ? null : mArgs.mTag;
 	}
 
 	@Nullable
@@ -178,7 +179,7 @@ public abstract class ViewSegment implements Segment {
 
 	@Nullable
 	public final SelectionProvider getSelectionProvider() {
-		return mArgs.mSelectionProvider;
+		return mArgs == null ? null : mArgs.mSelectionProvider;
 	}
 
 	@Override

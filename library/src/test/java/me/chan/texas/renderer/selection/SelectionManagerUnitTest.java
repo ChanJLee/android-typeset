@@ -40,6 +40,7 @@ import me.chan.texas.renderer.ui.rv.TexasLayoutManager;
 import me.chan.texas.renderer.ui.rv.TexasRecyclerView;
 import me.chan.texas.renderer.ui.text.OnMeasureInterceptor;
 import me.chan.texas.renderer.ui.text.OnSelectedChangedListener;
+import me.chan.texas.renderer.ui.text.ParagraphView;
 import me.chan.texas.renderer.ui.text.TextureParagraph;
 import me.chan.texas.test.mock.MockTextPaint;
 import me.chan.texas.text.BreakStrategy;
@@ -47,6 +48,7 @@ import me.chan.texas.text.Document;
 import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.Segment;
 import me.chan.texas.text.TextAttribute;
+import me.chan.texas.text.ViewSegment;
 import me.chan.texas.text.layout.Box;
 import me.chan.texas.text.layout.Layout;
 import me.chan.texas.typesetter.ParagraphTypesetter;
@@ -602,9 +604,9 @@ public class SelectionManagerUnitTest {
 		public boolean getSegmentLocations(Segment segment, Rect locations) {
 			if (segment instanceof Paragraph) {
 				Paragraph p = (Paragraph) segment;
-				MyTextureParagraph paragraph = (MyTextureParagraph) p.getTag(1024);
+				MyTextureParagraph textureParagraph = p.getTag(1024);
 				int[] location = new int[2];
-				paragraph.getLocationOnScreen(location);
+				textureParagraph.getLocationOnScreen(location);
 				locations.left = location[0];
 				locations.top = location[1];
 				Layout layout = p.getLayout();
@@ -639,8 +641,8 @@ public class SelectionManagerUnitTest {
 		}
 
 		@Override
-		public boolean getSelectableSegmentLocations(SelectionProvider selectableSegment, int index, Rect locations) {
-			getSegmentLocations((Segment) selectableSegment, locations);
+		public boolean getViewSegmentParagraphLocations(ViewSegment viewSegment, ParagraphView paragraphView, Paragraph paragraph, Rect locations) {
+			getSegmentLocations(viewSegment, locations);
 			// mock padding
 			locations.offset(PADDING_H, PADDING_V);
 			return true;
@@ -732,6 +734,11 @@ public class SelectionManagerUnitTest {
 
 		@Override
 		public void setRendererListener(RendererListener rendererListener) {
+
+		}
+
+		@Override
+		public void setSelectionMethod(SelectionMethod selectionMethod) {
 
 		}
 	}
@@ -909,29 +916,22 @@ public class SelectionManagerUnitTest {
 		Assert.assertTrue(TexasUtils.intersects(lhs, rhs));
 	}
 
-	private static class MySelectableSegment extends me.chan.texas.text.ViewSegment implements SelectionProvider {
+	private static class MySelectableSegment extends me.chan.texas.text.ViewSegment implements SelectionMethod {
 		private final Paragraph[] mParagraphs;
 		private int mOffset;
 
 		public MySelectableSegment(Paragraph... paragraphs) {
-			super(0);
+			super(new Args(0).addSelectionProvider(0, paragraphs[0]));
 			mParagraphs = paragraphs;
 			for (int i = 0; i < paragraphs.length; i++) {
 				paragraphs[i].setTag(R.id.me_chan_texas_paragraph_outer_segment, this);
 			}
 		}
 
-		@Override
 		public int size() {
 			return mParagraphs.length;
 		}
 
-		@Override
-		public me.chan.texas.renderer.ui.text.ParagraphView getParagraphView(int index) {
-			throw new RuntimeException("Stub!");
-		}
-
-		@Override
 		public Paragraph getParagraph(int index) {
 			return mParagraphs[index];
 		}
@@ -939,6 +939,19 @@ public class SelectionManagerUnitTest {
 		@Override
 		protected void onRender(View view) {
 			// Mock implementation - no actual rendering needed for tests
+		}
+
+
+		@Nullable
+		@Override
+		public SpanTouchEventHandler getSpanTouchEventHandler() {
+			return null;
+		}
+
+		@Nullable
+		@Override
+		public OnSelectedChangedListener getOnSelectedChangedListener() {
+			return null;
 		}
 	}
 }
