@@ -98,10 +98,6 @@ public class ImageLoader {
 	 */
 	public class Request {
 		private final RequestOptions mRequestOptions;
-		/**
-		 * 记录是否调用过into
-		 */
-		private volatile boolean mDead = false;
 		private final Object mSources;
 
 		private Request(Object source) {
@@ -215,14 +211,9 @@ public class ImageLoader {
 		 * 将获取的图片渲染到ImageView里
 		 *
 		 * @param imageView imageView
-		 * @throws IllegalStateException 每个request只可以调用一次，如果调用多次那么触发{@link IllegalStateException}异常
 		 */
 		@SuppressLint("CheckResult")
 		public void into(@NonNull ImageView imageView) {
-			if (mDead) {
-				throw new IllegalStateException("call one request twice");
-			}
-			mDead = true;
 			mRequestManager.clear(imageView);
 			RequestBuilder<Drawable> glideRequest = mRequestManager.load(mSources);
 			glideRequest.apply(mRequestOptions);
@@ -279,10 +270,6 @@ public class ImageLoader {
 		}
 
 		private <T> void doAs(RequestBuilder<T> requestBuilder, final Listener<T> listener) {
-			if (mDead) {
-				throw new IllegalStateException("call one request twice");
-			}
-			mDead = true;
 			requestBuilder.into(new SimpleTarget<T>() {
 				@Override
 				public void onResourceReady(T resource, Transition<? super T> transition) {

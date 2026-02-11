@@ -5,6 +5,8 @@ import android.graphics.Color;
 import android.graphics.Path;
 
 import me.chan.texas.debug.R;
+import me.chan.texas.ext.image.Figure;
+import me.chan.texas.ext.image.ImageLoader;
 import me.chan.texas.ext.markdown.math.MathSpan;
 import me.chan.texas.ext.markdown.math.ast.MathList;
 import me.chan.texas.ext.markdown.math.ast.MathParseException;
@@ -35,7 +37,6 @@ import me.chan.texas.text.Document;
 import me.chan.texas.text.RectGround;
 import me.chan.texas.renderer.RendererContext;
 import me.chan.texas.text.Emoticon;
-import me.chan.texas.text.Figure;
 import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.TextGravity;
 import me.chan.texas.text.TextStyle;
@@ -66,6 +67,7 @@ public class BookSource extends TexasView.DocumentSource {
 	private final float mFlagWidth;
 	private final float mFlagHeight;
 	private final TexasView mTexasView;
+	private final ImageLoader mImageLoader;
 
 	public static class SpanTag {
 		public String sentId;
@@ -95,6 +97,7 @@ public class BookSource extends TexasView.DocumentSource {
 		// for test
 		mTexasView = texasView;
 		mBook = book;
+		mImageLoader = new ImageLoader(context);
 	}
 
 	@Override
@@ -343,10 +346,7 @@ public class BookSource extends TexasView.DocumentSource {
 	}
 
 	private void parseImage(XmlPullParser parser, Document.Builder builder) throws XmlPullParserException, IOException {
-
 		String url = null;
-		float width = -1;
-		float height = -1;
 		while (parser.next() != XmlPullParser.END_TAG) {
 			int eventType = parser.getEventType();
 			if (eventType != XmlPullParser.START_TAG) {
@@ -357,12 +357,6 @@ public class BookSource extends TexasView.DocumentSource {
 			if (TextUtils.equals("url", name)) {
 				url = safeNextText(parser);
 				parser.require(XmlPullParser.END_TAG, null, "url");
-			} else if (TextUtils.equals("width", name)) {
-				width = safeNextFloat(parser);
-				parser.require(XmlPullParser.END_TAG, null, "width");
-			} else if (TextUtils.equals("height", name)) {
-				height = safeNextFloat(parser);
-				parser.require(XmlPullParser.END_TAG, null, "height");
 			} else {
 				skip(parser);
 			}
@@ -372,8 +366,7 @@ public class BookSource extends TexasView.DocumentSource {
 			return;
 		}
 
-		Figure figure = Figure.obtain(url, width, height);
-		builder.addSegment(figure);
+		builder.addSegment(new Figure(mImageLoader.uri(url)));
 	}
 
 	private float safeNextFloat(XmlPullParser parser) throws IOException, XmlPullParserException {
