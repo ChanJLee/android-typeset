@@ -1,14 +1,14 @@
-package me.chan.texas.text;
+package me.chan.texas.ext.image;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
-
-import me.chan.texas.misc.Rect;
 
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.recyclerview.widget.RecyclerView;
 
+import me.chan.texas.misc.Rect;
 import me.chan.texas.renderer.ui.RendererHost;
+import me.chan.texas.text.Segment;
 
 /**
  * 插图

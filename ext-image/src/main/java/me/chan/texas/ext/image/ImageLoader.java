@@ -1,4 +1,6 @@
-package me.chan.texas.image;
+package me.chan.texas.ext.image;
+
+import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -27,8 +29,6 @@ import com.bumptech.glide.request.transition.Transition;
 import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
-
-import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
 /**
  * 图片加载器

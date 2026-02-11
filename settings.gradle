@@ -1,2 +1,3 @@
 include ':app', ':library'
 include ':ext-markdown-math'
+include ':ext-image'

@@ -1,14 +1,11 @@
-package me.chan.texas.renderer.ui.figure;
+package me.chan.texas.ext.image;
+
+import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
 import android.content.Context;
 import android.util.AttributeSet;
 
 import androidx.annotation.RestrictTo;
-
-import me.chan.texas.image.ImageLoader;
-import me.chan.texas.text.Figure;
-
-import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
 /**
  * 显示插图的控件
