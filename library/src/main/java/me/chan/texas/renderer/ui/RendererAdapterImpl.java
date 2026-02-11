@@ -11,7 +11,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 
 import androidx.annotation.IdRes;
 import androidx.annotation.NonNull;
@@ -26,14 +25,12 @@ import me.chan.texas.Texas;
 import me.chan.texas.TexasOption;
 import me.chan.texas.di.TexasComponent;
 import me.chan.texas.di.core.TextEngineCoreComponent;
-import me.chan.texas.image.ImageLoader;
 import me.chan.texas.misc.PaintSet;
 import me.chan.texas.renderer.RenderOption;
 import me.chan.texas.renderer.TouchEvent;
 import me.chan.texas.renderer.core.WorkerScheduler;
 import me.chan.texas.renderer.core.worker.MixWorker;
 import me.chan.texas.renderer.selection.SelectionManager;
-import me.chan.texas.renderer.ui.figure.FigureView;
 import me.chan.texas.renderer.ui.rv.SegmentItemFragmentLayout;
 import me.chan.texas.renderer.ui.rv.TexasRecyclerViewImpl;
 import me.chan.texas.renderer.ui.text.ParagraphView;
@@ -41,10 +38,8 @@ import me.chan.texas.renderer.ui.text.TextureParagraph;
 import me.chan.texas.renderer.ui.text.TextureParagraphView0;
 import me.chan.texas.renderer.ui.text.TextureParagraphView0Compat;
 import me.chan.texas.text.Document;
-import me.chan.texas.text.Figure;
 import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.Segment;
-import me.chan.texas.renderer.selection.SelectionProvider;
 import me.chan.texas.text.ViewSegment;
 import me.chan.texas.text.layout.Layout;
 import me.chan.texas.utils.concurrency.Worker;
@@ -66,13 +61,12 @@ public class RendererAdapterImpl extends RecyclerView.Adapter<RendererAdapterImp
 
 	// 内部自定义的type必须小于0
 	private static final int TYPE_PARAGRAPH = -1;
-	private static final int TYPE_FIGURE = -2;
-	private static final int TYPE_PARAGRAPH_COMPAT = -3;
+	private static final int TYPE_PARAGRAPH_COMPAT = -2;
 	public static final int UNREUSABLE_TYPE_START = -4;
 
 	static {
 		// runtime check
-		if (TYPE_PARAGRAPH >= 0 || TYPE_FIGURE >= 0 || TYPE_PARAGRAPH_COMPAT >= 0) {
+		if (TYPE_PARAGRAPH >= 0 || TYPE_PARAGRAPH_COMPAT >= 0) {
 			throw new IllegalStateException("internal view type must be less than 0");
 		}
 	}
@@ -81,7 +75,6 @@ public class RendererAdapterImpl extends RecyclerView.Adapter<RendererAdapterImp
 
 	private Document mDocument;
 	private final LayoutInflater mLayoutInflater;
-	private final ImageLoader mImageLoader;
 	private RenderOption mRenderOption;
 
 	/**
@@ -105,12 +98,10 @@ public class RendererAdapterImpl extends RecyclerView.Adapter<RendererAdapterImp
 	public RendererAdapterImpl(
 			Worker.Token token,
 			LayoutInflater layoutInflater,
-			ImageLoader imageLoader,
 			RecyclerView.RecycledViewPool pool,
 			TexasRecyclerViewImpl view) {
 		mToken = token;
 		mLayoutInflater = layoutInflater;
-		mImageLoader = imageLoader;
 		mPool = pool;
 		mView = view;
 
@@ -138,13 +129,6 @@ public class RendererAdapterImpl extends RecyclerView.Adapter<RendererAdapterImp
 			return new ParagraphRenderer(new TextureParagraphView0(context));
 		} else if (type == TYPE_PARAGRAPH_COMPAT) {
 			return new ParagraphRenderer(new TextureParagraphView0Compat(context));
-		} else if (type == TYPE_FIGURE) {
-			FigureView figureView = new FigureView(context);
-			figureView.setAdjustViewBounds(true);
-			figureView.setScaleType(ImageView.ScaleType.FIT_XY);
-			SegmentItemFragmentLayout root = new SegmentItemFragmentLayout(mView);
-			root.addView(figureView);
-			return new FigureRenderer(root);
 		} else {
 			return createViewSegment(type);
 		}
@@ -247,8 +231,6 @@ public class RendererAdapterImpl extends RecyclerView.Adapter<RendererAdapterImp
 
 		if (content instanceof Paragraph) {
 			return mRenderOption.isCompatMode() ? TYPE_PARAGRAPH_COMPAT : TYPE_PARAGRAPH;
-		} else if (content instanceof Figure) {
-			return TYPE_FIGURE;
 		} else if (content instanceof ViewSegment) {
 			ViewSegment viewSegment = (ViewSegment) content;
 			return mViewSegmentManager.getType(viewSegment);
@@ -502,24 +484,6 @@ public class RendererAdapterImpl extends RecyclerView.Adapter<RendererAdapterImp
 		}
 	}
 
-	class FigureRenderer extends Renderer<Figure> {
-		private FigureView mFigureView;
-
-		FigureRenderer(View root) {
-			super(root);
-		}
-
-		@Override
-		protected void onCreate(View view) {
-			mFigureView = (FigureView) view;
-		}
-
-		@Override
-		protected void onRender(Figure figure) {
-			mFigureView.render(mImageLoader, figure);
-		}
-	}
-
 	class ViewSegmentRenderer extends Renderer<ViewSegment> {
 		private List<ParagraphView> mParagraphViews;
 
@@ -575,7 +539,7 @@ public class RendererAdapterImpl extends RecyclerView.Adapter<RendererAdapterImp
 		 * {@link ViewSegment#ViewSegment(int)} 接受R.layout作为构造函数参数
 		 * R.layout是唯一的。当检测到R.layout没有创建过type，就通atomic int自增一来产生一个唯一的type
 		 * 这个自增的id从1开始 {@link RendererAdapterImpl#getItemViewType(int)}
-		 * 而内部保留id则是小于0的 {@link RendererAdapterImpl#TYPE_FIGURE} etc.
+		 * 而内部保留id则是小于0的 {@link RendererAdapterImpl#TYPE_PARAGRAPH} etc.
 		 */
 		private final SparseArrayCompat<Integer> mTypeBuffer = new SparseArrayCompat<>(4);
 		private final SparseArrayCompat<Integer> mLayoutBuffer = new SparseArrayCompat<>(4);

@@ -32,7 +32,6 @@ import me.chan.texas.renderer.TexasView;
 import me.chan.texas.renderer.core.WorkerScheduler;
 import me.chan.texas.renderer.core.sync.MsgHandler;
 import me.chan.texas.text.Document;
-import me.chan.texas.text.Figure;
 import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.Segment;
 import me.chan.texas.text.TextAttribute;
@@ -203,9 +202,7 @@ public class MixWorker {
 			}
 
 			segment.setPadding(outRect);
-			if (segment instanceof Figure) {
-				typesetFigure((Figure) segment, width);
-			} else if (segment instanceof Paragraph) {
+			if (segment instanceof Paragraph) {
 				Paragraph paragraph = (Paragraph) segment;
 				typesetParagraph(token, paragraph, width, measurer, textAttribute);
 			} else if (segment instanceof ViewSegment) {
@@ -272,23 +269,6 @@ public class MixWorker {
 		}
 		ParagraphTypesetWorker.Args args = ParagraphTypesetWorker.Args.obtain(paragraph, width);
 		WorkerScheduler.typeset().typeset(args);
-	}
-
-	private void typesetFigure(Figure figure, float lineWidth) {
-		float width = figure.getWidth();
-		if (width <= 0) {
-			w("width <= 0, ignore");
-			return;
-		}
-
-		float height = figure.getHeight();
-		if (height <= 0) {
-			w("height <= 0, ignore");
-			return;
-		}
-
-		float ratio = height / width;
-		figure.resize(lineWidth, lineWidth * ratio);
 	}
 
 	public void cancel(Worker.Token token) {

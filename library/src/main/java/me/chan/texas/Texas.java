@@ -16,12 +16,9 @@ import androidx.annotation.VisibleForTesting;
 import me.chan.texas.di.DaggerTexasComponent;
 import me.chan.texas.di.TexasComponent;
 import me.chan.texas.issue.IssueSystem;
-import me.chan.texas.text.Figure;
 import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.layout.DrawableBox;
-import me.chan.texas.text.layout.Glue;
 import me.chan.texas.text.layout.Line;
-import me.chan.texas.text.layout.Penalty;
 import me.chan.texas.text.layout.TextBox;
 import me.chan.texas.utils.TexasUtils;
 

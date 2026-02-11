@@ -25,7 +25,6 @@ import java.lang.reflect.Method;
 
 import me.chan.texas.BuildConfig;
 import me.chan.texas.R;
-import me.chan.texas.image.ImageLoader;
 import me.chan.texas.misc.RectF;
 import me.chan.texas.renderer.core.TypesetEngine;
 import me.chan.texas.renderer.core.worker.MixWorker;
@@ -113,7 +112,6 @@ public class Renderer implements SelectionManager.Listener {
 
 		// misc modules
 		Context context = texasView.getContext();
-		ImageLoader imageLoader = new ImageLoader(context);
 		LayoutInflater layoutInflater = LayoutInflater.from(context);
 
 		// core
@@ -133,7 +131,7 @@ public class Renderer implements SelectionManager.Listener {
 		);
 		mRecyclerView.addOnScrollListener(mOnScrollListener);
 
-		mAdapter = new RendererAdapterImpl(token, layoutInflater, imageLoader, mRecyclerView.getRecycledViewPool(), mRecyclerView);
+		mAdapter = new RendererAdapterImpl(token, layoutInflater, mRecyclerView.getRecycledViewPool(), mRecyclerView);
 		mAdapter.setListener(new RendererAdapterImpl.Listener() {
 			@Override
 			public void onSegmentClicked(TouchEvent event, Object tag) {

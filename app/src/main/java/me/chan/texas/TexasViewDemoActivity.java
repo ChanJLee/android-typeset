@@ -20,6 +20,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
+import me.chan.texas.ext.image.Figure;
 import me.chan.texas.renderer.ParagraphPredicates;
 import me.chan.texas.renderer.RenderOption;
 import me.chan.texas.renderer.SpanTouchEventHandler;
@@ -28,7 +29,6 @@ import me.chan.texas.renderer.TouchEvent;
 import me.chan.texas.renderer.selection.Selection;
 import me.chan.texas.text.BreakStrategy;
 import me.chan.texas.text.Document;
-import me.chan.texas.text.Figure;
 import me.chan.texas.text.Paragraph;
 import me.chan.texas.utils.TexasUtils;
 
