@@ -259,7 +259,7 @@ public class Renderer implements SelectionManager.Listener {
 	}
 
 	public Selection getSelection(Selection.Type type) {
-		return mSelectionManager.getCurrentSelection(type);
+		return mSelectionManager.getSelection(type);
 	}
 
 	public int getFirstVisibleSegmentIndex(boolean completelyVisible) {

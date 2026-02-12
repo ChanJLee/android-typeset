@@ -30,6 +30,7 @@ import me.chan.texas.renderer.RenderOption;
 import me.chan.texas.renderer.TouchEvent;
 import me.chan.texas.renderer.core.WorkerScheduler;
 import me.chan.texas.renderer.core.worker.MixWorker;
+import me.chan.texas.renderer.selection.Selection;
 import me.chan.texas.renderer.selection.SelectionManager;
 import me.chan.texas.renderer.ui.rv.SegmentItemFragmentLayout;
 import me.chan.texas.renderer.ui.rv.TexasRecyclerViewImpl;
@@ -347,6 +348,18 @@ public class RendererAdapterImpl extends RecyclerView.Adapter<RendererAdapterImp
 					Layout.Advise advise = layout.getAdvise();
 					advise.copy(renderOption);
 				}
+			}
+
+			Selection selection = mDocument.getSelection(Selection.Type.SELECTION);
+			if (selection != null) {
+				Selection.Styles styles = selection.getStyles();
+				styles.update(renderOption);
+			}
+
+			selection = mDocument.getSelection(Selection.Type.HIGHLIGHT);
+			if (selection != null) {
+				Selection.Styles styles = selection.getStyles();
+				styles.update(renderOption);
 			}
 		}
 	}

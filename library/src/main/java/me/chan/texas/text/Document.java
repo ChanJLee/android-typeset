@@ -2,6 +2,7 @@ package me.chan.texas.text;
 
 import me.chan.texas.R;
 import me.chan.texas.Texas;
+import me.chan.texas.renderer.selection.Selection;
 import me.chan.texas.renderer.selection.SelectionProvider;
 import me.chan.texas.text.util.TexasIterator;
 import me.chan.texas.utils.ReferenceCountingPointer;
@@ -19,6 +20,8 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY;
  */
 public final class Document {
 	private ReferenceCountingPointer<List<Segment>> mSegments;
+	private Selection mSelection;
+	private Selection mHighlightSelection;
 
 	private Document(Builder builder) {
 		mSegments = builder.mSegments;
@@ -37,6 +40,8 @@ public final class Document {
 				}
 			}
 		}
+		mSelection = builder.mSelection;
+		mHighlightSelection = builder.mHighlightSelection;
 	}
 
 	/**
@@ -133,8 +138,30 @@ public final class Document {
 		};
 	}
 
+	public Selection getSelection(Selection.Type type) {
+		if (type == Selection.Type.SELECTION) {
+			return mSelection;
+		} else if (type == Selection.Type.HIGHLIGHT) {
+			return mHighlightSelection;
+		} else {
+			throw new IllegalArgumentException("unknown type: " + type);
+		}
+	}
+
+	public void setSelection(Selection.Type type, Selection selection) {
+		if (type == Selection.Type.SELECTION) {
+			mSelection = selection;
+		} else if (type == Selection.Type.HIGHLIGHT) {
+			mHighlightSelection = selection;
+		} else {
+			throw new IllegalArgumentException("unknown type: " + type);
+		}
+	}
+
 	public static class Builder {
 		private final ReferenceCountingPointer<List<Segment>> mSegments;
+		private final Selection mSelection;
+		private final Selection mHighlightSelection;
 
 		public Builder() {
 			this(null);
@@ -155,6 +182,8 @@ public final class Document {
 						segment.recycle();
 					}
 				});
+				mSelection = null;
+				mHighlightSelection = null;
 			} else {
 				mSegments = new ReferenceCountingPointer<List<Segment>>(document.mSegments) {
 					@Override
@@ -162,6 +191,8 @@ public final class Document {
 						return new ArrayList<>(value);
 					}
 				};
+				mSelection = document.mSelection;
+				mHighlightSelection = document.mHighlightSelection;
 			}
 		}
 
