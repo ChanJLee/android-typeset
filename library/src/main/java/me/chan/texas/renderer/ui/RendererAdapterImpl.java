@@ -31,7 +31,7 @@ import me.chan.texas.renderer.TouchEvent;
 import me.chan.texas.renderer.core.WorkerScheduler;
 import me.chan.texas.renderer.core.worker.MixWorker;
 import me.chan.texas.renderer.selection.Selection;
-import me.chan.texas.renderer.selection.SelectionManager;
+import me.chan.texas.renderer.selection.SelectionMethod;
 import me.chan.texas.renderer.ui.rv.SegmentItemFragmentLayout;
 import me.chan.texas.renderer.ui.rv.TexasRecyclerViewImpl;
 import me.chan.texas.renderer.ui.text.ParagraphView;
@@ -82,7 +82,7 @@ public class RendererAdapterImpl extends RecyclerView.Adapter<RendererAdapterImp
 	 * 选中效果属于编辑器内部的状态了，所有直接由adapter管理而不需要通知外部组件
 	 */
 	private final ViewSegmentManager mViewSegmentManager = new ViewSegmentManager();
-	private SelectionManager mSelectionManager;
+	private SelectionMethod mSelectionMethod;
 	private PaintSet mPaintSet;
 	private final RecyclerView.RecycledViewPool mPool;
 
@@ -118,8 +118,8 @@ public class RendererAdapterImpl extends RecyclerView.Adapter<RendererAdapterImp
 		mListener = listener;
 	}
 
-	public void setSelectionManager(SelectionManager selectionManager) {
-		mSelectionManager = selectionManager;
+	public void setSelectionMethod(SelectionMethod selectionMethod) {
+		mSelectionMethod = selectionMethod;
 	}
 
 	@NonNull
@@ -490,7 +490,7 @@ public class RendererAdapterImpl extends RecyclerView.Adapter<RendererAdapterImp
 					data,
 					mPaintSet,
 					mRenderOption,
-					mSelectionManager);
+					mSelectionMethod);
 			if (DEBUG) {
 				d("onCreateViewHolder: " + mRender.getToken());
 			}
@@ -515,7 +515,7 @@ public class RendererAdapterImpl extends RecyclerView.Adapter<RendererAdapterImp
 			SegmentItemFragmentLayout rootView = getRootView();
 
 			View content = getContentView();
-			data.render(content, mSelectionManager);
+			data.render(content, mSelectionMethod);
 
 			// 当内容被设置为GONE后，当前的item还是会在rv里占用一个格子，这会导致界面上出现大片空白
 			// 因此当发现内容为gone要把当前item高度设置为0

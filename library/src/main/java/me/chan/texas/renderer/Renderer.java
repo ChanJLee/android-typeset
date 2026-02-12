@@ -30,7 +30,7 @@ import me.chan.texas.renderer.core.TypesetEngine;
 import me.chan.texas.renderer.core.worker.MixWorker;
 import me.chan.texas.renderer.selection.ParagraphSelection;
 import me.chan.texas.renderer.selection.Selection;
-import me.chan.texas.renderer.selection.SelectionManager;
+import me.chan.texas.renderer.selection.SelectionMethodImpl;
 import me.chan.texas.renderer.selection.overlay.DragSelectViewImpl;
 import me.chan.texas.renderer.ui.RendererAdapterImpl;
 import me.chan.texas.renderer.ui.rv.SegmentItemDecoration;
@@ -45,7 +45,7 @@ import me.chan.texas.utils.concurrency.Worker;
  * 协调各个组件一起工作
  */
 @RestrictTo(LIBRARY)
-public class Renderer implements SelectionManager.Listener {
+public class Renderer implements SelectionMethodImpl.Listener {
 
 	/**
 	 * 显示参数
@@ -75,7 +75,7 @@ public class Renderer implements SelectionManager.Listener {
 	/**
 	 * 内容选择子系统
 	 */
-	private final SelectionManager mSelectionManager;
+	private final SelectionMethodImpl mSelectionMethod;
 
 	private final RecyclerView.OnScrollListener mOnScrollListener = new RecyclerView.OnScrollListener() {
 		@Override
@@ -153,8 +153,8 @@ public class Renderer implements SelectionManager.Listener {
 						ViewGroup.LayoutParams.MATCH_PARENT,
 						ViewGroup.LayoutParams.MATCH_PARENT)
 		);
-		mSelectionManager = new SelectionManager(mAdapter, mLinearLayoutManager, this, selectionDragView, mRecyclerView);
-		mAdapter.setSelectionManager(mSelectionManager);
+		mSelectionMethod = new SelectionMethodImpl(mAdapter, mLinearLayoutManager, this, selectionDragView, mRecyclerView);
+		mAdapter.setSelectionMethod(mSelectionMethod);
 
 		// adapter
 		mRecyclerView.setAdapter(mAdapter);
@@ -185,7 +185,7 @@ public class Renderer implements SelectionManager.Listener {
 
 	private void render(MixWorker.TypesetResult result) {
 		mAdapter.render(result);
-		mSelectionManager.renderDropView();
+		mSelectionMethod.renderDropView();
 		mTexasView.notifyRenderEnd();
 	}
 
@@ -221,7 +221,7 @@ public class Renderer implements SelectionManager.Listener {
 		RenderOption prev = mRenderOption;
 		mRenderOption = renderOption;
 		mAdapter.updateRenderOption(mRenderOption);
-		mSelectionManager.updateRenderOption(mRenderOption);
+		mSelectionMethod.updateRenderOption(mRenderOption);
 
 		if (cmpType == TexasUtils.CmpType.CMP_LOAD) {
 			d("render option changed, load");
@@ -257,7 +257,7 @@ public class Renderer implements SelectionManager.Listener {
 	}
 
 	public Selection getSelection(Selection.Type type) {
-		return mSelectionManager.getSelection(type);
+		return mSelectionMethod.getSelection(type);
 	}
 
 	public int getFirstVisibleSegmentIndex(boolean completelyVisible) {
@@ -271,7 +271,7 @@ public class Renderer implements SelectionManager.Listener {
 	}
 
 	public Selection highlightParagraphs(ParagraphPredicates predicates, boolean scrollTo, int offset, Selection.Styles styles) {
-		Selection highlight = mSelectionManager.highlightParagraphs(
+		Selection highlight = mSelectionMethod.highlightParagraphs(
 				predicates,
 				styles == null ? Selection.Styles.createFromHighLight(mRenderOption).setEnableDrag(false) :
 						styles.setEnableDrag(false)
@@ -294,11 +294,11 @@ public class Renderer implements SelectionManager.Listener {
 	}
 
 	public void clearHighlight() {
-		mSelectionManager.clearHighlight();
+		mSelectionMethod.clearHighlight();
 	}
 
 	public void clearSelection() {
-		mSelectionManager.clear();
+		mSelectionMethod.clear();
 	}
 
 	public int getScrollState() {
@@ -404,7 +404,7 @@ public class Renderer implements SelectionManager.Listener {
 	}
 
 	public void setSpanTouchEventHandler(SpanTouchEventHandler listener) {
-		mSelectionManager.setSpanTouchEventHandler(listener);
+		mSelectionMethod.setSpanTouchEventHandler(listener);
 	}
 
 	@SuppressLint("NotifyDataSetChanged")
@@ -454,7 +454,7 @@ public class Renderer implements SelectionManager.Listener {
 	}
 
 	public Selection selectParagraphs(ParagraphPredicates predicates, @NonNull Selection.Styles styles) {
-		return mSelectionManager.selectParagraphs(predicates, styles);
+		return mSelectionMethod.selectParagraphs(predicates, styles);
 	}
 
 	public int getPaddingWidth() {
@@ -544,6 +544,6 @@ public class Renderer implements SelectionManager.Listener {
 	}
 
 	public SelectionMethod getSelectionMethod() {
-		return mSelectionManager;
+		return mSelectionMethod;
 	}
 }
