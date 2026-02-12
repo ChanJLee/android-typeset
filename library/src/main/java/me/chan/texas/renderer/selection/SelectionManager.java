@@ -188,7 +188,7 @@ public class SelectionManager implements OnSelectedChangedListener, SelectionMet
 
 		boolean handled = false;
 		try {
-			handled = handleParagraphClicked(paragraph, isLongClicked, predicate, box, selection);
+			handled = handleParagraphClicked(paragraph, predicate, box, selection);
 			if (handled) {
 				setSelection(Selection.Type.SELECTION, selection);
 
@@ -211,7 +211,6 @@ public class SelectionManager implements OnSelectedChangedListener, SelectionMet
 	}
 
 	private boolean handleParagraphClicked(Paragraph paragraph,
-										   boolean isLongClicked,
 										   SpanPredicate predicate,
 										   Box box,
 										   Selection selection) throws ParagraphVisitor.VisitException {
@@ -221,20 +220,18 @@ public class SelectionManager implements OnSelectedChangedListener, SelectionMet
 		}
 
 		RenderOption renderOption = mAdapter.getRenderOption();
-		return handleParagraphClicked0(paragraph, renderOption, isLongClicked, predicate, box.getTag(), selection);
+		return handleParagraphClicked0(paragraph, renderOption, predicate, box.getTag(), selection);
 	}
 
 	private boolean handleParagraphClicked0(Paragraph paragraph,
 											RenderOption renderOption,
-											boolean isLongClicked,
 											SpanPredicate predicate,
 											Object boxTag,
 											Selection selection) throws ParagraphVisitor.VisitException {
 		try {
-			Selection.Styles styles = Selection.Styles.createFromTouch(mAdapter.getRenderOption(), isLongClicked);
 			mSelectedTextByClickedVisitor.reset(
-					Selection.Type.SELECTION,
-					styles,
+					selection.getType(),
+					selection.getStyles(),
 					paragraph,
 					renderOption
 			);
