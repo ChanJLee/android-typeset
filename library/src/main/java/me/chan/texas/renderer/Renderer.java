@@ -184,10 +184,8 @@ public class Renderer implements SelectionManager.Listener {
 	}
 
 	private void render(MixWorker.TypesetResult result) {
-		clearHighlight();
-		clearSelection();
-
 		mAdapter.render(result);
+		mSelectionManager.renderDrawView();
 		mTexasView.notifyRenderEnd();
 	}
 

@@ -247,6 +247,10 @@ public class SelectionManager implements OnSelectedChangedListener, SelectionMet
 		}
 	}
 
+	public void renderDrawView() {
+		notifyUpdateSelectionDropView();
+	}
+
 	private void notifyUpdateSelectionDropView() {
 		Selection selection = getSelection();
 		if (selection == null || selection.isEmpty()) {
