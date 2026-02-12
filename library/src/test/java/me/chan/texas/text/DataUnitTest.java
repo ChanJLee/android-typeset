@@ -33,7 +33,6 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
-import me.chan.texas.TestUtils;
 import me.chan.texas.test.mock.MockTextPaint;
 
 public class DataUnitTest {
@@ -161,40 +160,6 @@ public class DataUnitTest {
 	public void testForeground() {
 		DotUnderLine dotUnderLine = new DotUnderLine(10);
 		assertEquals(dotUnderLine.getColor(), 10);
-	}
-
-	@Test
-	public void testFigure() {
-		String extra = "ok";
-		String url = "hello";
-		Figure figure = Figure.obtain(url, 1, 2);
-		Assert.assertNotNull(figure);
-		Assert.assertFalse(figure.isRecycled());
-		Assert.assertSame(figure.getUrl(), url);
-		Assert.assertEquals(figure.getWidth(), 1, 0);
-		Assert.assertEquals(figure.getHeight(), 2, 0);
-		Assert.assertNull(figure.getTag());
-
-		Figure p = figure;
-		figure.recycle();
-		Assert.assertTrue(figure.isRecycled());
-		Assert.assertNotSame(figure.getUrl(), url);
-		Assert.assertNotEquals(figure.getWidth(), 1, 0);
-		Assert.assertNotEquals(figure.getHeight(), 2, 0);
-
-		figure.recycle();
-
-		figure = Figure.obtain(url, 1, 2, extra);
-		Assert.assertNotSame(figure, p);
-		Assert.assertNotNull(figure);
-		Assert.assertFalse(figure.isRecycled());
-		Assert.assertSame(figure.getUrl(), url);
-		Assert.assertEquals(figure.getWidth(), 1, 0);
-		Assert.assertEquals(figure.getHeight(), 2, 0);
-		Assert.assertNotSame(figure, Figure.obtain(url, 1, 2));
-		Assert.assertSame(figure.getTag(), extra);
-
-		figure.recycle();
 	}
 
 	@Test
@@ -404,12 +369,24 @@ public class DataUnitTest {
 		Assert.assertSame(p, candidate);
 		Assert.assertNotSame(candidate, Candidate.obtain(1, 2, node));
 	}
+	
+	private static class MySegment extends ViewSegment {
+
+		public MySegment() {
+			super(0);
+		}
+
+		@Override
+		protected void onRender(View view) {
+			
+		}
+	}
 
 	@Test
 	public void testDocumentIterator() {
-		Figure f1 = Figure.obtain("", 1, 2);
-		Figure f2 = Figure.obtain("", 1, 2);
-		Figure f3 = Figure.obtain("", 1, 2);
+		Segment f1 = new MySegment();
+		Segment f2 = new MySegment();
+		Segment f3 = new MySegment();
 		Document.Builder builder = new Document.Builder();
 		builder.addSegment(f1).addSegment(f2).addSegment(f3);
 		Document document = builder.build();
@@ -456,12 +433,12 @@ public class DataUnitTest {
 		}
 
 		List<Segment> segments = new ArrayList<>();
-		Figure figure = Figure.obtain("", 1, 2);
+		Segment figure = new MySegment();
 		segments.add(figure);
 		document.addSegments(segments);
 		Assert.assertEquals(document.getSegmentCount(), 1);
 		Assert.assertEquals(0, document.indexOfSegment(figure));
-		Assert.assertEquals(-1, document.indexOfSegment(Figure.obtain("", 1, 2)));
+		Assert.assertEquals(-1, document.indexOfSegment(new MySegment()));
 
 		try {
 			document.getSegment(1);
