@@ -185,18 +185,22 @@ public class SelectionManager implements OnSelectedChangedListener, SelectionMet
 
 		Selection.Styles styles = Selection.Styles.createFromTouch(mAdapter.getRenderOption(), isLongClicked);
 		Selection selection = Selection.obtain(Selection.Type.SELECTION, mContentView, styles);
-		setSelection(Selection.Type.SELECTION, selection);
 
 		boolean handled = false;
 		try {
 			handled = handleParagraphClicked(paragraph, isLongClicked, predicate, box, selection);
+			if (handled) {
+				setSelection(Selection.Type.SELECTION, selection);
 
-			if (handled && mListener != null) {
 				if (isLongClicked) {
-					mListener.onSpanLongClicked(e, box.getTag());
 					notifyUpdateSelectionDropView();
+					if (mListener != null) {
+						mListener.onSpanLongClicked(e, box.getTag());
+					}
 				} else {
-					mListener.onSpanClicked(e, box.getTag());
+					if (mListener != null) {
+						mListener.onSpanClicked(e, box.getTag());
+					}
 				}
 			}
 		} catch (ParagraphVisitor.VisitException ex) {
