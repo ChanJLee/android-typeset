@@ -251,7 +251,7 @@ public class SelectionManager implements OnSelectedChangedListener, SelectionMet
 		}
 	}
 
-	public void renderDrawView() {
+	public void renderDropView() {
 		notifyUpdateSelectionDropView();
 	}
 

@@ -185,7 +185,7 @@ public class Renderer implements SelectionManager.Listener {
 
 	private void render(MixWorker.TypesetResult result) {
 		mAdapter.render(result);
-		mSelectionManager.renderDrawView();
+		mSelectionManager.renderDropView();
 		mTexasView.notifyRenderEnd();
 	}
 
