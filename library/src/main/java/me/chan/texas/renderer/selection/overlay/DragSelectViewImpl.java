@@ -19,7 +19,7 @@ import androidx.annotation.RestrictTo;
 import me.chan.texas.Texas;
 import me.chan.texas.misc.PointF;
 import me.chan.texas.renderer.TouchEvent;
-import me.chan.texas.renderer.selection.SelectionManager;
+import me.chan.texas.renderer.selection.SelectionMethodImpl;
 import me.chan.texas.renderer.selection.magnifier.MagnifierView;
 import me.chan.texas.renderer.selection.magnifier.MagnifierViewFactory;
 
@@ -36,7 +36,7 @@ public class DragSelectViewImpl extends View implements DragSelectView {
 	private final PointF mP2 = new PointF(0, 0);
 
 
-	private SelectionManager mSelectionManager;
+	private SelectionMethodImpl mSelectionMethod;
 	private final MagnifierView mMagnifierView;
 	private float mAdviseOffsetY;
 
@@ -67,9 +67,9 @@ public class DragSelectViewImpl extends View implements DragSelectView {
 			@Override
 			protected void onMotionReceived(int direction) {
 				if (direction == LongPressMotionDispatcher.DIRECTION_UP) {
-					mSelectionManager.autoScrollUp();
+					mSelectionMethod.autoScrollUp();
 				} else if (direction == LongPressMotionDispatcher.DIRECTION_DOWN) {
-					mSelectionManager.autoScrollDown();
+					mSelectionMethod.autoScrollDown();
 				}
 			}
 		};
@@ -143,7 +143,7 @@ public class DragSelectViewImpl extends View implements DragSelectView {
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
 		if (!mEnable) {
-			mSelectionManager.handleClickNothing(true);
+			mSelectionMethod.handleClickNothing(true);
 			return true;
 		}
 
@@ -178,7 +178,7 @@ public class DragSelectViewImpl extends View implements DragSelectView {
 			mLastTouchPoint.y = y;
 		} else if ((action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_CANCEL) && mHandleDownEvent) {
 			mLongPressMotionDispatcher.cancel("手已经抬起");
-			mSelectionManager.handleDragEnd(TouchEvent.obtain(this, event));
+			mSelectionMethod.handleDragEnd(TouchEvent.obtain(this, event));
 		}
 
 		renderPrompt(action, x, y);
@@ -221,12 +221,12 @@ public class DragSelectViewImpl extends View implements DragSelectView {
 
 	private void handleMoveEvent(float x, float y) {
 		mFocusPoint.offset(x - mFocusPoint.x, y - mFocusPoint.y);
-		if (mSelectionManager == null) {
+		if (mSelectionMethod == null) {
 			return;
 		}
 
 		getMotionRegion(mMotionRegion);
-		mSelectionManager.handleMoveToSelection(mMotionRegion.getTopX(), mMotionRegion.getTopY(), mMotionRegion.getBottomX(), mMotionRegion.getBottomY());
+		mSelectionMethod.handleMoveToSelection(mMotionRegion.getTopX(), mMotionRegion.getTopY(), mMotionRegion.getBottomX(), mMotionRegion.getBottomY());
 	}
 
 	private void getRendererRegion(Region region) {
@@ -268,12 +268,12 @@ public class DragSelectViewImpl extends View implements DragSelectView {
 		if (handled) {
 			mFocusPoint.offset(x - mFocusPoint.x, y - mFocusPoint.y);
 			// 通知上层开始拖拽
-			mSelectionManager.handleDragStart(TouchEvent.obtain(this, event));
+			mSelectionMethod.handleDragStart(TouchEvent.obtain(this, event));
 			return true;
 		}
 
 		// 通知上层没有点击到
-		mSelectionManager.handleClickNothing();
+		mSelectionMethod.handleClickNothing();
 
 		dismissPrompt();
 
@@ -302,8 +302,8 @@ public class DragSelectViewImpl extends View implements DragSelectView {
 		return false;
 	}
 
-	public void setSelectionManager(@NonNull SelectionManager selectionManager) {
-		mSelectionManager = selectionManager;
+	public void setSelectionMethod(@NonNull SelectionMethodImpl selectionMethod) {
+		mSelectionMethod = selectionMethod;
 	}
 
 	/**

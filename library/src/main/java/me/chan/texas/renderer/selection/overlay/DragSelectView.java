@@ -1,12 +1,12 @@
 package me.chan.texas.renderer.selection.overlay;
 
-import me.chan.texas.renderer.selection.SelectionManager;
+import me.chan.texas.renderer.selection.SelectionMethodImpl;
 
 public interface DragSelectView {
 
 	void setVisibility(int visible);
 
-	void setSelectionManager(SelectionManager selectionManager);
+	void setSelectionMethod(SelectionMethodImpl selectionMethod);
 
 	void updateContentScrollY(int y);
 

@@ -42,7 +42,7 @@ import me.chan.texas.text.layout.Box;
  * Created by Otway on 2021/11/12.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-public class SelectionManager implements OnSelectedChangedListener, SelectionMethod {
+public class SelectionMethodImpl implements OnSelectedChangedListener, SelectionMethod {
 	private final TexasRendererAdapter mAdapter;
 	private final TexasLayoutManager mLayoutManager;
 	private final Listener mListener;
@@ -56,11 +56,11 @@ public class SelectionManager implements OnSelectedChangedListener, SelectionMet
 	 */
 	private final PredicatesDriveSelectedVisitor mPredicatesDriveSelectedVisitor = new PredicatesDriveSelectedVisitor();
 	/**
-	 * 用于拖拽时选中文本 {@link SelectionManager#handleMoveToSelection(float, float, float, float)}
+	 * 用于拖拽时选中文本 {@link SelectionMethodImpl#handleMoveToSelection(float, float, float, float)}
 	 */
 	private final SelectedTextByDragVisitor mSelectedTextByDragVisitor = new SelectedTextByDragVisitor();
 	/**
-	 * 用于点击是选中文本 {@link SelectionManager#onBoxSelected(TouchEvent, Paragraph, int, Box)}
+	 * 用于点击是选中文本 {@link SelectionMethodImpl#onBoxSelected(TouchEvent, Paragraph, int, Box)}
 	 */
 	private final SelectedTextByClickedVisitor mSelectedTextByClickedVisitor = new SelectedTextByClickedVisitor();
 
@@ -82,17 +82,17 @@ public class SelectionManager implements OnSelectedChangedListener, SelectionMet
 		}
 	};
 
-	public SelectionManager(TexasRendererAdapter adapter,
-							TexasLayoutManager layoutManager,
-							Listener listener,
-							DragSelectView selectableView,
-							TexasRecyclerView contextView) {
+	public SelectionMethodImpl(TexasRendererAdapter adapter,
+							   TexasLayoutManager layoutManager,
+							   Listener listener,
+							   DragSelectView selectableView,
+							   TexasRecyclerView contextView) {
 		mAdapter = adapter;
 		mLayoutManager = layoutManager;
 		mListener = listener;
 		mDropView = selectableView;
 		mDropView.setVisibility(View.GONE);
-		mDropView.setSelectionManager(this);
+		mDropView.setSelectionMethod(this);
 		mContentView = contextView;
 		mContentView.addOnScrollListener(new RecyclerView.OnScrollListener() {
 			@Override

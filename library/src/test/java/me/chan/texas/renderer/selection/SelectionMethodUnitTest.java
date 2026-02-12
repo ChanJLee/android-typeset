@@ -55,10 +55,10 @@ import me.chan.texas.typesetter.ParagraphTypesetter;
 import me.chan.texas.utils.TexasUtils;
 import me.chan.texas.utils.concurrency.Worker;
 
-public class SelectionManagerUnitTest {
+public class SelectionMethodUnitTest {
 	private Document mDocument;
 	private RenderOption mRenderOption;
-	private SelectionManager mSelectionManager;
+	private SelectionMethodImpl mSelectionManager;
 	private MyLayoutManager mLayoutManager;
 	private MySelectionListener mSelectionListener;
 	private MyDragView mDragSelectView;
@@ -123,7 +123,7 @@ public class SelectionManagerUnitTest {
 			}
 		}
 
-		mSelectionManager = new SelectionManager(new MyAdapter(),
+		mSelectionManager = new SelectionMethodImpl(new MyAdapter(),
 				mLayoutManager = new MyLayoutManager(mDocument),
 				mSelectionListener = new MySelectionListener(),
 				mDragSelectView = new MyDragView(),
@@ -759,7 +759,7 @@ public class SelectionManagerUnitTest {
 		}
 
 		@Override
-		public void setSelectionManager(SelectionManager selectionManager) {
+		public void setSelectionMethod(SelectionMethodImpl selectionMethod) {
 
 		}
 
@@ -788,7 +788,7 @@ public class SelectionManagerUnitTest {
 		}
 	}
 
-	private class MySelectionListener implements SelectionManager.Listener {
+	private class MySelectionListener implements SelectionMethodImpl.Listener {
 
 		private SelectionEvent mEvent = SelectionEvent.NONE;
 
