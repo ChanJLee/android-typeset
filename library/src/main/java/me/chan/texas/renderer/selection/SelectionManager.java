@@ -333,21 +333,19 @@ public class SelectionManager implements OnSelectedChangedListener, SelectionMet
 		int firstVisibleItemPosition = mLayoutManager.findFirstVisibleItemPosition();
 		int lastVisibleItemPosition = mLayoutManager.findLastVisibleItemPosition();
 
-		Selection prevSelection = selection;
-
 		RenderOption renderOption = mAdapter.getRenderOption();
 
-		Selection currentSelection = Selection.obtain(selection.getType(), mContentView, prevSelection.getStyles());
+		Selection nextSelection = Selection.obtain(selection.getType(), mContentView, selection.getStyles());
 		for (int i = firstVisibleItemPosition; i <= lastVisibleItemPosition; ++i) {
 			Segment segment = mAdapter.getItem(i);
 			if (segment instanceof Paragraph) {
-				updateParagraphSelection(currentSelection, renderOption, (Paragraph) segment, x1, y1, x2, y2);
+				updateParagraphSelection(nextSelection, renderOption, (Paragraph) segment, x1, y1, x2, y2);
 			} else if (segment instanceof ViewSegment) {
-				updateSelectableParagraphSelection(currentSelection, renderOption, (ViewSegment) segment, x1, y1, x2, y2);
+				updateSelectableParagraphSelection(nextSelection, renderOption, (ViewSegment) segment, x1, y1, x2, y2);
 			}
 		}
 
-		updateMotionSelection(prevSelection, currentSelection);
+		updateMotionSelection(selection, nextSelection);
 	}
 
 	private void updateSelectableParagraphSelection(Selection currentSelection,
