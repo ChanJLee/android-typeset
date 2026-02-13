@@ -20,6 +20,7 @@ import me.chan.texas.misc.RectF;
 import me.chan.texas.renderer.ParagraphVisitor;
 import me.chan.texas.renderer.RenderOption;
 import me.chan.texas.renderer.RendererContext;
+import me.chan.texas.renderer.RoundRectDrawable;
 import me.chan.texas.renderer.core.graphics.TexasCanvas;
 import me.chan.texas.renderer.core.graphics.TexasPaint;
 import me.chan.texas.text.Paragraph;
@@ -38,7 +39,7 @@ public class ParagraphSelection extends DefaultRecyclable {
 	private InternalSelectionStyle mStyle;
 	private int mId;
 	private final BitBucket mSet = new BitBucket(128);
-	private final List<RectF> mBackgrounds = new ArrayList<>();
+	private final RoundRectDrawable mDrawable = new RoundRectDrawable();
 	private Selection.Type mType;
 
 	private Paragraph mParagraph;
@@ -84,14 +85,18 @@ public class ParagraphSelection extends DefaultRecyclable {
 		mFirst = box;
 	}
 
-	@RestrictTo(LIBRARY)
 	public void appendRegion(RectF rectF) {
-		mBackgrounds.add(rectF);
+		appendRegion(rectF.left, rectF.top, rectF.right, rectF.bottom);
+	}
+
+	@RestrictTo(LIBRARY)
+	public void appendRegion(float left, float top, float right, float bottom) {
+		mDrawable.append(left, top, right, bottom);
 	}
 
 	@RestrictTo(LIBRARY)
 	public void prependRegion(RectF rectF) {
-		mBackgrounds.add(0, rectF);
+		mDrawable.prepend(rectF);
 	}
 
 	@RestrictTo(LIBRARY)
@@ -109,7 +114,7 @@ public class ParagraphSelection extends DefaultRecyclable {
 	 * @return 选中区域是空的
 	 */
 	public boolean isSelectedRegionEmpty() {
-		return mBackgrounds.isEmpty();
+		return mDrawable.isEmpty();
 	}
 
 	public Paragraph getParagraph() {
@@ -151,7 +156,7 @@ public class ParagraphSelection extends DefaultRecyclable {
 	@Override
 	protected void onRecycle() {
 		mSet.clear();
-		mBackgrounds.clear();
+		mDrawable.clear();
 		mStyle = null;
 		mId = 0;
 		mParagraph = null;
@@ -180,24 +185,24 @@ public class ParagraphSelection extends DefaultRecyclable {
 
 	@Nullable
 	public RectF getFirstRegion() {
-		if (mBackgrounds.isEmpty()) {
+		if (mDrawable.isEmpty()) {
 			return null;
 		}
-		return mBackgrounds.get(0);
+		return mDrawable.get(0);
 	}
 
 	@Nullable
 	public RectF getLastRegion() {
-		if (mBackgrounds.isEmpty()) {
+		if (mDrawable.isEmpty()) {
 			return null;
 		}
-		return mBackgrounds.get(mBackgrounds.size() - 1);
+		return mDrawable.get(mDrawable.size() - 1);
 	}
 
 	@RestrictTo(LIBRARY)
 	@VisibleForTesting
 	public List<RectF> getBackgrounds() {
-		return mBackgrounds;
+		return mDrawable.getBackgrounds();
 	}
 
 	@Nullable
@@ -222,7 +227,7 @@ public class ParagraphSelection extends DefaultRecyclable {
 	public void clear() {
 		mSet.clear();
 		mFirst = mLast = null;
-		mBackgrounds.clear();
+		mDrawable.clear();
 	}
 
 	public void drawBackground(TexasCanvas canvas, TexasPaint paint, RenderOption option) {
@@ -231,15 +236,11 @@ public class ParagraphSelection extends DefaultRecyclable {
 		float radius = option.getSelectedBackgroundRoundRadius();
 		paint.setColor(mStyle.mBackgroundColor);
 		if (radius <= 0) {
-			for (RectF rectF : mBackgrounds) {
-				canvas.drawRect(rectF.left, rectF.top, rectF.right, rectF.bottom, paint);
-			}
+			mDrawable.drawRect(canvas, paint);
 			return;
 		}
 
-		for (RectF rectF : mBackgrounds) {
-			canvas.drawRoundRect(rectF.left, rectF.top, rectF.right, rectF.bottom, radius, radius, paint);
-		}
+		mDrawable.drawRoundRect(canvas, paint, radius);
 	}
 
 	private final GetSelectedTagVisitor mGetSelectedTagVisitor = new GetSelectedTagVisitor();

@@ -166,8 +166,8 @@ public class SelectedTextByDragVisitor extends SelectedVisitor {
 			Line tmp = layout.getLine(lineIndex);
 			RectF bounds = tmp.getBounds();
 			rectF = new RectF(bounds.left, bounds.top, bounds.left, bounds.bottom);
-			mSelection.appendRegion(rectF);
 			index = linkText(line, 0, true, rectF);
+			mSelection.appendRegion(rectF);
 			size = count;
 
 			if (index != size) {
