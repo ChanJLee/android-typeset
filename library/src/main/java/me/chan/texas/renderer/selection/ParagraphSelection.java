@@ -96,7 +96,7 @@ public class ParagraphSelection extends DefaultRecyclable {
 		}
 
 		RectF rectF = mBackgrounds.get(mBackgrounds.size() - 1);
-		if (rectF.right == left) {
+		if (Float.compare(rectF.right, left) == 0 || Math.abs(rectF.right - left) < 1) {
 			rectF.right = right;
 			rectF.top = Math.min(rectF.top, top);
 			rectF.bottom = Math.max(rectF.bottom, bottom);
