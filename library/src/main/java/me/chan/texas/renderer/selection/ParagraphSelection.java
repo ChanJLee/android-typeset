@@ -84,8 +84,29 @@ public class ParagraphSelection extends DefaultRecyclable {
 		mFirst = box;
 	}
 
-	@RestrictTo(LIBRARY)
 	public void appendRegion(RectF rectF) {
+		appendRegion(rectF.left, rectF.top, rectF.right, rectF.bottom);
+	}
+
+	@RestrictTo(LIBRARY)
+	public void appendRegion(float left, float top, float right, float bottom) {
+		if (mBackgrounds.isEmpty()) {
+			appendRegion0(left, top, right, bottom);
+			return;
+		}
+
+		RectF rectF = mBackgrounds.get(mBackgrounds.size() - 1);
+		if (rectF.right == left) {
+			rectF.right = right;
+			rectF.top = Math.min(rectF.top, top);
+			rectF.bottom = Math.max(rectF.bottom, bottom);
+		} else {
+			appendRegion0(left, top, right, bottom);
+		}
+	}
+
+	private void appendRegion0(float left, float top, float right, float bottom) {
+		RectF rectF = new RectF(left, top, right, bottom);
 		mBackgrounds.add(rectF);
 	}
 

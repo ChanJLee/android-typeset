@@ -15,7 +15,6 @@ import me.chan.texas.renderer.RendererContext;
 import me.chan.texas.text.layout.Box;
 import me.chan.texas.text.layout.DrawableBox;
 import me.chan.texas.text.layout.Line;
-import me.chan.texas.utils.TexasUtils;
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public abstract class SelectedVisitor extends ParagraphVisitor {
@@ -23,11 +22,9 @@ public abstract class SelectedVisitor extends ParagraphVisitor {
 	protected ParagraphSelection mSelection;
 
 	// 绘制背景用
-	private RectF mRectF;
 	private float mLastLineBottom;
 	private float mLastLineTop;
 	protected Selection.Type mType;
-
 	protected RenderOption mRenderOption;
 
 	/**
@@ -45,7 +42,7 @@ public abstract class SelectedVisitor extends ParagraphVisitor {
 
 	@Override
 	protected void onVisitParagraphStart(Paragraph paragraph) {
-
+		/* NOOP */
 	}
 
 	@Override
@@ -69,14 +66,13 @@ public abstract class SelectedVisitor extends ParagraphVisitor {
 
 	@Override
 	public void onVisitParagraphEnd(Paragraph paragraph) {
-
+		/* NOOP */
 	}
 
 	@CallSuper
 	public void clear() {
 		mSelection = null;
 		mLastLineBottom = mLastLineTop = -1;
-		mRectF = null;
 	}
 
 	@Override
@@ -87,23 +83,16 @@ public abstract class SelectedVisitor extends ParagraphVisitor {
 
 	@Override
 	public void onVisitLineEnd(Line line, float x, float y) {
-		if (mRectF != null) {
-			mSelection.appendRegion(mRectF);
-			mRectF = null;
-		}
+		/* NOOP */
 	}
 
 	@Override
 	public void onVisitBox(Box box, RectF inner, RectF outer, @NonNull RendererContext context) {
 		if (selected(box, inner, outer)) {
 			if (!(box instanceof DrawableBox) || includeSelectNonTextBoxRegion()) {
-				appendRect(outer);
-			} else {
-				closeRect();
+				mSelection.appendRegion(outer.left, mLastLineTop, outer.right, mLastLineBottom);
 			}
 			mSelection.appendBox(box);
-		} else {
-			closeRect();
 		}
 	}
 
@@ -112,21 +101,6 @@ public abstract class SelectedVisitor extends ParagraphVisitor {
 	 */
 	protected boolean includeSelectNonTextBoxRegion() {
 		return mRenderOption.isDrawEmoticonSelection();
-	}
-
-	private void appendRect(RectF rectF) {
-		if (mRectF == null) {
-			mRectF = new RectF();
-			TexasUtils.setRect(mRectF, rectF.left, mLastLineTop, rectF.right, mLastLineBottom);
-		}
-		mRectF.right = rectF.right;
-	}
-
-	private void closeRect() {
-		if (mRectF != null) {
-			mSelection.appendRegion(mRectF);
-			mRectF = null;
-		}
 	}
 
 	protected abstract boolean selected(Box box, RectF inner, RectF outer);
