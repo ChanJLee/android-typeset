@@ -8,6 +8,7 @@ import androidx.annotation.VisibleForTesting;
 import me.chan.texas.Texas;
 import me.chan.texas.misc.PointF;
 import me.chan.texas.misc.RectF;
+import me.chan.texas.renderer.CompositeRectDrawable;
 import me.chan.texas.renderer.ParagraphVisitor;
 import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.layout.Box;
@@ -88,7 +89,9 @@ public class SelectedTextByDragVisitor extends SelectedVisitor {
 			RectF bounds = tmp.getBounds();
 			rectF = new RectF(bounds.right, bounds.top, bounds.right, bounds.bottom);
 			index = linkText(line, count - 1, false, rectF);
-			mSelection.prependRegion(rectF);
+			CompositeRectDrawable drawable = new CompositeRectDrawable();
+			drawable.append(rectF.left, rectF.top, rectF.right, rectF.bottom);
+			mSelection.prependRegion(drawable);
 			if (index != -1) {
 				return;
 			}
@@ -100,7 +103,6 @@ public class SelectedTextByDragVisitor extends SelectedVisitor {
 		int step = backward ? 1 : -1;
 		for (; index >= 0 && index < size; ) {
 			Element element = line.getElement(index);
-			int prevIndex = index;
 			index += step;
 			Box box = (Box) element;
 			if (backward) {
@@ -167,7 +169,9 @@ public class SelectedTextByDragVisitor extends SelectedVisitor {
 			RectF bounds = tmp.getBounds();
 			rectF = new RectF(bounds.left, bounds.top, bounds.left, bounds.bottom);
 			index = linkText(line, 0, true, rectF);
-			mSelection.appendRegion(rectF);
+			CompositeRectDrawable drawable = new CompositeRectDrawable();
+			drawable.append(rectF.left, rectF.top, rectF.right, rectF.bottom);
+			mSelection.appendRegion(drawable);
 			size = count;
 
 			if (index != size) {

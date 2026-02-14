@@ -17,10 +17,11 @@ import me.chan.texas.misc.BitBucket;
 import me.chan.texas.misc.DefaultRecyclable;
 import me.chan.texas.misc.ObjectPool;
 import me.chan.texas.misc.RectF;
+import me.chan.texas.renderer.CompositeRectDrawable;
 import me.chan.texas.renderer.ParagraphVisitor;
 import me.chan.texas.renderer.RenderOption;
 import me.chan.texas.renderer.RendererContext;
-import me.chan.texas.renderer.RoundRectDrawable;
+import me.chan.texas.renderer.RectDrawable;
 import me.chan.texas.renderer.core.graphics.TexasCanvas;
 import me.chan.texas.renderer.core.graphics.TexasPaint;
 import me.chan.texas.text.Paragraph;
@@ -39,7 +40,7 @@ public class ParagraphSelection extends DefaultRecyclable {
 	private InternalSelectionStyle mStyle;
 	private int mId;
 	private final BitBucket mSet = new BitBucket(128);
-	private final RoundRectDrawable mDrawable = new RoundRectDrawable();
+	private final RectDrawable mDrawable = new RectDrawable();
 	private Selection.Type mType;
 
 	private Paragraph mParagraph;
@@ -85,18 +86,14 @@ public class ParagraphSelection extends DefaultRecyclable {
 		mFirst = box;
 	}
 
-	public void appendRegion(RectF rectF) {
-		appendRegion(rectF.left, rectF.top, rectF.right, rectF.bottom);
+	@RestrictTo(LIBRARY)
+	public void appendRegion(CompositeRectDrawable drawable) {
+		mDrawable.append(drawable);
 	}
 
 	@RestrictTo(LIBRARY)
-	public void appendRegion(float left, float top, float right, float bottom) {
-		mDrawable.append(left, top, right, bottom);
-	}
-
-	@RestrictTo(LIBRARY)
-	public void prependRegion(RectF rectF) {
-		mDrawable.prepend(rectF);
+	public void prependRegion(CompositeRectDrawable drawable) {
+		mDrawable.prepend(drawable);
 	}
 
 	@RestrictTo(LIBRARY)
@@ -188,7 +185,13 @@ public class ParagraphSelection extends DefaultRecyclable {
 		if (mDrawable.isEmpty()) {
 			return null;
 		}
-		return mDrawable.get(0);
+
+		CompositeRectDrawable drawable = mDrawable.get(0);
+		if (drawable.isEmpty()) {
+			return null;
+		}
+
+		return drawable.get(0);
 	}
 
 	@Nullable
@@ -196,13 +199,23 @@ public class ParagraphSelection extends DefaultRecyclable {
 		if (mDrawable.isEmpty()) {
 			return null;
 		}
-		return mDrawable.get(mDrawable.size() - 1);
+
+		CompositeRectDrawable drawable = mDrawable.get(mDrawable.size() - 1);
+		if (drawable.isEmpty()) {
+			return null;
+		}
+
+		return drawable.get(drawable.size() - 1);
 	}
 
 	@RestrictTo(LIBRARY)
 	@VisibleForTesting
 	public List<RectF> getBackgrounds() {
-		return mDrawable.getBackgrounds();
+		List<RectF> background = new ArrayList<>();
+		for (CompositeRectDrawable drawable : mDrawable.getBackgrounds()) {
+			background.addAll(drawable.getBackgrounds());
+		}
+		return background;
 	}
 
 	@Nullable
