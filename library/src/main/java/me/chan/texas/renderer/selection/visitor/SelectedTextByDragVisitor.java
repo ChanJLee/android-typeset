@@ -87,8 +87,8 @@ public class SelectedTextByDragVisitor extends SelectedVisitor {
 			Line tmp = layout.getLine(lineIndex);
 			RectF bounds = tmp.getBounds();
 			rectF = new RectF(bounds.right, bounds.top, bounds.right, bounds.bottom);
-			mSelection.prependRegion(rectF);
 			index = linkText(line, count - 1, false, rectF);
+			mSelection.prependRegion(rectF);
 			if (index != -1) {
 				return;
 			}
