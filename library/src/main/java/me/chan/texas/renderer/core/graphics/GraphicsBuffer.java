@@ -140,15 +140,29 @@ public class GraphicsBuffer {
 
 		@MainThread
 		public void release() {
+			release(false);
+		}
+
+		@MainThread
+		public void release(boolean sync) {
 			final Picture picture = mPicture.getAndSet(null);
 			if (picture == null || picture == EMPTY_PICTURE) {
+				return;
+			}
+
+			release0(sync, () -> TexturePicture.releasePicture((TexturePicture) picture));
+		}
+
+		private void release0(boolean sync, Runnable runnable) {
+			if (sync) {
+				runnable.run();
 				return;
 			}
 
 			WorkerScheduler.odd().submit(
 					mToken /* 基本上是一个不可能的值 */,
 					WorkerScheduler.getTaskQueue(TASK_QUEUE_RENDER),
-					() -> TexturePicture.releasePicture((TexturePicture) picture));
+					runnable);
 		}
 
 		@MainThread

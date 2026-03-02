@@ -6,6 +6,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicReference;
 
 import me.chan.texas.Texas;
 import me.chan.texas.utils.concurrency.Worker;
@@ -113,5 +114,69 @@ public class GraphicsBufferTest {
 
 		buffer.release();
 		Assert.assertEquals(0, TexturePicture.ALIVE_COUNT.get());
+	}
+
+	@Test
+	public void testConcurrentDrawAndRelease() throws InterruptedException {
+		// Run multiple iterations to trigger potential race conditions
+		int iterations = 100;
+
+		for (int i = 0; i < iterations; i++) {
+			final GraphicsBuffer.DoubleBuffer buffer = new GraphicsBuffer.DoubleBuffer(Worker.Token.newInstance());
+
+			// Latch to start threads simultaneously
+			final CountDownLatch startSignal = new CountDownLatch(1);
+			// Latch to wait for both threads to finish
+			final CountDownLatch doneSignal = new CountDownLatch(2);
+			// Container to capture exceptions from threads
+			final AtomicReference<Throwable> threadError = new AtomicReference<>();
+
+			// Thread 1: Tries to Draw
+			Thread drawThread = new Thread(() -> {
+				try {
+					startSignal.await();
+					// Try to lock. If release() happened first, this might return null.
+					// If release() happens during lock, lock mechanism should handle it.
+					buffer.lockCanvas(100, 100);
+					// Simulate a very tiny amount of work to increase race window
+					Thread.sleep((long) (Math.random() * 100 + 20));
+					buffer.unlockCanvas();
+				} catch (Throwable t) {
+					threadError.set(t);
+				} finally {
+					doneSignal.countDown();
+				}
+			});
+
+			// Thread 2: Tries to Release
+			Thread releaseThread = new Thread(() -> {
+				try {
+					startSignal.await();
+					// Randomly yield to vary the timing relative to the draw thread
+					Thread.sleep((long) (Math.random() * 100 + 20));
+					buffer.release(true);
+				} catch (Throwable t) {
+					threadError.set(t);
+				} finally {
+					doneSignal.countDown();
+				}
+			});
+
+			drawThread.start();
+			releaseThread.start();
+
+			// Start both threads
+			startSignal.countDown();
+			// Wait for both to finish
+			doneSignal.await();
+
+			// Fail if any thread threw an exception
+			if (threadError.get() != null) {
+				throw new RuntimeException("Error in iteration " + i, threadError.get());
+			}
+
+			// Critical Check: Regardless of order, memory must be released.
+			Assert.assertEquals("Memory leak detected at iteration " + i, 0, TexturePicture.ALIVE_COUNT.get());
+		}
 	}
 }
