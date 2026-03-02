@@ -124,14 +124,14 @@ public class ParagraphViewMotion {
 			return false;
 		}
 
-		if (!handler.acceptSpan(
-				eventType == OnSelectedChangedListener.EVENT_CLICKED ?
-						SpanTouchEventHandler.EventType.CLICK : SpanTouchEventHandler.EventType.LONG_CLICK, mLastTouchBox.getTag())) {
+		OnSelectedChangedListener listener = mSelectionMethod.getOnSelectedChangedListener();
+		if (listener == null) {
 			return false;
 		}
 
-		OnSelectedChangedListener listener = mSelectionMethod.getOnSelectedChangedListener();
-		if (listener == null) {
+		if (!handler.acceptSpan(
+				eventType == OnSelectedChangedListener.EVENT_CLICKED ?
+						SpanTouchEventHandler.EventType.CLICK : SpanTouchEventHandler.EventType.LONG_CLICK, mLastTouchBox.getTag())) {
 			return false;
 		}
 
@@ -235,16 +235,8 @@ public class ParagraphViewMotion {
 		}
 	}
 
-	private static void d(String msg) {
-		Log.d("TexasParaView", msg);
-	}
-
 	private static void w(Throwable throwable) {
 		Log.w("TexasParaView", throwable);
-	}
-
-	private static void i(String msg) {
-		Log.i("TexasParaView", msg);
 	}
 
 	private class EventListener implements GestureDetector.OnGestureListener, GestureDetector.OnDoubleTapListener {
