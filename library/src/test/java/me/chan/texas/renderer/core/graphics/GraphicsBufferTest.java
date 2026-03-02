@@ -139,7 +139,7 @@ public class GraphicsBufferTest {
 					// If release() happens during lock, lock mechanism should handle it.
 					buffer.lockCanvas(100, 100);
 					// Simulate a very tiny amount of work to increase race window
-					Thread.sleep((long) (Math.random() * 100 + 20));
+					Thread.sleep((long) (Math.random() * 15 + 10));
 					buffer.unlockCanvas();
 				} catch (Throwable t) {
 					threadError.set(t);
@@ -153,7 +153,7 @@ public class GraphicsBufferTest {
 				try {
 					startSignal.await();
 					// Randomly yield to vary the timing relative to the draw thread
-					Thread.sleep((long) (Math.random() * 100 + 20));
+					Thread.sleep((long) (Math.random() * 10 + 25));
 					buffer.release(true);
 				} catch (Throwable t) {
 					threadError.set(t);
