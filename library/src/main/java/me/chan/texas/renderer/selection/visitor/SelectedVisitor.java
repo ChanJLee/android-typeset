@@ -6,6 +6,7 @@ import androidx.annotation.CallSuper;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 
+import me.chan.texas.renderer.CompositeRectDrawable;
 import me.chan.texas.renderer.ParagraphVisitor;
 import me.chan.texas.renderer.RenderOption;
 import me.chan.texas.renderer.selection.ParagraphSelection;
@@ -26,6 +27,7 @@ public abstract class SelectedVisitor extends ParagraphVisitor {
 	private float mLastLineTop;
 	protected Selection.Type mType;
 	protected RenderOption mRenderOption;
+	private CompositeRectDrawable mCompositeRectDrawable;
 
 	/**
 	 * @param styles       styles
@@ -79,18 +81,25 @@ public abstract class SelectedVisitor extends ParagraphVisitor {
 	public void onVisitLineStart(Line line, float bottomX, float bottomY) {
 		mLastLineBottom = bottomY;
 		mLastLineTop = bottomY - line.getLineHeight();
+		mCompositeRectDrawable = new CompositeRectDrawable();
 	}
 
 	@Override
 	public void onVisitLineEnd(Line line, float x, float y) {
-		/* NOOP */
+		if (mCompositeRectDrawable.isEmpty()) {
+			mCompositeRectDrawable = null;
+			return;
+		}
+
+		mSelection.appendRegion(mCompositeRectDrawable);
+		mCompositeRectDrawable = null;
 	}
 
 	@Override
 	public void onVisitBox(Box box, RectF inner, RectF outer, @NonNull RendererContext context) {
 		if (selected(box, inner, outer)) {
 			if (!(box instanceof DrawableBox) || includeSelectNonTextBoxRegion()) {
-				mSelection.appendRegion(outer.left, mLastLineTop, outer.right, mLastLineBottom);
+				mCompositeRectDrawable.append(outer.left, mLastLineTop, outer.right, mLastLineBottom);
 			}
 			mSelection.appendBox(box);
 		}

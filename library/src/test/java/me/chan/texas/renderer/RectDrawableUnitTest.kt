@@ -4,12 +4,12 @@ import me.chan.texas.misc.RectF
 import org.junit.Assert
 import org.junit.Test
 
-class RoundRectDrawableUnitTest {
+class RectDrawableUnitTest {
 
     @Test
     fun test() {
         var rect = RectF(0f, 1f, 100f, 99f)
-        RoundRectDrawable().apply {
+        CompositeRectDrawable().apply {
             Assert.assertTrue(isEmpty)
             append(0f, 1f, 100f, 99f)
             Assert.assertFalse(isEmpty)
@@ -42,9 +42,9 @@ class RoundRectDrawableUnitTest {
         }
 
         rect = RectF(100f, 1f, 200f, 99f)
-        RoundRectDrawable().apply {
+        CompositeRectDrawable().apply {
             Assert.assertTrue(isEmpty)
-            prepend(rect)
+            prepend(rect.left, rect.top, rect.right, rect.bottom)
             Assert.assertFalse(isEmpty)
             Assert.assertEquals(rect, get(0))
             Assert.assertNotSame(rect, get(0))
@@ -74,5 +74,16 @@ class RoundRectDrawableUnitTest {
             Assert.assertEquals(45f, r.right)
             Assert.assertEquals(100f, r.bottom)
         }
+
+        val c1 = CompositeRectDrawable()
+        val c2 = CompositeRectDrawable()
+
+        val rectDrawable = RectDrawable()
+        rectDrawable.append(c1)
+        rectDrawable.prepend(c2);
+
+        Assert.assertEquals(2, rectDrawable.size())
+        Assert.assertSame(c2, rectDrawable.get(0))
+        Assert.assertSame(c1, rectDrawable.get(1))
     }
 }

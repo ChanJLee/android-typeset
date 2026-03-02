@@ -10,13 +10,8 @@ import me.chan.texas.misc.RectF;
 import me.chan.texas.renderer.core.graphics.TexasCanvas;
 import me.chan.texas.renderer.core.graphics.TexasPaint;
 
-public class RoundRectDrawable {
-
+public class CompositeRectDrawable {
 	private final List<RectF> mBackgrounds = new ArrayList<>();
-
-	public void append(@NonNull RectF rectF) {
-		append(rectF.left, rectF.top, rectF.right, rectF.bottom);
-	}
 
 	public void append(float left, float top, float right, float bottom) {
 		if (mBackgrounds.isEmpty()) {
@@ -37,10 +32,6 @@ public class RoundRectDrawable {
 	private void appendRegion0(float left, float top, float right, float bottom) {
 		RectF rectF = new RectF(left, top, right, bottom);
 		mBackgrounds.add(rectF);
-	}
-
-	public void prepend(@NonNull RectF rectF) {
-		prepend(rectF.left, rectF.top, rectF.right, rectF.bottom);
 	}
 
 	public void prepend(float left, float top, float right, float bottom) {
@@ -64,26 +55,6 @@ public class RoundRectDrawable {
 		mBackgrounds.add(0, rectF);
 	}
 
-	public void clear() {
-		mBackgrounds.clear();
-	}
-
-	public boolean isEmpty() {
-		return mBackgrounds.isEmpty();
-	}
-
-	public List<RectF> getBackgrounds() {
-		return mBackgrounds;
-	}
-
-	public int size() {
-		return mBackgrounds.size();
-	}
-
-	public RectF get(int index) {
-		return mBackgrounds.get(index);
-	}
-
 	public void drawRect(@NonNull TexasCanvas canvas, @NonNull TexasPaint paint) {
 		for (RectF rectF : mBackgrounds) {
 			canvas.drawRect(rectF.left, rectF.top, rectF.right, rectF.bottom, paint);
@@ -94,5 +65,25 @@ public class RoundRectDrawable {
 		for (RectF rectF : mBackgrounds) {
 			canvas.drawRoundRect(rectF.left, rectF.top, rectF.right, rectF.bottom, radius, radius, paint);
 		}
+	}
+
+	public List<RectF> getBackgrounds() {
+		return mBackgrounds;
+	}
+
+	public boolean isEmpty() {
+		return mBackgrounds.isEmpty();
+	}
+
+	public void clear() {
+		mBackgrounds.clear();
+	}
+
+	public RectF get(int index) {
+		return mBackgrounds.get(index);
+	}
+
+	public int size() {
+		return mBackgrounds.size();
 	}
 }
