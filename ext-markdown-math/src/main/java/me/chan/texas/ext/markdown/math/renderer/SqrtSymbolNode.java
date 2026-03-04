@@ -96,9 +96,9 @@ public class SqrtSymbolNode extends RendererNode {
 		canvas.drawLine(startX, startY, endX, endY, paint);
 	}
 
-	private static final float W = 338f;
+	private static final float W = 336f;
 	private static final float H = 437f;
-	private static final float D = 127f;
+	private static final float D = 126f;
 
 	private static final float K = (W - D) / H;
 
