@@ -5,7 +5,6 @@ import android.graphics.Color;
 import me.chan.texas.ext.markdown.math.renderer.core.MathCanvas;
 import me.chan.texas.ext.markdown.math.renderer.core.MathPaint;
 import me.chan.texas.ext.markdown.math.renderer.fonts.MathFontOptions;
-import me.chan.texas.ext.markdown.math.renderer.fonts.Symbol;
 
 public class SqrtSymbolNode extends RendererNode {
 
