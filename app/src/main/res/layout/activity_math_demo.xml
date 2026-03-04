@@ -15,7 +15,7 @@
             android:id="@+id/math"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:textSize="96sp"
+            android:textSize="24sp"
             android:background="#3361AF4C"
             tools:formula="a+b" />
 
