@@ -27,7 +27,7 @@ public class SqrtSymbolNode extends RendererNode {
 		mSymbolNode.measure(paint);
 
 		int height = (int) Math.ceil(mContentHeight + getTopPadding());
-		float width = (mContentHeight + getRuleThickness() / 2) * K + (1 - R) * mSymbolNode.getWidth();
+		float width = height * K - mSymbolNode.getHeight() * K + mSymbolNode.getWidth();
 
 		setMeasuredSize((int) Math.ceil(width), height);
 	}
@@ -82,23 +82,26 @@ public class SqrtSymbolNode extends RendererNode {
 		float thickness = getRuleThickness();
 		mSymbolNode.draw(canvas, paint);
 
-		paint.setStrokeWidth(thickness);
-		float startX = getWidth() + thickness;
+		paint.setStrokeWidth(thickness * 0.9F);
+		float startX = getWidth();
 		float startY = getTopPadding() - thickness / 2;
 		float endX = startX + mContentWidth;
 		float endY = startY;
 		canvas.drawLine(startX, startY, endX, endY, paint);
 
 		endX = startX;
-		endY = mSymbolNode.getBottom() - (endX - (1 - R) * mSymbolNode.getWidth()) / K - thickness / 2;
+		endY = 0;
 
-		startX = mSymbolNode.getRight() * 0.95f;
-		startY = mSymbolNode.getBottom() - (startX - (1 - R) * mSymbolNode.getWidth()) / K - thickness / 2;
+		startX = mSymbolNode.getRight() - thickness / 2;
+		startY = (endX - startX) / K - thickness * 0.8F;
 		canvas.drawLine(startX, startY, endX, endY, paint);
 	}
 
-	private static final float K = 147f / 301f;
-	private static final float R = 147F / 235;
+	private static final float W = 338f;
+	private static final float H = 437f;
+	private static final float D = 127f;
+
+	private static final float K = (W - D) / H;
 
 	@Override
 	protected String toPretty() {
