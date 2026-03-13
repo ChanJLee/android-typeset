@@ -470,6 +470,16 @@ public final class TexasView extends FrameLayout {
 	}
 
 	/**
+	 * 获取当前滚动位置（第一个可见 segment 的索引）。
+	 * 可用于保存阅读进度，配合 {@link #scrollToPosition(int)} 恢复位置。
+	 *
+	 * @return 第一个可见 segment 的索引，无内容时返回 {@link #NO_POSITION}
+	 */
+	public int getCurrentPosition() {
+		return getFirstVisibleSegmentIndex(false);
+	}
+
+	/**
 	 * Return the document currently being rendered
 	 *
 	 * @return document
@@ -612,6 +622,38 @@ public final class TexasView extends FrameLayout {
 		}
 
 		return mRenderer.highlightParagraphs(predicates, scrollTo, offset, styles);
+	}
+
+	/**
+	 * 使用配置对象高亮段落，简化多参数调用。
+	 *
+	 * @param options 高亮配置
+	 * @return 高亮选区，无匹配时返回 null
+	 */
+	@Nullable
+	public Selection highlightParagraphs(@NonNull HighlightOptions options) {
+		return highlightParagraphs(
+				options.getPredicates(),
+				options.isScrollTo(),
+				options.getScrollOffset(),
+				options.getStyles()
+		);
+	}
+
+	/**
+	 * 滚动到指定 segment 所在位置。
+	 *
+	 * @param segment 目标 segment
+	 */
+	public void scrollToSegment(@NonNull Segment segment) {
+		Document document = getDocument();
+		if (document == null) {
+			return;
+		}
+		int index = document.indexOfSegment(segment);
+		if (index >= 0) {
+			scrollToPosition(index);
+		}
 	}
 
 	/**

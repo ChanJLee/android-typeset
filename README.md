@@ -130,7 +130,7 @@ Texas 实现了底层绘制指令缓存，大幅提升渲染性能：
 // 无需手动管理，Texas 自动处理缓存
 texasView.setSource(documentSource);  // 首次渲染，生成缓存
 texasView.redraw();                   // 后续刷新，使用缓存
-texasView.scrollTo(position);         // 滚动时使用缓存，流畅丝滑
+texasView.scrollToPosition(position);         // 滚动时使用缓存，流畅丝滑
 ```
 
 ### 🎨 其他强大特性
@@ -202,7 +202,7 @@ texasView.setSource(new TexasView.DocumentSource() {
                     ));
         });
         
-        return new Document.Builder(null)
+        return new Document.Builder()
                 .addSegment(builder.build())
                 .build();
     }
@@ -419,7 +419,7 @@ texasView.setSource(new TexasView.DocumentSource() {
     @Override
     protected Document onRead(TexasOption option, @Nullable Document previousDocument) {
         // previousDocument 为 null，表示重新构建
-        Document.Builder builder = new Document.Builder(null);
+        Document.Builder builder = new Document.Builder();
         
         // 添加多个段落
         for (int i = 0; i < paragraphs.size(); i++) {
@@ -490,7 +490,7 @@ void onTextChanged(int paragraphIndex, String newText) {
         @Override
         protected Document onRead(TexasOption option, @Nullable Document previousDocument) {
             // 只更新变化的段落
-            Document.Builder builder = new Document.Builder(null);
+            Document.Builder builder = new Document.Builder();
             
             for (int i = 0; i < document.getSegmentCount(); i++) {
                 if (i == paragraphIndex) {
@@ -764,7 +764,7 @@ texasView.setSource(documentSource);
 **后续刷新：**
 ```java
 // 滚动、重绘等操作
-texasView.scrollTo(position);
+texasView.scrollToPosition(position);
 texasView.redraw();
 
 // 内部流程：
@@ -889,7 +889,7 @@ public class ProfessionalReaderActivity extends AppCompatActivity {
         texasView.setSource(new TexasView.DocumentSource() {
             @Override
             protected Document onRead(TexasOption texasOption, Document previousDocument) {
-                Document.Builder builder = new Document.Builder(null);
+                Document.Builder builder = new Document.Builder();
                 
                 for (int i = 0; i < chapters.size(); i++) {
                     String chapterText = chapters.get(i);
@@ -930,6 +930,16 @@ public class ProfessionalReaderActivity extends AppCompatActivity {
 - ✅ 符合专业出版标准
 
 ## API 详细使用
+
+### 便捷 API 一览
+
+| 场景 | 推荐用法 |
+|------|----------|
+| 点击事件（只关心部分回调） | `OnClickedListenerAdapter` |
+| 只按 Span 筛选高亮 | `AbstractParagraphPredicates` 或 `ParagraphPredicates.spanOnly()` |
+| 高亮并滚动 | `HighlightOptions.builder(predicates).scrollTo(true).build()` |
+| 获取/恢复滚动位置 | `getCurrentPosition()` / `scrollToPosition(position)` |
+| 按 segment 滚动 | `scrollToSegment(segment)` |
 
 ### 基础配置
 
@@ -1007,39 +1017,23 @@ texasView.setSpanTouchEventHandler(new SpanTouchEventHandler() {
 
 #### 设置点击事件监听器
 
+使用 `OnClickedListenerAdapter` 只需重写关心的事件，无需实现所有回调：
+
 ```java
-texasView.setOnClickedListener(new TexasView.OnClickedListener() {
+texasView.setOnClickedListener(new OnClickedListenerAdapter() {
     @Override
     public void onSpanClicked(TexasView view, TouchEvent event, Object tag) {
-        // Span 单击事件
         Toast.makeText(context, "点击了 Span", Toast.LENGTH_SHORT).show();
     }
 
     @Override
-    public void onSpanLongClicked(TexasView view, TouchEvent event, Object tag) {
-        // Span 长按事件
-        Toast.makeText(context, "长按了 Span", Toast.LENGTH_SHORT).show();
-    }
-
-    @Override
     public void onSegmentClicked(TexasView view, TouchEvent event, Object tag) {
-        // Segment 单击事件
         Toast.makeText(context, "点击了 Segment", Toast.LENGTH_SHORT).show();
-    }
-
-    @Override
-    public void onEmptyClicked(TexasView view, TouchEvent event) {
-        // 空白区域点击事件
-        Toast.makeText(context, "点击了空白", Toast.LENGTH_SHORT).show();
-    }
-
-    @Override
-    public void onSegmentDoubleClicked(TexasView view, TouchEvent event, Object tag) {
-        // Segment 双击事件
-        Toast.makeText(context, "双击了 Segment", Toast.LENGTH_SHORT).show();
     }
 });
 ```
+
+完整实现所有回调时可直接使用 `TexasView.OnClickedListener`。
 
 #### 设置拖拽选择监听器
 
@@ -1103,21 +1097,44 @@ texasView.refresh(renderOption);
 
 #### 高亮段落（静态高亮）
 
+只根据 Span 筛选时，可使用 `AbstractParagraphPredicates` 或 `ParagraphPredicates.spanOnly()`：
+
+```java
+// 方式一：AbstractParagraphPredicates，只需实现 acceptSpan
+texasView.highlightParagraphs(new AbstractParagraphPredicates() {
+    @Override
+    public boolean acceptSpan(@Nullable Object spanTag) {
+        if (!(spanTag instanceof BookSource.SpanTag)) return false;
+        return "A9127P127017S210459".equals(((BookSource.SpanTag) spanTag).sentId);
+    }
+}, true, 0);
+
+// 方式二：ParagraphPredicates.spanOnly，Lambda 写法
+texasView.highlightParagraphs(ParagraphPredicates.spanOnly(spanTag ->
+    spanTag instanceof BookSource.SpanTag
+        && "A9127P127017S210459".equals(((BookSource.SpanTag) spanTag).sentId)
+), true, 0);
+
+// 方式三：使用 HighlightOptions 配置对象
+ParagraphPredicates predicates = ParagraphPredicates.spanOnly(spanTag -> /* ... */);
+texasView.highlightParagraphs(HighlightOptions.builder(predicates)
+    .scrollTo(true)
+    .scrollOffset(0)
+    .styles(Selection.Styles.create(Color.YELLOW, Color.BLACK))
+    .build());
+```
+
+完整控制 Span 和 Paragraph 时使用 `ParagraphPredicates`：
+
 ```java
 texasView.highlightParagraphs(new ParagraphPredicates() {
     @Override
     public boolean acceptSpan(@Nullable Object spanTag) {
-        // 判断哪些 Span 需要高亮
-        if (!(spanTag instanceof BookSource.SpanTag)) {
-            return false;
-        }
-        BookSource.SpanTag tag = (BookSource.SpanTag) spanTag;
-        return "A9127P127017S210459".equals(tag.sentId);
+        if (!(spanTag instanceof BookSource.SpanTag)) return false;
+        return "A9127P127017S210459".equals(((BookSource.SpanTag) spanTag).sentId);
     }
-
     @Override
     public boolean acceptParagraph(@Nullable Object paragraphTag) {
-        // 判断哪些段落需要高亮
         return "A9127P127017".equals(paragraphTag);
     }
 }, true, 0);
@@ -1179,8 +1196,14 @@ if (selection != null) {
 ### 滚动控制
 
 ```java
-// 滚动到指定位置
-texasView.scrollToPosition(0);
+// 滚动到指定 segment（position 为 segment 索引）
+texasView.scrollToPosition(0);   // 完整写法，支持 smooth、offset 参数
+
+// 获取当前滚动位置，用于保存阅读进度
+int position = texasView.getCurrentPosition();
+
+// 根据 segment 对象滚动
+texasView.scrollToSegment(paragraph);
 ```
 
 ### 其他功能
@@ -1241,7 +1264,7 @@ public class BookSource extends TexasView.DocumentSource {
 
     private Document parse(XmlPullParser parser, TexasOption texasOption)
             throws IOException, XmlPullParserException {
-        Document.Builder documentBuilder = new Document.Builder(null);
+        Document.Builder documentBuilder = new Document.Builder();
         
         while (parser.next() != XmlPullParser.END_TAG) {
             int eventType = parser.getEventType();
@@ -1485,7 +1508,7 @@ public ParallelViewSegment(Paragraph paragraph1, Paragraph paragraph2, String te
 texasView.setSource(new TexasView.DocumentSource() {
     @Override
     protected Document onRead(TexasOption option, @Nullable Document previousDocument) {
-        Document.Builder builder = new Document.Builder(null);
+        Document.Builder builder = new Document.Builder();
         
         for (int i = 0; i < bilingualTexts.size(); i++) {
             BilingualText text = bilingualTexts.get(i);
@@ -1604,7 +1627,7 @@ public boolean applySpanClicked(Object clickedTag, Object otherTag) {
 Document.Builder(previousDocument).addSegment(newParagraph).build()
 
 // 避免：频繁全量重建
-Document.Builder(null).addAllSegments(allParagraphs).build()
+Document.Builder().addAllSegments(allParagraphs).build()
 ```
 
 2. **批量更新合并操作**
@@ -1721,7 +1744,7 @@ for (int i = 0; i < 100; i++) {
 texasView.highlightParagraphs(predicates, styles);  // 不影响缓存
 
 // ✅ 滚动不影响缓存，性能极佳
-texasView.scrollTo(position);  // 使用缓存，流畅
+texasView.scrollToPosition(position);  // 使用缓存，流畅
 ```
 
 #### 综合优化示例
@@ -1767,7 +1790,7 @@ public class OptimizedReaderActivity extends AppCompatActivity {
         texasView.setSource(new TexasView.DocumentSource() {
             @Override
             protected Document onRead(TexasOption option, Document prev) {
-                Document.Builder builder = new Document.Builder(null);
+                Document.Builder builder = new Document.Builder();
                 
                 for (int i = 0; i < paragraphs.size(); i++) {
                     String text = paragraphs.get(i);
@@ -1906,7 +1929,7 @@ public class ReaderActivity extends AppCompatActivity {
     
     // 2. 使用 Tag 追踪段落位置
     private Document createChapterDocument(TexasOption option, Chapter chapter) {
-        Document.Builder builder = new Document.Builder(null);
+        Document.Builder builder = new Document.Builder();
         
         for (int i = 0; i < chapter.paragraphs.size(); i++) {
             String text = chapter.paragraphs.get(i);
