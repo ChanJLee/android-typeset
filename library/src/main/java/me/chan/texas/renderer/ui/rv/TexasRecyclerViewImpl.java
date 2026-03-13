@@ -48,12 +48,7 @@ public class TexasRecyclerViewImpl extends RecyclerView implements TexasRecycler
 			}
 		};
 
-		ItemAnimator itemAnimator = getItemAnimator();
-		if (itemAnimator instanceof SimpleItemAnimator) {
-			SimpleItemAnimator simpleItemAnimator = (SimpleItemAnimator) itemAnimator;
-			simpleItemAnimator.setSupportsChangeAnimations(false);
-			simpleItemAnimator.setChangeDuration(0);
-		}
+		setItemAnimator(new TexasItemAnimator());
 	}
 
 	public void scrollToPosition(int position, boolean smooth, int offset) {
