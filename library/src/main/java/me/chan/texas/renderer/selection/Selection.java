@@ -363,6 +363,7 @@ public class Selection extends DefaultRecyclable {
 	public static class Styles {
 		private int mBackgroundColor;
 		private int mTextColor;
+		private float mFakeBoldFactor = 0f;
 
 		private Source mSource;
 
@@ -422,6 +423,21 @@ public class Selection extends DefaultRecyclable {
 				++mVersion;
 			}
 			mTextColor = textColor;
+		}
+
+		public void enableFakeBold() {
+			setFakeBoldFactor(0.05f);
+		}
+
+		public void setFakeBoldFactor(float fakeBoldFactor) {
+			if (mFakeBoldFactor != fakeBoldFactor) {
+				++mVersion;
+			}
+			mFakeBoldFactor = fakeBoldFactor;
+		}
+
+		public float getFakeBoldFactor() {
+			return mFakeBoldFactor;
 		}
 
 		@Override

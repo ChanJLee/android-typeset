@@ -2,6 +2,8 @@ package me.chan.texas.renderer.selection;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
+import android.graphics.Paint;
+
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -342,6 +344,7 @@ public class ParagraphSelection extends DefaultRecyclable {
 		private int mTextColor = 0;
 		private Selection.Styles mStyles;
 		private int mBackgroundColor = 0;
+		private float mFakeBoldFactor = 0f;
 
 		public void reset(Selection.Styles styles) {
 			mStyles = styles;
@@ -350,11 +353,16 @@ public class ParagraphSelection extends DefaultRecyclable {
 		public void update() {
 			mTextColor = mStyles.getTextColor();
 			mBackgroundColor = mStyles.getBackgroundColor();
+			mFakeBoldFactor = mStyles.getFakeBoldFactor();
 		}
 
 		@Override
 		public void update(@NonNull TexasPaint textPaint, @Nullable Object tag) {
 			textPaint.setColor(mTextColor);
+			if (mFakeBoldFactor > 0f) {
+				textPaint.setStyle(Paint.Style.FILL_AND_STROKE);
+				textPaint.setStrokeWidth(textPaint.getTextSize() * mFakeBoldFactor);
+			}
 		}
 	}
 }

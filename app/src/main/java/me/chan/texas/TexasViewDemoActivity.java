@@ -7,6 +7,7 @@ import android.graphics.Paint;
 
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.util.TypedValue;
@@ -17,6 +18,7 @@ import android.widget.RadioGroup;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
@@ -385,6 +387,9 @@ public class TexasViewDemoActivity extends AppCompatActivity {
 			}
 		});
 
+		Selection.Styles styles = Selection.Styles.create(Color.BLUE, Color.RED);
+		styles.enableFakeBold();
+
 		findViewById(me.chan.texas.debug.R.id.anim).setOnClickListener(v -> {
 			Selection selection = mTexasView.highlightParagraphs(new ParagraphPredicates() {
 				@Override
@@ -401,17 +406,20 @@ public class TexasViewDemoActivity extends AppCompatActivity {
 				return;
 			}
 
+			int backgroundColor = styles.getBackgroundColor();
+			int textColor = styles.getTextColor();
+			float fakeBoldFactor = styles.getFakeBoldFactor();
 			ValueAnimator valueAnimator = ValueAnimator.ofFloat(0, 1f);
 			valueAnimator.setDuration(3000);
 			valueAnimator.setRepeatCount(3);
 			selection.startAnimator(valueAnimator, new Selection.SelectionAnimatorListener() {
+				@RequiresApi(api = Build.VERSION_CODES.O)
 				@Override
 				protected void onUpdate(ValueAnimator animation, Selection.Styles styles) {
-					int backgroundColor = (int) styles.getBackgroundColor();
-					int textColor = styles.getTextColor();
 					float v = (float) animation.getAnimatedValue();
-					styles.setTextColor(Color.argb((int) (255 * v), Color.red(textColor), Color.green(textColor), Color.blue(textColor)));
-					styles.setBackgroundColor(Color.argb((int) (255 * v), Color.red(backgroundColor), Color.green(backgroundColor), Color.blue(backgroundColor)));
+					styles.setTextColor(Color.argb((int) (255 * v) /* 按需设置透明度 */, Color.red(textColor), Color.green(textColor), Color.blue(textColor)));
+					styles.setBackgroundColor(Color.argb((int) (255 * v) /* 按需设置透明度 */, Color.red(backgroundColor), Color.green(backgroundColor), Color.blue(backgroundColor)));
+					styles.setFakeBoldFactor(fakeBoldFactor * v);
 				}
 
 				@Override
