@@ -29,16 +29,16 @@ public class DefaultTexasItemAnimator extends RecyclerView.ItemAnimator {
 	@Override
 	public boolean animateDisappearance(@NonNull RecyclerView.ViewHolder viewHolder, @NonNull ItemHolderInfo preLayoutInfo, @Nullable ItemHolderInfo postLayoutInfo) {
 		endAnimation(viewHolder);
-		return createAnimator(viewHolder, AnimType.DISAPPEARANCE);
+		return createAnimator(viewHolder, SegmentAnimType.DISAPPEARANCE);
 	}
 
 	@Override
 	public boolean animateAppearance(@NonNull RecyclerView.ViewHolder viewHolder, @Nullable ItemHolderInfo preLayoutInfo, @NonNull ItemHolderInfo postLayoutInfo) {
 		endAnimation(viewHolder);
-		return createAnimator(viewHolder, AnimType.APPEARANCE);
+		return createAnimator(viewHolder, SegmentAnimType.APPEARANCE);
 	}
 
-	private boolean createAnimator(RecyclerView.ViewHolder holder, AnimType type) {
+	private boolean createAnimator(RecyclerView.ViewHolder holder, SegmentAnimType type) {
 		if (mSegmentItemAnimator == null) {
 			return false;
 		}
@@ -69,14 +69,14 @@ public class DefaultTexasItemAnimator extends RecyclerView.ItemAnimator {
 	@Override
 	public boolean animatePersistence(@NonNull RecyclerView.ViewHolder viewHolder, @NonNull ItemHolderInfo preLayoutInfo, @NonNull ItemHolderInfo postLayoutInfo) {
 		endAnimation(viewHolder);
-		return createAnimator(viewHolder, AnimType.PERSISTENCE);
+		return createAnimator(viewHolder, SegmentAnimType.PERSISTENCE);
 	}
 
 	@Override
 	public boolean animateChange(@NonNull RecyclerView.ViewHolder oldHolder, @NonNull RecyclerView.ViewHolder newHolder, @NonNull ItemHolderInfo preLayoutInfo, @NonNull ItemHolderInfo postLayoutInfo) {
 		endAnimation(oldHolder);
 		endAnimation(newHolder);
-		boolean created = createAnimator(newHolder, AnimType.CHANGE);
+		boolean created = createAnimator(newHolder, SegmentAnimType.CHANGE);
 		if (!created) {
 			return false;
 		}

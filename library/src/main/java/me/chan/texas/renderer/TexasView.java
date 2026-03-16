@@ -47,7 +47,7 @@ import me.chan.texas.measurer.Measurer;
 import me.chan.texas.misc.PaintSet;
 import me.chan.texas.renderer.core.worker.LoadingWorker;
 import me.chan.texas.renderer.selection.Selection;
-import me.chan.texas.renderer.ui.rv.anim.AnimType;
+import me.chan.texas.renderer.ui.rv.anim.SegmentAnimType;
 import me.chan.texas.source.Source;
 import me.chan.texas.text.BreakStrategy;
 import me.chan.texas.text.Document;
@@ -1057,9 +1057,9 @@ public final class TexasView extends FrameLayout {
 		void onDecorateSegment(int index, int count, Segment segment, Document document, Rect outRect);
 	}
 
-	public abstract class SegmentAnimator {
+	public abstract static class SegmentAnimator {
 
-		public final Animator createAnimator(Segment segment, View itemView, AnimType type) {
+		public final Animator createAnimator(Segment segment, View itemView, SegmentAnimType type) {
 			return onCreateAnimator(segment, itemView, type);
 		}
 
@@ -1070,7 +1070,7 @@ public final class TexasView extends FrameLayout {
 		 * @return Animator, 返回空则代表不显示动画
 		 */
 		@Nullable
-		protected abstract Animator onCreateAnimator(Segment segment, View itemView, AnimType type);
+		protected abstract Animator onCreateAnimator(Segment segment, View itemView, SegmentAnimType type);
 	}
 
 

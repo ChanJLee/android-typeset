@@ -1,6 +1,9 @@
 package me.chan.texas;
 
 import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.animation.AnimatorSet;
+import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -29,9 +32,11 @@ import me.chan.texas.renderer.SpanTouchEventHandler;
 import me.chan.texas.renderer.TexasView;
 import me.chan.texas.renderer.TouchEvent;
 import me.chan.texas.renderer.selection.Selection;
+import me.chan.texas.renderer.ui.rv.anim.SegmentAnimType;
 import me.chan.texas.text.BreakStrategy;
 import me.chan.texas.text.Document;
 import me.chan.texas.text.Paragraph;
+import me.chan.texas.text.Segment;
 import me.chan.texas.utils.TexasUtils;
 
 public class TexasViewDemoActivity extends AppCompatActivity {
@@ -369,6 +374,31 @@ public class TexasViewDemoActivity extends AppCompatActivity {
 		renderOption.setTypeface(typeface);
 		mTexasView.refresh(renderOption);
 
+		mTexasView.setSegmentAnimator(new TexasView.SegmentAnimator() {
+
+			@Nullable
+			@Override
+			protected Animator onCreateAnimator(Segment segment, View itemView, SegmentAnimType type) {
+				if (segment.getTag() != SegmentAnimType.APPEARANCE && type != SegmentAnimType.APPEARANCE) {
+					return null;
+				}
+
+				AnimatorSet animatorSet = new AnimatorSet();
+				animatorSet.play(ObjectAnimator.ofFloat(itemView, "alpha", 0, 1))
+						.with(ObjectAnimator.ofFloat(itemView, "translationY", -itemView.getHeight(), 0));
+				animatorSet.setDuration(500);
+				animatorSet.addListener(new AnimatorListenerAdapter() {
+					@Override
+					public void onAnimationCancel(Animator animation) {
+						super.onAnimationCancel(animation);
+						itemView.setAlpha(1);
+						itemView.setTranslationY(0);
+					}
+				});
+				return animatorSet;
+			}
+		});
+
 		findViewById(me.chan.texas.debug.R.id.add_content).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
@@ -377,8 +407,10 @@ public class TexasViewDemoActivity extends AppCompatActivity {
 					protected Document onRead(TexasOption option, @Nullable Document previousDocument) {
 						return new Document.Builder(previousDocument)
 								.addSegment(
+										0,
 										Paragraph.Builder.newBuilder(option)
-												.text("hello world")
+												.tag(SegmentAnimType.APPEARANCE)
+												.text("生活就像点菜，饥饿时菜会点得特别多，但吃一阵就会意识到浪费；如果慢条斯理地盘算怎么点菜，别人已经要吃完了。")
 												.build()
 								)
 								.build();

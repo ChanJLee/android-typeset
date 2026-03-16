@@ -1,6 +1,6 @@
 package me.chan.texas.renderer.ui.rv.anim;
 
-public enum AnimType {
+public enum SegmentAnimType {
 	APPEARANCE, DISAPPEARANCE,
 	PERSISTENCE, CHANGE
 }
