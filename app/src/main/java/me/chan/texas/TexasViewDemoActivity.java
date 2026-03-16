@@ -379,10 +379,11 @@ public class TexasViewDemoActivity extends AppCompatActivity {
 			@Nullable
 			@Override
 			protected Animator onCreateAnimator(Segment segment, View itemView, SegmentAnimType type) {
-				if (segment.getTag() != SegmentAnimType.APPEARANCE && type != SegmentAnimType.APPEARANCE) {
+				if (segment.getTag() != SegmentAnimType.APPEARANCE || type != SegmentAnimType.APPEARANCE) {
 					return null;
 				}
 
+				Log.d("chan_debug", "onCreateAnimator: " + type + " -> " + segment);
 				AnimatorSet animatorSet = new AnimatorSet();
 				animatorSet.play(ObjectAnimator.ofFloat(itemView, "alpha", 0, 1))
 						.with(ObjectAnimator.ofFloat(itemView, "translationY", -itemView.getHeight(), 0));
