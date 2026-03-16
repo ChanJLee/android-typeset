@@ -88,6 +88,10 @@ public class DefaultTexasItemAnimator extends RecyclerView.ItemAnimator {
 
 	@Override
 	public void runPendingAnimations() {
+		if (mTracker.isEmpty()) {
+			return;
+		}
+
 		List<RecyclerView.ViewHolder> pending = mTracker.holdersByPhase(AnimRecord.PHASE_PENDING);
 		if (pending.isEmpty()) {
 			return;
@@ -132,6 +136,10 @@ public class DefaultTexasItemAnimator extends RecyclerView.ItemAnimator {
 
 	@Override
 	public void endAnimations() {
+		if (mTracker.isEmpty()) {
+			return;
+		}
+
 		for (RecyclerView.ViewHolder holder : mTracker.allHolders()) {
 			endAnimation(holder);
 		}
