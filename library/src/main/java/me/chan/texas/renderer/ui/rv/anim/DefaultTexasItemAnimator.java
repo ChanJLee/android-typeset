@@ -75,7 +75,14 @@ public class DefaultTexasItemAnimator extends RecyclerView.ItemAnimator {
 	public boolean animateChange(@NonNull RecyclerView.ViewHolder oldHolder, @NonNull RecyclerView.ViewHolder newHolder, @NonNull ItemHolderInfo preLayoutInfo, @NonNull ItemHolderInfo postLayoutInfo) {
 		endAnimation(oldHolder);
 		endAnimation(newHolder);
-		return createAnimator(newHolder, ItemAnimType.CHANGE);
+		boolean created = createAnimator(newHolder, ItemAnimType.CHANGE);
+		if (!created) {
+			return false;
+		}
+		if (oldHolder != newHolder) {
+			dispatchAnimationFinished(oldHolder);
+		}
+		return true;
 	}
 
 	@Override
@@ -98,12 +105,12 @@ public class DefaultTexasItemAnimator extends RecyclerView.ItemAnimator {
 	}
 
 	private void startAnimation(@NonNull RecyclerView.ViewHolder holder) {
-		dispatchAnimationStarted(holder);
 		AnimRecord record = mTracker.get(holder);
 		if (record == null) {
 			return;
 		}
 
+		dispatchAnimationStarted(holder);
 		record.animator.start();
 	}
 
