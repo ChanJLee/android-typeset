@@ -12,24 +12,19 @@ import androidx.core.view.ViewCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 class TexasItemAnimator extends RecyclerView.ItemAnimator {
 	private static final long APPEARANCE_DURATION = 250;
 	private static final long DISAPPEARANCE_DURATION = 200;
 
-	private final List<RecyclerView.ViewHolder> mPendingAppearances = new ArrayList<>();
-	private final List<RecyclerView.ViewHolder> mPostponedAppearances = new ArrayList<>();
-	private final List<RecyclerView.ViewHolder> mRunningAppearances = new ArrayList<>();
-
-	private final List<RecyclerView.ViewHolder> mPendingDisappearances = new ArrayList<>();
-	private final List<RecyclerView.ViewHolder> mPostponedDisappearances = new ArrayList<>();
-	private final List<RecyclerView.ViewHolder> mRunningDisappearances = new ArrayList<>();
+	private final AnimTracker mTracker = new AnimTracker();
 
 	@Override
 	public boolean animateDisappearance(@NonNull RecyclerView.ViewHolder viewHolder, @NonNull ItemHolderInfo preLayoutInfo, @Nullable ItemHolderInfo postLayoutInfo) {
 		endAnimation(viewHolder);
-		mPendingDisappearances.add(viewHolder);
+		mTracker.add(viewHolder, AnimRecord.TYPE_DISAPPEARANCE);
 		return true;
 	}
 
@@ -42,7 +37,7 @@ class TexasItemAnimator extends RecyclerView.ItemAnimator {
 		itemView.setAlpha(0f);
 		itemView.setTranslationY(-height);
 
-		mPendingAppearances.add(viewHolder);
+		mTracker.add(viewHolder, AnimRecord.TYPE_APPEARANCE);
 		return true;
 	}
 
@@ -58,82 +53,58 @@ class TexasItemAnimator extends RecyclerView.ItemAnimator {
 
 	@Override
 	public void runPendingAnimations() {
-		boolean hasDisappearances = !mPendingDisappearances.isEmpty();
-		boolean hasAppearances = !mPendingAppearances.isEmpty();
-		if (!hasDisappearances && !hasAppearances) {
+		List<RecyclerView.ViewHolder> pending = mTracker.holdersByPhase(AnimRecord.PHASE_PENDING);
+		if (pending.isEmpty()) {
 			return;
 		}
 
-		if (hasDisappearances) {
-			mPostponedDisappearances.addAll(mPendingDisappearances);
-			mPendingDisappearances.clear();
-			for (RecyclerView.ViewHolder holder : new ArrayList<>(mPostponedDisappearances)) {
-				ViewCompat.postOnAnimation(holder.itemView, () -> {
-					if (mPostponedDisappearances.remove(holder)) {
-						animateDisappearanceImpl(holder);
-					}
-				});
-			}
-		}
-
-		if (hasAppearances) {
-			mPostponedAppearances.addAll(mPendingAppearances);
-			mPendingAppearances.clear();
-			for (RecyclerView.ViewHolder holder : new ArrayList<>(mPostponedAppearances)) {
-				ViewCompat.postOnAnimation(holder.itemView, () -> {
-					if (mPostponedAppearances.remove(holder)) {
-						animateAppearanceImpl(holder);
-					}
-				});
-			}
+		for (RecyclerView.ViewHolder holder : pending) {
+			mTracker.advanceTo(holder, AnimRecord.PHASE_POSTPONED);
+			ViewCompat.postOnAnimation(holder.itemView, () -> {
+				AnimRecord record = mTracker.get(holder);
+				if (record != null && record.phase == AnimRecord.PHASE_POSTPONED) {
+					mTracker.advanceTo(holder, AnimRecord.PHASE_RUNNING);
+					startAnimation(holder, record.type);
+				}
+			});
 		}
 	}
 
-	private void animateAppearanceImpl(@NonNull RecyclerView.ViewHolder holder) {
-		View itemView = holder.itemView;
-		mRunningAppearances.add(holder);
+	private void startAnimation(@NonNull RecyclerView.ViewHolder holder, int type) {
 		dispatchAnimationStarted(holder);
+		View itemView = holder.itemView;
 
-		itemView.animate()
-				.alpha(1f)
-				.translationY(0f)
-				.setDuration(APPEARANCE_DURATION)
-				.setInterpolator(new DecelerateInterpolator())
-				.setListener(new AnimatorListenerAdapter() {
-					@Override
-					public void onAnimationEnd(Animator animation) {
-						itemView.animate().setListener(null);
-						resetView(itemView);
-						if (mRunningAppearances.remove(holder)) {
-							dispatchAnimationFinished(holder);
-						}
-					}
-				})
-				.start();
+		if (type == AnimRecord.TYPE_APPEARANCE) {
+			itemView.animate()
+					.alpha(1f)
+					.translationY(0f)
+					.setDuration(APPEARANCE_DURATION)
+					.setInterpolator(new DecelerateInterpolator())
+					.setListener(createEndListener(holder))
+					.start();
+		} else {
+			int height = itemView.getHeight();
+			itemView.animate()
+					.alpha(0f)
+					.translationY(-height)
+					.setDuration(DISAPPEARANCE_DURATION)
+					.setInterpolator(new AccelerateInterpolator())
+					.setListener(createEndListener(holder))
+					.start();
+		}
 	}
 
-	private void animateDisappearanceImpl(@NonNull RecyclerView.ViewHolder holder) {
-		View itemView = holder.itemView;
-		mRunningDisappearances.add(holder);
-		dispatchAnimationStarted(holder);
-
-		int height = itemView.getHeight();
-		itemView.animate()
-				.alpha(0f)
-				.translationY(-height)
-				.setDuration(DISAPPEARANCE_DURATION)
-				.setInterpolator(new AccelerateInterpolator())
-				.setListener(new AnimatorListenerAdapter() {
-					@Override
-					public void onAnimationEnd(Animator animation) {
-						itemView.animate().setListener(null);
-						resetView(itemView);
-						if (mRunningDisappearances.remove(holder)) {
-							dispatchAnimationFinished(holder);
-						}
-					}
-				})
-				.start();
+	private AnimatorListenerAdapter createEndListener(@NonNull RecyclerView.ViewHolder holder) {
+		return new AnimatorListenerAdapter() {
+			@Override
+			public void onAnimationEnd(Animator animation) {
+				holder.itemView.animate().setListener(null);
+				resetView(holder.itemView);
+				if (mTracker.remove(holder)) {
+					dispatchAnimationFinished(holder);
+				}
+			}
+		};
 	}
 
 	private void resetView(View view) {
@@ -143,41 +114,87 @@ class TexasItemAnimator extends RecyclerView.ItemAnimator {
 
 	@Override
 	public void endAnimation(@NonNull RecyclerView.ViewHolder item) {
+		AnimRecord record = mTracker.get(item);
+		if (record == null) {
+			return;
+		}
+		boolean isRunning = record.phase == AnimRecord.PHASE_RUNNING;
 		item.itemView.animate().cancel();
 		resetView(item.itemView);
-
-		boolean needDispatch = mPendingAppearances.remove(item)
-				|| mPostponedAppearances.remove(item)
-				|| mPendingDisappearances.remove(item)
-				|| mPostponedDisappearances.remove(item);
-		if (needDispatch) {
+		// running: cancel() 已同步触发 onAnimationEnd → dispatch，不再重复
+		if (!isRunning && mTracker.remove(item)) {
 			dispatchAnimationFinished(item);
 		}
 	}
 
 	@Override
 	public void endAnimations() {
-		List<List<RecyclerView.ViewHolder>> allLists = new ArrayList<>();
-		allLists.add(mPendingAppearances);
-		allLists.add(mPostponedAppearances);
-		allLists.add(mRunningAppearances);
-		allLists.add(mPendingDisappearances);
-		allLists.add(mPostponedDisappearances);
-		allLists.add(mRunningDisappearances);
-		for (List<RecyclerView.ViewHolder> list : allLists) {
-			for (RecyclerView.ViewHolder holder : new ArrayList<>(list)) {
-				endAnimation(holder);
-			}
+		for (RecyclerView.ViewHolder holder : mTracker.allHolders()) {
+			endAnimation(holder);
 		}
 	}
 
 	@Override
 	public boolean isRunning() {
-		return !mPendingAppearances.isEmpty()
-				|| !mPostponedAppearances.isEmpty()
-				|| !mRunningAppearances.isEmpty()
-				|| !mPendingDisappearances.isEmpty()
-				|| !mPostponedDisappearances.isEmpty()
-				|| !mRunningDisappearances.isEmpty();
+		return !mTracker.isEmpty();
+	}
+
+	static class AnimRecord {
+		static final int TYPE_APPEARANCE = 1;
+		static final int TYPE_DISAPPEARANCE = 2;
+
+		static final int PHASE_PENDING = 0;
+		static final int PHASE_POSTPONED = 1;
+		static final int PHASE_RUNNING = 2;
+
+		final int type;
+		int phase;
+
+		AnimRecord(int type) {
+			this.type = type;
+			this.phase = PHASE_PENDING;
+		}
+	}
+
+	static class AnimTracker {
+		private final HashMap<RecyclerView.ViewHolder, AnimRecord> mRecords = new HashMap<>();
+
+		void add(RecyclerView.ViewHolder holder, int type) {
+			mRecords.put(holder, new AnimRecord(type));
+		}
+
+		boolean remove(RecyclerView.ViewHolder holder) {
+			return mRecords.remove(holder) != null;
+		}
+
+		@Nullable
+		AnimRecord get(RecyclerView.ViewHolder holder) {
+			return mRecords.get(holder);
+		}
+
+		void advanceTo(RecyclerView.ViewHolder holder, int phase) {
+			AnimRecord record = mRecords.get(holder);
+			if (record != null) {
+				record.phase = phase;
+			}
+		}
+
+		List<RecyclerView.ViewHolder> holdersByPhase(int phase) {
+			List<RecyclerView.ViewHolder> result = new ArrayList<>();
+			for (HashMap.Entry<RecyclerView.ViewHolder, AnimRecord> entry : mRecords.entrySet()) {
+				if (entry.getValue().phase == phase) {
+					result.add(entry.getKey());
+				}
+			}
+			return result;
+		}
+
+		List<RecyclerView.ViewHolder> allHolders() {
+			return new ArrayList<>(mRecords.keySet());
+		}
+
+		boolean isEmpty() {
+			return mRecords.isEmpty();
+		}
 	}
 }
