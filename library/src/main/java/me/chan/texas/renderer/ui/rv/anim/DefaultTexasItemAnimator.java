@@ -12,32 +12,33 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.List;
 
 import me.chan.texas.R;
+import me.chan.texas.renderer.TexasView;
 import me.chan.texas.text.Segment;
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class DefaultTexasItemAnimator extends RecyclerView.ItemAnimator {
 
 	@Nullable
-	private SegmentItemAnimator mSegmentItemAnimator;
+	private TexasView.SegmentAnimator mSegmentItemAnimator;
 	private final AnimTracker mTracker = new AnimTracker();
 
-	public void setSegmentItemAnimator(@Nullable SegmentItemAnimator segmentItemAnimator) {
+	public void setSegmentItemAnimator(@Nullable TexasView.SegmentAnimator segmentItemAnimator) {
 		mSegmentItemAnimator = segmentItemAnimator;
 	}
 
 	@Override
 	public boolean animateDisappearance(@NonNull RecyclerView.ViewHolder viewHolder, @NonNull ItemHolderInfo preLayoutInfo, @Nullable ItemHolderInfo postLayoutInfo) {
 		endAnimation(viewHolder);
-		return createAnimator(viewHolder, ItemAnimType.DISAPPEARANCE);
+		return createAnimator(viewHolder, AnimType.DISAPPEARANCE);
 	}
 
 	@Override
 	public boolean animateAppearance(@NonNull RecyclerView.ViewHolder viewHolder, @Nullable ItemHolderInfo preLayoutInfo, @NonNull ItemHolderInfo postLayoutInfo) {
 		endAnimation(viewHolder);
-		return createAnimator(viewHolder, ItemAnimType.APPEARANCE);
+		return createAnimator(viewHolder, AnimType.APPEARANCE);
 	}
 
-	private boolean createAnimator(RecyclerView.ViewHolder holder, ItemAnimType type) {
+	private boolean createAnimator(RecyclerView.ViewHolder holder, AnimType type) {
 		if (mSegmentItemAnimator == null) {
 			return false;
 		}
@@ -68,14 +69,14 @@ public class DefaultTexasItemAnimator extends RecyclerView.ItemAnimator {
 	@Override
 	public boolean animatePersistence(@NonNull RecyclerView.ViewHolder viewHolder, @NonNull ItemHolderInfo preLayoutInfo, @NonNull ItemHolderInfo postLayoutInfo) {
 		endAnimation(viewHolder);
-		return createAnimator(viewHolder, ItemAnimType.PERSISTENCE);
+		return createAnimator(viewHolder, AnimType.PERSISTENCE);
 	}
 
 	@Override
 	public boolean animateChange(@NonNull RecyclerView.ViewHolder oldHolder, @NonNull RecyclerView.ViewHolder newHolder, @NonNull ItemHolderInfo preLayoutInfo, @NonNull ItemHolderInfo postLayoutInfo) {
 		endAnimation(oldHolder);
 		endAnimation(newHolder);
-		boolean created = createAnimator(newHolder, ItemAnimType.CHANGE);
+		boolean created = createAnimator(newHolder, AnimType.CHANGE);
 		if (!created) {
 			return false;
 		}

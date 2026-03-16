@@ -1,5 +1,6 @@
 package me.chan.texas.renderer;
 
+import android.animation.Animator;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.Resources;
@@ -15,6 +16,7 @@ import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.util.TypedValue;
+import android.view.View;
 import android.widget.FrameLayout;
 
 import androidx.annotation.AnyThread;
@@ -45,6 +47,7 @@ import me.chan.texas.measurer.Measurer;
 import me.chan.texas.misc.PaintSet;
 import me.chan.texas.renderer.core.worker.LoadingWorker;
 import me.chan.texas.renderer.selection.Selection;
+import me.chan.texas.renderer.ui.rv.anim.AnimType;
 import me.chan.texas.source.Source;
 import me.chan.texas.text.BreakStrategy;
 import me.chan.texas.text.Document;
@@ -340,6 +343,14 @@ public final class TexasView extends FrameLayout {
 		}
 
 		mRenderer.setSegmentDecoration(segmentDecoration);
+	}
+
+	public void setSegmentAnimator(@NonNull SegmentAnimator segmentAnimator) {
+		if (mRenderer == null) {
+			return;
+		}
+
+		mRenderer.setSegmentAnimator(segmentAnimator);
 	}
 
 	private void load(String reason) {
@@ -1045,6 +1056,23 @@ public final class TexasView extends FrameLayout {
 		@AnyThread
 		void onDecorateSegment(int index, int count, Segment segment, Document document, Rect outRect);
 	}
+
+	public abstract class SegmentAnimator {
+
+		public final Animator createAnimator(Segment segment, View itemView, AnimType type) {
+			return onCreateAnimator(segment, itemView, type);
+		}
+
+		/**
+		 * @param segment  segment
+		 * @param itemView itemView
+		 * @param type     type
+		 * @return Animator, 返回空则代表不显示动画
+		 */
+		@Nullable
+		protected abstract Animator onCreateAnimator(Segment segment, View itemView, AnimType type);
+	}
+
 
 	/**
 	 * Scroll state listener

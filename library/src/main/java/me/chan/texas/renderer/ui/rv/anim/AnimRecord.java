@@ -7,11 +7,11 @@ class AnimRecord {
 	public static final int PHASE_POSTPONED = 1;
 	public static final int PHASE_RUNNING = 2;
 
-	public final ItemAnimType type;
+	public final AnimType type;
 	public int phase;
 	public final Animator animator;
 
-	AnimRecord(ItemAnimType type, Animator animator) {
+	AnimRecord(AnimType type, Animator animator) {
 		this.type = type;
 		this.animator = animator;
 		this.phase = PHASE_PENDING;

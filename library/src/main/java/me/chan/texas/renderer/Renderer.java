@@ -546,4 +546,8 @@ public class Renderer implements SelectionMethodImpl.Listener {
 	public SelectionMethod getSelectionMethod() {
 		return mSelectionMethod;
 	}
+
+	public void setSegmentAnimator(TexasView.SegmentAnimator segmentAnimator) {
+		mRecyclerView.setSegmentAnimator(segmentAnimator);
+	}
 }
