@@ -11,16 +11,13 @@ import androidx.core.view.ViewCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 class TexasItemAnimator extends RecyclerView.ItemAnimator {
 	private static final long APPEARANCE_DURATION = 250;
 
 	private final List<RecyclerView.ViewHolder> mPendingAppearances = new ArrayList<>();
 	private final List<RecyclerView.ViewHolder> mRunningAppearances = new ArrayList<>();
-	private final Set<RecyclerView.ViewHolder> mEndedHolders = new HashSet<>();
 
 	@Override
 	public boolean animateDisappearance(@NonNull RecyclerView.ViewHolder viewHolder, @NonNull ItemHolderInfo preLayoutInfo, @Nullable ItemHolderInfo postLayoutInfo) {
@@ -65,11 +62,9 @@ class TexasItemAnimator extends RecyclerView.ItemAnimator {
 	}
 
 	private void animateAppearanceImpl(@NonNull RecyclerView.ViewHolder holder) {
-		if (mEndedHolders.remove(holder)) {
-			return;
-		}
 		View itemView = holder.itemView;
 		if (!itemView.isAttachedToWindow()) {
+			dispatchAnimationFinished(holder);
 			return;
 		}
 
@@ -94,9 +89,7 @@ class TexasItemAnimator extends RecyclerView.ItemAnimator {
 						itemView.setAlpha(1f);
 						itemView.setTranslationY(0f);
 						mRunningAppearances.remove(holder);
-						if (!mEndedHolders.remove(holder)) {
-							dispatchAnimationFinished(holder);
-						}
+						dispatchAnimationFinished(holder);
 					}
 				})
 				.start();
@@ -108,11 +101,8 @@ class TexasItemAnimator extends RecyclerView.ItemAnimator {
 		itemView.animate().cancel();
 		itemView.setAlpha(1f);
 		itemView.setTranslationY(0f);
-		boolean wasPending = mPendingAppearances.remove(item);
-		boolean wasRunning = mRunningAppearances.remove(item);
-		if (wasPending || wasRunning) {
-			mEndedHolders.add(item);
-		}
+		mPendingAppearances.remove(item);
+		mRunningAppearances.remove(item);
 		dispatchAnimationFinished(item);
 	}
 
