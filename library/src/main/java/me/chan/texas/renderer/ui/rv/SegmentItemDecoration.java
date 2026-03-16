@@ -9,8 +9,10 @@ import me.chan.texas.text.Segment;
 import me.chan.texas.utils.TexasUtils;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
 import androidx.recyclerview.widget.RecyclerView;
 
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 public class SegmentItemDecoration extends RecyclerView.ItemDecoration {
 	private final TexasRendererAdapter mAdapter;
 	private final me.chan.texas.misc.Rect mRect = new me.chan.texas.misc.Rect();

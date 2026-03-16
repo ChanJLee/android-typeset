@@ -1,4 +1,4 @@
-package me.chan.texas.renderer.ui.rv;
+package me.chan.texas.renderer.ui.rv.anim;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
@@ -8,6 +8,7 @@ import android.view.animation.DecelerateInterpolator;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
 import androidx.core.view.ViewCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -15,7 +16,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-class TexasItemAnimator extends RecyclerView.ItemAnimator {
+@RestrictTo(RestrictTo.Scope.LIBRARY)
+public class DefaultTexasItemAnimator extends RecyclerView.ItemAnimator {
 	private static final long APPEARANCE_DURATION = 250;
 	private static final long DISAPPEARANCE_DURATION = 200;
 

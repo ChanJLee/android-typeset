@@ -8,19 +8,17 @@ import android.view.View;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.recyclerview.widget.RecyclerView;
-import androidx.recyclerview.widget.SimpleItemAnimator;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
-import me.chan.texas.R;
 import me.chan.texas.misc.Rect;
 import me.chan.texas.renderer.TouchEvent;
 import me.chan.texas.renderer.ui.TexasRendererAdapter;
+import me.chan.texas.renderer.ui.rv.anim.DefaultTexasItemAnimator;
 import me.chan.texas.renderer.ui.text.ParagraphView;
 import me.chan.texas.text.Document;
 import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.Segment;
-import me.chan.texas.renderer.selection.SelectionProvider;
 import me.chan.texas.text.ViewSegment;
 import me.chan.texas.text.layout.Layout;
 
@@ -48,7 +46,7 @@ public class TexasRecyclerViewImpl extends RecyclerView implements TexasRecycler
 			}
 		};
 
-		setItemAnimator(new TexasItemAnimator());
+		setItemAnimator(new DefaultTexasItemAnimator());
 	}
 
 	public void scrollToPosition(int position, boolean smooth, int offset) {
