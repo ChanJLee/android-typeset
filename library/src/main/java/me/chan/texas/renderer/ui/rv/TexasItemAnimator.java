@@ -3,6 +3,7 @@ package me.chan.texas.renderer.ui.rv;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.view.View;
+import android.view.animation.AccelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
 
 import androidx.annotation.NonNull;
@@ -15,13 +16,21 @@ import java.util.List;
 
 class TexasItemAnimator extends RecyclerView.ItemAnimator {
 	private static final long APPEARANCE_DURATION = 250;
+	private static final long DISAPPEARANCE_DURATION = 200;
 
 	private final List<RecyclerView.ViewHolder> mPendingAppearances = new ArrayList<>();
+	private final List<RecyclerView.ViewHolder> mPostponedAppearances = new ArrayList<>();
 	private final List<RecyclerView.ViewHolder> mRunningAppearances = new ArrayList<>();
+
+	private final List<RecyclerView.ViewHolder> mPendingDisappearances = new ArrayList<>();
+	private final List<RecyclerView.ViewHolder> mPostponedDisappearances = new ArrayList<>();
+	private final List<RecyclerView.ViewHolder> mRunningDisappearances = new ArrayList<>();
 
 	@Override
 	public boolean animateDisappearance(@NonNull RecyclerView.ViewHolder viewHolder, @NonNull ItemHolderInfo preLayoutInfo, @Nullable ItemHolderInfo postLayoutInfo) {
-		return false;
+		endAnimation(viewHolder);
+		mPendingDisappearances.add(viewHolder);
+		return true;
 	}
 
 	@Override
@@ -49,25 +58,39 @@ class TexasItemAnimator extends RecyclerView.ItemAnimator {
 
 	@Override
 	public void runPendingAnimations() {
-		if (mPendingAppearances.isEmpty()) {
+		boolean hasDisappearances = !mPendingDisappearances.isEmpty();
+		boolean hasAppearances = !mPendingAppearances.isEmpty();
+		if (!hasDisappearances && !hasAppearances) {
 			return;
 		}
-		List<RecyclerView.ViewHolder> toAnimate = new ArrayList<>(mPendingAppearances);
-		mPendingAppearances.clear();
 
-		for (RecyclerView.ViewHolder holder : toAnimate) {
-			View itemView = holder.itemView;
-			ViewCompat.postOnAnimation(itemView, () -> animateAppearanceImpl(holder));
+		if (hasDisappearances) {
+			mPostponedDisappearances.addAll(mPendingDisappearances);
+			mPendingDisappearances.clear();
+			for (RecyclerView.ViewHolder holder : new ArrayList<>(mPostponedDisappearances)) {
+				ViewCompat.postOnAnimation(holder.itemView, () -> {
+					if (mPostponedDisappearances.remove(holder)) {
+						animateDisappearanceImpl(holder);
+					}
+				});
+			}
+		}
+
+		if (hasAppearances) {
+			mPostponedAppearances.addAll(mPendingAppearances);
+			mPendingAppearances.clear();
+			for (RecyclerView.ViewHolder holder : new ArrayList<>(mPostponedAppearances)) {
+				ViewCompat.postOnAnimation(holder.itemView, () -> {
+					if (mPostponedAppearances.remove(holder)) {
+						animateAppearanceImpl(holder);
+					}
+				});
+			}
 		}
 	}
 
 	private void animateAppearanceImpl(@NonNull RecyclerView.ViewHolder holder) {
 		View itemView = holder.itemView;
-		if (!itemView.isAttachedToWindow()) {
-			dispatchAnimationFinished(holder);
-			return;
-		}
-
 		mRunningAppearances.add(holder);
 		dispatchAnimationStarted(holder);
 
@@ -80,44 +103,81 @@ class TexasItemAnimator extends RecyclerView.ItemAnimator {
 					@Override
 					public void onAnimationEnd(Animator animation) {
 						itemView.animate().setListener(null);
-						mRunningAppearances.remove(holder);
-						dispatchAnimationFinished(holder);
-					}
-
-					@Override
-					public void onAnimationCancel(Animator animation) {
-						itemView.setAlpha(1f);
-						itemView.setTranslationY(0f);
-						mRunningAppearances.remove(holder);
-						dispatchAnimationFinished(holder);
+						resetView(itemView);
+						if (mRunningAppearances.remove(holder)) {
+							dispatchAnimationFinished(holder);
+						}
 					}
 				})
 				.start();
 	}
 
+	private void animateDisappearanceImpl(@NonNull RecyclerView.ViewHolder holder) {
+		View itemView = holder.itemView;
+		mRunningDisappearances.add(holder);
+		dispatchAnimationStarted(holder);
+
+		int height = itemView.getHeight();
+		itemView.animate()
+				.alpha(0f)
+				.translationY(-height)
+				.setDuration(DISAPPEARANCE_DURATION)
+				.setInterpolator(new AccelerateInterpolator())
+				.setListener(new AnimatorListenerAdapter() {
+					@Override
+					public void onAnimationEnd(Animator animation) {
+						itemView.animate().setListener(null);
+						resetView(itemView);
+						if (mRunningDisappearances.remove(holder)) {
+							dispatchAnimationFinished(holder);
+						}
+					}
+				})
+				.start();
+	}
+
+	private void resetView(View view) {
+		view.setAlpha(1f);
+		view.setTranslationY(0f);
+	}
+
 	@Override
 	public void endAnimation(@NonNull RecyclerView.ViewHolder item) {
-		View itemView = item.itemView;
-		itemView.animate().cancel();
-		itemView.setAlpha(1f);
-		itemView.setTranslationY(0f);
-		mPendingAppearances.remove(item);
-		mRunningAppearances.remove(item);
-		dispatchAnimationFinished(item);
+		item.itemView.animate().cancel();
+		resetView(item.itemView);
+
+		boolean needDispatch = mPendingAppearances.remove(item)
+				|| mPostponedAppearances.remove(item)
+				|| mPendingDisappearances.remove(item)
+				|| mPostponedDisappearances.remove(item);
+		if (needDispatch) {
+			dispatchAnimationFinished(item);
+		}
 	}
 
 	@Override
 	public void endAnimations() {
-		for (RecyclerView.ViewHolder holder : new ArrayList<>(mPendingAppearances)) {
-			endAnimation(holder);
-		}
-		for (RecyclerView.ViewHolder holder : new ArrayList<>(mRunningAppearances)) {
-			endAnimation(holder);
+		List<List<RecyclerView.ViewHolder>> allLists = new ArrayList<>();
+		allLists.add(mPendingAppearances);
+		allLists.add(mPostponedAppearances);
+		allLists.add(mRunningAppearances);
+		allLists.add(mPendingDisappearances);
+		allLists.add(mPostponedDisappearances);
+		allLists.add(mRunningDisappearances);
+		for (List<RecyclerView.ViewHolder> list : allLists) {
+			for (RecyclerView.ViewHolder holder : new ArrayList<>(list)) {
+				endAnimation(holder);
+			}
 		}
 	}
 
 	@Override
 	public boolean isRunning() {
-		return !mPendingAppearances.isEmpty() || !mRunningAppearances.isEmpty();
+		return !mPendingAppearances.isEmpty()
+				|| !mPostponedAppearances.isEmpty()
+				|| !mRunningAppearances.isEmpty()
+				|| !mPendingDisappearances.isEmpty()
+				|| !mPostponedDisappearances.isEmpty()
+				|| !mRunningDisappearances.isEmpty();
 	}
 }
