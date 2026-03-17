@@ -27,10 +27,10 @@ public class DefaultItemAnimator extends SimpleItemAnimator {
 
 	private static TimeInterpolator sDefaultInterpolator;
 
-	private ArrayList<RecyclerView.ViewHolder> mPendingRemovals = new ArrayList<>();
-	private ArrayList<RecyclerView.ViewHolder> mPendingAdditions = new ArrayList<>();
-	private ArrayList<MoveInfo> mPendingMoves = new ArrayList<>();
-	private ArrayList<ChangeInfo> mPendingChanges = new ArrayList<>();
+	private final ArrayList<RecyclerView.ViewHolder> mPendingRemovals = new ArrayList<>();
+	private final ArrayList<RecyclerView.ViewHolder> mPendingAdditions = new ArrayList<>();
+	private final ArrayList<MoveInfo> mPendingMoves = new ArrayList<>();
+	private final ArrayList<ChangeInfo> mPendingChanges = new ArrayList<>();
 
 	ArrayList<ArrayList<RecyclerView.ViewHolder>> mAdditionsList = new ArrayList<>();
 	ArrayList<ArrayList<MoveInfo>> mMovesList = new ArrayList<>();
@@ -106,16 +106,13 @@ public class DefaultItemAnimator extends SimpleItemAnimator {
 			moves.addAll(mPendingMoves);
 			mMovesList.add(moves);
 			mPendingMoves.clear();
-			Runnable mover = new Runnable() {
-				@Override
-				public void run() {
-					for (MoveInfo moveInfo : moves) {
-						animateMoveImpl(moveInfo.holder, moveInfo.fromX, moveInfo.fromY,
-								moveInfo.toX, moveInfo.toY);
-					}
-					moves.clear();
-					mMovesList.remove(moves);
+			Runnable mover = () -> {
+				for (MoveInfo moveInfo : moves) {
+					animateMoveImpl(moveInfo.holder, moveInfo.fromX, moveInfo.fromY,
+							moveInfo.toX, moveInfo.toY);
 				}
+				moves.clear();
+				mMovesList.remove(moves);
 			};
 			if (removalsPending) {
 				View view = moves.get(0).holder.itemView;
@@ -130,15 +127,12 @@ public class DefaultItemAnimator extends SimpleItemAnimator {
 			changes.addAll(mPendingChanges);
 			mChangesList.add(changes);
 			mPendingChanges.clear();
-			Runnable changer = new Runnable() {
-				@Override
-				public void run() {
-					for (ChangeInfo change : changes) {
-						animateChangeImpl(change);
-					}
-					changes.clear();
-					mChangesList.remove(changes);
+			Runnable changer = () -> {
+				for (ChangeInfo change : changes) {
+					animateChangeImpl(change);
 				}
+				changes.clear();
+				mChangesList.remove(changes);
 			};
 			if (removalsPending) {
 				RecyclerView.ViewHolder holder = changes.get(0).oldHolder;
@@ -153,15 +147,12 @@ public class DefaultItemAnimator extends SimpleItemAnimator {
 			additions.addAll(mPendingAdditions);
 			mAdditionsList.add(additions);
 			mPendingAdditions.clear();
-			Runnable adder = new Runnable() {
-				@Override
-				public void run() {
-					for (RecyclerView.ViewHolder holder : additions) {
-						animateAddImpl(holder);
-					}
-					additions.clear();
-					mAdditionsList.remove(additions);
+			Runnable adder = () -> {
+				for (RecyclerView.ViewHolder holder : additions) {
+					animateAddImpl(holder);
 				}
+				additions.clear();
+				mAdditionsList.remove(additions);
 			};
 			if (removalsPending || movesPending || changesPending) {
 				long removeDuration = removalsPending ? getRemoveDuration() : 0;
@@ -263,7 +254,6 @@ public class DefaultItemAnimator extends SimpleItemAnimator {
 		final View view = item.itemView;
 		// this will trigger end callback which should set properties to their target values.
 		view.animate().cancel();
-		// TODO if some other animations are chained to end, how do we cancel them as well?
 		for (int i = mPendingMoves.size() - 1; i >= 0; i--) {
 			MoveInfo moveInfo = mPendingMoves.get(i);
 			if (moveInfo.holder == item) {
@@ -315,31 +305,6 @@ public class DefaultItemAnimator extends SimpleItemAnimator {
 					mAdditionsList.remove(i);
 				}
 			}
-		}
-
-		// animations should be ended by the cancel above.
-		//noinspection PointlessBooleanExpression,ConstantConditions
-		if (mRemoveAnimations.remove(item) && DEBUG) {
-			throw new IllegalStateException("after animation is cancelled, item should not be in "
-					+ "mRemoveAnimations list");
-		}
-
-		//noinspection PointlessBooleanExpression,ConstantConditions
-		if (mAddAnimations.remove(item) && DEBUG) {
-			throw new IllegalStateException("after animation is cancelled, item should not be in "
-					+ "mAddAnimations list");
-		}
-
-		//noinspection PointlessBooleanExpression,ConstantConditions
-		if (mChangeAnimations.remove(item) && DEBUG) {
-			throw new IllegalStateException("after animation is cancelled, item should not be in "
-					+ "mChangeAnimations list");
-		}
-
-		//noinspection PointlessBooleanExpression,ConstantConditions
-		if (mMoveAnimations.remove(item) && DEBUG) {
-			throw new IllegalStateException("after animation is cancelled, item should not be in "
-					+ "mMoveAnimations list");
 		}
 		dispatchFinishedWhenDone();
 	}
