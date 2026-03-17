@@ -5,7 +5,6 @@ import android.animation.AnimatorListenerAdapter;
 import android.animation.TimeInterpolator;
 import android.animation.ValueAnimator;
 import android.view.View;
-import android.view.ViewPropertyAnimator;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -27,7 +26,7 @@ import me.chan.texas.text.Segment;
  *
  * @see RecyclerView#setItemAnimator(RecyclerView.ItemAnimator)
  */
-public class DefaultItemAnimator extends SimpleItemAnimator {
+class DefaultItemAnimator extends SimpleItemAnimator {
 	@Nullable
 	private TexasView.SegmentAnimator mSegmentItemAnimator;
 
