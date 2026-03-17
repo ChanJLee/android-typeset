@@ -180,7 +180,6 @@ public class DefaultItemAnimator extends SimpleItemAnimator {
 	@Override
 	public boolean animateAdd(final RecyclerView.ViewHolder holder) {
 		resetAnimation(holder);
-//		holder.itemView.setAlpha(0);
 		mPendingAdditions.add(holder);
 		return true;
 	}
@@ -195,7 +194,6 @@ public class DefaultItemAnimator extends SimpleItemAnimator {
 	@Override
 	public boolean animateMove(final RecyclerView.ViewHolder holder, int fromX, int fromY,
 							   int toX, int toY) {
-		final View view = holder.itemView;
 		fromX += (int) holder.itemView.getTranslationX();
 		fromY += (int) holder.itemView.getTranslationY();
 		resetAnimation(holder);
@@ -205,12 +203,6 @@ public class DefaultItemAnimator extends SimpleItemAnimator {
 			dispatchMoveFinished(holder);
 			return false;
 		}
-//		if (deltaX != 0) {
-//			view.setTranslationX(-deltaX);
-//		}
-//		if (deltaY != 0) {
-//			view.setTranslationY(-deltaY);
-//		}
 		mPendingMoves.add(new MoveInfo(holder, fromX, fromY, toX, toY));
 		return true;
 	}
@@ -223,22 +215,10 @@ public class DefaultItemAnimator extends SimpleItemAnimator {
 			// run a move animation to handle position changes.
 			return animateMove(oldHolder, fromX, fromY, toX, toY);
 		}
-		final float prevTranslationX = oldHolder.itemView.getTranslationX();
-		final float prevTranslationY = oldHolder.itemView.getTranslationY();
-		final float prevAlpha = oldHolder.itemView.getAlpha();
 		resetAnimation(oldHolder);
-		int deltaX = (int) (toX - fromX - prevTranslationX);
-		int deltaY = (int) (toY - fromY - prevTranslationY);
-		// recover prev translation state after ending animation
-//		oldHolder.itemView.setTranslationX(prevTranslationX);
-//		oldHolder.itemView.setTranslationY(prevTranslationY);
-//		oldHolder.itemView.setAlpha(prevAlpha);
 		if (newHolder != null) {
 			// carry over translation values
 			resetAnimation(newHolder);
-//			newHolder.itemView.setTranslationX(-deltaX);
-//			newHolder.itemView.setTranslationY(-deltaY);
-//			newHolder.itemView.setAlpha(0);
 		}
 		mPendingChanges.add(new ChangeInfo(oldHolder, newHolder, fromX, fromY, toX, toY));
 		return true;
@@ -536,50 +516,24 @@ public class DefaultItemAnimator extends SimpleItemAnimator {
 		final RecyclerView.ViewHolder newHolder = changeInfo.newHolder;
 		final View newView = newHolder != null ? newHolder.itemView : null;
 		if (view != null) {
-			final ViewPropertyAnimator oldViewAnim = view.animate().setDuration(
-					getChangeDuration());
 			mChangeAnimations.add(changeInfo.oldHolder);
-			oldViewAnim.translationX(changeInfo.toX - changeInfo.fromX);
-			oldViewAnim.translationY(changeInfo.toY - changeInfo.fromY);
-			oldViewAnim.alpha(0).setListener(new AnimatorListenerAdapter() {
-				@Override
-				public void onAnimationStart(Animator animator) {
-					dispatchChangeStarting(changeInfo.oldHolder, true);
-				}
-
-				@Override
-				public void onAnimationEnd(Animator animator) {
-					oldViewAnim.setListener(null);
-					view.setAlpha(1);
-					view.setTranslationX(0);
-					view.setTranslationY(0);
-					dispatchChangeFinished(changeInfo.oldHolder, true);
-					mChangeAnimations.remove(changeInfo.oldHolder);
-					dispatchFinishedWhenDone();
-				}
-			}).start();
+			dispatchChangeStarting(changeInfo.oldHolder, true);
+			view.setAlpha(1);
+			view.setTranslationX(0);
+			view.setTranslationY(0);
+			dispatchChangeFinished(changeInfo.oldHolder, true);
+			mChangeAnimations.remove(changeInfo.oldHolder);
+			dispatchFinishedWhenDone();
 		}
 		if (newView != null) {
-			final ViewPropertyAnimator newViewAnimation = newView.animate();
 			mChangeAnimations.add(changeInfo.newHolder);
-			newViewAnimation.translationX(0).translationY(0).setDuration(getChangeDuration())
-					.alpha(1).setListener(new AnimatorListenerAdapter() {
-						@Override
-						public void onAnimationStart(Animator animator) {
-							dispatchChangeStarting(changeInfo.newHolder, false);
-						}
-
-						@Override
-						public void onAnimationEnd(Animator animator) {
-							newViewAnimation.setListener(null);
-							newView.setAlpha(1);
-							newView.setTranslationX(0);
-							newView.setTranslationY(0);
-							dispatchChangeFinished(changeInfo.newHolder, false);
-							mChangeAnimations.remove(changeInfo.newHolder);
-							dispatchFinishedWhenDone();
-						}
-					}).start();
+			dispatchChangeStarting(changeInfo.newHolder, false);
+			newView.setAlpha(1);
+			newView.setTranslationX(0);
+			newView.setTranslationY(0);
+			dispatchChangeFinished(changeInfo.newHolder, false);
+			mChangeAnimations.remove(changeInfo.newHolder);
+			dispatchFinishedWhenDone();
 		}
 	}
 
