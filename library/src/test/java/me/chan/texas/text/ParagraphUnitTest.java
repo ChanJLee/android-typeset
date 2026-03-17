@@ -1516,4 +1516,72 @@ public class ParagraphUnitTest {
 		};
 		visitor.visit(paragraph);
 	}
+
+	@Test
+	public void testSpilt() {
+		TexasOption texasOption = new TexasOption(mPaintSet, Hyphenation.getInstance(), mMeasurer, mTextAttribute, new RenderOption());
+		Paragraph.Builder builder = Paragraph.Builder.newBuilder(texasOption);
+
+		// 重点：Paragraph 的 element 末尾一定是 Glue.TERMINAL + Penalty.FORCE_BREAK
+		// split 后的每个子 paragraph 也必须满足此约束（由 copy -> fillTail 保证）
+
+		// case 1: 无匹配时，整个 paragraph 保留，末尾应有 Glue.TERMINAL + Penalty.FORCE_BREAK
+		builder.text("hello world");
+		Paragraph paragraph = builder.build();
+		java.util.List<Paragraph> result = paragraph.split(box -> false);
+		Assert.assertEquals(1, result.size());
+		assertElementEndsWithTerminalAndForceBreak(result.get(0));
+
+		// case 2: 在中间 split，两个子 paragraph 都应以 Glue.TERMINAL + Penalty.FORCE_BREAK 结尾
+		builder = Paragraph.Builder.newBuilder(texasOption);
+		builder.text("hello world foo");
+		paragraph = builder.build();
+		result = paragraph.split(box -> "world".equals(box.toString()));
+		Assert.assertEquals(2, result.size());
+		assertElementEndsWithTerminalAndForceBreak(result.get(0));
+		assertElementEndsWithTerminalAndForceBreak(result.get(1));
+
+		// case 3: 在第一个可匹配的 box 处 split（split 从 index 1 开始遍历，故首元素不会被当作 split 点）
+		builder = Paragraph.Builder.newBuilder(texasOption);
+		builder.text("a bb ccc");
+		paragraph = builder.build();
+		result = paragraph.split(box -> "bb".equals(box.toString()));
+		Assert.assertEquals(2, result.size());
+		assertElementEndsWithTerminalAndForceBreak(result.get(0));
+		assertElementEndsWithTerminalAndForceBreak(result.get(1));
+
+		// case 4: 在最后一个 box 处 split，第二个子 paragraph 仅含最后一个 box + tail
+		builder = Paragraph.Builder.newBuilder(texasOption);
+		builder.text("x y z");
+		paragraph = builder.build();
+		result = paragraph.split(box -> "z".equals(box.toString()));
+		Assert.assertEquals(2, result.size());
+		assertElementEndsWithTerminalAndForceBreak(result.get(0));
+		assertElementEndsWithTerminalAndForceBreak(result.get(1));
+
+		// case 5: 多处 split
+		builder = Paragraph.Builder.newBuilder(texasOption);
+		builder.text("a b c d");
+		paragraph = builder.build();
+		result = paragraph.split(box -> "b".equals(box.toString()) || "d".equals(box.toString()));
+		Assert.assertEquals(3, result.size());
+		for (Paragraph p : result) {
+			assertElementEndsWithTerminalAndForceBreak(p);
+		}
+	}
+
+	/**
+	 * 断言 Paragraph 的 element 末尾一定是 Glue.TERMINAL + Penalty.FORCE_BREAK
+	 */
+	private static void assertElementEndsWithTerminalAndForceBreak(Paragraph paragraph) {
+		int count = paragraph.getElementCount();
+		Assert.assertTrue("element 至少需要 2 个（Glue.TERMINAL + Penalty.FORCE_BREAK）", count >= 2);
+		Assert.assertSame("倒数第二个 element 必须是 Glue.TERMINAL", Glue.TERMINAL, paragraph.getElement(count - 2));
+		Assert.assertSame("最后一个 element 必须是 Penalty.FORCE_BREAK", Penalty.FORCE_BREAK, paragraph.getElement(count - 1));
+
+		if (count > 4) {
+			Assert.assertNotSame("没有重复的 Glue.TERMINAL", Glue.TERMINAL, paragraph.getElement(count - 4));
+			Assert.assertNotSame("没有重复的 Penalty.FORCE_BREAK", Penalty.FORCE_BREAK, paragraph.getElement(count - 3));
+		}
+	}
 }

@@ -24,6 +24,7 @@ import me.chan.texas.renderer.selection.ParagraphSelection;
 import me.chan.texas.renderer.selection.Selection;
 import me.chan.texas.renderer.ui.RendererHost;
 import me.chan.texas.renderer.ui.decor.ParagraphDecor;
+import me.chan.texas.text.layout.Box;
 import me.chan.texas.text.layout.Element;
 import me.chan.texas.text.layout.Glue;
 import me.chan.texas.text.layout.Layout;
@@ -36,6 +37,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Predicate;
 
 /**
  * 段落
@@ -154,6 +156,8 @@ public final class Paragraph implements Segment {
 		}
 		Texas.MemoryOption memoryOption = Texas.getMemoryOption();
 		mElements = new ArrayList<>(memoryOption.getParagraphElementInitialCapacity());
+		mLayout = Layout.obtain();
+		mId = Segment.nextId();
 	}
 
 	@RestrictTo(LIBRARY)
@@ -840,6 +844,55 @@ public final class Paragraph implements Segment {
 			mTagsKv = new SparseArrayCompat<>();
 		}
 		mTagsKv.put(id, tag);
+	}
+
+	@NonNull
+	public List<Paragraph> split(Predicate<Object> predicate) {
+		List<Paragraph> paragraphs = new ArrayList<>();
+		int start = 0;
+		int end = 1;
+		for (; end < mElements.size(); ++end) {
+			Element element = mElements.get(end);
+			if (!(element instanceof Box)) {
+				continue;
+			}
+
+			Box box = (Box) element;
+			if (predicate.test(box)) {
+				paragraphs.add(copy(start, end + 1));
+				start = end + 1;
+			}
+		}
+
+		if (start < end) {
+			paragraphs.add(copy(start, end));
+		}
+
+		return paragraphs;
+	}
+
+	private Paragraph copy(int start, int end) {
+		Paragraph copy = new Paragraph(null);
+		for (int i = start; i < end; ++i) {
+			copy.mElements.add(mElements.get(i));
+		}
+		copy.mTagsKv = mTagsKv;
+		copy.mDecor = mDecor;
+		copy.mSelection = mSelection;
+		copy.mHighlight = mHighlight;
+		copy.fillTail();
+
+		return copy;
+	}
+
+	private void fillTail() {
+		int size = mElements.size();
+		if (size > 2 && mElements.get(size - 2) == Glue.TERMINAL && mElements.get(size - 1) == Penalty.FORCE_BREAK) {
+			return;
+		}
+
+		mElements.add(Glue.TERMINAL);
+		mElements.add(Penalty.FORCE_BREAK);
 	}
 
 	@NonNull

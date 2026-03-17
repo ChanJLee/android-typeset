@@ -116,7 +116,6 @@ class ParagraphBuilderInternal {
 		}
 
 		mParagraph.setTag(mTag);
-		mParagraph.mId = Segment.nextId();
 		return mParagraph;
 	}
 
@@ -137,7 +136,6 @@ class ParagraphBuilderInternal {
 		mRenderOption = texasOption.getRenderOption();
 		mHyphenation = texasOption.getHyphenation();
 		mParagraph = Paragraph.obtain();
-		mParagraph.mLayout = Layout.obtain();
 		mParagraph.mLayout.getAdvise().copy(mRenderOption);
 		mCommonGlue = Glue.obtain();
 		mStretchOnlyGlue = Glue.obtain(Glue.FLAG_STRETCH);
