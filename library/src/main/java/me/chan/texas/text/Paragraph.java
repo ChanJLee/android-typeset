@@ -41,19 +41,6 @@ import java.util.List;
  * 段落
  */
 public final class Paragraph implements Segment {
-
-	@NonNull
-	@RestrictTo(LIBRARY)
-	volatile Layout mLayout;
-
-	@RestrictTo(LIBRARY)
-	final List<Element> mElements;
-
-	@RestrictTo(RestrictTo.Scope.LIBRARY)
-	SparseArrayCompat<Object> mTagsKv;
-
-	ParagraphDecor mDecor;
-
 	/**
 	 * 默认
 	 */
@@ -71,6 +58,29 @@ public final class Paragraph implements Segment {
 	 */
 	public static final int TYPESET_POLICY_ACCEPT_CONTROL_CHAR = 4;
 
+
+	@NonNull
+	@RestrictTo(LIBRARY)
+	volatile Layout mLayout;
+
+	@RestrictTo(LIBRARY)
+	final List<Element> mElements;
+
+	@RestrictTo(RestrictTo.Scope.LIBRARY)
+	SparseArrayCompat<Object> mTagsKv;
+
+	ParagraphDecor mDecor;
+
+	int mId;
+
+	private ParagraphSelection mSelection;
+
+	private ParagraphSelection mHighlight;
+
+	private RecyclerView.ViewHolder mHolder;
+
+	private RendererHost mHost;
+
 	@RestrictTo(LIBRARY)
 	@Nullable
 	public ParagraphDecor getDecor() {
@@ -82,8 +92,6 @@ public final class Paragraph implements Segment {
 			TYPESET_POLICY_ACCEPT_CONTROL_CHAR})
 	public @interface TypesetPolicy {
 	}
-
-	int mId;
 
 	@Nullable
 	@Override
@@ -115,10 +123,6 @@ public final class Paragraph implements Segment {
 	public void setPadding(Rect rect) {
 		mLayout.setPadding(rect);
 	}
-
-	private ParagraphSelection mSelection;
-
-	private ParagraphSelection mHighlight;
 
 	@RestrictTo(LIBRARY)
 	@Nullable
@@ -191,9 +195,6 @@ public final class Paragraph implements Segment {
 	public int getId() {
 		return mId;
 	}
-
-	private RecyclerView.ViewHolder mHolder;
-	private RendererHost mHost;
 
 	@Override
 	public void bind(RendererHost host) {
