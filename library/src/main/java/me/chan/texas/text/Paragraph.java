@@ -859,19 +859,19 @@ public final class Paragraph implements Segment {
 
 			Box box = (Box) element;
 			if (predicate.test(box)) {
-				paragraphs.add(copy(start, end + 1));
+				paragraphs.add(fork(start, end + 1));
 				start = end + 1;
 			}
 		}
 
 		if (start < end) {
-			paragraphs.add(copy(start, end));
+			paragraphs.add(fork(start, end));
 		}
 
 		return paragraphs;
 	}
 
-	private Paragraph copy(int start, int end) {
+	private Paragraph fork(int start, int end) {
 		Paragraph copy = new Paragraph(null);
 		for (int i = start; i < end; ++i) {
 			copy.mElements.add(mElements.get(i));
