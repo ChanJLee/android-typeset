@@ -15,8 +15,6 @@ import me.chan.texas.misc.Rect;
 import me.chan.texas.renderer.TexasView;
 import me.chan.texas.renderer.TouchEvent;
 import me.chan.texas.renderer.ui.TexasRendererAdapter;
-import me.chan.texas.renderer.ui.rv.anim.DefaultItemAnimator;
-import me.chan.texas.renderer.ui.rv.anim.DefaultTexasItemAnimator;
 import me.chan.texas.renderer.ui.text.ParagraphView;
 import me.chan.texas.text.Document;
 import me.chan.texas.text.Paragraph;
@@ -31,7 +29,7 @@ public class TexasRecyclerViewImpl extends RecyclerView implements TexasRecycler
 	private OnClickedListener mOnClickedListener;
 	private ScrollAction mScrollAction;
 	private final TexasLinearLayoutManagerImpl mTexasLinearLayoutManager;
-	private final DefaultTexasItemAnimator mItemAnimator = new DefaultTexasItemAnimator();
+	private final DefaultItemAnimator mItemAnimator = new DefaultItemAnimator();
 
 	public TexasRecyclerViewImpl(@NonNull Context context, TexasLinearLayoutManagerImpl texasLinearLayoutManager) {
 		super(context);
@@ -49,7 +47,7 @@ public class TexasRecyclerViewImpl extends RecyclerView implements TexasRecycler
 			}
 		};
 
-		setItemAnimator(new DefaultItemAnimator());
+		setItemAnimator(mItemAnimator);
 	}
 
 	public void scrollToPosition(int position, boolean smooth, int offset) {

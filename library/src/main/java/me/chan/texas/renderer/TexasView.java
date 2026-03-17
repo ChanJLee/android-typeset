@@ -47,7 +47,6 @@ import me.chan.texas.measurer.Measurer;
 import me.chan.texas.misc.PaintSet;
 import me.chan.texas.renderer.core.worker.LoadingWorker;
 import me.chan.texas.renderer.selection.Selection;
-import me.chan.texas.renderer.ui.rv.anim.SegmentAnimType;
 import me.chan.texas.source.Source;
 import me.chan.texas.text.BreakStrategy;
 import me.chan.texas.text.Document;
@@ -1059,18 +1058,23 @@ public final class TexasView extends FrameLayout {
 
 	public abstract static class SegmentAnimator {
 
-		public final Animator createAnimator(Segment segment, View itemView, SegmentAnimType type) {
-			return onCreateAnimator(segment, itemView, type);
+		public Animator createAddAnimator(Segment segment, View view) {
+			return onCreateAddAnimator(segment, view);
 		}
 
-		/**
-		 * @param segment  segment
-		 * @param itemView itemView
-		 * @param type     type
-		 * @return Animator, 返回空则代表不显示动画
-		 */
-		@Nullable
-		protected abstract Animator onCreateAnimator(Segment segment, View itemView, SegmentAnimType type);
+		protected abstract Animator onCreateAddAnimator(Segment segment, View view);
+
+		public Animator createRemoveAnimator(Segment segment, View view) {
+			return onCreateRemoveAnimator(segment, view);
+		}
+
+		protected abstract Animator onCreateRemoveAnimator(Segment segment, View view);
+
+		public Animator createMoveAnimator(Segment segment, View view, int fromX, int fromY, int toX, int toY) {
+			return onCreateMoveAnimator(segment, view, fromX, fromY, toX, toY);
+		}
+
+		protected abstract Animator onCreateMoveAnimator(Segment segment, View view, int fromX, int fromY, int toX, int toY);
 	}
 
 

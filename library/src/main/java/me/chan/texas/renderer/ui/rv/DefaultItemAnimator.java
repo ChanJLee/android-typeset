@@ -1,4 +1,4 @@
-package me.chan.texas.renderer.ui.rv.anim;
+package me.chan.texas.renderer.ui.rv;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
@@ -8,12 +8,17 @@ import android.view.View;
 import android.view.ViewPropertyAnimator;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.view.ViewCompat;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.SimpleItemAnimator;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import me.chan.texas.R;
+import me.chan.texas.renderer.TexasView;
+import me.chan.texas.text.Segment;
 
 /**
  * This implementation of {@link RecyclerView.ItemAnimator} provides basic
@@ -23,7 +28,8 @@ import java.util.List;
  * @see RecyclerView#setItemAnimator(RecyclerView.ItemAnimator)
  */
 public class DefaultItemAnimator extends SimpleItemAnimator {
-	private static final boolean DEBUG = false;
+	@Nullable
+	private TexasView.SegmentAnimator mSegmentItemAnimator;
 
 	private static TimeInterpolator sDefaultInterpolator;
 
@@ -83,6 +89,10 @@ public class DefaultItemAnimator extends SimpleItemAnimator {
 					+ ", toY=" + toY
 					+ '}';
 		}
+	}
+
+	public void setSegmentItemAnimator(@Nullable TexasView.SegmentAnimator segmentItemAnimator) {
+		mSegmentItemAnimator = segmentItemAnimator;
 	}
 
 	@Override
@@ -170,7 +180,7 @@ public class DefaultItemAnimator extends SimpleItemAnimator {
 	@Override
 	public boolean animateAdd(final RecyclerView.ViewHolder holder) {
 		resetAnimation(holder);
-		holder.itemView.setAlpha(0);
+//		holder.itemView.setAlpha(0);
 		mPendingAdditions.add(holder);
 		return true;
 	}
@@ -195,12 +205,12 @@ public class DefaultItemAnimator extends SimpleItemAnimator {
 			dispatchMoveFinished(holder);
 			return false;
 		}
-		if (deltaX != 0) {
-			view.setTranslationX(-deltaX);
-		}
-		if (deltaY != 0) {
-			view.setTranslationY(-deltaY);
-		}
+//		if (deltaX != 0) {
+//			view.setTranslationX(-deltaX);
+//		}
+//		if (deltaY != 0) {
+//			view.setTranslationY(-deltaY);
+//		}
 		mPendingMoves.add(new MoveInfo(holder, fromX, fromY, toX, toY));
 		return true;
 	}
@@ -220,15 +230,15 @@ public class DefaultItemAnimator extends SimpleItemAnimator {
 		int deltaX = (int) (toX - fromX - prevTranslationX);
 		int deltaY = (int) (toY - fromY - prevTranslationY);
 		// recover prev translation state after ending animation
-		oldHolder.itemView.setTranslationX(prevTranslationX);
-		oldHolder.itemView.setTranslationY(prevTranslationY);
-		oldHolder.itemView.setAlpha(prevAlpha);
+//		oldHolder.itemView.setTranslationX(prevTranslationX);
+//		oldHolder.itemView.setTranslationY(prevTranslationY);
+//		oldHolder.itemView.setAlpha(prevAlpha);
 		if (newHolder != null) {
 			// carry over translation values
 			resetAnimation(newHolder);
-			newHolder.itemView.setTranslationX(-deltaX);
-			newHolder.itemView.setTranslationY(-deltaY);
-			newHolder.itemView.setAlpha(0);
+//			newHolder.itemView.setTranslationX(-deltaX);
+//			newHolder.itemView.setTranslationY(-deltaY);
+//			newHolder.itemView.setAlpha(0);
 		}
 		mPendingChanges.add(new ChangeInfo(oldHolder, newHolder, fromX, fromY, toX, toY));
 		return true;
@@ -253,7 +263,11 @@ public class DefaultItemAnimator extends SimpleItemAnimator {
 	public void endAnimation(RecyclerView.ViewHolder item) {
 		final View view = item.itemView;
 		// this will trigger end callback which should set properties to their target values.
-		view.animate().cancel();
+		Animator animator = (Animator) view.getTag(R.id.me_chan_texas_item_anim_tag);
+		if (animator != null) {
+			animator.cancel();
+			view.setTag(R.id.me_chan_texas_item_anim_tag, null);
+		}
 		for (int i = mPendingMoves.size() - 1; i >= 0; i--) {
 			MoveInfo moveInfo = mPendingMoves.get(i);
 			if (moveInfo.holder == item) {
@@ -396,91 +410,124 @@ public class DefaultItemAnimator extends SimpleItemAnimator {
 
 	private void animateRemoveImpl(final RecyclerView.ViewHolder holder) {
 		final View view = holder.itemView;
-		final ViewPropertyAnimator animation = view.animate();
 		mRemoveAnimations.add(holder);
-		animation.setDuration(getRemoveDuration()).alpha(0).setListener(
-				new AnimatorListenerAdapter() {
-					@Override
-					public void onAnimationStart(Animator animator) {
-						dispatchRemoveStarting(holder);
-					}
 
-					@Override
-					public void onAnimationEnd(Animator animator) {
-						animation.setListener(null);
-						view.setAlpha(1);
-						dispatchRemoveFinished(holder);
-						mRemoveAnimations.remove(holder);
-						dispatchFinishedWhenDone();
-					}
-				}).start();
+		Animator animator = null;
+		if (mSegmentItemAnimator != null) {
+			Segment segment = (Segment) view.getTag(R.id.me_chan_texas_item_tag);
+			animator = mSegmentItemAnimator.createRemoveAnimator(segment, view);
+		}
+
+		if (animator == null) {
+			dispatchRemoveStarting(holder);
+			dispatchRemoveFinished(holder);
+			mRemoveAnimations.remove(holder);
+			dispatchFinishedWhenDone();
+		} else {
+			animator.addListener(
+					new AnimatorListenerAdapter() {
+						@Override
+						public void onAnimationStart(Animator animator) {
+							dispatchRemoveStarting(holder);
+						}
+
+						@Override
+						public void onAnimationEnd(Animator animator) {
+							animator.removeListener(this);
+							dispatchRemoveFinished(holder);
+							mRemoveAnimations.remove(holder);
+							dispatchFinishedWhenDone();
+						}
+					});
+			animator.start();
+			view.setTag(R.id.me_chan_texas_item_anim_tag, animator);
+		}
 	}
 
 	void animateAddImpl(final RecyclerView.ViewHolder holder) {
 		final View view = holder.itemView;
-		final ViewPropertyAnimator animation = view.animate();
 		mAddAnimations.add(holder);
-		animation.alpha(1).setDuration(getAddDuration())
-				.setListener(new AnimatorListenerAdapter() {
-					@Override
-					public void onAnimationStart(Animator animator) {
-						dispatchAddStarting(holder);
-					}
 
-					@Override
-					public void onAnimationCancel(Animator animator) {
-						view.setAlpha(1);
-					}
+		Animator animator = null;
+		if (mSegmentItemAnimator != null) {
+			Segment segment = (Segment) view.getTag(R.id.me_chan_texas_item_tag);
+			animator = mSegmentItemAnimator.createAddAnimator(segment, view);
+		}
 
-					@Override
-					public void onAnimationEnd(Animator animator) {
-						animation.setListener(null);
-						dispatchAddFinished(holder);
-						mAddAnimations.remove(holder);
-						dispatchFinishedWhenDone();
-					}
-				}).start();
+		if (animator == null) {
+			dispatchAddStarting(holder);
+			dispatchAddFinished(holder);
+			mAddAnimations.remove(holder);
+			dispatchFinishedWhenDone();
+		} else {
+			animator.addListener(new AnimatorListenerAdapter() {
+				@Override
+				public void onAnimationStart(Animator animator) {
+					dispatchAddStarting(holder);
+				}
+
+				@Override
+				public void onAnimationCancel(Animator animator) {
+					view.setAlpha(1);
+				}
+
+				@Override
+				public void onAnimationEnd(Animator animator) {
+					animator.removeListener(this);
+					dispatchAddFinished(holder);
+					mAddAnimations.remove(holder);
+					dispatchFinishedWhenDone();
+				}
+			});
+			animator.start();
+		}
 	}
 
 	void animateMoveImpl(final RecyclerView.ViewHolder holder, int fromX, int fromY, int toX, int toY) {
 		final View view = holder.itemView;
 		final int deltaX = toX - fromX;
 		final int deltaY = toY - fromY;
-		if (deltaX != 0) {
-			view.animate().translationX(0);
-		}
-		if (deltaY != 0) {
-			view.animate().translationY(0);
-		}
-		// TODO: make EndActions end listeners instead, since end actions aren't called when
-		// vpas are canceled (and can't end them. why?)
-		// need listener functionality in VPACompat for this. Ick.
-		final ViewPropertyAnimator animation = view.animate();
+
 		mMoveAnimations.add(holder);
-		animation.setDuration(getMoveDuration()).setListener(new AnimatorListenerAdapter() {
-			@Override
-			public void onAnimationStart(Animator animator) {
-				dispatchMoveStarting(holder);
-			}
+		Animator animator = null;
+		if (mSegmentItemAnimator != null) {
+			Segment segment = (Segment) view.getTag(R.id.me_chan_texas_item_tag);
+			animator = mSegmentItemAnimator.createMoveAnimator(segment, view, fromX, fromY, toX, toY);
+		}
 
-			@Override
-			public void onAnimationCancel(Animator animator) {
-				if (deltaX != 0) {
-					view.setTranslationX(0);
+		if (animator == null) {
+			dispatchMoveStarting(holder);
+			dispatchMoveFinished(holder);
+			mMoveAnimations.remove(holder);
+			dispatchFinishedWhenDone();
+		} else {
+			animator.addListener(new AnimatorListenerAdapter() {
+				@Override
+				public void onAnimationStart(Animator animator) {
+					dispatchMoveStarting(holder);
 				}
-				if (deltaY != 0) {
-					view.setTranslationY(0);
-				}
-			}
 
-			@Override
-			public void onAnimationEnd(Animator animator) {
-				animation.setListener(null);
-				dispatchMoveFinished(holder);
-				mMoveAnimations.remove(holder);
-				dispatchFinishedWhenDone();
-			}
-		}).start();
+				@Override
+				public void onAnimationCancel(Animator animator) {
+					if (deltaX != 0) {
+						view.setTranslationX(0);
+					}
+					if (deltaY != 0) {
+						view.setTranslationY(0);
+					}
+				}
+
+				@Override
+				public void onAnimationEnd(Animator animator) {
+					animator.removeListener(this);
+					dispatchMoveFinished(holder);
+					mMoveAnimations.remove(holder);
+					dispatchFinishedWhenDone();
+				}
+			});
+			animator.start();
+			view.setTag(R.id.me_chan_texas_item_anim_tag, animator);
+		}
 	}
 
 	void animateChangeImpl(final ChangeInfo changeInfo) {
@@ -577,7 +624,6 @@ public class DefaultItemAnimator extends SimpleItemAnimator {
 		if (sDefaultInterpolator == null) {
 			sDefaultInterpolator = new ValueAnimator().getInterpolator();
 		}
-		holder.itemView.animate().setInterpolator(sDefaultInterpolator);
 		endAnimation(holder);
 	}
 
@@ -594,7 +640,10 @@ public class DefaultItemAnimator extends SimpleItemAnimator {
 
 	void cancelAll(List<RecyclerView.ViewHolder> viewHolders) {
 		for (int i = viewHolders.size() - 1; i >= 0; i--) {
-			viewHolders.get(i).itemView.animate().cancel();
+			Animator animator = (Animator) viewHolders.get(i).itemView.getTag(R.id.me_chan_texas_item_anim_tag);
+			if (animator != null) {
+				animator.cancel();
+			}
 		}
 	}
 

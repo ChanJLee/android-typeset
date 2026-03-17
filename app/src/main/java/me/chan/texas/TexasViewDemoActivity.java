@@ -32,7 +32,6 @@ import me.chan.texas.renderer.SpanTouchEventHandler;
 import me.chan.texas.renderer.TexasView;
 import me.chan.texas.renderer.TouchEvent;
 import me.chan.texas.renderer.selection.Selection;
-import me.chan.texas.renderer.ui.rv.anim.SegmentAnimType;
 import me.chan.texas.text.BreakStrategy;
 import me.chan.texas.text.Document;
 import me.chan.texas.text.Paragraph;
@@ -374,16 +373,15 @@ public class TexasViewDemoActivity extends AppCompatActivity {
 		renderOption.setTypeface(typeface);
 		mTexasView.refresh(renderOption);
 
+		final Object ADD = new Object();
 		mTexasView.setSegmentAnimator(new TexasView.SegmentAnimator() {
 
-			@Nullable
 			@Override
-			protected Animator onCreateAnimator(Segment segment, View itemView, SegmentAnimType type) {
-				if (segment.getTag() != SegmentAnimType.APPEARANCE || type != SegmentAnimType.APPEARANCE) {
+			protected Animator onCreateAddAnimator(Segment segment, View itemView) {
+				if (segment.getTag() != ADD) {
 					return null;
 				}
 
-				Log.d("chan_debug", "onCreateAnimator: " + type + " -> " + segment);
 				AnimatorSet animatorSet = new AnimatorSet();
 				animatorSet.play(ObjectAnimator.ofFloat(itemView, "alpha", 0, 1))
 						.with(ObjectAnimator.ofFloat(itemView, "translationY", -itemView.getHeight(), 0));
@@ -398,6 +396,16 @@ public class TexasViewDemoActivity extends AppCompatActivity {
 				});
 				return animatorSet;
 			}
+
+			@Override
+			protected Animator onCreateRemoveAnimator(Segment segment, View view) {
+				return null;
+			}
+
+			@Override
+			protected Animator onCreateMoveAnimator(Segment segment, View view, int fromX, int fromY, int toX, int toY) {
+				return null;
+			}
 		});
 
 		findViewById(me.chan.texas.debug.R.id.add_content).setOnClickListener(new View.OnClickListener() {
@@ -410,7 +418,7 @@ public class TexasViewDemoActivity extends AppCompatActivity {
 								.addSegment(
 										0,
 										Paragraph.Builder.newBuilder(option)
-												.tag(SegmentAnimType.APPEARANCE)
+												.tag(ADD)
 												.text("生活就像点菜，饥饿时菜会点得特别多，但吃一阵就会意识到浪费；如果慢条斯理地盘算怎么点菜，别人已经要吃完了。")
 												.build()
 								)
