@@ -847,7 +847,7 @@ public final class Paragraph implements Segment {
 	}
 
 	@NonNull
-	public List<Paragraph> split(Predicate<Object> predicate) {
+	public List<Paragraph> split(Predicate<Box> predicate) {
 		List<Paragraph> paragraphs = new ArrayList<>();
 		int start = 0;
 		int end = 1;
