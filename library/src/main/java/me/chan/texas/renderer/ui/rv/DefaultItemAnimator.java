@@ -640,9 +640,11 @@ public class DefaultItemAnimator extends SimpleItemAnimator {
 
 	void cancelAll(List<RecyclerView.ViewHolder> viewHolders) {
 		for (int i = viewHolders.size() - 1; i >= 0; i--) {
-			Animator animator = (Animator) viewHolders.get(i).itemView.getTag(R.id.me_chan_texas_item_anim_tag);
+			View view = viewHolders.get(i).itemView;
+			Animator animator = (Animator) view.getTag(R.id.me_chan_texas_item_anim_tag);
 			if (animator != null) {
 				animator.cancel();
+				view.setTag(R.id.me_chan_texas_item_anim_tag, null);
 			}
 		}
 	}
