@@ -887,7 +887,7 @@ public final class Paragraph implements Segment {
 
 	private void fillTail() {
 		int size = mElements.size();
-		if (size > 2 && mElements.get(size - 2) == Glue.TERMINAL && mElements.get(size - 1) == Penalty.FORCE_BREAK) {
+		if (size >= 2 && mElements.get(size - 2) == Glue.TERMINAL && mElements.get(size - 1) == Penalty.FORCE_BREAK) {
 			return;
 		}
 

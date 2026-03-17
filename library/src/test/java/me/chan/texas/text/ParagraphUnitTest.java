@@ -1568,6 +1568,13 @@ public class ParagraphUnitTest {
 		for (Paragraph p : result) {
 			assertElementEndsWithTerminalAndForceBreak(p);
 		}
+
+		builder = Paragraph.Builder.newBuilder(texasOption);
+		paragraph = builder.build();
+		Assert.assertFalse(paragraph.hasContent());
+		result = paragraph.split(b -> false);
+		Assert.assertEquals(1, result.size());
+		assertElementEndsWithTerminalAndForceBreak(result.get(0));
 	}
 
 	/**
@@ -1579,7 +1586,7 @@ public class ParagraphUnitTest {
 		Assert.assertSame("倒数第二个 element 必须是 Glue.TERMINAL", Glue.TERMINAL, paragraph.getElement(count - 2));
 		Assert.assertSame("最后一个 element 必须是 Penalty.FORCE_BREAK", Penalty.FORCE_BREAK, paragraph.getElement(count - 1));
 
-		if (count > 4) {
+		if (count >= 4) {
 			Assert.assertNotSame("没有重复的 Glue.TERMINAL", Glue.TERMINAL, paragraph.getElement(count - 4));
 			Assert.assertNotSame("没有重复的 Penalty.FORCE_BREAK", Penalty.FORCE_BREAK, paragraph.getElement(count - 3));
 		}
