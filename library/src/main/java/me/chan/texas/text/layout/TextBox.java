@@ -162,10 +162,15 @@ public final class TextBox extends Box {
 		return true;
 	}
 
-	@RestrictTo(LIBRARY)
 	public TextStyle getTextStyle() {
 		return mTextStyle;
 	}
+
+	public void setTextStyle(TextStyle textStyle) {
+		mTextStyle = textStyle;
+	}
+
+
 
 	@Override
 	protected void onRecycle() {
