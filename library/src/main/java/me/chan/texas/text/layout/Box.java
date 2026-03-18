@@ -58,10 +58,12 @@ public abstract class Box extends DefaultRecyclable implements Element {
 		mTag = tag;
 	}
 
+	@RestrictTo(LIBRARY)
 	public void setBackground(Appearance background) {
 		mBackground = background;
 	}
 
+	@RestrictTo(LIBRARY)
 	public void setForeground(Appearance foreground) {
 		mForeground = foreground;
 	}
@@ -122,10 +124,12 @@ public abstract class Box extends DefaultRecyclable implements Element {
 		mSeq = seq;
 	}
 
+	@RestrictTo(LIBRARY)
 	public Appearance getBackground() {
 		return mBackground;
 	}
 
+	@RestrictTo(LIBRARY)
 	public Appearance getForeground() {
 		return mForeground;
 	}
