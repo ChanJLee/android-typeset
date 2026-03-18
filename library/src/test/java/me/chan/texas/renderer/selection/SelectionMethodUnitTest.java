@@ -604,7 +604,7 @@ public class SelectionMethodUnitTest {
 		public boolean getSegmentLocations(Segment segment, Rect locations) {
 			if (segment instanceof Paragraph) {
 				Paragraph p = (Paragraph) segment;
-				MyTextureParagraph textureParagraph = p.getTag(1024);
+				MyTextureParagraph textureParagraph = p.getTag(1024, null);
 				int[] location = new int[2];
 				textureParagraph.getLocationOnScreen(location);
 				locations.left = location[0];
