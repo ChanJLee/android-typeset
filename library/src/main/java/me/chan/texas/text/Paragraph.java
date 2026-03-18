@@ -6,7 +6,6 @@ import me.chan.texas.R;
 import me.chan.texas.measurer.Measurer;
 import me.chan.texas.misc.Rect;
 
-import androidx.annotation.IdRes;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -42,7 +41,7 @@ import java.util.function.Predicate;
 /**
  * 段落
  */
-public final class Paragraph implements Segment {
+public final class Paragraph extends Segment {
 	/**
 	 * 默认
 	 */
@@ -68,9 +67,6 @@ public final class Paragraph implements Segment {
 	@RestrictTo(LIBRARY)
 	final List<Element> mElements;
 
-	@RestrictTo(RestrictTo.Scope.LIBRARY)
-	SparseArrayCompat<Object> mTagsKv;
-
 	ParagraphDecor mDecor;
 
 	int mId;
@@ -93,21 +89,6 @@ public final class Paragraph implements Segment {
 	@IntDef({TYPESET_POLICY_DEFAULT, TYPESET_POLICY_CJK_MIX_OPTIMIZATION, TYPESET_POLICY_BIDI_TEXT,
 			TYPESET_POLICY_ACCEPT_CONTROL_CHAR})
 	public @interface TypesetPolicy {
-	}
-
-	@Nullable
-	@Override
-	public Object getTag() {
-		return getTag(R.id.me_chan_texas_paragraph_tag, null);
-	}
-
-	@Nullable
-	public <T> T getTag(@IdRes int key, T defaultValue) {
-		if (mTagsKv == null) {
-			return defaultValue;
-		}
-
-		return (T) mTagsKv.get(key, defaultValue);
 	}
 
 	@Override
@@ -153,7 +134,7 @@ public final class Paragraph implements Segment {
 	private Paragraph(Object tag) {
 		if (tag != null) {
 			mTagsKv = new SparseArrayCompat<>();
-			mTagsKv.put(R.id.me_chan_texas_paragraph_tag, tag);
+			mTagsKv.put(R.id.me_chan_texas_view_segment_tag, tag);
 		}
 		Texas.MemoryOption memoryOption = Texas.getMemoryOption();
 		mElements = new ArrayList<>(memoryOption.getParagraphElementInitialCapacity());
@@ -834,17 +815,6 @@ public final class Paragraph implements Segment {
 			Element element = getElement(j);
 			element.measure(measurer, textAttribute);
 		}
-	}
-
-	public void setTag(@Nullable Object tag) {
-		setTag(R.id.me_chan_texas_paragraph_tag, tag);
-	}
-
-	public void setTag(@IdRes int id, @Nullable Object tag) {
-		if (mTagsKv == null) {
-			mTagsKv = new SparseArrayCompat<>();
-		}
-		mTagsKv.put(id, tag);
 	}
 
 	@NonNull

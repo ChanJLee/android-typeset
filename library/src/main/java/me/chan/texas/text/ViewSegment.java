@@ -2,6 +2,7 @@ package me.chan.texas.text;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
+import me.chan.texas.R;
 import me.chan.texas.misc.Rect;
 
 import android.view.View;
@@ -11,6 +12,7 @@ import androidx.annotation.LayoutRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.collection.SparseArrayCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import me.chan.texas.renderer.ParagraphPredicates;
@@ -24,7 +26,7 @@ import me.chan.texas.renderer.ui.text.ParagraphView;
 /**
  * 用户自定义视图片段
  */
-public abstract class ViewSegment implements Segment {
+public abstract class ViewSegment extends Segment {
 	private Rect mRect;
 
 	private int mId;
@@ -71,6 +73,7 @@ public abstract class ViewSegment implements Segment {
 
 	public ViewSegment(@NonNull Args args) {
 		mArgs = args;
+		mTagsKv = mArgs.mTagsKv;
 		mId = Segment.nextId();
 	}
 
@@ -120,17 +123,12 @@ public abstract class ViewSegment implements Segment {
 		mHost = null;
 		mHolder = null;
 		mArgs = null;
+		mTagsKv = null;
 	}
 
 	@Override
 	public final boolean isRecycled() {
 		return mId == 0;
-	}
-
-	@Nullable
-	@Override
-	public final Object getTag() {
-		return mArgs == null ? null : mArgs.mTag;
 	}
 
 	@Nullable
@@ -190,11 +188,11 @@ public abstract class ViewSegment implements Segment {
 		return mHost == null ? -1 : mHost.indexOf(this);
 	}
 
-	public static class Args {
+	public final static class Args {
 		private final int mLayout;
 		private boolean mDisableReuse;
 		@RestrictTo(RestrictTo.Scope.LIBRARY)
-		private Object mTag;
+		private SparseArrayCompat<Object> mTagsKv;
 		private SelectionProvider mSelectionProvider;
 
 		public Args(int layout) {
@@ -215,7 +213,14 @@ public abstract class ViewSegment implements Segment {
 		 * @return 当前对象
 		 */
 		public Args tag(Object tag) {
-			mTag = tag;
+			return tag(R.id.me_chan_texas_view_segment_tag, tag);
+		}
+
+		public Args tag(@IdRes int id, @Nullable Object tag) {
+			if (mTagsKv == null) {
+				mTagsKv = new SparseArrayCompat<>();
+			}
+			mTagsKv.put(id, tag);
 			return this;
 		}
 
