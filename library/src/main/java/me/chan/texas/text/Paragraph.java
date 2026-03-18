@@ -3,6 +3,7 @@ package me.chan.texas.text;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
 import me.chan.texas.R;
+import me.chan.texas.compat.Predicate;
 import me.chan.texas.measurer.Measurer;
 import me.chan.texas.misc.Rect;
 
@@ -36,7 +37,6 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Predicate;
 
 /**
  * 段落
