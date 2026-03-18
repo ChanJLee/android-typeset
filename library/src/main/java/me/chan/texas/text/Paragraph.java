@@ -98,15 +98,16 @@ public final class Paragraph implements Segment {
 	@Nullable
 	@Override
 	public Object getTag() {
-		return getTag(R.id.me_chan_texas_paragraph_tag);
+		return getTag(R.id.me_chan_texas_paragraph_tag, null);
 	}
 
 	@Nullable
-	public <T> T getTag(@IdRes int key) {
+	public <T> T getTag(@IdRes int key, T defaultValue) {
 		if (mTagsKv == null) {
-			return null;
+			return defaultValue;
 		}
-		return (T) mTagsKv.get(key);
+
+		return (T) mTagsKv.get(key, defaultValue);
 	}
 
 	@Override

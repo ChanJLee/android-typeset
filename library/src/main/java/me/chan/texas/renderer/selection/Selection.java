@@ -189,7 +189,7 @@ public class Selection extends DefaultRecyclable {
 			return false;
 		}
 
-		ViewSegment viewSegment = paragraph.getTag(R.id.me_chan_texas_paragraph_outer_segment);
+		ViewSegment viewSegment = paragraph.getTag(R.id.me_chan_texas_paragraph_outer_segment, null);
 		if (viewSegment == null) {
 			return container.getSegmentLocations(paragraph, locations);
 		}

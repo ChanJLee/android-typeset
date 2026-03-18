@@ -55,7 +55,7 @@ public final class Document {
 
 		if (segment instanceof Paragraph) {
 			Paragraph paragraph = (Paragraph) segment;
-			Segment outer = paragraph.getTag(R.id.me_chan_texas_paragraph_outer_segment);
+			Segment outer = paragraph.getTag(R.id.me_chan_texas_paragraph_outer_segment, null);
 			if (outer != null) {
 				segment = outer;
 			}
