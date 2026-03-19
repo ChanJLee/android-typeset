@@ -32,6 +32,46 @@ public abstract class Segment {
 		return (T) mTagsKv.get(key, defaultValue);
 	}
 
+	public final boolean containsTag(@IdRes int key) {
+		if (mTagsKv == null) {
+			return false;
+		}
+
+		return mTagsKv.containsKey(key);
+	}
+
+	public final int getTagInt(@IdRes int key, int defaultValue) {
+		if (mTagsKv == null) {
+			return defaultValue;
+		}
+		Object val = mTagsKv.get(key);
+		return val instanceof Integer ? (int) val : defaultValue;
+	}
+
+	public final long getTagLong(@IdRes int key, long defaultValue) {
+		if (mTagsKv == null) {
+			return defaultValue;
+		}
+		Object val = mTagsKv.get(key);
+		return val instanceof Long ? (long) val : defaultValue;
+	}
+
+	public final float getTagFloat(@IdRes int key, float defaultValue) {
+		if (mTagsKv == null) {
+			return defaultValue;
+		}
+		Object val = mTagsKv.get(key);
+		return val instanceof Float ? (float) val : defaultValue;
+	}
+
+	public final boolean getTagBoolean(@IdRes int key, boolean defaultValue) {
+		if (mTagsKv == null) {
+			return defaultValue;
+		}
+		Object val = mTagsKv.get(key);
+		return val instanceof Boolean ? (boolean) val : defaultValue;
+	}
+
 	/**
 	 * @return 获取当前segment的唯一标识
 	 */
