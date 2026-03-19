@@ -180,8 +180,7 @@ public class ParagraphUnitTest {
 		advise = layout.getAdvise();
 		Assert.assertEquals(advise.getLineSpacingExtra(), 1, 0);
 		Assert.assertEquals(paragraph.getElementCount(), 13);
-		DrawableBox drawableBox = (DrawableBox) paragraph.getElement(0);
-		Emoticon hypeSpan = (Emoticon) drawableBox.getSpan();
+		Emoticon hypeSpan = (Emoticon) paragraph.getElement(0);
 		Assert.assertSame(hypeSpan.getDrawable(), colorDrawable);
 		Glue glue = (Glue) paragraph.getElement(1);
 		glue.measure(mMeasurer, mTextAttribute);

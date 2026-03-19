@@ -127,7 +127,6 @@ public class Texas {
 			// add engine clean code
 			TextBox.clean();
 			Line.clean();
-			DrawableBox.clean();
 			Paragraph.Builder.clean();
 			for (LifecycleCallback callback : LIFECYCLE_CALLBACKS) {
 				try {

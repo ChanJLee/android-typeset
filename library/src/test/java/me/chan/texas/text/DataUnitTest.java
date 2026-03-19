@@ -210,7 +210,7 @@ public class DataUnitTest {
 		Drawable drawable = new ColorDrawable(19);
 
 		Emoticon emoticon = Emoticon.obtain(drawable, 1, 2);
-		DrawableBox drawableBox = (DrawableBox) emoticon.getDrawableBox();
+		DrawableBox drawableBox = emoticon;
 		Assert.assertNotNull(drawableBox);
 		Assert.assertFalse(drawableBox.isRecycled());
 		Assert.assertEquals(drawableBox.getWidth(), 1, 0);
@@ -219,23 +219,21 @@ public class DataUnitTest {
 		DrawableBox p = drawableBox;
 		drawableBox.recycle();
 		Assert.assertTrue(drawableBox.isRecycled());
-		Assert.assertNotSame(drawable, drawableBox.getSpan());
+		Assert.assertNotSame(drawable, drawableBox);
 		Assert.assertNotEquals(drawableBox.getWidth(), 1, 0);
 		Assert.assertNotEquals(drawableBox.getHeight(), 2, 0);
-		Assert.assertNull(drawableBox.getSpan());
 
 		// test recycle twice
 		drawableBox.recycle();
 
 		Emoticon emoticon1 = Emoticon.obtain(drawable, 2, 3);
-		drawableBox = (DrawableBox) emoticon1.getDrawableBox();
-		Assert.assertNotSame(emoticon, drawableBox.getSpan());
+		drawableBox = emoticon1;
+		Assert.assertNotSame(emoticon, drawableBox);
 		Assert.assertFalse(drawableBox.isRecycled());
 		Assert.assertEquals(drawableBox.getWidth(), 2, 0);
 		Assert.assertEquals(drawableBox.getHeight(), 3, 0);
-		Assert.assertSame(p, drawableBox);
-		Assert.assertSame(emoticon1, drawableBox.getSpan());
-		Assert.assertNotSame(drawableBox, DrawableBox.obtain(emoticon1, 1, 2));
+		Assert.assertNotSame(p, drawableBox); /* disable reuse */
+		Assert.assertSame(emoticon1, drawableBox);
 	}
 
 	@Test
@@ -369,7 +367,7 @@ public class DataUnitTest {
 		Assert.assertSame(p, candidate);
 		Assert.assertNotSame(candidate, Candidate.obtain(1, 2, node));
 	}
-	
+
 	private static class MySegment extends ViewSegment {
 
 		public MySegment() {
@@ -378,7 +376,7 @@ public class DataUnitTest {
 
 		@Override
 		protected void onRender(View view) {
-			
+
 		}
 	}
 

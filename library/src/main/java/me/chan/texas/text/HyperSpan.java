@@ -2,11 +2,11 @@ package me.chan.texas.text;
 
 import androidx.annotation.RestrictTo;
 
+import me.chan.texas.measurer.Measurer;
 import me.chan.texas.misc.RectF;
 import me.chan.texas.renderer.core.graphics.TexasCanvas;
 import me.chan.texas.renderer.core.graphics.TexasPaint;
 import me.chan.texas.text.layout.DrawableBox;
-import me.chan.texas.text.layout.Element;
 import me.chan.texas.text.layout.StateList;
 
 /**
@@ -26,32 +26,18 @@ import me.chan.texas.text.layout.StateList;
  * }
  * </code></pre>
  */
-public abstract class HyperSpan implements Measurable {
-	private final DrawableBox mDrawableBox;
+public abstract class HyperSpan extends DrawableBox implements Measurable {
 
 	public HyperSpan() {
-		this(0, 0);
+		super(0, 0);
 	}
 
 	public HyperSpan(float width, float height) {
-		mDrawableBox = DrawableBox.obtain(this, width, height);
-	}
-
-	/**
-	 * @return 超文字的宽
-	 */
-	public final float getWidth() {
-		return mDrawableBox.getWidth();
-	}
-
-	/**
-	 * @return 超文字的高
-	 */
-	public final float getHeight() {
-		return mDrawableBox.getHeight();
+		super(width, height);
 	}
 
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
+	@Override
 	public final void draw(TexasCanvas canvas, TexasPaint paint, RectF inner, RectF outer, float baselineOffset, StateList states) {
 		onDraw(canvas, paint, inner, outer, baselineOffset, states);
 	}
@@ -66,9 +52,9 @@ public abstract class HyperSpan implements Measurable {
 	 */
 	protected abstract void onDraw(TexasCanvas canvas, TexasPaint paint, RectF inner, RectF outer, float baselineOffset, StateList states);
 
-	@RestrictTo(RestrictTo.Scope.LIBRARY)
-	public final void measure(float lineHeight, float baselineOffset) {
-		onMeasure(lineHeight, baselineOffset);
+	@Override
+	protected final void onMeasure(Measurer measurer, TextAttribute textAttribute) {
+		onMeasure(textAttribute.getLineHeight(), textAttribute.getBaselineOffset());
 	}
 
 	/**
@@ -86,32 +72,17 @@ public abstract class HyperSpan implements Measurable {
 	 * @param height 高度
 	 */
 	public final void setMeasuredSize(float width, float height) {
-		mDrawableBox.resize(width, height);
+		mWidth = width;
+		mHeight = height;
 	}
 
+	@Override
 	public float getBaselineOffset() {
 		return 0f;
 	}
 
-	/**
-	 * 设置唯一标识
-	 *
-	 * @param tag tag
-	 */
-	public final void setTag(Object tag) {
-		mDrawableBox.setTag(tag);
-	}
-
-	public final void setBackground(Appearance background) {
-		mDrawableBox.setBackground(background);
-	}
-
-	public final void setForeground(Appearance foreground) {
-		mDrawableBox.setForeground(foreground);
-	}
-
-	@RestrictTo(RestrictTo.Scope.LIBRARY)
-	public final Element getDrawableBox() {
-		return mDrawableBox;
+	@Override
+	public final boolean isIsolate(boolean backward) {
+		return true;
 	}
 }

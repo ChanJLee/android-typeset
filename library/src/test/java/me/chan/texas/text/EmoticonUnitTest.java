@@ -1,7 +1,5 @@
 package me.chan.texas.text;
 
-import android.graphics.Canvas;
-import android.graphics.Paint;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 
@@ -28,9 +26,6 @@ public class EmoticonUnitTest {
 		Drawable drawable1 = new ColorDrawable(20);
 		emoticon.setDrawable(drawable1);
 		Assert.assertSame(drawable1, emoticon.getDrawable());
-
-		DrawableBox drawableBox = (DrawableBox) emoticon.getDrawableBox();
-		Assert.assertSame(drawableBox.getSpan(), emoticon);
 	}
 
 	@Test
@@ -56,20 +51,15 @@ public class EmoticonUnitTest {
 		Assert.assertEquals(emoticon.getHeight(), 2, 0);
 		Assert.assertEquals(emoticon.getDrawable(), colorDrawable);
 
-		DrawableBox drawableBox = (DrawableBox) emoticon.getDrawableBox();
-		Assert.assertNotNull(drawableBox);
-		Assert.assertEquals(drawableBox.getSpan(), emoticon);
-		Assert.assertEquals(drawableBox.getWidth(), 1, 0);
-		Assert.assertEquals(drawableBox.getHeight(), 2, 0);
-		Assert.assertEquals(drawableBox.getTag(), tag);
-		Assert.assertEquals(drawableBox.getForeground(), fg);
-		Assert.assertEquals(drawableBox.getBackground(), bg);
+		Assert.assertEquals(emoticon.getTag(), tag);
+		Assert.assertEquals(emoticon.getForeground(), fg);
+		Assert.assertEquals(emoticon.getBackground(), bg);
 
 		ColorDrawable colorDrawable2 = new ColorDrawable(2);
 		emoticon.setDrawable(colorDrawable2);
 		Assert.assertEquals(emoticon.getDrawable(), colorDrawable2);
 		tag = "fffff";
 		emoticon.setTag(tag);
-		Assert.assertEquals(drawableBox.getTag(), tag);
+		Assert.assertEquals(emoticon.getTag(), tag);
 	}
 }

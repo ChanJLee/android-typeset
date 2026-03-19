@@ -156,7 +156,7 @@ class ParagraphBuilderInternal {
 
 	private void appendHyperSpan(HyperSpan span) {
 		Token token = Token.obtainOtherWord();
-		appendElement(span.getDrawableBox());
+		appendElement(span);
 		mLastToken = token;
 	}
 

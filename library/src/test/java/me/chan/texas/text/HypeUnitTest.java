@@ -30,15 +30,14 @@ public class HypeUnitTest {
 		myHypeSpan.setBackground(bg);
 		myHypeSpan.setForeground(fg);
 		myHypeSpan.setTag(fg);
-		DrawableBox box = (DrawableBox) myHypeSpan.getDrawableBox();
-		Assert.assertEquals(0, box.getWidth(), 0);
-		Assert.assertEquals(0, box.getHeight(), 0);
-		Assert.assertSame(bg, box.getBackground());
-		Assert.assertSame(fg, box.getForeground());
-		Assert.assertSame(fg, box.getTag());
-		myHypeSpan.measure(1, 1);
-		Assert.assertEquals(10, box.getWidth(), 0);
-		Assert.assertEquals(20, box.getHeight(), 0);
+		Assert.assertEquals(0, myHypeSpan.getWidth(), 0);
+		Assert.assertEquals(0, myHypeSpan.getHeight(), 0);
+		Assert.assertSame(bg, myHypeSpan.getBackground());
+		Assert.assertSame(fg, myHypeSpan.getForeground());
+		Assert.assertSame(fg, myHypeSpan.getTag());
+		myHypeSpan.measure();
+		Assert.assertEquals(10, myHypeSpan.getWidth(), 0);
+		Assert.assertEquals(20, myHypeSpan.getHeight(), 0);
 	}
 }
 
@@ -51,6 +50,10 @@ class MyHypeSpan extends HyperSpan {
 
 	@Override
 	protected void onMeasure(float lineHeight, float baselineOffset) {
+		setMeasuredSize(10, 20);
+	}
+
+	public void measure() {
 		setMeasuredSize(10, 20);
 	}
 }
