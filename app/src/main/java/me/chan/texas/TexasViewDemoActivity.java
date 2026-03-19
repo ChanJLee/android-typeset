@@ -26,6 +26,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
 import me.chan.texas.ext.image.Figure;
+import me.chan.texas.renderer.OnClickedListenerAdapter;
 import me.chan.texas.renderer.ParagraphPredicates;
 import me.chan.texas.renderer.RenderOption;
 import me.chan.texas.renderer.SpanTouchEventHandler;
@@ -36,6 +37,7 @@ import me.chan.texas.text.BreakStrategy;
 import me.chan.texas.text.Document;
 import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.Segment;
+import me.chan.texas.text.layout.Box;
 import me.chan.texas.utils.TexasUtils;
 
 public class TexasViewDemoActivity extends AppCompatActivity {
@@ -115,30 +117,30 @@ public class TexasViewDemoActivity extends AppCompatActivity {
 	 * 点击事件
 	 */
 	void setupListener() {
-		mTexasView.setOnClickedListener(new TexasView.OnClickedListener() {
-			@Override
-			public void onSpanClicked(TexasView view, TouchEvent event, Object tag) {
-
-			}
-
-			@Override
-			public void onSpanLongClicked(TexasView view, TouchEvent event, Object tag) {
-
-			}
-
-			@Override
-			public void onSegmentClicked(TexasView view, TouchEvent event, Object tag) {
-				Toast.makeText(TexasViewDemoActivity.this, "点击了Segment", Toast.LENGTH_SHORT).show();
-			}
-
+		mTexasView.setOnClickedListener(new OnClickedListenerAdapter() {
 			@Override
 			public void onEmptyClicked(TexasView view, TouchEvent event) {
 				Toast.makeText(TexasViewDemoActivity.this, "点击了空白", Toast.LENGTH_SHORT).show();
 			}
 
 			@Override
-			public void onSegmentDoubleClicked(TexasView view, TouchEvent event, Object tag) {
-				Toast.makeText(TexasViewDemoActivity.this, "双击", Toast.LENGTH_SHORT).show();
+			public void onSpanClicked(TexasView view, Paragraph paragraph, TouchEvent event, Box box) {
+				Toast.makeText(TexasViewDemoActivity.this, "点击了Span", Toast.LENGTH_SHORT).show();
+			}
+
+			@Override
+			public void onSpanLongClicked(TexasView view, Paragraph paragraph, TouchEvent event, Box box) {
+				Toast.makeText(TexasViewDemoActivity.this, "长按了Span", Toast.LENGTH_SHORT).show();
+			}
+
+			@Override
+			public void onSegmentClicked(TexasView view, TouchEvent event, Segment segment) {
+				Toast.makeText(TexasViewDemoActivity.this, "点击了Segment", Toast.LENGTH_SHORT).show();
+			}
+
+			@Override
+			public void onSegmentDoubleClicked(TexasView view, TouchEvent event, Segment segment) {
+				Toast.makeText(TexasViewDemoActivity.this, "双击了Segment", Toast.LENGTH_SHORT).show();
 			}
 		});
 

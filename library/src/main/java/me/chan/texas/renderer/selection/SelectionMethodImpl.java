@@ -140,12 +140,12 @@ public class SelectionMethodImpl implements OnSelectedChangedListener, Selection
 		}
 
 		if (eventType == OnSelectedChangedListener.EVENT_CLICKED) {
-			mListener.onSegmentClicked(e, paragraph.getTag());
+			mListener.onSegmentClicked(e, paragraph);
 			return true;
 		}
 
 		if (eventType == EVENT_DOUBLE_CLICKED) {
-			mListener.onSegmentDoubleClicked(e, paragraph.getTag());
+			mListener.onSegmentDoubleClicked(e, paragraph);
 			return true;
 		}
 
@@ -170,7 +170,7 @@ public class SelectionMethodImpl implements OnSelectedChangedListener, Selection
 				eventType == OnSelectedChangedListener.EVENT_LONG_CLICKED) {
 			boolean handled = onBoxSelected(e, paragraph, eventType == OnSelectedChangedListener.EVENT_LONG_CLICKED, box);
 			if (!handled && eventType == OnSelectedChangedListener.EVENT_CLICKED && mListener != null) {
-				mListener.onSegmentClicked(e, paragraph.getTag());
+				mListener.onSegmentClicked(e, paragraph);
 				return true;
 			}
 			return handled;
@@ -195,11 +195,11 @@ public class SelectionMethodImpl implements OnSelectedChangedListener, Selection
 				if (isLongClicked) {
 					notifyUpdateSelectionDropView();
 					if (mListener != null) {
-						mListener.onSpanLongClicked(e, box.getTag());
+						mListener.onSpanLongClicked(paragraph, e, box);
 					}
 				} else {
 					if (mListener != null) {
-						mListener.onSpanClicked(e, box.getTag());
+						mListener.onSpanClicked(paragraph, e, box);
 					}
 				}
 			}
@@ -647,9 +647,9 @@ public class SelectionMethodImpl implements OnSelectedChangedListener, Selection
 	}
 
 	public interface Listener {
-		void onSpanClicked(TouchEvent event, Object tag);
+		void onSpanClicked(Paragraph paragraph, TouchEvent event, Box box);
 
-		void onSpanLongClicked(TouchEvent event, Object tag);
+		void onSpanLongClicked(Paragraph paragraph, TouchEvent event, Box box);
 
 		void onDragStart(TouchEvent event);
 
@@ -657,8 +657,8 @@ public class SelectionMethodImpl implements OnSelectedChangedListener, Selection
 
 		void onDragDismiss();
 
-		void onSegmentDoubleClicked(TouchEvent event, Object paragraphTag);
+		void onSegmentDoubleClicked(TouchEvent event, Segment segment);
 
-		void onSegmentClicked(TouchEvent event, Object paragraphTag);
+		void onSegmentClicked(TouchEvent event, Segment segment);
 	}
 }

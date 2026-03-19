@@ -426,7 +426,7 @@ public class RendererAdapterImpl extends RecyclerView.Adapter<RendererAdapterImp
 							return;
 						}
 
-						mListener.onSegmentClicked(event, segment.getTag());
+						mListener.onSegmentClicked(event, segment);
 					}
 
 					@Override
@@ -445,7 +445,7 @@ public class RendererAdapterImpl extends RecyclerView.Adapter<RendererAdapterImp
 							return;
 						}
 
-						mListener.onSegmentDoubleClicked(event, segment.getTag());
+						mListener.onSegmentDoubleClicked(event, segment);
 					}
 				});
 				view = layout.getChildAt(0);
@@ -629,9 +629,9 @@ public class RendererAdapterImpl extends RecyclerView.Adapter<RendererAdapterImp
 	 * 其它由 {@link SegmentItemFragmentLayout}
 	 */
 	public interface Listener {
-		void onSegmentClicked(TouchEvent event, Object tag);
+		void onSegmentClicked(TouchEvent event, Segment segment);
 
-		void onSegmentDoubleClicked(TouchEvent event, Object tag);
+		void onSegmentDoubleClicked(TouchEvent event, Segment segment);
 	}
 
 	public int sendSignal(Segment segment, Object signal) {

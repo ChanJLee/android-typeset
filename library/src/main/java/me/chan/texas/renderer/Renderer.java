@@ -38,6 +38,9 @@ import me.chan.texas.renderer.ui.rv.TexasLinearLayoutManagerImpl;
 import me.chan.texas.renderer.ui.rv.TexasRecyclerViewImpl;
 import me.chan.texas.text.Document;
 import me.chan.texas.renderer.selection.SelectionMethod;
+import me.chan.texas.text.Paragraph;
+import me.chan.texas.text.Segment;
+import me.chan.texas.text.layout.Box;
 import me.chan.texas.utils.TexasUtils;
 import me.chan.texas.utils.concurrency.Worker;
 
@@ -134,13 +137,13 @@ public class Renderer implements SelectionMethodImpl.Listener {
 		mAdapter = new RendererAdapterImpl(token, layoutInflater, mRecyclerView.getRecycledViewPool(), mRecyclerView);
 		mAdapter.setListener(new RendererAdapterImpl.Listener() {
 			@Override
-			public void onSegmentClicked(TouchEvent event, Object tag) {
-				mTexasView.notifySegmentClicked(event, tag);
+			public void onSegmentClicked(TouchEvent event, Segment segment) {
+				mTexasView.notifySegmentClicked(event, segment);
 			}
 
 			@Override
-			public void onSegmentDoubleClicked(TouchEvent event, Object tag) {
-				mTexasView.notifySegmentDoubleClicked(event, tag);
+			public void onSegmentDoubleClicked(TouchEvent event, Segment segment) {
+				mTexasView.notifySegmentDoubleClicked(event, segment);
 			}
 		});
 		mRecyclerView.addItemDecoration(new SegmentItemDecoration(mAdapter));
@@ -487,13 +490,13 @@ public class Renderer implements SelectionMethodImpl.Listener {
 	}
 
 	@Override
-	public void onSpanClicked(TouchEvent event, Object tag) {
-		mTexasView.notifySpanClicked(event, tag);
+	public void onSpanClicked(Paragraph paragraph, TouchEvent event, Box box) {
+		mTexasView.notifySpanClicked(event, paragraph, box);
 	}
 
 	@Override
-	public void onSpanLongClicked(TouchEvent event, Object tag) {
-		mTexasView.notifySpanLongClicked(event, tag);
+	public void onSpanLongClicked(Paragraph paragraph, TouchEvent event, Box box) {
+		mTexasView.notifySpanLongClicked(event, paragraph, box);
 	}
 
 	@Override
@@ -512,13 +515,13 @@ public class Renderer implements SelectionMethodImpl.Listener {
 	}
 
 	@Override
-	public void onSegmentDoubleClicked(TouchEvent event, Object paragraphTag) {
-		mTexasView.notifySegmentDoubleClicked(event, paragraphTag);
+	public void onSegmentDoubleClicked(TouchEvent event, Segment segment) {
+		mTexasView.notifySegmentDoubleClicked(event, segment);
 	}
 
 	@Override
-	public void onSegmentClicked(TouchEvent event, Object paragraphTag) {
-		mTexasView.notifySegmentClicked(event, paragraphTag);
+	public void onSegmentClicked(TouchEvent event, Segment segment) {
+		mTexasView.notifySegmentClicked(event, segment);
 	}
 
 	public void setHasFixedSize(boolean enable) {

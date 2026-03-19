@@ -51,10 +51,12 @@ import me.chan.texas.source.Source;
 import me.chan.texas.text.BreakStrategy;
 import me.chan.texas.text.Document;
 import me.chan.texas.text.HyphenStrategy;
+import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.Segment;
 import me.chan.texas.renderer.selection.SelectionMethod;
 import me.chan.texas.text.TextAttribute;
 import me.chan.texas.text.TextGravity;
+import me.chan.texas.text.layout.Box;
 import me.chan.texas.utils.TexasUtils;
 import me.chan.texas.utils.concurrency.Worker;
 
@@ -94,18 +96,18 @@ public final class TexasView extends FrameLayout {
 	 */
 	public static final int SCROLL_STATE_SETTLING = 2;
 
-	void notifySegmentClicked(TouchEvent event, Object tag) {
+	void notifySegmentClicked(TouchEvent event, Segment segment) {
 		if (mOnClickedListener != null) {
 			event.adjust(this);
-			mOnClickedListener.onSegmentClicked(this, event, tag);
+			mOnClickedListener.onSegmentClicked(this, event, segment);
 		}
 		event.recycle();
 	}
 
-	void notifySegmentDoubleClicked(TouchEvent event, Object tag) {
+	void notifySegmentDoubleClicked(TouchEvent event, Segment segment) {
 		if (mOnClickedListener != null) {
 			event.adjust(this);
-			mOnClickedListener.onSegmentDoubleClicked(this, event, tag);
+			mOnClickedListener.onSegmentDoubleClicked(this, event, segment);
 		}
 		event.recycle();
 	}
@@ -791,19 +793,19 @@ public final class TexasView extends FrameLayout {
 	}
 
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
-	public void notifySpanLongClicked(TouchEvent event, Object tag) {
+	public void notifySpanLongClicked(TouchEvent event, Paragraph paragraph, Box box) {
 		if (mOnClickedListener != null) {
 			event.adjust(this);
-			mOnClickedListener.onSpanLongClicked(this, event, tag);
+			mOnClickedListener.onSpanLongClicked(this, paragraph, event, box);
 		}
 		event.recycle();
 	}
 
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
-	public void notifySpanClicked(TouchEvent event, Object tag) {
+	public void notifySpanClicked(TouchEvent event, Paragraph paragraph, Box box) {
 		if (mOnClickedListener != null) {
 			event.adjust(this);
-			mOnClickedListener.onSpanClicked(this, event, tag);
+			mOnClickedListener.onSpanClicked(this, paragraph, event, box);
 		}
 		event.recycle();
 	}
@@ -1003,25 +1005,27 @@ public final class TexasView extends FrameLayout {
 	 */
 	public interface OnClickedListener {
 		/**
-		 * @param view  view
-		 * @param event touch event
-		 * @param tag   clicked text tag
+		 * @param view      view
+		 * @param paragraph paragraph
+		 * @param event     touch event
+		 * @param box       clicked box
 		 */
-		void onSpanClicked(TexasView view, TouchEvent event, Object tag);
+		void onSpanClicked(TexasView view, Paragraph paragraph, TouchEvent event, Box box);
 
 		/**
-		 * @param view  view
-		 * @param event touch event
-		 * @param tag   clicked text tag
+		 * @param view      view
+		 * @param paragraph paragraph
+		 * @param event     touch event
+		 * @param box       clicked box
 		 */
-		void onSpanLongClicked(TexasView view, TouchEvent event, Object tag);
+		void onSpanLongClicked(TexasView view, Paragraph paragraph, TouchEvent event, Box box);
 
 		/**
-		 * @param view  view
-		 * @param event touch event
-		 * @param tag   clicked segment tag
+		 * @param view    view
+		 * @param event   touch event
+		 * @param segment clicked segment
 		 */
-		void onSegmentClicked(TexasView view, TouchEvent event, Object tag);
+		void onSegmentClicked(TexasView view, TouchEvent event, Segment segment);
 
 		/**
 		 * @param view  view
@@ -1030,11 +1034,11 @@ public final class TexasView extends FrameLayout {
 		void onEmptyClicked(TexasView view, TouchEvent event);
 
 		/**
-		 * @param view  view
-		 * @param event touch event
-		 * @param tag   clicked segment tag
+		 * @param view    view
+		 * @param event   touch event
+		 * @param segment clicked segment
 		 */
-		void onSegmentDoubleClicked(TexasView view, TouchEvent event, Object tag);
+		void onSegmentDoubleClicked(TexasView view, TouchEvent event, Segment segment);
 	}
 
 	/**
