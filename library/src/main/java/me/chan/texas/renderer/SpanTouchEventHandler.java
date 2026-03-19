@@ -21,7 +21,7 @@ public interface SpanTouchEventHandler {
 	 * @param box 点击的box {@link Span#getTag()}
 	 * @return true 表示可以点击
 	 */
-	boolean isSpanClickable(@NonNull Span box);
+	boolean isSpanClickable(@NonNull Span span);
 
 	/**
 	 * @param type    点击类型

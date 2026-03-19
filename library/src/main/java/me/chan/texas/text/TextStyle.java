@@ -18,27 +18,27 @@ public abstract class TextStyle {
 
 	public static final TextStyle NONE = new TextStyle() {
 		@Override
-		public void update(TexasPaint textPaint, @NonNull TextSpan box) {
+		public void update(TexasPaint textPaint, @NonNull TextSpan span) {
 			/* do nothing */
 		}
 	};
 	public static final TextStyle BOLD = new TextStyle() {
 
 		@Override
-		public void update(TexasPaint textPaint, @NonNull TextSpan box) {
+		public void update(TexasPaint textPaint, @NonNull TextSpan span) {
 			textPaint.setFakeBoldText(true);
 		}
 	};
 	public static final TextStyle ITALIC = new TextStyle() {
 		@Override
-		public void update(TexasPaint textPaint, @NonNull TextSpan box) {
+		public void update(TexasPaint textPaint, @NonNull TextSpan span) {
 			textPaint.setTextSkewX(-0.25f);
 		}
 	};
 
 	public static final TextStyle BOLD_ITALIC = new TextStyle() {
 		@Override
-		public void update(TexasPaint textPaint, @NonNull TextSpan box) {
+		public void update(TexasPaint textPaint, @NonNull TextSpan span) {
 			textPaint.setFakeBoldText(true);
 			textPaint.setTextSkewX(-0.25f);
 		}
@@ -65,5 +65,5 @@ public abstract class TextStyle {
 	 * @param box       box
 	 */
 	@AnyThread
-	public abstract void update(@NonNull TexasPaint textPaint, @NonNull TextSpan box);
+	public abstract void update(@NonNull TexasPaint textPaint, @NonNull TextSpan span);
 }

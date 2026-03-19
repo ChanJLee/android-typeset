@@ -167,7 +167,7 @@ public class TypesetterUnitTest {
 			}
 
 			@Override
-			protected void onVisitBox(Span box, RectF inner, RectF outer, @NonNull RendererContext context) {
+			protected void onVisitBox(Span span, RectF inner, RectF outer, @NonNull RendererContext context) {
 
 			}
 		}.visit(paragraph);
@@ -193,7 +193,7 @@ public class TypesetterUnitTest {
 			}
 
 			@Override
-			protected void onVisitBox(Span box, RectF inner, RectF outer, @NonNull RendererContext context) {
+			protected void onVisitBox(Span span, RectF inner, RectF outer, @NonNull RendererContext context) {
 
 			}
 		}.visit(paragraph);
@@ -224,7 +224,7 @@ public class TypesetterUnitTest {
 			}
 
 			@Override
-			protected void onVisitBox(Span box, RectF inner, RectF outer, @NonNull RendererContext context) {
+			protected void onVisitBox(Span span, RectF inner, RectF outer, @NonNull RendererContext context) {
 				if (integer.get() == 2) {
 					Assert.fail("test stop line visit failed");
 				}
@@ -257,7 +257,7 @@ public class TypesetterUnitTest {
 			}
 
 			@Override
-			protected void onVisitBox(Span box, RectF inner, RectF outer, @NonNull RendererContext context) {
+			protected void onVisitBox(Span span, RectF inner, RectF outer, @NonNull RendererContext context) {
 				if (integer.get() > 2) {
 					Assert.fail("test stop line visit failed");
 				}
@@ -288,7 +288,7 @@ public class TypesetterUnitTest {
 			}
 
 			@Override
-			protected void onVisitBox(Span box, RectF inner, RectF outer, @NonNull RendererContext context) {
+			protected void onVisitBox(Span span, RectF inner, RectF outer, @NonNull RendererContext context) {
 				sendVisitSig(ParagraphVisitor.SIG_STOP_PARA_VISIT);
 				tagCount.incrementAndGet();
 			}
@@ -319,7 +319,7 @@ public class TypesetterUnitTest {
 			}
 
 			@Override
-			protected void onVisitBox(Span box, RectF inner, RectF outer, @NonNull RendererContext context) {
+			protected void onVisitBox(Span span, RectF inner, RectF outer, @NonNull RendererContext context) {
 				sendVisitSig(ParagraphVisitor.SIG_STOP_LINE_VISIT);
 				tagCount.incrementAndGet();
 			}
@@ -343,7 +343,7 @@ public class TypesetterUnitTest {
 				for (int k = 0; k < line.getElementCount(); ++k) {
 					Element element = line.getElement(k);
 					if (element instanceof TextSpan) {
-						TextSpan box = (TextSpan) element;
+						TextSpan span = (TextSpan) element;
 						stringBuilder.append(box)
 								.append(" ");
 					}
@@ -485,7 +485,7 @@ public class TypesetterUnitTest {
 						continue;
 					}
 
-					Span box = (Span) element;
+					Span span = (Span) element;
 					String content = box.toString();
 					TextSpan textBox = (TextSpan) box;
 					if (textBox.isPenalty() && textBox.hasAttribute(TextSpan.ATTRIBUTE_PENDED_HYPHEN)) {

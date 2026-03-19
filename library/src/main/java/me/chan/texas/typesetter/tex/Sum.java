@@ -35,8 +35,8 @@ public class Sum extends DefaultRecyclable {
 		POOL.release(this);
 	}
 
-	public void increase(Span box) {
-		mWidth += box.getWidth();
+	public void increase(Span span) {
+		mWidth += span.getWidth();
 	}
 
 	public void increase(Glue glue) {

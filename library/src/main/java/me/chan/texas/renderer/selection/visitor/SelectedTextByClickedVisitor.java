@@ -20,8 +20,8 @@ public class SelectedTextByClickedVisitor extends SelectedVisitor {
 	}
 
 	@Override
-	protected boolean selected(Span box, RectF inner, RectF outer) {
-		boolean result = mPredicate.accept(mClickedTag, box);
+	protected boolean selected(Span span, RectF inner, RectF outer) {
+		boolean result = mPredicate.accept(mClickedTag, span);
 		if (result) {
 			mHandled = true;
 		}

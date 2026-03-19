@@ -20,5 +20,5 @@ public interface OnSelectedChangedListener {
 
 	boolean onParagraphSelected(@NonNull TouchEvent event, @NonNull Paragraph paragraph, @EventType int eventType);
 
-	boolean onBoxSelected(@NonNull TouchEvent event, @NonNull Paragraph paragraph, @EventType int eventType, @NonNull Span box);
+	boolean onBoxSelected(@NonNull TouchEvent event, @NonNull Paragraph paragraph, @EventType int eventType, @NonNull Span span);
 }

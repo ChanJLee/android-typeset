@@ -13,7 +13,7 @@ public interface ParagraphPredicates {
 	 * @return 是否选中，这个函数必须是幂等的
 	 */
 	@Idempotent
-	boolean acceptSpan(@NonNull Span box);
+	boolean acceptSpan(@NonNull Span span);
 
 	/**
 	 * @param paragraphTag {@link me.chan.texas.text.Paragraph.Builder#tag(Object)}

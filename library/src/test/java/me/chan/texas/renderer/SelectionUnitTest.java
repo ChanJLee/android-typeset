@@ -66,7 +66,7 @@ public class SelectionUnitTest {
 		ParagraphSelection paragraphSelection = ParagraphSelection.obtain(Selection.Type.SELECTION, Selection.Styles.createFromTouch(renderOption, true), paragraph);
 
 		Assert.assertTrue(paragraphSelection.isEmpty());
-		Span box = TextSpan.obtain(
+		Span span = TextSpan.obtain(
 				"fuck",
 				0,
 				1,
@@ -80,7 +80,7 @@ public class SelectionUnitTest {
 		Assert.assertSame(paragraphSelection.getLastBox(), box);
 		Assert.assertSame(paragraphSelection.getFirstBox(), box);
 
-		Span box2 = TextSpan.obtain(
+		Span span2 = TextSpan.obtain(
 				"fuck",
 				0,
 				2,
@@ -103,7 +103,7 @@ public class SelectionUnitTest {
 		for (int i = 0; i < 10; ++i) {
 			Element element = paragraph.getElement(i);
 			if (element instanceof Span) {
-				Span box1 = (Span) element;
+				Span span1 = (Span) element;
 				set.add(box1);
 				paragraphSelection.appendBox(box1);
 			}
@@ -161,7 +161,7 @@ public class SelectionUnitTest {
 		}
 
 		@Override
-		protected void onVisitBox(Span box, RectF inner, RectF outer, @NonNull RendererContext context) {
+		protected void onVisitBox(Span span, RectF inner, RectF outer, @NonNull RendererContext context) {
 			if (mParagraphSelection.isSelected(box)) {
 				++mCount;
 				Assert.assertTrue(mBoxes.contains(box));
@@ -206,7 +206,7 @@ public class SelectionUnitTest {
 		}
 
 		@Override
-		protected void onVisitBox(Span box, RectF inner, RectF outer, @NonNull RendererContext context) {
+		protected void onVisitBox(Span span, RectF inner, RectF outer, @NonNull RendererContext context) {
 			if (mParagraphSelection.isSelected(box)) {
 				++mCount;
 				Assert.assertTrue(mBoxes.contains(box.getTag()));

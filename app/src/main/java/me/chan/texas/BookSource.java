@@ -150,7 +150,7 @@ public class BookSource extends TexasView.DocumentSource {
 				.next("QWERTYUIOPASDFGHJKLZXCVBNM")
 				.setTextStyle(new TextStyle() {
 					@Override
-					public void update(@NonNull TexasPaint textPaint, TextSpan box) {
+					public void update(@NonNull TexasPaint textPaint, TextSpan span) {
 						textPaint.setTextSize(120);
 						textPaint.setFakeBoldText(true);
 					}
@@ -460,14 +460,14 @@ public class BookSource extends TexasView.DocumentSource {
 						paint.setColor(Color.GREEN);
 
 						// 独立的单元，左右都要有圆角
-						Span box = context.getBox();
-						if (box.isIsolate(true) && box.isIsolate(false)) {
+						Span span = context.getSpan();
+						if (span.isIsolate(true) && span.isIsolate(false)) {
 							canvas.drawRoundRect(outer.left, outer.top, outer.right, outer.bottom, 20, 20, paint);
 							return;
 						}
 
 						// 前面没有单词
-						if (box.isIsolate(false)) {
+						if (span.isIsolate(false)) {
 							mPath.reset();
 							mPath.addRoundRect(
 									outer.left, outer.top, outer.right, outer.bottom,
@@ -475,7 +475,7 @@ public class BookSource extends TexasView.DocumentSource {
 									Path.Direction.CW
 							);
 							canvas.drawPath(mPath, paint);
-						} else if (box.isIsolate(true)) {
+						} else if (span.isIsolate(true)) {
 							// 后面没有单词
 							mPath.reset();
 							mPath.addRoundRect(
@@ -546,9 +546,9 @@ public class BookSource extends TexasView.DocumentSource {
 				Layout layout = paragraph.getLayout();
 				for (int l = 0; l < layout.getLineCount(); ++l) {
 					Line line = layout.getLine(l);
-					for (int b = 0; b < line.getBoxCount(); ++b) {
-						Span box = line.getBox(b);
-						Object spanTag = box.getTag();
+					for (int b = 0; b < line.getSpanCount(); ++b) {
+						Span span = line.getSpan(b);
+						Object spanTag = span.getTag();
 						if (!(spanTag instanceof BookSource.SpanTag)) {
 							continue;
 						}
@@ -558,7 +558,7 @@ public class BookSource extends TexasView.DocumentSource {
 							continue;
 						}
 
-						RectF spanOuter = box.getOuterBounds();
+						RectF spanOuter = span.getOuterBounds();
 						mDraw = true;
 						mDest.set(decorOuter.right - 20, (int) spanOuter.bottom - 40, decorOuter.right + 20, (int) spanOuter.bottom);
 						return;
@@ -595,8 +595,8 @@ public class BookSource extends TexasView.DocumentSource {
 				} else if (action == MotionEvent.ACTION_UP) {
 					mTexasView.selectParagraphs(new ParagraphPredicates() {
 						@Override
-						public boolean acceptSpan(@NonNull Span box) {
-							Object spanTag = box.getTag();
+						public boolean acceptSpan(@NonNull Span span) {
+							Object spanTag = span.getTag();
 							if (!(spanTag instanceof BookSource.SpanTag)) {
 								return false;
 							}

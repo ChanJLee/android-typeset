@@ -157,18 +157,18 @@ public class SelectionMethodImpl implements OnSelectedChangedListener, Selection
 	 *
 	 * @param e         点击事件
 	 * @param paragraph paragraph
-	 * @param box       被选中的box
+	 * @param span       被选中的box
 	 * @return 是否有box被选中
 	 */
 	@Override
-	public boolean onBoxSelected(@NonNull TouchEvent e, @NonNull Paragraph paragraph, @EventType int eventType, @NonNull Span box) {
+	public boolean onBoxSelected(@NonNull TouchEvent e, @NonNull Paragraph paragraph, @EventType int eventType, @NonNull Span span) {
 		if (paragraph == null) {
 			return false;
 		}
 
 		if (eventType == OnSelectedChangedListener.EVENT_CLICKED ||
 				eventType == OnSelectedChangedListener.EVENT_LONG_CLICKED) {
-			boolean handled = onBoxSelected(e, paragraph, eventType == OnSelectedChangedListener.EVENT_LONG_CLICKED, box);
+			boolean handled = onBoxSelected(e, paragraph, eventType == OnSelectedChangedListener.EVENT_LONG_CLICKED, span);
 			if (!handled && eventType == OnSelectedChangedListener.EVENT_CLICKED && mListener != null) {
 				mListener.onSegmentClicked(e, paragraph);
 				return true;
@@ -179,7 +179,7 @@ public class SelectionMethodImpl implements OnSelectedChangedListener, Selection
 		return false;
 	}
 
-	private boolean onBoxSelected(TouchEvent e, Paragraph paragraph, boolean isLongClicked, Span box) {
+	private boolean onBoxSelected(TouchEvent e, Paragraph paragraph, boolean isLongClicked, Span span) {
 		SpanPredicate predicate = isLongClicked ? mOnSpanLongClickedPredicate : mOnSpanClickedPredicate;
 		clearSelection();
 
@@ -188,18 +188,18 @@ public class SelectionMethodImpl implements OnSelectedChangedListener, Selection
 
 		boolean handled = false;
 		try {
-			handled = handleParagraphClicked(paragraph, predicate, box, selection);
+			handled = handleParagraphClicked(paragraph, predicate, span, selection);
 			if (handled) {
 				setSelection(Selection.Type.SELECTION, selection);
 
 				if (isLongClicked) {
 					notifyUpdateSelectionDropView();
 					if (mListener != null) {
-						mListener.onSpanLongClicked(paragraph, e, box);
+						mListener.onSpanLongClicked(paragraph, e, span);
 					}
 				} else {
 					if (mListener != null) {
-						mListener.onSpanClicked(paragraph, e, box);
+						mListener.onSpanClicked(paragraph, e, span);
 					}
 				}
 			}
@@ -212,7 +212,7 @@ public class SelectionMethodImpl implements OnSelectedChangedListener, Selection
 
 	private boolean handleParagraphClicked(Paragraph paragraph,
 										   SpanPredicate predicate,
-										   Span box,
+										   Span span,
 										   Selection selection) throws ParagraphVisitor.VisitException {
 		Document document = mAdapter.getDocument();
 		if (document == null) {
@@ -220,13 +220,13 @@ public class SelectionMethodImpl implements OnSelectedChangedListener, Selection
 		}
 
 		RenderOption renderOption = mAdapter.getRenderOption();
-		return handleParagraphClicked0(paragraph, renderOption, predicate, box, selection);
+		return handleParagraphClicked0(paragraph, renderOption, predicate, span, selection);
 	}
 
 	private boolean handleParagraphClicked0(Paragraph paragraph,
 											RenderOption renderOption,
 											SpanPredicate predicate,
-											Span box,
+											Span span,
 											Selection selection) throws ParagraphVisitor.VisitException {
 		try {
 			mSelectedTextByClickedVisitor.reset(
@@ -235,7 +235,7 @@ public class SelectionMethodImpl implements OnSelectedChangedListener, Selection
 					paragraph,
 					renderOption
 			);
-			mSelectedTextByClickedVisitor.setPredicate(predicate, box);
+			mSelectedTextByClickedVisitor.setPredicate(predicate, span);
 			mSelectedTextByClickedVisitor.startVisit(
 					paragraph
 			);
@@ -647,9 +647,9 @@ public class SelectionMethodImpl implements OnSelectedChangedListener, Selection
 	}
 
 	public interface Listener {
-		void onSpanClicked(Paragraph paragraph, TouchEvent event, Span box);
+		void onSpanClicked(Paragraph paragraph, TouchEvent event, Span span);
 
-		void onSpanLongClicked(Paragraph paragraph, TouchEvent event, Span box);
+		void onSpanLongClicked(Paragraph paragraph, TouchEvent event, Span span);
 
 		void onDragStart(TouchEvent event);
 

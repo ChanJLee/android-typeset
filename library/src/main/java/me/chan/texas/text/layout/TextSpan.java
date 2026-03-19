@@ -140,25 +140,25 @@ public final class TextSpan extends Span {
 	}
 
 	@RestrictTo(LIBRARY)
-	public boolean merge(@NonNull TextSpan box) {
-		if (this.mGroupId != box.mGroupId) {
+	public boolean merge(@NonNull TextSpan span) {
+		if (this.mGroupId != span.mGroupId) {
 			if (BuildConfig.DEBUG) {
-				throw new IllegalStateException("can't merge text box with difference group id");
+				throw new IllegalStateException("can't merge text span with difference group id");
 			}
 			return false;
 		}
 
 		// 目前因为符号问题不能合并的case大概占比 1%不到
 		// 但是能提高 30% 后续遍历的性能
-		if (mAttribute != box.mAttribute) {
+		if (mAttribute != span.mAttribute) {
 			return false;
 		}
 
-		this.mWidth += box.mWidth;
-		this.mHeight = Math.max(this.mHeight, box.mHeight);
-		this.mEnd = box.mEnd;
-		this.mAttribute |= box.mAttribute;
-		this.mBaselineOffset = Math.max(this.mBaselineOffset, box.mBaselineOffset);
+		this.mWidth += span.mWidth;
+		this.mHeight = Math.max(this.mHeight, span.mHeight);
+		this.mEnd = span.mEnd;
+		this.mAttribute |= span.mAttribute;
+		this.mBaselineOffset = Math.max(this.mBaselineOffset, span.mBaselineOffset);
 		return true;
 	}
 
@@ -193,15 +193,15 @@ public final class TextSpan extends Span {
 		if (o == null || getClass() != o.getClass()) return false;
 		if (!super.equals(o)) return false;
 
-		TextSpan textBox = (TextSpan) o;
+		TextSpan textspan = (TextSpan) o;
 
-		if (mStart != textBox.mStart) return false;
-		if (mEnd != textBox.mEnd) return false;
-		if (Float.compare(textBox.mBaselineOffset, mBaselineOffset) != 0) return false;
-		if (mAttribute != textBox.mAttribute) return false;
-		if (mText != null ? !mText.equals(textBox.mText) : textBox.mText != null) return false;
-		if (mGroupId != textBox.mGroupId) return false;
-		return mTextStyle != null ? mTextStyle.equals(textBox.mTextStyle) : textBox.mTextStyle == null;
+		if (mStart != textspan.mStart) return false;
+		if (mEnd != textspan.mEnd) return false;
+		if (Float.compare(textspan.mBaselineOffset, mBaselineOffset) != 0) return false;
+		if (mAttribute != textspan.mAttribute) return false;
+		if (mText != null ? !mText.equals(textspan.mText) : textspan.mText != null) return false;
+		if (mGroupId != textspan.mGroupId) return false;
+		return mTextStyle != null ? mTextStyle.equals(textspan.mTextStyle) : textspan.mTextStyle == null;
 	}
 
 	@Override
@@ -224,7 +224,7 @@ public final class TextSpan extends Span {
 	public void merge(Penalty penalty) {
 		// check tag ?
 		if (isPenalty()) {
-			throw new IllegalStateException("set text box penalty twice");
+			throw new IllegalStateException("set text span penalty twice");
 		}
 
 		if (penalty.getWidth() == 0) {
@@ -242,12 +242,12 @@ public final class TextSpan extends Span {
 	}
 
 	@RestrictTo(LIBRARY)
-	public boolean isSameGroup(TextSpan box) {
+	public boolean isSameGroup(TextSpan span) {
 		if (mGroupId == Hyphenation.NONE_GROUP_ID) {
 			return false;
 		}
 
-		return mGroupId == box.mGroupId;
+		return mGroupId == span.mGroupId;
 	}
 
 	@Override
@@ -320,25 +320,25 @@ public final class TextSpan extends Span {
 								  Appearance background,
 								  Appearance foreground,
 								  int groupId) {
-		TextSpan box = POOL.acquire();
-		if (box == null) {
-			box = new TextSpan(charSequence, start, end, 0, 0, textStyle);
+		TextSpan span = POOL.acquire();
+		if (span == null) {
+			span = new TextSpan(charSequence, start, end, 0, 0, textStyle);
 		}
-		box.mWidth = 0;
-		box.mHeight = 0;
-		box.mTag = tag;
-		box.mBackground = background;
-		box.mForeground = foreground;
+		span.mWidth = 0;
+		span.mHeight = 0;
+		span.mTag = tag;
+		span.mBackground = background;
+		span.mForeground = foreground;
 
-		box.mText = charSequence;
-		box.mStart = start;
-		box.mEnd = end;
-		box.mTextStyle = textStyle;
+		span.mText = charSequence;
+		span.mStart = start;
+		span.mEnd = end;
+		span.mTextStyle = textStyle;
 
-		box.mGroupId = groupId;
+		span.mGroupId = groupId;
 
-		box.reuse();
-		return box;
+		span.reuse();
+		return span;
 	}
 
 	@Override
@@ -354,13 +354,13 @@ public final class TextSpan extends Span {
 
 	@RestrictTo(LIBRARY)
 	public static TextSpan obtain(TextSpan raw) {
-		TextSpan box = POOL.acquire();
-		if (box == null) {
-			box = new TextSpan(0, 0);
+		TextSpan span = POOL.acquire();
+		if (span == null) {
+			span = new TextSpan(0, 0);
 		}
-		box.reuse();
-		box.copy(raw);
-		return box;
+		span.reuse();
+		span.copy(raw);
+		return span;
 	}
 
 	@RestrictTo(LIBRARY)

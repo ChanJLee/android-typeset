@@ -23,12 +23,12 @@ import me.chan.texas.text.layout.Span;
 public class OnClickedListenerAdapter implements TexasView.OnClickedListener {
 
 	@Override
-	public void onSpanClicked(@NonNull TexasView view, @NonNull Paragraph paragraph, @NonNull TouchEvent event, @NonNull Span box) {
+	public void onSpanClicked(@NonNull TexasView view, @NonNull Paragraph paragraph, @NonNull TouchEvent event, @NonNull Span span) {
 
 	}
 
 	@Override
-	public void onSpanLongClicked(@NonNull TexasView view, @NonNull Paragraph paragraph, @NonNull TouchEvent event, @NonNull Span box) {
+	public void onSpanLongClicked(@NonNull TexasView view, @NonNull Paragraph paragraph, @NonNull TouchEvent event, @NonNull Span span) {
 
 	}
 

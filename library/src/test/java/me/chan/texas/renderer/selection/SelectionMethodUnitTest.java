@@ -330,7 +330,7 @@ public class SelectionMethodUnitTest {
 		Assert.assertFalse(mSelectionManager.onParagraphSelected(touchEvent, paragraph, OnSelectedChangedListener.EVENT_LONG_CLICKED));
 		Assert.assertEquals(mSelectionListener.mEvent, SelectionEvent.SEGMENT_DOUBLE_CLICKED);
 
-		Span box = (Span) paragraph.getElement(0);
+		Span span = (Span) paragraph.getElement(0);
 		Assert.assertTrue(mSelectionManager.onBoxSelected(touchEvent, paragraph, OnSelectedChangedListener.EVENT_LONG_CLICKED, box));
 		Assert.assertEquals(SelectionEvent.SPAN_LONG_CLICKED, mSelectionListener.mEvent);
 		Assert.assertNotNull(paragraph.getSelection(Selection.Type.SELECTION));
@@ -386,7 +386,7 @@ public class SelectionMethodUnitTest {
 		Assert.assertFalse(mSelectionManager.onParagraphSelected(touchEvent, paragraph, OnSelectedChangedListener.EVENT_LONG_CLICKED));
 		Assert.assertEquals(mSelectionListener.mEvent, SelectionEvent.SEGMENT_DOUBLE_CLICKED);
 
-		Span box = (Span) paragraph.getElement(0);
+		Span span = (Span) paragraph.getElement(0);
 		Assert.assertTrue(mSelectionManager.onBoxSelected(touchEvent, paragraph, OnSelectedChangedListener.EVENT_LONG_CLICKED, box));
 		Assert.assertEquals(SelectionEvent.SPAN_LONG_CLICKED, mSelectionListener.mEvent);
 		Assert.assertNotNull(paragraph.getSelection(Selection.Type.SELECTION));

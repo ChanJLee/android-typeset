@@ -94,7 +94,7 @@ public class SingleParagraphActivity extends AppCompatActivity {
 		});
 		paragraphView.setSpanTouchEventHandler(new SpanTouchEventHandler() {
 			@Override
-			public boolean isSpanClickable(@NonNull Span box) {
+			public boolean isSpanClickable(@NonNull Span span) {
 				return true;
 			}
 

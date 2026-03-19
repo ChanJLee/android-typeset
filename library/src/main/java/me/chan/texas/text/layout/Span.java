@@ -144,12 +144,12 @@ public abstract class Span extends DefaultRecyclable implements Box {
 	public boolean equals(Object o) {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
-		Span box = (Span) o;
-		return Float.compare(box.mWidth, mWidth) == 0 &&
-				Float.compare(box.mHeight, mHeight) == 0 &&
-				TexasUtils.equals(mTag, box.mTag) &&
-				TexasUtils.equals(mBackground, box.mBackground) &&
-				TexasUtils.equals(mForeground, box.mForeground);
+		Span span = (Span) o;
+		return Float.compare(span.mWidth, mWidth) == 0 &&
+				Float.compare(span.mHeight, mHeight) == 0 &&
+				TexasUtils.equals(mTag, span.mTag) &&
+				TexasUtils.equals(mBackground, span.mBackground) &&
+				TexasUtils.equals(mForeground, span.mForeground);
 	}
 
 	@RestrictTo(LIBRARY)

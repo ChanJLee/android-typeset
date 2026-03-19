@@ -35,8 +35,8 @@ public class PredicatesDriveSelectedVisitor extends SelectedVisitor {
 	}
 
 	@Override
-	protected boolean selected(Span box, RectF inner, RectF outer) {
-		return mPredicates.acceptSpan(box);
+	protected boolean selected(Span span, RectF inner, RectF outer) {
+		return mPredicates.acceptSpan(span);
 	}
 
 	@Override

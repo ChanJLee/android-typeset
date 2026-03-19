@@ -17,7 +17,7 @@ public class SymbolGlueUnitTest {
 		MockMeasurer measurer = new MockMeasurer(mockTextPaint);
 		TextAttribute textAttribute = new TextAttribute(measurer);
 
-		TextSpan box = TextSpan.obtain("《", 0, 1, null, null, null, null);
+		TextSpan span = TextSpan.obtain("《", 0, 1, null, null, null, null);
 		box.measure(measurer, textAttribute);
 		Assert.assertEquals(box.getWidth(), 2, 0);
 

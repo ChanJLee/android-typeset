@@ -479,7 +479,7 @@ public class ParagraphUnitTest {
 			builder.text(">《");
 			Paragraph paragraph = builder.build();
 			checkContent(paragraph, ">", Penalty.FORBIDDEN_BREAK, blank, Penalty.FORBIDDEN_BREAK, "《", Glue.TERMINAL, Penalty.FORCE_BREAK);
-			TextSpan box = (TextSpan) paragraph.getElement(0);
+			TextSpan span = (TextSpan) paragraph.getElement(0);
 			Assert.assertEquals(box.getAttribute(), 0);
 			box = (TextSpan) paragraph.getElement(4);
 			Assert.assertTrue(box.hasAttribute(TextSpan.ATTRIBUTE_SQUISH_LEFT));
@@ -536,7 +536,7 @@ public class ParagraphUnitTest {
 			builder.text("》《");
 			Paragraph paragraph = builder.build();
 			checkContent(paragraph, "》", SymbolGlue.class, "《", Glue.TERMINAL, Penalty.FORCE_BREAK);
-			TextSpan box = (TextSpan) paragraph.getElement(0);
+			TextSpan span = (TextSpan) paragraph.getElement(0);
 			Assert.assertEquals(box.getAttribute(), TextSpan.ATTRIBUTE_SQUISH_RIGHT);
 			box = (TextSpan) paragraph.getElement(2);
 			Assert.assertTrue(box.hasAttribute(TextSpan.ATTRIBUTE_SQUISH_LEFT));
@@ -593,7 +593,7 @@ public class ParagraphUnitTest {
 			builder.text("<《");
 			Paragraph paragraph = builder.build();
 			checkContent(paragraph, "<", Penalty.FORBIDDEN_BREAK, "《", Glue.TERMINAL, Penalty.FORCE_BREAK);
-			TextSpan box = (TextSpan) paragraph.getElement(0);
+			TextSpan span = (TextSpan) paragraph.getElement(0);
 			Assert.assertEquals(box.getAttribute(), 0);
 			box = (TextSpan) paragraph.getElement(2);
 			Assert.assertTrue(box.hasAttribute(TextSpan.ATTRIBUTE_SQUISH_LEFT));
@@ -650,7 +650,7 @@ public class ParagraphUnitTest {
 			builder.text("《《");
 			Paragraph paragraph = builder.build();
 			checkContent(paragraph, "《", Penalty.FORBIDDEN_BREAK, "《", Glue.TERMINAL, Penalty.FORCE_BREAK);
-			TextSpan box = (TextSpan) paragraph.getElement(0);
+			TextSpan span = (TextSpan) paragraph.getElement(0);
 			Assert.assertTrue(box.hasAttribute(TextSpan.ATTRIBUTE_SQUISH_LEFT));
 			box = (TextSpan) paragraph.getElement(2);
 			Assert.assertTrue(box.hasAttribute(TextSpan.ATTRIBUTE_SQUISH_LEFT));
@@ -707,7 +707,7 @@ public class ParagraphUnitTest {
 			builder.text("《");
 			Paragraph paragraph = builder.build();
 			checkContent(paragraph, "《", Glue.TERMINAL, Penalty.FORCE_BREAK);
-			TextSpan box = (TextSpan) paragraph.getElement(0);
+			TextSpan span = (TextSpan) paragraph.getElement(0);
 			Assert.assertEquals(box.getAttribute(), TextSpan.ATTRIBUTE_SQUISH_LEFT);
 
 			builder = Paragraph.Builder.newBuilder(texasOption);
@@ -737,7 +737,7 @@ public class ParagraphUnitTest {
 		builder.text("》《");
 		Paragraph paragraph = builder.build();
 		checkContent(paragraph, "》", SymbolGlue.class, "《", Glue.TERMINAL, Penalty.FORCE_BREAK);
-		TextSpan box = (TextSpan) paragraph.getElement(0);
+		TextSpan span = (TextSpan) paragraph.getElement(0);
 		Assert.assertEquals(box.getAttribute(), TextSpan.ATTRIBUTE_SQUISH_RIGHT);
 		box = (TextSpan) paragraph.getElement(2);
 		Assert.assertTrue(box.hasAttribute(TextSpan.ATTRIBUTE_SQUISH_LEFT));
@@ -1057,7 +1057,7 @@ public class ParagraphUnitTest {
 		Assert.assertEquals(paragraph.getElementCount(), elements.length);
 		for (int i = 0; i < elements.length; ++i) {
 			if (elements[i] instanceof String) {
-				TextSpan box = (TextSpan) paragraph.getElement(i);
+				TextSpan span = (TextSpan) paragraph.getElement(i);
 				Assert.assertEquals(elements[i], box.toString());
 			} else if (elements[i] == SymbolGlue.class) {
 				Assert.assertTrue(paragraph.getElement(i) instanceof SymbolGlue);
@@ -1373,8 +1373,8 @@ public class ParagraphUnitTest {
 			}
 
 			@Override
-			protected void onVisitBox(Span box, RectF inner, RectF outer, @NonNull RendererContext context) {
-				Assert.assertSame(box, context.getBox());
+			protected void onVisitBox(Span span, RectF inner, RectF outer, @NonNull RendererContext context) {
+				Assert.assertSame(box, context.getSpan());
 				if ("1".equals(box.toString())) {
 					Assert.assertTrue(context.checkLocation(RendererContext.LOCATION_LINE_START));
 					Assert.assertFalse(context.checkLocation(RendererContext.LOCATION_LINE_END));
@@ -1503,7 +1503,7 @@ public class ParagraphUnitTest {
 			}
 
 			@Override
-			protected void onVisitBox(Span box, RectF inner, RectF outer, @NonNull RendererContext context) {
+			protected void onVisitBox(Span span, RectF inner, RectF outer, @NonNull RendererContext context) {
 				Assert.assertTrue(context.checkLocation(RendererContext.LOCATION_LINE_START));
 				Assert.assertTrue(context.checkLocation(RendererContext.LOCATION_LINE_END));
 				Assert.assertFalse(context.checkLocation(RendererContext.LOCATION_LINE_MIDDLE));

@@ -793,19 +793,19 @@ public final class TexasView extends FrameLayout {
 	}
 
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
-	public void notifySpanLongClicked(TouchEvent event, Paragraph paragraph, Span box) {
+	public void notifySpanLongClicked(TouchEvent event, Paragraph paragraph, Span span) {
 		if (mOnClickedListener != null) {
 			event.adjust(this);
-			mOnClickedListener.onSpanLongClicked(this, paragraph, event, box);
+			mOnClickedListener.onSpanLongClicked(this, paragraph, event, span);
 		}
 		event.recycle();
 	}
 
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
-	public void notifySpanClicked(TouchEvent event, Paragraph paragraph, Span box) {
+	public void notifySpanClicked(TouchEvent event, Paragraph paragraph, Span span) {
 		if (mOnClickedListener != null) {
 			event.adjust(this);
-			mOnClickedListener.onSpanClicked(this, paragraph, event, box);
+			mOnClickedListener.onSpanClicked(this, paragraph, event, span);
 		}
 		event.recycle();
 	}
@@ -1008,17 +1008,17 @@ public final class TexasView extends FrameLayout {
 		 * @param view      view
 		 * @param paragraph paragraph
 		 * @param event     touch event
-		 * @param box       clicked box
+		 * @param span       clicked span
 		 */
-		void onSpanClicked(@NonNull TexasView view, @NonNull Paragraph paragraph, @NonNull TouchEvent event, @NonNull Span box);
+		void onSpanClicked(@NonNull TexasView view, @NonNull Paragraph paragraph, @NonNull TouchEvent event, @NonNull Span span);
 
 		/**
 		 * @param view      view
 		 * @param paragraph paragraph
 		 * @param event     touch event
-		 * @param box       clicked box
+		 * @param span       clicked span
 		 */
-		void onSpanLongClicked(@NonNull TexasView view, @NonNull Paragraph paragraph, @NonNull TouchEvent event, @NonNull Span box);
+		void onSpanLongClicked(@NonNull TexasView view, @NonNull Paragraph paragraph, @NonNull TouchEvent event, @NonNull Span span);
 
 		/**
 		 * @param view    view

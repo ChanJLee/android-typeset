@@ -225,11 +225,11 @@ public class ParagraphViewMotion {
 		}
 
 		@Override
-		public void onVisitBox(Span box, RectF inner, RectF outer, @NonNull RendererContext context) {
+		public void onVisitBox(Span span, RectF inner, RectF outer, @NonNull RendererContext context) {
 			// 增大点击热区
 			if (outer.left <= mX &&
 					outer.right >= mX) {
-				mBox = box;
+				mBox = span;
 				sendVisitSig(SIG_STOP_PARA_VISIT);
 			}
 		}
@@ -262,10 +262,10 @@ public class ParagraphViewMotion {
 
 			float x = e.getX();
 			float y = e.getY();
-			Span box = checkIfClicked(x, y);
-			if (box != null) {
-				if (handler.isSpanClickable(box)) {
-					mLastTouchBox = box;
+			Span span = checkIfClicked(x, y);
+			if (span != null) {
+				if (handler.isSpanClickable(span)) {
+					mLastTouchBox = span;
 					mMode = MODE_BOX;
 					return true;
 				}

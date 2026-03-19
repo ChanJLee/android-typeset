@@ -829,8 +829,8 @@ public final class Paragraph extends Segment {
 				continue;
 			}
 
-			Span box = (Span) element;
-			if (predicate.test(box)) {
+			Span span = (Span) element;
+			if (predicate.test(span)) {
 				paragraphs.add(fork(start, end + 1));
 				start = end + 1;
 			}

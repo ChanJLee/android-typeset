@@ -486,21 +486,21 @@ class ParagraphBuilderInternal {
 					continue;
 				}
 
-				TextSpan box = TextSpan.obtain(text, start, point,
+				TextSpan span = TextSpan.obtain(text, start, point,
 						textStyle,
 						tag,
 						background,
 						foreground,
 						groupId
 				);
-				appendElement(box);
+				appendElement(span);
 				if (j != size - 1) {
 					if (UnicodeUtils.isHyphen(text.charAt(point - 1))) {
-						box.addAttribute(TextSpan.ATTRIBUTE_PENALTY);
+						span.addAttribute(TextSpan.ATTRIBUTE_PENALTY);
 						appendElement(Penalty.obtainFakePenalty(Texas.HYPHEN_PENALTY));
 					} else {
 						appendElement(Penalty.obtain(Texas.HYPHEN_PENALTY,
-								box,
+								span,
 								textStyle
 						));
 					}
@@ -811,14 +811,14 @@ class ParagraphBuilderInternal {
 					Penalty.FORBIDDEN_BREAK : Penalty.ADVISE_BREAK;
 
 			// 生成一个 symbol
-			TextSpan box = builder.obtainSymbolTextBox(text, spanReader, current);
+			TextSpan span = builder.obtainSymbolTextBox(text, spanReader, current);
 			if (checkSymbolTokenAttributeSafe(current, Token.SYMBOL_ATTRIBUTE_SQUISH_LEFT)) {
 				if (builder.mRenderOption.isFullWithSymbolOptimizationEnable()) {
-					box.addAttribute(TextSpan.ATTRIBUTE_SQUISH_LEFT);
+					span.addAttribute(TextSpan.ATTRIBUTE_SQUISH_LEFT);
 				}
 			} else if (checkSymbolTokenAttributeSafe(current, Token.SYMBOL_ATTRIBUTE_SQUISH_RIGHT)) {
 				if (builder.mRenderOption.isFullWithSymbolOptimizationEnable()) {
-					box.addAttribute(TextSpan.ATTRIBUTE_SQUISH_RIGHT);
+					span.addAttribute(TextSpan.ATTRIBUTE_SQUISH_RIGHT);
 				}
 			}
 
@@ -835,7 +835,7 @@ class ParagraphBuilderInternal {
 				if (checkSymbolTokenAttributeSafe(current, Token.SYMBOL_ATTRIBUTE_SQUISH_LEFT)) {
 					if (builder.mRenderOption.isFullWithSymbolOptimizationEnable()) {
 						builder.appendElementExcludeAdvise(adviseElement);
-						builder.appendElement(SymbolGlue.obtain(box));
+						builder.appendElement(SymbolGlue.obtain(span));
 						builder.appendElementExcludeAdvise(adviseElement);
 					}
 				} else if (getTokenTypeSafe(realPrev) == Token.TYPE_CONTROL && !hasSymbolTypefaceAttributesSafe(current)) {
@@ -847,7 +847,7 @@ class ParagraphBuilderInternal {
 				}
 			}
 
-			builder.appendElement(box);
+			builder.appendElement(span);
 
 			accept(current);
 		}
@@ -872,21 +872,21 @@ class ParagraphBuilderInternal {
 				adviseElement = Penalty.ADVISE_BREAK;
 			}
 
-			TextSpan box = builder.obtainSymbolTextBox(text, spanReader, current);
+			TextSpan span = builder.obtainSymbolTextBox(text, spanReader, current);
 			if (checkSymbolTokenAttributeSafe(current, Token.SYMBOL_ATTRIBUTE_SQUISH_LEFT)) {
 				if (builder.mRenderOption.isFullWithSymbolOptimizationEnable()) {
-					box.addAttribute(TextSpan.ATTRIBUTE_SQUISH_LEFT);
+					span.addAttribute(TextSpan.ATTRIBUTE_SQUISH_LEFT);
 				}
 			} else if (checkSymbolTokenAttributeSafe(current, Token.SYMBOL_ATTRIBUTE_SQUISH_RIGHT)) {
 				if (builder.mRenderOption.isFullWithSymbolOptimizationEnable()) {
-					box.addAttribute(TextSpan.ATTRIBUTE_SQUISH_RIGHT);
+					span.addAttribute(TextSpan.ATTRIBUTE_SQUISH_RIGHT);
 				}
 			}
 
 			// 添加 advise
-			preformState1Advise(builder, accepted, current, stream, state, box, adviseElement);
+			preformState1Advise(builder, accepted, current, stream, state, span, adviseElement);
 
-			builder.appendElement(box);
+			builder.appendElement(span);
 
 			accept(current);
 		}
@@ -897,7 +897,7 @@ class ParagraphBuilderInternal {
 		private void preformState1Advise(ParagraphBuilderInternal builder,
 										 Token accepted, Token current,
 										 TokenStream stream, int state,
-										 TextSpan box, Element adviseElement) {
+										 TextSpan span, Element adviseElement) {
 			// 之前没有吞入任何元素
 			if (accepted == null) {
 				return;
@@ -941,7 +941,7 @@ class ParagraphBuilderInternal {
 				}
 
 				if (checkSymbolTokenAttributeSafe(current, Token.SYMBOL_ATTRIBUTE_SQUISH_LEFT)) {
-					performState1AdviseSymbolPadding(builder, box, adviseElement);
+					performState1AdviseSymbolPadding(builder, span, adviseElement);
 					return;
 				}
 
@@ -1007,10 +1007,10 @@ class ParagraphBuilderInternal {
 		}
 
 		private void performState1AdviseSymbolPadding(ParagraphBuilderInternal builder,
-													  TextSpan box, Element adviseElement) {
+													  TextSpan span, Element adviseElement) {
 			if (builder.mRenderOption.isFullWithSymbolOptimizationEnable()) {
 				builder.appendElementExcludeAdvise(adviseElement);
-				builder.appendElement(SymbolGlue.obtain(box));
+				builder.appendElement(SymbolGlue.obtain(span));
 				builder.appendElementExcludeAdvise(adviseElement);
 			}
 		}

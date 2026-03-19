@@ -127,8 +127,8 @@ public class SimpleParagraphTypesetter extends AbsParagraphTypesetter {
 
 		Element element = stream.next();
 		if (element instanceof Span) {
-			Span box = (Span) element;
-			width -= box.getWidth();
+			Span span = (Span) element;
+			width -= span.getWidth();
 			return width;
 		}
 

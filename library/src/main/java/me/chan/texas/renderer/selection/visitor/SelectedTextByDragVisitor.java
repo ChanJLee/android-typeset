@@ -53,12 +53,12 @@ public class SelectedTextByDragVisitor extends SelectedVisitor {
 		linkTail(paragraph, mLastSelectedLine, mSelection.getLastBox());
 	}
 
-	private void linkHead(Paragraph paragraph, Line line, Span box) {
-		if (line == null || !(box instanceof TextSpan)) {
+	private void linkHead(Paragraph paragraph, Line line, Span span) {
+		if (line == null || !(span instanceof TextSpan)) {
 			return;
 		}
 
-		int index = line.indexOf(box);
+		int index = line.indexOf(span);
 		RectF rectF = mSelection.getFirstRegion();
 		index = linkText(line, index, false, rectF);
 		if (index != -1) {
@@ -104,16 +104,16 @@ public class SelectedTextByDragVisitor extends SelectedVisitor {
 		for (; index >= 0 && index < size; ) {
 			Element element = line.getElement(index);
 			index += step;
-			Span box = (Span) element;
+			Span span = (Span) element;
 			if (backward) {
-				mSelection.appendBox(box);
-				rectF.right = box.getOuterBounds().right;
+				mSelection.appendBox(span);
+				rectF.right = span.getOuterBounds().right;
 			} else {
-				mSelection.prependBox(box);
-				rectF.left = box.getOuterBounds().left;
+				mSelection.prependBox(span);
+				rectF.left = span.getOuterBounds().left;
 			}
 
-			if (box.isIsolate(backward)) {
+			if (span.isIsolate(backward)) {
 				break;
 			}
 		}
@@ -124,14 +124,14 @@ public class SelectedTextByDragVisitor extends SelectedVisitor {
 	/**
 	 * @param paragraph
 	 * @param line
-	 * @param box
+	 * @param span
 	 */
-	private void linkTail(Paragraph paragraph, Line line, Span box) {
-		if (line == null || !(box instanceof TextSpan)) {
+	private void linkTail(Paragraph paragraph, Line line, Span span) {
+		if (line == null || !(span instanceof TextSpan)) {
 			return;
 		}
 
-		int index = line.indexOf(box);
+		int index = line.indexOf(span);
 		int size = line.getElementCount();
 
 		RectF rectF = mSelection.getLastRegion();
@@ -285,10 +285,10 @@ public class SelectedTextByDragVisitor extends SelectedVisitor {
 	private boolean mLineSelected = false;
 
 	@Override
-	protected boolean selected(Span box, RectF inner, RectF outer) {
-		boolean result = selectedImpl(box, inner, outer);
+	protected boolean selected(Span span, RectF inner, RectF outer) {
+		boolean result = selectedImpl(span, inner, outer);
 		if (Texas.DEBUG_DRAG) {
-			Log.d("drag_debug.visitor", "selected: " + result + " - " + box + " " + inner);
+			Log.d("drag_debug.visitor", "selected: " + result + " - " + span + " " + inner);
 		}
 		if (result) {
 			mLineSelected = true;
@@ -296,8 +296,8 @@ public class SelectedTextByDragVisitor extends SelectedVisitor {
 		return result;
 	}
 
-	private boolean selectedImpl(Span box, RectF inner, RectF outer) {
-		if (!includeSelectNonTextBoxRegion() && box instanceof DrawableSpan) {
+	private boolean selectedImpl(Span span, RectF inner, RectF outer) {
+		if (!includeSelectNonTextBoxRegion() && span instanceof DrawableSpan) {
 			return false;
 		}
 

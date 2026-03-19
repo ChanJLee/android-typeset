@@ -96,12 +96,12 @@ public abstract class SelectedVisitor extends ParagraphVisitor {
 	}
 
 	@Override
-	public void onVisitBox(Span box, RectF inner, RectF outer, @NonNull RendererContext context) {
-		if (selected(box, inner, outer)) {
-			if (!(box instanceof DrawableSpan) || includeSelectNonTextBoxRegion()) {
+	public void onVisitBox(Span span, RectF inner, RectF outer, @NonNull RendererContext context) {
+		if (selected(span, inner, outer)) {
+			if (!(span instanceof DrawableSpan) || includeSelectNonTextBoxRegion()) {
 				mCompositeRectDrawable.append(outer.left, mLastLineTop, outer.right, mLastLineBottom);
 			}
-			mSelection.appendBox(box);
+			mSelection.appendBox(span);
 		}
 	}
 
@@ -112,5 +112,5 @@ public abstract class SelectedVisitor extends ParagraphVisitor {
 		return mRenderOption.isDrawEmoticonSelection();
 	}
 
-	protected abstract boolean selected(Span box, RectF inner, RectF outer);
+	protected abstract boolean selected(Span span, RectF inner, RectF outer);
 }

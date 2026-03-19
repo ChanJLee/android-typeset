@@ -23,10 +23,10 @@ public class SymbolGlue extends Glue {
 		mStretch = 0;
 	}
 
-	public static SymbolGlue obtain(TextSpan box) {
+	public static SymbolGlue obtain(TextSpan span) {
 		SymbolGlue glue = new SymbolGlue();
-		glue.mTextBox = box;
-		glue.mWidth = box.getWidth();
+		glue.mTextBox = span;
+		glue.mWidth = span.getWidth();
 		glue.mShrink = glue.mWidth * MAGIC_FACTOR;
 		glue.mStretch = 0;
 		glue.mRefreshFlag = 0;

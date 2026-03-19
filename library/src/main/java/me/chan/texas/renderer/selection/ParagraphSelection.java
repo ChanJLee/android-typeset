@@ -78,15 +78,15 @@ public class ParagraphSelection extends DefaultRecyclable {
 	private Span mLast;
 
 	@RestrictTo(LIBRARY)
-	public void prependBox(Span box) {
-		mSet.set(box.getSeq(), true);
+	public void prependBox(Span span) {
+		mSet.set(span.getSeq(), true);
 
 
 		if (mLast == null) {
-			mLast = box;
+			mLast = span;
 		}
 
-		mFirst = box;
+		mFirst = span;
 	}
 
 	@RestrictTo(LIBRARY)
@@ -100,14 +100,14 @@ public class ParagraphSelection extends DefaultRecyclable {
 	}
 
 	@RestrictTo(LIBRARY)
-	public void appendBox(Span box) {
-		mSet.set(box.getSeq(), true);
+	public void appendBox(Span span) {
+		mSet.set(span.getSeq(), true);
 
 		if (mFirst == null) {
-			mFirst = box;
+			mFirst = span;
 		}
 
-		mLast = box;
+		mLast = span;
 	}
 
 	/**
@@ -236,8 +236,8 @@ public class ParagraphSelection extends DefaultRecyclable {
 	}
 
 	@RestrictTo(LIBRARY)
-	public boolean isSelected(Span box) {
-		return mSet.get(box.getSeq());
+	public boolean isSelected(Span span) {
+		return mSet.get(span.getSeq());
 	}
 
 	public void clear() {
@@ -287,9 +287,9 @@ public class ParagraphSelection extends DefaultRecyclable {
 		}
 
 		@Override
-		protected void onVisitBox(Span box, RectF inner, RectF outer, @NonNull RendererContext context) {
-			if (selection.isSelected(box)) {
-				tags.add(box.getTag());
+		protected void onVisitBox(Span span, RectF inner, RectF outer, @NonNull RendererContext context) {
+			if (selection.isSelected(span)) {
+				tags.add(span.getTag());
 			}
 		}
 	}
@@ -326,9 +326,9 @@ public class ParagraphSelection extends DefaultRecyclable {
 				}
 
 				@Override
-				protected void onVisitBox(Span box, RectF inner, RectF outer, @NonNull RendererContext context) {
-					if (isSelected(box)) {
-						builder.append(box).append(", ");
+				protected void onVisitBox(Span span, RectF inner, RectF outer, @NonNull RendererContext context) {
+					if (isSelected(span)) {
+						builder.append(span).append(", ");
 					}
 				}
 			};
@@ -358,7 +358,7 @@ public class ParagraphSelection extends DefaultRecyclable {
 		}
 
 		@Override
-		public void update(@NonNull TexasPaint textPaint, @NonNull TextSpan box) {
+		public void update(@NonNull TexasPaint textPaint, @NonNull TextSpan span) {
 			textPaint.setColor(mTextColor);
 			if (mFakeBoldFactor > 0f) {
 				textPaint.setStyle(Paint.Style.FILL_AND_STROKE);

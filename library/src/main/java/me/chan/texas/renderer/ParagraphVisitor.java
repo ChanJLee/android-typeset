@@ -80,9 +80,9 @@ public abstract class ParagraphVisitor {
 
 		int size = line.getElementCount();
 		for (int i = 0; i < size && mVisitSig == SIG_NORMAL; ++i) {
-			Span box = (Span) line.getElement(i);
-			mTypesetContext.setBoxLocationAttribute(line, box, i);
-			onVisitBox(box, box.getInnerBounds(), box.getOuterBounds(), mTypesetContext);
+			Span span = (Span) line.getElement(i);
+			mTypesetContext.setBoxLocationAttribute(line, span, i);
+			onVisitBox(span, span.getInnerBounds(), span.getOuterBounds(), mTypesetContext);
 		}
 
 		onVisitLineEnd(line, bottomX, bottomY);
@@ -108,11 +108,11 @@ public abstract class ParagraphVisitor {
 	protected abstract void onVisitLineEnd(Line line, float x, float y);
 
 	/**
-	 * @param box   box
+	 * @param span   span
 	 * @param inner 内部box绘制区域
 	 * @param outer 外部绘制区域
 	 */
-	protected abstract void onVisitBox(Span box, RectF inner, RectF outer, @NonNull RendererContext context);
+	protected abstract void onVisitBox(Span span, RectF inner, RectF outer, @NonNull RendererContext context);
 
 	/**
 	 * 访问异常，可能因为paragraph被回收，然而访问还在进行时抛出

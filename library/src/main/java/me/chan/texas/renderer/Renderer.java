@@ -490,13 +490,13 @@ public class Renderer implements SelectionMethodImpl.Listener {
 	}
 
 	@Override
-	public void onSpanClicked(Paragraph paragraph, TouchEvent event, Span box) {
-		mTexasView.notifySpanClicked(event, paragraph, box);
+	public void onSpanClicked(Paragraph paragraph, TouchEvent event, Span span) {
+		mTexasView.notifySpanClicked(event, paragraph, span);
 	}
 
 	@Override
-	public void onSpanLongClicked(Paragraph paragraph, TouchEvent event, Span box) {
-		mTexasView.notifySpanLongClicked(event, paragraph, box);
+	public void onSpanLongClicked(Paragraph paragraph, TouchEvent event, Span span) {
+		mTexasView.notifySpanLongClicked(event, paragraph, span);
 	}
 
 	@Override

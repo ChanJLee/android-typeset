@@ -311,7 +311,7 @@ public class SelectedTextByDragVisitorUnitTest {
 		Paragraph paragraph = builder.build();
 		paragraph.measure(measurer, textAttribute);
 
-		TextSpan box123 = (TextSpan) paragraph.getElement(0);
+		TextSpan span123 = (TextSpan) paragraph.getElement(0);
 		TextSpan triBox = (TextSpan) paragraph.getElement(2);
 		TextSpan angBox = (TextSpan) paragraph.getElement(4);
 

@@ -83,7 +83,7 @@ public class Line extends DefaultRecyclable {
 		return mElements.size();
 	}
 
-	public int getBoxCount() {
+	public int getSpanCount() {
 		return getElementCount();
 	}
 
@@ -105,13 +105,13 @@ public class Line extends DefaultRecyclable {
 		return mElements.get(index);
 	}
 
-	public Span getBox(int index) {
+	public Span getSpan(int index) {
 		return (Span) getElement(index);
 	}
 
 	@RestrictTo(LIBRARY)
-	public void replace(int prevIndex, Span box) {
-		mElements.set(prevIndex, box);
+	public void replace(int prevIndex, Span span) {
+		mElements.set(prevIndex, span);
 	}
 
 	@RestrictTo(LIBRARY)
@@ -399,13 +399,13 @@ public class Line extends DefaultRecyclable {
 			for (int i = 0; i < line.getElementCount(); ++i) {
 				Element element = line.getElement(i);
 				if (element instanceof Span) {
-					Span box = (Span) element;
-					boxWidth += box.getWidth();
-					if (lineHeight < box.getHeight()) {
-						lineHeight = box.getHeight();
+					Span span = (Span) element;
+					boxWidth += span.getWidth();
+					if (lineHeight < span.getHeight()) {
+						lineHeight = span.getHeight();
 					}
 
-					line.mBaselineOffset = Math.max(box.getBaselineOffset(), line.mBaselineOffset);
+					line.mBaselineOffset = Math.max(span.getBaselineOffset(), line.mBaselineOffset);
 				} else if (element instanceof Glue) {
 					Glue glue = (Glue) element;
 					glueWidth += glue.getWidth();

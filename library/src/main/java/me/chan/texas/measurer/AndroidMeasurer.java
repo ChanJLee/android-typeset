@@ -37,14 +37,14 @@ public class AndroidMeasurer implements Measurer {
 	}
 
 	@Override
-	public void measure(CharSequence charSequence, int start, int end, TextStyle textStyle, TextSpan box, CharSequenceSpec spec) {
-		measure0(charSequence, start, end, textStyle, box, spec, false);
+	public void measure(CharSequence charSequence, int start, int end, TextStyle textStyle, TextSpan span, CharSequenceSpec spec) {
+		measure0(charSequence, start, end, textStyle, span, spec, false);
 	}
 
-	private void measure0(CharSequence charSequence, int start, int end, TextStyle textStyle, TextSpan box, CharSequenceSpec spec, boolean force) {
+	private void measure0(CharSequence charSequence, int start, int end, TextStyle textStyle, TextSpan span, CharSequenceSpec spec, boolean force) {
 		mTexasPaint.reset(mPaintSet);
 		if (textStyle != null) {
-			textStyle.update(mTexasPaint, box);
+			textStyle.update(mTexasPaint, span);
 		}
 		Paint paint = mTexasPaint.getPaint();
 

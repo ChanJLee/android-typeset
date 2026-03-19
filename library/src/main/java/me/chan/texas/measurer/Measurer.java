@@ -26,7 +26,7 @@ public interface Measurer {
 	 * @param box          text box
 	 * @param spec         输出
 	 */
-	void measure(CharSequence charSequence, int start, int end, TextStyle textStyle, TextSpan box, CharSequenceSpec spec);
+	void measure(CharSequence charSequence, int start, int end, TextStyle textStyle, TextSpan span, CharSequenceSpec spec);
 
 	void refresh(PaintSet paintSet);
 
