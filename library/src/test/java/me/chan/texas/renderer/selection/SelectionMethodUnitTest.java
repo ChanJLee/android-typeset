@@ -132,18 +132,23 @@ public class SelectionMethodUnitTest {
 		mSelectionManager.setSpanTouchEventHandler(new SpanTouchEventHandler() {
 
 			@Override
-			public boolean isSpanClickable(@Nullable Object tag) {
+			public boolean isSpanClickable(@NonNull Span span) {
 				return true;
 			}
 
 			@Override
-			public boolean applySpanClicked(@Nullable Object clickedTag, @Nullable Object otherTag) {
-				return clickedTag == otherTag;
+			public boolean acceptSpan(EventType type, @NonNull Span clicked) {
+				return SpanTouchEventHandler.super.acceptSpan(type, clicked);
 			}
 
 			@Override
-			public boolean applySpanLongClicked(@Nullable Object clickedTag, @Nullable Object otherTag) {
-				return clickedTag == otherTag;
+			public boolean applySpanClicked(@NonNull Span clicked, @NonNull Span other) {
+				return clicked.getTag() == other.getTag();
+			}
+
+			@Override
+			public boolean applySpanLongClicked(@NonNull Span clicked, @NonNull Span other) {
+				return clicked.getTag() == other.getTag();
 			}
 		});
 
@@ -167,12 +172,12 @@ public class SelectionMethodUnitTest {
 		Assert.assertNull(mSelectionManager.getSelection());
 		Selection selection = mSelectionManager.selectParagraphs(new ParagraphPredicates() {
 			@Override
-			public boolean acceptSpan(@Nullable Object spanTag) {
+			public boolean acceptSpan(@NonNull Span span) {
 				return false;
 			}
 
 			@Override
-			public boolean acceptParagraph(@Nullable Object paragraphTag) {
+			public boolean acceptParagraph(Paragraph p) {
 				return false;
 			}
 		}, Selection.Styles.create(1, 2).setEnableDrag(false));
@@ -182,12 +187,14 @@ public class SelectionMethodUnitTest {
 		Selection prev = selection;
 		selection = mSelectionManager.selectParagraphs(new ParagraphPredicates() {
 			@Override
-			public boolean acceptSpan(@Nullable Object spanTag) {
+			public boolean acceptSpan(@NonNull Span span) {
+				Object spanTag = span.getTag();
 				return "1".equals(spanTag) || "一".equals(spanTag) || "二".equals(spanTag) || "三".equals(spanTag) || "四".equals(spanTag);
 			}
 
 			@Override
-			public boolean acceptParagraph(@Nullable Object paragraphTag) {
+			public boolean acceptParagraph(Paragraph p) {
+				Object paragraphTag = p.getTag();
 				return "p1".equals(paragraphTag) || "p3".equals(paragraphTag);
 			}
 		}, Selection.Styles.create(1, 2).setEnableDrag(false));
@@ -241,12 +248,12 @@ public class SelectionMethodUnitTest {
 		Assert.assertNull(mSelectionManager.getSelection());
 		Selection selection = mSelectionManager.highlightParagraphs(new ParagraphPredicates() {
 			@Override
-			public boolean acceptSpan(@Nullable Object spanTag) {
+			public boolean acceptSpan(@NonNull Span span) {
 				return false;
 			}
 
 			@Override
-			public boolean acceptParagraph(@Nullable Object paragraphTag) {
+			public boolean acceptParagraph(Paragraph p) {
 				return false;
 			}
 		}, Selection.Styles.create(1, 2).setEnableDrag(false));
@@ -256,12 +263,14 @@ public class SelectionMethodUnitTest {
 		Selection prev = selection;
 		selection = mSelectionManager.highlightParagraphs(new ParagraphPredicates() {
 			@Override
-			public boolean acceptSpan(@Nullable Object spanTag) {
+			public boolean acceptSpan(@NonNull Span span) {
+				Object spanTag = span.getTag();
 				return "1".equals(spanTag) || "一".equals(spanTag) || "二".equals(spanTag) || "三".equals(spanTag) || "四".equals(spanTag);
 			}
 
 			@Override
-			public boolean acceptParagraph(@Nullable Object paragraphTag) {
+			public boolean acceptParagraph(Paragraph p) {
+				Object paragraphTag = p.getTag();
 				return "p1".equals(paragraphTag) || "p3".equals(paragraphTag);
 			}
 		}, Selection.Styles.create(1, 2).setEnableDrag(false));
@@ -331,7 +340,7 @@ public class SelectionMethodUnitTest {
 		Assert.assertEquals(mSelectionListener.mEvent, SelectionEvent.SEGMENT_DOUBLE_CLICKED);
 
 		Span span = (Span) paragraph.getElement(0);
-		Assert.assertTrue(mSelectionManager.onBoxSelected(touchEvent, paragraph, OnSelectedChangedListener.EVENT_LONG_CLICKED, box));
+		Assert.assertTrue(mSelectionManager.onBoxSelected(touchEvent, paragraph, OnSelectedChangedListener.EVENT_LONG_CLICKED, span));
 		Assert.assertEquals(SelectionEvent.SPAN_LONG_CLICKED, mSelectionListener.mEvent);
 		Assert.assertNotNull(paragraph.getSelection(Selection.Type.SELECTION));
 
@@ -356,7 +365,7 @@ public class SelectionMethodUnitTest {
 			checkSelectedTag(paragraphSelection.getSelectedTags(), "1", "2", "3", "4", "5");
 		}
 
-		Assert.assertTrue(mSelectionManager.onBoxSelected(touchEvent, paragraph, OnSelectedChangedListener.EVENT_CLICKED, box));
+		Assert.assertTrue(mSelectionManager.onBoxSelected(touchEvent, paragraph, OnSelectedChangedListener.EVENT_CLICKED, span));
 		Assert.assertEquals(SelectionEvent.SPAN_CLICKED, mSelectionListener.mEvent);
 		mSelectionManager.handleClickNothing();
 	}
@@ -387,10 +396,10 @@ public class SelectionMethodUnitTest {
 		Assert.assertEquals(mSelectionListener.mEvent, SelectionEvent.SEGMENT_DOUBLE_CLICKED);
 
 		Span span = (Span) paragraph.getElement(0);
-		Assert.assertTrue(mSelectionManager.onBoxSelected(touchEvent, paragraph, OnSelectedChangedListener.EVENT_LONG_CLICKED, box));
+		Assert.assertTrue(mSelectionManager.onBoxSelected(touchEvent, paragraph, OnSelectedChangedListener.EVENT_LONG_CLICKED, span));
 		Assert.assertEquals(SelectionEvent.SPAN_LONG_CLICKED, mSelectionListener.mEvent);
 		Assert.assertNotNull(paragraph.getSelection(Selection.Type.SELECTION));
-		Assert.assertTrue(mSelectionManager.onBoxSelected(touchEvent, paragraph, OnSelectedChangedListener.EVENT_CLICKED, box));
+		Assert.assertTrue(mSelectionManager.onBoxSelected(touchEvent, paragraph, OnSelectedChangedListener.EVENT_CLICKED, span));
 		Assert.assertEquals(SelectionEvent.SPAN_CLICKED, mSelectionListener.mEvent);
 		mSelectionManager.handleClickNothing();
 
@@ -400,7 +409,7 @@ public class SelectionMethodUnitTest {
 		}
 
 		Assert.assertEquals(View.GONE, mDragSelectView.mVisibility);
-		Assert.assertTrue(mSelectionManager.onBoxSelected(touchEvent, paragraph, OnSelectedChangedListener.EVENT_LONG_CLICKED, box));
+		Assert.assertTrue(mSelectionManager.onBoxSelected(touchEvent, paragraph, OnSelectedChangedListener.EVENT_LONG_CLICKED, span));
 		selection = mSelectionManager.getSelection();
 		Assert.assertNotNull(selection);
 		Assert.assertEquals(View.VISIBLE, mDragSelectView.mVisibility);
@@ -791,14 +800,15 @@ public class SelectionMethodUnitTest {
 	private class MySelectionListener implements SelectionMethodImpl.Listener {
 
 		private SelectionEvent mEvent = SelectionEvent.NONE;
+		
 
 		@Override
-		public void onSpanClicked(TouchEvent event, Object tag) {
+		public void onSpanClicked(Paragraph paragraph, TouchEvent event, Span span) {
 			mEvent = SelectionEvent.SPAN_CLICKED;
 		}
 
 		@Override
-		public void onSpanLongClicked(TouchEvent event, Object tag) {
+		public void onSpanLongClicked(Paragraph paragraph, TouchEvent event, Span span) {
 			mEvent = SelectionEvent.SPAN_LONG_CLICKED;
 		}
 
@@ -818,12 +828,12 @@ public class SelectionMethodUnitTest {
 		}
 
 		@Override
-		public void onSegmentDoubleClicked(TouchEvent event, Object paragraphTag) {
+		public void onSegmentDoubleClicked(TouchEvent event, Segment segment) {
 			mEvent = SelectionEvent.SEGMENT_DOUBLE_CLICKED;
 		}
 
 		@Override
-		public void onSegmentClicked(TouchEvent event, Object paragraphTag) {
+		public void onSegmentClicked(TouchEvent event, Segment segment) {
 			mEvent = SelectionEvent.SEGMENT_CLICKED;
 		}
 	}

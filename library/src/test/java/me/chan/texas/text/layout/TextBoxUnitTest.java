@@ -64,7 +64,7 @@ public class TextBoxUnitTest {
 		mTag = "hello";
 		mTextStyle = new TextStyle() {
 			@Override
-			public void update(@NonNull TexasPaint textPaint, @Nullable Object tag) {
+			public void update(@NonNull TexasPaint textPaint, TextSpan span) {
 
 			}
 		};
@@ -134,7 +134,7 @@ public class TextBoxUnitTest {
 		};
 		TextStyle textStyle = new TextStyle() {
 			@Override
-			public void update(@NonNull TexasPaint textPaint, @Nullable Object tag) {
+			public void update(@NonNull TexasPaint textPaint, TextSpan s) {
 
 			}
 		};
@@ -151,14 +151,14 @@ public class TextBoxUnitTest {
 		Assert.assertEquals(textBox.toString(), msg);
 
 		// check content is right
-		// box
+		// span
 		Assert.assertEquals(textBox.getWidth(), msg.length() * mMockTextPaint.getMockTextSize(), 0);
 		Assert.assertEquals(textBox.getHeight(), mMockTextPaint.getMockTextHeight(), 0);
 		Assert.assertEquals(textBox.getTag(), mTag);
 		Assert.assertEquals(textBox.getBackground(), mBg);
 		Assert.assertEquals(textBox.getForeground(), mFg);
 
-		// text box
+		// text span
 		Assert.assertEquals(textBox.toString(), msg);
 		Assert.assertEquals(textBox.getText(), msg);
 		Assert.assertEquals(textBox.getStart(), 0);
@@ -177,7 +177,7 @@ public class TextBoxUnitTest {
 		Assert.assertEquals(textBox.getBackground(), mBg);
 		Assert.assertEquals(textBox.getForeground(), mFg);
 
-		// text box
+		// text span
 		Assert.assertEquals(textBox.toString(), "b");
 		Assert.assertEquals(textBox.getText(), msg);
 		Assert.assertEquals(textBox.getStart(), 1);
@@ -196,14 +196,14 @@ public class TextBoxUnitTest {
 		Assert.assertEquals(textBox.toString(), msg);
 
 		// check content is right
-		// box
+		// span
 		Assert.assertEquals(textBox.getWidth(), msg.length() * mMockTextPaint.getMockTextSize(), 0);
 		Assert.assertEquals(textBox.getHeight(), mMockTextPaint.getMockTextHeight(), 0);
 		Assert.assertEquals(textBox.getTag(), mTag);
 		Assert.assertEquals(textBox.getBackground(), mBg);
 		Assert.assertEquals(textBox.getForeground(), mFg);
 
-		// text box
+		// text span
 		Assert.assertEquals(textBox.toString(), msg);
 		Assert.assertEquals(textBox.getText(), msg);
 		Assert.assertEquals(textBox.getStart(), 0);
@@ -224,7 +224,7 @@ public class TextBoxUnitTest {
 		Assert.assertEquals(textBox.getBackground(), mBg);
 		Assert.assertEquals(textBox.getForeground(), mFg);
 
-		// text box
+		// text span
 		Assert.assertEquals(textBox.toString(), msg);
 		Assert.assertEquals(textBox.getText(), msg);
 		Assert.assertEquals(textBox.getStart(), 0);
@@ -243,7 +243,7 @@ public class TextBoxUnitTest {
 		Assert.assertEquals(textBox.getBackground(), mBg);
 		Assert.assertEquals(textBox.getForeground(), mFg);
 
-		// text box
+		// text span
 		Assert.assertEquals(textBox.toString(), "b");
 		Assert.assertEquals(textBox.getText(), msg);
 		Assert.assertEquals(textBox.getStart(), 1);
@@ -259,7 +259,7 @@ public class TextBoxUnitTest {
 		Assert.assertEquals(textBox.getBackground(), mBg);
 		Assert.assertEquals(textBox.getForeground(), mFg);
 
-		// text box
+		// text span
 		Assert.assertEquals(textBox.toString(), "b-");
 		Assert.assertEquals(textBox.getText(), "b-");
 		Assert.assertEquals(textBox.getStart(), 0);
@@ -303,14 +303,14 @@ public class TextBoxUnitTest {
 		TextSpan textBox = TextSpan.obtain(msg, 0, msg.length(), mTextStyle, mTag, mBg, mFg);
 		textBox.measure(mMockMeasurer, mTextAttribute);
 		Assert.assertNotNull(textBox);
-		// box
+		// span
 		Assert.assertEquals(textBox.getWidth(), msg.length() * mMockTextPaint.getMockTextSize(), 0);
 		Assert.assertEquals(textBox.getHeight(), mMockTextPaint.getMockTextHeight(), 0);
 		Assert.assertEquals(textBox.getTag(), mTag);
 		Assert.assertEquals(textBox.getBackground(), mBg);
 		Assert.assertEquals(textBox.getForeground(), mFg);
 
-		// text box
+		// text span
 		Assert.assertEquals(textBox.toString(), msg);
 		Assert.assertEquals(textBox.getText(), msg);
 		Assert.assertEquals(textBox.getStart(), 0);
@@ -334,14 +334,14 @@ public class TextBoxUnitTest {
 		textBox.measure(mMockMeasurer, mTextAttribute);
 		Assert.assertNotNull(textBox);
 		Assert.assertNotEquals(prev1, textBox);
-		// box
+		// span
 		Assert.assertEquals(textBox.getWidth(), subStr.length() * mMockTextPaint.getMockTextSize(), 0);
 		Assert.assertEquals(textBox.getHeight(), mMockTextPaint.getMockTextHeight(), 0);
 		Assert.assertEquals(textBox.getTag(), mTag);
 		Assert.assertEquals(textBox.getBackground(), mBg);
 		Assert.assertEquals(textBox.getForeground(), mFg);
 
-		// text box
+		// text span
 		Assert.assertEquals(textBox.toString(), subStr);
 		Assert.assertEquals(textBox.getText(), msg);
 		Assert.assertEquals(textBox.getStart(), 1);
@@ -385,7 +385,7 @@ public class TextBoxUnitTest {
 		};
 		TextStyle textStyle = new TextStyle() {
 			@Override
-			public void update(@NonNull TexasPaint textPaint, @Nullable Object tag) {
+			public void update(@NonNull TexasPaint textPaint, TextSpan s) {
 
 			}
 		};
@@ -394,14 +394,14 @@ public class TextBoxUnitTest {
 		textBox.measure(mMockMeasurer, mTextAttribute);
 		Assert.assertNotNull(textBox);
 		Assert.assertSame(prev2, textBox);
-		// box
+		// span
 		Assert.assertEquals(textBox.getWidth(), msg.length() * mMockTextPaint.getMockTextSize(), 0);
 		Assert.assertEquals(textBox.getHeight(), mMockTextPaint.getMockTextHeight(), 0);
 		Assert.assertEquals(textBox.getTag(), tag);
 		Assert.assertEquals(textBox.getBackground(), bg);
 		Assert.assertEquals(textBox.getForeground(), fg);
 
-		// text box
+		// text span
 		Assert.assertEquals(textBox.toString(), msg);
 		Assert.assertEquals(textBox.getText(), msg);
 		Assert.assertEquals(textBox.getStart(), 0);
@@ -425,7 +425,7 @@ public class TextBoxUnitTest {
 
 		lhs.mHeight -= 1;
 
-		// box
+		// span
 		Assert.assertNotEquals(lhs.getWidth(), rhs.getWidth(), 0);
 		Assert.assertNotEquals(lhs.getHeight(), rhs.getHeight(), 0);
 		Assert.assertNotEquals(lhs.getTag(), rhs.getTag());
@@ -436,7 +436,7 @@ public class TextBoxUnitTest {
 		penalty.measure(mMockMeasurer, mTextAttribute);
 		rhs.merge(penalty);
 
-		// text box
+		// text span
 		Assert.assertNotEquals(lhs.toString(), rhs.toString());
 		Assert.assertNotEquals(lhs.getText(), rhs.getText());
 		rhs.setStart(1);
@@ -497,19 +497,19 @@ public class TextBoxUnitTest {
 		Assert.assertEquals(4, line.getElementCount());
 
 		Span span = (Span) line.getElement(0);
-		Assert.assertTrue(box.isIsolate(false));
-		Assert.assertTrue(box.isIsolate(true));
+		Assert.assertTrue(span.isIsolate(false));
+		Assert.assertTrue(span.isIsolate(true));
 
-		box = (Span) line.getElement(1);
-		Assert.assertTrue(box.isIsolate(false));
-		Assert.assertFalse(box.isIsolate(true));
+		span = (Span) line.getElement(1);
+		Assert.assertTrue(span.isIsolate(false));
+		Assert.assertFalse(span.isIsolate(true));
 
-		box = (Span) line.getElement(2);
-		Assert.assertFalse(box.isIsolate(false));
-		Assert.assertTrue(box.isIsolate(true));
+		span = (Span) line.getElement(2);
+		Assert.assertFalse(span.isIsolate(false));
+		Assert.assertTrue(span.isIsolate(true));
 
-		box = (Span) line.getElement(3);
-		Assert.assertTrue(box.isIsolate(false));
-		Assert.assertTrue(box.isIsolate(true));
+		span = (Span) line.getElement(3);
+		Assert.assertTrue(span.isIsolate(false));
+		Assert.assertTrue(span.isIsolate(true));
 	}
 }

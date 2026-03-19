@@ -93,12 +93,12 @@ public class DataUnitTest {
 
 		TextStyle textStyle = new TextStyle() {
 			@Override
-			public void update(@NonNull TexasPaint textPaint, @Nullable Object tag) {
+			public void update(@NonNull TexasPaint textPaint, TextSpan span) {
 
 			}
 		};
 		String tag = "hello";
-		Penalty penalty = Penalty.obtain(2, true, tag, textStyle);
+		Penalty penalty = Penalty.obtain(2, true, TextSpan.obtain("1", 0, 1, null, tag, null, null), textStyle);
 		penalty.measure(mMockMeasurer, mTextAttribute);
 		Assert.assertNotNull(penalty);
 
@@ -126,12 +126,12 @@ public class DataUnitTest {
 		mTextAttribute.refresh(mMockMeasurer);
 		TextStyle textStyle1 = new TextStyle() {
 			@Override
-			public void update(@NonNull TexasPaint textPaint, @Nullable Object tag) {
+			public void update(@NonNull TexasPaint textPaint, TextSpan span) {
 
 			}
 		};
 		String tag2 = "fuck2";
-		penalty = Penalty.obtain(5, false, tag2, textStyle1);
+		penalty = Penalty.obtain(5, false, TextSpan.obtain("1", 0, 1, null, tag2, null, null), textStyle1);
 		penalty.measure(mMockMeasurer, mTextAttribute);
 		Assert.assertNotNull(penalty);
 		Assert.assertNotSame(penalty, prev);
@@ -142,9 +142,9 @@ public class DataUnitTest {
 		Assert.assertEquals("check height: ", penalty.getHeight(), 0, 0);
 		Assert.assertEquals("check penalty: ", penalty.getPenalty(), 5, 0);
 		Assert.assertFalse("check flag", penalty.isFlag());
-		Assert.assertNotSame(penalty, Penalty.obtain(10, true, "fuck2", new TextStyle() {
+		Assert.assertNotSame(penalty, Penalty.obtain(10, true, null, new TextStyle() {
 			@Override
-			public void update(@NonNull TexasPaint textPaint, @Nullable Object tag) {
+			public void update(@NonNull TexasPaint textPaint, TextSpan span) {
 
 			}
 		}));

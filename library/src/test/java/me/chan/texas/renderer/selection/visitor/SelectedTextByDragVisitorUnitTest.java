@@ -317,7 +317,7 @@ public class SelectedTextByDragVisitorUnitTest {
 
 		Glue glue = (Glue) paragraph.getElement(1);
 
-		Assert.assertEquals("123", box123.toString());
+		Assert.assertEquals("123", span123.toString());
 		Assert.assertEquals("tri", triBox.toString());
 		Assert.assertEquals("an", angBox.toString());
 
@@ -329,11 +329,11 @@ public class SelectedTextByDragVisitorUnitTest {
 		Layout layout = Layout.obtain(paragraph.getLayout());
 
 		Line line = Line.obtain();
-		line.add(box123);
+		line.add(span123);
 		line.add(glue);
 		line.add(triBox);
 		line.add(angBox);
-		line.setLineWidth(glue.getWidth() + box123.getWidth() + triBox.getWidth() + angBox.getWidth());
+		line.setLineWidth(glue.getWidth() + span123.getWidth() + triBox.getWidth() + angBox.getWidth());
 		line.setRatio(0);
 		line.setLineHeight(1);
 		layout.addLine(line);
@@ -374,8 +374,8 @@ public class SelectedTextByDragVisitorUnitTest {
 		line.add(TextSpan.obtain(triBox));
 		line.add(TextSpan.obtain(angBox));
 		line.add(glue);
-		line.add(TextSpan.obtain(box123));
-		line.setLineWidth(glue.getWidth() + box123.getWidth() + triBox.getWidth() + angBox.getWidth());
+		line.add(TextSpan.obtain(span123));
+		line.setLineWidth(glue.getWidth() + span123.getWidth() + triBox.getWidth() + angBox.getWidth());
 		line.setRatio(0);
 		line.setLineHeight(1);
 		layout.addLine(line);

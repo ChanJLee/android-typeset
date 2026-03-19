@@ -18,16 +18,16 @@ public class SymbolGlueUnitTest {
 		TextAttribute textAttribute = new TextAttribute(measurer);
 
 		TextSpan span = TextSpan.obtain("《", 0, 1, null, null, null, null);
-		box.measure(measurer, textAttribute);
-		Assert.assertEquals(box.getWidth(), 2, 0);
+		span.measure(measurer, textAttribute);
+		Assert.assertEquals(span.getWidth(), 2, 0);
 
-		box.addAttribute(TextSpan.ATTRIBUTE_SQUISH_LEFT);
-		Assert.assertEquals(box.getWidth(), 1, 0);
+		span.addAttribute(TextSpan.ATTRIBUTE_SQUISH_LEFT);
+		Assert.assertEquals(span.getWidth(), 1, 0);
 
 
-		SymbolGlue glue = SymbolGlue.obtain(box);
+		SymbolGlue glue = SymbolGlue.obtain(span);
 		glue.measure(measurer, textAttribute);
-		Assert.assertTrue(glue.getWidth() <= box.getWidth());
+		Assert.assertTrue(glue.getWidth() <= span.getWidth());
 		Assert.assertTrue(glue.getWidth() >= glue.getShrink());
 		Assert.assertEquals(0, glue.getStretch(), 0);
 		System.out.println(glue);
@@ -39,7 +39,7 @@ public class SymbolGlueUnitTest {
 		Glue o = Glue.obtain();
 		Assert.assertNotSame(o, tmp);
 
-		glue = SymbolGlue.obtain(box);
+		glue = SymbolGlue.obtain(span);
 		Assert.assertNotSame(tmp, glue);
 	}
 }

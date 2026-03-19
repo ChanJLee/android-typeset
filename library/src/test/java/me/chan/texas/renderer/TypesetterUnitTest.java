@@ -344,7 +344,7 @@ public class TypesetterUnitTest {
 					Element element = line.getElement(k);
 					if (element instanceof TextSpan) {
 						TextSpan span = (TextSpan) element;
-						stringBuilder.append(box)
+						stringBuilder.append(span)
 								.append(" ");
 					}
 
@@ -486,8 +486,8 @@ public class TypesetterUnitTest {
 					}
 
 					Span span = (Span) element;
-					String content = box.toString();
-					TextSpan textBox = (TextSpan) box;
+					String content = span.toString();
+					TextSpan textBox = (TextSpan) span;
 					if (textBox.isPenalty() && textBox.hasAttribute(TextSpan.ATTRIBUTE_PENDED_HYPHEN)) {
 						Assert.assertEquals(content.charAt(content.length() - 1), '-');
 						content = content.substring(0, content.length() - 1);

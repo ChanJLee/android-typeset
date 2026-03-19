@@ -73,12 +73,12 @@ public class SingleParagraphActivity extends AppCompatActivity {
 		ParagraphView paragraphView = findViewById(me.chan.texas.debug.R.id.paragraph);
 		paragraphView.setOnClickedListener(new ParagraphView.OnClickedListener() {
 			@Override
-			public void onSpanClicked(ParagraphView paragraphView, TouchEvent event, Object tag) {
+			public void onSpanClicked(ParagraphView paragraphView, TouchEvent event, Span span) {
 				Toast.makeText(SingleParagraphActivity.this, "onSpanClicked", Toast.LENGTH_SHORT).show();
 			}
 
 			@Override
-			public void onSpanLongClicked(ParagraphView paragraphView, TouchEvent event, Object tag) {
+			public void onSpanLongClicked(ParagraphView paragraphView, TouchEvent event, Span span) {
 				Toast.makeText(SingleParagraphActivity.this, "onSpanLongClicked", Toast.LENGTH_SHORT).show();
 			}
 

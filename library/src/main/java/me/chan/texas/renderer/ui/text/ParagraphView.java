@@ -312,11 +312,11 @@ public class ParagraphView extends FrameLayout {
 			if (handled) {
 				if (isLongClicked) {
 					if (mOnClickedListener != null) {
-						mOnClickedListener.onSpanLongClicked(this, event, span.getTag());
+						mOnClickedListener.onSpanLongClicked(this, event, span);
 					}
 				} else {
 					if (mOnClickedListener != null) {
-						mOnClickedListener.onSpanClicked(this, event, span.getTag());
+						mOnClickedListener.onSpanClicked(this, event, span);
 					}
 				}
 			} else {
@@ -906,15 +906,17 @@ public class ParagraphView extends FrameLayout {
 	public interface OnClickedListener {
 		/**
 		 * @param paragraphView 被点击的段落
-		 * @param tag           被点击的text tag
+		 * @param event         event
+		 * @param span          clicked span
 		 */
-		void onSpanClicked(ParagraphView paragraphView, TouchEvent event, Object tag);
+		void onSpanClicked(ParagraphView paragraphView, TouchEvent event, Span span);
 
 		/**
 		 * @param paragraphView 被点击的段落
-		 * @param tag           被点击的text tag
+		 * @param event         event
+		 * @param span          clicked span
 		 */
-		void onSpanLongClicked(ParagraphView paragraphView, TouchEvent event, Object tag);
+		void onSpanLongClicked(ParagraphView paragraphView, TouchEvent event, Span span);
 
 		/**
 		 * @param paragraphView 被点击的段落

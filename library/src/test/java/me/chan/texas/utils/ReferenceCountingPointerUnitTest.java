@@ -10,9 +10,9 @@ public class ReferenceCountingPointerUnitTest {
 	@Test
 	public void test() {
 		TextSpan span = TextSpan.obtain("1", 0, 1, null, null, null, null);
-		Assert.assertFalse(box.isRecycled());
+		Assert.assertFalse(span.isRecycled());
 
-		ReferenceCountingPointer<TextSpan> pointer = new ReferenceCountingPointer<TextSpan>(box, new ReferenceCountingPointer.Listener<TextSpan>() {
+		ReferenceCountingPointer<TextSpan> pointer = new ReferenceCountingPointer<TextSpan>(span, new ReferenceCountingPointer.Listener<TextSpan>() {
 			@Override
 			public void onRelease(TextSpan v) {
 				v.recycle();
@@ -22,9 +22,9 @@ public class ReferenceCountingPointerUnitTest {
 		ReferenceCountingPointer<TextSpan> copy = new ReferenceCountingPointer<TextSpan>(pointer);
 
 		pointer.release();
-		Assert.assertFalse(box.isRecycled());
+		Assert.assertFalse(span.isRecycled());
 
 		copy.release();
-		Assert.assertTrue(box.isRecycled());
+		Assert.assertTrue(span.isRecycled());
 	}
 }

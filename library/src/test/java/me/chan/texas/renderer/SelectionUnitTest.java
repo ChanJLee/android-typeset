@@ -75,10 +75,10 @@ public class SelectionUnitTest {
 				null,
 				null
 		);
-		paragraphSelection.appendBox(box);
+		paragraphSelection.appendBox(span);
 		Assert.assertFalse(paragraphSelection.isEmpty());
-		Assert.assertSame(paragraphSelection.getLastBox(), box);
-		Assert.assertSame(paragraphSelection.getFirstBox(), box);
+		Assert.assertSame(paragraphSelection.getLastBox(), span);
+		Assert.assertSame(paragraphSelection.getFirstBox(), span);
 
 		Span span2 = TextSpan.obtain(
 				"fuck",
@@ -89,10 +89,10 @@ public class SelectionUnitTest {
 				null,
 				null
 		);
-		paragraphSelection.appendBox(box2);
+		paragraphSelection.appendBox(span2);
 		Assert.assertFalse(paragraphSelection.isEmpty());
-		Assert.assertSame(paragraphSelection.getLastBox(), box2);
-		Assert.assertSame(paragraphSelection.getFirstBox(), box);
+		Assert.assertSame(paragraphSelection.getLastBox(), span2);
+		Assert.assertSame(paragraphSelection.getFirstBox(), span);
 
 		paragraphSelection.clear();
 		Assert.assertTrue(paragraphSelection.isEmpty());
@@ -104,8 +104,8 @@ public class SelectionUnitTest {
 			Element element = paragraph.getElement(i);
 			if (element instanceof Span) {
 				Span span1 = (Span) element;
-				set.add(box1);
-				paragraphSelection.appendBox(box1);
+				set.add(span1);
+				paragraphSelection.appendBox(span1);
 			}
 		}
 		paragraph.setSelection(Selection.Type.SELECTION, paragraphSelection);
@@ -162,9 +162,9 @@ public class SelectionUnitTest {
 
 		@Override
 		protected void onVisitBox(Span span, RectF inner, RectF outer, @NonNull RendererContext context) {
-			if (mParagraphSelection.isSelected(box)) {
+			if (mParagraphSelection.isSelected(span)) {
 				++mCount;
-				Assert.assertTrue(mBoxes.contains(box));
+				Assert.assertTrue(mBoxes.contains(span));
 			}
 		}
 
@@ -207,9 +207,9 @@ public class SelectionUnitTest {
 
 		@Override
 		protected void onVisitBox(Span span, RectF inner, RectF outer, @NonNull RendererContext context) {
-			if (mParagraphSelection.isSelected(box)) {
+			if (mParagraphSelection.isSelected(span)) {
 				++mCount;
-				Assert.assertTrue(mBoxes.contains(box.getTag()));
+				Assert.assertTrue(mBoxes.contains(span.getTag()));
 			}
 		}
 
