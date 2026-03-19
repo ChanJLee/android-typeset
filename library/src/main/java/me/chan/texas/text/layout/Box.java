@@ -53,17 +53,14 @@ public abstract class Box extends DefaultRecyclable implements Element {
 		mHeight = height;
 	}
 
-	@RestrictTo(LIBRARY)
 	public void setTag(Object tag) {
 		mTag = tag;
 	}
 
-	@RestrictTo(LIBRARY)
 	public void setBackground(Appearance background) {
 		mBackground = background;
 	}
 
-	@RestrictTo(LIBRARY)
 	public void setForeground(Appearance foreground) {
 		mForeground = foreground;
 	}
