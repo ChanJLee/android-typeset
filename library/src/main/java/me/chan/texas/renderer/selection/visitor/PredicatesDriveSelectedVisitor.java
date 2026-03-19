@@ -26,7 +26,7 @@ public class PredicatesDriveSelectedVisitor extends SelectedVisitor {
 
 	@Override
 	protected void onVisitParagraphStart(Paragraph paragraph) {
-		if (paragraph != null && !mPredicates.acceptParagraph(paragraph.getTag())) {
+		if (paragraph != null && !mPredicates.acceptParagraph(paragraph)) {
 			ParagraphSelection prev = paragraph.getSelection(mType);
 			if (prev != null) {
 				prev.recycle();
@@ -38,7 +38,7 @@ public class PredicatesDriveSelectedVisitor extends SelectedVisitor {
 
 	@Override
 	protected boolean selected(Box box, RectF inner, RectF outer) {
-		return mPredicates.acceptSpan(box.getTag());
+		return mPredicates.acceptSpan(box);
 	}
 
 	@Override

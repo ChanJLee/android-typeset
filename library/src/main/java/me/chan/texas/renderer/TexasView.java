@@ -1010,7 +1010,7 @@ public final class TexasView extends FrameLayout {
 		 * @param event     touch event
 		 * @param box       clicked box
 		 */
-		void onSpanClicked(TexasView view, Paragraph paragraph, TouchEvent event, Box box);
+		void onSpanClicked(@NonNull TexasView view, @NonNull Paragraph paragraph, @NonNull TouchEvent event, @NonNull Box box);
 
 		/**
 		 * @param view      view
@@ -1018,27 +1018,27 @@ public final class TexasView extends FrameLayout {
 		 * @param event     touch event
 		 * @param box       clicked box
 		 */
-		void onSpanLongClicked(TexasView view, Paragraph paragraph, TouchEvent event, Box box);
+		void onSpanLongClicked(@NonNull TexasView view, @NonNull Paragraph paragraph, @NonNull TouchEvent event, @NonNull Box box);
 
 		/**
 		 * @param view    view
 		 * @param event   touch event
 		 * @param segment clicked segment
 		 */
-		void onSegmentClicked(TexasView view, TouchEvent event, Segment segment);
+		void onSegmentClicked(@NonNull TexasView view, @NonNull TouchEvent event, @NonNull Segment segment);
 
 		/**
 		 * @param view  view
 		 * @param event touch event
 		 */
-		void onEmptyClicked(TexasView view, TouchEvent event);
+		void onEmptyClicked(@NonNull TexasView view, @NonNull TouchEvent event);
 
 		/**
 		 * @param view    view
 		 * @param event   touch event
 		 * @param segment clicked segment
 		 */
-		void onSegmentDoubleClicked(TexasView view, TouchEvent event, Segment segment);
+		void onSegmentDoubleClicked(@NonNull TexasView view, @NonNull TouchEvent event, @NonNull Segment segment);
 	}
 
 	/**
@@ -1057,28 +1057,28 @@ public final class TexasView extends FrameLayout {
 		 * @param outRect  output edges
 		 */
 		@AnyThread
-		void onDecorateSegment(int index, int count, Segment segment, Document document, Rect outRect);
+		void onDecorateSegment(int index, int count, @NonNull Segment segment, @NonNull Document document, @NonNull Rect outRect);
 	}
 
 	public abstract static class SegmentAnimator {
 
-		public Animator createAddAnimator(Segment segment, View view) {
+		public Animator createAddAnimator(@NonNull Segment segment, @NonNull View view) {
 			return onCreateAddAnimator(segment, view);
 		}
 
-		protected abstract Animator onCreateAddAnimator(Segment segment, View view);
+		protected abstract Animator onCreateAddAnimator(@NonNull Segment segment, @NonNull View view);
 
-		public Animator createRemoveAnimator(Segment segment, View view) {
+		public Animator createRemoveAnimator(@NonNull Segment segment, @NonNull View view) {
 			return onCreateRemoveAnimator(segment, view);
 		}
 
-		protected abstract Animator onCreateRemoveAnimator(Segment segment, View view);
+		protected abstract Animator onCreateRemoveAnimator(@NonNull Segment segment, @NonNull View view);
 
-		public Animator createMoveAnimator(Segment segment, View view, int fromX, int fromY, int toX, int toY) {
+		public Animator createMoveAnimator(@NonNull Segment segment, @NonNull View view, int fromX, int fromY, int toX, int toY) {
 			return onCreateMoveAnimator(segment, view, fromX, fromY, toX, toY);
 		}
 
-		protected abstract Animator onCreateMoveAnimator(Segment segment, View view, int fromX, int fromY, int toX, int toY);
+		protected abstract Animator onCreateMoveAnimator(@NonNull Segment segment, @NonNull View view, int fromX, int fromY, int toX, int toY);
 	}
 
 

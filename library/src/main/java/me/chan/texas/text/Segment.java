@@ -24,7 +24,7 @@ public abstract class Segment {
 	protected SparseArrayCompat<Object> mTagsKv;
 
 	@Nullable
-	public final  <T> T getTag(@IdRes int key, T defaultValue) {
+	public final <T> T getTag(@IdRes int key, T defaultValue) {
 		if (mTagsKv == null) {
 			return defaultValue;
 		}

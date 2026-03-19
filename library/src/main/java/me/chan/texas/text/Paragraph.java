@@ -817,6 +817,7 @@ public final class Paragraph extends Segment {
 		}
 	}
 
+	// todo 考虑 penality
 	@NonNull
 	public List<Paragraph> split(Predicate<Box> predicate) {
 		List<Paragraph> paragraphs = new ArrayList<>();

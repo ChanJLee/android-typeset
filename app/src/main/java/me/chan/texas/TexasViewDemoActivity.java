@@ -179,7 +179,8 @@ public class TexasViewDemoActivity extends AppCompatActivity {
 		findViewById(me.chan.texas.debug.R.id.highlight).setOnClickListener(v ->
 				mTexasView.highlightParagraphs(new ParagraphPredicates() {
 					@Override
-					public boolean acceptSpan(@Nullable Object spanTag) {
+					public boolean acceptSpan(@NonNull Box box) {
+						Object spanTag = box.getTag();
 						if (!(spanTag instanceof BookSource.SpanTag)) {
 							return false;
 						}
@@ -189,9 +190,10 @@ public class TexasViewDemoActivity extends AppCompatActivity {
 					}
 
 					@Override
-					public boolean acceptParagraph(@Nullable Object paragraphTag) {
-						return "A9127P127017".equals(paragraphTag);
+					public boolean acceptParagraph(@NonNull Paragraph paragraph) {
+						return "A9127P127017".equals(paragraph.getTag());
 					}
+
 				}, true, 0));
 	}
 
@@ -438,13 +440,13 @@ public class TexasViewDemoActivity extends AppCompatActivity {
 		findViewById(me.chan.texas.debug.R.id.anim).setOnClickListener(v -> {
 			Selection selection = mTexasView.highlightParagraphs(new ParagraphPredicates() {
 				@Override
-				public boolean acceptSpan(@Nullable Object spanTag) {
+				public boolean acceptSpan(@NonNull Box box) {
 					return true;
 				}
 
 				@Override
-				public boolean acceptParagraph(@Nullable Object paragraphTag) {
-					return "A9127P126972".equals(paragraphTag);
+				public boolean acceptParagraph(@NonNull Paragraph paragraph) {
+					return "A9127P126972".equals(paragraph.getTag());
 				}
 			}, Selection.Styles.create(Color.BLUE, Color.RED));
 			if (selection == null) {

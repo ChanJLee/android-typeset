@@ -3,6 +3,7 @@ package me.chan.texas.text.layout;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
 import androidx.annotation.CallSuper;
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 
 import me.chan.texas.measurer.Measurer;
@@ -131,6 +132,7 @@ public abstract class Box extends DefaultRecyclable implements Element {
 		return mForeground;
 	}
 
+	@Nullable
 	public Object getTag() {
 		return mTag;
 	}

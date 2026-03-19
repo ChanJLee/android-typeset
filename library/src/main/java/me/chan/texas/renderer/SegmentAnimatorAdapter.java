@@ -3,22 +3,24 @@ package me.chan.texas.renderer;
 import android.animation.Animator;
 import android.view.View;
 
+import androidx.annotation.NonNull;
+
 import me.chan.texas.text.Segment;
 
 public class SegmentAnimatorAdapter extends TexasView.SegmentAnimator {
 
 	@Override
-	protected Animator onCreateAddAnimator(Segment segment, View view) {
+	protected Animator onCreateAddAnimator(@NonNull Segment segment, @NonNull View view) {
 		return null;
 	}
 
 	@Override
-	protected Animator onCreateRemoveAnimator(Segment segment, View view) {
+	protected Animator onCreateRemoveAnimator(@NonNull Segment segment, @NonNull View view) {
 		return null;
 	}
 
 	@Override
-	protected Animator onCreateMoveAnimator(Segment segment, View view, int fromX, int fromY, int toX, int toY) {
+	protected Animator onCreateMoveAnimator(@NonNull Segment segment, @NonNull View view, int fromX, int fromY, int toX, int toY) {
 		return null;
 	}
 }

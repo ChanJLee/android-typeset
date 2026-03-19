@@ -1,5 +1,7 @@
 package me.chan.texas.renderer;
 
+import androidx.annotation.NonNull;
+
 import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.Segment;
 import me.chan.texas.text.layout.Box;
@@ -18,30 +20,30 @@ import me.chan.texas.text.layout.Box;
  * });
  * </pre>
  */
-public abstract class OnClickedListenerAdapter implements TexasView.OnClickedListener {
+public class OnClickedListenerAdapter implements TexasView.OnClickedListener {
 
 	@Override
-	public void onSpanClicked(TexasView view, Paragraph paragraph, TouchEvent event, Box box) {
+	public void onSpanClicked(@NonNull TexasView view, @NonNull Paragraph paragraph, @NonNull TouchEvent event, @NonNull Box box) {
 
 	}
 
 	@Override
-	public void onSpanLongClicked(TexasView view, Paragraph paragraph, TouchEvent event, Box box) {
+	public void onSpanLongClicked(@NonNull TexasView view, @NonNull Paragraph paragraph, @NonNull TouchEvent event, @NonNull Box box) {
 
 	}
 
 	@Override
-	public void onSegmentClicked(TexasView view, TouchEvent event, Segment segment) {
+	public void onSegmentClicked(@NonNull TexasView view, @NonNull TouchEvent event, @NonNull Segment segment) {
 
 	}
 
 	@Override
-	public void onSegmentDoubleClicked(TexasView view, TouchEvent event, Segment segment) {
+	public void onEmptyClicked(@NonNull TexasView view, @NonNull TouchEvent event) {
 
 	}
 
 	@Override
-	public void onEmptyClicked(TexasView view, TouchEvent event) {
+	public void onSegmentDoubleClicked(@NonNull TexasView view, @NonNull TouchEvent event, @NonNull Segment segment) {
 
 	}
 }

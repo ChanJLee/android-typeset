@@ -595,7 +595,8 @@ public class BookSource extends TexasView.DocumentSource {
 				} else if (action == MotionEvent.ACTION_UP) {
 					mTexasView.selectParagraphs(new ParagraphPredicates() {
 						@Override
-						public boolean acceptSpan(@Nullable Object spanTag) {
+						public boolean acceptSpan(@NonNull Box box) {
+							Object spanTag = box.getTag();
 							if (!(spanTag instanceof BookSource.SpanTag)) {
 								return false;
 							}
@@ -605,7 +606,7 @@ public class BookSource extends TexasView.DocumentSource {
 						}
 
 						@Override
-						public boolean acceptParagraph(@Nullable Object paragraphTag) {
+						public boolean acceptParagraph(@NonNull Paragraph paragraph) {
 							return true;
 						}
 					});
