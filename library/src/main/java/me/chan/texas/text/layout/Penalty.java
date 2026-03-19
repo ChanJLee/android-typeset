@@ -98,7 +98,7 @@ public class Penalty implements Element {
 	private float mPenalty;
 	private float mWidth;
 	private float mHeight;
-	private Object mTag;
+	private TextBox mDepends;
 	private TextStyle mTextStyle;
 
 	private Penalty() {
@@ -121,7 +121,7 @@ public class Penalty implements Element {
 	}
 
 	public Object getTag() {
-		return mTag;
+		return mDepends.getTag();
 	}
 
 	public TextStyle getTextStyle() {
@@ -151,7 +151,7 @@ public class Penalty implements Element {
 		}
 
 		Measurer.CharSequenceSpec spec = Measurer.CharSequenceSpec.obtain();
-		measurer.measure("-", 0, 1, mTextStyle, mTag, spec);
+		measurer.measure("-", 0, 1, mTextStyle, mDepends, spec);
 		mWidth = spec.getWidth();
 		mHeight = spec.getHeight();
 		spec.recycle();
@@ -162,17 +162,17 @@ public class Penalty implements Element {
 	}
 
 	public static Penalty obtain(float penalty,
-								 Object tag, TextStyle textStyle) {
-		return obtain(penalty, true, tag, textStyle);
+								 TextBox textBox, TextStyle textStyle) {
+		return obtain(penalty, true, textBox, textStyle);
 	}
 
 	@NonNull
 	public static Penalty obtain(float penalty, boolean flag/* 不是连字符 true, 连字符 false */,
-								 Object tag, TextStyle textStyle) {
+								 TextBox textBox, TextStyle textStyle) {
 		Penalty p = new Penalty();
 		p.mFlag = flag;
 		p.mPenalty = penalty;
-		p.mTag = tag;
+		p.mDepends = textBox;
 		p.mTextStyle = textStyle;
 		return p;
 	}

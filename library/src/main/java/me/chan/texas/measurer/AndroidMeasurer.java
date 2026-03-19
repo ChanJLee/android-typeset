@@ -9,6 +9,7 @@ import androidx.annotation.RestrictTo;
 import me.chan.texas.misc.PaintSet;
 import me.chan.texas.renderer.core.graphics.TexasPaintImpl;
 import me.chan.texas.text.TextStyle;
+import me.chan.texas.text.layout.TextBox;
 import me.chan.texas.utils.CharArrayPool;
 import me.chan.texas.utils.TexasUtils;
 
@@ -36,14 +37,14 @@ public class AndroidMeasurer implements Measurer {
 	}
 
 	@Override
-	public void measure(CharSequence charSequence, int start, int end, TextStyle textStyle, Object tag, CharSequenceSpec spec) {
-		measure0(charSequence, start, end, textStyle, tag, spec, false);
+	public void measure(CharSequence charSequence, int start, int end, TextStyle textStyle, TextBox box, CharSequenceSpec spec) {
+		measure0(charSequence, start, end, textStyle, box, spec, false);
 	}
 
-	private void measure0(CharSequence charSequence, int start, int end, TextStyle textStyle, Object tag, CharSequenceSpec spec, boolean force) {
+	private void measure0(CharSequence charSequence, int start, int end, TextStyle textStyle, TextBox box, CharSequenceSpec spec, boolean force) {
 		mTexasPaint.reset(mPaintSet);
 		if (textStyle != null) {
-			textStyle.update(mTexasPaint, tag);
+			textStyle.update(mTexasPaint, box);
 		}
 		Paint paint = mTexasPaint.getPaint();
 

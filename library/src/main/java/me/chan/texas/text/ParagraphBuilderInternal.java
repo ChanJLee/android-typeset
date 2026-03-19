@@ -500,7 +500,7 @@ class ParagraphBuilderInternal {
 						appendElement(Penalty.obtainFakePenalty(Texas.HYPHEN_PENALTY));
 					} else {
 						appendElement(Penalty.obtain(Texas.HYPHEN_PENALTY,
-								tag,
+								box,
 								textStyle
 						));
 					}

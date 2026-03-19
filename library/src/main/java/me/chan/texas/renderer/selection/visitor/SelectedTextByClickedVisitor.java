@@ -11,17 +11,17 @@ import me.chan.texas.text.layout.Box;
 public class SelectedTextByClickedVisitor extends SelectedVisitor {
 
 	private SpanPredicate mPredicate;
-	private Object mClickedTag;
+	private Box mClickedTag;
 	private boolean mHandled = false;
 
-	public void setPredicate(SpanPredicate predicate, Object clicked) {
+	public void setPredicate(SpanPredicate predicate, Box clicked) {
 		mPredicate = predicate;
 		mClickedTag = clicked;
 	}
 
 	@Override
 	protected boolean selected(Box box, RectF inner, RectF outer) {
-		boolean result = mPredicate.accept(mClickedTag, box.getTag());
+		boolean result = mPredicate.accept(mClickedTag, box);
 		if (result) {
 			mHandled = true;
 		}

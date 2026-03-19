@@ -126,14 +126,14 @@ public class ParagraphView extends FrameLayout {
 
 	private final SpanPredicate mOnSpanClickedPredicate = new SpanPredicate() {
 		@Override
-		public boolean accept(@Nullable Object clickedTag, @Nullable Object tag) {
-			return mSpanTouchEventHandler.applySpanClicked(clickedTag, tag);
+		public boolean accept(@Nullable Box clicked, @Nullable Box other) {
+			return mSpanTouchEventHandler.applySpanClicked(clicked, other);
 		}
 	};
 	private final SpanPredicate mOnSpanLongClickedPredicate = new SpanPredicate() {
 		@Override
-		public boolean accept(@Nullable Object clickedTag, @Nullable Object tag) {
-			return mSpanTouchEventHandler.applySpanLongClicked(clickedTag, tag);
+		public boolean accept(@Nullable Box clicked, @Nullable Box other) {
+			return mSpanTouchEventHandler.applySpanLongClicked(clicked, other);
 		}
 	};
 
@@ -343,7 +343,7 @@ public class ParagraphView extends FrameLayout {
 			);
 			mSelectedTextByClickedVisitor.setPredicate(
 					predicate,
-					box.getTag()
+					box
 			);
 
 			// update ui

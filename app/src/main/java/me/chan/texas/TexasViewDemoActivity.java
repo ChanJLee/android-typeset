@@ -20,6 +20,7 @@ import android.widget.CompoundButton;
 import android.widget.RadioGroup;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
@@ -86,22 +87,23 @@ public class TexasViewDemoActivity extends AppCompatActivity {
 		// 没别的要求，一定要快！！！不然会ANR ⚠️
 		mTexasView.setSpanTouchEventHandler(new SpanTouchEventHandler() {
 			@Override
-			public boolean isSpanClickable(Object tag) {
-				return tag != null;
-			}
-
-			// 单机谓词 判断 单机时哪些单词要被高亮
-			@Override
-			public boolean applySpanClicked(@Nullable Object clickedTag, @Nullable Object otherTag) {
-				return clickedTag == otherTag;
+			public boolean isSpanClickable(@NonNull Box box) {
+				return box.getTag() != null;
 			}
 
 			@Override
-			public boolean applySpanLongClicked(@Nullable Object clickedTag, @Nullable Object otherTag) {
+			public boolean applySpanClicked(@NonNull Box clicked, @NonNull Box other) {
+				return clicked.getTag() == other.getTag();
+			}
+
+			@Override
+			public boolean applySpanLongClicked(@NonNull Box clicked, @NonNull Box other) {
+				Object otherTag = other.getTag();
 				if (otherTag == null) {
 					return true;
 				}
 
+				Object clickedTag = clicked.getTag();
 				if (clickedTag instanceof BookSource.SpanTag && otherTag instanceof BookSource.SpanTag) {
 					BookSource.SpanTag lhs = (BookSource.SpanTag) clickedTag;
 					BookSource.SpanTag rhs = (BookSource.SpanTag) otherTag;

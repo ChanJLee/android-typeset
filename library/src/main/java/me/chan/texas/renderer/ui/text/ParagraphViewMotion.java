@@ -131,7 +131,7 @@ public class ParagraphViewMotion {
 
 		if (!handler.acceptSpan(
 				eventType == OnSelectedChangedListener.EVENT_CLICKED ?
-						SpanTouchEventHandler.EventType.CLICK : SpanTouchEventHandler.EventType.LONG_CLICK, mLastTouchBox.getTag())) {
+						SpanTouchEventHandler.EventType.CLICK : SpanTouchEventHandler.EventType.LONG_CLICK, mLastTouchBox)) {
 			return false;
 		}
 
@@ -264,7 +264,7 @@ public class ParagraphViewMotion {
 			float y = e.getY();
 			Box box = checkIfClicked(x, y);
 			if (box != null) {
-				if (handler.isSpanClickable(box.getTag())) {
+				if (handler.isSpanClickable(box)) {
 					mLastTouchBox = box;
 					mMode = MODE_BOX;
 					return true;

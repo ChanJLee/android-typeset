@@ -329,25 +329,23 @@ public class RenderWorker {
 			}
 
 			TextBox textBox = (TextBox) box;
-			// 显示高亮
-			Object tag = textBox.getTag();
 
 			TextStyle textStyle = textBox.getTextStyle();
 			if (textStyle != null) {
-				textStyle.update(workPaint, tag);
+				textStyle.update(workPaint, textBox);
 			}
 
 			if (mSelection != null && isSelected) {
 				textStyle = mSelection.getStyle();
 				if (textStyle != null) {
-					textStyle.update(workPaint, box.getTag());
+					textStyle.update(workPaint, textBox);
 				}
 			}
 
 			if (mHighlight != null && isHighlighted) {
 				textStyle = mHighlight.getStyle();
 				if (textStyle != null) {
-					textStyle.update(workPaint, box.getTag());
+					textStyle.update(workPaint, textBox);
 				}
 			}
 		}

@@ -71,14 +71,14 @@ public class SelectionMethodImpl implements OnSelectedChangedListener, Selection
 	private SpanTouchEventHandler mSpanTouchEventHandler;
 	private final SpanPredicate mOnSpanClickedPredicate = new SpanPredicate() {
 		@Override
-		public boolean accept(@Nullable Object clickedTag, @Nullable Object tag) {
-			return mSpanTouchEventHandler.applySpanClicked(clickedTag, tag);
+		public boolean accept(@NonNull Box thiz, @NonNull Box other) {
+			return mSpanTouchEventHandler.applySpanClicked(thiz, other);
 		}
 	};
 	private final SpanPredicate mOnSpanLongClickedPredicate = new SpanPredicate() {
 		@Override
-		public boolean accept(@Nullable Object clickedTag, @Nullable Object tag) {
-			return mSpanTouchEventHandler.applySpanLongClicked(clickedTag, tag);
+		public boolean accept(@NonNull Box thiz, @NonNull Box other) {
+			return mSpanTouchEventHandler.applySpanLongClicked(thiz, other);
 		}
 	};
 
@@ -220,13 +220,13 @@ public class SelectionMethodImpl implements OnSelectedChangedListener, Selection
 		}
 
 		RenderOption renderOption = mAdapter.getRenderOption();
-		return handleParagraphClicked0(paragraph, renderOption, predicate, box.getTag(), selection);
+		return handleParagraphClicked0(paragraph, renderOption, predicate, box, selection);
 	}
 
 	private boolean handleParagraphClicked0(Paragraph paragraph,
 											RenderOption renderOption,
 											SpanPredicate predicate,
-											Object boxTag,
+											Box box,
 											Selection selection) throws ParagraphVisitor.VisitException {
 		try {
 			mSelectedTextByClickedVisitor.reset(
@@ -235,7 +235,7 @@ public class SelectionMethodImpl implements OnSelectedChangedListener, Selection
 					paragraph,
 					renderOption
 			);
-			mSelectedTextByClickedVisitor.setPredicate(predicate, boxTag);
+			mSelectedTextByClickedVisitor.setPredicate(predicate, box);
 			mSelectedTextByClickedVisitor.startVisit(
 					paragraph
 			);

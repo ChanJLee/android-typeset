@@ -45,6 +45,7 @@ import me.chan.texas.text.ViewSegment;
 import me.chan.texas.text.layout.Box;
 import me.chan.texas.text.layout.Layout;
 import me.chan.texas.text.layout.Line;
+import me.chan.texas.text.layout.TextBox;
 import me.chan.texas.text.tokenizer.Token;
 import me.chan.texas.utils.CharStream;
 import me.chan.texas.utils.TexasUtils;
@@ -149,7 +150,7 @@ public class BookSource extends TexasView.DocumentSource {
 				.next("QWERTYUIOPASDFGHJKLZXCVBNM")
 				.setTextStyle(new TextStyle() {
 					@Override
-					public void update(@NonNull TexasPaint textPaint, @Nullable Object tag) {
+					public void update(@NonNull TexasPaint textPaint, TextBox box) {
 						textPaint.setTextSize(120);
 						textPaint.setFakeBoldText(true);
 					}

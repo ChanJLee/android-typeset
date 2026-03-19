@@ -344,7 +344,7 @@ public final class TextBox extends Box {
 	@Override
 	protected void onMeasure(Measurer measurer, TextAttribute textAttribute) {
 		Measurer.CharSequenceSpec spec = Measurer.CharSequenceSpec.obtain();
-		measurer.measure(mText, mStart, mEnd, getTextStyle(), getTag(), spec);
+		measurer.measure(mText, mStart, mEnd, getTextStyle(), this, spec);
 		mWidth = spec.getWidth();
 		mHeight = spec.getHeight();
 		mBaselineOffset = spec.getBaselineOffset();

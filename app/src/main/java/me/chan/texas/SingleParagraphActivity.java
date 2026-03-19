@@ -12,6 +12,7 @@ import android.view.ViewParent;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -22,6 +23,7 @@ import me.chan.texas.renderer.SpanTouchEventHandler;
 import me.chan.texas.renderer.TouchEvent;
 import me.chan.texas.renderer.ui.text.ParagraphView;
 import me.chan.texas.text.Paragraph;
+import me.chan.texas.text.layout.Box;
 import me.chan.texas.text.tokenizer.Token;
 
 public class SingleParagraphActivity extends AppCompatActivity {
@@ -93,17 +95,17 @@ public class SingleParagraphActivity extends AppCompatActivity {
 		});
 		paragraphView.setSpanTouchEventHandler(new SpanTouchEventHandler() {
 			@Override
-			public boolean isSpanClickable(@Nullable Object tag) {
+			public boolean isSpanClickable(@NonNull Box box) {
 				return true;
 			}
 
 			@Override
-			public boolean applySpanClicked(@Nullable Object clickedTag, @Nullable Object otherTag) {
-				return clickedTag == otherTag;
+			public boolean applySpanClicked(@NonNull Box clicked, @NonNull Box other) {
+				return clicked.getTag() == other.getTag();
 			}
 
 			@Override
-			public boolean applySpanLongClicked(@Nullable Object clickedTag, @Nullable Object otherTag) {
+			public boolean applySpanLongClicked(@NonNull Box clicked, @NonNull Box other) {
 				return false;
 			}
 		});

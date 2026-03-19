@@ -31,6 +31,7 @@ import me.chan.texas.text.TextStyle;
 import me.chan.texas.text.layout.Box;
 import me.chan.texas.text.layout.Layout;
 import me.chan.texas.text.layout.Line;
+import me.chan.texas.text.layout.TextBox;
 
 /**
  * 文本选中区域
@@ -357,7 +358,7 @@ public class ParagraphSelection extends DefaultRecyclable {
 		}
 
 		@Override
-		public void update(@NonNull TexasPaint textPaint, @Nullable Object tag) {
+		public void update(@NonNull TexasPaint textPaint, @NonNull TextBox box) {
 			textPaint.setColor(mTextColor);
 			if (mFakeBoldFactor > 0f) {
 				textPaint.setStyle(Paint.Style.FILL_AND_STROKE);

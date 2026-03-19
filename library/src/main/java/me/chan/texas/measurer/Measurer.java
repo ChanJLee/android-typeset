@@ -9,6 +9,7 @@ import me.chan.texas.misc.ObjectPool;
 import me.chan.texas.misc.PaintSet;
 import me.chan.texas.text.TextStyle;
 import me.chan.texas.text.Paragraph;
+import me.chan.texas.text.layout.TextBox;
 
 /**
  * 文字测量器
@@ -23,10 +24,10 @@ public interface Measurer {
 	 * @param start        文本开始下表
 	 * @param end          文本结束下标
 	 * @param textStyle    text style
-	 * @param tag          {@link Paragraph.SpanBuilder#tag(Object)}
+	 * @param box          text box
 	 * @param spec         输出
 	 */
-	void measure(CharSequence charSequence, int start, int end, TextStyle textStyle, Object tag, CharSequenceSpec spec);
+	void measure(CharSequence charSequence, int start, int end, TextStyle textStyle, TextBox box, CharSequenceSpec spec);
 
 	void refresh(PaintSet paintSet);
 
