@@ -3,7 +3,6 @@ package me.chan.texas.renderer.selection.visitor;
 import me.chan.texas.misc.RectF;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 
 import me.chan.texas.renderer.ParagraphPredicates;
@@ -11,8 +10,7 @@ import me.chan.texas.renderer.RenderOption;
 import me.chan.texas.renderer.selection.ParagraphSelection;
 import me.chan.texas.renderer.selection.Selection;
 import me.chan.texas.text.Paragraph;
-import me.chan.texas.text.TextStyles;
-import me.chan.texas.text.layout.Box;
+import me.chan.texas.text.layout.Span;
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class PredicatesDriveSelectedVisitor extends SelectedVisitor {
@@ -26,7 +24,7 @@ public class PredicatesDriveSelectedVisitor extends SelectedVisitor {
 
 	@Override
 	protected void onVisitParagraphStart(Paragraph paragraph) {
-		if (paragraph != null && !mPredicates.acceptParagraph(paragraph.getTag())) {
+		if (paragraph != null && !mPredicates.acceptParagraph(paragraph)) {
 			ParagraphSelection prev = paragraph.getSelection(mType);
 			if (prev != null) {
 				prev.recycle();
@@ -37,8 +35,8 @@ public class PredicatesDriveSelectedVisitor extends SelectedVisitor {
 	}
 
 	@Override
-	protected boolean selected(Box box, RectF inner, RectF outer) {
-		return mPredicates.acceptSpan(box.getTag());
+	protected boolean selected(Span span, RectF inner, RectF outer) {
+		return mPredicates.acceptSpan(span);
 	}
 
 	@Override

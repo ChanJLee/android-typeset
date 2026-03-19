@@ -3,29 +3,28 @@ package me.chan.texas.utils;
 import org.junit.Assert;
 import org.junit.Test;
 
-import me.chan.texas.text.layout.Glue;
-import me.chan.texas.text.layout.TextBox;
+import me.chan.texas.text.layout.TextSpan;
 
 public class ReferenceCountingPointerUnitTest {
 
 	@Test
 	public void test() {
-		TextBox box = TextBox.obtain("1", 0, 1, null, null, null, null);
-		Assert.assertFalse(box.isRecycled());
+		TextSpan span = TextSpan.obtain("1", 0, 1, null, null, null, null);
+		Assert.assertFalse(span.isRecycled());
 
-		ReferenceCountingPointer<TextBox> pointer = new ReferenceCountingPointer<TextBox>(box, new ReferenceCountingPointer.Listener<TextBox>() {
+		ReferenceCountingPointer<TextSpan> pointer = new ReferenceCountingPointer<TextSpan>(span, new ReferenceCountingPointer.Listener<TextSpan>() {
 			@Override
-			public void onRelease(TextBox v) {
+			public void onRelease(TextSpan v) {
 				v.recycle();
 			}
 		});
 
-		ReferenceCountingPointer<TextBox> copy = new ReferenceCountingPointer<TextBox>(pointer);
+		ReferenceCountingPointer<TextSpan> copy = new ReferenceCountingPointer<TextSpan>(pointer);
 
 		pointer.release();
-		Assert.assertFalse(box.isRecycled());
+		Assert.assertFalse(span.isRecycled());
 
 		copy.release();
-		Assert.assertTrue(box.isRecycled());
+		Assert.assertTrue(span.isRecycled());
 	}
 }

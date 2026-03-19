@@ -19,7 +19,7 @@ import me.chan.texas.renderer.RenderOption;
 import me.chan.texas.test.mock.MockTextPaint;
 import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.TextAttribute;
-import me.chan.texas.text.layout.TextBox;
+import me.chan.texas.text.layout.TextSpan;
 
 public class ParagraphExUnitTest {
 	private Measurer mMeasurer;
@@ -167,7 +167,7 @@ public class ParagraphExUnitTest {
 		String text = "hello تم تكرار كلمة";
 		int start = 0;
 		int end = text.length();
-		char[] buffer = TextBox.CHAR_ARRAY_POOL.obtain(end - start);
+		char[] buffer = TextSpan.CHAR_ARRAY_POOL.obtain(end - start);
 		for (int i = start; i < end; ++i) {
 			buffer[i - start] = text.charAt(i);
 		}
@@ -178,6 +178,6 @@ public class ParagraphExUnitTest {
 			boolean rtl = bidi.getRunLevel(i) % 2 != 0;
 			System.out.println("[" + runStart + ", " + runLimit + ") " + (rtl ? "rtl" : "ltr") + " " + text.substring(runStart, runLimit));
 		}
-		TextBox.CHAR_ARRAY_POOL.release(buffer);
+		TextSpan.CHAR_ARRAY_POOL.release(buffer);
 	}
 }

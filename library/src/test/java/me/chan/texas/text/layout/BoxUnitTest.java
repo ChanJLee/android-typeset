@@ -67,7 +67,7 @@ public class BoxUnitTest {
 		TestUtils.testRecycled(mockBox);
 	}
 
-	private static class MockBox extends Box {
+	private static class MockBox extends Span {
 
 		/**
 		 * @param width  宽度

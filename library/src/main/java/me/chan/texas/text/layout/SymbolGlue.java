@@ -10,7 +10,7 @@ public class SymbolGlue extends Glue {
 
 	private static final float MAGIC_FACTOR = 0.7f;
 
-	private TextBox mTextBox;
+	private TextSpan mTextBox;
 
 	private SymbolGlue() {
 	}
@@ -23,10 +23,10 @@ public class SymbolGlue extends Glue {
 		mStretch = 0;
 	}
 
-	public static SymbolGlue obtain(TextBox box) {
+	public static SymbolGlue obtain(TextSpan span) {
 		SymbolGlue glue = new SymbolGlue();
-		glue.mTextBox = box;
-		glue.mWidth = box.getWidth();
+		glue.mTextBox = span;
+		glue.mWidth = span.getWidth();
 		glue.mShrink = glue.mWidth * MAGIC_FACTOR;
 		glue.mStretch = 0;
 		glue.mRefreshFlag = 0;

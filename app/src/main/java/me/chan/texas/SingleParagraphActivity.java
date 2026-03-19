@@ -12,7 +12,7 @@ import android.view.ViewParent;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.Nullable;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import java.lang.reflect.Method;
@@ -22,6 +22,7 @@ import me.chan.texas.renderer.SpanTouchEventHandler;
 import me.chan.texas.renderer.TouchEvent;
 import me.chan.texas.renderer.ui.text.ParagraphView;
 import me.chan.texas.text.Paragraph;
+import me.chan.texas.text.layout.Span;
 import me.chan.texas.text.tokenizer.Token;
 
 public class SingleParagraphActivity extends AppCompatActivity {
@@ -72,12 +73,12 @@ public class SingleParagraphActivity extends AppCompatActivity {
 		ParagraphView paragraphView = findViewById(me.chan.texas.debug.R.id.paragraph);
 		paragraphView.setOnClickedListener(new ParagraphView.OnClickedListener() {
 			@Override
-			public void onSpanClicked(ParagraphView paragraphView, TouchEvent event, Object tag) {
+			public void onSpanClicked(ParagraphView paragraphView, TouchEvent event, Span span) {
 				Toast.makeText(SingleParagraphActivity.this, "onSpanClicked", Toast.LENGTH_SHORT).show();
 			}
 
 			@Override
-			public void onSpanLongClicked(ParagraphView paragraphView, TouchEvent event, Object tag) {
+			public void onSpanLongClicked(ParagraphView paragraphView, TouchEvent event, Span span) {
 				Toast.makeText(SingleParagraphActivity.this, "onSpanLongClicked", Toast.LENGTH_SHORT).show();
 			}
 
@@ -93,17 +94,17 @@ public class SingleParagraphActivity extends AppCompatActivity {
 		});
 		paragraphView.setSpanTouchEventHandler(new SpanTouchEventHandler() {
 			@Override
-			public boolean isSpanClickable(@Nullable Object tag) {
+			public boolean isSpanClickable(@NonNull Span span) {
 				return true;
 			}
 
 			@Override
-			public boolean applySpanClicked(@Nullable Object clickedTag, @Nullable Object otherTag) {
-				return clickedTag == otherTag;
+			public boolean applySpanClicked(@NonNull Span clicked, @NonNull Span other) {
+				return clicked.getTag() == other.getTag();
 			}
 
 			@Override
-			public boolean applySpanLongClicked(@Nullable Object clickedTag, @Nullable Object otherTag) {
+			public boolean applySpanLongClicked(@NonNull Span clicked, @NonNull Span other) {
 				return false;
 			}
 		});
@@ -112,7 +113,7 @@ public class SingleParagraphActivity extends AppCompatActivity {
 			protected Paragraph onRead(TexasOption option) {
 				Paragraph.Builder builder = Paragraph.Builder.newBuilder(option);
 				builder.stream(msg, 0, msg.length(), token -> {
-					Paragraph.Span span = Paragraph.Span.obtain(token);
+					Paragraph.SpanStyles span = Paragraph.SpanStyles.obtain(token);
 					if (token.getCategory() != Token.CATEGORY_NORMAL) {
 						return span;
 					}

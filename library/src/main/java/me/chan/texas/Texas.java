@@ -17,9 +17,8 @@ import me.chan.texas.di.DaggerTexasComponent;
 import me.chan.texas.di.TexasComponent;
 import me.chan.texas.issue.IssueSystem;
 import me.chan.texas.text.Paragraph;
-import me.chan.texas.text.layout.DrawableBox;
 import me.chan.texas.text.layout.Line;
-import me.chan.texas.text.layout.TextBox;
+import me.chan.texas.text.layout.TextSpan;
 import me.chan.texas.utils.TexasUtils;
 
 import java.util.HashSet;
@@ -125,9 +124,8 @@ public class Texas {
 			Log.i("Texas", "clean text engine memory");
 			// do clean
 			// add engine clean code
-			TextBox.clean();
+			TextSpan.clean();
 			Line.clean();
-			DrawableBox.clean();
 			Paragraph.Builder.clean();
 			for (LifecycleCallback callback : LIFECYCLE_CALLBACKS) {
 				try {

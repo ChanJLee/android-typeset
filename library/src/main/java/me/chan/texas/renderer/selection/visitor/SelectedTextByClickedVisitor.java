@@ -5,23 +5,23 @@ import me.chan.texas.misc.RectF;
 import androidx.annotation.RestrictTo;
 
 import me.chan.texas.renderer.SpanPredicate;
-import me.chan.texas.text.layout.Box;
+import me.chan.texas.text.layout.Span;
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class SelectedTextByClickedVisitor extends SelectedVisitor {
 
 	private SpanPredicate mPredicate;
-	private Object mClickedTag;
+	private Span mClickedTag;
 	private boolean mHandled = false;
 
-	public void setPredicate(SpanPredicate predicate, Object clicked) {
+	public void setPredicate(SpanPredicate predicate, Span clicked) {
 		mPredicate = predicate;
 		mClickedTag = clicked;
 	}
 
 	@Override
-	protected boolean selected(Box box, RectF inner, RectF outer) {
-		boolean result = mPredicate.accept(mClickedTag, box.getTag());
+	protected boolean selected(Span span, RectF inner, RectF outer) {
+		boolean result = mPredicate.accept(mClickedTag, span);
 		if (result) {
 			mHandled = true;
 		}

@@ -3,10 +3,10 @@ package me.chan.texas.text;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
 import me.chan.texas.R;
+import me.chan.texas.compat.Predicate;
 import me.chan.texas.measurer.Measurer;
 import me.chan.texas.misc.Rect;
 
-import androidx.annotation.IdRes;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -24,6 +24,7 @@ import me.chan.texas.renderer.selection.ParagraphSelection;
 import me.chan.texas.renderer.selection.Selection;
 import me.chan.texas.renderer.ui.RendererHost;
 import me.chan.texas.renderer.ui.decor.ParagraphDecor;
+import me.chan.texas.text.layout.Span;
 import me.chan.texas.text.layout.Element;
 import me.chan.texas.text.layout.Glue;
 import me.chan.texas.text.layout.Layout;
@@ -40,20 +41,7 @@ import java.util.List;
 /**
  * 段落
  */
-public final class Paragraph implements Segment {
-
-	@NonNull
-	@RestrictTo(LIBRARY)
-	volatile Layout mLayout;
-
-	@RestrictTo(LIBRARY)
-	final List<Element> mElements;
-
-	@RestrictTo(RestrictTo.Scope.LIBRARY)
-	SparseArrayCompat<Object> mTagsKv;
-
-	ParagraphDecor mDecor;
-
+public final class Paragraph extends Segment {
 	/**
 	 * 默认
 	 */
@@ -71,6 +59,26 @@ public final class Paragraph implements Segment {
 	 */
 	public static final int TYPESET_POLICY_ACCEPT_CONTROL_CHAR = 4;
 
+
+	@NonNull
+	@RestrictTo(LIBRARY)
+	volatile Layout mLayout;
+
+	@RestrictTo(LIBRARY)
+	final List<Element> mElements;
+
+	ParagraphDecor mDecor;
+
+	int mId;
+
+	private ParagraphSelection mSelection;
+
+	private ParagraphSelection mHighlight;
+
+	private RecyclerView.ViewHolder mHolder;
+
+	private RendererHost mHost;
+
 	@RestrictTo(LIBRARY)
 	@Nullable
 	public ParagraphDecor getDecor() {
@@ -81,22 +89,6 @@ public final class Paragraph implements Segment {
 	@IntDef({TYPESET_POLICY_DEFAULT, TYPESET_POLICY_CJK_MIX_OPTIMIZATION, TYPESET_POLICY_BIDI_TEXT,
 			TYPESET_POLICY_ACCEPT_CONTROL_CHAR})
 	public @interface TypesetPolicy {
-	}
-
-	int mId;
-
-	@Nullable
-	@Override
-	public Object getTag() {
-		return getTag(R.id.me_chan_texas_paragraph_tag);
-	}
-
-	@Nullable
-	public <T> T getTag(@IdRes int key) {
-		if (mTagsKv == null) {
-			return null;
-		}
-		return (T) mTagsKv.get(key);
 	}
 
 	@Override
@@ -115,10 +107,6 @@ public final class Paragraph implements Segment {
 	public void setPadding(Rect rect) {
 		mLayout.setPadding(rect);
 	}
-
-	private ParagraphSelection mSelection;
-
-	private ParagraphSelection mHighlight;
 
 	@RestrictTo(LIBRARY)
 	@Nullable
@@ -146,10 +134,12 @@ public final class Paragraph implements Segment {
 	private Paragraph(Object tag) {
 		if (tag != null) {
 			mTagsKv = new SparseArrayCompat<>();
-			mTagsKv.put(R.id.me_chan_texas_paragraph_tag, tag);
+			mTagsKv.put(R.id.me_chan_texas_view_segment_tag, tag);
 		}
 		Texas.MemoryOption memoryOption = Texas.getMemoryOption();
 		mElements = new ArrayList<>(memoryOption.getParagraphElementInitialCapacity());
+		mLayout = Layout.obtain();
+		mId = Segment.nextId();
 	}
 
 	@RestrictTo(LIBRARY)
@@ -191,9 +181,6 @@ public final class Paragraph implements Segment {
 	public int getId() {
 		return mId;
 	}
-
-	private RecyclerView.ViewHolder mHolder;
-	private RendererHost mHost;
 
 	@Override
 	public void bind(RendererHost host) {
@@ -390,7 +377,7 @@ public final class Paragraph implements Segment {
 		 * @param spanReader span 读取
 		 * @return 当前对象
 		 */
-		public Builder stream(CharSequence text, SpanReader spanReader) {
+		public Builder stream(CharSequence text, SpanStylesReader spanReader) {
 			return stream(text, 0, text.length(), spanReader);
 		}
 
@@ -413,7 +400,7 @@ public final class Paragraph implements Segment {
 		 * @param spanReader span 读取
 		 * @return 当前对象
 		 */
-		public Builder stream(CharSequence text, int start, int end, SpanReader spanReader) {
+		public Builder stream(CharSequence text, int start, int end, SpanStylesReader spanReader) {
 			mBuilder0.stream(text, start, end, spanReader);
 			return this;
 		}
@@ -427,8 +414,8 @@ public final class Paragraph implements Segment {
 			return this;
 		}
 
-		public interface SpanReader {
-			Span read(Token token);
+		public interface SpanStylesReader {
+			SpanStyles read(Token token);
 		}
 
 		/**
@@ -551,9 +538,9 @@ public final class Paragraph implements Segment {
 	/**
 	 * span构造器
 	 */
-	public static class SpanBuilder implements Builder.SpanReader {
+	public static class SpanBuilder implements Builder.SpanStylesReader {
 		private final Builder mBuilder;
-		private Span mSpan;
+		private SpanStyles mSpan;
 
 		SpanBuilder(Builder builder) {
 			mBuilder = builder;
@@ -587,7 +574,7 @@ public final class Paragraph implements Segment {
 		 */
 		public SpanBuilder next(CharSequence text, int start, int end) {
 			flush();
-			mSpan = Span.obtain(text, start, end);
+			mSpan = SpanStyles.obtain(text, start, end);
 			return this;
 		}
 
@@ -667,8 +654,8 @@ public final class Paragraph implements Segment {
 
 		@Override
 		@RestrictTo(LIBRARY)
-		public final Span read(Token token) {
-			Span span = Span.obtain(mSpan.mText, mSpan.mStart, mSpan.mEnd);
+		public final SpanStyles read(Token token) {
+			SpanStyles span = SpanStyles.obtain(mSpan.mText, mSpan.mStart, mSpan.mEnd);
 			span.copyMeta(mSpan);
 			return span;
 		}
@@ -677,8 +664,8 @@ public final class Paragraph implements Segment {
 	/**
 	 * 文本的样式
 	 */
-	public static class Span extends DefaultRecyclable {
-		private static final ObjectPool<Span> POOL = new ObjectPool<>(32);
+	public static class SpanStyles extends DefaultRecyclable {
+		private static final ObjectPool<SpanStyles> POOL = new ObjectPool<>(32);
 
 		private CharSequence mText;
 		private int mStart;
@@ -688,11 +675,11 @@ public final class Paragraph implements Segment {
 		final TextStyles mStyles = new TextStyles();
 		Object mTag;
 
-		private Span() {
+		private SpanStyles() {
 		}
 
 		@RestrictTo(LIBRARY)
-		public void copyMeta(Span other) {
+		public void copyMeta(SpanStyles other) {
 			this.mStyles.copy(other.mStyles);
 			this.mTag = other.mTag;
 		}
@@ -717,7 +704,7 @@ public final class Paragraph implements Segment {
 		 * @param tag 用来标识这个span，因此需要保持唯一
 		 * @return 当前对象
 		 */
-		public Span tag(Object tag) {
+		public SpanStyles tag(Object tag) {
 			mTag = tag;
 			return this;
 		}
@@ -732,7 +719,7 @@ public final class Paragraph implements Segment {
 		 * @param textStyle 文字属性
 		 * @return 当前对象
 		 */
-		public Span setTextStyle(TextStyle textStyle) {
+		public SpanStyles setTextStyle(TextStyle textStyle) {
 			mStyles.setTextStyle(textStyle);
 			return this;
 		}
@@ -745,7 +732,7 @@ public final class Paragraph implements Segment {
 		 * @param background 文字背景
 		 * @return 当前对象
 		 */
-		public Span setBackground(Appearance background) {
+		public SpanStyles setBackground(Appearance background) {
 			mStyles.setBackground(background);
 			return this;
 		}
@@ -758,12 +745,12 @@ public final class Paragraph implements Segment {
 		 * @param foreground 前景
 		 * @return 当前对象
 		 */
-		public Span setForeground(Appearance foreground) {
+		public SpanStyles setForeground(Appearance foreground) {
 			mStyles.setForeground(foreground);
 			return this;
 		}
 
-		public static Span obtain(Token token) {
+		public static SpanStyles obtain(Token token) {
 			return obtain(token.getCharSequence(), token.getStart(), token.getEnd());
 		}
 
@@ -773,10 +760,10 @@ public final class Paragraph implements Segment {
 		 * @param end   结束
 		 * @return span
 		 */
-		public static Span obtain(CharSequence text, int start, int end) {
-			Span span = POOL.acquire();
+		public static SpanStyles obtain(CharSequence text, int start, int end) {
+			SpanStyles span = POOL.acquire();
 			if (span == null) {
-				span = new Span();
+				span = new SpanStyles();
 			}
 
 			span.mText = text;
@@ -830,15 +817,54 @@ public final class Paragraph implements Segment {
 		}
 	}
 
-	public void setTag(@Nullable Object tag) {
-		setTag(R.id.me_chan_texas_paragraph_tag, tag);
+	// todo 考虑 penality
+	@NonNull
+	public List<Paragraph> split(Predicate<Span> predicate) {
+		List<Paragraph> paragraphs = new ArrayList<>();
+		int start = 0;
+		int end = 1;
+		for (; end < mElements.size(); ++end) {
+			Element element = mElements.get(end);
+			if (!(element instanceof Span)) {
+				continue;
+			}
+
+			Span span = (Span) element;
+			if (predicate.test(span)) {
+				paragraphs.add(fork(start, end + 1));
+				start = end + 1;
+			}
+		}
+
+		if (start < end) {
+			paragraphs.add(fork(start, end));
+		}
+
+		return paragraphs;
 	}
 
-	public void setTag(@IdRes int id, @Nullable Object tag) {
-		if (mTagsKv == null) {
-			mTagsKv = new SparseArrayCompat<>();
+	private Paragraph fork(int start, int end) {
+		Paragraph copy = new Paragraph(null);
+		for (int i = start; i < end; ++i) {
+			copy.mElements.add(mElements.get(i));
 		}
-		mTagsKv.put(id, tag);
+		copy.mTagsKv = mTagsKv;
+		copy.mDecor = mDecor;
+		copy.mSelection = mSelection;
+		copy.mHighlight = mHighlight;
+		copy.fillTail();
+
+		return copy;
+	}
+
+	private void fillTail() {
+		int size = mElements.size();
+		if (size >= 2 && mElements.get(size - 2) == Glue.TERMINAL && mElements.get(size - 1) == Penalty.FORCE_BREAK) {
+			return;
+		}
+
+		mElements.add(Glue.TERMINAL);
+		mElements.add(Penalty.FORCE_BREAK);
 	}
 
 	@NonNull

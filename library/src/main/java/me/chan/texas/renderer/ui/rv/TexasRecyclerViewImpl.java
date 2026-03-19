@@ -8,19 +8,17 @@ import android.view.View;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.recyclerview.widget.RecyclerView;
-import androidx.recyclerview.widget.SimpleItemAnimator;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
-import me.chan.texas.R;
 import me.chan.texas.misc.Rect;
+import me.chan.texas.renderer.TexasView;
 import me.chan.texas.renderer.TouchEvent;
 import me.chan.texas.renderer.ui.TexasRendererAdapter;
 import me.chan.texas.renderer.ui.text.ParagraphView;
 import me.chan.texas.text.Document;
 import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.Segment;
-import me.chan.texas.renderer.selection.SelectionProvider;
 import me.chan.texas.text.ViewSegment;
 import me.chan.texas.text.layout.Layout;
 
@@ -31,6 +29,7 @@ public class TexasRecyclerViewImpl extends RecyclerView implements TexasRecycler
 	private OnClickedListener mOnClickedListener;
 	private ScrollAction mScrollAction;
 	private final TexasLinearLayoutManagerImpl mTexasLinearLayoutManager;
+	private final DefaultItemAnimator mItemAnimator = new DefaultItemAnimator();
 
 	public TexasRecyclerViewImpl(@NonNull Context context, TexasLinearLayoutManagerImpl texasLinearLayoutManager) {
 		super(context);
@@ -48,12 +47,7 @@ public class TexasRecyclerViewImpl extends RecyclerView implements TexasRecycler
 			}
 		};
 
-		ItemAnimator itemAnimator = getItemAnimator();
-		if (itemAnimator instanceof SimpleItemAnimator) {
-			SimpleItemAnimator simpleItemAnimator = (SimpleItemAnimator) itemAnimator;
-			simpleItemAnimator.setSupportsChangeAnimations(false);
-			simpleItemAnimator.setChangeDuration(0);
-		}
+		setItemAnimator(mItemAnimator);
 	}
 
 	public void scrollToPosition(int position, boolean smooth, int offset) {
@@ -84,6 +78,10 @@ public class TexasRecyclerViewImpl extends RecyclerView implements TexasRecycler
 		locations.top = child.getTop();
 		locations.right = child.getRight();
 		locations.bottom = child.getBottom();
+	}
+
+	public void setSegmentAnimator(TexasView.SegmentAnimator segmentAnimator) {
+		mItemAnimator.setSegmentItemAnimator(segmentAnimator);
 	}
 
 	private class ScrollAction implements Runnable {

@@ -42,9 +42,10 @@ import me.chan.texas.text.TextGravity;
 import me.chan.texas.text.TextStyle;
 import me.chan.texas.text.DotUnderLine;
 import me.chan.texas.text.ViewSegment;
-import me.chan.texas.text.layout.Box;
+import me.chan.texas.text.layout.Span;
 import me.chan.texas.text.layout.Layout;
 import me.chan.texas.text.layout.Line;
+import me.chan.texas.text.layout.TextSpan;
 import me.chan.texas.text.tokenizer.Token;
 import me.chan.texas.utils.CharStream;
 import me.chan.texas.utils.TexasUtils;
@@ -149,7 +150,7 @@ public class BookSource extends TexasView.DocumentSource {
 				.next("QWERTYUIOPASDFGHJKLZXCVBNM")
 				.setTextStyle(new TextStyle() {
 					@Override
-					public void update(@NonNull TexasPaint textPaint, @Nullable Object tag) {
+					public void update(@NonNull TexasPaint textPaint, TextSpan span) {
 						textPaint.setTextSize(120);
 						textPaint.setFakeBoldText(true);
 					}
@@ -430,7 +431,7 @@ public class BookSource extends TexasView.DocumentSource {
 	// 注意这只是demo代码，因此质量不可控
 	private void parseParagraph(Paragraph.Builder builder, String paragraph, String sentId) {
 		builder.stream(paragraph, 0, paragraph.length(), (token) -> {
-			Paragraph.Span span = Paragraph.Span.obtain(token)
+			Paragraph.SpanStyles span = Paragraph.SpanStyles.obtain(token)
 					.setForeground(RED_UL)
 					.tag(new SpanTag(sentId,
 							token.getCharSequence().subSequence(token.getStart(), token.getEnd()).toString(),
@@ -459,14 +460,14 @@ public class BookSource extends TexasView.DocumentSource {
 						paint.setColor(Color.GREEN);
 
 						// 独立的单元，左右都要有圆角
-						Box box = context.getBox();
-						if (box.isIsolate(true) && box.isIsolate(false)) {
+						Span span = context.getSpan();
+						if (span.isIsolate(true) && span.isIsolate(false)) {
 							canvas.drawRoundRect(outer.left, outer.top, outer.right, outer.bottom, 20, 20, paint);
 							return;
 						}
 
 						// 前面没有单词
-						if (box.isIsolate(false)) {
+						if (span.isIsolate(false)) {
 							mPath.reset();
 							mPath.addRoundRect(
 									outer.left, outer.top, outer.right, outer.bottom,
@@ -474,7 +475,7 @@ public class BookSource extends TexasView.DocumentSource {
 									Path.Direction.CW
 							);
 							canvas.drawPath(mPath, paint);
-						} else if (box.isIsolate(true)) {
+						} else if (span.isIsolate(true)) {
 							// 后面没有单词
 							mPath.reset();
 							mPath.addRoundRect(
@@ -545,9 +546,9 @@ public class BookSource extends TexasView.DocumentSource {
 				Layout layout = paragraph.getLayout();
 				for (int l = 0; l < layout.getLineCount(); ++l) {
 					Line line = layout.getLine(l);
-					for (int b = 0; b < line.getBoxCount(); ++b) {
-						Box box = line.getBox(b);
-						Object spanTag = box.getTag();
+					for (int b = 0; b < line.getSpanCount(); ++b) {
+						Span span = line.getSpan(b);
+						Object spanTag = span.getTag();
 						if (!(spanTag instanceof BookSource.SpanTag)) {
 							continue;
 						}
@@ -557,7 +558,7 @@ public class BookSource extends TexasView.DocumentSource {
 							continue;
 						}
 
-						RectF spanOuter = box.getOuterBounds();
+						RectF spanOuter = span.getOuterBounds();
 						mDraw = true;
 						mDest.set(decorOuter.right - 20, (int) spanOuter.bottom - 40, decorOuter.right + 20, (int) spanOuter.bottom);
 						return;
@@ -594,7 +595,8 @@ public class BookSource extends TexasView.DocumentSource {
 				} else if (action == MotionEvent.ACTION_UP) {
 					mTexasView.selectParagraphs(new ParagraphPredicates() {
 						@Override
-						public boolean acceptSpan(@Nullable Object spanTag) {
+						public boolean acceptSpan(@NonNull Span span) {
+							Object spanTag = span.getTag();
 							if (!(spanTag instanceof BookSource.SpanTag)) {
 								return false;
 							}
@@ -604,7 +606,7 @@ public class BookSource extends TexasView.DocumentSource {
 						}
 
 						@Override
-						public boolean acceptParagraph(@Nullable Object paragraphTag) {
+						public boolean acceptParagraph(@NonNull Paragraph paragraph) {
 							return true;
 						}
 					});

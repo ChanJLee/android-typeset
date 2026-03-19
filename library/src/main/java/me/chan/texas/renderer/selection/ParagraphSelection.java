@@ -2,6 +2,8 @@ package me.chan.texas.renderer.selection;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
+import android.graphics.Paint;
+
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -26,9 +28,10 @@ import me.chan.texas.renderer.core.graphics.TexasCanvas;
 import me.chan.texas.renderer.core.graphics.TexasPaint;
 import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.TextStyle;
-import me.chan.texas.text.layout.Box;
+import me.chan.texas.text.layout.Span;
 import me.chan.texas.text.layout.Layout;
 import me.chan.texas.text.layout.Line;
+import me.chan.texas.text.layout.TextSpan;
 
 /**
  * 文本选中区域
@@ -71,19 +74,19 @@ public class ParagraphSelection extends DefaultRecyclable {
 		return mId;
 	}
 
-	private Box mFirst;
-	private Box mLast;
+	private Span mFirst;
+	private Span mLast;
 
 	@RestrictTo(LIBRARY)
-	public void prependBox(Box box) {
-		mSet.set(box.getSeq(), true);
+	public void prependBox(Span span) {
+		mSet.set(span.getSeq(), true);
 
 
 		if (mLast == null) {
-			mLast = box;
+			mLast = span;
 		}
 
-		mFirst = box;
+		mFirst = span;
 	}
 
 	@RestrictTo(LIBRARY)
@@ -97,14 +100,14 @@ public class ParagraphSelection extends DefaultRecyclable {
 	}
 
 	@RestrictTo(LIBRARY)
-	public void appendBox(Box box) {
-		mSet.set(box.getSeq(), true);
+	public void appendBox(Span span) {
+		mSet.set(span.getSeq(), true);
 
 		if (mFirst == null) {
-			mFirst = box;
+			mFirst = span;
 		}
 
-		mLast = box;
+		mLast = span;
 	}
 
 	/**
@@ -219,12 +222,12 @@ public class ParagraphSelection extends DefaultRecyclable {
 	}
 
 	@Nullable
-	public Box getFirstBox() {
+	public Span getFirstBox() {
 		return mFirst;
 	}
 
 	@Nullable
-	public Box getLastBox() {
+	public Span getLastBox() {
 		return mLast;
 	}
 
@@ -233,8 +236,8 @@ public class ParagraphSelection extends DefaultRecyclable {
 	}
 
 	@RestrictTo(LIBRARY)
-	public boolean isSelected(Box box) {
-		return mSet.get(box.getSeq());
+	public boolean isSelected(Span span) {
+		return mSet.get(span.getSeq());
 	}
 
 	public void clear() {
@@ -284,9 +287,9 @@ public class ParagraphSelection extends DefaultRecyclable {
 		}
 
 		@Override
-		protected void onVisitBox(Box box, RectF inner, RectF outer, @NonNull RendererContext context) {
-			if (selection.isSelected(box)) {
-				tags.add(box.getTag());
+		protected void onVisitBox(Span span, RectF inner, RectF outer, @NonNull RendererContext context) {
+			if (selection.isSelected(span)) {
+				tags.add(span.getTag());
 			}
 		}
 	}
@@ -323,9 +326,9 @@ public class ParagraphSelection extends DefaultRecyclable {
 				}
 
 				@Override
-				protected void onVisitBox(Box box, RectF inner, RectF outer, @NonNull RendererContext context) {
-					if (isSelected(box)) {
-						builder.append(box).append(", ");
+				protected void onVisitBox(Span span, RectF inner, RectF outer, @NonNull RendererContext context) {
+					if (isSelected(span)) {
+						builder.append(span).append(", ");
 					}
 				}
 			};
@@ -342,6 +345,7 @@ public class ParagraphSelection extends DefaultRecyclable {
 		private int mTextColor = 0;
 		private Selection.Styles mStyles;
 		private int mBackgroundColor = 0;
+		private float mFakeBoldFactor = 0f;
 
 		public void reset(Selection.Styles styles) {
 			mStyles = styles;
@@ -350,11 +354,16 @@ public class ParagraphSelection extends DefaultRecyclable {
 		public void update() {
 			mTextColor = mStyles.getTextColor();
 			mBackgroundColor = mStyles.getBackgroundColor();
+			mFakeBoldFactor = mStyles.getFakeBoldFactor();
 		}
 
 		@Override
-		public void update(@NonNull TexasPaint textPaint, @Nullable Object tag) {
+		public void update(@NonNull TexasPaint textPaint, @NonNull TextSpan span) {
 			textPaint.setColor(mTextColor);
+			if (mFakeBoldFactor > 0f) {
+				textPaint.setStyle(Paint.Style.FILL_AND_STROKE);
+				textPaint.setStrokeWidth(textPaint.getTextSize() * mFakeBoldFactor);
+			}
 		}
 	}
 }

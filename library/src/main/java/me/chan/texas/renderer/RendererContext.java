@@ -5,12 +5,12 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 
-import me.chan.texas.text.layout.Box;
+import me.chan.texas.text.layout.Span;
 import me.chan.texas.text.layout.Line;
 
 public final class RendererContext {
 
-	private Box mBox;
+	private Span mSpan;
 	private int mIndex;
 	private Line mLine;
 
@@ -47,15 +47,15 @@ public final class RendererContext {
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
 	void clear() {
 		mParagraphLocationAttribute = 0;
-		mBox = null;
+		mSpan = null;
 		mLine = null;
 		mIndex = 0;
 	}
 
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
-	void setBoxLocationAttribute(Line line, Box box, int index) {
+	void setBoxLocationAttribute(Line line, Span span, int index) {
 		mLine = line;
-		mBox = box;
+		mSpan = span;
 		mIndex = index;
 	}
 
@@ -83,9 +83,9 @@ public final class RendererContext {
 		if (location == LOCATION_LINE_START) {
 			return mIndex == 0;
 		} else if (location == LOCATION_LINE_END) {
-			return mIndex == mLine.getBoxCount() - 1;
+			return mIndex == mLine.getSpanCount() - 1;
 		} else if (location == LOCATION_LINE_MIDDLE) {
-			return mIndex > 0 && mIndex < mLine.getBoxCount() - 1;
+			return mIndex > 0 && mIndex < mLine.getSpanCount() - 1;
 		} else if (location == LOCATION_PARAGRAPH_START) {
 			return (mParagraphLocationAttribute & LOCATION_PARAGRAPH_START) != 0;
 		} else if (location == LOCATION_PARAGRAPH_END) {
@@ -102,8 +102,8 @@ public final class RendererContext {
 	 * @return 当前对应的box
 	 */
 	@NonNull
-	public Box getBox() {
-		return mBox;
+	public Span getSpan() {
+		return mSpan;
 	}
 
 	/**
@@ -126,6 +126,6 @@ public final class RendererContext {
 	 */
 	@Nullable
 	public Object getTag() {
-		return mBox.getTag();
+		return mSpan.getTag();
 	}
 }

@@ -1,12 +1,16 @@
 package me.chan.texas;
 
 import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.animation.AnimatorSet;
+import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
 import android.graphics.Color;
 import android.graphics.Paint;
 
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.util.TypedValue;
@@ -16,11 +20,14 @@ import android.widget.CompoundButton;
 import android.widget.RadioGroup;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
 import me.chan.texas.ext.image.Figure;
+import me.chan.texas.renderer.OnClickedListenerAdapter;
 import me.chan.texas.renderer.ParagraphPredicates;
 import me.chan.texas.renderer.RenderOption;
 import me.chan.texas.renderer.SpanTouchEventHandler;
@@ -30,6 +37,8 @@ import me.chan.texas.renderer.selection.Selection;
 import me.chan.texas.text.BreakStrategy;
 import me.chan.texas.text.Document;
 import me.chan.texas.text.Paragraph;
+import me.chan.texas.text.Segment;
+import me.chan.texas.text.layout.Span;
 import me.chan.texas.utils.TexasUtils;
 
 public class TexasViewDemoActivity extends AppCompatActivity {
@@ -78,22 +87,23 @@ public class TexasViewDemoActivity extends AppCompatActivity {
 		// 没别的要求，一定要快！！！不然会ANR ⚠️
 		mTexasView.setSpanTouchEventHandler(new SpanTouchEventHandler() {
 			@Override
-			public boolean isSpanClickable(Object tag) {
-				return tag != null;
-			}
-
-			// 单机谓词 判断 单机时哪些单词要被高亮
-			@Override
-			public boolean applySpanClicked(@Nullable Object clickedTag, @Nullable Object otherTag) {
-				return clickedTag == otherTag;
+			public boolean isSpanClickable(@NonNull Span box) {
+				return box.getTag() != null;
 			}
 
 			@Override
-			public boolean applySpanLongClicked(@Nullable Object clickedTag, @Nullable Object otherTag) {
+			public boolean applySpanClicked(@NonNull Span clicked, @NonNull Span other) {
+				return clicked.getTag() == other.getTag();
+			}
+
+			@Override
+			public boolean applySpanLongClicked(@NonNull Span clicked, @NonNull Span other) {
+				Object otherTag = other.getTag();
 				if (otherTag == null) {
 					return true;
 				}
 
+				Object clickedTag = clicked.getTag();
 				if (clickedTag instanceof BookSource.SpanTag && otherTag instanceof BookSource.SpanTag) {
 					BookSource.SpanTag lhs = (BookSource.SpanTag) clickedTag;
 					BookSource.SpanTag rhs = (BookSource.SpanTag) otherTag;
@@ -109,30 +119,30 @@ public class TexasViewDemoActivity extends AppCompatActivity {
 	 * 点击事件
 	 */
 	void setupListener() {
-		mTexasView.setOnClickedListener(new TexasView.OnClickedListener() {
-			@Override
-			public void onSpanClicked(TexasView view, TouchEvent event, Object tag) {
-
-			}
-
-			@Override
-			public void onSpanLongClicked(TexasView view, TouchEvent event, Object tag) {
-
-			}
-
-			@Override
-			public void onSegmentClicked(TexasView view, TouchEvent event, Object tag) {
-				Toast.makeText(TexasViewDemoActivity.this, "点击了Segment", Toast.LENGTH_SHORT).show();
-			}
-
+		mTexasView.setOnClickedListener(new OnClickedListenerAdapter() {
 			@Override
 			public void onEmptyClicked(TexasView view, TouchEvent event) {
 				Toast.makeText(TexasViewDemoActivity.this, "点击了空白", Toast.LENGTH_SHORT).show();
 			}
 
 			@Override
-			public void onSegmentDoubleClicked(TexasView view, TouchEvent event, Object tag) {
-				Toast.makeText(TexasViewDemoActivity.this, "双击", Toast.LENGTH_SHORT).show();
+			public void onSpanClicked(TexasView view, Paragraph paragraph, TouchEvent event, Span box) {
+				Toast.makeText(TexasViewDemoActivity.this, "点击了Span", Toast.LENGTH_SHORT).show();
+			}
+
+			@Override
+			public void onSpanLongClicked(TexasView view, Paragraph paragraph, TouchEvent event, Span box) {
+				Toast.makeText(TexasViewDemoActivity.this, "长按了Span", Toast.LENGTH_SHORT).show();
+			}
+
+			@Override
+			public void onSegmentClicked(TexasView view, TouchEvent event, Segment segment) {
+				Toast.makeText(TexasViewDemoActivity.this, "点击了Segment", Toast.LENGTH_SHORT).show();
+			}
+
+			@Override
+			public void onSegmentDoubleClicked(TexasView view, TouchEvent event, Segment segment) {
+				Toast.makeText(TexasViewDemoActivity.this, "双击了Segment", Toast.LENGTH_SHORT).show();
 			}
 		});
 
@@ -169,7 +179,8 @@ public class TexasViewDemoActivity extends AppCompatActivity {
 		findViewById(me.chan.texas.debug.R.id.highlight).setOnClickListener(v ->
 				mTexasView.highlightParagraphs(new ParagraphPredicates() {
 					@Override
-					public boolean acceptSpan(@Nullable Object spanTag) {
+					public boolean acceptSpan(@NonNull Span box) {
+						Object spanTag = box.getTag();
 						if (!(spanTag instanceof BookSource.SpanTag)) {
 							return false;
 						}
@@ -179,9 +190,10 @@ public class TexasViewDemoActivity extends AppCompatActivity {
 					}
 
 					@Override
-					public boolean acceptParagraph(@Nullable Object paragraphTag) {
-						return "A9127P127017".equals(paragraphTag);
+					public boolean acceptParagraph(@NonNull Paragraph paragraph) {
+						return "A9127P127017".equals(paragraph.getTag());
 					}
+
 				}, true, 0));
 	}
 
@@ -367,6 +379,41 @@ public class TexasViewDemoActivity extends AppCompatActivity {
 		renderOption.setTypeface(typeface);
 		mTexasView.refresh(renderOption);
 
+		final Object ADD = new Object();
+		mTexasView.setSegmentAnimator(new TexasView.SegmentAnimator() {
+
+			@Override
+			protected Animator onCreateAddAnimator(Segment segment, View itemView) {
+				if (segment.getTag() != ADD) {
+					return null;
+				}
+
+				AnimatorSet animatorSet = new AnimatorSet();
+				animatorSet.play(ObjectAnimator.ofFloat(itemView, "alpha", 0, 1))
+						.with(ObjectAnimator.ofFloat(itemView, "translationY", -itemView.getHeight(), 0));
+				animatorSet.setDuration(500);
+				animatorSet.addListener(new AnimatorListenerAdapter() {
+					@Override
+					public void onAnimationCancel(Animator animation) {
+						super.onAnimationCancel(animation);
+						itemView.setAlpha(1);
+						itemView.setTranslationY(0);
+					}
+				});
+				return animatorSet;
+			}
+
+			@Override
+			protected Animator onCreateRemoveAnimator(Segment segment, View view) {
+				return null;
+			}
+
+			@Override
+			protected Animator onCreateMoveAnimator(Segment segment, View view, int fromX, int fromY, int toX, int toY) {
+				return null;
+			}
+		});
+
 		findViewById(me.chan.texas.debug.R.id.add_content).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
@@ -375,8 +422,10 @@ public class TexasViewDemoActivity extends AppCompatActivity {
 					protected Document onRead(TexasOption option, @Nullable Document previousDocument) {
 						return new Document.Builder(previousDocument)
 								.addSegment(
+										0,
 										Paragraph.Builder.newBuilder(option)
-												.text("hello world")
+												.tag(ADD)
+												.text("生活就像点菜，饥饿时菜会点得特别多，但吃一阵就会意识到浪费；如果慢条斯理地盘算怎么点菜，别人已经要吃完了。")
 												.build()
 								)
 								.build();
@@ -385,33 +434,39 @@ public class TexasViewDemoActivity extends AppCompatActivity {
 			}
 		});
 
+		Selection.Styles styles = Selection.Styles.create(Color.BLUE, Color.RED);
+		styles.enableFakeBold();
+
 		findViewById(me.chan.texas.debug.R.id.anim).setOnClickListener(v -> {
 			Selection selection = mTexasView.highlightParagraphs(new ParagraphPredicates() {
 				@Override
-				public boolean acceptSpan(@Nullable Object spanTag) {
+				public boolean acceptSpan(@NonNull Span box) {
 					return true;
 				}
 
 				@Override
-				public boolean acceptParagraph(@Nullable Object paragraphTag) {
-					return "A9127P126972".equals(paragraphTag);
+				public boolean acceptParagraph(@NonNull Paragraph paragraph) {
+					return "A9127P126972".equals(paragraph.getTag());
 				}
 			}, Selection.Styles.create(Color.BLUE, Color.RED));
 			if (selection == null) {
 				return;
 			}
 
+			int backgroundColor = styles.getBackgroundColor();
+			int textColor = styles.getTextColor();
+			float fakeBoldFactor = styles.getFakeBoldFactor();
 			ValueAnimator valueAnimator = ValueAnimator.ofFloat(0, 1f);
 			valueAnimator.setDuration(3000);
 			valueAnimator.setRepeatCount(3);
 			selection.startAnimator(valueAnimator, new Selection.SelectionAnimatorListener() {
+				@RequiresApi(api = Build.VERSION_CODES.O)
 				@Override
 				protected void onUpdate(ValueAnimator animation, Selection.Styles styles) {
-					int backgroundColor = (int) styles.getBackgroundColor();
-					int textColor = styles.getTextColor();
 					float v = (float) animation.getAnimatedValue();
-					styles.setTextColor(Color.argb((int) (255 * v), Color.red(textColor), Color.green(textColor), Color.blue(textColor)));
-					styles.setBackgroundColor(Color.argb((int) (255 * v), Color.red(backgroundColor), Color.green(backgroundColor), Color.blue(backgroundColor)));
+					styles.setTextColor(Color.argb((int) (255 * v) /* 按需设置透明度 */, Color.red(textColor), Color.green(textColor), Color.blue(textColor)));
+					styles.setBackgroundColor(Color.argb((int) (255 * v) /* 按需设置透明度 */, Color.red(backgroundColor), Color.green(backgroundColor), Color.blue(backgroundColor)));
+					styles.setFakeBoldFactor(fakeBoldFactor * v);
 				}
 
 				@Override

@@ -1,15 +1,17 @@
 package me.chan.texas.renderer;
 
-import androidx.annotation.Nullable;
+import androidx.annotation.NonNull;
+
+import me.chan.texas.text.layout.Span;
 
 /**
  * Span谓词
  */
 public interface SpanPredicate {
 	/**
-	 * @param thiz  当前的tag
-	 * @param other 其它的tag
+	 * @param thiz  当前的box
+	 * @param other 其它的box
 	 * @return true 表示其它元素被选中
 	 */
-	boolean accept(@Nullable Object thiz, @Nullable Object other);
+	boolean accept(@NonNull Span thiz, @NonNull Span other);
 }

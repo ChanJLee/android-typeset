@@ -9,12 +9,12 @@ import me.chan.texas.misc.RectF;
 import me.chan.texas.text.BreakStrategy;
 import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.TextGravity;
-import me.chan.texas.text.layout.Box;
+import me.chan.texas.text.layout.Span;
 import me.chan.texas.text.layout.Element;
 import me.chan.texas.text.layout.Glue;
 import me.chan.texas.text.layout.Layout;
 import me.chan.texas.text.layout.Line;
-import me.chan.texas.text.layout.TextBox;
+import me.chan.texas.text.layout.TextSpan;
 import me.chan.texas.typesetter.utils.ElementStream;
 
 @RestrictTo(LIBRARY)
@@ -26,9 +26,9 @@ public abstract class AbsParagraphTypesetter {
 		if (DEBUG) {
 			for (int i = 0; i < paragraph.getElementCount(); ++i) {
 				Element element = paragraph.getElement(i);
-				if (element instanceof TextBox) {
-					TextBox textBox = (TextBox) element;
-					if (!textBox.hasAttribute(TextBox.ATTRIBUTE_MEASURED)) {
+				if (element instanceof TextSpan) {
+					TextSpan textBox = (TextSpan) element;
+					if (!textBox.hasAttribute(TextSpan.ATTRIBUTE_MEASURED)) {
 						throw new IllegalStateException("text box not measured");
 					}
 				}
@@ -110,12 +110,12 @@ public abstract class AbsParagraphTypesetter {
 			lineRect.top = lineRect.bottom + lineSpacingExtra;
 			lineRect.bottom = lineRect.top + line.getLineHeight();
 			line.setBounds(lineRect);
-			Box prev = null;
+			Span prev = null;
 			boxRect.set(lineRect.left, lineRect.top, lineRect.left, lineRect.bottom);
 			for (int j = 0; j < line.getElementCount(); ++j) {
 				Element element = line.getElement(j);
-				if (element instanceof Box) {
-					Box current = (Box) element;
+				if (element instanceof Span) {
+					Span current = (Span) element;
 					boxRect.right = boxRect.left + current.getWidth();
 					current.setOuterBounds(boxRect);
 					current.setInnerBounds(boxRect);
@@ -132,16 +132,16 @@ public abstract class AbsParagraphTypesetter {
 
 			int size = line.getElementCount();
 			if (size != 0) {
-				Box element = (Box) line.getElement(0);
-				if (element instanceof TextBox) {
-					TextBox textBox = (TextBox) element;
-					textBox.addAttribute(TextBox.ATTRIBUTE_LINE_HEADER);
+				Span element = (Span) line.getElement(0);
+				if (element instanceof TextSpan) {
+					TextSpan textBox = (TextSpan) element;
+					textBox.addAttribute(TextSpan.ATTRIBUTE_LINE_HEADER);
 				}
 
-				element = (Box) line.getElement(size - 1);
-				if (element instanceof TextBox) {
-					TextBox textBox = (TextBox) element;
-					textBox.addAttribute(TextBox.ATTRIBUTE_LINE_TAILER);
+				element = (Span) line.getElement(size - 1);
+				if (element instanceof TextSpan) {
+					TextSpan textBox = (TextSpan) element;
+					textBox.addAttribute(TextSpan.ATTRIBUTE_LINE_TAILER);
 				}
 			}
 		}

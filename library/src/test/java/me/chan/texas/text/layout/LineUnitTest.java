@@ -8,11 +8,11 @@ public class LineUnitTest {
 	@Test
 	public void test() {
 		Line line = Line.obtain();
-		Box b1 = TextBox.obtain("b1", 0, 2, null, null, null, null);
-		Box b2 = TextBox.obtain("b2", 0, 2, null, null, null, null);
-		Box b3 = TextBox.obtain("b3", 0, 2, null, null, null, null);
-		Box b4 = TextBox.obtain("b4", 0, 2, null, null, null, null);
-		Box b5 = TextBox.obtain("b5", 0, 2, null, null, null, null);
+		Span b1 = TextSpan.obtain("b1", 0, 2, null, null, null, null);
+		Span b2 = TextSpan.obtain("b2", 0, 2, null, null, null, null);
+		Span b3 = TextSpan.obtain("b3", 0, 2, null, null, null, null);
+		Span b4 = TextSpan.obtain("b4", 0, 2, null, null, null, null);
+		Span b5 = TextSpan.obtain("b5", 0, 2, null, null, null, null);
 		line.add(b1);
 		line.add(b2);
 		line.add(Glue.EMPTY);

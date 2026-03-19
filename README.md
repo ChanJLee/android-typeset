@@ -86,7 +86,7 @@ Paragraph.Builder.newBuilder(option)
 // 自动语义分词，"机器学习" 不会被拆分成 "机器" 和 "学习"
 builder.stream(text, 0, text.length(), (token) -> {
     // token 已经是语义完整的单元
-    return Paragraph.Span.obtain(token);
+    return Paragraph.SpanStyles.obtain(token);
 });
 ```
 
@@ -194,7 +194,7 @@ texasView.setSource(new TexasView.DocumentSource() {
         // 使用 stream API 自动分词并为每个单词设置 Tag
         String text = "Hello world, this is Texas!";
         builder.stream(text, 0, text.length(), (token) -> {
-            return Paragraph.Span.obtain(token)
+            return Paragraph.SpanStyles.obtain(token)
                     .tag(new WordTag(
                         token.getCharSequence()
                             .subSequence(token.getStart(), token.getEnd())
@@ -276,7 +276,7 @@ builder.tag("paragraph_A9127P127017");
 builder.stream(text, 0, text.length(), (token) -> {
     // token 是词法引擎解析出的单词
     // 为每个单词创建 Span 并设置 tag
-    return Paragraph.Span.obtain(token)
+    return Paragraph.SpanStyles.obtain(token)
             .tag(new SpanTag(
                 sentenceId,
                 token.getCharSequence().subSequence(token.getStart(), token.getEnd()).toString(),
@@ -314,24 +314,25 @@ builder.newSpanBuilder()
 ```java
 texasView.setSpanTouchEventHandler(new SpanTouchEventHandler() {
     @Override
-    public boolean isSpanClickable(Object tag) {
+    public boolean isSpanClickable(Span span) {
         // 根据 tag 判断是否可点击
-        return tag != null;
+        return span.getTag() != null;
     }
 
     @Override
-    public boolean applySpanClicked(@Nullable Object clickedTag, @Nullable Object otherTag) {
+    public boolean applySpanClicked(Span clicked, Span other) {
         // 单击时，高亮相同 tag 的所有 Span
-        return clickedTag == otherTag;
+        return clicked.getTag() == other.getTag();
     }
 
     @Override
-    public boolean applySpanLongClicked(@Nullable Object clickedTag, @Nullable Object otherTag) {
+    public boolean applySpanLongClicked(Span clicked, Span other) {
         // 长按时，高亮同一句子的所有 Span
+        Object clickedTag = clicked.getTag();
+        Object otherTag = other.getTag();
         if (clickedTag instanceof SpanTag && otherTag instanceof SpanTag) {
-            SpanTag clicked = (SpanTag) clickedTag;
-            SpanTag other = (SpanTag) otherTag;
-            return clicked.sentenceId.equals(other.sentenceId);
+            return ((SpanTag) clickedTag).sentenceId
+                    .equals(((SpanTag) otherTag).sentenceId);
         }
         return false;
     }
@@ -344,7 +345,8 @@ texasView.setSpanTouchEventHandler(new SpanTouchEventHandler() {
 // 高亮特定句子
 texasView.highlightParagraphs(new ParagraphPredicates() {
     @Override
-    public boolean acceptSpan(@Nullable Object spanTag) {
+    public boolean acceptSpan(Span span) {
+        Object spanTag = span.getTag();
         if (!(spanTag instanceof SpanTag)) {
             return false;
         }
@@ -353,8 +355,8 @@ texasView.highlightParagraphs(new ParagraphPredicates() {
     }
 
     @Override
-    public boolean acceptParagraph(@Nullable Object paragraphTag) {
-        return "A9127P127017".equals(paragraphTag);
+    public boolean acceptParagraph(Paragraph paragraph) {
+        return "A9127P127017".equals(paragraph.getTag());
     }
 }, true, 0);
 ```
@@ -364,7 +366,8 @@ texasView.highlightParagraphs(new ParagraphPredicates() {
 ```java
 texasView.setOnClickedListener(new TexasView.OnClickedListener() {
     @Override
-    public void onSpanClicked(TexasView view, TouchEvent event, Object tag) {
+    public void onSpanClicked(TexasView view, Paragraph paragraph, TouchEvent event, Span span) {
+        Object tag = span.getTag();
         if (tag instanceof SpanTag) {
             SpanTag spanTag = (SpanTag) tag;
             // 根据 tag 信息执行相应操作
@@ -380,9 +383,9 @@ texasView.setOnClickedListener(new TexasView.OnClickedListener() {
     }
     
     @Override
-    public void onSegmentClicked(TexasView view, TouchEvent event, Object tag) {
+    public void onSegmentClicked(TexasView view, TouchEvent event, Segment segment) {
         // 获取 Paragraph 的 tag
-        String paragraphId = (String) tag;
+        String paragraphId = (String) segment.getTag();
     }
     
     // ... 其他回调
@@ -428,7 +431,7 @@ texasView.setSource(new TexasView.DocumentSource() {
                 Paragraph.Builder.newBuilder(option)
                         .tag("paragraph_" + i)
                         .stream(text, 0, text.length(), (token) -> {
-                            return Paragraph.Span.obtain(token)
+                            return Paragraph.SpanStyles.obtain(token)
                                     .tag(new SpanTag("sent_" + i, token.toString(), true));
                         })
                         .build()
@@ -465,7 +468,8 @@ void onNewMessage(Message message) {
 void highlightSearchResults(String keyword) {
     texasView.highlightParagraphs(new ParagraphPredicates() {
         @Override
-        public boolean acceptSpan(@Nullable Object spanTag) {
+        public boolean acceptSpan(Span span) {
+            Object spanTag = span.getTag();
             if (spanTag instanceof SpanTag) {
                 SpanTag tag = (SpanTag) spanTag;
                 return tag.wordContent.contains(keyword);
@@ -474,7 +478,7 @@ void highlightSearchResults(String keyword) {
         }
 
         @Override
-        public boolean acceptParagraph(@Nullable Object paragraphTag) {
+        public boolean acceptParagraph(Paragraph paragraph) {
             return true; // 接受所有段落
         }
     }, Selection.Styles.create(Color.YELLOW, Color.BLACK));
@@ -579,7 +583,7 @@ builder.stream(text, 0, text.length(), (token) -> {
     // Token.CATEGORY_NORMAL - 普通单词
     // Token.CATEGORY_PUNCTUATION - 标点符号
     
-    return Paragraph.Span.obtain(token)
+    return Paragraph.SpanStyles.obtain(token)
         .tag(new WordTag(word, token.getCategory()));
 });
 ```
@@ -598,10 +602,11 @@ builder.stream(text, 0, text.length(), (token) -> {
 
 **1. 单词点击识别**
 ```java
-texasView.setOnClickedListener(new TexasView.OnClickedListener() {
+texasView.setOnClickedListener(new OnClickedListenerAdapter() {
     @Override
-    public void onSpanClicked(TexasView view, TouchEvent event, Object tag) {
+    public void onSpanClicked(TexasView view, Paragraph paragraph, TouchEvent event, Span span) {
         // 点击 "机器学习" 中的任意字，都会识别为完整词语
+        Object tag = span.getTag();
         if (tag instanceof WordTag) {
             String word = ((WordTag) tag).word;
             // word = "机器学习"（完整的词）
@@ -616,7 +621,8 @@ texasView.setOnClickedListener(new TexasView.OnClickedListener() {
 // 搜索 "机器学习"，会精确高亮整个词组，而不是单个字
 texasView.highlightParagraphs(new ParagraphPredicates() {
     @Override
-    public boolean acceptSpan(@Nullable Object spanTag) {
+    public boolean acceptSpan(Span span) {
+        Object spanTag = span.getTag();
         if (spanTag instanceof WordTag) {
             return ((WordTag) spanTag).word.equals("机器学习");
         }
@@ -624,7 +630,7 @@ texasView.highlightParagraphs(new ParagraphPredicates() {
     }
     
     @Override
-    public boolean acceptParagraph(@Nullable Object paragraphTag) {
+    public boolean acceptParagraph(Paragraph paragraph) {
         return true;
     }
 }, Selection.Styles.create(Color.YELLOW, Color.BLACK));
@@ -639,7 +645,7 @@ builder.stream(text, 0, text.length(), (token) -> {
         String word = token.toString();
         wordCount.put(word, wordCount.getOrDefault(word, 0) + 1);
     }
-    return Paragraph.Span.obtain(token);
+    return Paragraph.SpanStyles.obtain(token);
 });
 ```
 
@@ -900,7 +906,7 @@ public class ProfessionalReaderActivity extends AppCompatActivity {
                         .typesetPolicy(Paragraph.TYPESET_POLICY_CJK_MIX_OPTIMIZATION)
                         .stream(chapterText, 0, chapterText.length(), (token) -> {
                             // NLP 自动分词
-                            return Paragraph.Span.obtain(token)
+                            return Paragraph.SpanStyles.obtain(token)
                                 .tag(new WordTag(
                                     "chapter_" + i,
                                     token.toString(),
@@ -936,7 +942,7 @@ public class ProfessionalReaderActivity extends AppCompatActivity {
 | 场景 | 推荐用法 |
 |------|----------|
 | 点击事件（只关心部分回调） | `OnClickedListenerAdapter` |
-| 只按 Span 筛选高亮 | `AbstractParagraphPredicates` 或 `ParagraphPredicates.spanOnly()` |
+| 只按 Span 筛选高亮 | `AbstractParagraphPredicates` |
 | 高亮并滚动 | `HighlightOptions.builder(predicates).scrollTo(true).build()` |
 | 获取/恢复滚动位置 | `getCurrentPosition()` / `scrollToPosition(position)` |
 | 按 segment 滚动 | `scrollToSegment(segment)` |
@@ -986,24 +992,26 @@ Drawable current = texasView.getScrollBarDrawable();
 ```java
 texasView.setSpanTouchEventHandler(new SpanTouchEventHandler() {
     @Override
-    public boolean isSpanClickable(Object tag) {
+    public boolean isSpanClickable(Span span) {
         // 判断该 Span 是否可点击
-        return tag != null;
+        return span.getTag() != null;
     }
 
     @Override
-    public boolean applySpanClicked(@Nullable Object clickedTag, @Nullable Object otherTag) {
+    public boolean applySpanClicked(Span clicked, Span other) {
         // 单击谓词：判断单击时哪些单词要被高亮
-        return clickedTag == otherTag;
+        return clicked.getTag() == other.getTag();
     }
 
     @Override
-    public boolean applySpanLongClicked(@Nullable Object clickedTag, @Nullable Object otherTag) {
+    public boolean applySpanLongClicked(Span clicked, Span other) {
         // 长按谓词：判断长按时哪些内容要被高亮
+        Object otherTag = other.getTag();
         if (otherTag == null) {
             return true;
         }
         
+        Object clickedTag = clicked.getTag();
         if (clickedTag instanceof BookSource.SpanTag && otherTag instanceof BookSource.SpanTag) {
             BookSource.SpanTag lhs = (BookSource.SpanTag) clickedTag;
             BookSource.SpanTag rhs = (BookSource.SpanTag) otherTag;
@@ -1022,12 +1030,12 @@ texasView.setSpanTouchEventHandler(new SpanTouchEventHandler() {
 ```java
 texasView.setOnClickedListener(new OnClickedListenerAdapter() {
     @Override
-    public void onSpanClicked(TexasView view, TouchEvent event, Object tag) {
+    public void onSpanClicked(TexasView view, Paragraph paragraph, TouchEvent event, Span span) {
         Toast.makeText(context, "点击了 Span", Toast.LENGTH_SHORT).show();
     }
 
     @Override
-    public void onSegmentClicked(TexasView view, TouchEvent event, Object tag) {
+    public void onSegmentClicked(TexasView view, TouchEvent event, Segment segment) {
         Toast.makeText(context, "点击了 Segment", Toast.LENGTH_SHORT).show();
     }
 });
@@ -1097,26 +1105,28 @@ texasView.refresh(renderOption);
 
 #### 高亮段落（静态高亮）
 
-只根据 Span 筛选时，可使用 `AbstractParagraphPredicates` 或 `ParagraphPredicates.spanOnly()`：
+只根据 Span 筛选时，可使用 `AbstractParagraphPredicates`：
 
 ```java
 // 方式一：AbstractParagraphPredicates，只需实现 acceptSpan
 texasView.highlightParagraphs(new AbstractParagraphPredicates() {
     @Override
-    public boolean acceptSpan(@Nullable Object spanTag) {
+    public boolean acceptSpan(Span span) {
+        Object spanTag = span.getTag();
         if (!(spanTag instanceof BookSource.SpanTag)) return false;
         return "A9127P127017S210459".equals(((BookSource.SpanTag) spanTag).sentId);
     }
 }, true, 0);
 
-// 方式二：ParagraphPredicates.spanOnly，Lambda 写法
-texasView.highlightParagraphs(ParagraphPredicates.spanOnly(spanTag ->
-    spanTag instanceof BookSource.SpanTag
-        && "A9127P127017S210459".equals(((BookSource.SpanTag) spanTag).sentId)
-), true, 0);
-
-// 方式三：使用 HighlightOptions 配置对象
-ParagraphPredicates predicates = ParagraphPredicates.spanOnly(spanTag -> /* ... */);
+// 方式二：使用 HighlightOptions 配置对象
+ParagraphPredicates predicates = new AbstractParagraphPredicates() {
+    @Override
+    public boolean acceptSpan(Span span) {
+        Object spanTag = span.getTag();
+        return spanTag instanceof BookSource.SpanTag
+            && "A9127P127017S210459".equals(((BookSource.SpanTag) spanTag).sentId);
+    }
+};
 texasView.highlightParagraphs(HighlightOptions.builder(predicates)
     .scrollTo(true)
     .scrollOffset(0)
@@ -1129,13 +1139,14 @@ texasView.highlightParagraphs(HighlightOptions.builder(predicates)
 ```java
 texasView.highlightParagraphs(new ParagraphPredicates() {
     @Override
-    public boolean acceptSpan(@Nullable Object spanTag) {
+    public boolean acceptSpan(Span span) {
+        Object spanTag = span.getTag();
         if (!(spanTag instanceof BookSource.SpanTag)) return false;
         return "A9127P127017S210459".equals(((BookSource.SpanTag) spanTag).sentId);
     }
     @Override
-    public boolean acceptParagraph(@Nullable Object paragraphTag) {
-        return "A9127P127017".equals(paragraphTag);
+    public boolean acceptParagraph(Paragraph paragraph) {
+        return "A9127P127017".equals(paragraph.getTag());
     }
 }, true, 0);
 ```
@@ -1146,13 +1157,13 @@ texasView.highlightParagraphs(new ParagraphPredicates() {
 // 创建选择并设置样式
 Selection selection = texasView.highlightParagraphs(new ParagraphPredicates() {
     @Override
-    public boolean acceptSpan(@Nullable Object spanTag) {
+    public boolean acceptSpan(Span span) {
         return true;
     }
 
     @Override
-    public boolean acceptParagraph(@Nullable Object paragraphTag) {
-        return "A9127P126972".equals(paragraphTag);
+    public boolean acceptParagraph(Paragraph paragraph) {
+        return "A9127P126972".equals(paragraph.getTag());
     }
 }, Selection.Styles.create(Color.BLUE, Color.RED));
 
@@ -1307,7 +1318,7 @@ public class BookSource extends TexasView.DocumentSource {
         
         // 使用 stream API 为每个单词设置 Tag
         builder.stream(text, 0, text.length(), (token) -> {
-            return Paragraph.Span.obtain(token)
+            return Paragraph.SpanStyles.obtain(token)
                     .tag(new SpanTag(
                         sentenceId,
                         token.getCharSequence()
@@ -1517,14 +1528,14 @@ texasView.setSource(new TexasView.DocumentSource() {
             Paragraph chineseParagraph = Paragraph.Builder.newBuilder(option)
                 .tag("cn_" + i)
                 .stream(text.chinese, 0, text.chinese.length(), 
-                    token -> Paragraph.Span.obtain(token).tag(new WordTag(token.toString())))
+                    token -> Paragraph.SpanStyles.obtain(token).tag(new WordTag(token.toString())))
                 .build();
             
             // 创建英文段落
             Paragraph englishParagraph = Paragraph.Builder.newBuilder(option)
                 .tag("en_" + i)
                 .stream(text.english, 0, text.english.length(),
-                    token -> Paragraph.Span.obtain(token).tag(new WordTag(token.toString())))
+                    token -> Paragraph.SpanStyles.obtain(token).tag(new WordTag(token.toString())))
                 .build();
             
             // 创建双语对照的 ViewSegment
@@ -1562,7 +1573,7 @@ public class SpanTag {
 ```java
 // 推荐：自动分词，高效处理
 builder.stream(text, 0, text.length(), (token) -> {
-    return Paragraph.Span.obtain(token).tag(createTag(token));
+    return Paragraph.SpanStyles.obtain(token).tag(createTag(token));
 });
 ```
 
@@ -1612,10 +1623,10 @@ class SpanTag {
 3. **不要在高频回调中进行重度计算**
 ```java
 @Override
-public boolean applySpanClicked(Object clickedTag, Object otherTag) {
+public boolean applySpanClicked(Span clicked, Span other) {
     // ❌ 不要在这里进行数据库查询或网络请求
     // ✅ 应该只做简单的比较操作
-    return clickedTag == otherTag;
+    return clicked.getTag() == other.getTag();
 }
 ```
 
@@ -1649,7 +1660,7 @@ texasView.setSource(new TexasView.DocumentSource() {
 ```java
 // Texas 内部使用了对象池，Span 会自动回收
 // 不需要手动管理，但要注意在使用完后不要继续引用
-Paragraph.Span span = Paragraph.Span.obtain(token);
+Paragraph.SpanStyles span = Paragraph.SpanStyles.obtain(token);
 // 使用 span...
 // 不要在回调外继续持有 span 引用
 ```
@@ -1682,7 +1693,7 @@ Typeface roboto = Typeface.create("Roboto", Typeface.NORMAL);  // ❌
 // ✅ 推荐：使用 stream API 自动分词
 builder.stream(text, 0, text.length(), (token) -> {
     // token 已经是完整的词语
-    return Paragraph.Span.obtain(token)
+    return Paragraph.SpanStyles.obtain(token)
         .tag(new WordTag(token.toString()));
 });
 
@@ -1694,9 +1705,10 @@ for (int i = 0; i < text.length(); i++) {
 }
 
 // ✅ 利用分词结果实现精确交互
-texasView.setOnClickedListener(new TexasView.OnClickedListener() {
+texasView.setOnClickedListener(new OnClickedListenerAdapter() {
     @Override
-    public void onSpanClicked(TexasView view, TouchEvent event, Object tag) {
+    public void onSpanClicked(TexasView view, Paragraph paragraph, TouchEvent event, Span span) {
+        Object tag = span.getTag();
         if (tag instanceof WordTag) {
             String word = ((WordTag) tag).word;
             // word 是完整的词语，可以直接查词典
@@ -1801,7 +1813,7 @@ public class OptimizedReaderActivity extends AppCompatActivity {
                         .typesetPolicy(Paragraph.TYPESET_POLICY_CJK_MIX_OPTIMIZATION)
                         // 使用 stream API，自动 NLP 分词
                         .stream(text, 0, text.length(), (token) -> {
-                            return Paragraph.Span.obtain(token)
+                            return Paragraph.SpanStyles.obtain(token)
                                 .tag(new WordTag(
                                     i,  // 段落索引
                                     token.toString(),  // 完整词语
@@ -1820,9 +1832,10 @@ public class OptimizedReaderActivity extends AppCompatActivity {
     
     private void setupWordInteraction() {
         // 点击识别（基于 NLP 分词的完整词语）
-        texasView.setOnClickedListener(new TexasView.OnClickedListener() {
+        texasView.setOnClickedListener(new OnClickedListenerAdapter() {
             @Override
-            public void onSpanClicked(TexasView view, TouchEvent event, Object tag) {
+            public void onSpanClicked(TexasView view, Paragraph paragraph, TouchEvent event, Span span) {
+                Object tag = span.getTag();
                 if (tag instanceof WordTag) {
                     WordTag wordTag = (WordTag) tag;
                     String word = wordTag.word;  // 完整的词语
@@ -1839,13 +1852,16 @@ public class OptimizedReaderActivity extends AppCompatActivity {
         // 点击谓词（高亮同一段落的同一词语）
         texasView.setSpanTouchEventHandler(new SpanTouchEventHandler() {
             @Override
-            public boolean isSpanClickable(Object tag) {
+            public boolean isSpanClickable(Span span) {
+                Object tag = span.getTag();
                 return tag instanceof WordTag && 
                        ((WordTag) tag).category == Token.CATEGORY_NORMAL;
             }
             
             @Override
-            public boolean applySpanClicked(Object clickedTag, Object otherTag) {
+            public boolean applySpanClicked(Span clickedSpan, Span otherSpan) {
+                Object clickedTag = clickedSpan.getTag();
+                Object otherTag = otherSpan.getTag();
                 if (clickedTag instanceof WordTag && otherTag instanceof WordTag) {
                     WordTag clicked = (WordTag) clickedTag;
                     WordTag other = (WordTag) otherTag;
@@ -1869,7 +1885,7 @@ public class OptimizedReaderActivity extends AppCompatActivity {
                     .tag("para_" + newIndex)
                     .typesetPolicy(Paragraph.TYPESET_POLICY_CJK_MIX_OPTIMIZATION)
                     .stream(newText, 0, newText.length(), (token) -> {
-                        return Paragraph.Span.obtain(token)
+                        return Paragraph.SpanStyles.obtain(token)
                             .tag(new WordTag(newIndex, token.toString(), token.getCategory()));
                     })
                     .build();
@@ -1947,9 +1963,10 @@ public class ReaderActivity extends AppCompatActivity {
     
     // 3. 处理单词点击（如：查词）
     private void setupWordClickListener() {
-        texasView.setOnClickedListener(new TexasView.OnClickedListener() {
+        texasView.setOnClickedListener(new OnClickedListenerAdapter() {
             @Override
-            public void onSpanClicked(TexasView view, TouchEvent event, Object tag) {
+            public void onSpanClicked(TexasView view, Paragraph paragraph, TouchEvent event, Span span) {
+                Object tag = span.getTag();
                 if (tag instanceof WordTag) {
                     WordTag wordTag = (WordTag) tag;
                     showDictionary(wordTag.word);
@@ -1965,7 +1982,8 @@ public class ReaderActivity extends AppCompatActivity {
     private void searchAndHighlight(String keyword) {
         texasView.highlightParagraphs(new ParagraphPredicates() {
             @Override
-            public boolean acceptSpan(@Nullable Object spanTag) {
+            public boolean acceptSpan(Span span) {
+                Object spanTag = span.getTag();
                 if (spanTag instanceof WordTag) {
                     return ((WordTag) spanTag).word.contains(keyword);
                 }
@@ -1973,7 +1991,7 @@ public class ReaderActivity extends AppCompatActivity {
             }
             
             @Override
-            public boolean acceptParagraph(@Nullable Object paragraphTag) {
+            public boolean acceptParagraph(Paragraph paragraph) {
                 return true;
             }
         }, Selection.Styles.create(Color.YELLOW, Color.BLACK));
@@ -1997,7 +2015,8 @@ class SpanTag {
 }
 
 // 点击时通过 ID 查询完整数据
-void onSpanClicked(Object tag) {
+void onSpanClicked(Span span) {
+    Object tag = span.getTag();
     if (tag instanceof SpanTag) {
         String wordId = ((SpanTag) tag).wordId;
         WordData data = wordRepository.getById(wordId); // 从仓库获取数据
@@ -2112,7 +2131,7 @@ texasView.setSource(new TexasView.DocumentSource() {
             .tag("para_1")
             .typesetPolicy(Paragraph.TYPESET_POLICY_CJK_MIX_OPTIMIZATION)
             .stream(text, 0, text.length(), token -> 
-                Paragraph.Span.obtain(token).tag(new WordTag(token.toString()))
+                Paragraph.SpanStyles.obtain(token).tag(new WordTag(token.toString()))
             )
             .build();
     }

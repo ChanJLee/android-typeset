@@ -1,5 +1,6 @@
 package me.chan.texas.renderer;
 
+import android.animation.Animator;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.Resources;
@@ -15,6 +16,7 @@ import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.util.TypedValue;
+import android.view.View;
 import android.widget.FrameLayout;
 
 import androidx.annotation.AnyThread;
@@ -49,10 +51,12 @@ import me.chan.texas.source.Source;
 import me.chan.texas.text.BreakStrategy;
 import me.chan.texas.text.Document;
 import me.chan.texas.text.HyphenStrategy;
+import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.Segment;
 import me.chan.texas.renderer.selection.SelectionMethod;
 import me.chan.texas.text.TextAttribute;
 import me.chan.texas.text.TextGravity;
+import me.chan.texas.text.layout.Span;
 import me.chan.texas.utils.TexasUtils;
 import me.chan.texas.utils.concurrency.Worker;
 
@@ -92,18 +96,18 @@ public final class TexasView extends FrameLayout {
 	 */
 	public static final int SCROLL_STATE_SETTLING = 2;
 
-	void notifySegmentClicked(TouchEvent event, Object tag) {
+	void notifySegmentClicked(TouchEvent event, Segment segment) {
 		if (mOnClickedListener != null) {
 			event.adjust(this);
-			mOnClickedListener.onSegmentClicked(this, event, tag);
+			mOnClickedListener.onSegmentClicked(this, event, segment);
 		}
 		event.recycle();
 	}
 
-	void notifySegmentDoubleClicked(TouchEvent event, Object tag) {
+	void notifySegmentDoubleClicked(TouchEvent event, Segment segment) {
 		if (mOnClickedListener != null) {
 			event.adjust(this);
-			mOnClickedListener.onSegmentDoubleClicked(this, event, tag);
+			mOnClickedListener.onSegmentDoubleClicked(this, event, segment);
 		}
 		event.recycle();
 	}
@@ -340,6 +344,14 @@ public final class TexasView extends FrameLayout {
 		}
 
 		mRenderer.setSegmentDecoration(segmentDecoration);
+	}
+
+	public void setSegmentAnimator(@NonNull SegmentAnimator segmentAnimator) {
+		if (mRenderer == null) {
+			return;
+		}
+
+		mRenderer.setSegmentAnimator(segmentAnimator);
 	}
 
 	private void load(String reason) {
@@ -781,19 +793,19 @@ public final class TexasView extends FrameLayout {
 	}
 
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
-	public void notifySpanLongClicked(TouchEvent event, Object tag) {
+	public void notifySpanLongClicked(TouchEvent event, Paragraph paragraph, Span span) {
 		if (mOnClickedListener != null) {
 			event.adjust(this);
-			mOnClickedListener.onSpanLongClicked(this, event, tag);
+			mOnClickedListener.onSpanLongClicked(this, paragraph, event, span);
 		}
 		event.recycle();
 	}
 
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
-	public void notifySpanClicked(TouchEvent event, Object tag) {
+	public void notifySpanClicked(TouchEvent event, Paragraph paragraph, Span span) {
 		if (mOnClickedListener != null) {
 			event.adjust(this);
-			mOnClickedListener.onSpanClicked(this, event, tag);
+			mOnClickedListener.onSpanClicked(this, paragraph, event, span);
 		}
 		event.recycle();
 	}
@@ -993,38 +1005,40 @@ public final class TexasView extends FrameLayout {
 	 */
 	public interface OnClickedListener {
 		/**
-		 * @param view  view
-		 * @param event touch event
-		 * @param tag   clicked text tag
+		 * @param view      view
+		 * @param paragraph paragraph
+		 * @param event     touch event
+		 * @param span       clicked span
 		 */
-		void onSpanClicked(TexasView view, TouchEvent event, Object tag);
+		void onSpanClicked(@NonNull TexasView view, @NonNull Paragraph paragraph, @NonNull TouchEvent event, @NonNull Span span);
+
+		/**
+		 * @param view      view
+		 * @param paragraph paragraph
+		 * @param event     touch event
+		 * @param span       clicked span
+		 */
+		void onSpanLongClicked(@NonNull TexasView view, @NonNull Paragraph paragraph, @NonNull TouchEvent event, @NonNull Span span);
+
+		/**
+		 * @param view    view
+		 * @param event   touch event
+		 * @param segment clicked segment
+		 */
+		void onSegmentClicked(@NonNull TexasView view, @NonNull TouchEvent event, @NonNull Segment segment);
 
 		/**
 		 * @param view  view
 		 * @param event touch event
-		 * @param tag   clicked text tag
 		 */
-		void onSpanLongClicked(TexasView view, TouchEvent event, Object tag);
+		void onEmptyClicked(@NonNull TexasView view, @NonNull TouchEvent event);
 
 		/**
-		 * @param view  view
-		 * @param event touch event
-		 * @param tag   clicked segment tag
+		 * @param view    view
+		 * @param event   touch event
+		 * @param segment clicked segment
 		 */
-		void onSegmentClicked(TexasView view, TouchEvent event, Object tag);
-
-		/**
-		 * @param view  view
-		 * @param event touch event
-		 */
-		void onEmptyClicked(TexasView view, TouchEvent event);
-
-		/**
-		 * @param view  view
-		 * @param event touch event
-		 * @param tag   clicked segment tag
-		 */
-		void onSegmentDoubleClicked(TexasView view, TouchEvent event, Object tag);
+		void onSegmentDoubleClicked(@NonNull TexasView view, @NonNull TouchEvent event, @NonNull Segment segment);
 	}
 
 	/**
@@ -1043,8 +1057,30 @@ public final class TexasView extends FrameLayout {
 		 * @param outRect  output edges
 		 */
 		@AnyThread
-		void onDecorateSegment(int index, int count, Segment segment, Document document, Rect outRect);
+		void onDecorateSegment(int index, int count, @NonNull Segment segment, @NonNull Document document, @NonNull Rect outRect);
 	}
+
+	public abstract static class SegmentAnimator {
+
+		public Animator createAddAnimator(@NonNull Segment segment, @NonNull View view) {
+			return onCreateAddAnimator(segment, view);
+		}
+
+		protected abstract Animator onCreateAddAnimator(@NonNull Segment segment, @NonNull View view);
+
+		public Animator createRemoveAnimator(@NonNull Segment segment, @NonNull View view) {
+			return onCreateRemoveAnimator(segment, view);
+		}
+
+		protected abstract Animator onCreateRemoveAnimator(@NonNull Segment segment, @NonNull View view);
+
+		public Animator createMoveAnimator(@NonNull Segment segment, @NonNull View view, int fromX, int fromY, int toX, int toY) {
+			return onCreateMoveAnimator(segment, view, fromX, fromY, toX, toY);
+		}
+
+		protected abstract Animator onCreateMoveAnimator(@NonNull Segment segment, @NonNull View view, int fromX, int fromY, int toX, int toY);
+	}
+
 
 	/**
 	 * Scroll state listener

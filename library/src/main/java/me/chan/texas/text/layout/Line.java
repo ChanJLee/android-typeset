@@ -83,7 +83,7 @@ public class Line extends DefaultRecyclable {
 		return mElements.size();
 	}
 
-	public int getBoxCount() {
+	public int getSpanCount() {
 		return getElementCount();
 	}
 
@@ -105,13 +105,13 @@ public class Line extends DefaultRecyclable {
 		return mElements.get(index);
 	}
 
-	public Box getBox(int index) {
-		return (Box) getElement(index);
+	public Span getSpan(int index) {
+		return (Span) getElement(index);
 	}
 
 	@RestrictTo(LIBRARY)
-	public void replace(int prevIndex, Box box) {
-		mElements.set(prevIndex, box);
+	public void replace(int prevIndex, Span span) {
+		mElements.set(prevIndex, span);
 	}
 
 	@RestrictTo(LIBRARY)
@@ -134,8 +134,8 @@ public class Line extends DefaultRecyclable {
 		StringBuilder stringBuilder = new StringBuilder();
 		for (int i = 0; i < mElements.size(); ++i) {
 			Element element = mElements.get(i);
-			if (element instanceof Box) {
-				Box current = (Box) element;
+			if (element instanceof Span) {
+				Span current = (Span) element;
 				stringBuilder.append(current);
 				if (Float.compare(current.getInnerBounds().right, current.getOuterBounds().right) != 0) {
 					stringBuilder.append(" ");
@@ -171,7 +171,7 @@ public class Line extends DefaultRecyclable {
 		int writeIndex = findWritePoint();
 		for (int i = writeIndex + 1; i < mElements.size(); ++i) {
 			Element element = mElements.get(i);
-			if (element instanceof Box) {
+			if (element instanceof Span) {
 				mElements.set(writeIndex++, element);
 			}
 		}
@@ -186,7 +186,7 @@ public class Line extends DefaultRecyclable {
 		int i = 0;
 		for (; i < mElements.size(); ++i) {
 			Element element = mElements.get(i);
-			if (!(element instanceof Box)) {
+			if (!(element instanceof Span)) {
 				return i;
 			}
 		}
@@ -202,33 +202,33 @@ public class Line extends DefaultRecyclable {
 		return mBounds;
 	}
 
-	public TexasIterator<Box> iterator() {
-		return new TexasIterator<Box>() {
+	public TexasIterator<Span> iterator() {
+		return new TexasIterator<Span>() {
 			private int mIndex = -1;
 
 			@Override
-			public Box next() {
+			public Span next() {
 				return restore(mIndex + 1);
 			}
 
 			@Override
-			public Box prev() {
+			public Span prev() {
 				return restore(mIndex - 1);
 			}
 
 			@Nullable
 			@Override
-			public Box current() {
+			public Span current() {
 				return restore(mIndex);
 			}
 
 			@Override
-			public Box restore(int state) {
+			public Span restore(int state) {
 				if (state < 0 || state >= getElementCount()) {
 					return null;
 				}
 
-				return (Box) getElement(mIndex = state);
+				return (Span) getElement(mIndex = state);
 			}
 
 			@Override
@@ -263,7 +263,7 @@ public class Line extends DefaultRecyclable {
 				return;
 			}
 
-			if (element instanceof Box) {
+			if (element instanceof Span) {
 				mLastTextElement = element;
 				mElements.add(element);
 			} else if (element instanceof Penalty) {
@@ -312,7 +312,7 @@ public class Line extends DefaultRecyclable {
 			int index = 0;
 			while (index < count) {
 				Element element = elements.get(index++);
-				if (!(element instanceof TextBox)) {
+				if (!(element instanceof TextSpan)) {
 					line.add(element);
 					continue;
 				}
@@ -323,19 +323,19 @@ public class Line extends DefaultRecyclable {
 				}
 
 				Element nextElement = elements.get(index);
-				if (!(nextElement instanceof TextBox)) {
+				if (!(nextElement instanceof TextSpan)) {
 					line.add(element);
 					continue;
 				}
 
-				TextBox current = (TextBox) element;
-				TextBox next = (TextBox) nextElement;
+				TextSpan current = (TextSpan) element;
+				TextSpan next = (TextSpan) nextElement;
 				if (!next.isSameGroup(current)) {
 					line.add(element);
 					continue;
 				}
 
-				TextBox copy = TextBox.obtain(current);
+				TextSpan copy = TextSpan.obtain(current);
 				if (!copy.merge(next)) {
 					line.add(current);
 					copy.recycle();
@@ -347,11 +347,11 @@ public class Line extends DefaultRecyclable {
 				++index;
 				while (index < count) {
 					nextElement = elements.get(index);
-					if (!(nextElement instanceof TextBox)) {
+					if (!(nextElement instanceof TextSpan)) {
 						break;
 					}
 
-					next = (TextBox) nextElement;
+					next = (TextSpan) nextElement;
 					if (!next.isSameGroup(current)) {
 						break;
 					}
@@ -382,8 +382,8 @@ public class Line extends DefaultRecyclable {
 
 			int size = elements.size();
 			Element element = elements.get(size - 1);
-			if (element instanceof TextBox) {
-				TextBox copy = TextBox.obtain((TextBox) element);
+			if (element instanceof TextSpan) {
+				TextSpan copy = TextSpan.obtain((TextSpan) element);
 				copy.merge((Penalty) lastElement);
 				elements.set(size - 1, copy);
 			}
@@ -398,14 +398,14 @@ public class Line extends DefaultRecyclable {
 
 			for (int i = 0; i < line.getElementCount(); ++i) {
 				Element element = line.getElement(i);
-				if (element instanceof Box) {
-					Box box = (Box) element;
-					boxWidth += box.getWidth();
-					if (lineHeight < box.getHeight()) {
-						lineHeight = box.getHeight();
+				if (element instanceof Span) {
+					Span span = (Span) element;
+					boxWidth += span.getWidth();
+					if (lineHeight < span.getHeight()) {
+						lineHeight = span.getHeight();
 					}
 
-					line.mBaselineOffset = Math.max(box.getBaselineOffset(), line.mBaselineOffset);
+					line.mBaselineOffset = Math.max(span.getBaselineOffset(), line.mBaselineOffset);
 				} else if (element instanceof Glue) {
 					Glue glue = (Glue) element;
 					glueWidth += glue.getWidth();

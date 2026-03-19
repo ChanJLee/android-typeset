@@ -25,7 +25,7 @@ import me.chan.texas.text.layout.Glue;
 import me.chan.texas.text.layout.Layout;
 import me.chan.texas.text.layout.Line;
 import me.chan.texas.text.layout.Penalty;
-import me.chan.texas.text.layout.TextBox;
+import me.chan.texas.text.layout.TextSpan;
 import me.chan.texas.typesetter.AbsParagraphTypesetter;
 import me.chan.texas.typesetter.ParagraphTypesetter;
 
@@ -311,13 +311,13 @@ public class SelectedTextByDragVisitorUnitTest {
 		Paragraph paragraph = builder.build();
 		paragraph.measure(measurer, textAttribute);
 
-		TextBox box123 = (TextBox) paragraph.getElement(0);
-		TextBox triBox = (TextBox) paragraph.getElement(2);
-		TextBox angBox = (TextBox) paragraph.getElement(4);
+		TextSpan span123 = (TextSpan) paragraph.getElement(0);
+		TextSpan triBox = (TextSpan) paragraph.getElement(2);
+		TextSpan angBox = (TextSpan) paragraph.getElement(4);
 
 		Glue glue = (Glue) paragraph.getElement(1);
 
-		Assert.assertEquals("123", box123.toString());
+		Assert.assertEquals("123", span123.toString());
 		Assert.assertEquals("tri", triBox.toString());
 		Assert.assertEquals("an", angBox.toString());
 
@@ -329,53 +329,53 @@ public class SelectedTextByDragVisitorUnitTest {
 		Layout layout = Layout.obtain(paragraph.getLayout());
 
 		Line line = Line.obtain();
-		line.add(box123);
+		line.add(span123);
 		line.add(glue);
 		line.add(triBox);
 		line.add(angBox);
-		line.setLineWidth(glue.getWidth() + box123.getWidth() + triBox.getWidth() + angBox.getWidth());
+		line.setLineWidth(glue.getWidth() + span123.getWidth() + triBox.getWidth() + angBox.getWidth());
 		line.setRatio(0);
 		line.setLineHeight(1);
 		layout.addLine(line);
 
 		line = Line.obtain();
-		line.add(TextBox.obtain(triBox));
-		line.add(TextBox.obtain(angBox));
+		line.add(TextSpan.obtain(triBox));
+		line.add(TextSpan.obtain(angBox));
 		line.setLineWidth(triBox.getWidth() + angBox.getWidth());
 		line.setRatio(0);
 		line.setLineHeight(1);
 		layout.addLine(line);
 
 		line = Line.obtain();
-		line.add(TextBox.obtain(triBox));
-		line.add(TextBox.obtain(angBox));
+		line.add(TextSpan.obtain(triBox));
+		line.add(TextSpan.obtain(angBox));
 		line.setLineWidth(triBox.getWidth() + angBox.getWidth());
 		line.setRatio(0);
 		line.setLineHeight(1);
 		layout.addLine(line);
 
 		line = Line.obtain();
-		line.add(TextBox.obtain(triBox));
-		line.add(TextBox.obtain(angBox));
+		line.add(TextSpan.obtain(triBox));
+		line.add(TextSpan.obtain(angBox));
 		line.setLineWidth(triBox.getWidth() + angBox.getWidth());
 		line.setRatio(0);
 		line.setLineHeight(1);
 		layout.addLine(line);
 
 		line = Line.obtain();
-		line.add(TextBox.obtain(triBox));
-		line.add(TextBox.obtain(angBox));
+		line.add(TextSpan.obtain(triBox));
+		line.add(TextSpan.obtain(angBox));
 		line.setLineWidth(triBox.getWidth() + angBox.getWidth());
 		line.setRatio(0);
 		line.setLineHeight(1);
 		layout.addLine(line);
 
 		line = Line.obtain();
-		line.add(TextBox.obtain(triBox));
-		line.add(TextBox.obtain(angBox));
+		line.add(TextSpan.obtain(triBox));
+		line.add(TextSpan.obtain(angBox));
 		line.add(glue);
-		line.add(TextBox.obtain(box123));
-		line.setLineWidth(glue.getWidth() + box123.getWidth() + triBox.getWidth() + angBox.getWidth());
+		line.add(TextSpan.obtain(span123));
+		line.setLineWidth(glue.getWidth() + span123.getWidth() + triBox.getWidth() + angBox.getWidth());
 		line.setRatio(0);
 		line.setLineHeight(1);
 		layout.addLine(line);

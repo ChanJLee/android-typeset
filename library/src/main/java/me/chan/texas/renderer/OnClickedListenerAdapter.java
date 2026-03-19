@@ -1,5 +1,11 @@
 package me.chan.texas.renderer;
 
+import androidx.annotation.NonNull;
+
+import me.chan.texas.text.Paragraph;
+import me.chan.texas.text.Segment;
+import me.chan.texas.text.layout.Span;
+
 /**
  * {@link TexasView.OnClickedListener} 的适配器，提供所有方法的默认空实现。
  * 用户只需重写关心的事件方法即可，无需实现所有回调。
@@ -14,25 +20,30 @@ package me.chan.texas.renderer;
  * });
  * </pre>
  */
-public abstract class OnClickedListenerAdapter implements TexasView.OnClickedListener {
+public class OnClickedListenerAdapter implements TexasView.OnClickedListener {
 
-    @Override
-    public void onSpanClicked(TexasView view, TouchEvent event, Object tag) {
-    }
+	@Override
+	public void onSpanClicked(@NonNull TexasView view, @NonNull Paragraph paragraph, @NonNull TouchEvent event, @NonNull Span span) {
 
-    @Override
-    public void onSpanLongClicked(TexasView view, TouchEvent event, Object tag) {
-    }
+	}
 
-    @Override
-    public void onSegmentClicked(TexasView view, TouchEvent event, Object tag) {
-    }
+	@Override
+	public void onSpanLongClicked(@NonNull TexasView view, @NonNull Paragraph paragraph, @NonNull TouchEvent event, @NonNull Span span) {
 
-    @Override
-    public void onEmptyClicked(TexasView view, TouchEvent event) {
-    }
+	}
 
-    @Override
-    public void onSegmentDoubleClicked(TexasView view, TouchEvent event, Object tag) {
-    }
+	@Override
+	public void onSegmentClicked(@NonNull TexasView view, @NonNull TouchEvent event, @NonNull Segment segment) {
+
+	}
+
+	@Override
+	public void onEmptyClicked(@NonNull TexasView view, @NonNull TouchEvent event) {
+
+	}
+
+	@Override
+	public void onSegmentDoubleClicked(@NonNull TexasView view, @NonNull TouchEvent event, @NonNull Segment segment) {
+
+	}
 }

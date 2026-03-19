@@ -13,8 +13,8 @@ import me.chan.texas.renderer.selection.ParagraphSelection;
 import me.chan.texas.renderer.selection.Selection;
 import me.chan.texas.text.Paragraph;
 import me.chan.texas.renderer.RendererContext;
-import me.chan.texas.text.layout.Box;
-import me.chan.texas.text.layout.DrawableBox;
+import me.chan.texas.text.layout.Span;
+import me.chan.texas.text.layout.DrawableSpan;
 import me.chan.texas.text.layout.Line;
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -96,12 +96,12 @@ public abstract class SelectedVisitor extends ParagraphVisitor {
 	}
 
 	@Override
-	public void onVisitBox(Box box, RectF inner, RectF outer, @NonNull RendererContext context) {
-		if (selected(box, inner, outer)) {
-			if (!(box instanceof DrawableBox) || includeSelectNonTextBoxRegion()) {
+	public void onVisitBox(Span span, RectF inner, RectF outer, @NonNull RendererContext context) {
+		if (selected(span, inner, outer)) {
+			if (!(span instanceof DrawableSpan) || includeSelectNonTextBoxRegion()) {
 				mCompositeRectDrawable.append(outer.left, mLastLineTop, outer.right, mLastLineBottom);
 			}
-			mSelection.appendBox(box);
+			mSelection.appendBox(span);
 		}
 	}
 
@@ -112,5 +112,5 @@ public abstract class SelectedVisitor extends ParagraphVisitor {
 		return mRenderOption.isDrawEmoticonSelection();
 	}
 
-	protected abstract boolean selected(Box box, RectF inner, RectF outer);
+	protected abstract boolean selected(Span span, RectF inner, RectF outer);
 }

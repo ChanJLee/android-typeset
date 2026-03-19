@@ -12,11 +12,11 @@ import androidx.annotation.Nullable;
 import me.chan.texas.Texas;
 import me.chan.texas.measurer.MockMeasurer;
 import me.chan.texas.renderer.core.graphics.TexasPaint;
-import me.chan.texas.text.layout.DrawableBox;
+import me.chan.texas.text.layout.DrawableSpan;
 import me.chan.texas.text.layout.Glue;
 import me.chan.texas.text.layout.Line;
 import me.chan.texas.text.layout.Penalty;
-import me.chan.texas.text.layout.TextBox;
+import me.chan.texas.text.layout.TextSpan;
 import me.chan.texas.text.util.TexasIterator;
 import me.chan.texas.typesetter.tex.Candidate;
 import me.chan.texas.typesetter.tex.Node;
@@ -93,12 +93,12 @@ public class DataUnitTest {
 
 		TextStyle textStyle = new TextStyle() {
 			@Override
-			public void update(@NonNull TexasPaint textPaint, @Nullable Object tag) {
+			public void update(@NonNull TexasPaint textPaint, TextSpan span) {
 
 			}
 		};
 		String tag = "hello";
-		Penalty penalty = Penalty.obtain(2, true, tag, textStyle);
+		Penalty penalty = Penalty.obtain(2, true, TextSpan.obtain("1", 0, 1, null, tag, null, null), textStyle);
 		penalty.measure(mMockMeasurer, mTextAttribute);
 		Assert.assertNotNull(penalty);
 
@@ -126,12 +126,12 @@ public class DataUnitTest {
 		mTextAttribute.refresh(mMockMeasurer);
 		TextStyle textStyle1 = new TextStyle() {
 			@Override
-			public void update(@NonNull TexasPaint textPaint, @Nullable Object tag) {
+			public void update(@NonNull TexasPaint textPaint, TextSpan span) {
 
 			}
 		};
 		String tag2 = "fuck2";
-		penalty = Penalty.obtain(5, false, tag2, textStyle1);
+		penalty = Penalty.obtain(5, false, TextSpan.obtain("1", 0, 1, null, tag2, null, null), textStyle1);
 		penalty.measure(mMockMeasurer, mTextAttribute);
 		Assert.assertNotNull(penalty);
 		Assert.assertNotSame(penalty, prev);
@@ -142,9 +142,9 @@ public class DataUnitTest {
 		Assert.assertEquals("check height: ", penalty.getHeight(), 0, 0);
 		Assert.assertEquals("check penalty: ", penalty.getPenalty(), 5, 0);
 		Assert.assertFalse("check flag", penalty.isFlag());
-		Assert.assertNotSame(penalty, Penalty.obtain(10, true, "fuck2", new TextStyle() {
+		Assert.assertNotSame(penalty, Penalty.obtain(10, true, null, new TextStyle() {
 			@Override
-			public void update(@NonNull TexasPaint textPaint, @Nullable Object tag) {
+			public void update(@NonNull TexasPaint textPaint, TextSpan span) {
 
 			}
 		}));
@@ -167,7 +167,7 @@ public class DataUnitTest {
 		Line line = Line.obtain();
 		Field field = Line.class.getDeclaredField("mElements");
 		field.setAccessible(true);
-		List<TextBox> boxes = (List<TextBox>) field.get(line);
+		List<TextSpan> boxes = (List<TextSpan>) field.get(line);
 		Assert.assertNotNull(line);
 		Assert.assertFalse(line.isRecycled());
 		Assert.assertNotNull(boxes);
@@ -180,13 +180,13 @@ public class DataUnitTest {
 
 		mMockTextPaint.setMockTextSize(4);
 		mTextAttribute.refresh(mMockMeasurer);
-		boxes.add(TextBox.obtain("hello", 0, 1, null, null, null, null));
+		boxes.add(TextSpan.obtain("hello", 0, 1, null, null, null, null));
 		Assert.assertFalse(boxes.isEmpty());
 
 		Line prev = line;
 		line.recycle();
 		Assert.assertTrue(line.isRecycled());
-		boxes = (List<TextBox>) field.get(line);
+		boxes = (List<TextSpan>) field.get(line);
 		Assert.assertTrue(boxes.isEmpty());
 		Assert.assertNotEquals(line.getLineHeight(), 2, 0);
 		Assert.assertNotEquals(line.getRatio(), 4, 0);
@@ -196,7 +196,7 @@ public class DataUnitTest {
 
 		line = Line.obtain();
 		Assert.assertNotSame(line, Line.obtain());
-		boxes = (List<TextBox>) field.get(line);
+		boxes = (List<TextSpan>) field.get(line);
 		Assert.assertNotNull(line);
 		Assert.assertFalse(line.isRecycled());
 		Assert.assertSame(prev, line);
@@ -210,32 +210,30 @@ public class DataUnitTest {
 		Drawable drawable = new ColorDrawable(19);
 
 		Emoticon emoticon = Emoticon.obtain(drawable, 1, 2);
-		DrawableBox drawableBox = (DrawableBox) emoticon.getDrawableBox();
+		DrawableSpan drawableBox = emoticon;
 		Assert.assertNotNull(drawableBox);
 		Assert.assertFalse(drawableBox.isRecycled());
 		Assert.assertEquals(drawableBox.getWidth(), 1, 0);
 		Assert.assertEquals(drawableBox.getHeight(), 2, 0);
 
-		DrawableBox p = drawableBox;
+		DrawableSpan p = drawableBox;
 		drawableBox.recycle();
 		Assert.assertTrue(drawableBox.isRecycled());
-		Assert.assertNotSame(drawable, drawableBox.getSpan());
+		Assert.assertNotSame(drawable, drawableBox);
 		Assert.assertNotEquals(drawableBox.getWidth(), 1, 0);
 		Assert.assertNotEquals(drawableBox.getHeight(), 2, 0);
-		Assert.assertNull(drawableBox.getSpan());
 
 		// test recycle twice
 		drawableBox.recycle();
 
 		Emoticon emoticon1 = Emoticon.obtain(drawable, 2, 3);
-		drawableBox = (DrawableBox) emoticon1.getDrawableBox();
-		Assert.assertNotSame(emoticon, drawableBox.getSpan());
+		drawableBox = emoticon1;
+		Assert.assertNotSame(emoticon, drawableBox);
 		Assert.assertFalse(drawableBox.isRecycled());
 		Assert.assertEquals(drawableBox.getWidth(), 2, 0);
 		Assert.assertEquals(drawableBox.getHeight(), 3, 0);
-		Assert.assertSame(p, drawableBox);
-		Assert.assertSame(emoticon1, drawableBox.getSpan());
-		Assert.assertNotSame(drawableBox, DrawableBox.obtain(emoticon1, 1, 2));
+		Assert.assertNotSame(p, drawableBox); /* disable reuse */
+		Assert.assertSame(emoticon1, drawableBox);
 	}
 
 	@Test
@@ -369,7 +367,7 @@ public class DataUnitTest {
 		Assert.assertSame(p, candidate);
 		Assert.assertNotSame(candidate, Candidate.obtain(1, 2, node));
 	}
-	
+
 	private static class MySegment extends ViewSegment {
 
 		public MySegment() {
@@ -378,7 +376,7 @@ public class DataUnitTest {
 
 		@Override
 		protected void onRender(View view) {
-			
+
 		}
 	}
 

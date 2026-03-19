@@ -24,7 +24,7 @@ import me.chan.texas.utils.TexasUtils;
 /**
  * 文本元素
  */
-public final class TextBox extends Box {
+public final class TextSpan extends Span {
 	/**
 	 * 什么属性都没有
 	 */
@@ -72,7 +72,7 @@ public final class TextBox extends Box {
 	@RestrictTo(LIBRARY)
 	static final int SQUISH_FACTOR = 2;
 
-	private final static ObjectPool<TextBox> POOL = new ObjectPool<>(Texas.getMemoryOption().getTextBufferSize());
+	private final static ObjectPool<TextSpan> POOL = new ObjectPool<>(Texas.getMemoryOption().getTextBufferSize());
 	@RestrictTo(LIBRARY)
 	public final static CharArrayPool CHAR_ARRAY_POOL = new CharArrayPool();
 
@@ -83,7 +83,7 @@ public final class TextBox extends Box {
 
 	/**
 	 * 修改内容关注
-	 * {@link #copy(TextBox)}
+	 * {@link #copy(TextSpan)}
 	 * {@link #equals(Object)}
 	 */
 	private CharSequence mText;
@@ -98,13 +98,13 @@ public final class TextBox extends Box {
 	@VisibleForTesting
 	int mGroupId = Hyphenation.NONE_GROUP_ID;
 
-	private TextBox(float width, float height) {
+	private TextSpan(float width, float height) {
 		super(width, height);
 	}
 
-	private TextBox(@NonNull CharSequence text, int start, int end,
-					float width, float height,
-					TextStyle textStyle) {
+	private TextSpan(@NonNull CharSequence text, int start, int end,
+					 float width, float height,
+					 TextStyle textStyle) {
 		super(width, height);
 		mText = text;
 		mStart = start;
@@ -113,7 +113,7 @@ public final class TextBox extends Box {
 	}
 
 	@RestrictTo(LIBRARY)
-	public void copy(@NonNull TextBox other) {
+	public void copy(@NonNull TextSpan other) {
 		if (other.isRecycled() || isRecycled()) {
 			throw new IllegalStateException("other is recycled or current is recycled");
 		}
@@ -140,25 +140,25 @@ public final class TextBox extends Box {
 	}
 
 	@RestrictTo(LIBRARY)
-	public boolean merge(@NonNull TextBox box) {
-		if (this.mGroupId != box.mGroupId) {
+	public boolean merge(@NonNull TextSpan span) {
+		if (this.mGroupId != span.mGroupId) {
 			if (BuildConfig.DEBUG) {
-				throw new IllegalStateException("can't merge text box with difference group id");
+				throw new IllegalStateException("can't merge text span with difference group id");
 			}
 			return false;
 		}
 
 		// 目前因为符号问题不能合并的case大概占比 1%不到
 		// 但是能提高 30% 后续遍历的性能
-		if (mAttribute != box.mAttribute) {
+		if (mAttribute != span.mAttribute) {
 			return false;
 		}
 
-		this.mWidth += box.mWidth;
-		this.mHeight = Math.max(this.mHeight, box.mHeight);
-		this.mEnd = box.mEnd;
-		this.mAttribute |= box.mAttribute;
-		this.mBaselineOffset = Math.max(this.mBaselineOffset, box.mBaselineOffset);
+		this.mWidth += span.mWidth;
+		this.mHeight = Math.max(this.mHeight, span.mHeight);
+		this.mEnd = span.mEnd;
+		this.mAttribute |= span.mAttribute;
+		this.mBaselineOffset = Math.max(this.mBaselineOffset, span.mBaselineOffset);
 		return true;
 	}
 
@@ -193,15 +193,15 @@ public final class TextBox extends Box {
 		if (o == null || getClass() != o.getClass()) return false;
 		if (!super.equals(o)) return false;
 
-		TextBox textBox = (TextBox) o;
+		TextSpan textspan = (TextSpan) o;
 
-		if (mStart != textBox.mStart) return false;
-		if (mEnd != textBox.mEnd) return false;
-		if (Float.compare(textBox.mBaselineOffset, mBaselineOffset) != 0) return false;
-		if (mAttribute != textBox.mAttribute) return false;
-		if (mText != null ? !mText.equals(textBox.mText) : textBox.mText != null) return false;
-		if (mGroupId != textBox.mGroupId) return false;
-		return mTextStyle != null ? mTextStyle.equals(textBox.mTextStyle) : textBox.mTextStyle == null;
+		if (mStart != textspan.mStart) return false;
+		if (mEnd != textspan.mEnd) return false;
+		if (Float.compare(textspan.mBaselineOffset, mBaselineOffset) != 0) return false;
+		if (mAttribute != textspan.mAttribute) return false;
+		if (mText != null ? !mText.equals(textspan.mText) : textspan.mText != null) return false;
+		if (mGroupId != textspan.mGroupId) return false;
+		return mTextStyle != null ? mTextStyle.equals(textspan.mTextStyle) : textspan.mTextStyle == null;
 	}
 
 	@Override
@@ -224,7 +224,7 @@ public final class TextBox extends Box {
 	public void merge(Penalty penalty) {
 		// check tag ?
 		if (isPenalty()) {
-			throw new IllegalStateException("set text box penalty twice");
+			throw new IllegalStateException("set text span penalty twice");
 		}
 
 		if (penalty.getWidth() == 0) {
@@ -242,12 +242,12 @@ public final class TextBox extends Box {
 	}
 
 	@RestrictTo(LIBRARY)
-	public boolean isSameGroup(TextBox box) {
+	public boolean isSameGroup(TextSpan span) {
 		if (mGroupId == Hyphenation.NONE_GROUP_ID) {
 			return false;
 		}
 
-		return mGroupId == box.mGroupId;
+		return mGroupId == span.mGroupId;
 	}
 
 	@Override
@@ -305,46 +305,46 @@ public final class TextBox extends Box {
 	}
 
 	@RestrictTo(LIBRARY)
-	public static TextBox obtain(@NonNull CharSequence charSequence, int start, int end,
-								 TextStyle textStyle,
-								 Object tag,
-								 Appearance background,
-								 Appearance foreground) {
+	public static TextSpan obtain(@NonNull CharSequence charSequence, int start, int end,
+								  TextStyle textStyle,
+								  Object tag,
+								  Appearance background,
+								  Appearance foreground) {
 		return obtain(charSequence, start, end, textStyle, tag, background, foreground, Hyphenation.NONE_GROUP_ID);
 	}
 
 	@RestrictTo(LIBRARY)
-	public static TextBox obtain(@NonNull CharSequence charSequence, int start, int end,
-								 TextStyle textStyle,
-								 Object tag,
-								 Appearance background,
-								 Appearance foreground,
-								 int groupId) {
-		TextBox box = POOL.acquire();
-		if (box == null) {
-			box = new TextBox(charSequence, start, end, 0, 0, textStyle);
+	public static TextSpan obtain(@NonNull CharSequence charSequence, int start, int end,
+								  TextStyle textStyle,
+								  Object tag,
+								  Appearance background,
+								  Appearance foreground,
+								  int groupId) {
+		TextSpan span = POOL.acquire();
+		if (span == null) {
+			span = new TextSpan(charSequence, start, end, 0, 0, textStyle);
 		}
-		box.mWidth = 0;
-		box.mHeight = 0;
-		box.mTag = tag;
-		box.mBackground = background;
-		box.mForeground = foreground;
+		span.mWidth = 0;
+		span.mHeight = 0;
+		span.mTag = tag;
+		span.mBackground = background;
+		span.mForeground = foreground;
 
-		box.mText = charSequence;
-		box.mStart = start;
-		box.mEnd = end;
-		box.mTextStyle = textStyle;
+		span.mText = charSequence;
+		span.mStart = start;
+		span.mEnd = end;
+		span.mTextStyle = textStyle;
 
-		box.mGroupId = groupId;
+		span.mGroupId = groupId;
 
-		box.reuse();
-		return box;
+		span.reuse();
+		return span;
 	}
 
 	@Override
 	protected void onMeasure(Measurer measurer, TextAttribute textAttribute) {
 		Measurer.CharSequenceSpec spec = Measurer.CharSequenceSpec.obtain();
-		measurer.measure(mText, mStart, mEnd, getTextStyle(), getTag(), spec);
+		measurer.measure(mText, mStart, mEnd, getTextStyle(), this, spec);
 		mWidth = spec.getWidth();
 		mHeight = spec.getHeight();
 		mBaselineOffset = spec.getBaselineOffset();
@@ -353,14 +353,14 @@ public final class TextBox extends Box {
 	}
 
 	@RestrictTo(LIBRARY)
-	public static TextBox obtain(TextBox raw) {
-		TextBox box = POOL.acquire();
-		if (box == null) {
-			box = new TextBox(0, 0);
+	public static TextSpan obtain(TextSpan raw) {
+		TextSpan span = POOL.acquire();
+		if (span == null) {
+			span = new TextSpan(0, 0);
 		}
-		box.reuse();
-		box.copy(raw);
-		return box;
+		span.reuse();
+		span.copy(raw);
+		return span;
 	}
 
 	@RestrictTo(LIBRARY)
