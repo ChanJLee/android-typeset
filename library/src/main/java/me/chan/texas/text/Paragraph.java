@@ -30,6 +30,7 @@ import me.chan.texas.text.layout.Glue;
 import me.chan.texas.text.layout.Layout;
 import me.chan.texas.text.layout.Line;
 import me.chan.texas.text.layout.Penalty;
+import me.chan.texas.text.layout.TextSpan;
 import me.chan.texas.text.tokenizer.Token;
 import me.chan.texas.text.util.TexasIterator;
 
@@ -817,7 +818,6 @@ public final class Paragraph extends Segment {
 		}
 	}
 
-	// todo 考虑 penality
 	@NonNull
 	public List<Paragraph> split(Predicate<Span> predicate) {
 		List<Paragraph> paragraphs = new ArrayList<>();
@@ -831,8 +831,9 @@ public final class Paragraph extends Segment {
 
 			Span span = (Span) element;
 			if (predicate.test(span)) {
-				paragraphs.add(fork(start, end + 1));
-				start = end + 1;
+				end = adjustSpiltIndex(span, end);
+				paragraphs.add(fork(start, end));
+				start = end;
 			}
 		}
 
@@ -841,6 +842,30 @@ public final class Paragraph extends Segment {
 		}
 
 		return paragraphs;
+	}
+
+	private int adjustSpiltIndex(Span anchor, int end) {
+		if (!(anchor instanceof TextSpan)) {
+			return end;
+		}
+
+		TextSpan anchorSpan = (TextSpan) anchor;
+		for (; end < mElements.size(); ++end) {
+			Element element = mElements.get(end);
+			if (!(element instanceof Span)) {
+				continue;
+			}
+
+			if (!(element instanceof TextSpan)) {
+				break;
+			}
+
+			TextSpan span = (TextSpan) element;
+			if (!span.isSameGroup(anchorSpan)) {
+				break;
+			}
+		}
+		return end;
 	}
 
 	private Paragraph fork(int start, int end) {

@@ -1573,6 +1573,26 @@ public class ParagraphUnitTest {
 		result = paragraph.split(b -> false);
 		Assert.assertEquals(1, result.size());
 		assertElementEndsWithTerminalAndForceBreak(result.get(0));
+
+		builder = Paragraph.Builder.newBuilder(texasOption);
+		builder.text("a b c triangle a b c");
+		paragraph = builder.build();
+		result = paragraph.split(span -> "tri".equals(span.toString()));
+		Assert.assertEquals(2, result.size());
+		for (Paragraph p : result) {
+			assertElementEndsWithTerminalAndForceBreak(p);
+		}
+
+		builder = Paragraph.Builder.newBuilder(texasOption);
+		builder.text("a b c triangle ");
+		builder.hyperSpan(new MyHypeSpan());
+		builder.text("a b c");
+		paragraph = builder.build();
+		result = paragraph.split(span -> "tri".equals(span.toString()));
+		Assert.assertEquals(2, result.size());
+		for (Paragraph p : result) {
+			assertElementEndsWithTerminalAndForceBreak(p);
+		}
 	}
 
 	/**
