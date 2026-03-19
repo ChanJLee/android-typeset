@@ -98,7 +98,7 @@ public class Penalty implements Element {
 	private float mPenalty;
 	private float mWidth;
 	private float mHeight;
-	private TextBox mDepends;
+	private TextSpan mDepends;
 	private TextStyle mTextStyle;
 
 	private Penalty() {
@@ -162,13 +162,13 @@ public class Penalty implements Element {
 	}
 
 	public static Penalty obtain(float penalty,
-								 TextBox textBox, TextStyle textStyle) {
+								 TextSpan textBox, TextStyle textStyle) {
 		return obtain(penalty, true, textBox, textStyle);
 	}
 
 	@NonNull
 	public static Penalty obtain(float penalty, boolean flag/* 不是连字符 true, 连字符 false */,
-								 TextBox textBox, TextStyle textStyle) {
+								 TextSpan textBox, TextStyle textStyle) {
 		Penalty p = new Penalty();
 		p.mFlag = flag;
 		p.mPenalty = penalty;

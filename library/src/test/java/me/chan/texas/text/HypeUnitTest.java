@@ -7,7 +7,6 @@ import me.chan.texas.misc.RectF;
 import me.chan.texas.renderer.RendererContext;
 import me.chan.texas.renderer.core.graphics.TexasCanvas;
 import me.chan.texas.renderer.core.graphics.TexasPaint;
-import me.chan.texas.text.layout.DrawableBox;
 import me.chan.texas.text.layout.StateList;
 
 public class HypeUnitTest {

@@ -16,10 +16,10 @@ import me.chan.texas.renderer.selection.ParagraphSelection;
 import me.chan.texas.text.BreakStrategy;
 import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.TextAttribute;
-import me.chan.texas.text.layout.Box;
+import me.chan.texas.text.layout.Span;
 import me.chan.texas.text.layout.Element;
 import me.chan.texas.text.layout.Line;
-import me.chan.texas.text.layout.TextBox;
+import me.chan.texas.text.layout.TextSpan;
 import me.chan.texas.typesetter.ParagraphTypesetter;
 
 import org.junit.Assert;
@@ -66,7 +66,7 @@ public class SelectionUnitTest {
 		ParagraphSelection paragraphSelection = ParagraphSelection.obtain(Selection.Type.SELECTION, Selection.Styles.createFromTouch(renderOption, true), paragraph);
 
 		Assert.assertTrue(paragraphSelection.isEmpty());
-		Box box = TextBox.obtain(
+		Span box = TextSpan.obtain(
 				"fuck",
 				0,
 				1,
@@ -80,7 +80,7 @@ public class SelectionUnitTest {
 		Assert.assertSame(paragraphSelection.getLastBox(), box);
 		Assert.assertSame(paragraphSelection.getFirstBox(), box);
 
-		Box box2 = TextBox.obtain(
+		Span box2 = TextSpan.obtain(
 				"fuck",
 				0,
 				2,
@@ -99,11 +99,11 @@ public class SelectionUnitTest {
 		Assert.assertNull(paragraphSelection.getLastBox());
 		Assert.assertNull(paragraphSelection.getFirstBox());
 
-		Set<Box> set = new HashSet<>();
+		Set<Span> set = new HashSet<>();
 		for (int i = 0; i < 10; ++i) {
 			Element element = paragraph.getElement(i);
-			if (element instanceof Box) {
-				Box box1 = (Box) element;
+			if (element instanceof Span) {
+				Span box1 = (Span) element;
 				set.add(box1);
 				paragraphSelection.appendBox(box1);
 			}
@@ -131,11 +131,11 @@ public class SelectionUnitTest {
 	}
 
 	private static class TestBoxVisitor extends ParagraphVisitor {
-		private final Set<Box> mBoxes;
+		private final Set<Span> mBoxes;
 		private int mCount;
 		private ParagraphSelection mParagraphSelection;
 
-		public TestBoxVisitor(Set<Box> boxes, ParagraphSelection paragraphSelection) {
+		public TestBoxVisitor(Set<Span> boxes, ParagraphSelection paragraphSelection) {
 			mBoxes = boxes;
 			mParagraphSelection = paragraphSelection;
 		}
@@ -161,7 +161,7 @@ public class SelectionUnitTest {
 		}
 
 		@Override
-		protected void onVisitBox(Box box, RectF inner, RectF outer, @NonNull RendererContext context) {
+		protected void onVisitBox(Span box, RectF inner, RectF outer, @NonNull RendererContext context) {
 			if (mParagraphSelection.isSelected(box)) {
 				++mCount;
 				Assert.assertTrue(mBoxes.contains(box));
@@ -206,7 +206,7 @@ public class SelectionUnitTest {
 		}
 
 		@Override
-		protected void onVisitBox(Box box, RectF inner, RectF outer, @NonNull RendererContext context) {
+		protected void onVisitBox(Span box, RectF inner, RectF outer, @NonNull RendererContext context) {
 			if (mParagraphSelection.isSelected(box)) {
 				++mCount;
 				Assert.assertTrue(mBoxes.contains(box.getTag()));

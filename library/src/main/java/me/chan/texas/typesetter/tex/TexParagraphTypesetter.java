@@ -12,7 +12,7 @@ import androidx.annotation.VisibleForTesting;
 import me.chan.texas.renderer.core.TypesetEngine;
 import me.chan.texas.text.BreakStrategy;
 import me.chan.texas.text.Paragraph;
-import me.chan.texas.text.layout.Box;
+import me.chan.texas.text.layout.Span;
 import me.chan.texas.text.layout.Element;
 import me.chan.texas.text.layout.Glue;
 import me.chan.texas.text.layout.Layout;
@@ -128,10 +128,10 @@ public class TexParagraphTypesetter extends AbsParagraphTypesetter {
 		while (!stream.eof() && !context.actives.isEmpty()) {
 			int save = stream.state();
 			Element element = stream.next();
-			if (element instanceof Box) {
-				context.total.increase((Box) element);
+			if (element instanceof Span) {
+				context.total.increase((Span) element);
 			} else if (element instanceof Glue) {
-				if (stream.tryGet(save, -1) instanceof Box) {
+				if (stream.tryGet(save, -1) instanceof Span) {
 					typesetLines(context, element, save);
 				}
 
@@ -168,7 +168,7 @@ public class TexParagraphTypesetter extends AbsParagraphTypesetter {
 
 				int save = stream.state();
 				Element element = stream.next();
-				if (element instanceof Box || (element instanceof Penalty && ((Penalty) element).getPenalty() == -INFINITY_PENALTY)) {
+				if (element instanceof Span || (element instanceof Penalty && ((Penalty) element).getPenalty() == -INFINITY_PENALTY)) {
 					stream.restore(save);
 					break;
 				}
@@ -446,7 +446,7 @@ public class TexParagraphTypesetter extends AbsParagraphTypesetter {
 				if (element instanceof Glue) {
 					Glue glue = (Glue) element;
 					after.increase(glue);
-				} else if (element instanceof Box ||
+				} else if (element instanceof Span ||
 						(element instanceof Penalty &&
 								((Penalty) element).getPenalty() == -INFINITY_PENALTY)) {
 					break;

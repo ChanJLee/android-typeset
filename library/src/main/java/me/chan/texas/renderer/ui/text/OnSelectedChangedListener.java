@@ -6,7 +6,7 @@ import androidx.annotation.RestrictTo;
 
 import me.chan.texas.renderer.TouchEvent;
 import me.chan.texas.text.Paragraph;
-import me.chan.texas.text.layout.Box;
+import me.chan.texas.text.layout.Span;
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public interface OnSelectedChangedListener {
@@ -20,5 +20,5 @@ public interface OnSelectedChangedListener {
 
 	boolean onParagraphSelected(@NonNull TouchEvent event, @NonNull Paragraph paragraph, @EventType int eventType);
 
-	boolean onBoxSelected(@NonNull TouchEvent event, @NonNull Paragraph paragraph, @EventType int eventType, @NonNull Box box);
+	boolean onBoxSelected(@NonNull TouchEvent event, @NonNull Paragraph paragraph, @EventType int eventType, @NonNull Span box);
 }

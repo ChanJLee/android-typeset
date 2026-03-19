@@ -11,7 +11,7 @@ import androidx.annotation.VisibleForTesting;
 
 import me.chan.texas.text.BreakStrategy;
 import me.chan.texas.text.Paragraph;
-import me.chan.texas.text.layout.Box;
+import me.chan.texas.text.layout.Span;
 import me.chan.texas.text.layout.Element;
 import me.chan.texas.text.layout.Glue;
 import me.chan.texas.text.layout.Layout;
@@ -93,10 +93,10 @@ public class TexParagraphTypesetterCompat extends AbsParagraphTypesetter {
 		Candidate[] candidates = new Candidate[4];
 		for (int i = 0; i < size && !activeNodes.isEmpty(); ++i) {
 			Element element = paragraph.getElement(i);
-			if (element instanceof Box) {
-				sum.increase((Box) element);
+			if (element instanceof Span) {
+				sum.increase((Span) element);
 			} else if (element instanceof Glue) {
-				if (i > 0 && paragraph.getElement(i - 1) instanceof Box) {
+				if (i > 0 && paragraph.getElement(i - 1) instanceof Span) {
 					typesetLine(i, paragraph, activeNodes, sum, tolerance, candidates, lineWidth);
 				}
 
@@ -123,7 +123,7 @@ public class TexParagraphTypesetterCompat extends AbsParagraphTypesetter {
 			return glue.getWidth();
 		}
 
-		return ((Box) element).getWidth();
+		return ((Span) element).getWidth();
 	}
 
 	/**
@@ -150,7 +150,7 @@ public class TexParagraphTypesetterCompat extends AbsParagraphTypesetter {
 
 				int save = stream.state();
 				Element element = stream.next();
-				if (element instanceof Box || (element instanceof Penalty && ((Penalty) element).getPenalty() == -INFINITY_PENALTY)) {
+				if (element instanceof Span || (element instanceof Penalty && ((Penalty) element).getPenalty() == -INFINITY_PENALTY)) {
 					stream.restore(save);
 					break;
 				}
@@ -439,7 +439,7 @@ public class TexParagraphTypesetterCompat extends AbsParagraphTypesetter {
 			if (element instanceof Glue) {
 				Glue glue = (Glue) element;
 				result.increase(glue);
-			} else if (element instanceof Box ||
+			} else if (element instanceof Span ||
 					(element instanceof Penalty &&
 							((Penalty) element).getPenalty() == -INFINITY_PENALTY && i > index)) {
 				break;

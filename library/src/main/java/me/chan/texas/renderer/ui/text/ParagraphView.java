@@ -53,7 +53,7 @@ import me.chan.texas.renderer.selection.SelectionMethod;
 import me.chan.texas.renderer.selection.SelectionProvider;
 import me.chan.texas.text.TextAttribute;
 import me.chan.texas.text.TextGravity;
-import me.chan.texas.text.layout.Box;
+import me.chan.texas.text.layout.Span;
 import me.chan.texas.text.layout.Layout;
 import me.chan.texas.text.layout.Line;
 import me.chan.texas.utils.TexasUtils;
@@ -106,7 +106,7 @@ public class ParagraphView extends FrameLayout {
 		}
 
 		@Override
-		public boolean onBoxSelected(TouchEvent e, Paragraph paragraph, @EventType int eventType, Box box) {
+		public boolean onBoxSelected(TouchEvent e, Paragraph paragraph, @EventType int eventType, Span box) {
 			return handleParagraphSelected(e, paragraph, eventType, box);
 		}
 	};
@@ -126,13 +126,13 @@ public class ParagraphView extends FrameLayout {
 
 	private final SpanPredicate mOnSpanClickedPredicate = new SpanPredicate() {
 		@Override
-		public boolean accept(@Nullable Box clicked, @Nullable Box other) {
+		public boolean accept(@Nullable Span clicked, @Nullable Span other) {
 			return mSpanTouchEventHandler.applySpanClicked(clicked, other);
 		}
 	};
 	private final SpanPredicate mOnSpanLongClickedPredicate = new SpanPredicate() {
 		@Override
-		public boolean accept(@Nullable Box clicked, @Nullable Box other) {
+		public boolean accept(@Nullable Span clicked, @Nullable Span other) {
 			return mSpanTouchEventHandler.applySpanLongClicked(clicked, other);
 		}
 	};
@@ -256,7 +256,7 @@ public class ParagraphView extends FrameLayout {
 		}
 	}
 
-	private boolean handleParagraphSelected(TouchEvent event, Paragraph paragraph, @OnSelectedChangedListener.EventType int eventType, Box box) {
+	private boolean handleParagraphSelected(TouchEvent event, Paragraph paragraph, @OnSelectedChangedListener.EventType int eventType, Span box) {
 		if (mOnClickedListener == null) {
 			return false;
 		}
@@ -297,7 +297,7 @@ public class ParagraphView extends FrameLayout {
 		return false;
 	}
 
-	private boolean handleParagraphSelected(TouchEvent event, Paragraph paragraph, boolean isLongClicked, Box box) {
+	private boolean handleParagraphSelected(TouchEvent event, Paragraph paragraph, boolean isLongClicked, Span box) {
 		// 1. clear prev selection
 		clearSelection();
 
@@ -332,7 +332,7 @@ public class ParagraphView extends FrameLayout {
 		return true;
 	}
 
-	private boolean handleParagraphSelected0(Paragraph paragraph, boolean isLongClicked, Box box, SpanPredicate predicate) throws ParagraphVisitor.VisitException {
+	private boolean handleParagraphSelected0(Paragraph paragraph, boolean isLongClicked, Span box, SpanPredicate predicate) throws ParagraphVisitor.VisitException {
 		try {
 			mSelectedTextByClickedVisitor.reset(
 					Selection.Type.SELECTION,

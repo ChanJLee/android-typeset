@@ -24,7 +24,7 @@ import me.chan.texas.renderer.selection.ParagraphSelection;
 import me.chan.texas.renderer.selection.Selection;
 import me.chan.texas.renderer.ui.RendererHost;
 import me.chan.texas.renderer.ui.decor.ParagraphDecor;
-import me.chan.texas.text.layout.Box;
+import me.chan.texas.text.layout.Span;
 import me.chan.texas.text.layout.Element;
 import me.chan.texas.text.layout.Glue;
 import me.chan.texas.text.layout.Layout;
@@ -377,7 +377,7 @@ public final class Paragraph extends Segment {
 		 * @param spanReader span 读取
 		 * @return 当前对象
 		 */
-		public Builder stream(CharSequence text, SpanReader spanReader) {
+		public Builder stream(CharSequence text, SpanStylesReader spanReader) {
 			return stream(text, 0, text.length(), spanReader);
 		}
 
@@ -400,7 +400,7 @@ public final class Paragraph extends Segment {
 		 * @param spanReader span 读取
 		 * @return 当前对象
 		 */
-		public Builder stream(CharSequence text, int start, int end, SpanReader spanReader) {
+		public Builder stream(CharSequence text, int start, int end, SpanStylesReader spanReader) {
 			mBuilder0.stream(text, start, end, spanReader);
 			return this;
 		}
@@ -414,8 +414,8 @@ public final class Paragraph extends Segment {
 			return this;
 		}
 
-		public interface SpanReader {
-			Span read(Token token);
+		public interface SpanStylesReader {
+			SpanStyles read(Token token);
 		}
 
 		/**
@@ -538,9 +538,9 @@ public final class Paragraph extends Segment {
 	/**
 	 * span构造器
 	 */
-	public static class SpanBuilder implements Builder.SpanReader {
+	public static class SpanBuilder implements Builder.SpanStylesReader {
 		private final Builder mBuilder;
-		private Span mSpan;
+		private SpanStyles mSpan;
 
 		SpanBuilder(Builder builder) {
 			mBuilder = builder;
@@ -574,7 +574,7 @@ public final class Paragraph extends Segment {
 		 */
 		public SpanBuilder next(CharSequence text, int start, int end) {
 			flush();
-			mSpan = Span.obtain(text, start, end);
+			mSpan = SpanStyles.obtain(text, start, end);
 			return this;
 		}
 
@@ -654,8 +654,8 @@ public final class Paragraph extends Segment {
 
 		@Override
 		@RestrictTo(LIBRARY)
-		public final Span read(Token token) {
-			Span span = Span.obtain(mSpan.mText, mSpan.mStart, mSpan.mEnd);
+		public final SpanStyles read(Token token) {
+			SpanStyles span = SpanStyles.obtain(mSpan.mText, mSpan.mStart, mSpan.mEnd);
 			span.copyMeta(mSpan);
 			return span;
 		}
@@ -664,8 +664,8 @@ public final class Paragraph extends Segment {
 	/**
 	 * 文本的样式
 	 */
-	public static class Span extends DefaultRecyclable {
-		private static final ObjectPool<Span> POOL = new ObjectPool<>(32);
+	public static class SpanStyles extends DefaultRecyclable {
+		private static final ObjectPool<SpanStyles> POOL = new ObjectPool<>(32);
 
 		private CharSequence mText;
 		private int mStart;
@@ -675,11 +675,11 @@ public final class Paragraph extends Segment {
 		final TextStyles mStyles = new TextStyles();
 		Object mTag;
 
-		private Span() {
+		private SpanStyles() {
 		}
 
 		@RestrictTo(LIBRARY)
-		public void copyMeta(Span other) {
+		public void copyMeta(SpanStyles other) {
 			this.mStyles.copy(other.mStyles);
 			this.mTag = other.mTag;
 		}
@@ -704,7 +704,7 @@ public final class Paragraph extends Segment {
 		 * @param tag 用来标识这个span，因此需要保持唯一
 		 * @return 当前对象
 		 */
-		public Span tag(Object tag) {
+		public SpanStyles tag(Object tag) {
 			mTag = tag;
 			return this;
 		}
@@ -719,7 +719,7 @@ public final class Paragraph extends Segment {
 		 * @param textStyle 文字属性
 		 * @return 当前对象
 		 */
-		public Span setTextStyle(TextStyle textStyle) {
+		public SpanStyles setTextStyle(TextStyle textStyle) {
 			mStyles.setTextStyle(textStyle);
 			return this;
 		}
@@ -732,7 +732,7 @@ public final class Paragraph extends Segment {
 		 * @param background 文字背景
 		 * @return 当前对象
 		 */
-		public Span setBackground(Appearance background) {
+		public SpanStyles setBackground(Appearance background) {
 			mStyles.setBackground(background);
 			return this;
 		}
@@ -745,12 +745,12 @@ public final class Paragraph extends Segment {
 		 * @param foreground 前景
 		 * @return 当前对象
 		 */
-		public Span setForeground(Appearance foreground) {
+		public SpanStyles setForeground(Appearance foreground) {
 			mStyles.setForeground(foreground);
 			return this;
 		}
 
-		public static Span obtain(Token token) {
+		public static SpanStyles obtain(Token token) {
 			return obtain(token.getCharSequence(), token.getStart(), token.getEnd());
 		}
 
@@ -760,10 +760,10 @@ public final class Paragraph extends Segment {
 		 * @param end   结束
 		 * @return span
 		 */
-		public static Span obtain(CharSequence text, int start, int end) {
-			Span span = POOL.acquire();
+		public static SpanStyles obtain(CharSequence text, int start, int end) {
+			SpanStyles span = POOL.acquire();
 			if (span == null) {
-				span = new Span();
+				span = new SpanStyles();
 			}
 
 			span.mText = text;
@@ -819,17 +819,17 @@ public final class Paragraph extends Segment {
 
 	// todo 考虑 penality
 	@NonNull
-	public List<Paragraph> split(Predicate<Box> predicate) {
+	public List<Paragraph> split(Predicate<Span> predicate) {
 		List<Paragraph> paragraphs = new ArrayList<>();
 		int start = 0;
 		int end = 1;
 		for (; end < mElements.size(); ++end) {
 			Element element = mElements.get(end);
-			if (!(element instanceof Box)) {
+			if (!(element instanceof Span)) {
 				continue;
 			}
 
-			Box box = (Box) element;
+			Span box = (Span) element;
 			if (predicate.test(box)) {
 				paragraphs.add(fork(start, end + 1));
 				start = end + 1;

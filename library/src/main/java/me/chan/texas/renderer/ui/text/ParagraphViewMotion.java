@@ -18,7 +18,7 @@ import me.chan.texas.renderer.ui.decor.ParagraphDecor;
 import me.chan.texas.text.Paragraph;
 import me.chan.texas.renderer.RendererContext;
 import me.chan.texas.renderer.selection.SelectionMethod;
-import me.chan.texas.text.layout.Box;
+import me.chan.texas.text.layout.Span;
 import me.chan.texas.text.layout.Layout;
 import me.chan.texas.text.layout.Line;
 
@@ -32,7 +32,7 @@ public class ParagraphViewMotion {
 	private GestureDetector mGestureDetector = null;
 
 	private RenderOption mRenderOption;
-	private Box mLastTouchBox = null;
+	private Span mLastTouchBox = null;
 	private final Context mContext;
 	private final View mView;
 
@@ -144,7 +144,7 @@ public class ParagraphViewMotion {
 	private static final int MODE_DECOR = 2;
 	private static final int MODE_EMPTY = 3;
 
-	public Box checkIfClicked(float x, float y) {
+	public Span checkIfClicked(float x, float y) {
 		mMotionEventVisitor.setMotionLocation(x, y);
 		float lineSpace = mParagraph.getLayout().getLineSpacingExtra();
 		mMotionEventVisitor.setLineSpace(lineSpace);
@@ -171,7 +171,7 @@ public class ParagraphViewMotion {
 
 	private static class MotionEventVisitor extends ParagraphVisitor {
 
-		private Box mBox;
+		private Span mBox;
 		private float mX;
 		private float mY;
 		private float mHalfLineSpace;
@@ -194,7 +194,7 @@ public class ParagraphViewMotion {
 			mLastLineTop = mLastLineBottom = 0;
 		}
 
-		public Box getBox() {
+		public Span getBox() {
 			return mBox;
 		}
 
@@ -225,7 +225,7 @@ public class ParagraphViewMotion {
 		}
 
 		@Override
-		public void onVisitBox(Box box, RectF inner, RectF outer, @NonNull RendererContext context) {
+		public void onVisitBox(Span box, RectF inner, RectF outer, @NonNull RendererContext context) {
 			// 增大点击热区
 			if (outer.left <= mX &&
 					outer.right >= mX) {
@@ -262,7 +262,7 @@ public class ParagraphViewMotion {
 
 			float x = e.getX();
 			float y = e.getY();
-			Box box = checkIfClicked(x, y);
+			Span box = checkIfClicked(x, y);
 			if (box != null) {
 				if (handler.isSpanClickable(box)) {
 					mLastTouchBox = box;

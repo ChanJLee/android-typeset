@@ -24,7 +24,7 @@ import me.chan.texas.utils.TexasUtils;
 /**
  * 文本元素
  */
-public final class TextBox extends Box {
+public final class TextSpan extends Span {
 	/**
 	 * 什么属性都没有
 	 */
@@ -72,7 +72,7 @@ public final class TextBox extends Box {
 	@RestrictTo(LIBRARY)
 	static final int SQUISH_FACTOR = 2;
 
-	private final static ObjectPool<TextBox> POOL = new ObjectPool<>(Texas.getMemoryOption().getTextBufferSize());
+	private final static ObjectPool<TextSpan> POOL = new ObjectPool<>(Texas.getMemoryOption().getTextBufferSize());
 	@RestrictTo(LIBRARY)
 	public final static CharArrayPool CHAR_ARRAY_POOL = new CharArrayPool();
 
@@ -83,7 +83,7 @@ public final class TextBox extends Box {
 
 	/**
 	 * 修改内容关注
-	 * {@link #copy(TextBox)}
+	 * {@link #copy(TextSpan)}
 	 * {@link #equals(Object)}
 	 */
 	private CharSequence mText;
@@ -98,13 +98,13 @@ public final class TextBox extends Box {
 	@VisibleForTesting
 	int mGroupId = Hyphenation.NONE_GROUP_ID;
 
-	private TextBox(float width, float height) {
+	private TextSpan(float width, float height) {
 		super(width, height);
 	}
 
-	private TextBox(@NonNull CharSequence text, int start, int end,
-					float width, float height,
-					TextStyle textStyle) {
+	private TextSpan(@NonNull CharSequence text, int start, int end,
+					 float width, float height,
+					 TextStyle textStyle) {
 		super(width, height);
 		mText = text;
 		mStart = start;
@@ -113,7 +113,7 @@ public final class TextBox extends Box {
 	}
 
 	@RestrictTo(LIBRARY)
-	public void copy(@NonNull TextBox other) {
+	public void copy(@NonNull TextSpan other) {
 		if (other.isRecycled() || isRecycled()) {
 			throw new IllegalStateException("other is recycled or current is recycled");
 		}
@@ -140,7 +140,7 @@ public final class TextBox extends Box {
 	}
 
 	@RestrictTo(LIBRARY)
-	public boolean merge(@NonNull TextBox box) {
+	public boolean merge(@NonNull TextSpan box) {
 		if (this.mGroupId != box.mGroupId) {
 			if (BuildConfig.DEBUG) {
 				throw new IllegalStateException("can't merge text box with difference group id");
@@ -193,7 +193,7 @@ public final class TextBox extends Box {
 		if (o == null || getClass() != o.getClass()) return false;
 		if (!super.equals(o)) return false;
 
-		TextBox textBox = (TextBox) o;
+		TextSpan textBox = (TextSpan) o;
 
 		if (mStart != textBox.mStart) return false;
 		if (mEnd != textBox.mEnd) return false;
@@ -242,7 +242,7 @@ public final class TextBox extends Box {
 	}
 
 	@RestrictTo(LIBRARY)
-	public boolean isSameGroup(TextBox box) {
+	public boolean isSameGroup(TextSpan box) {
 		if (mGroupId == Hyphenation.NONE_GROUP_ID) {
 			return false;
 		}
@@ -305,24 +305,24 @@ public final class TextBox extends Box {
 	}
 
 	@RestrictTo(LIBRARY)
-	public static TextBox obtain(@NonNull CharSequence charSequence, int start, int end,
-								 TextStyle textStyle,
-								 Object tag,
-								 Appearance background,
-								 Appearance foreground) {
+	public static TextSpan obtain(@NonNull CharSequence charSequence, int start, int end,
+								  TextStyle textStyle,
+								  Object tag,
+								  Appearance background,
+								  Appearance foreground) {
 		return obtain(charSequence, start, end, textStyle, tag, background, foreground, Hyphenation.NONE_GROUP_ID);
 	}
 
 	@RestrictTo(LIBRARY)
-	public static TextBox obtain(@NonNull CharSequence charSequence, int start, int end,
-								 TextStyle textStyle,
-								 Object tag,
-								 Appearance background,
-								 Appearance foreground,
-								 int groupId) {
-		TextBox box = POOL.acquire();
+	public static TextSpan obtain(@NonNull CharSequence charSequence, int start, int end,
+								  TextStyle textStyle,
+								  Object tag,
+								  Appearance background,
+								  Appearance foreground,
+								  int groupId) {
+		TextSpan box = POOL.acquire();
 		if (box == null) {
-			box = new TextBox(charSequence, start, end, 0, 0, textStyle);
+			box = new TextSpan(charSequence, start, end, 0, 0, textStyle);
 		}
 		box.mWidth = 0;
 		box.mHeight = 0;
@@ -353,10 +353,10 @@ public final class TextBox extends Box {
 	}
 
 	@RestrictTo(LIBRARY)
-	public static TextBox obtain(TextBox raw) {
-		TextBox box = POOL.acquire();
+	public static TextSpan obtain(TextSpan raw) {
+		TextSpan box = POOL.acquire();
 		if (box == null) {
-			box = new TextBox(0, 0);
+			box = new TextSpan(0, 0);
 		}
 		box.reuse();
 		box.copy(raw);

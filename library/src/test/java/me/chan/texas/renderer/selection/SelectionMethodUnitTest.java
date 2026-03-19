@@ -49,7 +49,7 @@ import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.Segment;
 import me.chan.texas.text.TextAttribute;
 import me.chan.texas.text.ViewSegment;
-import me.chan.texas.text.layout.Box;
+import me.chan.texas.text.layout.Span;
 import me.chan.texas.text.layout.Layout;
 import me.chan.texas.typesetter.ParagraphTypesetter;
 import me.chan.texas.utils.TexasUtils;
@@ -77,14 +77,14 @@ public class SelectionMethodUnitTest {
 		Document.Builder builder = new Document.Builder();
 		List<Segment> list = new ArrayList<>();
 		list.add(Paragraph.Builder.newBuilder(texasOption).tag("p1")
-				.stream("1 2 3 4 5 6 7 8 9", token -> Paragraph.Span.obtain(token)
+				.stream("1 2 3 4 5 6 7 8 9", token -> Paragraph.SpanStyles.obtain(token)
 						.tag(token.getCharSequence().subSequence(token.getStart(), token.getEnd()).toString())).build());
 		list.add(Paragraph.Builder.newBuilder(texasOption).tag("p2").stream("a b c d e f g h i", token ->
-				Paragraph.Span.obtain(token).tag(token.getCharSequence().subSequence(token.getStart(), token.getEnd()).toString())).build());
-		list.add(Paragraph.Builder.newBuilder(texasOption).setTypesetPolicy(Paragraph.TYPESET_POLICY_DEFAULT).tag("p3").stream("一 二 三 四 五 六 七 八 九", token -> Paragraph.Span.obtain(token)
+				Paragraph.SpanStyles.obtain(token).tag(token.getCharSequence().subSequence(token.getStart(), token.getEnd()).toString())).build());
+		list.add(Paragraph.Builder.newBuilder(texasOption).setTypesetPolicy(Paragraph.TYPESET_POLICY_DEFAULT).tag("p3").stream("一 二 三 四 五 六 七 八 九", token -> Paragraph.SpanStyles.obtain(token)
 				.tag(token.getCharSequence().subSequence(token.getStart(), token.getEnd()).toString())).build());
 		MySelectableSegment mySelectableSegment = new MySelectableSegment(Paragraph.Builder.newBuilder(texasOption).tag("ss")
-				.stream("1 2 3 4 5 6 7 8 9", token -> Paragraph.Span.obtain(token)
+				.stream("1 2 3 4 5 6 7 8 9", token -> Paragraph.SpanStyles.obtain(token)
 						.tag(token.getCharSequence().subSequence(token.getStart(), token.getEnd()).toString())).build());
 		list.add(mySelectableSegment);
 		builder.addSegments(0, list);
@@ -330,7 +330,7 @@ public class SelectionMethodUnitTest {
 		Assert.assertFalse(mSelectionManager.onParagraphSelected(touchEvent, paragraph, OnSelectedChangedListener.EVENT_LONG_CLICKED));
 		Assert.assertEquals(mSelectionListener.mEvent, SelectionEvent.SEGMENT_DOUBLE_CLICKED);
 
-		Box box = (Box) paragraph.getElement(0);
+		Span box = (Span) paragraph.getElement(0);
 		Assert.assertTrue(mSelectionManager.onBoxSelected(touchEvent, paragraph, OnSelectedChangedListener.EVENT_LONG_CLICKED, box));
 		Assert.assertEquals(SelectionEvent.SPAN_LONG_CLICKED, mSelectionListener.mEvent);
 		Assert.assertNotNull(paragraph.getSelection(Selection.Type.SELECTION));
@@ -386,7 +386,7 @@ public class SelectionMethodUnitTest {
 		Assert.assertFalse(mSelectionManager.onParagraphSelected(touchEvent, paragraph, OnSelectedChangedListener.EVENT_LONG_CLICKED));
 		Assert.assertEquals(mSelectionListener.mEvent, SelectionEvent.SEGMENT_DOUBLE_CLICKED);
 
-		Box box = (Box) paragraph.getElement(0);
+		Span box = (Span) paragraph.getElement(0);
 		Assert.assertTrue(mSelectionManager.onBoxSelected(touchEvent, paragraph, OnSelectedChangedListener.EVENT_LONG_CLICKED, box));
 		Assert.assertEquals(SelectionEvent.SPAN_LONG_CLICKED, mSelectionListener.mEvent);
 		Assert.assertNotNull(paragraph.getSelection(Selection.Type.SELECTION));

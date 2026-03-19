@@ -6,7 +6,7 @@ import androidx.annotation.RestrictTo;
 
 import me.chan.texas.text.BreakStrategy;
 import me.chan.texas.text.Paragraph;
-import me.chan.texas.text.layout.Box;
+import me.chan.texas.text.layout.Span;
 import me.chan.texas.text.layout.Element;
 import me.chan.texas.text.layout.Glue;
 import me.chan.texas.text.layout.Layout;
@@ -80,7 +80,7 @@ public class SimpleParagraphTypesetter extends AbsParagraphTypesetter {
 		while (!stream.eof()) {
 			int save = stream.state();
 			Element element = stream.next();
-			if (element instanceof Box) {
+			if (element instanceof Span) {
 				stream.restore(save);
 				break;
 			}
@@ -126,8 +126,8 @@ public class SimpleParagraphTypesetter extends AbsParagraphTypesetter {
 		int save = stream.state();
 
 		Element element = stream.next();
-		if (element instanceof Box) {
-			Box box = (Box) element;
+		if (element instanceof Span) {
+			Span box = (Span) element;
 			width -= box.getWidth();
 			return width;
 		}
@@ -189,8 +189,8 @@ public class SimpleParagraphTypesetter extends AbsParagraphTypesetter {
 			return 0;
 		}
 
-		if (element instanceof Box) {
-			return ((Box) element).getWidth();
+		if (element instanceof Span) {
+			return ((Span) element).getWidth();
 		}
 
 		if (element instanceof Glue) {

@@ -6,7 +6,7 @@ import androidx.annotation.RestrictTo;
 
 import me.chan.texas.misc.RectF;
 import me.chan.texas.text.Paragraph;
-import me.chan.texas.text.layout.Box;
+import me.chan.texas.text.layout.Span;
 import me.chan.texas.text.layout.Layout;
 import me.chan.texas.text.layout.Line;
 
@@ -80,7 +80,7 @@ public abstract class ParagraphVisitor {
 
 		int size = line.getElementCount();
 		for (int i = 0; i < size && mVisitSig == SIG_NORMAL; ++i) {
-			Box box = (Box) line.getElement(i);
+			Span box = (Span) line.getElement(i);
 			mTypesetContext.setBoxLocationAttribute(line, box, i);
 			onVisitBox(box, box.getInnerBounds(), box.getOuterBounds(), mTypesetContext);
 		}
@@ -112,7 +112,7 @@ public abstract class ParagraphVisitor {
 	 * @param inner 内部box绘制区域
 	 * @param outer 外部绘制区域
 	 */
-	protected abstract void onVisitBox(Box box, RectF inner, RectF outer, @NonNull RendererContext context);
+	protected abstract void onVisitBox(Span box, RectF inner, RectF outer, @NonNull RendererContext context);
 
 	/**
 	 * 访问异常，可能因为paragraph被回收，然而访问还在进行时抛出

@@ -42,10 +42,10 @@ import me.chan.texas.text.TextGravity;
 import me.chan.texas.text.TextStyle;
 import me.chan.texas.text.DotUnderLine;
 import me.chan.texas.text.ViewSegment;
-import me.chan.texas.text.layout.Box;
+import me.chan.texas.text.layout.Span;
 import me.chan.texas.text.layout.Layout;
 import me.chan.texas.text.layout.Line;
-import me.chan.texas.text.layout.TextBox;
+import me.chan.texas.text.layout.TextSpan;
 import me.chan.texas.text.tokenizer.Token;
 import me.chan.texas.utils.CharStream;
 import me.chan.texas.utils.TexasUtils;
@@ -150,7 +150,7 @@ public class BookSource extends TexasView.DocumentSource {
 				.next("QWERTYUIOPASDFGHJKLZXCVBNM")
 				.setTextStyle(new TextStyle() {
 					@Override
-					public void update(@NonNull TexasPaint textPaint, TextBox box) {
+					public void update(@NonNull TexasPaint textPaint, TextSpan box) {
 						textPaint.setTextSize(120);
 						textPaint.setFakeBoldText(true);
 					}
@@ -431,7 +431,7 @@ public class BookSource extends TexasView.DocumentSource {
 	// 注意这只是demo代码，因此质量不可控
 	private void parseParagraph(Paragraph.Builder builder, String paragraph, String sentId) {
 		builder.stream(paragraph, 0, paragraph.length(), (token) -> {
-			Paragraph.Span span = Paragraph.Span.obtain(token)
+			Paragraph.SpanStyles span = Paragraph.SpanStyles.obtain(token)
 					.setForeground(RED_UL)
 					.tag(new SpanTag(sentId,
 							token.getCharSequence().subSequence(token.getStart(), token.getEnd()).toString(),
@@ -460,7 +460,7 @@ public class BookSource extends TexasView.DocumentSource {
 						paint.setColor(Color.GREEN);
 
 						// 独立的单元，左右都要有圆角
-						Box box = context.getBox();
+						Span box = context.getBox();
 						if (box.isIsolate(true) && box.isIsolate(false)) {
 							canvas.drawRoundRect(outer.left, outer.top, outer.right, outer.bottom, 20, 20, paint);
 							return;
@@ -547,7 +547,7 @@ public class BookSource extends TexasView.DocumentSource {
 				for (int l = 0; l < layout.getLineCount(); ++l) {
 					Line line = layout.getLine(l);
 					for (int b = 0; b < line.getBoxCount(); ++b) {
-						Box box = line.getBox(b);
+						Span box = line.getBox(b);
 						Object spanTag = box.getTag();
 						if (!(spanTag instanceof BookSource.SpanTag)) {
 							continue;
@@ -595,7 +595,7 @@ public class BookSource extends TexasView.DocumentSource {
 				} else if (action == MotionEvent.ACTION_UP) {
 					mTexasView.selectParagraphs(new ParagraphPredicates() {
 						@Override
-						public boolean acceptSpan(@NonNull Box box) {
+						public boolean acceptSpan(@NonNull Span box) {
 							Object spanTag = box.getTag();
 							if (!(spanTag instanceof BookSource.SpanTag)) {
 								return false;

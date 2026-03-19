@@ -12,11 +12,11 @@ import androidx.annotation.Nullable;
 import me.chan.texas.Texas;
 import me.chan.texas.measurer.MockMeasurer;
 import me.chan.texas.renderer.core.graphics.TexasPaint;
-import me.chan.texas.text.layout.DrawableBox;
+import me.chan.texas.text.layout.DrawableSpan;
 import me.chan.texas.text.layout.Glue;
 import me.chan.texas.text.layout.Line;
 import me.chan.texas.text.layout.Penalty;
-import me.chan.texas.text.layout.TextBox;
+import me.chan.texas.text.layout.TextSpan;
 import me.chan.texas.text.util.TexasIterator;
 import me.chan.texas.typesetter.tex.Candidate;
 import me.chan.texas.typesetter.tex.Node;
@@ -167,7 +167,7 @@ public class DataUnitTest {
 		Line line = Line.obtain();
 		Field field = Line.class.getDeclaredField("mElements");
 		field.setAccessible(true);
-		List<TextBox> boxes = (List<TextBox>) field.get(line);
+		List<TextSpan> boxes = (List<TextSpan>) field.get(line);
 		Assert.assertNotNull(line);
 		Assert.assertFalse(line.isRecycled());
 		Assert.assertNotNull(boxes);
@@ -180,13 +180,13 @@ public class DataUnitTest {
 
 		mMockTextPaint.setMockTextSize(4);
 		mTextAttribute.refresh(mMockMeasurer);
-		boxes.add(TextBox.obtain("hello", 0, 1, null, null, null, null));
+		boxes.add(TextSpan.obtain("hello", 0, 1, null, null, null, null));
 		Assert.assertFalse(boxes.isEmpty());
 
 		Line prev = line;
 		line.recycle();
 		Assert.assertTrue(line.isRecycled());
-		boxes = (List<TextBox>) field.get(line);
+		boxes = (List<TextSpan>) field.get(line);
 		Assert.assertTrue(boxes.isEmpty());
 		Assert.assertNotEquals(line.getLineHeight(), 2, 0);
 		Assert.assertNotEquals(line.getRatio(), 4, 0);
@@ -196,7 +196,7 @@ public class DataUnitTest {
 
 		line = Line.obtain();
 		Assert.assertNotSame(line, Line.obtain());
-		boxes = (List<TextBox>) field.get(line);
+		boxes = (List<TextSpan>) field.get(line);
 		Assert.assertNotNull(line);
 		Assert.assertFalse(line.isRecycled());
 		Assert.assertSame(prev, line);
@@ -210,13 +210,13 @@ public class DataUnitTest {
 		Drawable drawable = new ColorDrawable(19);
 
 		Emoticon emoticon = Emoticon.obtain(drawable, 1, 2);
-		DrawableBox drawableBox = emoticon;
+		DrawableSpan drawableBox = emoticon;
 		Assert.assertNotNull(drawableBox);
 		Assert.assertFalse(drawableBox.isRecycled());
 		Assert.assertEquals(drawableBox.getWidth(), 1, 0);
 		Assert.assertEquals(drawableBox.getHeight(), 2, 0);
 
-		DrawableBox p = drawableBox;
+		DrawableSpan p = drawableBox;
 		drawableBox.recycle();
 		Assert.assertTrue(drawableBox.isRecycled());
 		Assert.assertNotSame(drawable, drawableBox);

@@ -8,8 +8,7 @@ import me.chan.texas.misc.DefaultRecyclable;
 import me.chan.texas.misc.ObjectPool;
 import me.chan.texas.misc.PaintSet;
 import me.chan.texas.text.TextStyle;
-import me.chan.texas.text.Paragraph;
-import me.chan.texas.text.layout.TextBox;
+import me.chan.texas.text.layout.TextSpan;
 
 /**
  * 文字测量器
@@ -27,7 +26,7 @@ public interface Measurer {
 	 * @param box          text box
 	 * @param spec         输出
 	 */
-	void measure(CharSequence charSequence, int start, int end, TextStyle textStyle, TextBox box, CharSequenceSpec spec);
+	void measure(CharSequence charSequence, int start, int end, TextStyle textStyle, TextSpan box, CharSequenceSpec spec);
 
 	void refresh(PaintSet paintSet);
 

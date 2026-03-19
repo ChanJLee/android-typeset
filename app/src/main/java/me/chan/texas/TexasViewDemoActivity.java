@@ -38,7 +38,7 @@ import me.chan.texas.text.BreakStrategy;
 import me.chan.texas.text.Document;
 import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.Segment;
-import me.chan.texas.text.layout.Box;
+import me.chan.texas.text.layout.Span;
 import me.chan.texas.utils.TexasUtils;
 
 public class TexasViewDemoActivity extends AppCompatActivity {
@@ -87,17 +87,17 @@ public class TexasViewDemoActivity extends AppCompatActivity {
 		// 没别的要求，一定要快！！！不然会ANR ⚠️
 		mTexasView.setSpanTouchEventHandler(new SpanTouchEventHandler() {
 			@Override
-			public boolean isSpanClickable(@NonNull Box box) {
+			public boolean isSpanClickable(@NonNull Span box) {
 				return box.getTag() != null;
 			}
 
 			@Override
-			public boolean applySpanClicked(@NonNull Box clicked, @NonNull Box other) {
+			public boolean applySpanClicked(@NonNull Span clicked, @NonNull Span other) {
 				return clicked.getTag() == other.getTag();
 			}
 
 			@Override
-			public boolean applySpanLongClicked(@NonNull Box clicked, @NonNull Box other) {
+			public boolean applySpanLongClicked(@NonNull Span clicked, @NonNull Span other) {
 				Object otherTag = other.getTag();
 				if (otherTag == null) {
 					return true;
@@ -126,12 +126,12 @@ public class TexasViewDemoActivity extends AppCompatActivity {
 			}
 
 			@Override
-			public void onSpanClicked(TexasView view, Paragraph paragraph, TouchEvent event, Box box) {
+			public void onSpanClicked(TexasView view, Paragraph paragraph, TouchEvent event, Span box) {
 				Toast.makeText(TexasViewDemoActivity.this, "点击了Span", Toast.LENGTH_SHORT).show();
 			}
 
 			@Override
-			public void onSpanLongClicked(TexasView view, Paragraph paragraph, TouchEvent event, Box box) {
+			public void onSpanLongClicked(TexasView view, Paragraph paragraph, TouchEvent event, Span box) {
 				Toast.makeText(TexasViewDemoActivity.this, "长按了Span", Toast.LENGTH_SHORT).show();
 			}
 
@@ -179,7 +179,7 @@ public class TexasViewDemoActivity extends AppCompatActivity {
 		findViewById(me.chan.texas.debug.R.id.highlight).setOnClickListener(v ->
 				mTexasView.highlightParagraphs(new ParagraphPredicates() {
 					@Override
-					public boolean acceptSpan(@NonNull Box box) {
+					public boolean acceptSpan(@NonNull Span box) {
 						Object spanTag = box.getTag();
 						if (!(spanTag instanceof BookSource.SpanTag)) {
 							return false;
@@ -440,7 +440,7 @@ public class TexasViewDemoActivity extends AppCompatActivity {
 		findViewById(me.chan.texas.debug.R.id.anim).setOnClickListener(v -> {
 			Selection selection = mTexasView.highlightParagraphs(new ParagraphPredicates() {
 				@Override
-				public boolean acceptSpan(@NonNull Box box) {
+				public boolean acceptSpan(@NonNull Span box) {
 					return true;
 				}
 

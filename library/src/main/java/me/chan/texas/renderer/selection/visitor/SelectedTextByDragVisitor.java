@@ -11,12 +11,12 @@ import me.chan.texas.misc.RectF;
 import me.chan.texas.renderer.CompositeRectDrawable;
 import me.chan.texas.renderer.ParagraphVisitor;
 import me.chan.texas.text.Paragraph;
-import me.chan.texas.text.layout.Box;
-import me.chan.texas.text.layout.DrawableBox;
+import me.chan.texas.text.layout.Span;
+import me.chan.texas.text.layout.DrawableSpan;
 import me.chan.texas.text.layout.Element;
 import me.chan.texas.text.layout.Layout;
 import me.chan.texas.text.layout.Line;
-import me.chan.texas.text.layout.TextBox;
+import me.chan.texas.text.layout.TextSpan;
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class SelectedTextByDragVisitor extends SelectedVisitor {
@@ -53,8 +53,8 @@ public class SelectedTextByDragVisitor extends SelectedVisitor {
 		linkTail(paragraph, mLastSelectedLine, mSelection.getLastBox());
 	}
 
-	private void linkHead(Paragraph paragraph, Line line, Box box) {
-		if (line == null || !(box instanceof TextBox)) {
+	private void linkHead(Paragraph paragraph, Line line, Span box) {
+		if (line == null || !(box instanceof TextSpan)) {
 			return;
 		}
 
@@ -76,11 +76,11 @@ public class SelectedTextByDragVisitor extends SelectedVisitor {
 			}
 
 			Element element = line.getElement(count - 1);
-			if (!(element instanceof TextBox)) {
+			if (!(element instanceof TextSpan)) {
 				return;
 			}
 
-			TextBox textBox = (TextBox) element;
+			TextSpan textBox = (TextSpan) element;
 			if (!textBox.isPenalty()) {
 				return;
 			}
@@ -104,7 +104,7 @@ public class SelectedTextByDragVisitor extends SelectedVisitor {
 		for (; index >= 0 && index < size; ) {
 			Element element = line.getElement(index);
 			index += step;
-			Box box = (Box) element;
+			Span box = (Span) element;
 			if (backward) {
 				mSelection.appendBox(box);
 				rectF.right = box.getOuterBounds().right;
@@ -126,8 +126,8 @@ public class SelectedTextByDragVisitor extends SelectedVisitor {
 	 * @param line
 	 * @param box
 	 */
-	private void linkTail(Paragraph paragraph, Line line, Box box) {
-		if (line == null || !(box instanceof TextBox)) {
+	private void linkTail(Paragraph paragraph, Line line, Span box) {
+		if (line == null || !(box instanceof TextSpan)) {
 			return;
 		}
 
@@ -141,11 +141,11 @@ public class SelectedTextByDragVisitor extends SelectedVisitor {
 		}
 
 		Element element = line.getElement(size - 1);
-		if (!(element instanceof TextBox)) {
+		if (!(element instanceof TextSpan)) {
 			return;
 		}
 
-		TextBox textBox = (TextBox) element;
+		TextSpan textBox = (TextSpan) element;
 		if (!textBox.isPenalty()) {
 			return;
 		}
@@ -161,7 +161,7 @@ public class SelectedTextByDragVisitor extends SelectedVisitor {
 			}
 
 			element = line.getElement(0);
-			if (!(element instanceof TextBox)) {
+			if (!(element instanceof TextSpan)) {
 				return;
 			}
 
@@ -179,11 +179,11 @@ public class SelectedTextByDragVisitor extends SelectedVisitor {
 			}
 
 			element = line.getElement(size - 1);
-			if (!(element instanceof TextBox)) {
+			if (!(element instanceof TextSpan)) {
 				return;
 			}
 
-			textBox = (TextBox) element;
+			textBox = (TextSpan) element;
 			if (!textBox.isPenalty()) {
 				return;
 			}
@@ -285,7 +285,7 @@ public class SelectedTextByDragVisitor extends SelectedVisitor {
 	private boolean mLineSelected = false;
 
 	@Override
-	protected boolean selected(Box box, RectF inner, RectF outer) {
+	protected boolean selected(Span box, RectF inner, RectF outer) {
 		boolean result = selectedImpl(box, inner, outer);
 		if (Texas.DEBUG_DRAG) {
 			Log.d("drag_debug.visitor", "selected: " + result + " - " + box + " " + inner);
@@ -296,8 +296,8 @@ public class SelectedTextByDragVisitor extends SelectedVisitor {
 		return result;
 	}
 
-	private boolean selectedImpl(Box box, RectF inner, RectF outer) {
-		if (!includeSelectNonTextBoxRegion() && box instanceof DrawableBox) {
+	private boolean selectedImpl(Span box, RectF inner, RectF outer) {
+		if (!includeSelectNonTextBoxRegion() && box instanceof DrawableSpan) {
 			return false;
 		}
 

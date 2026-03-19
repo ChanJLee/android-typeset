@@ -9,15 +9,8 @@ import android.util.Log;
 import androidx.annotation.RestrictTo;
 
 import me.chan.texas.Texas;
-import me.chan.texas.misc.RectF;
 import me.chan.texas.text.BreakStrategy;
 import me.chan.texas.text.Paragraph;
-import me.chan.texas.text.TextGravity;
-import me.chan.texas.text.layout.Box;
-import me.chan.texas.text.layout.Element;
-import me.chan.texas.text.layout.Glue;
-import me.chan.texas.text.layout.Layout;
-import me.chan.texas.text.layout.Line;
 import me.chan.texas.typesetter.simple.SimpleParagraphTypesetter;
 import me.chan.texas.typesetter.tex.TexParagraphTypesetter;
 import me.chan.texas.typesetter.tex.TexParagraphTypesetterCompat;

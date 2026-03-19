@@ -40,7 +40,7 @@ import me.chan.texas.text.Document;
 import me.chan.texas.renderer.selection.SelectionMethod;
 import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.Segment;
-import me.chan.texas.text.layout.Box;
+import me.chan.texas.text.layout.Span;
 import me.chan.texas.utils.TexasUtils;
 import me.chan.texas.utils.concurrency.Worker;
 
@@ -490,12 +490,12 @@ public class Renderer implements SelectionMethodImpl.Listener {
 	}
 
 	@Override
-	public void onSpanClicked(Paragraph paragraph, TouchEvent event, Box box) {
+	public void onSpanClicked(Paragraph paragraph, TouchEvent event, Span box) {
 		mTexasView.notifySpanClicked(event, paragraph, box);
 	}
 
 	@Override
-	public void onSpanLongClicked(Paragraph paragraph, TouchEvent event, Box box) {
+	public void onSpanLongClicked(Paragraph paragraph, TouchEvent event, Span box) {
 		mTexasView.notifySpanLongClicked(event, paragraph, box);
 	}
 

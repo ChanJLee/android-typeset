@@ -21,7 +21,7 @@ import me.chan.texas.text.layout.Glue;
 import me.chan.texas.text.layout.Layout;
 import me.chan.texas.text.layout.Penalty;
 import me.chan.texas.text.layout.SymbolGlue;
-import me.chan.texas.text.layout.TextBox;
+import me.chan.texas.text.layout.TextSpan;
 import me.chan.texas.text.tokenizer.Token;
 import me.chan.texas.text.tokenizer.TokenStream;
 import me.chan.texas.utils.IntArray;
@@ -82,7 +82,7 @@ class ParagraphBuilderInternal {
 		return mSpanBuilder;
 	}
 
-	public void stream(CharSequence text, int start, int end, Paragraph.Builder.SpanReader spanReader) {
+	public void stream(CharSequence text, int start, int end, Paragraph.Builder.SpanStylesReader spanReader) {
 		appendSent(text, start, end, spanReader);
 	}
 
@@ -163,7 +163,7 @@ class ParagraphBuilderInternal {
 	/**
 	 * 以下的代码都是为了将一个句子添加到当前段落中，并追加一个glue
 	 */
-	private void appendSent(CharSequence text, int start, int end, @Nullable Paragraph.Builder.SpanReader reader) {
+	private void appendSent(CharSequence text, int start, int end, @Nullable Paragraph.Builder.SpanStylesReader reader) {
 		if (text == null) {
 			throw new RuntimeException("call build twice");
 		}
@@ -182,7 +182,7 @@ class ParagraphBuilderInternal {
 			return;
 		}
 
-		char[] buffer = TextBox.CHAR_ARRAY_POOL.obtain(end - start);
+		char[] buffer = TextSpan.CHAR_ARRAY_POOL.obtain(end - start);
 		TexasUtils.getChars(text, start, end, buffer, 0);
 		Bidi bidi = new Bidi(buffer, 0, null, 0, end - start, Bidi.LEVEL_DEFAULT_LTR);
 		for (int i = 0; i < bidi.getRunCount(); ++i) {
@@ -191,11 +191,11 @@ class ParagraphBuilderInternal {
 			boolean rtl = bidi.getRunLevel(i) % 2 != 0;
 			appendRun(text, start + runStart, start + runLimit, reader, rtl);
 		}
-		TextBox.CHAR_ARRAY_POOL.release(buffer);
+		TextSpan.CHAR_ARRAY_POOL.release(buffer);
 	}
 
 	private void appendRun(CharSequence text, int start, int end,
-						   @Nullable Paragraph.Builder.SpanReader reader, boolean rtl) {
+						   @Nullable Paragraph.Builder.SpanStylesReader reader, boolean rtl) {
 		// 将句子转换为单词流
 		// 单词流会分析出一个句子中每个字符所代表的语义，这样可以精确的识别诸如： isn't、1920s 为一个单词
 		TokenStream tokenStream = TokenStream.obtain(text, start, end, rtl);
@@ -218,7 +218,7 @@ class ParagraphBuilderInternal {
 	}
 
 	private void appendRun0(CharSequence text,
-							Paragraph.Builder.SpanReader spanReader,
+							Paragraph.Builder.SpanStylesReader spanReader,
 							TokenStream tokenStream) {
 		while (tokenStream.hasNext()) {
 			mLastToken = accept(mLastToken, tokenStream, text, spanReader);
@@ -226,7 +226,7 @@ class ParagraphBuilderInternal {
 	}
 
 	private void appendWordToken(CharSequence text,
-								 Paragraph.Builder.SpanReader spanReader,
+								 Paragraph.Builder.SpanStylesReader spanReader,
 								 Token token) {
 		int category = token.getCategory();
 		if (category == Token.CATEGORY_NORMAL) {
@@ -239,11 +239,11 @@ class ParagraphBuilderInternal {
 	}
 
 	private void appendWordTokenDirect(CharSequence text,
-									   Paragraph.Builder.SpanReader spanReader,
+									   Paragraph.Builder.SpanStylesReader spanReader,
 									   Token token) {
 		int start = token.getStart();
 		int end = token.getEnd();
-		Paragraph.Span span = null;
+		Paragraph.SpanStyles span = null;
 		if (spanReader != null) {
 			span = spanReader.read(token);
 		}
@@ -260,13 +260,13 @@ class ParagraphBuilderInternal {
 			foreground = styles.getForeground();
 		}
 
-		TextBox textBox = TextBox.obtain(text, start, end, textStyle,
+		TextSpan textBox = TextSpan.obtain(text, start, end, textStyle,
 				tag,
 				background,
 				foreground);
 
 		if (token.isRtl()) {
-			textBox.addAttribute(TextBox.ATTRIBUTE_RTL);
+			textBox.addAttribute(TextSpan.ATTRIBUTE_RTL);
 		}
 
 		appendElement(textBox);
@@ -277,9 +277,9 @@ class ParagraphBuilderInternal {
 	}
 
 	private void appendAsciiWordToken(CharSequence text,
-									  Paragraph.Builder.SpanReader spanReader,
+									  Paragraph.Builder.SpanStylesReader spanReader,
 									  Token token) {
-		Paragraph.Span span = null;
+		Paragraph.SpanStyles span = null;
 		if (spanReader != null) {
 			span = spanReader.read(token);
 		}
@@ -304,14 +304,14 @@ class ParagraphBuilderInternal {
 	}
 
 	private void appendCjkWordToken(CharSequence text,
-									Paragraph.Builder.SpanReader spanReader,
+									Paragraph.Builder.SpanStylesReader spanReader,
 									Token token) {
 		Layout layout = mParagraph.getLayout();
 		Layout.Advise advise = layout.getAdvise();
 		boolean cjkOptimization = advise.checkTypesetPolicy(TYPESET_POLICY_CJK_MIX_OPTIMIZATION);
 		Element linkElement = cjkOptimization ? Penalty.ADVISE_BREAK : mStretchOnlyGlue;
 
-		Paragraph.Span span = null;
+		Paragraph.SpanStyles span = null;
 		if (spanReader != null) {
 			span = spanReader.read(token);
 		}
@@ -336,7 +336,7 @@ class ParagraphBuilderInternal {
 				foreground = styles.getForeground();
 			}
 
-			TextBox textBox = TextBox.obtain(text, start, end,
+			TextSpan textBox = TextSpan.obtain(text, start, end,
 					textStyle,
 					tag,
 					background,
@@ -344,7 +344,7 @@ class ParagraphBuilderInternal {
 
 			// 英文模式下 要对中文进行缩放
 			if (cjkOptimization) {
-				textBox.addAttribute(TextBox.ATTRIBUTE_ZOOM_OUT);
+				textBox.addAttribute(TextSpan.ATTRIBUTE_ZOOM_OUT);
 			}
 
 			appendElement(textBox);
@@ -355,24 +355,24 @@ class ParagraphBuilderInternal {
 		}
 	}
 
-	private TextBox appendSymbolToken(CharSequence text,
-									  Paragraph.Builder.SpanReader spanReader,
-									  Token token) {
-		TextBox textBox = obtainSymbolTextBox(text, spanReader, token);
+	private TextSpan appendSymbolToken(CharSequence text,
+									   Paragraph.Builder.SpanStylesReader spanReader,
+									   Token token) {
+		TextSpan textBox = obtainSymbolTextBox(text, spanReader, token);
 
 		appendSymbolToken(textBox);
 
 		return textBox;
 	}
 
-	private void appendSymbolToken(TextBox textBox) {
+	private void appendSymbolToken(TextSpan textBox) {
 		appendElement(textBox);
 	}
 
-	private TextBox obtainSymbolTextBox(CharSequence text,
-										Paragraph.Builder.SpanReader spanReader,
-										Token token) {
-		Paragraph.Span span = null;
+	private TextSpan obtainSymbolTextBox(CharSequence text,
+										 Paragraph.Builder.SpanStylesReader spanReader,
+										 Token token) {
+		Paragraph.SpanStyles span = null;
 		if (spanReader != null) {
 			span = spanReader.read(token);
 		}
@@ -389,7 +389,7 @@ class ParagraphBuilderInternal {
 			foreground = styles.getForeground();
 		}
 
-		TextBox textBox = TextBox.obtain(text, token.getStart(), token.getEnd(),
+		TextSpan textBox = TextSpan.obtain(text, token.getStart(), token.getEnd(),
 				textStyle,
 				tag,
 				background,
@@ -459,7 +459,7 @@ class ParagraphBuilderInternal {
 							  Appearance foreground) {
 		int len = end - start;
 		if (len <= MIN_HYPER_LEN) {
-			appendElement(TextBox.obtain(text, start, end,
+			appendElement(TextSpan.obtain(text, start, end,
 					textStyle,
 					tag,
 					background,
@@ -472,7 +472,7 @@ class ParagraphBuilderInternal {
 		int groupId = mHyphenation.hyphenate(text, start, end, mHyphenated);
 		int size = mHyphenated.size();
 		if (size == 0) {
-			appendElement(TextBox.obtain(text, start, end,
+			appendElement(TextSpan.obtain(text, start, end,
 					textStyle,
 					tag,
 					background,
@@ -486,7 +486,7 @@ class ParagraphBuilderInternal {
 					continue;
 				}
 
-				TextBox box = TextBox.obtain(text, start, point,
+				TextSpan box = TextSpan.obtain(text, start, point,
 						textStyle,
 						tag,
 						background,
@@ -496,7 +496,7 @@ class ParagraphBuilderInternal {
 				appendElement(box);
 				if (j != size - 1) {
 					if (UnicodeUtils.isHyphen(text.charAt(point - 1))) {
-						box.addAttribute(TextBox.ATTRIBUTE_PENALTY);
+						box.addAttribute(TextSpan.ATTRIBUTE_PENALTY);
 						appendElement(Penalty.obtainFakePenalty(Texas.HYPHEN_PENALTY));
 					} else {
 						appendElement(Penalty.obtain(Texas.HYPHEN_PENALTY,
@@ -535,7 +535,7 @@ class ParagraphBuilderInternal {
 									 Token accepted,
 									 TokenStream stream,
 									 CharSequence text,
-									 Paragraph.Builder.SpanReader spanReader) {
+									 Paragraph.Builder.SpanStylesReader spanReader) {
 			return perform0(builder, accepted, stream, text, spanReader);
 		}
 
@@ -543,7 +543,7 @@ class ParagraphBuilderInternal {
 											Token accepted,
 											TokenStream stream,
 											CharSequence text,
-											Paragraph.Builder.SpanReader spanReader);
+											Paragraph.Builder.SpanStylesReader spanReader);
 
 		final protected void accept(Token token) {
 			mAcceptedToken = token;
@@ -587,7 +587,7 @@ class ParagraphBuilderInternal {
 	private Token accept(@Nullable Token accepted, /* 之前被接受的token */
 						 TokenStream stream,
 						 CharSequence text,
-						 Paragraph.Builder.SpanReader spanReader) {
+						 Paragraph.Builder.SpanStylesReader spanReader) {
 		int size = TYPESET_RULES.size();
 		for (int i = 0; i < size; ++i) {
 			TypesetRule rule = TYPESET_RULES.get(i);
@@ -605,7 +605,7 @@ class ParagraphBuilderInternal {
 		protected boolean perform0(ParagraphBuilderInternal builder, Token accepted,
 								   TokenStream stream,
 								   CharSequence text,
-								   Paragraph.Builder.SpanReader spanReader) {
+								   Paragraph.Builder.SpanStylesReader spanReader) {
 			int state = stream.save();
 			Token current = stream.next();
 			if (current.getType() != Token.TYPE_WORD) {
@@ -683,7 +683,7 @@ class ParagraphBuilderInternal {
 		public boolean perform0(ParagraphBuilderInternal builder, Token accepted,
 								TokenStream stream,
 								CharSequence text,
-								Paragraph.Builder.SpanReader spanReader) {
+								Paragraph.Builder.SpanStylesReader spanReader) {
 			int state = stream.save();
 			Token current = stream.next();
 			if (current.getType() != Token.TYPE_CONTROL) {
@@ -751,7 +751,7 @@ class ParagraphBuilderInternal {
 		public boolean perform0(ParagraphBuilderInternal builder, Token accepted,
 								TokenStream stream,
 								CharSequence text,
-								Paragraph.Builder.SpanReader spanReader) {
+								Paragraph.Builder.SpanStylesReader spanReader) {
 			int state = stream.save();
 			Token current = stream.next();
 			if (current.getType() != Token.TYPE_SYMBOL) {
@@ -773,14 +773,14 @@ class ParagraphBuilderInternal {
 
 			int prevType = getTokenTypeSafe(accepted);
 			if (prevType == Token.TYPE_NONE) {
-				TextBox textBox = builder.appendSymbolToken(text, spanReader, current);
+				TextSpan textBox = builder.appendSymbolToken(text, spanReader, current);
 				if (checkSymbolTokenAttributeSafe(current, Token.SYMBOL_ATTRIBUTE_SQUISH_LEFT)) {
 					if (builder.mRenderOption.isFullWithSymbolOptimizationEnable()) {
-						textBox.addAttribute(TextBox.ATTRIBUTE_SQUISH_LEFT);
+						textBox.addAttribute(TextSpan.ATTRIBUTE_SQUISH_LEFT);
 					}
 				} else if (checkSymbolTokenAttributeSafe(current, Token.SYMBOL_ATTRIBUTE_SQUISH_RIGHT)) {
 					if (builder.mRenderOption.isFullWithSymbolOptimizationEnable()) {
-						textBox.addAttribute(TextBox.ATTRIBUTE_SQUISH_RIGHT);
+						textBox.addAttribute(TextSpan.ATTRIBUTE_SQUISH_RIGHT);
 					}
 				}
 				accept(current);
@@ -802,7 +802,7 @@ class ParagraphBuilderInternal {
 		}
 
 		private void preformState2(ParagraphBuilderInternal builder, Token current,
-								   CharSequence text, Paragraph.Builder.SpanReader spanReader,
+								   CharSequence text, Paragraph.Builder.SpanStylesReader spanReader,
 								   TokenStream stream, int state) {
 
 			// 前置条件就是 prev 是单词
@@ -811,14 +811,14 @@ class ParagraphBuilderInternal {
 					Penalty.FORBIDDEN_BREAK : Penalty.ADVISE_BREAK;
 
 			// 生成一个 symbol
-			TextBox box = builder.obtainSymbolTextBox(text, spanReader, current);
+			TextSpan box = builder.obtainSymbolTextBox(text, spanReader, current);
 			if (checkSymbolTokenAttributeSafe(current, Token.SYMBOL_ATTRIBUTE_SQUISH_LEFT)) {
 				if (builder.mRenderOption.isFullWithSymbolOptimizationEnable()) {
-					box.addAttribute(TextBox.ATTRIBUTE_SQUISH_LEFT);
+					box.addAttribute(TextSpan.ATTRIBUTE_SQUISH_LEFT);
 				}
 			} else if (checkSymbolTokenAttributeSafe(current, Token.SYMBOL_ATTRIBUTE_SQUISH_RIGHT)) {
 				if (builder.mRenderOption.isFullWithSymbolOptimizationEnable()) {
-					box.addAttribute(TextBox.ATTRIBUTE_SQUISH_RIGHT);
+					box.addAttribute(TextSpan.ATTRIBUTE_SQUISH_RIGHT);
 				}
 			}
 
@@ -853,7 +853,7 @@ class ParagraphBuilderInternal {
 		}
 
 		private void preformState1(ParagraphBuilderInternal builder, Token accepted, Token current,
-								   CharSequence text, Paragraph.Builder.SpanReader spanReader,
+								   CharSequence text, Paragraph.Builder.SpanStylesReader spanReader,
 								   TokenStream stream, int state) {
 			// advance penalty state table
 			//--------------------v current -------------------------
@@ -872,14 +872,14 @@ class ParagraphBuilderInternal {
 				adviseElement = Penalty.ADVISE_BREAK;
 			}
 
-			TextBox box = builder.obtainSymbolTextBox(text, spanReader, current);
+			TextSpan box = builder.obtainSymbolTextBox(text, spanReader, current);
 			if (checkSymbolTokenAttributeSafe(current, Token.SYMBOL_ATTRIBUTE_SQUISH_LEFT)) {
 				if (builder.mRenderOption.isFullWithSymbolOptimizationEnable()) {
-					box.addAttribute(TextBox.ATTRIBUTE_SQUISH_LEFT);
+					box.addAttribute(TextSpan.ATTRIBUTE_SQUISH_LEFT);
 				}
 			} else if (checkSymbolTokenAttributeSafe(current, Token.SYMBOL_ATTRIBUTE_SQUISH_RIGHT)) {
 				if (builder.mRenderOption.isFullWithSymbolOptimizationEnable()) {
-					box.addAttribute(TextBox.ATTRIBUTE_SQUISH_RIGHT);
+					box.addAttribute(TextSpan.ATTRIBUTE_SQUISH_RIGHT);
 				}
 			}
 
@@ -897,7 +897,7 @@ class ParagraphBuilderInternal {
 		private void preformState1Advise(ParagraphBuilderInternal builder,
 										 Token accepted, Token current,
 										 TokenStream stream, int state,
-										 TextBox box, Element adviseElement) {
+										 TextSpan box, Element adviseElement) {
 			// 之前没有吞入任何元素
 			if (accepted == null) {
 				return;
@@ -1007,7 +1007,7 @@ class ParagraphBuilderInternal {
 		}
 
 		private void performState1AdviseSymbolPadding(ParagraphBuilderInternal builder,
-													  TextBox box, Element adviseElement) {
+													  TextSpan box, Element adviseElement) {
 			if (builder.mRenderOption.isFullWithSymbolOptimizationEnable()) {
 				builder.appendElementExcludeAdvise(adviseElement);
 				builder.appendElement(SymbolGlue.obtain(box));
@@ -1024,11 +1024,11 @@ class ParagraphBuilderInternal {
 
 	private static Glue obtainSymbolGlueFromStack(ParagraphBuilderInternal builder) {
 		Element last = builder.mParagraph.mElements.get(builder.mParagraph.mElements.size() - 1);
-		if (BuildConfig.DEBUG && !(last instanceof TextBox)) {
+		if (BuildConfig.DEBUG && !(last instanceof TextSpan)) {
 			throw new IllegalStateException("last element must be TextBox");
 		}
 
-		TextBox textBox = (TextBox) last;
+		TextSpan textBox = (TextSpan) last;
 		if (BuildConfig.DEBUG && textBox.getAttribute() == 0) {
 			throw new IllegalStateException("TextBox's attribute must be set");
 		}

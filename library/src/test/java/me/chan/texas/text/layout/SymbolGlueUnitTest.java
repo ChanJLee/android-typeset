@@ -17,11 +17,11 @@ public class SymbolGlueUnitTest {
 		MockMeasurer measurer = new MockMeasurer(mockTextPaint);
 		TextAttribute textAttribute = new TextAttribute(measurer);
 
-		TextBox box = TextBox.obtain("《", 0, 1, null, null, null, null);
+		TextSpan box = TextSpan.obtain("《", 0, 1, null, null, null, null);
 		box.measure(measurer, textAttribute);
 		Assert.assertEquals(box.getWidth(), 2, 0);
 
-		box.addAttribute(TextBox.ATTRIBUTE_SQUISH_LEFT);
+		box.addAttribute(TextSpan.ATTRIBUTE_SQUISH_LEFT);
 		Assert.assertEquals(box.getWidth(), 1, 0);
 
 

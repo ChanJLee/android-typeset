@@ -28,10 +28,10 @@ import me.chan.texas.renderer.core.graphics.TexasCanvas;
 import me.chan.texas.renderer.core.graphics.TexasPaint;
 import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.TextStyle;
-import me.chan.texas.text.layout.Box;
+import me.chan.texas.text.layout.Span;
 import me.chan.texas.text.layout.Layout;
 import me.chan.texas.text.layout.Line;
-import me.chan.texas.text.layout.TextBox;
+import me.chan.texas.text.layout.TextSpan;
 
 /**
  * 文本选中区域
@@ -74,11 +74,11 @@ public class ParagraphSelection extends DefaultRecyclable {
 		return mId;
 	}
 
-	private Box mFirst;
-	private Box mLast;
+	private Span mFirst;
+	private Span mLast;
 
 	@RestrictTo(LIBRARY)
-	public void prependBox(Box box) {
+	public void prependBox(Span box) {
 		mSet.set(box.getSeq(), true);
 
 
@@ -100,7 +100,7 @@ public class ParagraphSelection extends DefaultRecyclable {
 	}
 
 	@RestrictTo(LIBRARY)
-	public void appendBox(Box box) {
+	public void appendBox(Span box) {
 		mSet.set(box.getSeq(), true);
 
 		if (mFirst == null) {
@@ -222,12 +222,12 @@ public class ParagraphSelection extends DefaultRecyclable {
 	}
 
 	@Nullable
-	public Box getFirstBox() {
+	public Span getFirstBox() {
 		return mFirst;
 	}
 
 	@Nullable
-	public Box getLastBox() {
+	public Span getLastBox() {
 		return mLast;
 	}
 
@@ -236,7 +236,7 @@ public class ParagraphSelection extends DefaultRecyclable {
 	}
 
 	@RestrictTo(LIBRARY)
-	public boolean isSelected(Box box) {
+	public boolean isSelected(Span box) {
 		return mSet.get(box.getSeq());
 	}
 
@@ -287,7 +287,7 @@ public class ParagraphSelection extends DefaultRecyclable {
 		}
 
 		@Override
-		protected void onVisitBox(Box box, RectF inner, RectF outer, @NonNull RendererContext context) {
+		protected void onVisitBox(Span box, RectF inner, RectF outer, @NonNull RendererContext context) {
 			if (selection.isSelected(box)) {
 				tags.add(box.getTag());
 			}
@@ -326,7 +326,7 @@ public class ParagraphSelection extends DefaultRecyclable {
 				}
 
 				@Override
-				protected void onVisitBox(Box box, RectF inner, RectF outer, @NonNull RendererContext context) {
+				protected void onVisitBox(Span box, RectF inner, RectF outer, @NonNull RendererContext context) {
 					if (isSelected(box)) {
 						builder.append(box).append(", ");
 					}
@@ -358,7 +358,7 @@ public class ParagraphSelection extends DefaultRecyclable {
 		}
 
 		@Override
-		public void update(@NonNull TexasPaint textPaint, @NonNull TextBox box) {
+		public void update(@NonNull TexasPaint textPaint, @NonNull TextSpan box) {
 			textPaint.setColor(mTextColor);
 			if (mFakeBoldFactor > 0f) {
 				textPaint.setStyle(Paint.Style.FILL_AND_STROKE);

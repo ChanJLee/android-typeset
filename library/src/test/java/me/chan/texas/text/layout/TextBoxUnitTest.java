@@ -74,9 +74,9 @@ public class TextBoxUnitTest {
 	public void testMerge() {
 		String text = "hello world";
 
-		TextBox textBox1 = TextBox.obtain(text, 0, 6, mTextStyle, null, null, null);
+		TextSpan textBox1 = TextSpan.obtain(text, 0, 6, mTextStyle, null, null, null);
 		textBox1.measure(mMockMeasurer, mTextAttribute);
-		TextBox textBox2 = TextBox.obtain(text, 6, text.length(), mTextStyle, null, null, null);
+		TextSpan textBox2 = TextSpan.obtain(text, 6, text.length(), mTextStyle, null, null, null);
 		textBox2.measure(mMockMeasurer, mTextAttribute);
 
 		// Set the same group ID to allow merging
@@ -112,13 +112,13 @@ public class TextBoxUnitTest {
 		Assert.assertEquals("check measure text", spec.getHeight(), mMockTextPaint.getMockTextSize(), 0);
 	}
 
-	private TextBox create(String msg) {
-		TextBox textBox = TextBox.obtain(msg, 0, msg.length(), mTextStyle, mTag, mBg, mFg);
+	private TextSpan create(String msg) {
+		TextSpan textBox = TextSpan.obtain(msg, 0, msg.length(), mTextStyle, mTag, mBg, mFg);
 		textBox.measure(mMockMeasurer, mTextAttribute);
 		return textBox;
 	}
 
-	private TextBox createRandom(String msg) {
+	private TextSpan createRandom(String msg) {
 		// test obtain after recycle
 		Appearance bg = new Appearance() {
 			@Override
@@ -139,14 +139,14 @@ public class TextBoxUnitTest {
 			}
 		};
 		String tag = "foo";
-		return TextBox.obtain(msg, 0, msg.length(), textStyle, tag, bg, fg);
+		return TextSpan.obtain(msg, 0, msg.length(), textStyle, tag, bg, fg);
 	}
 
 	@Test
 	public void testAppendBox() {
 		String msg = "hello";
 
-		TextBox textBox = create(msg);
+		TextSpan textBox = create(msg);
 		Assert.assertNotNull(textBox);
 		Assert.assertEquals(textBox.toString(), msg);
 
@@ -169,7 +169,7 @@ public class TextBoxUnitTest {
 
 		// 下标不是从0开始的内容
 		msg = "abc";
-		textBox = TextBox.obtain(msg, 1, msg.length() - 1, mTextStyle, mTag, mBg, mFg);
+		textBox = TextSpan.obtain(msg, 1, msg.length() - 1, mTextStyle, mTag, mBg, mFg);
 		textBox.measure(mMockMeasurer, mTextAttribute);
 		Assert.assertEquals(textBox.getWidth(), mMockTextPaint.getMockTextSize(), 0);
 		Assert.assertEquals(textBox.getHeight(), mMockTextPaint.getMockTextHeight(), 0);
@@ -191,7 +191,7 @@ public class TextBoxUnitTest {
 	public void testAppendPenalty() {
 		String msg = "hello";
 
-		TextBox textBox = create(msg);
+		TextSpan textBox = create(msg);
 		Assert.assertNotNull(textBox);
 		Assert.assertEquals(textBox.toString(), msg);
 
@@ -235,7 +235,7 @@ public class TextBoxUnitTest {
 
 		// 下标不是从0开始的内容
 		msg = "abc";
-		textBox = TextBox.obtain(msg, 1, msg.length() - 1, mTextStyle, mTag, mBg, mFg);
+		textBox = TextSpan.obtain(msg, 1, msg.length() - 1, mTextStyle, mTag, mBg, mFg);
 		textBox.measure(mMockMeasurer, mTextAttribute);
 		Assert.assertEquals(textBox.getWidth(), mMockTextPaint.getMockTextSize(), 0);
 		Assert.assertEquals(textBox.getHeight(), mMockTextPaint.getMockTextHeight(), 0);
@@ -279,28 +279,28 @@ public class TextBoxUnitTest {
 
 	@Test
 	public void testClean() {
-		if (TextBox.hasBuffered()) {
-			TextBox.clean();
+		if (TextSpan.hasBuffered()) {
+			TextSpan.clean();
 		}
 
-		Assert.assertFalse(TextBox.hasBuffered());
-		TextBox textBox = create("hello");
+		Assert.assertFalse(TextSpan.hasBuffered());
+		TextSpan textBox = create("hello");
 		Assert.assertNotNull(textBox);
 
 		Assert.assertFalse(textBox.isRecycled());
 		textBox.recycle();
 		Assert.assertTrue(textBox.isRecycled());
 
-		TextBox.clean();
-		Assert.assertFalse(TextBox.hasBuffered());
+		TextSpan.clean();
+		Assert.assertFalse(TextSpan.hasBuffered());
 	}
 
 	@Test
 	public void testObtainAndRecycle() {
-		TextBox.clean();
+		TextSpan.clean();
 
 		String msg = "hello";
-		TextBox textBox = TextBox.obtain(msg, 0, msg.length(), mTextStyle, mTag, mBg, mFg);
+		TextSpan textBox = TextSpan.obtain(msg, 0, msg.length(), mTextStyle, mTag, mBg, mFg);
 		textBox.measure(mMockMeasurer, mTextAttribute);
 		Assert.assertNotNull(textBox);
 		// box
@@ -318,19 +318,19 @@ public class TextBoxUnitTest {
 		Assert.assertEquals(textBox.getTextStyle(), mTextStyle);
 		Assert.assertFalse(textBox.isPenalty());
 		Assert.assertFalse(textBox.isRecycled());
-		Assert.assertEquals(textBox.getAttribute(), TextBox.ATTRIBUTE_MEASURED);
-		float width = textBox.getWidth() / TextBox.SQUISH_FACTOR;
-		textBox.addAttribute(TextBox.ATTRIBUTE_SQUISH_LEFT);
-		Assert.assertNotEquals(textBox.getAttribute(), TextBox.ATTRIBUTE_NONE);
-		Assert.assertTrue(textBox.hasAttribute(TextBox.ATTRIBUTE_SQUISH_LEFT));
-		Assert.assertFalse(textBox.hasAttribute(TextBox.ATTRIBUTE_ZOOM_OUT));
+		Assert.assertEquals(textBox.getAttribute(), TextSpan.ATTRIBUTE_MEASURED);
+		float width = textBox.getWidth() / TextSpan.SQUISH_FACTOR;
+		textBox.addAttribute(TextSpan.ATTRIBUTE_SQUISH_LEFT);
+		Assert.assertNotEquals(textBox.getAttribute(), TextSpan.ATTRIBUTE_NONE);
+		Assert.assertTrue(textBox.hasAttribute(TextSpan.ATTRIBUTE_SQUISH_LEFT));
+		Assert.assertFalse(textBox.hasAttribute(TextSpan.ATTRIBUTE_ZOOM_OUT));
 		Assert.assertEquals(width, textBox.getWidth(), 0.1f);
 
-		TextBox prev1 = textBox;
+		TextSpan prev1 = textBox;
 
 		// test obtain not recycle
 		String subStr = "ell";
-		textBox = TextBox.obtain(msg, 1, msg.length() - 1, mTextStyle, mTag, mBg, mFg);
+		textBox = TextSpan.obtain(msg, 1, msg.length() - 1, mTextStyle, mTag, mBg, mFg);
 		textBox.measure(mMockMeasurer, mTextAttribute);
 		Assert.assertNotNull(textBox);
 		Assert.assertNotEquals(prev1, textBox);
@@ -347,11 +347,11 @@ public class TextBoxUnitTest {
 		Assert.assertEquals(textBox.getStart(), 1);
 		Assert.assertEquals(textBox.getEnd(), msg.length() - 1);
 		Assert.assertEquals(textBox.getTextStyle(), mTextStyle);
-		float height = textBox.getHeight() * TextBox.ZOOM_OUT_FACTOR;
-		width = textBox.getWidth() * TextBox.ZOOM_OUT_FACTOR;
-		textBox.addAttribute(TextBox.ATTRIBUTE_ZOOM_OUT);
-		Assert.assertFalse(textBox.hasAttribute(TextBox.ATTRIBUTE_SQUISH_LEFT));
-		Assert.assertTrue(textBox.hasAttribute(TextBox.ATTRIBUTE_ZOOM_OUT));
+		float height = textBox.getHeight() * TextSpan.ZOOM_OUT_FACTOR;
+		width = textBox.getWidth() * TextSpan.ZOOM_OUT_FACTOR;
+		textBox.addAttribute(TextSpan.ATTRIBUTE_ZOOM_OUT);
+		Assert.assertFalse(textBox.hasAttribute(TextSpan.ATTRIBUTE_SQUISH_LEFT));
+		Assert.assertTrue(textBox.hasAttribute(TextSpan.ATTRIBUTE_ZOOM_OUT));
 		Assert.assertEquals(width, textBox.getWidth(), 0.1f);
 		Assert.assertEquals(height, textBox.getHeight(), 0.1f);
 
@@ -365,10 +365,10 @@ public class TextBoxUnitTest {
 		textBox.recycle();
 		TestUtils.testRecycled(textBox);
 		Assert.assertFalse(textBox.isPenalty());
-		Assert.assertEquals(textBox.getAttribute(), TextBox.ATTRIBUTE_NONE);
+		Assert.assertEquals(textBox.getAttribute(), TextSpan.ATTRIBUTE_NONE);
 		Assert.assertTrue(textBox.isRecycled());
 
-		TextBox prev2 = textBox;
+		TextSpan prev2 = textBox;
 
 		// test obtain after recycle
 		Appearance bg = new Appearance() {
@@ -390,7 +390,7 @@ public class TextBoxUnitTest {
 			}
 		};
 		String tag = "foo";
-		textBox = TextBox.obtain(msg, 0, msg.length(), textStyle, tag, bg, fg);
+		textBox = TextSpan.obtain(msg, 0, msg.length(), textStyle, tag, bg, fg);
 		textBox.measure(mMockMeasurer, mTextAttribute);
 		Assert.assertNotNull(textBox);
 		Assert.assertSame(prev2, textBox);
@@ -416,8 +416,8 @@ public class TextBoxUnitTest {
 		String msg1 = "hello";
 		String msg2 = "world2";
 
-		TextBox lhs = create(msg1);
-		TextBox rhs = createRandom(msg2);
+		TextSpan lhs = create(msg1);
+		TextSpan rhs = createRandom(msg2);
 
 		Assert.assertNotNull(lhs);
 		Assert.assertNotNull(rhs);
@@ -496,19 +496,19 @@ public class TextBoxUnitTest {
 		Line line = layout.getLine(0);
 		Assert.assertEquals(4, line.getElementCount());
 
-		Box box = (Box) line.getElement(0);
+		Span box = (Span) line.getElement(0);
 		Assert.assertTrue(box.isIsolate(false));
 		Assert.assertTrue(box.isIsolate(true));
 
-		box = (Box) line.getElement(1);
+		box = (Span) line.getElement(1);
 		Assert.assertTrue(box.isIsolate(false));
 		Assert.assertFalse(box.isIsolate(true));
 
-		box = (Box) line.getElement(2);
+		box = (Span) line.getElement(2);
 		Assert.assertFalse(box.isIsolate(false));
 		Assert.assertTrue(box.isIsolate(true));
 
-		box = (Box) line.getElement(3);
+		box = (Span) line.getElement(3);
 		Assert.assertTrue(box.isIsolate(false));
 		Assert.assertTrue(box.isIsolate(true));
 	}

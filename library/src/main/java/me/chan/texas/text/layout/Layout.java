@@ -202,8 +202,8 @@ public class Layout extends DefaultRecyclable {
 			Line line = mLines.get(i);
 			for (int j = 0; j < line.getElementCount(); ++j) {
 				Element element = line.getElement(j);
-				if (element instanceof Box) {
-					Box box = (Box) element;
+				if (element instanceof Span) {
+					Span box = (Span) element;
 					box.setSeq(seq++);
 				}
 			}

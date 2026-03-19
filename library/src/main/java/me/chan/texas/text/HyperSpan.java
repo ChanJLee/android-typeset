@@ -6,7 +6,7 @@ import me.chan.texas.measurer.Measurer;
 import me.chan.texas.misc.RectF;
 import me.chan.texas.renderer.core.graphics.TexasCanvas;
 import me.chan.texas.renderer.core.graphics.TexasPaint;
-import me.chan.texas.text.layout.DrawableBox;
+import me.chan.texas.text.layout.DrawableSpan;
 import me.chan.texas.text.layout.StateList;
 
 /**
@@ -26,7 +26,7 @@ import me.chan.texas.text.layout.StateList;
  * }
  * </code></pre>
  */
-public abstract class HyperSpan extends DrawableBox implements Measurable {
+public abstract class HyperSpan extends DrawableSpan implements Measurable {
 
 	public HyperSpan() {
 		super(0, 0);

@@ -25,7 +25,7 @@ import me.chan.texas.hyphenation.Hyphenation;
 import me.chan.texas.renderer.core.WorkerScheduler;
 import me.chan.texas.renderer.core.worker.LoadingWorker;
 import me.chan.texas.text.TextAttribute;
-import me.chan.texas.text.layout.Box;
+import me.chan.texas.text.layout.Span;
 import me.chan.texas.text.BreakStrategy;
 import me.chan.texas.text.Document;
 import me.chan.texas.text.layout.Element;
@@ -33,7 +33,7 @@ import me.chan.texas.text.layout.Layout;
 import me.chan.texas.text.layout.Line;
 import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.Segment;
-import me.chan.texas.text.layout.TextBox;
+import me.chan.texas.text.layout.TextSpan;
 import me.chan.texas.typesetter.ParagraphTypesetter;
 
 import org.junit.Assert;
@@ -167,7 +167,7 @@ public class TypesetterUnitTest {
 			}
 
 			@Override
-			protected void onVisitBox(Box box, RectF inner, RectF outer, @NonNull RendererContext context) {
+			protected void onVisitBox(Span box, RectF inner, RectF outer, @NonNull RendererContext context) {
 
 			}
 		}.visit(paragraph);
@@ -193,7 +193,7 @@ public class TypesetterUnitTest {
 			}
 
 			@Override
-			protected void onVisitBox(Box box, RectF inner, RectF outer, @NonNull RendererContext context) {
+			protected void onVisitBox(Span box, RectF inner, RectF outer, @NonNull RendererContext context) {
 
 			}
 		}.visit(paragraph);
@@ -224,7 +224,7 @@ public class TypesetterUnitTest {
 			}
 
 			@Override
-			protected void onVisitBox(Box box, RectF inner, RectF outer, @NonNull RendererContext context) {
+			protected void onVisitBox(Span box, RectF inner, RectF outer, @NonNull RendererContext context) {
 				if (integer.get() == 2) {
 					Assert.fail("test stop line visit failed");
 				}
@@ -257,7 +257,7 @@ public class TypesetterUnitTest {
 			}
 
 			@Override
-			protected void onVisitBox(Box box, RectF inner, RectF outer, @NonNull RendererContext context) {
+			protected void onVisitBox(Span box, RectF inner, RectF outer, @NonNull RendererContext context) {
 				if (integer.get() > 2) {
 					Assert.fail("test stop line visit failed");
 				}
@@ -288,7 +288,7 @@ public class TypesetterUnitTest {
 			}
 
 			@Override
-			protected void onVisitBox(Box box, RectF inner, RectF outer, @NonNull RendererContext context) {
+			protected void onVisitBox(Span box, RectF inner, RectF outer, @NonNull RendererContext context) {
 				sendVisitSig(ParagraphVisitor.SIG_STOP_PARA_VISIT);
 				tagCount.incrementAndGet();
 			}
@@ -319,7 +319,7 @@ public class TypesetterUnitTest {
 			}
 
 			@Override
-			protected void onVisitBox(Box box, RectF inner, RectF outer, @NonNull RendererContext context) {
+			protected void onVisitBox(Span box, RectF inner, RectF outer, @NonNull RendererContext context) {
 				sendVisitSig(ParagraphVisitor.SIG_STOP_LINE_VISIT);
 				tagCount.incrementAndGet();
 			}
@@ -342,8 +342,8 @@ public class TypesetterUnitTest {
 				StringBuilder stringBuilder = new StringBuilder();
 				for (int k = 0; k < line.getElementCount(); ++k) {
 					Element element = line.getElement(k);
-					if (element instanceof TextBox) {
-						TextBox box = (TextBox) element;
+					if (element instanceof TextSpan) {
+						TextSpan box = (TextSpan) element;
 						stringBuilder.append(box)
 								.append(" ");
 					}
@@ -481,14 +481,14 @@ public class TypesetterUnitTest {
 
 				for (int x = 0; x < l.getElementCount(); ++x) {
 					Element element = l.getElement(x);
-					if (!(element instanceof TextBox)) {
+					if (!(element instanceof TextSpan)) {
 						continue;
 					}
 
-					Box box = (Box) element;
+					Span box = (Span) element;
 					String content = box.toString();
-					TextBox textBox = (TextBox) box;
-					if (textBox.isPenalty() && textBox.hasAttribute(TextBox.ATTRIBUTE_PENDED_HYPHEN)) {
+					TextSpan textBox = (TextSpan) box;
+					if (textBox.isPenalty() && textBox.hasAttribute(TextSpan.ATTRIBUTE_PENDED_HYPHEN)) {
 						Assert.assertEquals(content.charAt(content.length() - 1), '-');
 						content = content.substring(0, content.length() - 1);
 					}

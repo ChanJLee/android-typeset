@@ -56,7 +56,7 @@ import me.chan.texas.text.Segment;
 import me.chan.texas.renderer.selection.SelectionMethod;
 import me.chan.texas.text.TextAttribute;
 import me.chan.texas.text.TextGravity;
-import me.chan.texas.text.layout.Box;
+import me.chan.texas.text.layout.Span;
 import me.chan.texas.utils.TexasUtils;
 import me.chan.texas.utils.concurrency.Worker;
 
@@ -793,7 +793,7 @@ public final class TexasView extends FrameLayout {
 	}
 
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
-	public void notifySpanLongClicked(TouchEvent event, Paragraph paragraph, Box box) {
+	public void notifySpanLongClicked(TouchEvent event, Paragraph paragraph, Span box) {
 		if (mOnClickedListener != null) {
 			event.adjust(this);
 			mOnClickedListener.onSpanLongClicked(this, paragraph, event, box);
@@ -802,7 +802,7 @@ public final class TexasView extends FrameLayout {
 	}
 
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
-	public void notifySpanClicked(TouchEvent event, Paragraph paragraph, Box box) {
+	public void notifySpanClicked(TouchEvent event, Paragraph paragraph, Span box) {
 		if (mOnClickedListener != null) {
 			event.adjust(this);
 			mOnClickedListener.onSpanClicked(this, paragraph, event, box);
@@ -1010,7 +1010,7 @@ public final class TexasView extends FrameLayout {
 		 * @param event     touch event
 		 * @param box       clicked box
 		 */
-		void onSpanClicked(@NonNull TexasView view, @NonNull Paragraph paragraph, @NonNull TouchEvent event, @NonNull Box box);
+		void onSpanClicked(@NonNull TexasView view, @NonNull Paragraph paragraph, @NonNull TouchEvent event, @NonNull Span box);
 
 		/**
 		 * @param view      view
@@ -1018,7 +1018,7 @@ public final class TexasView extends FrameLayout {
 		 * @param event     touch event
 		 * @param box       clicked box
 		 */
-		void onSpanLongClicked(@NonNull TexasView view, @NonNull Paragraph paragraph, @NonNull TouchEvent event, @NonNull Box box);
+		void onSpanLongClicked(@NonNull TexasView view, @NonNull Paragraph paragraph, @NonNull TouchEvent event, @NonNull Span box);
 
 		/**
 		 * @param view    view

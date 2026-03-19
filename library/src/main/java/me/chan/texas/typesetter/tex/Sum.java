@@ -3,7 +3,7 @@ package me.chan.texas.typesetter.tex;
 import androidx.annotation.RestrictTo;
 
 import me.chan.texas.Texas;
-import me.chan.texas.text.layout.Box;
+import me.chan.texas.text.layout.Span;
 import me.chan.texas.text.layout.Glue;
 import me.chan.texas.misc.DefaultRecyclable;
 import me.chan.texas.misc.ObjectPool;
@@ -35,7 +35,7 @@ public class Sum extends DefaultRecyclable {
 		POOL.release(this);
 	}
 
-	public void increase(Box box) {
+	public void increase(Span box) {
 		mWidth += box.getWidth();
 	}
 

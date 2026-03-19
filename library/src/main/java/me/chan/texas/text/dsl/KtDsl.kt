@@ -16,7 +16,7 @@ import me.chan.texas.text.Paragraph
 import me.chan.texas.text.TextStyle
 import me.chan.texas.text.ViewSegment
 import me.chan.texas.text.layout.StateList
-import me.chan.texas.text.layout.TextBox
+import me.chan.texas.text.layout.TextSpan
 
 @DslMarker
 annotation class TexasDslMarker
@@ -59,9 +59,9 @@ class SpanDsl(private val _span: Paragraph.SpanBuilder) {
         _span.tag(tag)
     }
 
-    fun style(block: TexasPaint.(box: TextBox) -> Unit) {
+    fun style(block: TexasPaint.(box: TextSpan) -> Unit) {
         _span.setTextStyle(object : TextStyle() {
-            override fun update(textPaint: TexasPaint, box: TextBox) {
+            override fun update(textPaint: TexasPaint, box: TextSpan) {
                 textPaint.block(box)
             }
         })

@@ -30,7 +30,7 @@ import me.chan.texas.text.Document;
 import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.Segment;
 import me.chan.texas.text.ViewSegment;
-import me.chan.texas.text.layout.Box;
+import me.chan.texas.text.layout.Span;
 
 /**
  * 负责处理select paragraph
@@ -60,7 +60,7 @@ public class SelectionMethodImpl implements OnSelectedChangedListener, Selection
 	 */
 	private final SelectedTextByDragVisitor mSelectedTextByDragVisitor = new SelectedTextByDragVisitor();
 	/**
-	 * 用于点击是选中文本 {@link SelectionMethodImpl#onBoxSelected(TouchEvent, Paragraph, int, Box)}
+	 * 用于点击是选中文本 {@link SelectionMethodImpl#onBoxSelected(TouchEvent, Paragraph, int, Span)}
 	 */
 	private final SelectedTextByClickedVisitor mSelectedTextByClickedVisitor = new SelectedTextByClickedVisitor();
 
@@ -71,13 +71,13 @@ public class SelectionMethodImpl implements OnSelectedChangedListener, Selection
 	private SpanTouchEventHandler mSpanTouchEventHandler;
 	private final SpanPredicate mOnSpanClickedPredicate = new SpanPredicate() {
 		@Override
-		public boolean accept(@NonNull Box thiz, @NonNull Box other) {
+		public boolean accept(@NonNull Span thiz, @NonNull Span other) {
 			return mSpanTouchEventHandler.applySpanClicked(thiz, other);
 		}
 	};
 	private final SpanPredicate mOnSpanLongClickedPredicate = new SpanPredicate() {
 		@Override
-		public boolean accept(@NonNull Box thiz, @NonNull Box other) {
+		public boolean accept(@NonNull Span thiz, @NonNull Span other) {
 			return mSpanTouchEventHandler.applySpanLongClicked(thiz, other);
 		}
 	};
@@ -161,7 +161,7 @@ public class SelectionMethodImpl implements OnSelectedChangedListener, Selection
 	 * @return 是否有box被选中
 	 */
 	@Override
-	public boolean onBoxSelected(@NonNull TouchEvent e, @NonNull Paragraph paragraph, @EventType int eventType, @NonNull Box box) {
+	public boolean onBoxSelected(@NonNull TouchEvent e, @NonNull Paragraph paragraph, @EventType int eventType, @NonNull Span box) {
 		if (paragraph == null) {
 			return false;
 		}
@@ -179,7 +179,7 @@ public class SelectionMethodImpl implements OnSelectedChangedListener, Selection
 		return false;
 	}
 
-	private boolean onBoxSelected(TouchEvent e, Paragraph paragraph, boolean isLongClicked, Box box) {
+	private boolean onBoxSelected(TouchEvent e, Paragraph paragraph, boolean isLongClicked, Span box) {
 		SpanPredicate predicate = isLongClicked ? mOnSpanLongClickedPredicate : mOnSpanClickedPredicate;
 		clearSelection();
 
@@ -212,7 +212,7 @@ public class SelectionMethodImpl implements OnSelectedChangedListener, Selection
 
 	private boolean handleParagraphClicked(Paragraph paragraph,
 										   SpanPredicate predicate,
-										   Box box,
+										   Span box,
 										   Selection selection) throws ParagraphVisitor.VisitException {
 		Document document = mAdapter.getDocument();
 		if (document == null) {
@@ -226,7 +226,7 @@ public class SelectionMethodImpl implements OnSelectedChangedListener, Selection
 	private boolean handleParagraphClicked0(Paragraph paragraph,
 											RenderOption renderOption,
 											SpanPredicate predicate,
-											Box box,
+											Span box,
 											Selection selection) throws ParagraphVisitor.VisitException {
 		try {
 			mSelectedTextByClickedVisitor.reset(
@@ -647,9 +647,9 @@ public class SelectionMethodImpl implements OnSelectedChangedListener, Selection
 	}
 
 	public interface Listener {
-		void onSpanClicked(Paragraph paragraph, TouchEvent event, Box box);
+		void onSpanClicked(Paragraph paragraph, TouchEvent event, Span box);
 
-		void onSpanLongClicked(Paragraph paragraph, TouchEvent event, Box box);
+		void onSpanLongClicked(Paragraph paragraph, TouchEvent event, Span box);
 
 		void onDragStart(TouchEvent event);
 

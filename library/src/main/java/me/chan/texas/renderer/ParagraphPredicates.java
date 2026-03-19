@@ -4,7 +4,7 @@ import androidx.annotation.NonNull;
 
 import me.chan.texas.annotations.Idempotent;
 import me.chan.texas.text.Paragraph;
-import me.chan.texas.text.layout.Box;
+import me.chan.texas.text.layout.Span;
 
 public interface ParagraphPredicates {
 
@@ -13,7 +13,7 @@ public interface ParagraphPredicates {
 	 * @return 是否选中，这个函数必须是幂等的
 	 */
 	@Idempotent
-	boolean acceptSpan(@NonNull Box box);
+	boolean acceptSpan(@NonNull Span box);
 
 	/**
 	 * @param paragraphTag {@link me.chan.texas.text.Paragraph.Builder#tag(Object)}

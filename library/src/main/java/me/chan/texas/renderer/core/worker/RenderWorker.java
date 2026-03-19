@@ -33,11 +33,11 @@ import me.chan.texas.text.Appearance;
 import me.chan.texas.renderer.RendererContext;
 import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.TextStyle;
-import me.chan.texas.text.layout.Box;
+import me.chan.texas.text.layout.Span;
 import me.chan.texas.text.layout.Layout;
 import me.chan.texas.text.layout.Line;
 import me.chan.texas.text.layout.StateList;
-import me.chan.texas.text.layout.TextBox;
+import me.chan.texas.text.layout.TextSpan;
 import me.chan.texas.utils.concurrency.Worker;
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -304,7 +304,7 @@ public class RenderWorker {
 		}
 
 		@Override
-		public void onVisitBox(Box box, RectF inner, RectF outer, @NonNull RendererContext context) {
+		public void onVisitBox(Span box, RectF inner, RectF outer, @NonNull RendererContext context) {
 			boolean isSelected = isBoxSelected(mSelection, box);
 			boolean isHighlighted = isBoxHighlighted(mHighlight, box);
 			mStates.clear();
@@ -323,12 +323,12 @@ public class RenderWorker {
 			drawForeground(box, inner, outer, context);
 		}
 
-		private void setupTextStyles(TexasPaint workPaint, Box box, boolean isSelected, boolean isHighlighted) {
-			if (!(box instanceof TextBox)) {
+		private void setupTextStyles(TexasPaint workPaint, Span box, boolean isSelected, boolean isHighlighted) {
+			if (!(box instanceof TextSpan)) {
 				return;
 			}
 
-			TextBox textBox = (TextBox) box;
+			TextSpan textBox = (TextSpan) box;
 
 			TextStyle textStyle = textBox.getTextStyle();
 			if (textStyle != null) {
@@ -350,7 +350,7 @@ public class RenderWorker {
 			}
 		}
 
-		private void drawForeground(Box box, RectF inner, RectF outer, RendererContext context) {
+		private void drawForeground(Span box, RectF inner, RectF outer, RendererContext context) {
 			Appearance foreground = box.getForeground();
 			if (foreground != null) {
 				mWorkPaint.reset(mArgs.paintSet);
@@ -358,11 +358,11 @@ public class RenderWorker {
 			}
 		}
 
-		private void drawContent(Box box, TexasPaint workPaint, RectF inner, RectF outer, StateList states) {
+		private void drawContent(Span box, TexasPaint workPaint, RectF inner, RectF outer, StateList states) {
 			box.draw(mCanvas, workPaint, inner, outer, mLine.getBaselineOffset(), states);
 		}
 
-		private void drawBackground(Box box, RectF inner, RectF outer, RendererContext context) {
+		private void drawBackground(Span box, RectF inner, RectF outer, RendererContext context) {
 			Appearance background = box.getBackground();
 			if (background != null) {
 				mWorkPaint.reset(mArgs.paintSet);
@@ -370,7 +370,7 @@ public class RenderWorker {
 			}
 		}
 
-		private boolean isBoxSelected(ParagraphSelection selection, Box box) {
+		private boolean isBoxSelected(ParagraphSelection selection, Span box) {
 			if (selection == null) {
 				return false;
 			}
@@ -378,7 +378,7 @@ public class RenderWorker {
 			return selection.isSelected(box);
 		}
 
-		private boolean isBoxHighlighted(ParagraphSelection selection, Box box) {
+		private boolean isBoxHighlighted(ParagraphSelection selection, Span box) {
 			if (selection == null) {
 				return false;
 			}
@@ -495,7 +495,7 @@ public class RenderWorker {
 		}
 
 		@Override
-		public void onVisitBox(Box box, RectF inner, RectF outer, @NonNull RendererContext context) {
+		public void onVisitBox(Span box, RectF inner, RectF outer, @NonNull RendererContext context) {
 			mDebugPaint.setColor(Color.GREEN);
 			mCanvas.getCanvas().drawRect(inner.left, inner.top, inner.right, inner.bottom, mDebugPaint);
 		}

@@ -4,7 +4,7 @@ import androidx.annotation.NonNull;
 
 import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.Segment;
-import me.chan.texas.text.layout.Box;
+import me.chan.texas.text.layout.Span;
 
 /**
  * {@link TexasView.OnClickedListener} 的适配器，提供所有方法的默认空实现。
@@ -23,12 +23,12 @@ import me.chan.texas.text.layout.Box;
 public class OnClickedListenerAdapter implements TexasView.OnClickedListener {
 
 	@Override
-	public void onSpanClicked(@NonNull TexasView view, @NonNull Paragraph paragraph, @NonNull TouchEvent event, @NonNull Box box) {
+	public void onSpanClicked(@NonNull TexasView view, @NonNull Paragraph paragraph, @NonNull TouchEvent event, @NonNull Span box) {
 
 	}
 
 	@Override
-	public void onSpanLongClicked(@NonNull TexasView view, @NonNull Paragraph paragraph, @NonNull TouchEvent event, @NonNull Box box) {
+	public void onSpanLongClicked(@NonNull TexasView view, @NonNull Paragraph paragraph, @NonNull TouchEvent event, @NonNull Span box) {
 
 	}
 

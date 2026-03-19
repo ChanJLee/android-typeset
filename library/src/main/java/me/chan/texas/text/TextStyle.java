@@ -7,7 +7,7 @@ import androidx.annotation.RestrictTo;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import me.chan.texas.renderer.core.graphics.TexasPaint;
-import me.chan.texas.text.layout.TextBox;
+import me.chan.texas.text.layout.TextSpan;
 
 /**
  * 文字样式
@@ -18,27 +18,27 @@ public abstract class TextStyle {
 
 	public static final TextStyle NONE = new TextStyle() {
 		@Override
-		public void update(TexasPaint textPaint, @NonNull TextBox box) {
+		public void update(TexasPaint textPaint, @NonNull TextSpan box) {
 			/* do nothing */
 		}
 	};
 	public static final TextStyle BOLD = new TextStyle() {
 
 		@Override
-		public void update(TexasPaint textPaint, @NonNull TextBox box) {
+		public void update(TexasPaint textPaint, @NonNull TextSpan box) {
 			textPaint.setFakeBoldText(true);
 		}
 	};
 	public static final TextStyle ITALIC = new TextStyle() {
 		@Override
-		public void update(TexasPaint textPaint, @NonNull TextBox box) {
+		public void update(TexasPaint textPaint, @NonNull TextSpan box) {
 			textPaint.setTextSkewX(-0.25f);
 		}
 	};
 
 	public static final TextStyle BOLD_ITALIC = new TextStyle() {
 		@Override
-		public void update(TexasPaint textPaint, @NonNull TextBox box) {
+		public void update(TexasPaint textPaint, @NonNull TextSpan box) {
 			textPaint.setFakeBoldText(true);
 			textPaint.setTextSkewX(-0.25f);
 		}
@@ -65,5 +65,5 @@ public abstract class TextStyle {
 	 * @param box       box
 	 */
 	@AnyThread
-	public abstract void update(@NonNull TexasPaint textPaint, @NonNull TextBox box);
+	public abstract void update(@NonNull TexasPaint textPaint, @NonNull TextSpan box);
 }

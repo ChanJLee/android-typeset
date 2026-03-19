@@ -5,12 +5,12 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 
-import me.chan.texas.text.layout.Box;
+import me.chan.texas.text.layout.Span;
 import me.chan.texas.text.layout.Line;
 
 public final class RendererContext {
 
-	private Box mBox;
+	private Span mBox;
 	private int mIndex;
 	private Line mLine;
 
@@ -53,7 +53,7 @@ public final class RendererContext {
 	}
 
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
-	void setBoxLocationAttribute(Line line, Box box, int index) {
+	void setBoxLocationAttribute(Line line, Span box, int index) {
 		mLine = line;
 		mBox = box;
 		mIndex = index;
@@ -102,7 +102,7 @@ public final class RendererContext {
 	 * @return 当前对应的box
 	 */
 	@NonNull
-	public Box getBox() {
+	public Span getBox() {
 		return mBox;
 	}
 
