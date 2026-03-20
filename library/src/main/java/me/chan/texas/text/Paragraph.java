@@ -831,7 +831,7 @@ public final class Paragraph extends Segment {
 
 			Span span = (Span) element;
 			if (predicate.test(span)) {
-				end = adjustSpiltIndex(span, end);
+				end = adjustSpiltIndex(span, end + 1);
 				paragraphs.add(fork(start, end));
 				start = end;
 			}
