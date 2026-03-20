@@ -1553,15 +1553,23 @@ public class ParagraphUnitTest {
 		builder.text("x y z");
 		paragraph = builder.build();
 		result = paragraph.split(span -> "z".equals(span.toString()));
-		Assert.assertEquals(2, result.size());
+		Assert.assertEquals(1, result.size());
 		assertElementEndsWithTerminalAndForceBreak(result.get(0));
-		assertElementEndsWithTerminalAndForceBreak(result.get(1));
 
 		// case 5: 多处 split
 		builder = Paragraph.Builder.newBuilder(texasOption);
 		builder.text("a b c d");
 		paragraph = builder.build();
 		result = paragraph.split(span -> "b".equals(span.toString()) || "d".equals(span.toString()));
+		Assert.assertEquals(2, result.size());
+		for (Paragraph p : result) {
+			assertElementEndsWithTerminalAndForceBreak(p);
+		}
+
+		builder = Paragraph.Builder.newBuilder(texasOption);
+		builder.text("a b c d");
+		paragraph = builder.build();
+		result = paragraph.split(span -> "b".equals(span.toString()) || "c".equals(span.toString()));
 		Assert.assertEquals(3, result.size());
 		for (Paragraph p : result) {
 			assertElementEndsWithTerminalAndForceBreak(p);
@@ -1593,6 +1601,23 @@ public class ParagraphUnitTest {
 		for (Paragraph p : result) {
 			assertElementEndsWithTerminalAndForceBreak(p);
 		}
+
+		builder = Paragraph.Builder.newBuilder(texasOption);
+		builder.text("a b c triangle ");
+		final HyperSpan hyperSpan = new MyHypeSpan();
+		hyperSpan.setTag("x");
+		builder.hyperSpan(hyperSpan);
+		hyperSpan.setSeq(1024);
+		builder.text("a b c");
+		paragraph = builder.build();
+		result = paragraph.split(span -> span == hyperSpan);
+		Assert.assertEquals(2, result.size());
+		for (Paragraph p : result) {
+			assertElementEndsWithTerminalAndForceBreak(p);
+		}
+		Assert.assertEquals(1024, hyperSpan.getSeq());
+		Paragraph p1 = result.get(0);
+		Assert.assertSame(hyperSpan, p1.getElement(p1.getElementCount() - 3));
 	}
 
 	/**

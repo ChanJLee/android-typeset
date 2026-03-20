@@ -834,10 +834,11 @@ public final class Paragraph extends Segment {
 				end = adjustSpiltIndex(span, end + 1);
 				paragraphs.add(fork(start, end));
 				start = end;
+				--end;
 			}
 		}
 
-		if (start < end) {
+		if (start < end && end <= mElements.size()) {
 			paragraphs.add(fork(start, end));
 		}
 
