@@ -101,7 +101,7 @@ public abstract class SelectedVisitor extends ParagraphVisitor {
 			if (!(span instanceof DrawableSpan) || includeSelectNonTextBoxRegion()) {
 				mCompositeRectDrawable.append(outer.left, mLastLineTop, outer.right, mLastLineBottom);
 			}
-			mSelection.appendBox(span);
+			mSelection.appendSpan(span);
 		}
 	}
 

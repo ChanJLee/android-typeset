@@ -75,10 +75,10 @@ public class SelectionUnitTest {
 				null,
 				null
 		);
-		paragraphSelection.appendBox(span);
+		paragraphSelection.appendSpan(span);
 		Assert.assertFalse(paragraphSelection.isEmpty());
-		Assert.assertSame(paragraphSelection.getLastBox(), span);
-		Assert.assertSame(paragraphSelection.getFirstBox(), span);
+		Assert.assertSame(paragraphSelection.getLastSpan(), span);
+		Assert.assertSame(paragraphSelection.getFirstSpan(), span);
 
 		Span span2 = TextSpan.obtain(
 				"fuck",
@@ -89,15 +89,15 @@ public class SelectionUnitTest {
 				null,
 				null
 		);
-		paragraphSelection.appendBox(span2);
+		paragraphSelection.appendSpan(span2);
 		Assert.assertFalse(paragraphSelection.isEmpty());
-		Assert.assertSame(paragraphSelection.getLastBox(), span2);
-		Assert.assertSame(paragraphSelection.getFirstBox(), span);
+		Assert.assertSame(paragraphSelection.getLastSpan(), span2);
+		Assert.assertSame(paragraphSelection.getFirstSpan(), span);
 
 		paragraphSelection.clear();
 		Assert.assertTrue(paragraphSelection.isEmpty());
-		Assert.assertNull(paragraphSelection.getLastBox());
-		Assert.assertNull(paragraphSelection.getFirstBox());
+		Assert.assertNull(paragraphSelection.getLastSpan());
+		Assert.assertNull(paragraphSelection.getFirstSpan());
 
 		Set<Span> set = new HashSet<>();
 		for (int i = 0; i < 10; ++i) {
@@ -105,7 +105,7 @@ public class SelectionUnitTest {
 			if (element instanceof Span) {
 				Span span1 = (Span) element;
 				set.add(span1);
-				paragraphSelection.appendBox(span1);
+				paragraphSelection.appendSpan(span1);
 			}
 		}
 		paragraph.setSelection(Selection.Type.SELECTION, paragraphSelection);

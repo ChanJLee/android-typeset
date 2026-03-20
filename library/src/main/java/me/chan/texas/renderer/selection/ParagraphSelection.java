@@ -78,7 +78,7 @@ public class ParagraphSelection extends DefaultRecyclable {
 	private Span mLast;
 
 	@RestrictTo(LIBRARY)
-	public void prependBox(Span span) {
+	public void prependSpan(Span span) {
 		mSet.set(span.getSeq(), true);
 
 
@@ -100,7 +100,7 @@ public class ParagraphSelection extends DefaultRecyclable {
 	}
 
 	@RestrictTo(LIBRARY)
-	public void appendBox(Span span) {
+	public void appendSpan(Span span) {
 		mSet.set(span.getSeq(), true);
 
 		if (mFirst == null) {
@@ -222,12 +222,12 @@ public class ParagraphSelection extends DefaultRecyclable {
 	}
 
 	@Nullable
-	public Span getFirstBox() {
+	public Span getFirstSpan() {
 		return mFirst;
 	}
 
 	@Nullable
-	public Span getLastBox() {
+	public Span getLastSpan() {
 		return mLast;
 	}
 

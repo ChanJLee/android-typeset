@@ -49,8 +49,8 @@ public class SelectedTextByDragVisitor extends SelectedVisitor {
 			return;
 		}
 
-		linkHead(paragraph, mFirstSelectedLine, mSelection.getFirstBox());
-		linkTail(paragraph, mLastSelectedLine, mSelection.getLastBox());
+		linkHead(paragraph, mFirstSelectedLine, mSelection.getFirstSpan());
+		linkTail(paragraph, mLastSelectedLine, mSelection.getLastSpan());
 	}
 
 	private void linkHead(Paragraph paragraph, Line line, Span span) {
@@ -106,10 +106,10 @@ public class SelectedTextByDragVisitor extends SelectedVisitor {
 			index += step;
 			Span span = (Span) element;
 			if (backward) {
-				mSelection.appendBox(span);
+				mSelection.appendSpan(span);
 				rectF.right = span.getOuterBounds().right;
 			} else {
-				mSelection.prependBox(span);
+				mSelection.prependSpan(span);
 				rectF.left = span.getOuterBounds().left;
 			}
 
