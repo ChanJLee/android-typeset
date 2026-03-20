@@ -22,6 +22,7 @@ import me.chan.texas.text.TextGravity;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class Layout extends DefaultRecyclable {
 	private static final ObjectPool<Layout> POOL = new ObjectPool<>(Texas.getMemoryOption().getParagraphBufferSize());
@@ -191,23 +192,34 @@ public class Layout extends DefaultRecyclable {
 		return sb.toString();
 	}
 
+	private static final AtomicInteger UUID = new AtomicInteger();
+
 	@RestrictTo(LIBRARY)
 	public void finishLayout() {
 		if (mLines.isEmpty()) {
 			return;
 		}
 
-		int seq = 0;
 		for (int i = 0; i < mLines.size(); ++i) {
 			Line line = mLines.get(i);
 			for (int j = 0; j < line.getElementCount(); ++j) {
 				Element element = line.getElement(j);
 				if (element instanceof Span) {
 					Span span = (Span) element;
-					span.setSeq(seq++);
+					if (span.getSeq() == 0) {
+						span.setSeq(nextSeq());
+					}
 				}
 			}
 		}
+	}
+
+	private static int nextSeq() {
+		int seq = UUID.incrementAndGet();
+		if (seq == 0) {
+			seq = UUID.incrementAndGet();
+		}
+		return seq;
 	}
 
 	@RestrictTo(LIBRARY)

@@ -879,6 +879,9 @@ public final class Paragraph extends Segment {
 		copy.mHighlight = mHighlight;
 		copy.fillTail();
 
+		Layout copyLayout = copy.getLayout();
+		copyLayout.getAdvise().copy(getLayout().getAdvise());
+
 		return copy;
 	}
 
