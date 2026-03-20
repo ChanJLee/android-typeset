@@ -15,7 +15,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import me.chan.texas.misc.BitBucket;
 import me.chan.texas.misc.DefaultRecyclable;
 import me.chan.texas.misc.ObjectPool;
 import me.chan.texas.misc.RectF;
@@ -32,6 +31,7 @@ import me.chan.texas.text.layout.Span;
 import me.chan.texas.text.layout.Layout;
 import me.chan.texas.text.layout.Line;
 import me.chan.texas.text.layout.TextSpan;
+import me.chan.texas.utils.IntSet;
 
 /**
  * 文本选中区域
@@ -42,7 +42,7 @@ public class ParagraphSelection extends DefaultRecyclable {
 
 	private InternalSelectionStyle mStyle;
 	private int mId;
-	private final BitBucket mSet = new BitBucket(128);
+	private final IntSet mSet = new IntSet(128);
 	private final RectDrawable mDrawable = new RectDrawable();
 	private Selection.Type mType;
 
@@ -79,7 +79,7 @@ public class ParagraphSelection extends DefaultRecyclable {
 
 	@RestrictTo(LIBRARY)
 	public void prependSpan(Span span) {
-		mSet.set(span.getSeq(), true);
+		mSet.add(span.getSeq());
 
 
 		if (mLast == null) {
@@ -101,7 +101,7 @@ public class ParagraphSelection extends DefaultRecyclable {
 
 	@RestrictTo(LIBRARY)
 	public void appendSpan(Span span) {
-		mSet.set(span.getSeq(), true);
+		mSet.contains(span.getSeq());
 
 		if (mFirst == null) {
 			mFirst = span;
@@ -237,7 +237,7 @@ public class ParagraphSelection extends DefaultRecyclable {
 
 	@RestrictTo(LIBRARY)
 	public boolean isSelected(Span span) {
-		return mSet.get(span.getSeq());
+		return mSet.contains(span.getSeq());
 	}
 
 	public void clear() {
