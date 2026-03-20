@@ -1062,7 +1062,26 @@ public final class TexasView extends FrameLayout {
 
 	public abstract static class SegmentAnimator {
 
-		public Animator createAddAnimator(@NonNull Segment segment, @NonNull View view) {
+		/**
+		 * Called immediately in {@code animateAdd()} before the view is first drawn,
+		 * to set the initial animation state (e.g. translationY, alpha) so the view
+		 * doesn't flash at its final position before the add animation starts.
+		 */
+		public final void prepareAddAnimation(@NonNull Segment segment, @NonNull View view) {
+			onPrepareAddAnimation(segment, view);
+		}
+
+		/**
+		 * Override to set the view's initial state before the add animation runs.
+		 * For example, {@code view.setTranslationY(-view.getHeight())} for a top-to-bottom entrance.
+		 *
+		 * @param segment segment
+		 * @param view    root view
+		 */
+		protected void onPrepareAddAnimation(@NonNull Segment segment, @NonNull View view) {
+		}
+
+		public final Animator createAddAnimator(@NonNull Segment segment, @NonNull View view) {
 			return onCreateAddAnimator(segment, view);
 		}
 
@@ -1074,7 +1093,7 @@ public final class TexasView extends FrameLayout {
 		@Nullable
 		protected abstract Animator onCreateAddAnimator(@NonNull Segment segment, @NonNull View view);
 
-		public Animator createRemoveAnimator(@NonNull Segment segment, @NonNull View view) {
+		public final Animator createRemoveAnimator(@NonNull Segment segment, @NonNull View view) {
 			return onCreateRemoveAnimator(segment, view);
 		}
 
@@ -1086,7 +1105,7 @@ public final class TexasView extends FrameLayout {
 		@Nullable
 		protected abstract Animator onCreateRemoveAnimator(@NonNull Segment segment, @NonNull View view);
 
-		public Animator createMoveAnimator(@NonNull Segment segment, @NonNull View view, int fromX, int fromY, int toX, int toY) {
+		public final Animator createMoveAnimator(@NonNull Segment segment, @NonNull View view, int fromX, int fromY, int toX, int toY) {
 			return onCreateMoveAnimator(segment, view, fromX, fromY, toX, toY);
 		}
 

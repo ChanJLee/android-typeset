@@ -179,6 +179,13 @@ class DefaultItemAnimator extends SimpleItemAnimator {
 	@Override
 	public boolean animateAdd(final RecyclerView.ViewHolder holder) {
 		resetAnimation(holder);
+		if (mSegmentItemAnimator != null) {
+			final View view = holder.itemView;
+			Segment segment = (Segment) view.getTag(R.id.me_chan_texas_item_tag);
+			if (segment != null) {
+				mSegmentItemAnimator.prepareAddAnimation(segment, view);
+			}
+		}
 		mPendingAdditions.add(holder);
 		return true;
 	}
@@ -263,6 +270,8 @@ class DefaultItemAnimator extends SimpleItemAnimator {
 		}
 		if (mPendingAdditions.remove(item)) {
 			view.setAlpha(1);
+			view.setTranslationX(0);
+			view.setTranslationY(0);
 			dispatchAddFinished(item);
 		}
 
@@ -293,6 +302,8 @@ class DefaultItemAnimator extends SimpleItemAnimator {
 			ArrayList<RecyclerView.ViewHolder> additions = mAdditionsList.get(i);
 			if (additions.remove(item)) {
 				view.setAlpha(1);
+				view.setTranslationX(0);
+				view.setTranslationY(0);
 				dispatchAddFinished(item);
 				if (additions.isEmpty()) {
 					mAdditionsList.remove(i);
@@ -323,6 +334,8 @@ class DefaultItemAnimator extends SimpleItemAnimator {
 		for (int i = count - 1; i >= 0; i--) {
 			RecyclerView.ViewHolder item = mPendingAdditions.get(i);
 			item.itemView.setAlpha(1);
+			item.itemView.setTranslationX(0);
+			item.itemView.setTranslationY(0);
 			dispatchAddFinished(item);
 			mPendingAdditions.remove(i);
 		}
@@ -360,6 +373,8 @@ class DefaultItemAnimator extends SimpleItemAnimator {
 				RecyclerView.ViewHolder item = additions.get(j);
 				View view = item.itemView;
 				view.setAlpha(1);
+				view.setTranslationX(0);
+				view.setTranslationY(0);
 				dispatchAddFinished(item);
 				additions.remove(j);
 				if (additions.isEmpty()) {
@@ -434,6 +449,9 @@ class DefaultItemAnimator extends SimpleItemAnimator {
 		}
 
 		if (animator == null) {
+			view.setAlpha(1);
+			view.setTranslationX(0);
+			view.setTranslationY(0);
 			dispatchAddStarting(holder);
 			dispatchAddFinished(holder);
 			mAddAnimations.remove(holder);
@@ -448,6 +466,8 @@ class DefaultItemAnimator extends SimpleItemAnimator {
 				@Override
 				public void onAnimationCancel(Animator animator) {
 					view.setAlpha(1);
+					view.setTranslationX(0);
+					view.setTranslationY(0);
 				}
 
 				@Override
