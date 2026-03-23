@@ -870,12 +870,8 @@ public final class Paragraph extends Segment {
 		for (int i = start; i < end; ++i) {
 			copy.mElements.add(mElements.get(i));
 		}
-		copy.mTagsKv = mTagsKv;
+		copy.mTagsKv = copyKv(mTagsKv);
 		copy.mDecor = mDecor;
-
-		// todo
-		// 1. update Selection
-		// 2. update SelectionBackground
 
 		copy.mSelection = copyParagraphSelection(mSelection, copy);
 		copy.mHighlight = copyParagraphSelection(mHighlight, copy);
@@ -884,6 +880,18 @@ public final class Paragraph extends Segment {
 		Layout copyLayout = copy.getLayout();
 		copyLayout.getAdvise().copy(getLayout().getAdvise());
 
+		return copy;
+	}
+
+	private SparseArrayCompat<Object> copyKv(SparseArrayCompat<Object> kv) {
+		if (kv == null) {
+			return null;
+		}
+
+		SparseArrayCompat<Object> copy = new SparseArrayCompat<>();
+		for (int i = 0; i < kv.size(); ++i) {
+			copy.put(kv.keyAt(i), kv.valueAt(i));
+		}
 		return copy;
 	}
 
