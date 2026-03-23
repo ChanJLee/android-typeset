@@ -2,6 +2,7 @@ package me.chan.texas.text;
 
 import me.chan.texas.R;
 import me.chan.texas.Texas;
+import me.chan.texas.compat.Predicate;
 import me.chan.texas.renderer.selection.ParagraphSelection;
 import me.chan.texas.renderer.selection.Selection;
 import me.chan.texas.renderer.selection.SelectionProvider;
@@ -242,6 +243,10 @@ public final class Document {
 
 		public int indexOfSegment(Segment segment) {
 			return mSegments.get().indexOf(segment);
+		}
+
+		public void removeIf(Predicate<Segment> predicate) {
+			mSegments.get().removeIf(predicate::test);
 		}
 
 		private Selection updateSelection(@Nullable Selection selection) {
