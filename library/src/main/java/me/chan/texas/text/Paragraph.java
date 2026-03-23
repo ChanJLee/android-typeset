@@ -705,7 +705,7 @@ public final class Paragraph extends Segment {
 		 * @param tag 用来标识这个span，因此需要保持唯一
 		 * @return 当前对象
 		 */
-		public SpanStyles tag(Object tag) {
+		public SpanStyles setTag(Object tag) {
 			mTag = tag;
 			return this;
 		}
@@ -784,22 +784,18 @@ public final class Paragraph extends Segment {
 			return String.valueOf(mText.subSequence(mStart, mEnd));
 		}
 
-		@VisibleForTesting
 		public TextStyle getTextStyle() {
 			return mStyles.getTextStyle();
 		}
 
-		@VisibleForTesting
 		public Appearance getBackground() {
 			return mStyles.getBackground();
 		}
 
-		@VisibleForTesting
 		public Appearance getForeground() {
 			return mStyles.getForeground();
 		}
 
-		@VisibleForTesting
 		public Object getTag() {
 			return mTag;
 		}

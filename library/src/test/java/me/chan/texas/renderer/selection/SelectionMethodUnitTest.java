@@ -78,14 +78,14 @@ public class SelectionMethodUnitTest {
 		List<Segment> list = new ArrayList<>();
 		list.add(Paragraph.Builder.newBuilder(texasOption).tag("p1")
 				.stream("1 2 3 4 5 6 7 8 9", token -> Paragraph.SpanStyles.obtain(token)
-						.tag(token.getCharSequence().subSequence(token.getStart(), token.getEnd()).toString())).build());
+						.setTag(token.getCharSequence().subSequence(token.getStart(), token.getEnd()).toString())).build());
 		list.add(Paragraph.Builder.newBuilder(texasOption).tag("p2").stream("a b c d e f g h i", token ->
-				Paragraph.SpanStyles.obtain(token).tag(token.getCharSequence().subSequence(token.getStart(), token.getEnd()).toString())).build());
+				Paragraph.SpanStyles.obtain(token).setTag(token.getCharSequence().subSequence(token.getStart(), token.getEnd()).toString())).build());
 		list.add(Paragraph.Builder.newBuilder(texasOption).setTypesetPolicy(Paragraph.TYPESET_POLICY_DEFAULT).tag("p3").stream("一 二 三 四 五 六 七 八 九", token -> Paragraph.SpanStyles.obtain(token)
-				.tag(token.getCharSequence().subSequence(token.getStart(), token.getEnd()).toString())).build());
+				.setTag(token.getCharSequence().subSequence(token.getStart(), token.getEnd()).toString())).build());
 		MySelectableSegment mySelectableSegment = new MySelectableSegment(Paragraph.Builder.newBuilder(texasOption).tag("ss")
 				.stream("1 2 3 4 5 6 7 8 9", token -> Paragraph.SpanStyles.obtain(token)
-						.tag(token.getCharSequence().subSequence(token.getStart(), token.getEnd()).toString())).build());
+						.setTag(token.getCharSequence().subSequence(token.getStart(), token.getEnd()).toString())).build());
 		list.add(mySelectableSegment);
 		builder.addSegments(0, list);
 		mDocument = builder.build();

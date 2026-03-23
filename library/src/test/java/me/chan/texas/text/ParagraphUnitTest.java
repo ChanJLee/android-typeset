@@ -99,7 +99,7 @@ public class ParagraphUnitTest {
 		RectGround background = new RectGround(10);
 		DotUnderLine dotUnderLine = new DotUnderLine(10);
 		String tag = "msg";
-		Paragraph.SpanStyles span = Paragraph.SpanStyles.obtain(tag, 0, tag.length()).setBackground(background).setForeground(dotUnderLine).tag(tag).setTextStyle(TextStyle.BOLD);
+		Paragraph.SpanStyles span = Paragraph.SpanStyles.obtain(tag, 0, tag.length()).setBackground(background).setForeground(dotUnderLine).setTag(tag).setTextStyle(TextStyle.BOLD);
 		Assert.assertSame(span.getTag(), tag);
 		Assert.assertSame(span.getBackground(), background);
 		Assert.assertSame(span.getForeground(), dotUnderLine);
@@ -116,7 +116,7 @@ public class ParagraphUnitTest {
 		background = new RectGround(10);
 		dotUnderLine = new DotUnderLine(10);
 		Object object = "fuck";
-		span = Paragraph.SpanStyles.obtain(tag, 0, tag.length() - 1).setBackground(background).setForeground(dotUnderLine).tag(object).setTextStyle(TextStyle.BOLD_ITALIC);
+		span = Paragraph.SpanStyles.obtain(tag, 0, tag.length() - 1).setBackground(background).setForeground(dotUnderLine).setTag(object).setTextStyle(TextStyle.BOLD_ITALIC);
 		Assert.assertSame(span1, span);
 		Assert.assertSame(span.getTag(), object);
 		Assert.assertSame(span.getBackground(), background);
@@ -301,7 +301,7 @@ public class ParagraphUnitTest {
 
 		mIndex = 0;
 		String msg = "bite-size";
-		builder.stream(msg, 0, msg.length(), token -> Paragraph.SpanStyles.obtain(msg, token.getStart(), token.getEnd()).tag("fuck"));
+		builder.stream(msg, 0, msg.length(), token -> Paragraph.SpanStyles.obtain(msg, token.getStart(), token.getEnd()).setTag("fuck"));
 
 		boolean found = false;
 		Paragraph paragraph = builder.build();
@@ -1276,7 +1276,7 @@ public class ParagraphUnitTest {
 			@Override
 			public Paragraph.SpanStyles read(Token token) {
 				return Paragraph.SpanStyles.obtain(token)
-						.tag(expectedTag)
+						.setTag(expectedTag)
 						.setTextStyle(expectedTextStyle)
 						.setBackground(expectedBackground)
 						.setForeground(expectedForeground);
