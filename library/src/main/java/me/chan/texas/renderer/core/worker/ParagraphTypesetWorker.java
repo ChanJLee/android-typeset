@@ -7,6 +7,7 @@ import androidx.annotation.VisibleForTesting;
 
 import me.chan.texas.misc.DefaultRecyclable;
 import me.chan.texas.misc.ObjectPool;
+import me.chan.texas.renderer.RenderOption;
 import me.chan.texas.text.BreakStrategy;
 import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.layout.Layout;
@@ -32,11 +33,11 @@ public class ParagraphTypesetWorker {
 		Layout.Advise advise = layout.getAdvise();
 		BreakStrategy breakStrategy = advise.getBreakStrategy();
 		if (args.desired) {
-			if (!mTypesetter.desire(paragraph, breakStrategy)) {
+			if (!mTypesetter.desire(paragraph, breakStrategy, args.option)) {
 				throw new RuntimeException("desire failed");
 			}
 		} else {
-			if (!mTypesetter.typeset(paragraph, breakStrategy, args.width)) {
+			if (!mTypesetter.typeset(paragraph, breakStrategy, args.option, args.width)) {
 				throw new RuntimeException("typeset failed");
 			}
 		}
@@ -53,12 +54,12 @@ public class ParagraphTypesetWorker {
 	 * @param paragraph 段落
 	 * @return true表示成功
 	 */
-	public boolean desire(@NonNull Paragraph paragraph, int expectedWidth) {
+	public boolean desire(@NonNull Paragraph paragraph, @NonNull RenderOption option, int expectedWidth) {
 		if (!paragraph.hasContent()) {
 			return false;
 		}
 
-		ParagraphTypesetWorker.Args args = ParagraphTypesetWorker.Args.obtain(paragraph, expectedWidth);
+		ParagraphTypesetWorker.Args args = ParagraphTypesetWorker.Args.obtain(paragraph, option, expectedWidth);
 		try {
 			typeset(args);
 		} catch (Throwable e) {
@@ -73,12 +74,12 @@ public class ParagraphTypesetWorker {
 	 * @param paragraph 段落
 	 * @return true表示成功
 	 */
-	public boolean desire(@NonNull Paragraph paragraph) {
+	public boolean desire(@NonNull Paragraph paragraph, @NonNull RenderOption option) {
 		if (!paragraph.hasContent()) {
 			return false;
 		}
 
-		ParagraphTypesetWorker.Args args = ParagraphTypesetWorker.Args.desire(paragraph);
+		ParagraphTypesetWorker.Args args = ParagraphTypesetWorker.Args.desire(paragraph, option);
 		try {
 			typeset(args);
 		} catch (Throwable e) {
@@ -90,6 +91,7 @@ public class ParagraphTypesetWorker {
 	public static class Args extends DefaultRecyclable {
 		private static final ObjectPool<Args> POOL = new ObjectPool<>(32);
 		private Paragraph paragraph;
+		private RenderOption option;
 		private int width;
 		private boolean desired;
 
@@ -101,10 +103,12 @@ public class ParagraphTypesetWorker {
 			paragraph = null;
 			width = 0;
 			desired = false;
+			option = null;
 			POOL.release(this);
 		}
 
 		public static Args obtain(@NonNull Paragraph paragraph,
+								  @NonNull RenderOption option,
 								  @IntRange(from = 1) int width) {
 			Args args = POOL.acquire();
 			if (args == null) {
@@ -114,17 +118,19 @@ public class ParagraphTypesetWorker {
 			args.paragraph = paragraph;
 			args.width = width;
 			args.desired = false;
+			args.option = option;
 			args.reuse();
 			return args;
 		}
 
-		public static Args desire(@NonNull Paragraph paragraph) {
+		public static Args desire(@NonNull Paragraph paragraph, @NonNull RenderOption option) {
 			Args args = POOL.acquire();
 			if (args == null) {
 				args = new Args();
 			}
 
 			args.paragraph = paragraph;
+			args.option = option;
 			args.width = AbsParagraphTypesetter.INFINITY_WIDTH;
 			args.desired = true;
 			args.reuse();

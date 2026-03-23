@@ -57,6 +57,11 @@ public class Selection extends DefaultRecyclable {
 		return paragraph.getSelection(mType);
 	}
 
+	@RestrictTo(RestrictTo.Scope.LIBRARY)
+	public TexasRecyclerView getContainer() {
+		return mContainer;
+	}
+
 	public Type getType() {
 		return mType;
 	}

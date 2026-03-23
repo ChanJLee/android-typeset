@@ -45,6 +45,7 @@ public class ParagraphSelection extends DefaultRecyclable {
 	private final IntSet mSet = new IntSet(128);
 	private final RectDrawable mDrawable = new RectDrawable();
 	private Selection.Type mType;
+	private boolean mBackgroundInvalid = false;
 
 	private Paragraph mParagraph;
 
@@ -162,7 +163,18 @@ public class ParagraphSelection extends DefaultRecyclable {
 		mParagraph = null;
 		mFirst = mLast = null;
 		mType = null;
+		mBackgroundInvalid = false;
 		POOL.release(this);
+	}
+
+	@RestrictTo(LIBRARY)
+	public boolean isBackgroundInvalid() {
+		return mBackgroundInvalid;
+	}
+
+	@RestrictTo(LIBRARY)
+	public void setBackgroundInvalid(boolean backgroundInvalid) {
+		mBackgroundInvalid = backgroundInvalid;
 	}
 
 	/**

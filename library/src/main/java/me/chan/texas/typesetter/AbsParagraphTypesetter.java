@@ -6,6 +6,10 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 
 import me.chan.texas.misc.RectF;
+import me.chan.texas.renderer.RenderOption;
+import me.chan.texas.renderer.selection.ParagraphSelection;
+import me.chan.texas.renderer.selection.Selection;
+import me.chan.texas.renderer.selection.visitor.RebuildBackgroundSelectedVisitor;
 import me.chan.texas.text.BreakStrategy;
 import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.TextGravity;
@@ -22,7 +26,7 @@ public abstract class AbsParagraphTypesetter {
 	public static final boolean DEBUG = false;
 	public static final int INFINITY_WIDTH = Integer.MAX_VALUE;
 
-	public final boolean typeset(Paragraph paragraph, BreakStrategy breakStrategy, int lineWidth, boolean desire) {
+	public final boolean typeset(Paragraph paragraph, BreakStrategy breakStrategy, RenderOption renderOption, int lineWidth, boolean desire) {
 		if (DEBUG) {
 			for (int i = 0; i < paragraph.getElementCount(); ++i) {
 				Element element = paragraph.getElement(i);
@@ -44,12 +48,47 @@ public abstract class AbsParagraphTypesetter {
 		}
 
 		buildLayoutBounds(paragraph, lineWidth);
+		updateSelectionBackground(paragraph, renderOption);
 		return true;
 	}
 
+	private static void updateSelectionBackground(Paragraph paragraph, RenderOption renderOption) {
+		ParagraphSelection selection = paragraph.getSelection(Selection.Type.SELECTION);
+		ParagraphSelection highlight = paragraph.getSelection(Selection.Type.HIGHLIGHT);
+
+		if (isSelectionBackgroundValid(selection) && isSelectionBackgroundValid(highlight)) {
+			return;
+		}
+
+		RebuildBackgroundSelectedVisitor visitor = new RebuildBackgroundSelectedVisitor();
+		if (!isSelectionBackgroundValid(selection)) {
+			rebuildBackgroundSelected(selection, visitor, renderOption);
+		}
+
+		if (!isSelectionBackgroundValid(highlight)) {
+			rebuildBackgroundSelected(highlight, visitor, renderOption);
+		}
+	}
+
+	private static void rebuildBackgroundSelected(ParagraphSelection selection, RebuildBackgroundSelectedVisitor visitor, RenderOption renderOption) {
+		try {
+			Paragraph paragraph = selection.getParagraph();
+			visitor.reset(selection.getType(), selection.getSelectionStyle(), paragraph, renderOption);
+			visitor.startVisit(paragraph);
+		} catch (Throwable e) {
+			/* TODO ? */
+		} finally {
+			visitor.clear();
+		}
+	}
+
+	private static boolean isSelectionBackgroundValid(ParagraphSelection selection) {
+		return selection == null || !selection.isBackgroundInvalid();
+	}
+
 	@VisibleForTesting
-	public final boolean typeset(Paragraph paragraph, BreakStrategy breakStrategy, int lineWidth) {
-		return typeset(paragraph, breakStrategy, lineWidth, false);
+	public final boolean typeset(Paragraph paragraph, BreakStrategy breakStrategy, RenderOption renderOption, int lineWidth) {
+		return typeset(paragraph, breakStrategy, renderOption, lineWidth, false);
 	}
 
 	private static int getDesiredWidth(Paragraph paragraph) {

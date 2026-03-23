@@ -876,8 +876,13 @@ public final class Paragraph extends Segment {
 		}
 		copy.mTagsKv = mTagsKv;
 		copy.mDecor = mDecor;
-		copy.mSelection = mSelection;
-		copy.mHighlight = mHighlight;
+
+		// todo
+		// 1. update Selection
+		// 2. update SelectionBackground
+
+		copy.mSelection = copyParagraphSelection(mSelection, copy);
+		copy.mHighlight = copyParagraphSelection(mHighlight, copy);
 		copy.fillTail();
 
 		Layout copyLayout = copy.getLayout();
@@ -894,6 +899,21 @@ public final class Paragraph extends Segment {
 
 		mElements.add(Glue.TERMINAL);
 		mElements.add(Penalty.FORCE_BREAK);
+	}
+
+	private ParagraphSelection copyParagraphSelection(ParagraphSelection selection, Paragraph paragraph) {
+		ParagraphSelection copy = ParagraphSelection.obtain(selection.getType(), selection.getSelectionStyle(), paragraph);
+		for (int i = 0; i < paragraph.getElementCount(); ++i) {
+			Element element = paragraph.getElement(i);
+			if (element instanceof Span) {
+				Span span = (Span) element;
+				if (selection.isSelected(span)) {
+					copy.appendSpan(span);
+				}
+			}
+		}
+		copy.setBackgroundInvalid(true);
+		return copy;
 	}
 
 	@NonNull

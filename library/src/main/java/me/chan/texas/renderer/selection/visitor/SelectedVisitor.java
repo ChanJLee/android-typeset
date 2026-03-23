@@ -38,8 +38,12 @@ public abstract class SelectedVisitor extends ParagraphVisitor {
 			throw new IllegalStateException("missing call clear before reuse visitor?");
 		}
 		mType = type;
-		mSelection = ParagraphSelection.obtain(type, styles, paragraph);
+		mSelection = onCreateSelection(type, styles, paragraph);
 		mRenderOption = renderOption;
+	}
+
+	protected ParagraphSelection onCreateSelection(Selection.Type type, Selection.Styles styles, Paragraph paragraph) {
+		return ParagraphSelection.obtain(type, styles, paragraph);
 	}
 
 	@Override
@@ -61,7 +65,7 @@ public abstract class SelectedVisitor extends ParagraphVisitor {
 		} else {
 			paragraph.setSelection(mType, mSelection);
 		}
-		if (prev != null) {
+		if (prev != null && prev != mSelection) {
 			prev.recycle();
 		}
 	}
