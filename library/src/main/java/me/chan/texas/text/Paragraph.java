@@ -902,6 +902,10 @@ public final class Paragraph extends Segment {
 	}
 
 	private ParagraphSelection copyParagraphSelection(ParagraphSelection selection, Paragraph paragraph) {
+		if (selection == null) {
+			return null;
+		}
+
 		ParagraphSelection copy = ParagraphSelection.obtain(selection.getType(), selection.getSelectionStyle(), paragraph);
 		for (int i = 0; i < paragraph.getElementCount(); ++i) {
 			Element element = paragraph.getElement(i);
