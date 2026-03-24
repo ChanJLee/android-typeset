@@ -828,14 +828,14 @@ public final class Paragraph extends Segment {
 			Span span = (Span) element;
 			if (predicate.test(span)) {
 				end = adjustSpiltIndex(span, end + 1);
-				paragraphs.add(fork(start, end));
+				paragraphs.add(fork(this, start, end));
 				start = end;
 				--end;
 			}
 		}
 
 		if (start < end && end <= mElements.size()) {
-			paragraphs.add(fork(start, end));
+			paragraphs.add(fork(this, start, end));
 		}
 
 		return paragraphs;
@@ -865,25 +865,25 @@ public final class Paragraph extends Segment {
 		return end;
 	}
 
-	private Paragraph fork(int start, int end) {
+	private static Paragraph fork(Paragraph src, int start, int end) {
 		Paragraph copy = new Paragraph(null);
 		for (int i = start; i < end; ++i) {
-			copy.mElements.add(mElements.get(i));
+			copy.mElements.add(src.mElements.get(i));
 		}
-		copy.mTagsKv = copyKv(mTagsKv);
-		copy.mDecor = mDecor;
+		copy.mTagsKv = copyKv(src.mTagsKv);
+		copy.mDecor = src.mDecor;
 
-		copy.mSelection = copyParagraphSelection(mSelection, copy);
-		copy.mHighlight = copyParagraphSelection(mHighlight, copy);
+		copy.mSelection = copyParagraphSelection(src.mSelection, copy);
+		copy.mHighlight = copyParagraphSelection(src.mHighlight, copy);
 		copy.fillTail();
 
 		Layout copyLayout = copy.getLayout();
-		copyLayout.getAdvise().copy(getLayout().getAdvise());
+		copyLayout.getAdvise().copy(src.getLayout().getAdvise());
 
 		return copy;
 	}
 
-	private SparseArrayCompat<Object> copyKv(SparseArrayCompat<Object> kv) {
+	private static SparseArrayCompat<Object> copyKv(SparseArrayCompat<Object> kv) {
 		if (kv == null) {
 			return null;
 		}
@@ -905,7 +905,7 @@ public final class Paragraph extends Segment {
 		mElements.add(Penalty.FORCE_BREAK);
 	}
 
-	private ParagraphSelection copyParagraphSelection(ParagraphSelection selection, Paragraph paragraph) {
+	private static ParagraphSelection copyParagraphSelection(ParagraphSelection selection, Paragraph paragraph) {
 		if (selection == null) {
 			return null;
 		}
@@ -941,5 +941,11 @@ public final class Paragraph extends Segment {
 			digest = builder.toString();
 		}
 		return digest;
+	}
+
+	public Paragraph concat(Paragraph other) {
+		Paragraph copy = fork(this, 0, mElements.size());
+		copy.strip();
+
 	}
 }
