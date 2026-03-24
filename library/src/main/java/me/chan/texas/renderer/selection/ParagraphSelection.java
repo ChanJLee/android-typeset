@@ -102,7 +102,7 @@ public class ParagraphSelection extends DefaultRecyclable {
 
 	@RestrictTo(LIBRARY)
 	public void appendSpan(Span span) {
-		mSet.contains(span.getSeq());
+		mSet.add(span.getSeq());
 
 		if (mFirst == null) {
 			mFirst = span;
