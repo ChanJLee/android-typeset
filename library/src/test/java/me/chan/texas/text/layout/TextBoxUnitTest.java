@@ -488,7 +488,7 @@ public class TextBoxUnitTest {
 
 		ParagraphTypesetter texTypesetter = new ParagraphTypesetter();
 		paragraph.measure(measurer, textAttribute);
-		texTypesetter.typeset(paragraph, BreakStrategy.BALANCED, 100);
+		texTypesetter.typeset(paragraph, BreakStrategy.BALANCED, new RenderOption(), 100);
 
 		Layout layout = paragraph.getLayout();
 		Assert.assertEquals(1, layout.getLineCount());

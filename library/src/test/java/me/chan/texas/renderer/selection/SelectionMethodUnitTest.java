@@ -100,7 +100,7 @@ public class SelectionMethodUnitTest {
 
 			Paragraph paragraph = (Paragraph) segment;
 			paragraph.measure(measurer, textAttribute);
-			texTypesetter.typeset(paragraph, BreakStrategy.SIMPLE, 5);
+			texTypesetter.typeset(paragraph, BreakStrategy.SIMPLE, new RenderOption(), 5);
 			assertNotNull(paragraph);
 			Layout layout = paragraph.getLayout();
 			Assert.assertEquals(layout.getLineCount(), 3);
@@ -116,7 +116,7 @@ public class SelectionMethodUnitTest {
 			for (int j = 0; j < s.size(); ++j) {
 				Paragraph paragraph = s.getParagraph(j);
 				paragraph.measure(measurer, textAttribute);
-				texTypesetter.typeset(paragraph, BreakStrategy.SIMPLE, 5);
+				texTypesetter.typeset(paragraph, BreakStrategy.SIMPLE, new RenderOption(), 5);
 				assertNotNull(paragraph);
 				Layout layout = paragraph.getLayout();
 				Assert.assertEquals(layout.getLineCount(), 3);
@@ -800,7 +800,7 @@ public class SelectionMethodUnitTest {
 	private class MySelectionListener implements SelectionMethodImpl.Listener {
 
 		private SelectionEvent mEvent = SelectionEvent.NONE;
-		
+
 
 		@Override
 		public void onSpanClicked(Paragraph paragraph, TouchEvent event, Span span) {

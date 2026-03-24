@@ -23,7 +23,7 @@ public class IntSet {
 
 	public boolean add(int v) {
 		int index = find(v);
-		if (index > 0 && index < mSize) {
+		if (index >= 0 && index < mSize) {
 			return false;
 		}
 

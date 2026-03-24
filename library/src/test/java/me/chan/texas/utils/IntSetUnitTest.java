@@ -48,6 +48,23 @@ public class IntSetUnitTest {
 		Assert.assertEquals(3, set.size());
 		cmp(new int[]{1, 2, 7}, set.getBuckets(), set.size());
 
+		// 添加已存在的最小元素（index == 0），验证 bug 修复
+		Assert.assertFalse(set.add(1));
+		Assert.assertEquals(3, set.size());
+		cmp(new int[]{1, 2, 7}, set.getBuckets(), set.size());
+
+		// 添加已存在的中间元素
+		Assert.assertFalse(set.add(2));
+		Assert.assertEquals(3, set.size());
+
+		// 添加已存在的最大元素（index == mSize - 1）
+		Assert.assertFalse(set.add(7));
+		Assert.assertEquals(3, set.size());
+
+		Assert.assertTrue(set.contains(1));
+		Assert.assertTrue(set.contains(2));
+		Assert.assertFalse(set.contains(5));
+
 		set.clear();
 		Assert.assertEquals(0, set.size());
 		Assert.assertTrue(set.isEmpty());

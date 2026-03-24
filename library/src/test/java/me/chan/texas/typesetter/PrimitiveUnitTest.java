@@ -271,7 +271,7 @@ public class PrimitiveUnitTest {
 
 	private static void checkContent(Measurer measurer, TextAttribute textAttribute, Paragraph paragraph, int width, AbsParagraphTypesetter typesetter, BreakStrategy breakStrategy, String... lines) {
 		paragraph.measure(measurer, textAttribute);
-		typesetter.typeset(paragraph, breakStrategy, width);
+		typesetter.typeset(paragraph, breakStrategy, new RenderOption(), width);
 
 		Layout layout = paragraph.getLayout();
 		Assert.assertEquals(lines.length, layout.getLineCount());
@@ -307,7 +307,7 @@ public class PrimitiveUnitTest {
 
 		ParagraphTypesetter texTypesetter = new ParagraphTypesetter();
 		paragraph.measure(measurer, textAttribute);
-		texTypesetter.typeset(paragraph, BreakStrategy.SIMPLE, 5);
+		texTypesetter.typeset(paragraph, BreakStrategy.SIMPLE, new RenderOption(), 5);
 
 		Layout layout = paragraph.getLayout();
 		Assert.assertEquals(2, layout.getLineCount());
