@@ -296,7 +296,8 @@ public class PrimitiveUnitTest {
 
 	private static void checkContent(Measurer measurer, TextAttribute textAttribute, Paragraph paragraph, int width, AbsParagraphTypesetter typesetter, BreakStrategy breakStrategy, String... lines) {
 		paragraph.measure(measurer, textAttribute);
-		typesetter.typeset(paragraph, breakStrategy, new RenderOption(), width, 1);
+		Measurer.CharSequenceSpec spec = measurer.getBaseSpec();
+		typesetter.typeset(paragraph, breakStrategy, new RenderOption(), width, spec.getHeight());
 
 		Layout layout = paragraph.getLayout();
 		Assert.assertEquals(lines.length, layout.getLineCount());
@@ -304,7 +305,7 @@ public class PrimitiveUnitTest {
 			Line line = layout.getLine(i);
 			String lineContent = line.toString();
 			Assert.assertEquals(lines[i], lineContent);
-			Assert.assertEquals(1, layout.getHeight(), 0.1f);
+			Assert.assertEquals(spec.getHeight(), line.getLineHeight(), 0.1f);
 		}
 
 		BoundCheckDrawer boundCheckDrawer = new BoundCheckDrawer(width, true);

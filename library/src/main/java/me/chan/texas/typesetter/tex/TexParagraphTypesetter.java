@@ -182,7 +182,7 @@ public class TexParagraphTypesetter extends AbsParagraphTypesetter {
 			}
 
 			Line line = createLine(stream, ElementStream.index2State(lineEnd), breakStrategy, lineWidth, lineHeight);
-			if (line == null || line.isEmpty()) {
+			if (line == null) {
 				break;
 			}
 

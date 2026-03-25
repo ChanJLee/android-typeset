@@ -282,9 +282,6 @@ public class Line extends DefaultRecyclable {
 		public Line build(BreakStrategy breakStrategy, float lineWidth, float lineHeight) {
 			// strip blank
 			strip(mElements);
-			if (mElements.isEmpty()) {
-				return mLine;
-			}
 
 			// 添加 -
 			appendIfSuffix(mElements, mLastTextElement);
