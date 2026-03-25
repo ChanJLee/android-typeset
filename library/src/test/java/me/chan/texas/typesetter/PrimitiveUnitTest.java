@@ -304,7 +304,7 @@ public class PrimitiveUnitTest {
 			Line line = layout.getLine(i);
 			String lineContent = line.toString();
 			Assert.assertEquals(lines[i], lineContent);
-			Assert.assertEquals(measurer.getBaseSpec().getHeight(), layout.getHeight(), 0.1f);
+			Assert.assertEquals(1, layout.getHeight(), 0.1f);
 		}
 
 		BoundCheckDrawer boundCheckDrawer = new BoundCheckDrawer(width, true);

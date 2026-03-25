@@ -41,7 +41,7 @@ public class LayoutUnitTest {
 
 		ParagraphTypesetter texTypesetter = new ParagraphTypesetter();
 		paragraph.measure(measurer, textAttribute);
-		texTypesetter.typeset(paragraph, BreakStrategy.SIMPLE, new RenderOption(), 10);
+		texTypesetter.typeset(paragraph, BreakStrategy.SIMPLE, new RenderOption(), 10, 1);
 
 		Layout layout = paragraph.getLayout();
 		RectF bounds = layout.getLine(0).getBounds();
@@ -59,7 +59,7 @@ public class LayoutUnitTest {
 
 		texTypesetter = new ParagraphTypesetter();
 		paragraph.measure(measurer, textAttribute);
-		texTypesetter.typeset(paragraph, BreakStrategy.SIMPLE, new RenderOption(), 10);
+		texTypesetter.typeset(paragraph, BreakStrategy.SIMPLE, new RenderOption(), 10, 1);
 
 		bounds = new RectF();
 		layout = paragraph.getLayout();
@@ -77,7 +77,7 @@ public class LayoutUnitTest {
 
 		texTypesetter = new ParagraphTypesetter();
 		paragraph.measure(measurer, textAttribute);
-		texTypesetter.typeset(paragraph, BreakStrategy.SIMPLE, new RenderOption(), 10);
+		texTypesetter.typeset(paragraph, BreakStrategy.SIMPLE, new RenderOption(), 10, 1);
 
 		layout = paragraph.getLayout();
 		bounds = layout.getLine(0).getBounds();

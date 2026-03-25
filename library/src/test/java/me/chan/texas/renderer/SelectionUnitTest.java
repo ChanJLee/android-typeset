@@ -61,7 +61,7 @@ public class SelectionUnitTest {
 		ParagraphTypesetter texTypesetter = new ParagraphTypesetter();
 		Paragraph paragraph = builder.build();
 		paragraph.measure(mMeasurer, mTextAttribute);
-		texTypesetter.typeset(paragraph, BreakStrategy.SIMPLE, new RenderOption(), 10);
+		texTypesetter.typeset(paragraph, BreakStrategy.SIMPLE, new RenderOption(), 10, 1);
 
 		ParagraphSelection paragraphSelection = ParagraphSelection.obtain(Selection.Type.SELECTION, Selection.Styles.createFromTouch(renderOption, true), paragraph);
 

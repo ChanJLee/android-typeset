@@ -1345,7 +1345,7 @@ public class ParagraphUnitTest {
 		ParagraphTypesetter texTypesetter = new ParagraphTypesetter();
 
 		paragraph.measure(measurer, new TextAttribute(measurer));
-		texTypesetter.typeset(paragraph, BreakStrategy.SIMPLE, new RenderOption(), 10);
+		texTypesetter.typeset(paragraph, BreakStrategy.SIMPLE, new RenderOption(), 10, 1);
 
 		Layout layout = paragraph.getLayout();
 		Assert.assertEquals(3, layout.getLineCount());
@@ -1475,7 +1475,7 @@ public class ParagraphUnitTest {
 				.build();
 
 		paragraph.measure(measurer, new TextAttribute(measurer));
-		texTypesetter.typeset(paragraph, BreakStrategy.SIMPLE, new RenderOption(), 10);
+		texTypesetter.typeset(paragraph, BreakStrategy.SIMPLE, new RenderOption(), 10, 1);
 
 		layout = paragraph.getLayout();
 		Assert.assertEquals(1, layout.getLineCount());
