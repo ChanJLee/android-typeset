@@ -9,14 +9,14 @@ import me.chan.texas.text.layout.Span;
 public interface ParagraphPredicates {
 
 	/**
-	 * @param spanTag {@link me.chan.texas.text.Paragraph.SpanBuilder#tag(Object)}
+	 * @param span {@link me.chan.texas.text.Paragraph.SpanBuilder#tag(Object)}
 	 * @return 是否选中，这个函数必须是幂等的
 	 */
 	@Idempotent
 	boolean acceptSpan(@NonNull Span span);
 
 	/**
-	 * @param paragraphTag {@link me.chan.texas.text.Paragraph.Builder#tag(Object)}
+	 * @param paragraph {@link me.chan.texas.text.Paragraph.Builder#tag(Object)}
 	 * @return 是否选中，这个函数必须是幂等的
 	 */
 	@Idempotent

@@ -2,6 +2,7 @@ package me.chan.texas.typesetter.simple;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
+import androidx.annotation.FloatRange;
 import androidx.annotation.RestrictTo;
 
 import me.chan.texas.text.BreakStrategy;
@@ -22,13 +23,15 @@ public class SimpleParagraphTypesetter extends AbsParagraphTypesetter {
 
 	@Override
 	protected boolean onTypeset(Paragraph paragraph,
-						   BreakStrategy breakStrategy,
-						   int width) {
+								BreakStrategy breakStrategy,
+								float width,
+								@FloatRange(from = 1) float defaultLineHeight) {
 
 		return typeset0(
 				new ElementStream(paragraph),
 				breakStrategy,
 				width,
+				defaultLineHeight,
 				paragraph,
 				new IntStack()
 		);
@@ -36,7 +39,8 @@ public class SimpleParagraphTypesetter extends AbsParagraphTypesetter {
 
 	private boolean typeset0(ElementStream stream,
 							 BreakStrategy breakStrategy,
-							 int lineWidth,
+							 float lineWidth,
+							 float lineHeight,
 							 Paragraph paragraph,
 							 IntStack stack) {
 		Layout layout = Layout.obtain(paragraph.getLayout());
@@ -47,6 +51,7 @@ public class SimpleParagraphTypesetter extends AbsParagraphTypesetter {
 			typesetLine(stream,
 					breakStrategy,
 					lineWidth,
+					lineHeight,
 					layout,
 					stack
 			);
@@ -69,11 +74,12 @@ public class SimpleParagraphTypesetter extends AbsParagraphTypesetter {
 
 	private void typesetLine(ElementStream stream,
 							 BreakStrategy breakStrategy,
-							 int lineWidth,
+							 float lineWidth,
+							 float lineHeight,
 							 Layout layout,
 							 IntStack breaks) {
 		breaks.clear();
-		typesetLine0(stream, breakStrategy, lineWidth, layout, breaks);
+		typesetLine0(stream, breakStrategy, lineWidth, lineHeight, layout, breaks);
 	}
 
 	private void eat(ElementStream stream) {
@@ -84,12 +90,19 @@ public class SimpleParagraphTypesetter extends AbsParagraphTypesetter {
 				stream.restore(save);
 				break;
 			}
+
+			boolean isBrkSemantic = element == Glue.TERMINAL || element == Penalty.FORCE_BREAK;
+			if (isBrkSemantic && !stream.isUnderTerminalSemanticState()) {
+				stream.restore(save);
+				break;
+			}
 		}
 	}
 
 	private void typesetLine0(ElementStream stream,
 							  BreakStrategy breakStrategy,
-							  int lineWidth,
+							  float lineWidth,
+							  float lineHeight,
 							  Layout layout,
 							  IntStack breaks) {
 		// 保存现在的状态
@@ -119,7 +132,7 @@ public class SimpleParagraphTypesetter extends AbsParagraphTypesetter {
 		// 回退状态
 		stream.restore(beforeState);
 
-		typesetUnit(layout, stream, breaks.top(), breakStrategy, lineWidth);
+		typesetUnit(layout, stream, breaks.top(), breakStrategy, lineWidth, lineHeight);
 	}
 
 	private float tryTypesetUnit(ElementStream stream, IntStack breaks, float width) {
@@ -151,8 +164,8 @@ public class SimpleParagraphTypesetter extends AbsParagraphTypesetter {
 		assert penalty != null;
 
 		if (penalty == Penalty.FORCE_BREAK) {
-			breaks.push(save);
-			return 0;
+			breaks.push(stream.state());
+			return -1;
 		}
 
 		if (isDenotation(penalty)) {
@@ -265,12 +278,8 @@ public class SimpleParagraphTypesetter extends AbsParagraphTypesetter {
 	}
 
 	private void typesetUnit(Layout layout, ElementStream stream, int endState,
-							 BreakStrategy breakStrategy, int lineWidth) {
-		Line line = createLine(stream, endState, breakStrategy, lineWidth);
-		if (line.isEmpty()) {
-			return;
-		}
-
+							 BreakStrategy breakStrategy, float lineWidth, float lineHeight) {
+		Line line = createLine(stream, endState, breakStrategy, lineWidth, lineHeight);
 		layout.addLine(line);
 	}
 }

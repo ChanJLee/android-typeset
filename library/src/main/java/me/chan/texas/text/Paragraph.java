@@ -30,6 +30,7 @@ import me.chan.texas.text.layout.Glue;
 import me.chan.texas.text.layout.Layout;
 import me.chan.texas.text.layout.Line;
 import me.chan.texas.text.layout.Penalty;
+import me.chan.texas.text.layout.TextSpan;
 import me.chan.texas.text.tokenizer.Token;
 import me.chan.texas.text.util.TexasIterator;
 
@@ -704,7 +705,7 @@ public final class Paragraph extends Segment {
 		 * @param tag 用来标识这个span，因此需要保持唯一
 		 * @return 当前对象
 		 */
-		public SpanStyles tag(Object tag) {
+		public SpanStyles setTag(Object tag) {
 			mTag = tag;
 			return this;
 		}
@@ -783,22 +784,18 @@ public final class Paragraph extends Segment {
 			return String.valueOf(mText.subSequence(mStart, mEnd));
 		}
 
-		@VisibleForTesting
 		public TextStyle getTextStyle() {
 			return mStyles.getTextStyle();
 		}
 
-		@VisibleForTesting
 		public Appearance getBackground() {
 			return mStyles.getBackground();
 		}
 
-		@VisibleForTesting
 		public Appearance getForeground() {
 			return mStyles.getForeground();
 		}
 
-		@VisibleForTesting
 		public Object getTag() {
 			return mTag;
 		}
@@ -817,7 +814,6 @@ public final class Paragraph extends Segment {
 		}
 	}
 
-	// todo 考虑 penality
 	@NonNull
 	public List<Paragraph> split(Predicate<Span> predicate) {
 		List<Paragraph> paragraphs = new ArrayList<>();
@@ -831,29 +827,71 @@ public final class Paragraph extends Segment {
 
 			Span span = (Span) element;
 			if (predicate.test(span)) {
-				paragraphs.add(fork(start, end + 1));
-				start = end + 1;
+				end = adjustSpiltIndex(span, end + 1);
+				paragraphs.add(fork(this, start, end));
+				start = end;
+				--end;
 			}
 		}
 
-		if (start < end) {
-			paragraphs.add(fork(start, end));
+		if (start < end && end <= mElements.size()) {
+			paragraphs.add(fork(this, start, end));
 		}
 
 		return paragraphs;
 	}
 
-	private Paragraph fork(int start, int end) {
+	private int adjustSpiltIndex(Span anchor, int end) {
+		if (!(anchor instanceof TextSpan)) {
+			return end;
+		}
+
+		TextSpan anchorSpan = (TextSpan) anchor;
+		for (; end < mElements.size(); ++end) {
+			Element element = mElements.get(end);
+			if (!(element instanceof Span)) {
+				continue;
+			}
+
+			if (!(element instanceof TextSpan)) {
+				break;
+			}
+
+			TextSpan span = (TextSpan) element;
+			if (!span.isSameGroup(anchorSpan)) {
+				break;
+			}
+		}
+		return end;
+	}
+
+	private static Paragraph fork(Paragraph src, int start, int end) {
 		Paragraph copy = new Paragraph(null);
 		for (int i = start; i < end; ++i) {
-			copy.mElements.add(mElements.get(i));
+			copy.mElements.add(src.mElements.get(i));
 		}
-		copy.mTagsKv = mTagsKv;
-		copy.mDecor = mDecor;
-		copy.mSelection = mSelection;
-		copy.mHighlight = mHighlight;
+		copy.mTagsKv = copyKv(src.mTagsKv);
+		copy.mDecor = src.mDecor;
+
+		copy.mSelection = copyParagraphSelection(src.mSelection, copy);
+		copy.mHighlight = copyParagraphSelection(src.mHighlight, copy);
 		copy.fillTail();
 
+		Layout copyLayout = copy.getLayout();
+		copyLayout.getAdvise().copy(src.getLayout().getAdvise());
+
+		return copy;
+	}
+
+	private static SparseArrayCompat<Object> copyKv(SparseArrayCompat<Object> kv) {
+		if (kv == null) {
+			return null;
+		}
+
+		SparseArrayCompat<Object> copy = new SparseArrayCompat<>();
+		for (int i = 0; i < kv.size(); ++i) {
+			copy.put(kv.keyAt(i), kv.valueAt(i));
+		}
 		return copy;
 	}
 
@@ -865,6 +903,25 @@ public final class Paragraph extends Segment {
 
 		mElements.add(Glue.TERMINAL);
 		mElements.add(Penalty.FORCE_BREAK);
+	}
+
+	private static ParagraphSelection copyParagraphSelection(ParagraphSelection selection, Paragraph paragraph) {
+		if (selection == null) {
+			return null;
+		}
+
+		ParagraphSelection copy = ParagraphSelection.obtain(selection.getType(), selection.getSelectionStyle(), paragraph);
+		for (int i = 0; i < paragraph.getElementCount(); ++i) {
+			Element element = paragraph.getElement(i);
+			if (element instanceof Span) {
+				Span span = (Span) element;
+				if (selection.isSelected(span)) {
+					copy.appendSpan(span);
+				}
+			}
+		}
+		copy.setBackgroundInvalid(true);
+		return copy;
 	}
 
 	@NonNull

@@ -2,6 +2,8 @@ package me.chan.texas.text;
 
 import me.chan.texas.R;
 import me.chan.texas.Texas;
+import me.chan.texas.compat.Predicate;
+import me.chan.texas.renderer.selection.ParagraphSelection;
 import me.chan.texas.renderer.selection.Selection;
 import me.chan.texas.renderer.selection.SelectionProvider;
 import me.chan.texas.text.util.TexasIterator;
@@ -160,8 +162,8 @@ public final class Document {
 
 	public static class Builder {
 		private final ReferenceCountingPointer<List<Segment>> mSegments;
-		private final Selection mSelection;
-		private final Selection mHighlightSelection;
+		private Selection mSelection;
+		private Selection mHighlightSelection;
 
 		public Builder() {
 			this(null);
@@ -243,7 +245,42 @@ public final class Document {
 			return mSegments.get().indexOf(segment);
 		}
 
+		public void removeIf(Predicate<Segment> predicate) {
+			mSegments.get().removeIf(predicate::test);
+		}
+
+		private Selection updateSelection(@Nullable Selection selection) {
+			if (selection == null) {
+				return null;
+			}
+
+			boolean rebuild = false;
+			Selection copy = Selection.obtain(selection.getType(), selection.getContainer(), selection.getStyles());
+			for (int i = 0; i < getSegmentCount(); ++i) {
+				Segment segment = getSegment(i);
+				if (segment instanceof Paragraph) {
+					Paragraph paragraph = (Paragraph) segment;
+					ParagraphSelection paragraphSelection = paragraph.getSelection(selection.getType());
+					if (paragraphSelection != null) {
+						if (paragraphSelection.isBackgroundInvalid()) {
+							rebuild = true;
+						}
+						copy.add(paragraphSelection);
+					}
+				}
+			}
+
+			if (!rebuild) {
+				copy.recycle();
+				return selection;
+			}
+
+			return copy;
+		}
+
 		public Document build() {
+			mSelection = updateSelection(mSelection);
+			mHighlightSelection = updateSelection(mHighlightSelection);
 			return new Document(this);
 		}
 	}

@@ -118,7 +118,7 @@ public class SingleParagraphActivity extends AppCompatActivity {
 						return span;
 					}
 
-					return span.tag(new Tag(token.getStart(), token.getEnd()));
+					return span.setTag(new Tag(token.getStart(), token.getEnd()));
 				});
 				return builder.build();
 			}

@@ -179,6 +179,16 @@ class DefaultItemAnimator extends SimpleItemAnimator {
 	@Override
 	public boolean animateAdd(final RecyclerView.ViewHolder holder) {
 		resetAnimation(holder);
+		if (mSegmentItemAnimator != null) {
+			final View view = holder.itemView;
+			Segment segment = (Segment) view.getTag(R.id.me_chan_texas_item_tag);
+			if (segment != null) {
+				Animator animator = mSegmentItemAnimator.createAddAnimator(segment, view);
+				if (animator != null) {
+					view.setTag(R.id.me_chan_texas_item_anim_tag, animator);
+				}
+			}
+		}
 		mPendingAdditions.add(holder);
 		return true;
 	}
@@ -241,12 +251,8 @@ class DefaultItemAnimator extends SimpleItemAnimator {
 	@Override
 	public void endAnimation(RecyclerView.ViewHolder item) {
 		final View view = item.itemView;
-		// this will trigger end callback which should set properties to their target values.
-		Animator animator = (Animator) view.getTag(R.id.me_chan_texas_item_anim_tag);
-		if (animator != null) {
-			animator.cancel();
-			view.setTag(R.id.me_chan_texas_item_anim_tag, null);
-		}
+		dispatchAnimatorCancel(view);
+
 		for (int i = mPendingMoves.size() - 1; i >= 0; i--) {
 			MoveInfo moveInfo = mPendingMoves.get(i);
 			if (moveInfo.holder == item) {
@@ -263,6 +269,8 @@ class DefaultItemAnimator extends SimpleItemAnimator {
 		}
 		if (mPendingAdditions.remove(item)) {
 			view.setAlpha(1);
+			view.setTranslationX(0);
+			view.setTranslationY(0);
 			dispatchAddFinished(item);
 		}
 
@@ -293,6 +301,8 @@ class DefaultItemAnimator extends SimpleItemAnimator {
 			ArrayList<RecyclerView.ViewHolder> additions = mAdditionsList.get(i);
 			if (additions.remove(item)) {
 				view.setAlpha(1);
+				view.setTranslationX(0);
+				view.setTranslationY(0);
 				dispatchAddFinished(item);
 				if (additions.isEmpty()) {
 					mAdditionsList.remove(i);
@@ -310,25 +320,33 @@ class DefaultItemAnimator extends SimpleItemAnimator {
 			View view = item.holder.itemView;
 			view.setTranslationY(0);
 			view.setTranslationX(0);
+			dispatchAnimatorCancel(view);
 			dispatchMoveFinished(item.holder);
 			mPendingMoves.remove(i);
 		}
 		count = mPendingRemovals.size();
 		for (int i = count - 1; i >= 0; i--) {
 			RecyclerView.ViewHolder item = mPendingRemovals.get(i);
+			dispatchAnimatorCancel(item.itemView);
 			dispatchRemoveFinished(item);
 			mPendingRemovals.remove(i);
 		}
 		count = mPendingAdditions.size();
 		for (int i = count - 1; i >= 0; i--) {
 			RecyclerView.ViewHolder item = mPendingAdditions.get(i);
+			dispatchAnimatorCancel(item.itemView);
 			item.itemView.setAlpha(1);
+			item.itemView.setTranslationX(0);
+			item.itemView.setTranslationY(0);
 			dispatchAddFinished(item);
 			mPendingAdditions.remove(i);
 		}
 		count = mPendingChanges.size();
 		for (int i = count - 1; i >= 0; i--) {
-			endChangeAnimationIfNecessary(mPendingChanges.get(i));
+			ChangeInfo changeInfo = mPendingChanges.get(i);
+			dispatchAnimatorCancel(changeInfo.newHolder.itemView);
+			dispatchAnimatorCancel(changeInfo.oldHolder.itemView);
+			endChangeAnimationIfNecessary(changeInfo);
 		}
 		mPendingChanges.clear();
 		if (!isRunning()) {
@@ -343,6 +361,7 @@ class DefaultItemAnimator extends SimpleItemAnimator {
 				MoveInfo moveInfo = moves.get(j);
 				RecyclerView.ViewHolder item = moveInfo.holder;
 				View view = item.itemView;
+				dispatchAnimatorCancel(view);
 				view.setTranslationY(0);
 				view.setTranslationX(0);
 				dispatchMoveFinished(moveInfo.holder);
@@ -360,6 +379,9 @@ class DefaultItemAnimator extends SimpleItemAnimator {
 				RecyclerView.ViewHolder item = additions.get(j);
 				View view = item.itemView;
 				view.setAlpha(1);
+				view.setTranslationX(0);
+				view.setTranslationY(0);
+				dispatchAnimatorCancel(view);
 				dispatchAddFinished(item);
 				additions.remove(j);
 				if (additions.isEmpty()) {
@@ -372,6 +394,9 @@ class DefaultItemAnimator extends SimpleItemAnimator {
 			ArrayList<ChangeInfo> changes = mChangesList.get(i);
 			count = changes.size();
 			for (int j = count - 1; j >= 0; j--) {
+				ChangeInfo changeInfo = changes.get(j);
+				dispatchAnimatorCancel(changeInfo.newHolder.itemView);
+				dispatchAnimatorCancel(changeInfo.oldHolder.itemView);
 				endChangeAnimationIfNecessary(changes.get(j));
 				if (changes.isEmpty()) {
 					mChangesList.remove(changes);
@@ -427,11 +452,7 @@ class DefaultItemAnimator extends SimpleItemAnimator {
 		final View view = holder.itemView;
 		mAddAnimations.add(holder);
 
-		Animator animator = null;
-		if (mSegmentItemAnimator != null) {
-			Segment segment = (Segment) view.getTag(R.id.me_chan_texas_item_tag);
-			animator = mSegmentItemAnimator.createAddAnimator(segment, view);
-		}
+		Animator animator = (Animator) view.getTag(R.id.me_chan_texas_item_anim_tag);
 
 		if (animator == null) {
 			dispatchAddStarting(holder);
@@ -446,13 +467,9 @@ class DefaultItemAnimator extends SimpleItemAnimator {
 				}
 
 				@Override
-				public void onAnimationCancel(Animator animator) {
-					view.setAlpha(1);
-				}
-
-				@Override
 				public void onAnimationEnd(Animator animator) {
 					animator.removeListener(this);
+					view.setTag(R.id.me_chan_texas_item_anim_tag, null);
 					dispatchAddFinished(holder);
 					mAddAnimations.remove(holder);
 					dispatchFinishedWhenDone();
@@ -580,6 +597,30 @@ class DefaultItemAnimator extends SimpleItemAnimator {
 		endAnimation(holder);
 	}
 
+	private static final AnimatorListenerAdapter CANCEL_CALLED_FLAG = new AnimatorListenerAdapter() {
+		@Override
+		public void onAnimationCancel(Animator animation) {
+			animation.removeListener(this);
+		}
+	};
+
+	private static void dispatchAnimatorCancel(View itemView) {
+		Animator animator = (Animator) itemView.getTag(R.id.me_chan_texas_item_anim_tag);
+		itemView.setTag(R.id.me_chan_texas_item_anim_tag, null);
+		if (animator == null) {
+			return;
+		}
+
+		animator.addListener(CANCEL_CALLED_FLAG);
+		animator.cancel();
+		ArrayList<Animator.AnimatorListener> listeners = animator.getListeners();
+		if (listeners != null && listeners.contains(CANCEL_CALLED_FLAG)) {
+			for (int i = listeners.size() - 1; i >= 0; i--) {
+				listeners.get(i).onAnimationCancel(animator);
+			}
+		}
+	}
+
 	/**
 	 * Check the state of currently pending and running animations. If there are none
 	 * pending/running, call {@link #dispatchAnimationsFinished()} to notify any
@@ -594,11 +635,7 @@ class DefaultItemAnimator extends SimpleItemAnimator {
 	void cancelAll(List<RecyclerView.ViewHolder> viewHolders) {
 		for (int i = viewHolders.size() - 1; i >= 0; i--) {
 			View view = viewHolders.get(i).itemView;
-			Animator animator = (Animator) view.getTag(R.id.me_chan_texas_item_anim_tag);
-			if (animator != null) {
-				animator.cancel();
-				view.setTag(R.id.me_chan_texas_item_anim_tag, null);
-			}
+			dispatchAnimatorCancel(view);
 		}
 	}
 

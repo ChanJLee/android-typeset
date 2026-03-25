@@ -78,14 +78,14 @@ public class SelectionMethodUnitTest {
 		List<Segment> list = new ArrayList<>();
 		list.add(Paragraph.Builder.newBuilder(texasOption).tag("p1")
 				.stream("1 2 3 4 5 6 7 8 9", token -> Paragraph.SpanStyles.obtain(token)
-						.tag(token.getCharSequence().subSequence(token.getStart(), token.getEnd()).toString())).build());
+						.setTag(token.getCharSequence().subSequence(token.getStart(), token.getEnd()).toString())).build());
 		list.add(Paragraph.Builder.newBuilder(texasOption).tag("p2").stream("a b c d e f g h i", token ->
-				Paragraph.SpanStyles.obtain(token).tag(token.getCharSequence().subSequence(token.getStart(), token.getEnd()).toString())).build());
+				Paragraph.SpanStyles.obtain(token).setTag(token.getCharSequence().subSequence(token.getStart(), token.getEnd()).toString())).build());
 		list.add(Paragraph.Builder.newBuilder(texasOption).setTypesetPolicy(Paragraph.TYPESET_POLICY_DEFAULT).tag("p3").stream("一 二 三 四 五 六 七 八 九", token -> Paragraph.SpanStyles.obtain(token)
-				.tag(token.getCharSequence().subSequence(token.getStart(), token.getEnd()).toString())).build());
+				.setTag(token.getCharSequence().subSequence(token.getStart(), token.getEnd()).toString())).build());
 		MySelectableSegment mySelectableSegment = new MySelectableSegment(Paragraph.Builder.newBuilder(texasOption).tag("ss")
 				.stream("1 2 3 4 5 6 7 8 9", token -> Paragraph.SpanStyles.obtain(token)
-						.tag(token.getCharSequence().subSequence(token.getStart(), token.getEnd()).toString())).build());
+						.setTag(token.getCharSequence().subSequence(token.getStart(), token.getEnd()).toString())).build());
 		list.add(mySelectableSegment);
 		builder.addSegments(0, list);
 		mDocument = builder.build();
@@ -100,7 +100,7 @@ public class SelectionMethodUnitTest {
 
 			Paragraph paragraph = (Paragraph) segment;
 			paragraph.measure(measurer, textAttribute);
-			texTypesetter.typeset(paragraph, BreakStrategy.SIMPLE, 5);
+			texTypesetter.typeset(paragraph, BreakStrategy.SIMPLE, new RenderOption(), 5, 1);
 			assertNotNull(paragraph);
 			Layout layout = paragraph.getLayout();
 			Assert.assertEquals(layout.getLineCount(), 3);
@@ -116,7 +116,7 @@ public class SelectionMethodUnitTest {
 			for (int j = 0; j < s.size(); ++j) {
 				Paragraph paragraph = s.getParagraph(j);
 				paragraph.measure(measurer, textAttribute);
-				texTypesetter.typeset(paragraph, BreakStrategy.SIMPLE, 5);
+				texTypesetter.typeset(paragraph, BreakStrategy.SIMPLE, new RenderOption(), 5, 1);
 				assertNotNull(paragraph);
 				Layout layout = paragraph.getLayout();
 				Assert.assertEquals(layout.getLineCount(), 3);
@@ -800,7 +800,7 @@ public class SelectionMethodUnitTest {
 	private class MySelectionListener implements SelectionMethodImpl.Listener {
 
 		private SelectionEvent mEvent = SelectionEvent.NONE;
-		
+
 
 		@Override
 		public void onSpanClicked(Paragraph paragraph, TouchEvent event, Span span) {

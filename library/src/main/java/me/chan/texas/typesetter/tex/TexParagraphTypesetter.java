@@ -35,8 +35,8 @@ public class TexParagraphTypesetter extends AbsParagraphTypesetter {
 
 	@Nullable
 	@Override
-	protected boolean onTypeset(Paragraph paragraph, BreakStrategy breakStrategy, int width) {
-		TypesetArgs args = buildTypesetArgs(paragraph, breakStrategy, width);
+	protected boolean onTypeset(Paragraph paragraph, BreakStrategy breakStrategy, float width, float height) {
+		TypesetArgs args = buildTypesetArgs(paragraph, breakStrategy, width, height);
 
 		int typesetRound = 1;
 		boolean success = false;
@@ -56,16 +56,16 @@ public class TexParagraphTypesetter extends AbsParagraphTypesetter {
 		return success;
 	}
 
-	private TypesetArgs buildTypesetArgs(Paragraph paragraph, BreakStrategy breakStrategy, int width) {
-		TypesetArgs typesetArgs = buildTypesetArgs0(paragraph, breakStrategy, width);
+	private TypesetArgs buildTypesetArgs(Paragraph paragraph, BreakStrategy breakStrategy, float width, float height) {
+		TypesetArgs typesetArgs = buildTypesetArgs0(paragraph, breakStrategy, width, height);
 		if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.P) {
 			typesetArgs.retryTimes = 40;
 		}
 		return typesetArgs;
 	}
 
-	private TypesetArgs buildTypesetArgs0(Paragraph paragraph, BreakStrategy breakStrategy, int width) {
-		TypesetArgs args = new TypesetArgs(paragraph, breakStrategy, width);
+	private TypesetArgs buildTypesetArgs0(Paragraph paragraph, BreakStrategy breakStrategy, float width, float height) {
+		TypesetArgs args = new TypesetArgs(paragraph, breakStrategy, width, height);
 		Layout layout = paragraph.getLayout();
 		if (layout == null) {
 			return args;
@@ -102,7 +102,7 @@ public class TexParagraphTypesetter extends AbsParagraphTypesetter {
 		}
 
 		// 将断点转换成行信息
-		typesetParagraph(args.paragraph, breakPoints, args.breakStrategy, args.width);
+		typesetParagraph(args.paragraph, breakPoints, args.breakStrategy, args.width, args.height);
 		activeList.recycle();
 
 		return true;
@@ -153,7 +153,8 @@ public class TexParagraphTypesetter extends AbsParagraphTypesetter {
 	private Paragraph typesetParagraph(Paragraph paragraph,
 									   IntStack breakPoints,
 									   BreakStrategy breakStrategy,
-									   int lineWidth) {
+									   float lineWidth,
+									   float lineHeight) {
 		ElementStream stream = new ElementStream(paragraph);
 		int size = paragraph.getElementCount();
 		Layout layout = Layout.obtain(paragraph.getLayout());
@@ -180,8 +181,8 @@ public class TexParagraphTypesetter extends AbsParagraphTypesetter {
 				lineEnd = size;
 			}
 
-			Line line = createLine(stream, ElementStream.index2State(lineEnd), breakStrategy, lineWidth);
-			if (line == null || line.isEmpty()) {
+			Line line = createLine(stream, ElementStream.index2State(lineEnd), breakStrategy, lineWidth, lineHeight);
+			if (line == null) {
 				break;
 			}
 
@@ -495,7 +496,8 @@ public class TexParagraphTypesetter extends AbsParagraphTypesetter {
 	}
 
 	private static class TypesetArgs {
-		private final int width;
+		private final float width;
+		private final float height;
 		private float maxTolerance = 0.6f;
 
 		private ToleranceInterceptor toleranceInterceptor = DEFAULT_TOLERANCE_INTERCEPTOR;
@@ -514,9 +516,10 @@ public class TexParagraphTypesetter extends AbsParagraphTypesetter {
 		private final Paragraph paragraph;
 		private final BreakStrategy breakStrategy;
 
-		public TypesetArgs(Paragraph paragraph, BreakStrategy breakStrategy, int width) {
+		public TypesetArgs(Paragraph paragraph, BreakStrategy breakStrategy, float width, float height) {
 			this.paragraph = paragraph;
 			this.width = width;
+			this.height = height;
 			this.breakStrategy = breakStrategy;
 		}
 

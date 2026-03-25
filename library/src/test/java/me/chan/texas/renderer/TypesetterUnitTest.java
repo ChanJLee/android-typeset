@@ -7,6 +7,7 @@ import static org.junit.Assert.assertTrue;
 
 import me.chan.texas.misc.Rect;
 import me.chan.texas.misc.RectF;
+
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -418,7 +419,7 @@ public class TypesetterUnitTest {
 
 		Paragraph paragraph = (Paragraph) segment;
 		paragraph.measure(measurer, new TextAttribute(measurer));
-		texTypesetter.typeset(paragraph, breakStrategy, (int) lineWidth);
+		texTypesetter.typeset(paragraph, breakStrategy, new RenderOption(), (int) lineWidth, 1);
 		assertNotNull(paragraph);
 		Layout layout = paragraph.getLayout();
 		assertEquals(layout.getLineCount(), exceptedLines.length);
@@ -471,7 +472,7 @@ public class TypesetterUnitTest {
 
 			Paragraph paragraph = (Paragraph) segment;
 			paragraph.measure(measurer, new TextAttribute(measurer));
-			texTypesetter.typeset(paragraph, breakStrategy, (int) lineWidth);
+			texTypesetter.typeset(paragraph, breakStrategy, new RenderOption(), (int) lineWidth, 1);
 			assertNotNull(paragraph);
 			Layout layout = paragraph.getLayout();
 			assertNotEquals(layout.getLineCount(), 0);
@@ -553,7 +554,7 @@ public class TypesetterUnitTest {
 		Layout layout = paragraph.getLayout();
 
 		ParagraphTypesetter typesetter = new ParagraphTypesetter();
-		typesetter.typeset(paragraph, BreakStrategy.SIMPLE, 100);
+		typesetter.typeset(paragraph, BreakStrategy.SIMPLE, new RenderOption(), 100, 1);
 		Layout current = paragraph.getLayout();
 		Assert.assertNotSame(layout, current);
 
@@ -577,7 +578,7 @@ public class TypesetterUnitTest {
 		Layout layout = paragraph.getLayout();
 
 		ParagraphTypesetter typesetter = new ParagraphTypesetter();
-		typesetter.typeset(paragraph, BreakStrategy.SIMPLE, 100);
+		typesetter.typeset(paragraph, BreakStrategy.SIMPLE, new RenderOption(), 100, 1);
 		Layout current = paragraph.getLayout();
 		Assert.assertNotSame(layout, current);
 
@@ -599,11 +600,11 @@ public class TypesetterUnitTest {
 
 		Paragraph paragraph = builder.build(false);
 		Worker.Token token = Worker.Token.newInstance();
-		Assert.assertFalse(WorkerScheduler.typeset().desire(paragraph));
+		Assert.assertFalse(WorkerScheduler.typeset().desire(paragraph, new RenderOption(), 1));
 
 		builder = Paragraph.Builder.newBuilder(texasOption);
 		paragraph = builder.build(true);
-		Assert.assertFalse(WorkerScheduler.typeset().desire(paragraph));
+		Assert.assertFalse(WorkerScheduler.typeset().desire(paragraph, new RenderOption(), 1));
 
 		builder = Paragraph.Builder.newBuilder(texasOption);
 		builder.text("12345")
@@ -611,7 +612,7 @@ public class TypesetterUnitTest {
 				.text("12");
 		paragraph = builder.build(true);
 		paragraph.measure(measurer, textAttribute);
-		Assert.assertTrue(WorkerScheduler.typeset().desire(paragraph));
+		Assert.assertTrue(WorkerScheduler.typeset().desire(paragraph, new RenderOption(), 1));
 		Layout layout = paragraph.getLayout();
 		Assert.assertEquals(5, layout.getWidth());
 		Assert.assertEquals(3, layout.getHeight());
@@ -620,7 +621,7 @@ public class TypesetterUnitTest {
 		builder.text("12345");
 		paragraph = builder.build(true);
 		paragraph.measure(measurer, textAttribute);
-		Assert.assertTrue(WorkerScheduler.typeset().desire(paragraph));
+		Assert.assertTrue(WorkerScheduler.typeset().desire(paragraph, new RenderOption(), 1));
 		layout = paragraph.getLayout();
 		Assert.assertEquals(5, layout.getWidth());
 		Assert.assertEquals(1, layout.getHeight());
@@ -647,7 +648,7 @@ public class TypesetterUnitTest {
 		ParagraphTypesetter texTypesetter = new ParagraphTypesetter();
 		Paragraph paragraph = builder.build();
 		paragraph.measure(measurer, textAttribute);
-		texTypesetter.typeset(paragraph, BreakStrategy.SIMPLE, 100);
+		texTypesetter.typeset(paragraph, BreakStrategy.SIMPLE, new RenderOption(), 100, 1);
 
 		Layout layout = paragraph.getLayout();
 		Assert.assertEquals(2, layout.getLineCount());
@@ -655,7 +656,7 @@ public class TypesetterUnitTest {
 		Assert.assertEquals("world", layout.getLine(1).toString());
 
 		paragraph.measure(measurer, textAttribute);
-		texTypesetter.typeset(paragraph, BreakStrategy.BALANCED, 100);
+		texTypesetter.typeset(paragraph, BreakStrategy.BALANCED, new RenderOption(), 100, 1);
 
 		layout = paragraph.getLayout();
 		Assert.assertEquals(2, layout.getLineCount());

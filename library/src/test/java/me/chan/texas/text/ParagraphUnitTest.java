@@ -99,7 +99,7 @@ public class ParagraphUnitTest {
 		RectGround background = new RectGround(10);
 		DotUnderLine dotUnderLine = new DotUnderLine(10);
 		String tag = "msg";
-		Paragraph.SpanStyles span = Paragraph.SpanStyles.obtain(tag, 0, tag.length()).setBackground(background).setForeground(dotUnderLine).tag(tag).setTextStyle(TextStyle.BOLD);
+		Paragraph.SpanStyles span = Paragraph.SpanStyles.obtain(tag, 0, tag.length()).setBackground(background).setForeground(dotUnderLine).setTag(tag).setTextStyle(TextStyle.BOLD);
 		Assert.assertSame(span.getTag(), tag);
 		Assert.assertSame(span.getBackground(), background);
 		Assert.assertSame(span.getForeground(), dotUnderLine);
@@ -116,7 +116,7 @@ public class ParagraphUnitTest {
 		background = new RectGround(10);
 		dotUnderLine = new DotUnderLine(10);
 		Object object = "fuck";
-		span = Paragraph.SpanStyles.obtain(tag, 0, tag.length() - 1).setBackground(background).setForeground(dotUnderLine).tag(object).setTextStyle(TextStyle.BOLD_ITALIC);
+		span = Paragraph.SpanStyles.obtain(tag, 0, tag.length() - 1).setBackground(background).setForeground(dotUnderLine).setTag(object).setTextStyle(TextStyle.BOLD_ITALIC);
 		Assert.assertSame(span1, span);
 		Assert.assertSame(span.getTag(), object);
 		Assert.assertSame(span.getBackground(), background);
@@ -301,7 +301,7 @@ public class ParagraphUnitTest {
 
 		mIndex = 0;
 		String msg = "bite-size";
-		builder.stream(msg, 0, msg.length(), token -> Paragraph.SpanStyles.obtain(msg, token.getStart(), token.getEnd()).tag("fuck"));
+		builder.stream(msg, 0, msg.length(), token -> Paragraph.SpanStyles.obtain(msg, token.getStart(), token.getEnd()).setTag("fuck"));
 
 		boolean found = false;
 		Paragraph paragraph = builder.build();
@@ -1276,7 +1276,7 @@ public class ParagraphUnitTest {
 			@Override
 			public Paragraph.SpanStyles read(Token token) {
 				return Paragraph.SpanStyles.obtain(token)
-						.tag(expectedTag)
+						.setTag(expectedTag)
 						.setTextStyle(expectedTextStyle)
 						.setBackground(expectedBackground)
 						.setForeground(expectedForeground);
@@ -1340,13 +1340,12 @@ public class ParagraphUnitTest {
 				.text("4 5 6")
 				.brk()
 				.text("7 8 9")
-				.brk()
 				.build();
 
 		ParagraphTypesetter texTypesetter = new ParagraphTypesetter();
 
 		paragraph.measure(measurer, new TextAttribute(measurer));
-		texTypesetter.typeset(paragraph, BreakStrategy.SIMPLE, 10);
+		texTypesetter.typeset(paragraph, BreakStrategy.SIMPLE, new RenderOption(), 10, 1);
 
 		Layout layout = paragraph.getLayout();
 		Assert.assertEquals(3, layout.getLineCount());
@@ -1473,11 +1472,10 @@ public class ParagraphUnitTest {
 		builder = Paragraph.Builder.newBuilder(texasOption);
 		paragraph = builder
 				.text("1")
-				.brk()
 				.build();
 
 		paragraph.measure(measurer, new TextAttribute(measurer));
-		texTypesetter.typeset(paragraph, BreakStrategy.SIMPLE, 10);
+		texTypesetter.typeset(paragraph, BreakStrategy.SIMPLE, new RenderOption(), 10, 1);
 
 		layout = paragraph.getLayout();
 		Assert.assertEquals(1, layout.getLineCount());
@@ -1553,15 +1551,23 @@ public class ParagraphUnitTest {
 		builder.text("x y z");
 		paragraph = builder.build();
 		result = paragraph.split(span -> "z".equals(span.toString()));
-		Assert.assertEquals(2, result.size());
+		Assert.assertEquals(1, result.size());
 		assertElementEndsWithTerminalAndForceBreak(result.get(0));
-		assertElementEndsWithTerminalAndForceBreak(result.get(1));
 
 		// case 5: 多处 split
 		builder = Paragraph.Builder.newBuilder(texasOption);
 		builder.text("a b c d");
 		paragraph = builder.build();
 		result = paragraph.split(span -> "b".equals(span.toString()) || "d".equals(span.toString()));
+		Assert.assertEquals(2, result.size());
+		for (Paragraph p : result) {
+			assertElementEndsWithTerminalAndForceBreak(p);
+		}
+
+		builder = Paragraph.Builder.newBuilder(texasOption);
+		builder.text("a b c d");
+		paragraph = builder.build();
+		result = paragraph.split(span -> "b".equals(span.toString()) || "c".equals(span.toString()));
 		Assert.assertEquals(3, result.size());
 		for (Paragraph p : result) {
 			assertElementEndsWithTerminalAndForceBreak(p);
@@ -1573,6 +1579,43 @@ public class ParagraphUnitTest {
 		result = paragraph.split(b -> false);
 		Assert.assertEquals(1, result.size());
 		assertElementEndsWithTerminalAndForceBreak(result.get(0));
+
+		builder = Paragraph.Builder.newBuilder(texasOption);
+		builder.text("a b c triangle a b c");
+		paragraph = builder.build();
+		result = paragraph.split(span -> "tri".equals(span.toString()));
+		Assert.assertEquals(2, result.size());
+		for (Paragraph p : result) {
+			assertElementEndsWithTerminalAndForceBreak(p);
+		}
+
+		builder = Paragraph.Builder.newBuilder(texasOption);
+		builder.text("a b c triangle ");
+		builder.hyperSpan(new MyHypeSpan());
+		builder.text("a b c");
+		paragraph = builder.build();
+		result = paragraph.split(span -> "tri".equals(span.toString()));
+		Assert.assertEquals(2, result.size());
+		for (Paragraph p : result) {
+			assertElementEndsWithTerminalAndForceBreak(p);
+		}
+
+		builder = Paragraph.Builder.newBuilder(texasOption);
+		builder.text("a b c triangle ");
+		final HyperSpan hyperSpan = new MyHypeSpan();
+		hyperSpan.setTag("x");
+		builder.hyperSpan(hyperSpan);
+		hyperSpan.setSeq(1024);
+		builder.text("a b c");
+		paragraph = builder.build();
+		result = paragraph.split(span -> span == hyperSpan);
+		Assert.assertEquals(2, result.size());
+		for (Paragraph p : result) {
+			assertElementEndsWithTerminalAndForceBreak(p);
+		}
+		Assert.assertEquals(1024, hyperSpan.getSeq());
+		Paragraph p1 = result.get(0);
+		Assert.assertSame(hyperSpan, p1.getElement(p1.getElementCount() - 3));
 	}
 
 	/**

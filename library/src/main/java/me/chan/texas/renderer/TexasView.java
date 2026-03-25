@@ -1008,7 +1008,7 @@ public final class TexasView extends FrameLayout {
 		 * @param view      view
 		 * @param paragraph paragraph
 		 * @param event     touch event
-		 * @param span       clicked span
+		 * @param span      clicked span
 		 */
 		void onSpanClicked(@NonNull TexasView view, @NonNull Paragraph paragraph, @NonNull TouchEvent event, @NonNull Span span);
 
@@ -1016,7 +1016,7 @@ public final class TexasView extends FrameLayout {
 		 * @param view      view
 		 * @param paragraph paragraph
 		 * @param event     touch event
-		 * @param span       clicked span
+		 * @param span      clicked span
 		 */
 		void onSpanLongClicked(@NonNull TexasView view, @NonNull Paragraph paragraph, @NonNull TouchEvent event, @NonNull Span span);
 
@@ -1062,22 +1062,44 @@ public final class TexasView extends FrameLayout {
 
 	public abstract static class SegmentAnimator {
 
-		public Animator createAddAnimator(@NonNull Segment segment, @NonNull View view) {
+		public final Animator createAddAnimator(@NonNull Segment segment, @NonNull View view) {
 			return onCreateAddAnimator(segment, view);
 		}
 
+		/**
+		 * @param segment segment
+		 * @param view    root view
+		 * @return animator or null
+		 */
+		@Nullable
 		protected abstract Animator onCreateAddAnimator(@NonNull Segment segment, @NonNull View view);
 
-		public Animator createRemoveAnimator(@NonNull Segment segment, @NonNull View view) {
+		public final Animator createRemoveAnimator(@NonNull Segment segment, @NonNull View view) {
 			return onCreateRemoveAnimator(segment, view);
 		}
 
+		/**
+		 * @param segment segment
+		 * @param view    root view
+		 * @return animator or null
+		 */
+		@Nullable
 		protected abstract Animator onCreateRemoveAnimator(@NonNull Segment segment, @NonNull View view);
 
-		public Animator createMoveAnimator(@NonNull Segment segment, @NonNull View view, int fromX, int fromY, int toX, int toY) {
+		public final Animator createMoveAnimator(@NonNull Segment segment, @NonNull View view, int fromX, int fromY, int toX, int toY) {
 			return onCreateMoveAnimator(segment, view, fromX, fromY, toX, toY);
 		}
 
+		/**
+		 * @param segment segment
+		 * @param view    root view
+		 * @param fromX   from x
+		 * @param fromY   from y
+		 * @param toX     to x
+		 * @param toY     to y
+		 * @return animator or null
+		 */
+		@Nullable
 		protected abstract Animator onCreateMoveAnimator(@NonNull Segment segment, @NonNull View view, int fromX, int fromY, int toX, int toY);
 	}
 

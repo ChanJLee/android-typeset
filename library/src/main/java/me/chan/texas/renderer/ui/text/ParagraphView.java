@@ -541,7 +541,7 @@ public class ParagraphView extends FrameLayout {
 				return true;
 			}
 
-			worker.desire(mParagraph, exceptedWidth);
+			worker.desire(mParagraph, mRenderOption, exceptedWidth);
 			return true;
 		} catch (Throwable e) {
 			return false;

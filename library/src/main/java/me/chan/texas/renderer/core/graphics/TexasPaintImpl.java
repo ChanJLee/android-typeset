@@ -1,7 +1,9 @@
 package me.chan.texas.renderer.core.graphics;
 
 import android.graphics.BlendMode;
+import android.graphics.Color;
 import android.graphics.ColorFilter;
+import android.graphics.ColorSpace;
 import android.graphics.MaskFilter;
 import android.graphics.Paint;
 import android.graphics.Path;
@@ -787,5 +789,11 @@ public class TexasPaintImpl implements TexasPaint {
 
 		mRawRect.set(rect.left, rect.top, rect.right, rect.bottom);
 		return mRawRect;
+	}
+
+	@Override
+	public String toString() {
+		// to #ff0000 color format
+		return String.format("#%08x", getColor());
 	}
 }

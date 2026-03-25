@@ -204,7 +204,7 @@ public class MixWorker {
 			segment.setPadding(outRect);
 			if (segment instanceof Paragraph) {
 				Paragraph paragraph = (Paragraph) segment;
-				typesetParagraph(token, paragraph, width, measurer, textAttribute);
+				typesetParagraph(token, paragraph, width, measurer, textAttribute, renderOption);
 			} else if (segment instanceof ViewSegment) {
 				/* NOOP */
 				continue;
@@ -260,14 +260,16 @@ public class MixWorker {
 
 	private void typesetParagraph(Worker.Token token,
 								  Paragraph paragraph,
-								  int width,
+								  float width,
 								  Measurer measurer,
-								  TextAttribute textAttribute) throws Throwable {
+								  TextAttribute textAttribute,
+								  RenderOption option) throws Throwable {
 		paragraph.measure(measurer, textAttribute);
 		if (token.isExpired()) {
 			throw new Worker.TokenExpiredException("stop typeset paragraph, reason: token is expired", token);
 		}
-		ParagraphTypesetWorker.Args args = ParagraphTypesetWorker.Args.obtain(paragraph, width);
+		Measurer.CharSequenceSpec spec = measurer.getBaseSpec();
+		ParagraphTypesetWorker.Args args = ParagraphTypesetWorker.Args.obtain(paragraph, option, width, spec.getHeight());
 		WorkerScheduler.typeset().typeset(args);
 	}
 

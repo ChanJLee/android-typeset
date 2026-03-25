@@ -38,8 +38,12 @@ public abstract class SelectedVisitor extends ParagraphVisitor {
 			throw new IllegalStateException("missing call clear before reuse visitor?");
 		}
 		mType = type;
-		mSelection = ParagraphSelection.obtain(type, styles, paragraph);
+		mSelection = onCreateSelection(type, styles, paragraph);
 		mRenderOption = renderOption;
+	}
+
+	protected ParagraphSelection onCreateSelection(Selection.Type type, Selection.Styles styles, Paragraph paragraph) {
+		return ParagraphSelection.obtain(type, styles, paragraph);
 	}
 
 	@Override
@@ -57,11 +61,13 @@ public abstract class SelectedVisitor extends ParagraphVisitor {
 		paragraph.setSelection(mType, null);
 		super.visit(paragraph);
 		if (mSelection.isEmpty()) {
-			mSelection.recycle();
+			if (mSelection != prev) {
+				mSelection.recycle();
+			}
 		} else {
 			paragraph.setSelection(mType, mSelection);
 		}
-		if (prev != null) {
+		if (prev != null && prev != mSelection) {
 			prev.recycle();
 		}
 	}
@@ -101,7 +107,7 @@ public abstract class SelectedVisitor extends ParagraphVisitor {
 			if (!(span instanceof DrawableSpan) || includeSelectNonTextBoxRegion()) {
 				mCompositeRectDrawable.append(outer.left, mLastLineTop, outer.right, mLastLineBottom);
 			}
-			mSelection.appendBox(span);
+			mSelection.appendSpan(span);
 		}
 	}
 

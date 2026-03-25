@@ -433,7 +433,7 @@ public class BookSource extends TexasView.DocumentSource {
 		builder.stream(paragraph, 0, paragraph.length(), (token) -> {
 			Paragraph.SpanStyles span = Paragraph.SpanStyles.obtain(token)
 					.setForeground(RED_UL)
-					.tag(new SpanTag(sentId,
+					.setTag(new SpanTag(sentId,
 							token.getCharSequence().subSequence(token.getStart(), token.getEnd()).toString(),
 							token.getCategory() == Token.CATEGORY_NORMAL));
 

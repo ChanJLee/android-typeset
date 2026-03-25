@@ -34,6 +34,31 @@ public class PrimitiveUnitTest {
 	}
 
 	@Test
+	public void testBrkMultiTimes() {
+		System.out.println(">>>>> simple 0");
+		Paragraph.Builder builder = Paragraph.Builder.newBuilder(mTexasOption);
+		builder.text("1 2")
+				.brk()
+				.brk()
+				.text("4 5");
+		checkContent(mTexasOption.getMeasurer(), mTexasOption.getTextAttribute(), builder.build(), 6, BreakStrategy.SIMPLE,
+				"1 2",
+				"",
+				"4 5"
+		);
+
+		builder = Paragraph.Builder.newBuilder(mTexasOption);
+		builder.text("1 2")
+				.brk()
+				.brk();
+		Paragraph paragraph = builder.build();
+		checkContent(mTexasOption.getMeasurer(), mTexasOption.getTextAttribute(), paragraph, 6, BreakStrategy.SIMPLE,
+				"1 2",
+				""
+		);
+	}
+
+	@Test
 	public void testSimple() {
 		// multi line
 		System.out.println(">>>>> simple 0");
@@ -271,7 +296,8 @@ public class PrimitiveUnitTest {
 
 	private static void checkContent(Measurer measurer, TextAttribute textAttribute, Paragraph paragraph, int width, AbsParagraphTypesetter typesetter, BreakStrategy breakStrategy, String... lines) {
 		paragraph.measure(measurer, textAttribute);
-		typesetter.typeset(paragraph, breakStrategy, width);
+		Measurer.CharSequenceSpec spec = measurer.getBaseSpec();
+		typesetter.typeset(paragraph, breakStrategy, new RenderOption(), width, spec.getHeight());
 
 		Layout layout = paragraph.getLayout();
 		Assert.assertEquals(lines.length, layout.getLineCount());
@@ -279,6 +305,7 @@ public class PrimitiveUnitTest {
 			Line line = layout.getLine(i);
 			String lineContent = line.toString();
 			Assert.assertEquals(lines[i], lineContent);
+			Assert.assertEquals(spec.getHeight(), line.getLineHeight(), 0.1f);
 		}
 
 		BoundCheckDrawer boundCheckDrawer = new BoundCheckDrawer(width, true);
@@ -307,7 +334,7 @@ public class PrimitiveUnitTest {
 
 		ParagraphTypesetter texTypesetter = new ParagraphTypesetter();
 		paragraph.measure(measurer, textAttribute);
-		texTypesetter.typeset(paragraph, BreakStrategy.SIMPLE, 5);
+		texTypesetter.typeset(paragraph, BreakStrategy.SIMPLE, new RenderOption(), 5, 1);
 
 		Layout layout = paragraph.getLayout();
 		Assert.assertEquals(2, layout.getLineCount());
