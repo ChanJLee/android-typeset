@@ -419,7 +419,7 @@ public class TypesetterUnitTest {
 
 		Paragraph paragraph = (Paragraph) segment;
 		paragraph.measure(measurer, new TextAttribute(measurer));
-		texTypesetter.typeset(paragraph, breakStrategy, new RenderOption(), (int) lineWidth);
+		texTypesetter.typeset(paragraph, breakStrategy, new RenderOption(), (int) lineWidth, 1);
 		assertNotNull(paragraph);
 		Layout layout = paragraph.getLayout();
 		assertEquals(layout.getLineCount(), exceptedLines.length);
@@ -472,7 +472,7 @@ public class TypesetterUnitTest {
 
 			Paragraph paragraph = (Paragraph) segment;
 			paragraph.measure(measurer, new TextAttribute(measurer));
-			texTypesetter.typeset(paragraph, breakStrategy, new RenderOption(), (int) lineWidth);
+			texTypesetter.typeset(paragraph, breakStrategy, new RenderOption(), (int) lineWidth, 1);
 			assertNotNull(paragraph);
 			Layout layout = paragraph.getLayout();
 			assertNotEquals(layout.getLineCount(), 0);
@@ -554,7 +554,7 @@ public class TypesetterUnitTest {
 		Layout layout = paragraph.getLayout();
 
 		ParagraphTypesetter typesetter = new ParagraphTypesetter();
-		typesetter.typeset(paragraph, BreakStrategy.SIMPLE, new RenderOption(), 100);
+		typesetter.typeset(paragraph, BreakStrategy.SIMPLE, new RenderOption(), 100, 1);
 		Layout current = paragraph.getLayout();
 		Assert.assertNotSame(layout, current);
 
@@ -578,7 +578,7 @@ public class TypesetterUnitTest {
 		Layout layout = paragraph.getLayout();
 
 		ParagraphTypesetter typesetter = new ParagraphTypesetter();
-		typesetter.typeset(paragraph, BreakStrategy.SIMPLE, new RenderOption(), 100);
+		typesetter.typeset(paragraph, BreakStrategy.SIMPLE, new RenderOption(), 100, 1);
 		Layout current = paragraph.getLayout();
 		Assert.assertNotSame(layout, current);
 

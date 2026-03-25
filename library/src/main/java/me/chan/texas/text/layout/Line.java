@@ -279,7 +279,7 @@ public class Line extends DefaultRecyclable {
 			}
 		}
 
-		public Line build(BreakStrategy breakStrategy, int lineWidth) {
+		public Line build(BreakStrategy breakStrategy, float lineWidth, float lineHeight) {
 			// strip blank
 			strip(mElements);
 			if (mElements.isEmpty()) {
@@ -293,7 +293,7 @@ public class Line extends DefaultRecyclable {
 			mergeText(mLine, mElements);
 
 			// measure line
-			measureLine(mLine, breakStrategy, lineWidth);
+			measureLine(mLine, breakStrategy, lineWidth, lineHeight);
 
 			// adjust
 			if (mContainTerminal && mLine.mRatio > 0) {
@@ -389,8 +389,7 @@ public class Line extends DefaultRecyclable {
 			}
 		}
 
-		private static void measureLine(Line line, BreakStrategy breakStrategy, int lineWidth) {
-			float lineHeight = 0;
+		private static void measureLine(Line line, BreakStrategy breakStrategy, float lineWidth, float lineHeight) {
 			float boxWidth = 0;
 			float glueWidth = 0;
 			float glueShrink = 0;

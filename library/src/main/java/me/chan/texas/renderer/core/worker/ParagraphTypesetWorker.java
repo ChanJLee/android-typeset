@@ -1,5 +1,6 @@
 package me.chan.texas.renderer.core.worker;
 
+import androidx.annotation.FloatRange;
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
@@ -33,11 +34,11 @@ public class ParagraphTypesetWorker {
 		Layout.Advise advise = layout.getAdvise();
 		BreakStrategy breakStrategy = advise.getBreakStrategy();
 		if (args.desired) {
-			if (!mTypesetter.desire(paragraph, breakStrategy, args.option)) {
+			if (!mTypesetter.desire(paragraph, breakStrategy, args.option, args.height)) {
 				throw new RuntimeException("desire failed");
 			}
 		} else {
-			if (!mTypesetter.typeset(paragraph, breakStrategy, args.option, args.width)) {
+			if (!mTypesetter.typeset(paragraph, breakStrategy, args.option, args.width, args.height)) {
 				throw new RuntimeException("typeset failed");
 			}
 		}
@@ -54,12 +55,12 @@ public class ParagraphTypesetWorker {
 	 * @param paragraph 段落
 	 * @return true表示成功
 	 */
-	public boolean desire(@NonNull Paragraph paragraph, @NonNull RenderOption option, int expectedWidth) {
+	public boolean desire(@NonNull Paragraph paragraph, @NonNull RenderOption option, float expectedWidth, @FloatRange(from = 1) float defaultLineHeight) {
 		if (!paragraph.hasContent()) {
 			return false;
 		}
 
-		ParagraphTypesetWorker.Args args = ParagraphTypesetWorker.Args.obtain(paragraph, option, expectedWidth);
+		ParagraphTypesetWorker.Args args = ParagraphTypesetWorker.Args.obtain(paragraph, option, expectedWidth, defaultLineHeight);
 		try {
 			typeset(args);
 		} catch (Throwable e) {
@@ -74,12 +75,12 @@ public class ParagraphTypesetWorker {
 	 * @param paragraph 段落
 	 * @return true表示成功
 	 */
-	public boolean desire(@NonNull Paragraph paragraph, @NonNull RenderOption option) {
+	public boolean desire(@NonNull Paragraph paragraph, @NonNull RenderOption option, @FloatRange(from = 1) float defaultLineHeight) {
 		if (!paragraph.hasContent()) {
 			return false;
 		}
 
-		ParagraphTypesetWorker.Args args = ParagraphTypesetWorker.Args.desire(paragraph, option);
+		ParagraphTypesetWorker.Args args = ParagraphTypesetWorker.Args.desire(paragraph, option, defaultLineHeight);
 		try {
 			typeset(args);
 		} catch (Throwable e) {
@@ -92,7 +93,8 @@ public class ParagraphTypesetWorker {
 		private static final ObjectPool<Args> POOL = new ObjectPool<>(32);
 		private Paragraph paragraph;
 		private RenderOption option;
-		private int width;
+		private float width;
+		private float height;
 		private boolean desired;
 
 		private Args() {
@@ -104,12 +106,14 @@ public class ParagraphTypesetWorker {
 			width = 0;
 			desired = false;
 			option = null;
+			height = 0;
 			POOL.release(this);
 		}
 
 		public static Args obtain(@NonNull Paragraph paragraph,
 								  @NonNull RenderOption option,
-								  @IntRange(from = 1) int width) {
+								  @FloatRange(from = 1) float width,
+								  @FloatRange(from = 1) float defaultLineHeight) {
 			Args args = POOL.acquire();
 			if (args == null) {
 				args = new Args();
@@ -119,11 +123,12 @@ public class ParagraphTypesetWorker {
 			args.width = width;
 			args.desired = false;
 			args.option = option;
+			args.height = defaultLineHeight;
 			args.reuse();
 			return args;
 		}
 
-		public static Args desire(@NonNull Paragraph paragraph, @NonNull RenderOption option) {
+		public static Args desire(@NonNull Paragraph paragraph, @NonNull RenderOption option, @FloatRange(from = 1) float defaultLineHeight) {
 			Args args = POOL.acquire();
 			if (args == null) {
 				args = new Args();
@@ -133,6 +138,7 @@ public class ParagraphTypesetWorker {
 			args.option = option;
 			args.width = AbsParagraphTypesetter.INFINITY_WIDTH;
 			args.desired = true;
+			args.height = defaultLineHeight;
 			args.reuse();
 			return args;
 		}

@@ -260,7 +260,7 @@ public class MixWorker {
 
 	private void typesetParagraph(Worker.Token token,
 								  Paragraph paragraph,
-								  int width,
+								  float width,
 								  Measurer measurer,
 								  TextAttribute textAttribute,
 								  RenderOption option) throws Throwable {
@@ -268,7 +268,8 @@ public class MixWorker {
 		if (token.isExpired()) {
 			throw new Worker.TokenExpiredException("stop typeset paragraph, reason: token is expired", token);
 		}
-		ParagraphTypesetWorker.Args args = ParagraphTypesetWorker.Args.obtain(paragraph, option, width);
+		Measurer.CharSequenceSpec spec = measurer.getBaseSpec();
+		ParagraphTypesetWorker.Args args = ParagraphTypesetWorker.Args.obtain(paragraph, option, width, spec.getHeight());
 		WorkerScheduler.typeset().typeset(args);
 	}
 

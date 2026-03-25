@@ -26,7 +26,7 @@ public abstract class AbsParagraphTypesetter {
 	public static final boolean DEBUG = false;
 	public static final int INFINITY_WIDTH = Integer.MAX_VALUE;
 
-	public final boolean typeset(Paragraph paragraph, BreakStrategy breakStrategy, RenderOption renderOption, int lineWidth, boolean desire) {
+	public final boolean typeset(Paragraph paragraph, BreakStrategy breakStrategy, RenderOption renderOption, float lineWidth, float lineHeight, boolean desire) {
 		if (DEBUG) {
 			for (int i = 0; i < paragraph.getElementCount(); ++i) {
 				Element element = paragraph.getElement(i);
@@ -39,7 +39,7 @@ public abstract class AbsParagraphTypesetter {
 			}
 		}
 
-		if (!onTypeset(paragraph, breakStrategy, lineWidth)) {
+		if (!onTypeset(paragraph, breakStrategy, lineWidth, lineHeight)) {
 			return false;
 		}
 
@@ -87,8 +87,8 @@ public abstract class AbsParagraphTypesetter {
 	}
 
 	@VisibleForTesting
-	public final boolean typeset(Paragraph paragraph, BreakStrategy breakStrategy, RenderOption renderOption, int lineWidth) {
-		return typeset(paragraph, breakStrategy, renderOption, lineWidth, false);
+	public final boolean typeset(Paragraph paragraph, BreakStrategy breakStrategy, RenderOption renderOption, float lineWidth, float lineHeight) {
+		return typeset(paragraph, breakStrategy, renderOption, lineWidth, lineHeight, false);
 	}
 
 	private static int getDesiredWidth(Paragraph paragraph) {
@@ -101,7 +101,7 @@ public abstract class AbsParagraphTypesetter {
 		return (int) Math.ceil(actualWidth);
 	}
 
-	protected abstract boolean onTypeset(Paragraph paragraph, BreakStrategy breakStrategy, int lineWidth);
+	protected abstract boolean onTypeset(Paragraph paragraph, BreakStrategy breakStrategy, float lineWidth, float lineHeight);
 
 	/**
 	 * @return debug 信息
@@ -117,7 +117,7 @@ public abstract class AbsParagraphTypesetter {
 	 * @param endState 结束位置
 	 * @return 行
 	 */
-	protected static Line createLine(ElementStream stream, int endState, BreakStrategy breakStrategy, int lineWidth) {
+	protected static Line createLine(ElementStream stream, int endState, BreakStrategy breakStrategy, float lineWidth, float lineHeight) {
 		Line.Builder builder = Line.Builder.obtain();
 
 		while (!stream.eof() && !stream.checkState(endState)) {
@@ -125,13 +125,13 @@ public abstract class AbsParagraphTypesetter {
 			builder.add(element);
 		}
 
-		Line line = builder.build(breakStrategy, lineWidth);
+		Line line = builder.build(breakStrategy, lineWidth, lineHeight);
 		builder.recycle();
 		return line;
 	}
 
 
-	public static void buildLayoutBounds(Paragraph paragraph, int width) {
+	public static void buildLayoutBounds(Paragraph paragraph, float width) {
 		RectF lineRect = new RectF();
 		RectF boxRect = new RectF();
 		Layout layout = paragraph.getLayout();
@@ -190,7 +190,7 @@ public abstract class AbsParagraphTypesetter {
 		if (lineCount != 0) {
 			height += (int) Math.ceil((lineSpacingExtra * (lineCount - 1)));
 		}
-		layout.setContentSize(width, height);
+		layout.setContentSize((int) Math.ceil(width), height);
 	}
 
 	private static float getAdjustGlueWidth(Line line, Glue glue) {
@@ -206,7 +206,7 @@ public abstract class AbsParagraphTypesetter {
 		return glue.getWidth() + ratio * glue.getShrink();
 	}
 
-	private static void getLineHorizontalBounds(int horizontalGravity, Line line, RectF bounds, int width, int paddingLeft) {
+	private static void getLineHorizontalBounds(int horizontalGravity, Line line, RectF bounds, float width, int paddingLeft) {
 		if (horizontalGravity == TextGravity.START) {
 			bounds.left = paddingLeft;
 		} else if (horizontalGravity == TextGravity.CENTER_HORIZONTAL) {
