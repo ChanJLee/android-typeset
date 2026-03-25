@@ -942,10 +942,4 @@ public final class Paragraph extends Segment {
 		}
 		return digest;
 	}
-
-	public Paragraph concat(Paragraph other) {
-		Paragraph copy = fork(this, 0, mElements.size());
-		copy.strip();
-
-	}
 }
