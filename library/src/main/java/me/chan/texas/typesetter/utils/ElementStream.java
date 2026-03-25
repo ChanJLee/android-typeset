@@ -99,4 +99,10 @@ public final class ElementStream {
 	public int distance(int startState, int endState) {
 		return endState - startState;
 	}
+
+	public boolean isUnderTerminalSemanticState() {
+		int state = state();
+		int size = mParagraph.getElementCount();
+		return state == size || state == size - 1;
+	}
 }

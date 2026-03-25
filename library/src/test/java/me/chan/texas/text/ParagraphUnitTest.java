@@ -1340,7 +1340,6 @@ public class ParagraphUnitTest {
 				.text("4 5 6")
 				.brk()
 				.text("7 8 9")
-				.brk()
 				.build();
 
 		ParagraphTypesetter texTypesetter = new ParagraphTypesetter();
@@ -1473,7 +1472,6 @@ public class ParagraphUnitTest {
 		builder = Paragraph.Builder.newBuilder(texasOption);
 		paragraph = builder
 				.text("1")
-				.brk()
 				.build();
 
 		paragraph.measure(measurer, new TextAttribute(measurer));

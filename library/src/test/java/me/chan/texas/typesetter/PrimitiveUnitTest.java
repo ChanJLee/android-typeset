@@ -34,6 +34,31 @@ public class PrimitiveUnitTest {
 	}
 
 	@Test
+	public void testBrkMultiTimes() {
+		System.out.println(">>>>> simple 0");
+		Paragraph.Builder builder = Paragraph.Builder.newBuilder(mTexasOption);
+		builder.text("1 2")
+				.brk()
+				.brk()
+				.text("4 5");
+		checkContent(mTexasOption.getMeasurer(), mTexasOption.getTextAttribute(), builder.build(), 6, BreakStrategy.SIMPLE,
+				"1 2",
+				"",
+				"4 5"
+		);
+
+		builder = Paragraph.Builder.newBuilder(mTexasOption);
+		builder.text("1 2")
+				.brk()
+				.brk();
+		Paragraph paragraph = builder.build();
+		checkContent(mTexasOption.getMeasurer(), mTexasOption.getTextAttribute(), paragraph, 6, BreakStrategy.SIMPLE,
+				"1 2",
+				""
+		);
+	}
+
+	@Test
 	public void testSimple() {
 		// multi line
 		System.out.println(">>>>> simple 0");
@@ -279,6 +304,7 @@ public class PrimitiveUnitTest {
 			Line line = layout.getLine(i);
 			String lineContent = line.toString();
 			Assert.assertEquals(lines[i], lineContent);
+			Assert.assertEquals(measurer.getBaseSpec().getHeight(), layout.getHeight(), 0.1f);
 		}
 
 		BoundCheckDrawer boundCheckDrawer = new BoundCheckDrawer(width, true);

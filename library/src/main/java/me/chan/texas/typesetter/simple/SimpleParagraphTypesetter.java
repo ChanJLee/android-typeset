@@ -22,8 +22,8 @@ public class SimpleParagraphTypesetter extends AbsParagraphTypesetter {
 
 	@Override
 	protected boolean onTypeset(Paragraph paragraph,
-						   BreakStrategy breakStrategy,
-						   int width) {
+								BreakStrategy breakStrategy,
+								int width) {
 
 		return typeset0(
 				new ElementStream(paragraph),
@@ -81,6 +81,12 @@ public class SimpleParagraphTypesetter extends AbsParagraphTypesetter {
 			int save = stream.state();
 			Element element = stream.next();
 			if (element instanceof Span) {
+				stream.restore(save);
+				break;
+			}
+
+			boolean isBrkSemantic = element == Glue.TERMINAL || element == Penalty.FORCE_BREAK;
+			if (isBrkSemantic && !stream.isUnderTerminalSemanticState()) {
 				stream.restore(save);
 				break;
 			}
@@ -151,8 +157,8 @@ public class SimpleParagraphTypesetter extends AbsParagraphTypesetter {
 		assert penalty != null;
 
 		if (penalty == Penalty.FORCE_BREAK) {
-			breaks.push(save);
-			return 0;
+			breaks.push(stream.state());
+			return -1;
 		}
 
 		if (isDenotation(penalty)) {
@@ -267,10 +273,6 @@ public class SimpleParagraphTypesetter extends AbsParagraphTypesetter {
 	private void typesetUnit(Layout layout, ElementStream stream, int endState,
 							 BreakStrategy breakStrategy, int lineWidth) {
 		Line line = createLine(stream, endState, breakStrategy, lineWidth);
-		if (line.isEmpty()) {
-			return;
-		}
-
 		layout.addLine(line);
 	}
 }
