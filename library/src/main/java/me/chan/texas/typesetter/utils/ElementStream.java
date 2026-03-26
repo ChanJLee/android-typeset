@@ -103,6 +103,6 @@ public final class ElementStream {
 	public boolean isUnderTerminalSemanticState() {
 		int state = state();
 		int size = mParagraph.getElementCount();
-		return state == size || state == size - 1;
+		return state == size - 2 || state == size - 1;
 	}
 }

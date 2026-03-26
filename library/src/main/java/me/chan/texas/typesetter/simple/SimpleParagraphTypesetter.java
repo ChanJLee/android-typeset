@@ -83,6 +83,14 @@ public class SimpleParagraphTypesetter extends AbsParagraphTypesetter {
 	}
 
 	private void eat(ElementStream stream) {
+		// terminal 只是为了填充最后一行，当然，这是在有内容的情况下
+		if (stream.isUnderTerminalSemanticState()) {
+			while (!stream.eof()) {
+				stream.next();
+			}
+			return;
+		}
+
 		while (!stream.eof()) {
 			int save = stream.state();
 			Element element = stream.next();
@@ -92,7 +100,7 @@ public class SimpleParagraphTypesetter extends AbsParagraphTypesetter {
 			}
 
 			boolean isBrkSemantic = element == Glue.TERMINAL || element == Penalty.FORCE_BREAK;
-			if (isBrkSemantic && !stream.isUnderTerminalSemanticState()) {
+			if (isBrkSemantic) {
 				stream.restore(save);
 				break;
 			}

@@ -541,7 +541,11 @@ public class ParagraphView extends FrameLayout {
 				return true;
 			}
 
-			worker.desire(mParagraph, mRenderOption, exceptedWidth);
+			RenderOption option = mRenderOption;
+			PaintSet paintSet = new PaintSet(option);
+			Measurer measurer = mMeasureFactory.create(paintSet);
+			Measurer.CharSequenceSpec spec = measurer.getBaseSpec();
+			worker.desire(mParagraph, mRenderOption, exceptedWidth, spec.getHeight());
 			return true;
 		} catch (Throwable e) {
 			return false;

@@ -40,8 +40,11 @@ public class BenchmarkActivity extends AppCompatActivity {
 			protected Paragraph onRead(TexasOption option) {
 				return Paragraph.Builder.newBuilder(option)
 						.appendSpaceEnable(false)
-						.text("AVAV")
+						.text("AV")
+						.brk()
+						.text("AV")
 						.text("WAWA asdasdasd (תפוח) 123")
+						.brk()
 						.build();
 			}
 		});
