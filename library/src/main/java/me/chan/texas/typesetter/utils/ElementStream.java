@@ -5,6 +5,8 @@ import androidx.annotation.RestrictTo;
 
 import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.layout.Element;
+import me.chan.texas.text.layout.Glue;
+import me.chan.texas.text.layout.Penalty;
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public final class ElementStream {
@@ -102,7 +104,17 @@ public final class ElementStream {
 
 	public boolean isUnderTerminalSemanticState() {
 		int state = state();
-		int size = mParagraph.getElementCount();
-		return state == size || state == size - 1;
+		if (state >= 0 && state < mParagraph.getElementCount()) {
+			Element element = mParagraph.getElement(state);
+			return element == Glue.TERMINAL || element == Penalty.FORCE_BREAK;
+		}
+		return false;
+	}
+
+	public void skipTerminalSemanticState() {
+		Element element = next();
+		if (element == Glue.TERMINAL) {
+			next();
+		}
 	}
 }

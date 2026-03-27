@@ -56,6 +56,26 @@ public class PrimitiveUnitTest {
 				"1 2",
 				""
 		);
+
+		builder = Paragraph.Builder.newBuilder(mTexasOption);
+		builder.text("1 2 4")
+				.brk()
+				.brk();
+		paragraph = builder.build();
+		checkContent(mTexasOption.getMeasurer(), mTexasOption.getTextAttribute(), paragraph, 5, BreakStrategy.SIMPLE,
+				"1 2 4",
+				""
+		);
+
+		builder = Paragraph.Builder.newBuilder(mTexasOption);
+		builder.text("123456")
+				.brk()
+				.brk();
+		paragraph = builder.build();
+		checkContent(mTexasOption.getMeasurer(), mTexasOption.getTextAttribute(), paragraph, 5, BreakStrategy.SIMPLE,
+				"123456",
+				""
+		);
 	}
 
 	@Test

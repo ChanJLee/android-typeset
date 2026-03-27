@@ -60,6 +60,13 @@ public class SimpleParagraphTypesetter extends AbsParagraphTypesetter {
 				throw new IllegalStateException("state not changed");
 			}
 
+			if (stream.isUnderTerminalSemanticState()) {
+				Line line = layout.getLine(layout.getLineCount() - 1);
+				if (line.isEmpty() || line.getLineWidth() >= lineWidth) {
+					stream.skipTerminalSemanticState();
+				}
+			}
+
 			eat(stream);
 		}
 
@@ -92,7 +99,7 @@ public class SimpleParagraphTypesetter extends AbsParagraphTypesetter {
 			}
 
 			boolean isBrkSemantic = element == Glue.TERMINAL || element == Penalty.FORCE_BREAK;
-			if (isBrkSemantic && !stream.isUnderTerminalSemanticState()) {
+			if (isBrkSemantic) {
 				stream.restore(save);
 				break;
 			}
