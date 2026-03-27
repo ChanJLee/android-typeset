@@ -42,6 +42,7 @@ public class BenchmarkActivity extends AppCompatActivity {
 						.appendSpaceEnable(false)
 						.text("AV")
 						.brk()
+						.brk()
 						.text("AV")
 						.text("WAWA asdasdasd (תפוח) 123")
 						.brk()

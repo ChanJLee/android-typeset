@@ -558,7 +558,7 @@ public class TypesetterUnitTest {
 		Layout current = paragraph.getLayout();
 		Assert.assertNotSame(layout, current);
 
-		assertEquals(0, current.getLineCount());
+		assertEquals(1, current.getLineCount());
 	}
 
 	@Test

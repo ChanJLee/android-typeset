@@ -14,7 +14,7 @@
         android:layout_height="wrap_content"
         android:background="#F0ACA6"
         android:includeFontPadding="false"
-        android:text="AV\nAVWAWA asdasdasd (תפוח) 123\n"
+        android:text="AV\n\nAVWAWA asdasdasd (תפוח) 123\n"
         android:textSize="70sp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"

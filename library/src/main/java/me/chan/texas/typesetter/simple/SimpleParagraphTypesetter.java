@@ -60,6 +60,13 @@ public class SimpleParagraphTypesetter extends AbsParagraphTypesetter {
 				throw new IllegalStateException("state not changed");
 			}
 
+			if (stream.isUnderTerminalSemanticState()) {
+				Line line = layout.getLine(layout.getLineCount() - 1);
+				if (line.isEmpty() || line.getLineWidth() >= lineWidth) {
+					stream.skipTerminalSemanticState();
+				}
+			}
+
 			eat(stream);
 		}
 
@@ -83,14 +90,6 @@ public class SimpleParagraphTypesetter extends AbsParagraphTypesetter {
 	}
 
 	private void eat(ElementStream stream) {
-		// terminal 只是为了填充最后一行，当然，这是在有内容的情况下
-		if (stream.isUnderTerminalSemanticState()) {
-			while (!stream.eof()) {
-				stream.next();
-			}
-			return;
-		}
-
 		while (!stream.eof()) {
 			int save = stream.state();
 			Element element = stream.next();
