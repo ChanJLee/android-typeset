@@ -34,6 +34,9 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.ArrayList;
+import java.util.List;
+
 
 public class ParagraphUnitTest {
 
@@ -1616,6 +1619,214 @@ public class ParagraphUnitTest {
 		Assert.assertEquals(1024, hyperSpan.getSeq());
 		Paragraph p1 = result.get(0);
 		Assert.assertSame(hyperSpan, p1.getElement(p1.getElementCount() - 3));
+	}
+
+	@Test
+	public void testMergeBasic() {
+		TexasOption texasOption = new TexasOption(mPaintSet, Hyphenation.getInstance(), mMeasurer, mTextAttribute, new RenderOption());
+
+		Paragraph.Builder builder = Paragraph.Builder.newBuilder(texasOption);
+		builder.text("hello");
+		Paragraph p1 = builder.build();
+
+		builder = Paragraph.Builder.newBuilder(texasOption);
+		builder.text("world");
+		Paragraph p2 = builder.build();
+
+		Paragraph merged = p1.merge(p2);
+		assertElementEndsWithTerminalAndForceBreak(merged);
+
+		List<String> texts = collectTexts(merged);
+		Assert.assertTrue(texts.contains("hello"));
+		Assert.assertTrue(texts.contains("world"));
+
+		int p1TextCount = countSpans(p1);
+		int p2TextCount = countSpans(p2);
+		int mergedTextCount = countSpans(merged);
+		Assert.assertEquals(p1TextCount + p2TextCount, mergedTextCount);
+	}
+
+	@Test
+	public void testMergeTailStripped() {
+		TexasOption texasOption = new TexasOption(mPaintSet, Hyphenation.getInstance(), mMeasurer, mTextAttribute, new RenderOption());
+
+		Paragraph.Builder builder = Paragraph.Builder.newBuilder(texasOption);
+		builder.text("aaa");
+		Paragraph p1 = builder.build();
+
+		builder = Paragraph.Builder.newBuilder(texasOption);
+		builder.text("bbb");
+		Paragraph p2 = builder.build();
+
+		Paragraph merged = p1.merge(p2);
+
+		int terminalCount = 0;
+		for (int i = 0; i < merged.getElementCount(); ++i) {
+			if (merged.getElement(i) == Glue.TERMINAL) {
+				terminalCount++;
+			}
+		}
+		Assert.assertEquals("合并后只有一组尾部 TERMINAL", 1, terminalCount);
+		assertElementEndsWithTerminalAndForceBreak(merged);
+	}
+
+	@Test
+	public void testMergeEmptyParagraphs() {
+		TexasOption texasOption = new TexasOption(mPaintSet, Hyphenation.getInstance(), mMeasurer, mTextAttribute, new RenderOption());
+
+		Paragraph.Builder builder = Paragraph.Builder.newBuilder(texasOption);
+		Paragraph empty1 = builder.build();
+
+		builder = Paragraph.Builder.newBuilder(texasOption);
+		Paragraph empty2 = builder.build();
+
+		Paragraph merged = empty1.merge(empty2);
+		assertElementEndsWithTerminalAndForceBreak(merged);
+	}
+
+	@Test
+	public void testMergeWithNonEmptyAndEmpty() {
+		TexasOption texasOption = new TexasOption(mPaintSet, Hyphenation.getInstance(), mMeasurer, mTextAttribute, new RenderOption());
+
+		Paragraph.Builder builder = Paragraph.Builder.newBuilder(texasOption);
+		builder.text("content");
+		Paragraph p1 = builder.build();
+
+		builder = Paragraph.Builder.newBuilder(texasOption);
+		Paragraph empty = builder.build();
+
+		Paragraph merged = p1.merge(empty);
+		assertElementEndsWithTerminalAndForceBreak(merged);
+		Assert.assertTrue(collectTexts(merged).contains("content"));
+
+		Paragraph merged2 = empty.merge(p1);
+		assertElementEndsWithTerminalAndForceBreak(merged2);
+		Assert.assertTrue(collectTexts(merged2).contains("content"));
+	}
+
+	@Test
+	public void testMergeWithTag() {
+		TexasOption texasOption = new TexasOption(mPaintSet, Hyphenation.getInstance(), mMeasurer, mTextAttribute, new RenderOption());
+
+		Object tag = "myTag";
+		Paragraph.Builder builder = Paragraph.Builder.newBuilder(texasOption);
+		builder.tag(tag).text("hello");
+		Paragraph p1 = builder.build();
+
+		builder = Paragraph.Builder.newBuilder(texasOption);
+		builder.text("world");
+		Paragraph p2 = builder.build();
+
+		Paragraph merged = p1.merge(p2);
+		Assert.assertSame(tag, merged.getTag());
+		assertElementEndsWithTerminalAndForceBreak(merged);
+	}
+
+	@Test
+	public void testMergeLayoutAdvise() {
+		RenderOption renderOption = new RenderOption();
+		renderOption.setLineSpacingExtra(5);
+		TexasOption texasOption = new TexasOption(mPaintSet, Hyphenation.getInstance(), mMeasurer, mTextAttribute, renderOption);
+
+		Paragraph.Builder builder = Paragraph.Builder.newBuilder(texasOption);
+		builder.lineSpacingExtra(3).text("a");
+		Paragraph p1 = builder.build();
+
+		builder = Paragraph.Builder.newBuilder(texasOption);
+		builder.lineSpacingExtra(7).text("b");
+		Paragraph p2 = builder.build();
+
+		Paragraph merged = p1.merge(p2);
+		Assert.assertEquals(3, merged.getLayout().getAdvise().getLineSpacingExtra(), 0);
+	}
+
+	@Test
+	public void testMergeWithHyperSpan() {
+		TexasOption texasOption = new TexasOption(mPaintSet, Hyphenation.getInstance(), mMeasurer, mTextAttribute, new RenderOption());
+
+		Paragraph.Builder builder = Paragraph.Builder.newBuilder(texasOption);
+		builder.text("before");
+		Paragraph p1 = builder.build();
+
+		builder = Paragraph.Builder.newBuilder(texasOption);
+		HyperSpan hyperSpan = new MyHypeSpan();
+		builder.hyperSpan(hyperSpan);
+		builder.text("after");
+		Paragraph p2 = builder.build();
+
+		Paragraph merged = p1.merge(p2);
+		assertElementEndsWithTerminalAndForceBreak(merged);
+
+		boolean foundHyperSpan = false;
+		for (int i = 0; i < merged.getElementCount(); ++i) {
+			if (merged.getElement(i) == hyperSpan) {
+				foundHyperSpan = true;
+				break;
+			}
+		}
+		Assert.assertTrue("合并后应包含 HyperSpan", foundHyperSpan);
+	}
+
+	@Test
+	public void testSplitThenMerge() {
+		TexasOption texasOption = new TexasOption(mPaintSet, Hyphenation.getInstance(), mMeasurer, mTextAttribute, new RenderOption());
+
+		Paragraph.Builder builder = Paragraph.Builder.newBuilder(texasOption);
+		builder.text("a b c");
+		Paragraph original = builder.build();
+		int originalSpanCount = countSpans(original);
+
+		java.util.List<Paragraph> parts = original.split(span -> "b".equals(span.toString()));
+		Assert.assertEquals(2, parts.size());
+
+		Paragraph merged = parts.get(0).merge(parts.get(1));
+		assertElementEndsWithTerminalAndForceBreak(merged);
+		Assert.assertEquals(originalSpanCount, countSpans(merged));
+
+		List<String> originalTexts = collectTexts(original);
+		List<String> mergedTexts = collectTexts(merged);
+		Assert.assertEquals(originalTexts, mergedTexts);
+	}
+
+	@Test
+	public void testSplitThenMergeMultiple() {
+		TexasOption texasOption = new TexasOption(mPaintSet, Hyphenation.getInstance(), mMeasurer, mTextAttribute, new RenderOption());
+
+		Paragraph.Builder builder = Paragraph.Builder.newBuilder(texasOption);
+		builder.text("a b c d");
+		Paragraph original = builder.build();
+		List<String> originalTexts = collectTexts(original);
+
+		java.util.List<Paragraph> parts = original.split(
+				span -> "b".equals(span.toString()) || "c".equals(span.toString()));
+		Assert.assertEquals(3, parts.size());
+
+		Paragraph merged = parts.get(0).merge(parts.get(1)).merge(parts.get(2));
+		assertElementEndsWithTerminalAndForceBreak(merged);
+
+		List<String> mergedTexts = collectTexts(merged);
+		Assert.assertEquals(originalTexts, mergedTexts);
+	}
+
+	private static List<String> collectTexts(Paragraph paragraph) {
+		List<String> texts = new ArrayList<>();
+		for (int i = 0; i < paragraph.getElementCount(); ++i) {
+			Element element = paragraph.getElement(i);
+			if (element instanceof Span) {
+				texts.add(element.toString());
+			}
+		}
+		return texts;
+	}
+
+	private static int countSpans(Paragraph paragraph) {
+		int count = 0;
+		for (int i = 0; i < paragraph.getElementCount(); ++i) {
+			if (paragraph.getElement(i) instanceof Span) {
+				count++;
+			}
+		}
+		return count;
 	}
 
 	/**

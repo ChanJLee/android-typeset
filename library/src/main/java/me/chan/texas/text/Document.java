@@ -93,6 +93,16 @@ public final class Document {
 		return mSegments.get().get(index);
 	}
 
+	@Nullable
+	public Segment tryGetSegment(int index) {
+		List<Segment> segments = mSegments.get();
+		if (index < 0 || index >= segments.size()) {
+			return null;
+		}
+
+		return segments.get(index);
+	}
+
 	@RestrictTo(LIBRARY)
 	public void release() {
 		clear();
@@ -235,6 +245,16 @@ public final class Document {
 
 		public Segment getSegment(int index) {
 			return mSegments.get().get(index);
+		}
+
+		@Nullable
+		public Segment tryGetSegment(int index) {
+			List<Segment> segments = mSegments.get();
+			if (index < 0 || index >= segments.size()) {
+				return null;
+			}
+
+			return segments.get(index);
 		}
 
 		public int getSegmentCount() {
