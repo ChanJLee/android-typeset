@@ -120,7 +120,6 @@ public final class TexasView extends FrameLayout {
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
 	public final static Map<String, WeakReference<Typeface>> TYPEFACE_CACHE = new HashMap<>();
 
-	private DocumentSource mSource;
 	private Renderer mRenderer;
 	private RenderListener mRenderListener;
 	private OnClickedListener mOnClickedListener;
@@ -354,12 +353,12 @@ public final class TexasView extends FrameLayout {
 		mRenderer.setSegmentAnimator(segmentAnimator);
 	}
 
-	private void load(String reason) {
+	private void load(String reason, DocumentSource source) {
 		if (mRenderer == null) {
 			return;
 		}
 
-		mRenderer.load(reason, getRenderWidth());
+		mRenderer.load(reason, source, getRenderWidth());
 	}
 
 	@Override
@@ -404,24 +403,8 @@ public final class TexasView extends FrameLayout {
 			return;
 		}
 
-		if (mSource != null) {
-			d("detach prev adapter");
-			mSource.detach();
-			mSource = null;
-		}
-
-		d("bind adapter");
-		mSource = source;
 		source.attach(this);
-		load("setSource");
-	}
-
-	/**
-	 * @return current data source
-	 */
-	@Nullable
-	public DocumentSource getSource() {
-		return mSource;
+		load("setSource", source);
 	}
 
 	/**
@@ -450,10 +433,6 @@ public final class TexasView extends FrameLayout {
 	 */
 	public void release() {
 		i("release");
-		if (mSource != null) {
-			mSource.detach();
-			mSource = null;
-		}
 		mRenderListener = null;
 		mOnClickedListener = null;
 		mOnDragSelectListener = null;
@@ -956,7 +935,8 @@ public final class TexasView extends FrameLayout {
 			mTexasView = view;
 		}
 
-		private void detach() {
+		@RestrictTo(RestrictTo.Scope.LIBRARY)
+		public void detach() {
 			if (mTexasView == null) {
 				return;
 			}
