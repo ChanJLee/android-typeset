@@ -353,14 +353,6 @@ public final class TexasView extends FrameLayout {
 		mRenderer.setSegmentAnimator(segmentAnimator);
 	}
 
-	private void load(String reason, DocumentSource source) {
-		if (mRenderer == null) {
-			return;
-		}
-
-		mRenderer.load(reason, source, getRenderWidth());
-	}
-
 	@Override
 	protected void onSizeChanged(int w, int h, int oldw, int oldh) {
 		super.onSizeChanged(w, h, oldw, oldh);
@@ -404,7 +396,14 @@ public final class TexasView extends FrameLayout {
 		}
 
 		source.attach(this);
-		load("setSource", source);
+
+		int width = getRenderWidth();
+		if (width > 0) {
+			mRenderer.load("setSource", source, getRenderWidth());
+			return;
+		}
+
+		post(() -> mRenderer.load("setSourceDelayed", source, getRenderWidth()));
 	}
 
 	/**

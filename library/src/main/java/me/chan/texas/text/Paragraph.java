@@ -942,7 +942,12 @@ public final class Paragraph extends Segment {
 		copy.mElements.addAll(other.mElements);
 
 		copy.mTagsKv = copyKv(mTagsKv);
-		copy.mTagsKv = copyKv(copy.mTagsKv, other.mTagsKv);
+		if (other.mTagsKv != null) {
+			if (copy.mTagsKv == null) {
+				copy.mTagsKv = new SparseArrayCompat<>();
+			}
+			copyKv(copy.mTagsKv, other.mTagsKv);
+		}
 		copy.mDecor = mDecor;
 
 		copy.mSelection = mergeParagraphSelection(mSelection, other.mSelection, copy);

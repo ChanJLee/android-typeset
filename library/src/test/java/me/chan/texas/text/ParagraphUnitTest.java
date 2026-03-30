@@ -1689,19 +1689,20 @@ public class ParagraphUnitTest {
 		TexasOption texasOption = new TexasOption(mPaintSet, Hyphenation.getInstance(), mMeasurer, mTextAttribute, new RenderOption());
 
 		Paragraph.Builder builder = Paragraph.Builder.newBuilder(texasOption);
-		builder.text("content");
+		builder.text("hi");
 		Paragraph p1 = builder.build();
+		int p1SpanCount = countSpans(p1);
 
 		builder = Paragraph.Builder.newBuilder(texasOption);
 		Paragraph empty = builder.build();
 
 		Paragraph merged = p1.merge(empty);
 		assertElementEndsWithTerminalAndForceBreak(merged);
-		Assert.assertTrue(collectTexts(merged).contains("content"));
+		Assert.assertEquals(p1SpanCount, countSpans(merged));
 
 		Paragraph merged2 = empty.merge(p1);
 		assertElementEndsWithTerminalAndForceBreak(merged2);
-		Assert.assertTrue(collectTexts(merged2).contains("content"));
+		Assert.assertEquals(p1SpanCount, countSpans(merged2));
 	}
 
 	@Test

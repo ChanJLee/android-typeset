@@ -180,7 +180,7 @@ public class Renderer implements SelectionMethodImpl.Listener {
 			return;
 		}
 
-		boolean immediately = mPendingSource.isEmpty();
+		boolean immediately = mPendingSource.isEmpty() && width > 0;
 		mPendingSource.add(mLastTask = new Task(reason, width, source));
 		if (immediately) {
 			mTypesetEngine.load(reason, width, source, mListener);
