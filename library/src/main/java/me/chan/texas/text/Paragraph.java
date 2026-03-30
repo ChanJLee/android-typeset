@@ -889,7 +889,7 @@ public final class Paragraph extends Segment {
 
 	private static SparseArrayCompat<Object> copyKv(SparseArrayCompat<Object> copy, SparseArrayCompat<Object> kv) {
 		if (kv == null) {
-			return null;
+			return copy;
 		}
 
 		for (int i = 0; i < kv.size(); ++i) {
@@ -942,12 +942,7 @@ public final class Paragraph extends Segment {
 		copy.mElements.addAll(other.mElements);
 
 		copy.mTagsKv = copyKv(mTagsKv);
-		if (other.mTagsKv != null) {
-			if (copy.mTagsKv == null) {
-				copy.mTagsKv = new SparseArrayCompat<>();
-			}
-			copyKv(copy.mTagsKv, other.mTagsKv);
-		}
+		copy.mTagsKv = copyKv(copy.mTagsKv, other.mTagsKv);
 		copy.mDecor = mDecor;
 
 		copy.mSelection = mergeParagraphSelection(mSelection, other.mSelection, copy);

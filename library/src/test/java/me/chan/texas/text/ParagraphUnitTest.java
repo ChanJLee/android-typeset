@@ -1717,6 +1717,7 @@ public class ParagraphUnitTest {
 		builder = Paragraph.Builder.newBuilder(texasOption);
 		builder.text("world");
 		Paragraph p2 = builder.build();
+		Assert.assertNull(p2.mTagsKv);
 
 		Paragraph merged = p1.merge(p2);
 		Assert.assertSame(tag, merged.getTag());

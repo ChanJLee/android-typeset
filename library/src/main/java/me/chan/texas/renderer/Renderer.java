@@ -181,7 +181,7 @@ public class Renderer implements SelectionMethodImpl.Listener {
 		}
 
 		boolean immediately = mPendingSource.isEmpty() && width > 0;
-		mPendingSource.add(mLastTask = new Task(reason, width, source));
+		mPendingSource.add(mLastTask = new Task(reason, source));
 		if (immediately) {
 			mTypesetEngine.load(reason, width, source, mListener);
 		}
@@ -189,12 +189,10 @@ public class Renderer implements SelectionMethodImpl.Listener {
 
 	private static class Task {
 		String reason;
-		int width;
 		TexasView.DocumentSource source;
 
-		public Task(String reason, int width, TexasView.DocumentSource source) {
+		public Task(String reason, TexasView.DocumentSource source) {
 			this.reason = reason;
-			this.width = width;
 			this.source = source;
 		}
 	}
@@ -236,7 +234,7 @@ public class Renderer implements SelectionMethodImpl.Listener {
 		Task next = mPendingSource.peekFirst();
 		d("schedule: " + next);
 		if (next != null) {
-			mTypesetEngine.load(next.reason, next.width, next.source, mListener);
+			mTypesetEngine.load(next.reason, mTypesetEngine.getWidth(), next.source, mListener);
 		}
 	}
 
@@ -307,7 +305,7 @@ public class Renderer implements SelectionMethodImpl.Listener {
 			return;
 		}
 
-		resize(reason, mLastTask.width);
+		resize(reason, mTypesetEngine.getWidth());
 	}
 
 	private void reload(String reason, int width) {
