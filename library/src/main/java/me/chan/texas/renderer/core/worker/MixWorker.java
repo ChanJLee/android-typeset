@@ -90,7 +90,7 @@ public class MixWorker {
 				d("parse or refresh used time: " + (parseTimestamp - startTimestamp));
 			}
 
-			DiffUtil.DiffResult diff = args.prev == null ? null : diff(args.prev, args.document);
+			DiffUtil.DiffResult diff = args.prev == null || args.prev == args.document ? null : diff(args.prev, args.document);
 
 			typesetDocument(token, args.outWidth, args.prev, args.document, args.option, args.segmentDecoration);
 
@@ -179,14 +179,14 @@ public class MixWorker {
 		TextAttribute textAttribute = option.getTextAttribute();
 		textAttribute.refresh(measurer);
 
-		IntSet diff = createDocumentIdSet(prev);
+//		IntSet diff = createDocumentIdSet(prev);
 
 		// typeset
 		for (int i = 0; i < size && !token.isExpired(); ++i) {
 			Segment segment = document.getSegment(i);
-			if (diff.contains(segment.getId())) {
-				continue;
-			}
+//			if (diff.contains(segment.getId())) {
+//				continue;
+//			}
 
 			int width = outWidth;
 
@@ -222,20 +222,20 @@ public class MixWorker {
 		}
 	}
 
-	private static IntSet createDocumentIdSet(Document document) {
-		IntSet set = new IntSet();
-		if (document == null) {
-			return set;
-		}
-
-		int size = document.getSegmentCount();
-		for (int i = 0; i < size; ++i) {
-			Segment segment = document.getSegment(i);
-			set.add(segment.getId());
-		}
-
-		return set;
-	}
+//	private static IntSet createDocumentIdSet(Document document) {
+//		IntSet set = new IntSet();
+//		if (document == null) {
+//			return set;
+//		}
+//
+//		int size = document.getSegmentCount();
+//		for (int i = 0; i < size; ++i) {
+//			Segment segment = document.getSegment(i);
+//			set.add(segment.getId());
+//		}
+//
+//		return set;
+//	}
 
 	private static void analyzeDocument(Document document) {
 		ResultEvaluation resultEvaluation = new ResultEvaluation();
