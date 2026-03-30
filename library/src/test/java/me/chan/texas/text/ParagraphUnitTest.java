@@ -1089,9 +1089,9 @@ public class ParagraphUnitTest {
 		Layout layout = paragraph.getLayout();
 		Layout.Advise advise = layout.getAdvise();
 		Assert.assertSame(msg, paragraph.getTag());
-		Assert.assertEquals(advise.getLineSpacingExtra(), 0, 0);
-		Assert.assertEquals(layout.getLineCount(), 0);
-		Assert.assertEquals(paragraph.getElementCount(), 3);
+		Assert.assertEquals(0, advise.getLineSpacingExtra(), 0);
+		Assert.assertEquals(0, layout.getLineCount());
+		Assert.assertEquals(3, paragraph.getElementCount());
 
 		Line line1 = Line.obtain();
 		Line line2 = Line.obtain();
@@ -1100,15 +1100,15 @@ public class ParagraphUnitTest {
 		layout.addLine(line2);
 		layout.addLine(line3);
 
-		Assert.assertEquals(layout.getLineCount(), 3);
+		Assert.assertEquals(3, layout.getLineCount());
 		Assert.assertSame(layout.getLine(0), line1);
 		Assert.assertSame(layout.getLine(1), line2);
 		Assert.assertSame(layout.getLine(2), line3);
 
 
 		paragraph.recycle();
-		Assert.assertEquals(layout.getLineCount(), 0);
-		Assert.assertEquals(paragraph.getElementCount(), 0);
+		Assert.assertEquals(0, layout.getLineCount());
+		Assert.assertEquals(0, paragraph.getElementCount());
 		Assert.assertNull(paragraph.getTag());
 
 		// check recycle twice
@@ -1121,8 +1121,8 @@ public class ParagraphUnitTest {
 		layout = paragraph.getLayout();
 		Assert.assertNotSame(paragraph, paragraph1);
 		Assert.assertNull(paragraph.getTag());
-		Assert.assertEquals(layout.getLineCount(), 0);
-		Assert.assertEquals(paragraph.getElementCount(), 7);
+		Assert.assertEquals(0, layout.getLineCount());
+		Assert.assertEquals(7, paragraph.getElementCount());
 
 		Assert.assertNotSame(paragraph, Paragraph.Builder.newBuilder(texasOption));
 	}
@@ -1132,9 +1132,9 @@ public class ParagraphUnitTest {
 		Measurer.CharSequenceSpec spec = Measurer.CharSequenceSpec.obtain();
 		Assert.assertNotNull(spec);
 		spec.reset(1, 2, 5);
-		Assert.assertEquals(spec.getWidth(), 1, 0);
-		Assert.assertEquals(spec.getHeight(), 2, 0);
-		Assert.assertEquals(spec.getBaselineOffset(), 5, 0);
+		Assert.assertEquals(1, spec.getWidth(), 0);
+		Assert.assertEquals(2, spec.getHeight(), 0);
+		Assert.assertEquals(5, spec.getBaselineOffset(), 0);
 
 		spec.recycle();
 
@@ -1143,9 +1143,9 @@ public class ParagraphUnitTest {
 		Measurer.CharSequenceSpec spec1 = Measurer.CharSequenceSpec.obtain();
 		Assert.assertSame(spec1, spec);
 		spec1.reset(2, 3, 6);
-		Assert.assertEquals(spec.getWidth(), 2, 0);
-		Assert.assertEquals(spec.getHeight(), 3, 0);
-		Assert.assertEquals(spec.getBaselineOffset(), 6, 0);
+		Assert.assertEquals(2, spec.getWidth(), 0);
+		Assert.assertEquals(3, spec.getHeight(), 0);
+		Assert.assertEquals(6, spec.getBaselineOffset(), 0);
 
 		Assert.assertNotSame(spec1, Measurer.CharSequenceSpec.obtain());
 	}
@@ -1187,12 +1187,12 @@ public class ParagraphUnitTest {
 		Assert.assertTrue(paragraph.getElement(0) instanceof TextSpan);
 		Assert.assertTrue(paragraph.getElement(1) instanceof Glue);
 		Assert.assertTrue(paragraph.getElement(2) instanceof TextSpan);
-		Assert.assertTrue(paragraph.getElement(3) == Penalty.ADVISE_BREAK);
+		Assert.assertSame(Penalty.ADVISE_BREAK, paragraph.getElement(3));
 		Assert.assertTrue(paragraph.getElement(4) instanceof TextSpan);
 		Assert.assertTrue(paragraph.getElement(5) instanceof Glue);
 		Assert.assertTrue(paragraph.getElement(6) instanceof TextSpan);
-		Assert.assertTrue(paragraph.getElement(7) == Glue.TERMINAL);
-		Assert.assertTrue(paragraph.getElement(8) == Penalty.FORCE_BREAK);
+		Assert.assertSame(Glue.TERMINAL, paragraph.getElement(7));
+		Assert.assertSame(paragraph.getElement(8), Penalty.FORCE_BREAK);
 
 		Paragraph.Builder builder1 = Paragraph.Builder.newBuilder(texasOption);
 		Assert.assertSame(builder1, builder);
@@ -1202,8 +1202,8 @@ public class ParagraphUnitTest {
 		Assert.assertTrue(paragraph.getElement(0) instanceof TextSpan);
 		Assert.assertTrue(paragraph.getElement(1) instanceof Glue);
 		Assert.assertTrue(paragraph.getElement(2) instanceof TextSpan);
-		Assert.assertTrue(paragraph.getElement(3) == Glue.TERMINAL);
-		Assert.assertTrue(paragraph.getElement(4) == Penalty.FORCE_BREAK);
+		Assert.assertSame(paragraph.getElement(3), Glue.TERMINAL);
+		Assert.assertSame(paragraph.getElement(4), Penalty.FORCE_BREAK);
 	}
 
 	@Test
