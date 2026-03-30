@@ -153,11 +153,11 @@ public class BitBucket8UnitTest {
 		BitBucket8 bitmap3 = new BitBucket8((byte) 0b01010101);
 
 		// Test equals
-		Assert.assertTrue(bitmap1.equals(bitmap2));
-		Assert.assertFalse(bitmap1.equals(bitmap3));
-		Assert.assertTrue(bitmap1.equals(bitmap1));
-		Assert.assertFalse(bitmap1.equals(null));
-		Assert.assertFalse(bitmap1.equals("not a BitBucket8"));
+		Assert.assertEquals(bitmap1, bitmap2);
+		Assert.assertNotEquals(bitmap1, bitmap3);
+		Assert.assertEquals(bitmap1, bitmap1);
+		Assert.assertNotEquals(null, bitmap1);
+		Assert.assertNotEquals("not a BitBucket8", bitmap1);
 
 		// Test hashCode
 		Assert.assertEquals(bitmap1.hashCode(), bitmap2.hashCode());
@@ -171,12 +171,12 @@ public class BitBucket8UnitTest {
 
 		bitmap2.copy(bitmap1);
 		Assert.assertEquals(bitmap1.getBits(), bitmap2.getBits());
-		Assert.assertTrue(bitmap1.equals(bitmap2));
+		Assert.assertEquals(bitmap1, bitmap2);
 
 		// Modify original, copy should remain unchanged
 		bitmap1.set(1, true);
 		Assert.assertNotEquals(bitmap1.getBits(), bitmap2.getBits());
-		Assert.assertFalse(bitmap1.equals(bitmap2));
+		Assert.assertNotEquals(bitmap1, bitmap2);
 	}
 
 	@Test

@@ -884,11 +884,14 @@ public final class Paragraph extends Segment {
 	}
 
 	private static SparseArrayCompat<Object> copyKv(SparseArrayCompat<Object> kv) {
+		return copyKv(new SparseArrayCompat<>(), kv);
+	}
+
+	private static SparseArrayCompat<Object> copyKv(SparseArrayCompat<Object> copy, SparseArrayCompat<Object> kv) {
 		if (kv == null) {
-			return null;
+			return copy;
 		}
 
-		SparseArrayCompat<Object> copy = new SparseArrayCompat<>();
 		for (int i = 0; i < kv.size(); ++i) {
 			copy.put(kv.keyAt(i), kv.valueAt(i));
 		}
@@ -916,6 +919,56 @@ public final class Paragraph extends Segment {
 			if (element instanceof Span) {
 				Span span = (Span) element;
 				if (selection.isSelected(span)) {
+					copy.appendSpan(span);
+				}
+			}
+		}
+		copy.setBackgroundInvalid(true);
+		return copy;
+	}
+
+	public Paragraph merge(Paragraph other) {
+		Paragraph copy = new Paragraph(null);
+		copy.mElements.addAll(mElements);
+
+		int size = copy.mElements.size();
+		if (size >= 2
+				&& copy.mElements.get(size - 2) == Glue.TERMINAL
+				&& copy.mElements.get(size - 1) == Penalty.FORCE_BREAK) {
+			copy.mElements.remove(size - 1);
+			copy.mElements.remove(size - 2);
+		}
+
+		copy.mElements.addAll(other.mElements);
+
+		copy.mTagsKv = copyKv(mTagsKv);
+		copy.mTagsKv = copyKv(copy.mTagsKv, other.mTagsKv);
+		copy.mDecor = mDecor;
+
+		copy.mSelection = mergeParagraphSelection(mSelection, other.mSelection, copy);
+		copy.mHighlight = mergeParagraphSelection(mHighlight, other.mHighlight, copy);
+
+		Layout copyLayout = copy.getLayout();
+		copyLayout.getAdvise().copy(getLayout().getAdvise());
+
+		return copy;
+	}
+
+	private static ParagraphSelection mergeParagraphSelection(
+			ParagraphSelection s1, ParagraphSelection s2, Paragraph paragraph) {
+		if (s1 == null && s2 == null) {
+			return null;
+		}
+
+		ParagraphSelection base = s1 != null ? s1 : s2;
+		ParagraphSelection copy = ParagraphSelection.obtain(
+				base.getType(), base.getSelectionStyle(), paragraph);
+		for (int i = 0; i < paragraph.getElementCount(); ++i) {
+			Element element = paragraph.getElement(i);
+			if (element instanceof Span) {
+				Span span = (Span) element;
+				if ((s1 != null && s1.isSelected(span))
+						|| (s2 != null && s2.isSelected(span))) {
 					copy.appendSpan(span);
 				}
 			}

@@ -34,6 +34,9 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.ArrayList;
+import java.util.List;
+
 
 public class ParagraphUnitTest {
 
@@ -1086,9 +1089,9 @@ public class ParagraphUnitTest {
 		Layout layout = paragraph.getLayout();
 		Layout.Advise advise = layout.getAdvise();
 		Assert.assertSame(msg, paragraph.getTag());
-		Assert.assertEquals(advise.getLineSpacingExtra(), 0, 0);
-		Assert.assertEquals(layout.getLineCount(), 0);
-		Assert.assertEquals(paragraph.getElementCount(), 3);
+		Assert.assertEquals(0, advise.getLineSpacingExtra(), 0);
+		Assert.assertEquals(0, layout.getLineCount());
+		Assert.assertEquals(3, paragraph.getElementCount());
 
 		Line line1 = Line.obtain();
 		Line line2 = Line.obtain();
@@ -1097,15 +1100,15 @@ public class ParagraphUnitTest {
 		layout.addLine(line2);
 		layout.addLine(line3);
 
-		Assert.assertEquals(layout.getLineCount(), 3);
+		Assert.assertEquals(3, layout.getLineCount());
 		Assert.assertSame(layout.getLine(0), line1);
 		Assert.assertSame(layout.getLine(1), line2);
 		Assert.assertSame(layout.getLine(2), line3);
 
 
 		paragraph.recycle();
-		Assert.assertEquals(layout.getLineCount(), 0);
-		Assert.assertEquals(paragraph.getElementCount(), 0);
+		Assert.assertEquals(0, layout.getLineCount());
+		Assert.assertEquals(0, paragraph.getElementCount());
 		Assert.assertNull(paragraph.getTag());
 
 		// check recycle twice
@@ -1118,8 +1121,8 @@ public class ParagraphUnitTest {
 		layout = paragraph.getLayout();
 		Assert.assertNotSame(paragraph, paragraph1);
 		Assert.assertNull(paragraph.getTag());
-		Assert.assertEquals(layout.getLineCount(), 0);
-		Assert.assertEquals(paragraph.getElementCount(), 7);
+		Assert.assertEquals(0, layout.getLineCount());
+		Assert.assertEquals(7, paragraph.getElementCount());
 
 		Assert.assertNotSame(paragraph, Paragraph.Builder.newBuilder(texasOption));
 	}
@@ -1129,9 +1132,9 @@ public class ParagraphUnitTest {
 		Measurer.CharSequenceSpec spec = Measurer.CharSequenceSpec.obtain();
 		Assert.assertNotNull(spec);
 		spec.reset(1, 2, 5);
-		Assert.assertEquals(spec.getWidth(), 1, 0);
-		Assert.assertEquals(spec.getHeight(), 2, 0);
-		Assert.assertEquals(spec.getBaselineOffset(), 5, 0);
+		Assert.assertEquals(1, spec.getWidth(), 0);
+		Assert.assertEquals(2, spec.getHeight(), 0);
+		Assert.assertEquals(5, spec.getBaselineOffset(), 0);
 
 		spec.recycle();
 
@@ -1140,9 +1143,9 @@ public class ParagraphUnitTest {
 		Measurer.CharSequenceSpec spec1 = Measurer.CharSequenceSpec.obtain();
 		Assert.assertSame(spec1, spec);
 		spec1.reset(2, 3, 6);
-		Assert.assertEquals(spec.getWidth(), 2, 0);
-		Assert.assertEquals(spec.getHeight(), 3, 0);
-		Assert.assertEquals(spec.getBaselineOffset(), 6, 0);
+		Assert.assertEquals(2, spec.getWidth(), 0);
+		Assert.assertEquals(3, spec.getHeight(), 0);
+		Assert.assertEquals(6, spec.getBaselineOffset(), 0);
 
 		Assert.assertNotSame(spec1, Measurer.CharSequenceSpec.obtain());
 	}
@@ -1184,12 +1187,12 @@ public class ParagraphUnitTest {
 		Assert.assertTrue(paragraph.getElement(0) instanceof TextSpan);
 		Assert.assertTrue(paragraph.getElement(1) instanceof Glue);
 		Assert.assertTrue(paragraph.getElement(2) instanceof TextSpan);
-		Assert.assertTrue(paragraph.getElement(3) == Penalty.ADVISE_BREAK);
+		Assert.assertSame(Penalty.ADVISE_BREAK, paragraph.getElement(3));
 		Assert.assertTrue(paragraph.getElement(4) instanceof TextSpan);
 		Assert.assertTrue(paragraph.getElement(5) instanceof Glue);
 		Assert.assertTrue(paragraph.getElement(6) instanceof TextSpan);
-		Assert.assertTrue(paragraph.getElement(7) == Glue.TERMINAL);
-		Assert.assertTrue(paragraph.getElement(8) == Penalty.FORCE_BREAK);
+		Assert.assertSame(Glue.TERMINAL, paragraph.getElement(7));
+		Assert.assertSame(paragraph.getElement(8), Penalty.FORCE_BREAK);
 
 		Paragraph.Builder builder1 = Paragraph.Builder.newBuilder(texasOption);
 		Assert.assertSame(builder1, builder);
@@ -1199,8 +1202,8 @@ public class ParagraphUnitTest {
 		Assert.assertTrue(paragraph.getElement(0) instanceof TextSpan);
 		Assert.assertTrue(paragraph.getElement(1) instanceof Glue);
 		Assert.assertTrue(paragraph.getElement(2) instanceof TextSpan);
-		Assert.assertTrue(paragraph.getElement(3) == Glue.TERMINAL);
-		Assert.assertTrue(paragraph.getElement(4) == Penalty.FORCE_BREAK);
+		Assert.assertSame(paragraph.getElement(3), Glue.TERMINAL);
+		Assert.assertSame(paragraph.getElement(4), Penalty.FORCE_BREAK);
 	}
 
 	@Test
@@ -1616,6 +1619,216 @@ public class ParagraphUnitTest {
 		Assert.assertEquals(1024, hyperSpan.getSeq());
 		Paragraph p1 = result.get(0);
 		Assert.assertSame(hyperSpan, p1.getElement(p1.getElementCount() - 3));
+	}
+
+	@Test
+	public void testMergeBasic() {
+		TexasOption texasOption = new TexasOption(mPaintSet, Hyphenation.getInstance(), mMeasurer, mTextAttribute, new RenderOption());
+
+		Paragraph.Builder builder = Paragraph.Builder.newBuilder(texasOption);
+		builder.text("hello");
+		Paragraph p1 = builder.build();
+
+		builder = Paragraph.Builder.newBuilder(texasOption);
+		builder.text("world");
+		Paragraph p2 = builder.build();
+
+		Paragraph merged = p1.merge(p2);
+		assertElementEndsWithTerminalAndForceBreak(merged);
+
+		List<String> texts = collectTexts(merged);
+		Assert.assertTrue(texts.contains("hello"));
+		Assert.assertTrue(texts.contains("world"));
+
+		int p1TextCount = countSpans(p1);
+		int p2TextCount = countSpans(p2);
+		int mergedTextCount = countSpans(merged);
+		Assert.assertEquals(p1TextCount + p2TextCount, mergedTextCount);
+	}
+
+	@Test
+	public void testMergeTailStripped() {
+		TexasOption texasOption = new TexasOption(mPaintSet, Hyphenation.getInstance(), mMeasurer, mTextAttribute, new RenderOption());
+
+		Paragraph.Builder builder = Paragraph.Builder.newBuilder(texasOption);
+		builder.text("aaa");
+		Paragraph p1 = builder.build();
+
+		builder = Paragraph.Builder.newBuilder(texasOption);
+		builder.text("bbb");
+		Paragraph p2 = builder.build();
+
+		Paragraph merged = p1.merge(p2);
+
+		int terminalCount = 0;
+		for (int i = 0; i < merged.getElementCount(); ++i) {
+			if (merged.getElement(i) == Glue.TERMINAL) {
+				terminalCount++;
+			}
+		}
+		Assert.assertEquals("合并后只有一组尾部 TERMINAL", 1, terminalCount);
+		assertElementEndsWithTerminalAndForceBreak(merged);
+	}
+
+	@Test
+	public void testMergeEmptyParagraphs() {
+		TexasOption texasOption = new TexasOption(mPaintSet, Hyphenation.getInstance(), mMeasurer, mTextAttribute, new RenderOption());
+
+		Paragraph.Builder builder = Paragraph.Builder.newBuilder(texasOption);
+		Paragraph empty1 = builder.build();
+
+		builder = Paragraph.Builder.newBuilder(texasOption);
+		Paragraph empty2 = builder.build();
+
+		Paragraph merged = empty1.merge(empty2);
+		assertElementEndsWithTerminalAndForceBreak(merged);
+	}
+
+	@Test
+	public void testMergeWithNonEmptyAndEmpty() {
+		TexasOption texasOption = new TexasOption(mPaintSet, Hyphenation.getInstance(), mMeasurer, mTextAttribute, new RenderOption());
+
+		Paragraph.Builder builder = Paragraph.Builder.newBuilder(texasOption);
+		builder.text("hi");
+		Paragraph p1 = builder.build();
+		int p1SpanCount = countSpans(p1);
+
+		builder = Paragraph.Builder.newBuilder(texasOption);
+		Paragraph empty = builder.build();
+
+		Paragraph merged = p1.merge(empty);
+		assertElementEndsWithTerminalAndForceBreak(merged);
+		Assert.assertEquals(p1SpanCount, countSpans(merged));
+
+		Paragraph merged2 = empty.merge(p1);
+		assertElementEndsWithTerminalAndForceBreak(merged2);
+		Assert.assertEquals(p1SpanCount, countSpans(merged2));
+	}
+
+	@Test
+	public void testMergeWithTag() {
+		TexasOption texasOption = new TexasOption(mPaintSet, Hyphenation.getInstance(), mMeasurer, mTextAttribute, new RenderOption());
+
+		Object tag = "myTag";
+		Paragraph.Builder builder = Paragraph.Builder.newBuilder(texasOption);
+		builder.tag(tag).text("hello");
+		Paragraph p1 = builder.build();
+
+		builder = Paragraph.Builder.newBuilder(texasOption);
+		builder.text("world");
+		Paragraph p2 = builder.build();
+		Assert.assertNull(p2.mTagsKv);
+
+		Paragraph merged = p1.merge(p2);
+		Assert.assertSame(tag, merged.getTag());
+		assertElementEndsWithTerminalAndForceBreak(merged);
+	}
+
+	@Test
+	public void testMergeLayoutAdvise() {
+		RenderOption renderOption = new RenderOption();
+		renderOption.setLineSpacingExtra(5);
+		TexasOption texasOption = new TexasOption(mPaintSet, Hyphenation.getInstance(), mMeasurer, mTextAttribute, renderOption);
+
+		Paragraph.Builder builder = Paragraph.Builder.newBuilder(texasOption);
+		builder.lineSpacingExtra(3).text("a");
+		Paragraph p1 = builder.build();
+
+		builder = Paragraph.Builder.newBuilder(texasOption);
+		builder.lineSpacingExtra(7).text("b");
+		Paragraph p2 = builder.build();
+
+		Paragraph merged = p1.merge(p2);
+		Assert.assertEquals(3, merged.getLayout().getAdvise().getLineSpacingExtra(), 0);
+	}
+
+	@Test
+	public void testMergeWithHyperSpan() {
+		TexasOption texasOption = new TexasOption(mPaintSet, Hyphenation.getInstance(), mMeasurer, mTextAttribute, new RenderOption());
+
+		Paragraph.Builder builder = Paragraph.Builder.newBuilder(texasOption);
+		builder.text("before");
+		Paragraph p1 = builder.build();
+
+		builder = Paragraph.Builder.newBuilder(texasOption);
+		HyperSpan hyperSpan = new MyHypeSpan();
+		builder.hyperSpan(hyperSpan);
+		builder.text("after");
+		Paragraph p2 = builder.build();
+
+		Paragraph merged = p1.merge(p2);
+		assertElementEndsWithTerminalAndForceBreak(merged);
+
+		boolean foundHyperSpan = false;
+		for (int i = 0; i < merged.getElementCount(); ++i) {
+			if (merged.getElement(i) == hyperSpan) {
+				foundHyperSpan = true;
+				break;
+			}
+		}
+		Assert.assertTrue("合并后应包含 HyperSpan", foundHyperSpan);
+	}
+
+	@Test
+	public void testSplitThenMerge() {
+		TexasOption texasOption = new TexasOption(mPaintSet, Hyphenation.getInstance(), mMeasurer, mTextAttribute, new RenderOption());
+
+		Paragraph.Builder builder = Paragraph.Builder.newBuilder(texasOption);
+		builder.text("a b c");
+		Paragraph original = builder.build();
+		int originalSpanCount = countSpans(original);
+
+		java.util.List<Paragraph> parts = original.split(span -> "b".equals(span.toString()));
+		Assert.assertEquals(2, parts.size());
+
+		Paragraph merged = parts.get(0).merge(parts.get(1));
+		assertElementEndsWithTerminalAndForceBreak(merged);
+		Assert.assertEquals(originalSpanCount, countSpans(merged));
+
+		List<String> originalTexts = collectTexts(original);
+		List<String> mergedTexts = collectTexts(merged);
+		Assert.assertEquals(originalTexts, mergedTexts);
+	}
+
+	@Test
+	public void testSplitThenMergeMultiple() {
+		TexasOption texasOption = new TexasOption(mPaintSet, Hyphenation.getInstance(), mMeasurer, mTextAttribute, new RenderOption());
+
+		Paragraph.Builder builder = Paragraph.Builder.newBuilder(texasOption);
+		builder.text("a b c d");
+		Paragraph original = builder.build();
+		List<String> originalTexts = collectTexts(original);
+
+		java.util.List<Paragraph> parts = original.split(
+				span -> "b".equals(span.toString()) || "c".equals(span.toString()));
+		Assert.assertEquals(3, parts.size());
+
+		Paragraph merged = parts.get(0).merge(parts.get(1)).merge(parts.get(2));
+		assertElementEndsWithTerminalAndForceBreak(merged);
+
+		List<String> mergedTexts = collectTexts(merged);
+		Assert.assertEquals(originalTexts, mergedTexts);
+	}
+
+	private static List<String> collectTexts(Paragraph paragraph) {
+		List<String> texts = new ArrayList<>();
+		for (int i = 0; i < paragraph.getElementCount(); ++i) {
+			Element element = paragraph.getElement(i);
+			if (element instanceof Span) {
+				texts.add(element.toString());
+			}
+		}
+		return texts;
+	}
+
+	private static int countSpans(Paragraph paragraph) {
+		int count = 0;
+		for (int i = 0; i < paragraph.getElementCount(); ++i) {
+			if (paragraph.getElement(i) instanceof Span) {
+				count++;
+			}
+		}
+		return count;
 	}
 
 	/**

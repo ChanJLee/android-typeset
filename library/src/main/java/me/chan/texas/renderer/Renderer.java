@@ -22,6 +22,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.Deque;
+import java.util.LinkedList;
 
 import me.chan.texas.BuildConfig;
 import me.chan.texas.R;
@@ -80,6 +82,10 @@ public class Renderer implements SelectionMethodImpl.Listener {
 	 */
 	private final SelectionMethodImpl mSelectionMethod;
 
+
+	private Task mLastTask = null;
+	private final Deque<Task> mPendingSource = new LinkedList<>();
+
 	private final RecyclerView.OnScrollListener mOnScrollListener = new RecyclerView.OnScrollListener() {
 		@Override
 		public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
@@ -100,6 +106,7 @@ public class Renderer implements SelectionMethodImpl.Listener {
 
 		@Override
 		public void onFailure(Throwable throwable) {
+			scheduleNextTask();
 			mTexasView.notifyRenderError(throwable);
 		}
 
@@ -166,15 +173,28 @@ public class Renderer implements SelectionMethodImpl.Listener {
 	/**
 	 * @param width 期望的宽度，如果是负值，那么就忽略排版，只会解析
 	 */
-	public void load(String reason, int width) {
+	public void load(String reason, TexasView.DocumentSource source, int width) {
 		d("load, reason: " + reason);
-
 		if (mTypesetEngine == null) {
 			w("render, core is null");
 			return;
 		}
 
-		mTypesetEngine.load(reason, width, mTexasView.getSource(), mListener);
+		boolean immediately = mPendingSource.isEmpty() && width > 0;
+		mPendingSource.add(mLastTask = new Task(reason, source));
+		if (immediately) {
+			mTypesetEngine.load(reason, width, source, mListener);
+		}
+	}
+
+	private static class Task {
+		String reason;
+		TexasView.DocumentSource source;
+
+		public Task(String reason, TexasView.DocumentSource source) {
+			this.reason = reason;
+			this.source = source;
+		}
 	}
 
 	public void resize(String reason, int width) {
@@ -183,17 +203,47 @@ public class Renderer implements SelectionMethodImpl.Listener {
 		}
 
 		// 重新排版会将之前的解析任务都失效
-		mTypesetEngine.resize(reason, mTexasView.createTexasOption(), width, mListener);
+		if (mLastTask == null) {
+			/* no more last task */
+			return;
+		}
+
+		Task last = mPendingSource.peekLast();
+		if (last == null) {
+			mTypesetEngine.resize(reason, mTexasView.createTexasOption(), width, mListener);
+			return;
+		}
+
+		load("resize", last.source, width);
 	}
 
 	private void render(MixWorker.TypesetResult result) {
 		mAdapter.render(result);
 		mSelectionMethod.renderDropView();
 		mTexasView.notifyRenderEnd();
+		scheduleNextTask();
+	}
+
+	private void scheduleNextTask() {
+		d("schedule next task");
+		Task task = mPendingSource.pollFirst();
+		if (task != null) {
+			d("render finished, reason: " + task.reason);
+		}
+
+		Task next = mPendingSource.peekFirst();
+		d("schedule: " + next);
+		if (next != null) {
+			mTypesetEngine.load(next.reason, mTypesetEngine.getWidth(), next.source, mListener);
+		}
 	}
 
 	@CallSuper
 	public void release() {
+		for (Task task : mPendingSource) {
+			task.source.detach();
+		}
+		mPendingSource.clear();
 		onRelease();
 		if (mTypesetEngine == null) {
 			w("release, core is null");
@@ -228,11 +278,11 @@ public class Renderer implements SelectionMethodImpl.Listener {
 
 		if (cmpType == TexasUtils.CmpType.CMP_LOAD) {
 			d("render option changed, load");
-			load("render option changed", mTypesetEngine.getWidth());
+			reload("render option changed", mTypesetEngine.getWidth());
 			return;
 		} else if (cmpType == TexasUtils.CmpType.CMP_TYPESET) {
 			d("render option changed, typeset");
-			mTypesetEngine.resize("Renderer.refresh", mTexasView.createTexasOption(), mListener);
+			resize("resize, because render option changed");
 			return;
 		}
 
@@ -248,6 +298,22 @@ public class Renderer implements SelectionMethodImpl.Listener {
 		}
 
 		redrawInternal();
+	}
+
+	private void resize(String reason) {
+		if (mLastTask == null) {
+			return;
+		}
+
+		resize(reason, mTypesetEngine.getWidth());
+	}
+
+	private void reload(String reason, int width) {
+		if (mLastTask == null) {
+			return;
+		}
+
+		load(reason, mLastTask.source, width);
 	}
 
 	@Nullable
@@ -437,7 +503,7 @@ public class Renderer implements SelectionMethodImpl.Listener {
 		}
 
 		mTypesetEngine.setSegmentDecoration(segmentDecoration);
-		mTypesetEngine.resize("Renderer.setSegmentDecoration", mTexasView.createTexasOption(), mListener);
+		resize("Renderer.setSegmentDecoration");
 	}
 
 	private static void d(String msg) {

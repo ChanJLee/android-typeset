@@ -115,7 +115,9 @@ class ParagraphBuilderInternal {
 			brk();
 		}
 
-		mParagraph.setTag(mTag);
+		if (mTag != null) {
+			mParagraph.setTag(mTag);
+		}
 		return mParagraph;
 	}
 

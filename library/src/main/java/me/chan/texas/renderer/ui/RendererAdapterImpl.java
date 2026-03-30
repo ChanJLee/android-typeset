@@ -5,6 +5,7 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import android.annotation.SuppressLint;
 import android.content.Context;
 
+import me.chan.texas.compat.AdapterListUpdateCallback;
 import me.chan.texas.misc.Rect;
 
 import android.util.Log;
@@ -322,7 +323,7 @@ public class RendererAdapterImpl extends RecyclerView.Adapter<RendererAdapterImp
 		}
 
 		if (prev == result.base && result.diff != null) {
-			result.diff.dispatchUpdatesTo(this);
+			result.diff.dispatchUpdatesTo(new AdapterListUpdateCallback(this));
 			return;
 		}
 
@@ -468,6 +469,12 @@ public class RendererAdapterImpl extends RecyclerView.Adapter<RendererAdapterImp
 
 		protected final <T extends View> T findViewById(@IdRes int id) {
 			return itemView.findViewById(id);
+		}
+
+		@Override
+		public String toString() {
+			Segment segment = (Segment) itemView.getTag(R.id.me_chan_texas_item_tag);
+			return segment + " -> " + super.toString();
 		}
 	}
 
