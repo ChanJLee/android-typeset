@@ -1,5 +1,6 @@
 package me.chan.texas.text;
 
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.StateListDrawable;
 import android.util.Log;
@@ -94,6 +95,14 @@ public final class Emoticon extends HyperSpan {
 	public void setHorizontalPadding(float padding) {
 		mPaddingLeft = padding;
 		mPaddingRight = padding;
+	}
+
+	/**
+	 * @param drawable 绘制对象
+	 * @return 颜文字对象
+	 */
+	public static Emoticon obtain(BitmapDrawable drawable) {
+		return obtain(drawable, drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight());
 	}
 
 	/**
