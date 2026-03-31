@@ -10,6 +10,8 @@ import me.chan.texas.misc.PaintSet;
 import me.chan.texas.misc.RectF;
 import me.chan.texas.renderer.ParagraphVisitor;
 import me.chan.texas.renderer.RendererContext;
+import me.chan.texas.renderer.core.graphics.TexasCanvas;
+import me.chan.texas.renderer.core.graphics.TexasPaint;
 import me.chan.texas.test.mock.MockTextPaint;
 
 import me.chan.texas.Texas;
@@ -24,6 +26,7 @@ import me.chan.texas.text.layout.Glue;
 import me.chan.texas.text.layout.Layout;
 import me.chan.texas.text.layout.Line;
 import me.chan.texas.text.layout.Penalty;
+import me.chan.texas.text.layout.StateList;
 import me.chan.texas.text.layout.SymbolGlue;
 import me.chan.texas.text.layout.TextSpan;
 import me.chan.texas.text.tokenizer.Token;
@@ -1808,6 +1811,36 @@ public class ParagraphUnitTest {
 
 		List<String> mergedTexts = collectTexts(merged);
 		Assert.assertEquals(originalTexts, mergedTexts);
+	}
+
+	@Test
+	public void testAppendHyperSpan() {
+		TexasOption texasOption = new TexasOption(mPaintSet, Hyphenation.getInstance(), mMeasurer, mTextAttribute, new RenderOption());
+
+		HyperSpan hyperSpan = new HyperSpan() {
+			@Override
+			protected void onDraw(TexasCanvas canvas, TexasPaint paint, RectF inner, RectF outer, float baselineOffset, StateList states) {
+
+			}
+
+			@Override
+			protected void onMeasure(float lineHeight, float baselineOffset) {
+
+			}
+		};
+
+		Paragraph.Builder builder = Paragraph.Builder.newBuilder(texasOption);
+		builder.text("a");
+		builder.hyperSpan(hyperSpan);
+		builder.text("b");
+
+		Paragraph paragraph = builder.build();
+		Assert.assertEquals(5, paragraph.getElementCount());
+		Assert.assertEquals("a", paragraph.getElement(0).toString());
+		Assert.assertSame(hyperSpan, paragraph.getElement(1));
+		Assert.assertEquals("b", paragraph.getElement(2).toString());
+		Assert.assertSame(Glue.TERMINAL, paragraph.getElement(3));
+		Assert.assertSame(Penalty.FORCE_BREAK, paragraph.getElement(4));
 	}
 
 	private static List<String> collectTexts(Paragraph paragraph) {
