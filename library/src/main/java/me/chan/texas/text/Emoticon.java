@@ -24,9 +24,15 @@ public final class Emoticon extends HyperSpan {
 	};
 
 	private Drawable mDrawable;
+	private float mPaddingLeft = 0;
+	private float mPaddingRight = 0;
+	private final float mWidth;
+	private final float mHeight;
 
 	private Emoticon(@NonNull Drawable drawable, float width, float height, Object tag, Appearance background, Appearance foreground) {
 		super(width, height);
+		mWidth = width;
+		mHeight = height;
 		setBackground(background);
 		setForeground(foreground);
 		setTag(tag);
@@ -40,7 +46,7 @@ public final class Emoticon extends HyperSpan {
 
 	@Override
 	protected void onDraw(TexasCanvas canvas, TexasPaint paint, RectF inner, RectF outer, float baselineOffset, StateList states) {
-		float x = inner.left;
+		float x = inner.left + mPaddingLeft;
 		float y = inner.bottom - baselineOffset;
 		Drawable drawable = mDrawable;
 		if (mDrawable instanceof StateListDrawable) {
@@ -49,13 +55,13 @@ public final class Emoticon extends HyperSpan {
 			drawable = stateListDrawable.getCurrent();
 		}
 
-		drawable.setBounds((int) x, (int) (y - getHeight()), (int) (x + getWidth()), (int) y);
+		drawable.setBounds((int) x, (int) (y - mHeight), (int) (x + mWidth), (int) y);
 		canvas.draw(drawable);
 	}
 
 	@Override
 	protected void onMeasure(float lineHeight, float baselineOffset) {
-		/* NOOP */
+		setMeasuredSize(mWidth + mPaddingRight + mPaddingLeft, mHeight);
 	}
 
 	/**
@@ -77,6 +83,18 @@ public final class Emoticon extends HyperSpan {
 		mDrawable = drawable;
 	}
 
+	public void setPaddingLeft(float paddingLeft) {
+		mPaddingLeft = paddingLeft;
+	}
+
+	public void setPaddingRight(float paddingRight) {
+		mPaddingRight = paddingRight;
+	}
+
+	public void setHorizontalPadding(float padding) {
+		mPaddingLeft = padding;
+		mPaddingRight = padding;
+	}
 
 	/**
 	 * 获取Emoticon
