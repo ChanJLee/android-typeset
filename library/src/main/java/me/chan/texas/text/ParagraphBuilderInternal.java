@@ -157,9 +157,8 @@ class ParagraphBuilderInternal {
 	}
 
 	private void appendHyperSpan(HyperSpan span) {
-		Token token = Token.obtainOtherWord();
 		appendElement(span);
-		mLastToken = token;
+		mLastToken = null;
 	}
 
 	/**
