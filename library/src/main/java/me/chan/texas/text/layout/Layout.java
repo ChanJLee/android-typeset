@@ -108,7 +108,7 @@ public class Layout extends DefaultRecyclable {
 		return mAlgorithm;
 	}
 
-	public boolean isLayout() {
+	public boolean hasLayout() {
 		return !TextUtils.equals(mAlgorithm, ALGORITHM_UNKNOWN);
 	}
 
