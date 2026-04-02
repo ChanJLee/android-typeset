@@ -128,13 +128,14 @@ public class MainActivity extends AppCompatActivity {
 			}
 		});
 
-		findViewById(me.chan.texas.debug.R.id.math_symbol_benchmark).setOnClickListener(new View.OnClickListener() {
+		findViewById(me.chan.texas.debug.R.id.math_symbol_benchmark).setOnClickListener(v -> {
+			Intent intent = new Intent(v.getContext(), MathSymbolBenchmarkActivity.class);
+			startActivity(intent);
+		});
 
-			@Override
-			public void onClick(View v) {
-				Intent intent = new Intent(v.getContext(), MathSymbolBenchmarkActivity.class);
-				startActivity(intent);
-			}
+		findViewById(me.chan.texas.debug.R.id.paragraph_measure_benchmark).setOnClickListener(v -> {
+			Intent intent = new Intent(v.getContext(), ParagraphMeasureBenchmarkActivity.class);
+			startActivity(intent);
 		});
 	}
 

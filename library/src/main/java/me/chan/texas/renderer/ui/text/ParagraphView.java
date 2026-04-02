@@ -415,29 +415,39 @@ public class ParagraphView extends FrameLayout {
 		}
 
 		int width = MeasureSpec.getSize(widthMeasureSpec);
-		if (widthMode == MeasureSpec.UNSPECIFIED) {
-			width = Integer.MAX_VALUE;
-		}
 
 		long ts = DEBUG ? SystemClock.elapsedRealtime() : 0;
-		boolean typesetResult = typeset0(width - getPaddingLeft() - getPaddingRight());
+		boolean typesetResult;
+		if (widthMode == MeasureSpec.UNSPECIFIED) {
+			typesetResult = typesetDesire();
+		} else {
+			typesetResult = typeset0(width - getPaddingLeft() - getPaddingRight());
+		}
 		if (DEBUG) {
 			Log.d(TAG, "desire paragraph, width = " + width + ", cost = " + (SystemClock.elapsedRealtime() - ts));
 		}
 
-		if (heightMode != MeasureSpec.EXACTLY) {
+		if (typesetResult) {
+			Layout layout = mParagraph.getLayout();
 			if (DEBUG) {
-				Log.d(TAG, "try to desire paragraph, width = " + width);
+				Log.d(TAG, "paragraph is desired, layoutWidth = " + layout.getWidth() +
+						", layoutHeight = " + layout.getHeight());
 			}
 
-			if (typesetResult) {
-				Layout layout = mParagraph.getLayout();
-				int layoutHeight = layout.getHeight();
-				if (DEBUG) {
-					Log.d(TAG, "paragraph is desired, width = " + width + ", height = " + layoutHeight);
+			if (widthMode != MeasureSpec.EXACTLY) {
+				int layoutWidth = layout.getWidth() + getPaddingLeft() + getPaddingRight();
+				if (widthMode == MeasureSpec.AT_MOST) {
+					layoutWidth = Math.min(layoutWidth, width);
 				}
+				widthMeasureSpec = MeasureSpec.makeMeasureSpec(layoutWidth, MeasureSpec.EXACTLY);
+			}
+
+			if (heightMode != MeasureSpec.EXACTLY) {
+				int layoutHeight = getLayoutHeight(layout);
 				int height = layoutHeight + getPaddingTop() + getPaddingBottom();
-				height = heightMode == MeasureSpec.AT_MOST ? Math.min(height, MeasureSpec.getSize(heightMeasureSpec)) : height;
+				if (heightMode == MeasureSpec.AT_MOST) {
+					height = Math.min(height, MeasureSpec.getSize(heightMeasureSpec));
+				}
 				heightMeasureSpec = MeasureSpec.makeMeasureSpec(height, MeasureSpec.EXACTLY);
 			}
 		}
@@ -456,7 +466,7 @@ public class ParagraphView extends FrameLayout {
 		}
 
 		Layout layout = mParagraph.getLayout();
-		if (!layout.isLayout()) {
+		if (!layout.hasLayout()) {
 			Log.d(TAG, "paragraph is not layout, ignore intercept measure");
 			return false;
 		}
@@ -536,17 +546,31 @@ public class ParagraphView extends FrameLayout {
 		try {
 			ParagraphTypesetWorker worker = WorkerScheduler.typeset();
 			Layout layout = mParagraph.getLayout();
-			int exceptedWidth = width - layout.getPaddingRight() - layout.getPaddingLeft();
-			if (layout.isLayout() && layout.getWidth() == exceptedWidth) {
+			if (layout.hasLayout() && layout.getWidth() == width) {
 				return true;
 			}
 
+			int exceptedWidth = width - layout.getPaddingRight() - layout.getPaddingLeft();
 			RenderOption option = mRenderOption;
 			PaintSet paintSet = new PaintSet(option);
 			Measurer measurer = mMeasureFactory.create(paintSet);
 			Measurer.CharSequenceSpec spec = measurer.getBaseSpec();
-			worker.desire(mParagraph, mRenderOption, exceptedWidth, spec.getHeight());
-			return true;
+			return worker.desire(mParagraph, mRenderOption, exceptedWidth, spec.getHeight());
+		} catch (Throwable e) {
+			return false;
+		}
+	}
+
+	/**
+	 * 无宽度约束时使用 desire 模式排版，计算段落的实际内容宽度
+	 */
+	private boolean typesetDesire() {
+		try {
+			ParagraphTypesetWorker worker = WorkerScheduler.typeset();
+			PaintSet paintSet = new PaintSet(mRenderOption);
+			Measurer measurer = mMeasureFactory.create(paintSet);
+			Measurer.CharSequenceSpec spec = measurer.getBaseSpec();
+			return worker.desire(mParagraph, mRenderOption, spec.getHeight());
 		} catch (Throwable e) {
 			return false;
 		}
@@ -589,7 +613,7 @@ public class ParagraphView extends FrameLayout {
 		}
 
 		Layout layout = mParagraph.getLayout();
-		if (!layout.isLayout()) {
+		if (!layout.hasLayout()) {
 			return;
 		}
 
@@ -648,7 +672,7 @@ public class ParagraphView extends FrameLayout {
 		}
 		ParseWorker.Args args = ParseWorker.Args.obtain(source, mParseListener);
 		ParseWorker worker = WorkerScheduler.parse();
-		if (!isInEditMode() || !(source instanceof DirectParagraphSource)) {
+		if (!isInEditMode() && !(source instanceof DirectParagraphSource)) {
 			worker.submit(mRender.getToken(), args);
 			return;
 		}
@@ -1114,7 +1138,7 @@ public class ParagraphView extends FrameLayout {
 			TexasOption option = mParagraphView.createTexasOption();
 			Paragraph paragraph = onRead(mParagraphView.createTexasOption());
 			Layout layout = paragraph.getLayout();
-			if (!layout.isLayout() || layout.getAdvise().isModified(mParagraphView.mRenderOption)) {
+			if (!layout.hasLayout() || layout.getAdvise().isModified(mParagraphView.mRenderOption)) {
 				paragraph.measure(option.getMeasurer(), option.getTextAttribute());
 			}
 			return paragraph;

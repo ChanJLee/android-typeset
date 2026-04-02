@@ -1,0 +1,271 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingHorizontal="12dp"
+        android:paddingBottom="32dp">
+
+        <!-- ======================================================== -->
+        <!-- EXACTLY width 组 (match_parent / 固定 dp)                  -->
+        <!-- ======================================================== -->
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:text="1. EXACTLY × EXACTLY (200dp × 80dp)"
+            android:textStyle="bold" />
+
+        <me.chan.texas.renderer.ui.text.ParagraphView
+            android:layout_width="200dp"
+            android:layout_height="80dp"
+            android:background="#E3F2FD"
+            android:tag="1_EXACTLY_EXACTLY"
+            app:me_chan_texas_ParagraphView_text="Hello world" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:text="2. EXACTLY × UNSPECIFIED (match_parent × wrap_content, short)"
+            android:textStyle="bold" />
+
+        <me.chan.texas.renderer.ui.text.ParagraphView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#BBDEFB"
+            android:tag="2_EXACTLY_UNSPEC_short"
+            app:me_chan_texas_ParagraphView_text="Hello" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:text="3. EXACTLY × UNSPECIFIED (match_parent × wrap_content, long)"
+            android:textStyle="bold" />
+
+        <me.chan.texas.renderer.ui.text.ParagraphView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#90CAF9"
+            android:tag="3_EXACTLY_UNSPEC_long"
+            app:me_chan_texas_ParagraphView_text="The quick brown fox jumps over the lazy dog. Pack my box with five dozen liquor jugs. How vexingly quick daft zebras jump. The five boxing wizards jump quickly." />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:text="4. EXACTLY × AT_MOST (match_parent × wrap_content in 120dp FrameLayout)"
+            android:textStyle="bold" />
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="120dp"
+            android:background="#E0E0E0">
+
+            <me.chan.texas.renderer.ui.text.ParagraphView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="#64B5F6"
+                android:tag="4_EXACTLY_ATMOST"
+                app:me_chan_texas_ParagraphView_text="The quick brown fox jumps over the lazy dog. Pack my box with five dozen liquor jugs." />
+        </FrameLayout>
+
+        <!-- ======================================================== -->
+        <!-- AT_MOST width 组 (wrap_content)                            -->
+        <!-- ======================================================== -->
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="5. AT_MOST × UNSPECIFIED (wrap_content × wrap_content, short)"
+            android:textStyle="bold" />
+
+        <me.chan.texas.renderer.ui.text.ParagraphView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="#C8E6C9"
+            android:tag="5_ATMOST_UNSPEC_short"
+            app:me_chan_texas_ParagraphView_text="Hi" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:text="6. AT_MOST × UNSPECIFIED (wrap_content × wrap_content, long)"
+            android:textStyle="bold" />
+
+        <me.chan.texas.renderer.ui.text.ParagraphView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="#A5D6A7"
+            android:tag="6_ATMOST_UNSPEC_long"
+            app:me_chan_texas_ParagraphView_text="The quick brown fox jumps over the lazy dog. Pack my box with five dozen liquor jugs. How vexingly quick daft zebras jump." />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:text="7. AT_MOST × EXACTLY (wrap_content × 80dp)"
+            android:textStyle="bold" />
+
+        <me.chan.texas.renderer.ui.text.ParagraphView
+            android:layout_width="wrap_content"
+            android:layout_height="80dp"
+            android:background="#81C784"
+            android:tag="7_ATMOST_EXACTLY"
+            app:me_chan_texas_ParagraphView_text="Hello world" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:text="8. AT_MOST × AT_MOST (wrap_content × wrap_content in 120dp FrameLayout)"
+            android:textStyle="bold" />
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="120dp"
+            android:background="#E0E0E0">
+
+            <me.chan.texas.renderer.ui.text.ParagraphView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="#66BB6A"
+                android:tag="8_ATMOST_ATMOST"
+                app:me_chan_texas_ParagraphView_text="Hello world" />
+        </FrameLayout>
+
+        <!-- ======================================================== -->
+        <!-- UNSPECIFIED width 组 (HorizontalScrollView)                -->
+        <!-- ======================================================== -->
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="9. UNSPECIFIED × UNSPECIFIED (HSV, short)"
+            android:textStyle="bold" />
+
+        <HorizontalScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#E0E0E0">
+
+            <me.chan.texas.renderer.ui.text.ParagraphView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="#CE93D8"
+                android:tag="9_UNSPEC_UNSPEC_short"
+                app:me_chan_texas_ParagraphView_text="Hello" />
+        </HorizontalScrollView>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:text="10. UNSPECIFIED × UNSPECIFIED (HSV, long)"
+            android:textStyle="bold" />
+
+        <HorizontalScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#E0E0E0">
+
+            <me.chan.texas.renderer.ui.text.ParagraphView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="#BA68C8"
+                android:tag="10_UNSPEC_UNSPEC_long"
+                app:me_chan_texas_ParagraphView_text="The quick brown fox jumps over the lazy dog. Pack my box with five dozen liquor jugs. How vexingly quick daft zebras jump." />
+        </HorizontalScrollView>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:text="11. UNSPECIFIED × EXACTLY (HSV, 80dp height)"
+            android:textStyle="bold" />
+
+        <HorizontalScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#E0E0E0">
+
+            <me.chan.texas.renderer.ui.text.ParagraphView
+                android:layout_width="wrap_content"
+                android:layout_height="80dp"
+                android:background="#AB47BC"
+                android:tag="11_UNSPEC_EXACTLY"
+                app:me_chan_texas_ParagraphView_text="Hello world" />
+        </HorizontalScrollView>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:text="12. UNSPECIFIED × AT_MOST (HSV in 120dp FrameLayout)"
+            android:textStyle="bold" />
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="120dp"
+            android:background="#E0E0E0">
+
+            <HorizontalScrollView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <me.chan.texas.renderer.ui.text.ParagraphView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="#9C27B0"
+                    android:tag="12_UNSPEC_ATMOST"
+                    app:me_chan_texas_ParagraphView_text="The quick brown fox jumps over the lazy dog." />
+            </HorizontalScrollView>
+        </FrameLayout>
+
+        <!-- ======================================================== -->
+        <!-- 特殊用例                                                   -->
+        <!-- ======================================================== -->
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="13. EXACTLY × UNSPECIFIED with padding (16dp)"
+            android:textStyle="bold" />
+
+        <me.chan.texas.renderer.ui.text.ParagraphView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#FFE0B2"
+            android:padding="16dp"
+            android:tag="13_with_padding"
+            app:me_chan_texas_ParagraphView_text="The quick brown fox jumps over the lazy dog. Pack my box with five dozen liquor jugs." />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:text="14. EXACTLY × UNSPECIFIED with maxLines=2"
+            android:textStyle="bold" />
+
+        <me.chan.texas.renderer.ui.text.ParagraphView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#FFCC80"
+            android:tag="14_maxLines_2"
+            app:me_chan_texas_ParagraphView_maxLines="2"
+            app:me_chan_texas_ParagraphView_text="The quick brown fox jumps over the lazy dog. Pack my box with five dozen liquor jugs. How vexingly quick daft zebras jump. The five boxing wizards jump quickly. Sphinx of black quartz, judge my vow." />
+
+    </LinearLayout>
+</ScrollView>
