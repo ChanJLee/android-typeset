@@ -157,7 +157,10 @@ class ParagraphBuilderInternal {
 	}
 
 	private void appendHyperSpan(HyperSpan span) {
+		// TODO 未来支持更多语义
+		appendElement(Penalty.ADVISE_BREAK);
 		appendElement(span);
+		appendElement(Penalty.ADVISE_BREAK);
 		mLastToken = null;
 	}
 
