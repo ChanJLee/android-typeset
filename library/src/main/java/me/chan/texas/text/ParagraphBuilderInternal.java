@@ -158,7 +158,9 @@ class ParagraphBuilderInternal {
 
 	private void appendHyperSpan(HyperSpan span) {
 		// TODO 未来支持更多语义
-		appendElement(Penalty.ADVISE_BREAK);
+		if (mLastToken != null) {
+			appendElement(Penalty.ADVISE_BREAK);
+		}
 		appendElement(span);
 		appendElement(Penalty.ADVISE_BREAK);
 		mLastToken = null;
@@ -212,7 +214,7 @@ class ParagraphBuilderInternal {
 			}
 
 			Token prev = mLastToken;
-			appendRun0(text, reader, tokenStream);
+			appendRun0(reader, tokenStream);
 			if (prev != mLastToken && prev != null) {
 				prev.recycle();
 			}
@@ -221,32 +223,30 @@ class ParagraphBuilderInternal {
 		}
 	}
 
-	private void appendRun0(CharSequence text,
-							Paragraph.Builder.SpanStylesReader spanReader,
+	private void appendRun0(Paragraph.Builder.SpanStylesReader spanReader,
 							TokenStream tokenStream) {
 		while (tokenStream.hasNext()) {
-			mLastToken = accept(mLastToken, tokenStream, text, spanReader);
+			mLastToken = accept(mLastToken, tokenStream, spanReader);
 		}
 	}
 
-	private void appendWordToken(CharSequence text,
-								 Paragraph.Builder.SpanStylesReader spanReader,
+	private void appendWordToken(Paragraph.Builder.SpanStylesReader spanReader,
 								 Token token) {
 		int category = token.getCategory();
 		if (category == Token.CATEGORY_NORMAL) {
-			appendAsciiWordToken(text, spanReader, token);
+			appendAsciiWordToken(spanReader, token);
 		} else if (category == Token.CATEGORY_CJK) {
-			appendCjkWordToken(text, spanReader, token);
+			appendCjkWordToken(spanReader, token);
 		} else {
-			appendWordTokenDirect(text, spanReader, token);
+			appendWordTokenDirect(spanReader, token);
 		}
 	}
 
-	private void appendWordTokenDirect(CharSequence text,
-									   Paragraph.Builder.SpanStylesReader spanReader,
+	private void appendWordTokenDirect(Paragraph.Builder.SpanStylesReader spanReader,
 									   Token token) {
 		int start = token.getStart();
 		int end = token.getEnd();
+		CharSequence text = token.getCharSequence();
 		Paragraph.SpanStyles span = null;
 		if (spanReader != null) {
 			span = spanReader.read(token);
@@ -280,8 +280,7 @@ class ParagraphBuilderInternal {
 		}
 	}
 
-	private void appendAsciiWordToken(CharSequence text,
-									  Paragraph.Builder.SpanStylesReader spanReader,
+	private void appendAsciiWordToken(Paragraph.Builder.SpanStylesReader spanReader,
 									  Token token) {
 		Paragraph.SpanStyles span = null;
 		if (spanReader != null) {
@@ -300,20 +299,20 @@ class ParagraphBuilderInternal {
 			foreground = styles.getForeground();
 		}
 
-		appendEnText(text, token.getStart(), token.getEnd(), textStyle, tag, background, foreground);
+		appendEnText(token.getCharSequence(), token.getStart(), token.getEnd(), textStyle, tag, background, foreground);
 
 		if (span != null) {
 			span.recycle();
 		}
 	}
 
-	private void appendCjkWordToken(CharSequence text,
-									Paragraph.Builder.SpanStylesReader spanReader,
+	private void appendCjkWordToken(Paragraph.Builder.SpanStylesReader spanReader,
 									Token token) {
 		Layout layout = mParagraph.getLayout();
 		Layout.Advise advise = layout.getAdvise();
 		boolean cjkOptimization = advise.checkTypesetPolicy(TYPESET_POLICY_CJK_MIX_OPTIMIZATION);
 		Element linkElement = cjkOptimization ? Penalty.ADVISE_BREAK : mStretchOnlyGlue;
+		CharSequence text = token.getCharSequence();
 
 		Paragraph.SpanStyles span = null;
 		if (spanReader != null) {
@@ -359,10 +358,9 @@ class ParagraphBuilderInternal {
 		}
 	}
 
-	private TextSpan appendSymbolToken(CharSequence text,
-									   Paragraph.Builder.SpanStylesReader spanReader,
+	private TextSpan appendSymbolToken(Paragraph.Builder.SpanStylesReader spanReader,
 									   Token token) {
-		TextSpan textBox = obtainSymbolTextBox(text, spanReader, token);
+		TextSpan textBox = obtainSymbolTextBox(spanReader, token);
 
 		appendSymbolToken(textBox);
 
@@ -373,8 +371,7 @@ class ParagraphBuilderInternal {
 		appendElement(textBox);
 	}
 
-	private TextSpan obtainSymbolTextBox(CharSequence text,
-										 Paragraph.Builder.SpanStylesReader spanReader,
+	private TextSpan obtainSymbolTextBox(Paragraph.Builder.SpanStylesReader spanReader,
 										 Token token) {
 		Paragraph.SpanStyles span = null;
 		if (spanReader != null) {
@@ -393,7 +390,7 @@ class ParagraphBuilderInternal {
 			foreground = styles.getForeground();
 		}
 
-		TextSpan textBox = TextSpan.obtain(text, token.getStart(), token.getEnd(),
+		TextSpan textBox = TextSpan.obtain(token.getCharSequence(), token.getStart(), token.getEnd(),
 				textStyle,
 				tag,
 				background,
@@ -538,15 +535,13 @@ class ParagraphBuilderInternal {
 		public final boolean perform(ParagraphBuilderInternal builder,
 									 Token accepted,
 									 TokenStream stream,
-									 CharSequence text,
 									 Paragraph.Builder.SpanStylesReader spanReader) {
-			return perform0(builder, accepted, stream, text, spanReader);
+			return perform0(builder, accepted, stream, spanReader);
 		}
 
 		protected abstract boolean perform0(ParagraphBuilderInternal builder,
 											Token accepted,
 											TokenStream stream,
-											CharSequence text,
 											Paragraph.Builder.SpanStylesReader spanReader);
 
 		final protected void accept(Token token) {
@@ -590,12 +585,11 @@ class ParagraphBuilderInternal {
 	 */
 	private Token accept(@Nullable Token accepted, /* 之前被接受的token */
 						 TokenStream stream,
-						 CharSequence text,
 						 Paragraph.Builder.SpanStylesReader spanReader) {
 		int size = TYPESET_RULES.size();
 		for (int i = 0; i < size; ++i) {
 			TypesetRule rule = TYPESET_RULES.get(i);
-			if (rule.perform(this, accepted, stream, text, spanReader)) {
+			if (rule.perform(this, accepted, stream, spanReader)) {
 				return rule.getAcceptedToken();
 			}
 		}
@@ -608,7 +602,6 @@ class ParagraphBuilderInternal {
 		@Override
 		protected boolean perform0(ParagraphBuilderInternal builder, Token accepted,
 								   TokenStream stream,
-								   CharSequence text,
 								   Paragraph.Builder.SpanStylesReader spanReader) {
 			int state = stream.save();
 			Token current = stream.next();
@@ -629,7 +622,7 @@ class ParagraphBuilderInternal {
 				performPrefixState1(builder, accepted, stream, state);
 			}
 
-			builder.appendWordToken(text, spanReader, current);
+			builder.appendWordToken(spanReader, current);
 
 			accept(current);
 			return true;
@@ -686,7 +679,6 @@ class ParagraphBuilderInternal {
 		@Override
 		public boolean perform0(ParagraphBuilderInternal builder, Token accepted,
 								TokenStream stream,
-								CharSequence text,
 								Paragraph.Builder.SpanStylesReader spanReader) {
 			int state = stream.save();
 			Token current = stream.next();
@@ -754,7 +746,6 @@ class ParagraphBuilderInternal {
 		@Override
 		public boolean perform0(ParagraphBuilderInternal builder, Token accepted,
 								TokenStream stream,
-								CharSequence text,
 								Paragraph.Builder.SpanStylesReader spanReader) {
 			int state = stream.save();
 			Token current = stream.next();
@@ -777,7 +768,7 @@ class ParagraphBuilderInternal {
 
 			int prevType = getTokenTypeSafe(accepted);
 			if (prevType == Token.TYPE_NONE) {
-				TextSpan textBox = builder.appendSymbolToken(text, spanReader, current);
+				TextSpan textBox = builder.appendSymbolToken(spanReader, current);
 				if (checkSymbolTokenAttributeSafe(current, Token.SYMBOL_ATTRIBUTE_SQUISH_LEFT)) {
 					if (builder.mRenderOption.isFullWithSymbolOptimizationEnable()) {
 						textBox.addAttribute(TextSpan.ATTRIBUTE_SQUISH_LEFT);
@@ -797,16 +788,16 @@ class ParagraphBuilderInternal {
 			}
 
 			if (prevType == Token.TYPE_SYMBOL) {
-				preformState1(builder, accepted, current, text, spanReader, stream, state);
+				preformState1(builder, accepted, current, spanReader, stream, state);
 				return true;
 			}
 
-			preformState2(builder, current, text, spanReader, stream, state);
+			preformState2(builder, current, spanReader, stream, state);
 			return true;
 		}
 
 		private void preformState2(ParagraphBuilderInternal builder, Token current,
-								   CharSequence text, Paragraph.Builder.SpanStylesReader spanReader,
+								   Paragraph.Builder.SpanStylesReader spanReader,
 								   TokenStream stream, int state) {
 
 			// 前置条件就是 prev 是单词
@@ -815,7 +806,7 @@ class ParagraphBuilderInternal {
 					Penalty.FORBIDDEN_BREAK : Penalty.ADVISE_BREAK;
 
 			// 生成一个 symbol
-			TextSpan span = builder.obtainSymbolTextBox(text, spanReader, current);
+			TextSpan span = builder.obtainSymbolTextBox(spanReader, current);
 			if (checkSymbolTokenAttributeSafe(current, Token.SYMBOL_ATTRIBUTE_SQUISH_LEFT)) {
 				if (builder.mRenderOption.isFullWithSymbolOptimizationEnable()) {
 					span.addAttribute(TextSpan.ATTRIBUTE_SQUISH_LEFT);
@@ -857,7 +848,7 @@ class ParagraphBuilderInternal {
 		}
 
 		private void preformState1(ParagraphBuilderInternal builder, Token accepted, Token current,
-								   CharSequence text, Paragraph.Builder.SpanStylesReader spanReader,
+								   Paragraph.Builder.SpanStylesReader spanReader,
 								   TokenStream stream, int state) {
 			// advance penalty state table
 			//--------------------v current -------------------------
@@ -876,7 +867,7 @@ class ParagraphBuilderInternal {
 				adviseElement = Penalty.ADVISE_BREAK;
 			}
 
-			TextSpan span = builder.obtainSymbolTextBox(text, spanReader, current);
+			TextSpan span = builder.obtainSymbolTextBox(spanReader, current);
 			if (checkSymbolTokenAttributeSafe(current, Token.SYMBOL_ATTRIBUTE_SQUISH_LEFT)) {
 				if (builder.mRenderOption.isFullWithSymbolOptimizationEnable()) {
 					span.addAttribute(TextSpan.ATTRIBUTE_SQUISH_LEFT);

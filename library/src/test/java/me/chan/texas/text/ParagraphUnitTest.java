@@ -187,11 +187,8 @@ public class ParagraphUnitTest {
 		Assert.assertEquals(paragraph.getElementCount(), 13);
 		Emoticon hypeSpan = (Emoticon) paragraph.getElement(0);
 		Assert.assertSame(hypeSpan.getDrawable(), colorDrawable);
-		Glue glue = (Glue) paragraph.getElement(1);
-		glue.measure(mMeasurer, mTextAttribute);
-		Assert.assertEquals(glue.getWidth(), mTextAttribute.getSpaceWidth(), 0);
-		Assert.assertEquals(glue.getShrink(), mTextAttribute.getSpaceShrink(), 0);
-		Assert.assertEquals(glue.getStretch(), mTextAttribute.getSpaceStretch(), 0);
+		me.chan.texas.text.layout.Element element = paragraph.getElement(1);
+		Assert.assertSame(Penalty.ADVISE_BREAK, element);
 
 		Measurer.CharSequenceSpec spec = Measurer.CharSequenceSpec.obtain();
 		mMeasurer.measure(msg, 0, msg.length(), null, null, spec);
@@ -202,7 +199,7 @@ public class ParagraphUnitTest {
 		Assert.assertEquals(textBox.getHeight(), spec.getHeight(), 0);
 		Assert.assertEquals(textBox.getWidth(), spec.getWidth(), 0);
 
-		glue = (Glue) paragraph.getElement(3);
+		Glue glue = (Glue) paragraph.getElement(3);
 		Assert.assertEquals(glue.getWidth(), mTextAttribute.getSpaceWidth(), 0);
 		Assert.assertEquals(glue.getShrink(), mTextAttribute.getSpaceShrink(), 0);
 		Assert.assertEquals(glue.getStretch(), mTextAttribute.getSpaceStretch(), 0);
@@ -1835,12 +1832,14 @@ public class ParagraphUnitTest {
 		builder.text("b");
 
 		Paragraph paragraph = builder.build();
-		Assert.assertEquals(5, paragraph.getElementCount());
+		Assert.assertEquals(7, paragraph.getElementCount());
 		Assert.assertEquals("a", paragraph.getElement(0).toString());
-		Assert.assertSame(hyperSpan, paragraph.getElement(1));
-		Assert.assertEquals("b", paragraph.getElement(2).toString());
-		Assert.assertSame(Glue.TERMINAL, paragraph.getElement(3));
-		Assert.assertSame(Penalty.FORCE_BREAK, paragraph.getElement(4));
+		Assert.assertSame(Penalty.ADVISE_BREAK, paragraph.getElement(1));
+		Assert.assertSame(hyperSpan, paragraph.getElement(2));
+		Assert.assertSame(Penalty.ADVISE_BREAK, paragraph.getElement(3));
+		Assert.assertEquals("b", paragraph.getElement(4).toString());
+		Assert.assertSame(Glue.TERMINAL, paragraph.getElement(5));
+		Assert.assertSame(Penalty.FORCE_BREAK, paragraph.getElement(6));
 	}
 
 	private static List<String> collectTexts(Paragraph paragraph) {
