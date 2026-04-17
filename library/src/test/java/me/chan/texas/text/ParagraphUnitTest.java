@@ -1840,6 +1840,19 @@ public class ParagraphUnitTest {
 		Assert.assertEquals("b", paragraph.getElement(4).toString());
 		Assert.assertSame(Glue.TERMINAL, paragraph.getElement(5));
 		Assert.assertSame(Penalty.FORCE_BREAK, paragraph.getElement(6));
+
+		builder = Paragraph.Builder.newBuilder(texasOption);
+		builder.hyperSpan(hyperSpan);
+		builder.hyperSpan(hyperSpan);
+
+		paragraph = builder.build();
+		Assert.assertEquals(6, paragraph.getElementCount());
+		Assert.assertSame(hyperSpan, paragraph.getElement(0));
+		Assert.assertSame(Penalty.ADVISE_BREAK, paragraph.getElement(1));
+		Assert.assertSame(hyperSpan, paragraph.getElement(2));
+		Assert.assertSame(Penalty.ADVISE_BREAK, paragraph.getElement(3));
+		Assert.assertSame(Glue.TERMINAL, paragraph.getElement(4));
+		Assert.assertSame(Penalty.FORCE_BREAK, paragraph.getElement(5));
 	}
 
 	private static List<String> collectTexts(Paragraph paragraph) {
