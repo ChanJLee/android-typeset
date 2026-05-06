@@ -88,8 +88,8 @@ public class WordStreamUnitTest {
 
 			StringBuilder builder = new StringBuilder();
 			stream.setText(text, 0, text.length());
-			Token token = null;
-			while ((token = stream.next()) != null) {
+			TextToken token = null;
+			while ((token = (TextToken) stream.next()) != null) {
 				builder.append(token.getCharSequence(), token.getStart(), token.getEnd());
 			}
 			Assert.assertEquals(builder.toString(), text);
@@ -107,26 +107,26 @@ public class WordStreamUnitTest {
 		stream.setText(msg, 0, msg.length());
 		Assert.assertNull(stream.tryGet(stream.save(), -1));
 		Assert.assertNull(stream.tryGet(stream.save(), 5));
-		Token token = null;
-		token = stream.tryGet(stream.save(), 4);
+		TextToken token = null;
+		token = (TextToken) stream.tryGet(stream.save(), 4);
 		Assert.assertEquals(token.getCharSequence().subSequence(token.getStart(), token.getEnd()).toString(), "4");
 
-		while ((token = stream.next()) != null) {
+		while ((token = (TextToken) stream.next()) != null) {
 			System.out.println(token.getCharSequence().subSequence(token.getStart(), token.getEnd()));
 		}
-		token = stream.tryGet(stream.save(), -5);
+		token = (TextToken) stream.tryGet(stream.save(), -5);
 		Assert.assertEquals(token.getCharSequence().subSequence(token.getStart(), token.getEnd()).toString(), "0");
 		Assert.assertNull(stream.tryGet(stream.save(), -6));
 
 		stream.reset();
 		Assert.assertNull(stream.tryGet(stream.save(), -1));
 		Assert.assertNull(stream.tryGet(stream.save(), 5));
-		token = stream.tryGet(stream.save(), 4);
+		token = (TextToken) stream.tryGet(stream.save(), 4);
 		Assert.assertEquals(token.getCharSequence().subSequence(token.getStart(), token.getEnd()).toString(), "4");
 
 		System.out.println("====================================");
 		stream.setText(msg, 1, 3);
-		while ((token = stream.next()) != null) {
+		while ((token = (TextToken) stream.next()) != null) {
 			System.out.println(token.getCharSequence().subSequence(token.getStart(), token.getEnd()));
 		}
 	}
@@ -144,35 +144,35 @@ public class WordStreamUnitTest {
 		list.remove(list.size() - 1);
 
 		System.out.println(msg);
-		Token token = null;
+		TextToken token = null;
 		Iterator<String> iterator = list.iterator();
 		TokenStream stream = TextTokenStream.obtain(msg, 0, msg.length(), true);
 		int save = stream.save();
-		while ((token = stream.next()) != null) {
+		while ((token = (TextToken) stream.next()) != null) {
 			Assert.assertEquals(iterator.next(), token.getCharSequence().subSequence(token.getStart(), token.getEnd()).toString());
 		}
 		Assert.assertFalse(iterator.hasNext());
 
 		Assert.assertEquals(stream.save(), list.size());
-		token = stream.tryGet(-1);
+		token = (TextToken) stream.tryGet(-1);
 		Assert.assertEquals(list.get(list.size() - 1), token.getCharSequence().subSequence(token.getStart(), token.getEnd()).toString());
 
 		stream.restore(save);
 		Assert.assertNull(stream.tryGet(-1));
 		Assert.assertEquals(stream.save(), 0);
-		token = stream.tryGet(0);
+		token = (TextToken) stream.tryGet(0);
 		Assert.assertEquals(list.get(0), token.getCharSequence().subSequence(token.getStart(), token.getEnd()).toString());
 
-		token = stream.next();
+		token = (TextToken) stream.next();
 		Assert.assertEquals(list.get(0), token.getCharSequence().subSequence(token.getStart(), token.getEnd()).toString());
 
-		token = stream.tryGet(-1);
+		token = (TextToken) stream.tryGet(-1);
 		Assert.assertEquals(list.get(0), token.getCharSequence().subSequence(token.getStart(), token.getEnd()).toString());
 
-		token = stream.tryGet(0);
+		token = (TextToken) stream.tryGet(0);
 		Assert.assertEquals(list.get(1), token.getCharSequence().subSequence(token.getStart(), token.getEnd()).toString());
 
-		token = stream.tryGet(1);
+		token = (TextToken) stream.tryGet(1);
 		Assert.assertEquals(list.get(2), token.getCharSequence().subSequence(token.getStart(), token.getEnd()).toString());
 	}
 
@@ -193,95 +193,95 @@ public class WordStreamUnitTest {
 
 		List<Token> list = new ArrayList<>();
 		{
-			Token token = Token.obtain();
+			TextToken token = TextToken.obtain();
 			token.mCharSequence = "aa";
 			token.mStart = 0;
 			token.mEnd = 2;
 			token.mType = Token.TYPE_WORD;
-			token.mCategory = Token.CATEGORY_NORMAL;
+			token.mCategory = TextToken.CATEGORY_NORMAL;
 			list.add(token);
 		}
 
 		{
-			Token token = Token.obtain();
+			TextToken token = TextToken.obtain();
 			token.mCharSequence = " ";
 			token.mStart = 0;
 			token.mEnd = 1;
-			token.mAttributes = (byte) ((1 << Token.CONTROL_ATTRIBUTE_SPACE) >> Token.BIT_ATTRIBUTES_START);
+			token.mAttributes = (byte) ((1 << TextToken.CONTROL_ATTRIBUTE_SPACE) >> TextToken.BIT_ATTRIBUTES_START);
 			token.mType = Token.TYPE_CONTROL;
 			list.add(token);
 		}
 
 		{
-			Token token = Token.obtain();
+			TextToken token = TextToken.obtain();
 			token.mCharSequence = "11";
 			token.mStart = 0;
 			token.mEnd = 2;
 			token.mType = Token.TYPE_WORD;
-			token.mCategory = Token.CATEGORY_NUMBER;
+			token.mCategory = TextToken.CATEGORY_NUMBER;
 			list.add(token);
 		}
 
 		{
-			Token token = Token.obtain();
+			TextToken token = TextToken.obtain();
 			token.mCharSequence = " ";
 			token.mStart = 0;
 			token.mEnd = 1;
-			token.mAttributes = (byte) ((1 << Token.CONTROL_ATTRIBUTE_SPACE) >> Token.BIT_ATTRIBUTES_START);
+			token.mAttributes = (byte) ((1 << TextToken.CONTROL_ATTRIBUTE_SPACE) >> TextToken.BIT_ATTRIBUTES_START);
 			token.mType = Token.TYPE_CONTROL;
 			list.add(token);
 		}
 
 		{
-			Token token = Token.obtain();
+			TextToken token = TextToken.obtain();
 			token.mCharSequence = "hello-world";
 			token.mStart = 0;
 			token.mEnd = 11;
 			token.mType = Token.TYPE_WORD;
-			token.mCategory = Token.CATEGORY_NORMAL;
+			token.mCategory = TextToken.CATEGORY_NORMAL;
 			list.add(token);
 		}
 
 		{
-			Token token = Token.obtain();
+			TextToken token = TextToken.obtain();
 			token.mCharSequence = "四五";
 			token.mStart = 0;
 			token.mEnd = 2;
 			token.mType = Token.TYPE_WORD;
-			token.mCategory = Token.CATEGORY_CJK;
+			token.mCategory = TextToken.CATEGORY_CJK;
 			list.add(token);
 		}
 
 		{
-			Token token = Token.obtain();
+			TextToken token = TextToken.obtain();
 			token.mCharSequence = "R";
 			token.mStart = 0;
 			token.mEnd = 1;
 			token.mType = Token.TYPE_WORD;
-			token.mCategory = Token.CATEGORY_NORMAL;
+			token.mCategory = TextToken.CATEGORY_NORMAL;
 			list.add(token);
 		}
 
 		{
-			Token token = Token.obtain();
+			TextToken token = TextToken.obtain();
 			token.mCharSequence = "&";
 			token.mStart = 0;
 			token.mEnd = 1;
 			token.mType = Token.TYPE_SYMBOL;
-			token.mCategory = Token.CATEGORY_PUNCTUATION;
+			token.mCategory = TextToken.CATEGORY_PUNCTUATION;
 			token.mAttributes = (byte) (
-					((1 << Token.SYMBOL_ATTRIBUTE_KINSOKU_AVOID_TAIL) | (1 << Token.SYMBOL_ATTRIBUTE_KINSOKU_AVOID_HEADER))
-							>> Token.BIT_ATTRIBUTES_START);
+					((1 << TextToken.SYMBOL_ATTRIBUTE_KINSOKU_AVOID_TAIL) | (1 << TextToken.SYMBOL_ATTRIBUTE_KINSOKU_AVOID_HEADER))
+							>> TextToken.BIT_ATTRIBUTES_START);
 			list.add(token);
 		}
 
 		{
-			Token token = Token.obtain();
+			TextToken token = TextToken.obtain();
 			token.mCharSequence = "B";
 			token.mStart = 0;
 			token.mEnd = 1;
 			token.mType = Token.TYPE_WORD;
-			token.mCategory = Token.CATEGORY_NORMAL;
+			token.mCategory = TextToken.CATEGORY_NORMAL;
 			list.add(token);
 		}
 
@@ -653,6 +653,7 @@ public class WordStreamUnitTest {
 	}
 
 	private void assertToken(Token token, String except) {
-		Assert.assertEquals(except, token.getCharSequence().subSequence(token.getStart(), token.getEnd()).toString());
+		TextToken text = (TextToken) token;
+		Assert.assertEquals(except, text.getCharSequence().subSequence(text.getStart(), text.getEnd()).toString());
 	}
 }

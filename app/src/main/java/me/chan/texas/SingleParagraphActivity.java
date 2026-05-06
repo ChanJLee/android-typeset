@@ -23,7 +23,7 @@ import me.chan.texas.renderer.TouchEvent;
 import me.chan.texas.renderer.ui.text.ParagraphView;
 import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.layout.Span;
-import me.chan.texas.text.tokenizer.Token;
+import me.chan.texas.text.tokenizer.TextToken;
 
 public class SingleParagraphActivity extends AppCompatActivity {
 
@@ -114,7 +114,7 @@ public class SingleParagraphActivity extends AppCompatActivity {
 				Paragraph.Builder builder = Paragraph.Builder.newBuilder(option);
 				builder.stream(msg, 0, msg.length(), token -> {
 					Paragraph.SpanStyles span = Paragraph.SpanStyles.obtain(token);
-					if (token.getCategory() != Token.CATEGORY_NORMAL) {
+					if (token.getCategory() != TextToken.CATEGORY_NORMAL) {
 						return span;
 					}
 

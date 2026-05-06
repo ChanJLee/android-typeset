@@ -29,7 +29,7 @@ import me.chan.texas.text.layout.Penalty;
 import me.chan.texas.text.layout.StateList;
 import me.chan.texas.text.layout.SymbolGlue;
 import me.chan.texas.text.layout.TextSpan;
-import me.chan.texas.text.tokenizer.Token;
+import me.chan.texas.text.tokenizer.TextToken;
 import me.chan.texas.text.util.TexasIterator;
 import me.chan.texas.typesetter.ParagraphTypesetter;
 
@@ -1277,7 +1277,7 @@ public class ParagraphUnitTest {
 		Paragraph.Builder builder = Paragraph.Builder.newBuilder(texasOption);
 		builder.stream("你好", new Paragraph.Builder.SpanStylesReader() {
 			@Override
-			public Paragraph.SpanStyles read(Token token) {
+			public Paragraph.SpanStyles read(TextToken token) {
 				return Paragraph.SpanStyles.obtain(token)
 						.setTag(expectedTag)
 						.setTextStyle(expectedTextStyle)

@@ -42,48 +42,48 @@ public class ParagraphExUnitTest {
 
 		List<Token> tokens = new ArrayList<>();
 		{
-			Token token = Token.obtain();
+			TextToken token = TextToken.obtain();
 			String msg = "hello";
 			token.mType = Token.TYPE_WORD;
 			token.mStart = 0;
 			token.mEnd = msg.length();
 			token.mCharSequence = msg;
-			token.mCategory = Token.CATEGORY_NORMAL;
+			token.mCategory = TextToken.CATEGORY_NORMAL;
 			tokens.add(token);
 		}
 
 		{
-			Token token = Token.obtain();
+			TextToken token = TextToken.obtain();
 			String msg = "كلمة";
 			token.mType = Token.TYPE_WORD;
 			token.mStart = 0;
 			token.mEnd = msg.length();
 			token.mCharSequence = msg;
-			token.mCategory = Token.CATEGORY_UNKNOWN_LETTER;
+			token.mCategory = TextToken.CATEGORY_UNKNOWN_LETTER;
 			token.mRtl = true;
 			tokens.add(token);
 		}
 
 		{
-			Token token = Token.obtain();
+			TextToken token = TextToken.obtain();
 			String msg =  "تكرار";
 			token.mType = Token.TYPE_WORD;
 			token.mStart = 0;
 			token.mEnd = msg.length();
 			token.mCharSequence = msg;
-			token.mCategory = Token.CATEGORY_UNKNOWN_LETTER;
+			token.mCategory = TextToken.CATEGORY_UNKNOWN_LETTER;
 			token.mRtl = true;
 			tokens.add(token);
 		}
 
 		{
-			Token token = Token.obtain();
+			TextToken token = TextToken.obtain();
 			String msg = "تم";
 			token.mType = Token.TYPE_WORD;
 			token.mStart = 0;
 			token.mEnd = msg.length();
 			token.mCharSequence = msg;
-			token.mCategory = Token.CATEGORY_UNKNOWN_LETTER;
+			token.mCategory = TextToken.CATEGORY_UNKNOWN_LETTER;
 			token.mRtl = true;
 			tokens.add(token);
 		}
@@ -105,48 +105,48 @@ public class ParagraphExUnitTest {
 
 		List<Token> tokens = new ArrayList<>();
 		{
-			Token token = Token.obtain();
+			TextToken token = TextToken.obtain();
 			String msg = "hello";
 			token.mType = Token.TYPE_WORD;
 			token.mStart = 0;
 			token.mEnd = msg.length();
 			token.mCharSequence = msg;
-			token.mCategory = Token.CATEGORY_NORMAL;
+			token.mCategory = TextToken.CATEGORY_NORMAL;
 			tokens.add(token);
 		}
 
 		{
-			Token token = Token.obtain();
+			TextToken token = TextToken.obtain();
 			String msg = "تم";
 			token.mType = Token.TYPE_WORD;
 			token.mStart = 0;
 			token.mEnd = msg.length();
 			token.mCharSequence = msg;
-			token.mCategory = Token.CATEGORY_UNKNOWN_LETTER;
+			token.mCategory = TextToken.CATEGORY_UNKNOWN_LETTER;
 			token.mRtl = false;
 			tokens.add(token);
 		}
 
 		{
-			Token token = Token.obtain();
+			TextToken token = TextToken.obtain();
 			String msg =  "تكرار";
 			token.mType = Token.TYPE_WORD;
 			token.mStart = 0;
 			token.mEnd = msg.length();
 			token.mCharSequence = msg;
-			token.mCategory = Token.CATEGORY_UNKNOWN_LETTER;
+			token.mCategory = TextToken.CATEGORY_UNKNOWN_LETTER;
 			token.mRtl = false;
 			tokens.add(token);
 		}
 
 		{
-			Token token = Token.obtain();
+			TextToken token = TextToken.obtain();
 			String msg = "كلمة";
 			token.mType = Token.TYPE_WORD;
 			token.mStart = 0;
 			token.mEnd = msg.length();
 			token.mCharSequence = msg;
-			token.mCategory = Token.CATEGORY_UNKNOWN_LETTER;
+			token.mCategory = TextToken.CATEGORY_UNKNOWN_LETTER;
 			token.mRtl = false;
 			tokens.add(token);
 		}
