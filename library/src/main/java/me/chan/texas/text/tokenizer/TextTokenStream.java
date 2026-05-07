@@ -64,7 +64,7 @@ class TextTokenStream extends DefaultRecyclable implements TokenStream {
 			if (reason >= BreakIterator.WORD_NUMBER && reason < BreakIterator.WORD_NUMBER_LIMIT) {
 				mBits.clear();
 				mBits.set(Token.TYPE_WORD);
-				mBits.set(TextToken.CATEGORY_NUMBER);
+				mBits.set(Token.CATEGORY_NUMBER);
 				mBits.set(TextToken.DIRECTION_RTL, mRtl);
 				addBrk(mBrk, mBits.getBits(), brk + start);
 				continue;
@@ -99,7 +99,7 @@ class TextTokenStream extends DefaultRecyclable implements TokenStream {
 		if (simpleWord) {
 			mBits.clear();
 			mBits.set(Token.TYPE_WORD);
-			mBits.set(TextToken.CATEGORY_NORMAL);
+			mBits.set(Token.CATEGORY_NORMAL);
 			mBits.set(TextToken.DIRECTION_RTL, mRtl);
 			addBrk(brk, mBits.getBits(), end);
 			return;
@@ -113,7 +113,7 @@ class TextTokenStream extends DefaultRecyclable implements TokenStream {
 
 		mBits.clear();
 		mBits.set(Token.TYPE_WORD);
-		mBits.set(TextToken.CATEGORY_UNKNOWN_LETTER);
+		mBits.set(Token.CATEGORY_UNKNOWN_LETTER);
 		mBits.set(TextToken.DIRECTION_RTL, mRtl);
 		addBrk(brk, mBits.getBits(), end);
 	}
@@ -136,7 +136,7 @@ class TextTokenStream extends DefaultRecyclable implements TokenStream {
 				|| type == Character.MODIFIER_SYMBOL
 				/* https://www.compart.com/en/unicode/category/So */
 				|| type == Character.OTHER_SYMBOL) {
-			appendSymbolOrPunctuation(brk, TextToken.CATEGORY_SYMBOL, type, codePoint, end);
+			appendSymbolOrPunctuation(brk, Token.CATEGORY_SYMBOL, type, codePoint, end);
 			return;
 		}
 
@@ -146,7 +146,7 @@ class TextTokenStream extends DefaultRecyclable implements TokenStream {
 				|| type == Character.INITIAL_QUOTE_PUNCTUATION
 				|| type == Character.OTHER_PUNCTUATION
 				|| type == Character.START_PUNCTUATION) {
-			appendSymbolOrPunctuation(brk, TextToken.CATEGORY_PUNCTUATION, type, codePoint, end);
+			appendSymbolOrPunctuation(brk, Token.CATEGORY_PUNCTUATION, type, codePoint, end);
 			return;
 		}
 
@@ -162,7 +162,7 @@ class TextTokenStream extends DefaultRecyclable implements TokenStream {
 
 		mBits.clear();
 		mBits.set(Token.TYPE_WORD);
-		mBits.set(TextToken.CATEGORY_UNKNOWN_LETTER);
+		mBits.set(Token.CATEGORY_UNKNOWN_LETTER);
 		mBits.set(TextToken.DIRECTION_RTL, mRtl);
 		addBrk(brk, mBits.getBits(), end);
 	}
@@ -175,11 +175,11 @@ class TextTokenStream extends DefaultRecyclable implements TokenStream {
 		mBits.clear();
 		mBits.set(Token.TYPE_CONTROL);
 		if (type == Character.SPACE_SEPARATOR) {
-			mBits.set(TextToken.CONTROL_ATTRIBUTE_SPACE);
+			mBits.set(Token.CONTROL_ATTRIBUTE_SPACE);
 		} else if (codePoint == '\n' || type == Character.PARAGRAPH_SEPARATOR || type == Character.LINE_SEPARATOR) {
-			mBits.set(TextToken.CONTROL_ATTRIBUTE_NEW_LINE);
+			mBits.set(Token.CONTROL_ATTRIBUTE_NEW_LINE);
 		} else if (codePoint == '\t') {
-			mBits.set(TextToken.CONTROL_ATTRIBUTE_TAB_HORIZONTAL);
+			mBits.set(Token.CONTROL_ATTRIBUTE_TAB_HORIZONTAL);
 		}
 		mBits.set(TextToken.DIRECTION_RTL, mRtl);
 		addBrk(brk, mBits.getBits(), index);
@@ -206,13 +206,13 @@ class TextTokenStream extends DefaultRecyclable implements TokenStream {
 
 	private void appendCJK(BrkArray brk, int index) {
 		mBits.reset((int) (brk.last() >>> 32));
-		if (mBits.get(Token.TYPE_WORD) && mBits.get(TextToken.CATEGORY_CJK)) {
+		if (mBits.get(Token.TYPE_WORD) && mBits.get(Token.CATEGORY_CJK)) {
 			brk.removeLast();
 		}
 
 		mBits.clear();
 		mBits.set(Token.TYPE_WORD);
-		mBits.set(TextToken.CATEGORY_CJK);
+		mBits.set(Token.CATEGORY_CJK);
 		mBits.set(TextToken.DIRECTION_RTL, mRtl);
 
 		addBrk(brk, mBits.getBits(), index);
@@ -558,13 +558,13 @@ class TextTokenStream extends DefaultRecyclable implements TokenStream {
 	static boolean setupStretchAdvise(BitBucket32 bits, int codePoint) {
 		int index = binarySearch(STRETCH_RIGHT_MAP, codePoint);
 		if (index >= 0) {
-			bits.set(TextToken.SYMBOL_ATTRIBUTE_STRETCH_RIGHT);
+			bits.set(Token.SYMBOL_ATTRIBUTE_STRETCH_RIGHT);
 			return true;
 		}
 
 		index = binarySearch(STRETCH_LEFT_MAP, codePoint);
 		if (index >= 0) {
-			bits.set(TextToken.SYMBOL_ATTRIBUTE_STRETCH_LEFT);
+			bits.set(Token.SYMBOL_ATTRIBUTE_STRETCH_LEFT);
 			return true;
 		}
 
@@ -582,21 +582,21 @@ class TextTokenStream extends DefaultRecyclable implements TokenStream {
 		if (type == Character.START_PUNCTUATION ||
 				type == Character.INITIAL_QUOTE_PUNCTUATION ||
 				type == Character.CURRENCY_SYMBOL) {
-			bits.set(TextToken.SYMBOL_ATTRIBUTE_KINSOKU_AVOID_TAIL);
+			bits.set(Token.SYMBOL_ATTRIBUTE_KINSOKU_AVOID_TAIL);
 			return true;
 		}
 
 		if (type == Character.FINAL_QUOTE_PUNCTUATION ||
 				type == Character.END_PUNCTUATION ||
 				type == Character.DASH_PUNCTUATION) {
-			bits.set(TextToken.SYMBOL_ATTRIBUTE_KINSOKU_AVOID_HEADER);
+			bits.set(Token.SYMBOL_ATTRIBUTE_KINSOKU_AVOID_HEADER);
 			return true;
 		}
 
 		if (type == Character.OTHER_PUNCTUATION) {
 			if (codePoint == '&' || codePoint == '@' || codePoint == '·' || codePoint == '/') {
-				bits.set(TextToken.SYMBOL_ATTRIBUTE_KINSOKU_AVOID_HEADER);
-				bits.set(TextToken.SYMBOL_ATTRIBUTE_KINSOKU_AVOID_TAIL);
+				bits.set(Token.SYMBOL_ATTRIBUTE_KINSOKU_AVOID_HEADER);
+				bits.set(Token.SYMBOL_ATTRIBUTE_KINSOKU_AVOID_TAIL);
 				return true;
 			}
 //
@@ -604,13 +604,13 @@ class TextTokenStream extends DefaultRecyclable implements TokenStream {
 //				return Token.SYMBOL_KINSOKU_AVOID_HEADER;
 //			}
 
-			bits.set(TextToken.SYMBOL_ATTRIBUTE_KINSOKU_AVOID_HEADER);
+			bits.set(Token.SYMBOL_ATTRIBUTE_KINSOKU_AVOID_HEADER);
 			return true;
 		}
 
 		if (type == Character.MATH_SYMBOL || type == Character.MODIFIER_SYMBOL || type == Character.OTHER_SYMBOL) {
-			bits.set(TextToken.SYMBOL_ATTRIBUTE_KINSOKU_AVOID_HEADER);
-			bits.set(TextToken.SYMBOL_ATTRIBUTE_KINSOKU_AVOID_TAIL);
+			bits.set(Token.SYMBOL_ATTRIBUTE_KINSOKU_AVOID_HEADER);
+			bits.set(Token.SYMBOL_ATTRIBUTE_KINSOKU_AVOID_TAIL);
 			return true;
 		}
 
@@ -621,13 +621,13 @@ class TextTokenStream extends DefaultRecyclable implements TokenStream {
 	static boolean setupSquishAdvise(BitBucket32 bits, int codePoint) {
 		int index = binarySearch(SQUISH_RIGHT_MAP, codePoint);
 		if (index >= 0) {
-			bits.set(TextToken.SYMBOL_ATTRIBUTE_SQUISH_RIGHT);
+			bits.set(Token.SYMBOL_ATTRIBUTE_SQUISH_RIGHT);
 			return true;
 		}
 
 		index = binarySearch(SQUISH_LEFT_MAP, codePoint);
 		if (index >= 0) {
-			bits.set(TextToken.SYMBOL_ATTRIBUTE_SQUISH_LEFT);
+			bits.set(Token.SYMBOL_ATTRIBUTE_SQUISH_LEFT);
 			return true;
 		}
 

@@ -46,7 +46,7 @@ import me.chan.texas.text.layout.Span;
 import me.chan.texas.text.layout.Layout;
 import me.chan.texas.text.layout.Line;
 import me.chan.texas.text.layout.TextSpan;
-import me.chan.texas.text.tokenizer.TextToken;
+import me.chan.texas.text.tokenizer.Token;
 import me.chan.texas.utils.CharStream;
 import me.chan.texas.utils.TexasUtils;
 
@@ -435,7 +435,7 @@ public class BookSource extends TexasView.DocumentSource {
 					.setForeground(RED_UL)
 					.setTag(new SpanTag(sentId,
 							token.getCharSequence().subSequence(token.getStart(), token.getEnd()).toString(),
-							token.getCategory() == TextToken.CATEGORY_NORMAL));
+							token.getCategory() == Token.CATEGORY_NORMAL));
 
 			if ("A9127P126990S210411".equals(sentId)) {
 				span.setBackground(new RectGround(0xffC09453));

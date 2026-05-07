@@ -1,6 +1,5 @@
 package me.chan.texas.text.tokenizer;
 
-import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
@@ -12,8 +11,9 @@ import me.chan.texas.misc.ObjectPool;
 /**
  * 由文本词法解析产生的 token。
  * <p>
- * 之前所有写在 {@link Token} 上的字段、常量和方法都迁移到了这里，
- * 让超文字之类的非文本 token 可以共享 {@link Token} 这个抽象。
+ * 这里只承载文本相关的字段（charSequence/起止位置/category/attributes/bidi 等）
+ * 和它们的字段编码（{@code BIT_*} / {@code DIRECTION_RTL}）；面向上层暴露的语义常量
+ * （type / category / attribute）集中在 {@link Token} 上。
  */
 public class TextToken extends Token {
 	private static final ObjectPool<TextToken> POOL = new ObjectPool<>(128);
@@ -25,7 +25,7 @@ public class TextToken extends Token {
 	// - 16...31 attributes
 	// 31...32 direction
 
-	// bit field
+	// bit field — 描述本 token 的字节内编码方式，属于实现细节，故保留在 TextToken 里。
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
 	public static final int BIT_TYPE_START = 0;
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -39,54 +39,7 @@ public class TextToken extends Token {
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
 	public static final int BIT_ATTRIBUTES_END = 31;
 
-	// category
-	public static final byte CATEGORY_SYMBOL = 8; /* 符号 emoji */
-	public static final byte CATEGORY_PUNCTUATION = 9; /* 标点符号 */
-	public static final byte CATEGORY_UNKNOWN_LETTER = 10; /* 未知字符 */
-	public static final byte CATEGORY_NORMAL = 11; /* 正常的单词 [a-z]... */
-	public static final byte CATEGORY_NUMBER = 12; /* 数字 */
-	public static final byte CATEGORY_CJK = 13; /* CJK */
-
-	@IntDef({CATEGORY_SYMBOL,
-			CATEGORY_PUNCTUATION,
-			CATEGORY_UNKNOWN_LETTER,
-			CATEGORY_NORMAL,
-			CATEGORY_NUMBER,
-			CATEGORY_CJK})
-	public @interface CategoryType {
-	}
-
-	// symbol attributes
-	@RestrictTo(RestrictTo.Scope.LIBRARY)
-	public static final int SYMBOL_ATTRIBUTE_KINSOKU_AVOID_HEADER = 16;
-	@RestrictTo(RestrictTo.Scope.LIBRARY)
-	public static final int SYMBOL_ATTRIBUTE_KINSOKU_AVOID_TAIL = 17;
-	@RestrictTo(RestrictTo.Scope.LIBRARY)
-	public static final int SYMBOL_ATTRIBUTE_SQUISH_LEFT = 18;
-	@RestrictTo(RestrictTo.Scope.LIBRARY)
-	public static final int SYMBOL_ATTRIBUTE_SQUISH_RIGHT = 19;
-	@RestrictTo(RestrictTo.Scope.LIBRARY)
-	public static final int SYMBOL_ATTRIBUTE_STRETCH_LEFT = 20;
-	@RestrictTo(RestrictTo.Scope.LIBRARY)
-	public static final int SYMBOL_ATTRIBUTE_STRETCH_RIGHT = 21;
-
-	@IntDef({SYMBOL_ATTRIBUTE_KINSOKU_AVOID_HEADER,
-			SYMBOL_ATTRIBUTE_KINSOKU_AVOID_TAIL,
-			SYMBOL_ATTRIBUTE_SQUISH_LEFT,
-			SYMBOL_ATTRIBUTE_SQUISH_RIGHT,
-			SYMBOL_ATTRIBUTE_STRETCH_LEFT,
-			SYMBOL_ATTRIBUTE_STRETCH_RIGHT})
-	public @interface SymbolTokenAttribute {
-	}
-
-	@RestrictTo(RestrictTo.Scope.LIBRARY)
-	public static final int CONTROL_ATTRIBUTE_SPACE = 16;
-	@RestrictTo(RestrictTo.Scope.LIBRARY)
-	public static final int CONTROL_ATTRIBUTE_TAB_HORIZONTAL = 17;
-	@RestrictTo(RestrictTo.Scope.LIBRARY)
-	public static final int CONTROL_ATTRIBUTE_NEW_LINE = 18;
-
-	// direction
+	// direction — 同上，对应 mAttributes 字节内 RTL 位的下标。
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
 	public static final byte DIRECTION_RTL = 31;
 

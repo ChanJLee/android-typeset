@@ -240,9 +240,9 @@ class ParagraphBuilderInternal {
 	private void appendWordToken(Paragraph.Builder.SpanStylesReader spanReader,
 								 TextToken token) {
 		int category = token.getCategory();
-		if (category == TextToken.CATEGORY_NORMAL) {
+		if (category == Token.CATEGORY_NORMAL) {
 			appendAsciiWordToken(spanReader, token);
-		} else if (category == TextToken.CATEGORY_CJK) {
+		} else if (category == Token.CATEGORY_CJK) {
 			appendCjkWordToken(spanReader, token);
 		} else {
 			appendWordTokenDirect(spanReader, token);
@@ -428,18 +428,18 @@ class ParagraphBuilderInternal {
 			return;
 		}
 
-		if (token.checkAttribute(TextToken.CONTROL_ATTRIBUTE_SPACE)) {
+		if (token.checkAttribute(Token.CONTROL_ATTRIBUTE_SPACE)) {
 			appendElement(mCommonGlue);
 			return;
 		}
 
-		if (token.checkAttribute(TextToken.CONTROL_ATTRIBUTE_NEW_LINE)) {
+		if (token.checkAttribute(Token.CONTROL_ATTRIBUTE_NEW_LINE)) {
 			appendElement(Glue.TERMINAL);
 			appendElement(Penalty.FORCE_BREAK);
 			return;
 		}
 
-		if (token.checkAttribute(TextToken.CONTROL_ATTRIBUTE_TAB_HORIZONTAL)) {
+		if (token.checkAttribute(Token.CONTROL_ATTRIBUTE_TAB_HORIZONTAL)) {
 			appendElement(Glue.obtain(Glue.FLAG_WIDTH | Glue.FLAG_4X_SCALE));
 			return;
 		}
@@ -573,7 +573,7 @@ class ParagraphBuilderInternal {
 	}
 
 	private static boolean checkSymbolTokenAttributeSafe(Token token,
-														 @TextToken.SymbolTokenAttribute int attr) {
+														 @Token.SymbolTokenAttribute int attr) {
 		return token != null
 				&& token.getType() == Token.TYPE_SYMBOL
 				&& token.checkAttribute(attr);
@@ -655,18 +655,18 @@ class ParagraphBuilderInternal {
 
 		private static void performPrefixState1(ParagraphBuilderInternal builder, @NonNull Token accepted, TokenStream stream, int state) {
 			// 先获取建议
-			Element adviseElement = checkSymbolTokenAttributeSafe(accepted, TextToken.SYMBOL_ATTRIBUTE_KINSOKU_AVOID_TAIL) ?
+			Element adviseElement = checkSymbolTokenAttributeSafe(accepted, Token.SYMBOL_ATTRIBUTE_KINSOKU_AVOID_TAIL) ?
 					Penalty.FORBIDDEN_BREAK : Penalty.ADVISE_BREAK;
 
 			// 是否添加空格取决于前一个符号
 			// 如果它要，那么就添加
 			// 不要的话尝试用原先单词流中的数据填充，不过要注意，如果前面的单词不让填充空格，那么也是什么都不能做的
 
-			if (checkSymbolTokenAttributeSafe(accepted, TextToken.SYMBOL_ATTRIBUTE_STRETCH_RIGHT)) {
+			if (checkSymbolTokenAttributeSafe(accepted, Token.SYMBOL_ATTRIBUTE_STRETCH_RIGHT)) {
 				builder.appendElementExcludeAdvise(adviseElement);
 				builder.appendElement(builder.mCommonGlue);
 				builder.appendElementExcludeAdvise(adviseElement);
-			} else if (checkSymbolTokenAttributeSafe(accepted, TextToken.SYMBOL_ATTRIBUTE_SQUISH_RIGHT)) {
+			} else if (checkSymbolTokenAttributeSafe(accepted, Token.SYMBOL_ATTRIBUTE_SQUISH_RIGHT)) {
 				if (builder.mRenderOption.isFullWithSymbolOptimizationEnable()) {
 					Glue squishGlue = obtainSymbolGlueFromStack(builder);
 					if (squishGlue != null) {
@@ -709,7 +709,7 @@ class ParagraphBuilderInternal {
 
 			Layout.Advise advise = builder.mParagraph.mLayout.getAdvise();
 			if (advise.checkTypesetPolicy(Paragraph.TYPESET_POLICY_ACCEPT_CONTROL_CHAR) &&
-					currentText.checkAttribute(TextToken.CONTROL_ATTRIBUTE_NEW_LINE)) {
+					currentText.checkAttribute(Token.CONTROL_ATTRIBUTE_NEW_LINE)) {
 				builder.appendControlToken(currentText);
 				accept(TextToken.obtain());
 				return true;
@@ -752,9 +752,9 @@ class ParagraphBuilderInternal {
 		}
 
 		private void appendControlToken(ParagraphBuilderInternal builder, TextToken token) {
-			if (token.checkAttribute(TextToken.CONTROL_ATTRIBUTE_SPACE)) {
+			if (token.checkAttribute(Token.CONTROL_ATTRIBUTE_SPACE)) {
 				builder.appendElement(builder.mCommonGlue);
-			} else if (token.checkAttribute(TextToken.CONTROL_ATTRIBUTE_TAB_HORIZONTAL)) {
+			} else if (token.checkAttribute(Token.CONTROL_ATTRIBUTE_TAB_HORIZONTAL)) {
 				builder.appendElement(builder.mCommonGlue);
 			}
 		}
@@ -814,7 +814,7 @@ class ParagraphBuilderInternal {
 
 			// 前置条件就是 prev 是单词
 
-			Element adviseElement = checkSymbolTokenAttributeSafe(current, TextToken.SYMBOL_ATTRIBUTE_KINSOKU_AVOID_HEADER) ?
+			Element adviseElement = checkSymbolTokenAttributeSafe(current, Token.SYMBOL_ATTRIBUTE_KINSOKU_AVOID_HEADER) ?
 					Penalty.FORBIDDEN_BREAK : Penalty.ADVISE_BREAK;
 
 			// 生成一个 symbol box（普通 symbol 是 TextSpan，超文字直接用 HyperSpan）
@@ -822,7 +822,7 @@ class ParagraphBuilderInternal {
 			applySquishRenderingAttributes(builder, current, span);
 
 			// 明确的需要拉升左边
-			if (checkSymbolTokenAttributeSafe(current, TextToken.SYMBOL_ATTRIBUTE_STRETCH_LEFT)) {
+			if (checkSymbolTokenAttributeSafe(current, Token.SYMBOL_ATTRIBUTE_STRETCH_LEFT)) {
 				builder.appendElementExcludeAdvise(adviseElement);
 				builder.appendElement(builder.mCommonGlue);
 				builder.appendElementExcludeAdvise(adviseElement);
@@ -831,7 +831,7 @@ class ParagraphBuilderInternal {
 				// 找真实的解析buffer，看当前token在原文中是否有空格，如果有，且没有要求squish，那么就要填充空格
 				// 但是填充空格的时候需要收到当前current的约束
 				Token realPrev = stream.tryGet(state, -1);
-				if (checkSymbolTokenAttributeSafe(current, TextToken.SYMBOL_ATTRIBUTE_SQUISH_LEFT)) {
+				if (checkSymbolTokenAttributeSafe(current, Token.SYMBOL_ATTRIBUTE_SQUISH_LEFT)) {
 					if (builder.mRenderOption.isFullWithSymbolOptimizationEnable() && span instanceof TextSpan) {
 						builder.appendElementExcludeAdvise(adviseElement);
 						builder.appendElement(SymbolGlue.obtain((TextSpan) span));
@@ -864,8 +864,8 @@ class ParagraphBuilderInternal {
 			//---------------------------------------------------
 			//  ^ prev
 			Element adviseElement;
-			if (checkSymbolTokenAttributeSafe(accepted, TextToken.SYMBOL_ATTRIBUTE_KINSOKU_AVOID_TAIL) ||
-					checkSymbolTokenAttributeSafe(current, TextToken.SYMBOL_ATTRIBUTE_KINSOKU_AVOID_HEADER)) {
+			if (checkSymbolTokenAttributeSafe(accepted, Token.SYMBOL_ATTRIBUTE_KINSOKU_AVOID_TAIL) ||
+					checkSymbolTokenAttributeSafe(current, Token.SYMBOL_ATTRIBUTE_KINSOKU_AVOID_HEADER)) {
 				adviseElement = Penalty.FORBIDDEN_BREAK;
 			} else {
 				adviseElement = Penalty.ADVISE_BREAK;
@@ -895,9 +895,9 @@ class ParagraphBuilderInternal {
 				return;
 			}
 			TextSpan textBox = (TextSpan) span;
-			if (checkSymbolTokenAttributeSafe(current, TextToken.SYMBOL_ATTRIBUTE_SQUISH_LEFT)) {
+			if (checkSymbolTokenAttributeSafe(current, Token.SYMBOL_ATTRIBUTE_SQUISH_LEFT)) {
 				textBox.addAttribute(TextSpan.ATTRIBUTE_SQUISH_LEFT);
-			} else if (checkSymbolTokenAttributeSafe(current, TextToken.SYMBOL_ATTRIBUTE_SQUISH_RIGHT)) {
+			} else if (checkSymbolTokenAttributeSafe(current, Token.SYMBOL_ATTRIBUTE_SQUISH_RIGHT)) {
 				textBox.addAttribute(TextSpan.ATTRIBUTE_SQUISH_RIGHT);
 			}
 		}
@@ -927,15 +927,15 @@ class ParagraphBuilderInternal {
 			//----------------------------------------------------------------------------------------------------------------
 			// ^ accepted
 
-			if (checkSymbolTokenAttributeSafe(accepted, TextToken.SYMBOL_ATTRIBUTE_STRETCH_RIGHT)) {
+			if (checkSymbolTokenAttributeSafe(accepted, Token.SYMBOL_ATTRIBUTE_STRETCH_RIGHT)) {
 
-				if (checkSymbolTokenAttributeSafe(current, TextToken.SYMBOL_ATTRIBUTE_STRETCH_LEFT) ||
-						checkSymbolTokenAttributeSafe(current, TextToken.SYMBOL_ATTRIBUTE_SQUISH_LEFT)) {
+				if (checkSymbolTokenAttributeSafe(current, Token.SYMBOL_ATTRIBUTE_STRETCH_LEFT) ||
+						checkSymbolTokenAttributeSafe(current, Token.SYMBOL_ATTRIBUTE_SQUISH_LEFT)) {
 					performState1AdvisePadding(builder, adviseElement);
 					return;
 				}
 
-				if (checkSymbolTokenAttributeSafe(current, TextToken.SYMBOL_ATTRIBUTE_STRETCH_RIGHT)) {
+				if (checkSymbolTokenAttributeSafe(current, Token.SYMBOL_ATTRIBUTE_STRETCH_RIGHT)) {
 					performState1AdviseNoop(builder, adviseElement);
 					return;
 				}
@@ -944,20 +944,20 @@ class ParagraphBuilderInternal {
 				return;
 			}
 
-			if (checkSymbolTokenAttributeSafe(accepted, TextToken.SYMBOL_ATTRIBUTE_SQUISH_RIGHT)) {
+			if (checkSymbolTokenAttributeSafe(accepted, Token.SYMBOL_ATTRIBUTE_SQUISH_RIGHT)) {
 
-				if (checkSymbolTokenAttributeSafe(current, TextToken.SYMBOL_ATTRIBUTE_STRETCH_LEFT)) {
+				if (checkSymbolTokenAttributeSafe(current, Token.SYMBOL_ATTRIBUTE_STRETCH_LEFT)) {
 					performState1AdvisePadding(builder, adviseElement);
 					return;
 				}
 
-				if (checkSymbolTokenAttributeSafe(current, TextToken.SYMBOL_ATTRIBUTE_SQUISH_LEFT)) {
+				if (checkSymbolTokenAttributeSafe(current, Token.SYMBOL_ATTRIBUTE_SQUISH_LEFT)) {
 					performState1AdviseSymbolPadding(builder, span, adviseElement);
 					return;
 				}
 
-				if (checkSymbolTokenAttributeSafe(current, TextToken.SYMBOL_ATTRIBUTE_STRETCH_RIGHT) ||
-						checkSymbolTokenAttributeSafe(current, TextToken.SYMBOL_ATTRIBUTE_SQUISH_RIGHT)) {
+				if (checkSymbolTokenAttributeSafe(current, Token.SYMBOL_ATTRIBUTE_STRETCH_RIGHT) ||
+						checkSymbolTokenAttributeSafe(current, Token.SYMBOL_ATTRIBUTE_SQUISH_RIGHT)) {
 					performState1AdviseNoop(builder, adviseElement);
 					return;
 				}
@@ -970,9 +970,9 @@ class ParagraphBuilderInternal {
 				return;
 			}
 
-			if (checkSymbolTokenAttributeSafe(accepted, TextToken.SYMBOL_ATTRIBUTE_STRETCH_LEFT)) {
-				if (checkSymbolTokenAttributeSafe(current, TextToken.SYMBOL_ATTRIBUTE_STRETCH_LEFT) ||
-						checkSymbolTokenAttributeSafe(current, TextToken.SYMBOL_ATTRIBUTE_SQUISH_LEFT)) {
+			if (checkSymbolTokenAttributeSafe(accepted, Token.SYMBOL_ATTRIBUTE_STRETCH_LEFT)) {
+				if (checkSymbolTokenAttributeSafe(current, Token.SYMBOL_ATTRIBUTE_STRETCH_LEFT) ||
+						checkSymbolTokenAttributeSafe(current, Token.SYMBOL_ATTRIBUTE_SQUISH_LEFT)) {
 					performState1AdviseNoop(builder, adviseElement);
 					return;
 				}
@@ -981,8 +981,8 @@ class ParagraphBuilderInternal {
 				return;
 			}
 
-			if (checkSymbolTokenAttributeSafe(accepted, TextToken.SYMBOL_ATTRIBUTE_SQUISH_LEFT)) {
-				if (checkSymbolTokenAttributeSafe(current, TextToken.SYMBOL_ATTRIBUTE_SQUISH_LEFT)) {
+			if (checkSymbolTokenAttributeSafe(accepted, Token.SYMBOL_ATTRIBUTE_SQUISH_LEFT)) {
+				if (checkSymbolTokenAttributeSafe(current, Token.SYMBOL_ATTRIBUTE_SQUISH_LEFT)) {
 					performState1AdviseNoop(builder, adviseElement);
 					return;
 				}
