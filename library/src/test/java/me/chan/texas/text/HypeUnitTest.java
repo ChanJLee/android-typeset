@@ -8,6 +8,7 @@ import me.chan.texas.renderer.RendererContext;
 import me.chan.texas.renderer.core.graphics.TexasCanvas;
 import me.chan.texas.renderer.core.graphics.TexasPaint;
 import me.chan.texas.text.layout.StateList;
+import me.chan.texas.text.tokenizer.TextToken;
 
 public class HypeUnitTest {
 
@@ -37,6 +38,76 @@ public class HypeUnitTest {
 		myHypeSpan.measure();
 		Assert.assertEquals(10, myHypeSpan.getWidth(), 0);
 		Assert.assertEquals(20, myHypeSpan.getHeight(), 0);
+	}
+
+	@Test
+	public void testAttributeDefaults() {
+		MyHypeSpan span = new MyHypeSpan();
+
+		Assert.assertFalse(span.hasSymbolAttributes());
+		Assert.assertEquals(0, span.getSymbolAttributes());
+		Assert.assertFalse(span.hasSymbolTypefaceAttributes());
+		Assert.assertFalse(span.checkAttribute(TextToken.SYMBOL_ATTRIBUTE_KINSOKU_AVOID_HEADER));
+		Assert.assertFalse(span.checkAttribute(TextToken.SYMBOL_ATTRIBUTE_KINSOKU_AVOID_TAIL));
+		Assert.assertFalse(span.checkAttribute(TextToken.SYMBOL_ATTRIBUTE_SQUISH_LEFT));
+		Assert.assertFalse(span.checkAttribute(TextToken.SYMBOL_ATTRIBUTE_SQUISH_RIGHT));
+		Assert.assertFalse(span.checkAttribute(TextToken.SYMBOL_ATTRIBUTE_STRETCH_LEFT));
+		Assert.assertFalse(span.checkAttribute(TextToken.SYMBOL_ATTRIBUTE_STRETCH_RIGHT));
+	}
+
+	@Test
+	public void testAttributeAddCheckRemove() {
+		MyHypeSpan span = new MyHypeSpan();
+
+		span.addAttribute(TextToken.SYMBOL_ATTRIBUTE_KINSOKU_AVOID_HEADER);
+		Assert.assertTrue(span.checkAttribute(TextToken.SYMBOL_ATTRIBUTE_KINSOKU_AVOID_HEADER));
+		Assert.assertFalse(span.checkAttribute(TextToken.SYMBOL_ATTRIBUTE_KINSOKU_AVOID_TAIL));
+		Assert.assertTrue(span.hasSymbolAttributes());
+		Assert.assertFalse(span.hasSymbolTypefaceAttributes());
+
+		span.addAttribute(TextToken.SYMBOL_ATTRIBUTE_STRETCH_RIGHT);
+		Assert.assertTrue(span.checkAttribute(TextToken.SYMBOL_ATTRIBUTE_KINSOKU_AVOID_HEADER));
+		Assert.assertTrue(span.checkAttribute(TextToken.SYMBOL_ATTRIBUTE_STRETCH_RIGHT));
+		Assert.assertTrue(span.hasSymbolTypefaceAttributes());
+
+		span.removeAttribute(TextToken.SYMBOL_ATTRIBUTE_KINSOKU_AVOID_HEADER);
+		Assert.assertFalse(span.checkAttribute(TextToken.SYMBOL_ATTRIBUTE_KINSOKU_AVOID_HEADER));
+		Assert.assertTrue(span.checkAttribute(TextToken.SYMBOL_ATTRIBUTE_STRETCH_RIGHT));
+		Assert.assertTrue(span.hasSymbolAttributes());
+
+		span.removeAttribute(TextToken.SYMBOL_ATTRIBUTE_STRETCH_RIGHT);
+		Assert.assertFalse(span.hasSymbolAttributes());
+		Assert.assertFalse(span.hasSymbolTypefaceAttributes());
+		Assert.assertEquals(0, span.getSymbolAttributes());
+	}
+
+	@Test
+	public void testHasTypefaceAttributesIndependentBits() {
+		// 仅 SQUISH_LEFT/RIGHT 与 STRETCH_LEFT/RIGHT 视为字形属性，
+		// KINSOKU_AVOID_HEADER/TAIL 不算（与 TextToken 行为一致）。
+		MyHypeSpan span = new MyHypeSpan();
+		Assert.assertFalse(span.hasSymbolTypefaceAttributes());
+
+		span.addAttribute(TextToken.SYMBOL_ATTRIBUTE_SQUISH_LEFT);
+		Assert.assertTrue(span.hasSymbolTypefaceAttributes());
+		span.removeAttribute(TextToken.SYMBOL_ATTRIBUTE_SQUISH_LEFT);
+		Assert.assertFalse(span.hasSymbolTypefaceAttributes());
+
+		span.addAttribute(TextToken.SYMBOL_ATTRIBUTE_SQUISH_RIGHT);
+		Assert.assertTrue(span.hasSymbolTypefaceAttributes());
+		span.removeAttribute(TextToken.SYMBOL_ATTRIBUTE_SQUISH_RIGHT);
+
+		span.addAttribute(TextToken.SYMBOL_ATTRIBUTE_STRETCH_LEFT);
+		Assert.assertTrue(span.hasSymbolTypefaceAttributes());
+		span.removeAttribute(TextToken.SYMBOL_ATTRIBUTE_STRETCH_LEFT);
+
+		span.addAttribute(TextToken.SYMBOL_ATTRIBUTE_STRETCH_RIGHT);
+		Assert.assertTrue(span.hasSymbolTypefaceAttributes());
+		span.removeAttribute(TextToken.SYMBOL_ATTRIBUTE_STRETCH_RIGHT);
+
+		span.addAttribute(TextToken.SYMBOL_ATTRIBUTE_KINSOKU_AVOID_HEADER);
+		span.addAttribute(TextToken.SYMBOL_ATTRIBUTE_KINSOKU_AVOID_TAIL);
+		Assert.assertFalse(span.hasSymbolTypefaceAttributes());
 	}
 }
 

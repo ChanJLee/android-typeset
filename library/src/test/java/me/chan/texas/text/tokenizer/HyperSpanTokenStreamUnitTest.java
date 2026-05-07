@@ -34,7 +34,7 @@ public class HyperSpanTokenStreamUnitTest {
 
 		Token token = stream.next();
 		Assert.assertNotNull(token);
-		Assert.assertEquals(Token.TYPE_HYPER_SPAN, token.getType());
+		Assert.assertEquals(Token.TYPE_SYMBOL, token.getType());
 		Assert.assertTrue(token instanceof HyperSpanToken);
 		Assert.assertSame(span, ((HyperSpanToken) token).getHyperSpan());
 
@@ -78,7 +78,7 @@ public class HyperSpanTokenStreamUnitTest {
 
 		Token replay = stream.next();
 		Assert.assertNotNull(replay);
-		Assert.assertEquals(Token.TYPE_HYPER_SPAN, replay.getType());
+		Assert.assertEquals(Token.TYPE_SYMBOL, replay.getType());
 		Assert.assertSame(span, ((HyperSpanToken) replay).getHyperSpan());
 
 		token.recycle();
@@ -93,7 +93,7 @@ public class HyperSpanTokenStreamUnitTest {
 
 		Token peek = stream.tryGet(0);
 		Assert.assertNotNull(peek);
-		Assert.assertEquals(Token.TYPE_HYPER_SPAN, peek.getType());
+		Assert.assertEquals(Token.TYPE_SYMBOL, peek.getType());
 		Assert.assertSame(span, ((HyperSpanToken) peek).getHyperSpan());
 		// tryGet should not advance the cursor
 		Assert.assertTrue(stream.hasNext());

@@ -103,11 +103,13 @@ public class TextToken extends Token {
 	}
 
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
+	@Override
 	public boolean checkAttribute(int attribute) {
 		return ((mAttributes << BIT_ATTRIBUTES_START) & (1 << attribute)) != 0;
 	}
 
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
+	@Override
 	public boolean hasSymbolTypefaceAttributes() {
 		if (getType() != Token.TYPE_SYMBOL) {
 			return false;
@@ -116,6 +118,7 @@ public class TextToken extends Token {
 		return mAttributes >> 2 != 0;
 	}
 
+	@Override
 	public boolean isRtl() {
 		return mRtl;
 	}

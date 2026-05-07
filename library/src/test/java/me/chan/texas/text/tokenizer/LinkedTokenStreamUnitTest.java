@@ -52,13 +52,13 @@ public class LinkedTokenStreamUnitTest {
 
 		Token first = linked.next();
 		Assert.assertNotNull(first);
-		Assert.assertEquals(Token.TYPE_HYPER_SPAN, first.getType());
+		Assert.assertEquals(Token.TYPE_SYMBOL, first.getType());
 		Assert.assertSame(span1, ((HyperSpanToken) first).getHyperSpan());
 		Assert.assertTrue(linked.hasNext());
 
 		Token second = linked.next();
 		Assert.assertNotNull(second);
-		Assert.assertEquals(Token.TYPE_HYPER_SPAN, second.getType());
+		Assert.assertEquals(Token.TYPE_SYMBOL, second.getType());
 		Assert.assertSame(span2, ((HyperSpanToken) second).getHyperSpan());
 		Assert.assertFalse(linked.hasNext());
 
@@ -83,14 +83,14 @@ public class LinkedTokenStreamUnitTest {
 			Assert.assertTrue(linked.hasNext());
 			Token token = linked.next();
 			Assert.assertNotNull(token);
-			Assert.assertNotEquals(Token.TYPE_HYPER_SPAN, token.getType());
+			Assert.assertNotEquals(Token.TYPE_SYMBOL, token.getType());
 			token.recycle();
 		}
 
 		Assert.assertTrue(linked.hasNext());
 		Token tail = linked.next();
 		Assert.assertNotNull(tail);
-		Assert.assertEquals(Token.TYPE_HYPER_SPAN, tail.getType());
+		Assert.assertEquals(Token.TYPE_SYMBOL, tail.getType());
 		Assert.assertSame(span, ((HyperSpanToken) tail).getHyperSpan());
 		Assert.assertFalse(linked.hasNext());
 

@@ -9,8 +9,9 @@ import me.chan.texas.text.HyperSpan;
 /**
  * 承载 {@link HyperSpan} 的 token。
  * <p>
- * 借助这个子类，超文字和文字 token 共用同一个 {@link TokenStream} 与排版规则管线，
- * 这样它前后的空格、断行建议等可以由统一的状态机处理。
+ * 它对外报告 {@link #TYPE_SYMBOL}，并把 {@link #checkAttribute(int)} 等问询代理给
+ * {@link HyperSpan}（通过 {@link me.chan.texas.text.layout.DrawableSpan}），
+ * 让超文字与普通 symbol token 共享同一套排版规则。
  */
 public class HyperSpanToken extends Token {
 	private static final ObjectPool<HyperSpanToken> POOL = new ObjectPool<>(16);
@@ -23,11 +24,23 @@ public class HyperSpanToken extends Token {
 	@TokenType
 	@Override
 	public byte getType() {
-		return TYPE_HYPER_SPAN;
+		return TYPE_SYMBOL;
 	}
 
 	public HyperSpan getHyperSpan() {
 		return mHyperSpan;
+	}
+
+	@RestrictTo(RestrictTo.Scope.LIBRARY)
+	@Override
+	public boolean checkAttribute(int attribute) {
+		return mHyperSpan != null && mHyperSpan.checkAttribute(attribute);
+	}
+
+	@RestrictTo(RestrictTo.Scope.LIBRARY)
+	@Override
+	public boolean hasSymbolTypefaceAttributes() {
+		return mHyperSpan != null && mHyperSpan.hasSymbolTypefaceAttributes();
 	}
 
 	@RestrictTo(RestrictTo.Scope.LIBRARY)

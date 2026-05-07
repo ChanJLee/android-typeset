@@ -20,6 +20,7 @@ import me.chan.texas.text.layout.Element;
 import me.chan.texas.text.layout.Glue;
 import me.chan.texas.text.layout.Layout;
 import me.chan.texas.text.layout.Penalty;
+import me.chan.texas.text.layout.Span;
 import me.chan.texas.text.layout.SymbolGlue;
 import me.chan.texas.text.layout.TextSpan;
 import me.chan.texas.text.tokenizer.HyperSpanToken;
@@ -159,7 +160,7 @@ class ParagraphBuilderInternal {
 	}
 
 	private void appendHyperSpan(HyperSpan span) {
-		// 让超文字也走 TokenStream 管线，由 HyperSpanRules 决定前后空格 / 断行建议
+		// 让超文字也走 TokenStream 管线，统一交由 SymbolRules 处理
 		Token prev = mLastToken;
 		TokenStream tokenStream = TokenStream.obtainHyperSpan(span);
 		try {
@@ -364,17 +365,18 @@ class ParagraphBuilderInternal {
 		}
 	}
 
-	private TextSpan appendSymbolToken(Paragraph.Builder.SpanStylesReader spanReader,
-									   TextToken token) {
-		TextSpan textBox = obtainSymbolTextBox(spanReader, token);
-
-		appendSymbolToken(textBox);
-
-		return textBox;
-	}
-
-	private void appendSymbolToken(TextSpan textBox) {
-		appendElement(textBox);
+	/**
+	 * 根据 token 类型构造对应的 box：
+	 * <ul>
+	 *     <li>{@link TextToken} -> 走 {@link #obtainSymbolTextBox} 生成 {@link TextSpan}</li>
+	 *     <li>{@link HyperSpanToken} -> 直接复用其携带的 {@link HyperSpan}</li>
+	 * </ul>
+	 */
+	private Span obtainSymbolBox(Paragraph.Builder.SpanStylesReader spanReader, Token token) {
+		if (token instanceof HyperSpanToken) {
+			return ((HyperSpanToken) token).getHyperSpan();
+		}
+		return obtainSymbolTextBox(spanReader, (TextToken) token);
 	}
 
 	private TextSpan obtainSymbolTextBox(Paragraph.Builder.SpanStylesReader spanReader,
@@ -567,14 +569,14 @@ class ParagraphBuilderInternal {
 	}
 
 	private static boolean hasSymbolTypefaceAttributesSafe(Token token) {
-		return token instanceof TextToken && ((TextToken) token).hasSymbolTypefaceAttributes();
+		return token != null && token.hasSymbolTypefaceAttributes();
 	}
 
 	private static boolean checkSymbolTokenAttributeSafe(Token token,
 														 @TextToken.SymbolTokenAttribute int attr) {
-		return token instanceof TextToken
+		return token != null
 				&& token.getType() == Token.TYPE_SYMBOL
-				&& ((TextToken) token).checkAttribute(attr);
+				&& token.checkAttribute(attr);
 	}
 
 	static {
@@ -584,7 +586,6 @@ class ParagraphBuilderInternal {
 		TYPESET_RULES.add(new WordRules());
 		TYPESET_RULES.add(new SymbolRules());
 		TYPESET_RULES.add(new ControlRules());
-		TYPESET_RULES.add(new HyperSpanRules());
 	}
 
 	/**
@@ -630,7 +631,9 @@ class ParagraphBuilderInternal {
 			if (acceptedType == Token.TYPE_WORD) {
 				performPrefixState2(builder, (TextToken) accepted, currentText);
 			} else if (acceptedType == Token.TYPE_SYMBOL) {
-				performPrefixState1(builder, (TextToken) accepted, stream, state);
+				// accepted 可能是普通 symbol token（TextToken）或者超文字（HyperSpanToken），
+				// 这里只用 Token 基类暴露的属性查询，不需要区分。
+				performPrefixState1(builder, accepted, stream, state);
 			}
 
 			builder.appendWordToken(spanReader, currentText);
@@ -650,7 +653,7 @@ class ParagraphBuilderInternal {
 			}
 		}
 
-		private static void performPrefixState1(ParagraphBuilderInternal builder, @NonNull TextToken accepted, TokenStream stream, int state) {
+		private static void performPrefixState1(ParagraphBuilderInternal builder, @NonNull Token accepted, TokenStream stream, int state) {
 			// 先获取建议
 			Element adviseElement = checkSymbolTokenAttributeSafe(accepted, TextToken.SYMBOL_ATTRIBUTE_KINSOKU_AVOID_TAIL) ?
 					Penalty.FORBIDDEN_BREAK : Penalty.ADVISE_BREAK;
@@ -665,9 +668,12 @@ class ParagraphBuilderInternal {
 				builder.appendElementExcludeAdvise(adviseElement);
 			} else if (checkSymbolTokenAttributeSafe(accepted, TextToken.SYMBOL_ATTRIBUTE_SQUISH_RIGHT)) {
 				if (builder.mRenderOption.isFullWithSymbolOptimizationEnable()) {
-					builder.appendElementExcludeAdvise(adviseElement);
-					builder.appendElement(obtainSymbolGlueFromStack(builder));
-					builder.appendElementExcludeAdvise(adviseElement);
+					Glue squishGlue = obtainSymbolGlueFromStack(builder);
+					if (squishGlue != null) {
+						builder.appendElementExcludeAdvise(adviseElement);
+						builder.appendElement(squishGlue);
+						builder.appendElementExcludeAdvise(adviseElement);
+					}
 				}
 			} else {
 				// 那就要看原始的流中有没有要求添加空格
@@ -737,8 +743,7 @@ class ParagraphBuilderInternal {
 
 			if (prevType == Token.TYPE_SYMBOL ||
 					prevType == Token.TYPE_CONTROL ||
-					prevType == Token.TYPE_NONE ||
-					prevType == Token.TYPE_HYPER_SPAN) {
+					prevType == Token.TYPE_NONE) {
 				accept(accepted);
 				return true;
 			}
@@ -769,8 +774,6 @@ class ParagraphBuilderInternal {
 				return false;
 			}
 
-			TextToken currentText = (TextToken) current;
-
 			//--------------------v next ----------
 			// 				word	unknown		symbol		control		none
 			//----------|-----------------------------
@@ -783,18 +786,11 @@ class ParagraphBuilderInternal {
 			//  ^ prev
 
 			int prevType = getTokenTypeSafe(accepted);
-			if (prevType == Token.TYPE_NONE || prevType == Token.TYPE_HYPER_SPAN) {
-				TextSpan textBox = builder.appendSymbolToken(spanReader, currentText);
-				if (checkSymbolTokenAttributeSafe(currentText, TextToken.SYMBOL_ATTRIBUTE_SQUISH_LEFT)) {
-					if (builder.mRenderOption.isFullWithSymbolOptimizationEnable()) {
-						textBox.addAttribute(TextSpan.ATTRIBUTE_SQUISH_LEFT);
-					}
-				} else if (checkSymbolTokenAttributeSafe(currentText, TextToken.SYMBOL_ATTRIBUTE_SQUISH_RIGHT)) {
-					if (builder.mRenderOption.isFullWithSymbolOptimizationEnable()) {
-						textBox.addAttribute(TextSpan.ATTRIBUTE_SQUISH_RIGHT);
-					}
-				}
-				accept(currentText);
+			if (prevType == Token.TYPE_NONE) {
+				Span box = builder.obtainSymbolBox(spanReader, current);
+				applySquishRenderingAttributes(builder, current, box);
+				builder.appendElement(box);
+				accept(current);
 				return true;
 			}
 
@@ -804,15 +800,15 @@ class ParagraphBuilderInternal {
 			}
 
 			if (prevType == Token.TYPE_SYMBOL) {
-				preformState1(builder, (TextToken) accepted, currentText, spanReader, stream, state);
+				preformState1(builder, accepted, current, spanReader, stream, state);
 				return true;
 			}
 
-			preformState2(builder, currentText, spanReader, stream, state);
+			preformState2(builder, current, spanReader, stream, state);
 			return true;
 		}
 
-		private void preformState2(ParagraphBuilderInternal builder, TextToken current,
+		private void preformState2(ParagraphBuilderInternal builder, Token current,
 								   Paragraph.Builder.SpanStylesReader spanReader,
 								   TokenStream stream, int state) {
 
@@ -821,17 +817,9 @@ class ParagraphBuilderInternal {
 			Element adviseElement = checkSymbolTokenAttributeSafe(current, TextToken.SYMBOL_ATTRIBUTE_KINSOKU_AVOID_HEADER) ?
 					Penalty.FORBIDDEN_BREAK : Penalty.ADVISE_BREAK;
 
-			// 生成一个 symbol
-			TextSpan span = builder.obtainSymbolTextBox(spanReader, current);
-			if (checkSymbolTokenAttributeSafe(current, TextToken.SYMBOL_ATTRIBUTE_SQUISH_LEFT)) {
-				if (builder.mRenderOption.isFullWithSymbolOptimizationEnable()) {
-					span.addAttribute(TextSpan.ATTRIBUTE_SQUISH_LEFT);
-				}
-			} else if (checkSymbolTokenAttributeSafe(current, TextToken.SYMBOL_ATTRIBUTE_SQUISH_RIGHT)) {
-				if (builder.mRenderOption.isFullWithSymbolOptimizationEnable()) {
-					span.addAttribute(TextSpan.ATTRIBUTE_SQUISH_RIGHT);
-				}
-			}
+			// 生成一个 symbol box（普通 symbol 是 TextSpan，超文字直接用 HyperSpan）
+			Span span = builder.obtainSymbolBox(spanReader, current);
+			applySquishRenderingAttributes(builder, current, span);
 
 			// 明确的需要拉升左边
 			if (checkSymbolTokenAttributeSafe(current, TextToken.SYMBOL_ATTRIBUTE_STRETCH_LEFT)) {
@@ -844,9 +832,9 @@ class ParagraphBuilderInternal {
 				// 但是填充空格的时候需要收到当前current的约束
 				Token realPrev = stream.tryGet(state, -1);
 				if (checkSymbolTokenAttributeSafe(current, TextToken.SYMBOL_ATTRIBUTE_SQUISH_LEFT)) {
-					if (builder.mRenderOption.isFullWithSymbolOptimizationEnable()) {
+					if (builder.mRenderOption.isFullWithSymbolOptimizationEnable() && span instanceof TextSpan) {
 						builder.appendElementExcludeAdvise(adviseElement);
-						builder.appendElement(SymbolGlue.obtain(span));
+						builder.appendElement(SymbolGlue.obtain((TextSpan) span));
 						builder.appendElementExcludeAdvise(adviseElement);
 					}
 				} else if (getTokenTypeSafe(realPrev) == Token.TYPE_CONTROL && !hasSymbolTypefaceAttributesSafe(current)) {
@@ -863,7 +851,7 @@ class ParagraphBuilderInternal {
 			accept(current);
 		}
 
-		private void preformState1(ParagraphBuilderInternal builder, TextToken accepted, TextToken current,
+		private void preformState1(ParagraphBuilderInternal builder, Token accepted, Token current,
 								   Paragraph.Builder.SpanStylesReader spanReader,
 								   TokenStream stream, int state) {
 			// advance penalty state table
@@ -875,7 +863,7 @@ class ParagraphBuilderInternal {
 			// none 		|	fb-brk			advise_brk	advise_brk
 			//---------------------------------------------------
 			//  ^ prev
-			Element adviseElement = null;
+			Element adviseElement;
 			if (checkSymbolTokenAttributeSafe(accepted, TextToken.SYMBOL_ATTRIBUTE_KINSOKU_AVOID_TAIL) ||
 					checkSymbolTokenAttributeSafe(current, TextToken.SYMBOL_ATTRIBUTE_KINSOKU_AVOID_HEADER)) {
 				adviseElement = Penalty.FORBIDDEN_BREAK;
@@ -883,16 +871,8 @@ class ParagraphBuilderInternal {
 				adviseElement = Penalty.ADVISE_BREAK;
 			}
 
-			TextSpan span = builder.obtainSymbolTextBox(spanReader, current);
-			if (checkSymbolTokenAttributeSafe(current, TextToken.SYMBOL_ATTRIBUTE_SQUISH_LEFT)) {
-				if (builder.mRenderOption.isFullWithSymbolOptimizationEnable()) {
-					span.addAttribute(TextSpan.ATTRIBUTE_SQUISH_LEFT);
-				}
-			} else if (checkSymbolTokenAttributeSafe(current, TextToken.SYMBOL_ATTRIBUTE_SQUISH_RIGHT)) {
-				if (builder.mRenderOption.isFullWithSymbolOptimizationEnable()) {
-					span.addAttribute(TextSpan.ATTRIBUTE_SQUISH_RIGHT);
-				}
-			}
+			Span span = builder.obtainSymbolBox(spanReader, current);
+			applySquishRenderingAttributes(builder, current, span);
 
 			// 添加 advise
 			preformState1Advise(builder, accepted, current, stream, state, span, adviseElement);
@@ -903,12 +883,32 @@ class ParagraphBuilderInternal {
 		}
 
 		/**
+		 * 把 symbol token 的 SQUISH_LEFT/RIGHT 属性投射成 TextSpan 的渲染属性。
+		 * 超文字（HyperSpan）的渲染由用户自定义的 onDraw 负责，所以这里只对 TextSpan 生效。
+		 */
+		private static void applySquishRenderingAttributes(ParagraphBuilderInternal builder,
+															Token current, Span span) {
+			if (!(span instanceof TextSpan)) {
+				return;
+			}
+			if (!builder.mRenderOption.isFullWithSymbolOptimizationEnable()) {
+				return;
+			}
+			TextSpan textBox = (TextSpan) span;
+			if (checkSymbolTokenAttributeSafe(current, TextToken.SYMBOL_ATTRIBUTE_SQUISH_LEFT)) {
+				textBox.addAttribute(TextSpan.ATTRIBUTE_SQUISH_LEFT);
+			} else if (checkSymbolTokenAttributeSafe(current, TextToken.SYMBOL_ATTRIBUTE_SQUISH_RIGHT)) {
+				textBox.addAttribute(TextSpan.ATTRIBUTE_SQUISH_RIGHT);
+			}
+		}
+
+		/**
 		 * 标点挤压逻辑
 		 */
 		private void preformState1Advise(ParagraphBuilderInternal builder,
-										 TextToken accepted, TextToken current,
+										 Token accepted, Token current,
 										 TokenStream stream, int state,
-										 TextSpan span, Element adviseElement) {
+										 Span span, Element adviseElement) {
 			// 之前没有吞入任何元素
 			if (accepted == null) {
 				return;
@@ -1018,10 +1018,14 @@ class ParagraphBuilderInternal {
 		}
 
 		private void performState1AdviseSymbolPadding(ParagraphBuilderInternal builder,
-													  TextSpan span, Element adviseElement) {
+													  Span span, Element adviseElement) {
+			// SymbolGlue 仅对 TextSpan 有意义；超文字这里降级为不插入。
+			if (!(span instanceof TextSpan)) {
+				return;
+			}
 			if (builder.mRenderOption.isFullWithSymbolOptimizationEnable()) {
 				builder.appendElementExcludeAdvise(adviseElement);
-				builder.appendElement(SymbolGlue.obtain(span));
+				builder.appendElement(SymbolGlue.obtain((TextSpan) span));
 				builder.appendElementExcludeAdvise(adviseElement);
 			}
 		}
@@ -1033,43 +1037,12 @@ class ParagraphBuilderInternal {
 		}
 	}
 
-	private static class HyperSpanRules extends TypesetRule {
-
-		@Override
-		protected boolean perform0(ParagraphBuilderInternal builder, Token accepted,
-								   TokenStream stream,
-								   Paragraph.Builder.SpanStylesReader spanReader) {
-			int state = stream.save();
-			Token current = stream.next();
-			if (current.getType() != Token.TYPE_HYPER_SPAN) {
-				stream.restore(state);
-				current.recycle();
-				return false;
-			}
-
-			HyperSpanToken hyperToken = (HyperSpanToken) current;
-
-			// 与之前的 appendHyperSpan 行为保持一致：
-			// - 前面有内容时插入一个 ADVISE_BREAK
-			// - 然后是 HyperSpan 自己
-			// - 后面再追加一个 ADVISE_BREAK
-			// - 不暴露给后续规则（accepted=null），避免重复处理
-			if (accepted != null) {
-				builder.appendElement(Penalty.ADVISE_BREAK);
-			}
-			builder.appendElement(hyperToken.getHyperSpan());
-			builder.appendElement(Penalty.ADVISE_BREAK);
-
-			hyperToken.recycle();
-			accept(null);
-			return true;
-		}
-	}
-
+	@Nullable
 	private static Glue obtainSymbolGlueFromStack(ParagraphBuilderInternal builder) {
 		Element last = builder.mParagraph.mElements.get(builder.mParagraph.mElements.size() - 1);
-		if (BuildConfig.DEBUG && !(last instanceof TextSpan)) {
-			throw new IllegalStateException("last element must be TextBox");
+		// SymbolGlue 是 TextSpan 专属的：非 TextSpan（比如超文字）走到这里就降级为不插 glue。
+		if (!(last instanceof TextSpan)) {
+			return null;
 		}
 
 		TextSpan textBox = (TextSpan) last;
