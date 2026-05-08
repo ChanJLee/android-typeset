@@ -3,6 +3,7 @@ package me.chan.texas.text.tokenizer;
 import androidx.annotation.RestrictTo;
 
 import me.chan.texas.misc.Recyclable;
+import me.chan.texas.text.HyperSpan;
 
 public interface TokenStream extends Recyclable {
 
@@ -26,6 +27,11 @@ public interface TokenStream extends Recyclable {
 
 	static TokenStream obtain(CharSequence text, int start, int end, boolean rtl) {
 		return TextTokenStream.obtain(text, start, end, rtl);
+	}
+
+	@RestrictTo(RestrictTo.Scope.LIBRARY)
+	static TokenStream obtainHyperSpan(HyperSpan span) {
+		return HyperSpanTokenStream.obtain(span);
 	}
 
 	@RestrictTo(RestrictTo.Scope.LIBRARY)

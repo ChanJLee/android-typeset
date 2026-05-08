@@ -10,9 +10,9 @@ import me.chan.texas.misc.PointF;
 import me.chan.texas.misc.RectF;
 import me.chan.texas.renderer.CompositeRectDrawable;
 import me.chan.texas.renderer.ParagraphVisitor;
+import me.chan.texas.text.HyperSpan;
 import me.chan.texas.text.Paragraph;
 import me.chan.texas.text.layout.Span;
-import me.chan.texas.text.layout.DrawableSpan;
 import me.chan.texas.text.layout.Element;
 import me.chan.texas.text.layout.Layout;
 import me.chan.texas.text.layout.Line;
@@ -297,7 +297,7 @@ public class SelectedTextByDragVisitor extends SelectedVisitor {
 	}
 
 	private boolean selectedImpl(Span span, RectF inner, RectF outer) {
-		if (!includeSelectNonTextBoxRegion() && span instanceof DrawableSpan) {
+		if (!includeSelectNonTextBoxRegion() && span instanceof HyperSpan) {
 			return false;
 		}
 

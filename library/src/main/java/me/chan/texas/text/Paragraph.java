@@ -31,7 +31,7 @@ import me.chan.texas.text.layout.Layout;
 import me.chan.texas.text.layout.Line;
 import me.chan.texas.text.layout.Penalty;
 import me.chan.texas.text.layout.TextSpan;
-import me.chan.texas.text.tokenizer.Token;
+import me.chan.texas.text.tokenizer.TextToken;
 import me.chan.texas.text.util.TexasIterator;
 
 import java.lang.annotation.Retention;
@@ -416,7 +416,7 @@ public final class Paragraph extends Segment {
 		}
 
 		public interface SpanStylesReader {
-			SpanStyles read(Token token);
+			SpanStyles read(TextToken token);
 		}
 
 		/**
@@ -655,7 +655,7 @@ public final class Paragraph extends Segment {
 
 		@Override
 		@RestrictTo(LIBRARY)
-		public final SpanStyles read(Token token) {
+		public final SpanStyles read(TextToken token) {
 			SpanStyles span = SpanStyles.obtain(mSpan.mText, mSpan.mStart, mSpan.mEnd);
 			span.copyMeta(mSpan);
 			return span;
@@ -751,7 +751,7 @@ public final class Paragraph extends Segment {
 			return this;
 		}
 
-		public static SpanStyles obtain(Token token) {
+		public static SpanStyles obtain(TextToken token) {
 			return obtain(token.getCharSequence(), token.getStart(), token.getEnd());
 		}
 

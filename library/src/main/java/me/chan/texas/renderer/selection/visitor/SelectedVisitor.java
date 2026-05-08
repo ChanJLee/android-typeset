@@ -11,10 +11,10 @@ import me.chan.texas.renderer.ParagraphVisitor;
 import me.chan.texas.renderer.RenderOption;
 import me.chan.texas.renderer.selection.ParagraphSelection;
 import me.chan.texas.renderer.selection.Selection;
+import me.chan.texas.text.HyperSpan;
 import me.chan.texas.text.Paragraph;
 import me.chan.texas.renderer.RendererContext;
 import me.chan.texas.text.layout.Span;
-import me.chan.texas.text.layout.DrawableSpan;
 import me.chan.texas.text.layout.Line;
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -104,7 +104,7 @@ public abstract class SelectedVisitor extends ParagraphVisitor {
 	@Override
 	public void onVisitBox(Span span, RectF inner, RectF outer, @NonNull RendererContext context) {
 		if (selected(span, inner, outer)) {
-			if (!(span instanceof DrawableSpan) || includeSelectNonTextBoxRegion()) {
+			if (!(span instanceof HyperSpan) || includeSelectNonTextBoxRegion()) {
 				mCompositeRectDrawable.append(outer.left, mLastLineTop, outer.right, mLastLineBottom);
 			}
 			mSelection.appendSpan(span);

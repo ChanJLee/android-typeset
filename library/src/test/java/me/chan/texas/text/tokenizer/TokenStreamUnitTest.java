@@ -16,9 +16,9 @@ public class TokenStreamUnitTest {
 		// 家庭表情符号：父亲👨‍👩‍👧‍👦
 		String familyEmoji = "\uD83D\uDC68\u200D\uD83D\uDC69\u200D\uD83D\uDC67\u200D\uD83D\uDC66";
 		TokenStream tokenStream = TokenStream.obtain(familyEmoji, 0, familyEmoji.length());
-		Token token = tokenStream.next();
+		TextToken token = (TextToken) tokenStream.next();
 		Assert.assertEquals(Token.TYPE_WORD, token.getType());
-		Assert.assertEquals(Token.CATEGORY_UNKNOWN_LETTER, token.getCategory());
+		Assert.assertEquals(TextToken.CATEGORY_UNKNOWN_LETTER, token.getCategory());
 		Assert.assertFalse(tokenStream.hasNext());
 
 		// 打印家庭表情符号
@@ -27,9 +27,9 @@ public class TokenStreamUnitTest {
 		// 中等肤色的手掌表情符号 ✋🏽
 		String mediumSkinToneHand = "✋\uD83C\uDFFD";
 		tokenStream = TokenStream.obtain(familyEmoji, 0, familyEmoji.length());
-		token = tokenStream.next();
+		token = (TextToken) tokenStream.next();
 		Assert.assertEquals(Token.TYPE_WORD, token.getType());
-		Assert.assertEquals(Token.CATEGORY_UNKNOWN_LETTER, token.getCategory());
+		Assert.assertEquals(TextToken.CATEGORY_UNKNOWN_LETTER, token.getCategory());
 		Assert.assertFalse(tokenStream.hasNext());
 
 		// 打印中等肤色的手掌表情符号
@@ -41,9 +41,9 @@ public class TokenStreamUnitTest {
 		// 打印浅色肤色的手掌表情符号
 		System.out.println("浅色肤色的手掌: " + lightSkinToneHand);
 		tokenStream = TokenStream.obtain(familyEmoji, 0, familyEmoji.length());
-		token = tokenStream.next();
+		token = (TextToken) tokenStream.next();
 		Assert.assertEquals(Token.TYPE_WORD, token.getType());
-		Assert.assertEquals(Token.CATEGORY_UNKNOWN_LETTER, token.getCategory());
+		Assert.assertEquals(TextToken.CATEGORY_UNKNOWN_LETTER, token.getCategory());
 		Assert.assertFalse(tokenStream.hasNext());
 	}
 
@@ -55,9 +55,9 @@ public class TokenStreamUnitTest {
 		// 打印私用区字符
 		System.out.println("私用区字符: " + privateUseChar);
 		TokenStream tokenStream = TokenStream.obtain(privateUseChar, 0, privateUseChar.length());
-		Token token = tokenStream.next();
+		TextToken token = (TextToken) tokenStream.next();
 		Assert.assertEquals(Token.TYPE_WORD, token.getType());
-		Assert.assertEquals(Token.CATEGORY_UNKNOWN_LETTER, token.getCategory());
+		Assert.assertEquals(TextToken.CATEGORY_UNKNOWN_LETTER, token.getCategory());
 		Assert.assertFalse(tokenStream.hasNext());
 	}
 
@@ -72,18 +72,18 @@ public class TokenStreamUnitTest {
 		System.out.println("原始文本: HelloWorld");
 		System.out.println("带零宽空格的文本: " + textWithZeroWidthSpace);
 		TokenStream tokenStream = TokenStream.obtain(textWithZeroWidthSpace, 0, textWithZeroWidthSpace.length());
-		Token token = tokenStream.next();
+		TextToken token = (TextToken) tokenStream.next();
 		Assert.assertEquals(Token.TYPE_WORD, token.getType());
-		Assert.assertEquals(Token.CATEGORY_NORMAL, token.getCategory());
+		Assert.assertEquals(TextToken.CATEGORY_NORMAL, token.getCategory());
 		Assert.assertTrue(tokenStream.hasNext());
 
-		token = tokenStream.next();
+		token = (TextToken) tokenStream.next();
 		Assert.assertEquals(Token.TYPE_CONTROL, token.getType());
 		Assert.assertTrue(tokenStream.hasNext());
 
-		token = tokenStream.next();
+		token = (TextToken) tokenStream.next();
 		Assert.assertEquals(Token.TYPE_WORD, token.getType());
-		Assert.assertEquals(Token.CATEGORY_NORMAL, token.getCategory());
+		Assert.assertEquals(TextToken.CATEGORY_NORMAL, token.getCategory());
 		Assert.assertFalse(tokenStream.hasNext());
 
 
@@ -93,18 +93,18 @@ public class TokenStreamUnitTest {
 		// 打印带空格的文本
 		System.out.println("带ि的文本: " + textWithSpace);
 		tokenStream = TokenStream.obtain(textWithZeroWidthSpace, 0, textWithZeroWidthSpace.length());
-		token = tokenStream.next();
+		token = (TextToken) tokenStream.next();
 		Assert.assertEquals(Token.TYPE_WORD, token.getType());
-		Assert.assertEquals(Token.CATEGORY_NORMAL, token.getCategory());
+		Assert.assertEquals(TextToken.CATEGORY_NORMAL, token.getCategory());
 		Assert.assertTrue(tokenStream.hasNext());
 
-		token = tokenStream.next();
+		token = (TextToken) tokenStream.next();
 		Assert.assertEquals(Token.TYPE_CONTROL, token.getType());
 		Assert.assertTrue(tokenStream.hasNext());
 
-		token = tokenStream.next();
+		token = (TextToken) tokenStream.next();
 		Assert.assertEquals(Token.TYPE_WORD, token.getType());
-		Assert.assertEquals(Token.CATEGORY_NORMAL, token.getCategory());
+		Assert.assertEquals(TextToken.CATEGORY_NORMAL, token.getCategory());
 		Assert.assertFalse(tokenStream.hasNext());
 	}
 
@@ -119,9 +119,9 @@ public class TokenStreamUnitTest {
 		System.out.println("封闭圆圈的字符: " + enclosedA);
 
 		TokenStream tokenStream = TokenStream.obtain(enclosedA, 0, enclosedA.length());
-		Token token = tokenStream.next();
+		TextToken token = (TextToken) tokenStream.next();
 		Assert.assertEquals(Token.TYPE_WORD, token.getType());
-		Assert.assertEquals(Token.CATEGORY_UNKNOWN_LETTER, token.getCategory());
+		Assert.assertEquals(TextToken.CATEGORY_UNKNOWN_LETTER, token.getCategory());
 		Assert.assertFalse(tokenStream.hasNext());
 	}
 
@@ -133,9 +133,9 @@ public class TokenStreamUnitTest {
 		// 打印带有尖音符的字符
 		System.out.println("带有尖音符的字符: " + accentedE);
 		TokenStream tokenStream = TokenStream.obtain(accentedE, 0, accentedE.length());
-		Token token = tokenStream.next();
+		TextToken token = (TextToken) tokenStream.next();
 		Assert.assertEquals(Token.TYPE_WORD, token.getType());
-		Assert.assertEquals(Token.CATEGORY_UNKNOWN_LETTER, token.getCategory());
+		Assert.assertEquals(TextToken.CATEGORY_UNKNOWN_LETTER, token.getCategory());
 		Assert.assertFalse(tokenStream.hasNext());
 	}
 
@@ -143,32 +143,32 @@ public class TokenStreamUnitTest {
 	public void testControl() {
 		String text = "\t\n\r ";
 		TokenStream tokenStream = TokenStream.obtain(text, 0, text.length());
-		Token token = tokenStream.next();
+		TextToken token = (TextToken) tokenStream.next();
 		Assert.assertEquals(Token.TYPE_CONTROL, token.getType());
-		Assert.assertTrue(token.checkAttribute(Token.CONTROL_ATTRIBUTE_TAB_HORIZONTAL));
-		Assert.assertFalse(token.checkAttribute(Token.CONTROL_ATTRIBUTE_NEW_LINE));
-		Assert.assertFalse(token.checkAttribute(Token.CONTROL_ATTRIBUTE_SPACE));
+		Assert.assertTrue(token.checkAttribute(TextToken.CONTROL_ATTRIBUTE_TAB_HORIZONTAL));
+		Assert.assertFalse(token.checkAttribute(TextToken.CONTROL_ATTRIBUTE_NEW_LINE));
+		Assert.assertFalse(token.checkAttribute(TextToken.CONTROL_ATTRIBUTE_SPACE));
 		Assert.assertTrue(tokenStream.hasNext());
 
-		token = tokenStream.next();
+		token = (TextToken) tokenStream.next();
 		Assert.assertEquals(Token.TYPE_CONTROL, token.getType());
-		Assert.assertFalse(token.checkAttribute(Token.CONTROL_ATTRIBUTE_TAB_HORIZONTAL));
-		Assert.assertTrue(token.checkAttribute(Token.CONTROL_ATTRIBUTE_NEW_LINE));
-		Assert.assertFalse(token.checkAttribute(Token.CONTROL_ATTRIBUTE_SPACE));
+		Assert.assertFalse(token.checkAttribute(TextToken.CONTROL_ATTRIBUTE_TAB_HORIZONTAL));
+		Assert.assertTrue(token.checkAttribute(TextToken.CONTROL_ATTRIBUTE_NEW_LINE));
+		Assert.assertFalse(token.checkAttribute(TextToken.CONTROL_ATTRIBUTE_SPACE));
 		Assert.assertTrue(tokenStream.hasNext());
 
-		token = tokenStream.next();
+		token = (TextToken) tokenStream.next();
 		Assert.assertEquals(Token.TYPE_CONTROL, token.getType());
-		Assert.assertFalse(token.checkAttribute(Token.CONTROL_ATTRIBUTE_TAB_HORIZONTAL));
-		Assert.assertFalse(token.checkAttribute(Token.CONTROL_ATTRIBUTE_NEW_LINE));
-		Assert.assertFalse(token.checkAttribute(Token.CONTROL_ATTRIBUTE_SPACE));
+		Assert.assertFalse(token.checkAttribute(TextToken.CONTROL_ATTRIBUTE_TAB_HORIZONTAL));
+		Assert.assertFalse(token.checkAttribute(TextToken.CONTROL_ATTRIBUTE_NEW_LINE));
+		Assert.assertFalse(token.checkAttribute(TextToken.CONTROL_ATTRIBUTE_SPACE));
 		Assert.assertTrue(tokenStream.hasNext());
 
-		token = tokenStream.next();
+		token = (TextToken) tokenStream.next();
 		Assert.assertEquals(Token.TYPE_CONTROL, token.getType());
-		Assert.assertFalse(token.checkAttribute(Token.CONTROL_ATTRIBUTE_TAB_HORIZONTAL));
-		Assert.assertFalse(token.checkAttribute(Token.CONTROL_ATTRIBUTE_NEW_LINE));
-		Assert.assertTrue(token.checkAttribute(Token.CONTROL_ATTRIBUTE_SPACE));
+		Assert.assertFalse(token.checkAttribute(TextToken.CONTROL_ATTRIBUTE_TAB_HORIZONTAL));
+		Assert.assertFalse(token.checkAttribute(TextToken.CONTROL_ATTRIBUTE_NEW_LINE));
+		Assert.assertTrue(token.checkAttribute(TextToken.CONTROL_ATTRIBUTE_SPACE));
 		Assert.assertFalse(tokenStream.hasNext());
 	}
 
@@ -193,13 +193,13 @@ public class TokenStreamUnitTest {
 		int index = 0;
 		TokenStream reader = TokenStream.obtain(msg, 0, msg.length());
 		while (reader.hasNext()) {
-			Token token = reader.next();
+			TextToken token = (TextToken) reader.next();
 			System.out.println(token.toString());
 			if (token.getType() == Token.TYPE_WORD) {
 				Assert.assertEquals(values[index++], token.mCharSequence.subSequence(token.mStart, token.mEnd));
-				Assert.assertEquals(Token.CATEGORY_NORMAL, token.getCategory());
+				Assert.assertEquals(TextToken.CATEGORY_NORMAL, token.getCategory());
 			} else if (token.getType() == Token.TYPE_SYMBOL) {
-				Assert.assertEquals(Token.CATEGORY_PUNCTUATION, token.getCategory());
+				Assert.assertEquals(TextToken.CATEGORY_PUNCTUATION, token.getCategory());
 			}
 		}
 	}
@@ -209,48 +209,48 @@ public class TokenStreamUnitTest {
 		String msg = "你好";
 		TokenStream reader = TokenStream.obtain(msg, 0, msg.length());
 		while (reader.hasNext()) {
-			Token token = reader.next();
-			Assert.assertEquals(Token.CATEGORY_CJK, token.getCategory());
+			TextToken token = (TextToken) reader.next();
+			Assert.assertEquals(TextToken.CATEGORY_CJK, token.getCategory());
 			Assert.assertEquals(Token.TYPE_WORD, token.getType());
 		}
 
 		msg = "の";
 		reader = TokenStream.obtain(msg, 0, msg.length());
 		while (reader.hasNext()) {
-			Token token = reader.next();
-			Assert.assertEquals(Token.CATEGORY_CJK, token.getCategory());
+			TextToken token = (TextToken) reader.next();
+			Assert.assertEquals(TextToken.CATEGORY_CJK, token.getCategory());
 			Assert.assertEquals(Token.TYPE_WORD, token.getType());
 		}
 
 		msg = "나는";
 		reader = TokenStream.obtain(msg, 0, msg.length());
 		while (reader.hasNext()) {
-			Token token = reader.next();
-			Assert.assertEquals(Token.CATEGORY_CJK, token.getCategory());
+			TextToken token = (TextToken) reader.next();
+			Assert.assertEquals(TextToken.CATEGORY_CJK, token.getCategory());
 			Assert.assertEquals(Token.TYPE_WORD, token.getType());
 		}
 
 		msg = "나는";
 		reader = TokenStream.obtain(msg, 0, msg.length());
 		while (reader.hasNext()) {
-			Token token = reader.next();
-			Assert.assertEquals(Token.CATEGORY_CJK, token.getCategory());
+			TextToken token = (TextToken) reader.next();
+			Assert.assertEquals(TextToken.CATEGORY_CJK, token.getCategory());
 			Assert.assertEquals(Token.TYPE_WORD, token.getType());
 		}
 
 		msg = "อักษรไทย";
 		reader = TokenStream.obtain(msg, 0, msg.length());
 		while (reader.hasNext()) {
-			Token token = reader.next();
-			Assert.assertEquals(Token.CATEGORY_UNKNOWN_LETTER, token.getCategory());
+			TextToken token = (TextToken) reader.next();
+			Assert.assertEquals(TextToken.CATEGORY_UNKNOWN_LETTER, token.getCategory());
 			Assert.assertEquals(Token.TYPE_WORD, token.getType());
 		}
 
 		msg = "didn’t";
 		reader = TokenStream.obtain(msg, 0, msg.length());
 		while (reader.hasNext()) {
-			Token token = reader.next();
-			Assert.assertEquals(Token.CATEGORY_NORMAL, token.getCategory());
+			TextToken token = (TextToken) reader.next();
+			Assert.assertEquals(TextToken.CATEGORY_NORMAL, token.getCategory());
 			Assert.assertEquals(Token.TYPE_WORD, token.getType());
 		}
 	}
@@ -260,8 +260,8 @@ public class TokenStreamUnitTest {
 		String msg = "19";
 		TokenStream reader = TokenStream.obtain(msg, 0, msg.length());
 		while (reader.hasNext()) {
-			Token token = reader.next();
-			Assert.assertEquals(Token.CATEGORY_NUMBER, token.getCategory());
+			TextToken token = (TextToken) reader.next();
+			Assert.assertEquals(TextToken.CATEGORY_NUMBER, token.getCategory());
 			Assert.assertEquals(Token.TYPE_WORD, token.getType());
 		}
 	}
@@ -272,8 +272,8 @@ public class TokenStreamUnitTest {
 		System.out.println(msg.length() + " " + msg.codePointCount(0, msg.length()));
 		TokenStream reader = TokenStream.obtain(msg, 0, msg.length());
 		while (reader.hasNext()) {
-			Token token = reader.next();
-			Assert.assertEquals(Token.CATEGORY_SYMBOL, token.getCategory());
+			TextToken token = (TextToken) reader.next();
+			Assert.assertEquals(TextToken.CATEGORY_SYMBOL, token.getCategory());
 			Assert.assertEquals(Token.TYPE_SYMBOL, token.getType());
 		}
 	}
@@ -283,32 +283,32 @@ public class TokenStreamUnitTest {
 		String msg = "$";
 		TokenStream reader = TokenStream.obtain(msg, 0, msg.length());
 		while (reader.hasNext()) {
-			Token token = reader.next();
-			Assert.assertEquals(Token.CATEGORY_SYMBOL, token.getCategory());
+			TextToken token = (TextToken) reader.next();
+			Assert.assertEquals(TextToken.CATEGORY_SYMBOL, token.getCategory());
 			Assert.assertEquals(Token.TYPE_SYMBOL, token.getType());
-			Assert.assertTrue(token.checkAttribute(Token.SYMBOL_ATTRIBUTE_KINSOKU_AVOID_TAIL));
-			Assert.assertFalse(token.checkAttribute(Token.SYMBOL_ATTRIBUTE_KINSOKU_AVOID_HEADER));
+			Assert.assertTrue(token.checkAttribute(TextToken.SYMBOL_ATTRIBUTE_KINSOKU_AVOID_LINE_TAIL));
+			Assert.assertFalse(token.checkAttribute(TextToken.SYMBOL_ATTRIBUTE_KINSOKU_AVOID_LINE_HEADER));
 		}
 
 		msg = "&";
 		reader = TokenStream.obtain(msg, 0, msg.length());
 		while (reader.hasNext()) {
-			Token token = reader.next();
-			Assert.assertEquals(Token.CATEGORY_PUNCTUATION, token.getCategory());
+			TextToken token = (TextToken) reader.next();
+			Assert.assertEquals(TextToken.CATEGORY_PUNCTUATION, token.getCategory());
 			Assert.assertEquals(Token.TYPE_SYMBOL, token.getType());
-			Assert.assertTrue(token.checkAttribute(Token.SYMBOL_ATTRIBUTE_KINSOKU_AVOID_TAIL));
-			Assert.assertTrue(token.checkAttribute(Token.SYMBOL_ATTRIBUTE_KINSOKU_AVOID_HEADER));
+			Assert.assertTrue(token.checkAttribute(TextToken.SYMBOL_ATTRIBUTE_KINSOKU_AVOID_LINE_TAIL));
+			Assert.assertTrue(token.checkAttribute(TextToken.SYMBOL_ATTRIBUTE_KINSOKU_AVOID_LINE_HEADER));
 		}
 
 		msg = "《";
 		reader = TokenStream.obtain(msg, 0, msg.length());
 		while (reader.hasNext()) {
-			Token token = reader.next();
-			Assert.assertEquals(Token.CATEGORY_PUNCTUATION, token.getCategory());
+			TextToken token = (TextToken) reader.next();
+			Assert.assertEquals(TextToken.CATEGORY_PUNCTUATION, token.getCategory());
 			Assert.assertEquals(Token.TYPE_SYMBOL, token.getType());
-			Assert.assertTrue(token.checkAttribute(Token.SYMBOL_ATTRIBUTE_KINSOKU_AVOID_TAIL));
-			Assert.assertFalse(token.checkAttribute(Token.SYMBOL_ATTRIBUTE_KINSOKU_AVOID_HEADER));
-			Assert.assertTrue(token.checkAttribute(Token.SYMBOL_ATTRIBUTE_SQUISH_LEFT));
+			Assert.assertTrue(token.checkAttribute(TextToken.SYMBOL_ATTRIBUTE_KINSOKU_AVOID_LINE_TAIL));
+			Assert.assertFalse(token.checkAttribute(TextToken.SYMBOL_ATTRIBUTE_KINSOKU_AVOID_LINE_HEADER));
+			Assert.assertTrue(token.checkAttribute(TextToken.SYMBOL_ATTRIBUTE_SQUISH_LEFT));
 		}
 	}
 
@@ -318,8 +318,8 @@ public class TokenStreamUnitTest {
 		System.out.println(msg);
 		TokenStream reader = TokenStream.obtain(msg, 0, msg.length());
 		while (reader.hasNext()) {
-			Token token = reader.next();
-			Assert.assertEquals(Token.CATEGORY_UNKNOWN_LETTER, token.getCategory());
+			TextToken token = (TextToken) reader.next();
+			Assert.assertEquals(TextToken.CATEGORY_UNKNOWN_LETTER, token.getCategory());
 			Assert.assertEquals(Token.TYPE_WORD, token.getType());
 		}
 	}
@@ -330,7 +330,7 @@ public class TokenStreamUnitTest {
 		System.out.println(msg.length() + " " + msg.codePointCount(0, msg.length()));
 		TokenStream reader = TokenStream.obtain(msg, 0, msg.length());
 		while (reader.hasNext()) {
-			Token token = reader.next();
+			TextToken token = (TextToken) reader.next();
 			System.out.println(token.toString());
 		}
 	}
@@ -340,7 +340,7 @@ public class TokenStreamUnitTest {
 		String msg = "Twenty-five: Eating dinner";
 		TokenStream reader = TokenStream.obtain(msg, 0, msg.length());
 		while (reader.hasNext()) {
-			Token token = reader.next();
+			TextToken token = (TextToken) reader.next();
 			System.out.println(token.toString());
 		}
 	}
@@ -353,7 +353,7 @@ public class TokenStreamUnitTest {
 		System.out.println(msg);
 		TokenStream reader = TokenStream.obtain(msg, 0, msg.length());
 		while (reader.hasNext()) {
-			Token token = reader.next();
+			TextToken token = (TextToken) reader.next();
 			System.out.println(token.toString());
 		}
 
@@ -369,39 +369,39 @@ public class TokenStreamUnitTest {
 		bucket.clear();
 
 		TextTokenStream.setupKinsokuAdvise(bucket, 0xb7);
-		Assert.assertTrue(bucket.get(Token.SYMBOL_ATTRIBUTE_KINSOKU_AVOID_TAIL));
-		Assert.assertTrue(bucket.get(Token.SYMBOL_ATTRIBUTE_KINSOKU_AVOID_HEADER));
+		Assert.assertTrue(bucket.get(TextToken.SYMBOL_ATTRIBUTE_KINSOKU_AVOID_LINE_TAIL));
+		Assert.assertTrue(bucket.get(TextToken.SYMBOL_ATTRIBUTE_KINSOKU_AVOID_LINE_HEADER));
 		bucket.clear();
 
 		for (int v : TextTokenStream.SQUISH_RIGHT_MAP) {
 			TextTokenStream.setupSquishAdvise(bucket, v);
-			Assert.assertTrue(bucket.get(Token.SYMBOL_ATTRIBUTE_SQUISH_RIGHT));
-			Assert.assertEquals(1 << (Token.SYMBOL_ATTRIBUTE_SQUISH_RIGHT - Token.BIT_ATTRIBUTES_START),
-					bucket.getRange(Token.BIT_ATTRIBUTES_START, Token.BIT_ATTRIBUTES_END));
+			Assert.assertTrue(bucket.get(TextToken.SYMBOL_ATTRIBUTE_SQUISH_RIGHT));
+			Assert.assertEquals(1 << (TextToken.SYMBOL_ATTRIBUTE_SQUISH_RIGHT - TextToken.BIT_ATTRIBUTES_START),
+					bucket.getRange(TextToken.BIT_ATTRIBUTES_START, TextToken.BIT_ATTRIBUTES_END));
 			bucket.clear();
 		}
 
 		for (int v : TextTokenStream.SQUISH_LEFT_MAP) {
 			TextTokenStream.setupSquishAdvise(bucket, v);
-			Assert.assertTrue(bucket.get(Token.SYMBOL_ATTRIBUTE_SQUISH_LEFT));
-			Assert.assertEquals(1 << (Token.SYMBOL_ATTRIBUTE_SQUISH_LEFT - Token.BIT_ATTRIBUTES_START),
-					bucket.getRange(Token.BIT_ATTRIBUTES_START, Token.BIT_ATTRIBUTES_END));
+			Assert.assertTrue(bucket.get(TextToken.SYMBOL_ATTRIBUTE_SQUISH_LEFT));
+			Assert.assertEquals(1 << (TextToken.SYMBOL_ATTRIBUTE_SQUISH_LEFT - TextToken.BIT_ATTRIBUTES_START),
+					bucket.getRange(TextToken.BIT_ATTRIBUTES_START, TextToken.BIT_ATTRIBUTES_END));
 			bucket.clear();
 		}
 
 		for (int v : TextTokenStream.STRETCH_RIGHT_MAP) {
 			TextTokenStream.setupStretchAdvise(bucket, v);
-			Assert.assertTrue(bucket.get(Token.SYMBOL_ATTRIBUTE_STRETCH_RIGHT));
-			Assert.assertEquals(1 << (Token.SYMBOL_ATTRIBUTE_STRETCH_RIGHT - Token.BIT_ATTRIBUTES_START),
-					bucket.getRange(Token.BIT_ATTRIBUTES_START, Token.BIT_ATTRIBUTES_END));
+			Assert.assertTrue(bucket.get(TextToken.SYMBOL_ATTRIBUTE_STRETCH_RIGHT));
+			Assert.assertEquals(1 << (TextToken.SYMBOL_ATTRIBUTE_STRETCH_RIGHT - TextToken.BIT_ATTRIBUTES_START),
+					bucket.getRange(TextToken.BIT_ATTRIBUTES_START, TextToken.BIT_ATTRIBUTES_END));
 			bucket.clear();
 		}
 
 		for (int v : TextTokenStream.STRETCH_LEFT_MAP) {
 			TextTokenStream.setupStretchAdvise(bucket, v);
-			Assert.assertTrue(bucket.get(Token.SYMBOL_ATTRIBUTE_STRETCH_LEFT));
-			Assert.assertEquals(1 << (Token.SYMBOL_ATTRIBUTE_STRETCH_LEFT - Token.BIT_ATTRIBUTES_START),
-					bucket.getRange(Token.BIT_ATTRIBUTES_START, Token.BIT_ATTRIBUTES_END));
+			Assert.assertTrue(bucket.get(TextToken.SYMBOL_ATTRIBUTE_STRETCH_LEFT));
+			Assert.assertEquals(1 << (TextToken.SYMBOL_ATTRIBUTE_STRETCH_LEFT - TextToken.BIT_ATTRIBUTES_START),
+					bucket.getRange(TextToken.BIT_ATTRIBUTES_START, TextToken.BIT_ATTRIBUTES_END));
 			bucket.clear();
 		}
 	}
@@ -425,11 +425,11 @@ public class TokenStreamUnitTest {
 
 	@Test
 	public void testTail() {
-		Assert.assertEquals(32, Token.numberOfTrailingZeros(0));
-		Assert.assertEquals(0, Token.numberOfTrailingZeros(1));
-		Assert.assertEquals(1, Token.numberOfTrailingZeros(2));
-		Assert.assertEquals(0, Token.numberOfTrailingZeros(3));
-		Assert.assertEquals(2, Token.numberOfTrailingZeros(4));
-		Assert.assertEquals(0, Token.numberOfTrailingZeros(5));
+		Assert.assertEquals(32, TextToken.numberOfTrailingZeros(0));
+		Assert.assertEquals(0, TextToken.numberOfTrailingZeros(1));
+		Assert.assertEquals(1, TextToken.numberOfTrailingZeros(2));
+		Assert.assertEquals(0, TextToken.numberOfTrailingZeros(3));
+		Assert.assertEquals(2, TextToken.numberOfTrailingZeros(4));
+		Assert.assertEquals(0, TextToken.numberOfTrailingZeros(5));
 	}
 }

@@ -12,7 +12,6 @@ import androidx.annotation.Nullable;
 import me.chan.texas.Texas;
 import me.chan.texas.measurer.MockMeasurer;
 import me.chan.texas.renderer.core.graphics.TexasPaint;
-import me.chan.texas.text.layout.DrawableSpan;
 import me.chan.texas.text.layout.Glue;
 import me.chan.texas.text.layout.Line;
 import me.chan.texas.text.layout.Penalty;
@@ -210,13 +209,13 @@ public class DataUnitTest {
 		Drawable drawable = new ColorDrawable(19);
 
 		Emoticon emoticon = Emoticon.obtain(drawable, 1, 2);
-		DrawableSpan drawableBox = emoticon;
+		HyperSpan drawableBox = emoticon;
 		Assert.assertNotNull(drawableBox);
 		Assert.assertFalse(drawableBox.isRecycled());
 		Assert.assertEquals(drawableBox.getWidth(), 1, 0);
 		Assert.assertEquals(drawableBox.getHeight(), 2, 0);
 
-		DrawableSpan p = drawableBox;
+		HyperSpan p = drawableBox;
 		drawableBox.recycle();
 		Assert.assertTrue(drawableBox.isRecycled());
 		Assert.assertNotSame(drawable, drawableBox);

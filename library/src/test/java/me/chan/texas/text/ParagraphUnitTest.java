@@ -29,9 +29,10 @@ import me.chan.texas.text.layout.Penalty;
 import me.chan.texas.text.layout.StateList;
 import me.chan.texas.text.layout.SymbolGlue;
 import me.chan.texas.text.layout.TextSpan;
-import me.chan.texas.text.tokenizer.Token;
+import me.chan.texas.text.tokenizer.TextToken;
 import me.chan.texas.text.util.TexasIterator;
 import me.chan.texas.typesetter.ParagraphTypesetter;
+import me.chan.texas.typesetter.utils.ElementStream;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -187,8 +188,13 @@ public class ParagraphUnitTest {
 		Assert.assertEquals(paragraph.getElementCount(), 13);
 		Emoticon hypeSpan = (Emoticon) paragraph.getElement(0);
 		Assert.assertSame(hypeSpan.getDrawable(), colorDrawable);
+		// Emoticon 走 SymbolRules 后，紧跟的 word 由 WordRules 注入 commonGlue 作为间距。
 		me.chan.texas.text.layout.Element element = paragraph.getElement(1);
-		Assert.assertSame(Penalty.ADVISE_BREAK, element);
+		Assert.assertTrue(element instanceof Glue);
+		Assert.assertNotSame(Glue.TERMINAL, element);
+		Assert.assertEquals(((Glue) element).getWidth(), mTextAttribute.getSpaceWidth(), 0);
+		Assert.assertEquals(((Glue) element).getStretch(), mTextAttribute.getSpaceStretch(), 0);
+		Assert.assertEquals(((Glue) element).getShrink(), mTextAttribute.getSpaceShrink(), 0);
 
 		Measurer.CharSequenceSpec spec = Measurer.CharSequenceSpec.obtain();
 		mMeasurer.measure(msg, 0, msg.length(), null, null, spec);
@@ -1277,7 +1283,7 @@ public class ParagraphUnitTest {
 		Paragraph.Builder builder = Paragraph.Builder.newBuilder(texasOption);
 		builder.stream("你好", new Paragraph.Builder.SpanStylesReader() {
 			@Override
-			public Paragraph.SpanStyles read(Token token) {
+			public Paragraph.SpanStyles read(TextToken token) {
 				return Paragraph.SpanStyles.obtain(token)
 						.setTag(expectedTag)
 						.setTextStyle(expectedTextStyle)
@@ -1812,19 +1818,13 @@ public class ParagraphUnitTest {
 
 	@Test
 	public void testAppendHyperSpan() {
+		// HyperSpan 现在被当作 type=TYPE_SYMBOL 的 token 走 SymbolRules：
+		// - 前面有 word 时，进入 preformState2 → 单 token 流里没有 realPrev，发 ADVISE_BREAK
+		// - 后面再来 word 时，appendRun 自动补 " "，WordRules.performPrefixState1 看到
+		//   prev=control 且 accepted 没有 typeface 属性 → 插入 commonGlue
 		TexasOption texasOption = new TexasOption(mPaintSet, Hyphenation.getInstance(), mMeasurer, mTextAttribute, new RenderOption());
 
-		HyperSpan hyperSpan = new HyperSpan() {
-			@Override
-			protected void onDraw(TexasCanvas canvas, TexasPaint paint, RectF inner, RectF outer, float baselineOffset, StateList states) {
-
-			}
-
-			@Override
-			protected void onMeasure(float lineHeight, float baselineOffset) {
-
-			}
-		};
+		HyperSpan hyperSpan = newPlainHyperSpan();
 
 		Paragraph.Builder builder = Paragraph.Builder.newBuilder(texasOption);
 		builder.text("a");
@@ -1836,23 +1836,281 @@ public class ParagraphUnitTest {
 		Assert.assertEquals("a", paragraph.getElement(0).toString());
 		Assert.assertSame(Penalty.ADVISE_BREAK, paragraph.getElement(1));
 		Assert.assertSame(hyperSpan, paragraph.getElement(2));
-		Assert.assertSame(Penalty.ADVISE_BREAK, paragraph.getElement(3));
+		Element tail = paragraph.getElement(3);
+		Assert.assertTrue("tail between hyperSpan and word should be a Glue", tail instanceof Glue);
+		Assert.assertNotSame(Glue.TERMINAL, tail);
 		Assert.assertEquals("b", paragraph.getElement(4).toString());
 		Assert.assertSame(Glue.TERMINAL, paragraph.getElement(5));
 		Assert.assertSame(Penalty.FORCE_BREAK, paragraph.getElement(6));
 
+		// 段首/连续两个 hyperSpan：第一个走 prev=NONE 直接 append；
+		// 第二个走 prev=SYMBOL 的 preformState1 → ADVISE_BREAK
 		builder = Paragraph.Builder.newBuilder(texasOption);
 		builder.hyperSpan(hyperSpan);
 		builder.hyperSpan(hyperSpan);
 
 		paragraph = builder.build();
-		Assert.assertEquals(6, paragraph.getElementCount());
+		Assert.assertEquals(5, paragraph.getElementCount());
 		Assert.assertSame(hyperSpan, paragraph.getElement(0));
 		Assert.assertSame(Penalty.ADVISE_BREAK, paragraph.getElement(1));
 		Assert.assertSame(hyperSpan, paragraph.getElement(2));
+		Assert.assertSame(Glue.TERMINAL, paragraph.getElement(3));
+		Assert.assertSame(Penalty.FORCE_BREAK, paragraph.getElement(4));
+	}
+
+	@Test
+	public void testAppendHyperSpanKinsokuAvoidHeader() {
+		// 与符号 KINSOKU_AVOID_HEADER 一致：头部用 FORBIDDEN_BREAK
+		TexasOption texasOption = new TexasOption(mPaintSet, Hyphenation.getInstance(), mMeasurer, mTextAttribute, new RenderOption());
+
+		HyperSpan hyperSpan = newPlainHyperSpan();
+		hyperSpan.addAttribute(HyperSpan.AVOID_LINE_HEADER);
+
+		Paragraph.Builder builder = Paragraph.Builder.newBuilder(texasOption);
+		builder.text("a");
+		builder.hyperSpan(hyperSpan);
+		builder.text("b");
+		Paragraph paragraph = builder.build();
+
+		Assert.assertEquals(7, paragraph.getElementCount());
+		Assert.assertEquals("a", paragraph.getElement(0).toString());
+		Assert.assertSame(Penalty.FORBIDDEN_BREAK, paragraph.getElement(1));
+		Assert.assertSame(hyperSpan, paragraph.getElement(2));
+		// 尾部回落到 SymbolRules 跟 WordRules 共同决定的 commonGlue
+		Element tail = paragraph.getElement(3);
+		Assert.assertTrue(tail instanceof Glue);
+		Assert.assertNotSame(Glue.TERMINAL, tail);
+		Assert.assertEquals("b", paragraph.getElement(4).toString());
+	}
+
+	@Test
+	public void testAppendHyperSpanKinsokuAvoidTail() {
+		// 与符号 KINSOKU_AVOID_TAIL 一致：accepted 带 AVOID_TAIL 时
+		// WordRules.performPrefixState1 把 advise 切成 FORBIDDEN_BREAK，
+		// 同时由于 prev=control，在 commonGlue 两侧补 FORBIDDEN_BREAK。
+		TexasOption texasOption = new TexasOption(mPaintSet, Hyphenation.getInstance(), mMeasurer, mTextAttribute, new RenderOption());
+
+		HyperSpan hyperSpan = newPlainHyperSpan();
+		hyperSpan.addAttribute(HyperSpan.AVOID_LINE_TAIL);
+
+		Paragraph.Builder builder = Paragraph.Builder.newBuilder(texasOption);
+		builder.text("a");
+		builder.hyperSpan(hyperSpan);
+		builder.text("b");
+		Paragraph paragraph = builder.build();
+
+		Assert.assertEquals(9, paragraph.getElementCount());
+		Assert.assertEquals("a", paragraph.getElement(0).toString());
+		Assert.assertSame(Penalty.ADVISE_BREAK, paragraph.getElement(1));
+		Assert.assertSame(hyperSpan, paragraph.getElement(2));
+		Assert.assertSame(Penalty.FORBIDDEN_BREAK, paragraph.getElement(3));
+		Element glue = paragraph.getElement(4);
+		Assert.assertTrue(glue instanceof Glue);
+		Assert.assertNotSame(Glue.TERMINAL, glue);
+		Assert.assertSame(Penalty.FORBIDDEN_BREAK, paragraph.getElement(5));
+		Assert.assertEquals("b", paragraph.getElement(6).toString());
+	}
+
+	@Test
+	public void testAppendHyperSpanStretchLeft() {
+		// 与符号 STRETCH_LEFT 一致：preformState2 在 hyperSpan 前面补 commonGlue
+		TexasOption texasOption = new TexasOption(mPaintSet, Hyphenation.getInstance(), mMeasurer, mTextAttribute, new RenderOption());
+
+		HyperSpan hyperSpan = newPlainHyperSpan();
+		hyperSpan.addAttribute(HyperSpan.STRETCH_LEFT);
+
+		Paragraph.Builder builder = Paragraph.Builder.newBuilder(texasOption);
+		builder.text("a");
+		builder.hyperSpan(hyperSpan);
+		builder.text("b");
+		Paragraph paragraph = builder.build();
+
+		Assert.assertEquals(7, paragraph.getElementCount());
+		Assert.assertEquals("a", paragraph.getElement(0).toString());
+		Element head = paragraph.getElement(1);
+		Assert.assertTrue("head should be a Glue", head instanceof Glue);
+		Assert.assertNotSame(Glue.TERMINAL, head);
+		Assert.assertSame(hyperSpan, paragraph.getElement(2));
+		// 尾部由 WordRules.performPrefixState1 决定：accepted 有 typeface 属性（STRETCH_LEFT），
+		// 跳过 commonGlue 补充，落到 ADVISE_BREAK
 		Assert.assertSame(Penalty.ADVISE_BREAK, paragraph.getElement(3));
-		Assert.assertSame(Glue.TERMINAL, paragraph.getElement(4));
-		Assert.assertSame(Penalty.FORCE_BREAK, paragraph.getElement(5));
+		Assert.assertEquals("b", paragraph.getElement(4).toString());
+	}
+
+	@Test
+	public void testAppendHyperSpanStretchRight() {
+		// 与符号 STRETCH_RIGHT 一致：WordRules.performPrefixState1 在 hyperSpan 后面补 commonGlue
+		TexasOption texasOption = new TexasOption(mPaintSet, Hyphenation.getInstance(), mMeasurer, mTextAttribute, new RenderOption());
+
+		HyperSpan hyperSpan = newPlainHyperSpan();
+		hyperSpan.addAttribute(HyperSpan.STRETCH_RIGHT);
+
+		Paragraph.Builder builder = Paragraph.Builder.newBuilder(texasOption);
+		builder.text("a");
+		builder.hyperSpan(hyperSpan);
+		builder.text("b");
+		Paragraph paragraph = builder.build();
+
+		Assert.assertEquals(7, paragraph.getElementCount());
+		Assert.assertSame(Penalty.ADVISE_BREAK, paragraph.getElement(1));
+		Assert.assertSame(hyperSpan, paragraph.getElement(2));
+		Element tail = paragraph.getElement(3);
+		Assert.assertTrue("tail should be a Glue", tail instanceof Glue);
+		Assert.assertNotSame(Glue.TERMINAL, tail);
+		Assert.assertEquals("b", paragraph.getElement(4).toString());
+	}
+
+	@Test
+	public void testAppendHyperSpanKinsokuHeaderWithStretchLeft() {
+		// 与符号 STRETCH_LEFT + KINSOKU_AVOID_HEADER 一致：
+		// preformState2 头部插入 FORBIDDEN_BREAK + commonGlue + FORBIDDEN_BREAK
+		TexasOption texasOption = new TexasOption(mPaintSet, Hyphenation.getInstance(), mMeasurer, mTextAttribute, new RenderOption());
+
+		HyperSpan hyperSpan = newPlainHyperSpan();
+		hyperSpan.addAttribute(HyperSpan.AVOID_LINE_HEADER);
+		hyperSpan.addAttribute(HyperSpan.STRETCH_LEFT);
+
+		Paragraph.Builder builder = Paragraph.Builder.newBuilder(texasOption);
+		builder.text("a");
+		builder.hyperSpan(hyperSpan);
+		builder.text("b");
+		Paragraph paragraph = builder.build();
+
+		Assert.assertEquals(9, paragraph.getElementCount());
+		Assert.assertEquals("a", paragraph.getElement(0).toString());
+		Assert.assertSame(Penalty.FORBIDDEN_BREAK, paragraph.getElement(1));
+		Element glue = paragraph.getElement(2);
+		Assert.assertTrue(glue instanceof Glue);
+		Assert.assertNotSame(Glue.TERMINAL, glue);
+		Assert.assertSame(Penalty.FORBIDDEN_BREAK, paragraph.getElement(3));
+		Assert.assertSame(hyperSpan, paragraph.getElement(4));
+		Assert.assertSame(Penalty.ADVISE_BREAK, paragraph.getElement(5));
+		Assert.assertEquals("b", paragraph.getElement(6).toString());
+	}
+
+	@Test
+	public void testAppendHyperSpanKinsokuTailWithStretchLeft() {
+		// 与符号 STRETCH_LEFT + KINSOKU_AVOID_TAIL 一致：
+		// 头部 STRETCH_LEFT 让 preformState2 用 commonGlue 替代 ADVISE_BREAK；
+		// 尾部 accepted 带 typeface（STRETCH_LEFT）跳过 commonGlue 补充，
+		// 但 AVOID_TAIL 把 advise 切成 FORBIDDEN_BREAK。
+		TexasOption texasOption = new TexasOption(mPaintSet, Hyphenation.getInstance(), mMeasurer, mTextAttribute, new RenderOption());
+
+		HyperSpan hyperSpan = newPlainHyperSpan();
+		hyperSpan.addAttribute(HyperSpan.AVOID_LINE_TAIL);
+		hyperSpan.addAttribute(HyperSpan.STRETCH_LEFT);
+
+		Paragraph.Builder builder = Paragraph.Builder.newBuilder(texasOption);
+		builder.text("a");
+		builder.hyperSpan(hyperSpan);
+		builder.text("b");
+		Paragraph paragraph = builder.build();
+
+		Assert.assertEquals(7, paragraph.getElementCount());
+		Assert.assertEquals("a", paragraph.getElement(0).toString());
+		Element head = paragraph.getElement(1);
+		Assert.assertTrue("head should be a Glue", head instanceof Glue);
+		Assert.assertNotSame(Glue.TERMINAL, head);
+		Assert.assertSame(hyperSpan, paragraph.getElement(2));
+		Assert.assertSame(Penalty.FORBIDDEN_BREAK, paragraph.getElement(3));
+		Assert.assertEquals("b", paragraph.getElement(4).toString());
+		assertElementEndsWithTerminalAndForceBreak(paragraph);
+	}
+
+	@Test
+	public void testAppendHyperSpanKinsokuHeaderWithStretchRight() {
+		// 与符号 STRETCH_RIGHT + KINSOKU_AVOID_HEADER 一致：
+		// 头部 KINSOKU_AVOID_HEADER 让 preformState2 走 FORBIDDEN_BREAK 分支；
+		// accepted=word 没有 typeface，realPrev=control，于是
+		// commonGlue 两侧补 FORBIDDEN_BREAK；
+		// 尾部 STRETCH_RIGHT 在 hyperSpan 后插入 commonGlue。
+		TexasOption texasOption = new TexasOption(mPaintSet, Hyphenation.getInstance(), mMeasurer, mTextAttribute, new RenderOption());
+
+		HyperSpan hyperSpan = newPlainHyperSpan();
+		hyperSpan.addAttribute(HyperSpan.AVOID_LINE_HEADER);
+		hyperSpan.addAttribute(HyperSpan.STRETCH_RIGHT);
+
+		Paragraph.Builder builder = Paragraph.Builder.newBuilder(texasOption);
+		builder.text("a");
+		builder.hyperSpan(hyperSpan);
+		builder.text("b");
+		Paragraph paragraph = builder.build();
+
+		Assert.assertEquals(7, paragraph.getElementCount());
+		ElementStream stream = new ElementStream(paragraph);
+		Assert.assertEquals("a", stream.next().toString());
+		Assert.assertSame(Penalty.FORBIDDEN_BREAK, stream.next());
+		Assert.assertSame(hyperSpan, stream.next());
+		Element tailGlue = stream.next();
+		Assert.assertTrue(tailGlue instanceof Glue);
+		Assert.assertNotSame(Glue.TERMINAL, tailGlue);
+		Assert.assertEquals("b", stream.next().toString());
+		assertElementEndsWithTerminalAndForceBreak(paragraph);
+	}
+
+	@Test
+	public void testAppendHyperSpanKinsokuTailWithStretchRight() {
+		// 与符号 STRETCH_RIGHT + KINSOKU_AVOID_TAIL 一致：
+		// hyperSpan 后由 WordRules.performPrefixState1 插入
+		// FORBIDDEN_BREAK + commonGlue + FORBIDDEN_BREAK
+		TexasOption texasOption = new TexasOption(mPaintSet, Hyphenation.getInstance(), mMeasurer, mTextAttribute, new RenderOption());
+
+		HyperSpan hyperSpan = newPlainHyperSpan();
+		hyperSpan.addAttribute(HyperSpan.AVOID_LINE_TAIL);
+		hyperSpan.addAttribute(HyperSpan.STRETCH_RIGHT);
+
+		Paragraph.Builder builder = Paragraph.Builder.newBuilder(texasOption);
+		builder.text("a");
+		builder.hyperSpan(hyperSpan);
+		builder.text("b");
+		Paragraph paragraph = builder.build();
+
+		Assert.assertEquals(9, paragraph.getElementCount());
+		Assert.assertEquals("a", paragraph.getElement(0).toString());
+		Assert.assertSame(Penalty.ADVISE_BREAK, paragraph.getElement(1));
+		Assert.assertSame(hyperSpan, paragraph.getElement(2));
+		Assert.assertSame(Penalty.FORBIDDEN_BREAK, paragraph.getElement(3));
+		Element glue = paragraph.getElement(4);
+		Assert.assertTrue(glue instanceof Glue);
+		Assert.assertNotSame(Glue.TERMINAL, glue);
+		Assert.assertSame(Penalty.FORBIDDEN_BREAK, paragraph.getElement(5));
+		Assert.assertEquals("b", paragraph.getElement(6).toString());
+		assertElementEndsWithTerminalAndForceBreak(paragraph);
+	}
+
+	@Test
+	public void testAppendHyperSpanAttributesIgnoredAtParagraphHead() {
+		// 段首 prev=NONE 时走直接 append 分支，头部不插任何东西，
+		// 与同样位置的普通 symbol token 行为完全一致。
+		TexasOption texasOption = new TexasOption(mPaintSet, Hyphenation.getInstance(), mMeasurer, mTextAttribute, new RenderOption());
+
+		HyperSpan hyperSpan = newPlainHyperSpan();
+		hyperSpan.addAttribute(HyperSpan.AVOID_LINE_HEADER);
+		hyperSpan.addAttribute(HyperSpan.STRETCH_LEFT);
+
+		Paragraph.Builder builder = Paragraph.Builder.newBuilder(texasOption);
+		builder.hyperSpan(hyperSpan);
+		builder.text("b");
+		Paragraph paragraph = builder.build();
+
+		Assert.assertEquals(5, paragraph.getElementCount());
+		Assert.assertSame(hyperSpan, paragraph.getElement(0));
+		Assert.assertSame(Penalty.ADVISE_BREAK, paragraph.getElement(1));
+		Assert.assertEquals("b", paragraph.getElement(2).toString());
+		Assert.assertSame(Glue.TERMINAL, paragraph.getElement(3));
+		Assert.assertSame(Penalty.FORCE_BREAK, paragraph.getElement(4));
+	}
+
+	private static HyperSpan newPlainHyperSpan() {
+		return new HyperSpan() {
+			@Override
+			protected void onDraw(TexasCanvas canvas, TexasPaint paint, RectF inner, RectF outer, float baselineOffset, StateList states) {
+			}
+
+			@Override
+			protected void onMeasure(float lineHeight, float baselineOffset) {
+			}
+		};
 	}
 
 	private static List<String> collectTexts(Paragraph paragraph) {

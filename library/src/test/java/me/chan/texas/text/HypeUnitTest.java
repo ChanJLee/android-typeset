@@ -38,6 +38,67 @@ public class HypeUnitTest {
 		Assert.assertEquals(10, myHypeSpan.getWidth(), 0);
 		Assert.assertEquals(20, myHypeSpan.getHeight(), 0);
 	}
+
+	@Test
+	public void testAttributeDefaults() {
+		MyHypeSpan span = new MyHypeSpan();
+
+		Assert.assertFalse(span.hasSymbolAttributes());
+		Assert.assertEquals(0, span.getSymbolAttributes());
+		Assert.assertFalse(span.hasSymbolTypefaceAttributes());
+		Assert.assertFalse(span.checkAttribute(HyperSpan.AVOID_LINE_HEADER));
+		Assert.assertFalse(span.checkAttribute(HyperSpan.AVOID_LINE_TAIL));
+		Assert.assertFalse(span.checkAttribute(HyperSpan.STRETCH_LEFT));
+		Assert.assertFalse(span.checkAttribute(HyperSpan.STRETCH_RIGHT));
+	}
+
+	@Test
+	public void testAttributeAddCheckRemove() {
+		MyHypeSpan span = new MyHypeSpan();
+
+		span.addAttribute(HyperSpan.AVOID_LINE_HEADER);
+		Assert.assertTrue(span.checkAttribute(HyperSpan.AVOID_LINE_HEADER));
+		Assert.assertFalse(span.checkAttribute(HyperSpan.AVOID_LINE_TAIL));
+		Assert.assertTrue(span.hasSymbolAttributes());
+		Assert.assertFalse(span.hasSymbolTypefaceAttributes());
+
+		span.addAttribute(HyperSpan.STRETCH_RIGHT);
+		Assert.assertTrue(span.checkAttribute(HyperSpan.AVOID_LINE_HEADER));
+		Assert.assertTrue(span.checkAttribute(HyperSpan.STRETCH_RIGHT));
+		Assert.assertTrue(span.hasSymbolTypefaceAttributes());
+
+		span.removeAttribute(HyperSpan.AVOID_LINE_HEADER);
+		Assert.assertFalse(span.checkAttribute(HyperSpan.AVOID_LINE_HEADER));
+		Assert.assertTrue(span.checkAttribute(HyperSpan.STRETCH_RIGHT));
+		Assert.assertTrue(span.hasSymbolAttributes());
+
+		span.removeAttribute(HyperSpan.STRETCH_RIGHT);
+		Assert.assertFalse(span.hasSymbolAttributes());
+		Assert.assertFalse(span.hasSymbolTypefaceAttributes());
+		Assert.assertEquals(0, span.getSymbolAttributes());
+	}
+
+	@Test
+	public void testHasTypefaceAttributesIndependentBits() {
+		// HyperSpan 仅支持 KINSOKU_AVOID_HEADER/TAIL 与 STRETCH_LEFT/RIGHT，
+		// 其中只有 STRETCH 视为字形属性，KINSOKU 不算。
+		MyHypeSpan span = new MyHypeSpan();
+		Assert.assertFalse(span.hasSymbolTypefaceAttributes());
+
+		span.addAttribute(HyperSpan.STRETCH_LEFT);
+		Assert.assertTrue(span.hasSymbolTypefaceAttributes());
+		span.removeAttribute(HyperSpan.STRETCH_LEFT);
+		Assert.assertFalse(span.hasSymbolTypefaceAttributes());
+
+		span.addAttribute(HyperSpan.STRETCH_RIGHT);
+		Assert.assertTrue(span.hasSymbolTypefaceAttributes());
+		span.removeAttribute(HyperSpan.STRETCH_RIGHT);
+		Assert.assertFalse(span.hasSymbolTypefaceAttributes());
+
+		span.addAttribute(HyperSpan.AVOID_LINE_HEADER);
+		span.addAttribute(HyperSpan.AVOID_LINE_TAIL);
+		Assert.assertFalse(span.hasSymbolTypefaceAttributes());
+	}
 }
 
 class MyHypeSpan extends HyperSpan {

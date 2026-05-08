@@ -23,7 +23,6 @@ import me.chan.texas.renderer.SpanTouchEventHandler;
 import me.chan.texas.renderer.TouchEvent;
 import me.chan.texas.renderer.ui.text.ParagraphView;
 import me.chan.texas.text.Paragraph;
-import me.chan.texas.text.tokenizer.Token;
 
 public class SingleParagraphWithHeightActivity extends Activity {
 
