@@ -24,10 +24,10 @@ import me.chan.texas.text.tokenizer.Token;
  * <p>
  * 仅支持以下四个属性：
  * <ul>
- *     <li>{@link Token#SYMBOL_ATTRIBUTE_KINSOKU_AVOID_HEADER}</li>
- *     <li>{@link Token#SYMBOL_ATTRIBUTE_KINSOKU_AVOID_TAIL}</li>
- *     <li>{@link Token#SYMBOL_ATTRIBUTE_STRETCH_LEFT}</li>
- *     <li>{@link Token#SYMBOL_ATTRIBUTE_STRETCH_RIGHT}</li>
+ *     <li>{@link #AVOID_LINE_HEADER}</li>
+ *     <li>{@link #AVOID_LINE_TAIL}</li>
+ *     <li>{@link #STRETCH_LEFT}</li>
+ *     <li>{@link #STRETCH_RIGHT}</li>
  * </ul>
  * <pre><code>
  * class MyHyperSpan extends HyperSpan {
@@ -45,12 +45,28 @@ import me.chan.texas.text.tokenizer.Token;
  * </code></pre>
  */
 public abstract class HyperSpan extends Span implements Measurable {
+	/**
+	 * 避免出现在行首
+	 */
+	public static final int AVOID_LINE_HEADER = Token.SYMBOL_ATTRIBUTE_KINSOKU_AVOID_HEADER;
+	/**
+	 * 避免出现在行尾
+	 */
+	public static final int AVOID_LINE_TAIL = Token.SYMBOL_ATTRIBUTE_KINSOKU_AVOID_TAIL;
+	/**
+	 * 左边留出空白
+	 */
+	public static final int STRETCH_LEFT = Token.SYMBOL_ATTRIBUTE_STRETCH_LEFT;
+	/**
+	 * 右边留出空白
+	 */
+	public static final int STRETCH_RIGHT = Token.SYMBOL_ATTRIBUTE_STRETCH_RIGHT;
 
 	@Retention(RetentionPolicy.SOURCE)
-	@IntDef({Token.SYMBOL_ATTRIBUTE_KINSOKU_AVOID_HEADER,
-			Token.SYMBOL_ATTRIBUTE_KINSOKU_AVOID_TAIL,
-			Token.SYMBOL_ATTRIBUTE_STRETCH_LEFT,
-			Token.SYMBOL_ATTRIBUTE_STRETCH_RIGHT})
+	@IntDef({HyperSpan.AVOID_LINE_HEADER,
+			HyperSpan.AVOID_LINE_TAIL,
+			HyperSpan.STRETCH_LEFT,
+			HyperSpan.STRETCH_RIGHT})
 	public @interface HyperSpanSymbolAttribute {
 	}
 
@@ -105,8 +121,7 @@ public abstract class HyperSpan extends Span implements Measurable {
 	 */
 	@RestrictTo(LIBRARY)
 	public final boolean hasSymbolTypefaceAttributes() {
-		final int typefaceMask = (1 << Token.SYMBOL_ATTRIBUTE_STRETCH_LEFT)
-				| (1 << Token.SYMBOL_ATTRIBUTE_STRETCH_RIGHT);
+		final int typefaceMask = (1 << STRETCH_LEFT) | (1 << STRETCH_RIGHT);
 		return (mSymbolAttributes & typefaceMask) != 0;
 	}
 

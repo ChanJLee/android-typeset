@@ -30,7 +30,6 @@ import me.chan.texas.text.layout.StateList;
 import me.chan.texas.text.layout.SymbolGlue;
 import me.chan.texas.text.layout.TextSpan;
 import me.chan.texas.text.tokenizer.TextToken;
-import me.chan.texas.text.tokenizer.Token;
 import me.chan.texas.text.util.TexasIterator;
 import me.chan.texas.typesetter.ParagraphTypesetter;
 import me.chan.texas.typesetter.utils.ElementStream;
@@ -1865,7 +1864,7 @@ public class ParagraphUnitTest {
 		TexasOption texasOption = new TexasOption(mPaintSet, Hyphenation.getInstance(), mMeasurer, mTextAttribute, new RenderOption());
 
 		HyperSpan hyperSpan = newPlainHyperSpan();
-		hyperSpan.addAttribute(Token.SYMBOL_ATTRIBUTE_KINSOKU_AVOID_HEADER);
+		hyperSpan.addAttribute(HyperSpan.AVOID_LINE_HEADER);
 
 		Paragraph.Builder builder = Paragraph.Builder.newBuilder(texasOption);
 		builder.text("a");
@@ -1892,7 +1891,7 @@ public class ParagraphUnitTest {
 		TexasOption texasOption = new TexasOption(mPaintSet, Hyphenation.getInstance(), mMeasurer, mTextAttribute, new RenderOption());
 
 		HyperSpan hyperSpan = newPlainHyperSpan();
-		hyperSpan.addAttribute(Token.SYMBOL_ATTRIBUTE_KINSOKU_AVOID_TAIL);
+		hyperSpan.addAttribute(HyperSpan.AVOID_LINE_TAIL);
 
 		Paragraph.Builder builder = Paragraph.Builder.newBuilder(texasOption);
 		builder.text("a");
@@ -1918,7 +1917,7 @@ public class ParagraphUnitTest {
 		TexasOption texasOption = new TexasOption(mPaintSet, Hyphenation.getInstance(), mMeasurer, mTextAttribute, new RenderOption());
 
 		HyperSpan hyperSpan = newPlainHyperSpan();
-		hyperSpan.addAttribute(Token.SYMBOL_ATTRIBUTE_STRETCH_LEFT);
+		hyperSpan.addAttribute(HyperSpan.STRETCH_LEFT);
 
 		Paragraph.Builder builder = Paragraph.Builder.newBuilder(texasOption);
 		builder.text("a");
@@ -1944,7 +1943,7 @@ public class ParagraphUnitTest {
 		TexasOption texasOption = new TexasOption(mPaintSet, Hyphenation.getInstance(), mMeasurer, mTextAttribute, new RenderOption());
 
 		HyperSpan hyperSpan = newPlainHyperSpan();
-		hyperSpan.addAttribute(Token.SYMBOL_ATTRIBUTE_STRETCH_RIGHT);
+		hyperSpan.addAttribute(HyperSpan.STRETCH_RIGHT);
 
 		Paragraph.Builder builder = Paragraph.Builder.newBuilder(texasOption);
 		builder.text("a");
@@ -1968,8 +1967,8 @@ public class ParagraphUnitTest {
 		TexasOption texasOption = new TexasOption(mPaintSet, Hyphenation.getInstance(), mMeasurer, mTextAttribute, new RenderOption());
 
 		HyperSpan hyperSpan = newPlainHyperSpan();
-		hyperSpan.addAttribute(Token.SYMBOL_ATTRIBUTE_KINSOKU_AVOID_HEADER);
-		hyperSpan.addAttribute(Token.SYMBOL_ATTRIBUTE_STRETCH_LEFT);
+		hyperSpan.addAttribute(HyperSpan.AVOID_LINE_HEADER);
+		hyperSpan.addAttribute(HyperSpan.STRETCH_LEFT);
 
 		Paragraph.Builder builder = Paragraph.Builder.newBuilder(texasOption);
 		builder.text("a");
@@ -1998,8 +1997,8 @@ public class ParagraphUnitTest {
 		TexasOption texasOption = new TexasOption(mPaintSet, Hyphenation.getInstance(), mMeasurer, mTextAttribute, new RenderOption());
 
 		HyperSpan hyperSpan = newPlainHyperSpan();
-		hyperSpan.addAttribute(Token.SYMBOL_ATTRIBUTE_KINSOKU_AVOID_TAIL);
-		hyperSpan.addAttribute(Token.SYMBOL_ATTRIBUTE_STRETCH_LEFT);
+		hyperSpan.addAttribute(HyperSpan.AVOID_LINE_TAIL);
+		hyperSpan.addAttribute(HyperSpan.STRETCH_LEFT);
 
 		Paragraph.Builder builder = Paragraph.Builder.newBuilder(texasOption);
 		builder.text("a");
@@ -2028,8 +2027,8 @@ public class ParagraphUnitTest {
 		TexasOption texasOption = new TexasOption(mPaintSet, Hyphenation.getInstance(), mMeasurer, mTextAttribute, new RenderOption());
 
 		HyperSpan hyperSpan = newPlainHyperSpan();
-		hyperSpan.addAttribute(Token.SYMBOL_ATTRIBUTE_KINSOKU_AVOID_HEADER);
-		hyperSpan.addAttribute(Token.SYMBOL_ATTRIBUTE_STRETCH_RIGHT);
+		hyperSpan.addAttribute(HyperSpan.AVOID_LINE_HEADER);
+		hyperSpan.addAttribute(HyperSpan.STRETCH_RIGHT);
 
 		Paragraph.Builder builder = Paragraph.Builder.newBuilder(texasOption);
 		builder.text("a");
@@ -2057,8 +2056,8 @@ public class ParagraphUnitTest {
 		TexasOption texasOption = new TexasOption(mPaintSet, Hyphenation.getInstance(), mMeasurer, mTextAttribute, new RenderOption());
 
 		HyperSpan hyperSpan = newPlainHyperSpan();
-		hyperSpan.addAttribute(Token.SYMBOL_ATTRIBUTE_KINSOKU_AVOID_TAIL);
-		hyperSpan.addAttribute(Token.SYMBOL_ATTRIBUTE_STRETCH_RIGHT);
+		hyperSpan.addAttribute(HyperSpan.AVOID_LINE_TAIL);
+		hyperSpan.addAttribute(HyperSpan.STRETCH_RIGHT);
 
 		Paragraph.Builder builder = Paragraph.Builder.newBuilder(texasOption);
 		builder.text("a");
@@ -2086,8 +2085,8 @@ public class ParagraphUnitTest {
 		TexasOption texasOption = new TexasOption(mPaintSet, Hyphenation.getInstance(), mMeasurer, mTextAttribute, new RenderOption());
 
 		HyperSpan hyperSpan = newPlainHyperSpan();
-		hyperSpan.addAttribute(Token.SYMBOL_ATTRIBUTE_KINSOKU_AVOID_HEADER);
-		hyperSpan.addAttribute(Token.SYMBOL_ATTRIBUTE_STRETCH_LEFT);
+		hyperSpan.addAttribute(HyperSpan.AVOID_LINE_HEADER);
+		hyperSpan.addAttribute(HyperSpan.STRETCH_LEFT);
 
 		Paragraph.Builder builder = Paragraph.Builder.newBuilder(texasOption);
 		builder.hyperSpan(hyperSpan);
