@@ -2,17 +2,37 @@ package me.chan.texas.text.layout;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
+import androidx.annotation.IntDef;
 import androidx.annotation.RestrictTo;
+
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 
 import me.chan.texas.text.tokenizer.Token;
 
 /**
  * 可绘制box，可以是图片，表情
  * <p>
- * 复用 {@link Token.SymbolTokenAttribute} 的属性集合，让超文字也可以
+ * 复用 {@link Token.SymbolTokenAttribute} 中受支持的子集，让超文字也可以
  * 像 symbol token 那样描述前后的断行 / 间距诉求。
+ * <p>
+ * 仅支持以下四个属性：
+ * <ul>
+ *     <li>{@link Token#SYMBOL_ATTRIBUTE_KINSOKU_AVOID_HEADER}</li>
+ *     <li>{@link Token#SYMBOL_ATTRIBUTE_KINSOKU_AVOID_TAIL}</li>
+ *     <li>{@link Token#SYMBOL_ATTRIBUTE_STRETCH_LEFT}</li>
+ *     <li>{@link Token#SYMBOL_ATTRIBUTE_STRETCH_RIGHT}</li>
+ * </ul>
  */
 public abstract class DrawableSpan extends Span {
+
+	@Retention(RetentionPolicy.SOURCE)
+	@IntDef({Token.SYMBOL_ATTRIBUTE_KINSOKU_AVOID_HEADER,
+			Token.SYMBOL_ATTRIBUTE_KINSOKU_AVOID_TAIL,
+			Token.SYMBOL_ATTRIBUTE_STRETCH_LEFT,
+			Token.SYMBOL_ATTRIBUTE_STRETCH_RIGHT})
+	public @interface DrawableSymbolAttribute {
+	}
 
 	private int mSymbolAttributes;
 
@@ -25,23 +45,23 @@ public abstract class DrawableSpan extends Span {
 	}
 
 	/**
-	 * 设置一个排版属性，常量直接复用 {@link Token} 的 {@code SYMBOL_ATTRIBUTE_*}。
+	 * 设置一个排版属性，仅接受 {@link DrawableSymbolAttribute} 列出的常量。
 	 */
-	public final void addAttribute(@Token.SymbolTokenAttribute int attribute) {
+	public final void addAttribute(@DrawableSymbolAttribute int attribute) {
 		mSymbolAttributes |= 1 << attribute;
 	}
 
 	/**
 	 * 移除一个排版属性。
 	 */
-	public final void removeAttribute(@Token.SymbolTokenAttribute int attribute) {
+	public final void removeAttribute(@DrawableSymbolAttribute int attribute) {
 		mSymbolAttributes &= ~(1 << attribute);
 	}
 
 	/**
 	 * @return 是否带有指定的属性
 	 */
-	public final boolean checkAttribute(@Token.SymbolTokenAttribute int attribute) {
+	public final boolean checkAttribute(@DrawableSymbolAttribute int attribute) {
 		return (mSymbolAttributes & (1 << attribute)) != 0;
 	}
 
@@ -59,14 +79,13 @@ public abstract class DrawableSpan extends Span {
 	}
 
 	/**
-	 * @return 是否带有 squish/stretch 这类影响周围排版的字形属性，
+	 * @return 是否带有 stretch 这类影响周围排版的字形属性，
 	 * 与 {@link Token#hasSymbolTypefaceAttributes()} 保持一致。
+	 * DrawableSpan 不支持 squish，所以只检测 stretch。
 	 */
 	@RestrictTo(LIBRARY)
 	public final boolean hasSymbolTypefaceAttributes() {
-		final int typefaceMask = (1 << Token.SYMBOL_ATTRIBUTE_SQUISH_LEFT)
-				| (1 << Token.SYMBOL_ATTRIBUTE_SQUISH_RIGHT)
-				| (1 << Token.SYMBOL_ATTRIBUTE_STRETCH_LEFT)
+		final int typefaceMask = (1 << Token.SYMBOL_ATTRIBUTE_STRETCH_LEFT)
 				| (1 << Token.SYMBOL_ATTRIBUTE_STRETCH_RIGHT);
 		return (mSymbolAttributes & typefaceMask) != 0;
 	}

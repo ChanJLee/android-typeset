@@ -49,8 +49,6 @@ public class HypeUnitTest {
 		Assert.assertFalse(span.hasSymbolTypefaceAttributes());
 		Assert.assertFalse(span.checkAttribute(Token.SYMBOL_ATTRIBUTE_KINSOKU_AVOID_HEADER));
 		Assert.assertFalse(span.checkAttribute(Token.SYMBOL_ATTRIBUTE_KINSOKU_AVOID_TAIL));
-		Assert.assertFalse(span.checkAttribute(Token.SYMBOL_ATTRIBUTE_SQUISH_LEFT));
-		Assert.assertFalse(span.checkAttribute(Token.SYMBOL_ATTRIBUTE_SQUISH_RIGHT));
 		Assert.assertFalse(span.checkAttribute(Token.SYMBOL_ATTRIBUTE_STRETCH_LEFT));
 		Assert.assertFalse(span.checkAttribute(Token.SYMBOL_ATTRIBUTE_STRETCH_RIGHT));
 	}
@@ -83,27 +81,20 @@ public class HypeUnitTest {
 
 	@Test
 	public void testHasTypefaceAttributesIndependentBits() {
-		// 仅 SQUISH_LEFT/RIGHT 与 STRETCH_LEFT/RIGHT 视为字形属性，
-		// KINSOKU_AVOID_HEADER/TAIL 不算（与 TextToken 行为一致）。
+		// DrawableSpan 仅支持 KINSOKU_AVOID_HEADER/TAIL 与 STRETCH_LEFT/RIGHT，
+		// 其中只有 STRETCH 视为字形属性，KINSOKU 不算。
 		MyHypeSpan span = new MyHypeSpan();
 		Assert.assertFalse(span.hasSymbolTypefaceAttributes());
-
-		span.addAttribute(Token.SYMBOL_ATTRIBUTE_SQUISH_LEFT);
-		Assert.assertTrue(span.hasSymbolTypefaceAttributes());
-		span.removeAttribute(Token.SYMBOL_ATTRIBUTE_SQUISH_LEFT);
-		Assert.assertFalse(span.hasSymbolTypefaceAttributes());
-
-		span.addAttribute(Token.SYMBOL_ATTRIBUTE_SQUISH_RIGHT);
-		Assert.assertTrue(span.hasSymbolTypefaceAttributes());
-		span.removeAttribute(Token.SYMBOL_ATTRIBUTE_SQUISH_RIGHT);
 
 		span.addAttribute(Token.SYMBOL_ATTRIBUTE_STRETCH_LEFT);
 		Assert.assertTrue(span.hasSymbolTypefaceAttributes());
 		span.removeAttribute(Token.SYMBOL_ATTRIBUTE_STRETCH_LEFT);
+		Assert.assertFalse(span.hasSymbolTypefaceAttributes());
 
 		span.addAttribute(Token.SYMBOL_ATTRIBUTE_STRETCH_RIGHT);
 		Assert.assertTrue(span.hasSymbolTypefaceAttributes());
 		span.removeAttribute(Token.SYMBOL_ATTRIBUTE_STRETCH_RIGHT);
+		Assert.assertFalse(span.hasSymbolTypefaceAttributes());
 
 		span.addAttribute(Token.SYMBOL_ATTRIBUTE_KINSOKU_AVOID_HEADER);
 		span.addAttribute(Token.SYMBOL_ATTRIBUTE_KINSOKU_AVOID_TAIL);
