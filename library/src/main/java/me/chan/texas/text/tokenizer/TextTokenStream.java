@@ -582,21 +582,21 @@ class TextTokenStream extends DefaultRecyclable implements TokenStream {
 		if (type == Character.START_PUNCTUATION ||
 				type == Character.INITIAL_QUOTE_PUNCTUATION ||
 				type == Character.CURRENCY_SYMBOL) {
-			bits.set(Token.SYMBOL_ATTRIBUTE_KINSOKU_AVOID_TAIL);
+			bits.set(Token.SYMBOL_ATTRIBUTE_KINSOKU_AVOID_LINE_TAIL);
 			return true;
 		}
 
 		if (type == Character.FINAL_QUOTE_PUNCTUATION ||
 				type == Character.END_PUNCTUATION ||
 				type == Character.DASH_PUNCTUATION) {
-			bits.set(Token.SYMBOL_ATTRIBUTE_KINSOKU_AVOID_HEADER);
+			bits.set(Token.SYMBOL_ATTRIBUTE_KINSOKU_AVOID_LINE_HEADER);
 			return true;
 		}
 
 		if (type == Character.OTHER_PUNCTUATION) {
 			if (codePoint == '&' || codePoint == '@' || codePoint == '·' || codePoint == '/') {
-				bits.set(Token.SYMBOL_ATTRIBUTE_KINSOKU_AVOID_HEADER);
-				bits.set(Token.SYMBOL_ATTRIBUTE_KINSOKU_AVOID_TAIL);
+				bits.set(Token.SYMBOL_ATTRIBUTE_KINSOKU_AVOID_LINE_HEADER);
+				bits.set(Token.SYMBOL_ATTRIBUTE_KINSOKU_AVOID_LINE_TAIL);
 				return true;
 			}
 //
@@ -604,13 +604,13 @@ class TextTokenStream extends DefaultRecyclable implements TokenStream {
 //				return Token.SYMBOL_KINSOKU_AVOID_HEADER;
 //			}
 
-			bits.set(Token.SYMBOL_ATTRIBUTE_KINSOKU_AVOID_HEADER);
+			bits.set(Token.SYMBOL_ATTRIBUTE_KINSOKU_AVOID_LINE_HEADER);
 			return true;
 		}
 
 		if (type == Character.MATH_SYMBOL || type == Character.MODIFIER_SYMBOL || type == Character.OTHER_SYMBOL) {
-			bits.set(Token.SYMBOL_ATTRIBUTE_KINSOKU_AVOID_HEADER);
-			bits.set(Token.SYMBOL_ATTRIBUTE_KINSOKU_AVOID_TAIL);
+			bits.set(Token.SYMBOL_ATTRIBUTE_KINSOKU_AVOID_LINE_HEADER);
+			bits.set(Token.SYMBOL_ATTRIBUTE_KINSOKU_AVOID_LINE_TAIL);
 			return true;
 		}
 

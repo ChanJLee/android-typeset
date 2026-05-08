@@ -270,7 +270,7 @@ public class WordStreamUnitTest {
 			token.mType = Token.TYPE_SYMBOL;
 			token.mCategory = TextToken.CATEGORY_PUNCTUATION;
 			token.mAttributes = (byte) (
-					((1 << TextToken.SYMBOL_ATTRIBUTE_KINSOKU_AVOID_TAIL) | (1 << TextToken.SYMBOL_ATTRIBUTE_KINSOKU_AVOID_HEADER))
+					((1 << TextToken.SYMBOL_ATTRIBUTE_KINSOKU_AVOID_LINE_TAIL) | (1 << TextToken.SYMBOL_ATTRIBUTE_KINSOKU_AVOID_LINE_HEADER))
 							>> TextToken.BIT_ATTRIBUTES_START);
 			list.add(token);
 		}

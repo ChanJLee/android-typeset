@@ -286,8 +286,8 @@ public class TokenStreamUnitTest {
 			TextToken token = (TextToken) reader.next();
 			Assert.assertEquals(TextToken.CATEGORY_SYMBOL, token.getCategory());
 			Assert.assertEquals(Token.TYPE_SYMBOL, token.getType());
-			Assert.assertTrue(token.checkAttribute(TextToken.SYMBOL_ATTRIBUTE_KINSOKU_AVOID_TAIL));
-			Assert.assertFalse(token.checkAttribute(TextToken.SYMBOL_ATTRIBUTE_KINSOKU_AVOID_HEADER));
+			Assert.assertTrue(token.checkAttribute(TextToken.SYMBOL_ATTRIBUTE_KINSOKU_AVOID_LINE_TAIL));
+			Assert.assertFalse(token.checkAttribute(TextToken.SYMBOL_ATTRIBUTE_KINSOKU_AVOID_LINE_HEADER));
 		}
 
 		msg = "&";
@@ -296,8 +296,8 @@ public class TokenStreamUnitTest {
 			TextToken token = (TextToken) reader.next();
 			Assert.assertEquals(TextToken.CATEGORY_PUNCTUATION, token.getCategory());
 			Assert.assertEquals(Token.TYPE_SYMBOL, token.getType());
-			Assert.assertTrue(token.checkAttribute(TextToken.SYMBOL_ATTRIBUTE_KINSOKU_AVOID_TAIL));
-			Assert.assertTrue(token.checkAttribute(TextToken.SYMBOL_ATTRIBUTE_KINSOKU_AVOID_HEADER));
+			Assert.assertTrue(token.checkAttribute(TextToken.SYMBOL_ATTRIBUTE_KINSOKU_AVOID_LINE_TAIL));
+			Assert.assertTrue(token.checkAttribute(TextToken.SYMBOL_ATTRIBUTE_KINSOKU_AVOID_LINE_HEADER));
 		}
 
 		msg = "《";
@@ -306,8 +306,8 @@ public class TokenStreamUnitTest {
 			TextToken token = (TextToken) reader.next();
 			Assert.assertEquals(TextToken.CATEGORY_PUNCTUATION, token.getCategory());
 			Assert.assertEquals(Token.TYPE_SYMBOL, token.getType());
-			Assert.assertTrue(token.checkAttribute(TextToken.SYMBOL_ATTRIBUTE_KINSOKU_AVOID_TAIL));
-			Assert.assertFalse(token.checkAttribute(TextToken.SYMBOL_ATTRIBUTE_KINSOKU_AVOID_HEADER));
+			Assert.assertTrue(token.checkAttribute(TextToken.SYMBOL_ATTRIBUTE_KINSOKU_AVOID_LINE_TAIL));
+			Assert.assertFalse(token.checkAttribute(TextToken.SYMBOL_ATTRIBUTE_KINSOKU_AVOID_LINE_HEADER));
 			Assert.assertTrue(token.checkAttribute(TextToken.SYMBOL_ATTRIBUTE_SQUISH_LEFT));
 		}
 	}
@@ -369,8 +369,8 @@ public class TokenStreamUnitTest {
 		bucket.clear();
 
 		TextTokenStream.setupKinsokuAdvise(bucket, 0xb7);
-		Assert.assertTrue(bucket.get(TextToken.SYMBOL_ATTRIBUTE_KINSOKU_AVOID_TAIL));
-		Assert.assertTrue(bucket.get(TextToken.SYMBOL_ATTRIBUTE_KINSOKU_AVOID_HEADER));
+		Assert.assertTrue(bucket.get(TextToken.SYMBOL_ATTRIBUTE_KINSOKU_AVOID_LINE_TAIL));
+		Assert.assertTrue(bucket.get(TextToken.SYMBOL_ATTRIBUTE_KINSOKU_AVOID_LINE_HEADER));
 		bucket.clear();
 
 		for (int v : TextTokenStream.SQUISH_RIGHT_MAP) {

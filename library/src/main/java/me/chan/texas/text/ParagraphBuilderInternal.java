@@ -655,7 +655,7 @@ class ParagraphBuilderInternal {
 
 		private static void performPrefixState1(ParagraphBuilderInternal builder, @NonNull Token accepted, TokenStream stream, int state) {
 			// 先获取建议
-			Element adviseElement = checkSymbolTokenAttributeSafe(accepted, Token.SYMBOL_ATTRIBUTE_KINSOKU_AVOID_TAIL) ?
+			Element adviseElement = checkSymbolTokenAttributeSafe(accepted, Token.SYMBOL_ATTRIBUTE_KINSOKU_AVOID_LINE_TAIL) ?
 					Penalty.FORBIDDEN_BREAK : Penalty.ADVISE_BREAK;
 
 			// 是否添加空格取决于前一个符号
@@ -814,7 +814,7 @@ class ParagraphBuilderInternal {
 
 			// 前置条件就是 prev 是单词
 
-			Element adviseElement = checkSymbolTokenAttributeSafe(current, Token.SYMBOL_ATTRIBUTE_KINSOKU_AVOID_HEADER) ?
+			Element adviseElement = checkSymbolTokenAttributeSafe(current, Token.SYMBOL_ATTRIBUTE_KINSOKU_AVOID_LINE_HEADER) ?
 					Penalty.FORBIDDEN_BREAK : Penalty.ADVISE_BREAK;
 
 			// 生成一个 symbol box（普通 symbol 是 TextSpan，超文字直接用 HyperSpan）
@@ -864,8 +864,8 @@ class ParagraphBuilderInternal {
 			//---------------------------------------------------
 			//  ^ prev
 			Element adviseElement;
-			if (checkSymbolTokenAttributeSafe(accepted, Token.SYMBOL_ATTRIBUTE_KINSOKU_AVOID_TAIL) ||
-					checkSymbolTokenAttributeSafe(current, Token.SYMBOL_ATTRIBUTE_KINSOKU_AVOID_HEADER)) {
+			if (checkSymbolTokenAttributeSafe(accepted, Token.SYMBOL_ATTRIBUTE_KINSOKU_AVOID_LINE_TAIL) ||
+					checkSymbolTokenAttributeSafe(current, Token.SYMBOL_ATTRIBUTE_KINSOKU_AVOID_LINE_HEADER)) {
 				adviseElement = Penalty.FORBIDDEN_BREAK;
 			} else {
 				adviseElement = Penalty.ADVISE_BREAK;

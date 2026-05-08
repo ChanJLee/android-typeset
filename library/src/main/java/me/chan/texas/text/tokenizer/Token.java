@@ -54,9 +54,9 @@ public abstract class Token extends DefaultRecyclable {
 
 	// symbol attributes
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
-	public static final int SYMBOL_ATTRIBUTE_KINSOKU_AVOID_HEADER = 16;
+	public static final int SYMBOL_ATTRIBUTE_KINSOKU_AVOID_LINE_HEADER = 16;
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
-	public static final int SYMBOL_ATTRIBUTE_KINSOKU_AVOID_TAIL = 17;
+	public static final int SYMBOL_ATTRIBUTE_KINSOKU_AVOID_LINE_TAIL = 17;
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
 	public static final int SYMBOL_ATTRIBUTE_SQUISH_LEFT = 18;
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -66,8 +66,8 @@ public abstract class Token extends DefaultRecyclable {
 	@RestrictTo(RestrictTo.Scope.LIBRARY)
 	public static final int SYMBOL_ATTRIBUTE_STRETCH_RIGHT = 21;
 
-	@IntDef({SYMBOL_ATTRIBUTE_KINSOKU_AVOID_HEADER,
-			SYMBOL_ATTRIBUTE_KINSOKU_AVOID_TAIL,
+	@IntDef({SYMBOL_ATTRIBUTE_KINSOKU_AVOID_LINE_HEADER,
+			SYMBOL_ATTRIBUTE_KINSOKU_AVOID_LINE_TAIL,
 			SYMBOL_ATTRIBUTE_SQUISH_LEFT,
 			SYMBOL_ATTRIBUTE_SQUISH_RIGHT,
 			SYMBOL_ATTRIBUTE_STRETCH_LEFT,

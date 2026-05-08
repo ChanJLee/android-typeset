@@ -145,11 +145,11 @@ public class TextToken extends Token {
 
 	private String getSymbolSemantics() {
 		String kinsoku = "   ";
-		if (checkAttribute(SYMBOL_ATTRIBUTE_KINSOKU_AVOID_HEADER)) {
+		if (checkAttribute(SYMBOL_ATTRIBUTE_KINSOKU_AVOID_LINE_HEADER)) {
 			kinsoku = "避头";
 		}
 
-		if (checkAttribute(SYMBOL_ATTRIBUTE_KINSOKU_AVOID_TAIL)) {
+		if (checkAttribute(SYMBOL_ATTRIBUTE_KINSOKU_AVOID_LINE_TAIL)) {
 			kinsoku += "避尾";
 		}
 

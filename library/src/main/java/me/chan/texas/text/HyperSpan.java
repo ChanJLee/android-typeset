@@ -48,11 +48,11 @@ public abstract class HyperSpan extends Span implements Measurable {
 	/**
 	 * 避免出现在行首
 	 */
-	public static final int AVOID_LINE_HEADER = Token.SYMBOL_ATTRIBUTE_KINSOKU_AVOID_HEADER;
+	public static final int AVOID_LINE_HEADER = Token.SYMBOL_ATTRIBUTE_KINSOKU_AVOID_LINE_HEADER;
 	/**
 	 * 避免出现在行尾
 	 */
-	public static final int AVOID_LINE_TAIL = Token.SYMBOL_ATTRIBUTE_KINSOKU_AVOID_TAIL;
+	public static final int AVOID_LINE_TAIL = Token.SYMBOL_ATTRIBUTE_KINSOKU_AVOID_LINE_TAIL;
 	/**
 	 * 左边留出空白
 	 */
