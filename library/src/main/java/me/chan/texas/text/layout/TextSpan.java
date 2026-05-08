@@ -24,7 +24,6 @@ import me.chan.texas.utils.TexasUtils;
 /**
  * 文本元素
  */
-@RestrictTo(LIBRARY)
 public final class TextSpan extends Span {
 	/**
 	 * 什么属性都没有
