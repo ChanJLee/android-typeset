@@ -81,7 +81,7 @@ public class HypeUnitTest {
 
 	@Test
 	public void testHasTypefaceAttributesIndependentBits() {
-		// DrawableSpan 仅支持 KINSOKU_AVOID_HEADER/TAIL 与 STRETCH_LEFT/RIGHT，
+		// HyperSpan 仅支持 KINSOKU_AVOID_HEADER/TAIL 与 STRETCH_LEFT/RIGHT，
 		// 其中只有 STRETCH 视为字形属性，KINSOKU 不算。
 		MyHypeSpan span = new MyHypeSpan();
 		Assert.assertFalse(span.hasSymbolTypefaceAttributes());

@@ -10,8 +10,7 @@ import me.chan.texas.text.HyperSpan;
  * 承载 {@link HyperSpan} 的 token。
  * <p>
  * 它对外报告 {@link #TYPE_SYMBOL}，并把 {@link #checkAttribute(int)} 等问询代理给
- * {@link HyperSpan}（通过 {@link me.chan.texas.text.layout.DrawableSpan}），
- * 让超文字与普通 symbol token 共享同一套排版规则。
+ * {@link HyperSpan}，让超文字与普通 symbol token 共享同一套排版规则。
  */
 public class HyperSpanToken extends Token {
 	private static final ObjectPool<HyperSpanToken> POOL = new ObjectPool<>(16);
