@@ -106,7 +106,7 @@ class TextTokenStream extends DefaultRecyclable implements TokenStream {
 		}
 
 		int codePoint = text.charAt(start);
-		if (UnicodeUtils.isCJKExtends(codePoint)) {
+		if (UnicodeUtils.isCJKScript(codePoint)) {
 			appendCJK(brk, end);
 			return;
 		}

@@ -209,7 +209,10 @@ public class UnicodeUtilsTest {
 		// Ext F: U+2CEB0 - U+2EBEF
 		Assert.assertTrue(UnicodeUtils.isCJKExtends(0x2CEB0));
 		Assert.assertTrue(UnicodeUtils.isCJKExtends(0x2EBEF));
-		Assert.assertFalse(UnicodeUtils.isCJKExtends(0x2EBF0));
+		// Ext I 紧接 Ext F：U+2EBF0 - U+2EE5F
+		Assert.assertTrue(UnicodeUtils.isCJKExtends(0x2EBF0));
+		Assert.assertTrue(UnicodeUtils.isCJKExtends(0x2EE5F));
+		Assert.assertFalse(UnicodeUtils.isCJKExtends(0x2EE60));
 	}
 
 	@Test
@@ -257,12 +260,15 @@ public class UnicodeUtilsTest {
 
 	@Test
 	public void testIsCJK_hangul() {
-		// Hangul Syllables U+AC00 - U+D7AF
+		// Hangul Syllables U+AC00 - U+D7AF + Jamo Extended-B U+D7B0 - U+D7FF (相邻)
 		Assert.assertFalse(UnicodeUtils.isCJKExtends(0xABFF));
 		Assert.assertTrue(UnicodeUtils.isCJKExtends(0xAC00));
 		Assert.assertTrue(UnicodeUtils.isCJKExtends('한')); // U+D55C
 		Assert.assertTrue(UnicodeUtils.isCJKExtends(0xD7AF));
-		Assert.assertFalse(UnicodeUtils.isCJKExtends(0xD7B0));
+		Assert.assertTrue(UnicodeUtils.isCJKExtends(0xD7B0)); // Jamo Extended-B 起点
+		Assert.assertTrue(UnicodeUtils.isCJKExtends(0xD7FF));
+		// 进入 surrogate 区段（0xD800+）就脱离 Hangul
+		Assert.assertFalse(UnicodeUtils.isCJKExtends(0xD800));
 		// Hangul Jamo U+1100 - U+11FF
 		Assert.assertFalse(UnicodeUtils.isCJKExtends(0x10FF));
 		Assert.assertTrue(UnicodeUtils.isCJKExtends(0x1100));
@@ -278,6 +284,93 @@ public class UnicodeUtilsTest {
 		Assert.assertFalse(UnicodeUtils.isCJKExtends(0x05D0)); // Hebrew
 		Assert.assertFalse(UnicodeUtils.isCJKExtends(0x0627)); // Arabic
 		Assert.assertFalse(UnicodeUtils.isCJKExtends(0x0400)); // Cyrillic
+	}
+
+	// ============================================================
+	// isCJKScript — 新覆盖区段（首选 API）
+	// ============================================================
+
+	@Test
+	@SuppressWarnings("deprecation")
+	public void testIsCJKExtends_isAliasOfIsCJKScript() {
+		int[] samples = {0x4E00, 0x3400, 0xAC00, 0x3040, 'a', '0', 0x05D0, 0x2EBF0, 0x30000};
+		for (int c : samples) {
+			Assert.assertEquals("U+" + Integer.toHexString(c),
+				UnicodeUtils.isCJKScript(c), UnicodeUtils.isCJKExtends(c));
+		}
+	}
+
+	@Test
+	public void testIsCJKScript_extensionG_supplementary() {
+		// CJK Extension G: U+30000 - U+3134F (Unicode 13.0)
+		Assert.assertTrue(UnicodeUtils.isCJKScript(0x30000));
+		Assert.assertTrue(UnicodeUtils.isCJKScript(0x3134F));
+	}
+
+	@Test
+	public void testIsCJKScript_extensionH_supplementary() {
+		// CJK Extension H: U+31350 - U+323AF (Unicode 15.0) — 与 Ext G 相邻
+		Assert.assertTrue(UnicodeUtils.isCJKScript(0x31350));
+		Assert.assertTrue(UnicodeUtils.isCJKScript(0x323AF));
+		Assert.assertFalse(UnicodeUtils.isCJKScript(0x323B0));
+	}
+
+	@Test
+	public void testIsCJKScript_compatibilityIdeographsSupplement() {
+		// CJK Compatibility Ideographs Supplement: U+2F800 - U+2FA1F
+		Assert.assertFalse(UnicodeUtils.isCJKScript(0x2F7FF));
+		Assert.assertTrue(UnicodeUtils.isCJKScript(0x2F800));
+		Assert.assertTrue(UnicodeUtils.isCJKScript(0x2FA1F));
+		Assert.assertFalse(UnicodeUtils.isCJKScript(0x2FA20));
+	}
+
+	@Test
+	public void testIsCJKScript_cjkStrokes() {
+		// CJK Strokes: U+31C0 - U+31EF
+		Assert.assertFalse(UnicodeUtils.isCJKScript(0x31BF));
+		Assert.assertTrue(UnicodeUtils.isCJKScript(0x31C0));
+		Assert.assertTrue(UnicodeUtils.isCJKScript(0x31EF));
+		// 紧接其后是 Katakana Phonetic Extensions（也是 CJK），所以 0x31F0 仍为 true
+		Assert.assertTrue(UnicodeUtils.isCJKScript(0x31F0));
+	}
+
+	@Test
+	public void testIsCJKScript_hangulCompatibilityJamo() {
+		// Hangul Compatibility Jamo: U+3130 - U+318F
+		Assert.assertFalse(UnicodeUtils.isCJKScript(0x312F));
+		Assert.assertTrue(UnicodeUtils.isCJKScript(0x3130));
+		Assert.assertTrue(UnicodeUtils.isCJKScript(0x318F));
+		Assert.assertFalse(UnicodeUtils.isCJKScript(0x3190));
+	}
+
+	@Test
+	public void testIsCJKScript_hangulJamoExtendedA() {
+		// Hangul Jamo Extended-A: U+A960 - U+A97F
+		Assert.assertFalse(UnicodeUtils.isCJKScript(0xA95F));
+		Assert.assertTrue(UnicodeUtils.isCJKScript(0xA960));
+		Assert.assertTrue(UnicodeUtils.isCJKScript(0xA97F));
+		Assert.assertFalse(UnicodeUtils.isCJKScript(0xA980));
+	}
+
+	@Test
+	public void testIsCJKScript_hangulJamoExtendedB() {
+		// Hangul Jamo Extended-B: U+D7B0 - U+D7FF
+		Assert.assertTrue(UnicodeUtils.isCJKScript(0xD7B0));
+		Assert.assertTrue(UnicodeUtils.isCJKScript(0xD7FF));
+		// surrogate 区段
+		Assert.assertFalse(UnicodeUtils.isCJKScript(0xD800));
+	}
+
+	@Test
+	public void testIsCJKScript_doesNotIncludeCJKPunctuation_handledElsewhere() {
+		// CJK Symbols and Punctuation (U+3000-U+303F) 由标点路径单独处理，不应进入 CJK 字符切分
+		Assert.assertFalse(UnicodeUtils.isCJKScript(0x3000)); // 全角空格
+		Assert.assertFalse(UnicodeUtils.isCJKScript(0x3001)); // 、
+		Assert.assertFalse(UnicodeUtils.isCJKScript(0x3002)); // 。
+		Assert.assertFalse(UnicodeUtils.isCJKScript(0x300C)); // 「
+		// 全宽 ASCII (FF00-FF5E) 也走各自的字符分类，不属于 CJK 字符切分集合
+		Assert.assertFalse(UnicodeUtils.isCJKScript(0xFF01));
+		Assert.assertFalse(UnicodeUtils.isCJKScript(0xFF21)); // Ａ
 	}
 
 	// ============================================================
