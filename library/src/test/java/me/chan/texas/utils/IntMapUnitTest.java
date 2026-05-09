@@ -354,4 +354,522 @@ public class IntMapUnitTest {
 		map.delete(1);
 		Assert.assertEquals(0, map.size());
 	}
+
+	// ============================================================
+	// 构造函数 / 容量
+	// ============================================================
+
+	@Test
+	public void testDefaultConstructorCapacityIsTen() {
+		IntMap<String> map = new IntMap<>();
+		Assert.assertEquals(10, map.capacity());
+		Assert.assertEquals(0, map.size());
+		Assert.assertTrue(map.isEmpty());
+	}
+
+	@Test
+	public void testZeroCapacityIsLightweight() {
+		IntMap<String> map = new IntMap<>(0);
+		Assert.assertEquals(0, map.capacity());
+		Assert.assertTrue(map.isEmpty());
+		Assert.assertEquals(0, map.size());
+		Assert.assertNull(map.get(0));
+		Assert.assertFalse(map.containsKey(0));
+		Assert.assertFalse(map.containsValue("anything"));
+	}
+
+	@Test
+	public void testCustomCapacityIsExact() {
+		IntMap<String> map = new IntMap<>(7);
+		Assert.assertEquals(7, map.capacity());
+	}
+
+	// ============================================================
+	// put — key 边界 / 值边界
+	// ============================================================
+
+	@Test
+	public void testPutNegativeKeysOrderedCorrectly() {
+		IntMap<String> map = new IntMap<>();
+		map.put(-100, "neg100");
+		map.put(0, "zero");
+		map.put(-1, "negOne");
+		map.put(50, "fifty");
+
+		Assert.assertEquals(-100, map.keyAt(0));
+		Assert.assertEquals(-1, map.keyAt(1));
+		Assert.assertEquals(0, map.keyAt(2));
+		Assert.assertEquals(50, map.keyAt(3));
+	}
+
+	@Test
+	public void testPutIntMinAndMaxKeys() {
+		IntMap<String> map = new IntMap<>();
+		map.put(Integer.MAX_VALUE, "max");
+		map.put(Integer.MIN_VALUE, "min");
+		map.put(0, "zero");
+
+		Assert.assertEquals(Integer.MIN_VALUE, map.keyAt(0));
+		Assert.assertEquals(0, map.keyAt(1));
+		Assert.assertEquals(Integer.MAX_VALUE, map.keyAt(2));
+		Assert.assertEquals("min", map.get(Integer.MIN_VALUE));
+		Assert.assertEquals("max", map.get(Integer.MAX_VALUE));
+		Assert.assertTrue(map.containsKey(Integer.MIN_VALUE));
+		Assert.assertTrue(map.containsKey(Integer.MAX_VALUE));
+	}
+
+	@Test
+	public void testPutNullValueDistinguishedFromMissingViaContainsKey() {
+		IntMap<String> map = new IntMap<>();
+		map.put(1, null);
+
+		// get(missingKey) 与 put(k, null) 的 get 都返回 null
+		Assert.assertNull(map.get(1));
+		Assert.assertNull(map.get(99));
+
+		// 默认值版本仍能区分：missing key 返回默认值，显式 null 仍返回 null
+		Assert.assertNull(map.get(1, "fallback"));
+		Assert.assertEquals("fallback", map.get(99, "fallback"));
+
+		// 唯一可靠的区分手段是 containsKey
+		Assert.assertTrue(map.containsKey(1));
+		Assert.assertFalse(map.containsKey(99));
+		Assert.assertEquals(1, map.size());
+	}
+
+	@Test
+	public void testPutDescendingThenAscending_endsUpSorted() {
+		IntMap<String> map = new IntMap<>();
+		// 倒序触发反复的前端插入与扩容
+		for (int i = 50; i > 0; --i) {
+			map.put(i, "v" + i);
+		}
+		// 顺序覆盖所有 key
+		for (int i = 1; i <= 50; ++i) {
+			map.put(i, "u" + i);
+		}
+		Assert.assertEquals(50, map.size());
+		for (int i = 0; i < 50; ++i) {
+			Assert.assertEquals(i + 1, map.keyAt(i));
+			Assert.assertEquals("u" + (i + 1), map.valueAt(i));
+		}
+	}
+
+	@Test
+	public void testPutManyKeysAcrossMultipleResizes() {
+		IntMap<Integer> map = new IntMap<>(2);
+		int total = 1024;
+		for (int i = 0; i < total; ++i) {
+			map.put(i, i * 10);
+		}
+		Assert.assertEquals(total, map.size());
+		for (int i = 0; i < total; ++i) {
+			Assert.assertEquals(Integer.valueOf(i * 10), map.get(i));
+			Assert.assertEquals(i, map.keyAt(i));
+		}
+	}
+
+	// ============================================================
+	// 复活已删除的 key（put 走 i>=0 分支覆盖 DELETED slot）
+	// ============================================================
+
+	@Test
+	public void testPutOnDeletedKeyResurrectsEntry() {
+		IntMap<String> map = new IntMap<>();
+		map.put(1, "a");
+		map.put(2, "b");
+		map.put(3, "c");
+
+		map.delete(2);
+		// 不调用 size() 等触发 gc 的方法；put 同 key 应通过 binarySearch 命中 DELETED 槽并直接覆盖
+		map.put(2, "resurrected");
+
+		Assert.assertEquals(3, map.size());
+		Assert.assertEquals("resurrected", map.get(2));
+		Assert.assertEquals("a", map.get(1));
+		Assert.assertEquals("c", map.get(3));
+		Assert.assertTrue(map.containsKey(2));
+	}
+
+	// ============================================================
+	// removeAt / removeAtRange 边界
+	// ============================================================
+
+	@Test
+	public void testRemoveAtLastIndex() {
+		IntMap<String> map = new IntMap<>();
+		map.put(10, "a");
+		map.put(20, "b");
+		map.put(30, "c");
+
+		map.removeAt(2);
+		Assert.assertEquals(2, map.size());
+		Assert.assertNull(map.get(30));
+		Assert.assertEquals("a", map.get(10));
+		Assert.assertEquals("b", map.get(20));
+	}
+
+	@Test
+	public void testRemoveAtIsIdempotentOnAlreadyDeleted() {
+		IntMap<String> map = new IntMap<>();
+		map.put(10, "a");
+		map.put(20, "b");
+
+		map.removeAt(0);
+		// 二次 removeAt 同一索引，状态应稳定
+		map.removeAt(0);
+		Assert.assertEquals(1, map.size());
+		Assert.assertNull(map.get(10));
+		Assert.assertEquals("b", map.get(20));
+	}
+
+	@Test
+	public void testRemoveAtRangeZeroSize_isNoOp() {
+		IntMap<String> map = new IntMap<>();
+		map.put(1, "a");
+		map.put(2, "b");
+
+		map.removeAtRange(0, 0);
+		Assert.assertEquals(2, map.size());
+		Assert.assertEquals("a", map.get(1));
+		Assert.assertEquals("b", map.get(2));
+	}
+
+	@Test
+	public void testRemoveAtRangeWholeMap_emptiesIt() {
+		IntMap<String> map = new IntMap<>();
+		for (int i = 0; i < 5; ++i) {
+			map.put(i, "v" + i);
+		}
+		map.removeAtRange(0, 5);
+		Assert.assertEquals(0, map.size());
+		Assert.assertTrue(map.isEmpty());
+		for (int i = 0; i < 5; ++i) {
+			Assert.assertNull(map.get(i));
+		}
+	}
+
+	@Test
+	public void testRemoveAtRangeIndexAtSize_isNoOp() {
+		IntMap<String> map = new IntMap<>();
+		map.put(1, "a");
+		map.put(2, "b");
+
+		map.removeAtRange(2, 5); // index >= size
+		Assert.assertEquals(2, map.size());
+	}
+
+	// ============================================================
+	// keyAt / valueAt — 触发 gc 后的可见性
+	// ============================================================
+
+	@Test
+	public void testKeyAtAndValueAtAfterDelete_skipDeletedEntries() {
+		IntMap<String> map = new IntMap<>();
+		for (int i = 0; i < 5; ++i) {
+			map.put(i, "v" + i);
+		}
+		map.delete(1);
+		map.delete(3);
+
+		// keyAt 会触发 gc，从而压缩出连续的活跃条目
+		Assert.assertEquals(3, map.size());
+		Assert.assertEquals(0, map.keyAt(0));
+		Assert.assertEquals(2, map.keyAt(1));
+		Assert.assertEquals(4, map.keyAt(2));
+		Assert.assertEquals("v0", map.valueAt(0));
+		Assert.assertEquals("v2", map.valueAt(1));
+		Assert.assertEquals("v4", map.valueAt(2));
+	}
+
+	// ============================================================
+	// indexOfKey / indexOfValue
+	// ============================================================
+
+	@Test
+	public void testIndexOfKeyMissing_returnsEncodedInsertionPoint() {
+		IntMap<String> map = new IntMap<>();
+		map.put(10, "a");
+		map.put(20, "b");
+		map.put(30, "c");
+
+		// missing keys: 二进制搜索的负值结果 ~idx 即插入点
+		Assert.assertEquals(0, ~map.indexOfKey(5));   // 在最前
+		Assert.assertEquals(1, ~map.indexOfKey(15));  // 在中间
+		Assert.assertEquals(3, ~map.indexOfKey(99));  // 在最后
+	}
+
+	@Test
+	public void testIndexOfValueWithDuplicates_returnsFirstHit() {
+		IntMap<String> map = new IntMap<>();
+		String shared = "shared";
+		map.put(1, "a");
+		map.put(2, shared);
+		map.put(3, shared);
+		map.put(4, "b");
+
+		Assert.assertEquals(1, map.indexOfValue(shared));
+	}
+
+	@Test
+	public void testIndexOfValueWithNull() {
+		IntMap<String> map = new IntMap<>();
+		map.put(1, "a");
+		map.put(2, null);
+		map.put(3, "b");
+
+		Assert.assertEquals(1, map.indexOfValue(null));
+	}
+
+	@Test
+	public void testContainsValueUsesReferenceEquality_notEquals() {
+		IntMap<String> map = new IntMap<>();
+		String original = new String("payload");
+		// new String(...) 保证不会被 JVM 内联到字面量常量池
+		String equalButDistinct = new String("payload");
+		Assert.assertEquals(original, equalButDistinct);
+		Assert.assertNotSame(original, equalButDistinct);
+
+		map.put(1, original);
+		Assert.assertTrue(map.containsValue(original));
+		Assert.assertFalse(map.containsValue(equalButDistinct));
+	}
+
+	@Test
+	public void testContainsValueWithNull() {
+		IntMap<String> map = new IntMap<>();
+		Assert.assertFalse(map.containsValue(null));
+
+		map.put(1, "a");
+		Assert.assertFalse(map.containsValue(null));
+
+		map.put(2, null);
+		Assert.assertTrue(map.containsValue(null));
+	}
+
+	// ============================================================
+	// clone
+	// ============================================================
+
+	@Test
+	public void testCloneEmptyMap() {
+		IntMap<String> map = new IntMap<>();
+		IntMap<String> cloned = map.clone();
+
+		Assert.assertTrue(cloned.isEmpty());
+		Assert.assertEquals(0, cloned.size());
+		cloned.put(1, "a");
+		Assert.assertEquals(1, cloned.size());
+		Assert.assertEquals(0, map.size()); // 原 map 不受影响
+	}
+
+	@Test
+	public void testCloneKeysIndependent_afterRemoveOnClone() {
+		IntMap<String> map = new IntMap<>();
+		map.put(1, "a");
+		map.put(2, "b");
+		map.put(3, "c");
+
+		IntMap<String> cloned = map.clone();
+		cloned.delete(2);
+		// 强制 clone 完成 gc
+		Assert.assertEquals(2, cloned.size());
+
+		// 原 map 完整无损
+		Assert.assertEquals(3, map.size());
+		Assert.assertEquals("b", map.get(2));
+	}
+
+	// ============================================================
+	// append
+	// ============================================================
+
+	@Test
+	public void testAppendKeyEqualToLast_overwritesNotAppends() {
+		IntMap<String> map = new IntMap<>();
+		map.append(5, "first");
+		// key 等于已有最大 key，append 退化为 put — 覆盖
+		map.append(5, "second");
+
+		Assert.assertEquals(1, map.size());
+		Assert.assertEquals("second", map.get(5));
+	}
+
+	@Test
+	public void testAppendAfterDelete_handlesGarbageCorrectly() {
+		IntMap<String> map = new IntMap<>();
+		map.put(1, "a");
+		map.put(5, "b");
+
+		map.delete(5); // 留下 mGarbage
+		// 仍然可以 append 一个比所有活跃 key 都大的 key
+		map.append(10, "c");
+
+		// size() 触发 gc，垃圾应被清理
+		Assert.assertEquals(2, map.size());
+		Assert.assertEquals("a", map.get(1));
+		Assert.assertNull(map.get(5));
+		Assert.assertEquals("c", map.get(10));
+	}
+
+	// ============================================================
+	// putAll
+	// ============================================================
+
+	@Test
+	public void testPutAllEmptySource_isNoOp() {
+		IntMap<String> dest = new IntMap<>();
+		dest.put(1, "a");
+		dest.putAll(new IntMap<String>());
+
+		Assert.assertEquals(1, dest.size());
+		Assert.assertEquals("a", dest.get(1));
+	}
+
+	@Test
+	public void testPutAllOverwritesExistingKeys() {
+		IntMap<String> dest = new IntMap<>();
+		dest.put(1, "old");
+		dest.put(2, "keep");
+
+		IntMap<String> src = new IntMap<>();
+		src.put(1, "new");
+		src.put(3, "added");
+
+		dest.putAll(src);
+
+		Assert.assertEquals(3, dest.size());
+		Assert.assertEquals("new", dest.get(1));
+		Assert.assertEquals("keep", dest.get(2));
+		Assert.assertEquals("added", dest.get(3));
+	}
+
+	// ============================================================
+	// toString
+	// ============================================================
+
+	@Test
+	public void testToStringWithSelfReference_usesPlaceholder() {
+		IntMap<Object> map = new IntMap<>();
+		map.put(1, "a");
+		map.put(2, map);
+
+		String result = map.toString();
+		Assert.assertTrue("expected (this Map) marker, got " + result,
+			result.contains("(this Map)"));
+		Assert.assertTrue(result.contains("1=a"));
+	}
+
+	@Test
+	public void testToStringWithNullValue() {
+		IntMap<String> map = new IntMap<>();
+		map.put(1, null);
+		Assert.assertEquals("{1=null}", map.toString());
+	}
+
+	@Test
+	public void testToStringAfterDelete_reflectsLiveEntries() {
+		IntMap<String> map = new IntMap<>();
+		map.put(1, "a");
+		map.put(2, "b");
+		map.put(3, "c");
+		map.delete(2);
+
+		Assert.assertEquals("{1=a, 3=c}", map.toString());
+	}
+
+	// ============================================================
+	// clear / setValueAt / isEmpty
+	// ============================================================
+
+	@Test
+	public void testClearAfterDelete_resetsGarbageState() {
+		IntMap<String> map = new IntMap<>(4);
+		map.put(1, "a");
+		map.put(2, "b");
+		map.delete(1); // mGarbage = true
+
+		map.clear();
+		Assert.assertTrue(map.isEmpty());
+		Assert.assertEquals(0, map.size());
+
+		// 重新填充至原始容量，不应触发额外扩容（gc state 已经被 clear 重置）
+		int capBefore = map.capacity();
+		for (int i = 0; i < capBefore; ++i) {
+			map.put(i, "v" + i);
+		}
+		Assert.assertEquals(capBefore, map.size());
+		Assert.assertEquals(capBefore, map.capacity());
+	}
+
+	@Test
+	public void testSetValueAtToNull_keysRemainSearchable() {
+		IntMap<String> map = new IntMap<>();
+		map.put(1, "a");
+		map.setValueAt(0, null);
+
+		Assert.assertNull(map.valueAt(0));
+		Assert.assertNull(map.get(1));
+		Assert.assertTrue(map.containsKey(1));
+		Assert.assertEquals(1, map.size());
+	}
+
+	@Test
+	public void testIsEmptyAfterAllDeleted() {
+		IntMap<String> map = new IntMap<>();
+		map.put(1, "a");
+		map.put(2, "b");
+		map.delete(1);
+		map.delete(2);
+
+		// isEmpty -> size -> gc -> 0
+		Assert.assertTrue(map.isEmpty());
+		Assert.assertEquals(0, map.size());
+	}
+
+	// ============================================================
+	// 压力测试
+	// ============================================================
+
+	@Test
+	public void testStressPutDeleteInterleaved() {
+		IntMap<Integer> map = new IntMap<>();
+		int n = 500;
+
+		// 全量插入
+		for (int i = 0; i < n; ++i) {
+			map.put(i, i);
+		}
+		Assert.assertEquals(n, map.size());
+
+		// 删除偶数 key
+		for (int i = 0; i < n; i += 2) {
+			map.delete(i);
+		}
+		Assert.assertEquals(n / 2, map.size());
+
+		for (int i = 0; i < n; ++i) {
+			if (i % 2 == 0) {
+				Assert.assertNull(map.get(i));
+				Assert.assertFalse(map.containsKey(i));
+			} else {
+				Assert.assertEquals(Integer.valueOf(i), map.get(i));
+				Assert.assertTrue(map.containsKey(i));
+			}
+		}
+
+		// 重新填回偶数 key（覆盖已删除/复用槽位）
+		for (int i = 0; i < n; i += 2) {
+			map.put(i, -i);
+		}
+		Assert.assertEquals(n, map.size());
+		for (int i = 0; i < n; ++i) {
+			Assert.assertEquals(Integer.valueOf(i % 2 == 0 ? -i : i), map.get(i));
+		}
+
+		// keyAt 全量按升序
+		for (int idx = 0; idx < n; ++idx) {
+			Assert.assertEquals(idx, map.keyAt(idx));
+		}
+	}
 }
