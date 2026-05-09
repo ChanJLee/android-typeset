@@ -432,4 +432,179 @@ public class TokenStreamUnitTest {
 		Assert.assertEquals(2, TextToken.numberOfTrailingZeros(4));
 		Assert.assertEquals(0, TextToken.numberOfTrailingZeros(5));
 	}
+
+	// ============================================================
+	// 中英文混排 — 验证不同语言的 token 能被正确区分
+	// ============================================================
+
+	@Test
+	public void testMixed_englishThenChinese() {
+		// "Hello你好" -> [WORD/NORMAL "Hello", WORD/CJK "你好"]
+		String msg = "Hello你好";
+		TokenStream reader = TokenStream.obtain(msg, 0, msg.length());
+
+		assertNextToken(reader, Token.TYPE_WORD, TextToken.CATEGORY_NORMAL, "Hello");
+		assertNextToken(reader, Token.TYPE_WORD, TextToken.CATEGORY_CJK, "你好");
+		Assert.assertFalse(reader.hasNext());
+	}
+
+	@Test
+	public void testMixed_chineseThenEnglish() {
+		// "你好World" -> [WORD/CJK "你好", WORD/NORMAL "World"]
+		String msg = "你好World";
+		TokenStream reader = TokenStream.obtain(msg, 0, msg.length());
+
+		assertNextToken(reader, Token.TYPE_WORD, TextToken.CATEGORY_CJK, "你好");
+		assertNextToken(reader, Token.TYPE_WORD, TextToken.CATEGORY_NORMAL, "World");
+		Assert.assertFalse(reader.hasNext());
+	}
+
+	@Test
+	public void testMixed_interspersedSingleChars() {
+		// "中English文" -> [CJK "中", NORMAL "English", CJK "文"]
+		// 验证 appendCJK 的合并逻辑只在相邻 CJK 之间生效
+		String msg = "中English文";
+		TokenStream reader = TokenStream.obtain(msg, 0, msg.length());
+
+		assertNextToken(reader, Token.TYPE_WORD, TextToken.CATEGORY_CJK, "中");
+		assertNextToken(reader, Token.TYPE_WORD, TextToken.CATEGORY_NORMAL, "English");
+		assertNextToken(reader, Token.TYPE_WORD, TextToken.CATEGORY_CJK, "文");
+		Assert.assertFalse(reader.hasNext());
+	}
+
+	@Test
+	public void testMixed_chineseEnglishChinese_alternation() {
+		// "我love中国" -> [CJK "我", NORMAL "love", CJK "中国"]
+		String msg = "我love中国";
+		TokenStream reader = TokenStream.obtain(msg, 0, msg.length());
+
+		assertNextToken(reader, Token.TYPE_WORD, TextToken.CATEGORY_CJK, "我");
+		assertNextToken(reader, Token.TYPE_WORD, TextToken.CATEGORY_NORMAL, "love");
+		assertNextToken(reader, Token.TYPE_WORD, TextToken.CATEGORY_CJK, "中国");
+		Assert.assertFalse(reader.hasNext());
+	}
+
+	@Test
+	public void testMixed_separatedByAsciiSpace() {
+		// "Hello 你好 World" -> [NORMAL, SPACE, CJK, SPACE, NORMAL]
+		String msg = "Hello 你好 World";
+		TokenStream reader = TokenStream.obtain(msg, 0, msg.length());
+
+		assertNextToken(reader, Token.TYPE_WORD, TextToken.CATEGORY_NORMAL, "Hello");
+		assertNextSpaceControl(reader);
+		assertNextToken(reader, Token.TYPE_WORD, TextToken.CATEGORY_CJK, "你好");
+		assertNextSpaceControl(reader);
+		assertNextToken(reader, Token.TYPE_WORD, TextToken.CATEGORY_NORMAL, "World");
+		Assert.assertFalse(reader.hasNext());
+	}
+
+	@Test
+	public void testMixed_chineseDigitsChinese() {
+		// "你好2025结束" -> [CJK, NUMBER, CJK]
+		// 纯数字夹在 CJK 之间，应被识别为独立的 NUMBER token
+		String msg = "你好2025结束";
+		TokenStream reader = TokenStream.obtain(msg, 0, msg.length());
+
+		assertNextToken(reader, Token.TYPE_WORD, TextToken.CATEGORY_CJK, "你好");
+		assertNextToken(reader, Token.TYPE_WORD, TextToken.CATEGORY_NUMBER, "2025");
+		assertNextToken(reader, Token.TYPE_WORD, TextToken.CATEGORY_CJK, "结束");
+		Assert.assertFalse(reader.hasNext());
+	}
+
+	@Test
+	public void testMixed_chineseAlphanumericChinese() {
+		// "你好2025year结束" -> [CJK, NORMAL "2025year", CJK]
+		// ICU 把数字+ASCII 字母粘在一起作为单一词，走 appendLatter 的 simpleWord 路径 -> NORMAL
+		String msg = "你好2025year结束";
+		TokenStream reader = TokenStream.obtain(msg, 0, msg.length());
+
+		assertNextToken(reader, Token.TYPE_WORD, TextToken.CATEGORY_CJK, "你好");
+		assertNextToken(reader, Token.TYPE_WORD, TextToken.CATEGORY_NORMAL, "2025year");
+		assertNextToken(reader, Token.TYPE_WORD, TextToken.CATEGORY_CJK, "结束");
+		Assert.assertFalse(reader.hasNext());
+	}
+
+	@Test
+	public void testMixed_japaneseAndEnglish() {
+		// "こんにちはhello" -> [CJK 假名, NORMAL]
+		String msg = "こんにちはhello";
+		TokenStream reader = TokenStream.obtain(msg, 0, msg.length());
+
+		assertNextToken(reader, Token.TYPE_WORD, TextToken.CATEGORY_CJK, "こんにちは");
+		assertNextToken(reader, Token.TYPE_WORD, TextToken.CATEGORY_NORMAL, "hello");
+		Assert.assertFalse(reader.hasNext());
+	}
+
+	@Test
+	public void testMixed_koreanAndEnglish() {
+		// "안녕hello" -> [CJK Hangul, NORMAL]
+		String msg = "안녕hello";
+		TokenStream reader = TokenStream.obtain(msg, 0, msg.length());
+
+		assertNextToken(reader, Token.TYPE_WORD, TextToken.CATEGORY_CJK, "안녕");
+		assertNextToken(reader, Token.TYPE_WORD, TextToken.CATEGORY_NORMAL, "hello");
+		Assert.assertFalse(reader.hasNext());
+	}
+
+	@Test
+	public void testMixed_threeScripts_chineseJapaneseEnglish() {
+		// "中の文hello" -> 全部都是 CJK 系（汉字+假名+汉字），后接英文
+		// 三个相邻 CJK 块应被合并为一个 CJK token
+		String msg = "中の文hello";
+		TokenStream reader = TokenStream.obtain(msg, 0, msg.length());
+
+		assertNextToken(reader, Token.TYPE_WORD, TextToken.CATEGORY_CJK, "中の文");
+		assertNextToken(reader, Token.TYPE_WORD, TextToken.CATEGORY_NORMAL, "hello");
+		Assert.assertFalse(reader.hasNext());
+	}
+
+	@Test
+	public void testMixed_punctuationBetweenScripts() {
+		// "Hello,你好!" -> [NORMAL, ',' 标点, CJK, '!' 标点]
+		String msg = "Hello,你好!";
+		TokenStream reader = TokenStream.obtain(msg, 0, msg.length());
+
+		assertNextToken(reader, Token.TYPE_WORD, TextToken.CATEGORY_NORMAL, "Hello");
+
+		Assert.assertTrue(reader.hasNext());
+		TextToken t = (TextToken) reader.next();
+		Assert.assertEquals(Token.TYPE_SYMBOL, t.getType());
+		Assert.assertEquals(TextToken.CATEGORY_PUNCTUATION, t.getCategory());
+
+		assertNextToken(reader, Token.TYPE_WORD, TextToken.CATEGORY_CJK, "你好");
+
+		Assert.assertTrue(reader.hasNext());
+		t = (TextToken) reader.next();
+		Assert.assertEquals(Token.TYPE_SYMBOL, t.getType());
+		Assert.assertEquals(TextToken.CATEGORY_PUNCTUATION, t.getCategory());
+
+		Assert.assertFalse(reader.hasNext());
+	}
+
+	// ============================================================
+	// helpers
+	// ============================================================
+
+	private static void assertNextToken(TokenStream reader, byte expectedType,
+		byte expectedCategory, String expectedText) {
+		Assert.assertTrue("expected another token", reader.hasNext());
+		TextToken token = (TextToken) reader.next();
+		String actualText = token.mCharSequence
+			.subSequence(token.mStart, token.mEnd).toString();
+		Assert.assertEquals(
+			"text mismatch (got type=" + token.getType()
+				+ ", category=" + token.getCategory() + ")",
+			expectedText, actualText);
+		Assert.assertEquals("type mismatch for \"" + actualText + "\"",
+			expectedType, token.getType());
+		Assert.assertEquals("category mismatch for \"" + actualText + "\"",
+			expectedCategory, token.getCategory());
+	}
+
+	private static void assertNextSpaceControl(TokenStream reader) {
+		Assert.assertTrue("expected space control token", reader.hasNext());
+		TextToken token = (TextToken) reader.next();
+		Assert.assertEquals(Token.TYPE_CONTROL, token.getType());
+		Assert.assertTrue(token.checkAttribute(TextToken.CONTROL_ATTRIBUTE_SPACE));
+	}
 }
