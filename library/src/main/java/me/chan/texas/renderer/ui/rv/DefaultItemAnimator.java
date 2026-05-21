@@ -2,8 +2,6 @@ package me.chan.texas.renderer.ui.rv;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
-import android.animation.TimeInterpolator;
-import android.animation.ValueAnimator;
 import android.view.View;
 
 import androidx.annotation.NonNull;
@@ -26,11 +24,9 @@ import me.chan.texas.text.Segment;
  *
  * @see RecyclerView#setItemAnimator(RecyclerView.ItemAnimator)
  */
-class DefaultItemAnimator extends SimpleItemAnimator {
+public class DefaultItemAnimator extends SimpleItemAnimator {
 	@Nullable
 	private TexasView.SegmentAnimator mSegmentItemAnimator;
-
-	private static TimeInterpolator sDefaultInterpolator;
 
 	private final ArrayList<RecyclerView.ViewHolder> mPendingRemovals = new ArrayList<>();
 	private final ArrayList<RecyclerView.ViewHolder> mPendingAdditions = new ArrayList<>();
@@ -344,8 +340,12 @@ class DefaultItemAnimator extends SimpleItemAnimator {
 		count = mPendingChanges.size();
 		for (int i = count - 1; i >= 0; i--) {
 			ChangeInfo changeInfo = mPendingChanges.get(i);
-			dispatchAnimatorCancel(changeInfo.newHolder.itemView);
-			dispatchAnimatorCancel(changeInfo.oldHolder.itemView);
+			if (changeInfo.newHolder != null) {
+				dispatchAnimatorCancel(changeInfo.newHolder.itemView);
+			}
+			if (changeInfo.oldHolder != null) {
+				dispatchAnimatorCancel(changeInfo.oldHolder.itemView);
+			}
 			endChangeAnimationIfNecessary(changeInfo);
 		}
 		mPendingChanges.clear();
@@ -395,9 +395,14 @@ class DefaultItemAnimator extends SimpleItemAnimator {
 			count = changes.size();
 			for (int j = count - 1; j >= 0; j--) {
 				ChangeInfo changeInfo = changes.get(j);
-				dispatchAnimatorCancel(changeInfo.newHolder.itemView);
-				dispatchAnimatorCancel(changeInfo.oldHolder.itemView);
-				endChangeAnimationIfNecessary(changes.get(j));
+				if (changeInfo.newHolder != null) {
+					dispatchAnimatorCancel(changeInfo.newHolder.itemView);
+				}
+				if (changeInfo.oldHolder != null) {
+					dispatchAnimatorCancel(changeInfo.oldHolder.itemView);
+				}
+				endChangeAnimationIfNecessary(changeInfo);
+				changes.remove(j);
 				if (changes.isEmpty()) {
 					mChangesList.remove(changes);
 				}
@@ -438,13 +443,14 @@ class DefaultItemAnimator extends SimpleItemAnimator {
 						@Override
 						public void onAnimationEnd(Animator animator) {
 							animator.removeListener(this);
+							view.setTag(R.id.me_chan_texas_item_anim_tag, null);
 							dispatchRemoveFinished(holder);
 							mRemoveAnimations.remove(holder);
 							dispatchFinishedWhenDone();
 						}
 					});
-			animator.start();
 			view.setTag(R.id.me_chan_texas_item_anim_tag, animator);
+			animator.start();
 		}
 	}
 
@@ -516,13 +522,14 @@ class DefaultItemAnimator extends SimpleItemAnimator {
 				@Override
 				public void onAnimationEnd(Animator animator) {
 					animator.removeListener(this);
+					view.setTag(R.id.me_chan_texas_item_anim_tag, null);
 					dispatchMoveFinished(holder);
 					mMoveAnimations.remove(holder);
 					dispatchFinishedWhenDone();
 				}
 			});
-			animator.start();
 			view.setTag(R.id.me_chan_texas_item_anim_tag, animator);
+			animator.start();
 		}
 	}
 
@@ -591,9 +598,6 @@ class DefaultItemAnimator extends SimpleItemAnimator {
 	}
 
 	private void resetAnimation(RecyclerView.ViewHolder holder) {
-		if (sDefaultInterpolator == null) {
-			sDefaultInterpolator = new ValueAnimator().getInterpolator();
-		}
 		endAnimation(holder);
 	}
 

@@ -137,6 +137,11 @@ public class MainActivity extends AppCompatActivity {
 			Intent intent = new Intent(v.getContext(), ParagraphMeasureBenchmarkActivity.class);
 			startActivity(intent);
 		});
+
+		findViewById(me.chan.texas.debug.R.id.item_animator).setOnClickListener(v -> {
+			Intent intent = new Intent(v.getContext(), ItemAnimatorDemoActivity.class);
+			startActivity(intent);
+		});
 	}
 
 	@Override

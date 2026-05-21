@@ -32,6 +32,9 @@
             android:exported="false" />
         <activity android:name="me.chan.texas.TexasViewDemoActivity" />
         <activity
+            android:name="me.chan.texas.ItemAnimatorDemoActivity"
+            android:exported="false" />
+        <activity
             android:name="me.chan.texas.MainActivity"
             android:exported="true">
             <intent-filter>
