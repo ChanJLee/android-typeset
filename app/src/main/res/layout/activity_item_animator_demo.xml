@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <HorizontalScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/btn_add"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Add@0" />
+
+            <Button
+                android:id="@+id/btn_add_mid"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Add@mid" />
+
+            <Button
+                android:id="@+id/btn_remove"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Remove@0" />
+
+            <Button
+                android:id="@+id/btn_remove_last"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Remove@last" />
+
+            <Button
+                android:id="@+id/btn_move"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Move 0↔last" />
+
+            <Button
+                android:id="@+id/btn_change"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Change@0 (true)" />
+
+            <Button
+                android:id="@+id/btn_change_payload"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Change@0 (payload→move)" />
+
+            <Button
+                android:id="@+id/btn_change_null_new"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Change null-newHolder" />
+
+            <Button
+                android:id="@+id/btn_cancel_add"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Add → cancel mid" />
+
+            <Button
+                android:id="@+id/btn_cancel_remove"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Remove → endAnimation" />
+
+            <Button
+                android:id="@+id/btn_end_all"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="endAnimations()" />
+
+            <Button
+                android:id="@+id/btn_stress"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Stress" />
+
+            <Button
+                android:id="@+id/btn_reset"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Reset" />
+        </LinearLayout>
+    </HorizontalScrollView>
+
+    <TextView
+        android:id="@+id/status"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#FFEEEEEE"
+        android:fontFamily="monospace"
+        android:padding="8dp"
+        android:textSize="11sp" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/list"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:background="#FFFAFAFA"
+        android:clipToPadding="false"
+        android:padding="8dp" />
+</LinearLayout>
