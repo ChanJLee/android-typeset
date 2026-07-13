@@ -52,11 +52,12 @@ class ComposeDemoActivity : ComponentActivity() {
 					modifier = Modifier.padding(16.dp, 12.dp, 16.dp, 4.dp),
 					style = TextStyle(fontSize = 12.sp, color = Color.Gray),
 				)
+				// source 是工厂函数：每次加载创建全新实例，无需 remember
 				ComposeParagraphView(
-					source = remember { createParagraphSource() },
 					modifier = Modifier
 						.fillMaxWidth()
 						.padding(horizontal = 16.dp),
+					source = { createParagraphSource() },
 				)
 
 				// ComposeTexasView：整篇文档，文档流中混排 Compose 卡片
@@ -66,11 +67,11 @@ class ComposeDemoActivity : ComponentActivity() {
 					style = TextStyle(fontSize = 12.sp, color = Color.Gray),
 				)
 				ComposeTexasView(
-					source = remember { createDocumentSource() },
 					modifier = Modifier
 						.fillMaxWidth()
 						.weight(1f),
 					onCreate = { view -> view.setRendererPadding(30, 10, 30, 10) },
+					source = { createDocumentSource() },
 				)
 			}
 		}

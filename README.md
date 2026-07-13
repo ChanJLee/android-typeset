@@ -104,10 +104,14 @@ protected void onDestroy() {
 
 ```kotlin
 // 1. Compose 中使用 TexasView / ParagraphView
-ComposeTexasView(source = documentSource, modifier = Modifier.fillMaxSize())
+// source 参数是工厂函数：DocumentSource/ParagraphSource 有状态、绑定单个视图，
+// 包装器每次加载都创建全新实例，调用方无需 remember；contentKey 变化时重新加载
+ComposeTexasView(modifier = Modifier.fillMaxSize(), contentKey = chapterId) {
+    createDocumentSource(chapterId)
+}
 
 // ParagraphSource 提供完整富文本能力（样式、tag、hyperSpan）
-ComposeParagraphView(source = paragraphSource, modifier = Modifier.fillMaxWidth())
+ComposeParagraphView(modifier = Modifier.fillMaxWidth()) { createParagraphSource() }
 ComposeParagraphView(text = "纯文本便捷重载", modifier = Modifier.fillMaxWidth())
 
 // 2. 文档流中内嵌可交互的 Compose 内容（与普通 Segment 一样参与排版、diff 和视图复用）
