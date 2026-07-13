@@ -38,10 +38,10 @@ builder.tag("paragraph_A9127P127017");
 
 ```java
 builder.stream(text, 0, text.length(), (token) -> {
-    // token 是词法引擎解析出的单词
+    // token 是词法引擎解析出的单词（TextToken）
     // 为每个单词创建 Span 并设置 tag
     return Paragraph.SpanStyles.obtain(token)
-            .tag(new SpanTag(
+            .setTag(new SpanTag(
                 sentenceId,
                 token.getCharSequence().subSequence(token.getStart(), token.getEnd()).toString(),
                 token.getCategory() == Token.CATEGORY_NORMAL
@@ -53,23 +53,25 @@ builder.stream(text, 0, text.length(), (token) -> {
 
 ### 设置 Span Tag - 方式二：使用 SpanBuilder
 
+`SpanBuilder` 通过 `next()` 追加文本，样式通过 `setForeground()` / `setBackground()` / `setTextStyle()` 设置：
+
 ```java
 Paragraph.Builder builder = Paragraph.Builder.newBuilder(option);
 
 builder.newSpanBuilder()
-    .text("Hello")
+    .next("Hello")
     .tag(new SpanTag("sent_001", "Hello", true))
-    .textColor(Color.BLUE)
+    .setForeground(new DotUnderLine(Color.BLUE))
     .buildSpan();
 
 builder.newSpanBuilder()
-    .text(" ")
+    .next(" ")
     .buildSpan();
 
 builder.newSpanBuilder()
-    .text("World")
+    .next("World")
     .tag(new SpanTag("sent_001", "World", true))
-    .textColor(Color.RED)
+    .setBackground(new RectGround(Color.YELLOW))
     .buildSpan();
 ```
 
@@ -196,7 +198,7 @@ texasView.setSource(new TexasView.DocumentSource() {
                         .tag("paragraph_" + i)
                         .stream(text, 0, text.length(), (token) -> {
                             return Paragraph.SpanStyles.obtain(token)
-                                    .tag(new SpanTag("sent_" + i, token.toString(), true));
+                                    .setTag(new SpanTag("sent_" + i, token.toString(), true));
                         })
                         .build()
             );
@@ -296,7 +298,7 @@ Texas 通过 `TYPESET_POLICY_CJK_MIX_OPTIMIZATION` 策略自动处理中英文�
 
 ```java
 Paragraph paragraph = Paragraph.Builder.newBuilder(option)
-    .typesetPolicy(Paragraph.TYPESET_POLICY_CJK_MIX_OPTIMIZATION)
+    .addTypesetPolicy(Paragraph.TYPESET_POLICY_CJK_MIX_OPTIMIZATION)
     .text("学习 Machine Learning 的最佳实践")
     .build();
 ```
@@ -348,7 +350,7 @@ builder.stream(text, 0, text.length(), (token) -> {
     // Token.CATEGORY_PUNCTUATION - 标点符号
     
     return Paragraph.SpanStyles.obtain(token)
-        .tag(new WordTag(word, token.getCategory()));
+        .setTag(new WordTag(word, token.getCategory()));
 });
 ```
 
@@ -441,8 +443,8 @@ Texas 自动识别并优化以下标点组合：
 
 ```java
 RenderOption option = texasView.createRendererOption();
-// 标点挤压通常默认启用，可以手动控制
-option.setPunctuationCompressionEnabled(true);
+// 全角符号优化（标点挤压）默认开启，可以手动控制
+option.setFullWithSymbolOptimizationEnable(true);
 texasView.refresh(option);
 ```
 
@@ -562,16 +564,15 @@ texasView.setSource(new TexasView.DocumentSource() {
 // 4. 执行绘制
 ```
 
-#### 性能对比
+#### 性能收益
 
-在一个 10000 字的长文本场景：
+在长文本场景下，指令级缓存带来的收益主要体现在：
 
-| 操作 | 普通 TextView | Texas（无缓存） | Texas（有缓存） |
-|------|-------------|----------------|----------------|
-| 首次渲染 | 150ms | 120ms | 120ms |
-| 滚动刷新 | 16ms | 12ms | **3ms** ⚡ |
-| 重绘 | 16ms | 12ms | **2ms** ⚡ |
-| 增量更新 | 150ms | 50ms | **15ms** ⚡ |
+- **滚动 / 重绘** — 命中缓存后跳过排版与测量，直接回放绘制指令，滚动吞吐相比无缓存提升 300% 以上
+- **增量更新** — `new Document.Builder(previousDocument)` 增量构建时，未变化的 Segment 完全复用缓存，只有新段落产生排版开销
+- **高亮 / 选中** — 不触发缓存失效，代价接近一次普通重绘
+
+可以用 demo 工程中的 `BenchmarkActivity` 在真机上实测对比。
 
 #### 缓存失效策略
 
@@ -590,12 +591,14 @@ Texas 智能管理缓存，只在必要时更新：
 
 #### 内存管理
 
-```java
-// Texas 自动管理缓存内存
-// 当内存压力大时，会自动清理旧缓存
+缓存内存由 Texas 自动管理：系统内存紧张时库会自动清理，业务方无需（也不应）手动清理。初始化时可以通过 `Texas.MemoryOption` 调整各类缓冲区容量：
 
-// 也可以手动清理（通常不需要）
-Texas.clean();  // 清理所有缓存
+```java
+Texas.MemoryOption memoryOption = new Texas.MemoryOption();
+memoryOption.setTextBufferSize(51200)
+        .setLineBufferSize(4096)
+        .setParagraphBufferSize(4096);
+Texas.init(application, memoryOption);
 ```
 
 #### 实际应用建议
@@ -640,7 +643,7 @@ public class ProfessionalReaderActivity extends AppCompatActivity {
         RenderOption option = texasView.createRendererOption();
         
         // 启用标点挤压
-        option.setPunctuationCompressionEnabled(true);
+        option.setFullWithSymbolOptimizationEnable(true);
         
         // 设置合适的字体和大小
         Typeface typeface = Typeface.createFromAsset(getAssets(), "SourceHanSerif.ttf");
@@ -667,11 +670,11 @@ public class ProfessionalReaderActivity extends AppCompatActivity {
                     // 创建段落，启用所有优化
                     Paragraph paragraph = Paragraph.Builder.newBuilder(texasOption)
                         .tag("chapter_" + i)
-                        .typesetPolicy(Paragraph.TYPESET_POLICY_CJK_MIX_OPTIMIZATION)
+                        .addTypesetPolicy(Paragraph.TYPESET_POLICY_CJK_MIX_OPTIMIZATION)
                         .stream(chapterText, 0, chapterText.length(), (token) -> {
                             // NLP 自动分词
                             return Paragraph.SpanStyles.obtain(token)
-                                .tag(new WordTag(
+                                .setTag(new WordTag(
                                     "chapter_" + i,
                                     token.toString(),
                                     token.getCategory()
@@ -981,6 +984,40 @@ int position = texasView.getCurrentPosition();
 texasView.scrollToSegment(paragraph);
 ```
 
+### Segment 动画
+
+通过 `setSegmentAnimator()` 可以为 Segment 的插入 / 删除 / 位移设置动画。增量 `setSource()` 时内部会对新旧 Document 做 diff，新增和删除的 Segment 会触发对应的动画回调：
+
+```java
+final Object ADD = new Object();
+
+texasView.setSegmentAnimator(new TexasView.SegmentAnimator() {
+    @Override
+    protected Animator onCreateAddAnimator(Segment segment, View itemView) {
+        if (segment.getTag() != ADD) {
+            return null; // 返回 null 表示该 Segment 不播放动画
+        }
+        AnimatorSet set = new AnimatorSet();
+        set.play(ObjectAnimator.ofFloat(itemView, "alpha", 0, 1))
+                .with(ObjectAnimator.ofFloat(itemView, "translationY", -itemView.getHeight(), 0));
+        set.setDuration(500);
+        return set;
+    }
+
+    @Override
+    protected Animator onCreateRemoveAnimator(Segment segment, View view) {
+        return null;
+    }
+
+    @Override
+    protected Animator onCreateMoveAnimator(Segment segment, View view, int fromX, int fromY, int toX, int toY) {
+        return null;
+    }
+});
+```
+
+注意：通过 `setSource()` 增量更新只会触发 add / remove 动画（diff 配置为 `detectMoves=false`）。内部触发链路详见[《DefaultItemAnimator 动画触发逻辑》](arch/item-animator.md)，可运行 demo 工程中的 `ItemAnimatorDemoActivity` 查看效果。
+
 ### 其他功能
 
 #### 重绘
@@ -988,13 +1025,6 @@ texasView.scrollToSegment(paragraph);
 ```java
 // 重新绘制视图
 texasView.redraw();
-```
-
-#### 清理缓存
-
-```java
-// 清理 Texas 缓存
-Texas.clean();
 ```
 
 #### 生命周期管理
@@ -1083,7 +1113,7 @@ public class BookSource extends TexasView.DocumentSource {
         // 使用 stream API 为每个单词设置 Tag
         builder.stream(text, 0, text.length(), (token) -> {
             return Paragraph.SpanStyles.obtain(token)
-                    .tag(new SpanTag(
+                    .setTag(new SpanTag(
                         sentenceId,
                         token.getCharSequence()
                             .subSequence(token.getStart(), token.getEnd())
@@ -1115,12 +1145,7 @@ public class BookSource extends TexasView.DocumentSource {
 
 ```java
 // 初始化时加载
-BookSource source = new BookSource(
-    this, 
-    texasView, 
-    Paragraph.TYPESET_POLICY_CJK_MIX_OPTIMIZATION, 
-    "book.xml"
-);
+BookSource source = new BookSource(this, "book.xml");
 texasView.setSource(source);
 ```
 
@@ -1128,36 +1153,21 @@ texasView.setSource(source);
 
 在 Texas 内部，文本引擎处理的最小单元叫 Segment，一个个 Segment 由上而下排列组成了渲染内容。拿文章举例，我们可以设置文章 Title 为一个 Segment，顶部的插图为一个 Segment，正文由很多段落 Segment 组成。每个 Segment 都是占满文本引擎窗口 TexasView 的宽度进行显示。
 
-### Segment 接口
+### Segment 与间距
+
+`Segment` 是一个抽象类，业务通常不直接继承它，而是使用内置类型或继承 `ViewSegment`。Segment 之间的间距不在 Segment 上设置，而是通过 `TexasView.setSegmentDecoration()` 统一控制：
 
 ```java
-/**
- * 渲染的最小单元
- */
-public class Segment extends DefaultRecyclable {
-
-    /**
-     * @param segmentSpace segment 的垂直距离
-     * @return 距离上一个 segment 的距离
-     */
-    public float getTopMargin(float segmentSpace) {
-        return 0;
-    }
-
-    /**
-     * @param segmentSpace segment 的垂直距离
-     * @return 距离下一个 segment 的距离
-     */
-    public float getBottomMargin(float segmentSpace) {
-        return segmentSpace;
-    }
-}
+texasView.setSegmentDecoration((index, count, segment, document, outRect) -> {
+    // outRect 的 left/top/right/bottom 即该 Segment 四周的留白
+    outRect.set(20, index == 0 ? 0 : 16, 20, 0);
+});
 ```
 
 ### 内置 Segment 类型
 
-1. **Paragraph** - 用来显示文本，文本可以进行高亮、两边对齐等操作
-2. **Figure** - 用来显示插图，该 Segment 优化了图片显示，减少了因图片渲染导致的界面抖动
+1. **Paragraph** - 用来显示文本，文本可以进行高亮、两端对齐等操作
+2. **Figure** - 用来显示插图（由 `ext-image` 扩展模块提供，基于 Glide），优化了图片加载导致的界面抖动。通过 `new Figure(imageLoader.uri(url).size(width, height))` 构造
 3. **ViewSegment** - 用来显示用户自定义内容
 
 ### 自定义 ViewSegment
@@ -1171,17 +1181,21 @@ new ViewSegment(R.layout.test_header) {
     protected void onRender(View view) {
         // 在这里设置视图内容
     }
+};
+```
+
+需要更多配置（禁用复用、附加 tag、参与自由选中）时使用 `Args` 构造：
+
+```java
+new ViewSegment(new ViewSegment.Args(R.layout.test_header)
+        .disableReuse(true)
+        .tag(headerTag)) {
 
     @Override
-    public float getTopMargin(float segmentSpace) {
-        return 0;
+    protected void onRender(View view) {
+        // ...
     }
-
-    @Override
-    public float getBottomMargin(float segmentSpace) {
-        return 0;
-    }
-}
+};
 ```
 
 #### ViewSegment 支持自由选中
@@ -1292,14 +1306,14 @@ texasView.setSource(new TexasView.DocumentSource() {
             Paragraph chineseParagraph = Paragraph.Builder.newBuilder(option)
                 .tag("cn_" + i)
                 .stream(text.chinese, 0, text.chinese.length(), 
-                    token -> Paragraph.SpanStyles.obtain(token).tag(new WordTag(token.toString())))
+                    token -> Paragraph.SpanStyles.obtain(token).setTag(new WordTag(token.toString())))
                 .build();
             
             // 创建英文段落
             Paragraph englishParagraph = Paragraph.Builder.newBuilder(option)
                 .tag("en_" + i)
                 .stream(text.english, 0, text.english.length(),
-                    token -> Paragraph.SpanStyles.obtain(token).tag(new WordTag(token.toString())))
+                    token -> Paragraph.SpanStyles.obtain(token).setTag(new WordTag(token.toString())))
                 .build();
             
             // 创建双语对照的 ViewSegment
@@ -1337,7 +1351,7 @@ public class SpanTag {
 ```java
 // 推荐：自动分词，高效处理
 builder.stream(text, 0, text.length(), (token) -> {
-    return Paragraph.SpanStyles.obtain(token).tag(createTag(token));
+    return Paragraph.SpanStyles.obtain(token).setTag(createTag(token));
 });
 ```
 
@@ -1436,7 +1450,7 @@ Paragraph.SpanStyles span = Paragraph.SpanStyles.obtain(token);
 ```java
 // ✅ 始终使用中英文混合优化策略
 Paragraph.Builder.newBuilder(option)
-    .typesetPolicy(Paragraph.TYPESET_POLICY_CJK_MIX_OPTIMIZATION)
+    .addTypesetPolicy(Paragraph.TYPESET_POLICY_CJK_MIX_OPTIMIZATION)
     .text("中英文混排内容")
     .build();
 
@@ -1458,7 +1472,7 @@ Typeface roboto = Typeface.create("Roboto", Typeface.NORMAL);  // ❌
 builder.stream(text, 0, text.length(), (token) -> {
     // token 已经是完整的词语
     return Paragraph.SpanStyles.obtain(token)
-        .tag(new WordTag(token.toString()));
+        .setTag(new WordTag(token.toString()));
 });
 
 // ❌ 不推荐：手动逐字处理
@@ -1487,7 +1501,7 @@ texasView.setOnClickedListener(new OnClickedListenerAdapter() {
 ```java
 // ✅ 对于中文内容，建议启用标点挤压
 RenderOption option = texasView.createRendererOption();
-option.setPunctuationCompressionEnabled(true);
+option.setFullWithSymbolOptimizationEnable(true);
 texasView.refresh(option);
 
 // 适用场景：
@@ -1537,7 +1551,7 @@ public class OptimizedReaderActivity extends AppCompatActivity {
         RenderOption option = texasView.createRendererOption();
         
         // 中文优化
-        option.setPunctuationCompressionEnabled(true);  // 标点挤压
+        option.setFullWithSymbolOptimizationEnable(true);  // 标点挤压
         
         // 字体选择
         Typeface typeface = Typeface.createFromAsset(
@@ -1574,11 +1588,11 @@ public class OptimizedReaderActivity extends AppCompatActivity {
                     Paragraph paragraph = Paragraph.Builder.newBuilder(option)
                         .tag("para_" + i)
                         // 启用中英文混合优化
-                        .typesetPolicy(Paragraph.TYPESET_POLICY_CJK_MIX_OPTIMIZATION)
+                        .addTypesetPolicy(Paragraph.TYPESET_POLICY_CJK_MIX_OPTIMIZATION)
                         // 使用 stream API，自动 NLP 分词
                         .stream(text, 0, text.length(), (token) -> {
                             return Paragraph.SpanStyles.obtain(token)
-                                .tag(new WordTag(
+                                .setTag(new WordTag(
                                     i,  // 段落索引
                                     token.toString(),  // 完整词语
                                     token.getCategory()  // 词性
@@ -1647,10 +1661,10 @@ public class OptimizedReaderActivity extends AppCompatActivity {
                 
                 Paragraph newParagraph = Paragraph.Builder.newBuilder(option)
                     .tag("para_" + newIndex)
-                    .typesetPolicy(Paragraph.TYPESET_POLICY_CJK_MIX_OPTIMIZATION)
+                    .addTypesetPolicy(Paragraph.TYPESET_POLICY_CJK_MIX_OPTIMIZATION)
                     .stream(newText, 0, newText.length(), (token) -> {
                         return Paragraph.SpanStyles.obtain(token)
-                            .tag(new WordTag(newIndex, token.toString(), token.getCategory()));
+                            .setTag(new WordTag(newIndex, token.toString(), token.getCategory()));
                     })
                     .build();
                 
