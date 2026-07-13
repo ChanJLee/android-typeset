@@ -31,7 +31,7 @@ TextView 解决的是"把文字画出来"，Texas 解决的是"把文章排得�
 - **⚡ 高性能长文档渲染** — 增量更新 + 指令级缓存，滚动、重绘、高亮都不触发重新排版；解析与排版在工作线程完成
 - **🧩 图文混排** — 段落、图片、任意自定义 View 混合排列，自定义 View 内的文本也能参与全文选中
 - **🎬 Segment 动画** — 增量更新时为新增 / 删除的段落播放自定义动画（类似 RecyclerView ItemAnimator）
-- **🎨 Jetpack Compose 互操作** — 提供 `TexasView` / `ParagraphView` Composable，可在 Compose 中直接渲染文档；`ComposeViewSegment` 支持把 Compose 内容嵌入文档流（`ext-compose` 模块）
+- **🎨 Jetpack Compose 互操作** — 提供 `ComposeTexasView` / `ComposeParagraphView`，可在 Compose 中直接渲染文档与富文本段落；`ComposeViewSegment` 支持把 Compose 内容嵌入文档流（`ext-compose` 模块）
 - **📦 扩展生态** — Markdown 渲染（ext-markdown）、TeX 数学公式（ext-markdown-math）、图片加载（ext-image）、Compose 互操作（ext-compose）
 
 ## 快速开始
@@ -103,13 +103,12 @@ protected void onDestroy() {
 引入 `:ext-compose` 模块后，既可以在 Compose 里直接渲染文档，也可以把 Compose 内容嵌入 Texas 文档流：
 
 ```kotlin
-import me.chan.texas.ext.compose.TexasView
-import me.chan.texas.ext.compose.ParagraphView
-import me.chan.texas.ext.compose.ComposeViewSegment
-
 // 1. Compose 中使用 TexasView / ParagraphView
-TexasView(source = documentSource, modifier = Modifier.fillMaxSize())
-ParagraphView(text = "单段文本", modifier = Modifier.fillMaxWidth())
+ComposeTexasView(source = documentSource, modifier = Modifier.fillMaxSize())
+
+// ParagraphSource 提供完整富文本能力（样式、tag、hyperSpan）
+ComposeParagraphView(source = paragraphSource, modifier = Modifier.fillMaxWidth())
+ComposeParagraphView(text = "纯文本便捷重载", modifier = Modifier.fillMaxWidth())
 
 // 2. 文档流中内嵌可交互的 Compose 内容（与普通 Segment 一样参与排版、diff 和视图复用）
 Document.Builder()
