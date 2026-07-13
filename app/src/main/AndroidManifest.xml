@@ -35,6 +35,9 @@
             android:name="me.chan.texas.ItemAnimatorDemoActivity"
             android:exported="false" />
         <activity
+            android:name="me.chan.texas.ComposeDemoActivity"
+            android:exported="false" />
+        <activity
             android:name="me.chan.texas.MainActivity"
             android:exported="true">
             <intent-filter>

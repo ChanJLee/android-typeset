@@ -142,6 +142,11 @@ public class MainActivity extends AppCompatActivity {
 			Intent intent = new Intent(v.getContext(), ItemAnimatorDemoActivity.class);
 			startActivity(intent);
 		});
+
+		findViewById(me.chan.texas.debug.R.id.compose_demo).setOnClickListener(v -> {
+			Intent intent = new Intent(v.getContext(), ComposeDemoActivity.class);
+			startActivity(intent);
+		});
 	}
 
 	@Override
