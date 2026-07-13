@@ -16,9 +16,10 @@ TextView 解决的是"把文字画出来"，Texas 解决的是"把文章排得�
 | 中英文混排优化 | ❌ 英文字号、基线与中文不协调 | ✅ 自动调整英文字号与基线，视觉统一 |
 | 分词粒度 | 按字符 / 简单规则断行 | 内置 NLP 语义分词，"机器学习"不会被拆成"机器 / 学习" |
 | 词级交互 | 需要手工计算 offset 构造 `ClickableSpan`，难以维护 | 两级 Tag 系统，点击 / 高亮 / 选中直接拿到业务标识 |
-| 内容更新 | `setText()` 全量重新测量、排版 | 增量更新，只重排变化的段落，其余走缓存 |
+| 内容更新 | `setText()` 全量重新测量、排版 | 增量更新，内部对新旧内容做 diff，只重排变化的段落，其余走缓存 |
+| 内容动画 | ❌ 无 | Segment 级插入 / 删除动画（`setSegmentAnimator`） |
 | 长文档渲染 | 需嵌套 ScrollView，一次性排版整篇文章 | 按 Segment 组织，配合三层缓存（布局 / 测量 / 绘制指令），滚动性能提升 300%+ |
-| 图文混排 | `ImageSpan` 只适合内联小图 | `Figure`（防抖动图片）、`ViewSegment`（插入任意 View，可参与文本选中） |
+| 图文混排 | `ImageSpan` 只适合内联小图 | `Figure`（防抖动图片，ext-image 模块）、`ViewSegment`（插入任意 View，可参与文本选中） |
 
 一句话总结：**TextView 是通用文本控件，Texas 是专业排版引擎。** 内容越长、排版要求越高、交互越复杂，Texas 的优势越明显。
 
@@ -27,8 +28,10 @@ TextView 解决的是"把文字画出来"，Texas 解决的是"把文章排得�
 - **📐 TeX 排版算法** — Knuth-Plass 全局断行 + 两端对齐 + 断字，排版质量对标印刷出版物（[算法详解](doc/algorithm/tex-algorithm.md)）
 - **🇨🇳 中文排版优化** — 标点挤压、中英文混排基线 / 字号优化、NLP 语义分词（[设计文档](中文排版优化.pdf)）
 - **🏷️ 两级 Tag 系统** — 段落级 + 词级标识，轻松实现点词翻译、句子高亮、笔记标注、搜索定位
-- **⚡ 高性能长文档渲染** — 增量更新 + 指令级缓存，滚动、重绘、高亮都不触发重新排版
+- **⚡ 高性能长文档渲染** — 增量更新 + 指令级缓存，滚动、重绘、高亮都不触发重新排版；解析与排版在工作线程完成
 - **🧩 图文混排** — 段落、图片、任意自定义 View 混合排列，自定义 View 内的文本也能参与全文选中
+- **🎬 Segment 动画** — 增量更新时为新增 / 删除的段落播放自定义动画（类似 RecyclerView ItemAnimator）
+- **📦 扩展生态** — Markdown 渲染（ext-markdown）、TeX 数学公式（ext-markdown-math）、图片加载（ext-image）
 
 ## 快速开始
 
@@ -36,6 +39,8 @@ TextView 解决的是"把文字画出来"，Texas 解决的是"把文章排得�
 
 ```java
 Texas.init(this);
+// 可选：设置全局默认字体
+Texas.setDefaultTypeface(Typeface.createFromAsset(getAssets(), "your_font.ttf"));
 ```
 
 **2. 布局中添加 TexasView：**
@@ -66,7 +71,7 @@ texasView.setSource(new TexasView.DocumentSource() {
                 .tag("paragraph_001")
                 // stream API 自动做语义分词，token 是完整的词
                 .stream(text, 0, text.length(), (token) ->
-                        Paragraph.SpanStyles.obtain(token).tag(new WordTag(token.toString())));
+                        Paragraph.SpanStyles.obtain(token).setTag(new WordTag(token.toString())));
         return new Document.Builder().addSegment(builder.build()).build();
     }
 });
@@ -97,10 +102,13 @@ protected void onDestroy() {
 | 文档 | 内容 |
 |------|------|
 | [使用指南](doc/guide.md) | Tag 系统、动态更新、高级排版特性、API 详解、最佳实践、FAQ |
-| [API 约定](doc/api/api.md) | API 使用约定与稳定性说明 |
+| [API 约定与速查](doc/api/api.md) | API 使用约定、常用 API 索引 |
+| [架构设计](doc/arch/arch.md) | 数据流、数据模型、diff 更新、缓存机制 |
 | [TeX 断行算法](doc/algorithm/tex-algorithm.md) | Knuth-Plass 算法原理详解 |
-| [架构设计](doc/arch/arch.md) | 引擎整体架构 |
+| [Segment 动画机制](doc/arch/item-animator.md) | DefaultItemAnimator 触发链路与内部状态 |
 | [中文排版优化](中文排版优化.pdf) | 中文排版优化设计文档 |
+| [开发规范](doc/code/dev.md) | 编码规范与常用构建 / 测试命令 |
+| [配套工具](doc/tools/tools.md) | 性能分析、排版质量可视化 |
 
 ## 模块
 
