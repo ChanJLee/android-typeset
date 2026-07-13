@@ -1,5 +1,6 @@
 package me.chan.texas
 
+import android.graphics.Color as AndroidColor
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -23,17 +24,21 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import me.chan.texas.ext.compose.ComposeParagraphView
+import me.chan.texas.ext.compose.ComposeTexasView
 import me.chan.texas.ext.compose.ComposeViewSegment
-import me.chan.texas.ext.compose.ParagraphView
-import me.chan.texas.ext.compose.TexasView
+import me.chan.texas.renderer.TexasView
+import me.chan.texas.renderer.ui.text.ParagraphView
 import me.chan.texas.text.Document
+import me.chan.texas.text.DotUnderLine
 import me.chan.texas.text.Paragraph
-import me.chan.texas.renderer.TexasView as AndroidTexasView
+import me.chan.texas.text.RectGround
 
 /**
  * ext-compose 演示：
- * 1. Compose 中直接使用 TexasView / ParagraphView（AndroidView 包装）
- * 2. Texas 文档流中通过 ComposeViewSegment 内嵌可交互的 Compose 内容
+ * 1. Compose 中直接使用 ComposeTexasView / ComposeParagraphView
+ * 2. ComposeParagraphView 通过 ParagraphSource 渲染富文本
+ * 3. Texas 文档流中通过 ComposeViewSegment 内嵌可交互的 Compose 内容
  */
 class ComposeDemoActivity : ComponentActivity() {
 
@@ -41,28 +46,27 @@ class ComposeDemoActivity : ComponentActivity() {
 		super.onCreate(savedInstanceState)
 		setContent {
 			Column(Modifier.fillMaxSize()) {
-				// Compose 中使用 ParagraphView 渲染单段文本
+				// ComposeParagraphView + ParagraphSource：富文本段落
 				BasicText(
-					text = "↓ ParagraphView in Compose",
+					text = "↓ ComposeParagraphView（ParagraphSource 富文本）",
 					modifier = Modifier.padding(16.dp, 12.dp, 16.dp, 4.dp),
 					style = TextStyle(fontSize = 12.sp, color = Color.Gray),
 				)
-				ParagraphView(
-					text = "这是一个由 ParagraphView 渲染的段落：Texas 提供 TeX 级两端对齐、" +
-							"中文标点挤压和语义分词，viverra maecenas accumsan lacus vel facilisis.",
+				ComposeParagraphView(
+					source = remember { createParagraphSource() },
 					modifier = Modifier
 						.fillMaxWidth()
 						.padding(horizontal = 16.dp),
 				)
 
-				// Compose 中使用 TexasView 渲染整篇文档，文档流中混排 Compose 卡片
+				// ComposeTexasView：整篇文档，文档流中混排 Compose 卡片
 				BasicText(
-					text = "↓ TexasView in Compose（文档流中内嵌 Compose 卡片）",
+					text = "↓ ComposeTexasView（文档流中内嵌 Compose 卡片）",
 					modifier = Modifier.padding(16.dp, 16.dp, 16.dp, 4.dp),
 					style = TextStyle(fontSize = 12.sp, color = Color.Gray),
 				)
-				TexasView(
-					source = remember { createSource() },
+				ComposeTexasView(
+					source = remember { createDocumentSource() },
 					modifier = Modifier
 						.fillMaxWidth()
 						.weight(1f),
@@ -72,7 +76,27 @@ class ComposeDemoActivity : ComponentActivity() {
 		}
 	}
 
-	private fun createSource() = object : AndroidTexasView.DocumentSource() {
+	/** 富文本段落：分词后为每个词加红色点状下划线，整段带黄色背景标记词 */
+	private fun createParagraphSource() = object : ParagraphView.ParagraphSource() {
+		override fun onRead(option: TexasOption): Paragraph {
+			val text = "ParagraphSource 支持完整的富文本能力：语义分词、样式、tag 与点击交互，" +
+					"viverra maecenas accumsan lacus vel facilisis."
+			return Paragraph.Builder.newBuilder(option)
+				.stream(text, 0, text.length) { token ->
+					Paragraph.SpanStyles.obtain(token).apply {
+						setTag(token.toString())
+						if (token.toString().contains("富文本")) {
+							setBackground(RectGround(0x66FFEB3B))
+						} else {
+							setForeground(DotUnderLine(AndroidColor.RED))
+						}
+					}
+				}
+				.build()
+		}
+	}
+
+	private fun createDocumentSource() = object : TexasView.DocumentSource() {
 		override fun onRead(option: TexasOption, previousDocument: Document?): Document {
 			val builder = Document.Builder()
 			builder.addSegment(
